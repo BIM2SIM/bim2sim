@@ -13,6 +13,19 @@ def getIfcAttribute(ifcElement, attribute):
     except AttributeError:
         pass
 
+def getGUID(ifcElement):
+    '''Returns the global id of the IFC element'''
+    try:
+        return getattr(ifcElement, 'GlobalId')
+    except TypeError:
+        pass
+
+def getElementType(ifcElement):
+    '''Return the ifctype of the IFC element'''
+    try:
+        return ifcElement.wrapped_data.is_a()
+    except TypeError:
+        pass
 
 def checkIfcElementType(ifcElement, ifcType):
     '''Checks for matching IFC element types.'''
