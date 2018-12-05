@@ -179,7 +179,7 @@ class HVACSystem(object):
         labels = nx.get_node_attributes(self.hvac_graph, 'oid')
         nx.draw(self.hvac_graph, labels=labels, node_size=3, font_size=6,
                 with_labels=True)
-        plt.draw()
+        plt.draw() 
         plt.show()
 
 

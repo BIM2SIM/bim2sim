@@ -12,6 +12,29 @@ def getIfcAttribute(ifcElement, attribute):
         return getattr(ifcElement, attribute)
     except AttributeError:
         pass
+def get_Property_Sets(PropertySetName, element):
+    """
+    This function searches an elements PropertySets for the defined
+    PropertySetName. If the PropertySet is found the function will return a
+    dict with the properties and their values. If the PropertySet is not
+    found the function will return None
+
+    :param element: The element in which you want to search for the PropertySet
+    :param PropertySetName: Name of the PropertySet you are looking for
+    :return:
+    """
+    AllPropertySetsList = element.IsDefinedBy
+    # find the first PropertySet that matches PropertySetName, if there are
+    # multiple ones with the same name they will also have same content
+    PropertySet = next((item for item in AllPropertySetsList if
+         item.RelatingPropertyDefinition.Name == PropertySetName), None)
+    Properties = PropertySet.RelatingPropertyDefinition.HasProperties
+    if PropertySet is not None:
+        Propertydict = {}
+        for Property in Properties:
+            Propertydict[Property.Name] = Property.NominalValue.wrappedValue
+        #print(Propertydict)
+        return Propertydict
 
 def getGUID(ifcElement):
     '''Returns the global id of the IFC element'''
