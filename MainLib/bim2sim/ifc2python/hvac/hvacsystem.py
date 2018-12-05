@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from MainLib.bim2sim.ifc2python import ifc2python
 from MainLib.bim2sim.ifc2python.hvac.hvac_specific_functions import \
     create_object_from_ifc
+from MainLib.bim2sim.ifc2python.hvac.logic.pipestrand import PipeStrand
 
 # todo: get ifc file from top function bim2sim
 IfcFile = ifcopenshell.open(
@@ -22,7 +23,7 @@ class HVACSystem(object):
     def __init__(self):
         self.hvac_graph = None
         self.create_hvac_network()
-        #self.draw_hvac_network()
+        # self.draw_hvac_network()
         self.reduce_strangs()
 
     def create_hvac_network(self,
@@ -65,7 +66,7 @@ class HVACSystem(object):
 
                 y = np.cross(z, x)
                 DG.add_node(element,
-                            type=ifc2python.getElementType(element))
+                            type=ifc2python.getElementType(element), oid=element.id())
 
                 element_port_connections = element.HasPorts
                 ports = {}
@@ -90,69 +91,92 @@ class HVACSystem(object):
             for key3, value3 in value1.items():
                 for key2, value2 in parts.items():
                     for key4, value4 in value2.items():
-                        j = 0
-                        value3[0] = round(value3[0], j)
-                        value3[1] = round(value3[1], j)
-                        value3[2] = round(value3[2], j)
-                        value4[0] = round(value4[0], j)
-                        value4[1] = round(value4[1], j)
-                        value4[2] = round(value4[2], j)
+                        j = 1
                         if key3 == key4:
                             continue
-                        if value3[0] == value4[0] and value3[1] == value4[1] \
+                        if abs(value3[0] - value4[0]) <= j and abs(value3[1] - value4[1]) <= j \
                                 and \
-                                value3[2] == value4[2]:
+                                abs(value3[2] - value4[2]) <= j:
                             DG.add_edge(key1, key2)
                             break
 
 
         self.hvac_graph = DG
+        print(DG.number_of_nodes())
 
 
     def reduce_strangs(self):
+        """""
+          This function creates all strands. Each strand starts with an element that has 3 or more ports. Each strand
+          finishes with an element that has 3 or more ports or with an IFCAIRTERMINAL. For each strand a list with the 
+          elements of the strand is created. 
+          """""
+        #t = 1
+        #s = 0
+        #u = 0
         graph = self.hvac_graph
-        for node in graph.nodes:
-            ifctype = ifc2python.getElementType(node)
-            #todo solve problem with logic
-            boolean1 = len(node.HasPorts) >= 3
-            boolean2 = ifctype == 'IfcPipeFitting'
-            if len(node.HasPorts) >= 3 and ifctype == ('IfcPipeSegment'
-                                                            or
-                                                       'IfcPipeFitting'):
-                print(ifctype)
-                g = graph.neighbors(node)
-                #print("neuer Knoten")
-                for new_startingpoint in g:
-                    n = new_startingpoint
+        element_types = ['IFCPIPEFITTING', 'IFCPIPESEGMENT']
+        pipelist = []
+        for element_type in element_types:
+            elements = IfcFile.by_type(element_type)
+            for element in elements:
+                pipelist.append(element)
+
+        SG = graph.subgraph(pipelist)
+        graph1 = SG
+        FG = nx.compose(graph, SG)
+        for node in SG.nodes:
+            if len(node.HasPorts) >= 3:
+                neighbors_source_node = list(SG.neighbors(node))
+                # print("neuer Knoten")
+                for neighbor_source_node in neighbors_source_node:
+                    node_before = node
+                    # print("neuer Strang")
                     strangliste = []
-                    strangliste.append(node)
-                    strangliste.append(new_startingpoint)
-                    #print("neuer Strang")
-                    # h = DG.neighbors(new_startingpoint)
-                    # next_point = new_startingpoint
+                    # strangliste.append(node) # dont add node to strand its not
+                    # part of it
+
                     while True:
-                        h = graph.neighbors(n)
-                        for next_point in h:
-                            if next_point == n or next_point == node:
-                                continue
-                            else:
-                                if next_point not in strangliste:
-                                    strangliste.append(next_point)
-                                    # h = DG.neighbors(next_point)
-                                    n = next_point
-                                    # h = DG.neighbors(n)
-                                    if len(next_point.HasPorts) >= 3:
-                                        # print(strangliste)
-                                        break
-                                if next_point in strangliste:
-                                    continue
-                        #print(strangliste)
-                        break
+                        # strangliste.append(neighbor_source_node)
+                        neighbors_new_node = list(SG.neighbors(neighbor_source_node))
+                        if len(neighbors_new_node) == 2:
+                            strangliste.append(neighbor_source_node)
+                            neighbors_new_node.remove(node_before)
+                            node_before = neighbor_source_node
+                            neighbor_source_node = neighbors_new_node[0]
+                            # node_before = neighbor_source_node
+                        else:
+                            x = PipeStrand()
+                            x.calc_length(strangliste=strangliste)
+                            x.calc_median_diameter(strangliste=strangliste)
+                            #FG.add_node(t)
+                            #FG.add_edge(s, t)
+                            #FG.add_edge(t, u)
+                            #print(x)
+                            FG.add_node(x)
+                            # for j in strangliste:
+                                 #print(len(j.HasPorts))
+                                # if len(j.HasPorts) == 3:
+                                #     print(j)
+                            FG.remove_nodes_from(strangliste)
+                            FG.add_edge(node, x)
+                            FG.add_edge(x, neighbor_source_node)
+                            #t += 1
+                            break
+
+        print(FG.number_of_nodes())
+        print(FG.number_of_edges())
+        #print(t)
+        # print(FG.number_of_edges())
+        # a = FG.nodes()
+        # b = FG.edges()
+        # print(a)
+        # print(b)
 
         #todo add                 create_object_from_ifc(ifc_element=element)
 
     def draw_hvac_network(self):
-        labels = nx.get_node_attributes(self.hvac_graph,'type')
+        labels = nx.get_node_attributes(self.hvac_graph, 'oid')
         nx.draw(self.hvac_graph, labels=labels, node_size=3, font_size=6,
                 with_labels=True)
         plt.draw()
