@@ -1,5 +1,5 @@
-from MainLib.bim2sim.ifc2python.hvac.logic.hvac_object import HVACObject
-import MainLib.bim2sim.ifc2python.ifc2python as ifc2python
+from bim2sim.ifc2python.hvac.logic.hvac_object import HVACObject
+import bim2sim.ifc2python.ifc2python as ifc2python
 import ifcopenshell
 
 file = ifcopenshell.open('D:/01_GitHub/Bim2SimHiWi/Bim2Sim/03_Ifc2Python'

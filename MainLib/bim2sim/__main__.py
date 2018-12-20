@@ -1,2 +1,2 @@
-from __init__ import main
+from bim2sim.__init__ import main
 main()

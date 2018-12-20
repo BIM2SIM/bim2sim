@@ -1,4 +1,4 @@
-from MainLib.bim2sim.ifc2python.hvac.logic.flow_device \
+from bim2sim.ifc2python.hvac.logic.flow_device \
     import FlowDevice
 
 class PipeStrand(FlowDevice):

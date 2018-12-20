@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.DEBUG)
 import docopt
 
 import ifc2python
-from simulationbase import SimulationBase
+from bim2sim.simulationbase import SimulationBase
 
 VERSION = '0.1-dev'
 
@@ -55,7 +55,7 @@ def get_simulations(by_entrypoint=False):
 						sim[key] = cls
 
 	return sim
-	
+
 def ui():
 	'user interface'
 	logger = logging.getLogger(__name__)
@@ -96,7 +96,7 @@ def finish():
 def main():
 	# get input
 	ifc_path, sim_cls, run = ui()
-
+	print('test')
 	# read ifc
 	data = ifc2python.load_ifc(ifc_path)
 
@@ -113,9 +113,8 @@ def main():
 
 
 if __name__ == '__main__':
-
 	if len(sys.argv) <= 1:
-		sys.argv.append('C:\\')
+		sys.argv.append('D:\\')
 		sys.argv.append('-s')
 		sys.argv.append('energyPlus')
 		sys.argv.append('-r')

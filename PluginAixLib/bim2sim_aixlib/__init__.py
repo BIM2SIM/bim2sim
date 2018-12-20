@@ -3,6 +3,6 @@
 Holds logic to run a simulation based on prepared ifc data
 '''
 
-from .aixlib import EnergyPlus
+from .aixlib import AixLib
 
-contend = {'energyplus':EnergyPlus}
+contend = {'energyplus':AixLib}

@@ -8,8 +8,8 @@ from os.path import dirname
 import numpy as np
 import ifcopenshell
 import matplotlib.pyplot as plt
-from MainLib.bim2sim.ifc2python import ifc2python
-from MainLib.bim2sim.ifc2python.hvac.hvac_specific_functions import \
+from bim2sim.ifc2python import ifc2python
+from bim2sim.ifc2python.hvac.hvac_specific_functions import \
     create_object_from_ifc
 
 # todo: get ifc file from top function bim2sim
@@ -22,8 +22,8 @@ class HVACSystem(object):
     def __init__(self):
         self.hvac_graph = None
         self.create_hvac_network()
-        #self.draw_hvac_network()
-        self.reduce_strangs()
+        self.draw_hvac_network()
+        #self.reduce_strangs()
 
     def create_hvac_network(self,
                             element_types=None):
@@ -32,9 +32,6 @@ class HVACSystem(object):
         represented by a node. The nodes are connected by the geometrical
         positions of their ports.
         """
-
-
-
 
         if element_types is None:
             element_types = ['IfcSpaceHeater',
@@ -65,7 +62,7 @@ class HVACSystem(object):
 
                 y = np.cross(z, x)
                 DG.add_node(element,
-                            type=ifc2python.getElementType(element))
+                            type=ifc2python.getGUID(element))
 
                 element_port_connections = element.HasPorts
                 ports = {}
@@ -116,10 +113,8 @@ class HVACSystem(object):
             #todo solve problem with logic
             boolean1 = len(node.HasPorts) >= 3
             boolean2 = ifctype == 'IfcPipeFitting'
-            if len(node.HasPorts) >= 3 and ifctype == ('IfcPipeSegment'
-                                                            or
-                                                       'IfcPipeFitting'):
-                print(ifctype)
+            if (len(node.HasPorts) >= 3 and ifctype == 'IfcPipeSegment') or \
+                    (len(node.HasPorts) >= 3 and ifctype == 'IfcPipeFitting'):
                 g = graph.neighbors(node)
                 #print("neuer Knoten")
                 for new_startingpoint in g:
