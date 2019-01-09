@@ -1,6 +1,6 @@
 from bim2sim.ifc2python.hvac.logic.flow_device \
     import FlowDevice
-from MainLib.bim2sim.ifc2python import ifc2python
+from bim2sim.ifc2python import ifc2python
 class PipeStrand(FlowDevice):
 
     def __init__(self, parent=None):

@@ -8,10 +8,10 @@ from os.path import dirname
 import numpy as np
 import ifcopenshell
 import matplotlib.pyplot as plt
-from MainLib.bim2sim.ifc2python import ifc2python
-from MainLib.bim2sim.ifc2python.hvac.hvac_specific_functions import \
+from bim2sim.ifc2python import ifc2python
+from bim2sim.ifc2python.hvac.hvac_specific_functions import \
     create_object_from_ifc
-from MainLib.bim2sim.ifc2python.hvac.logic.pipestrand import PipeStrand
+from bim2sim.ifc2python.hvac.logic.pipestrand import PipeStrand
 
 # todo: get ifc file from top function bim2sim
 IfcFile = ifcopenshell.open(

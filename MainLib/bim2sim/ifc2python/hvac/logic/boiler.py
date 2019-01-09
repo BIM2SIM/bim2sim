@@ -1,4 +1,4 @@
-from MainLib.bim2sim.ifc2python.hvac.logic.energy_conversion_device \
+from bim2sim.ifc2python.hvac.logic.energy_conversion_device \
     import EnergyConversionDevice
 
 class Boiler(EnergyConversionDevice):

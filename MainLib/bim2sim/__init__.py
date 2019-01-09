@@ -21,8 +21,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 import docopt
 
-from MainLib.bim2sim.ifc2python import ifc2python
-from MainLib.bim2sim.simulationbase import SimulationBase
+from bim2sim.ifc2python import ifc2python
+from bim2sim.simulationbase import SimulationBase
 
 VERSION = '0.1-dev'
 
@@ -50,7 +50,7 @@ def get_simulations(by_entrypoint=False):
 					elif not hasattr(cls, '__bases__'):
 						logger.warning("bad class value for key '%s' in package '%s'", key, name)
 					elif not SimulationBase in cls.__bases__:
-						logger.warning("Found potential simulation '%s' in package '%s', but class '%s' does not inherit from %s", key, name, SimulationBase.__name__)
+						logger.warning("Found potential simulation '%s' in package '%s', but class '%s' does not inherit from %s", key, name, cls.__name__, SimulationBase.__name__)
 					else:
 						sim[key] = cls
 

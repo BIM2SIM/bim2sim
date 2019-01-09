@@ -1,4 +1,4 @@
-﻿from abc import ABCMeta, abstractmethod
+from abc import ABCMeta, abstractmethod
 import logging
 
 class SimulationBase():
