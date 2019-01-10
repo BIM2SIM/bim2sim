@@ -1,16 +1,4 @@
-﻿"""BIM2SIM main module.
-
-Usage:
-    bim2sim PATH [-s <target> | --sim=<target>] [-r]
-    bim2sim (-h | --help)
-    bim2sim --version
-    
-Options:
-    -h --help  Show this screen.
-    --version  Show version.
-    -s <target> --sim=<target>  Simulation to convert to.
-    -r  Run simulatioin
-"""
+﻿"""BIM2SIM library"""
 
 import os
 import sys
@@ -19,16 +7,14 @@ import pkgutil
 import logging
 
 import pkg_resources
-import docopt
 
 from bim2sim.ifc2python import ifc2python
 from bim2sim.simulationbase import SimulationBase
 
-logging.basicConfig(level=logging.DEBUG)
 VERSION = '0.1-dev'
 
 def get_simulations(by_entrypoint=False):
-    'load all possible plugins'
+    """load all possible plugins"""
     logger = logging.getLogger(__name__)
 
     if by_entrypoint:
@@ -57,49 +43,47 @@ def get_simulations(by_entrypoint=False):
                             key, name, cls.__name__, SimulationBase.__name__)
                     else:
                         sim[key] = cls
+                        logger.debug("Found plugin '%s'", name)
 
     return sim
 
-def ui():
-    'user interface'
-    logger = logging.getLogger(__name__)
-    args = docopt.docopt(__doc__, version=VERSION)
 
-    # Path
-    path = args.get('PATH')
-
-    # Simulation
-    cls = None
-    sim_type = args.get('--sim', 'error')
-    if sim_type == 'error':
-        logger.error("'--sim' not in args")
-        exit()
-    elif sim_type is None:
-        logger.info('General file checking. No conversion to simulation.')
-    else:
-        plugins = get_simulations()
-        p = plugins.get(sim_type)
-        if p is None:
-            logger.warning("Simulation '%s' not found in plugins:", sim_type)
-            lst = ['Available plugins:'] + (list(plugins.keys()) or ['None'])
-            logger.info('\n - '.join(lst))
-            exit()
-        else:
-            cls = p
-
-    # Run flag
-    run = args.get('-r')
-
-    return path, cls, run
 
 def finish():
     """cleanup method"""
     logger = logging.getLogger(__name__)
     logger.info('finished')
 
-def main():
-    # get input
-    ifc_path, sim_cls, run = ui()
+def logging_setup():
+    """Setup for logging module"""
+
+    formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    root_logger = logging.getLogger()
+    root_logger.addHandler(handler)
+    root_logger.setLevel(logging.DEBUG)
+
+    # silence matplotlib
+    matlog = logging.getLogger('matplotlib')
+    matlog.level = logging.INFO
+
+    logging.debug("Logging setup done.")
+
+
+def main(ifc_path, backend=None, run=False):
+    """Main entry point"""
+
+    assert ifc_path, "No ifc_path passed"
+    assert backend, "No backend passed"
+
+    plugins = get_simulations()
+    sim_cls = plugins.get(backend)
+    if sim_cls is None:
+        msg = "Simulation '%s' not found in plugins. Available plugins:\n - "%(backend)
+        msg += '\n - '.join(list(plugins.keys()) or ['None'])
+        raise AttributeError(msg)
+
     print('test')
     # read ifc
     data = ifc2python.load_ifc(ifc_path)
@@ -113,18 +97,15 @@ def main():
         sim.run()
 
     finish()
-    return
 
+
+def _debug_run():
+    logging_setup()
+    path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
+    rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_Spaceheaters.ifc'
+    path_ifc = os.path.normcase(os.path.join(path_base, rel_example))
+
+    main(path_ifc, "aixlib")
 
 if __name__ == '__main__':
-    if len(sys.argv) <= 1:
-        path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
-        rel_example = os.path.normcase('ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_Spaceheaters.ifc')
-        path_ifc = os.path.join(path_base, rel_example)
-        
-        sys.argv.append(path_ifc)
-        sys.argv.append('-s')
-        sys.argv.append('aixlib')
-        sys.argv.append('-r')
-
-    main()
+    _debug_run()
