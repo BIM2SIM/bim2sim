@@ -1,5 +1,7 @@
-from bim2sim.ifc2python import ifc2python
+﻿
 import importlib
+
+from bim2sim.ifc2python import ifc2python
 
 def create_object_from_ifc(ifc_element):
     """

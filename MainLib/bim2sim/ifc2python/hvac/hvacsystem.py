@@ -1,13 +1,14 @@
-""" This module holds a HVACSystem object which is represented by a graph
+﻿""" This module holds a HVACSystem object which is represented by a graph
 network
 where each node represents a hvac-component
 """
-import networkx as nx
 from os.path import dirname
 
+import networkx as nx
 import numpy as np
 import ifcopenshell
 import matplotlib.pyplot as plt
+
 from bim2sim.ifc2python import ifc2python
 from bim2sim.ifc2python.hvac.hvac_specific_functions import \
     create_object_from_ifc
