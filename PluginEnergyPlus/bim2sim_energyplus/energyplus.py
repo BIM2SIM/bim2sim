@@ -5,7 +5,7 @@ import bim2sim
 class EnergyPlus(bim2sim.SimulationBase):
 
     def __init__(self):
-        super().__init__()
+        super().__init__(__name__)
         
         # do stuff
         return

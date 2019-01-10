@@ -12,6 +12,7 @@ Options:
     -r  Run simulatioin
 """
 
+import os
 import sys
 import importlib
 import pkgutil
@@ -39,9 +40,9 @@ def get_simulations(by_entrypoint=False):
         for finder, name, ispkg in pkgutil.iter_modules():
             if name.startswith('bim2sim_'):
                 module = importlib.import_module(name)
-                contend = getattr(module, 'contend', None)
+                contend = getattr(module, 'CONTEND', None)
                 if not contend:
-                    logger.warning("Found potential plugin '%s', but contend is missing", name)
+                    logger.warning("Found potential plugin '%s', but CONTEND is missing", name)
                     continue
 
                 for key, cls in contend.items():
@@ -117,9 +118,13 @@ def main():
 
 if __name__ == '__main__':
     if len(sys.argv) <= 1:
-        sys.argv.append('D:\\')
+        path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
+        rel_example = os.path.normcase('ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_Spaceheaters.ifc')
+        path_ifc = os.path.join(path_base, rel_example)
+        
+        sys.argv.append(path_ifc)
         sys.argv.append('-s')
-        sys.argv.append('energyPlus')
+        sys.argv.append('aixlib')
         sys.argv.append('-r')
 
     main()
