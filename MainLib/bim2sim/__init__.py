@@ -21,8 +21,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 import docopt
 
-from MainLib.bim2sim.ifc2python import ifc2python
-from MainLib.bim2sim.simulationbase import SimulationBase
+from bim2sim.ifc2python import ifc2python
+from bim2sim.simulationbase import SimulationBase
 
 VERSION = '0.1-dev'
 
