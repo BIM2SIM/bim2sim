@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from bim2sim.ifc2python import ifc2python
 
+
 class HVACSystem(object):
     def __init__(self, model):
         self.logger = logging.getLogger(__name__)
