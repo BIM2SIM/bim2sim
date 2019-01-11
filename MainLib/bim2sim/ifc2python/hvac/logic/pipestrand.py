@@ -1,12 +1,13 @@
 from bim2sim.ifc2python.hvac.logic.flow_device \
     import FlowDevice
-from MainLib.bim2sim.ifc2python import ifc2python
+from bim2sim.ifc2python import ifc2python
 class PipeStrand(FlowDevice):
 
     def __init__(self, parent=None):
         super(PipeStrand, self).__init__(parent)
         self.diameter = None
         self.length = None
+
     def calc_length(self, strangliste):
         length = 0
         a = 0
@@ -31,5 +32,6 @@ class PipeStrand(FlowDevice):
                 b = Abmessungen['Außendurchmesser']
                 diameter += (a/c) * b
         self.diameter = diameter
+
 
 
