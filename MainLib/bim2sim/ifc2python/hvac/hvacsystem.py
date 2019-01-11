@@ -20,8 +20,7 @@ class HVACSystem(object):
         self.hvac_graph = self.reduce_strangs()
         self.draw_hvac_network()
 
-    def create_hvac_network(self,
-                            element_types=None):
+    def create_hvac_network(self, element_types=None):
         """
         This function defines the hvac as graph network, each element is
         represented by a node. The nodes are connected by the geometrical
