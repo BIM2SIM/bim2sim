@@ -5,5 +5,5 @@ Holds logic for target simulation independent file parsing, checking, and data e
 
 
 def load_ifc(path:str):
-	'dummy function'
-	return
+    'dummy function'
+    return

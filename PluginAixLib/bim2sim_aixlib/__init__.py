@@ -5,4 +5,4 @@ Holds logic to run a simulation based on prepared ifc data
 
 from .aixlib import AixLib
 
-contend = {'energyplus':AixLib}
+CONTEND = {'aixlib':AixLib}

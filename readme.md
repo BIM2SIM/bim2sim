@@ -5,6 +5,10 @@ Die grundlegende Struktur des Projekts ist hier dargestellt:
 
 #### Entwicklung
 Zur Entwicklung sollten die Hauptbibliothek bim2sim sowie alle Plugins über den PYTHONPATH gefunden werden können.
+Außerdem sollten folgende Konventionen beachtet werden:
+* Als Einzug vier Leerzeichen verwenden
+* Dateien als utf-8 formatieren
+* vor Commit Code mit PyLint prüfen und Warnungen auf ein Minimum reduzieren.
 
 ## MainLib
 In diesem Ordner befindet sich die eigentliche bim2sim Bibliothek. Sie enthält allgemeine Methoden und Funktionen zum Einlesen, Verarbeiten und Aufbereiten von .ifc Dateien.

@@ -2,18 +2,20 @@
 import logging
 
 class SimulationBase():
-	'Base class for Simulation'
-	__metaclass__ = ABCMeta
+    """Base class for Simulation"""
+    __metaclass__ = ABCMeta
 
-	def __init__(self):
-		self.logger = logging.getLogger('bim2sim.plugin.' + self.__class__.__name__)
-		return
+    def __init__(self, name):
+        self.name = name
+        self.logger = logging.getLogger('bim2sim.plugin.' + self.name)
+        self.logger.info("Initializing backend for %s", self.name)
+        return
 
-	@abstractmethod
-	def prepare(self, model):
-		pass
+    @abstractmethod
+    def prepare(self, model):
+        pass
 
 
-	@abstractmethod
-	def run(self):
-		pass
+    @abstractmethod
+    def run(self):
+        pass

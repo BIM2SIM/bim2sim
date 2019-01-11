@@ -1,27 +1,19 @@
-""" This module holds a HVACSystem object which is represented by a graph
+﻿""" This module holds a HVACSystem object which is represented by a graph
 network
 where each node represents a hvac-component
 """
-
-import networkx as nx
 from os.path import dirname
-import os
+import networkx as nx
+import logging
 import numpy as np
-import ifcopenshell
+
 import matplotlib.pyplot as plt
 from bim2sim.ifc2python import ifc2python
-from bim2sim.ifc2python.hvac.hvac_specific_functions import \
-    create_object_from_ifc
-from bim2sim.ifc2python.hvac.logic.pipestrand import PipeStrand
-
-# todo: get ifc file from top function bim2sim
-IfcFile = ifcopenshell.open(
-    dirname(dirname(dirname(dirname(dirname((__file__)))))) +
-    '/ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc')
-
 
 class HVACSystem(object):
-    def __init__(self):
+    def __init__(self, model):
+        self.logger = logging.getLogger(__name__)
+        self.ifc = model
         self.hvac_graph = None
         self.create_hvac_network()
         self.hvac_graph = self.reduce_strangs()
@@ -34,6 +26,7 @@ class HVACSystem(object):
         represented by a node. The nodes are connected by the geometrical
         positions of their ports.
         """
+        self.logger.info("Creating HVAC network")
 
         if element_types is None:
             element_types = ['IfcSpaceHeater',
@@ -47,7 +40,7 @@ class HVACSystem(object):
         # all absolute coordinates of the ports are calculated and saved
         # in the parts dict
         for element_type in element_types:
-            elements = IfcFile.by_type(element_type)
+            elements = self.ifc.by_type(element_type)
             for element in elements:
                 try:
                     a = element.ObjectPlacement.RelativePlacement
@@ -109,17 +102,18 @@ class HVACSystem(object):
                                 DG.add_edge(element1, element2)
                                 DG.add_edge(element2, element1)
         self.hvac_graph = DG
+        self.logger.debug("Number of nodes: %d", DG.number_of_nodes())
 
     def reduce_strangs(self):
         """""
-          This function creates all strands. Each strand starts with an element that has 3 or more ports. Each strand
-          finishes with an element that has 3 or more ports or with an IFCAIRTERMINAL. For each strand a list with the 
-          elements of the strand is created. 
+          This function creates all strands. Each strand starts with an 
+          element that has 3 or more ports. Each strandfinishes with an 
+          element that has 3 or more ports or with an IFCAIRTERMINAL. For 
+          each strand a list with the elements of the strand is created. 
           """""
         G = self.hvac_graph
         reducablle_elements = ['IfcPipeSegment', 'IfcPipeFitting']
         nx.set_node_attributes(G, [], 'contracted_nodes')
-
         reduced_nodes = 0
         for node in G.nodes():
             nodes_nb = list(set(nx.all_neighbors(G, node)) - set(
@@ -132,14 +126,12 @@ class HVACSystem(object):
                     if len(nodes_nb_nb) <= 2 and ifc2python.getElementType(
                             node_nb) in \
                             reducablle_elements:
-                        G.node[node_nb]['contracted_nodes'] = G.node[node_nb][
-                                                                  'contracted_nodes'] \
-                                                              + [node]
-                        G = nx.contracted_nodes(G, node_nb,
-                                                node)  # merge node into
+                        G.node[node_nb]['contracted_nodes'] = \
+                            G.node[node_nb]['contracted_nodes'] + [node]
+                        G = nx.contracted_nodes(G, node_nb,node)
                         reduced_nodes += 1
                         break
-        print('reduced nodes:' + str(reduced_nodes))
+        self.logger.debug("Number of nodes: %d", reduced_nodes)
         return G
 
         # todo: add create_object_from_ifc(ifc_element=element)
@@ -159,4 +151,10 @@ class HVACSystem(object):
 
 
 if __name__ == '__main__':
-    test = HVACSystem()
+    import ifcopenshell
+    IfcFile = ifcopenshell.open(
+        dirname(dirname(dirname(dirname(dirname((__file__)))))) +
+        '/ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements'
+        '.ifc')
+    test = HVACSystem(IfcFile)
+

@@ -1,5 +1,7 @@
-from bim2sim.ifc2python import ifc2python
+﻿
 import importlib
+
+from bim2sim.ifc2python import ifc2python
 
 def create_object_from_ifc(ifc_element):
     """
@@ -9,16 +11,16 @@ def create_object_from_ifc(ifc_element):
     """
     ifc_type = ifc2python.getElementType(ifc_element)
     class_dict = {
-        "IfcBoiler": ['MainLib.bim2sim.ifc2python.hvac.logic.boiler',
+        "IfcBoiler": ['bim2sim.ifc2python.hvac.logic.boiler',
                       'Boiler'],
         "IfcSpaceHeater": [
-            'MainLib.bim2sim.ifc2python.hvac.logic.spaceheater',
+            'bim2sim.ifc2python.hvac.logic.spaceheater',
             'SpaceHeater'],
         "IfcTank": [
-            'MainLib.bim2sim.ifc2python.hvac.logic.storage_device',
+            'bim2sim.ifc2python.hvac.logic.storage_device',
             'StorageDevice'],
         "PipeStrand": [
-            'MainLib.bim2sim.ifc2python.hvac.logic.pipestrand',
+            'bim2sim.ifc2python.hvac.logic.pipestrand',
             'PipeStrand']
     }
     module = importlib.import_module(

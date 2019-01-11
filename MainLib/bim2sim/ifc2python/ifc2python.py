@@ -1,8 +1,19 @@
-'''Module for loading ifc files
+﻿'''Module for loading ifc files
 
 Holds logic for target simulation independent file parsing, checking, and data enrichment
 '''
+import os
+import logging
+
 import ifcopenshell
+
+def load_ifc(path):
+    logger = logging.getLogger('bim2sim')
+    logger.info("Loading IFC '%s'", path)
+    if not os.path.exists(path):
+        raise IOError("Path '%s' does not exist"%(path))
+    ifc_file = ifcopenshell.open(path)
+    return ifc_file
 
 # various functions to get additional information on building elements ...
 #
