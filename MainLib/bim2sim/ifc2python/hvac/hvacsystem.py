@@ -3,12 +3,13 @@ network
 where each node represents a hvac-component
 """
 from os.path import dirname
-import networkx as nx
 import logging
+import networkx as nx
 import numpy as np
-
 import matplotlib.pyplot as plt
 from bim2sim.ifc2python import ifc2python
+from bim2sim.ifc2python.hvac.hvac_specific_functions import create_object_from_ifc
+from bim2sim.ifc2python.hvac.hvac_specific_functions import connect_elements_by_coordinates
 
 
 class HVACSystem(object):
@@ -35,7 +36,7 @@ class HVACSystem(object):
                              'IfcTank',
                              'IfcBoiler',
                              'IfcUnitaryEquipment']
-        DG = nx.DiGraph()
+        graph = nx.DiGraph()
         parts = {}
         # all absolute coordinates of the ports are calculated and saved
         # in the parts dict
@@ -56,9 +57,8 @@ class HVACSystem(object):
                     x = np.array([1, 0, 0])
                     z = np.array([0, 0, 1])
                 y = np.cross(z, x)
-                DG.add_node(element,
-                            type=ifc2python.getElementType(element),
-                            oid=element.id())
+                graph.add_node(element, type=ifc2python.getElementType(
+                    element), oid=element.id())
                 element_port_connections = element.HasPorts
                 ports = {}
                 for element_port_connection in element_port_connections:
@@ -77,62 +77,41 @@ class HVACSystem(object):
                         'flow_direction'] =  \
                         element_port_connection.RelatingPort.FlowDirection
                     parts[element] = ports
-        threshold = 1
-        for element1, ports1 in parts.items():
-            for port1 in ports1.values():
-                for element2, ports2 in parts.items():
-                    for port2 in ports2.values():
-                        if element1 == element2:
-                            continue
-                        if abs(port1['coordinate'][0] - port2['coordinate'][
-                            0]) <= threshold and abs(port1['coordinate'][1] -
-                                                     port2['coordinate'][1]) \
-                                <= threshold and abs(port1['coordinate'][2] -
-                                                     port2['coordinate'][2]) \
-                                <= threshold:
-                            if port1['flow_direction'] == 'SOURCE' and  \
-                                    port2['flow_direction'] == 'SINK':
-                                DG.add_edge(element1, element2)
-                            elif port1['flow_direction'] == 'SINK' and  \
-                                    port2['flow_direction'] == 'SOURCE':
-                                DG.add_edge(element2, element1)
-                            elif port1['flow_direction'] == 'SOURCEANDSINK' or \
-                                    port2[
-                                        'flow_direction'] == 'SOURCEANDSINK':
-                                DG.add_edge(element1, element2)
-                                DG.add_edge(element2, element1)
-        self.hvac_graph = DG
-        self.logger.debug("Number of nodes: %d", DG.number_of_nodes())
+        graph = connect_elements_by_coordinates(graph=graph, parts=parts,
+                                                threshold=1)
+        self.hvac_graph = graph
+        self.logger.debug("Number of nodes: %d", graph.number_of_nodes())
 
     def reduce_strangs(self):
-        """""
-          This function creates all strands. Each strand starts with an 
-          element that has 3 or more ports. Each strandfinishes with an 
-          element that has 3 or more ports or with an IFCAIRTERMINAL. For 
-          each strand a list with the elements of the strand is created. 
-          """""
-        G = self.hvac_graph
-        reducablle_elements = ['IfcPipeSegment', 'IfcPipeFitting']
-        nx.set_node_attributes(G, [], 'contracted_nodes')
+        """
+        This function creates all strands. Each strand starts with an
+        element that has 3 or more ports. Each strandfinishes with an
+        element that has 3 or more ports or with an IFCAIRTERMINAL. For
+        each strand a list with the elements of the strand is created.
+        """
+        graph = self.hvac_graph
+        reducible_elements = ['IfcPipeSegment', 'IfcPipeFitting']
+        nx.set_node_attributes(graph, [], 'contracted_nodes')
         reduced_nodes = 0
-        for node in G.nodes():
-            nodes_nb = list(set(nx.all_neighbors(G, node)) - set(
-                G.node[node]['contracted_nodes']) - {node})
+        for node in graph.nodes():
+            nodes_nb = list(set(nx.all_neighbors(graph, node)) - set(
+                graph.node[node]['contracted_nodes']) - {node})
             if len(nodes_nb) == 2 and ifc2python.getElementType(node) in \
-                    reducablle_elements:
+                    reducible_elements:
                 for node_nb in nodes_nb:
-                    nodes_nb_nb = list(set(nx.all_neighbors(G, node_nb)) - set(
-                        G.node[node_nb]['contracted_nodes']) - {node_nb})
+                    nodes_nb_nb = list(set(nx.all_neighbors(graph, node_nb)) -
+                        set(graph.node[node_nb]['contracted_nodes']) -
+                        {node_nb})
                     if len(nodes_nb_nb) <= 2 and ifc2python.getElementType(
                             node_nb) in \
-                            reducablle_elements:
-                        G.node[node_nb]['contracted_nodes'] = \
-                            G.node[node_nb]['contracted_nodes'] + [node]
-                        G = nx.contracted_nodes(G, node_nb,node)
+                            reducible_elements:
+                        graph.node[node_nb]['contracted_nodes'] = \
+                            graph.node[node_nb]['contracted_nodes'] + [node]
+                        graph = nx.contracted_nodes(graph, node_nb, node)
                         reduced_nodes += 1
                         break
         self.logger.debug("Number of nodes: %d", reduced_nodes)
-        return G
+        return graph
 
         # todo: add create_object_from_ifc(ifc_element=element)
 
@@ -156,5 +135,5 @@ if __name__ == '__main__':
         dirname(dirname(dirname(dirname(dirname((__file__)))))) +
         '/ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements'
         '.ifc')
-    test = HVACSystem(IfcFile)
+    Test = HVACSystem(IfcFile)
 

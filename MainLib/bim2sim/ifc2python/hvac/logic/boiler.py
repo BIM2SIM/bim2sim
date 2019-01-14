@@ -1,6 +1,7 @@
 from bim2sim.ifc2python.hvac.logic.energy_conversion_device \
     import EnergyConversionDevice
 
+
 class Boiler(EnergyConversionDevice):
     """HVACObject class.
 
@@ -37,6 +38,7 @@ class Boiler(EnergyConversionDevice):
         self.min_power = None
         self.rated_power = None
         self.efficiency = None
+
 
 if __name__ == '__main__':
     from os.path import dirname

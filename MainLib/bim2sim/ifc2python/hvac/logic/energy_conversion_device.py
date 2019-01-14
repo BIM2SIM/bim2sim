@@ -12,6 +12,7 @@ class EnergyConversionDevice(HVACObject):
         super(EnergyConversionDevice,self).__init__(parent)
         print(ifc2python.getIfcAttribute(element, 'connectedFrom'))
 
+
 if __name__ == '__main__':
     test = EnergyConversionDevice()
     print(test)
