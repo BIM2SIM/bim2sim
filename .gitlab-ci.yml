@@ -1,0 +1,23 @@
+stages:
+- analysis
+
+#sonarqube:
+#  stage: analysis
+#  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab-sonar-scanner:latest
+#  variables:
+#    SONAR_URL: http://137.226.248.164:9000
+#    SONAR_ANALYSIS_MODE: issues
+#  script:
+#  - gitlab-sonar-scanner
+
+sonarqube-reports:
+  stage: analysis
+  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab-sonar-scanner:latest
+  variables:
+    SONAR_URL: http://137.226.248.164:9000
+    SONAR_ANALYSIS_MODE: preview
+    SONAR_PROJECT_KEY: Bim2Sim
+    SONAR_PROJECT_ID: git@git.rwth-aachen.de:Bim2Sim/bim2sim-coding.git
+  script:
+  - gitlab-sonar-scanner
+  # -Dsonar.host.url=$SONAR_URL -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.sources=. -Dsonar.exclusions=node_modules/**,coverage/** -Dsonar.gitlab.commit_sha=$CI_COMMIT_SHA  -Dsonar.gitlab.ref_name=$CI_COMMIT_REF_NAME -Dsonar.gitlab.project_id=$SONAR_PROJECT_ID
