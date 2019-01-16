@@ -1,8 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from bim2sim.ifc2python.hvac.logic.pipestrand import PipeStrand
-
 # create demo graph
 G = nx.DiGraph()
 G.add_edge('a', 15)
@@ -26,9 +24,9 @@ G.add_edge(9, 10)
 G.add_edge(10, 11)
 G.add_edge(9, 13)
 G.add_edge(13, 'a')
-G.add_edge(12,25)
-G.add_edge(15,25)
-G.add_edge(25,1)
+G.add_edge(12, 25)
+G.add_edge(15, 25)
+G.add_edge(25, 1)
 
 
 nx.set_node_attributes(G, [], 'contracted_nodes')
@@ -40,13 +38,11 @@ for node in G.nodes():
             nodes_nb_nb = list(set(nx.all_neighbors(G, node_nb)) - set(
                 G.node[node_nb]['contracted_nodes']) - {node_nb})
             if len(nodes_nb_nb) <= 2:  # add if is connection_element
-                G.node[node_nb]['contracted_nodes'] = G.node[node_nb][
-                                                          'contracted_nodes'] \
-                                                      + [node]
+                G.node[node_nb]['contracted_nodes'] = \
+                    G.node[node_nb]['contracted_nodes'] + [node]
                 print(G.node[node]['contracted_nodes'])
                 G = nx.contracted_nodes(G, node_nb, node)  # merge node into
                 break
-
 
 nx.draw(G, with_labels=True)
 plt.draw()

@@ -1,11 +1,11 @@
-﻿'''Module for loading ifc files
+﻿"""Module for loading ifc files
 
 Holds logic for target simulation independent file parsing, checking, and data enrichment
-'''
+"""
 import os
 import logging
-
 import ifcopenshell
+
 
 def load_ifc(path):
     logger = logging.getLogger('bim2sim')
@@ -15,14 +15,17 @@ def load_ifc(path):
     ifc_file = ifcopenshell.open(path)
     return ifc_file
 
-# various functions to get additional information on building elements ...
-#
+
 def getIfcAttribute(ifcElement, attribute):
-    '''Fetches non-empty attributes (if they exist).'''
+    """
+    Fetches non-empty attributes (if they exist).
+    """
     try:
         return getattr(ifcElement, attribute)
     except AttributeError:
         pass
+    
+    
 def get_Property_Sets(PropertySetName, element):
     """
     This function searches an elements PropertySets for the defined
@@ -35,40 +38,44 @@ def get_Property_Sets(PropertySetName, element):
     :return:
     """
     AllPropertySetsList = element.IsDefinedBy
-    # find the first PropertySet that matches PropertySetName, if there are
-    # multiple ones with the same name they will also have same content
-    PropertySet = next((item for item in AllPropertySetsList if
+    property_set = next((item for item in AllPropertySetsList if
          item.RelatingPropertyDefinition.Name == PropertySetName), None)
-    Properties = PropertySet.RelatingPropertyDefinition.HasProperties
-    if PropertySet is not None:
-        Propertydict = {}
-        for Property in Properties:
-            Propertydict[Property.Name] = Property.NominalValue.wrappedValue
-        #print(Propertydict)
-        return Propertydict
+    properties = property_set.RelatingPropertyDefinition.HasProperties
+    if property_set is not None:
+        propertydict = {}
+        for Property in properties:
+            propertydict[Property.Name] = Property.NominalValue.wrappedValue
+        return propertydict
+    else:
+        return None
+
 
 def getGUID(ifcElement):
-    '''Returns the global id of the IFC element'''
+    """
+    Returns the global id of the IFC element
+    """
     try:
         return getattr(ifcElement, 'GlobalId')
     except TypeError:
         pass
 
+
 def getElementType(ifcElement):
-    '''Return the ifctype of the IFC element'''
+    """Return the ifctype of the IFC element"""
     try:
         return ifcElement.wrapped_data.is_a()
     except TypeError:
         pass
 
+
 def checkIfcElementType(ifcElement, ifcType):
-    '''Checks for matching IFC element types.'''
+    """Checks for matching IFC element types."""
     if getIfcAttribute(ifcElement, 'is_a'):
         return ifcElement.is_a() == ifcType
 
 
 def getHierarchicalParent(ifcElement):
-    '''Fetch the first structural parent element.'''
+    """Fetch the first structural parent element."""
     parent = getIfcAttribute(ifcElement, 'Decomposes')
     if parent:
         return parent[0].RelatingObject
@@ -79,7 +86,7 @@ def getHierarchicalParent(ifcElement):
 
 
 def getHierarchicalChildren(ifcElement):
-    '''Fetch the child elements from the first structural aggregation.'''
+    """Fetch the child elements from the first structural aggregation."""
     children = getIfcAttribute(ifcElement, 'IsDecomposedBy')
     if children:
         return children[0].RelatedObjects
@@ -91,21 +98,21 @@ def getHierarchicalChildren(ifcElement):
 
 
 def getSpatialParent(ifcElement):
-    '''Fetch the first spatial parent element.'''
+    """Fetch the first spatial parent element."""
     parent = getIfcAttribute(ifcElement, 'ContainedInStructure')
     if parent:
         return parent[0].RelatingStructure
 
 
 def getSpatialChildren(ifcElement):
-    '''Fetch the child elements from the first spatial structure.'''
+    """Fetch the child elements from the first spatial structure."""
     children = getIfcAttribute(ifcElement, 'ContainsElements')
     if children:
         return children[0].RelatedElements
 
 
 def getSpace(ifcElement):
-    '''Find the space for this element.'''
+    """Find the space for this element."""
     if ifcElement:
         # direct spatial child elements in space
         parent = getSpatialParent(ifcElement)
@@ -121,7 +128,7 @@ def getSpace(ifcElement):
 
 
 def getStorey(ifcElement):
-    '''Find the building storey for this element.'''
+    """Find the building storey for this element."""
     if ifcElement:
         # direct spatial child elements in space or storey
         parent = getSpatialParent(ifcElement)
@@ -139,7 +146,7 @@ def getStorey(ifcElement):
 
 
 def getBuilding(ifcElement):
-    '''Find the building for this element.'''
+    """Find the building for this element."""
     if ifcElement:
         # direct spatial child elements outside of storey
         parent = getSpatialParent(ifcElement)
@@ -161,7 +168,7 @@ def getBuilding(ifcElement):
 
 
 def getSite(ifcElement):
-    '''Find the building site for this element.'''
+    """Find the building site for this element."""
     if ifcElement:
         # direct spatial child elements outside of building
         parent = getSpatialParent(ifcElement)
@@ -183,7 +190,7 @@ def getSite(ifcElement):
 
 
 def getProject(ifcElement):
-    '''Find the project/root for this element.'''
+    """Find the project/root for this element."""
     if ifcElement:
         # the project might be the hierarchical parent of the site ...
         site = getSite(ifcElement)
@@ -200,7 +207,7 @@ def getProject(ifcElement):
 
 
 def convertToSI(ifcUnit, value):
-    '''Return the value in basic SI units, conversion according to ifcUnit.'''
+    """Return the value in basic SI units, conversion according to ifcUnit."""
     # IfcSIPrefix values
     ifcSIPrefix = {
                     'EXA': 1e18,
