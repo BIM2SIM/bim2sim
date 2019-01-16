@@ -27,9 +27,9 @@ def create_object_from_ifc(ifc_element):
     module = importlib.import_module(
         class_dict[ifc_type][0])
     class_ = getattr(module, class_dict[ifc_type][1])
-    object = class_()
-    object.IfcGUID = ifc2python.getGUID(ifc_element)
-    return object
+    instance = class_()
+    instance.IfcGUID = ifc2python.getGUID(ifc_element)
+    return instance
 
 
 def connect_elements_by_coordinates(graph, parts, threshold):
@@ -57,12 +57,12 @@ def connect_elements_by_coordinates(graph, parts, threshold):
                 for port2 in ports2.values():
                     if element1 == element2:
                         continue
-                    if abs(port1['coordinate'][0] -
-                           port2['coordinate'][0]) <= threshold and \
-                            abs(port1['coordinate'][1] -
-                                port2['coordinate'][1]) <= threshold and \
-                            abs(port1['coordinate'][2] -
-                                port2['coordinate'][2]) <= threshold:
+
+                    distance = list((abs(coord1 - coord2)
+                                     for (coord1, coord2)
+                                     in zip(port1['coordinate'],
+                                            port2['coordinate'])))
+                    if all(diff <= threshold for diff in distance):
                         if port1['flow_direction'] == 'SOURCE' and \
                                 port2['flow_direction'] == 'SINK':
                             graph.add_edge(element1, element2)
@@ -73,4 +73,6 @@ def connect_elements_by_coordinates(graph, parts, threshold):
                                 port2['flow_direction'] == 'SOURCEANDSINK':
                             graph.add_edge(element1, element2)
                             graph.add_edge(element2, element1)
+                        else:
+                            continue
     return graph
