@@ -8,8 +8,10 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 from bim2sim.ifc2python import ifc2python
-from bim2sim.ifc2python.hvac.hvac_specific_functions import create_object_from_ifc
-from bim2sim.ifc2python.hvac.hvac_specific_functions import connect_elements_by_coordinates
+from bim2sim.ifc2python.hvac.hvac_specific_functions import\
+    create_object_from_ifc
+from bim2sim.ifc2python.hvac.hvac_specific_functions import\
+    connect_elements_by_coordinates
 
 
 class HVACSystem(object):
@@ -19,11 +21,11 @@ class HVACSystem(object):
         self.hvac_graph = None
         self.create_hvac_network()
         self.hvac_graph = self.reduce_strangs()
-        self.draw_hvac_network()
+        self.draw_hvac_network(label='oid')
 
     def create_hvac_network(self, element_types=None):
         """
-        This function defines the hvac as graph network, each element is
+        This function defines the hvac system as graph network. Each element is
         represented by a node. The nodes are connected by the geometrical
         positions of their ports.
         """
@@ -38,38 +40,50 @@ class HVACSystem(object):
                              'IfcUnitaryEquipment']
         graph = nx.DiGraph()
         parts = {}
-        # all absolute coordinates of the ports are calculated and saved
-        # in the parts dict
         for element_type in element_types:
             elements = self.ifc.by_type(element_type)
             for element in elements:
                 try:
-                    a = element.ObjectPlacement.RelativePlacement
-                    x1 = a.RefDirection.DirectionRatios[0]
-                    x2 = a.RefDirection.DirectionRatios[1]
-                    x3 = a.RefDirection.DirectionRatios[2]
-                    x = np.array([x1, x2, x3])
-                    z1 = a.Axis.DirectionRatios[0]
-                    z2 = a.Axis.DirectionRatios[1]
-                    z3 = a.Axis.DirectionRatios[2]
-                    z = np.array([z1, z2, z3])
-                except:
-                    x = np.array([1, 0, 0])
-                    z = np.array([0, 0, 1])
-                y = np.cross(z, x)
+                    relative_placement = \
+                        element.ObjectPlacement.RelativePlacement
+                    x_direction = np.array([
+                        relative_placement.RefDirection.DirectionRatios[0],
+                        relative_placement.RefDirection.DirectionRatios[1],
+                        relative_placement.RefDirection.DirectionRatios[2]])
+                    z_direction = np.array([
+                        relative_placement.Axis.DirectionRatios[0],
+                        relative_placement.Axis.DirectionRatios[1],
+                        relative_placement.Axis.DirectionRatios[2]])
+                except AttributeError as ae:
+                    self.logger.info(str(ae) +
+                                     ' - DirectionRatios not existing, assuming'
+                                     ' [1, 1, 1] as direction of element ',
+                                     element)
+                    x_direction = np.array([1, 0, 0])
+                    z_direction = np.array([0, 0, 1])
+                y_direction = np.cross(z_direction, x_direction)
                 graph.add_node(element, type=ifc2python.getElementType(
                     element), oid=element.id())
                 element_port_connections = element.HasPorts
                 ports = {}
                 for element_port_connection in element_port_connections:
-                    b = element.ObjectPlacement.RelativePlacement.Location \
-                        .Coordinates
-                    c = element_port_connection.RelatingPort.ObjectPlacement \
-                        .RelativePlacement.Location.Coordinates
+                    element_coordinates = \
+                        tuple(map(sum, zip(element.ObjectPlacement.
+                                           RelativePlacement.Location
+                                           .Coordinates,
+                                           element.ObjectPlacement.
+                                           PlacementRelTo.RelativePlacement.
+                                           Location.Coordinates)))
+                    port_coordinates =\
+                        element_port_connection.RelatingPort.ObjectPlacement.\
+                        RelativePlacement.Location.Coordinates
                     coordinate = []
                     for i in range(0, 3):
                         coordinate.append(
-                            b[i] + x[i] * c[0] + y[i] * c[1] + z[i] * c[2])
+                            element_coordinates[i]
+                            + x_direction[i] * port_coordinates[0]
+                            + y_direction[i] * port_coordinates[1]
+                            + z_direction[i] * port_coordinates[2])
                     ports[element_port_connection.RelatingPort] = {}
                     ports[element_port_connection.RelatingPort]['coordinate'] \
                         = coordinate
@@ -78,7 +92,7 @@ class HVACSystem(object):
                         element_port_connection.RelatingPort.FlowDirection
                     parts[element] = ports
         graph = connect_elements_by_coordinates(graph=graph, parts=parts,
-                                                threshold=1)
+                                                threshold=0.5)
         self.hvac_graph = graph
         self.logger.debug("Number of nodes: %d", graph.number_of_nodes())
 
@@ -99,9 +113,9 @@ class HVACSystem(object):
             if len(nodes_nb) == 2 and ifc2python.getElementType(node) in \
                     reducible_elements:
                 for node_nb in nodes_nb:
-                    nodes_nb_nb = list(set(nx.all_neighbors(graph, node_nb)) -
-                        set(graph.node[node_nb]['contracted_nodes']) -
-                        {node_nb})
+                    nodes_nb_nb = list(set(nx.all_neighbors(graph, node_nb))
+                                       - set(graph.node[node_nb]
+                                             ['contracted_nodes']) - {node_nb})
                     if len(nodes_nb_nb) <= 2 and ifc2python.getElementType(
                             node_nb) in \
                             reducible_elements:
@@ -123,7 +137,7 @@ class HVACSystem(object):
         :return:
         """
         labels = nx.get_node_attributes(self.hvac_graph, label)
-        nx.draw(self.hvac_graph, labels=labels, node_size=3, font_size=6,
+        nx.draw(self.hvac_graph, labels=labels, node_size=3, font_size=10,
                 with_labels=True)
         plt.draw()
         plt.show()
@@ -133,7 +147,8 @@ if __name__ == '__main__':
     import ifcopenshell
     IfcFile = ifcopenshell.open(
         dirname(dirname(dirname(dirname(dirname((__file__)))))) +
-        '/ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements'
+        '/ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all'
+        '_elements_unitary_equipment'
         '.ifc')
     Test = HVACSystem(IfcFile)
 
