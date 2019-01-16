@@ -147,8 +147,7 @@ if __name__ == '__main__':
     import ifcopenshell
     IfcFile = ifcopenshell.open(
         dirname(dirname(dirname(dirname(dirname((__file__)))))) +
-        '/ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all'
-        '_elements_unitary_equipment'
+        '/ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements'
         '.ifc')
     Test = HVACSystem(IfcFile)
 
