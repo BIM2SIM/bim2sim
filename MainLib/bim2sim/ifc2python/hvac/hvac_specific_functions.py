@@ -2,33 +2,49 @@
 import importlib
 
 from bim2sim.ifc2python import ifc2python
+from bim2sim.ifc2python.hvac.logic.hvac_objects import Boiler, SpaceHeater, \
+    StorageDevice, Pipe, Valve, GenericDevice
+import networkx as nx
+from bim2sim.ifc2python.hvac.logic.energy_conversion_device \
+    import EnergyConversionDevice
 
 
-def create_object_from_ifc(ifc_element):
+def all_neighbors(graph, node):
+    neighbors = list(
+        set(nx.all_neighbors(graph, node)) -
+        set(graph.node[node]['contracted_nodes']) - {node}
+    )
+    return neighbors
+
+
+def create_generic_objects(graph, node):
     """
     Creating an hvac_object by the corresponding ifc_element
-    :param ifc_element:
+    :param node:
     :return: object of class corresponding to the ifc_element
     """
-    ifc_type = ifc2python.getElementType(ifc_element)
-    class_dict = {
-        "IfcBoiler": ['bim2sim.ifc2python.hvac.logic.boiler',
-                      'Boiler'],
-        "IfcSpaceHeater": [
-            'bim2sim.ifc2python.hvac.logic.spaceheater',
-            'SpaceHeater'],
-        "IfcTank": [
-            'bim2sim.ifc2python.hvac.logic.storage_device',
-            'StorageDevice'],
-        "PipeStrand": [
-            'bim2sim.ifc2python.hvac.logic.pipestrand',
-            'PipeStrand']
-    }
-    module = importlib.import_module(
-        class_dict[ifc_type][0])
-    class_ = getattr(module, class_dict[ifc_type][1])
-    instance = class_()
-    instance.IfcGUID = ifc2python.getGUID(ifc_element)
+
+    object_type = ifc2python.getElementType(node)
+    if object_type == "IfcBoiler":
+        instance = Boiler()
+        instance.IfcGUID = ifc2python.getGUID(node)
+    elif object_type == "IfcTank":
+        instance = StorageDevice()
+    elif object_type == "IfcSpaceHeater":
+        instance = SpaceHeater()
+    elif object_type in ("IfcPipeFitting", "IfcPipeSegment"):
+        if len(all_neighbors(graph, node)) > 2:
+            instance = Valve()
+        else:
+            instance = Pipe()
+    elif object_type == "IfcUnitaryEquipment":
+        instance = EnergyConversionDevice()
+    else:
+        instance = GenericDevice
+
+    instance.IfcGUID = [ifc2python.getGUID(node)] + list(map(ifc2python.getGUID,
+                                                        graph.node[node][
+                                                            'contracted_nodes']))
     return instance
 
 
@@ -76,3 +92,7 @@ def connect_elements_by_coordinates(graph, parts, threshold):
                         else:
                             continue
     return graph
+
+
+def connect_generic_objects():
+    pass

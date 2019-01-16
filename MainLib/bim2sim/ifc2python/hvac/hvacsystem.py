@@ -9,9 +9,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from bim2sim.ifc2python import ifc2python
 from bim2sim.ifc2python.hvac.hvac_specific_functions import\
-    create_object_from_ifc
-from bim2sim.ifc2python.hvac.hvac_specific_functions import\
-    connect_elements_by_coordinates
+    create_generic_objects, connect_elements_by_coordinates, all_neighbors,\
+    connect_generic_objects
 
 
 class HVACSystem(object):
@@ -20,7 +19,7 @@ class HVACSystem(object):
         self.ifc = model
         self.hvac_graph = None
         self.create_hvac_network()
-        self.hvac_graph = self.reduce_strangs()
+        self.tranfser_to_generel_description(graph=self.hvac_graph)
         self.draw_hvac_network(label='oid')
 
     def create_hvac_network(self, element_types=None):
@@ -93,17 +92,16 @@ class HVACSystem(object):
                     parts[element] = ports
         graph = connect_elements_by_coordinates(graph=graph, parts=parts,
                                                 threshold=0.5)
-        self.hvac_graph = graph
+        self.hvac_graph = self.contract_network(graph)
         self.logger.debug("Number of nodes: %d", graph.number_of_nodes())
 
-    def reduce_strangs(self):
+    def contract_network(self, graph):
         """
         This function creates all strands. Each strand starts with an
         element that has 3 or more ports. Each strandfinishes with an
         element that has 3 or more ports or with an IFCAIRTERMINAL. For
         each strand a list with the elements of the strand is created.
         """
-        graph = self.hvac_graph
         reducible_elements = ['IfcPipeSegment', 'IfcPipeFitting']
         nx.set_node_attributes(graph, [], 'contracted_nodes')
         reduced_nodes = 0
@@ -113,9 +111,7 @@ class HVACSystem(object):
             if len(nodes_nb) == 2 and ifc2python.getElementType(node) in \
                     reducible_elements:
                 for node_nb in nodes_nb:
-                    nodes_nb_nb = list(set(nx.all_neighbors(graph, node_nb))
-                                       - set(graph.node[node_nb]
-                                             ['contracted_nodes']) - {node_nb})
+                    nodes_nb_nb = all_neighbors(graph, node)
                     if len(nodes_nb_nb) <= 2 and ifc2python.getElementType(
                             node_nb) in \
                             reducible_elements:
@@ -125,9 +121,15 @@ class HVACSystem(object):
                         reduced_nodes += 1
                         break
         self.logger.debug("Number of nodes: %d", reduced_nodes)
+
         return graph
 
-        # todo: add create_object_from_ifc(ifc_element=element)
+    def tranfser_to_generel_description(self, graph):
+        for node in graph.nodes():
+            create_generic_objects(graph, node)
+        for edge in graph.edges():
+            connect_generic_objects()
+        pass
 
     def draw_hvac_network(self, label='oid'):
         """
