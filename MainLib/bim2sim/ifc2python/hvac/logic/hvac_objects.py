@@ -1,9 +1,59 @@
-from bim2sim.ifc2python.hvac.logic.energy_conversion_device \
-    import EnergyConversionDevice
-from bim2sim.ifc2python.hvac.logic.flow_device \
-    import FlowDevice
+"""Module contains the different classes for all HVAC elements"""
+
 from bim2sim.ifc2python import ifc2python
-from bim2sim.ifc2python.hvac.logic.hvac_object import HVACObject
+
+
+class HVACObject(object):
+    """HVACObject class.
+
+    This is the base class for all HVAC elements.
+
+    Parameters
+    ----------
+
+
+    parent: HVACSystem()
+        The parent class of this object, the HVACSystem the HVACObject
+        belongs to.
+        Default is None.
+
+
+    Attributes
+    ----------
+
+    IfcGUID: list of strings
+        A list with the GUID of the corresponding IFC elements, in general
+        only one element, for pipeStrand mostly more than one.
+    """
+    def __init__(self, graph, IfcGUID, ifcfile, parent=None):
+        """Constructor for HVACObject"""
+
+        self.parent = parent
+        self.ifcfile = ifcfile
+        self.IfcGUID = IfcGUID
+        self.graph = graph
+        self.flow_ports_in = []
+        self.flow_ports_out = []
+        self.heat_ports = []
+        self.zone = None
+
+    def get_port_connections(self, graph, node):
+        for next_node in list(graph.successors(node)):
+            self.flow_ports_out.append(graph.node[next_node][
+                                           'belonging_object'])
+        for previous_node in list(graph.predecessors(node)):
+            self.flow_ports_out.append(graph.node[previous_node][
+                                           'belonging_object'])
+
+class FlowDevice(HVACObject):
+    def __init__(self, graph, IfcGUID, ifcfile, parent=None):
+        super(FlowDevice, self).__init__(graph, IfcGUID, ifcfile, parent)
+
+
+class EnergyConversionDevice(HVACObject):
+    def __init__(self, graph, IfcGUID, ifcfile, parent=None):
+        super(EnergyConversionDevice,self).__init__(graph, IfcGUID, ifcfile,
+                                                    parent)
 
 
 class Boiler(EnergyConversionDevice):
@@ -35,8 +85,8 @@ class Boiler(EnergyConversionDevice):
             percentage_of_rated_power,efficiency]
         """
 
-    def __init__(self, parent=None):
-        super(Boiler, self).__init__(parent)
+    def __init__(self, graph, IfcGUID, ifcfile, parent=None):
+        super(Boiler, self).__init__(graph, IfcGUID, ifcfile, parent)
         self.corresponding_ifc_element = 'IfcBoiler'
         self.water_volume = 0.008
         self.min_power = None
@@ -45,20 +95,31 @@ class Boiler(EnergyConversionDevice):
 
 
 class Pipe(FlowDevice):
-    def __init__(self, parent=None):
-        super(Pipe, self).__init__(parent)
-        self.diameter = None
-        self.length = None
+    def __init__(self, graph, IfcGUID, ifcfile, parent=None):
+        super(Pipe, self).__init__(graph, IfcGUID, ifcfile, parent)
+        self.diameter = 0
+        self.length = 0
+        self.calc_attributes()
 
-    def calc_length(self, strangliste):
-        length = 0
-        a = 0
-        for g in strangliste:
-            if ifc2python.getElementType(ifcElement=g) == 'IfcPipeSegment':
-                Abmessungen = ifc2python.get_Property_Sets('Abmessungen', element=g)
-                a = Abmessungen['Länge']
-                length += a
-        self.length = length
+    def calc_attributes(self):
+        """
+        Calculates the length and diameter of the pipe. If more than
+        one pipe was contracted the total length and the median diameter are
+        used.
+        """
+        diameter_times_length = 0
+        length_total = 0
+        for guid in self.IfcGUID:
+            element = ifc2python.getElementByGUID(ifcfile=self.ifcfile,
+                                                  guid=guid)
+            if ifc2python.getElementType(element) == 'IfcPipeSegment':
+                length = ifc2python.get_Property_Sets(
+                    'Abmessungen', element=element)['Länge']
+                diameter = ifc2python.get_Property_Sets(
+                    'Abmessungen', element=element)['Innendurchmesser']
+                diameter_times_length += length * diameter
+                length_total += length
+        self.diameter = diameter_times_length / length_total
 
     def calc_median_diameter(self, strangliste):
         diameter = 0
@@ -74,22 +135,52 @@ class Pipe(FlowDevice):
         self.diameter = diameter
 
 
+class PipeFitting(FlowDevice):
+    def __init__(self, graph, IfcGUID, ifcfile, parent=None):
+        super(PipeFitting, self).__init__(graph, IfcGUID, ifcfile, parent)
+        self.diameter = 0
+        self.radius = 0
+        self.length = 0
+        self.angle = 0
+        #self.calc_attributes()
+
+    def calc_attributes(self):
+        element = ifc2python.getElementByGUID(ifcfile=self.ifcfile,
+                                              guid=self.IfcGUID)
+        # todo doesn't work for "übergang" fix
+        self.diameter = \
+            ifc2python.get_Property_Sets(
+                'Abmessungen',
+                element=element)['Nenndurchmesser']
+        self.length = \
+            ifc2python.get_Property_Sets(
+                'Abmessungen',
+                element=element)['Muffenlänge']
+        self.radius = \
+            ifc2python.get_Property_Sets(
+                'Abmessungen',
+                element=element)['Bogenradius']
+        self.angle = \
+            ifc2python.get_Property_Sets(
+                'Abmessungen',
+                element=element)['Winkel']
+    pass
+
 class SpaceHeater(FlowDevice):
-    def __init__(self, parent=None):
-        super(SpaceHeater, self).__init__(parent)
+    def __init__(self, graph, IfcGUID, ifcfile, parent=None):
+        super(SpaceHeater, self).__init__(graph, IfcGUID, ifcfile, parent)
         self.length = None
         self.nominal_power = None
 
 
 class StorageDevice(HVACObject):
-    def __init__(self, parent=None):
-        super(StorageDevice, self).__init__(parent)
+    def __init__(self, graph, IfcGUID, ifcfile, parent=None):
+        super(StorageDevice, self).__init__(graph, IfcGUID, ifcfile, parent)
 
 
 class Valve(FlowDevice):
-
-    def __init__(self, parent=None):
-        super(Valve, self).__init__(parent)
+    def __init__(self, graph, IfcGUID, ifcfile, parent=None):
+        super(Valve, self).__init__(graph, IfcGUID, ifcfile, parent)
         self.diameter = None
         self.length = None
 
@@ -98,5 +189,5 @@ class GenericDevice(HVACObject):
     """
     dummy device
     """
-    def __init__(self, parent=None):
-        super(GenericDevice, self).__init__(parent)
+    def __init__(self, graph, IfcGUID, ifcfile, parent=None):
+        super(GenericDevice, self).__init__(graph, IfcGUID, ifcfile, parent)
