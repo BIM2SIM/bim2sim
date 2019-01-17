@@ -4,23 +4,24 @@ where each node represents a hvac-component
 """
 from os.path import dirname
 import logging
-import networkx as nx
 import numpy as np
+import networkx as nx
 import matplotlib.pyplot as plt
 from bim2sim.ifc2python import ifc2python
-from bim2sim.ifc2python.hvac.hvac_specific_functions import\
-    create_generic_objects, connect_elements_by_coordinates, all_neighbors,\
-    connect_generic_objects
-
+from bim2sim.ifc2python.hvac.logic.hvac_objects import Boiler, SpaceHeater, \
+    StorageDevice, Pipe, Valve, GenericDevice, EnergyConversionDevice, \
+    PipeFitting
 
 class HVACSystem(object):
     def __init__(self, model):
         self.logger = logging.getLogger(__name__)
+        self.hvac_objects = []
         self.ifc = model
         self.hvac_graph = None
         self.create_hvac_network()
-        self.tranfser_to_generel_description(graph=self.hvac_graph)
-        self.draw_hvac_network(label='oid')
+        self.transfer_to_generel_description(graph=self.hvac_graph)
+        self.draw_hvac_network(label='type')
+
 
     def create_hvac_network(self, element_types=None):
         """
@@ -90,29 +91,28 @@ class HVACSystem(object):
                         'flow_direction'] =  \
                         element_port_connection.RelatingPort.FlowDirection
                     parts[element] = ports
-        graph = connect_elements_by_coordinates(graph=graph, parts=parts,
-                                                threshold=0.5)
+        graph = self.connect_elements_by_coordinates(graph=graph, parts=parts,
+                                                threshold=1)
         self.hvac_graph = self.contract_network(graph)
+        # todo add logger msg how many nodes have been contracted
         self.logger.debug("Number of nodes: %d", graph.number_of_nodes())
 
     def contract_network(self, graph):
         """
-        This function creates all strands. Each strand starts with an
-        element that has 3 or more ports. Each strandfinishes with an
-        element that has 3 or more ports or with an IFCAIRTERMINAL. For
-        each strand a list with the elements of the strand is created.
+        This function reduces the network by searching for reducable elements.
+        As an example all successive pipes will be reduced into one pipe.
         """
         reducible_elements = ['IfcPipeSegment', 'IfcPipeFitting']
         nx.set_node_attributes(graph, [], 'contracted_nodes')
+        nx.set_node_attributes(graph, str, 'belonging_object')
         reduced_nodes = 0
         for node in graph.nodes():
-            nodes_nb = list(set(nx.all_neighbors(graph, node)) - set(
-                graph.node[node]['contracted_nodes']) - {node})
-            if len(nodes_nb) == 2 and ifc2python.getElementType(node) in \
+            node_nbs = self.all_neighbors(graph, node)
+            if len(node_nbs) == 2 and ifc2python.getElementType(node) in \
                     reducible_elements:
-                for node_nb in nodes_nb:
-                    nodes_nb_nb = all_neighbors(graph, node)
-                    if len(nodes_nb_nb) <= 2 and ifc2python.getElementType(
+                for node_nb in node_nbs:
+                    node_nb_nbs = self.all_neighbors(graph, node_nb)
+                    if len(node_nb_nbs) <= 2 and ifc2python.getElementType(
                             node_nb) in \
                             reducible_elements:
                         graph.node[node_nb]['contracted_nodes'] = \
@@ -121,15 +121,18 @@ class HVACSystem(object):
                         reduced_nodes += 1
                         break
         self.logger.debug("Number of nodes: %d", reduced_nodes)
-
         return graph
 
-    def tranfser_to_generel_description(self, graph):
+    def transfer_to_generel_description(self, graph):
         for node in graph.nodes():
-            create_generic_objects(graph, node)
-        for edge in graph.edges():
-            connect_generic_objects()
+            self.create_generic_objects(graph, node)
+        for node in graph.nodes():
+            self.connect_generic_objects(graph, node)
         pass
+
+    def connect_generic_objects(self, graph, node):
+        instance = graph.node[node]['belonging_object']
+        instance.get_port_connections(graph, node)
 
     def draw_hvac_network(self, label='oid'):
         """
@@ -144,6 +147,117 @@ class HVACSystem(object):
         plt.draw()
         plt.show()
 
+    def create_generic_objects(self, graph, node):
+        """
+        Creating an hvac_object by the corresponding ifc_element and add the
+        instance of the object to the networkx node.
+        :param node:
+        :return: object of class corresponding to the ifc_element
+        """
+
+        object_type = ifc2python.getElementType(node)
+        if object_type == "IfcBoiler":
+            instance = Boiler(graph=graph,
+                              IfcGUID=self.get_all_neighbor_GUIDS(graph=graph,
+                                                                  node=node),
+                              ifcfile=self.ifc)
+        elif object_type == "IfcTank":
+            instance = StorageDevice(graph=graph,
+                                     IfcGUID=self.get_all_neighbor_GUIDS(
+                                         graph=graph, node=node),
+                                     ifcfile=self.ifc)
+        elif object_type == "IfcSpaceHeater":
+            instance = SpaceHeater(graph=graph,
+                                   IfcGUID=self.get_all_neighbor_GUIDS(
+                                       graph=graph, node=node),
+                                   ifcfile=self.ifc)
+        elif object_type == "IfcPipeSegment":
+            instance = Pipe(graph=graph,
+                                   IfcGUID=self.get_all_neighbor_GUIDS(
+                                       graph=graph, node=node),
+                                   ifcfile=self.ifc)
+        elif object_type == "IfcPipeFitting":
+            if len(self.all_neighbors(graph, node)) > 2:
+                instance = Valve(graph=graph,
+                                   IfcGUID=self.get_all_neighbor_GUIDS(
+                                       graph=graph, node=node),
+                                   ifcfile=self.ifc)
+            else:
+                instance = PipeFitting(graph=graph,
+                                   IfcGUID=self.get_all_neighbor_GUIDS(
+                                       graph=graph, node=node),
+                                   ifcfile=self.ifc)
+        elif object_type == "IfcUnitaryEquipment":
+            instance = EnergyConversionDevice(graph=graph,
+                                   IfcGUID=self.get_all_neighbor_GUIDS(
+                                       graph=graph, node=node),
+                                   ifcfile=self.ifc)
+        else:
+            instance = GenericDevice(graph=graph,
+                                   IfcGUID=self.get_all_neighbor_GUIDS(
+                                       graph=graph, node=node),
+                                   ifcfile=self.ifc)
+        graph.node[node]['belonging_object'] = instance
+        self.hvac_objects.append(instance)
+        return instance
+
+    def all_neighbors(self, graph, node):
+        neighbors = list(
+            set(nx.all_neighbors(graph, node)) -
+            set(graph.node[node]['contracted_nodes']) - {node}
+        )
+        return neighbors
+
+    def get_all_neighbor_GUIDS(self, graph, node):
+        guids = [ifc2python.getGUID(node)] + list(map(ifc2python.getGUID,
+                                                      graph.node[node][
+                                                      'contracted_nodes']))
+        return guids
+
+    def connect_elements_by_coordinates(self, graph, parts, threshold):
+        """
+        Connects the ifc elements of the parts dict to each other by taking the
+        geometrical position of the ports into account. The threshold value
+        determines how far apart the ports may be from each other so that a
+        connection is still established.
+
+        Parameters
+        ----------
+
+
+        graph : Graph object from networkx
+            Graph that displays the hvac network
+        parts : dict
+            Dictionary holding all ifc elements of the hvac network
+        threshold : float
+            Value to specify how far apart the ports may be from each other so that
+            a connection is still established.
+        """
+        for element1, ports1 in parts.items():
+            for port1 in ports1.values():
+                for element2, ports2 in parts.items():
+                    for port2 in ports2.values():
+                        if element1 == element2:
+                            continue
+
+                        distance = list((abs(coord1 - coord2)
+                                         for (coord1, coord2)
+                                         in zip(port1['coordinate'],
+                                                port2['coordinate'])))
+                        if all(diff <= threshold for diff in distance):
+                            if port1['flow_direction'] == 'SOURCE' and \
+                                    port2['flow_direction'] == 'SINK':
+                                graph.add_edge(element1, element2)
+                            elif port1['flow_direction'] == 'SINK' and \
+                                    port2['flow_direction'] == 'SOURCE':
+                                graph.add_edge(element2, element1)
+                            elif port1['flow_direction'] == 'SOURCEANDSINK' or \
+                                    port2['flow_direction'] == 'SOURCEANDSINK':
+                                graph.add_edge(element1, element2)
+                                graph.add_edge(element2, element1)
+                            else:
+                                continue
+        return graph
 
 if __name__ == '__main__':
     import ifcopenshell

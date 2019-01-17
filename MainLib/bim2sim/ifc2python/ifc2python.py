@@ -15,6 +15,9 @@ def load_ifc(path):
     ifc_file = ifcopenshell.open(path)
     return ifc_file
 
+def getElementByGUID(ifcfile, guid):
+    element = ifcfile.by_guid(guid)
+    return element
 
 def getIfcAttribute(ifcElement, attribute):
     """
