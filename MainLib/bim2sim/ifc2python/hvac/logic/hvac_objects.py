@@ -121,19 +121,6 @@ class Pipe(FlowDevice):
                 length_total += length
         self.diameter = diameter_times_length / length_total
 
-    def calc_median_diameter(self, strangliste):
-        diameter = 0
-        c = self.length
-        for h in strangliste:
-            if ifc2python.getElementType(ifcElement=h) == 'IfcPipeSegment':
-                Abmessungen = ifc2python.get_Property_Sets('Abmessungen', element=h)
-                #Länge
-                length = Abmessungen['Länge']
-                #Außendurchmesser
-                outer_diameter = Abmessungen['Außendurchmesser']
-                diameter += (length/c) * outer_diameter
-        self.diameter = diameter
-
 
 class PipeFitting(FlowDevice):
     def __init__(self, graph, IfcGUID, ifcfile, parent=None):
