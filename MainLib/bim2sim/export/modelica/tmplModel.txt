@@ -1,0 +1,23 @@
+model ${model.name} "${model.comment}"
+  extends Modelica.Icons.Example;
+
+% for instance in model.instances:
+  ${inst(instance)}
+
+% endfor
+<%def name="inst(instance)", filter="trim">
+  ${instance.path} ${instance.name}(
+% for par, value in instance.params.items():
+    ${par} = ${value},
+% endfor
+    )
+    annotation(); 
+</%def>
+
+equation
+% for con1, con2 in model.connections.items():
+  connect(${con1}, ${con2}) annotation();
+% endfor
+
+  annotation (experiment(StopTime=36000));
+end ${model.name};

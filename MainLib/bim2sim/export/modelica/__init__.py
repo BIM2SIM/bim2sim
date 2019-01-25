@@ -1,4 +1,72 @@
-"""Package for Python representations of Modelica models"""
+﻿"""Package for Modelica export"""
+
+import os
+import logging
+
+from mako.template import Template
+
+TEMPLATEPATH = os.path.join(os.path.dirname(__file__), 'tmplModel.txt')
+# prevent mako newline bug by reading file seperatly
+with open(TEMPLATEPATH) as f:
+    templateStr = f.read()
+templ = Template(templateStr)
+
+def code(model):
+    """returns Modelica code"""
+    return templ.render(model=model)
+
+def write(model, path:str):
+    """Save model as Modelica file"""
+    _path = os.path.normpath(path)
+    if os.path.isdir(_path):
+        _path = os.path.join(_path, model.name)
+
+    if not path.endswith(".mo"):
+        _path += ".mo"
+
+    data = code(model)
+
+    logger = logging.getLogger(__name__)
+    logger.info("Saving '%s' to '%s'", model.name, _path)
+    with open(_path, "w") as file:
+        file.write(data)
+
+
+if __name__ == "__main__":
+    class Inst():
+        def __init__(self, path, name, params:dict):
+            self.path = path
+            self.name = name
+            self.params = params
+
+    class Model():
+        def __init__(self, name, comment, instances:list, connections:dict):
+            self.name = name
+            self.comment = comment
+            self.instances = instances
+            self.connections = connections
+
+    par = {
+        "redeclare package Medium" : "Modelica.Media.Water.ConstantPropertyLiquidWater",
+        "Q_flow_nominal" : 4e3,
+        "n" : 1.3,
+        "Type" : "HKESim.Heating.Consumers.Radiators.BaseClasses.ThermostaticRadiatorValves.Types.radiatorCalculationTypes.proportional",
+        "k" : 1.5
+    }
+
+    conns = {"radiator1.port_a": "radiator2.port_b"}
+
+    inst1 = Inst("Heating.Consumers.Radiators.Radiator", "radiator1", par)
+    inst2 = Inst("Heating.Consumers.Radiators.Radiator", "radiator2", par)
+
+    model = Model("System", "Test", [inst1, inst2], conns)
+
+    print(code(model))
+    write(model, r"C:\Entwicklung\temp")
+
+
+# -------------------------------------------------------------
+#"""Package for Python representations of Modelica models"""
 
 import os
 import logging

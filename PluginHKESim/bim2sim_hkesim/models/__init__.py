@@ -1,5 +1,6 @@
 ﻿"""Package for Python representations of HKESim models"""
 
+from bim2sim.export import modelica
 from bim2sim.export.modelica import Interface, Model, System
 
 class StaticPipe(Model):
@@ -16,7 +17,19 @@ class StaticPipe(Model):
 
         super().__init__(par, inter, **kwargs)
 
+class Boiler(Model):
+    model = "HKESim.Heating.Boilers.Boiler"
 
+    def __init__(self, Tset, dT_hyst, intervall, calcElectricity:bool=True, calcFuel:bool=True, **kwargs):
+        par = dict(
+            length=length,
+            diameter=diameter
+        )
+        self.port_a = Interface("port_a", self)
+        self.port_b = Interface("port_b", self)
+        inter = [self.port_a, self.port_b]
+
+        super().__init__(par, inter, **kwargs)
 
 if __name__ == "__main__":
     import logging

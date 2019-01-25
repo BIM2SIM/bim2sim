@@ -5,3 +5,4 @@ networkx
 numpy
 python-dateutil
 ifcopenshell>=0.6
+mako
