@@ -1,27 +1,62 @@
 ﻿
 import bim2sim
-from bim2sim.ifc2python.hvac import hvacsystem
 
-class HKESim(bim2sim.SimulationBase):
+from bim2sim.manage import BIM2SIMManager, log
+from bim2sim.ifc2python.element import Element
+from bim2sim.ifc2python.aggregation import PipeStrang
+from bim2sim.filter import ComponentFilter
+from bim2sim.tasks import LOD, PlantSimulation
+from bim2sim.export import modelica
 
-    def __init__(self):
-        super().__init__(__name__)
+from bim2sim_hkesim import models
+
+class HKESimManager(BIM2SIMManager):
+
+    def __init__(self, task, ifc):
+        super().__init__(task, ifc)
+
+        self.relevant_ifc_types = ['IfcSpaceHeater',
+            'IfcPipeFitting',
+            'IfcPipeSegment',
+            'IfcTank',
+            'IfcBoiler',
+            'IfcUnitaryEquipment']
+
+    @log("preparing")
+    def prepare(self):
         
-        self.hvac = None
-        return
+        #TODO: depending on task ...
+        self.filters.append(ComponentFilter(self.relevant_ifc_types))
 
-    def prepare(self, model):
+    @log("reducing model")
+    def reduce(self):
+        # not jet an usefull aggregation. just a showcase ...
+        pipes = []
+        normal = []
+        for m in self.raw_instances.values():
+            if m.ifc_type in ["IfcPipeFitting", "IfcPipeSegment"]:
+                pipes.append(m)
+            else:
+                normal.append(m)
+
+        agg_pipe = PipeStrang("Strang 1", pipes)
+
+        self.reduced_instances.append(agg_pipe)
+        self.reduced_instances.extend(normal)
+
+    @log("processing")
+    def process(self):
         
-        self.logger.info('preparing stuff')
+        self.instances.extend(self.reduced_instances)
 
-        self.hvac = hvacsystem.HVACSystem(model)
+    @log("exporting")
+    def export(self):
+        
+        for inst in self.instances:
+            self.export_instances.append(modelica.Instance.factory(inst))
 
-        return
+        modelica_model = modelica.Model(name="Test", comment="testing", instances=self.export_instances, connections={})
+        print(modelica_model.code())
 
-    def run(self):
 
-        self.logger.info('doing export stuff')
-
-        #self.hvac.draw_hvac_network()
-        return
 

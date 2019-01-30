@@ -8,9 +8,8 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 from bim2sim.ifc2python import ifc2python
-from bim2sim.ifc2python.hvac.logic.hvac_objects import Boiler, SpaceHeater, \
-    StorageDevice, Pipe, Valve, GenericDevice, EnergyConversionDevice, \
-    PipeFitting
+from bim2sim.ifc2python.hvac.hvac_objects import Boiler, SpaceHeater, \
+    StorageDevice, Pipe, Valve, PipeFitting #,GenericDevice, EnergyConversionDevice, \
 
 class HVACSystem(object):
     def __init__(self, model):

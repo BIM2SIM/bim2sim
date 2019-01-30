@@ -1,48 +1,22 @@
 ﻿"""Package for Python representations of HKESim models"""
 
 from bim2sim.export import modelica
-from bim2sim.export.modelica import Interface, Model, System
+from bim2sim.ifc2python import elements
+from bim2sim.ifc2python.aggregation import PipeStrang
 
-class StaticPipe(Model):
-    model = "Modelica.Fluid.Pipes.StaticPipe"
+from bim2sim.export.modelica import standardlibrary # impor necessary for model detection
 
-    def __init__(self, length, diameter, **kwargs):
-        par = dict(
-            length=length,
-            diameter=diameter
-        )
-        self.port_a = Interface("port_a", self)
-        self.port_b = Interface("port_b", self)
-        inter = [self.port_a, self.port_b]
+class HKESim(modelica.Instance):
+    library = "HKESim"
 
-        super().__init__(par, inter, **kwargs)
 
-class Boiler(Model):
-    model = "HKESim.Heating.Boilers.Boiler"
+class Boiler(HKESim):
+    path = "HKESim.Heating.Boilers.Boiler"
+    represents = elements.Boiler
 
-    def __init__(self, Tset, dT_hyst, intervall, calcElectricity:bool=True, calcFuel:bool=True, **kwargs):
-        par = dict(
-            length=length,
-            diameter=diameter
-        )
-        self.port_a = Interface("port_a", self)
-        self.port_b = Interface("port_b", self)
-        inter = [self.port_a, self.port_b]
-
-        super().__init__(par, inter, **kwargs)
-
-if __name__ == "__main__":
-    import logging
-    logging.basicConfig(level=logging.DEBUG)
-
-    p1 = StaticPipe(name="pipe1", comment="test pipe", length=10, diameter=0.4)
-    p2 = StaticPipe(name="pipe2", comment="test pipe", length=8, diameter=0.3)
-
-    s = System("Testbed", "test")
-
-    s.children.append(p1)
-    s.children.append(p2)
-
-    p1.port_a.connect(p2.port_b)
-    print(s)
-    s.save("C:\\Entwicklung\\temp")
+    @classmethod
+    def get_params(cls, ele):
+        params = {
+            "nominal_power" : ele.rated_power,
+            }
+        return params
