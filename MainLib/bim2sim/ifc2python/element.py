@@ -1,6 +1,7 @@
 ﻿"""Definition for basic representations of IFC elements"""
 
 import logging
+import numpy as np
 
 from bim2sim.ifc2python import ifc2python
 
@@ -9,10 +10,11 @@ from bim2sim.ifc2python import ifc2python
 class Port():
     """"""
 
-    def __init__(self, name, parent):
+    def __init__(self, name, parent, ifcport):
 
         self.name = name
         self.parent = parent
+        self.ifc_port = ifcport
 
         self.connections = []
 
@@ -20,6 +22,14 @@ class Port():
         """Connect this interface to another interface"""
         assert isinstance(other, self.__class__), "Can't connect interfaces of different classes."
         self.connections.append(other)
+
+    @property
+    def position(self):
+        """returns absolute position"""
+        raise NotImplementedError # TODO
+        rel = np.array(self.ifc_port.ObjectPlacement.RelativePlacement.Location.Coordinates)
+        rel_to = np.array(self.ifc_port.ObjectPlacement.PlacementRelTo.RelativePlacement.Location.Coordinates)
+        return
 
     def __repr__(self):
         return "<%s (%s)>"%(self.__class__.__name__, self.name)
@@ -38,6 +48,9 @@ class Element():
         self.name = ifc.Name
 
         self.ports = [] #TODO
+
+    def add_port(self, name: str, ifc_port):
+        self.ports.append(Port(name, self, ifc_port))
 
     @staticmethod
     def _init_factory():
@@ -88,6 +101,11 @@ class Element():
     def ifc_type(self):
         """Returns IFC type"""
         return self.__class__._ifc_type
+
+    @property
+    def position(self):
+        """returns absolute position"""
+        raise NotImplementedError # TODO
 
     def get_ifc_attribute(self, attribute):
         """
