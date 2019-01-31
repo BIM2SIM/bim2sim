@@ -1,4 +1,5 @@
-﻿import os
+﻿"""Definition for basic representations of IFC elements"""
+
 import logging
 
 from bim2sim.ifc2python import ifc2python
@@ -26,14 +27,14 @@ class Port():
 class Element():
     """Base class for IFC model representation"""
 
-    ifc_type = None
-    ifc_classes = {}
+    _ifc_type = None
+    _ifc_classes = {}
     dummy = None
 
     def __init__(self, ifc):
         self.logger = logging.getLogger(__name__)
         self.ifc = ifc
-        self.GUID = ifc.GlobalId
+        self.guid = ifc.GlobalId
         self.name = ifc.Name
 
         self.ports = [] #TODO
@@ -47,36 +48,36 @@ class Element():
             if cls.ifc_type is None:
                 conflict = True
                 logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type, cls.__name__)
-            elif cls.ifc_type in Element.ifc_classes:
+            elif cls.ifc_type in Element._ifc_classes:
                 conflict = True
                 logger.error("Conflicting ifc_types (%s) in '%s' and '%s'", \
-                    cls.ifc_type, cls.__name__, Element.ifc_classes[cls.ifc_type])
+                    cls.ifc_type, cls.__name__, Element._ifc_classes[cls.ifc_type])
             elif cls.__name__ == "Dummy":
                 Element.dummy = cls
             elif not cls.ifc_type.lower().startswith("ifc"):
                 conflict = True
                 logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type, cls.__name__)
             else:
-                Element.ifc_classes[cls.ifc_type] = cls
+                Element._ifc_classes[cls.ifc_type] = cls
 
         if conflict:
             raise AssertionError("Conflict(s) in Models. (See log for details).")
 
         #Model.dummy = Model.ifc_classes['any']
 
-        logger.debug("IFC model factory intitialized with %d models:", len(Element.ifc_classes))
-        for model in Element.ifc_classes.keys():
+        logger.debug("IFC model factory intitialized with %d models:", len(Element._ifc_classes))
+        for model in Element._ifc_classes:
             logger.debug("- %s", model)
 
     @staticmethod
     def factory(ifc_element):
         """Create model depending on ifc_element"""
 
-        if not Element.ifc_classes:
+        if not Element._ifc_classes:
             Element._init_factory()
 
-        ifc_type = ifc_element.get_info()['type'] # TODO: should be accessible directly by ifc_element??
-        cls = Element.ifc_classes.get(ifc_type, Element.dummy)
+        ifc_type = ifc_element.is_a()
+        cls = Element._ifc_classes.get(ifc_type, Element.dummy)
         #if cls is Model.dummy:
         #    logger = logging.getLogger(__name__)
         #    logger.warning("Did not found matching class for %s", ifc_type)
@@ -85,9 +86,10 @@ class Element():
 
     @property
     def ifc_type(self):
-        return self.__class__.ifc_type
+        """Returns IFC type"""
+        return self.__class__._ifc_type
 
-    def getifcattribute(self, attribute):
+    def get_ifc_attribute(self, attribute):
         """
         Fetches non-empty attributes (if they exist).
         """
@@ -96,34 +98,34 @@ class Element():
         except AttributeError:
             pass
 
-    def getpropertysets(self, propertysetname):
+    def get_propertysets(self, propertysetname):
         return ifc2python.get_Property_Sets(propertysetname, self.ifc)
 
-    def gethierarchicalparent(self):
+    def get_hierarchical_parent(self):
         return ifc2python.getHierarchicalParent(self.ifc)
 
-    def gethierarchicalchildren(self):
+    def get_hierarchical_children(self):
         return ifc2python.getHierarchicalChildren(self.ifc)
 
-    def getspartialparent(self):
+    def get_spartial_parent(self):
         return ifc2python.getSpatialParent(self.ifc)
 
-    def getspartialchildren(self):
+    def get_spartial_children(self):
         return ifc2python.getSpatialChildren(self.ifc)
 
-    def getspace(self):
+    def get_space(self):
         return ifc2python.getSpace(self.ifc)
 
-    def getstorey(self):
+    def get_storey(self):
         return ifc2python.getStorey(self.ifc)
 
-    def getbuilding(self):
+    def get_building(self):
         return ifc2python.getBuilding(self.ifc)
 
-    def getsite(self):
+    def get_site(self):
         return ifc2python.getSite(self.ifc)
 
-    def getproject(self):
+    def get_project(self):
         return ifc2python.getProject(self.ifc)
 
     def __repr__(self):
@@ -132,12 +134,12 @@ class Element():
 
 
 class Dummy(Element):
-
+    """Dummy for all unknown lements"""
     #ifc_type = 'any'
 
     def __init__(self, ifc):
         super().__init__(ifc)
-        
+
         self._ifc_type = ifc.get_info()['type']
 
     @property

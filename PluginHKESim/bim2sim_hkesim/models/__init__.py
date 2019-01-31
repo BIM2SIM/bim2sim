@@ -2,7 +2,7 @@
 
 from bim2sim.export import modelica
 from bim2sim.ifc2python import elements
-from bim2sim.ifc2python.aggregation import PipeStrang
+from bim2sim.ifc2python.aggregation import PipeStrand
 
 from bim2sim.export.modelica import standardlibrary # impor necessary for model detection
 

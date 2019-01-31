@@ -3,8 +3,8 @@ import bim2sim
 
 from bim2sim.manage import BIM2SIMManager, log
 from bim2sim.ifc2python.element import Element
-from bim2sim.ifc2python.aggregation import PipeStrang
-from bim2sim.filter import ComponentFilter
+from bim2sim.ifc2python.aggregation import PipeStrand
+from bim2sim.filter import TypeFilter
 from bim2sim.tasks import LOD, PlantSimulation
 from bim2sim.export import modelica
 
@@ -26,7 +26,7 @@ class HKESimManager(BIM2SIMManager):
     def prepare(self):
         
         #TODO: depending on task ...
-        self.filters.append(ComponentFilter(self.relevant_ifc_types))
+        self.filters.append(TypeFilter(self.relevant_ifc_types))
 
     @log("reducing model")
     def reduce(self):
@@ -39,7 +39,7 @@ class HKESimManager(BIM2SIMManager):
             else:
                 normal.append(m)
 
-        agg_pipe = PipeStrang("Strang 1", pipes)
+        agg_pipe = PipeStrand("Strand 1", pipes) 
 
         self.reduced_instances.append(agg_pipe)
         self.reduced_instances.extend(normal)
@@ -56,7 +56,6 @@ class HKESimManager(BIM2SIMManager):
             self.export_instances.append(modelica.Instance.factory(inst))
 
         modelica_model = modelica.Model(name="Test", comment="testing", instances=self.export_instances, connections={})
+        print("-"*80)
         print(modelica_model.code())
-
-
-
+        print("-"*80)

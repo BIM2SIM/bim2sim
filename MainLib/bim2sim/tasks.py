@@ -1,3 +1,4 @@
+﻿"""Module for defining tasks"""
 
 from enum import Enum
 
@@ -11,8 +12,15 @@ class LOD(Enum):
 
 
 class Task():
+    """Specification of task"""
 
-    def __init__(self, ductwork:LOD, hull:LOD, consumer:LOD, generator:LOD, hvac:LOD, filters:list=None):
+    def __init__(self, 
+            ductwork: LOD, 
+            hull: LOD, 
+            consumer: LOD, 
+            generator: LOD, 
+            hvac: LOD, 
+            filters: list = None):
         self.ductwork = ductwork
         self.hull = hull
         self.consumer = consumer
@@ -26,4 +34,3 @@ class PlantSimulation(Task):
 
     def __init__(self):
         return super().__init__(ductwork=LOD.medium, hull=LOD.ignore, consumer=LOD.low, generator=LOD.full, hvac=LOD.low)
-

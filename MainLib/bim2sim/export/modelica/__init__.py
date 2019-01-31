@@ -5,7 +5,7 @@ import logging
 
 from mako.template import Template
 
-from bim2sim.ifc2python import element
+from bim2sim.ifc2python import element as elem
 
 TEMPLATEPATH = os.path.join(os.path.dirname(__file__), 'tmplModel.txt')
 # prevent mako newline bug by reading file seperatly
@@ -16,7 +16,7 @@ templ = Template(templateStr)
 class Model():
     """Modelica model"""
 
-    def __init__(self, name, comment, instances:list, connections:dict):
+    def __init__(self, name, comment, instances: list, connections: dict):
 
         self.logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ class Model():
         """returns Modelica code"""
         return templ.render(model=self)
 
-    def write(self, path:str):
+    def write(self, path: str):
         """Save model as Modelica file"""
         _path = os.path.normpath(path)
         if os.path.isdir(_path):
@@ -55,12 +55,22 @@ class Instance():
     lookup = {}
     dummy = None
 
-    def __init__(self, name, params:dict, comment=None):
-    
+    def __init__(self, name, params: dict, comment=None):
+
         self.name = name
         self.comment = comment
         self.params = params
 
+    @staticmethod
+    def _lookup_add(key, value):
+        """Adds key and value to Instance.lookup. Returns conflict"""
+        if key in Instance.lookup:
+            logger.error("Conflicting representations (%s) in '%s' and '%s'", \
+                key, value.__name__, Instance.lookup[key].__name__)
+            return True
+        else:
+            Instance.lookup[key] = value
+            return False
 
     @staticmethod
     def _init_factory():
@@ -68,17 +78,9 @@ class Instance():
         logger = logging.getLogger(__name__)
         conflict = False
 
-        def add(key, value):
-            if key in Instance.lookup:
-                conflict = True
-                logger.error("Conflicting representations (%s) in '%s' and '%s'", \
-                    key, value.__name__, Instance.lookup[key].__name__)
-            else:
-                Instance.lookup[key] = value
-
         for library in Instance.__subclasses__():
             if library.library:
-                logger.info("Found library %s", library.library)
+                logger.info("Found library '%s'", library.library)
             elif library.__name__ == "Dummy":
                 Instance.dummy = library
                 continue
@@ -92,15 +94,17 @@ class Instance():
 
                 if isinstance(cls.represents, (list, set)):
                     for rep in cls.represents:
-                        add(rep, cls)
+                        confl = Instance._lookup_add(rep, cls)
+                        if confl: conflict = True
                 else:
-                    add(cls.represents, cls)
+                    confl = Instance._lookup_add(cls.represents, cls)
+                    if confl: conflict = True
 
         if conflict:
             raise AssertionError("Conflict(s) in Models. (See log for details).")
 
         logger.debug("Modelica librarys intitialized with %d models:", len(Instance.lookup))
-        for inst in Instance.lookup.values():
+        for inst in set(Instance.lookup.values()):
             logger.debug("- %s", inst.__name__)
 
     @staticmethod
@@ -113,7 +117,7 @@ class Instance():
         cls = Instance.lookup.get(element.__class__, Instance.dummy)
 
         name = element.__class__.__name__.lower()
-        guid = getattr(element, "GUID", "")
+        guid = getattr(element, "guid", "")
         if guid:
             name = name + "_" + guid
         params = cls.get_params(element)
@@ -140,7 +144,7 @@ class Instance():
 
 class Dummy(Instance):
     path = "Path.to.Dummy"
-    represents = element.Dummy
+    represents = elem.Dummy
 
 if __name__ == "__main__":
 
@@ -164,4 +168,3 @@ if __name__ == "__main__":
 
     print(model.code())
     model.write(r"C:\Entwicklung\temp")
-

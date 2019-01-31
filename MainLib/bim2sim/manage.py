@@ -18,7 +18,7 @@ def log(name):
     return log_decorator
 
 class BIM2SIMManager():
-    """"""
+    """Base class of overall bim2sim managing instance"""
     __metaclass__ = ABCMeta
 
     def __init__(self, task, ifc_path):
@@ -41,6 +41,7 @@ class BIM2SIMManager():
 
 
     def run(self):
+        """Run the manager"""
         self.prepare()
         self.inspect()
         self.enrich()
@@ -62,7 +63,7 @@ class BIM2SIMManager():
             elements = self.ifc.by_type(ifc_type)
             for element in elements:
                 representation = Element.factory(element)
-                self.raw_instances[representation.GUID] = representation
+                self.raw_instances[representation.guid] = representation
 
         self.logger.info("Found %d relevant elements", len(self.raw_instances))
 
@@ -98,4 +99,3 @@ class BIM2SIMManager():
 
     def __repr__(self):
         return "<%s>"%(self.__class__.__name__)
-

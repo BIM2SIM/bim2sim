@@ -1,24 +1,23 @@
+﻿"""Module for aggregation and simplifying elements"""
 
 import logging
 
-from bim2sim.ifc2python.element import Element
-
 class Aggregation():
     """Base aggregation of models"""
-    
-    
+
     def __init__(self, name, models):
 
         self.logger = logging.getLogger(__name__)
         self.name = name
         self.models = models
 
-    def comment(self):
-        return "Aggregation of %d elements"%(len(self.models))
+    def __repr__(self):
+        return "<%s (aggregation of %d elements)>"%(self.__class__.__name__, len(self.models))
 
 
-class PipeStrang(Aggregation):
-    
+class PipeStrand(Aggregation):
+    """Aggregates pipe strangs"""
+
     def __init__(self, name, models):
         super().__init__(name, models)
 
@@ -42,12 +41,11 @@ class PipeStrang(Aggregation):
 
                 diameter_times_length += diameter*length
                 self._total_length += length
-            
+
             else:
                 self.logger.warning("Ignored '%s' in aggregation", pipe)
 
         self._avg_diameter = diameter_times_length / self._total_length
-        return
 
     @property
     def length(self):
@@ -60,5 +58,3 @@ class PipeStrang(Aggregation):
         if not self._total_length:
             self._calc_avg()
         return self._total_length
-
-

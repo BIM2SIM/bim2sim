@@ -10,7 +10,7 @@ model ${model.name} "${model.comment}"
 % for par, value in instance.params.items():
     ${par} = ${value},
 % endfor
-    )
+    ) "${instance.comment}"
     annotation(); 
 </%def>
 

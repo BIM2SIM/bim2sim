@@ -1,6 +1,5 @@
 ﻿"""Module contains the different classes for all HVAC elements"""
 
-from bim2sim.ifc2python import ifc2python
 from bim2sim.ifc2python import element
 
 
@@ -39,11 +38,11 @@ class Pipe(element.Element):
 
     @property
     def diameter(self):
-        return self.getpropertysets('Abmessungen')['Innendurchmesser']
+        return self.get_propertysets('Abmessungen')['Innendurchmesser']
 
     @property
     def length(self):
-        return self.getpropertysets('Abmessungen')['Länge']
+        return self.get_propertysets('Abmessungen')['Länge']
 
 
 class PipeFitting(element.Element):
@@ -51,19 +50,19 @@ class PipeFitting(element.Element):
 
     @property
     def diameter(self):
-        return self.getpropertysets('Abmessungen').get('Nenndurchmesser')
+        return self.get_propertysets('Abmessungen').get('Nenndurchmesser')
 
     @property
     def length(self):
-        return self.getpropertysets('Abmessungen').get('Muffenlänge')
+        return self.get_propertysets('Abmessungen').get('Muffenlänge')
 
     @property
     def radius(self):
-        return self.getpropertysets('Abmessungen').get('Bogenradius')
+        return self.get_propertysets('Abmessungen').get('Bogenradius')
 
     @property
     def angle(self):
-        return self.getpropertysets('Abmessungen').get('Winkel')
+        return self.get_propertysets('Abmessungen').get('Winkel')
 
 
 class SpaceHeater(element.Element):
@@ -92,4 +91,3 @@ class Valve(element.Element):
     @property
     def length(self):
         return
-
