@@ -1,14 +1,9 @@
 ﻿
 
 import bim2sim
+from bim2sim.manage import BIM2SIMManager
 
-class EnergyPlus(bim2sim.SimulationBase):
-
-    def __init__(self):
-        super().__init__(__name__)
-        
-        # do stuff
-        return
+class EnergyPlus(BIM2SIMManager):
 
     def prepare(self, model):
         

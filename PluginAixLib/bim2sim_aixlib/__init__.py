@@ -3,6 +3,8 @@
 Holds logic to run a simulation based on prepared ifc data
 '''
 
-from .aixlib import AixLib
+def get_aixlib():
+    from .aixlib import AixLib
+    return AixLib
 
-CONTEND = {'aixlib':AixLib}
+CONTEND = {'aixlib':get_aixlib}

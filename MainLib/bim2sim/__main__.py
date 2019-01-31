@@ -48,7 +48,7 @@ def debug_params():
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
     rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc'
     path_ifc = os.path.normcase(os.path.join(path_base, rel_example))
-        
+
     sys.argv.append(path_ifc)
     sys.argv.append('-s')
     sys.argv.append('aixlib')

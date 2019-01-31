@@ -3,21 +3,16 @@
 from ast import literal_eval
 
 import bim2sim
+from bim2sim.manage import BIM2SIMManager
 from bim2sim.ifc2python.hvac import hvacsystem
 
-class AixLib(bim2sim.SimulationBase):
+class AixLib(BIM2SIMManager):
 
-    def __init__(self):
-        super().__init__(__name__)
-        
-        self.hvac = None
-        return
-
-    def prepare(self, model):
+    def prepare(self):
         
         self.logger.info('preparing stuff')
 
-        self.hvac = hvacsystem.HVACSystem(model)
+        self.hvac = hvacsystem.HVACSystem(self.ifc)
 
         return
 

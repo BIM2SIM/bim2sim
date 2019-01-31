@@ -3,6 +3,8 @@
 Holds logic to run a simulation based on prepared ifc data
 '''
 
-from .hkesim import HKESim
+def get_hkesim():
+    from .hkesim import HKESimManager
+    return HKESimManager
 
-CONTEND = {'hkesim':HKESim}
+CONTEND = {'hkesim':get_hkesim}

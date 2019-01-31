@@ -40,6 +40,7 @@ def get_Property_Sets(PropertySetName, element):
     :param PropertySetName: Name of the PropertySet you are looking for
     :return:
     """
+    # TODO: Unit conversion
     AllPropertySetsList = element.IsDefinedBy
     property_set = next((item for item in AllPropertySetsList if
          item.RelatingPropertyDefinition.Name == PropertySetName), None)
