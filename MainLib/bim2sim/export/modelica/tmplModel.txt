@@ -6,12 +6,18 @@ model ${model.name} "${model.comment}"
 
 % endfor
 <%def name="inst(instance)", filter="trim">
-  ${instance.path} ${instance.name}(
-% for par, value in instance.params.items():
+  ${instance.path} ${instance.name}\
+  %if instance.params: 
+(
+  %endif
+  % for par, value in instance.params.items():
     ${par} = ${value},
-% endfor
-    ) "${instance.comment}"
-    annotation(); 
+  % endfor
+  %if instance.params: 
+    )\
+  %endif
+ "${instance.comment}"
+    annotation (Placement(transformation(extent={{-80,60},{-60,80}}))); 
 </%def>
 
 equation

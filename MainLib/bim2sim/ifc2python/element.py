@@ -134,7 +134,7 @@ class Element():
 
 
 class Dummy(Element):
-    """Dummy for all unknown lements"""
+    """Dummy for all unknown elements"""
     #ifc_type = 'any'
 
     def __init__(self, ifc):

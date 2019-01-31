@@ -3,6 +3,7 @@
 import os
 import logging
 
+import codecs
 from mako.template import Template
 
 from bim2sim.ifc2python import element as elem
@@ -29,7 +30,7 @@ class Model():
         """returns Modelica code"""
         return templ.render(model=self)
 
-    def write(self, path: str):
+    def save(self, path: str):
         """Save model as Modelica file"""
         _path = os.path.normpath(path)
         if os.path.isdir(_path):
@@ -41,7 +42,7 @@ class Model():
         data = self.code()
 
         self.logger.info("Saving '%s' to '%s'", self.name, _path)
-        with open(_path, "w") as file:
+        with codecs.open(_path, "w", "utf-8") as file:
             file.write(data)
 
 
@@ -117,7 +118,7 @@ class Instance():
         cls = Instance.lookup.get(element.__class__, Instance.dummy)
 
         name = element.__class__.__name__.lower()
-        guid = getattr(element, "guid", "")
+        guid = getattr(element, "guid", "").replace("$", "_")
         if guid:
             name = name + "_" + guid
         params = cls.get_params(element)
@@ -161,10 +162,10 @@ if __name__ == "__main__":
 
     conns = {"radiator1.port_a": "radiator2.port_b"}
 
-    inst1 = Instance("radiator1", par)
+    inst1 = Instance("radiator1", {})
     inst2 = Instance("radiator2", par)
 
     model = Model("System", "Test", [inst1, inst2], conns)
 
     print(model.code())
-    model.write(r"C:\Entwicklung\temp")
+    #model.save(r"C:\Entwicklung\temp")

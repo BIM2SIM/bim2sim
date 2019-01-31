@@ -59,3 +59,4 @@ class HKESimManager(BIM2SIMManager):
         print("-"*80)
         print(modelica_model.code())
         print("-"*80)
+        modelica_model.save(r"C:\Entwicklung\temp")
