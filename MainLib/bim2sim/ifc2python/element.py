@@ -18,19 +18,52 @@ class Port():
         self.parent = parent
         self.ifc_port = ifcport
         self.connections = []
+        self.calc_position()
 
     def connect(self, other):
         """Connect this interface to another interface"""
         assert isinstance(other, self.__class__), "Can't connect interfaces of different classes."
         self.connections.append(other)
 
+    def calc_position(self):
+        try:
+            relative_placement = \
+                self.parent.ifc.ObjectPlacement.RelativePlacement
+            x_direction = np.array([
+                relative_placement.RefDirection.DirectionRatios[0],
+                relative_placement.RefDirection.DirectionRatios[1],
+                relative_placement.RefDirection.DirectionRatios[2]])
+            z_direction = np.array([
+                relative_placement.Axis.DirectionRatios[0],
+                relative_placement.Axis.DirectionRatios[1],
+                relative_placement.Axis.DirectionRatios[2]])
+        except AttributeError as ae:
+            self.logger.info(str(ae) +
+                             ' - DirectionRatios not existing, assuming'
+                             ' [1, 1, 1] as direction of element ',
+                             self.parent.ifc)
+            x_direction = np.array([1, 0, 0])
+            z_direction = np.array([0, 0, 1])
+        y_direction = np.cross(z_direction, x_direction)
+        port_coordinates_relative = \
+            self.ifc_port.ObjectPlacement.RelativePlacement.Location.Coordinates
+        coordinates = []
+        for i in range(0, 3):
+            coordinates.append(
+                self.parent.position[i]
+                + x_direction[i] * port_coordinates_relative[0]
+                + y_direction[i] * port_coordinates_relative[1]
+                + z_direction[i] * port_coordinates_relative[2])
+        self._position = coordinates
+
     @property
     def position(self):
         """returns absolute position"""
-        raise NotImplementedError # TODO
-        rel = np.array(self.ifc_port.ObjectPlacement.RelativePlacement.Location.Coordinates)
-        rel_to = np.array(self.ifc_port.ObjectPlacement.PlacementRelTo.RelativePlacement.Location.Coordinates)
-        return
+        return self._position
+
+    @position.setter
+    def position(self, value):
+        self._position = value
 
     def __repr__(self):
         return "<%s (%s)>"%(self.__class__.__name__, self.name)
@@ -48,7 +81,7 @@ class Element():
         self.guid = ifc.GlobalId
         self.name = ifc.Name
         self._position = None
-        self.calculate_position()
+        self.calc_position()
         self.ports = [] #TODO
 
     def add_ports(self):
@@ -56,13 +89,14 @@ class Element():
         for element_port_connection in element_port_connections:
             self.ports.append(Port(self, element_port_connection.RelatingPort))
 
-    def calculate_position(self):
+    def calc_position(self):
         self._position = tuple(map(sum, zip(self.ifc.ObjectPlacement.
                                            RelativePlacement.Location
                                            .Coordinates,
                                            self.ifc.ObjectPlacement.
                                            PlacementRelTo.RelativePlacement.
                                            Location.Coordinates)))
+
     @staticmethod
     def _init_factory():
         """initialize lookup for factory"""
