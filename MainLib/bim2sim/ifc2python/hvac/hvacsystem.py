@@ -11,6 +11,7 @@ from bim2sim.ifc2python import ifc2python
 from bim2sim.ifc2python.hvac.hvac_objects import Boiler, SpaceHeater, \
     StorageDevice, Pipe, Valve, PipeFitting #,GenericDevice, EnergyConversionDevice, \
 
+
 class HVACSystem(object):
     def __init__(self, model):
         self.logger = logging.getLogger(__name__)
@@ -30,6 +31,7 @@ class HVACSystem(object):
         """
         self.logger.info("Creating HVAC network")
 
+        # todo add all ifc elements from hvac-domain
         if element_types is None:
             element_types = ['IfcSpaceHeater',
                              'IfcPipeFitting',
@@ -37,11 +39,20 @@ class HVACSystem(object):
                              'IfcTank',
                              'IfcBoiler',
                              'IfcUnitaryEquipment']
-        graph = nx.DiGraph()
-        parts = {}
+        # graph = nx.DiGraph()
+
         for element_type in element_types:
             elements = self.ifc.by_type(element_type)
             for element in elements:
+                instance = Boiler(ifc=element)
+                instance.add_ports()
+                element_port_connections = element.HasPorts.\
+                    element_port_connection.RelatingPort
+                ports = {}
+                # for element_port_connection in element_port_connections:
+
+
+
                 try:
                     relative_placement = \
                         element.ObjectPlacement.RelativePlacement

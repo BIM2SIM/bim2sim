@@ -1,1 +1,1 @@
-raise Exception("Obsolete. Use 'ifc2python.models'")
+# raise Exception("Obsolete. Use 'ifc2python.models'")

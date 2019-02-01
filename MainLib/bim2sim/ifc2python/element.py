@@ -10,12 +10,13 @@ from bim2sim.ifc2python import ifc2python
 class Port():
     """"""
 
-    def __init__(self, name, parent, ifcport):
+    def __init__(self, parent, ifcport):
 
-        self.name = name
+        # self.name = name
+        # todo @christian: if we have the ifcguid as
+        #  unique id, to we need a name as well?
         self.parent = parent
         self.ifc_port = ifcport
-
         self.connections = []
 
     def connect(self, other):
@@ -49,8 +50,10 @@ class Element():
 
         self.ports = [] #TODO
 
-    def add_port(self, name: str, ifc_port):
-        self.ports.append(Port(name, self, ifc_port))
+    def add_ports(self):
+        element_port_connections = self.ifc.HasPorts
+        for element_port_connection in element_port_connections:
+            self.ports.append(Port(self, element_port_connection.RelatingPort))
 
     @staticmethod
     def _init_factory():
