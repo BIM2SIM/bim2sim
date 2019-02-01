@@ -3,6 +3,7 @@
 import logging
 import numpy as np
 
+from bim2sim.decorator import cached_property
 from bim2sim.ifc2python import ifc2python
 
 # TODO: Ports, Connections
@@ -28,7 +29,6 @@ class Port():
         """Connect this interface to another interface"""
         assert isinstance(other, self.__class__), "Can't connect interfaces of different classes."
         self.connections.append(other)
-
 
     def calc_position(self):
         try:
@@ -161,7 +161,7 @@ class Element():
         """Returns IFC type"""
         return self.__class__._ifc_type
 
-    @property
+    @cached_property
     def position(self):
         """returns absolute position"""
         return self._position

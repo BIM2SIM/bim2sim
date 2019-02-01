@@ -1,5 +1,6 @@
 ﻿"""Module contains the different classes for all HVAC elements"""
 
+from bim2sim.decorator import cached_property
 from bim2sim.ifc2python import element
 
 
@@ -7,25 +8,25 @@ class Boiler(element.Element):
     """Boiler"""
     ifc_type = 'IfcBoiler'
 
-    @property
+    @cached_property
     def water_volume(self):
         """water_volume: float
             Water volume of boiler."""
         return 0.008
 
-    @property
+    @cached_property
     def min_power(self):
         """min_power: float
             Minimum power that boiler operates at."""
         return None
 
-    @property
+    @cached_property
     def rated_power(self):
         """rated_power: float
             Rated power of boiler."""
         return None
 
-    @property
+    @cached_property
     def efficiency(self):
         """efficiency: list
             Efficiency of boiler provided as list with pairs of [
@@ -43,11 +44,11 @@ class Pipe(element.Element):
         self.add_port("port_a", ifc.HasPorts[0].RelatingPort)
         self.add_port("port_a", ifc.HasPorts[1].RelatingPort)
 
-    @property
+    @cached_property
     def diameter(self):
         return self.get_propertysets('Abmessungen')['Innendurchmesser']
 
-    @property
+    @cached_property
     def length(self):
         return self.get_propertysets('Abmessungen')['Länge']
 
@@ -55,19 +56,19 @@ class Pipe(element.Element):
 class PipeFitting(element.Element):
     ifc_type = "IfcPipeFitting"
 
-    @property
+    @cached_property
     def diameter(self):
         return self.get_propertysets('Abmessungen').get('Nenndurchmesser')
 
-    @property
+    @cached_property
     def length(self):
         return self.get_propertysets('Abmessungen').get('Muffenlänge')
 
-    @property
+    @cached_property
     def radius(self):
         return self.get_propertysets('Abmessungen').get('Bogenradius')
 
-    @property
+    @cached_property
     def angle(self):
         return self.get_propertysets('Abmessungen').get('Winkel')
 
@@ -75,11 +76,11 @@ class PipeFitting(element.Element):
 class SpaceHeater(element.Element):
     ifc_type = 'IfcSpaceHeater'
 
-    @property
+    @cached_property
     def nominal_power(self):
         return 42.0
 
-    @property
+    @cached_property
     def length(self):
         return 42.0
 
@@ -91,10 +92,10 @@ class StorageDevice(element.Element):
 class Valve(element.Element):
     ifc_type = "IfcValve"
 
-    @property
+    @cached_property
     def diameter(self):
         return
 
-    @property
+    @cached_property
     def length(self):
         return
