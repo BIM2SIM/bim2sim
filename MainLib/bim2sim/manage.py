@@ -3,19 +3,10 @@
 import logging
 from abc import ABCMeta, abstractmethod
 
+from bim2sim.decorator import log
 from bim2sim.ifc2python import ifc2python
 from bim2sim.ifc2python.element import Element
 
-def log(name):
-    """Decorator for logging of entering and leaving method"""
-    logger = logging.getLogger(__name__)
-    def log_decorator(func):
-        def wrapper(*args, **kwargs):
-            logger.info("Started %s ...", name)
-            func(*args, **kwargs)
-            logger.info("Done %s.", name)
-        return wrapper
-    return log_decorator
 
 class BIM2SIMManager():
     """Base class of overall bim2sim managing instance"""

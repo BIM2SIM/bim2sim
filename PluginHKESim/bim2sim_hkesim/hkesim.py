@@ -1,7 +1,8 @@
 ﻿
 import bim2sim
 
-from bim2sim.manage import BIM2SIMManager, log
+from bim2sim.decorator import log
+from bim2sim.manage import BIM2SIMManager
 from bim2sim.ifc2python.element import Element
 from bim2sim.ifc2python.aggregation import PipeStrand
 from bim2sim.filter import TypeFilter
