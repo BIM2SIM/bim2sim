@@ -19,8 +19,8 @@ class HVACSystem(object):
         self.ifc = model
         self.hvac_graph = None
         self.create_hvac_network()
-        self.transfer_to_generel_description(graph=self.hvac_graph)
-        self.draw_hvac_network(label='type')
+        # self.transfer_to_generel_description(graph=self.hvac_graph)
+        # self.draw_hvac_network(label='type')
 
 
     def create_hvac_network(self, element_types=None):
@@ -44,12 +44,14 @@ class HVACSystem(object):
         for element_type in element_types:
             elements = self.ifc.by_type(element_type)
             for element in elements:
-                instance = Boiler(ifc=element)
-                instance.add_ports()
+                if element_type == "IfcBoiler":
+                # todo extend, at the moment just short example for boiler,
+                    instance = Boiler(ifc=element)
+                    instance.add_ports()
 
-        self.hvac_graph = self.contract_network(graph)
+        # self.hvac_graph = self.contract_network(graph)
         # todo add logger msg how many nodes have been contracted
-        self.logger.debug("Number of nodes: %d", graph.number_of_nodes())
+        # self.logger.debug("Number of nodes: %d", graph.number_of_nodes())
 
     def contract_network(self, graph):
         """

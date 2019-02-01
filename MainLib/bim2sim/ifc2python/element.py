@@ -43,7 +43,7 @@ class Port():
                 relative_placement.Axis.DirectionRatios[1],
                 relative_placement.Axis.DirectionRatios[2]])
         except AttributeError as ae:
-            self.logger.info(str(ae) +
+            self.parent.logger.info(str(ae) +
                              ' - DirectionRatios not existing, assuming'
                              ' [1, 1, 1] as direction of element ',
                              self.parent.ifc)
