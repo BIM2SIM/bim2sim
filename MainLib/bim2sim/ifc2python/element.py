@@ -19,11 +19,16 @@ class Port():
         self.ifc_port = ifcport
         self.connections = []
         self.calc_position()
+        self.get_flow_direction()
+
+    def get_flow_direction(self):
+        self._flow_direction = self.ifc_port.FlowDirection
 
     def connect(self, other):
         """Connect this interface to another interface"""
         assert isinstance(other, self.__class__), "Can't connect interfaces of different classes."
         self.connections.append(other)
+
 
     def calc_position(self):
         try:
@@ -57,6 +62,16 @@ class Port():
         self._position = coordinates
 
     @property
+    def flow_direction(self):
+        """returns the flow direction"""
+        return self._flow_direction
+
+    @flow_direction.setter
+    def flow_direction(self, value):
+        self._flow_direction = value
+
+
+    @property
     def position(self):
         """returns absolute position"""
         return self._position
@@ -80,7 +95,6 @@ class Element():
         self.ifc = ifc
         self.guid = ifc.GlobalId
         self.name = ifc.Name
-        self._position = None
         self.calc_position()
         self.ports = [] #TODO
 

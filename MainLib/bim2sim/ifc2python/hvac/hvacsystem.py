@@ -47,56 +47,6 @@ class HVACSystem(object):
                 instance = Boiler(ifc=element)
                 instance.add_ports()
 
-                try:
-                    relative_placement = \
-                        element.ObjectPlacement.RelativePlacement
-                    x_direction = np.array([
-                        relative_placement.RefDirection.DirectionRatios[0],
-                        relative_placement.RefDirection.DirectionRatios[1],
-                        relative_placement.RefDirection.DirectionRatios[2]])
-                    z_direction = np.array([
-                        relative_placement.Axis.DirectionRatios[0],
-                        relative_placement.Axis.DirectionRatios[1],
-                        relative_placement.Axis.DirectionRatios[2]])
-                except AttributeError as ae:
-                    self.logger.info(str(ae) +
-                                     ' - DirectionRatios not existing, assuming'
-                                     ' [1, 1, 1] as direction of element ',
-                                     element)
-                    x_direction = np.array([1, 0, 0])
-                    z_direction = np.array([0, 0, 1])
-                y_direction = np.cross(z_direction, x_direction)
-                graph.add_node(element, type=ifc2python.getElementType(
-                    element), oid=element.id())
-                element_port_connections = element.HasPorts
-                ports = {}
-                for element_port_connection in element_port_connections:
-                    element_coordinates = \
-                        tuple(map(sum, zip(element.ObjectPlacement.
-                                           RelativePlacement.Location
-                                           .Coordinates,
-                                           element.ObjectPlacement.
-                                           PlacementRelTo.RelativePlacement.
-                                           Location.Coordinates)))
-                    port_coordinates =\
-                        element_port_connection.RelatingPort.ObjectPlacement.\
-                        RelativePlacement.Location.Coordinates
-                    coordinate = []
-                    for i in range(0, 3):
-                        coordinate.append(
-                            element_coordinates[i]
-                            + x_direction[i] * port_coordinates[0]
-                            + y_direction[i] * port_coordinates[1]
-                            + z_direction[i] * port_coordinates[2])
-                    ports[element_port_connection.RelatingPort] = {}
-                    ports[element_port_connection.RelatingPort]['coordinate'] \
-                        = coordinate
-                    ports[element_port_connection.RelatingPort][
-                        'flow_direction'] =  \
-                        element_port_connection.RelatingPort.FlowDirection
-                    parts[element] = ports
-        graph = self.connect_elements_by_coordinates(graph=graph, parts=parts,
-                                                threshold=1)
         self.hvac_graph = self.contract_network(graph)
         # todo add logger msg how many nodes have been contracted
         self.logger.debug("Number of nodes: %d", graph.number_of_nodes())
