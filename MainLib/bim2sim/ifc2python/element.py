@@ -19,18 +19,20 @@ class Port():
         self.parent = parent
         self.ifc_port = ifcport
         self.connections = []
-        self.calc_position()
-        self.get_flow_direction()
-
-    def get_flow_direction(self):
-        self._flow_direction = self.ifc_port.FlowDirection
 
     def connect(self, other):
         """Connect this interface to another interface"""
         assert isinstance(other, self.__class__), "Can't connect interfaces of different classes."
         self.connections.append(other)
 
-    def calc_position(self):
+    @cached_property
+    def flow_direction(self):
+        """returns the flow direction"""
+        return self.ifc_port.FlowDirection
+
+    @cached_property
+    def position(self):
+        """returns absolute position"""
         try:
             relative_placement = \
                 self.parent.ifc.ObjectPlacement.RelativePlacement
@@ -59,29 +61,11 @@ class Port():
                 + x_direction[i] * port_coordinates_relative[0]
                 + y_direction[i] * port_coordinates_relative[1]
                 + z_direction[i] * port_coordinates_relative[2])
-        self._position = coordinates
-
-    @property
-    def flow_direction(self):
-        """returns the flow direction"""
-        return self._flow_direction
-
-    @flow_direction.setter
-    def flow_direction(self, value):
-        self._flow_direction = value
-
-
-    @property
-    def position(self):
-        """returns absolute position"""
-        return self._position
-
-    @position.setter
-    def position(self, value):
-        self._position = value
+        return coordinates
 
     def __repr__(self):
         return "<%s (%s)>"%(self.__class__.__name__, self.name)
+
 
 class Element():
     """Base class for IFC model representation"""
@@ -95,21 +79,13 @@ class Element():
         self.ifc = ifc
         self.guid = ifc.GlobalId
         self.name = ifc.Name
-        self.calc_position()
         self.ports = [] #TODO
+        self._add_ports()
 
-    def add_ports(self):
+    def _add_ports(self):
         element_port_connections = self.ifc.HasPorts
         for element_port_connection in element_port_connections:
             self.ports.append(Port(self, element_port_connection.RelatingPort))
-
-    def calc_position(self):
-        self._position = tuple(map(sum, zip(self.ifc.ObjectPlacement.
-                                           RelativePlacement.Location
-                                           .Coordinates,
-                                           self.ifc.ObjectPlacement.
-                                           PlacementRelTo.RelativePlacement.
-                                           Location.Coordinates)))
 
     @staticmethod
     def _init_factory():
@@ -164,12 +140,13 @@ class Element():
     @cached_property
     def position(self):
         """returns absolute position"""
-        return self._position
-
-    @position.setter
-    def position(self, value):
-        self._position = value
-
+        pos = tuple(map(sum, zip(self.ifc.ObjectPlacement.
+            RelativePlacement.Location
+            .Coordinates,
+            self.ifc.ObjectPlacement.
+            PlacementRelTo.RelativePlacement.
+            Location.Coordinates)))
+        return pos
 
     def get_ifc_attribute(self, attribute):
         """

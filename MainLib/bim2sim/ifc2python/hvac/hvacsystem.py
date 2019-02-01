@@ -47,8 +47,7 @@ class HVACSystem(object):
                 if element_type == "IfcBoiler":
                 # todo extend, at the moment just short example for boiler,
                     instance = Boiler(ifc=element)
-                    instance.add_ports()
-
+                    instance.position
         # self.hvac_graph = self.contract_network(graph)
         # todo add logger msg how many nodes have been contracted
         # self.logger.debug("Number of nodes: %d", graph.number_of_nodes())

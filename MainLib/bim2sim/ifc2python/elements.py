@@ -37,12 +37,11 @@ class Boiler(element.Element):
 class Pipe(element.Element):
     ifc_type = "IfcPipeSegment"
 
-    def __init__(self, ifc):
-        super().__init__(ifc)
+    #def __init__(self, ifc):
+    #    super().__init__(ifc)
 
-        
-        self.add_port("port_a", ifc.HasPorts[0].RelatingPort)
-        self.add_port("port_a", ifc.HasPorts[1].RelatingPort)
+    #    self.add_port("port_a", ifc.HasPorts[0].RelatingPort)
+    #    self.add_port("port_a", ifc.HasPorts[1].RelatingPort)
 
     @cached_property
     def diameter(self):
