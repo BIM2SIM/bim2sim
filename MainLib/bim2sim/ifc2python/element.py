@@ -47,7 +47,8 @@ class Element():
         self.ifc = ifc
         self.guid = ifc.GlobalId
         self.name = ifc.Name
-
+        self._position = None
+        self.calculate_position()
         self.ports = [] #TODO
 
     def add_ports(self):
@@ -55,6 +56,13 @@ class Element():
         for element_port_connection in element_port_connections:
             self.ports.append(Port(self, element_port_connection.RelatingPort))
 
+    def calculate_position(self):
+        self._position = tuple(map(sum, zip(self.ifc.ObjectPlacement.
+                                           RelativePlacement.Location
+                                           .Coordinates,
+                                           self.ifc.ObjectPlacement.
+                                           PlacementRelTo.RelativePlacement.
+                                           Location.Coordinates)))
     @staticmethod
     def _init_factory():
         """initialize lookup for factory"""
@@ -108,7 +116,12 @@ class Element():
     @property
     def position(self):
         """returns absolute position"""
-        raise NotImplementedError # TODO
+        return self._position
+
+    @position.setter
+    def position(self, value):
+        self._position = value
+
 
     def get_ifc_attribute(self, attribute):
         """

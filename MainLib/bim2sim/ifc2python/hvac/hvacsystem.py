@@ -46,12 +46,6 @@ class HVACSystem(object):
             for element in elements:
                 instance = Boiler(ifc=element)
                 instance.add_ports()
-                element_port_connections = element.HasPorts.\
-                    element_port_connection.RelatingPort
-                ports = {}
-                # for element_port_connection in element_port_connections:
-
-
 
                 try:
                     relative_placement = \
