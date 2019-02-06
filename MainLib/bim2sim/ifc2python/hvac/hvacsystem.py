@@ -31,14 +31,15 @@ class HVACSystem(object):
         """
         self.logger.info("Creating HVAC network")
 
-        # todo add all ifc elements from hvac-domain
         if element_types is None:
-            element_types = ['IfcSpaceHeater',
-                             'IfcPipeFitting',
-                             'IfcPipeSegment',
-                             'IfcTank',
-                             'IfcBoiler',
-                             'IfcUnitaryEquipment']
+            element_types = ['IfcAirTerminal', 'IfcAirTerminalBox', 'IfcAirToAirHeatRecovery', 'IfcBoiler', 'IfcBurner',
+                             'IfcChiller', 'IfcCoil', 'IfcCompressor', 'IfcCondenser', 'IfcCooledBeam',
+                             'IfcCoolingTower', 'IfcDamper', 'IfcDuctFitting', 'IfcDuctSegment', 'IfcDuctSilencer',
+                             'IfcEngine', 'IfcEvaporativeCooler', 'IfcEvaporator', 'IfcFan', 'IfcFilter',
+                             'IfcFlowMeter', 'IfcHeatExchanger', 'IfcHumidifier', 'IfcMedicalDevice', 'IfcPipeFitting',
+                             'IfcPipeSegment', 'IfcPump', 'IfcSpaceHeater', 'IfcTank', 'IfcTubeBundle',
+                             'IfcUnitaryEquipment', 'IfcValve', 'IfcVibrationIsolator']
+
         # graph = nx.DiGraph()
 
         for element_type in element_types:
