@@ -9,7 +9,7 @@ import logging
 import pkg_resources
 
 from bim2sim.ifc2python import ifc2python
-from bim2sim.manage import BIM2SIMManager
+from bim2sim.manage import PATH, BIM2SIMManager, get_config
 from bim2sim.tasks import PlantSimulation
 
 VERSION = '0.1-dev'
@@ -49,10 +49,17 @@ def logging_setup():
     """Setup for logging module"""
 
     formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
-    handler = logging.StreamHandler()
-    handler.setFormatter(formatter)
     root_logger = logging.getLogger()
-    root_logger.addHandler(handler)
+
+    # Stream
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+    root_logger.addHandler(stream_handler)
+    # File
+    file_handler = logging.FileHandler(os.path.join(PATH.log, "bim2sim.log"))
+    file_handler.setFormatter(formatter)
+    root_logger.addHandler(file_handler)
+
     root_logger.setLevel(logging.DEBUG)
 
     # silence matplotlib
@@ -62,14 +69,22 @@ def logging_setup():
     logging.debug("Logging setup done.")
 
 
-def main(ifc_path, backend=None, run=False, task=None):
+def main(rootpath=None):
     """Main entry point"""
 
-    assert ifc_path, "No ifc_path passed"
-    assert backend, "No backend passed"
+    _rootpath = rootpath or os.getcwd()
+    PATH.root = _rootpath
+    assert PATH.is_project_folder(), \
+        "'%s' does not look like a project folder. Create a project folder first."%(_rootpath)
+
+    logging_setup()
     logger = logging.getLogger(__name__)
 
     plugins = get_backends()
+
+    conf = get_config()
+    backend = conf["Backend"].get("use")
+    assert backend, "No backend set. Check config.ini"
 
     logger.info("Loading backend '%s' ...", backend)
     manager_cls = plugins.get(backend)()
@@ -82,11 +97,10 @@ def main(ifc_path, backend=None, run=False, task=None):
     if not BIM2SIMManager in manager_cls.__bases__:
         raise AttributeError("Got invalid manager from %s"%(backend))
 
-    if not task:
-        task = PlantSimulation() #TODO
+    task = PlantSimulation() #TODO
 
     # prepare simulation
-    manager = manager_cls(task, ifc_path)
+    manager = manager_cls(task)
 
     # run Manager
     manager.run()
@@ -95,12 +109,16 @@ def main(ifc_path, backend=None, run=False, task=None):
 
 
 def _debug_run():
-    logging_setup()
+    """Create example project and copy ifc if necessary"""
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
     rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
+    path_example = r"C:\temp\bim2sim\testproject"
 
-    main(path_ifc, "hkesim")
+    if not PATH.is_project_folder(path_example):
+        PATH.create_project(path_example, path_ifc, 'hkesim')
+
+    main(path_example)
 
 if __name__ == '__main__':
     _debug_run()
