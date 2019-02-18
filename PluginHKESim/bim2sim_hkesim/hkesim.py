@@ -2,7 +2,7 @@
 import bim2sim
 
 from bim2sim.decorator import log
-from bim2sim.manage import BIM2SIMManager, PATH
+from bim2sim.manage import BIM2SIMManager, PROJECT
 from bim2sim.ifc2python.element import Element
 from bim2sim.ifc2python.aggregation import PipeStrand
 from bim2sim.filter import TypeFilter
@@ -60,4 +60,4 @@ class HKESimManager(BIM2SIMManager):
         print("-"*80)
         print(modelica_model.code())
         print("-"*80)
-        modelica_model.save(PATH.export)
+        modelica_model.save(PROJECT.export)

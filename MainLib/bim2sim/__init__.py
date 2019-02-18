@@ -9,7 +9,7 @@ import logging
 import pkg_resources
 
 from bim2sim.ifc2python import ifc2python
-from bim2sim.manage import PATH, BIM2SIMManager, get_config
+from bim2sim.manage import PROJECT, BIM2SIMManager, get_config
 from bim2sim.tasks import PlantSimulation
 
 VERSION = '0.1-dev'
@@ -56,7 +56,7 @@ def logging_setup():
     stream_handler.setFormatter(formatter)
     root_logger.addHandler(stream_handler)
     # File
-    file_handler = logging.FileHandler(os.path.join(PATH.log, "bim2sim.log"))
+    file_handler = logging.FileHandler(os.path.join(PROJECT.log, "bim2sim.log"))
     file_handler.setFormatter(formatter)
     root_logger.addHandler(file_handler)
 
@@ -73,8 +73,8 @@ def main(rootpath=None):
     """Main entry point"""
 
     _rootpath = rootpath or os.getcwd()
-    PATH.root = _rootpath
-    assert PATH.is_project_folder(), \
+    PROJECT.root = _rootpath
+    assert PROJECT.is_project_folder(), \
         "'%s' does not look like a project folder. Create a project folder first."%(_rootpath)
 
     logging_setup()
@@ -115,8 +115,8 @@ def _debug_run():
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
     path_example = r"C:\temp\bim2sim\testproject"
 
-    if not PATH.is_project_folder(path_example):
-        PATH.create_project(path_example, path_ifc, 'hkesim')
+    if not PROJECT.is_project_folder(path_example):
+        PROJECT.create(path_example, path_ifc, 'hkesim')
 
     main(path_example)
 

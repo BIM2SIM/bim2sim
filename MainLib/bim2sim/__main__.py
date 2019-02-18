@@ -21,7 +21,7 @@ import sys
 
 import docopt
 
-from bim2sim import main, PATH, VERSION
+from bim2sim import main, PROJECT, VERSION
 
 def commandline_interface():
     """user interface"""
@@ -40,7 +40,7 @@ def commandline_interface():
 
     if project:
         if create:
-            PATH.create_project(path, source, target, open_conf)
+            PROJECT.create(path, source, target, open_conf)
         elif load:
             main(path)
     else:
