@@ -16,12 +16,39 @@ class HKESimManager(BIM2SIMManager):
     def __init__(self, task, ifc):
         super().__init__(task, ifc)
 
-        self.relevant_ifc_types = ['IfcSpaceHeater',
-            'IfcPipeFitting',
-            'IfcPipeSegment',
-            'IfcTank',
-            'IfcBoiler',
-            'IfcUnitaryEquipment']
+        self.relevant_ifc_types = ['IfcAirTerminal',
+                                   'IfcAirTerminalBox',
+                                   'IfcAirToAirHeatRecovery',
+                                   'IfcBoiler',
+                                   'IfcBurner',
+                                   'IfcChiller',
+                                   'IfcCoil',
+                                   'IfcCompressor',
+                                   'IfcCondenser',
+                                   'IfcCooledBeam',
+                                   'IfcCoolingTower',
+                                   'IfcDamper',
+                                   'IfcDuctFitting',
+                                   'IfcDuctSegment',
+                                   'IfcDuctSilencer',
+                                   'IfcEngine',
+                                   'IfcEvaporativeCooler',
+                                   'IfcEvaporator',
+                                   'IfcFan',
+                                   'IfcFilter',
+                                   'IfcFlowMeter',
+                                   'IfcHeatExchanger',
+                                   'IfcHumidifier',
+                                   'IfcMedicalDevice',
+                                   'IfcPipeFitting',
+                                   'IfcPipeSegment',
+                                   'IfcPump',
+                                   'IfcSpaceHeater',
+                                   'IfcTank',
+                                   'IfcTubeBundle',
+                                   'IfcUnitaryEquipment',
+                                   'IfcValve',
+                                   'IfcVibrationIsolator']
 
     @log("preparing")
     def prepare(self):
