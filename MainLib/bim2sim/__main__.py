@@ -1,63 +1,72 @@
 ﻿"""BIM2SIM main module.
 
 Usage:
-    bim2sim PATH [-s <target> | --sim=<target>] [-r]
-    bim2sim (-h | --help)
+    bim2sim project create <project_path> [-i <source>] [-s <target>] [-o]
+    bim2sim project load [<project_path>]
+    bim2sim --help
     bim2sim --version
 
 Options:
-    -h --help  Show this screen.
-    --version  Show version.
-    -s <target> --sim=<target>  Simulation to convert to.
-    -r  Run simulatioin
+    load                Load project from current working directory or given path
+    create              Create project folder on given relative or absolute path
+    -h --help           Show this screen.
+    -v --version        Show version.
+    -s <target> --sim <target>  Simulation to convert to.
+    -i <source> --ifc <source>  Path to ifc file
+    -o --open           Open config file
 """
 
-import logging
 import os
 import sys
 
 import docopt
 
-from bim2sim.__init__ import main, VERSION, logging_setup
+from bim2sim import main, PROJECT, VERSION
 
 def commandline_interface():
-    'user interface'
-    logger = logging.getLogger(__name__)
+    """user interface"""
+
     args = docopt.docopt(__doc__, version=VERSION)
 
-    # Path
-    path = args.get('PATH')
+    # arguments
+    project = args.get('project')
+    load = args.get('load')
+    create = args.get('create')
 
-    # Simulation
-    sim_type = args.get('--sim', 'error')
-    if sim_type == 'error':
-        logger.error("'--sim' not in args")
+    path = args.get('<project_path>')
+    target = args.get('--sim')
+    source = args.get('--ifc')
+    open_conf = args.get('--open')
+
+    if project:
+        if create:
+            PROJECT.create(path, source, target, open_conf)
+        elif load:
+            main(path)
+    else:
+        print("Invalid arguments")
         exit()
-    elif sim_type is None:
-        logger.info('General file checking. No conversion to simulation.')
-
-    # Run flag
-    run = args.get('-r')
-
-    return path, sim_type, run
-
 
 def debug_params():
-    logger = logging.getLogger(__name__)
-    logger.warning("No parameters passed. Using debug parameters.")
+    """Set debug console arguments"""
+
+    print("No parameters passed. Using debug parameters.")
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
     rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc'
     path_ifc = os.path.normcase(os.path.join(path_base, rel_example))
 
-    sys.argv.append(path_ifc)
-    sys.argv.append('-s')
-    sys.argv.append('aixlib')
-    sys.argv.append('-r')
-    logger.info("Debug parameters:\n%s", "\n".join(sys.argv[1:]))
+    #sys.argv.append('project')
+    #sys.argv.append('create')
+    #sys.argv.append(r'C:\temp\bim2sim\testproject')
+    #sys.argv.extend(['-s', 'hkesim', '-i', path_ifc, '-o'])
 
-logging_setup()
+    sys.argv.append('project')
+    sys.argv.append('load')
+    sys.argv.append(r'C:\temp\bim2sim\testproject')
+
+    print("Debug parameters:\n%s"%("\n".join(sys.argv[1:])))
 
 if len(sys.argv) <= 1:
     debug_params()
 
-main(*commandline_interface())
+commandline_interface()
