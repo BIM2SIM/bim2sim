@@ -237,7 +237,7 @@ class BIM2SIMManager():
             self.config.write(file)
 
 def open_config():
-    """Open config for user in dafault program"""
+    """Open config for user in default program"""
     if sys.platform.startswith('darwin'): # For MAC OS X
         subprocess.call(('open', PROJECT.config))
     elif os.name == 'nt': # For Windows
