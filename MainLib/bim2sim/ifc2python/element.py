@@ -3,7 +3,7 @@
 import logging
 import numpy as np
 
-from bim2sim.decorator import cached_property
+from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import ifc2python
 
 # TODO: Ports, Connections

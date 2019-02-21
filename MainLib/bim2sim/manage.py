@@ -1,5 +1,4 @@
 ﻿"""Managing related"""
-
 import os
 import sys
 import logging
@@ -7,10 +6,10 @@ from abc import ABCMeta, abstractmethod
 import subprocess
 import shutil
 import configparser
-
-from bim2sim.decorator import log
+from bim2sim.decorators import log
 from bim2sim.ifc2python import ifc2python
 from bim2sim.ifc2python.element import Element
+from bim2sim.ifc2python.hvac.hvacsystem import HVACSystem
 
 
 class _Project():
@@ -179,6 +178,7 @@ class BIM2SIMManager():
         self.logger.info("Found %d relevant elements", len(self.raw_instances))
 
         self.logger.info("Connecting the relevant elements")
+
         for raw_instance1 in self.raw_instances.values():
             for port1 in raw_instance1.ports:
                 for raw_instance2 in self.raw_instances.values():
@@ -191,6 +191,8 @@ class BIM2SIMManager():
                                                 port2.position)))
                         if all(diff <= 1 for diff in distance):
                             port1.connect(port2)
+        HVACSystem(self)
+
 
     @log("enriching data")
     def enrich(self):
