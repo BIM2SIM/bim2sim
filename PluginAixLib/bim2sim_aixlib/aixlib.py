@@ -8,6 +8,43 @@ from bim2sim.ifc2python.hvac import hvacsystem
 
 class AixLib(BIM2SIMManager):
 
+    def __init__(self, task, ifc):
+        super().__init__(task, ifc)
+
+        self.relevant_ifc_types = ['IfcAirTerminal',
+                                   'IfcAirTerminalBox',
+                                   'IfcAirToAirHeatRecovery',
+                                   'IfcBoiler',
+                                   'IfcBurner',
+                                   'IfcChiller',
+                                   'IfcCoil',
+                                   'IfcCompressor',
+                                   'IfcCondenser',
+                                   'IfcCooledBeam',
+                                   'IfcCoolingTower',
+                                   'IfcDamper',
+                                   'IfcDuctFitting',
+                                   'IfcDuctSegment',
+                                   'IfcDuctSilencer',
+                                   'IfcEngine',
+                                   'IfcEvaporativeCooler',
+                                   'IfcEvaporator',
+                                   'IfcFan',
+                                   'IfcFilter',
+                                   'IfcFlowMeter',
+                                   'IfcHeatExchanger',
+                                   'IfcHumidifier',
+                                   'IfcMedicalDevice',
+                                   'IfcPipeFitting',
+                                   'IfcPipeSegment',
+                                   'IfcPump',
+                                   'IfcSpaceHeater',
+                                   'IfcTank',
+                                   'IfcTubeBundle',
+                                   'IfcUnitaryEquipment',
+                                   'IfcValve',
+                                   'IfcVibrationIsolator']
+
     def prepare(self):
         
         self.logger.info('preparing stuff')
