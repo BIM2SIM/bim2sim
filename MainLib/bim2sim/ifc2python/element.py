@@ -12,23 +12,21 @@ class Port():
     """"""
 
     def __init__(self, parent, ifcport):
-
-        # self.name = name
-        # todo @christian: if we have the ifcguid as
-        #  unique id, to we need a name as well?
+        self.ifc = ifcport
+        self.name = ifcport.Name
         self.parent = parent
-        self.ifc_port = ifcport
         self.connections = []
 
     def connect(self, other):
         """Connect this interface to another interface"""
-        assert isinstance(other, self.__class__), "Can't connect interfaces of different classes."
+        assert isinstance(other, self.__class__), "Can't connect interfaces" \
+                                                  " of different classes."
         self.connections.append(other)
 
     @cached_property
     def flow_direction(self):
         """returns the flow direction"""
-        return self.ifc_port.FlowDirection
+        return self.ifc.FlowDirection
 
     @cached_property
     def position(self):
@@ -45,15 +43,15 @@ class Port():
                 relative_placement.Axis.DirectionRatios[1],
                 relative_placement.Axis.DirectionRatios[2]])
         except AttributeError as ae:
-            self.parent.logger.info(str(ae) +
-                             ' - DirectionRatios not existing, assuming'
-                             ' [1, 1, 1] as direction of element ',
-                             self.parent.ifc)
+            self.parent.logger.info(str(ae) + ' - DirectionRatios not '
+                                              'existing, assuming [1, 1, '
+                                              '1] as direction of element ' +
+                                    str(self.parent.ifc))
             x_direction = np.array([1, 0, 0])
             z_direction = np.array([0, 0, 1])
         y_direction = np.cross(z_direction, x_direction)
         port_coordinates_relative = \
-            self.ifc_port.ObjectPlacement.RelativePlacement.Location.Coordinates
+            self.ifc.ObjectPlacement.RelativePlacement.Location.Coordinates
         coordinates = []
         for i in range(0, 3):
             coordinates.append(
@@ -141,11 +139,10 @@ class Element():
     def position(self):
         """returns absolute position"""
         pos = tuple(map(sum, zip(self.ifc.ObjectPlacement.
-            RelativePlacement.Location
-            .Coordinates,
-            self.ifc.ObjectPlacement.
-            PlacementRelTo.RelativePlacement.
-            Location.Coordinates)))
+                    RelativePlacement.Location.Coordinates,
+                                 self.ifc.ObjectPlacement.
+                                 PlacementRelTo.RelativePlacement.
+                                 Location.Coordinates)))
         return pos
 
     def get_ifc_attribute(self, attribute):
