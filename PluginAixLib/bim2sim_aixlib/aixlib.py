@@ -2,14 +2,18 @@
 
 from ast import literal_eval
 
-import bim2sim
-from bim2sim.manage import BIM2SIMManager
-from bim2sim.ifc2python.hvac import hvacsystem
+from bim2sim.decorators import log
+from bim2sim.manage import BIM2SIMManager, PROJECT
+from bim2sim.ifc2python.aggregation import PipeStrand
+from bim2sim.filter import TypeFilter
+from bim2sim.export import modelica
+
+from bim2sim_hkesim import models
 
 class AixLib(BIM2SIMManager):
 
-    def __init__(self, task, ifc):
-        super().__init__(task, ifc)
+    def __init__(self, task):
+        super().__init__(task)
 
         self.relevant_ifc_types = ['IfcAirTerminal',
                                    'IfcAirTerminalBox',
@@ -45,20 +49,58 @@ class AixLib(BIM2SIMManager):
                                    'IfcValve',
                                    'IfcVibrationIsolator']
 
+    @log("preparing")
     def prepare(self):
-        
-        self.logger.info('preparing stuff')
 
-        self.hvac = hvacsystem.HVACSystem(self.ifc)
+        # TODO: depending on task ...
+        self.filters.append(TypeFilter(self.relevant_ifc_types))
 
-        return
+    @log("reducing model")
+    def reduce(self):
+        reducible_elements = ['IfcPipeSegment', 'IfcPipeFitting']
+        for main_pipe in self.raw_instances.values():
+            if len(main_pipe.neighbors) == 2 and main_pipe.ifc_type in \
+                    reducible_elements:
+                for next_pipe in main_pipe.neighbors:
+                    if len(next_pipe.neighbors) <= 2 and next_pipe.ifc_type in \
+                            reducible_elements:
+                        if next_pipe.pipestrand is None and \
+                                main_pipe.pipestrand is None:
+                            ps = PipeStrand(self)
+                            ps.pipes = [main_pipe, next_pipe]
+                            next_pipe.pipestrand = ps
+                            main_pipe.pipestrand = ps
+                        elif next_pipe.pipestrand is None:
+                            ps = main_pipe.pipestrand
+                            ps.pipes = [next_pipe]
+                            next_pipe.pipestrand = ps
+                        elif main_pipe.pipestrand is None:
+                            ps = next_pipe.pipestrand
+                            ps.pipes = [main_pipe]
+                            main_pipe.pipestrand = ps
+                        elif next_pipe.pipestrand is not None and \
+                                main_pipe.pipestrand is not None:
+                            ps = next_pipe.pipestrand
+                            ps.merge_pipestrands(main_pipe.pipestrand)
 
-    def run(self):
 
-        self.logger.info('doing export stuff')
+    @log("processing")
+    def process(self):
 
-        #self.hvac.draw_hvac_network()
-        return
+        self.instances.extend(self.reduced_instances)
+
+    @log("exporting")
+    def export(self):
+        for inst in self.instances:
+            self.export_instances.append(modelica.Instance.factory(inst))
+
+        modelica_model = modelica.Model(name="Test", comment="testing",
+                                        instances=self.export_instances,
+                                        connections={})
+        print("-" * 80)
+        print(modelica_model.code())
+        print("-" * 80)
+        modelica_model.save(PROJECT.export)
 
     def create_modelica_table_from_list(self,curve):
         """
