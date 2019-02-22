@@ -132,10 +132,10 @@ class BIM2SIMManager():
         self.ifc = ifc2python.load_ifc(os.path.abspath(self.ifc_path))
 
         self.relevant_ifc_types = []
-        self.raw_instances = {} # directly made from IFC
+        self.raw_instances = {}  # directly made from IFC
         self.reduced_instances = []
-        self.instances = [] # processed for custom needs
-        self.export_instances = []
+        self.instances = []  # processed for custom needs
+        self.export_instances = []  # Todo @CWA whats the purpose?
 
         self.filters = []
         self.tests = []
@@ -190,9 +190,7 @@ class BIM2SIMManager():
                                          in zip(port1.position,
                                                 port2.position)))
                         if all(diff <= 1 for diff in distance):
-                            port1.connect(port2)
-        HVACSystem(self)
-
+                                port1.connect(port2)
 
     @log("enriching data")
     def enrich(self):
@@ -209,7 +207,7 @@ class BIM2SIMManager():
     @log("processing")
     def process(self):
         """Step 5"""
-
+        # HVACSystem(self)
         self.logger.warning("Not implemented!")
 
     @log("checking results")
@@ -252,6 +250,7 @@ class BIM2SIMManager():
         with open(PROJECT.config, "w") as file:
             self.config.write(file)
 
+
 def open_config():
     """Open config for user in default program"""
     if sys.platform.startswith('darwin'): # For MAC OS X
@@ -261,6 +260,7 @@ def open_config():
         #os.system("start " + conf_path)
     elif os.name == 'posix': # For Linux, Mac, etc.
         subprocess.call(('xdg-open', PROJECT.config))
+
 
 def config_base_setup(backend=None):
     """Initial setup for config file"""
@@ -276,6 +276,7 @@ def config_base_setup(backend=None):
 
     with open(PROJECT.config, "w") as file:
         config.write(file)
+
 
 def get_config():
     """returns configparser instance. Basic config is done if file is not present"""

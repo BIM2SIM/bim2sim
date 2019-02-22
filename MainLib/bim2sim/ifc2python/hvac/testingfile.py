@@ -29,20 +29,23 @@ G.add_edge(15, 25)
 G.add_edge(25, 1)
 
 
-nx.set_node_attributes(G, [], 'contracted_nodes')
-for node in G.nodes():
-    nodes_nb = list(set(nx.all_neighbors(G, node)) - set(
-        G.node[node]['contracted_nodes']) - {node})
-    if len(nodes_nb) == 2:  # add if is connection_element
-        for node_nb in nodes_nb:
-            nodes_nb_nb = list(set(nx.all_neighbors(G, node_nb)) - set(
-                G.node[node_nb]['contracted_nodes']) - {node_nb})
-            if len(nodes_nb_nb) <= 2:  # add if is connection_element
-                G.node[node_nb]['contracted_nodes'] = \
-                    G.node[node_nb]['contracted_nodes'] + [node]
-                print(G.node[node]['contracted_nodes'])
-                G = nx.contracted_nodes(G, node_nb, node)  # merge node into
-                break
+# nx.set_node_attributes(G, [], 'contracted_nodes')
+# for node in G.nodes():
+#     nodes_nb = list(set(nx.all_neighbors(G, node)) - set(
+#         G.node[node]['contracted_nodes']) - {node})
+#     if len(nodes_nb) == 2:  # add if is connection_element
+#         for node_nb in nodes_nb:
+#             nodes_nb_nb = list(set(nx.all_neighbors(G, node_nb)) - set(
+#                 G.node[node_nb]['contracted_nodes']) - {node_nb})
+#             if len(nodes_nb_nb) <= 2:  # add if is connection_element
+#                 G.node[node_nb]['contracted_nodes'] = \
+#                     G.node[node_nb]['contracted_nodes'] + \
+#                     G.node[node]['contracted_nodes'] + [node]
+#                 print(G.node[node]['contracted_nodes'])
+#                 G = nx.contracted_nodes(G, node_nb, node)  # merge node into
+#                 break
+
+cycles=nx.find_cycle(G)
 
 nx.draw(G, with_labels=True)
 plt.draw()

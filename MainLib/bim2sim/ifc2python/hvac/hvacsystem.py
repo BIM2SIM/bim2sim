@@ -59,13 +59,14 @@ class HVACSystem(object):
     #                         node_nb) in \
     #                         reducible_elements:
     #                     graph.node[node_nb]['contracted_nodes'] = \
-    #                         graph.node[node_nb]['contracted_nodes'] + [node]
+    #                         graph.node[node_nb]['contracted_nodes'] + \
+    #                         graph.node[node]['contracted_nodes'] + [node]
     #                     graph = nx.contracted_nodes(graph, node_nb, node)
     #                     reduced_nodes += 1
     #                     break
     #     self.logger.debug("Number of nodes: %d", reduced_nodes)
     #     return graph
-    #
+
     # def transfer_to_generel_description(self, graph):
     #     for node in graph.nodes():
     #         self.create_generic_objects(graph, node)

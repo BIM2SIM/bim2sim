@@ -6,7 +6,6 @@ import numpy as np
 from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import ifc2python
 
-# TODO: Ports, Connections
 
 class Port():
     """"""
@@ -21,6 +20,8 @@ class Port():
         """Connect this interface to another interface"""
         assert isinstance(other, self.__class__), "Can't connect interfaces" \
                                                   " of different classes."
+        # if self.flow_direction == 'SOURCE' or \
+        #         self.flow_direction == 'SOURCEANDSINK':
         self.connections.append(other)
 
     @cached_property
@@ -77,7 +78,7 @@ class Element():
         self.ifc = ifc
         self.guid = ifc.GlobalId
         self.name = ifc.Name
-        self.ports = [] #TODO
+        self.ports = []
         self._add_ports()
 
     def _add_ports(self):
@@ -102,7 +103,8 @@ class Element():
                 Element.dummy = cls
             elif not cls.ifc_type.lower().startswith("ifc"):
                 conflict = True
-                logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type, cls.__name__)
+                logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type,
+                             cls.__name__)
             else:
                 Element._ifc_classes[cls.ifc_type] = cls
 
@@ -111,7 +113,8 @@ class Element():
 
         #Model.dummy = Model.ifc_classes['any']
 
-        logger.debug("IFC model factory intitialized with %d models:", len(Element._ifc_classes))
+        logger.debug("IFC model factory intitialized with %d models:",
+                     len(Element._ifc_classes))
         for model in Element._ifc_classes:
             logger.debug("- %s", model)
 
@@ -144,6 +147,14 @@ class Element():
                                  PlacementRelTo.RelativePlacement.
                                  Location.Coordinates)))
         return pos
+
+    @cached_property
+    def neighbors(self):
+        neighbors = []
+        for port in self.ports:
+            for connection in port.connections:
+                neighbors.append(connection.parent)
+        return neighbors
 
     def get_ifc_attribute(self, attribute):
         """
@@ -186,7 +197,6 @@ class Element():
 
     def __repr__(self):
         return "<%s (%s)>"%(self.__class__.__name__, self.name)
-
 
 
 class Dummy(Element):
