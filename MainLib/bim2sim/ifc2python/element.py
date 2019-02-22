@@ -194,7 +194,7 @@ class Dummy(Element):
     #ifc_type = 'any'
 
     def __init__(self, ifc):
-        super.__init__(ifc)
+        super().__init__(ifc)
 
         self._ifc_type = ifc.get_info()['type']
 
