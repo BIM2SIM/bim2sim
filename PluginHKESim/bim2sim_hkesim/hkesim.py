@@ -2,7 +2,7 @@
 import bim2sim
 
 from bim2sim.decorator import log
-from bim2sim.manage import BIM2SIMManager
+from bim2sim.manage import BIM2SIMManager, PROJECT
 from bim2sim.ifc2python.element import Element
 from bim2sim.ifc2python.aggregation import PipeStrand
 from bim2sim.filter import TypeFilter
@@ -14,15 +14,42 @@ from bim2sim_hkesim import models
 
 class HKESimManager(BIM2SIMManager):
 
-    def __init__(self, task, ifc):
-        super().__init__(task, ifc)
+    def __init__(self, task):
+        super().__init__(task)
 
-        self.relevant_ifc_types = ['IfcSpaceHeater',
-            'IfcPipeFitting',
-            'IfcPipeSegment',
-            'IfcTank',
-            'IfcBoiler',
-            'IfcUnitaryEquipment']
+        self.relevant_ifc_types = ['IfcAirTerminal',
+                                   'IfcAirTerminalBox',
+                                   'IfcAirToAirHeatRecovery',
+                                   'IfcBoiler',
+                                   'IfcBurner',
+                                   'IfcChiller',
+                                   'IfcCoil',
+                                   'IfcCompressor',
+                                   'IfcCondenser',
+                                   'IfcCooledBeam',
+                                   'IfcCoolingTower',
+                                   'IfcDamper',
+                                   'IfcDuctFitting',
+                                   'IfcDuctSegment',
+                                   'IfcDuctSilencer',
+                                   'IfcEngine',
+                                   'IfcEvaporativeCooler',
+                                   'IfcEvaporator',
+                                   'IfcFan',
+                                   'IfcFilter',
+                                   'IfcFlowMeter',
+                                   'IfcHeatExchanger',
+                                   'IfcHumidifier',
+                                   'IfcMedicalDevice',
+                                   'IfcPipeFitting',
+                                   'IfcPipeSegment',
+                                   'IfcPump',
+                                   'IfcSpaceHeater',
+                                   'IfcTank',
+                                   'IfcTubeBundle',
+                                   'IfcUnitaryEquipment',
+                                   'IfcValve',
+                                   'IfcVibrationIsolator']
 
     @log("preparing")
     def prepare(self):
@@ -65,4 +92,4 @@ class HKESimManager(BIM2SIMManager):
         print("-"*80)
         print(modelica_model.code())
         print("-"*80)
-        modelica_model.save(r"C:\Entwicklung\temp")
+        modelica_model.save(PROJECT.export)
