@@ -2,6 +2,7 @@
 
 import logging
 import enum
+import json
 
 class DecisionException(Exception):
     """Base Exception for Decisions"""
@@ -30,19 +31,28 @@ class Decision():
     CANCLE = "cancle"
     options = [SKIP, SKIPALL, CANCLE]
 
-    def __init__(self, output: dict, dict_key: str, question: str, given_value,
-                 check_func=None, global_key: str = None, collect=False):
+    def __init__(self, question: str, check_func, 
+                 output: dict = None, dict_key: str = None, global_key: str = None, allow_skip = False):
+
         self.status = Status.open
-        self.output = output
-        self.global_key = global_key
-        self.dict_key = dict_key
+
         self.question = question
         self.check_func = check_func
+        
+        self.output = output
+        self.dict_key = dict_key
+        self.global_key = global_key
 
-        self.load()
+        self.allow_skip = allow_skip
+        self.collect = False
+        if not output is None:
+            assert dict_key, "If output dict is given a dict_key is also needed."
+            self.collect = True
+
+        self.inner_load()
 
         if not self.status == Status.loadeddone:
-            self.value = self._inner_decide(given_value, collect)
+            self.value = self._inner_decide(self.collect)
 
         if self.status in [Status.done, Status.loadeddone]:
             self.post()
@@ -68,6 +78,7 @@ class Decision():
     def decide_stored(cls):
         """Solve all stored decisions"""
 
+        logger = logging.getLogger(__name__)
         skip_all = False
         for decision in cls.collection:
             if skip_all:
@@ -77,20 +88,39 @@ class Decision():
                     decision.decide()
                 except DecisionSkipAll as ex:
                     skip_all = True
+                    logger.info("Skipping remaining decisions")
                 except DecisionCancle as ex:
-                    logger = cls.logger.__get__(None)
                     logger.info("Canceling decisions")
                     raise
 
     @classmethod
-    def load(cls):
-        pass
+    def load(cls, path):
+        """Load previously solved Decisions from file system"""
+
+        logger = logging.getLogger(__name__)
+        try:
+            with open(path, "r") as file:
+                data = json.load(file)
+        except IOError as ex:
+            logger.info("Unable to load decisions. (%s)", ex)
+        else:
+            if data:
+                msg = "Found %d previous made decisions. Continue using them?"%(len(data))
+                reuse = BoolDecision(question=msg).value
+                if reuse:
+                    cls.stored_decisions = data
+                    logger.info("Loaded decisions.")
 
     @classmethod
-    def save(cls):
-        pass
+    def save(cls, path):
+        """Save solved Decisions to file system"""
 
-    def load(self):
+        logger = logging.getLogger(__name__)
+        with open(path, "w") as file:
+            json.dump(cls.stored_decisions, file, indent=2)
+        logger.info("Saved %d decisions.", len(cls.stored_decisions))
+
+    def inner_load(self):
         """Loads decision with maching global_key.
 
         Decision.load() first."""
@@ -107,8 +137,12 @@ class Decision():
                 self.logger.warning("Check for loaded decision '%s' failed. Loaded value: %s",
                                     self.global_key, value)
 
-    def save(self):
+    def inner_save(self):
         """Make decision saveable by Decision.save()"""
+
+        if self.status == Status.loadeddone:
+            self.logger.debug("Not saving loaded decision")
+            return
 
         if self.global_key:
             assert not self.global_key in Decision.stored_decisions, \
@@ -119,76 +153,86 @@ class Decision():
             self.status = Status.saveddone
             self.logger.info("Stored decision '%s' with value: %s", self.global_key, self.value)
 
-    def _inner_decide(self, given_value, collect):
+    def _inner_decide(self, collect):
         """Trys to find a dicison on given input and returns value"""
 
-        result = given_value
-        valid = self.check(result)
-        if not valid:
-            self.status = Status.open
-            self.logger.warning("Recieved invalid value (%s) for '%s'", result, self.global_key)
+        self.status = Status.open
 
-        if not self.status in [Status.done, Status.loadeddone]:
-            if collect:
-                Decision.collection.append(self)
-                self.logger.debug("Added decision for later processing.")
-            else:
-                # instant user input
-                result = self.user_input([Decision.SKIP])
-                self.status = Status.done
+        if self.global_key:
+            self.logger.warning("Recieved None or invalid value for '%s'", self.global_key)
 
-        return result
+        if collect:
+            Decision.collection.append(self)
+            self.logger.debug("Added decision for later processing.")
+        else:
+            # instant user input
+            options = [Decision.CANCLE]
+            if self.allow_skip:
+                options.append(Decision.SKIP)
+            result = self.user_input(options)
+            self.status = Status.done
+            return result
 
     def decide(self):
-        """decide by user input"""
+        """Decide by user input"""
+
         self.value = self.user_input(Decision.options)
         self.status = Status.done
         self.post()
 
     def skip(self):
         """Accept None as value und mark as solved"""
+
         self.status = Status.skipped
         self.post()
 
     @classmethod
     def summary(cls):
         """Returns summary string"""
+
         txt = "%d open decisions"%(len(cls.collection))
         txt += ""
         return txt
 
     def post(self):
         """Write result to output dict"""
+
+        if not self.collect:
+            return #Nothing to post to
         assert not self.status == Status.open
         self.output[self.dict_key] = self.value
         if not self.status == Status.skipped:
-            self.save()
+            self.inner_save()
 
     def parse_input(self, raw_input: str):
         """Convert input to desired type"""
+
         return raw_input
 
     def user_input(self, options):
         """Ask user for decision"""
 
         value = None
-        print("Enter value or one of the following commands: %s"%(options))
+        msg = "Enter value"
+        if options:
+            msg += " or one of the following commands: %s"%(", ".join(options))
+        print(msg)
         while True:
             raw_value = input("%s: "%(self.question))
-            if raw_value == Decision.SKIP:
+            if raw_value == Decision.SKIP and Decision.SKIP in options:
                 self.skip()
                 return value
-            if raw_value == Decision.SKIPALL:
+            if raw_value == Decision.SKIPALL and Decision.SKIPALL in options:
                 self.skip()
                 raise DecisionSkipAll
-            if raw_value == Decision.CANCLE:
+            if raw_value == Decision.CANCLE and Decision.CANCLE in options:
                 raise DecisionCancle
 
             value = self.parse_input(raw_value)
             if self.check(value):
                 break
             else:
-                print("Value '%s' does not match conditions! Try again."%(raw_value))
+                print("'%s' is no valid input! Try again."%(raw_value))
         return value
 
     def __repr__(self):
@@ -199,11 +243,35 @@ class RealDecision(Decision):
 
     def parse_input(self, raw_input):
         """Convert input to float"""
+
         try:
             value = float(raw_input)
         except:
             value = None
         return value
+
+class BoolDecision(Decision):
+    """Accepts input convertable as bool"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, check_func=self.check_bool, **kwargs)
+
+    @staticmethod
+    def check_bool(value):
+        if value is True or value is False:
+            return True
+        else:
+            return False
+
+    def parse_input(self, raw_input):
+        """Convert input to bool"""
+
+        inp = raw_input.lower()
+        if inp in ["y", "yes", "ja", "j", "1"]:
+            return True
+        if inp in ["n", "no", "nein", "n", "0"]:
+            return False
+        return None
 
 #class ListDecision(Decision):
 

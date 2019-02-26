@@ -135,13 +135,11 @@ class Instance():
             self.params[name] = value
         else:
             RealDecision(
+                question="Please enter parameter for %s"%(self.name + "." + name), 
+                check_func=self.check_power,
                 output=self.params, 
                 dict_key=name, 
-                question="Please enter parameter for %s"%(self.name + "." + name), 
                 global_key=self.name + "." + name,
-                given_value=value, 
-                check_func=self.check_power,
-                collect=True,
             )
 
     def get_params(self):
