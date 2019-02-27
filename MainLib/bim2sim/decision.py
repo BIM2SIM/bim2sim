@@ -1,4 +1,4 @@
-﻿"""Package holding decision system"""
+"""Package holding decision system"""
 
 import logging
 import enum
@@ -121,7 +121,7 @@ class Decision():
         logger.info("Saved %d decisions.", len(cls.stored_decisions))
 
     def inner_load(self):
-        """Loads decision with maching global_key.
+        """Loads decision with matching global_key.
 
         Decision.load() first."""
 
