@@ -451,5 +451,5 @@ ASALocalRun/
 .localhistory/
 
 # Project files for Visual Studio
-.sln
-.*proj
+*.sln
+*.*proj
