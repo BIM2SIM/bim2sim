@@ -1,4 +1,4 @@
-﻿""" This module holds a HVACSystem object which is represented by a graph
+﻿""" This module holds a HVACSystem object which is -represented by a graph
 network
 where each node represents a hvac-component
 """
@@ -13,10 +13,11 @@ class HVACSystem(object):
         self.logger = logging.getLogger(__name__)
         self.parent = parent
         self.hvac_graph = self._create_complete_hvac_network()
+        self.reducestrangs()
         # self.hvac_objects = []
 
         nx.draw(self.hvac_graph, node_size=3, font_size=10,
-                with_labels=False)
+                with_labels=True)
         plt.draw()
         plt.show()
         # self.transfer_to_generel_description(graph=self.hvac_graph)
@@ -31,14 +32,29 @@ class HVACSystem(object):
         graph = nx.DiGraph()
         for instance in self.parent.raw_instances.values():
             for port in instance.ports:
-                graph.add_edge(instance, port)
+                graph.add_node(port, label=port.name)
                 for connected_node in port.connections:
+                    graph.add_node(connected_node, label=connected_node.name)
                     graph.add_edge(port, connected_node)
+                    if len(instance.ports) == 2:
+                        graph.add_edge(instance.ports[0], instance.ports[1])
 
         # self.hvac_graph = self.contract_network(graph)
         # todo add logger msg how many nodes have been contracted
         # self.logger.debug("Number of nodes: %d", graph.number_of_nodes())
+        print(graph.number_of_nodes())
         return graph
+    def reducestrangs(self):
+        for instance in self.parent.raw_instances.values():
+            if len(instance.ports) == 2:
+                nx.contracted_nodes(self.hvac_graph, instance.ports[0], instance.ports[1], self_loops=False)
+        #edgelist = self.hvac_graph.edges
+        print(self.hvac_graph.number_of_nodes())
+        for edge in self.hvac_graph.edges:
+            if(len(edge[0].parent.ports) == 2 and len(edge[1].parent.ports) == 2):
+                nx.contracted_nodes(self.hvac_graph, edge[0], edge[1], self_loops=False)
+
+
 
     # def contract_network(self, graph):
     #     """
@@ -78,7 +94,8 @@ class HVACSystem(object):
     #     instance = graph.node[node]['belonging_object']
     #     instance.get_port_connections(graph, node)
     #
-    # def draw_hvac_network(self, label='oid'):
+    # def draw_hvac_network(self,
+
     #     """
     #     Function to deliver a graphical output of the HVAC network.
     #     :param label: label to display at the nodes, default is ifc oid,
