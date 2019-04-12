@@ -27,6 +27,7 @@ G.add_edge(13, 'a')
 G.add_edge(12, 25)
 G.add_edge(15, 25)
 G.add_edge(25, 1)
+G.add_edge(15,12)
 
 
 # nx.set_node_attributes(G, [], 'contracted_nodes')
@@ -45,8 +46,9 @@ G.add_edge(25, 1)
 #                 G = nx.contracted_nodes(G, node_nb, node)  # merge node into
 #                 break
 
-cycles=nx.find_cycle(G)
-
+cycles = nx.cycle_basis(G.to_undirected())
+for cycle in cycles:
+    print(cycle)
 nx.draw(G, with_labels=True)
 plt.draw()
 plt.show()

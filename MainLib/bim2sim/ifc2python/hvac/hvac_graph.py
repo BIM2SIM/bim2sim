@@ -8,12 +8,14 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 
-class HVACSystem(object):
+class HvacGraph(object):
     def __init__(self, parent):
         self.logger = logging.getLogger(__name__)
         self.parent = parent
         self.hvac_graph = self._create_complete_hvac_network()
-        self.reducestrangs()
+        self.contract_ports_into_elements()
+        self.find_cicyles()
+        # self.reducestrangs()
         # self.hvac_objects = []
 
         nx.draw(self.hvac_graph, node_size=3, font_size=10,
@@ -25,25 +27,44 @@ class HVACSystem(object):
 
     def _create_complete_hvac_network(self):
         """
-        This function defines the hvac system as graph network. Each element
-        and each of its ports are represented by a node.
+        This function creates a graph network of the raw instances . Each
+        ports is represented by a node, components are turned into contracted
+        nodes, e.g. for a pipe the two nodes are created and turned into an
+        aggregated node.
         """
         self.logger.info("Creating HVAC network")
         graph = nx.DiGraph()
         for instance in self.parent.raw_instances.values():
+            if not graph.has_node(instance):
+                graph.add_node(instance, label=instance.name)
             for port in instance.ports:
                 graph.add_node(port, label=port.name)
+                # nx.contracted_nodes(graph, instance, port)
                 for connected_node in port.connections:
-                    graph.add_node(connected_node, label=connected_node.name)
-                    graph.add_edge(port, connected_node)
-                    if len(instance.ports) == 2:
-                        graph.add_edge(instance.ports[0], instance.ports[1])
-
+                    if not graph.has_node(connected_node):
+                        graph.add_node(connected_node, label=connected_node.name)
+                        graph.add_edge(port, connected_node)
+                # if len(instance.ports) == 2:
+                #     graph.add_edge(instance.ports[0], instance.ports[1])
+        print(graph.number_of_nodes())
         # self.hvac_graph = self.contract_network(graph)
         # todo add logger msg how many nodes have been contracted
         # self.logger.debug("Number of nodes: %d", graph.number_of_nodes())
-        print(graph.number_of_nodes())
         return graph
+
+    def contract_ports_into_elements(self):
+        self.logger.info("Contracting ports into elements")
+        for node in self.hvac_graph.nodes():
+            print(node)
+
+
+
+
+
+    def find_cicyles(self):
+        cycles = nx.cycle_basis(self.hvac_graph.to_undirected())
+        print(cycles)
+
     def reducestrangs(self):
         for instance in self.parent.raw_instances.values():
             if len(instance.ports) == 2:
@@ -54,7 +75,17 @@ class HVACSystem(object):
             if(len(edge[0].parent.ports) == 2 and len(edge[1].parent.ports) == 2):
                 nx.contracted_nodes(self.hvac_graph, edge[0], edge[1], self_loops=False)
 
-
+    def get_contractions(self, node):
+        """
+        Returns a list of contracted nodes for the passed node.
+        :param node:
+        :return:
+        """
+        inner_nodes = []
+        for contractions in node.values():
+            for inner_node in contractions.keys():
+                inner_nodes.append(inner_node)
+        return inner_nodes
 
     # def contract_network(self, graph):
     #     """
