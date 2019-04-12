@@ -44,10 +44,10 @@ class Port():
                 relative_placement.Axis.DirectionRatios[1],
                 relative_placement.Axis.DirectionRatios[2]])
         except AttributeError as ae:
-            self.parent.logger.info(str(ae) + ' - DirectionRatios not '
-                                              'existing, assuming [1, 1, '
-                                              '1] as direction of element ' +
-                                    str(self.parent.ifc))
+            # self.parent.logger.info(str(ae) + ' - DirectionRatios not '
+            #                                   'existing, assuming [1, 1, '
+            #                                   '1] as direction of element ' +
+            #                         str(self.parent.ifc))
             x_direction = np.array([1, 0, 0])
             z_direction = np.array([0, 0, 1])
         y_direction = np.cross(z_direction, x_direction)
@@ -60,7 +60,7 @@ class Port():
                 + x_direction[i] * port_coordinates_relative[0]
                 + y_direction[i] * port_coordinates_relative[1]
                 + z_direction[i] * port_coordinates_relative[2])
-        return coordinates
+        return tuple(coordinates)
 
     def __repr__(self):
         return "<%s (%s)>"%(self.__class__.__name__, self.name)
