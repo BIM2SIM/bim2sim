@@ -168,6 +168,19 @@ class BIM2SIMManager():
     @log("inspecting IFC")
     def inspect(self):
         """Step 2"""
+        def _connect_instances():
+            for raw_instance1 in self.raw_instances.values():
+                for port1 in raw_instance1.ports:
+                    for raw_instance2 in self.raw_instances.values():
+                        for port2 in raw_instance2.ports:
+                            if raw_instance1 == raw_instance2:
+                                continue
+                            distance = list((abs(coord1 - coord2)
+                                             for (coord1, coord2)
+                                             in zip(port1.position,
+                                                    port2.position)))
+                            if all(diff <= 1 for diff in distance):
+                                port1.connect(port2)
 
         for ifc_type in self.relevant_ifc_types:
             elements = self.ifc.by_type(ifc_type)
@@ -178,19 +191,8 @@ class BIM2SIMManager():
         self.logger.info("Found %d relevant elements", len(self.raw_instances))
 
         self.logger.info("Connecting the relevant elements")
+        _connect_instances()
 
-        for raw_instance1 in self.raw_instances.values():
-            for port1 in raw_instance1.ports:
-                for raw_instance2 in self.raw_instances.values():
-                    for port2 in raw_instance2.ports:
-                        if raw_instance1 == raw_instance2:
-                            continue
-                        distance = list((abs(coord1 - coord2)
-                                         for (coord1, coord2)
-                                         in zip(port1.position,
-                                                port2.position)))
-                        if all(diff <= 1 for diff in distance):
-                                port1.connect(port2)
 
     @log("enriching data")
     def enrich(self):
