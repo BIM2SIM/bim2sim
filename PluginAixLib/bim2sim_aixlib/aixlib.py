@@ -57,32 +57,9 @@ class AixLib(BIM2SIMManager):
 
     @log("reducing model")
     def reduce(self):
-        reducible_elements = ['IfcPipeSegment', 'IfcPipeFitting']
-        for main_pipe in self.raw_instances.values():
-            if len(main_pipe.neighbors) == 2 and main_pipe.ifc_type in \
-                    reducible_elements:
-                for next_pipe in main_pipe.neighbors:
-                    if len(next_pipe.neighbors) <= 2 and next_pipe.ifc_type in \
-                            reducible_elements:
-                        if next_pipe.pipestrand is None and \
-                                main_pipe.pipestrand is None:
-                            ps = PipeStrand(self)
-                            ps.pipes = [main_pipe, next_pipe]
-                            next_pipe.pipestrand = ps
-                            main_pipe.pipestrand = ps
-                        elif next_pipe.pipestrand is None:
-                            ps = main_pipe.pipestrand
-                            ps.pipes = [next_pipe]
-                            next_pipe.pipestrand = ps
-                        elif main_pipe.pipestrand is None:
-                            ps = next_pipe.pipestrand
-                            ps.pipes = [main_pipe]
-                            main_pipe.pipestrand = ps
-                        elif next_pipe.pipestrand is not None and \
-                                main_pipe.pipestrand is not None:
-                            ps = next_pipe.pipestrand
-                            ps.merge_pipestrands(main_pipe.pipestrand)
-
+        graph = self.representations[0]
+        graph.contract_network()
+        graph.plot_graph()
 
     @log("processing")
     def process(self):

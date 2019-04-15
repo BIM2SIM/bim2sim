@@ -199,8 +199,8 @@ class BIM2SIMManager():
     @log("enriching data")
     def enrich(self):
         """Step 3"""
-        hvac_graph = HvacGraph(self)
-        self.representations.append(hvac_graph)
+        hvacgraph = HvacGraph(self)
+        self.representations.append(hvacgraph)
         self.logger.warning("Not implemented!")
 
     @log("reducing data")
