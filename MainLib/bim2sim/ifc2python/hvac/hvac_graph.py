@@ -23,10 +23,8 @@ class HvacGraph(object):
 
     def _create_complete_hvac_network(self):
         """
-        This function creates a graph network of the raw instances . Each
-        ports is represented by a node, components are turned into contracted
-        nodes, e.g. for a pipe the two nodes are created and turned into an
-        aggregated node.
+        This function creates a graph network of the raw instances. Each
+        componenent and each port of this component is represented by a node.
         """
         self.logger.info("Creating HVAC graph representation")
         graph = nx.DiGraph()
@@ -44,7 +42,9 @@ class HvacGraph(object):
 
     def _contract_ports_into_elements(self):
         """
-        Contract the port nodes into instance nodes for better handling.
+        Contract the port nodes into the belonging instance nodes for better
+        handling, the information about the ports is still accessible via the
+        get_contractinos function.
         :return:
         """
         counter = 0
@@ -79,7 +79,7 @@ class HvacGraph(object):
             inner_nodes.append(contraction)
         return inner_nodes
 
-    def contract_network(self):
+    def reduce_network(self):
         """
         This function reduces the network by searching for reducable elements.
         As an example all successive pipes will be reduced into one pipe.
@@ -112,12 +112,16 @@ class HvacGraph(object):
                         break
         self.logger.debug("Reduced %d nodes by contracting, %d nodes left.",
                           reduced_nodes, graph.number_of_nodes())
-
-        # for node in graph.nodes():
-        #     if node.ifc_type in reducible_elements:
-        #         PS = PipeStrand()
-        #         PS.pipes = graph.node[node]['contracted_nodes']
-
+        nr = 0
+        for node in graph.nodes():
+            if node.ifc_type in reducible_elements:
+                models = graph.node[node]['contracted_nodes']
+                if len(models) > 0:
+                    models.append(node)
+                    name = 'PipeStrand' + str(nr)
+                    PS = PipeStrand(name, models)
+                    self.parent.reduced_instances.append(PS)
+                    nr +=1
         self.hvac_graph = graph
 
 
@@ -133,7 +137,7 @@ class HvacGraph(object):
 
 
     def plot_graph(self):
-        nx.draw(self.hvac_graph, node_size=3, font_size=10,
+        nx.draw(self.hvac_graph, node_size=3, font_size=6,
                 with_labels=True)
         plt.draw()
         plt.show()
