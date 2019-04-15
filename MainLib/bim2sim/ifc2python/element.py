@@ -24,6 +24,11 @@ class Port():
         #         self.flow_direction == 'SOURCEANDSINK':
         self.connections.append(other)
 
+    @property
+    def ifc_type(self):
+        """Returns IFC type"""
+        return self.ifc.is_a()
+
     @cached_property
     def flow_direction(self):
         """returns the flow direction"""
