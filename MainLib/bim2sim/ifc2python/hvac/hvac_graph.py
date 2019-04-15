@@ -6,6 +6,8 @@ where each node represents a hvac-component
 import logging
 import networkx as nx
 import matplotlib.pyplot as plt
+from bim2sim.ifc2python import ifc2python
+from bim2sim.ifc2python.aggregation import PipeStrand
 
 
 class HvacGraph(object):
@@ -13,16 +15,10 @@ class HvacGraph(object):
         self.logger = logging.getLogger(__name__)
         self.parent = parent
         self.hvac_graph = self._create_complete_hvac_network()
-        self.contract_ports_into_elements()
-        self.find_cicyles()
-        # self.reducestrangs()
-        # self.hvac_objects = []
+        self._contract_ports_into_elements()
+        # self.contract_network()
+        # self.find_cicyles()
 
-        nx.draw(self.hvac_graph, node_size=3, font_size=10,
-                with_labels=True)
-        plt.draw()
-        plt.show()
-        # self.transfer_to_generel_description(graph=self.hvac_graph)
         # self.draw_hvac_network(label='type')
 
     def _create_complete_hvac_network(self):
@@ -32,48 +28,44 @@ class HvacGraph(object):
         nodes, e.g. for a pipe the two nodes are created and turned into an
         aggregated node.
         """
-        self.logger.info("Creating HVAC network")
+        self.logger.info("Creating HVAC graph representation")
         graph = nx.DiGraph()
         for instance in self.parent.raw_instances.values():
             if not graph.has_node(instance):
                 graph.add_node(instance, label=instance.name)
             for port in instance.ports:
-                graph.add_node(port, label=port.name)
-                # nx.contracted_nodes(graph, instance, port)
-                for connected_node in port.connections:
-                    if not graph.has_node(connected_node):
-                        graph.add_node(connected_node, label=connected_node.name)
-                        graph.add_edge(port, connected_node)
-                # if len(instance.ports) == 2:
-                #     graph.add_edge(instance.ports[0], instance.ports[1])
-        print(graph.number_of_nodes())
-        # self.hvac_graph = self.contract_network(graph)
-        # todo add logger msg how many nodes have been contracted
-        # self.logger.debug("Number of nodes: %d", graph.number_of_nodes())
+                graph.add_node(port)
+                for connected_port in port.connections:
+                    if not graph.has_node(connected_port):
+                        graph.add_node(connected_port)
+                        graph.add_edge(port, connected_port)
+        self.logger.info("Created %d nodes", graph.number_of_nodes())
         return graph
 
-    def contract_ports_into_elements(self):
-        self.logger.info("Contracting ports into elements")
-        for node in self.hvac_graph.nodes():
-            print(node)
-
-
-
-
+    def _contract_ports_into_elements(self):
+        """
+        Contract the port nodes into instance nodes for better handling.
+        :return:
+        """
+        counter = 0
+        self.logger.info("Contracting ports into elements ...")
+        for instance in self.parent.raw_instances.values():
+            for port in instance.ports:
+                counter += 1
+                self.hvac_graph = nx.contracted_nodes(self.hvac_graph,
+                                                      instance, port)
+        self.logger.info("Contracted %d ports into node instances, this"
+                         " leads to %d nodes.",
+                         counter, self.hvac_graph.number_of_nodes())
 
     def find_cicyles(self):
-        cycles = nx.cycle_basis(self.hvac_graph.to_undirected())
-        print(cycles)
-
-    def reducestrangs(self):
-        for instance in self.parent.raw_instances.values():
-            if len(instance.ports) == 2:
-                nx.contracted_nodes(self.hvac_graph, instance.ports[0], instance.ports[1], self_loops=False)
-        #edgelist = self.hvac_graph.edges
-        print(self.hvac_graph.number_of_nodes())
-        for edge in self.hvac_graph.edges:
-            if(len(edge[0].parent.ports) == 2 and len(edge[1].parent.ports) == 2):
-                nx.contracted_nodes(self.hvac_graph, edge[0], edge[1], self_loops=False)
+        """
+        Find cycles in the graph.
+        :return:
+        """
+        undirected_graph = nx.Graph(self.hvac_graph)
+        cycles = nx.cycle_basis(undirected_graph)
+        return cycles
 
     def get_contractions(self, node):
         """
@@ -81,181 +73,67 @@ class HvacGraph(object):
         :param node:
         :return:
         """
+        node = self.hvac_graph.node[node]
         inner_nodes = []
-        for contractions in node.values():
-            for inner_node in contractions.keys():
-                inner_nodes.append(inner_node)
+        for contraction in node['contraction'].keys():
+            inner_nodes.append(contraction)
         return inner_nodes
 
-    # def contract_network(self, graph):
-    #     """
-    #     This function reduces the network by searching for reducable elements.
-    #     As an example all successive pipes will be reduced into one pipe.
-    #     """
-    #     reducible_elements = ['IfcPipeSegment', 'IfcPipeFitting']
-    #     nx.set_node_attributes(graph, [], 'contracted_nodes')
-    #     nx.set_node_attributes(graph, str, 'belonging_object')
-    #     reduced_nodes = 0
-    #     for node in graph.nodes():
-    #         node_nbs = self.all_neighbors(graph, node)
-    #         if len(node_nbs) == 2 and ifc2python.getElementType(node) in \
-    #                 reducible_elements:
-    #             for node_nb in node_nbs:
-    #                 node_nb_nbs = self.all_neighbors(graph, node_nb)
-    #                 if len(node_nb_nbs) <= 2 and ifc2python.getElementType(
-    #                         node_nb) in \
-    #                         reducible_elements:
-    #                     graph.node[node_nb]['contracted_nodes'] = \
-    #                         graph.node[node_nb]['contracted_nodes'] + \
-    #                         graph.node[node]['contracted_nodes'] + [node]
-    #                     graph = nx.contracted_nodes(graph, node_nb, node)
-    #                     reduced_nodes += 1
-    #                     break
-    #     self.logger.debug("Number of nodes: %d", reduced_nodes)
-    #     return graph
+    def contract_network(self):
+        """
+        This function reduces the network by searching for reducable elements.
+        As an example all successive pipes will be reduced into one pipe.
+        """
+        graph = self.hvac_graph
+        reducible_elements = ['IfcPipeSegment', 'IfcPipeFitting']
+        # todo: maybe add reducible flag to elements to be able to check
+        #  against this instead of a fixed list
+        self.logger.info("Reducing the network by contracting pipes into "
+                         "pipestrands ...")
+        nx.set_node_attributes(graph, [], 'contracted_nodes')
+        reduced_nodes = 0
 
-    # def transfer_to_generel_description(self, graph):
-    #     for node in graph.nodes():
-    #         self.create_generic_objects(graph, node)
-    #     for node in graph.nodes():
-    #         self.connect_generic_objects(graph, node)
-    #     pass
-    #
-    # def connect_generic_objects(self, graph, node):
-    #     instance = graph.node[node]['belonging_object']
-    #     instance.get_port_connections(graph, node)
-    #
-    # def draw_hvac_network(self,
+        for node in graph.nodes():
+            node_nbs = self.all_neighbors_without_contractions(graph, node)
+            if len(node_nbs) == 2 and node.ifc_type in \
+                    reducible_elements:
+                for node_nb in node_nbs:
+                    node_nb_nbs = self.all_neighbors_without_contractions(
+                        graph, node_nb)
+                    if len(node_nb_nbs) <= 2 and node.ifc_type in \
+                            reducible_elements:
+                        # todo integrate contraction not with dict entrys
+                        graph.node[node_nb]['contracted_nodes'] = \
+                            graph.node[node_nb]['contracted_nodes'] + \
+                            graph.node[node]['contracted_nodes'] + \
+                            [node]
+                        graph = nx.contracted_nodes(graph, node_nb, node)
+                        reduced_nodes += 1
+                        break
+        self.logger.debug("Reduced %d nodes by contracting, %d nodes left.",
+                          reduced_nodes, graph.number_of_nodes())
 
-    #     """
-    #     Function to deliver a graphical output of the HVAC network.
-    #     :param label: label to display at the nodes, default is ifc oid,
-    #     can also be type
-    #     :return:
-    #     """
-    #     labels = nx.get_node_attributes(self.hvac_graph, label)
-    #     nx.draw(self.hvac_graph, labels=labels, node_size=3, font_size=10,
-    #             with_labels=True)
-    #     plt.draw()
-    #     plt.show()
+        # for node in graph.nodes():
+        #     if node.ifc_type in reducible_elements:
+        #         PS = PipeStrand()
+        #         PS.pipes = graph.node[node]['contracted_nodes']
 
-    # def create_generic_objects(self, graph, node):
-    #     """
-    #     Creating an hvac_object by the corresponding ifc_element and add the
-    #     instance of the object to the networkx node.
-    #     :param node:
-    #     :return: object of class corresponding to the ifc_element
-    #     """
-    #
-    #     object_type = ifc2python.getElementType(node)
-    #     if object_type == "IfcBoiler":
-    #         instance = Boiler(graph=graph,
-    #                           IfcGUID=self.get_all_neighbor_GUIDS(graph=graph,
-    #                                                               node=node),
-    #                           ifcfile=self.ifc)
-    #     elif object_type == "IfcTank":
-    #         instance = StorageDevice(graph=graph,
-    #                                  IfcGUID=self.get_all_neighbor_GUIDS(
-    #                                      graph=graph, node=node),
-    #                                  ifcfile=self.ifc)
-    #     elif object_type == "IfcSpaceHeater":
-    #         instance = SpaceHeater(graph=graph,
-    #                                IfcGUID=self.get_all_neighbor_GUIDS(
-    #                                    graph=graph, node=node),
-    #                                ifcfile=self.ifc)
-    #     elif object_type == "IfcPipeSegment":
-    #         instance = Pipe(graph=graph,
-    #                                IfcGUID=self.get_all_neighbor_GUIDS(
-    #                                    graph=graph, node=node),
-    #                                ifcfile=self.ifc)
-    #     elif object_type == "IfcPipeFitting":
-    #         if len(self.all_neighbors(graph, node)) > 2:
-    #             instance = Valve(graph=graph,
-    #                                IfcGUID=self.get_all_neighbor_GUIDS(
-    #                                    graph=graph, node=node),
-    #                                ifcfile=self.ifc)
-    #         else:
-    #             instance = PipeFitting(graph=graph,
-    #                                IfcGUID=self.get_all_neighbor_GUIDS(
-    #                                    graph=graph, node=node),
-    #                                ifcfile=self.ifc)
-    #     elif object_type == "IfcUnitaryEquipment":
-    #         instance = EnergyConversionDevice(graph=graph,
-    #                                IfcGUID=self.get_all_neighbor_GUIDS(
-    #                                    graph=graph, node=node),
-    #                                ifcfile=self.ifc)
-    #     else:
-    #         instance = GenericDevice(graph=graph,
-    #                                IfcGUID=self.get_all_neighbor_GUIDS(
-    #                                    graph=graph, node=node),
-    #                                ifcfile=self.ifc)
-    #     graph.node[node]['belonging_object'] = instance
-    #     self.hvac_objects.append(instance)
-    #     return instance
+        self.hvac_graph = graph
 
-    # def all_neighbors(self, graph, node):
-    #     neighbors = list(
-    #         set(nx.all_neighbors(graph, node)) -
-    #         set(graph.node[node]['contracted_nodes']) - {node}
-    #     )
-    #     return neighbors
-    #
-    # def get_all_neighbor_GUIDS(self, graph, node):
-    #     guids = [ifc2python.getGUID(node)] + list(map(ifc2python.getGUID,
-    #                                                   graph.node[node][
-    #                                                   'contracted_nodes']))
-    #     return guids
-    #
-    # def connect_elements_by_coordinates(self, graph, parts, threshold):
-    #     """
-    #     Connects the ifc elements of the parts dict to each other by taking the
-    #     geometrical position of the ports into account. The threshold value
-    #     determines how far apart the ports may be from each other so that a
-    #     connection is still established.
-    #
-    #     Parameters
-    #     ----------
-    #
-    #
-    #     graph : Graph object from networkx
-    #         Graph that displays the hvac network
-    #     parts : dict
-    #         Dictionary holding all ifc elements of the hvac network
-    #     threshold : float
-    #         Value to specify how far apart the ports may be from each other so that
-    #         a connection is still established.
-    #     """
-    #     for element1, ports1 in parts.items():
-    #         for port1 in ports1.values():
-    #             for element2, ports2 in parts.items():
-    #                 for port2 in ports2.values():
-    #                     if element1 == element2:
-    #                         continue
-    #
-    #                     distance = list((abs(coord1 - coord2)
-    #                                      for (coord1, coord2)
-    #                                      in zip(port1['coordinate'],
-    #                                             port2['coordinate'])))
-    #                     if all(diff <= threshold for diff in distance):
-    #                         if port1['flow_direction'] == 'SOURCE' and \
-    #                                 port2['flow_direction'] == 'SINK':
-    #                             graph.add_edge(element1, element2)
-    #                         elif port1['flow_direction'] == 'SINK' and \
-    #                                 port2['flow_direction'] == 'SOURCE':
-    #                             graph.add_edge(element2, element1)
-    #                         elif port1['flow_direction'] == 'SOURCEANDSINK' or \
-    #                                 port2['flow_direction'] == 'SOURCEANDSINK':
-    #                             graph.add_edge(element1, element2)
-    #                             graph.add_edge(element2, element1)
-    #                         else:
-    #                             continue
-    #     return graph
 
-# if __name__ == '__main__':
-#     import ifcopenshell
-#     IfcFile = ifcopenshell.open(
-#         dirname(dirname(dirname(dirname(dirname((__file__)))))) +
-#         '/ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements'
-#         '.ifc')
-#     Test = HVACSystem(IfcFile)
 
+    def all_neighbors_without_contractions(self, graph, node):
+        neighbors = list(
+            set(nx.all_neighbors(graph, node)) -
+            set(graph.node[node]['contracted_nodes']) -
+            {node}
+        )
+        return neighbors
+
+
+
+    def plot_graph(self):
+        nx.draw(self.hvac_graph, node_size=3, font_size=10,
+                with_labels=True)
+        plt.draw()
+        plt.show()
