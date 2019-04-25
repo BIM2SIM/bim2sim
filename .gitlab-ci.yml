@@ -1,0 +1,2 @@
+include:
+  template: SAST.gitlab-ci.yml
