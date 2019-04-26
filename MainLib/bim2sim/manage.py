@@ -17,6 +17,7 @@ class _Project():
     """Project related management"""
 
     CONFIG = "config.ini"
+    DECISIONS = "decisions.json"
     IFC = "ifc"
     LOG = "log"
     EXPORT = "export"
@@ -42,6 +43,11 @@ class _Project():
         if not self._rootpath:
             return None
         return os.path.abspath(os.path.join(self._rootpath, _Project.CONFIG))
+
+    @property
+    def decisions(self):
+        """absolute path to decisions"""
+        return os.path.abspath(os.path.join(self._rootpath, _Project.DECISIONS))
 
     @property
     def log(self):
