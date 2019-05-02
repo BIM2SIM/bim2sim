@@ -45,32 +45,40 @@ class Pipe(element.Element):
         self.add_port("port_a", ifc.HasPorts[1].RelatingPort)
 
     @cached_property
-    def diameter(self):
-        return self.get_propertysets('Abmessungen')['Innendurchmesser']
+    def ps_abmessungen(self):
+        return self.get_propertysets('Abmessungen')
 
-    @cached_property
+    @property
+    def diameter(self):
+        return self.ps_abmessungen.get('Innendurchmesser')
+
+    @property
     def length(self):
-        return self.get_propertysets('Abmessungen')['Länge']
+        return self.ps_abmessungen.get('Länge')
 
 
 class PipeFitting(element.Element):
     ifc_type = "IfcPipeFitting"
 
     @cached_property
+    def ps_abmessungen(self):
+        return self.get_propertysets('Abmessungen')
+
+    @property
     def diameter(self):
-        return self.get_propertysets('Abmessungen').get('Nenndurchmesser')
+        return self.ps_abmessungen.get('Nenndurchmesser')
 
-    @cached_property
+    @property
     def length(self):
-        return self.get_propertysets('Abmessungen').get('Muffenlänge')
+        return self.ps_abmessungen.get('Muffenlänge')
 
-    @cached_property
+    @property
     def radius(self):
-        return self.get_propertysets('Abmessungen').get('Bogenradius')
+        return self.ps_abmessungen.get('Bogenradius')
 
-    @cached_property
+    @property
     def angle(self):
-        return self.get_propertysets('Abmessungen').get('Winkel')
+        return self.ps_abmessungen.get('Winkel')
 
 
 class SpaceHeater(element.Element):
@@ -89,6 +97,46 @@ class StorageDevice(element.Element):
     ifc_type = "IfcStorageDevice"
 
 
+class Storage(element.Element):
+    ifc_type = "IfcTank"
+
+    @property
+    def storage_type(self):
+        return None
+
+    @property
+    def hight(self):
+        return 1
+
+    @ property
+    def diameter(self):
+        return 1
+
+    @property
+    def port_positions(self):
+        return (0, 0.5, 1)
+
+
+class Pump(element.Element):
+    ifc_type = "IfcPump"
+
+    @property
+    def rated_power(self):
+        return 3
+
+    @property
+    def rated_hight(self):
+        return 8
+
+    @property
+    def rated_volume_flow(self):
+        return 4.3
+
+    @property
+    def diameter(self):
+        return 40
+
+
 class Valve(element.Element):
     ifc_type = "IfcValve"
 
@@ -99,3 +147,39 @@ class Valve(element.Element):
     @cached_property
     def length(self):
         return
+
+
+class Duct(element.Element):
+    ifc_type = "IfcDuctSegment"
+
+    @property
+    def diameter(self):
+        return 1
+
+    @property
+    def length(self):
+        return 1
+
+
+class DuctFitting(element.Element):
+    ifc_type = "IfcDuctFitting"
+
+    @property
+    def diameter(self):
+        return 1
+
+    @property
+    def length(self):
+        return 1
+
+
+class AirTerminal(element.Element):
+    ifc_type = "IfcAirTerminal"
+
+    @property
+    def diameter(self):
+        return 1
+
+
+class Medium(element.Element):
+    ifc_type = "IfcDistributionSystems"
