@@ -1,4 +1,4 @@
-"""Package holding decision system"""
+﻿"""Package holding decision system"""
 
 import logging
 import enum
@@ -13,17 +13,24 @@ class DecisionCancle(DecisionException):
 
 class Status(enum.Enum):
     """Enum for status of Decision"""
-    open = 1
-    done = 2
-    loadeddone = 3
-    saveddone = 4
-    skipped = 5
+    open = 1 # decision not yet made
+    done = 2 # decision made
+    loadeddone = 3 # brevious made decision loaded
+    saveddone = 4 # decision made and saved
+    skipped = 5 # decision was skipped
 
 class Decision():
-    """Class for handling decisions and user interaction"""
+    """Class for handling decisions and user interaction
 
-    collection = []
-    stored_decisions = {}
+    To make a single Decision call decision.decide() on an instance
+    Decisions can be collected and decided in an bunch. Call Decision.decide_collected()
+    Decisions with a global_key can be saved. Call Decision.save(<path>) to save all saveable decisions
+    Decisions can be loaded. Call Decision.load(<path>) to load them internally.
+    On instantiating a decision with a global_key matching a loaded key it gets the loaded value assigned
+    """
+
+    collection = [] # Decisions to decide later
+    stored_decisions = {} # Decisions ready to save
     _logger = None
 
     SKIP = "skip"
@@ -31,31 +38,55 @@ class Decision():
     CANCLE = "cancle"
     options = [SKIP, SKIPALL, CANCLE]
 
-    def __init__(self, question: str, check_func, 
-                 output: dict = None, dict_key: str = None, global_key: str = None, allow_skip = False):
+    def __init__(self, question: str, validate_func,
+                 output: dict = None, output_key: str = None, global_key: str = None,
+                 allow_skip=False, allow_load=False, allow_save=False,
+                 collect=False, quick_decide=False):
+        """
+        :param question: The question asked to thu user
+        :param validate_func: callable to validate the users input
+        :param output: dictionary to store output_key:value in
+        :param output_key: key for output
+        :param global_key: unique key to identify decision. Required for saving
+        :param allow_skip: set to True to allow skipping the decision and user None as value
+        :param allow_load: allows loading value from previus made decision with same global_key (Has no effect when global_key is not provided)
+        :param allow_save: allows saving decisions value and global_key for later reuse (Has no effect when global_key is not provided)
+        :param collect: add decision to collection for later processing. (output and output_key needs to be provided)
+        :param quick_decide: calls decide() within __init__()
 
+        :raises: :class:'AttributeError'::
+        """
         self.status = Status.open
+        self.value = None
 
         self.question = question
-        self.check_func = check_func
-        
+        self.validate_func = validate_func
+
         self.output = output
-        self.dict_key = dict_key
+        self.output_key = output_key
         self.global_key = global_key
 
         self.allow_skip = allow_skip
-        self.collect = False
-        if not output is None:
-            assert dict_key, "If output dict is given a dict_key is also needed."
-            self.collect = True
+        self.allow_save = allow_save
+        self.allow_load = allow_load
 
-        self.inner_load()
+        self.collect = collect
+        if self.collect:
+            if not (isinstance(self.output, dict) and self.output_key):
+                raise AttributeError(
+                    "Can not collect Decision if output dict or output_key is missing.")
+            Decision.collection.append(self)
+            self.logger.debug("Added decision for later processing.")
 
-        if not self.status == Status.loadeddone:
-            self.value = self._inner_decide(self.collect)
+        if self.allow_load:
+            self._inner_load()
+
+        if quick_decide and not self.status == Status.loadeddone:
+            self.decide()
+            #self.value = self._inner_decide(self.collect)
 
         if self.status in [Status.done, Status.loadeddone]:
-            self.post()
+            self._post()
 
     @property
     def logger(self):
@@ -64,29 +95,31 @@ class Decision():
             Decision._logger = logging.getLogger(__name__)
         return Decision._logger
 
-    def check(self, value):
-        """Checks value with check_func and returns truth value"""
+    def validate(self, value):
+        """Checks value with validate_func and returns truth value"""
 
         res = False
         try:
-            res = bool(self.check_func(value))
+            res = bool(self.validate_func(value))
         except:
             pass
         return res
 
     @classmethod
-    def decide_stored(cls):
+    def decide_collected(cls):
         """Solve all stored decisions"""
 
         logger = logging.getLogger(__name__)
         skip_all = False
         for decision in cls.collection:
-            if skip_all:
+            if skip_all and decision.allow_skip:
                 decision.skip()
             else:
+                if skip_all:
+                    logger.info("Decision can not be skipped")
                 try:
-                    decision.decide()
-                except DecisionSkipAll as ex:
+                    decision.decide(collected=True)
+                except DecisionSkipAll:
                     skip_all = True
                     logger.info("Skipping remaining decisions")
                 except DecisionCancle as ex:
@@ -106,7 +139,7 @@ class Decision():
         else:
             if data:
                 msg = "Found %d previous made decisions. Continue using them?"%(len(data))
-                reuse = BoolDecision(question=msg).value
+                reuse = BoolDecision(question=msg).decide()
                 if reuse:
                     cls.stored_decisions = data
                     logger.info("Loaded decisions.")
@@ -120,7 +153,15 @@ class Decision():
             json.dump(cls.stored_decisions, file, indent=2)
         logger.info("Saved %d decisions.", len(cls.stored_decisions))
 
-    def inner_load(self):
+    @classmethod
+    def summary(cls):
+        """Returns summary string"""
+
+        txt = "%d open decisions"%(len(cls.collection))
+        txt += ""
+        return txt
+
+    def _inner_load(self):
         """Loads decision with matching global_key.
 
         Decision.load() first."""
@@ -129,7 +170,7 @@ class Decision():
             value = Decision.stored_decisions.get(self.global_key)
             if value is None:
                 return
-            if (not self.check_func) or self.check_func(value):
+            if (not self.validate_func) or self.validate_func(value):
                 self.value = value
                 self.status = Status.loadeddone
                 self.logger.info("Loaded decision '%s' with value: %s", self.global_key, value)
@@ -137,7 +178,7 @@ class Decision():
                 self.logger.warning("Check for loaded decision '%s' failed. Loaded value: %s",
                                     self.global_key, value)
 
-    def inner_save(self):
+    def _inner_save(self):
         """Make decision saveable by Decision.save()"""
 
         if self.status == Status.loadeddone:
@@ -153,56 +194,40 @@ class Decision():
             self.status = Status.saveddone
             self.logger.info("Stored decision '%s' with value: %s", self.global_key, self.value)
 
-    def _inner_decide(self, collect):
-        """Trys to find a dicison on given input and returns value"""
+    def _post(self):
+        """Write result to output dict"""
+        if self.status == Status.open:
+            return
+        if not self.status == Status.skipped and self.allow_save:
+            self._inner_save()
+        if self.collect:
+            self.output[self.output_key] = self.value
 
-        self.status = Status.open
+    def decide(self, collected=False):
+        """Decide by user input
 
-        if self.global_key:
-            self.logger.warning("Recieved None or invalid value for '%s'", self.global_key)
+        :returns: value of decision"""
 
-        if collect:
-            Decision.collection.append(self)
-            self.logger.debug("Added decision for later processing.")
-        else:
-            # instant user input
-            options = [Decision.CANCLE]
-            if self.allow_skip:
-                options.append(Decision.SKIP)
-            result = self.user_input(options)
-            self.status = Status.done
-            return result
+        if self.status != Status.open:
+            raise AssertionError("Cannot call decide() for Decision with status != open")
 
-    def decide(self):
-        """Decide by user input"""
-
-        self.value = self.user_input(Decision.options)
+        options = [Decision.CANCLE]
+        if self.allow_skip:
+            options.append(Decision.SKIP)
+            if collected:
+                options.append(Decision.SKIPALL)
+        self.value = self.user_input(options)
         self.status = Status.done
-        self.post()
+        self._post()
+        return self.value
 
     def skip(self):
         """Accept None as value und mark as solved"""
-
+        if not self.allow_skip:
+            raise DecisionException("This Decision can not be skipped.")
+        self.value = None
         self.status = Status.skipped
-        self.post()
-
-    @classmethod
-    def summary(cls):
-        """Returns summary string"""
-
-        txt = "%d open decisions"%(len(cls.collection))
-        txt += ""
-        return txt
-
-    def post(self):
-        """Write result to output dict"""
-
-        if not self.collect:
-            return #Nothing to post to
-        assert not self.status == Status.open
-        self.output[self.dict_key] = self.value
-        if not self.status == Status.skipped:
-            self.inner_save()
+        self._post()
 
     def parse_input(self, raw_input: str):
         """Convert input to desired type"""
@@ -217,6 +242,8 @@ class Decision():
         if options:
             msg += " or one of the following commands: %s"%(", ".join(options))
         print(msg)
+        max_attempts = 10
+        attempt = 0
         while True:
             raw_value = input("%s: "%(self.question))
             if raw_value == Decision.SKIP and Decision.SKIP in options:
@@ -229,14 +256,21 @@ class Decision():
                 raise DecisionCancle
 
             value = self.parse_input(raw_value)
-            if self.check(value):
+            if self.validate(value):
                 break
             else:
-                print("'%s' is no valid input! Try again."%(raw_value))
+                if attempt <= max_attempts:
+                    if attempt == max_attempts:
+                        print("Last try before auto Cancle!")
+                    print("'%s' is no valid input! Try again."%(raw_value))
+                else:
+                    raise DecisionCancle("Too many invalid attempts. Cancling input.")
+            attempt += 1
         return value
 
     def __repr__(self):
         return "<%s (%s = %s)>"%(self.__class__.__name__, self.question, self.value)
+
 
 class RealDecision(Decision):
     """Accepts input of type real"""
@@ -250,26 +284,28 @@ class RealDecision(Decision):
             value = None
         return value
 
+
 class BoolDecision(Decision):
     """Accepts input convertable as bool"""
 
+    POSITIVES = ("y", "yes", "ja", "j", "1")
+    NEGATIVES = ("n", "no", "nein", "n", "0")
+
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, check_func=self.check_bool, **kwargs)
+        super().__init__(*args, validate_func=self.validate_bool, **kwargs)
 
     @staticmethod
-    def check_bool(value):
-        if value is True or value is False:
-            return True
-        else:
-            return False
+    def validate_bool(value):
+        """validates if value is acceptable as bool"""
+        return value is True or value is False
 
     def parse_input(self, raw_input):
         """Convert input to bool"""
 
         inp = raw_input.lower()
-        if inp in ["y", "yes", "ja", "j", "1"]:
+        if inp in BoolDecision.POSITIVES:
             return True
-        if inp in ["n", "no", "nein", "n", "0"]:
+        if inp in BoolDecision.NEGATIVES:
             return False
         return None
 

@@ -86,7 +86,7 @@ class HKESimManager(BIM2SIMManager):
             self.export_instances.append(modelica.Instance.factory(inst))
 
         self.logger.info(Decision.summary())
-        Decision.decide_stored()
+        Decision.decide_collected()
         Decision.save(PROJECT.decisions)
 
         modelica_model = modelica.Model(name="Test", comment="testing", instances=self.export_instances, connections={})
