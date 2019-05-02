@@ -22,3 +22,14 @@ class StaticPipe(StandardLibrary):
         self.manage_param("length", self.element.length, self.check_length)
         self.manage_param("diameter", self.element.diameter, self.check_diameter)
 
+
+class ClosedVolume(StandardLibrary):
+    path = "Modelica.Fluid.Vessels.ClosedVolume"
+    represents = [elements.Storage, elements.StorageDevice]
+
+    def __init__(self, element):
+        self.check_volume = self.check_numeric(min_value=0)
+        super().__init__(element)
+
+    def get_params(self):
+        self.manage_param("volume" , self.element.volume, self.check_volume)

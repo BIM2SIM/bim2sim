@@ -1,5 +1,7 @@
 ﻿"""Module contains the different classes for all HVAC elements"""
 
+import math
+
 from bim2sim.decorator import cached_property
 from bim2sim.ifc2python import element
 
@@ -115,6 +117,10 @@ class Storage(element.Element):
     @property
     def port_positions(self):
         return (0, 0.5, 1)
+
+    @property
+    def volume(self):
+        return self.hight * self.diameter ** 2 / 4 * math.pi
 
 
 class Pump(element.Element):

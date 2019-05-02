@@ -140,6 +140,10 @@ class Instance():
                 output=self.params, 
                 output_key=name, 
                 global_key=self.name + "." + name,
+                collect=True,
+                allow_load=True,
+                allow_save=True,
+                allow_skip=True,
             )
 
     def get_params(self):
