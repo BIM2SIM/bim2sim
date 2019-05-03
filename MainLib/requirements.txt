@@ -6,3 +6,5 @@ numpy
 python-dateutil
 ifcopenshell>=0.6
 mako
+networkx>=2.2
+matplotlib
