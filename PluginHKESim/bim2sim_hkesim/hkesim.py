@@ -8,6 +8,7 @@ from bim2sim.ifc2python.aggregation import PipeStrand
 from bim2sim.filter import TypeFilter
 from bim2sim.tasks import LOD, PlantSimulation
 from bim2sim.export import modelica
+from bim2sim.decision import Decision
 
 from bim2sim_hkesim import models
 
@@ -58,7 +59,7 @@ class HKESimManager(BIM2SIMManager):
 
     @log("reducing model")
     def reduce(self):
-        # not jet an usefull aggregation. just a showcase ...
+        # not yet an usefull aggregation. just a showcase ...
         pipes = []
         normal = []
         for m in self.raw_instances.values():
@@ -79,9 +80,14 @@ class HKESimManager(BIM2SIMManager):
 
     @log("exporting")
     def export(self):
-        
+
+        Decision.load(PROJECT.decisions)
         for inst in self.instances:
             self.export_instances.append(modelica.Instance.factory(inst))
+
+        self.logger.info(Decision.summary())
+        Decision.decide_collected()
+        Decision.save(PROJECT.decisions)
 
         modelica_model = modelica.Model(name="Test", comment="testing", instances=self.export_instances, connections={})
         print("-"*80)

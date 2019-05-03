@@ -449,3 +449,7 @@ ASALocalRun/
 
 # Local History for Visual Studio
 .localhistory/
+
+# Project files for Visual Studio
+*.sln
+*.*proj

@@ -16,6 +16,7 @@ class _Project():
     """Project related management"""
 
     CONFIG = "config.ini"
+    DECISIONS = "decisions.json"
     IFC = "ifc"
     LOG = "log"
     EXPORT = "export"
@@ -27,6 +28,8 @@ class _Project():
     @property
     def root(self):
         """absolute rootpath"""
+        if not self._rootpath:
+            return None
         return os.path.abspath(self._rootpath)
     @root.setter
     def root(self, value):
@@ -36,23 +39,38 @@ class _Project():
     @property
     def config(self):
         """absolute path to config"""
+        if not self._rootpath:
+            return None
         return os.path.abspath(os.path.join(self._rootpath, _Project.CONFIG))
+
+    @property
+    def decisions(self):
+        """absolute path to decisions"""
+        return os.path.abspath(os.path.join(self._rootpath, _Project.DECISIONS))
 
     @property
     def log(self):
         """absolute path to log folder"""
+        if not self._rootpath:
+            return None
         return os.path.abspath(os.path.join(self._rootpath, _Project.LOG))
     @property
     def ifc(self):
         """absolute path to ifc folder"""
+        if not self._rootpath:
+            return None
         return os.path.abspath(os.path.join(self._rootpath, _Project.IFC))
     @property
     def resources(self):
         """absolute path to resources folder"""
+        if not self._rootpath:
+            return None
         return os.path.abspath(os.path.join(self._rootpath, _Project.RESOURCES))
     @property
     def export(self):
         """absolute path to export folder"""
+        if not self._rootpath:
+            return None
         return os.path.abspath(os.path.join(self._rootpath, _Project.EXPORT))
 
     @property
@@ -63,7 +81,7 @@ class _Project():
     def is_project_folder(self, path=None):
         """Check if root path (or given path) is a project folder"""
         root = path or self.root
-        if not os.path.isdir(root):
+        if not root or not os.path.isdir(root):
             return False
         if os.path.isfile(os.path.join(root, _Project.CONFIG)):
             return True
@@ -106,6 +124,26 @@ class _Project():
             open_config()
         print("Project folder created.")
 
+    def delete(self, confirm=True):
+        """Delete project folder and all files in it
+
+        :raises: AssertionError"""
+        # TODO: decision system
+        if confirm:
+            ans = input("Delete project folder and all included files? [y/n]")
+            if not ans == 'y':
+                return
+
+        if self.root:
+            if os.path.exists(self.root):
+                shutil.rmtree(self.root, ignore_errors=True)
+                self.root = None
+                print("Project folder deleted.")
+            else:
+                raise AssertionError("Can't delete project folder (reason: does not exist)")
+        else:
+            raise AssertionError("Can't delete project folder (reason: root not set)")
+
     def __repr__(self):
         return "<Project (root: %s)>"%(self._rootpath or "NOT SET!")
 
@@ -118,7 +156,7 @@ class BIM2SIMManager():
     def __init__(self, task):
         self.logger = logging.getLogger(__name__)
 
-        assert PROJECT.is_project_folder()
+        assert PROJECT.is_project_folder(), "PROJECT ist not set correctly!"
 
         if not os.path.samefile(PROJECT.root, os.getcwd()):
             self.logger.info("Changing working directory to '%s'", PROJECT.root)
