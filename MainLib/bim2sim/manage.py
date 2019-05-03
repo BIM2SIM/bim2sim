@@ -168,6 +168,7 @@ class BIM2SIMManager():
     @log("inspecting IFC")
     def inspect(self):
         """Step 2"""
+        #todo add check if IFC has port information
         def _connect_instances():
             nr_connections = 0
             for raw_instance1 in self.raw_instances.values():
@@ -199,7 +200,8 @@ class BIM2SIMManager():
     @log("enriching data")
     def enrich(self):
         """Step 3"""
-        hvacgraph = HvacGraph(self)
+        hvacgraph = HvacGraph(self.raw_instances, self)
+        hvacgraph.create_cycles()
         self.representations.append(hvacgraph)
         self.logger.warning("Not implemented!")
 
