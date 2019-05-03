@@ -6,29 +6,25 @@ where each node represents a hvac-component
 import logging
 import networkx as nx
 import matplotlib.pyplot as plt
-from bim2sim.ifc2python import ifc2python
 from bim2sim.ifc2python.aggregation import PipeStrand
 
 
 class HvacGraph(object):
-    def __init__(self, parent):
+    def __init__(self, instances, parent):
         self.logger = logging.getLogger(__name__)
+        self.instances = instances
         self.parent = parent
-        self.hvac_graph = self._create_complete_hvac_network()
-        self._contract_ports_into_elements()
-        # self.contract_network()
-        # self.find_cicyles()
+        self._create_hvac_network()
+        self.cycles = []
 
-        # self.draw_hvac_network(label='type')
-
-    def _create_complete_hvac_network(self):
+    def _create_hvac_network(self):
         """
         This function creates a graph network of the raw instances. Each
-        componenent and each port of this component is represented by a node.
+        component and each port of this component is represented by a node.
         """
-        self.logger.info("Creating HVAC graph representation")
+        self.logger.info("Creating HVAC graph representation ...")
         graph = nx.DiGraph()
-        for instance in self.parent.raw_instances.values():
+        for instance in self.instances.values():
             if not graph.has_node(instance):
                 graph.add_node(instance, label=instance.name)
             for port in instance.ports:
@@ -37,19 +33,20 @@ class HvacGraph(object):
                     if not graph.has_node(connected_port):
                         graph.add_node(connected_port)
                         graph.add_edge(port, connected_port)
+        self.hvac_graph = graph
         self.logger.info("Created %d nodes", graph.number_of_nodes())
-        return graph
+        self._contract_ports_into_elements()
 
     def _contract_ports_into_elements(self):
         """
         Contract the port nodes into the belonging instance nodes for better
         handling, the information about the ports is still accessible via the
-        get_contractinos function.
+        get_contractions function.
         :return:
         """
         counter = 0
         self.logger.info("Contracting ports into elements ...")
-        for instance in self.parent.raw_instances.values():
+        for instance in self.instances.values():
             for port in instance.ports:
                 counter += 1
                 self.hvac_graph = nx.contracted_nodes(self.hvac_graph,
@@ -58,14 +55,16 @@ class HvacGraph(object):
                          " leads to %d nodes.",
                          counter, self.hvac_graph.number_of_nodes())
 
-    def find_cicyles(self):
+    def create_cycles(self):
         """
         Find cycles in the graph.
         :return:
         """
+        self.logger.info("Searching for cycles in hvac network ...")
         undirected_graph = nx.Graph(self.hvac_graph)
         cycles = nx.cycle_basis(undirected_graph)
-        return cycles
+        self.cycles = cycles
+        self.logger.info("Found %d cycles", len(self.cycles))
 
     def get_contractions(self, node):
         """
@@ -94,11 +93,11 @@ class HvacGraph(object):
         reduced_nodes = 0
 
         for node in graph.nodes():
-            node_nbs = self.all_neighbors_without_contractions(graph, node)
+            node_nbs = self.get_not_contracted_neighbors(graph, node)
             if len(node_nbs) == 2 and node.ifc_type in \
                     reducible_elements:
                 for node_nb in node_nbs:
-                    node_nb_nbs = self.all_neighbors_without_contractions(
+                    node_nb_nbs = self.get_not_contracted_neighbors(
                         graph, node_nb)
                     if len(node_nb_nbs) <= 2 and node.ifc_type in \
                             reducible_elements:
@@ -124,17 +123,13 @@ class HvacGraph(object):
                     nr +=1
         self.hvac_graph = graph
 
-
-
-    def all_neighbors_without_contractions(self, graph, node):
+    def get_not_contracted_neighbors(self, graph, node):
         neighbors = list(
             set(nx.all_neighbors(graph, node)) -
             set(graph.node[node]['contracted_nodes']) -
             {node}
         )
         return neighbors
-
-
 
     def plot_graph(self):
         nx.draw(self.hvac_graph, node_size=3, font_size=6,
