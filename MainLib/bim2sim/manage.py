@@ -202,7 +202,6 @@ class BIM2SIMManager():
         """Step 3"""
         hvacgraph = HvacGraph(self.raw_instances, self)
         hvacgraph.create_cycles()
-        self.representations.append(hvacgraph)
         self.logger.warning("Not implemented!")
 
     @log("reducing data")

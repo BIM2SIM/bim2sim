@@ -7,6 +7,7 @@ import logging
 import networkx as nx
 import matplotlib.pyplot as plt
 
+
 class HvacGraph(object):
     def __init__(self, instances, parent):
         self.logger = logging.getLogger(__name__)
@@ -15,6 +16,7 @@ class HvacGraph(object):
         self.hvac_graph = None
         self._create_hvac_network()
         self.cycles = []
+        self.parent.representations.append(self.hvac_graph)
 
     def _create_hvac_network(self):
         """
@@ -68,7 +70,7 @@ class HvacGraph(object):
     def get_contractions(self, node):
         """
         Returns a list of contracted nodes for the passed node.
-        :param node:
+        :param node: node in whose connections you are interested
         :return:
         """
         node = self.hvac_graph.node[node]
