@@ -168,7 +168,7 @@ class BIM2SIMManager():
     @log("inspecting IFC")
     def inspect(self):
         """Step 2"""
-        #todo add check if IFC has port information
+        # todo add check if IFC has port information -> decision system
         def _connect_instances():
             nr_connections = 0
             for raw_instance1 in self.raw_instances.values():
