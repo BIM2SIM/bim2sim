@@ -6,14 +6,13 @@ where each node represents a hvac-component
 import logging
 import networkx as nx
 import matplotlib.pyplot as plt
-from bim2sim.ifc2python.aggregation import PipeStrand
-
 
 class HvacGraph(object):
     def __init__(self, instances, parent):
         self.logger = logging.getLogger(__name__)
         self.instances = instances
         self.parent = parent
+        self.hvac_graph = None
         self._create_hvac_network()
         self.cycles = []
 
@@ -77,59 +76,6 @@ class HvacGraph(object):
         for contraction in node['contraction'].keys():
             inner_nodes.append(contraction)
         return inner_nodes
-
-    def reduce_network(self):
-        """
-        This function reduces the network by searching for reducable elements.
-        As an example all successive pipes will be reduced into one pipe.
-        """
-        graph = self.hvac_graph
-        reducible_elements = ['IfcPipeSegment', 'IfcPipeFitting']
-        # todo: maybe add reducible flag to elements to be able to check
-        #  against this instead of a fixed list
-        self.logger.info("Reducing the network by contracting pipes into "
-                         "pipestrands ...")
-        nx.set_node_attributes(graph, [], 'contracted_nodes')
-        reduced_nodes = 0
-
-        for node in graph.nodes():
-            node_nbs = self.get_not_contracted_neighbors(graph, node)
-            if len(node_nbs) == 2 and node.ifc_type in \
-                    reducible_elements:
-                for node_nb in node_nbs:
-                    node_nb_nbs = self.get_not_contracted_neighbors(
-                        graph, node_nb)
-                    if len(node_nb_nbs) <= 2 and node.ifc_type in \
-                            reducible_elements:
-                        # todo integrate contraction not with dict entrys
-                        graph.node[node_nb]['contracted_nodes'] = \
-                            graph.node[node_nb]['contracted_nodes'] + \
-                            graph.node[node]['contracted_nodes'] + \
-                            [node]
-                        graph = nx.contracted_nodes(graph, node_nb, node)
-                        reduced_nodes += 1
-                        break
-        self.logger.debug("Reduced %d nodes by contracting, %d nodes left.",
-                          reduced_nodes, graph.number_of_nodes())
-        nr = 0
-        for node in graph.nodes():
-            if node.ifc_type in reducible_elements:
-                models = graph.node[node]['contracted_nodes']
-                if len(models) > 0:
-                    models.append(node)
-                    name = 'PipeStrand' + str(nr)
-                    PS = PipeStrand(name, models)
-                    self.parent.reduced_instances.append(PS)
-                    nr +=1
-        self.hvac_graph = graph
-
-    def get_not_contracted_neighbors(self, graph, node):
-        neighbors = list(
-            set(nx.all_neighbors(graph, node)) -
-            set(graph.node[node]['contracted_nodes']) -
-            {node}
-        )
-        return neighbors
 
     def plot_graph(self):
         nx.draw(self.hvac_graph, node_size=3, font_size=6,

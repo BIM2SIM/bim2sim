@@ -58,8 +58,7 @@ class AixLib(BIM2SIMManager):
     @log("reducing model")
     def reduce(self):
         graph = self.representations[0]
-        graph.reduce_network()
-        graph.plot_graph()
+        # graph.reduce_network()
 
     @log("processing")
     def process(self):
