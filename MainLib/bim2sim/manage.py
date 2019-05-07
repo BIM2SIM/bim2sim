@@ -207,7 +207,7 @@ class BIM2SIMManager():
     def inspect(self):
         """Step 2"""
         # todo add check if IFC has port information -> decision system
-        def _connect_instances():
+        def _connect_instances(eps=1):
             nr_connections = 0
             for raw_instance1 in self.raw_instances.values():
                 for port1 in raw_instance1.ports:
@@ -219,9 +219,9 @@ class BIM2SIMManager():
                                              for (coord1, coord2)
                                              in zip(port1.position,
                                                     port2.position)))
-                            if all(diff <= 1 for diff in distance):
+                            if all(diff <= eps for diff in distance):
                                 port1.connect(port2)
-                                nr_connections +=1
+                                nr_connections += 1
             return nr_connections
 
         for ifc_type in self.relevant_ifc_types:

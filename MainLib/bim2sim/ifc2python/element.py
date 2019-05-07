@@ -85,7 +85,7 @@ class Element():
         self.guid = ifc.GlobalId
         self.name = ifc.Name
         self.ports = []
-        self.aggregated = False
+        self.aggregation = None
         self._add_ports()
 
     def _add_ports(self):

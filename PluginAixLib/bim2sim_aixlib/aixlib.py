@@ -57,9 +57,9 @@ class AixLib(BIM2SIMManager):
 
     @log("reducing model")
     def reduce(self):
-        graph = self.representations[0]
-        # graph.reduce_network()
-
+        hvac_graph = self.representations[0]
+        hvac_graph.find_aggregations(hvac_graph.hvac_graph, 'pipes')
+        hvac_graph.plot_graph(hvac_graph.hvac_graph, True)
     @log("processing")
     def process(self):
 
