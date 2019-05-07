@@ -14,6 +14,7 @@ class Port():
         self.ifc = ifcport
         self.name = ifcport.Name
         self.parent = parent
+        self.aggregated_parent = None
         self.connections = []
 
     def connect(self, other):
@@ -84,6 +85,7 @@ class Element():
         self.guid = ifc.GlobalId
         self.name = ifc.Name
         self.ports = []
+        self.aggregation = None
         self._add_ports()
 
     def _add_ports(self):

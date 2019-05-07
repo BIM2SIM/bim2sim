@@ -3,6 +3,12 @@
 import logging
 
 
+class AggregationPort():
+    def __init__(self, parent):
+        self.parent = parent
+        self.connections = []
+
+
 class Aggregation():
     """Base aggregation of models"""
     def __init__(self, name, models):
@@ -17,9 +23,11 @@ class Aggregation():
 
 class PipeStrand(Aggregation):
     """Aggregates pipe strands"""
-# Todo first and last port of pipestrand
+    aggregatable_elements = ['IfcPipeSegment', 'IfcPipeFitting']
+
     def __init__(self, name, models):
         super().__init__(name, models)
+        self.ports = []
         self._total_length = None
         self._avg_diameter = None
 
