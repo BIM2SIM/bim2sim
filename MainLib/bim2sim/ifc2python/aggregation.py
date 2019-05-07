@@ -24,22 +24,12 @@ class Aggregation():
 class PipeStrand(Aggregation):
     """Aggregates pipe strands"""
     aggregatable_elements = ['IfcPipeSegment', 'IfcPipeFitting']
-# Todo first and last port of pipestrand
+
     def __init__(self, name, models):
         super().__init__(name, models)
         self.ports = []
-        # self.find_outer_connections()
         self._total_length = None
         self._avg_diameter = None
-
-    def add_port(self, port):
-        self.ports.append(port)
-
-    # def convert_pipes_to_pipestrand(self):
-
-    # def find_outer_connections(self):
-    #     for pipe in self.models:
-    #         print(pipe)
 
     def _calc_avg(self):
         """Calculates the total length and average diameter of all pipe-like
