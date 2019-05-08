@@ -7,10 +7,10 @@ code_quality:
   variables:
     DOCKER_DRIVER: overlay2
   before_script:
-     - echo $CI_REGISTRY
-     - echo $CI_DEPLOY_PASSWORD
-     - echo $CI_DEPLOY_USER
-#    - docker login -u "${CI_DEPLOY_USER}" - p "${CI_DEPLOY_PASSWORD}" "${CI_REGISTRY}"
+     - reg = $CI_REGISTRY
+     - pw =  $CI_DEPLOY_PASSWORD
+     - user = $CI_DEPLOY_USER
+     - docker login -u user - p pw reg
   script:
     - docker run
         --env SOURCE_CODE="$PWD"
