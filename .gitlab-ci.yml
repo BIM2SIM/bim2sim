@@ -6,8 +6,9 @@ code_quality:
     - docker:stable-dind
   variables:
     DOCKER_DRIVER: overlay2
-  script:
+  before_script:
     - docker login -u $CI_DEPLOY_USER -p $CI_DEPLOY_PASSWORD $CI_REGISTRY
+  script:
     - docker run
         --env SOURCE_CODE="$PWD"
         --volume "$PWD":/code
