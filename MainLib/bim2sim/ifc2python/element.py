@@ -36,11 +36,15 @@ class Port():
         return "<%s (%s)>"%(self.__class__.__name__, self.name)
 
 class Element():
-    """Base class for IFC model representation"""
+    """Base class for IFC model representation
+    
+    WARNING: getting an not defined attribute from instances of Element will 
+    return None (from finder) instead of rasing an AttributeError"""
 
     _ifc_type = None
     _ifc_classes = {}
     dummy = None
+    finder = None
 
     def __init__(self, ifc):
         self.logger = logging.getLogger(__name__)
@@ -49,6 +53,22 @@ class Element():
         self.name = ifc.Name
 
         self.ports = [] #TODO
+
+    def __getattr__(self, name):
+        # user finder to get attribute
+        if self.__class__.finder:
+            return self.__class__.finder.find(self, name)
+        return super().__getattr__(name)
+
+    def __getattribute__(self, name):
+        found = object.__getattribute__(self, name)
+        if found is None:
+            # if None is returned ask finder for value (on AttributeError __getattr__ is called anyway)
+            try:
+                found = self.__getattr__(name)
+            except AttributeError:
+                pass
+        return found
 
     def add_port(self, name: str, ifc_port):
         self.ports.append(Port(name, self, ifc_port))
@@ -104,6 +124,10 @@ class Element():
         return self.__class__._ifc_type
 
     @cached_property
+    def source_tool(self):
+        return self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
+
+    @cached_property
     def position(self):
         """returns absolute position"""
         raise NotImplementedError # TODO
@@ -146,6 +170,9 @@ class Element():
 
     def get_project(self):
         return ifc2python.getProject(self.ifc)
+
+    def summary(self):
+        return ifc2python.summary(self.ifc)
 
     def __repr__(self):
         return "<%s (%s)>"%(self.__class__.__name__, self.name)

@@ -3,6 +3,7 @@ import bim2sim
 
 from bim2sim.decorator import log
 from bim2sim.manage import BIM2SIMManager, PROJECT
+from bim2sim.ifc2python import finder
 from bim2sim.ifc2python.element import Element
 from bim2sim.ifc2python.aggregation import PipeStrand
 from bim2sim.filter import TypeFilter
@@ -53,7 +54,8 @@ class HKESimManager(BIM2SIMManager):
 
     @log("preparing")
     def prepare(self):
-        
+        Element.finder = finder.TemplateFinder()
+        Element.finder.load(PROJECT.finder)
         #TODO: depending on task ...
         self.filters.append(TypeFilter(self.relevant_ifc_types))
 

@@ -71,12 +71,6 @@ class Decision():
         self.allow_load = allow_load
 
         self.collect = collect
-        if self.collect:
-            if not (isinstance(self.output, dict) and self.output_key):
-                raise AttributeError(
-                    "Can not collect Decision if output dict or output_key is missing.")
-            Decision.collection.append(self)
-            self.logger.debug("Added decision for later processing.")
 
         if self.allow_load:
             self._inner_load()
@@ -87,6 +81,12 @@ class Decision():
 
         if self.status in [Status.done, Status.loadeddone]:
             self._post()
+        elif self.collect:
+            if not (isinstance(self.output, dict) and self.output_key):
+                raise AttributeError(
+                    "Can not collect Decision if output dict or output_key is missing.")
+            Decision.collection.append(self)
+            self.logger.debug("Added decision for later processing.")
 
     @property
     def logger(self):

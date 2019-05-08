@@ -6,8 +6,10 @@ import logging
 from abc import ABCMeta, abstractmethod
 import subprocess
 import shutil
+from distutils.dir_util import copy_tree
 import configparser
 
+import bim2sim
 from bim2sim.decorator import log
 from bim2sim.ifc2python import ifc2python
 from bim2sim.ifc2python.element import Element
@@ -18,6 +20,7 @@ class _Project():
 
     CONFIG = "config.ini"
     DECISIONS = "decisions.json"
+    FINDER = "finder"
     IFC = "ifc"
     LOG = "log"
     EXPORT = "export"
@@ -50,6 +53,11 @@ class _Project():
         return os.path.abspath(os.path.join(self._rootpath, _Project.DECISIONS))
 
     @property
+    def finder(self):
+        """absolute path to decisions"""
+        return os.path.abspath(os.path.join(self._rootpath, _Project.FINDER))
+
+    @property
     def log(self):
         """absolute path to log folder"""
         if not self._rootpath:
@@ -77,7 +85,7 @@ class _Project():
     @property
     def subdirs(self):
         """list of paths to sub folders"""
-        return [self.log, self.ifc, self.resources, self.export]
+        return [self.log, self.ifc, self.resources, self.export, self.finder]
 
     def is_project_folder(self, path=None):
         """Check if root path (or given path) is a project folder"""
@@ -102,6 +110,13 @@ class _Project():
 
         with open(self.config, "w"):
             pass
+
+        self.copy_assets()
+
+    def copy_assets(self):
+        """Copy assets from library to project folder"""
+        asset_path = os.path.join(os.path.dirname(bim2sim.__file__), 'assets')
+        copy_tree(asset_path, self.root)
 
     def create(self, rootpath, ifc_path=None, target=None, open_conf=False):
         """Set root path, create project folder
@@ -202,7 +217,6 @@ class BIM2SIMManager():
     @abstractmethod
     def prepare(self):
         """Step 1"""
-        pass
 
     @log("inspecting IFC")
     def inspect(self):

@@ -47,40 +47,36 @@ class Pipe(element.Element):
         self.add_port("port_a", ifc.HasPorts[1].RelatingPort)
 
     @cached_property
-    def ps_abmessungen(self):
-        return self.get_propertysets('Abmessungen')
+    def Pset_PipeSegmentTypeCommon(self):
+        return self.get_propertysets('Pset_PipeSegmentTypeCommon')
 
     @property
     def diameter(self):
-        return self.ps_abmessungen.get('Innendurchmesser')
+        return self.ps_abmessungen.get('NominalDiameter')
 
     @property
     def length(self):
-        return self.ps_abmessungen.get('Länge')
+        return None
 
 
 class PipeFitting(element.Element):
     ifc_type = "IfcPipeFitting"
 
     @cached_property
-    def ps_abmessungen(self):
-        return self.get_propertysets('Abmessungen')
+    def Pset_PipeFittingTypeCommon(self):
+        return self.get_propertysets('Pset_PipeFittingTypeCommon')
 
     @property
     def diameter(self):
-        return self.ps_abmessungen.get('Nenndurchmesser')
+        return self.Pset_PipeFittingTypeCommon.get('NominalDiameter')
 
     @property
     def length(self):
-        return self.ps_abmessungen.get('Muffenlänge')
+        return None
 
     @property
-    def radius(self):
-        return self.ps_abmessungen.get('Bogenradius')
-
-    @property
-    def angle(self):
-        return self.ps_abmessungen.get('Winkel')
+    def pressure_class(self):
+        return self.Pset_PipeFittingTypeCommon.get('PressureClass')
 
 
 class SpaceHeater(element.Element):
