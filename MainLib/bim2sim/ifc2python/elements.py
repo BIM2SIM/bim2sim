@@ -1,5 +1,7 @@
 ﻿"""Module contains the different classes for all HVAC elements"""
 
+import math
+
 from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import element
 
