@@ -1,3 +1,2 @@
 include:
-  - template: SAST.gitlab-ci.yml
-  - template: Code-Quality.gitlab-ci.yml
+  - local: '/ci/Code-Quality.gitlab-ci.yml'
