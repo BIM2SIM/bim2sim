@@ -7,7 +7,7 @@ code_quality:
   variables:
     DOCKER_DRIVER: overlay2
   before_script:
-    - docker login registry.git.rwth-aachen.de -u gitlab+deploy-token-126 -p $CI_DEPLOY_PASSWORD 
+    - docker login registry.git.rwth-aachen.de -u gitlab+deploy-token-126 --password $CI_DEPLOY_PASSWORD 
   script:
     - docker run
         --env SOURCE_CODE="$PWD"
