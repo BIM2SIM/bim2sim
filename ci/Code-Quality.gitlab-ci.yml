@@ -1,6 +1,6 @@
 code_quality:
   image: docker:stable
-  retry: 3
+  retry: 2
   allow_failure: true
   services:
     - docker:stable-dind
