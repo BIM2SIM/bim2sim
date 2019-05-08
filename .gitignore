@@ -453,3 +453,6 @@ ASALocalRun/
 # Project files for Visual Studio
 *.sln
 *.*proj
+
+# Workspace for local data
+workspace/
