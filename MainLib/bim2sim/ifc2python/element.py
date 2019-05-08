@@ -37,36 +37,22 @@ class Port():
 
     @cached_property
     def position(self):
-        """returns absolute position"""
+        """returns absolute position as np.array"""
         try:
             relative_placement = \
                 self.parent.ifc.ObjectPlacement.RelativePlacement
-            x_direction = np.array([
-                relative_placement.RefDirection.DirectionRatios[0],
-                relative_placement.RefDirection.DirectionRatios[1],
-                relative_placement.RefDirection.DirectionRatios[2]])
-            z_direction = np.array([
-                relative_placement.Axis.DirectionRatios[0],
-                relative_placement.Axis.DirectionRatios[1],
-                relative_placement.Axis.DirectionRatios[2]])
+            x_direction = np.array(relative_placement.RefDirection.DirectionRatios)
+            z_direction = np.array(relative_placement.Axis.DirectionRatios)
         except AttributeError as ae:
-            # self.parent.logger.info(str(ae) + ' - DirectionRatios not '
-            #                                   'existing, assuming [1, 1, '
-            #                                   '1] as direction of element ' +
-            #                         str(self.parent.ifc))
             x_direction = np.array([1, 0, 0])
             z_direction = np.array([0, 0, 1])
         y_direction = np.cross(z_direction, x_direction)
+        directions = np.array((x_direction,y_direction,z_direction)).T
         port_coordinates_relative = \
-            self.ifc.ObjectPlacement.RelativePlacement.Location.Coordinates
-        coordinates = []
-        for i in range(0, 3):
-            coordinates.append(
-                self.parent.position[i]
-                + x_direction[i] * port_coordinates_relative[0]
-                + y_direction[i] * port_coordinates_relative[1]
-                + z_direction[i] * port_coordinates_relative[2])
-        return tuple(coordinates)
+            np.array(self.ifc.ObjectPlacement.RelativePlacement.Location.Coordinates)
+        coordinates = self.parent.position + np.matmul(directions, port_coordinates_relative)
+
+        return coordinates
 
     def __repr__(self):
         return "<%s (%s)>"%(self.__class__.__name__, self.name)
@@ -148,12 +134,11 @@ class Element():
     @cached_property
     def position(self):
         """returns absolute position"""
-        pos = tuple(map(sum, zip(self.ifc.ObjectPlacement.
-                    RelativePlacement.Location.Coordinates,
-                                 self.ifc.ObjectPlacement.
-                                 PlacementRelTo.RelativePlacement.
-                                 Location.Coordinates)))
-        return pos
+        rel = np.array(self.ifc.ObjectPlacement.
+                       RelativePlacement.Location.Coordinates)
+        relto = np.array(self.ifc.ObjectPlacement.
+                         PlacementRelTo.RelativePlacement.Location.Coordinates)
+        return rel + relto
 
     @cached_property
     def neighbors(self):

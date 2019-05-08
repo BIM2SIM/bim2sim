@@ -9,6 +9,7 @@ import configparser
 from bim2sim.decorators import log
 from bim2sim.ifc2python import ifc2python
 from bim2sim.ifc2python.element import Element
+from bim2sim.ifc2python import hvac
 from bim2sim.ifc2python.hvac.hvac_graph import HvacGraph
 
 
@@ -207,22 +208,22 @@ class BIM2SIMManager():
     def inspect(self):
         """Step 2"""
         # todo add check if IFC has port information -> decision system
-        def _connect_instances(eps=1):
-            nr_connections = 0
-            for raw_instance1 in self.raw_instances.values():
-                for port1 in raw_instance1.ports:
-                    for raw_instance2 in self.raw_instances.values():
-                        for port2 in raw_instance2.ports:
-                            if raw_instance1 == raw_instance2:
-                                continue
-                            distance = list((abs(coord1 - coord2)
-                                             for (coord1, coord2)
-                                             in zip(port1.position,
-                                                    port2.position)))
-                            if all(diff <= eps for diff in distance):
-                                port1.connect(port2)
-                                nr_connections += 1
-            return nr_connections
+        #def _connect_instances(eps=1):
+        #    nr_connections = 0
+        #    for raw_instance1 in self.raw_instances.values():
+        #        for port1 in raw_instance1.ports:
+        #            for raw_instance2 in self.raw_instances.values():
+        #                for port2 in raw_instance2.ports:
+        #                    if raw_instance1 == raw_instance2:
+        #                        continue
+        #                    distance = list((abs(coord1 - coord2)
+        #                                     for (coord1, coord2)
+        #                                     in zip(port1.position,
+        #                                            port2.position)))
+        #                    if all(diff <= eps for diff in distance):
+        #                        port1.connect(port2)
+        #                        nr_connections += 1
+        #    return nr_connections
 
         for ifc_type in self.relevant_ifc_types:
             elements = self.ifc.by_type(ifc_type)
@@ -232,7 +233,7 @@ class BIM2SIMManager():
 
         self.logger.info("Found %d relevant elements", len(self.raw_instances))
         self.logger.info("Connecting the relevant elements")
-        nr_connections = _connect_instances()
+        nr_connections = hvac.connect_instances(self.raw_instances.values())
         self.logger.info("Found %d connections", nr_connections)
 
     @log("enriching data")
