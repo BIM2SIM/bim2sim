@@ -1,2 +1,3 @@
 include:
-  - local: '/ci/Code-Quality.gitlab-ci.yml'
+  - project: 'EBC/EBC_all/gitlab_ci/'
+    file: '/templates/Code-Quality.gitlab-ci.yml'
