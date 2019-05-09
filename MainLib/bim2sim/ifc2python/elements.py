@@ -39,8 +39,8 @@ class Boiler(element.Element):
 class Pipe(element.Element):
     ifc_type = "IfcPipeSegment"
 
-    def __init__(self, ifc):
-        super().__init__(ifc)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.pipestrand = None
 
     #def __init__(self, ifc):
@@ -66,8 +66,8 @@ class Pipe(element.Element):
 class PipeFitting(element.Element):
     ifc_type = "IfcPipeFitting"
 
-    def __init__(self, ifc):
-        super().__init__(ifc)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._pipestrand = None
 
     @cached_property

@@ -241,9 +241,10 @@ class BIM2SIMManager():
         #    return nr_connections
 
         for ifc_type in self.relevant_ifc_types:
+            tool = self.ifc.by_type("IFCAPPLICATION")[0].ApplicationFullName
             elements = self.ifc.by_type(ifc_type)
             for element in elements:
-                representation = Element.factory(element)
+                representation = Element.factory(element, tool)
                 self.raw_instances[representation.guid] = representation
 
         self.logger.info("Found %d relevant elements", len(self.raw_instances))

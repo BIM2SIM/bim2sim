@@ -56,7 +56,7 @@ class TemplateFinder(Finder):
 
         if isinstance(element, str):
             element_name = element #string
-        elif element.__class__ is type:
+        elif isinstance(element.__class__, type):
             element_name = element.ifc_type #class
         else:
             element_name = element.__class__.ifc_type #instance
@@ -88,3 +88,4 @@ class TemplateFinder(Finder):
         except :
             return None
         return pset.get(res[1])
+
