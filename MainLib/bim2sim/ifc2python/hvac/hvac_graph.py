@@ -7,7 +7,7 @@ import os
 import logging
 import networkx as nx
 import matplotlib.pyplot as plt
-from ifc2python.aggregation import PipeStrand
+from bim2sim.ifc2python.aggregation import PipeStrand
 
 
 class HvacGraph(object):
