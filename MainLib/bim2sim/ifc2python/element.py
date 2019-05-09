@@ -12,7 +12,7 @@ class Port():
 
     def __init__(self, parent, ifcport):
         self.ifc = ifcport
-        self.name = ifcport.Name
+        #self.name = ifcport.Name
         self.parent = parent
         self.aggregated_parent = None
         self.connections = []
