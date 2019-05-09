@@ -3,37 +3,60 @@
 import logging
 import numpy as np
 
-from bim2sim.decorator import cached_property
+from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import ifc2python
 
-# TODO: Ports, Connections
 
 class Port():
     """"""
 
-    def __init__(self, name, parent, ifcport):
-
-        self.name = name
+    def __init__(self, parent, ifcport):
+        self.ifc = ifcport
+        self.name = ifcport.Name
         self.parent = parent
-        self.ifc_port = ifcport
-
+        self.aggregated_parent = None
         self.connections = []
 
     def connect(self, other):
         """Connect this interface to another interface"""
-        assert isinstance(other, self.__class__), "Can't connect interfaces of different classes."
+        assert isinstance(other, self.__class__), "Can't connect interfaces" \
+                                                  " of different classes."
+        # if self.flow_direction == 'SOURCE' or \
+        #         self.flow_direction == 'SOURCEANDSINK':
         self.connections.append(other)
+
+    @property
+    def ifc_type(self):
+        """Returns IFC type"""
+        return self.ifc.is_a()
+
+    @cached_property
+    def flow_direction(self):
+        """returns the flow direction"""
+        return self.ifc.FlowDirection
 
     @cached_property
     def position(self):
-        """returns absolute position"""
-        raise NotImplementedError # TODO
-        rel = np.array(self.ifc_port.ObjectPlacement.RelativePlacement.Location.Coordinates)
-        rel_to = np.array(self.ifc_port.ObjectPlacement.PlacementRelTo.RelativePlacement.Location.Coordinates)
-        return
+        """returns absolute position as np.array"""
+        try:
+            relative_placement = \
+                self.parent.ifc.ObjectPlacement.RelativePlacement
+            x_direction = np.array(relative_placement.RefDirection.DirectionRatios)
+            z_direction = np.array(relative_placement.Axis.DirectionRatios)
+        except AttributeError as ae:
+            x_direction = np.array([1, 0, 0])
+            z_direction = np.array([0, 0, 1])
+        y_direction = np.cross(z_direction, x_direction)
+        directions = np.array((x_direction,y_direction,z_direction)).T
+        port_coordinates_relative = \
+            np.array(self.ifc.ObjectPlacement.RelativePlacement.Location.Coordinates)
+        coordinates = self.parent.position + np.matmul(directions, port_coordinates_relative)
+
+        return coordinates
 
     def __repr__(self):
         return "<%s (%s)>"%(self.__class__.__name__, self.name)
+
 
 class Element():
     """Base class for IFC model representation
@@ -51,6 +74,9 @@ class Element():
         self.ifc = ifc
         self.guid = ifc.GlobalId
         self.name = ifc.Name
+        self.ports = []
+        self.aggregation = None
+        self._add_ports()
 
         self.ports = [] #TODO
 
@@ -70,8 +96,10 @@ class Element():
                 pass
         return found
 
-    def add_port(self, name: str, ifc_port):
-        self.ports.append(Port(name, self, ifc_port))
+    def _add_ports(self):
+        element_port_connections = self.ifc.HasPorts
+        for element_port_connection in element_port_connections:
+            self.ports.append(Port(self, element_port_connection.RelatingPort))
 
     @staticmethod
     def _init_factory():
@@ -90,7 +118,8 @@ class Element():
                 Element.dummy = cls
             elif not cls.ifc_type.lower().startswith("ifc"):
                 conflict = True
-                logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type, cls.__name__)
+                logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type,
+                             cls.__name__)
             else:
                 Element._ifc_classes[cls.ifc_type] = cls
 
@@ -99,7 +128,8 @@ class Element():
 
         #Model.dummy = Model.ifc_classes['any']
 
-        logger.debug("IFC model factory intitialized with %d models:", len(Element._ifc_classes))
+        logger.debug("IFC model factory intitialized with %d models:",
+                     len(Element._ifc_classes))
         for model in Element._ifc_classes:
             logger.debug("- %s", model)
 
@@ -130,7 +160,19 @@ class Element():
     @cached_property
     def position(self):
         """returns absolute position"""
-        raise NotImplementedError # TODO
+        rel = np.array(self.ifc.ObjectPlacement.
+                       RelativePlacement.Location.Coordinates)
+        relto = np.array(self.ifc.ObjectPlacement.
+                         PlacementRelTo.RelativePlacement.Location.Coordinates)
+        return rel + relto
+
+    @cached_property
+    def neighbors(self):
+        neighbors = []
+        for port in self.ports:
+            for connection in port.connections:
+                neighbors.append(connection.parent)
+        return neighbors
 
     def get_ifc_attribute(self, attribute):
         """
@@ -176,7 +218,6 @@ class Element():
 
     def __repr__(self):
         return "<%s (%s)>"%(self.__class__.__name__, self.name)
-
 
 
 class Dummy(Element):

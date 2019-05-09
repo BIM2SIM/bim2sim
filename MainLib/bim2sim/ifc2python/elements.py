@@ -2,7 +2,7 @@
 
 import math
 
-from bim2sim.decorator import cached_property
+from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import element
 
 
@@ -41,10 +41,14 @@ class Pipe(element.Element):
 
     def __init__(self, ifc):
         super().__init__(ifc)
+        self.pipestrand = None
 
-        
-        self.add_port("port_a", ifc.HasPorts[0].RelatingPort)
-        self.add_port("port_a", ifc.HasPorts[1].RelatingPort)
+    #def __init__(self, ifc):
+    #    super().__init__(ifc)
+
+    #    self.add_port("port_a", ifc.HasPorts[0].RelatingPort)
+    #    self.add_port("port_a", ifc.HasPorts[1].RelatingPort)
+
 
     @cached_property
     def Pset_PipeSegmentTypeCommon(self):
@@ -62,6 +66,10 @@ class Pipe(element.Element):
 class PipeFitting(element.Element):
     ifc_type = "IfcPipeFitting"
 
+    def __init__(self, ifc):
+        super().__init__(ifc)
+        self._pipestrand = None
+
     @cached_property
     def Pset_PipeFittingTypeCommon(self):
         return self.get_propertysets('Pset_PipeFittingTypeCommon')
@@ -77,6 +85,14 @@ class PipeFitting(element.Element):
     @property
     def pressure_class(self):
         return self.Pset_PipeFittingTypeCommon.get('PressureClass')
+
+    @property
+    def pipestrand(self):
+        return self._pipestrand
+
+    @pipestrand.setter
+    def pipestrand(self, ps):
+        self._pipestrand = ps
 
 
 class SpaceHeater(element.Element):

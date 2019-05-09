@@ -1,7 +1,7 @@
 ﻿
 import bim2sim
 
-from bim2sim.decorator import log
+from bim2sim.decorators import log
 from bim2sim.manage import BIM2SIMManager, PROJECT
 from bim2sim.ifc2python import finder
 from bim2sim.ifc2python.element import Element

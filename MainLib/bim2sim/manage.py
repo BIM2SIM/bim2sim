@@ -1,5 +1,4 @@
 ﻿"""Managing related"""
-
 import os
 import sys
 import logging
@@ -10,9 +9,11 @@ from distutils.dir_util import copy_tree
 import configparser
 
 import bim2sim
-from bim2sim.decorator import log
+from bim2sim.decorators import log
 from bim2sim.ifc2python import ifc2python
 from bim2sim.ifc2python.element import Element
+from bim2sim.ifc2python import hvac
+from bim2sim.ifc2python.hvac.hvac_graph import HvacGraph
 
 
 class _Project():
@@ -184,12 +185,12 @@ class BIM2SIMManager():
         self.ifc_path = self.get_ifc() # actual ifc # TODO: use multiple ifs files
         assert self.ifc_path, "No ifc found. Check '%s'"%(PROJECT.ifc)
         self.ifc = ifc2python.load_ifc(os.path.abspath(self.ifc_path))
-
+        self.representations = []  # representations like graphs etc.
         self.relevant_ifc_types = []
-        self.raw_instances = {} # directly made from IFC
+        self.raw_instances = {}  # directly made from IFC
         self.reduced_instances = []
-        self.instances = [] # processed for custom needs
-        self.export_instances = []
+        self.instances = []  # processed for custom needs
+        self.export_instances = []  # Todo @CWA whats the purpose?
 
         self.filters = []
         self.tests = []
@@ -221,6 +222,23 @@ class BIM2SIMManager():
     @log("inspecting IFC")
     def inspect(self):
         """Step 2"""
+        # todo add check if IFC has port information -> decision system
+        #def _connect_instances(eps=1):
+        #    nr_connections = 0
+        #    for raw_instance1 in self.raw_instances.values():
+        #        for port1 in raw_instance1.ports:
+        #            for raw_instance2 in self.raw_instances.values():
+        #                for port2 in raw_instance2.ports:
+        #                    if raw_instance1 == raw_instance2:
+        #                        continue
+        #                    distance = list((abs(coord1 - coord2)
+        #                                     for (coord1, coord2)
+        #                                     in zip(port1.position,
+        #                                            port2.position)))
+        #                    if all(diff <= eps for diff in distance):
+        #                        port1.connect(port2)
+        #                        nr_connections += 1
+        #    return nr_connections
 
         for ifc_type in self.relevant_ifc_types:
             elements = self.ifc.by_type(ifc_type)
@@ -229,11 +247,15 @@ class BIM2SIMManager():
                 self.raw_instances[representation.guid] = representation
 
         self.logger.info("Found %d relevant elements", len(self.raw_instances))
+        self.logger.info("Connecting the relevant elements")
+        nr_connections = hvac.connect_instances(self.raw_instances.values())
+        self.logger.info("Found %d connections", nr_connections)
 
     @log("enriching data")
     def enrich(self):
         """Step 3"""
-
+        hvacgraph = HvacGraph(self.raw_instances, self)
+        hvacgraph.create_cycles()
         self.logger.warning("Not implemented!")
 
     @log("reducing data")
@@ -245,7 +267,7 @@ class BIM2SIMManager():
     @log("processing")
     def process(self):
         """Step 5"""
-
+        # HVACSystem(self)
         self.logger.warning("Not implemented!")
 
     @log("checking results")
@@ -288,6 +310,7 @@ class BIM2SIMManager():
         with open(PROJECT.config, "w") as file:
             self.config.write(file)
 
+
 def open_config():
     """Open config for user in default program"""
     if sys.platform.startswith('darwin'): # For MAC OS X
@@ -297,6 +320,7 @@ def open_config():
         #os.system("start " + conf_path)
     elif os.name == 'posix': # For Linux, Mac, etc.
         subprocess.call(('xdg-open', PROJECT.config))
+
 
 def config_base_setup(backend=None):
     """Initial setup for config file"""
@@ -312,6 +336,7 @@ def config_base_setup(backend=None):
 
     with open(PROJECT.config, "w") as file:
         config.write(file)
+
 
 def get_config():
     """returns configparser instance. Basic config is done if file is not present"""
