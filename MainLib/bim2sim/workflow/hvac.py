@@ -2,6 +2,7 @@ from bim2sim.workflow import Workflow
 from bim2sim.filter import TypeFilter
 from bim2sim.ifc2python.element import Element
 from bim2sim.ifc2python import hvac
+from bim2sim.ifc2python.hvac import hvac_graph
 from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
@@ -86,7 +87,7 @@ class DetectCycles(Workflow):
 
     @Workflow.log
     def run(self, instances):
-        hvacgraph = hvac.hvac_graph.HvacGraph(instances)
+        hvacgraph = hvac_graph.HvacGraph(instances)
         hvacgraph.create_cycles()
         self.graph = hvacgraph
 
