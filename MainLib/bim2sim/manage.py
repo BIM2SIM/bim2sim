@@ -15,6 +15,10 @@ from bim2sim.ifc2python.hvac.hvac_graph import HvacGraph
 
 
 
+
+
+
+
 class BIM2SIMManager():
     """Base class of overall bim2sim managing instance"""
     __metaclass__ = ABCMeta
@@ -34,15 +38,16 @@ class BIM2SIMManager():
         self.ifc_path = self.get_ifc() # actual ifc # TODO: use multiple ifs files
         assert self.ifc_path, "No ifc found. Check '%s'"%(PROJECT.ifc)
         self.ifc = ifc2python.load_ifc(os.path.abspath(self.ifc_path))
-        self.representations = []  # representations like graphs etc.
-        self.relevant_ifc_types = []
-        self.raw_instances = {}  # directly made from IFC
-        self.reduced_instances = []
-        self.instances = []  # processed for custom needs
-        self.export_instances = []  # Todo @CWA whats the purpose?
 
-        self.filters = []
-        self.tests = []
+        #self.representations = []  # representations like graphs etc.
+        #self.relevant_ifc_types = []
+        #self.raw_instances = {}  # directly made from IFC
+        #self.reduced_instances = []
+        #self.instances = []  # processed for custom needs
+        #self.export_instances = []  # Todo @CWA whats the purpose?
+
+        #self.filters = []
+        #self.tests = []
 
         self.logger.info("BIM2SIMManager '%s' initialized", self.__class__.__name__)
 
@@ -56,64 +61,65 @@ class BIM2SIMManager():
 
     def run(self):
         """Run the manager"""
-        self.prepare()
-        self.inspect()
-        self.enrich()
-        self.reduce()
-        self.process()
-        self.check()
-        self.export()
+        raise NotImplementedError()
+        #self.prepare()
+        #self.inspect()
+        #self.enrich()
+        #self.reduce()
+        #self.process()
+        #self.check()
+        #self.export()
 
-    @abstractmethod
-    def prepare(self):
-        """Step 1"""
-        pass
+    #@abstractmethod
+    #def prepare(self):
+    #    """Step 1"""
+    #    pass
 
-    @log("inspecting IFC")
-    def inspect(self):
-        """Step 2"""
+    #@log("inspecting IFC")
+    #def inspect(self):
+    #    """Step 2"""
 
-        for ifc_type in self.relevant_ifc_types:
-            elements = self.ifc.by_type(ifc_type)
-            for element in elements:
-                representation = Element.factory(element)
-                self.raw_instances[representation.guid] = representation
+    #    for ifc_type in self.relevant_ifc_types:
+    #        elements = self.ifc.by_type(ifc_type)
+    #        for element in elements:
+    #            representation = Element.factory(element)
+    #            self.raw_instances[representation.guid] = representation
 
-        self.logger.info("Found %d relevant elements", len(self.raw_instances))
-        self.logger.info("Connecting the relevant elements")
-        nr_connections = hvac.connect_instances(self.raw_instances.values())
-        self.logger.info("Found %d connections", nr_connections)
+    #    self.logger.info("Found %d relevant elements", len(self.raw_instances))
+    #    self.logger.info("Connecting the relevant elements")
+    #    nr_connections = hvac.connect_instances(self.raw_instances.values())
+    #    self.logger.info("Found %d connections", nr_connections)
 
-    @log("enriching data")
-    def enrich(self):
-        """Step 3"""
-        hvacgraph = HvacGraph(self.raw_instances, self)
-        hvacgraph.create_cycles()
-        self.logger.warning("Not implemented!")
+    #@log("enriching data")
+    #def enrich(self):
+    #    """Step 3"""
+    #    hvacgraph = HvacGraph(self.raw_instances, self)
+    #    hvacgraph.create_cycles()
+    #    self.logger.warning("Not implemented!")
 
-    @log("reducing data")
-    def reduce(self):
-        """Step 4"""
+    #@log("reducing data")
+    #def reduce(self):
+    #    """Step 4"""
 
-        self.logger.warning("Not implemented!")
+    #    self.logger.warning("Not implemented!")
 
-    @log("processing")
-    def process(self):
-        """Step 5"""
-        # HVACSystem(self)
-        self.logger.warning("Not implemented!")
+    #@log("processing")
+    #def process(self):
+    #    """Step 5"""
+    #    # HVACSystem(self)
+    #    self.logger.warning("Not implemented!")
 
-    @log("checking results")
-    def check(self):
-        """Step 6"""
+    #@log("checking results")
+    #def check(self):
+    #    """Step 6"""
 
-        self.logger.warning("Not implemented!")
+    #    self.logger.warning("Not implemented!")
 
-    @log("exporting")
-    def export(self):
-        """Step 7"""
+    #@log("exporting")
+    #def export(self):
+    #    """Step 7"""
 
-        self.logger.warning("Not implemented!")
+    #    self.logger.warning("Not implemented!")
 
     def __repr__(self):
         return "<%s>"%(self.__class__.__name__)

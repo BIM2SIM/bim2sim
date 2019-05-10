@@ -5,23 +5,26 @@ where each node represents a hvac-component
 
 import os
 import logging
+
 import networkx as nx
 import matplotlib.pyplot as plt
+
 from bim2sim.ifc2python.aggregation import PipeStrand
 
 
 class HvacGraph(object):
-    def __init__(self, instances, parent):
+    def __init__(self, instances):
         self.logger = logging.getLogger(__name__)
         self.instances = instances
-        self.parent = parent
+        #self.parent = parent
         self.instance_nodes = []
         self.port_nodes = []
         self.edges = []
         self.hvac_graph = None
         self._create_hvac_network_by_ports()
         self.cycles = []
-        self.parent.representations.append(self)
+        self.aggregated_instances = []
+        #self.parent.representations.append(self)
 
     def _create_hvac_network_by_ports(self):
         """
@@ -122,7 +125,7 @@ class HvacGraph(object):
         for aggregation in aggregations:
             name = 'PipeStrand' + str(nr)
             pipestrand = PipeStrand(name, aggregation)
-            self.parent.reduced_instances.append(pipestrand)
+            self.aggregated_instances.append(pipestrand)
             _get_start_and_end_ports(pipestrand, subgraph_aggregations)
             hvac_graph = _update_network(hvac_graph, pipestrand)
             nr += 1

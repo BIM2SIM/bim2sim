@@ -1,4 +1,4 @@
-import unittest
+﻿import unittest
 import os
 import shutil
 import tempfile
@@ -86,7 +86,7 @@ class Test_Manager(BaseTestManage):
         manage.PROJECT.create(PATH, IFC_PATH)
         manager = Manager(None)
 
-        manager.run()
+        #manager.run()
 
 
 if __name__ == '__main__':
