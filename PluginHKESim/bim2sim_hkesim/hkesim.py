@@ -22,11 +22,11 @@ class HKESimManager(BIM2SIMManager):
         inspect = hvac.Inspect()
         inspect.run(self.ifc, hvac.IFC_TYPES)
 
-        detectcycles = hvac.DetectCycles()
-        detectcycles.run(list(inspect.instances.values()))
+        makegraph = hvac.MakeGraph()
+        makegraph.run(list(inspect.instances.values()))
 
         reduce = hvac.Reduce()
-        reduce.run(detectcycles.graph)
+        reduce.run(makegraph.graph)
 
         #check
 

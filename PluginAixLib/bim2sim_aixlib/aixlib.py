@@ -22,11 +22,11 @@ class AixLib(BIM2SIMManager):
         inspect = hvac.Inspect()
         inspect.run(self.ifc, hvac.IFC_TYPES)
 
-        detectcycles = hvac.DetectCycles()
-        detectcycles.run(inspect.instances)
+        makegraph = hvac.MakeGraph()
+        makegraph.run(inspect.instances)
 
         reduce = hvac.Reduce()
-        reduce.run(detectcycles.graph)
+        reduce.run(makegraph.graph)
 
         #check
 

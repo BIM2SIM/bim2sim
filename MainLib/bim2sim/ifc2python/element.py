@@ -15,7 +15,7 @@ class Port():
         #self.name = ifcport.Name
         self.parent = parent
         self.aggregated_parent = None
-        self.connections = []
+        self.connections = [] #TODO: each Port can have only one connection
 
     def connect(self, other):
         """Connect this interface to another interface"""

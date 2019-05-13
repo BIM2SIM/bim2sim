@@ -11,25 +11,62 @@ class AggregationPort():
 
 class Aggregation():
     """Base aggregation of models"""
-    def __init__(self, name, models):
+    def __init__(self, name, elements):
         self.logger = logging.getLogger(__name__)
         self.name = name
-        self.models = models
+        self.elements = elements
+        for model in self.elements:
+            model.aggregation = self
 
     def __repr__(self):
-        return "<%s (aggregation of %d elements)>" % (self.__class__.__name__,
-                                                      len(self.models))
+        return "<%s '%s' (aggregation of %d elements)>" % (
+            self.__class__.__name__, self.name, len(self.elements))
 
 
 class PipeStrand(Aggregation):
     """Aggregates pipe strands"""
     aggregatable_elements = ['IfcPipeSegment', 'IfcPipeFitting']
 
-    def __init__(self, name, models):
-        super().__init__(name, models)
-        self.ports = []
+    def __init__(self, name, elements):
+        super().__init__(name, elements)
+        self.ports = self._get_start_and_end_ports()
         self._total_length = None
         self._avg_diameter = None
+
+
+    def _get_start_and_end_ports(self):
+        """
+        Finds and sets the first and last port of the pipestrand.
+
+        Assumes all elements in cycle are ordered as connected
+        :return ports:
+        """
+        agg_ports = []
+        # first port
+        found_in = False
+        found_out = False
+        for port in self.elements[0].ports:
+            if not port.connections[0].parent in self.elements:
+                found_out = True
+                agg_ports.append(port)
+            else:
+                found_in = True
+        if not (found_in and found_out):
+            raise AssertionError("Assumtion of ordered elements violated")
+
+        # last port
+        found_in = False
+        found_out = False
+        for port in self.elements[-1].ports:
+            if not port.connections[0].parent in self.elements:
+                found_out = True
+                agg_ports.append(port)
+            else:
+                found_in = True
+        if not (found_in and found_out):
+            raise AssertionError("Assumtion of ordered elements violated")
+
+        return agg_ports
 
     def _calc_avg(self):
         """Calculates the total length and average diameter of all pipe-like
@@ -38,7 +75,7 @@ class PipeStrand(Aggregation):
         self._avg_diameter = 0
         diameter_times_length = 0
 
-        for pipe in self.models:
+        for pipe in self.elements:
             if hasattr(pipe, "diameter") and hasattr(pipe, "length"):
                 length = pipe.length
                 diameter = pipe.diameter
@@ -52,7 +89,6 @@ class PipeStrand(Aggregation):
             else:
                 self.logger.warning("Ignored '%s' in aggregation", pipe)
         self._avg_diameter = diameter_times_length / self._total_length
-
 
     @property
     def diameter(self):

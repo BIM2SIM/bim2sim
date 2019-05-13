@@ -1,7 +1,10 @@
 ﻿"""This module holds elements related to hvac workflow"""
 
+import itertools
+
 from bim2sim.workflow import Workflow
 from bim2sim.filter import TypeFilter
+from bim2sim.ifc2python.aggregation import PipeStrand
 from bim2sim.ifc2python.element import Element
 from bim2sim.ifc2python import hvac
 from bim2sim.ifc2python.hvac import hvac_graph
@@ -55,6 +58,21 @@ class Inspect(Workflow):
         super().__init__()
         self.instances = {}
 
+    @staticmethod
+    def connect_instances(instances, eps=1):
+        nr_connections = 0
+        # todo add check if IFC has port information -> decision system
+        for instance1, instance2 in itertools.combinations(instances, 2):
+            for port1 in instance1.ports:
+                for port2 in instance2.ports:
+                    delta = port1.position - port2.position
+                    if max(abs(delta)) < eps:
+                        port1.connect(port2)
+                        port2.connect(port1)
+                        nr_connections += 1
+
+        return nr_connections
+
     @Workflow.log
     def run(self, ifc, relevant_ifc_types):
 
@@ -66,7 +84,7 @@ class Inspect(Workflow):
 
         self.logger.info("Found %d relevant elements", len(self.instances))
         self.logger.info("Connecting the relevant elements")
-        nr_connections = hvac.connect_instances(self.instances.values())
+        nr_connections = self.connect_instances(self.instances.values())
         self.logger.info("Found %d connections", nr_connections)
 
 
@@ -83,9 +101,9 @@ class Prepare(Workflow):
         self.filters.append(TypeFilter(relevant_ifc_types))
 
 
-class DetectCycles(Workflow):
+class MakeGraph(Workflow):
     """"""
-    verbose_description = "Creating graph and detect cycles"
+    verbose_description = "Creating graph from IFC elements"
 
     def __init__(self):
         super().__init__()
@@ -93,25 +111,37 @@ class DetectCycles(Workflow):
 
     @Workflow.log
     def run(self, instances:list):
-        hvacgraph = hvac_graph.HvacGraph(instances)
-        hvacgraph.create_cycles()
-        self.graph = hvacgraph
+        self.graph = hvac_graph.HvacGraph(instances)
+
 
 class Reduce(Workflow):
     verbose_description = "Reducing elements by applieing aggregations"
 
     def __init__(self):
         super().__init__()
-        self.reduced_instances = None
+        self.reduced_instances = []
 
-    def run(self, graph):
-        graph.find_aggregations(graph.hvac_graph, 'pipes')
-        graph.plot_graph(graph.hvac_graph, True)
-        self.reduced_instances = graph.aggregated_instances
+    @Workflow.log
+    def run(self, graph:hvac_graph.HvacGraph):
+        #cycles = graph.get_cycles()
+        number_ps = 0
+        chains = graph.get_type_chains(PipeStrand.aggregatable_elements)
+        for chain in chains:
+            number_ps += 1
+            pipestrand = PipeStrand("PipeStrand%d"%(number_ps), chain)
+            #self.reduced_instances.append(pipestrand)
+            graph.replace(chain, pipestrand)
+
+        self.reduced_instances = graph.get_nodes()
+        graph.plot(PROJECT.export)
+        #graph.find_aggregations(graph.hvac_graph, 'pipes')
+        #graph.plot_graph(graph.hvac_graph, True)
+        #self.reduced_instances = graph.aggregated_instances
 
 class Export(Workflow):
     verbose_description = "Export to Modelica code"
 
+    @Workflow.log
     def run(self, instances):
         Decision.load(PROJECT.decisions)
 
