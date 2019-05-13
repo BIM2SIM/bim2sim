@@ -30,7 +30,6 @@ class AixLib(BIM2SIMManager):
 
         #check
 
-        #TODO reduced_instances hold only aggregations, not aggregated are missing
         export = hvac.Export()
         export.run(reduce.reduced_instances)
 

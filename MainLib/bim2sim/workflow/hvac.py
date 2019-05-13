@@ -102,7 +102,7 @@ class Prepare(Workflow):
 
 
 class MakeGraph(Workflow):
-    """"""
+    """Instanciate HvacGraph"""
     verbose_description = "Creating graph from IFC elements"
 
     def __init__(self):
@@ -123,20 +123,32 @@ class Reduce(Workflow):
 
     @Workflow.log
     def run(self, graph:hvac_graph.HvacGraph):
-        #cycles = graph.get_cycles()
         number_ps = 0
         chains = graph.get_type_chains(PipeStrand.aggregatable_elements)
         for chain in chains:
             number_ps += 1
             pipestrand = PipeStrand("PipeStrand%d"%(number_ps), chain)
-            #self.reduced_instances.append(pipestrand)
             graph.replace(chain, pipestrand)
 
         self.reduced_instances = graph.get_nodes()
-        graph.plot(PROJECT.export)
-        #graph.find_aggregations(graph.hvac_graph, 'pipes')
-        #graph.plot_graph(graph.hvac_graph, True)
-        #self.reduced_instances = graph.aggregated_instances
+        if __debug__:
+            graph.plot(PROJECT.export)
+
+
+class DetectCycles(Workflow):
+    """Detect cycles in graph
+    
+    """
+    #TODO: sth usefull like grouping or medium assignment
+
+    def __init__(self):
+        super().__init__()
+        self.cycles = None
+
+    @Workflow.log
+    def run(self, graph:hvac_graph.HvacGraph):
+        self.cycles = graph.get_cycles()
+
 
 class Export(Workflow):
     verbose_description = "Export to Modelica code"
