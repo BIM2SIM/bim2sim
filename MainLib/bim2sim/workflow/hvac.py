@@ -1,3 +1,5 @@
+﻿"""This module holds elements related to hvac workflow"""
+
 from bim2sim.workflow import Workflow
 from bim2sim.filter import TypeFilter
 from bim2sim.ifc2python.element import Element
@@ -44,7 +46,10 @@ IFC_TYPES = (
 )
 
 class Inspect(Workflow):
-    description = "Creates python representation of relevant ifc types"
+    """Analyses IFC, creates Element instances and connects them.
+    
+    elements are stored in .instandes dict with guid as key"""
+    verbose_description = "Creates python representation of relevant ifc types"
 
     def __init__(self):
         super().__init__()
@@ -66,7 +71,7 @@ class Inspect(Workflow):
 
 
 class Prepare(Workflow):
-    description = "Setting Filters"
+    verbose_description = "Setting Filters"
 
     def __init__(self):
         super().__init__()
@@ -79,20 +84,21 @@ class Prepare(Workflow):
 
 
 class DetectCycles(Workflow):
-    description = "Creating graph and detect cycles"
+    """"""
+    verbose_description = "Creating graph and detect cycles"
 
     def __init__(self):
         super().__init__()
         self.graph = None
 
     @Workflow.log
-    def run(self, instances):
+    def run(self, instances:list):
         hvacgraph = hvac_graph.HvacGraph(instances)
         hvacgraph.create_cycles()
         self.graph = hvacgraph
 
 class Reduce(Workflow):
-    description = "Reducing elements by applieing aggregations"
+    verbose_description = "Reducing elements by applieing aggregations"
 
     def __init__(self):
         super().__init__()
@@ -104,7 +110,7 @@ class Reduce(Workflow):
         self.reduced_instances = graph.aggregated_instances
 
 class Export(Workflow):
-    description = "Export to Modelica code"
+    verbose_description = "Export to Modelica code"
 
     def run(self, instances):
         Decision.load(PROJECT.decisions)

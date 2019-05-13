@@ -13,40 +13,39 @@ from bim2sim.ifc2python.aggregation import PipeStrand
 
 
 class HvacGraph(object):
-    def __init__(self, instances):
+    def __init__(self, instances:list):
         self.logger = logging.getLogger(__name__)
-        self.instances = instances
+        #self.instances = instances
         #self.parent = parent
-        self.instance_nodes = []
-        self.port_nodes = []
-        self.edges = []
-        self.hvac_graph = None
-        self._create_hvac_network_by_ports()
+        #self.instance_nodes = []
+        #self.port_nodes = []
+        #self.edges = []
+        self.hvac_graph = self._create_hvac_network_by_ports(instances)
         self.cycles = []
         self.aggregated_instances = []
         #self.parent.representations.append(self)
 
-    def _create_hvac_network_by_ports(self):
+    def _create_hvac_network_by_ports(self, instances):
         """
         This function creates a graph network of the raw instances. Each
         component and each port of the instances is represented by a node.
         """
         self.logger.info("Creating HVAC graph representation ...")
         graph = nx.DiGraph()
-        self.instance_nodes = list(self.instances.values())
+        #self.instance_nodes = list(self.instances.values())
 
-        self.port_nodes = [port for instance in self.instance_nodes for port in
+        port_nodes = [port for instance in instances for port in
                        instance.ports]
-        self.edges = [(port, connected_port) for port in self.port_nodes for
+        edges = [(port, connected_port) for port in port_nodes for
                       connected_port in port.connections]
-        nodes = self.instance_nodes + self.port_nodes
-        graph.update(nodes=nodes,
-                     edges=self.edges)
-        self.hvac_graph = graph
-        self._contract_ports_into_elements()
-        self.logger.info("HVAC graph building is completed")
+        nodes = instances + port_nodes
+        graph.update(nodes=nodes, edges=edges)
 
-    def _contract_ports_into_elements(self):
+        hvac_graph = self._contract_ports_into_elements(graph, port_nodes)
+        self.logger.info("HVAC graph building is completed")
+        return hvac_graph
+
+    def _contract_ports_into_elements(self, graph, port_nodes):
         """
         Contract the port nodes into the belonging instance nodes for better
         handling, the information about the ports is still accessible via the
@@ -55,13 +54,12 @@ class HvacGraph(object):
         """
 
         self.logger.info("Contracting ports into elements ...")
-        graph = self.hvac_graph
-        for port in self.port_nodes:
+        for port in port_nodes:
             graph = nx.contracted_nodes(graph, port.parent, port)
         self.logger.info("Contracted the ports into node instances, this"
                          " leads to %d nodes.",
                          graph.number_of_nodes())
-        self.hvac_graph = graph
+        return graph
 
     def _create_aggregations(self, aggregations, subgraph_aggregations,
                              hvac_graph):
