@@ -20,10 +20,14 @@ class HKESimManager(BIM2SIMManager):
         prepare.run(hvac.IFC_TYPES)
 
         inspect = hvac.Inspect()
-        inspect.run(self.ifc, hvac.IFC_TYPES)
+        if not inspect.load(PROJECT.workflow):
+            inspect.run(self.ifc, hvac.IFC_TYPES)
+            inspect.save(PROJECT.workflow)
 
         makegraph = hvac.MakeGraph()
-        makegraph.run(list(inspect.instances.values()))
+        if not makegraph.load(PROJECT.workflow):
+            makegraph.run(list(inspect.instances.values()))
+            makegraph.save(PROJECT.workflow)
 
         reduce = hvac.Reduce()
         reduce.run(makegraph.graph)

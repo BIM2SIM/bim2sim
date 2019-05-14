@@ -1,13 +1,8 @@
 ﻿"""Managing related"""
 import os
-import sys
 import logging
 from abc import ABCMeta, abstractmethod
-import subprocess
-import shutil
-import configparser
 
-from bim2sim.decorators import log
 from bim2sim.project import PROJECT, get_config
 from bim2sim.ifc2python import ifc2python
 

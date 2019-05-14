@@ -2,7 +2,6 @@
 
 import os
 import sys
-import logging
 import subprocess
 import shutil
 import configparser
@@ -49,6 +48,7 @@ class _Project():
 
     CONFIG = "config.ini"
     DECISIONS = "decisions.json"
+    WORKFLOW = "workflow"
     IFC = "ifc"
     LOG = "log"
     EXPORT = "export"
@@ -81,6 +81,13 @@ class _Project():
         return os.path.abspath(os.path.join(self._rootpath, _Project.DECISIONS))
 
     @property
+    def workflow(self):
+        """absolute path to workflow"""
+        if not self._rootpath:
+            return None
+        return os.path.abspath(os.path.join(self._rootpath, _Project.WORKFLOW))
+
+    @property
     def log(self):
         """absolute path to log folder"""
         if not self._rootpath:
@@ -108,7 +115,7 @@ class _Project():
     @property
     def subdirs(self):
         """list of paths to sub folders"""
-        return [self.log, self.ifc, self.resources, self.export]
+        return [self.log, self.ifc, self.resources, self.export, self.workflow]
 
     def is_project_folder(self, path=None):
         """Check if root path (or given path) is a project folder"""

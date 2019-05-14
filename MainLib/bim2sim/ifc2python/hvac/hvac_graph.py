@@ -7,12 +7,13 @@ import os
 import logging
 
 import networkx as nx
+from networkx.readwrite import json_graph
 import matplotlib.pyplot as plt
 
 
 class HvacGraph():
 
-    def __init__(self, instances:list):
+    def __init__(self, instances: list):
         self.logger = logging.getLogger(__name__)
         self.graph = self._create_hvac_network_by_ports(instances)
 
@@ -25,9 +26,9 @@ class HvacGraph():
         graph = nx.DiGraph()
 
         port_nodes = [port for instance in instances for port in
-                       instance.ports]
+                      instance.ports]
         edges = [(port, connected_port) for port in port_nodes for
-                      connected_port in port.connections]
+                 connected_port in port.connections]
         nodes = instances + port_nodes
         graph.update(nodes=nodes, edges=edges)
 
@@ -85,12 +86,12 @@ class HvacGraph():
 
     def get_type_chains(self, types):
         """Returns lists of consecutive elements of the given types ordered as connected.
-        
+
         :param types: iterable of ifcType names"""
 
         undirected_graph = nx.Graph(self.graph)
         nodes_degree2 = [v for v, d in undirected_graph.degree() if d ==
-                            2 and v.ifc_type in types]
+                         2 and v.ifc_type in types]
         subgraph_aggregations = nx.subgraph(undirected_graph, nodes_degree2)
 
         chain_lists = []
@@ -105,8 +106,9 @@ class HvacGraph():
         return chain_lists
 
     def replace(self, elements, replacement=None):
-        """Replaces elements in graph with replaement. If replacement is not given elements are deleted.
+        """Replaces elements in graph with replaement. 
 
+        If replacement is not given elements are deleted.
         Updates the network by:
             - deleting old nodes which are now represented by the aggregation
             - connecting the aggregation to the rest of the network
@@ -117,9 +119,9 @@ class HvacGraph():
 
         if replacement:
             self.graph.add_node(replacement)
-    
+
             outer_connections = [connection for port in replacement.ports
-                for connection in port.connections]
+                                 for connection in port.connections]
 
             for port in outer_connections:
                 other_port = port.connections[0]
@@ -140,7 +142,7 @@ class HvacGraph():
 
     def plot(self, path=None):
         """Plot graph
-        
+
         if path is provided plot is saved as pdf else it gets displayed"""
         nx.draw(self.graph, node_size=3, font_size=6,
                 with_labels=True)
@@ -152,3 +154,10 @@ class HvacGraph():
         else:
             plt.show()
 
+    def to_serializable(self):
+        """Returns a json serializable object"""
+        return json_graph.adjacency_data(self.graph)
+
+    def from_serialized(self, data):
+        """Sets grapg from serialized data"""
+        self.graph = json_graph.adjacency_graph(data)
