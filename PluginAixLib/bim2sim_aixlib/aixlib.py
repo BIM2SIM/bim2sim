@@ -1,12 +1,9 @@
 ﻿import re
-
 from ast import literal_eval
 
-from bim2sim.decorators import log
 from bim2sim.manage import BIM2SIMManager, PROJECT
-from bim2sim.ifc2python.aggregation import PipeStrand
-from bim2sim.filter import TypeFilter
-from bim2sim.export import modelica
+from bim2sim.tasks import LOD, PlantSimulation
+from bim2sim.workflow import hvac
 
 from bim2sim_hkesim import models
 
@@ -15,68 +12,30 @@ class AixLib(BIM2SIMManager):
     def __init__(self, task):
         super().__init__(task)
 
-        self.relevant_ifc_types = ['IfcAirTerminal',
-                                   'IfcAirTerminalBox',
-                                   'IfcAirToAirHeatRecovery',
-                                   'IfcBoiler',
-                                   'IfcBurner',
-                                   'IfcChiller',
-                                   'IfcCoil',
-                                   'IfcCompressor',
-                                   'IfcCondenser',
-                                   'IfcCooledBeam',
-                                   'IfcCoolingTower',
-                                   'IfcDamper',
-                                   'IfcDuctFitting',
-                                   'IfcDuctSegment',
-                                   'IfcDuctSilencer',
-                                   'IfcEngine',
-                                   'IfcEvaporativeCooler',
-                                   'IfcEvaporator',
-                                   'IfcFan',
-                                   'IfcFilter',
-                                   'IfcFlowMeter',
-                                   'IfcHeatExchanger',
-                                   'IfcHumidifier',
-                                   'IfcMedicalDevice',
-                                   'IfcPipeFitting',
-                                   'IfcPipeSegment',
-                                   'IfcPump',
-                                   'IfcSpaceHeater',
-                                   'IfcTank',
-                                   'IfcTubeBundle',
-                                   'IfcUnitaryEquipment',
-                                   'IfcValve',
-                                   'IfcVibrationIsolator']
+        self.relevant_ifc_types = hvac.IFC_TYPES
 
-    @log("preparing")
-    def prepare(self):
+    def run(self):
 
-        # TODO: depending on task ...
-        self.filters.append(TypeFilter(self.relevant_ifc_types))
+        prepare = hvac.Prepare()
+        prepare.run(hvac.IFC_TYPES)
 
-    @log("reducing model")
-    def reduce(self):
-        hvac_graph = self.representations[0]
-        hvac_graph.find_aggregations(hvac_graph.hvac_graph, 'pipes')
-        hvac_graph.plot_graph(hvac_graph.hvac_graph, True)
-    @log("processing")
-    def process(self):
+        inspect = hvac.Inspect()
+        if not inspect.load(PROJECT.workflow):
+            inspect.run(self.ifc, hvac.IFC_TYPES)
+            inspect.save(PROJECT.workflow)
 
-        self.instances.extend(self.reduced_instances)
+        makegraph = hvac.MakeGraph()
+        if not makegraph.load(PROJECT.workflow):
+            makegraph.run(list(inspect.instances.values()))
+            makegraph.save(PROJECT.workflow)
 
-    @log("exporting")
-    def export(self):
-        for inst in self.instances:
-            self.export_instances.append(modelica.Instance.factory(inst))
+        reduce = hvac.Reduce()
+        reduce.run(makegraph.graph)
 
-        modelica_model = modelica.Model(name="Test", comment="testing",
-                                        instances=self.export_instances,
-                                        connections={})
-        print("-" * 80)
-        print(modelica_model.code())
-        print("-" * 80)
-        modelica_model.save(PROJECT.export)
+        #check
+
+        export = hvac.Export()
+        export.run(reduce.reduced_instances)
 
     def create_modelica_table_from_list(self,curve):
         """
