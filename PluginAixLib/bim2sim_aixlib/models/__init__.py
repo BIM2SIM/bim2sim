@@ -11,12 +11,16 @@ class AixLib(modelica.Instance):
 
 
 class Boiler(AixLib):
-    #path = "HKESim.Heating.Boilers.Boiler"
+    path = "AixLib.FastHVAC.Components.HeatGenerators.Boiler.Boiler"
     represents = elements.Boiler
 
-    @classmethod
-    def get_params(cls, ele):
-        params = {
-            "nominal_power" : ele.rated_power,
-            }
-        return params
+    def __init__(self, element):
+        self.check_power = self.check_numeric(min_value=0) #TODO: Checking System
+        super().__init__(element)
+
+    def get_params(self):
+        self.manage_param("nominal_power", self.element.rated_power,
+                          self.check_power)
+
+
+

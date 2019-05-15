@@ -73,7 +73,7 @@ class Test_Manager(BaseTestManage):
         manage.PROJECT.create(self.path, IFC_PATH)
         manager = Manager(None)
 
-        manager.run()
+        #manager.run()
 
 
 if __name__ == '__main__':

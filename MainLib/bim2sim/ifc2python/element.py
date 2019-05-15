@@ -1,21 +1,34 @@
 ﻿"""Definition for basic representations of IFC elements"""
 
 import logging
+from json import JSONEncoder
+
 import numpy as np
 
 from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import ifc2python
 
 
+class ElementEncoder(JSONEncoder):
+    #TODO: make Elements serializable and deserializable.
+    # Ideas: guid to identify, (factory) method to (re)init by guid
+    # mayby weakref to other elements (Ports, connections, ...)
+
+    def default(self, o):
+        if isinstance(o, Element):
+            return "<Element(%s)>"%(o.guid)
+        else:
+            JSONEncoder.default()
+
 class Port():
     """"""
 
     def __init__(self, parent, ifcport):
         self.ifc = ifcport
-        self.name = ifcport.Name
+        #self.name = ifcport.Name
         self.parent = parent
         self.aggregated_parent = None
-        self.connections = []
+        self.connections = [] #TODO: each Port can have only one connection
 
     def connect(self, other):
         """Connect this interface to another interface"""
@@ -99,9 +112,8 @@ class Element(metaclass=ElementMeta):
         self._tool = tool
         self.ports = []
         self.aggregation = None
-        self._add_ports()
-
         self.ports = [] #TODO
+        self._add_ports()
 
     def __getattr__(self, name):
         # user finder to get attribute
