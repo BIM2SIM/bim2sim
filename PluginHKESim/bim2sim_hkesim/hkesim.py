@@ -1,7 +1,8 @@
 ﻿
 from bim2sim.manage import BIM2SIMManager, PROJECT
 from bim2sim.workflow import hvac
-
+from bim2sim.export.modelica import standardlibrary
+from bim2sim_hkesim.models import HKESim
 
 
 class HKESimManager(BIM2SIMManager):
@@ -30,8 +31,9 @@ class HKESimManager(BIM2SIMManager):
 
         #check
 
+        libraries = (standardlibrary.StandardLibrary, HKESim)
         export = hvac.Export()
-        export.run(reduce.reduced_instances)
+        export.run(libraries, reduce.reduced_instances)
 
 
 

@@ -201,3 +201,6 @@ class AirTerminal(element.Element):
 
 class Medium(element.Element):
     ifc_type = "IfcDistributionSystems"
+
+
+__all__ = [ele for ele in locals().values() if ele in element.Element.__subclasses__()]

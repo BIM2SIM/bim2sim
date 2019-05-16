@@ -13,6 +13,7 @@ from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
 
+
 IFC_TYPES = (
     'IfcAirTerminal',
     'IfcAirTerminalBox',
@@ -56,7 +57,6 @@ class Inspect(Workflow):
 
     def __init__(self):
         super().__init__()
-        self.logger.info("Creates python representation of relevant ifc types")
         self.instances = {}
 
     @staticmethod
@@ -165,10 +165,11 @@ class DetectCycles(Workflow):
 class Export(Workflow):
     """Export to Dymola/Modelica"""
 
-    def run(self, instances):
+    def run(self, libraries, instances):
         self.logger.info("Export to Modelica code")
         Decision.load(PROJECT.decisions)
 
+        modelica.Instance.init_factory(libraries)
         export_instances = [modelica.Instance.factory(inst) for inst in instances]
 
         self.logger.info(Decision.summary())

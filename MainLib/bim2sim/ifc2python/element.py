@@ -8,6 +8,8 @@ import numpy as np
 from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import ifc2python
 
+class ElementError(Exception):
+    pass
 
 class ElementEncoder(JSONEncoder):
     #TODO: make Elements serializable and deserializable.
@@ -164,11 +166,12 @@ class Element(metaclass=ElementMeta):
             raise AssertionError("Conflict(s) in Models. (See log for details).")
 
         #Model.dummy = Model.ifc_classes['any']
+        if not Element._ifc_classes:
+            raise ElementError("Faild to initialize Element factory. No elements found!")
 
-        logger.debug("IFC model factory intitialized with %d models:",
-                     len(Element._ifc_classes))
-        for model in Element._ifc_classes:
-            logger.debug("- %s", model)
+        model_txt = "\n".join(" - %s"%(model) for model in Element._ifc_classes)
+        logger.debug("IFC model factory intitialized with %d ifc classes:\n%s",
+                     len(Element._ifc_classes), model_txt)
 
     @staticmethod
     def factory(ifc_element, tool=None):
@@ -272,3 +275,5 @@ class Dummy(Element):
     def ifc_type(self):
         return self._ifc_type
 
+# import Element classes for Element.factory
+import bim2sim.ifc2python.elements
