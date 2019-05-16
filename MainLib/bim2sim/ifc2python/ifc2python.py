@@ -242,3 +242,49 @@ def convertToSI(ifcUnit, value):
     elif checkIfcElementType(ifcUnit, 'IfcConversionBasedUnit'):
         factor = ifcUnit.ConversionFactor.ValueComponent.wrappedValue
         return value * factor
+
+def summary(ifcelement):
+    txt = "** Summary **\n"
+    for k, v in ifcelement.get_info().items():
+        txt += "%s: %s\n"%(k, v)
+
+    # "HasAssignments", "ContainedInStructure", "IsTypedBy", "HasAssociations"
+    relations = ("HasPorts", "IsDefinedBy", )
+    for rel in relations:
+        attr = getattr(ifcelement, rel)
+        if attr:
+            txt += "%s:\n"%(rel)
+            for item in attr:
+                if item.is_a() == 'IfcRelDefinesByProperties':
+                    pset = item.RelatingPropertyDefinition
+                    txt += " - %s\n"%(pset.Name)
+                    for prop in pset.HasProperties:
+                        txt += "    - %s\n"%(prop)
+                else:
+                    txt += " - %s\n"%(item)
+
+    #for attrname in dir(ifcelement):
+    #    if attrname.startswith('__'):
+    #        continue
+    #    value = getattr(ifcelement, attrname)
+    #    if not value:
+    #        continue
+    #    txt += "\n%s:%s"%(attrname, value)
+
+    return txt
+
+def used_properties(ifc_file):
+    """Filters given IFC for propertysets
+   returns a dictonary with related ifctypes as keys and lists of usered propertysets as values"""
+    props = ifc_file.by_type("IFCPROPERTYSET")
+    tuples = []
+    for prop in props:
+        for occ in prop.DefinesOccurrence:
+            for ro in occ.RelatedObjects:
+                tuples.append((ro.is_a(), prop.Name))
+    tuples = set(tuples)
+    types = set(tup[0] for tup in tuples)
+    type_dict = {typ:[] for typ in types}
+    for tup in tuples:
+        type_dict[tup[0]].append(tup[1])
+    return type_dict

@@ -2,10 +2,8 @@
 from ast import literal_eval
 
 from bim2sim.manage import BIM2SIMManager, PROJECT
-from bim2sim.tasks import LOD, PlantSimulation
 from bim2sim.workflow import hvac
-
-from bim2sim_hkesim import models
+from bim2sim.export.modelica import standardlibrary
 
 class AixLib(BIM2SIMManager):
 
@@ -34,8 +32,9 @@ class AixLib(BIM2SIMManager):
 
         #check
 
+        libraries = (standardlibrary.StandardLibrary, )
         export = hvac.Export()
-        export.run(reduce.reduced_instances)
+        export.run(libraries, reduce.reduced_instances)
 
     def create_modelica_table_from_list(self,curve):
         """

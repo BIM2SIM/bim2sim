@@ -15,6 +15,12 @@ with open(TEMPLATEPATH) as f:
     templateStr = f.read()
 templ = Template(templateStr)
 
+
+class ModelError(Exception):
+    pass
+class FactoryError(Exception):
+    pass
+
 class Model():
     """Modelica model"""
 
@@ -56,6 +62,7 @@ class Instance():
     represents = None
     lookup = {}
     dummy = None
+    _initialized = False
 
     def __init__(self, element):
 
@@ -81,19 +88,20 @@ class Instance():
             return False
 
     @staticmethod
-    def _init_factory():
+    def init_factory(libraries):
         """initialize lookup for factory"""
         logger = logging.getLogger(__name__)
         conflict = False
 
-        for library in Instance.__subclasses__():
+        Instance.dummy = Dummy
+
+        for library in libraries:
+            if not Instance in library.__bases__:
+                logger.warning("Got Library not directly inheriting from Instance.")
             if library.library:
-                logger.info("Found library '%s'", library.library)
-            elif library.__name__ == "Dummy":
-                Instance.dummy = library
-                continue
+                logger.info("Got library '%s'", library.library)
             else:
-                logger.error("Library not defined for '%s'", library.__name__)
+                logger.error("Attribute library not set for '%s'", library.__name__)
                 raise AssertionError("Library not defined")
             for cls in library.__subclasses__():
                 if cls.represents is None:
@@ -111,16 +119,18 @@ class Instance():
         if conflict:
             raise AssertionError("Conflict(s) in Models. (See log for details).")
 
-        logger.debug("Modelica librarys intitialized with %d models:", len(Instance.lookup))
-        for inst in set(Instance.lookup.values()):
-            logger.debug("- %s", inst.__name__)
+        Instance._initialized = True
+
+        models = set(Instance.lookup.values())
+        models_txt = "\n".join(sorted([" - %s"%(inst.path) for inst in models]))
+        logger.debug("Modelica libraries intitialized with %d models:\n%s", len(models), models_txt)
 
     @staticmethod
     def factory(element):
         """Create model depending on ifc_element"""
 
-        if not Instance.lookup:
-            Instance._init_factory()
+        if not Instance._initialized:
+            raise FactoryError("Factory not initialized.")
 
         cls = Instance.lookup.get(element.__class__, Instance.dummy)
         return cls(element)

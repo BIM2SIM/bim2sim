@@ -6,45 +6,32 @@ import tempfile
 import bim2sim
 from bim2sim import manage
 
-TEMP = None
-PATH = None
+
 IFC_PATH = os.path.abspath(os.path.join(
     os.path.dirname(bim2sim.__file__), '../..', 
     r'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc'))
 
-def setUpModule():
-    global TEMP, PATH
-    TEMP = tempfile.mkdtemp()
-    PATH = os.path.join(TEMP, 'testproject')
-
-def tearDownModule():
-    shutil.rmtree(PATH, ignore_errors=True)
-
 class BaseTestManage(unittest.TestCase):
 
-    def __init__(self, methodName = 'runTest'):
-        super().__init__(methodName)
-        self._allow_delete = False
+    #def __init__(self, methodName = 'runTest'):
+    #    super().__init__(methodName)
+    #    self._allow_delete = False
 
     def setUp(self):
-        self.assertFalse(os.path.exists(PATH), "Path to test folder exists. Can't perform test. (Delete folder manualy)")
-        self._allow_delete = True
+        self.directory = tempfile.TemporaryDirectory(prefix='bim2sim_')
+        self.path = os.path.join(self.directory.name, 'proj')
 
     def tearDown(self):
-        if self._allow_delete:
-            try:
-                manage.PROJECT.delete(False)
-            except AssertionError as ex:
-                pass
-            self._allow_delete = False
+        self.directory.cleanup()
+
 
 class TestManage(BaseTestManage):
 
     def test_create_remove(self):
 
-        manage.PROJECT.create(PATH, IFC_PATH)
+        manage.PROJECT.create(self.path, IFC_PATH)
 
-        self.assertEqual(manage.PROJECT.root, PATH)
+        self.assertEqual(manage.PROJECT.root, self.path)
         self.assertTrue(os.path.exists(manage.PROJECT.config))
         self.assertTrue(os.path.exists(manage.PROJECT.ifc))
 
@@ -56,7 +43,7 @@ class TestManage(BaseTestManage):
 
     def test_double_create(self):
 
-        manage.PROJECT.create(PATH, IFC_PATH)
+        manage.PROJECT.create(self.path, IFC_PATH)
 
         self.assertTrue(os.path.exists(manage.PROJECT.ifc))
 
@@ -64,7 +51,7 @@ class TestManage(BaseTestManage):
 
         self.assertFalse(os.path.exists(manage.PROJECT.ifc))
 
-        manage.PROJECT.create(PATH, IFC_PATH)
+        manage.PROJECT.create(self.path, IFC_PATH)
 
         self.assertTrue(os.path.exists(manage.PROJECT.ifc))
 
@@ -82,8 +69,8 @@ class Test_Manager(BaseTestManage):
         with self.assertRaises(AssertionError):
             manager = Manager(None)
 
-        #manage.PROJECT.root = PATH
-        manage.PROJECT.create(PATH, IFC_PATH)
+        #manage.PROJECT.root = self.path
+        manage.PROJECT.create(self.path, IFC_PATH)
         manager = Manager(None)
 
         #manager.run()

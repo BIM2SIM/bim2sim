@@ -39,8 +39,8 @@ class Boiler(element.Element):
 class Pipe(element.Element):
     ifc_type = "IfcPipeSegment"
 
-    def __init__(self, ifc):
-        super().__init__(ifc)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.pipestrand = None
 
     #def __init__(self, ifc):
@@ -51,44 +51,40 @@ class Pipe(element.Element):
 
 
     @cached_property
-    def ps_abmessungen(self):
-        return self.get_propertysets('Abmessungen')
+    def Pset_PipeSegmentTypeCommon(self):
+        return self.get_propertysets('Pset_PipeSegmentTypeCommon')
 
     @property
     def diameter(self):
-        return self.ps_abmessungen.get('Innendurchmesser')
+        return self.ps_abmessungen.get('NominalDiameter')
 
     @property
     def length(self):
-        return self.ps_abmessungen.get('Länge')
+        return None
 
 
 class PipeFitting(element.Element):
     ifc_type = "IfcPipeFitting"
 
-    def __init__(self, ifc):
-        super().__init__(ifc)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._pipestrand = None
 
     @cached_property
-    def ps_abmessungen(self):
-        return self.get_propertysets('Abmessungen')
+    def Pset_PipeFittingTypeCommon(self):
+        return self.get_propertysets('Pset_PipeFittingTypeCommon')
 
     @property
     def diameter(self):
-        return self.ps_abmessungen.get('Nenndurchmesser')
+        return self.Pset_PipeFittingTypeCommon.get('NominalDiameter')
 
     @property
     def length(self):
-        return self.ps_abmessungen.get('Muffenlänge')
+        return None
 
     @property
-    def radius(self):
-        return self.ps_abmessungen.get('Bogenradius')
-
-    @property
-    def angle(self):
-        return self.ps_abmessungen.get('Winkel')
+    def pressure_class(self):
+        return self.Pset_PipeFittingTypeCommon.get('PressureClass')
 
     @property
     def pipestrand(self):
@@ -205,3 +201,6 @@ class AirTerminal(element.Element):
 
 class Medium(element.Element):
     ifc_type = "IfcDistributionSystems"
+
+
+__all__ = [ele for ele in locals().values() if ele in element.Element.__subclasses__()]

@@ -8,6 +8,8 @@ import numpy as np
 from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import ifc2python
 
+class ElementError(Exception):
+    pass
 
 class ElementEncoder(JSONEncoder):
     #TODO: make Elements serializable and deserializable.
@@ -71,21 +73,67 @@ class Port():
         return "<%s (%s)>"%(self.__class__.__name__, self.name)
 
 
-class Element():
-    """Base class for IFC model representation"""
+class ElementMeta(type):
+    """Metaclass or Element
+    
+    catches class creation and lists all properties (and subclasses) as findables for Element.finder. 
+    Class can use custom findables by providung the attribute 'findables'."""
+
+    def __new__(cls, clsname, superclasses, attributedict):
+        sc_element = [sc for sc in superclasses if sc is Element]
+        if sc_element:
+            findables = []
+            overwrite = True
+            for name, value in attributedict.items():
+                if name == 'findables':
+                    overwrite = False
+                    break
+                if isinstance(value, property):
+                    findables.append(name)
+            if overwrite:
+                attributedict['findables'] = tuple(findables)
+        return type.__new__(cls, clsname, superclasses, attributedict)
+
+class Element(metaclass=ElementMeta):
+    """Base class for IFC model representation
+    
+    WARNING: getting an not defined attribute from instances of Element will 
+    return None (from finder) instead of rasing an AttributeError"""
 
     _ifc_type = None
     _ifc_classes = {}
     dummy = None
+    finder = None
+    findables = ()
 
-    def __init__(self, ifc):
+    def __init__(self, ifc, tool=None):
         self.logger = logging.getLogger(__name__)
         self.ifc = ifc
         self.guid = ifc.GlobalId
         self.name = ifc.Name
+        self._tool = tool
         self.ports = []
         self.aggregation = None
+        self.ports = [] #TODO
         self._add_ports()
+
+    def __getattr__(self, name):
+        # user finder to get attribute
+        if self.__class__.finder:
+            return self.__class__.finder.find(self, name)
+        return super().__getattr__(name)
+
+    def __getattribute__(self, name):
+        found = object.__getattribute__(self, name)
+        if found is None:
+            findables = object.__getattribute__(self, '__class__').findables
+            if name in findables:
+                # if None is returned ask finder for value (on AttributeError __getattr__ is called anyway)
+                try:
+                    found = object.__getattribute__(self, '__getattr__')(name)
+                except AttributeError:
+                    pass
+        return found
 
     def _add_ports(self):
         element_port_connections = self.ifc.HasPorts
@@ -118,14 +166,15 @@ class Element():
             raise AssertionError("Conflict(s) in Models. (See log for details).")
 
         #Model.dummy = Model.ifc_classes['any']
+        if not Element._ifc_classes:
+            raise ElementError("Faild to initialize Element factory. No elements found!")
 
-        logger.debug("IFC model factory intitialized with %d models:",
-                     len(Element._ifc_classes))
-        for model in Element._ifc_classes:
-            logger.debug("- %s", model)
+        model_txt = "\n".join(" - %s"%(model) for model in Element._ifc_classes)
+        logger.debug("IFC model factory intitialized with %d ifc classes:\n%s",
+                     len(Element._ifc_classes), model_txt)
 
     @staticmethod
-    def factory(ifc_element):
+    def factory(ifc_element, tool=None):
         """Create model depending on ifc_element"""
 
         if not Element._ifc_classes:
@@ -137,12 +186,18 @@ class Element():
         #    logger = logging.getLogger(__name__)
         #    logger.warning("Did not found matching class for %s", ifc_type)
 
-        return cls(ifc_element)
+        return cls(ifc_element, tool)
 
     @property
     def ifc_type(self):
         """Returns IFC type"""
         return self.__class__._ifc_type
+
+    @property
+    def source_tool(self):
+        if not self._tool:
+            self._tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
+        return self._tool
 
     @cached_property
     def position(self):
@@ -153,7 +208,7 @@ class Element():
                          PlacementRelTo.RelativePlacement.Location.Coordinates)
         return rel + relto
 
-    @cached_property
+    @property
     def neighbors(self):
         neighbors = []
         for port in self.ports:
@@ -200,6 +255,9 @@ class Element():
     def get_project(self):
         return ifc2python.getProject(self.ifc)
 
+    def summary(self):
+        return ifc2python.summary(self.ifc)
+
     def __repr__(self):
         return "<%s (%s)>"%(self.__class__.__name__, self.name)
 
@@ -208,8 +266,8 @@ class Dummy(Element):
     """Dummy for all unknown elements"""
     #ifc_type = 'any'
 
-    def __init__(self, ifc):
-        super().__init__(ifc)
+    def __init__(self, ifc, *args, **kwargs):
+        super().__init__(ifc, *args, **kwargs)
 
         self._ifc_type = ifc.get_info()['type']
 
@@ -217,3 +275,5 @@ class Dummy(Element):
     def ifc_type(self):
         return self._ifc_type
 
+# import Element classes for Element.factory
+import bim2sim.ifc2python.elements

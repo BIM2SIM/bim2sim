@@ -8,16 +8,6 @@ import os
 
 from bim2sim import decision
 
-PATH = None
-def setUpModule():
-    """set PATH as test dir"""
-    global PATH
-    PATH = tempfile.mkdtemp()
-
-def tearDownModule():
-    """delete remaining test files"""
-    shutil.rmtree(PATH, ignore_errors=True)
-
 
 class DecisionTestBase(unittest.TestCase):
     """Base class for Decision tests"""
@@ -84,16 +74,17 @@ class TestBoolDecision(DecisionTestBase):
 
         self.assertTrue(dec.value)
 
-        path = os.path.join(PATH, "bool")
+        with tempfile.TemporaryDirectory(prefix='bim2sim_') as directory:
+            path = os.path.join(directory, "bool")
 
-        decision.Decision.save(path)
+            decision.Decision.save(path)
 
-        # clear variables to simulate program restart
-        decision.Decision.collection.clear()
-        decision.Decision.stored_decisions.clear()
+            # clear variables to simulate program restart
+            decision.Decision.collection.clear()
+            decision.Decision.stored_decisions.clear()
 
-        with patch('builtins.input', lambda *args: 'y'):
-            decision.Decision.load(path)
+            with patch('builtins.input', lambda *args: 'y'):
+                decision.Decision.load(path)
 
         dec_loaded = decision.BoolDecision(question="??", global_key=key, allow_load=True)
         self.assertTrue(dec_loaded.value)
@@ -203,16 +194,17 @@ class TestRealDecision(DecisionTestBase):
 
         self.assertTrue(dec.value)
 
-        path = os.path.join(PATH, "real")
+        with tempfile.TemporaryDirectory(prefix='bim2sim_') as directory:
+            path = os.path.join(directory, "real")
 
-        decision.Decision.save(path)
+            decision.Decision.save(path)
 
-        # clear variables to simulate program restart
-        decision.Decision.collection.clear()
-        decision.Decision.stored_decisions.clear()
+            # clear variables to simulate program restart
+            decision.Decision.collection.clear()
+            decision.Decision.stored_decisions.clear()
 
-        with patch('builtins.input', lambda *args: 'y'):
-            decision.Decision.load(path)
+            with patch('builtins.input', lambda *args: 'y'):
+                decision.Decision.load(path)
 
         dec_loaded = decision.RealDecision(
             question="??",
@@ -252,17 +244,18 @@ class TestMixedDecision(DecisionTestBase):
             dec_real.decide()
         self.assertEqual(dec_real.value, 5)
 
-        path = os.path.join(PATH, "mixed")
-        decision.Decision.save(path)
+        with tempfile.TemporaryDirectory(prefix='bim2sim_') as directory:
+            path = os.path.join(directory, "mixed")
+            decision.Decision.save(path)
 
-        # clear variables to simulate program restart
-        del dec_bool
-        del dec_real
-        decision.Decision.collection.clear()
-        decision.Decision.stored_decisions.clear()
+            # clear variables to simulate program restart
+            del dec_bool
+            del dec_real
+            decision.Decision.collection.clear()
+            decision.Decision.stored_decisions.clear()
 
-        with patch('builtins.input', lambda *args: 'y'):
-            decision.Decision.load(path)
+            with patch('builtins.input', lambda *args: 'y'):
+                decision.Decision.load(path)
 
         dec_real_loaded = decision.RealDecision(
             question="??",

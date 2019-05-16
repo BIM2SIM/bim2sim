@@ -49,6 +49,7 @@ class _Project():
     CONFIG = "config.ini"
     DECISIONS = "decisions.json"
     WORKFLOW = "workflow"
+    FINDER = "finder"
     IFC = "ifc"
     LOG = "log"
     EXPORT = "export"
@@ -79,6 +80,11 @@ class _Project():
     def decisions(self):
         """absolute path to decisions"""
         return os.path.abspath(os.path.join(self._rootpath, _Project.DECISIONS))
+
+    @property
+    def finder(self):
+        """absolute path to decisions"""
+        return os.path.abspath(os.path.join(self._rootpath, _Project.FINDER))
 
     @property
     def workflow(self):
@@ -115,7 +121,8 @@ class _Project():
     @property
     def subdirs(self):
         """list of paths to sub folders"""
-        return [self.log, self.ifc, self.resources, self.export, self.workflow]
+        return [self.log, self.ifc, self.resources, self.export, self.workflow,
+                self.finder]
 
     def is_project_folder(self, path=None):
         """Check if root path (or given path) is a project folder"""

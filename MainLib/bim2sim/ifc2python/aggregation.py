@@ -88,7 +88,8 @@ class PipeStrand(Aggregation):
 
             else:
                 self.logger.warning("Ignored '%s' in aggregation", pipe)
-        self._avg_diameter = diameter_times_length / self._total_length
+        if self._total_length == 0:
+            self._avg_diameter = diameter_times_length / self._total_length
 
     @property
     def diameter(self):

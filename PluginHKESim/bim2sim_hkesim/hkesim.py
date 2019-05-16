@@ -1,11 +1,9 @@
 ﻿
-import bim2sim
-
 from bim2sim.manage import BIM2SIMManager, PROJECT
-from bim2sim.tasks import LOD, PlantSimulation
 from bim2sim.workflow import hvac
+from bim2sim.export.modelica import standardlibrary
+from bim2sim_hkesim.models import HKESim
 
-from bim2sim_hkesim import models
 
 class HKESimManager(BIM2SIMManager):
 
@@ -15,7 +13,6 @@ class HKESimManager(BIM2SIMManager):
         self.relevant_ifc_types = hvac.IFC_TYPES
 
     def run(self):
-
         prepare = hvac.Prepare()
         prepare.run(hvac.IFC_TYPES)
 
@@ -34,6 +31,9 @@ class HKESimManager(BIM2SIMManager):
 
         #check
 
+        libraries = (standardlibrary.StandardLibrary, HKESim)
         export = hvac.Export()
-        export.run(reduce.reduced_instances)
+        export.run(libraries, reduce.reduced_instances)
+
+
 

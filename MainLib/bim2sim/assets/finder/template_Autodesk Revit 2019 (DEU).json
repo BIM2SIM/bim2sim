@@ -1,0 +1,30 @@
+{
+  "IfcPipeSegment": {
+    "diameter": [
+      "Abmessungen",
+      "Innendurchmesser"
+    ],
+    "length": [
+      "Abmessungen",
+      "L\u00e4nge"
+    ]
+  },
+  "IfcPipeFitting": {
+    "diameter": [
+      "Abmessungen",
+      "Nenndurchmesser"
+    ],
+	"length": [
+      "Abmessungen",
+      "Muffenl\u00e4nge"
+    ],
+	"radius": [
+      "Abmessungen",
+      "Bogenradius"
+    ],
+	"angle": [
+      "Abmessungen",
+      "Winkel"
+    ]
+  }
+}
