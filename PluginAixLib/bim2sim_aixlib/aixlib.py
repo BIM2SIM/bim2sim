@@ -34,7 +34,7 @@ class AixLib(BIM2SIMManager):
 
         libraries = (standardlibrary.StandardLibrary, )
         export = hvac.Export()
-        export.run(libraries, reduce.reduced_instances)
+        export.run(libraries, reduce.reduced_instances, reduce.connections)
 
     def create_modelica_table_from_list(self,curve):
         """
