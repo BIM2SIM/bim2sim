@@ -199,9 +199,9 @@ class Export(Workflow):
             len(export_instances), len(connection_port_names))
 
         modelica_model = modelica.Model(
-            name="Test", 
-            comment="testing", 
-            instances=export_instances.values(), 
+            name="Test",
+            comment="testing",
+            instances=export_instances.values(),
             connections=connection_port_names,
         )
         #print("-"*80)

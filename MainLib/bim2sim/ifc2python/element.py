@@ -10,9 +10,10 @@ from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import ifc2python
 
 class ElementError(Exception):
-    pass
+    """Error in Element"""
 
 class ElementEncoder(JSONEncoder):
+    """Encoder class for Element"""
     #TODO: make Elements serializable and deserializable.
     # Ideas: guid to identify, (factory) method to (re)init by guid
     # mayby weakref to other elements (Ports, connections, ...)
@@ -20,11 +21,10 @@ class ElementEncoder(JSONEncoder):
     def default(self, o):
         if isinstance(o, Element):
             return "<Element(%s)>"%(o.guid)
-        else:
-            JSONEncoder.default()
+        return JSONEncoder.default()
 
 class Port():
-    """"""
+    """Port of Element"""
 
     def __init__(self, parent, ifcport):
         self.ifc = ifcport
@@ -45,6 +45,10 @@ class Port():
 
     @property
     def parent(self):
+        """Parent of port
+
+        Returns aggregated_parent if set else natural_parent"""
+
         if self.aggregated_parent:
             return self.aggregated_parent
         return self.natural_parent
@@ -67,11 +71,11 @@ class Port():
                 self.parent.ifc.ObjectPlacement.RelativePlacement
             x_direction = np.array(relative_placement.RefDirection.DirectionRatios)
             z_direction = np.array(relative_placement.Axis.DirectionRatios)
-        except AttributeError as ae:
+        except AttributeError:
             x_direction = np.array([1, 0, 0])
             z_direction = np.array([0, 0, 1])
         y_direction = np.cross(z_direction, x_direction)
-        directions = np.array((x_direction,y_direction,z_direction)).T
+        directions = np.array((x_direction, y_direction, z_direction)).T
         port_coordinates_relative = \
             np.array(self.ifc.ObjectPlacement.RelativePlacement.Location.Coordinates)
         coordinates = self.parent.position + np.matmul(directions, port_coordinates_relative)
@@ -84,9 +88,10 @@ class Port():
 
 class ElementMeta(type):
     """Metaclass or Element
-    
-    catches class creation and lists all properties (and subclasses) as findables for Element.finder. 
-    Class can use custom findables by providung the attribute 'findables'."""
+
+    catches class creation and lists all properties (and subclasses) as findables
+    for Element.finder. Class can use custom findables by providung the
+    attribute 'findables'."""
 
     def __new__(cls, clsname, superclasses, attributedict):
         sc_element = [sc for sc in superclasses if sc is Element]
@@ -105,8 +110,8 @@ class ElementMeta(type):
 
 class Element(metaclass=ElementMeta):
     """Base class for IFC model representation
-    
-    WARNING: getting an not defined attribute from instances of Element will 
+
+    WARNING: getting an not defined attribute from instances of Element will
     return None (from finder) instead of rasing an AttributeError"""
 
     _ifc_type = None
@@ -123,7 +128,7 @@ class Element(metaclass=ElementMeta):
         self._tool = tool
         self.ports = []
         self.aggregation = None
-        self.ports = [] #TODO
+        self.ports = []
         self._add_ports()
 
     def __getattr__(self, name):
@@ -137,7 +142,8 @@ class Element(metaclass=ElementMeta):
         if found is None:
             findables = object.__getattribute__(self, '__class__').findables
             if name in findables:
-                # if None is returned ask finder for value (on AttributeError __getattr__ is called anyway)
+                # if None is returned ask finder for value 
+                # (on AttributeError __getattr__ is called anyway)
                 try:
                     found = object.__getattribute__(self, '__getattr__')(name)
                 except AttributeError:
@@ -204,6 +210,7 @@ class Element(metaclass=ElementMeta):
 
     @property
     def source_tool(self):
+        """Name of tool the ifc has been created with"""
         if not self._tool:
             self._tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
         return self._tool
@@ -219,16 +226,18 @@ class Element(metaclass=ElementMeta):
 
     @property
     def neighbors(self):
+        """Directly connected elements"""
         neighbors = []
         for port in self.ports:
-            for connection in port.connection:
-                neighbors.append(connection.parent)
+            neighbors.append(port.connection.parent)
         return neighbors
 
     def get_inner_connections(self):
         """Returns inner connections of Element
-        
-        by default each port is connected to each other port. Overwrite for other connections"""
+
+        by default each port is connected to each other port.
+        Overwrite for other connections"""
+
         connections = []
         for port0, port1 in itertools.combinations(self.ports, 2):
             connections.append((port0, port1))

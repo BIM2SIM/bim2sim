@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 
 
 class HvacGraph():
+    """HVAC related graph manipulations"""
 
     def __init__(self, instances: list):
         self.logger = logging.getLogger(__name__)
@@ -26,7 +27,7 @@ class HvacGraph():
         graph = nx.Graph()
 
         nodes = [port for instance in instances for port in
-                      instance.ports]
+                 instance.ports]
         inner_edges = [connection for instance in instances
                        for connection in instance.get_inner_connections()]
         edges = [(port, port.connection) for port in nodes if port.connection]
@@ -52,7 +53,8 @@ class HvacGraph():
         return graph
 
     @property
-    def element_graph(self) -> nx.Graph: 
+    def element_graph(self) -> nx.Graph:
+        """View of graph with elements instead of ports"""
         graph = nx.Graph()
         nodes = {ele.parent for ele in self.graph.nodes if ele}
         edges = {(con[0].parent, con[1].parent) for con in self.graph.edges 
@@ -62,6 +64,7 @@ class HvacGraph():
 
     @property
     def instances(self):
+        """List of elements present in graph"""
         nodes = {ele.parent for ele in self.graph.nodes if ele}
         return list(nodes)
 
@@ -119,7 +122,7 @@ class HvacGraph():
         return chain_lists
 
     def replace(self, elements, replacement=None):
-        """Replaces elements in graph with replacement. 
+        """Replaces elements in graph with replacement.
 
         If replacement is not given elements are deleted.
         Updates the network by:
@@ -154,6 +157,7 @@ class HvacGraph():
         return self.graph
 
     def get_connections(self):
+        """Returns connections between different parent elements"""
         return [edge for edge in self.graph.edges
                 if not edge[0].parent is edge[1].parent]
 

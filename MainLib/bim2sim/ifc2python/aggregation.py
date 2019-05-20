@@ -97,12 +97,14 @@ class PipeStrand(Aggregation):
 
     @property
     def diameter(self):
+        """Diameter of aggregated pipe"""
         if not self._avg_diameter:
             self._calc_avg()
         return self._avg_diameter
 
     @property
     def length(self):
+        """Length of aggregated pipe"""
         if not self._total_length:
             self._calc_avg()
         return self._total_length
