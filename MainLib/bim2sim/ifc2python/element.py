@@ -120,16 +120,15 @@ class Element(metaclass=ElementMeta):
     finder = None
     findables = ()
 
-    def __init__(self, ifc, tool=None):
+    def __init__(self, guid, name, ifc, tool=None):
         self.logger = logging.getLogger(__name__)
         self.ifc = ifc
-        self.guid = ifc.GlobalId
-        self.name = ifc.Name
+        self.guid = guid
+        self.name = name
         self._tool = tool
         self.ports = []
-        self.aggregation = None
-        self.ports = []
         self._add_ports()
+        self.aggregation = None
 
     def __getattr__(self, name):
         # user finder to get attribute
@@ -201,7 +200,7 @@ class Element(metaclass=ElementMeta):
         #    logger = logging.getLogger(__name__)
         #    logger.warning("Did not found matching class for %s", ifc_type)
 
-        return cls(ifc_element, tool)
+        return cls(ifc_element.GlobalId, ifc_element.Name, ifc_element, tool)
 
     @property
     def ifc_type(self):
@@ -293,10 +292,10 @@ class Dummy(Element):
     """Dummy for all unknown elements"""
     #ifc_type = 'any'
 
-    def __init__(self, ifc, *args, **kwargs):
-        super().__init__(ifc, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        self._ifc_type = ifc.get_info()['type']
+        self._ifc_type = self.ifc.get_info()['type']
 
     @property
     def ifc_type(self):
