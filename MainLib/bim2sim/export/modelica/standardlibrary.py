@@ -22,6 +22,19 @@ class StaticPipe(StandardLibrary):
         self.manage_param("length", self.element.length, self.check_length)
         self.manage_param("diameter", self.element.diameter, self.check_diameter)
 
+    def get_port_name(self, port):
+        try:
+            index = self.element.ports.index(port)
+        except ValueError:
+            # unknown port
+            index = -1
+        if index == 0:
+            return "port_a"
+        elif index == 1:
+            return "port_b"
+        else:
+            return super().get_port_name(port)
+
 
 class ClosedVolume(StandardLibrary):
     path = "Modelica.Fluid.Vessels.ClosedVolume"
@@ -33,3 +46,11 @@ class ClosedVolume(StandardLibrary):
 
     def get_params(self):
         self.manage_param("volume" , self.element.volume, self.check_volume)
+
+    def get_port_name(self, port):
+        try:
+            index = self.element.ports.index(port)
+        except ValueError:
+            return super().get_port_name(port)
+        else:
+            return "ports[%d]"%index

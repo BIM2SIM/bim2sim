@@ -3,10 +3,10 @@
 import logging
 
 
-class AggregationPort():
-    def __init__(self, parent):
-        self.parent = parent
-        self.connections = []
+#class AggregationPort():
+#    def __init__(self, parent):
+#        self.parent = parent
+#        self.connections = []
 
 
 class Aggregation():
@@ -46,8 +46,11 @@ class PipeStrand(Aggregation):
         found_in = False
         found_out = False
         for port in self.elements[0].ports:
-            if not port.connections[0].parent in self.elements:
+            if not port.connection:
+                continue #end node
+            if not port.connection.parent in self.elements:
                 found_out = True
+                port.aggregated_parent = self
                 agg_ports.append(port)
             else:
                 found_in = True
@@ -58,8 +61,9 @@ class PipeStrand(Aggregation):
         found_in = False
         found_out = False
         for port in self.elements[-1].ports:
-            if not port.connections[0].parent in self.elements:
+            if not port.connection.parent in self.elements:
                 found_out = True
+                port.aggregated_parent = self
                 agg_ports.append(port)
             else:
                 found_in = True

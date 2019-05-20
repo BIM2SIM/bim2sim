@@ -21,7 +21,7 @@ model ${model.name} "${model.comment}"
 </%def>
 
 equation
-% for con1, con2 in model.connections.items():
+% for con1, con2 in model.connections:
   connect(${con1}, ${con2}) annotation();
 % endfor
 

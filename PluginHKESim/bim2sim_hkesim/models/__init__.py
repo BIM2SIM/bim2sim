@@ -4,7 +4,6 @@ from bim2sim.export import modelica
 from bim2sim.ifc2python import elements
 from bim2sim.ifc2python.aggregation import PipeStrand
 
-from bim2sim.export.modelica import standardlibrary # import necessary for model detection
 
 class HKESim(modelica.Instance):
     library = "HKESim"

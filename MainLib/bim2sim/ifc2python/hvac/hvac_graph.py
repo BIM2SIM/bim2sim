@@ -23,18 +23,17 @@ class HvacGraph():
         component and each port of the instances is represented by a node.
         """
         self.logger.info("Creating HVAC graph representation ...")
-        graph = nx.DiGraph()
+        graph = nx.Graph()
 
-        port_nodes = [port for instance in instances for port in
+        nodes = [port for instance in instances for port in
                       instance.ports]
-        edges = [(port, connected_port) for port in port_nodes for
-                 connected_port in port.connections]
-        nodes = instances + port_nodes
-        graph.update(nodes=nodes, edges=edges)
+        inner_edges = [connection for instance in instances
+                       for connection in instance.get_inner_connections()]
+        edges = [(port, port.connection) for port in nodes if port.connection]
+        graph.update(nodes=nodes, edges=edges + inner_edges)
 
-        hvac_graph = self._contract_ports_into_elements(graph, port_nodes)
         self.logger.info("HVAC graph building is completed")
-        return hvac_graph
+        return graph
 
     def _contract_ports_into_elements(self, graph, port_nodes):
         """
@@ -43,14 +42,28 @@ class HvacGraph():
         get_contractions function.
         :return:
         """
-
+        new_graph = graph.copy()
         self.logger.info("Contracting ports into elements ...")
         for port in port_nodes:
-            graph = nx.contracted_nodes(graph, port.parent, port)
+            new_graph = nx.contracted_nodes(new_graph, port.parent, port)
         self.logger.info("Contracted the ports into node instances, this"
                          " leads to %d nodes.",
-                         graph.number_of_nodes())
+                         new_graph.number_of_nodes())
         return graph
+
+    @property
+    def element_graph(self) -> nx.Graph: 
+        graph = nx.Graph()
+        nodes = {ele.parent for ele in self.graph.nodes if ele}
+        edges = {(con[0].parent, con[1].parent) for con in self.graph.edges 
+                 if not con[0].parent is con[1].parent}
+        graph.update(nodes=nodes, edges=edges)
+        return graph
+
+    @property
+    def instances(self):
+        nodes = {ele.parent for ele in self.graph.nodes if ele}
+        return list(nodes)
 
     def get_not_contracted_neighbors(self, graph, node):
         neighbors = list(
@@ -89,7 +102,7 @@ class HvacGraph():
 
         :param types: iterable of ifcType names"""
 
-        undirected_graph = nx.Graph(self.graph)
+        undirected_graph = nx.Graph(self.element_graph)
         nodes_degree2 = [v for v, d in undirected_graph.degree() if d ==
                          2 and v.ifc_type in types]
         subgraph_aggregations = nx.subgraph(undirected_graph, nodes_degree2)
@@ -106,7 +119,7 @@ class HvacGraph():
         return chain_lists
 
     def replace(self, elements, replacement=None):
-        """Replaces elements in graph with replaement. 
+        """Replaces elements in graph with replacement. 
 
         If replacement is not given elements are deleted.
         Updates the network by:
@@ -117,24 +130,32 @@ class HvacGraph():
         :return graph:
         """
 
-        if replacement:
-            self.graph.add_node(replacement)
-
-            outer_connections = [connection for port in replacement.ports
-                                 for connection in port.connections]
-
-            for port in outer_connections:
-                other_port = port.connections[0]
-                node = self.graph.node[port.parent]
-                del node['contraction'][port]
-                self.graph.add_edge(port, other_port)
-                self.graph = nx.contracted_nodes(self.graph, port.parent, port)
-                self.graph = nx.contracted_nodes(self.graph, replacement, other_port)
-
+        outer_connections = []
         for element in elements:
-            self.graph.remove_node(element)
+            for port in element.ports:
+                # remove old element ports
+                self.graph.remove_node(port)
+                if not port.connection:
+                    continue
+                if not port.connection.parent in elements:
+                    # save ports next to elements
+                    outer_connections.append(port.connection)
+
+        if replacement:
+            for port in replacement.ports:
+                # add replacement to graph
+                self.graph.add_edge(port, port.connection)
+
+        elif len(outer_connections) == 2:
+            self.graph.add_edge((outer_connections[0], outer_connections[1]))
+        elif len(outer_connections) > 2:
+            raise NotImplementedError()
 
         return self.graph
+
+    def get_connections(self):
+        return [edge for edge in self.graph.edges
+                if not edge[0].parent is edge[1].parent]
 
     def get_nodes(self):
         """Returns list of nodes represented by graph"""
@@ -144,13 +165,16 @@ class HvacGraph():
         """Plot graph
 
         if path is provided plot is saved as pdf else it gets displayed"""
-        nx.draw(self.graph, node_size=3, font_size=6,
+        nx.draw(self.element_graph, node_size=3, font_size=6,
                 with_labels=True)
         plt.draw()
         if path:
-            plt.savefig(
-                os.path.join(path, 'graphnetwork.pdf'),
-                bbox_inches='tight')
+            try:
+                plt.savefig(
+                    os.path.join(path, 'graphnetwork.pdf'),
+                    bbox_inches='tight')
+            except IOError as ex:
+                self.logger.error("Unable to save plot of graph (%s)", ex)
         else:
             plt.show()
 

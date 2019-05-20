@@ -75,6 +75,7 @@ class Instance():
         self.params = {}
         self.get_params()
         self.comment = self.get_comment()
+        self.connections = []
 
     @staticmethod
     def _lookup_add(key, value):
@@ -166,6 +167,12 @@ class Instance():
     @property
     def path(self):
         return self.__class__.path
+
+    def get_port_name(self, port):
+        return "port_unknown"
+
+    def get_full_port_name(self, port):
+        return "%s.%s"%(self.name, self.get_port_name(port))
 
     @staticmethod
     def check_numeric(min_value=None, max_value=None):

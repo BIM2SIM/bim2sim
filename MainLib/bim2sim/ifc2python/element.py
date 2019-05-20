@@ -2,6 +2,7 @@
 
 import logging
 from json import JSONEncoder
+import itertools
 
 import numpy as np
 
@@ -28,9 +29,9 @@ class Port():
     def __init__(self, parent, ifcport):
         self.ifc = ifcport
         #self.name = ifcport.Name
-        self.parent = parent
+        self.natural_parent = parent
         self.aggregated_parent = None
-        self.connections = [] #TODO: each Port can have only one connection
+        self.connection = None
 
     def connect(self, other):
         """Connect this interface to another interface"""
@@ -38,7 +39,15 @@ class Port():
                                                   " of different classes."
         # if self.flow_direction == 'SOURCE' or \
         #         self.flow_direction == 'SOURCEANDSINK':
-        self.connections.append(other)
+        if self.connection:
+            raise AttributeError("Port is already connected!")
+        self.connection = other
+
+    @property
+    def parent(self):
+        if self.aggregated_parent:
+            return self.aggregated_parent
+        return self.natural_parent
 
     @property
     def ifc_type(self):
@@ -70,7 +79,7 @@ class Port():
         return coordinates
 
     def __repr__(self):
-        return "<%s (%s)>"%(self.__class__.__name__, self.name)
+        return "<%s (from %s)>"%(self.__class__.__name__, self.parent.name)
 
 
 class ElementMeta(type):
@@ -212,9 +221,18 @@ class Element(metaclass=ElementMeta):
     def neighbors(self):
         neighbors = []
         for port in self.ports:
-            for connection in port.connections:
+            for connection in port.connection:
                 neighbors.append(connection.parent)
         return neighbors
+
+    def get_inner_connections(self):
+        """Returns inner connections of Element
+        
+        by default each port is connected to each other port. Overwrite for other connections"""
+        connections = []
+        for port0, port1 in itertools.combinations(self.ports, 2):
+            connections.append((port0, port1))
+        return connections
 
     def get_ifc_attribute(self, attribute):
         """
