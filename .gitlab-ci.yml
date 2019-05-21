@@ -6,6 +6,8 @@ test3.6:
   image: python:3.6
   stage: test
   script:
+    - apt-get install conda
+    - conda install -c conda-forge -c oce -c dlr-sc -c ifcopenshell ifcopenshell
     - pip install --upgrade pip setuptools wheel
-    - pip install -r MainLib/requirements.txt
+    - pip install docopt matplotlib numpy python-dateutil mako networx
     - python MainLib/run_tests.py
