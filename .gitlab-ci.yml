@@ -7,5 +7,5 @@ test3.6:
   stage: test
   script:
     - pip install --upgrade pip setuptools wheel
-    - pip3 install -r MainLib/requirements.txt
+    - pip install -r MainLib/requirements.txt
     - python MainLib/run_tests.py
