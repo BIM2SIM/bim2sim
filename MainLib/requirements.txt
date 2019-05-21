@@ -1,7 +1,6 @@
 python>=3.5
 docopt
 matplotlib
-networkx
 numpy
 python-dateutil
 ifcopenshell>=0.6
