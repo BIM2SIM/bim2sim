@@ -3,7 +3,7 @@ include:
     file: '/pylint/pylint.gitlab-ci.yml'
     
 test3.6:
-  image: python:3.6
+  image: conda/miniconda3
   stage: test
   script:
     - apt-get install conda
