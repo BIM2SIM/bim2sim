@@ -6,6 +6,6 @@ test3.6:
   image: python:3.6
   stage: test
   script:
-    - pip install --upgrade pip setuptools wheel
-    - pip install -r MainLib/requirements.txt
+    - pip install --upgrade pip3 setuptools wheel
+    - pip3 install -r MainLib/requirements.txt
     - python MainLib/run_tests.py
