@@ -3,11 +3,10 @@ include:
     file: '/pylint/pylint.gitlab-ci.yml'
 
 stages:
-    - unittest
     - compile
     - log
     - post
-
+    - unittest
 test3.6:
   image: conda/miniconda3
   stage: unittest
