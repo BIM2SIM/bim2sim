@@ -1,7 +1,9 @@
 include:
   - project: 'EBC/EBC_all/gitlab_ci/templates'
     file: '/pylint/pylint.gitlab-ci.yml'
-    
+
+stages:
+    - test
 test3.6:
   image: conda/miniconda3
   stage: test
