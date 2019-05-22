@@ -1,3 +1,17 @@
 include:
   - project: 'EBC/EBC_all/gitlab_ci/templates'
     file: '/pylint/pylint.gitlab-ci.yml'
+
+stages:
+    - compile
+    - log
+    - post
+    - unittest
+test3.6:
+  image: conda/miniconda3
+  stage: unittest
+  script:
+    - conda install -c conda-forge -c oce -c dlr-sc -c ifcopenshell ifcopenshell
+    - pip install --upgrade pip setuptools wheel
+    - pip install docopt matplotlib numpy python-dateutil mako networkx
+    - python MainLib/run_tests.py
