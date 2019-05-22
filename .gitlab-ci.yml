@@ -3,10 +3,14 @@ include:
     file: '/pylint/pylint.gitlab-ci.yml'
 
 stages:
-    - test
+    - unittest
+    - compile
+    - log
+    - post
+
 test3.6:
   image: conda/miniconda3
-  stage: test
+  stage: unittest
   script:
     - conda install -c conda-forge -c oce -c dlr-sc -c ifcopenshell ifcopenshell
     - pip install --upgrade pip setuptools wheel
