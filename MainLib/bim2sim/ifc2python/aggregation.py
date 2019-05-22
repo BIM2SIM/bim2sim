@@ -2,17 +2,18 @@
 
 import logging
 
+from bim2sim.ifc2python.element import BaseElement, BasePort
 
-#class AggregationPort():
-#    def __init__(self, parent):
-#        self.parent = parent
-#        self.connections = []
+class AggregationPort(BasePort):
+    
+    def __init__(self, original, **kwargs):
+        super().__init__(**kwargs)
+        self.original = original
 
-
-class Aggregation():
+class Aggregation(BaseElement):
     """Base aggregation of models"""
-    def __init__(self, name, elements):
-        self.logger = logging.getLogger(__name__)
+    def __init__(self, name, elements, **kwargs):
+        super().__init__(**kwargs)
         self.name = name
         self.elements = elements
         for model in self.elements:
@@ -27,9 +28,12 @@ class PipeStrand(Aggregation):
     """Aggregates pipe strands"""
     aggregatable_elements = ['IfcPipeSegment', 'IfcPipeFitting']
 
-    def __init__(self, name, elements):
-        super().__init__(name, elements)
-        self.ports = self._get_start_and_end_ports()
+    def __init__(self, name, elements, **kwargs):
+        super().__init__(name, elements, **kwargs)
+        edge_ports = self._get_start_and_end_ports()
+        self.ports.append(AggregationPort(edge_ports[0], parent=self))
+        self.ports.append(AggregationPort(edge_ports[1], parent=self))
+
         self._total_length = None
         self._avg_diameter = None
 
@@ -38,7 +42,7 @@ class PipeStrand(Aggregation):
         """
         Finds and sets the first and last port of the pipestrand.
 
-        Assumes all elements in cycle are ordered as connected
+        Assumes all elements in are ordered as connected
         :return ports:
         """
         agg_ports = []
@@ -94,6 +98,14 @@ class PipeStrand(Aggregation):
                 self.logger.warning("Ignored '%s' in aggregation", pipe)
         if self._total_length == 0:
             self._avg_diameter = diameter_times_length / self._total_length
+
+    def get_replacement_mapping(self):
+        """Returns dict with original ports as values and their aggregated replacement as keys."""
+        mapping = {port:None for element in self.elements 
+                   for port in element.ports}
+        for port in self.ports:
+            mapping[port.original] = port
+        return mapping
 
     @property
     def diameter(self):

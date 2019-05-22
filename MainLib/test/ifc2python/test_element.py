@@ -83,7 +83,10 @@ class Test_ElementProperties(unittest.TestCase):
         element.Element.finder = cls.backup
 
     def setUp(self):
-        self.ele = DummyElement(self.__class__.ifc.by_type("IfcPipeFitting")[0])
+        ifc = self.__class__.ifc.by_type("IfcPipeFitting")[0]
+        guid = "123"
+        name = "DummyElement_xyz"
+        self.ele = DummyElement(ifc=ifc)
 
     def test_ok(self):
         """default returns value"""

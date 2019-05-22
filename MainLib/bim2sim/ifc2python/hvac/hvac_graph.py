@@ -63,7 +63,7 @@ class HvacGraph():
         return graph
 
     @property
-    def instances(self):
+    def elements(self):
         """List of elements present in graph"""
         nodes = {ele.parent for ele in self.graph.nodes if ele}
         return list(nodes)
@@ -121,40 +121,58 @@ class HvacGraph():
 
         return chain_lists
 
-    def replace(self, elements, replacement=None):
-        """Replaces elements in graph with replacement.
+    def merge(self, mapping: dict, inner_connections: list):
+        """Merge port nodes in graph 
+        
+        according to mapping dict port nodes are removed {port: None}
+        or replaced {port: new_port} ceeping connections.
+        
+        WARNING: connections from removed port nodes are also removed
 
-        If replacement is not given elements are deleted.
-        Updates the network by:
-            - deleting old nodes which are now represented by the aggregation
-            - connecting the aggregation to the rest of the network
-        :param elements:
-        :param replacement:
-        :return graph:
-        """
+        :param mapping: replacement dict. ports as keys and replacement ports or None as values
+        :param inner_connections: connections to add"""
 
-        outer_connections = []
-        for element in elements:
-            for port in element.ports:
-                # remove old element ports
-                self.graph.remove_node(port)
-                if not port.connection:
-                    continue
-                if not port.connection.parent in elements:
-                    # save ports next to elements
-                    outer_connections.append(port.connection)
+        replace = {k: v for k, v in mapping.items() if not v is None}
+        remove = [k for k, v in mapping.items() if v is None]
 
-        if replacement:
-            for port in replacement.ports:
-                # add replacement to graph
-                self.graph.add_edge(port, port.connection)
+        nx.relabel_nodes(self.graph, replace, copy=False)
+        self.graph.remove_nodes_from(remove)
+        self.graph.add_edges_from(inner_connections)
 
-        elif len(outer_connections) == 2:
-            self.graph.add_edge((outer_connections[0], outer_connections[1]))
-        elif len(outer_connections) > 2:
-            raise NotImplementedError()
+    #def replace(self, elements, replacement=None):
+    #    """Replaces elements in graph with replacement.
 
-        return self.graph
+    #    If replacement is not given elements are deleted.
+    #    Updates the network by:
+    #        - deleting old nodes which are now represented by the aggregation
+    #        - connecting the aggregation to the rest of the network
+    #    :param elements:
+    #    :param replacement:
+    #    :return graph:
+    #    """
+
+    #    outer_connections = []
+    #    for element in elements:
+    #        for port in element.ports:
+    #            # remove old element ports
+    #            self.graph.remove_node(port)
+    #            if not port.connection:
+    #                continue
+    #            if not port.connection.parent in elements:
+    #                # save ports next to elements
+    #                outer_connections.append(port.connection)
+
+    #    if replacement:
+    #        for port in replacement.ports:
+    #            # add replacement to graph
+    #            self.graph.add_edge(port, port.connection)
+
+    #    elif len(outer_connections) == 2:
+    #        self.graph.add_edge((outer_connections[0], outer_connections[1]))
+    #    elif len(outer_connections) > 2:
+    #        raise NotImplementedError()
+
+    #    return self.graph
 
     def get_connections(self):
         """Returns connections between different parent elements"""

@@ -70,7 +70,7 @@ class Inspect(Workflow):
                     delta = port1.position - port2.position
                     if max(abs(delta)) < eps:
                         port1.connect(port2)
-                        port2.connect(port1)
+                        #port2.connect(port1)
                         nr_connections += 1
 
         return nr_connections
@@ -143,14 +143,17 @@ class Reduce(Workflow):
         for chain in chains:
             number_ps += 1
             pipestrand = PipeStrand("PipeStrand%d"%(number_ps), chain)
-            graph.replace(chain, pipestrand)
+            #graph.replace(chain, pipestrand)
+            graph.merge(
+                mapping = pipestrand.get_replacement_mapping(),
+                inner_connections = pipestrand.get_inner_connections())
         number_of_nodes_new = len(graph.element_graph.nodes)
 
         self.logger.info(
             "Applied %d aggregations which reduced"
             + " number of elements from %d to %d.",
             number_ps, number_of_nodes_old, number_of_nodes_new)
-        self.reduced_instances = graph.instances
+        self.reduced_instances = graph.elements
         self.connections = graph.get_connections()
 
         if __debug__:
