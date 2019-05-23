@@ -25,8 +25,8 @@ class Test_TemplateFinder(unittest.TestCase):
         pipefittings = Test_TemplateFinder.ifc.by_type("IfcPipeFitting")
         pipes = Test_TemplateFinder.ifc.by_type("IfcPipeSegment")
 
-        cls.pipe1 = elements.Pipe(pipes[0])
-        cls.pipe2 = elements.Pipe(pipes[1])
+        cls.pipe1 = elements.Pipe(ifc=pipes[0])
+        cls.pipe2 = elements.Pipe(ifc=pipes[1])
         cls.pipefitting1 = elements.PipeFitting(pipefittings[0])
         cls.pipefitting2 = elements.PipeFitting(pipefittings[1])
 

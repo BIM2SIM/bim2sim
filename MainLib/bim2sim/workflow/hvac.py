@@ -70,7 +70,7 @@ class Inspect(Workflow):
                     delta = port1.position - port2.position
                     if max(abs(delta)) < eps:
                         port1.connect(port2)
-                        port2.connect(port1)
+                        #port2.connect(port1)
                         nr_connections += 1
 
         return nr_connections
@@ -132,19 +132,32 @@ class Reduce(Workflow):
     def __init__(self):
         super().__init__()
         self.reduced_instances = []
+        self.connections = []
 
     @Workflow.log
     def run(self, graph: hvac_graph.HvacGraph):
         self.logger.info("Reducing elements by applying aggregations")
+        number_of_nodes_old = len(graph.element_graph.nodes)
         number_ps = 0
         chains = graph.get_type_chains(PipeStrand.aggregatable_elements)
         for chain in chains:
             number_ps += 1
             pipestrand = PipeStrand("PipeStrand%d"%(number_ps), chain)
-            graph.replace(chain, pipestrand)
+            #graph.replace(chain, pipestrand)
+            graph.merge(
+                mapping = pipestrand.get_replacement_mapping(),
+                inner_connections = pipestrand.get_inner_connections())
+        number_of_nodes_new = len(graph.element_graph.nodes)
 
-        self.reduced_instances = graph.get_nodes()
+        self.logger.info(
+            "Applied %d aggregations which reduced"
+            + " number of elements from %d to %d.",
+            number_ps, number_of_nodes_old, number_of_nodes_new)
+        self.reduced_instances = graph.elements
+        self.connections = graph.get_connections()
+
         if __debug__:
+            self.logger.info("Plotting ...")
             graph.plot(PROJECT.export)
 
 
@@ -165,24 +178,36 @@ class DetectCycles(Workflow):
 class Export(Workflow):
     """Export to Dymola/Modelica"""
 
-    def run(self, libraries, instances):
+    def run(self, libraries, instances, connections):
         self.logger.info("Export to Modelica code")
         Decision.load(PROJECT.decisions)
 
         modelica.Instance.init_factory(libraries)
-        export_instances = [modelica.Instance.factory(inst) for inst in instances]
+        export_instances = {inst: modelica.Instance.factory(inst) for inst in instances}
 
         self.logger.info(Decision.summary())
         Decision.decide_collected()
         Decision.save(PROJECT.decisions)
 
+        connection_port_names = []
+        for connection in connections:
+            instance0 = export_instances[connection[0].parent]
+            port_name0 = instance0.get_full_port_name(connection[0])
+            instance1 = export_instances[connection[1].parent]
+            port_name1 = instance1.get_full_port_name(connection[1])
+            connection_port_names.append((port_name0, port_name1))
+
+        self.logger.info(
+            "Creating Modelica model with %d model instances and %d connections.",
+            len(export_instances), len(connection_port_names))
+
         modelica_model = modelica.Model(
-            name="Test", 
-            comment="testing", 
-            instances=export_instances, 
-            connections={},
+            name="Test",
+            comment="testing",
+            instances=export_instances.values(),
+            connections=connection_port_names,
         )
-        print("-"*80)
-        print(modelica_model.code())
-        print("-"*80)
+        #print("-"*80)
+        #print(modelica_model.code())
+        #print("-"*80)
         modelica_model.save(PROJECT.export)

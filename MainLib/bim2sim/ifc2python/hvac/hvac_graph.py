@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 
 
 class HvacGraph():
+    """HVAC related graph manipulations"""
 
     def __init__(self, instances: list):
         self.logger = logging.getLogger(__name__)
@@ -23,18 +24,17 @@ class HvacGraph():
         component and each port of the instances is represented by a node.
         """
         self.logger.info("Creating HVAC graph representation ...")
-        graph = nx.DiGraph()
+        graph = nx.Graph()
 
-        port_nodes = [port for instance in instances for port in
-                      instance.ports]
-        edges = [(port, connected_port) for port in port_nodes for
-                 connected_port in port.connections]
-        nodes = instances + port_nodes
-        graph.update(nodes=nodes, edges=edges)
+        nodes = [port for instance in instances for port in
+                 instance.ports]
+        inner_edges = [connection for instance in instances
+                       for connection in instance.get_inner_connections()]
+        edges = [(port, port.connection) for port in nodes if port.connection]
+        graph.update(nodes=nodes, edges=edges + inner_edges)
 
-        hvac_graph = self._contract_ports_into_elements(graph, port_nodes)
         self.logger.info("HVAC graph building is completed")
-        return hvac_graph
+        return graph
 
     def _contract_ports_into_elements(self, graph, port_nodes):
         """
@@ -43,14 +43,30 @@ class HvacGraph():
         get_contractions function.
         :return:
         """
-
+        new_graph = graph.copy()
         self.logger.info("Contracting ports into elements ...")
         for port in port_nodes:
-            graph = nx.contracted_nodes(graph, port.parent, port)
+            new_graph = nx.contracted_nodes(new_graph, port.parent, port)
         self.logger.info("Contracted the ports into node instances, this"
                          " leads to %d nodes.",
-                         graph.number_of_nodes())
+                         new_graph.number_of_nodes())
         return graph
+
+    @property
+    def element_graph(self) -> nx.Graph:
+        """View of graph with elements instead of ports"""
+        graph = nx.Graph()
+        nodes = {ele.parent for ele in self.graph.nodes if ele}
+        edges = {(con[0].parent, con[1].parent) for con in self.graph.edges
+                 if not con[0].parent is con[1].parent}
+        graph.update(nodes=nodes, edges=edges)
+        return graph
+
+    @property
+    def elements(self):
+        """List of elements present in graph"""
+        nodes = {ele.parent for ele in self.graph.nodes if ele}
+        return list(nodes)
 
     def get_not_contracted_neighbors(self, graph, node):
         neighbors = list(
@@ -79,8 +95,9 @@ class HvacGraph():
         :return cycles:
         """
         self.logger.info("Searching for cycles in hvac network ...")
-        undirected_graph = nx.Graph(self.graph)
-        cycles = nx.cycle_basis(undirected_graph)
+        base_cycles = nx.cycle_basis(self.graph)
+        cycles = [cycle for cycle in base_cycles
+                  if len({port.parent for port in cycle}) > 1]
         self.logger.info("Found %d cycles", len(cycles))
         return cycles
 
@@ -89,7 +106,7 @@ class HvacGraph():
 
         :param types: iterable of ifcType names"""
 
-        undirected_graph = nx.Graph(self.graph)
+        undirected_graph = nx.Graph(self.element_graph)
         nodes_degree2 = [v for v, d in undirected_graph.degree() if d ==
                          2 and v.ifc_type in types]
         subgraph_aggregations = nx.subgraph(undirected_graph, nodes_degree2)
@@ -105,54 +122,52 @@ class HvacGraph():
 
         return chain_lists
 
-    def replace(self, elements, replacement=None):
-        """Replaces elements in graph with replaement. 
+    def merge(self, mapping: dict, inner_connections: list):
+        """Merge port nodes in graph
 
-        If replacement is not given elements are deleted.
-        Updates the network by:
-            - deleting old nodes which are now represented by the aggregation
-            - connecting the aggregation to the rest of the network
-        :param elements:
-        :param replacement:
-        :return graph:
-        """
+        according to mapping dict port nodes are removed {port: None}
+        or replaced {port: new_port} ceeping connections.
 
-        if replacement:
-            self.graph.add_node(replacement)
+        WARNING: connections from removed port nodes are also removed
 
-            outer_connections = [connection for port in replacement.ports
-                                 for connection in port.connections]
+        :param mapping: replacement dict. ports as keys and replacement ports or None as values
+        :param inner_connections: connections to add"""
 
-            for port in outer_connections:
-                other_port = port.connections[0]
-                node = self.graph.node[port.parent]
-                del node['contraction'][port]
-                self.graph.add_edge(port, other_port)
-                self.graph = nx.contracted_nodes(self.graph, port.parent, port)
-                self.graph = nx.contracted_nodes(self.graph, replacement, other_port)
+        replace = {k: v for k, v in mapping.items() if not v is None}
+        remove = [k for k, v in mapping.items() if v is None]
 
-        for element in elements:
-            self.graph.remove_node(element)
+        nx.relabel_nodes(self.graph, replace, copy=False)
+        self.graph.remove_nodes_from(remove)
+        self.graph.add_edges_from(inner_connections)
 
-        return self.graph
+    def get_connections(self):
+        """Returns connections between different parent elements"""
+        return [edge for edge in self.graph.edges
+                if not edge[0].parent is edge[1].parent]
 
     def get_nodes(self):
         """Returns list of nodes represented by graph"""
         return list(self.graph.nodes)
 
-    def plot(self, path=None):
+    def plot(self, path=None, ports=False):
         """Plot graph
 
         if path is provided plot is saved as pdf else it gets displayed"""
-        nx.draw(self.graph, node_size=3, font_size=6,
-                with_labels=True)
+        # https://plot.ly/python/network-graphs/
+        graph = self.graph if ports else self.element_graph
+        nx.draw(graph, node_size=6, font_size=6, with_labels=True)
         plt.draw()
         if path:
-            plt.savefig(
-                os.path.join(path, 'graphnetwork.pdf'),
-                bbox_inches='tight')
+            name = "%sgraph.pdf"%("port" if ports else "element")
+            try:
+                plt.savefig(
+                    os.path.join(path, name),
+                    bbox_inches='tight')
+            except IOError as ex:
+                self.logger.error("Unable to save plot of graph (%s)", ex)
         else:
             plt.show()
+        plt.clf()
 
     def to_serializable(self):
         """Returns a json serializable object"""

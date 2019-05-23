@@ -33,7 +33,7 @@ class HKESimManager(BIM2SIMManager):
 
         libraries = (standardlibrary.StandardLibrary, HKESim)
         export = hvac.Export()
-        export.run(libraries, reduce.reduced_instances)
+        export.run(libraries, reduce.reduced_instances, reduce.connections)
 
 
 

@@ -2,17 +2,19 @@
 
 import logging
 
+from bim2sim.ifc2python.element import BaseElement, BasePort
 
-class AggregationPort():
-    def __init__(self, parent):
-        self.parent = parent
-        self.connections = []
+class AggregationPort(BasePort):
+    """Port for Aggregation"""
 
+    def __init__(self, original, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.original = original
 
-class Aggregation():
+class Aggregation(BaseElement):
     """Base aggregation of models"""
-    def __init__(self, name, elements):
-        self.logger = logging.getLogger(__name__)
+    def __init__(self, name, elements, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.name = name
         self.elements = elements
         for model in self.elements:
@@ -27,9 +29,12 @@ class PipeStrand(Aggregation):
     """Aggregates pipe strands"""
     aggregatable_elements = ['IfcPipeSegment', 'IfcPipeFitting']
 
-    def __init__(self, name, elements):
-        super().__init__(name, elements)
-        self.ports = self._get_start_and_end_ports()
+    def __init__(self, name, elements, *args, **kwargs):
+        super().__init__(name, elements, *args, **kwargs)
+        edge_ports = self._get_start_and_end_ports()
+        self.ports.append(AggregationPort(edge_ports[0], parent=self))
+        self.ports.append(AggregationPort(edge_ports[1], parent=self))
+
         self._total_length = None
         self._avg_diameter = None
 
@@ -38,7 +43,7 @@ class PipeStrand(Aggregation):
         """
         Finds and sets the first and last port of the pipestrand.
 
-        Assumes all elements in cycle are ordered as connected
+        Assumes all elements in are ordered as connected
         :return ports:
         """
         agg_ports = []
@@ -46,8 +51,11 @@ class PipeStrand(Aggregation):
         found_in = False
         found_out = False
         for port in self.elements[0].ports:
-            if not port.connections[0].parent in self.elements:
+            if not port.connection:
+                continue #end node
+            if not port.connection.parent in self.elements:
                 found_out = True
+                port.aggregated_parent = self
                 agg_ports.append(port)
             else:
                 found_in = True
@@ -58,8 +66,9 @@ class PipeStrand(Aggregation):
         found_in = False
         found_out = False
         for port in self.elements[-1].ports:
-            if not port.connections[0].parent in self.elements:
+            if not port.connection.parent in self.elements:
                 found_out = True
+                port.aggregated_parent = self
                 agg_ports.append(port)
             else:
                 found_in = True
@@ -91,14 +100,24 @@ class PipeStrand(Aggregation):
         if self._total_length == 0:
             self._avg_diameter = diameter_times_length / self._total_length
 
+    def get_replacement_mapping(self):
+        """Returns dict with original ports as values and their aggregated replacement as keys."""
+        mapping = {port:None for element in self.elements
+                   for port in element.ports}
+        for port in self.ports:
+            mapping[port.original] = port
+        return mapping
+
     @property
     def diameter(self):
-        if not self._avg_diameter:
+        """Diameter of aggregated pipe"""
+        if self._avg_diameter is None:
             self._calc_avg()
         return self._avg_diameter
 
     @property
     def length(self):
-        if not self._total_length:
+        """Length of aggregated pipe"""
+        if self._total_length is None:
             self._calc_avg()
         return self._total_length
