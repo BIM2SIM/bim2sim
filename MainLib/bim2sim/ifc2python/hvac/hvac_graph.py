@@ -57,7 +57,7 @@ class HvacGraph():
         """View of graph with elements instead of ports"""
         graph = nx.Graph()
         nodes = {ele.parent for ele in self.graph.nodes if ele}
-        edges = {(con[0].parent, con[1].parent) for con in self.graph.edges 
+        edges = {(con[0].parent, con[1].parent) for con in self.graph.edges
                  if not con[0].parent is con[1].parent}
         graph.update(nodes=nodes, edges=edges)
         return graph
@@ -95,8 +95,9 @@ class HvacGraph():
         :return cycles:
         """
         self.logger.info("Searching for cycles in hvac network ...")
-        undirected_graph = nx.Graph(self.graph)
-        cycles = nx.cycle_basis(undirected_graph)
+        base_cycles = nx.cycle_basis(self.graph)
+        cycles = [cycle for cycle in base_cycles
+                  if len({port.parent for port in cycle}) > 1]
         self.logger.info("Found %d cycles", len(cycles))
         return cycles
 
@@ -122,11 +123,11 @@ class HvacGraph():
         return chain_lists
 
     def merge(self, mapping: dict, inner_connections: list):
-        """Merge port nodes in graph 
-        
+        """Merge port nodes in graph
+
         according to mapping dict port nodes are removed {port: None}
         or replaced {port: new_port} ceeping connections.
-        
+
         WARNING: connections from removed port nodes are also removed
 
         :param mapping: replacement dict. ports as keys and replacement ports or None as values
@@ -139,41 +140,6 @@ class HvacGraph():
         self.graph.remove_nodes_from(remove)
         self.graph.add_edges_from(inner_connections)
 
-    #def replace(self, elements, replacement=None):
-    #    """Replaces elements in graph with replacement.
-
-    #    If replacement is not given elements are deleted.
-    #    Updates the network by:
-    #        - deleting old nodes which are now represented by the aggregation
-    #        - connecting the aggregation to the rest of the network
-    #    :param elements:
-    #    :param replacement:
-    #    :return graph:
-    #    """
-
-    #    outer_connections = []
-    #    for element in elements:
-    #        for port in element.ports:
-    #            # remove old element ports
-    #            self.graph.remove_node(port)
-    #            if not port.connection:
-    #                continue
-    #            if not port.connection.parent in elements:
-    #                # save ports next to elements
-    #                outer_connections.append(port.connection)
-
-    #    if replacement:
-    #        for port in replacement.ports:
-    #            # add replacement to graph
-    #            self.graph.add_edge(port, port.connection)
-
-    #    elif len(outer_connections) == 2:
-    #        self.graph.add_edge((outer_connections[0], outer_connections[1]))
-    #    elif len(outer_connections) > 2:
-    #        raise NotImplementedError()
-
-    #    return self.graph
-
     def get_connections(self):
         """Returns connections between different parent elements"""
         return [edge for edge in self.graph.edges
@@ -183,22 +149,25 @@ class HvacGraph():
         """Returns list of nodes represented by graph"""
         return list(self.graph.nodes)
 
-    def plot(self, path=None):
+    def plot(self, path=None, ports=False):
         """Plot graph
 
         if path is provided plot is saved as pdf else it gets displayed"""
-        nx.draw(self.element_graph, node_size=3, font_size=6,
-                with_labels=True)
+        # https://plot.ly/python/network-graphs/
+        graph = self.graph if ports else self.element_graph
+        nx.draw(graph, node_size=6, font_size=6, with_labels=True)
         plt.draw()
         if path:
+            name = "%sgraph.pdf"%("port" if ports else "element")
             try:
                 plt.savefig(
-                    os.path.join(path, 'graphnetwork.pdf'),
+                    os.path.join(path, name),
                     bbox_inches='tight')
             except IOError as ex:
                 self.logger.error("Unable to save plot of graph (%s)", ex)
         else:
             plt.show()
+        plt.clf()
 
     def to_serializable(self):
         """Returns a json serializable object"""

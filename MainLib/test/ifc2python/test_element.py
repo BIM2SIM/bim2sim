@@ -84,8 +84,6 @@ class Test_ElementProperties(unittest.TestCase):
 
     def setUp(self):
         ifc = self.__class__.ifc.by_type("IfcPipeFitting")[0]
-        guid = "123"
-        name = "DummyElement_xyz"
         self.ele = DummyElement(ifc=ifc)
 
     def test_ok(self):

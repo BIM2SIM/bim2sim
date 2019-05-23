@@ -25,19 +25,20 @@ class ElementEncoder(JSONEncoder):
 
 
 class IFCBased():
-    _ifc_type = None
+    """Mixin for all IFC representating classes"""
+    ifc_type = None
     _ifc_classes = {}
 
-    def __init__(self, ifc, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, ifc, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.ifc = ifc
-        self.guid = ifc.GlobalId 
+        self.guid = ifc.GlobalId
         self.name = ifc.Name
 
     @property
     def ifc_type(self):
         """Returns IFC type"""
-        return self.__class__._ifc_type
+        return self.__class__.ifc_type
 
     @cached_property
     def position(self):
@@ -52,10 +53,7 @@ class IFCBased():
         """
         Fetches non-empty attributes (if they exist).
         """
-        try:
-            return getattr(self.ifc, attribute)
-        except AttributeError:
-            pass
+        return getattr(self.ifc, attribute, None)
 
     def get_propertysets(self, propertysetname):
         return ifc2python.get_Property_Sets(propertysetname, self.ifc)
@@ -94,9 +92,10 @@ class IFCBased():
         return "<%s (%s)>"%(self.__class__.__name__, self.name)
 
 class BaseElement():
+    """Base class for all elements with ports"""
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.logger = logging.getLogger(__name__)
         self.ports = []
         self.aggregation = None
@@ -112,11 +111,14 @@ class BaseElement():
             connections.append((port0, port1))
         return connections
 
+    def __repr__(self):
+        return "<%s (ports: %d)>"%(self.__class__.__name__, len(self.ports))
 
 class BasePort():
-    
-    def __init__(self, parent, **kwargs):
-        super().__init__(**kwargs)
+    """Basic port"""
+
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.parent = parent
         self.connection = None
 
@@ -132,13 +134,19 @@ class BasePort():
         other.connection = self
 
     def __repr__(self):
-        return "<%s (parent: %s)>"%(self.__class__.__name__, self.parent)
+        if self.parent:
+            try:
+                idx = self.parent.ports.index(self)
+                return "<%s (#%d, parent: %s)>"%(
+                    self.__class__.__name__, idx, self.parent)
+            except ValueError:
+                return "<%s (broken parent: %s)>"%(
+                    self.__class__.__name__, self.parent) 
+        return "<%s (*abandoned*)>"%(self.__class__.__name__) 
+
 
 class Port(BasePort, IFCBased):
     """Port of Element"""
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
     @cached_property
     def flow_direction(self):
@@ -199,8 +207,8 @@ class Element(BaseElement, IFCBased, metaclass=ElementMeta):
     finder = None
     findables = ()
 
-    def __init__(self, tool=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *args, tool=None, **kwargs):
+        super().__init__(*args, **kwargs)
         self._tool = tool
         self._add_ports()
 
@@ -291,7 +299,9 @@ class Element(BaseElement, IFCBased, metaclass=ElementMeta):
             neighbors.append(port.connection.parent)
         return neighbors
 
-
+    def __repr__(self):
+        return "<%s (ports: %d, guid=%s)>"%(
+            self.__class__.__name__, len(self.ports), self.guid)
 
 
 class Dummy(Element):

@@ -5,15 +5,16 @@ import logging
 from bim2sim.ifc2python.element import BaseElement, BasePort
 
 class AggregationPort(BasePort):
-    
-    def __init__(self, original, **kwargs):
-        super().__init__(**kwargs)
+    """Port for Aggregation"""
+
+    def __init__(self, original, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.original = original
 
 class Aggregation(BaseElement):
     """Base aggregation of models"""
-    def __init__(self, name, elements, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, name, elements, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.name = name
         self.elements = elements
         for model in self.elements:
@@ -28,8 +29,8 @@ class PipeStrand(Aggregation):
     """Aggregates pipe strands"""
     aggregatable_elements = ['IfcPipeSegment', 'IfcPipeFitting']
 
-    def __init__(self, name, elements, **kwargs):
-        super().__init__(name, elements, **kwargs)
+    def __init__(self, name, elements, *args, **kwargs):
+        super().__init__(name, elements, *args, **kwargs)
         edge_ports = self._get_start_and_end_ports()
         self.ports.append(AggregationPort(edge_ports[0], parent=self))
         self.ports.append(AggregationPort(edge_ports[1], parent=self))
@@ -101,7 +102,7 @@ class PipeStrand(Aggregation):
 
     def get_replacement_mapping(self):
         """Returns dict with original ports as values and their aggregated replacement as keys."""
-        mapping = {port:None for element in self.elements 
+        mapping = {port:None for element in self.elements
                    for port in element.ports}
         for port in self.ports:
             mapping[port.original] = port
@@ -110,13 +111,13 @@ class PipeStrand(Aggregation):
     @property
     def diameter(self):
         """Diameter of aggregated pipe"""
-        if not self._avg_diameter:
+        if self._avg_diameter is None:
             self._calc_avg()
         return self._avg_diameter
 
     @property
     def length(self):
         """Length of aggregated pipe"""
-        if not self._total_length:
+        if self._total_length is None:
             self._calc_avg()
         return self._total_length
