@@ -61,31 +61,34 @@ class Inspect(Workflow):
 
     @staticmethod
     def port_distance(port1, port2):
+        """Returns distance (x,y,z delta) of ports
+
+        :returns: None if port position ist not available"""
         try:
             delta = port1.position - port2.position
         except AttributeError:
             delta = None
         return delta
 
-    @staticmethod
-    def connect_old(instances, eps=1):
-        """Connect ports of instances by computing geometric distance"""
-        nr_connections = 0
-        # todo add check if IFC has port information -> decision system
-        for instance1, instance2 in itertools.combinations(instances, 2):
-            for port1 in instance1.ports:
-                if port1.is_connected():
-                    continue
-                for port2 in instance2.ports:
-                    if port2.is_connected():
-                        continue
-                    delta = self.port_distance(port1, port2)
-                    if max(abs(delta)) < eps:
-                        port1.connect(port2)
-                        #port2.connect(port1)
-                        nr_connections += 1
+    #@staticmethod
+    #def connect_old(instances, eps=1):
+    #    """Connect ports of instances by computing geometric distance"""
+    #    nr_connections = 0
+    #    # todo add check if IFC has port information -> decision system
+    #    for instance1, instance2 in itertools.combinations(instances, 2):
+    #        for port1 in instance1.ports:
+    #            if port1.is_connected():
+    #                continue
+    #            for port2 in instance2.ports:
+    #                if port2.is_connected():
+    #                    continue
+    #                delta = self.port_distance(port1, port2)
+    #                if max(abs(delta)) < eps:
+    #                    port1.connect(port2)
+    #                    #port2.connect(port1)
+    #                    nr_connections += 1
 
-        return nr_connections
+    #    return nr_connections
 
     @staticmethod
     def connections_by_position(ports, eps=1):
@@ -100,20 +103,23 @@ class Inspect(Workflow):
         return connections
 
     @staticmethod
-    def connections_by_relation(instances):
-        """"""
-        #nr_connected = 0
+    def connections_by_relation(ports):
+        """Inspects IFC relations of ports"""
         connections = []
-        for port in (port for instance in instances for port in instance.ports):
+        for port in ports:
             if port.ifc.ConnectedFrom:
-                other_port = port.get_object(port.ifc.ConnectedFrom[0].RelatingPort.GlobalId)
+                other_port = port.get_object(
+                    port.ifc.ConnectedFrom[0].RelatingPort.GlobalId)
                 if other_port:
                     connections.append((port, other_port))
         return connections
 
     @staticmethod
     def confirm_connections_position(connections, eps=1):
-        """"""
+        """Checks distance between port positions
+
+        :return: tuple of lists of connections
+        (confirmed, unconfirmed, rejected)"""
         confirmed = []
         unconfirmed = []
         rejected = []
@@ -140,29 +146,36 @@ class Inspect(Workflow):
         # connections
         self.logger.info("Connecting the relevant elements")
         self.logger.info(" - Connecting by relations ...")
-        rel_connections = self.connections_by_relation(self.instances.values())
-        self.logger.info(" - Found %d potential connections.", len(rel_connections))
-        
+        rel_connections = self.connections_by_relation(
+            BasePort.objects.values())
+        self.logger.info(" - Found %d potential connections.",
+                         len(rel_connections))
+
         self.logger.info(" - Checking positions of connections ...")
-        confirmed, unconfirmed, rejected = self.confirm_connections_position(rel_connections)
-        self.logger.info(
-            " - %d connections are confirmed and %d rejected. %d can't be confirmed.",
-            len(confirmed), len(rejected), len(unconfirmed))
+        confirmed, unconfirmed, rejected = \
+            self.confirm_connections_position(rel_connections)
+        self.logger.info(" - %d connections are confirmed and %d rejected. " \
+            + "%d can't be confirmed.",
+                         len(confirmed), len(rejected), len(unconfirmed))
         for port1, port2 in confirmed + unconfirmed:
             # unconfirmed have no position data and cant be connected by position
             port1.connect(port2)
 
-        unconected_ports = (port for port in BasePort.objects.values() if not port.is_connected())
-        self.logger.info(" - Connecting remaining ports by position (may take some time) ...")
+        unconected_ports = (port for port in BasePort.objects.values()
+                            if not port.is_connected())
+        self.logger.info(" - Connecting remaining ports by position ...")
         pos_connections = self.connections_by_position(unconected_ports)
-        self.logger.info(" - Found %d additional connections.", len(pos_connections))
+        self.logger.info(" - Found %d additional connections.",
+                         len(pos_connections))
         for port1, port2 in pos_connections:
             port1.connect(port2)
 
         nr_total = len(BasePort.objects)
-        nr_unconnected = sum(1 for port in BasePort.objects.values() if not port.is_connected())
+        nr_unconnected = sum(1 for port in BasePort.objects.values()
+                             if not port.is_connected())
         nr_connected = nr_total - nr_unconnected
-        self.logger.info("In total %d of %d ports are connected.", nr_connected, nr_total)
+        self.logger.info("In total %d of %d ports are connected.",
+                         nr_connected, nr_total)
         if nr_total > nr_connected:
             self.logger.warning("%d ports are not connected!", nr_unconnected)
 
@@ -221,8 +234,8 @@ class Reduce(Workflow):
             number_ps += 1
             pipestrand = PipeStrand("PipeStrand%d"%(number_ps), chain)
             graph.merge(
-                mapping = pipestrand.get_replacement_mapping(),
-                inner_connections = pipestrand.get_inner_connections())
+                mapping=pipestrand.get_replacement_mapping(),
+                inner_connections=pipestrand.get_inner_connections())
         number_of_nodes_new = len(graph.element_graph.nodes)
 
         self.logger.info(
