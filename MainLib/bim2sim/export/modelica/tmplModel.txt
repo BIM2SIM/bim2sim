@@ -11,7 +11,7 @@ model ${model.name} "${model.comment}"
 (
   %endif
 <% i = 0 %>\
-  % for par, value in instance.params.items():
+  % for par, value in instance.modelica_params.items():
 <% i+=1 %>\
     ${par} = ${value}${"," if i < len(instance.params) else ")"}
   % endfor

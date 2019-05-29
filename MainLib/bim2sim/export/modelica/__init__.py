@@ -159,6 +159,12 @@ class Instance():
                 allow_skip=True,
             )
 
+    @property
+    def modelica_params(self):
+        """Returns param dict converted with to_modelica"""
+        mp = {k: self.to_modelica(v) for k, v in self.params.items()}
+        return mp
+
     def get_params(self):
         """Returns dictonary of parameters and values"""
         return {}
@@ -180,6 +186,17 @@ class Instance():
     def get_full_port_name(self, port):
         """Returns name of port including model name"""
         return "%s.%s"%(self.name, self.get_port_name(port))
+
+    @staticmethod
+    def to_modelica(parameter):
+        """converts parameter to modelica readable string"""
+        if isinstance(parameter, (str, int, float)):
+            return str(parameter)
+        if isinstance(parameter, (list, tuple, set)):
+            return "{%s}"%(",".join((Instance.to_modelica(par) for par in parameter)))
+        logger = logging.getLogger(__name__)
+        logger.warning("Unknown class (%s) for conversion", parameter.__class__)
+        return str(parameter)
 
     @staticmethod
     def check_numeric(min_value=None, max_value=None):
