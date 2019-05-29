@@ -3,6 +3,7 @@
 import logging
 from json import JSONEncoder
 import itertools
+import uuid
 
 import numpy as np
 
@@ -24,15 +25,29 @@ class ElementEncoder(JSONEncoder):
         return JSONEncoder.default()
 
 
-class IFCBased():
+class Root():
+    objects = {}
+
+    def __init__(self, guid=None):
+        self.guid = guid or str(uuid.uuid4())
+        Root.objects[self.guid] = self
+
+    def __hash__(self):
+        return hash(self.guid)
+
+    @staticmethod
+    def get_object(guid):
+        return Root.objects.get(guid)
+
+class IFCBased(Root):
     """Mixin for all IFC representating classes"""
     ifc_type = None
     _ifc_classes = {}
 
     def __init__(self, ifc, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, guid=ifc.GlobalId, **kwargs)
         self.ifc = ifc
-        self.guid = ifc.GlobalId
+        #self.guid = ifc.GlobalId
         self.name = ifc.Name
 
     @property
@@ -91,11 +106,13 @@ class IFCBased():
     def __repr__(self):
         return "<%s (%s)>"%(self.__class__.__name__, self.name)
 
-class BaseElement():
+class BaseElement(Root):
     """Base class for all elements with ports"""
+    objects = {}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        BaseElement.objects[self.guid] = self
         self.logger = logging.getLogger(__name__)
         self.ports = []
         self.aggregation = None
@@ -111,16 +128,26 @@ class BaseElement():
             connections.append((port0, port1))
         return connections
 
+    @staticmethod
+    def get_element(guid):
+        return BaseElement.objects.get(guid)
+
     def __repr__(self):
         return "<%s (ports: %d)>"%(self.__class__.__name__, len(self.ports))
 
-class BasePort():
+class BasePort(Root):
     """Basic port"""
+    objects = {}
 
     def __init__(self, parent, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.parent = parent
         self.connection = None
+        BasePort.objects[self.guid] = self
+
+    @staticmethod
+    def get_port(guid):
+        return BasePort.objects.get(guid)
 
     def connect(self, other):
         """Connect this interface bidirectional to another interface"""
@@ -132,6 +159,10 @@ class BasePort():
             raise AttributeError("Port is already connected!")
         self.connection = other
         other.connection = self
+
+    def is_connected(self):
+        """Returns truth value of port's connection"""
+        return bool(self.connection)
 
     def __repr__(self):
         if self.parent:
@@ -171,6 +202,7 @@ class Port(BasePort, IFCBased):
         coordinates = self.parent.position + np.matmul(directions, port_coordinates_relative)
 
         return coordinates
+
 
 
 class ElementMeta(type):
