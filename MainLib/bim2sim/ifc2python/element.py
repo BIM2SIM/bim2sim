@@ -3,7 +3,6 @@
 import logging
 from json import JSONEncoder
 import itertools
-import uuid
 
 import numpy as np
 
@@ -26,18 +25,31 @@ class ElementEncoder(JSONEncoder):
 
 
 class Root():
+    """Most basic class
+
+    keeps track of created instances and guids"""
     objects = {}
+    _id_counter = 0
 
     def __init__(self, guid=None):
-        self.guid = guid or str(uuid.uuid4())
+        self.guid = guid or self.get_id()
         Root.objects[self.guid] = self
 
     def __hash__(self):
         return hash(self.guid)
 
     @staticmethod
+    def get_id(prefix=""):
+        prefix_length = len(prefix)
+        if prefix_length > 8:
+            raise AttributeError("Max prefix legth is 8!")
+        Root._id_counter += 1
+        return "{0:0<8s}{1:0>14d}".format(prefix, Root._id_counter)
+
+    @staticmethod
     def get_object(guid):
         return Root.objects.get(guid)
+
 
 class IFCBased(Root):
     """Mixin for all IFC representating classes"""

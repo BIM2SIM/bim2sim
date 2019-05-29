@@ -8,12 +8,19 @@ class AggregationPort(BasePort):
     """Port for Aggregation"""
 
     def __init__(self, original, *args, **kwargs):
+        if not 'guid' in kwargs:
+            kwargs['guid'] = self.get_id("AggPort")
         super().__init__(*args, **kwargs)
         self.original = original
 
 class Aggregation(BaseElement):
     """Base aggregation of models"""
     def __init__(self, name, elements, *args, **kwargs):
+        if not 'guid' in kwargs:
+            #TODO: make guid reproducable unique for same aggregation elements
+            # e.g. hash of all (ordered?) element guids?
+            # Needed for save/load decisions on aggregations
+            kwargs['guid'] = self.get_id("Agg")
         super().__init__(*args, **kwargs)
         self.name = name
         self.elements = elements
