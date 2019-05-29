@@ -10,12 +10,11 @@ model ${model.name} "${model.comment}"
   %if instance.params: 
 (
   %endif
+<% i = 0 %>\
   % for par, value in instance.params.items():
-    ${par} = ${value},
+<% i+=1 %>\
+    ${par} = ${value}${"," if i < len(instance.params) else ")"}
   % endfor
-  %if instance.params: 
-    )\
-  %endif
  "${instance.comment}"
     annotation (Placement(transformation(extent={{-80,60},{-60,80}}))); 
 </%def>
