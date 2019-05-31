@@ -38,6 +38,17 @@ class Root():
     def __hash__(self):
         return hash(self.guid)
 
+    def calc_position(self):
+        """Returns position (calculation may be expensive)"""
+        return None
+
+    @cached_property
+    def position(self):
+        """Position
+
+        calculated only once by calling calc_position"""
+        return self.calc_position()
+
     @staticmethod
     def get_id(prefix=""):
         prefix_length = len(prefix)
@@ -48,6 +59,7 @@ class Root():
 
     @staticmethod
     def get_object(guid):
+        """Returns object by guid"""
         return Root.objects.get(guid)
 
 
@@ -59,7 +71,6 @@ class IFCBased(Root):
     def __init__(self, ifc, *args, **kwargs):
         super().__init__(*args, guid=ifc.GlobalId, **kwargs)
         self.ifc = ifc
-        #self.guid = ifc.GlobalId
         self.name = ifc.Name
 
     @property
@@ -67,8 +78,7 @@ class IFCBased(Root):
         """Returns IFC type"""
         return self.__class__.ifc_type
 
-    @cached_property
-    def position(self):
+    def calc_position(self):
         """returns absolute position"""
         rel = np.array(self.ifc.ObjectPlacement.
                        RelativePlacement.Location.Coordinates)
@@ -147,6 +157,7 @@ class BaseElement(Root):
     def __repr__(self):
         return "<%s (ports: %d)>"%(self.__class__.__name__, len(self.ports))
 
+
 class BasePort(Root):
     """Basic port"""
     objects = {}
@@ -184,8 +195,8 @@ class BasePort(Root):
                     self.__class__.__name__, idx, self.parent)
             except ValueError:
                 return "<%s (broken parent: %s)>"%(
-                    self.__class__.__name__, self.parent) 
-        return "<%s (*abandoned*)>"%(self.__class__.__name__) 
+                    self.__class__.__name__, self.parent)
+        return "<%s (*abandoned*)>"%(self.__class__.__name__)
 
 
 class Port(BasePort, IFCBased):
@@ -196,8 +207,7 @@ class Port(BasePort, IFCBased):
         """returns the flow direction"""
         return self.ifc.FlowDirection
 
-    @cached_property
-    def position(self):
+    def calc_position(self):
         """returns absolute position as np.array"""
         try:
             relative_placement = \
@@ -214,7 +224,6 @@ class Port(BasePort, IFCBased):
         coordinates = self.parent.position + np.matmul(directions, port_coordinates_relative)
 
         return coordinates
-
 
 
 class ElementMeta(type):
@@ -267,7 +276,7 @@ class Element(BaseElement, IFCBased, metaclass=ElementMeta):
         if found is None:
             findables = object.__getattribute__(self, '__class__').findables
             if name in findables:
-                # if None is returned ask finder for value 
+                # if None is returned ask finder for value
                 # (on AttributeError __getattr__ is called anyway)
                 try:
                     found = object.__getattribute__(self, '__getattr__')(name)

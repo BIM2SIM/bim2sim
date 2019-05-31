@@ -16,7 +16,7 @@ model ${model.name} "${model.comment}"
     ${par} = ${value}${"," if i < len(instance.params) else ")"}
   % endfor
  "${instance.comment}"
-    annotation (Placement(transformation(extent={{-80,60},{-60,80}}))); 
+    annotation (Placement(transformation(extent={{${instance.position[0]-10},${instance.position[1]-10}},{${instance.position[0]+10},${instance.position[1]+10}}})));
 </%def>
 
 equation

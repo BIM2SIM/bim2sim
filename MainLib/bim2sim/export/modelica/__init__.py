@@ -5,6 +5,7 @@ import logging
 
 import codecs
 from mako.template import Template
+import numpy as np
 
 from bim2sim.ifc2python import element as elem
 from bim2sim.decision import RealDecision
@@ -32,6 +33,30 @@ class Model():
         self.comment = comment
         self.instances = instances
         self.connections = connections
+
+        self.size_x = (-100, 100)
+        self.size_y = (-100, 100)
+
+        self.set_instance_positions(instances)
+
+    def set_instance_positions(self, instances):
+        """Sets position of instances
+
+        relative to min/max positions of instance.element.position"""
+        positions = np.array(
+            [inst.element.position for inst in instances
+             if not inst.element.position is None])
+        pos_min = np.min(positions, axis=0)
+        pos_max = np.max(positions, axis=0)
+        pos_delta = pos_max - pos_min
+        delta_x = self.size_x[1] - self.size_x[0]
+        delta_y = self.size_y[1] - self.size_y[0]
+        for inst in instances:
+            if not inst.element.position is None:
+                rel_pos = (inst.element.position - pos_min) / pos_delta
+                x = np.asscalar(self.size_x[0] + rel_pos[0] * delta_x)
+                y = np.asscalar(self.size_y[0] + rel_pos[1] * delta_y)
+                inst.position = (x, y)
 
     def code(self):
         """returns Modelica code"""
@@ -67,6 +92,7 @@ class Instance():
     def __init__(self, element):
 
         self.element = element
+        self.position = (80, 80)
 
         self.name = element.__class__.__name__.lower()
         self.guid = getattr(element, "guid", "").replace("$", "_")

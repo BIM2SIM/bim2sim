@@ -4,19 +4,26 @@ import logging
 
 from bim2sim.ifc2python.element import BaseElement, BasePort
 
+
 class AggregationPort(BasePort):
     """Port for Aggregation"""
 
     def __init__(self, original, *args, **kwargs):
-        if not 'guid' in kwargs:
+        if 'guid' not in kwargs:
             kwargs['guid'] = self.get_id("AggPort")
         super().__init__(*args, **kwargs)
         self.original = original
 
+    def calc_position(self):
+        """Position of original port"""
+        return self.original.position
+
+
 class Aggregation(BaseElement):
     """Base aggregation of models"""
+
     def __init__(self, name, elements, *args, **kwargs):
-        if not 'guid' in kwargs:
+        if 'guid' not in kwargs:
             #TODO: make guid reproducable unique for same aggregation elements
             # e.g. hash of all (ordered?) element guids?
             # Needed for save/load decisions on aggregations
@@ -26,6 +33,13 @@ class Aggregation(BaseElement):
         self.elements = elements
         for model in self.elements:
             model.aggregation = self
+
+    def calc_position(self):
+        """Position based on first and last element"""
+        try:
+            return (self.elements[0].position + self.elements[-1].position) / 2
+        except:
+            return None
 
     def __repr__(self):
         return "<%s '%s' (aggregation of %d elements)>" % (
@@ -44,7 +58,6 @@ class PipeStrand(Aggregation):
 
         self._total_length = None
         self._avg_diameter = None
-
 
     def _get_start_and_end_ports(self):
         """
