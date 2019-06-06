@@ -109,7 +109,7 @@ def main(rootpath=None):
     finish()
 
 
-def _debug_run():
+def _debug_run_hvac():
     """Create example project and copy ifc if necessary"""
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
     rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc'
@@ -117,9 +117,25 @@ def _debug_run():
     path_example = r"C:\temp\bim2sim\testproject"
 
     if not PROJECT.is_project_folder(path_example):
-        PROJECT.create(path_example, path_ifc, 'hkesim')
+        PROJECT.create(path_example, path_ifc, 'hkesim',)
+
+    main(path_example)
+
+
+def _debug_run_bps():
+    """Create example project and copy ifc if necessary"""
+    path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
+
+    rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur' \
+                      '.ifc'
+    path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
+    path_example = r"C:\temp\bim2sim\testproject_bps"
+
+    if not PROJECT.is_project_folder(path_example):
+        PROJECT.create(path_example, path_ifc, 'TEASER')
 
     main(path_example)
 
 if __name__ == '__main__':
-    _debug_run()
+    _debug_run_hvac()
+    _debug_run_bps()

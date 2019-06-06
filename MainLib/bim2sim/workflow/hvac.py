@@ -53,7 +53,7 @@ IFC_TYPES = (
 class Inspect(Workflow):
     """Analyses IFC, creates Element instances and connects them.
 
-    elements are stored in .instandes dict with guid as key"""
+    elements are stored in .instances dict with guid as key"""
 
     def __init__(self):
         super().__init__()
