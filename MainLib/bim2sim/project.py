@@ -4,6 +4,7 @@ import os
 import sys
 import subprocess
 import shutil
+from distutils.dir_util import copy_tree
 import configparser
 
 
@@ -124,6 +125,12 @@ class _Project():
         return [self.log, self.ifc, self.resources, self.export, self.workflow,
                 self.finder]
 
+    def copy_assets(self, path):
+        """copy assets to project folder"""
+        assets_path = os.path.join(os.path.dirname(__file__), 'assets')
+
+        copy_tree(assets_path, path)
+
     def is_project_folder(self, path=None):
         """Check if root path (or given path) is a project folder"""
         root = path or self.root
@@ -147,6 +154,8 @@ class _Project():
 
         with open(self.config, "w"):
             pass
+
+        self.copy_assets(self.root)
 
     def create(self, rootpath, ifc_path=None, target=None, open_conf=False):
         """Set root path, create project folder

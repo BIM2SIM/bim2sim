@@ -175,7 +175,7 @@ class Instance():
         else:
             RealDecision(
                 question="Please enter parameter for %s"%(self.name + "." + name),
-                validate_func=self.check_power,
+                validate_func=check,
                 output=self.params,
                 output_key=name,
                 global_key=self.name + "." + name,
