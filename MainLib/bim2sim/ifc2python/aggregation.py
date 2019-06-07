@@ -72,28 +72,28 @@ class PipeStrand(Aggregation):
         found_out = False
         for port in self.elements[0].ports:
             if not port.connection:
-                continue #end node
-            if not port.connection.parent in self.elements:
+                continue  # end node
+            if port.connection.parent not in self.elements:
                 found_out = True
                 port.aggregated_parent = self
                 agg_ports.append(port)
             else:
                 found_in = True
         if not (found_in and found_out):
-            raise AssertionError("Assumtion of ordered elements violated")
+            raise AssertionError("Assumption of ordered elements violated")
 
         # last port
         found_in = False
         found_out = False
         for port in self.elements[-1].ports:
-            if not port.connection.parent in self.elements:
+            if port.connection.parent not in self.elements:
                 found_out = True
                 port.aggregated_parent = self
                 agg_ports.append(port)
             else:
                 found_in = True
         if not (found_in and found_out):
-            raise AssertionError("Assumtion of ordered elements violated")
+            raise AssertionError("Assumption of ordered elements violated")
 
         return agg_ports
 

@@ -65,6 +65,7 @@ class _Project():
         if not self._rootpath:
             return None
         return os.path.abspath(self._rootpath)
+
     @root.setter
     def root(self, value):
         self._rootpath = value
@@ -100,12 +101,14 @@ class _Project():
         if not self._rootpath:
             return None
         return os.path.abspath(os.path.join(self._rootpath, _Project.LOG))
+
     @property
     def ifc(self):
         """absolute path to ifc folder"""
         if not self._rootpath:
             return None
         return os.path.abspath(os.path.join(self._rootpath, _Project.IFC))
+
     @property
     def resources(self):
         """absolute path to resources folder"""
@@ -125,7 +128,8 @@ class _Project():
         return [self.log, self.ifc, self.resources, self.export, self.workflow,
                 self.finder]
 
-    def copy_assets(self, path):
+    @staticmethod
+    def copy_assets(path):
         """copy assets to project folder"""
         assets_path = os.path.join(os.path.dirname(__file__), 'assets')
 
@@ -201,5 +205,6 @@ class _Project():
 
     def __repr__(self):
         return "<Project (root: %s)>"%(self._rootpath or "NOT SET!")
+
 
 PROJECT = _Project()
