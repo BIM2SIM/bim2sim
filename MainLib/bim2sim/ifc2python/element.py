@@ -62,6 +62,9 @@ class Root():
         """Returns object by guid"""
         return Root.objects.get(guid)
 
+    def __del__(self):
+        del Root.objects[self.guid]
+
 
 class IFCBased(Root):
     """Mixin for all IFC representating classes"""
@@ -168,6 +171,9 @@ class BasePort(Root):
         self.connection = None
         BasePort.objects[self.guid] = self
 
+        self._flow_master = False
+        self._flow_direction = None
+
     @staticmethod
     def get_port(guid):
         return BasePort.objects.get(guid)
@@ -178,14 +184,57 @@ class BasePort(Root):
                                                   " of different classes."
         # if self.flow_direction == 'SOURCE' or \
         #         self.flow_direction == 'SOURCEANDSINK':
-        if self.connection:
+        if self.connection and self.connection is not other:
             raise AttributeError("Port is already connected!")
+        if other.connection and other.connection is not self:
+            raise AttributeError("Other port is already connected!")
         self.connection = other
         other.connection = self
 
     def is_connected(self):
         """Returns truth value of port's connection"""
         return bool(self.connection)
+
+    @property
+    def flow_master(self):
+        """Lock flow direction for port"""
+        return self._flow_master
+
+    @flow_master.setter
+    def flow_master(self, value: bool):
+        self._flow_master = value
+
+    @property
+    def flow_direction(self):
+        """Flow direction of port
+
+        -1 = medium flows into port
+        1 = medium flows out of port
+        0 = medium flow undirected
+        None = flow direction unknown"""
+        return self._flow_direction
+
+    @flow_direction.setter
+    def flow_direction(self, value):
+        if self._flow_master:
+            raise AttributeError("Can't set flow direction for flow master.")
+        if value not in (-1, 0, 1, None):
+            raise AttributeError("Invalid value. Use one of (-1, 0, 1, None).")
+        self._flow_direction = value
+
+    @property
+    def verbose_flow_direction(self):
+        """Flow direction of port"""
+        if self.flow_direction == -1:
+            return 'SINK'
+        if self.flow_direction == 0:
+            return 'SINKANDSOURCE'
+        if self.flow_direction == 1:
+            return 'SOURCE'
+        return 'UNKNOWN'
+
+    def __del__(self):
+        del BasePort.objects[self.guid]
 
     def __repr__(self):
         if self.parent:
@@ -202,10 +251,17 @@ class BasePort(Root):
 class Port(BasePort, IFCBased):
     """Port of Element"""
 
-    @cached_property
-    def flow_direction(self):
-        """returns the flow direction"""
-        return self.ifc.FlowDirection
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.groups = {assg.RelatingGroup.ObjectType
+                       for assg in self.ifc.HasAssignments}
+
+        if self.ifc.FlowDirection == 'SOURCE':
+            self.flow_direction = 1
+        elif self.ifc.FlowDirection == 'SINK':
+            self.flow_direction = -1
+        elif self.ifc.FlowDirection == 'SINKANDSOURCE':
+            self.flow_direction = 0
 
     def calc_position(self):
         """returns absolute position as np.array"""
@@ -223,6 +279,9 @@ class Port(BasePort, IFCBased):
             np.array(self.ifc.ObjectPlacement.RelativePlacement.Location.Coordinates)
         coordinates = self.parent.position + np.matmul(directions, port_coordinates_relative)
 
+        if all(coordinates == np.array([0, 0, 0])):
+            logger = logging.getLogger('IFCQualityReport')
+            logger.info("Suspect position [0, 0, 0] for %s", self)
         return coordinates
 
 

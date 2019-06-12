@@ -1,14 +1,66 @@
 ﻿"""Module contains the different classes for all HVAC elements"""
 
 import math
+import re
 
 from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import element
+from bim2sim.decision import BoolDecision
 
 
 class Boiler(element.Element):
     """Boiler"""
     ifc_type = 'IfcBoiler'
+
+    def _add_ports(self):
+        super()._add_ports()
+        for port in self.ports:
+            if port.flow_direction == 1:
+                port.flow_master = True
+            elif port.flow_direction == -1:
+                port.flow_master = True
+
+    def get_inner_connections(self):
+        connections = []
+        vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
+        rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
+        VL = []
+        RL = []
+        for port in self.ports:
+            if any(filter(vl_pattern.match, port.groups)):
+                if port.flow_direction == 1:
+                    VL.append(port)
+                else:
+                    self.logger.warning("Flow direction (%s) of %s does not match %s",
+                                        port.verbose_flow_direction, port, port.groups)
+                    decision = BoolDecision(
+                        "Use %s as VL?"%(port),
+                        global_key=port.guid,
+                        allow_save=True,
+                        allow_load=True)
+                    use = decision.decide()
+                    if use:
+                        VL.append(port)
+            elif any(filter(rl_pattern.match, port.groups)):
+                if port.flow_direction == -1:
+                    RL.append(port)
+                else:
+                    self.logger.warning("Flow direction (%s) of %s does not match %s",
+                                        port.verbose_flow_direction, port, port.groups)
+                    decision = BoolDecision(
+                        "Use %s as RL?"%(port),
+                        global_key=port.guid,
+                        allow_save=True,
+                        allow_load=True)
+                    use = decision.decide()
+                    if use:
+                        RL.append(port)
+        if len(VL) == 1 and len(RL) == 1:
+            connections.append((RL[0], VL[0]))
+        else:
+            self.logger.warning("Unable to solve inner connections for %s", self)
+
+        return connections
 
     @cached_property
     def water_volume(self):
