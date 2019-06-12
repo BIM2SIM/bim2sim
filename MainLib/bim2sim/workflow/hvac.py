@@ -53,10 +53,11 @@ IFC_TYPES = (
     'IfcVibrationIsolator',
 )
 
+
 class Inspect(Workflow):
     """Analyses IFC, creates Element instances and connects them.
 
-    elements are stored in .instandes dict with guid as key"""
+    elements are stored in .instances dict with guid as key"""
 
     def __init__(self):
         super().__init__()
@@ -207,10 +208,10 @@ class Inspect(Workflow):
             # unconfirmed have no position data and cant be connected by position
             port1.connect(port2)
 
-        unconected_ports = (port for port in BasePort.objects.values()
-                            if not port.is_connected())
+        unconnected_ports = (port for port in BasePort.objects.values()
+                             if not port.is_connected())
         self.logger.info(" - Connecting remaining ports by position ...")
-        pos_connections = self.connections_by_position(unconected_ports)
+        pos_connections = self.connections_by_position(unconnected_ports)
         self.logger.info(" - Found %d additional connections.",
                          len(pos_connections))
         for port1, port2 in pos_connections:
@@ -242,7 +243,7 @@ class Prepare(Workflow):
 
 
 class MakeGraph(Workflow):
-    """Instanciate HvacGraph"""
+    """Instantiate HvacGraph"""
     #saveable = True #ToDo
 
     def __init__(self):
@@ -261,6 +262,7 @@ class MakeGraph(Workflow):
     def deserialize(self, data):
         raise NotImplementedError
         self.graph.from_serialized(json.loads(data))
+
 
 class Reduce(Workflow):
     """Reduce number of elements by aggregation"""

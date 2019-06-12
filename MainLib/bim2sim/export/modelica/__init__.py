@@ -25,7 +25,7 @@ class FactoryError(Exception):
 class Model():
     """Modelica model"""
 
-    def __init__(self, name, comment, instances: list, connections: dict):
+    def __init__(self, name, comment, instances: list, connections: list):
 
         self.logger = logging.getLogger(__name__)
 
@@ -45,17 +45,17 @@ class Model():
         relative to min/max positions of instance.element.position"""
         positions = np.array(
             [inst.element.position for inst in instances
-             if not inst.element.position is None])
+             if inst.element.position is not None])
         pos_min = np.min(positions, axis=0)
         pos_max = np.max(positions, axis=0)
         pos_delta = pos_max - pos_min
         delta_x = self.size_x[1] - self.size_x[0]
         delta_y = self.size_y[1] - self.size_y[0]
         for inst in instances:
-            if not inst.element.position is None:
+            if inst.element.position is not None:
                 rel_pos = (inst.element.position - pos_min) / pos_delta
-                x = np.asscalar(self.size_x[0] + rel_pos[0] * delta_x)
-                y = np.asscalar(self.size_y[0] + rel_pos[1] * delta_y)
+                x = (self.size_x[0] + rel_pos[0] * delta_x).item()
+                y = (self.size_y[0] + rel_pos[1] * delta_y).item()
                 inst.position = (x, y)
 
     def code(self):
@@ -78,7 +78,7 @@ class Model():
             file.write(data)
 
 
-class Instance():
+class Instance:
     """Modelica model instance"""
 
     library = None
@@ -108,8 +108,8 @@ class Instance():
         """Adds key and value to Instance.lookup. Returns conflict"""
         logger = logging.getLogger(__name__)
         if key in Instance.lookup:
-            logger.error("Conflicting representations (%s) in '%s' and '%s'", \
-                key, value.__name__, Instance.lookup[key].__name__)
+            logger.error("Conflicting representations (%s) in '%s' and '%s'",
+                         key, value.__name__, Instance.lookup[key].__name__)
             return True
         Instance.lookup[key] = value
         return False
@@ -123,7 +123,7 @@ class Instance():
         Instance.dummy = Dummy
 
         for library in libraries:
-            if not Instance in library.__bases__:
+            if Instance not in library.__bases__:
                 logger.warning("Got Library not directly inheriting from Instance.")
             if library.library:
                 logger.info("Got library '%s'", library.library)
@@ -152,7 +152,7 @@ class Instance():
 
         models = set(Instance.lookup.values())
         models_txt = "\n".join(sorted([" - %s"%(inst.path) for inst in models]))
-        logger.debug("Modelica libraries intitialized with %d models:\n%s", len(models), models_txt)
+        logger.debug("Modelica libraries initialized with %d models:\n%s", len(models), models_txt)
 
     @staticmethod
     def factory(element):
@@ -167,15 +167,15 @@ class Instance():
     def manage_param(self, name: str, value, check):
         """Managing for parameters
 
-        adds parameter with name to self.params if check is successfull
-        else the paramter gets managed by the decision system an is later added to self.params"""
+        adds parameter with name to self.params if check is successful
+        else the parameter gets managed by the decision system an is later added to self.params"""
 
         if check(value):
             self.params[name] = value
         else:
             RealDecision(
                 question="Please enter parameter for %s"%(self.name + "." + name),
-                validate_func=self.check_power,
+                validate_func=check,
                 output=self.params,
                 output_key=name,
                 global_key=self.name + "." + name,
@@ -192,7 +192,7 @@ class Instance():
         return mp
 
     def get_params(self):
-        """Returns dictonary of parameters and values"""
+        """Returns dictionary of parameters and values"""
         return {}
 
     def get_comment(self):
@@ -235,9 +235,9 @@ class Instance():
                 return False
             if min_value is None and max_value is None:
                 return True
-            if not min_value is None and max_value is None:
+            if min_value is not None and max_value is None:
                 return min_value <= value
-            if not max_value is None:
+            if max_value is not None:
                 return value <= max_value
             return min_value <= value <= max_value
 
@@ -250,6 +250,7 @@ class Instance():
 class Dummy(Instance):
     path = "Path.to.Dummy"
     represents = elem.Dummy
+
 
 if __name__ == "__main__":
 

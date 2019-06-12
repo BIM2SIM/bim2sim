@@ -7,7 +7,7 @@ from bim2sim.project import PROJECT, get_config
 from bim2sim.ifc2python import ifc2python
 
 
-class BIM2SIMManager():
+class BIM2SIMManager:
     """Base class of overall bim2sim managing instance"""
     __metaclass__ = ABCMeta
 

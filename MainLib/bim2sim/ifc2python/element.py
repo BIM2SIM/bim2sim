@@ -9,8 +9,10 @@ import numpy as np
 from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import ifc2python
 
+
 class ElementError(Exception):
     """Error in Element"""
+
 
 class ElementEncoder(JSONEncoder):
     """Encoder class for Element"""
@@ -24,7 +26,7 @@ class ElementEncoder(JSONEncoder):
         return JSONEncoder.default()
 
 
-class Root():
+class Root:
     """Most basic class
 
     keeps track of created instances and guids"""
@@ -130,6 +132,7 @@ class IFCBased(Root):
 
     def __repr__(self):
         return "<%s (%s)>"%(self.__class__.__name__, self.name)
+
 
 class BaseElement(Root):
     """Base class for all elements with ports"""
@@ -359,7 +362,7 @@ class Element(BaseElement, IFCBased, metaclass=ElementMeta):
                 logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type, cls.__name__)
             elif cls.ifc_type in Element._ifc_classes:
                 conflict = True
-                logger.error("Conflicting ifc_types (%s) in '%s' and '%s'", \
+                logger.error("Conflicting ifc_types (%s) in '%s' and '%s'",
                     cls.ifc_type, cls.__name__, Element._ifc_classes[cls.ifc_type])
             elif cls.__name__ == "Dummy":
                 Element.dummy = cls
@@ -378,7 +381,7 @@ class Element(BaseElement, IFCBased, metaclass=ElementMeta):
             raise ElementError("Faild to initialize Element factory. No elements found!")
 
         model_txt = "\n".join(" - %s"%(model) for model in Element._ifc_classes)
-        logger.debug("IFC model factory intitialized with %d ifc classes:\n%s",
+        logger.debug("IFC model factory initialized with %d ifc classes:\n%s",
                      len(Element._ifc_classes), model_txt)
 
     @staticmethod
