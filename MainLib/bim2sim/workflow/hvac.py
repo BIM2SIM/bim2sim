@@ -9,7 +9,7 @@ import numpy as np
 from bim2sim.workflow import Workflow
 from bim2sim.filter import TypeFilter
 from bim2sim.ifc2python.aggregation import PipeStrand
-from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
+from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort, Root
 from bim2sim.ifc2python.hvac import hvac_graph
 from bim2sim.export import modelica
 from bim2sim.decision import Decision
@@ -30,6 +30,7 @@ IFC_TYPES = (
     'IfcCooledBeam',
     'IfcCoolingTower',
     'IfcDamper',
+    'IfcDistributionChamberElement',
     'IfcDuctFitting',
     'IfcDuctSegment',
     'IfcDuctSilencer',
@@ -178,6 +179,17 @@ class Inspect(Workflow):
                         port_a.flow_direction = 0
                         port_a.flow_master = True
 
+    @staticmethod
+    def connections_by_boundingbox(open_ports, elements):
+        """Search for open ports in elements bounding boxes
+
+        This is especialy usefull for vessel like elements with variable
+        number of ports (and bad ifc export) or proxy elements.
+        Missing ports on element side are created on demand."""
+        # ToDo
+        connections = []
+        return connections
+
     @Workflow.log
     def run(self, ifc, relevant_ifc_types):
         self.logger.info("Creates python representation of relevant ifc types")
@@ -218,13 +230,22 @@ class Inspect(Workflow):
             port1.connect(port2)
 
         nr_total = len(BasePort.objects)
-        nr_unconnected = sum(1 for port in BasePort.objects.values()
-                             if not port.is_connected())
+        unconnected = [port for port in BasePort.objects.values()
+                       if not port.is_connected()]
+        nr_unconnected = len(unconnected)
         nr_connected = nr_total - nr_unconnected
         self.logger.info("In total %d of %d ports are connected.",
                          nr_connected, nr_total)
         if nr_total > nr_connected:
             self.logger.warning("%d ports are not connected!", nr_unconnected)
+
+        unconnected_elements = {uc.parent for uc in unconnected}
+        if unconnected_elements:
+            # TODO:
+            bb_connections = self.connections_by_boundingbox(unconnected, unconnected_elements)
+            self.logger.warning("Connecting by bounding box is not implemented.")
+
+        # TODO: manualy add / modify connections
 
 
 class Prepare(Workflow):
