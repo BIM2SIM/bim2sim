@@ -3,6 +3,8 @@
 import math
 import re
 
+import numpy as np
+
 from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import element
 from bim2sim.decision import BoolDecision
@@ -90,18 +92,63 @@ class Boiler(element.Element):
 
 class Pipe(element.Element):
     ifc_type = "IfcPipeSegment"
-
-    @cached_property
-    def Pset_PipeSegmentTypeCommon(self):
-        return self.get_propertysets('Pset_PipeSegmentTypeCommon')
+    default_diameter = ('Pset_PipeSegmentTypeCommon', 'NominalDiameter')
+    pattern_diameter = [
+        re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
+        re.compile('.*Diameter.*', flags=re.IGNORECASE),
+    ]
+    pattern_length = [
+        re.compile('.*Länge.*', flags=re.IGNORECASE),
+        re.compile('.*Length.*', flags=re.IGNORECASE),
+    ]
+    #@property
+    #def Pset_PipeSegmentTypeCommon(self):
+    #    return self.search_property_hierarchy('Pset_PipeSegmentTypeCommon')
 
     @property
     def diameter(self):
-        return self.ps_abmessungen.get('NominalDiameter')
+        result = self.find('diameter')  # *Pipe.default_diameter, patterns=Pipe.pattern_diameter
+
+        if isinstance(result, list):
+            return np.average(result).item()
+        return result
+
+        #d = self.search_property_hierarchy('Pset_PipeSegmentTypeCommon', 'NominalDiameter')
+
+        #pattern = re.compile('.*Durchmesser.*', flags=re.IGNORECASE)
+        #self.filter_properties(pattern)
+
+        #pset = self.Pset_PipeSegmentTypeCommon
+        #if pset:
+        #    return np.average(pset.get('NominalDiameter')).item()
+        #raise AttributeError()
 
     @property
     def length(self):
-        return None
+        try:
+            return self.get_lenght_from_shape(self.ifc.Representation)
+        except AttributeError:
+            return None
+
+    @staticmethod
+    def get_lenght_from_shape(representation):
+        """Serach for extruded depth in representations
+        
+        Warning: Found extrusion may net be the required length!
+        :raises: AttributeError if not exactly one extrusion is found"""
+        candidates = []
+        try:
+            for representation in representation.Representations:
+                for item in representation.Items:
+                    if item.is_a() == 'IfcExtrudedAreaSolid':
+                        candidates.append(item.Depth)
+        except:
+            raise AttributeError("Failed to dertermine length.")
+        if not candidates:
+            raise AttributeError("No representation to dertermine length.")
+        if len(candidates) > 1:
+            raise AttributeError("Too many representations to dertermine length %s."%candidates)
+        return candidates[0]
 
 
 class PipeFitting(element.Element):
@@ -109,7 +156,7 @@ class PipeFitting(element.Element):
 
     @cached_property
     def Pset_PipeFittingTypeCommon(self):
-        return self.get_propertysets('Pset_PipeFittingTypeCommon')
+        return self.get_propertyset('Pset_PipeFittingTypeCommon')
 
     @property
     def diameter(self):
@@ -162,6 +209,14 @@ class Storage(element.Element):
     @property
     def volume(self):
         return self.hight * self.diameter ** 2 / 4 * math.pi
+
+
+class Distributor(element.Element):
+    ifc_type = "IfcDistributionChamberElement"
+
+    @property
+    def volume(self):
+        return 100
 
 
 class Pump(element.Element):

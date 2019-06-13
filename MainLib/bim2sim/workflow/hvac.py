@@ -314,9 +314,9 @@ class Reduce(Workflow):
         self.reduced_instances = graph.elements
         self.connections = graph.get_connections()
 
-        if __debug__:
-            self.logger.info("Plotting graph ...")
-            graph.plot(PROJECT.export)
+        #if __debug__:
+        #    self.logger.info("Plotting graph ...")
+        #    graph.plot(PROJECT.export)
 
 
 class DetectCycles(Workflow):

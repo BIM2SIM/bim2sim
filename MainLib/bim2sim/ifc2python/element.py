@@ -3,6 +3,8 @@
 import logging
 from json import JSONEncoder
 import itertools
+import re
+from functools import lru_cache
 
 import numpy as np
 
@@ -78,6 +80,9 @@ class IFCBased(Root):
         self.ifc = ifc
         self.name = ifc.Name
 
+        self._propertysets = None
+        self._type_propertysets = None
+
     @property
     def ifc_type(self):
         """Returns IFC type"""
@@ -97,8 +102,18 @@ class IFCBased(Root):
         """
         return getattr(self.ifc, attribute, None)
 
-    def get_propertysets(self, propertysetname):
-        return ifc2python.get_Property_Sets(propertysetname, self.ifc)
+    def get_propertyset(self, propertysetname):
+        return ifc2python.get_Property_Set(propertysetname, self.ifc)
+
+    def get_propertysets(self):
+        if self._propertysets is None:
+            self._propertysets = ifc2python.get_property_sets(self.ifc)
+        return self._propertysets
+
+    def get_type_propertysets(self):
+        if self._type_propertysets is None:
+            self._type_propertysets = ifc2python.get_type_property_sets(self.ifc)
+        return self._type_propertysets
 
     def get_hierarchical_parent(self):
         return ifc2python.getHierarchicalParent(self.ifc)
@@ -129,6 +144,111 @@ class IFCBased(Root):
 
     def summary(self):
         return ifc2python.summary(self.ifc)
+
+    def search_property_hierarchy(self, propertyset_name):
+        """Search for property in all related properties in hierarchical order.
+        
+        1. element's propertysets
+        2. element type's propertysets"""
+
+        p_set = None
+        p_sets = self.get_propertysets()
+        try:
+            p_set = p_sets[propertyset_name]
+        except KeyError:
+            pass
+        else:
+            return p_set
+
+        pt_sets = self.get_type_propertysets()
+        try:
+            p_set = pt_sets[propertyset_name]
+        except KeyError:
+            pass
+        else:
+            return p_set
+        return p_set
+
+    def inverse_properties(self):
+        """Generator yielding tuples of PropertySet name and Property name"""
+        for p_set_name, p_set in self.get_propertysets().items():
+            for p_name in p_set.keys():
+                yield (p_set_name, p_name)
+
+    def filter_properties(self, patterns):
+        """filter all properties by re pattern
+
+        :returns: list of tuple(propertyset_name, property_name, match)"""
+        matches = []
+        for propertyset_name, property_name in self.inverse_properties():
+            for pattern in patterns:
+                match = re.match(pattern, property_name)
+                if match:
+                    matches.append((propertyset_name, property_name, match))
+        return matches
+
+    def get_exact_property(self, propertyset_name, property_name):
+        """Returns value of property specified by propertyset name and property name
+
+        :Raises: AttriebuteError if property does not exist"""
+        try:
+            p_set = self.search_property_hierarchy(propertyset_name)
+            value = p_set[property_name]
+        except (AttributeError, KeyError):
+            raise AttributeError("Property '%s.%s' does not exist"%(
+                propertyset_name, property_name))
+        return value
+
+    def select_from_potential_properties(self, patterns):
+        """Ask user to select from all properties matching patterns"""
+
+        matches = self.filter_properties(patterns)
+        selected = None
+        if matches:
+            values = []
+            for propertyset_name, property_name, match in matches:
+                # TODO: Decision
+                value = self.get_exact_property(propertyset_name, property_name)
+                values.append(value)
+                print("%s.%s = %s"%(propertyset_name, property_name, value))
+
+            print("Selecting last (TODO: Decision)")
+            # TODO: Decision: save for all following elements of same class (dont ask again?)
+            selected = (propertyset_name, property_name, value)
+
+        if selected:
+            return selected[2]
+        raise AttributeError("No matching property for %s"%(patterns))
+
+    @lru_cache()
+    def find(self, name):  #  propertyset_name, property_name, patterns
+        """Search all potential sources for property"""
+
+        try:
+            propertyset_name, property_name = getattr(self.__class__, 'default_%s'%name, (None, None))
+            value = self.get_exact_property(propertyset_name, property_name)
+        except AttributeError as ex:
+            pass
+            #self.logger.debug("%s :ERROR: %s", self, ex)
+        else:
+            return value
+
+        try:
+            value = self.finder.find(self, name)
+        except AttributeError as ex:
+            self.logger.debug("%s :ERROR: %s", self, ex)
+        else:
+            return value
+
+        try:
+            patterns = getattr(self.__class__, 'pattern_%s'%name, (None, None))
+            value = self.select_from_potential_properties(patterns)
+        except AttributeError as ex:
+            self.logger.debug("%s :ERROR: %s", self, ex)
+        else:
+            return value
+
+        return 42
 
     def __repr__(self):
         return "<%s (%s)>"%(self.__class__.__name__, self.name)
