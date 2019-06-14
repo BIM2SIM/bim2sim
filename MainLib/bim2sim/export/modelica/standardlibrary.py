@@ -11,7 +11,7 @@ class StandardLibrary(modelica.Instance):
 
 class StaticPipe(StandardLibrary):
     path = "Modelica.Fluid.Pipes.StaticPipe"
-    represents = [elements.Pipe, aggregation.PipeStrand]
+    represents = [elements.Pipe, elements.PipeFitting, aggregation.PipeStrand]
 
     def __init__(self, element):
         self.check_length = self.check_numeric(min_value=0)

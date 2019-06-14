@@ -216,8 +216,14 @@ class Instance:
     @staticmethod
     def to_modelica(parameter):
         """converts parameter to modelica readable string"""
+        if parameter is None:
+            return parameter
+        if isinstance(parameter, bool):
+            return 'true' if parameter else 'false'
         if isinstance(parameter, (str, int, float)):
             return str(parameter)
+        if isinstance(parameter, str):
+            return '"%s"'%parameter
         if isinstance(parameter, (list, tuple, set)):
             return "{%s}"%(",".join((Instance.to_modelica(par) for par in parameter)))
         logger = logging.getLogger(__name__)

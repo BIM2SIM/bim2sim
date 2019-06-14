@@ -97,31 +97,19 @@ class Pipe(element.Element):
         re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
         re.compile('.*Diameter.*', flags=re.IGNORECASE),
     ]
+    default_length = ('Qto_PipeSegmentBaseQuantities', 'Length')
     pattern_length = [
         re.compile('.*Länge.*', flags=re.IGNORECASE),
         re.compile('.*Length.*', flags=re.IGNORECASE),
     ]
-    #@property
-    #def Pset_PipeSegmentTypeCommon(self):
-    #    return self.search_property_hierarchy('Pset_PipeSegmentTypeCommon')
 
     @property
     def diameter(self):
-        result = self.find('diameter')  # *Pipe.default_diameter, patterns=Pipe.pattern_diameter
+        result = self.find('diameter')
 
         if isinstance(result, list):
             return np.average(result).item()
         return result
-
-        #d = self.search_property_hierarchy('Pset_PipeSegmentTypeCommon', 'NominalDiameter')
-
-        #pattern = re.compile('.*Durchmesser.*', flags=re.IGNORECASE)
-        #self.filter_properties(pattern)
-
-        #pset = self.Pset_PipeSegmentTypeCommon
-        #if pset:
-        #    return np.average(pset.get('NominalDiameter')).item()
-        #raise AttributeError()
 
     @property
     def length(self):
@@ -131,14 +119,14 @@ class Pipe(element.Element):
             return None
 
     @staticmethod
-    def get_lenght_from_shape(representation):
+    def get_lenght_from_shape(ifc_representation):
         """Serach for extruded depth in representations
-        
+
         Warning: Found extrusion may net be the required length!
         :raises: AttributeError if not exactly one extrusion is found"""
         candidates = []
         try:
-            for representation in representation.Representations:
+            for representation in ifc_representation.Representations:
                 for item in representation.Items:
                     if item.is_a() == 'IfcExtrudedAreaSolid':
                         candidates.append(item.Depth)
@@ -153,22 +141,29 @@ class Pipe(element.Element):
 
 class PipeFitting(element.Element):
     ifc_type = "IfcPipeFitting"
-
-    @cached_property
-    def Pset_PipeFittingTypeCommon(self):
-        return self.get_propertyset('Pset_PipeFittingTypeCommon')
+    default_diameter = ('Pset_PipeFittingTypeCommon', 'NominalDiameter')
+    default_pressure_class = ('Pset_PipeFittingTypeCommon', 'PressureClass')
+    
+    pattern_diameter = [
+        re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
+        re.compile('.*Diameter.*', flags=re.IGNORECASE),
+    ]
 
     @property
     def diameter(self):
-        return self.Pset_PipeFittingTypeCommon.get('NominalDiameter')
+        result = self.find('diameter')
+
+        if isinstance(result, list):
+            return np.average(result).item()
+        return result
 
     @property
     def length(self):
-        return None
+        return self.find('length')
 
     @property
     def pressure_class(self):
-        return self.Pset_PipeFittingTypeCommon.get('PressureClass')
+        return self.find('pressure_class')
 
 
 class SpaceHeater(element.Element):
@@ -216,6 +211,10 @@ class Distributor(element.Element):
 
     @property
     def volume(self):
+        return 100
+
+    @property
+    def nominal_power(self):  # TODO Workaround, should come from aggregation of consumer circle
         return 100
 
 

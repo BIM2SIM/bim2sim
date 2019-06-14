@@ -105,18 +105,15 @@ class PipeStrand(Aggregation):
         diameter_times_length = 0
 
         for pipe in self.elements:
-            if hasattr(pipe, "diameter") and hasattr(pipe, "length"):
-                length = pipe.length
-                diameter = pipe.diameter
-                if not (length and diameter):
-                    self.logger.warning("Ignored '%s' in aggregation", pipe)
-                    continue
-
-                diameter_times_length += diameter*length
-                self._total_length += length
-
-            else:
+            length = getattr(pipe, "length")
+            diameter = getattr(pipe, "diameter")
+            if not (length and diameter):
                 self.logger.warning("Ignored '%s' in aggregation", pipe)
+                continue
+
+            diameter_times_length += diameter*length
+            self._total_length += length
+
         if self._total_length != 0:
             self._avg_diameter = diameter_times_length / self._total_length
 

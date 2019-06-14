@@ -63,7 +63,9 @@ class Root:
 
     @staticmethod
     def get_object(guid):
-        """Returns object by guid"""
+        """Get Root object instance with given guid
+
+        :returns: None if object with guid was not instanciated"""
         return Root.objects.get(guid)
 
     def __del__(self):
@@ -147,7 +149,7 @@ class IFCBased(Root):
 
     def search_property_hierarchy(self, propertyset_name):
         """Search for property in all related properties in hierarchical order.
-        
+
         1. element's propertysets
         2. element type's propertysets"""
 
@@ -221,30 +223,34 @@ class IFCBased(Root):
         raise AttributeError("No matching property for %s"%(patterns))
 
     @lru_cache()
-    def find(self, name):  #  propertyset_name, property_name, patterns
+    def find(self, name):
         """Search all potential sources for property"""
 
         try:
-            propertyset_name, property_name = getattr(self.__class__, 'default_%s'%name, (None, None))
+            propertyset_name, property_name = getattr(
+                self.__class__, 'default_%s'%name, (None, None))
+            if not (propertyset_name and property_name):
+                raise AttributeError
             value = self.get_exact_property(propertyset_name, property_name)
-        except AttributeError as ex:
+        except AttributeError:
             pass
-            #self.logger.debug("%s :ERROR: %s", self, ex)
         else:
             return value
 
         try:
             value = self.finder.find(self, name)
-        except AttributeError as ex:
-            self.logger.debug("%s :ERROR: %s", self, ex)
+        except AttributeError:
+            pass
         else:
             return value
 
         try:
-            patterns = getattr(self.__class__, 'pattern_%s'%name, (None, None))
+            patterns = getattr(self.__class__, 'pattern_%s'%name, None)
+            if not patterns:
+                raise AttributeError("No patterns")
             value = self.select_from_potential_properties(patterns)
-        except AttributeError as ex:
-            self.logger.debug("%s :ERROR: %s", self, ex)
+        except AttributeError:
+            pass
         else:
             return value
 
@@ -278,6 +284,9 @@ class BaseElement(Root):
 
     @staticmethod
     def get_element(guid):
+        """Get element instance with given guid
+
+        :returns: None if element with guid was not instanciated"""
         return BaseElement.objects.get(guid)
 
     def __repr__(self):
@@ -299,6 +308,9 @@ class BasePort(Root):
 
     @staticmethod
     def get_port(guid):
+        """Get port instance with given guid
+
+        :returns: None if port with guid was not instanciated"""
         return BasePort.objects.get(guid)
 
     def connect(self, other):
@@ -447,24 +459,24 @@ class Element(BaseElement, IFCBased, metaclass=ElementMeta):
         self._tool = tool
         self._add_ports()
 
-    def __getattr__(self, name):
-        # user finder to get attribute
-        if self.__class__.finder:
-            return self.__class__.finder.find(self, name)
-        return super().__getattr__(name)
+    #def __getattr__(self, name):
+    #    # user finder to get attribute
+    #    if self.__class__.finder:
+    #        return self.__class__.finder.find(self, name)
+    #    return super().__getattr__(name)
 
-    def __getattribute__(self, name):
-        found = object.__getattribute__(self, name)
-        if found is None:
-            findables = object.__getattribute__(self, '__class__').findables
-            if name in findables:
-                # if None is returned ask finder for value
-                # (on AttributeError __getattr__ is called anyway)
-                try:
-                    found = object.__getattribute__(self, '__getattr__')(name)
-                except AttributeError:
-                    pass
-        return found
+    #def __getattribute__(self, name):
+    #    found = object.__getattribute__(self, name)
+    #    if found is None:
+    #        findables = object.__getattribute__(self, '__class__').findables
+    #        if name in findables:
+    #            # if None is returned ask finder for value
+    #            # (on AttributeError __getattr__ is called anyway)
+    #            try:
+    #                found = object.__getattribute__(self, '__getattr__')(name)
+    #            except AttributeError:
+    #                pass
+    #    return found
 
     def _add_ports(self):
         element_port_connections = self.ifc.HasPorts
@@ -483,7 +495,7 @@ class Element(BaseElement, IFCBased, metaclass=ElementMeta):
             elif cls.ifc_type in Element._ifc_classes:
                 conflict = True
                 logger.error("Conflicting ifc_types (%s) in '%s' and '%s'",
-                    cls.ifc_type, cls.__name__, Element._ifc_classes[cls.ifc_type])
+                             cls.ifc_type, cls.__name__, Element._ifc_classes[cls.ifc_type])
             elif cls.__name__ == "Dummy":
                 Element.dummy = cls
             elif not cls.ifc_type.lower().startswith("ifc"):

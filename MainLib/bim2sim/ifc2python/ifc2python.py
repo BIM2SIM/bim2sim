@@ -92,7 +92,6 @@ def get_type_property_sets(element):
     # TODO: use guids to get type propertysets (they are userd by many entitys)
     property_sets = {}
     for defined_type in element.IsTypedBy:
-        #property_set_name = defined_type.RelatingType.is_a()
         for propertyset in defined_type.RelatingType.HasPropertySets:
             property_sets[propertyset.Name] = propertyset2dict(propertyset)
 
