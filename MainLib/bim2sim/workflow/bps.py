@@ -30,53 +30,20 @@ class Inspect(Workflow):
         super().__init__()
         self.instances = {}
 
-    # @Workflow.log
-    # def run(self, ifc, relevant_ifc_types):
-    #     self.logger.info("Creates python representation of relevant ifc types")
-    #     for ifc_type in relevant_ifc_types:
-    #         elements = ifc.by_type(ifc_type)
-    #         for element in elements:
-    #             representation = Element.factory(element)
-    #             self.instances[representation.guid] = representation
-    #     self.logger.info("Found %d relevant elements", len(self.instances))
-    #
-    #     # connections
-    #     self.logger.info("Connecting the relevant elements")
-    #     self.logger.info(" - Connecting by relations ...")
-    #     rel_connections = self.connections_by_relation(
-    #         BasePort.objects.values())
-    #     self.logger.info(" - Found %d potential connections.",
-    #                      len(rel_connections))
-    #
-    #     self.logger.info(" - Checking positions of connections ...")
-    #     confirmed, unconfirmed, rejected = \
-    #         self.confirm_connections_position(rel_connections)
-    #     self.logger.info(" - %d connections are confirmed and %d rejected. " \
-    #         + "%d can't be confirmed.",
-    #                      len(confirmed), len(rejected), len(unconfirmed))
-    #     for port1, port2 in confirmed + unconfirmed:
-    #         # unconfirmed have no position data and cant be connected by position
-    #         port1.connect(port2)
-    #
-    #     unconected_ports = (port for port in BasePort.objects.values()
-    #                         if not port.is_connected())
-    #     self.logger.info(" - Connecting remaining ports by position ...")
-    #     pos_connections = self.connections_by_position(unconected_ports)
-    #     self.logger.info(" - Found %d additional connections.",
-    #                      len(pos_connections))
-    #     for port1, port2 in pos_connections:
-    #         port1.connect(port2)
-    #
-    #     nr_total = len(BasePort.objects)
-    #     nr_unconnected = sum(1 for port in BasePort.objects.values()
-    #                          if not port.is_connected())
-    #     nr_connected = nr_total - nr_unconnected
-    #     self.logger.info("In total %d of %d ports are connected.",
-    #                      nr_connected, nr_total)
-    #     if nr_total > nr_connected:
-    #         self.logger.warning("%d ports are not connected!", nr_unconnected)
-#
-#
+    @Workflow.log
+    def run(self, ifc, relevant_ifc_types):
+        self.logger.info("Creates python representation of relevant ifc types")
+        for ifc_type in relevant_ifc_types:
+            elements = ifc.by_type(ifc_type)
+            for element in elements:
+                representation = Element.factory(element)
+                self.instances[representation.guid] = representation
+        self.logger.info("Found %d relevant elements", len(self.instances))
+
+        # find zones
+
+
+
 # class Prepare(Workflow):
 #     """Configurate""" #TODO: based on task
 #

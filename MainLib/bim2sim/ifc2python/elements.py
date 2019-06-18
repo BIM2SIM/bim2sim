@@ -193,6 +193,10 @@ class Wall(element.Element):
         return 1
 
     @property
+    def capacity(self):
+        return 1
+
+    @property
     def u_value(self):
         return 1
 
@@ -217,6 +221,9 @@ class Window(element.Element):
     @property
     def g_value(self):
         return 1
+
+# class ThermalZone(element.Element):
+#     ifc_type = "IfcSpace"
 
 
 __all__ = [ele for ele in locals().values() if ele in element.Element.__subclasses__()]
