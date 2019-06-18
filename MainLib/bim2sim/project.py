@@ -4,6 +4,7 @@ import os
 import sys
 import subprocess
 import shutil
+from distutils.dir_util import copy_tree
 import configparser
 
 
@@ -64,6 +65,7 @@ class _Project():
         if not self._rootpath:
             return None
         return os.path.abspath(self._rootpath)
+
     @root.setter
     def root(self, value):
         self._rootpath = value
@@ -99,12 +101,14 @@ class _Project():
         if not self._rootpath:
             return None
         return os.path.abspath(os.path.join(self._rootpath, _Project.LOG))
+
     @property
     def ifc(self):
         """absolute path to ifc folder"""
         if not self._rootpath:
             return None
         return os.path.abspath(os.path.join(self._rootpath, _Project.IFC))
+
     @property
     def resources(self):
         """absolute path to resources folder"""
@@ -123,6 +127,13 @@ class _Project():
         """list of paths to sub folders"""
         return [self.log, self.ifc, self.resources, self.export, self.workflow,
                 self.finder]
+
+    @staticmethod
+    def copy_assets(path):
+        """copy assets to project folder"""
+        assets_path = os.path.join(os.path.dirname(__file__), 'assets')
+
+        copy_tree(assets_path, path)
 
     def is_project_folder(self, path=None):
         """Check if root path (or given path) is a project folder"""
@@ -147,6 +158,8 @@ class _Project():
 
         with open(self.config, "w"):
             pass
+
+        self.copy_assets(self.root)
 
     def create(self, rootpath, ifc_path=None, target=None, open_conf=False):
         """Set root path, create project folder
@@ -192,5 +205,6 @@ class _Project():
 
     def __repr__(self):
         return "<Project (root: %s)>"%(self._rootpath or "NOT SET!")
+
 
 PROJECT = _Project()
