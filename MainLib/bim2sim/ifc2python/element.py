@@ -489,31 +489,7 @@ class Port(BasePort, IFCBased):
         return coordinates
 
 
-#class ElementMeta(type):
-#    """Metaclass or Element
-
-#    catches class creation and lists all properties (and subclasses) as findables
-#    for Element.finder. Class can use custom findables by providung the
-#    attribute 'findables'."""
-
-#    def __new__(cls, clsname, superclasses, attributedict):
-#        if clsname != 'Element':
-#            sc_element = [sc for sc in superclasses if sc is Element]
-#            if sc_element:
-#                findables = []
-#                overwrite = True
-#                for name, value in attributedict.items():
-#                    if name == 'findables':
-#                        overwrite = False
-#                        break
-#                    if isinstance(value, property):
-#                        findables.append(name)
-#                if overwrite:
-#                    attributedict['findables'] = tuple(findables)
-#        return type.__new__(cls, clsname, superclasses, attributedict)
-
-
-class Element(BaseElement, IFCBased):  # , metaclass=ElementMeta
+class Element(BaseElement, IFCBased):
     """Base class for IFC model representation
 
     WARNING: getting an not defined attribute from instances of Element will
@@ -521,31 +497,11 @@ class Element(BaseElement, IFCBased):  # , metaclass=ElementMeta
 
     dummy = None
     finder = None
-    #findables = ()
 
     def __init__(self, *args, tool=None, **kwargs):
         super().__init__(*args, **kwargs)
         self._tool = tool
         self._add_ports()
-
-    #def __getattr__(self, name):
-    #    # user finder to get attribute
-    #    if self.__class__.finder:
-    #        return self.__class__.finder.find(self, name)
-    #    return super().__getattr__(name)
-
-    #def __getattribute__(self, name):
-    #    found = object.__getattribute__(self, name)
-    #    if found is None:
-    #        findables = object.__getattribute__(self, '__class__').findables
-    #        if name in findables:
-    #            # if None is returned ask finder for value
-    #            # (on AttributeError __getattr__ is called anyway)
-    #            try:
-    #                found = object.__getattribute__(self, '__getattr__')(name)
-    #            except AttributeError:
-    #                pass
-    #    return found
 
     def _add_ports(self):
         element_port_connections = self.ifc.HasPorts
