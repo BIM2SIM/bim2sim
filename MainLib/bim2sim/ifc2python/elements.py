@@ -14,13 +14,13 @@ class Boiler(element.Element):
     """Boiler"""
     ifc_type = 'IfcBoiler'
 
-    def _add_ports(self):
-        super()._add_ports()
-        for port in self.ports:
-            if port.flow_direction == 1:
-                port.flow_master = True
-            elif port.flow_direction == -1:
-                port.flow_master = True
+    #def _add_ports(self):
+    #    super()._add_ports()
+    #    for port in self.ports:
+    #        if port.flow_direction == 1:
+    #            port.flow_master = True
+    #        elif port.flow_direction == -1:
+    #            port.flow_master = True
 
     def get_inner_connections(self):
         connections = []

@@ -10,6 +10,9 @@ class DecisionSkipAll(DecisionException):
     """Exception raised on skipping all Decisions"""
 class DecisionCancle(DecisionException):
     """Exception raised on canceling Decisions"""
+class PendingDecisionError(DecisionException):
+    """Exception for unsolved Decisions"""
+
 
 class Status(enum.Enum):
     """Enum for status of Decision"""
@@ -18,6 +21,7 @@ class Status(enum.Enum):
     loadeddone = 3 # brevious made decision loaded
     saveddone = 4 # decision made and saved
     skipped = 5 # decision was skipped
+
 
 class Decision():
     """Class for handling decisions and user interaction
@@ -309,30 +313,71 @@ class BoolDecision(Decision):
             return False
         return None
 
-#class ListDecision(Decision):
 
-#    def __init__(self, *args, choices:list, **kwargs):
-#        self.chioces = choices
-#        super().__init__(*args, getter=None, **kwargs)
+class ListDecision(Decision):
+    """Accepts index of list element as input"""
 
-#    def parse_input(self, raw_input):
-#        try:
-#            index = int(raw_input)
-#            return self.chioces[index]
-#        except:
-#            return None
+    def __init__(self, *args, choices:list, **kwargs):
+        self.chioces = choices
+        super().__init__(*args, validate_func=self.validate_int, **kwargs)
 
-#    def user_input(self):
-#        options = "  id  item"
-#        for i in range(len(self.chioces)):
-#            options += "\n{id:4d}  {item:s}".format(id=i, item=self.chioces[i])
-#        print(options)
-#        value = None
-#        while True:
-#            raw_value = input("Select id for '%s':"%(self.dict_key))
-#            value = self.parse_input(raw_value)
-#            if self.check(value):
-#                break
-#            else:
-#                print("Value '%s' does not match conditions! Try again."%(raw_value))
-#        return value
+    def validate_int(self, value):
+        """validates if value is valid index"""
+        return isinstance(value, int) and value in range(len(self.chioces))
+
+    def parse_input(self, raw_input):
+        try:
+            index = int(raw_input)
+            return self.chioces[index]
+        except Exception:
+            return None
+
+    def user_input(self):
+        options = "  id  item"
+        for i in range(len(self.chioces)):
+            options += "\n{id:4d}  {item:s}".format(id=i, item=self.chioces[i])
+        print(options)
+        value = None
+        while True:
+            raw_value = input("Select option id for '%s':"%(self.dict_key))
+            value = self.parse_input(raw_value)
+            if self.check(value):
+                break
+            else:
+                print("Value '%s' does not match conditions! Try again."%(raw_value))
+        return value
+
+
+class DictDecision(Decision):
+    """Accepts index of list element as input"""
+
+    def __init__(self, *args, choices:dict, **kwargs):
+        self.chioces = choices
+        super().__init__(*args, validate_func=self.validate_key, **kwargs)
+
+    def validate_key(self, value):
+        """validates if value is acceptable as bool"""
+        return value in self.chioces
+
+    def parse_input(self, raw_input):
+        try:
+            index = int(raw_input)
+            return self.chioces[index]
+        except Exception:
+            return None
+
+    def user_input(self):
+        options = "  key  item"
+        len_keys = max([len(str(key)) for key in self.chioces.keys()])
+        for k, v in self.chioces.items():
+            options += "\n{id:%dd}  {item:s}"%(len_keys).format(id=i, item=self.chioces[i])
+        print(options)
+        value = None
+        while True:
+            raw_value = input("Select option key for '%s':"%(self.dict_key))
+            value = self.parse_input(raw_value)
+            if self.check(value):
+                break
+            else:
+                print("Value '%s' does not match conditions! Try again."%(raw_value))
+        return value

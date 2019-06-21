@@ -4,16 +4,18 @@ import logging
 from json import JSONEncoder
 import itertools
 import re
-from functools import lru_cache
 
 import numpy as np
 
 from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import ifc2python
+from bim2sim.decision import Decision, BoolDecision, RealDecision, ListDecision, PendingDecisionError
 
 
 class ElementError(Exception):
     """Error in Element"""
+class NoValueError(ElementError):
+    """Value is not available"""
 
 
 class ElementEncoder(JSONEncoder):
@@ -38,6 +40,8 @@ class Root:
     def __init__(self, guid=None):
         self.guid = guid or self.get_id()
         Root.objects[self.guid] = self
+        self._requests = []
+        self._properties = {}
 
     def __hash__(self):
         return hash(self.guid)
@@ -68,6 +72,41 @@ class Root:
         :returns: None if object with guid was not instanciated"""
         return Root.objects.get(guid)
 
+    def request(self, name):
+        if not name in self._requests:
+            self._requests.append(name)
+
+    @classmethod
+    def solve_requests(cls):
+        """trys to obtain all requested attributes.
+
+        First step is to collect neccesary Decisions
+        Secend step is to solve them"""
+
+        # First step
+        pending = []
+        for ele in Root.objects.values():
+            while ele._requests:
+                request = ele._requests.pop()
+                try:
+                    value = ele.find(request, collect_decisions=True)
+                except PendingDecisionError:
+                    pending.append((ele, request))
+                except NoValueError:
+                    # Value for attribute does not exist
+                    pass
+                else:
+                    ele._properties[request] = value
+
+        Decision.decide_collected()
+
+    def find(self, name, collect_decisions=False):
+        try:
+            value = getattr(self, name)
+        except AttributeError:
+            raise NoValueError("'%s' is not available"%name)
+        return value
+
     def __del__(self):
         del Root.objects[self.guid]
 
@@ -84,6 +123,8 @@ class IFCBased(Root):
 
         self._propertysets = None
         self._type_propertysets = None
+
+        self._decision_results = {}
 
     @property
     def ifc_type(self):
@@ -197,44 +238,59 @@ class IFCBased(Root):
             p_set = self.search_property_hierarchy(propertyset_name)
             value = p_set[property_name]
         except (AttributeError, KeyError):
-            raise AttributeError("Property '%s.%s' does not exist"%(
+            raise NoValueError("Property '%s.%s' does not exist"%(
                 propertyset_name, property_name))
         return value
 
-    def select_from_potential_properties(self, patterns):
+    def select_from_potential_properties(self, patterns, name, collect_decisions):
         """Ask user to select from all properties matching patterns"""
 
         matches = self.filter_properties(patterns)
         selected = None
         if matches:
             values = []
+            choices = []
             for propertyset_name, property_name, match in matches:
                 # TODO: Decision
                 value = self.get_exact_property(propertyset_name, property_name)
                 values.append(value)
+                choices.append()
                 print("%s.%s = %s"%(propertyset_name, property_name, value))
 
-            print("Selecting last (TODO: Decision)")
             # TODO: Decision: save for all following elements of same class (dont ask again?)
-            selected = (propertyset_name, property_name, value)
+            # selected = (propertyset_name, property_name, value)
 
-        if selected:
-            return selected[2]
-        raise AttributeError("No matching property for %s"%(patterns))
+            # TODO: Decision with id, key, value
+            decision = ListDecision("Multiple possibilities found",
+                choices=choices,
+                output=self._properties, 
+                output_key=name,
+                global_key="%s_%s.%s"%(self.ifc_type + self.guid + name),
+                allow_skip=True, allow_load=True, allow_save=True,
+                collect=collect_decisions, quick_decide=not collect_decisions)
 
-    @lru_cache()
-    def find(self, name):
+            if collect_decisions:
+                raise PendingDecisionError()
+
+            return decision.value
+        raise NoValueError("No matching property for %s"%(patterns))
+
+    def find(self, name, collect_decisions=False):
         """Search all potential sources for property"""
+
+        if name in self._properties:
+            return self._properties[name]
 
         try:
             propertyset_name, property_name = getattr(
                 self.__class__, 'default_%s'%name, (None, None))
             if not (propertyset_name and property_name):
-                raise AttributeError
+                raise NoValueError
             value = self.get_exact_property(propertyset_name, property_name)
-        except AttributeError:
+        except NoValueError:
             pass
         else:
+            self._properties[name] = value
             return value
 
         try:
@@ -242,19 +298,32 @@ class IFCBased(Root):
         except AttributeError:
             pass
         else:
+            self._properties[name] = value
             return value
 
         try:
             patterns = getattr(self.__class__, 'pattern_%s'%name, None)
             if not patterns:
-                raise AttributeError("No patterns")
-            value = self.select_from_potential_properties(patterns)
-        except AttributeError:
+                raise NoValueError("No patterns")
+            value = self.select_from_potential_properties(patterns, name, collect_decisions)
+        except NoValueError:
             pass
         else:
+            self._properties[name] = value
             return value
 
-        return 42
+        final_decision = RealDecision("Enter value for %s"%name,
+            output=self._properties, 
+            output_key=name,
+            global_key="%s_%s.%s"%(self.ifc_type + self.guid + name),
+            allow_skip=True, allow_load=True, allow_save=True,
+            collect=collect_decisions, quick_decide=not collect_decisions)
+
+        if collect_decisions:
+            raise PendingDecisionError()
+        value = final_decision.value
+        self._properties[name] = value
+        return value
 
     def __repr__(self):
         return "<%s (%s)>"%(self.__class__.__name__, self.name)
@@ -420,31 +489,31 @@ class Port(BasePort, IFCBased):
         return coordinates
 
 
-class ElementMeta(type):
-    """Metaclass or Element
+#class ElementMeta(type):
+#    """Metaclass or Element
 
-    catches class creation and lists all properties (and subclasses) as findables
-    for Element.finder. Class can use custom findables by providung the
-    attribute 'findables'."""
+#    catches class creation and lists all properties (and subclasses) as findables
+#    for Element.finder. Class can use custom findables by providung the
+#    attribute 'findables'."""
 
-    def __new__(cls, clsname, superclasses, attributedict):
-        if clsname != 'Element':
-            sc_element = [sc for sc in superclasses if sc is Element]
-            if sc_element:
-                findables = []
-                overwrite = True
-                for name, value in attributedict.items():
-                    if name == 'findables':
-                        overwrite = False
-                        break
-                    if isinstance(value, property):
-                        findables.append(name)
-                if overwrite:
-                    attributedict['findables'] = tuple(findables)
-        return type.__new__(cls, clsname, superclasses, attributedict)
+#    def __new__(cls, clsname, superclasses, attributedict):
+#        if clsname != 'Element':
+#            sc_element = [sc for sc in superclasses if sc is Element]
+#            if sc_element:
+#                findables = []
+#                overwrite = True
+#                for name, value in attributedict.items():
+#                    if name == 'findables':
+#                        overwrite = False
+#                        break
+#                    if isinstance(value, property):
+#                        findables.append(name)
+#                if overwrite:
+#                    attributedict['findables'] = tuple(findables)
+#        return type.__new__(cls, clsname, superclasses, attributedict)
 
 
-class Element(BaseElement, IFCBased, metaclass=ElementMeta):
+class Element(BaseElement, IFCBased):  # , metaclass=ElementMeta
     """Base class for IFC model representation
 
     WARNING: getting an not defined attribute from instances of Element will
@@ -452,7 +521,7 @@ class Element(BaseElement, IFCBased, metaclass=ElementMeta):
 
     dummy = None
     finder = None
-    findables = ()
+    #findables = ()
 
     def __init__(self, *args, tool=None, **kwargs):
         super().__init__(*args, **kwargs)
