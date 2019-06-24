@@ -314,6 +314,8 @@ class Reduce(Workflow):
         self.reduced_instances = graph.elements
         self.connections = graph.get_connections()
 
+        #Element.solve_requests()
+
         if __debug__:
             self.logger.info("Plotting graph ...")
             graph.plot(PROJECT.export)
@@ -342,6 +344,8 @@ class Export(Workflow):
 
         modelica.Instance.init_factory(libraries)
         export_instances = {inst: modelica.Instance.factory(inst) for inst in instances}
+
+        Element.solve_requests()
 
         self.logger.info(Decision.summary())
         Decision.decide_collected()

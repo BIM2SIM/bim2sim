@@ -18,7 +18,7 @@ class Boiler(HKESim):
         super().__init__(element)
 
     def get_params(self):
-        self.manage_param("nominal_power", self.element.rated_power, self.check_power)
+        self.register_param("rated_power", self.check_power, "nominal_power")
 
 
 class Radiator(HKESim):
@@ -26,8 +26,8 @@ class Radiator(HKESim):
     represents = [elements.SpaceHeater, elements.Distributor]
 
     def get_params(self):
-        self.manage_param("Q_flow_nominal", self.element.nominal_power, self.check_numeric(min_value=0))
-        self.manage_param("T_nominal", (80, 60, 20), lambda x:True)
+        self.register_param("nominal_power", self.check_numeric(min_value=0), "Q_flow_nominal")
+        self.params["T_nominal"] = (80, 60, 20)
 
 
 class Pump(HKESim):

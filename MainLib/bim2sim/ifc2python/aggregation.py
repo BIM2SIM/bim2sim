@@ -56,6 +56,10 @@ class PipeStrand(Aggregation):
         self.ports.append(AggregationPort(edge_ports[0], parent=self))
         self.ports.append(AggregationPort(edge_ports[1], parent=self))
 
+        for ele in self.elements:
+            ele.request('diameter')
+            ele.request('length')
+
         self._total_length = None
         self._avg_diameter = None
 

@@ -69,7 +69,7 @@ class TemplateFinder(Finder):
         parameter_dict[parameter] = value
 
     def find(self, element, property_name):
-        """Tries to find he required property
+        """Tries to find the required property
         
         :return: value of property or None if propertyset or property is not available
         :raises: AttributeError if TemplateFinder does not know about given input"""

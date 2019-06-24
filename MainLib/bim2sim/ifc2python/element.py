@@ -9,7 +9,7 @@ import numpy as np
 
 from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import ifc2python
-from bim2sim.decision import Decision, BoolDecision, RealDecision, ListDecision, PendingDecisionError
+from bim2sim.decision import Decision, BoolDecision, RealDecision, ListDecision, DictDecision, PendingDecisionError
 
 
 class ElementError(Exception):
@@ -41,7 +41,7 @@ class Root:
         self.guid = guid or self.get_id()
         Root.objects[self.guid] = self
         self._requests = []
-        self._properties = {}
+        self.properties = {}
 
     def __hash__(self):
         return hash(self.guid)
@@ -96,15 +96,35 @@ class Root:
                     # Value for attribute does not exist
                     pass
                 else:
-                    ele._properties[request] = value
+                    ele.properties[request] = value
 
         Decision.decide_collected()
 
+        for ele, request in pending:
+            value = ele.find(request, collect_decisions=False)
+            ele.properties[request] = value
+
+    def search(self, name, collect_decisions=False):
+        """Search all potential sources for property (potentially time consuming)"""
+        raise NoValueError("'%s' is not available"%name)
+
     def find(self, name, collect_decisions=False):
-        try:
-            value = getattr(self, name)
-        except AttributeError:
-            raise NoValueError("'%s' is not available"%name)
+        """Check for known property value. Calls search() if unknown"""
+        # check if property is known
+        if name in self.properties:
+            return self.properties[name]
+        if collect_decisions:
+            if name in self._requests:
+                raise PendingDecisionError
+            #self.request(name)
+        #elif name in self._requests:
+        #    self._requests.remove(name)
+
+        # search for property
+        value = self.search(name, collect_decisions)
+
+        # store value
+        self.properties[name] = value
         return value
 
     def __del__(self):
@@ -237,7 +257,7 @@ class IFCBased(Root):
         try:
             p_set = self.search_property_hierarchy(propertyset_name)
             value = p_set[property_name]
-        except (AttributeError, KeyError):
+        except (AttributeError, KeyError, TypeError):
             raise NoValueError("Property '%s.%s' does not exist"%(
                 propertyset_name, property_name))
         return value
@@ -251,21 +271,20 @@ class IFCBased(Root):
             values = []
             choices = []
             for propertyset_name, property_name, match in matches:
-                # TODO: Decision
                 value = self.get_exact_property(propertyset_name, property_name)
                 values.append(value)
-                choices.append()
-                print("%s.%s = %s"%(propertyset_name, property_name, value))
+                choices.append((propertyset_name, property_name))
+                #print("%s.%s = %s"%(propertyset_name, property_name, value))
 
             # TODO: Decision: save for all following elements of same class (dont ask again?)
             # selected = (propertyset_name, property_name, value)
 
             # TODO: Decision with id, key, value
-            decision = ListDecision("Multiple possibilities found",
-                choices=choices,
-                output=self._properties, 
+            decision = DictDecision("Multiple possibilities found",
+                choices=dict(zip(choices, values)),
+                output=self.properties, 
                 output_key=name,
-                global_key="%s_%s.%s"%(self.ifc_type + self.guid + name),
+                global_key="%s_%s.%s"%(self.ifc_type, self.guid, name),
                 allow_skip=True, allow_load=True, allow_save=True,
                 collect=collect_decisions, quick_decide=not collect_decisions)
 
@@ -275,11 +294,8 @@ class IFCBased(Root):
             return decision.value
         raise NoValueError("No matching property for %s"%(patterns))
 
-    def find(self, name, collect_decisions=False):
-        """Search all potential sources for property"""
-
-        if name in self._properties:
-            return self._properties[name]
+    def search(self, name, collect_decisions = False):
+        """Search all potential sources for property (potentially time consuming)"""
 
         try:
             propertyset_name, property_name = getattr(
@@ -290,7 +306,6 @@ class IFCBased(Root):
         except NoValueError:
             pass
         else:
-            self._properties[name] = value
             return value
 
         try:
@@ -298,8 +313,8 @@ class IFCBased(Root):
         except AttributeError:
             pass
         else:
-            self._properties[name] = value
-            return value
+            if not value is None:
+                return value
 
         try:
             patterns = getattr(self.__class__, 'pattern_%s'%name, None)
@@ -309,20 +324,19 @@ class IFCBased(Root):
         except NoValueError:
             pass
         else:
-            self._properties[name] = value
             return value
 
-        final_decision = RealDecision("Enter value for %s"%name,
-            output=self._properties, 
+        final_decision = RealDecision("Enter value for %s of %s"%(name, self.name),
+            validate_func=lambda x:isinstance(x, float), # TODO
+            output=self.properties, 
             output_key=name,
-            global_key="%s_%s.%s"%(self.ifc_type + self.guid + name),
+            global_key="%s_%s.%s"%(self.ifc_type, self.guid, name),
             allow_skip=True, allow_load=True, allow_save=True,
             collect=collect_decisions, quick_decide=not collect_decisions)
 
         if collect_decisions:
             raise PendingDecisionError()
         value = final_decision.value
-        self._properties[name] = value
         return value
 
     def __repr__(self):
