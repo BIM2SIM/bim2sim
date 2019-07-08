@@ -30,6 +30,8 @@ class AixLib(BIM2SIMManager):
         reduce = hvac.Reduce()
         reduce.run(makegraph.graph)
 
+        enrich = hvac.Enrich()
+        enrich.run()
         #check
 
         libraries = (standardlibrary.StandardLibrary, )

@@ -1,5 +1,6 @@
 {
     "version": "0.7",
+    "statistical_year": "2000",
     "Vaillant boiler": {
         "name": "Boiler_example",
         "element_id": 1,

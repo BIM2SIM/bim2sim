@@ -8,13 +8,13 @@ import utilities as utils
 
 
 v = sys.version_info
-if v >= (2, 7);
+if v >= (2, 7):
     try:
         FileNotFoundError
-    except
+    except:
         FileNotFoundError = IOError
 
-class DataClass(object)
+class DataClass(object):
 
     def __init__(self, used_parameters='1'):
 

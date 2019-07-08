@@ -59,6 +59,7 @@ class Inspect(Workflow):
     def __init__(self):
         super().__init__()
         self.instances = {}
+        pass
 
     @staticmethod
     def port_distance(port1, port2):
@@ -251,6 +252,22 @@ class Reduce(Workflow):
         if __debug__:
             self.logger.info("Plotting graph ...")
             graph.plot(PROJECT.export)
+
+class Enrich(Workflow):
+    # todo @ dco fill this :)
+    def enrich_by_buildyear(self, instance):
+        load_data_for_instance(instance, json_file_name)
+        # this is one of the possible enrich methods
+
+        # target: the instances in the inspect.instances dict are filled up
+        # with the data from the json file
+        pass
+
+    def run(self):
+        for instance in instances:
+            Enrich.enrich_by_buildyear(instance=instance)
+        # runs all enrich methods
+        pass
 
 
 class DetectCycles(Workflow):
