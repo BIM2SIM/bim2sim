@@ -1,0 +1,9 @@
+{
+    "version": "0.7",
+    "Vaillant boiler": {
+        "name": "Boiler_example",
+        "element_id": 1,
+        "nom_power": 16,
+        "efficiency": 0.97
+    }
+}
