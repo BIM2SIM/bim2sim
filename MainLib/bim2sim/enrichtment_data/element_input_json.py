@@ -15,7 +15,7 @@ def load_element(element, ele_name, data_class):
                 element.nom_power = ele["nom_power"]
                 element.efficiency = ele["efficiency"]
 
-def load_element_id(element, element_id, data_class):
+def load_element_id(element, ele_id, data_class):
 #id identification
     binding = data_class.element_bind
 

@@ -1,10 +1,13 @@
 {
     "version": "0.7",
-    "statistical_year": "2000",
-    "Vaillant boiler": {
+    "Boiler": {
+        "statistical_year": "2000",
         "name": "Boiler_example",
+        "ifc_type": "IfcBoiler",
         "element_id": 1,
-        "nom_power": 16,
+        "water_volume": 0.008,
+        "min_power": 16,
+        "rated_power": 16,
         "efficiency": 0.97
     }
 }

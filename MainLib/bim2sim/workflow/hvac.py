@@ -12,6 +12,10 @@ from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
+from bim2sim.enrichtment_data.dataclass import DataClass
+from bim2sim.enrichtment_data import element_input_json
+
+
 
 
 IFC_TYPES = (
@@ -255,18 +259,44 @@ class Reduce(Workflow):
 
 class Enrich(Workflow):
     # todo @ dco fill this :)
-    def enrich_by_buildyear(self, instance):
-        load_data_for_instance(instance, json_file_name)
-        # this is one of the possible enrich methods
+    def __init__(self):
+        super().__init__()
+        self.enrich_data = {}
+
+    @Workflow.log
+    def enrich_by_buildyear(self, instance, build_year, parametern):
+        json = DataClass()
+        json.load_te_binding()
+
+        for prop in instance:
+            if parametern == "id":
+                enrich_data = element_input_json.load_element_id(json, instance.id, data_class)
+
+                if enrich_data.prop = None:
+                    instance.prop = enrich_data.prop
+                elif:
+                    instance.prop = instance.prop
+            elif parametern == "name":
+                enrich_data = element_input_json.load_element(json, instance.name, data_class)
+
+                if enrich_data.prop = None:
+                    instance.prop = enrich_data.prop
+                elif:
+                    instance.prop = instance.prop
+            else:
+                print("Parameter invalid")
+
+
 
         # target: the instances in the inspect.instances dict are filled up
         # with the data from the json file
         pass
 
-    def run(self):
+    def run(self, instances):
+        self.logger.info("Enrichment of the elements")
         for instance in instances:
-            Enrich.enrich_by_buildyear(instance=instance)
-        # runs all enrich methods
+            Enrich.enrich_by_buildyear(instance, 1)
+        # runs all enrich methodsx
         pass
 
 

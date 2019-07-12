@@ -16,9 +16,9 @@ if v >= (2, 7):
 
 class DataClass(object):
 
-    def __init__(self, used_parameters='1'):
+    def __init__(self, used_year='1'):
 
-        self.used_parameters = used_parameters
+        self.used_parameters = used_year
         self.element_bind = None
         if self.used_parameters == '1':
             self.path_te = utils.get_full_path("TypeBuildingElements.json")
