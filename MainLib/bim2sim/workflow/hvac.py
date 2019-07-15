@@ -284,7 +284,7 @@ class Enrich(Workflow):
         # with the data from the json file
         pass
 
-    def run(self, instances, build_year, parameter="ifc"):
+    def run(self, instances, build_year, parameter):
         self.logger.info("Enrichment of the elements")
         try:
             aggregations = instances['aggregations']
@@ -293,7 +293,7 @@ class Enrich(Workflow):
         except:
             for instance in instances:
                 Enrich.enrich_by_buildyear(instance, build_year, parameter)
-        # runs all enrich methodsx
+        # runs all enrich methods
         pass
 
 
