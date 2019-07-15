@@ -12,7 +12,7 @@ from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
-from bim2sim.enrichtment_data.dataclass import DataClass
+from bim2sim.enrichtment_data.data_class import DataClass
 from bim2sim.enrichtment_data import element_input_json
 
 
