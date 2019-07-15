@@ -265,24 +265,23 @@ class Enrich(Workflow):
 
     @Workflow.log
     def enrich_by_buildyear(self, instance, build_year, parametern):
-        json = DataClass()
-        json.load_te_binding()
-
+        json_data = DataClass()
+        json_data.load_te_binding()
         for prop in instance:
-            if parametern == "id":
-                enrich_data = element_input_json.load_element_id(json, instance.id, data_class)
 
-                if enrich_data.prop = None:
-                    instance.prop = enrich_data.prop
-                elif:
-                    instance.prop = instance.prop
+            if parametern == "id":
+                enrich_data = element_input_json.load_element_id(json_data, instance.id, data_class)
+                if instance[prop] is None:
+                    instance[prop] = enrich_data[prop]
+                else:
+                    instance[prop] = instance[prop]
             elif parametern == "name":
                 enrich_data = element_input_json.load_element(json, instance.name, data_class)
 
-                if enrich_data.prop = None:
-                    instance.prop = enrich_data.prop
-                elif:
-                    instance.prop = instance.prop
+                if instance[prop] is None:
+                    instance[prop] = enrich_data[prop]
+                else:
+                    instance[prop] = instance[prop]
             else:
                 print("Parameter invalid")
 
@@ -294,8 +293,13 @@ class Enrich(Workflow):
 
     def run(self, instances):
         self.logger.info("Enrichment of the elements")
-        for instance in instances:
-            Enrich.enrich_by_buildyear(instance, 1)
+        try:
+            aggregations = instances['aggregations']
+            for instance in aggregations:
+                Enrich.enrich_by_buildyear(instance, 1)
+        except:
+            for instance in instances:
+                Enrich.enrich_by_buildyear(instance, 1)
         # runs all enrich methodsx
         pass
 
