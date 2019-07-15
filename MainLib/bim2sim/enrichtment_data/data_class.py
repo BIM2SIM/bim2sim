@@ -29,6 +29,8 @@ class DataClass(object):
 
     def load_te_binding(self): #te: type element
         if self.path_te.endswith("json"):
+            self.path_te = os.path.join(
+                'D:/01_GitHub/bim2sim-coding/MainLib/bim2sim/enrichtment_data')
             if os.path.isfile(self.path_te):
                 try:
                     with open(self.path_te, 'r+') as f:

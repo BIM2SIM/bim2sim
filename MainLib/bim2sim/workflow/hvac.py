@@ -264,7 +264,7 @@ class Enrich(Workflow):
         self.enrich_data = {}
 
     @Workflow.log
-    def enrich_by_buildyear(self, instance, build_year, parameter):
+    def enrich_by_buildyear(self, instance, build_year, parameter='ifc'):
         json_data = DataClass()
         json_data.load_te_binding()
         for prop in instance:
@@ -286,15 +286,15 @@ class Enrich(Workflow):
 
     def run(self, instances, build_year, parameter):
         self.logger.info("Enrichment of the elements")
-        try:
-            aggregations = instances['aggregations']
-            for instance in aggregations:
+        for instance in instances:
+            if not (instance.aggregation is None):
+                for subinstance in instance.aggregation:
+                    Enrich.enrich_by_buildyear(subinstance, build_year, parameter)
+            else:
+                # todo @dco check parameter
                 Enrich.enrich_by_buildyear(instance, build_year, parameter)
-        except:
-            for instance in instances:
-                Enrich.enrich_by_buildyear(instance, build_year, parameter)
-        # runs all enrich methods
-        pass
+            # runs all enrich methods
+
 
 
 class DetectCycles(Workflow):
