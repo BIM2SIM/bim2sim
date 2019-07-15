@@ -96,7 +96,7 @@ class Storage(element.Element):
         return None
 
     @property
-    def hight(self):
+    def height(self):
         return 1
 
     @ property
@@ -120,7 +120,7 @@ class Pump(element.Element):
         return 3
 
     @property
-    def rated_hight(self):
+    def rated_height(self):
         return 8
 
     @property

@@ -32,7 +32,7 @@ class DataClass(object):
             if os.path.isfile(self.path_te):
                 try:
                     with open(self.path_te, 'r+') as f:
-                        self.element_bind =json.load(f)
+                        self.element_bind = json.load(f)
                 except json.decoder.JSONDecodeError:
                     print("Your TypeElements file seems to be broken.")
             else:

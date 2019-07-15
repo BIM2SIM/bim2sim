@@ -264,20 +264,13 @@ class Enrich(Workflow):
         self.enrich_data = {}
 
     @Workflow.log
-    def enrich_by_buildyear(self, instance, build_year, parametern):
+    def enrich_by_buildyear(self, instance, build_year, parameter):
         json_data = DataClass()
         json_data.load_te_binding()
         for prop in instance:
 
-            if parametern == "id":
-                enrich_data = element_input_json.load_element_id(json_data, instance.id, data_class)
-                if instance[prop] is None:
-                    instance[prop] = enrich_data[prop]
-                else:
-                    instance[prop] = instance[prop]
-            elif parametern == "name":
-                enrich_data = element_input_json.load_element(json, instance.name, data_class)
-
+            if parameter == "ifc":
+                enrich_data = element_input_json.load_element_ifc(json_data, instance['IfcType'], build_year, DataClass)
                 if instance[prop] is None:
                     instance[prop] = enrich_data[prop]
                 else:
@@ -291,15 +284,15 @@ class Enrich(Workflow):
         # with the data from the json file
         pass
 
-    def run(self, instances):
+    def run(self, instances, build_year, parameter="ifc"):
         self.logger.info("Enrichment of the elements")
         try:
             aggregations = instances['aggregations']
             for instance in aggregations:
-                Enrich.enrich_by_buildyear(instance, 1)
+                Enrich.enrich_by_buildyear(instance, build_year, parameter)
         except:
             for instance in instances:
-                Enrich.enrich_by_buildyear(instance, 1)
+                Enrich.enrich_by_buildyear(instance, build_year, parameter)
         # runs all enrich methodsx
         pass
 
