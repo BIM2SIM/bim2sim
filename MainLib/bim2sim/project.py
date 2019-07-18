@@ -60,21 +60,7 @@ class _Project():
         self._rootpath = None
         # todo @dco write get and set functions for _src_path,
         #  google property getter setter
-        self._src_path = None
-
-    @property
-    def source(self):
-        if not self._src_path:
-            return None
-        return os.path.abspath(self._src_path)
-
-    @source.setter
-    def source(self, src):
-        directory = os.path.dirname(__file__)
-        last_index = directory.rfind("bim2sim-coding") + len("bim2sim-coding")
-        first_path = os.path.join(directory[:last_index], os.path.normpath("MainLib/bim2sim/inputs"))
-        self._src_path = os.path.join(first_path, src)
-        print("Sourcepath set to '%s'"%(src))
+        self._src_path = os.path.join(os.path.dirname(__file__))
 
     @property
     def root(self):
@@ -87,6 +73,12 @@ class _Project():
     def root(self, value):
         self._rootpath = value
         print("Rootpath set to '%s'"%(value))
+
+    @property
+    def source(self):
+        if not self._src_path:
+            return None
+        return os.path.abspath(self._src_path)
 
     @property
     def config(self):
@@ -178,8 +170,9 @@ class _Project():
 
         self.copy_assets(self.root)
 
-    def create(self, rootpath, ifc_path=None, target=None, open_conf=False):
-        """Set root path, create project folder
+    def create(self, rootpath, ifc_path=None, target=None, \
+                                                          open_conf=False):
+        """Set root path, source path, create project folder
         copy ifc, base config setup and open config if needed"""
 
         # set rootpath
