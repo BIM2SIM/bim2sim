@@ -23,7 +23,8 @@ class DataClass(object):
         self.used_parameters = used_param
         self.element_bind = None
         if self.used_parameters == '1':
-            self.path_te = project.source("TypeBuildingElements.json")
+            project.source("TypeBuildingElements.json")
+            self.path_te = project.source()
             self.load_te_binding()
         elif self.used_parameters is None:
             pass
