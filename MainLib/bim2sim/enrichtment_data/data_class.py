@@ -4,7 +4,7 @@ import os
 import sys
 import json
 import collections
-import utilities as utils
+from project import _Project as pj
 
 
 v = sys.version_info
@@ -14,6 +14,8 @@ if v >= (2, 7):
     except:
         FileNotFoundError = IOError
 
+project = pj()
+
 class DataClass(object):
 
     def __init__(self, used_year='1'):
@@ -21,7 +23,7 @@ class DataClass(object):
         self.used_parameters = used_year
         self.element_bind = None
         if self.used_parameters == '1':
-            self.path_te = utils.get_full_path("TypeBuildingElements.json")
+            self.path_te = project.source("TypeBuildingElements.json")
             self.load_te_binding()
         elif self.used_parameters is None:
             pass
@@ -29,8 +31,6 @@ class DataClass(object):
 
     def load_te_binding(self): #te: type element
         if self.path_te.endswith("json"):
-            self.path_te = os.path.join(
-                'D:/01_GitHub/bim2sim-coding/MainLib/bim2sim/enrichtment_data')
             if os.path.isfile(self.path_te):
                 try:
                     with open(self.path_te, 'r+') as f:

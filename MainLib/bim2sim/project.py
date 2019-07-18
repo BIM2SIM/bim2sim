@@ -62,7 +62,19 @@ class _Project():
         #  google property getter setter
         self._src_path = None
 
+    @property
+    def source(self):
+        if not self._src_path:
+            return None
+        return os.path.abspath(self._src_path)
 
+    @source.setter
+    def source(self, src):
+        source_directory = os.path.dirname(__file__)
+        last_index = directory.rfind("bim2sim-coding") + len("bim2sim-coding")
+        first_path = os.path.join(directory[:last_index], os.path.normpath("MainLib/bim2sim/inputs"))
+        self._src_path = os.path.join(first_path, src)
+        print("Sourcepath set to '%s'"%(src))
 
     @property
     def root(self):
