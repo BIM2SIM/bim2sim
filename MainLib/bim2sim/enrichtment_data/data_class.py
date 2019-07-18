@@ -18,9 +18,9 @@ project = pj()
 
 class DataClass(object):
 
-    def __init__(self, used_year='1'):
+    def __init__(self, used_param='1'):
 
-        self.used_parameters = used_year
+        self.used_parameters = used_param
         self.element_bind = None
         if self.used_parameters == '1':
             self.path_te = project.source("TypeBuildingElements.json")

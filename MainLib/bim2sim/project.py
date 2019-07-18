@@ -70,7 +70,7 @@ class _Project():
 
     @source.setter
     def source(self, src):
-        source_directory = os.path.dirname(__file__)
+        directory = os.path.dirname(__file__)
         last_index = directory.rfind("bim2sim-coding") + len("bim2sim-coding")
         first_path = os.path.join(directory[:last_index], os.path.normpath("MainLib/bim2sim/inputs"))
         self._src_path = os.path.join(first_path, src)
