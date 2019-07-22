@@ -13,6 +13,10 @@ if v >= (2, 7):
 
 project = project.PROJECT
 
+class Enrich:
+    pass
+
+
 class DataClass(object):
 #todo @dco short docu
     def __init__(self, used_param='1'):
@@ -24,8 +28,7 @@ class DataClass(object):
                                         'TypeBuildingElements.json')
             self.load_te_binding()
         elif self.used_parameters is None:
-            pass
-        self.element_bind = None
+            self.element_bind = None
 
     def load_te_binding(self):
         """

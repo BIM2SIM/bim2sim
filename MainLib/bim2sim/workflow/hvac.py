@@ -12,7 +12,7 @@ from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
-from bim2sim.enrichtment_data.data_class import DataClass
+from bim2sim.enrichtment_data.data_class import DataClass, Enrich
 from bim2sim.enrichtment_data import element_input_json
 
 
@@ -266,13 +266,13 @@ class Enrich(Workflow):
     @Workflow.log
     def enrich_by_buildyear(self, instance, build_year, parameter='ifc'):
         json_data = DataClass()
-        json_data.load_te_binding()
         for prop in instance:
 
             if parameter == "ifc":
-                enrich_data = element_input_json.load_element_ifc(json_data, instance['IfcType'], build_year, DataClass)
-                if instance[prop] is None:
-                    instance[prop] = enrich_data[prop]
+                enrich_data = Enrich()
+                element_input_json.load_element_ifc(enrich_data, instance.ifc_type, build_year, json_data)
+                if instance.prop is None:
+                    instance.prop = enrich_data.prop
                 else:
                     instance[prop] = instance[prop]
             else:

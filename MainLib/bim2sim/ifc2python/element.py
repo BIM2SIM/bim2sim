@@ -319,7 +319,7 @@ class Element(BaseElement, IFCBased, metaclass=ElementMeta):
 
         #Model.dummy = Model.ifc_classes['any']
         if not Element._ifc_classes:
-            raise ElementError("Faild to initialize Element factory. No elements found!")
+            raise ElementError("Failed to initialize Element factory. No elements found!")
 
         model_txt = "\n".join(" - %s"%(model) for model in Element._ifc_classes)
         logger.debug("IFC model factory initialized with %d ifc classes:\n%s",

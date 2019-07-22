@@ -1,7 +1,7 @@
 {
     "version": "0.7",
     "Boiler_2000": {
-        "statistical_year": "2000",
+        "statistical_year": 2000,
         "ifc_type": "IfcBoiler",
         "name": "Boiler_example",
         "water_volume": 0.008,
@@ -10,7 +10,7 @@
         "efficiency": 0.97
     },
     "Boiler_2004": {
-        "statistical_year": "2004",
+        "statistical_year": 2004,
         "ifc_type": "IfcBoiler",
         "name": "Boiler_example2",
         "water_volume": 0.008,
@@ -19,7 +19,7 @@
         "efficiency": 0.98
     },
     "Pump_2000": {
-        "statistical_year": "2000",
+        "statistical_year": 2000,
         "ifc_type": "IfcPump",
         "name": "Pump_example1",
         "rated_power": 3,
@@ -28,7 +28,7 @@
         "diameter": 40
     },
     "Pump_2004": {
-        "statistical_year": "2004",
+        "statistical_year": 2004,
         "ifc_type": "IfcPump",
         "name": "Pump_example3",
         "rated_power": 4,
