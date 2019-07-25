@@ -11,7 +11,7 @@ class Workflow():
 
     def __init__(self):
         self.name = self.__class__.__name__
-        self.mlogger = logging.getLogger("%s.%s"%(__name__, self.name))
+        self.logger = logging.getLogger("%s.%s"%(__name__, self.name))
 
     def __repr__(self):
         return "<Workflow (%s)>"%(self.name)

@@ -263,14 +263,18 @@ class Enrich(Workflow):
         self.enrich_data = {}
 
     @Workflow.log
-    def enrich_by_buildyear(self, instance, build_year, enrichment_parameter):
+    def enrich_by_buildyear(self, instance, build_year,
+                            enrichment_parameter):
         json_data = DataClass()
         attrs_instance = vars(instance)
-        for prop in instance:
-
+        # todo @dco check if enrichment for this instance exists
+        for prop in attrs_instance.keys():
             if enrichment_parameter == "ifc":
                 enrich_data = Enrich_class()
-                element_input_json.load_element_ifc(enrich_data, instance.ifc_type, build_year, json_data)
+                element_input_json.load_element_ifc(enrich_data,
+                                                    instance.ifc_type,
+                                                    build_year,
+                                                    json_data)
                 attrs_enrich = vars(enrich_data)
                 if attrs_instance[str(prop)] is None:
                     if not (attrs_enrich[str(prop)] is None):
@@ -284,16 +288,18 @@ class Enrich(Workflow):
 
         # target: the instances in the inspect.instances dict are filled up
         # with the data from the json file
-        pass
+
 
     def run(self, instances, build_year, enrichment_parameter):
         self.logger.info("Enrichment of the elements")
         for instance in instances:
             if not (instance.aggregation is None):
                 for subinstance in instance.aggregation:
-                    Enrich.enrich_by_buildyear(subinstance, build_year, enrichment_parameter)
+                    self.enrich_by_buildyear(subinstance, build_year,
+                                               enrichment_parameter)
             else:
-                Enrich.enrich_by_buildyear(instance, build_year, enrichment_parameter)
+                self.enrich_by_buildyear(instance, build_year,
+                                           enrichment_parameter)
             # runs all enrich methods
 
 
