@@ -1,6 +1,6 @@
 {
     "Boiler": {
-        "ifc_type": "IfcBoiler",
+        "class": "Boiler",
         "statistical_year": {
             "2000": {
                 "name": "Boiler_enrichment_2000",
@@ -21,7 +21,7 @@
         }
     },
     "Pump":{
-        "ifc_type": "IfcPump",
+        "class": ["Pump", "aggregated_Pump"],
         "statistical_year": {
             "2000": {
                 "name": "Pump_enrichment_2000",

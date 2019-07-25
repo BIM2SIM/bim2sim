@@ -299,6 +299,7 @@ class Enrich(Workflow):
     def run(self, instances, build_year, enrichment_parameter):
         self.logger.info("Enrichment of the elements")
         for instance in instances:
+            print(instance.__class__)
             if not (instance.aggregation is None):
                 for subinstance in instance.aggregation:
                     self.enrich_by_buildyear(subinstance, build_year,
