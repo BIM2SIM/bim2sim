@@ -12,7 +12,7 @@ from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
-from bim2sim.enrichtment_data.data_class import DataClass, Enrich
+from bim2sim.enrichtment_data.data_class import DataClass, Enrich_class
 from bim2sim.enrichtment_data import element_input_json
 
 
@@ -258,41 +258,42 @@ class Reduce(Workflow):
             graph.plot(PROJECT.export)
 
 class Enrich(Workflow):
-    # todo @ dco fill this :)
     def __init__(self):
         super().__init__()
         self.enrich_data = {}
 
     @Workflow.log
-    def enrich_by_buildyear(self, instance, build_year, parameter='ifc'):
+    def enrich_by_buildyear(self, instance, build_year, enrichment_parameter):
         json_data = DataClass()
+        attrs_instance = vars(instance)
         for prop in instance:
 
-            if parameter == "ifc":
-                enrich_data = Enrich()
+            if enrichment_parameter == "ifc":
+                enrich_data = Enrich_class()
                 element_input_json.load_element_ifc(enrich_data, instance.ifc_type, build_year, json_data)
-                if instance.prop is None:
-                    instance.prop = enrich_data.prop
+                attrs_enrich = vars(enrich_data)
+                if attrs_instance[str(prop)] is None:
+                    if not (attrs_enrich[str(prop)] is None):
+                        attrs_instance[str(prop)] = attrs_enrich[str(prop)]
+                    else:
+                        self.logger.info("The enrichment parameter is missing or doesn´t exist in the enrichment file")
                 else:
-                    instance[prop] = instance[prop]
+                    attrs_instance[str(prop)] = attrs_instance[str(prop)]
             else:
                 print("Parameter invalid")
-
-
 
         # target: the instances in the inspect.instances dict are filled up
         # with the data from the json file
         pass
 
-    def run(self, instances, build_year, parameter):
+    def run(self, instances, build_year, enrichment_parameter):
         self.logger.info("Enrichment of the elements")
         for instance in instances:
             if not (instance.aggregation is None):
                 for subinstance in instance.aggregation:
-                    Enrich.enrich_by_buildyear(subinstance, build_year, parameter)
+                    Enrich.enrich_by_buildyear(subinstance, build_year, enrichment_parameter)
             else:
-                # todo @dco check parameter
-                Enrich.enrich_by_buildyear(instance, build_year, parameter)
+                Enrich.enrich_by_buildyear(instance, build_year, enrichment_parameter)
             # runs all enrich methods
 
 

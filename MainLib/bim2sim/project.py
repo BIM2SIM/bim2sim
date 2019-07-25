@@ -58,8 +58,6 @@ class _Project():
 
     def __init__(self):
         self._rootpath = None
-        # todo @dco write get and set functions for _src_path,
-        #  google property getter setter
         self._src_path = os.path.join(os.path.dirname(__file__))
 
     @property

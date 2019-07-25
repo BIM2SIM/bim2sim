@@ -13,12 +13,20 @@ if v >= (2, 7):
 
 project = project.PROJECT
 
-class Enrich:
+class Enrich_class(object):
+    """
+    Data class object, for storing the information obtained from the enrichment
+    data (for the enrichment of 1 element)
+    """
     pass
 
 
 class DataClass(object):
-#todo @dco short docu
+    """
+    Class for Enrichment method, that loads the enrichment data from a
+    file (source_path), it can support various enrichment parameters
+    """
+
     def __init__(self, used_param='1'):
 
         self.used_parameters = used_param
@@ -32,8 +40,8 @@ class DataClass(object):
 
     def load_te_binding(self):
         """
-          #todo @dco short docu      #te: type element
-        :return:
+        binding from the enrichment data, it can support various formats
+        te: Type element
         """
 
         if self.path_te.endswith("json"):
