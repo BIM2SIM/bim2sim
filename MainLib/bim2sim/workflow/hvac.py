@@ -266,9 +266,11 @@ class Enrich(Workflow):
     def enrich_by_buildyear(self, instance, build_year,
                             enrichment_parameter):
         json_data = DataClass()
-        attrs_instance = vars(instance)
-        # todo @dco check if enrichment for this instance exists
-        for prop in attrs_instance.keys():
+        attrs_instance = {}
+        for i in instance.__dir__():
+            if not i.startswith("__"):
+                attrs_instance[str(i)] = getattr(instance, i)
+        for prop in attrs_instance:
             if enrichment_parameter == "ifc":
                 enrich_data = Enrich_class()
                 element_input_json.load_element_ifc(enrich_data,
@@ -276,13 +278,17 @@ class Enrich(Workflow):
                                                     build_year,
                                                     json_data)
                 attrs_enrich = vars(enrich_data)
-                if attrs_instance[str(prop)] is None:
-                    if not (attrs_enrich[str(prop)] is None):
-                        attrs_instance[str(prop)] = attrs_enrich[str(prop)]
+                if bool(attrs_enrich) is True:
+                    if attrs_instance[str(prop)] is None:
+                        if not (attrs_enrich[str(prop)] is None):
+                            attrs_instance[str(prop)] = attrs_enrich[str(prop)]
+                        else:
+                            self.logger.info("The enrichment parameter is missing or doesn´t exist in the enrichment file")
+                            attrs_instance[str(prop)] = attrs_enrich[str(prop)]
                     else:
-                        self.logger.info("The enrichment parameter is missing or doesn´t exist in the enrichment file")
+                        attrs_instance[str(prop)] = attrs_instance[str(prop)]
                 else:
-                    attrs_instance[str(prop)] = attrs_instance[str(prop)]
+                    self.logger.info("There's no enrichment data to the instance")
             else:
                 print("Parameter invalid")
 
@@ -297,6 +303,8 @@ class Enrich(Workflow):
                 for subinstance in instance.aggregation:
                     self.enrich_by_buildyear(subinstance, build_year,
                                                enrichment_parameter)
+            elif instance.ifc_type is None:
+                self.logger.info("No valid")
             else:
                 self.enrich_by_buildyear(instance, build_year,
                                            enrichment_parameter)
