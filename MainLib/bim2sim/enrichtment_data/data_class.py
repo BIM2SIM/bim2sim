@@ -55,6 +55,7 @@ class DataClass(object):
             print("Your TypeElements file has the wrong format.")
 
     def json_filler(self, year, elements):
+        #todo @dco: add log warning with default value = 0
         data_update = json.load(open(self.path_te))
 
         for name_obj, obj in inspect.getmembers(elements):

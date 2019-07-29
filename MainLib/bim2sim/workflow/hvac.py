@@ -265,6 +265,8 @@ class Enrich(Workflow):
     @Workflow.log
     def enrich_by_buildyear(self, instance, build_year,
                             enrichment_parameter):
+
+
         json_data = DataClass()
         attrs_instance = {}
         for i in instance.__dir__():
@@ -303,6 +305,7 @@ class Enrich(Workflow):
                                                     class_instance,
                                                     build_year,
                                                     json_data)
+                #todo @dco check class against existing classes in json
                 attrs_enrich = vars(enrich_data)
                 if bool(attrs_enrich) is True:
                     if attrs_instance[str(prop)] is None:

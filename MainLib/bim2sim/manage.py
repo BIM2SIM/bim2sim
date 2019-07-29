@@ -31,6 +31,7 @@ class BIM2SIMManager:
 
     def init_project(self):
         """Check project folder and create it if necessary"""
+        #todo @dco run json_acualizer from here
         if not PROJECT.is_project_folder():
             self.logger.info("Creating project folder in '%s'", PROJECT.root)
             PROJECT.create_project_folder()

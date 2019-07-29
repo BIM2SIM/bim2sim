@@ -12,6 +12,7 @@ def load_element_ifc(element, ele_ifc, year, dataclass):
                         setattr(element, str(c),
                                 binding[a]["statistical_year"][b][c])
 
+
 def load_element_class(element, ele_class, year, dataclass):
     """
     this function fills a data class object, with the information found in the
