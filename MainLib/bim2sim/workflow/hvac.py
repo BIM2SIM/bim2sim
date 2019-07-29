@@ -273,24 +273,53 @@ class Enrich(Workflow):
         for prop in attrs_instance:
             if enrichment_parameter == "ifc":
                 enrich_data = Enrich_class()
-                element_input_json.load_element_ifc(enrich_data,
-                                                    instance.ifc_type,
+                if not hasattr(instance, "ifc_type"):
+                    self.logger.info("Enrichment parameter does not work with"
+                                     "the selected instance -- probe \"class\" as "
+                                     "enrichment parameter")
+                else:
+                    element_input_json.load_element_ifc(enrich_data,
+                                                        instance.ifc_type,
+                                                        build_year,
+                                                        json_data)
+                    attrs_enrich = vars(enrich_data)
+                    if bool(attrs_enrich) is True:
+                        if attrs_instance[str(prop)] is None:
+                            if not (attrs_enrich[str(prop)] is None)and (prop != "aggregation"):
+                                # attrs_instance[str(prop)] = attrs_enrich[str(prop)]
+                                setattr(instance, prop, attrs_enrich[str(prop)])
+                                self.logger.info("Element enriched successfully")
+                            else:
+                                self.logger.info("The enrichment parameter is "
+                                                 "missing or doesn´t exist in the enrichment file")
+                        # else:
+                            # attrs_instance[str(prop)] = attrs_instance[str(prop)]
+                    else:
+                        self.logger.info("There's no enrichment data to the instance")
+            elif enrichment_parameter == "class":
+                enrich_data = Enrich_class()
+                class_instance = str(instance.__class__)[str(instance.__class__).rfind(".") + 1:str(instance.__class__).rfind("'")]
+                element_input_json.load_element_class(enrich_data,
+                                                    class_instance,
                                                     build_year,
                                                     json_data)
                 attrs_enrich = vars(enrich_data)
                 if bool(attrs_enrich) is True:
                     if attrs_instance[str(prop)] is None:
-                        if not (attrs_enrich[str(prop)] is None):
-                            attrs_instance[str(prop)] = attrs_enrich[str(prop)]
+                        if not (attrs_enrich[str(prop)] is None) and (prop != "aggregation"):
+                            # attrs_instance[str(prop)] = attrs_enrich[str(prop)]
+                            setattr(instance, prop, attrs_enrich[str(prop)])
+                            self.logger.info("Element enriched successfully")
                         else:
-                            self.logger.info("The enrichment parameter is missing or doesn´t exist in the enrichment file")
-                            attrs_instance[str(prop)] = attrs_enrich[str(prop)]
-                    else:
-                        attrs_instance[str(prop)] = attrs_instance[str(prop)]
+                            self.logger.info("The enrichment parameter is "
+                                             "missing or doesn´t exist in the enrichment file")
+                    # else:
+                        # attrs_instance[str(prop)] = attrs_instance[str(prop)]
                 else:
                     self.logger.info("There's no enrichment data to the instance")
             else:
                 print("Parameter invalid")
+
 
         # target: the instances in the inspect.instances dict are filled up
         # with the data from the json file
@@ -299,13 +328,10 @@ class Enrich(Workflow):
     def run(self, instances, build_year, enrichment_parameter):
         self.logger.info("Enrichment of the elements")
         for instance in instances:
-            print(instance.__class__)
-            if not (instance.aggregation is None):
+            if hasattr(instance, "aggregation") and (instance.aggregation is not None):
                 for subinstance in instance.aggregation:
                     self.enrich_by_buildyear(subinstance, build_year,
                                                enrichment_parameter)
-            elif instance.ifc_type is None:
-                self.logger.info("No valid")
             else:
                 self.enrich_by_buildyear(instance, build_year,
                                            enrichment_parameter)

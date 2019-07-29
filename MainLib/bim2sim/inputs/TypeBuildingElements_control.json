@@ -1,0 +1,45 @@
+{
+    "Boiler": {
+        "class": "Boiler",
+        "ifc_type": "IfcBoiler",
+        "statistical_year": {
+            "2000": {
+                "name": "Boiler_enrichment_2000",
+                "water_volume": 0.008,
+                "min_power": 16,
+                "rated_power": 16,
+                "efficiency": 0.97
+            },
+            "2004": {
+                "name": "Boiler_enrichment_2004",
+                "water_volume": 0.008,
+                "min_power": 18,
+                "rated_power": 15,
+                "efficiency": 0.98
+            }
+        }
+    },
+    "Pump": {
+        "class": [
+            "Pump",
+            "aggregated_Pump"
+        ],
+        "ifc_type": "IfcPump",
+        "statistical_year": {
+            "2000": {
+                "name": "Pump_enrichment_2000",
+                "rated_power": 3,
+                "rated_height": 8,
+                "rated_volume_flow": 4.3,
+                "diameter": 40
+            },
+            "2004": {
+                "name": "Pump_enrichment_2004",
+                "rated_power": 4,
+                "rated_height": 9,
+                "rated_volume_flow": 4.3,
+                "diameter": 40
+            }
+        }
+    }
+}
