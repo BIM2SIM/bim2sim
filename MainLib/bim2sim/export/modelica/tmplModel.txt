@@ -20,8 +20,9 @@ model ${model.name} "${model.comment}"
 </%def>
 
 equation
-% for con1, con2 in model.connections:
-  connect(${con1}, ${con2}) annotation();
+% for con1, con2, pos1, pos2 in model.connections:
+  connect(${con1}, ${con2})
+    annotation (Line(points={{${pos1[0]},${pos1[1]}},{38,-6}}, color={0,0,127}));;
 % endfor
 
   annotation (experiment(StopTime=36000));
