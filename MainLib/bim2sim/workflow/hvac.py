@@ -2,11 +2,14 @@
 
 import itertools
 import json
+import logging
+
+import numpy as np
 
 from bim2sim.workflow import Workflow
 from bim2sim.filter import TypeFilter, TextFilter
 from bim2sim.ifc2python.aggregation import PipeStrand
-from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
+from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort, Root
 from bim2sim.ifc2python.hvac import hvac_graph
 from bim2sim.export import modelica
 from bim2sim.decision import Decision
@@ -27,6 +30,7 @@ IFC_TYPES = (
     'IfcCooledBeam',
     'IfcCoolingTower',
     'IfcDamper',
+    'IfcDistributionChamberElement',
     'IfcDuctFitting',
     'IfcDuctSegment',
     'IfcDuctSilencer',
@@ -78,26 +82,6 @@ class Inspect(Workflow):
             delta = None
         return delta
 
-    #@staticmethod
-    #def connect_old(instances, eps=1):
-    #    """Connect ports of instances by computing geometric distance"""
-    #    nr_connections = 0
-    #    # todo add check if IFC has port information -> decision system
-    #    for instance1, instance2 in itertools.combinations(instances, 2):
-    #        for port1 in instance1.ports:
-    #            if port1.is_connected():
-    #                continue
-    #            for port2 in instance2.ports:
-    #                if port2.is_connected():
-    #                    continue
-    #                delta = self.port_distance(port1, port2)
-    #                if max(abs(delta)) < eps:
-    #                    port1.connect(port2)
-    #                    #port2.connect(port1)
-    #                    nr_connections += 1
-
-    #    return nr_connections
-
     @staticmethod
     def connections_by_position(ports, eps=1):
         """Connect ports of instances by computing geometric distance"""
@@ -111,15 +95,48 @@ class Inspect(Workflow):
         return connections
 
     @staticmethod
-    def connections_by_relation(ports):
+    def connections_by_relation(ports, include_conflicts=False):
         """Inspects IFC relations of ports"""
+        logger = logging.getLogger('IFCQualityReport')
         connections = []
         for port in ports:
-            if port.ifc.ConnectedFrom:
-                other_port = port.get_object(
-                    port.ifc.ConnectedFrom[0].RelatingPort.GlobalId)
+            connected_ports = \
+                [conn.RelatingPort for conn in port.ifc.ConnectedFrom] \
+                + [conn.RelatedPort for conn in port.ifc.ConnectedTo]
+            if connected_ports:
+                other_port = None
+                if len(connected_ports) > 1:
+                    # conflicts
+                    logger.warning("%s has multiple connections", port.ifc)
+                    possibilities = []
+                    for connected_port in connected_ports:
+                        possible_port = port.get_object(connected_port.GlobalId)
+
+                        if possible_port.parent is not None:
+                            possibilities.append(possible_port)
+
+                    # solving conflics
+                    if include_conflicts:
+                        for poss in possibilities:
+                            connections.append((port, poss))
+                    else:
+                        if len(possibilities) == 1:
+                            other_port = possibilities[0]
+                            logger.info("Solved by ignoring deleted connection.")
+                        else:
+                            logger.error("Unable to solve conflicting connections. "
+                                         "Continue without connecting %s", port.ifc)
+                else:
+                    # explicit
+                    other_port = port.get_object(
+                        connected_ports[0].GlobalId)
                 if other_port:
-                    connections.append((port, other_port))
+                    if port.parent and other_port.parent:
+                        connections.append((port, other_port))
+                    else:
+                        logger.debug(
+                            "Not connecting ports without parent (%s, %s)",
+                            port, other_port)
         return connections
 
     @staticmethod
@@ -140,6 +157,45 @@ class Inspect(Workflow):
             else:
                 rejected.append((port1, port2))
         return confirmed, unconfirmed, rejected
+
+    @staticmethod
+    def check_element_ports(elements):
+        """Checks position of all ports for each element"""
+        logger = logging.getLogger('IFCQualityReport')
+        for ele in elements:
+            for port_a, port_b in itertools.combinations(ele.ports, 2):
+                if np.allclose(port_a.position, port_b.position,
+                               rtol=1e-7, atol=1):
+                    logger.warning("Poor quality of elements %s: "
+                                   "Overlapping ports (%s and %s @%s)",
+                                   ele.ifc, port_a.guid, port_b.guid,
+                                   port_a.position)
+
+                    conns = Inspect.connections_by_relation(
+                        [port_a, port_b], include_conflicts=True)
+                    all_ports = [port for conn in conns for port in conn]
+                    other_ports = [port for port in all_ports
+                                   if port not in [port_a, port_b]]
+                    if port_a in all_ports and port_b in all_ports \
+                        and len(set(other_ports)) == 1:
+                        # both ports connected to same other port -> merge ports
+                        logger.info("Removing %s and set %s as SINKANDSOURCE.",
+                                    port_b.ifc, port_a.ifc)
+                        ele.ports.remove(port_b)
+                        port_b.parent = None
+                        port_a.flow_direction = 0
+                        port_a.flow_master = True
+
+    @staticmethod
+    def connections_by_boundingbox(open_ports, elements):
+        """Search for open ports in elements bounding boxes
+
+        This is especialy usefull for vessel like elements with variable
+        number of ports (and bad ifc export) or proxy elements.
+        Missing ports on element side are created on demand."""
+        # ToDo
+        connections = []
+        return connections
 
     @Workflow.log
     def run(self, ifc, prepare):
@@ -162,6 +218,8 @@ class Inspect(Workflow):
 
 
         # connections
+        self.logger.info("Checking ports of elements ...")
+        self.check_element_ports(self.instances.values())
         self.logger.info("Connecting the relevant elements")
         self.logger.info(" - Connecting by relations ...")
         test = BasePort.objects
@@ -190,13 +248,22 @@ class Inspect(Workflow):
             port1.connect(port2)
 
         nr_total = len(BasePort.objects)
-        nr_unconnected = sum(1 for port in BasePort.objects.values()
-                             if not port.is_connected())
+        unconnected = [port for port in BasePort.objects.values()
+                       if not port.is_connected()]
+        nr_unconnected = len(unconnected)
         nr_connected = nr_total - nr_unconnected
         self.logger.info("In total %d of %d ports are connected.",
                          nr_connected, nr_total)
         if nr_total > nr_connected:
             self.logger.warning("%d ports are not connected!", nr_unconnected)
+
+        unconnected_elements = {uc.parent for uc in unconnected}
+        if unconnected_elements:
+            # TODO:
+            bb_connections = self.connections_by_boundingbox(unconnected, unconnected_elements)
+            self.logger.warning("Connecting by bounding box is not implemented.")
+
+        # TODO: manualy add / modify connections
 
 
 class Prepare(Workflow):
@@ -266,6 +333,8 @@ class Reduce(Workflow):
         self.reduced_instances = graph.elements
         self.connections = graph.get_connections()
 
+        #Element.solve_requests()
+
         if __debug__:
             self.logger.info("Plotting graph ...")
             graph.plot(PROJECT.export)
@@ -294,6 +363,8 @@ class Export(Workflow):
 
         modelica.Instance.init_factory(libraries)
         export_instances = {inst: modelica.Instance.factory(inst) for inst in instances}
+
+        Element.solve_requests()
 
         self.logger.info(Decision.summary())
         Decision.decide_collected()

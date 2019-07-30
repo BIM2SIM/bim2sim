@@ -11,7 +11,7 @@ class StandardLibrary(modelica.Instance):
 
 class StaticPipe(StandardLibrary):
     path = "Modelica.Fluid.Pipes.StaticPipe"
-    represents = [elements.Pipe, aggregation.PipeStrand]
+    represents = [elements.Pipe, elements.PipeFitting, aggregation.PipeStrand]
 
     def __init__(self, element):
         self.check_length = self.check_numeric(min_value=0)
@@ -19,8 +19,8 @@ class StaticPipe(StandardLibrary):
         super().__init__(element)
 
     def get_params(self):
-        self.manage_param("length", self.element.length, self.check_length)
-        self.manage_param("diameter", self.element.diameter, self.check_diameter)
+        self.register_param("length", self.check_length)
+        self.register_param("diameter", self.check_diameter)
 
     def get_port_name(self, port):
         try:
@@ -45,7 +45,7 @@ class ClosedVolume(StandardLibrary):
         super().__init__(element)
 
     def get_params(self):
-        self.manage_param("volume" , self.element.volume, self.check_volume)
+        self.register_param("volume", self.check_volume)
 
     def get_port_name(self, port):
         try:
