@@ -56,6 +56,10 @@ class PipeStrand(Aggregation):
         self.ports.append(AggregationPort(edge_ports[0], parent=self))
         self.ports.append(AggregationPort(edge_ports[1], parent=self))
 
+        for ele in self.elements:
+            ele.request('diameter')
+            ele.request('length')
+
         self._total_length = None
         self._avg_diameter = None
 
@@ -105,18 +109,15 @@ class PipeStrand(Aggregation):
         diameter_times_length = 0
 
         for pipe in self.elements:
-            if hasattr(pipe, "diameter") and hasattr(pipe, "length"):
-                length = pipe.length
-                diameter = pipe.diameter
-                if not (length and diameter):
-                    self.logger.warning("Ignored '%s' in aggregation", pipe)
-                    continue
-
-                diameter_times_length += diameter*length
-                self._total_length += length
-
-            else:
+            length = getattr(pipe, "length")
+            diameter = getattr(pipe, "diameter")
+            if not (length and diameter):
                 self.logger.warning("Ignored '%s' in aggregation", pipe)
+                continue
+
+            diameter_times_length += diameter*length
+            self._total_length += length
+
         if self._total_length != 0:
             self._avg_diameter = diameter_times_length / self._total_length
 
