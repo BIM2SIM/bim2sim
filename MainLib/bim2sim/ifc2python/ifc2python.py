@@ -15,6 +15,24 @@ def load_ifc(path):
     ifc_file = ifcopenshell.open(path)
     return ifc_file
 
+def propertyset2dict(propertyset):
+    """Converts IfcPropertySet to python dict"""
+    propertydict = {}
+    for prop in propertyset.HasProperties:
+        unit = prop.Unit
+        # TODO: Unit conversion
+        if prop.is_a() == 'IfcPropertySingleValue':
+            propertydict[prop.Name] = prop.NominalValue.wrappedValue
+        elif prop.is_a() == 'IfcPropertyListValue':
+            propertydict[prop.Name] = [value.wrappedValue for value in prop.ListValues]
+        elif prop.is_a() == 'IfcPropertyBoundedValue':
+            propertydict[prop.Name] = (prop, prop)
+            raise NotImplementedError("Property of type '%s'"%prop.is_a())
+        else:
+            raise NotImplementedError("Property of type '%s'"%prop.is_a())
+
+    return propertydict
+
 def getElementByGUID(ifcfile, guid):
     element = ifcfile.by_guid(guid)
     return element
@@ -27,9 +45,8 @@ def getIfcAttribute(ifcElement, attribute):
         return getattr(ifcElement, attribute)
     except AttributeError:
         pass
-    
-    
-def get_Property_Sets(PropertySetName, element):
+
+def get_Property_Set(PropertySetName, element):
     """
     This function searches an elements PropertySets for the defined
     PropertySetName. If the PropertySet is found the function will return a
@@ -53,6 +70,32 @@ def get_Property_Sets(PropertySetName, element):
     else:
         return None
 
+def get_property_sets(element):
+    """Returns all PropertySets of element
+
+    :param element: The element in which you want to search for the PropertySets
+    :return: dict(of dicts)
+    """
+    # TODO: Unit conversion
+    property_sets = {}
+    for defined in element.IsDefinedBy:
+        property_set_name = defined.RelatingPropertyDefinition.Name
+        property_sets[property_set_name] = propertyset2dict(defined.RelatingPropertyDefinition)
+
+    return property_sets
+
+def get_type_property_sets(element):
+    """Returns all PropertySets of element's types
+
+    :param element: The element in which you want to search for the PropertySets
+    :return: dict(of dicts)"""
+    # TODO: use guids to get type propertysets (they are userd by many entitys)
+    property_sets = {}
+    for defined_type in element.IsTypedBy:
+        for propertyset in defined_type.RelatingType.HasPropertySets:
+            property_sets[propertyset.Name] = propertyset2dict(propertyset)
+
+    return property_sets
 
 def getGUID(ifcElement):
     """

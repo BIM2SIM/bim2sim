@@ -3,6 +3,7 @@
 import logging
 import enum
 import json
+from collections import OrderedDict
 
 class DecisionException(Exception):
     """Base Exception for Decisions"""
@@ -10,6 +11,9 @@ class DecisionSkipAll(DecisionException):
     """Exception raised on skipping all Decisions"""
 class DecisionCancle(DecisionException):
     """Exception raised on canceling Decisions"""
+class PendingDecisionError(DecisionException):
+    """Exception for unsolved Decisions"""
+
 
 class Status(enum.Enum):
     """Enum for status of Decision"""
@@ -18,6 +22,7 @@ class Status(enum.Enum):
     loadeddone = 3 # brevious made decision loaded
     saveddone = 4 # decision made and saved
     skipped = 5 # decision was skipped
+
 
 class Decision():
     """Class for handling decisions and user interaction
@@ -111,7 +116,8 @@ class Decision():
 
         logger = logging.getLogger(__name__)
         skip_all = False
-        for decision in cls.collection:
+        while cls.collection:
+            decision = cls.collection.pop()
             if skip_all and decision.allow_skip:
                 decision.skip()
             else:
@@ -248,7 +254,7 @@ class Decision():
             raw_value = input("%s: "%(self.question))
             if raw_value == Decision.SKIP and Decision.SKIP in options:
                 self.skip()
-                return value
+                return None
             if raw_value == Decision.SKIPALL and Decision.SKIPALL in options:
                 self.skip()
                 raise DecisionSkipAll
@@ -263,6 +269,7 @@ class Decision():
                     if attempt == max_attempts:
                         print("Last try before auto Cancle!")
                     print("'%s' is no valid input! Try again."%(raw_value))
+                    value = None
                 else:
                     raise DecisionCancle("Too many invalid attempts. Cancling input.")
             attempt += 1
@@ -309,30 +316,76 @@ class BoolDecision(Decision):
             return False
         return None
 
-#class ListDecision(Decision):
 
-#    def __init__(self, *args, choices:list, **kwargs):
-#        self.chioces = choices
-#        super().__init__(*args, getter=None, **kwargs)
+class CollectionDecision(Decision):
+    """Base class for chice bases Decisions"""
 
-#    def parse_input(self, raw_input):
-#        try:
-#            index = int(raw_input)
-#            return self.chioces[index]
-#        except:
-#            return None
+    def __init__(self, *args, choices, **kwargs):
+        self.choices = choices
+        super().__init__(*args, validate_func=lambda x:not x is None, **kwargs)
 
-#    def user_input(self):
-#        options = "  id  item"
-#        for i in range(len(self.chioces)):
-#            options += "\n{id:4d}  {item:s}".format(id=i, item=self.chioces[i])
-#        print(options)
-#        value = None
-#        while True:
-#            raw_value = input("Select id for '%s':"%(self.dict_key))
-#            value = self.parse_input(raw_value)
-#            if self.check(value):
-#                break
-#            else:
-#                print("Value '%s' does not match conditions! Try again."%(raw_value))
-#        return value
+    def validate_index(self, value):
+        """validates if value is valid index"""
+        return isinstance(value, int) and value in range(len(self.choices))
+
+    def parse_input(self, raw_input):
+        try:
+            index = int(raw_input)
+            return index
+        except Exception:
+            return None
+
+    def from_index(self, index):
+        return
+
+    def option_txt(self, options):
+        return str(self.choices)
+
+    def user_input(self, options):
+        print(self.option_txt(options))
+        value = None
+        while True:
+            raw_value = input("Select option id for '%s':"%(self.global_key))
+            index = self.parse_input(raw_value)
+            if not self.validate_index(index):
+                print("Enter valid index! Try again.")
+                continue
+            value = self.from_index(index)
+            if value is not None and self.validate(value):
+                break
+            else:
+                print("Value '%s' does not match conditions! Try again."%(raw_value))
+        return value
+
+
+class ListDecision(CollectionDecision):
+    """Accepts index of list element as input"""
+
+    def from_index(self, index):
+        return self.choices[index]
+
+    def option_txt(self, options):
+        options_txt = "  id  item"
+        for i in range(len(self.choices)):
+            options_txt += "\n{id:4d}  {item:s}".format(id=i, item=str(self.choices[i]))
+        return option_txt
+
+
+class DictDecision(CollectionDecision):
+    """Accepts index of dict element as input"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.choices = OrderedDict(self.choices)
+
+    def from_index(self, index):
+        return list(self.choices.values())[index]
+
+    def option_txt(self, options):
+        len_keys = max([len(str(key)) for key in self.choices.keys()])
+        header_str = "  {id:2s}  {key:%ds}  {value:s}"%(len_keys)
+        format_str = "\n {id:3d}  {key:%ds}  {value:s}"%(len_keys)
+        options_txt = header_str.format(id="id", key="key", value="value")
+        for i, (k, v) in enumerate(self.choices.items()):
+            options_txt += format_str.format(id=i, key=str(k), value=str(v))
+        return options_txt
