@@ -205,6 +205,7 @@ class Inspect(Workflow):
         self.check_element_ports(self.instances.values())
         self.logger.info("Connecting the relevant elements")
         self.logger.info(" - Connecting by relations ...")
+        test = BasePort.objects
         rel_connections = self.connections_by_relation(
             BasePort.objects.values())
         self.logger.info(" - Found %d potential connections.",

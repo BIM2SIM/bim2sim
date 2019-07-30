@@ -282,8 +282,54 @@ class AirTerminal(element.Element):
         return 1
 
 
+class ThermalZones(element.Element):
+    ifc_type = "IfcSpace"
+
+
+
 class Medium(element.Element):
     ifc_type = "IfcDistributionSystems"
+
+
+class Wall(element.Element):
+    ifc_type = "IfcWall"
+
+    @property
+    def area(self):
+        return 1
+
+    @property
+    def capacity(self):
+        return 1
+
+    @property
+    def u_value(self):
+        return 1
+
+
+class OuterWall(Wall):
+    @property
+    def orientation(self):
+        return 1
+
+
+class Window(element.Element):
+    ifc_type = "IfcWindow"
+
+    @property
+    def area(self):
+        return 1
+
+    @property
+    def u_value(self):
+        return 1
+
+    @property
+    def g_value(self):
+        return 1
+
+# class ThermalZone(element.Element):
+#     ifc_type = "IfcSpace"
 
 
 __all__ = [ele for ele in locals().values() if ele in element.Element.__subclasses__()]
