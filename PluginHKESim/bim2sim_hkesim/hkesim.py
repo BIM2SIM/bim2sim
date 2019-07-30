@@ -18,7 +18,7 @@ class HKESimManager(BIM2SIMManager):
 
         inspect = hvac.Inspect()
         if not inspect.load(PROJECT.workflow):
-            inspect.run(self.ifc, hvac.IFC_TYPES)
+            inspect.run(self.ifc, prepare)
             inspect.save(PROJECT.workflow)
 
         makegraph = hvac.MakeGraph()

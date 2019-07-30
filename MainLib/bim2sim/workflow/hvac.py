@@ -4,7 +4,7 @@ import itertools
 import json
 
 from bim2sim.workflow import Workflow
-from bim2sim.filter import TypeFilter
+from bim2sim.filter import TypeFilter, TextFilter
 from bim2sim.ifc2python.aggregation import PipeStrand
 from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
 from bim2sim.ifc2python.hvac import hvac_graph
@@ -45,10 +45,17 @@ IFC_TYPES = (
     'IfcSpaceHeater',
     'IfcTank',
     'IfcTubeBundle',
-    'IfcUnitaryEquipment',
+    #'IfcUnitaryEquipment',
     'IfcValve',
     'IfcVibrationIsolator',
+    'IfcHeatPump'
 )
+
+Text_Fracments={
+    'IfcBoiler': ['Kessel','Boiler'],
+    'IfcAirTerminal': ['RLT','Lüftungsanlage','Belüftungsanlage'],
+    'IfcHeatPump': ['Heat_Pump', 'HeatPump', 'Wärmepumpe', 'Wärme_Pumpe']
+}
 
 
 class Inspect(Workflow):
@@ -135,14 +142,24 @@ class Inspect(Workflow):
         return confirmed, unconfirmed, rejected
 
     @Workflow.log
-    def run(self, ifc, relevant_ifc_types):
+    def run(self, ifc, prepare):
         self.logger.info("Creates python representation of relevant ifc types")
-        for ifc_type in relevant_ifc_types:
-            elements = ifc.by_type(ifc_type)
-            for element in elements:
-                representation = Element.factory(element)
-                self.instances[representation.guid] = representation
+
+        # for ifc_type in relevant_ifc_types:
+        #     elements = ifc.by_type(ifc_type)
+        #     for element in elements:
+        #         representation = Element.factory(element)
+        #         self.instances[representation.guid] = representation
+        # self.logger.info("Found %d relevant elements", len(self.instances))
+
+        for f in prepare.filters:
+            elements_dict = f.run(ifc)
+            for ifc_type, elements in elements_dict.items():
+                for element in elements:
+                    representation = Element.factory(element)
+                    self.instances[representation.guid] = representation
         self.logger.info("Found %d relevant elements", len(self.instances))
+
 
         # connections
         self.logger.info("Connecting the relevant elements")
@@ -195,6 +212,7 @@ class Prepare(Workflow):
         Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
         self.filters.append(TypeFilter(relevant_ifc_types))
+        self.filters.append(TextFilter(['IfcBuildingElementProxy', 'IfcUnitaryEquipment'], Text_Fracments, ['IfcName']))
 
 
 class MakeGraph(Workflow):
