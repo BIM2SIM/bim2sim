@@ -4,7 +4,6 @@ import json
 import project
 import inspect
 
-
 v = sys.version_info
 if v >= (2, 7):
     try:
@@ -14,11 +13,24 @@ if v >= (2, 7):
 
 project = project.PROJECT
 
+
 class Enrich_class(object):
     """
     Data class object, for storing the information obtained from the enrichment
     data (for the enrichment of 1 element)
     """
+    pass
+
+
+class New_instance(object):
+    pass
+
+
+class NewAggregation(object):
+    pass
+
+
+class EnrichedInstances(object):
     pass
 
 
@@ -54,45 +66,46 @@ class DataClass(object):
         else:
             print("Your TypeElements file has the wrong format.")
 
-    def json_filler(self, year, elements):
-        #todo @dco: add log warning with default value = 0
+    def json_filler(self, elements):
         data_update = json.load(open(self.path_te))
+        for i in data_update["Boiler"]["statistical_year"]:
+            year = str(i)
 
-        for name_obj, obj in inspect.getmembers(elements):
-            if inspect.isclass(obj):
-                name = str(obj)[str(obj).find(".") + 1:str(obj).rfind("'")]
-                if name not in data_update:
-                    if name != "decorators.cached_property":
-                        data_update[name] = {}
-                        data_update[name]["class"] = name
-                        if hasattr(obj, "ifc_type"):
-                            data_update[name]["ifc_type"] = obj.ifc_type
-                        data_update[name]["statistical_year"] = {}
-                        data_update[name]["statistical_year"][year] = {}
-                        data_update[name]["statistical_year"][year]["name"] = name + "_enrichment_" + year
-                        parameters = obj.__dict__
-                        for parameter in parameters:
-                            if not (parameter.endswith("__") or parameter == "findables" or parameter == "ifc_type"):
-                                data_update[name]["statistical_year"][year][parameter] = 0
-                else:
-                    if year not in data_update[name]["statistical_year"]:
-                        data_update[name]["statistical_year"][year] = {}
-                        data_update[name]["statistical_year"][year]["name"] = name + "_enrichment_" + year
-                        parameters = obj.__dict__
-                        for parameter in parameters:
-                            if not (parameter.endswith("__") or parameter == "findables" or parameter == "ifc_type"):
-                                data_update[name]["statistical_year"][year][parameter] = 0
-                    else:
-                        parameters = obj.__dict__
-                        for parameter in parameters:
-                            if not (parameter.endswith("__") or parameter == "findables" or parameter == "ifc_type"):
-                                if parameter not in data_update[name]["statistical_year"][year]:
+            for name_obj, obj in inspect.getmembers(elements):
+                if inspect.isclass(obj):
+                    name = str(obj)[str(obj).find(".") + 1:str(obj).rfind("'")]
+                    if name not in data_update:
+                        if name != "decorators.cached_property":
+                            data_update[name] = {}
+                            data_update[name]["class"] = name
+                            if hasattr(obj, "ifc_type"):
+                                data_update[name]["ifc_type"] = obj.ifc_type
+                            data_update[name]["statistical_year"] = {}
+                            data_update[name]["statistical_year"][year] = {}
+                            data_update[name]["statistical_year"][year]["name"] = name + "_enrichment_" + year
+                            parameters = obj.__dict__
+                            for parameter in parameters:
+                                if not (parameter.endswith("__") or parameter == "findables" or parameter == "ifc_type"):
                                     data_update[name]["statistical_year"][year][parameter] = 0
+                    else:
+                        if year not in data_update[name]["statistical_year"]:
+                            data_update[name]["statistical_year"][year] = {}
+                            data_update[name]["statistical_year"][year]["name"] = name + "_enrichment_" + year
+                            parameters = obj.__dict__
+                            for parameter in parameters:
+                                if not (parameter.endswith("__") or parameter == "findables" or parameter == "ifc_type"):
+                                    data_update[name]["statistical_year"][year][parameter] = 0
+                        else:
+                            parameters = obj.__dict__
+                            for parameter in parameters:
+                                if not (parameter.endswith("__") or parameter == "findables" or parameter == "ifc_type"):
+                                    if parameter not in data_update[name]["statistical_year"][year]:
+                                        data_update[name]["statistical_year"][year][parameter] = 0
 
-        print(data_update)
+            print(data_update)
 
-        with open(self.path_te, 'w') as f:
-            json.dump(data_update, f, indent=4)
+            with open(self.path_te, 'w') as f:
+                json.dump(data_update, f, indent=4)
 
 
 

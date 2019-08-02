@@ -5,7 +5,8 @@ from abc import ABCMeta, abstractmethod
 
 from bim2sim.project import PROJECT, get_config
 from bim2sim.ifc2python import ifc2python
-
+# import elements
+# import data_class
 
 class BIM2SIMManager:
     """Base class of overall bim2sim managing instance"""
@@ -30,6 +31,10 @@ class BIM2SIMManager:
         self.logger.info("BIM2SIMManager '%s' initialized", self.__class__.__name__)
 
     def init_project(self):
+        """Check that json file is up to date (all years)"""
+        # dc = data_class.DataClass()
+        # dc.json_filler(elements)
+        # self.logger.warning("The missing items will be filled with 0 by default")
         """Check project folder and create it if necessary"""
         #todo @dco run json_acualizer from here
         if not PROJECT.is_project_folder():
