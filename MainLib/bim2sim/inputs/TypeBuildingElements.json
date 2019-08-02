@@ -63,6 +63,14 @@
             "2006": {
                 "name": "AirTerminal_enrichment_2006",
                 "diameter": 0
+            },
+            "2000": {
+                "name": "AirTerminal_enrichment_2000",
+                "diameter": 0
+            },
+            "2004": {
+                "name": "AirTerminal_enrichment_2004",
+                "diameter": 0
             }
         }
     },
@@ -72,6 +80,16 @@
         "statistical_year": {
             "2006": {
                 "name": "Duct_enrichment_2006",
+                "diameter": 0,
+                "length": 0
+            },
+            "2000": {
+                "name": "Duct_enrichment_2000",
+                "diameter": 0,
+                "length": 0
+            },
+            "2004": {
+                "name": "Duct_enrichment_2004",
                 "diameter": 0,
                 "length": 0
             }
@@ -85,6 +103,16 @@
                 "name": "DuctFitting_enrichment_2006",
                 "diameter": 0,
                 "length": 0
+            },
+            "2000": {
+                "name": "DuctFitting_enrichment_2000",
+                "diameter": 0,
+                "length": 0
+            },
+            "2004": {
+                "name": "DuctFitting_enrichment_2004",
+                "diameter": 0,
+                "length": 0
             }
         }
     },
@@ -94,6 +122,12 @@
         "statistical_year": {
             "2006": {
                 "name": "Medium_enrichment_2006"
+            },
+            "2000": {
+                "name": "Medium_enrichment_2000"
+            },
+            "2004": {
+                "name": "Medium_enrichment_2004"
             }
         }
     },
@@ -104,6 +138,14 @@
             "2006": {
                 "name": "OuterWall_enrichment_2006",
                 "orientation": 0
+            },
+            "2000": {
+                "name": "OuterWall_enrichment_2000",
+                "orientation": 0
+            },
+            "2004": {
+                "name": "OuterWall_enrichment_2004",
+                "orientation": 0
             }
         }
     },
@@ -113,6 +155,18 @@
         "statistical_year": {
             "2006": {
                 "name": "Pipe_enrichment_2006",
+                "Pset_PipeSegmentTypeCommon": 0,
+                "diameter": 0,
+                "length": 0
+            },
+            "2000": {
+                "name": "Pipe_enrichment_2000",
+                "Pset_PipeSegmentTypeCommon": 0,
+                "diameter": 0,
+                "length": 0
+            },
+            "2004": {
+                "name": "Pipe_enrichment_2004",
                 "Pset_PipeSegmentTypeCommon": 0,
                 "diameter": 0,
                 "length": 0
@@ -129,6 +183,20 @@
                 "diameter": 0,
                 "length": 0,
                 "pressure_class": 0
+            },
+            "2000": {
+                "name": "PipeFitting_enrichment_2000",
+                "Pset_PipeFittingTypeCommon": 0,
+                "diameter": 0,
+                "length": 0,
+                "pressure_class": 0
+            },
+            "2004": {
+                "name": "PipeFitting_enrichment_2004",
+                "Pset_PipeFittingTypeCommon": 0,
+                "diameter": 0,
+                "length": 0,
+                "pressure_class": 0
             }
         }
     },
@@ -138,6 +206,16 @@
         "statistical_year": {
             "2006": {
                 "name": "SpaceHeater_enrichment_2006",
+                "nominal_power": 0,
+                "length": 0
+            },
+            "2000": {
+                "name": "SpaceHeater_enrichment_2000",
+                "nominal_power": 0,
+                "length": 0
+            },
+            "2004": {
+                "name": "SpaceHeater_enrichment_2004",
                 "nominal_power": 0,
                 "length": 0
             }
@@ -154,6 +232,22 @@
                 "diameter": 0,
                 "port_positions": 0,
                 "volume": 0
+            },
+            "2000": {
+                "name": "Storage_enrichment_2000",
+                "storage_type": 0,
+                "height": 0,
+                "diameter": 0,
+                "port_positions": 0,
+                "volume": 0
+            },
+            "2004": {
+                "name": "Storage_enrichment_2004",
+                "storage_type": 0,
+                "height": 0,
+                "diameter": 0,
+                "port_positions": 0,
+                "volume": 0
             }
         }
     },
@@ -163,6 +257,12 @@
         "statistical_year": {
             "2006": {
                 "name": "StorageDevice_enrichment_2006"
+            },
+            "2000": {
+                "name": "StorageDevice_enrichment_2000"
+            },
+            "2004": {
+                "name": "StorageDevice_enrichment_2004"
             }
         }
     },
@@ -172,6 +272,12 @@
         "statistical_year": {
             "2006": {
                 "name": "ThermalZones_enrichment_2006"
+            },
+            "2000": {
+                "name": "ThermalZones_enrichment_2000"
+            },
+            "2004": {
+                "name": "ThermalZones_enrichment_2004"
             }
         }
     },
@@ -181,6 +287,16 @@
         "statistical_year": {
             "2006": {
                 "name": "Valve_enrichment_2006",
+                "diameter": 0,
+                "length": 0
+            },
+            "2000": {
+                "name": "Valve_enrichment_2000",
+                "diameter": 0,
+                "length": 0
+            },
+            "2004": {
+                "name": "Valve_enrichment_2004",
                 "diameter": 0,
                 "length": 0
             }
@@ -195,6 +311,18 @@
                 "area": 0,
                 "capacity": 0,
                 "u_value": 0
+            },
+            "2000": {
+                "name": "Wall_enrichment_2000",
+                "area": 0,
+                "capacity": 0,
+                "u_value": 0
+            },
+            "2004": {
+                "name": "Wall_enrichment_2004",
+                "area": 0,
+                "capacity": 0,
+                "u_value": 0
             }
         }
     },
@@ -204,6 +332,18 @@
         "statistical_year": {
             "2006": {
                 "name": "Window_enrichment_2006",
+                "area": 0,
+                "u_value": 0,
+                "g_value": 0
+            },
+            "2000": {
+                "name": "Window_enrichment_2000",
+                "area": 0,
+                "u_value": 0,
+                "g_value": 0
+            },
+            "2004": {
+                "name": "Window_enrichment_2004",
                 "area": 0,
                 "u_value": 0,
                 "g_value": 0

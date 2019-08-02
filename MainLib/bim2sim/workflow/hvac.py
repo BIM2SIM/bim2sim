@@ -12,7 +12,7 @@ from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
-from bim2sim.enrichtment_data.data_class import DataClass, Enrich_class
+from bim2sim.enrichtment_data.data_class import DataClass, Enrich_class, New_instance, EnrichedInstances, NewAggregation
 from bim2sim.enrichtment_data import element_input_json
 
 
@@ -263,80 +263,55 @@ class Enrich(Workflow):
         self.enrich_data = {}
 
     @Workflow.log
-    def enrich_by_buildyear(self, instance, build_year,
-                            enrichment_parameter):
+    def enrich_instance(self, instance, build_year, enrichment_parameter):
         json_data = DataClass()
-        attrs_instance = {}
-        for i in instance.__dir__():
-            if not i.startswith("__"):
-                attrs_instance[str(i)] = getattr(instance, i)
-        for prop in attrs_instance:
-            if enrichment_parameter == "ifc":
-                enrich_data = Enrich_class()
-                if not hasattr(instance, "ifc_type"):
-                    self.logger.info("Enrichment parameter does not work with"
-                                     "the selected instance -- probe \"class\" as "
-                                     "enrichment parameter")
-                else:
-                    element_input_json.load_element_ifc(enrich_data,
-                                                        instance.ifc_type,
-                                                        build_year,
-                                                        json_data)
-                    attrs_enrich = vars(enrich_data)
-                    if bool(attrs_enrich) is True:
-                        if attrs_instance[str(prop)] is None:
-                            if not (attrs_enrich[str(prop)] is None)and (prop != "aggregation"):
-                                # attrs_instance[str(prop)] = attrs_enrich[str(prop)]
-                                setattr(instance, prop, attrs_enrich[str(prop)])
-                                self.logger.info("Element enriched successfully")
-                            else:
-                                self.logger.info("The enrichment parameter is "
-                                                 "missing or doesn´t exist in the enrichment file")
-                        # else:
-                            # attrs_instance[str(prop)] = attrs_instance[str(prop)]
-                    else:
-                        self.logger.info("There's no enrichment data to the instance")
-            elif enrichment_parameter == "class":
-                enrich_data = Enrich_class()
-                class_instance = str(instance.__class__)[str(instance.__class__).rfind(".") + 1:str(instance.__class__).rfind("'")]
-                element_input_json.load_element_class(enrich_data,
-                                                    class_instance,
+        enrich_data = Enrich_class()
+
+        if enrichment_parameter == "ifc":
+            if not hasattr(instance, "ifc_type"):
+                self.logger.info("Enrichment parameter does not work with"
+                                 "the selected instance -- probe \"class\" as "
+                                 "enrichment parameter")
+            else:
+                element_input_json.load_element_ifc(enrich_data,
+                                                    instance.ifc_type,
                                                     build_year,
                                                     json_data)
                 attrs_enrich = vars(enrich_data)
-                if bool(attrs_enrich) is True:
-                    if attrs_instance[str(prop)] is None:
-                        if not (attrs_enrich[str(prop)] is None) and (prop != "aggregation"):
-                            # attrs_instance[str(prop)] = attrs_enrich[str(prop)]
-                            setattr(instance, prop, attrs_enrich[str(prop)])
-                            self.logger.info("Element enriched successfully")
-                        else:
-                            self.logger.info("The enrichment parameter is "
-                                             "missing or doesn´t exist in the enrichment file")
-                    # else:
-                        # attrs_instance[str(prop)] = attrs_instance[str(prop)]
-                else:
-                    self.logger.info("There's no enrichment data to the instance")
-            else:
-                print("Parameter invalid")
+                return element_input_json.enrich_by_buildyear(self, attrs_enrich, instance)
 
+        elif enrichment_parameter == "class":
+            class_instance = str(instance.__class__)[
+                             str(instance.__class__).rfind(".") + 1:str(instance.__class__).rfind("'")]
+            element_input_json.load_element_class(enrich_data,
+                                                  class_instance,
+                                                  build_year,
+                                                  json_data)
+            attrs_enrich = vars(enrich_data)
+            return element_input_json.enrich_by_buildyear(self, attrs_enrich, instance)
+        else:
+            self.logger.warning("Parameter invalid")
 
         # target: the instances in the inspect.instances dict are filled up
         # with the data from the json file
-
-
     def run(self, instances, build_year, enrichment_parameter):
         self.logger.info("Enrichment of the elements")
+        # enriched_instances = instances
+        enriched_instances = {}
         for instance in instances:
             if hasattr(instance, "aggregation") and (instance.aggregation is not None):
                 for subinstance in instance.aggregation:
-                    self.enrich_by_buildyear(subinstance, build_year,
-                                               enrichment_parameter)
+                    new_instance = self.enrich_instance(subinstance, build_year, enrichment_parameter)
+                    enriched_instances[subinstance] = new_instance
+                    # new_aggregation = instance.aggregation
+                    # setattr(new_aggregation, subinstance, new_instance)
+                    # enriched_instances[enriched_instances.index(instance)] = new_aggregation
             else:
-                self.enrich_by_buildyear(instance, build_year,
-                                           enrichment_parameter)
-            # runs all enrich methods
+                new_instance = self.enrich_instance(instance, build_year, enrichment_parameter)
+                enriched_instances[instance] = new_instance
+                # enriched_instances[enriched_instances.index(instance)] = new_instance
 
+            # runs all enrich methods
 
 
 class DetectCycles(Workflow):

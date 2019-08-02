@@ -1,3 +1,7 @@
+from bim2sim.enrichtment_data.data_class import DataClass, Enrich_class
+from bim2sim.workflow import Workflow
+
+
 def load_element_ifc(element, ele_ifc, year, dataclass):
     """
     this function fills a data class object, with the information found in the
@@ -12,6 +16,7 @@ def load_element_ifc(element, ele_ifc, year, dataclass):
                         setattr(element, str(c),
                                 binding[a]["statistical_year"][b][c])
 
+
 def load_element_class(element, ele_class, year, dataclass):
     """
     this function fills a data class object, with the information found in the
@@ -25,3 +30,30 @@ def load_element_class(element, ele_class, year, dataclass):
                     for c in binding[a]["statistical_year"][b]:
                         setattr(element, str(c),
                                 binding[a]["statistical_year"][b][c])
+
+
+def enrich_by_buildyear(self, attrs_enrich, instance):
+    # new_instance = instance
+    new_instance = {}
+    if bool(attrs_enrich) is True:
+        attrs_instance = {}
+        for a in instance.__dir__():
+            if a in attrs_enrich:
+                attrs_instance[a] = getattr(instance, a)
+
+        for prop in attrs_instance:
+            if bool(attrs_enrich) is True:
+                if attrs_instance[prop] is None:
+                    if not attrs_enrich[prop] is None:
+                        # setattr(new_instance, prop, attrs_enrich[prop])
+                        new_instance[prop] = attrs_enrich[prop]
+                        self.logger.info("attribute enriched successfully")
+                    else:
+                        self.logger.info("The enrichment attribute is "
+                                         "missing or doesn´t exist in the enrichment file")
+            else:
+                self.logger.info("There's no enrichment data for the attribute")
+    else:
+        self.logger.warning("No enrichment parameters for the instance")
+
+    return new_instance
