@@ -6,6 +6,7 @@ from abc import ABCMeta, abstractmethod
 from bim2sim.project import PROJECT, get_config
 from bim2sim.ifc2python import ifc2python
 from data_class import DataClass
+from bim2sim.export.modelica import standardlibrary
 
 
 class BIM2SIMManager:
@@ -31,6 +32,10 @@ class BIM2SIMManager:
         self.logger.info("BIM2SIMManager '%s' initialized", self.__class__.__name__)
 
     def init_project(self):
+        """Check that json file is up to date (all years)"""
+        self.logger.warning("The missing items will be filled with 0 by default")
+        DC = DataClass()
+        DataClass.json_filler(DC, standardlibrary.elements.__dict__)
         """Check project folder and create it if necessary"""
         if not PROJECT.is_project_folder():
             self.logger.info("Creating project folder in '%s'", PROJECT.root)
@@ -38,11 +43,7 @@ class BIM2SIMManager:
         else:
             PROJECT.complete_project_folder()
 
-    def json_actualizer(self, instances):
-        """Check that json file is up to date (all years)"""
-        self.logger.warning("The missing items will be filled with 0 by default")
-        DC = DataClass()
-        DataClass.json_filler(DC, instances)
+
 
     @abstractmethod
     def run(self):

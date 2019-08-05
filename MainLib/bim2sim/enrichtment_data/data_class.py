@@ -60,33 +60,33 @@ class DataClass(object):
         data_update = json.load(open(self.path_te))
         for i in data_update["Boiler"]["statistical_year"]:
             year = str(i)
-
             for obj in elements_data:
-                name = obj[3:]
-                if name not in data_update:
-                    if name != "cached_property":
-                        data_update[name] = {}
-                        data_update[name]["class"] = name
-                        if hasattr(obj, "ifc_type"):
-                            data_update[name]["ifc_type"] = elements_data[obj].ifc_type
-                        data_update[name]["statistical_year"] = {}
-                        data_update[name]["statistical_year"][year] = {}
-                        data_update[name]["statistical_year"][year]["name"] = name + "_enrichment_" + year
-                        parameters = elements_data[obj].findables
-                        for parameter in parameters:
-                            data_update[name]["statistical_year"][year][parameter] = 0
-                else:
-                    if year not in data_update[name]["statistical_year"]:
-                        data_update[name]["statistical_year"][year] = {}
-                        data_update[name]["statistical_year"][year]["name"] = name + "_enrichment_" + year
-                        parameters = elements_data[obj].findables
-                        for parameter in parameters:
-                            data_update[name]["statistical_year"][year][parameter] = 0
-                    else:
-                        parameters = elements_data[obj].findables
-                        for parameter in parameters:
-                            if parameter not in data_update[name]["statistical_year"][year]:
+                name = obj
+                if inspect.isclass(obj):
+                    if name not in data_update:
+                        if name != "cached_property":
+                            data_update[name] = {}
+                            data_update[name]["class"] = name
+                            if hasattr(obj, "ifc_type"):
+                                data_update[name]["ifc_type"] = elements_data[obj].ifc_type
+                            data_update[name]["statistical_year"] = {}
+                            data_update[name]["statistical_year"][year] = {}
+                            data_update[name]["statistical_year"][year]["name"] = name + "_enrichment_" + year
+                            parameters = elements_data[obj].findables
+                            for parameter in parameters:
                                 data_update[name]["statistical_year"][year][parameter] = 0
+                    else:
+                        if year not in data_update[name]["statistical_year"]:
+                            data_update[name]["statistical_year"][year] = {}
+                            data_update[name]["statistical_year"][year]["name"] = name + "_enrichment_" + year
+                            parameters = elements_data[obj].findables
+                            for parameter in parameters:
+                                data_update[name]["statistical_year"][year][parameter] = 0
+                        else:
+                            parameters = elements_data[obj].findables
+                            for parameter in parameters:
+                                if parameter not in data_update[name]["statistical_year"][year]:
+                                    data_update[name]["statistical_year"][year][parameter] = 0
 
             with open(self.path_te, 'w') as f:
                 json.dump(data_update, f, indent=4)
