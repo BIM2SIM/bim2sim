@@ -33,8 +33,6 @@ def load_element_class(element, ele_class, year, dataclass):
 
 
 def enrich_by_buildyear(self, attrs_enrich, instance):
-    # new_instance = instance
-    new_instance = {}
     if bool(attrs_enrich) is True:
         attrs_instance = {}
         for a in instance.__dir__():
@@ -45,8 +43,7 @@ def enrich_by_buildyear(self, attrs_enrich, instance):
             if bool(attrs_enrich) is True:
                 if attrs_instance[prop] is None:
                     if not attrs_enrich[prop] is None:
-                        # setattr(new_instance, prop, attrs_enrich[prop])
-                        new_instance[prop] = attrs_enrich[prop]
+                        setattr(instance, prop + "_enriched", attrs_enrich[prop])
                         self.logger.info("attribute enriched successfully")
                     else:
                         self.logger.info("The enrichment attribute is "
@@ -56,4 +53,3 @@ def enrich_by_buildyear(self, attrs_enrich, instance):
     else:
         self.logger.warning("No enrichment parameters for the instance")
 
-    return new_instance

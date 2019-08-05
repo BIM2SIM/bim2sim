@@ -1,5 +1,6 @@
 ﻿import re
 from ast import literal_eval
+import random
 
 from bim2sim.manage import BIM2SIMManager, PROJECT
 from bim2sim.workflow import hvac
@@ -22,6 +23,8 @@ class AixLib(BIM2SIMManager):
             inspect.run(self.ifc, hvac.IFC_TYPES)
             inspect.save(PROJECT.workflow)
 
+        BIM2SIMManager.json_actualizer(self, inspect.instances['0qp4AmoWXEOvjK1C2NxtWe']._ifc_classes)
+
         makegraph = hvac.MakeGraph()
         if not makegraph.load(PROJECT.workflow):
             makegraph.run(list(inspect.instances.values()))
@@ -31,7 +34,7 @@ class AixLib(BIM2SIMManager):
         reduce.run(makegraph.graph)
 
         enrich = hvac.Enrich()
-        enrich.run(reduce.reduced_instances, 2006, "class")
+        enrich.run(reduce.reduced_instances, 2004, "class")
 
         #check
 

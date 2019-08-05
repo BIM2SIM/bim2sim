@@ -12,7 +12,7 @@ from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
-from bim2sim.enrichtment_data.data_class import DataClass, Enrich_class, New_instance, EnrichedInstances, NewAggregation
+from bim2sim.enrichtment_data.data_class import DataClass, Enrich_class
 from bim2sim.enrichtment_data import element_input_json
 
 
@@ -261,10 +261,10 @@ class Enrich(Workflow):
     def __init__(self):
         super().__init__()
         self.enrich_data = {}
+        self.enriched_instances = {}
 
     @Workflow.log
     def enrich_instance(self, instance, build_year, enrichment_parameter):
-
 
         json_data = DataClass()
         enrich_data = Enrich_class()
@@ -279,9 +279,8 @@ class Enrich(Workflow):
                                                     instance.ifc_type,
                                                     build_year,
                                                     json_data)
-                #todo @dco check class against existing classes in json
                 attrs_enrich = vars(enrich_data)
-                return element_input_json.enrich_by_buildyear(self, attrs_enrich, instance)
+                element_input_json.enrich_by_buildyear(self, attrs_enrich, instance)
 
         elif enrichment_parameter == "class":
             class_instance = str(instance.__class__)[
@@ -291,7 +290,7 @@ class Enrich(Workflow):
                                                   build_year,
                                                   json_data)
             attrs_enrich = vars(enrich_data)
-            return element_input_json.enrich_by_buildyear(self, attrs_enrich, instance)
+            element_input_json.enrich_by_buildyear(self, attrs_enrich, instance)
         else:
             self.logger.warning("Parameter invalid")
 
@@ -299,21 +298,16 @@ class Enrich(Workflow):
         # with the data from the json file
     def run(self, instances, build_year, enrichment_parameter):
         self.logger.info("Enrichment of the elements")
-        # enriched_instances = instances
-        enriched_instances = {}
-        for instance in instances:
-            if hasattr(instance, "aggregation") and (instance.aggregation is not None):
-                for subinstance in instance.aggregation:
-                    new_instance = self.enrich_instance(subinstance, build_year, enrichment_parameter)
-                    enriched_instances[subinstance] = new_instance
-                    # new_aggregation = instance.aggregation
-                    # setattr(new_aggregation, subinstance, new_instance)
-                    # enriched_instances[enriched_instances.index(instance)] = new_aggregation
+        enriched_instances = instances
+        for instance in enriched_instances:
+            if hasattr(instance, "elements"):
+                for subinstance in instance.elements:
+                    self.enrich_instance(subinstance, build_year, enrichment_parameter)
+            # elif instance.ifc_type == 'IfcTank':
+            #     print("Error here")
             else:
-                new_instance = self.enrich_instance(instance, build_year, enrichment_parameter)
-                enriched_instances[instance] = new_instance
-                # enriched_instances[enriched_instances.index(instance)] = new_instance
-
+                self.enrich_instance(instance, build_year, enrichment_parameter)
+        self.enriched_instances = enriched_instances
             # runs all enrich methods
 
 

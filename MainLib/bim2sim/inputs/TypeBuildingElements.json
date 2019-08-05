@@ -16,13 +16,6 @@
                 "min_power": 18,
                 "rated_power": 15,
                 "efficiency": 0.98
-            },
-            "2006": {
-                "name": "Boiler_enrichment_2006",
-                "water_volume": 0,
-                "min_power": 0,
-                "rated_power": 0,
-                "efficiency": 0
             }
         }
     },
@@ -46,127 +39,20 @@
                 "rated_height": 9,
                 "rated_volume_flow": 4.3,
                 "diameter": 40
-            },
-            "2006": {
-                "name": "Pump_enrichment_2006",
-                "rated_power": 0,
-                "rated_height": 0,
-                "rated_volume_flow": 0,
-                "diameter": 0
             }
         }
     },
-    "AirTerminal": {
-        "class": "AirTerminal",
-        "ifc_type": "IfcAirTerminal",
+    "PipeSegment": {
+        "class": "PipeSegment",
         "statistical_year": {
-            "2006": {
-                "name": "AirTerminal_enrichment_2006",
-                "diameter": 0
-            },
             "2000": {
-                "name": "AirTerminal_enrichment_2000",
-                "diameter": 0
-            },
-            "2004": {
-                "name": "AirTerminal_enrichment_2004",
-                "diameter": 0
-            }
-        }
-    },
-    "Duct": {
-        "class": "Duct",
-        "ifc_type": "IfcDuctSegment",
-        "statistical_year": {
-            "2006": {
-                "name": "Duct_enrichment_2006",
-                "diameter": 0,
-                "length": 0
-            },
-            "2000": {
-                "name": "Duct_enrichment_2000",
-                "diameter": 0,
-                "length": 0
-            },
-            "2004": {
-                "name": "Duct_enrichment_2004",
-                "diameter": 0,
-                "length": 0
-            }
-        }
-    },
-    "DuctFitting": {
-        "class": "DuctFitting",
-        "ifc_type": "IfcDuctFitting",
-        "statistical_year": {
-            "2006": {
-                "name": "DuctFitting_enrichment_2006",
-                "diameter": 0,
-                "length": 0
-            },
-            "2000": {
-                "name": "DuctFitting_enrichment_2000",
-                "diameter": 0,
-                "length": 0
-            },
-            "2004": {
-                "name": "DuctFitting_enrichment_2004",
-                "diameter": 0,
-                "length": 0
-            }
-        }
-    },
-    "Medium": {
-        "class": "Medium",
-        "ifc_type": "IfcDistributionSystems",
-        "statistical_year": {
-            "2006": {
-                "name": "Medium_enrichment_2006"
-            },
-            "2000": {
-                "name": "Medium_enrichment_2000"
-            },
-            "2004": {
-                "name": "Medium_enrichment_2004"
-            }
-        }
-    },
-    "OuterWall": {
-        "class": "OuterWall",
-        "ifc_type": "IfcWall",
-        "statistical_year": {
-            "2006": {
-                "name": "OuterWall_enrichment_2006",
-                "orientation": 0
-            },
-            "2000": {
-                "name": "OuterWall_enrichment_2000",
-                "orientation": 0
-            },
-            "2004": {
-                "name": "OuterWall_enrichment_2004",
-                "orientation": 0
-            }
-        }
-    },
-    "Pipe": {
-        "class": "Pipe",
-        "ifc_type": "IfcPipeSegment",
-        "statistical_year": {
-            "2006": {
-                "name": "Pipe_enrichment_2006",
-                "Pset_PipeSegmentTypeCommon": 0,
-                "diameter": 0,
-                "length": 0
-            },
-            "2000": {
-                "name": "Pipe_enrichment_2000",
+                "name": "PipeSegment_enrichment_2000",
                 "Pset_PipeSegmentTypeCommon": 0,
                 "diameter": 0,
                 "length": 0
             },
             "2004": {
-                "name": "Pipe_enrichment_2004",
+                "name": "PipeSegment_enrichment_2004",
                 "Pset_PipeSegmentTypeCommon": 0,
                 "diameter": 0,
                 "length": 0
@@ -175,15 +61,7 @@
     },
     "PipeFitting": {
         "class": "PipeFitting",
-        "ifc_type": "IfcPipeFitting",
         "statistical_year": {
-            "2006": {
-                "name": "PipeFitting_enrichment_2006",
-                "Pset_PipeFittingTypeCommon": 0,
-                "diameter": 0,
-                "length": 0,
-                "pressure_class": 0
-            },
             "2000": {
                 "name": "PipeFitting_enrichment_2000",
                 "Pset_PipeFittingTypeCommon": 0,
@@ -202,13 +80,7 @@
     },
     "SpaceHeater": {
         "class": "SpaceHeater",
-        "ifc_type": "IfcSpaceHeater",
         "statistical_year": {
-            "2006": {
-                "name": "SpaceHeater_enrichment_2006",
-                "nominal_power": 0,
-                "length": 0
-            },
             "2000": {
                 "name": "SpaceHeater_enrichment_2000",
                 "nominal_power": 0,
@@ -221,43 +93,9 @@
             }
         }
     },
-    "Storage": {
-        "class": "Storage",
-        "ifc_type": "IfcTank",
-        "statistical_year": {
-            "2006": {
-                "name": "Storage_enrichment_2006",
-                "storage_type": 0,
-                "height": 0,
-                "diameter": 0,
-                "port_positions": 0,
-                "volume": 0
-            },
-            "2000": {
-                "name": "Storage_enrichment_2000",
-                "storage_type": 0,
-                "height": 0,
-                "diameter": 0,
-                "port_positions": 0,
-                "volume": 0
-            },
-            "2004": {
-                "name": "Storage_enrichment_2004",
-                "storage_type": 0,
-                "height": 0,
-                "diameter": 0,
-                "port_positions": 0,
-                "volume": 0
-            }
-        }
-    },
     "StorageDevice": {
         "class": "StorageDevice",
-        "ifc_type": "IfcStorageDevice",
         "statistical_year": {
-            "2006": {
-                "name": "StorageDevice_enrichment_2006"
-            },
             "2000": {
                 "name": "StorageDevice_enrichment_2000"
             },
@@ -266,30 +104,30 @@
             }
         }
     },
-    "ThermalZones": {
-        "class": "ThermalZones",
-        "ifc_type": "IfcSpace",
+    "Tank": {
+        "class": "Tank",
         "statistical_year": {
-            "2006": {
-                "name": "ThermalZones_enrichment_2006"
-            },
             "2000": {
-                "name": "ThermalZones_enrichment_2000"
+                "name": "Tank_enrichment_2000",
+                "storage_type": 0,
+                "height": 0,
+                "diameter": 0,
+                "port_positions": 0,
+                "volume": 0
             },
             "2004": {
-                "name": "ThermalZones_enrichment_2004"
+                "name": "Tank_enrichment_2004",
+                "storage_type": 0,
+                "height": 0,
+                "diameter": 0,
+                "port_positions": 0,
+                "volume": 0
             }
         }
     },
     "Valve": {
         "class": "Valve",
-        "ifc_type": "IfcValve",
         "statistical_year": {
-            "2006": {
-                "name": "Valve_enrichment_2006",
-                "diameter": 0,
-                "length": 0
-            },
             "2000": {
                 "name": "Valve_enrichment_2000",
                 "diameter": 0,
@@ -302,16 +140,74 @@
             }
         }
     },
+    "DuctSegment": {
+        "class": "DuctSegment",
+        "statistical_year": {
+            "2000": {
+                "name": "DuctSegment_enrichment_2000",
+                "diameter": 0,
+                "length": 0
+            },
+            "2004": {
+                "name": "DuctSegment_enrichment_2004",
+                "diameter": 0,
+                "length": 0
+            }
+        }
+    },
+    "DuctFitting": {
+        "class": "DuctFitting",
+        "statistical_year": {
+            "2000": {
+                "name": "DuctFitting_enrichment_2000",
+                "diameter": 0,
+                "length": 0
+            },
+            "2004": {
+                "name": "DuctFitting_enrichment_2004",
+                "diameter": 0,
+                "length": 0
+            }
+        }
+    },
+    "AirTerminal": {
+        "class": "AirTerminal",
+        "statistical_year": {
+            "2000": {
+                "name": "AirTerminal_enrichment_2000",
+                "diameter": 0
+            },
+            "2004": {
+                "name": "AirTerminal_enrichment_2004",
+                "diameter": 0
+            }
+        }
+    },
+    "Space": {
+        "class": "Space",
+        "statistical_year": {
+            "2000": {
+                "name": "Space_enrichment_2000"
+            },
+            "2004": {
+                "name": "Space_enrichment_2004"
+            }
+        }
+    },
+    "DistributionSystems": {
+        "class": "DistributionSystems",
+        "statistical_year": {
+            "2000": {
+                "name": "DistributionSystems_enrichment_2000"
+            },
+            "2004": {
+                "name": "DistributionSystems_enrichment_2004"
+            }
+        }
+    },
     "Wall": {
         "class": "Wall",
-        "ifc_type": "IfcWall",
         "statistical_year": {
-            "2006": {
-                "name": "Wall_enrichment_2006",
-                "area": 0,
-                "capacity": 0,
-                "u_value": 0
-            },
             "2000": {
                 "name": "Wall_enrichment_2000",
                 "area": 0,
@@ -328,14 +224,7 @@
     },
     "Window": {
         "class": "Window",
-        "ifc_type": "IfcWindow",
         "statistical_year": {
-            "2006": {
-                "name": "Window_enrichment_2006",
-                "area": 0,
-                "u_value": 0,
-                "g_value": 0
-            },
             "2000": {
                 "name": "Window_enrichment_2000",
                 "area": 0,
