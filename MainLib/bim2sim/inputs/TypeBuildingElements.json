@@ -42,20 +42,20 @@
             }
         }
     },
-    "PipeSegment": {
-        "class": "PipeSegment",
+    "Pipe": {
+        "class": "Pipe",
         "statistical_year": {
             "2000": {
-                "name": "PipeSegment_enrichment_2000",
-                "Pset_PipeSegmentTypeCommon": 0,
-                "diameter": 0,
-                "length": 0
+                "name": "Pipe_enrichment_2000",
+                "Pset_PipeSegmentTypeCommon": null,
+                "diameter": null,
+                "length": null
             },
             "2004": {
-                "name": "PipeSegment_enrichment_2004",
-                "Pset_PipeSegmentTypeCommon": 0,
-                "diameter": 0,
-                "length": 0
+                "name": "Pipe_enrichment_2004",
+                "Pset_PipeSegmentTypeCommon": null,
+                "diameter": null,
+                "length": null
             }
         }
     },
@@ -64,17 +64,17 @@
         "statistical_year": {
             "2000": {
                 "name": "PipeFitting_enrichment_2000",
-                "Pset_PipeFittingTypeCommon": 0,
-                "diameter": 0,
-                "length": 0,
-                "pressure_class": 0
+                "Pset_PipeFittingTypeCommon": null,
+                "diameter": null,
+                "length": null,
+                "pressure_class": null
             },
             "2004": {
                 "name": "PipeFitting_enrichment_2004",
-                "Pset_PipeFittingTypeCommon": 0,
-                "diameter": 0,
-                "length": 0,
-                "pressure_class": 0
+                "Pset_PipeFittingTypeCommon": null,
+                "diameter": null,
+                "length": null,
+                "pressure_class": null
             }
         }
     },
@@ -83,13 +83,13 @@
         "statistical_year": {
             "2000": {
                 "name": "SpaceHeater_enrichment_2000",
-                "nominal_power": 0,
-                "length": 0
+                "nominal_power": null,
+                "length": null
             },
             "2004": {
                 "name": "SpaceHeater_enrichment_2004",
-                "nominal_power": 0,
-                "length": 0
+                "nominal_power": null,
+                "length": null
             }
         }
     },
@@ -104,24 +104,24 @@
             }
         }
     },
-    "Tank": {
-        "class": "Tank",
+    "Storage": {
+        "class": "Storage",
         "statistical_year": {
             "2000": {
-                "name": "Tank_enrichment_2000",
-                "storage_type": 0,
-                "height": 0,
-                "diameter": 0,
-                "port_positions": 0,
-                "volume": 0
+                "name": "Storage_enrichment_2000",
+                "storage_type": null,
+                "height": null,
+                "diameter": null,
+                "port_positions": null,
+                "volume": null
             },
             "2004": {
-                "name": "Tank_enrichment_2004",
-                "storage_type": 0,
-                "height": 0,
-                "diameter": 0,
-                "port_positions": 0,
-                "volume": 0
+                "name": "Storage_enrichment_2004",
+                "storage_type": null,
+                "height": null,
+                "diameter": null,
+                "port_positions": null,
+                "volume": null
             }
         }
     },
@@ -130,28 +130,28 @@
         "statistical_year": {
             "2000": {
                 "name": "Valve_enrichment_2000",
-                "diameter": 0,
-                "length": 0
+                "diameter": null,
+                "length": null
             },
             "2004": {
                 "name": "Valve_enrichment_2004",
-                "diameter": 0,
-                "length": 0
+                "diameter": null,
+                "length": null
             }
         }
     },
-    "DuctSegment": {
-        "class": "DuctSegment",
+    "Duct": {
+        "class": "Duct",
         "statistical_year": {
             "2000": {
-                "name": "DuctSegment_enrichment_2000",
-                "diameter": 0,
-                "length": 0
+                "name": "Duct_enrichment_2000",
+                "diameter": null,
+                "length": null
             },
             "2004": {
-                "name": "DuctSegment_enrichment_2004",
-                "diameter": 0,
-                "length": 0
+                "name": "Duct_enrichment_2004",
+                "diameter": null,
+                "length": null
             }
         }
     },
@@ -160,13 +160,13 @@
         "statistical_year": {
             "2000": {
                 "name": "DuctFitting_enrichment_2000",
-                "diameter": 0,
-                "length": 0
+                "diameter": null,
+                "length": null
             },
             "2004": {
                 "name": "DuctFitting_enrichment_2004",
-                "diameter": 0,
-                "length": 0
+                "diameter": null,
+                "length": null
             }
         }
     },
@@ -175,33 +175,33 @@
         "statistical_year": {
             "2000": {
                 "name": "AirTerminal_enrichment_2000",
-                "diameter": 0
+                "diameter": null
             },
             "2004": {
                 "name": "AirTerminal_enrichment_2004",
-                "diameter": 0
+                "diameter": null
             }
         }
     },
-    "Space": {
-        "class": "Space",
+    "ThermalZones": {
+        "class": "ThermalZones",
         "statistical_year": {
             "2000": {
-                "name": "Space_enrichment_2000"
+                "name": "ThermalZones_enrichment_2000"
             },
             "2004": {
-                "name": "Space_enrichment_2004"
+                "name": "ThermalZones_enrichment_2004"
             }
         }
     },
-    "DistributionSystems": {
-        "class": "DistributionSystems",
+    "Medium": {
+        "class": "Medium",
         "statistical_year": {
             "2000": {
-                "name": "DistributionSystems_enrichment_2000"
+                "name": "Medium_enrichment_2000"
             },
             "2004": {
-                "name": "DistributionSystems_enrichment_2004"
+                "name": "Medium_enrichment_2004"
             }
         }
     },
@@ -210,15 +210,32 @@
         "statistical_year": {
             "2000": {
                 "name": "Wall_enrichment_2000",
-                "area": 0,
-                "capacity": 0,
-                "u_value": 0
+                "area": null,
+                "capacity": null,
+                "u_value": null
             },
             "2004": {
                 "name": "Wall_enrichment_2004",
-                "area": 0,
-                "capacity": 0,
-                "u_value": 0
+                "area": null,
+                "capacity": null,
+                "u_value": null
+            }
+        }
+    },
+    "OuterWall": {
+        "class": "OuterWall",
+        "statistical_year": {
+            "2000": {
+                "name": "OuterWall_enrichment_2000",
+                "area": null,
+                "capacity": null,
+                "u_value": null
+            },
+            "2004": {
+                "name": "OuterWall_enrichment_2004",
+                "area": null,
+                "capacity": null,
+                "u_value": null
             }
         }
     },
@@ -227,15 +244,15 @@
         "statistical_year": {
             "2000": {
                 "name": "Window_enrichment_2000",
-                "area": 0,
-                "u_value": 0,
-                "g_value": 0
+                "area": null,
+                "u_value": null,
+                "g_value": null
             },
             "2004": {
                 "name": "Window_enrichment_2004",
-                "area": 0,
-                "u_value": 0,
-                "g_value": 0
+                "area": null,
+                "u_value": null,
+                "g_value": null
             }
         }
     }

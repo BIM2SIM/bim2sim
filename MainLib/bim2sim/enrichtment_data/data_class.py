@@ -3,7 +3,6 @@ import sys
 import json
 import project
 import inspect
-# import elements
 
 v = sys.version_info
 if v >= (2, 7):
@@ -58,11 +57,12 @@ class DataClass(object):
 
     def json_filler(self, elements_data):
         data_update = json.load(open(self.path_te))
+        default = None
         for i in data_update["Boiler"]["statistical_year"]:
             year = str(i)
             for obj in elements_data:
                 name = obj
-                if inspect.isclass(obj):
+                if inspect.isclass(elements_data[obj]):
                     if name not in data_update:
                         if name != "cached_property":
                             data_update[name] = {}
@@ -74,21 +74,21 @@ class DataClass(object):
                             data_update[name]["statistical_year"][year]["name"] = name + "_enrichment_" + year
                             parameters = elements_data[obj].findables
                             for parameter in parameters:
-                                data_update[name]["statistical_year"][year][parameter] = 0
+                                data_update[name]["statistical_year"][year][parameter] = default
                     else:
                         if year not in data_update[name]["statistical_year"]:
                             data_update[name]["statistical_year"][year] = {}
                             data_update[name]["statistical_year"][year]["name"] = name + "_enrichment_" + year
                             parameters = elements_data[obj].findables
                             for parameter in parameters:
-                                data_update[name]["statistical_year"][year][parameter] = 0
+                                data_update[name]["statistical_year"][year][parameter] = default
                         else:
                             parameters = elements_data[obj].findables
                             for parameter in parameters:
                                 if parameter not in data_update[name]["statistical_year"][year]:
-                                    data_update[name]["statistical_year"][year][parameter] = 0
+                                    data_update[name]["statistical_year"][year][parameter] = default
 
-            with open(self.path_te, 'w') as f:
+        with open(self.path_te, 'w') as f:
                 json.dump(data_update, f, indent=4)
 
 
