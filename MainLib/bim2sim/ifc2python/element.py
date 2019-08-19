@@ -135,6 +135,7 @@ class IFCBased(Root):
     """Mixin for all IFC representating classes"""
     ifc_type = None
     _ifc_classes = {}
+    pattern_ifc_type = []
 
     def __init__(self, ifc, *args, **kwargs):
         super().__init__(*args, guid=ifc.GlobalId, **kwargs)
@@ -249,6 +250,24 @@ class IFCBased(Root):
                 if match:
                     matches.append((propertyset_name, property_name, match))
         return matches
+
+    @classmethod
+    def filter_for_text_fracments(cls, ifc_element, optional_locations: list = None):
+        results = []
+        hits = [p.match(ifc_element.Name) for p in cls.pattern_ifc_type]
+        if any(hits):
+            logger = logging.getLogger('IFCModelCreation')
+            logger.info("Identified %s through text fracments in name. Criteria: %s", cls.ifc_type, hits)
+            results.append(hits[0][0])
+            #return hits[0][0]
+        if optional_locations:
+            for loc in optional_locations:
+                hits = [p.match(ifc2python.get_Property_Set(loc, ifc_element)) for p in cls.pattern_ifc_type if ifc2python.get_Property_Set(loc, ifc_element)]
+                if any(hits):
+                    logger = logging.getLogger('IFCModelCreation')
+                    logger.info("Identified %s through text fracments in %s. Criteria: %s", cls.ifc_type, loc, hits)
+                    results.append(hits[0][0])
+        return results if results else ''
 
     def get_exact_property(self, propertyset_name, property_name):
         """Returns value of property specified by propertyset name and property name
@@ -527,6 +546,7 @@ class Element(BaseElement, IFCBased):
         """initialize lookup for factory"""
         logger = logging.getLogger(__name__)
         conflict = False
+        s=Element.__subclasses__()
         for cls in Element.__subclasses__():
             if cls.ifc_type is None:
                 conflict = True
@@ -556,13 +576,13 @@ class Element(BaseElement, IFCBased):
                      len(Element._ifc_classes), model_txt)
 
     @staticmethod
-    def factory(ifc_element, tool=None):
+    def factory(ifc_element, alternate_ifc_type = None, tool=None):
         """Create model depending on ifc_element"""
 
         if not Element._ifc_classes:
             Element._init_factory()
 
-        ifc_type = ifc_element.is_a()
+        ifc_type = ifc_element.is_a() if not alternate_ifc_type or alternate_ifc_type == ifc_element.is_a() else alternate_ifc_type
         cls = Element._ifc_classes.get(ifc_type, Element.dummy)
         if cls is Element.dummy:
             logger = logging.getLogger(__name__)

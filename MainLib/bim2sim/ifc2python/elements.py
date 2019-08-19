@@ -10,9 +10,45 @@ from bim2sim.ifc2python import element
 from bim2sim.decision import BoolDecision
 
 
+class HeatPump(element.Element):
+    """"HeatPump"""
+
+    ifc_type = 'IfcHeatPump'
+
+    pattern_ifc_type = [
+        re.compile('Heat.?pump', flags=re.IGNORECASE),
+        re.compile('W(ä|ae)rme.?pumpe', flags=re.IGNORECASE),
+    ]
+
+    @cached_property
+    def min_power(self):
+        """min_power: float
+            Minimum power that HeatPump operates at."""
+        return None
+
+    @cached_property
+    def rated_power(self):
+        """rated_power: float
+            Rated power of HeatPump."""
+        return None
+
+    @cached_property
+    def efficiency(self):
+        """efficiency: list
+            Efficiency of HeatPump provided as list with pairs of [
+            percentage_of_rated_power,efficiency]"""
+        return None
+
+
 class Boiler(element.Element):
     """Boiler"""
     ifc_type = 'IfcBoiler'
+
+    pattern_ifc_type = [
+        re.compile('Heat.?pump', flags=re.IGNORECASE),
+        re.compile('Kessel', flags=re.IGNORECASE),
+        re.compile('Boiler', flags=re.IGNORECASE),
+    ]
 
     #def _add_ports(self):
     #    super()._add_ports()
@@ -92,6 +128,10 @@ class Boiler(element.Element):
 
 class Pipe(element.Element):
     ifc_type = "IfcPipeSegment"
+    pattern_ifc_type = [
+        re.compile('Pipe', flags=re.IGNORECASE),
+        re.compile('Rohr', flags=re.IGNORECASE)
+    ]
     default_diameter = ('Pset_PipeSegmentTypeCommon', 'NominalDiameter')
     pattern_diameter = [
         re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
@@ -184,6 +224,11 @@ class StorageDevice(element.Element):
 
 class Storage(element.Element):
     ifc_type = "IfcTank"
+
+    pattern_ifc_type = [
+        re.compile('Tank', flags=re.IGNORECASE),
+        re.compile('Speicher', flags=re.IGNORECASE),
+    ]
 
     @property
     def storage_type(self):

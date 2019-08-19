@@ -12,7 +12,7 @@ from bim2sim.ifc2python.aggregation import PipeStrand
 from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort, Root
 from bim2sim.ifc2python.hvac import hvac_graph
 from bim2sim.export import modelica
-from bim2sim.decision import Decision
+from bim2sim.decision import Decision, DictDecision, ListDecision
 from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
 
@@ -52,7 +52,7 @@ IFC_TYPES = (
     #'IfcUnitaryEquipment',
     'IfcValve',
     'IfcVibrationIsolator',
-    'IfcHeatPump'
+    #'IfcHeatPump'
 )
 
 Text_Fracments={
@@ -201,21 +201,33 @@ class Inspect(Workflow):
     def run(self, ifc, prepare):
         self.logger.info("Creates python representation of relevant ifc types")
 
-        # for ifc_type in relevant_ifc_types:
-        #     elements = ifc.by_type(ifc_type)
-        #     for element in elements:
-        #         representation = Element.factory(element)
-        #         self.instances[representation.guid] = representation
-        # self.logger.info("Found %d relevant elements", len(self.instances))
-
         for f in prepare.filters:
-            elements_dict = f.run(ifc)
-            for ifc_type, elements in elements_dict.items():
-                for element in elements:
-                    representation = Element.factory(element)
-                    self.instances[representation.guid] = representation
-        self.logger.info("Found %d relevant elements", len(self.instances))
+            if isinstance(f, TypeFilter):
+                elements_dict = f.run(ifc)
+                for ifc_type, elements in elements_dict.items():
+                    for element in elements:
+                        representation = Element.factory(element, ifc_type)
+                        self.instances[representation.guid] = representation
 
+            elif isinstance(f, TextFilter):
+                elements_dict = f.run(ifc)
+                self.answers={}
+                for k, v in elements_dict.items():
+                    if len(v) > 1:
+                        ListDecision(
+                            "Multiple possibilities found",
+                            choices=[[cls, "Match: '" + ",".join(cls.filter_for_text_fracments(k)) + "' in " + " or ".join(
+                                ["'%s'" % txt for txt in [k.Name, k.Description] if txt])] for cls in v],
+                            output=self.answers,
+                            output_key=k,
+                            global_key="%s.%s"% (k.is_a(), k.GlobalId),
+                            allow_skip=True, allow_load=True, allow_save=True,
+                            collect=True, quick_decide=not True)
+                Decision.decide_collected()
+                for a, v in self.answers.items():
+                    representation = Element.factory(a, v[0].ifc_type)
+                    self.instances[representation.guid] = representation
+                self.logger.info("Found %d relevant elements", len(self.instances))
 
         # connections
         self.logger.info("Checking ports of elements ...")
