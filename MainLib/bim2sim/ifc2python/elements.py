@@ -6,7 +6,7 @@ import re
 import numpy as np
 
 from bim2sim.decorators import cached_property
-from bim2sim.ifc2python import element
+from bim2sim.ifc2python import element, condition
 from bim2sim.decision import BoolDecision
 
 
@@ -45,7 +45,7 @@ class Boiler(element.Element):
     ifc_type = 'IfcBoiler'
 
     pattern_ifc_type = [
-        re.compile('Heat.?pump', flags=re.IGNORECASE),
+        #re.compile('Heat.?pump', flags=re.IGNORECASE),
         re.compile('Kessel', flags=re.IGNORECASE),
         re.compile('Boiler', flags=re.IGNORECASE),
     ]
@@ -142,6 +142,9 @@ class Pipe(element.Element):
         re.compile('.*Länge.*', flags=re.IGNORECASE),
         re.compile('.*Length.*', flags=re.IGNORECASE),
     ]
+    conditions = [
+        condition.RangeCondition("diameter", 5.0, 200.00)   #ToDo: unit?!
+    ]
 
     @property
     def diameter(self):
@@ -181,6 +184,10 @@ class Pipe(element.Element):
 
 class PipeFitting(element.Element):
     ifc_type = "IfcPipeFitting"
+    pattern_ifc_type = [
+        # re.compile('Pipe', flags=re.IGNORECASE),
+        # re.compile('Rohr', flags=re.IGNORECASE)
+    ]
     default_diameter = ('Pset_PipeFittingTypeCommon', 'NominalDiameter')
     default_pressure_class = ('Pset_PipeFittingTypeCommon', 'PressureClass')
     
@@ -208,7 +215,9 @@ class PipeFitting(element.Element):
 
 class SpaceHeater(element.Element):
     ifc_type = 'IfcSpaceHeater'
-
+    pattern_ifc_type = [
+        re.compile('Space.?heater', flags=re.IGNORECASE)
+    ]
     @cached_property
     def nominal_power(self):
         return 42.0
@@ -220,11 +229,13 @@ class SpaceHeater(element.Element):
 
 class StorageDevice(element.Element):
     ifc_type = "IfcStorageDevice"
+    pattern_ifc_type = [
+        re.compile('Storage.?device', flags=re.IGNORECASE)
+    ]
 
 
 class Storage(element.Element):
     ifc_type = "IfcTank"
-
     pattern_ifc_type = [
         re.compile('Tank', flags=re.IGNORECASE),
         re.compile('Speicher', flags=re.IGNORECASE),
@@ -253,7 +264,11 @@ class Storage(element.Element):
 
 class Distributor(element.Element):
     ifc_type = "IfcDistributionChamberElement"
-
+    pattern_ifc_type = [
+        re.compile('Distribution.?chamber', flags=re.IGNORECASE),
+        re.compile('Distributior', flags=re.IGNORECASE),
+        re.compile('Verteiler', flags=re.IGNORECASE)
+    ]
     @property
     def volume(self):
         return 100
@@ -265,6 +280,10 @@ class Distributor(element.Element):
 
 class Pump(element.Element):
     ifc_type = "IfcPump"
+    pattern_ifc_type = [
+        re.compile('Pumpe', flags=re.IGNORECASE),
+        re.compile('Pump', flags=re.IGNORECASE)
+        ]
 
     @property
     def rated_power(self):
@@ -285,6 +304,11 @@ class Pump(element.Element):
 
 class Valve(element.Element):
     ifc_type = "IfcValve"
+    pattern_ifc_type = [
+        re.compile('Valve', flags=re.IGNORECASE),
+        re.compile('Drossel', flags=re.IGNORECASE),
+        re.compile('Ventil', flags=re.IGNORECASE)
+    ]
 
     @cached_property
     def diameter(self):
@@ -297,7 +321,9 @@ class Valve(element.Element):
 
 class Duct(element.Element):
     ifc_type = "IfcDuctSegment"
-
+    pattern_ifc_type = [
+        re.compile('Duct.?segment', flags=re.IGNORECASE)
+        ]
     @property
     def diameter(self):
         return 1
@@ -309,7 +335,9 @@ class Duct(element.Element):
 
 class DuctFitting(element.Element):
     ifc_type = "IfcDuctFitting"
-
+    pattern_ifc_type = [
+        re.compile('Duct.?fitting', flags=re.IGNORECASE)
+        ]
     @property
     def diameter(self):
         return 1
@@ -321,6 +349,9 @@ class DuctFitting(element.Element):
 
 class AirTerminal(element.Element):
     ifc_type = "IfcAirTerminal"
+    pattern_ifc_type = [
+        re.compile('Air.?terminal', flags=re.IGNORECASE)
+        ]
 
     @property
     def diameter(self):
@@ -329,15 +360,25 @@ class AirTerminal(element.Element):
 
 class ThermalZones(element.Element):
     ifc_type = "IfcSpace"
-
+    pattern_ifc_type = [
+        re.compile('Space', flags=re.IGNORECASE),
+        re.compile('Zone', flags=re.IGNORECASE)
+        ]
 
 
 class Medium(element.Element):
     ifc_type = "IfcDistributionSystems"
+    pattern_ifc_type = [
+        re.compile('Medium', flags=re.IGNORECASE)
+        ]
 
 
 class Wall(element.Element):
     ifc_type = "IfcWall"
+    pattern_ifc_type = [
+        re.compile('Wall', flags=re.IGNORECASE),
+        re.compile('Wand', flags=re.IGNORECASE)
+        ]
 
     @property
     def area(self):
@@ -353,6 +394,11 @@ class Wall(element.Element):
 
 
 class OuterWall(Wall):
+    pattern_ifc_type = [
+        re.compile('Outer.?wall', flags=re.IGNORECASE),
+        re.compile('Außen.?wand', flags=re.IGNORECASE)
+        ]
+
     @property
     def orientation(self):
         return 1
@@ -360,6 +406,10 @@ class OuterWall(Wall):
 
 class Window(element.Element):
     ifc_type = "IfcWindow"
+    pattern_ifc_type = [
+        re.compile('Window', flags=re.IGNORECASE),
+        re.compile('Fenster', flags=re.IGNORECASE)
+        ]
 
     @property
     def area(self):
@@ -372,9 +422,5 @@ class Window(element.Element):
     @property
     def g_value(self):
         return 1
-
-# class ThermalZone(element.Element):
-#     ifc_type = "IfcSpace"
-
 
 __all__ = [ele for ele in locals().values() if ele in element.Element.__subclasses__()]

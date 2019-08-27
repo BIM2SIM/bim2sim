@@ -55,13 +55,6 @@ IFC_TYPES = (
     #'IfcHeatPump'
 )
 
-Text_Fracments={
-    'IfcBoiler': ['Kessel','Boiler'],
-    'IfcAirTerminal': ['RLT','Lüftungsanlage','Belüftungsanlage'],
-    'IfcHeatPump': ['Heat_Pump', 'HeatPump', 'Wärmepumpe', 'Wärme_Pumpe']
-}
-
-
 class Inspect(Workflow):
     """Analyses IFC, creates Element instances and connects them.
 
@@ -201,21 +194,27 @@ class Inspect(Workflow):
     def run(self, ifc, prepare):
         self.logger.info("Creates python representation of relevant ifc types")
 
+        elements_dict = {}
+
         for f in prepare.filters:
-            if isinstance(f, TypeFilter):
-                elements_dict = f.run(ifc)
-                for ifc_type, elements in elements_dict.items():
+            if isinstance(f, TypeFilter): #ToDo: TypeFilter must be first if the following Filter should also search in this types!
+                elements_dict, filtered_elements = f.run(ifc, elements_dict)
+                for ifc_type, elements in filtered_elements.items():
+                    removables = []
                     for element in elements:
                         representation = Element.factory(element, ifc_type)
-                        self.instances[representation.guid] = representation
+                        if representation:
+                            self.instances[representation.guid] = representation
+                            removables.append(element)
+                    elements_dict[ifc_type] = [ele for ele in elements_dict[ifc_type] if ele not in removables]
 
             elif isinstance(f, TextFilter):
-                elements_dict = f.run(ifc)
+                elements_dict, filtered_elements = f.run(ifc, elements_dict)
                 self.answers={}
-                for k, v in elements_dict.items():
-                    if len(v) > 1:
+                for k, v in filtered_elements.items():
+                    if len(v) > 0:
                         ListDecision(
-                            "Multiple possibilities found",
+                            "Found following Matches:",
                             choices=[[cls, "Match: '" + ",".join(cls.filter_for_text_fracments(k)) + "' in " + " or ".join(
                                 ["'%s'" % txt for txt in [k.Name, k.Description] if txt])] for cls in v],
                             output=self.answers,
@@ -226,8 +225,13 @@ class Inspect(Workflow):
                 Decision.decide_collected()
                 for a, v in self.answers.items():
                     representation = Element.factory(a, v[0].ifc_type)
-                    self.instances[representation.guid] = representation
-                self.logger.info("Found %d relevant elements", len(self.instances))
+                    if representation:
+                        self.instances[representation.guid] = representation
+                        elements_dict[a.is_a()].remove(a)
+
+        self.logger.info("Found %d relevant elements", len(self.instances))
+        self.logger.info("Found %d ifc_elements that could not be identified and transformed into a python element.",
+                         sum([len(v) for v in elements_dict.values()]))
 
         # connections
         self.logger.info("Checking ports of elements ...")
@@ -291,7 +295,7 @@ class Prepare(Workflow):
         Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
         self.filters.append(TypeFilter(relevant_ifc_types))
-        self.filters.append(TextFilter(['IfcBuildingElementProxy', 'IfcUnitaryEquipment'], Text_Fracments, ['IfcName']))
+        self.filters.append(TextFilter(['IfcBuildingElementProxy', 'IfcUnitaryEquipment']))
 
 
 class MakeGraph(Workflow):

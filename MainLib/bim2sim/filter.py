@@ -14,7 +14,7 @@ class Filter():
 
     def run(self):
         """Apply the Filter on IFC File"""
-        raise NotImplementedError("Must overwride method 'matches'")
+        raise NotImplementedError("Must overwride method 'run'")
 
     def __repr__(self):
         return "<%s>"%(self.__class__.__name__)
@@ -28,28 +28,38 @@ class TypeFilter(Filter):
 
     def matches(self, ifcelement):
         __doc__ = super().matches.__doc__
-        return ifcelement.type in self.ifc_types #TODO: string based
+        return ifcelement.type in self.ifc_types  #TODO: string based
 
-    def run(self, ifc):
+    def run(self, ifc, source_ifc_elements={}):
         __doc__ = super().run.__doc__
-        elements = {}
+        filter_results = {}
+
         for ifc_type in self.ifc_types:
-            e = ifc.by_type(ifc_type)
-            if e:
-                elements[ifc_type] = ifc.by_type(ifc_type)
-        return elements
+            if ifc_type not in source_ifc_elements:
+                filter_results[ifc_type] = ifc.by_type(ifc_type) or []
+                source_ifc_elements[ifc_type] = filter_results[ifc_type]
+            else:
+                filter_results[ifc_type] = source_ifc_elements[ifc_type]
+        return source_ifc_elements, filter_results
 
 class TextFilter(Filter):
     """Filter for unknown properties by text fracments"""
 
-    def __init__(self, ifc_types: list, text_fracments: dict, optional_locations: list = None):
+    def __init__(self, ifc_types: list, optional_locations: list = None, mode: int = 0):
+        """"
+        :param mode:    0 - include search in all ifc_types of previous filter
+                        1 - only search ifc_types of this filter
+        """
         super().__init__()
         self.ifc_types = ifc_types
-        self.text_fracments = text_fracments
         self.optional_locations = optional_locations
+        self.mode = mode
+        if self.mode not in [0, 1]:
+            raise ValueError("TextFilter: 'Mode' not in [0, 1]")
 
     def matches(self, ifcelement):
         __doc__ = super().matches.__doc__
+        raise NotImplementedError("Must overwride method 'matches'")
         if ifcelement:
             #Pseudocode: check if element contains Text_fracments[ifc_property]
             element = None
@@ -59,15 +69,21 @@ class TextFilter(Filter):
             elements = None
             return elements
 
-    def run(self, ifc):
+    def run(self, ifc, source_ifc_elements={}):
         __doc__ = super().run.__doc__
-        ifc_elements = []
-        elements = {}
+        filter_results = {}
         for ifc_type in self.ifc_types:
-            ifc_elements.extend(ifc.by_type(ifc_type))
-        for ifc_element in ifc_elements:
-            elements[ifc_element] = [cls for cls in Element._ifc_classes.values() if cls.filter_for_text_fracments(ifc_element, self.optional_locations)]
-        return elements
+            if ifc_type not in source_ifc_elements:
+                source_ifc_elements[ifc_type] = ifc.by_type(ifc_type) or []
+        if self.mode == 0:
+            for ifc_type, ifc_elements in source_ifc_elements.items():
+                for ifc_element in ifc_elements:
+                    filter_results[ifc_element] = [cls for cls in Element._ifc_classes.values() if cls.filter_for_text_fracments(ifc_element, self.optional_locations)]
+        elif self.mode == 1:
+            for ifc_type in self.ifc_types:
+                for ifc_element in source_ifc_elements[ifc_type]:
+                    filter_results[ifc_element] = [cls for cls in Element._ifc_classes.values() if cls.filter_for_text_fracments(ifc_element, self.optional_locations)]
+        return source_ifc_elements, filter_results
 
 class GeometricFilter(Filter):
     """Filter based on geometric position"""
@@ -97,11 +113,11 @@ class GeometricFilter(Filter):
 
     def matches(self, ifcelement):
         __doc__ = super().matches.__doc__
-        raise NotImplementedError("ToDo") # TODO
+        raise NotImplementedError("ToDo")  #TODO
 
 class ZoneFilter(GeometricFilter):
     """Filter elements within given zone"""
 
     def __init__(self, zone):
-        raise NotImplementedError("ToDo") # TODO
+        raise NotImplementedError("ToDo")  #TODO
         #super().__init__(x_min, x_max, y_min, y_max, z_min, z_max)

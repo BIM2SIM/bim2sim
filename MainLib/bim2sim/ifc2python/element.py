@@ -530,6 +530,7 @@ class Element(BaseElement, IFCBased):
 
     dummy = None
     finder = None
+    conditions = []
 
     def __init__(self, *args, tool=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -588,7 +589,17 @@ class Element(BaseElement, IFCBased):
             logger = logging.getLogger(__name__)
             logger.warning("Did not found matching class for %s", ifc_type)
 
-        return cls(ifc=ifc_element, tool=tool)
+        prefac=cls(ifc=ifc_element, tool=tool)
+
+        return prefac if prefac.validate() else None
+
+
+    def validate(self):
+        """"Check if standard parameter are in valid range"""
+        for cond in self.conditions:
+            if not cond.check(self):
+                return False
+        return True
 
     @property
     def source_tool(self):
