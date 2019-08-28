@@ -195,8 +195,8 @@ class Inspect(Workflow):
         self.logger.info("Creates python representation of relevant ifc types")
 
         elements_dict = {}
-
         for f in prepare.filters:
+            # filter by type
             if isinstance(f, TypeFilter): #ToDo: TypeFilter must be first if the following Filter should also search in this types!
                 elements_dict, filtered_elements = f.run(ifc, elements_dict)
                 for ifc_type, elements in filtered_elements.items():
@@ -207,12 +207,12 @@ class Inspect(Workflow):
                             self.instances[representation.guid] = representation
                             removables.append(element)
                     elements_dict[ifc_type] = [ele for ele in elements_dict[ifc_type] if ele not in removables]
-
+            # filter by text fracments
             elif isinstance(f, TextFilter):
                 elements_dict, filtered_elements = f.run(ifc, elements_dict)
                 self.answers={}
                 for k, v in filtered_elements.items():
-                    if len(v) > 0:
+                    if len(v) > 1:
                         ListDecision(
                             "Found following Matches:",
                             choices=[[cls, "Match: '" + ",".join(cls.filter_for_text_fracments(k)) + "' in " + " or ".join(
@@ -232,6 +232,26 @@ class Inspect(Workflow):
         self.logger.info("Found %d relevant elements", len(self.instances))
         self.logger.info("Found %d ifc_elements that could not be identified and transformed into a python element.",
                          sum([len(v) for v in elements_dict.values()]))
+
+        #Identification of remaining Elements through the user
+        self.answers = {}
+        for k, v in elements_dict.items():
+            for ifc_element in v:
+                ListDecision(
+                    "Found unidentified Element of %s (Name: %s):" % (k, ifc_element.Name),
+                    choices=[[ifc_type, element] for ifc_type, element in Element._ifc_classes.items()],
+                    output=self.answers,
+                    output_key=ifc_element,
+                    global_key="%s.%s" % (ifc_element.is_a(), ifc_element.GlobalId),
+                    allow_skip=True, allow_load=True, allow_save=True,
+                    collect=True, quick_decide=not True)
+                Decision.decide_collected()
+        for a, v in self.answers.items():
+            representation = Element.factory(a, v[0])
+            if representation:
+                self.instances[representation.guid] = representation
+                elements_dict[a.is_a()].remove(a)
+        self.logger.info("Created %d elements", len(self.instances))
 
         # connections
         self.logger.info("Checking ports of elements ...")
