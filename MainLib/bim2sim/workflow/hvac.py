@@ -246,6 +246,36 @@ class Reduce(Workflow):
                 inner_connections=pipestrand.get_inner_connections())
         number_of_nodes_new = len(graph.element_graph.nodes)
 
+        cycles = graph.get_cycles()
+        element_cycle =  "SpaceHeater"
+        for cycle in cycles:
+            n = 0
+            for port in cycle:
+                if n % 2 == 0:
+                    cycle[n] = 0
+                n += 1
+            for port in cycle:
+                if port == 0:
+                    cycle.remove(port)
+        NewCycles = []
+        n_cycles = 0
+        for cycle in cycles:
+            NewCycles.append([])
+            for port in cycle:
+                NewCycles[n_cycles].append(port.parent)
+            n_cycles += 1
+        reduced_cycles =  []
+        for cycle in NewCycles:
+            n_element = 0
+            for element in cycle:
+                if element_cycle in str(element):
+                    n_element += 1
+            print(n_element)
+            if n_element == 2:
+                reduced_cycles.append(cycle)
+
+
+
         self.logger.info(
             "Applied %d aggregations which reduced"
             + " number of elements from %d to %d.",
