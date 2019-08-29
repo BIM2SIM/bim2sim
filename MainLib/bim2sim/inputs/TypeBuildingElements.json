@@ -72,7 +72,7 @@
             "2004": {
                 "name": "PipeFitting_enrichment_2004",
                 "Pset_PipeFittingTypeCommon": null,
-                "diameter": null,
+                "diameter": 5,
                 "length": null,
                 "pressure_class": null
             }

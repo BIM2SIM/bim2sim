@@ -44,12 +44,12 @@ def enrich_by_buildyear(self, attrs_enrich, instance):
                 if attrs_instance[prop] is None:
                     if not attrs_enrich[prop] is None:
                         setattr(instance, prop + "_enriched", attrs_enrich[prop])
-                        self.logger.info("attribute enriched successfully")
+                        self.logger.info("the attribute %s from %s enriched successfully" % (prop, attrs_instance["name"]))
                     else:
-                        self.logger.info("The enrichment attribute is "
-                                         "missing or doesn´t exist in the enrichment file")
+                        self.logger.info("The enrichment attribute %s from %s is "
+                                         "missing or doesn´t exist in the enrichment file" % (prop, attrs_instance["name"]))
             else:
-                self.logger.info("There's no enrichment data for the attribute")
+                self.logger.info("There's no enrichment data for the attribute %s from %s" % (prop, attrs_instance["name"]))
     else:
-        self.logger.warning("No enrichment parameters for the instance")
+        self.logger.warning("No enrichment parameters for the instance %s" % instance.name)
 
