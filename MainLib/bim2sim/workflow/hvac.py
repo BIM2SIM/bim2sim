@@ -247,11 +247,35 @@ class Reduce(Workflow):
         number_of_nodes_new = len(graph.element_graph.nodes)
 
         cycles = graph.get_cycles()
-        element_cycle =  "SpaceHeater"
+        element_cycle = "SpaceHeater"
+        for cycle in cycles:
+            n_parallel = 0
+            for port in cycle:
+                if cycle.index(port) % 2 == 0:
+                    if "PipeFitting" in str(port):
+                        if "PipeFitting" in (str(cycle[cycle.index(port) - 1]) or str(cycle[cycle.index(port) - 1])):
+                            if str(port)[-26:] == str(cycle[cycle.index(port) - 1])[-26:]:
+                                if port.flow_direction == cycle[cycle.index(port) - 1].flow_direction:
+                                    n_parallel += 1
+                            elif str(port)[-26:] == str(cycle[cycle.index(port) + 1])[-26:]:
+                                if port.flow_direction == cycle[cycle.index(port) + 1].flow_direction:
+                                    n_parallel += 1
+            if n_parallel != 2:
+                cycles[cycles.index(cycle)] = 0
+                continue
+        i = 0
+        length = len(cycles)
+        while i < length:
+            if cycles[i] == 0:
+                cycles.remove(cycles[i])
+                length = length - 1
+                continue
+            i = i + 1
+
         for cycle in cycles:
             n = 0
             for port in cycle:
-                if n % 2 == 0:
+                if n % 2 != 0:
                     cycle[n] = 0
                 n += 1
             for port in cycle:
@@ -261,10 +285,17 @@ class Reduce(Workflow):
         n_cycles = 0
         for cycle in cycles:
             NewCycles.append([])
+            NewCycles[n_cycles].append([])
+            NewCycles[n_cycles].append([])
+            n_segment = 0
             for port in cycle:
-                NewCycles[n_cycles].append(port.parent)
+                if hasattr(port.parent, "_begin_end") and cycle.index(port) != 0:
+                    n_segment += 1
+                    if n_segment == 2:
+                        n_segment -= 2
+                NewCycles[n_cycles][n_segment].append(port.parent)
             n_cycles += 1
-        reduced_cycles =  []
+        reduced_cycles = []
         for cycle in NewCycles:
             n_element = 0
             for element in cycle:
