@@ -248,62 +248,105 @@ class Reduce(Workflow):
 
         cycles = graph.get_cycles()
         element_cycle = "SpaceHeater"
+
         for cycle in cycles:
-            n_parallel = 0
-            for port in cycle:
-                if cycle.index(port) % 2 == 0:
-                    if "PipeFitting" in str(port):
-                        if "PipeFitting" in (str(cycle[cycle.index(port) - 1]) or str(cycle[cycle.index(port) - 1])):
-                            if str(port)[-26:] == str(cycle[cycle.index(port) - 1])[-26:]:
-                                if port.flow_direction == cycle[cycle.index(port) - 1].flow_direction:
-                                    n_parallel += 1
-                            elif str(port)[-26:] == str(cycle[cycle.index(port) + 1])[-26:]:
-                                if port.flow_direction == cycle[cycle.index(port) + 1].flow_direction:
-                                    n_parallel += 1
-            if n_parallel != 2:
-                cycles[cycles.index(cycle)] = 0
-                continue
+            length_cycle = len(cycle)
+            cycle.append([])
+            for port in cycle[:length_cycle]:
+                if "PipeFitting" in str(port):
+                    cycle[length_cycle].append(port)
+
+            length_cycle = len(cycle)
+            if cycle[length_cycle - 1][0].parent == cycle[length_cycle - 1][-1].parent:
+                cycle[length_cycle - 1].insert(0, cycle[length_cycle - 1][-1])
+                cycle[length_cycle - 1].pop()
+
+            for item in cycle[length_cycle - 1][0::2]:
+                index_a = cycle[length_cycle - 1].index(item)
+                if item.flow_direction != cycle[length_cycle - 1][index_a + 1].flow_direction:
+                    cycle[length_cycle - 1][index_a] = 0
+                    cycle[length_cycle - 1][index_a + 1] = 0
+            i = 0
+            length = len(cycle[length_cycle - 1])
+            while i < length:
+                if cycle[length_cycle - 1][i] == 0:
+                    cycle[length_cycle - 1].remove(cycle[length_cycle - 1][i])
+                    length = length - 1
+                    continue
+                i = i + 1
         i = 0
         length = len(cycles)
         while i < length:
-            if cycles[i] == 0:
+            length_a = len(cycles[i])
+            aux = cycles[i][length_a - 1]
+            if len(cycles[i][length_a - 1]) != 4:
                 cycles.remove(cycles[i])
                 length = length - 1
                 continue
             i = i + 1
+        New_cycles = []
+        n_cycle = 0
+        for cycle in cycles:
+            New_cycles.append([])
+            len_aux = len(cycle)-1
+            cycle.append([])
+            cycle[len(cycle)-1].append([])
+            cycle[len(cycle)-1].append([])
+            for port in cycle[:len_aux]:
+                if cycle.index(cycle[len_aux][1]) < cycle.index(port) < cycle.index(cycle[len_aux][2]):
+                    cycle[len(cycle) - 1][1].append(port)
+                elif (cycle.index(port) < cycle.index(cycle[len_aux][0])) and (port not in cycle[len_aux]):
+                    cycle[len(cycle)-1][0].append(port)
+                elif (cycle.index(port) > cycle.index(cycle[len_aux][3])) and (port not in cycle[len_aux]):
+                    cycle[len(cycle) - 1][0].append(port)
 
-        for cycle in cycles:
-            n = 0
-            for port in cycle:
-                if n % 2 != 0:
-                    cycle[n] = 0
-                n += 1
-            for port in cycle:
-                if port == 0:
-                    cycle.remove(port)
-        NewCycles = []
-        n_cycles = 0
-        for cycle in cycles:
-            NewCycles.append([])
-            NewCycles[n_cycles].append([])
-            NewCycles[n_cycles].append([])
-            n_segment = 0
-            for port in cycle:
-                if hasattr(port.parent, "_begin_end") and cycle.index(port) != 0:
-                    n_segment += 1
-                    if n_segment == 2:
-                        n_segment -= 2
-                NewCycles[n_cycles][n_segment].append(port.parent)
-            n_cycles += 1
-        reduced_cycles = []
-        for cycle in NewCycles:
-            n_element = 0
-            for element in cycle:
-                if element_cycle in str(element):
-                    n_element += 1
-            print(n_element)
-            if n_element == 2:
-                reduced_cycles.append(cycle)
+            n_item = 0
+            for item in cycle[-1]:
+                New_cycles[n_cycle].append([])
+                New_cycles[n_cycle][n_item].append(cycle[len_aux][0].parent)
+                for port in item[0::2]:
+                    New_cycles[n_cycle][n_item].append(port.parent)
+                New_cycles[n_cycle][n_item].append(cycle[len_aux][2].parent)
+                n_item += 1
+            n_cycle += 1
+
+        for cycle in New_cycles:
+            for strand in cycle:
+                n_element = 0
+                for item in strand:
+                    if element_cycle in str(item):
+                        n_element += 1
+                if n_element == 0:
+                    New_cycles[New_cycles.index(cycle)] = 0
+                    break
+        i = 0
+        length = len(New_cycles)
+        while i < length:
+            if New_cycles[i] == 0:
+                New_cycles.remove(New_cycles[i])
+                length = length - 1
+                continue
+            i = i + 1
+
+        for cycle in New_cycles:
+            for strand in cycle:
+                index_element = 0
+                for item in strand:
+                    if element_cycle in str(item):
+                        index_element = strand.index(item)
+                number_ps += 1
+                pipestrand = PipeStrand("PipeStrand%d" % (number_ps), strand[:index_element])
+                graph.merge(
+                        mapping=pipestrand.get_replacement_mapping(),
+                        inner_connections=pipestrand.get_inner_connections())
+                number_ps += 1
+                pipestrand = PipeStrand("PipeStrand%d" % (number_ps), strand[index_element+1:])
+                graph.merge(
+                        mapping=pipestrand.get_replacement_mapping(),
+                        inner_connections=pipestrand.get_inner_connections())
+
+
+
 
 
 

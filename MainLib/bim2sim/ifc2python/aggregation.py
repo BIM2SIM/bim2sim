@@ -1,6 +1,7 @@
 ﻿"""Module for aggregation and simplifying elements"""
 
 import logging
+import math
 
 from bim2sim.ifc2python.element import BaseElement, BasePort
 
@@ -142,6 +143,7 @@ class PipeStrand(Aggregation):
             self._calc_avg()
         return self._total_length
 
+
 class ParallelPump(Aggregation):
     """Aggregates pumps in parallel"""
     aggregatable_elements = ['IfcPipeSegment', 'IfcPipeFitting', 'IfcPump']
@@ -266,3 +268,100 @@ class ParallelPump(Aggregation):
         if self._total_diameter is None:
             self._calc_avg()
         return self._total_diameter
+
+
+class ParallelStrand(Aggregation):
+    """Aggregates pipe strands in parallel"""
+    aggregatable_elements = ['IfcPipeSegment', 'IfcPipeFitting']
+
+    def __init__(self, name, elements, *args, **kwargs):
+        super().__init__(name, elements, *args, **kwargs)
+        edge_ports = self._get_start_and_end_ports()
+        self.ports.append(AggregationPort(edge_ports[0], parent=self))
+        self.ports.append(AggregationPort(edge_ports[1], parent=self))
+
+        self._total_diameter = None
+        self._avg_length= None
+
+    def _get_start_and_end_ports(self):
+        """
+        Finds and sets the first and last port of the pipestrand.
+
+        Assumes all elements in are ordered as connected
+        :return ports:
+        """
+        agg_ports = []
+        # first port
+        found_in = False
+        found_out = False
+        for port in self.elements[0].ports:
+            if not port.connection:
+                continue  # end node
+            if port.connection.parent not in self.elements:
+                found_out = True
+                port.aggregated_parent = self
+                agg_ports.append(port)
+            else:
+                found_in = True
+        if not (found_in and found_out):
+            raise AssertionError("Assumption of ordered elements violated")
+
+        # last port
+        found_in = False
+        found_out = False
+        for port in self.elements[-1].ports:
+            if port.connection.parent not in self.elements:
+                found_out = True
+                port.aggregated_parent = self
+                agg_ports.append(port)
+            else:
+                found_in = True
+        if not (found_in and found_out):
+            raise AssertionError("Assumption of ordered elements violated")
+
+        return agg_ports
+
+    def _calc_avg(self):
+        """Calculates the total length and average diameter of all pipe-like
+         elements."""
+        self._total_diameter = 0
+        self._avg_length = 0
+        diameter_times_length = 0
+
+        for pipe in self.elements:
+            if hasattr(pipe, "diameter") and hasattr(pipe, "length"):
+                length = pipe.length
+                diameter = pipe.diameter
+                if not (length and diameter):
+                    self.logger.warning("Ignored '%s' in aggregation", pipe)
+                    continue
+
+                diameter_times_length += diameter*length
+                self._total_diameter = self._total_diameter + diameter ** 2
+
+            else:
+                self.logger.warning("Ignored '%s' in aggregation", pipe)
+        self._total_diameter = math.sqrt(self._total_diameter)
+        self._avg_length = diameter_times_length / self._total_diameter
+
+    def get_replacement_mapping(self):
+        """Returns dict with original ports as values and their aggregated replacement as keys."""
+        mapping = {port:None for element in self.elements
+                   for port in element.ports}
+        for port in self.ports:
+            mapping[port.original] = port
+        return mapping
+
+    @property
+    def diameter(self):
+        """Diameter of aggregated pipe"""
+        if self._total_diameter is None:
+            self._calc_avg()
+        return self._total_diameter
+
+    @property
+    def length(self):
+        """Length of aggregated pipe"""
+        if self._avg_length is None:
+            self._calc_avg()
+        return self._avg_length
