@@ -28,9 +28,4 @@ class RangeCondition(Condition):
 
     def check(self, element):
         value = getattr(element, self.key)
-        if value < self.valueMin:
-            return False
-        elif value > self.valueMax:
-            return False
-        else:
-            return True
+        return False if not value or value < self.valueMin or value > self.valueMax else True

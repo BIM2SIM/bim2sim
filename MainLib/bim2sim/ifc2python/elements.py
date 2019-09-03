@@ -39,6 +39,97 @@ class HeatPump(element.Element):
             percentage_of_rated_power,efficiency]"""
         return None
 
+class Chiller(element.Element):
+    """"Chiller"""
+
+    ifc_type = 'IfcChiller'
+
+    pattern_ifc_type = [
+        re.compile('Chiller', flags=re.IGNORECASE),
+        re.compile('K(ä|ae)lte.?maschine', flags=re.IGNORECASE),
+    ]
+
+    @cached_property
+    def min_power(self):
+        """min_power: float
+            Minimum power that Chiller operates at."""
+        return None
+
+    @cached_property
+    def rated_power(self):
+        """rated_power: float
+            Rated power of Chiller."""
+        return None
+
+    @cached_property
+    def efficiency(self):
+        """efficiency: list
+            Efficiency of Chiller provided as list with pairs of [
+            percentage_of_rated_power,efficiency]"""
+        return None
+
+
+class CoolingTower(element.Element):
+    """"CoolingTower"""
+
+    ifc_type = 'IfcCoolingTower'
+
+    pattern_ifc_type = [
+        re.compile('Cooling.?Tower', flags=re.IGNORECASE),
+        re.compile('Recooling.?Plant', flags=re.IGNORECASE),
+        re.compile('K(ü|ue)hl.?turm', flags=re.IGNORECASE),
+        re.compile('R(ü|ue)ck.?K(ü|ue)hl.?(werk|turm|er)', flags=re.IGNORECASE),
+        re.compile('RKA', flags=re.IGNORECASE),
+    ]
+
+    @cached_property
+    def min_power(self):
+        """min_power: float
+            Minimum power that CoolingTower operates at."""
+        return None
+
+    @cached_property
+    def rated_power(self):
+        """rated_power: float
+            Rated power of CoolingTower."""
+        return None
+
+    @cached_property
+    def efficiency(self):
+        """efficiency: list
+            Efficiency of CoolingTower provided as list with pairs of [
+            percentage_of_rated_power,efficiency]"""
+        return None
+
+class HeatExchanger(element.Element):
+    """"Heatexchanger"""
+
+    ifc_type = 'IfcHeatExchanger'
+
+    pattern_ifc_type = [
+        re.compile('Heat.?Exchanger', flags=re.IGNORECASE),
+        re.compile('W(ä|ae)rme.?(ü|e)bertrager', flags=re.IGNORECASE),
+        re.compile('W(ä|ae)rme.?tauscher', flags=re.IGNORECASE),
+    ]
+
+    @cached_property
+    def min_power(self):
+        """min_power: float
+            Minimum power that CoolingTower operates at."""
+        return None
+
+    @cached_property
+    def rated_power(self):
+        """rated_power: float
+            Rated power of CoolingTower."""
+        return None
+
+    @cached_property
+    def efficiency(self):
+        """efficiency: list
+            Efficiency of CoolingTower provided as list with pairs of [
+            percentage_of_rated_power,efficiency]"""
+        return None
 
 class Boiler(element.Element):
     """Boiler"""
@@ -97,7 +188,6 @@ class Boiler(element.Element):
             connections.append((RL[0], VL[0]))
         else:
             self.logger.warning("Unable to solve inner connections for %s", self)
-
         return connections
 
     @cached_property
@@ -143,13 +233,12 @@ class Pipe(element.Element):
         re.compile('.*Length.*', flags=re.IGNORECASE),
     ]
     conditions = [
-        condition.RangeCondition("diameter", 5.0, 200.00)   #ToDo: unit?!
+        condition.RangeCondition("diameter", 5.0, 300.00)   #ToDo: unit?!
     ]
 
     @property
     def diameter(self):
         result = self.find('diameter')
-
         if isinstance(result, list):
             return np.average(result).item()
         return result
@@ -194,6 +283,11 @@ class PipeFitting(element.Element):
     pattern_diameter = [
         re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
         re.compile('.*Diameter.*', flags=re.IGNORECASE),
+        re.compile('.*DN.*', flags=re.IGNORECASE),
+    ]
+
+    conditions = [
+        condition.RangeCondition("diameter", 5.0, 300.00)   #ToDo: unit?!
     ]
 
     @property
@@ -226,6 +320,12 @@ class SpaceHeater(element.Element):
     def length(self):
         return 42.0
 
+class ExpansionTank(element.Element):
+    ifc_type = "IfcExpansionTank"   #ToDo: Richtig?!
+    pattern_ifc_type = [
+        re.compile('Expansion.?Tank', flags=re.IGNORECASE),
+        re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
+    ]
 
 class StorageDevice(element.Element):
     ifc_type = "IfcStorageDevice"
@@ -310,9 +410,23 @@ class Valve(element.Element):
         re.compile('Ventil', flags=re.IGNORECASE)
     ]
 
+    pattern_diameter = [
+        re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
+        re.compile('.*Diameter.*', flags=re.IGNORECASE),
+        re.compile('.*DN.*', flags=re.IGNORECASE),
+    ]
+
+    conditions = [
+        condition.RangeCondition("diameter", 5.0, 500.00)  # ToDo: unit?!
+    ]
+
     @cached_property
     def diameter(self):
-        return
+        result = self.find('diameter')
+
+        if isinstance(result, list):
+            return np.average(result).item()
+        return result
 
     @cached_property
     def length(self):
@@ -396,7 +510,7 @@ class Wall(element.Element):
 class OuterWall(Wall):
     pattern_ifc_type = [
         re.compile('Outer.?wall', flags=re.IGNORECASE),
-        re.compile('Außen.?wand', flags=re.IGNORECASE)
+        re.compile('Au(ß|ss)en.?wand', flags=re.IGNORECASE)
         ]
 
     @property

@@ -254,7 +254,7 @@ class IFCBased(Root):
     @classmethod
     def filter_for_text_fracments(cls, ifc_element, optional_locations: list = None):
         results = []
-        hits = [p.match(ifc_element.Name) for p in cls.pattern_ifc_type]
+        hits = [p.match(ifc_element.Name) for p in cls.pattern_ifc_type if p.match(ifc_element.Name)]
         if any(hits):
             logger = logging.getLogger('IFCModelCreation')
             logger.info("Identified %s through text fracments in name. Criteria: %s", cls.ifc_type, hits)
@@ -298,14 +298,17 @@ class IFCBased(Root):
             # TODO: Decision: save for all following elements of same class (dont ask again?)
             # selected = (propertyset_name, property_name, value)
 
-            # TODO: Decision with id, key, value
-            decision = DictDecision("Multiple possibilities found",
-                choices=dict(zip(choices, values)),
-                output=self.properties, 
-                output_key=name,
-                global_key="%s_%s.%s"%(self.ifc_type, self.guid, name),
-                allow_skip=True, allow_load=True, allow_save=True,
-                collect=collect_decisions, quick_decide=not collect_decisions)
+            if len(choices) > 1:
+                # TODO: Decision with id, key, value
+                decision = DictDecision("Multiple possibilities found",
+                    choices=dict(zip(choices, values)),
+                    output=self.properties,
+                    output_key=name,
+                    global_key="%s_%s.%s"%(self.ifc_type, self.guid, name),
+                    allow_skip=True, allow_load=True, allow_save=True,
+                    collect=collect_decisions, quick_decide=not collect_decisions)
+            else:
+                return values[0] if values else None
 
             if collect_decisions:
                 raise PendingDecisionError()

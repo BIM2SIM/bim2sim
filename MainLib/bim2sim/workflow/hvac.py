@@ -186,7 +186,7 @@ class Inspect(Workflow):
         This is especialy usefull for vessel like elements with variable
         number of ports (and bad ifc export) or proxy elements.
         Missing ports on element side are created on demand."""
-        # ToDo
+        # ToDo:
         connections = []
         return connections
 
@@ -210,7 +210,7 @@ class Inspect(Workflow):
             # filter by text fracments
             elif isinstance(f, TextFilter):
                 elements_dict, filtered_elements = f.run(ifc, elements_dict)
-                self.answers={}
+                self.answers = {}
                 for k, v in filtered_elements.items():
                     if len(v) > 1:
                         ListDecision(
@@ -222,9 +222,12 @@ class Inspect(Workflow):
                             global_key="%s.%s"% (k.is_a(), k.GlobalId),
                             allow_skip=True, allow_load=True, allow_save=True,
                             collect=True, quick_decide=not True)
+                    elif len(v) == 1:
+                        self.answers[k] = [v[0], "Match: '" + ",".join(v[0].filter_for_text_fracments(k)) + "' in " +
+                                           " or ".join(["'%s'" % txt for txt in [k.Name, k.Description] if txt])]
                 Decision.decide_collected()
                 for a, v in self.answers.items():
-                    representation = Element.factory(a, v[0].ifc_type)
+                    representation = Element.factory(a, v[0].ifc_type) if v else None
                     if representation:
                         self.instances[representation.guid] = representation
                         elements_dict[a.is_a()].remove(a)
@@ -238,16 +241,16 @@ class Inspect(Workflow):
         for k, v in elements_dict.items():
             for ifc_element in v:
                 ListDecision(
-                    "Found unidentified Element of %s (Name: %s):" % (k, ifc_element.Name),
+                    "Found unidentified Element of %s (Name: %s, Description: %s):" % (k, ifc_element.Name, ifc_element.Description),
                     choices=[[ifc_type, element] for ifc_type, element in Element._ifc_classes.items()],
                     output=self.answers,
                     output_key=ifc_element,
                     global_key="%s.%s" % (ifc_element.is_a(), ifc_element.GlobalId),
-                    allow_skip=True, allow_load=True, allow_save=True,
+                    allow_skip=True, allow_load=True, allow_save=True, allow_overwrite=True,
                     collect=True, quick_decide=not True)
                 Decision.decide_collected()
         for a, v in self.answers.items():
-            representation = Element.factory(a, v[0])
+            representation = Element.factory(a, v[0]) if v else None
             if representation:
                 self.instances[representation.guid] = representation
                 elements_dict[a.is_a()].remove(a)

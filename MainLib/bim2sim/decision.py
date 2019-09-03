@@ -45,7 +45,7 @@ class Decision():
 
     def __init__(self, question: str, validate_func,
                  output: dict = None, output_key: str = None, global_key: str = None,
-                 allow_skip=False, allow_load=False, allow_save=False,
+                 allow_skip=False, allow_load=False, allow_save=False, allow_overwrite=False,
                  collect=False, quick_decide=False):
         """
         :param question: The question asked to thu user
@@ -74,6 +74,7 @@ class Decision():
         self.allow_skip = allow_skip
         self.allow_save = allow_save
         self.allow_load = allow_load
+        self.allow_overwrite = allow_overwrite
 
         self.collect = collect
 
@@ -163,7 +164,7 @@ class Decision():
     def summary(cls):
         """Returns summary string"""
 
-        txt = "%d open decisions"%(len(cls.collection))
+        txt = "%d open decisions" % (len(cls.collection))
         txt += ""
         return txt
 
@@ -192,7 +193,7 @@ class Decision():
             return
 
         if self.global_key:
-            assert not self.global_key in Decision.stored_decisions, \
+            assert self.global_key not in Decision.stored_decisions or self.allow_overwrite, \
                 "Decision id '%s' is not unique!"%(self.global_key)
             assert self.status in [Status.done, Status.loadeddone, Status.saveddone], \
                 "Decision not made. There is nothing to store."
@@ -360,6 +361,9 @@ class CollectionDecision(Decision):
                 if str(raw_value) == "Show All":
                     print(self.option_txt(options, number=len(self.choices)))
                     continue
+                elif raw_value == Decision.SKIP and Decision.SKIP in options:
+                    self.skip()
+                    return None
             except Exception as Ex:
                 print(Ex)
 
