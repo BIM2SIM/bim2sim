@@ -6,6 +6,7 @@ import json
 from bim2sim.workflow import Workflow
 from bim2sim.filter import TypeFilter
 from bim2sim.ifc2python.aggregation import PipeStrand
+    # , ParallelStrand
 from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
 from bim2sim.ifc2python.hvac import hvac_graph
 from bim2sim.export import modelica
@@ -14,9 +15,7 @@ from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
 from bim2sim.enrichtment_data.data_class import DataClass, Enrich_class
 from bim2sim.enrichtment_data import element_input_json
-
-
-
+from collections import defaultdict
 
 IFC_TYPES = (
     'IfcAirTerminal',
@@ -76,8 +75,8 @@ class Inspect(Workflow):
             delta = None
         return delta
 
-    #@staticmethod
-    #def connect_old(instances, eps=1):
+    # @staticmethod
+    # def connect_old(instances, eps=1):
     #    """Connect ports of instances by computing geometric distance"""
     #    nr_connections = 0
     #    # todo add check if IFC has port information -> decision system
@@ -162,7 +161,7 @@ class Inspect(Workflow):
         confirmed, unconfirmed, rejected = \
             self.confirm_connections_position(rel_connections)
         self.logger.info(" - %d connections are confirmed and %d rejected. " \
-            + "%d can't be confirmed.",
+                         + "%d can't be confirmed.",
                          len(confirmed), len(rejected), len(unconfirmed))
         for port1, port2 in confirmed + unconfirmed:
             # unconfirmed have no position data and cant be connected by position
@@ -188,7 +187,7 @@ class Inspect(Workflow):
 
 
 class Prepare(Workflow):
-    """Configurate""" #TODO: based on task
+    """Configurate"""  # TODO: based on task
 
     def __init__(self):
         super().__init__()
@@ -204,7 +203,8 @@ class Prepare(Workflow):
 
 class MakeGraph(Workflow):
     """Instantiate HvacGraph"""
-    #saveable = True #ToDo
+
+    # saveable = True #ToDo
 
     def __init__(self):
         super().__init__()
@@ -237,15 +237,49 @@ class Reduce(Workflow):
         self.logger.info("Reducing elements by applying aggregations")
         number_of_nodes_old = len(graph.element_graph.nodes)
         number_ps = 0
+
+        ### pipestrand
+
         chains = graph.get_type_chains(PipeStrand.aggregatable_elements)
         for chain in chains:
             number_ps += 1
-            pipestrand = PipeStrand("PipeStrand%d"%(number_ps), chain)
+            pipestrand = PipeStrand("PipeStrand%d" % (number_ps), chain)
             graph.merge(
                 mapping=pipestrand.get_replacement_mapping(),
                 inner_connections=pipestrand.get_inner_connections())
         number_of_nodes_new = len(graph.element_graph.nodes)
 
+        #find heating
+
+        reduced_instances = graph.elements
+        floor_heating = []
+        for element in reduced_instances:
+            if "PipeStrand" in str(element):
+                if len(element.elements) > 100:
+                    floor_heating.append(element)
+
+        for strand in floor_heating:
+            min_x = 99999999999999
+            max_x = -9999999999999
+            min_y = 99999999999999
+            max_y = -9999999999999
+            for element in strand.elements:
+                if element.position[2] == 3452.054727764086:
+                    if element.position[0] < min_x:
+                        min_x = element.position[0]
+                    if element.position[0] > max_x:
+                        max_x = element.position[0]
+                    if element.position[1] < min_y:
+                        min_y = element.position[1]
+                    if element.position[1] > max_y:
+                        max_y = element.position[1]
+            area = (max_x-min_x)*(max_y-min_y)
+            setattr(strand, "Area_Heating", area)
+
+
+
+
+        ### Parallelpumps ###
         cycles = graph.get_cycles()
         element_cycle = "SpaceHeater"
 
@@ -288,30 +322,37 @@ class Reduce(Workflow):
         n_cycle = 0
         for cycle in cycles:
             New_cycles.append([])
-            len_aux = len(cycle)-1
+            len_aux = len(cycle) - 1
             cycle.append([])
-            cycle[len(cycle)-1].append([])
-            cycle[len(cycle)-1].append([])
+            cycle[len(cycle) - 1].append([])
+            cycle[len(cycle) - 1].append([])
             for port in cycle[:len_aux]:
                 if cycle.index(cycle[len_aux][1]) < cycle.index(port) < cycle.index(cycle[len_aux][2]):
                     cycle[len(cycle) - 1][1].append(port)
                 elif (cycle.index(port) < cycle.index(cycle[len_aux][0])) and (port not in cycle[len_aux]):
-                    cycle[len(cycle)-1][0].append(port)
+                    cycle[len(cycle) - 1][0].append(port)
                 elif (cycle.index(port) > cycle.index(cycle[len_aux][3])) and (port not in cycle[len_aux]):
                     cycle[len(cycle) - 1][0].append(port)
 
             n_item = 0
             for item in cycle[-1]:
                 New_cycles[n_cycle].append([])
-                New_cycles[n_cycle][n_item].append(cycle[len_aux][0].parent)
+                if n_item == 0:
+                    New_cycles[n_cycle][n_item].append(cycle[len_aux][3].parent)
+                else:
+                    New_cycles[n_cycle][n_item].append(cycle[len_aux][0].parent)
                 for port in item[0::2]:
                     New_cycles[n_cycle][n_item].append(port.parent)
-                New_cycles[n_cycle][n_item].append(cycle[len_aux][2].parent)
+                if n_item == 0:
+                    New_cycles[n_cycle][n_item].append(cycle[len_aux][0].parent)
+                else:
+                    New_cycles[n_cycle][n_item].append(cycle[len_aux][2].parent)
                 n_item += 1
+            New_cycles[n_cycle].append(cycle[-2])
             n_cycle += 1
 
         for cycle in New_cycles:
-            for strand in cycle:
+            for strand in cycle[0:2]:
                 n_element = 0
                 for item in strand:
                     if element_cycle in str(item):
@@ -328,22 +369,31 @@ class Reduce(Workflow):
                 continue
             i = i + 1
 
-        for cycle in New_cycles:
-            for strand in cycle:
-                index_element = 0
-                for item in strand:
-                    if element_cycle in str(item):
-                        index_element = strand.index(item)
-                number_ps += 1
-                pipestrand = PipeStrand("PipeStrand%d" % (number_ps), strand[:index_element])
-                graph.merge(
-                        mapping=pipestrand.get_replacement_mapping(),
-                        inner_connections=pipestrand.get_inner_connections())
-                number_ps += 1
-                pipestrand = PipeStrand("PipeStrand%d" % (number_ps), strand[index_element+1:])
-                graph.merge(
-                        mapping=pipestrand.get_replacement_mapping(),
-                        inner_connections=pipestrand.get_inner_connections())
+        # number_pp = 0
+        # for cycle in New_cycles:
+        #     index_element = []
+        #     for strand in cycle:
+        #         for item in strand:
+        #             if element_cycle in str(item):
+        #                 index_element.append(strand.index(item))
+        #     auxiliary_first = cycle[0][:index_element[0]]+cycle[1][index_element[1]+1:]
+        #     auxiliary_last = cycle[0][index_element[0]+1:]+cycle[1][:index_element[1]]
+        #     nodes = cycle[-1]
+        #     number_pp += 1
+        #     parallelstrand = ParallelStrand("ParallelStrand%d" % number_pp, auxiliary_first,
+        #                                     "first", nodes, index_element[0])
+        #     graph.merge(
+        #         mapping=parallelstrand.get_replacement_mapping(),
+        #         inner_connections=parallelstrand.get_inner_connections())
+        #     number_pp += 1
+        #     parallelstrand = ParallelStrand("ParallelStrand%d" % number_pp, auxiliary_last,
+        #                                     "last", nodes, index_element[0])
+        #     graph.merge(
+        #         mapping=parallelstrand.get_replacement_mapping(),
+        #         inner_connections=parallelstrand.get_inner_connections())
+
+
+
 
 
 
@@ -360,6 +410,7 @@ class Reduce(Workflow):
         if __debug__:
             self.logger.info("Plotting graph ...")
             graph.plot(PROJECT.export)
+
 
 class Enrich(Workflow):
     def __init__(self):
@@ -400,6 +451,7 @@ class Enrich(Workflow):
 
         # target: the instances in the inspect.instances dict are filled up
         # with the data from the json file
+
     def run(self, instances, build_year, enrichment_parameter):
         self.logger.info("Enrichment of the elements")
         enriched_instances = instances
@@ -412,12 +464,13 @@ class Enrich(Workflow):
             else:
                 self.enrich_instance(instance, build_year, enrichment_parameter)
         self.enriched_instances = enriched_instances
-            # runs all enrich methods
+        # runs all enrich methods
 
 
 class DetectCycles(Workflow):
     """Detect cycles in graph"""
-    #TODO: sth usefull like grouping or medium assignment
+
+    # TODO: sth usefull like grouping or medium assignment
 
     def __init__(self):
         super().__init__()
@@ -461,7 +514,7 @@ class Export(Workflow):
             instances=export_instances.values(),
             connections=connection_port_names,
         )
-        #print("-"*80)
-        #print(modelica_model.code())
-        #print("-"*80)
+        # print("-"*80)
+        # print(modelica_model.code())
+        # print("-"*80)
         modelica_model.save(PROJECT.export)
