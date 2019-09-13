@@ -2,6 +2,7 @@
 
 import logging
 import math
+from collections import defaultdict
 
 from bim2sim.ifc2python.element import BaseElement, BasePort
 
@@ -143,6 +144,167 @@ class PipeStrand(Aggregation):
             self._calc_avg()
         return self._total_length
 
+
+class UnderfloorHeating(Aggregation):
+    """Aggregates UnderfloorHeating"""
+    aggregatable_elements = ['IfcPipeSegment', 'IfcPipeFitting']
+
+    def __init__(self, name, elements, *args, **kwargs):
+        super().__init__(name, elements, *args, **kwargs)
+        edge_ports = self._get_start_and_end_ports()
+        self.ports.append(AggregationPort(edge_ports[0], parent=self))
+        self.ports.append(AggregationPort(edge_ports[1], parent=self))
+
+        self._total_length = None
+        self._avg_diameter = None
+        self._heating_area = None
+        self._x_spacing = None
+        self._y_spacing = None
+
+    def _get_start_and_end_ports(self):
+        """
+        Finds and sets the first and last port of the pipestrand.
+
+        Assumes all elements in are ordered as connected
+        :return ports:
+        """
+        agg_ports = []
+        # first port
+        found_in = False
+        found_out = False
+        for port in self.elements[0].ports:
+            if not port.connection:
+                continue  # end node
+            if port.connection.parent not in self.elements:
+                found_out = True
+                port.aggregated_parent = self
+                agg_ports.append(port)
+            else:
+                found_in = True
+        if not (found_in and found_out):
+            raise AssertionError("Assumption of ordered elements violated")
+
+        # last port
+        found_in = False
+        found_out = False
+        for port in self.elements[-1].ports:
+            if port.connection.parent not in self.elements:
+                found_out = True
+                port.aggregated_parent = self
+                agg_ports.append(port)
+            else:
+                found_in = True
+        if not (found_in and found_out):
+            raise AssertionError("Assumption of ordered elements violated")
+
+        return agg_ports
+
+    def _calc_avg(self):
+        """Calculates the total length and average diameter of all pipe-like
+         elements."""
+        self._total_length = 0
+        self._avg_diameter = 0
+        diameter_times_length = 0
+
+        for pipe in self.elements:
+            if hasattr(pipe, "diameter") and hasattr(pipe, "length"):
+                length = pipe.length
+                diameter = pipe.diameter
+                if not (length and diameter):
+                    self.logger.warning("Ignored '%s' in aggregation", pipe)
+                    continue
+
+                diameter_times_length += diameter*length
+                self._total_length += length
+
+            else:
+                self.logger.warning("Ignored '%s' in aggregation", pipe)
+        if self._total_length != 0:
+            self._avg_diameter = diameter_times_length / self._total_length
+
+    def get_replacement_mapping(self):
+        """Returns dict with original ports as values and their aggregated replacement as keys."""
+        mapping = {port:None for element in self.elements
+                   for port in element.ports}
+        for port in self.ports:
+            mapping[port.original] = port
+        return mapping
+
+    def _calc_properties(self):
+        self._heating_area = 0
+        self._x_spacing = 0
+        self._y_spacing = 0
+        z_coordinates = defaultdict(list)
+        for element in self.elements:
+            z_coordinates[element.position[2]].append(element)
+        z_coordinate = []
+        for coordinate in z_coordinates:
+            n_pipe = 0
+            for element in z_coordinates[coordinate]:
+                if "PipeFitting" in str(element):
+                    n_pipe += 1
+            if n_pipe == 0 and (len(z_coordinates[coordinate]) > len(z_coordinate)):
+                z_coordinate = z_coordinates[coordinate]
+        z_coordinate = z_coordinate[0].position[2]
+
+        min_x = float("inf")
+        max_x = -float("inf")
+        min_y = float("inf")
+        max_y = -float("inf")
+        x_orientation = []
+        y_orientation = []
+        for element in self.elements:
+            if z_coordinate - 1 < element.position[2] < z_coordinate + 1:
+                if element.position[0] < min_x:
+                    min_x = element.position[0]
+                if element.position[0] > max_x:
+                    max_x = element.position[0]
+                if element.position[1] < min_y:
+                    min_y = element.position[1]
+                if element.position[1] > max_y:
+                    max_y = element.position[1]
+                if abs(element.ports[0].position[0] - element.ports[1].position[0]) < 1:
+                    y_orientation.append(element)
+                if abs(element.ports[0].position[1] - element.ports[1].position[1]) < 1:
+                    x_orientation.append(element)
+        self._heating_area = (max_x - min_x) * (max_y - min_y)
+        self._x_spacing = (max_x - min_x) / (len(y_orientation) - 1)
+        self._y_spacing = (max_y - min_y) / (len(x_orientation) - 1)
+
+    @property
+    def diameter(self):
+        """Diameter of aggregated pipe"""
+        if self._avg_diameter is None:
+            self._calc_avg()
+        return self._avg_diameter
+
+    @property
+    def length(self):
+        """Length of aggregated pipe"""
+        if self._total_length is None:
+            self._calc_avg()
+        return self._total_length
+
+    @property
+    def heating_area(self):
+        """Heating area"""
+        if self._heating_area is None:
+            self._calc_properties()
+        return self._heating_area
+
+    @property
+    def x_spacing(self):
+        """Spacing in x"""
+        if self._x_spacing is None:
+            self._calc_avg()
+        return self._x_spacing
+
+    @property
+    def y_spacing(self):
+        """Spacing in y """
+        if self._y_spacing is None:
+            self._calc_avg()
+        return self._y_spacing
 
 class ParallelPump(Aggregation):
     """Aggregates pumps in parallel"""

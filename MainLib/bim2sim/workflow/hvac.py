@@ -5,7 +5,7 @@ import json
 
 from bim2sim.workflow import Workflow
 from bim2sim.filter import TypeFilter
-from bim2sim.ifc2python.aggregation import PipeStrand
+from bim2sim.ifc2python.aggregation import PipeStrand, UnderfloorHeating
     # , ParallelStrand
 from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
 from bim2sim.ifc2python.hvac import hvac_graph
@@ -16,6 +16,7 @@ from bim2sim.ifc2python import finder
 from bim2sim.enrichtment_data.data_class import DataClass, Enrich_class
 from bim2sim.enrichtment_data import element_input_json
 from collections import defaultdict
+import math
 
 IFC_TYPES = (
     'IfcAirTerminal',
@@ -239,45 +240,27 @@ class Reduce(Workflow):
         number_ps = 0
 
         ### pipestrand
-
+        floor_heating = []
         chains = graph.get_type_chains(PipeStrand.aggregatable_elements)
         for chain in chains:
             number_ps += 1
             pipestrand = PipeStrand("PipeStrand%d" % (number_ps), chain)
-            graph.merge(
-                mapping=pipestrand.get_replacement_mapping(),
-                inner_connections=pipestrand.get_inner_connections())
+            if len(pipestrand.elements) > 100:
+                floor_heating.append(pipestrand)
+            else:
+                graph.merge(
+                    mapping=pipestrand.get_replacement_mapping(),
+                    inner_connections=pipestrand.get_inner_connections())
         number_of_nodes_new = len(graph.element_graph.nodes)
 
-        #find heating
-
-        reduced_instances = graph.elements
-        floor_heating = []
-        for element in reduced_instances:
-            if "PipeStrand" in str(element):
-                if len(element.elements) > 100:
-                    floor_heating.append(element)
-
+        ### UnderfloorHeating
+        number_fh = 0
         for strand in floor_heating:
-            min_x = 99999999999999
-            max_x = -9999999999999
-            min_y = 99999999999999
-            max_y = -9999999999999
-            for element in strand.elements:
-                if element.position[2] == 3452.054727764086:
-                    if element.position[0] < min_x:
-                        min_x = element.position[0]
-                    if element.position[0] > max_x:
-                        max_x = element.position[0]
-                    if element.position[1] < min_y:
-                        min_y = element.position[1]
-                    if element.position[1] > max_y:
-                        max_y = element.position[1]
-            area = (max_x-min_x)*(max_y-min_y)
-            setattr(strand, "Area_Heating", area)
-
-
-
+            number_fh += 1
+            underfloorheating = UnderfloorHeating("UnderfloorHeating%d" % (number_fh), strand.elements)
+            graph.merge(
+                mapping=underfloorheating.get_replacement_mapping(),
+                inner_connections=underfloorheating.get_inner_connections())
 
         ### Parallelpumps ###
         cycles = graph.get_cycles()
@@ -368,6 +351,11 @@ class Reduce(Workflow):
                 length = length - 1
                 continue
             i = i + 1
+
+        #New_cycles --> 3 Lists,
+                        #upper strand
+                        # lower strand
+                        # end and final ports
 
         # number_pp = 0
         # for cycle in New_cycles:
