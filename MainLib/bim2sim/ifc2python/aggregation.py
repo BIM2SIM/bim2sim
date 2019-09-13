@@ -308,24 +308,20 @@ class UnderfloorHeating(Aggregation):
 
 class ParallelPump(Aggregation):
     """Aggregates pumps in parallel"""
-    aggregatable_elements = ['IfcPump']
+    aggregatable_elements = ['IfcPump', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting']
 
-    def __init__(self, name, elements, *args, **kwargs):
+    def __init__(self, name, elements, cycle, *args, **kwargs):
+        self.cycle = cycle
         super().__init__(name, elements, *args, **kwargs)
         edge_ports = self._get_start_and_end_ports()
         self.ports.append(AggregationPort(edge_ports[0], parent=self))
         self.ports.append(AggregationPort(edge_ports[1], parent=self))
-
-        for ele in self.elements:
-            ele.request('rated_power')
-            ele.request('rated_height')
-            ele.request('rated_volume_flow')
-            ele.request('diameter')
-
         self._total_rated_power = None
         self._avg_rated_height = None
         self._total_rated_volume_flow = None
         self._total_diameter = None
+        self._total_length = None
+        self._avg_diameter_strand = None
 
     def _get_start_and_end_ports(self):
         """
@@ -336,33 +332,13 @@ class ParallelPump(Aggregation):
         """
         agg_ports = []
         # first port
-        found_in = False
-        found_out = False
-        for port in self.elements[0].ports:
-            if not port.connection:
-                continue  # end node
-            if port.connection.parent not in self.elements:
-                found_out = True
-                port.aggregated_parent = self
-                agg_ports.append(port)
-            else:
-                found_in = True
-        if not (found_in and found_out):
-            raise AssertionError("Assumption of ordered elements violated")
-
+        port = self.cycle[3][0].parent.ports[1]
+        port.aggregated_parent = self
+        agg_ports.append(port)
         # last port
-        found_in = False
-        found_out = False
-        for port in self.elements[-1].ports:
-            if port.connection.parent not in self.elements:
-                found_out = True
-                port.aggregated_parent = self
-                agg_ports.append(port)
-            else:
-                found_in = True
-        if not (found_in and found_out):
-            raise AssertionError("Assumption of ordered elements violated")
-
+        port = self.cycle[3][2].parent.ports[1]
+        port.aggregated_parent = self
+        agg_ports.append(port)
         return agg_ports
 
     def _calc_avg(self):
@@ -371,29 +347,51 @@ class ParallelPump(Aggregation):
         self._avg_rated_height = 0
         self._total_rated_volume_flow = 0
         self._total_diameter = 0
+        self._avg_diameter_strand = 0
+        self._total_length = 0
+        diameter_times_length = 0
 
         for pump in self.elements:
-            rated_power = getattr(pump, "rated_power")
-            rated_height = getattr(pump, "rated_height")
-            rated_volume_flow = getattr(pump, "rated_volume_flow")
-            diameter = getattr(pump, "diameter")
-            if not (rated_power and rated_height and rated_volume_flow and diameter):
-                self.logger.warning("Ignored '%s' in aggregation", pump)
-                continue
+            if "Pump" in str(pump):
+                rated_power = getattr(pump, "rated_power")
+                rated_height = getattr(pump, "rated_height")
+                rated_volume_flow = getattr(pump, "rated_volume_flow")
+                diameter = getattr(pump, "diameter")
+                if not (rated_power and rated_height and rated_volume_flow and diameter):
+                    self.logger.warning("Ignored '%s' in aggregation", pump)
+                    continue
 
-            self._total_rated_volume_flow += rated_volume_flow
-            if self._avg_rated_height != 0:
-                if rated_height < self._avg_rated_height:
+                self._total_rated_volume_flow += rated_volume_flow
+                if self._avg_rated_height != 0:
+                    if rated_height < self._avg_rated_height:
+                        self._avg_rated_height = rated_height
+                else:
                     self._avg_rated_height = rated_height
-            else:
-                self._avg_rated_height = rated_height
 
-            self._total_diameter = self._total_diameter + diameter**2
+                self._total_diameter = self._total_diameter + diameter**2
+            else:
+                if hasattr(pump, "diameter") and hasattr(pump, "length"):
+                    length = pump.length
+                    diameter = pump.diameter
+                    if not (length and diameter):
+                        self.logger.warning("Ignored '%s' in aggregation", pump)
+                        continue
+
+                    diameter_times_length += diameter * length
+                    self._total_length += length
+
+                else:
+                    self.logger.warning("Ignored '%s' in aggregation", pump)
+
+        if self._total_length != 0:
+            self._avg_diameter_strand = diameter_times_length / self._total_length
 
         self._total_diameter = math.sqrt(self._total_diameter)
         g = 9.81
         rho = 1000
         self._total_rated_power = self.rated_volume_flow*self.rated_height*g*rho
+
+
 
     def get_replacement_mapping(self):
         """Returns dict with original ports as values and their aggregated replacement as keys."""
@@ -431,86 +429,120 @@ class ParallelPump(Aggregation):
             self._calc_avg()
         return self._total_diameter
 
+    @property
+    def length(self):
+        """Diameter of aggregated pipe"""
+        if self._total_length is None:
+            self._calc_avg()
+        return self._total_length
 
-# class ParallelStrand(Aggregation):
-#     """Aggregates pipe strands in parallel"""
-#
-#     def __init__(self, name, elements, parameter, nodes, index,  *args, **kwargs):
-#         self.parameter = parameter
-#         self.nodes = nodes
-#         self.index = index
-#         super().__init__(name, elements, *args, **kwargs)
-#         edge_ports = self._get_start_and_end_ports()
-#         self.ports.append(AggregationPort(edge_ports[0], parent=self))
-#         self.ports.append(AggregationPort(edge_ports[1], parent=self))
-#         self._total_diameter = None
-#         self._avg_length = None
-#
-#     def _get_start_and_end_ports(self):
-#         """
-#         Finds and sets the first and last port of the pipestrand.
-#
-#         Assumes all elements in are ordered as connected
-#         :return ports:
-#         """
-#         agg_ports = []
-#
-#             # first port
-#         if self.parameter == "first":
-#             for port in self.elements[0].ports:
-#                 if port not in self.nodes:
-#                     agg_ports.append(port)
-#             # for element in
-#             for element in self.elements[self.index-1:self.index+1]:
-#                 for port in element.ports:
-#
-#
-#                     # agg_ports.append(port)
-#                 # last port
-#
-#         return agg_ports
-#
-#     def _calc_avg(self):
-#         """Calculates the total length and average diameter of all pipe-like
-#          elements."""
-#         self._total_diameter = 0
-#         self._avg_length = 0
-#         diameter_times_length = 0
-#
-#         for pipe in self.elements:
-#             if hasattr(pipe, "diameter") and hasattr(pipe, "length"):
-#                 length = pipe.length
-#                 diameter = pipe.diameter
-#                 if not (length and diameter):
-#                     self.logger.warning("Ignored '%s' in aggregation", pipe)
-#                     continue
-#
-#                 diameter_times_length += diameter*length
-#                 self._total_diameter = self._total_diameter + diameter ** 2
-#
-#             else:
-#                 self.logger.warning("Ignored '%s' in aggregation", pipe)
-#         self._total_diameter = math.sqrt(self._total_diameter)
-#         self._avg_length = diameter_times_length / self._total_diameter
-#
-#     def get_replacement_mapping(self):
-#         """Returns dict with original ports as values and their aggregated replacement as keys."""
-#         mapping = {port:None for element in self.elements
-#                    for port in element.ports}
-#         for port in self.ports:
-#             mapping[port.original] = port
-#         return mapping
-#
-#     @property
-#     def diameter(self):
-#         """Diameter of aggregated pipe"""
-#         if self._total_diameter is None:
-#             self._calc_avg()
-#         return self._total_diameter
-#
-#     @property
-#     def length(self):
-#         """Length of aggregated pipe"""
-#         if self._avg_length is None:
-#             self._calc_avg()
-#         return self._avg_length
+    @property
+    def diameter_strand(self):
+        """Diameter of aggregated pipe"""
+        if self._avg_diameter_strand is None:
+            self._calc_avg()
+        return self._avg_diameter_strand
+
+
+def cycles_reduction(cycles):
+    element_cycle = "SpaceHeater"
+
+    for cycle in cycles:
+        length_cycle = len(cycle)
+        cycle.append([])
+        for port in cycle[:length_cycle]:
+            if "PipeFitting" in str(port):
+                cycle[length_cycle].append(port)
+
+        length_cycle = len(cycle)
+        if cycle[length_cycle - 1][0].parent == cycle[length_cycle - 1][-1].parent:
+            cycle[length_cycle - 1].insert(0, cycle[length_cycle - 1][-1])
+            cycle[length_cycle - 1].pop()
+
+        for item in cycle[length_cycle - 1][0::2]:
+            index_a = cycle[length_cycle - 1].index(item)
+            if item.flow_direction != cycle[length_cycle - 1][index_a + 1].flow_direction:
+                cycle[length_cycle - 1][index_a] = 0
+                cycle[length_cycle - 1][index_a + 1] = 0
+        i = 0
+        length = len(cycle[length_cycle - 1])
+        while i < length:
+            if cycle[length_cycle - 1][i] == 0:
+                cycle[length_cycle - 1].remove(cycle[length_cycle - 1][i])
+                length = length - 1
+                continue
+            i = i + 1
+    i = 0
+    length = len(cycles)
+    while i < length:
+        length_a = len(cycles[i])
+        if len(cycles[i][length_a - 1]) != 4:
+            cycles.remove(cycles[i])
+            length = length - 1
+            continue
+        i = i + 1
+    New_cycles = []
+    n_cycle = 0
+    for cycle in cycles:
+        New_cycles.append([])
+        len_aux = len(cycle) - 1
+        cycle.append([])
+        cycle[len(cycle) - 1].append([])
+        cycle[len(cycle) - 1].append([])
+        for port in cycle[:len_aux]:
+            if cycle.index(cycle[len_aux][1]) < cycle.index(port) < cycle.index(cycle[len_aux][2]):
+                cycle[len(cycle) - 1][1].append(port)
+            elif (cycle.index(port) < cycle.index(cycle[len_aux][0])) and (port not in cycle[len_aux]):
+                cycle[len(cycle) - 1][0].append(port)
+            elif (cycle.index(port) > cycle.index(cycle[len_aux][3])) and (port not in cycle[len_aux]):
+                cycle[len(cycle) - 1][0].append(port)
+
+        n_item = 0
+        for item in cycle[-1]:
+            New_cycles[n_cycle].append([])
+            if n_item == 0:
+                New_cycles[n_cycle][n_item].append(cycle[len_aux][3].parent)
+            else:
+                New_cycles[n_cycle][n_item].append(cycle[len_aux][0].parent)
+            for port in item[0::2]:
+                New_cycles[n_cycle][n_item].append(port.parent)
+            if n_item == 0:
+                New_cycles[n_cycle][n_item].append(cycle[len_aux][0].parent)
+            else:
+                New_cycles[n_cycle][n_item].append(cycle[len_aux][2].parent)
+            n_item += 1
+        New_cycles[n_cycle].append(cycle[-2])
+        n_cycle += 1
+
+    for cycle in New_cycles:
+        for strand in cycle[0:2]:
+            n_element = 0
+            for item in strand:
+                if element_cycle in str(item):
+                    n_element += 1
+            if n_element == 0:
+                New_cycles[New_cycles.index(cycle)] = 0
+                break
+    i = 0
+    length = len(New_cycles)
+    while i < length:
+        if New_cycles[i] == 0:
+            New_cycles.remove(New_cycles[i])
+            length = length - 1
+            continue
+        i = i + 1
+
+    # New_cycles --> 3 Lists,
+    # upper strand
+    # lower strand
+    # end and final ports
+
+    for cycle in New_cycles:
+        elements_aux = []
+        for element in cycle[0][:len(cycle[0])-1]:
+            elements_aux.append(element)
+        for element in cycle[1][len(cycle[1])-2::-1]:
+            elements_aux.append(element)
+        cycle.insert(0, elements_aux)
+
+    return New_cycles

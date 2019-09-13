@@ -5,8 +5,7 @@ import json
 
 from bim2sim.workflow import Workflow
 from bim2sim.filter import TypeFilter
-from bim2sim.ifc2python.aggregation import PipeStrand, UnderfloorHeating
-    # , ParallelStrand
+from bim2sim.ifc2python.aggregation import PipeStrand, UnderfloorHeating, ParallelPump, cycles_reduction
 from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
 from bim2sim.ifc2python.hvac import hvac_graph
 from bim2sim.export import modelica
@@ -15,8 +14,6 @@ from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
 from bim2sim.enrichtment_data.data_class import DataClass, Enrich_class
 from bim2sim.enrichtment_data import element_input_json
-from collections import defaultdict
-import math
 
 IFC_TYPES = (
     'IfcAirTerminal',
@@ -237,8 +234,8 @@ class Reduce(Workflow):
     def run(self, graph: hvac_graph.HvacGraph):
         self.logger.info("Reducing elements by applying aggregations")
         number_of_nodes_old = len(graph.element_graph.nodes)
-        number_ps = 0
 
+        number_ps = 0
         ### pipestrand
         floor_heating = []
         chains = graph.get_type_chains(PipeStrand.aggregatable_elements)
@@ -264,126 +261,18 @@ class Reduce(Workflow):
 
         ### Parallelpumps ###
         cycles = graph.get_cycles()
-        element_cycle = "SpaceHeater"
 
-        for cycle in cycles:
-            length_cycle = len(cycle)
-            cycle.append([])
-            for port in cycle[:length_cycle]:
-                if "PipeFitting" in str(port):
-                    cycle[length_cycle].append(port)
+        New_cycles = cycles_reduction(cycles)
 
-            length_cycle = len(cycle)
-            if cycle[length_cycle - 1][0].parent == cycle[length_cycle - 1][-1].parent:
-                cycle[length_cycle - 1].insert(0, cycle[length_cycle - 1][-1])
-                cycle[length_cycle - 1].pop()
-
-            for item in cycle[length_cycle - 1][0::2]:
-                index_a = cycle[length_cycle - 1].index(item)
-                if item.flow_direction != cycle[length_cycle - 1][index_a + 1].flow_direction:
-                    cycle[length_cycle - 1][index_a] = 0
-                    cycle[length_cycle - 1][index_a + 1] = 0
-            i = 0
-            length = len(cycle[length_cycle - 1])
-            while i < length:
-                if cycle[length_cycle - 1][i] == 0:
-                    cycle[length_cycle - 1].remove(cycle[length_cycle - 1][i])
-                    length = length - 1
-                    continue
-                i = i + 1
-        i = 0
-        length = len(cycles)
-        while i < length:
-            length_a = len(cycles[i])
-            aux = cycles[i][length_a - 1]
-            if len(cycles[i][length_a - 1]) != 4:
-                cycles.remove(cycles[i])
-                length = length - 1
-                continue
-            i = i + 1
-        New_cycles = []
-        n_cycle = 0
-        for cycle in cycles:
-            New_cycles.append([])
-            len_aux = len(cycle) - 1
-            cycle.append([])
-            cycle[len(cycle) - 1].append([])
-            cycle[len(cycle) - 1].append([])
-            for port in cycle[:len_aux]:
-                if cycle.index(cycle[len_aux][1]) < cycle.index(port) < cycle.index(cycle[len_aux][2]):
-                    cycle[len(cycle) - 1][1].append(port)
-                elif (cycle.index(port) < cycle.index(cycle[len_aux][0])) and (port not in cycle[len_aux]):
-                    cycle[len(cycle) - 1][0].append(port)
-                elif (cycle.index(port) > cycle.index(cycle[len_aux][3])) and (port not in cycle[len_aux]):
-                    cycle[len(cycle) - 1][0].append(port)
-
-            n_item = 0
-            for item in cycle[-1]:
-                New_cycles[n_cycle].append([])
-                if n_item == 0:
-                    New_cycles[n_cycle][n_item].append(cycle[len_aux][3].parent)
-                else:
-                    New_cycles[n_cycle][n_item].append(cycle[len_aux][0].parent)
-                for port in item[0::2]:
-                    New_cycles[n_cycle][n_item].append(port.parent)
-                if n_item == 0:
-                    New_cycles[n_cycle][n_item].append(cycle[len_aux][0].parent)
-                else:
-                    New_cycles[n_cycle][n_item].append(cycle[len_aux][2].parent)
-                n_item += 1
-            New_cycles[n_cycle].append(cycle[-2])
-            n_cycle += 1
-
+        number_pp = 0
+        parallel_pumps = []
         for cycle in New_cycles:
-            for strand in cycle[0:2]:
-                n_element = 0
-                for item in strand:
-                    if element_cycle in str(item):
-                        n_element += 1
-                if n_element == 0:
-                    New_cycles[New_cycles.index(cycle)] = 0
-                    break
-        i = 0
-        length = len(New_cycles)
-        while i < length:
-            if New_cycles[i] == 0:
-                New_cycles.remove(New_cycles[i])
-                length = length - 1
-                continue
-            i = i + 1
-
-        #New_cycles --> 3 Lists,
-                        #upper strand
-                        # lower strand
-                        # end and final ports
-
-        # number_pp = 0
-        # for cycle in New_cycles:
-        #     index_element = []
-        #     for strand in cycle:
-        #         for item in strand:
-        #             if element_cycle in str(item):
-        #                 index_element.append(strand.index(item))
-        #     auxiliary_first = cycle[0][:index_element[0]]+cycle[1][index_element[1]+1:]
-        #     auxiliary_last = cycle[0][index_element[0]+1:]+cycle[1][:index_element[1]]
-        #     nodes = cycle[-1]
-        #     number_pp += 1
-        #     parallelstrand = ParallelStrand("ParallelStrand%d" % number_pp, auxiliary_first,
-        #                                     "first", nodes, index_element[0])
-        #     graph.merge(
-        #         mapping=parallelstrand.get_replacement_mapping(),
-        #         inner_connections=parallelstrand.get_inner_connections())
-        #     number_pp += 1
-        #     parallelstrand = ParallelStrand("ParallelStrand%d" % number_pp, auxiliary_last,
-        #                                     "last", nodes, index_element[0])
-        #     graph.merge(
-        #         mapping=parallelstrand.get_replacement_mapping(),
-        #         inner_connections=parallelstrand.get_inner_connections())
-
-
-
-
-
+            number_pp += 1
+            parallelpump = ParallelPump("ParallelPump%d" % number_pp, cycle[0], cycle)
+            parallel_pumps.append(parallelpump)
+            # graph.merge(
+            #     mapping=parallelpump.get_replacement_mapping(),
+            #     inner_connections=parallelpump.get_inner_connections())
 
 
 
@@ -391,7 +280,7 @@ class Reduce(Workflow):
         self.logger.info(
             "Applied %d aggregations which reduced"
             + " number of elements from %d to %d.",
-            number_ps, number_of_nodes_old, number_of_nodes_new)
+            number_ps+number_fh+number_pp, number_of_nodes_old, number_of_nodes_new)
         self.reduced_instances = graph.elements
         self.connections = graph.get_connections()
 
