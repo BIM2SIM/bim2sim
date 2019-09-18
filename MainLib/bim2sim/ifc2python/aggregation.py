@@ -4,6 +4,7 @@ import logging
 import math
 from collections import defaultdict
 from bim2sim.ifc2python.element import BaseElement, BasePort
+from bim2sim.ifc2python import elements
 
 
 class AggregationPort(BasePort):
@@ -156,6 +157,7 @@ class UnderfloorHeating(PipeStrand):
         self._x_spacing = self.parameters[0]
         self._y_spacing = self.parameters[1]
         self._heating_area = self.parameters[2]
+        self._specific_length = self.parameters[3]
 
     @property
     def heating_area(self):
@@ -415,18 +417,18 @@ def cycles_reduction(cycles):
 
 
 def underfloor_heating_recognition(pipe_strand, parameters):
-    elements = pipe_strand.elements
+    ps_elements = pipe_strand.elements
     heating_area = 0
     x_spacing = 0
     y_spacing = 0
     z_coordinates = defaultdict(list)
-    for element in elements:
+    for element in ps_elements:
         z_coordinates[element.position[2]].append(element)
     z_coordinate = []
     for coordinate in z_coordinates:
         n_pipe = 0
         for element in z_coordinates[coordinate]:
-            if "PipeFitting" in str(element):
+            if isinstance(element, elements.PipeFitting):
                 n_pipe += 1
         if n_pipe == 0 and (len(z_coordinates[coordinate]) > len(z_coordinate)):
             z_coordinate = z_coordinates[coordinate]
@@ -438,7 +440,7 @@ def underfloor_heating_recognition(pipe_strand, parameters):
     max_y = -float("inf")
     x_orientation = []
     y_orientation = []
-    for element in elements:
+    for element in ps_elements:
         if z_coordinate - 1 < element.position[2] < z_coordinate + 1:
             if element.position[0] < min_x:
                 min_x = element.position[0]
@@ -453,6 +455,7 @@ def underfloor_heating_recognition(pipe_strand, parameters):
             if abs(element.ports[0].position[1] - element.ports[1].position[1]) < 1:
                 x_orientation.append(element)
     heating_area = (max_x - min_x) * (max_y - min_y)
+    specific_length = pipe_strand.length / heating_area
     if len(y_orientation)-1 != 0:
         x_spacing = (max_x - min_x) / (len(y_orientation) - 1)
     if len(x_orientation)-1 != 0:
@@ -461,6 +464,7 @@ def underfloor_heating_recognition(pipe_strand, parameters):
         parameters.append(x_spacing)
         parameters.append(y_spacing)
         parameters.append(heating_area)
+        parameters.append(specific_length)
         return True
 
 

@@ -238,14 +238,20 @@ class Reduce(Workflow):
         number_ps = 0
         number_fh = 0
         chains = graph.get_type_chains(PipeStrand.aggregatable_elements)
+        uf_list = {}
         for chain in chains:
             number_ps += 1
             pipestrand = PipeStrand("PipeStrand%d" % (number_ps), chain)
             parameters = []
-            if underfloor_heating_recognition(pipestrand, parameters):
+
+            if underfloor_heating_recognition(pipestrand,
+                                                         parameters):
                 number_fh += 1
                 underfloorheating = UnderfloorHeating("UnderfloorHeating%d" % (number_fh),
                                                       pipestrand.elements, parameters)
+                uf_list[underfloorheating] = [
+                    underfloorheating._specific_length,
+                    underfloorheating.length, len(underfloorheating.elements)]
                 graph.merge(
                     mapping=underfloorheating.get_replacement_mapping(),
                     inner_connections=underfloorheating.get_inner_connections())
