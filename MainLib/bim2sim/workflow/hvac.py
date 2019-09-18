@@ -254,7 +254,8 @@ class Reduce(Workflow):
         number_fh = 0
         for strand in floor_heating:
             number_fh += 1
-            underfloorheating = UnderfloorHeating("UnderfloorHeating%d" % (number_fh), strand.elements)
+            underfloorheating = UnderfloorHeating("UnderfloorHeating%d" % (number_fh),
+                                                  strand.elements)
             graph.merge(
                 mapping=underfloorheating.get_replacement_mapping(),
                 inner_connections=underfloorheating.get_inner_connections())
