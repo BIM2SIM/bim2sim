@@ -5,7 +5,8 @@ import json
 
 from bim2sim.workflow import Workflow
 from bim2sim.filter import TypeFilter
-from bim2sim.ifc2python.aggregation import PipeStrand, UnderfloorHeating, ParallelPump, cycles_reduction
+from bim2sim.ifc2python.aggregation import PipeStrand, UnderfloorHeating, \
+    ParallelPump, cycles_reduction, underfloor_heating_recognition
 from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
 from bim2sim.ifc2python.hvac import hvac_graph
 from bim2sim.export import modelica
@@ -234,31 +235,24 @@ class Reduce(Workflow):
     def run(self, graph: hvac_graph.HvacGraph):
         self.logger.info("Reducing elements by applying aggregations")
         number_of_nodes_old = len(graph.element_graph.nodes)
-
         number_ps = 0
-        ### pipestrand
-        floor_heating = []
+        number_fh = 0
         chains = graph.get_type_chains(PipeStrand.aggregatable_elements)
         for chain in chains:
             number_ps += 1
             pipestrand = PipeStrand("PipeStrand%d" % (number_ps), chain)
-            if len(pipestrand.elements) > 100:
-                floor_heating.append(pipestrand)
+            parameters = []
+            if underfloor_heating_recognition(pipestrand, parameters):
+                number_fh += 1
+                underfloorheating = UnderfloorHeating("UnderfloorHeating%d" % (number_fh),
+                                                      pipestrand.elements, parameters)
+                graph.merge(
+                    mapping=underfloorheating.get_replacement_mapping(),
+                    inner_connections=underfloorheating.get_inner_connections())
             else:
                 graph.merge(
                     mapping=pipestrand.get_replacement_mapping(),
                     inner_connections=pipestrand.get_inner_connections())
-        number_of_nodes_new = len(graph.element_graph.nodes)
-
-        ### UnderfloorHeating
-        number_fh = 0
-        for strand in floor_heating:
-            number_fh += 1
-            underfloorheating = UnderfloorHeating("UnderfloorHeating%d" % (number_fh),
-                                                  strand.elements)
-            graph.merge(
-                mapping=underfloorheating.get_replacement_mapping(),
-                inner_connections=underfloorheating.get_inner_connections())
 
         ### Parallelpumps ###
         cycles = graph.get_cycles()
@@ -275,9 +269,7 @@ class Reduce(Workflow):
             #     mapping=parallelpump.get_replacement_mapping(),
             #     inner_connections=parallelpump.get_inner_connections())
 
-
-
-
+        number_of_nodes_new = len(graph.element_graph.nodes)
         self.logger.info(
             "Applied %d aggregations which reduced"
             + " number of elements from %d to %d.",
