@@ -244,14 +244,11 @@ class Reduce(Workflow):
             pipestrand = PipeStrand("PipeStrand%d" % (number_ps), chain)
             parameters = []
 
-            if underfloor_heating_recognition(pipestrand,
-                                                         parameters):
+            if underfloor_heating_recognition(pipestrand, parameters):
                 number_fh += 1
                 underfloorheating = UnderfloorHeating("UnderfloorHeating%d" % (number_fh),
                                                       pipestrand.elements, parameters)
-                uf_list[underfloorheating] = [
-                    underfloorheating._specific_length,
-                    underfloorheating.length, len(underfloorheating.elements)]
+                uf_list[underfloorheating] = [underfloorheating]
                 graph.merge(
                     mapping=underfloorheating.get_replacement_mapping(),
                     inner_connections=underfloorheating.get_inner_connections())
@@ -260,6 +257,8 @@ class Reduce(Workflow):
                     mapping=pipestrand.get_replacement_mapping(),
                     inner_connections=pipestrand.get_inner_connections())
 
+        self.logger.info("Applied %d aggregations as \"PipeStrand\"", number_ps)
+        self.logger.info("Applied %d aggregations as \"UnderfloorHeating\"", number_fh)
         ### Parallelpumps ###
         cycles = graph.get_cycles()
 
@@ -269,12 +268,12 @@ class Reduce(Workflow):
         parallel_pumps = []
         for cycle in New_cycles:
             number_pp += 1
-            parallelpump = ParallelPump("ParallelPump%d" % number_pp, cycle[0], cycle)
+            parallelpump = ParallelPump("ParallelPump%d" % number_pp, cycle["elements"], cycle)
             parallel_pumps.append(parallelpump)
-            # graph.merge(
-            #     mapping=parallelpump.get_replacement_mapping(),
-            #     inner_connections=parallelpump.get_inner_connections())
-
+            graph.merge(
+                mapping=parallelpump.get_replacement_mapping(),
+                inner_connections=parallelpump.get_inner_connections())
+        self.logger.info("Applied %d aggregations as \"ParallelPump\"", number_pp)
         number_of_nodes_new = len(graph.element_graph.nodes)
         self.logger.info(
             "Applied %d aggregations which reduced"

@@ -1,7 +1,7 @@
 import os
 import sys
 import json
-import project
+from bim2sim.project import PROJECT as project
 import inspect
 
 v = sys.version_info
@@ -11,7 +11,6 @@ if v >= (2, 7):
     except:
         FileNotFoundError = IOError
 
-project = project.PROJECT
 # elements_data = inspect.getmembers(elements)
 
 
@@ -89,7 +88,7 @@ class DataClass(object):
                                     data_update[name]["statistical_year"][year][parameter] = default
 
         with open(self.path_te, 'w') as f:
-                json.dump(data_update, f, indent=4)
+            json.dump(data_update, f, indent=4)
 
 
 

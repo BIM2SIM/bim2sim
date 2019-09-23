@@ -17,6 +17,24 @@
                 "rated_power": 15,
                 "efficiency": 0.98
             }
+        },
+        "heat_pump": {
+            "2kW": {
+                "name": "Boiler_enrichment_2kW",
+                "water_volume": 0.008,
+                "min_power": 18,
+                "rated_power": 15,
+                "efficiency": 0.98
+            }
+        },
+        "Typeing": {
+            "low": {
+                "name": "Boiler_enrichment_low",
+                "water_volume": null,
+                "min_power": null,
+                "rated_power": null,
+                "efficiency": null
+            }
         }
     },
     "Pump": {

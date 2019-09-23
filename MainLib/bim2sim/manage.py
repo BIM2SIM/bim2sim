@@ -7,6 +7,7 @@ from bim2sim.project import PROJECT, get_config
 from bim2sim.ifc2python import ifc2python
 from bim2sim.enrichtment_data.data_class import DataClass
 from bim2sim.export.modelica import standardlibrary
+import ifcopenshell
 
 
 class BIM2SIMManager:
@@ -28,6 +29,8 @@ class BIM2SIMManager:
         self.ifc_path = self.get_ifc() # actual ifc # TODO: use multiple ifs files
         assert self.ifc_path, "No ifc found. Check '%s'"%(PROJECT.ifc)
         self.ifc = ifc2python.load_ifc(os.path.abspath(self.ifc_path))
+        self.logger.info("The exporter version of the IFC file is '%s'",
+                         self.ifc.wrapped_data.header.file_name.originating_system)
 
         self.logger.info("BIM2SIMManager '%s' initialized", self.__class__.__name__)
 

@@ -157,7 +157,6 @@ class UnderfloorHeating(PipeStrand):
         self._x_spacing = self.parameters[0]
         self._y_spacing = self.parameters[1]
         self._heating_area = self.parameters[2]
-        self._specific_length = self.parameters[3]
 
     @property
     def heating_area(self):
@@ -199,13 +198,14 @@ class ParallelPump(Aggregation):
         Assumes all elements in are ordered as connected
         :return ports:
         """
+
         agg_ports = []
         # first port
-        port = self.cycle[3][0].parent.ports[1]
+        port = self.elements[0].ports[1]
         port.aggregated_parent = self
         agg_ports.append(port)
         # last port
-        port = self.cycle[3][2].parent.ports[1]
+        port = self.elements[-1].ports[1]
         port.aggregated_parent = self
         agg_ports.append(port)
         return agg_ports
@@ -312,13 +312,12 @@ class ParallelPump(Aggregation):
 
 
 def cycles_reduction(cycles):
-    element_cycle = "SpaceHeater"
 
     for cycle in cycles:
         length_cycle = len(cycle)
         cycle.append([])
         for port in cycle[:length_cycle]:
-            if "PipeFitting" in str(port):
+            if isinstance(port.parent, elements.PipeFitting):
                 cycle[length_cycle].append(port)
 
         length_cycle = len(cycle)
@@ -385,7 +384,7 @@ def cycles_reduction(cycles):
         for strand in cycle[0:2]:
             n_element = 0
             for item in strand:
-                if element_cycle in str(item):
+                if isinstance(item, elements.Pump):
                     n_element += 1
             if n_element == 0:
                 New_cycles[New_cycles.index(cycle)] = 0
@@ -399,12 +398,7 @@ def cycles_reduction(cycles):
             continue
         i = i + 1
 
-    # New_cycles --> 4 Lists,
-    # elements
-    # upper strand
-    # lower strand
-    # end and final ports
-
+    keys = ['elements', 'up_strand', 'low_strand', 'ports']
     for cycle in New_cycles:
         elements_aux = []
         for element in cycle[0][:len(cycle[0]) - 1]:
@@ -412,15 +406,18 @@ def cycles_reduction(cycles):
         for element in cycle[1][len(cycle[1]) - 2::-1]:
             elements_aux.append(element)
         cycle.insert(0, elements_aux)
+    reduced_cycles = []
+    for cycle in New_cycles:
+        reduced_cycles.append(dict(zip(keys, cycle)))
 
-    return New_cycles
+    return reduced_cycles
 
 
 def underfloor_heating_recognition(pipe_strand, parameters):
     ps_elements = pipe_strand.elements
-    heating_area = 0
     x_spacing = 0
     y_spacing = 0
+    criteria = 0
     z_coordinates = defaultdict(list)
     for element in ps_elements:
         z_coordinates[element.position[2]].append(element)
@@ -455,16 +452,16 @@ def underfloor_heating_recognition(pipe_strand, parameters):
             if abs(element.ports[0].position[1] - element.ports[1].position[1]) < 1:
                 x_orientation.append(element)
     heating_area = (max_x - min_x) * (max_y - min_y)
-    specific_length = pipe_strand.length / heating_area
+    if heating_area != 0:
+        criteria = (pipe_strand.length*pipe_strand.diameter)/heating_area
     if len(y_orientation)-1 != 0:
         x_spacing = (max_x - min_x) / (len(y_orientation) - 1)
     if len(x_orientation)-1 != 0:
         y_spacing = (max_y - min_y) / (len(x_orientation) - 1)
-    if (90 < x_spacing < 210 and x_spacing != 0) or (90 < y_spacing < 210 and y_spacing != 0):
+    if (90 < x_spacing < 210 and 0.09 > criteria > 0.01 and heating_area > 1000000) \
+            or (90 < y_spacing < 210 and 0.09 > criteria > 0.01 and heating_area > 1000000):
         parameters.append(x_spacing)
         parameters.append(y_spacing)
         parameters.append(heating_area)
-        parameters.append(specific_length)
         return True
-
 

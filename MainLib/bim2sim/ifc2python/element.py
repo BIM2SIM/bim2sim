@@ -10,6 +10,9 @@ from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import ifc2python
 
 
+
+
+
 class ElementError(Exception):
     """Error in Element"""
 
@@ -288,9 +291,14 @@ class Element(BaseElement, IFCBased, metaclass=ElementMeta):
         return found
 
     def _add_ports(self):
-        element_port_connections = self.ifc.HasPorts
-        for element_port_connection in element_port_connections:
-            self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
+        if not self.ifc.HasPorts:
+            element_port_connections = self.ifc.IsNestedBy[0].RelatedObjects
+            for element_port_connection in element_port_connections:
+                self.ports.append(Port(parent=self, ifc=element_port_connection))
+        else:
+            element_port_connections = self.ifc.HasPorts
+            for element_port_connection in element_port_connections:
+                self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
 
     @staticmethod
     def _init_factory():
