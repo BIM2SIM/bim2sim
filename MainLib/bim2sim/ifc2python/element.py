@@ -292,10 +292,12 @@ class Element(BaseElement, IFCBased, metaclass=ElementMeta):
 
     def _add_ports(self):
         if not self.ifc.HasPorts:
+            # valid for IFC for Revit v19.2.0.0
             element_port_connections = self.ifc.IsNestedBy[0].RelatedObjects
             for element_port_connection in element_port_connections:
                 self.ports.append(Port(parent=self, ifc=element_port_connection))
         else:
+            # valid for IFC for Revit v19.1.0.0
             element_port_connections = self.ifc.HasPorts
             for element_port_connection in element_port_connections:
                 self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
