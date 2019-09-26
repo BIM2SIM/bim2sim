@@ -2,7 +2,7 @@ from bim2sim.enrichtment_data.data_class import DataClass, Enrich_class
 from bim2sim.workflow import Workflow
 
 
-def load_element_ifc(element, ele_ifc, year, dataclass):
+def load_element_ifc(element, ele_ifc, enrich_parameter, parameter_value, dataclass):
     """
     this function fills a data class object, with the information found in the
     enrichment data, based on the ifc type and year.
@@ -10,29 +10,29 @@ def load_element_ifc(element, ele_ifc, year, dataclass):
     binding = dataclass.element_bind
     for a in binding:
         if binding[a]["ifc_type"] == ele_ifc:
-            for b in binding[a]["statistical_year"]:
-                if b == str(year):
-                    for c in binding[a]["statistical_year"][b]:
+            for b in binding[a][enrich_parameter]:
+                if b == str(parameter_value):
+                    for c in binding[a][enrich_parameter][b]:
                         setattr(element, str(c),
-                                binding[a]["statistical_year"][b][c])
+                                binding[a][enrich_parameter][b][c])
 
 
-def load_element_class(element, ele_class, year, dataclass):
+def load_element_class(element, ele_class, enrich_parameter, parameter_value, dataclass):
     """
     this function fills a data class object, with the information found in the
-    enrichment data, based on the class and year.
+    enrichment data, based on the class, parameter and parameter value.
     """
     binding = dataclass.element_bind
     for a in binding:
         if binding[a]["class"] == ele_class:
-            for b in binding[a]["statistical_year"]:
-                if b == str(year):
-                    for c in binding[a]["statistical_year"][b]:
+            for b in binding[a][enrich_parameter]:
+                if b == str(parameter_value):
+                    for c in binding[a][enrich_parameter][b]:
                         setattr(element, str(c),
-                                binding[a]["statistical_year"][b][c])
+                                binding[a][enrich_parameter][b][c])
 
 
-def enrich_by_buildyear(self, attrs_enrich, instance):
+def enrich_by(self, attrs_enrich, instance):
     if bool(attrs_enrich) is True:
         attrs_instance = {}
         for a in instance.__dir__():
@@ -52,4 +52,3 @@ def enrich_by_buildyear(self, attrs_enrich, instance):
                 self.logger.info("There's no enrichment data for the attribute %s from %s" % (prop, attrs_instance["name"]))
     else:
         self.logger.warning("No enrichment parameters for the instance %s" % instance.name)
-

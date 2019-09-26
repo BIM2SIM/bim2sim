@@ -293,8 +293,7 @@ class Enrich(Workflow):
         self.enrich_data = {}
         self.enriched_instances = {}
 
-    @Workflow.log
-    def enrich_instance(self, instance, build_year, enrichment_parameter):
+    def enrich_instance(self, instance, enrich_parameter, parameter_value, enrichment_parameter):
 
         json_data = DataClass()
         enrich_data = Enrich_class()
@@ -307,37 +306,39 @@ class Enrich(Workflow):
             else:
                 element_input_json.load_element_ifc(enrich_data,
                                                     instance.ifc_type,
-                                                    build_year,
+                                                    enrich_parameter,
+                                                    parameter_value,
                                                     json_data)
                 attrs_enrich = vars(enrich_data)
-                element_input_json.enrich_by_buildyear(self, attrs_enrich, instance)
+                element_input_json.enrich_by(self, attrs_enrich, instance)
 
         elif enrichment_parameter == "class":
             class_instance = str(instance.__class__)[
                              str(instance.__class__).rfind(".") + 1:str(instance.__class__).rfind("'")]
             element_input_json.load_element_class(enrich_data,
                                                   class_instance,
-                                                  build_year,
+                                                  enrich_parameter,
+                                                  parameter_value,
                                                   json_data)
             attrs_enrich = vars(enrich_data)
-            element_input_json.enrich_by_buildyear(self, attrs_enrich, instance)
+            element_input_json.enrich_by(self, attrs_enrich, instance)
         else:
             self.logger.warning("Parameter invalid")
 
         # target: the instances in the inspect.instances dict are filled up
         # with the data from the json file
 
-    def run(self, instances, build_year, enrichment_parameter):
+    @Workflow.log
+    def run(self, instances, enrich_parameter, parameter_value, enrichment_parameter):
+        #enrichment_parameter --> IFC, Class
         self.logger.info("Enrichment of the elements")
         enriched_instances = instances
         for instance in enriched_instances:
             if hasattr(instance, "elements"):
                 for subinstance in instance.elements:
-                    self.enrich_instance(subinstance, build_year, enrichment_parameter)
-            # elif instance.ifc_type == 'IfcTank':
-            #     print("Error here")
+                    self.enrich_instance(subinstance, enrich_parameter, parameter_value, enrichment_parameter)
             else:
-                self.enrich_instance(instance, build_year, enrichment_parameter)
+                self.enrich_instance(instance, enrich_parameter, parameter_value, enrichment_parameter)
         self.enriched_instances = enriched_instances
         # runs all enrich methods
 

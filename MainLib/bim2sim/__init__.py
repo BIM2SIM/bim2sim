@@ -14,7 +14,8 @@ from bim2sim.project import PROJECT, get_config
 from bim2sim.tasks import PlantSimulation
 
 VERSION = '0.1-dev'
-print(5)
+
+
 def get_backends(by_entrypoint=False):
     """load all possible plugins"""
     logger = logging.getLogger(__name__)

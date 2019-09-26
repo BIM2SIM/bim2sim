@@ -31,7 +31,7 @@ class AixLib(BIM2SIMManager):
         reduce.run(makegraph.graph)
 
         enrich = hvac.Enrich()
-        enrich.run(reduce.reduced_instances, 2004, "class")
+        enrich.run(reduce.reduced_instances, "statistical_year", 2004, "class")
 
         #check
 

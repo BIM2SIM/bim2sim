@@ -17,20 +17,27 @@ def new_enrichment_parameter(path):
             enriched_element = None
             print("The desired element to be enriched is not in the data base,"
                   " try the following elements: \n", ', '.join(elements_available))
-
-    parameter = input("Enter the enrichment parameter to add: ")
-    parameter_value = input("Enter the parameter value to add: ")
+    parameter = ""
+    parameter_value = ""
+    while not parameter:
+        parameter = input("Enter the enrichment parameter to add: ")
+    while not parameter_value:
+        parameter_value = input("Enter the parameter value to add: ")
     data_update = json.load(open(path))
+
     if enriched_element in data_update:
         #check if exists in json
         if parameter in data_update[enriched_element]:
             if parameter_value in data_update[enriched_element][parameter]:
                 print("The value for the selected parameter to add, already exists")
             else:
+                data_update[enriched_element][parameter][parameter_value] = {}
+                data_update[enriched_element][parameter][parameter_value]["name"] = enriched_element \
+                                                                                    + "_enrichment_" + parameter_value
                 for obj in elements_data[enriched_element].findables:
                     enrichment = obj
-                    value = input("Enter the value for the enrichment of %d, "
-                                  "or press enter to add \"None\" as default " % enrichment)
+                    value = input("Enter the value for the enrichment of {} or press enter "
+                                  "to add \"None\" as default ".format(enrichment))
                     if value:
                         data_update[enriched_element][parameter][parameter_value][enrichment] = value
                     else:
@@ -53,10 +60,12 @@ def new_enrichment_parameter(path):
         data_update[enriched_element] = {}
         data_update[enriched_element][parameter] = {}
         data_update[enriched_element][parameter][parameter_value] = {}
+        data_update[enriched_element][parameter][parameter_value]["name"] = enriched_element \
+                                                                            + "_enrichment_" + parameter_value
         for obj in elements_data[enriched_element].findables:
             enrichment = obj
-            value = input("Enter the value for the enrichment of %d, "
-                          "or press enter to add \"None\" as default " % enrichment)
+            value = input("Enter the value for the enrichment of {} or press enter "
+                          "to add \"None\" as default ".format(enrichment))
             if value:
                 data_update[enriched_element][parameter][parameter_value][enrichment] = value
             else:
