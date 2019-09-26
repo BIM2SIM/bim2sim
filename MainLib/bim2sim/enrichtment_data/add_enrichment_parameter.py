@@ -5,7 +5,7 @@ import inspect
 elements_data = elements.__dict__
 
 
-def new_enrichment_parameter(path):
+def new_enrichment_parameter(file_path):
     enriched_element = None
     elements_available = []
     for element in elements_data:
@@ -23,10 +23,9 @@ def new_enrichment_parameter(path):
         parameter = input("Enter the enrichment parameter to add: ")
     while not parameter_value:
         parameter_value = input("Enter the parameter value to add: ")
-    data_update = json.load(open(path))
+    data_update = json.load(open(file_path))
 
     if enriched_element in data_update:
-        #check if exists in json
         if parameter in data_update[enriched_element]:
             if parameter_value in data_update[enriched_element][parameter]:
                 print("The value for the selected parameter to add, already exists")
@@ -45,7 +44,7 @@ def new_enrichment_parameter(path):
         else:
             data_update[enriched_element][parameter] = {}
             data_update[enriched_element][parameter][parameter_value] = {}
-            data_update[enriched_element][parameter][parameter_value]["name"] = enriched_element\
+            data_update[enriched_element][parameter][parameter_value]["name"] = enriched_element \
                                                                                 + "_enrichment_" + parameter_value
             for obj in elements_data[enriched_element].findables:
                 enrichment = obj
@@ -71,7 +70,7 @@ def new_enrichment_parameter(path):
             else:
                 data_update[enriched_element][parameter][parameter_value][enrichment] = None
 
-    with open(path, 'w') as f:
+    with open(file_path, 'w') as f:
         json.dump(data_update, f, indent=4)
 
 
