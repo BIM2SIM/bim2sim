@@ -5,6 +5,20 @@ import inspect
 elements_data = elements.__dict__
 
 
+def filler(data_update, enriched_element, parameter, parameter_value):
+    data_update[enriched_element][parameter][parameter_value] = {}
+    data_update[enriched_element][parameter][parameter_value]["name"] = enriched_element \
+                                                                        + "_enrichment_" + parameter_value
+    for obj in elements_data[enriched_element].findables:
+        enrichment = obj
+        value = input("Enter the value for the enrichment of {} or press enter "
+                      "to add \"None\" as default ".format(enrichment))
+        if value:
+            data_update[enriched_element][parameter][parameter_value][enrichment] = value
+        else:
+            data_update[enriched_element][parameter][parameter_value][enrichment] = None
+
+
 def new_enrichment_parameter(file_path):
     enriched_element = None
     elements_available = []
@@ -30,45 +44,15 @@ def new_enrichment_parameter(file_path):
             if parameter_value in data_update[enriched_element][parameter]:
                 print("The value for the selected parameter to add, already exists")
             else:
-                data_update[enriched_element][parameter][parameter_value] = {}
-                data_update[enriched_element][parameter][parameter_value]["name"] = enriched_element \
-                                                                                    + "_enrichment_" + parameter_value
-                for obj in elements_data[enriched_element].findables:
-                    enrichment = obj
-                    value = input("Enter the value for the enrichment of {} or press enter "
-                                  "to add \"None\" as default ".format(enrichment))
-                    if value:
-                        data_update[enriched_element][parameter][parameter_value][enrichment] = value
-                    else:
-                        data_update[enriched_element][parameter][parameter_value][enrichment] = None
+                filler(data_update, enriched_element, parameter, parameter_value)
         else:
             data_update[enriched_element][parameter] = {}
-            data_update[enriched_element][parameter][parameter_value] = {}
-            data_update[enriched_element][parameter][parameter_value]["name"] = enriched_element \
-                                                                                + "_enrichment_" + parameter_value
-            for obj in elements_data[enriched_element].findables:
-                enrichment = obj
-                value = input("Enter the value for the enrichment of {} or press enter "
-                              "to add \"None\" as default ".format(enrichment))
-                if value:
-                    data_update[enriched_element][parameter][parameter_value][enrichment] = value
-                else:
-                    data_update[enriched_element][parameter][parameter_value][enrichment] = None
+            filler(data_update, enriched_element, parameter, parameter_value)
 
     else:
         data_update[enriched_element] = {}
         data_update[enriched_element][parameter] = {}
-        data_update[enriched_element][parameter][parameter_value] = {}
-        data_update[enriched_element][parameter][parameter_value]["name"] = enriched_element \
-                                                                            + "_enrichment_" + parameter_value
-        for obj in elements_data[enriched_element].findables:
-            enrichment = obj
-            value = input("Enter the value for the enrichment of {} or press enter "
-                          "to add \"None\" as default ".format(enrichment))
-            if value:
-                data_update[enriched_element][parameter][parameter_value][enrichment] = value
-            else:
-                data_update[enriched_element][parameter][parameter_value][enrichment] = None
+        filler(data_update, enriched_element, parameter, parameter_value)
 
     with open(file_path, 'w') as f:
         json.dump(data_update, f, indent=4)
