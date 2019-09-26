@@ -1,11 +1,16 @@
+"""Program that allows the user to add new parameters of enrichment to the items on the database
+for example: (statistical year, type, heat pump...)"""
 import json
 from bim2sim.ifc2python import elements
 import inspect
+
 
 elements_data = elements.__dict__
 
 
 def filler(data_update, enriched_element, parameter, parameter_value):
+    """fills the empty spaces which corresponds to the desired
+    element, parameter and parameter value"""
     data_update[enriched_element][parameter][parameter_value] = {}
     data_update[enriched_element][parameter][parameter_value]["name"] = enriched_element \
                                                                         + "_enrichment_" + parameter_value
@@ -20,6 +25,25 @@ def filler(data_update, enriched_element, parameter, parameter_value):
 
 
 def new_enrichment_parameter(file_path):
+    """function that adds the information to the json file based on the next structure as an example:
+     "Boiler": ------------------------------------------> enriched_element
+        "class": "Boiler",
+        "ifc_type": "IfcBoiler",
+        "statistical_year":------------------------------> parameter
+            "2000":--------------------------------------> parameter value
+                "name": "Boiler_enrichment_2000",
+                "water_volume": 0.008,
+                "min_power": 16,
+                "rated_power": 16,
+                "efficiency": 0.97
+        "Heat_pump":------------------------------> parameter
+            "2kW":---------------------------------------> parameter value
+                "name": "Boiler_enrichment_2kW",
+                "water_volume": 0.008,
+                "min_power": 16,
+                "rated_power": 16,
+                "efficiency": 0.97
+    """
     enriched_element = None
     elements_available = []
     for element in elements_data:

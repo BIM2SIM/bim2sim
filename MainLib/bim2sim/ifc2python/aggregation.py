@@ -312,6 +312,12 @@ class ParallelPump(Aggregation):
 
 
 def cycles_reduction(cycles):
+    """reduce the found cycles, to just the cycles that fulfill the next criteria:
+    1. it's a parallel cycle (the two strands have the same flow direction)
+    2. it has one or more pumps in each strand
+    finally it creates a list with the founded cycles with the next lists:
+    'elements', 'up_strand', 'low_strand', 'ports'
+    """
 
     for cycle in cycles:
         length_cycle = len(cycle)
@@ -414,6 +420,19 @@ def cycles_reduction(cycles):
 
 
 def underfloor_heating_recognition(pipe_strand, parameters):
+    """
+    it recognizes if a pipe strand is an underfloor heating that fulfills the next criteria:
+    1. the pipe strand is located horizontally -- parallel to the floor
+    2. the pipe strand has most of the elements located in an specific z-coordinate
+    3. the spacing between adjacent elements with the same orientation is between 90mm and 210 mm
+    4. the quotient between the cross sectional area of the pipe strand (x-y plane) and the total heating area
+        is between 0.09 and 0.01 - area density for underfloor heating
+    5. the total area of the underfloor heating is more than 1m² - just as safety factor
+    finally creates the following parameters for the creation of the underfloor heating
+    1.x spacing
+    2. y spacing
+    3. heating area
+    """
     ps_elements = pipe_strand.elements
     x_spacing = 0
     y_spacing = 0

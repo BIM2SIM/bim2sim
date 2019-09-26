@@ -1,4 +1,4 @@
-from bim2sim.enrichtment_data.data_class import DataClass, Enrich_class
+from bim2sim.enrichment_data.data_class import DataClass, Enrich_class
 from bim2sim.workflow import Workflow
 
 
@@ -32,7 +32,14 @@ def load_element_class(element, ele_class, enrich_parameter, parameter_value, da
                                 binding[a][enrich_parameter][b][c])
 
 
-def enrich_by(self, attrs_enrich, instance):
+def enrich_by(attrs_enrich, instance, decisions):
+    """
+    this function compare the information found on the enrichment file and add it
+    to the instances to be enriched, in case the instance doesn't have the corresponding
+    attribute
+    """
+    n_instance = 0
+    n_attribute = 0
     if bool(attrs_enrich) is True:
         attrs_instance = {}
         for a in instance.__dir__():
@@ -44,11 +51,16 @@ def enrich_by(self, attrs_enrich, instance):
                 if attrs_instance[prop] is None:
                     if not attrs_enrich[prop] is None:
                         setattr(instance, prop + "_enriched", attrs_enrich[prop])
-                        self.logger.info("the attribute %s from %s enriched successfully" % (prop, attrs_instance["name"]))
+                        decisions.write("-------------the attribute %s from %s enriched successfully\n" % (prop, attrs_instance["name"]))
+                        n_attribute += 1
                     else:
-                        self.logger.info("The enrichment attribute %s from %s is "
-                                         "missing or doesn´t exist in the enrichment file" % (prop, attrs_instance["name"]))
+                        decisions.write("The enrichment attribute %s from %s is "
+                                         "missing or doesn´t exist in the enrichment file\n" % (prop, attrs_instance["name"]))
             else:
-                self.logger.info("There's no enrichment data for the attribute %s from %s" % (prop, attrs_instance["name"]))
+                decisions.write("There's no enrichment data for the attribute %s from %s\n" % (prop, attrs_instance["name"]))
     else:
-        self.logger.warning("No enrichment parameters for the instance %s" % instance.name)
+        decisions.write("No enrichment parameters for the instance %s\n" % instance.name)
+
+    if n_attribute != 0:
+        n_instance = 1
+    return n_attribute, n_instance

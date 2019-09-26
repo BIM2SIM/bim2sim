@@ -48,8 +48,8 @@
             "2000": {
                 "name": "Pipe_enrichment_2000",
                 "Pset_PipeSegmentTypeCommon": null,
-                "diameter": null,
-                "length": null
+                "diameter": 3,
+                "length": 4
             },
             "2004": {
                 "name": "Pipe_enrichment_2004",
@@ -65,8 +65,8 @@
             "2000": {
                 "name": "PipeFitting_enrichment_2000",
                 "Pset_PipeFittingTypeCommon": null,
-                "diameter": null,
-                "length": null,
+                "diameter": 3,
+                "length": 4,
                 "pressure_class": null
             },
             "2004": {

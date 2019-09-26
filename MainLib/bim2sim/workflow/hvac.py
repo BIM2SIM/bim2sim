@@ -2,6 +2,7 @@
 
 import itertools
 import json
+import os
 
 from bim2sim.workflow import Workflow
 from bim2sim.filter import TypeFilter
@@ -13,8 +14,8 @@ from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
-from bim2sim.enrichtment_data.data_class import DataClass, Enrich_class
-from bim2sim.enrichtment_data import element_input_json
+from bim2sim.enrichment_data.data_class import DataClass, Enrich_class
+from bim2sim.enrichment_data import element_input_json
 
 IFC_TYPES = (
     'IfcAirTerminal',
@@ -238,20 +239,19 @@ class Reduce(Workflow):
         number_ps = 0
         number_fh = 0
         chains = graph.get_type_chains(PipeStrand.aggregatable_elements)
-        uf_list = {}
         for chain in chains:
             number_ps += 1
             pipestrand = PipeStrand("PipeStrand%d" % (number_ps), chain)
             parameters = []
-
+            # underfloor heating aggregation
             if underfloor_heating_recognition(pipestrand, parameters):
                 number_fh += 1
                 underfloorheating = UnderfloorHeating("UnderfloorHeating%d" % (number_fh),
                                                       pipestrand.elements, parameters)
-                uf_list[underfloorheating] = [underfloorheating]
                 graph.merge(
                     mapping=underfloorheating.get_replacement_mapping(),
                     inner_connections=underfloorheating.get_inner_connections())
+            # pipestrand aggregation
             else:
                 graph.merge(
                     mapping=pipestrand.get_replacement_mapping(),
@@ -259,17 +259,16 @@ class Reduce(Workflow):
 
         self.logger.info("Applied %d aggregations as \"PipeStrand\"", number_ps)
         self.logger.info("Applied %d aggregations as \"UnderfloorHeating\"", number_fh)
-        ### Parallelpumps ###
+
+        # Parallel pumps aggregation
         cycles = graph.get_cycles()
 
         New_cycles = cycles_reduction(cycles)
 
         number_pp = 0
-        parallel_pumps = []
         for cycle in New_cycles:
             number_pp += 1
             parallelpump = ParallelPump("ParallelPump%d" % number_pp, cycle["elements"], cycle)
-            parallel_pumps.append(parallelpump)
             graph.merge(
                 mapping=parallelpump.get_replacement_mapping(),
                 inner_connections=parallelpump.get_inner_connections())
@@ -278,7 +277,7 @@ class Reduce(Workflow):
         self.logger.info(
             "Applied %d aggregations which reduced"
             + " number of elements from %d to %d.",
-            number_ps+number_fh+number_pp, number_of_nodes_old, number_of_nodes_new)
+            number_ps + number_fh + number_pp, number_of_nodes_old, number_of_nodes_new)
         self.reduced_instances = graph.elements
         self.connections = graph.get_connections()
 
@@ -293,16 +292,16 @@ class Enrich(Workflow):
         self.enrich_data = {}
         self.enriched_instances = {}
 
-    def enrich_instance(self, instance, enrich_parameter, parameter_value, enrichment_parameter):
+    def enrich_instance(self, instance, enrich_parameter, parameter_value, enrichment_parameter, decisions):
 
         json_data = DataClass()
         enrich_data = Enrich_class()
-
+        n_total = []
         if enrichment_parameter == "ifc":
             if not hasattr(instance, "ifc_type"):
-                self.logger.info("Enrichment parameter does not work with"
-                                 "the selected instance -- probe \"class\" as "
-                                 "enrichment parameter")
+                decisions.write("Enrichment parameter does not work with"
+                                "the selected instance -- probe \"class\" as "
+                                "enrichment parameter \n")
             else:
                 element_input_json.load_element_ifc(enrich_data,
                                                     instance.ifc_type,
@@ -310,7 +309,7 @@ class Enrich(Workflow):
                                                     parameter_value,
                                                     json_data)
                 attrs_enrich = vars(enrich_data)
-                element_input_json.enrich_by(self, attrs_enrich, instance)
+                n_total = element_input_json.enrich_by(attrs_enrich, instance, decisions)
 
         elif enrichment_parameter == "class":
             class_instance = str(instance.__class__)[
@@ -321,26 +320,41 @@ class Enrich(Workflow):
                                                   parameter_value,
                                                   json_data)
             attrs_enrich = vars(enrich_data)
-            element_input_json.enrich_by(self, attrs_enrich, instance)
+            n_total = element_input_json.enrich_by(attrs_enrich, instance, decisions)
         else:
             self.logger.warning("Parameter invalid")
+
+        return n_total
 
         # target: the instances in the inspect.instances dict are filled up
         # with the data from the json file
 
     @Workflow.log
     def run(self, instances, enrich_parameter, parameter_value, enrichment_parameter):
-        #enrichment_parameter --> IFC, Class
-        self.logger.info("Enrichment of the elements")
+        # enrichment_parameter --> IFC, Class
+        n_total = [0, 0]
+        path_decision = os.path.join(PROJECT.source, 'enrichment_data', 'decisions_enrichment.txt')
+        decisions = open(path_decision, "w+")
+        self.logger.info("Enrichment of the elements with: \n" + enrich_parameter + " as \"Enrich Parameter\"\n"
+                         + parameter_value + " as \"parameter value\" \n"
+                         + enrichment_parameter + " as \"Enrichment parameter\"")
         enriched_instances = instances
         for instance in enriched_instances:
             if hasattr(instance, "elements"):
                 for subinstance in instance.elements:
-                    self.enrich_instance(subinstance, enrich_parameter, parameter_value, enrichment_parameter)
+                    n_new = self.enrich_instance(subinstance, enrich_parameter, parameter_value, enrichment_parameter,
+                                         decisions)
+                    n_total[0] = n_total[0] + n_new[0]
+                    n_total[1] = n_total[1] + n_new[1]
             else:
-                self.enrich_instance(instance, enrich_parameter, parameter_value, enrichment_parameter)
+                n_new = self.enrich_instance(instance, enrich_parameter, parameter_value, enrichment_parameter, decisions)
+                n_total[0] = n_total[0] + n_new[0]
+                n_total[1] = n_total[1] + n_new[1]
         self.enriched_instances = enriched_instances
+        decisions.close()
+        self.logger.info("Applied successfully %s attributes enrichment on %s elements", n_total[0], n_total[1])
         # runs all enrich methods
+
 
 
 class DetectCycles(Workflow):

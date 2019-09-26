@@ -1,0 +1,394 @@
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1608776 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1621766 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1622542 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1665706 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1666802 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1631024 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1631024 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1631024 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1631028 is missing or doesn´t exist in the enrichment file
+-------------the attribute min_power from Gasheizkessel - Wand befestigt:Standard:1649556 enriched successfully
+-------------the attribute rated_power from Gasheizkessel - Wand befestigt:Standard:1649556 enriched successfully
+-------------the attribute efficiency from Gasheizkessel - Wand befestigt:Standard:1649556 enriched successfully
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1621446 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1710195 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1710195 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1710195 is missing or doesn´t exist in the enrichment file
+No enrichment parameters for the instance PipeStrand42
+No enrichment parameters for the instance Plumbing_Pumps_Dab-Pumps_KLM-40:KLM 40-300 M:1715129
+No enrichment parameters for the instance PipeStrand36
+No enrichment parameters for the instance PipeStrand11
+No enrichment parameters for the instance Plumbing_Pumps_Dab-Pumps_KLM-40:KLM 40-300 M:1715094
+No enrichment parameters for the instance PipeStrand12
+-------------the attribute diameter from T-Stück Kupfer:Standard:1709931 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1709931 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1709931 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1623018 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1655996 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1655996 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1655996 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1609217 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1611500 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1668926 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1668841 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1668831 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from Übergang Kupfer:Standard:1668823 enriched successfully
+-------------the attribute length from Übergang Kupfer:Standard:1668823 enriched successfully
+The enrichment attribute pressure_class from Übergang Kupfer:Standard:1668823 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1611159 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1611159 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1611159 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1621807 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1621807 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1621807 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1621578 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1624482 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1624480 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1619240 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1619228 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1619220 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1619210 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1619202 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1619192 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618982 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618972 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618964 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618954 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618946 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618934 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618926 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618916 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618588 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618578 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618568 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618558 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618550 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618540 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618532 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618522 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618514 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618504 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618496 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618484 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618476 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618420 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618158 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618101 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618093 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618223 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618221 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618065 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618057 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618342 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618003 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618038 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618127 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618139 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618363 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618373 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618381 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618391 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618399 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618612 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618620 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618630 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618638 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618648 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618656 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618696 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618752 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618762 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618770 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618780 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618788 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1618798 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1619074 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1619084 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1619092 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1619102 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1619110 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1619120 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1619128 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1619138 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1619146 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1619156 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1625418 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1619844 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1674950 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1674950 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1674950 is missing or doesn´t exist in the enrichment file
+No enrichment parameters for the instance Heat_Pump-Bard-GW_Series:70,000 Btu/h, 6 Ton:1658846
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1608167 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1675099 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1675101 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1621811 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1666129 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1666129 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1666129 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1715366 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1650556 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1651102 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1653693 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from Übergang Kupfer:Standard:1653695 enriched successfully
+-------------the attribute length from Übergang Kupfer:Standard:1653695 enriched successfully
+The enrichment attribute pressure_class from Übergang Kupfer:Standard:1653695 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1678351 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1678304 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1657712 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1657710 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1674936 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1674936 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1674936 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1611353 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1611318 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1617708 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1617708 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1617708 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1622682 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1622682 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1622682 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1650916 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from Übergang Kupfer:Standard:1651849 enriched successfully
+-------------the attribute length from Übergang Kupfer:Standard:1651849 enriched successfully
+The enrichment attribute pressure_class from Übergang Kupfer:Standard:1651849 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1673746 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1673746 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1673746 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1674678 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1674678 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1674678 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1611798 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1611798 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1611798 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1611789 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1611789 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1611789 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1674765 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1674552 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1674552 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1674552 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1610984 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1610984 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1610984 is missing or doesn´t exist in the enrichment file
+The enrichment attribute storage_type from Entspannungstopf bodenstehend - Gewinde:Standard:1655855 is missing or doesn´t exist in the enrichment file
+The enrichment attribute volume from Entspannungstopf bodenstehend - Gewinde:Standard:1655855 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1674727 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1715526 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1715528 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1676655 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1676758 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1677935 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1678022 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1609543 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1612671 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1611167 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1611167 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1611167 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1628990 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1628990 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1628990 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1621740 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1621740 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1621740 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1611349 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1611349 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1611349 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1673528 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1673528 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1673528 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1617944 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1617944 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1617944 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1623051 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1623051 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1623051 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1673534 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from Übergang Kupfer:Standard:1673105 enriched successfully
+-------------the attribute length from Übergang Kupfer:Standard:1673105 enriched successfully
+The enrichment attribute pressure_class from Übergang Kupfer:Standard:1673105 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1673092 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1611314 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1611314 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1611314 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1673066 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from Übergang Kupfer:Standard:1673120 enriched successfully
+-------------the attribute length from Übergang Kupfer:Standard:1673120 enriched successfully
+The enrichment attribute pressure_class from Übergang Kupfer:Standard:1673120 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1673564 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1673677 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1673752 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1665720 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1665720 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1665720 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1621700 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1666729 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1666711 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1666521 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1673398 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from Übergang Kupfer:Standard:1673401 enriched successfully
+-------------the attribute length from Übergang Kupfer:Standard:1673401 enriched successfully
+The enrichment attribute pressure_class from Übergang Kupfer:Standard:1673401 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1673390 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1662753 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from Übergang Kupfer:Standard:1662758 enriched successfully
+-------------the attribute length from Übergang Kupfer:Standard:1662758 enriched successfully
+The enrichment attribute pressure_class from Übergang Kupfer:Standard:1662758 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1609573 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1613056 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1666031 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1665863 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1665828 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from Übergang Kupfer:Standard:1665806 enriched successfully
+-------------the attribute length from Übergang Kupfer:Standard:1665806 enriched successfully
+The enrichment attribute pressure_class from Übergang Kupfer:Standard:1665806 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1632814 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1632816 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1612542 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1612538 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1612538 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1612538 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1608602 is missing or doesn´t exist in the enrichment file
+The enrichment attribute storage_type from Wassererwärmer:Standard:1671825 is missing or doesn´t exist in the enrichment file
+The enrichment attribute volume from Wassererwärmer:Standard:1671825 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1675341 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1675337 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1652930 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1653081 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1629004 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1629000 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1630820 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1630816 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1630816 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1630816 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1611780 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1609278 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1626299 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1626977 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1626985 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627148 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627156 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627246 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627254 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627264 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627272 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627459 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627467 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627477 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627485 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627495 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627598 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627608 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627616 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627626 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627634 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627644 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627652 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627662 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627670 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627680 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627688 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627698 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627706 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627880 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627888 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627898 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1628174 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1628346 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1628354 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1628364 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1628401 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1628389 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1628324 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1628231 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1628094 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627939 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627819 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627809 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627801 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627791 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627783 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627773 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627765 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627755 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627747 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627737 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627729 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627417 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627409 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627397 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627389 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627379 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627371 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627359 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627351 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627341 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627333 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627220 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627212 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627202 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627194 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1627184 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1624847 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1624835 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1624789 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1624325 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1624206 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1624112 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1621696 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1621696 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1621696 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1674913 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1674913 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1674913 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1610992 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1610992 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1610992 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1608742 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1610982 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1608836 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1666723 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1666723 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1666723 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from Übergang Kupfer:Standard:1665183 enriched successfully
+-------------the attribute length from Übergang Kupfer:Standard:1665183 enriched successfully
+The enrichment attribute pressure_class from Übergang Kupfer:Standard:1665183 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1665214 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1665269 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1665326 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1611469 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1666627 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1666627 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1666627 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1656005 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1656001 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1608634 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1687737 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1673935 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1709891 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from Übergang Kupfer:Standard:1668257 enriched successfully
+-------------the attribute length from Übergang Kupfer:Standard:1668257 enriched successfully
+The enrichment attribute pressure_class from Übergang Kupfer:Standard:1668257 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1668270 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1668292 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1668604 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1621744 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1621762 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1621762 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1621762 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1666631 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1666581 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from Übergang Kupfer:Standard:1666567 enriched successfully
+-------------the attribute length from Übergang Kupfer:Standard:1666567 enriched successfully
+The enrichment attribute pressure_class from Übergang Kupfer:Standard:1666567 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1666565 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1673339 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1673325 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1664335 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from Übergang Kupfer:Standard:1664339 enriched successfully
+-------------the attribute length from Übergang Kupfer:Standard:1664339 enriched successfully
+The enrichment attribute pressure_class from Übergang Kupfer:Standard:1664339 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1686710 is missing or doesn´t exist in the enrichment file
+The enrichment attribute pressure_class from Bogen Kupfer:Standard:1686708 is missing or doesn´t exist in the enrichment file
+-------------the attribute diameter from T-Stück Kupfer:Standard:1709887 enriched successfully
+-------------the attribute length from T-Stück Kupfer:Standard:1709887 enriched successfully
+The enrichment attribute pressure_class from T-Stück Kupfer:Standard:1709887 is missing or doesn´t exist in the enrichment file
