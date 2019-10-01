@@ -11,11 +11,19 @@ from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
+from bim2sim.ifc2python.elements import ThermalSpace
 
 IFC_TYPES = (
+    'IfcBuilding',
     'IfcWall',
-    'IfcWallElementedCase',
-    'IfcWallStandardCase',
+    'IfcWallElementedCase',  # necessary?
+    'IfcWallStandardCase',  # necessary?
+    'IfcRoof',
+    'IfcShadingDevice',
+    'ifcSlab',
+    'IfcPlate',
+    'IfcCovering',
+    'IfcDoor',
     'IfcWindow',
     'IfcSpace'
 )
@@ -28,7 +36,7 @@ class Inspect(Workflow):
 
     def __init__(self):
         super().__init__()
-        self.instances = {}
+        self.instances_bps = {}
 
     @Workflow.log
     def run(self, ifc, relevant_ifc_types):
@@ -37,12 +45,24 @@ class Inspect(Workflow):
             elements = ifc.by_type(ifc_type)
             for element in elements:
                 representation = Element.factory(element)
-                self.instances[representation.guid] = representation
-        self.logger.info("Found %d relevant elements", len(self.instances))
+                self.instances_bps[representation.guid] = representation
+        self.logger.info("Found %d relevant elements", len(self.instances_bps))
+
+        #find and fills spaces
+        spaces = ifc.by_type('IfcSpace')
+        for space in spaces:
+            space_elements = []
+            for space_element in space.Decomposes[0].RelatingObject.ContainsElements[0].RelatedElements:
+                GUID_element = str(space_element)[str(space_element).find('(')+2:str(space_element).find(',')-1]
+                if GUID_element in self.instances_bps:
+                    space_elements.append(self.instances_bps[GUID_element])
+            representation = ThermalSpace(space, space_elements=space_elements)
+            # setattr(representation, "space_elements", space_elements)
+            self.instances_bps[representation.guid] = representation
+
+
 
         # find zones
-
-
 
 # class Prepare(Workflow):
 #     """Configurate""" #TODO: based on task

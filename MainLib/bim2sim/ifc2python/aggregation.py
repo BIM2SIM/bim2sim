@@ -142,3 +142,27 @@ class PipeStrand(Aggregation):
         if self._total_length is None:
             self._calc_avg()
         return self._total_length
+
+
+class ThermalZone(Aggregation):
+    ifc_type = "IfcZone"
+
+    @property
+    def area(self):
+        return 1
+
+    @property
+    def u_value(self):
+        return 1
+
+    @property
+    def max_temperature(self):
+        return 1
+
+    @property
+    def min_temperature(self):
+        return 1
+
+    @property
+    def zone_spaces(self):
+        return 1

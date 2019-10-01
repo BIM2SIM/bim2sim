@@ -2,7 +2,7 @@
 from ast import literal_eval
 
 from bim2sim.manage import BIM2SIMManager, PROJECT
-from bim2sim.workflow import hvac
+from bim2sim.workflow import hvac, bps
 from bim2sim.export.modelica import standardlibrary
 
 class AixLib(BIM2SIMManager):
@@ -13,6 +13,13 @@ class AixLib(BIM2SIMManager):
         self.relevant_ifc_types = hvac.IFC_TYPES
 
     def run(self):
+
+        ###
+
+        inspect = bps.Inspect()
+        inspect.run(self.ifc, bps.IFC_TYPES)
+
+        ###
 
         prepare = hvac.Prepare()
         prepare.run(hvac.IFC_TYPES)

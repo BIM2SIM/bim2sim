@@ -518,9 +518,11 @@ class Element(BaseElement, IFCBased):
         self._add_ports()
 
     def _add_ports(self):
-        element_port_connections = self.ifc.HasPorts
-        for element_port_connection in element_port_connections:
-            self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
+        if hasattr(self.ifc, "HasPorts"):
+            element_port_connections = self.ifc.HasPorts
+            for element_port_connection in element_port_connections:
+                self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
+
 
     @staticmethod
     def _init_factory():

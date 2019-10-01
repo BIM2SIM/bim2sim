@@ -14,7 +14,7 @@ class Boiler(element.Element):
     """Boiler"""
     ifc_type = 'IfcBoiler'
 
-    #def _add_ports(self):
+    # def _add_ports(self):
     #    super()._add_ports()
     #    for port in self.ports:
     #        if port.flow_direction == 1:
@@ -36,7 +36,7 @@ class Boiler(element.Element):
                     self.logger.warning("Flow direction (%s) of %s does not match %s",
                                         port.verbose_flow_direction, port, port.groups)
                     decision = BoolDecision(
-                        "Use %s as VL?"%(port),
+                        "Use %s as VL?" % (port),
                         global_key=port.guid,
                         allow_save=True,
                         allow_load=True)
@@ -50,7 +50,7 @@ class Boiler(element.Element):
                     self.logger.warning("Flow direction (%s) of %s does not match %s",
                                         port.verbose_flow_direction, port, port.groups)
                     decision = BoolDecision(
-                        "Use %s as RL?"%(port),
+                        "Use %s as RL?" % (port),
                         global_key=port.guid,
                         allow_save=True,
                         allow_load=True)
@@ -135,7 +135,7 @@ class Pipe(element.Element):
         if not candidates:
             raise AttributeError("No representation to dertermine length.")
         if len(candidates) > 1:
-            raise AttributeError("Too many representations to dertermine length %s."%candidates)
+            raise AttributeError("Too many representations to dertermine length %s." % candidates)
         return candidates[0]
 
 
@@ -143,7 +143,7 @@ class PipeFitting(element.Element):
     ifc_type = "IfcPipeFitting"
     default_diameter = ('Pset_PipeFittingTypeCommon', 'NominalDiameter')
     default_pressure_class = ('Pset_PipeFittingTypeCommon', 'PressureClass')
-    
+
     pattern_diameter = [
         re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
         re.compile('.*Diameter.*', flags=re.IGNORECASE),
@@ -193,7 +193,7 @@ class Storage(element.Element):
     def hight(self):
         return 1
 
-    @ property
+    @property
     def diameter(self):
         return 1
 
@@ -282,13 +282,45 @@ class AirTerminal(element.Element):
         return 1
 
 
-class ThermalZones(element.Element):
-    ifc_type = "IfcSpace"
-
-
-
 class Medium(element.Element):
     ifc_type = "IfcDistributionSystems"
+
+
+### BPS
+
+
+class ThermalSpace(element.Element):
+    ifc_type = "IfcSpace"
+
+    def __init__(self, space_elements, *args, **kwargs):
+        self._space_elements = space_elements
+        super().__init__(*args, **kwargs)
+
+
+    @property
+    def space_elements(self):
+        space_elements = self._space_elements
+        return space_elements
+
+    @property
+    def max_temperature(self):
+        return 1
+
+    @property
+    def min_temperature(self):
+        return 1
+
+    @property
+    def area(self):
+        return 1
+
+    @property
+    def specific_u_value(self):
+        return 1
+
+    @space_elements.setter
+    def space_elements(self, value):
+        self._space_elements = value
 
 
 class Wall(element.Element):
@@ -328,8 +360,121 @@ class Window(element.Element):
     def g_value(self):
         return 1
 
-# class ThermalZone(element.Element):
-#     ifc_type = "IfcSpace"
+
+class Door(element.Element):
+    ifc_type = "IfcDoor"
+
+    @property
+    def area(self):
+        return 1
+
+    @property
+    def u_value(self):
+        return 1
+
+    @property
+    def g_value(self):
+        return 1
+
+
+class Roof(element.Element):
+    ifc_type = "IfcRoof"
+
+    @property
+    def area(self):
+        return 1
+
+    @property
+    def u_value(self):
+        return 1
+
+    @property
+    def g_value(self):
+        return 1
+
+
+class ShadingDevice(element.Element):
+    ifc_type = "IfcShadingDevice"
+
+    @property
+    def area(self):
+        return 1
+
+    @property
+    def shading_device_type(self):
+        return 1
+
+    @property
+    def g_value(self):
+        return 1
+
+
+class Building(element.Element):
+    ifc_type = "IfcBuilding"
+
+    @property
+    def net_area(self):
+        return 1
+
+    @property
+    def occupancy_type(self):
+        return 1
+
+    @property
+    def number_storeys(self):
+        return 1
+
+    @property
+    def year_construction(self):
+        return 1
+
+
+class Covering(element.Element):
+    ifc_type = "IfcCovering"
+
+    @property
+    def area(self):
+        return 1
+
+    @property
+    def u_value(self):
+        return 1
+
+    @property
+    def g_value(self):
+        return 1
+
+
+class Plate(element.Element):
+    ifc_type = "IfcPlate"
+
+    @property
+    def area(self):
+        return 1
+
+    @property
+    def u_value(self):
+        return 1
+
+    @property
+    def g_value(self):
+        return 1
+
+
+class Slab(element.Element):
+    ifc_type = "IfcSlab"
+
+    @property
+    def area(self):
+        return 1
+
+    @property
+    def u_value(self):
+        return 1
+
+    @property
+    def g_value(self):
+        return 1
 
 
 __all__ = [ele for ele in locals().values() if ele in element.Element.__subclasses__()]
