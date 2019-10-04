@@ -606,4 +606,3 @@ class Dummy(Element):
         return self._ifc_type
 
 # import Element classes for Element.factory
-import bim2sim.ifc2python.elements

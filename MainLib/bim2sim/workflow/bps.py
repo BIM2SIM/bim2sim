@@ -12,6 +12,8 @@ from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
 from bim2sim.ifc2python.elements import ThermalSpace
+from collections import defaultdict
+from bim2sim.ifc2python.aggregation import group_by_range
 
 IFC_TYPES = (
     'IfcBuilding',
@@ -38,6 +40,9 @@ class Inspect(Workflow):
         super().__init__()
         self.instances_bps = {}
 
+
+
+
     @Workflow.log
     def run(self, ifc, relevant_ifc_types):
         self.logger.info("Creates python representation of relevant ifc types")
@@ -50,19 +55,30 @@ class Inspect(Workflow):
 
         #find and fills spaces
         spaces = ifc.by_type('IfcSpace')
+        instances_space = []
         for space in spaces:
-            space_elements = []
-            for space_element in space.Decomposes[0].RelatingObject.ContainsElements[0].RelatedElements:
-                GUID_element = str(space_element)[str(space_element).find('(')+2:str(space_element).find(',')-1]
-                if GUID_element in self.instances_bps:
-                    space_elements.append(self.instances_bps[GUID_element])
-            representation = ThermalSpace(space, space_elements=space_elements)
-            # setattr(representation, "space_elements", space_elements)
+            representation = ThermalSpace(space)
+            instances_space.append(representation)
             self.instances_bps[representation.guid] = representation
-
-
-
         # find zones
+
+        first_filter = group_by_range(instances_space, 2, "area")
+
+        second_filter = {}
+        for group in first_filter:
+            second_filter[group] = group_by_range(first_filter[group], 2, "specific_u_value")
+        x = dict(second_filter)
+        for group in x:
+            if len(second_filter[str(group)]) < 2:
+                del second_filter[str(group)]
+
+        print("")
+
+
+
+
+
+
 
 # class Prepare(Workflow):
 #     """Configurate""" #TODO: based on task

@@ -166,3 +166,26 @@ class ThermalZone(Aggregation):
     @property
     def zone_spaces(self):
         return 1
+
+
+def group_by_range(elements, range_group, parameter):
+
+    groups = {}
+    for element in elements:
+        if hasattr(element, parameter):
+            attribute = int(getattr(element, parameter))
+            if str(attribute) in groups:
+                groups[str(attribute)].append(element)
+            elif str(attribute + range_group) in groups:
+                groups[str(attribute + range_group)].append(element)
+            elif str(attribute - range_group) in groups:
+                groups[str(attribute - range_group)].append(element)
+            else:
+                groups[str(attribute)] = []
+                groups[str(attribute)].append(element)
+    x = dict(groups)
+    for group in x:
+        if len(groups[str(group)]) < 2:
+            del groups[str(group)]
+
+    return groups

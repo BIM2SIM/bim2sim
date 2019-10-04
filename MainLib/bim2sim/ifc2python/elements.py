@@ -8,7 +8,22 @@ import numpy as np
 from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import element
 from bim2sim.decision import BoolDecision
+import re
 
+IFC_TYPES_BPS = (
+    'IfcBuilding',
+    'IfcWall',
+    'IfcWallElementedCase',  # necessary?
+    'IfcWallStandardCase',  # necessary?
+    'IfcRoof',
+    'IfcShadingDevice',
+    'ifcSlab',
+    'IfcPlate',
+    'IfcCovering',
+    'IfcDoor',
+    'IfcWindow',
+    'IfcSpace'
+)
 
 class Boiler(element.Element):
     """Boiler"""
@@ -292,35 +307,60 @@ class Medium(element.Element):
 class ThermalSpace(element.Element):
     ifc_type = "IfcSpace"
 
-    def __init__(self, space_elements, *args, **kwargs):
-        self._space_elements = space_elements
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._space_elements = []
+        self._specific_u_value = None
 
+    def _get_space_elements(self):
+        objects = dict(self.objects)
+        self._specific_u_value = 0
+        for space_element in self.ifc.Decomposes[0].RelatingObject.ContainsElements[0].RelatedElements:
+            GUID_element = str(space_element)[str(space_element).find('(')+2:str(space_element).find(',')-1]
+            if GUID_element in objects:
+                self._space_elements.append(objects[GUID_element])
+        u_a = 0
+        for obj in self._space_elements:
+            if hasattr(obj, "area") and hasattr(obj, "u_value"):
+                u_a += obj.area * obj.u_value
+        self._specific_u_value = u_a / (self.area*self.height)
+
+    @cached_property
+    def Pset_PipeFittingTypeCommon(self):
+        return self.get_propertysets()
 
     @property
     def space_elements(self):
-        space_elements = self._space_elements
-        return space_elements
+        self._get_space_elements()
+        return self._space_elements
 
     @property
     def max_temperature(self):
-        return 1
+        temp = '21 °C'
+        if "HLS" in self.Pset_PipeFittingTypeCommon:
+            temp = self.Pset_PipeFittingTypeCommon['HLS']['Temperature']
+        return temp
 
     @property
     def min_temperature(self):
-        return 1
+        return '16 °C'
 
     @property
     def area(self):
+        area = 1
+        if "Abmessungen" in self.Pset_PipeFittingTypeCommon:
+            area = self.Pset_PipeFittingTypeCommon['Abmessungen']['Fläche']
+        return area
+
+    @property
+    def height(self):
         return 1
 
     @property
     def specific_u_value(self):
-        return 1
-
-    @space_elements.setter
-    def space_elements(self, value):
-        self._space_elements = value
+        if self._specific_u_value is None:
+            self._get_space_elements()
+        return self._specific_u_value
 
 
 class Wall(element.Element):
