@@ -24,7 +24,7 @@ class Aggregation(BaseElement):
 
     def __init__(self, name, elements, *args, **kwargs):
         if 'guid' not in kwargs:
-            #TODO: make guid reproducable unique for same aggregation elements
+            # TODO: make guid reproducable unique for same aggregation elements
             # e.g. hash of all (ordered?) element guids?
             # Needed for save/load decisions on aggregations
             kwargs['guid'] = self.get_id("Agg")
@@ -115,7 +115,7 @@ class PipeStrand(Aggregation):
                 self.logger.warning("Ignored '%s' in aggregation", pipe)
                 continue
 
-            diameter_times_length += diameter*length
+            diameter_times_length += diameter * length
             self._total_length += length
 
         if self._total_length != 0:
@@ -123,7 +123,7 @@ class PipeStrand(Aggregation):
 
     def get_replacement_mapping(self):
         """Returns dict with original ports as values and their aggregated replacement as keys."""
-        mapping = {port:None for element in self.elements
+        mapping = {port: None for element in self.elements
                    for port in element.ports}
         for port in self.ports:
             mapping[port.original] = port
@@ -142,6 +142,9 @@ class PipeStrand(Aggregation):
         if self._total_length is None:
             self._calc_avg()
         return self._total_length
+
+
+# BPS
 
 
 class ThermalZone(Aggregation):
@@ -168,18 +171,44 @@ class ThermalZone(Aggregation):
         return 1
 
 
-def group_by_range(elements, range_group, parameter):
+class InternalWall(Aggregation):
+    ifc_type = "IfcWall"
 
+    @property
+    def area(self):
+        return 1
+
+    @property
+    def orientation(self):
+        return 1
+
+    @property
+    def u_value(self):
+        return 1
+
+
+class ExternalWall(Aggregation):
+    ifc_type = "IfcWall"
+
+    @property
+    def area(self):
+        return 1
+
+    @property
+    def orientation(self):
+        return 1
+
+    @property
+    def u_value(self):
+        return 1
+
+
+
+def group_by_range(elements, range_group, parameter):
     groups = {}
     for element in elements:
         if hasattr(element, parameter):
             attribute = int(getattr(element, parameter))
-
-            # if str(attribute) in groups:
-            #     groups[str(attribute)].append(element)
-            # else:
-            #     groups[str(attribute)] = []
-            #     groups[str(attribute)].append(element)
 
             if str(attribute) in groups:
                 groups[str(attribute)].append(element)

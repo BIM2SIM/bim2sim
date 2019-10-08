@@ -366,17 +366,29 @@ class ThermalSpace(element.Element):
 class Wall(element.Element):
     ifc_type = "IfcWall"
 
+    @cached_property
+    def Pset_WallCommon(self):
+        return self.get_propertysets()
+
     @property
     def area(self):
         return 1
 
     @property
-    def capacity(self):
+    def orientation(self):
         return 1
 
     @property
     def u_value(self):
         return 1
+
+    @property
+    def is_external(self):
+        if 'IW' in self.Pset_WallCommon['ID-Daten']['Typname']:
+            external = False
+        else:
+            external = True
+        return external
 
 
 class OuterWall(Wall):
@@ -451,6 +463,10 @@ class ShadingDevice(element.Element):
 
 class Building(element.Element):
     ifc_type = "IfcBuilding"
+
+    @cached_property
+    def Pset_BuildingCommon(self):
+        return self.get_propertysets()
 
     @property
     def net_area(self):

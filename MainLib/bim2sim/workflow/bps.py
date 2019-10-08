@@ -11,15 +11,18 @@ from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
-from bim2sim.ifc2python.elements import ThermalSpace
+from bim2sim.ifc2python import elements
 from collections import defaultdict
 from bim2sim.ifc2python.aggregation import group_by_range
+import ifcopenshell.geom
+
+
 
 IFC_TYPES = (
-    'IfcBuilding',
+    # 'IfcBuilding',
     'IfcWall',
-    'IfcWallElementedCase',  # necessary?
-    'IfcWallStandardCase',  # necessary?
+    'IfcWallElementedCase',
+    'IfcWallStandardCase',
     'IfcRoof',
     'IfcShadingDevice',
     'ifcSlab',
@@ -46,37 +49,72 @@ class Inspect(Workflow):
     @Workflow.log
     def run(self, ifc, relevant_ifc_types):
         self.logger.info("Creates python representation of relevant ifc types")
+
         for ifc_type in relevant_ifc_types:
-            elements = ifc.by_type(ifc_type)
-            for element in elements:
+            elements_ = ifc.by_type(ifc_type)
+            for element in elements_:
                 representation = Element.factory(element)
                 self.instances_bps[representation.guid] = representation
         self.logger.info("Found %d relevant elements", len(self.instances_bps))
+
+        external_walls = []
+        for element in self.instances_bps:
+            if isinstance(self.instances_bps[element], elements.Wall):
+                if self.instances_bps[element].is_external is True:
+                    external_walls.append(self.instances_bps[element])
+
+        min_x = float("inf")
+        max_x = -float("inf")
+        min_y = float("inf")
+        max_y = -float("inf")
+
+        for element in external_walls:
+            if element.position[0] < min_x:
+                min_x = element.position[0]
+                pmin_x = element.position[1]
+            if element.position[0] > max_x:
+                max_x = element.position[0]
+                pmax_x = element.position[1]
+            if element.position[1] < min_y:
+                min_y = element.position[1]
+                pmin_y = element.position[0]
+            if element.position[1] > max_y:
+                max_y = element.position[1]
+                pmax_y = element.position[0]
+
 
         #find and fills spaces
         spaces = ifc.by_type('IfcSpace')
         instances_space = []
         for space in spaces:
-            representation = ThermalSpace(space)
+            representation = elements.ThermalSpace(space)
             instances_space.append(representation)
             self.instances_bps[representation.guid] = representation
+        print("")
+
+        # aggregate all elements from space
+
+
+
+
+
         # find zones
 
-        first_filter = group_by_range(instances_space, 2, "area")
+        # first_filter = group_by_range(instances_space, 2, "area")
+        #
+        # second_filter = {}
+        # for group in first_filter:
+        #     second_filter[group] = group_by_range(first_filter[group], 2, "specific_u_value")
+        # x = dict(second_filter)
+        # for group in x:
+        #     if len(second_filter[str(group)]) < 2:
+        #         del second_filter[str(group)]
+        # zones = []
+        # for group_1 in second_filter:
+        #     for group_2 in second_filter[group_1]:
+        #         zones.append(second_filter[group_1][group_2])
+        # self.logger.info("Found %d possible zones", len(zones))
 
-        second_filter = {}
-        for group in first_filter:
-            second_filter[group] = group_by_range(first_filter[group], 2, "specific_u_value")
-        x = dict(second_filter)
-        for group in x:
-            if len(second_filter[str(group)]) < 2:
-                del second_filter[str(group)]
-        zones = []
-        for group_1 in second_filter:
-            for group_2 in second_filter[group_1]:
-                zones.append(second_filter[group_1][group_2])
-        self.logger.info("Found %d possible zones", len(zones))
-        print("")
 
 
 
