@@ -2,20 +2,20 @@
 
 import itertools
 import json
-import logging
-
-import numpy as np
+import os
 
 from bim2sim.workflow import Workflow
 from bim2sim.filter import TypeFilter
-from bim2sim.ifc2python.aggregation import PipeStrand
-from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort, Root
+from bim2sim.ifc2python.aggregation import PipeStrand, UnderfloorHeating, \
+    ParallelPump, cycles_reduction, underfloor_heating_recognition
+from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
 from bim2sim.ifc2python.hvac import hvac_graph
 from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
-
+from bim2sim.enrichment_data.data_class import DataClass, Enrich_class
+from bim2sim.enrichment_data import element_input_json
 
 IFC_TYPES = (
     'IfcAirTerminal',
@@ -63,6 +63,7 @@ class Inspect(Workflow):
     def __init__(self):
         super().__init__()
         self.instances = {}
+        pass
 
     @staticmethod
     def port_distance(port1, port2):
@@ -215,7 +216,7 @@ class Inspect(Workflow):
         confirmed, unconfirmed, rejected = \
             self.confirm_connections_position(rel_connections)
         self.logger.info(" - %d connections are confirmed and %d rejected. " \
-            + "%d can't be confirmed.",
+                         + "%d can't be confirmed.",
                          len(confirmed), len(rejected), len(unconfirmed))
         for port1, port2 in confirmed + unconfirmed:
             # unconfirmed have no position data and cant be connected by position
@@ -250,7 +251,7 @@ class Inspect(Workflow):
 
 
 class Prepare(Workflow):
-    """Configurate""" #TODO: based on task
+    """Configurate"""  # TODO: based on task
 
     def __init__(self):
         super().__init__()
@@ -266,7 +267,8 @@ class Prepare(Workflow):
 
 class MakeGraph(Workflow):
     """Instantiate HvacGraph"""
-    #saveable = True #ToDo
+
+    # saveable = True #ToDo
 
     def __init__(self):
         super().__init__()
@@ -299,19 +301,47 @@ class Reduce(Workflow):
         self.logger.info("Reducing elements by applying aggregations")
         number_of_nodes_old = len(graph.element_graph.nodes)
         number_ps = 0
+        number_fh = 0
         chains = graph.get_type_chains(PipeStrand.aggregatable_elements)
         for chain in chains:
             number_ps += 1
-            pipestrand = PipeStrand("PipeStrand%d"%(number_ps), chain)
-            graph.merge(
-                mapping=pipestrand.get_replacement_mapping(),
-                inner_connections=pipestrand.get_inner_connections())
-        number_of_nodes_new = len(graph.element_graph.nodes)
+            pipestrand = PipeStrand("PipeStrand%d" % (number_ps), chain)
+            parameters = []
+            # underfloor heating aggregation
+            if underfloor_heating_recognition(pipestrand, parameters):
+                number_fh += 1
+                underfloorheating = UnderfloorHeating("UnderfloorHeating%d" % (number_fh),
+                                                      pipestrand.elements, parameters)
+                graph.merge(
+                    mapping=underfloorheating.get_replacement_mapping(),
+                    inner_connections=underfloorheating.get_inner_connections())
+            # pipestrand aggregation
+            else:
+                graph.merge(
+                    mapping=pipestrand.get_replacement_mapping(),
+                    inner_connections=pipestrand.get_inner_connections())
 
+        self.logger.info("Applied %d aggregations as \"PipeStrand\"", number_ps)
+        self.logger.info("Applied %d aggregations as \"UnderfloorHeating\"", number_fh)
+
+        # Parallel pumps aggregation
+        cycles = graph.get_cycles()
+
+        New_cycles = cycles_reduction(cycles)
+
+        number_pp = 0
+        for cycle in New_cycles:
+            number_pp += 1
+            parallelpump = ParallelPump("ParallelPump%d" % number_pp, cycle["elements"], cycle)
+            graph.merge(
+                mapping=parallelpump.get_replacement_mapping(),
+                inner_connections=parallelpump.get_inner_connections())
+        self.logger.info("Applied %d aggregations as \"ParallelPump\"", number_pp)
+        number_of_nodes_new = len(graph.element_graph.nodes)
         self.logger.info(
             "Applied %d aggregations which reduced"
             + " number of elements from %d to %d.",
-            number_ps, number_of_nodes_old, number_of_nodes_new)
+            number_ps + number_fh + number_pp, number_of_nodes_old, number_of_nodes_new)
         self.reduced_instances = graph.elements
         self.connections = graph.get_connections()
 
@@ -322,9 +352,81 @@ class Reduce(Workflow):
             graph.plot(PROJECT.export)
 
 
+class Enrich(Workflow):
+    def __init__(self):
+        super().__init__()
+        self.enrich_data = {}
+        self.enriched_instances = {}
+
+    def enrich_instance(self, instance, enrich_parameter, parameter_value, enrichment_parameter, decisions):
+
+        json_data = DataClass()
+        enrich_data = Enrich_class()
+        n_total = []
+        if enrichment_parameter == "ifc":
+            if not hasattr(instance, "ifc_type"):
+                decisions.write("Enrichment parameter does not work with"
+                                "the selected instance -- probe \"class\" as "
+                                "enrichment parameter \n")
+            else:
+                element_input_json.load_element_ifc(enrich_data,
+                                                    instance.ifc_type,
+                                                    enrich_parameter,
+                                                    parameter_value,
+                                                    json_data)
+                attrs_enrich = vars(enrich_data)
+                n_total = element_input_json.enrich_by(attrs_enrich, instance, decisions)
+
+        elif enrichment_parameter == "class":
+            class_instance = str(instance.__class__)[
+                             str(instance.__class__).rfind(".") + 1:str(instance.__class__).rfind("'")]
+            element_input_json.load_element_class(enrich_data,
+                                                  class_instance,
+                                                  enrich_parameter,
+                                                  parameter_value,
+                                                  json_data)
+            attrs_enrich = vars(enrich_data)
+            n_total = element_input_json.enrich_by(attrs_enrich, instance, decisions)
+        else:
+            self.logger.warning("Parameter invalid")
+
+        return n_total
+
+        # target: the instances in the inspect.instances dict are filled up
+        # with the data from the json file
+
+    @Workflow.log
+    def run(self, instances, enrich_parameter, parameter_value, enrichment_parameter):
+        # enrichment_parameter --> IFC, Class
+        n_total = [0, 0]
+        path_decision = os.path.join(PROJECT.source, 'enrichment_data', 'decisions_enrichment.txt')
+        decisions = open(path_decision, "w+")
+        self.logger.info("Enrichment of the elements with: \n" + enrich_parameter + " as \"Enrich Parameter\"\n"
+                         + parameter_value + " as \"parameter value\" \n"
+                         + enrichment_parameter + " as \"Enrichment parameter\"")
+        enriched_instances = instances
+        for instance in enriched_instances:
+            if hasattr(instance, "elements"):
+                for subinstance in instance.elements:
+                    n_new = self.enrich_instance(subinstance, enrich_parameter, parameter_value, enrichment_parameter,
+                                         decisions)
+                    n_total[0] = n_total[0] + n_new[0]
+                    n_total[1] = n_total[1] + n_new[1]
+            else:
+                n_new = self.enrich_instance(instance, enrich_parameter, parameter_value, enrichment_parameter, decisions)
+                n_total[0] = n_total[0] + n_new[0]
+                n_total[1] = n_total[1] + n_new[1]
+        self.enriched_instances = enriched_instances
+        decisions.close()
+        self.logger.info("Applied successfully %s attributes enrichment on %s elements", n_total[0], n_total[1])
+        # runs all enrich methods
+
+
+
 class DetectCycles(Workflow):
     """Detect cycles in graph"""
-    #TODO: sth usefull like grouping or medium assignment
+
+    # TODO: sth usefull like grouping or medium assignment
 
     def __init__(self):
         super().__init__()
@@ -370,7 +472,7 @@ class Export(Workflow):
             instances=export_instances.values(),
             connections=connection_port_names,
         )
-        #print("-"*80)
-        #print(modelica_model.code())
-        #print("-"*80)
+        # print("-"*80)
+        # print(modelica_model.code())
+        # print("-"*80)
         modelica_model.save(PROJECT.export)

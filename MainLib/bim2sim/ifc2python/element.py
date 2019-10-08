@@ -12,6 +12,9 @@ from bim2sim.ifc2python import ifc2python
 from bim2sim.decision import Decision, BoolDecision, RealDecision, ListDecision, DictDecision, PendingDecisionError
 
 
+
+
+
 class ElementError(Exception):
     """Error in Element"""
 class NoValueError(ElementError):
@@ -518,9 +521,16 @@ class Element(BaseElement, IFCBased):
         self._add_ports()
 
     def _add_ports(self):
-        element_port_connections = self.ifc.HasPorts
-        for element_port_connection in element_port_connections:
-            self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
+        if not self.ifc.HasPorts:
+            # valid for IFC for Revit v19.2.0.0
+            element_port_connections = self.ifc.IsNestedBy[0].RelatedObjects
+            for element_port_connection in element_port_connections:
+                self.ports.append(Port(parent=self, ifc=element_port_connection))
+        else:
+            # valid for IFC for Revit v19.1.0.0
+            element_port_connections = self.ifc.HasPorts
+            for element_port_connection in element_port_connections:
+                self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
 
     @staticmethod
     def _init_factory():
@@ -549,7 +559,7 @@ class Element(BaseElement, IFCBased):
 
         #Model.dummy = Model.ifc_classes['any']
         if not Element._ifc_classes:
-            raise ElementError("Faild to initialize Element factory. No elements found!")
+            raise ElementError("Failed to initialize Element factory. No elements found!")
 
         model_txt = "\n".join(" - %s"%(model) for model in Element._ifc_classes)
         logger.debug("IFC model factory initialized with %d ifc classes:\n%s",

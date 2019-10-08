@@ -26,5 +26,11 @@
       "Abmessungen",
       "Winkel"
     ]
+  },
+  "IfcTank": {
+    "volume": [
+      "Abmessungen",
+      "Volume"
+    ]
   }
 }

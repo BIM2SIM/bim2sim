@@ -30,7 +30,8 @@ class AixLib(BIM2SIMManager):
         reduce = hvac.Reduce()
         reduce.run(makegraph.graph)
 
-        #check
+        enrich = hvac.Enrich()
+        enrich.run(reduce.reduced_instances, "statistical_year", "2000", "class")
 
         libraries = (standardlibrary.StandardLibrary, )
         export = hvac.Export()

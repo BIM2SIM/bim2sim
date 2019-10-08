@@ -96,8 +96,9 @@ class HvacGraph():
         """
         self.logger.info("Searching for cycles in hvac network ...")
         base_cycles = nx.cycle_basis(self.graph)
-        cycles = [cycle for cycle in base_cycles
-                  if len({port.parent for port in cycle}) > 1]
+        for cycle in base_cycles:
+            x = {port.parent for port in cycle}
+        cycles = [cycle for cycle in base_cycles if len({port.parent for port in cycle}) > 1]
         self.logger.info("Found %d cycles", len(cycles))
         return cycles
 

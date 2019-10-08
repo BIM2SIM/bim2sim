@@ -5,6 +5,9 @@ from abc import ABCMeta, abstractmethod
 
 from bim2sim.project import PROJECT, get_config
 from bim2sim.ifc2python import ifc2python
+from bim2sim.enrichment_data.data_class import DataClass
+from bim2sim.export.modelica import standardlibrary
+import ifcopenshell
 
 
 class BIM2SIMManager:
@@ -26,16 +29,24 @@ class BIM2SIMManager:
         self.ifc_path = self.get_ifc() # actual ifc # TODO: use multiple ifs files
         assert self.ifc_path, "No ifc found. Check '%s'"%(PROJECT.ifc)
         self.ifc = ifc2python.load_ifc(os.path.abspath(self.ifc_path))
+        self.logger.info("The exporter version of the IFC file is '%s'",
+                         self.ifc.wrapped_data.header.file_name.originating_system)
 
         self.logger.info("BIM2SIMManager '%s' initialized", self.__class__.__name__)
 
     def init_project(self):
+        """Check that json file is up to date (all years)"""
+        self.logger.warning("The missing items will be filled with 0 by default")
+        DC = DataClass()
+        DataClass.json_filler(DC, standardlibrary.elements.__dict__)
         """Check project folder and create it if necessary"""
         if not PROJECT.is_project_folder():
             self.logger.info("Creating project folder in '%s'", PROJECT.root)
             PROJECT.create_project_folder()
         else:
             PROJECT.complete_project_folder()
+
+
 
     @abstractmethod
     def run(self):
