@@ -71,7 +71,11 @@ class Inspect(Workflow):
         for group in x:
             if len(second_filter[str(group)]) < 2:
                 del second_filter[str(group)]
-
+        zones = []
+        for group_1 in second_filter:
+            for group_2 in second_filter[group_1]:
+                zones.append(second_filter[group_1][group_2])
+        self.logger.info("Found %d possible zones", len(zones))
         print("")
 
 
