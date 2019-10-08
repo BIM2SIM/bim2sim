@@ -22,7 +22,8 @@ class ModelError(Exception):
 class FactoryError(Exception):
     """Error in Model factory"""
 
-class Model():
+
+class Model:
     """Modelica model"""
 
     def __init__(self, name, comment, instances: list, connections: list):
@@ -32,17 +33,20 @@ class Model():
         self.name = name
         self.comment = comment
         self.instances = instances
-        self.connections = connections
 
         self.size_x = (-100, 100)
         self.size_y = (-100, 100)
 
-        self.set_instance_positions(instances)
+        self.connections, self.connections = self.set_positions(instances, connections)
 
-    def set_instance_positions(self, instances):
+    def set_positions(self, instances, connections):
         """Sets position of instances
 
         relative to min/max positions of instance.element.position"""
+        instance_dict = {}
+        connections_positions = []
+
+        # calculte instance position
         positions = np.array(
             [inst.element.position for inst in instances
              if inst.element.position is not None])
@@ -57,6 +61,16 @@ class Model():
                 x = (self.size_x[0] + rel_pos[0] * delta_x).item()
                 y = (self.size_y[0] + rel_pos[1] * delta_y).item()
                 inst.position = (x, y)
+                instance_dict[inst.name] = inst.position
+
+        # add positions to connections
+        for inst0, inst1 in connections:
+            name0 = inst0.split('.')[0]
+            name1 = inst1.split('.')[0]
+            connections_positions.append(
+                (inst0, inst1, instance_dict[name0], instance_dict[name1])
+            )
+        return list(instances), connections_positions
 
     def code(self):
         """returns Modelica code"""
@@ -99,6 +113,7 @@ class Instance:
         if self.guid:
             self.name = self.name + "_" + self.guid
         self.params = {}
+        self.validate = {}
         self.get_params()
         self.comment = self.get_comment()
         self.connections = []
@@ -164,26 +179,32 @@ class Instance:
         cls = Instance.lookup.get(element.__class__, Instance.dummy)
         return cls(element)
 
-    def manage_param(self, name: str, value, check):
-        """Managing for parameters
+    def manage_params(self):
+        """Collect parameters from element and checks them"""
+        for name, args in self.validate.items():
+            check, export_name = args
+            value = self.element.find(name)
+            if check(value):
+                self.params[export_name] = value
+            else:
+                RealDecision(
+                    question="Please enter parameter for %s"%(self.name + "." + export_name),
+                    validate_func=check,
+                    output=self.params,
+                    output_key=export_name,
+                    global_key=self.name + "." + name,
+                    collect=True,
+                    allow_load=True,
+                    allow_save=True,
+                    allow_skip=True,
+                )
 
-        adds parameter with name to self.params if check is successful
-        else the parameter gets managed by the decision system an is later added to self.params"""
+    def register_param(self, name: str, check, export_name: str=None):
+        """Parameter gests marked as requiered and will be checked.
 
-        if check(value):
-            self.params[name] = value
-        else:
-            RealDecision(
-                question="Please enter parameter for %s"%(self.name + "." + name),
-                validate_func=check,
-                output=self.params,
-                output_key=name,
-                global_key=self.name + "." + name,
-                collect=True,
-                allow_load=True,
-                allow_save=True,
-                allow_skip=True,
-            )
+        run Element.solve_request() after all parameters are registrated."""
+        self.element.request(name)
+        self.validate[name] = (check, export_name or name)
 
     @property
     def modelica_params(self):
@@ -216,8 +237,14 @@ class Instance:
     @staticmethod
     def to_modelica(parameter):
         """converts parameter to modelica readable string"""
+        if parameter is None:
+            return parameter
+        if isinstance(parameter, bool):
+            return 'true' if parameter else 'false'
         if isinstance(parameter, (str, int, float)):
             return str(parameter)
+        if isinstance(parameter, str):
+            return '"%s"'%parameter
         if isinstance(parameter, (list, tuple, set)):
             return "{%s}"%(",".join((Instance.to_modelica(par) for par in parameter)))
         logger = logging.getLogger(__name__)

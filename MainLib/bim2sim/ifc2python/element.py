@@ -3,11 +3,13 @@
 import logging
 from json import JSONEncoder
 import itertools
+import re
 
 import numpy as np
 
 from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import ifc2python
+from bim2sim.decision import Decision, BoolDecision, RealDecision, ListDecision, DictDecision, PendingDecisionError
 
 
 
@@ -15,6 +17,8 @@ from bim2sim.ifc2python import ifc2python
 
 class ElementError(Exception):
     """Error in Element"""
+class NoValueError(ElementError):
+    """Value is not available"""
 
 
 class ElementEncoder(JSONEncoder):
@@ -39,6 +43,8 @@ class Root:
     def __init__(self, guid=None):
         self.guid = guid or self.get_id()
         Root.objects[self.guid] = self
+        self._requests = []
+        self.properties = {}
 
     def __hash__(self):
         return hash(self.guid)
@@ -64,8 +70,68 @@ class Root:
 
     @staticmethod
     def get_object(guid):
-        """Returns object by guid"""
+        """Get Root object instance with given guid
+
+        :returns: None if object with guid was not instanciated"""
         return Root.objects.get(guid)
+
+    def request(self, name):
+        if not name in self._requests:
+            self._requests.append(name)
+
+    @classmethod
+    def solve_requests(cls):
+        """trys to obtain all requested attributes.
+
+        First step is to collect neccesary Decisions
+        Secend step is to solve them"""
+
+        # First step
+        pending = []
+        for ele in Root.objects.values():
+            while ele._requests:
+                request = ele._requests.pop()
+                try:
+                    value = ele.find(request, collect_decisions=True)
+                except PendingDecisionError:
+                    pending.append((ele, request))
+                except NoValueError:
+                    # Value for attribute does not exist
+                    pass
+                else:
+                    ele.properties[request] = value
+
+        Decision.decide_collected()
+
+        for ele, request in pending:
+            value = ele.find(request, collect_decisions=False)
+            ele.properties[request] = value
+
+    def search(self, name, collect_decisions=False):
+        """Search all potential sources for property (potentially time consuming)"""
+        raise NoValueError("'%s' is not available"%name)
+
+    def find(self, name, collect_decisions=False):
+        """Check for known property value. Calls search() if unknown"""
+        # check if property is known
+        if name in self.properties:
+            return self.properties[name]
+        if collect_decisions:
+            if name in self._requests:
+                raise PendingDecisionError
+            #self.request(name)
+        #elif name in self._requests:
+        #    self._requests.remove(name)
+
+        # search for property
+        value = self.search(name, collect_decisions)
+
+        # store value
+        self.properties[name] = value
+        return value
+
+    def __del__(self):
+        del Root.objects[self.guid]
 
 
 class IFCBased(Root):
@@ -77,6 +143,11 @@ class IFCBased(Root):
         super().__init__(*args, guid=ifc.GlobalId, **kwargs)
         self.ifc = ifc
         self.name = ifc.Name
+
+        self._propertysets = None
+        self._type_propertysets = None
+
+        self._decision_results = {}
 
     @property
     def ifc_type(self):
@@ -97,8 +168,18 @@ class IFCBased(Root):
         """
         return getattr(self.ifc, attribute, None)
 
-    def get_propertysets(self, propertysetname):
-        return ifc2python.get_Property_Sets(propertysetname, self.ifc)
+    def get_propertyset(self, propertysetname):
+        return ifc2python.get_Property_Set(propertysetname, self.ifc)
+
+    def get_propertysets(self):
+        if self._propertysets is None:
+            self._propertysets = ifc2python.get_property_sets(self.ifc)
+        return self._propertysets
+
+    def get_type_propertysets(self):
+        if self._type_propertysets is None:
+            self._type_propertysets = ifc2python.get_type_property_sets(self.ifc)
+        return self._type_propertysets
 
     def get_hierarchical_parent(self):
         return ifc2python.getHierarchicalParent(self.ifc)
@@ -130,6 +211,137 @@ class IFCBased(Root):
     def summary(self):
         return ifc2python.summary(self.ifc)
 
+    def search_property_hierarchy(self, propertyset_name):
+        """Search for property in all related properties in hierarchical order.
+
+        1. element's propertysets
+        2. element type's propertysets"""
+
+        p_set = None
+        p_sets = self.get_propertysets()
+        try:
+            p_set = p_sets[propertyset_name]
+        except KeyError:
+            pass
+        else:
+            return p_set
+
+        pt_sets = self.get_type_propertysets()
+        try:
+            p_set = pt_sets[propertyset_name]
+        except KeyError:
+            pass
+        else:
+            return p_set
+        return p_set
+
+    def inverse_properties(self):
+        """Generator yielding tuples of PropertySet name and Property name"""
+        for p_set_name, p_set in self.get_propertysets().items():
+            for p_name in p_set.keys():
+                yield (p_set_name, p_name)
+
+    def filter_properties(self, patterns):
+        """filter all properties by re pattern
+
+        :returns: list of tuple(propertyset_name, property_name, match)"""
+        matches = []
+        for propertyset_name, property_name in self.inverse_properties():
+            for pattern in patterns:
+                match = re.match(pattern, property_name)
+                if match:
+                    matches.append((propertyset_name, property_name, match))
+        return matches
+
+    def get_exact_property(self, propertyset_name, property_name):
+        """Returns value of property specified by propertyset name and property name
+
+        :Raises: AttriebuteError if property does not exist"""
+        try:
+            p_set = self.search_property_hierarchy(propertyset_name)
+            value = p_set[property_name]
+        except (AttributeError, KeyError, TypeError):
+            raise NoValueError("Property '%s.%s' does not exist"%(
+                propertyset_name, property_name))
+        return value
+
+    def select_from_potential_properties(self, patterns, name, collect_decisions):
+        """Ask user to select from all properties matching patterns"""
+
+        matches = self.filter_properties(patterns)
+        selected = None
+        if matches:
+            values = []
+            choices = []
+            for propertyset_name, property_name, match in matches:
+                value = self.get_exact_property(propertyset_name, property_name)
+                values.append(value)
+                choices.append((propertyset_name, property_name))
+                #print("%s.%s = %s"%(propertyset_name, property_name, value))
+
+            # TODO: Decision: save for all following elements of same class (dont ask again?)
+            # selected = (propertyset_name, property_name, value)
+
+            # TODO: Decision with id, key, value
+            decision = DictDecision("Multiple possibilities found",
+                choices=dict(zip(choices, values)),
+                output=self.properties, 
+                output_key=name,
+                global_key="%s_%s.%s"%(self.ifc_type, self.guid, name),
+                allow_skip=True, allow_load=True, allow_save=True,
+                collect=collect_decisions, quick_decide=not collect_decisions)
+
+            if collect_decisions:
+                raise PendingDecisionError()
+
+            return decision.value
+        raise NoValueError("No matching property for %s"%(patterns))
+
+    def search(self, name, collect_decisions = False):
+        """Search all potential sources for property (potentially time consuming)"""
+
+        try:
+            propertyset_name, property_name = getattr(
+                self.__class__, 'default_%s'%name, (None, None))
+            if not (propertyset_name and property_name):
+                raise NoValueError
+            value = self.get_exact_property(propertyset_name, property_name)
+        except NoValueError:
+            pass
+        else:
+            return value
+
+        try:
+            value = self.finder.find(self, name)
+        except AttributeError:
+            pass
+        else:
+            if not value is None:
+                return value
+
+        try:
+            patterns = getattr(self.__class__, 'pattern_%s'%name, None)
+            if not patterns:
+                raise NoValueError("No patterns")
+            value = self.select_from_potential_properties(patterns, name, collect_decisions)
+        except NoValueError:
+            pass
+        else:
+            return value
+
+        final_decision = RealDecision("Enter value for %s of %s"%(name, self.name),
+            validate_func=lambda x:isinstance(x, float), # TODO
+            output=self.properties, 
+            output_key=name,
+            global_key="%s_%s.%s"%(self.ifc_type, self.guid, name),
+            allow_skip=True, allow_load=True, allow_save=True,
+            collect=collect_decisions, quick_decide=not collect_decisions)
+
+        if collect_decisions:
+            raise PendingDecisionError()
+        value = final_decision.value
+        return value
+
     def __repr__(self):
         return "<%s (%s)>"%(self.__class__.__name__, self.name)
 
@@ -158,6 +370,9 @@ class BaseElement(Root):
 
     @staticmethod
     def get_element(guid):
+        """Get element instance with given guid
+
+        :returns: None if element with guid was not instanciated"""
         return BaseElement.objects.get(guid)
 
     def __repr__(self):
@@ -174,8 +389,14 @@ class BasePort(Root):
         self.connection = None
         BasePort.objects[self.guid] = self
 
+        self._flow_master = False
+        self._flow_direction = None
+
     @staticmethod
     def get_port(guid):
+        """Get port instance with given guid
+
+        :returns: None if port with guid was not instanciated"""
         return BasePort.objects.get(guid)
 
     def connect(self, other):
@@ -184,14 +405,57 @@ class BasePort(Root):
                                                   " of different classes."
         # if self.flow_direction == 'SOURCE' or \
         #         self.flow_direction == 'SOURCEANDSINK':
-        if self.connection:
+        if self.connection and self.connection is not other:
             raise AttributeError("Port is already connected!")
+        if other.connection and other.connection is not self:
+            raise AttributeError("Other port is already connected!")
         self.connection = other
         other.connection = self
 
     def is_connected(self):
         """Returns truth value of port's connection"""
         return bool(self.connection)
+
+    @property
+    def flow_master(self):
+        """Lock flow direction for port"""
+        return self._flow_master
+
+    @flow_master.setter
+    def flow_master(self, value: bool):
+        self._flow_master = value
+
+    @property
+    def flow_direction(self):
+        """Flow direction of port
+
+        -1 = medium flows into port
+        1 = medium flows out of port
+        0 = medium flow undirected
+        None = flow direction unknown"""
+        return self._flow_direction
+
+    @flow_direction.setter
+    def flow_direction(self, value):
+        if self._flow_master:
+            raise AttributeError("Can't set flow direction for flow master.")
+        if value not in (-1, 0, 1, None):
+            raise AttributeError("Invalid value. Use one of (-1, 0, 1, None).")
+        self._flow_direction = value
+
+    @property
+    def verbose_flow_direction(self):
+        """Flow direction of port"""
+        if self.flow_direction == -1:
+            return 'SINK'
+        if self.flow_direction == 0:
+            return 'SINKANDSOURCE'
+        if self.flow_direction == 1:
+            return 'SOURCE'
+        return 'UNKNOWN'
+
+    def __del__(self):
+        del BasePort.objects[self.guid]
 
     def __repr__(self):
         if self.parent:
@@ -208,10 +472,17 @@ class BasePort(Root):
 class Port(BasePort, IFCBased):
     """Port of Element"""
 
-    @cached_property
-    def flow_direction(self):
-        """returns the flow direction"""
-        return self.ifc.FlowDirection
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.groups = {assg.RelatingGroup.ObjectType
+                       for assg in self.ifc.HasAssignments}
+
+        if self.ifc.FlowDirection == 'SOURCE':
+            self.flow_direction = 1
+        elif self.ifc.FlowDirection == 'SINK':
+            self.flow_direction = -1
+        elif self.ifc.FlowDirection == 'SINKANDSOURCE':
+            self.flow_direction = 0
 
     def calc_position(self):
         """returns absolute position as np.array"""
@@ -229,34 +500,13 @@ class Port(BasePort, IFCBased):
             np.array(self.ifc.ObjectPlacement.RelativePlacement.Location.Coordinates)
         coordinates = self.parent.position + np.matmul(directions, port_coordinates_relative)
 
+        if all(coordinates == np.array([0, 0, 0])):
+            logger = logging.getLogger('IFCQualityReport')
+            logger.info("Suspect position [0, 0, 0] for %s", self)
         return coordinates
 
 
-class ElementMeta(type):
-    """Metaclass or Element
-
-    catches class creation and lists all properties (and subclasses) as findables
-    for Element.finder. Class can use custom findables by providung the
-    attribute 'findables'."""
-
-    def __new__(cls, clsname, superclasses, attributedict):
-        if clsname != 'Element':
-            sc_element = [sc for sc in superclasses if sc is Element]
-            if sc_element:
-                findables = []
-                overwrite = True
-                for name, value in attributedict.items():
-                    if name == 'findables':
-                        overwrite = False
-                        break
-                    if isinstance(value, property):
-                        findables.append(name)
-                if overwrite:
-                    attributedict['findables'] = tuple(findables)
-        return type.__new__(cls, clsname, superclasses, attributedict)
-
-
-class Element(BaseElement, IFCBased, metaclass=ElementMeta):
+class Element(BaseElement, IFCBased):
     """Base class for IFC model representation
 
     WARNING: getting an not defined attribute from instances of Element will
@@ -264,31 +514,11 @@ class Element(BaseElement, IFCBased, metaclass=ElementMeta):
 
     dummy = None
     finder = None
-    findables = ()
 
     def __init__(self, *args, tool=None, **kwargs):
         super().__init__(*args, **kwargs)
         self._tool = tool
         self._add_ports()
-
-    def __getattr__(self, name):
-        # user finder to get attribute
-        if self.__class__.finder:
-            return self.__class__.finder.find(self, name)
-        return super().__getattr__(name)
-
-    def __getattribute__(self, name):
-        found = object.__getattribute__(self, name)
-        if found is None:
-            findables = object.__getattribute__(self, '__class__').findables
-            if name in findables:
-                # if None is returned ask finder for value
-                # (on AttributeError __getattr__ is called anyway)
-                try:
-                    found = object.__getattribute__(self, '__getattr__')(name)
-                except AttributeError:
-                    pass
-        return found
 
     def _add_ports(self):
         if not self.ifc.HasPorts:
@@ -314,7 +544,7 @@ class Element(BaseElement, IFCBased, metaclass=ElementMeta):
             elif cls.ifc_type in Element._ifc_classes:
                 conflict = True
                 logger.error("Conflicting ifc_types (%s) in '%s' and '%s'",
-                    cls.ifc_type, cls.__name__, Element._ifc_classes[cls.ifc_type])
+                             cls.ifc_type, cls.__name__, Element._ifc_classes[cls.ifc_type])
             elif cls.__name__ == "Dummy":
                 Element.dummy = cls
             elif not cls.ifc_type.lower().startswith("ifc"):

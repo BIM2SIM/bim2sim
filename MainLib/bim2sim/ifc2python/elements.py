@@ -1,14 +1,68 @@
 ﻿"""Module contains the different classes for all HVAC elements"""
 
 import math
+import re
+
+import numpy as np
 
 from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import element
+from bim2sim.decision import BoolDecision
 
 
 class Boiler(element.Element):
     """Boiler"""
     ifc_type = 'IfcBoiler'
+
+    #def _add_ports(self):
+    #    super()._add_ports()
+    #    for port in self.ports:
+    #        if port.flow_direction == 1:
+    #            port.flow_master = True
+    #        elif port.flow_direction == -1:
+    #            port.flow_master = True
+
+    def get_inner_connections(self):
+        connections = []
+        vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
+        rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
+        VL = []
+        RL = []
+        for port in self.ports:
+            if any(filter(vl_pattern.match, port.groups)):
+                if port.flow_direction == 1:
+                    VL.append(port)
+                else:
+                    self.logger.warning("Flow direction (%s) of %s does not match %s",
+                                        port.verbose_flow_direction, port, port.groups)
+                    decision = BoolDecision(
+                        "Use %s as VL?"%(port),
+                        global_key=port.guid,
+                        allow_save=True,
+                        allow_load=True)
+                    use = decision.decide()
+                    if use:
+                        VL.append(port)
+            elif any(filter(rl_pattern.match, port.groups)):
+                if port.flow_direction == -1:
+                    RL.append(port)
+                else:
+                    self.logger.warning("Flow direction (%s) of %s does not match %s",
+                                        port.verbose_flow_direction, port, port.groups)
+                    decision = BoolDecision(
+                        "Use %s as RL?"%(port),
+                        global_key=port.guid,
+                        allow_save=True,
+                        allow_load=True)
+                    use = decision.decide()
+                    if use:
+                        RL.append(port)
+        if len(VL) == 1 and len(RL) == 1:
+            connections.append((RL[0], VL[0]))
+        else:
+            self.logger.warning("Unable to solve inner connections for %s", self)
+
+        return connections
 
     @cached_property
     def water_volume(self):
@@ -38,38 +92,78 @@ class Boiler(element.Element):
 
 class Pipe(element.Element):
     ifc_type = "IfcPipeSegment"
-
-    @cached_property
-    def Pset_PipeSegmentTypeCommon(self):
-        return self.get_propertysets('Pset_PipeSegmentTypeCommon')
+    default_diameter = ('Pset_PipeSegmentTypeCommon', 'NominalDiameter')
+    pattern_diameter = [
+        re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
+        re.compile('.*Diameter.*', flags=re.IGNORECASE),
+    ]
+    default_length = ('Qto_PipeSegmentBaseQuantities', 'Length')
+    pattern_length = [
+        re.compile('.*Länge.*', flags=re.IGNORECASE),
+        re.compile('.*Length.*', flags=re.IGNORECASE),
+    ]
 
     @property
     def diameter(self):
-        return self.ps_abmessungen.get('NominalDiameter')
+        result = self.find('diameter')
+
+        if isinstance(result, list):
+            return np.average(result).item()
+        return result
 
     @property
     def length(self):
-        return None
+        try:
+            return self.get_lenght_from_shape(self.ifc.Representation)
+        except AttributeError:
+            return None
+
+    @staticmethod
+    def get_lenght_from_shape(ifc_representation):
+        """Serach for extruded depth in representations
+
+        Warning: Found extrusion may net be the required length!
+        :raises: AttributeError if not exactly one extrusion is found"""
+        candidates = []
+        try:
+            for representation in ifc_representation.Representations:
+                for item in representation.Items:
+                    if item.is_a() == 'IfcExtrudedAreaSolid':
+                        candidates.append(item.Depth)
+        except:
+            raise AttributeError("Failed to dertermine length.")
+        if not candidates:
+            raise AttributeError("No representation to dertermine length.")
+        if len(candidates) > 1:
+            raise AttributeError("Too many representations to dertermine length %s."%candidates)
+        return candidates[0]
 
 
 class PipeFitting(element.Element):
     ifc_type = "IfcPipeFitting"
-
-    @cached_property
-    def Pset_PipeFittingTypeCommon(self):
-        return self.get_propertysets('Pset_PipeFittingTypeCommon')
+    default_diameter = ('Pset_PipeFittingTypeCommon', 'NominalDiameter')
+    default_pressure_class = ('Pset_PipeFittingTypeCommon', 'PressureClass')
+    
+    pattern_diameter = [
+        re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
+        re.compile('.*Diameter.*', flags=re.IGNORECASE),
+    ]
 
     @property
     def diameter(self):
-        return self.Pset_PipeFittingTypeCommon.get('NominalDiameter')
+        result = self.find('diameter')
+
+        if isinstance(result, list):
+            return np.average(result).item()
+        return result
 
     @property
     def length(self):
-        return None
+        return self.find('length')
 
     @property
     def pressure_class(self):
-        return self.Pset_PipeFittingTypeCommon.get('PressureClass')
+        return self.find('pressure_class')
 
 
 class SpaceHeater(element.Element):
@@ -110,6 +204,18 @@ class Storage(element.Element):
     @property
     def volume(self):
         return self.hight * self.diameter ** 2 / 4 * math.pi
+
+
+class Distributor(element.Element):
+    ifc_type = "IfcDistributionChamberElement"
+
+    @property
+    def volume(self):
+        return 100
+
+    @property
+    def nominal_power(self):  # TODO Workaround, should come from aggregation of consumer circle
+        return 100
 
 
 class Pump(element.Element):

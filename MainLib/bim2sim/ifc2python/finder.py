@@ -5,7 +5,11 @@ import json
 
 from bim2sim.ifc2python import ifc2python
 
-class Finder():
+
+DEFAULT_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets\\finder')
+
+
+class Finder:
 
     def find(self, element, property_name):
         raise NotImplementedError()
@@ -25,12 +29,26 @@ class TemplateFinder(Finder):
         self.templates = {}
 
     def load(self, path):
-        """loads templates from given path. Each *.json file is interpretet as tool with name *"""
+        """loads templates from given path. Each *.json file is interpretet as tool with name *
+        also searches default templates"""
 
+        # search in project folder
         for filename in os.listdir(path):
-            if filename.lower().startswith(TemplateFinder.prefix) \
-                and filename.lower().endswith(".json"):
+            if filename.lower().startswith(TemplateFinder.prefix) and filename.lower().endswith(".json"):
                 tool = filename[len(TemplateFinder.prefix):-5]
+                try:
+                    with open(os.path.join(path, filename)) as file:
+                        self.templates[tool] = json.load(file)
+                except (IOError, json.JSONDecodeError) as ex:
+                    continue
+
+        # search for default finder templates
+        for filename in os.listdir(DEFAULT_PATH):
+            if filename.lower().startswith(TemplateFinder.prefix) and filename.lower().endswith(".json"):
+                tool = filename[len(TemplateFinder.prefix):-5]
+                if tool in self.templates:
+                    # not overwrite project templates
+                    continue
                 try:
                     with open(os.path.join(path, filename)) as file:
                         self.templates[tool] = json.load(file)
@@ -69,7 +87,7 @@ class TemplateFinder(Finder):
         parameter_dict[parameter] = value
 
     def find(self, element, property_name):
-        """Tries to find he required property
+        """Tries to find the required property
         
         :return: value of property or None if propertyset or property is not available
         :raises: AttributeError if TemplateFinder does not know about given input"""
@@ -84,8 +102,8 @@ class TemplateFinder(Finder):
                 self.__class__.__name__, (key1, key2, key3)))
 
         try:
-            pset = ifc2python.get_Property_Sets(res[0], element.ifc)
-        except :
-            return None
+            pset = ifc2python.get_Property_Set(res[0], element.ifc)
+        except AttributeError:
+            raise AttributeError("Can't find property as defined by template.")
         return pset.get(res[1])
 
