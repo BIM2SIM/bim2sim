@@ -14,9 +14,9 @@ from bim2sim.ifc2python import finder
 from bim2sim.ifc2python import elements
 from collections import defaultdict
 from bim2sim.ifc2python.aggregation import group_by_range
+import ifcopenshell
 import ifcopenshell.geom
-
-
+import math
 
 IFC_TYPES = (
     # 'IfcBuilding',
@@ -43,12 +43,128 @@ class Inspect(Workflow):
         super().__init__()
         self.instances_bps = {}
 
-
-
-
     @Workflow.log
     def run(self, ifc, relevant_ifc_types):
         self.logger.info("Creates python representation of relevant ifc types")
+
+        # Building and exterior orientations
+
+        settings = ifcopenshell.geom.settings()
+        shapes = []
+        external_walls = []
+        external_walls_rep = []
+        walls = ifc.by_type('IfcWall')
+        for wall in walls:
+            representation = Element.factory(wall)
+            if representation.is_external is True:
+                external_walls.append(wall)
+                external_walls_rep.append(representation)
+
+        x1 = float("inf")
+        x2 = -float("inf")
+        y1 = float("inf")
+        y2 = -float("inf")
+
+        for element in external_walls_rep:
+            if element.position[0] < x1:
+                x1 = element.position[0]
+                p_x1 = element.position[1]
+            if element.position[0] > x2:
+                x2 = element.position[0]
+                p_x2 = element.position[1]
+            if element.position[1] < y1:
+                y1 = element.position[1]
+                p_y1 = element.position[0]
+            if element.position[1] > y2:
+                y2 = element.position[1]
+                p_y2 = element.position[0]
+
+        project_origin = ((x2 + x1) / 2, (y2 + y1) / 2)
+        mh_1 = (y2 - p_x1) / (p_y2 - x1)
+        mh_2 = (p_x2 - y1) / (x2 - p_y1)
+        mv_1 = (y2 - p_x2) / (p_y2 - x2)
+        mv_2 = (p_x1 - y1) / (x1 - p_y1)
+
+        if abs(mh_2 - mh_1) < 1:
+            project_slope = (mh_2 + mh_1) / 2
+        elif abs(mv_2 - mv_1) < 1:
+            project_slope = (mv_2 + mv_1) / 2
+
+        if project_slope < 0:
+            project_slope = abs(1/project_slope)
+
+        project_origin_rad = math.atan(project_slope)
+
+        # 1st quadrant: x+ , y+
+        # 2nd quadrant: x- , y+
+        # 3rd quadrant: x- , y-
+        # 4th quadrant: x+ , y-
+
+
+        for wall in external_walls:
+            shape = ifcopenshell.geom.create_shape(settings, wall)
+            i = 0
+            vertices = []
+            while i < len(shape.geometry.verts):
+                vertices.append(shape.geometry.verts[i:i + 2])
+                i += 3
+            edges = [shape.geometry.edges[i: i + 2] for i in range(0, len(shape.geometry.edges), 2)]
+            slopes = []
+            for edge in edges:
+                if (vertices[edge[1]][0] - vertices[edge[0]][0]) != 0:
+                    slope = (vertices[edge[1]][1] - vertices[edge[0]][1]) / (
+                                vertices[edge[1]][0] - vertices[edge[0]][0])
+                else:
+                    slope = 9999999999
+                slopes.append(slope)
+            slopes_groups = group_by_range(slopes, 0.1, "j")
+            n_slope = 0
+            for slope in slopes_groups:
+                if len(slopes_groups[slope]) > n_slope:
+                    n_slope = len(slopes_groups[slope])
+                    wall_slope = slopes_groups[slope][0]
+            wall_angle = math.degrees(math.atan(wall_slope))
+            representation = Element.factory(wall)
+
+            x = representation.position[0] - project_origin[0]
+            y = representation.position[1] - project_origin[1]
+            x_new = - y * math.sin(project_origin_rad) + x * math.cos(project_origin_rad)
+            y_new = y * math.cos(project_origin_rad) + x * math.sin(project_origin_rad)
+
+            if x_new > 0 and y_new > 0:
+                if 45 < wall_angle < 90:
+                    orientation = "NE"
+                else:
+                    orientation = "NW"
+            elif x_new < 0 and y_new > 0:
+                if 90+45 < wall_angle < 180:
+                    orientation = "NW"
+                else:
+                    orientation = "SW"
+            elif x_new < 0 and y_new < 0:
+                if 180 < wall_angle < 180+45:
+                    orientation = "SW"
+                else:
+                    orientation = "SE"
+            elif x_new > 0 and y_new < 0:
+                orientation = "SE -  NE"
+                if 270 < wall_angle < 270+45:
+                    orientation = "SE"
+                else:
+                    orientation = "NE"
+
+
+
+            # if 67.5 < abs(wall_angle) < 90:
+            #     orientation = "O-W"
+            # elif 0 < abs(wall_angle) < 22.5:
+            #     orientation = "N-S"
+            # elif -2.4142 < wall_slope < -0.4142:
+            #     orientation = "NO-SW"
+            # elif 0.4142 < wall_slope < 2.4142:
+            #     orientation = "SÖ-NW"
+            wall.Representation.Description = orientation
+            shapes.append(shape)
 
         for ifc_type in relevant_ifc_types:
             elements_ = ifc.by_type(ifc_type)
@@ -57,33 +173,7 @@ class Inspect(Workflow):
                 self.instances_bps[representation.guid] = representation
         self.logger.info("Found %d relevant elements", len(self.instances_bps))
 
-        external_walls = []
-        for element in self.instances_bps:
-            if isinstance(self.instances_bps[element], elements.Wall):
-                if self.instances_bps[element].is_external is True:
-                    external_walls.append(self.instances_bps[element])
-
-        min_x = float("inf")
-        max_x = -float("inf")
-        min_y = float("inf")
-        max_y = -float("inf")
-
-        for element in external_walls:
-            if element.position[0] < min_x:
-                min_x = element.position[0]
-                pmin_x = element.position[1]
-            if element.position[0] > max_x:
-                max_x = element.position[0]
-                pmax_x = element.position[1]
-            if element.position[1] < min_y:
-                min_y = element.position[1]
-                pmin_y = element.position[0]
-            if element.position[1] > max_y:
-                max_y = element.position[1]
-                pmax_y = element.position[0]
-
-
-        #find and fills spaces
+        # find and fills spaces
         spaces = ifc.by_type('IfcSpace')
         instances_space = []
         for space in spaces:
@@ -93,10 +183,6 @@ class Inspect(Workflow):
         print("")
 
         # aggregate all elements from space
-
-
-
-
 
         # find zones
 
@@ -114,13 +200,6 @@ class Inspect(Workflow):
         #     for group_2 in second_filter[group_1]:
         #         zones.append(second_filter[group_1][group_2])
         # self.logger.info("Found %d possible zones", len(zones))
-
-
-
-
-
-
-
 
 # class Prepare(Workflow):
 #     """Configurate""" #TODO: based on task

@@ -376,7 +376,11 @@ class Wall(element.Element):
 
     @property
     def orientation(self):
-        return 1
+        if hasattr(self.ifc, 'Orientation'):
+            orientation = self.ifc.Orientation
+        else:
+            orientation = False
+        return
 
     @property
     def u_value(self):
