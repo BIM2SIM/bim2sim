@@ -524,9 +524,17 @@ class Plate(element.Element):
 class Slab(element.Element):
     ifc_type = "IfcSlab"
 
+    @cached_property
+    def Pset_SlabCommon(self):
+        return self.get_propertysets()
+
     @property
     def area(self):
-        return 1
+        if "Abmessungen" in self.Pset_SlabCommon:
+            area_value = self.Pset_SlabCommon["Abmessungen"]["Fläche"]
+        else:
+            area_value = 0
+        return area_value
 
     @property
     def u_value(self):

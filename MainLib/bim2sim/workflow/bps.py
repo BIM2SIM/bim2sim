@@ -17,6 +17,9 @@ from bim2sim.ifc2python.aggregation import group_by_range
 import ifcopenshell
 import ifcopenshell.geom
 import math
+from shapely.geometry.polygon import Polygon
+from shapely.geometry import Point
+
 
 IFC_TYPES = (
     # 'IfcBuilding',
@@ -54,117 +57,97 @@ class Inspect(Workflow):
         external_walls = []
         external_walls_rep = []
         walls = ifc.by_type('IfcWall')
+        slabs = ifc.by_type('IfcSlab')
+
+        area_slab = 0
+        slab_big = 0
+        slab_rep = 0
+        for slab in slabs:
+            representation = Element.factory(slab)
+            area_element = representation.area
+            if area_element > area_slab:
+                area_slab = area_element
+                slab_big = slab
+                slab_rep = representation
+
+        shape = ifcopenshell.geom.create_shape(settings, slab_big)
+        vertices = []
+        i = 0
+        while i < len(shape.geometry.verts):
+            vertices.append(shape.geometry.verts[i:i + 2])
+            i += 3
+
+        x1 = [float("inf"), 0]
+        x2 = [-float("inf"), 0]
+        y1 = [0, float("inf")]
+        y2 = [0, -float("inf")]
+
+        for element in vertices:
+
+            if element[0] < x1[0]:
+                x1 = [element[0], element[1]]
+            if element[0] > x2[0]:
+                x2 = [element[0], element[1]]
+            if element[1] < y1[1]:
+                y1 = [element[0], element[1]]
+            if element[1] > y2[1]:
+                y2 = [element[0], element[1]]
+
+        x1[0] = x1[0] + slab_rep.position[0]
+        x2[0] = x2[0] + slab_rep.position[0]
+        y1[0] = y1[0] + slab_rep.position[0]
+        y2[0] = y2[0] + slab_rep.position[0]
+        x1[1] = x1[1] + slab_rep.position[1]
+        x2[1] = x2[1] + slab_rep.position[1]
+        y1[1] = y1[1] + slab_rep.position[1]
+        y2[1] = y2[1] + slab_rep.position[1]
+
+        building_envelope = []
+        tolerance = 1
+        # slope =
+        # tolerance_x = tolerance*math.sin(slope)
+        # tolerance_y = tolerance*math.sin(slope)
+
+        building_envelope.append(Polygon([(x1[0]-tolerance, x1[1]+tolerance),
+                                         (y2[0]+tolerance, y2[1]+tolerance),
+                                         (y2[0]+tolerance, y2[1]-tolerance),
+                                         (x1[0]-tolerance, x1[1]-tolerance)]))
+        building_envelope.append(Polygon([(x2[0]-tolerance, x2[1]-tolerance),
+                                         (y2[0]-tolerance, y2[1]+tolerance),
+                                         (y2[0]+tolerance, y2[1]+tolerance),
+                                         (x2[0]+tolerance, x2[1]-tolerance)]))
+        building_envelope.append(Polygon([(x2[0] + tolerance, x2[1] - tolerance),
+                                          (y1[0] - tolerance, y1[1] - tolerance),
+                                          (y1[0] - tolerance, y1[1] + tolerance),
+                                          (x2[0] + tolerance, x2[1] + tolerance)]))
+        building_envelope.append(Polygon([(x1[0] + tolerance, x1[1] + tolerance),
+                                          (y1[0] + tolerance, y1[1] - tolerance),
+                                          (y1[0] - tolerance, y1[1] - tolerance),
+                                          (x1[0] - tolerance, x1[1] + tolerance)]))
+
+
         for wall in walls:
             representation = Element.factory(wall)
             if representation.is_external is True:
                 external_walls.append(wall)
-                external_walls_rep.append(representation)
 
-        x1 = float("inf")
-        x2 = -float("inf")
-        y1 = float("inf")
-        y2 = -float("inf")
-
-        for element in external_walls_rep:
-            if element.position[0] < x1:
-                x1 = element.position[0]
-                p_x1 = element.position[1]
-            if element.position[0] > x2:
-                x2 = element.position[0]
-                p_x2 = element.position[1]
-            if element.position[1] < y1:
-                y1 = element.position[1]
-                p_y1 = element.position[0]
-            if element.position[1] > y2:
-                y2 = element.position[1]
-                p_y2 = element.position[0]
-
-        project_origin = ((x2 + x1) / 2, (y2 + y1) / 2)
-        mh_1 = (y2 - p_x1) / (p_y2 - x1)
-        mh_2 = (p_x2 - y1) / (x2 - p_y1)
-        mv_1 = (y2 - p_x2) / (p_y2 - x2)
-        mv_2 = (p_x1 - y1) / (x1 - p_y1)
-
-        if abs(mh_2 - mh_1) < 1:
-            project_slope = (mh_2 + mh_1) / 2
-        elif abs(mv_2 - mv_1) < 1:
-            project_slope = (mv_2 + mv_1) / 2
-
-        if project_slope < 0:
-            project_slope = abs(1/project_slope)
-
-        project_origin_rad = math.atan(project_slope)
-
-        # 1st quadrant: x+ , y+
-        # 2nd quadrant: x- , y+
-        # 3rd quadrant: x- , y-
-        # 4th quadrant: x+ , y-
-
+        wall_orientation = {}
 
         for wall in external_walls:
-            shape = ifcopenshell.geom.create_shape(settings, wall)
-            i = 0
-            vertices = []
-            while i < len(shape.geometry.verts):
-                vertices.append(shape.geometry.verts[i:i + 2])
-                i += 3
-            edges = [shape.geometry.edges[i: i + 2] for i in range(0, len(shape.geometry.edges), 2)]
-            slopes = []
-            for edge in edges:
-                if (vertices[edge[1]][0] - vertices[edge[0]][0]) != 0:
-                    slope = (vertices[edge[1]][1] - vertices[edge[0]][1]) / (
-                                vertices[edge[1]][0] - vertices[edge[0]][0])
-                else:
-                    slope = 9999999999
-                slopes.append(slope)
-            slopes_groups = group_by_range(slopes, 0.1, "j")
-            n_slope = 0
-            for slope in slopes_groups:
-                if len(slopes_groups[slope]) > n_slope:
-                    n_slope = len(slopes_groups[slope])
-                    wall_slope = slopes_groups[slope][0]
-            wall_angle = math.degrees(math.atan(wall_slope))
             representation = Element.factory(wall)
+            centroid = Point(representation.position[0:2])
+            orientation = "False"
+            if building_envelope[0].contains(centroid):
+                orientation = "NW"
+            elif building_envelope[1].contains(centroid):
+                orientation = "NE"
+            elif building_envelope[2].contains(centroid):
+                orientation = "SE"
+            elif building_envelope[3].contains(centroid):
+                orientation = "SW"
 
-            x = representation.position[0] - project_origin[0]
-            y = representation.position[1] - project_origin[1]
-            x_new = - y * math.sin(project_origin_rad) + x * math.cos(project_origin_rad)
-            y_new = y * math.cos(project_origin_rad) + x * math.sin(project_origin_rad)
-
-            if x_new > 0 and y_new > 0:
-                if 45 < wall_angle < 90:
-                    orientation = "NE"
-                else:
-                    orientation = "NW"
-            elif x_new < 0 and y_new > 0:
-                if 90+45 < wall_angle < 180:
-                    orientation = "NW"
-                else:
-                    orientation = "SW"
-            elif x_new < 0 and y_new < 0:
-                if 180 < wall_angle < 180+45:
-                    orientation = "SW"
-                else:
-                    orientation = "SE"
-            elif x_new > 0 and y_new < 0:
-                orientation = "SE -  NE"
-                if 270 < wall_angle < 270+45:
-                    orientation = "SE"
-                else:
-                    orientation = "NE"
-
-
-
-            # if 67.5 < abs(wall_angle) < 90:
-            #     orientation = "O-W"
-            # elif 0 < abs(wall_angle) < 22.5:
-            #     orientation = "N-S"
-            # elif -2.4142 < wall_slope < -0.4142:
-            #     orientation = "NO-SW"
-            # elif 0.4142 < wall_slope < 2.4142:
-            #     orientation = "SÖ-NW"
             wall.Representation.Description = orientation
-            shapes.append(shape)
+            wall_orientation[wall.Name] = orientation, representation.Pset_WallCommon['Pset_Desite']['cpRevitLevel']
 
         for ifc_type in relevant_ifc_types:
             elements_ = ifc.by_type(ifc_type)

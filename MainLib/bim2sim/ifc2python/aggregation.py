@@ -209,29 +209,29 @@ def group_by_range(elements, range_group, parameter):
     groups = {}
     for element in elements:
 
-        attribute = math.floor(element)
-        if str(attribute) in groups:
-            groups[str(attribute)].append(element)
-        elif str(attribute + range_group) in groups:
-            groups[str(attribute + range_group)].append(element)
-        elif str(attribute - range_group) in groups:
-            groups[str(attribute - range_group)].append(element)
-        else:
-            groups[str(attribute)] = []
-            groups[str(attribute)].append(element)
+        # attribute = math.floor(element)
+        # if str(attribute) in groups:
+        #     groups[str(attribute)].append(element)
+        # elif str(attribute + range_group) in groups:
+        #     groups[str(attribute + range_group)].append(element)
+        # elif str(attribute - range_group) in groups:
+        #     groups[str(attribute - range_group)].append(element)
+        # else:
+        #     groups[str(attribute)] = []
+        #     groups[str(attribute)].append(element)
 
-        # if hasattr(element, parameter):
-        #     attribute = int(getattr(element, parameter))
-        #
-        #     if str(attribute) in groups:
-        #         groups[str(attribute)].append(element)
-        #     elif str(attribute + range_group) in groups:
-        #         groups[str(attribute + range_group)].append(element)
-        #     elif str(attribute - range_group) in groups:
-        #         groups[str(attribute - range_group)].append(element)
-        #     else:
-        #         groups[str(attribute)] = []
-        #         groups[str(attribute)].append(element)
+        if hasattr(element, parameter):
+            attribute = int(element.position[2])
+
+            if str(attribute) in groups:
+                groups[str(attribute)].append(element)
+            elif str(attribute + range_group) in groups:
+                groups[str(attribute + range_group)].append(element)
+            elif str(attribute - range_group) in groups:
+                groups[str(attribute - range_group)].append(element)
+            else:
+                groups[str(attribute)] = []
+                groups[str(attribute)].append(element)
 
     # x = dict(groups)
     # for group in x:
