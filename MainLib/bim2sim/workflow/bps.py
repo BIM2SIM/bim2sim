@@ -1,4 +1,4 @@
-"""This module holds elements related to bps workflow"""
+"""This module holds elements related to bps_f workflow"""
 
 import itertools
 import json
@@ -6,7 +6,7 @@ import json
 from bim2sim.workflow import Workflow
 from bim2sim.filter import TypeFilter
 from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
-# from bim2sim.ifc2python.bps import ...
+# from bim2sim.ifc2python.bps_f import ...
 from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
@@ -19,21 +19,23 @@ import ifcopenshell.geom
 import math
 from shapely.geometry.polygon import Polygon
 from shapely.geometry import Point
+import matplotlib.pyplot as plt
+from bim2sim.workflow.bps_f import bps_functions
 
 
 IFC_TYPES = (
     # 'IfcBuilding',
     'IfcWall',
+    'IfcWindow',
+    'IfcSpace'
+    'ifcSlab',
     'IfcWallElementedCase',
     'IfcWallStandardCase',
     'IfcRoof',
     'IfcShadingDevice',
-    'ifcSlab',
     'IfcPlate',
     'IfcCovering',
     'IfcDoor',
-    'IfcWindow',
-    'IfcSpace'
 )
 
 
@@ -52,119 +54,70 @@ class Inspect(Workflow):
 
         # Building and exterior orientations
 
-        settings = ifcopenshell.geom.settings()
-        shapes = []
         external_walls = []
-        external_walls_rep = []
         walls = ifc.by_type('IfcWall')
         slabs = ifc.by_type('IfcSlab')
 
-        area_slab = 0
-        slab_big = 0
-        slab_rep = 0
-        for slab in slabs:
-            representation = Element.factory(slab)
-            area_element = representation.area
-            if area_element > area_slab:
-                area_slab = area_element
-                slab_big = slab
-                slab_rep = representation
+        p1, p2, p3, p4, cardinal_direction = bps_functions.find_building_polygon(slabs)
+        building_envelope = bps_functions.find_building_envelope(p1, p2, p3, p4)
 
-        shape = ifcopenshell.geom.create_shape(settings, slab_big)
-        vertices = []
-        i = 0
-        while i < len(shape.geometry.verts):
-            vertices.append(shape.geometry.verts[i:i + 2])
-            i += 3
-
-        x1 = [float("inf"), 0]
-        x2 = [-float("inf"), 0]
-        y1 = [0, float("inf")]
-        y2 = [0, -float("inf")]
-
-        for element in vertices:
-
-            if element[0] < x1[0]:
-                x1 = [element[0], element[1]]
-            if element[0] > x2[0]:
-                x2 = [element[0], element[1]]
-            if element[1] < y1[1]:
-                y1 = [element[0], element[1]]
-            if element[1] > y2[1]:
-                y2 = [element[0], element[1]]
-
-        x1[0] = x1[0] + slab_rep.position[0]
-        x2[0] = x2[0] + slab_rep.position[0]
-        y1[0] = y1[0] + slab_rep.position[0]
-        y2[0] = y2[0] + slab_rep.position[0]
-        x1[1] = x1[1] + slab_rep.position[1]
-        x2[1] = x2[1] + slab_rep.position[1]
-        y1[1] = y1[1] + slab_rep.position[1]
-        y2[1] = y2[1] + slab_rep.position[1]
-
-        building_envelope = []
-        tolerance = 1
-        # slope =
-        # tolerance_x = tolerance*math.sin(slope)
-        # tolerance_y = tolerance*math.sin(slope)
-
-        building_envelope.append(Polygon([(x1[0]-tolerance, x1[1]+tolerance),
-                                         (y2[0]+tolerance, y2[1]+tolerance),
-                                         (y2[0]+tolerance, y2[1]-tolerance),
-                                         (x1[0]-tolerance, x1[1]-tolerance)]))
-        building_envelope.append(Polygon([(x2[0]-tolerance, x2[1]-tolerance),
-                                         (y2[0]-tolerance, y2[1]+tolerance),
-                                         (y2[0]+tolerance, y2[1]+tolerance),
-                                         (x2[0]+tolerance, x2[1]-tolerance)]))
-        building_envelope.append(Polygon([(x2[0] + tolerance, x2[1] - tolerance),
-                                          (y1[0] - tolerance, y1[1] - tolerance),
-                                          (y1[0] - tolerance, y1[1] + tolerance),
-                                          (x2[0] + tolerance, x2[1] + tolerance)]))
-        building_envelope.append(Polygon([(x1[0] + tolerance, x1[1] + tolerance),
-                                          (y1[0] + tolerance, y1[1] - tolerance),
-                                          (y1[0] - tolerance, y1[1] - tolerance),
-                                          (x1[0] - tolerance, x1[1] + tolerance)]))
-
+        # plt.plot(*building_envelope[0].exterior.xy)
+        # plt.plot(*building_envelope[1].exterior.xy)
+        # plt.plot(*building_envelope[2].exterior.xy)
+        # plt.plot(*building_envelope[3].exterior.xy)
 
         for wall in walls:
             representation = Element.factory(wall)
             if representation.is_external is True:
                 external_walls.append(wall)
+                plt.plot(representation.position[0], representation.position[1], marker='o')
+            else:
+                self.instances_bps[representation.guid] = representation
 
-        wall_orientation = {}
+        # plt.show()
 
         for wall in external_walls:
             representation = Element.factory(wall)
             centroid = Point(representation.position[0:2])
-            orientation = "False"
-            if building_envelope[0].contains(centroid):
-                orientation = "NW"
-            elif building_envelope[1].contains(centroid):
-                orientation = "NE"
-            elif building_envelope[2].contains(centroid):
-                orientation = "SE"
-            elif building_envelope[3].contains(centroid):
-                orientation = "SW"
+            wall.Representation.Description = bps_functions.get_orientation\
+                (building_envelope, centroid, cardinal_direction)
+            self.instances_bps[representation.guid] = representation
 
-            wall.Representation.Description = orientation
-            wall_orientation[wall.Name] = orientation, representation.Pset_WallCommon['Pset_Desite']['cpRevitLevel']
+        external_windows = []
+        windows = ifc.by_type('IfcWindow')
+        for window in windows:
+            representation = Element.factory(window)
+            if representation.is_external is True:
+                external_windows.append(window)
+                plt.plot(representation.position[0], representation.position[1], marker='o')
+            else:
+                self.instances_bps[representation.guid] = representation
 
-        for ifc_type in relevant_ifc_types:
+        # plt.plot(*building_envelope[0].exterior.xy)
+        # plt.plot(*building_envelope[1].exterior.xy)
+        # plt.plot(*building_envelope[2].exterior.xy)
+        # plt.plot(*building_envelope[3].exterior.xy)
+        #
+        # plt.show()
+
+        for window in external_windows:
+            representation = Element.factory(window)
+            centroid = Point(representation.position[0:2])
+            window.Tag = bps_functions.get_orientation(building_envelope, centroid, cardinal_direction)
+            self.instances_bps[representation.guid] = representation
+
+        # find and fills spaces
+        spaces = ifc.by_type('IfcSpace')
+        for space in spaces:
+            representation = Element.factory(space)
+            self.instances_bps[representation.guid] = representation
+
+        for ifc_type in relevant_ifc_types[3:]:
             elements_ = ifc.by_type(ifc_type)
             for element in elements_:
                 representation = Element.factory(element)
                 self.instances_bps[representation.guid] = representation
         self.logger.info("Found %d relevant elements", len(self.instances_bps))
-
-        # find and fills spaces
-        spaces = ifc.by_type('IfcSpace')
-        instances_space = []
-        for space in spaces:
-            representation = elements.ThermalSpace(space)
-            instances_space.append(representation)
-            self.instances_bps[representation.guid] = representation
-        print("")
-
         # aggregate all elements from space
 
         # find zones

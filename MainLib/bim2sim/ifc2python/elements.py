@@ -309,24 +309,29 @@ class ThermalSpace(element.Element):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._space_elements = []
+        self._space_elements = {}
         self._specific_u_value = None
 
     def _get_space_elements(self):
         objects = dict(self.objects)
         self._specific_u_value = 0
-        for space_element in self.ifc.Decomposes[0].RelatingObject.ContainsElements[0].RelatedElements:
-            GUID_element = str(space_element)[str(space_element).find('(')+2:str(space_element).find(',')-1]
-            if GUID_element in objects:
-                self._space_elements.append(objects[GUID_element])
-        u_a = 0
-        for obj in self._space_elements:
-            if hasattr(obj, "area") and hasattr(obj, "u_value"):
-                u_a += obj.area * obj.u_value
-        self._specific_u_value = u_a / (self.area*self.height)
+        # for space_element in self.ifc.Decomposes[0].RelatingObject.ContainsElements[0].RelatedElements:
+        #     GUID_element = str(space_element)[str(space_element).find('(')+2:str(space_element).find(',')-1]
+        #     if GUID_element in objects:
+        #         if hasattr(objects[GUID_element], "orientation"):
+        #             if objects[GUID_element].orientation not in self._space_elements:
+        #                 self._space_elements[objects[GUID_element].orientation] = []
+        #             self._space_elements[objects[GUID_element].orientation].append(objects[GUID_element])
+
+
+        # u_a = 0
+        # for obj in self._space_elements:
+        #     if hasattr(obj, "area") and hasattr(obj, "u_value"):
+        #         u_a += obj.area * obj.u_value
+        # self._specific_u_value = u_a / (self.area*self.height)
 
     @cached_property
-    def Pset_PipeFittingTypeCommon(self):
+    def Pset_ThermalSpaceCommon(self):
         return self.get_propertysets()
 
     @property
@@ -356,11 +361,6 @@ class ThermalSpace(element.Element):
     def height(self):
         return 1
 
-    @property
-    def specific_u_value(self):
-        if self._specific_u_value is None:
-            self._get_space_elements()
-        return self._specific_u_value
 
 
 class Wall(element.Element):
@@ -375,14 +375,6 @@ class Wall(element.Element):
         return 1
 
     @property
-    def orientation(self):
-        if hasattr(self.ifc, 'Orientation'):
-            orientation = self.ifc.Orientation
-        else:
-            orientation = False
-        return
-
-    @property
     def u_value(self):
         return 1
 
@@ -394,6 +386,14 @@ class Wall(element.Element):
             external = True
         return external
 
+    @property
+    def orientation(self):
+        if self.is_external is True:
+            orientation = self.ifc.Representation.Description
+        else:
+            orientation = "Intern"
+        return orientation
+
 
 class OuterWall(Wall):
     @property
@@ -403,6 +403,20 @@ class OuterWall(Wall):
 
 class Window(element.Element):
     ifc_type = "IfcWindow"
+
+    @cached_property
+    def Pset_WindowCommon(self):
+        return self.get_propertysets()
+
+    @property
+    def is_external(self):
+        external = False
+        if 'Daten' in self.Pset_WindowCommon:
+            if 'Lage Bauteil' in self.Pset_WindowCommon['Daten']:
+                if 'außen' in self.Pset_WindowCommon['Daten']['Lage Bauteil']:
+                    external = True
+
+        return external
 
     @property
     def area(self):
@@ -415,6 +429,14 @@ class Window(element.Element):
     @property
     def g_value(self):
         return 1
+
+    @property
+    def orientation(self):
+        if self.is_external is True:
+            orientation = self.ifc.Tag
+        else:
+            orientation = "Intern"
+        return orientation
 
 
 class Door(element.Element):
