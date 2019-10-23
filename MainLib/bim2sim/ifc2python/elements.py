@@ -463,6 +463,11 @@ class Roof(element.Element):
         return 1
 
     @property
+    def is_external(self):
+        external = True
+        return external
+
+    @property
     def u_value(self):
         return 1
 
@@ -557,6 +562,14 @@ class Slab(element.Element):
         else:
             area_value = 0
         return area_value
+
+    @property
+    def is_external(self):
+        if self.ifc.Tag == 'True':
+            return True
+        else:
+            return False
+
 
     @property
     def u_value(self):

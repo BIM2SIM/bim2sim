@@ -29,6 +29,7 @@ IFC_TYPES = (
     'IfcWindow',
     'IfcSpace'
     'ifcSlab',
+    'IfcBuildingStorey'
     'IfcWallElementedCase',
     'IfcWallStandardCase',
     'IfcRoof',
@@ -61,27 +62,26 @@ class Inspect(Workflow):
         p1, p2, p3, p4, cardinal_direction = bps_functions.find_building_polygon(slabs)
         building_envelope = bps_functions.find_building_envelope(p1, p2, p3, p4)
 
-        # plt.plot(*building_envelope[0].exterior.xy)
-        # plt.plot(*building_envelope[1].exterior.xy)
-        # plt.plot(*building_envelope[2].exterior.xy)
-        # plt.plot(*building_envelope[3].exterior.xy)
-
         for wall in walls:
             representation = Element.factory(wall)
             if representation.is_external is True:
                 external_walls.append(wall)
-                plt.plot(representation.position[0], representation.position[1], marker='o')
             else:
                 self.instances_bps[representation.guid] = representation
 
-        # plt.show()
-
         for wall in external_walls:
             representation = Element.factory(wall)
-            centroid = Point(representation.position[0:2])
+            centroid = bps_functions.get_centroid(wall)
+            # plt.plot(*centroid.xy, marker='o')
             wall.Representation.Description = bps_functions.get_orientation\
                 (building_envelope, centroid, cardinal_direction)
             self.instances_bps[representation.guid] = representation
+
+        # plt.plot(*building_envelope[0].exterior.xy)
+        # plt.plot(*building_envelope[1].exterior.xy)
+        # plt.plot(*building_envelope[2].exterior.xy)
+        # plt.plot(*building_envelope[3].exterior.xy)
+        # plt.show()
 
         external_windows = []
         windows = ifc.by_type('IfcWindow')
@@ -89,22 +89,40 @@ class Inspect(Workflow):
             representation = Element.factory(window)
             if representation.is_external is True:
                 external_windows.append(window)
-                plt.plot(representation.position[0], representation.position[1], marker='o')
             else:
                 self.instances_bps[representation.guid] = representation
+
+        for window in external_windows:
+            representation = Element.factory(window)
+            centroid = Point(representation.position[0:2])
+            # plt.plot(*centroid.xy, marker='o')
+            window.Tag = bps_functions.get_orientation(building_envelope, centroid, cardinal_direction)
+            self.instances_bps[representation.guid] = representation
 
         # plt.plot(*building_envelope[0].exterior.xy)
         # plt.plot(*building_envelope[1].exterior.xy)
         # plt.plot(*building_envelope[2].exterior.xy)
         # plt.plot(*building_envelope[3].exterior.xy)
-        #
         # plt.show()
 
-        for window in external_windows:
-            representation = Element.factory(window)
-            centroid = Point(representation.position[0:2])
-            window.Tag = bps_functions.get_orientation(building_envelope, centroid, cardinal_direction)
-            self.instances_bps[representation.guid] = representation
+        storeys = ifc.by_type('IfcBuildingStorey')
+        for storey in storeys:
+            representation = Element.factory(storey)
+            slabs = []
+            exterior_slab = 0
+            z_coordinate = float('inf')
+            for element in storey.ContainsElements[0].RelatedElements:
+                if 'IfcSlab' in str(element):
+                    representation = Element.factory(element)
+                    slabs.append(element)
+                    if representation.position[2] < z_coordinate:
+                        z_coordinate = representation.position[2]
+                        exterior_slab = element
+            slabs[slabs.index(exterior_slab)].Tag = 'True'
+            for slab in slabs:
+                representation = Element.factory(slab)
+                self.instances_bps[representation.guid] = representation
+
 
         # find and fills spaces
         spaces = ifc.by_type('IfcSpace')
@@ -112,7 +130,7 @@ class Inspect(Workflow):
             representation = Element.factory(space)
             self.instances_bps[representation.guid] = representation
 
-        for ifc_type in relevant_ifc_types[3:]:
+        for ifc_type in relevant_ifc_types[4:]:
             elements_ = ifc.by_type(ifc_type)
             for element in elements_:
                 representation = Element.factory(element)

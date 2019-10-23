@@ -4,6 +4,7 @@ import ifcopenshell.geom
 import math
 from shapely.geometry.polygon import Polygon
 from shapely.geometry import Point
+import matplotlib.pyplot as plt
 
 
 def find_building_polygon(slabs):
@@ -115,4 +116,25 @@ def get_orientation(building_envelope, centroid, cardinal_direction):
         orientation = cardinal_direction[2]
     elif building_envelope[2].contains(centroid):
         orientation = cardinal_direction[3]
-    return orientation#
+    return orientation
+
+
+def get_centroid(ifc_element):
+    representation = Element.factory(ifc_element)
+    pos_x = representation.position[0]
+    pos_y = representation.position[1]
+    settings = ifcopenshell.geom.settings()
+    shape = ifcopenshell.geom.create_shape(settings, ifc_element)
+    vertices = []
+    i = 0
+    while i < len(shape.geometry.verts):
+        vertices.append((shape.geometry.verts[i]+pos_x, shape.geometry.verts[i+1]+pos_y))
+        i += 3
+    wall_polygon = Polygon(vertices)
+
+    # plt.plot(*wall_polygon.exterior.xy)
+    # plt.plot(*wall_polygon.envelope.centroid.xy, marker='o')
+    # plt.show()
+
+    return wall_polygon.envelope.centroid
+
