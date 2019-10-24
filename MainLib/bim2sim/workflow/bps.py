@@ -6,7 +6,6 @@ import json
 from bim2sim.workflow import Workflow
 from bim2sim.filter import TypeFilter
 from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
-# from bim2sim.ifc2python.bps_f import ...
 from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
@@ -29,7 +28,9 @@ IFC_TYPES = (
     'IfcWindow',
     'IfcSpace'
     'ifcSlab',
-    'IfcBuildingStorey'
+
+    'IfcBuildingStorey',
+    'IfcRoof',
     'IfcWallElementedCase',
     'IfcWallStandardCase',
     'IfcRoof',
@@ -107,7 +108,6 @@ class Inspect(Workflow):
 
         storeys = ifc.by_type('IfcBuildingStorey')
         for storey in storeys:
-            representation = Element.factory(storey)
             slabs = []
             exterior_slab = 0
             z_coordinate = float('inf')
@@ -123,6 +123,9 @@ class Inspect(Workflow):
                 representation = Element.factory(slab)
                 self.instances_bps[representation.guid] = representation
 
+        plates = ifc.by_type('IfcPlate')
+        for plate in plates:
+            bps_functions.get_natural_position(plate)
 
         # find and fills spaces
         spaces = ifc.by_type('IfcSpace')

@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 
 
 def find_building_polygon(slabs):
-
     settings = ifcopenshell.geom.settings()
     area_slab = 0
     slab_big = 0
@@ -67,7 +66,6 @@ def find_building_polygon(slabs):
 
 
 def find_building_envelope(p1, p2, p3, p4):
-
     building_envelope = []
     tolerance = 4
 
@@ -128,13 +126,41 @@ def get_centroid(ifc_element):
     vertices = []
     i = 0
     while i < len(shape.geometry.verts):
-        vertices.append((shape.geometry.verts[i]+pos_x, shape.geometry.verts[i+1]+pos_y))
+        vertices.append((shape.geometry.verts[i] + pos_x, shape.geometry.verts[i + 1] + pos_y))
         i += 3
-    wall_polygon = Polygon(vertices)
+    element_polygon = Polygon(vertices)
 
     # plt.plot(*wall_polygon.exterior.xy)
     # plt.plot(*wall_polygon.envelope.centroid.xy, marker='o')
     # plt.show()
 
-    return wall_polygon.envelope.centroid
+    return element_polygon.envelope.centroid
 
+
+def get_natural_position(ifc_element):
+    natural_position = ''
+    settings = ifcopenshell.geom.settings()
+    shape = ifcopenshell.geom.create_shape(settings, ifc_element)
+    vertices_xy = []
+    vertices_yz = []
+    vertices_xz = []
+    i = 0
+    while i < len(shape.geometry.verts):
+        vertices_xy.append(shape.geometry.verts[i:i + 2])
+        vertices_yz.append(shape.geometry.verts[i + 1:i + 3])
+        vertices_xz.append((shape.geometry.verts[i], shape.geometry.verts[i + 2]))
+        i += 3
+    area = [Polygon(vertices_xy).envelope.area, Polygon(vertices_yz).envelope.area, Polygon(vertices_xz).envelope.area]
+    area_sorted = sorted(area, key=float)
+    print("")
+    # if (element_polygon_xy.envelope.area > element_polygon_yz.envelope.area) and (element_polygon_xy.envelope.area
+    #                                                                               > element_polygon_xz.envelope.area):
+    #     natural_position = 'Vertical'
+    # elif (element_polygon_yz.envelope.area > element_polygon_xy.envelope.area) and (element_polygon_yz.envelope.area
+    #                                                                                 > element_polygon_xz.envelope.area):
+    #     natural_position = 'Horizontal'
+    # elif (element_polygon_xz.envelope.area > element_polygon_yz.envelope.area) and (element_polygon_xz.envelope.area
+    #                                                                                 > element_polygon_xy.envelope.area):
+    #     natural_position = 'Horizontal'
+
+    return natural_position
