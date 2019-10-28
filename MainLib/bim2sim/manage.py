@@ -22,7 +22,7 @@ class BIM2SIMManager:
         if not os.path.samefile(PROJECT.root, os.getcwd()):
             self.logger.info("Changing working directory to '%s'", PROJECT.root)
             os.chdir(PROJECT.root)
-        self.init_project()
+        # self.init_project()
         self.config = get_config()
 
         self.task = task

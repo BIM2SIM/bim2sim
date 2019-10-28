@@ -3,11 +3,14 @@
 import itertools
 import json
 import os
+import logging
+
+import numpy as np
 
 from bim2sim.workflow import Workflow
 from bim2sim.filter import TypeFilter
 from bim2sim.ifc2python.aggregation import PipeStrand, UnderfloorHeating, \
-    ParallelPump, cycles_reduction, underfloor_heating_recognition
+    ParallelPump, cycles_reduction
 from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
 from bim2sim.ifc2python.hvac import hvac_graph
 from bim2sim.export import modelica
@@ -304,19 +307,15 @@ class Reduce(Workflow):
         number_fh = 0
         chains = graph.get_type_chains(PipeStrand.aggregatable_elements)
         for chain in chains:
-            number_ps += 1
-            pipestrand = PipeStrand("PipeStrand%d" % (number_ps), chain)
-            parameters = []
-            # underfloor heating aggregation
-            if underfloor_heating_recognition(pipestrand, parameters):
+            underfloorheating = UnderfloorHeating.create_on_match("UnderfloorHeating%d" % (number_fh + 1), chain)
+            if underfloorheating:
                 number_fh += 1
-                underfloorheating = UnderfloorHeating("UnderfloorHeating%d" % (number_fh),
-                                                      pipestrand.elements, parameters)
                 graph.merge(
                     mapping=underfloorheating.get_replacement_mapping(),
                     inner_connections=underfloorheating.get_inner_connections())
-            # pipestrand aggregation
             else:
+                number_ps += 1
+                pipestrand = PipeStrand("PipeStrand%d" % (number_ps), chain)
                 graph.merge(
                     mapping=pipestrand.get_replacement_mapping(),
                     inner_connections=pipestrand.get_inner_connections())

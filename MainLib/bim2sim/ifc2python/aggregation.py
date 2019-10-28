@@ -3,6 +3,9 @@
 import logging
 import math
 from collections import defaultdict
+
+import numpy as np
+
 from bim2sim.ifc2python.element import BaseElement, BasePort
 from bim2sim.ifc2python import elements
 
@@ -150,29 +153,117 @@ class UnderfloorHeating(PipeStrand):
     """Aggregates UnderfloorHeating, normal pitch (spacing) between
     pipes is between 0.1m and 0.2m"""
 
-    def __init__(self, name, elements, parameters,  *args, **kwargs):
-        self.parameters = parameters
+    def __init__(self, name, elements, *args, **kwargs):
         super().__init__(name, elements, *args, **kwargs)
-        self._total_length = None
-        self._avg_diameter = None
-        self._x_spacing = self.parameters[0]
-        self._y_spacing = self.parameters[1]
-        self._heating_area = self.parameters[2]
+        self._x_spacing = None
+        self._y_spacing = None
+        self._heating_area = None
 
     @property
     def heating_area(self):
         """Heating area"""
+        if self._heating_area is None:
+            raise NotImplementedError("Adapt _calc_avg if needed")
         return self._heating_area
 
     @property
     def x_spacing(self):
         """Spacing in x"""
+        if self._x_spacing is None:
+            raise NotImplementedError("Adapt _calc_avg if needed")
         return self._x_spacing
 
     @property
     def y_spacing(self):
         """Spacing in y """
+        if self._y_spacing is None:
+            raise NotImplementedError("Adapt _calc_avg if needed")
         return self._y_spacing
+
+    @classmethod
+    def create_on_match(cls, name, uh_elements):
+        """checks ps_elements and returns instance of UnderfloorHeating if all following criteria are fulfilled:
+            0. minimum of 20 elements
+            1. the pipe strand is located horizontally -- parallel to the floor
+            2. the pipe strand has most of the elements located in an specific z-coordinate (> 80%)
+            3. the spacing between adjacent elements with the same orientation is between 90mm and 210 mm
+            4. the total area of the underfloor heating is more than 1m² - just as safety factor
+            5. the quotient between the cross sectional area of the pipe strand (x-y plane) and the total heating area
+                is between 0.09 and 0.01 - area density for underfloor heating"""
+        # TODO: use only floor heating pipes and not connecting pipes
+
+        if len(uh_elements) < 20:
+            return  # number criteria failed
+
+        # z_coordinates = defaultdict(list)
+        # for element in uh_elements:
+        #     z_coordinates[element.position[2]].append(element)
+        # z_coordinate = []
+        # for coordinate in z_coordinates:
+        #     n_pipe = 0
+        #     for element in z_coordinates[coordinate]:
+        #         if isinstance(element, elements.PipeFitting):
+        #             n_pipe += 1
+        #     if n_pipe == 0 and (len(z_coordinates[coordinate]) > len(z_coordinate)):
+        #         z_coordinate = z_coordinates[coordinate]
+        # z_coordinate = z_coordinate[0].position[2]
+
+        ports_coors = np.array([p.position for e in uh_elements for p in e.ports])
+        counts = np.unique(ports_coors[:, 2], return_counts=True)
+        # TODO: cluster z coordinates
+        idx_max = np.argmax(counts[1])
+        if counts[1][idx_max] / ports_coors.shape[0] < 0.8:
+            return  # most elements in same z plane criteria failed
+
+        z_coordinate2 = counts[0][idx_max]
+
+        min_x = float("inf")
+        max_x = -float("inf")
+        min_y = float("inf")
+        max_y = -float("inf")
+        x_orientation = []
+        y_orientation = []
+        for element in uh_elements:
+            if np.abs(element.ports[0].position[2] - z_coordinate2) < 1 \
+                    and np.abs(element.ports[1].position[2] - z_coordinate2) < 1:
+                if element.position[0] < min_x:
+                    min_x = element.position[0]
+                if element.position[0] > max_x:
+                    max_x = element.position[0]
+                if element.position[1] < min_y:
+                    min_y = element.position[1]
+                if element.position[1] > max_y:
+                    max_y = element.position[1]
+
+                # TODO: what if e.g. 45° orientation??
+                if abs(element.ports[0].position[0] - element.ports[1].position[0]) < 1:
+                    y_orientation.append(element)
+                if abs(element.ports[0].position[1] - element.ports[1].position[1]) < 1:
+                    x_orientation.append(element)
+        heating_area = (max_x - min_x) * (max_y - min_y)
+        if heating_area < 1e6:
+            return  # heating area criteria failed
+
+        # TODO: this is not correct for some layouts
+        if len(y_orientation) - 1 != 0:
+            x_spacing = (max_x - min_x) / (len(y_orientation) - 1)
+        if len(x_orientation) - 1 != 0:
+            y_spacing = (max_y - min_y) / (len(x_orientation) - 1)
+        if not ((90 < x_spacing < 210) or (90 < y_spacing < 210)):
+            return  # spacing criteria failed
+
+        # create instance to check final kpi criteria
+        underfloor_heating = cls(name, uh_elements)
+        # pre set _calc_avg results
+        underfloor_heating._heating_area = heating_area
+        underfloor_heating._x_spacing = x_spacing
+        underfloor_heating._y_spacing = y_spacing
+
+        kpi_criteria = (underfloor_heating.length * underfloor_heating.diameter) / heating_area
+
+        if 0.09 > kpi_criteria > 0.01:
+            return underfloor_heating
+        # else kpi criteria failed
 
 
 class ParallelPump(Aggregation):
@@ -418,70 +509,3 @@ def cycles_reduction(cycles):
         reduced_cycles.append(dict(zip(keys, cycle)))
 
     return reduced_cycles
-
-
-def underfloor_heating_recognition(pipe_strand, parameters):
-    """
-    it recognizes if a pipe strand is an underfloor heating that fulfills the next criteria:
-    1. the pipe strand is located horizontally -- parallel to the floor
-    2. the pipe strand has most of the elements located in an specific z-coordinate
-    3. the spacing between adjacent elements with the same orientation is between 90mm and 210 mm
-    4. the quotient between the cross sectional area of the pipe strand (x-y plane) and the total heating area
-        is between 0.09 and 0.01 - area density for underfloor heating
-    5. the total area of the underfloor heating is more than 1m² - just as safety factor
-    finally creates the following parameters for the creation of the underfloor heating
-    1.x spacing
-    2. y spacing
-    3. heating area
-    """
-    ps_elements = pipe_strand.elements
-    x_spacing = 0
-    y_spacing = 0
-    criteria = 0
-    z_coordinates = defaultdict(list)
-    for element in ps_elements:
-        z_coordinates[element.position[2]].append(element)
-    z_coordinate = []
-    for coordinate in z_coordinates:
-        n_pipe = 0
-        for element in z_coordinates[coordinate]:
-            if isinstance(element, elements.PipeFitting):
-                n_pipe += 1
-        if n_pipe == 0 and (len(z_coordinates[coordinate]) > len(z_coordinate)):
-            z_coordinate = z_coordinates[coordinate]
-    z_coordinate = z_coordinate[0].position[2]
-
-    min_x = float("inf")
-    max_x = -float("inf")
-    min_y = float("inf")
-    max_y = -float("inf")
-    x_orientation = []
-    y_orientation = []
-    for element in ps_elements:
-        if z_coordinate - 1 < element.position[2] < z_coordinate + 1:
-            if element.position[0] < min_x:
-                min_x = element.position[0]
-            if element.position[0] > max_x:
-                max_x = element.position[0]
-            if element.position[1] < min_y:
-                min_y = element.position[1]
-            if element.position[1] > max_y:
-                max_y = element.position[1]
-            if abs(element.ports[0].position[0] - element.ports[1].position[0]) < 1:
-                y_orientation.append(element)
-            if abs(element.ports[0].position[1] - element.ports[1].position[1]) < 1:
-                x_orientation.append(element)
-    heating_area = (max_x - min_x) * (max_y - min_y)
-    if heating_area != 0:
-        criteria = (pipe_strand.length*pipe_strand.diameter)/heating_area
-    if len(y_orientation)-1 != 0:
-        x_spacing = (max_x - min_x) / (len(y_orientation) - 1)
-    if len(x_orientation)-1 != 0:
-        y_spacing = (max_y - min_y) / (len(x_orientation) - 1)
-    if (90 < x_spacing < 210 and 0.09 > criteria > 0.01 and heating_area > 1000000) \
-            or (90 < y_spacing < 210 and 0.09 > criteria > 0.01 and heating_area > 1000000):
-        parameters.append(x_spacing)
-        parameters.append(y_spacing)
-        parameters.append(heating_area)
-        return True
-
