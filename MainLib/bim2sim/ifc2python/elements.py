@@ -203,7 +203,7 @@ class Storage(element.Element):
 
     @property
     def volume(self):
-        return self.hight * self.diameter ** 2 / 4 * math.pi
+        return self.height * self.diameter ** 2 / 4 * math.pi
 
 
 class Distributor(element.Element):

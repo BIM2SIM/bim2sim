@@ -102,7 +102,7 @@ class HvacGraph():
         self.logger.info("Found %d cycles", len(cycles))
         return cycles
 
-    def get_type_chains(self, types):
+    def get_type_chains(self, types, include_singles=False):
         """Returns lists of consecutive elements of the given types ordered as connected.
 
         :param types: iterable of ifcType names"""
@@ -116,7 +116,10 @@ class HvacGraph():
         # order elements as connected
         for subgraph in nx.connected_component_subgraphs(subgraph_aggregations):
             end_nodes = [v for v, d in subgraph.degree() if d == 1]
+
             if len(end_nodes) != 2:
+                if include_singles:
+                    chain_lists.append(list(subgraph.nodes))
                 continue
             elements = nx.shortest_path(subgraph, *end_nodes) # TODO more efficient
             chain_lists.append(elements)
@@ -140,6 +143,8 @@ class HvacGraph():
         nx.relabel_nodes(self.graph, replace, copy=False)
         self.graph.remove_nodes_from(remove)
         self.graph.add_edges_from(inner_connections)
+
+    # def remove_
 
     def get_connections(self):
         """Returns connections between different parent elements"""

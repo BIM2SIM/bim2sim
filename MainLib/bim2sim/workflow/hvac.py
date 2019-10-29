@@ -4,12 +4,14 @@ import itertools
 import json
 import os
 import logging
+from itertools import chain
 
 import numpy as np
 
 from bim2sim.workflow import Workflow
+from bim2sim.tasks import LOD
 from bim2sim.filter import TypeFilter
-from bim2sim.ifc2python.aggregation import PipeStrand, UnderfloorHeating, \
+from bim2sim.ifc2python.aggregation import Aggregation, PipeStrand, UnderfloorHeating, \
     ParallelPump, cycles_reduction
 from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
 from bim2sim.ifc2python.hvac import hvac_graph
@@ -19,6 +21,7 @@ from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
 from bim2sim.enrichment_data.data_class import DataClass, Enrich_class
 from bim2sim.enrichment_data import element_input_json
+
 
 IFC_TYPES = (
     'IfcAirTerminal',
@@ -195,7 +198,7 @@ class Inspect(Workflow):
         return connections
 
     @Workflow.log
-    def run(self, ifc, relevant_ifc_types):
+    def run(self, task, ifc, relevant_ifc_types):
         self.logger.info("Creates python representation of relevant ifc types")
         for ifc_type in relevant_ifc_types:
             elements = ifc.by_type(ifc_type)
@@ -261,7 +264,7 @@ class Prepare(Workflow):
         self.filters = []
 
     @Workflow.log
-    def run(self, relevant_ifc_types):
+    def run(self, task, relevant_ifc_types):
         self.logger.info("Setting Filters")
         Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
@@ -278,7 +281,7 @@ class MakeGraph(Workflow):
         self.graph = None
 
     @Workflow.log
-    def run(self, instances: list):
+    def run(self, task, instances: list):
         self.logger.info("Creating graph from IFC elements")
         self.graph = hvac_graph.HvacGraph(instances)
 
@@ -300,12 +303,14 @@ class Reduce(Workflow):
         self.connections = []
 
     @Workflow.log
-    def run(self, graph: hvac_graph.HvacGraph):
+    def run(self, task, graph: hvac_graph.HvacGraph):
         self.logger.info("Reducing elements by applying aggregations")
         number_of_nodes_old = len(graph.element_graph.nodes)
         number_ps = 0
         number_fh = 0
-        chains = graph.get_type_chains(PipeStrand.aggregatable_elements)
+        number_pipes = 0
+
+        chains = graph.get_type_chains(PipeStrand.aggregatable_elements, include_singles=True)
         for chain in chains:
             underfloorheating = UnderfloorHeating.create_on_match("UnderfloorHeating%d" % (number_fh + 1), chain)
             if underfloorheating:
@@ -314,14 +319,27 @@ class Reduce(Workflow):
                     mapping=underfloorheating.get_replacement_mapping(),
                     inner_connections=underfloorheating.get_inner_connections())
             else:
-                number_ps += 1
-                pipestrand = PipeStrand("PipeStrand%d" % (number_ps), chain)
-                graph.merge(
-                    mapping=pipestrand.get_replacement_mapping(),
-                    inner_connections=pipestrand.get_inner_connections())
+                if task.pipes == LOD.full:
+                    pass
+                elif task.pipes == LOD.medium:
+                    if len(chain) <= 1:
+                        continue
+                    number_ps += 1
+                    pipestrand = PipeStrand("PipeStrand%d" % (number_ps), chain)
+                    graph.merge(
+                        mapping=pipestrand.get_replacement_mapping(),
+                        inner_connections=pipestrand.get_inner_connections())
+                elif task.pipes == LOD.low:
+                    mapping, connections = Aggregation.get_empty_mapping(chain)
+                    graph.merge(
+                        mapping=mapping,
+                        inner_connections=connections,
+                    )
+                    number_pipes += len(set(k.parent for k, v in mapping.items() if v is None))
 
         self.logger.info("Applied %d aggregations as \"PipeStrand\"", number_ps)
         self.logger.info("Applied %d aggregations as \"UnderfloorHeating\"", number_fh)
+        self.logger.info("Removed %d pipe-like elements", number_pipes)
 
         # Parallel pumps aggregation
         cycles = graph.get_cycles()
@@ -395,7 +413,7 @@ class Enrich(Workflow):
         # with the data from the json file
 
     @Workflow.log
-    def run(self, instances, enrich_parameter, parameter_value, enrichment_parameter):
+    def run(self, task, instances, enrich_parameter, parameter_value, enrichment_parameter):
         # enrichment_parameter --> IFC, Class
         n_total = [0, 0]
         path_decision = os.path.join(PROJECT.source, 'enrichment_data', 'decisions_enrichment.txt')
@@ -421,7 +439,6 @@ class Enrich(Workflow):
         # runs all enrich methods
 
 
-
 class DetectCycles(Workflow):
     """Detect cycles in graph"""
 
@@ -432,7 +449,7 @@ class DetectCycles(Workflow):
         self.cycles = None
 
     @Workflow.log
-    def run(self, graph: hvac_graph.HvacGraph):
+    def run(self, task, graph: hvac_graph.HvacGraph):
         self.logger.info("Detecting cycles")
         self.cycles = graph.get_cycles()
 
@@ -440,7 +457,7 @@ class DetectCycles(Workflow):
 class Export(Workflow):
     """Export to Dymola/Modelica"""
 
-    def run(self, libraries, instances, connections):
+    def run(self, task, libraries, instances, connections):
         self.logger.info("Export to Modelica code")
         Decision.load(PROJECT.decisions)
 

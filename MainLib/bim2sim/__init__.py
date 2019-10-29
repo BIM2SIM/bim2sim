@@ -89,7 +89,7 @@ def main(rootpath=None):
     assert backend, "No backend set. Check config.ini"
 
     logger.info("Loading backend '%s' ...", backend)
-    manager_cls = plugins.get(backend)()
+    manager_cls = plugins.get(backend.lower())()
 
     if manager_cls is None:
         msg = "Simulation '%s' not found in plugins. Available plugins:\n - "%(backend)

@@ -26,6 +26,7 @@ def config_base_setup(backend=None):
     if not config.sections():
         config.add_section("Basics")
         config.add_section("Task")
+        config.add_section("Aggregation")
         config.add_section("Backend")
         config["Backend"]["use"] = backend
         config.add_section("Modelica")

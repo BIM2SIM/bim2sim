@@ -46,6 +46,26 @@ class Aggregation(BaseElement):
         except:
             return None
 
+    @classmethod
+    def get_empty_mapping(cls, elements: list):
+        """Get information to remove elements
+        :returns tuple of
+            mapping dict with original ports as values and None as keys
+            connection list of outer connections"""
+        ports = [port for element in elements for port in element.ports]
+        mapping = {port: None for port in ports}
+        # TODO: len > 1, optimize
+        external_ports = []
+        for port in ports:
+            if port.connection and port.connection.parent not in elements:
+                external_ports.append(port.connection)
+
+        mapping[external_ports[0].connection] = external_ports[1]
+        mapping[external_ports[1].connection] = external_ports[0]
+        connections = []  # (external_ports[0], external_ports[1])
+
+        return mapping, connections
+
     def __repr__(self):
         return "<%s '%s' (aggregation of %d elements)>" % (
             self.__class__.__name__, self.name, len(self.elements))
