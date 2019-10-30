@@ -378,6 +378,9 @@ class BaseElement(Root):
     def __repr__(self):
         return "<%s (ports: %d)>"%(self.__class__.__name__, len(self.ports))
 
+    def __str__(self):
+        return self.__class__.__name__
+
 
 class BasePort(Root):
     """Basic port"""
@@ -461,12 +464,15 @@ class BasePort(Root):
         if self.parent:
             try:
                 idx = self.parent.ports.index(self)
-                return "<%s (#%d, parent: %s)>"%(
+                return "<%s #%d of %s)>"%(
                     self.__class__.__name__, idx, self.parent)
             except ValueError:
                 return "<%s (broken parent: %s)>"%(
                     self.__class__.__name__, self.parent)
         return "<%s (*abandoned*)>"%(self.__class__.__name__)
+
+    def __str__(self):
+        return self.__repr__()[1:-2]
 
 
 class Port(BasePort, IFCBased):
@@ -599,6 +605,9 @@ class Element(BaseElement, IFCBased):
         return "<%s (ports: %d, guid=%s)>"%(
             self.__class__.__name__, len(self.ports), self.guid)
 
+    def __str__(self):
+        return "%s" % self.__class__.__name__
+
 
 class Dummy(Element):
     """Dummy for all unknown elements"""
@@ -613,5 +622,7 @@ class Dummy(Element):
     def ifc_type(self):
         return self._ifc_type
 
+    def __str__(self):
+        return "Dummy '%s'" % self.name
 # import Element classes for Element.factory
 import bim2sim.ifc2python.elements

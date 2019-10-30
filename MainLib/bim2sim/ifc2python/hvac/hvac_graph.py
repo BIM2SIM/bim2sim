@@ -96,8 +96,8 @@ class HvacGraph():
         """
         self.logger.info("Searching for cycles in hvac network ...")
         base_cycles = nx.cycle_basis(self.graph)
-        for cycle in base_cycles:
-            x = {port.parent for port in cycle}
+        # for cycle in base_cycles:
+        #     x = {port.parent for port in cycle}
         cycles = [cycle for cycle in base_cycles if len({port.parent for port in cycle}) > 1]
         self.logger.info("Found %d cycles", len(cycles))
         return cycles
@@ -161,7 +161,7 @@ class HvacGraph():
         if path is provided plot is saved as pdf else it gets displayed"""
         # https://plot.ly/python/network-graphs/
         graph = self.graph if ports else self.element_graph
-        nx.draw(graph, node_size=6, font_size=6, with_labels=True)
+        nx.draw(graph, node_size=6, font_size=5, with_labels=True)
         plt.draw()
         if path:
             name = "%sgraph.pdf"%("port" if ports else "element")

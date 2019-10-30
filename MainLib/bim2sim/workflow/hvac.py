@@ -367,6 +367,7 @@ class Reduce(Workflow):
         if __debug__:
             self.logger.info("Plotting graph ...")
             graph.plot(PROJECT.export)
+            graph.plot(PROJECT.export, ports=True)
 
 
 class Enrich(Workflow):
