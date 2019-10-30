@@ -341,6 +341,16 @@ class Reduce(Workflow):
         self.logger.info("Applied %d aggregations as \"UnderfloorHeating\"", number_fh)
         self.logger.info("Removed %d pipe-like elements", number_pipes)
 
+        # TODO: solve: conflicts, no starting point
+        # this might help for other reduce methods like finding parallel pumps etc. else only for nice plotting
+        self.logger.info("Setting flow_sides")
+        for port in graph.get_nodes():
+            if port.flow_side:
+                # use first known side as starting point
+                graph.recurse_set_side(port, port.flow_side, raise_error=False)
+                break
+
+
         # Parallel pumps aggregation
         cycles = graph.get_cycles()
 

@@ -179,6 +179,9 @@ class UnderfloorHeating(PipeStrand):
         self._y_spacing = None
         self._heating_area = None
 
+    def is_consumer(self):
+        return True
+
     @property
     def heating_area(self):
         """Heating area"""

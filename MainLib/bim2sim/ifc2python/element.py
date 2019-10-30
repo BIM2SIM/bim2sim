@@ -12,7 +12,7 @@ from bim2sim.ifc2python import ifc2python
 from bim2sim.decision import Decision, BoolDecision, RealDecision, ListDecision, DictDecision, PendingDecisionError
 
 
-
+logger = logging.getLogger(__name__)
 
 
 class ElementError(Exception):
@@ -375,6 +375,12 @@ class BaseElement(Root):
         :returns: None if element with guid was not instanciated"""
         return BaseElement.objects.get(guid)
 
+    def is_generator(self):
+        return False
+
+    def is_consumer(self):
+        return False
+
     def __repr__(self):
         return "<%s (ports: %d)>"%(self.__class__.__name__, len(self.ports))
 
@@ -394,6 +400,7 @@ class BasePort(Root):
 
         self._flow_master = False
         self._flow_direction = None
+        self._flow_side = 0
 
     @staticmethod
     def get_port(guid):
@@ -456,6 +463,26 @@ class BasePort(Root):
         if self.flow_direction == 1:
             return 'SOURCE'
         return 'UNKNOWN'
+
+    @property
+    def flow_side(self):
+        """VL(1), RL(-1), UNKNOWN(0)"""
+        return self._flow_side
+
+    @flow_side.setter
+    def flow_side(self, value):
+        if value not in (-1, 0, 1):
+            raise ValueError("allowed values for flow_side are 1, 0, -1")
+        self._flow_side = value
+        logger.info("Set flow_side for %r to %s" % (self, self.verbose_flow_side))
+
+    @property
+    def verbose_flow_side(self):
+        if self.flow_side == 1:
+            return "VL"
+        if self.flow_side == -1:
+            return "RL"
+        return "UNKNOWN"
 
     def __del__(self):
         del BasePort.objects[self.guid]
@@ -525,6 +552,7 @@ class Element(BaseElement, IFCBased):
         super().__init__(*args, **kwargs)
         self._tool = tool
         self._add_ports()
+        # TODO: set flow_side based on ifc (no official property, but revit (HLS) and tricad (TRICAS-MS) provide it)
 
     def _add_ports(self):
         if not self.ifc.HasPorts:

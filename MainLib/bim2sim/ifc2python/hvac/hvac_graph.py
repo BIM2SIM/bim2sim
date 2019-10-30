@@ -144,8 +144,6 @@ class HvacGraph():
         self.graph.remove_nodes_from(remove)
         self.graph.add_edges_from(inner_connections)
 
-    # def remove_
-
     def get_connections(self):
         """Returns connections between different parent elements"""
         return [edge for edge in self.graph.edges
@@ -160,8 +158,27 @@ class HvacGraph():
 
         if path is provided plot is saved as pdf else it gets displayed"""
         # https://plot.ly/python/network-graphs/
-        graph = self.graph if ports else self.element_graph
-        nx.draw(graph, node_size=6, font_size=5, with_labels=True)
+        colors = {
+            1: 'green',
+            0: 'blue',
+            -1: 'red',
+            None: 'yellow',
+        }
+
+        if ports:
+            graph = self.graph
+            color_map = [colors[port.flow_side] for port in self.graph]
+        else:
+            graph = self.element_graph
+            color_map = []
+            for element in self.element_graph:
+                sides = {port.flow_side for port in element.ports}
+                if len(sides) != 1:
+                    color_map.append(colors[None])
+                else:
+                    color_map.append(colors[sides.pop()])
+
+        nx.draw(graph, node_size=6, font_size=5, with_labels=True, node_color=color_map)
         plt.draw()
         if path:
             name = "%sgraph.pdf"%("port" if ports else "element")
@@ -182,3 +199,33 @@ class HvacGraph():
     def from_serialized(self, data):
         """Sets grapg from serialized data"""
         self.graph = json_graph.adjacency_graph(data)
+
+    def recurse_set_side(self, port, side, known: list = None, raise_error=True):
+        """Recursive set flow_side to connected ports"""
+        if known is None:
+            known = []
+
+        # set side
+        if port.flow_side == 0:
+            port.flow_side = side
+        elif port.flow_side == side:
+            pass
+        else:
+            if raise_error:
+                raise AssertionError("Conflicting flow_side in %r" % port)
+            else:
+                self.logger.error("Conflicting flow_side in %r", port)
+                return
+
+        # mark as known
+        if port in known:
+            return
+        known.append(port)
+
+        # call neighbours
+        for neigh in self.graph.neighbors(port):
+            if (neigh.parent.is_consumer() or neigh.parent.is_generator()) and port.parent is neigh.parent:
+                # switch flag over consumers / generators
+                self.recurse_set_side(neigh, -side, known, raise_error)
+            else:
+                self.recurse_set_side(neigh, side, known, raise_error)

@@ -22,6 +22,9 @@ class Boiler(element.Element):
     #        elif port.flow_direction == -1:
     #            port.flow_master = True
 
+    def is_generator(self):
+        return True
+
     def get_inner_connections(self):
         connections = []
         vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
@@ -58,6 +61,8 @@ class Boiler(element.Element):
                     if use:
                         RL.append(port)
         if len(VL) == 1 and len(RL) == 1:
+            VL[0].flow_side = 1
+            RL[0].flow_side = -1
             connections.append((RL[0], VL[0]))
         else:
             self.logger.warning("Unable to solve inner connections for %s", self)
@@ -168,6 +173,9 @@ class PipeFitting(element.Element):
 
 class SpaceHeater(element.Element):
     ifc_type = 'IfcSpaceHeater'
+
+    def is_consumer(self):
+        return True
 
     @cached_property
     def nominal_power(self):
