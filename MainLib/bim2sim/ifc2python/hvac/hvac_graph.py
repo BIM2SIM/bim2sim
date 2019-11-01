@@ -165,20 +165,29 @@ class HvacGraph():
             None: 'yellow',
         }
 
+        kwargs = {}
         if ports:
             graph = self.graph
-            color_map = [colors[port.flow_side] for port in self.graph]
+            node_color_map = [colors[port.flow_side] for port in self.graph]
+            kwargs['node_color'] = node_color_map
         else:
+            # set connection colors based on flow_side
             graph = self.element_graph
-            color_map = []
-            for element in self.element_graph:
-                sides = {port.flow_side for port in element.ports}
-                if len(sides) != 1:
-                    color_map.append(colors[None])
-                else:
-                    color_map.append(colors[sides.pop()])
+            edge_color_map = []
+            for edge in graph.edges:
+                sides0 = {port.flow_side for port in edge[0].ports}
+                sides1 = {port.flow_side for port in edge[1].ports}
+                side = None
+                # element with multiple sides is usually a consumer / generator (or result of conflicts)
+                # hence side of definite element is used
+                if len(sides0) == 1:
+                    side = sides0.pop()
+                elif len(sides1) == 1:
+                    side = sides1.pop()
+                edge_color_map.append(colors[side])
+            kwargs['edge_color'] = edge_color_map
 
-        nx.draw(graph, node_size=6, font_size=5, with_labels=True, node_color=color_map)
+        nx.draw(graph, node_size=6, font_size=5, with_labels=True, **kwargs)
         plt.draw()
         if path:
             name = "%sgraph.pdf"%("port" if ports else "element")
