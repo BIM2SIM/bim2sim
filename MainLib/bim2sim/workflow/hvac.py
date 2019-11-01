@@ -16,7 +16,7 @@ from bim2sim.ifc2python.aggregation import Aggregation, PipeStrand, UnderfloorHe
 from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
 from bim2sim.ifc2python.hvac import hvac_graph
 from bim2sim.export import modelica
-from bim2sim.decision import Decision
+from bim2sim.decision import Decision, BoolDecision
 from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
 from bim2sim.enrichment_data.data_class import DataClass, Enrich_class
@@ -341,15 +341,9 @@ class Reduce(Workflow):
         self.logger.info("Applied %d aggregations as \"UnderfloorHeating\"", number_fh)
         self.logger.info("Removed %d pipe-like elements", number_pipes)
 
-        # TODO: solve: conflicts, no starting point
-        # this might help for other reduce methods like finding parallel pumps etc. else only for nice plotting
         self.logger.info("Setting flow_sides")
-        for port in graph.get_nodes():
-            if port.flow_side:
-                # use first known side as starting point
-                graph.recurse_set_side(port, port.flow_side, raise_error=False)
-                break
-
+        # this might help for other reduce methods like finding parallel pumps etc. else only for nice plotting
+        self.set_flow_sides(graph)
 
         # Parallel pumps aggregation
         cycles = graph.get_cycles()
@@ -378,6 +372,41 @@ class Reduce(Workflow):
             self.logger.info("Plotting graph ...")
             graph.plot(PROJECT.export)
             graph.plot(PROJECT.export, ports=True)
+
+    @staticmethod
+    def set_flow_sides(graph):
+        """Set flow_side for ports in graph based on known flow_sides"""
+        # TODO: needs testing!
+
+        accepted = []
+        while True:
+            unset_port = None
+            for port in graph.get_nodes():
+                if port.flow_side == 0 and port.connection and port not in accepted:
+                    unset_port = port
+                    break
+            if unset_port:
+                side, suggestions, masters = graph.recurse_set_unknown_sides(unset_port)
+                if side in (-1, 1, 0):  # handle 0 ??
+                    # apply suggestions
+                    for port, side in suggestions.items():
+                        port.flow_side = side
+                elif masters:
+                    # ask user to fix conflicts (and retry in next while loop)
+                    for port in masters:
+                        decision = BoolDecision("Use %r as VL (y) or RL (n)?" % port)
+                        use = decision.decide()
+                        if use:
+                            port.flow_side = 1
+                        else:
+                            port.flow_side = -1
+                else:
+                    # can not be solved (no conflicting masters)
+                    # TODO: ask user?
+                    accepted.extend(suggestions)
+            else:
+                # done
+                break
 
 
 class Enrich(Workflow):

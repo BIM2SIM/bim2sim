@@ -400,7 +400,7 @@ class BasePort(Root):
 
         self._flow_master = False
         self._flow_direction = None
-        self._flow_side = 0
+        self._flow_side = None
 
     @staticmethod
     def get_port(guid):
@@ -467,6 +467,8 @@ class BasePort(Root):
     @property
     def flow_side(self):
         """VL(1), RL(-1), UNKNOWN(0)"""
+        if self._flow_side is None:
+            self._flow_side = self.determine_flow_side()
         return self._flow_side
 
     @flow_side.setter
@@ -483,6 +485,9 @@ class BasePort(Root):
         if self.flow_side == -1:
             return "RL"
         return "UNKNOWN"
+
+    def determine_flow_side(self):
+        return 0
 
     def __del__(self):
         del BasePort.objects[self.guid]
@@ -504,6 +509,8 @@ class BasePort(Root):
 
 class Port(BasePort, IFCBased):
     """Port of Element"""
+    vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
+    rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -537,6 +544,17 @@ class Port(BasePort, IFCBased):
             logger = logging.getLogger('IFCQualityReport')
             logger.info("Suspect position [0, 0, 0] for %s", self)
         return coordinates
+
+    def determine_flow_side(self):
+        """Check groups for hints of flow_side and returns flow_side if hints are definitely"""
+        vl = any(filter(self.vl_pattern.match, self.groups))
+        rl = any(filter(self.rl_pattern.match, self.groups))
+
+        if vl and not rl:
+            return 1
+        if rl and not vl:
+            return -1
+        return 0
 
 
 class Element(BaseElement, IFCBased):

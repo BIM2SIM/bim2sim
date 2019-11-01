@@ -209,27 +209,26 @@ class HvacGraph():
         """Sets grapg from serialized data"""
         self.graph = json_graph.adjacency_graph(data)
 
-    def recurse_set_side(self, port, side, known: list = None, raise_error=True):
+    def recurse_set_side(self, port, side, known: dict = None, raise_error=True):
         """Recursive set flow_side to connected ports"""
         if known is None:
-            known = []
+            known = {}
 
-        # set side
-        if port.flow_side == 0:
-            port.flow_side = side
-        elif port.flow_side == side:
-            pass
+        # set side suggestion
+        is_known = port in known
+        current_side = known.get(port, port.flow_side)
+        if not is_known:
+            known[port] = side
+        elif is_known and current_side == side:
+            return known
         else:
+            # conflict
             if raise_error:
                 raise AssertionError("Conflicting flow_side in %r" % port)
             else:
                 self.logger.error("Conflicting flow_side in %r", port)
-                return
-
-        # mark as known
-        if port in known:
-            return
-        known.append(port)
+                known[port] = None
+                return known
 
         # call neighbours
         for neigh in self.graph.neighbors(port):
@@ -238,3 +237,46 @@ class HvacGraph():
                 self.recurse_set_side(neigh, -side, known, raise_error)
             else:
                 self.recurse_set_side(neigh, side, known, raise_error)
+
+        return known
+
+    def recurse_set_unknown_sides(self, port, visited: dict = None, masters: list = None):
+        """Recursive checks neighbours flow_side.
+        :returns tuple of
+            common flow_side (None if conflict)
+            dict of checked ports: side
+            list of ports on which flow_side s are determined"""
+        if visited is None:
+            visited = {}
+        if masters is None:
+            masters = []
+
+        # mark as visited to prevent deadloops
+        visited[port] = port.flow_side
+
+        if port.flow_side in (-1, 1):
+            # use port with known flow_side as master
+            masters.append(port)
+            return port.flow_side, visited, masters
+
+        # call neighbours
+        neighbour_sides = {}
+        for neigh in self.graph.neighbors(port):
+            if neigh not in visited:
+                if (neigh.parent.is_consumer() or neigh.parent.is_generator()) and port.parent is neigh.parent:
+                    # switch flag over consumers / generators
+                    side, _, _ = self.recurse_set_unknown_sides(neigh, visited, masters)
+                    side = -side
+                else:
+                    side, _, _ = self.recurse_set_unknown_sides(neigh, visited, masters)
+                neighbour_sides[neigh] = side
+
+        sides = set(neighbour_sides.values())
+        if len(sides) == 1:
+            # all neighbours have same site
+            side = sides.pop()
+            visited[port] = side
+            return side, visited, masters
+        else:
+            # conflict
+            return None, visited, masters
