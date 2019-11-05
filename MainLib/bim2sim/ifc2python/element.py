@@ -547,8 +547,22 @@ class Port(BasePort, IFCBased):
 
     def determine_flow_side(self):
         """Check groups for hints of flow_side and returns flow_side if hints are definitely"""
-        vl = any(filter(self.vl_pattern.match, self.groups))
-        rl = any(filter(self.rl_pattern.match, self.groups))
+        vl = None
+        rl = None
+        if self.parent.is_generator():
+            if self.flow_direction == 1:
+                vl = True
+            elif self.flow_direction == -1:
+                rl = True
+        elif self.parent.is_consumer():
+            if self.flow_direction == 1:
+                rl = True
+            elif self.flow_direction == -1:
+                vl = True
+        if not vl:
+            vl = any(filter(self.vl_pattern.match, self.groups))
+        if not rl:
+            rl = any(filter(self.rl_pattern.match, self.groups))
 
         if vl and not rl:
             return 1
@@ -573,16 +587,18 @@ class Element(BaseElement, IFCBased):
         # TODO: set flow_side based on ifc (no official property, but revit (HLS) and tricad (TRICAS-MS) provide it)
 
     def _add_ports(self):
-        if not self.ifc.HasPorts:
+        for nested in self.ifc.IsNestedBy:
             # valid for IFC for Revit v19.2.0.0
-            element_port_connections = self.ifc.IsNestedBy[0].RelatedObjects
-            for element_port_connection in element_port_connections:
-                self.ports.append(Port(parent=self, ifc=element_port_connection))
-        else:
-            # valid for IFC for Revit v19.1.0.0
-            element_port_connections = self.ifc.HasPorts
-            for element_port_connection in element_port_connections:
-                self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
+            for element_port_connection in nested.RelatedObjects:
+                if element_port_connection.is_a() == 'IfcDistributionPort':
+                    self.ports.append(Port(parent=self, ifc=element_port_connection))
+                else:
+                    self.logger.warning("Not included %s as Port in %s", element_port_connection.is_a(), self)
+
+        # valid for IFC for Revit v19.1.0.0
+        element_port_connections = self.ifc.HasPorts
+        for element_port_connection in element_port_connections:
+            self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
 
     @staticmethod
     def _init_factory():

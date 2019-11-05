@@ -345,19 +345,20 @@ class Reduce(Workflow):
         # this might help for other reduce methods like finding parallel pumps etc. else only for nice plotting
         self.set_flow_sides(graph)
 
-        # Parallel pumps aggregation
-        cycles = graph.get_cycles()
-
-        New_cycles = cycles_reduction(cycles)
-
+        # # Parallel pumps aggregation
+        # cycles = graph.get_cycles()
+        #
+        # New_cycles = cycles_reduction(cycles)
+        #
         number_pp = 0
-        for cycle in New_cycles:
-            number_pp += 1
-            parallelpump = ParallelPump("ParallelPump%d" % number_pp, cycle["elements"], cycle)
-            graph.merge(
-                mapping=parallelpump.get_replacement_mapping(),
-                inner_connections=parallelpump.get_inner_connections())
-        self.logger.info("Applied %d aggregations as \"ParallelPump\"", number_pp)
+        # for cycle in New_cycles:
+        #     number_pp += 1
+        #     parallelpump = ParallelPump("ParallelPump%d" % number_pp, cycle["elements"], cycle)
+        #     graph.merge(
+        #         mapping=parallelpump.get_replacement_mapping(),
+        #         inner_connections=parallelpump.get_inner_connections())
+        # self.logger.info("Applied %d aggregations as \"ParallelPump\"", number_pp)
+
         number_of_nodes_new = len(graph.element_graph.nodes)
         self.logger.info(
             "Applied %d aggregations which reduced"
@@ -377,7 +378,7 @@ class Reduce(Workflow):
     def set_flow_sides(graph):
         """Set flow_side for ports in graph based on known flow_sides"""
         # TODO: needs testing!
-
+        # TODO: at least one master element required
         accepted = []
         while True:
             unset_port = None
