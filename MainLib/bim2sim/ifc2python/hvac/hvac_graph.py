@@ -114,7 +114,10 @@ class HvacGraph():
 
         chain_lists = []
         # order elements as connected
-        for subgraph in nx.connected_component_subgraphs(subgraph_aggregations):
+
+        for component in nx.connected_components(subgraph_aggregations):
+            subgraph = subgraph_aggregations.subgraph(component).copy()
+        # for subgraph in nx.connected_component_subgraphs(subgraph_aggregations):  # marked as deprecated in nx 2.1
             end_nodes = [v for v, d in subgraph.degree() if d == 1]
 
             if len(end_nodes) != 2:
@@ -240,19 +243,20 @@ class HvacGraph():
 
         return known
 
-    def recurse_set_unknown_sides(self, port, visited: dict = None, masters: list = None):
+    def recurse_set_unknown_sides(self, port, visited: list = None, masters: list = None):
         """Recursive checks neighbours flow_side.
         :returns tuple of
             common flow_side (None if conflict)
-            dict of checked ports: side
+            list of checked ports
             list of ports on which flow_side s are determined"""
+
         if visited is None:
-            visited = {}
+            visited = []
         if masters is None:
             masters = []
 
         # mark as visited to prevent deadloops
-        visited[port] = port.flow_side
+        visited.append(port)
 
         if port.flow_side in (-1, 1):
             # use port with known flow_side as master
@@ -270,12 +274,18 @@ class HvacGraph():
                 else:
                     side, _, _ = self.recurse_set_unknown_sides(neigh, visited, masters)
                 neighbour_sides[neigh] = side
+            # else:
+            #     print(neigh, neigh.flow_side)
 
         sides = set(neighbour_sides.values())
-        if len(sides) == 1:
+        if not sides:
+            return port.flow_side, visited, masters
+        elif len(sides) == 1:
             # all neighbours have same site
             side = sides.pop()
-            visited[port] = side
+            return side, visited, masters
+        elif len(sides) == 2 and 0 in sides:
+            side = (sides - {0}).pop()
             return side, visited, masters
         else:
             # conflict

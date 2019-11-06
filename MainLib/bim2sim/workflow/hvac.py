@@ -383,15 +383,18 @@ class Reduce(Workflow):
         while True:
             unset_port = None
             for port in graph.get_nodes():
-                if port.flow_side == 0 and port.connection and port not in accepted:
+                if port.flow_side == 0 and graph.graph[port] and port not in accepted:
                     unset_port = port
                     break
             if unset_port:
-                side, suggestions, masters = graph.recurse_set_unknown_sides(unset_port)
-                if side in (-1, 1, 0):  # handle 0 ??
+                side, visited, masters = graph.recurse_set_unknown_sides(unset_port)
+                if side in (-1, 1):
                     # apply suggestions
-                    for port, side in suggestions.items():
+                    for port in visited:
                         port.flow_side = side
+                elif side == 0:
+                    # TODO: ask user?
+                    accepted.extend(visited)
                 elif masters:
                     # ask user to fix conflicts (and retry in next while loop)
                     for port in masters:
@@ -404,9 +407,10 @@ class Reduce(Workflow):
                 else:
                     # can not be solved (no conflicting masters)
                     # TODO: ask user?
-                    accepted.extend(suggestions)
+                    accepted.extend(visited)
             else:
                 # done
+                logging.info("Flow_side set")
                 break
 
 

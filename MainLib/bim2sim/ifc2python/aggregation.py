@@ -19,6 +19,9 @@ class AggregationPort(BasePort):
         super().__init__(*args, **kwargs)
         self.original = original
 
+    # def determine_flow_side(self):
+        # return self.original.determine_flow_side()
+
     def calc_position(self):
         """Position of original port"""
         return self.original.position
