@@ -164,3 +164,35 @@ def get_natural_position(ifc_element):
     #     natural_position = 'Horizontal'
 
     return natural_position
+
+
+def get_polygon(ifc_element):
+    vertices = []
+    tolerance = [[0.5, 0.5], [0.5, -0.5], [-0.5, -0.5], [-0.5, 0.5]]
+    representation = Element.factory(ifc_element)
+    settings = ifcopenshell.geom.settings()
+    #point + tolerance
+    if 'IfcWindow' in str(ifc_element):
+        for i in tolerance:
+            i_new = [i[0] + representation.position[0], i[1] + representation.position[1]]
+            vertices.append(i_new)
+    #polygon
+    else:
+        shape = ifcopenshell.geom.create_shape(settings, ifc_element)
+        i = 0
+        while i < len(shape.geometry.verts):
+            vertices.append((shape.geometry.verts[i] + representation.position[0],
+                             shape.geometry.verts[i + 1] + representation.position[1]))
+            i += 3
+    vertices2 = list(dict.fromkeys(vertices))
+    vertices2.sort(key=lambda tup: tup[0])
+    vertices2.append(vertices2[0])
+
+    pol = Polygon(vertices)
+    pol2 = Polygon(vertices2)
+    plt.plot(*pol.exterior.xy)
+    plt.show()
+    plt.plot(*pol2.exterior.xy)
+    plt.show()
+    # return Polygon(vertices).exterior
+    return Polygon(vertices)

@@ -9,6 +9,9 @@ from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import element
 from bim2sim.decision import BoolDecision
 import re
+from bim2sim.ifc2python.element import Element
+from shapely.geometry import Point
+import matplotlib.pyplot as plt
 
 IFC_TYPES_BPS = (
     'IfcBuilding',
@@ -362,9 +365,9 @@ class ThermalSpace(element.Element):
         return 1
 
 
-
 class Wall(element.Element):
     ifc_type = "IfcWall"
+    # ifc_type = 'IfcWallStandardCase'
 
     @cached_property
     def Pset_WallCommon(self):
@@ -372,7 +375,7 @@ class Wall(element.Element):
 
     @property
     def area(self):
-        return 1
+        return self.get_properties()
 
     @property
     def u_value(self):

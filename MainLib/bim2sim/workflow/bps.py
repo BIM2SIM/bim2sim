@@ -24,6 +24,8 @@ from bim2sim.workflow.bps_f import bps_functions
 
 IFC_TYPES = (
     # 'IfcBuilding',
+    'IfcWallElementedCase',
+    'IfcWallStandardCase',
     'IfcWall',
     'IfcWindow',
     'IfcSpace'
@@ -31,8 +33,7 @@ IFC_TYPES = (
 
     'IfcBuildingStorey',
     'IfcRoof',
-    'IfcWallElementedCase',
-    'IfcWallStandardCase',
+
     'IfcRoof',
     'IfcShadingDevice',
     'IfcPlate',
@@ -55,13 +56,57 @@ class Inspect(Workflow):
         self.logger.info("Creates python representation of relevant ifc types")
 
         # Building and exterior orientations
-
-        external_walls = []
+        settings = ifcopenshell.geom.settings()
         walls = ifc.by_type('IfcWall')
-        slabs = ifc.by_type('IfcSlab')
+        storeys_elements = {}
+        tolerance = [[0.5, 0.5], [0.5, -0.5], [-0.5, -0.5], [-0.5, 0.5]]
 
-        p1, p2, p3, p4, cardinal_direction = bps_functions.find_building_polygon(slabs)
-        building_envelope = bps_functions.find_building_envelope(p1, p2, p3, p4)
+        storeys = ifc.by_type('IfcBuildingStorey')
+        for storey in storeys:
+            externals = []
+            spaces = {}
+            # for ele in storey.ContainsElements[0].RelatedElements:
+            #     if 'IfcWall' in str(ele):
+            #         representation = Element.factory(ele)
+            #         if representation.is_external is True:
+            #             externals.append(ele)
+            #         else:
+            #             self.instances_bps[representation.guid] = representation
+            #     elif 'IfcWindow' in str(ele):
+            #         representation = Element.factory(ele)
+            #         if representation.is_external is True:
+            #             externals.append(ele)
+            #         else:
+            #             self.instances_bps[representation.guid] = representation
+            if len(storey.IsDecomposedBy) != 0:
+                for space in storey.IsDecomposedBy[0].RelatedObjects:
+                    space_ = []
+                    ps = bps_functions.get_polygon(space)
+                    # plt.plot(*ps.exterior.xy)
+                    # plt.show()
+                    # for ele in externals:
+                    #     pw = bps_functions.get_polygon(ele)
+                    #     # plt.plot(*pw.xy, 'k')
+                    #     if pw.intersects(ps) or ps.contains(pw):
+                    #         space_.append(ele)
+                    #         # plt.plot(*pw.xy)
+                    # # plt.show()
+                    # spaces[str(space)] = space_
+
+            # storeys_elements[str(storey)] = spaces
+
+
+
+
+
+        for space in spaces:
+            # centroid = Point(representation.position[0:2])
+            centroid = bps_functions.get_centroid(space)
+            plt.plot(*centroid.xy, marker='x')
+        # slabs = ifc.by_type('IfcSlab')
+
+        # p1, p2, p3, p4, cardinal_direction = bps_functions.find_building_polygon(slabs)
+        # building_envelope = bps_functions.find_building_envelope(p1, p2, p3, p4)
 
         for wall in walls:
             representation = Element.factory(wall)
@@ -72,18 +117,32 @@ class Inspect(Workflow):
 
         for wall in external_walls:
             representation = Element.factory(wall)
-            centroid = bps_functions.get_centroid(wall)
+            location = Point(representation.position[0:2])
+            plt.plot(*location.xy, marker='x')
+            space_elements = []
+            elemets = wall.ContainedInStructure[0].RelatedElements
+            for ele in elemets:
+                if ('IfcWall' in str(ele)) or ('IfcWindow' in str(ele)):
+                    representation = Element.factory(ele)
+                    location = Point(representation.position[0:2])
+                    plt.plot(*location.xy, marker='o')
+            plt.show()
+
+
+
+            # centroid = bps_functions.get_centroid(wall)
             # plt.plot(*centroid.xy, marker='o')
-            wall.Representation.Description = bps_functions.get_orientation\
-                (building_envelope, centroid, cardinal_direction)
+            # wall.Representation.Description = bps_functions.get_orientation\
+            #     (building_envelope, centroid, cardinal_direction)
             self.instances_bps[representation.guid] = representation
 
         # plt.plot(*building_envelope[0].exterior.xy)
         # plt.plot(*building_envelope[1].exterior.xy)
         # plt.plot(*building_envelope[2].exterior.xy)
         # plt.plot(*building_envelope[3].exterior.xy)
-        # plt.show()
 
+
+        ######
         external_windows = []
         windows = ifc.by_type('IfcWindow')
         for window in windows:
