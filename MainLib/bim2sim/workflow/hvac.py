@@ -337,6 +337,10 @@ class Reduce(Workflow):
         number_fh = 0
         number_pipes = 0
 
+        # Parallel pumps aggregation
+        cycles = graph.get_cycles()
+        New_cycles = cycles_reduction(cycles)
+
         chains = graph.get_type_chains(PipeStrand.aggregatable_elements, include_singles=True)
         for chain in chains:
             underfloorheating = UnderfloorHeating.create_on_match("UnderfloorHeating%d" % (number_fh + 1), chain)

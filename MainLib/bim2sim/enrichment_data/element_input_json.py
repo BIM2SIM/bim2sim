@@ -1,5 +1,3 @@
-import inspect
-
 def load_element_ifc(element, ele_ifc, enrich_parameter, parameter_value, dataclass):
     """
     this function fills a data class object, with the information found in the
@@ -22,7 +20,7 @@ def load_element_class(instance, enrich_parameter, parameter_value, dataclass):
     """
     attrs_enrich = {}
     ele_class = str(instance.__class__)[
-                         str(instance.__class__).rfind(".") + 1:str(instance.__class__).rfind("'")]
+                str(instance.__class__).rfind(".") + 1:str(instance.__class__).rfind("'")]
     binding = dataclass.element_bind
 
     for a in binding:
@@ -34,6 +32,3 @@ def load_element_class(instance, enrich_parameter, parameter_value, dataclass):
 
     return attrs_enrich
 
-
-
-# def finder_enrichment(element, name):

@@ -436,7 +436,6 @@ def cycles_reduction(cycles):
     finally it creates a list with the founded cycles with the next lists:
     'elements', 'up_strand', 'low_strand', 'ports'
     """
-
     for cycle in cycles:
         length_cycle = len(cycle)
         cycle.append([])
@@ -471,6 +470,9 @@ def cycles_reduction(cycles):
             length = length - 1
             continue
         i = i + 1
+
+    ###changes
+
     New_cycles = []
     n_cycle = 0
     for cycle in cycles:
