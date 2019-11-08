@@ -11,25 +11,27 @@ from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import ifc2python
 from bim2sim.decision import Decision, BoolDecision, RealDecision, ListDecision, DictDecision, PendingDecisionError
 
-
 logger = logging.getLogger(__name__)
 
 
 class ElementError(Exception):
     """Error in Element"""
+
+
 class NoValueError(ElementError):
     """Value is not available"""
 
 
 class ElementEncoder(JSONEncoder):
     """Encoder class for Element"""
-    #TODO: make Elements serializable and deserializable.
+
+    # TODO: make Elements serializable and deserializable.
     # Ideas: guid to identify, (factory) method to (re)init by guid
     # mayby weakref to other elements (Ports, connections, ...)
 
     def default(self, o):
         if isinstance(o, Element):
-            return "<Element(%s)>"%(o.guid)
+            return "<Element(%s)>" % (o.guid)
         return JSONEncoder.default()
 
 
@@ -109,18 +111,19 @@ class Root:
 
     def search(self, name, collect_decisions=False):
         """Search all potential sources for property (potentially time consuming)"""
-        raise NoValueError("'%s' is not available"%name)
+        raise NoValueError("'%s' is not available" % name)
 
     def find(self, name, collect_decisions=False):
         """Check for known property value. Calls search() if unknown"""
         # check if property is known
+        print(self.__class__)
         if name in self.properties:
             return self.properties[name]
         if collect_decisions:
             if name in self._requests:
                 raise PendingDecisionError
-            #self.request(name)
-        #elif name in self._requests:
+            # self.request(name)
+        # elif name in self._requests:
         #    self._requests.remove(name)
 
         # search for property
@@ -261,7 +264,7 @@ class IFCBased(Root):
             p_set = self.search_property_hierarchy(propertyset_name)
             value = p_set[property_name]
         except (AttributeError, KeyError, TypeError):
-            raise NoValueError("Property '%s.%s' does not exist"%(
+            raise NoValueError("Property '%s.%s' does not exist" % (
                 propertyset_name, property_name))
         return value
 
@@ -277,32 +280,32 @@ class IFCBased(Root):
                 value = self.get_exact_property(propertyset_name, property_name)
                 values.append(value)
                 choices.append((propertyset_name, property_name))
-                #print("%s.%s = %s"%(propertyset_name, property_name, value))
+                # print("%s.%s = %s"%(propertyset_name, property_name, value))
 
             # TODO: Decision: save for all following elements of same class (dont ask again?)
             # selected = (propertyset_name, property_name, value)
 
             # TODO: Decision with id, key, value
             decision = DictDecision("Multiple possibilities found",
-                choices=dict(zip(choices, values)),
-                output=self.properties, 
-                output_key=name,
-                global_key="%s_%s.%s"%(self.ifc_type, self.guid, name),
-                allow_skip=True, allow_load=True, allow_save=True,
-                collect=collect_decisions, quick_decide=not collect_decisions)
+                                    choices=dict(zip(choices, values)),
+                                    output=self.properties,
+                                    output_key=name,
+                                    global_key="%s_%s.%s" % (self.ifc_type, self.guid, name),
+                                    allow_skip=True, allow_load=True, allow_save=True,
+                                    collect=collect_decisions, quick_decide=not collect_decisions)
 
             if collect_decisions:
                 raise PendingDecisionError()
 
             return decision.value
-        raise NoValueError("No matching property for %s"%(patterns))
+        raise NoValueError("No matching property for %s" % (patterns))
 
-    def search(self, name, collect_decisions = False):
+    def search(self, name, collect_decisions=False):
         """Search all potential sources for property (potentially time consuming)"""
-
+        # 1. for what?
         try:
             propertyset_name, property_name = getattr(
-                self.__class__, 'default_%s'%name, (None, None))
+                self.__class__, 'default_%s' % name, (None, None))
             if not (propertyset_name and property_name):
                 raise NoValueError
             value = self.get_exact_property(propertyset_name, property_name)
@@ -310,7 +313,7 @@ class IFCBased(Root):
             pass
         else:
             return value
-
+        # 2. find property in ifc, doesnt use 1.
         try:
             value = self.finder.find(self, name)
         except AttributeError:
@@ -318,24 +321,33 @@ class IFCBased(Root):
         else:
             if not value is None:
                 return value
-
+        # 3. use enrich, if it exists
         try:
-            patterns = getattr(self.__class__, 'pattern_%s'%name, None)
-            if not patterns:
-                raise NoValueError("No patterns")
-            value = self.select_from_potential_properties(patterns, name, collect_decisions)
-        except NoValueError:
+            value = self.enrichment_data[name]
+        except KeyError:
             pass
         else:
-            return value
+            if not value is None:
+                return value
 
-        final_decision = RealDecision("Enter value for %s of %s"%(name, self.name),
-            validate_func=lambda x:isinstance(x, float), # TODO
-            output=self.properties, 
-            output_key=name,
-            global_key="%s_%s.%s"%(self.ifc_type, self.guid, name),
-            allow_skip=True, allow_load=True, allow_save=True,
-            collect=collect_decisions, quick_decide=not collect_decisions)
+                # Not implemented yed?
+        # try:
+        #     patterns = getattr(self.__class__, 'pattern_%s'%name, None)
+        #     if not patterns:
+        #         raise NoValueError("No patterns")
+        #     value = self.select_from_potential_properties(patterns, name, collect_decisions)
+        # except NoValueError:
+        #     pass
+        # else:
+        #     return value
+
+        final_decision = RealDecision("Enter value for %s of %s" % (name, self.name),
+                                      validate_func=lambda x: isinstance(x, float),  # TODO
+                                      output=self.properties,
+                                      output_key=name,
+                                      global_key="%s_%s.%s" % (self.ifc_type, self.guid, name),
+                                      allow_skip=True, allow_load=True, allow_save=True,
+                                      collect=collect_decisions, quick_decide=not collect_decisions)
 
         if collect_decisions:
             raise PendingDecisionError()
@@ -343,7 +355,7 @@ class IFCBased(Root):
         return value
 
     def __repr__(self):
-        return "<%s (%s)>"%(self.__class__.__name__, self.name)
+        return "<%s (%s)>" % (self.__class__.__name__, self.name)
 
 
 class BaseElement(Root):
@@ -382,7 +394,7 @@ class BaseElement(Root):
         return False
 
     def __repr__(self):
-        return "<%s (ports: %d)>"%(self.__class__.__name__, len(self.ports))
+        return "<%s (ports: %d)>" % (self.__class__.__name__, len(self.ports))
 
     def __str__(self):
         return self.__class__.__name__
@@ -412,7 +424,7 @@ class BasePort(Root):
     def connect(self, other):
         """Connect this interface bidirectional to another interface"""
         assert isinstance(other, BasePort), "Can't connect interfaces" \
-                                                  " of different classes."
+                                            " of different classes."
         # if self.flow_direction == 'SOURCE' or \
         #         self.flow_direction == 'SOURCEANDSINK':
         if self.connection and self.connection is not other:
@@ -496,12 +508,12 @@ class BasePort(Root):
         if self.parent:
             try:
                 idx = self.parent.ports.index(self)
-                return "<%s #%d of %s)>"%(
+                return "<%s #%d of %s)>" % (
                     self.__class__.__name__, idx, self.parent)
             except ValueError:
-                return "<%s (broken parent: %s)>"%(
+                return "<%s (broken parent: %s)>" % (
                     self.__class__.__name__, self.parent)
-        return "<%s (*abandoned*)>"%(self.__class__.__name__)
+        return "<%s (*abandoned*)>" % (self.__class__.__name__)
 
     def __str__(self):
         return self.__repr__()[1:-2]
@@ -625,11 +637,11 @@ class Element(BaseElement, IFCBased):
         if conflict:
             raise AssertionError("Conflict(s) in Models. (See log for details).")
 
-        #Model.dummy = Model.ifc_classes['any']
+        # Model.dummy = Model.ifc_classes['any']
         if not Element._ifc_classes:
             raise ElementError("Failed to initialize Element factory. No elements found!")
 
-        model_txt = "\n".join(" - %s"%(model) for model in Element._ifc_classes)
+        model_txt = "\n".join(" - %s" % (model) for model in Element._ifc_classes)
         logger.debug("IFC model factory initialized with %d ifc classes:\n%s",
                      len(Element._ifc_classes), model_txt)
 
@@ -664,7 +676,7 @@ class Element(BaseElement, IFCBased):
         return neighbors
 
     def __repr__(self):
-        return "<%s (ports: %d, guid=%s)>"%(
+        return "<%s (ports: %d, guid=%s)>" % (
             self.__class__.__name__, len(self.ports), self.guid)
 
     def __str__(self):
@@ -673,7 +685,8 @@ class Element(BaseElement, IFCBased):
 
 class Dummy(Element):
     """Dummy for all unknown elements"""
-    #ifc_type = 'any'
+
+    # ifc_type = 'any'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -686,5 +699,7 @@ class Dummy(Element):
 
     def __str__(self):
         return "Dummy '%s'" % self.name
+
+
 # import Element classes for Element.factory
 import bim2sim.ifc2python.elements

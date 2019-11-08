@@ -42,42 +42,6 @@
             }
         }
     },
-    "Pipe": {
-        "class": "Pipe",
-        "statistical_year": {
-            "2000": {
-                "name": "Pipe_enrichment_2000",
-                "Pset_PipeSegmentTypeCommon": null,
-                "diameter": 3,
-                "length": 4
-            },
-            "2004": {
-                "name": "Pipe_enrichment_2004",
-                "Pset_PipeSegmentTypeCommon": null,
-                "diameter": null,
-                "length": null
-            }
-        }
-    },
-    "PipeFitting": {
-        "class": "PipeFitting",
-        "statistical_year": {
-            "2000": {
-                "name": "PipeFitting_enrichment_2000",
-                "Pset_PipeFittingTypeCommon": null,
-                "diameter": 3,
-                "length": 4,
-                "pressure_class": null
-            },
-            "2004": {
-                "name": "PipeFitting_enrichment_2004",
-                "Pset_PipeFittingTypeCommon": null,
-                "diameter": null,
-                "length": null,
-                "pressure_class": null
-            }
-        }
-    },
     "SpaceHeater": {
         "class": "SpaceHeater",
         "statistical_year": {
@@ -93,96 +57,6 @@
             }
         }
     },
-    "StorageDevice": {
-        "class": "StorageDevice",
-        "statistical_year": {
-            "2000": {
-                "name": "StorageDevice_enrichment_2000"
-            },
-            "2004": {
-                "name": "StorageDevice_enrichment_2004"
-            }
-        }
-    },
-    "Storage": {
-        "class": "Storage",
-        "statistical_year": {
-            "2000": {
-                "name": "Storage_enrichment_2000",
-                "storage_type": null,
-                "height": null,
-                "diameter": null,
-                "port_positions": null,
-                "volume": null
-            },
-            "2004": {
-                "name": "Storage_enrichment_2004",
-                "storage_type": null,
-                "height": null,
-                "diameter": null,
-                "port_positions": null,
-                "volume": null
-            }
-        }
-    },
-    "Valve": {
-        "class": "Valve",
-        "statistical_year": {
-            "2000": {
-                "name": "Valve_enrichment_2000",
-                "diameter": null,
-                "length": null
-            },
-            "2004": {
-                "name": "Valve_enrichment_2004",
-                "diameter": null,
-                "length": null
-            }
-        }
-    },
-    "Duct": {
-        "class": "Duct",
-        "statistical_year": {
-            "2000": {
-                "name": "Duct_enrichment_2000",
-                "diameter": null,
-                "length": null
-            },
-            "2004": {
-                "name": "Duct_enrichment_2004",
-                "diameter": null,
-                "length": null
-            }
-        }
-    },
-    "DuctFitting": {
-        "class": "DuctFitting",
-        "statistical_year": {
-            "2000": {
-                "name": "DuctFitting_enrichment_2000",
-                "diameter": null,
-                "length": null
-            },
-            "2004": {
-                "name": "DuctFitting_enrichment_2004",
-                "diameter": null,
-                "length": null
-            }
-        }
-    },
-    "AirTerminal": {
-        "class": "AirTerminal",
-        "statistical_year": {
-            "2000": {
-                "name": "AirTerminal_enrichment_2000",
-                "diameter": null
-            },
-            "2004": {
-                "name": "AirTerminal_enrichment_2004",
-                "diameter": null
-            }
-        }
-    },
     "ThermalZones": {
         "class": "ThermalZones",
         "statistical_year": {
@@ -191,68 +65,6 @@
             },
             "2004": {
                 "name": "ThermalZones_enrichment_2004"
-            }
-        }
-    },
-    "Medium": {
-        "class": "Medium",
-        "statistical_year": {
-            "2000": {
-                "name": "Medium_enrichment_2000"
-            },
-            "2004": {
-                "name": "Medium_enrichment_2004"
-            }
-        }
-    },
-    "Wall": {
-        "class": "Wall",
-        "statistical_year": {
-            "2000": {
-                "name": "Wall_enrichment_2000",
-                "area": null,
-                "capacity": null,
-                "u_value": null
-            },
-            "2004": {
-                "name": "Wall_enrichment_2004",
-                "area": null,
-                "capacity": null,
-                "u_value": null
-            }
-        }
-    },
-    "OuterWall": {
-        "class": "OuterWall",
-        "statistical_year": {
-            "2000": {
-                "name": "OuterWall_enrichment_2000",
-                "area": null,
-                "capacity": null,
-                "u_value": null
-            },
-            "2004": {
-                "name": "OuterWall_enrichment_2004",
-                "area": null,
-                "capacity": null,
-                "u_value": null
-            }
-        }
-    },
-    "Window": {
-        "class": "Window",
-        "statistical_year": {
-            "2000": {
-                "name": "Window_enrichment_2000",
-                "area": null,
-                "u_value": null,
-                "g_value": null
-            },
-            "2004": {
-                "name": "Window_enrichment_2004",
-                "area": null,
-                "u_value": null,
-                "g_value": null
             }
         }
     }

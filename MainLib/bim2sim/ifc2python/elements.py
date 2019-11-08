@@ -79,20 +79,20 @@ class Boiler(element.Element):
     def min_power(self):
         """min_power: float
             Minimum power that boiler operates at."""
-        return None
+        return self.find('min_power')
 
     @cached_property
     def rated_power(self):
         """rated_power: float
             Rated power of boiler."""
-        return None
+        return self.find('rated_power')
 
     @cached_property
     def efficiency(self):
         """efficiency: list
             Efficiency of boiler provided as list with pairs of [
             percentage_of_rated_power,efficiency]"""
-        return None
+        return self.find('efficiency')
 
 
 class Pipe(element.Element):
@@ -136,11 +136,11 @@ class Pipe(element.Element):
                     if item.is_a() == 'IfcExtrudedAreaSolid':
                         candidates.append(item.Depth)
         except:
-            raise AttributeError("Failed to dertermine length.")
+            raise AttributeError("Failed to determine length.")
         if not candidates:
-            raise AttributeError("No representation to dertermine length.")
+            raise AttributeError("No representation to determine length.")
         if len(candidates) > 1:
-            raise AttributeError("Too many representations to dertermine length %s."%candidates)
+            raise AttributeError("Too many representations to determine length %s."%candidates)
         return candidates[0]
 
 

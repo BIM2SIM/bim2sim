@@ -22,6 +22,9 @@ class AixLib(BIM2SIMManager):
             inspect.run(self.task, self.ifc, hvac.IFC_TYPES)
             inspect.save(PROJECT.workflow)
 
+        enrich = hvac.Enrich()
+        enrich.run(inspect.instances, "statistical_year", "2004")
+
         makegraph = hvac.MakeGraph()
         if not makegraph.load(PROJECT.workflow):
             makegraph.run(self.task, list(inspect.instances.values()))
@@ -29,9 +32,6 @@ class AixLib(BIM2SIMManager):
 
         reduce = hvac.Reduce()
         reduce.run(self.task, makegraph.graph)
-
-        enrich = hvac.Enrich()
-        enrich.run(self.task, reduce.reduced_instances, "statistical_year", "2000", "class")
 
         libraries = (standardlibrary.StandardLibrary, )
         export = hvac.Export()

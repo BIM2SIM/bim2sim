@@ -34,9 +34,9 @@ class Task:
 
         # TODO: defaults should come from Task child classes
         config = get_config()
-        self.pipes = LOD(config['Aggregation'].getint('Pipes', 2))
-        self.underfloorheatings = LOD(config['Aggregation'].getint('UnderfloorHeating', 2))
-        self.pumps = LOD(config['Aggregation'].getint('Pumps', 2))
+        # self.pipes = LOD(config['Aggregation'].getint('Pipes', 2))
+        # self.underfloorheatings = LOD(config['Aggregation'].getint('UnderfloorHeating', 2))
+        # self.pumps = LOD(config['Aggregation'].getint('Pumps', 2))
 
 
 class PlantSimulation(Task):

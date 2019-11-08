@@ -2,7 +2,6 @@ import os
 import sys
 import json
 from bim2sim.project import PROJECT as project
-import inspect
 
 v = sys.version_info
 if v >= (2, 7):
@@ -12,14 +11,6 @@ if v >= (2, 7):
         FileNotFoundError = IOError
 
 # elements_data = inspect.getmembers(elements)
-
-
-class Enrich_class(object):
-    """
-    Data class object, for storing the information obtained from the enrichment
-    data (for the enrichment of 1 element)
-    """
-    pass
 
 
 class DataClass(object):
@@ -53,48 +44,3 @@ class DataClass(object):
                     print("Your TypeElements file seems to be broken.")
         else:
             print("Your TypeElements file has the wrong format.")
-
-    def json_filler(self, elements_data):
-        data_update = json.load(open(self.path_te))
-        default = None
-        new_data = dict(data_update)
-        for a in data_update:
-            for b in data_update[a]:
-                if b != "class" and b != "ifc_type":
-                    for c in data_update[a][b]:
-                        for obj in elements_data:
-                            name = obj
-                            if inspect.isclass(elements_data[obj]):
-                                if name not in new_data:
-                                    if name != "cached_property":
-                                        new_data[name] = {}
-                                        new_data[name]["class"] = name
-                                        if hasattr(obj, "ifc_type"):
-                                            new_data[name]["ifc_type"] = elements_data[obj].ifc_type
-                                        new_data[name][b] = {}
-                                        new_data[name][b][c] = {}
-                                        new_data[name][b][c]["name"] = name + "_enrichment_" + c
-                                        parameters = elements_data[obj].findables
-                                        for parameter in parameters:
-                                            new_data[name][b][c][parameter] = default
-                                else:
-                                    if b not in new_data[name]:
-                                        new_data[name][b] = {}
-                                    if c not in new_data[name][b]:
-                                        new_data[name][b][c] = {}
-                                        new_data[name][b][c]["name"] = name + "_enrichment_" + c
-                                        parameters = elements_data[obj].findables
-                                        for parameter in parameters:
-                                            new_data[name][b][c][parameter] = default
-                                    else:
-                                        parameters = elements_data[obj].findables
-                                        for parameter in parameters:
-                                            if parameter not in new_data[name][b][c]:
-                                                new_data[name][b][c][parameter] = default
-
-        with open(self.path_te, 'w') as f:
-            json.dump(new_data, f, indent=4)
-
-
-
-
