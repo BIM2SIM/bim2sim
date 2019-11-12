@@ -487,8 +487,13 @@ class BasePort(Root):
     def flow_side(self, value):
         if value not in (-1, 0, 1):
             raise ValueError("allowed values for flow_side are 1, 0, -1")
+        previous = self._flow_side
         self._flow_side = value
-        logger.info("Set flow_side for %r to %s" % (self, self.verbose_flow_side))
+        if previous:
+            if previous != value:
+                logger.info("Overwriting flow_side for %r with %s" % (self, self.verbose_flow_side))
+        else:
+            logger.debug("Set flow_side for %r to %s" % (self, self.verbose_flow_side))
 
     @property
     def verbose_flow_side(self):
