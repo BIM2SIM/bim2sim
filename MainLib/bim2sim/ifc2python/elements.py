@@ -6,8 +6,14 @@ import re
 import numpy as np
 
 from bim2sim.decorators import cached_property
-from bim2sim.ifc2python import element
+from bim2sim.ifc2python import element, attribute
 from bim2sim.decision import BoolDecision
+
+
+def diameter_post_processing(value):
+    if isinstance(value, list):
+        return np.average(value).item()
+    return value
 
 
 class Boiler(element.Element):
@@ -69,59 +75,56 @@ class Boiler(element.Element):
 
         return connections
 
-    @cached_property
-    def water_volume(self):
-        """water_volume: float
-            Water volume of boiler."""
-        return 0.008
+    water_volume = attribute.Attribute(
+        name='water_volume',
+        description="Water volume of boiler"
+    )
 
-    @cached_property
-    def min_power(self):
-        """min_power: float
-            Minimum power that boiler operates at."""
-        return self.find('min_power')
+    min_power = attribute.Attribute(
+        name='min_power',
+        description="Minimum power that boiler operates at"
+    )
 
-    @cached_property
-    def rated_power(self):
-        """rated_power: float
-            Rated power of boiler."""
-        return self.find('rated_power')
+    rated_power = attribute.Attribute(
+        name='rated_power',
+        description="Rated power of boiler",
+    )
 
-    @cached_property
-    def efficiency(self):
-        """efficiency: list
-            Efficiency of boiler provided as list with pairs of [
-            percentage_of_rated_power,efficiency]"""
-        return self.find('efficiency')
+    efficiency = attribute.Attribute(
+        name='efficiency',
+        description="Efficiency of boiler provided as list with pairs of [percentage_of_rated_power,efficiency]"
+    )
 
 
 class Pipe(element.Element):
     ifc_type = "IfcPipeSegment"
-    default_diameter = ('Pset_PipeSegmentTypeCommon', 'NominalDiameter')
-    pattern_diameter = [
-        re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
-        re.compile('.*Diameter.*', flags=re.IGNORECASE),
-    ]
-    default_length = ('Qto_PipeSegmentBaseQuantities', 'Length')
-    pattern_length = [
-        re.compile('.*Länge.*', flags=re.IGNORECASE),
-        re.compile('.*Length.*', flags=re.IGNORECASE),
-    ]
 
-    @property
-    def diameter(self):
-        result = self.find('diameter')
+    diameter = attribute.Attribute(
+        name='diameter',
+        default_ps=('Pset_PipeSegmentTypeCommon', 'NominalDiameter'),
+        patterns=[
+            re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
+            re.compile('.*Diameter.*', flags=re.IGNORECASE),
+        ],
+        ifc_postprocessing=diameter_post_processing,
+    )
 
-        if isinstance(result, list):
-            return np.average(result).item()
-        return result
-
-    @property
-    def length(self):
+    @staticmethod
+    def _length_from_geometry(bind, name):
         try:
-            return self.get_lenght_from_shape(self.ifc.Representation)
+            return Pipe.get_lenght_from_shape(bind.ifc.Representation)
         except AttributeError:
             return None
+
+    length = attribute.Attribute(
+        name='length',
+        default_ps=('Qto_PipeSegmentBaseQuantities', 'Length'),
+        patterns=[
+            re.compile('.*Länge.*', flags=re.IGNORECASE),
+            re.compile('.*Length.*', flags=re.IGNORECASE),
+        ],
+        functions=[_length_from_geometry],
+    )
 
     @staticmethod
     def get_lenght_from_shape(ifc_representation):
@@ -146,29 +149,32 @@ class Pipe(element.Element):
 
 class PipeFitting(element.Element):
     ifc_type = "IfcPipeFitting"
-    default_diameter = ('Pset_PipeFittingTypeCommon', 'NominalDiameter')
-    default_pressure_class = ('Pset_PipeFittingTypeCommon', 'PressureClass')
-    
-    pattern_diameter = [
-        re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
-        re.compile('.*Diameter.*', flags=re.IGNORECASE),
-    ]
 
-    @property
-    def diameter(self):
-        result = self.find('diameter')
+    diameter = attribute.Attribute(
+        name='diameter',
+        default_ps=('Pset_PipeFittingTypeCommon', 'NominalDiameter'),
+        patterns=[
+            re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
+            re.compile('.*Diameter.*', flags=re.IGNORECASE),
+        ],
+        ifc_postprocessing=diameter_post_processing,
+    )
 
-        if isinstance(result, list):
-            return np.average(result).item()
-        return result
+    length = attribute.Attribute(
+        name='length',
+        default=0,
+    )
 
-    @property
-    def length(self):
-        return self.find('length')
+    pressure_class = attribute.Attribute(
+        name='pressure_class',
+        default_ps=('Pset_PipeFittingTypeCommon', 'PressureClass')
+    )
 
-    @property
-    def pressure_class(self):
-        return self.find('pressure_class')
+    @staticmethod
+    def _diameter_post_processing(value):
+        if isinstance(value, list):
+            return np.average(value).item()
+        return value
 
 
 class SpaceHeater(element.Element):
@@ -177,13 +183,11 @@ class SpaceHeater(element.Element):
     def is_consumer(self):
         return True
 
-    @cached_property
-    def nominal_power(self):
-        return 42.0
-
-    @cached_property
-    def length(self):
-        return 42.0
+    nominal_power = attribute.Attribute(
+        name='nominal_power',
+        description="Nominal power of SpaceHeater",
+        default=42,
+    )
 
 
 class StorageDevice(element.Element):

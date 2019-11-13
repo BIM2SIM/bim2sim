@@ -7,7 +7,7 @@ from collections import defaultdict
 import numpy as np
 
 from bim2sim.ifc2python.element import BaseElement, BasePort
-from bim2sim.ifc2python import elements
+from bim2sim.ifc2python import elements, attribute
 
 
 class AggregationPort(BasePort):
@@ -88,8 +88,8 @@ class PipeStrand(Aggregation):
             ele.request('diameter')
             ele.request('length')
 
-        self._total_length = None
-        self._avg_diameter = None
+        # self._total_length = None
+        # self._avg_diameter = None
 
     def _get_start_and_end_ports(self):
         """
@@ -129,11 +129,12 @@ class PipeStrand(Aggregation):
 
         return agg_ports
 
+    @attribute.multi_calc
     def _calc_avg(self):
         """Calculates the total length and average diameter of all pipe-like
          elements."""
-        self._total_length = 0
-        self._avg_diameter = 0
+        total_length = 0
+        avg_diameter = 0
         diameter_times_length = 0
 
         for pipe in self.elements:
@@ -144,10 +145,16 @@ class PipeStrand(Aggregation):
                 continue
 
             diameter_times_length += diameter*length
-            self._total_length += length
+            total_length += length
 
-        if self._total_length != 0:
-            self._avg_diameter = diameter_times_length / self._total_length
+        if total_length != 0:
+            avg_diameter = diameter_times_length / total_length
+
+        result = dict(
+            length=total_length,
+            diameter=avg_diameter
+        )
+        return result
 
     def get_replacement_mapping(self):
         """Returns dict with original ports as values and their aggregated replacement as keys."""
@@ -157,19 +164,30 @@ class PipeStrand(Aggregation):
             mapping[port.original] = port
         return mapping
 
-    @property
-    def diameter(self):
-        """Diameter of aggregated pipe"""
-        if self._avg_diameter is None:
-            self._calc_avg()
-        return self._avg_diameter
+    diameter = attribute.Attribute(
+        name='diameter',
+        description="Average diameter of aggregated pipe",
+        functions=[_calc_avg],
+    )
 
-    @property
-    def length(self):
-        """Length of aggregated pipe"""
-        if self._total_length is None:
-            self._calc_avg()
-        return self._total_length
+    length = attribute.Attribute(
+        name='length',
+        description="Length of aggregated pipe",
+        functions=[_calc_avg]
+    )
+    # @property
+    # def diameter(self):
+    #     """Diameter of aggregated pipe"""
+    #     if self._avg_diameter is None:
+    #         self._calc_avg()
+    #     return self._avg_diameter
+    #
+    # @property
+    # def length(self):
+    #     """Length of aggregated pipe"""
+    #     if self._total_length is None:
+    #         self._calc_avg()
+    #     return self._total_length
 
 
 class UnderfloorHeating(PipeStrand):
