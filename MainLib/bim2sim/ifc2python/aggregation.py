@@ -20,7 +20,7 @@ class AggregationPort(BasePort):
         self.original = original
 
     # def determine_flow_side(self):
-        # return self.original.determine_flow_side()
+    # return self.original.determine_flow_side()
 
     def calc_position(self):
         """Position of original port"""
@@ -143,7 +143,7 @@ class PipeStrand(Aggregation):
                 self.logger.warning("Ignored '%s' in aggregation", pipe)
                 continue
 
-            diameter_times_length += diameter*length
+            diameter_times_length += diameter * length
             self._total_length += length
 
         if self._total_length != 0:
@@ -436,104 +436,48 @@ def cycles_reduction(cycles):
     finally it creates a list with the founded cycles with the next lists:
     'elements', 'up_strand', 'low_strand', 'ports'
     """
+    new_cycles = []
     for cycle in cycles:
-        length_cycle = len(cycle)
-        cycle.append([])
-        for port in cycle[:length_cycle]:
+        n_pumps = 0
+        total_ports = {}
+        new_cycle = {}
+        # all possible beginning and end of the cycle (always pipe fittings), pumps counting
+        for port in cycle:
+            if isinstance(port.parent, elements.Pump):
+                n_pumps += 1
             if isinstance(port.parent, elements.PipeFitting):
-                cycle[length_cycle].append(port)
-
-        length_cycle = len(cycle)
-        if cycle[length_cycle - 1][0].parent == cycle[length_cycle - 1][-1].parent:
-            cycle[length_cycle - 1].insert(0, cycle[length_cycle - 1][-1])
-            cycle[length_cycle - 1].pop()
-
-        for item in cycle[length_cycle - 1][0::2]:
-            index_a = cycle[length_cycle - 1].index(item)
-            if item.flow_direction != cycle[length_cycle - 1][index_a + 1].flow_direction:
-                cycle[length_cycle - 1][index_a] = 0
-                cycle[length_cycle - 1][index_a + 1] = 0
-        i = 0
-        length = len(cycle[length_cycle - 1])
-        while i < length:
-            if cycle[length_cycle - 1][i] == 0:
-                cycle[length_cycle - 1].remove(cycle[length_cycle - 1][i])
-                length = length - 1
-                continue
-            i = i + 1
-    i = 0
-    length = len(cycles)
-    while i < length:
-        length_a = len(cycles[i])
-        if len(cycles[i][length_a - 1]) != 4:
-            cycles.remove(cycles[i])
-            length = length - 1
+                if port.parent.guid in total_ports:
+                    total_ports[port.parent.guid].append(port)
+                else:
+                    total_ports[port.parent.guid] = []
+                    total_ports[port.parent.guid].append(port)
+        # 1st filter, cycle has more than 2 pump-ports, 1 pump
+        if n_pumps >= 4:
+            new_cycle["elements"] = list(dict.fromkeys([v.parent for v in cycle]))
+        else:
             continue
-        i = i + 1
-
-    ###changes
-
-    New_cycles = []
-    n_cycle = 0
-    for cycle in cycles:
-        New_cycles.append([])
-        len_aux = len(cycle) - 1
-        cycle.append([])
-        cycle[len(cycle) - 1].append([])
-        cycle[len(cycle) - 1].append([])
-        for port in cycle[:len_aux]:
-            if cycle.index(cycle[len_aux][1]) < cycle.index(port) < cycle.index(cycle[len_aux][2]):
-                cycle[len(cycle) - 1][1].append(port)
-            elif (cycle.index(port) < cycle.index(cycle[len_aux][0])) and (port not in cycle[len_aux]):
-                cycle[len(cycle) - 1][0].append(port)
-            elif (cycle.index(port) > cycle.index(cycle[len_aux][3])) and (port not in cycle[len_aux]):
-                cycle[len(cycle) - 1][0].append(port)
-
-        n_item = 0
-        for item in cycle[-1]:
-            New_cycles[n_cycle].append([])
-            if n_item == 0:
-                New_cycles[n_cycle][n_item].append(cycle[len_aux][3].parent)
+        # 2nd filter, beginning and end of the cycle (parallel check)
+        final_ports = []
+        for k, ele in total_ports.items():
+            if ele[0].flow_direction == ele[1].flow_direction:
+                final_ports.append(ele[0])
+                final_ports.append(ele[1])
+        # Strand separation - upper & lower
+        upper = []
+        lower = []
+        for elem in new_cycle["elements"]:
+            if new_cycle["elements"].index(final_ports[1].parent) \
+                    < new_cycle["elements"].index(elem) < new_cycle["elements"].index(final_ports[2].parent):
+                upper.append(elem)
             else:
-                New_cycles[n_cycle][n_item].append(cycle[len_aux][0].parent)
-            for port in item[0::2]:
-                New_cycles[n_cycle][n_item].append(port.parent)
-            if n_item == 0:
-                New_cycles[n_cycle][n_item].append(cycle[len_aux][0].parent)
-            else:
-                New_cycles[n_cycle][n_item].append(cycle[len_aux][2].parent)
-            n_item += 1
-        New_cycles[n_cycle].append(cycle[-2])
-        n_cycle += 1
+                lower.append(elem)
+        new_cycle['up_strand'] = upper
+        new_cycle['low_strand'] = lower
+        new_cycle["ports"] = final_ports
+        # 3rd Filter, each strand has one or more pumps
+        check_up = str(dict.fromkeys(new_cycle['up_strand']))
+        check_low = str(dict.fromkeys(new_cycle['low_strand']))
+        if ("Pump" in check_up) and ("Pump" in check_low):
+            new_cycles.append(new_cycle)
+    return new_cycles
 
-    for cycle in New_cycles:
-        for strand in cycle[0:2]:
-            n_element = 0
-            for item in strand:
-                if isinstance(item, elements.Pump):
-                    n_element += 1
-            if n_element == 0:
-                New_cycles[New_cycles.index(cycle)] = 0
-                break
-    i = 0
-    length = len(New_cycles)
-    while i < length:
-        if New_cycles[i] == 0:
-            New_cycles.remove(New_cycles[i])
-            length = length - 1
-            continue
-        i = i + 1
-
-    keys = ['elements', 'up_strand', 'low_strand', 'ports']
-    for cycle in New_cycles:
-        elements_aux = []
-        for element in cycle[0][:len(cycle[0]) - 1]:
-            elements_aux.append(element)
-        for element in cycle[1][len(cycle[1]) - 2::-1]:
-            elements_aux.append(element)
-        cycle.insert(0, elements_aux)
-    reduced_cycles = []
-    for cycle in New_cycles:
-        reduced_cycles.append(dict(zip(keys, cycle)))
-
-    return reduced_cycles
