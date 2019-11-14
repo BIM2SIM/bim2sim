@@ -8,7 +8,7 @@ import re
 import numpy as np
 
 from bim2sim.decorators import cached_property
-from bim2sim.ifc2python import ifc2python
+from bim2sim.ifc2python import ifc2python, attribute
 from bim2sim.decision import Decision, BoolDecision, RealDecision, ListDecision, DictDecision, PendingDecisionError
 
 logger = logging.getLogger(__name__)
@@ -285,6 +285,11 @@ class IFCBased(Root):
             # TODO: Decision: save for all following elements of same class (dont ask again?)
             # selected = (propertyset_name, property_name, value)
 
+            distinct_values = set(values)
+            if len(distinct_values) == 1:
+                # multiple sources but common value
+                return distinct_values.pop()
+
             # TODO: Decision with id, key, value
             decision = DictDecision("Multiple possibilities found",
                                     choices=dict(zip(choices, values)),
@@ -368,6 +373,7 @@ class BaseElement(Root):
         self.logger = logging.getLogger(__name__)
         self.ports = []
         self.aggregation = None
+        self.attributes = attribute.AttributeManager(bind=self)
 
     def get_inner_connections(self):
         """Returns inner connections of Element
@@ -487,8 +493,13 @@ class BasePort(Root):
     def flow_side(self, value):
         if value not in (-1, 0, 1):
             raise ValueError("allowed values for flow_side are 1, 0, -1")
+        previous = self._flow_side
         self._flow_side = value
-        logger.info("Set flow_side for %r to %s" % (self, self.verbose_flow_side))
+        if previous:
+            if previous != value:
+                logger.info("Overwriting flow_side for %r with %s" % (self, self.verbose_flow_side))
+        else:
+            logger.debug("Set flow_side for %r to %s" % (self, self.verbose_flow_side))
 
     @property
     def verbose_flow_side(self):
