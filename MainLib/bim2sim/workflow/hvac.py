@@ -372,9 +372,9 @@ class Reduce(Workflow):
         self.logger.info("Applied %d aggregations as \"UnderfloorHeating\"", number_fh)
         self.logger.info("Removed %d pipe-like elements", number_pipes)
 
-        self.logger.info("Setting flow_sides")
-        # this might help for other reduce methods like finding parallel pumps etc. else only for nice plotting
-        self.set_flow_sides(graph)
+        # self.logger.info("Setting flow_sides")
+        # # this might help for other reduce methods like finding parallel pumps etc. else only for nice plotting
+        # self.set_flow_sides(graph)
 
         # # Parallel pumps aggregation
         # cycles = graph.get_cycles()
@@ -382,13 +382,13 @@ class Reduce(Workflow):
         # New_cycles = cycles_reduction(cycles)
         #
         number_pp = 0
-        # for cycle in New_cycles:
-        #     number_pp += 1
-        #     parallelpump = ParallelPump("ParallelPump%d" % number_pp, cycle["elements"], cycle)
-        #     graph.merge(
-        #         mapping=parallelpump.get_replacement_mapping(),
-        #         inner_connections=parallelpump.get_inner_connections())
-        # self.logger.info("Applied %d aggregations as \"ParallelPump\"", number_pp)
+        for cycle in New_cycles:
+            number_pp += 1
+            parallelpump = ParallelPump("ParallelPump%d" % number_pp, cycle["elements"], cycle)
+            graph.merge(
+                mapping=parallelpump.get_replacement_mapping(),
+                inner_connections=parallelpump.get_inner_connections())
+        self.logger.info("Applied %d aggregations as \"ParallelPump\"", number_pp)
 
         number_of_nodes_new = len(graph.element_graph.nodes)
         self.logger.info(
