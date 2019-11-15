@@ -46,7 +46,8 @@ class Root:
         self.guid = guid or self.get_id()
         Root.objects[self.guid] = self
         self._requests = []
-        self.properties = {}
+        # self.properties = {}
+        self.attributes = attribute.AttributeManager(bind=self)
 
     def __hash__(self):
         return hash(self.guid)
@@ -78,36 +79,7 @@ class Root:
         return Root.objects.get(guid)
 
     def request(self, name):
-        if not name in self._requests:
-            self._requests.append(name)
-
-    @classmethod
-    def solve_requests(cls):
-        """trys to obtain all requested attributes.
-
-        First step is to collect neccesary Decisions
-        Secend step is to solve them"""
-
-        # First step
-        pending = []
-        for ele in Root.objects.values():
-            while ele._requests:
-                request = ele._requests.pop()
-                try:
-                    value = ele.find(request, collect_decisions=True)
-                except PendingDecisionError:
-                    pending.append((ele, request))
-                except NoValueError:
-                    # Value for attribute does not exist
-                    pass
-                else:
-                    ele.properties[request] = value
-
-        Decision.decide_collected()
-
-        for ele, request in pending:
-            value = ele.find(request, collect_decisions=False)
-            ele.properties[request] = value
+        self.attributes.request(name)
 
     def search(self, name, collect_decisions=False):
         """Search all potential sources for property (potentially time consuming)"""
@@ -293,7 +265,7 @@ class IFCBased(Root):
             # TODO: Decision with id, key, value
             decision = DictDecision("Multiple possibilities found",
                                     choices=dict(zip(choices, values)),
-                                    output=self.properties,
+                                    output=self.attributes,
                                     output_key=name,
                                     global_key="%s_%s.%s" % (self.ifc_type, self.guid, name),
                                     allow_skip=True, allow_load=True, allow_save=True,
@@ -373,7 +345,6 @@ class BaseElement(Root):
         self.logger = logging.getLogger(__name__)
         self.ports = []
         self.aggregation = None
-        self.attributes = attribute.AttributeManager(bind=self)
 
     def get_inner_connections(self):
         """Returns inner connections of Element

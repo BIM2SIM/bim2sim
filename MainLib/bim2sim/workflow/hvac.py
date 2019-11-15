@@ -338,19 +338,6 @@ class Reduce(Workflow):
         number_pipes = 0
         number_pp = 0
 
-        # Parallel pumps aggregation
-        cycles = graph.get_cycles()
-        # parallel_pumps_cycles = cycles_reduction(cycles, "Pump")
-        # parallel_space_heater = cycles_reduction(cycles, "SpaceHeater")
-        for cycle in cycles:
-            parallelpump = ParallelPump.create_on_match("ParallelPump%d" % (number_pp + 1), cycle)
-            # parallelspaceheater = ParallelSpaceHeater.create_on_match("ParallelSpaceHeater%d" % (number_psh + 1), cycle)
-            if parallelpump:
-                number_pp += 1
-                graph.merge(
-                    mapping=parallelpump.get_replacement_mapping(),
-                    inner_connections=parallelpump.get_inner_connections())
-
         chains = graph.get_type_chains(PipeStrand.aggregatable_elements, include_singles=True)
         for chain in chains:
             underfloorheating = UnderfloorHeating.create_on_match("UnderfloorHeating%d" % (number_fh + 1), chain)
@@ -385,6 +372,19 @@ class Reduce(Workflow):
         # self.logger.info("Setting flow_sides")
         # # this might help for other reduce methods like finding parallel pumps etc. else only for nice plotting
         # self.set_flow_sides(graph)
+
+        # Parallel pumps aggregation
+        cycles = graph.get_cycles()
+        # parallel_pumps_cycles = cycles_reduction(cycles, "Pump")
+        # parallel_space_heater = cycles_reduction(cycles, "SpaceHeater")
+        for cycle in cycles:
+            parallelpump = ParallelPump.create_on_match("ParallelPump%d" % (number_pp + 1), cycle)  # TODO: fix error
+            # parallelspaceheater = ParallelSpaceHeater.create_on_match("ParallelSpaceHeater%d" % (number_psh + 1), cycle)
+            if parallelpump:
+                number_pp += 1
+                graph.merge(
+                    mapping=parallelpump.get_replacement_mapping(),
+                    inner_connections=parallelpump.get_inner_connections())
 
         # # Parallel pumps aggregation
         # cycles = graph.get_cycles()

@@ -1,5 +1,6 @@
 
 import logging
+from contextlib import contextmanager
 
 from bim2sim.decision import RealDecision
 
@@ -14,6 +15,7 @@ class Attribute:
     STATUS_REQUESTED = 'REQUESTED'
     STATUS_AVAILABLE = 'AVAILABLE'
     STATUS_NOT_AVAILABLE = 'NOT_AVAILABLE'
+    _force = False
 
     def __init__(self, name,
                  description="",
@@ -113,8 +115,17 @@ class Attribute:
     @staticmethod
     def get_from_decision(bind, name):
         # TODO: decision
-        raise NotImplementedError()
-        value = None
+        decision = RealDecision(
+            "Enter value for %s of %s" % (name, bind.name),
+            # output=self,
+            # output_key=name,
+            global_key="%s_%s.%s" % (bind.ifc_type, bind.guid, name),
+            allow_skip=False, allow_load=True, allow_save=True,
+            validate_func=lambda x: True,  # TODO meaningful validation
+            collect=False,
+            quick_decide=True
+        )
+        value = decision.value
         return value
 
     def get(self, bind, status, value):
@@ -133,38 +144,13 @@ class Attribute:
     def set(self, bind, status, value):
         bind.attributes.set(self.name, value, status)
 
-    # def request(self):
-    #     # TODO: decision
-    #     self._status = Attribute.STATUS_REQUESTED
-
-    def request_get(self, bind, status, value):
-        """Try to get value including collectible decision if no other method was successful.
-        use this method, if an actual value is required but not immediately. Value is set by solving decisions."""
-        raise NotImplementedError()
-        if self._status in (Attribute.STATUS_REQUESTED, Attribute.STATUS_AVAILABLE):
-            return self._value
-
-        value = self.get()
-        if value is None:
-            self.request()
-
-        return self._value
-
-    def force_get(self, bind):
-        """Try to get value including non collectible decision if no other method was successful.
-        use this method, if an actual value is required immediately."""
-        raise NotImplementedError()
-        value = self.get()
-
-        if value is None:
-            value =self.get_from_decision(bind, self.name)
-
-        return self._value
-
-    # def solve_request(self, value):
-    #     """Set value by external source like decision"""
-    #     self._value = value
-    #     self._status = Attribute.STATUS_AVAILABLE
+    @staticmethod
+    @contextmanager
+    def force_get():
+        """Contextmanager to get missing attributes immediately"""
+        Attribute._force = True
+        yield
+        Attribute._force = False
 
     @staticmethod
     def ifc_post_processing(value):
@@ -178,6 +164,10 @@ class Attribute:
         _value, _status = instance.attributes.get(self.name, (None, Attribute.STATUS_UNKNOWN))
 
         value, status = self.get(instance, _status, _value)
+
+        if self._force and value is None:
+            value = self.get_from_decision(instance, self.name)
+            status = Attribute.STATUS_AVAILABLE
 
         self.set(instance, status, value)
         return value
@@ -210,7 +200,7 @@ class AttributeManager(dict):
             self.__setitem__(k, v)
 
     def request(self, name):
-        """"""
+        """Request attribuute"""
         value = getattr(self.bind, name)
         if value is None:
             value, status = self.__getitem__(name)
@@ -222,8 +212,9 @@ class AttributeManager(dict):
                     # validate_func=lambda x: isinstance(x, float),
                     output=self,
                     output_key=name,
-                    global_key="%s_%s.%s" % (self.bind.ifc_type, self.bind.guid, self.name),
+                    global_key="%s_%s.%s" % (self.bind.ifc_type, self.bind.guid, name),
                     allow_skip=False, allow_load=True, allow_save=True,
+                    validate_func=lambda x: True,  # TODO meaningful validation
                     collect=True
                 )
         else:
