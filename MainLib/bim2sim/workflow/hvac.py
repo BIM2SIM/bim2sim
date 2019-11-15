@@ -12,7 +12,7 @@ from bim2sim.workflow import Workflow
 from bim2sim.tasks import LOD
 from bim2sim.filter import TypeFilter
 from bim2sim.ifc2python.aggregation import Aggregation, PipeStrand, UnderfloorHeating, \
-    ParallelPump, cycles_reduction
+    ParallelPump, ParallelSpaceHeater
 from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
 from bim2sim.ifc2python.hvac import hvac_graph
 from bim2sim.export import modelica
@@ -337,19 +337,23 @@ class Reduce(Workflow):
         number_fh = 0
         number_pipes = 0
         number_pp = 0
+        number_psh = 0
 
         # Parallel pumps aggregation
         cycles = graph.get_cycles()
-        # parallel_pumps_cycles = cycles_reduction(cycles, "Pump")
-        # parallel_space_heater = cycles_reduction(cycles, "SpaceHeater")
         for cycle in cycles:
             parallelpump = ParallelPump.create_on_match("ParallelPump%d" % (number_pp + 1), cycle)
-            # parallelspaceheater = ParallelSpaceHeater.create_on_match("ParallelSpaceHeater%d" % (number_psh + 1), cycle)
             if parallelpump:
                 number_pp += 1
                 graph.merge(
                     mapping=parallelpump.get_replacement_mapping(),
                     inner_connections=parallelpump.get_inner_connections())
+            # parallelspaceheater = ParallelSpaceHeater.create_on_match("ParallelSpaceHeater%d" % (number_psh + 1), cycle)
+            # if parallelspaceheater:
+            #     number_psh += 1
+            #     graph.merge(
+            #         mapping=parallelspaceheater.get_replacement_mapping(),
+            #         inner_connections=parallelspaceheater.get_inner_connections())
 
         chains = graph.get_type_chains(PipeStrand.aggregatable_elements, include_singles=True)
         for chain in chains:
@@ -385,20 +389,6 @@ class Reduce(Workflow):
         self.logger.info("Setting flow_sides")
         # this might help for other reduce methods like finding parallel pumps etc. else only for nice plotting
         self.set_flow_sides(graph)
-
-        # # Parallel pumps aggregation
-        # cycles = graph.get_cycles()
-        #
-        # New_cycles = cycles_reduction(cycles)
-        #
-        number_pp = 0
-        # for cycle in New_cycles:
-        #     number_pp += 1
-        #     parallelpump = ParallelPump("ParallelPump%d" % number_pp, cycle["elements"], cycle)
-        #     graph.merge(
-        #         mapping=parallelpump.get_replacement_mapping(),
-        #         inner_connections=parallelpump.get_inner_connections())
-        # self.logger.info("Applied %d aggregations as \"ParallelPump\"", number_pp)
 
         number_of_nodes_new = len(graph.element_graph.nodes)
         self.logger.info(
