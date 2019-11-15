@@ -19,29 +19,6 @@
             }
         }
     },
-    "Pump": {
-        "class": [
-            "Pump",
-            "aggregated_Pump"
-        ],
-        "ifc_type": "IfcPump",
-        "statistical_year": {
-            "2000": {
-                "name": "Pump_enrichment_2000",
-                "rated_power": 3,
-                "rated_height": 8,
-                "rated_volume_flow": 4.3,
-                "diameter": 40
-            },
-            "2004": {
-                "name": "Pump_enrichment_2004",
-                "rated_power": 4,
-                "rated_height": 9,
-                "rated_volume_flow": 4.3,
-                "diameter": 40
-            }
-        }
-    },
     "SpaceHeater": {
         "class": "SpaceHeater",
         "statistical_year": {
@@ -54,17 +31,6 @@
                 "name": "SpaceHeater_enrichment_2004",
                 "nominal_power": null,
                 "length": null
-            }
-        }
-    },
-    "ThermalZones": {
-        "class": "ThermalZones",
-        "statistical_year": {
-            "2000": {
-                "name": "ThermalZones_enrichment_2000"
-            },
-            "2004": {
-                "name": "ThermalZones_enrichment_2004"
             }
         }
     }
