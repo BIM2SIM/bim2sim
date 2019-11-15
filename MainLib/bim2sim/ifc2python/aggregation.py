@@ -69,6 +69,20 @@ class Aggregation(BaseElement):
 
         return mapping, connections
 
+    @staticmethod
+    def verify_edge_ports(func):
+        """Decorator to verify edge ports"""
+        def wrapper(agg_instance, *args, **kwargs):
+            ports = func(agg_instance, *args, **kwargs)
+            # inner_ports = [port for ele in agg_instance.elements for port in ele.ports]
+            for port in ports:
+                if not port.connection:
+                    continue
+                if port.connection.parent in agg_instance.elements:
+                    raise AssertionError("%s (%s) is not an edge port of %s" % (port, port.guid, agg_instance))
+            return ports
+        return wrapper
+
     def __repr__(self):
         return "<%s '%s' (aggregation of %d elements)>" % (
             self.__class__.__name__, self.name, len(self.elements))
@@ -88,9 +102,7 @@ class PipeStrand(Aggregation):
             ele.request('diameter')
             ele.request('length')
 
-        # self._total_length = None
-        # self._avg_diameter = None
-
+    @Aggregation.verify_edge_ports
     def _get_start_and_end_ports(self):
         """
         Finds and sets the first and last port of the pipestrand.
@@ -175,19 +187,6 @@ class PipeStrand(Aggregation):
         description="Length of aggregated pipe",
         functions=[_calc_avg]
     )
-    # @property
-    # def diameter(self):
-    #     """Diameter of aggregated pipe"""
-    #     if self._avg_diameter is None:
-    #         self._calc_avg()
-    #     return self._avg_diameter
-    #
-    # @property
-    # def length(self):
-    #     """Length of aggregated pipe"""
-    #     if self._total_length is None:
-    #         self._calc_avg()
-    #     return self._total_length
 
 
 class UnderfloorHeating(PipeStrand):
@@ -316,10 +315,11 @@ class ParallelPump(Aggregation):
 
     def __init__(self, name, elements, *args, **kwargs):
         super().__init__(name, elements, *args, **kwargs)
-        edge_ports = self._get_start_and_end_ports()
+        edge_ports = self._get_start_and_end_ports()  # TODO: @diego fix _get_start_and_end_ports to return proper ports
         self.ports.append(AggregationPort(edge_ports[0], parent=self))
         self.ports.append(AggregationPort(edge_ports[1], parent=self))
 
+    @Aggregation.verify_edge_ports
     def _get_start_and_end_ports(self):
         """
         Finds and sets the first and last port of the parallelpumps
@@ -371,7 +371,7 @@ class ParallelPump(Aggregation):
 
         cycle_elements = list(dict.fromkeys([v.parent for v in self.elements]))
         for pump in cycle_elements:
-            if "Pump" in str(pump):
+            if "Pump" in pump.ifc_type:
                 rated_power = getattr(pump, "rated_power")
                 rated_height = getattr(pump, "rated_height")
                 rated_volume_flow = getattr(pump, "rated_volume_flow")
@@ -381,6 +381,7 @@ class ParallelPump(Aggregation):
                     continue
 
                 total_rated_volume_flow += rated_volume_flow
+                # this is not avg but max
                 if avg_rated_height != 0:
                     if rated_height < avg_rated_height:
                         avg_rated_height = rated_height
@@ -408,6 +409,7 @@ class ParallelPump(Aggregation):
         total_diameter = math.sqrt(total_diameter)
         g = 9.81
         rho = 1000
+        # TODO: two pumps with rated power of 3 each give a total rated power of 674928
         total_rated_power = total_rated_volume_flow * avg_rated_height * g * rho
 
         result = dict(
@@ -430,37 +432,37 @@ class ParallelPump(Aggregation):
 
     rated_power = attribute.Attribute(
         name='rated_power',
-        description="a",
+        description="rated power",
         functions=[_calc_avg]
     )
 
     rated_height = attribute.Attribute(
         name='rated_height',
-        description='',
+        description='rated height',
         functions=[_calc_avg]
     )
 
     rated_volume_flow = attribute.Attribute(
         name='rated_volume_flow',
-        description='',
+        description='rated volume flow',
         functions=[_calc_avg]
     )
 
     diameter = attribute.Attribute(
         name='diameter',
-        description='',
+        description='diameter',
         functions=[_calc_avg]
     )
 
     length = attribute.Attribute(
         name='length',
-        description='',
+        description='length of aggregated pipe elements',
         functions=[_calc_avg]
     )
 
     diameter_strand = attribute.Attribute(
         name='diameter_strand',
-        description='',
+        description='average diameter of aggregated pipe elements',
         functions=[_calc_avg]
     )
 
@@ -475,7 +477,6 @@ class ParallelPump(Aggregation):
         p_instance = "Pump"
         n_pumps = 0
         total_ports = {}
-        cycle_elements = []
         # all possible beginning and end of the cycle (always pipe fittings), pumps counting
         for port in cycle:
             if isinstance(port.parent, getattr(elements, p_instance)):
@@ -538,11 +539,10 @@ class ParallelSpaceHeater(Aggregation):
         self._avg_diameter_strand = None
         self._elements = None
 
+    @Aggregation.verify_edge_ports
     def _get_start_and_end_ports(self):
         """
-        Finds and sets the first and last port of the parallelpumps
-
-        Assumes all elements in are ordered as connected
+        Finds external ports of aggregated group
         :return ports:
         """
         total_ports = {}
@@ -577,6 +577,68 @@ class ParallelSpaceHeater(Aggregation):
                 agg_ports.append(port)
         return agg_ports
 
+    @attribute.multi_calc
+    def _calc_avg(self):
+        """Calculates the parameters of all pump-like elements."""
+        avg_rated_height = 0
+        total_rated_volume_flow = 0
+        total_diameter = 0
+        avg_diameter_strand = 0
+        total_length = 0
+        diameter_times_length = 0
+
+        for pump in self.elements:
+            if "Pump" in pump.ifc_type:
+                rated_power = getattr(pump, "rated_power")
+                rated_height = getattr(pump, "rated_height")
+                rated_volume_flow = getattr(pump, "rated_volume_flow")
+                diameter = getattr(pump, "diameter")
+                if not (rated_power and rated_height and rated_volume_flow and diameter):
+                    self.logger.warning("Ignored '%s' in aggregation", pump)
+                    continue
+
+                total_rated_volume_flow += rated_volume_flow
+                # this is not avg but max
+                if avg_rated_height != 0:
+                    if rated_height < avg_rated_height:
+                        avg_rated_height = rated_height
+                else:
+                    avg_rated_height = rated_height
+
+                total_diameter += diameter ** 2
+            else:
+                if hasattr(pump, "diameter") and hasattr(pump, "length"):
+                    length = pump.length
+                    diameter = pump.diameter
+                    if not (length and diameter):
+                        self.logger.warning("Ignored '%s' in aggregation", pump)
+                        continue
+
+                    diameter_times_length += diameter * length
+                    total_length += length
+
+                else:
+                    self.logger.warning("Ignored '%s' in aggregation", pump)
+
+        if total_length != 0:
+            avg_diameter_strand = diameter_times_length / total_length
+
+        total_diameter = math.sqrt(total_diameter)
+        g = 9.81
+        rho = 1000
+        # TODO: two pumps with rated power of 3 each give a total rated power of 674928
+        total_rated_power = total_rated_volume_flow * avg_rated_height * g * rho
+
+        result = dict(
+            rated_power=total_rated_power,
+            rated_height=avg_rated_height,
+            rated_volume_flow=total_rated_volume_flow,
+            diameter=total_diameter,
+            diameter_strand=avg_diameter_strand,
+            length=total_length,
+        )
+        return result
+
     def get_replacement_mapping(self):
         """Returns dict with original ports as values and their aggregated replacement as keys."""
         mapping = {port: None for element in self._elements
@@ -585,47 +647,36 @@ class ParallelSpaceHeater(Aggregation):
             mapping[port.original] = port
         return mapping
 
-    @property
-    def rated_power(self):
-        """Length of aggregated pipe"""
-        if self._total_rated_power is None:
-            raise NotImplementedError("Adapt _calc_avg if needed")
-        return self._total_rated_power
-
-    @property
-    def rated_height(self):
-        """Length of aggregated pipe"""
-        if self._avg_rated_height is None:
-            raise NotImplementedError("Adapt _calc_avg if needed")
-        return self._avg_rated_height
-
-    @property
-    def rated_volume_flow(self):
-        """Length of aggregated pipe"""
-        if self._total_rated_volume_flow is None:
-            raise NotImplementedError("Adapt _calc_avg if needed")
-        return self._total_rated_volume_flow
-
-    @property
-    def diameter(self):
-        """Diameter of aggregated pipe"""
-        if self._total_diameter is None:
-            raise NotImplementedError("Adapt _calc_avg if needed")
-        return self._total_diameter
-
-    @property
-    def length(self):
-        """Diameter of aggregated pipe"""
-        if self._total_length is None:
-            raise NotImplementedError("Adapt _calc_avg if needed")
-        return self._total_length
-
-    @property
-    def diameter_strand(self):
-        """Diameter of aggregated pipe"""
-        if self._avg_diameter_strand is None:
-            raise NotImplementedError("Adapt _calc_avg if needed")
-        return self._avg_diameter_strand
+    rated_power = attribute.Attribute(
+        name='rated_power',
+        description="rated power",
+        functions=[_calc_avg]
+    )
+    rated_height = attribute.Attribute(
+        name='rated_height',
+        description="rated height",
+        functions=[_calc_avg]
+    )
+    rated_volume_flow = attribute.Attribute(
+        name='rated_volume_flow',
+        description="rated volume flow",
+        functions=[_calc_avg]
+    )
+    diameter = attribute.Attribute(
+        name='diameter',
+        description="diameter",
+        functions=[_calc_avg]
+    )
+    length = attribute.Attribute(
+        name='length',
+        description="length of aggregated pipe elements",
+        functions=[_calc_avg]
+    )
+    diameter_strand = attribute.Attribute(
+        name='diameter_strand',
+        description="average diameter of aggregated pipe elements",
+        functions=[_calc_avg]
+    )
 
     @classmethod
     def create_on_match(cls, name, cycle):

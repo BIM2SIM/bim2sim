@@ -386,9 +386,9 @@ class Reduce(Workflow):
         self.logger.info("Applied %d aggregations as \"UnderfloorHeating\"", number_fh)
         self.logger.info("Removed %d pipe-like elements", number_pipes)
 
-        self.logger.info("Setting flow_sides")
-        # this might help for other reduce methods like finding parallel pumps etc. else only for nice plotting
-        self.set_flow_sides(graph)
+        # self.logger.info("Setting flow_sides")
+        # # this might help for other reduce methods like finding parallel pumps etc. else only for nice plotting
+        # self.set_flow_sides(graph)
 
         number_of_nodes_new = len(graph.element_graph.nodes)
         self.logger.info(
