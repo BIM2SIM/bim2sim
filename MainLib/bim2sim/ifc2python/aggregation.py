@@ -45,6 +45,7 @@ class AggregationPort(BasePort):
 
 class Aggregation(BaseElement):
     """Base aggregation of models"""
+    ifc_type = None
     multi = ()
 
     def __init__(self, name, elements, *args, **kwargs):
@@ -334,7 +335,226 @@ class ParallelPump(Aggregation):
         edge_ports = self._get_start_and_end_ports()  # TODO: @diego fix _get_start_and_end_ports to return proper ports
         self.ports.append(AggregationPort(edge_ports[0], parent=self))
         self.ports.append(AggregationPort(edge_ports[1], parent=self))
-        self._ports = None
+
+    @verify_edge_ports
+    def _get_start_and_end_ports(self):
+        """
+        Finds and sets the first and last port of the parallelpumps
+
+        Assumes all elements in are ordered as connected
+        :return ports:
+        """
+        total_ports = {}
+        # all possible beginning and end of the cycle (always pipe fittings), pumps counting
+        for port in self.elements:
+            if isinstance(port.parent, elements.PipeFitting):
+                if port.parent.guid in total_ports:
+                    total_ports[port.parent.guid].append(port)
+                else:
+                    total_ports[port.parent.guid] = []
+                    total_ports[port.parent.guid].append(port)
+        # 2nd filter, beginning and end of the cycle (parallel check)
+        final_ports = []
+        for k, ele in total_ports.items():
+            if ele[0].flow_direction == ele[1].flow_direction:
+                # final_ports.append(ele[0].parent)
+                final_ports.append(ele[0])
+                final_ports.append(ele[1])
+
+        agg_ports = []
+        # first port
+        for ele in final_ports[0].parent.ports:
+            if ele not in final_ports:
+                port = ele
+                port.aggregated_parent = self
+                agg_ports.append(port)
+        # last port
+        for ele in final_ports[-1].parent.ports:
+            if ele not in final_ports:
+                port = ele
+                port.aggregated_parent = self
+                agg_ports.append(port)
+        return agg_ports
+
+    @attribute.multi_calc
+    def _calc_avg(self):
+        """Calculates the parameters of all pump-like elements."""
+        avg_rated_height = 0
+        total_rated_volume_flow = 0
+        total_diameter = 0
+        avg_diameter_strand = 0
+        total_length = 0
+        diameter_times_length = 0
+
+        cycle_elements = list(dict.fromkeys([v.parent for v in self.elements]))
+        for pump in cycle_elements:
+            if "Pump" in pump.ifc_type:
+                rated_power = getattr(pump, "rated_power")
+                rated_height = getattr(pump, "rated_height")
+                rated_volume_flow = getattr(pump, "rated_volume_flow")
+                diameter = getattr(pump, "diameter")
+                if not (rated_power and rated_height and rated_volume_flow and diameter):
+                    self.logger.warning("Ignored '%s' in aggregation", pump)
+                    continue
+
+                total_rated_volume_flow += rated_volume_flow
+                # this is not avg but max
+                if avg_rated_height != 0:
+                    if rated_height < avg_rated_height:
+                        avg_rated_height = rated_height
+                else:
+                    avg_rated_height = rated_height
+
+                total_diameter += diameter ** 2
+            else:
+                if hasattr(pump, "diameter") and hasattr(pump, "length"):
+                    length = pump.length
+                    diameter = pump.diameter
+                    if not (length and diameter):
+                        self.logger.warning("Ignored '%s' in aggregation", pump)
+                        continue
+
+                    diameter_times_length += diameter * length
+                    total_length += length
+
+                else:
+                    self.logger.warning("Ignored '%s' in aggregation", pump)
+
+        if total_length != 0:
+            avg_diameter_strand = diameter_times_length / total_length
+
+        total_diameter = math.sqrt(total_diameter)
+        g = 9.81
+        rho = 1000
+        # TODO: two pumps with rated power of 3 each give a total rated power of 674928
+        total_rated_power = total_rated_volume_flow * avg_rated_height * g * rho
+
+        result = dict(
+            rated_power=total_rated_power,
+            rated_height=avg_rated_height,
+            rated_volume_flow=total_rated_volume_flow,
+            diameter=total_diameter,
+            length=total_length,
+            diameter_strand=avg_diameter_strand
+        )
+        return result
+
+    def get_replacement_mapping(self):
+        """Returns dict with original ports as values and their aggregated replacement as keys."""
+        mapping = {port: None for element in self._elements
+                   for port in element.ports}
+        for port in self.ports:
+            mapping[port.original] = port
+        return mapping
+
+    rated_power = attribute.Attribute(
+        name='rated_power',
+        description="rated power",
+        functions=[_calc_avg]
+    )
+
+    rated_height = attribute.Attribute(
+        name='rated_height',
+        description='rated height',
+        functions=[_calc_avg]
+    )
+
+    rated_volume_flow = attribute.Attribute(
+        name='rated_volume_flow',
+        description='rated volume flow',
+        functions=[_calc_avg]
+    )
+
+    diameter = attribute.Attribute(
+        name='diameter',
+        description='diameter',
+        functions=[_calc_avg]
+    )
+
+    length = attribute.Attribute(
+        name='length',
+        description='length of aggregated pipe elements',
+        functions=[_calc_avg]
+    )
+
+    diameter_strand = attribute.Attribute(
+        name='diameter_strand',
+        description='average diameter of aggregated pipe elements',
+        functions=[_calc_avg]
+    )
+
+    @classmethod
+    def create_on_match(cls, name, cycle):
+        """reduce the found cycles, to just the cycles that fulfill the next criteria:
+            1. it's a parallel cycle (the two strands have the same flow direction)
+            2. it has one or more pumps in each strand
+            finally it creates a list with the founded cycles with the next lists:
+            'elements', 'up_strand', 'low_strand', 'ports'
+            """
+        p_instance = "Pump"
+        n_pumps = 0
+        total_ports = {}
+        # all possible beginning and end of the cycle (always pipe fittings), pumps counting
+        for port in cycle:
+            if isinstance(port.parent, getattr(elements, p_instance)):
+                n_pumps += 1
+            if isinstance(port.parent, elements.PipeFitting):
+                if port.parent.guid in total_ports:
+                    total_ports[port.parent.guid].append(port)
+                else:
+                    total_ports[port.parent.guid] = []
+                    total_ports[port.parent.guid].append(port)
+        # 1st filter, cycle has more than 2 pump-ports, 1 pump
+        if n_pumps >= 4:
+            cycle_elements = list(dict.fromkeys([v.parent for v in cycle]))
+        else:
+            return
+        # 2nd filter, beginning and end of the cycle (parallel check)
+        final_ports = []
+        for k, ele in total_ports.items():
+            if ele[0].flow_direction == ele[1].flow_direction:
+                final_ports.append(ele[0])
+                final_ports.append(ele[1])
+        if len(final_ports) < 4:
+            return
+        # Strand separation - upper & lower
+        upper = []
+        lower = []
+        for elem in cycle_elements:
+            if cycle_elements.index(final_ports[1].parent) \
+                    < cycle_elements.index(elem) < cycle_elements.index(final_ports[2].parent):
+                upper.append(elem)
+            else:
+                lower.append(elem)
+        # 3rd Filter, each strand has one or more pumps
+        check_up = str(dict.fromkeys(upper))
+        check_low = str(dict.fromkeys(lower))
+
+        parallel_pump = cls(name, cycle)
+        parallel_pump._elements = cycle_elements
+        parallel_pump._up_strand = upper
+        parallel_pump._low_strand = lower
+
+        if (p_instance in check_up) and (p_instance in check_low):
+            return parallel_pump
+
+
+class ParallelSpaceHeater(Aggregation):
+    """Aggregates Space heater in parallel"""
+    aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting']
+
+    def __init__(self, name, elements, *args, **kwargs):
+        super().__init__(name, elements, *args, **kwargs)
+        edge_ports = self._get_start_and_end_ports()
+        self.ports.append(AggregationPort(edge_ports[0], parent=self))
+        self.ports.append(AggregationPort(edge_ports[1], parent=self))
+        self._total_rated_power = None
+        self._avg_rated_height = None
+        self._total_rated_volume_flow = None
+        self._total_diameter = None
+        self._total_length = None
+        self._avg_diameter_strand = None
+        self._elements = None
 
     @verify_edge_ports
     def _get_start_and_end_ports(self):
@@ -342,16 +562,36 @@ class ParallelPump(Aggregation):
         Finds external ports of aggregated group
         :return ports:
         """
+        total_ports = {}
+        # all possible beginning and end of the cycle (always pipe fittings), pumps counting
+        for port in self.elements:
+            if isinstance(port.parent, elements.PipeFitting):
+                if port.parent.guid in total_ports:
+                    total_ports[port.parent.guid].append(port)
+                else:
+                    total_ports[port.parent.guid] = []
+                    total_ports[port.parent.guid].append(port)
+        # 2nd filter, beginning and end of the cycle (parallel check)
+        final_ports = []
+        for k, ele in total_ports.items():
+            if ele[0].flow_direction == ele[1].flow_direction:
+                # final_ports.append(ele[0].parent)
+                final_ports.append(ele[0])
+                final_ports.append(ele[1])
 
         agg_ports = []
         # first port
-        port = self._ports[0].ports[1]
-        port.aggregated_parent = self
-        agg_ports.append(port)
+        for ele in final_ports[0].parent.ports:
+            if ele not in final_ports:
+                port = ele
+                port.aggregated_parent = self
+                agg_ports.append(port)
         # last port
-        port = self._ports[-1].ports[1]
-        port.aggregated_parent = self
-        agg_ports.append(port)
+        for ele in final_ports[-1].parent.ports:
+            if ele not in final_ports:
+                port = ele
+                port.aggregated_parent = self
+                agg_ports.append(port)
         return agg_ports
 
     @attribute.multi_calc
@@ -418,7 +658,7 @@ class ParallelPump(Aggregation):
 
     def get_replacement_mapping(self):
         """Returns dict with original ports as values and their aggregated replacement as keys."""
-        mapping = {port: None for element in self.elements
+        mapping = {port: None for element in self._elements
                    for port in element.ports}
         for port in self.ports:
             mapping[port.original] = port
@@ -463,14 +703,14 @@ class ParallelPump(Aggregation):
             finally it creates a list with the founded cycles with the next lists:
             'elements', 'up_strand', 'low_strand', 'ports'
             """
-        p_instance = "Pump"
-        n_pumps = 0
+        p_instance = "SpaceHeater"
+        n_element = 0
         total_ports = {}
         new_cycle = {}
         # all possible beginning and end of the cycle (always pipe fittings), pumps counting
         for port in cycle:
             if isinstance(port.parent, getattr(elements, p_instance)):
-                n_pumps += 1
+                n_element += 1
             if isinstance(port.parent, elements.PipeFitting):
                 if port.parent.guid in total_ports:
                     total_ports[port.parent.guid].append(port)
@@ -478,7 +718,7 @@ class ParallelPump(Aggregation):
                     total_ports[port.parent.guid] = []
                     total_ports[port.parent.guid].append(port)
         # 1st filter, cycle has more than 2 pump-ports, 1 pump
-        if n_pumps >= 4:
+        if n_element >= 4:
             new_cycle["elements"] = list(dict.fromkeys([v.parent for v in cycle]))
         else:
             return
@@ -503,67 +743,65 @@ class ParallelPump(Aggregation):
         check_up = str(dict.fromkeys(upper))
         check_low = str(dict.fromkeys(lower))
 
-        parallel_pump = cls(name, cycle)
-        parallel_pump._elements = new_cycle["elements"]
-        parallel_pump._up_strand = upper
-        parallel_pump._low_strand = lower
-        parallel_pump._ports = final_ports
+        instance = cls(name, cycle)
+        instance._elements = new_cycle["elements"]
+        instance._up_strand = upper
+        instance._low_strand = lower
 
         if (p_instance in check_up) and (p_instance in check_low):
-            return parallel_pump
+            return instance
 
-
-def cycles_reduction(cycles, p_instance):
-    """reduce the found cycles, to just the cycles that fulfill the next criteria:
-    1. it's a parallel cycle (the two strands have the same flow direction)
-    2. it has one or more pumps in each strand
-    finally it creates a list with the founded cycles with the next lists:
-    'elements', 'up_strand', 'low_strand', 'ports'
-    """
-    new_cycles = []
-    for cycle in cycles:
-        n_pumps = 0
-        total_ports = {}
-        new_cycle = {}
-        # all possible beginning and end of the cycle (always pipe fittings), pumps counting
-        for port in cycle:
-            if isinstance(port.parent, getattr(elements, p_instance)):
-                n_pumps += 1
-            if isinstance(port.parent, elements.PipeFitting):
-                if port.parent.guid in total_ports:
-                    total_ports[port.parent.guid].append(port)
-                else:
-                    total_ports[port.parent.guid] = []
-                    total_ports[port.parent.guid].append(port)
-        # 1st filter, cycle has more than 2 pump-ports, 1 pump
-        if n_pumps >= 4:
-            new_cycle["elements"] = list(dict.fromkeys([v.parent for v in cycle]))
-        else:
-            continue
-        # 2nd filter, beginning and end of the cycle (parallel check)
-        final_ports = []
-        for k, ele in total_ports.items():
-            if ele[0].flow_direction == ele[1].flow_direction:
-                final_ports.append(ele[0])
-                final_ports.append(ele[1])
-        if len(final_ports) < 4:
-            continue
-        # Strand separation - upper & lower
-        upper = []
-        lower = []
-        for elem in new_cycle["elements"]:
-            if new_cycle["elements"].index(final_ports[1].parent) \
-                    < new_cycle["elements"].index(elem) < new_cycle["elements"].index(final_ports[2].parent):
-                upper.append(elem)
-            else:
-                lower.append(elem)
-        new_cycle['up_strand'] = upper
-        new_cycle['low_strand'] = lower
-        new_cycle["ports"] = final_ports
-        # 3rd Filter, each strand has one or more pumps
-        check_up = str(dict.fromkeys(new_cycle['up_strand']))
-        check_low = str(dict.fromkeys(new_cycle['low_strand']))
-        if (p_instance in check_up) and (p_instance in check_low):
-            new_cycles.append(new_cycle)
-    return new_cycles
+# def cycles_reduction(cycles, p_instance):
+#     """reduce the found cycles, to just the cycles that fulfill the next criteria:
+#     1. it's a parallel cycle (the two strands have the same flow direction)
+#     2. it has one or more pumps in each strand
+#     finally it creates a list with the founded cycles with the next lists:
+#     'elements', 'up_strand', 'low_strand', 'ports'
+#     """
+#     new_cycles = []
+#     for cycle in cycles:
+#         n_pumps = 0
+#         total_ports = {}
+#         new_cycle = {}
+#         # all possible beginning and end of the cycle (always pipe fittings), pumps counting
+#         for port in cycle:
+#             if isinstance(port.parent, getattr(elements, p_instance)):
+#                 n_pumps += 1
+#             if isinstance(port.parent, elements.PipeFitting):
+#                 if port.parent.guid in total_ports:
+#                     total_ports[port.parent.guid].append(port)
+#                 else:
+#                     total_ports[port.parent.guid] = []
+#                     total_ports[port.parent.guid].append(port)
+#         # 1st filter, cycle has more than 2 pump-ports, 1 pump
+#         if n_pumps >= 4:
+#             new_cycle["elements"] = list(dict.fromkeys([v.parent for v in cycle]))
+#         else:
+#             continue
+#         # 2nd filter, beginning and end of the cycle (parallel check)
+#         final_ports = []
+#         for k, ele in total_ports.items():
+#             if ele[0].flow_direction == ele[1].flow_direction:
+#                 final_ports.append(ele[0])
+#                 final_ports.append(ele[1])
+#         if len(final_ports) < 4:
+#             continue
+#         # Strand separation - upper & lower
+#         upper = []
+#         lower = []
+#         for elem in new_cycle["elements"]:
+#             if new_cycle["elements"].index(final_ports[1].parent) \
+#                     < new_cycle["elements"].index(elem) < new_cycle["elements"].index(final_ports[2].parent):
+#                 upper.append(elem)
+#             else:
+#                 lower.append(elem)
+#         new_cycle['up_strand'] = upper
+#         new_cycle['low_strand'] = lower
+#         new_cycle["ports"] = final_ports
+#         # 3rd Filter, each strand has one or more pumps
+#         check_up = str(dict.fromkeys(new_cycle['up_strand']))
+#         check_low = str(dict.fromkeys(new_cycle['low_strand']))
+#         if (p_instance in check_up) and (p_instance in check_low):
+#             new_cycles.append(new_cycle)
+#     return new_cycles
 
