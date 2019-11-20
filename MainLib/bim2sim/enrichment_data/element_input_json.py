@@ -34,29 +34,38 @@ def load_element_class(instance, dataclass):
                     for c in binding[a][b]:
                         attrs_enrich[b][c] = binding[a][b][c]
 
-    x = 0
-    x.properties = []
-    x.ifc_type = "Ifc"
-    x.guid = "0041"
-    name = "hola"
+    name = "propiedad"
     enrich_values = {}
+    value = {}
+    choices = [
+        ("p1", "diameter"),
+        ("p2", "diameter"),
+        ("p1", "ancho")
+    ]
+    values = [3, 2, 7]
+    ot = dict(zip(choices, values))
     # check if element has enrich parameter-value?
     for enrich_parameter in attrs_enrich:
         if hasattr(instance, enrich_parameter):
             if getattr(instance, enrich_parameter) in attrs_enrich[enrich_parameter]:
                 enrich_values = attrs_enrich[enrich_parameter][str(getattr(instance, enrich_parameter))]
-        # else:
-        #     decision = DictDecision("Multiple possibilities found",
-        #                             choices=attrs_enrich,
-        #                             output=x.properties,
-        #                             output_key=name,
-        #                             global_key="%s_%s.%s" % (x.ifc_type, x.guid, name),
-        #                             allow_skip=True, allow_load=True, allow_save=True)
-        #                             # collect=collect_decisions, quick_decide=not collect_decisions)
+        else:
+            decision = DictDecision("Multiple possibilities found",
+                                    choices=ot,
+                                    output=enrich_values,
+                                    output_key=enrich_parameter,
+                                    global_key="%s_%s.%s" % (instance.ifc_type, instance.guid, name),
+                                    allow_skip=True, allow_load=True, allow_save=True,
+                                    collect=False, quick_decide=not True)
+            decision.decide()
+            value = decision.value
 
     # if not:
+
     # which enrich_parameter?
     # which parameter value?
     print("")
-    return enrich_values
+
+    return value
+    # return enrich_values
 

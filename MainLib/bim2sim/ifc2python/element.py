@@ -314,6 +314,7 @@ class IFCBased(Root):
             if not (propertyset_name and property_name):
                 raise NoValueError
             value = self.get_exact_property(propertyset_name, property_name)
+            print(propertyset_name, property_name, value)
         except NoValueError:
             pass
         else:
@@ -335,16 +336,16 @@ class IFCBased(Root):
             if not value is None:
                 return value
 
-                # Not implemented yed?
-        # try:
-        #     patterns = getattr(self.__class__, 'pattern_%s'%name, None)
-        #     if not patterns:
-        #         raise NoValueError("No patterns")
-        #     value = self.select_from_potential_properties(patterns, name, collect_decisions)
-        # except NoValueError:
-        #     pass
-        # else:
-        #     return value
+                # Not implemented yet? - many properties
+        try:
+            patterns = getattr(self.__class__, 'pattern_%s'%name, None)
+            if not patterns:
+                raise NoValueError("No patterns")
+            value = self.select_from_potential_properties(patterns, name, collect_decisions)
+        except NoValueError:
+            pass
+        else:
+            return value
 
         final_decision = RealDecision("Enter value for %s of %s" % (name, self.name),
                                       validate_func=lambda x: isinstance(x, float),  # TODO

@@ -15,6 +15,7 @@ def load_ifc(path):
     ifc_file = ifcopenshell.open(path)
     return ifc_file
 
+
 def propertyset2dict(propertyset):
     """Converts IfcPropertySet to python dict"""
     propertydict = {}
@@ -33,9 +34,11 @@ def propertyset2dict(propertyset):
 
     return propertydict
 
+
 def getElementByGUID(ifcfile, guid):
     element = ifcfile.by_guid(guid)
     return element
+
 
 def getIfcAttribute(ifcElement, attribute):
     """
@@ -45,6 +48,7 @@ def getIfcAttribute(ifcElement, attribute):
         return getattr(ifcElement, attribute)
     except AttributeError:
         pass
+
 
 def get_Property_Set(PropertySetName, element):
     """
@@ -69,6 +73,7 @@ def get_Property_Set(PropertySetName, element):
         return propertydict
     else:
         return None
+
 
 def get_property_sets(element):
     """Returns all PropertySets of element
