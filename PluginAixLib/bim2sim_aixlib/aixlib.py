@@ -23,7 +23,7 @@ class AixLib(BIM2SIMManager):
             inspect.save(PROJECT.workflow)
 
         enrich = hvac.Enrich()
-        enrich.run(inspect.instances, "statistical_year", "2004")
+        enrich.run(inspect.instances)
 
         makegraph = hvac.MakeGraph()
         if not makegraph.load(PROJECT.workflow):

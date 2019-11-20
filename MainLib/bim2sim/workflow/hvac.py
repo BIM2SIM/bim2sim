@@ -262,21 +262,19 @@ class Enrich(Workflow):
         self.enrich_data = {}
         self.enriched_instances = {}
 
-    def enrich_instance(self, instance, enrich_parameter, parameter_value):
+    def enrich_instance(self, instance):
 
         json_data = DataClass()
-
-        attrs_enrich = element_input_json.load_element_class(instance, enrich_parameter, parameter_value, json_data)
+        attrs_enrich = element_input_json.load_element_class(instance, json_data)
 
         return attrs_enrich
 
     @Workflow.log
-    def run(self, instances, enrich_parameter, parameter_value):
+    def run(self, instances):
         # enrichment_parameter --> Class
-        self.logger.info("Enrichment of the elements with: \n" + enrich_parameter + " as \"Enrich Parameter\"\n"
-                         + parameter_value + " as \"parameter value\" \n")
+        self.logger.info("Enrichment of the elements with:")
         for instance in instances:
-            enrichment_data = self.enrich_instance(instances[instance], enrich_parameter, parameter_value)
+            enrichment_data = self.enrich_instance(instances[instance])
             setattr(instances[instance], "enrichment_data", enrichment_data)
 
         self.logger.info("Applied successfully attributes enrichment on elements")

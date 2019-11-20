@@ -190,6 +190,32 @@ class SpaceHeater(element.Element):
     )
 
 
+class HeatPump(element.Element):
+    ifc_type = 'IfcUnitaryEquipment'
+
+    def is_consumer(self):
+        return True
+
+    nominal_power = attribute.Attribute(
+        name='nominal_power',
+        description="Nominal power of SpaceHeater",
+        default=42,
+    )
+
+
+class Chiller(element.Element):
+    ifc_type = 'IfcChiller'
+
+    def is_consumer(self):
+        return True
+
+    nominal_power = attribute.Attribute(
+        name='nominal_power',
+        description="Nominal power of SpaceHeater",
+        default=42,
+    )
+
+
 class StorageDevice(element.Element):
     ifc_type = "IfcStorageDevice"
 

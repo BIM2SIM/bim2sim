@@ -33,5 +33,35 @@
                 "length": null
             }
         }
+    },
+    "HeatPump": {
+        "class": "HeatPump",
+        "statistical_year": {
+            "2000": {
+                "name": "HeatPump_enrichment_2000",
+                "nominal_power": null,
+                "length": null
+            },
+            "2004": {
+                "name": "HeatPump_enrichment_2004",
+                "nominal_power": null,
+                "length": null
+            }
+        }
+    },
+    "Chiller": {
+        "class": "Chiller",
+        "statistical_year": {
+            "2000": {
+                "name": "Chiller_enrichment_2000",
+                "nominal_power": null,
+                "length": null
+            },
+            "2004": {
+                "name": "Chiller_enrichment_2004",
+                "nominal_power": null,
+                "length": null
+            }
+        }
     }
 }
