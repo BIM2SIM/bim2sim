@@ -21,6 +21,7 @@ from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.enrichment_data import element_input_json
+from bim2sim.decision import DictDecision
 
 
 IFC_TYPES = (
@@ -262,19 +263,35 @@ class Enrich(Workflow):
         self.enrich_data = {}
         self.enriched_instances = {}
 
-    def enrich_instance(self, instance):
+    def enrich_instance(self, instance, json_data):
 
-        json_data = DataClass()
         attrs_enrich = element_input_json.load_element_class(instance, json_data)
 
         return attrs_enrich
 
     @Workflow.log
     def run(self, instances):
+        json_data = DataClass()
         # enrichment_parameter --> Class
-        self.logger.info("Enrichment of the elements with:")
+        self.logger.info("Enrichment of the elements...")
+        # general question -> year of construction, all elements
+        options = {}
+        for i in range(len(json_data.element_bind["statistical_years"])):
+            options["construction_year", i] = json_data.element_bind["statistical_years"][i]
+        enrich_parameter = []
+        decision = DictDecision("Multiple possibilities found",
+                                choices=options,
+                                output=enrich_parameter,
+                                output_key="enrich_parameter",
+                                global_key="Construction year",
+                                allow_skip=True, allow_load=True, allow_save=True,
+                                collect=False, quick_decide=not True)
+        decision.decide()
+        enrich_parameter = decision.value
+        # specific question -> each instance
         for instance in instances:
-            enrichment_data = self.enrich_instance(instances[instance])
+            setattr(instances[instance], "enrich_parameter", enrich_parameter)
+            enrichment_data = self.enrich_instance(instances[instance], json_data)
             setattr(instances[instance], "enrichment_data", enrichment_data)
 
         self.logger.info("Applied successfully attributes enrichment on elements")

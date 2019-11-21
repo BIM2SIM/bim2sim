@@ -336,7 +336,6 @@ class IFCBased(Root):
             if not value is None:
                 return value
 
-                # Not implemented yet? - many properties
         try:
             patterns = getattr(self.__class__, 'pattern_%s'%name, None)
             if not patterns:
