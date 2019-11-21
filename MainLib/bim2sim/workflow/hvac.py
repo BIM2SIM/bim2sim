@@ -393,6 +393,8 @@ class Reduce(Workflow):
 
         self.logger.info("Applied %d aggregations as \"PipeStrand\"", number_ps)
         self.logger.info("Applied %d aggregations as \"UnderfloorHeating\"", number_fh)
+        self.logger.info("Applied %d aggregations as \"ParallelPump\"", number_pp)
+        self.logger.info("Applied %d aggregations as \"ParallelSpaceHeater\"", number_psh)
         self.logger.info("Removed %d pipe-like elements", number_pipes)
 
         # self.logger.info("Setting flow_sides")

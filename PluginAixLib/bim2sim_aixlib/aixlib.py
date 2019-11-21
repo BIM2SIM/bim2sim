@@ -2,7 +2,7 @@
 from ast import literal_eval
 
 from bim2sim.manage import BIM2SIMManager, PROJECT
-from bim2sim.workflow import hvac
+from bim2sim.workflow import hvac, bps, thermalzones
 from bim2sim.export.modelica import standardlibrary
 
 class AixLib(BIM2SIMManager):
@@ -13,7 +13,12 @@ class AixLib(BIM2SIMManager):
         self.relevant_ifc_types = hvac.IFC_TYPES
 
     def run(self):
+        ###
 
+        recognition = thermalzones.Recognition()
+        recognition.run(self.ifc, thermalzones.IFC_TYPES)
+
+        ###
         prepare = hvac.Prepare()
         prepare.run(self.task, hvac.IFC_TYPES)
 
