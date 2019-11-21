@@ -21,7 +21,7 @@ from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.enrichment_data import element_input_json
-from bim2sim.decision import DictDecision
+from bim2sim.decision import DictDecision, ListDecision
 
 
 IFC_TYPES = (
@@ -275,14 +275,8 @@ class Enrich(Workflow):
         # enrichment_parameter --> Class
         self.logger.info("Enrichment of the elements...")
         # general question -> year of construction, all elements
-        options = {}
-        for i in range(len(json_data.element_bind["statistical_years"])):
-            options["construction_year", i] = json_data.element_bind["statistical_years"][i]
-        enrich_parameter = []
-        decision = DictDecision("Multiple possibilities found",
-                                choices=options,
-                                output=enrich_parameter,
-                                output_key="enrich_parameter",
+        decision = ListDecision(question="Multiple possibilities found",
+                                choices=json_data.element_bind["statistical_years"],
                                 global_key="Construction year",
                                 allow_skip=True, allow_load=True, allow_save=True,
                                 collect=False, quick_decide=not True)

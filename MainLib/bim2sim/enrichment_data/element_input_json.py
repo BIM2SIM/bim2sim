@@ -1,4 +1,4 @@
-from bim2sim.decision import DictDecision, BoolDecision, ListDecision
+from bim2sim.decision import BoolDecision, ListDecision
 
 
 def load_element_ifc(element, ele_ifc, enrich_parameter, parameter_value, dataclass):
@@ -21,7 +21,17 @@ def load_element_class(instance, dataclass):
     this function fills a data class object, with the information found in the
     enrichment data, based on the class, parameter and parameter value.
     """
-    # 1. check if want to enrich instance
+
+    ele_class = str(instance.__class__)[
+                str(instance.__class__).rfind(".") + 1:str(instance.__class__).rfind("'")]
+    binding = dataclass.element_bind
+    if ele_class in binding:
+        attrs_enrich = binding[ele_class]
+        del attrs_enrich["class"]
+    else:
+        return {}
+
+    # 1 check if want to enrich instance
     first_decision = BoolDecision(
         question="Do you want for %s_%s to be enriched" % (instance.ifc_type, instance.guid),
         collect=False)
@@ -31,11 +41,6 @@ def load_element_class(instance, dataclass):
     if not first_decision.value:
         return {}
 
-    ele_class = str(instance.__class__)[
-                str(instance.__class__).rfind(".") + 1:str(instance.__class__).rfind("'")]
-    binding = dataclass.element_bind
-    attrs_enrich = binding[ele_class]
-    del attrs_enrich["class"]
 
     # 2. check if element has enrich parameter-value?
     for enrich_parameter in attrs_enrich:
@@ -67,11 +72,8 @@ def load_element_class(instance, dataclass):
         if len(options_parameter_value) == 1:
             return attrs_enrich[options_enrich_parameter[0]][options_parameter_value[0]]
         else:
-            for i in range(len(options_parameter_value)):
-                options[options_enrich_parameter[0], i] = options_parameter_value[i]
-            decision = DictDecision("Multiple possibilities found",
-                                    choices=options,
-                                    output_key="enrich_parameter",
+            decision = ListDecision("Multiple possibilities found",
+                                    choices=options_parameter_value,
                                     global_key="%s_%s.Enrich_Parameter" % (instance.ifc_type, instance.guid),
                                     allow_skip=True, allow_load=True, allow_save=True,
                                     collect=False, quick_decide=not True)
@@ -79,30 +81,22 @@ def load_element_class(instance, dataclass):
             return attrs_enrich[options_enrich_parameter[0]][str(decision.value)]
     # many enrich parameter
     else:
-        for i in range(len(options_enrich_parameter)):
-            options["Enrich Parameter", i] = options_enrich_parameter[i]
-        decision1 = DictDecision("Multiple possibilities found",
-                                 choices=options,
-                                 output_key="enrich_parameter",
+        decision1 = ListDecision("Multiple possibilities found",
+                                 choices=options_enrich_parameter,
                                  global_key="%s_%s.Enrich_Parameter" % (instance.ifc_type, instance.guid),
                                  allow_skip=True, allow_load=True, allow_save=True,
                                  collect=False, quick_decide=not True)
         decision1.decide()
-        value_d1 = decision1.value
         decision1.collection.clear()
         decision1.stored_decisions.clear()
-        options_parameter_value = list(attrs_enrich[value_d1])
+        options_parameter_value = list(attrs_enrich[decision1.value])
         # one parameter value
         if len(options_parameter_value) == 1:
-            return attrs_enrich[value_d1][options_parameter_value[0]]
+            return attrs_enrich[decision1.value][options_parameter_value[0]]
         # many parameter values
         else:
-            options = {}
-            for i in range(len(options_parameter_value)):
-                options[value_d1, i] = options_parameter_value[i]
-            decision2 = DictDecision("Multiple possibilities found",
-                                     choices=options,
-                                     output_key=".Parameter_Value",
+            decision2 = ListDecision("Multiple possibilities found",
+                                     choices=options_parameter_value,
                                      global_key="%s_%s.Parameter_Value" % (instance.ifc_type, instance.guid),
                                      allow_skip=True, allow_load=True, allow_save=True,
                                      collect=False, quick_decide=not True)
