@@ -619,9 +619,10 @@ class Element(BaseElement, IFCBased):
                     self.logger.warning("Not included %s as Port in %s", element_port_connection.is_a(), self)
 
         # valid for IFC for Revit v19.1.0.0
-        element_port_connections = self.ifc.HasPorts
-        for element_port_connection in element_port_connections:
-            self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
+        if hasattr(self.ifc, "HasPorts"):
+            element_port_connections = self.ifc.HasPorts
+            for element_port_connection in element_port_connections:
+                self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
 
     @staticmethod
     def _init_factory():

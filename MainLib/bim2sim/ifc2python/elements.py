@@ -323,7 +323,11 @@ class AirTerminal(element.Element):
 class ThermalZones(element.Element):
     ifc_type = "IfcSpace"
 
-
+    area = attribute.Attribute(
+        name='area',
+        default_ps=('Dimensions', 'Area'),
+        default=0
+    )
 
 class Medium(element.Element):
     ifc_type = "IfcDistributionSystems"
@@ -332,9 +336,18 @@ class Medium(element.Element):
 class Wall(element.Element):
     ifc_type = "IfcWall"
 
-    @property
-    def area(self):
-        return 1
+    area = attribute.Attribute(
+        name='area',
+        default_ps=('Dimensions', 'Area'),
+        default=0
+    )
+
+    is_external = attribute.Attribute(
+        name='is_external',
+        default_ps=('Pset_WallCommon', 'IsExternal'),
+        default=0
+    )
+
 
     @property
     def capacity(self):
@@ -343,6 +356,15 @@ class Wall(element.Element):
     @property
     def u_value(self):
         return 1
+
+    @property
+    def orientation(self):
+        if self.is_external is True:
+            orientation = "NI"
+        else:
+            orientation = "Intern"
+        return orientation
+
 
 
 class OuterWall(Wall):
@@ -353,6 +375,25 @@ class OuterWall(Wall):
 
 class Window(element.Element):
     ifc_type = "IfcWindow"
+
+    is_external = attribute.Attribute(
+        name='is_external',
+        default_ps=('Pset_WindowCommon', 'IsExternal'),
+        default=0
+    )
+
+
+
+
+    # @property
+    # def is_external(self):
+    #     external = False
+    #     if 'Daten' in self.Pset_WindowCommon:
+    #         if 'Lage Bauteil' in self.Pset_WindowCommon['Daten']:
+    #             if 'außen' in self.Pset_WindowCommon['Daten']['Lage Bauteil']:
+    #                 external = True
+    #
+    #     return external
 
     @property
     def area(self):
@@ -365,6 +406,15 @@ class Window(element.Element):
     @property
     def g_value(self):
         return 1
+
+    # @property
+    # def orientation(self):
+    #     if self.is_external is True:
+    #         orientation = self.ifc.Tag
+    #     else:
+    #         orientation = "Intern"
+    #     return orientation
+
 
 # class ThermalZone(element.Element):
 #     ifc_type = "IfcSpace"
