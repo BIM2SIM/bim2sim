@@ -286,7 +286,7 @@ class Enrich(Workflow):
         for instance in instances:
             setattr(instances[instance], "enrich_parameter", enrich_parameter)
             enrichment_data = self.enrich_instance(instances[instance], json_data)
-            setattr(instances[instance], "enrichment_data", enrichment_data)
+            setattr(instances[instance], "_enrichment_data", enrichment_data)
 
         self.logger.info("Applied successfully attributes enrichment on elements")
         # runs all enrich methods

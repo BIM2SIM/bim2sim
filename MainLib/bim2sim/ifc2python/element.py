@@ -146,7 +146,7 @@ class IFCBased(Root):
         super().__init__(*args, guid=ifc.GlobalId, **kwargs)
         self.ifc = ifc
         self.name = ifc.Name
-
+        self._enrichment_data = None
         self._propertysets = None
         self._type_propertysets = None
 
@@ -329,7 +329,7 @@ class IFCBased(Root):
                 return value
         # 3. use enrich, if it exists
         try:
-            value = self.enrichment_data[name]
+            value = self._enrichment_data[name]
         except KeyError:
             pass
         else:
