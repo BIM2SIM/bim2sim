@@ -24,9 +24,9 @@ def load_element_class(instance, dataclass):
 
     ele_class = str(instance.__class__)[
                 str(instance.__class__).rfind(".") + 1:str(instance.__class__).rfind("'")]
-    binding = dataclass.element_bind
+    binding = dict(dataclass.element_bind)
     if ele_class in binding:
-        attrs_enrich = binding[ele_class]
+        attrs_enrich = dict(binding[ele_class])
         del attrs_enrich["class"]
     else:
         return {}
