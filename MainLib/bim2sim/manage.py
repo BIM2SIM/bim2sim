@@ -26,9 +26,11 @@ class BIM2SIMManager:
         self.config = get_config()
 
         self.task = task
-        self.ifc_path = self.get_ifc() # actual ifc # TODO: use multiple ifs files
+        self.ifc_path = self.get_ifc()  # actual ifc # TODO: use multiple ifs files
+        self.ifc_path_arch = 'C:\\temp\\bim2sim\\testproject\\ifc\\KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
         assert self.ifc_path, "No ifc found. Check '%s'"%(PROJECT.ifc)
         self.ifc = ifc2python.load_ifc(os.path.abspath(self.ifc_path))
+        self.ifc_arch = ifc2python.load_ifc(os.path.abspath(self.ifc_path_arch))
         self.logger.info("The exporter version of the IFC file is '%s'",
                          self.ifc.wrapped_data.header.file_name.originating_system)
 

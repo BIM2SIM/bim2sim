@@ -13,12 +13,7 @@ class AixLib(BIM2SIMManager):
         self.relevant_ifc_types = hvac.IFC_TYPES
 
     def run(self):
-        ###
 
-        # recognition = thermalzones.Recognition()
-        # recognition.run(self.ifc, thermalzones.IFC_TYPES)
-
-        ###
         prepare = hvac.Prepare()
         prepare.run(self.task, hvac.IFC_TYPES)
 
@@ -26,6 +21,11 @@ class AixLib(BIM2SIMManager):
         if not inspect.load(PROJECT.workflow):
             inspect.run(self.task, self.ifc, hvac.IFC_TYPES)
             inspect.save(PROJECT.workflow)
+
+        ### Thermalzones
+        recognition = thermalzones.Recognition()
+        recognition.run(self.ifc_arch, thermalzones.IFC_TYPES, inspect.instances)
+        ###
 
         enrich = hvac.Enrich()
         enrich.run(inspect.instances)

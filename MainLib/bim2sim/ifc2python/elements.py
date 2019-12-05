@@ -8,7 +8,11 @@ import numpy as np
 from bim2sim.decorators import cached_property
 from bim2sim.ifc2python import element, attribute
 from bim2sim.decision import BoolDecision
-
+from shapely.geometry.polygon import Polygon
+from shapely.geometry import Point
+import ifcopenshell.geom
+import matplotlib.pyplot as plt
+from bim2sim.ifc2python import elements
 
 def diameter_post_processing(value):
     if isinstance(value, list):
@@ -320,7 +324,7 @@ class AirTerminal(element.Element):
         return 1
 
 
-class ThermalZones(element.Element):
+class ThermalZone(element.Element):
     ifc_type = "IfcSpace"
 
     area = attribute.Attribute(
@@ -328,6 +332,51 @@ class ThermalZones(element.Element):
         default_ps=('Dimensions', 'Area'),
         default=0
     )
+
+    # building_space_elements = attribute.Attribute(
+    #     name='building_space_elements',
+    #     functions=[_add_elements_space]
+    # )
+
+    @classmethod
+    def _add_elements_space(cls, space, hvac_instances):
+
+        thermal_zone = cls(space)
+        settings = ifcopenshell.geom.settings()
+        vertices = []
+        shape = ifcopenshell.geom.create_shape(settings, space)
+        i = 0
+        while i < len(shape.geometry.verts):
+            vertices.append((shape.geometry.verts[i] + thermal_zone.position[0],
+                             shape.geometry.verts[i + 1] + thermal_zone.position[1]))
+            i += 3
+        polygon = Polygon(vertices)
+
+        bps_space_elements = []
+
+        for ele in space.BoundedBy:
+            if ele.RelatedBuildingElement:
+                bps_space_elements.append(ele.RelatedBuildingElement)
+
+        hvac_space_elements = []
+
+        for ele in hvac_instances:
+            if (not isinstance(hvac_instances[ele], elements.PipeFitting)) and \
+                    (not isinstance(hvac_instances[ele], elements.Pipe)):
+                if abs(hvac_instances[ele].position[2]/1000-thermal_zone.position[2]) < 3: # in same floor?
+                    point = Point(hvac_instances[ele].position[0]/1000, hvac_instances[ele].position[1]/1000)
+                    if polygon.contains(point):
+                        hvac_space_elements.append(hvac_instances[ele])
+                        # plt.plot(*point.xy, marker='x')
+                        # plt.plot(*polygon.exterior.xy)
+                        # plt.show()
+
+        thermal_zone._bps_space_elements = bps_space_elements
+        thermal_zone._hvac_space_elements = hvac_space_elements
+
+        return thermal_zone
+
+
 
 class Medium(element.Element):
     ifc_type = "IfcDistributionSystems"

@@ -10,6 +10,7 @@ from shapely.geometry import Point
 
 
 
+
 IFC_TYPES = (
     'IfcSpace',
     'IfcZone'
@@ -24,14 +25,15 @@ class Recognition (Workflow):
         self.instances_tz = {}
 
     @Workflow.log
-    def run(self, ifc, relevant_ifc_types):
+    def run(self, ifc, relevant_ifc_types, hvac_instances):
         self.logger.info("Creates python representation of relevant ifc types")
 
         settings = ifcopenshell.geom.settings()
 
         spaces = ifc.by_type('IfcSpace')
+        del spaces[5] #problem mit Flur
         for space in spaces:
-            representation = Element.factory(space)
+            representation = elements.ThermalZone._add_elements_space(space, hvac_instances)
             self.instances_tz[representation.guid] = representation
 
         storeys = ifc.by_type('IfcBuildingStorey')
