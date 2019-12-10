@@ -1,5 +1,5 @@
 {
-    "statistical_years":  ["2000", "2004"],
+    "statistical_years":  [2000, 2004],
     "Boiler": {
         "class": "Boiler",
         "statistical_year": {

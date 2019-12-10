@@ -79,25 +79,49 @@ class Boiler(element.Element):
 
         return connections
 
-    water_volume = attribute.Attribute(
-        name='water_volume',
-        description="Water volume of boiler"
-    )
+    @property
+    def water_volume(self):
+        return self.find('water_volume')
 
-    min_power = attribute.Attribute(
-        name='min_power',
-        description="Minimum power that boiler operates at"
-    )
 
-    rated_power = attribute.Attribute(
-        name='rated_power',
-        description="Rated power of boiler",
-    )
+    @cached_property
+    def min_power(self):
+        """min_power: float
+            Minimum power that boiler operates at."""
+        return self.find('min_power')
 
-    efficiency = attribute.Attribute(
-        name='efficiency',
-        description="Efficiency of boiler provided as list with pairs of [percentage_of_rated_power,efficiency]"
-    )
+    @cached_property
+    def rated_power(self):
+        """rated_power: float
+            Rated power of boiler."""
+        return self.find('rated_power')
+
+    @cached_property
+    def efficiency(self):
+        """efficiency: list
+            Efficiency of boiler provided as list with pairs of [
+            percentage_of_rated_power,efficiency]"""
+        return self.find('efficiency')
+
+    # water_volume = attribute.Attribute(
+    #     name='water_volume',
+    #     description="Water volume of boiler"
+    # )
+
+    # min_power = attribute.Attribute(
+    #     name='min_power',
+    #     description="Minimum power that boiler operates at"
+    # )
+    #
+    # rated_power = attribute.Attribute(
+    #     name='rated_power',
+    #     description="Rated power of boiler",
+    # )
+    #
+    # efficiency = attribute.Attribute(
+    #     name='efficiency',
+    #     description="Efficiency of boiler provided as list with pairs of [percentage_of_rated_power,efficiency]"
+    # )
 
 
 class Pipe(element.Element):
@@ -112,6 +136,13 @@ class Pipe(element.Element):
         ],
         ifc_postprocessing=diameter_post_processing,
     )
+    # @property
+    # def diameter(self):
+    #     result = self.find('diameter')
+    #
+    #     if isinstance(result, list):
+    #         return np.average(result).item()
+    #     return result
 
     @staticmethod
     def _length_from_geometry(bind, name):
@@ -163,11 +194,17 @@ class PipeFitting(element.Element):
         ],
         ifc_postprocessing=diameter_post_processing,
     )
+    @property
+    def length(self):
+        result = self.find('length')
 
-    length = attribute.Attribute(
-        name='length',
-        default=0,
-    )
+        if isinstance(result, list):
+            return np.average(result).item()
+        return result
+    # length = attribute.Attribute(
+    #     name='length',
+    #     default=0,
+    # )
 
     pressure_class = attribute.Attribute(
         name='pressure_class',
@@ -339,7 +376,7 @@ class ThermalZone(element.Element):
     # )
 
     @classmethod
-    def _add_elements_space(cls, space, hvac_instances):
+    def add_elements_space(cls, space, hvac_instances):
 
         thermal_zone = cls(space)
         settings = ifcopenshell.geom.settings()
@@ -375,7 +412,6 @@ class ThermalZone(element.Element):
         thermal_zone._hvac_space_elements = hvac_space_elements
 
         return thermal_zone
-
 
 
 class Medium(element.Element):

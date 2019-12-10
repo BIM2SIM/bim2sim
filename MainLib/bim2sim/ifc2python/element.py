@@ -146,7 +146,7 @@ class IFCBased(Root):
         super().__init__(*args, guid=ifc.GlobalId, **kwargs)
         self.ifc = ifc
         self.name = ifc.Name
-        self._enrichment_data = None
+        self.enrichment = {}
         self._propertysets = None
         self._type_propertysets = None
 
@@ -307,7 +307,6 @@ class IFCBased(Root):
 
     def search(self, name, collect_decisions=False):
         """Search all potential sources for property (potentially time consuming)"""
-        # 1. for what?
         try:
             propertyset_name, property_name = getattr(
                 self.__class__, 'default_%s' % name, (None, None))
@@ -319,7 +318,7 @@ class IFCBased(Root):
             pass
         else:
             return value
-        # 2. find property in ifc, doesnt use 1.
+        # 2. find property in ifc
         try:
             value = self.finder.find(self, name)
         except AttributeError:
@@ -328,16 +327,117 @@ class IFCBased(Root):
             if not value is None:
                 return value
         # 3. use enrich, if it exists
+        # check if can be enriched
         try:
-            value = self._enrichment_data[name]
+            attrs_enrich = self.enrichment["enrichment_data"]
         except KeyError:
             pass
         else:
-            if not value is None:
-                return value
+            # check if decision has been made
+            try:
+                t1 = self.enrichment["enrich_decision"]
+            except KeyError:
+                # check if want to enrich instance
+                first_decision = BoolDecision(
+                    question="Do you want for %s_%s to be enriched" % (self.ifc_type, self.guid),
+                    collect=False)
+                first_decision.decide()
+                first_decision.collection.clear()
+                first_decision.stored_decisions.clear()
+                self.enrichment["enrich_decision"] = first_decision.value
+
+            if self.enrichment["enrich_decision"]:
+                # enrichment via incomplete data (has enrich parameter value)
+                try:
+                    value = attrs_enrich[name]
+                except KeyError:
+                    pass
+                else:
+                    if value is not None:
+                        return value
+                # enrichment via selected data (questions)
+                try:
+                    t2 = self.enrichment["selected_enrichment_data"]
+                except KeyError:
+                    general_decision = BoolDecision(
+                        question="Do you want for this instance to be enriched by construction year %s"
+                                 % self.enrichment["enrich_parameter"],
+                        collect=False)
+                    general_decision.decide()
+                    general_decision.collection.clear()
+                    general_decision.stored_decisions.clear()
+                    # 3. check if general enrichment - construction year
+                    if general_decision.value:
+                        if "statistical_year" in attrs_enrich:
+                            if self.enrichment["enrich_parameter"] in attrs_enrich["statistical_year"]:
+                                self.enrichment["selected_enrichment_data"] = attrs_enrich["statistical_year"][
+                                    self.enrichment["enrich_parameter"]]
+                else:
+                    self.enrichment["selected_enrichment_data"] = {}
+                    # # specific enrichment (enrichment parameter and values)
+                    # options = {}
+                    # options_enrich_parameter = list(attrs_enrich.keys())
+                    # # no enrichment exists
+                    # if len(options_enrich_parameter) < 1:
+                    #     return {}
+                    # # only one enrich_parameter
+                    # elif len(options_enrich_parameter) == 1:
+                    #     options_parameter_value = list(attrs_enrich[options_enrich_parameter[0]])
+                    #     if len(options_parameter_value) == 1:
+                    #         return attrs_enrich[options_enrich_parameter[0]][options_parameter_value[0]]
+                    #     else:
+                    #         decision = ListDecision("Multiple possibilities found",
+                    #                                 choices=options_parameter_value,
+                    #                                 global_key="%s_%s.Enrich_Parameter" % (instance.ifc_type, instance.guid),
+                    #                                 allow_skip=True, allow_load=True, allow_save=True,
+                    #                                 collect=False, quick_decide=not True)
+                    #         decision.decide()
+                    #         return attrs_enrich[options_enrich_parameter[0]][str(decision.value)]
+                    # # many enrich parameter
+                    # else:
+                    #     decision1 = ListDecision("Multiple possibilities found",
+                    #                              choices=options_enrich_parameter,
+                    #                              global_key="%s_%s.Enrich_Parameter" % (instance.ifc_type, instance.guid),
+                    #                              allow_skip=True, allow_load=True, allow_save=True,
+                    #                              collect=False, quick_decide=not True)
+                    #     decision1.decide()
+                    #     decision1.collection.clear()
+                    #     decision1.stored_decisions.clear()
+                    #     options_parameter_value = list(attrs_enrich[decision1.value])
+                    #     # one parameter value
+                    #     if len(options_parameter_value) == 1:
+                    #         return attrs_enrich[decision1.value][options_parameter_value[0]]
+                    #     # many parameter values
+                    #     else:
+                    #         decision2 = ListDecision("Multiple possibilities found",
+                    #                                  choices=options_parameter_value,
+                    #                                  global_key="%s_%s.Parameter_Value" % (instance.ifc_type, instance.guid),
+                    #                                  allow_skip=True, allow_load=True, allow_save=True,
+                    #                                  collect=False, quick_decide=not True)
+                    #         decision2.decide()
+                    #         return attrs_enrich[str(decision1.value)][str(decision2.value)]
+            else:
+                pass
 
         try:
-            patterns = getattr(self.__class__, 'pattern_%s'%name, None)
+            value = self.enrichment["selected_enrichment_data"][name]
+        except KeyError:
+            pass
+        else:
+            if value is not None:
+                return value
+
+        # try:
+        #     value = self.enrichment["selected_enrichment_data"][name]
+        # except KeyError:
+        #     pass
+        # else:
+        #     if value is not None:
+        #         return value
+
+        ##
+        try:
+            patterns = getattr(self.__class__, 'pattern_%s' % name, None)
             if not patterns:
                 raise NoValueError("No patterns")
             value = self.select_from_potential_properties(patterns, name, collect_decisions)

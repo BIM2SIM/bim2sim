@@ -4,17 +4,6 @@ import ifcopenshell.geom
 from bim2sim.workflow import Workflow
 from bim2sim.ifc2python.element import Element
 from bim2sim.ifc2python import elements
-import matplotlib.pyplot as plt
-from shapely.geometry.polygon import Polygon
-from shapely.geometry import Point
-
-
-
-
-IFC_TYPES = (
-    'IfcSpace',
-    'IfcZone'
-)
 
 
 class Recognition (Workflow):
@@ -25,80 +14,14 @@ class Recognition (Workflow):
         self.instances_tz = {}
 
     @Workflow.log
-    def run(self, ifc, relevant_ifc_types, hvac_instances):
+    def run(self, ifc, hvac_instances):
         self.logger.info("Creates python representation of relevant ifc types")
-
-        settings = ifcopenshell.geom.settings()
 
         spaces = ifc.by_type('IfcSpace')
         del spaces[5] #problem mit Flur
         for space in spaces:
-            representation = elements.ThermalZone._add_elements_space(space, hvac_instances)
+            representation = elements.ThermalZone.add_elements_space(space, hvac_instances)
             self.instances_tz[representation.guid] = representation
-
-        storeys = ifc.by_type('IfcBuildingStorey')
-        for storey in storeys:
-            externals = []
-            spaces = storey.IsDecomposedBy[0].RelatedObjects
-            # for ele in storey.ContainsElements[0].RelatedElements:
-            #     representation = Element.factory(ele)
-            #     if isinstance(representation, elements.Wall):
-            #         if representation.is_external is True:
-            #             externals.append(ele)
-            #
-            #             vertices = []
-            #             shape = ifcopenshell.geom.create_shape(settings, representation.ifc)
-            #             i = 0
-            #             while i < len(shape.geometry.verts):
-            #                 vertices.append((shape.geometry.verts[i] + representation.position[0],
-            #                                  shape.geometry.verts[i + 1] + representation.position[1]))
-            #                 i += 3
-            #             # vertices2 = list(dict.fromkeys(vertices))
-            #             # vertices2.sort(key=lambda tup: tup[0])
-            #             # vertices2.append(vertices2[0])
-            #             plt.plot(*Polygon(vertices).exterior.xy)
-            #             plt.show()
-            #         else:
-            #             self.instances_tz[representation.guid] = representation
-            #     elif isinstance(representation, elements.Window):
-            #         if representation.is_external is True:
-            #             externals.append(ele)
-            #         else:
-            #             self.instances_tz[representation.guid] = representation
-            if len(spaces) != 0:
-                for space in spaces:
-                    representation = Element.factory(space)
-                    vertices = []
-                    shape = ifcopenshell.geom.create_shape(settings, representation.ifc)
-                    i = 0
-                    while i < len(shape.geometry.verts):
-                        vertices.append((shape.geometry.verts[i] + representation.position[0],
-                                         shape.geometry.verts[i + 1] + representation.position[1]))
-                        i += 3
-                    vertices2 = list(dict.fromkeys(vertices))
-                    vertices2.sort(key=lambda tup: tup[0])
-                    vertices2.append(vertices2[0])
-                    plt.plot(*Polygon(vertices).exterior.xy)
-                    plt.plot(*Polygon(vertices2).exterior.xy)
-                    plt.show()
-
-                # plt.plot(*ps.exterior.xy)
-                        # plt.show()
-                        # for ele in externals:
-                        #     pw = bps_functions.get_polygon(ele)
-                        #     # plt.plot(*pw.xy, 'k')
-                        #     if pw.intersects(ps) or ps.contains(pw):
-                        #         space_.append(ele)
-                        #         # plt.plot(*pw.xy)
-                        # # plt.show()
-
-
-
-        walls = ifc.by_type('IfcWall')
-        storeys_elements = {}
-        tolerance = [[0.5, 0.5], [0.5, -0.5], [-0.5, -0.5], [-0.5, 0.5]]
-
-
 
 
 class Inspect(Workflow):

@@ -21,7 +21,7 @@ from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.enrichment_data import element_input_json
-from bim2sim.decision import DictDecision, ListDecision
+from bim2sim.decision import DictDecision, ListDecision, RealDecision
 
 
 IFC_TYPES = (
@@ -275,18 +275,26 @@ class Enrich(Workflow):
         # enrichment_parameter --> Class
         self.logger.info("Enrichment of the elements...")
         # general question -> year of construction, all elements
-        decision = ListDecision(question="Multiple possibilities found",
-                                choices=json_data.element_bind["statistical_years"],
+        decision = RealDecision("Enter value for the construction year",
+                                validate_func=lambda x: isinstance(x, float),  # TODO
                                 global_key="Construction year",
-                                allow_skip=True, allow_load=True, allow_save=True,
-                                collect=False, quick_decide=not True)
+                                allow_skip=False, allow_load=True, allow_save=True,
+                                collect=False, quick_decide=False)
         decision.decide()
-        enrich_parameter = decision.value
+        delta = float("inf")
+        year_selected = None
+        for year in json_data.element_bind["statistical_years"]:
+            if abs(year - decision.value) < delta:
+                delta = abs(year - decision.value)
+                year_selected = int(year)
+        enrich_parameter = year_selected
         # specific question -> each instance
         for instance in instances:
-            setattr(instances[instance], "enrich_parameter", enrich_parameter)
+
             enrichment_data = self.enrich_instance(instances[instance], json_data)
-            setattr(instances[instance], "_enrichment_data", enrichment_data)
+            if bool(enrichment_data):
+                instances[instance].enrichment["enrichment_data"] = enrichment_data
+                instances[instance].enrichment["enrich_parameter"] = enrich_parameter
 
         self.logger.info("Applied successfully attributes enrichment on elements")
         # runs all enrich methods

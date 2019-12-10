@@ -24,7 +24,7 @@ class AixLib(BIM2SIMManager):
 
         ### Thermalzones
         recognition = thermalzones.Recognition()
-        recognition.run(self.ifc_arch, thermalzones.IFC_TYPES, inspect.instances)
+        recognition.run(self.ifc_arch, inspect.instances)
         ###
 
         enrich = hvac.Enrich()
