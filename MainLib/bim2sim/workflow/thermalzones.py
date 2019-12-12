@@ -23,6 +23,18 @@ class Recognition (Workflow):
             representation = elements.ThermalZone.add_elements_space(space, hvac_instances)
             self.instances_tz[representation.guid] = representation
 
+        walls = ifc.by_type('IfcWall')
+        for wall in walls:
+            orientation = ()
+            representation = Element.factory(wall)
+            placementrel = representation.ifc.ObjectPlacement.PlacementRelTo
+            while placementrel is not None:
+                if placementrel.PlacementRelTo is None:
+                    orientation = placementrel.RelativePlacement.RefDirection.DirectionRatios
+                placementrel = placementrel.PlacementRelTo
+
+
+
 
 class Inspect(Workflow):
     """Analyses IFC, creates Element instances and connects them.

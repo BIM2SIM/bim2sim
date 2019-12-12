@@ -171,17 +171,11 @@ class PipeFitting(element.Element):
         ],
         ifc_postprocessing=diameter_post_processing,
     )
-    @property
-    def length(self):
-        result = self.find('length')
 
-        if isinstance(result, list):
-            return np.average(result).item()
-        return result
-    # length = attribute.Attribute(
-    #     name='length',
-    #     default=0,
-    # )
+    length = attribute.Attribute(
+        name='length',
+        default=0,
+    )
 
     pressure_class = attribute.Attribute(
         name='pressure_class',
@@ -395,6 +389,18 @@ class Medium(element.Element):
 class Wall(element.Element):
     ifc_type = "IfcWall"
 
+    @staticmethod
+    def _get_orientation(bind, name):
+        if bind.is_external is True:
+            try:
+                coordinates = bind.ifc.ObjectPlacement.PlacementRelTo
+            except AttributeError:
+                return None
+
+        else:
+            orientation = "Intern"
+        return orientation
+
     area = attribute.Attribute(
         name='area',
         default_ps=('Dimensions', 'Area'),
@@ -407,6 +413,12 @@ class Wall(element.Element):
         default=0
     )
 
+    orientation = attribute.Attribute(
+        name='orientation',
+        functions=[_get_orientation],
+        default=0
+    )
+
 
     @property
     def capacity(self):
@@ -416,20 +428,14 @@ class Wall(element.Element):
     def u_value(self):
         return 1
 
-    @property
-    def orientation(self):
-        if self.is_external is True:
-            orientation = "NI"
-        else:
-            orientation = "Intern"
-        return orientation
 
-
-
-class OuterWall(Wall):
-    @property
-    def orientation(self):
-        return 1
+    # @property
+    # def orientation(self):
+    #     if self.is_external is True:
+    #         orientation = "NI"
+    #     else:
+    #         orientation = "Intern"
+    #     return orientation
 
 
 class Window(element.Element):
