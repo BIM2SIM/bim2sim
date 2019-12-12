@@ -290,11 +290,11 @@ class Enrich(Workflow):
         enrich_parameter = year_selected
         # specific question -> each instance
         for instance in instances:
-
             enrichment_data = self.enrich_instance(instances[instance], json_data)
             if bool(enrichment_data):
                 instances[instance].enrichment["enrichment_data"] = enrichment_data
                 instances[instance].enrichment["enrich_parameter"] = enrich_parameter
+                instances[instance].enrichment["year_enrichment"] = enrichment_data["statistical_year"][str(enrich_parameter)]
 
         self.logger.info("Applied successfully attributes enrichment on elements")
         # runs all enrich methods

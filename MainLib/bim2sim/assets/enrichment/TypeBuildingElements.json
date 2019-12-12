@@ -18,15 +18,15 @@
                 "efficiency": 0.98
             }
         },
-        "Power": {
-            "2kw": {
+        "Power[kw]": {
+            "2": {
                 "name": "Boiler_enrichment_2kw",
                 "water_volume": 0.008,
                 "min_power": 16,
                 "rated_power": 16,
                 "efficiency": 0.97
             },
-            "4kw": {
+            "4": {
                 "name": "Boiler_enrichment_4kw",
                 "water_volume": 0.008,
                 "min_power": 18,

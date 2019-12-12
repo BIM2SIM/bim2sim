@@ -45,6 +45,3 @@ class DataClass(object):
         else:
             print("Your TypeElements file has the wrong format.")
 
-
-class Probe:
-    pass

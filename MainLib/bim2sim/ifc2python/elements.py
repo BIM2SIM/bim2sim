@@ -13,6 +13,7 @@ from shapely.geometry import Point
 import ifcopenshell.geom
 import matplotlib.pyplot as plt
 from bim2sim.ifc2python import elements
+from bim2sim.ifc2python.element import Element
 
 def diameter_post_processing(value):
     if isinstance(value, list):
@@ -79,49 +80,25 @@ class Boiler(element.Element):
 
         return connections
 
-    @property
-    def water_volume(self):
-        return self.find('water_volume')
+    water_volume = attribute.Attribute(
+        name='water_volume',
+        description="Water volume of boiler"
+    )
 
+    min_power = attribute.Attribute(
+        name='min_power',
+        description="Minimum power that boiler operates at"
+    )
 
-    @cached_property
-    def min_power(self):
-        """min_power: float
-            Minimum power that boiler operates at."""
-        return self.find('min_power')
+    rated_power = attribute.Attribute(
+        name='rated_power',
+        description="Rated power of boiler",
+    )
 
-    @cached_property
-    def rated_power(self):
-        """rated_power: float
-            Rated power of boiler."""
-        return self.find('rated_power')
-
-    @cached_property
-    def efficiency(self):
-        """efficiency: list
-            Efficiency of boiler provided as list with pairs of [
-            percentage_of_rated_power,efficiency]"""
-        return self.find('efficiency')
-
-    # water_volume = attribute.Attribute(
-    #     name='water_volume',
-    #     description="Water volume of boiler"
-    # )
-
-    # min_power = attribute.Attribute(
-    #     name='min_power',
-    #     description="Minimum power that boiler operates at"
-    # )
-    #
-    # rated_power = attribute.Attribute(
-    #     name='rated_power',
-    #     description="Rated power of boiler",
-    # )
-    #
-    # efficiency = attribute.Attribute(
-    #     name='efficiency',
-    #     description="Efficiency of boiler provided as list with pairs of [percentage_of_rated_power,efficiency]"
-    # )
+    efficiency = attribute.Attribute(
+        name='efficiency',
+        description="Efficiency of boiler provided as list with pairs of [percentage_of_rated_power,efficiency]"
+    )
 
 
 class Pipe(element.Element):
@@ -370,11 +347,6 @@ class ThermalZone(element.Element):
         default=0
     )
 
-    # building_space_elements = attribute.Attribute(
-    #     name='building_space_elements',
-    #     functions=[_add_elements_space]
-    # )
-
     @classmethod
     def add_elements_space(cls, space, hvac_instances):
 
@@ -393,7 +365,9 @@ class ThermalZone(element.Element):
 
         for ele in space.BoundedBy:
             if ele.RelatedBuildingElement:
-                bps_space_elements.append(ele.RelatedBuildingElement)
+                representation = Element.factory(ele.RelatedBuildingElement)
+                if not isinstance(representation, element.Dummy):
+                    bps_space_elements.append(representation)
 
         hvac_space_elements = []
 

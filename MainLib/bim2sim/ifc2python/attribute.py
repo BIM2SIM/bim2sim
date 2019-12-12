@@ -1,7 +1,7 @@
 
 import logging
 
-from bim2sim.decision import RealDecision
+from bim2sim.decision import RealDecision, BoolDecision, ListDecision
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -103,11 +103,75 @@ class Attribute:
 
     @staticmethod
     def get_from_enrichment(bind, name):
-        enrichment = getattr(bind, 'enrichment_data', None)
-        if enrichment:
-            value = enrichment.get(name)
-        else:
-            value = None
+        value = None
+        if bool(bind.enrichment):
+            attrs_enrich = bind.enrichment["enrichment_data"]
+            try:
+                bind.enrichment["enrich_decision"]
+            except KeyError:
+                # check if want to enrich instance
+                first_decision = BoolDecision(
+                    question="Do you want for %s_%s to be enriched" % (bind.ifc_type, bind.guid),
+                    collect=False)
+                first_decision.decide()
+                first_decision.collection.clear()
+                first_decision.stored_decisions.clear()
+                bind.enrichment["enrich_decision"] = first_decision.value
+
+            if bind.enrichment["enrich_decision"]:
+                # enrichment via incomplete data (has enrich parameter value)
+                try:
+                    value = attrs_enrich[name]
+                except KeyError:
+                    pass
+                else:
+                    if value is not None:
+                        return value
+                # enrichment via selected data (questions)
+                try:
+                    bind.enrichment["enrich_decision_build_year"]
+                except KeyError:
+                    general_decision = BoolDecision(
+                        question="Do you want for this instance to be enriched by construction year %s"
+                                 % bind.enrichment["enrich_parameter"],
+                        collect=False)
+                    general_decision.decide()
+                    general_decision.collection.clear()
+                    general_decision.stored_decisions.clear()
+                    bind.enrichment["enrich_decision_build_year"] = general_decision.value
+                    # 3. check if general enrichment - construction year
+                if bind.enrichment["enrich_decision_build_year"]:
+                    value = bind.enrichment["year_enrichment"][name]
+                else:
+                    # specific enrichment (enrichment parameter and values)
+                    try:
+                        bind.enrichment["selected_enrichment_data"]
+                    except KeyError:
+                        options_enrich_parameter = list(attrs_enrich.keys())
+                        decision1 = ListDecision("Multiple possibilities found",
+                                                 choices=options_enrich_parameter,
+                                                 global_key="%s_%s.Enrich_Parameter" % (bind.ifc_type, bind.guid),
+                                                 allow_skip=True, allow_load=True, allow_save=True,
+                                                 collect=False, quick_decide=not True)
+                        decision1.decide()
+                        decision1.collection.clear()
+                        decision1.stored_decisions.clear()
+
+                        decision2 = RealDecision("Enter value for the parameter %s" % decision1.value,
+                                                 validate_func=lambda x: isinstance(x, float),  # TODO
+                                                 global_key="%s" % decision1.value,
+                                                 allow_skip=False, allow_load=True, allow_save=True,
+                                                 collect=False, quick_decide=False)
+                        decision2.decide()
+                        delta = float("inf")
+                        decision2_selected = None
+                        for ele in attrs_enrich[decision1.value]:
+                            if abs(int(ele) - decision2.value) < delta:
+                                delta = abs(int(ele) - decision2.value)
+                                decision2_selected = int(ele)
+
+                        bind.enrichment["selected_enrichment_data"] = attrs_enrich[str(decision1.value)][str(decision2_selected)]
+                    value = bind.enrichment["selected_enrichment_data"][name]
         return value
 
     @staticmethod
