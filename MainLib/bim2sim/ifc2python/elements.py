@@ -360,6 +360,7 @@ class ThermalZone(element.Element):
         for ele in space.BoundedBy:
             if ele.RelatedBuildingElement:
                 representation = Element.factory(ele.RelatedBuildingElement)
+
                 if not isinstance(representation, element.Dummy):
                     bps_space_elements.append(representation)
 
@@ -376,8 +377,13 @@ class ThermalZone(element.Element):
                         # plt.plot(*polygon.exterior.xy)
                         # plt.show()
 
-        thermal_zone._bps_space_elements = bps_space_elements
+        thermal_zone._bps_space_elements = bps_space_elements #get bps instances in workflow.bps
         thermal_zone._hvac_space_elements = hvac_space_elements
+
+        for ele in thermal_zone._bps_space_elements:
+            ele.thermal_zones.append(thermal_zone)
+        for ele in thermal_zone._hvac_space_elements:
+            ele.thermal_zones.append(thermal_zone)
 
         return thermal_zone
 

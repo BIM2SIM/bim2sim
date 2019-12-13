@@ -35,27 +35,27 @@ class Attribute:
 
     def _inner_get(self, bind, value):
 
-        # default property set
-        if value is None and self.default_ps:
-            raw_value = self.get_from_default(bind, self.default_ps)
-            value = self.ifc_post_processing(raw_value)
-            if value is None:
-                quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet",
-                                       self.name, bind.ifc_type, bind.guid)
-
-        # tool specific properties (finder)
-        if value is None:
-            raw_value = self.get_from_finder(bind, self.name)
-            value = self.ifc_post_processing(raw_value)
-
-        # custom properties by patterns
-        if value is None and self.patterns:
-            raw_value = self.get_from_patterns(bind, self.patterns, self.name)
-            value = self.ifc_post_processing(raw_value)
-
-        # custom functions
-        if value is None and self.functions:
-            value = self.get_from_functions(bind, self.functions, self.name)
+        # # default property set
+        # if value is None and self.default_ps:
+        #     raw_value = self.get_from_default(bind, self.default_ps)
+        #     value = self.ifc_post_processing(raw_value)
+        #     if value is None:
+        #         quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet",
+        #                                self.name, bind.ifc_type, bind.guid)
+        #
+        # # tool specific properties (finder)
+        # if value is None:
+        #     raw_value = self.get_from_finder(bind, self.name)
+        #     value = self.ifc_post_processing(raw_value)
+        #
+        # # custom properties by patterns
+        # if value is None and self.patterns:
+        #     raw_value = self.get_from_patterns(bind, self.patterns, self.name)
+        #     value = self.ifc_post_processing(raw_value)
+        #
+        # # custom functions
+        # if value is None and self.functions:
+        #     value = self.get_from_functions(bind, self.functions, self.name)
 
         # enrichment
         if value is None:
@@ -127,36 +127,24 @@ class Attribute:
                 else:
                     if value is not None:
                         return value
-                # enrichment via selected data (questions)
                 try:
-                    bind.enrichment["enrich_decision_build_year"]
+                    bind.enrichment["selected_enrichment_data"]
                 except KeyError:
-                    general_decision = BoolDecision(
-                        question="Do you want for this instance to be enriched by construction year %s"
-                                 % bind.enrichment["enrich_parameter"],
-                        collect=False)
-                    general_decision.decide()
-                    general_decision.collection.clear()
-                    general_decision.stored_decisions.clear()
-                    bind.enrichment["enrich_decision_build_year"] = general_decision.value
-                    # 3. check if general enrichment - construction year
-                if bind.enrichment["enrich_decision_build_year"]:
-                    value = bind.enrichment["year_enrichment"][name]
-                else:
-                    # specific enrichment (enrichment parameter and values)
-                    try:
-                        bind.enrichment["selected_enrichment_data"]
-                    except KeyError:
-                        options_enrich_parameter = list(attrs_enrich.keys())
-                        decision1 = ListDecision("Multiple possibilities found",
-                                                 choices=options_enrich_parameter,
-                                                 global_key="%s_%s.Enrich_Parameter" % (bind.ifc_type, bind.guid),
-                                                 allow_skip=True, allow_load=True, allow_save=True,
-                                                 collect=False, quick_decide=not True)
-                        decision1.decide()
-                        decision1.collection.clear()
-                        decision1.stored_decisions.clear()
+                    options_enrich_parameter = list(attrs_enrich.keys())
+                    decision1 = ListDecision("Multiple possibilities found",
+                                             choices=options_enrich_parameter,
+                                             global_key="%s_%s.Enrich_Parameter" % (bind.ifc_type, bind.guid),
+                                             allow_skip=True, allow_load=True, allow_save=True,
+                                             collect=False, quick_decide=not True)
+                    decision1.decide()
+                    decision1.collection.clear()
+                    decision1.stored_decisions.clear()
 
+                    if decision1.value == 'statistical_year':
+                        # 3. check if general enrichment - construction year
+                        bind.enrichment["selected_enrichment_data"] = bind.enrichment["year_enrichment"]
+                    else:
+                        # specific enrichment (enrichment parameter and values)
                         decision2 = RealDecision("Enter value for the parameter %s" % decision1.value,
                                                  validate_func=lambda x: isinstance(x, float),  # TODO
                                                  global_key="%s" % decision1.value,
@@ -171,7 +159,7 @@ class Attribute:
                                 decision2_selected = int(ele)
 
                         bind.enrichment["selected_enrichment_data"] = attrs_enrich[str(decision1.value)][str(decision2_selected)]
-                    value = bind.enrichment["selected_enrichment_data"][name]
+                value = bind.enrichment["selected_enrichment_data"][name]
         return value
 
     @staticmethod

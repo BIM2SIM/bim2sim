@@ -365,6 +365,7 @@ class BaseElement(Root):
         self.ports = []
         self.aggregation = None
         self.attributes = attribute.AttributeManager(bind=self)
+        self.thermal_zones = []
 
     def get_inner_connections(self):
         """Returns inner connections of Element
