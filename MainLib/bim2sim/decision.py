@@ -238,8 +238,12 @@ class Decision:
 
     def decide(self, collected=False):
         """Decide by user input
+        reuses loaded decision if available
 
         :returns: value of decision"""
+
+        if self.status == Status.loadeddone:
+            return self.value
 
         if self.status != Status.open:
             raise AssertionError("Cannot call decide() for Decision with status != open")

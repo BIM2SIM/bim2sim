@@ -468,7 +468,6 @@ class Export(Workflow):
 
     def run(self, task, libraries, instances, connections):
         self.logger.info("Export to Modelica code")
-        Decision.load(PROJECT.decisions)
 
         modelica.Instance.init_factory(libraries)
         export_instances = {inst: modelica.Instance.factory(inst) for inst in instances}
