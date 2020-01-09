@@ -45,8 +45,7 @@ class Root:
     def __init__(self, guid=None):
         self.guid = guid or self.get_id()
         Root.objects[self.guid] = self
-        self._requests = []
-        # self.properties = {}
+        self.related_decisions = []
         self.attributes = attribute.AttributeManager(bind=self)
 
     def __hash__(self):
@@ -81,32 +80,25 @@ class Root:
     def request(self, name):
         self.attributes.request(name)
 
-    def search(self, name, collect_decisions=False):
-        """Search all potential sources for property (potentially time consuming)"""
-        raise NoValueError("'%s' is not available" % name)
+    def solve_requested_decisions(self=None):
+        """Solve all requested decisions.
+        If called by instance, all instance related decisions are solved
+        else all decisions of all instances are solved."""
+        if not self:
+            # called from class
+            related_decisions = []
+            for obj in Root.objects.values():
+                related_decisions.extend(obj.related_decisions)
+            Decision.decide_collected(collection=related_decisions)
+        else:
+            # called from instance
+            Decision.decide_collected(collection=self.related_decisions)
 
-    def find(self, name, collect_decisions=False):
-        """Check for known property value. Calls search() if unknown"""
-        # check if property is known
-        print(self.__class__)
-        if name in self.properties:
-            return self.properties[name]
-        if collect_decisions:
-            if name in self._requests:
-                raise PendingDecisionError
-            # self.request(name)
-        # elif name in self._requests:
-        #    self._requests.remove(name)
-
-        # search for property
-        value = self.search(name, collect_decisions)
-
-        # store value
-        self.properties[name] = value
-        return value
-
-    def __del__(self):
+    def discard(self):
+        """Remove from tracked objects. Related decisions are also discarded."""
         del Root.objects[self.guid]
+        for d in self.related_decisions:
+            d.discard()
 
 
 class IFCBased(Root):
@@ -276,60 +268,6 @@ class IFCBased(Root):
 
             return decision.value
         raise NoValueError("No matching property for %s" % (patterns))
-
-    def search(self, name, collect_decisions=False):
-        """Search all potential sources for property (potentially time consuming)"""
-        # 1. for what?
-        try:
-            propertyset_name, property_name = getattr(
-                self.__class__, 'default_%s' % name, (None, None))
-            if not (propertyset_name and property_name):
-                raise NoValueError
-            value = self.get_exact_property(propertyset_name, property_name)
-        except NoValueError:
-            pass
-        else:
-            return value
-        # 2. find property in ifc, doesnt use 1.
-        try:
-            value = self.finder.find(self, name)
-        except AttributeError:
-            pass
-        else:
-            if not value is None:
-                return value
-        # 3. use enrich, if it exists
-        try:
-            value = self.enrichment_data[name]
-        except KeyError:
-            pass
-        else:
-            if not value is None:
-                return value
-
-                # Not implemented yed?
-        # try:
-        #     patterns = getattr(self.__class__, 'pattern_%s'%name, None)
-        #     if not patterns:
-        #         raise NoValueError("No patterns")
-        #     value = self.select_from_potential_properties(patterns, name, collect_decisions)
-        # except NoValueError:
-        #     pass
-        # else:
-        #     return value
-
-        final_decision = RealDecision("Enter value for %s of %s" % (name, self.name),
-                                      validate_func=lambda x: isinstance(x, float),  # TODO
-                                      output=self.properties,
-                                      output_key=name,
-                                      global_key="%s_%s.%s" % (self.ifc_type, self.guid, name),
-                                      allow_skip=True, allow_load=True, allow_save=True,
-                                      collect=collect_decisions, quick_decide=not collect_decisions)
-
-        if collect_decisions:
-            raise PendingDecisionError()
-        value = final_decision.value
-        return value
 
     def __repr__(self):
         return "<%s (%s)>" % (self.__class__.__name__, self.name)

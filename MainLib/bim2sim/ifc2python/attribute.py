@@ -81,7 +81,10 @@ class Attribute:
     def get_from_finder(bind, name):
         finder = getattr(bind, 'finder', None)
         if finder:  # Aggregations have no finder
-            return bind.finder.find(bind, name)
+            try:
+                return bind.finder.find(bind, name)
+            except AttributeError:
+                pass
         return None
 
     @staticmethod
@@ -217,6 +220,7 @@ class AttributeManager(dict):
                     validate_func=lambda x: True,  # TODO meaningful validation
                     collect=True
                 )
+                self.bind.related_decisions.append(decision)
         else:
             # already requested or available
             return
