@@ -1,7 +1,7 @@
 """Program that allows the user to add new parameters of enrichment to the items on the database
 for example: (statistical year, type, heat pump...)"""
 import json
-from bim2sim.ifc2python import elements
+from bim2sim.kernel import elements
 import inspect
 
 

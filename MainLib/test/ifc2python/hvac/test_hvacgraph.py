@@ -3,8 +3,8 @@ from unittest.mock import patch
 
 import networkx as nx
 
-from bim2sim.ifc2python import element
-from bim2sim.ifc2python.hvac import hvac_graph
+from bim2sim.kernel import element
+from bim2sim.kernel.hvac import hvac_graph
 
 
 def generate_element_strait(number=5, prefix=""):

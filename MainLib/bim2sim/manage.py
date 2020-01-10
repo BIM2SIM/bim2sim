@@ -4,7 +4,7 @@ import logging
 from abc import ABCMeta, abstractmethod
 
 from bim2sim.project import PROJECT, get_config
-from bim2sim.ifc2python import ifc2python
+from bim2sim.kernel import ifc2python
 from bim2sim.decision import Decision
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.export.modelica import standardlibrary

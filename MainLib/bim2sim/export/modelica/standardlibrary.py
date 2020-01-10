@@ -1,7 +1,7 @@
 ﻿"""Modul containing model representations from the Modelica Standard Library"""
 
 from bim2sim.export import modelica
-from bim2sim.ifc2python import elements, aggregation
+from bim2sim.kernel import elements, aggregation
 
 from bim2sim.decision import RealDecision
 

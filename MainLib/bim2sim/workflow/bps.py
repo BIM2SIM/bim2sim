@@ -5,12 +5,12 @@ import json
 
 from bim2sim.workflow import Workflow
 from bim2sim.filter import TypeFilter
-from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
+from bim2sim.kernel.element import Element, ElementEncoder, BasePort
 # from bim2sim.ifc2python.bps import ...
 from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
-from bim2sim.ifc2python import finder
+from bim2sim.kernel import finder
 
 IFC_TYPES = (
     'IfcWall',

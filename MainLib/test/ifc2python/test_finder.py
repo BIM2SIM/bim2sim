@@ -7,9 +7,9 @@ import tempfile
 import shutil
 
 import bim2sim
-from bim2sim.ifc2python import ifc2python
-from bim2sim.ifc2python import element, elements
-from bim2sim.ifc2python.finder import TemplateFinder
+from bim2sim.kernel import ifc2python
+from bim2sim.kernel import element, elements
+from bim2sim.kernel.finder import TemplateFinder
 
 IFC_PATH = os.path.abspath(os.path.join(
     os.path.dirname(bim2sim.__file__), '../..', 

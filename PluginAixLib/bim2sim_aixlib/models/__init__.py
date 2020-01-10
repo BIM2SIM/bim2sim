@@ -1,8 +1,8 @@
 ﻿"""Package for Python representations of HKESim models"""
 
 from bim2sim.export import modelica
-from bim2sim.ifc2python import elements
-from bim2sim.ifc2python.aggregation import PipeStrand
+from bim2sim.kernel import elements
+from bim2sim.kernel.aggregation import PipeStrand
 
 from bim2sim.export.modelica import standardlibrary # impor necessary for model detection
 

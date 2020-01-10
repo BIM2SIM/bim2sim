@@ -11,14 +11,14 @@ import numpy as np
 from bim2sim.workflow import Workflow
 from bim2sim.tasks import LOD
 from bim2sim.filter import TypeFilter
-from bim2sim.ifc2python.aggregation import Aggregation, PipeStrand, UnderfloorHeating, \
+from bim2sim.kernel.aggregation import Aggregation, PipeStrand, UnderfloorHeating, \
     ParallelPump, ParallelSpaceHeater
-from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
-from bim2sim.ifc2python.hvac import hvac_graph
+from bim2sim.kernel.element import Element, ElementEncoder, BasePort
+from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
 from bim2sim.decision import Decision, BoolDecision
 from bim2sim.project import PROJECT
-from bim2sim.ifc2python import finder
+from bim2sim.kernel import finder
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.enrichment_data import element_input_json
 

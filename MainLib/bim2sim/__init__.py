@@ -8,7 +8,7 @@ import logging
 
 import pkg_resources
 
-from bim2sim.ifc2python import ifc2python
+from bim2sim.kernel import ifc2python
 from bim2sim.manage import BIM2SIMManager
 from bim2sim.project import PROJECT, get_config
 from bim2sim.tasks import PlantSimulation

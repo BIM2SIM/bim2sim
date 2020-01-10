@@ -7,7 +7,7 @@ import codecs
 from mako.template import Template
 import numpy as np
 
-from bim2sim.ifc2python import element as elem
+from bim2sim.kernel import element as elem
 from bim2sim.decision import RealDecision
 
 TEMPLATEPATH = os.path.join(os.path.dirname(__file__), 'tmplModel.txt')
