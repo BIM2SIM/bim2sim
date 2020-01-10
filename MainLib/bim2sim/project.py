@@ -50,7 +50,7 @@ class _Project():
 
     CONFIG = "config.ini"
     DECISIONS = "decisions.json"
-    WORKFLOW = "workflow"
+    WORKFLOW = "task"
     FINDER = "finder"
     IFC = "ifc"
     LOG = "log"
@@ -98,7 +98,7 @@ class _Project():
 
     @property
     def workflow(self):
-        """absolute path to workflow"""
+        """absolute path to task"""
         if not self._rootpath:
             return None
         return os.path.abspath(os.path.join(self._rootpath, _Project.WORKFLOW))

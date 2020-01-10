@@ -1,9 +1,9 @@
-"""This module holds elements related to bps workflow"""
+"""This module holds tasks related to bps"""
 
 import itertools
 import json
 
-from bim2sim.workflow import Workflow
+from bim2sim.task import Task
 from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort
 # from bim2sim.ifc2python.bps import ...
@@ -21,7 +21,7 @@ IFC_TYPES = (
 )
 
 
-class Inspect(Workflow):
+class Inspect(Task):
     """Analyses IFC, creates Element instances and connects them.
 
     elements are stored in .instances dict with guid as key"""
@@ -30,7 +30,7 @@ class Inspect(Workflow):
         super().__init__()
         self.instances = {}
 
-    @Workflow.log
+    @Task.log
     def run(self, ifc, relevant_ifc_types):
         self.logger.info("Creates python representation of relevant ifc types")
         for ifc_type in relevant_ifc_types:
