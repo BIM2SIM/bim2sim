@@ -27,7 +27,7 @@ class Workflow():
             return res
         return wrapper
 
-    def run(self, *args, **kwargs):
+    def run(self, task, *args, **kwargs):
         """Run job"""
         raise NotImplementedError
 

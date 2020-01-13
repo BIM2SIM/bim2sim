@@ -5,6 +5,9 @@ import enum
 import json
 from collections import OrderedDict
 
+from pip._vendor.urllib3 import _collections
+
+
 class DecisionException(Exception):
     """Base Exception for Decisions"""
 class DecisionSkipAll(DecisionException):
@@ -17,14 +20,14 @@ class PendingDecisionError(DecisionException):
 
 class Status(enum.Enum):
     """Enum for status of Decision"""
-    open = 1 # decision not yet made
-    done = 2 # decision made
-    loadeddone = 3 # brevious made decision loaded
-    saveddone = 4 # decision made and saved
-    skipped = 5 # decision was skipped
+    open = 1  # decision not yet made
+    done = 2  # decision made
+    loadeddone = 3  # previous made decision loaded
+    saveddone = 4  # decision made and saved
+    skipped = 5  # decision was skipped
 
 
-class Decision():
+class Decision:
     """Class for handling decisions and user interaction
 
     To make a single Decision call decision.decide() on an instance
@@ -34,14 +37,14 @@ class Decision():
     On instantiating a decision with a global_key matching a loaded key it gets the loaded value assigned
     """
 
-    collection = [] # Decisions to decide later
-    stored_decisions = {} # Decisions ready to save
+    all = []  # all decision instances
+    stored_decisions = {}  # Decisions ready to save
     _logger = None
 
     SKIP = "skip"
     SKIPALL = "skip all"
-    CANCLE = "cancle"
-    options = [SKIP, SKIPALL, CANCLE]
+    CANCEL = "cancel"
+    options = [SKIP, SKIPALL, CANCEL]
 
     def __init__(self, question: str, validate_func,
                  output: dict = None, output_key: str = None, global_key: str = None,
@@ -91,8 +94,27 @@ class Decision():
             if not (isinstance(self.output, dict) and self.output_key):
                 raise AttributeError(
                     "Can not collect Decision if output dict or output_key is missing.")
-            Decision.collection.append(self)
-            self.logger.debug("Added decision for later processing.")
+
+        Decision.all.append(self)
+
+    def discard(self):
+        """Remove decision from traced decisions (Decision.all)"""
+        Decision.all.remove(self)
+
+    @classmethod
+    def filtered(cls, active=True):
+        if active:
+            for d in cls.all:
+                if d.status == Status.open:
+                    yield d
+        else:
+            for d in cls.all:
+                if d.status != Status.open:
+                    yield d
+
+    @classmethod
+    def collection(cls):
+        return [d for d in cls.filtered() if d.collect]
 
     @property
     def logger(self):
@@ -112,16 +134,21 @@ class Decision():
         return res
 
     @classmethod
-    def decide_collected(cls):
+    def decide_collected(cls, collection=None):
         """Solve all stored decisions"""
 
         logger = logging.getLogger(__name__)
         skip_all = False
-        while cls.collection:
-            decision = cls.collection.pop()
+
+        _collection = collection or cls.collection()
+
+        for decision in _collection:
             if skip_all and decision.allow_skip:
                 decision.skip()
             else:
+                if decision.status != Status.open:
+                    logger.debug("Decision not open -> continue (%s)", decision)
+                    continue
                 if skip_all:
                     logger.info("Decision can not be skipped")
                 try:
@@ -164,7 +191,7 @@ class Decision():
     def summary(cls):
         """Returns summary string"""
 
-        txt = "%d open decisions" % (len(cls.collection))
+        txt = "%d open decisions" % (len(list(cls.filtered(active=True))))
         txt += ""
         return txt
 
@@ -218,7 +245,7 @@ class Decision():
         if self.status != Status.open:
             raise AssertionError("Cannot call decide() for Decision with status != open")
 
-        options = [Decision.CANCLE]
+        options = [Decision.CANCEL]
         if self.allow_skip:
             options.append(Decision.SKIP)
             if collected:
@@ -259,7 +286,7 @@ class Decision():
             if raw_value == Decision.SKIPALL and Decision.SKIPALL in options:
                 self.skip()
                 raise DecisionSkipAll
-            if raw_value == Decision.CANCLE and Decision.CANCLE in options:
+            if raw_value == Decision.CANCEL and Decision.CANCEL in options:
                 raise DecisionCancle
 
             value = self.parse_input(raw_value)

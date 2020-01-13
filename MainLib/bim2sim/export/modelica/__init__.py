@@ -22,7 +22,8 @@ class ModelError(Exception):
 class FactoryError(Exception):
     """Error in Model factory"""
 
-class Model():
+
+class Model:
     """Modelica model"""
 
     def __init__(self, name, comment, instances: list, connections: list):
@@ -32,17 +33,20 @@ class Model():
         self.name = name
         self.comment = comment
         self.instances = instances
-        self.connections = connections
 
         self.size_x = (-100, 100)
         self.size_y = (-100, 100)
 
-        self.set_instance_positions(instances)
+        self.connections, self.connections = self.set_positions(instances, connections)
 
-    def set_instance_positions(self, instances):
+    def set_positions(self, instances, connections):
         """Sets position of instances
 
         relative to min/max positions of instance.element.position"""
+        instance_dict = {}
+        connections_positions = []
+
+        # calculte instance position
         positions = np.array(
             [inst.element.position for inst in instances
              if inst.element.position is not None])
@@ -57,6 +61,16 @@ class Model():
                 x = (self.size_x[0] + rel_pos[0] * delta_x).item()
                 y = (self.size_y[0] + rel_pos[1] * delta_y).item()
                 inst.position = (x, y)
+                instance_dict[inst.name] = inst.position
+
+        # add positions to connections
+        for inst0, inst1 in connections:
+            name0 = inst0.split('.')[0]
+            name1 = inst1.split('.')[0]
+            connections_positions.append(
+                (inst0, inst1, instance_dict[name0], instance_dict[name1])
+            )
+        return list(instances), connections_positions
 
     def code(self):
         """returns Modelica code"""

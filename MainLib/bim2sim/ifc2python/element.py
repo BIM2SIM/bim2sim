@@ -8,25 +8,30 @@ import re
 import numpy as np
 
 from bim2sim.decorators import cached_property
-from bim2sim.ifc2python import ifc2python
+from bim2sim.ifc2python import ifc2python, attribute
 from bim2sim.decision import Decision, BoolDecision, RealDecision, ListDecision, DictDecision, PendingDecisionError
+
+logger = logging.getLogger(__name__)
 
 
 class ElementError(Exception):
     """Error in Element"""
+
+
 class NoValueError(ElementError):
     """Value is not available"""
 
 
 class ElementEncoder(JSONEncoder):
     """Encoder class for Element"""
-    #TODO: make Elements serializable and deserializable.
+
+    # TODO: make Elements serializable and deserializable.
     # Ideas: guid to identify, (factory) method to (re)init by guid
     # mayby weakref to other elements (Ports, connections, ...)
 
     def default(self, o):
         if isinstance(o, Element):
-            return "<Element(%s)>"%(o.guid)
+            return "<Element(%s)>" % (o.guid)
         return JSONEncoder.default()
 
 
@@ -40,8 +45,8 @@ class Root:
     def __init__(self, guid=None):
         self.guid = guid or self.get_id()
         Root.objects[self.guid] = self
-        self._requests = []
-        self.properties = {}
+        self.related_decisions = []
+        self.attributes = attribute.AttributeManager(bind=self)
 
     def __hash__(self):
         return hash(self.guid)
@@ -73,62 +78,27 @@ class Root:
         return Root.objects.get(guid)
 
     def request(self, name):
-        if not name in self._requests:
-            self._requests.append(name)
+        self.attributes.request(name)
 
-    @classmethod
-    def solve_requests(cls):
-        """trys to obtain all requested attributes.
+    def solve_requested_decisions(self=None):
+        """Solve all requested decisions.
+        If called by instance, all instance related decisions are solved
+        else all decisions of all instances are solved."""
+        if not self:
+            # called from class
+            related_decisions = []
+            for obj in Root.objects.values():
+                related_decisions.extend(obj.related_decisions)
+            Decision.decide_collected(collection=related_decisions)
+        else:
+            # called from instance
+            Decision.decide_collected(collection=self.related_decisions)
 
-        First step is to collect neccesary Decisions
-        Secend step is to solve them"""
-
-        # First step
-        pending = []
-        for ele in Root.objects.values():
-            while ele._requests:
-                request = ele._requests.pop()
-                try:
-                    value = ele.find(request, collect_decisions=True)
-                except PendingDecisionError:
-                    pending.append((ele, request))
-                except NoValueError:
-                    # Value for attribute does not exist
-                    pass
-                else:
-                    ele.properties[request] = value
-
-        Decision.decide_collected()
-
-        for ele, request in pending:
-            value = ele.find(request, collect_decisions=False)
-            ele.properties[request] = value
-
-    def search(self, name, collect_decisions=False):
-        """Search all potential sources for property (potentially time consuming)"""
-        raise NoValueError("'%s' is not available"%name)
-
-    def find(self, name, collect_decisions=False):
-        """Check for known property value. Calls search() if unknown"""
-        # check if property is known
-        if name in self.properties:
-            return self.properties[name]
-        if collect_decisions:
-            if name in self._requests:
-                raise PendingDecisionError
-            #self.request(name)
-        #elif name in self._requests:
-        #    self._requests.remove(name)
-
-        # search for property
-        value = self.search(name, collect_decisions)
-
-        # store value
-        self.properties[name] = value
-        return value
-
-    def __del__(self):
+    def discard(self):
+        """Remove from tracked objects. Related decisions are also discarded."""
         del Root.objects[self.guid]
+        for d in self.related_decisions:
+            d.discard()
 
 
 class IFCBased(Root):
@@ -277,7 +247,7 @@ class IFCBased(Root):
             p_set = self.search_property_hierarchy(propertyset_name)
             value = p_set[property_name]
         except (AttributeError, KeyError, TypeError):
-            raise NoValueError("Property '%s.%s' does not exist"%(
+            raise NoValueError("Property '%s.%s' does not exist" % (
                 propertyset_name, property_name))
         return value
 
@@ -293,76 +263,33 @@ class IFCBased(Root):
                 value = self.get_exact_property(propertyset_name, property_name)
                 values.append(value)
                 choices.append((propertyset_name, property_name))
-                #print("%s.%s = %s"%(propertyset_name, property_name, value))
+                # print("%s.%s = %s"%(propertyset_name, property_name, value))
 
             # TODO: Decision: save for all following elements of same class (dont ask again?)
             # selected = (propertyset_name, property_name, value)
 
-            if len(choices) > 1:
-                # TODO: Decision with id, key, value
-                decision = DictDecision("Multiple possibilities found",
-                    choices=dict(zip(choices, values)),
-                    output=self.properties,
-                    output_key=name,
-                    global_key="%s_%s.%s"%(self.ifc_type, self.guid, name),
-                    allow_skip=True, allow_load=True, allow_save=True,
-                    collect=collect_decisions, quick_decide=not collect_decisions)
-            else:
-                return values[0] if values else None
+            distinct_values = set(values)
+            if len(distinct_values) == 1:
+                # multiple sources but common value
+                return distinct_values.pop()
+
+            # TODO: Decision with id, key, value
+            decision = DictDecision("Multiple possibilities found",
+                                    choices=dict(zip(choices, values)),
+                                    output=self.attributes,
+                                    output_key=name,
+                                    global_key="%s_%s.%s" % (self.ifc_type, self.guid, name),
+                                    allow_skip=True, allow_load=True, allow_save=True,
+                                    collect=collect_decisions, quick_decide=not collect_decisions)
 
             if collect_decisions:
                 raise PendingDecisionError()
 
             return decision.value
-        raise NoValueError("No matching property for %s"%(patterns))
-
-    def search(self, name, collect_decisions = False):
-        """Search all potential sources for property (potentially time consuming)"""
-
-        try:
-            propertyset_name, property_name = getattr(
-                self.__class__, 'default_%s'%name, (None, None))
-            if not (propertyset_name and property_name):
-                raise NoValueError
-            value = self.get_exact_property(propertyset_name, property_name)
-        except NoValueError:
-            pass
-        else:
-            return value
-
-        try:
-            value = self.finder.find(self, name)
-        except AttributeError:
-            pass
-        else:
-            if not value is None:
-                return value
-
-        try:
-            patterns = getattr(self.__class__, 'pattern_%s'%name, None)
-            if not patterns:
-                raise NoValueError("No patterns")
-            value = self.select_from_potential_properties(patterns, name, collect_decisions)
-        except NoValueError:
-            pass
-        else:
-            return value
-
-        final_decision = RealDecision("Enter value for %s of %s"%(name, self.name),
-            validate_func=lambda x:isinstance(x, float), # TODO
-            output=self.properties, 
-            output_key=name,
-            global_key="%s_%s.%s"%(self.ifc_type, self.guid, name),
-            allow_skip=True, allow_load=True, allow_save=True,
-            collect=collect_decisions, quick_decide=not collect_decisions)
-
-        if collect_decisions:
-            raise PendingDecisionError()
-        value = final_decision.value
-        return value
+        raise NoValueError("No matching property for %s" % (patterns))
 
     def __repr__(self):
-        return "<%s (%s)>"%(self.__class__.__name__, self.name)
+        return "<%s (%s)>" % (self.__class__.__name__, self.name)
 
 
 class BaseElement(Root):
@@ -394,8 +321,17 @@ class BaseElement(Root):
         :returns: None if element with guid was not instanciated"""
         return BaseElement.objects.get(guid)
 
+    def is_generator(self):
+        return False
+
+    def is_consumer(self):
+        return False
+
     def __repr__(self):
-        return "<%s (ports: %d)>"%(self.__class__.__name__, len(self.ports))
+        return "<%s (ports: %d)>" % (self.__class__.__name__, len(self.ports))
+
+    def __str__(self):
+        return self.__class__.__name__
 
 
 class BasePort(Root):
@@ -410,6 +346,7 @@ class BasePort(Root):
 
         self._flow_master = False
         self._flow_direction = None
+        self._flow_side = None
 
     @staticmethod
     def get_port(guid):
@@ -421,7 +358,7 @@ class BasePort(Root):
     def connect(self, other):
         """Connect this interface bidirectional to another interface"""
         assert isinstance(other, BasePort), "Can't connect interfaces" \
-                                                  " of different classes."
+                                            " of different classes."
         # if self.flow_direction == 'SOURCE' or \
         #         self.flow_direction == 'SOURCEANDSINK':
         if self.connection and self.connection is not other:
@@ -473,6 +410,36 @@ class BasePort(Root):
             return 'SOURCE'
         return 'UNKNOWN'
 
+    @property
+    def flow_side(self):
+        """VL(1), RL(-1), UNKNOWN(0)"""
+        if self._flow_side is None:
+            self._flow_side = self.determine_flow_side()
+        return self._flow_side
+
+    @flow_side.setter
+    def flow_side(self, value):
+        if value not in (-1, 0, 1):
+            raise ValueError("allowed values for flow_side are 1, 0, -1")
+        previous = self._flow_side
+        self._flow_side = value
+        if previous:
+            if previous != value:
+                logger.info("Overwriting flow_side for %r with %s" % (self, self.verbose_flow_side))
+        else:
+            logger.debug("Set flow_side for %r to %s" % (self, self.verbose_flow_side))
+
+    @property
+    def verbose_flow_side(self):
+        if self.flow_side == 1:
+            return "VL"
+        if self.flow_side == -1:
+            return "RL"
+        return "UNKNOWN"
+
+    def determine_flow_side(self):
+        return 0
+
     def __del__(self):
         del BasePort.objects[self.guid]
 
@@ -480,16 +447,21 @@ class BasePort(Root):
         if self.parent:
             try:
                 idx = self.parent.ports.index(self)
-                return "<%s (#%d, parent: %s)>"%(
+                return "<%s #%d of %s)>" % (
                     self.__class__.__name__, idx, self.parent)
             except ValueError:
-                return "<%s (broken parent: %s)>"%(
+                return "<%s (broken parent: %s)>" % (
                     self.__class__.__name__, self.parent)
-        return "<%s (*abandoned*)>"%(self.__class__.__name__)
+        return "<%s (*abandoned*)>" % (self.__class__.__name__)
+
+    def __str__(self):
+        return self.__repr__()[1:-2]
 
 
 class Port(BasePort, IFCBased):
     """Port of Element"""
+    vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
+    rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -524,6 +496,31 @@ class Port(BasePort, IFCBased):
             logger.info("Suspect position [0, 0, 0] for %s", self)
         return coordinates
 
+    def determine_flow_side(self):
+        """Check groups for hints of flow_side and returns flow_side if hints are definitely"""
+        vl = None
+        rl = None
+        if self.parent.is_generator():
+            if self.flow_direction == 1:
+                vl = True
+            elif self.flow_direction == -1:
+                rl = True
+        elif self.parent.is_consumer():
+            if self.flow_direction == 1:
+                rl = True
+            elif self.flow_direction == -1:
+                vl = True
+        if not vl:
+            vl = any(filter(self.vl_pattern.match, self.groups))
+        if not rl:
+            rl = any(filter(self.rl_pattern.match, self.groups))
+
+        if vl and not rl:
+            return 1
+        if rl and not vl:
+            return -1
+        return 0
+
 
 class Element(BaseElement, IFCBased):
     """Base class for IFC model representation
@@ -539,8 +536,18 @@ class Element(BaseElement, IFCBased):
         super().__init__(*args, **kwargs)
         self._tool = tool
         self._add_ports()
+        # TODO: set flow_side based on ifc (no official property, but revit (HLS) and tricad (TRICAS-MS) provide it)
 
     def _add_ports(self):
+        for nested in self.ifc.IsNestedBy:
+            # valid for IFC for Revit v19.2.0.0
+            for element_port_connection in nested.RelatedObjects:
+                if element_port_connection.is_a() == 'IfcDistributionPort':
+                    self.ports.append(Port(parent=self, ifc=element_port_connection))
+                else:
+                    self.logger.warning("Not included %s as Port in %s", element_port_connection.is_a(), self)
+
+        # valid for IFC for Revit v19.1.0.0
         element_port_connections = self.ifc.HasPorts
         for element_port_connection in element_port_connections:
             self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
@@ -571,11 +578,11 @@ class Element(BaseElement, IFCBased):
         if conflict:
             raise AssertionError("Conflict(s) in Models. (See log for details).")
 
-        #Model.dummy = Model.ifc_classes['any']
+        # Model.dummy = Model.ifc_classes['any']
         if not Element._ifc_classes:
-            raise ElementError("Faild to initialize Element factory. No elements found!")
+            raise ElementError("Failed to initialize Element factory. No elements found!")
 
-        model_txt = "\n".join(" - %s"%(model) for model in Element._ifc_classes)
+        model_txt = "\n".join(" - %s" % (model) for model in Element._ifc_classes)
         logger.debug("IFC model factory initialized with %d ifc classes:\n%s",
                      len(Element._ifc_classes), model_txt)
 
@@ -620,13 +627,17 @@ class Element(BaseElement, IFCBased):
         return neighbors
 
     def __repr__(self):
-        return "<%s (ports: %d, guid=%s)>"%(
+        return "<%s (ports: %d, guid=%s)>" % (
             self.__class__.__name__, len(self.ports), self.guid)
+
+    def __str__(self):
+        return "%s" % self.__class__.__name__
 
 
 class Dummy(Element):
     """Dummy for all unknown elements"""
-    #ifc_type = 'any'
+
+    # ifc_type = 'any'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -636,6 +647,10 @@ class Dummy(Element):
     @property
     def ifc_type(self):
         return self._ifc_type
+
+    def __str__(self):
+        return "Dummy '%s'" % self.name
+
 
 # import Element classes for Element.factory
 import bim2sim.ifc2python.elements
