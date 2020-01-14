@@ -2,7 +2,7 @@
 from ast import literal_eval
 
 from bim2sim.manage import BIM2SIMManager, PROJECT
-from bim2sim.workflow import hvac
+from bim2sim.task import hvac
 from bim2sim.export.modelica import standardlibrary
 
 class AixLib(BIM2SIMManager):

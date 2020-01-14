@@ -1,4 +1,4 @@
-﻿"""This module holds elements related to hvac workflow"""
+﻿"""This module holds tasks related to hvac"""
 
 import itertools
 import json
@@ -8,17 +8,17 @@ from itertools import chain
 
 import numpy as np
 
-from bim2sim.workflow import Workflow
-from bim2sim.tasks import LOD
+from bim2sim.task import Task
+from bim2sim.workflow import LOD
 from bim2sim.filter import TypeFilter
-from bim2sim.ifc2python.aggregation import Aggregation, PipeStrand, UnderfloorHeating, \
+from bim2sim.kernel.aggregation import Aggregation, PipeStrand, UnderfloorHeating, \
     ParallelPump, ParallelSpaceHeater
-from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
-from bim2sim.ifc2python.hvac import hvac_graph
+from bim2sim.kernel.element import Element, ElementEncoder, BasePort
+from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
 from bim2sim.decision import Decision, BoolDecision
 from bim2sim.project import PROJECT
-from bim2sim.ifc2python import finder
+from bim2sim.kernel import finder
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.enrichment_data import element_input_json
 
@@ -61,7 +61,7 @@ IFC_TYPES = (
 )
 
 
-class Inspect(Workflow):
+class Inspect(Task):
     """Analyses IFC, creates Element instances and connects them.
 
     elements are stored in .instances dict with guid as key"""
@@ -197,7 +197,7 @@ class Inspect(Workflow):
         connections = []
         return connections
 
-    @Workflow.log
+    @Task.log
     def run(self, task, ifc, relevant_ifc_types):
         self.logger.info("Creates python representation of relevant ifc types")
         for ifc_type in relevant_ifc_types:
@@ -256,7 +256,7 @@ class Inspect(Workflow):
         # TODO: manualy add / modify connections
 
 
-class Enrich(Workflow):
+class Enrich(Task):
     def __init__(self):
         super().__init__()
         self.enrich_data = {}
@@ -270,7 +270,7 @@ class Enrich(Workflow):
 
         return attrs_enrich
 
-    @Workflow.log
+    @Task.log
     def run(self, instances, enrich_parameter, parameter_value):
         # enrichment_parameter --> Class
         self.logger.info("Enrichment of the elements with: \n" + enrich_parameter + " as \"Enrich Parameter\"\n"
@@ -283,14 +283,14 @@ class Enrich(Workflow):
         # runs all enrich methods
 
 
-class Prepare(Workflow):
+class Prepare(Task):
     """Configurate"""  # TODO: based on task
 
     def __init__(self):
         super().__init__()
         self.filters = []
 
-    @Workflow.log
+    @Task.log
     def run(self, task, relevant_ifc_types):
         self.logger.info("Setting Filters")
         Element.finder = finder.TemplateFinder()
@@ -298,7 +298,7 @@ class Prepare(Workflow):
         self.filters.append(TypeFilter(relevant_ifc_types))
 
 
-class MakeGraph(Workflow):
+class MakeGraph(Task):
     """Instantiate HvacGraph"""
 
     # saveable = True #ToDo
@@ -307,7 +307,7 @@ class MakeGraph(Workflow):
         super().__init__()
         self.graph = None
 
-    @Workflow.log
+    @Task.log
     def run(self, task, instances: list):
         self.logger.info("Creating graph from IFC elements")
         self.graph = hvac_graph.HvacGraph(instances)
@@ -321,7 +321,7 @@ class MakeGraph(Workflow):
         self.graph.from_serialized(json.loads(data))
 
 
-class Reduce(Workflow):
+class Reduce(Task):
     """Reduce number of elements by aggregation"""
 
     def __init__(self):
@@ -329,7 +329,7 @@ class Reduce(Workflow):
         self.reduced_instances = []
         self.connections = []
 
-    @Workflow.log
+    @Task.log
     def run(self, task, graph: hvac_graph.HvacGraph):
         self.logger.info("Reducing elements by applying aggregations")
         number_of_nodes_old = len(graph.element_graph.nodes)
@@ -447,8 +447,7 @@ class Reduce(Workflow):
                 break
 
 
-
-class DetectCycles(Workflow):
+class DetectCycles(Task):
     """Detect cycles in graph"""
 
     # TODO: sth usefull like grouping or medium assignment
@@ -457,18 +456,17 @@ class DetectCycles(Workflow):
         super().__init__()
         self.cycles = None
 
-    @Workflow.log
+    @Task.log
     def run(self, task, graph: hvac_graph.HvacGraph):
         self.logger.info("Detecting cycles")
         self.cycles = graph.get_cycles()
 
 
-class Export(Workflow):
+class Export(Task):
     """Export to Dymola/Modelica"""
 
     def run(self, task, libraries, instances, connections):
         self.logger.info("Export to Modelica code")
-        Decision.load(PROJECT.decisions)
 
         modelica.Instance.init_factory(libraries)
         export_instances = {inst: modelica.Instance.factory(inst) for inst in instances}

@@ -1,7 +1,7 @@
 ﻿import unittest
 
-from bim2sim.ifc2python import aggregation
-from bim2sim.ifc2python.elements import Pipe
+from bim2sim.kernel import aggregation
+from bim2sim.kernel.elements import Pipe
 
 # TODO: expand test for ports when implemented
 class DummyIFC():

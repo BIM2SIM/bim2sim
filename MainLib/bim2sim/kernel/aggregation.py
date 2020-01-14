@@ -6,8 +6,8 @@ from collections import defaultdict
 
 import numpy as np
 
-from bim2sim.ifc2python.element import BaseElement, BasePort
-from bim2sim.ifc2python import elements, attribute
+from bim2sim.kernel.element import BaseElement, BasePort
+from bim2sim.kernel import elements, attribute
 
 
 def verify_edge_ports(func):

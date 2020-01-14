@@ -3,7 +3,7 @@
 import os
 import json
 
-from bim2sim.ifc2python import ifc2python
+from bim2sim.kernel import ifc2python
 
 
 DEFAULT_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets\\finder')
