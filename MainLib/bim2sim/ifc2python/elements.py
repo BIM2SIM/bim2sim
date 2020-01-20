@@ -26,24 +26,19 @@ class HeatPump(element.Element):
         re.compile('W(ä|ae)rme.?pumpe', flags=re.IGNORECASE),
     ]
 
-    @cached_property
-    def min_power(self):
-        """min_power: float
-            Minimum power that HeatPump operates at."""
-        return None
+    min_power = attribute.Attribute(
+        name='min_power',
+        description='Minimum power that HeatPump operates at.',
+    )
+    rated_power = attribute.Attribute(
+        name='rated_power',
+        description='Rated power of HeatPump.',
+    )
+    efficiency = attribute.Attribute(
+        name='efficiency',
+        description='Efficiency of HeatPump provided as list with pairs of [percentage_of_rated_power,efficiency]'
+    )
 
-    @cached_property
-    def rated_power(self):
-        """rated_power: float
-            Rated power of HeatPump."""
-        return None
-
-    @cached_property
-    def efficiency(self):
-        """efficiency: list
-            Efficiency of HeatPump provided as list with pairs of [
-            percentage_of_rated_power,efficiency]"""
-        return None
 
 class Chiller(element.Element):
     """"Chiller"""
@@ -55,24 +50,18 @@ class Chiller(element.Element):
         re.compile('K(ä|ae)lte.?maschine', flags=re.IGNORECASE),
     ]
 
-    @cached_property
-    def min_power(self):
-        """min_power: float
-            Minimum power that Chiller operates at."""
-        return None
-
-    @cached_property
-    def rated_power(self):
-        """rated_power: float
-            Rated power of Chiller."""
-        return None
-
-    @cached_property
-    def efficiency(self):
-        """efficiency: list
-            Efficiency of Chiller provided as list with pairs of [
-            percentage_of_rated_power,efficiency]"""
-        return None
+    min_power = attribute.Attribute(
+        name='min_power',
+        description='Minimum power that Chiller operates at.',
+    )
+    rated_power = attribute.Attribute(
+        name='rated_power',
+        description='Rated power of Chiller.',
+    )
+    efficiency = attribute.Attribute(
+        name='efficiency',
+        description='Efficiency of Chiller provided as list with pairs of [percentage_of_rated_power,efficiency]'
+    )
 
 
 class CoolingTower(element.Element):
@@ -88,24 +77,19 @@ class CoolingTower(element.Element):
         re.compile('RKA', flags=re.IGNORECASE),
     ]
 
-    @cached_property
-    def min_power(self):
-        """min_power: float
-            Minimum power that CoolingTower operates at."""
-        return None
+    min_power = attribute.Attribute(
+        name='min_power',
+        description='Minimum power that CoolingTower operates at.',
+    )
+    rated_power = attribute.Attribute(
+        name='rated_power',
+        description='Rated power of CoolingTower.',
+    )
+    efficiency = attribute.Attribute(
+        name='efficiency',
+        description='Efficiency of CoolingTower provided as list with pairs of [percentage_of_rated_power,efficiency]'
+    )
 
-    @cached_property
-    def rated_power(self):
-        """rated_power: float
-            Rated power of CoolingTower."""
-        return None
-
-    @cached_property
-    def efficiency(self):
-        """efficiency: list
-            Efficiency of CoolingTower provided as list with pairs of [
-            percentage_of_rated_power,efficiency]"""
-        return None
 
 class HeatExchanger(element.Element):
     """"Heatexchanger"""
@@ -118,24 +102,19 @@ class HeatExchanger(element.Element):
         re.compile('W(ä|ae)rme.?tauscher', flags=re.IGNORECASE),
     ]
 
-    @cached_property
-    def min_power(self):
-        """min_power: float
-            Minimum power that CoolingTower operates at."""
-        return None
+    min_power = attribute.Attribute(
+        name='min_power',
+        description='Minimum power that HeatExchange operates at.',
+    )
+    rated_power = attribute.Attribute(
+        name='rated_power',
+        description='Rated power of HeatExchange.',
+    )
+    efficiency = attribute.Attribute(
+        name='efficiency',
+        description='Efficiency of HeatExchange provided as list with pairs of [percentage_of_rated_power,efficiency]'
+    )
 
-    @cached_property
-    def rated_power(self):
-        """rated_power: float
-            Rated power of CoolingTower."""
-        return None
-
-    @cached_property
-    def efficiency(self):
-        """efficiency: list
-            Efficiency of CoolingTower provided as list with pairs of [
-            percentage_of_rated_power,efficiency]"""
-        return None
 
 class Boiler(element.Element):
     """Boiler"""
@@ -314,6 +293,7 @@ class SpaceHeater(element.Element):
     pattern_ifc_type = [
         re.compile('Space.?heater', flags=re.IGNORECASE)
     ]
+
     def is_consumer(self):
         return True
 
@@ -323,12 +303,14 @@ class SpaceHeater(element.Element):
         default=42,
     )
 
+
 class ExpansionTank(element.Element):
     ifc_type = "IfcExpansionTank"   #ToDo: Richtig?!
     pattern_ifc_type = [
         re.compile('Expansion.?Tank', flags=re.IGNORECASE),
         re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
     ]
+
 
 class StorageDevice(element.Element):
     ifc_type = "IfcStorageDevice"
@@ -413,66 +395,75 @@ class Valve(element.Element):
         re.compile('Ventil', flags=re.IGNORECASE)
     ]
 
-    pattern_diameter = [
-        re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
-        re.compile('.*Diameter.*', flags=re.IGNORECASE),
-        re.compile('.*DN.*', flags=re.IGNORECASE),
-    ]
-
     conditions = [
         condition.RangeCondition("diameter", 5.0, 500.00)  # ToDo: unit?!
     ]
 
-    @cached_property
-    def diameter(self):
-        result = self.find('diameter')
+    diameter = attribute.Attribute(
+        name='diameter',
+        description='Valve diameter',
+        patterns=[
+            re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
+            re.compile('.*Diameter.*', flags=re.IGNORECASE),
+            re.compile('.*DN.*', flags=re.IGNORECASE),
+        ],
+    )
+    # @cached_property
+    # def diameter(self):
+    #     result = self.find('diameter')
+    #
+    #     if isinstance(result, list):
+    #         return np.average(result).item()
+    #     return result
 
-        if isinstance(result, list):
-            return np.average(result).item()
-        return result
-
-    @cached_property
-    def length(self):
-        return
+    length = attribute.Attribute(
+        name='length',
+        description='Length of Valve',
+    )
 
 
 class Duct(element.Element):
     ifc_type = "IfcDuctSegment"
     pattern_ifc_type = [
         re.compile('Duct.?segment', flags=re.IGNORECASE)
-        ]
-    @property
-    def diameter(self):
-        return 1
+    ]
 
-    @property
-    def length(self):
-        return 1
+    diameter = attribute.Attribute(
+        name='diameter',
+        description='Duct diameter',
+    )
+    length = attribute.Attribute(
+        name='length',
+        description='Length of Duct',
+    )
 
 
 class DuctFitting(element.Element):
     ifc_type = "IfcDuctFitting"
     pattern_ifc_type = [
         re.compile('Duct.?fitting', flags=re.IGNORECASE)
-        ]
-    @property
-    def diameter(self):
-        return 1
+    ]
 
-    @property
-    def length(self):
-        return 1
+    diameter = attribute.Attribute(
+        name='diameter',
+        description='Duct diameter',
+    )
+    length = attribute.Attribute(
+        name='length',
+        description='Length of Duct',
+    )
 
 
 class AirTerminal(element.Element):
     ifc_type = "IfcAirTerminal"
     pattern_ifc_type = [
         re.compile('Air.?terminal', flags=re.IGNORECASE)
-        ]
+    ]
 
-    @property
-    def diameter(self):
-        return 1
+    diameter = attribute.Attribute(
+        name='diameter',
+        description='Terminal diameter',
+    )
 
 
 class ThermalZones(element.Element):
@@ -480,14 +471,14 @@ class ThermalZones(element.Element):
     pattern_ifc_type = [
         re.compile('Space', flags=re.IGNORECASE),
         re.compile('Zone', flags=re.IGNORECASE)
-        ]
+    ]
 
 
 class Medium(element.Element):
     ifc_type = "IfcDistributionSystems"
     pattern_ifc_type = [
         re.compile('Medium', flags=re.IGNORECASE)
-        ]
+    ]
 
 
 class Wall(element.Element):
@@ -495,7 +486,7 @@ class Wall(element.Element):
     pattern_ifc_type = [
         re.compile('Wall', flags=re.IGNORECASE),
         re.compile('Wand', flags=re.IGNORECASE)
-        ]
+    ]
 
     @property
     def area(self):
@@ -514,7 +505,7 @@ class OuterWall(Wall):
     pattern_ifc_type = [
         re.compile('Outer.?wall', flags=re.IGNORECASE),
         re.compile('Au(ß|ss)en.?wand', flags=re.IGNORECASE)
-        ]
+    ]
 
     @property
     def orientation(self):
@@ -526,7 +517,7 @@ class Window(element.Element):
     pattern_ifc_type = [
         re.compile('Window', flags=re.IGNORECASE),
         re.compile('Fenster', flags=re.IGNORECASE)
-        ]
+    ]
 
     @property
     def area(self):
@@ -539,5 +530,6 @@ class Window(element.Element):
     @property
     def g_value(self):
         return 1
+
 
 __all__ = [ele for ele in locals().values() if ele in element.Element.__subclasses__()]

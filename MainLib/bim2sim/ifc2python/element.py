@@ -255,7 +255,6 @@ class IFCBased(Root):
         """Ask user to select from all properties matching patterns"""
 
         matches = self.filter_properties(patterns)
-        selected = None
         if matches:
             values = []
             choices = []
@@ -273,20 +272,21 @@ class IFCBased(Root):
                 # multiple sources but common value
                 return distinct_values.pop()
 
-            # TODO: Decision with id, key, value
-            decision = DictDecision("Multiple possibilities found",
-                                    choices=dict(zip(choices, values)),
-                                    output=self.attributes,
-                                    output_key=name,
-                                    global_key="%s_%s.%s" % (self.ifc_type, self.guid, name),
-                                    allow_skip=True, allow_load=True, allow_save=True,
-                                    collect=collect_decisions, quick_decide=not collect_decisions)
-
-            if collect_decisions:
-                raise PendingDecisionError()
-
-            return decision.value
-        raise NoValueError("No matching property for %s" % (patterns))
+        return None
+        #     # TODO: Decision with id, key, value
+        #     decision = DictDecision("Multiple possibilities found",
+        #                             choices=dict(zip(choices, values)),
+        #                             output=self.attributes,
+        #                             output_key=name,
+        #                             global_key="%s_%s.%s" % (self.ifc_type, self.guid, name),
+        #                             allow_skip=True, allow_load=True, allow_save=True,
+        #                             collect=collect_decisions, quick_decide=not collect_decisions)
+        #
+        #     if collect_decisions:
+        #         raise PendingDecisionError()
+        #
+        #     return decision.value
+        # raise NoValueError("No matching property for %s" % (patterns))
 
     def __repr__(self):
         return "<%s (%s)>" % (self.__class__.__name__, self.name)
@@ -548,7 +548,7 @@ class Element(BaseElement, IFCBased):
                     self.logger.warning("Not included %s as Port in %s", element_port_connection.is_a(), self)
 
         # valid for IFC for Revit v19.1.0.0
-        element_port_connections = self.ifc.HasPorts
+        element_port_connections = getattr(self.ifc, 'HasPorts', [])
         for element_port_connection in element_port_connections:
             self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
 
@@ -600,14 +600,18 @@ class Element(BaseElement, IFCBased):
             logger.warning("Did not found matching class for %s", ifc_type)
 
         prefac=cls(ifc=ifc_element, tool=tool)
-
-        return prefac if prefac.validate() else None
-
+        return prefac
+        # if prefac.validate():
+        #     return prefac
+        # else:
+        #     prefac.discard()
+        #     return None
 
     def validate(self):
         """"Check if standard parameter are in valid range"""
         for cond in self.conditions:
             if not cond.check(self):
+                self.logger.warning("%s validation (%s) failed for %s", self.ifc_type, cond.name, self.guid)
                 return False
         return True
 

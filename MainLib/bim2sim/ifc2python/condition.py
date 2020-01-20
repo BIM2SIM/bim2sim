@@ -2,10 +2,13 @@
 import logging
 
 
-class Condition():
+class Condition:
     """Class for validating an element by a condition"""
 
     _logger = None
+
+    def __init__(self, name):
+        self.name = name
 
     @property
     def logger(self):
@@ -14,7 +17,7 @@ class Condition():
             Condition._logger = logging.getLogger(__name__)
         return Condition._logger
 
-    def run(self, element):
+    def check(self, element):
         pass
 
 
@@ -22,6 +25,7 @@ class RangeCondition(Condition):
     """"Validate through a simple ValueRange"""
 
     def __init__(self, key: str, valueMin: float, valueMax: float):
+        super().__init__(key)
         self.key = key
         self.valueMin = valueMin
         self.valueMax = valueMax
