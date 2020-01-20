@@ -6,7 +6,7 @@ import re
 import numpy as np
 
 from bim2sim.decorators import cached_property
-from bim2sim.ifc2python import element, condition, attribute
+from bim2sim.kernel import element, condition, attribute
 from bim2sim.decision import BoolDecision
 
 

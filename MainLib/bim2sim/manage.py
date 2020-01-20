@@ -4,7 +4,8 @@ import logging
 from abc import ABCMeta, abstractmethod
 
 from bim2sim.project import PROJECT, get_config
-from bim2sim.ifc2python import ifc2python
+from bim2sim.kernel import ifc2python
+from bim2sim.decision import Decision
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.export.modelica import standardlibrary
 import ifcopenshell
@@ -31,6 +32,8 @@ class BIM2SIMManager:
         self.ifc = ifc2python.load_ifc(os.path.abspath(self.ifc_path))
         self.logger.info("The exporter version of the IFC file is '%s'",
                          self.ifc.wrapped_data.header.file_name.originating_system)
+
+        Decision.load(PROJECT.decisions)
 
         self.logger.info("BIM2SIMManager '%s' initialized", self.__class__.__name__)
 

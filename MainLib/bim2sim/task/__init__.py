@@ -1,11 +1,11 @@
-﻿"""Package containing classes for high level workflow"""
+﻿"""Package containing classes for high level tasks"""
 
 import os
 import logging
 import json
 
 
-class Workflow():
+class Task:
     """Base class for single Workload blocks"""
     saveable = False
 

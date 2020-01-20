@@ -1,6 +1,6 @@
 
 from bim2sim.manage import BIM2SIMManager, PROJECT
-from bim2sim.workflow import bps
+from bim2sim.task import bps
 from bim2sim.export.modelica import standardlibrary
 from bim2sim_hkesim.models import HKESim
 

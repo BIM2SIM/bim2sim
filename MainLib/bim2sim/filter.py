@@ -1,6 +1,7 @@
 ﻿"""Module containing filters to identify IFC elements of interest"""
-from ifc2python import ifc2python
-from bim2sim.ifc2python.element import Element
+from bim2sim.kernel import ifc2python
+from bim2sim.kernel.element import Element
+
 
 class Filter():
     """Base filter"""
