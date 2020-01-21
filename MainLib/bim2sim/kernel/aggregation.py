@@ -5,10 +5,24 @@ import math
 from collections import defaultdict
 
 import numpy as np
+from bim2sim.kernel.element import BaseElement, BasePort
+from bim2sim.kernel import elements, attribute
 
-from bim2sim.ifc2python.element import BaseElement, BasePort
-import math
-from bim2sim.ifc2python import elements, attribute
+
+def verify_edge_ports(func):
+    """Decorator to verify edge ports"""
+
+    def wrapper(agg_instance, *args, **kwargs):
+        ports = func(agg_instance, *args, **kwargs)
+        # inner_ports = [port for ele in agg_instance.elements for port in ele.ports]
+        for port in ports:
+            if not port.connection:
+                continue
+            if port.connection.parent in agg_instance.elements:
+                raise AssertionError("%s (%s) is not an edge port of %s" % (port, port.guid, agg_instance))
+        return ports
+
+    return wrapper
 
 
 class AggregationPort(BasePort):
@@ -30,6 +44,8 @@ class AggregationPort(BasePort):
 
 class Aggregation(BaseElement):
     """Base aggregation of models"""
+    ifc_type = None
+    multi = ()
 
     def __init__(self, name, elements, *args, **kwargs):
         if 'guid' not in kwargs:
@@ -49,6 +65,21 @@ class Aggregation(BaseElement):
             return (self.elements[0].position + self.elements[-1].position) / 2
         except:
             return None
+
+    def request(self, name):
+        super().__doc__
+
+        # broadcast request to all nested elements
+        # if one attribute included in multi_calc is requested, all multi_calc attributes are needed
+
+        if name in self.multi:
+            names = self.multi
+        else:
+            names = (name,)
+
+        for ele in self.elements:
+            for n in names:
+                ele.request(n)
 
     @classmethod
     def get_empty_mapping(cls, elements: list):
@@ -70,20 +101,6 @@ class Aggregation(BaseElement):
 
         return mapping, connections
 
-    @staticmethod
-    def verify_edge_ports(func):
-        """Decorator to verify edge ports"""
-        def wrapper(agg_instance, *args, **kwargs):
-            ports = func(agg_instance, *args, **kwargs)
-            # inner_ports = [port for ele in agg_instance.elements for port in ele.ports]
-            for port in ports:
-                if not port.connection:
-                    continue
-                if port.connection.parent in agg_instance.elements:
-                    raise AssertionError("%s (%s) is not an edge port of %s" % (port, port.guid, agg_instance))
-            return ports
-        return wrapper
-
     def __repr__(self):
         return "<%s '%s' (aggregation of %d elements)>" % (
             self.__class__.__name__, self.name, len(self.elements))
@@ -92,6 +109,7 @@ class Aggregation(BaseElement):
 class PipeStrand(Aggregation):
     """Aggregates pipe strands"""
     aggregatable_elements = ['IfcPipeSegment', 'IfcPipeFitting']
+    multi = ('length', 'diameter')
 
     def __init__(self, name, elements, *args, **kwargs):
         super().__init__(name, elements, *args, **kwargs)
@@ -99,11 +117,7 @@ class PipeStrand(Aggregation):
         self.ports.append(AggregationPort(edge_ports[0], parent=self))
         self.ports.append(AggregationPort(edge_ports[1], parent=self))
 
-        for ele in self.elements:
-            ele.request('diameter')
-            ele.request('length')
-
-    @Aggregation.verify_edge_ports
+    @verify_edge_ports
     def _get_start_and_end_ports(self):
         """
         Finds and sets the first and last port of the pipestrand.
@@ -313,6 +327,7 @@ class UnderfloorHeating(PipeStrand):
 class ParallelPump(Aggregation):
     """Aggregates pumps in parallel"""
     aggregatable_elements = ['IfcPump', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting']
+    multi = ('rated_power', 'rated_height', 'rated_volume_flow', 'diameter', 'diameter_strand', 'length')
 
     def __init__(self, name, elements, *args, **kwargs):
         super().__init__(name, elements, *args, **kwargs)
@@ -320,7 +335,7 @@ class ParallelPump(Aggregation):
         self.ports.append(AggregationPort(edge_ports[0], parent=self))
         self.ports.append(AggregationPort(edge_ports[1], parent=self))
 
-    @Aggregation.verify_edge_ports
+    @verify_edge_ports
     def _get_start_and_end_ports(self):
         """
         Finds and sets the first and last port of the parallelpumps
@@ -540,7 +555,7 @@ class ParallelSpaceHeater(Aggregation):
         self._avg_diameter_strand = None
         self._elements = None
 
-    @Aggregation.verify_edge_ports
+    @verify_edge_ports
     def _get_start_and_end_ports(self):
         """
         Finds external ports of aggregated group

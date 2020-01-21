@@ -1,4 +1,4 @@
-﻿"""This module holds elements related to hvac workflow"""
+﻿"""This module holds tasks related to hvac"""
 
 import itertools
 import json
@@ -8,17 +8,17 @@ from itertools import chain
 
 import numpy as np
 
-from bim2sim.workflow import Workflow
-from bim2sim.tasks import LOD
-from bim2sim.filter import TypeFilter
-from bim2sim.ifc2python.aggregation import Aggregation, PipeStrand, UnderfloorHeating, \
+from bim2sim.task import Task
+from bim2sim.workflow import LOD
+from bim2sim.filter import TypeFilter, TextFilter
+from bim2sim.kernel.aggregation import Aggregation, PipeStrand, UnderfloorHeating, \
     ParallelPump, ParallelSpaceHeater
-from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
-from bim2sim.ifc2python.hvac import hvac_graph
+from bim2sim.kernel.element import Element, ElementEncoder, BasePort
+from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
-from bim2sim.decision import Decision, BoolDecision
+from bim2sim.decision import Decision, DictDecision, ListDecision
 from bim2sim.project import PROJECT
-from bim2sim.ifc2python import finder
+from bim2sim.kernel import finder
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.enrichment_data import element_input_json
 from bim2sim.decision import DictDecision, ListDecision, RealDecision
@@ -56,13 +56,13 @@ IFC_TYPES = (
     'IfcSpaceHeater',
     'IfcTank',
     'IfcTubeBundle',
-    'IfcUnitaryEquipment',
+    #'IfcUnitaryEquipment',
     'IfcValve',
     'IfcVibrationIsolator',
+    #'IfcHeatPump'
 )
 
-
-class Inspect(Workflow):
+class Inspect(Task):
     """Analyses IFC, creates Element instances and connects them.
 
     elements are stored in .instances dict with guid as key"""
@@ -194,19 +194,146 @@ class Inspect(Workflow):
         This is especialy usefull for vessel like elements with variable
         number of ports (and bad ifc export) or proxy elements.
         Missing ports on element side are created on demand."""
-        # ToDo
+        # ToDo:
         connections = []
         return connections
 
-    @Workflow.log
-    def run(self, task, ifc, relevant_ifc_types):
+    @Task.log
+    def accept_valids(self, entities_dict, warn=True, force=False):
+        """Instantiate ifc_entities using given element class.
+        Resulting instances are validated (if not force) ans added to self.instances on success."""
+        valid, invalid = [], []
+        result_dict = {}
+        for ifc_type, entities in entities_dict.items():
+            remaining = []
+            result_dict[ifc_type] = remaining
+            for entity in entities:
+                element = Element.factory(entity, ifc_type)
+                if element.validate() or force:
+                    valid.append(entity)
+                    self.instances[element.guid] = element
+                elif force:
+                    valid.append(entity)
+                    self.instances[element.guid] = element
+                    if warn:
+                        self.logger.warning("Validation failed for %s %s but instantiated anyway", ifc_type, element)
+                else:
+                    if warn:
+                        self.logger.warning("Validation failed for %s %s", ifc_type, element)
+                    invalid.append(entity)
+                    remaining.append(entity)
+                    element.discard()
+
+        return valid, invalid
+
+    def filter_by_text(self, text_filter, ifc_entities):
+        """Filter ifc elements using given TextFilter. Ambiguous results are solved by decisions"""
+        entities_dict, unknown_entities = text_filter.run(ifc_entities)
+        answers = {}
+        for k, v in entities_dict.items():
+            if len(v) > 1:
+                ListDecision(
+                    "Found following Matches:",
+                    # TODO: filter_for_text_fracments() already called in text_filter.run()
+                    choices=[[cls, "Match: '" + ",".join(cls.filter_for_text_fracments(k)) + "' in " + " or ".join(
+                        ["'%s'" % txt for txt in [k.Name, k.Description] if txt])] for cls in v],
+                    output=self.answers,
+                    output_key=k,
+                    global_key="%s.%s" % (k.is_a(), k.GlobalId),
+                    allow_skip=True, allow_load=True, allow_save=True,
+                    collect=True, quick_decide=not True)
+            elif len(v) == 1:
+                answers[k] = v[0]
+
+        Decision.decide_collected()
+
+        result_entity_dict = {}
+        for ifc_entity, element_classes in entities_dict.items():
+            cls = answers.get(ifc_entity)
+            if cls:
+                lst = result_entity_dict.setdefault(cls.ifc_type, [])
+                lst.append(ifc_entity)
+            else:
+                unknown_entities.append(ifc_entity)
+
+        return result_entity_dict, unknown_entities
+
+    def set_class_by_user(self, unknown_entities):
+        """Ask user for every given ifc_entity to specify matching element class"""
+        answers = {}
+        for ifc_entity in unknown_entities:
+            ListDecision(
+                "Found unidentified Element of %s (Name: %s, Description: %s):" % (
+                ifc_entity.is_a(), ifc_entity.Name, ifc_entity.Description),
+                choices=[[ifc_type, element] for ifc_type, element in Element._ifc_classes.items()],
+                output=answers,
+                output_key=ifc_entity,
+                global_key="%s.%s" % (ifc_entity.is_a(), ifc_entity.GlobalId),
+                allow_skip=True, allow_load=True, allow_save=True, allow_overwrite=True,
+                collect=True, quick_decide=not True)
+        Decision.decide_collected()
+
+        result_entity_dict = {}
+        ignore = []
+        for ifc_entity, element_class_tuple in answers.items():
+            if element_class_tuple is None:
+                ignore.append(ifc_entity)
+            else:
+                lst = result_entity_dict.setdefault(element_class_tuple[0], [])
+                lst.append(ifc_entity)
+
+        return result_entity_dict, ignore
+
+    @Task.log
+    def run(self, task, ifc, prepare):
         self.logger.info("Creates python representation of relevant ifc types")
-        for ifc_type in relevant_ifc_types:
-            elements = ifc.by_type(ifc_type)
-            for element in elements:
-                representation = Element.factory(element)
-                self.instances[representation.guid] = representation
+
+        # filter by type
+        initial_filter = prepare.filters[0]  #ToDo: TypeFilter must be first if the following Filter should also search in this types!
+        initial_entities_dict, unknown_entities = initial_filter.run(ifc)
+        valids, invalids = self.accept_valids(initial_entities_dict)
+        unknown_entities.extend(invalids)
+
+        for f in prepare.filters[1:]:
+
+            if isinstance(f, TextFilter):
+                # filter by text fracments
+                class_dict, unknown_entities = self.filter_by_text(f, unknown_entities)
+                valids, invalids = self.accept_valids(class_dict)
+                unknown_entities.extend(invalids)
+            else:
+                raise NotImplementedError()
+
         self.logger.info("Found %d relevant elements", len(self.instances))
+        self.logger.info("Found %d ifc_entities that could not be identified and transformed into a python element.",
+                         len(unknown_entities))
+
+        #Identification of remaining Elements through the user
+        class_dict, unknown_entities = self.set_class_by_user(unknown_entities)
+        valids, invalids = self.accept_valids(class_dict, force=True)
+        if invalids:
+            self.logger.info("Removed %d entities with no class set", len(invalids))
+
+        # answers = {}
+        # for ifc_entity in unknown_entities:
+        #     for ifc_element in v:
+        #         ListDecision(
+        #             "Found unidentified Element of %s (Name: %s, Description: %s):" % (ifc_entity, ifc_element.Name, ifc_element.Description),
+        #             choices=[[ifc_type, element] for ifc_type, element in Element._ifc_classes.items()],
+        #             output=answers,
+        #             output_key=ifc_element,
+        #             global_key="%s.%s" % (ifc_element.is_a(), ifc_element.GlobalId),
+        #             allow_skip=True, allow_load=True, allow_save=True, allow_overwrite=True,
+        #             collect=True, quick_decide=not True)
+        #         Decision.decide_collected()
+        #
+        # for a, v in answers.items():
+        #     representation = Element.factory(a, v[0]) if v else None
+        #     if representation:
+        #         self.instances[representation.guid] = representation
+        #         entities_dict[a.is_a()].remove(a)
+
+        self.logger.info("Created %d elements", len(self.instances))
 
         # connections
         self.logger.info("Checking ports of elements ...")
@@ -257,7 +384,7 @@ class Inspect(Workflow):
         # TODO: manualy add / modify connections
 
 
-class Enrich(Workflow):
+class Enrich(Task):
     def __init__(self):
         super().__init__()
         self.enrich_data = {}
@@ -269,9 +396,10 @@ class Enrich(Workflow):
 
         return attrs_enrich
 
-    @Workflow.log
+    @Task.log
     def run(self, instances):
         json_data = DataClass()
+
         # enrichment_parameter --> Class
         self.logger.info("Enrichment of the elements...")
         # general question -> year of construction, all elements
@@ -300,22 +428,24 @@ class Enrich(Workflow):
         # runs all enrich methods
 
 
-class Prepare(Workflow):
+class Prepare(Task):
     """Configurate"""  # TODO: based on task
 
     def __init__(self):
         super().__init__()
         self.filters = []
 
-    @Workflow.log
+    @Task.log
     def run(self, task, relevant_ifc_types):
         self.logger.info("Setting Filters")
         Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
         self.filters.append(TypeFilter(relevant_ifc_types))
+        # self.filters.append(TextFilter(['IfcBuildingElementProxy', 'IfcUnitaryEquipment']))
+        self.filters.append(TextFilter(relevant_ifc_types))
 
 
-class MakeGraph(Workflow):
+class MakeGraph(Task):
     """Instantiate HvacGraph"""
 
     # saveable = True #ToDo
@@ -324,7 +454,7 @@ class MakeGraph(Workflow):
         super().__init__()
         self.graph = None
 
-    @Workflow.log
+    @Task.log
     def run(self, task, instances: list):
         self.logger.info("Creating graph from IFC elements")
         self.graph = hvac_graph.HvacGraph(instances)
@@ -338,7 +468,7 @@ class MakeGraph(Workflow):
         self.graph.from_serialized(json.loads(data))
 
 
-class Reduce(Workflow):
+class Reduce(Task):
     """Reduce number of elements by aggregation"""
 
     def __init__(self):
@@ -346,7 +476,7 @@ class Reduce(Workflow):
         self.reduced_instances = []
         self.connections = []
 
-    @Workflow.log
+    @Task.log
     def run(self, task, graph: hvac_graph.HvacGraph):
         self.logger.info("Reducing elements by applying aggregations")
         number_of_nodes_old = len(graph.element_graph.nodes)
@@ -371,6 +501,8 @@ class Reduce(Workflow):
             #     graph.merge(
             #         mapping=parallelspaceheater.get_replacement_mapping(),
             #         inner_connections=parallelspaceheater.get_inner_connections())
+
+        self.logger.info("Applied %d aggregations as \"ParallelPump\"", number_pp)
 
         chains = graph.get_type_chains(PipeStrand.aggregatable_elements, include_singles=True)
         for chain in chains:
@@ -464,8 +596,7 @@ class Reduce(Workflow):
                 break
 
 
-
-class DetectCycles(Workflow):
+class DetectCycles(Task):
     """Detect cycles in graph"""
 
     # TODO: sth usefull like grouping or medium assignment
@@ -474,23 +605,22 @@ class DetectCycles(Workflow):
         super().__init__()
         self.cycles = None
 
-    @Workflow.log
+    @Task.log
     def run(self, task, graph: hvac_graph.HvacGraph):
         self.logger.info("Detecting cycles")
         self.cycles = graph.get_cycles()
 
 
-class Export(Workflow):
+class Export(Task):
     """Export to Dymola/Modelica"""
 
     def run(self, task, libraries, instances, connections):
         self.logger.info("Export to Modelica code")
-        Decision.load(PROJECT.decisions)
 
         modelica.Instance.init_factory(libraries)
         export_instances = {inst: modelica.Instance.factory(inst) for inst in instances}
 
-        Element.solve_requests()
+        Element.solve_requested_decisions()
 
         self.logger.info(Decision.summary())
         Decision.decide_collected()

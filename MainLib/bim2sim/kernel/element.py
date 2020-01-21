@@ -8,7 +8,7 @@ import re
 import numpy as np
 
 from bim2sim.decorators import cached_property
-from bim2sim.ifc2python import ifc2python, attribute
+from bim2sim.kernel import ifc2python, attribute
 from bim2sim.decision import Decision, BoolDecision, RealDecision, ListDecision, DictDecision, PendingDecisionError
 
 logger = logging.getLogger(__name__)
@@ -45,8 +45,8 @@ class Root:
     def __init__(self, guid=None):
         self.guid = guid or self.get_id()
         Root.objects[self.guid] = self
-        self._requests = []
-        self.properties = {}
+        self.related_decisions = []
+        self.attributes = attribute.AttributeManager(bind=self)
 
     def __hash__(self):
         return hash(self.guid)
@@ -78,69 +78,34 @@ class Root:
         return Root.objects.get(guid)
 
     def request(self, name):
-        if not name in self._requests:
-            self._requests.append(name)
+        self.attributes.request(name)
 
-    @classmethod
-    def solve_requests(cls):
-        """trys to obtain all requested attributes.
+    def solve_requested_decisions(self=None):
+        """Solve all requested decisions.
+        If called by instance, all instance related decisions are solved
+        else all decisions of all instances are solved."""
+        if not self:
+            # called from class
+            related_decisions = []
+            for obj in Root.objects.values():
+                related_decisions.extend(obj.related_decisions)
+            Decision.decide_collected(collection=related_decisions)
+        else:
+            # called from instance
+            Decision.decide_collected(collection=self.related_decisions)
 
-        First step is to collect neccesary Decisions
-        Secend step is to solve them"""
-
-        # First step
-        pending = []
-        for ele in Root.objects.values():
-            while ele._requests:
-                request = ele._requests.pop()
-                try:
-                    value = ele.find(request, collect_decisions=True)
-                except PendingDecisionError:
-                    pending.append((ele, request))
-                except NoValueError:
-                    # Value for attribute does not exist
-                    pass
-                else:
-                    ele.properties[request] = value
-
-        Decision.decide_collected()
-
-        for ele, request in pending:
-            value = ele.find(request, collect_decisions=False)
-            ele.properties[request] = value
-
-    def search(self, name, collect_decisions=False):
-        """Search all potential sources for property (potentially time consuming)"""
-        raise NoValueError("'%s' is not available" % name)
-
-    def find(self, name, collect_decisions=False):
-        """Check for known property value. Calls search() if unknown"""
-        # check if property is known
-        print(self.__class__)
-        if name in self.properties:
-            return self.properties[name]
-        if collect_decisions:
-            if name in self._requests:
-                raise PendingDecisionError
-            # self.request(name)
-        # elif name in self._requests:
-        #    self._requests.remove(name)
-
-        # search for property
-        value = self.search(name, collect_decisions)
-
-        # store value
-        self.properties[name] = value
-        return value
-
-    def __del__(self):
+    def discard(self):
+        """Remove from tracked objects. Related decisions are also discarded."""
         del Root.objects[self.guid]
+        for d in self.related_decisions:
+            d.discard()
 
 
 class IFCBased(Root):
     """Mixin for all IFC representating classes"""
     ifc_type = None
     _ifc_classes = {}
+    pattern_ifc_type = []
 
     def __init__(self, ifc, *args, **kwargs):
         super().__init__(*args, guid=ifc.GlobalId, **kwargs)
@@ -256,6 +221,24 @@ class IFCBased(Root):
                     matches.append((propertyset_name, property_name, match))
         return matches
 
+    @classmethod
+    def filter_for_text_fracments(cls, ifc_element, optional_locations: list = None):
+        results = []
+        hits = [p.match(ifc_element.Name) for p in cls.pattern_ifc_type if p.match(ifc_element.Name)]
+        if any(hits):
+            logger = logging.getLogger('IFCModelCreation')
+            logger.info("Identified %s through text fracments in name. Criteria: %s", cls.ifc_type, hits)
+            results.append(hits[0][0])
+            #return hits[0][0]
+        if optional_locations:
+            for loc in optional_locations:
+                hits = [p.match(ifc2python.get_Property_Set(loc, ifc_element)) for p in cls.pattern_ifc_type if ifc2python.get_Property_Set(loc, ifc_element)]
+                if any(hits):
+                    logger = logging.getLogger('IFCModelCreation')
+                    logger.info("Identified %s through text fracments in %s. Criteria: %s", cls.ifc_type, loc, hits)
+                    results.append(hits[0][0])
+        return results if results else ''
+
     def get_exact_property(self, propertyset_name, property_name):
         """Returns value of property specified by propertyset name and property name
 
@@ -272,7 +255,6 @@ class IFCBased(Root):
         """Ask user to select from all properties matching patterns"""
 
         matches = self.filter_properties(patterns)
-        selected = None
         if matches:
             values = []
             choices = []
@@ -289,6 +271,7 @@ class IFCBased(Root):
             if len(distinct_values) == 1:
                 # multiple sources but common value
                 return distinct_values.pop()
+
 
             # TODO: Decision with id, key, value
             decision = DictDecision("Multiple possibilities found",
@@ -350,6 +333,7 @@ class IFCBased(Root):
         value = final_decision.value
         return value
 
+
     def __repr__(self):
         return "<%s (%s)>" % (self.__class__.__name__, self.name)
 
@@ -366,6 +350,7 @@ class BaseElement(Root):
         self.aggregation = None
         self.attributes = attribute.AttributeManager(bind=self)
         self.thermal_zones = []
+
 
     def get_inner_connections(self):
         """Returns inner connections of Element
@@ -594,6 +579,7 @@ class Element(BaseElement, IFCBased):
 
     dummy = None
     finder = None
+    conditions = []
 
     def __init__(self, *args, tool=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -611,16 +597,17 @@ class Element(BaseElement, IFCBased):
                     self.logger.warning("Not included %s as Port in %s", element_port_connection.is_a(), self)
 
         # valid for IFC for Revit v19.1.0.0
-        if hasattr(self.ifc, "HasPorts"):
-            element_port_connections = self.ifc.HasPorts
-            for element_port_connection in element_port_connections:
-                self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
+        element_port_connections = getattr(self.ifc, 'HasPorts', [])
+        for element_port_connection in element_port_connections:
+            self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
+
 
     @staticmethod
     def _init_factory():
         """initialize lookup for factory"""
         logger = logging.getLogger(__name__)
         conflict = False
+        s=Element.__subclasses__()
         for cls in Element.__subclasses__():
             if cls.ifc_type is None:
                 conflict = True
@@ -650,19 +637,33 @@ class Element(BaseElement, IFCBased):
                      len(Element._ifc_classes), model_txt)
 
     @staticmethod
-    def factory(ifc_element, tool=None):
+    def factory(ifc_element, alternate_ifc_type = None, tool=None):
         """Create model depending on ifc_element"""
 
         if not Element._ifc_classes:
             Element._init_factory()
 
-        ifc_type = ifc_element.is_a()
+        ifc_type = ifc_element.is_a() if not alternate_ifc_type or alternate_ifc_type == ifc_element.is_a() else alternate_ifc_type
         cls = Element._ifc_classes.get(ifc_type, Element.dummy)
         if cls is Element.dummy:
             logger = logging.getLogger(__name__)
             logger.warning("Did not found matching class for %s", ifc_type)
 
-        return cls(ifc=ifc_element, tool=tool)
+        prefac=cls(ifc=ifc_element, tool=tool)
+        return prefac
+        # if prefac.validate():
+        #     return prefac
+        # else:
+        #     prefac.discard()
+        #     return None
+
+    def validate(self):
+        """"Check if standard parameter are in valid range"""
+        for cond in self.conditions:
+            if not cond.check(self):
+                self.logger.warning("%s validation (%s) failed for %s", self.ifc_type, cond.name, self.guid)
+                return False
+        return True
 
     @property
     def source_tool(self):
@@ -706,3 +707,5 @@ class Dummy(Element):
 
 
 # import Element classes for Element.factory
+import bim2sim.kernel.elements
+
