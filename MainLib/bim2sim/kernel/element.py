@@ -105,6 +105,7 @@ class IFCBased(Root):
     """Mixin for all IFC representating classes"""
     ifc_type = None
     _ifc_classes = {}
+    pattern_ifc_type = []
 
     def __init__(self, ifc, *args, **kwargs):
         super().__init__(*args, guid=ifc.GlobalId, **kwargs)
@@ -220,6 +221,24 @@ class IFCBased(Root):
                     matches.append((propertyset_name, property_name, match))
         return matches
 
+    @classmethod
+    def filter_for_text_fracments(cls, ifc_element, optional_locations: list = None):
+        results = []
+        hits = [p.match(ifc_element.Name) for p in cls.pattern_ifc_type if p.match(ifc_element.Name)]
+        if any(hits):
+            logger = logging.getLogger('IFCModelCreation')
+            logger.info("Identified %s through text fracments in name. Criteria: %s", cls.ifc_type, hits)
+            results.append(hits[0][0])
+            #return hits[0][0]
+        if optional_locations:
+            for loc in optional_locations:
+                hits = [p.match(ifc2python.get_Property_Set(loc, ifc_element)) for p in cls.pattern_ifc_type if ifc2python.get_Property_Set(loc, ifc_element)]
+                if any(hits):
+                    logger = logging.getLogger('IFCModelCreation')
+                    logger.info("Identified %s through text fracments in %s. Criteria: %s", cls.ifc_type, loc, hits)
+                    results.append(hits[0][0])
+        return results if results else ''
+
     def get_exact_property(self, propertyset_name, property_name):
         """Returns value of property specified by propertyset name and property name
 
@@ -236,7 +255,6 @@ class IFCBased(Root):
         """Ask user to select from all properties matching patterns"""
 
         matches = self.filter_properties(patterns)
-        selected = None
         if matches:
             values = []
             choices = []
@@ -254,20 +272,21 @@ class IFCBased(Root):
                 # multiple sources but common value
                 return distinct_values.pop()
 
-            # TODO: Decision with id, key, value
-            decision = DictDecision("Multiple possibilities found",
-                                    choices=dict(zip(choices, values)),
-                                    output=self.attributes,
-                                    output_key=name,
-                                    global_key="%s_%s.%s" % (self.ifc_type, self.guid, name),
-                                    allow_skip=True, allow_load=True, allow_save=True,
-                                    collect=collect_decisions, quick_decide=not collect_decisions)
-
-            if collect_decisions:
-                raise PendingDecisionError()
-
-            return decision.value
-        raise NoValueError("No matching property for %s" % (patterns))
+        return None
+        #     # TODO: Decision with id, key, value
+        #     decision = DictDecision("Multiple possibilities found",
+        #                             choices=dict(zip(choices, values)),
+        #                             output=self.attributes,
+        #                             output_key=name,
+        #                             global_key="%s_%s.%s" % (self.ifc_type, self.guid, name),
+        #                             allow_skip=True, allow_load=True, allow_save=True,
+        #                             collect=collect_decisions, quick_decide=not collect_decisions)
+        #
+        #     if collect_decisions:
+        #         raise PendingDecisionError()
+        #
+        #     return decision.value
+        # raise NoValueError("No matching property for %s" % (patterns))
 
     def __repr__(self):
         return "<%s (%s)>" % (self.__class__.__name__, self.name)
@@ -511,6 +530,7 @@ class Element(BaseElement, IFCBased):
 
     dummy = None
     finder = None
+    conditions = []
 
     def __init__(self, *args, tool=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -528,7 +548,7 @@ class Element(BaseElement, IFCBased):
                     self.logger.warning("Not included %s as Port in %s", element_port_connection.is_a(), self)
 
         # valid for IFC for Revit v19.1.0.0
-        element_port_connections = self.ifc.HasPorts
+        element_port_connections = getattr(self.ifc, 'HasPorts', [])
         for element_port_connection in element_port_connections:
             self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
 
@@ -537,6 +557,7 @@ class Element(BaseElement, IFCBased):
         """initialize lookup for factory"""
         logger = logging.getLogger(__name__)
         conflict = False
+        s=Element.__subclasses__()
         for cls in Element.__subclasses__():
             if cls.ifc_type is None:
                 conflict = True
@@ -566,19 +587,33 @@ class Element(BaseElement, IFCBased):
                      len(Element._ifc_classes), model_txt)
 
     @staticmethod
-    def factory(ifc_element, tool=None):
+    def factory(ifc_element, alternate_ifc_type = None, tool=None):
         """Create model depending on ifc_element"""
 
         if not Element._ifc_classes:
             Element._init_factory()
 
-        ifc_type = ifc_element.is_a()
+        ifc_type = ifc_element.is_a() if not alternate_ifc_type or alternate_ifc_type == ifc_element.is_a() else alternate_ifc_type
         cls = Element._ifc_classes.get(ifc_type, Element.dummy)
         if cls is Element.dummy:
             logger = logging.getLogger(__name__)
             logger.warning("Did not found matching class for %s", ifc_type)
 
-        return cls(ifc=ifc_element, tool=tool)
+        prefac=cls(ifc=ifc_element, tool=tool)
+        return prefac
+        # if prefac.validate():
+        #     return prefac
+        # else:
+        #     prefac.discard()
+        #     return None
+
+    def validate(self):
+        """"Check if standard parameter are in valid range"""
+        for cond in self.conditions:
+            if not cond.check(self):
+                self.logger.warning("%s validation (%s) failed for %s", self.ifc_type, cond.name, self.guid)
+                return False
+        return True
 
     @property
     def source_tool(self):

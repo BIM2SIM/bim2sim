@@ -60,9 +60,9 @@ def get_Property_Set(PropertySetName, element):
     # TODO: Unit conversion
     AllPropertySetsList = element.IsDefinedBy
     property_set = next((item for item in AllPropertySetsList if
-         item.RelatingPropertyDefinition.Name == PropertySetName), None)
-    properties = property_set.RelatingPropertyDefinition.HasProperties
+                         item.RelatingPropertyDefinition.Name == PropertySetName), None)
     if property_set is not None:
+        properties = property_set.RelatingPropertyDefinition.HasProperties
         propertydict = {}
         for Property in properties:
             propertydict[Property.Name] = Property.NominalValue.wrappedValue

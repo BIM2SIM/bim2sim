@@ -48,7 +48,7 @@ class Decision:
 
     def __init__(self, question: str, validate_func,
                  output: dict = None, output_key: str = None, global_key: str = None,
-                 allow_skip=False, allow_load=False, allow_save=False,
+                 allow_skip=False, allow_load=False, allow_save=False, allow_overwrite=False,
                  collect=False, quick_decide=False):
         """
         :param question: The question asked to thu user
@@ -77,6 +77,7 @@ class Decision:
         self.allow_skip = allow_skip
         self.allow_save = allow_save
         self.allow_load = allow_load
+        self.allow_overwrite = allow_overwrite
 
         self.collect = collect
 
@@ -219,7 +220,7 @@ class Decision:
             return
 
         if self.global_key:
-            assert not self.global_key in Decision.stored_decisions, \
+            assert self.global_key not in Decision.stored_decisions or self.allow_overwrite, \
                 "Decision id '%s' is not unique!"%(self.global_key)
             assert self.status in [Status.done, Status.loadeddone, Status.saveddone], \
                 "Decision not made. There is nothing to store."
@@ -298,11 +299,11 @@ class Decision:
             else:
                 if attempt <= max_attempts:
                     if attempt == max_attempts:
-                        print("Last try before auto Cancle!")
+                        print("Last try before auto Cancel!")
                     print("'%s' is no valid input! Try again."%(raw_value))
                     value = None
                 else:
-                    raise DecisionCancle("Too many invalid attempts. Cancling input.")
+                    raise DecisionCancle("Too many invalid attempts. Canceling input.")
             attempt += 1
         return value
 
@@ -364,19 +365,39 @@ class CollectionDecision(Decision):
             index = int(raw_input)
             return index
         except Exception:
-            return None
+            try:
+                for c in self.choices:
+                    if c[0] == raw_input:
+                        index = self.choices.index(c)
+                        return index
+                else:
+                    raise Exception('Choice not in Choices!')
+            except Exception:
+                return None
 
     def from_index(self, index):
         return
 
-    def option_txt(self, options):
-        return str(self.choices)
+    def option_txt(self, options, number=5):
+        return str(self.choices[:min(len(self.choices), number)])
 
     def user_input(self, options):
+        print(self.question)
         print(self.option_txt(options))
         value = None
         while True:
             raw_value = input("Select option id for '%s':"%(self.global_key))
+
+            try:
+                if str(raw_value) == "Show All":
+                    print(self.option_txt(options, number=len(self.choices)))
+                    continue
+                elif raw_value == Decision.SKIP and Decision.SKIP in options:
+                    self.skip()
+                    return None
+            except Exception as Ex:
+                print(Ex)
+
             index = self.parse_input(raw_value)
             if not self.validate_index(index):
                 print("Enter valid index! Try again.")
@@ -395,12 +416,18 @@ class ListDecision(CollectionDecision):
     def from_index(self, index):
         return self.choices[index]
 
-    def option_txt(self, options):
-        options_txt = "  id  item"
-        for i in range(len(self.choices)):
-            options_txt += "\n{id:4d}  {item:s}".format(id=i, item=str(self.choices[i]))
-        return option_txt
-
+    def option_txt(self, options, number=5):
+        len_keys = len(self.choices)
+        header_str = "  {id:2s}  {key:%ds}  {value:s}"%(len_keys)
+        format_str = "\n {id:3d}  {key:%ds}  {value:s}"%(len_keys)
+        options_txt = header_str.format(id="id", key="key", value="value")
+        for i in range(min(len(self.choices), number)):
+            options_txt += format_str.format(id=i, key=str(self.choices[i][0]), value=str(self.choices[i][1]))
+        if len(self.choices) > number:
+            for i in range(3):
+                options_txt += "\n                     ."
+            options_txt += "\n Type 'Show All' to display all %d options" % len(self.choices)
+        return options_txt
 
 class DictDecision(CollectionDecision):
     """Accepts index of dict element as input"""
