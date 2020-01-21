@@ -17,7 +17,8 @@ IFC_TYPES = (
     'IfcWallElementedCase',
     'IfcWallStandardCase',
     'IfcWindow',
-    'IfcSpace'
+    'IfcSlab',
+    'IFcBuilding',
 )
 
 

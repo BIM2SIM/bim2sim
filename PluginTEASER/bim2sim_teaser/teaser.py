@@ -1,11 +1,9 @@
 
 from bim2sim.manage import BIM2SIMManager, PROJECT
 from bim2sim.workflow import bps
-from bim2sim.export.modelica import standardlibrary
-from bim2sim_hkesim.models import HKESim
+from bim2sim.workflow import tz_detection
 
-
-class HKESimManager(BIM2SIMManager):
+class TEASERManager(BIM2SIMManager):
 
     def __init__(self, task):
         super().__init__(task)
@@ -21,11 +19,14 @@ class HKESimManager(BIM2SIMManager):
             inspect.run(self.ifc, bps.IFC_TYPES)
             inspect.save(PROJECT.workflow)
 
-        #check
+        ### Thermalzones
+        recognition = tz_detection.Recognition()
+        recognition.run(self.ifc_arch, inspect.instances)
 
-        libraries = (standardlibrary.StandardLibrary, HKESim)
-        export = bps.Export()
-        export.run(libraries, reduce.reduced_instances, reduce.connections)
+
+        # libraries = (standardlibrary.StandardLibrary, HKESim)
+        # export = bps.Export()
+        # export.run(libraries, reduce.reduced_instances, reduce.connections)
 
 
 

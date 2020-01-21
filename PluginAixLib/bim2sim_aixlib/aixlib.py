@@ -2,7 +2,7 @@
 from ast import literal_eval
 
 from bim2sim.manage import BIM2SIMManager, PROJECT
-from bim2sim.workflow import hvac, bps, thermalzones
+from bim2sim.workflow import hvac
 from bim2sim.export.modelica import standardlibrary
 
 class AixLib(BIM2SIMManager):
@@ -21,11 +21,6 @@ class AixLib(BIM2SIMManager):
         if not inspect.load(PROJECT.workflow):
             inspect.run(self.task, self.ifc, hvac.IFC_TYPES)
             inspect.save(PROJECT.workflow)
-
-        ### Thermalzones
-        recognition = thermalzones.Recognition()
-        recognition.run(self.ifc_arch, inspect.instances)
-        ###
 
         enrich = hvac.Enrich()
         enrich.run(inspect.instances)
