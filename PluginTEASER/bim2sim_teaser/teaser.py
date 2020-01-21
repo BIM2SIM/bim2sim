@@ -1,7 +1,7 @@
 
 from bim2sim.manage import BIM2SIMManager, PROJECT
-from bim2sim.workflow import bps
-from bim2sim.workflow import tz_detection
+from bim2sim.task import bps
+from bim2sim.task import tz_detection
 
 class TEASERManager(BIM2SIMManager):
 

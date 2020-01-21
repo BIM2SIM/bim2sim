@@ -1,6 +1,6 @@
 ﻿
 from bim2sim.manage import BIM2SIMManager, PROJECT
-from bim2sim.workflow import hvac
+from bim2sim.task import hvac
 from bim2sim.export.modelica import standardlibrary
 from bim2sim_hkesim.models import HKESim
 
@@ -18,7 +18,7 @@ class HKESimManager(BIM2SIMManager):
 
         inspect = hvac.Inspect()
         if not inspect.load(PROJECT.workflow):
-            inspect.run(self.task, self.ifc, hvac.IFC_TYPES)
+            inspect.run(self.task, self.ifc, prepare)
             inspect.save(PROJECT.workflow)
 
         makegraph = hvac.MakeGraph()

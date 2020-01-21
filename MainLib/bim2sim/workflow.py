@@ -1,4 +1,4 @@
-﻿"""Module for defining tasks"""
+﻿"""Module for defining workflows"""
 
 from enum import Enum
 from bim2sim.project import get_config
@@ -13,8 +13,8 @@ class LOD(Enum):
 
 
 # TODO: config Aggregation can overwrite LODs
-class Task:
-    """Specification of task"""
+class Workflow:
+    """Specification of Workflow"""
 
     def __init__(self,
                  ductwork: LOD,
@@ -32,14 +32,14 @@ class Task:
 
         self.filters = filters if filters else []
 
-        # TODO: defaults should come from Task child classes
+        # TODO: defaults should come from Workflow child classes
         config = get_config()
         self.pipes = LOD(config['Aggregation'].getint('Pipes', 2))
         self.underfloorheatings = LOD(config['Aggregation'].getint('UnderfloorHeating', 2))
         self.pumps = LOD(config['Aggregation'].getint('Pumps', 2))
 
 
-class PlantSimulation(Task):
+class PlantSimulation(Workflow):
 
     def __init__(self):
         super().__init__(

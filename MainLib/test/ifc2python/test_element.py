@@ -15,8 +15,8 @@ import unittest
 import os
 
 import bim2sim
-from bim2sim import ifc2python
-from bim2sim.ifc2python import finder, element, elements
+from bim2sim import kernel
+from bim2sim.kernel import finder, element, elements
 
 IFC_PATH = os.path.abspath(os.path.join(
     os.path.dirname(bim2sim.__file__), '../..', 
