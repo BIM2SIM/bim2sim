@@ -3,7 +3,6 @@
 import logging
 import enum
 import json
-from collections import OrderedDict
 
 
 class DecisionException(Exception):
@@ -31,25 +30,20 @@ class FrontEnd:
     def __init__(self):
         self.logger = logging.getLogger(__name__ + '.DecisonFrontend')
 
-    def solve(self, decision, options):
+    def solve(self, decision):
         raise NotImplementedError
 
-    def solve_collection(self, collection, options):
+    def solve_collection(self, collection):
         raise NotImplementedError
 
     def get_question(self, decision):
         return decision.question
 
+    def get_body(self, decision):
+        return decision.get_body()
+
     def get_options(self, decision):
-        return decision.options
-
-    def get_options_txt(self, options):
-        return "Additional commands: %s" % (", ".join(options))
-
-    def collection_progress(self, collection):
-        total = len(collection)
-        for i, decision in enumerate(collection):
-            yield decision, "{}/[}".format(i, total)
+        return decision.get_options()
 
     def parse(self, decision, raw_answer):
         return decision.parse_input(raw_answer)
@@ -59,6 +53,36 @@ class FrontEnd:
 
 
 class ConsoleFrontEnd(FrontEnd):
+
+    @staticmethod
+    def get_input_txt(decision):
+        txt = 'Enter value: '
+        if isinstance(decision, CollectionDecision):
+            txt = 'Enter key: '
+
+        return txt
+
+    @staticmethod
+    def get_options_txt(options):
+        return "Additional commands: %s" % (", ".join(options))
+
+    @staticmethod
+    def get_body_txt(body):
+        len_labels = max(len(str(item[2])) for item in body)
+        header_str = "  {key:3s}  {label:%ds}  {value:s}" % (len_labels)
+        format_str = "\n  {key:3s}  {label:%ds}  {value:s}" % (len_labels)
+        body_txt = header_str.format(key="key", label="label", value="value")
+
+        for key, value, label in body:
+            body_txt += format_str.format(key=str(key), label=str(label), value=str(value))
+
+        return body_txt
+
+    @staticmethod
+    def collection_progress(collection):
+        total = len(collection)
+        for i, decision in enumerate(collection):
+            yield decision, "[Decision {}/{}]".format(i + 1, total)
 
     def solve(self, decision):
         return self.user_input(decision)
@@ -93,19 +117,23 @@ class ConsoleFrontEnd(FrontEnd):
         question = self.get_question(decision)
         options = self.get_options(decision)
         if extra_options:
-            options += extra_options
+            options = options + extra_options
         options_txt = self.get_options_txt(options)
+        body = self.get_body(decision)
+        input_txt = self.get_input_txt(decision)
         if progress:
             progress += ' '
 
-        print(question)
         print(progress, end='')
+        print(question)
         print(options_txt)
+        if body:
+            print(self.get_body_txt(body))
 
         max_attempts = 10
         attempt = 0
         while True:
-            raw_value = input()
+            raw_value = input(input_txt)
             if raw_value.lower() == Decision.SKIP.lower() and Decision.SKIP in options:
                 decision.skip()
                 return None
@@ -131,7 +159,6 @@ class ConsoleFrontEnd(FrontEnd):
 
 
 class ExternalFrontEnd(FrontEnd):
-
 
     def __iter__(self):
         raise StopIteration
@@ -259,24 +286,6 @@ class Decision:
             logger.info("Canceling decisions")
             raise
 
-        # for decision in _collection:
-        #     if skip_all and decision.allow_skip:
-        #         decision.skip()
-        #     else:
-        #         if decision.status != Status.open:
-        #             logger.debug("Decision not open -> continue (%s)", decision)
-        #             continue
-        #         if skip_all:
-        #             logger.info("Decision can not be skipped")
-        #         try:
-        #             decision.decide(collected=True)
-        #         except DecisionSkipAll:
-        #             skip_all = True
-        #             logger.info("Skipping remaining decisions")
-        #         except DecisionCancle as ex:
-        #             logger.info("Canceling decisions")
-        #             raise
-
     @classmethod
     def load(cls, path):
         """Load previously solved Decisions from file system"""
@@ -358,10 +367,12 @@ class Decision:
         options = [Decision.CANCEL]
         if self.allow_skip:
             options.append(Decision.SKIP)
-            # if collected:
-            #     options.append(Decision.SKIPALL)
 
         return options
+
+    def get_body(self):
+        """Returns list of tuples representing items of CollectionDecision else None"""
+        return None
 
     def decide(self):
         """Decide by user input
@@ -375,15 +386,8 @@ class Decision:
         if self.status != Status.open:
             raise AssertionError("Cannot call decide() for Decision with status != open")
 
-        # options = [Decision.CANCEL]
-        # if self.allow_skip:
-        #     options.append(Decision.SKIP)
-        #     if collected:
-        #         options.append(Decision.SKIPALL)
-
         self.value = self.frontend.solve(self)
 
-        # self.value = self.user_input(options)
         self.status = Status.done
         self._post()
         return self.value
@@ -398,43 +402,7 @@ class Decision:
 
     def parse_input(self, raw_input: str):
         """Convert input to desired type"""
-
         return raw_input
-
-    def user_input(self, options):
-        """Ask user for decision"""
-
-        value = None
-        msg = "Enter value"
-        if options:
-            msg += " or one of the following commands: %s"%(", ".join(options))
-        print(msg)
-        max_attempts = 10
-        attempt = 0
-        while True:
-            raw_value = input("%s: "%(self.question))
-            if raw_value == Decision.SKIP and Decision.SKIP in options:
-                self.skip()
-                return None
-            if raw_value == Decision.SKIPALL and Decision.SKIPALL in options:
-                self.skip()
-                raise DecisionSkipAll
-            if raw_value == Decision.CANCEL and Decision.CANCEL in options:
-                raise DecisionCancle
-
-            value = self.parse_input(raw_value)
-            if self.validate(value):
-                break
-            else:
-                if attempt <= max_attempts:
-                    if attempt == max_attempts:
-                        print("Last try before auto Cancel!")
-                    print("'%s' is no valid input! Try again."%(raw_value))
-                    value = None
-                else:
-                    raise DecisionCancle("Too many invalid attempts. Canceling input.")
-            attempt += 1
-        return value
 
     def __repr__(self):
         return "<%s (%s = %s)>"%(self.__class__.__name__, self.question, self.value)
@@ -482,97 +450,63 @@ class CollectionDecision(Decision):
     """Base class for chice bases Decisions"""
 
     def __init__(self, *args, choices, **kwargs):
+        """"""
         self.choices = choices
         super().__init__(*args, validate_func=lambda x:not x is None, **kwargs)
 
-    def validate_index(self, value):
-        """validates if value is valid index"""
-        return isinstance(value, int) and value in range(len(self.choices))
-
     def parse_input(self, raw_input):
+        raw_value = None
+        done = False
         try:
             index = int(raw_input)
-            return index
+            raw_value = self.choices[index]
+            done = True
         except Exception:
+            pass
+
+        if not done:
             try:
-                for c in self.choices:
-                    if c[0] == raw_input:
-                        index = self.choices.index(c)
-                        return index
-                else:
-                    raise Exception('Choice not in Choices!')
-            except Exception:
-                return None
+                raw_value = self.choices[raw_input]
+            except IndexError:
+                pass
 
-    def from_index(self, index):
-        return
-
-    def option_txt(self, options, number=5):
-        return str(self.choices[:min(len(self.choices), number)])
-
-    def user_input(self, options):
-        print(self.question)
-        print(self.option_txt(options))
-        value = None
-        while True:
-            raw_value = input("Select option id for '%s':"%(self.global_key))
-
-            try:
-                if str(raw_value) == "Show All":
-                    print(self.option_txt(options, number=len(self.choices)))
-                    continue
-                elif raw_value == Decision.SKIP and Decision.SKIP in options:
-                    self.skip()
-                    return None
-            except Exception as Ex:
-                print(Ex)
-
-            index = self.parse_input(raw_value)
-            if not self.validate_index(index):
-                print("Enter valid index! Try again.")
-                continue
-            value = self.from_index(index)
-            if value is not None and self.validate(value):
-                break
-            else:
-                print("Value '%s' does not match conditions! Try again."%(raw_value))
-        return value
+        return raw_value
 
 
 class ListDecision(CollectionDecision):
-    """Accepts index of list element as input"""
+    """Accepts index of list element as input.
 
-    def from_index(self, index):
-        return self.choices[index]
+    Choices is a list of either
+      - values, str(value) is used for label
+      - tuples of (value, label)"""
 
-    def option_txt(self, options, number=5):
-        len_keys = len(self.choices)
-        header_str = "  {id:2s}  {key:%ds}  {value:s}"%(len_keys)
-        format_str = "\n {id:3d}  {key:%ds}  {value:s}"%(len_keys)
-        options_txt = header_str.format(id="id", key="key", value="value")
-        for i in range(min(len(self.choices), number)):
-            options_txt += format_str.format(id=i, key=str(self.choices[i][0]), value=str(self.choices[i][1]))
-        if len(self.choices) > number:
-            for i in range(3):
-                options_txt += "\n                     ."
-            options_txt += "\n Type 'Show All' to display all %d options" % len(self.choices)
-        return options_txt
+    def get_body(self):
+        body = []
+        for i, item in enumerate(self.choices):
+            if isinstance(item, (list, tuple)) and len(item) == 2:
+                # label provided
+                body.append((i, *item))
+            else:
+                # no label provided
+                body.append((i, item, str(item)))
+        return body
 
-class DictDecision(CollectionDecision):
-    """Accepts index of dict element as input"""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.choices = OrderedDict(self.choices)
-
-    def from_index(self, index):
-        return list(self.choices.values())[index]
-
-    def option_txt(self, options):
-        len_keys = max([len(str(key)) for key in self.choices.keys()])
-        header_str = "  {id:2s}  {key:%ds}  {value:s}"%(len_keys)
-        format_str = "\n {id:3d}  {key:%ds}  {value:s}"%(len_keys)
-        options_txt = header_str.format(id="id", key="key", value="value")
-        for i, (k, v) in enumerate(self.choices.items()):
-            options_txt += format_str.format(id=i, key=str(k), value=str(v))
-        return options_txt
+# class DictDecision(CollectionDecision):
+#     """Accepts index of dict element as input"""
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.choices = OrderedDict(self.choices)
+#
+#     def from_index(self, index):
+#         return list(self.choices.values())[index]
+#
+#     def option_txt(self, options):
+#         len_keys = max([len(str(key)) for key in self.choices.keys()])
+#         header_str = "  {id:2s}  {key:%ds}  {value:s}"%(len_keys)
+#         format_str = "\n {id:3d}  {key:%ds}  {value:s}"%(len_keys)
+#         options_txt = header_str.format(id="id", key="key", value="value")
+#         for i, (k, v) in enumerate(self.choices.items()):
+#             options_txt += format_str.format(id=i, key=str(k), value=str(v))
+#         return options_txt

@@ -16,7 +16,7 @@ from bim2sim.kernel.aggregation import Aggregation, PipeStrand, UnderfloorHeatin
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
-from bim2sim.decision import Decision, DictDecision, ListDecision
+from bim2sim.decision import Decision, ListDecision
 from bim2sim.project import PROJECT
 from bim2sim.kernel import finder
 from bim2sim.enrichment_data.data_class import DataClass
@@ -264,7 +264,7 @@ class Inspect(Task):
             ListDecision(
                 "Found unidentified Element of %s (Name: %s, Description: %s):" % (
                 ifc_entity.is_a(), ifc_entity.Name, ifc_entity.Description),
-                choices=[[ifc_type, element] for ifc_type, element in Element._ifc_classes.items()],
+                choices=[(element, ifc_type) for ifc_type, element in Element._ifc_classes.items()],
                 output=answers,
                 output_key=ifc_entity,
                 global_key="%s.%s" % (ifc_entity.is_a(), ifc_entity.GlobalId),
