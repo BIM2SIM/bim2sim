@@ -45,11 +45,13 @@ class BIM2SIMManager:
         else:
             PROJECT.complete_project_folder()
 
-
-
     @abstractmethod
     def run(self):
         """Run the manager"""
+
+    def run_decision_generator(self):
+        self.run()
+
 
     def __repr__(self):
         return "<%s>"%(self.__class__.__name__)

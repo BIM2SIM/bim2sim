@@ -5,8 +5,6 @@ import enum
 import json
 from collections import OrderedDict
 
-from pip._vendor.urllib3 import _collections
-
 
 class DecisionException(Exception):
     """Base Exception for Decisions"""
@@ -27,6 +25,118 @@ class Status(enum.Enum):
     skipped = 5  # decision was skipped
 
 
+class FrontEnd:
+    """Basic FrontEnd for decision solving"""
+
+    def __init__(self):
+        self.logger = logging.getLogger(__name__ + '.DecisonFrontend')
+
+    def solve(self, decision, options):
+        raise NotImplementedError
+
+    def solve_collection(self, collection, options):
+        raise NotImplementedError
+
+    def get_question(self, decision):
+        return decision.question
+
+    def get_options(self, decision):
+        return decision.options
+
+    def get_options_txt(self, options):
+        return "Additional commands: %s" % (", ".join(options))
+
+    def collection_progress(self, collection):
+        total = len(collection)
+        for i, decision in enumerate(collection):
+            yield decision, "{}/[}".format(i, total)
+
+    def parse(self, decision, raw_answer):
+        return decision.parse_input(raw_answer)
+
+    def validate(self, decision, value):
+        return decision.validate(value)
+
+
+class ConsoleFrontEnd(FrontEnd):
+
+    def solve(self, decision):
+        return self.user_input(decision)
+
+    def solve_collection(self, collection):
+
+        skip_all = False
+        extra_options = []
+        if all([d.allow_skip for d in collection]):
+            extra_options.append(Decision.SKIPALL)
+
+        for decision, progress in self.collection_progress(collection):
+            if skip_all and decision.allow_skip:
+                decision.skip()
+            else:
+                if skip_all:
+                    self.logger.info("Decision can not be skipped")
+                try:
+                    decision.value = self.user_input(decision, extra_options=extra_options, progress=progress)
+                    # decision.decide(collected=True)
+                except DecisionSkipAll:
+                    skip_all = True
+                    self.logger.info("Skipping remaining decisions")
+                except DecisionCancle as ex:
+                    self.logger.info("Canceling decisions")
+                    raise
+
+    # TODO: based on decision type
+    # TODO: merge from element_filter_by_text
+    def user_input(self, decision, extra_options=None, progress=''):
+
+        question = self.get_question(decision)
+        options = self.get_options(decision)
+        if extra_options:
+            options += extra_options
+        options_txt = self.get_options_txt(options)
+        if progress:
+            progress += ' '
+
+        print(question)
+        print(progress, end='')
+        print(options_txt)
+
+        max_attempts = 10
+        attempt = 0
+        while True:
+            raw_value = input()
+            if raw_value.lower() == Decision.SKIP.lower() and Decision.SKIP in options:
+                decision.skip()
+                return None
+            if raw_value.lower() == Decision.SKIPALL.lower() and Decision.SKIPALL in options:
+                decision.skip()
+                raise DecisionSkipAll
+            if raw_value.lower() == Decision.CANCEL.lower() and Decision.CANCEL in options:
+                raise DecisionCancle
+
+            value = self.parse(decision, raw_value)
+            if self.validate(decision, value):
+                break
+            else:
+                if attempt <= max_attempts:
+                    if attempt == max_attempts:
+                        print("Last try before auto Cancel!")
+                    print("'%s' is no valid input! Try again." % raw_value)
+                else:
+                    raise DecisionCancle("Too many invalid attempts. Canceling input.")
+            attempt += 1
+
+        return value
+
+
+class ExternalFrontEnd(FrontEnd):
+
+
+    def __iter__(self):
+        raise StopIteration
+
+
 class Decision:
     """Class for handling decisions and user interaction
 
@@ -45,6 +155,9 @@ class Decision:
     SKIPALL = "skip all"
     CANCEL = "cancel"
     options = [SKIP, SKIPALL, CANCEL]
+
+    frontend = ConsoleFrontEnd()
+    logger = logging.getLogger(__name__)
 
     def __init__(self, question: str, validate_func,
                  output: dict = None, output_key: str = None, global_key: str = None,
@@ -115,13 +228,6 @@ class Decision:
     def collection(cls):
         return [d for d in cls.filtered() if d.collect]
 
-    @property
-    def logger(self):
-        """logger instance"""
-        if not Decision._logger:
-            Decision._logger = logging.getLogger(__name__)
-        return Decision._logger
-
     def validate(self, value):
         """Checks value with validate_func and returns truth value"""
 
@@ -137,27 +243,38 @@ class Decision:
         """Solve all stored decisions"""
 
         logger = logging.getLogger(__name__)
-        skip_all = False
 
         _collection = collection or cls.collection()
+        _collection = [d for d in _collection if d.status == Status.open]
 
-        for decision in _collection:
-            if skip_all and decision.allow_skip:
-                decision.skip()
-            else:
-                if decision.status != Status.open:
-                    logger.debug("Decision not open -> continue (%s)", decision)
-                    continue
-                if skip_all:
-                    logger.info("Decision can not be skipped")
-                try:
-                    decision.decide(collected=True)
-                except DecisionSkipAll:
-                    skip_all = True
-                    logger.info("Skipping remaining decisions")
-                except DecisionCancle as ex:
-                    logger.info("Canceling decisions")
-                    raise
+        try:
+            cls.frontend.solve_collection(_collection)
+        except DecisionSkipAll:
+            logger.info("Skipping remaining decisions")
+            for decision in _collection:
+                if decision.status == Status.open:
+                    decision.skip()
+        except DecisionCancle as ex:
+            logger.info("Canceling decisions")
+            raise
+
+        # for decision in _collection:
+        #     if skip_all and decision.allow_skip:
+        #         decision.skip()
+        #     else:
+        #         if decision.status != Status.open:
+        #             logger.debug("Decision not open -> continue (%s)", decision)
+        #             continue
+        #         if skip_all:
+        #             logger.info("Decision can not be skipped")
+        #         try:
+        #             decision.decide(collected=True)
+        #         except DecisionSkipAll:
+        #             skip_all = True
+        #             logger.info("Skipping remaining decisions")
+        #         except DecisionCancle as ex:
+        #             logger.info("Canceling decisions")
+        #             raise
 
     @classmethod
     def load(cls, path):
@@ -236,7 +353,16 @@ class Decision:
         if self.collect:
             self.output[self.output_key] = self.value
 
-    def decide(self, collected=False):
+    def get_options(self):
+        options = [Decision.CANCEL]
+        if self.allow_skip:
+            options.append(Decision.SKIP)
+            # if collected:
+            #     options.append(Decision.SKIPALL)
+
+        return options
+
+    def decide(self):
         """Decide by user input
         reuses loaded decision if available
 
@@ -248,12 +374,15 @@ class Decision:
         if self.status != Status.open:
             raise AssertionError("Cannot call decide() for Decision with status != open")
 
-        options = [Decision.CANCEL]
-        if self.allow_skip:
-            options.append(Decision.SKIP)
-            if collected:
-                options.append(Decision.SKIPALL)
-        self.value = self.user_input(options)
+        # options = [Decision.CANCEL]
+        # if self.allow_skip:
+        #     options.append(Decision.SKIP)
+        #     if collected:
+        #         options.append(Decision.SKIPALL)
+
+        self.value = self.frontend.solve(self)
+
+        # self.value = self.user_input(options)
         self.status = Status.done
         self._post()
         return self.value
