@@ -1,0 +1,83 @@
+{
+    "statistical_years":  [2000, 2004],
+    "Boiler": {
+        "class": "Boiler",
+        "statistical_year": {
+            "2000": {
+                "name": "Boiler_enrichment_2000",
+                "water_volume": 0.008,
+                "min_power": 16,
+                "rated_power": 16,
+                "efficiency": 0.97
+            },
+            "2004": {
+                "name": "Boiler_enrichment_2004",
+                "water_volume": 0.008,
+                "min_power": 18,
+                "rated_power": 15,
+                "efficiency": 0.98
+            }
+        },
+        "Power[kw]": {
+            "2": {
+                "name": "Boiler_enrichment_2kw",
+                "water_volume": 0.008,
+                "min_power": 16,
+                "rated_power": 16,
+                "efficiency": 0.97
+            },
+            "4": {
+                "name": "Boiler_enrichment_4kw",
+                "water_volume": 0.008,
+                "min_power": 18,
+                "rated_power": 15,
+                "efficiency": 0.98
+            }
+        }
+    },
+    "SpaceHeater": {
+        "class": "SpaceHeater",
+        "statistical_year": {
+            "2000": {
+                "name": "SpaceHeater_enrichment_2000",
+                "nominal_power": null,
+                "length": null
+            },
+            "2004": {
+                "name": "SpaceHeater_enrichment_2004",
+                "nominal_power": null,
+                "length": null
+            }
+        }
+    },
+    "HeatPump": {
+        "class": "HeatPump",
+        "statistical_year": {
+            "2000": {
+                "name": "HeatPump_enrichment_2000",
+                "nominal_power": null,
+                "length": null
+            },
+            "2004": {
+                "name": "HeatPump_enrichment_2004",
+                "nominal_power": null,
+                "length": null
+            }
+        }
+    },
+    "Chiller": {
+        "class": "Chiller",
+        "statistical_year": {
+            "2000": {
+                "name": "Chiller_enrichment_2000",
+                "nominal_power": null,
+                "length": null
+            },
+            "2004": {
+                "name": "Chiller_enrichment_2004",
+                "nominal_power": null,
+                "length": null
+            }
+        }
+    }
+}

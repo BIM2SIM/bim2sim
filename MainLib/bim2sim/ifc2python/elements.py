@@ -6,27 +6,20 @@ import re
 import numpy as np
 
 from bim2sim.decorators import cached_property
-from bim2sim.ifc2python import element
+from bim2sim.ifc2python import element, attribute
 from bim2sim.decision import BoolDecision
-import re
-from bim2sim.ifc2python.element import Element
+from shapely.geometry.polygon import Polygon
 from shapely.geometry import Point
+import ifcopenshell.geom
 import matplotlib.pyplot as plt
+from bim2sim.ifc2python import elements
+from bim2sim.ifc2python.element import Element
 
-IFC_TYPES_BPS = (
-    'IfcBuilding',
-    'IfcWall',
-    'IfcWallElementedCase',  # necessary?
-    'IfcWallStandardCase',  # necessary?
-    'IfcRoof',
-    'IfcShadingDevice',
-    'ifcSlab',
-    'IfcPlate',
-    'IfcCovering',
-    'IfcDoor',
-    'IfcWindow',
-    'IfcSpace'
-)
+def diameter_post_processing(value):
+    if isinstance(value, list):
+        return np.average(value).item()
+    return value
+
 
 class Boiler(element.Element):
     """Boiler"""
@@ -39,6 +32,9 @@ class Boiler(element.Element):
     #            port.flow_master = True
     #        elif port.flow_direction == -1:
     #            port.flow_master = True
+
+    def is_generator(self):
+        return True
 
     def get_inner_connections(self):
         connections = []
@@ -76,65 +72,71 @@ class Boiler(element.Element):
                     if use:
                         RL.append(port)
         if len(VL) == 1 and len(RL) == 1:
+            VL[0].flow_side = 1
+            RL[0].flow_side = -1
             connections.append((RL[0], VL[0]))
         else:
             self.logger.warning("Unable to solve inner connections for %s", self)
 
         return connections
 
-    @cached_property
-    def water_volume(self):
-        """water_volume: float
-            Water volume of boiler."""
-        return 0.008
+    water_volume = attribute.Attribute(
+        name='water_volume',
+        description="Water volume of boiler"
+    )
 
-    @cached_property
-    def min_power(self):
-        """min_power: float
-            Minimum power that boiler operates at."""
-        return None
+    min_power = attribute.Attribute(
+        name='min_power',
+        description="Minimum power that boiler operates at"
+    )
 
-    @cached_property
-    def rated_power(self):
-        """rated_power: float
-            Rated power of boiler."""
-        return None
+    rated_power = attribute.Attribute(
+        name='rated_power',
+        description="Rated power of boiler",
+    )
 
-    @cached_property
-    def efficiency(self):
-        """efficiency: list
-            Efficiency of boiler provided as list with pairs of [
-            percentage_of_rated_power,efficiency]"""
-        return None
+    efficiency = attribute.Attribute(
+        name='efficiency',
+        description="Efficiency of boiler provided as list with pairs of [percentage_of_rated_power,efficiency]"
+    )
 
 
 class Pipe(element.Element):
     ifc_type = "IfcPipeSegment"
-    default_diameter = ('Pset_PipeSegmentTypeCommon', 'NominalDiameter')
-    pattern_diameter = [
-        re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
-        re.compile('.*Diameter.*', flags=re.IGNORECASE),
-    ]
-    default_length = ('Qto_PipeSegmentBaseQuantities', 'Length')
-    pattern_length = [
-        re.compile('.*Länge.*', flags=re.IGNORECASE),
-        re.compile('.*Length.*', flags=re.IGNORECASE),
-    ]
 
-    @property
-    def diameter(self):
-        result = self.find('diameter')
+    diameter = attribute.Attribute(
+        name='diameter',
+        default_ps=('Pset_PipeSegmentTypeCommon', 'NominalDiameter'),
+        patterns=[
+            re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
+            re.compile('.*Diameter.*', flags=re.IGNORECASE),
+        ],
+        ifc_postprocessing=diameter_post_processing,
+    )
+    # @property
+    # def diameter(self):
+    #     result = self.find('diameter')
+    #
+    #     if isinstance(result, list):
+    #         return np.average(result).item()
+    #     return result
 
-        if isinstance(result, list):
-            return np.average(result).item()
-        return result
-
-    @property
-    def length(self):
+    @staticmethod
+    def _length_from_geometry(bind, name):
         try:
-            return self.get_lenght_from_shape(self.ifc.Representation)
+            return Pipe.get_lenght_from_shape(bind.ifc.Representation)
         except AttributeError:
             return None
+
+    length = attribute.Attribute(
+        name='length',
+        default_ps=('Qto_PipeSegmentBaseQuantities', 'Length'),
+        patterns=[
+            re.compile('.*Länge.*', flags=re.IGNORECASE),
+            re.compile('.*Length.*', flags=re.IGNORECASE),
+        ],
+        functions=[_length_from_geometry],
+    )
 
     @staticmethod
     def get_lenght_from_shape(ifc_representation):
@@ -149,51 +151,82 @@ class Pipe(element.Element):
                     if item.is_a() == 'IfcExtrudedAreaSolid':
                         candidates.append(item.Depth)
         except:
-            raise AttributeError("Failed to dertermine length.")
+            raise AttributeError("Failed to determine length.")
         if not candidates:
-            raise AttributeError("No representation to dertermine length.")
+            raise AttributeError("No representation to determine length.")
         if len(candidates) > 1:
             raise AttributeError("Too many representations to dertermine length %s." % candidates)
+
         return candidates[0]
 
 
 class PipeFitting(element.Element):
     ifc_type = "IfcPipeFitting"
-    default_diameter = ('Pset_PipeFittingTypeCommon', 'NominalDiameter')
-    default_pressure_class = ('Pset_PipeFittingTypeCommon', 'PressureClass')
 
-    pattern_diameter = [
-        re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
-        re.compile('.*Diameter.*', flags=re.IGNORECASE),
-    ]
+    diameter = attribute.Attribute(
+        name='diameter',
+        default_ps=('Pset_PipeFittingTypeCommon', 'NominalDiameter'),
+        patterns=[
+            re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
+            re.compile('.*Diameter.*', flags=re.IGNORECASE),
+        ],
+        ifc_postprocessing=diameter_post_processing,
+    )
 
-    @property
-    def diameter(self):
-        result = self.find('diameter')
+    length = attribute.Attribute(
+        name='length',
+        default=0,
+    )
 
-        if isinstance(result, list):
-            return np.average(result).item()
-        return result
+    pressure_class = attribute.Attribute(
+        name='pressure_class',
+        default_ps=('Pset_PipeFittingTypeCommon', 'PressureClass')
+    )
 
-    @property
-    def length(self):
-        return self.find('length')
-
-    @property
-    def pressure_class(self):
-        return self.find('pressure_class')
+    @staticmethod
+    def _diameter_post_processing(value):
+        if isinstance(value, list):
+            return np.average(value).item()
+        return value
 
 
 class SpaceHeater(element.Element):
     ifc_type = 'IfcSpaceHeater'
 
-    @cached_property
-    def nominal_power(self):
-        return 42.0
+    def is_consumer(self):
+        return True
 
-    @cached_property
-    def length(self):
-        return 42.0
+    nominal_power = attribute.Attribute(
+        name='nominal_power',
+        description="Nominal power of SpaceHeater",
+        default=42,
+    )
+
+
+class HeatPump(element.Element):
+    ifc_type = 'IfcUnitaryEquipment'
+
+    def is_consumer(self):
+        return True
+
+    nominal_power = attribute.Attribute(
+        name='nominal_power',
+        description="Nominal power of SpaceHeater",
+        default=42,
+    )
+
+
+class Chiller(element.Element):
+    ifc_type = 'IfcChiller'
+
+    def is_consumer(self):
+        return True
+
+    nominal_power = attribute.Attribute(
+        name='nominal_power',
+        description="Nominal power of SpaceHeater",
+        default=42,
+    )
 
 
 class StorageDevice(element.Element):
@@ -208,7 +241,7 @@ class Storage(element.Element):
         return None
 
     @property
-    def hight(self):
+    def height(self):
         return 1
 
     @property
@@ -221,7 +254,7 @@ class Storage(element.Element):
 
     @property
     def volume(self):
-        return self.hight * self.diameter ** 2 / 4 * math.pi
+        return self.height * self.diameter ** 2 / 4 * math.pi
 
 
 class Distributor(element.Element):
@@ -244,7 +277,7 @@ class Pump(element.Element):
         return 3
 
     @property
-    def rated_hight(self):
+    def rated_height(self):
         return 8
 
     @property
@@ -299,228 +332,156 @@ class AirTerminal(element.Element):
     def diameter(self):
         return 1
 
+class ThermalZone(element.Element):
+    ifc_type = "IfcSpace"
+
+    area = attribute.Attribute(
+        name='area',
+        default_ps=('Dimensions', 'Area'),
+        default=0
+    )
+
+    @classmethod
+    def add_elements_space(cls, space, hvac_instances):
+
+        thermal_zone = cls(space)
+        settings = ifcopenshell.geom.settings()
+        vertices = []
+        shape = ifcopenshell.geom.create_shape(settings, space)
+        i = 0
+        while i < len(shape.geometry.verts):
+            vertices.append((shape.geometry.verts[i] + thermal_zone.position[0],
+                             shape.geometry.verts[i + 1] + thermal_zone.position[1]))
+            i += 3
+        polygon = Polygon(vertices)
+
+        bps_space_elements = []
+
+        for ele in space.BoundedBy:
+            if ele.RelatedBuildingElement:
+                representation = Element.factory(ele.RelatedBuildingElement)
+
+                if not isinstance(representation, element.Dummy):
+                    bps_space_elements.append(representation)
+
+        hvac_space_elements = []
+
+        for ele in hvac_instances:
+            if (not isinstance(hvac_instances[ele], elements.PipeFitting)) and \
+                    (not isinstance(hvac_instances[ele], elements.Pipe)):
+                if abs(hvac_instances[ele].position[2]/1000-thermal_zone.position[2]) < 3: # in same floor?
+                    point = Point(hvac_instances[ele].position[0]/1000, hvac_instances[ele].position[1]/1000)
+                    if polygon.contains(point):
+                        hvac_space_elements.append(hvac_instances[ele])
+                        # plt.plot(*point.xy, marker='x')
+                        # plt.plot(*polygon.exterior.xy)
+                        # plt.show()
+
+        thermal_zone._bps_space_elements = bps_space_elements #get bps instances in workflow.bps
+        thermal_zone._hvac_space_elements = hvac_space_elements
+
+        for ele in thermal_zone._bps_space_elements:
+            ele.thermal_zones.append(thermal_zone)
+        for ele in thermal_zone._hvac_space_elements:
+            ele.thermal_zones.append(thermal_zone)
+
+        return thermal_zone
+
 
 class Medium(element.Element):
     ifc_type = "IfcDistributionSystems"
 
 
-### BPS
-
-
-class ThermalSpace(element.Element):
-    ifc_type = "IfcSpace"
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._space_elements = {}
-        self._specific_u_value = None
-
-    def _get_space_elements(self):
-        objects = dict(self.objects)
-        self._specific_u_value = 0
-        # for space_element in self.ifc.Decomposes[0].RelatingObject.ContainsElements[0].RelatedElements:
-        #     GUID_element = str(space_element)[str(space_element).find('(')+2:str(space_element).find(',')-1]
-        #     if GUID_element in objects:
-        #         if hasattr(objects[GUID_element], "orientation"):
-        #             if objects[GUID_element].orientation not in self._space_elements:
-        #                 self._space_elements[objects[GUID_element].orientation] = []
-        #             self._space_elements[objects[GUID_element].orientation].append(objects[GUID_element])
-
-
-        # u_a = 0
-        # for obj in self._space_elements:
-        #     if hasattr(obj, "area") and hasattr(obj, "u_value"):
-        #         u_a += obj.area * obj.u_value
-        # self._specific_u_value = u_a / (self.area*self.height)
-
-    @cached_property
-    def Pset_ThermalSpaceCommon(self):
-        return self.get_propertysets()
-
-    @property
-    def space_elements(self):
-        self._get_space_elements()
-        return self._space_elements
-
-    @property
-    def max_temperature(self):
-        temp = '21 °C'
-        if "HLS" in self.Pset_PipeFittingTypeCommon:
-            temp = self.Pset_PipeFittingTypeCommon['HLS']['Temperature']
-        return temp
-
-    @property
-    def min_temperature(self):
-        return '16 °C'
-
-    @property
-    def area(self):
-        area = 1
-        if "Abmessungen" in self.Pset_PipeFittingTypeCommon:
-            area = self.Pset_PipeFittingTypeCommon['Abmessungen']['Fläche']
-        return area
-
-    @property
-    def height(self):
-        return 1
-
-
 class Wall(element.Element):
     ifc_type = "IfcWall"
-    # ifc_type = 'IfcWallStandardCase'
 
-    @cached_property
-    def Pset_WallCommon(self):
-        return self.get_propertysets()
+    @staticmethod
+    def get_orientation(bind, name):
+        if bind.is_external is True:
+            orientation = []
+            placementrel = bind.ifc.ObjectPlacement.PlacementRelTo
+            while placementrel is not None:
+                if placementrel.PlacementRelTo is None:
+                    orientation = placementrel.RelativePlacement.RefDirection.DirectionRatios[0:2]
+                placementrel = placementrel.PlacementRelTo
+            sign = bind.ifc.ObjectPlacement.RelativePlacement.RefDirection
+            orientation_wall = [None, None]
+            if sign:
+                if sign.DirectionRatios[0] != 0:
+                    if sign.DirectionRatios[0] > 0:
+                        orientation_wall[0] = -orientation[1]
+                        orientation_wall[1] = orientation[0]
+                    else:
+                        orientation_wall[0] = orientation[1]
+                        orientation_wall[1] = -orientation[0]
+                elif sign.DirectionRatios[1] != 0:
+                    if sign.DirectionRatios[1] > 0:
+                        orientation_wall[0] = -orientation[0]
+                        orientation_wall[1] = -orientation[1]
+                    else:
+                        orientation_wall[0] = orientation[0]
+                        orientation_wall[1] = orientation[1]
+            else:
+                orientation_wall[0] = -orientation[1]
+                orientation_wall[1] = orientation[0]
+            if orientation_wall[0] > 0:
+                if orientation_wall[1] > 0:
+                    angle_wall = 270 - math.degrees(math.atan(orientation_wall[1] / orientation_wall[0]))
+                else:
+                    angle_wall = 270 + abs(math.degrees(math.atan(orientation_wall[1] / orientation_wall[0])))
+            else:
+                if orientation_wall[1] < 0:
+                    angle_wall = math.degrees(math.atan(orientation_wall[0] / orientation_wall[1]))
+                else:
+                    angle_wall = 180 - abs(math.degrees(math.atan(orientation_wall[0] / orientation_wall[1])))
+        else:
+            angle_wall = "Intern"
+        return angle_wall
+
+    area = attribute.Attribute(
+        name='area',
+        default_ps=('Dimensions', 'Area'),
+        default=0
+    )
+
+    is_external = attribute.Attribute(
+        name='is_external',
+        default_ps=('Pset_WallCommon', 'IsExternal'),
+        default=0
+    )
+
+    orientation = attribute.Attribute(
+        name='orientation',
+        functions=[get_orientation],
+        default=0
+    )
 
     @property
-    def area(self):
-        return self.get_properties()
+    def capacity(self):
+        return 1
 
     @property
     def u_value(self):
-        return 1
-
-    @property
-    def is_external(self):
-        if 'IW' in self.Pset_WallCommon['ID-Daten']['Typname']:
-            external = False
-        else:
-            external = True
-        return external
-
-    @property
-    def orientation(self):
-        if self.is_external is True:
-            orientation = self.ifc.Representation.Description
-        else:
-            orientation = "Intern"
-        return orientation
-
-
-class OuterWall(Wall):
-    @property
-    def orientation(self):
         return 1
 
 
 class Window(element.Element):
     ifc_type = "IfcWindow"
 
-    @cached_property
-    def Pset_WindowCommon(self):
-        return self.get_propertysets()
+    @staticmethod
+    def get_orientation(bind, name):
+        Wall.get_orientation(bind, name)
 
-    @property
-    def is_external(self):
-        external = False
-        if 'Daten' in self.Pset_WindowCommon:
-            if 'Lage Bauteil' in self.Pset_WindowCommon['Daten']:
-                if 'außen' in self.Pset_WindowCommon['Daten']['Lage Bauteil']:
-                    external = True
-
-        return external
-
-    @property
-    def area(self):
-        return 1
-
-    @property
-    def u_value(self):
-        return 1
-
-    @property
-    def g_value(self):
-        return 1
-
-    @property
-    def orientation(self):
-        if self.is_external is True:
-            orientation = self.ifc.Tag
-        else:
-            orientation = "Intern"
-        return orientation
-
-
-class Door(element.Element):
-    ifc_type = "IfcDoor"
-
-    @property
-    def area(self):
-        return 1
-
-    @property
-    def u_value(self):
-        return 1
-
-    @property
-    def g_value(self):
-        return 1
-
-
-class Roof(element.Element):
-    ifc_type = "IfcRoof"
-
-    @property
-    def area(self):
-        return 1
-
-    @property
-    def is_external(self):
-        external = True
-        return external
-
-    @property
-    def u_value(self):
-        return 1
-
-    @property
-    def g_value(self):
-        return 1
-
-
-class ShadingDevice(element.Element):
-    ifc_type = "IfcShadingDevice"
-
-    @property
-    def area(self):
-        return 1
-
-    @property
-    def shading_device_type(self):
-        return 1
-
-    @property
-    def g_value(self):
-        return 1
-
-
-class Building(element.Element):
-    ifc_type = "IfcBuilding"
-
-    @cached_property
-    def Pset_BuildingCommon(self):
-        return self.get_propertysets()
-
-    @property
-    def net_area(self):
-        return 1
-
-    @property
-    def occupancy_type(self):
-        return 1
-
-    @property
-    def number_storeys(self):
-        return 1
-
-    @property
-    def year_construction(self):
-        return 1
-
-
-class Covering(element.Element):
-    ifc_type = "IfcCovering"
+    is_external = attribute.Attribute(
+        name='is_external',
+        default_ps=('Pset_WindowCommon', 'IsExternal'),
+        default=True
+    )
+    orientation = attribute.Attribute(
+        name='orientation',
+        functions=[get_orientation],
+        default=0
+    )
 
     @property
     def area(self):
@@ -581,6 +542,7 @@ class Slab(element.Element):
     @property
     def g_value(self):
         return 1
+
 
 
 __all__ = [ele for ele in locals().values() if ele in element.Element.__subclasses__()]

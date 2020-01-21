@@ -96,12 +96,13 @@ class HvacGraph():
         """
         self.logger.info("Searching for cycles in hvac network ...")
         base_cycles = nx.cycle_basis(self.graph)
-        cycles = [cycle for cycle in base_cycles
-                  if len({port.parent for port in cycle}) > 1]
+        # for cycle in base_cycles:
+        #     x = {port.parent for port in cycle}
+        cycles = [cycle for cycle in base_cycles if len({port.parent for port in cycle}) > 1]
         self.logger.info("Found %d cycles", len(cycles))
         return cycles
 
-    def get_type_chains(self, types):
+    def get_type_chains(self, types, include_singles=False):
         """Returns lists of consecutive elements of the given types ordered as connected.
 
         :param types: iterable of ifcType names"""
@@ -113,9 +114,15 @@ class HvacGraph():
 
         chain_lists = []
         # order elements as connected
-        for subgraph in nx.connected_component_subgraphs(subgraph_aggregations):
+
+        for component in nx.connected_components(subgraph_aggregations):
+            subgraph = subgraph_aggregations.subgraph(component).copy()
+        # for subgraph in nx.connected_component_subgraphs(subgraph_aggregations):  # marked as deprecated in nx 2.1
             end_nodes = [v for v, d in subgraph.degree() if d == 1]
+
             if len(end_nodes) != 2:
+                if include_singles:
+                    chain_lists.append(list(subgraph.nodes))
                 continue
             elements = nx.shortest_path(subgraph, *end_nodes) # TODO more efficient
             chain_lists.append(elements)
@@ -154,8 +161,36 @@ class HvacGraph():
 
         if path is provided plot is saved as pdf else it gets displayed"""
         # https://plot.ly/python/network-graphs/
-        graph = self.graph if ports else self.element_graph
-        nx.draw(graph, node_size=6, font_size=6, with_labels=True)
+        colors = {
+            1: 'green',
+            0: 'blue',
+            -1: 'red',
+            None: 'yellow',
+        }
+
+        kwargs = {}
+        if ports:
+            graph = self.graph
+            node_color_map = [colors[port.flow_side] for port in self.graph]
+            kwargs['node_color'] = node_color_map
+        else:
+            # set connection colors based on flow_side
+            graph = self.element_graph
+            edge_color_map = []
+            for edge in graph.edges:
+                sides0 = {port.flow_side for port in edge[0].ports}
+                sides1 = {port.flow_side for port in edge[1].ports}
+                side = None
+                # element with multiple sides is usually a consumer / generator (or result of conflicts)
+                # hence side of definite element is used
+                if len(sides0) == 1:
+                    side = sides0.pop()
+                elif len(sides1) == 1:
+                    side = sides1.pop()
+                edge_color_map.append(colors[side])
+            kwargs['edge_color'] = edge_color_map
+
+        nx.draw(graph, node_size=6, font_size=5, with_labels=True, **kwargs)
         plt.draw()
         if path:
             name = "%sgraph.pdf"%("port" if ports else "element")
@@ -176,3 +211,82 @@ class HvacGraph():
     def from_serialized(self, data):
         """Sets grapg from serialized data"""
         self.graph = json_graph.adjacency_graph(data)
+
+    def recurse_set_side(self, port, side, known: dict = None, raise_error=True):
+        """Recursive set flow_side to connected ports"""
+        if known is None:
+            known = {}
+
+        # set side suggestion
+        is_known = port in known
+        current_side = known.get(port, port.flow_side)
+        if not is_known:
+            known[port] = side
+        elif is_known and current_side == side:
+            return known
+        else:
+            # conflict
+            if raise_error:
+                raise AssertionError("Conflicting flow_side in %r" % port)
+            else:
+                self.logger.error("Conflicting flow_side in %r", port)
+                known[port] = None
+                return known
+
+        # call neighbours
+        for neigh in self.graph.neighbors(port):
+            if (neigh.parent.is_consumer() or neigh.parent.is_generator()) and port.parent is neigh.parent:
+                # switch flag over consumers / generators
+                self.recurse_set_side(neigh, -side, known, raise_error)
+            else:
+                self.recurse_set_side(neigh, side, known, raise_error)
+
+        return known
+
+    def recurse_set_unknown_sides(self, port, visited: list = None, masters: list = None):
+        """Recursive checks neighbours flow_side.
+        :returns tuple of
+            common flow_side (None if conflict)
+            list of checked ports
+            list of ports on which flow_side s are determined"""
+
+        if visited is None:
+            visited = []
+        if masters is None:
+            masters = []
+
+        # mark as visited to prevent deadloops
+        visited.append(port)
+
+        if port.flow_side in (-1, 1):
+            # use port with known flow_side as master
+            masters.append(port)
+            return port.flow_side, visited, masters
+
+        # call neighbours
+        neighbour_sides = {}
+        for neigh in self.graph.neighbors(port):
+            if neigh not in visited:
+                if (neigh.parent.is_consumer() or neigh.parent.is_generator()) and port.parent is neigh.parent:
+                    # switch flag over consumers / generators
+                    side, _, _ = self.recurse_set_unknown_sides(neigh, visited, masters)
+                    side = -side
+                else:
+                    side, _, _ = self.recurse_set_unknown_sides(neigh, visited, masters)
+                neighbour_sides[neigh] = side
+            # else:
+            #     print(neigh, neigh.flow_side)
+
+        sides = set(neighbour_sides.values())
+        if not sides:
+            return port.flow_side, visited, masters
+        elif len(sides) == 1:
+            # all neighbours have same site
+            side = sides.pop()
+            return side, visited, masters
+        elif len(sides) == 2 and 0 in sides:
+            side = (sides - {0}).pop()
+            return side, visited, masters
+        else:
+            # conflict
+            return None, visited, masters

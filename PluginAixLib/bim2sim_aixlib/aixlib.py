@@ -3,6 +3,7 @@ from ast import literal_eval
 
 from bim2sim.manage import BIM2SIMManager, PROJECT
 from bim2sim.workflow import hvac, bps
+# from bim2sim.workflow import tz_detection
 from bim2sim.export.modelica import standardlibrary
 
 class AixLib(BIM2SIMManager):
@@ -14,34 +15,33 @@ class AixLib(BIM2SIMManager):
 
     def run(self):
 
-        ###
-
-        inspect = bps.Inspect()
-        inspect.run(self.ifc, bps.IFC_TYPES)
-
-        ###
-
         prepare = hvac.Prepare()
-        prepare.run(hvac.IFC_TYPES)
+        prepare.run(self.task, hvac.IFC_TYPES)
 
         inspect = hvac.Inspect()
         if not inspect.load(PROJECT.workflow):
-            inspect.run(self.ifc, hvac.IFC_TYPES)
+            inspect.run(self.task, self.ifc, hvac.IFC_TYPES)
             inspect.save(PROJECT.workflow)
+
+        # ### Thermalzones
+        # recognition = tz_detection.Recognition()
+        # recognition.run(self.ifc_arch, inspect.instances)
+        # ###
+
+        enrich = hvac.Enrich()
+        enrich.run(inspect.instances)
 
         makegraph = hvac.MakeGraph()
         if not makegraph.load(PROJECT.workflow):
-            makegraph.run(list(inspect.instances.values()))
+            makegraph.run(self.task, list(inspect.instances.values()))
             makegraph.save(PROJECT.workflow)
 
         reduce = hvac.Reduce()
-        reduce.run(makegraph.graph)
-
-        #check
+        reduce.run(self.task, makegraph.graph)
 
         libraries = (standardlibrary.StandardLibrary, )
         export = hvac.Export()
-        export.run(libraries, reduce.reduced_instances, reduce.connections)
+        export.run(self.task, libraries, reduce.reduced_instances, reduce.connections)
 
     def create_modelica_table_from_list(self,curve):
         """

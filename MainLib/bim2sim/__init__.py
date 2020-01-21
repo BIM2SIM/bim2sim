@@ -15,6 +15,7 @@ from bim2sim.tasks import PlantSimulation
 
 VERSION = '0.1-dev'
 
+
 def get_backends(by_entrypoint=False):
     """load all possible plugins"""
     logger = logging.getLogger(__name__)
@@ -88,7 +89,7 @@ def main(rootpath=None):
     assert backend, "No backend set. Check config.ini"
 
     logger.info("Loading backend '%s' ...", backend)
-    manager_cls = plugins.get(backend)()
+    manager_cls = plugins.get(backend.lower())()
 
     if manager_cls is None:
         msg = "Simulation '%s' not found in plugins. Available plugins:\n - "%(backend)
@@ -136,6 +137,7 @@ def _debug_run_bps():
 
     main(path_example)
 
+
 if __name__ == '__main__':
-    _debug_run_hvac()
-    # _debug_run_bps()
+    # _debug_run_hvac()
+    _debug_run_bps()

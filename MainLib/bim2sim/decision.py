@@ -368,7 +368,7 @@ class ListDecision(CollectionDecision):
         options_txt = "  id  item"
         for i in range(len(self.choices)):
             options_txt += "\n{id:4d}  {item:s}".format(id=i, item=str(self.choices[i]))
-        return option_txt
+        return options_txt
 
 
 class DictDecision(CollectionDecision):

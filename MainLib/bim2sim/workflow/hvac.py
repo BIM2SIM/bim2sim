@@ -2,19 +2,26 @@
 
 import itertools
 import json
+import os
 import logging
+from itertools import chain
 
 import numpy as np
 
 from bim2sim.workflow import Workflow
+from bim2sim.tasks import LOD
 from bim2sim.filter import TypeFilter
-from bim2sim.ifc2python.aggregation import PipeStrand
-from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort, Root
+from bim2sim.ifc2python.aggregation import Aggregation, PipeStrand, UnderfloorHeating, \
+    ParallelPump, ParallelSpaceHeater
+from bim2sim.ifc2python.element import Element, ElementEncoder, BasePort
 from bim2sim.ifc2python.hvac import hvac_graph
 from bim2sim.export import modelica
-from bim2sim.decision import Decision
+from bim2sim.decision import Decision, BoolDecision
 from bim2sim.project import PROJECT
 from bim2sim.ifc2python import finder
+from bim2sim.enrichment_data.data_class import DataClass
+from bim2sim.enrichment_data import element_input_json
+from bim2sim.decision import DictDecision, ListDecision, RealDecision
 
 
 IFC_TYPES = (
@@ -63,6 +70,7 @@ class Inspect(Workflow):
     def __init__(self):
         super().__init__()
         self.instances = {}
+        pass
 
     @staticmethod
     def port_distance(port1, port2):
@@ -191,7 +199,7 @@ class Inspect(Workflow):
         return connections
 
     @Workflow.log
-    def run(self, ifc, relevant_ifc_types):
+    def run(self, task, ifc, relevant_ifc_types):
         self.logger.info("Creates python representation of relevant ifc types")
         for ifc_type in relevant_ifc_types:
             elements = ifc.by_type(ifc_type)
@@ -215,7 +223,7 @@ class Inspect(Workflow):
         confirmed, unconfirmed, rejected = \
             self.confirm_connections_position(rel_connections)
         self.logger.info(" - %d connections are confirmed and %d rejected. " \
-            + "%d can't be confirmed.",
+                         + "%d can't be confirmed.",
                          len(confirmed), len(rejected), len(unconfirmed))
         for port1, port2 in confirmed + unconfirmed:
             # unconfirmed have no position data and cant be connected by position
@@ -249,15 +257,58 @@ class Inspect(Workflow):
         # TODO: manualy add / modify connections
 
 
+class Enrich(Workflow):
+    def __init__(self):
+        super().__init__()
+        self.enrich_data = {}
+        self.enriched_instances = {}
+
+    def enrich_instance(self, instance, json_data):
+
+        attrs_enrich = element_input_json.load_element_class(instance, json_data)
+
+        return attrs_enrich
+
+    @Workflow.log
+    def run(self, instances):
+        json_data = DataClass()
+        # enrichment_parameter --> Class
+        self.logger.info("Enrichment of the elements...")
+        # general question -> year of construction, all elements
+        decision = RealDecision("Enter value for the construction year",
+                                validate_func=lambda x: isinstance(x, float),  # TODO
+                                global_key="Construction year",
+                                allow_skip=False, allow_load=True, allow_save=True,
+                                collect=False, quick_decide=False)
+        decision.decide()
+        delta = float("inf")
+        year_selected = None
+        for year in json_data.element_bind["statistical_years"]:
+            if abs(year - decision.value) < delta:
+                delta = abs(year - decision.value)
+                year_selected = int(year)
+        enrich_parameter = year_selected
+        # specific question -> each instance
+        for instance in instances:
+            enrichment_data = self.enrich_instance(instances[instance], json_data)
+            if bool(enrichment_data):
+                instances[instance].enrichment["enrichment_data"] = enrichment_data
+                instances[instance].enrichment["enrich_parameter"] = enrich_parameter
+                instances[instance].enrichment["year_enrichment"] = enrichment_data["statistical_year"][str(enrich_parameter)]
+
+        self.logger.info("Applied successfully attributes enrichment on elements")
+        # runs all enrich methods
+
+
 class Prepare(Workflow):
-    """Configurate""" #TODO: based on task
+    """Configurate"""  # TODO: based on task
 
     def __init__(self):
         super().__init__()
         self.filters = []
 
     @Workflow.log
-    def run(self, relevant_ifc_types):
+    def run(self, task, relevant_ifc_types):
         self.logger.info("Setting Filters")
         Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
@@ -266,14 +317,15 @@ class Prepare(Workflow):
 
 class MakeGraph(Workflow):
     """Instantiate HvacGraph"""
-    #saveable = True #ToDo
+
+    # saveable = True #ToDo
 
     def __init__(self):
         super().__init__()
         self.graph = None
 
     @Workflow.log
-    def run(self, instances: list):
+    def run(self, task, instances: list):
         self.logger.info("Creating graph from IFC elements")
         self.graph = hvac_graph.HvacGraph(instances)
 
@@ -295,23 +347,73 @@ class Reduce(Workflow):
         self.connections = []
 
     @Workflow.log
-    def run(self, graph: hvac_graph.HvacGraph):
+    def run(self, task, graph: hvac_graph.HvacGraph):
         self.logger.info("Reducing elements by applying aggregations")
         number_of_nodes_old = len(graph.element_graph.nodes)
         number_ps = 0
-        chains = graph.get_type_chains(PipeStrand.aggregatable_elements)
-        for chain in chains:
-            number_ps += 1
-            pipestrand = PipeStrand("PipeStrand%d"%(number_ps), chain)
-            graph.merge(
-                mapping=pipestrand.get_replacement_mapping(),
-                inner_connections=pipestrand.get_inner_connections())
-        number_of_nodes_new = len(graph.element_graph.nodes)
+        number_fh = 0
+        number_pipes = 0
+        number_pp = 0
+        number_psh = 0
 
+        # Parallel pumps aggregation
+        cycles = graph.get_cycles()
+        for cycle in cycles:
+            parallelpump = ParallelPump.create_on_match("ParallelPump%d" % (number_pp + 1), cycle)
+            if parallelpump:
+                number_pp += 1
+                graph.merge(
+                    mapping=parallelpump.get_replacement_mapping(),
+                    inner_connections=parallelpump.get_inner_connections())
+            # parallelspaceheater = ParallelSpaceHeater.create_on_match("ParallelSpaceHeater%d" % (number_psh + 1), cycle)
+            # if parallelspaceheater:
+            #     number_psh += 1
+            #     graph.merge(
+            #         mapping=parallelspaceheater.get_replacement_mapping(),
+            #         inner_connections=parallelspaceheater.get_inner_connections())
+
+        chains = graph.get_type_chains(PipeStrand.aggregatable_elements, include_singles=True)
+        for chain in chains:
+            underfloorheating = UnderfloorHeating.create_on_match("UnderfloorHeating%d" % (number_fh + 1), chain)
+            if underfloorheating:
+                number_fh += 1
+                graph.merge(
+                    mapping=underfloorheating.get_replacement_mapping(),
+                    inner_connections=underfloorheating.get_inner_connections())
+            else:
+                if task.pipes == LOD.full:
+                    pass
+                elif task.pipes == LOD.medium:
+                    if len(chain) <= 1:
+                        continue
+                    number_ps += 1
+                    pipestrand = PipeStrand("PipeStrand%d" % (number_ps), chain)
+                    graph.merge(
+                        mapping=pipestrand.get_replacement_mapping(),
+                        inner_connections=pipestrand.get_inner_connections())
+                elif task.pipes == LOD.low:
+                    mapping, connections = Aggregation.get_empty_mapping(chain)
+                    graph.merge(
+                        mapping=mapping,
+                        inner_connections=connections,
+                    )
+                    number_pipes += len(set(k.parent for k, v in mapping.items() if v is None))
+
+        self.logger.info("Applied %d aggregations as \"PipeStrand\"", number_ps)
+        self.logger.info("Applied %d aggregations as \"UnderfloorHeating\"", number_fh)
+        self.logger.info("Applied %d aggregations as \"ParallelPump\"", number_pp)
+        self.logger.info("Applied %d aggregations as \"ParallelSpaceHeater\"", number_psh)
+        self.logger.info("Removed %d pipe-like elements", number_pipes)
+
+        # self.logger.info("Setting flow_sides")
+        # # this might help for other reduce methods like finding parallel pumps etc. else only for nice plotting
+        # self.set_flow_sides(graph)
+
+        number_of_nodes_new = len(graph.element_graph.nodes)
         self.logger.info(
             "Applied %d aggregations which reduced"
             + " number of elements from %d to %d.",
-            number_ps, number_of_nodes_old, number_of_nodes_new)
+            number_ps + number_fh + number_pp, number_of_nodes_old, number_of_nodes_new)
         self.reduced_instances = graph.elements
         self.connections = graph.get_connections()
 
@@ -320,18 +422,60 @@ class Reduce(Workflow):
         if __debug__:
             self.logger.info("Plotting graph ...")
             graph.plot(PROJECT.export)
+            graph.plot(PROJECT.export, ports=True)
+
+    @staticmethod
+    def set_flow_sides(graph):
+        """Set flow_side for ports in graph based on known flow_sides"""
+        # TODO: needs testing!
+        # TODO: at least one master element required
+        accepted = []
+        while True:
+            unset_port = None
+            for port in graph.get_nodes():
+                if port.flow_side == 0 and graph.graph[port] and port not in accepted:
+                    unset_port = port
+                    break
+            if unset_port:
+                side, visited, masters = graph.recurse_set_unknown_sides(unset_port)
+                if side in (-1, 1):
+                    # apply suggestions
+                    for port in visited:
+                        port.flow_side = side
+                elif side == 0:
+                    # TODO: ask user?
+                    accepted.extend(visited)
+                elif masters:
+                    # ask user to fix conflicts (and retry in next while loop)
+                    for port in masters:
+                        decision = BoolDecision("Use %r as VL (y) or RL (n)?" % port)
+                        use = decision.decide()
+                        if use:
+                            port.flow_side = 1
+                        else:
+                            port.flow_side = -1
+                else:
+                    # can not be solved (no conflicting masters)
+                    # TODO: ask user?
+                    accepted.extend(visited)
+            else:
+                # done
+                logging.info("Flow_side set")
+                break
+
 
 
 class DetectCycles(Workflow):
     """Detect cycles in graph"""
-    #TODO: sth usefull like grouping or medium assignment
+
+    # TODO: sth usefull like grouping or medium assignment
 
     def __init__(self):
         super().__init__()
         self.cycles = None
 
     @Workflow.log
-    def run(self, graph: hvac_graph.HvacGraph):
+    def run(self, task, graph: hvac_graph.HvacGraph):
         self.logger.info("Detecting cycles")
         self.cycles = graph.get_cycles()
 
@@ -339,7 +483,7 @@ class DetectCycles(Workflow):
 class Export(Workflow):
     """Export to Dymola/Modelica"""
 
-    def run(self, libraries, instances, connections):
+    def run(self, task, libraries, instances, connections):
         self.logger.info("Export to Modelica code")
         Decision.load(PROJECT.decisions)
 
@@ -370,7 +514,7 @@ class Export(Workflow):
             instances=export_instances.values(),
             connections=connection_port_names,
         )
-        #print("-"*80)
-        #print(modelica_model.code())
-        #print("-"*80)
+        # print("-"*80)
+        # print(modelica_model.code())
+        # print("-"*80)
         modelica_model.save(PROJECT.export)
