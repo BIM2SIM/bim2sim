@@ -7,6 +7,8 @@ import json
 
 class DecisionException(Exception):
     """Base Exception for Decisions"""
+class DecisionSkip(DecisionException):
+    """Exception raised on skipping Decision"""
 class DecisionSkipAll(DecisionException):
     """Exception raised on skipping all Decisions"""
 class DecisionCancle(DecisionException):
@@ -102,7 +104,8 @@ class ConsoleFrontEnd(FrontEnd):
                     self.logger.info("Decision can not be skipped")
                 try:
                     decision.value = self.user_input(decision, extra_options=extra_options, progress=progress)
-                    # decision.decide(collected=True)
+                except DecisionSkip:
+                    decision.skip()
                 except DecisionSkipAll:
                     skip_all = True
                     self.logger.info("Skipping remaining decisions")
@@ -135,8 +138,9 @@ class ConsoleFrontEnd(FrontEnd):
         while True:
             raw_value = input(input_txt)
             if raw_value.lower() == Decision.SKIP.lower() and Decision.SKIP in options:
-                decision.skip()
-                return None
+                raise DecisionSkip
+                # decision.skip()
+                # return None
             if raw_value.lower() == Decision.SKIPALL.lower() and Decision.SKIPALL in options:
                 decision.skip()
                 raise DecisionSkipAll
@@ -186,7 +190,7 @@ class Decision:
     frontend = ConsoleFrontEnd()
     logger = logging.getLogger(__name__)
 
-    def __init__(self, question: str, validate_func,
+    def __init__(self, question: str, validate_func=None,
                  output: dict = None, output_key: str = None, global_key: str = None,
                  allow_skip=False, allow_load=False, allow_save=False,
                  collect=False, quick_decide=False):
@@ -229,10 +233,7 @@ class Decision:
 
         if quick_decide and not self.status == Status.loadeddone:
             self.decide()
-            #self.value = self._inner_decide(self.collect)
 
-        # if self.status in [Status.done, Status.loadeddone]:
-        #     self._post()
         if self.collect and not (isinstance(self.output, dict) and self.output_key):
             raise AttributeError("Can not collect Decision if output dict or output_key is missing.")
 
@@ -298,15 +299,23 @@ class Decision:
     def collection(cls):
         return [d for d in cls.filtered() if d.collect]
 
+    def _validate(self, value):
+        raise NotImplementedError("Implement method _validate!")
+
     def validate(self, value):
         """Checks value with validate_func and returns truth value"""
 
-        res = False
-        try:
-            res = bool(self.validate_func(value))
-        except:
-            pass
-        return res
+        basic_valid = self._validate(value)
+
+        if self.validate_func:
+            try:
+                external_valid = bool(self.validate_func(value))
+            except:
+                external_valid = False
+        else:
+            external_valid = True
+
+        return basic_valid and external_valid
 
     def decide(self):
         """Decide by user input
@@ -408,7 +417,7 @@ class Decision:
         if self.global_key:
             # assert self.global_key not in Decision.stored_decisions or self.allow_overwrite, \
             #     "Decision id '%s' is not unique!"%(self.global_key)
-            assert self.status in [Status.done, Status.loadeddone, Status.saveddone], \
+            assert self.status != Status.open, \
                 "Decision not made. There is nothing to store."
             Decision.stored_decisions[self.global_key] = self.value
             self.status = Status.saveddone
@@ -439,7 +448,7 @@ class Decision:
         return raw_input
 
     def __repr__(self):
-        return '<%s (Q: "%s" A: %s)>' % (self.__class__.__name__, self.question, self.value)
+        return '<%s (<%s> Q: "%s" A: %s)>' % (self.__class__.__name__, self.status, self.question, self.value)
 
 
 class RealDecision(Decision):
@@ -454,6 +463,9 @@ class RealDecision(Decision):
             value = None
         return value
 
+    def _validate(self, value):
+        return isinstance(value, float)
+
 
 class BoolDecision(Decision):
     """Accepts input convertable as bool"""
@@ -462,10 +474,10 @@ class BoolDecision(Decision):
     NEGATIVES = ("n", "no", "nein", "n", "0")
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, validate_func=self.validate_bool, **kwargs)
+        super().__init__(*args, validate_func=None, **kwargs)
 
     @staticmethod
-    def validate_bool(value):
+    def _validate(value):
         """validates if value is acceptable as bool"""
         return value is True or value is False
 
@@ -486,25 +498,7 @@ class CollectionDecision(Decision):
     def __init__(self, *args, choices, **kwargs):
         """"""
         self.choices = choices
-        super().__init__(*args, validate_func=lambda x:not x is None, **kwargs)
-
-    def parse_input(self, raw_input):
-        raw_value = None
-        done = False
-        try:
-            index = int(raw_input)
-            raw_value = self.choices[index]
-            done = True
-        except Exception:
-            pass
-
-        if not done:
-            try:
-                raw_value = self.choices[raw_input]
-            except IndexError:
-                pass
-
-        return raw_value
+        super().__init__(*args, **kwargs)
 
 
 class ListDecision(CollectionDecision):
@@ -513,6 +507,22 @@ class ListDecision(CollectionDecision):
     Choices is a list of either
       - values, str(value) is used for label
       - tuples of (value, label)"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, validate_func=None, **kwargs)
+
+    def parse_input(self, raw_input):
+        raw_value = None
+        try:
+            index = int(raw_input)
+            raw_value = self.choices[index]
+        except Exception:
+            pass
+
+        return raw_value
+
+    def validate(self, value):
+        return value in self.choices
 
     def get_body(self):
         body = []

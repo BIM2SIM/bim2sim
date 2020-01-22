@@ -264,7 +264,7 @@ class Inspect(Task):
             ListDecision(
                 "Found unidentified Element of %s (Name: %s, Description: %s):" % (
                 ifc_entity.is_a(), ifc_entity.Name, ifc_entity.Description),
-                choices=[(element, ifc_type) for ifc_type, element in Element._ifc_classes.items()],
+                choices=[ifc_type for ifc_type in Element._ifc_classes.keys()],
                 output=answers,
                 output_key=ifc_entity,
                 global_key="%s.%s" % (ifc_entity.is_a(), ifc_entity.GlobalId),
@@ -274,11 +274,12 @@ class Inspect(Task):
 
         result_entity_dict = {}
         ignore = []
-        for ifc_entity, element_class_tuple in answers.items():
-            if element_class_tuple is None:
+        for ifc_entity, ifc_type in answers.items():
+
+            if ifc_type is None:
                 ignore.append(ifc_entity)
             else:
-                lst = result_entity_dict.setdefault(element_class_tuple[0], [])
+                lst = result_entity_dict.setdefault(ifc_type, [])
                 lst.append(ifc_entity)
 
         return result_entity_dict, ignore
