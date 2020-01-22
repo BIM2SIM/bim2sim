@@ -268,7 +268,7 @@ class Inspect(Task):
                 output=answers,
                 output_key=ifc_entity,
                 global_key="%s.%s" % (ifc_entity.is_a(), ifc_entity.GlobalId),
-                allow_skip=True, allow_load=True, allow_save=True, allow_overwrite=True,
+                allow_skip=True, allow_load=True, allow_save=True,
                 collect=True, quick_decide=not True)
         Decision.decide_collected()
 

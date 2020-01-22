@@ -188,7 +188,7 @@ class Decision:
 
     def __init__(self, question: str, validate_func,
                  output: dict = None, output_key: str = None, global_key: str = None,
-                 allow_skip=False, allow_load=False, allow_save=False, allow_overwrite=False,
+                 allow_skip=False, allow_load=False, allow_save=False,
                  collect=False, quick_decide=False):
         """
         :param question: The question asked to thu user
@@ -205,7 +205,7 @@ class Decision:
         :raises: :class:'AttributeError'::
         """
         self.status = Status.open
-        self.value = None
+        self._value = None
 
         self.question = question
         self.validate_func = validate_func
@@ -217,9 +217,12 @@ class Decision:
         self.allow_skip = allow_skip
         self.allow_save = allow_save
         self.allow_load = allow_load
-        self.allow_overwrite = allow_overwrite
 
         self.collect = collect
+
+        if global_key and global_key in self.global_keys():
+            self.discard()
+            raise KeyError("Decision with key %s already exists!" % global_key)
 
         if self.allow_load:
             self._inner_load()
@@ -228,18 +231,57 @@ class Decision:
             self.decide()
             #self.value = self._inner_decide(self.collect)
 
-        if self.status in [Status.done, Status.loadeddone]:
-            self._post()
-        elif self.collect:
-            if not (isinstance(self.output, dict) and self.output_key):
-                raise AttributeError(
-                    "Can not collect Decision if output dict or output_key is missing.")
+        # if self.status in [Status.done, Status.loadeddone]:
+        #     self._post()
+        if self.collect and not (isinstance(self.output, dict) and self.output_key):
+            raise AttributeError("Can not collect Decision if output dict or output_key is missing.")
 
         Decision.all.append(self)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        if self.status != Status.open:
+            raise ValueError("Decision is not open. Call reset() first.")
+        if self.validate(value):
+            self._value = value
+            self.status = Status.done
+            self._post()
+        else:
+            raise ValueError("Invalid value: %r" % value)
+
+    def reset(self):
+        self.status = Status.open
+        self._value = None
+        if self.output_key in self.output:
+            del self.output[self.output_key]
+        if self.output_key in Decision.stored_decisions:
+            del Decision.stored_decisions[self.global_key]
+
+    def skip(self):
+        """Accept None as value und mark as solved"""
+        if not self.allow_skip:
+            raise DecisionException("This Decision can not be skipped.")
+        if self.status != Status.open:
+            raise DecisionException("This Decision is not open. Call reset() first.")
+        self._value = None
+        self.status = Status.skipped
+        self._post()
 
     def discard(self):
         """Remove decision from traced decisions (Decision.all)"""
         Decision.all.remove(self)
+        self.reset()
+
+    @classmethod
+    def global_keys(cls):
+        """Global key generator"""
+        for decision in cls.all:
+            if decision.global_key:
+                yield decision.global_key
 
     @classmethod
     def filtered(cls, active=True):
@@ -265,6 +307,24 @@ class Decision:
         except:
             pass
         return res
+
+    def decide(self):
+        """Decide by user input
+        reuses loaded decision if available
+
+        :returns: value of decision"""
+
+        if self.status == Status.loadeddone:
+            return self.value
+
+        if self.status != Status.open:
+            raise AssertionError("Cannot call decide() for Decision with status != open")
+
+        self.value = self.frontend.solve(self)
+
+        # self.status = Status.done
+        # self._post()
+        return self.value
 
     @classmethod
     def decide_collected(cls, collection=None):
@@ -346,8 +406,8 @@ class Decision:
             return
 
         if self.global_key:
-            assert self.global_key not in Decision.stored_decisions or self.allow_overwrite, \
-                "Decision id '%s' is not unique!"%(self.global_key)
+            # assert self.global_key not in Decision.stored_decisions or self.allow_overwrite, \
+            #     "Decision id '%s' is not unique!"%(self.global_key)
             assert self.status in [Status.done, Status.loadeddone, Status.saveddone], \
                 "Decision not made. There is nothing to store."
             Decision.stored_decisions[self.global_key] = self.value
@@ -374,38 +434,12 @@ class Decision:
         """Returns list of tuples representing items of CollectionDecision else None"""
         return None
 
-    def decide(self):
-        """Decide by user input
-        reuses loaded decision if available
-
-        :returns: value of decision"""
-
-        if self.status == Status.loadeddone:
-            return self.value
-
-        if self.status != Status.open:
-            raise AssertionError("Cannot call decide() for Decision with status != open")
-
-        self.value = self.frontend.solve(self)
-
-        self.status = Status.done
-        self._post()
-        return self.value
-
-    def skip(self):
-        """Accept None as value und mark as solved"""
-        if not self.allow_skip:
-            raise DecisionException("This Decision can not be skipped.")
-        self.value = None
-        self.status = Status.skipped
-        self._post()
-
     def parse_input(self, raw_input: str):
         """Convert input to desired type"""
         return raw_input
 
     def __repr__(self):
-        return "<%s (%s = %s)>"%(self.__class__.__name__, self.question, self.value)
+        return '<%s (Q: "%s" A: %s)>' % (self.__class__.__name__, self.question, self.value)
 
 
 class RealDecision(Decision):
