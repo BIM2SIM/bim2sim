@@ -517,7 +517,7 @@ class Medium(element.Element):
 
 
 class Wall(element.Element):
-    ifc_type = "IfcWall"
+    ifc_type = ["IfcWall", "IfcWallStandardCase"]
     pattern_ifc_type = [
         re.compile('Wall', flags=re.IGNORECASE),
         re.compile('Wand', flags=re.IGNORECASE)

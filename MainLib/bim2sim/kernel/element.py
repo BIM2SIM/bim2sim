@@ -610,21 +610,26 @@ class Element(BaseElement, IFCBased):
         conflict = False
         s=Element.__subclasses__()
         for cls in Element.__subclasses__():
-            if cls.ifc_type is None:
-                conflict = True
-                logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type, cls.__name__)
-            elif cls.ifc_type in Element._ifc_classes:
-                conflict = True
-                logger.error("Conflicting ifc_types (%s) in '%s' and '%s'",
-                             cls.ifc_type, cls.__name__, Element._ifc_classes[cls.ifc_type])
-            elif cls.__name__ == "Dummy":
-                Element.dummy = cls
-            elif not cls.ifc_type.lower().startswith("ifc"):
-                conflict = True
-                logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type,
-                             cls.__name__)
+            if not isinstance(cls.ifc_type, list):
+                ifc_types = [cls.ifc_type]
             else:
-                Element._ifc_classes[cls.ifc_type] = cls
+                ifc_types = cls.ifc_type
+            for ifc_type in ifc_types:
+                    if ifc_type is None:
+                        conflict = True
+                        logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type, cls.__name__)
+                    elif ifc_type in Element._ifc_classes:
+                        conflict = True
+                        logger.error("Conflicting ifc_types (%s) in '%s' and '%s'",
+                                     cls.ifc_type, cls.__name__, Element._ifc_classes[cls.ifc_type])
+                    elif cls.__name__ == "Dummy":
+                        Element.dummy = cls
+                    elif not ifc_type.lower().startswith("ifc"):
+                        conflict = True
+                        logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type,
+                                     cls.__name__)
+                    else:
+                        Element._ifc_classes[ifc_type] = cls
 
         if conflict:
             raise AssertionError("Conflict(s) in Models. (See log for details).")
