@@ -471,8 +471,34 @@ class AirTerminal(element.Element):
         description='Terminal diameter',
     )
 
+
 class ThermalZone(element.Element):
     ifc_type = "IfcSpace"
+
+    pattern_ifc_type = [
+        re.compile('Space', flags=re.IGNORECASE),
+        re.compile('Zone', flags=re.IGNORECASE)
+    ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.bound_elements = []
+
+    # def add_elements_space(self):
+        # todo @dco whats done here?
+        # settings = ifcopenshell.geom.settings()
+        # vertices = []
+        # shape = ifcopenshell.geom.create_shape(settings, space)
+        # i = 0
+        # while i < len(shape.geometry.verts):
+        #     vertices.append((shape.geometry.verts[i] + thermal_zone.position[0],
+        #                      shape.geometry.verts[i + 1] + thermal_zone.position[1]))
+        #     i += 3
+        # polygon = Polygon(vertices)
+
+
+    def get__elements_by_type(self, type):
+        raise NotImplementedError
 
     area = attribute.Attribute(
         name='area',
@@ -480,56 +506,7 @@ class ThermalZone(element.Element):
         default=0
     )
 
-    @classmethod
-    def add_elements_space(cls, space, hvac_instances):
 
-        thermal_zone = cls(space)
-        settings = ifcopenshell.geom.settings()
-        vertices = []
-        shape = ifcopenshell.geom.create_shape(settings, space)
-        i = 0
-        while i < len(shape.geometry.verts):
-            vertices.append((shape.geometry.verts[i] + thermal_zone.position[0],
-                             shape.geometry.verts[i + 1] + thermal_zone.position[1]))
-            i += 3
-        polygon = Polygon(vertices)
-
-        bps_space_elements = []
-
-        for ele in space.BoundedBy:
-            if ele.RelatedBuildingElement:
-                representation = Element.factory(ele.RelatedBuildingElement)
-
-                if not isinstance(representation, element.Dummy):
-                    bps_space_elements.append(representation)
-
-        hvac_space_elements = []
-
-        for ele in hvac_instances:
-            if (not isinstance(hvac_instances[ele], elements.PipeFitting)) and \
-                    (not isinstance(hvac_instances[ele], elements.Pipe)):
-                if abs(hvac_instances[ele].position[2]/1000-thermal_zone.position[2]) < 3: # in same floor?
-                    point = Point(hvac_instances[ele].position[0]/1000, hvac_instances[ele].position[1]/1000)
-                    if polygon.contains(point):
-                        hvac_space_elements.append(hvac_instances[ele])
-                        # plt.plot(*point.xy, marker='x')
-                        # plt.plot(*polygon.exterior.xy)
-                        # plt.show()
-
-        thermal_zone._bps_space_elements = bps_space_elements #get bps instances in workflow.bps
-        thermal_zone._hvac_space_elements = hvac_space_elements
-
-        for ele in thermal_zone._bps_space_elements:
-            ele.thermal_zones.append(thermal_zone)
-        for ele in thermal_zone._hvac_space_elements:
-            ele.thermal_zones.append(thermal_zone)
-
-        return thermal_zone
-
-    pattern_ifc_type = [
-        re.compile('Space', flags=re.IGNORECASE),
-        re.compile('Zone', flags=re.IGNORECASE)
-    ]
 
 
 class Medium(element.Element):

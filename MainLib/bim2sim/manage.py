@@ -15,7 +15,7 @@ class BIM2SIMManager:
     """Base class of overall bim2sim managing instance"""
     __metaclass__ = ABCMeta
 
-    def __init__(self, task):
+    def __init__(self, workflow):
         self.logger = logging.getLogger(__name__)
 
         assert PROJECT.is_project_folder(), "PROJECT ist not set correctly!"
@@ -26,12 +26,14 @@ class BIM2SIMManager:
         # self.init_project()
         self.config = get_config()
 
-        self.task = task
+        self.workflow = workflow
         self.ifc_path = self.get_ifc()  # actual ifc # TODO: use multiple ifs files
-        self.ifc_path_arch = 'C:\\temp\\bim2sim\\testproject\\ifc\\KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
+        # self.ifc_path_arch =
+        # 'C:\\temp\\bim2sim\\testproject\\ifc\\KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
         assert self.ifc_path, "No ifc found. Check '%s'"%(PROJECT.ifc)
         self.ifc = ifc2python.load_ifc(os.path.abspath(self.ifc_path))
-        self.ifc_arch = ifc2python.load_ifc(os.path.abspath(self.ifc_path_arch))
+        # self.ifc_arch = ifc2python.load_ifc(os.path.abspath(
+        # self.ifc_path_arch))
         self.logger.info("The exporter version of the IFC file is '%s'",
                          self.ifc.wrapped_data.header.file_name.originating_system)
 

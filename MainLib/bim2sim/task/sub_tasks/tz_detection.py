@@ -2,10 +2,7 @@ from bim2sim.task import Task
 from bim2sim.kernel import elements
 from bim2sim.decision import DictDecision, ListDecision, RealDecision, BoolDecision
 from bim2sim.kernel.element import Element
-
-IFC_TYPES = {
-    'IfcSpace'
-}
+from bim2sim.kernel.ifc2python import getElementType
 
 
 class Inspect(Task):
@@ -13,15 +10,16 @@ class Inspect(Task):
 
     elements are stored in .instances dict with guid as key"""
 
-    def __init__(self):
+    def __init__(self, task):
         super().__init__()
         self.instances = {}
+        self.task = task
 
     @Task.log
-    def run(self, task, ifc, relevant_ifc_types):
-        self.logger.info("Creates python representation of relevant ifc types")
-        instances = self.recognize_zone_semantic(ifc, relevant_ifc_types)
-        if len(instances) == 0:
+    def run(self, ifc):
+        self.logger.info("Creates python representation for building spaces")
+        self.recognize_zone_semantic(ifc)
+        if len(self.instances) == 0:
             self.logger.warning("Found no spaces by semantic detection")
             decision = BoolDecision("Try to detect zones by geometrical?")
             use = decision.decide()
@@ -33,19 +31,17 @@ class Inspect(Task):
 
         self.logger.info("Found %d space entities", len(self.instances))
 
-    @Task.log
-    def recognize_zone_semantic(self, ifc, relevant_ifc_types):
+    def recognize_zone_semantic(self, ifc):
         """Recognizes zones/spaces in ifc file by semantic detection for
         IfcSpace entities"""
         self.logger.info("Create zones by semantic detection")
-        # todo integrate filter here (make filter system task independent
-        #  before)
-        for ifc_type in relevant_ifc_types:
-            entities = ifc.by_type(ifc_type)
-            for entity in entities:
-                element = Element.factory(entity, ifc_type)
-                self.instances[element.guid] = element
-        self.logger.info("Found %d spaces", len(self.instances))
+        ifc_type = 'IfcSpace'
+        entities = ifc.by_type(ifc_type)
+        for entity in entities:
+            thermalzone = Element.factory(entity, ifc_type)
+            self.instances[thermalzone.guid] = thermalzone
+            self.bind_elements_to_zone(thermalzone)
+
 
     @Task.log
     def recognize_zone_geometrical(self):
@@ -53,6 +49,19 @@ class Inspect(Task):
         raise NotImplementedError
 
     @Task.log
-    def bind_elements_to_zone(self):
+    def bind_elements_to_zone(self, thermalzone):
         """Binds the different elements to the belonging zones"""
-        raise NotImplementedError
+        relevant_ifc_types = self.task.workflow.relevant_ifc_types
+        for binding in thermalzone.ifc.BoundedBy:
+            bound_element = binding.RelatedBuildingElement
+            if bound_element is not None:
+                bound_element_type = getElementType(bound_element)
+            else:
+                continue
+            # todo virtual element crashs -> solve
+            if bound_element_type in relevant_ifc_types:
+                bound_instance = thermalzone.get_object(bound_element.GlobalId)
+                if bound_instance not in thermalzone.bound_elements:
+                    thermalzone.bound_elements.append(bound_instance)
+                if thermalzone not in bound_instance.thermal_zones:
+                    bound_instance.thermal_zones.append(thermalzone)

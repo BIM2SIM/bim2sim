@@ -11,7 +11,7 @@ import pkg_resources
 from bim2sim.kernel import ifc2python
 from bim2sim.manage import BIM2SIMManager
 from bim2sim.project import PROJECT, get_config
-from bim2sim.workflow import PlantSimulation
+from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparated
 
 VERSION = '0.1-dev'
 
@@ -99,10 +99,9 @@ def main(rootpath=None):
     if not BIM2SIMManager in manager_cls.__bases__:
         raise AttributeError("Got invalid manager from %s"%(backend))
 
-    task = PlantSimulation() #TODO
-
+    workflow = BPSMultiZoneSeparated() #TODO
     # prepare simulation
-    manager = manager_cls(task)
+    manager = manager_cls(workflow)
 
     # run Manager
     manager.run()
@@ -127,10 +126,9 @@ def _debug_run_bps():
     """Create example project and copy ifc if necessary"""
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
 
-    rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur' \
-                      '.ifc'
+    rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
-    path_example = r"C:\temp\bim2sim\testproject_bps"
+    path_example = r"C:\temp\bim2sim\testproject"
 
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, path_ifc, 'TEASER')
@@ -139,5 +137,5 @@ def _debug_run_bps():
 
 
 if __name__ == '__main__':
-    _debug_run_hvac()
-    # _debug_run_bps()
+    _debug_run_bps()
+    # _debug_run_hvac()

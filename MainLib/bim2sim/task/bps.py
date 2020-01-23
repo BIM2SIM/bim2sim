@@ -24,22 +24,20 @@ IFC_TYPES = (
 
 
 class Inspect(Task):
-    """Analyses IFC, creates Element instances and connects them.
+    """Analyses IFC and creates Element instances.
+    Elements are stored in .instances dict with guid as key"""
 
-    elements are stored in .instances dict with guid as key"""
-
-
-    def __init__(self):
+    def __init__(self, workflow):
         super().__init__()
         self.instances = {}
+        self.workflow = workflow
 
     @Task.log
-    def run(self, ifc, relevant_ifc_types):
+    def run(self, ifc):
         self.logger.info("Creates python representation of relevant ifc types")
-        for ifc_type in relevant_ifc_types:
-            elements = ifc.by_type(ifc_type)
-            for element in elements:
-                representation = Element.factory(element)
-                self.instances[representation.guid] = representation
-        self.logger.info("Found %d relevant elements", len(self.instances))
-
+        for ifc_type in self.workflow.relevant_ifc_types:
+            entities = ifc.by_type(ifc_type)
+            for entity in entities:
+                element = Element.factory(entity, ifc_type)
+                self.instances[element.guid] = element
+            self.logger.info("Found %d spaces", len(self.instances))

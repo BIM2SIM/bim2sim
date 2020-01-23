@@ -285,7 +285,7 @@ class Inspect(Task):
         return result_entity_dict, ignore
 
     @Task.log
-    def run(self, task, ifc, prepare):
+    def run(self, workflow, ifc, prepare):
         self.logger.info("Creates python representation of relevant ifc types")
 
         # filter by type
@@ -436,7 +436,8 @@ class Prepare(Task):
         self.filters = []
 
     @Task.log
-    def run(self, task, relevant_ifc_types):
+    def run(self, workflow):
+        relevant_ifc_types = workflow.relevant_ifc_types
         self.logger.info("Setting Filters")
         Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
@@ -455,7 +456,7 @@ class MakeGraph(Task):
         self.graph = None
 
     @Task.log
-    def run(self, task, instances: list):
+    def run(self, workflow, instances: list):
         self.logger.info("Creating graph from IFC elements")
         self.graph = hvac_graph.HvacGraph(instances)
 
@@ -477,7 +478,7 @@ class Reduce(Task):
         self.connections = []
 
     @Task.log
-    def run(self, task, graph: hvac_graph.HvacGraph):
+    def run(self, workflow, graph: hvac_graph.HvacGraph):
         self.logger.info("Reducing elements by applying aggregations")
         number_of_nodes_old = len(graph.element_graph.nodes)
         number_ps = 0
@@ -513,9 +514,9 @@ class Reduce(Task):
                     mapping=underfloorheating.get_replacement_mapping(),
                     inner_connections=underfloorheating.get_inner_connections())
             else:
-                if task.pipes == LOD.full:
+                if workflow.pipes == LOD.full:
                     pass
-                elif task.pipes == LOD.medium:
+                elif workflow.pipes == LOD.medium:
                     if len(chain) <= 1:
                         continue
                     number_ps += 1
@@ -523,7 +524,7 @@ class Reduce(Task):
                     graph.merge(
                         mapping=pipestrand.get_replacement_mapping(),
                         inner_connections=pipestrand.get_inner_connections())
-                elif task.pipes == LOD.low:
+                elif workflow.pipes == LOD.low:
                     mapping, connections = Aggregation.get_empty_mapping(chain)
                     graph.merge(
                         mapping=mapping,
@@ -606,7 +607,7 @@ class DetectCycles(Task):
         self.cycles = None
 
     @Task.log
-    def run(self, task, graph: hvac_graph.HvacGraph):
+    def run(self, workflow, graph: hvac_graph.HvacGraph):
         self.logger.info("Detecting cycles")
         self.cycles = graph.get_cycles()
 
@@ -614,7 +615,7 @@ class DetectCycles(Task):
 class Export(Task):
     """Export to Dymola/Modelica"""
 
-    def run(self, task, libraries, instances, connections):
+    def run(self, workflow, libraries, instances, connections):
         self.logger.info("Export to Modelica code")
 
         modelica.Instance.init_factory(libraries)

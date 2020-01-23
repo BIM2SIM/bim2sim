@@ -22,6 +22,7 @@ class Workflow:
                  consumer: LOD,
                  generator: LOD,
                  hvac: LOD,
+                 spaces: LOD,
                  filters: list = None):
 
         self.ductwork = ductwork
@@ -29,8 +30,11 @@ class Workflow:
         self.consumer = consumer
         self.generator = generator
         self.hvac = hvac
+        self.spaces = spaces
 
         self.filters = filters if filters else []
+
+        self.relevant_ifc_types = None
 
         # TODO: defaults should come from Workflow child classes
         config = get_config()
@@ -48,4 +52,71 @@ class PlantSimulation(Workflow):
             consumer=LOD.low,
             generator=LOD.full,
             hvac=LOD.low,
+            spaces=LOD.ignore,
+        )
+        self.relevant_ifc_types = (
+            'IfcAirTerminal',
+            'IfcAirTerminalBox',
+            'IfcAirToAirHeatRecovery',
+            'IfcBoiler',
+            'IfcBurner',
+            'IfcChiller',
+            'IfcCoil',
+            'IfcCompressor',
+            'IfcCondenser',
+            'IfcCooledBeam',
+            'IfcCoolingTower',
+            'IfcDamper',
+            'IfcDistributionChamberElement',
+            'IfcDuctFitting',
+            'IfcDuctSegment',
+            'IfcDuctSilencer',
+            'IfcEngine',
+            'IfcEvaporativeCooler',
+            'IfcEvaporator',
+            'IfcFan',
+            'IfcFilter',
+            'IfcFlowMeter',
+            'IfcHeatExchanger',
+            'IfcHumidifier',
+            'IfcMedicalDevice',
+            'IfcPipeFitting',
+            'IfcPipeSegment',
+            'IfcPump',
+            'IfcSpaceHeater',
+            'IfcTank',
+            'IfcTubeBundle',
+            #'IfcUnitaryEquipment',
+            'IfcValve',
+            'IfcVibrationIsolator',
+            #'IfcHeatPump'
+        )
+
+
+class BPSMultiZoneSeparated(Workflow):
+    """Building performance simulation with every space as single zone
+    separated from each other - no aggregation"""
+
+    def __init__(self):
+        super().__init__(
+            ductwork=LOD.low,
+            hull=LOD.medium,
+            consumer=LOD.low,
+            generator=LOD.ignore,
+            hvac=LOD.low,
+            spaces=LOD.full,
+        )
+        self.relevant_ifc_types = (
+            'IfcAirTerminal',
+            'IfcAirTerminalBox',
+            'IFcBuilding',
+            # 'IfcPipeFitting',
+            # 'IfcPipeSegment',
+            # 'IfcPump',
+            'IfcWallElementedCase',
+            'IfcWallStandardCase',
+            'IfcWall',
+            'IfcWindow',
+            'IfcSlab',
+            'IfcSpaceHeater',
         )

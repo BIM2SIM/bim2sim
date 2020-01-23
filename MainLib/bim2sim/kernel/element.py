@@ -363,6 +363,7 @@ class BaseElement(Root):
             connections.append((port0, port1))
         return connections
 
+
     @staticmethod
     def get_element(guid):
         """Get element instance with given guid

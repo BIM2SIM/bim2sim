@@ -8,19 +8,19 @@ from bim2sim.export.modelica import standardlibrary
 
 class AixLib(BIM2SIMManager):
 
-    def __init__(self, task):
-        super().__init__(task)
+    def __init__(self, workflow):
+        super().__init__(workflow)
 
         self.relevant_ifc_types = hvac.IFC_TYPES
 
     def run(self):
 
         prepare = hvac.Prepare()
-        prepare.run(self.task, hvac.IFC_TYPES)
+        prepare.run(self.workflow, hvac.IFC_TYPES)
 
         inspect = hvac.Inspect()
         if not inspect.load(PROJECT.workflow):
-            inspect.run(self.task, self.ifc, hvac.IFC_TYPES)
+            inspect.run(self.workflow, self.ifc, hvac.IFC_TYPES)
             inspect.save(PROJECT.workflow)
 
         # ### Thermalzones
@@ -33,15 +33,15 @@ class AixLib(BIM2SIMManager):
 
         makegraph = hvac.MakeGraph()
         if not makegraph.load(PROJECT.workflow):
-            makegraph.run(self.task, list(inspect.instances.values()))
+            makegraph.run(self.workflow, list(inspect.instances.values()))
             makegraph.save(PROJECT.workflow)
 
         reduce = hvac.Reduce()
-        reduce.run(self.task, makegraph.graph)
+        reduce.run(self.workflow, makegraph.graph)
 
         libraries = (standardlibrary.StandardLibrary, )
         export = hvac.Export()
-        export.run(self.task, libraries, reduce.reduced_instances, reduce.connections)
+        export.run(self.workflow, libraries, reduce.reduced_instances, reduce.connections)
 
     def create_modelica_table_from_list(self,curve):
         """
