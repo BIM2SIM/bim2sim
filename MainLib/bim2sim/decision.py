@@ -164,8 +164,83 @@ class ConsoleFrontEnd(FrontEnd):
 
 class ExternalFrontEnd(FrontEnd):
 
+    def __init__(self):
+        super().__init__()
+
+        self.id_gen = self._get_id_gen()
+        self.pending = {}
+
     def __iter__(self):
         raise StopIteration
+
+    def check_answer(self, answer):
+
+        for key, raw_value in answer.copy().items():
+            decision = self.pending.get(key)
+            if not decision:
+                self.logger.warning("Removed unknown answer (%s) for key %s", answer[key], key)
+                del answer[key]
+                continue
+
+            value = self.parse(decision, raw_value)
+            if self.validate(decision, value):
+                decision.value = value
+                del answer[key]
+                del self.pending[key]
+
+        if answer:
+            self.logger.warning("Unused/invalid answers: %s", answer)
+        return answer
+
+    def solve(self, decision):
+        return self.solve_collection([decision])
+
+    def solve_collection(self, collection):
+        if self.pending:
+            raise AssertionError("Solve pending decisions first!")
+
+        for decision in collection:
+            self.pending[next(self.id_gen)] = decision
+
+        for loop in range(10):
+            answer = self.send()
+            remaining = self.check_answer(answer)
+            if not remaining:
+                break
+        else:
+            raise DecisionException("Failed to solve decisions anfter %d retries", loop + 1)
+        return
+
+    @staticmethod
+    def _get_id_gen():
+        i = 0
+        while True:
+            i += 1
+            yield i
+
+    def to_dict(self, key, decision):
+
+        data = dict(
+            id=key,
+            question=decision.question,
+            options=self.get_options(decision),
+            body=self.get_body(decision),
+        )
+
+        return data
+
+    def send(self):
+        data = []
+        for key, decision in self.pending.items():
+            data.append(self.to_dict(key, decision))
+
+        # TODO: request to UI
+        serialized = json.dumps(data, indent=2)
+        print(serialized)
+        # fake data
+        answer = {item['id']: 1 for item in data}
+
+        return answer
 
 
 class Decision:
@@ -187,7 +262,8 @@ class Decision:
     CANCEL = "cancel"
     options = [SKIP, SKIPALL, CANCEL]
 
-    frontend = ConsoleFrontEnd()
+    # frontend = ConsoleFrontEnd()
+    frontend = ExternalFrontEnd()
     logger = logging.getLogger(__name__)
 
     def __init__(self, question: str, validate_func=None,
