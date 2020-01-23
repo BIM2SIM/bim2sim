@@ -38,17 +38,14 @@ class Inspect(Task):
         ifc_type = 'IfcSpace'
         entities = ifc.by_type(ifc_type)
         for entity in entities:
-            thermalzone = Element.factory(entity, ifc_type)
-            self.instances[thermalzone.guid] = thermalzone
-            self.bind_elements_to_zone(thermalzone)
+            thermal_zone = Element.factory(entity, ifc_type)
+            self.instances[thermal_zone.guid] = thermal_zone
+            self.bind_elements_to_zone(thermal_zone)
 
-
-    @Task.log
     def recognize_zone_geometrical(self):
         """Recognizes zones/spaces by geometric detection"""
         raise NotImplementedError
 
-    @Task.log
     def bind_elements_to_zone(self, thermalzone):
         """Binds the different elements to the belonging zones"""
         relevant_ifc_types = self.task.workflow.relevant_ifc_types

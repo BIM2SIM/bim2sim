@@ -40,4 +40,4 @@ class Inspect(Task):
             for entity in entities:
                 element = Element.factory(entity, ifc_type)
                 self.instances[element.guid] = element
-            self.logger.info("Found %d spaces", len(self.instances))
+        self.logger.info("Found %d building elements", len(self.instances))
