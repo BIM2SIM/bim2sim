@@ -17,8 +17,7 @@ class TEASERManager(BIM2SIMManager):
         # if not inspect.load(PROJECT.workflow):
         #     inspect.run(self.ifc, bps.IFC_TYPES)
         #     inspect.save(PROJECT.workflow)
-        #
-        ### Thermalzones
+
         bps_inspect = bps.Inspect(self.workflow)
         bps_inspect.run(self.ifc)
         tz_inspect = tz_detection.Inspect(bps_inspect)
