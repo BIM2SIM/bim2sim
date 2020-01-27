@@ -10,6 +10,15 @@ Außerdem sollten folgende Konventionen beachtet werden:
 * Dateien als utf-8 formatieren
 * vor Commit Code mit PyLint prüfen und Warnungen auf ein Minimum reduzieren.
 
+### Struktur
+Zum leichteren Einstieg in die Entwicklung hier ein kurzer Überblick über die Strukut des Projekts:
+- **assets**: Additional data inputs, e.g. for enrichment 
+- **export**: Export related 
+- **kernel**: Logic for element detectionand description, generel ifc2python methods, aggregation ...
+- **task**: Tasks are small parts of a workflow, they can be used in different workflows and different domains. Example: Detection of thermal zones
+- **workflow**: multiple tasks bound together are a workflow. Example: Create total BPS-model for modelica
+- **management classes**: manages the project, is bound to a workflow
+
 ## MainLib
 In diesem Ordner befindet sich die eigentliche bim2sim Bibliothek. Sie enthält allgemeine Methoden und Funktionen zum Einlesen, Verarbeiten und Aufbereiten von .ifc Dateien.
 Für mehr Informationen:
