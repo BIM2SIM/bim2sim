@@ -3,6 +3,8 @@ import logging
 from contextlib import contextmanager
 
 from bim2sim.decision import RealDecision, BoolDecision, ListDecision
+from bim2sim.enrichment_data.data_class import DataClass
+
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -37,13 +39,13 @@ class Attribute:
 
     def _inner_get(self, bind, value):
 
-        # # default property set
-        # if value is None and self.default_ps:
-        #     raw_value = self.get_from_default(bind, self.default_ps)
-        #     value = self.ifc_post_processing(raw_value)
-        #     if value is None:
-        #         quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet",
-        #                                self.name, bind.ifc_type, bind.guid)
+        # default property set and quantity set
+        if value is None and self.default_ps:
+            raw_value = self.get_from_default(bind, self.default_ps)
+            value = self.ifc_post_processing(raw_value)
+            if value is None:
+                quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet",
+                                       self.name, bind.ifc_type, bind.guid)
         #
         # # tool specific properties (finder)
         # if value is None:
@@ -66,6 +68,9 @@ class Attribute:
         # default value
         if value is None and self.default_value:
             value = self.default_value
+
+        if 'Wall' in str(bind):# can't use is instance
+            value = self.get_wall_properties(bind, self.name)
 
         return value
 
@@ -104,6 +109,65 @@ class Attribute:
                 pass
             else:
                 break
+        return value
+
+    @staticmethod
+    def get_wall_properties(bind, name):
+        material = 'Leichtbeton 700' #testing
+
+        material = ''.join([i for i in material if not i.isdigit()])
+        selected_properties = ('heat_capacity', 'density', 'thickness')
+        value = None
+        try:
+            bind.material_selected['properties']
+        except KeyError:
+            first_decision = BoolDecision(
+                question="Do you want for %s_%s to use template" % (bind.ifc_type, bind.guid),
+                collect=False)
+            first_decision.decide()
+            first_decision.stored_decisions.clear()
+            if first_decision.value:
+                Materials_DEU = dict(DataClass(used_param=2).element_bind)
+                material_templates = dict(DataClass(used_param=3).element_bind)
+                del material_templates['version']
+                for k in Materials_DEU:
+                    if material in k:
+                        material = Materials_DEU[k]
+                options = {}
+                for k in material_templates:
+                    if material in material_templates[k]['name']:
+                        options[k] = material_templates[k]
+                materials_options = [[material_templates[k]['name'], k] for k in options]
+                if len(materials_options) > 0:
+                    decision1 = ListDecision("Multiple possibilities found",
+                                             choices=list(materials_options),
+                                             allow_skip=True, allow_load=True, allow_save=True,
+                                             collect=False, quick_decide=not True)
+                    decision1.decide()
+                    bind.material_selected['properties'] = material_templates[decision1.value[1]]
+                else:
+                    print("No possibilities found")
+                    bind.material_selected['properties'] = {}
+            else:
+                bind.material_selected['properties'] = {}
+
+        if name in selected_properties:
+            try:
+                value = bind.material_selected['properties'][name]
+            except KeyError:
+                decision2 = RealDecision("Enter value for the parameter %s" % name,
+                                         validate_func=lambda x: isinstance(x, float),  # TODO
+                                         global_key="%s" % name,
+                                         allow_skip=False, allow_load=True, allow_save=True,
+                                         collect=False, quick_decide=False)
+                decision2.decide()
+                value = decision2.value
+        if name == 'material':
+            try:
+                value = bind.material_selected['properties']['name']
+            except KeyError:
+                value = material # check this
+
         return value
 
     @staticmethod

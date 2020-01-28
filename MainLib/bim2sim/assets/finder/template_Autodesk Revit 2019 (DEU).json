@@ -32,5 +32,8 @@
       "Abmessungen",
       "Volume"
     ]
+  },
+  "IfcWall": {
+    "lightweight_concrete": "Leichtbeton"
   }
 }

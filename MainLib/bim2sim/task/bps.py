@@ -11,6 +11,10 @@ from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
 from bim2sim.kernel import finder
+from bim2sim.kernel.finder import TemplateFinder
+from bim2sim.enrichment_data import element_input_json
+from bim2sim.enrichment_data.data_class import DataClass
+from bim2sim.decision import ListDecision
 
 
 IFC_TYPES = (
@@ -40,4 +44,5 @@ class Inspect(Task):
             for entity in entities:
                 element = Element.factory(entity, ifc_type)
                 self.instances[element.guid] = element
+
         self.logger.info("Found %d building elements", len(self.instances))

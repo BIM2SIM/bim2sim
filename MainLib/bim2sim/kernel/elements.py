@@ -522,6 +522,7 @@ class Wall(element.Element):
         re.compile('Wall', flags=re.IGNORECASE),
         re.compile('Wand', flags=re.IGNORECASE)
     ]
+    material_selected = {}
 
     @staticmethod
     def get_orientation(bind, name):
@@ -584,9 +585,38 @@ class Wall(element.Element):
         default=0
     )
 
-    @property
-    def capacity(self):
-        return 1
+    heat_capacity = attribute.Attribute(
+        name='heat_capacity',
+        default=0
+    )
+
+    density = attribute.Attribute(
+        name='density',
+        default=0
+    )
+
+    thickness = attribute.Attribute(
+        name='thickness',
+        default_ps=('BaseQuantities', 'Width'),
+        default=0
+    )
+
+    thermal_transmittance = attribute.Attribute(
+        name='thermal_transmittance',
+        default_ps=('Pset_WallCommon', 'ThermalTransmittance'),
+        default=0
+    )
+
+    material = attribute.Attribute(
+        name='material',
+        #todo just for testing, this is file specific
+        default_ps=('ArchiCADProperties', 'Baustoff/Mehrschicht/Profil'),
+        default=0
+    )
+
+
+
+
 
     @property
     def u_value(self):

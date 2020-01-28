@@ -19,13 +19,21 @@ class DataClass(object):
     file (source_path), it can support various enrichment parameters
     """
 
-    def __init__(self, used_param='1'):
+    def __init__(self, used_param):
 
         self.used_parameters = used_param
         self.element_bind = None
-        if self.used_parameters == '1':
+        if self.used_parameters == 1:
             self.path_te = os.path.join(project.source, 'assets', 'enrichment',
                                         'TypeBuildingElements.json')
+            self.load_te_binding()
+        elif self.used_parameters == 2:
+            self.path_te = os.path.join(project.source, 'assets', 'MaterialTemplates',
+                                        'materials (DEU).json')
+            self.load_te_binding()
+        elif self.used_parameters == 3:
+            self.path_te = os.path.join(project.source, 'assets', 'MaterialTemplates',
+                                        'MaterialTemplates.json')
             self.load_te_binding()
         elif self.used_parameters is None:
             self.element_bind = None

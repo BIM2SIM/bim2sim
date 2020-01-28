@@ -398,7 +398,7 @@ class Enrich(Task):
 
     @Task.log
     def run(self, instances):
-        json_data = DataClass()
+        json_data = DataClass(used_param=1)
 
         # enrichment_parameter --> Class
         self.logger.info("Enrichment of the elements...")
