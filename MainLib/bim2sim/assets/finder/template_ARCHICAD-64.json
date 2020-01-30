@@ -40,6 +40,10 @@
       "set_temp_cooling" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMax"],
       "with_AHU" : ["Pset_SpaceThermalRequirements", "AirConditioning"]
     }
+  },
+  "MaterialTemplates" : {
+    "heat_capacity" : "heat_capac",
+    "thickness" : "thickness_default"
   }
 }
 

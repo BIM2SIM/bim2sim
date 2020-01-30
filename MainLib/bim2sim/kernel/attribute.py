@@ -113,47 +113,55 @@ class Attribute:
 
     @staticmethod
     def get_wall_properties(bind, name):
-        material = 'Leichtbeton 700' #testing
-
-        material = ''.join([i for i in material if not i.isdigit()])
-        selected_properties = ('heat_capacity', 'density', 'thickness')
         value = None
-        try:
-            bind.material_selected['properties']
-        except KeyError:
-            first_decision = BoolDecision(
-                question="Do you want for %s_%s to use template" % (bind.ifc_type, bind.guid),
-                collect=False)
-            first_decision.decide()
-            first_decision.stored_decisions.clear()
-            if first_decision.value:
-                Materials_DEU = dict(DataClass(used_param=2).element_bind)
-                material_templates = dict(DataClass(used_param=3).element_bind)
-                del material_templates['version']
-                for k in Materials_DEU:
-                    if material in k:
-                        material = Materials_DEU[k]
-                options = {}
-                for k in material_templates:
-                    if material in material_templates[k]['name']:
-                        options[k] = material_templates[k]
-                materials_options = [[material_templates[k]['name'], k] for k in options]
-                if len(materials_options) > 0:
-                    decision1 = ListDecision("Multiple possibilities found",
-                                             choices=list(materials_options),
-                                             allow_skip=True, allow_load=True, allow_save=True,
-                                             collect=False, quick_decide=not True)
-                    decision1.decide()
-                    bind.material_selected['properties'] = material_templates[decision1.value[1]]
-                else:
-                    print("No possibilities found")
-                    bind.material_selected['properties'] = {}
-            else:
-                bind.material_selected['properties'] = {}
-
+        selected_properties = ('heat_capacity', 'density', 'thickness')
+        # material = bind.material
+        material = 'Leichtbeton 102890359'
+        material = ''.join([i for i in material if not i.isdigit()])
         if name in selected_properties:
             try:
-                value = bind.material_selected['properties'][name]
+                bind.material_selected['properties']
+            except KeyError:
+                external = 'external'  # check external property
+                # if not bind.is_external:
+                #     external = 'internal'
+                first_decision = BoolDecision(
+                    question="Do you want for %s_%s_%s to use template" % (str(bind), bind.guid, external),
+                    collect=False)
+                first_decision.decide()
+                first_decision.stored_decisions.clear()
+                if first_decision.value:
+                    Materials_DEU = bind.finder.templates[bind.source_tool]['IfcWall']['material']
+                    material_templates = dict(DataClass(used_param=2).element_bind)
+                    del material_templates['version']
+                    for k in Materials_DEU:
+                        if material in k:
+                            material = Materials_DEU[k]
+                    options = {}
+                    for k in material_templates:
+                        if material in material_templates[k]['name']:
+                            options[k] = material_templates[k]
+                    materials_options = [[material_templates[k]['name'], k] for k in options]
+                    if len(materials_options) > 0:
+                        decision1 = ListDecision("Multiple possibilities found",
+                                                 choices=list(materials_options),
+                                                 allow_skip=True, allow_load=True, allow_save=True,
+                                                 collect=False, quick_decide=not True)
+                        decision1.decide()
+                        bind.material_selected['properties'] = material_templates[decision1.value[1]]
+                    else:
+                        print("No possibilities found")
+                        bind.material_selected['properties'] = {}
+                else:
+                    bind.material_selected['properties'] = {}
+
+            property_template = bind.finder.templates[bind.source_tool]['MaterialTemplates']
+            name_template = name
+            if name in property_template:
+                name_template = property_template[name]
+
+            try:
+                value = bind.material_selected['properties'][name_template]
             except KeyError:
                 decision2 = RealDecision("Enter value for the parameter %s" % name,
                                          validate_func=lambda x: isinstance(x, float),  # TODO
@@ -166,7 +174,7 @@ class Attribute:
             try:
                 value = bind.material_selected['properties']['name']
             except KeyError:
-                value = material # check this
+                pass  # check this
 
         return value
 

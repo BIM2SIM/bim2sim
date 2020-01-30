@@ -39,6 +39,8 @@ class Inspect(Task):
     @Task.log
     def run(self, ifc):
         self.logger.info("Creates python representation of relevant ifc types")
+        Element.finder = finder.TemplateFinder()
+        Element.finder.load(PROJECT.finder)
         for ifc_type in self.workflow.relevant_ifc_types:
             entities = ifc.by_type(ifc_type)
             for entity in entities:

@@ -29,10 +29,6 @@ class DataClass(object):
             self.load_te_binding()
         elif self.used_parameters == 2:
             self.path_te = os.path.join(project.source, 'assets', 'MaterialTemplates',
-                                        'materials (DEU).json')
-            self.load_te_binding()
-        elif self.used_parameters == 3:
-            self.path_te = os.path.join(project.source, 'assets', 'MaterialTemplates',
                                         'MaterialTemplates.json')
             self.load_te_binding()
         elif self.used_parameters is None:
