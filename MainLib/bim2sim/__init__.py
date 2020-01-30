@@ -99,8 +99,13 @@ def main(rootpath=None):
     if not BIM2SIMManager in manager_cls.__bases__:
         raise AttributeError("Got invalid manager from %s"%(backend))
 
-    workflow = BPSMultiZoneSeparated() #TODO
     # prepare simulation
+    if backend == 'hkesim' or backend == 'AixLib':
+        workflow = PlantSimulation
+    elif backend == 'TEASER':
+        workflow =BPSMultiZoneSeparated()  # TODO
+    else:
+        raise NotImplementedError
     manager = manager_cls(workflow)
 
     # run Manager
@@ -128,7 +133,7 @@ def _debug_run_bps():
 
     rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
-    path_example = r"C:\temp\bim2sim\testproject"
+    path_example = r"C:\temp\bim2sim\testproject_bps"
 
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, path_ifc, 'TEASER')

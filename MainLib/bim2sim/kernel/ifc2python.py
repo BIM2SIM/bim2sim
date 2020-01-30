@@ -15,22 +15,43 @@ def load_ifc(path):
     ifc_file = ifcopenshell.open(path)
     return ifc_file
 
-
 def propertyset2dict(propertyset):
     """Converts IfcPropertySet to python dict"""
     propertydict = {}
-    for prop in propertyset.HasProperties:
-        unit = prop.Unit
-        # TODO: Unit conversion
-        if prop.is_a() == 'IfcPropertySingleValue':
-            propertydict[prop.Name] = prop.NominalValue.wrappedValue
-        elif prop.is_a() == 'IfcPropertyListValue':
-            propertydict[prop.Name] = [value.wrappedValue for value in prop.ListValues]
-        elif prop.is_a() == 'IfcPropertyBoundedValue':
-            propertydict[prop.Name] = (prop, prop)
-            raise NotImplementedError("Property of type '%s'"%prop.is_a())
-        else:
-            raise NotImplementedError("Property of type '%s'"%prop.is_a())
+    if hasattr(propertyset, 'HasProperties'):
+        props = propertyset.HasProperties
+        for prop in props:
+            unit = prop.Unit
+            # TODO: Unit conversion
+            if prop.is_a() == 'IfcPropertySingleValue':
+                propertydict[prop.Name] = prop.NominalValue.wrappedValue
+            elif prop.is_a() == 'IfcPropertyListValue':
+                propertydict[prop.Name] = [value.wrappedValue for value in
+                                           prop.ListValues]
+            elif prop.is_a() == 'IfcPropertyBoundedValue':
+                propertydict[prop.Name] = (prop, prop)
+                raise NotImplementedError("Property of type '%s'" % prop.is_a())
+            else:
+                raise NotImplementedError("Property of type '%s'" % prop.is_a())
+    elif hasattr(propertyset, 'Quantities'):
+        quants = propertyset.Quantities
+        for quant in quants:
+            if quant.is_a() == 'IfcQuantityLength':
+                propertydict[quant.Name] = quant.LengthValue
+            elif quant.is_a() == 'IfcQuantityArea':
+                propertydict[quant.Name] = quant.AreaValue
+            elif quant.is_a() == 'IfcQuantityVolume':
+                propertydict[quant.Name] = quant.VolumeValue
+            elif quant.is_a() == 'IfcQuantityCount':
+                propertydict[quant.Name] = quant.CountValue
+            elif quant.is_a() == 'IfcQuantityTime':
+                propertydict[quant.Name] = quant.TimeValue
+            elif quant.is_a() == 'IfcQuantityWeight':
+                propertydict[quant.Name] = quant.WeightValue
+            # todo IfcQuantitySet? found in doku but not belonging value
+            else:
+                raise NotImplementedError("Quantity of type '%s'" %
+                                          quant.is_a())
 
     return propertydict
 
@@ -101,6 +122,16 @@ def get_type_property_sets(element):
             property_sets[propertyset.Name] = propertyset2dict(propertyset)
 
     return property_sets
+
+def get_quantity_sets(element):
+    """Returns all QuantitySets of element"""
+
+    quantity_sets = {}
+    for defined_type in element.IsTypedBy:
+        for quantityset in defined_type.RelatingType.Quantities:
+            quantity_sets[quantityset.Name] = propertyset2dict(quantityset)
+
+    return quantity_sets
 
 def getGUID(ifcElement):
     """

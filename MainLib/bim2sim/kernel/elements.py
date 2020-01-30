@@ -480,6 +480,18 @@ class ThermalZone(element.Element):
         re.compile('Zone', flags=re.IGNORECASE)
     ]
 
+    area = attribute.Attribute(
+        name='area',
+        default_ps=('BaseQuantities', 'NetFloorArea'),
+        default=0
+    )
+
+    height = attribute.Attribute(
+        name='height',
+        default_ps=('BaseQuantities', 'Height'),
+        default=0
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bound_elements = []
@@ -499,14 +511,6 @@ class ThermalZone(element.Element):
 
     def get__elements_by_type(self, type):
         raise NotImplementedError
-
-    area = attribute.Attribute(
-        name='area',
-        default_ps=('Dimensions', 'Area'),
-        default=0
-    )
-
-
 
 
 class Medium(element.Element):
@@ -569,14 +573,14 @@ class Wall(element.Element):
 
     area = attribute.Attribute(
         name='area',
-        default_ps=('Dimensions', 'Area'),
-        default=0
+        default_ps=('BaseQuantities', 'NetSideArea'),
+        default=1
     )
 
     is_external = attribute.Attribute(
         name='is_external',
         default_ps=('Pset_WallCommon', 'IsExternal'),
-        default=0
+        default=False
     )
 
     orientation = attribute.Attribute(
@@ -585,19 +589,13 @@ class Wall(element.Element):
         default=0
     )
 
-    heat_capacity = attribute.Attribute(
-        name='heat_capacity',
-        default=0
-    )
-
-    density = attribute.Attribute(
-        name='density',
-        default=0
-    )
-
     thickness = attribute.Attribute(
         name='thickness',
         default_ps=('BaseQuantities', 'Width'),
+        default=0
+    )
+    heat_capacity = attribute.Attribute(
+        name='heat_capacity',
         default=0
     )
 
@@ -606,21 +604,31 @@ class Wall(element.Element):
         default_ps=('Pset_WallCommon', 'ThermalTransmittance'),
         default=0
     )
-
+    density = attribute.Attribute(
+        name='density',
+        default=0
+    )
     material = attribute.Attribute(
         name='material',
+        default=0
+    )
         #todo just for testing, this is file specific
         default_ps=('ArchiCADProperties', 'Baustoff/Mehrschicht/Profil'),
+
+    tilt = attribute.Attribute(
+        name='thermal_transmittance',
+        #todo just for testing, this is file specific
+        default_ps=('ArchiCADProperties', 'Äußerer Neigungswinkel'),
         default=0
     )
 
-
-
-
-
-    @property
-    def u_value(self):
-        return 1
+    # @property
+    # def capacity(self):
+    #     return 1
+    #
+    # @property
+    # def u_value(self):
+    #     return 1
 
 
 class Window(element.Element):
@@ -642,6 +650,12 @@ class Window(element.Element):
     orientation = attribute.Attribute(
         name='orientation',
         functions=[get_orientation],
+        default=0
+    )
+
+    area = attribute.Attribute(
+        name='area',
+        default_ps=('BaseQuantities', 'NetArea'),
         default=0
     )
 
@@ -679,28 +693,33 @@ class Plate(element.Element):
     def g_value(self):
         return 1
 
+
 class Slab(element.Element):
     ifc_type = "IfcSlab"
 
-    @cached_property
-    def Pset_SlabCommon(self):
-        return self.get_propertysets()
+    area = attribute.Attribute(
+        name='area',
+        default_ps=('BaseQuantities', 'NetArea'),
+        default=0
+    )
 
-    @property
-    def area(self):
-        if "Abmessungen" in self.Pset_SlabCommon:
-            area_value = self.Pset_SlabCommon["Abmessungen"]["Fläche"]
-        else:
-            area_value = 0
-        return area_value
+    thickness = attribute.Attribute(
+        name='thickness',
+        default_ps=('BaseQuantities', 'Width'),
+        default=0
+    )
 
-    @property
-    def is_external(self):
-        if self.ifc.Tag == 'True':
-            return True
-        else:
-            return False
+    thermal_transmittance = attribute.Attribute(
+        name='thermal_transmittance',
+        default_ps=('Pset_SlabCommon', 'ThermalTransmittance'),
+        default=0
+    )
 
+    is_external = attribute.Attribute(
+        name='thermal_transmittance',
+        default_ps=('Pset_SlabCommon', 'IsExternal'),
+        default=0
+    )
 
     @property
     def u_value(self):

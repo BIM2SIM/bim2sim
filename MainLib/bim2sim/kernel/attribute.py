@@ -40,13 +40,13 @@ class Attribute:
     def _inner_get(self, bind, value):
 
         # default property set and quantity set
-        if value is None and self.default_ps:
+        if value is None and (self.default_ps):
             raw_value = self.get_from_default(bind, self.default_ps)
             value = self.ifc_post_processing(raw_value)
             if value is None:
                 quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet",
                                        self.name, bind.ifc_type, bind.guid)
-        #
+
         # # tool specific properties (finder)
         # if value is None:
         #     raw_value = self.get_from_finder(bind, self.name)
