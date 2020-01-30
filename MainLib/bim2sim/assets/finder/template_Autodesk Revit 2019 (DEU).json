@@ -70,7 +70,7 @@
     "default_ps": {
       "area" : ["Qto_SpaceBaseQuantities", "GrossFloorArea"],
       "usage" : ["Pset_SpaceCommon", "Reference"],
-      "height" : ["Qto_SpaceBaseQuantities", "Height"],
+      "height" : ["Qto_SpaceBaseQuantities", "Height"]
     }
   }
 }

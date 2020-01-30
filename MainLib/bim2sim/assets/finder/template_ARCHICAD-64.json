@@ -26,7 +26,7 @@
   "IfcWindow": {
     "default_ps": {
       "area" : ["BaseQuantities", "NetArea"],
-      "material" : ["MaterialLayerSet", "MaterialLayer"],
+      "material" : ["MaterialLayerSet", "MaterialLayer"]
     }
   },
   "IfcZone": {
