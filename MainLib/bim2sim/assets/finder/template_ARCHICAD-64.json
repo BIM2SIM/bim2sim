@@ -1,0 +1,50 @@
+{
+  "IfcWall": {
+    "material": {
+      " Leichtbeton " : "lightweight_concrete"
+    },
+    "default_ps": {
+      "area" : ["BaseQuantities", "NetSideArea"],
+      "gross_side_area" : ["BaseQuantities", "GrossArea"],
+      "width" : ["BaseQuantities", "Width"],
+      "height" : ["BaseQuantities", "Height"],
+      "material" : ["MaterialLayerSet", "MaterialLayer"],
+      "thermal_transmittance" : ["Pset_WallCommon", "ThermalTransmittance"],
+      "tilt" : ["ArchiCADProperties", "Äußerer Neigungswinkel"],
+      "is_external" : ["Pset_WallCommon", "IsExternal"]
+    }
+  },
+  "IfcSlab": {
+    "default_ps": {
+      "area" : ["BaseQuantities", "NetArea"],
+      "width" : ["BaseQuantities", "Width"],
+      "material" : ["MaterialLayerSet", "MaterialLayer"],
+      "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "is_external" : ["Pset_SlabCommon", "IsExternal"]
+    }
+  },
+  "IfcWindow": {
+    "default_ps": {
+      "area" : ["BaseQuantities", "NetArea"],
+      "material" : ["MaterialLayerSet", "MaterialLayer"],
+    }
+  },
+  "IfcZone": {
+    "default_ps": {
+      "area" : ["BaseQuantities", "NetFloorArea"],
+      "usage" : ["AC_Pset_Allgemeiner_Raumstempel", "Raumname"],
+      "height" : ["BaseQuantities", "Height"],
+      "gross_side_area" : ["BaseQuantities", "GrossArea"],
+      "width" : ["BaseQuantities", "Width"],
+      "set_temp_heating" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMin"],
+      "set_temp_cooling" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMax"],
+      "with_AHU" : ["Pset_SpaceThermalRequirements", "AirConditioning"]
+    }
+  }
+}
+
+
+
+
+
+

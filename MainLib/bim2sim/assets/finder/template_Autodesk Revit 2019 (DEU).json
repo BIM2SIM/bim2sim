@@ -34,6 +34,50 @@
     ]
   },
   "IfcWall": {
-    "lightweight_concrete": "Leichtbeton"
+    "material": {
+      "lightweight_concrete": "Leichtbeton"
+    },
+    "default_ps": {
+      "area" : ["QTo_WallBaseQuantities", "NetSideArea"],
+      "width" : ["QTo_WallBaseQuantities", "Width"],
+      "height" : ["QTo_WallBaseQuantities", "Height"],
+      "material" : ["MaterialLayerSet", "MaterialLayer"],
+      "thermal_transmittance" : ["Pset_WallCommon", "ThermalTransmittance"],
+      "is_external" : ["Pset_WallCommon", "IsExternal"],
+      "solar_absorption" : ["Analytische Eigenschaften (type)", "Absorptionsgrad"]
+    }
+  },
+  "IfcSlab": {
+    "default_ps": {
+      "area" : ["QTo_SlabBaseQuantities", "GrossArea"],
+      "width" : ["QTo_SlabBaseQuantities", "Width"],
+      "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "is_external" : ["Pset_SlabCommon", "IsExternal"],
+      "material" : ["MaterialLayerSet", "MaterialLayer"]
+    }
+  },
+  "IfcWindow": {
+    "default_ps": {
+      "area" : ["QTo_WindowBaseQuantities", "Area"],
+      "glass_area" : ["Konstruktion", "Glasflaeche"],
+      "g_value" : ["Analytische Eigenschaften (type)", "Gesamtenergiedurchlassgrad"],
+      "glass_thickness" : ["Konstruktion(type)", "Glasstärke"],
+      "material" : ["MaterialLayerSet", "MaterialLayer"],
+      "thermal_transmittance" : ["Pset_WindowCommon", "ThermalTransmittance"]
+    }
+  },
+  "IfcZone" : {
+    "default_ps": {
+      "area" : ["Qto_SpaceBaseQuantities", "GrossFloorArea"],
+      "usage" : ["Pset_SpaceCommon", "Reference"],
+      "height" : ["Qto_SpaceBaseQuantities", "Height"],
+    }
   }
 }
+
+
+
+
+
+
+

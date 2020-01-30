@@ -589,31 +589,34 @@ class Wall(element.Element):
         default=0
     )
 
-    thickness = attribute.Attribute(
-        name='thickness',
-        default_ps=('BaseQuantities', 'Width'),
-        default=0
-    )
-    heat_capacity = attribute.Attribute(
-        name='heat_capacity',
-        default=0
-    )
-
     thermal_transmittance = attribute.Attribute(
         name='thermal_transmittance',
         default_ps=('Pset_WallCommon', 'ThermalTransmittance'),
         default=0
     )
+
+    material = attribute.Attribute(
+        name='material',
+        # todo just for testing, this is file specific
+        default_ps=('ArchiCADProperties', 'Baustoff/Mehrschicht/Profil'),
+        default=0
+    )
+
+    heat_capacity = attribute.Attribute(
+        name='heat_capacity',
+        default=0
+    )
+
     density = attribute.Attribute(
         name='density',
         default=0
     )
-    material = attribute.Attribute(
-        name='material',
+
+    thickness = attribute.Attribute(
+        name='thickness',
+        default_ps=('BaseQuantities', 'Width'),
         default=0
     )
-        #todo just for testing, this is file specific
-        default_ps=('ArchiCADProperties', 'Baustoff/Mehrschicht/Profil'),
 
     tilt = attribute.Attribute(
         name='thermal_transmittance',
