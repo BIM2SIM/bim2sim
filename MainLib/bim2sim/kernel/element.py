@@ -40,6 +40,7 @@ class Root:
 
     keeps track of created instances and guids"""
     objects = {}
+    default_materials = {}
     _id_counter = 0
 
     def __init__(self, guid=None):

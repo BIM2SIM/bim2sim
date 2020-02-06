@@ -1,10 +1,9 @@
-
 import logging
 from contextlib import contextmanager
 
 from bim2sim.decision import RealDecision, BoolDecision, ListDecision
 from bim2sim.enrichment_data.data_class import DataClass
-
+# from bim2sim.kernel.elements import Wall
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -69,8 +68,9 @@ class Attribute:
         if value is None and self.default_value:
             value = self.default_value
 
-        if 'Wall' in str(bind):# can't use is instance
-            value = self.get_wall_properties(bind, self.name)
+        # if 'Wall' in str(bind):  # can't use is instance
+        #     if bool(bind.default_materials) is None:
+        #         value = self.get_wall_properties(bind, self.name)
 
         return value
 
@@ -149,6 +149,8 @@ class Attribute:
                                                  collect=False, quick_decide=not True)
                         decision1.decide()
                         bind.material_selected['properties'] = material_templates[decision1.value[1]]
+                        bind.modify_default_materials(material, material_templates[decision1.value[1]])
+                        # cls.materials_defaults['material'] = 1
                     else:
                         print("No possibilities found")
                         bind.material_selected['properties'] = {}
@@ -235,7 +237,8 @@ class Attribute:
                                 delta = abs(int(ele) - decision2.value)
                                 decision2_selected = int(ele)
 
-                        bind.enrichment["selected_enrichment_data"] = attrs_enrich[str(decision1.value)][str(decision2_selected)]
+                        bind.enrichment["selected_enrichment_data"] = attrs_enrich[str(decision1.value)][
+                            str(decision2_selected)]
                 value = bind.enrichment["selected_enrichment_data"][name]
         return value
 
@@ -305,6 +308,7 @@ class Attribute:
 
 class AttributeManager(dict):
     """Attribute Manager class"""
+
     def __init__(self, bind):
         super().__init__()
         self.bind = bind
@@ -352,6 +356,7 @@ class AttributeManager(dict):
 
 def multi_calc(func):
     """Decorator for calculation of multiple Attribute values"""
+
     def wrapper(bind, name):
         # inner function call
         result = func(bind)
@@ -359,4 +364,5 @@ def multi_calc(func):
         # send all other result values to AttributeManager instance
         bind.attributes.update(result)
         return value
+
     return wrapper
