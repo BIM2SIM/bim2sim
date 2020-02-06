@@ -8,7 +8,7 @@ from itertools import chain
 
 import numpy as np
 
-from bim2sim.task import Task
+from bim2sim.task.base import Task, ITask
 from bim2sim.workflow import LOD
 from bim2sim.filter import TypeFilter, TextFilter
 from bim2sim.kernel.aggregation import Aggregation, PipeStrand, UnderfloorHeating, \
@@ -61,10 +61,21 @@ IFC_TYPES = (
     #'IfcHeatPump'
 )
 
-class Inspect(Task):
+
+class SetIFCTypesHVAC(ITask):
+    touches = ('relevant_ifc_types', )
+
+    def run(self, workflow):
+        return IFC_TYPES,
+
+
+class Inspect(ITask):
     """Analyses IFC, creates Element instances and connects them.
 
     elements are stored in .instances dict with guid as key"""
+
+    reads = ('ifc', 'filters')
+    touches = ('instances', )
 
     def __init__(self):
         super().__init__()
@@ -284,16 +295,16 @@ class Inspect(Task):
         return result_entity_dict, ignore
 
     @Task.log
-    def run(self, task, ifc, prepare):
+    def run(self, workflow, ifc, filters):
         self.logger.info("Creates python representation of relevant ifc types")
 
         # filter by type
-        initial_filter = prepare.filters[0]  #ToDo: TypeFilter must be first if the following Filter should also search in this types!
+        initial_filter = filters[0]  #ToDo: TypeFilter must be first if the following Filter should also search in this types!
         initial_entities_dict, unknown_entities = initial_filter.run(ifc)
         valids, invalids = self.accept_valids(initial_entities_dict)
         unknown_entities.extend(invalids)
 
-        for f in prepare.filters[1:]:
+        for f in filters[1:]:
 
             if isinstance(f, TextFilter):
                 # filter by text fracments
@@ -381,6 +392,7 @@ class Inspect(Task):
             self.logger.warning("Connecting by bounding box is not implemented.")
 
         # TODO: manualy add / modify connections
+        return self.instances,
 
 
 class Enrich(Task):
@@ -410,36 +422,33 @@ class Enrich(Task):
         # runs all enrich methods
 
 
-class Prepare(Task):
+class Prepare(ITask):
     """Configurate"""  # TODO: based on task
 
-    def __init__(self):
-        super().__init__()
-        self.filters = []
+    reads = ('relevant_ifc_types', )
+    touches = ('filters', )
 
     @Task.log
-    def run(self, task, relevant_ifc_types):
+    def run(self, workflow, relevant_ifc_types):
         self.logger.info("Setting Filters")
         Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
-        self.filters.append(TypeFilter(relevant_ifc_types))
+        filters = [TypeFilter(relevant_ifc_types), TextFilter(relevant_ifc_types)]
         # self.filters.append(TextFilter(['IfcBuildingElementProxy', 'IfcUnitaryEquipment']))
-        self.filters.append(TextFilter(relevant_ifc_types))
+        return filters,
 
 
-class MakeGraph(Task):
+class MakeGraph(ITask):
     """Instantiate HvacGraph"""
 
-    # saveable = True #ToDo
-
-    def __init__(self):
-        super().__init__()
-        self.graph = None
+    reads = ('instances', )
+    touches = ('graph', )
 
     @Task.log
-    def run(self, task, instances: list):
+    def run(self, workflow, instances):
         self.logger.info("Creating graph from IFC elements")
-        self.graph = hvac_graph.HvacGraph(instances)
+        graph = hvac_graph.HvacGraph(instances.values())
+        return graph,
 
     def serialize(self):
         raise NotImplementedError
@@ -450,16 +459,14 @@ class MakeGraph(Task):
         self.graph.from_serialized(json.loads(data))
 
 
-class Reduce(Task):
+class Reduce(ITask):
     """Reduce number of elements by aggregation"""
 
-    def __init__(self):
-        super().__init__()
-        self.reduced_instances = []
-        self.connections = []
+    reads = ('graph', )
+    touches = ('reduced_instances', 'connections')
 
     @Task.log
-    def run(self, task, graph: hvac_graph.HvacGraph):
+    def run(self, workflow, graph: hvac_graph.HvacGraph):
         self.logger.info("Reducing elements by applying aggregations")
         number_of_nodes_old = len(graph.element_graph.nodes)
         number_ps = 0
@@ -495,9 +502,9 @@ class Reduce(Task):
                     mapping=underfloorheating.get_replacement_mapping(),
                     inner_connections=underfloorheating.get_inner_connections())
             else:
-                if task.pipes == LOD.full:
+                if workflow.pipes == LOD.full:
                     pass
-                elif task.pipes == LOD.medium:
+                elif workflow.pipes == LOD.medium:
                     if len(chain) <= 1:
                         continue
                     number_ps += 1
@@ -505,7 +512,7 @@ class Reduce(Task):
                     graph.merge(
                         mapping=pipestrand.get_replacement_mapping(),
                         inner_connections=pipestrand.get_inner_connections())
-                elif task.pipes == LOD.low:
+                elif workflow.pipes == LOD.low:
                     mapping, connections = Aggregation.get_empty_mapping(chain)
                     graph.merge(
                         mapping=mapping,
@@ -526,8 +533,8 @@ class Reduce(Task):
             "Applied %d aggregations which reduced"
             + " number of elements from %d to %d.",
             number_ps + number_fh + number_pp, number_of_nodes_old, number_of_nodes_new)
-        self.reduced_instances = graph.elements
-        self.connections = graph.get_connections()
+        reduced_instances = graph.elements
+        connections = graph.get_connections()
 
         #Element.solve_requests()
 
@@ -535,6 +542,8 @@ class Reduce(Task):
             self.logger.info("Plotting graph ...")
             graph.plot(PROJECT.export)
             graph.plot(PROJECT.export, ports=True)
+
+        return reduced_instances, connections
 
     @staticmethod
     def set_flow_sides(graph):
@@ -576,29 +585,32 @@ class Reduce(Task):
                 break
 
 
-class DetectCycles(Task):
+class DetectCycles(ITask):
     """Detect cycles in graph"""
+
+    reads = ('graph', )
+    touches = ('cycles', )
 
     # TODO: sth usefull like grouping or medium assignment
 
-    def __init__(self):
-        super().__init__()
-        self.cycles = None
-
     @Task.log
-    def run(self, task, graph: hvac_graph.HvacGraph):
+    def run(self, workflow, graph: hvac_graph.HvacGraph):
         self.logger.info("Detecting cycles")
-        self.cycles = graph.get_cycles()
+        cycles = graph.get_cycles()
+        return cycles,
 
 
-class Export(Task):
+class Export(ITask):
     """Export to Dymola/Modelica"""
 
-    def run(self, task, libraries, instances, connections):
+    reads = ('libraries', 'instances', 'connections')
+    final = True
+
+    def run(self, workflow, libraries, instances, connections):
         self.logger.info("Export to Modelica code")
 
         modelica.Instance.init_factory(libraries)
-        export_instances = {inst: modelica.Instance.factory(inst) for inst in instances}
+        export_instances = {inst: modelica.Instance.factory(inst) for inst in instances.values()}
 
         Element.solve_requested_decisions()
 

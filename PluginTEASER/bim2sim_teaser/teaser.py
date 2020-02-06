@@ -7,8 +7,8 @@ from bim2sim_hkesim.models import HKESim
 
 class HKESimManager(BIM2SIMManager):
 
-    def __init__(self, task):
-        super().__init__(task)
+    def __init__(self, workflow):
+        super().__init__(workflow)
 
         self.relevant_ifc_types = bps.IFC_TYPES
 

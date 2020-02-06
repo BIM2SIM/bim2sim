@@ -440,8 +440,8 @@ class BasePort(Root):
     def determine_flow_side(self):
         return 0
 
-    def __del__(self):
-        del BasePort.objects[self.guid]
+    # def __del__(self):
+    #     del BasePort.objects[self.guid]
 
     def __repr__(self):
         if self.parent:
