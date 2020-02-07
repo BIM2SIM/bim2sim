@@ -82,6 +82,21 @@ class Task:
         return True
 
 
+class ITask(Task):
+    """Interactive Task"""
+
+    reads = tuple()
+    touches = tuple()
+    final = False
+
+    def run(self, workflow, **kwargs):
+        pass
+
+    @classmethod
+    def requirements_met(cls, state):
+        return all((r in state for r in cls.reads))
+
+
 class Playground:
     """Playground for executing ITasks"""
 
@@ -128,88 +143,3 @@ class Playground:
 
         self.history.append(task)
         self.logger.info("%s done", task)
-
-
-class ITask(Task):
-    """Interactive Task"""
-
-    reads = tuple()
-    touches = tuple()
-    final = False
-
-    def run(self, workflow, **kwargs):
-        pass
-
-    @classmethod
-    def requirements_met(cls, state):
-        return all((r in state for r in cls.reads))
-
-
-class Reset(ITask):
-    """Reset all progress"""
-    touches = '__all__'
-
-    @classmethod
-    def requirements_met(cls, state):
-        return bool(state)
-
-    def run(self, workflow):
-        return {}
-
-
-class Quit(ITask):
-    """Quit interactive tasks"""
-
-    final = True
-
-
-class LoadIFC(ITask):
-    """Load IFC file from given path (file or dir)"""
-    touches = ('ifc', )
-
-    def __init__(self, path):
-        super().__init__()
-        self.path = path
-
-    def run(self, workflow):
-        # TODO: use multiple ifs files
-
-        if os.path.isdir(self.path):
-            ifc_path = self.get_ifc(self.path)
-        elif os.path.isfile(self.path):
-            ifc_path = self.path
-        else:
-            raise AssertionError("No ifc found. Check '%s'" % self.path)
-
-        ifc = ifc2python.load_ifc(os.path.abspath(ifc_path))
-
-        self.logger.info("The exporter version of the IFC file is '%s'",
-                         ifc.wrapped_data.header.file_name.originating_system)
-        return ifc,
-
-    def get_ifc(self, path):
-        """Returns first ifc from ifc folder"""
-        lst = []
-        for file in os.listdir(path):
-            if file.lower().endswith(".ifc"):
-                lst.append(file)
-
-        if len(lst) == 1:
-            return os.path.join(path, lst[0])
-        if len(lst) > 1:
-            self.logger.warning("Found multiple ifc files. Selected '%s'.", lst[0])
-            return os.path.join(path, lst[0])
-
-        self.logger.error("No ifc found in project folder.")
-        return None
-
-
-if __name__ == '__main__':
-
-    pg = Playground()
-    print('state:', pg.state)
-    print('all:', pg.all_tasks())
-    print('available:', pg.available_tasks())
-    readIFC = pg.available_tasks()[0]('some/path')
-    pg.run_task(readIFC)
-    print('state:', pg.state)
