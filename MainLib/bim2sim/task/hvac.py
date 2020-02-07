@@ -63,6 +63,7 @@ IFC_TYPES = (
 
 
 class SetIFCTypesHVAC(ITask):
+    """Set list of relevant IFC types"""
     touches = ('relevant_ifc_types', )
 
     def run(self, workflow):

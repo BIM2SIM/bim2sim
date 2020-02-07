@@ -30,7 +30,7 @@ class LoadIFC(ITask):
     def run(self, workflow):
         # TODO: use multiple ifs files
 
-        path = PROJECT.ifc
+        path = PROJECT.ifc  # TODO: extra ITask to load Project settings?
 
         if os.path.isdir(path):
             ifc_path = self.get_ifc(path)

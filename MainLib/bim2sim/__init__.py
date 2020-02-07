@@ -105,8 +105,8 @@ def main(rootpath=None):
     manager = manager_cls(workflow)
 
     # run Manager
-    manager.run()
-    # manager.run_interactive()
+    # manager.run()
+    manager.run_interactive()
 
     finish()
 

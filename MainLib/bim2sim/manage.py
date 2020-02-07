@@ -43,19 +43,18 @@ class BIM2SIMManager:
         """Run the manager"""
 
     def run_interactive(self):
-
+        """Run manager in interactive mode"""
         while True:
-            tasks = {task.__name__: task for task in self.playground.available_tasks()}
-            choices = [(name, task.__doc__) for name, task in tasks.items()]
-            task_name = ListDecision("What shall we do?", choices=choices).decide()
-            task = tasks[task_name[0]]
-            self.playground.run_task(task())
-            if task.final:
+            tasks_classes = {task.__name__: task for task in self.playground.available_tasks()}
+            choices = [(name, task.__doc__) for name, task in tasks_classes.items()]
+            task_name = ListDecision("What shall we do?", choices=choices).decide()  # TODO savable decision
+            task_class = tasks_classes[task_name[0]]
+            self.playground.run_task(task_class())
+            if task_class.final:
                 break
 
     def run_decision_generator(self):
         self.run()
-
 
     def __repr__(self):
         return "<%s>"%(self.__class__.__name__)

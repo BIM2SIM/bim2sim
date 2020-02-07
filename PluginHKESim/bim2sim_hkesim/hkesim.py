@@ -6,7 +6,7 @@ from bim2sim_hkesim.models import HKESim
 
 
 class LoadLibrariesHKESim(base.ITask):
-
+    """Load HKESim library for export"""
     touches = ('libraries', )
 
     def run(self, workflow, **kwargs):
