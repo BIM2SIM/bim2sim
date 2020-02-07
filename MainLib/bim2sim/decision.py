@@ -262,8 +262,8 @@ class Decision:
     CANCEL = "cancel"
     options = [SKIP, SKIPALL, CANCEL]
 
-    # frontend = ConsoleFrontEnd()
-    frontend = ExternalFrontEnd()
+    frontend = ConsoleFrontEnd()
+    # frontend = ExternalFrontEnd()
     logger = logging.getLogger(__name__)
 
     def __init__(self, question: str, validate_func=None,
