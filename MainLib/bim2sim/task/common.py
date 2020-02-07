@@ -7,10 +7,12 @@ from .base import ITask
 
 class Reset(ITask):
     """Reset all progress"""
-    touches = '__all__'
+
+    touches = '__reset__'
+    single_use = False
 
     @classmethod
-    def requirements_met(cls, state):
+    def requirements_met(cls, state, history):
         return bool(state)
 
     def run(self, workflow):
@@ -21,6 +23,7 @@ class Quit(ITask):
     """Quit interactive tasks"""
 
     final = True
+    single_use = False
 
 
 class LoadIFC(ITask):

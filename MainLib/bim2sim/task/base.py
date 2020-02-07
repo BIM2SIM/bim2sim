@@ -88,12 +88,18 @@ class ITask(Task):
     reads = tuple()
     touches = tuple()
     final = False
+    single_use = True
 
     def run(self, workflow, **kwargs):
         pass
 
     @classmethod
-    def requirements_met(cls, state):
+    def requirements_met(cls, state, history):
+        if cls.single_use:
+            for task in history:
+                if task.__class__ is cls:
+                    return False
+        # uses_ok = cls not in history if cls.single_use else True
         return all((r in state for r in cls.reads))
 
 
@@ -113,11 +119,11 @@ class Playground:
 
     def available_tasks(self):
         """Returns list of available tasks"""
-        return [task for task in self.all_tasks() if task.requirements_met(self.state)]
+        return [task for task in self.all_tasks() if task.requirements_met(self.state, self.history)]
 
     def run_task(self, task):
         """Execute task with arguments specified in task.reads"""
-        if not task.requirements_met(self.state):
+        if not task.requirements_met(self.state, self.history):
             raise AssertionError("%s requirements not met." % task)
 
         read_state = {k: self.state[k] for k in task.reads}
@@ -127,9 +133,10 @@ class Playground:
             self.logger.exception("Task '%s' failed!", task)
             raise TaskFailed(str(task))
 
-        if task.touches == '__all__':
+        if task.touches == '__reset__':
             # special case
-            self.state = result
+            self.state.clear()
+            self.history.clear()
         else:
             # normal case
             n_res = len(result) if result is not None else 0
