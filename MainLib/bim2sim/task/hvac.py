@@ -16,7 +16,7 @@ from bim2sim.kernel.aggregation import Aggregation, PipeStrand, UnderfloorHeatin
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
-from bim2sim.decision import Decision, DictDecision, ListDecision
+from bim2sim.decision import Decision, ListDecision
 from bim2sim.project import PROJECT
 from bim2sim.kernel import finder
 from bim2sim.enrichment_data.data_class import DataClass
@@ -275,21 +275,22 @@ class Inspect(ITask):
             ListDecision(
                 "Found unidentified Element of %s (Name: %s, Description: %s):" % (
                 ifc_entity.is_a(), ifc_entity.Name, ifc_entity.Description),
-                choices=[[ifc_type, element] for ifc_type, element in Element._ifc_classes.items()],
+                choices=[ifc_type for ifc_type in Element._ifc_classes.keys()],
                 output=answers,
                 output_key=ifc_entity,
                 global_key="%s.%s" % (ifc_entity.is_a(), ifc_entity.GlobalId),
-                allow_skip=True, allow_load=True, allow_save=True, allow_overwrite=True,
+                allow_skip=True, allow_load=True, allow_save=True,
                 collect=True, quick_decide=not True)
         Decision.decide_collected()
 
         result_entity_dict = {}
         ignore = []
-        for ifc_entity, element_class_tuple in answers.items():
-            if element_class_tuple is None:
+        for ifc_entity, ifc_type in answers.items():
+
+            if ifc_type is None:
                 ignore.append(ifc_entity)
             else:
-                lst = result_entity_dict.setdefault(element_class_tuple[0], [])
+                lst = result_entity_dict.setdefault(ifc_type, [])
                 lst.append(ifc_entity)
 
         return result_entity_dict, ignore
