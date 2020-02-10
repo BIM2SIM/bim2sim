@@ -16,7 +16,7 @@ Zum leichteren Einstieg in die Entwicklung hier ein kurzer Überblick über die 
 - **export**: Export related 
 - **kernel**: Logic for element detectionand description, generel ifc2python methods, aggregation ...
 - **task**: Tasks are small parts of a workflow, they can be used in different workflows and different domains. Example: Detection of thermal zones
-- **workflow**: multiple tasks bound together are a workflow. Example: Create total BPS-model for modelica
+- **workflow**: Workflow builds context for Tasks and holds cross-task settings like intentional LoD. Example: Create BPS-model for modelica -> high wall LoD, low pipe LoD
 - **management classes**: manages the project, is bound to a workflow
 
 ## MainLib
