@@ -33,6 +33,7 @@ class Attribute:
         self.functions = functions
         self.default_value = default
 
+
         if ifc_postprocessing:
             self.ifc_post_processing = ifc_postprocessing
 
@@ -68,9 +69,10 @@ class Attribute:
         if value is None and self.default_value:
             value = self.default_value
 
-        # if 'Wall' in str(bind):  # can't use is instance
-        #     if bool(bind.default_materials) is None:
-        #         value = self.get_wall_properties(bind, self.name)
+        if 'Wall' in str(bind):  # can't use is instance
+            material = self.get_from_default(bind, ('ArchiCADProperties', 'Baustoff/Mehrschicht/Profil')) #material property, feedbackproblem
+            is_external = self.get_from_default(bind, ('Pset_WallCommon', 'IsExternal'))
+            value = self.get_wall_properties(bind, self.name, material, is_external)
 
         return value
 
@@ -112,19 +114,20 @@ class Attribute:
         return value
 
     @staticmethod
-    def get_wall_properties(bind, name):
+    def get_wall_properties(bind, name, material, is_external):
         value = None
         selected_properties = ('heat_capacity', 'density', 'thickness')
-        # material = bind.material
-        material = 'Leichtbeton 102890359'
-        material = ''.join([i for i in material if not i.isdigit()])
+        # material = bind.material # feedback problem
+        material_ref = ''.join([i for i in material if not i.isdigit()])
+
         if name in selected_properties:
             try:
-                bind.material_selected['properties']
+                bind.material_selected[material]['properties']
             except KeyError:
-                external = 'external'  # check external property
-                # if not bind.is_external:
-                #     external = 'internal'
+                #is_external = bind.is_external #feedback problem
+                external = 'external'
+                if not is_external:
+                    external = 'internal'
                 first_decision = BoolDecision(
                     question="Do you want for %s_%s_%s to use template" % (str(bind), bind.guid, external),
                     collect=False)
@@ -135,11 +138,11 @@ class Attribute:
                     material_templates = dict(DataClass(used_param=2).element_bind)
                     del material_templates['version']
                     for k in Materials_DEU:
-                        if material in k:
-                            material = Materials_DEU[k]
+                        if material_ref in k:
+                            material_ref = Materials_DEU[k]
                     options = {}
                     for k in material_templates:
-                        if material in material_templates[k]['name']:
+                        if material_ref in material_templates[k]['name']:
                             options[k] = material_templates[k]
                     materials_options = [[material_templates[k]['name'], k] for k in options]
                     if len(materials_options) > 0:
@@ -148,14 +151,15 @@ class Attribute:
                                                  allow_skip=True, allow_load=True, allow_save=True,
                                                  collect=False, quick_decide=not True)
                         decision1.decide()
-                        bind.material_selected['properties'] = material_templates[decision1.value[1]]
-                        bind.modify_default_materials(material, material_templates[decision1.value[1]])
-                        # cls.materials_defaults['material'] = 1
+                        bind.material_selected[material] = {}
+                        bind.material_selected[material]['properties'] = material_templates[decision1.value[1]]
                     else:
                         print("No possibilities found")
-                        bind.material_selected['properties'] = {}
+                        bind.material_selected[material] = {}
+                        bind.material_selected[material]['properties'] = {}
                 else:
-                    bind.material_selected['properties'] = {}
+                    bind.material_selected[material] = {}
+                    bind.material_selected[material]['properties'] = {}
 
             property_template = bind.finder.templates[bind.source_tool]['MaterialTemplates']
             name_template = name
@@ -163,7 +167,7 @@ class Attribute:
                 name_template = property_template[name]
 
             try:
-                value = bind.material_selected['properties'][name_template]
+                value = bind.material_selected[material]['properties'][name_template]
             except KeyError:
                 decision2 = RealDecision("Enter value for the parameter %s" % name,
                                          validate_func=lambda x: isinstance(x, float),  # TODO
@@ -172,11 +176,11 @@ class Attribute:
                                          collect=False, quick_decide=False)
                 decision2.decide()
                 value = decision2.value
-        if name == 'material':
+            # new name or old one?
             try:
-                value = bind.material_selected['properties']['name']
+                bind.material = bind.material_selected[material]['properties']['name']
             except KeyError:
-                pass  # check this
+                bind.material = material
 
         return value
 
@@ -193,7 +197,6 @@ class Attribute:
                     question="Do you want for %s_%s to be enriched" % (bind.ifc_type, bind.guid),
                     collect=False)
                 first_decision.decide()
-                first_decision.collection.clear()
                 first_decision.stored_decisions.clear()
                 bind.enrichment["enrich_decision"] = first_decision.value
 
@@ -216,7 +219,6 @@ class Attribute:
                                              allow_skip=True, allow_load=True, allow_save=True,
                                              collect=False, quick_decide=not True)
                     decision1.decide()
-                    decision1.collection.clear()
                     decision1.stored_decisions.clear()
 
                     if decision1.value == 'statistical_year':

@@ -528,10 +528,6 @@ class Wall(element.Element):
     ]
     material_selected = {}
 
-    @classmethod
-    def modify_default_materials(cls, new_material, properties):
-        cls.default_materials[new_material] = properties
-
     @staticmethod
     def get_orientation(bind, name):
         if bind.is_external is True:
