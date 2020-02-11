@@ -528,8 +528,8 @@ class Wall(element.Element):
     ]
     material_selected = {}
 
-    @staticmethod
-    def get_orientation(bind, name):
+    #problem with static method
+    def _get_orientation(bind, name):
         if bind.is_external is True:
             orientation = []
             placementrel = bind.ifc.ObjectPlacement.PlacementRelTo
@@ -569,7 +569,14 @@ class Wall(element.Element):
                     angle_wall = 180 - abs(math.degrees(math.atan(orientation_wall[0] / orientation_wall[1])))
         else:
             angle_wall = "Intern"
+
         return angle_wall
+
+    orientation = attribute.Attribute(
+        name='orientation',
+        functions=[_get_orientation],
+        default=0
+    )
 
     area = attribute.Attribute(
         name='area',
@@ -581,12 +588,6 @@ class Wall(element.Element):
         name='is_external',
         default_ps=('Pset_WallCommon', 'IsExternal'),
         default=False
-    )
-
-    orientation = attribute.Attribute(
-        name='orientation',
-        functions=[get_orientation],
-        default=0
     )
 
     thermal_transmittance = attribute.Attribute(
@@ -641,15 +642,57 @@ class Window(element.Element):
         re.compile('Fenster', flags=re.IGNORECASE)
     ]
 
-    @staticmethod
+    # @staticmethod cant copy from wall
     def get_orientation(bind, name):
-        Wall.get_orientation(bind, name)
+        if bind.is_external is True:
+            orientation = []
+            placementrel = bind.ifc.ObjectPlacement.PlacementRelTo
+            while placementrel is not None:
+                if placementrel.PlacementRelTo is None:
+                    orientation = placementrel.RelativePlacement.RefDirection.DirectionRatios[0:2]
+                placementrel = placementrel.PlacementRelTo
+            sign = bind.ifc.ObjectPlacement.RelativePlacement.RefDirection
+            orientation_wall = [None, None]
+            if sign:
+                if sign.DirectionRatios[0] != 0:
+                    if sign.DirectionRatios[0] > 0:
+                        orientation_wall[0] = -orientation[1]
+                        orientation_wall[1] = orientation[0]
+                    else:
+                        orientation_wall[0] = orientation[1]
+                        orientation_wall[1] = -orientation[0]
+                elif sign.DirectionRatios[1] != 0:
+                    if sign.DirectionRatios[1] > 0:
+                        orientation_wall[0] = -orientation[0]
+                        orientation_wall[1] = -orientation[1]
+                    else:
+                        orientation_wall[0] = orientation[0]
+                        orientation_wall[1] = orientation[1]
+            else:
+                orientation_wall[0] = -orientation[1]
+                orientation_wall[1] = orientation[0]
+            if orientation_wall[0] > 0:
+                if orientation_wall[1] > 0:
+                    angle_wall = 270 - math.degrees(math.atan(orientation_wall[1] / orientation_wall[0]))
+                else:
+                    angle_wall = 270 + abs(math.degrees(math.atan(orientation_wall[1] / orientation_wall[0])))
+            else:
+                if orientation_wall[1] < 0:
+                    angle_wall = math.degrees(math.atan(orientation_wall[0] / orientation_wall[1]))
+                else:
+                    angle_wall = 180 - abs(math.degrees(math.atan(orientation_wall[0] / orientation_wall[1])))
+        else:
+            angle_wall = "Intern"
+
+        return angle_wall
+
 
     is_external = attribute.Attribute(
         name='is_external',
         default_ps=('Pset_WindowCommon', 'IsExternal'),
         default=True
     )
+
     orientation = attribute.Attribute(
         name='orientation',
         functions=[get_orientation],

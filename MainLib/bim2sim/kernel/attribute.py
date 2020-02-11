@@ -56,10 +56,11 @@ class Attribute:
         # if value is None and self.patterns:
         #     raw_value = self.get_from_patterns(bind, self.patterns, self.name)
         #     value = self.ifc_post_processing(raw_value)
-        #
-        # # custom functions
-        # if value is None and self.functions:
-        #     value = self.get_from_functions(bind, self.functions, self.name)
+
+        # custom functions
+        if value is None and self.functions:
+            # value = self.functions
+            value = self.get_from_functions(bind, self.functions, self.name)
 
         # enrichment
         if value is None:
@@ -70,9 +71,7 @@ class Attribute:
             value = self.default_value
 
         if value is None and 'Wall' in str(bind):  # can't use is instance
-            material = self.get_from_default(bind, ('ArchiCADProperties', 'Baustoff/Mehrschicht/Profil')) #material property, feedbackproblem
-            is_external = self.get_from_default(bind, ('Pset_WallCommon', 'IsExternal'))
-            value = self.get_wall_properties(bind, self.name, material, is_external)
+            value = self.get_wall_properties(bind, self.name)
 
         return value
 
@@ -114,7 +113,7 @@ class Attribute:
         return value
 
     @staticmethod
-    def get_wall_properties(bind, name, material, is_external):
+    def get_wall_properties(bind, name):
         value = None
         selected_properties = ('heat_capacity', 'density', 'thickness')
         material = bind.material # feedback problem
