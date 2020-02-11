@@ -69,7 +69,7 @@ class Attribute:
         if value is None and self.default_value:
             value = self.default_value
 
-        if 'Wall' in str(bind):  # can't use is instance
+        if value is None and 'Wall' in str(bind):  # can't use is instance
             material = self.get_from_default(bind, ('ArchiCADProperties', 'Baustoff/Mehrschicht/Profil')) #material property, feedbackproblem
             is_external = self.get_from_default(bind, ('Pset_WallCommon', 'IsExternal'))
             value = self.get_wall_properties(bind, self.name, material, is_external)
@@ -117,14 +117,14 @@ class Attribute:
     def get_wall_properties(bind, name, material, is_external):
         value = None
         selected_properties = ('heat_capacity', 'density', 'thickness')
-        # material = bind.material # feedback problem
+        material = bind.material # feedback problem
         material_ref = ''.join([i for i in material if not i.isdigit()])
 
         if name in selected_properties:
             try:
                 bind.material_selected[material]['properties']
             except KeyError:
-                #is_external = bind.is_external #feedback problem
+                is_external = bind.is_external #feedback problem
                 external = 'external'
                 if not is_external:
                     external = 'internal'
@@ -153,6 +153,8 @@ class Attribute:
                         decision1.decide()
                         bind.material_selected[material] = {}
                         bind.material_selected[material]['properties'] = material_templates[decision1.value[1]]
+                        bind.material_selected[material_templates[decision1.value[1]]['name']] = {}
+                        bind.material_selected[material_templates[decision1.value[1]]['name']]['properties'] = material_templates[decision1.value[1]]
                     else:
                         print("No possibilities found")
                         bind.material_selected[material] = {}
