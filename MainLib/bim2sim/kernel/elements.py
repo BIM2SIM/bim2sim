@@ -520,6 +520,49 @@ class Medium(element.Element):
     ]
 
 
+def get_element_orientation(bind):
+    if bind.is_external is True:
+        orientation = []
+        placementrel = bind.ifc.ObjectPlacement.PlacementRelTo
+        while placementrel is not None:
+            if placementrel.PlacementRelTo is None:
+                orientation = placementrel.RelativePlacement.RefDirection.DirectionRatios[0:2]
+            placementrel = placementrel.PlacementRelTo
+        sign = bind.ifc.ObjectPlacement.RelativePlacement.RefDirection
+        orientation_wall = [None, None]
+        if sign:
+            if sign.DirectionRatios[0] != 0:
+                if sign.DirectionRatios[0] > 0:
+                    orientation_wall[0] = -orientation[1]
+                    orientation_wall[1] = orientation[0]
+                else:
+                    orientation_wall[0] = orientation[1]
+                    orientation_wall[1] = -orientation[0]
+            elif sign.DirectionRatios[1] != 0:
+                if sign.DirectionRatios[1] > 0:
+                    orientation_wall[0] = -orientation[0]
+                    orientation_wall[1] = -orientation[1]
+                else:
+                    orientation_wall[0] = orientation[0]
+                    orientation_wall[1] = orientation[1]
+        else:
+            orientation_wall[0] = -orientation[1]
+            orientation_wall[1] = orientation[0]
+        if orientation_wall[0] > 0:
+            if orientation_wall[1] > 0:
+                angle_wall = 270 - math.degrees(math.atan(orientation_wall[1] / orientation_wall[0]))
+            else:
+                angle_wall = 270 + abs(math.degrees(math.atan(orientation_wall[1] / orientation_wall[0])))
+        else:
+            if orientation_wall[1] < 0:
+                angle_wall = math.degrees(math.atan(orientation_wall[0] / orientation_wall[1]))
+            else:
+                angle_wall = 180 - abs(math.degrees(math.atan(orientation_wall[0] / orientation_wall[1])))
+    else:
+        angle_wall = "Intern"
+
+    return angle_wall
+
 class Wall(element.Element):
     ifc_type = ["IfcWall", "IfcWallStandardCase"]
     pattern_ifc_type = [
@@ -530,45 +573,48 @@ class Wall(element.Element):
 
     #problem with static method
     def _get_orientation(bind, name):
-        if bind.is_external is True:
-            orientation = []
-            placementrel = bind.ifc.ObjectPlacement.PlacementRelTo
-            while placementrel is not None:
-                if placementrel.PlacementRelTo is None:
-                    orientation = placementrel.RelativePlacement.RefDirection.DirectionRatios[0:2]
-                placementrel = placementrel.PlacementRelTo
-            sign = bind.ifc.ObjectPlacement.RelativePlacement.RefDirection
-            orientation_wall = [None, None]
-            if sign:
-                if sign.DirectionRatios[0] != 0:
-                    if sign.DirectionRatios[0] > 0:
-                        orientation_wall[0] = -orientation[1]
-                        orientation_wall[1] = orientation[0]
-                    else:
-                        orientation_wall[0] = orientation[1]
-                        orientation_wall[1] = -orientation[0]
-                elif sign.DirectionRatios[1] != 0:
-                    if sign.DirectionRatios[1] > 0:
-                        orientation_wall[0] = -orientation[0]
-                        orientation_wall[1] = -orientation[1]
-                    else:
-                        orientation_wall[0] = orientation[0]
-                        orientation_wall[1] = orientation[1]
-            else:
-                orientation_wall[0] = -orientation[1]
-                orientation_wall[1] = orientation[0]
-            if orientation_wall[0] > 0:
-                if orientation_wall[1] > 0:
-                    angle_wall = 270 - math.degrees(math.atan(orientation_wall[1] / orientation_wall[0]))
+        try:
+            if bind.is_external is True:
+                orientation = []
+                placementrel = bind.ifc.ObjectPlacement.PlacementRelTo
+                while placementrel is not None:
+                    if placementrel.PlacementRelTo is None:
+                        orientation = placementrel.RelativePlacement.RefDirection.DirectionRatios[0:2]
+                    placementrel = placementrel.PlacementRelTo
+                sign = bind.ifc.ObjectPlacement.RelativePlacement.RefDirection
+                orientation_wall = [None, None]
+                if sign:
+                    if sign.DirectionRatios[0] != 0:
+                        if sign.DirectionRatios[0] > 0:
+                            orientation_wall[0] = -orientation[1]
+                            orientation_wall[1] = orientation[0]
+                        else:
+                            orientation_wall[0] = orientation[1]
+                            orientation_wall[1] = -orientation[0]
+                    elif sign.DirectionRatios[1] != 0:
+                        if sign.DirectionRatios[1] > 0:
+                            orientation_wall[0] = -orientation[0]
+                            orientation_wall[1] = -orientation[1]
+                        else:
+                            orientation_wall[0] = orientation[0]
+                            orientation_wall[1] = orientation[1]
                 else:
-                    angle_wall = 270 + abs(math.degrees(math.atan(orientation_wall[1] / orientation_wall[0])))
-            else:
-                if orientation_wall[1] < 0:
-                    angle_wall = math.degrees(math.atan(orientation_wall[0] / orientation_wall[1]))
+                    orientation_wall[0] = -orientation[1]
+                    orientation_wall[1] = orientation[0]
+                if orientation_wall[0] > 0:
+                    if orientation_wall[1] > 0:
+                        angle_wall = 270 - math.degrees(math.atan(orientation_wall[1] / orientation_wall[0]))
+                    else:
+                        angle_wall = 270 + abs(math.degrees(math.atan(orientation_wall[1] / orientation_wall[0])))
                 else:
-                    angle_wall = 180 - abs(math.degrees(math.atan(orientation_wall[0] / orientation_wall[1])))
-        else:
-            angle_wall = "Intern"
+                    if orientation_wall[1] < 0:
+                        angle_wall = math.degrees(math.atan(orientation_wall[0] / orientation_wall[1]))
+                    else:
+                        angle_wall = 180 - abs(math.degrees(math.atan(orientation_wall[0] / orientation_wall[1])))
+            else:
+                angle_wall = "Intern"
+        except ZeroDivisionError:
+            angle_wall = 90
 
         return angle_wall
 
@@ -626,14 +672,6 @@ class Wall(element.Element):
         default=0
     )
 
-    # @property
-    # def capacity(self):
-    #     return 1
-    #
-    # @property
-    # def u_value(self):
-    #     return 1
-
 
 class Window(element.Element):
     ifc_type = "IfcWindow"
@@ -643,7 +681,7 @@ class Window(element.Element):
     ]
 
     # @staticmethod cant copy from wall
-    def get_orientation(bind, name):
+    def _get_orientation(bind, name):
         if bind.is_external is True:
             orientation = []
             placementrel = bind.ifc.ObjectPlacement.PlacementRelTo
@@ -681,6 +719,7 @@ class Window(element.Element):
                     angle_wall = math.degrees(math.atan(orientation_wall[0] / orientation_wall[1]))
                 else:
                     angle_wall = 180 - abs(math.degrees(math.atan(orientation_wall[0] / orientation_wall[1])))
+
         else:
             angle_wall = "Intern"
 
@@ -695,7 +734,7 @@ class Window(element.Element):
 
     orientation = attribute.Attribute(
         name='orientation',
-        functions=[get_orientation],
+        functions=[_get_orientation],
         default=0
     )
 
@@ -767,13 +806,23 @@ class Slab(element.Element):
         default=0
     )
 
-    @property
-    def u_value(self):
-        return 1
+    # @property
+    # def u_value(self):
+    #     return 1
+    #
+    # @property
+    # def g_value(self):
+    #     return 1
 
-    @property
-    def g_value(self):
-        return 1
+
+class Building(element.Element):
+    ifc_type = "IfcBuilding"
+
+    area = attribute.Attribute(
+        name='area',
+        default_ps=('BaseQuantities', 'NetArea'),
+        default=0
+    )
 
 
 __all__ = [ele for ele in locals().values() if ele in element.Element.__subclasses__()]

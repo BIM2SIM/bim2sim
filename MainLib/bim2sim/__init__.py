@@ -119,7 +119,7 @@ def _debug_run_hvac():
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
     rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
-    path_example = r"C:\temp\bim2sim\testproject"
+    path_example = "C:\temp\bim2sim\testproject"
 
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, path_ifc, 'hkesim',)

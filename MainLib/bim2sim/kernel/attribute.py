@@ -59,7 +59,6 @@ class Attribute:
 
         # custom functions
         if value is None and self.functions:
-            # value = self.functions
             value = self.get_from_functions(bind, self.functions, self.name)
 
         # enrichment
@@ -116,14 +115,14 @@ class Attribute:
     def get_wall_properties(bind, name):
         value = None
         selected_properties = ('heat_capacity', 'density', 'thickness')
-        material = bind.material # feedback problem
+        material = bind.material
         material_ref = ''.join([i for i in material if not i.isdigit()])
 
         if name in selected_properties:
             try:
                 bind.material_selected[material]['properties']
             except KeyError:
-                is_external = bind.is_external #feedback problem
+                is_external = bind.is_external
                 external = 'external'
                 if not is_external:
                     external = 'internal'
