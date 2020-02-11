@@ -594,6 +594,12 @@ class Wall(element.Element):
         default_ps=('Pset_WallCommon', 'ThermalTransmittance'),
         default=0
     )
+    
+    thickness = attribute.Attribute(
+        name='thickness',
+        default_ps=('BaseQuantities', 'Width'),
+        default=0
+    )
 
     material = attribute.Attribute(
         name='material',
@@ -611,13 +617,7 @@ class Wall(element.Element):
         name='density',
         default=0
     )
-
-    thickness = attribute.Attribute(
-        name='thickness',
-        default_ps=('BaseQuantities', 'Width'),
-        default=0
-    )
-
+    
     tilt = attribute.Attribute(
         name='thermal_transmittance',
         #todo just for testing, this is file specific
