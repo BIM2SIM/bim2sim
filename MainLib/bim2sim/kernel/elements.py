@@ -741,7 +741,7 @@ class Plate(element.Element):
 
 
 class Slab(element.Element):
-    ifc_type = "IfcSlab"
+    ifc_type = ["IfcSlab", "IfcRoof"]
 
     area = attribute.Attribute(
         name='area',
@@ -767,13 +767,9 @@ class Slab(element.Element):
         default=0
     )
 
-    @property
-    def u_value(self):
-        return 1
 
-    @property
-    def g_value(self):
-        return 1
+# class Roof(Slab):
+#     ifc_type = "IfcRoof"
 
 
 __all__ = [ele for ele in locals().values() if ele in element.Element.__subclasses__()]
