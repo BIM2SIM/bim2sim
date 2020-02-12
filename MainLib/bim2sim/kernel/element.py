@@ -685,8 +685,6 @@ class Element(BaseElement, IFCBased):
 
         ifc_type = ifc_element.is_a() if not alternate_ifc_type or alternate_ifc_type == ifc_element.is_a() else alternate_ifc_type
         predefined_type = ifc2python.get_predefined_type(ifc_element)
-        # cls = Element._ifc_classes.get(ifc_type, Element.dummy)
-        # cls = Element._ifc_classes.get('IfcSlab', {}).get(None,0)
         cls = Element._ifc_classes.get(ifc_type, {}).get(predefined_type,
                                                          Element.dummy)
         if cls is Element.dummy:
