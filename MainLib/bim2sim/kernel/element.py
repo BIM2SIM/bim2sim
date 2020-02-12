@@ -577,6 +577,16 @@ class Port(BasePort, IFCBased):
         return 0
 
 
+def get_all_subclasses(cls):
+    all_subclasses = []
+
+    for subclass in cls.__subclasses__():
+        all_subclasses.append(subclass)
+        all_subclasses.extend(get_all_subclasses(subclass))
+
+    return all_subclasses
+
+
 class Element(BaseElement, IFCBased):
     """Base class for IFC model representation
 
@@ -613,8 +623,8 @@ class Element(BaseElement, IFCBased):
         """initialize lookup for factory"""
         logger = logging.getLogger(__name__)
         conflict = False
-        s=Element.__subclasses__()
-        for cls in Element.__subclasses__():
+        all_subclasses = get_all_subclasses(Element)
+        for cls in all_subclasses:
             if not isinstance(cls.ifc_type, list):
                 ifc_types = [cls.ifc_type]
             else:
