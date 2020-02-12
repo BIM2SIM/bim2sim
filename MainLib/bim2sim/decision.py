@@ -391,7 +391,7 @@ class Decision:
 
     @staticmethod
     def build_checksum(item):
-        return hashlib.md5(json.dumps(item, sort_keys=True)).hexdigest()
+        return hashlib.md5(json.dumps(item, sort_keys=True).encode('utf-8')).hexdigest()
 
     @classmethod
     def filtered(cls, active=True):
