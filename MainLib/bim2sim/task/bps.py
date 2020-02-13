@@ -49,6 +49,4 @@ class Inspect(Task):
                     print(element.density)
                 self.instances[element.guid] = element
 
-
-
         self.logger.info("Found %d building elements", len(self.instances))

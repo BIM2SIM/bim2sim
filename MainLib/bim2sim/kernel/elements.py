@@ -693,11 +693,13 @@ class Window(element.Element):
         re.compile('Fenster', flags=re.IGNORECASE)
     ]
 
+
     is_external = attribute.Attribute(
         name='is_external',
         default_ps=('Pset_WindowCommon', 'IsExternal'),
         default=True
     )
+
 
     area = attribute.Attribute(
         name='area',
