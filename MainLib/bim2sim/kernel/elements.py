@@ -474,6 +474,14 @@ class AirTerminal(element.Element):
 
 class ThermalZone(element.Element):
     ifc_type = "IfcSpace"
+    predefined_type = {
+        "IfcSpace": ["SPACE",
+                     "PARKING",
+                     "GFA",
+                     "INTERNAL",
+                     "NOTDEFINED"
+                     ]
+    }
 
     pattern_ifc_type = [
         re.compile('Space', flags=re.IGNORECASE),
@@ -527,6 +535,20 @@ class Wall(element.Element):
         re.compile('Wand', flags=re.IGNORECASE)
     ]
     material_selected = {}
+    # class Layer:
+    #     def __init__(self, thickness, material):
+    #         self.thickness = thickness
+    #         self.material = material
+    #
+    # layers = attribute.Attribute(
+    #     name='layers',
+    #     default_association='test'
+    # )
+    #
+    # @staticmethod
+    # def get_layers(ifc_representation):
+
+
 
     #problem with static method
     def _get_orientation(bind, name):
@@ -635,8 +657,16 @@ class Wall(element.Element):
     #     return 1
 
 
+
 class Window(element.Element):
     ifc_type = "IfcWindow"
+    predefined_type = {
+        "IfcWindow": ["WINDOW",
+                      "SKYLIGHT",
+                      "LIGHTDOME"
+                      ]
+    }
+
     pattern_ifc_type = [
         re.compile('Window', flags=re.IGNORECASE),
         re.compile('Fenster', flags=re.IGNORECASE)
@@ -776,14 +806,14 @@ class Roof(Slab):
 
 
 class Floor(Slab):
-    ifc_type = ['IfcSlab']
+    ifc_type = 'IfcSlab'
     predefined_type = {
             "IfcSlab": "FLOOR",
         }
 
 
 class GroundFloor(Slab):
-    ifc_type = ['IfcSlab']
+    ifc_type = 'IfcSlab'
     predefined_type = {
             "IfcSlab": "BASESLAB",
         }

@@ -113,6 +113,7 @@ class IFCBased(Root):
         super().__init__(*args, guid=ifc.GlobalId, **kwargs)
         self.ifc = ifc
         self.name = ifc.Name
+        self.predefined_type = ifc2python.get_predefined_type(ifc)
         self.enrichment = {}
         self._propertysets = None
         self._type_propertysets = None
@@ -253,6 +254,20 @@ class IFCBased(Root):
                 propertyset_name, property_name))
         return value
 
+    def get_exact_association(self, propertyset_name, property_name):
+        """Returns value of property specified by propertyset name and property name
+
+        :Raises: AttriebuteError if property does not exist"""
+        try:
+            p_set = self.search_property_hierarchy(propertyset_name)
+            value = p_set[property_name]
+        except (AttributeError, KeyError, TypeError):
+            raise NoValueError("Property '%s.%s' does not exist" % (
+                propertyset_name, property_name))
+        return value
+
+
+
     def select_from_potential_properties(self, patterns, name, collect_decisions):
         """Ask user to select from all properties matching patterns"""
 
@@ -342,6 +357,8 @@ class IFCBased(Root):
 
     def __repr__(self):
         return "<%s (%s)>" % (self.__class__.__name__, self.name)
+
+
 
 
 class BaseElement(Root):
@@ -677,7 +694,7 @@ class Element(BaseElement, IFCBased):
                      len(Element._ifc_classes), model_txt)
 
     @staticmethod
-    def factory(ifc_element, alternate_ifc_type = None, tool=None):
+    def factory(ifc_element, alternate_ifc_type=None, tool=None):
         """Create model depending on ifc_element"""
 
         if not Element._ifc_classes:
@@ -691,7 +708,7 @@ class Element(BaseElement, IFCBased):
             logger = logging.getLogger(__name__)
             logger.warning("Did not found matching class for %s", ifc_type)
 
-        prefac=cls(ifc=ifc_element, tool=tool)
+        prefac = cls(ifc=ifc_element, tool=tool)
         return prefac
         # if prefac.validate():
         #     return prefac

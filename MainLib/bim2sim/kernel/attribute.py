@@ -53,7 +53,7 @@ class Attribute:
             raw_value = self.get_from_default_assocation(bind, self.default_association)
             value = self.ifc_post_processing(raw_value)
             if value is None:
-                quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet",
+                quality_logger.warning("Attribute '%s' of %s %s was not found in default Association",
                                        self.name, bind.ifc_type, bind.guid)
         # # tool specific properties (finder)
         # if value is None:
@@ -94,7 +94,7 @@ class Attribute:
     @staticmethod
     def get_from_default_assocation(bind, default):
         try:
-            value = bind.get_exact_property(default[0], default[1])
+            value = bind.get_exact_association(default[0], default[1])
         except Exception:
             value = None
         return value
