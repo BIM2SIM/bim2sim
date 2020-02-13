@@ -45,8 +45,8 @@ class Inspect(Task):
             entities = ifc.by_type(ifc_type)
             for entity in entities:
                 element = Element.factory(entity, ifc_type)
-                # if ifc_type == 'IfcWall':
-                #     print(element.density)
+                if ifc_type == 'IfcSlab':
+                    print(element.density)
                 self.instances[element.guid] = element
 
 
