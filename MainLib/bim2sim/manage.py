@@ -45,8 +45,6 @@ class BIM2SIMManager:
         else:
             PROJECT.complete_project_folder()
 
-
-
     @abstractmethod
     def run(self):
         """Run the manager"""

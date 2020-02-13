@@ -3,13 +3,16 @@
 import logging
 import enum
 import json
-from collections import OrderedDict
+import hashlib
 
-from pip._vendor.urllib3 import _collections
+
+__VERSION__ = '0.1'
 
 
 class DecisionException(Exception):
     """Base Exception for Decisions"""
+class DecisionSkip(DecisionException):
+    """Exception raised on skipping Decision"""
 class DecisionSkipAll(DecisionException):
     """Exception raised on skipping all Decisions"""
 class DecisionCancle(DecisionException):
@@ -25,6 +28,245 @@ class Status(enum.Enum):
     loadeddone = 3  # previous made decision loaded
     saveddone = 4  # decision made and saved
     skipped = 5  # decision was skipped
+
+
+def convert_0_to_0_1(data):
+    converted_data = {
+        'version': '0.1',
+        'checksum_ifc': None,
+        'decisions': {decision: {'value': value} for decision, value in data.items()}
+    }
+    return converted_data
+
+
+def convert(from_version, to_version, data):
+    """convert stored decisions to new version"""
+    if from_version == '0' and to_version == '0.1':
+        return convert_0_to_0_1(data)
+
+
+class FrontEnd:
+    """Basic FrontEnd for decision solving"""
+
+    def __init__(self):
+        self.logger = logging.getLogger(__name__ + '.DecisonFrontend')
+
+    def solve(self, decision):
+        raise NotImplementedError
+
+    def solve_collection(self, collection):
+        raise NotImplementedError
+
+    def get_question(self, decision):
+        return decision.question
+
+    def get_body(self, decision):
+        return decision.get_body()
+
+    def get_options(self, decision):
+        return decision.get_options()
+
+    def parse(self, decision, raw_answer):
+        return decision.parse_input(raw_answer)
+
+    def validate(self, decision, value):
+        return decision.validate(value)
+
+
+class ConsoleFrontEnd(FrontEnd):
+
+    @staticmethod
+    def get_input_txt(decision):
+        txt = 'Enter value: '
+        if isinstance(decision, CollectionDecision):
+            txt = 'Enter key: '
+
+        return txt
+
+    @staticmethod
+    def get_options_txt(options):
+        return "Additional commands: %s" % (", ".join(options))
+
+    @staticmethod
+    def get_body_txt(body):
+        len_labels = max(len(str(item[2])) for item in body)
+        header_str = "  {key:3s}  {label:%ds}  {value:s}" % (len_labels)
+        format_str = "\n  {key:3s}  {label:%ds}  {value:s}" % (len_labels)
+        body_txt = header_str.format(key="key", label="label", value="value")
+
+        for key, value, label in body:
+            body_txt += format_str.format(key=str(key), label=str(label), value=str(value))
+
+        return body_txt
+
+    @staticmethod
+    def collection_progress(collection):
+        total = len(collection)
+        for i, decision in enumerate(collection):
+            yield decision, "[Decision {}/{}]".format(i + 1, total)
+
+    def solve(self, decision):
+        try:
+            decision.value = self.user_input(decision)
+        except DecisionSkip:
+            decision.skip()
+        except DecisionCancle as ex:
+            self.logger.info("Canceling decisions")
+            raise
+        return
+
+    def solve_collection(self, collection):
+
+        skip_all = False
+        extra_options = []
+        if all([d.allow_skip for d in collection]):
+            extra_options.append(Decision.SKIPALL)
+
+        for decision, progress in self.collection_progress(collection):
+            if skip_all and decision.allow_skip:
+                decision.skip()
+            else:
+                if skip_all:
+                    self.logger.info("Decision can not be skipped")
+                try:
+                    decision.value = self.user_input(decision, extra_options=extra_options, progress=progress)
+                except DecisionSkip:
+                    decision.skip()
+                except DecisionSkipAll:
+                    skip_all = True
+                    self.logger.info("Skipping remaining decisions")
+                except DecisionCancle as ex:
+                    self.logger.info("Canceling decisions")
+                    raise
+
+    # TODO: based on decision type
+    # TODO: merge from element_filter_by_text
+    def user_input(self, decision, extra_options=None, progress=''):
+
+        question = self.get_question(decision)
+        options = self.get_options(decision)
+        if extra_options:
+            options = options + extra_options
+        options_txt = self.get_options_txt(options)
+        body = self.get_body(decision)
+        input_txt = self.get_input_txt(decision)
+        if progress:
+            progress += ' '
+
+        print(progress, end='')
+        print(question)
+        print(options_txt)
+        if body:
+            print(self.get_body_txt(body))
+
+        max_attempts = 10
+        attempt = 0
+        while True:
+            raw_value = input(input_txt)
+            if raw_value.lower() == Decision.SKIP.lower() and Decision.SKIP in options:
+                raise DecisionSkip
+                # decision.skip()
+                # return None
+            if raw_value.lower() == Decision.SKIPALL.lower() and Decision.SKIPALL in options:
+                decision.skip()
+                raise DecisionSkipAll
+            if raw_value.lower() == Decision.CANCEL.lower() and Decision.CANCEL in options:
+                raise DecisionCancle
+
+            value = self.parse(decision, raw_value)
+            if self.validate(decision, value):
+                break
+            else:
+                if attempt <= max_attempts:
+                    if attempt == max_attempts:
+                        print("Last try before auto Cancel!")
+                    print("'%s' is no valid input! Try again." % raw_value)
+                else:
+                    raise DecisionCancle("Too many invalid attempts. Canceling input.")
+            attempt += 1
+
+        return value
+
+
+class ExternalFrontEnd(FrontEnd):
+
+    def __init__(self):
+        super().__init__()
+
+        self.id_gen = self._get_id_gen()
+        self.pending = {}
+
+    def __iter__(self):
+        raise StopIteration
+
+    def check_answer(self, answer):
+
+        for key, raw_value in answer.copy().items():
+            decision = self.pending.get(key)
+            if not decision:
+                self.logger.warning("Removed unknown answer (%s) for key %s", answer[key], key)
+                del answer[key]
+                continue
+
+            value = self.parse(decision, raw_value)
+            if self.validate(decision, value):
+                decision.value = value
+                del answer[key]
+                del self.pending[key]
+
+        if answer:
+            self.logger.warning("Unused/invalid answers: %s", answer)
+        return answer
+
+    def solve(self, decision):
+        return self.solve_collection([decision])
+
+    def solve_collection(self, collection):
+        if self.pending:
+            raise AssertionError("Solve pending decisions first!")
+
+        for decision in collection:
+            self.pending[next(self.id_gen)] = decision
+
+        for loop in range(10):
+            answer = self.send()
+            remaining = self.check_answer(answer)
+            if not remaining:
+                break
+        else:
+            raise DecisionException("Failed to solve decisions anfter %d retries", loop + 1)
+        return
+
+    @staticmethod
+    def _get_id_gen():
+        i = 0
+        while True:
+            i += 1
+            yield i
+
+    def to_dict(self, key, decision):
+
+        data = dict(
+            id=key,
+            question=decision.question,
+            options=self.get_options(decision),
+            body=self.get_body(decision),
+        )
+
+        return data
+
+    def send(self):
+        data = []
+        for key, decision in self.pending.items():
+            data.append(self.to_dict(key, decision))
+
+        # TODO: request to UI
+        serialized = json.dumps(data, indent=2)
+        print(serialized)
+        # fake data
+        answer = {item['id']: '1' for item in data}
+
+        return answer
 
 
 class Decision:
@@ -46,10 +288,15 @@ class Decision:
     CANCEL = "cancel"
     options = [SKIP, SKIPALL, CANCEL]
 
-    def __init__(self, question: str, validate_func,
+    frontend = ConsoleFrontEnd()
+    # frontend = ExternalFrontEnd()
+    logger = logging.getLogger(__name__)
+
+    def __init__(self, question: str, validate_func=None,
                  output: dict = None, output_key: str = None, global_key: str = None,
-                 allow_skip=False, allow_load=False, allow_save=False, allow_overwrite=False,
-                 collect=False, quick_decide=False):
+                 allow_skip=False, allow_load=False, allow_save=False,
+                 collect=False, quick_decide=False,
+                 validate_checksum=None):
         """
         :param question: The question asked to thu user
         :param validate_func: callable to validate the users input
@@ -57,15 +304,16 @@ class Decision:
         :param output_key: key for output
         :param global_key: unique key to identify decision. Required for saving
         :param allow_skip: set to True to allow skipping the decision and user None as value
-        :param allow_load: allows loading value from previus made decision with same global_key (Has no effect when global_key is not provided)
+        :param allow_load: allows loading value from previous made decision with same global_key (Has no effect when global_key is not provided)
         :param allow_save: allows saving decisions value and global_key for later reuse (Has no effect when global_key is not provided)
         :param collect: add decision to collection for later processing. (output and output_key needs to be provided)
         :param quick_decide: calls decide() within __init__()
+        :param validate_checksum: if provided, loaded decisions are only valid if checksum matches
 
         :raises: :class:'AttributeError'::
         """
         self.status = Status.open
-        self.value = None
+        self._value = None
 
         self.question = question
         self.validate_func = validate_func
@@ -77,29 +325,73 @@ class Decision:
         self.allow_skip = allow_skip
         self.allow_save = allow_save
         self.allow_load = allow_load
-        self.allow_overwrite = allow_overwrite
 
         self.collect = collect
+        self.validate_checksum = validate_checksum
+
+        if global_key and global_key in self.global_keys():
+            self.discard()
+            raise KeyError("Decision with key %s already exists!" % global_key)
 
         if self.allow_load:
             self._inner_load()
 
         if quick_decide and not self.status == Status.loadeddone:
             self.decide()
-            #self.value = self._inner_decide(self.collect)
 
-        if self.status in [Status.done, Status.loadeddone]:
-            self._post()
-        elif self.collect:
-            if not (isinstance(self.output, dict) and self.output_key):
-                raise AttributeError(
-                    "Can not collect Decision if output dict or output_key is missing.")
+        if self.collect and not (isinstance(self.output, dict) and self.output_key):
+            raise AttributeError("Can not collect Decision if output dict or output_key is missing.")
 
         Decision.all.append(self)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        if self.status != Status.open:
+            raise ValueError("Decision is not open. Call reset() first.")
+        if self.validate(value):
+            self._value = value
+            self.status = Status.done
+            self._post()
+        else:
+            raise ValueError("Invalid value: %r" % value)
+
+    def reset(self):
+        self.status = Status.open
+        self._value = None
+        if self.output_key in self.output:
+            del self.output[self.output_key]
+        if self.output_key in Decision.stored_decisions:
+            del Decision.stored_decisions[self.global_key]
+
+    def skip(self):
+        """Accept None as value und mark as solved"""
+        if not self.allow_skip:
+            raise DecisionException("This Decision can not be skipped.")
+        if self.status != Status.open:
+            raise DecisionException("This Decision is not open. Call reset() first.")
+        self._value = None
+        self.status = Status.skipped
+        self._post()
 
     def discard(self):
         """Remove decision from traced decisions (Decision.all)"""
         Decision.all.remove(self)
+        self.reset()
+
+    @classmethod
+    def global_keys(cls):
+        """Global key generator"""
+        for decision in cls.all:
+            if decision.global_key:
+                yield decision.global_key
+
+    @staticmethod
+    def build_checksum(item):
+        return hashlib.md5(json.dumps(item, sort_keys=True).encode('utf-8')).hexdigest()
 
     @classmethod
     def filtered(cls, active=True):
@@ -116,49 +408,61 @@ class Decision:
     def collection(cls):
         return [d for d in cls.filtered() if d.collect]
 
-    @property
-    def logger(self):
-        """logger instance"""
-        if not Decision._logger:
-            Decision._logger = logging.getLogger(__name__)
-        return Decision._logger
+    def _validate(self, value):
+        raise NotImplementedError("Implement method _validate!")
 
     def validate(self, value):
         """Checks value with validate_func and returns truth value"""
 
-        res = False
-        try:
-            res = bool(self.validate_func(value))
-        except:
-            pass
-        return res
+        basic_valid = self._validate(value)
+
+        if self.validate_func:
+            try:
+                external_valid = bool(self.validate_func(value))
+            except:
+                external_valid = False
+        else:
+            external_valid = True
+
+        return basic_valid and external_valid
+
+    def decide(self):
+        """Decide by user input
+        reuses loaded decision if available
+
+        :returns: value of decision"""
+
+        if self.status == Status.loadeddone:
+            return self.value
+
+        if self.status != Status.open:
+            raise AssertionError("Cannot call decide() for Decision with status != open")
+
+        self.frontend.solve(self)
+
+        # self.status = Status.done
+        # self._post()
+        return self.value
 
     @classmethod
     def decide_collected(cls, collection=None):
         """Solve all stored decisions"""
 
         logger = logging.getLogger(__name__)
-        skip_all = False
 
         _collection = collection or cls.collection()
+        _collection = [d for d in _collection if d.status == Status.open]
 
-        for decision in _collection:
-            if skip_all and decision.allow_skip:
-                decision.skip()
-            else:
-                if decision.status != Status.open:
-                    logger.debug("Decision not open -> continue (%s)", decision)
-                    continue
-                if skip_all:
-                    logger.info("Decision can not be skipped")
-                try:
-                    decision.decide(collected=True)
-                except DecisionSkipAll:
-                    skip_all = True
-                    logger.info("Skipping remaining decisions")
-                except DecisionCancle as ex:
-                    logger.info("Canceling decisions")
-                    raise
+        try:
+            cls.frontend.solve_collection(_collection)
+        except DecisionSkipAll:
+            logger.info("Skipping remaining decisions")
+            for decision in _collection:
+                if decision.status == Status.open:
+                    decision.skip()
+        except DecisionCancle as ex:
+            logger.info("Canceling decisions")
+            raise
 
     @classmethod
     def load(cls, path):
@@ -170,21 +474,38 @@ class Decision:
                 data = json.load(file)
         except IOError as ex:
             logger.info("Unable to load decisions. (%s)", ex)
-        else:
-            if data:
-                msg = "Found %d previous made decisions. Continue using them?"%(len(data))
-                reuse = BoolDecision(question=msg).decide()
-                if reuse:
-                    cls.stored_decisions = data
-                    logger.info("Loaded decisions.")
+            return
+        version = data.get('version', '0')
+        if version != __VERSION__:
+            try:
+                data = convert(version, __VERSION__, data)
+                logger.info("Converted stored decisions from version '%s' to '%s'", version, __VERSION__)
+            except:
+                logger.error("Decision conversion from %s to %s failed")
+                return
+        decisions = data.get('decisions')
+
+        if decisions:
+            msg = "Found %d previous made decisions. Continue using them?"%(len(decisions))
+            reuse = BoolDecision(question=msg).decide()
+            if reuse:
+                cls.stored_decisions = decisions
+                logger.info("Loaded decisions.")
 
     @classmethod
     def save(cls, path):
         """Save solved Decisions to file system"""
 
         logger = logging.getLogger(__name__)
+
+        decisions = {key: kwargs for key, kwargs in cls.stored_decisions.items()}
+        data = {
+            'version': __VERSION__,
+            'checksum_ifc': None,
+            'decisions': decisions,
+        }
         with open(path, "w") as file:
-            json.dump(cls.stored_decisions, file, indent=2)
+            json.dump(data, file, indent=2)
         logger.info("Saved %d decisions.", len(cls.stored_decisions))
 
     @classmethod
@@ -201,13 +522,18 @@ class Decision:
         Decision.load() first."""
 
         if self.global_key:
-            value = Decision.stored_decisions.get(self.global_key)
+            kwargs = Decision.stored_decisions.get(self.global_key, {'value': None})
+            value = kwargs['value']
+            checksum = kwargs.get('checksum')
             if value is None:
                 return
             if (not self.validate_func) or self.validate_func(value):
-                self.value = value
-                self.status = Status.loadeddone
-                self.logger.info("Loaded decision '%s' with value: %s", self.global_key, value)
+                if checksum == self.validate_checksum:
+                    self.value = value
+                    self.status = Status.loadeddone
+                    self.logger.info("Loaded decision '%s' with value: %s", self.global_key, value)
+                else:
+                    self.logger.warning("Checksum mismatch for loaded decision '%s", self.global_key)
             else:
                 self.logger.warning("Check for loaded decision '%s' failed. Loaded value: %s",
                                     self.global_key, value)
@@ -220,11 +546,14 @@ class Decision:
             return
 
         if self.global_key:
-            assert self.global_key not in Decision.stored_decisions or self.allow_overwrite, \
-                "Decision id '%s' is not unique!"%(self.global_key)
-            assert self.status in [Status.done, Status.loadeddone, Status.saveddone], \
+            # assert self.global_key not in Decision.stored_decisions or self.allow_overwrite, \
+            #     "Decision id '%s' is not unique!"%(self.global_key)
+            assert self.status != Status.open, \
                 "Decision not made. There is nothing to store."
-            Decision.stored_decisions[self.global_key] = self.value
+            kwargs = {'value': self.value}
+            if self.validate_checksum:
+                kwargs['checksum'] = self.validate_checksum
+            Decision.stored_decisions[self.global_key] = kwargs
             self.status = Status.saveddone
             self.logger.info("Stored decision '%s' with value: %s", self.global_key, self.value)
 
@@ -237,78 +566,23 @@ class Decision:
         if self.collect:
             self.output[self.output_key] = self.value
 
-    def decide(self, collected=False):
-        """Decide by user input
-        reuses loaded decision if available
-
-        :returns: value of decision"""
-
-        if self.status == Status.loadeddone:
-            return self.value
-
-        if self.status != Status.open:
-            raise AssertionError("Cannot call decide() for Decision with status != open")
-
+    def get_options(self):
         options = [Decision.CANCEL]
         if self.allow_skip:
             options.append(Decision.SKIP)
-            if collected:
-                options.append(Decision.SKIPALL)
-        self.value = self.user_input(options)
-        self.status = Status.done
-        self._post()
-        return self.value
 
-    def skip(self):
-        """Accept None as value und mark as solved"""
-        if not self.allow_skip:
-            raise DecisionException("This Decision can not be skipped.")
-        self.value = None
-        self.status = Status.skipped
-        self._post()
+        return options
+
+    def get_body(self):
+        """Returns list of tuples representing items of CollectionDecision else None"""
+        return None
 
     def parse_input(self, raw_input: str):
         """Convert input to desired type"""
-
         return raw_input
 
-    def user_input(self, options):
-        """Ask user for decision"""
-
-        value = None
-        msg = "Enter value"
-        if options:
-            msg += " or one of the following commands: %s"%(", ".join(options))
-        print(msg)
-        max_attempts = 10
-        attempt = 0
-        while True:
-            raw_value = input("%s: "%(self.question))
-            if raw_value == Decision.SKIP and Decision.SKIP in options:
-                self.skip()
-                return None
-            if raw_value == Decision.SKIPALL and Decision.SKIPALL in options:
-                self.skip()
-                raise DecisionSkipAll
-            if raw_value == Decision.CANCEL and Decision.CANCEL in options:
-                raise DecisionCancle
-
-            value = self.parse_input(raw_value)
-            if self.validate(value):
-                break
-            else:
-                if attempt <= max_attempts:
-                    if attempt == max_attempts:
-                        print("Last try before auto Cancel!")
-                    print("'%s' is no valid input! Try again."%(raw_value))
-                    value = None
-                else:
-                    raise DecisionCancle("Too many invalid attempts. Canceling input.")
-            attempt += 1
-        return value
-
     def __repr__(self):
-        return "<%s (%s = %s)>"%(self.__class__.__name__, self.question, self.value)
+        return '<%s (<%s> Q: "%s" A: %s)>' % (self.__class__.__name__, self.status, self.question, self.value)
 
 
 class RealDecision(Decision):
@@ -323,6 +597,9 @@ class RealDecision(Decision):
             value = None
         return value
 
+    def _validate(self, value):
+        return isinstance(value, float)
+
 
 class BoolDecision(Decision):
     """Accepts input convertable as bool"""
@@ -331,10 +608,10 @@ class BoolDecision(Decision):
     NEGATIVES = ("n", "no", "nein", "n", "0")
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, validate_func=self.validate_bool, **kwargs)
+        super().__init__(*args, validate_func=None, **kwargs)
 
     @staticmethod
-    def validate_bool(value):
+    def _validate(value):
         """validates if value is acceptable as bool"""
         return value is True or value is False
 
@@ -353,97 +630,61 @@ class CollectionDecision(Decision):
     """Base class for chice bases Decisions"""
 
     def __init__(self, *args, choices, **kwargs):
+        """"""
         self.choices = choices
-        super().__init__(*args, validate_func=lambda x:not x is None, **kwargs)
-
-    def validate_index(self, value):
-        """validates if value is valid index"""
-        return isinstance(value, int) and value in range(len(self.choices))
-
-    def parse_input(self, raw_input):
-        try:
-            index = int(raw_input)
-            return index
-        except Exception:
-            try:
-                for c in self.choices:
-                    if c[0] == raw_input:
-                        index = self.choices.index(c)
-                        return index
-                else:
-                    raise Exception('Choice not in Choices!')
-            except Exception:
-                return None
-
-    def from_index(self, index):
-        return
-
-    def option_txt(self, options, number=5):
-        return str(self.choices[:min(len(self.choices), number)])
-
-    def user_input(self, options):
-        print(self.question)
-        print(self.option_txt(options))
-        value = None
-        while True:
-            raw_value = input("Select option id for '%s':"%(self.global_key))
-
-            try:
-                if str(raw_value) == "Show All":
-                    print(self.option_txt(options, number=len(self.choices)))
-                    continue
-                elif raw_value == Decision.SKIP and Decision.SKIP in options:
-                    self.skip()
-                    return None
-            except Exception as Ex:
-                print(Ex)
-
-            index = self.parse_input(raw_value)
-            if not self.validate_index(index):
-                print("Enter valid index! Try again.")
-                continue
-            value = self.from_index(index)
-            if value is not None and self.validate(value):
-                break
-            else:
-                print("Value '%s' does not match conditions! Try again."%(raw_value))
-        return value
+        super().__init__(*args, **kwargs)
 
 
 class ListDecision(CollectionDecision):
-    """Accepts index of list element as input"""
+    """Accepts index of list element as input.
 
-    def from_index(self, index):
-        return self.choices[index]
-
-    def option_txt(self, options, number=5):
-        len_keys = len(self.choices)
-        header_str = "  {id:2s}  {key:%ds}  {value:s}"%(len_keys)
-        format_str = "\n {id:3d}  {key:%ds}  {value:s}"%(len_keys)
-        options_txt = header_str.format(id="id", key="key", value="value")
-        for i in range(min(len(self.choices), number)):
-            options_txt += format_str.format(id=i, key=str(self.choices[i][0]), value=str(self.choices[i][1]))
-        if len(self.choices) > number:
-            for i in range(3):
-                options_txt += "\n                     ."
-            options_txt += "\n Type 'Show All' to display all %d options" % len(self.choices)
-        return options_txt
-
-class DictDecision(CollectionDecision):
-    """Accepts index of dict element as input"""
+    Choices is a list of either
+      - values, str(value) is used for label
+      - tuples of (value, label)"""
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.choices = OrderedDict(self.choices)
+        super().__init__(*args, validate_func=None, **kwargs)
 
-    def from_index(self, index):
-        return list(self.choices.values())[index]
+    def parse_input(self, raw_input):
+        raw_value = None
+        try:
+            index = int(raw_input)
+            raw_value = self.choices[index]
+        except Exception:
+            pass
 
-    def option_txt(self, options):
-        len_keys = max([len(str(key)) for key in self.choices.keys()])
-        header_str = "  {id:2s}  {key:%ds}  {value:s}"%(len_keys)
-        format_str = "\n {id:3d}  {key:%ds}  {value:s}"%(len_keys)
-        options_txt = header_str.format(id="id", key="key", value="value")
-        for i, (k, v) in enumerate(self.choices.items()):
-            options_txt += format_str.format(id=i, key=str(k), value=str(v))
-        return options_txt
+        return raw_value
+
+    def validate(self, value):
+        return value in self.choices
+
+    def get_body(self):
+        body = []
+        for i, item in enumerate(self.choices):
+            if isinstance(item, (list, tuple)) and len(item) == 2:
+                # label provided
+                body.append((i, *item))
+            else:
+                # no label provided
+                body.append((i, item, str(item)))
+        return body
+
+
+# class DictDecision(CollectionDecision):
+#     """Accepts index of dict element as input"""
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.choices = OrderedDict(self.choices)
+#
+#     def from_index(self, index):
+#         return list(self.choices.values())[index]
+#
+#     def option_txt(self, options):
+#         len_keys = max([len(str(key)) for key in self.choices.keys()])
+#         header_str = "  {id:2s}  {key:%ds}  {value:s}"%(len_keys)
+#         format_str = "\n {id:3d}  {key:%ds}  {value:s}"%(len_keys)
+#         options_txt = header_str.format(id="id", key="key", value="value")
+#         for i, (k, v) in enumerate(self.choices.items()):
+#             options_txt += format_str.format(id=i, key=str(k), value=str(v))
+#         return options_txt
