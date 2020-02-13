@@ -41,7 +41,6 @@ class Root:
 
     keeps track of created instances and guids"""
     objects = {}
-    default_materials = {}
     _id_counter = 0
 
     def __init__(self, guid=None):
@@ -65,6 +64,11 @@ class Root:
     def position(self):
         """Position calculated only once by calling calc_position"""
         return self.calc_position()
+
+    # @position.setter
+    # def position(self, value):
+    #     """Position calculated only once by calling calc_position"""
+    #     self._position = value
 
     @cached_property
     def orientation(self):

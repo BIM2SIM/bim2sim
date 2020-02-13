@@ -17,16 +17,6 @@ from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.decision import ListDecision
 
 
-IFC_TYPES = (
-    'IfcBuilding',
-    'IfcWallElementedCase',
-    'IfcWallStandardCase',
-    'IfcWall',
-    'IfcWindow',
-    'IfcSlab'
-)
-
-
 class Inspect(Task):
     """Analyses IFC and creates Element instances.
     Elements are stored in .instances dict with guid as key"""
@@ -45,8 +35,8 @@ class Inspect(Task):
             entities = ifc.by_type(ifc_type)
             for entity in entities:
                 element = Element.factory(entity, ifc_type)
-                if ifc_type == 'IfcSlab':
-                    print(element.density)
+                # if ifc_type == 'IfcSlab':
+                #     print(element.density)
                 self.instances[element.guid] = element
 
         self.logger.info("Found %d building elements", len(self.instances))

@@ -475,14 +475,14 @@ class AirTerminal(element.Element):
 
 class ThermalZone(element.Element):
     ifc_type = "IfcSpace"
-    predefined_type = {
-        "IfcSpace": ["SPACE",
-                     "PARKING",
-                     "GFA",
-                     "INTERNAL",
-                     "NOTDEFINED"
-                     ]
-    }
+    # predefined_type = {
+    #     "IfcSpace": ["SPACE",
+    #                  "PARKING",
+    #                  "GFA",
+    #                  "INTERNAL",
+    #                  "NOTDEFINED"
+    #                  ]
+    # }
 
     pattern_ifc_type = [
         re.compile('Space', flags=re.IGNORECASE),
@@ -769,13 +769,30 @@ class Slab(element.Element):
         default=0
     )
 
-    # @property
-    # def u_value(self):
-    #     return 1
-    #
-    # @property
-    # def g_value(self):
-    #     return 1
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.parent = []
+        self.sub_slabs = []
+
+class Roof(Slab):
+    ifc_type = ["IfcSlab", "IfcRoof"]
+    predefined_type = {
+            "IfcSlab": "ROOF",
+        }
+
+
+class Floor(Slab):
+    ifc_type = 'IfcSlab'
+    predefined_type = {
+            "IfcSlab": "FLOOR",
+        }
+
+
+class GroundFloor(Slab):
+    ifc_type = 'IfcSlab'
+    predefined_type = {
+            "IfcSlab": "BASESLAB",
+        }
 
 
 class Building(element.Element):

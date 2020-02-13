@@ -3,7 +3,7 @@ from bim2sim.kernel import elements
 from bim2sim.decision import DictDecision, ListDecision, RealDecision, BoolDecision
 from bim2sim.kernel.element import Element
 from bim2sim.kernel.ifc2python import getElementType
-
+import copy
 
 class Inspect(Task):
     """Analyses IFC, creates Element instances and connects them.
@@ -58,7 +58,31 @@ class Inspect(Task):
             # todo virtual element crashs -> solve
             if bound_element_type in relevant_ifc_types:
                 bound_instance = thermalzone.get_object(bound_element.GlobalId)
+                if bound_element_type == 'IfcSlab':
+                    bound_instance = self.slice_slab(bound_instance, thermalzone)
                 if bound_instance not in thermalzone.bound_elements:
                     thermalzone.bound_elements.append(bound_instance)
                 if thermalzone not in bound_instance.thermal_zones:
                     bound_instance.thermal_zones.append(thermalzone)
+
+    def slice_slab(self, bound_instance, thermalzone):
+        """slice slabs"""
+        # original_guid = str(bound_instance.ifc.guid)
+        # bound_instance.ifc.guid = 'sub_%s' % original_guid
+        # slab = Element.factory(bound_instance.ifc, 'IfcSlab')
+        slab = copy.copy(bound_instance) # funciona? - check sub_slabs
+        slab.area = float(thermalzone.area)
+        slab.position = thermalzone.position
+        slab.name = "sub_%s" % bound_instance.name
+        slab.guid = None
+        if slab not in bound_instance.sub_slabs:
+            bound_instance.sub_slabs.append(slab)
+        if bound_instance not in slab.parent:
+            slab.parent.append(bound_instance)
+
+        return slab
+
+    # class Slab():
+    #
+    #
+    #
