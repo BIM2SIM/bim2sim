@@ -474,6 +474,14 @@ class AirTerminal(element.Element):
 
 class ThermalZone(element.Element):
     ifc_type = "IfcSpace"
+    predefined_type = {
+        "IfcSpace": ["SPACE",
+                     "PARKING",
+                     "GFA",
+                     "INTERNAL",
+                     "NOTDEFINED"
+                     ]
+    }
 
     pattern_ifc_type = [
         re.compile('Space', flags=re.IGNORECASE),
@@ -570,6 +578,20 @@ class Wall(element.Element):
         re.compile('Wand', flags=re.IGNORECASE)
     ]
     material_selected = {}
+    # class Layer:
+    #     def __init__(self, thickness, material):
+    #         self.thickness = thickness
+    #         self.material = material
+    #
+    # layers = attribute.Attribute(
+    #     name='layers',
+    #     default_association='test'
+    # )
+    #
+    # @staticmethod
+    # def get_layers(ifc_representation):
+
+
 
     #problem with static method
     def _get_orientation(bind, name):
@@ -641,7 +663,7 @@ class Wall(element.Element):
         default_ps=('Pset_WallCommon', 'ThermalTransmittance'),
         default=0
     )
-    
+
     thickness = attribute.Attribute(
         name='thickness',
         default_ps=('BaseQuantities', 'Width'),
@@ -664,7 +686,7 @@ class Wall(element.Element):
         name='density',
         default=0
     )
-    
+
     tilt = attribute.Attribute(
         name='thermal_transmittance',
         #todo just for testing, this is file specific
@@ -675,6 +697,13 @@ class Wall(element.Element):
 
 class Window(element.Element):
     ifc_type = "IfcWindow"
+    predefined_type = {
+        "IfcWindow": ["WINDOW",
+                      "SKYLIGHT",
+                      "LIGHTDOME"
+                      ]
+    }
+
     pattern_ifc_type = [
         re.compile('Window', flags=re.IGNORECASE),
         re.compile('Fenster', flags=re.IGNORECASE)
@@ -766,17 +795,17 @@ class Window(element.Element):
 class Plate(element.Element):
     ifc_type = "IfcPlate"
 
-    @property
-    def area(self):
-        return 1
-
-    @property
-    def u_value(self):
-        return 1
-
-    @property
-    def g_value(self):
-        return 1
+    # @property
+    # def area(self):
+    #     return 1
+    #
+    # @property
+    # def u_value(self):
+    #     return 1
+    #
+    # @property
+    # def g_value(self):
+    #     return 1
 
 
 class Slab(element.Element):

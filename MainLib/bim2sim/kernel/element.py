@@ -105,6 +105,7 @@ class Root:
 class IFCBased(Root):
     """Mixin for all IFC representating classes"""
     ifc_type = None
+    predefined_type = None
     _ifc_classes = {}
     pattern_ifc_type = []
 
@@ -112,6 +113,7 @@ class IFCBased(Root):
         super().__init__(*args, guid=ifc.GlobalId, **kwargs)
         self.ifc = ifc
         self.name = ifc.Name
+        self.predefined_type = ifc2python.get_predefined_type(ifc)
         self.enrichment = {}
         self._propertysets = None
         self._type_propertysets = None
@@ -252,6 +254,20 @@ class IFCBased(Root):
                 propertyset_name, property_name))
         return value
 
+    def get_exact_association(self, propertyset_name, property_name):
+        """Returns value of property specified by propertyset name and property name
+
+        :Raises: AttriebuteError if property does not exist"""
+        try:
+            p_set = self.search_property_hierarchy(propertyset_name)
+            value = p_set[property_name]
+        except (AttributeError, KeyError, TypeError):
+            raise NoValueError("Property '%s.%s' does not exist" % (
+                propertyset_name, property_name))
+        return value
+
+
+
     def select_from_potential_properties(self, patterns, name, collect_decisions):
         """Ask user to select from all properties matching patterns"""
 
@@ -341,6 +357,8 @@ class IFCBased(Root):
 
     def __repr__(self):
         return "<%s (%s)>" % (self.__class__.__name__, self.name)
+
+
 
 
 class BaseElement(Root):
@@ -577,6 +595,16 @@ class Port(BasePort, IFCBased):
         return 0
 
 
+def get_all_subclasses(cls):
+    all_subclasses = []
+
+    for subclass in cls.__subclasses__():
+        all_subclasses.append(subclass)
+        all_subclasses.extend(get_all_subclasses(subclass))
+
+    return all_subclasses
+
+
 class Element(BaseElement, IFCBased):
     """Base class for IFC model representation
 
@@ -607,34 +635,52 @@ class Element(BaseElement, IFCBased):
         for element_port_connection in element_port_connections:
             self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
 
-
     @staticmethod
     def _init_factory():
         """initialize lookup for factory"""
         logger = logging.getLogger(__name__)
         conflict = False
-        s=Element.__subclasses__()
-        for cls in Element.__subclasses__():
+        all_subclasses = get_all_subclasses(Element)
+        for cls in all_subclasses:
             if not isinstance(cls.ifc_type, list):
                 ifc_types = [cls.ifc_type]
             else:
                 ifc_types = cls.ifc_type
             for ifc_type in ifc_types:
-                    if ifc_type is None:
-                        conflict = True
-                        logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type, cls.__name__)
-                    elif ifc_type in Element._ifc_classes:
-                        conflict = True
-                        logger.error("Conflicting ifc_types (%s) in '%s' and '%s'",
-                                     cls.ifc_type, cls.__name__, Element._ifc_classes[cls.ifc_type])
-                    elif cls.__name__ == "Dummy":
-                        Element.dummy = cls
-                    elif not ifc_type.lower().startswith("ifc"):
-                        conflict = True
-                        logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type,
-                                     cls.__name__)
+                if cls.predefined_type is not None:
+                    predefined_type = cls.predefined_type.get(ifc_type, None)
+                else:
+                    predefined_type = None
+                if ifc_type is None:
+                    conflict = True
+                    logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type, cls.__name__)
+                elif ifc_type in Element._ifc_classes and predefined_type in \
+                        Element._ifc_classes[ifc_type]:
+                    conflict = True
+                    logger.error("Conflicting ifc_types (%s) or "
+                                 "predefined_types (%s) in "
+                                 "'%s' and '%s'", cls.ifc_type,
+                                 predefined_type, cls.__name__,
+                                 Element._ifc_classes[cls.ifc_type])
+                elif cls.__name__ == "Dummy":
+                    Element.dummy = cls
+                elif not ifc_type.lower().startswith("ifc"):
+                    conflict = True
+                    logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type,
+                                 cls.__name__)
+                else:
+                    if ifc_type not in Element._ifc_classes:
+                        Element._ifc_classes[ifc_type] = {}
+                    if predefined_type is not None:
+                        if not isinstance(predefined_type, list):
+                            predefined_types = [predefined_type]
+                        else:
+                            predefined_types = predefined_type
+                        for predefined_type_ in predefined_types:
+                            Element._ifc_classes[ifc_type][
+                                predefined_type_] = cls
                     else:
-                        Element._ifc_classes[ifc_type] = cls
+                        Element._ifc_classes[ifc_type][None] = cls
 
         if conflict:
             raise AssertionError("Conflict(s) in Models. (See log for details).")
@@ -648,19 +694,21 @@ class Element(BaseElement, IFCBased):
                      len(Element._ifc_classes), model_txt)
 
     @staticmethod
-    def factory(ifc_element, alternate_ifc_type = None, tool=None):
+    def factory(ifc_element, alternate_ifc_type=None, tool=None):
         """Create model depending on ifc_element"""
 
         if not Element._ifc_classes:
             Element._init_factory()
 
         ifc_type = ifc_element.is_a() if not alternate_ifc_type or alternate_ifc_type == ifc_element.is_a() else alternate_ifc_type
-        cls = Element._ifc_classes.get(ifc_type, Element.dummy)
+        predefined_type = ifc2python.get_predefined_type(ifc_element)
+        cls = Element._ifc_classes.get(ifc_type, {}).get(predefined_type,
+                                                         Element.dummy)
         if cls is Element.dummy:
             logger = logging.getLogger(__name__)
             logger.warning("Did not found matching class for %s", ifc_type)
 
-        prefac=cls(ifc=ifc_element, tool=tool)
+        prefac = cls(ifc=ifc_element, tool=tool)
         return prefac
         # if prefac.validate():
         #     return prefac

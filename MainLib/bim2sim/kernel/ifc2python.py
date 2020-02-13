@@ -142,6 +142,17 @@ def getGUID(ifcElement):
     except TypeError:
         pass
 
+def get_predefined_type(ifcElement):
+    """Returns the predifined type of the IFC element"""
+    try:
+        predefined_type = getattr(ifcElement, 'PredefinedType')
+        # todo cache "USERDEFINED" and check where information is stored
+        if predefined_type == "NOTDEFINED":
+            predefined_type = None
+        return predefined_type
+    except AttributeError:
+        return None
+
 
 def getElementType(ifcElement):
     """Return the ifctype of the IFC element"""

@@ -21,6 +21,7 @@ class Attribute:
     def __init__(self, name,
                  description="",
                  default_ps=None,
+                 default_association=None,
                  patterns=None,
                  ifc_postprocessing=None,
                  functions=None,
@@ -29,6 +30,7 @@ class Attribute:
         self.description = description
 
         self.default_ps = default_ps
+        self.default_association = default_association
         self.patterns = patterns
         self.functions = functions
         self.default_value = default
@@ -41,12 +43,18 @@ class Attribute:
 
         # default property set and quantity set
         if value is None and (self.default_ps):
-            raw_value = self.get_from_default(bind, self.default_ps)
+            raw_value = self.get_from_default_propertyset(bind, self.default_ps)
             value = self.ifc_post_processing(raw_value)
             if value is None:
                 quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet",
                                        self.name, bind.ifc_type, bind.guid)
 
+        if value is None and (self.default_association):
+            raw_value = self.get_from_default_assocation(bind, self.default_association)
+            value = self.ifc_post_processing(raw_value)
+            if value is None:
+                quality_logger.warning("Attribute '%s' of %s %s was not found in default Association",
+                                       self.name, bind.ifc_type, bind.guid)
         # # tool specific properties (finder)
         # if value is None:
         #     raw_value = self.get_from_finder(bind, self.name)
@@ -75,9 +83,17 @@ class Attribute:
         return value
 
     @staticmethod
-    def get_from_default(bind, default):
+    def get_from_default_propertyset(bind, default):
         try:
             value = bind.get_exact_property(default[0], default[1])
+        except Exception:
+            value = None
+        return value
+
+    @staticmethod
+    def get_from_default_assocation(bind, default):
+        try:
+            value = bind.get_exact_association(default[0], default[1])
         except Exception:
             value = None
         return value
