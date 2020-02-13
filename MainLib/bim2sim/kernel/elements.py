@@ -595,7 +595,7 @@ class Wall(element.Element):
         default_ps=('Pset_WallCommon', 'ThermalTransmittance'),
         default=0
     )
-    
+
     thickness = attribute.Attribute(
         name='thickness',
         default_ps=('BaseQuantities', 'Width'),
@@ -618,7 +618,7 @@ class Wall(element.Element):
         name='density',
         default=0
     )
-    
+
     tilt = attribute.Attribute(
         name='thermal_transmittance',
         #todo just for testing, this is file specific
@@ -727,21 +727,21 @@ class Window(element.Element):
 class Plate(element.Element):
     ifc_type = "IfcPlate"
 
-    @property
-    def area(self):
-        return 1
-
-    @property
-    def u_value(self):
-        return 1
-
-    @property
-    def g_value(self):
-        return 1
+    # @property
+    # def area(self):
+    #     return 1
+    #
+    # @property
+    # def u_value(self):
+    #     return 1
+    #
+    # @property
+    # def g_value(self):
+    #     return 1
 
 
 class Slab(element.Element):
-    ifc_type = ["IfcSlab", "IfcRoof"]
+    ifc_type = "IfcSlab"
 
     area = attribute.Attribute(
         name='area',
@@ -768,8 +768,24 @@ class Slab(element.Element):
     )
 
 
-# class Roof(Slab):
-#     ifc_type = "IfcRoof"
+class Roof(Slab):
+    ifc_type = ["IfcSlab", "IfcRoof"]
+    predefined_type = {
+            "IfcSlab": "ROOF",
+        }
 
+
+class Floor(Slab):
+    ifc_type = ['IfcSlab']
+    predefined_type = {
+            "IfcSlab": "FLOOR",
+        }
+
+
+class GroundFloor(Slab):
+    ifc_type = ['IfcSlab']
+    predefined_type = {
+            "IfcSlab": "BASESLAB",
+        }
 
 __all__ = [ele for ele in locals().values() if ele in element.Element.__subclasses__()]

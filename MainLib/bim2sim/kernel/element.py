@@ -105,6 +105,7 @@ class Root:
 class IFCBased(Root):
     """Mixin for all IFC representating classes"""
     ifc_type = None
+    predefined_type = None
     _ifc_classes = {}
     pattern_ifc_type = []
 
@@ -617,7 +618,6 @@ class Element(BaseElement, IFCBased):
         for element_port_connection in element_port_connections:
             self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
 
-
     @staticmethod
     def _init_factory():
         """initialize lookup for factory"""
@@ -630,21 +630,40 @@ class Element(BaseElement, IFCBased):
             else:
                 ifc_types = cls.ifc_type
             for ifc_type in ifc_types:
-                    if ifc_type is None:
-                        conflict = True
-                        logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type, cls.__name__)
-                    elif ifc_type in Element._ifc_classes:
-                        conflict = True
-                        logger.error("Conflicting ifc_types (%s) in '%s' and '%s'",
-                                     cls.ifc_type, cls.__name__, Element._ifc_classes[cls.ifc_type])
-                    elif cls.__name__ == "Dummy":
-                        Element.dummy = cls
-                    elif not ifc_type.lower().startswith("ifc"):
-                        conflict = True
-                        logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type,
-                                     cls.__name__)
+                if cls.predefined_type is not None:
+                    predefined_type = cls.predefined_type.get(ifc_type, None)
+                else:
+                    predefined_type = None
+                if ifc_type is None:
+                    conflict = True
+                    logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type, cls.__name__)
+                elif ifc_type in Element._ifc_classes and predefined_type in \
+                        Element._ifc_classes[ifc_type]:
+                    conflict = True
+                    logger.error("Conflicting ifc_types (%s) or "
+                                 "predefined_types (%s) in "
+                                 "'%s' and '%s'", cls.ifc_type,
+                                 predefined_type, cls.__name__,
+                                 Element._ifc_classes[cls.ifc_type])
+                elif cls.__name__ == "Dummy":
+                    Element.dummy = cls
+                elif not ifc_type.lower().startswith("ifc"):
+                    conflict = True
+                    logger.error("Invalid ifc_type (%s) in '%s'", cls.ifc_type,
+                                 cls.__name__)
+                else:
+                    if ifc_type not in Element._ifc_classes:
+                        Element._ifc_classes[ifc_type] = {}
+                    if predefined_type is not None:
+                        if not isinstance(predefined_type, list):
+                            predefined_types = [predefined_type]
+                        else:
+                            predefined_types = predefined_type
+                        for predefined_type_ in predefined_types:
+                            Element._ifc_classes[ifc_type][
+                                predefined_type_] = cls
                     else:
-                        Element._ifc_classes[ifc_type] = cls
+                        Element._ifc_classes[ifc_type][None] = cls
 
         if conflict:
             raise AssertionError("Conflict(s) in Models. (See log for details).")
@@ -665,7 +684,9 @@ class Element(BaseElement, IFCBased):
             Element._init_factory()
 
         ifc_type = ifc_element.is_a() if not alternate_ifc_type or alternate_ifc_type == ifc_element.is_a() else alternate_ifc_type
-        cls = Element._ifc_classes.get(ifc_type, Element.dummy)
+        predefined_type = ifc2python.get_predefined_type(ifc_element)
+        cls = Element._ifc_classes.get(ifc_type, {}).get(predefined_type,
+                                                         Element.dummy)
         if cls is Element.dummy:
             logger = logging.getLogger(__name__)
             logger.warning("Did not found matching class for %s", ifc_type)
