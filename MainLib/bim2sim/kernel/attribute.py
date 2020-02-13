@@ -77,9 +77,6 @@ class Attribute:
         if value is None and self.default_value:
             value = self.default_value
 
-        if value is None and 'Wall' in str(bind):  # can't use is instance
-            value = self.get_wall_properties(bind, self.name)
-
         return value
 
     @staticmethod
@@ -125,79 +122,6 @@ class Attribute:
                 pass
             else:
                 break
-        return value
-
-    @staticmethod
-    def get_wall_properties(bind, name):
-        value = None
-        selected_properties = ('heat_capacity', 'density', 'thickness')
-        material = bind.material
-        material_ref = ''.join([i for i in material if not i.isdigit()])
-
-        if name in selected_properties:
-            try:
-                bind.material_selected[material]['properties']
-            except KeyError:
-                is_external = bind.is_external
-                external = 'external'
-                if not is_external:
-                    external = 'internal'
-                first_decision = BoolDecision(
-                    question="Do you want for %s_%s_%s to use template" % (str(bind), bind.guid, external),
-                    collect=False)
-                first_decision.decide()
-                first_decision.stored_decisions.clear()
-                if first_decision.value:
-                    Materials_DEU = bind.finder.templates[bind.source_tool]['IfcWall']['material']
-                    material_templates = dict(DataClass(used_param=2).element_bind)
-                    del material_templates['version']
-                    for k in Materials_DEU:
-                        if material_ref in k:
-                            material_ref = Materials_DEU[k]
-                    options = {}
-                    for k in material_templates:
-                        if material_ref in material_templates[k]['name']:
-                            options[k] = material_templates[k]
-                    materials_options = [[material_templates[k]['name'], k] for k in options]
-                    if len(materials_options) > 0:
-                        decision1 = ListDecision("Multiple possibilities found",
-                                                 choices=list(materials_options),
-                                                 allow_skip=True, allow_load=True, allow_save=True,
-                                                 collect=False, quick_decide=not True)
-                        decision1.decide()
-                        bind.material_selected[material] = {}
-                        bind.material_selected[material]['properties'] = material_templates[decision1.value[1]]
-                        bind.material_selected[material_templates[decision1.value[1]]['name']] = {}
-                        bind.material_selected[material_templates[decision1.value[1]]['name']]['properties'] = material_templates[decision1.value[1]]
-                    else:
-                        print("No possibilities found")
-                        bind.material_selected[material] = {}
-                        bind.material_selected[material]['properties'] = {}
-                else:
-                    bind.material_selected[material] = {}
-                    bind.material_selected[material]['properties'] = {}
-
-            property_template = bind.finder.templates[bind.source_tool]['MaterialTemplates']
-            name_template = name
-            if name in property_template:
-                name_template = property_template[name]
-
-            try:
-                value = bind.material_selected[material]['properties'][name_template]
-            except KeyError:
-                decision2 = RealDecision("Enter value for the parameter %s" % name,
-                                         validate_func=lambda x: isinstance(x, float),  # TODO
-                                         global_key="%s" % name,
-                                         allow_skip=False, allow_load=True, allow_save=True,
-                                         collect=False, quick_decide=False)
-                decision2.decide()
-                value = decision2.value
-            # new name or old one?
-            try:
-                bind.material = bind.material_selected[material]['properties']['name']
-            except KeyError:
-                bind.material = material
-
         return value
 
     @staticmethod

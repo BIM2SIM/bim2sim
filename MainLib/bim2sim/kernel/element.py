@@ -4,6 +4,7 @@ import logging
 from json import JSONEncoder
 import itertools
 import re
+import math
 
 import numpy as np
 
@@ -56,12 +57,18 @@ class Root:
         """Returns position (calculation may be expensive)"""
         return None
 
+    def calc_orientation(self):
+        """Returns position (calculation may be expensive)"""
+        return None
+
     @cached_property
     def position(self):
-        """Position
-
-        calculated only once by calling calc_position"""
+        """Position calculated only once by calling calc_position"""
         return self.calc_position()
+
+    @cached_property
+    def orientation(self):
+        return self.calc_orientation()
 
     @staticmethod
     def get_id(prefix=""):
@@ -132,6 +139,56 @@ class IFCBased(Root):
         relto = np.array(self.ifc.ObjectPlacement.
                          PlacementRelTo.RelativePlacement.Location.Coordinates)
         return rel + relto
+
+    def calc_orientation(self):
+        if hasattr(self, 'is_external'):
+            external = self.is_external
+        else:
+            external = False
+        try:
+            if external is True:
+                orientation = []
+                placementrel = self.ifc.ObjectPlacement.PlacementRelTo
+                while placementrel is not None:
+                    if placementrel.PlacementRelTo is None:
+                        orientation = placementrel.RelativePlacement.RefDirection.DirectionRatios[0:2]
+                    placementrel = placementrel.PlacementRelTo
+                sign = self.ifc.ObjectPlacement.RelativePlacement.RefDirection
+                orientation_wall = [None, None]
+                if sign:
+                    if sign.DirectionRatios[0] != 0:
+                        if sign.DirectionRatios[0] > 0:
+                            orientation_wall[0] = -orientation[1]
+                            orientation_wall[1] = orientation[0]
+                        else:
+                            orientation_wall[0] = orientation[1]
+                            orientation_wall[1] = -orientation[0]
+                    elif sign.DirectionRatios[1] != 0:
+                        if sign.DirectionRatios[1] > 0:
+                            orientation_wall[0] = -orientation[0]
+                            orientation_wall[1] = -orientation[1]
+                        else:
+                            orientation_wall[0] = orientation[0]
+                            orientation_wall[1] = orientation[1]
+                else:
+                    orientation_wall[0] = -orientation[1]
+                    orientation_wall[1] = orientation[0]
+                if orientation_wall[0] > 0:
+                    if orientation_wall[1] > 0:
+                        angle_wall = 270 - math.degrees(math.atan(orientation_wall[1] / orientation_wall[0]))
+                    else:
+                        angle_wall = 270 + abs(math.degrees(math.atan(orientation_wall[1] / orientation_wall[0])))
+                else:
+                    if orientation_wall[1] < 0:
+                        angle_wall = math.degrees(math.atan(orientation_wall[0] / orientation_wall[1]))
+                    else:
+                        angle_wall = 180 - abs(math.degrees(math.atan(orientation_wall[0] / orientation_wall[1])))
+            else:
+                angle_wall = "Intern"
+        except ZeroDivisionError:
+            angle_wall = 90
+
+        return angle_wall
 
     def get_ifc_attribute(self, attribute):
         """

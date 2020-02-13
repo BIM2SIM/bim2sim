@@ -1,7 +1,7 @@
 {
   "IfcWall": {
     "material": {
-      " Leichtbeton " : "lightweight_concrete"
+      " Leichtbeton " : "lightweight_concrete",
     },
     "default_ps": {
       "area" : ["BaseQuantities", "NetSideArea"],

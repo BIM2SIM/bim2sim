@@ -324,6 +324,19 @@ class RealDecision(Decision):
         return value
 
 
+class TextDecision(Decision):
+    """Accepts input of type real"""
+
+    def parse_input(self, raw_input):
+        """Convert input to float"""
+
+        try:
+            value = str(raw_input)
+        except:
+            value = None
+        return value
+
+
 class BoolDecision(Decision):
     """Accepts input convertable as bool"""
 
@@ -350,7 +363,7 @@ class BoolDecision(Decision):
 
 
 class CollectionDecision(Decision):
-    """Base class for chice bases Decisions"""
+    """Base class for choose bases Decisions"""
 
     def __init__(self, *args, choices, **kwargs):
         self.choices = choices

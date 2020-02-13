@@ -7,7 +7,8 @@ import numpy as np
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, condition, attribute
-from bim2sim.decision import BoolDecision
+from bim2sim.decision import RealDecision, BoolDecision, ListDecision, TextDecision
+from bim2sim.enrichment_data.data_class import DataClass
 from shapely.geometry.polygon import Polygon
 from shapely.geometry import Point
 import ifcopenshell.geom
@@ -527,50 +528,6 @@ class Medium(element.Element):
         re.compile('Medium', flags=re.IGNORECASE)
     ]
 
-
-def get_element_orientation(bind):
-    if bind.is_external is True:
-        orientation = []
-        placementrel = bind.ifc.ObjectPlacement.PlacementRelTo
-        while placementrel is not None:
-            if placementrel.PlacementRelTo is None:
-                orientation = placementrel.RelativePlacement.RefDirection.DirectionRatios[0:2]
-            placementrel = placementrel.PlacementRelTo
-        sign = bind.ifc.ObjectPlacement.RelativePlacement.RefDirection
-        orientation_wall = [None, None]
-        if sign:
-            if sign.DirectionRatios[0] != 0:
-                if sign.DirectionRatios[0] > 0:
-                    orientation_wall[0] = -orientation[1]
-                    orientation_wall[1] = orientation[0]
-                else:
-                    orientation_wall[0] = orientation[1]
-                    orientation_wall[1] = -orientation[0]
-            elif sign.DirectionRatios[1] != 0:
-                if sign.DirectionRatios[1] > 0:
-                    orientation_wall[0] = -orientation[0]
-                    orientation_wall[1] = -orientation[1]
-                else:
-                    orientation_wall[0] = orientation[0]
-                    orientation_wall[1] = orientation[1]
-        else:
-            orientation_wall[0] = -orientation[1]
-            orientation_wall[1] = orientation[0]
-        if orientation_wall[0] > 0:
-            if orientation_wall[1] > 0:
-                angle_wall = 270 - math.degrees(math.atan(orientation_wall[1] / orientation_wall[0]))
-            else:
-                angle_wall = 270 + abs(math.degrees(math.atan(orientation_wall[1] / orientation_wall[0])))
-        else:
-            if orientation_wall[1] < 0:
-                angle_wall = math.degrees(math.atan(orientation_wall[0] / orientation_wall[1]))
-            else:
-                angle_wall = 180 - abs(math.degrees(math.atan(orientation_wall[0] / orientation_wall[1])))
-    else:
-        angle_wall = "Intern"
-
-    return angle_wall
-
 class Wall(element.Element):
     ifc_type = ["IfcWall", "IfcWallStandardCase"]
     pattern_ifc_type = [
@@ -591,60 +548,133 @@ class Wall(element.Element):
     # @staticmethod
     # def get_layers(ifc_representation):
 
-
-
     #problem with static method
-    def _get_orientation(bind, name):
+    # def _get_orientation(bind, name):
+    #     try:
+    #         if bind.is_external is True:
+    #             orientation = []
+    #             placementrel = bind.ifc.ObjectPlacement.PlacementRelTo
+    #             while placementrel is not None:
+    #                 if placementrel.PlacementRelTo is None:
+    #                     orientation = placementrel.RelativePlacement.RefDirection.DirectionRatios[0:2]
+    #                 placementrel = placementrel.PlacementRelTo
+    #             sign = bind.ifc.ObjectPlacement.RelativePlacement.RefDirection
+    #             orientation_wall = [None, None]
+    #             if sign:
+    #                 if sign.DirectionRatios[0] != 0:
+    #                     if sign.DirectionRatios[0] > 0:
+    #                         orientation_wall[0] = -orientation[1]
+    #                         orientation_wall[1] = orientation[0]
+    #                     else:
+    #                         orientation_wall[0] = orientation[1]
+    #                         orientation_wall[1] = -orientation[0]
+    #                 elif sign.DirectionRatios[1] != 0:
+    #                     if sign.DirectionRatios[1] > 0:
+    #                         orientation_wall[0] = -orientation[0]
+    #                         orientation_wall[1] = -orientation[1]
+    #                     else:
+    #                         orientation_wall[0] = orientation[0]
+    #                         orientation_wall[1] = orientation[1]
+    #             else:
+    #                 orientation_wall[0] = -orientation[1]
+    #                 orientation_wall[1] = orientation[0]
+    #             if orientation_wall[0] > 0:
+    #                 if orientation_wall[1] > 0:
+    #                     angle_wall = 270 - math.degrees(math.atan(orientation_wall[1] / orientation_wall[0]))
+    #                 else:
+    #                     angle_wall = 270 + abs(math.degrees(math.atan(orientation_wall[1] / orientation_wall[0])))
+    #             else:
+    #                 if orientation_wall[1] < 0:
+    #                     angle_wall = math.degrees(math.atan(orientation_wall[0] / orientation_wall[1]))
+    #                 else:
+    #                     angle_wall = 180 - abs(math.degrees(math.atan(orientation_wall[0] / orientation_wall[1])))
+    #         else:
+    #             angle_wall = "Intern"
+    #     except ZeroDivisionError:
+    #         angle_wall = 90
+    #
+    #     return angle_wall
+
+    def _get_wall_properties(bind, name):
+        value = None
+        material = bind.material
+        material_ref = ''.join([i for i in material if not i.isdigit()])
+        is_external = bind.is_external
+        external = 'external'
+        if not is_external:
+            external = 'internal'
+
         try:
-            if bind.is_external is True:
-                orientation = []
-                placementrel = bind.ifc.ObjectPlacement.PlacementRelTo
-                while placementrel is not None:
-                    if placementrel.PlacementRelTo is None:
-                        orientation = placementrel.RelativePlacement.RefDirection.DirectionRatios[0:2]
-                    placementrel = placementrel.PlacementRelTo
-                sign = bind.ifc.ObjectPlacement.RelativePlacement.RefDirection
-                orientation_wall = [None, None]
-                if sign:
-                    if sign.DirectionRatios[0] != 0:
-                        if sign.DirectionRatios[0] > 0:
-                            orientation_wall[0] = -orientation[1]
-                            orientation_wall[1] = orientation[0]
-                        else:
-                            orientation_wall[0] = orientation[1]
-                            orientation_wall[1] = -orientation[0]
-                    elif sign.DirectionRatios[1] != 0:
-                        if sign.DirectionRatios[1] > 0:
-                            orientation_wall[0] = -orientation[0]
-                            orientation_wall[1] = -orientation[1]
-                        else:
-                            orientation_wall[0] = orientation[0]
-                            orientation_wall[1] = orientation[1]
+            bind.material_selected[material]['properties']
+        except KeyError:
+            first_decision = BoolDecision(
+                question="Do you want for %s_%s_%s to use template" % (str(bind), bind.guid, external),
+                collect=False)
+            first_decision.decide()
+            first_decision.stored_decisions.clear()
+            if first_decision.value:
+
+                Materials_DEU = bind.finder.templates[bind.source_tool]['IfcWall']['material']
+                material_templates = dict(DataClass(used_param=2).element_bind)
+                del material_templates['version']
+
+                if material_ref not in str(Materials_DEU.keys()):
+                    decision_ = TextDecision("Material not found, enter value for the material %s_%s_%s" % (str(bind), bind.guid, external),
+                                             validate_func=lambda x: isinstance(x, str),
+                                             global_key="Material",
+                                             allow_skip=False, allow_load=True, allow_save=True,
+                                             collect=False, quick_decide=False)
+                    decision_.decide()
+                    material_ref = decision_.value
+
+                for k in Materials_DEU:
+                    if material_ref in k:
+                        material_ref = Materials_DEU[k]
+
+                options = {}
+                for k in material_templates:
+                    if material_ref in material_templates[k]['name']:
+                        options[k] = material_templates[k]
+                materials_options = [[material_templates[k]['name'], k] for k in options]
+                if len(materials_options) > 0:
+                    decision1 = ListDecision("Multiple possibilities found",
+                                             choices=list(materials_options),
+                                             allow_skip=True, allow_load=True, allow_save=True,
+                                             collect=False, quick_decide=not True)
+                    decision1.decide()
+                    bind.material_selected[material] = {}
+                    bind.material_selected[material]['properties'] = material_templates[decision1.value[1]]
+                    bind.material_selected[material_templates[decision1.value[1]]['name']] = {}
+                    bind.material_selected[material_templates[decision1.value[1]]['name']]['properties'] = material_templates[decision1.value[1]]
                 else:
-                    orientation_wall[0] = -orientation[1]
-                    orientation_wall[1] = orientation[0]
-                if orientation_wall[0] > 0:
-                    if orientation_wall[1] > 0:
-                        angle_wall = 270 - math.degrees(math.atan(orientation_wall[1] / orientation_wall[0]))
-                    else:
-                        angle_wall = 270 + abs(math.degrees(math.atan(orientation_wall[1] / orientation_wall[0])))
-                else:
-                    if orientation_wall[1] < 0:
-                        angle_wall = math.degrees(math.atan(orientation_wall[0] / orientation_wall[1]))
-                    else:
-                        angle_wall = 180 - abs(math.degrees(math.atan(orientation_wall[0] / orientation_wall[1])))
+                    print("No possibilities found")
+                    bind.material_selected[material] = {}
+                    bind.material_selected[material]['properties'] = {}
             else:
-                angle_wall = "Intern"
-        except ZeroDivisionError:
-            angle_wall = 90
+                bind.material_selected[material] = {}
+                bind.material_selected[material]['properties'] = {}
 
-        return angle_wall
+        property_template = bind.finder.templates[bind.source_tool]['MaterialTemplates']
+        name_template = name
+        if name in property_template:
+            name_template = property_template[name]
 
-    orientation = attribute.Attribute(
-        name='orientation',
-        functions=[_get_orientation],
-        default=0
-    )
+        try:
+            value = bind.material_selected[material]['properties'][name_template]
+        except KeyError:
+            decision2 = RealDecision("Enter value for the parameter %s" % name,
+                                     validate_func=lambda x: isinstance(x, float),  # TODO
+                                     global_key="%s" % name,
+                                     allow_skip=False, allow_load=True, allow_save=True,
+                                     collect=False, quick_decide=False)
+            decision2.decide()
+            value = decision2.value
+        try:
+            bind.material = bind.material_selected[material]['properties']['name']
+        except KeyError:
+            bind.material = material
+
+        return value
 
     area = attribute.Attribute(
         name='area',
@@ -664,12 +694,6 @@ class Wall(element.Element):
         default=0
     )
 
-    thickness = attribute.Attribute(
-        name='thickness',
-        default_ps=('BaseQuantities', 'Width'),
-        default=0
-    )
-
     material = attribute.Attribute(
         name='material',
         # todo just for testing, this is file specific
@@ -677,13 +701,22 @@ class Wall(element.Element):
         default=0
     )
 
+    thickness = attribute.Attribute(
+        name='thickness',
+        default_ps=('BaseQuantities', 'Width'),
+        functions=[_get_wall_properties],
+        default=0
+    )
+
     heat_capacity = attribute.Attribute(
         name='heat_capacity',
+        functions=[_get_wall_properties],
         default=0
     )
 
     density = attribute.Attribute(
         name='density',
+        functions=[_get_wall_properties],
         default=0
     )
 
