@@ -99,13 +99,14 @@ def main(rootpath=None):
     if not BIM2SIMManager in manager_cls.__bases__:
         raise AttributeError("Got invalid manager from %s"%(backend))
 
-    task = PlantSimulation() #TODO
+    workflow = PlantSimulation() #TODO
 
     # prepare simulation
-    manager = manager_cls(task)
+    manager = manager_cls(workflow)
 
     # run Manager
-    manager.run()
+    # manager.run()
+    manager.run_interactive()
 
     finish()
 
