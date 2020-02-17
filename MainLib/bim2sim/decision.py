@@ -3,6 +3,10 @@
 import logging
 import enum
 import json
+import hashlib
+
+
+__VERSION__ = '0.1'
 
 
 class DecisionException(Exception):
@@ -24,6 +28,21 @@ class Status(enum.Enum):
     loadeddone = 3  # previous made decision loaded
     saveddone = 4  # decision made and saved
     skipped = 5  # decision was skipped
+
+
+def convert_0_to_0_1(data):
+    converted_data = {
+        'version': '0.1',
+        'checksum_ifc': None,
+        'decisions': {decision: {'value': value} for decision, value in data.items()}
+    }
+    return converted_data
+
+
+def convert(from_version, to_version, data):
+    """convert stored decisions to new version"""
+    if from_version == '0' and to_version == '0.1':
+        return convert_0_to_0_1(data)
 
 
 class FrontEnd:
@@ -87,7 +106,14 @@ class ConsoleFrontEnd(FrontEnd):
             yield decision, "[Decision {}/{}]".format(i + 1, total)
 
     def solve(self, decision):
-        return self.user_input(decision)
+        try:
+            decision.value = self.user_input(decision)
+        except DecisionSkip:
+            decision.skip()
+        except DecisionCancle as ex:
+            self.logger.info("Canceling decisions")
+            raise
+        return
 
     def solve_collection(self, collection):
 
@@ -238,7 +264,7 @@ class ExternalFrontEnd(FrontEnd):
         serialized = json.dumps(data, indent=2)
         print(serialized)
         # fake data
-        answer = {item['id']: 1 for item in data}
+        answer = {item['id']: '1' for item in data}
 
         return answer
 
@@ -269,7 +295,8 @@ class Decision:
     def __init__(self, question: str, validate_func=None,
                  output: dict = None, output_key: str = None, global_key: str = None,
                  allow_skip=False, allow_load=False, allow_save=False,
-                 collect=False, quick_decide=False):
+                 collect=False, quick_decide=False,
+                 validate_checksum=None):
         """
         :param question: The question asked to thu user
         :param validate_func: callable to validate the users input
@@ -277,10 +304,11 @@ class Decision:
         :param output_key: key for output
         :param global_key: unique key to identify decision. Required for saving
         :param allow_skip: set to True to allow skipping the decision and user None as value
-        :param allow_load: allows loading value from previus made decision with same global_key (Has no effect when global_key is not provided)
+        :param allow_load: allows loading value from previous made decision with same global_key (Has no effect when global_key is not provided)
         :param allow_save: allows saving decisions value and global_key for later reuse (Has no effect when global_key is not provided)
         :param collect: add decision to collection for later processing. (output and output_key needs to be provided)
         :param quick_decide: calls decide() within __init__()
+        :param validate_checksum: if provided, loaded decisions are only valid if checksum matches
 
         :raises: :class:'AttributeError'::
         """
@@ -299,6 +327,7 @@ class Decision:
         self.allow_load = allow_load
 
         self.collect = collect
+        self.validate_checksum = validate_checksum
 
         if global_key and global_key in self.global_keys():
             self.discard()
@@ -360,6 +389,10 @@ class Decision:
             if decision.global_key:
                 yield decision.global_key
 
+    @staticmethod
+    def build_checksum(item):
+        return hashlib.md5(json.dumps(item, sort_keys=True).encode('utf-8')).hexdigest()
+
     @classmethod
     def filtered(cls, active=True):
         if active:
@@ -405,7 +438,7 @@ class Decision:
         if self.status != Status.open:
             raise AssertionError("Cannot call decide() for Decision with status != open")
 
-        self.value = self.frontend.solve(self)
+        self.frontend.solve(self)
 
         # self.status = Status.done
         # self._post()
@@ -441,21 +474,38 @@ class Decision:
                 data = json.load(file)
         except IOError as ex:
             logger.info("Unable to load decisions. (%s)", ex)
-        else:
-            if data:
-                msg = "Found %d previous made decisions. Continue using them?"%(len(data))
-                reuse = BoolDecision(question=msg).decide()
-                if reuse:
-                    cls.stored_decisions = data
-                    logger.info("Loaded decisions.")
+            return
+        version = data.get('version', '0')
+        if version != __VERSION__:
+            try:
+                data = convert(version, __VERSION__, data)
+                logger.info("Converted stored decisions from version '%s' to '%s'", version, __VERSION__)
+            except:
+                logger.error("Decision conversion from %s to %s failed")
+                return
+        decisions = data.get('decisions')
+
+        if decisions:
+            msg = "Found %d previous made decisions. Continue using them?"%(len(decisions))
+            reuse = BoolDecision(question=msg).decide()
+            if reuse:
+                cls.stored_decisions = decisions
+                logger.info("Loaded decisions.")
 
     @classmethod
     def save(cls, path):
         """Save solved Decisions to file system"""
 
         logger = logging.getLogger(__name__)
+
+        decisions = {key: kwargs for key, kwargs in cls.stored_decisions.items()}
+        data = {
+            'version': __VERSION__,
+            'checksum_ifc': None,
+            'decisions': decisions,
+        }
         with open(path, "w") as file:
-            json.dump(cls.stored_decisions, file, indent=2)
+            json.dump(data, file, indent=2)
         logger.info("Saved %d decisions.", len(cls.stored_decisions))
 
     @classmethod
@@ -472,13 +522,18 @@ class Decision:
         Decision.load() first."""
 
         if self.global_key:
-            value = Decision.stored_decisions.get(self.global_key)
+            kwargs = Decision.stored_decisions.get(self.global_key, {'value': None})
+            value = kwargs['value']
+            checksum = kwargs.get('checksum')
             if value is None:
                 return
             if (not self.validate_func) or self.validate_func(value):
-                self.value = value
-                self.status = Status.loadeddone
-                self.logger.info("Loaded decision '%s' with value: %s", self.global_key, value)
+                if checksum == self.validate_checksum:
+                    self.value = value
+                    self.status = Status.loadeddone
+                    self.logger.info("Loaded decision '%s' with value: %s", self.global_key, value)
+                else:
+                    self.logger.warning("Checksum mismatch for loaded decision '%s", self.global_key)
             else:
                 self.logger.warning("Check for loaded decision '%s' failed. Loaded value: %s",
                                     self.global_key, value)
@@ -495,7 +550,10 @@ class Decision:
             #     "Decision id '%s' is not unique!"%(self.global_key)
             assert self.status != Status.open, \
                 "Decision not made. There is nothing to store."
-            Decision.stored_decisions[self.global_key] = self.value
+            kwargs = {'value': self.value}
+            if self.validate_checksum:
+                kwargs['checksum'] = self.validate_checksum
+            Decision.stored_decisions[self.global_key] = kwargs
             self.status = Status.saveddone
             self.logger.info("Stored decision '%s' with value: %s", self.global_key, self.value)
 

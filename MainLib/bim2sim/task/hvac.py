@@ -272,6 +272,7 @@ class Inspect(ITask):
     def set_class_by_user(self, unknown_entities):
         """Ask user for every given ifc_entity to specify matching element class"""
         answers = {}
+        checksum = Decision.build_checksum(list(Element._ifc_classes.keys()))  # assert same list of ifc_classes
         for ifc_entity in unknown_entities:
             ListDecision(
                 "Found unidentified Element of %s (Name: %s, Description: %s):" % (
@@ -281,7 +282,8 @@ class Inspect(ITask):
                 output_key=ifc_entity,
                 global_key="%s.%s" % (ifc_entity.is_a(), ifc_entity.GlobalId),
                 allow_skip=True, allow_load=True, allow_save=True,
-                collect=True, quick_decide=not True)
+                collect=True, quick_decide=not True,
+                validate_checksum=checksum)
         Decision.decide_collected()
 
         result_entity_dict = {}

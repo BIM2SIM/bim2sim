@@ -53,9 +53,6 @@ class BIM2SIMManager:
             if task_class.final:
                 break
 
-    def run_decision_generator(self):
-        self.run()
-
     def __repr__(self):
         return "<%s>"%(self.__class__.__name__)
 
