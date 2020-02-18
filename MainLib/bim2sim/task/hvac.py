@@ -607,14 +607,14 @@ class DetectCycles(ITask):
 class Export(ITask):
     """Export to Dymola/Modelica"""
 
-    reads = ('libraries', 'instances', 'connections')
+    reads = ('libraries', 'reduced_instances', 'connections')
     final = True
 
-    def run(self, workflow, libraries, instances, connections):
+    def run(self, workflow, libraries, reduced_instances, connections):
         self.logger.info("Export to Modelica code")
 
         modelica.Instance.init_factory(libraries)
-        export_instances = {inst: modelica.Instance.factory(inst) for inst in instances.values()}
+        export_instances = {inst: modelica.Instance.factory(inst) for inst in reduced_instances}
 
         Element.solve_requested_decisions()
 
