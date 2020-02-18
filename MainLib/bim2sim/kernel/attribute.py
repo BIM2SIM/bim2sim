@@ -225,6 +225,10 @@ class AttributeManager(dict):
             # already requested or available
             return
 
+    @property
+    def names(self):
+        return (name for name, obj in self.bind.__class__.__dict__.items() if isinstance(obj, Attribute))
+
 
 def multi_calc(func):
     """Decorator for calculation of multiple Attribute values"""
