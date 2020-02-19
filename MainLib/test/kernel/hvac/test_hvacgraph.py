@@ -23,11 +23,12 @@ def generate_element_strait(number=5, prefix=""):
             elements[i-1].ports[1].connect(elements[i].ports[0])
     return elements
 
+
 def attach(element1, element2, use_existing=False):
     """Connect elements
 
     If use_existing=True free ports (if any) are used.
-    Else new Prots are created"""
+    Else new Ports are created"""
     if use_existing:
         free_ports1 = [port for port in element1.ports if not port.connection]
         free_ports2 = [port for port in element2.ports if not port.connection]

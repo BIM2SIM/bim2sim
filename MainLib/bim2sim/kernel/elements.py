@@ -370,21 +370,21 @@ class Pump(element.Element):
         re.compile('Pump', flags=re.IGNORECASE)
         ]
 
-    @property
-    def rated_power(self):
-        return 3
+    rated_power = attribute.Attribute(
+        name='rated_power',
+    )
 
-    @property
-    def rated_height(self):
-        return 8
+    rated_height = attribute.Attribute(
+        name='rated_height',
+    )
 
-    @property
-    def rated_volume_flow(self):
-        return 4.3
+    rated_volume_flow = attribute.Attribute(
+        name='rated_volume_flow',
+    )
 
-    @property
-    def diameter(self):
-        return 40
+    diameter = attribute.Attribute(
+        name='diameter',
+    )
 
 
 class Valve(element.Element):
