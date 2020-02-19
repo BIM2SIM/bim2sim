@@ -1,11 +1,10 @@
 ﻿import unittest
-from unittest import mock
 
 from bim2sim.kernel import aggregation
 from bim2sim.kernel.element import Port
 from bim2sim.kernel.elements import Pipe
 
-from test.kernel.aggregation.base import AggregationHelper
+from test.kernel.helper import SetupHelper
 
 
 class TestPipeStrand(unittest.TestCase):
@@ -14,7 +13,7 @@ class TestPipeStrand(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.helper = AggregationHelper()
+        cls.helper = SetupHelper()
 
     def tearDown(self) -> None:
         self.helper.reset()

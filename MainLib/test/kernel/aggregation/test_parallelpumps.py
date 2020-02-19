@@ -4,10 +4,10 @@ from bim2sim.kernel import aggregation
 from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 
-from test.kernel.aggregation.base import AggregationHelper
+from test.kernel.helper import SetupHelper
 
 
-class ParallelPumpHelper(AggregationHelper):
+class ParallelPumpHelper(SetupHelper):
 
     def get_setup_pumps1(self):
         """get consumer circuit made of 6 parallel pumps (one small), space heater and pipes"""

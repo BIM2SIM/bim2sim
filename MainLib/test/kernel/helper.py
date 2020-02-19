@@ -1,4 +1,3 @@
-import unittest
 from unittest import mock
 from contextlib import contextmanager
 
@@ -7,7 +6,7 @@ from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 
 
-class AggregationHelper:
+class SetupHelper:
 
     ifc = mock.Mock()
     ifc.Name = 'Test'

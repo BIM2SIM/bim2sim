@@ -35,6 +35,8 @@ class Attribute:
         if ifc_postprocessing:
             self.ifc_post_processing = ifc_postprocessing
 
+        # TODO argument for validation function
+
     def _inner_get(self, bind, value):
 
         # default property set
@@ -131,7 +133,7 @@ class Attribute:
         value = decision.value
         return value
 
-    def get(self, bind, status, value):
+    def get(self, bind, value, status):
         """Try to get value. Returns None if no method was successful.
         use this method, if None is an acceptable value."""
         if status != Attribute.STATUS_UNKNOWN:
@@ -144,7 +146,8 @@ class Attribute:
             new_status = Attribute.STATUS_AVAILABLE
         return value, new_status
 
-    def set(self, bind, status, value):
+    def set(self, bind, value, status=None):
+        # TODO: validation
         bind.attributes.set(self.name, value, status)
 
     @staticmethod
@@ -166,7 +169,7 @@ class Attribute:
             return self
         _value, _status = instance.attributes.get(self.name, (None, Attribute.STATUS_UNKNOWN))
 
-        value, status = self.get(instance, _status, _value)
+        value, status = self.get(instance, _value, _status)
 
         if self._force and value is None:
             value = self.get_from_decision(instance, self.name)
@@ -174,6 +177,9 @@ class Attribute:
 
         self.set(instance, status, value)
         return value
+
+    def __set__(self, instance, value):
+        self.set(instance, value)
 
     def __str__(self):
         return "Attribute %s" % self.name
@@ -189,6 +195,8 @@ class AttributeManager(dict):
         self.__setitem__(name, value, status)
 
     def __setitem__(self, name, value, status=None):
+        if name not in self.names:
+            raise AttributeError("Invalid Attribute '%s'. Choices are %s" % (name, list(self.names)))
         if status is None:
             if value is None:
                 status = Attribute.STATUS_NOT_AVAILABLE

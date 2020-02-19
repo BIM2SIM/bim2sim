@@ -4,6 +4,7 @@ import logging
 import enum
 import json
 import hashlib
+from contextlib import contextmanager
 
 
 __VERSION__ = '0.1'
@@ -288,6 +289,9 @@ class Decision:
     CANCEL = "cancel"
     options = [SKIP, SKIPALL, CANCEL]
 
+    _debug_answer = None
+    _debug_mode = False
+
     frontend = ConsoleFrontEnd()
     # frontend = ExternalFrontEnd()
     logger = logging.getLogger(__name__)
@@ -408,6 +412,26 @@ class Decision:
     def collection(cls):
         return [d for d in cls.filtered() if d.collect]
 
+    @classmethod
+    def enable_debug(cls, answer):
+        """Enabled debug mode. All decisions are answered with answer"""
+        cls._debug_mode = True
+        cls._debug_answer = answer
+
+    @classmethod
+    def disable_debug(cls):
+        """Disable debug mode"""
+        cls._debug_answer = None
+        cls._debug_mode = False
+
+    @classmethod
+    @contextmanager
+    def debug_answer(cls, answer):
+        """Contextmanager enabling debug mode temporarily with given answer"""
+        cls.enable_debug(answer)
+        yield
+        cls.disable_debug()
+
     def _validate(self, value):
         raise NotImplementedError("Implement method _validate!")
 
@@ -438,7 +462,11 @@ class Decision:
         if self.status != Status.open:
             raise AssertionError("Cannot call decide() for Decision with status != open")
 
-        self.frontend.solve(self)
+        if self._debug_mode:
+            self._value = self._debug_answer
+            self.status = Status.done
+        else:
+            self.frontend.solve(self)
 
         # self.status = Status.done
         # self._post()
