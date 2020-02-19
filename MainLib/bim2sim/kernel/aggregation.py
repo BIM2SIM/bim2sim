@@ -102,6 +102,12 @@ class Aggregation(BaseElement):
 
         return mapping, connections
 
+    @classmethod
+    def find_matches(cls, graph):
+        """Find all matches for Aggregation in graph
+        :returns: matches, meta"""
+        raise NotImplementedError("Method %s.find_matches not implemented" % cls.__name__)  # TODO
+
     def __repr__(self):
         return "<%s '%s' (aggregation of %d elements)>" % (
             self.__class__.__name__, self.name, len(self.elements))

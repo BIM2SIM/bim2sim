@@ -18,7 +18,7 @@ class AggregationHelper:
         self._flags = None
         self.elements = []
 
-        self.setup, self.flags = self.get_setup()
+        # self.setup, self.flags = self.get_setup()
         # self.setup.plot(r'c:\temp')
 
     def reset(self) -> None:
@@ -26,8 +26,8 @@ class AggregationHelper:
             r.discard()
 
         self.elements.clear()
-        self.setup = None
-        self.flags.clear()
+        # self.setup = None
+        # self.flags.clear()
 
     @contextmanager
     def flag_manager(self, flags):
@@ -74,7 +74,7 @@ class AggregationHelper:
 
         return element
 
-    def get_setup(self):
+    def get_setup_simple_boiler(self):
         """Simple generator system made of boiler, pump, expansion tank, distributor and pipes"""
         flags = {}
         with self.flag_manager(flags):
