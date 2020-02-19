@@ -175,7 +175,7 @@ class Attribute:
             value = self.get_from_decision(instance, self.name)
             status = Attribute.STATUS_AVAILABLE
 
-        self.set(instance, status, value)
+        self.set(instance, value, status)
         return value
 
     def __set__(self, instance, value):
