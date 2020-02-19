@@ -291,6 +291,7 @@ class Decision:
 
     _debug_answer = None
     _debug_mode = False
+    _debug_validate = False
 
     frontend = ConsoleFrontEnd()
     # frontend = ExternalFrontEnd()
@@ -298,7 +299,7 @@ class Decision:
 
     def __init__(self, question: str, validate_func=None,
                  output: dict = None, output_key: str = None, global_key: str = None,
-                 allow_skip=False, allow_load=False, allow_save=False,
+                 allow_skip=False, allow_load=None, allow_save=False,
                  collect=False, quick_decide=False,
                  validate_checksum=None):
         """
@@ -328,7 +329,7 @@ class Decision:
 
         self.allow_skip = allow_skip
         self.allow_save = allow_save
-        self.allow_load = allow_load
+        self.allow_load = allow_save if allow_load is None else allow_load
 
         self.collect = collect
         self.validate_checksum = validate_checksum
@@ -413,22 +414,24 @@ class Decision:
         return [d for d in cls.filtered() if d.collect]
 
     @classmethod
-    def enable_debug(cls, answer):
+    def enable_debug(cls, answer, validate=False):
         """Enabled debug mode. All decisions are answered with answer"""
         cls._debug_mode = True
         cls._debug_answer = answer
+        cls._debug_validate = validate
 
     @classmethod
     def disable_debug(cls):
         """Disable debug mode"""
         cls._debug_answer = None
         cls._debug_mode = False
+        cls._debug_validate = False
 
     @classmethod
     @contextmanager
-    def debug_answer(cls, answer):
+    def debug_answer(cls, answer, validate=False):
         """Contextmanager enabling debug mode temporarily with given answer"""
-        cls.enable_debug(answer)
+        cls.enable_debug(answer, validate)
         yield
         cls.disable_debug()
 
@@ -463,8 +466,12 @@ class Decision:
             raise AssertionError("Cannot call decide() for Decision with status != open")
 
         if self._debug_mode:
-            self._value = self._debug_answer
-            self.status = Status.done
+            if self._debug_validate:
+                self.value = self._debug_answer
+            else:
+                self._value = self._debug_answer
+                self.status = Status.done
+                self._post()
         else:
             self.frontend.solve(self)
 
@@ -481,16 +488,27 @@ class Decision:
         _collection = collection or cls.collection()
         _collection = [d for d in _collection if d.status == Status.open]
 
-        try:
-            cls.frontend.solve_collection(_collection)
-        except DecisionSkipAll:
-            logger.info("Skipping remaining decisions")
+        if cls._debug_mode:
+            # debug
             for decision in _collection:
-                if decision.status == Status.open:
-                    decision.skip()
-        except DecisionCancle as ex:
-            logger.info("Canceling decisions")
-            raise
+                if cls._debug_validate:
+                    decision.value = cls._debug_answer
+                else:
+                    decision._value = cls._debug_answer
+                    decision.status = Status.done
+                    decision._post()
+        else:
+            # normal
+            try:
+                cls.frontend.solve_collection(_collection)
+            except DecisionSkipAll:
+                logger.info("Skipping remaining decisions")
+                for decision in _collection:
+                    if decision.status == Status.open:
+                        decision.skip()
+            except DecisionCancle as ex:
+                logger.info("Canceling decisions")
+                raise
 
     @classmethod
     def load(cls, path):
@@ -517,7 +535,8 @@ class Decision:
             msg = "Found %d previous made decisions. Continue using them?"%(len(decisions))
             reuse = BoolDecision(question=msg).decide()
             if reuse:
-                cls.stored_decisions = decisions
+                cls.stored_decisions.clear()
+                cls.stored_decisions.update(**decisions)
                 logger.info("Loaded decisions.")
 
     @classmethod
