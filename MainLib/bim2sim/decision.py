@@ -67,9 +67,6 @@ class FrontEnd:
     def get_options(self, decision):
         return decision.get_options()
 
-    def parse(self, decision, raw_answer):
-        return decision.parse_input(raw_answer)
-
     def validate(self, decision, value):
         return decision.validate(value)
 
@@ -79,7 +76,7 @@ class ConsoleFrontEnd(FrontEnd):
     @staticmethod
     def get_input_txt(decision):
         txt = 'Enter value: '
-        if isinstance(decision, CollectionDecision):
+        if isinstance(decision, ListDecision):
             txt = 'Enter key: '
 
         return txt
@@ -187,6 +184,46 @@ class ConsoleFrontEnd(FrontEnd):
             attempt += 1
 
         return value
+
+    def parse(self, decision, raw_answer):
+        if isinstance(decision, BoolDecision):
+            return self.parse_bool_input(raw_answer)
+        elif isinstance(decision, RealDecision):
+            return self.parse_real_input(raw_answer)
+        elif isinstance(decision, ListDecision):
+            return self.parse_list_input(raw_answer, decision.items)
+
+    @staticmethod
+    def parse_real_input(raw_input):
+        """Convert input to float"""
+
+        try:
+            value = float(raw_input)
+        except:
+            value = None
+        return value
+
+    @staticmethod
+    def parse_bool_input(raw_input):
+        """Convert input to bool"""
+
+        inp = raw_input.lower()
+        if inp in BoolDecision.POSITIVES:
+            return True
+        if inp in BoolDecision.NEGATIVES:
+            return False
+        return None
+
+    @staticmethod
+    def parse_list_input(raw_input, items):
+        raw_value = None
+        try:
+            index = int(raw_input)
+            raw_value = items[index]
+        except Exception:
+            pass
+
+        return raw_value
 
 
 class ExternalFrontEnd(FrontEnd):
@@ -624,25 +661,12 @@ class Decision:
         """Returns list of tuples representing items of CollectionDecision else None"""
         return None
 
-    def parse_input(self, raw_input: str):
-        """Convert input to desired type"""
-        return raw_input
-
     def __repr__(self):
         return '<%s (<%s> Q: "%s" A: %s)>' % (self.__class__.__name__, self.status, self.question, self.value)
 
 
 class RealDecision(Decision):
     """Accepts input of type real"""
-
-    def parse_input(self, raw_input):
-        """Convert input to float"""
-
-        try:
-            value = float(raw_input)
-        except:
-            value = None
-        return value
 
     def _validate(self, value):
         return isinstance(value, float)
@@ -662,48 +686,36 @@ class BoolDecision(Decision):
         """validates if value is acceptable as bool"""
         return value is True or value is False
 
-    def parse_input(self, raw_input):
-        """Convert input to bool"""
 
-        inp = raw_input.lower()
-        if inp in BoolDecision.POSITIVES:
-            return True
-        if inp in BoolDecision.NEGATIVES:
-            return False
-        return None
-
-
-class CollectionDecision(Decision):
-    """Base class for chice bases Decisions"""
-
-    def __init__(self, *args, choices, **kwargs):
-        """"""
-        self.choices = choices
-        super().__init__(*args, **kwargs)
-
-
-class ListDecision(CollectionDecision):
+class ListDecision(Decision):
     """Accepts index of list element as input.
 
     Choices is a list of either
       - values, str(value) is used for label
       - tuples of (value, label)"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, choices, **kwargs):
+        if not choices:
+            raise AttributeError("choices must hold at least one item")
+        if hasattr(choices[0], '__len__') and len(choices[0]) == 2:
+            self.items = [choice[0] for choice in choices]
+            self.labels = [str(choice[1]) for choice in choices]
+        else:
+            self.items = choices
+            self.labels = [str(choice) for choice in self.items]
+
+        if len(self.items) == 1:
+            # auto decide
+            self.value = self.items[0]
+
         super().__init__(*args, validate_func=None, **kwargs)
 
-    def parse_input(self, raw_input):
-        raw_value = None
-        try:
-            index = int(raw_input)
-            raw_value = self.choices[index]
-        except Exception:
-            pass
-
-        return raw_value
+    @property
+    def choices(self):
+        return zip(self.items, self.labels)
 
     def validate(self, value):
-        return value in self.choices
+        return value in self.items
 
     def get_body(self):
         body = []

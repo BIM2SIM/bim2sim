@@ -20,6 +20,28 @@ class DecisionTestBase(unittest.TestCase):
 class TestDecision(DecisionTestBase):
     """General Decision related tests"""
 
+    def test_decision_value(self):
+        """test decision value consistency"""
+
+        dec = decision.RealDecision(question="??")
+
+        self.assertIsNone(dec.value)
+
+        with Decision.debug_answer(5., validate=True):
+            dec.decide()
+
+        self.assertEqual(dec.value, 5)
+        self.assertIsInstance(dec.value, float)
+
+    def test_invalid_value(self):
+        """test float value for IntDecision"""
+        dec = decision.RealDecision(question="??")
+        self.assertIsNone(dec.value)
+
+        with self.assertRaises(ValueError):
+            with Decision.debug_answer('five', validate=True):
+                dec.decide()
+
     def test_skip(self):
         """test skipping decisions"""
         target_dict = {}
@@ -124,7 +146,7 @@ class TestDecision(DecisionTestBase):
 class TestBoolDecision(DecisionTestBase):
     """test BoolDecisions"""
 
-    def test_bool_decision_value(self):
+    def test_decision_value(self):
         """test interpreting input"""
 
         with Decision.debug_answer(True):
@@ -134,6 +156,18 @@ class TestBoolDecision(DecisionTestBase):
         with Decision.debug_answer(False):
             ans = decision.BoolDecision(question="??").decide()
         self.assertFalse(ans)
+
+    def test_validation(self):
+        """test value validation"""
+
+        dec = decision.BoolDecision(question="??")
+
+        self.assertTrue(dec.validate(True))
+        self.assertTrue(dec.validate(False))
+        self.assertFalse(dec.validate(None))
+        self.assertFalse(dec.validate(0))
+        self.assertFalse(dec.validate(1))
+        self.assertFalse(dec.validate('y'))
 
     def test_save_load(self):
         """test saving decisions an loading them"""
@@ -168,32 +202,22 @@ class TestRealDecision(DecisionTestBase):
         """validation func"""
         return 0 < value < 10
 
-    def test_collectable(self):
-        """test collecting multiple RealDecisions and decide_colledted"""
-        target_dict = {}
-        dec_list = []
-        dec1 = decision.RealDecision(
-            question="??",
-            validate_func=self.check,
-            output=target_dict,
-            output_key="key1",
-            collect=True)
-        dec_list.append(dec1)
-        dec_list.append(decision.RealDecision(
-            question="??",
-            validate_func=self.check,
-            output=target_dict,
-            output_key="key2",
-            collect=True))
+    def test_validation(self):
+        """test value validation"""
 
-        self.assertIsNone(dec1.value)
+        dec = decision.RealDecision(question="??")
 
-        self.assertEqual(len(decision.Decision.all), len(dec_list))
-        with patch('builtins.input', lambda *args: '5'):
-            decision.Decision.decide_collected()
+        self.assertTrue(dec.validate(5.))
+        self.assertTrue(dec.validate(15.))
+        self.assertFalse(dec.validate(5))
+        self.assertFalse(dec.validate(False))
 
-        for value in target_dict.values():
-            self.assertEqual(value, 5)
+        dec_val = decision.RealDecision(question="??", validate_func=self.check)
+
+        self.assertTrue(dec_val.validate(5.))
+        self.assertFalse(dec_val.validate(15.))
+        self.assertFalse(dec_val.validate(5))
+        self.assertFalse(dec_val.validate(False))
 
     def test_save_load(self):
         """test saving decisions an loading them"""
@@ -217,7 +241,7 @@ class TestRealDecision(DecisionTestBase):
             decision.Decision.all.clear()
             decision.Decision.stored_decisions.clear()
 
-            with patch('builtins.input', lambda *args: 'y'):
+            with Decision.debug_answer(True):
                 decision.Decision.load(path)
 
         dec_loaded = decision.RealDecision(
@@ -225,7 +249,65 @@ class TestRealDecision(DecisionTestBase):
             validate_func=self.check,
             global_key=key,
             allow_load=True)
-        self.assertEqual(dec_loaded.value, 5)
+        self.assertEqual(dec_loaded.value, 5.)
+        self.assertIsInstance(dec_loaded.value, float)
+
+
+# IndDecision not implemented
+
+
+class TestListDecision(DecisionTestBase):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.choices = [
+            ('a', 'option1'),
+            ('b', 'option2'),
+            ('c', 'option3')
+        ]
+
+    def test_validation(self):
+        """test value validation"""
+        dec = decision.ListDecision("??", choices=self.choices)
+
+        self.assertTrue(dec.validate('a'))
+        self.assertTrue(dec.validate('c'))
+        self.assertFalse(dec.validate('1'))
+        self.assertFalse(dec.validate(1))
+        self.assertFalse(dec.validate(3))
+
+    def test_save_load(self):
+        """test saving decisions an loading them"""
+        key = "key1"
+        with Decision.debug_answer('b'):
+            dec = decision.ListDecision(
+                question="??",
+                choices=self.choices,
+                global_key=key,
+                allow_save=True)
+            dec.decide()
+
+        self.assertTrue(dec.value)
+
+        with tempfile.TemporaryDirectory(prefix='bim2sim_') as directory:
+            path = os.path.join(directory, "real")
+
+            decision.Decision.save(path)
+
+            # clear variables to simulate program restart
+            decision.Decision.all.clear()
+            decision.Decision.stored_decisions.clear()
+
+            with Decision.debug_answer(True):
+                decision.Decision.load(path)
+
+        dec_loaded = decision.ListDecision(
+            question="??",
+            choices=self.choices,
+            global_key=key,
+            allow_load=True)
+        self.assertEqual(dec_loaded.value, 'b')
+        self.assertIsInstance(dec_loaded.value, str)
 
 
 @patch('builtins.print', lambda *args, **kwargs: None)
@@ -286,6 +368,67 @@ class TestConsoleFrontend(DecisionTestBase):
                 dec = decision.RealDecision(question="??", validate_func=self.check)
                 dec.decide()
                 self.assertEqual(dec.value, res)
+
+    def test_bool_parse(self):
+        """test bool value parsing"""
+
+        dec = decision.BoolDecision(question="??")
+        self.assertIsNone(dec.value)
+
+        parsed_int1 = Decision.frontend.parse(dec, '1')
+        self.assertTrue(parsed_int1)
+        self.assertIsInstance(parsed_int1, bool)
+        parsed_int0 = Decision.frontend.parse(dec, '0')
+        self.assertFalse(parsed_int0)
+        self.assertIsInstance(parsed_int0, bool)
+        parsed_real = Decision.frontend.parse(dec, '1.1')
+        self.assertIsNone(parsed_real)
+        parsed_str = Decision.frontend.parse(dec, 'y')
+        self.assertTrue(parsed_str)
+        self.assertIsInstance(parsed_str, bool)
+        parsed_invalid = Decision.frontend.parse(dec, 'foo')
+        self.assertIsNone(parsed_invalid)
+
+    def test_real_parse(self):
+        """test value parsing"""
+
+        dec = decision.RealDecision(question="??")
+        self.assertIsNone(dec.value)
+
+        parsed_int = Decision.frontend.parse(dec, 5)
+        self.assertEqual(parsed_int, 5.)
+        self.assertIsInstance(parsed_int, float)
+        parsed_real = Decision.frontend.parse(dec, 5.)
+        self.assertEqual(parsed_real, 5.)
+        self.assertIsInstance(parsed_real, float)
+        parsed_str = Decision.frontend.parse(dec, '5')
+        self.assertEqual(parsed_str, 5.)
+        self.assertIsInstance(parsed_str, float)
+        parsed_invalid = Decision.frontend.parse(dec, 'five')
+        self.assertIsNone(parsed_invalid)
+
+    def test_list_parse(self):
+        """test value parsing"""
+
+        choices = [
+            ('a', 'option1'),
+            ('b', 'option2'),
+            ('c', 'option3')
+        ]
+        dec = decision.ListDecision("??", choices=choices)
+        self.assertIsNone(dec.value)
+
+        parsed_int = Decision.frontend.parse(dec, 0)
+        self.assertEqual(parsed_int, 'a')
+
+        parsed_real = Decision.frontend.parse(dec, 2)
+        self.assertEqual(parsed_real, 'c')
+
+        parsed_str = Decision.frontend.parse(dec, 3)
+        self.assertIsNone(parsed_str)
+
+        parsed_str = Decision.frontend.parse(dec, 'a')
+        self.assertIsNone(parsed_str)
 
 
 if __name__ == '__main__':
