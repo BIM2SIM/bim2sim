@@ -22,7 +22,8 @@ class ParallelPumpHelper(SetupHelper):
                 self.element_generator(
                     elements.Pipe, flags=['pumps1'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps1'], rated_power=1, rated_height=8, rated_volume_flow=6),
+                    elements.Pump, flags=['pumps1'], rated_power=1, rated_height=8,
+                    rated_volume_flow=6, diameter=20),
                 self.element_generator(
                     elements.Pipe, flags=['pumps1'], length=40, diameter=20),
             ]
@@ -30,7 +31,8 @@ class ParallelPumpHelper(SetupHelper):
                 self.element_generator(
                     elements.Pipe, flags=['pumps1'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps1'], rated_power=1, rated_height=8, rated_volume_flow=6),
+                    elements.Pump, flags=['pumps1'], rated_power=1, rated_height=8,
+                    rated_volume_flow=6, diameter=20),
                 self.element_generator(
                     elements.Pipe, flags=['pumps1'], length=40, diameter=20),
             ]
@@ -71,49 +73,54 @@ class ParallelPumpHelper(SetupHelper):
             con_vl_a = [self.element_generator(
                 elements.Pipe, length=100, diameter=30) for i in range(3)]
             fitting1 = self.element_generator(
-                elements.PipeFitting, flags=['pumps', 'normal', 'small'], n_ports=6, diameter=30, length=60)
+                elements.PipeFitting, flags=['pumps2', 'normal', 'small'], n_ports=6, diameter=30, length=60)
             p_pump1_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps', 'normal'], length=40, diameter=20),
+                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps', 'normal'], rated_power=1, rated_height=8, rated_volume_flow=6),
+                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
+                    rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps', 'normal'], length=40, diameter=20),
+                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
             ]
             p_pump2_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps', 'normal'], length=40, diameter=20),
+                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps', 'normal'], rated_power=1, rated_height=8, rated_volume_flow=6),
+                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
+                    rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps', 'normal'], length=40, diameter=20),
+                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
             ]
             p_pump3_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps', 'normal'], length=40, diameter=20),
+                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps', 'normal'], rated_power=1, rated_height=8, rated_volume_flow=6),
+                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
+                    rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps', 'normal'], length=40, diameter=20),
+                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
             ]
             p_pump4_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps', 'normal'], length=40, diameter=20),
+                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps', 'normal'], rated_power=1, rated_height=8, rated_volume_flow=6),
+                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
+                    rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps', 'normal'], length=40, diameter=20),
+                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
             ]
             p_pump5_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps', 'small'], length=40, diameter=15),
+                    elements.Pipe, flags=['pumps2', 'small'], length=40, diameter=15),
                 self.element_generator(
-                    elements.Pump, flags=['pumps', 'small'], rated_power=0.22, rated_height=8, rated_volume_flow=0.8),
+                    elements.Pump, flags=['pumps2', 'small'], rated_power=0.22, rated_height=8,
+                    rated_volume_flow=0.8, diameter=15),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps', 'small'], length=40, diameter=15),
+                    elements.Pipe, flags=['pumps2', 'small'], length=40, diameter=15),
             ]
             fitting2 = self.element_generator(
-                elements.PipeFitting, flags=['pumps', 'normal', 'small'], n_ports=6, diameter=30, length=60)
+                elements.PipeFitting, flags=['pumps2', 'normal', 'small'], n_ports=6, diameter=30, length=60)
             con_vl_b = [self.element_generator(
                 elements.Pipe, length=100, diameter=30) for i in range(3)]
             consumer = self.element_generator(
@@ -154,15 +161,23 @@ class ParallelPumpHelper(SetupHelper):
         """Simple generator system made of boiler, pump, expansion tank, distributor and pipes"""
         graph1, flags1 = super().get_setup_simple_boiler()
         graph2, flags2 = self.get_setup_pumps1()
+        graph3, flags3 = self.get_setup_pumps2()
 
         distributor = flags1['distributor'][0]
-        vl, rl = flags2['connect']
-        distributor.ports[2].connect(vl.ports[0])
-        rl.ports[1].connect(distributor.ports[3])
+        distributor_ports = self.fake_add_ports(distributor, 4)
 
-        ele = graph1.elements + graph2.elements
+        vl_p1, rl_p1 = flags2.pop('connect')
+        distributor_ports[0].connect(vl_p1.ports[0])
+        rl_p1.ports[1].connect(distributor_ports[1])
+
+        vl_p2, rl_p2 = flags3.pop('connect')
+        distributor_ports[2].connect(vl_p2.ports[0])
+        rl_p2.ports[1].connect(distributor_ports[3])
+
+        ele = graph1.elements + graph2.elements + graph3.elements
         graph = HvacGraph(ele)
-        return graph, flags1.update(**flags2)
+        flags = {**flags1, **flags2, **flags3}
+        return graph, flags
 
 
 class TestParallelPumps(unittest.TestCase):
@@ -182,7 +197,9 @@ class TestParallelPumps(unittest.TestCase):
         models = flags['pumps1']
         pumps = [item for item in models if isinstance(item, elements.Pump)]
 
-        agg_pump = aggregation.ParallelPump("Test", models)
+        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+        self.assertEqual(len(matches), 1)
+        agg_pump = aggregation.ParallelPump("Test", matches[0], **meta[0])
 
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
@@ -200,12 +217,14 @@ class TestParallelPumps(unittest.TestCase):
         self.assertIs(agg_pump.ports[1], mapping[models[-1].ports[1]])
 
     def test_pump_setup2(self):
-        """Two parallel pumps v2"""
+        """Five parallel pumps"""
         graph, flags = self.helper.get_setup_pumps2()
         models = flags['normal']
         pumps = [item for item in models if isinstance(item, elements.Pump)]
 
-        agg_pump = aggregation.ParallelPump("Test", models)
+        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+        self.assertEqual(len(matches), 1)
+        agg_pump = aggregation.ParallelPump("Test", matches[0], **meta[0])
 
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
@@ -224,28 +243,67 @@ class TestParallelPumps(unittest.TestCase):
 
     def test_basics(self):
         graph, flags = self.helper.get_setup_pumps1()
-        models = flags['pumps1']
-        agg = aggregation.ParallelPump("Test basics", models)
+
+        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+        self.assertEqual(len(matches), 1)
+
+        agg = aggregation.ParallelPump("Test basics", matches[0], **meta[0])
 
         self.assertTrue(self.helper.elements_in_agg(agg))
 
     def test_pump_same_size(self):
         """ParallelPumps only for same sized pumps"""
+        self.skipTest("Not implemented")
         graph, flags = self.helper.get_setup_pumps2()
-        models = flags['pumps']
+        models = flags['pumps2']
+
+        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+        self.assertEqual(len(matches), 1)
 
         with self.assertRaises(Exception):
             agg_pump = aggregation.ParallelPump("Test", models)
 
-    def test_detection(self):
+    def test_detection_pumps1(self):
+        """test detection of ParallelPumps in setup pumps1"""
+        graph, flags = self.helper.get_setup_pumps1()
+
+        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+
+        self.assertEqual(
+            len(matches), 1,
+            "There are 1 cases for ParallelPumps but 'find_matches' returned %d" % len(matches)
+        )
+
+    def test_detection_pumps2(self):
+        """test detection of ParallelPumps in setup pumps2"""
+        graph, flags = self.helper.get_setup_pumps2()
+
+        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+
+        self.assertEqual(
+            len(matches), 1,
+            "There are 1 cases for ParallelPumps but 'find_matches' returned %d" % len(matches)
+        )
+
+    def test_detection_system(self):
+        """test detection of ParallelPumps in setup system"""
         graph, flags = self.helper.get_setup_system()
 
-        matches, meta = aggregation.ParallelPump.find_matches(graph)
+        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
 
         self.assertEqual(
             len(matches), 2,
             "There are 2 cases for ParallelPumps but 'find_matches' returned %d" % len(matches)
         )
+
+        n_pumps1 = len([item for item in flags['pumps1'] if item.ifc_type == 'IfcPump'])
+        n_pumps2 = len([item for item in flags['pumps2'] if item.ifc_type == 'IfcPump'])
+
+        match_pumps = []
+        for match in matches:
+            match_pumps.append([node for node in match if node.ifc_type == 'IfcPump'])
+
+        self.assertSetEqual({n_pumps1, n_pumps2}, {len(mp) for mp in match_pumps})
 
 
 if __name__ == '__main__':

@@ -36,8 +36,9 @@ class SetupHelper:
 
     @classmethod
     def fake_add_ports(cls, parent, n=2):
-        for i in range(n):
-            parent.ports.append(Port(parent=parent, ifc=cls.ifc))
+        new_ports = [Port(parent=parent, ifc=cls.ifc) for i in range(n)]
+        parent.ports.extend(new_ports)
+        return new_ports
 
     @staticmethod
     def connect_strait(items):
@@ -82,7 +83,7 @@ class SetupHelper:
             gen_vl_a = [self.element_generator(elements.Pipe, length=100, diameter=40) for i in range(3)]
             h_pump = self.element_generator(elements.Pump, rated_power=2.2, rated_height=12, rated_volume_flow=8)
             gen_vl_b = [self.element_generator(elements.Pipe, flags=['strand1'], length=100, diameter=40) for i in range(5)]
-            distributor = self.element_generator(elements.Distributor, n_ports=6, flags=['distributor'])  # , volume=80
+            distributor = self.element_generator(elements.Distributor, flags=['distributor'])  # , volume=80
             gen_rl_a = [self.element_generator(elements.Pipe, length=100, diameter=40) for i in range(4)]
             fitting = self.element_generator(elements.PipeFitting, n_ports=3, diameter=40, length=60)
             gen_rl_b = [self.element_generator(elements.Pipe, length=100, diameter=40) for i in range(4)]

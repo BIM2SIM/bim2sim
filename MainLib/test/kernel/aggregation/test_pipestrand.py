@@ -22,7 +22,11 @@ class TestPipeStrand(unittest.TestCase):
         """Test calculation of aggregated length and diameter"""
         graph, flags = self.helper.get_setup_simple_boiler()
         elements = flags['strand1']
-        agg = aggregation.PipeStrand("Test 1", elements)
+        match_graph = graph.element_graph.subgraph(elements)
+
+        matches, meta = aggregation.PipeStrand.find_matches(match_graph)
+        self.assertEqual(len(matches), 1)
+        agg = aggregation.PipeStrand("Test 1", matches[0], **meta[0])
 
         exp_length = sum([e.length for e in elements])
         self.assertAlmostEqual(agg.length, exp_length)
@@ -34,7 +38,11 @@ class TestPipeStrand(unittest.TestCase):
 
         graph, flags = self.helper.get_setup_simple_boiler()
         elements = flags['strand2']
-        agg = aggregation.PipeStrand("Test 2", elements)
+        match_graph = graph.element_graph.subgraph(elements)
+
+        matches, meta = aggregation.PipeStrand.find_matches(match_graph)
+        self.assertEqual(len(matches), 1)
+        agg = aggregation.PipeStrand("Test 2", matches[0], **meta[0])
 
         exp_length = sum([e.length for e in elements])
         self.assertAlmostEqual(agg.length, exp_length)
@@ -44,14 +52,16 @@ class TestPipeStrand(unittest.TestCase):
     def test_basics(self):
         graph, flags = self.helper.get_setup_simple_boiler()
         elements = flags['strand1']
-        agg = aggregation.PipeStrand("Test basics", elements)
+        match = graph.element_graph.subgraph(elements)
+
+        agg = aggregation.PipeStrand("Test", match)
 
         self.assertTrue(self.helper.elements_in_agg(agg))
 
     def test_detection(self):
         graph, flags = self.helper.get_setup_simple_boiler()
 
-        matches, meta = aggregation.PipeStrand.find_matches(graph)
+        matches, meta = aggregation.PipeStrand.find_matches(graph.element_graph)
 
         self.assertEqual(
             len(matches), 5,
