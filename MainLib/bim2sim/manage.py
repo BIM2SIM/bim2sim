@@ -48,7 +48,7 @@ class BIM2SIMManager:
             tasks_classes = {task.__name__: task for task in self.playground.available_tasks()}
             choices = [(name, task.__doc__) for name, task in tasks_classes.items()]
             task_name = ListDecision("What shall we do?", choices=choices).decide()  # TODO savable decision
-            task_class = tasks_classes[task_name[0]]
+            task_class = tasks_classes[task_name]
             self.playground.run_task(task_class())
             if task_class.final:
                 break

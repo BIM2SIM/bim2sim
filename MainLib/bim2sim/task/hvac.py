@@ -479,64 +479,46 @@ class Reduce(ITask):
         number_pp = 0
         number_psh = 0
 
-        # Parallel pumps aggregation
-        cycles = graph.get_cycles()
-        for cycle in cycles:
-            parallelpump = ParallelPump.create_on_match("ParallelPump%d" % (number_pp + 1), cycle)
-            if parallelpump:
-                number_pp += 1
-                graph.merge(
-                    mapping=parallelpump.get_replacement_mapping(),
-                    inner_connections=parallelpump.get_inner_connections())
-            # parallelspaceheater = ParallelSpaceHeater.create_on_match("ParallelSpaceHeater%d" % (number_psh + 1), cycle)
-            # if parallelspaceheater:
-            #     number_psh += 1
-            #     graph.merge(
-            #         mapping=parallelspaceheater.get_replacement_mapping(),
-            #         inner_connections=parallelspaceheater.get_inner_connections())
+        aggregations = [
+            UnderfloorHeating,
+            PipeStrand,
+            ParallelPump,
+            # ParallelSpaceHeater,
+        ]
 
-        self.logger.info("Applied %d aggregations as \"ParallelPump\"", number_pp)
+        statistics = {}
+        n_elements_before = len(graph.elements)
 
-        chains = graph.get_type_chains(PipeStrand.aggregatable_elements, include_singles=True)
-        for chain in chains:
-            underfloorheating = UnderfloorHeating.create_on_match("UnderfloorHeating%d" % (number_fh + 1), chain)
-            if underfloorheating:
-                number_fh += 1
-                graph.merge(
-                    mapping=underfloorheating.get_replacement_mapping(),
-                    inner_connections=underfloorheating.get_inner_connections())
-            else:
-                if workflow.pipes == LOD.full:
-                    pass
-                elif workflow.pipes == LOD.medium:
-                    if len(chain) <= 1:
-                        continue
-                    number_ps += 1
-                    pipestrand = PipeStrand("PipeStrand%d" % (number_ps), chain)
+        # TODO: LOD
+
+        for agg_class in aggregations:
+            name = agg_class.__name__
+            self.logger.info("Aggregating '%s' ...", name)
+            name_builder = '{} {}'
+            matches, metas = agg_class.find_matches(graph.element_graph)
+            i = 0
+            for match, meta in zip(matches, metas):
+                try:
+                    agg = agg_class(name_builder.format(name, i+1), match, **meta)
+                except Exception as ex:
+                    self.logger.exception("Instantiation of '%s' failed", name)
+                else:
                     graph.merge(
-                        mapping=pipestrand.get_replacement_mapping(),
-                        inner_connections=pipestrand.get_inner_connections())
-                elif workflow.pipes == LOD.low:
-                    mapping, connections = Aggregation.get_empty_mapping(chain)
-                    graph.merge(
-                        mapping=mapping,
-                        inner_connections=connections,
+                        mapping=agg.get_replacement_mapping(),
+                        inner_connections=agg.get_inner_connections()
                     )
-                    number_pipes += len(set(k.parent for k, v in mapping.items() if v is None))
+                    i += 1
+            statistics[name] = i
+        n_elements_after = len(graph.elements)
 
-        self.logger.info("Applied %d aggregations as \"PipeStrand\"", number_ps)
-        self.logger.info("Applied %d aggregations as \"UnderfloorHeating\"", number_fh)
-        self.logger.info("Removed %d pipe-like elements", number_pipes)
+        # Log output
+        log_str = "Aggregations reduced number of elements from %d to %d:" % \
+                  (n_elements_before, n_elements_after)
+        for aggregation, count in statistics.items():
+            log_str += "\n  - %s: %d" % (aggregation, count)
+        self.logger.info(log_str)
 
-        # self.logger.info("Setting flow_sides")
-        # # this might help for other reduce methods like finding parallel pumps etc. else only for nice plotting
-        # self.set_flow_sides(graph)
 
-        number_of_nodes_new = len(graph.element_graph.nodes)
-        self.logger.info(
-            "Applied %d aggregations which reduced"
-            + " number of elements from %d to %d.",
-            number_ps + number_fh + number_pp, number_of_nodes_old, number_of_nodes_new)
         reduced_instances = graph.elements
         connections = graph.get_connections()
 

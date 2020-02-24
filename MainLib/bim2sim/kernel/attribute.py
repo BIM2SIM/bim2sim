@@ -39,6 +39,8 @@ class Attribute:
         if ifc_postprocessing:
             self.ifc_post_processing = ifc_postprocessing
 
+        # TODO argument for validation function
+
     def _inner_get(self, bind, value):
 
         # default property set
@@ -137,7 +139,7 @@ class Attribute:
         value = decision.value
         return value
 
-    def get(self, bind, status, value):
+    def get(self, bind, value, status):
         """Try to get value. Returns None if no method was successful.
         use this method, if None is an acceptable value."""
         if status != Attribute.STATUS_UNKNOWN:
@@ -150,7 +152,8 @@ class Attribute:
             new_status = Attribute.STATUS_AVAILABLE
         return value, self.unit, new_status
 
-    def set(self, bind, status, value):
+    def set(self, bind, value, status=None):
+        # TODO: validation
         bind.attributes.set(self.name, value, self.unit, status)
 
     @staticmethod
@@ -178,8 +181,11 @@ class Attribute:
             value = self.get_from_decision(instance, self.name)
             status = Attribute.STATUS_AVAILABLE
 
-        self.set(instance, status, value)
+        self.set(instance, value, status)
         return value
+
+    def __set__(self, instance, value):
+        self.set(instance, value)
 
     def __str__(self):
         return "Attribute %s" % self.name
@@ -195,6 +201,8 @@ class AttributeManager(dict):
         self.__setitem__(name, value, unit,  status)
 
     def __setitem__(self, name, value, unit, status=None):
+        if name not in self.names:
+            raise AttributeError("Invalid Attribute '%s'. Choices are %s" % (name, list(self.names)))
         if status is None:
             if value is None:
                 status = Attribute.STATUS_NOT_AVAILABLE
@@ -234,6 +242,10 @@ class AttributeManager(dict):
         else:
             # already requested or available
             return
+
+    @property
+    def names(self):
+        return (name for name, obj in self.bind.__class__.__dict__.items() if isinstance(obj, Attribute))
 
 
 def multi_calc(func):

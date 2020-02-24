@@ -322,6 +322,10 @@ class BaseElement(Root):
         :returns: None if element with guid was not instanciated"""
         return BaseElement.objects.get(guid)
 
+    def discard(self):
+        super().discard()
+        del self.objects[self.guid]
+
     def is_generator(self):
         return False
 
@@ -368,6 +372,13 @@ class BasePort(Root):
             raise AttributeError("Other port is already connected!")
         self.connection = other
         other.connection = self
+
+    def disconnect(self):
+        """remove connection between self and other port"""
+        other = self.connection
+        if other:
+            self.connection = None
+            other.disconnect()
 
     def is_connected(self):
         """Returns truth value of port's connection"""

@@ -4,6 +4,7 @@ import logging
 import enum
 import json
 import hashlib
+from contextlib import contextmanager
 from bim2sim.kernel.units import ureg
 
 
@@ -67,9 +68,6 @@ class FrontEnd:
     def get_options(self, decision):
         return decision.get_options()
 
-    def parse(self, decision, raw_answer):
-        return decision.parse_input(raw_answer)
-
     def validate(self, decision, value):
         return decision.validate(value)
 
@@ -79,7 +77,7 @@ class ConsoleFrontEnd(FrontEnd):
     @staticmethod
     def get_input_txt(decision):
         txt = 'Enter value: '
-        if isinstance(decision, CollectionDecision):
+        if isinstance(decision, ListDecision):
             txt = 'Enter key: '
 
         return txt
@@ -188,6 +186,46 @@ class ConsoleFrontEnd(FrontEnd):
 
         return value
 
+    def parse(self, decision, raw_answer):
+        if isinstance(decision, BoolDecision):
+            return self.parse_bool_input(raw_answer)
+        elif isinstance(decision, RealDecision):
+            return self.parse_real_input(raw_answer)
+        elif isinstance(decision, ListDecision):
+            return self.parse_list_input(raw_answer, decision.items)
+
+    @staticmethod
+    def parse_real_input(raw_input):
+        """Convert input to float"""
+
+        try:
+            value = float(raw_input) * self.unit
+        except:
+            value = None
+        return value
+
+    @staticmethod
+    def parse_bool_input(raw_input):
+        """Convert input to bool"""
+
+        inp = raw_input.lower()
+        if inp in BoolDecision.POSITIVES:
+            return True
+        if inp in BoolDecision.NEGATIVES:
+            return False
+        return None
+
+    @staticmethod
+    def parse_list_input(raw_input, items):
+        raw_value = None
+        try:
+            index = int(raw_input)
+            raw_value = items[index]
+        except Exception:
+            pass
+
+        return raw_value
+
 
 class ExternalFrontEnd(FrontEnd):
 
@@ -289,13 +327,17 @@ class Decision:
     CANCEL = "cancel"
     options = [SKIP, SKIPALL, CANCEL]
 
+    _debug_answer = None
+    _debug_mode = False
+    _debug_validate = False
+
     frontend = ConsoleFrontEnd()
     # frontend = ExternalFrontEnd()
     logger = logging.getLogger(__name__)
 
     def __init__(self, question: str, validate_func=None,
                  output: dict = None, output_key: str = None, global_key: str = None,
-                 allow_skip=False, allow_load=False, allow_save=False,
+                 allow_skip=False, allow_load=None, allow_save=False,
                  collect=False, quick_decide=False,
                  validate_checksum=None):
         """
@@ -325,7 +367,7 @@ class Decision:
 
         self.allow_skip = allow_skip
         self.allow_save = allow_save
-        self.allow_load = allow_load
+        self.allow_load = allow_save if allow_load is None else allow_load
 
         self.collect = collect
         self.validate_checksum = validate_checksum
@@ -409,6 +451,28 @@ class Decision:
     def collection(cls):
         return [d for d in cls.filtered() if d.collect]
 
+    @classmethod
+    def enable_debug(cls, answer, validate=False):
+        """Enabled debug mode. All decisions are answered with answer"""
+        cls._debug_mode = True
+        cls._debug_answer = answer
+        cls._debug_validate = validate
+
+    @classmethod
+    def disable_debug(cls):
+        """Disable debug mode"""
+        cls._debug_answer = None
+        cls._debug_mode = False
+        cls._debug_validate = False
+
+    @classmethod
+    @contextmanager
+    def debug_answer(cls, answer, validate=False):
+        """Contextmanager enabling debug mode temporarily with given answer"""
+        cls.enable_debug(answer, validate)
+        yield
+        cls.disable_debug()
+
     def _validate(self, value):
         raise NotImplementedError("Implement method _validate!")
 
@@ -439,7 +503,15 @@ class Decision:
         if self.status != Status.open:
             raise AssertionError("Cannot call decide() for Decision with status != open")
 
-        self.frontend.solve(self)
+        if self._debug_mode:
+            if self._debug_validate:
+                self.value = self._debug_answer
+            else:
+                self._value = self._debug_answer
+                self.status = Status.done
+                self._post()
+        else:
+            self.frontend.solve(self)
 
         # self.status = Status.done
         # self._post()
@@ -454,16 +526,27 @@ class Decision:
         _collection = collection or cls.collection()
         _collection = [d for d in _collection if d.status == Status.open]
 
-        try:
-            cls.frontend.solve_collection(_collection)
-        except DecisionSkipAll:
-            logger.info("Skipping remaining decisions")
+        if cls._debug_mode:
+            # debug
             for decision in _collection:
-                if decision.status == Status.open:
-                    decision.skip()
-        except DecisionCancle as ex:
-            logger.info("Canceling decisions")
-            raise
+                if cls._debug_validate:
+                    decision.value = cls._debug_answer
+                else:
+                    decision._value = cls._debug_answer
+                    decision.status = Status.done
+                    decision._post()
+        else:
+            # normal
+            try:
+                cls.frontend.solve_collection(_collection)
+            except DecisionSkipAll:
+                logger.info("Skipping remaining decisions")
+                for decision in _collection:
+                    if decision.status == Status.open:
+                        decision.skip()
+            except DecisionCancle as ex:
+                logger.info("Canceling decisions")
+                raise
 
     @classmethod
     def load(cls, path):
@@ -490,7 +573,8 @@ class Decision:
             msg = "Found %d previous made decisions. Continue using them?"%(len(decisions))
             reuse = BoolDecision(question=msg).decide()
             if reuse:
-                cls.stored_decisions = decisions
+                cls.stored_decisions.clear()
+                cls.stored_decisions.update(**decisions)
                 logger.info("Loaded decisions.")
 
     @classmethod
@@ -578,10 +662,6 @@ class Decision:
         """Returns list of tuples representing items of CollectionDecision else None"""
         return None
 
-    def parse_input(self, raw_input: str):
-        """Convert input to desired type"""
-        return raw_input
-
     def __repr__(self):
         return '<%s (<%s> Q: "%s" A: %s)>' % (self.__class__.__name__, self.status, self.question, self.value)
 
@@ -589,20 +669,10 @@ class Decision:
 class RealDecision(Decision):
     """Accepts input of type real"""
 
-    def __init__(self, *args, unit, **kwargs):
+    def __init__(self, *args, unit=None, **kwargs):
         """"""
         self.unit = unit if unit else ureg.dimensionless
         super().__init__(*args, **kwargs)
-
-    def parse_input(self, raw_input):
-        """Convert input to float"""
-
-        try:
-            value = (float(raw_input)*self.unit, self.unit)
-        except:
-            value = None
-        return value
-
     def _validate(self, value):
         return isinstance(value, float)
 
@@ -621,48 +691,36 @@ class BoolDecision(Decision):
         """validates if value is acceptable as bool"""
         return value is True or value is False
 
-    def parse_input(self, raw_input):
-        """Convert input to bool"""
 
-        inp = raw_input.lower()
-        if inp in BoolDecision.POSITIVES:
-            return True
-        if inp in BoolDecision.NEGATIVES:
-            return False
-        return None
-
-
-class CollectionDecision(Decision):
-    """Base class for chice bases Decisions"""
-
-    def __init__(self, *args, choices, **kwargs):
-        """"""
-        self.choices = choices
-        super().__init__(*args, **kwargs)
-
-
-class ListDecision(CollectionDecision):
+class ListDecision(Decision):
     """Accepts index of list element as input.
 
     Choices is a list of either
       - values, str(value) is used for label
       - tuples of (value, label)"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, choices, **kwargs):
+        if not choices:
+            raise AttributeError("choices must hold at least one item")
+        if hasattr(choices[0], '__len__') and len(choices[0]) == 2:
+            self.items = [choice[0] for choice in choices]
+            self.labels = [str(choice[1]) for choice in choices]
+        else:
+            self.items = choices
+            self.labels = [str(choice) for choice in self.items]
+
+        if len(self.items) == 1:
+            # auto decide
+            self.value = self.items[0]
+
         super().__init__(*args, validate_func=None, **kwargs)
 
-    def parse_input(self, raw_input):
-        raw_value = None
-        try:
-            index = int(raw_input)
-            raw_value = self.choices[index]
-        except Exception:
-            pass
-
-        return raw_value
+    @property
+    def choices(self):
+        return zip(self.items, self.labels)
 
     def validate(self, value):
-        return value in self.choices
+        return value in self.items
 
     def get_body(self):
         body = []
