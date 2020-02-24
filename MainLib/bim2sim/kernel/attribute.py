@@ -10,8 +10,18 @@ logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
 
 
+# class AutoAttributeNameMeta(type):
+#     """Detect setting on Attributes on class level and set name as given"""
+#     def __setattr__(self, name, value):
+#         if isinstance(value, Attribute):
+#             value.name = name
+#         return super().__setattr__(name, value)
+
+
 class Attribute:
-    """Descriptor of element attribute"""
+    """Descriptor of element attribute
+
+    value and status of attribute are stored in __dict__ of bound instance"""
     # https://rszalski.github.io/magicmethods/
     STATUS_UNKNOWN = 'UNKNOWN'
     STATUS_REQUESTED = 'REQUESTED'
@@ -19,7 +29,7 @@ class Attribute:
     STATUS_NOT_AVAILABLE = 'NOT_AVAILABLE'
     _force = False
 
-    def __init__(self, name,
+    def __init__(self, name=None,
                  description="",
                  unit=None,
                  default_ps=None,
@@ -27,7 +37,9 @@ class Attribute:
                  ifc_postprocessing=None,
                  functions=None,
                  default=None):
-        self.name = name
+        if name:
+            logger.warning("'name' is obsolete. Remove name '%s'" % name)
+        self.name = None  # auto set by AutoAttributeNameMeta
         self.description = description
         self.unit = unit
 
@@ -41,8 +53,30 @@ class Attribute:
 
         # TODO argument for validation function
 
-    def _inner_get(self, bind, value):
+    @property
+    def value_name(self):
+        return '_%s_value_' % self.name
 
+    @property
+    def status_name(self):
+        return '_%s_status_' % self.name
+
+    def get_value(self, bind):
+        return getattr(bind, self.value_name, None)
+
+    def set_value(self, bind, value):
+        # TODO: validate
+        setattr(bind, self.value_name, value)
+
+    def get_status(self, bind):
+        return getattr(bind, self.status_name, self.STATUS_UNKNOWN)
+
+    def set_status(self, bind, status):
+        setattr(bind, self.status_name, status)
+
+    def _inner_get(self, bind):
+
+        value = None
         # default property set
         if value is None and self.default_ps:
             raw_value = self.get_from_default(bind, self.default_ps)
@@ -139,22 +173,20 @@ class Attribute:
         value = decision.value
         return value
 
-    def get(self, bind, value, status):
-        """Try to get value. Returns None if no method was successful.
-        use this method, if None is an acceptable value."""
-        if status != Attribute.STATUS_UNKNOWN:
-            return value, self.unit, status
-
-        value = self._inner_get(bind, value)
-        if value is None:
-            new_status = Attribute.STATUS_NOT_AVAILABLE
-        else:
-            new_status = Attribute.STATUS_AVAILABLE
-        return value, self.unit, new_status
-
-    def set(self, bind, value, status=None):
-        # TODO: validation
-        bind.attributes.set(self.name, value, self.unit, status)
+    def create_decision(self, bind, collect=True):
+        """Created Decision for this Attribute"""
+        decision = RealDecision(
+            "Enter value for %s (%s) of %s" % (self.name, self.bind.name),
+            # validate_func=lambda x: isinstance(x, float),
+            output=bind.__dict__,
+            output_key=self.name,
+            global_key="%s_%s.%s" % (bind.ifc_type, bind.guid, self.name),
+            allow_skip=False, allow_load=True, allow_save=True,
+            validate_func=lambda x: True,  # TODO meaningful validation
+            collect=collect,
+            unit=self.unit,
+        )
+        return decision
 
     @staticmethod
     @contextmanager
@@ -170,22 +202,56 @@ class Attribute:
         by default this function does nothing"""
         return value
 
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
-        _value, _unit, _status = instance.attributes.get(self.name, (None, self.unit, Attribute.STATUS_UNKNOWN))
+    def request(self, bind):
+        """Request attribute"""
 
-        value, unit, status = self.get(instance, _status, _value)
+        # read current value and status
+        value = self.get_value(bind)
+        status = self.get_status(bind)
+
+        if value is None:
+            if status == Attribute.STATUS_NOT_AVAILABLE:
+                # actual request
+                decision = self.create_decision(bind)
+                bind.related_decisions.append(decision)
+                status = Attribute.STATUS_REQUESTED
+                self.set_status(bind, status)
+                return decision
+        else:
+            # already requested or available
+            return
+
+    def initialize(self, bind):
+        if not self.name:
+            raise AttributeError("Attribute.name not set!")
+
+        if hasattr(bind, self.value_name) or hasattr(bind, self.status_name):
+            raise AttributeError('Can\'t overwrite existing attributes of %s' % bind)
+
+    def __get__(self, bind, owner):
+        if bind is None:
+            return self
+
+        # read current value and status
+        value = self.get_value(bind)
+        status = self.get_status(bind)
+
+        if value is None and status == self.STATUS_UNKNOWN:
+            value = self._inner_get(bind)
+            status = self.STATUS_AVAILABLE if value else self.STATUS_NOT_AVAILABLE
 
         if self._force and value is None:
-            value = self.get_from_decision(instance, self.name)
+            value = self.get_from_decision(bind, self.name)
             status = Attribute.STATUS_AVAILABLE
 
-        self.set(instance, value, status)
+        # write back new value and status
+        self.set_value(bind, value)
+        self.set_status(bind, status)
+
         return value
 
-    def __set__(self, instance, value):
-        self.set(instance, value)
+    def __set__(self, bind, value):
+        self.set_value(bind, value)
 
     def __str__(self):
         return "Attribute %s" % self.name
@@ -197,55 +263,52 @@ class AttributeManager(dict):
         super().__init__()
         self.bind = bind
 
-    def set(self, name, value, unit, status=None):
-        self.__setitem__(name, value, unit,  status)
+        # search bind class for Attributes
+        for name, obj in type(self.bind).__dict__.items():
+            if isinstance(obj, Attribute):
+                if not obj.name:
+                    # auto detect name
+                    obj.name = name
+                obj.initialize(self.bind)
+                self[name] = obj
 
-    def __setitem__(self, name, value, unit, status=None):
+    def __setitem__(self, name, value):
+        if isinstance(value, Attribute):
+            return super().__setitem__(name, value)
+
         if name not in self.names:
             raise AttributeError("Invalid Attribute '%s'. Choices are %s" % (name, list(self.names)))
-        if status is None:
-            if value is None:
-                status = Attribute.STATUS_NOT_AVAILABLE
-            else:
-                status = Attribute.STATUS_AVAILABLE
 
-        super().__setitem__(name, (value, unit, status))
+        # set value of Attribute (used by decisions)
+        self.__getitem__(name).__set__(self.bind, value)
 
     def update(self, other):
         # dict.update does not invoke __setitem__
         for k, v in other.items():
-            self.__setitem__(k, v, v.units)
+            self.__setitem__(k, v)
 
-    def request(self, name):
-        """Request attribuute"""
-        value = getattr(self.bind, name)
-        if value is None:
-            value, unit, status = self.__getitem__(name)
+    def request(self, name=None):
+        """Request attribute by name. (name=None -> all)"""
+        if name:
+            names = [name]
+        else:
+            names = self.names
 
-            unitstr = unit if unit else '-'
+        for n in names:
+            attr = self[n]
+            if attr.value is None:
 
-            if status == Attribute.STATUS_NOT_AVAILABLE:
-                # actual request
-                decision = RealDecision(
-                    "Enter value for %s (%s) of %s" % (name, unitstr, self.bind.name),
-                    # validate_func=lambda x: isinstance(x, float),
-                    output=self,
-                    output_key=name,
-                    global_key="%s_%s.%s" % (self.bind.ifc_type, self.bind.guid, name),
-                    allow_skip=False, allow_load=True, allow_save=True,
-                    validate_func=lambda x: True,  # TODO meaningful validation
-                    collect=True,
-                    unit=unit,
-                )
-                self.bind.related_decisions.append(decision)
-                self.__setitem__(name, value, Attribute.STATUS_REQUESTED)
+                if attr.status == Attribute.STATUS_NOT_AVAILABLE:
+                    decision = attr.request(self.bind)
+                    self.bind.related_decisions.append(decision)
+                    attr.status = Attribute.STATUS_REQUESTED
         else:
             # already requested or available
             return
 
     @property
     def names(self):
-        return (name for name, obj in self.bind.__class__.__dict__.items() if isinstance(obj, Attribute))
+        return self.keys()
 
 
 def multi_calc(func):
