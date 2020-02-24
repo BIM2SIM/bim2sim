@@ -8,6 +8,7 @@ import numpy as np
 
 from bim2sim.kernel.element import BaseElement, BasePort
 from bim2sim.kernel import elements, attribute
+from bim2sim.kernel.units import ureg
 
 
 def verify_edge_ports(func):
@@ -196,12 +197,14 @@ class PipeStrand(Aggregation):
         name='diameter',
         description="Average diameter of aggregated pipe",
         functions=[_calc_avg],
+        unit=ureg.millimeter,
     )
 
     length = attribute.Attribute(
         name='length',
         description="Length of aggregated pipe",
-        functions=[_calc_avg]
+        functions=[_calc_avg],
+        unit=ureg.meter,
     )
 
 
@@ -299,8 +302,8 @@ class UnderfloorHeating(PipeStrand):
                     y_orientation.append(element)
                 if abs(element.ports[0].position[1] - element.ports[1].position[1]) < 1:
                     x_orientation.append(element)
-        heating_area = (max_x - min_x) * (max_y - min_y)
-        if heating_area < 1e6:
+        heating_area = (max_x - min_x) * (max_y - min_y) * ureg.meter**2
+        if heating_area < 1e6 * ureg.meter**2:
             return  # heating area criteria failed
 
         # TODO: this is not correct for some layouts
@@ -320,7 +323,7 @@ class UnderfloorHeating(PipeStrand):
 
         kpi_criteria = (underfloor_heating.length * underfloor_heating.diameter) / heating_area
 
-        if 0.09 > kpi_criteria > 0.01:
+        if 0.09*ureg.dimensionless > kpi_criteria > 0.01*ureg.dimensionless:
             return underfloor_heating
         # else kpi criteria failed
 

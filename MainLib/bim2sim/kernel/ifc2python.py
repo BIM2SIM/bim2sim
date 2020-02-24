@@ -5,7 +5,7 @@ Holds logic for target simulation independent file parsing, checking, and data e
 import os
 import logging
 import ifcopenshell
-
+from bim2sim.kernel.units import ifcunits, ureg
 
 def load_ifc(path):
     logger = logging.getLogger('bim2sim')
@@ -20,12 +20,17 @@ def propertyset2dict(propertyset):
     propertydict = {}
     for prop in propertyset.HasProperties:
         unit = prop.Unit
-        # TODO: Unit conversion
         if prop.is_a() == 'IfcPropertySingleValue':
-            propertydict[prop.Name] = prop.NominalValue.wrappedValue
+            unit = ifcunits.get(prop.NominalValue.is_a()) if not unit else unit
+            if unit:
+                propertydict[prop.Name] = prop.NominalValue.wrappedValue * unit
+            else:
+                propertydict[prop.Name] = prop.NominalValue.wrappedValue
         elif prop.is_a() == 'IfcPropertyListValue':
+            # TODO: Unit conversion
             propertydict[prop.Name] = [value.wrappedValue for value in prop.ListValues]
         elif prop.is_a() == 'IfcPropertyBoundedValue':
+            # TODO: Unit conversion
             propertydict[prop.Name] = (prop, prop)
             raise NotImplementedError("Property of type '%s'"%prop.is_a())
         else:
@@ -65,7 +70,11 @@ def get_Property_Set(PropertySetName, element):
         properties = property_set.RelatingPropertyDefinition.HasProperties
         propertydict = {}
         for Property in properties:
-            propertydict[Property.Name] = Property.NominalValue.wrappedValue
+            unit = ifcunits.get(Property.NominalValue.is_a())
+            if unit:
+                propertydict[Property.Name] = Property.NominalValue.wrappedValue * unit
+            else:
+                propertydict[Property.Name] = Property.NominalValue.wrappedValue
         return propertydict
     else:
         return None

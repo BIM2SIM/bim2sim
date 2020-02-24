@@ -4,6 +4,7 @@ import logging
 import enum
 import json
 import hashlib
+from bim2sim.kernel.units import ureg
 
 
 __VERSION__ = '0.1'
@@ -588,11 +589,16 @@ class Decision:
 class RealDecision(Decision):
     """Accepts input of type real"""
 
+    def __init__(self, *args, unit, **kwargs):
+        """"""
+        self.unit = unit if unit else ureg.dimensionless
+        super().__init__(*args, **kwargs)
+
     def parse_input(self, raw_input):
         """Convert input to float"""
 
         try:
-            value = float(raw_input)
+            value = (float(raw_input)*self.unit, self.unit)
         except:
             value = None
         return value

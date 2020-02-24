@@ -4,6 +4,8 @@ from contextlib import contextmanager
 
 from bim2sim.decision import RealDecision
 
+from bim2sim.kernel.units import ureg
+
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
 
@@ -19,6 +21,7 @@ class Attribute:
 
     def __init__(self, name,
                  description="",
+                 unit=None,
                  default_ps=None,
                  patterns=None,
                  ifc_postprocessing=None,
@@ -26,6 +29,7 @@ class Attribute:
                  default=None):
         self.name = name
         self.description = description
+        self.unit = unit
 
         self.default_ps = default_ps
         self.patterns = patterns
@@ -66,6 +70,8 @@ class Attribute:
         # default value
         if value is None and self.default_value:
             value = self.default_value
+            if value and self.unit:
+                value = value * self.unit
 
         return value
 
@@ -135,17 +141,17 @@ class Attribute:
         """Try to get value. Returns None if no method was successful.
         use this method, if None is an acceptable value."""
         if status != Attribute.STATUS_UNKNOWN:
-            return value, status
+            return value, self.unit, status
 
         value = self._inner_get(bind, value)
         if value is None:
             new_status = Attribute.STATUS_NOT_AVAILABLE
         else:
             new_status = Attribute.STATUS_AVAILABLE
-        return value, new_status
+        return value, self.unit, new_status
 
     def set(self, bind, status, value):
-        bind.attributes.set(self.name, value, status)
+        bind.attributes.set(self.name, value, self.unit, status)
 
     @staticmethod
     @contextmanager
@@ -164,9 +170,9 @@ class Attribute:
     def __get__(self, instance, owner):
         if instance is None:
             return self
-        _value, _status = instance.attributes.get(self.name, (None, Attribute.STATUS_UNKNOWN))
+        _value, _unit, _status = instance.attributes.get(self.name, (None, self.unit, Attribute.STATUS_UNKNOWN))
 
-        value, status = self.get(instance, _status, _value)
+        value, unit, status = self.get(instance, _status, _value)
 
         if self._force and value is None:
             value = self.get_from_decision(instance, self.name)
@@ -185,42 +191,46 @@ class AttributeManager(dict):
         super().__init__()
         self.bind = bind
 
-    def set(self, name, value, status=None):
-        self.__setitem__(name, value, status)
+    def set(self, name, value, unit, status=None):
+        self.__setitem__(name, value, unit,  status)
 
-    def __setitem__(self, name, value, status=None):
+    def __setitem__(self, name, value, unit, status=None):
         if status is None:
             if value is None:
                 status = Attribute.STATUS_NOT_AVAILABLE
             else:
                 status = Attribute.STATUS_AVAILABLE
 
-        super().__setitem__(name, (value, status))
+        super().__setitem__(name, (value, unit, status))
 
     def update(self, other):
         # dict.update does not invoke __setitem__
         for k, v in other.items():
-            self.__setitem__(k, v)
+            self.__setitem__(k, v, v.units)
 
     def request(self, name):
         """Request attribuute"""
         value = getattr(self.bind, name)
         if value is None:
-            value, status = self.__getitem__(name)
+            value, unit, status = self.__getitem__(name)
+
+            unitstr = unit if unit else '-'
 
             if status == Attribute.STATUS_NOT_AVAILABLE:
                 # actual request
                 decision = RealDecision(
-                    "Enter value for %s of %s" % (name, self.bind.name),
+                    "Enter value for %s (%s) of %s" % (name, unitstr, self.bind.name),
                     # validate_func=lambda x: isinstance(x, float),
                     output=self,
                     output_key=name,
                     global_key="%s_%s.%s" % (self.bind.ifc_type, self.bind.guid, name),
                     allow_skip=False, allow_load=True, allow_save=True,
                     validate_func=lambda x: True,  # TODO meaningful validation
-                    collect=True
+                    collect=True,
+                    unit=unit,
                 )
                 self.bind.related_decisions.append(decision)
+                self.__setitem__(name, value, Attribute.STATUS_REQUESTED)
         else:
             # already requested or available
             return
