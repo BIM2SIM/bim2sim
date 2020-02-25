@@ -44,7 +44,7 @@ class ClosedVolume(StandardLibrary):
         self.check_volume = self.check_numeric(min_value=0)
         super().__init__(element)
 
-    def get_params(self):
+    def volume(self):
         self.register_param("volume", self.check_volume)
 
     def get_port_name(self, port):

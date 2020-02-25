@@ -41,3 +41,22 @@ ifc_pint_unitmap = {
     'WATT': 'watt',
     'WEBER': 'weber'
 }
+
+
+def parse_ifc(unit_entity):
+
+    unit_type = unit_entity.is_a()
+    if unit_type == 'IfcDerivedUnit':
+        pass  # TODO: Implement
+    elif unit_type == 'IfcSIUnit':
+        prefix_string = unit_entity.Prefix.lower() if unit_entity.Prefix else ''
+        unit = ureg.parse_units('{}{}'.format(prefix_string, ifc_pint_unitmap[unit_entity.Name]))
+        if unit_entity.Dimensions:
+            unit = unit ** unit_entity.Dimensions
+        return unit
+    elif unit_type == 'IfcConversionBasedUnit':
+        pass  # TODO: Implement
+    elif unit_type == 'IfcMonetaryUnit':
+        pass  # TODO: Implement
+    else:
+        pass  # TODO: Implement

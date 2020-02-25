@@ -13,7 +13,7 @@ from bim2sim.kernel.units import ureg
 
 def diameter_post_processing(value):
     if isinstance(value, list):
-        return np.average(value).item()
+        return sum(value) / len(value)
     return value
 
 
@@ -353,21 +353,24 @@ class Storage(element.Element):
     def storage_type(self):
         return None
 
-    @property
-    def height(self):
-        return 1
+    height = attribute.Attribute(
+        unit=ureg.meter,
+    )
 
-    @ property
-    def diameter(self):
-        return 1
+    diameter = attribute.Attribute(
+        unit=ureg.millimeter,
+    )
 
     @property
     def port_positions(self):
         return (0, 0.5, 1)
 
-    @property
-    def volume(self):
+    def _calc_volume(self):
         return self.height * self.diameter ** 2 / 4 * math.pi
+
+    volume = attribute.Attribute(
+        unit=ureg.meter ** 3,
+    )
 
 
 class Distributor(element.Element):

@@ -2,6 +2,8 @@
 import logging
 from contextlib import contextmanager
 
+import pint
+
 from bim2sim.decision import RealDecision
 
 from bim2sim.kernel.units import ureg
@@ -109,6 +111,11 @@ class Attribute:
             if value and self.unit:
                 value = value * self.unit
 
+        # check unit
+        if value is not None and not isinstance(value, pint.Quantity):
+            logger.warning("Unit not set!")
+            value = value * self.unit
+
         return value
 
     @staticmethod
@@ -176,7 +183,7 @@ class Attribute:
     def create_decision(self, bind, collect=True):
         """Created Decision for this Attribute"""
         decision = RealDecision(
-            "Enter value for %s (%s) of %s" % (self.name, self.bind.name),
+            "Enter value for %s of %s" % (self.name, bind.name),
             # validate_func=lambda x: isinstance(x, float),
             output=bind.__dict__,
             output_key=self.name,
@@ -262,7 +269,7 @@ class AttributeManager(dict):
     def __init__(self, bind):
         super().__init__()
         self.bind = bind
-
+        
         # search bind class for Attributes
         for name, obj in type(self.bind).__dict__.items():
             if isinstance(obj, Attribute):
@@ -295,13 +302,18 @@ class AttributeManager(dict):
             names = self.names
 
         for n in names:
-            attr = self[n]
-            if attr.value is None:
+            try:
+                attr = self[n]
+            except KeyError:
+                raise KeyError("%s has no Attribute '%s'" % (self.bind, n))
+            value = attr.get_value(self.bind)
+            status = attr.get_status(self.bind)
+            if value is None:
 
-                if attr.status == Attribute.STATUS_NOT_AVAILABLE:
+                if status == Attribute.STATUS_NOT_AVAILABLE:
                     decision = attr.request(self.bind)
                     self.bind.related_decisions.append(decision)
-                    attr.status = Attribute.STATUS_REQUESTED
+                    attr.set_status(self.bind, Attribute.STATUS_REQUESTED)
         else:
             # already requested or available
             return

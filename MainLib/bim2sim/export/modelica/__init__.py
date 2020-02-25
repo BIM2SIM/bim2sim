@@ -62,6 +62,8 @@ class Model:
                 y = (self.size_y[0] + rel_pos[1] * delta_y).item()
                 inst.position = (x, y)
                 instance_dict[inst.name] = inst.position
+            else:
+                instance_dict[inst.name] = (0, 0)
 
         # add positions to connections
         for inst0, inst1 in connections:

@@ -5,7 +5,7 @@ Holds logic for target simulation independent file parsing, checking, and data e
 import os
 import logging
 import ifcopenshell
-from bim2sim.kernel.units import ifcunits, ureg
+from bim2sim.kernel.units import ifcunits, ureg, parse_ifc
 
 def load_ifc(path):
     logger = logging.getLogger('bim2sim')
@@ -19,7 +19,7 @@ def propertyset2dict(propertyset):
     """Converts IfcPropertySet to python dict"""
     propertydict = {}
     for prop in propertyset.HasProperties:
-        unit = prop.Unit
+        unit = parse_ifc(prop.Unit) if prop.Unit else None
         if prop.is_a() == 'IfcPropertySingleValue':
             unit = ifcunits.get(prop.NominalValue.is_a()) if not unit else unit
             if unit:
@@ -28,7 +28,11 @@ def propertyset2dict(propertyset):
                 propertydict[prop.Name] = prop.NominalValue.wrappedValue
         elif prop.is_a() == 'IfcPropertyListValue':
             # TODO: Unit conversion
-            propertydict[prop.Name] = [value.wrappedValue for value in prop.ListValues]
+            values = []
+            for value in prop.ListValues:
+                unit = ifcunits.get(value.is_a()) if not unit else unit
+                values.append(value.wrappedValue * unit)
+            propertydict[prop.Name] = values
         elif prop.is_a() == 'IfcPropertyBoundedValue':
             # TODO: Unit conversion
             propertydict[prop.Name] = (prop, prop)
