@@ -719,7 +719,7 @@ class RealDecision(Decision):
     def serialize_value(self):
         kwargs = {
             'value': self.value.magnitude,
-            'unit': str(self.unit)
+            'unit': str(self.value.units)
         }
         return kwargs
 
