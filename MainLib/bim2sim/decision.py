@@ -5,6 +5,9 @@ import enum
 import json
 import hashlib
 from contextlib import contextmanager
+
+import pint
+
 from bim2sim.kernel.units import ureg
 
 
@@ -60,7 +63,7 @@ class FrontEnd:
         raise NotImplementedError
 
     def get_question(self, decision):
-        return decision.question
+        return decision.get_question()
 
     def get_body(self, decision):
         return decision.get_body()
@@ -190,16 +193,19 @@ class ConsoleFrontEnd(FrontEnd):
         if isinstance(decision, BoolDecision):
             return self.parse_bool_input(raw_answer)
         elif isinstance(decision, RealDecision):
-            return self.parse_real_input(raw_answer)
+            return self.parse_real_input(raw_answer, decision.unit)
         elif isinstance(decision, ListDecision):
             return self.parse_list_input(raw_answer, decision.items)
 
     @staticmethod
-    def parse_real_input(raw_input):
+    def parse_real_input(raw_input, unit=None):
         """Convert input to float"""
 
         try:
-            value = float(raw_input) * self.unit
+            if unit:
+                value = float(raw_input) * unit
+            else:
+                value = float(raw_input)
         except:
             value = None
         return value
@@ -273,7 +279,7 @@ class ExternalFrontEnd(FrontEnd):
             if not remaining:
                 break
         else:
-            raise DecisionException("Failed to solve decisions anfter %d retries", loop + 1)
+            raise DecisionException("Failed to solve decisions after %d retries", loop + 1)
         return
 
     @staticmethod
@@ -473,6 +479,9 @@ class Decision:
         yield
         cls.disable_debug()
 
+    def get_debug_answer(self):
+        return self._debug_answer
+
     def _validate(self, value):
         raise NotImplementedError("Implement method _validate!")
 
@@ -505,9 +514,9 @@ class Decision:
 
         if self._debug_mode:
             if self._debug_validate:
-                self.value = self._debug_answer
+                self.value = self.get_debug_answer()
             else:
-                self._value = self._debug_answer
+                self._value = self.get_debug_answer()
                 self.status = Status.done
                 self._post()
         else:
@@ -601,27 +610,42 @@ class Decision:
         txt += ""
         return txt
 
+    def reset_from_deserialized(self, kwargs):
+        """"""
+        value = kwargs['value']
+        checksum = kwargs.get('checksum')
+        if value is None:
+            return
+        if (not self.validate_func) or self.validate_func(value):
+            if checksum == self.validate_checksum:
+                self.value = value
+                self.status = Status.loadeddone
+                self.logger.info("Loaded decision '%s' with value: %s", self.global_key, value)
+            else:
+                self.logger.warning("Checksum mismatch for loaded decision '%s", self.global_key)
+        else:
+            self.logger.warning("Check for loaded decision '%s' failed. Loaded value: %s",
+                                self.global_key, value)
+
     def _inner_load(self):
         """Loads decision with matching global_key.
 
         Decision.load() first."""
 
         if self.global_key:
-            kwargs = Decision.stored_decisions.get(self.global_key, {'value': None})
-            value = kwargs['value']
-            checksum = kwargs.get('checksum')
-            if value is None:
-                return
-            if (not self.validate_func) or self.validate_func(value):
-                if checksum == self.validate_checksum:
-                    self.value = value
-                    self.status = Status.loadeddone
-                    self.logger.info("Loaded decision '%s' with value: %s", self.global_key, value)
-                else:
-                    self.logger.warning("Checksum mismatch for loaded decision '%s", self.global_key)
-            else:
-                self.logger.warning("Check for loaded decision '%s' failed. Loaded value: %s",
-                                    self.global_key, value)
+            kwargs = Decision.stored_decisions.get(self.global_key, None)
+            if kwargs is not None:
+                self.reset_from_deserialized(kwargs)
+
+    def serialize_value(self):
+        return {'value': self.value}
+
+    def get_serializable(self):
+        """Returns json serializable object representing state of decision"""
+        kwargs = self.serialize_value()
+        if self.validate_checksum:
+            kwargs['checksum'] = self.validate_checksum
+        return kwargs
 
     def _inner_save(self):
         """Make decision saveable by Decision.save()"""
@@ -635,9 +659,8 @@ class Decision:
             #     "Decision id '%s' is not unique!"%(self.global_key)
             assert self.status != Status.open, \
                 "Decision not made. There is nothing to store."
-            kwargs = {'value': self.value}
-            if self.validate_checksum:
-                kwargs['checksum'] = self.validate_checksum
+            kwargs = self.get_serializable()
+
             Decision.stored_decisions[self.global_key] = kwargs
             self.status = Status.saveddone
             self.logger.info("Stored decision '%s' with value: %s", self.global_key, self.value)
@@ -658,6 +681,9 @@ class Decision:
 
         return options
 
+    def get_question(self):
+        return self.question
+
     def get_body(self):
         """Returns list of tuples representing items of CollectionDecision else None"""
         return None
@@ -673,8 +699,33 @@ class RealDecision(Decision):
         """"""
         self.unit = unit if unit else ureg.dimensionless
         super().__init__(*args, **kwargs)
+
     def _validate(self, value):
-        return isinstance(value, float)
+        if isinstance(value, pint.Quantity):
+            try:
+                float(value.m)
+            except:
+                pass
+            else:
+                return True
+        return False
+
+    def get_question(self):
+        return "{} in [{}]".format(self.question, self.unit)
+
+    def get_debug_answer(self):
+        return self._debug_answer * self.unit
+
+    def serialize_value(self):
+        kwargs = {
+            'value': self.value.magnitude,
+            'unit': str(self.unit)
+        }
+        return kwargs
+
+    def reset_from_deserialized(self, kwargs):
+        kwargs['value'] = pint.Quantity(kwargs['value'], kwargs.pop('unit', str(self.unit)))
+        super().reset_from_deserialized(kwargs)
 
 
 class BoolDecision(Decision):

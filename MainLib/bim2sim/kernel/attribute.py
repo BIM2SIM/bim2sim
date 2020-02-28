@@ -182,6 +182,7 @@ class Attribute:
 
     def create_decision(self, bind, collect=True):
         """Created Decision for this Attribute"""
+        # TODO: set state in output dict -> attributemanager
         decision = RealDecision(
             "Enter value for %s of %s" % (self.name, bind.name),
             # validate_func=lambda x: isinstance(x, float),
@@ -269,7 +270,7 @@ class AttributeManager(dict):
     def __init__(self, bind):
         super().__init__()
         self.bind = bind
-        
+
         # search bind class for Attributes
         for name, obj in type(self.bind).__dict__.items():
             if isinstance(obj, Attribute):

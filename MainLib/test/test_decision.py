@@ -5,8 +5,11 @@ from unittest.mock import patch
 import tempfile
 import os
 
+import pint
+
 from bim2sim import decision
 from bim2sim.decision import Decision
+from bim2sim.kernel.units import ureg
 
 
 class DecisionTestBase(unittest.TestCase):
@@ -31,7 +34,7 @@ class TestDecision(DecisionTestBase):
             dec.decide()
 
         self.assertEqual(dec.value, 5)
-        self.assertIsInstance(dec.value, float)
+        self.assertIsInstance(dec.value, pint.Quantity)
 
     def test_invalid_value(self):
         """test float value for IntDecision"""
@@ -93,7 +96,7 @@ class TestDecision(DecisionTestBase):
 
     def check(self, value):
         """validation func"""
-        return 0 < value < 10
+        return 0 < float(value) < 10
 
     def test_save_load(self):
         """test saving decisions an loading them"""
@@ -135,7 +138,7 @@ class TestDecision(DecisionTestBase):
             validate_func=self.check,
             global_key=key_real,
             allow_load=True)
-        self.assertEqual(dec_real_loaded.value, 5)
+        self.assertEqual(float(dec_real_loaded.value), 5)
         dec_bool_loaded = decision.BoolDecision(
             question="??",
             global_key=key_bool,
@@ -200,37 +203,47 @@ class TestRealDecision(DecisionTestBase):
 
     def check(self, value):
         """validation func"""
-        return 0 < value < 10
+        return 0 < float(value.m_as('m')) < 10
 
     def test_validation(self):
         """test value validation"""
+        unit = ureg.meter
+        dec = decision.RealDecision(question="??", unit=unit)
 
-        dec = decision.RealDecision(question="??")
-
-        self.assertTrue(dec.validate(5.))
-        self.assertTrue(dec.validate(15.))
+        self.assertTrue(dec.validate(5. * unit))
+        self.assertTrue(dec.validate(15. * unit))
+        self.assertFalse(dec.validate(5.))
         self.assertFalse(dec.validate(5))
         self.assertFalse(dec.validate(False))
 
-        dec_val = decision.RealDecision(question="??", validate_func=self.check)
+        dec_val = decision.RealDecision(question="??", unit=unit, validate_func=self.check)
 
-        self.assertTrue(dec_val.validate(5.))
-        self.assertFalse(dec_val.validate(15.))
-        self.assertFalse(dec_val.validate(5))
+        self.assertTrue(dec_val.validate(5. * unit))
+        self.assertFalse(dec_val.validate(15. * unit))
+        self.assertTrue(dec_val.validate(5 * unit))
         self.assertFalse(dec_val.validate(False))
 
     def test_save_load(self):
         """test saving decisions an loading them"""
-        key = "key1"
+        key1 = "key1"
+        key2 = "key2"
+        unit = ureg.meter
         with Decision.debug_answer(5.):
-            dec = decision.RealDecision(
+            dec1 = decision.RealDecision(
                 question="??",
-                validate_func=self.check,
-                global_key=key,
+                global_key=key1,
                 allow_save=True)
-            dec.decide()
+            dec1.decide()
+            dec2 = decision.RealDecision(
+                question="??",
+                unit=unit,
+                validate_func=self.check,
+                global_key=key2,
+                allow_save=True)
+            dec2.decide()
 
-        self.assertTrue(dec.value)
+        self.assertTrue(dec1.value)
+        self.assertTrue(dec2.value)
 
         with tempfile.TemporaryDirectory(prefix='bim2sim_') as directory:
             path = os.path.join(directory, "real")
@@ -244,16 +257,23 @@ class TestRealDecision(DecisionTestBase):
             with Decision.debug_answer(True):
                 decision.Decision.load(path)
 
-        dec_loaded = decision.RealDecision(
+        dec1_loaded = decision.RealDecision(
             question="??",
-            validate_func=self.check,
-            global_key=key,
+            global_key=key1,
             allow_load=True)
-        self.assertEqual(dec_loaded.value, 5.)
-        self.assertIsInstance(dec_loaded.value, float)
+        self.assertEqual(float(dec1_loaded.value), 5.)
+        self.assertIsInstance(dec1_loaded.value, pint.Quantity)
 
+        dec2_loaded = decision.RealDecision(
+            question="??",
+            unit=unit,
+            validate_func=self.check,
+            global_key=key2,
+            allow_load=True)
+        self.assertEqual(float(dec2_loaded.value.m_as('m')), 5)
+        self.assertIsInstance(dec2_loaded.value.m, float)
 
-# IndDecision not implemented
+# IntDecision not implemented
 
 
 class TestListDecision(DecisionTestBase):
@@ -325,7 +345,7 @@ class TestConsoleFrontend(DecisionTestBase):
         Decision.frontend = cls._backup
 
     def check(self, value):
-        return 0 < value < 10
+        return True
 
     @patch('builtins.input', lambda *args, **kwargs: 'bla bla')
     def test_bad_input(self):
@@ -362,12 +382,13 @@ class TestConsoleFrontend(DecisionTestBase):
             '1e0': 1,
             '1e-1': 0.1,
         }
+        unit = ureg.meter
 
         for inp, res in expected_valids.items():
             with patch('builtins.input', lambda *args: inp):
-                dec = decision.RealDecision(question="??", validate_func=self.check)
+                dec = decision.RealDecision(question="??", unit=unit, validate_func=self.check)
                 dec.decide()
-                self.assertEqual(dec.value, res)
+                self.assertEqual(dec.value, res * unit)
 
     def test_bool_parse(self):
         """test bool value parsing"""
@@ -397,13 +418,13 @@ class TestConsoleFrontend(DecisionTestBase):
 
         parsed_int = Decision.frontend.parse(dec, 5)
         self.assertEqual(parsed_int, 5.)
-        self.assertIsInstance(parsed_int, float)
+        self.assertIsInstance(parsed_int, pint.Quantity)
         parsed_real = Decision.frontend.parse(dec, 5.)
         self.assertEqual(parsed_real, 5.)
-        self.assertIsInstance(parsed_real, float)
+        self.assertIsInstance(parsed_real, pint.Quantity)
         parsed_str = Decision.frontend.parse(dec, '5')
         self.assertEqual(parsed_str, 5.)
-        self.assertIsInstance(parsed_str, float)
+        self.assertIsInstance(parsed_str, pint.Quantity)
         parsed_invalid = Decision.frontend.parse(dec, 'five')
         self.assertIsNone(parsed_invalid)
 
