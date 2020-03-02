@@ -95,6 +95,17 @@ class TestAttribute(unittest.TestCase):
         self.subject.attributes['attr3'] = True
         self.assertEqual(self.subject.attr3, True)
 
+    def test_attribute_manager_unit(self):
+        """test get unit from manager"""
+        self.assertEqual(self.subject.attributes.get_unit('attr1'), ureg.meter)
+
+    def test_attribute_manager_names(self):
+        """test names of manager"""
+
+        target = {'attr1', 'attr2', 'attr3', 'attr4'}
+        found = set(self.subject.attributes.names)
+        self.assertEqual(target, found)
+
     def test_set_invalid_attribute(self):
         """Test setting an invalid attribute"""
         with self.assertRaises(AttributeError):

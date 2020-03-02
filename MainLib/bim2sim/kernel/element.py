@@ -36,7 +36,7 @@ class ElementEncoder(JSONEncoder):
         return JSONEncoder.default()
 
 
-class Root:
+class Root(metaclass=attribute.AutoAttributeNameMeta):
     """Most basic class
 
     keeps track of created instances and guids"""
@@ -90,7 +90,7 @@ class Root:
             related_decisions = []
             for obj in Root.objects.values():
                 related_decisions.extend(obj.related_decisions)
-            Decision.decide_collected(collection=related_decisions)
+            Decision.decide_collected(collection=set(related_decisions))
         else:
             # called from instance
             Decision.decide_collected(collection=self.related_decisions)
