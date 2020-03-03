@@ -72,12 +72,12 @@ def parse_ifc(unit_entity):
             unit = unit ** unit_component.Dimensions
         return unit
     elif unit_type == 'IfcMonetaryUnit':
-        # TODO: Not Tested?! No Example
-        unit_component = unit_entity.ConversionFactor.UnitComponent
-        prefix_string = unit_component.Prefix.lower() if unit_component.Prefix else ''
-        unit = ureg.parse_units('{}{}'.format(prefix_string, ifc_pint_unitmap[unit_component.Name]))
-        if unit_component.Dimensions:
-            unit = unit ** unit_component.Dimensions
+        # TODO: Need To Be Testet Currency in IFC = Currency in PINT?
+        currency = unit_entity.Currency
+        try:
+            unit = ureg.parse_units(currency)
+        except:
+            unit = ureg.dimensionless
         return unit
     else:
         pass  # TODO: Implement
