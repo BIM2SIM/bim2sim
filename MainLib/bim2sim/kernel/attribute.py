@@ -314,7 +314,7 @@ class AttributeManager(dict):
 
     @property
     def names(self):
-        return (name for name, obj in type(self.bind).__dict__.items() if isinstance(obj, Attribute))
+        return (name for name in dir(type(self.bind)) if isinstance(getattr(type(self.bind), name), Attribute))
 
 
 def multi_calc(func):

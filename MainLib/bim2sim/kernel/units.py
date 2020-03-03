@@ -47,7 +47,15 @@ def parse_ifc(unit_entity):
 
     unit_type = unit_entity.is_a()
     if unit_type == 'IfcDerivedUnit':
-        pass  # TODO: Implement
+        # TODO: Test if unit_component ist no IFCSIUnit?!?!
+        unit = ureg.dimensionless
+        for element in unit_entity.Elements:
+            prefix_string = element.Unit.Prefix.lower() if element.Unit.Prefix else ''
+            unit_part = ureg.parse_units('{}{}'.format(prefix_string, ifc_pint_unitmap[element.Unit.Name]))
+            if element.Unit.Dimensions:
+                unit_part = unit_part ** element.Dimensions
+            unit = unit * unit_part ** element.Exponent
+        return unit
     elif unit_type == 'IfcSIUnit':
         prefix_string = unit_entity.Prefix.lower() if unit_entity.Prefix else ''
         unit = ureg.parse_units('{}{}'.format(prefix_string, ifc_pint_unitmap[unit_entity.Name]))
@@ -55,8 +63,21 @@ def parse_ifc(unit_entity):
             unit = unit ** unit_entity.Dimensions
         return unit
     elif unit_type == 'IfcConversionBasedUnit':
-        pass  # TODO: Implement
+        # TODO: Test with multiple components? test if unit_component ist no IFCSIUnit?!?! Conversion?! Seperate
+        #  or use in units?!
+        unit_component = unit_entity.ConversionFactor.UnitComponent
+        prefix_string = unit_component.Prefix.lower() if unit_component.Prefix else ''
+        unit = ureg.parse_units('{}{}'.format(prefix_string, ifc_pint_unitmap[unit_component.Name]))
+        if unit_component.Dimensions:
+            unit = unit ** unit_component.Dimensions
+        return unit
     elif unit_type == 'IfcMonetaryUnit':
-        pass  # TODO: Implement
+        # TODO: Not Tested?! No Example
+        unit_component = unit_entity.ConversionFactor.UnitComponent
+        prefix_string = unit_component.Prefix.lower() if unit_component.Prefix else ''
+        unit = ureg.parse_units('{}{}'.format(prefix_string, ifc_pint_unitmap[unit_component.Name]))
+        if unit_component.Dimensions:
+            unit = unit ** unit_component.Dimensions
+        return unit
     else:
         pass  # TODO: Implement

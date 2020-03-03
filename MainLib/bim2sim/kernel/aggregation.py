@@ -8,7 +8,7 @@ import numpy as np
 from bim2sim.kernel.element import BaseElement, BasePort
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
-from bim2sim.kernel.units import ureg
+from bim2sim.kernel.units import ureg, ifcunits
 
 
 def verify_edge_ports(func):
@@ -154,7 +154,13 @@ class PipeStrand(Aggregation):
     multi = ('length', 'diameter')
 
     def __init__(self, name, element_graph, *args, **kwargs):
+        length = kwargs.pop('length', None)
+        diameter = kwargs.pop('diameter', None)
         super().__init__(name, element_graph, *args, **kwargs)
+        if length:
+            self.length = length
+        if diameter:
+            self.diameter = diameter
         edge_ports = self.get_edge_ports(element_graph)
         for port in edge_ports:
             self.ports.append(AggregationPort(port, parent=self))
@@ -206,14 +212,12 @@ class PipeStrand(Aggregation):
         return graphs, metas
 
     diameter = attribute.Attribute(
-        name='diameter',
         description="Average diameter of aggregated pipe",
         functions=[_calc_avg],
         unit=ureg.millimeter,
     )
 
     length = attribute.Attribute(
-        name='length',
         description="Length of aggregated pipe",
         functions=[_calc_avg],
         unit=ureg.meter,
@@ -225,20 +229,20 @@ class UnderfloorHeating(PipeStrand):
     pipes is between 0.1m and 0.2m"""
 
     def __init__(self, name, element_graph, *args, **kwargs):
+        x_spacing = kwargs.pop('x_spacing', None)
+        y_spacing = kwargs.pop('y_spacing', None)
+        heating_area = kwargs.pop('heating_area', None)
         super().__init__(name, element_graph, *args, **kwargs)
         edge_ports = self.get_edge_ports(element_graph)
         for port in edge_ports:
             self.ports.append(AggregationPort(port, parent=self))
 
-        x_spacing = kwargs.pop('x_spacing')
         if x_spacing:
             self.x_spacing = x_spacing
 
-        y_spacing = kwargs.pop('y_spacing')
         if y_spacing:
             self.y_spacing = x_spacing
 
-        heating_area = kwargs.pop('heating_area')
         if heating_area:
             self.heating_area = heating_area
 
@@ -319,21 +323,24 @@ class UnderfloorHeating(PipeStrand):
                     y_orientation.append(element)
                 if abs(element.ports[0].position[1] - element.ports[1].position[1]) < 1:
                     x_orientation.append(element)
-        heating_area = (max_x - min_x) * (max_y - min_y)
-        if heating_area < 1e6:
+
+        length_unit = ifcunits.get('IfcLengthMeasure')
+        heating_area = (max_x - min_x) * (max_y - min_y) * length_unit ** 2
+        if heating_area < 1e6 * ifcunits.get('IfcLengthMeasure') ** 2:
             return  # heating area criteria failed
 
         # TODO: this is not correct for some layouts
         if len(y_orientation) - 1 != 0:
-            x_spacing = (max_x - min_x) / (len(y_orientation) - 1)
+            x_spacing = (max_x - min_x) / (len(y_orientation) - 1) * length_unit
         if len(x_orientation) - 1 != 0:
-            y_spacing = (max_y - min_y) / (len(x_orientation) - 1)
-        if not ((90 < x_spacing < 210) or (90 < y_spacing < 210)):
+            y_spacing = (max_y - min_y) / (len(x_orientation) - 1) * length_unit
+        if not ((90 * length_unit < x_spacing < 210 * length_unit) or
+                (90 * length_unit < y_spacing < 210 * length_unit)):
             return  # spacing criteria failed
 
         # check final kpi criteria
         total_length = sum(segment.length for segment in uh_elements)
-        avg_diameter = math.sqrt(sum(segment.dimeter ** 2 * segment.length for segment in uh_elements) / total_length)
+        avg_diameter = (sum(segment.diameter ** 2 * segment.length for segment in uh_elements) / total_length)**0.5
 
         kpi_criteria = (total_length * avg_diameter) / heating_area
 
@@ -359,17 +366,17 @@ class UnderfloorHeating(PipeStrand):
         pass
 
     heating_area = attribute.Attribute(
-        name='heating_area',
+        unit=ureg.meter ** 2,
         description='Heating area',
         functions=[_calc_avg]
     )
     x_spacing = attribute.Attribute(
-        name='x_spacing',
+        unit=ureg.meter,
         description='Spacing in x',
         functions=[_calc_avg]
     )
     y_spacing = attribute.Attribute(
-        name='y_spacing',
+        unit=ureg.meter,
         description='Spacing in y',
         functions=[_calc_avg]
     )

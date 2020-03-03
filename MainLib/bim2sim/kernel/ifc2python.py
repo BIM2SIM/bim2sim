@@ -21,11 +21,14 @@ def propertyset2dict(propertyset):
     for prop in propertyset.HasProperties:
         unit = parse_ifc(prop.Unit) if prop.Unit else None
         if prop.is_a() == 'IfcPropertySingleValue':
-            unit = ifcunits.get(prop.NominalValue.is_a()) if not unit else unit
-            if unit:
-                propertydict[prop.Name] = prop.NominalValue.wrappedValue * unit
+            if prop.NominalValue is not None:
+                unit = ifcunits.get(prop.NominalValue.is_a()) if not unit else unit
+                if unit:
+                    propertydict[prop.Name] = prop.NominalValue.wrappedValue * unit
+                else:
+                    propertydict[prop.Name] = prop.NominalValue.wrappedValue
             else:
-                propertydict[prop.Name] = prop.NominalValue.wrappedValue
+                a=1
         elif prop.is_a() == 'IfcPropertyListValue':
             # TODO: Unit conversion
             values = []
