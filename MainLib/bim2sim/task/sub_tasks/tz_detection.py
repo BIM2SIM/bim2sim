@@ -3,6 +3,7 @@ from bim2sim.kernel import elements
 from bim2sim.decision import DictDecision, ListDecision, RealDecision, BoolDecision
 from bim2sim.kernel.element import Element
 from bim2sim.kernel.ifc2python import getElementType
+from bim2sim.kernel.disaggregation import Disaggregation, SubSlab
 import copy
 
 class Inspect(Task):
@@ -49,6 +50,7 @@ class Inspect(Task):
     def bind_elements_to_zone(self, thermalzone):
         """Binds the different elements to the belonging zones"""
         relevant_ifc_types = self.task.workflow.relevant_ifc_types
+        bound_instances = []
         for binding in thermalzone.ifc.BoundedBy:
             bound_element = binding.RelatedBuildingElement
             if bound_element is not None:
@@ -58,12 +60,18 @@ class Inspect(Task):
             # todo virtual element crashs -> solve
             if bound_element_type in relevant_ifc_types:
                 bound_instance = thermalzone.get_object(bound_element.GlobalId)
-                if bound_element_type == 'IfcSlab':
-                    bound_instance = self.slice_slab(bound_instance, thermalzone)
-                if bound_instance not in thermalzone.bound_elements:
-                    thermalzone.bound_elements.append(bound_instance)
-                if thermalzone not in bound_instance.thermal_zones:
-                    bound_instance.thermal_zones.append(thermalzone)
+                if bound_instance not in bound_instances:
+                    bound_instances.append(bound_instance)
+        for bound_instance in bound_instances:
+            if bound_instance.ifc_type == 'IfcSlab':
+                bound_instance = SubSlab.create_on_match("Subslab_%s" % bound_instance.name, bound_instance, thermalzone)
+                # bound_instance = self.slice_slab(bound_instance, thermalzone)
+            if bound_instance not in thermalzone.bound_elements:
+                thermalzone.bound_elements.append(bound_instance)
+            if thermalzone not in bound_instance.thermal_zones:
+                bound_instance.thermal_zones.append(thermalzone)
+
+        # print("")
 
     def slice_slab(self, bound_instance, thermalzone):
         """slice slabs"""
@@ -72,11 +80,11 @@ class Inspect(Task):
         slab.position = thermalzone.position
         slab.name = "Sub_%s" % bound_instance.name
         slab.parent = []
+        slab.parent.append(bound_instance)
+        slab.guid = None
         if not hasattr(bound_instance, "sub_slabs"):
             bound_instance.sub_slabs = []
         if slab not in bound_instance.sub_slabs:
             bound_instance.sub_slabs.append(slab)
-        if bound_instance.guid not in slab.parent:
-            slab.parent.append(bound_instance)
 
         return slab
