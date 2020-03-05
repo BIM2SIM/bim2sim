@@ -67,22 +67,16 @@ class Inspect(Task):
 
     def slice_slab(self, bound_instance, thermalzone):
         """slice slabs"""
-        # original_guid = str(bound_instance.ifc.guid)
-        # bound_instance.ifc.guid = 'sub_%s' % original_guid
-        # slab = Element.factory(bound_instance.ifc, 'IfcSlab')
-        slab = copy.copy(bound_instance) # funciona? - check sub_slabs
+        slab = copy.copy(bound_instance)
         slab.area = float(thermalzone.area)
         slab.position = thermalzone.position
-        slab.name = "sub_%s" % bound_instance.name
-        slab.guid = None
+        slab.name = "Sub_%s" % bound_instance.name
+        slab.parent = []
+        if not hasattr(bound_instance, "sub_slabs"):
+            bound_instance.sub_slabs = []
         if slab not in bound_instance.sub_slabs:
             bound_instance.sub_slabs.append(slab)
-        if bound_instance not in slab.parent:
+        if bound_instance.guid not in slab.parent:
             slab.parent.append(bound_instance)
 
         return slab
-
-    # class Slab():
-    #
-    #
-    #

@@ -769,10 +769,11 @@ class Slab(element.Element):
         default=0
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.parent = []
-        self.sub_slabs = []
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #   self.parent = []
+    #   self.sub_slabs = []
+
 
 class Roof(Slab):
     ifc_type = ["IfcSlab", "IfcRoof"]
