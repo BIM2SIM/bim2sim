@@ -11,6 +11,7 @@ import numpy as np
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import ifc2python, attribute
 from bim2sim.decision import Decision, BoolDecision, RealDecision, ListDecision, DictDecision, PendingDecisionError
+from bim2sim.kernel.ifc2python import getProject
 
 logger = logging.getLogger(__name__)
 
@@ -144,53 +145,83 @@ class IFCBased(Root):
                          PlacementRelTo.RelativePlacement.Location.Coordinates)
         return rel + relto
 
+    # def calc_orientation(self):
+    #     if hasattr(self, 'is_external'):
+    #         external = self.is_external
+    #     else:
+    #         external = False
+    #     try:
+    #         if external is True:
+    #             orientation = []
+    #             placementrel = self.ifc.ObjectPlacement.PlacementRelTo
+    #             while placementrel is not None:
+    #                 if placementrel.PlacementRelTo is None:
+    #                     orientation = placementrel.RelativePlacement.RefDirection.DirectionRatios[0:2]
+    #                 placementrel = placementrel.PlacementRelTo
+    #             sign = self.ifc.ObjectPlacement.RelativePlacement.RefDirection
+    #             orientation_wall = [None, None]
+    #             if sign:
+    #                 if sign.DirectionRatios[0] != 0:
+    #                     if sign.DirectionRatios[0] > 0:
+    #                         orientation_wall[0] = -orientation[1]
+    #                         orientation_wall[1] = orientation[0]
+    #                     else:
+    #                         orientation_wall[0] = orientation[1]
+    #                         orientation_wall[1] = -orientation[0]
+    #                 elif sign.DirectionRatios[1] != 0:
+    #                     if sign.DirectionRatios[1] > 0:
+    #                         orientation_wall[0] = -orientation[0]
+    #                         orientation_wall[1] = -orientation[1]
+    #                     else:
+    #                         orientation_wall[0] = orientation[0]
+    #                         orientation_wall[1] = orientation[1]
+    #             else:
+    #                 orientation_wall[0] = -orientation[1]
+    #                 orientation_wall[1] = orientation[0]
+    #             if orientation_wall[0] > 0:
+    #                 if orientation_wall[1] > 0:
+    #                     angle_wall = 270 - math.degrees(math.atan(orientation_wall[1] / orientation_wall[0]))
+    #                 else:
+    #                     angle_wall = 270 + abs(math.degrees(math.atan(orientation_wall[1] / orientation_wall[0])))
+    #             else:
+    #                 if orientation_wall[1] < 0:
+    #                     angle_wall = math.degrees(math.atan(orientation_wall[0] / orientation_wall[1]))
+    #                 else:
+    #                     angle_wall = 180 - abs(math.degrees(math.atan(orientation_wall[0] / orientation_wall[1])))
+    #         else:
+    #             angle_wall = "Intern"
+    #     except ZeroDivisionError:
+    #         angle_wall = 90
+    #
+    #     return angle_wall
+
     def calc_orientation(self):
+        external = False
+        angle_wall = 'Intern'
+        list = []
+        list1 = []
         if hasattr(self, 'is_external'):
             external = self.is_external
-        else:
-            external = False
-        try:
-            if external is True:
-                orientation = []
-                placementrel = self.ifc.ObjectPlacement.PlacementRelTo
-                while placementrel is not None:
-                    if placementrel.PlacementRelTo is None:
-                        orientation = placementrel.RelativePlacement.RefDirection.DirectionRatios[0:2]
-                    placementrel = placementrel.PlacementRelTo
-                sign = self.ifc.ObjectPlacement.RelativePlacement.RefDirection
-                orientation_wall = [None, None]
-                if sign:
-                    if sign.DirectionRatios[0] != 0:
-                        if sign.DirectionRatios[0] > 0:
-                            orientation_wall[0] = -orientation[1]
-                            orientation_wall[1] = orientation[0]
-                        else:
-                            orientation_wall[0] = orientation[1]
-                            orientation_wall[1] = -orientation[0]
-                    elif sign.DirectionRatios[1] != 0:
-                        if sign.DirectionRatios[1] > 0:
-                            orientation_wall[0] = -orientation[0]
-                            orientation_wall[1] = -orientation[1]
-                        else:
-                            orientation_wall[0] = orientation[0]
-                            orientation_wall[1] = orientation[1]
-                else:
-                    orientation_wall[0] = -orientation[1]
-                    orientation_wall[1] = orientation[0]
-                if orientation_wall[0] > 0:
-                    if orientation_wall[1] > 0:
-                        angle_wall = 270 - math.degrees(math.atan(orientation_wall[1] / orientation_wall[0]))
-                    else:
-                        angle_wall = 270 + abs(math.degrees(math.atan(orientation_wall[1] / orientation_wall[0])))
-                else:
-                    if orientation_wall[1] < 0:
-                        angle_wall = math.degrees(math.atan(orientation_wall[0] / orientation_wall[1]))
-                    else:
-                        angle_wall = 180 - abs(math.degrees(math.atan(orientation_wall[0] / orientation_wall[1])))
-            else:
-                angle_wall = "Intern"
-        except ZeroDivisionError:
-            angle_wall = 90
+        if external is True:
+            angle_wall = 'Extern'
+            orientation = []
+            placementrel = self.ifc.ObjectPlacement.PlacementRelTo
+            o1 = self.ifc.ObjectPlacement.RelativePlacement.RefDirection.DirectionRatios
+            list.append(get_angle(o1))
+            list1.append(o1)
+            while placementrel is not None:
+                if placementrel.PlacementRelTo is None:
+                    o2 = placementrel.RelativePlacement.RefDirection.DirectionRatios
+                    list.append(get_angle(o2))
+                    list1.append(o2)
+                placementrel = placementrel.PlacementRelTo
+            sum = 0
+            for i in list:
+                sum += i
+            while sum >= 360:
+                sum -= 360
+            print(self.name, sum, list, list1)
+
 
         return angle_wall
 
@@ -825,6 +856,21 @@ class Dummy(Element):
     def __str__(self):
         return "Dummy '%s'" % self.name
 
+
+def get_angle(list):
+    try:
+        angle = math.degrees(math.atan(list[0] / list[1]))
+    except ZeroDivisionError:
+        if list[0] >= 0:
+            angle = 90
+        else:
+            angle = 270
+    if list[0] == 0:
+        if list[1] < 0:
+            angle = 180
+        else:
+            angle = 0
+    return angle
 
 # import Element classes for Element.factory
 import bim2sim.kernel.elements

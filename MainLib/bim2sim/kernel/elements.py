@@ -655,19 +655,19 @@ class Wall(element.Element):
     thickness = attribute.Attribute(
         name='thickness',
         default_ps=('BaseQuantities', 'Width'),
-        functions=[_get_wall_properties],
+        # functions=[_get_wall_properties],
         default=0
     )
 
     heat_capacity = attribute.Attribute(
         name='heat_capacity',
-        functions=[_get_wall_properties],
+        # functions=[_get_wall_properties],
         default=0
     )
 
     density = attribute.Attribute(
         name='density',
-        functions=[_get_wall_properties],
+        # functions=[_get_wall_properties],
         default=0
     )
 
