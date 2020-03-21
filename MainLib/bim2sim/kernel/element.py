@@ -198,31 +198,44 @@ class IFCBased(Root):
     def calc_orientation(self):
         external = False
         angle_wall = 'Intern'
-        list = []
-        list1 = []
+        list_angles = [self.true_north]
         if hasattr(self, 'is_external'):
             external = self.is_external
         if external is True:
             angle_wall = 'Extern'
-            orientation = []
             placementrel = self.ifc.ObjectPlacement.PlacementRelTo
-            o1 = self.ifc.ObjectPlacement.RelativePlacement.RefDirection.DirectionRatios
-            list.append(get_angle(o1))
-            list1.append(o1)
+            try:
+                o1 = self.ifc.ObjectPlacement.RelativePlacement.RefDirection.DirectionRatios
+                list_angles.append(get_angle(o1))
+            except AttributeError:
+                list_angles.append(90)
             while placementrel is not None:
-                if placementrel.PlacementRelTo is None:
+                try:
                     o2 = placementrel.RelativePlacement.RefDirection.DirectionRatios
-                    list.append(get_angle(o2))
-                    list1.append(o2)
+                    list_angles.append(get_angle(o2))
+                except AttributeError:
+                    list_angles.append(0)
                 placementrel = placementrel.PlacementRelTo
-            sum = 0
-            for i in list:
-                sum += i
-            while sum >= 360:
-                sum -= 360
-            print(self.name, sum, list, list1)
-
-
+            directionsense = None
+            for i in self.ifc.HasAssociations:
+                if hasattr(i, 'RelatingMaterial'):
+                    if hasattr(i.RelatingMaterial, 'DirectionSense'):
+                        directionsense = i.RelatingMaterial.DirectionSense
+            # check for different ifc files
+            if directionsense == 'NEGATIVEo':
+                angle_sum = -180
+            else:
+                angle_sum = 0
+            # find global coordinates
+            for i in list_angles:
+                angle_sum += i
+            # angle between 0 and 360
+            while angle_sum >= 360 or angle_sum < 0:
+                if angle_sum >= 360:
+                    angle_sum -= 360
+                elif angle_sum < 0:
+                    angle_sum += 360
+            print(self.name, angle_sum, list_angles, directionsense)
         return angle_wall
 
     def get_ifc_attribute(self, attribute):
