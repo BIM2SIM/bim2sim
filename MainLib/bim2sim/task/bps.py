@@ -32,13 +32,6 @@ class Inspect(Task):
     def run(self, ifc):
         self.logger.info("Creates python representation of relevant ifc types")
 
-        Project = ifc.by_type('IfcProject')[0]
-        try:
-            TrueNorth = Project.RepresentationContexts[0].TrueNorth.DirectionRatios
-        except AttributeError:
-            TrueNorth = [0,1]
-        tn_angle = -math.degrees(math.atan(TrueNorth[0]/TrueNorth[1]))
-
         Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
         for ifc_type in self.workflow.relevant_ifc_types:
@@ -47,7 +40,6 @@ class Inspect(Task):
                 entities = ifc.by_type(ifc_type)
                 for entity in entities:
                     element = Element.factory(entity, ifc_type)
-                    element.true_north = tn_angle
                     try:
                         if element.is_external is True:
                             print(element.ifc_type, element.guid, element.orientation)

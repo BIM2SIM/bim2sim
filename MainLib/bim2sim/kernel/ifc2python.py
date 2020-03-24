@@ -5,7 +5,7 @@ Holds logic for target simulation independent file parsing, checking, and data e
 import os
 import logging
 import ifcopenshell
-
+import math
 
 def load_ifc(path):
     logger = logging.getLogger('bim2sim')
@@ -122,6 +122,7 @@ def get_type_property_sets(element):
             property_sets[propertyset.Name] = propertyset2dict(propertyset)
 
     return property_sets
+
 
 def get_quantity_sets(element):
     """Returns all QuantitySets of element"""
@@ -298,6 +299,18 @@ def getProject(ifcElement):
             if checkIfcElementType(parent, 'IfcProject'):
                 return parent
         # ... or the parent of an IfcSpatialZone, which is non-hierarchical.
+
+
+def getTrueNorth(ifcElement):
+    """Find the true north in degree of this element, 0 °C means positive
+    X-axis. 45 °C Degree means middle between X- and Y-Axis"""
+    project = getProject(ifcElement)
+    try:
+        true_north = project.RepresentationContexts[0].TrueNorth.DirectionRatios
+    except AttributeError:
+        true_north = [0, 1]
+    angle_true_north = math.degrees(math.atan(true_north[0] / true_north[1]))
+    return angle_true_north
 
 
 def convertToSI(ifcUnit, value):
