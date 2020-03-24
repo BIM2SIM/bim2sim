@@ -11,7 +11,6 @@ import numpy as np
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import ifc2python, attribute
 from bim2sim.decision import Decision, BoolDecision, RealDecision, ListDecision, DictDecision, PendingDecisionError
-from bim2sim.kernel.ifc2python import getProject
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +41,7 @@ class Root:
 
     keeps track of created instances and guids"""
     objects = {}
+    default_materials = {}
     _id_counter = 0
 
     def __init__(self, guid=None):
@@ -65,11 +65,6 @@ class Root:
     def position(self):
         """Position calculated only once by calling calc_position"""
         return self.calc_position()
-
-    # @position.setter
-    # def position(self, value):
-    #     """Position calculated only once by calling calc_position"""
-    #     self._position = value
 
     @cached_property
     def orientation(self):
@@ -331,7 +326,6 @@ class IFCBased(Root):
         return value
 
 
-
     def select_from_potential_properties(self, patterns, name, collect_decisions):
         """Ask user to select from all properties matching patterns"""
 
@@ -423,20 +417,40 @@ class IFCBased(Root):
         return "<%s (%s)>" % (self.__class__.__name__, self.name)
 
 
-
-
-class BaseElement(Root):
-    """Base class for all elements with ports"""
+class BaseElementNoPorts(Root):
+    """Base class for elements without ports, e.g. building elements"""
     objects = {}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         BaseElement.objects[self.guid] = self
         self.logger = logging.getLogger(__name__)
-        self.ports = []
         self.aggregation = None
         self.attributes = attribute.AttributeManager(bind=self)
         self.thermal_zones = []
+
+
+    @staticmethod
+    def get_element(guid):
+        """Get element instance with given guid
+
+        :returns: None if element with guid was not instanciated"""
+        return BaseElement.objects.get(guid)
+
+    def __repr__(self):
+        return "<%s>" % self.__class__.__name__
+
+    def __str__(self):
+        return self.__class__.__name__
+
+
+class BaseElement(BaseElementNoPorts):
+    """Base class for all elements with ports"""
+    objects = {}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ports = []
 
 
     def get_inner_connections(self):
@@ -450,14 +464,6 @@ class BaseElement(Root):
             connections.append((port0, port1))
         return connections
 
-
-    @staticmethod
-    def get_element(guid):
-        """Get element instance with given guid
-
-        :returns: None if element with guid was not instanciated"""
-        return BaseElement.objects.get(guid)
-
     def is_generator(self):
         return False
 
@@ -466,9 +472,6 @@ class BaseElement(Root):
 
     def __repr__(self):
         return "<%s (ports: %d)>" % (self.__class__.__name__, len(self.ports))
-
-    def __str__(self):
-        return self.__class__.__name__
 
 
 class BasePort(Root):
