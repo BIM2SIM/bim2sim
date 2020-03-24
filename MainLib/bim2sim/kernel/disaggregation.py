@@ -18,7 +18,13 @@ class Disaggregation(BaseElement):
 
     def calc_position(self):
         try:
-            return self.parent.position
+            return self.thermal_zones[0].position
+        except:
+            return None
+
+    def calc_orientation(self):
+        try:
+            return self.parent.orientation
         except:
             return None
 
@@ -85,8 +91,6 @@ class SubSlab(Disaggregation):
         instance = cls(name, slab)
         if instance.area > thermalzone.area:
             instance.area = float(thermalzone.area)
-        # instance.orientation = slab.orientation
-        # instance.position = thermalzone.position
         if not hasattr(slab, "sub_slabs"):
             slab.sub_slabs = []
         slab.sub_slabs.append(instance)

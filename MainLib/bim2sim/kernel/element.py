@@ -199,6 +199,8 @@ class IFCBased(Root):
         external = False
         angle_wall = 'Intern'
         list_angles = [self.true_north]
+        if self.ifc_type == 'IfcWindow':
+            list_angles.append(180)
         if hasattr(self, 'is_external'):
             external = self.is_external
         if external is True:
@@ -206,15 +208,18 @@ class IFCBased(Root):
             placementrel = self.ifc.ObjectPlacement.PlacementRelTo
             try:
                 o1 = self.ifc.ObjectPlacement.RelativePlacement.RefDirection.DirectionRatios
-                list_angles.append(get_angle(o1))
+                list_angles.append(vector_angle(o1))
             except AttributeError:
-                list_angles.append(90)
+                list_angles.append(90.01)
             while placementrel is not None:
                 try:
                     o2 = placementrel.RelativePlacement.RefDirection.DirectionRatios
-                    list_angles.append(get_angle(o2))
+                    list_angles.append(vector_angle(o2))
                 except AttributeError:
-                    list_angles.append(0)
+                    if placementrel.PlacementRelTo is None:
+                        list_angles.append(90.01)
+                    else:
+                        list_angles.append(0)
                 placementrel = placementrel.PlacementRelTo
             directionsense = None
             for i in self.ifc.HasAssociations:
@@ -222,7 +227,7 @@ class IFCBased(Root):
                     if hasattr(i.RelatingMaterial, 'DirectionSense'):
                         directionsense = i.RelatingMaterial.DirectionSense
             # check for different ifc files
-            if directionsense == 'NEGATIVEo':
+            if directionsense == 'NEGATIVE':
                 angle_sum = -180
             else:
                 angle_sum = 0
@@ -727,14 +732,17 @@ class Element(BaseElement, IFCBased):
         # TODO: set flow_side based on ifc (no official property, but revit (HLS) and tricad (TRICAS-MS) provide it)
 
     def _add_ports(self):
-        for nested in self.ifc.IsNestedBy:
-            # valid for IFC for Revit v19.2.0.0
-            for element_port_connection in nested.RelatedObjects:
-                if element_port_connection.is_a() == 'IfcDistributionPort':
-                    self.ports.append(Port(parent=self, ifc=element_port_connection))
-                else:
-                    self.logger.warning("Not included %s as Port in %s", element_port_connection.is_a(), self)
-
+        #has no ports option
+        try:
+            for nested in self.ifc.IsNestedBy:
+                # valid for IFC for Revit v19.2.0.0
+                for element_port_connection in nested.RelatedObjects:
+                    if element_port_connection.is_a() == 'IfcDistributionPort':
+                        self.ports.append(Port(parent=self, ifc=element_port_connection))
+                    else:
+                        self.logger.warning("Not included %s as Port in %s", element_port_connection.is_a(), self)
+        except AttributeError:
+            pass
         # valid for IFC for Revit v19.1.0.0
         element_port_connections = getattr(self.ifc, 'HasPorts', [])
         for element_port_connection in element_port_connections:
@@ -870,20 +878,33 @@ class Dummy(Element):
         return "Dummy '%s'" % self.name
 
 
-def get_angle(list):
+def vector_angle(vector):
+    x = vector[0]
+    y = vector[1]
     try:
-        angle = math.degrees(math.atan(list[0] / list[1]))
+        tang =  math.degrees(math.atan(x / y))
     except ZeroDivisionError:
-        if list[0] >= 0:
-            angle = 90
+        if x > 0:
+            return 90
+        elif x < 0:
+            return 270
         else:
-            angle = 270
-    if list[0] == 0:
-        if list[1] < 0:
-            angle = 180
+            return 0
+    if x >= 0:
+        # quadrant 1
+        if y > 0:
+            return tang
+        # quadrant 2
         else:
-            angle = 0
-    return angle
+            return tang + 180
+    else:
+        # quadrant 3
+        if y < 0:
+            return tang + 180
+        # quadrant 4
+        else:
+            return tang + 360
+
 
 # import Element classes for Element.factory
 import bim2sim.kernel.elements

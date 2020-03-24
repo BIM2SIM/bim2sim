@@ -681,12 +681,12 @@ class Wall(element.Element):
 
 class Window(element.Element):
     ifc_type = "IfcWindow"
-    predefined_type = {
-        "IfcWindow": ["WINDOW",
-                      "SKYLIGHT",
-                      "LIGHTDOME"
-                      ]
-    }
+    # predefined_type = {
+    #     "IfcWindow": ["WINDOW",
+    #                   "SKYLIGHT",
+    #                   "LIGHTDOME"
+    #                   ]
+    # }
 
     pattern_ifc_type = [
         re.compile('Window', flags=re.IGNORECASE),

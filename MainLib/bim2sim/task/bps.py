@@ -33,18 +33,28 @@ class Inspect(Task):
         self.logger.info("Creates python representation of relevant ifc types")
 
         Project = ifc.by_type('IfcProject')[0]
-        TrueNorth = Project.RepresentationContexts[0].TrueNorth.DirectionRatios
+        try:
+            TrueNorth = Project.RepresentationContexts[0].TrueNorth.DirectionRatios
+        except AttributeError:
+            TrueNorth = [0,1]
         tn_angle = -math.degrees(math.atan(TrueNorth[0]/TrueNorth[1]))
 
         Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
         for ifc_type in self.workflow.relevant_ifc_types:
-            entities = ifc.by_type(ifc_type)
-            for entity in entities:
-                element = Element.factory(entity, ifc_type)
-                element.true_north = tn_angle
-                # if ifc_type == 'IfcWall':
-                # print(element.ifc_type, element.guid, element.orientation)
-                self.instances[element.guid] = element
+            # not every ifc file has the same relevant ifc types - wrapper problem
+            try:
+                entities = ifc.by_type(ifc_type)
+                for entity in entities:
+                    element = Element.factory(entity, ifc_type)
+                    element.true_north = tn_angle
+                    try:
+                        if element.is_external is True:
+                            print(element.ifc_type, element.guid, element.orientation)
+                    except AttributeError:
+                        pass
+                    self.instances[element.guid] = element
+            except RuntimeError:
+                pass
 
         self.logger.info("Found %d building elements", len(self.instances))
