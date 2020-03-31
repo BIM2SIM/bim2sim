@@ -41,6 +41,7 @@ class Inspect(Task):
         entities = ifc.by_type(ifc_type)
         for entity in entities:
             thermal_zone = Element.factory(entity, ifc_type)
+            r = thermal_zone.area
             self.instances[thermal_zone.guid] = thermal_zone
             self.bind_elements_to_zone(thermal_zone)
 

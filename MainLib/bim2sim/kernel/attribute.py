@@ -41,9 +41,17 @@ class Attribute:
 
     def _inner_get(self, bind, value):
 
+        # # default property set and quantity set
+        # if value is None and (self.default_ps):
+        #     raw_value = self.get_from_default_propertyset(bind, self.default_ps)
+        #     value = self.ifc_post_processing(raw_value)
+        #     if value is None:
+        #         quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet",
+        #                                self.name, bind.ifc_type, bind.guid)
+
         # default property set and quantity set
         if value is None and (self.default_ps):
-            raw_value = self.get_from_default_propertyset(bind, self.default_ps)
+            raw_value = self.get_from_default_propertyset(bind, self.name)
             value = self.ifc_post_processing(raw_value)
             if value is None:
                 quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet",
@@ -79,8 +87,21 @@ class Attribute:
 
         return value
 
+    # @staticmethod
+    # def get_from_default_propertyset(bind, default):
+    #     try:
+    #         value = bind.get_exact_property(default[0], default[1])
+    #     except Exception:
+    #         value = None
+    #     return value
+
     @staticmethod
-    def get_from_default_propertyset(bind, default):
+    def get_from_default_propertyset(bind, name):
+        if bind.source_tool.startswith('Autodesk'):
+            source_tool = 'Autodesk Revit 2019 (DEU)'
+        elif bind.source_tool.startswith('ARCHICAD'):
+            source_tool = 'ARCHICAD-64'
+        default = bind.finder.templates[source_tool][bind.ifc_type[0]]['default_ps'][name]
         try:
             value = bind.get_exact_property(default[0], default[1])
         except Exception:
