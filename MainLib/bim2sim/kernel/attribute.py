@@ -50,7 +50,7 @@ class Attribute:
         #                                self.name, bind.ifc_type, bind.guid)
 
         # default property set and quantity set
-        if value is None and (self.default_ps):
+        if value is None:
             raw_value = self.get_from_default_propertyset(bind, self.name)
             value = self.ifc_post_processing(raw_value)
             if value is None:
@@ -101,7 +101,12 @@ class Attribute:
             source_tool = 'Autodesk Revit 2019 (DEU)'
         elif bind.source_tool.startswith('ARCHICAD'):
             source_tool = 'ARCHICAD-64'
-        default = bind.finder.templates[source_tool][bind.ifc_type[0]]['default_ps'][name]
+        else:
+            return None
+        try:
+            default = bind.finder.templates[source_tool][bind.ifc_type[0]]['default_ps'][name]
+        except KeyError:
+            return None
         try:
             value = bind.get_exact_property(default[0], default[1])
         except Exception:
