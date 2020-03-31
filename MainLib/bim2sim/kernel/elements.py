@@ -475,14 +475,14 @@ class AirTerminal(element.Element):
 
 class ThermalZone(element.Element):
     ifc_type = "IfcSpace"
-    # predefined_type = {
-    #     "IfcSpace": ["SPACE",
-    #                  "PARKING",
-    #                  "GFA",
-    #                  "INTERNAL",
-    #                  "NOTDEFINED"
-    #                  ]
-    # }
+    predefined_type = {
+        "IfcSpace": ["SPACE",
+                     "PARKING",
+                     "GFA",
+                     "INTERNAL",
+                     "NOTDEFINED"
+                     ]
+    }
 
     pattern_ifc_type = [
         re.compile('Space', flags=re.IGNORECASE),
@@ -491,7 +491,8 @@ class ThermalZone(element.Element):
 
     area = attribute.Attribute(
         name='area',
-        default_ps=('BaseQuantities', 'NetFloorArea'),
+        # default_ps=('BaseQuantities', 'NetFloorArea'), #fkz haus
+        default_ps=('Qto_SpaceBaseQuantities', 'NetFloorArea'), #vereinhaus
         default=0
     )
 
@@ -747,7 +748,8 @@ class Slab(element.Element):
 
     area = attribute.Attribute(
         name='area',
-        default_ps=('BaseQuantities', 'NetArea'),
+        # default_ps=('BaseQuantities', 'NetArea'), # fkz haus
+        default_ps=('Qto_SlabBaseQuantities', 'NetArea'),  # Vereinhaus
         default=0
     )
 

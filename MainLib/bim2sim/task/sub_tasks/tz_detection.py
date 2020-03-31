@@ -3,7 +3,8 @@ from bim2sim.kernel import elements
 from bim2sim.decision import DictDecision, ListDecision, RealDecision, BoolDecision
 from bim2sim.kernel.element import Element
 from bim2sim.kernel.ifc2python import getElementType
-from bim2sim.kernel.disaggregation import Disaggregation, SubSlab
+from bim2sim.kernel.disaggregation import Disaggregation, SubSlab, SubWall
+from bim2sim.task.bps_f.bps_functions import get_boundaries, get_polygon
 import copy
 
 class Inspect(Task):
@@ -49,8 +50,10 @@ class Inspect(Task):
 
     def bind_elements_to_zone(self, thermalzone):
         """Binds the different elements to the belonging zones"""
+        tn = thermalzone.get_true_north()
         relevant_ifc_types = self.task.workflow.relevant_ifc_types
         bound_instances = []
+
         for binding in thermalzone.ifc.BoundedBy:
             bound_element = binding.RelatedBuildingElement
             if bound_element is not None:
@@ -65,26 +68,11 @@ class Inspect(Task):
         for bound_instance in bound_instances:
             if bound_instance.ifc_type == 'IfcSlab':
                 bound_instance = SubSlab.create_on_match("Subslab_%s" % bound_instance.name, bound_instance, thermalzone)
-                # bound_instance = self.slice_slab(bound_instance, thermalzone)
+            if bound_instance.ifc_type == ['IfcWall', 'IfcWallStandardCase']:
+                bound_instance = SubWall.create_on_match("Subwall_%s" % bound_instance.name, bound_instance, thermalzone)
             if bound_instance not in thermalzone.bound_elements:
                 thermalzone.bound_elements.append(bound_instance)
             if thermalzone not in bound_instance.thermal_zones:
                 bound_instance.thermal_zones.append(thermalzone)
+            print(bound_instance.position)
 
-        # print("")
-
-    def slice_slab(self, bound_instance, thermalzone):
-        """slice slabs"""
-        slab = copy.copy(bound_instance)
-        slab.area = float(thermalzone.area)
-        slab.position = thermalzone.position
-        slab.name = "Sub_%s" % bound_instance.name
-        slab.parent = []
-        slab.parent.append(bound_instance)
-        slab.guid = None
-        if not hasattr(bound_instance, "sub_slabs"):
-            bound_instance.sub_slabs = []
-        if slab not in bound_instance.sub_slabs:
-            bound_instance.sub_slabs.append(slab)
-
-        return slab

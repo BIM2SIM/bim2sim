@@ -142,52 +142,53 @@ class IFCBased(Root):
 
 
     def calc_orientation(self):
-        external = False
-        angle_wall = 'Intern'
+        try:
+            external = self.is_external
+        except AttributeError:
+            external = False
+
         list_angles = [-self.get_true_north()]
         if self.ifc_type == 'IfcWindow':
             list_angles.append(180)
-        if hasattr(self, 'is_external'):
-            external = self.is_external
-        if external is True:
-            angle_wall = 'Extern'
-            placementrel = self.ifc.ObjectPlacement.PlacementRelTo
+
+
+        placementrel = self.ifc.ObjectPlacement.PlacementRelTo
+        try:
+            o1 = self.ifc.ObjectPlacement.RelativePlacement.RefDirection.DirectionRatios
+            list_angles.append(vector_angle(o1))
+        except AttributeError:
+            list_angles.append(90.01)
+        while placementrel is not None:
             try:
-                o1 = self.ifc.ObjectPlacement.RelativePlacement.RefDirection.DirectionRatios
-                list_angles.append(vector_angle(o1))
+                o2 = placementrel.RelativePlacement.RefDirection.DirectionRatios
+                list_angles.append(vector_angle(o2))
             except AttributeError:
-                list_angles.append(90.01)
-            while placementrel is not None:
-                try:
-                    o2 = placementrel.RelativePlacement.RefDirection.DirectionRatios
-                    list_angles.append(vector_angle(o2))
-                except AttributeError:
-                    if placementrel.PlacementRelTo is None:
-                        list_angles.append(90.01)
-                    else:
-                        list_angles.append(0)
-                placementrel = placementrel.PlacementRelTo
-            directionsense = None
-            for i in self.ifc.HasAssociations:
-                if hasattr(i, 'RelatingMaterial'):
-                    if hasattr(i.RelatingMaterial, 'DirectionSense'):
-                        directionsense = i.RelatingMaterial.DirectionSense
-            # check for different ifc files
-            if directionsense == 'NEGATIVE':
-                angle_sum = -180
-            else:
-                angle_sum = 0
-            # find global coordinates
-            for i in list_angles:
-                angle_sum += i
-            # angle between 0 and 360
-            while angle_sum >= 360 or angle_sum < 0:
-                if angle_sum >= 360:
-                    angle_sum -= 360
-                elif angle_sum < 0:
-                    angle_sum += 360
-            print(self.name, angle_sum, list_angles, directionsense)
-        return angle_wall
+                if placementrel.PlacementRelTo is None:
+                    list_angles.append(90.01)
+                else:
+                    list_angles.append(0)
+            placementrel = placementrel.PlacementRelTo
+        directionsense = None
+        for i in self.ifc.HasAssociations:
+            if hasattr(i, 'RelatingMaterial'):
+                if hasattr(i.RelatingMaterial, 'DirectionSense'):
+                    directionsense = i.RelatingMaterial.DirectionSense
+        # ToDo: check for different ifc files (FZK Haus)
+        if directionsense == 'NEGATIVE':
+            angle_sum = -180
+        else:
+            angle_sum = 0
+        # find global coordinates
+        for i in list_angles:
+            angle_sum += i
+        # angle between 0 and 360
+        while angle_sum >= 360 or angle_sum < 0:
+            if angle_sum >= 360:
+                angle_sum -= 360
+            elif angle_sum < 0:
+                angle_sum += 360
+        print(self.name, angle_sum, list_angles, directionsense)
+        return angle_sum
 
     def get_ifc_attribute(self, attribute):
         """
@@ -689,7 +690,7 @@ class Element(BaseElement, IFCBased):
         # TODO: set flow_side based on ifc (no official property, but revit (HLS) and tricad (TRICAS-MS) provide it)
 
     def _add_ports(self):
-        #has no ports option
+        # has no ports option
         try:
             for nested in self.ifc.IsNestedBy:
                 # valid for IFC for Revit v19.2.0.0
@@ -839,7 +840,7 @@ def vector_angle(vector):
     x = vector[0]
     y = vector[1]
     try:
-        tang =  math.degrees(math.atan(x / y))
+        tang = math.degrees(math.atan(x / y))
     except ZeroDivisionError:
         if x > 0:
             return 90

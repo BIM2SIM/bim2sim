@@ -1,4 +1,4 @@
-from bim2sim.ifc2python.element import Element
+from bim2sim.kernel.element import Element
 import ifcopenshell
 import ifcopenshell.geom
 import math
@@ -196,3 +196,64 @@ def get_polygon(ifc_element):
     plt.show()
     # return Polygon(vertices).exterior
     return Polygon(vertices)
+
+
+def get_boundaries(ifc_element):
+    # boundaries for a given wall or space element
+    vertices = []
+    settings = ifcopenshell.geom.settings()
+    try:
+        shape = ifcopenshell.geom.create_shape(settings, ifc_element)
+    except RuntimeError:
+        return None
+    i = 0
+    while i < len(shape.geometry.verts):
+        vertices.append([shape.geometry.verts[i], shape.geometry.verts[i + 1]])
+        i += 3
+    vertices2 = []
+    for element in vertices:
+        if element not in vertices2:
+            vertices2.append(element)
+
+    # remove center coordinates?
+
+    x, y = zip(*vertices2)
+    # plt.scatter(x, y)
+    # plt.show()
+
+    # x_ord = {}
+    # for x, y in vertices2:
+    #     x = round(x, 2)
+    #     y = round(y, 2)
+    #     if x not in x_ord:
+    #         x_ord[x] = []
+    #     x_ord[x].append(y)
+    # new_vertices = []
+    # for key in x_ord:
+    #     if len(x_ord[key]) > 1:
+    #         for ele in x_ord[key]:
+    #             new_vertices.append([key, ele])
+    # y_ord = {}
+    # for x, y in new_vertices:
+    #     if y not in y_ord:
+    #         y_ord[y] = []
+    #     y_ord[y].append(x)
+    # new_vertices2 = []
+    # for key in y_ord:
+    #     if len(y_ord[key]) > 1:
+    #         for ele in y_ord[key]:
+    #             new_vertices2.append([ele, key])
+    #
+    #
+    # x, y = zip(*new_vertices2)
+    # plt.scatter(x, y)
+    # plt.show
+
+    x = list(x)
+    y = list(y)
+    x.sort()
+    y.sort()
+    length = x[len(x)-1]-x[0]
+    width = y[len(y)-1]-y[0]
+
+    return length, width

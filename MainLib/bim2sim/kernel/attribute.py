@@ -68,10 +68,10 @@ class Attribute:
         # custom functions
         if value is None and self.functions:
             value = self.get_from_functions(bind, self.functions, self.name)
-
-        # enrichment
-        if value is None:
-            value = self.get_from_enrichment(bind, self.name)
+        #
+        # # enrichment
+        # if value is None:
+        #     value = self.get_from_enrichment(bind, self.name)
 
         # default value
         if value is None and self.default_value:
