@@ -70,7 +70,8 @@ class Inspect(Task):
             # bound_instance = Disaggregation.based_on_thermal_zone("Sub_instance_%s" % bound_instance.name, bound_instance, thermalzone)
             disaggregation = 'Sub' + bound_instance.__class__.__name__
             # try:
-            bound_instance = getattr(dis, disaggregation).based_on_thermal_zone(disaggregation+bound_instance.name, bound_instance, thermalzone)
+            if disaggregation != "SubWindow":
+                bound_instance = getattr(dis, disaggregation).based_on_thermal_zone(disaggregation+bound_instance.name, bound_instance, thermalzone)
             # except:
             #     pass
             # if bound_instance.ifc_type == 'IfcSlab':
