@@ -9,6 +9,7 @@ from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, condition, attribute
 from bim2sim.decision import RealDecision, BoolDecision, ListDecision, TextDecision
 from bim2sim.enrichment_data.data_class import DataClass
+from bim2sim.kernel.ifc2python import get_layers_ifc
 from shapely.geometry.polygon import Polygon
 from shapely.geometry import Point
 import ifcopenshell.geom
@@ -529,6 +530,7 @@ class Medium(element.Element):
         re.compile('Medium', flags=re.IGNORECASE)
     ]
 
+
 class Wall(element.Element):
     ifc_type = ["IfcWall", "IfcWallStandardCase"]
     pattern_ifc_type = [
@@ -536,18 +538,27 @@ class Wall(element.Element):
         re.compile('Wand', flags=re.IGNORECASE)
     ]
     material_selected = {}
-    # class Layer:
-    #     def __init__(self, thickness, material):
-    #         self.thickness = thickness
-    #         self.material = material
-    #
-    # layers = attribute.Attribute(
-    #     name='layers',
-    #     default_association='test'
-    # )
-    #
-    # @staticmethod
-    # def get_layers(ifc_representation):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.is_external:
+            self.__class__ = OuterWall
+            self.__init__()
+        elif not self.is_external:
+            self.__class__ = InnerWall
+            self.__init__()
+
+    def _get_layers(bind, name):
+        layers = []
+        material_layers_dict = get_layers_ifc(bind)
+        for layer, values in material_layers_dict.items():
+            layers.append(Layer(bind, values[0], values[1]))
+        return layers
+
+    layers = attribute.Attribute(
+        name='layers',
+        functions=[_get_layers]
+    )
 
     def _get_wall_properties(bind, name):
         material = bind.material
@@ -680,6 +691,50 @@ class Wall(element.Element):
     )
 
 
+class Layer(element.BaseElementNoPorts):
+    ifc_type = None
+    material_selected = {}
+
+    def __init__(self, parent, thickness, material_name, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.material = material_name
+        self.parent = parent
+        self.thickness = thickness
+
+    def __repr__(self):
+        return "<%s (material: %s>" \
+               % (self.__class__.__name__, self.material)
+
+    # material = attribute.Attribute(
+    #     name='material',
+    #     # todo just for testing, this is file specific
+    #     default_ps=('ArchiCADProperties', 'Baustoff/Mehrschicht/Profil'),
+    #     default=0
+    # )
+
+    heat_capacity = attribute.Attribute(
+        name='heat_capacity',
+        default=0
+    )
+
+    density = attribute.Attribute(
+        name='density',
+        default=0
+    )
+
+
+class OuterWall(Wall):
+    def __init__(self, *args, **kwargs):
+        pass
+        # super().__init__(*args, **kwargs)
+
+
+class InnerWall(Wall):
+    def __init__(self, *args, **kwargs):
+        pass
+        # super().__init__(*args, **kwargs)
+
+
 class Window(element.Element):
     ifc_type = "IfcWindow"
     # predefined_type = {
@@ -701,12 +756,12 @@ class Window(element.Element):
         default=True
     )
 
-
     area = attribute.Attribute(
         name='area',
         default_ps=('BaseQuantities', 'NetArea'),
         default=0
     )
+
 
 # class OuterWall(Wall):
 #     pattern_ifc_type = [
