@@ -746,10 +746,34 @@ class Plate(element.Element):
 class Slab(element.Element):
     ifc_type = "IfcSlab"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # todo more generic with general function and check of existing
+        # subclasses
+        if self.predefined_type == "ROOF":
+            self.__class__ = Roof
+            self.__init__()
+        if self.predefined_type == "FLOOR":
+            self.__class__ = Floor
+            self.__init__()
+        if self.predefined_type == "BASESLAB":
+            self.__class__ = GroundFloor
+            self.__init__()
+
+    def _get_layers(bind, name):
+        layers = []
+        material_layers_dict = get_layers_ifc(bind)
+        for layer, values in material_layers_dict.items():
+            layers.append(Layer(bind, values[0], values[1]))
+        return layers
+
+    layers = attribute.Attribute(
+        name='layers',
+        functions=[_get_layers]
+    )
     area = attribute.Attribute(
         name='area',
-        # default_ps=('BaseQuantities', 'NetArea'), # fkz haus
-        default_ps=('Qto_SlabBaseQuantities', 'NetArea'),  # Vereinhaus
+        default_ps=('BaseQuantities', 'NetArea'),
         default=0
     )
 
@@ -778,33 +802,78 @@ class Slab(element.Element):
 
 
 class Roof(Slab):
-    ifc_type = ["IfcSlab", "IfcRoof"]
-    predefined_type = {
-            "IfcSlab": "ROOF",
-        }
+    ifc_type = "IfcRoof"
+
+    def __init__(self, *args, **kwargs):
+        pass
+    # predefined_type = {
+    #         "IfcSlab": "ROOF",
+    #     }
 
 
 class Floor(Slab):
-    ifc_type = 'IfcSlab'
-    predefined_type = {
-            "IfcSlab": "FLOOR",
-        }
+
+    def __init__(self, *args, **kwargs):
+        pass
+    # ifc_type = 'IfcSlab'
+    # predefined_type = {
+    #         "IfcSlab": "FLOOR",
+    #     }
 
 
 class GroundFloor(Slab):
-    ifc_type = 'IfcSlab'
-    predefined_type = {
-            "IfcSlab": "BASESLAB",
-        }
+    def __init__(self, *args, **kwargs):
+        pass
+    # ifc_type = 'IfcSlab'
+    # predefined_type = {
+    #         "IfcSlab": "BASESLAB",
+    #     }
 
 
 class Building(element.Element):
-    ifc_type = "IfcBuilding"
+    ifc_type = "IFcBuilding"
 
-    area = attribute.Attribute(
-        name='area',
-        default_ps=('BaseQuantities', 'NetArea'),
-        default=0
+    year_of_construction = attribute.Attribute(
+        name='year_of_construction',
+        default_ps=('Pset_BuildingCommon', 'YearOfConstruction')
+    )
+    gross_area = attribute.Attribute(
+        name='gross_area',
+        default_ps=('Pset_BuildingCommon', 'GrossPlannedArea')
+    )
+    net_area = attribute.Attribute(
+        name='net_area',
+        default_ps=('Pset_BuildingCommon', 'NetAreaPlanned')
+    )
+    number_of_storeys = attribute.Attribute(
+        name='number_of_storeys',
+        default_ps=('Pset_BuildingCommon', 'NumberOfStoreys')
+    )
+    occupancy_type = attribute.Attribute(
+        name='occupancy_type',
+        default_ps=('Pset_BuildingCommon', 'OccupancyType')
+    )
+
+
+class Storey(element.Element):
+    ifc_type = 'IfcBuildingStorey'
+
+    gross_foor_area = attribute.Attribute(
+        name='gross_foor_area',
+        default_ps=('BaseQuantities', 'GrossFloorArea')
+    )
+    #todo make the lookup for height hierarchical
+    net_height = attribute.Attribute(
+        name='net_height',
+        default_ps=('BaseQuantities', 'NetHeight')
+    )
+    gross_height = attribute.Attribute(
+        name='gross_height',
+        default_ps=('BaseQuantities', 'GrossHeight')
+    )
+    height = attribute.Attribute(
+        name='height',
+        default_ps=('BaseQuantities', 'Height')
     )
 
 
