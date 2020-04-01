@@ -4,6 +4,7 @@ from bim2sim.decision import DictDecision, ListDecision, RealDecision, BoolDecis
 from bim2sim.kernel.element import Element
 from bim2sim.kernel.ifc2python import getElementType
 from bim2sim.kernel.disaggregation import Disaggregation, SubSlab, SubWall
+from bim2sim.kernel import disaggregation as dis
 from bim2sim.task.bps_f.bps_functions import get_boundaries, get_polygon
 import copy
 
@@ -41,7 +42,6 @@ class Inspect(Task):
         entities = ifc.by_type(ifc_type)
         for entity in entities:
             thermal_zone = Element.factory(entity, ifc_type)
-            r = thermal_zone.area
             self.instances[thermal_zone.guid] = thermal_zone
             self.bind_elements_to_zone(thermal_zone)
 
@@ -67,10 +67,16 @@ class Inspect(Task):
                 if bound_instance not in bound_instances:
                     bound_instances.append(bound_instance)
         for bound_instance in bound_instances:
-            if bound_instance.ifc_type == 'IfcSlab':
-                bound_instance = SubSlab.create_on_match("Subslab_%s" % bound_instance.name, bound_instance, thermalzone)
-            if bound_instance.ifc_type == ['IfcWall', 'IfcWallStandardCase']:
-                bound_instance = SubWall.create_on_match("Subwall_%s" % bound_instance.name, bound_instance, thermalzone)
+            # bound_instance = Disaggregation.based_on_thermal_zone("Sub_instance_%s" % bound_instance.name, bound_instance, thermalzone)
+            disaggregation = 'Sub' + bound_instance.__class__.__name__
+            try:
+                bound_instance = getattr(dis, disaggregation).based_on_thermal_zone(disaggregation+bound_instance.name, bound_instance, thermalzone)
+            except:
+                pass
+            # if bound_instance.ifc_type == 'IfcSlab':
+            #     bound_instance = SubSlab.based_on_thermal_zone("Subslab_%s" % bound_instance.name, bound_instance, thermalzone)
+            # if bound_instance.ifc_type == ['IfcWall', 'IfcWallStandardCase']:
+            #     bound_instance = SubWall.based_on_thermal_zone("Subwall_%s" % bound_instance.name, bound_instance, thermalzone)
             if bound_instance not in thermalzone.bound_elements:
                 thermalzone.bound_elements.append(bound_instance)
             if thermalzone not in bound_instance.thermal_zones:

@@ -1,7 +1,7 @@
 {
-  "IfcWall": {
+  "Wall": {
     "material": {
-      " Leichtbeton " : "lightweight_concrete",
+      " Leichtbeton " : "lightweight_concrete"
     },
     "default_ps": {
       "area" : ["BaseQuantities", "NetSideArea"],
@@ -14,7 +14,7 @@
       "is_external" : ["Pset_WallCommon", "IsExternal"]
     }
   },
-  "IfcSlab": {
+  "Roof": {
     "default_ps": {
       "area" : ["BaseQuantities", "NetArea"],
       "width" : ["BaseQuantities", "Width"],
@@ -23,13 +23,22 @@
       "is_external" : ["Pset_SlabCommon", "IsExternal"]
     }
   },
-  "IfcWindow": {
+  "Floor": {
+    "default_ps": {
+      "area" : ["BaseQuantities", "NetArea"],
+      "width" : ["BaseQuantities", "Width"],
+      "material" : ["MaterialLayerSet", "MaterialLayer"],
+      "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "is_external" : ["Pset_SlabCommon", "IsExternal"]
+    }
+  },
+  "Window": {
     "default_ps": {
       "area" : ["BaseQuantities", "NetArea"],
       "material" : ["MaterialLayerSet", "MaterialLayer"]
     }
   },
-  "IfcZone": {
+  "ThermalZone": {
     "default_ps": {
       "area" : ["BaseQuantities", "NetFloorArea"],
       "usage" : ["AC_Pset_Allgemeiner_Raumstempel", "Raumname"],

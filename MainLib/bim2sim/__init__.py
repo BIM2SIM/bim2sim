@@ -134,7 +134,7 @@ def _debug_run_bps():
     rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
     # rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
-    path_example = r"C:\temp\bim2sim\testproject_bps"
+    path_example = r"C:\temp\bim2sim\testproject_bps2"
 
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, path_ifc, 'TEASER')

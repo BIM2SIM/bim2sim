@@ -7,10 +7,10 @@ from bim2sim.kernel import attribute
 from bim2sim.kernel.element import BaseElement
 from bim2sim.task.bps_f.bps_functions import get_boundaries
 
-
-
 class Disaggregation(BaseElement):
     """Base disaggregation of models"""
+    vertical_instances = ['Wall']
+    horizontal_instances = ['Roof', 'Floor']
 
     def __init__(self, name, element, *args, **kwargs):
         if 'guid' not in kwargs:
@@ -41,6 +41,64 @@ class Disaggregation(BaseElement):
     #
     #     return mapping, connections
 
+    def calc_position(self):
+        if self.parent.__class__.__name__ in self.horizontal_instances:
+            try:
+                return self.thermal_zones[0].position
+            except:
+                return None
+        elif self.parent.__class__.__name__ in self.vertical_instances:
+            thermalzone = self.thermal_zones[0]
+            x1, y1, z1 = thermalzone.position
+
+            space_selected, space_not_selected = get_dimensions_subwall(self, thermalzone)
+
+            rel_orientation = self.orientation + self.parent.get_true_north()
+            x = x1 + math.sin(math.radians(rel_orientation)) * space_not_selected / 2
+            y = y1 + math.cos(math.radians(rel_orientation)) * space_not_selected / 2
+            pos = np.array([x, y, z1])
+
+            return pos
+
+    def calc_orientation(self):
+        try:
+            return self.parent.orientation
+        except:
+            return None
+
+    @classmethod
+    def based_on_thermal_zone(cls, name, parent, thermal_zone):
+        instance = cls(name, parent)
+        if parent.__class__.__name__ in cls.horizontal_instances:
+            if instance.area > thermal_zone.area:
+                instance.area = float(thermal_zone.area)
+            else:
+                # return the original instance, no new instance created
+                return parent
+
+        elif parent.__class__.__name__ in cls.vertical_instances:
+            if get_boundaries(parent.ifc) is None:
+                return parent
+            if get_dimensions_subwall(instance, thermal_zone) is None:
+                return parent
+
+            instance_length, instance_width = get_boundaries(parent.ifc)
+            space_selected, space_not_selected = get_dimensions_subwall(instance, thermal_zone)
+
+            if instance_length > space_selected + 2 * instance_width:
+                instance.length = space_selected
+            # return the original instance, no new instance created
+            else:
+                return parent
+
+        else:
+            return parent
+
+        if not hasattr(parent, "sub_instances"):
+            parent.sub_instances = []
+        parent.sub_instances.append(instance)
+        return instance
+
     def __repr__(self):
         return "<%s '%s' (disaggregation of the element %d)>" % (
             self.__class__.__name__, self.name, len(self.parent))
@@ -49,17 +107,17 @@ class Disaggregation(BaseElement):
 class SubSlab(Disaggregation):
     disaggregatable_elements = ['IfcSlab']
 
-    def calc_position(self):
-        try:
-            return self.thermal_zones[0].position
-        except:
-            return None
-
-    def calc_orientation(self):
-        try:
-            return self.parent.orientation
-        except:
-            return None
+    # def calc_position(self):
+    #     try:
+    #         return self.thermal_zones[0].position
+    #     except:
+    #         return None
+    #
+    # def calc_orientation(self):
+    #     try:
+    #         return self.parent.orientation
+    #     except:
+    #         return None
 
     @attribute.multi_calc
     def _get_properties(self):
@@ -91,16 +149,16 @@ class SubSlab(Disaggregation):
         functions=[_get_properties]
     )
 
-    @classmethod
-    def create_on_match(cls, name, slab, thermalzone):
-        instance = cls(name, slab)
-        if instance.area > thermalzone.area:
-            instance.area = float(thermalzone.area)
-        if not hasattr(slab, "sub_slabs"):
-            slab.sub_slabs = []
-        slab.sub_slabs.append(instance)
-
-        return instance
+    # @classmethod
+    # def create_on_match(cls, name, slab, thermalzone):
+    #     instance = cls(name, slab)
+    #     if instance.area > thermalzone.area:
+    #         instance.area = float(thermalzone.area)
+    #     if not hasattr(slab, "sub_slabs"):
+    #         slab.sub_slabs = []
+    #     slab.sub_slabs.append(instance)
+    #
+    #     return instance
 
 
 class SubRoof(Disaggregation):
@@ -110,25 +168,25 @@ class SubRoof(Disaggregation):
 class SubWall(Disaggregation):
     disaggregatable_elements = ['IfcWall']
 
-    def calc_position(self):
-        # what if internal? check no orientation
-        thermalzone = self.thermal_zones[0]
-        x1, y1, z1 = thermalzone.position
-
-        space_selected, space_not_selected = get_dimensions_subwall(self, thermalzone)
-
-        rel_orientation = self.orientation + self.parent.get_true_north()
-        x = x1 + math.sin(math.radians(rel_orientation))*space_not_selected/2
-        y = y1 + math.cos(math.radians(rel_orientation))*space_not_selected/2
-        pos = np.array([x, y, z1])
-
-        return pos
-
-    def calc_orientation(self):
-        try:
-            return self.parent.orientation
-        except:
-            return None
+    # def calc_position(self):
+    #     # what if internal? check no orientation
+    #     thermalzone = self.thermal_zones[0]
+    #     x1, y1, z1 = thermalzone.position
+    #
+    #     space_selected, space_not_selected = get_dimensions_subwall(self, thermalzone)
+    #
+    #     rel_orientation = self.orientation + self.parent.get_true_north()
+    #     x = x1 + math.sin(math.radians(rel_orientation))*space_not_selected/2
+    #     y = y1 + math.cos(math.radians(rel_orientation))*space_not_selected/2
+    #     pos = np.array([x, y, z1])
+    #
+    #     return pos
+    #
+    # def calc_orientation(self):
+    #     try:
+    #         return self.parent.orientation
+    #     except:
+    #         return None
 
     @attribute.multi_calc
     def _get_properties(self):
@@ -184,32 +242,33 @@ class SubWall(Disaggregation):
         functions=[_get_properties]
     )
 
-    @classmethod
-    def create_on_match(cls, name, wall, thermal_zone):
-        instance = cls(name, wall)
+    # @classmethod
+    # def create_on_match(cls, name, wall, thermal_zone):
+    #     instance = cls(name, wall)
+    #
+    #     if get_boundaries(wall.ifc) is None:
+    #         return wall
+    #
+    #     if get_dimensions_subwall(instance, thermal_zone) is None:
+    #         return wall
+    #
+    #     wall_length, wall_width = get_boundaries(wall.ifc)
+    #     space_selected, space_not_selected = get_dimensions_subwall(instance, thermal_zone)
+    #
+    #     if wall_length > space_selected + 2*wall_width:
+    #         instance.length = space_selected
+    #     # return the original wall, no new instance created
+    #     else:
+    #         return wall
+    #
+    #     if not hasattr(wall, "sub_walls"):
+    #         wall.sub_walls = []
+    #     wall.sub_walls.append(instance)
+    #
+    #     return instance
 
-        if get_boundaries(wall.ifc) is None:
-            return wall
 
-        if get_dimensions_subwall(instance, thermal_zone) is None:
-            return wall
-
-        wall_length, wall_width = get_boundaries(wall.ifc)
-        space_selected, space_not_selected = get_dimensions_subwall(instance, thermal_zone)
-
-        if wall_length > space_selected + 2*wall_width:
-            instance.length = space_selected
-        # return the original wall, no new instance created
-        else:
-            return wall
-
-        if not hasattr(wall, "sub_walls"):
-            wall.sub_walls = []
-        wall.sub_walls.append(instance)
-
-        return instance
-
-
+# change name
 def get_dimensions_subwall(subwall, thermal_zone):
     space_length, space_width, space_selected, space_not_selected = 0, 0, 0, 0
 

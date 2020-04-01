@@ -33,7 +33,7 @@
       "Volume"
     ]
   },
-  "IfcWall": {
+  "Wall": {
     "material": {
       "lightweight_concrete": "Leichtbeton"
     },
@@ -47,7 +47,7 @@
       "solar_absorption" : ["Analytische Eigenschaften (type)", "Absorptionsgrad"]
     }
   },
-  "IfcSlab": {
+  "Floor": {
     "default_ps": {
       "area" : ["QTo_SlabBaseQuantities", "GrossArea"],
       "width" : ["QTo_SlabBaseQuantities", "Width"],
@@ -56,7 +56,16 @@
       "material" : ["MaterialLayerSet", "MaterialLayer"]
     }
   },
-  "IfcWindow": {
+  "Roof": {
+    "default_ps": {
+      "area" : ["QTo_SlabBaseQuantities", "GrossArea"],
+      "width" : ["QTo_SlabBaseQuantities", "Width"],
+      "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "is_external" : ["Pset_SlabCommon", "IsExternal"],
+      "material" : ["MaterialLayerSet", "MaterialLayer"]
+    }
+  },
+  "Window": {
     "default_ps": {
       "area" : ["QTo_WindowBaseQuantities", "Area"],
       "glass_area" : ["Konstruktion", "Glasflaeche"],
@@ -66,9 +75,9 @@
       "thermal_transmittance" : ["Pset_WindowCommon", "ThermalTransmittance"]
     }
   },
-  "IfcZone" : {
+  "ThermalZone" : {
     "default_ps": {
-      "area" : ["Qto_SpaceBaseQuantities", "GrossFloorArea"],
+      "area" : ["Qto_SpaceBaseQuantities", "NetFloorArea"],
       "usage" : ["Pset_SpaceCommon", "Reference"],
       "height" : ["Qto_SpaceBaseQuantities", "Height"]
     }

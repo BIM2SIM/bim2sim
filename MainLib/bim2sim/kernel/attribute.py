@@ -50,7 +50,7 @@ class Attribute:
         #                                self.name, bind.ifc_type, bind.guid)
 
         # default property set and quantity set
-        if value is None:
+        if value is None and self.default_ps:
             raw_value = self.get_from_default_propertyset(bind, self.name)
             value = self.ifc_post_processing(raw_value)
             if value is None:
@@ -104,7 +104,7 @@ class Attribute:
         else:
             return None
         try:
-            default = bind.finder.templates[source_tool][bind.ifc_type[0]]['default_ps'][name]
+            default = bind.finder.templates[source_tool][bind.__class__.__name__]['default_ps'][name]
         except KeyError:
             return None
         try:

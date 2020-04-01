@@ -567,7 +567,7 @@ class Wall(element.Element):
             first_decision.stored_decisions.clear()
             if first_decision.value:
 
-                Materials_DEU = bind.finder.templates[bind.source_tool]['IfcWall']['material']
+                Materials_DEU = bind.finder.templates[bind.source_tool][bind.__class__.__name__]['material']
                 material_templates = dict(DataClass(used_param=2).element_bind)
                 del material_templates['version']
 
