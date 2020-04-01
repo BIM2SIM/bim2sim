@@ -69,10 +69,10 @@ class Inspect(Task):
         for bound_instance in bound_instances:
             # bound_instance = Disaggregation.based_on_thermal_zone("Sub_instance_%s" % bound_instance.name, bound_instance, thermalzone)
             disaggregation = 'Sub' + bound_instance.__class__.__name__
-            try:
-                bound_instance = getattr(dis, disaggregation).based_on_thermal_zone(disaggregation+bound_instance.name, bound_instance, thermalzone)
-            except:
-                pass
+            # try:
+            bound_instance = getattr(dis, disaggregation).based_on_thermal_zone(disaggregation+bound_instance.name, bound_instance, thermalzone)
+            # except:
+            #     pass
             # if bound_instance.ifc_type == 'IfcSlab':
             #     bound_instance = SubSlab.based_on_thermal_zone("Subslab_%s" % bound_instance.name, bound_instance, thermalzone)
             # if bound_instance.ifc_type == ['IfcWall', 'IfcWallStandardCase']:
