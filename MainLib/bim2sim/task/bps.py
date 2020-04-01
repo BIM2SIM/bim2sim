@@ -189,6 +189,7 @@ class ExportTEASER(Task):
         prj.name = 'Testproject'
         prj.data.load_uc_binding()
         bldg_instances = bps_inspect.filter_instances('Building')
+        print('test')
 
         for bldg_instance in bldg_instances:
             bldg = Building(parent=prj)

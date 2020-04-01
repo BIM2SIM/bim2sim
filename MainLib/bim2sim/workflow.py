@@ -109,7 +109,7 @@ class BPSMultiZoneSeparated(Workflow):
         self.relevant_ifc_types = (
             'IfcAirTerminal',
             'IfcAirTerminalBox',
-            'IfcBuildingStorey'
+            'IfcBuildingStorey',
             'IFcBuilding',
             # 'IfcPipeFitting',
             # 'IfcPipeSegment',
