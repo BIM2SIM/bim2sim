@@ -81,5 +81,5 @@ class Inspect(Task):
                 thermalzone.bound_elements.append(bound_instance)
             if thermalzone not in bound_instance.thermal_zones:
                 bound_instance.thermal_zones.append(thermalzone)
-            print(bound_instance.position)
+
 
