@@ -1,4 +1,34 @@
 {
+  "OuterWall": {
+    "material": {
+      " Leichtbeton " : "lightweight_concrete"
+    },
+    "default_ps": {
+      "area" : ["BaseQuantities", "NetSideArea"],
+      "gross_side_area" : ["BaseQuantities", "GrossArea"],
+      "width" : ["BaseQuantities", "Width"],
+      "height" : ["BaseQuantities", "Height"],
+      "material" : ["MaterialLayerSet", "MaterialLayer"],
+      "thermal_transmittance" : ["Pset_WallCommon", "ThermalTransmittance"],
+      "tilt" : ["ArchiCADProperties", "Äußerer Neigungswinkel"],
+      "is_external" : ["Pset_WallCommon", "IsExternal"]
+    }
+  },
+  "InnerWall": {
+    "material": {
+      " Leichtbeton " : "lightweight_concrete"
+    },
+    "default_ps": {
+      "area" : ["BaseQuantities", "NetSideArea"],
+      "gross_side_area" : ["BaseQuantities", "GrossArea"],
+      "width" : ["BaseQuantities", "Width"],
+      "height" : ["BaseQuantities", "Height"],
+      "material" : ["MaterialLayerSet", "MaterialLayer"],
+      "thermal_transmittance" : ["Pset_WallCommon", "ThermalTransmittance"],
+      "tilt" : ["ArchiCADProperties", "Äußerer Neigungswinkel"],
+      "is_external" : ["Pset_WallCommon", "IsExternal"]
+    }
+  },
   "Wall": {
     "material": {
       " Leichtbeton " : "lightweight_concrete"
@@ -16,7 +46,7 @@
   },
   "Roof": {
     "default_ps": {
-      "area" : ["BaseQuantities", "NetArea"],
+      "area" : ["BaseQuantities", "GrossArea"],
       "width" : ["BaseQuantities", "Width"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
       "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
@@ -24,6 +54,15 @@
     }
   },
   "Floor": {
+    "default_ps": {
+      "area" : ["BaseQuantities", "NetArea"],
+      "width" : ["BaseQuantities", "Width"],
+      "material" : ["MaterialLayerSet", "MaterialLayer"],
+      "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "is_external" : ["Pset_SlabCommon", "IsExternal"]
+    }
+  },
+  "GroundFloor": {
     "default_ps": {
       "area" : ["BaseQuantities", "NetArea"],
       "width" : ["BaseQuantities", "Width"],

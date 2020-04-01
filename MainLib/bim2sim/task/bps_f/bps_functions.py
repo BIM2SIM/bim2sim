@@ -2,8 +2,8 @@ from bim2sim.kernel.element import Element
 import ifcopenshell
 import ifcopenshell.geom
 import math
-from shapely.geometry.polygon import Polygon
-from shapely.geometry import Point
+# from shapely.geometry.polygon import Polygon
+# from shapely.geometry import Point
 import matplotlib.pyplot as plt
 
 
@@ -202,10 +202,10 @@ def get_boundaries(ifc_element):
     # boundaries for a given wall or space element
     vertices = []
     settings = ifcopenshell.geom.settings()
-    try:
-        shape = ifcopenshell.geom.create_shape(settings, ifc_element)
-    except RuntimeError:
-        return None
+    # try:
+    shape = ifcopenshell.geom.create_shape(settings, ifc_element)
+    # except RuntimeError:
+    #     return None
     i = 0
     while i < len(shape.geometry.verts):
         vertices.append([shape.geometry.verts[i], shape.geometry.verts[i + 1]])

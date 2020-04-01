@@ -10,8 +10,8 @@ from bim2sim.kernel import element, condition, attribute
 from bim2sim.decision import RealDecision, BoolDecision, ListDecision, TextDecision
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.kernel.ifc2python import get_layers_ifc
-from shapely.geometry.polygon import Polygon
-from shapely.geometry import Point
+# from shapely.geometry.polygon import Polygon
+# from shapely.geometry import Point
 import ifcopenshell.geom
 import matplotlib.pyplot as plt
 from bim2sim.kernel.element import Element
@@ -828,7 +828,7 @@ class Slab(element.Element):
     )
     area = attribute.Attribute(
         name='area',
-        default_ps=('BaseQuantities', 'NetArea'),
+        default_ps=('BaseQuantities', 'GrossArea'),
         default=0
     )
 
