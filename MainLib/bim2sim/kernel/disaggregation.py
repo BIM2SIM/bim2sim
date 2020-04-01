@@ -104,20 +104,9 @@ class Disaggregation(BaseElement):
             self.__class__.__name__, self.name, len(self.parent))
 
 
-class SubSlab(Disaggregation):
-    disaggregatable_elements = ['IfcSlab']
 
-    # def calc_position(self):
-    #     try:
-    #         return self.thermal_zones[0].position
-    #     except:
-    #         return None
-    #
-    # def calc_orientation(self):
-    #     try:
-    #         return self.parent.orientation
-    #     except:
-    #         return None
+class SubFloor(Disaggregation):
+    disaggregatable_elements = ['IfcSlab']
 
     @attribute.multi_calc
     def _get_properties(self):
@@ -149,16 +138,73 @@ class SubSlab(Disaggregation):
         functions=[_get_properties]
     )
 
-    # @classmethod
-    # def create_on_match(cls, name, slab, thermalzone):
-    #     instance = cls(name, slab)
-    #     if instance.area > thermalzone.area:
-    #         instance.area = float(thermalzone.area)
-    #     if not hasattr(slab, "sub_slabs"):
-    #         slab.sub_slabs = []
-    #     slab.sub_slabs.append(instance)
-    #
-    #     return instance
+
+class SubGroundFloor(Disaggregation):
+    disaggregatable_elements = ['IfcSlab']
+
+    @attribute.multi_calc
+    def _get_properties(self):
+        result = dict(
+            area=self.parent.area,
+            thickness=self.parent.thickness,
+            thermal_transmittance=self.parent.thermal_transmittance,
+            is_external=self.parent.is_external
+        )
+        return result
+
+    area = attribute.Attribute(
+        name='area',
+        functions=[_get_properties]
+    )
+
+    thickness = attribute.Attribute(
+        name='thickness',
+        functions=[_get_properties]
+    )
+
+    thermal_transmittance = attribute.Attribute(
+        name='thermal_transmittance',
+        functions=[_get_properties]
+    )
+
+    is_external = attribute.Attribute(
+        name='is_external',
+        functions=[_get_properties]
+    )
+
+
+class SubSlab(Disaggregation):
+    disaggregatable_elements = ['IfcSlab']
+
+    @attribute.multi_calc
+    def _get_properties(self):
+        result = dict(
+            area=self.parent.area,
+            thickness=self.parent.thickness,
+            thermal_transmittance=self.parent.thermal_transmittance,
+            is_external=self.parent.is_external
+        )
+        return result
+
+    area = attribute.Attribute(
+        name='area',
+        functions=[_get_properties]
+    )
+
+    thickness = attribute.Attribute(
+        name='thickness',
+        functions=[_get_properties]
+    )
+
+    thermal_transmittance = attribute.Attribute(
+        name='thermal_transmittance',
+        functions=[_get_properties]
+    )
+
+    is_external = attribute.Attribute(
+        name='is_external',
+        functions=[_get_properties]
+    )
 
 
 class SubRoof(Disaggregation):
