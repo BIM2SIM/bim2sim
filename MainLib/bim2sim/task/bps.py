@@ -6,6 +6,7 @@ import json
 from bim2sim.task import Task
 from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort
+from kernel import disaggregation
 # from bim2sim.ifc2python.bps import ...
 from bim2sim.export import modelica
 from bim2sim.decision import Decision
@@ -17,6 +18,8 @@ from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.enrichment_data import element_input_json
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.decision import ListDecision
+from teaser.project import Project
+from teaser.logic.buildingobjects.building import Building
 from teaser.logic.buildingobjects.thermalzone import ThermalZone
 from teaser.logic.buildingobjects.useconditions import UseConditions
 from teaser.logic.buildingobjects.buildingphysics.outerwall import OuterWall
