@@ -10,6 +10,7 @@
       "height" : ["BaseQuantities", "Height"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
       "thermal_transmittance" : ["Pset_WallCommon", "ThermalTransmittance"],
+      "thickness" : ["BaseQuantities", "Width"],
       "tilt" : ["ArchiCADProperties", "Äußerer Neigungswinkel"],
       "is_external" : ["Pset_WallCommon", "IsExternal"]
     }
@@ -25,6 +26,7 @@
       "height" : ["BaseQuantities", "Height"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
       "thermal_transmittance" : ["Pset_WallCommon", "ThermalTransmittance"],
+      "thickness" : ["BaseQuantities", "Width"],
       "tilt" : ["ArchiCADProperties", "Äußerer Neigungswinkel"],
       "is_external" : ["Pset_WallCommon", "IsExternal"]
     }
@@ -40,6 +42,7 @@
       "height" : ["BaseQuantities", "Height"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
       "thermal_transmittance" : ["Pset_WallCommon", "ThermalTransmittance"],
+      "thickness" : ["BaseQuantities", "Width"],
       "tilt" : ["ArchiCADProperties", "Äußerer Neigungswinkel"],
       "is_external" : ["Pset_WallCommon", "IsExternal"]
     }
@@ -50,6 +53,7 @@
       "width" : ["BaseQuantities", "Width"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
       "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "thickness" : ["BaseQuantities", "Width"],
       "is_external" : ["Pset_SlabCommon", "IsExternal"]
     }
   },
@@ -59,6 +63,7 @@
       "width" : ["BaseQuantities", "Width"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
       "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "thickness" : ["BaseQuantities", "Width"],
       "is_external" : ["Pset_SlabCommon", "IsExternal"]
     }
   },
@@ -68,25 +73,38 @@
       "width" : ["BaseQuantities", "Width"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
       "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "thickness" : ["BaseQuantities", "Width"],
       "is_external" : ["Pset_SlabCommon", "IsExternal"]
     }
   },
   "Window": {
     "default_ps": {
-      "area" : ["BaseQuantities", "NetArea"],
-      "material" : ["MaterialLayerSet", "MaterialLayer"]
+      "area" : ["BaseQuantities", "Area"],
+      "material" : ["MaterialLayerSet", "MaterialLayer"],
+      "thickness" : ["BaseQuantities", "Width"]
     }
   },
   "ThermalZone": {
     "default_ps": {
+      "zone_name" : ["ArchiCADProperties", "Raumname"],
       "area" : ["BaseQuantities", "NetFloorArea"],
       "usage" : ["AC_Pset_Allgemeiner_Raumstempel", "Raumname"],
       "height" : ["BaseQuantities", "Height"],
+      "net_volume" : ["BaseQuantities", "NetVolume"],
       "gross_side_area" : ["BaseQuantities", "GrossArea"],
       "width" : ["BaseQuantities", "Width"],
-      "set_temp_heating" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMin"],
-      "set_temp_cooling" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMax"],
+      "t_set_heat" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMin"],
+      "t_set_cool" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMax"],
       "with_AHU" : ["Pset_SpaceThermalRequirements", "AirConditioning"]
+    }
+  },
+  "Building": {
+    "default_ps": {
+      "year_of_construction" : ["Pset_BuildingCommon", "YearOfConstruction"],
+      "gross_area" : ["Pset_BuildingCommon", "GrossPlannedArea"],
+      "net_area" : ["Pset_BuildingCommon", "NetAreaPlanned"],
+      "number_of_storeys" : ["Pset_BuildingCommon", "NumberOfStoreys"],
+      "occupancy_type" : ["Pset_BuildingCommon", "OccupancyType"]
     }
   },
   "MaterialTemplates" : {

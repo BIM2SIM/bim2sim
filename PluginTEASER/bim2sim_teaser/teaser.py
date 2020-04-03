@@ -21,7 +21,8 @@ class TEASERManager(BIM2SIMManager):
         bps_inspect = bps.Inspect(self.workflow)
         bps_inspect.run(self.ifc)
 
-        export = bps.ExportTEASER()
+        export = bps.ExportTEASERMultizone()
+        # export = bps.ExportTEASERSingleZone()
         export.run(self.workflow, bps_inspect)
 
 

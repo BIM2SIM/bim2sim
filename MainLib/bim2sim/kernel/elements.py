@@ -476,49 +476,73 @@ class AirTerminal(element.Element):
 
 class ThermalZone(element.Element):
     ifc_type = "IfcSpace"
-    predefined_type = {
-        "IfcSpace": ["SPACE",
-                     "PARKING",
-                     "GFA",
-                     "INTERNAL",
-                     "NOTDEFINED"
-                     ]
-    }
 
     pattern_ifc_type = [
         re.compile('Space', flags=re.IGNORECASE),
         re.compile('Zone', flags=re.IGNORECASE)
     ]
 
-    area = attribute.Attribute(
-        name='area',
-        # default_ps=('BaseQuantities', 'NetFloorArea'), #fkz haus
-        default_ps=('Qto_SpaceBaseQuantities', 'NetFloorArea'), #vereinhaus
-        default=0
+    zone_name = attribute.Attribute(
+        name='zone_name',
+        default_ps=('ArchiCADProperties', 'Raumname')
     )
 
+    def _get_usage(bind, name):
+        usage_decision = ListDecision("Which usage does the Space %s have?" %
+                                      (str(bind.zone_name)),
+                                      choices=["Living",
+                                               "Traffic area",
+                                               "Bed room",
+                                               "Kitchen - preparations, storage"],
+                                      allow_skip=False,
+                                      allow_load=True,
+                                      allow_save=True,
+                                      quick_decide=not True)
+        usage_decision.decide()
+        return usage_decision.value
+
+
+
+    usage = attribute.Attribute(
+        name='usage',
+        functions=[_get_usage]
+    )
+
+    t_set_heat = attribute.Attribute(
+        name='t_set_heat',
+        default_ps=('Pset_SpaceThermalRequirements', 'SpaceTemperatureMin')
+    )
+    t_set_cool = attribute.Attribute(
+        name='t_set_cool',
+        default_ps=('Pset_SpaceThermalRequirements', 'SpaceTemperatureMax')
+    )
+    # # todo remove default, when regular expression compare is implemented
+    # usage = attribute.Attribute(
+    #     name='usage',
+    #     default='Living'
+    # )
+    area = attribute.Attribute(
+        name='area',
+        default_ps=('BaseQuantities', 'NetFloorArea'), #fkz haus
+        # default_ps=('Qto_SpaceBaseQuantities', 'NetFloorArea'), #vereinhaus
+        default=0
+    )
+    net_volume = attribute.Attribute(
+        name='net_volume',
+        default_ps=('BaseQuantities', 'NetVolume'), #fkz haus
+        # default_ps=('Qto_SpaceBaseQuantities', 'NetFloorArea'), #vereinhaus
+        default=0
+    )
     height = attribute.Attribute(
         name='height',
         default_ps=('BaseQuantities', 'Height'),
         default=0
     )
 
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bound_elements = []
-
-    # def add_elements_space(self):
-        # todo @dco whats done here?
-        # settings = ifcopenshell.geom.settings()
-        # vertices = []
-        # shape = ifcopenshell.geom.create_shape(settings, space)
-        # i = 0
-        # while i < len(shape.geometry.verts):
-        #     vertices.append((shape.geometry.verts[i] + thermal_zone.position[0],
-        #                      shape.geometry.verts[i + 1] + thermal_zone.position[1]))
-        #     i += 3
-        # polygon = Polygon(vertices)
-
 
     def get__elements_by_type(self, type):
         raise NotImplementedError
@@ -758,7 +782,7 @@ class Window(element.Element):
 
     area = attribute.Attribute(
         name='area',
-        default_ps=('BaseQuantities', 'NetArea'),
+        default_ps=('BaseQuantities', 'Area'),
         default=0
     )
 
@@ -805,6 +829,7 @@ class Slab(element.Element):
         super().__init__(*args, **kwargs)
         # todo more generic with general function and check of existing
         # subclasses
+        # todo ask for decision if not type is inserted
         if self.predefined_type == "ROOF":
             self.__class__ = Roof
             self.__init__()
