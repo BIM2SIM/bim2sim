@@ -40,11 +40,11 @@ class Inspect(Task):
                 entities = ifc.by_type(ifc_type)
                 for entity in entities:
                     element = Element.factory(entity, ifc_type)
-                    try:
-                        if element.is_external is True:
-                            print(element.ifc_type, element.guid, element.orientation)
-                    except AttributeError:
-                        pass
+                    # try:
+                    #     if element.is_external is True:
+                    #         print(element.ifc_type, element.guid, element.orientation)
+                    # except AttributeError:
+                    #     pass
                     self.instances[element.guid] = element
             except RuntimeError:
                 pass

@@ -215,39 +215,7 @@ def get_boundaries(ifc_element):
         if element not in vertices2:
             vertices2.append(element)
 
-    # remove center coordinates?
-
     x, y = zip(*vertices2)
-    # plt.scatter(x, y)
-    # plt.show()
-
-    # x_ord = {}
-    # for x, y in vertices2:
-    #     x = round(x, 2)
-    #     y = round(y, 2)
-    #     if x not in x_ord:
-    #         x_ord[x] = []
-    #     x_ord[x].append(y)
-    # new_vertices = []
-    # for key in x_ord:
-    #     if len(x_ord[key]) > 1:
-    #         for ele in x_ord[key]:
-    #             new_vertices.append([key, ele])
-    # y_ord = {}
-    # for x, y in new_vertices:
-    #     if y not in y_ord:
-    #         y_ord[y] = []
-    #     y_ord[y].append(x)
-    # new_vertices2 = []
-    # for key in y_ord:
-    #     if len(y_ord[key]) > 1:
-    #         for ele in y_ord[key]:
-    #             new_vertices2.append([ele, key])
-    #
-    #
-    # x, y = zip(*new_vertices2)
-    # plt.scatter(x, y)
-    # plt.show
 
     x = list(x)
     y = list(y)
@@ -257,3 +225,42 @@ def get_boundaries(ifc_element):
     width = y[len(y)-1]-y[0]
 
     return length, width
+
+
+def get_boundaries_vertical_instance(element, thermal_zone):
+    sum_ele = []
+    length = 0
+    width = 0
+    settings = ifcopenshell.geom.settings()
+
+    # thermal zone information
+    for binding in thermal_zone.ifc.BoundedBy:
+        x = []
+        y = []
+        if binding.RelatedBuildingElement == element.ifc:
+            try:
+                shape = ifcopenshell.geom.create_shape(settings, binding.ConnectionGeometry.SurfaceOnRelatingElement)
+            except RuntimeError:
+                continue
+            i = 0
+            while i < len(shape.verts):
+                x.append(shape.verts[i])
+                y.append(shape.verts[i + 1])
+                i += 3
+
+            x.sort()
+            y.sort()
+            sum_ele.append([x[len(x) - 1] - x[0], y[len(y) - 1] - y[0]])
+
+    # diferent spaces element
+    for a, b in sum_ele:
+        length += a
+        width += b
+    if length == 0 and width == 0:
+        return None
+    if length <= 0:
+        return width
+    if width <= 0:
+        return length
+    return length, width
+

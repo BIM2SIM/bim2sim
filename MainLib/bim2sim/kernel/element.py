@@ -142,16 +142,14 @@ class IFCBased(Root):
 
 
     def calc_orientation(self):
-        try:
-            external = self.is_external
-        except AttributeError:
-            external = False
+        # try:
+        #     external = self.is_external
+        # except AttributeError:
+        #     external = False
 
         list_angles = [-self.get_true_north()]
         if self.ifc_type == 'IfcWindow':
             list_angles.append(180)
-
-
         placementrel = self.ifc.ObjectPlacement.PlacementRelTo
         try:
             o1 = self.ifc.ObjectPlacement.RelativePlacement.RefDirection.DirectionRatios
@@ -187,7 +185,6 @@ class IFCBased(Root):
                 angle_sum -= 360
             elif angle_sum < 0:
                 angle_sum += 360
-        print(self.name, angle_sum, list_angles, directionsense)
         return angle_sum
 
     def get_ifc_attribute(self, attribute):

@@ -42,11 +42,12 @@ class Disaggregation(BaseElement):
     #     return mapping, connections
 
     def calc_position(self):
+        try:
+            thermalzone = self.thermal_zones[0]
+        except:
+            return None
         if self.parent.__class__.__name__ in self.horizontal_instances:
-            try:
-                return self.thermal_zones[0].position
-            except:
-                return None
+            pos = thermalzone.position
         elif self.parent.__class__.__name__ in self.vertical_instances:
             thermalzone = self.thermal_zones[0]
             x1, y1, z1 = thermalzone.position
@@ -57,8 +58,9 @@ class Disaggregation(BaseElement):
             x = x1 + math.sin(math.radians(rel_orientation)) * space_not_selected / 2
             y = y1 + math.cos(math.radians(rel_orientation)) * space_not_selected / 2
             pos = np.array([x, y, z1])
-
-            return pos
+        else:
+            return None
+        return pos
 
     def calc_orientation(self):
         try:
@@ -70,6 +72,8 @@ class Disaggregation(BaseElement):
     def based_on_thermal_zone(cls, name, parent, thermal_zone):
         instance = cls(name, parent)
         if parent.__class__.__name__ in cls.horizontal_instances:
+            if not hasattr(instance, 'area'):
+                return parent
             if instance.area > thermal_zone.area:
                 instance.area = float(thermal_zone.area)
             else:
