@@ -76,3 +76,4 @@ class Inspect(Task):
             if thermalzone not in bound_instance.thermal_zones:
                 bound_instance.thermal_zones.append(thermalzone)
 
+

@@ -20,9 +20,13 @@ class TEASERManager(BIM2SIMManager):
 
         bps_inspect = bps.Inspect(self.workflow)
         bps_inspect.run(self.ifc)
+
         tz_inspect = tz_detection.Inspect(bps_inspect)
         tz_inspect.run(self.ifc)
-        pass
+
+        export = bps.ExportTEASERMultizone()
+        # export = bps.ExportTEASERSingleZone()
+        export.run(self.workflow, bps_inspect)
 
 
         # libraries = (standardlibrary.StandardLibrary, HKESim)

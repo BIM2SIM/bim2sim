@@ -9,8 +9,9 @@ from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, condition, attribute
 from bim2sim.decision import RealDecision, BoolDecision, ListDecision, TextDecision
 from bim2sim.enrichment_data.data_class import DataClass
-from shapely.geometry.polygon import Polygon
-from shapely.geometry import Point
+from bim2sim.kernel.ifc2python import get_layers_ifc
+# from shapely.geometry.polygon import Polygon
+# from shapely.geometry import Point
 import ifcopenshell.geom
 import matplotlib.pyplot as plt
 from bim2sim.kernel.element import Element
@@ -475,49 +476,73 @@ class AirTerminal(element.Element):
 
 class ThermalZone(element.Element):
     ifc_type = "IfcSpace"
-    predefined_type = {
-        "IfcSpace": ["SPACE",
-                     "PARKING",
-                     "GFA",
-                     "INTERNAL",
-                     "NOTDEFINED"
-                     ]
-    }
 
     pattern_ifc_type = [
         re.compile('Space', flags=re.IGNORECASE),
         re.compile('Zone', flags=re.IGNORECASE)
     ]
 
-    area = attribute.Attribute(
-        name='area',
-        # default_ps=('BaseQuantities', 'NetFloorArea'), #fkz haus
-        default_ps=('Qto_SpaceBaseQuantities', 'NetFloorArea'), #vereinhaus
-        default=0
+    zone_name = attribute.Attribute(
+        name='zone_name',
+        default_ps=('ArchiCADProperties', 'Raumname')
     )
 
+    def _get_usage(bind, name):
+        usage_decision = ListDecision("Which usage does the Space %s have?" %
+                                      (str(bind.zone_name)),
+                                      choices=["Living",
+                                               "Traffic area",
+                                               "Bed room",
+                                               "Kitchen - preparations, storage"],
+                                      allow_skip=False,
+                                      allow_load=True,
+                                      allow_save=True,
+                                      quick_decide=not True)
+        usage_decision.decide()
+        return usage_decision.value
+
+
+
+    usage = attribute.Attribute(
+        name='usage',
+        functions=[_get_usage]
+    )
+
+    t_set_heat = attribute.Attribute(
+        name='t_set_heat',
+        default_ps=('Pset_SpaceThermalRequirements', 'SpaceTemperatureMin')
+    )
+    t_set_cool = attribute.Attribute(
+        name='t_set_cool',
+        default_ps=('Pset_SpaceThermalRequirements', 'SpaceTemperatureMax')
+    )
+    # # todo remove default, when regular expression compare is implemented
+    # usage = attribute.Attribute(
+    #     name='usage',
+    #     default='Living'
+    # )
+    area = attribute.Attribute(
+        name='area',
+        default_ps=('BaseQuantities', 'NetFloorArea'), #fkz haus
+        # default_ps=('Qto_SpaceBaseQuantities', 'NetFloorArea'), #vereinhaus
+        default=0
+    )
+    net_volume = attribute.Attribute(
+        name='net_volume',
+        default_ps=('BaseQuantities', 'NetVolume'), #fkz haus
+        # default_ps=('Qto_SpaceBaseQuantities', 'NetFloorArea'), #vereinhaus
+        default=0
+    )
     height = attribute.Attribute(
         name='height',
         default_ps=('BaseQuantities', 'Height'),
         default=0
     )
 
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bound_elements = []
-
-    # def add_elements_space(self):
-        # todo @dco whats done here?
-        # settings = ifcopenshell.geom.settings()
-        # vertices = []
-        # shape = ifcopenshell.geom.create_shape(settings, space)
-        # i = 0
-        # while i < len(shape.geometry.verts):
-        #     vertices.append((shape.geometry.verts[i] + thermal_zone.position[0],
-        #                      shape.geometry.verts[i + 1] + thermal_zone.position[1]))
-        #     i += 3
-        # polygon = Polygon(vertices)
-
 
     def get__elements_by_type(self, type):
         raise NotImplementedError
@@ -529,6 +554,7 @@ class Medium(element.Element):
         re.compile('Medium', flags=re.IGNORECASE)
     ]
 
+
 class Wall(element.Element):
     ifc_type = ["IfcWall", "IfcWallStandardCase"]
     pattern_ifc_type = [
@@ -536,18 +562,27 @@ class Wall(element.Element):
         re.compile('Wand', flags=re.IGNORECASE)
     ]
     material_selected = {}
-    # class Layer:
-    #     def __init__(self, thickness, material):
-    #         self.thickness = thickness
-    #         self.material = material
-    #
-    # layers = attribute.Attribute(
-    #     name='layers',
-    #     default_association='test'
-    # )
-    #
-    # @staticmethod
-    # def get_layers(ifc_representation):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.is_external:
+            self.__class__ = OuterWall
+            self.__init__()
+        elif not self.is_external:
+            self.__class__ = InnerWall
+            self.__init__()
+
+    def _get_layers(bind, name):
+        layers = []
+        material_layers_dict = get_layers_ifc(bind)
+        for layer, values in material_layers_dict.items():
+            layers.append(Layer(bind, values[0], values[1]))
+        return layers
+
+    layers = attribute.Attribute(
+        name='layers',
+        functions=[_get_layers]
+    )
 
     def _get_wall_properties(bind, name):
         material = bind.material
@@ -680,6 +715,50 @@ class Wall(element.Element):
     )
 
 
+class Layer(element.BaseElementNoPorts):
+    ifc_type = None
+    material_selected = {}
+
+    def __init__(self, parent, thickness, material_name, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.material = material_name
+        self.parent = parent
+        self.thickness = thickness
+
+    def __repr__(self):
+        return "<%s (material: %s>" \
+               % (self.__class__.__name__, self.material)
+
+    # material = attribute.Attribute(
+    #     name='material',
+    #     # todo just for testing, this is file specific
+    #     default_ps=('ArchiCADProperties', 'Baustoff/Mehrschicht/Profil'),
+    #     default=0
+    # )
+
+    heat_capacity = attribute.Attribute(
+        name='heat_capacity',
+        default=0
+    )
+
+    density = attribute.Attribute(
+        name='density',
+        default=0
+    )
+
+
+class OuterWall(Wall):
+    def __init__(self, *args, **kwargs):
+        pass
+        # super().__init__(*args, **kwargs)
+
+
+class InnerWall(Wall):
+    def __init__(self, *args, **kwargs):
+        pass
+        # super().__init__(*args, **kwargs)
+
+
 class Window(element.Element):
     ifc_type = "IfcWindow"
     # predefined_type = {
@@ -701,12 +780,12 @@ class Window(element.Element):
         default=True
     )
 
-
     area = attribute.Attribute(
         name='area',
-        default_ps=('BaseQuantities', 'NetArea'),
+        default_ps=('BaseQuantities', 'Area'),
         default=0
     )
+
 
 # class OuterWall(Wall):
 #     pattern_ifc_type = [
@@ -746,10 +825,35 @@ class Plate(element.Element):
 class Slab(element.Element):
     ifc_type = "IfcSlab"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # todo more generic with general function and check of existing
+        # subclasses
+        # todo ask for decision if not type is inserted
+        if self.predefined_type == "ROOF":
+            self.__class__ = Roof
+            self.__init__()
+        if self.predefined_type == "FLOOR":
+            self.__class__ = Floor
+            self.__init__()
+        if self.predefined_type == "BASESLAB":
+            self.__class__ = GroundFloor
+            self.__init__()
+
+    def _get_layers(bind, name):
+        layers = []
+        material_layers_dict = get_layers_ifc(bind)
+        for layer, values in material_layers_dict.items():
+            layers.append(Layer(bind, values[0], values[1]))
+        return layers
+
+    layers = attribute.Attribute(
+        name='layers',
+        functions=[_get_layers]
+    )
     area = attribute.Attribute(
         name='area',
-        # default_ps=('BaseQuantities', 'NetArea'), # fkz haus
-        default_ps=('Qto_SlabBaseQuantities', 'NetArea'),  # Vereinhaus
+        default_ps=('BaseQuantities', 'GrossArea'),
         default=0
     )
 
@@ -778,33 +882,78 @@ class Slab(element.Element):
 
 
 class Roof(Slab):
-    ifc_type = ["IfcSlab", "IfcRoof"]
-    predefined_type = {
-            "IfcSlab": "ROOF",
-        }
+    ifc_type = "IfcRoof"
+
+    def __init__(self, *args, **kwargs):
+        pass
+    # predefined_type = {
+    #         "IfcSlab": "ROOF",
+    #     }
 
 
 class Floor(Slab):
-    ifc_type = 'IfcSlab'
-    predefined_type = {
-            "IfcSlab": "FLOOR",
-        }
+
+    def __init__(self, *args, **kwargs):
+        pass
+    # ifc_type = 'IfcSlab'
+    # predefined_type = {
+    #         "IfcSlab": "FLOOR",
+    #     }
 
 
 class GroundFloor(Slab):
-    ifc_type = 'IfcSlab'
-    predefined_type = {
-            "IfcSlab": "BASESLAB",
-        }
+    def __init__(self, *args, **kwargs):
+        pass
+    # ifc_type = 'IfcSlab'
+    # predefined_type = {
+    #         "IfcSlab": "BASESLAB",
+    #     }
 
 
 class Building(element.Element):
-    ifc_type = "IfcBuilding"
+    ifc_type = "IFcBuilding"
 
-    area = attribute.Attribute(
-        name='area',
-        default_ps=('BaseQuantities', 'NetArea'),
-        default=0
+    year_of_construction = attribute.Attribute(
+        name='year_of_construction',
+        default_ps=('Pset_BuildingCommon', 'YearOfConstruction')
+    )
+    gross_area = attribute.Attribute(
+        name='gross_area',
+        default_ps=('Pset_BuildingCommon', 'GrossPlannedArea')
+    )
+    net_area = attribute.Attribute(
+        name='net_area',
+        default_ps=('Pset_BuildingCommon', 'NetAreaPlanned')
+    )
+    number_of_storeys = attribute.Attribute(
+        name='number_of_storeys',
+        default_ps=('Pset_BuildingCommon', 'NumberOfStoreys')
+    )
+    occupancy_type = attribute.Attribute(
+        name='occupancy_type',
+        default_ps=('Pset_BuildingCommon', 'OccupancyType')
+    )
+
+
+class Storey(element.Element):
+    ifc_type = 'IfcBuildingStorey'
+
+    gross_foor_area = attribute.Attribute(
+        name='gross_foor_area',
+        default_ps=('BaseQuantities', 'GrossFloorArea')
+    )
+    #todo make the lookup for height hierarchical
+    net_height = attribute.Attribute(
+        name='net_height',
+        default_ps=('BaseQuantities', 'NetHeight')
+    )
+    gross_height = attribute.Attribute(
+        name='gross_height',
+        default_ps=('BaseQuantities', 'GrossHeight')
+    )
+    height = attribute.Attribute(
+        name='height',
+        default_ps=('BaseQuantities', 'Height')
     )
 
 

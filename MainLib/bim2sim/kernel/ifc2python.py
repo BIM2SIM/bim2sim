@@ -56,6 +56,21 @@ def propertyset2dict(propertyset):
     return propertydict
 
 
+def get_layers_ifc(element):
+    dict = {}
+    relation = 'RelatingMaterial'
+    assoc_list = getIfcAttribute(element.ifc, "HasAssociations")
+    for assoc in assoc_list:
+        association = getIfcAttribute(assoc, relation)
+        if association is not None:
+            layer_list = association.ForLayerSet.MaterialLayers
+            for count, layer in enumerate(layer_list):
+                thickness = layer.LayerThickness
+                material_name = layer.Material.Name
+                dict[count] = [thickness, material_name]
+    return dict
+
+
 def getElementByGUID(ifcfile, guid):
     element = ifcfile.by_guid(guid)
     return element
