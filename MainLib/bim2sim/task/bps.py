@@ -50,16 +50,10 @@ class Inspect(Task):
         Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
         for ifc_type in self.workflow.relevant_ifc_types:
-            # not every ifc file has the same relevant ifc types - wrapper problem
             try:
                 entities = ifc.by_type(ifc_type)
                 for entity in entities:
                     element = Element.factory(entity, ifc_type)
-                    # try:
-                    #     if element.is_external is True:
-                    #         print(element.ifc_type, element.guid, element.orientation)
-                    # except AttributeError:
-                    #     pass
                     self.instances[element.guid] = element
             except RuntimeError:
                 pass

@@ -75,6 +75,9 @@ class Disaggregation(BaseElement):
         if parent.__class__.__name__ in cls.horizontal_instances:
             if not hasattr(instance, 'area'):
                 return parent
+            else:
+                if instance.area is None:
+                    return parent
             if instance.area > thermal_zone.area:
                 instance.area = float(thermal_zone.area)
             else:
