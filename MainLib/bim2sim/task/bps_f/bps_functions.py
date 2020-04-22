@@ -202,10 +202,7 @@ def get_boundaries(ifc_element):
     # boundaries for a given wall or space element
     vertices = []
     settings = ifcopenshell.geom.settings()
-    # try:
     shape = ifcopenshell.geom.create_shape(settings, ifc_element)
-    # except RuntimeError:
-    #     return None
     i = 0
     while i < len(shape.geometry.verts):
         vertices.append([shape.geometry.verts[i], shape.geometry.verts[i + 1]])
@@ -227,16 +224,20 @@ def get_boundaries(ifc_element):
     return length, width
 
 
-def get_boundaries_vertical_instance(element, thermal_zone):
+def get_boundaries_instance(element, thermal_zone):
+    vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
+    horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
+    if element.__class__.__name__ not in vertical_instances and element.__class__.__name__ not in horizontal_instances:
+        return None
+
     sum_ele = []
-    length = 0
-    width = 0
     settings = ifcopenshell.geom.settings()
 
     # thermal zone information
     for binding in thermal_zone.ifc.BoundedBy:
         x = []
         y = []
+        z = []
         if binding.RelatedBuildingElement == element.ifc:
             try:
                 shape = ifcopenshell.geom.create_shape(settings, binding.ConnectionGeometry.SurfaceOnRelatingElement)
@@ -246,21 +247,46 @@ def get_boundaries_vertical_instance(element, thermal_zone):
             while i < len(shape.verts):
                 x.append(shape.verts[i])
                 y.append(shape.verts[i + 1])
+                z.append(shape.verts[i + 2])
                 i += 3
 
             x.sort()
             y.sort()
-            sum_ele.append([x[len(x) - 1] - x[0], y[len(y) - 1] - y[0]])
+            z.sort()
+            sum_ele.append([x[len(x) - 1] - x[0], y[len(y) - 1] - y[0], z[len(z) - 1] - z[0]])
 
     # diferent spaces element
-    for a, b in sum_ele:
-        length += a
-        width += b
-    if length == 0 and width == 0:
+    if element.__class__.__name__ in vertical_instances:
+        for a in sum_ele:
+            for b in a:
+                if b <= 0:
+                    del a[a.index(b)]
+    elif element.__class__.__name__ in horizontal_instances:
+        for a in sum_ele:
+            del a[2]
+    if len(sum_ele) == 0:
         return None
-    if length <= 0:
-        return width
-    if width <= 0:
-        return length
-    return length, width
+    return sum_ele
+
+def get_position_instance(element, thermal_zone):
+    positions = []
+    settings = ifcopenshell.geom.settings()
+
+    # thermal zone information
+    for binding in thermal_zone.ifc.BoundedBy:
+        if binding.RelatedBuildingElement == element.ifc:
+            try:
+                ifcopenshell.geom.create_shape(settings, binding.ConnectionGeometry.SurfaceOnRelatingElement)
+            except RuntimeError:
+                continue
+            pos = binding.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
+            positions.append(pos)
+
+    # x, y, z = zip(*positions)
+    # plt.plot(x, y, marker='*')
+    # plt.show()
+
+    return positions
+
+
 

@@ -883,9 +883,15 @@ class Slab(element.Element):
 
 class Roof(Slab):
     ifc_type = "IfcRoof"
-
+    # ifc_type = ["IfcRoof", "IfcSlab"]
+    # if self.ifc:
     def __init__(self, *args, **kwargs):
-        pass
+        if hasattr(self, 'ifc'):
+            self.ifc_type = self.ifc.is_a()
+        else:
+            super().__init__(*args, **kwargs)
+
+
     # predefined_type = {
     #         "IfcSlab": "ROOF",
     #     }

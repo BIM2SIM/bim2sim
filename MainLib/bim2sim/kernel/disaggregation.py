@@ -2,10 +2,12 @@
 
 import math
 import numpy as np
+import sys, inspect
 
 from bim2sim.kernel import attribute
 from bim2sim.kernel.element import BaseElement
-from bim2sim.task.bps_f.bps_functions import get_boundaries
+from bim2sim.task.bps_f.bps_functions import get_boundaries, get_boundaries_instance, get_position_instance
+import matplotlib.pyplot as plt
 
 
 class Disaggregation(BaseElement):
@@ -17,10 +19,22 @@ class Disaggregation(BaseElement):
         if 'guid' not in kwargs:
             kwargs['guid'] = self.get_id("Disagg")
         super().__init__(*args, **kwargs)
-        self.name = name
         self.parent = element
+        self.name = name
         self.ifc_type = element.ifc_type
         self.guid = None
+        switcher = {'SubFloor': SubFloor,
+                       'SubGroundFloor': SubGroundFloor,
+                       'SubSlab': SubSlab,
+                       'SubRoof': SubRoof,
+                       'SubWall': SubWall,
+                       'SubInnerWall': SubInnerWall,
+                       'SubOuterWall': SubOuterWall}
+        sub_module = 'Sub' + self.parent.__class__.__name__
+        func = switcher.get(sub_module)
+        if func is not None:
+            self.__class__ = func
+            self.__init__(self.name, self.parent)
 
     # @classmethod
     # def get_empty_mapping(cls, elements: list):
@@ -44,24 +58,31 @@ class Disaggregation(BaseElement):
 
     def calc_position(self):
         try:
-            thermalzone = self.thermal_zones[0]
+            return self._pos
         except:
             return None
-        if self.parent.__class__.__name__ in self.horizontal_instances:
-            pos = thermalzone.position
-        elif self.parent.__class__.__name__ in self.vertical_instances:
-            thermalzone = self.thermal_zones[0]
-            x1, y1, z1 = thermalzone.position
+        # problem with multiple thermal zones
+        # try:
+        #     thermalzone = self.thermal_zones[0]
+        # except:
+        #     return None
+        # if self.parent.__class__.__name__ in self.horizontal_instances:
+        #     pos = thermalzone.position
+        # elif self.parent.__class__.__name__ in self.vertical_instances:
+        #     thermalzone = self.thermal_zones[0]
+        #     x1, y1, z1 = thermalzone.position
+        #
+        #     space_selected, space_not_selected = get_dimensions_subwall(self, thermalzone)
+        #
+        #     rel_orientation = self.orientation + self.parent.get_true_north()
+        #     x = x1 + math.sin(math.radians(rel_orientation)) * space_not_selected / 2
+        #     y = y1 + math.cos(math.radians(rel_orientation)) * space_not_selected / 2
+        #     pos = np.array([x, y, z1])
+        # else:
+        #     return None
+        #
+        # return pos
 
-            space_selected, space_not_selected = get_dimensions_subwall(self, thermalzone)
-
-            rel_orientation = self.orientation + self.parent.get_true_north()
-            x = x1 + math.sin(math.radians(rel_orientation)) * space_not_selected / 2
-            y = y1 + math.cos(math.radians(rel_orientation)) * space_not_selected / 2
-            pos = np.array([x, y, z1])
-        else:
-            return None
-        return pos
 
     def calc_orientation(self):
         try:
@@ -70,42 +91,58 @@ class Disaggregation(BaseElement):
             return None
 
     @classmethod
-    def based_on_thermal_zone(cls, name, parent, thermal_zone):
-        instance = cls(name, parent)
-        if parent.__class__.__name__ in cls.horizontal_instances:
-            if not hasattr(instance, 'area'):
-                return parent
-            else:
-                if instance.area is None:
-                    return parent
-            if instance.area > thermal_zone.area:
-                instance.area = float(thermal_zone.area)
-            else:
-                # return the original instance, no new instance created
-                return parent
+    def based_on_thermal_zone(cls, parent, thermal_zone):
+        instances = get_boundaries_instance(parent, thermal_zone)
+        length, width = get_boundaries(parent.ifc)
 
-        elif parent.__class__.__name__ in cls.vertical_instances:
-            if get_boundaries(parent.ifc) is None:
-                return parent
-            if get_dimensions_subwall(instance, thermal_zone) is None:
-                return parent
+        if instances is None:
+            return False
 
-            instance_length, instance_width = get_boundaries(parent.ifc)
-            space_selected, space_not_selected = get_dimensions_subwall(instance, thermal_zone)
+        if parent.__class__.__name__ in cls.vertical_instances:
+            if len(instances) == 1:
+                if length == instances[0][0] or length - width == instances[0][0]:
+                    return False
 
-            if instance_length > space_selected + 2 * instance_width:
-                instance.length = space_selected
-            # return the original instance, no new instance created
-            else:
-                return parent
-
-        else:
-            return parent
-
+        name = 'Sub' + parent.__class__.__name__ + '_' + parent.name
         if not hasattr(parent, "sub_instances"):
             parent.sub_instances = []
-        parent.sub_instances.append(instance)
-        return instance
+        i = len(parent.sub_instances)
+        ii = 0
+        for ins in instances:
+            scontinue = False
+
+            instance_area = ins[0] * ins[1]
+
+            for dis in parent.sub_instances:
+                if instance_area == dis.area:
+                    if dis not in thermal_zone.bound_elements:
+                        thermal_zone.bound_elements.append(dis)
+                    if thermal_zone not in dis.thermal_zones:
+                        dis.thermal_zones.append(thermal_zone)
+                    scontinue = True
+
+            if scontinue:
+                continue
+
+            instance = cls(name+'_%d' % i, parent)
+            instance.area = instance_area
+
+            # position calc
+            if parent.__class__.__name__ in cls.vertical_instances:
+                instance._pos = get_new_position_vertical_instance(parent, get_position_instance(parent, thermal_zone)[ii])
+            if parent.__class__.__name__ in cls.horizontal_instances:
+                instance._pos = thermal_zone.position
+            ii += 1
+
+            parent.sub_instances.append(instance)
+            if instance not in thermal_zone.bound_elements:
+                thermal_zone.bound_elements.append(instance)
+            if thermal_zone not in instance.thermal_zones:
+                instance.thermal_zones.append(thermal_zone)
+
+            i += 1
+
+        return True
 
     def __repr__(self):
         return "<%s '%s' (disaggregation of the element %d)>" % (
@@ -114,6 +151,9 @@ class Disaggregation(BaseElement):
 
 class SubFloor(Disaggregation):
     disaggregatable_elements = ['IfcSlab']
+
+    def __init__(self, *args, **kwargs):
+        pass
 
     @attribute.multi_calc
     def _get_properties(self):
@@ -149,6 +189,9 @@ class SubFloor(Disaggregation):
 class SubGroundFloor(Disaggregation):
     disaggregatable_elements = ['IfcSlab']
 
+    def __init__(self, *args, **kwargs):
+        pass
+
     @attribute.multi_calc
     def _get_properties(self):
         result = dict(
@@ -182,6 +225,9 @@ class SubGroundFloor(Disaggregation):
 
 class SubSlab(Disaggregation):
     disaggregatable_elements = ['IfcSlab']
+
+    def __init__(self, *args, **kwargs):
+        pass
 
     @attribute.multi_calc
     def _get_properties(self):
@@ -217,6 +263,9 @@ class SubSlab(Disaggregation):
 class SubRoof(Disaggregation):
     disaggregatable_elements = ['IfcRoof', 'IfcSlab']
 
+    def __init__(self, *args, **kwargs):
+        pass
+
     @attribute.multi_calc
     def _get_properties(self):
         result = dict(
@@ -248,9 +297,11 @@ class SubRoof(Disaggregation):
     )
 
 
-
 class SubWall(Disaggregation):
     disaggregatable_elements = ['IfcWall']
+
+    def __init__(self, *args, **kwargs):
+        pass
 
 
     @attribute.multi_calc
@@ -306,12 +357,13 @@ class SubWall(Disaggregation):
         name='thermal_transmittance',
         functions=[_get_properties]
     )
-
 
 
 class SubInnerWall(Disaggregation):
     disaggregatable_elements = ['IfcWall']
 
+    def __init__(self, *args, **kwargs):
+        pass
 
     @attribute.multi_calc
     def _get_properties(self):
@@ -366,10 +418,13 @@ class SubInnerWall(Disaggregation):
         name='thermal_transmittance',
         functions=[_get_properties]
     )
+
 
 class SubOuterWall(Disaggregation):
     disaggregatable_elements = ['IfcWall']
 
+    def __init__(self, *args, **kwargs):
+        pass
 
     @attribute.multi_calc
     def _get_properties(self):
@@ -425,6 +480,17 @@ class SubOuterWall(Disaggregation):
         functions=[_get_properties]
     )
 
+
+def get_new_position_vertical_instance(parent, sub_position):
+    # vertical instances
+    x1, y1, z1 = sub_position
+    rel_orientation_wall = math.floor(parent.orientation + parent.get_true_north())
+    x, y, z = parent.position
+    x = x - x1 * math.cos(math.radians(rel_orientation_wall))
+    y = y - y1 * math.sin(math.radians(rel_orientation_wall))
+    position = np.array([x, y, z])
+
+    return position
 
 # change name
 def get_dimensions_subwall(subwall, thermal_zone):
@@ -439,8 +505,6 @@ def get_dimensions_subwall(subwall, thermal_zone):
         space_length, space_width = get_boundaries(thermal_zone.ifc)
     elif 45 <= rel_orientation_space < 135 or 225 <= rel_orientation_space < 315:
         space_width, space_length = get_boundaries(thermal_zone.ifc)
-    else:
-        print(thermal_zone.name)
 
     # check if the wall length  corresponds to space length or width
     wall = subwall.parent
@@ -451,8 +515,6 @@ def get_dimensions_subwall(subwall, thermal_zone):
     elif 45 <= rel_orientation_wall < 135 or 225 <= rel_orientation_wall < 315:
         space_selected = space_width
         space_not_selected = space_length
-    else:
-        print(wall.name)
 
     return space_selected, space_not_selected
 
