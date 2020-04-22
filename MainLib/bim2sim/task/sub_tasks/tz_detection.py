@@ -3,12 +3,8 @@ from bim2sim.kernel import elements
 from bim2sim.decision import DictDecision, ListDecision, RealDecision, BoolDecision
 from bim2sim.kernel.element import Element
 from bim2sim.kernel.ifc2python import getElementType
-from bim2sim.kernel.disaggregation import Disaggregation, SubSlab, SubWall
-from bim2sim.kernel import disaggregation as dis
-from bim2sim.task.bps_f.bps_functions import get_boundaries, get_polygon, get_boundaries_instance
-import copy
-import matplotlib.pyplot as plt
-import ifcopenshell.geom
+from bim2sim.kernel.disaggregation import Disaggregation
+
 
 class Inspect(Task):
     """Analyses IFC, creates Element instances and connects them.
