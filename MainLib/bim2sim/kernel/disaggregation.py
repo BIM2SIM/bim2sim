@@ -49,6 +49,7 @@ class Disaggregation(BaseElement):
     @classmethod
     def based_on_thermal_zone(cls, parent, thermal_zone):
         disaggregations = get_disaggregations_instance(parent, thermal_zone)
+        # shape error in get boundaries (Vereinhaus)
         length, width = get_boundaries(parent.ifc)
 
         if disaggregations is None:

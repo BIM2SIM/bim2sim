@@ -6,7 +6,10 @@ def get_boundaries(ifc_element):
     # boundaries for a given wall or space element
     vertices = []
     settings = ifcopenshell.geom.settings()
-    shape = ifcopenshell.geom.create_shape(settings, ifc_element)
+    try:
+        shape = ifcopenshell.geom.create_shape(settings, ifc_element)
+    except RuntimeError:
+        return 0, 0
     i = 0
     while i < len(shape.geometry.verts):
         vertices.append([shape.geometry.verts[i], shape.geometry.verts[i + 1]])
@@ -87,7 +90,10 @@ def get_position_instance(element, thermal_zone):
                 ifcopenshell.geom.create_shape(settings, binding.ConnectionGeometry.SurfaceOnRelatingElement)
             except RuntimeError:
                 continue
-            pos = binding.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
+            if hasattr(binding.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
+                pos = binding.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
+            else:
+                pos = binding.ConnectionGeometry.SurfaceOnRelatingElement.Position.Location.Coordinates
             positions.append(pos)
 
     return positions

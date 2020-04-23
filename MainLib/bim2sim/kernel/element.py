@@ -142,14 +142,21 @@ class IFCBased(Root):
 
 
     def calc_orientation(self):
-        # try:
-        #     external = self.is_external
-        # except AttributeError:
-        #     external = False
+        switcher = {'Building': 'not_available',
+                    'Storey': 'not_available',
+                    'Slab': -1,
+                    'Roof': -1,
+                    'Floor': -2,
+                    'GroundFloor': -2}
+        value = switcher.get(self.__class__.__name__)
+        if value is not None:
+            return value
 
         list_angles = [-self.get_true_north()]
+
         if self.ifc_type == 'IfcWindow':
             list_angles.append(180)
+
         placementrel = self.ifc.ObjectPlacement.PlacementRelTo
         try:
             o1 = self.ifc.ObjectPlacement.RelativePlacement.RefDirection.DirectionRatios
@@ -171,6 +178,8 @@ class IFCBased(Root):
             if hasattr(i, 'RelatingMaterial'):
                 if hasattr(i.RelatingMaterial, 'DirectionSense'):
                     directionsense = i.RelatingMaterial.DirectionSense
+        if directionsense is None:
+            print()
         # ToDo: check for different ifc files (FZK Haus)
         if directionsense == 'NEGATIVE':
             angle_sum = -180

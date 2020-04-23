@@ -54,6 +54,7 @@ class Inspect(Task):
                 entities = ifc.by_type(ifc_type)
                 for entity in entities:
                     element = Element.factory(entity, ifc_type)
+                    print(element.orientation)
                     self.instances[element.guid] = element
             except RuntimeError:
                 pass
