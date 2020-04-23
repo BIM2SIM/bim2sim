@@ -9,7 +9,7 @@ from bim2sim.kernel.element import BaseElement, BasePort
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
-
+import networkx as nx
 
 def verify_edge_ports(func):
     """Decorator to verify edge ports"""
@@ -141,6 +141,7 @@ class Aggregation(BaseElement):
     def find_matches(cls, graph):
         """Find all matches for Aggregation in element graph
         :returns: matches, meta"""
+        element_graph = graph.element_graph
         raise NotImplementedError("Method %s.find_matches not implemented" % cls.__name__)  # TODO
 
     def __repr__(self):
@@ -206,10 +207,11 @@ class PipeStrand(Aggregation):
 
     @classmethod
     def find_matches(cls, graph):
-        chains = HvacGraph.get_type_chains(graph, cls.aggregatable_elements, include_singles=True)
-        graphs = [graph.subgraph(chain) for chain in chains if len(chain) > 1]
-        metas = [{} for x in graphs]  # no metadata calculated
-        return graphs, metas
+        element_graph = graph.element_graph
+        chains = HvacGraph.get_type_chains(element_graph, cls.aggregatable_elements, include_singles=True)
+        element_graphs = [graph.subgraph(chain) for chain in chains if len(chain) > 1]
+        metas = [{} for x in element_graphs]  # no metadata calculated
+        return element_graphs, metas
 
     diameter = attribute.Attribute(
         description="Average diameter of aggregated pipe",
@@ -248,17 +250,18 @@ class UnderfloorHeating(PipeStrand):
 
     @classmethod
     def find_matches(cls, graph):
+        element_graph = graph.element_graph
         chains = HvacGraph.get_type_chains(graph, cls.aggregatable_elements, include_singles=True)
-        graphs = [graph.subgraph(chain) for chain in chains]
+        element_graphs = [element_graph.subgraph(chain) for chain in chains]
         metas = []
-        for g in graphs.copy():
+        for g in element_graphs.copy():
             meta = cls.check_conditions(g.nodes)
             if meta:
                 metas.append(meta)
             else:
                 # remove failed checks
-                graphs.remove(g)
-        return graphs, metas
+                element_graphs.remove(g)
+        return element_graphs, metas
 
     @classmethod
     def check_conditions(cls, uh_elements):
@@ -544,7 +547,7 @@ class ParallelPump(Aggregation):
         if total_length != 0:
             avg_diameter_strand = diameter_times_length / total_length
 
-        total_diameter = math.sqrt(total_diameter)
+        total_diameter = total_diameter**0.5
 
         result = dict(
             rated_power=total_rated_power,
@@ -558,44 +561,44 @@ class ParallelPump(Aggregation):
 
     def get_replacement_mapping(self):
         """Returns dict with original ports as values and their aggregated replacement as keys."""
-        mapping = {port: None for element in self._elements
+        mapping = {port: None for element in self.elements
                    for port in element.ports}
         for port in self.ports:
             mapping[port.original] = port
         return mapping
 
     rated_power = attribute.Attribute(
-        name='rated_power',
+        unit=ureg.kilowatt,
         description="rated power",
         functions=[_calc_avg]
     )
 
     rated_height = attribute.Attribute(
-        name='rated_height',
+        unit=ureg.meter,
         description='rated height',
         functions=[_calc_avg]
     )
 
     rated_volume_flow = attribute.Attribute(
-        name='rated_volume_flow',
+        unit=ureg.meter ** 3 / ureg.hour,
         description='rated volume flow',
         functions=[_calc_avg]
     )
 
     diameter = attribute.Attribute(
-        name='diameter',
+        unit=ureg.millimeter,
         description='diameter',
         functions=[_calc_avg]
     )
 
     length = attribute.Attribute(
-        name='length',
+        unit=ureg.meter,
         description='length of aggregated pipe elements',
         functions=[_calc_avg]
     )
 
     diameter_strand = attribute.Attribute(
-        name='diameter_strand',
+        unit=ureg.millimeter,
         description='average diameter of aggregated pipe elements',
         functions=[_calc_avg]
     )
@@ -605,9 +608,10 @@ class ParallelPump(Aggregation):
         """Find all matches for Aggregation in element graph
         :returns: matches, meta"""
         # TODO: only same size pumps
+        element_graph = graph.element_graph
         wantetd = {'IfcPump'}
         innerts = set(cls.aggregatable_elements) - wantetd
-        parallels = HvacGraph.get_parallels(graph, wantetd, innerts)
+        parallels = HvacGraph.get_parallels(element_graph, wantetd, innerts)
         metas = [{} for x in parallels]  # no metadata calculated
         return parallels, metas
 
@@ -933,3 +937,100 @@ class ParallelSpaceHeater(Aggregation):
 #             new_cycles.append(new_cycle)
 #     return new_cycles
 
+class Consumer(Aggregation):
+    """Aggregates Consumer system boarder"""
+    aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting', 'ParallelSpaceHeater']
+    whitelist = ['IfcSpaceHeater', 'ParallelSpaceHeater']
+    blacklist = ['IfcChiller', 'IfcBoiler', '', 'IfcCoolingTower']
+
+    def __init__(self, name, element_graph, *args, **kwargs):
+        super().__init__(name, element_graph, *args, **kwargs)
+        edge_ports = self._get_start_and_end_ports()
+        self.ports.append(AggregationPort(edge_ports[0], parent=self))
+        self.ports.append(AggregationPort(edge_ports[1], parent=self))
+        self._total_rated_power = None
+        self._avg_rated_height = None
+        self._total_rated_volume_flow = None
+        self._total_diameter = None
+        self._total_length = None
+        self._avg_diameter_strand = None
+        self._elements = None
+
+    @verify_edge_ports
+    def _get_start_and_end_ports(self):
+        """
+        Finds external ports of aggregated group
+        :return ports:
+        """
+        total_ports = {}
+        # all possible beginning and end of the cycle (always pipe fittings), pumps counting
+        for port in self.elements:
+            if isinstance(port.parent, elements.PipeFitting):
+                if port.parent.guid in total_ports:
+                    total_ports[port.parent.guid].append(port)
+                else:
+                    total_ports[port.parent.guid] = []
+                    total_ports[port.parent.guid].append(port)
+        # 2nd filter, beginning and end of the cycle (parallel check)
+        final_ports = []
+        for k, ele in total_ports.items():
+            if ele[0].flow_direction == ele[1].flow_direction:
+                # final_ports.append(ele[0].parent)
+                final_ports.append(ele[0])
+                final_ports.append(ele[1])
+        agg_ports = []
+        # first port
+        for ele in final_ports[0].parent.ports:
+            if ele not in final_ports:
+                port = ele
+                port.aggregated_parent = self
+                agg_ports.append(port)
+        # last port
+        for ele in final_ports[-1].parent.ports:
+            if ele not in final_ports:
+                port = ele
+                port.aggregated_parent = self
+                agg_ports.append(port)
+        return agg_ports
+
+    @classmethod
+    def find_matches(cls, graph):
+        """Find all matches for Aggregation in element graph
+        :returns: matches, meta"""
+        boarder_class = {'IfcDistributer'}
+        # innerts = set(cls.aggregatable_elements) - wanted
+
+        boarder_class = set(boarder_class)
+
+        element_graph = graph.element_graph
+        _element_graph = element_graph.copy()
+
+        # remove blocking nodes
+        remove = {node for node in _element_graph.nodes if node.ifc_type in boarder_class}
+        _element_graph.remove_nodes_from(remove)
+
+        sub_graphs = nx.connected_components(_element_graph)  # get_parallels(graph, wanted, innerts)
+
+        consumer_cycles = []
+        generator_cycles = []
+
+        for sub in sub_graphs:
+            # check for generator in sub_graphs
+            generator = {node for node in sub if node.ifc_type in cls.blacklist}
+            if generator:
+                # check for consumer in generator subgraph
+                gen_con = {node for node in sub if node.ifc_type in cls.whitelist}
+                if gen_con:
+                    # Consumer separieren
+                    a=1
+                    pass
+                else:
+                    # pure generator subgraph
+                    generator_cycles.append(sub)
+            else:
+                consumer_cycle = {node for node in sub if node.ifc_type in cls.whitelist}
+                if consumer_cycle:
+                    consumer_cycles.append(sub)
+
+        metas = [{} for x in sub_graphs]  # no metadata calculated
+        return consumer_cycles, metas

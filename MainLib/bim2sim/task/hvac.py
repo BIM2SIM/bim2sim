@@ -11,7 +11,7 @@ import numpy as np
 from bim2sim.task.base import Task, ITask
 from bim2sim.workflow import LOD
 from bim2sim.filter import TypeFilter, TextFilter
-from bim2sim.kernel.aggregation import Aggregation, PipeStrand, UnderfloorHeating, \
+from bim2sim.kernel.aggregation import Aggregation, PipeStrand, UnderfloorHeating, Consumer, \
     ParallelPump, ParallelSpaceHeater
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort
 from bim2sim.kernel.hvac import hvac_graph
@@ -481,6 +481,7 @@ class Reduce(ITask):
 
         aggregations = [
             UnderfloorHeating,
+            Consumer,
             PipeStrand,
             ParallelPump,
             # ParallelSpaceHeater,
@@ -495,11 +496,11 @@ class Reduce(ITask):
             name = agg_class.__name__
             self.logger.info("Aggregating '%s' ...", name)
             name_builder = '{} {}'
-            matches, metas = agg_class.find_matches(graph.element_graph)
+            matches, metas = agg_class.find_matches(graph)
             i = 0
             for match, meta in zip(matches, metas):
                 try:
-                    agg = agg_class(name_builder.format(name, i+1), match, **meta)
+                    agg = agg_class(name_builder.format(name, i+1), match.element_graph, **meta)
                 except Exception as ex:
                     self.logger.exception("Instantiation of '%s' failed", name)
                 else:

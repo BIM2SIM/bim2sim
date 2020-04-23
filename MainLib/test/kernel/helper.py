@@ -60,7 +60,7 @@ class SetupHelper:
             if name not in element.attributes.names:
                 raise AssertionError("Can't set attribute '%s' to %s. Choices are %s" %
                                      (name, element_cls.__name__, list(element.attributes.names)))
-            setattr(element, name, value)
+            setattr(element, name, value * getattr(element_cls, name).unit)
 
         # add ports
         self.fake_add_ports(element, n_ports)
