@@ -140,7 +140,6 @@ class IFCBased(Root):
                          PlacementRelTo.RelativePlacement.Location.Coordinates)
         return rel + relto
 
-
     def calc_orientation(self):
         switcher = {'Building': 'not_available',
                     'Storey': 'not_available',
@@ -152,7 +151,8 @@ class IFCBased(Root):
         if value is not None:
             return value
 
-        list_angles = [-self.get_true_north()]
+        # list_angles = [-self.get_true_north()]
+        list_angles = []
 
         if self.ifc_type == 'IfcWindow':
             list_angles.append(180)
@@ -179,7 +179,18 @@ class IFCBased(Root):
                 if hasattr(i.RelatingMaterial, 'DirectionSense'):
                     directionsense = i.RelatingMaterial.DirectionSense
         if directionsense is None:
-            print()
+            if len(self.thermal_zones) == 1:
+                # basis surface
+                xi = self.ifc.ProvidesBoundaries[
+                    0].ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Axis.DirectionRatios
+                vxi = vector_angle(xi)
+                new_ang = vxi - self.thermal_zones[0].orientation
+                while new_ang >= 360 or new_ang < 0:
+                    if new_ang >= 360:
+                        new_ang -= 360
+                    elif new_ang < 0:
+                        new_ang += 360
+
         # ToDo: check for different ifc files (FZK Haus)
         if directionsense == 'NEGATIVE':
             angle_sum = -180
@@ -194,6 +205,12 @@ class IFCBased(Root):
                 angle_sum -= 360
             elif angle_sum < 0:
                 angle_sum += 360
+        try:
+            if not angle_sum == new_ang:
+                print()
+                return new_ang + angle_sum
+        except UnboundLocalError:
+            pass
         return angle_sum
 
     def get_ifc_attribute(self, attribute):
@@ -298,10 +315,11 @@ class IFCBased(Root):
             logger = logging.getLogger('IFCModelCreation')
             logger.info("Identified %s through text fracments in name. Criteria: %s", cls.ifc_type, hits)
             results.append(hits[0][0])
-            #return hits[0][0]
+            # return hits[0][0]
         if optional_locations:
             for loc in optional_locations:
-                hits = [p.match(ifc2python.get_Property_Set(loc, ifc_element)) for p in cls.pattern_ifc_type if ifc2python.get_Property_Set(loc, ifc_element)]
+                hits = [p.match(ifc2python.get_Property_Set(loc, ifc_element)) for p in cls.pattern_ifc_type if
+                        ifc2python.get_Property_Set(loc, ifc_element)]
                 if any(hits):
                     logger = logging.getLogger('IFCModelCreation')
                     logger.info("Identified %s through text fracments in %s. Criteria: %s", cls.ifc_type, loc, hits)
@@ -332,7 +350,6 @@ class IFCBased(Root):
                 propertyset_name, property_name))
         return value
 
-
     def select_from_potential_properties(self, patterns, name, collect_decisions):
         """Ask user to select from all properties matching patterns"""
 
@@ -353,7 +370,6 @@ class IFCBased(Root):
             if len(distinct_values) == 1:
                 # multiple sources but common value
                 return distinct_values.pop()
-
 
             # TODO: Decision with id, key, value
             decision = DictDecision("Multiple possibilities found",
@@ -419,7 +435,6 @@ class IFCBased(Root):
         value = final_decision.value
         return value
 
-
     def __repr__(self):
         return "<%s (%s)>" % (self.__class__.__name__, self.name)
 
@@ -435,7 +450,6 @@ class BaseElementNoPorts(Root):
         self.aggregation = None
         self.attributes = attribute.AttributeManager(bind=self)
         self.thermal_zones = []
-
 
     @staticmethod
     def get_element(guid):
@@ -458,7 +472,6 @@ class BaseElement(BaseElementNoPorts):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ports = []
-
 
     def get_inner_connections(self):
         """Returns inner connections of Element
@@ -862,4 +875,3 @@ def vector_angle(vector):
 
 # import Element classes for Element.factory
 import bim2sim.kernel.elements
-

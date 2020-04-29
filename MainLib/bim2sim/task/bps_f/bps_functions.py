@@ -43,11 +43,13 @@ def get_disaggregations_instance(element, thermal_zone):
 
     # thermal zone information
     dis = 0
-    for binding in thermal_zone.ifc.BoundedBy:
+    for binding in element.ifc.ProvidesBoundaries:
+    # for binding in thermal_zone.ifc.BoundedBy:
         x = []
         y = []
         z = []
-        if binding.RelatedBuildingElement == element.ifc:
+        if binding.RelatingSpace == thermal_zone.ifc:
+        # if binding.RelatedBuildingElement == element.ifc:
             try:
                 shape = ifcopenshell.geom.create_shape(settings, binding.ConnectionGeometry.SurfaceOnRelatingElement)
             except RuntimeError:
@@ -84,8 +86,10 @@ def get_position_instance(element, thermal_zone):
     settings = ifcopenshell.geom.settings()
 
     # thermal zone information
-    for binding in thermal_zone.ifc.BoundedBy:
-        if binding.RelatedBuildingElement == element.ifc:
+    for binding in element.ifc.ProvidesBoundaries:
+    # for binding in thermal_zone.ifc.BoundedBy:
+        if binding.RelatingSpace == thermal_zone.ifc:
+        # if binding.RelatedBuildingElement == element.ifc:
             try:
                 ifcopenshell.geom.create_shape(settings, binding.ConnectionGeometry.SurfaceOnRelatingElement)
             except RuntimeError:
