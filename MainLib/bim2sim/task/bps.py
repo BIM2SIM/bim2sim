@@ -33,6 +33,8 @@ from teaser.logic.buildingobjects.buildingphysics.layer import Layer
 from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic import utilities
 import os
+from bim2sim.task.bps_f.bps_functions import orientation_verification
+
 
 class Inspect(Task):
     """Analyses IFC and creates Element instances.
@@ -54,6 +56,8 @@ class Inspect(Task):
                 entities = ifc.by_type(ifc_type)
                 for entity in entities:
                     element = Element.factory(entity, ifc_type)
+                    if element.orientation is None:
+                        print()
                     self.instances[element.guid] = element
             except RuntimeError:
                 pass
@@ -64,6 +68,11 @@ class Inspect(Task):
         tz_inspect.run(ifc)
         self.instances.update(tz_inspect.instances)
 
+        for guid, ins in self.instances.items():
+            verification = orientation_verification(ins)
+            if verification is not None:
+                self.instances[guid].orientation = verification
+
 
     def filter_instances(self, type_name):
         """Filters the inspected instances by type name (e.g. Wall) and
@@ -73,7 +82,6 @@ class Inspect(Task):
             if instance.__str__() == type_name:
                 instances_filtered.append(instance)
         return instances_filtered
-
 
 
 class ExportTEASERMultizone(Task):

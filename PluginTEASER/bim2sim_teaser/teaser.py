@@ -21,10 +21,6 @@ class TEASERManager(BIM2SIMManager):
         bps_inspect = bps.Inspect(self.workflow)
         bps_inspect.run(self.ifc)
 
-        for nam in bps_inspect.instances:
-            x = bps_inspect.instances[nam].orientation
-
-
         tz_inspect = tz_detection.Inspect(bps_inspect)
         tz_inspect.run(self.ifc)
 

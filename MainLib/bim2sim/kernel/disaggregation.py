@@ -94,10 +94,14 @@ class Disaggregation(BaseElement):
             ii += 1
 
             parent.sub_instances.append(instance)
+
             if instance not in thermal_zone.bound_elements:
                 thermal_zone.bound_elements.append(instance)
+            # both in parent and child
             if thermal_zone not in instance.thermal_zones:
                 instance.thermal_zones.append(thermal_zone)
+            if thermal_zone not in parent.thermal_zones:
+                parent.thermal_zones.append(thermal_zone)
 
             i += 1
 
