@@ -2,6 +2,7 @@
 from bim2sim.manage import BIM2SIMManager, PROJECT
 from bim2sim.task import bps
 from bim2sim.task.sub_tasks import tz_detection
+from bim2sim.kernel.ifc2python import ifc_property_writer
 
 
 class TEASERManager(BIM2SIMManager):
@@ -20,6 +21,10 @@ class TEASERManager(BIM2SIMManager):
 
         bps_inspect = bps.Inspect(self.workflow)
         bps_inspect.run(self.ifc)
+
+        # overwrite ifc file
+        for key, ins in bps_inspect.instances.items():
+            ifc_property_writer(ins, self.ifc, self.ifc_path)
 
         tz_inspect = tz_detection.Inspect(bps_inspect)
         tz_inspect.run(self.ifc)

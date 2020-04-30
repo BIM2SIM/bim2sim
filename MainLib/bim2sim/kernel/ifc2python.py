@@ -406,3 +406,67 @@ def used_properties(ifc_file):
     for tup in tuples:
         type_dict[tup[0]].append(tup[1])
     return type_dict
+
+
+def property_set_editer(PropertySetName, PropertyName, element):
+
+    AllPropertySetsList = element.IsDefinedBy
+    for PropertySet in AllPropertySetsList:
+        if PropertySet.RelatingPropertyDefinition.Name == PropertySetName:
+            if hasattr(PropertySet.RelatingPropertyDefinition, 'HasProperties'):
+                for Property in PropertySet.RelatingPropertyDefinition.HasProperties:
+                    if Property.Name == PropertyName:
+                        return Property
+            if hasattr(PropertySet.RelatingPropertyDefinition, 'Quantities'):
+                for Property in PropertySet.RelatingPropertyDefinition.Quantities:
+                    if Property.Name == PropertyName:
+                        return Property
+    return None
+
+
+def ifc_property_writer(instance, ifc_file, ifc_path):
+    """Check an ifc instance, whose properties have been modified,
+    and overwrite this changes on the ifc file"""
+
+    # find properties and quantity sets
+    if hasattr(instance, 'source_tool'):
+        if instance.source_tool.startswith('Autodesk'):
+            source_tool = 'Autodesk Revit 2019 (DEU)'
+        elif instance.source_tool.startswith('ARCHICAD'):
+            source_tool = 'ARCHICAD-64'
+        else:
+            instance.logger.warning('No source tool for the ifc file found')
+
+        if instance.__class__.__name__ in instance.finder.templates[source_tool]:
+            default_ps = instance.finder.templates[source_tool][instance.__class__.__name__]['default_ps']
+
+            for key, def_ps in default_ps.items():
+                if hasattr(instance, key):
+                    value_in_element = getattr(instance, key)
+                    if value_in_element is not None:
+                        property_to_edit = property_set_editer(def_ps[0], def_ps[1], instance.ifc)
+                        # property set
+                        value_to_edit = None
+                        if hasattr(property_to_edit, 'NominalValue'):
+                            value_to_edit = property_to_edit.NominalValue.wrappedValue
+                        # quantity set
+                        else:
+                            for attr, value in vars(property_to_edit).items():
+                                if attr.endswith('Value'):
+                                    value_to_edit = value
+                                    break
+                        # value comparison
+                        if value_in_element != value_to_edit:
+                            # overwrite on ifc dictionary
+                            if hasattr(property_to_edit, 'NominalValue'):
+                                property_to_edit.NominalValue.wrappedValue = value_in_element
+                            else:
+                                setattr(property_to_edit, attr, value_in_element)
+            # overwrite on ifc file
+            ifc_file.write(ifc_path)
+            # Todo: Propery_to_edit is None --> new property set
+
+
+
+
+
