@@ -714,6 +714,11 @@ class Wall(element.Element):
         default=0
     )
 
+    property_probe = attribute.Attribute(
+        name='property_probe',
+        default=55555
+    )
+
 
 class Layer(element.BaseElementNoPorts):
     ifc_type = None
