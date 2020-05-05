@@ -437,7 +437,6 @@ def property_set_editer(PropertyList, element):
                         has_property = True
                         data = Property
                         break
-                # property doesnt exist, returns set
             if hasattr(PropertySet.RelatingPropertyDefinition, 'Quantities'):
                 data = PropertySet.RelatingPropertyDefinition
                 is_quantity = True
@@ -449,7 +448,6 @@ def property_set_editer(PropertyList, element):
                 # property doesnt exist, returns set
 
     return has_property_set, has_property, is_quantity, data
-
 
 
 def ifc_property_writer(instance, ifc_file):
@@ -466,18 +464,10 @@ def ifc_property_writer(instance, ifc_file):
     owner_history = ifc_file.by_type("IfcOwnerHistory")[0]
 
     # find properties and quantity sets
-    if hasattr(instance, 'source_tool'):
-        if instance.source_tool.startswith('Autodesk'):
-            source_tool = 'Autodesk Revit 2019 (DEU)'
-        elif instance.source_tool.startswith('ARCHICAD'):
-            source_tool = 'ARCHICAD-64'
-        else:
-            instance.logger.warning('No source tool for the ifc file found')
-            return
-
+    source_tool = get_source_tool(instance)
+    if source_tool is not None:
         if instance.__class__.__name__ in instance.finder.templates[source_tool]:
             default_ps = instance.finder.templates[source_tool][instance.__class__.__name__]['default_ps']
-
             for key, def_ps in default_ps.items():
                 if hasattr(instance, key):
                     value_in_element = getattr(instance, key)
@@ -530,8 +520,110 @@ def ifc_property_writer(instance, ifc_file):
                                     ifc_file.createIfcRelDefinesByProperties(create_guid(), owner_history, None, None,
                                                                              [instance.ifc], new_properties_set)
 
+
+def material_editer(element):
+    material = ()
+
+    for i in element.HasAssociations:
+        if hasattr(i, 'RelatingMaterial'):
+            material = i.RelatingMaterial
+            material_switcher = {'Materials': None,
+                                 'MaterialConstituents': 'ToMaterialConstituentSet',
+                                 'ForLayerSet': 'MaterialLayers',
+                                 'MaterialLayers': None,
+                                 'ForProfileSet': 'MaterialProfiles',
+                                 'MaterialProfiles': None}
+
+            for k in material_switcher:
+                if hasattr(i.RelatingMaterial, k):
+                    material = getattr(material, k)
+                    if type(material) is not tuple:
+                        material = getattr(material, material_switcher[k])
+                    break
+
+    if type(material) is not tuple and material is not None:
+        material = [material]
+        material = tuple(material)
+
+    return material
+
+def material_property_finder(PropertyList, material):
+    PropertySetName = PropertyList[0]
+    PropertyName = PropertyList[1]
+    has_property_set = False
+    has_property = False
+    data = None
+
+    if hasattr(material, 'HasProperties'):
+        for PropertySet in material.HasProperties:
+            if PropertySet.Name == PropertySetName:
+                has_property_set = True
+                if hasattr(PropertySet, 'Properties'):
+                    data = PropertySet.Properties
+                    for Property in PropertySet.Properties:
+                        if PropertyName.Name == PropertyName:
+                            has_property = True
+                            data = Property
+                            break
+
+    return has_property_set, has_property, data
+
+
+def ifc_material_writer(instance, ifc_file):
+    """Check a material of an instance, whose properties have been modified,
+    and overwrite this changes on the ifc file"""
+
+    ifc_switcher = {bool: 'IfcBoolean',
+                    str: 'IfcText',
+                    float: 'IfcReal',
+                    int: 'IfcInteger'}
+    materials = material_editer(instance.ifc)
+    source_tool = get_source_tool(instance)
+
+    for i in materials:
+        material = i
+        if hasattr(i, 'Material'):
+            material = i.Material
+        if source_tool is not None:
+            default_ps = instance.finder.templates[source_tool]['Material']['default_ps']
+            for key, def_ps in default_ps.items():
+                value_in_element = 'to further development'
+                type_value_in_element = ifc_switcher.get(type(value_in_element))
+                if value_in_element is not None:
+                    has_set, has_property, property_to_edit = material_property_finder(def_ps, material)
+                    if has_property:
+                        try:
+                            property_to_edit.NominalValue.wrappedValue = value_in_element
+                        except ValueError:  # double, boolean, etc error
+                            pass
+                    else:
+                        new_property = ifc_file.createIfcPropertySingleValue(
+                            def_ps[1], None, ifc_file.create_entity(type_value_in_element, value_in_element),
+                            None)
+                        if has_set:
+                            edited_properties_set = list(property_to_edit.Properties)
+                            edited_properties_set.append(new_property)
+                            property_to_edit.Properties = tuple(edited_properties_set)
+                        else:
+                            ifc_file.createIfcMaterialProperties(def_ps[0], [new_property], material)
+
+
 def create_guid():
     return ifcopenshell.guid.compress(uuid.uuid1().hex)
+
+
+def get_source_tool(instance):
+    source_tool = None
+    if hasattr(instance, 'source_tool'):
+        if instance.source_tool.startswith('Autodesk'):
+            source_tool = 'Autodesk Revit 2019 (DEU)'
+        elif instance.source_tool.startswith('ARCHICAD'):
+            source_tool = 'ARCHICAD-64'
+        else:
+            instance.logger.warning('No source tool for the ifc file found')
+    return source_tool
+
+
 
 
 

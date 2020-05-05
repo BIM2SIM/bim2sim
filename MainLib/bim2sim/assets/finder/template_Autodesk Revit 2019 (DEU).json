@@ -81,6 +81,19 @@
       "usage" : ["Pset_SpaceCommon", "Reference"],
       "height" : ["Qto_SpaceBaseQuantities", "Height"]
     }
+  },
+  "MaterialTemplates" : {
+    "heat_capacity" : "heat_capac",
+    "thickness" : "thickness_default"
+  },
+  "Material": {
+    "default_ps": {
+      "thermal_conductivity" : ["Pset_MaterialThermal", "ThermalConductivity"],
+      "heat_capacity" : ["Pset_MaterialThermal", "SpecificHeatCapacity"],
+      "density" : ["Pset_MaterialCommon", "MassDensity"],
+      "embodied_energy" : ["AC_Pset_MaterialCustom", "EmbodiedEnergy"],
+      "embodied_carbon" : ["AC_Pset_MaterialCustom", "EmbodiedCarbon"]
+    }
   }
 }
 

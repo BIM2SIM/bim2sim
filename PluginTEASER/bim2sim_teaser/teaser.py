@@ -2,7 +2,7 @@
 from bim2sim.manage import BIM2SIMManager, PROJECT
 from bim2sim.task import bps
 from bim2sim.task.sub_tasks import tz_detection
-from bim2sim.kernel.ifc2python import ifc_property_writer
+from bim2sim.kernel.ifc2python import ifc_property_writer, ifc_material_writer
 
 
 class TEASERManager(BIM2SIMManager):
@@ -25,6 +25,8 @@ class TEASERManager(BIM2SIMManager):
         # overwrite ifc file
         for key, ins in bps_inspect.instances.items():
             ifc_property_writer(ins, self.ifc)
+            ifc_material_writer(ins, self.ifc)
+
 
         # problem with overwrite
         self.ifc.write(self.ifc_path)
