@@ -410,27 +410,45 @@ def used_properties(ifc_file):
     return type_dict
 
 
-def property_set_editer(PropertySetName, PropertyName, element):
+def property_set_editer(PropertyList, element):
+    """returns the necessary parameters for the afterwards edition of a given property-set, property-name couple
+    * Property Set doesnt exists -> returns None
+    * Property doesnt exists -> returns property set
+    * Property exists -> return Property"""
+
+    PropertySetName = PropertyList[0]
+    PropertyName = PropertyList[1]
+    has_property_set = False
+    has_property = False
+    data = None
+    is_quantity = False
+    if 'Quantities' in PropertySetName:
+        is_quantity = True
 
     AllPropertySetsList = element.IsDefinedBy
     for PropertySet in AllPropertySetsList:
         if PropertySet.RelatingPropertyDefinition.Name == PropertySetName:
+            has_property_set = True
             if hasattr(PropertySet.RelatingPropertyDefinition, 'HasProperties'):
+                data = PropertySet.RelatingPropertyDefinition
+                is_quantity = False
                 for Property in PropertySet.RelatingPropertyDefinition.HasProperties:
                     if Property.Name == PropertyName:
-                        return Property
+                        has_property = True
+                        data = Property
+                        break
                 # property doesnt exist, returns set
-                return PropertySet.RelatingPropertyDefinition
-            try:
-                if hasattr(PropertySet.RelatingPropertyDefinition, 'Quantities'):
-                    for Property in PropertySet.RelatingPropertyDefinition.Quantities:
-                        if Property.Name == PropertyName:
-                            return Property
-                    # property doesnt exist, returns set
-                    return PropertySet.RelatingPropertyDefinition
-            except RuntimeError:
-                print()
-    return None
+            if hasattr(PropertySet.RelatingPropertyDefinition, 'Quantities'):
+                data = PropertySet.RelatingPropertyDefinition
+                is_quantity = True
+                for Property in PropertySet.RelatingPropertyDefinition.Quantities:
+                    if Property.Name == PropertyName:
+                        has_property = True
+                        data = Property
+                        break
+                # property doesnt exist, returns set
+
+    return has_property_set, has_property, is_quantity, data
 
 
 
@@ -442,6 +460,11 @@ def ifc_property_writer(instance, ifc_file):
                     str: 'IfcText',
                     float: 'IfcReal',
                     int: 'IfcInteger'}
+    quantity_switcher = {'Volume': ifc_file.createIfcQuantityVolume,
+                         'Area': ifc_file.createIfcQuantityArea,
+                         'Length': ifc_file.createIfcQuantityLength}
+    owner_history = ifc_file.by_type("IfcOwnerHistory")[0]
+
     # find properties and quantity sets
     if hasattr(instance, 'source_tool'):
         if instance.source_tool.startswith('Autodesk'):
@@ -450,6 +473,7 @@ def ifc_property_writer(instance, ifc_file):
             source_tool = 'ARCHICAD-64'
         else:
             instance.logger.warning('No source tool for the ifc file found')
+            return
 
         if instance.__class__.__name__ in instance.finder.templates[source_tool]:
             default_ps = instance.finder.templates[source_tool][instance.__class__.__name__]['default_ps']
@@ -459,72 +483,52 @@ def ifc_property_writer(instance, ifc_file):
                     value_in_element = getattr(instance, key)
                     type_value_in_element = ifc_switcher.get(type(value_in_element))
                     if value_in_element is not None:
-                        property_to_edit = property_set_editer(def_ps[0], def_ps[1], instance.ifc)
-                        if not hasattr(property_to_edit, 'HasProperties') and not hasattr(property_to_edit, 'Quantities') and property_to_edit is not None:
-                            # property set
-                            value_to_edit = None
-                            if hasattr(property_to_edit, 'NominalValue'):
-                                value_to_edit = property_to_edit.NominalValue.wrappedValue
-                            # quantity set
-                            else:
+                        has_set, has_property, is_quantity, property_to_edit = property_set_editer(def_ps, instance.ifc)
+                        if is_quantity:
+                            if has_property:
                                 for attr, value in vars(property_to_edit).items():
                                     if attr.endswith('Value'):
-                                        value_to_edit = value
-                                        break
-                            # value comparison
-                            if value_in_element != value_to_edit:
-                                # overwrite on ifc dictionary
-                                if hasattr(property_to_edit, 'NominalValue'):
-                                    try:
-                                        property_to_edit.NominalValue.wrappedValue = value_in_element
-                                    except ValueError: # double, boolean, etc error
-                                        pass
-                                else:
-                                    setattr(property_to_edit, attr, value_in_element)
-                        # new property or quantity creation:
-                        elif hasattr(property_to_edit, 'HasProperties'):
-                            new_properties_set = list(property_to_edit.HasProperties)
-                            new_property = ifc_file.createIfcPropertySingleValue(
-                                def_ps[1], None, ifc_file.create_entity(type_value_in_element, value_in_element), None)
-                            # edited set aggregation
-                            new_properties_set.append(new_property)
-                            property_to_edit.HasProperties = tuple(new_properties_set)
-                        elif hasattr(property_to_edit, 'Quantities'):
-                            quantity_switcher = {'Volume': ifc_file.createIfcQuantityVolume,
-                                                 'Area': ifc_file.createIfcQuantityArea}
-                            func = ifc_file.createIfcQuantityLength
-                            for string in quantity_switcher:
-                                if string in def_ps[1]:
-                                    func = quantity_switcher.get(string)
-                                    break
-                            new_properties_set = list(property_to_edit.Quantities)
-                            new_property = func(def_ps[1], None, None, value_in_element)
-                            new_properties_set.append(new_property)
-                            property_to_edit.Quantities = tuple(new_properties_set)
-                        else:
-                            # quantities set
-                            owner_history = ifc_file.by_type("IfcOwnerHistory")[0]
-                            if 'Quantities' in def_ps[0]:
-                                quantity_switcher = {'Volume': ifc_file.createIfcQuantityVolume,
-                                                     'Area': ifc_file.createIfcQuantityArea}
-                                func = ifc_file.createIfcQuantityLength
-                                for string in quantity_switcher:
-                                    if string in def_ps[1]:
-                                        func = quantity_switcher.get(string)
-                                        break
-                                new_quantity = [func(def_ps[1], None, None, value_in_element)]
-                                new_quantities_set = ifc_file.createIfcElementQuantity(create_guid(), owner_history, def_ps[0], None, None, new_quantity)
-                                ifc_file.createIfcRelDefinesByProperties(create_guid(), owner_history, None, None, [instance.ifc], new_quantities_set)
-                            # property set
+                                        attr_to_edit = attr
+                                setattr(property_to_edit, attr_to_edit, value_in_element)
+                            # new quantity creation
                             else:
-                                new_property = [ifc_file.createIfcPropertySingleValue(
+                                # property_creation function
+                                quantity_function = ifc_file.createIfcQuantityLength
+                                for dimension in quantity_switcher:
+                                    if dimension in def_ps[1]:
+                                        quantity_function = quantity_switcher.get(dimension)
+                                        break
+                                new_quantity = quantity_function(def_ps[1], None, None, value_in_element)
+                                if has_set:
+                                    edited_quantities_set = list(property_to_edit.Quantities)
+                                    edited_quantities_set.append(new_quantity)
+                                    property_to_edit.Quantities = tuple(edited_quantities_set)
+                                else:
+                                    new_quantities_set = ifc_file.createIfcElementQuantity(create_guid(), owner_history,
+                                                                                           def_ps[0], None, None,
+                                                                                           [new_quantity])
+                                    ifc_file.createIfcRelDefinesByProperties(create_guid(), owner_history, None, None,
+                                                                             [instance.ifc], new_quantities_set)
+                        else:
+                            if has_property:
+                                try:
+                                    property_to_edit.NominalValue.wrappedValue = value_in_element
+                                except ValueError:  # double, boolean, etc error
+                                    pass
+                            # new property creation
+                            else:
+                                new_property = ifc_file.createIfcPropertySingleValue(
                                     def_ps[1], None, ifc_file.create_entity(type_value_in_element, value_in_element),
-                                    None)]
-                                new_properties_set = ifc_file.createIfcPropertySet(create_guid(), owner_history, def_ps[0], None, new_property)
-                                ifc_file.createIfcRelDefinesByProperties(create_guid(), owner_history, None, None, [instance.ifc], new_properties_set)
-
-            # Todo: check list-tuple statement
-
+                                    None)
+                                if has_set:
+                                    edited_properties_set = list(property_to_edit.HasProperties)
+                                    edited_properties_set.append(new_property)
+                                    property_to_edit.HasProperties = tuple(edited_properties_set)
+                                else:
+                                    new_properties_set = ifc_file.createIfcPropertySet(create_guid(), owner_history,
+                                                                                       def_ps[0], None, [new_property])
+                                    ifc_file.createIfcRelDefinesByProperties(create_guid(), owner_history, None, None,
+                                                                             [instance.ifc], new_properties_set)
 
 def create_guid():
     return ifcopenshell.guid.compress(uuid.uuid1().hex)
