@@ -25,7 +25,7 @@ class TEASERManager(BIM2SIMManager):
         # overwrite ifc file
         for key, ins in bps_inspect.instances.items():
             ifc_property_writer(ins, self.ifc)
-            ifc_material_writer(ins, self.ifc)
+            # ifc_material_writer(ins, self.ifc)
 
 
         # problem with overwrite

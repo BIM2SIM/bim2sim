@@ -8,6 +8,7 @@ import ifcopenshell
 import math
 import copy
 import uuid
+import inspect
 
 def load_ifc(path):
     logger = logging.getLogger('bim2sim')
@@ -561,7 +562,7 @@ def material_property_finder(PropertyList, material):
                 if hasattr(PropertySet, 'Properties'):
                     data = PropertySet.Properties
                     for Property in PropertySet.Properties:
-                        if PropertyName.Name == PropertyName:
+                        if Property.Name == PropertyName:
                             has_property = True
                             data = Property
                             break
@@ -587,7 +588,7 @@ def ifc_material_writer(instance, ifc_file):
         if source_tool is not None:
             default_ps = instance.finder.templates[source_tool]['Material']['default_ps']
             for key, def_ps in default_ps.items():
-                value_in_element = 'to further development'
+                value_in_element = 2.455555 #'to further development'
                 type_value_in_element = ifc_switcher.get(type(value_in_element))
                 if value_in_element is not None:
                     has_set, has_property, property_to_edit = material_property_finder(def_ps, material)
@@ -598,15 +599,17 @@ def ifc_material_writer(instance, ifc_file):
                             pass
                     else:
                         new_property = ifc_file.createIfcPropertySingleValue(
-                            def_ps[1], None, ifc_file.create_entity(type_value_in_element, value_in_element),
-                            None)
+                            def_ps[1], None, ifc_file.create_entity(type_value_in_element, value_in_element), None)
                         if has_set:
                             edited_properties_set = list(property_to_edit.Properties)
                             edited_properties_set.append(new_property)
                             property_to_edit.Properties = tuple(edited_properties_set)
                         else:
-                            ifc_file.createIfcMaterialProperties(def_ps[0], [new_property], material)
-
+                            new_material_properties = ifc_file.createIfcMaterialProperties(
+                                def_ps[0], None, [new_property])
+                            # edited_material_properties = list(material.HasProperties)
+                            # edited_material_properties.append(new_material_properties)
+                            # setattr(material, 'HasProperties', edited_material_properties)
 
 def create_guid():
     return ifcopenshell.guid.compress(uuid.uuid1().hex)
