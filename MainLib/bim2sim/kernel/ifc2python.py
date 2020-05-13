@@ -457,7 +457,7 @@ def get_set(element, property_set):
     return data
 
 
-def ifc_instance_overwriter(instance, property_set, property_name, value, ifc_file, target_path):
+def ifc_instance_overwriter(element, property_set, property_name, value, ifc_file, target_path):
     """modifies the IfcProperty of a selected Instance, and creates a new ifc file with those changes"""
     ifc_switcher = {bool: 'IfcBoolean',
                     str: 'IfcText',
@@ -468,14 +468,14 @@ def ifc_instance_overwriter(instance, property_set, property_name, value, ifc_fi
                          'Length': ifc_file.createIfcQuantityLength}
 
     owner_history = ifc_file.by_type("IfcOwnerHistory")[0]
-    sets = get_all_property_sets(instance.ifc)
+    sets = get_all_property_sets(element)
     type_value_in_element = ifc_switcher.get(type(value))
 
     # quantity set overwrite
     if property_set in sets['Quantity_Sets']:
         # property overwrite:
         if property_name in sets['Quantity_Sets'][property_set]:
-            property_to_edit = get_property(instance.ifc, property_set, property_name)
+            property_to_edit = get_property(element, property_set, property_name)
             for attr, value in vars(property_to_edit).items():
                 if attr.endswith('Value'):
                     attr_to_edit = attr
@@ -483,7 +483,7 @@ def ifc_instance_overwriter(instance, property_set, property_name, value, ifc_fi
             setattr(property_to_edit, attr_to_edit, value)
         # new property
         else:
-            set_to_edit = get_set(instance.ifc, property_set)
+            set_to_edit = get_set(element, property_set)
             quantity_function = ifc_file.createIfcQuantityLength
             for dimension in quantity_switcher:
                 if dimension in property_name:
@@ -496,14 +496,14 @@ def ifc_instance_overwriter(instance, property_set, property_name, value, ifc_fi
     elif property_set in sets['Property_Sets']:
         # property overwrite:
         if property_name in sets['Property_Sets'][property_set]:
-            property_to_edit = get_property(instance.ifc, property_set, property_name)
+            property_to_edit = get_property(element, property_set, property_name)
             try:
                 property_to_edit.NominalValue.wrappedValue = value
             except ValueError:  # double, boolean, etc error
                 pass
         # new property
         else:
-            set_to_edit = get_set(instance.ifc, property_set)
+            set_to_edit = get_set(element, property_set)
             new_property = ifc_file.createIfcPropertySingleValue(
                 property_name, None, ifc_file.create_entity(type_value_in_element, value),
                 None)
@@ -518,9 +518,10 @@ def ifc_instance_overwriter(instance, property_set, property_name, value, ifc_fi
         new_properties_set = ifc_file.createIfcPropertySet(create_guid(), owner_history,
                                                            property_set, None, [new_property])
         ifc_file.createIfcRelDefinesByProperties(create_guid(), owner_history, None, None,
-                                                 [instance.ifc], new_properties_set)
+                                                 [element], new_properties_set)
 
     # ifc_file.write(target_path)
+
 
 def create_guid():
     return ifcopenshell.guid.compress(uuid.uuid1().hex)

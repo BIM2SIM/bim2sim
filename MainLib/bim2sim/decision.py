@@ -431,12 +431,12 @@ class ListDecision(CollectionDecision):
 
     def option_txt(self, options, number=5):
         len_keys = len(self.choices)
-        header_str = "  {id:2s}  {key:%ds}  {value:s}"%(len_keys)
-        format_str = "\n {id:3d}  {key:%ds}  {value:s}"%(len_keys)
-        options_txt = header_str.format(id="id", key="key", value="value")
+        header_str = "  {id:2s}  {key:%ds}  " % len_keys
+        format_str = "\n {id:3d}  {key:%ds}  " % len_keys
+        options_txt = header_str.format(id="id", key="key")
         for i in range(min(len(self.choices), number)):
             # options_txt += format_str.format(id=i, key=str(self.choices[i][0]), value=str(self.choices[i][1]))
-            options_txt += format_str.format(id=i, key=str(self.choices[i][0]), value=str(self.choices[i][1]))
+            options_txt += format_str.format(id=i, key=str(self.choices[i]))
         if len(self.choices) > number:
             for i in range(3):
                 options_txt += "\n                     ."
