@@ -22,14 +22,14 @@ class TEASERManager(BIM2SIMManager):
         bps_inspect = bps.Inspect(self.workflow)
         bps_inspect.run(self.ifc)
 
-        # overwrite ifc file
-        for key, ins in bps_inspect.instances.items():
-            ifc_property_writer(ins, self.ifc)
-            # ifc_material_writer(ins, self.ifc)
-
-
-        # problem with overwrite
-        self.ifc.write(self.ifc_path)
+        # # overwrite ifc file
+        # for key, ins in bps_inspect.instances.items():
+        #     ifc_property_writer(ins, self.ifc)
+        #     # ifc_material_writer(ins, self.ifc)
+        #
+        #
+        # # problem with overwrite
+        # self.ifc.write(self.ifc_path)
 
         tz_inspect = tz_detection.Inspect(bps_inspect)
         tz_inspect.run(self.ifc)

@@ -12,8 +12,7 @@
       "thermal_transmittance" : ["Pset_WallCommon", "ThermalTransmittance"],
       "thickness" : ["BaseQuantities", "Width"],
       "tilt" : ["ArchiCADProperties", "Äußerer Neigungswinkel"],
-      "is_external" : ["Pset_WallCommon", "IsExternal"],
-      "property_probe" : ["Pset_New", "PropertyArea"]
+      "is_external" : ["Pset_WallCommon", "IsExternal"]
     }
   },
   "InnerWall": {
