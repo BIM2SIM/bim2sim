@@ -1,6 +1,5 @@
-from bim2sim.task import Task
-from bim2sim.kernel import elements
-from bim2sim.decision import DictDecision, ListDecision, RealDecision, BoolDecision
+from bim2sim.task.base import Task
+from bim2sim.decision import BoolDecision
 from bim2sim.kernel.element import Element, SubElement
 from bim2sim.kernel.ifc2python import getElementType
 from bim2sim.kernel.disaggregation import Disaggregation
@@ -11,10 +10,11 @@ class Inspect(Task):
 
     elements are stored in .instances dict with guid as key"""
 
-    def __init__(self, task):
+    def __init__(self, task, workflow):
         super().__init__()
         self.instances = {}
         self.task = task
+        self.workflow = workflow
 
     @Task.log
     def run(self, ifc):
@@ -52,7 +52,7 @@ class Inspect(Task):
 
     def bind_elements_to_zone(self, thermalzone):
         """Binds the different elements to the belonging zones"""
-        relevant_ifc_types = self.task.workflow.relevant_ifc_types
+        relevant_ifc_types = self.workflow.relevant_ifc_types
         bound_instances = []
         for binding in thermalzone.ifc.BoundedBy:
             bound_element = binding.RelatedBuildingElement

@@ -21,7 +21,7 @@ from bim2sim.project import PROJECT
 from bim2sim.kernel import finder
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.enrichment_data import element_input_json
-from bim2sim.decision import DictDecision, ListDecision, RealDecision
+from bim2sim.decision import ListDecision, RealDecision
 
 
 IFC_TYPES = (

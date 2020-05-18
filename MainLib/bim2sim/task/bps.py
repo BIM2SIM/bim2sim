@@ -3,7 +3,7 @@
 import itertools
 import json
 
-from bim2sim.task.base import Task
+from bim2sim.task.base import Task, ITask
 from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort
 # from bim2sim.kernel.bps import ...
@@ -35,35 +35,45 @@ import os
 from bim2sim.task.bps_f.bps_functions import orientation_verification
 
 
-class Inspect(Task):
+class SetIFCTypesBPS(ITask):
+    """Set list of relevant IFC types"""
+    touches = ('relevant_ifc_types', )
+
+    def run(self, workflow):
+        IFC_TYPES = workflow.relevant_ifc_types
+        return IFC_TYPES,
+
+
+class Inspect(ITask):
     """Analyses IFC and creates Element instances.
     Elements are stored in .instances dict with guid as key"""
 
-    def __init__(self, workflow):
+    reads = ('ifc', )
+    touches = ('instances', )
+
+    def __init__(self):
         super().__init__()
         self.instances = {}
-        self.workflow = workflow
+        pass
 
     @Task.log
-    def run(self, ifc):
+    def run(self, workflow, ifc):
         self.logger.info("Creates python representation of relevant ifc types")
 
         Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
-        for ifc_type in self.workflow.relevant_ifc_types:
+        for ifc_type in workflow.relevant_ifc_types:
             try:
                 entities = ifc.by_type(ifc_type)
                 for entity in entities:
                     element = Element.factory(entity, ifc_type)
-                    if element.orientation is None:
-                        print()
                     self.instances[element.guid] = element
             except RuntimeError:
                 pass
 
         self.logger.info("Found %d building elements", len(self.instances))
 
-        tz_inspect = tz_detection.Inspect(self)
+        tz_inspect = tz_detection.Inspect(self, workflow)
         tz_inspect.run(ifc)
         self.instances.update(tz_inspect.instances)
 
@@ -71,6 +81,8 @@ class Inspect(Task):
             verification = orientation_verification(ins)
             if verification is not None:
                 self.instances[guid].orientation = verification
+
+        return self.instances,
 
 
     def filter_instances(self, type_name):

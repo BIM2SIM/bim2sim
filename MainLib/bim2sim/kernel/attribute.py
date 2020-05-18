@@ -3,7 +3,7 @@ from contextlib import contextmanager
 
 import pint
 
-from bim2sim.decision import RealDecision
+from bim2sim.decision import RealDecision, BoolDecision, ListDecision
 
 from bim2sim.kernel.units import ureg
 

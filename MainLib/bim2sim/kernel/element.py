@@ -12,6 +12,7 @@ from bim2sim.decorators import cached_property
 from bim2sim.kernel import ifc2python, attribute
 from bim2sim.decision import Decision
 from bim2sim.kernel.units import ureg
+from bim2sim.task.bps_f.bps_functions import angle_equivalent, vector_angle
 
 logger = logging.getLogger(__name__)
 
