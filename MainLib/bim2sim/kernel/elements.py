@@ -8,11 +8,12 @@ import numpy as np
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, condition, attribute
 from bim2sim.decision import BoolDecision
+from bim2sim.kernel.units import ureg
 
 
 def diameter_post_processing(value):
     if isinstance(value, list):
-        return np.average(value).item()
+        return sum(value) / len(value)
     return value
 
 
@@ -27,16 +28,16 @@ class HeatPump(element.Element):
     ]
 
     min_power = attribute.Attribute(
-        name='min_power',
         description='Minimum power that HeatPump operates at.',
+        unit=ureg.kilowatt,
     )
     rated_power = attribute.Attribute(
-        name='rated_power',
         description='Rated power of HeatPump.',
+        unit=ureg.kilowatt,
     )
     efficiency = attribute.Attribute(
-        name='efficiency',
-        description='Efficiency of HeatPump provided as list with pairs of [percentage_of_rated_power,efficiency]'
+        description='Efficiency of HeatPump provided as list with pairs of [percentage_of_rated_power,efficiency]',
+        unit=ureg.dimensionless,
     )
 
 
@@ -51,16 +52,16 @@ class Chiller(element.Element):
     ]
 
     min_power = attribute.Attribute(
-        name='min_power',
         description='Minimum power that Chiller operates at.',
+        unit=ureg.kilowatt,
     )
     rated_power = attribute.Attribute(
-        name='rated_power',
         description='Rated power of Chiller.',
+        unit=ureg.kilowatt,
     )
     efficiency = attribute.Attribute(
-        name='efficiency',
-        description='Efficiency of Chiller provided as list with pairs of [percentage_of_rated_power,efficiency]'
+        description='Efficiency of Chiller provided as list with pairs of [percentage_of_rated_power,efficiency]',
+        unit=ureg.dimensionless,
     )
 
 
@@ -78,16 +79,16 @@ class CoolingTower(element.Element):
     ]
 
     min_power = attribute.Attribute(
-        name='min_power',
         description='Minimum power that CoolingTower operates at.',
+        unit=ureg.kilowatt,
     )
     rated_power = attribute.Attribute(
-        name='rated_power',
         description='Rated power of CoolingTower.',
+        unit=ureg.kilowatt,
     )
     efficiency = attribute.Attribute(
-        name='efficiency',
-        description='Efficiency of CoolingTower provided as list with pairs of [percentage_of_rated_power,efficiency]'
+        description='Efficiency of CoolingTower provided as list with pairs of [percentage_of_rated_power,efficiency]',
+        unit=ureg.dimensionless,
     )
 
 
@@ -103,16 +104,16 @@ class HeatExchanger(element.Element):
     ]
 
     min_power = attribute.Attribute(
-        name='min_power',
         description='Minimum power that HeatExchange operates at.',
+        unit=ureg.kilowatt,
     )
     rated_power = attribute.Attribute(
-        name='rated_power',
         description='Rated power of HeatExchange.',
+        unit=ureg.kilowatt,
     )
     efficiency = attribute.Attribute(
-        name='efficiency',
-        description='Efficiency of HeatExchange provided as list with pairs of [percentage_of_rated_power,efficiency]'
+        description='Efficiency of HeatExchange provided as list with pairs of [percentage_of_rated_power,efficiency]',
+        unit=ureg.dimensionless,
     )
 
 
@@ -181,35 +182,35 @@ class Boiler(element.Element):
         return connections
 
     water_volume = attribute.Attribute(
-        name='water_volume',
-        description="Water volume of boiler"
+        description="Water volume of boiler",
+        unit=ureg.meter**3,
     )
 
     min_power = attribute.Attribute(
-        name='min_power',
-        description="Minimum power that boiler operates at"
+        description="Minimum power that boiler operates at",
+        unit=ureg.kilowatt,
     )
 
     rated_power = attribute.Attribute(
-        name='rated_power',
         description="Rated power of boiler",
+        unit=ureg.kilowatt,
     )
 
     efficiency = attribute.Attribute(
-        name='efficiency',
-        description="Efficiency of boiler provided as list with pairs of [percentage_of_rated_power,efficiency]"
+        description="Efficiency of boiler provided as list with pairs of [percentage_of_rated_power,efficiency]",
+        unit=ureg.dimensionless,
     )
 
 
 class Pipe(element.Element):
     ifc_type = "IfcPipeSegment"
     conditions = [
-        condition.RangeCondition("diameter", 5.0, 300.00)   #ToDo: unit?!
+        condition.RangeCondition("diameter", 5.0*ureg.millimeter, 300.00*ureg.millimeter)   #ToDo: unit?!
     ]
 
     diameter = attribute.Attribute(
-        name='diameter',
         default_ps=('Pset_PipeSegmentTypeCommon', 'NominalDiameter'),
+        unit=ureg.millimeter,
         patterns=[
             re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
             re.compile('.*Diameter.*', flags=re.IGNORECASE),
@@ -224,8 +225,8 @@ class Pipe(element.Element):
             return None
 
     length = attribute.Attribute(
-        name='length',
         default_ps=('Qto_PipeSegmentBaseQuantities', 'Length'),
+        unit=ureg.meter,
         patterns=[
             re.compile('.*Länge.*', flags=re.IGNORECASE),
             re.compile('.*Length.*', flags=re.IGNORECASE),
@@ -258,12 +259,12 @@ class PipeFitting(element.Element):
     ifc_type = "IfcPipeFitting"
 
     conditions = [
-        condition.RangeCondition("diameter", 5.0, 300.00)   #ToDo: unit?!
+        condition.RangeCondition("diameter", 5.0*ureg.millimeter, 300.00*ureg.millimeter)   #ToDo: unit?!
     ]
 
     diameter = attribute.Attribute(
-        name='diameter',
         default_ps=('Pset_PipeFittingTypeCommon', 'NominalDiameter'),
+        unit=ureg.millimeter,
         patterns=[
             re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
             re.compile('.*Diameter.*', flags=re.IGNORECASE),
@@ -272,12 +273,12 @@ class PipeFitting(element.Element):
     )
 
     length = attribute.Attribute(
-        name='length',
+        unit=ureg.meter,
         default=0,
     )
 
     pressure_class = attribute.Attribute(
-        name='pressure_class',
+        unit=ureg.pascal,
         default_ps=('Pset_PipeFittingTypeCommon', 'PressureClass')
     )
 
@@ -298,8 +299,8 @@ class SpaceHeater(element.Element):
         return True
 
     nominal_power = attribute.Attribute(
-        name='nominal_power',
         description="Nominal power of SpaceHeater",
+        unit=ureg.kilowatt,
         default=42,
     )
 
@@ -330,21 +331,24 @@ class Storage(element.Element):
     def storage_type(self):
         return None
 
-    @property
-    def height(self):
-        return 1
+    height = attribute.Attribute(
+        unit=ureg.meter,
+    )
 
-    @ property
-    def diameter(self):
-        return 1
+    diameter = attribute.Attribute(
+        unit=ureg.millimeter,
+    )
 
     @property
     def port_positions(self):
         return (0, 0.5, 1)
 
-    @property
-    def volume(self):
+    def _calc_volume(self):
         return self.height * self.diameter ** 2 / 4 * math.pi
+
+    volume = attribute.Attribute(
+        unit=ureg.meter ** 3,
+    )
 
 
 class Distributor(element.Element):
@@ -354,13 +358,16 @@ class Distributor(element.Element):
         re.compile('Distributior', flags=re.IGNORECASE),
         re.compile('Verteiler', flags=re.IGNORECASE)
     ]
-    @property
-    def volume(self):
-        return 100
 
-    @property
-    def nominal_power(self):  # TODO Workaround, should come from aggregation of consumer circle
-        return 100
+    volume = attribute.Attribute(
+        description="Volume of the Distributor",
+        unit=ureg.meter ** 3
+    )
+
+    nominal_power = attribute.Attribute(
+        description="Nominal power of Distributor",
+        unit=ureg.kilowatt
+    )
 
 
 class Pump(element.Element):
@@ -370,21 +377,21 @@ class Pump(element.Element):
         re.compile('Pump', flags=re.IGNORECASE)
         ]
 
-    @property
-    def rated_power(self):
-        return 3
+    rated_power = attribute.Attribute(
+        unit=ureg.kilowatt,
+    )
 
-    @property
-    def rated_height(self):
-        return 8
+    rated_height = attribute.Attribute(
+        unit=ureg.meter,
+    )
 
-    @property
-    def rated_volume_flow(self):
-        return 4.3
+    rated_volume_flow = attribute.Attribute(
+        unit=ureg.meter**3 / ureg.hour,
+    )
 
-    @property
-    def diameter(self):
-        return 40
+    diameter = attribute.Attribute(
+        unit=ureg.meter,
+    )
 
 
 class Valve(element.Element):
@@ -396,12 +403,12 @@ class Valve(element.Element):
     ]
 
     conditions = [
-        condition.RangeCondition("diameter", 5.0, 500.00)  # ToDo: unit?!
+        condition.RangeCondition("diameter", 5.0*ureg.millimeter, 500.00*ureg.millimeter)  # ToDo: unit?!
     ]
 
     diameter = attribute.Attribute(
-        name='diameter',
         description='Valve diameter',
+        unit=ureg.millimeter,
         patterns=[
             re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
             re.compile('.*Diameter.*', flags=re.IGNORECASE),
@@ -417,8 +424,8 @@ class Valve(element.Element):
     #     return result
 
     length = attribute.Attribute(
-        name='length',
         description='Length of Valve',
+        unit=ureg.meter,
     )
 
 
@@ -429,12 +436,12 @@ class Duct(element.Element):
     ]
 
     diameter = attribute.Attribute(
-        name='diameter',
         description='Duct diameter',
+        unit=ureg.millimeter,
     )
     length = attribute.Attribute(
-        name='length',
         description='Length of Duct',
+        unit=ureg.meter,
     )
 
 
@@ -445,12 +452,12 @@ class DuctFitting(element.Element):
     ]
 
     diameter = attribute.Attribute(
-        name='diameter',
         description='Duct diameter',
+        unit=ureg.millimeter,
     )
     length = attribute.Attribute(
-        name='length',
         description='Length of Duct',
+        unit=ureg.meter,
     )
 
 
@@ -461,8 +468,8 @@ class AirTerminal(element.Element):
     ]
 
     diameter = attribute.Attribute(
-        name='diameter',
         description='Terminal diameter',
+        unit=ureg.millimeter,
     )
 
 

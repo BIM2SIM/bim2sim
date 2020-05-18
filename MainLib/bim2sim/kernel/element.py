@@ -10,6 +10,7 @@ import numpy as np
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import ifc2python, attribute
 from bim2sim.decision import Decision
+from bim2sim.kernel.units import ureg
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,7 @@ class ElementEncoder(JSONEncoder):
         return JSONEncoder.default()
 
 
-class Root:
+class Root(metaclass=attribute.AutoAttributeNameMeta):
     """Most basic class
 
     keeps track of created instances and guids"""
@@ -89,7 +90,7 @@ class Root:
             related_decisions = []
             for obj in Root.objects.values():
                 related_decisions.extend(obj.related_decisions)
-            Decision.decide_collected(collection=related_decisions)
+            Decision.decide_collected(collection=set(related_decisions))
         else:
             # called from instance
             Decision.decide_collected(collection=self.related_decisions)
@@ -321,6 +322,10 @@ class BaseElement(Root):
         :returns: None if element with guid was not instanciated"""
         return BaseElement.objects.get(guid)
 
+    def discard(self):
+        super().discard()
+        del self.objects[self.guid]
+
     def is_generator(self):
         return False
 
@@ -367,6 +372,13 @@ class BasePort(Root):
             raise AttributeError("Other port is already connected!")
         self.connection = other
         other.connection = self
+
+    def disconnect(self):
+        """remove connection between self and other port"""
+        other = self.connection
+        if other:
+            self.connection = None
+            other.disconnect()
 
     def is_connected(self):
         """Returns truth value of port's connection"""

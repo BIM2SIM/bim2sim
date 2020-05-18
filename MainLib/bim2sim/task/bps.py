@@ -3,10 +3,10 @@
 import itertools
 import json
 
-from bim2sim.task import Task
+from bim2sim.task.base import Task
 from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort
-# from bim2sim.ifc2python.bps import ...
+# from bim2sim.kernel.bps import ...
 from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
