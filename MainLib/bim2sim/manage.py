@@ -4,11 +4,8 @@ import logging
 from abc import ABCMeta, abstractmethod
 
 from bim2sim.project import PROJECT, get_config
-from bim2sim.kernel import ifc2python
-from bim2sim.decision import Decision
-from bim2sim.enrichment_data.data_class import DataClass
-# from bim2sim.export.modelica import standardlibrary
-import ifcopenshell
+from bim2sim.decision import Decision, ListDecision
+from bim2sim.task.base import Playground
 
 
 class BIM2SIMManager:
@@ -26,16 +23,8 @@ class BIM2SIMManager:
         # self.init_project()
         self.config = get_config()
 
-        self.workflow = workflow
-        self.ifc_path = self.get_ifc()  # actual ifc # TODO: use multiple ifs files
-        # self.ifc_path_arch =
-        # 'C:\\temp\\bim2sim\\testproject\\ifc\\KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
-        assert self.ifc_path, "No ifc found. Check '%s'"%(PROJECT.ifc)
-        self.ifc = ifc2python.load_ifc(os.path.abspath(self.ifc_path))
-        # self.ifc_arch = ifc2python.load_ifc(os.path.abspath(
-        # self.ifc_path_arch))
-        self.logger.info("The exporter version of the IFC file is '%s'",
-                         self.ifc.wrapped_data.header.file_name.originating_system)
+        # self.workflow = workflow
+        self.playground = Playground(workflow)
 
         Decision.load(PROJECT.decisions)
 
@@ -49,30 +38,23 @@ class BIM2SIMManager:
         else:
             PROJECT.complete_project_folder()
 
-
-
     @abstractmethod
     def run(self):
         """Run the manager"""
 
+    def run_interactive(self):
+        """Run manager in interactive mode"""
+        while True:
+            tasks_classes = {task.__name__: task for task in self.playground.available_tasks()}
+            choices = [(name, task.__doc__) for name, task in tasks_classes.items()]
+            task_name = ListDecision("What shall we do?", choices=choices).decide()  # TODO savable decision
+            task_class = tasks_classes[task_name]
+            self.playground.run_task(task_class())
+            if task_class.final:
+                break
+
     def __repr__(self):
         return "<%s>"%(self.__class__.__name__)
-
-    def get_ifc(self):
-        """Returns first ifc from ifc folder"""
-        lst = []
-        for file in os.listdir(PROJECT.ifc):
-            if file.lower().endswith(".ifc"):
-                lst.append(file)
-
-        if len(lst) == 1:
-            return os.path.join(PROJECT.ifc, lst[0])
-        if len(lst) > 1:
-            self.logger.warning("Found multiple ifc files. Selected '%s'.", lst[0])
-            return os.path.join(PROJECT.ifc, lst[0])
-
-        self.logger.error("No ifc found in project folder.")
-        return None
 
     def read_config(self):
         """Read config file"""

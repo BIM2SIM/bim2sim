@@ -16,7 +16,7 @@ class AixLib(BIM2SIMManager):
     def run(self):
 
         prepare = hvac.Prepare()
-        prepare.run(self.workflow)
+        prepare.run(self.workflow, hvac.IFC_TYPES)
 
         inspect = hvac.Inspect()
         if not inspect.load(PROJECT.workflow):

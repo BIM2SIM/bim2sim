@@ -24,7 +24,7 @@ class Condition:
 class RangeCondition(Condition):
     """"Validate through a simple ValueRange"""
 
-    def __init__(self, key: str, valueMin: float, valueMax: float):
+    def __init__(self, key: str, valueMin, valueMax):
         super().__init__(key)
         self.key = key
         self.valueMin = valueMin

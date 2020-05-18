@@ -99,17 +99,14 @@ def main(rootpath=None):
     if not BIM2SIMManager in manager_cls.__bases__:
         raise AttributeError("Got invalid manager from %s"%(backend))
 
+    workflow = PlantSimulation() #TODO
+
     # prepare simulation
-    if backend == 'hkesim' or backend == 'AixLib':
-        workflow = PlantSimulation
-    elif backend == 'TEASER':
-        workflow =BPSMultiZoneSeparated()  # TODO
-    else:
-        raise NotImplementedError
     manager = manager_cls(workflow)
 
     # run Manager
     manager.run()
+    #manager.run_interactive()
 
     finish()
 

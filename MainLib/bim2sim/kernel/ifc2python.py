@@ -1,14 +1,12 @@
-﻿"""Module for loading ifc files
+"""Module for loading ifc files
 
 Holds logic for target simulation independent file parsing, checking, and data enrichment
 """
 import os
 import logging
 import ifcopenshell
+from bim2sim.kernel.units import ifcunits, ureg, parse_ifc
 import math
-import copy
-import uuid
-import inspect
 
 def load_ifc(path):
     logger = logging.getLogger('bim2sim')
@@ -21,40 +19,30 @@ def load_ifc(path):
 def propertyset2dict(propertyset):
     """Converts IfcPropertySet to python dict"""
     propertydict = {}
-    if hasattr(propertyset, 'HasProperties'):
-        props = propertyset.HasProperties
-        for prop in props:
-            unit = prop.Unit
+    for prop in propertyset.HasProperties:
+        unit = parse_ifc(prop.Unit) if prop.Unit else None
+        if prop.is_a() == 'IfcPropertySingleValue':
+            if prop.NominalValue is not None:
+                unit = ifcunits.get(prop.NominalValue.is_a()) if not unit else unit
+                if unit:
+                    propertydict[prop.Name] = prop.NominalValue.wrappedValue * unit
+                else:
+                    propertydict[prop.Name] = prop.NominalValue.wrappedValue
+            else:
+                a=1
+        elif prop.is_a() == 'IfcPropertyListValue':
             # TODO: Unit conversion
-            if prop.is_a() == 'IfcPropertySingleValue':
-                propertydict[prop.Name] = prop.NominalValue.wrappedValue
-            elif prop.is_a() == 'IfcPropertyListValue':
-                propertydict[prop.Name] = [value.wrappedValue for value in
-                                           prop.ListValues]
-            elif prop.is_a() == 'IfcPropertyBoundedValue':
-                propertydict[prop.Name] = (prop, prop)
-                raise NotImplementedError("Property of type '%s'" % prop.is_a())
-            else:
-                raise NotImplementedError("Property of type '%s'" % prop.is_a())
-    elif hasattr(propertyset, 'Quantities'):
-        quants = propertyset.Quantities
-        for quant in quants:
-            if quant.is_a() == 'IfcQuantityLength':
-                propertydict[quant.Name] = quant.LengthValue
-            elif quant.is_a() == 'IfcQuantityArea':
-                propertydict[quant.Name] = quant.AreaValue
-            elif quant.is_a() == 'IfcQuantityVolume':
-                propertydict[quant.Name] = quant.VolumeValue
-            elif quant.is_a() == 'IfcQuantityCount':
-                propertydict[quant.Name] = quant.CountValue
-            elif quant.is_a() == 'IfcQuantityTime':
-                propertydict[quant.Name] = quant.TimeValue
-            elif quant.is_a() == 'IfcQuantityWeight':
-                propertydict[quant.Name] = quant.WeightValue
-            # todo IfcQuantitySet? found in doku but not belonging value
-            else:
-                raise NotImplementedError("Quantity of type '%s'" %
-                                          quant.is_a())
+            values = []
+            for value in prop.ListValues:
+                unit = ifcunits.get(value.is_a()) if not unit else unit
+                values.append(value.wrappedValue * unit)
+            propertydict[prop.Name] = values
+        elif prop.is_a() == 'IfcPropertyBoundedValue':
+            # TODO: Unit conversion
+            propertydict[prop.Name] = (prop, prop)
+            raise NotImplementedError("Property of type '%s'"%prop.is_a())
+        else:
+            raise NotImplementedError("Property of type '%s'"%prop.is_a())
 
     return propertydict
 
@@ -108,7 +96,11 @@ def get_Property_Set(PropertySetName, element):
         properties = property_set.RelatingPropertyDefinition.HasProperties
         propertydict = {}
         for Property in properties:
-            propertydict[Property.Name] = Property.NominalValue.wrappedValue
+            unit = ifcunits.get(Property.NominalValue.is_a())
+            if unit:
+                propertydict[Property.Name] = Property.NominalValue.wrappedValue * unit
+            else:
+                propertydict[Property.Name] = Property.NominalValue.wrappedValue
         return propertydict
     else:
         return None

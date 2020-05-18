@@ -2,11 +2,12 @@
 
 import logging
 import math
-from collections import defaultdict
 
 import numpy as np
 from bim2sim.kernel.element import BaseElement, BasePort
 from bim2sim.kernel import elements, attribute
+from bim2sim.kernel.hvac.hvac_graph import HvacGraph
+from bim2sim.kernel.units import ureg, ifcunits
 
 
 def verify_edge_ports(func):
@@ -47,7 +48,7 @@ class Aggregation(BaseElement):
     ifc_type = None
     multi = ()
 
-    def __init__(self, name, elements, *args, **kwargs):
+    def __init__(self, name, element_graph, *args, **kwargs):
         if 'guid' not in kwargs:
             # TODO: make guid reproducable unique for same aggregation elements
             # e.g. hash of all (ordered?) element guids?
@@ -55,7 +56,7 @@ class Aggregation(BaseElement):
             kwargs['guid'] = self.get_id("Agg")
         super().__init__(*args, **kwargs)
         self.name = name
-        self.elements = elements
+        self.elements = element_graph.nodes
         for model in self.elements:
             model.aggregation = self
 
@@ -101,6 +102,46 @@ class Aggregation(BaseElement):
 
         return mapping, connections
 
+    @classmethod
+    def get_edge_ports(cls, graph):
+        """
+        Finds and returns the edge ports of element graph.
+
+        :return list of ports:
+        """
+        raise NotImplementedError()
+
+    @classmethod
+    def get_edge_ports_of_strait(cls, graph):
+        """
+        Finds and returns the edge ports of element graph
+        with exactly one strait chain of connected elements.
+
+        :return list of ports:
+        """
+
+        edge_elements = [v for v, d in graph.degree() if d == 1]
+        if len(edge_elements) != 2:
+            raise AttributeError("Graph elements are not connected strait")
+
+        edge_ports = []
+        for port in (p for e in edge_elements for p in e.ports):
+            if not port.connection:
+                continue  # end node
+            if port.connection.parent not in graph.nodes:
+                edge_ports.append(port)
+
+        if len(edge_ports) > 2:
+            raise AttributeError("Graph elements are not only (2 port) pipes")
+
+        return edge_ports
+
+    @classmethod
+    def find_matches(cls, graph):
+        """Find all matches for Aggregation in element graph
+        :returns: matches, meta"""
+        raise NotImplementedError("Method %s.find_matches not implemented" % cls.__name__)  # TODO
+
     def __repr__(self):
         return "<%s '%s' (aggregation of %d elements)>" % (
             self.__class__.__name__, self.name, len(self.elements))
@@ -111,50 +152,21 @@ class PipeStrand(Aggregation):
     aggregatable_elements = ['IfcPipeSegment', 'IfcPipeFitting']
     multi = ('length', 'diameter')
 
-    def __init__(self, name, elements, *args, **kwargs):
-        super().__init__(name, elements, *args, **kwargs)
-        edge_ports = self._get_start_and_end_ports()
-        self.ports.append(AggregationPort(edge_ports[0], parent=self))
-        self.ports.append(AggregationPort(edge_ports[1], parent=self))
+    def __init__(self, name, element_graph, *args, **kwargs):
+        length = kwargs.pop('length', None)
+        diameter = kwargs.pop('diameter', None)
+        super().__init__(name, element_graph, *args, **kwargs)
+        if length:
+            self.length = length
+        if diameter:
+            self.diameter = diameter
+        edge_ports = self.get_edge_ports(element_graph)
+        for port in edge_ports:
+            self.ports.append(AggregationPort(port, parent=self))
 
-    @verify_edge_ports
-    def _get_start_and_end_ports(self):
-        """
-        Finds and sets the first and last port of the pipestrand.
-
-        Assumes all elements in are ordered as connected
-        :return ports:
-        """
-        agg_ports = []
-        # first port
-        found_in = False
-        found_out = False
-        for port in self.elements[0].ports:
-            if not port.connection:
-                continue  # end node
-            if port.connection.parent not in self.elements:
-                found_out = True
-                port.aggregated_parent = self
-                agg_ports.append(port)
-            else:
-                found_in = True
-        if not (found_in and found_out):
-            raise AssertionError("Assumption of ordered elements violated")
-
-        # last port
-        found_in = False
-        found_out = False
-        for port in self.elements[-1].ports:
-            if port.connection.parent not in self.elements:
-                found_out = True
-                port.aggregated_parent = self
-                agg_ports.append(port)
-            else:
-                found_in = True
-        if not (found_in and found_out):
-            raise AssertionError("Assumption of ordered elements violated")
-
-        return agg_ports
+    @classmethod
+    def get_edge_ports(cls, graph):
+        return cls.get_edge_ports_of_strait(graph)
 
     @attribute.multi_calc
     def _calc_avg(self):
@@ -191,16 +203,23 @@ class PipeStrand(Aggregation):
             mapping[port.original] = port
         return mapping
 
+    @classmethod
+    def find_matches(cls, graph):
+        chains = HvacGraph.get_type_chains(graph, cls.aggregatable_elements, include_singles=True)
+        graphs = [graph.subgraph(chain) for chain in chains if len(chain) > 1]
+        metas = [{} for x in graphs]  # no metadata calculated
+        return graphs, metas
+
     diameter = attribute.Attribute(
-        name='diameter',
         description="Average diameter of aggregated pipe",
         functions=[_calc_avg],
+        unit=ureg.millimeter,
     )
 
     length = attribute.Attribute(
-        name='length',
         description="Length of aggregated pipe",
-        functions=[_calc_avg]
+        functions=[_calc_avg],
+        unit=ureg.meter,
     )
 
 
@@ -208,35 +227,158 @@ class UnderfloorHeating(PipeStrand):
     """Aggregates UnderfloorHeating, normal pitch (spacing) between
     pipes is between 0.1m and 0.2m"""
 
-    def __init__(self, name, elements, *args, **kwargs):
-        super().__init__(name, elements, *args, **kwargs)
-        self._x_spacing = None
-        self._y_spacing = None
-        self._heating_area = None
+    def __init__(self, name, element_graph, *args, **kwargs):
+        x_spacing = kwargs.pop('x_spacing', None)
+        y_spacing = kwargs.pop('y_spacing', None)
+        heating_area = kwargs.pop('heating_area', None)
+        super().__init__(name, element_graph, *args, **kwargs)
+        edge_ports = self.get_edge_ports(element_graph)
+        for port in edge_ports:
+            self.ports.append(AggregationPort(port, parent=self))
+
+        if x_spacing:
+            self.x_spacing = x_spacing
+
+        if y_spacing:
+            self.y_spacing = x_spacing
+
+        if heating_area:
+            self.heating_area = heating_area
+
+    @classmethod
+    def find_matches(cls, graph):
+        chains = HvacGraph.get_type_chains(graph, cls.aggregatable_elements, include_singles=True)
+        graphs = [graph.subgraph(chain) for chain in chains]
+        metas = []
+        for g in graphs.copy():
+            meta = cls.check_conditions(g.nodes)
+            if meta:
+                metas.append(meta)
+            else:
+                # remove failed checks
+                graphs.remove(g)
+        return graphs, metas
+
+    @classmethod
+    def check_conditions(cls, uh_elements):
+        """checks ps_elements and returns instance of UnderfloorHeating if all following criteria are fulfilled:
+            0. minimum of 20 elements
+            1. the pipe strand is located horizontally -- parallel to the floor
+            2. the pipe strand has most of the elements located in an specific z-coordinate (> 80%)
+            3. the spacing between adjacent elements with the same orientation is between 90mm and 210 mm
+            4. the total area of the underfloor heating is more than 1m² - just as safety factor
+            5. the quotient between the cross sectional area of the pipe strand (x-y plane) and the total heating area
+                is between 0.09 and 0.01 - area density for underfloor heating
+
+            :returns None if check failed else
+            :returns meta dict with calculated values"""
+        # TODO: use only floor heating pipes and not connecting pipes
+
+        if len(uh_elements) < 20:
+            return  # number criteria failed
+
+        # z_coordinates = defaultdict(list)
+        # for element in uh_elements:
+        #     z_coordinates[element.position[2]].append(element)
+        # z_coordinate = []
+        # for coordinate in z_coordinates:
+        #     n_pipe = 0
+        #     for element in z_coordinates[coordinate]:
+        #         if isinstance(element, elements.PipeFitting):
+        #             n_pipe += 1
+        #     if n_pipe == 0 and (len(z_coordinates[coordinate]) > len(z_coordinate)):
+        #         z_coordinate = z_coordinates[coordinate]
+        # z_coordinate = z_coordinate[0].position[2]
+
+        ports_coors = np.array([p.position for e in uh_elements for p in e.ports])
+        counts = np.unique(ports_coors[:, 2], return_counts=True)
+        # TODO: cluster z coordinates
+        idx_max = np.argmax(counts[1])
+        if counts[1][idx_max] / ports_coors.shape[0] < 0.8:
+            return  # most elements in same z plane criteria failed
+
+        z_coordinate2 = counts[0][idx_max]
+
+        min_x = float("inf")
+        max_x = -float("inf")
+        min_y = float("inf")
+        max_y = -float("inf")
+        x_orientation = []
+        y_orientation = []
+        for element in uh_elements:
+            if np.abs(element.ports[0].position[2] - z_coordinate2) < 1 \
+                    and np.abs(element.ports[1].position[2] - z_coordinate2) < 1:
+                if element.position[0] < min_x:
+                    min_x = element.position[0]
+                if element.position[0] > max_x:
+                    max_x = element.position[0]
+                if element.position[1] < min_y:
+                    min_y = element.position[1]
+                if element.position[1] > max_y:
+                    max_y = element.position[1]
+
+                # TODO: what if e.g. 45° orientation??
+                if abs(element.ports[0].position[0] - element.ports[1].position[0]) < 1:
+                    y_orientation.append(element)
+                if abs(element.ports[0].position[1] - element.ports[1].position[1]) < 1:
+                    x_orientation.append(element)
+
+        length_unit = ifcunits.get('IfcLengthMeasure')
+        heating_area = (max_x - min_x) * (max_y - min_y) * length_unit ** 2
+        if heating_area < 1e6 * ifcunits.get('IfcLengthMeasure') ** 2:
+            return  # heating area criteria failed
+
+        # TODO: this is not correct for some layouts
+        if len(y_orientation) - 1 != 0:
+            x_spacing = (max_x - min_x) / (len(y_orientation) - 1) * length_unit
+        if len(x_orientation) - 1 != 0:
+            y_spacing = (max_y - min_y) / (len(x_orientation) - 1) * length_unit
+        if not ((90 * length_unit < x_spacing < 210 * length_unit) or
+                (90 * length_unit < y_spacing < 210 * length_unit)):
+            return  # spacing criteria failed
+
+        # check final kpi criteria
+        total_length = sum(segment.length for segment in uh_elements)
+        avg_diameter = (sum(segment.diameter ** 2 * segment.length for segment in uh_elements) / total_length)**0.5
+
+        kpi_criteria = (total_length * avg_diameter) / heating_area
+
+        if 0.09 > kpi_criteria > 0.01:
+            # check passed
+            meta = dict(
+                length=total_length,
+                diameter=avg_diameter,
+                heating_area=heating_area,
+                x_spacing=x_spacing,
+                y_spacing=y_spacing
+            )
+            return meta
+        else:
+            # else kpi criteria failed
+            return None
 
     def is_consumer(self):
         return True
 
-    @property
-    def heating_area(self):
-        """Heating area"""
-        if self._heating_area is None:
-            raise NotImplementedError("Adapt _calc_avg if needed")
-        return self._heating_area
+    @attribute.multi_calc
+    def _calc_avg(self):
+        pass
 
-    @property
-    def x_spacing(self):
-        """Spacing in x"""
-        if self._x_spacing is None:
-            raise NotImplementedError("Adapt _calc_avg if needed")
-        return self._x_spacing
-
-    @property
-    def y_spacing(self):
-        """Spacing in y """
-        if self._y_spacing is None:
-            raise NotImplementedError("Adapt _calc_avg if needed")
-        return self._y_spacing
+    heating_area = attribute.Attribute(
+        unit=ureg.meter ** 2,
+        description='Heating area',
+        functions=[_calc_avg]
+    )
+    x_spacing = attribute.Attribute(
+        unit=ureg.meter,
+        description='Spacing in x',
+        functions=[_calc_avg]
+    )
+    y_spacing = attribute.Attribute(
+        unit=ureg.meter,
+        description='Spacing in y',
+        functions=[_calc_avg]
+    )
 
     @classmethod
     def create_on_match(cls, name, uh_elements):
@@ -298,8 +440,8 @@ class UnderfloorHeating(PipeStrand):
                     y_orientation.append(element)
                 if abs(element.ports[0].position[1] - element.ports[1].position[1]) < 1:
                     x_orientation.append(element)
-        heating_area = (max_x - min_x) * (max_y - min_y)
-        if heating_area < 1e6:
+        heating_area = (max_x - min_x) * (max_y - min_y) * ureg.meter**2
+        if heating_area < 1e6 * ureg.meter**2:
             return  # heating area criteria failed
 
         # TODO: this is not correct for some layouts
@@ -319,7 +461,7 @@ class UnderfloorHeating(PipeStrand):
 
         kpi_criteria = (underfloor_heating.length * underfloor_heating.diameter) / heating_area
 
-        if 0.09 > kpi_criteria > 0.01:
+        if 0.09*ureg.dimensionless > kpi_criteria > 0.01*ureg.dimensionless:
             return underfloor_heating
         # else kpi criteria failed
 
@@ -329,108 +471,83 @@ class ParallelPump(Aggregation):
     aggregatable_elements = ['IfcPump', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting']
     multi = ('rated_power', 'rated_height', 'rated_volume_flow', 'diameter', 'diameter_strand', 'length')
 
-    def __init__(self, name, elements, *args, **kwargs):
-        super().__init__(name, elements, *args, **kwargs)
-        edge_ports = self._get_start_and_end_ports()  # TODO: @diego fix _get_start_and_end_ports to return proper ports
-        self.ports.append(AggregationPort(edge_ports[0], parent=self))
-        self.ports.append(AggregationPort(edge_ports[1], parent=self))
+    def __init__(self, name, element_graph, *args, **kwargs):
+        super().__init__(name, element_graph, *args, **kwargs)
+        edge_ports = self.get_edge_ports(element_graph)
+        for port in edge_ports:
+            self.ports.append(AggregationPort(port, parent=self))
 
-    @verify_edge_ports
-    def _get_start_and_end_ports(self):
+    @classmethod
+    def get_edge_ports(cls, graph):
         """
-        Finds and sets the first and last port of the parallelpumps
+        Finds and returns the two edge ports of element graph.
 
-        Assumes all elements in are ordered as connected
-        :return ports:
+        :return list of ports:
         """
-        total_ports = {}
-        # all possible beginning and end of the cycle (always pipe fittings), pumps counting
-        for port in self.elements:
-            if isinstance(port.parent, elements.PipeFitting):
-                if port.parent.guid in total_ports:
-                    total_ports[port.parent.guid].append(port)
-                else:
-                    total_ports[port.parent.guid] = []
-                    total_ports[port.parent.guid].append(port)
-        # 2nd filter, beginning and end of the cycle (parallel check)
-        final_ports = []
-        for k, ele in total_ports.items():
-            if ele[0].flow_direction == ele[1].flow_direction:
-                # final_ports.append(ele[0].parent)
-                final_ports.append(ele[0])
-                final_ports.append(ele[1])
 
-        agg_ports = []
-        # first port
-        for ele in final_ports[0].parent.ports:
-            if ele not in final_ports:
-                port = ele
-                port.aggregated_parent = self
-                agg_ports.append(port)
-        # last port
-        for ele in final_ports[-1].parent.ports:
-            if ele not in final_ports:
-                port = ele
-                port.aggregated_parent = self
-                agg_ports.append(port)
-        return agg_ports
+        # detect elements with at least 3 ports
+        edge_elements = [node for node in graph.nodes if len(node.ports) > 2]
+        if len(edge_elements) != 2:
+            raise NotImplementedError("ParallelPumps with more than two edge ports are currently not supported")
+
+        edge_ports = []
+        for port in (p for e in edge_elements for p in e.ports):
+            if not port.connection:
+                continue  # end node
+            if port.connection.parent not in graph.nodes:
+                edge_ports.append(port)
+
+        if len(edge_ports) < 2:
+            raise AttributeError("Found less than two edge ports")
+
+        return edge_ports
 
     @attribute.multi_calc
     def _calc_avg(self):
         """Calculates the parameters of all pump-like elements."""
-        avg_rated_height = 0
+        max_rated_height = 0
         total_rated_volume_flow = 0
         total_diameter = 0
         avg_diameter_strand = 0
         total_length = 0
         diameter_times_length = 0
+        total_rated_power = 0
 
-        cycle_elements = list(dict.fromkeys([v.parent for v in self.elements]))
-        for pump in cycle_elements:
-            if "Pump" in pump.ifc_type:
-                rated_power = getattr(pump, "rated_power")
-                rated_height = getattr(pump, "rated_height")
-                rated_volume_flow = getattr(pump, "rated_volume_flow")
-                diameter = getattr(pump, "diameter")
-                if not (rated_power and rated_height and rated_volume_flow and diameter):
-                    self.logger.warning("Ignored '%s' in aggregation", pump)
-                    continue
+        for item in self.elements:
+            if "Pump" in item.ifc_type:
 
-                total_rated_volume_flow += rated_volume_flow
-                # this is not avg but max
-                if avg_rated_height != 0:
-                    if rated_height < avg_rated_height:
-                        avg_rated_height = rated_height
+                total_rated_volume_flow += item.rated_volume_flow
+                total_rated_power += item.rated_power
+
+                if max_rated_height != 0:
+                    if item.rated_height < max_rated_height:
+                        max_rated_height = item.rated_height
                 else:
-                    avg_rated_height = rated_height
+                    max_rated_height = item.rated_height
 
-                total_diameter += diameter ** 2
+                total_diameter += item.diameter ** 2
             else:
-                if hasattr(pump, "diameter") and hasattr(pump, "length"):
-                    length = pump.length
-                    diameter = pump.diameter
+                if hasattr(item, "diameter") and hasattr(item, "length"):
+                    length = item.length
+                    diameter = item.diameter
                     if not (length and diameter):
-                        self.logger.warning("Ignored '%s' in aggregation", pump)
+                        self.logger.info("Ignored '%s' in aggregation", item)
                         continue
 
                     diameter_times_length += diameter * length
                     total_length += length
 
                 else:
-                    self.logger.warning("Ignored '%s' in aggregation", pump)
+                    self.logger.info("Ignored '%s' in aggregation", item)
 
         if total_length != 0:
             avg_diameter_strand = diameter_times_length / total_length
 
         total_diameter = math.sqrt(total_diameter)
-        g = 9.81
-        rho = 1000
-        # TODO: two pumps with rated power of 3 each give a total rated power of 674928
-        total_rated_power = total_rated_volume_flow * avg_rated_height * g * rho
 
         result = dict(
             rated_power=total_rated_power,
-            rated_height=avg_rated_height,
+            rated_height=max_rated_height,
             rated_volume_flow=total_rated_volume_flow,
             diameter=total_diameter,
             length=total_length,
@@ -483,67 +600,78 @@ class ParallelPump(Aggregation):
     )
 
     @classmethod
-    def create_on_match(cls, name, cycle):
-        """reduce the found cycles, to just the cycles that fulfill the next criteria:
-            1. it's a parallel cycle (the two strands have the same flow direction)
-            2. it has one or more pumps in each strand
-            finally it creates a list with the founded cycles with the next lists:
-            'elements', 'up_strand', 'low_strand', 'ports'
-            """
-        p_instance = "Pump"
-        n_pumps = 0
-        total_ports = {}
-        # all possible beginning and end of the cycle (always pipe fittings), pumps counting
-        for port in cycle:
-            if isinstance(port.parent, getattr(elements, p_instance)):
-                n_pumps += 1
-            if isinstance(port.parent, elements.PipeFitting):
-                if port.parent.guid in total_ports:
-                    total_ports[port.parent.guid].append(port)
-                else:
-                    total_ports[port.parent.guid] = []
-                    total_ports[port.parent.guid].append(port)
-        # 1st filter, cycle has more than 2 pump-ports, 1 pump
-        if n_pumps >= 4:
-            cycle_elements = list(dict.fromkeys([v.parent for v in cycle]))
-        else:
-            return
-        # 2nd filter, beginning and end of the cycle (parallel check)
-        final_ports = []
-        for k, ele in total_ports.items():
-            if ele[0].flow_direction == ele[1].flow_direction:
-                final_ports.append(ele[0])
-                final_ports.append(ele[1])
-        if len(final_ports) < 4:
-            return
-        # Strand separation - upper & lower
-        upper = []
-        lower = []
-        for elem in cycle_elements:
-            if cycle_elements.index(final_ports[1].parent) \
-                    < cycle_elements.index(elem) < cycle_elements.index(final_ports[2].parent):
-                upper.append(elem)
-            else:
-                lower.append(elem)
-        # 3rd Filter, each strand has one or more pumps
-        check_up = str(dict.fromkeys(upper))
-        check_low = str(dict.fromkeys(lower))
+    def find_matches(cls, graph):
+        """Find all matches for Aggregation in element graph
+        :returns: matches, meta"""
+        # TODO: only same size pumps
+        wantetd = {'IfcPump'}
+        innerts = set(cls.aggregatable_elements) - wantetd
+        parallels = HvacGraph.get_parallels(graph, wantetd, innerts)
+        metas = [{} for x in parallels]  # no metadata calculated
+        return parallels, metas
 
-        parallel_pump = cls(name, cycle)
-        parallel_pump._elements = cycle_elements
-        parallel_pump._up_strand = upper
-        parallel_pump._low_strand = lower
-
-        if (p_instance in check_up) and (p_instance in check_low):
-            return parallel_pump
+    # @classmethod
+    # def create_on_match(cls, name, cycle):
+    #     """reduce the found cycles, to just the cycles that fulfill the next criteria:
+    #         1. it's a parallel cycle (the two strands have the same flow direction)
+    #         2. it has one or more pumps in each strand
+    #         finally it creates a list with the founded cycles with the next lists:
+    #         'elements', 'up_strand', 'low_strand', 'ports'
+    #         """
+    #     p_instance = "Pump"
+    #     n_pumps = 0
+    #     total_ports = {}
+    #     # all possible beginning and end of the cycle (always pipe fittings), pumps counting
+    #     for port in cycle:
+    #         if isinstance(port.parent, getattr(elements, p_instance)):
+    #             n_pumps += 1
+    #         if isinstance(port.parent, elements.PipeFitting):
+    #             if port.parent.guid in total_ports:
+    #                 total_ports[port.parent.guid].append(port)
+    #             else:
+    #                 total_ports[port.parent.guid] = []
+    #                 total_ports[port.parent.guid].append(port)
+    #     # 1st filter, cycle has more than 2 pump-ports, 1 pump
+    #     if n_pumps >= 4:
+    #         cycle_elements = list(dict.fromkeys([v.parent for v in cycle]))
+    #     else:
+    #         return
+    #     # 2nd filter, beginning and end of the cycle (parallel check)
+    #     final_ports = []
+    #     for k, ele in total_ports.items():
+    #         if ele[0].flow_direction == ele[1].flow_direction:
+    #             final_ports.append(ele[0])
+    #             final_ports.append(ele[1])
+    #     if len(final_ports) < 4:
+    #         return
+    #     # Strand separation - upper & lower
+    #     upper = []
+    #     lower = []
+    #     for elem in cycle_elements:
+    #         if cycle_elements.index(final_ports[1].parent) \
+    #                 < cycle_elements.index(elem) < cycle_elements.index(final_ports[2].parent):
+    #             upper.append(elem)
+    #         else:
+    #             lower.append(elem)
+    #     # 3rd Filter, each strand has one or more pumps
+    #     check_up = str(dict.fromkeys(upper))
+    #     check_low = str(dict.fromkeys(lower))
+    #
+    #     parallel_pump = cls(name, cycle)
+    #     parallel_pump._elements = cycle_elements
+    #     parallel_pump._up_strand = upper
+    #     parallel_pump._low_strand = lower
+    #
+    #     if (p_instance in check_up) and (p_instance in check_low):
+    #         return parallel_pump
 
 
 class ParallelSpaceHeater(Aggregation):
     """Aggregates Space heater in parallel"""
     aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting']
 
-    def __init__(self, name, elements, *args, **kwargs):
-        super().__init__(name, elements, *args, **kwargs)
+    def __init__(self, name, element_graph, *args, **kwargs):
+        super().__init__(name, element_graph, *args, **kwargs)
         edge_ports = self._get_start_and_end_ports()
         self.ports.append(AggregationPort(edge_ports[0], parent=self))
         self.ports.append(AggregationPort(edge_ports[1], parent=self))

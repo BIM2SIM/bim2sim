@@ -1,37 +1,27 @@
 ﻿
-from bim2sim.manage import BIM2SIMManager, PROJECT
-from bim2sim.task import hvac
+from bim2sim.manage import BIM2SIMManager
+from bim2sim.task import base, common, hvac
 from bim2sim.export.modelica import standardlibrary
 from bim2sim_hkesim.models import HKESim
 
 
+class LoadLibrariesHKESim(base.ITask):
+    """Load HKESim library for export"""
+    touches = ('libraries', )
+
+    def run(self, workflow, **kwargs):
+        return (standardlibrary.StandardLibrary, HKESim),
+
+
 class HKESimManager(BIM2SIMManager):
 
-    def __init__(self, workflow):
-        super().__init__(workflow)
-
     def run(self):
-        prepare = hvac.Prepare()
-        prepare.run(self.workflow)
 
-        inspect = hvac.Inspect()
-        if not inspect.load(PROJECT.workflow):
-            inspect.run(self.workflow, self.ifc, prepare)
-            inspect.save(PROJECT.workflow)
-
-        makegraph = hvac.MakeGraph()
-        if not makegraph.load(PROJECT.workflow):
-            makegraph.run(self.workflow, list(inspect.instances.values()))
-            makegraph.save(PROJECT.workflow)
-
-        reduce = hvac.Reduce()
-        reduce.run(self.workflow, makegraph.graph)
-
-        #check
-
-        libraries = (standardlibrary.StandardLibrary, HKESim)
-        export = hvac.Export()
-        export.run(self.workflow, libraries, reduce.reduced_instances, reduce.connections)
-
-
-
+        self.playground.run_task(hvac.SetIFCTypesHVAC())
+        self.playground.run_task(common.LoadIFC())
+        self.playground.run_task(hvac.Prepare())
+        self.playground.run_task(hvac.Inspect())
+        self.playground.run_task(hvac.MakeGraph())
+        self.playground.run_task(hvac.Reduce())
+        self.playground.run_task(LoadLibrariesHKESim())
+        self.playground.run_task(hvac.Export())
