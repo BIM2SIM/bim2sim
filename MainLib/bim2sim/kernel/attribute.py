@@ -97,14 +97,18 @@ class Attribute:
 
     @staticmethod
     def get_from_default_propertyset(bind, name):
-        if bind.source_tool.startswith('Autodesk'):
-            source_tool = 'Autodesk Revit 2019 (DEU)'
-        elif bind.source_tool.startswith('ARCHICAD'):
-            source_tool = 'ARCHICAD-64'
+        source_tools = bind.finder.templates
+        if bind.source_tool in source_tools:
+            source_tool = bind.source_tool
         else:
-            return None
+            if bind.source_tool.startswith('Autodesk'):
+                source_tool = 'Autodesk Revit 2019 (DEU)'
+            elif bind.source_tool.startswith('ARCHICAD'):
+                source_tool = 'ARCHICAD-64'
+            else:
+                return None
         try:
-            default = bind.finder.templates[source_tool][bind.__class__.__name__]['default_ps'][name]
+            default = source_tools[source_tool][bind.__class__.__name__]['default_ps'][name]
         except KeyError:
             return None
         try:

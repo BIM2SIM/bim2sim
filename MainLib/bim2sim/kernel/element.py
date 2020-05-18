@@ -42,7 +42,6 @@ class Root:
 
     keeps track of created instances and guids"""
     objects = {}
-    default_materials = {}
     _id_counter = 0
 
     def __init__(self, guid=None):
@@ -109,6 +108,23 @@ class Root:
         for d in self.related_decisions:
             d.discard()
 
+class IFCBasedSubElement(Root):
+    """Mixin for IFC representating subclasses"""
+    ifc_type = None
+    _ifc_classes = {}
+
+    def __init__(self, ifc, *args, **kwargs):
+        super().__init__(*args, guid=ifc.GlobalId, **kwargs)
+        self.ifc = ifc
+        self.name = ifc.Name
+
+    @property
+    def ifc_type(self):
+        """Returns IFC type"""
+        return self.__class__.ifc_type
+
+    def __repr__(self):
+        return "<%s (%s)>" % (self.__class__.__name__, self.name)
 
 class IFCBased(Root):
     """Mixin for all IFC representating classes"""
@@ -459,10 +475,12 @@ class BaseElementNoPorts(Root):
 class BaseElement(BaseElementNoPorts):
     """Base class for all elements with ports"""
     objects = {}
+    default_materials = {}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ports = []
+        self.space_boundaries = []
 
     def get_inner_connections(self):
         """Returns inner connections of Element
@@ -681,6 +699,85 @@ def get_all_subclasses(cls):
         all_subclasses.extend(get_all_subclasses(subclass))
 
     return all_subclasses
+
+
+class SubElement(BaseElementNoPorts, IFCBasedSubElement):
+
+    def __init__(self, *args, tool=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._tool = tool
+
+    @staticmethod
+    def _init_factory():
+        """initialize lookup for factory"""
+        logger = logging.getLogger(__name__)
+        conflict = False
+        all_subclasses = get_all_subclasses(SubElement)
+        for cls in all_subclasses:
+            if not isinstance(cls.ifc_type, list):
+                ifc_types = [cls.ifc_type]
+            else:
+                ifc_types = cls.ifc_type
+            for ifc_type in ifc_types:
+                if ifc_type is None:
+                    conflict = True
+                    logger.error("Invalid ifc_type (%s) in '%s'", ifc_type,
+                                 cls.__name__)
+                elif ifc_type in SubElement._ifc_classes:
+                    conflicting_cls = SubElement._ifc_classes[ifc_type]
+                    if not issubclass(cls, conflicting_cls):
+                        conflict = True
+                        logger.error(
+                            "Conflicting ifc_types (%s) in '%s' and '%s'",
+                            ifc_type, cls.__name__,
+                            SubElement._ifc_classes[ifc_type])
+                elif cls.__name__ == "Dummy":
+                    Element.dummy = cls
+                elif not ifc_type.lower().startswith("ifc"):
+                    conflict = True
+                    logger.error("Invalid ifc_type (%s) in '%s'", ifc_type,
+                                 cls.__name__)
+                else:
+                    SubElement._ifc_classes[ifc_type] = cls
+
+        if conflict:
+            raise AssertionError(
+                "Conflict(s) in Models. (See log for details).")
+
+        # Model.dummy = Model.ifc_classes['any']
+        if not SubElement._ifc_classes:
+            raise ElementError(
+                "Failed to initialize Element factory. No elements found!")
+
+        model_txt = "\n".join(
+            " - %s" % (model) for model in SubElement._ifc_classes)
+        logger.debug("IFC model factory initialized with %d ifc classes:\n%s",
+                     len(SubElement._ifc_classes), model_txt)
+
+    @staticmethod
+    def factory(ifc_element, alternate_ifc_type=None, tool=None):
+        """Create model depending on ifc_subelement"""
+
+        if not SubElement._ifc_classes:
+            SubElement._init_factory()
+
+        ifc_type = ifc_element.is_a() \
+            if not alternate_ifc_type or alternate_ifc_type == ifc_element.is_a() \
+            else alternate_ifc_type
+        cls = SubElement._ifc_classes.get(ifc_type, Element.dummy)
+        if cls is Element.dummy:
+            logger = logging.getLogger(__name__)
+            logger.warning("Did not found matching class for %s", ifc_type)
+
+        prefac = cls(ifc=ifc_element, tool=tool)
+        return prefac
+
+    def __repr__(self):
+        return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)
+
+    def __str__(self):
+        return "%s" % self.__class__.__name__
+
 
 
 class Element(BaseElement, IFCBased):

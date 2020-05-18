@@ -14,7 +14,6 @@ from bim2sim.kernel.ifc2python import get_layers_ifc
 # from shapely.geometry import Point
 import ifcopenshell.geom
 import matplotlib.pyplot as plt
-from bim2sim.kernel.element import Element
 
 def diameter_post_processing(value):
     if isinstance(value, list):
@@ -546,6 +545,27 @@ class ThermalZone(element.Element):
 
     def get__elements_by_type(self, type):
         raise NotImplementedError
+
+
+class SpaceBoundary(element.SubElement):
+    ifc_type = 'IfcRelSpaceBoundary'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.level_description = self.ifc.Description
+        self.thermal_zones.append(self.get_object(self.ifc.RelatingSpace.GlobalId))
+        if self.ifc.RelatedBuildingElement is not None:
+            self.bound_instance = self.get_object(self.ifc.RelatedBuildingElement.GlobalId)
+        else:
+            self.bound_instance = None
+        if self.ifc.InternalOrExternalBoundary.lower() == 'internal':
+            self.internal = True
+        else:
+            self.internal = False
+        if self.ifc.PhysicalOrVirtualBoundary.lower() == 'physical':
+            self.physical = True
+        else:
+            self.physical = False
 
 
 class Medium(element.Element):

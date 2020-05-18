@@ -1,7 +1,7 @@
 from bim2sim.task import Task
 from bim2sim.kernel import elements
 from bim2sim.decision import DictDecision, ListDecision, RealDecision, BoolDecision
-from bim2sim.kernel.element import Element
+from bim2sim.kernel.element import Element, SubElement
 from bim2sim.kernel.ifc2python import getElementType
 from bim2sim.kernel.disaggregation import Disaggregation
 
@@ -31,6 +31,9 @@ class Inspect(Task):
                 raise NotImplementedError
 
         self.logger.info("Found %d space entities", len(self.instances))
+
+        self.recognize_space_boundaries(ifc)
+        self.logger.info("Found %d space boundaries entities", len(self.instances))
 
     def recognize_zone_semantic(self, ifc):
         """Recognizes zones/spaces in ifc file by semantic detection for
@@ -69,5 +72,28 @@ class Inspect(Task):
                     thermalzone.bound_elements.append(bound_instance)
                 if thermalzone not in bound_instance.thermal_zones:
                     bound_instance.thermal_zones.append(thermalzone)
+
+    def recognize_space_boundaries(self, ifc):
+        """Recognizes space boundaries in ifc file by semantic detection for
+        IfcRelSpaceBoundary entities"""
+        self.logger.info("Create space boundaries by semantic detection")
+        ifc_type = 'IfcRelSpaceBoundary'
+        entities = ifc.by_type(ifc_type)
+        for entity in entities:
+            space_boundary = SubElement.factory(entity, ifc_type)
+            self.instances[space_boundary.guid] = space_boundary
+            self.bind_space_to_space_boundaries(space_boundary)
+
+
+    def bind_space_to_space_boundaries(self, spaceboundary):
+        """Binds the different spaces to the belonging zones"""
+        bound_space = spaceboundary.thermal_zones[0]
+        bound_instance = spaceboundary.bound_instance
+        bound_space.space_boundaries.append(spaceboundary)
+        if bound_instance is not None:
+            bound_instance.space_boundaries.append(spaceboundary)
+
+
+
 
 
