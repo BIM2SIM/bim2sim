@@ -5,6 +5,8 @@ import sys
 import importlib
 import pkgutil
 import logging
+from pathlib import Path
+import site
 
 import pkg_resources
 
@@ -15,10 +17,38 @@ from bim2sim.workflow import PlantSimulation
 
 VERSION = '0.1-dev'
 
+# TODO: setup: copy backends to bim2sim/backends
+
+
+def get_default_backends():
+    path = Path(__file__).parent / 'backends'
+    backends = []
+    for pkg in [item for item in path.glob('**/*') if item.is_dir()]:
+        if pkg.name.startswith('bim2sim_'):
+            backends.append(pkg)
+    return backends
+
+
+def get_dev_backends():
+    path = Path(__file__).parent.parent.parent
+    backends = []
+    for plugin in [item for item in path.glob('**/*') if item.is_dir()]:
+        if plugin.name.startswith('Plugin'):
+            for pkg in [item for item in plugin.glob('**/*') if item.is_dir()]:
+                if pkg.name.startswith('bim2sim_'):
+                    backends.append(pkg)
+    return backends
+
 
 def get_backends(by_entrypoint=False):
     """load all possible plugins"""
     logger = logging.getLogger(__name__)
+
+    default = get_default_backends()
+    dev = get_dev_backends()
+
+    # add all plugins to PATH
+    sys.path.extend([str(path.parent) for path in default + dev])
 
     if by_entrypoint:
         sim = {}
@@ -41,11 +71,11 @@ def get_backends(by_entrypoint=False):
     return sim
 
 
-
 def finish():
     """cleanup method"""
     logger = logging.getLogger(__name__)
     logger.info('finished')
+
 
 def logging_setup():
     """Setup for logging module"""

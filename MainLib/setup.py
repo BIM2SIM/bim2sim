@@ -1,5 +1,12 @@
 from setuptools import setup, find_packages
+import glob
 
+
+data_files = []
+directories = glob.glob('bim2sim\\assets\\')
+for directory in directories:
+    files = glob.glob(directory + '*')
+    data_files.append((directory, files))
 
 with open("README.md", 'r') as f:
     long_description = f.read()
@@ -11,10 +18,12 @@ setup(
     license="???",
     long_description=long_description,
     author='BIM2SIM',
-    author_email='CWarnecke@rom-technik.de',
-    url="https://www.ebc.eonerc.rwth-aachen.de/go/id/qxtv",
-    packages=find_packages() + ['bim2sim.assets'],
+    author_email='???',
+    url="???",
+    packages=find_packages() + ['bim2sim.assets', 'bim2sim.backends'],
     include_package_data=True,
+    data_files=data_files,
+    # package_data={'': ['assets/*.*']},
     python_requires='>=3.6.0',
     install_requires=[
         'docopt', 'numpy', 'python-dateutil',
@@ -23,6 +32,7 @@ setup(
     extras_require={
         'manual_install': ['ifcopenshell>=0.6'],
         'plotting': ['matplotlib'],
+        'communication': ['rpyc'],
     },
     entry_points={
         'console_scripts': [

@@ -2,11 +2,13 @@
 
 import os
 import json
+from pathlib import Path
 
+import bim2sim
 from bim2sim.kernel import ifc2python
 
 
-DEFAULT_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets\\finder')
+DEFAULT_PATH = Path(bim2sim.__file__).parent / 'assets\\finder'
 
 
 class Finder:

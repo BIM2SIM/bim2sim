@@ -7,6 +7,10 @@ import hashlib
 from contextlib import contextmanager
 
 import pint
+try:
+    import rpyc
+except ImportError:
+    logging.warning("Module 'rpyc' not available. Can't use ExternalFrontend")
 
 from bim2sim.kernel.units import ureg
 
