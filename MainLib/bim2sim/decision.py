@@ -245,6 +245,9 @@ class ExternalFrontEnd(FrontEnd):
         self.id_gen = self._get_id_gen()
         self.pending = {}
 
+        self.connection = rpyc.connect('localhost', 18861)
+        self.connection.root.log("Connected!")
+
     def __iter__(self):
         raise StopIteration
 
@@ -313,7 +316,8 @@ class ExternalFrontEnd(FrontEnd):
         serialized = json.dumps(data, indent=2)
         print(serialized)
         # fake data
-        answer = {item['id']: '1' for item in data}
+        # answer = {item['id']: '1' for item in data}
+        answer = self.connection.root.new_decision(data)
 
         return answer
 
@@ -341,8 +345,8 @@ class Decision:
     _debug_mode = False
     _debug_validate = False
 
-    frontend = ConsoleFrontEnd()
-    # frontend = ExternalFrontEnd()
+    # frontend = ConsoleFrontEnd()
+    frontend = ExternalFrontEnd()
     logger = logging.getLogger(__name__)
 
     def __init__(self, question: str, validate_func=None,
@@ -538,6 +542,8 @@ class Decision:
 
         _collection = collection or cls.collection()
         _collection = [d for d in _collection if d.status == Status.open]
+        if not _collection:
+            return
 
         if cls._debug_mode:
             # debug
