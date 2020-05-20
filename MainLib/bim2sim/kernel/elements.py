@@ -9,6 +9,9 @@ from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, condition, attribute
 from bim2sim.decision import BoolDecision
 from bim2sim.kernel.units import ureg
+from bim2sim.decision import ListDecision, RealDecision
+from ifc2python import get_layers_ifc
+from bim2sim.enrichment_data.data_class import DataClass
 
 def diameter_post_processing(value):
     if isinstance(value, list):
@@ -733,11 +736,6 @@ class Wall(element.Element):
         #todo just for testing, this is file specific
         default_ps=('ArchiCADProperties', 'Äußerer Neigungswinkel'),
         default=0
-    )
-
-    property_probe = attribute.Attribute(
-        name='property_probe',
-        default=55555
     )
 
 

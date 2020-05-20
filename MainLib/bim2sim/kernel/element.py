@@ -338,6 +338,7 @@ class IFCBased(Root):
         """Returns value of property specified by propertyset name and property name
 
         :Raises: AttriebuteError if property does not exist"""
+        self.search_property_hierarchy(propertyset_name)
         try:
             p_set = self.search_property_hierarchy(propertyset_name)
             value = p_set[property_name]
@@ -380,7 +381,7 @@ class IFCBased(Root):
                 return distinct_values.pop()
 
             # TODO: Decision with id, key, value
-            decision = DictDecision("Multiple possibilities found",
+            decision = ListDecision("Multiple possibilities found",
                                     choices=dict(zip(choices, values)),
                                     output=self.properties,
                                     output_key=name,

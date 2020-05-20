@@ -19,30 +19,44 @@ def load_ifc(path):
 def propertyset2dict(propertyset):
     """Converts IfcPropertySet to python dict"""
     propertydict = {}
-    for prop in propertyset.HasProperties:
-        unit = parse_ifc(prop.Unit) if prop.Unit else None
-        if prop.is_a() == 'IfcPropertySingleValue':
-            if prop.NominalValue is not None:
-                unit = ifcunits.get(prop.NominalValue.is_a()) if not unit else unit
-                if unit:
-                    propertydict[prop.Name] = prop.NominalValue.wrappedValue * unit
+    if hasattr(propertyset, 'HasProperties'):
+        for prop in propertyset.HasProperties:
+            unit = parse_ifc(prop.Unit) if prop.Unit else None
+            if prop.is_a() == 'IfcPropertySingleValue':
+                if prop.NominalValue is not None:
+                    unit = ifcunits.get(prop.NominalValue.is_a()) if not unit else unit
+                    if unit:
+                        propertydict[prop.Name] = prop.NominalValue.wrappedValue * unit
+                    else:
+                        propertydict[prop.Name] = prop.NominalValue.wrappedValue
                 else:
-                    propertydict[prop.Name] = prop.NominalValue.wrappedValue
+                    a=1
+            elif prop.is_a() == 'IfcPropertyListValue':
+                # TODO: Unit conversion
+                values = []
+                for value in prop.ListValues:
+                    unit = ifcunits.get(value.is_a()) if not unit else unit
+                    values.append(value.wrappedValue * unit)
+                propertydict[prop.Name] = values
+            elif prop.is_a() == 'IfcPropertyBoundedValue':
+                # TODO: Unit conversion
+                propertydict[prop.Name] = (prop, prop)
+                raise NotImplementedError("Property of type '%s'"%prop.is_a())
             else:
-                a=1
-        elif prop.is_a() == 'IfcPropertyListValue':
-            # TODO: Unit conversion
-            values = []
-            for value in prop.ListValues:
-                unit = ifcunits.get(value.is_a()) if not unit else unit
-                values.append(value.wrappedValue * unit)
-            propertydict[prop.Name] = values
-        elif prop.is_a() == 'IfcPropertyBoundedValue':
-            # TODO: Unit conversion
-            propertydict[prop.Name] = (prop, prop)
-            raise NotImplementedError("Property of type '%s'"%prop.is_a())
-        else:
-            raise NotImplementedError("Property of type '%s'"%prop.is_a())
+                raise NotImplementedError("Property of type '%s'"%prop.is_a())
+    elif hasattr(propertyset, 'Quantities'):
+        for prop in propertyset.Quantities:
+            unit = parse_ifc(prop.Unit) if prop.Unit else None
+            for attr, p_value in vars(prop).items():
+                if attr.endswith('Value'):
+                    if p_value is not None:
+                        if unit:
+                            propertydict[prop.Name] = p_value * unit
+                        else:
+                            propertydict[prop.Name] = p_value
+                        break
+
+
 
     return propertydict
 

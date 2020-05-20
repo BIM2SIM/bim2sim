@@ -12,7 +12,7 @@ from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
 from bim2sim.kernel import finder
 from bim2sim.task.sub_tasks import tz_detection
-from bim2sim.kernel import elements
+from bim2sim.kernel import elements, disaggregation
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.enrichment_data import element_input_json
 from bim2sim.enrichment_data.data_class import DataClass
@@ -33,6 +33,7 @@ from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic import utilities
 import os
 from bim2sim.task.bps_f.bps_functions import orientation_verification
+
 
 
 class SetIFCTypesBPS(ITask):
@@ -84,27 +85,31 @@ class Inspect(ITask):
 
         return self.instances,
 
-
-    def filter_instances(self, type_name):
+    @staticmethod
+    def filter_instances(instances, type_name):
         """Filters the inspected instances by type name (e.g. Wall) and
         returns them as list"""
         instances_filtered = []
-        for instance in self.instances.values():
+        for instance in instances.values():
             if instance.__str__() == type_name:
                 instances_filtered.append(instance)
         return instances_filtered
 
 
-class ExportTEASERMultizone(Task):
+class ExportTEASERMultizone(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
+
+    reads = ('instances', )
+    final = True
 
     @staticmethod
     def _create_thermal_zone(instance, bldg):
         """Creates a thermalzone in TEASER by a given BIM2SIM instance"""
         tz = ThermalZone(parent=bldg)
         tz.name = instance.name
-        tz.area = instance.area
+        if instance.area is not None:
+            tz.area = instance.area
         tz.volume = instance.net_volume
         # todo: infiltration rate
         tz.use_conditions = UseConditions(parent=tz)
@@ -120,7 +125,7 @@ class ExportTEASERMultizone(Task):
         return tz
 
 
-    def run(self, workflow, bps_inspect):
+    def run(self, workflow, instances):
         # mapping_dict = {
         #     elements.Floor.instances: Floor,
         #     elements.Window.instances: Window,
@@ -134,7 +139,7 @@ class ExportTEASERMultizone(Task):
         #Todo get project name (not set to PROJECT yet)
         prj.name = 'Testproject'
         prj.data.load_uc_binding()
-        bldg_instances = bps_inspect.filter_instances('Building')
+        bldg_instances = Inspect.filter_instances(instances, 'Building')
         print('test')
 
         for bldg_instance in bldg_instances:
@@ -145,7 +150,7 @@ class ExportTEASERMultizone(Task):
             bldg.year_of_construction = bldg_instance.year_of_construction
             bldg.number_of_floors = bldg_instance.number_of_storeys
             bldg.net_leased_area = bldg_instance.net_area
-            tz_instances = bps_inspect.filter_instances('ThermalZone')
+            tz_instances = Inspect.filter_instances(instances, 'ThermalZone')
             for tz_instance in tz_instances:
                 tz = self._create_thermal_zone(tz_instance, bldg)
                 for bound_element in tz_instance.bound_elements:
