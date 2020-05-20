@@ -631,13 +631,8 @@ class Wall(element.Element):
                 del material_templates['version']
 
                 if material_ref not in str(Materials_DEU.keys()):
-                    decision_ = TextDecision("Material not found, enter value for the material %s_%s_%s" % (str(bind), bind.guid, external),
-                                             validate_func=lambda x: isinstance(x, str),
-                                             global_key="Material",
-                                             allow_skip=False, allow_load=True, allow_save=True,
-                                             collect=False, quick_decide=False)
-                    decision_.decide()
-                    material_ref = decision_.value
+                    decision_ = input("Material not found, enter value for the material %s_%s_%s" % (str(bind), bind.guid, external))
+                    material_ref = decision_
 
                 for k in Materials_DEU:
                     if material_ref in k:
