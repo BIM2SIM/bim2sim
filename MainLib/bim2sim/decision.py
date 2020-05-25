@@ -302,7 +302,7 @@ class ExternalFrontEnd(FrontEnd):
             id=key,
             question=decision.question,
             options=self.get_options(decision),
-            body=self.get_body(decision),
+            body=json.dumps(self.get_body(decision)),
         )
 
         return data
@@ -317,8 +317,9 @@ class ExternalFrontEnd(FrontEnd):
         print(serialized)
         # fake data
         # answer = {item['id']: '1' for item in data}
-        answer = self.connection.root.new_decision(data)
-
+        raw_answer = self.connection.root.new_decision(data)
+        answer = json.loads(raw_answer)
+        print(answer)
         return answer
 
 
