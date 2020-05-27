@@ -2,13 +2,10 @@ import logging
 import time
 import json
 
-from .frontend import FrontEnd
+import rpyc
+from rpyc.utils.server import OneShotServer
 
-try:
-    import rpyc
-    from rpyc.utils.server import OneShotServer
-except ImportError:
-    logging.warning("Module 'rpyc' not available. Can't use ExternalFrontend")
+from .frontend import FrontEnd
 
 
 class DecisionService(rpyc.Service):
