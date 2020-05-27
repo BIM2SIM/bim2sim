@@ -14,6 +14,7 @@ from bim2sim.kernel import ifc2python
 from bim2sim.manage import BIM2SIMManager
 from bim2sim.project import PROJECT, get_config
 from bim2sim.workflow import PlantSimulation
+from bim2sim.decision import Decision
 
 VERSION = '0.1-dev'
 
@@ -128,6 +129,10 @@ def main(rootpath=None):
 
     if not BIM2SIMManager in manager_cls.__bases__:
         raise AttributeError("Got invalid manager from %s"%(backend))
+
+    from bim2sim.decision.frontend import ConsoleFrontEnd as Frontend
+    # from bim2sim.decision.externalfrontend import ExternalFrontEnd as Frontend
+    Decision.set_frontend(Frontend())
 
     workflow = PlantSimulation() #TODO
 
