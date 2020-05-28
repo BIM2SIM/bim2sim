@@ -2,6 +2,7 @@ import logging
 import time
 import json
 from threading import Thread
+import atexit
 
 import rpyc
 from rpyc.utils.server import OneShotServer
@@ -22,6 +23,7 @@ class DecisionService(rpyc.Service):
         self.answers = {}
         self._parse = parse_func
         self._answer = answer_func
+        self._done = False
 
     def on_connect(self, conn):
         # code that runs when a connection is created
@@ -33,7 +35,7 @@ class DecisionService(rpyc.Service):
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
         logger.warning("Connection lost. Shutting down.")
-        exit(2)
+        # exit(2)
 
     def exposed_set_project(self, project_id):
         print("Project set to ", project_id)
@@ -41,12 +43,12 @@ class DecisionService(rpyc.Service):
 
     @staticmethod
     def reduced(decisions):
-        return decisions
+        return json.dumps(decisions)
 
     def exposed_iter_decisions(self):
         logger.info("Start decision Iterator")
         # print("Wait for answers", end='')
-        while True:
+        while not self._done:
             if self.decisions:
                 # print('')
                 yield self.reduced(self.decisions)
@@ -56,8 +58,12 @@ class DecisionService(rpyc.Service):
                 time.sleep(0.1)
                 # TODO: check for errors on main Thread
 
+    def close_iter(self):
+        self._done = True
+        time.sleep(.5)
+
     def exposed_answer(self, key, value):
-        logger.debug("Recieved answer %r for decision %s", value, key)
+        logger.debug("Received answer %r for decision %s", value, key)
         # print("currend decisions: ", self.decisions)
         try:
             parsed = self._parse(key, value)
@@ -77,7 +83,7 @@ class DecisionService(rpyc.Service):
         if self.decisions is None:
             self.answers.clear()
             self.decisions = decisions
-            print("Thread recived %d decisions" % len(decisions))
+            print("Thread received %d decisions" % len(decisions))
         else:
             raise AssertionError("Can't send new decisions while working on old ones")
 
@@ -99,6 +105,10 @@ class CommunicationThread(Thread):
     def run(self) -> None:
         self.server.start()
 
+    def join(self, *args, **kwargs):
+        self.server.close()
+        super().join(*args, **kwargs)
+
 
 class ExternalFrontEnd(FrontEnd):
 
@@ -110,6 +120,9 @@ class ExternalFrontEnd(FrontEnd):
 
         self.service = DecisionService(self.validate_single_answer, self.parse_answer)
         self.thread = CommunicationThread(self.service, port)
+
+        atexit.register(self.terminate)
+
         self.thread.start()
 
     def parse_answer(self, key, raw_value):
@@ -210,3 +223,8 @@ class ExternalFrontEnd(FrontEnd):
         """Accept answers from thread and reset it"""
         self.logger.info("Answer accepted")
         self.service.clear()
+
+    def terminate(self):
+        self.logger.info("Terminating Frontend")
+        self.service.close_iter()
+        self.thread.join(.5)
