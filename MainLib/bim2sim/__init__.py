@@ -130,8 +130,8 @@ def main(rootpath=None):
     if not BIM2SIMManager in manager_cls.__bases__:
         raise AttributeError("Got invalid manager from %s"%(backend))
 
-    from bim2sim.decision.console import ConsoleFrontEnd as Frontend
-    # from bim2sim.decision.external import ExternalFrontEnd as Frontend
+    # from bim2sim.decision.console import ConsoleFrontEnd as Frontend
+    from bim2sim.decision.external import ExternalFrontEnd as Frontend
     Decision.set_frontend(Frontend())
 
     workflow = PlantSimulation() #TODO

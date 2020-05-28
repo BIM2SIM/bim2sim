@@ -117,14 +117,6 @@ class ConsoleFrontEnd(FrontEnd):
 
         return value
 
-    def parse(self, decision, raw_answer):
-        if isinstance(decision, BoolDecision):
-            return self.parse_bool_input(raw_answer)
-        elif isinstance(decision, RealDecision):
-            return self.parse_real_input(raw_answer, decision.unit)
-        elif isinstance(decision, ListDecision):
-            return self.parse_list_input(raw_answer, decision.items)
-
     @staticmethod
     def parse_real_input(raw_input, unit=None):
         """Convert input to float"""
