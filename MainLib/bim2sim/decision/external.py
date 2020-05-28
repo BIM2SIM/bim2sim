@@ -44,32 +44,32 @@ class DecisionService(rpyc.Service):
         return decisions
 
     def exposed_iter_decisions(self):
-        print("Start decision Iterator")
-        print("Wait for answers", end='')
+        logger.info("Start decision Iterator")
+        # print("Wait for answers", end='')
         while True:
             if self.decisions:
-                print('')
+                # print('')
                 yield self.reduced(self.decisions)
                 self.decisions = None
             else:
-                print(".", end='')
+                # print(".", end='')
                 time.sleep(0.1)
                 # TODO: check for errors on main Thread
 
     def exposed_answer(self, key, value):
-        print("Recieved answer ", key, value)
-        print("currend decisions: ", self.decisions)
+        logger.debug("Recieved answer %r for decision %s", value, key)
+        # print("currend decisions: ", self.decisions)
         try:
             parsed = self._parse(key, value)
         except NotImplementedError:
             logger.error("Failed to parse %r for decision %s", value, key)
             return None
-        print("parsed: %r" % parsed)
+        # print("parsed: %r" % parsed)
 
         valid = self._answer(key, parsed)
         if valid:
             self.answers[key] = parsed
-        print("currend answers: ", self.answers)
+        # print("currend answers: ", self.answers)
         return valid
 
     def set_decisions(self, decisions):
@@ -193,17 +193,20 @@ class ExternalFrontEnd(FrontEnd):
 
         self.service.set_decisions(data)
 
-        print("Wait for answers", end='')
+        # print("Wait for answers", end='')
         while not len(self.service.answers) >= len(self.pending):
             # wait until all decisions are solved
-            print('.', end='')
+            # print('.', end='')
             time.sleep(0.2)
-            # TODO: check for errors on worker Thread
-        print('')
+            # check for errors on worker Thread
+            if not self.thread.is_alive():
+                self.logger.error("CommunicationThread died. Terminating ...")
+                exit(-1)
+        # print('')
 
         return self.service.answers.copy()
 
     def accept(self):
         """Accept answers from thread and reset it"""
-        print("Answer accepted")
+        self.logger.info("Answer accepted")
         self.service.clear()
