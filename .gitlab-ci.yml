@@ -4,6 +4,7 @@ stages:
 - log
 - post
 
+
 pylint:
     stage: compile
     image: python:3.6
