@@ -1,8 +1,8 @@
 stages:
+- unittest
 - compile
 - log
 - post
-- unittest
 
 pylint:
     stage: compile
