@@ -98,6 +98,6 @@ test3.6:
   stage: unittest
   script:
     - conda install -c conda-forge -c oce -c dlr-sc -c ifcopenshell ifcopenshell
-    - pip install --upgrade pip setuptools wheel
-    - pip install docopt matplotlib numpy python-dateutil mako networkx
+#    - pip install --upgrade pip setuptools wheel
+    - pip install -e .
     - python MainLib/run_tests.py
