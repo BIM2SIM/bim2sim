@@ -2,6 +2,7 @@ stages:
 - compile
 - log
 - post
+- unittest
 
 pylint:
     stage: compile
@@ -90,3 +91,12 @@ mrpost:
         - curl -d "body=$msg" --request PUT --header "PRIVATE-TOKEN:$GL_TOKEN" https://git.rwth-aachen.de/api/v4/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes/$id/?body=note
     only:
         - merge_requests
+
+test3.6:
+  image: conda/miniconda3
+  stage: unittest
+  script:
+    - conda install -c conda-forge -c oce -c dlr-sc -c ifcopenshell ifcopenshell
+    - pip install --upgrade pip setuptools wheel
+    - pip install docopt matplotlib numpy python-dateutil mako networkx
+    - python MainLib/run_tests.py
