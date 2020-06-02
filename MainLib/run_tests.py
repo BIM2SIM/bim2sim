@@ -8,4 +8,8 @@ if __name__ == '__main__':
     loader = unittest.TestLoader()
     tests = loader.discover(path.join(this_dir))
     testRunner = unittest.runner.TextTestRunner()
-    testRunner.run(tests)
+    result = testRunner.run(tests)
+    if result.wasSuccessful():
+        exit(0)
+    else:
+        exit(1)
