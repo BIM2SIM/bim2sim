@@ -4,6 +4,7 @@ import os
 import sys
 import subprocess
 import shutil
+from distutils.dir_util import copy_tree
 import configparser
 
 
@@ -25,6 +26,7 @@ def config_base_setup(backend=None):
     if not config.sections():
         config.add_section("Basics")
         config.add_section("Task")
+        config.add_section("Aggregation")
         config.add_section("Backend")
         config["Backend"]["use"] = backend
         config.add_section("Modelica")
@@ -48,7 +50,7 @@ class _Project():
 
     CONFIG = "config.ini"
     DECISIONS = "decisions.json"
-    WORKFLOW = "workflow"
+    WORKFLOW = "task"
     FINDER = "finder"
     IFC = "ifc"
     LOG = "log"
@@ -57,6 +59,7 @@ class _Project():
 
     def __init__(self):
         self._rootpath = None
+        self._src_path = os.path.join(os.path.dirname(__file__))
 
     @property
     def root(self):
@@ -64,10 +67,17 @@ class _Project():
         if not self._rootpath:
             return None
         return os.path.abspath(self._rootpath)
+
     @root.setter
     def root(self, value):
         self._rootpath = value
         print("Rootpath set to '%s'"%(value))
+
+    @property
+    def source(self):
+        if not self._src_path:
+            return None
+        return os.path.abspath(self._src_path)
 
     @property
     def config(self):
@@ -88,7 +98,7 @@ class _Project():
 
     @property
     def workflow(self):
-        """absolute path to workflow"""
+        """absolute path to task"""
         if not self._rootpath:
             return None
         return os.path.abspath(os.path.join(self._rootpath, _Project.WORKFLOW))
@@ -99,12 +109,14 @@ class _Project():
         if not self._rootpath:
             return None
         return os.path.abspath(os.path.join(self._rootpath, _Project.LOG))
+
     @property
     def ifc(self):
         """absolute path to ifc folder"""
         if not self._rootpath:
             return None
         return os.path.abspath(os.path.join(self._rootpath, _Project.IFC))
+
     @property
     def resources(self):
         """absolute path to resources folder"""
@@ -123,6 +135,13 @@ class _Project():
         """list of paths to sub folders"""
         return [self.log, self.ifc, self.resources, self.export, self.workflow,
                 self.finder]
+
+    @staticmethod
+    def copy_assets(path):
+        """copy assets to project folder"""
+        assets_path = os.path.join(os.path.dirname(__file__), 'assets')
+
+        copy_tree(assets_path, path)
 
     def is_project_folder(self, path=None):
         """Check if root path (or given path) is a project folder"""
@@ -148,8 +167,11 @@ class _Project():
         with open(self.config, "w"):
             pass
 
-    def create(self, rootpath, ifc_path=None, target=None, open_conf=False):
-        """Set root path, create project folder
+        self.copy_assets(self.root)
+
+    def create(self, rootpath, ifc_path=None, target=None, \
+                                                          open_conf=False):
+        """Set root path, source path, create project folder
         copy ifc, base config setup and open config if needed"""
 
         # set rootpath
@@ -192,5 +214,6 @@ class _Project():
 
     def __repr__(self):
         return "<Project (root: %s)>"%(self._rootpath or "NOT SET!")
+
 
 PROJECT = _Project()
