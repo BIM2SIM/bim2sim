@@ -103,6 +103,7 @@ test3.6:
     - apt-get update -q -y
     - apt-get install -y build-essential
     - cd MainLib
+    - conda update -n base -c defaults conda
     - conda env create -f environment.yml
     - source activate bim2sim
     - python run_tests.py
