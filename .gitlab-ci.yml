@@ -97,7 +97,7 @@ test3.6:
   image: conda/miniconda3
   stage: unittest
   script:
-    - pip install -e ./MainLib/
+    - pip install -e ./MainLib/setup.py
     - conda install -c conda-forge -c oce -c dlr-sc -c ifcopenshell ifcopenshell
     #    - pip install --upgrade pip setuptools wheel
     - python MainLib/run_tests.py
