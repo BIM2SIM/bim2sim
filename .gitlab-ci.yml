@@ -105,5 +105,5 @@ test3.6:
     - cd MainLib
     - conda update -n base -c defaults conda
     - conda env create -f environment.yml
-    - source activate bim2sim
+    - source activate bim2sim_linux
     - python run_tests.py
