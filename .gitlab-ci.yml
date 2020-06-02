@@ -94,10 +94,15 @@ mrpost:
         - merge_requests
 
 test3.6:
-  image: conda/miniconda3
+  image: continuumio/miniconda3:latest
   stage: unittest
   script:
-    - pip install --upgrade pip setuptools wheel
-    - pip install -e ./MainLib/.
-    - conda install -c conda-forge -c oce -c dlr-sc -c ifcopenshell ifcopenshell
-    - python MainLib/run_tests.py
+#    - pip install --upgrade pip setuptools wheel
+#    - pip install -e ./MainLib/.
+#    - conda install -c conda-forge -c oce -c dlr-sc -c ifcopenshell ifcopenshell
+    - apt-get update -q -y
+    - apt-get install -y build-essential
+    - cd MainLib
+    - conda env create -f environment.yaml
+    - source activate bim2sim
+    - python run_tests.py
