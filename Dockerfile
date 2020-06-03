@@ -10,5 +10,5 @@ SHELL ["/bin/bash", "--login", "-c"]
 SHELL ["conda", "run", "-n", "bim2sim_coding", "/bin/bash", "-c"]
 
 # The code to run when container is started:
-COPY run.py .
-ENTRYPOINT ["conda", "run", "-n", "myenv", "python", "run.py"]
+COPY . .
+ENTRYPOINT ["conda", "run", "-n", "myenv", "python", "MainLib/bim2sim/__init__.py"]
