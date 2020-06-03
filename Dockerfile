@@ -1,4 +1,4 @@
-FROM registry.git.rwth-aachen.de/bim2sim/bim2sim-coding .
+FROM registry.git.rwth-aachen.de/bim2sim/bim2sim-coding/environment:latest
 
 #WORKDIR /app
 
