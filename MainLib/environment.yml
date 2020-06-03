@@ -4,7 +4,6 @@ channels:
   - defaults
   -
 dependencies:
-  - boost-cpp
   - bzip2=1.0.8
   - ca-certificates=2019.11.28
   - certifi=2019.11.28
