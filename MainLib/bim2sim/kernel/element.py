@@ -109,6 +109,7 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
         for d in self.related_decisions:
             d.discard()
 
+
 class IFCBasedSubElement(Root):
     """Mixin for IFC representating subclasses"""
     ifc_type = None
