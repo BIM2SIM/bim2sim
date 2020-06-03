@@ -39,8 +39,6 @@ class Disaggregation(BaseSubElement):
             self.__class__ = func
             self.__init__(self.name, self.parent)
 
-
-
     def calc_position(self):
         try:
             return self._pos
@@ -55,18 +53,19 @@ class Disaggregation(BaseSubElement):
 
     @classmethod
     def based_on_thermal_zone(cls, parent, thermal_zone):
+        new_bound_instances = []
+
         disaggregations = get_disaggregations_instance(parent, thermal_zone)
-        # shape error in get boundaries (Vereinhaus)
         length, width = get_boundaries(parent.ifc)
 
         if disaggregations is None:
-            return False
+            return [parent]
 
         if parent.__class__.__name__ in vertical_instances:
             if len(disaggregations) == 1:
                 if length == disaggregations[next(iter(disaggregations))][0] or \
                         length - width == disaggregations[next(iter(disaggregations))][0]:
-                    return False
+                    return [parent]
 
         name = 'Sub' + parent.__class__.__name__ + '_' + parent.name
         if not hasattr(parent, "sub_instances"):
@@ -74,18 +73,14 @@ class Disaggregation(BaseSubElement):
         i = len(parent.sub_instances)
         ii = 0
         for ins in disaggregations:
-            scontinue = False
-
             instance_area = disaggregations[ins][0] * disaggregations[ins][1]
 
+            scontinue = False
             for dis in parent.sub_instances:
-                if instance_area == dis.area:
-                    if dis not in thermal_zone.bound_elements:
-                        thermal_zone.bound_elements.append(dis)
-                    if thermal_zone not in dis.thermal_zones:
-                        dis.thermal_zones.append(thermal_zone)
+                if abs(instance_area - dis.area) <= 0.1:
+                    new_bound_instances.append(dis)
                     scontinue = True
-
+                    break
             if scontinue:
                 continue
 
@@ -101,19 +96,14 @@ class Disaggregation(BaseSubElement):
             ii += 1
 
             parent.sub_instances.append(instance)
+            new_bound_instances.append(instance)
 
-            if instance not in thermal_zone.bound_elements:
-                thermal_zone.bound_elements.append(instance)
-            # both in parent and child
-            if thermal_zone not in instance.thermal_zones:
-                instance.thermal_zones.append(thermal_zone)
             if thermal_zone not in parent.thermal_zones:
                 parent.thermal_zones.append(thermal_zone)
 
             i += 1
 
-        return True
-
+        return new_bound_instances
 
     def __repr__(self):
         return "<%s '%s' (disaggregation of the element %d)>" % (

@@ -66,12 +66,18 @@ class Inspect(Task):
                 if bound_instance not in bound_instances:
                     bound_instances.append(bound_instance)
         for bound_instance in bound_instances:
+            new_bound_instances = Disaggregation.based_on_thermal_zone(bound_instance, thermalzone)
+            for inst in new_bound_instances:
+                if inst not in thermalzone.bound_elements:
+                    thermalzone.bound_elements.append(inst)
+                if thermalzone not in inst.thermal_zones:
+                    inst.thermal_zones.append(thermalzone)
             # disaggregation check:
-            if not Disaggregation.based_on_thermal_zone(bound_instance, thermalzone):
-                if bound_instance not in thermalzone.bound_elements:
-                    thermalzone.bound_elements.append(bound_instance)
-                if thermalzone not in bound_instance.thermal_zones:
-                    bound_instance.thermal_zones.append(thermalzone)
+            # if not Disaggregation.based_on_thermal_zone(bound_instance, thermalzone):
+            #     if bound_instance not in thermalzone.bound_elements:
+            #         thermalzone.bound_elements.append(bound_instance)
+            #     if thermalzone not in bound_instance.thermal_zones:
+            #         bound_instance.thermal_zones.append(thermalzone)
 
     def recognize_space_boundaries(self, ifc):
         """Recognizes space boundaries in ifc file by semantic detection for
