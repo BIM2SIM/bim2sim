@@ -37,12 +37,8 @@ test3.7:
   script:
     #    - pip install --upgrade pip setuptools wheel
     #    - pip install -e ./MainLib/.
-    - apt-get update -q -y
-    - apt-get install -y build-essential
     - cd MainLib
-    - conda update -n base -c defaults conda
-    - conda env create -f environment.yml
-    - source activate bim2sim_linux
+    - source activate bim2sim_coding
     - python run_tests.py
   allow_failure: true
 
