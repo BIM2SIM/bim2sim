@@ -96,6 +96,8 @@ mrpost:
 test3.7:
   image: continuumio/miniconda3:latest
   stage: unittest
+  before_script:
+    - export PYTHONPATH=$PYTHONPATH:$(pwd)
   script:
 #    - pip install --upgrade pip setuptools wheel
 #    - pip install -e ./MainLib/.
