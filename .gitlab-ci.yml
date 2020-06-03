@@ -93,7 +93,7 @@ mrpost:
     only:
         - merge_requests
 
-test3.6:
+test3.7:
   image: continuumio/miniconda3:latest
   stage: unittest
   script:
