@@ -723,7 +723,34 @@ def get_all_subclasses(cls):
     return all_subclasses
 
 
-class SubElement(BaseElementNoPorts, IFCBasedSubElement):
+class BaseSubElement(BaseElementNoPorts):
+    """Base class for all elements with ports"""
+    objects = {}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @staticmethod
+    def get_element(guid):
+        """Get element instance with given guid
+
+        :returns: None if element with guid was not instanciated"""
+        return BaseElement.objects.get(guid)
+
+    def discard(self):
+        super().discard()
+        del self.objects[self.guid]
+
+    def is_generator(self):
+        return False
+
+    def is_consumer(self):
+        return False
+
+    def __repr__(self):
+        return "<%s (ports: %d)>" % (self.__class__.__name__, len(self.ports))
+
+class SubElement(BaseSubElement, IFCBasedSubElement):
 
     def __init__(self, *args, tool=None, **kwargs):
         super().__init__(*args, **kwargs)
