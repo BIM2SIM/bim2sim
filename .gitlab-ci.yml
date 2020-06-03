@@ -38,7 +38,6 @@ test3.7:
     - cd MainLib
     - source activate bim2sim_coding
     - python run_tests.py
-#    - conda run -n bim2sim_coding", "/bin/bash", "-c"]
 
   allow_failure: true
 
