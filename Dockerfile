@@ -1,6 +1,6 @@
 FROM registry.git.rwth-aachen.de/bim2sim/bim2sim-coding/environment:latest
 
-#WORKDIR /app
+WORKDIR /bim2sim
 
 # Make RUN commands use `bash --login`:
 SHELL ["/bin/bash", "--login", "-c"]

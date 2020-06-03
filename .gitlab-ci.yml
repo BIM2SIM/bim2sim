@@ -33,8 +33,9 @@ test3.7:
   image: registry.git.rwth-aachen.de/bim2sim/bim2sim-coding/environment:latest
   stage: unittest
   before_script:
-    - export PYTHONPATH=$PYTHONPATH:$(pwd)
   script:
+    - cd bim2sim
+    - export PYTHONPATH='.'
     - cd MainLib
     - source activate bim2sim_coding
     - python run_tests.py
