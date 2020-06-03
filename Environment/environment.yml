@@ -1,4 +1,4 @@
-name: bim2sim_linux
+name: bim2sim_coding
 channels:
   - conda-forge
   - defaults

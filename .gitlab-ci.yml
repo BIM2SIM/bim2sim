@@ -6,8 +6,6 @@ stages:
 - build
 - deploy
 
-
-
 pylint:
     stage: compile
     image: python:3.6
@@ -114,10 +112,8 @@ test3.7:
     - python run_tests.py
 
 build_env:
-  image: continuumio/miniconda3:latest
+  image: docker:latest
   stage: build
-  before_script:
-    - export PYTHONPATH=$PYTHONPATH:$(pwd)
   script:
     - apt-get update -q -y
     - apt-get install -y build-essential
@@ -128,9 +124,7 @@ build_env:
     - python run_tests.py
   only:
     changes:
-      - Dockerfile
-      - MainLib/environment.yml
-      - MainLib/requirements.txt
-      - MainLib/setup.py
+      - Environment/Dockerfile
+      - Environment/environment.yml
 
 deploy
