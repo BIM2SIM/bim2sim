@@ -3,9 +3,8 @@
 import math
 import numpy as np
 
-from bim2sim.kernel import attribute
 from bim2sim.kernel.element import BaseSubElement
-from bim2sim.task.bps_f.bps_functions import get_boundaries, get_disaggregations_instance, get_position_instance
+from bim2sim.task.bps_f.bps_functions import get_disaggregations_instance
 
 vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
 horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
@@ -54,30 +53,26 @@ class Disaggregation(BaseSubElement):
     @classmethod
     def based_on_thermal_zone(cls, parent, thermal_zone):
         new_bound_instances = []
-
         disaggregations = get_disaggregations_instance(parent, thermal_zone)
-        length, width = get_boundaries(parent.ifc)
 
         if disaggregations is None:
             return [parent]
 
         if parent.__class__.__name__ in vertical_instances:
             if len(disaggregations) == 1:
-                if length == disaggregations[next(iter(disaggregations))][0] or \
-                        length - width == disaggregations[next(iter(disaggregations))][0]:
+                if abs(disaggregations[next(iter(disaggregations))][0] - parent.area) <= 0.1:
                     return [parent]
 
         name = 'Sub' + parent.__class__.__name__ + '_' + parent.name
         if not hasattr(parent, "sub_instances"):
             parent.sub_instances = []
+
         i = len(parent.sub_instances)
-        ii = 0
         for ins in disaggregations:
-            instance_area = disaggregations[ins][0] * disaggregations[ins][1]
 
             scontinue = False
             for dis in parent.sub_instances:
-                if abs(instance_area - dis.area) <= 0.1:
+                if abs(disaggregations[ins][0] - dis.area) <= 0.1:
                     new_bound_instances.append(dis)
                     scontinue = True
                     break
@@ -85,15 +80,13 @@ class Disaggregation(BaseSubElement):
                 continue
 
             instance = cls(name + '_%d' % i, parent)
-            instance.area = instance_area
+            instance.area = disaggregations[ins][0]
 
             # position calc
             if parent.__class__.__name__ in vertical_instances:
-                instance._pos = get_new_position_vertical_instance(parent,
-                                                                   get_position_instance(parent, thermal_zone)[ii])
+                instance._pos = get_new_position_vertical_instance(parent, disaggregations[ins][1])
             if parent.__class__.__name__ in horizontal_instances:
                 instance._pos = thermal_zone.position
-            ii += 1
 
             parent.sub_instances.append(instance)
             new_bound_instances.append(instance)
