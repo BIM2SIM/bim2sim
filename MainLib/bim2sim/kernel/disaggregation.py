@@ -3,14 +3,14 @@
 import math
 import numpy as np
 
-from bim2sim.kernel import attribute
-from bim2sim.kernel.element import BaseElement
-from bim2sim.task.bps_f.bps_functions import get_boundaries, get_disaggregations_instance, get_position_instance
+from bim2sim.kernel.element import BaseSubElement
+from bim2sim.task.bps_f.bps_functions import get_disaggregations_instance
 
 vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
 horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
 
-class Disaggregation(BaseElement):
+
+class Disaggregation(BaseSubElement):
     """Base disaggregation of models"""
 
     def __init__(self, name, element, *args, **kwargs):
@@ -21,6 +21,10 @@ class Disaggregation(BaseElement):
         self.name = name
         self.ifc_type = element.ifc_type
         self.guid = None
+        # properties getter
+        for prop in self.parent.attributes:
+            value = getattr(self.parent, prop)
+            setattr(self, prop, value)
         switcher = {'SubFloor': SubFloor,
                     'SubGroundFloor': SubGroundFloor,
                     'SubSlab': SubSlab,
@@ -48,64 +52,51 @@ class Disaggregation(BaseElement):
 
     @classmethod
     def based_on_thermal_zone(cls, parent, thermal_zone):
+        new_bound_instances = []
         disaggregations = get_disaggregations_instance(parent, thermal_zone)
-        # shape error in get boundaries (Vereinhaus)
-        length, width = get_boundaries(parent.ifc)
 
         if disaggregations is None:
-            return False
+            return [parent]
 
         if parent.__class__.__name__ in vertical_instances:
             if len(disaggregations) == 1:
-                if length == disaggregations[next(iter(disaggregations))][0] or \
-                        length - width == disaggregations[next(iter(disaggregations))][0]:
-                    return False
+                if abs(disaggregations[next(iter(disaggregations))][0] - parent.area) <= 0.1:
+                    return [parent]
 
         name = 'Sub' + parent.__class__.__name__ + '_' + parent.name
         if not hasattr(parent, "sub_instances"):
             parent.sub_instances = []
+
         i = len(parent.sub_instances)
-        ii = 0
         for ins in disaggregations:
+
             scontinue = False
-
-            instance_area = disaggregations[ins][0] * disaggregations[ins][1]
-
             for dis in parent.sub_instances:
-                if instance_area == dis.area:
-                    if dis not in thermal_zone.bound_elements:
-                        thermal_zone.bound_elements.append(dis)
-                    if thermal_zone not in dis.thermal_zones:
-                        dis.thermal_zones.append(thermal_zone)
+                if abs(disaggregations[ins][0] - dis.area) <= 0.1:
+                    new_bound_instances.append(dis)
                     scontinue = True
-
+                    break
             if scontinue:
                 continue
 
             instance = cls(name + '_%d' % i, parent)
-            instance.area = instance_area
+            instance.area = disaggregations[ins][0]
 
             # position calc
             if parent.__class__.__name__ in vertical_instances:
-                instance._pos = get_new_position_vertical_instance(parent,
-                                                                   get_position_instance(parent, thermal_zone)[ii])
+                instance._pos = get_new_position_vertical_instance(parent, disaggregations[ins][1])
             if parent.__class__.__name__ in horizontal_instances:
                 instance._pos = thermal_zone.position
-            ii += 1
 
             parent.sub_instances.append(instance)
+            new_bound_instances.append(instance)
 
-            if instance not in thermal_zone.bound_elements:
-                thermal_zone.bound_elements.append(instance)
-            # both in parent and child
-            if thermal_zone not in instance.thermal_zones:
-                instance.thermal_zones.append(thermal_zone)
             if thermal_zone not in parent.thermal_zones:
                 parent.thermal_zones.append(thermal_zone)
 
             i += 1
 
-        return True
+        return new_bound_instances
 
     def __repr__(self):
         return "<%s '%s' (disaggregation of the element %d)>" % (
@@ -118,72 +109,12 @@ class SubFloor(Disaggregation):
     def __init__(self, *args, **kwargs):
         pass
 
-    @attribute.multi_calc
-    def _get_properties(self):
-        result = dict(
-            area=self.parent.area,
-            thickness=self.parent.thickness,
-            thermal_transmittance=self.parent.thermal_transmittance,
-            is_external=self.parent.is_external
-        )
-        return result
-
-    area = attribute.Attribute(
-        name='area',
-        functions=[_get_properties]
-    )
-
-    thickness = attribute.Attribute(
-        name='thickness',
-        functions=[_get_properties]
-    )
-
-    thermal_transmittance = attribute.Attribute(
-        name='thermal_transmittance',
-        functions=[_get_properties]
-    )
-
-    is_external = attribute.Attribute(
-        name='is_external',
-        functions=[_get_properties]
-    )
-
 
 class SubGroundFloor(Disaggregation):
     disaggregatable_elements = ['IfcSlab']
 
     def __init__(self, *args, **kwargs):
         pass
-
-    @attribute.multi_calc
-    def _get_properties(self):
-        result = dict(
-            area=self.parent.area,
-            thickness=self.parent.thickness,
-            thermal_transmittance=self.parent.thermal_transmittance,
-            is_external=self.parent.is_external
-        )
-        return result
-
-    area = attribute.Attribute(
-        name='area',
-        functions=[_get_properties]
-    )
-
-    thickness = attribute.Attribute(
-        name='thickness',
-        functions=[_get_properties]
-    )
-
-    thermal_transmittance = attribute.Attribute(
-        name='thermal_transmittance',
-        functions=[_get_properties]
-    )
-
-    is_external = attribute.Attribute(
-        name='is_external',
-        functions=[_get_properties]
-    )
 
 
 class SubSlab(Disaggregation):
@@ -192,72 +123,11 @@ class SubSlab(Disaggregation):
     def __init__(self, *args, **kwargs):
         pass
 
-    @attribute.multi_calc
-    def _get_properties(self):
-        result = dict(
-            area=self.parent.area,
-            thickness=self.parent.thickness,
-            thermal_transmittance=self.parent.thermal_transmittance,
-            is_external=self.parent.is_external
-        )
-        return result
-
-    area = attribute.Attribute(
-        name='area',
-        functions=[_get_properties]
-    )
-
-    thickness = attribute.Attribute(
-        name='thickness',
-        functions=[_get_properties]
-    )
-
-    thermal_transmittance = attribute.Attribute(
-        name='thermal_transmittance',
-        functions=[_get_properties]
-    )
-
-    is_external = attribute.Attribute(
-        name='is_external',
-        functions=[_get_properties]
-    )
-
-
 class SubRoof(Disaggregation):
     disaggregatable_elements = ['IfcRoof', 'IfcSlab']
 
     def __init__(self, *args, **kwargs):
         pass
-
-    @attribute.multi_calc
-    def _get_properties(self):
-        result = dict(
-            area=self.parent.area,
-            thickness=self.parent.thickness,
-            thermal_transmittance=self.parent.thermal_transmittance,
-            is_external=self.parent.is_external
-        )
-        return result
-
-    area = attribute.Attribute(
-        name='area',
-        functions=[_get_properties]
-    )
-
-    thickness = attribute.Attribute(
-        name='thickness',
-        functions=[_get_properties]
-    )
-
-    thermal_transmittance = attribute.Attribute(
-        name='thermal_transmittance',
-        functions=[_get_properties]
-    )
-
-    is_external = attribute.Attribute(
-        name='is_external',
-        functions=[_get_properties]
-    )
 
 
 class SubWall(Disaggregation):
@@ -266,60 +136,6 @@ class SubWall(Disaggregation):
     def __init__(self, *args, **kwargs):
         pass
 
-    @attribute.multi_calc
-    def _get_properties(self):
-        result = dict(
-            area=self.parent.area,
-            is_external=self.parent.is_external,
-            thermal_transmittance=self.parent.thermal_transmittance,
-            material=self.parent.material,
-            thickness=self.parent.thickness,
-            heat_capacity=self.parent.heat_capacity,
-            density=self.parent.density
-
-        )
-        return result
-
-    area = attribute.Attribute(
-        name='area',
-        functions=[_get_properties]
-    )
-
-    is_external = attribute.Attribute(
-        name='is_external',
-        functions=[_get_properties]
-    )
-
-    thermal_transmittance = attribute.Attribute(
-        name='thermal_transmittance',
-        functions=[_get_properties]
-    )
-
-    material = attribute.Attribute(
-        name='material',
-        functions=[_get_properties]
-    )
-
-    thickness = attribute.Attribute(
-        name='thickness',
-        functions=[_get_properties]
-    )
-
-    heat_capacity = attribute.Attribute(
-        name='heat_capacity',
-        functions=[_get_properties]
-    )
-
-    density = attribute.Attribute(
-        name='density',
-        functions=[_get_properties]
-    )
-
-    tilt = attribute.Attribute(
-        name='thermal_transmittance',
-        functions=[_get_properties]
-    )
-
 
 class SubInnerWall(Disaggregation):
     disaggregatable_elements = ['IfcWall']
@@ -327,120 +143,12 @@ class SubInnerWall(Disaggregation):
     def __init__(self, *args, **kwargs):
         pass
 
-    @attribute.multi_calc
-    def _get_properties(self):
-        result = dict(
-            area=self.parent.area,
-            is_external=self.parent.is_external,
-            thermal_transmittance=self.parent.thermal_transmittance,
-            material=self.parent.material,
-            thickness=self.parent.thickness,
-            heat_capacity=self.parent.heat_capacity,
-            density=self.parent.density
-
-        )
-        return result
-
-    area = attribute.Attribute(
-        name='area',
-        functions=[_get_properties]
-    )
-
-    is_external = attribute.Attribute(
-        name='is_external',
-        functions=[_get_properties]
-    )
-
-    thermal_transmittance = attribute.Attribute(
-        name='thermal_transmittance',
-        functions=[_get_properties]
-    )
-
-    material = attribute.Attribute(
-        name='material',
-        functions=[_get_properties]
-    )
-
-    thickness = attribute.Attribute(
-        name='thickness',
-        functions=[_get_properties]
-    )
-
-    heat_capacity = attribute.Attribute(
-        name='heat_capacity',
-        functions=[_get_properties]
-    )
-
-    density = attribute.Attribute(
-        name='density',
-        functions=[_get_properties]
-    )
-
-    tilt = attribute.Attribute(
-        name='thermal_transmittance',
-        functions=[_get_properties]
-    )
-
 
 class SubOuterWall(Disaggregation):
     disaggregatable_elements = ['IfcWall']
 
     def __init__(self, *args, **kwargs):
         pass
-
-    @attribute.multi_calc
-    def _get_properties(self):
-        result = dict(
-            area=self.parent.area,
-            is_external=self.parent.is_external,
-            thermal_transmittance=self.parent.thermal_transmittance,
-            material=self.parent.material,
-            thickness=self.parent.thickness,
-            heat_capacity=self.parent.heat_capacity,
-            density=self.parent.density
-
-        )
-        return result
-
-    area = attribute.Attribute(
-        name='area',
-        functions=[_get_properties]
-    )
-
-    is_external = attribute.Attribute(
-        name='is_external',
-        functions=[_get_properties]
-    )
-
-    thermal_transmittance = attribute.Attribute(
-        name='thermal_transmittance',
-        functions=[_get_properties]
-    )
-
-    material = attribute.Attribute(
-        name='material',
-        functions=[_get_properties]
-    )
-
-    thickness = attribute.Attribute(
-        name='thickness',
-        functions=[_get_properties]
-    )
-
-    heat_capacity = attribute.Attribute(
-        name='heat_capacity',
-        functions=[_get_properties]
-    )
-
-    density = attribute.Attribute(
-        name='density',
-        functions=[_get_properties]
-    )
-
-    tilt = attribute.Attribute(
-        name='thermal_transmittance',
-        functions=[_get_properties]
-    )
 
 
 def get_new_position_vertical_instance(parent, sub_position):
