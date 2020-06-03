@@ -9,4 +9,3 @@ RUN conda update -y conda
 # Create the environment:
 COPY environment.yml .
 RUN conda env create -f environment.yml
-

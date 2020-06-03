@@ -11,16 +11,23 @@ build_env:
   stage: build
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY
-#    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.git.rwth-aachen.de/bim2sim/bim2sim-coding
   script:
     - cd Environment
     - docker build -t $CI_REGISTRY/environment:latest .
     - docker push $CI_REGISTRY/environment:latest
-#  only:
-#    changes:
-#      - Environment/Dockerfile
-#      - Environment/environment.yml
-    #    - conda install -c conda-forge -c oce -c dlr-sc -c ifcopenshell ifcopenshell
+  only:
+    changes:
+      - Environment/Dockerfile
+      - Environment/environment.yml
+
+build_tool:
+  image: docker:latest
+  stage: build
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY
+  script:
+    - docker build -t $CI_REGISTRY/bim2sim_tool:latest .
+    - docker push $CI_REGISTRY/bim2sim_tool:latest
 
 test3.7:
   image: continuumio/miniconda3:latest
