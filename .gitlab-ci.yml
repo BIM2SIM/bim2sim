@@ -1,6 +1,6 @@
 stages:
-    - build
     - unittest
+    - build
     - compile
     - log
     - post
@@ -34,7 +34,6 @@ test3.7:
   stage: unittest
   before_script:
     - export PYTHONPATH=$PYTHONPATH:$(pwd)
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY
   script:
     - cd MainLib
     - source activate bim2sim_coding
