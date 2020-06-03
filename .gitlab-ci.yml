@@ -3,6 +3,9 @@ stages:
 - compile
 - log
 - post
+- build
+- deploy
+
 
 
 pylint:
@@ -109,3 +112,25 @@ test3.7:
     - conda env create -f environment.yml
     - source activate bim2sim_linux
     - python run_tests.py
+
+build_env:
+  image: continuumio/miniconda3:latest
+  stage: build
+  before_script:
+    - export PYTHONPATH=$PYTHONPATH:$(pwd)
+  script:
+    - apt-get update -q -y
+    - apt-get install -y build-essential
+    - cd MainLib
+    - conda update -n base -c defaults conda
+    - conda env create -f environment.yml
+    - source activate bim2sim_linux
+    - python run_tests.py
+  only:
+    changes:
+      - Dockerfile
+      - MainLib/environment.yml
+      - MainLib/requirements.txt
+      - MainLib/setup.py
+
+deploy
