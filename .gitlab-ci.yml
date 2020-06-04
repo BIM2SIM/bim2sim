@@ -32,13 +32,16 @@ build_tool:
 test3.7:
   image: registry.git.rwth-aachen.de/bim2sim/bim2sim-coding/environment:latest
   stage: unittest
-  before_script:
   script:
     - cd bim2sim
-    - export PYTHONPATH='.'
-    - cd MainLib
     - source activate bim2sim_coding
-    - python run_tests.py
+    - export PYTHONPATH=$PYTHONPATH:/bim2sim/MainLib
+    - export PYTHONPATH=$PYTHONPATH:/bim2sim/PluginEnergyPlus
+    - export PYTHONPATH=$PYTHONPATH:/bim2sim/PluginCFD
+    - export PYTHONPATH=$PYTHONPATH:/bim2sim/PluginAixLib
+    - export PYTHONPATH=$PYTHONPATH:/bim2sim/PluginHKESIM
+    - export PYTHONPATH=$PYTHONPATH:/bim2sim/PluginTEASER
+    - python MainLib/run_tests.py
 
   allow_failure: true
 
