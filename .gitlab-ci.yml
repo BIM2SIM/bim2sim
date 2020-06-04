@@ -1,6 +1,6 @@
 stages:
-    - test
-    - build
+  - build
+  - test
 #    - compile
 #    - log
 #    - post
@@ -40,10 +40,9 @@ unittest3.7:
     - export PYTHONPATH=$PYTHONPATH:PluginHKESIM
     - export PYTHONPATH=$PYTHONPATH:PluginTEASER
     - python MainLib/run_tests.py
-  needs: ["build_env"]
   allow_failure: true
 
-pylint:
+pylint_master:
     stage: test
     image: python:3.6
     script:
@@ -62,7 +61,7 @@ pylint:
     only:
       - master
 
-pylint:
+pylint_branch:
     stage: test
     image: python:3.6
     script:
