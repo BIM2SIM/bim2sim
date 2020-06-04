@@ -34,12 +34,12 @@ test3.7:
   stage: testing
   script:
     - source activate bim2sim_coding
-    - export PYTHONPATH=$PYTHONPATH:/bim2sim/MainLib
-    - export PYTHONPATH=$PYTHONPATH:/bim2sim/PluginEnergyPlus
-    - export PYTHONPATH=$PYTHONPATH:/bim2sim/PluginCFD
-    - export PYTHONPATH=$PYTHONPATH:/bim2sim/PluginAixLib
-    - export PYTHONPATH=$PYTHONPATH:/bim2sim/PluginHKESIM
-    - export PYTHONPATH=$PYTHONPATH:/bim2sim/PluginTEASER
+    - export PYTHONPATH=$PYTHONPATH:MainLib
+    - export PYTHONPATH=$PYTHONPATH:PluginEnergyPlus
+    - export PYTHONPATH=$PYTHONPATH:PluginCFD
+    - export PYTHONPATH=$PYTHONPATH:PluginAixLib
+    - export PYTHONPATH=$PYTHONPATH:PluginHKESIM
+    - export PYTHONPATH=$PYTHONPATH:PluginTEASER
     - python MainLib/run_tests.py
 
   allow_failure: true

@@ -21,4 +21,5 @@ ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginHKESIM"
 ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginTEASER"
 
 # The code to run when container is started:
-ENTRYPOINT ["conda", "run", "-n", "bim2sim_coding", "python", "MainLib/bim2sim/__init__.py"]
+WORKDIR /bim2sim_project
+CMD ["/bin/bash"]
