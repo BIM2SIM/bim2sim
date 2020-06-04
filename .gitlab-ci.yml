@@ -21,7 +21,7 @@ build_env:
       - Environment/Dockerfile
       - Environment/environment.yml
 
-build_tool:
+build_tool:release:
   image: docker:latest
   stage: build
   before_script:
@@ -29,6 +29,19 @@ build_tool:
   script:
     - docker build -t $CI_REGISTRY/tool:latest .
     - docker push $CI_REGISTRY/tool:latest
+  only:
+    - master
+
+build_tool:webdevelop:
+  image: docker:latest
+  stage: build
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY
+  script:
+    - docker build -t $CI_REGISTRY/tool:web_develop .
+    - docker push $CI_REGISTRY/tool:web_develop
+  only:
+    - 58-ui-ready-decision-system
 
 unittest3.7:
   image: $CI_REGISTRY/environment:latest
