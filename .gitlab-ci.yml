@@ -1,5 +1,5 @@
 stages:
-    - unittest
+    - testing
     - build
     - compile
     - log
@@ -31,9 +31,8 @@ build_tool:
 
 test3.7:
   image: registry.git.rwth-aachen.de/bim2sim/bim2sim-coding/environment:latest
-  stage: unittest
+  stage: testing
   script:
-    - cd bim2sim
     - source activate bim2sim_coding
     - export PYTHONPATH=$PYTHONPATH:/bim2sim/MainLib
     - export PYTHONPATH=$PYTHONPATH:/bim2sim/PluginEnergyPlus
