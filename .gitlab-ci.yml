@@ -104,8 +104,6 @@ pages:
     artifacts:
       paths:
       - public
-    needs: {
-
 
 mrpost:
     stage: test
