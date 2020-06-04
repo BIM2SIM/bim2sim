@@ -1,6 +1,8 @@
 stages:
   - build
   - test
+  - pages
+  - visualize
 #    - compile
 #    - log
 #    - post
@@ -42,7 +44,7 @@ unittest3.7:
     - python MainLib/run_tests.py
   allow_failure: true
 
-pylint_master:
+pylint:
     stage: test
     image: python:3.6
     script:
@@ -61,7 +63,7 @@ pylint_master:
     only:
       - master
 
-pylint_branch:
+pylint:
     stage: test
     image: python:3.6
     script:
@@ -84,7 +86,7 @@ pylint_branch:
       - branches
 
 pages:
-    stage: test
+    stage: pages
     dependencies:
       - pylint
     before_script:
@@ -105,8 +107,9 @@ pages:
       paths:
       - public
 
+
 mrpost:
-    stage: test
+    stage: visualize
     dependencies:
       - pages
     before_script:
