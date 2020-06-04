@@ -1,10 +1,9 @@
 stages:
-    - testing
+    - test
     - build
-    - compile
-    - log
-    - post
-#- deploy
+#    - compile
+#    - log
+#    - post
 
 build_env:
   image: docker:latest
@@ -26,12 +25,12 @@ build_tool:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY
   script:
-    - docker build -t $CI_REGISTRY/bim2sim_tool:latest .
-    - docker push $CI_REGISTRY/bim2sim_tool:latest
+    - docker build -t $CI_REGISTRY/tool:latest .
+    - docker push $CI_REGISTRY/tool:latest
 
-test3.7:
-  image: registry.git.rwth-aachen.de/bim2sim/bim2sim-coding/environment:latest
-  stage: testing
+unittest3.7:
+  image: $CI_REGISTRY/environment:latest
+  stage: test
   script:
     - source activate bim2sim_coding
     - export PYTHONPATH=$PYTHONPATH:MainLib
@@ -41,11 +40,11 @@ test3.7:
     - export PYTHONPATH=$PYTHONPATH:PluginHKESIM
     - export PYTHONPATH=$PYTHONPATH:PluginTEASER
     - python MainLib/run_tests.py
-
+  needs: ["build_env"]
   allow_failure: true
 
 pylint:
-    stage: compile
+    stage: test
     image: python:3.6
     script:
       - pip install pylint pylint-json2html pylint-exit anybadge --quiet
@@ -64,7 +63,7 @@ pylint:
       - master
 
 pylint:
-    stage: compile
+    stage: test
     image: python:3.6
     script:
       - pip install pylint pylint-json2html pylint-exit anybadge --quiet
@@ -86,7 +85,7 @@ pylint:
       - branches
 
 pages:
-    stage: log
+    stage: test
     dependencies:
       - pylint
     before_script:
@@ -106,10 +105,11 @@ pages:
     artifacts:
       paths:
       - public
+    needs: {
 
 
 mrpost:
-    stage: post
+    stage: test
     dependencies:
       - pages
     before_script:
