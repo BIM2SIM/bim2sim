@@ -1,7 +1,8 @@
 from setuptools import setup, find_packages
 
-
-with open("README.md", 'r') as f:
+from os import path
+parent_dir = path.abspath(path.dirname(path.dirname(__file__)))
+with open(path.join(parent_dir, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
@@ -10,6 +11,7 @@ setup(
     description='Create simulation models from IFC files',
     license="???",
     long_description=long_description,
+    long_description_content_type='text/markdown',
     author='BIM2SIM',
     author_email='CWarnecke@rom-technik.de',
     url="https://www.ebc.eonerc.rwth-aachen.de/go/id/qxtv",
