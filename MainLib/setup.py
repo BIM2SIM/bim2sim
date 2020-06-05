@@ -17,6 +17,7 @@ setup(
     description='Create simulation models from IFC files',
     license="???",
     long_description=long_description,
+    long_description_content_type='text/markdown',
     author='BIM2SIM',
     author_email='???',
     url="???",
