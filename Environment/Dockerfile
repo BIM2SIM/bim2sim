@@ -1,11 +1,31 @@
-FROM continuumio/miniconda3
+FROM frolvlad/alpine-miniconda3
 
-#WORKDIR /app
+WORKDIR /bim2sim
 
 # Make RUN commands use `bash --login`:
-SHELL ["/bin/bash", "--login", "-c"]
+SHELL ["/bin/sh", "--login", "-c"]
 
-RUN conda update -y conda
-# Create the environment:
-COPY environment.yml .
-RUN conda env create -f environment.yml
+# Copy files
+COPY ./MainLib/requirements.txt .
+
+# install needed packages
+RUN /opt/conda/bin/conda install --yes --freeze-installed \
+        -c conda-forge ifcopenshell=v0.6.0 \
+        nomkl \
+    && /opt/conda/bin/conda clean -afy \
+    && find /opt/conda/ -follow -type f -name '*.a' -delete \
+    && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
+    && find /opt/conda/ -follow -type f -name '*.js.map' -delete
+RUN pip install -r ./requirements.txt
+
+# Set Pythonpath
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/MainLib"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginEnergyPlus"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginCFD"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginAixLib"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginHKESIM"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginTEASER"
+
+# The code to run when container is started:
+RUN /bin/sh -c "source activate base"
+CMD ["/bin/sh"]
