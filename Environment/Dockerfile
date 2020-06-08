@@ -4,7 +4,7 @@ FROM frolvlad/alpine-miniconda3
 #WORKDIR /app
 
 # Make RUN commands use `bash --login`:
-SHELL ["/bin/bash", "--login", "-c"]
+SHELL ["/bin/sh", "--login", "-c"]
 
 # RUN conda update -y conda
 # Create the environment:
