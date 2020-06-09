@@ -6,6 +6,11 @@ if __name__ == '__main__':
     loader = unittest.TestLoader()
     tests = loader.discover('./test')
     testRunner = unittest.runner.TextTestRunner()
-    testRunner.run(tests)
+    result = testRunner.run(tests)
+    if result.wasSuccessful():
+        exit(0)
+    else:
+        exit(1)
+
 
 
