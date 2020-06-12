@@ -46,7 +46,7 @@ class DecisionService(rpyc.Service):
     def exposed_get_decisions(self):
         if self.decisions:
             return self.reduced(self.decisions)
-        return []
+        return 'still working'
 
     def exposed_answers_done(self):
         """Continue calculation. Returns True is all answers are accepted, False otherwise"""
