@@ -113,8 +113,8 @@ class CommunicationThread(Thread):
         config = {
             "allow_public_attrs": True,
         }
-        self.server = OneShotServer(service, port=port, protocol_config=config)
-        # self.server = ThreadedServer(service, port=port, protocol_config=config)
+        # self.server = OneShotServer(service, port=port, protocol_config=config)
+        self.server = ThreadedServer(service, port=port, protocol_config=config)
 
     def run(self) -> None:
         self.server.start()
