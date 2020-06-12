@@ -5,7 +5,7 @@ from threading import Thread
 import atexit
 
 import rpyc
-from rpyc.utils.server import OneShotServer
+from rpyc.utils.server import OneShotServer, ThreadedServer
 
 from ..decision import DecisionException
 from .frontend import FrontEnd
@@ -100,7 +100,8 @@ class CommunicationThread(Thread):
         config = {
             "allow_public_attrs": True,
         }
-        self.server = OneShotServer(service, port=port, protocol_config=config)
+        # self.server = OneShotServer(service, port=port, protocol_config=config)
+        self.server = ThreadedServer(service, port=port, protocol_config=config)
 
     def run(self) -> None:
         self.server.start()
