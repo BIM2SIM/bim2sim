@@ -1,7 +1,7 @@
 import logging
 import time
 import json
-from threading import Thread
+from threading import Thread, Lock
 import atexit
 
 import rpyc
@@ -12,6 +12,7 @@ from .frontend import FrontEnd
 
 
 logger = logging.getLogger('bim2sim.communication')
+lock = Lock()
 
 
 class DecisionService(rpyc.Service):
@@ -24,6 +25,7 @@ class DecisionService(rpyc.Service):
         self._parse = parse_func
         self._answer = answer_func
         self._done = False
+        self.done = False
 
     def on_connect(self, conn):
         # code that runs when a connection is created
@@ -37,26 +39,34 @@ class DecisionService(rpyc.Service):
         logger.warning("Connection lost. Shutting down.")
         # exit(2)
 
-    def exposed_set_project(self, project_id):
-        print("Project set to ", project_id)
-        self.project_id = project_id
-
     @staticmethod
     def reduced(decisions):
         return json.dumps(decisions)
 
-    def exposed_iter_decisions(self):
-        logger.info("Start decision Iterator")
-        # print("Wait for answers", end='')
-        while not self._done:
-            if self.decisions:
-                # print('')
-                yield self.reduced(self.decisions)
+    def exposed_get_decisions(self):
+        if self.decisions:
+            return self.reduced(self.decisions)
+        return []
+
+    def exposed_continue(self):
+        """Continue calculation. Returns True is all answers are accepted, False otherwise"""
+        with lock:
+            if len(self.answers) == len(self.decisions):
+                self.done = True
                 self.decisions = None
-            else:
-                # print(".", end='')
-                time.sleep(0.1)
-                # TODO: check for errors on main Thread
+
+    # def exposed_iter_decisions(self):
+    #     logger.info("Start decision Iterator")
+    #     # print("Wait for answers", end='')
+    #     while not self._done:
+    #         if self.decisions:
+    #             # print('')
+    #             yield self.reduced(self.decisions)
+    #             self.decisions = None
+    #         else:
+    #             # print(".", end='')
+    #             time.sleep(0.1)
+    #             # TODO: check for errors on main Thread
 
     def close_iter(self):
         self._done = True
@@ -65,6 +75,7 @@ class DecisionService(rpyc.Service):
     def exposed_answer(self, key, value):
         logger.debug("Received answer %r for decision %s", value, key)
         # print("currend decisions: ", self.decisions)
+
         try:
             parsed = self._parse(key, value)
         except NotImplementedError:
@@ -74,18 +85,20 @@ class DecisionService(rpyc.Service):
 
         valid = self._answer(key, parsed)
         if valid:
-            self.answers[key] = parsed
+            with lock:
+                self.answers[key] = parsed
         # print("currend answers: ", self.answers)
         return valid
 
     def set_decisions(self, decisions):
-        # TODO: Lock??
-        if self.decisions is None:
-            self.answers.clear()
-            self.decisions = decisions
-            print("Thread received %d decisions" % len(decisions))
-        else:
-            raise AssertionError("Can't send new decisions while working on old ones")
+        with lock:
+            if self.decisions is None:
+                self.answers.clear()
+                self.decisions = decisions
+                self.done = False
+                print("Thread received %d decisions" % len(decisions))
+            else:
+                raise AssertionError("Can't send new decisions while working on old ones")
 
     def clear(self):
         """clear state of decisions and answers"""
@@ -100,8 +113,8 @@ class CommunicationThread(Thread):
         config = {
             "allow_public_attrs": True,
         }
-        # self.server = OneShotServer(service, port=port, protocol_config=config)
-        self.server = ThreadedServer(service, port=port, protocol_config=config)
+        self.server = OneShotServer(service, port=port, protocol_config=config)
+        # self.server = ThreadedServer(service, port=port, protocol_config=config)
 
     def run(self) -> None:
         self.server.start()
@@ -208,7 +221,7 @@ class ExternalFrontEnd(FrontEnd):
         self.service.set_decisions(data)
 
         # print("Wait for answers", end='')
-        while not len(self.service.answers) >= len(self.pending):
+        while not self.service.done:
             # wait until all decisions are solved
             # print('.', end='')
             time.sleep(0.2)
@@ -216,7 +229,9 @@ class ExternalFrontEnd(FrontEnd):
             if not self.thread.is_alive():
                 self.logger.error("CommunicationThread died. Terminating ...")
                 exit(-1)
-        # print('')
+
+        if not len(self.service.answers) >= len(self.pending):
+            raise AssertionError("Not enough answers provided")
 
         return self.service.answers.copy()
 
