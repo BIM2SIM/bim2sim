@@ -26,15 +26,16 @@ class TEASERManager(BIM2SIMManager):
         self.playground.run_task(bps.SetIFCTypesBPS())
         self.playground.run_task(common.LoadIFC())
         self.playground.run_task(bps.Inspect())
+        pass
 
         # self.playground.run_task(bps.ExportTEASER())
 
         #self.playground.run_task(bps.ExportTEASERMultizone())
 
-        export = bps.ExportTEASERMultizone()
-        # export = bps.ExportTEASERSingleZone()
-        export.run(self.playground.workflow, self.playground.history[2])
-        print()
+        # export = bps.ExportTEASERMultizone()
+        # # export = bps.ExportTEASERSingleZone()
+        # export.run(self.playground.workflow, self.playground.history[2])
+        # print()
 
 
         # libraries = (standardlibrary.StandardLibrary, HKESim)
