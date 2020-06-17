@@ -10,7 +10,7 @@ from bim2sim.kernel import element, condition, attribute
 from bim2sim.decision import BoolDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.decision import ListDecision, RealDecision
-from ifc2python import get_layers_ifc
+from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.enrichment_data.data_class import DataClass
 from teaser.logic.buildingobjects.useconditions import UseConditions
 
