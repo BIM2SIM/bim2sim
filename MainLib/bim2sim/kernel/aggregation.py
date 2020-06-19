@@ -4,7 +4,6 @@ import logging
 import math
 
 import numpy as np
-
 from bim2sim.kernel.element import BaseElement, BasePort
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
@@ -184,8 +183,8 @@ class PipeStrand(Aggregation):
                 self.logger.warning("Ignored '%s' in aggregation", pipe)
                 continue
 
-            diameter_times_length += diameter*length
-            total_length += length
+            diameter_times_length += diameter * length
+            self._total_length += length
 
         if total_length != 0:
             avg_diameter = diameter_times_length / total_length
@@ -932,4 +931,5 @@ class ParallelSpaceHeater(Aggregation):
 #         if (p_instance in check_up) and (p_instance in check_low):
 #             new_cycles.append(new_cycle)
 #     return new_cycles
+
 
