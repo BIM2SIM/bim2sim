@@ -94,9 +94,6 @@ class TemplateFinder(Finder):
 
         key1 = element.source_tool
         key2 = element.ifc_type
-        # problem with ifcwall list
-        if isinstance(key2, list):
-            key2 = key2[0]
         key3 = property_name
         try:
             res = self.templates[key1][key2][key3]

@@ -589,6 +589,7 @@ class Wall(element.Element):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.ifc_type = self.ifc.is_a()
         if self.is_external:
             self.__class__ = OuterWall
             self.__init__()
