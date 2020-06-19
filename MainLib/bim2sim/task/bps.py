@@ -103,22 +103,12 @@ class ExportTEASER(ITask):
     reads = ('instances', 'ifc', )
     final = True
 
-    @classmethod
-    def _default_instance_properties(cls, instance, parent):
-        instance_switcher = {'OuterWall': cls._create_outer_wall,
-                             'SubOuterWall': cls._create_outer_wall,
-                             'InnerWall': cls._create_inner_wall,
-                             'SubInnerWall': cls._create_inner_wall,
-                             'Floor': Floor,
-                             'Window': Window}
-        func_new_inst = instance_switcher.get(instance.__class__.__name__)
-        new_inst = func_new_inst(instance, parent)
-
-        return new_inst
+    materials = {}
 
     @staticmethod
     def _create_project(element):
-        """Creates a project in TEASER by a given BIM2SIM instance"""
+        """Creates a project in TEASER by a given BIM2SIM instance
+        Parent: None"""
         prj = Project(load_data=True)
         prj.name = element.Name
         prj.data.load_uc_binding()
@@ -126,57 +116,157 @@ class ExportTEASER(ITask):
         return prj
 
     @staticmethod
-    def _create_building(bldg_instance, prj):
-        bldg = Building(parent=prj)
-        for key, value in bldg_instance.exporter.items():
-            setattr(bldg, key, value)
+    def _get_project(teaser_instance):
+        project = teaser_instance.parent
+        while type(project) is not Project:
+            project = project.parent
 
-        return bldg
+        return project
+
+    @staticmethod
+    def _get_building(teaser_instance):
+        building = teaser_instance.parent
+        while type(building) is not Building:
+            building = building.parent
+
+        return building
+
+    @classmethod
+    def _create_teaser_instance(cls, instance, parent):
+        """get exporter necessary properties, from a given instance"""
+        instance_switcher = {'Building': Building,
+                             'ThermalZone': ThermalZone,
+                             'OuterWall': OuterWall,
+                             'InnerWall': InnerWall,
+                             'Floor': Floor,
+                             'Window': Window,
+                             'GroundFloor': GroundFloor,
+                             'Roof': Rooftop}
+        if hasattr(instance, 'parent'):
+            sw = type(instance.parent).__name__
+            templates = instance.parent.finder.templates
+        else:
+            sw = type(instance).__name__
+            templates = instance.finder.templates
+
+        teaser_class = instance_switcher.get(sw)
+        if teaser_class is None:
+            print()
+        teaser_instance = teaser_class(parent=parent)
+        for key, value in templates['base'][sw]['exporter']['teaser'].items():
+            if isinstance(value, list):
+                if value[0] == 'instance':
+                    i = 1
+                    aux = instance
+                    while i != len(value):
+                        aux = getattr(aux, value[i])
+                        i += 1
+                    setattr(teaser_instance, key, aux)
+            else:
+                setattr(teaser_instance, key, value)
+
+        instance_related = {ThermalZone: cls._thermal_zone_related,
+                            InnerWall: cls._wall_related,
+                            OuterWall: cls._wall_related,
+                            Window: cls._window_related,
+                            Rooftop: cls._slab_related,
+                            Floor: cls._slab_related,
+                            GroundFloor: cls._slab_related}
+
+        related_function = instance_related.get(type(teaser_instance))
+        if related_function is not None:
+            related_function(teaser_instance, instance)
+
+        return teaser_instance
+
+    @staticmethod
+    def _thermal_zone_related(tz, instance):
+        tz.volume = instance.area * instance.height
+        tz.use_conditions = UseConditions(parent=tz)
+        tz.use_conditions.load_use_conditions(instance.usage)
+        tz.use_conditions.set_temp_heat = instance.t_set_heat + 273.15
+        tz.use_conditions.set_temp_cool = instance.t_set_cool + 273.15
+
+    @classmethod
+    def _wall_related(cls, wall, instance):
+        for layer_instance in instance.layers:
+            layer = Layer(parent=wall)
+            layer.thickness = layer_instance.thickness
+            # todo material
+            cls._material_related(layer, layer_instance)
+        bldg = cls._get_building(wall)
+        wall.load_type_element(year=bldg.year_of_construction, construction="light")
+
+    @classmethod
+    def _material_related(cls, layer, layer_instance):
+        material = Material(parent=layer)
+        material_ref = ''.join([i for i in layer_instance.material if not i.isdigit()])
+        prj = cls._get_project(layer)
+
+        try:
+            material_name = cls.materials[layer_instance.material]
+        except KeyError:
+            Materials_DEU = layer_instance.parent.finder.templates['base']['Material']['DEU']
+            material_templates = dict(prj.data.material_bind)
+            del material_templates['version']
+
+            if material_ref not in str(Materials_DEU.keys()):
+                decision_ = input(
+                    "Material not found, enter value for the material:")
+                material_ref = decision_
+
+            for k in Materials_DEU:
+                if material_ref in k:
+                    material_ref = Materials_DEU[k]
+
+            options = {}
+            for k in material_templates:
+                if material_ref in material_templates[k]['name']:
+                    options[k] = material_templates[k]
+            materials_options = [[material_templates[k]['name'], k] for k in options]
+            decision1 = None
+            if len(materials_options) > 0:
+                decision1 = ListDecision("Multiple possibilities found",
+                                         choices=list(materials_options),
+                                         allow_skip=True, allow_load=True, allow_save=True,
+                                         collect=False, quick_decide=not True)
+                decision1.decide()
+
+            cls.materials[layer_instance.material] = decision1.value
+            material_name = decision1.value
+
+        material.load_material_template(
+            mat_name=material_name,
+            data_class=prj.data,
+        )
+
+    @classmethod
+    def _window_related(cls, window, instance):
+        bldg = cls._get_building(window)
+        window.load_type_element(year=bldg.year_of_construction, construction="EnEv")
+
+    @classmethod
+    def _slab_related(cls, slab, instance):
+        bldg = cls._get_building(slab)
+        slab.load_type_element(year=bldg.year_of_construction, construction="light")
 
     @staticmethod
     def _create_thermal_zone(instance, bldg):
         """Creates a thermalzone in TEASER by a given BIM2SIM instance"""
         tz = ThermalZone(parent=bldg)
+        tz.name = instance.name
+        tz.area = instance.area
+        tz.volume = tz.area * instance.height
+        # todo: infiltration rate
         tz.use_conditions = UseConditions(parent=tz)
-        for key, value in instance.exporter.items():
-            if not isinstance(value, dict):
-                setattr(tz, key, value)
-            else:
-                key_prop = getattr(tz, key)
-                for key2, value2 in value.items():
-                    setattr(key_prop, key2, value2)
-
+        tz.use_conditions.load_use_conditions(instance.usage)
+        # todo make kelvin celsius robust
+        tz.use_conditions.set_temp_heat = \
+            instance.t_set_heat + 273.15
+        tz.use_conditions.set_temp_cool = \
+            instance.t_set_cool + 273.15
+        tz.number_of_elements = 2
         return tz
-
-    @staticmethod
-    def _create_inner_wall(inner_wall, tz):
-        in_wall = InnerWall(parent=tz)
-        for key, value in inner_wall.exporter.items():
-            setattr(in_wall, key, value)
-        for layer_instance in inner_wall.layers:
-            layer = Layer(parent=in_wall)
-            layer.thickness = layer_instance.thickness
-            # todo material
-            material = Material(parent=layer)
-            # material.load_material_template(
-            #     mat_name=,
-            #     data_class=prj.data,
-            # )
-        return in_wall
-
-    @staticmethod
-    def _create_outer_wall(outer_wall, tz):
-        out_wall = OuterWall(parent=tz)
-        # todo orientation not working yet
-        for layer_instance in outer_wall.layers:
-            layer = Layer(parent=out_wall)
-            layer.thickness = layer_instance.thickness
-            # todo material
-            material = Material(parent=layer)
-            # material.load_material_template(
-            #     mat_name=,
-            #     data_class=prj.data,
-            # )
 
     #
     # @staticmethod
@@ -216,146 +306,27 @@ class ExportTEASER(ITask):
 
     @Task.log
     def run(self, workflow, instances, ifc):
-        # mapping_dict = {
-        #     elements.Floor.instances: Floor,
-        #     elements.Window.instances: Window,
-        #     elements.Roof.instances: Rooftop,
-        #     elements.Wall.outer_walls: OuterWall,
-        #     elements.Wall.inner_walls: InnerWall
-        # }
-
         self.logger.info("Export to TEASER")
         prj = self._create_project(ifc.by_type('IfcProject')[0])
+
         bldg_instances = Inspect.filter_instances(instances, 'Building')
 
         for bldg_instance in bldg_instances:
-            bldg = self._create_building(bldg_instance, prj)
+            bldg = self._create_teaser_instance(bldg_instance, prj)
             tz_instances = Inspect.filter_instances(instances, 'ThermalZone')
             for tz_instance in tz_instances:
-                tz = self._create_thermal_zone(tz_instance, bldg)
-                tz_inst = []
+                tz = self._create_teaser_instance(tz_instance, bldg)
                 for bound_element in tz_instance.bound_elements:
-                    inst = self._default_instance_properties(bound_element, tz)
-                    if isinstance(inst, InnerWall):
-                        inst.load_type_element(year=bldg.year_of_construction, construction="light")
-                    # elif isinstance(inst, OuterWall):
-                        # if bound_element.guid == '16DNNqzfP2thtfaOflvsKA':
-                        #     out_wall.orientation = 90 + 50
-                        # elif bound_element.guid == '25fsbPyk15VvuXI':
-                        #     out_wall.orientation = 50
-                        # elif bound_element.guid == '1bzfVsJqn8De5PukCrqylz':
-                        #     out_wall.orientation = 270 + 50
-                        # elif bound_element.guid in ['3rPX_Juz59peXXY6wDJl18',
-                        #                             '0knNIAVBPBFvBy_m5QVHsU']:
-                        #     out_wall.orientation = 180 + 50
-                    elif isinstance(bound_element, elements.Window):
-                        window = Window(parent=tz)
-                        window.name = bound_element.name
-                        window.area = bound_element.area
-                        window.load_type_element(
-                            year=bldg.year_of_construction, construction="EnEv"
-                        )
-                        window.innner_convection = 0.6
-                        if bound_element.guid == '2uYaWLoMXGPW4zZLca_BWr' or \
-                                bound_element.guid == '1c0Yk5iLrVR4e3y5gEUEKa':
-                            window.orientation = 90 + 50
-                        elif bound_element.guid == '2OW0PH61vS77xxyX1o74u8' or \
-                                bound_element.guid == '2cFXkmvNz6q8TXoCpAWu5Y':
-                            window.orientation = 50
-                        elif bound_element.guid == '2o6xwVLCqc7RJXOAHbb1iq' or \
-                                bound_element.guid == \
-                                '1edW1mWMGQA1AyF6LZE0rZ' or \
-                                bound_element.guid == '0B6UMAQb_hdSR0n26dQbUu':
-                            window.orientation = 270 + 50
-                        elif bound_element.guid == '2NE9qKcWUF2uoVhRSqTd_a' or \
-                                bound_element.guid == '0seqbT9MlcQAX_K0YLzD86':
-                            window.orientation = 180 + 50
-                        if window.orientation is None:
-                            print('damn')
-                    elif type(bound_element == disaggregation.SubSlab):
-                        slab_element = None
-                        if type(bound_element.parent) == elements.Floor:
-                            slab_element = Floor(parent=tz)
-                        if type(bound_element.parent) == elements.GroundFloor:
-                            slab_element = GroundFloor(parent=tz)
-                        if type(bound_element.parent) == elements.Roof:
-                            slab_element = Rooftop(parent=tz)
-                            # todo remove hardcode
-                            if bound_element.parent.guid \
-                                    == '2IxUUNUVPB6Ob$eicCfP2N':
-                                slab_element.orientation = 90 + 50
-                            elif bound_element.parent.guid \
-                                    == '07Enbsqm9C7AQC9iyBwfSD':
-                                slab_element.orientation = 270 + 50
-                            if slab_element.orientation is None:
-                                print('damn')
-                        slab_element.area = bound_element.area
-                        slab_element.load_type_element(
-                            year=bldg.year_of_construction, construction="light"
-                        )
-
-                    # elif type(bound_element == disaggregation.SubRoof):
-                    #     roof_element = Rooftop(parent=tz)
-                    #     roof_element.area = bound_element.area
+                    inst = self._create_teaser_instance(bound_element, tz)
+                    if inst.orientation is None and type(inst) is not InnerWall:
+                        print()
                 # prj.calc_all_buildings()
                 tz.calc_zone_parameters()
-
-            prj.export_aixlib()
-
-            print(bound_element)
-            # elif isinstance(bound_element, disaggregation.SubSlab):
-            #     print(bound_element)
-            # else:
-            #     print(bound_element.__class_)
-            # elif bound_element.__class__ == disaggregation.SubSlab:
-            #     print('test')
-            #     ground_floor = GroundFloor(parent=tz)
-            #     ground_floor.name = bound_element.name
-            #     ground_floor.area = bound_element.area
-            # print('test')
-            # inner_walls = bps_inspect.filter_instances('InnerWall')
-            # for inner_wall in inner_walls:
-            #     in_wall = InnerWall(parent=tz)
-            #     in_wall.name = inner_wall.name
-            #     in_wall.area = inner_wall.area
-            #     for layer_instance in inner_wall.layers:
-            #         layer = Layer(parent=in_wall)
-            #         layer.thickness = layer_instance.thickness
-            #         # todo material
-            #         # material = Material(parent=layer)
-            #         # material.load_material_template(
-            #         #     mat_name=,
-            #         #     data_class=prj.data,
-            #         # )
-
-            # outer_walls = bps_inspect.filter_instances('OuterWall')
-            # for outer_wall in outer_walls:
-            #     out_wall = OuterWall(parent=tz)
-            #     out_wall.name = outer_wall.name
-            #     out_wall.area = outer_wall.area
-            #     out_wall.tilt = outer_wall.tilt
-            #     if outer_wall.guid == '16DNNqzfP2thtfaOflvsKA':
-            #         out_wall.orientation = 90 + 50
-            #     elif outer_wall.guid == '25fsbPyk15VvuXI':
-            #         out_wall.orientation = 50
-            #     elif outer_wall.guid == '1bzfVsJqn8De5PukCrqylz':
-            #         out_wall.orientation = 270 + 50
-            #     elif outer_wall.guid == '3rPX_Juz59peXXY6wDJl18':
-            #         out_wall.orientation = 180 + 50
-            #     for layer_instance in outer_wall.layers:
-            #         layer = Layer(parent=out_wall)
-            #         layer.thickness = layer_instance.thickness
-            # ground_floors = bps_inspect.filter_instances('GroundFloor')
-            # for ground_floor in ground_floors:
-            #     grou_floor = GroundFloor(parent=tz)
-            #     grou_floor.name = ground_floor.name
-            #     grou_floor.area = ground_floor.area
-            #
-            # pass
-        # for bldg in instances.bBuilding
-
-
-
+            bldg.calc_building_parameter()
+        prj.calc_all_buildings()
+        prj.export_aixlib()
+        print()
+            # print()
 
 
 class ExportTEASERMultizone(ITask):

@@ -81,7 +81,6 @@ class Disaggregation(BaseSubElement):
 
             instance = cls(name + '_%d' % i, parent)
             instance.area = disaggregations[ins][0]
-            instance.exporter['area'] = instance.area
 
             # position calc
             if parent.__class__.__name__ in vertical_instances:
@@ -142,18 +141,14 @@ class SubInnerWall(Disaggregation):
     disaggregatable_elements = ['IfcWall']
 
     def __init__(self, *args, **kwargs):
-        self.exporter = {'name': self.name,
-                         'area': self.area}
+        pass
 
 
 class SubOuterWall(Disaggregation):
     disaggregatable_elements = ['IfcWall']
 
     def __init__(self, *args, **kwargs):
-        self.exporter = {'name': self.name,
-                         'area': self.area,
-                         'tilt': self.tilt,
-                         'orientation': self.orientation}
+        pass
 
 
 def get_new_position_vertical_instance(parent, sub_position):

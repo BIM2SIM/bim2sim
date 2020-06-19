@@ -547,13 +547,6 @@ class ThermalZone(element.Element):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bound_elements = []
-        self.exporter = {'name': self.name,
-                         'area': self.area,
-                         'volume': self.area * self.height,
-                         'use_conditions': {'load_use_conditions': self.usage,
-                                            'set_temp_heat': self.t_set_heat + 273.15,
-                                            'set_temp_cool': self.t_set_cool + 273.15},
-                         'number_of_elements': 2}
 
     def get__elements_by_type(self, type):
         raise NotImplementedError
@@ -776,19 +769,12 @@ class Layer(element.BaseElementNoPorts):
 
 class OuterWall(Wall):
     def __init__(self, *args, **kwargs):
-        self.exporter = {'name': self.name,
-                         'area': self.area,
-                         'tilt': self.tilt,
-                         'orientation': self.orientation}
-
-        # super().__init__(*args, **kwargs)
+        pass
 
 
 class InnerWall(Wall):
     def __init__(self, *args, **kwargs):
-        self.exporter = {'name': self.name,
-                         'area': self.area}
-        # super().__init__(*args, **kwargs)
+        pass
 
 
 class Window(element.Element):
@@ -817,7 +803,6 @@ class Window(element.Element):
         default_ps=('BaseQuantities', 'Area'),
         default=0
     )
-
 
 # class OuterWall(Wall):
 #     pattern_ifc_type = [
@@ -971,14 +956,6 @@ class Building(element.Element):
         name='occupancy_type',
         default_ps=('Pset_BuildingCommon', 'OccupancyType')
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.exporter = {'used_library_calc': 'AixLib',
-                         'name': self.name,
-                         'year_of_construction': self.year_of_construction,
-                         'number_of_floors': self.number_of_storeys,
-                         'net_leased_area': self.net_area.magnitude}
 
 
 class Storey(element.Element):

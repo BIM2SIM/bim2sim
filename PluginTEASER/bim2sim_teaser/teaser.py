@@ -31,10 +31,10 @@ class TEASERManager(BIM2SIMManager):
         print()
         #self.playground.run_task(bps.ExportTEASERMultizone())
 
-        export = bps.ExportTEASERMultizone()
-        # export = bps.ExportTEASERSingleZone()
-        export.run(self.playground.workflow, self.playground.history[2])
-        print()
+        # export = bps.ExportTEASERMultizone()
+        # # export = bps.ExportTEASERSingleZone()
+        # export.run(self.playground.workflow, self.playground.history[2])
+        # print()
 
 
         # libraries = (standardlibrary.StandardLibrary, HKESim)
