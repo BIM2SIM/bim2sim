@@ -3,7 +3,7 @@
 from bim2sim.kernel import aggregation
 from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
-
+from bim2sim.kernel.units import ureg
 from test.kernel.helper import SetupHelper
 
 
@@ -73,7 +73,8 @@ class ParallelPumpHelper(SetupHelper):
             con_vl_a = [self.element_generator(
                 elements.Pipe, length=100, diameter=30) for i in range(3)]
             fitting1 = self.element_generator(
-                elements.PipeFitting, flags=['pumps2', 'normal', 'small'], n_ports=6, diameter=30, length=60)
+                elements.PipeFitting, flags=['pumps2', 'normal', 'small'],
+                n_ports=7, diameter=30, length=60)
             p_pump1_p = [
                 self.element_generator(
                     elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
@@ -120,13 +121,16 @@ class ParallelPumpHelper(SetupHelper):
                     elements.Pipe, flags=['pumps2', 'small'], length=40, diameter=15),
             ]
             fitting2 = self.element_generator(
-                elements.PipeFitting, flags=['pumps2', 'normal', 'small'], n_ports=6, diameter=30, length=60)
+                elements.PipeFitting, flags=['pumps2', 'normal', 'small'],
+                n_ports=7, diameter=30, length=60)
             con_vl_b = [self.element_generator(
                 elements.Pipe, length=100, diameter=30) for i in range(3)]
             consumer = self.element_generator(
                 elements.SpaceHeater)
             con_rl_a = [self.element_generator(
                 elements.Pipe, length=100, diameter=30) for i in range(6)]
+            bypass = self.element_generator(
+                elements.Pipe, flags=['bypass'], length=60, diameter=30)
 
         # connect
         self.connect_strait([*con_vl_a, fitting1])
@@ -139,16 +143,18 @@ class ParallelPumpHelper(SetupHelper):
         fitting1.ports[3].connect(p_pump3_p[0].ports[0])
         fitting1.ports[4].connect(p_pump4_p[0].ports[0])
         fitting1.ports[5].connect(p_pump5_p[0].ports[0])
+        fitting1.ports[6].connect(bypass.ports[0])
         p_pump2_p[-1].ports[1].connect(fitting2.ports[2])
         p_pump3_p[-1].ports[1].connect(fitting2.ports[3])
         p_pump4_p[-1].ports[1].connect(fitting2.ports[4])
         p_pump5_p[-1].ports[1].connect(fitting2.ports[5])
+        bypass.ports[1].connect(fitting2.ports[6])
         self.connect_strait([fitting2, *con_vl_b, consumer, *con_rl_a])
 
         # full system
         gen_circuit = [
             *con_vl_a, fitting1, *p_pump1_p, *p_pump2_p, *p_pump3_p, *p_pump4_p, *p_pump5_p
-            , fitting2, *con_vl_b, consumer, *con_rl_a
+            , fitting2, *con_vl_b, consumer, *con_rl_a, bypass
         ]
 
         flags['connect'] = [con_vl_a[0], con_rl_a[-1]]
@@ -228,7 +234,7 @@ class TestParallelPumps(unittest.TestCase):
 
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
-        expected_volume_flow = sum([p.rated_volume_flow for p in pumps])
+        expected_volume_flow = sum([p.rated_volume_flow for p in pumps]) * ureg.meter**3 / ureg.hour
 
         self.assertAlmostEqual(agg_pump.rated_volume_flow, expected_volume_flow)
         self.assertAlmostEqual(agg_pump.rated_height, expected_height)
