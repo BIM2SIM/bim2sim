@@ -794,32 +794,26 @@ class ParallelSpaceHeater(Aggregation):
         return mapping
 
     rated_power = attribute.Attribute(
-        name='rated_power',
         description="rated power",
         functions=[_calc_avg]
     )
     rated_height = attribute.Attribute(
-        name='rated_height',
         description="rated height",
         functions=[_calc_avg]
     )
     rated_volume_flow = attribute.Attribute(
-        name='rated_volume_flow',
         description="rated volume flow",
         functions=[_calc_avg]
     )
     diameter = attribute.Attribute(
-        name='diameter',
         description="diameter",
         functions=[_calc_avg]
     )
     length = attribute.Attribute(
-        name='length',
         description="length of aggregated pipe elements",
         functions=[_calc_avg]
     )
     diameter_strand = attribute.Attribute(
-        name='diameter_strand',
         description="average diameter of aggregated pipe elements",
         functions=[_calc_avg]
     )
