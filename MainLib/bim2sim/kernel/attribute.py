@@ -98,7 +98,7 @@ class Attribute:
                 value = value * self.unit
 
         # check unit
-        if value is not None and not isinstance(value, pint.Quantity):
+        if self.unit is not None and value is not None and not isinstance(value, pint.Quantity):
             logger.warning("Unit not set!")
             value = value * self.unit
 
