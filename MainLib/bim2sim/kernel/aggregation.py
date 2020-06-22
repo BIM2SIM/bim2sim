@@ -565,39 +565,39 @@ class ParallelPump(Aggregation):
         return mapping
 
     rated_power = attribute.Attribute(
-        name='rated_power',
         description="rated power",
-        functions=[_calc_avg]
+        functions=[_calc_avg],
+        unit=ureg.kilowatt,
     )
 
     rated_height = attribute.Attribute(
-        name='rated_height',
         description='rated height',
-        functions=[_calc_avg]
+        functions=[_calc_avg],
+        unit=ureg.meter,
     )
 
     rated_volume_flow = attribute.Attribute(
-        name='rated_volume_flow',
         description='rated volume flow',
-        functions=[_calc_avg]
+        functions=[_calc_avg],
+        unit=ureg.meter**3 / ureg.hour,
     )
 
     diameter = attribute.Attribute(
-        name='diameter',
         description='diameter',
-        functions=[_calc_avg]
+        functions=[_calc_avg],
+        unit=ureg.millimeter,
     )
 
     length = attribute.Attribute(
-        name='length',
         description='length of aggregated pipe elements',
-        functions=[_calc_avg]
+        functions=[_calc_avg],
+        unit=ureg.meter,
     )
 
     diameter_strand = attribute.Attribute(
-        name='diameter_strand',
         description='average diameter of aggregated pipe elements',
-        functions=[_calc_avg]
+        functions=[_calc_avg],
+        unit=ureg.millimeter,
     )
 
     @classmethod
@@ -605,9 +605,10 @@ class ParallelPump(Aggregation):
         """Find all matches for Aggregation in element graph
         :returns: matches, meta"""
         # TODO: only same size pumps
-        wantetd = {'IfcPump'}
-        innerts = set(cls.aggregatable_elements) - wantetd
-        parallels = HvacGraph.get_parallels(graph, wantetd, innerts)
+        wanted = {'IfcPump'}
+        innerts = set(cls.aggregatable_elements) - wanted
+        parallels = HvacGraph.get_parallels(graph, wanted, innerts)
+        pot_p_pumps = parallels
         metas = [{} for x in parallels]  # no metadata calculated
         return parallels, metas
 
