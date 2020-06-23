@@ -7,7 +7,7 @@ import atexit
 import rpyc
 from rpyc.utils.server import OneShotServer, ThreadedServer
 
-from ..decision import DecisionException
+from ..decision import DecisionException, BoolDecision, RealDecision, ListDecision
 from .frontend import FrontEnd
 
 
@@ -208,6 +208,18 @@ class ExternalFrontEnd(FrontEnd):
             i += 1
             yield i
 
+    @staticmethod
+    def decision_kind(decision):
+        """returns king of decision"""
+        if isinstance(decision, BoolDecision):
+            return 'bool'
+        elif isinstance(decision, RealDecision):
+            return 'numeric'
+        elif isinstance(decision, ListDecision):
+            return 'list'
+        else:
+            return 'unknown'
+
     def to_dict(self, key, decision):
 
         data = dict(
@@ -215,6 +227,7 @@ class ExternalFrontEnd(FrontEnd):
             question=decision.question,
             options=self.get_options(decision),
             body=json.dumps(self.get_body(decision)),
+            kind=self.decision_kind(decision),
         )
 
         return data
