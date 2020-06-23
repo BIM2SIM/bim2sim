@@ -49,11 +49,18 @@ class DecisionService(rpyc.Service):
         return 'still working'
 
     def exposed_answers_done(self):
-        """Continue calculation. Returns True is all answers are accepted, False otherwise"""
+        """Continue calculation. Returns True if all answers are accepted, False otherwise"""
         with lock:
             if len(self.answers) == len(self.decisions):
                 self.done = True
                 self.decisions = None
+                logger.info("Answers accepted")
+                return True
+            else:
+                logger.info("Answers rejected")
+                print(self.decisions)
+                print(self.answers)
+                return False
 
     # def exposed_iter_decisions(self):
     #     logger.info("Start decision Iterator")
