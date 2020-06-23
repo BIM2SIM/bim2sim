@@ -27,6 +27,10 @@ class FrontEnd:
     def validate(self, decision, value):
         return decision.validate(value)
 
+    def shutdown(self):
+        """Shut down frontend"""
+        pass
+
     def parse(self, decision, raw_answer):
         if isinstance(decision, BoolDecision):
             return self.parse_bool_input(raw_answer)

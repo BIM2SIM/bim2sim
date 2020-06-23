@@ -24,7 +24,6 @@ class DecisionService(rpyc.Service):
         self.answers = {}
         self._parse = parse_func
         self._answer = answer_func
-        self._done = False
         self.done = False
 
     def on_connect(self, conn):
@@ -61,23 +60,6 @@ class DecisionService(rpyc.Service):
                 print(self.decisions)
                 print(self.answers)
                 return False
-
-    # def exposed_iter_decisions(self):
-    #     logger.info("Start decision Iterator")
-    #     # print("Wait for answers", end='')
-    #     while not self._done:
-    #         if self.decisions:
-    #             # print('')
-    #             yield self.reduced(self.decisions)
-    #             self.decisions = None
-    #         else:
-    #             # print(".", end='')
-    #             time.sleep(0.1)
-    #             # TODO: check for errors on main Thread
-
-    def close_iter(self):
-        self._done = True
-        time.sleep(.5)
 
     def exposed_answer(self, key, value):
         logger.debug("Received answer %r for decision %s", value, key)
@@ -142,7 +124,7 @@ class ExternalFrontEnd(FrontEnd):
         self.service = DecisionService(self.validate_single_answer, self.parse_answer)
         self.thread = CommunicationThread(self.service, port)
 
-        atexit.register(self.terminate)
+        atexit.register(self.shutdown)
 
         self.thread.start()
 
@@ -260,7 +242,6 @@ class ExternalFrontEnd(FrontEnd):
         self.logger.info("Answer accepted")
         self.service.clear()
 
-    def terminate(self):
-        self.logger.info("Terminating Frontend")
-        self.service.close_iter()
+    def shutdown(self):
+        self.logger.info("Shutting down external Frontend")
         self.thread.join(.5)

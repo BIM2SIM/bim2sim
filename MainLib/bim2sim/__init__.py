@@ -75,6 +75,7 @@ def get_backends(by_entrypoint=False):
 def finish():
     """cleanup method"""
     logger = logging.getLogger(__name__)
+    Decision.frontend.shutdown()
     logger.info('finished')
 
 
