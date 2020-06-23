@@ -505,7 +505,8 @@ class Reduce(ITask):
                 else:
                     graph.merge(
                         mapping=agg.get_replacement_mapping(),
-                        inner_connections=agg.get_inner_connections()
+                        inner_connections=agg.get_inner_connections(),
+                        add_connections=agg.get_additional_connections()
                     )
                     i += 1
             statistics[name] = i

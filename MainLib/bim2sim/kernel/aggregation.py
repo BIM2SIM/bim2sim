@@ -83,6 +83,12 @@ class Aggregation(BaseElement):
             for n in names:
                 ele.request(n)
 
+    def get_additional_connections(self):
+        """ return additional connections that will be used for merge
+        aggregation into graph network"""
+        connections = []
+        return connections
+
     @classmethod
     def get_empty_mapping(cls, elements: list):
         """Get information to remove elements
@@ -487,19 +493,49 @@ class ParallelPump(Aggregation):
         """
 
         # detect elements with at least 3 ports
-        edge_elements = [node for node in graph.nodes if len(node.ports) > 2]
-        if len(edge_elements) != 2:
-            raise NotImplementedError("ParallelPumps with more than two edge ports are currently not supported")
+        pot_edge_elements = [
+            node for node in graph.nodes if len(node.ports) > 2]
+        # for port in (p for e in edge_elements for p in e.ports):
+        #     if not port.connection:
+        #         continue  # end node
+        #     if port.connection.parent not in graph.nodes:
+        #         edge_ports.append(port)
+        # filter edge elements
+
+        edge_elements = []
+        for edge_element in pot_edge_elements:
+            for port in edge_element.ports:
+                if port.connection.parent not in graph.nodes:
+                    edge_elements.append(edge_element)
+
+        pot_edge_ports = []
+        for port in (p for e in edge_elements for p in e.ports):
+            pass
+        # for port in (p for e in pot_edge_elements for p in e.ports):
+        #     print(e)
+        #     if port.connection.parent not in graph.nodes:
+        #         edge_elements.append(e)
 
         edge_ports = []
-        for port in (p for e in edge_elements for p in e.ports):
-            if not port.connection:
-                continue  # end node
-            if port.connection.parent not in graph.nodes:
-                edge_ports.append(port)
+        # ziel: alle edge_elements filtern, welche outer connections haben
 
-        if len(edge_ports) < 2:
-            raise AttributeError("Found less than two edge ports")
+        # for port in (p for e in edge_elements for p in e.ports):
+        #     if not port.connection:
+        #         continue  # end node
+        #     if port.connection.parent not in graph.nodes:
+        #         edge_ports.append(port)
+        #
+        # elif len(edge_elements) > 2:
+        #             pass
+        #
+        # else:
+        #     # todo
+        #     raise NotImplementedError("ParallelPumps with more than two edge ports are currently not supported")
+        #
+        #
+        #
+        # if len(edge_ports) < 2:
+        #     raise AttributeError("Found less than two edge ports")
 
         return edge_ports
 
@@ -563,6 +599,15 @@ class ParallelPump(Aggregation):
         for port in self.ports:
             mapping[port.original] = port
         return mapping
+
+    def get_additional_connections(self):
+        """Returns tuple with additional connections. Needed in case of
+        aggregation ports which don't belong to the aggregation component
+        itself (e.g. additional parallel bypass) """
+        connections = []
+        for port in self.ports:
+            connections.append((port, port.connection))
+        return connections
 
     rated_power = attribute.Attribute(
         description="rated power",
@@ -666,6 +711,33 @@ class ParallelPump(Aggregation):
     #
     #     if (p_instance in check_up) and (p_instance in check_low):
     #         return parallel_pump
+
+
+class Distributor(Aggregation):
+    aggregatable_elements = ['PipeStand', 'IfcPipeSegment', 'IfcPipeFitting']
+    threshold = None
+    # TODO only merge pipefittings into each other if water volume between is below threshold value
+    def __init__(self, name, element_graph, *args, **kwargs):
+        super().__init__(name, element_graph, *args, **kwargs)
+        edge_ports = self.get_edge_ports(element_graph)
+        for port in edge_ports:
+            self.ports.append(AggregationPort(port, parent=self))
+
+    @classmethod
+    def get_edge_ports(cls, graph):
+        pass
+
+    @classmethod
+    def find_matches(cls, graph):
+        """Find all matches for Aggregation in element graph
+        :returns: matches, meta"""
+        wanted = {'IfcPipeFitting'}
+        innerts = set(cls.aggregatable_elements) - wanted
+        connected_fittings = HvacGraph.get_parallels(graph, wanted, innerts)
+        metas = [{} for x in connected_fittings]  # no metadata calculated
+        return connected_fittings, metas
+
+
 
 
 class ParallelSpaceHeater(Aggregation):

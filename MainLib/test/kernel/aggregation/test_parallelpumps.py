@@ -66,7 +66,8 @@ class ParallelPumpHelper(SetupHelper):
         return graph, flags
 
     def get_setup_pumps2(self):
-        """get consumer circuit made of 5 parallel pumps (one small), space heater and pipes"""
+        """get consumer circuit made of 5 parallel pumps (one small),
+        space heater and pipes"""
         flags = {}
         with self.flag_manager(flags):
             # generator circuit
@@ -129,8 +130,6 @@ class ParallelPumpHelper(SetupHelper):
                 elements.SpaceHeater)
             con_rl_a = [self.element_generator(
                 elements.Pipe, length=100, diameter=30) for i in range(6)]
-            bypass = self.element_generator(
-                elements.Pipe, flags=['bypass'], length=60, diameter=30)
 
         # connect
         self.connect_strait([*con_vl_a, fitting1])
@@ -143,18 +142,117 @@ class ParallelPumpHelper(SetupHelper):
         fitting1.ports[3].connect(p_pump3_p[0].ports[0])
         fitting1.ports[4].connect(p_pump4_p[0].ports[0])
         fitting1.ports[5].connect(p_pump5_p[0].ports[0])
-        fitting1.ports[6].connect(bypass.ports[0])
         p_pump2_p[-1].ports[1].connect(fitting2.ports[2])
         p_pump3_p[-1].ports[1].connect(fitting2.ports[3])
         p_pump4_p[-1].ports[1].connect(fitting2.ports[4])
         p_pump5_p[-1].ports[1].connect(fitting2.ports[5])
-        bypass.ports[1].connect(fitting2.ports[6])
         self.connect_strait([fitting2, *con_vl_b, consumer, *con_rl_a])
 
         # full system
         gen_circuit = [
             *con_vl_a, fitting1, *p_pump1_p, *p_pump2_p, *p_pump3_p, *p_pump4_p, *p_pump5_p
-            , fitting2, *con_vl_b, consumer, *con_rl_a, bypass
+            , fitting2, *con_vl_b, consumer, *con_rl_a
+        ]
+
+        flags['connect'] = [con_vl_a[0], con_rl_a[-1]]
+
+        graph = HvacGraph(gen_circuit)
+        # graph.plot(r'c:\temp')
+        return graph, flags
+
+    def get_setup_pumps3(self):
+        """get consumer circuit made of 5 parallel pumps (one small), bypass,
+        space heater and pipes"""
+        flags = {}
+        with self.flag_manager(flags):
+            # generator circuit
+            con_vl_a = [self.element_generator(
+                elements.Pipe, length=100, diameter=30) for i in range(3)]
+            fitting1 = self.element_generator(
+                elements.PipeFitting, flags=['pumps2', 'normal', 'small'],
+                n_ports=7, diameter=30, length=60)
+            p_pump1_p = [
+                self.element_generator(
+                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                self.element_generator(
+                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
+                    rated_volume_flow=6, diameter=20),
+                self.element_generator(
+                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+            ]
+            p_pump2_p = [
+                self.element_generator(
+                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                self.element_generator(
+                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
+                    rated_volume_flow=6, diameter=20),
+                self.element_generator(
+                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+            ]
+            p_pump3_p = [
+                self.element_generator(
+                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                self.element_generator(
+                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
+                    rated_volume_flow=6, diameter=20),
+                self.element_generator(
+                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+            ]
+            p_pump4_p = [
+                self.element_generator(
+                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                self.element_generator(
+                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
+                    rated_volume_flow=6, diameter=20),
+                self.element_generator(
+                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+            ]
+            p_pump5_p = [
+                self.element_generator(
+                    elements.Pipe, flags=['pumps2', 'small'], length=40, diameter=15),
+                self.element_generator(
+                    elements.Pump, flags=['pumps2', 'small'], rated_power=0.22, rated_height=8,
+                    rated_volume_flow=0.8, diameter=15),
+                self.element_generator(
+                    elements.Pipe, flags=['pumps2', 'small'], length=40, diameter=15),
+            ]
+            fitting2 = self.element_generator(
+                elements.PipeFitting, flags=['pumps2', 'normal', 'small'],
+                n_ports=7, diameter=30, length=60)
+            con_vl_b = [self.element_generator(
+                elements.Pipe, length=100, diameter=30) for i in range(3)]
+            consumer = self.element_generator(
+                elements.SpaceHeater)
+            con_rl_a = [self.element_generator(
+                elements.Pipe, length=100, diameter=30) for i in range(6)]
+            bypass = [self.element_generator(
+                elements.Pipe, flags=['bypass'], length=60, diameter=30) for
+                i in range(3)]
+
+        # connect
+        self.connect_strait([*con_vl_a, fitting1])
+        self.connect_strait([fitting1, *p_pump1_p, fitting2])
+        self.connect_strait(p_pump2_p)
+        self.connect_strait(p_pump3_p)
+        self.connect_strait(p_pump4_p)
+        self.connect_strait(p_pump5_p)
+        self.connect_strait([*bypass])
+        fitting1.ports[2].connect(p_pump2_p[0].ports[0])
+        fitting1.ports[3].connect(p_pump3_p[0].ports[0])
+        fitting1.ports[4].connect(p_pump4_p[0].ports[0])
+        fitting1.ports[5].connect(p_pump5_p[0].ports[0])
+        fitting1.ports[6].connect(bypass[0].ports[0])
+        p_pump2_p[-1].ports[1].connect(fitting2.ports[2])
+        p_pump3_p[-1].ports[1].connect(fitting2.ports[3])
+        p_pump4_p[-1].ports[1].connect(fitting2.ports[4])
+        p_pump5_p[-1].ports[1].connect(fitting2.ports[5])
+        bypass[-1].ports[1].connect(fitting2.ports[6])
+        self.connect_strait([fitting2, *con_vl_b, consumer, *con_rl_a])
+
+        # full system
+        gen_circuit = [
+            *con_vl_a, fitting1, *p_pump1_p, *p_pump2_p, *p_pump3_p, *p_pump4_p, *p_pump5_p
+            , fitting2, *con_vl_b, consumer, *con_rl_a, *bypass
         ]
 
         flags['connect'] = [con_vl_a[0], con_rl_a[-1]]
@@ -283,6 +381,18 @@ class TestParallelPumps(unittest.TestCase):
     def test_detection_pumps2(self):
         """test detection of ParallelPumps in setup pumps2"""
         graph, flags = self.helper.get_setup_pumps2()
+
+        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+
+        self.assertEqual(
+            len(matches), 1,
+            "There are 1 cases for ParallelPumps but 'find_matches' returned %d" % len(matches)
+        )
+
+    def test_detection_pumps3(self):
+        """test detection of ParallelPumps in setup pumps2"""
+        graph, flags = self.helper.get_setup_pumps3()
+        graph.plot(r'c:\temp')
 
         matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
 

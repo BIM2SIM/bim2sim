@@ -131,15 +131,20 @@ class HvacGraph(nx.Graph):
 
         return chain_lists
 
-    def merge(self, mapping: dict, inner_connections: list):
+    def merge(self, mapping: dict, inner_connections: list,
+              add_connections=None):
         """Merge port nodes in graph
 
         according to mapping dict port nodes are removed {port: None}
         or replaced {port: new_port} ceeping connections.
+        adds also inner connections to graph and if passed additional
+        connections.
 
         WARNING: connections from removed port nodes are also removed
 
-        :param mapping: replacement dict. ports as keys and replacement ports or None as values
+        :param add_connections: additional connections to add
+        :param mapping: replacement dict. ports as keys and replacement ports
+        or None as values
         :param inner_connections: connections to add"""
 
         replace = {k: v for k, v in mapping.items() if not v is None}
@@ -148,6 +153,8 @@ class HvacGraph(nx.Graph):
         nx.relabel_nodes(self, replace, copy=False)
         self.remove_nodes_from(remove)
         self.add_edges_from(inner_connections)
+        if add_connections:
+            self.add_edges_from(add_connections)
 
     def get_connections(self):
         """Returns connections between different parent elements"""
@@ -229,11 +236,15 @@ class HvacGraph(nx.Graph):
         _graph = graph.copy()
 
         # remove blocking nodes
-        remove = {node for node in _graph.nodes if node.ifc_type not in wanted | inert}
+        remove = {node for node in _graph.nodes if node.ifc_type not in
+                  wanted | inert}
         _graph.remove_nodes_from(remove)
 
         # detect simple cycles with at least two wanted nodes
         basis_cycles = nx.cycle_basis(_graph)
+        nx.draw(graph, node_size=6, font_size=5, with_labels=True)
+        plt.draw()
+        plt.show()
         basis_cycle_sets = [frozenset((node.guid for node in basis_cycle)) for basis_cycle in basis_cycles]  # hashable
         wanted_guids = {node.guid for node in _graph.nodes if node.ifc_type in wanted}
 
@@ -352,3 +363,60 @@ class HvacGraph(nx.Graph):
         else:
             # conflict
             return None, visited, masters
+
+    def get_connections_between(self, wanted, inert):
+        """Detect simple connections between wanted items.
+        All graph nodes not in inert or wanted are counted as blocking
+        :returns: list of none overlapping subgraphs
+        """
+        # find alle wanted elements
+        # get all simple connections between the wanted elements
+        # remove connections, with other than inert items
+
+    @staticmethod
+    def get_connections_between(graph, wanted, inert=None):
+        """Detect simple connections between wanted items.
+        All graph nodes not in inert or wanted are counted as blocking
+        :returns: list of none overlapping subgraphs
+        """
+        # find alle wanted elements
+        # get all simple connections between the wanted elements
+        # remove connections, with other than inert items
+        if inert is None:
+            inert = set()
+        else:
+            inert = set(inert)
+        wanted = set(wanted)
+        _graph = graph.copy()
+
+        # remove blocking nodes
+        remove = {node for node in _graph.nodes if node.ifc_type not in
+                  wanted | inert}
+        _graph.remove_nodes_from(remove)
+
+        # detect direct connections between ifc fitting nodes
+        wanted_nodes = {node for node in _graph.nodes
+                        if node.ifc_type in wanted}
+        dir_connections = [
+            list(nx.all_simple_paths(_graph, i, j)) for i in wanted_nodes
+            for j in wanted_nodes if i != j and nx.has_path(_graph, i, j)
+        ]
+
+        # merge cycles to get multi parallel items
+        node_dict = {node.guid: node for node in _graph.nodes}
+        graphs = []
+        for cycle_set in cycle_sets:
+            nodes = [node_dict[guid] for guids in cycle_set for guid in guids]
+            graphs.append(graph.subgraph(nodes))
+
+
+        # detect simple cycles with at least two wanted nodes
+        basis_cycles = nx.cycle_basis(_graph)
+        nx.draw(graph, node_size=6, font_size=5, with_labels=True)
+        plt.draw()
+        plt.show()
+        basis_cycle_sets = [frozenset((node.guid for node in basis_cycle)) for basis_cycle in basis_cycles]  # hashable
+
+
+
+        return graphs
