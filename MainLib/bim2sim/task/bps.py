@@ -194,13 +194,14 @@ class ExportTEASER(ITask):
             layer.thickness = layer_instance.thickness
             # todo material
             cls._material_related(layer, layer_instance)
+        # problem with layer edit
         bldg = cls._get_building(wall)
         wall.load_type_element(year=bldg.year_of_construction, construction="light")
 
     @classmethod
     def _material_related(cls, layer, layer_instance):
         material = Material(parent=layer)
-        material_ref = ''.join([i for i in layer_instance.material if not i.isdigit()])
+        material_ref = ''.join([i for i in layer_instance.material if not i.isdigit()]).lower().strip()
         prj = cls._get_project(layer)
 
         try:
@@ -210,11 +211,6 @@ class ExportTEASER(ITask):
             material_templates = dict(prj.data.material_bind)
             del material_templates['version']
 
-            if material_ref not in str(Materials_DEU.keys()):
-                decision_ = input(
-                    "Material not found, enter value for the material:")
-                material_ref = decision_
-
             for k in Materials_DEU:
                 if material_ref in k:
                     material_ref = Materials_DEU[k]
@@ -223,6 +219,15 @@ class ExportTEASER(ITask):
             for k in material_templates:
                 if material_ref in material_templates[k]['name']:
                     options[k] = material_templates[k]
+            while len(options) == 0:
+                decision_ = input(
+                    "Material not found, enter value for the material:")
+                material_ref = decision_
+                for k in material_templates:
+                    if material_ref in material_templates[k]['name']:
+                        options[k] = material_templates[k]
+
+
             materials_options = [[material_templates[k]['name'], k] for k in options]
             decision1 = None
             if len(materials_options) > 0:
@@ -244,70 +249,24 @@ class ExportTEASER(ITask):
     def _window_related(cls, window, instance):
         bldg = cls._get_building(window)
         window.load_type_element(year=bldg.year_of_construction, construction="EnEv")
+        print()
 
     @classmethod
     def _slab_related(cls, slab, instance):
+        for layer_instance in instance.layers:
+            layer = Layer(parent=slab)
+            layer.thickness = layer_instance.thickness
+            # todo material
+            cls._material_related(layer, layer_instance)
+        # problem with layer edit
         bldg = cls._get_building(slab)
         slab.load_type_element(year=bldg.year_of_construction, construction="light")
-
-    @staticmethod
-    def _create_thermal_zone(instance, bldg):
-        """Creates a thermalzone in TEASER by a given BIM2SIM instance"""
-        tz = ThermalZone(parent=bldg)
-        tz.name = instance.name
-        tz.area = instance.area
-        tz.volume = tz.area * instance.height
-        # todo: infiltration rate
-        tz.use_conditions = UseConditions(parent=tz)
-        tz.use_conditions.load_use_conditions(instance.usage)
-        # todo make kelvin celsius robust
-        tz.use_conditions.set_temp_heat = \
-            instance.t_set_heat + 273.15
-        tz.use_conditions.set_temp_cool = \
-            instance.t_set_cool + 273.15
-        tz.number_of_elements = 2
-        return tz
-
-    #
-    # @staticmethod
-    # def _create_wall_like_elements(tz, instances):
-    #     """ creates TEASER instances for all wall like elements, including
-    #     Floors, Ceilings, Roofs"""
-    #     mapping = {
-    #         elements.GroundFloor: GroundFloor,
-    #         elements.Floor: Floor,
-    #         elements.Ceiling: Ceiling,
-    #         elements.Roof: Rooftop,
-    #     }
-    #     # for instance in instances:
-    #     #
-    #     #     element =
-    #     # Inner- and OuterWalls
-    #
-    #
-    # @staticmethod
-    # def _create_ground_floors(tz, instances):
-    #     for ground_floor in instances:
-    #         gf = GroundFloor(parent=tz)
-    #         gf.name = ground_floor.name
-    #         gf.area = ground_floor.area
-    #         gf.tilt = ground_floor.tilt
-    #         # todo orientation not working yet
-    #         gf.orientation = ground_floor.orientation
-    #         for layer_instance in gf.layers:
-    #             layer = Layer(parent=gf)
-    #             layer.thickness = layer_instance.thickness
-    #             # todo material
-    #             material = Material(parent=layer)
-    #             # material.load_material_template(
-    #             #     mat_name=,
-    #             #     data_class=prj.data,
-    #             # )
 
     @Task.log
     def run(self, workflow, instances, ifc):
         self.logger.info("Export to TEASER")
         prj = self._create_project(ifc.by_type('IfcProject')[0])
+        insts = []
 
         bldg_instances = Inspect.filter_instances(instances, 'Building')
 
@@ -318,15 +277,13 @@ class ExportTEASER(ITask):
                 tz = self._create_teaser_instance(tz_instance, bldg)
                 for bound_element in tz_instance.bound_elements:
                     inst = self._create_teaser_instance(bound_element, tz)
-                    if inst.orientation is None and type(inst) is not InnerWall:
-                        print()
+                    insts.append(inst)
                 # prj.calc_all_buildings()
                 tz.calc_zone_parameters()
             bldg.calc_building_parameter()
         prj.calc_all_buildings()
         prj.export_aixlib()
         print()
-            # print()
 
 
 class ExportTEASERMultizone(ITask):

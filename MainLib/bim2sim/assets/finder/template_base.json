@@ -119,7 +119,8 @@
       "embodied_carbon" : ["AC_Pset_MaterialCustom", "EmbodiedCarbon"]
     },
     "DEU": {
-      " Leichtbeton " : "lightweight_concrete"
+      "leichtbeton" : "lightweight_concrete",
+      "stahlbeton" : "concrete"
     }
   }
 }
