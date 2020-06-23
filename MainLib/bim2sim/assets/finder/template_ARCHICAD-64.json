@@ -81,7 +81,16 @@
     "default_ps": {
       "area" : ["BaseQuantities", "Area"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
-      "thickness" : ["BaseQuantities", "Width"]
+      "thickness" : ["BaseQuantities", "Width"],
+      "is_external": ["Pset_WindowCommon", "IsExternal"]
+    }
+  },
+    "Door": {
+    "default_ps": {
+      "area" : ["BaseQuantities", "Area"],
+      "material" : ["MaterialLayerSet", "MaterialLayer"],
+      "thickness" : ["BaseQuantities", "Width"],
+      "is_external": ["Pset_DoorCommon", "IsExternal"]
     }
   },
   "ThermalZone": {

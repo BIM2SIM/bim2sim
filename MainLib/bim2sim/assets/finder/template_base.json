@@ -73,6 +73,16 @@
       }
     }
   },
+  "Door": {
+    "exporter": {
+      "teaser": {
+        "name": ["instance","name"],
+        "area": ["instance", "area"],
+        "inner_convection": 0.6,
+        "orientation": ["instance", "orientation"]
+      }
+    }
+  },
   "ThermalZone": {
     "exporter": {
       "teaser": {

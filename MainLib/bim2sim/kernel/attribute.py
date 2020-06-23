@@ -65,6 +65,8 @@ class Attribute:
         # TODO argument for validation function
 
     def _get_value(self, bind):
+        if bind.guid == '1Oms875aH3Wg$9l65H2ZGw':
+            print()
 
         value = None
         # default property set

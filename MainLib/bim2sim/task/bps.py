@@ -30,6 +30,7 @@ from teaser.logic.buildingobjects.buildingphysics.window import Window
 from teaser.logic.buildingobjects.buildingphysics.innerwall import InnerWall
 from teaser.logic.buildingobjects.buildingphysics.layer import Layer
 from teaser.logic.buildingobjects.buildingphysics.material import Material
+from teaser.logic.buildingobjects.buildingphysics.door import Door
 from teaser.logic import utilities
 import os
 from bim2sim.task.bps_f.bps_functions import orientation_verification
@@ -142,7 +143,8 @@ class ExportTEASER(ITask):
                              'Floor': Floor,
                              'Window': Window,
                              'GroundFloor': GroundFloor,
-                             'Roof': Rooftop}
+                             'Roof': Rooftop,
+                             'Door': Door}
         if hasattr(instance, 'parent'):
             sw = type(instance.parent).__name__
             templates = instance.parent.finder.templates
@@ -170,7 +172,8 @@ class ExportTEASER(ITask):
                             Window: cls._window_related,
                             Rooftop: cls._slab_related,
                             Floor: cls._slab_related,
-                            GroundFloor: cls._slab_related}
+                            GroundFloor: cls._slab_related,
+                            Door: cls._window_related}
 
         related_function = instance_related.get(type(teaser_instance))
         if related_function is not None:
@@ -180,6 +183,7 @@ class ExportTEASER(ITask):
 
     @staticmethod
     def _thermal_zone_related(tz, instance):
+        # todo: infiltration rate
         tz.volume = instance.area * instance.height
         tz.use_conditions = UseConditions(parent=tz)
         tz.use_conditions.load_use_conditions(instance.usage)
@@ -224,7 +228,6 @@ class ExportTEASER(ITask):
                 for k in material_templates:
                     if material_ref in material_templates[k]['name']:
                         options[k] = material_templates[k]
-
 
             materials_options = [[material_templates[k]['name'], k] for k in options]
             decision1 = None

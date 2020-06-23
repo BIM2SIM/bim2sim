@@ -791,16 +791,60 @@ class Window(element.Element):
         re.compile('Fenster', flags=re.IGNORECASE)
     ]
 
-
     is_external = attribute.Attribute(
         name='is_external',
-        default_ps=('Pset_WindowCommon', 'IsExternal'),
+        default_ps='-',
         default=True
     )
 
     area = attribute.Attribute(
         name='area',
-        default_ps=('BaseQuantities', 'Area'),
+        default_ps='-',
+        default=0
+    )
+
+    thickness = attribute.Attribute(
+        name='thickness',
+        default_ps='-',
+        default=0
+    )
+
+    material = attribute.Attribute(
+        name='material',
+        default_ps='-',
+        default=0
+    )
+
+
+class Door(element.Element):
+    ifc_type = "IfcDoor"
+
+    pattern_ifc_type = [
+        re.compile('Door', flags=re.IGNORECASE),
+        re.compile('Tuer', flags=re.IGNORECASE)
+    ]
+
+    is_external = attribute.Attribute(
+        name='is_external',
+        default_ps='-',
+        default=True
+    )
+
+    area = attribute.Attribute(
+        name='area',
+        default_ps='-',
+        default=0
+    )
+
+    thickness = attribute.Attribute(
+        name='thickness',
+        default_ps='-',
+        default=0
+    )
+
+    material = attribute.Attribute(
+        name='material',
+        default_ps='-',
         default=0
     )
 
