@@ -248,8 +248,8 @@ class ExportTEASER(ITask):
     @classmethod
     def _window_related(cls, window, instance):
         bldg = cls._get_building(window)
+        # question necessary?
         window.load_type_element(year=bldg.year_of_construction, construction="EnEv")
-        print()
 
     @classmethod
     def _slab_related(cls, slab, instance):
