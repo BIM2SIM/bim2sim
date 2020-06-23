@@ -33,6 +33,7 @@ from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic import utilities
 import os
 from bim2sim.task.bps_f.bps_functions import orientation_verification
+from bim2sim.kernel.units import conversion
 
 
 
@@ -151,16 +152,14 @@ class ExportTEASER(ITask):
 
         teaser_class = instance_switcher.get(sw)
         if teaser_class is None:
-            print()
+            print('failed')
         teaser_instance = teaser_class(parent=parent)
         for key, value in templates['base'][sw]['exporter']['teaser'].items():
             if isinstance(value, list):
                 if value[0] == 'instance':
-                    i = 1
-                    aux = instance
-                    while i != len(value):
-                        aux = getattr(aux, value[i])
-                        i += 1
+                    aux = getattr(instance, value[1])
+                    if type(aux).__name__ == 'Quantity':
+                        aux = aux.magnitude
                     setattr(teaser_instance, key, aux)
             else:
                 setattr(teaser_instance, key, value)
@@ -184,15 +183,14 @@ class ExportTEASER(ITask):
         tz.volume = instance.area * instance.height
         tz.use_conditions = UseConditions(parent=tz)
         tz.use_conditions.load_use_conditions(instance.usage)
-        tz.use_conditions.set_temp_heat = instance.t_set_heat + 273.15
-        tz.use_conditions.set_temp_cool = instance.t_set_cool + 273.15
+        tz.use_conditions.set_temp_heat = conversion(instance.t_set_heat, '°C', 'K').magnitude
+        tz.use_conditions.set_temp_cool = conversion(instance.t_set_cool, '°C', 'K').magnitude
 
     @classmethod
     def _wall_related(cls, wall, instance):
         for layer_instance in instance.layers:
             layer = Layer(parent=wall)
             layer.thickness = layer_instance.thickness
-            # todo material
             cls._material_related(layer, layer_instance)
         # problem with layer edit
         bldg = cls._get_building(wall)
@@ -256,7 +254,6 @@ class ExportTEASER(ITask):
         for layer_instance in instance.layers:
             layer = Layer(parent=slab)
             layer.thickness = layer_instance.thickness
-            # todo material
             cls._material_related(layer, layer_instance)
         # problem with layer edit
         bldg = cls._get_building(slab)

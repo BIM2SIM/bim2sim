@@ -100,8 +100,7 @@
         ],
         "net_leased_area": [
           "instance",
-          "net_area",
-          "magnitude"
+          "net_area"
         ]
       }
     }

@@ -29,8 +29,6 @@ def propertyset2dict(propertyset):
                         propertydict[prop.Name] = prop.NominalValue.wrappedValue * unit
                     else:
                         propertydict[prop.Name] = prop.NominalValue.wrappedValue
-                else:
-                    a=1
             elif prop.is_a() == 'IfcPropertyListValue':
                 # TODO: Unit conversion
                 values = []
