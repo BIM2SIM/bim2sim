@@ -493,6 +493,12 @@ class ThermalZone(element.Element):
     )
 
     def _get_usage(bind, name):
+        pattern_usage = [
+            re.compile('Küche', flags=re.IGNORECASE),
+            re.compile('Kitchen', flags=re.IGNORECASE)
+        ]
+        for i in pattern_usage:
+            x = i.match('Küche central')
         usage_decision = ListDecision("Which usage does the Space %s have?" %
                                       (str(bind.zone_name)),
                                       choices=["Living",

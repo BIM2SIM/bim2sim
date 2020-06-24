@@ -784,7 +784,7 @@ class ListDecision(Decision):
                 body.append((i, *item))
             else:
                 # no label provided
-                body.append((i, item, '-'))
+                body.append((i, item, ' '))
         return body
 
 
