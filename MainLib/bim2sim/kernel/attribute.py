@@ -81,23 +81,23 @@ class Attribute:
             if value is None:
                 quality_logger.warning("Attribute '%s' of %s %s was not found in default Association",
                                        self.name, bind.ifc_type, bind.guid)
-        # # tool specific properties (finder)
-        # if value is None:
-        #     raw_value = self.get_from_finder(bind, self.name)
-        #     value = self.ifc_post_processing(raw_value)
-        #
-        # # custom properties by patterns
-        # if value is None and self.patterns:
-        #     raw_value = self.get_from_patterns(bind, self.patterns, self.name)
-        #     value = self.ifc_post_processing(raw_value)
+        # tool specific properties (finder)
+        if value is None:
+            raw_value = self.get_from_finder(bind, self.name)
+            value = self.ifc_post_processing(raw_value)
+
+        # custom properties by patterns
+        if value is None and self.patterns:
+            raw_value = self.get_from_patterns(bind, self.patterns, self.name)
+            value = self.ifc_post_processing(raw_value)
 
         # custom functions
         if value is None and self.functions:
             value = self.get_from_functions(bind, self.functions, self.name)
-        #
-        # # enrichment
-        # if value is None:
-        #     value = self.get_from_enrichment(bind, self.name)
+
+        # enrichment
+        if value is None:
+            value = self.get_from_enrichment(bind, self.name)
 
         # default value
         if value is None and self.default_value:
@@ -111,14 +111,6 @@ class Attribute:
             value = value * self.unit
 
         return value
-
-    # @staticmethod
-    # def get_from_default_propertyset(bind, default):
-    #     try:
-    #         value = bind.get_exact_property(default[0], default[1])
-    #     except Exception:
-    #         value = None
-    #     return value
 
     @staticmethod
     def get_from_default_propertyset(bind, name):

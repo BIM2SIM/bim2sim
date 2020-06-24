@@ -10,7 +10,7 @@ import numpy as np
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import ifc2python, attribute
-from bim2sim.decision import Decision
+from bim2sim.decision import Decision, ListDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.task.bps_f.bps_functions import angle_equivalent, vector_angle
 
@@ -360,7 +360,8 @@ class IFCBased(Root):
                 propertyset_name, property_name))
         return value
 
-    def select_from_potential_properties(self, patterns, name, collect_decisions):
+    def select_from_potential_properties(self, patterns, name,
+                                         collect_decisions):
         """Ask user to select from all properties matching patterns"""
 
         matches = self.filter_properties(patterns)
@@ -373,7 +374,8 @@ class IFCBased(Root):
                 choices.append((propertyset_name, property_name))
                 # print("%s.%s = %s"%(propertyset_name, property_name, value))
 
-            # TODO: Decision: save for all following elements of same class (dont ask again?)
+            # TODO: Decision: save for all following elements of same class (
+            #  dont ask again?)
             # selected = (propertyset_name, property_name, value)
 
             distinct_values = set(values)
@@ -381,69 +383,24 @@ class IFCBased(Root):
                 # multiple sources but common value
                 return distinct_values.pop()
 
-            # TODO: Decision with id, key, value
-            decision = ListDecision("Multiple possibilities found",
-                                    choices=dict(zip(choices, values)),
-                                    output=self.properties,
-                                    output_key=name,
-                                    global_key="%s_%s.%s" % (self.ifc_type, self.guid, name),
-                                    allow_skip=True, allow_load=True, allow_save=True,
-                                    collect=collect_decisions, quick_decide=not collect_decisions)
-
-            if collect_decisions:
-                raise PendingDecisionError()
-
-            return decision.value
-        raise NoValueError("No matching property for %s" % (patterns))
-
-    def search(self, name, collect_decisions=False):
-        """Search all potential sources for property (potentially time consuming)"""
-        if name == 'density':
-            value = 'works'
-            return value
-
-        try:
-            propertyset_name, property_name = getattr(
-                self.__class__, 'default_%s' % name, (None, None))
-            if not (propertyset_name and property_name):
-                raise NoValueError
-            value = self.get_exact_property(propertyset_name, property_name)
-            print(propertyset_name, property_name, value)
-        except NoValueError:
-            pass
-        else:
-            return value
-        # 2. find property in ifc
-        try:
-            value = self.finder.find(self, name)
-        except AttributeError:
-            pass
-        else:
-            if not value is None:
-                return value
-        # enrich implemented in attribute
-        try:
-            patterns = getattr(self.__class__, 'pattern_%s' % name, None)
-            if not patterns:
-                raise NoValueError("No patterns")
-            value = self.select_from_potential_properties(patterns, name, collect_decisions)
-        except NoValueError:
-            pass
-        else:
-            return value
-
-        final_decision = RealDecision("Enter value for %s of %s" % (name, self.name),
-                                      validate_func=lambda x: isinstance(x, float),  # TODO
-                                      output=self.properties,
-                                      output_key=name,
-                                      global_key="%s_%s.%s" % (self.ifc_type, self.guid, name),
-                                      allow_skip=True, allow_load=True, allow_save=True,
-                                      collect=collect_decisions, quick_decide=not collect_decisions)
-
-        if collect_decisions:
-            raise PendingDecisionError()
-        value = final_decision.value
-        return value
+        return None
+        #     # TODO: Decision with id, key, value
+        #     decision = DictDecision("Multiple possibilities found",
+        #                             choices=dict(zip(choices, values)),
+        #                             output=self.attributes,
+        #                             output_key=name,
+        #                             global_key="%s_%s.%s" % (self.ifc_type,
+        #                             self.guid, name),
+        #                             allow_skip=True, allow_load=True,
+        #                             allow_save=True,
+        #                             collect=collect_decisions,
+        #                             quick_decide=not collect_decisions)
+        #
+        #     if collect_decisions:
+        #         raise PendingDecisionError()
+        #
+        #     return decision.value
+        # raise NoValueError("No matching property for %s" % (patterns))
 
     def __repr__(self):
         return "<%s (%s)>" % (self.__class__.__name__, self.name)
@@ -878,7 +835,6 @@ class Element(BaseElement, IFCBased):
                     conflict = True
                     logger.error("Invalid ifc_type (%s) in '%s'", ifc_type,
                                  cls.__name__)
-                # issubclass(cls, Element._ifc_classes[])
                 elif ifc_type in Element._ifc_classes:
                     conflicting_cls = Element._ifc_classes[ifc_type]
                     if not issubclass(cls, conflicting_cls):

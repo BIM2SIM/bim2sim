@@ -184,7 +184,7 @@ class PipeStrand(Aggregation):
                 continue
 
             diameter_times_length += diameter * length
-            self._total_length += length
+            total_length += length
 
         if total_length != 0:
             avg_diameter = diameter_times_length / total_length
