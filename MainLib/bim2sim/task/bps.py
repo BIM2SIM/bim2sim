@@ -110,6 +110,14 @@ class ExportTEASER(ITask):
     materials = {}
     insts = []
 
+    instance_switcher = {'OuterWall': OuterWall,
+                         'InnerWall': InnerWall,
+                         'Floor': Floor,
+                         'Window': Window,
+                         'GroundFloor': GroundFloor,
+                         'Roof': Rooftop,
+                         'Door': Door}
+
     @staticmethod
     def _create_project(element):
         """Creates a project in TEASER by a given BIM2SIM instance
@@ -159,14 +167,6 @@ class ExportTEASER(ITask):
     def _create_teaser_instance(cls, instance, parent, bldg):
         """creates a teaser instances with a given parent and BIM2SIM instance
         get exporter necessary properties, from a given instance"""
-        instance_switcher = {'OuterWall': OuterWall,
-                             'InnerWall': InnerWall,
-                             'Floor': Floor,
-                             'Window': Window,
-                             'GroundFloor': GroundFloor,
-                             'Roof': Rooftop,
-                             'Door': Door}
-
         # determine if is instance or subinstance (disaggregation)
         if hasattr(instance, 'parent'):
             sw = type(instance.parent).__name__
@@ -175,7 +175,7 @@ class ExportTEASER(ITask):
             sw = type(instance).__name__
             templates = instance.finder.templates
 
-        teaser_class = instance_switcher.get(sw)
+        teaser_class = cls.instance_switcher.get(sw)
         if teaser_class is None:
             print('teaser class for instance not found')
         teaser_instance = teaser_class(parent=parent)
@@ -245,7 +245,7 @@ class ExportTEASER(ITask):
                     if material_ref in material_templates[k]['name']:
                         options[k] = material_templates[k]
 
-            materials_options = [[material_templates[k]['name'], k] for k in options]
+            materials_options = [material_templates[k]['name'] for k in options]
             decision1 = None
             if len(materials_options) > 0:
                 decision1 = ListDecision("Multiple possibilities found",
