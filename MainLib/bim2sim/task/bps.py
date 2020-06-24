@@ -70,6 +70,8 @@ class Inspect(ITask):
                 entities = ifc.by_type(ifc_type)
                 for entity in entities:
                     element = Element.factory(entity, ifc_type)
+                    if element.guid == '2XPyKWY018sA1ygZKgQPtU':
+                        x = element.tilt
                     self.instances[element.guid] = element
             except RuntimeError:
                 pass

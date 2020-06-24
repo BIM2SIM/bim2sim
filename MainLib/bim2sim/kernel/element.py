@@ -338,7 +338,7 @@ class IFCBased(Root):
     def get_exact_property(self, propertyset_name, property_name):
         """Returns value of property specified by propertyset name and property name
 
-        :Raises: AttriebuteError if property does not exist"""
+        :Raises: AttributeError if property does not exist"""
         self.search_property_hierarchy(propertyset_name)
         try:
             p_set = self.search_property_hierarchy(propertyset_name)

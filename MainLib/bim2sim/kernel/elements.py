@@ -489,7 +489,7 @@ class ThermalZone(element.Element):
 
     zone_name = attribute.Attribute(
         name='zone_name',
-        default_ps=('ArchiCADProperties', 'Raumname')
+        default_ps=True
     )
 
     def _get_usage(bind, name):
@@ -515,11 +515,11 @@ class ThermalZone(element.Element):
 
     t_set_heat = attribute.Attribute(
         name='t_set_heat',
-        default_ps=('Pset_SpaceThermalRequirements', 'SpaceTemperatureMin')
+        default_ps=True
     )
     t_set_cool = attribute.Attribute(
         name='t_set_cool',
-        default_ps=('Pset_SpaceThermalRequirements', 'SpaceTemperatureMax')
+        default_ps=True
     )
     # # todo remove default, when regular expression compare is implemented
     # usage = attribute.Attribute(
@@ -528,19 +528,17 @@ class ThermalZone(element.Element):
     # )
     area = attribute.Attribute(
         name='area',
-        default_ps=('BaseQuantities', 'NetFloorArea'), #fkz haus
-        # default_ps=('Qto_SpaceBaseQuantities', 'NetFloorArea'), #vereinhaus
+        default_ps=True,
         default=0
     )
     net_volume = attribute.Attribute(
         name='net_volume',
-        default_ps=('BaseQuantities', 'NetVolume'), #fkz haus
-        # default_ps=('Qto_SpaceBaseQuantities', 'NetFloorArea'), #vereinhaus
+        default_ps=True,
         default=0
     )
     height = attribute.Attribute(
         name='height',
-        default_ps=('BaseQuantities', 'Height'),
+        default_ps=True,
         default=0
     )
 
@@ -685,32 +683,31 @@ class Wall(element.Element):
 
     area = attribute.Attribute(
         name='area',
-        default_ps=('BaseQuantities', 'NetSideArea'),
+        default_ps=True,
         default=1
     )
 
     is_external = attribute.Attribute(
         name='is_external',
-        default_ps=('Pset_WallCommon', 'IsExternal'),
+        default_ps=True,
         default=False
     )
 
     thermal_transmittance = attribute.Attribute(
         name='thermal_transmittance',
-        default_ps=('Pset_WallCommon', 'ThermalTransmittance'),
+        default_ps=True,
         default=0
     )
 
     material = attribute.Attribute(
         name='material',
-        # todo just for testing, this is file specific
-        default_ps=('ArchiCADProperties', 'Baustoff/Mehrschicht/Profil'),
+        default_ps=True,
         default=0
     )
 
     thickness = attribute.Attribute(
         name='thickness',
-        default_ps=('BaseQuantities', 'Width'),
+        default_ps=True,
         # functions=[_get_wall_properties],
         default=0
     )
@@ -729,8 +726,7 @@ class Wall(element.Element):
 
     tilt = attribute.Attribute(
         name='thermal_transmittance',
-        #todo just for testing, this is file specific
-        default_ps=('ArchiCADProperties', 'Äußerer Neigungswinkel'),
+        default_ps=True,
         default=0
     )
 
@@ -793,25 +789,25 @@ class Window(element.Element):
 
     is_external = attribute.Attribute(
         name='is_external',
-        default_ps='-',
+        default_ps=True,
         default=True
     )
 
     area = attribute.Attribute(
         name='area',
-        default_ps='-',
+        default_ps=True,
         default=0
     )
 
     thickness = attribute.Attribute(
         name='thickness',
-        default_ps='-',
+        default_ps=True,
         default=0
     )
 
     material = attribute.Attribute(
         name='material',
-        default_ps='-',
+        default_ps=True,
         default=0
     )
 
@@ -826,25 +822,25 @@ class Door(element.Element):
 
     is_external = attribute.Attribute(
         name='is_external',
-        default_ps='-',
+        default_ps=True,
         default=True
     )
 
     area = attribute.Attribute(
         name='area',
-        default_ps='-',
+        default_ps=True,
         default=0
     )
 
     thickness = attribute.Attribute(
         name='thickness',
-        default_ps='-',
+        default_ps=True,
         default=0
     )
 
     material = attribute.Attribute(
         name='material',
-        default_ps='-',
+        default_ps=True,
         default=0
     )
 
@@ -914,25 +910,25 @@ class Slab(element.Element):
     )
     area = attribute.Attribute(
         name='area',
-        default_ps=('BaseQuantities', 'GrossArea'),
+        default_ps=True,
         default=0
     )
 
     thickness = attribute.Attribute(
         name='thickness',
-        default_ps=('BaseQuantities', 'Width'),
+        default_ps=True,
         default=0
     )
 
     thermal_transmittance = attribute.Attribute(
         name='thermal_transmittance',
-        default_ps=('Pset_SlabCommon', 'ThermalTransmittance'),
+        default_ps=True,
         default=0
     )
 
     is_external = attribute.Attribute(
         name='thermal_transmittance',
-        default_ps=('Pset_SlabCommon', 'IsExternal'),
+        default_ps=True,
         default=0
     )
 
@@ -982,45 +978,45 @@ class Building(element.Element):
 
     year_of_construction = attribute.Attribute(
         name='year_of_construction',
-        default_ps=('Pset_BuildingCommon', 'YearOfConstruction')
+        default_ps=True
     )
     gross_area = attribute.Attribute(
         name='gross_area',
-        default_ps=('Pset_BuildingCommon', 'GrossPlannedArea')
+        default_ps=True
     )
     net_area = attribute.Attribute(
         name='net_area',
-        default_ps=('Pset_BuildingCommon', 'NetAreaPlanned')
+        default_ps=True
     )
     number_of_storeys = attribute.Attribute(
         name='number_of_storeys',
-        default_ps=('Pset_BuildingCommon', 'NumberOfStoreys')
+        default_ps=True
     )
     occupancy_type = attribute.Attribute(
         name='occupancy_type',
-        default_ps=('Pset_BuildingCommon', 'OccupancyType')
+        default_ps=True
     )
 
 
 class Storey(element.Element):
     ifc_type = 'IfcBuildingStorey'
 
-    gross_foor_area = attribute.Attribute(
-        name='gross_foor_area',
-        default_ps=('BaseQuantities', 'GrossFloorArea')
+    gross_floor_area = attribute.Attribute(
+        name='gross_floor_area',
+        default_ps=True
     )
     #todo make the lookup for height hierarchical
     net_height = attribute.Attribute(
         name='net_height',
-        default_ps=('BaseQuantities', 'NetHeight')
+        default_ps=True
     )
     gross_height = attribute.Attribute(
         name='gross_height',
-        default_ps=('BaseQuantities', 'GrossHeight')
+        default_ps=True
     )
     height = attribute.Attribute(
         name='height',
-        default_ps=('BaseQuantities', 'Height')
+        default_ps=True
     )
 
 
