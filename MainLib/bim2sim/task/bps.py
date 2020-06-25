@@ -141,6 +141,7 @@ class ExportTEASER(ITask):
         cls._teaser_property_getter(tz, instance, instance.finder.templates)
         tz.volume = instance.area * instance.height
         tz.use_conditions = UseConditions(parent=tz)
+        x = instance.usage
         tz.use_conditions.load_use_conditions(instance.usage)
         tz.use_conditions.set_temp_heat = conversion(instance.t_set_heat, '°C', 'K').magnitude
         tz.use_conditions.set_temp_cool = conversion(instance.t_set_cool, '°C', 'K').magnitude

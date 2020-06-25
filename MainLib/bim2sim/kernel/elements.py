@@ -493,12 +493,28 @@ class ThermalZone(element.Element):
     )
 
     def _get_usage(bind, name):
-        pattern_usage = [
-            re.compile('Küche', flags=re.IGNORECASE),
-            re.compile('Kitchen', flags=re.IGNORECASE)
-        ]
-        for i in pattern_usage:
-            x = i.match('Küche central')
+        pattern_usage = {
+            "Living": [
+                re.compile('Living', flags=re.IGNORECASE),
+                re.compile('Wohnen', flags=re.IGNORECASE)
+            ],
+            "Traffic area": [
+                re.compile('Traffic', flags=re.IGNORECASE),
+                re.compile('Flur', flags=re.IGNORECASE)
+            ],
+            "Bed room": [
+                re.compile('Bed', flags=re.IGNORECASE),
+                re.compile('Schlafzimmer', flags=re.IGNORECASE)
+            ],
+            "Kitchen - preparations, storage": [
+                re.compile('Küche', flags=re.IGNORECASE),
+                re.compile('Kitchen', flags=re.IGNORECASE)
+            ]
+        }
+        for usage, pattern in pattern_usage.items():
+            for i in pattern:
+                if i.match(bind.zone_name):
+                    return usage
         usage_decision = ListDecision("Which usage does the Space %s have?" %
                                       (str(bind.zone_name)),
                                       choices=["Living",
@@ -744,6 +760,7 @@ class Layer(element.BaseElementNoPorts):
 
     def __init__(self, parent, thickness, material_name, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.enrichment = {}
         self.material = material_name
         self.parent = parent
         self.thickness = thickness
