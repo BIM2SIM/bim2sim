@@ -769,20 +769,19 @@ class Layer(element.BaseElementNoPorts):
         return "<%s (material: %s>" \
                % (self.__class__.__name__, self.material)
 
-    # material = attribute.Attribute(
-    #     name='material',
-    #     # todo just for testing, this is file specific
-    #     default_ps=('ArchiCADProperties', 'Baustoff/Mehrschicht/Profil'),
-    #     default=0
-    # )
-
     heat_capacity = attribute.Attribute(
         name='heat_capacity',
+        default_ps=True,
         default=0
     )
 
     density = attribute.Attribute(
         name='density',
+        default=0
+    )
+
+    thermal_conductivity = attribute.Attribute(
+        name='thermal_conductivity',
         default=0
     )
 

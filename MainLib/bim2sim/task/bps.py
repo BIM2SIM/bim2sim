@@ -222,46 +222,55 @@ class ExportTEASER(ITask):
         prj = bldg.parent
         material = Material(parent=layer)
         material_ref = ''.join([i for i in layer_instance.material if not i.isdigit()]).lower().strip()
+        x= layer_instance.heat_capacity
+        density = layer_instance.density = 0.9
+        heat_cap = layer_instance.heat_capacity = 0.8
 
-        try:
-            material_name = cls.materials[layer_instance.material]
-        except KeyError:
-            Materials_DEU = layer_instance.parent.finder.templates['base']['Material']['DEU']
-            material_templates = dict(prj.data.material_bind)
-            del material_templates['version']
+        if not (density is None and heat_cap is None):
+            material.name = layer_instance.material
+            material.density = density
+            material.heat_capac = heat_cap
+            material.thermal_conduc = 0.8
 
-            for k in Materials_DEU:
-                if material_ref in k:
-                    material_ref = Materials_DEU[k]
-
-            options = {}
-            for k in material_templates:
-                if material_ref in material_templates[k]['name']:
-                    options[k] = material_templates[k]
-            while len(options) == 0:
-                decision_ = input(
-                    "Material not found, enter value for the material:")
-                material_ref = decision_
-                for k in material_templates:
-                    if material_ref in material_templates[k]['name']:
-                        options[k] = material_templates[k]
-
-            materials_options = [material_templates[k]['name'] for k in options]
-            decision1 = None
-            if len(materials_options) > 0:
-                decision1 = ListDecision("Multiple possibilities found",
-                                         choices=list(materials_options),
-                                         allow_skip=True, allow_load=True, allow_save=True,
-                                         collect=False, quick_decide=not True)
-                decision1.decide()
-
-            cls.materials[layer_instance.material] = decision1.value
-            material_name = decision1.value
-
-        material.load_material_template(
-            mat_name=material_name,
-            data_class=prj.data,
-        )
+        # try:
+        #     material_name = cls.materials[layer_instance.material]
+        # except KeyError:
+        #     Materials_DEU = layer_instance.parent.finder.templates['base']['Material']['DEU']
+        #     material_templates = dict(prj.data.material_bind)
+        #     del material_templates['version']
+        #
+        #     for k in Materials_DEU:
+        #         if material_ref in k:
+        #             material_ref = Materials_DEU[k]
+        #
+        #     options = {}
+        #     for k in material_templates:
+        #         if material_ref in material_templates[k]['name']:
+        #             options[k] = material_templates[k]
+        #     while len(options) == 0:
+        #         decision_ = input(
+        #             "Material not found, enter value for the material:")
+        #         material_ref = decision_
+        #         for k in material_templates:
+        #             if material_ref in material_templates[k]['name']:
+        #                 options[k] = material_templates[k]
+        #
+        #     materials_options = [material_templates[k]['name'] for k in options]
+        #     decision1 = None
+        #     if len(materials_options) > 0:
+        #         decision1 = ListDecision("Multiple possibilities found",
+        #                                  choices=list(materials_options),
+        #                                  allow_skip=True, allow_load=True, allow_save=True,
+        #                                  collect=False, quick_decide=not True)
+        #         decision1.decide()
+        #
+        #     cls.materials[layer_instance.material] = decision1.value
+        #     material_name = decision1.value
+        #
+        # material.load_material_template(
+        #     mat_name=material_name,
+        #     data_class=prj.data,
+        # )
 
     @classmethod
     def _window_related(cls, window, instance, bldg):
