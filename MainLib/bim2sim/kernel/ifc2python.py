@@ -53,24 +53,43 @@ def propertyset2dict(propertyset):
                         else:
                             propertydict[prop.Name] = p_value
                         break
-
-
+    elif hasattr(propertyset, 'Properties'):
+        for prop in propertyset.Properties:
+            unit = parse_ifc(prop.Unit) if prop.Unit else None
+            if prop.is_a() == 'IfcPropertySingleValue':
+                if prop.NominalValue is not None:
+                    unit = ifcunits.get(prop.NominalValue.is_a()) if not unit else unit
+                    if unit:
+                        propertydict[prop.Name] = prop.NominalValue.wrappedValue * unit
+                    else:
+                        propertydict[prop.Name] = prop.NominalValue.wrappedValue
+            elif prop.is_a() == 'IfcPropertyListValue':
+                # TODO: Unit conversion
+                values = []
+                for value in prop.ListValues:
+                    unit = ifcunits.get(value.is_a()) if not unit else unit
+                    values.append(value.wrappedValue * unit)
+                propertydict[prop.Name] = values
+            elif prop.is_a() == 'IfcPropertyBoundedValue':
+                # TODO: Unit conversion
+                propertydict[prop.Name] = (prop, prop)
+                raise NotImplementedError("Property of type '%s'"%prop.is_a())
+            else:
+                raise NotImplementedError("Property of type '%s'"%prop.is_a())
 
     return propertydict
 
 
 def get_layers_ifc(element):
-    dict = {}
+    dict = []
     relation = 'RelatingMaterial'
     assoc_list = getIfcAttribute(element.ifc, "HasAssociations")
     for assoc in assoc_list:
         association = getIfcAttribute(assoc, relation)
         if association is not None:
             layer_list = association.ForLayerSet.MaterialLayers
-            for count, layer in enumerate(layer_list):
-                thickness = layer.LayerThickness
-                material_name = layer.Material.Name
-                dict[count] = [thickness, material_name]
+            for layer in layer_list:
+                dict.append(layer)
     return dict
 
 
@@ -126,9 +145,15 @@ def get_property_sets(element):
     """
     # TODO: Unit conversion
     property_sets = {}
-    for defined in element.IsDefinedBy:
-        property_set_name = defined.RelatingPropertyDefinition.Name
-        property_sets[property_set_name] = propertyset2dict(defined.RelatingPropertyDefinition)
+    if hasattr(element, 'IsDefinedBy'):
+        for defined in element.IsDefinedBy:
+            property_set_name = defined.RelatingPropertyDefinition.Name
+            property_sets[property_set_name] = propertyset2dict(defined.RelatingPropertyDefinition)
+    elif hasattr(element, 'Material'):
+        for defined in element.Material.HasProperties:
+            property_set_name = defined.Name
+            property_sets[property_set_name] = propertyset2dict(defined)
+
 
     return property_sets
 

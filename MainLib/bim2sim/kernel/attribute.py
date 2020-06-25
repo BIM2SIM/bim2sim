@@ -65,8 +65,6 @@ class Attribute:
         # TODO argument for validation function
 
     def _get_value(self, bind):
-        if bind.guid == '0000000000000000000002':
-            print()
         value = None
         # default property set
         if value is None and self.default_ps:

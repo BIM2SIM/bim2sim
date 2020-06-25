@@ -621,8 +621,10 @@ class Wall(element.Element):
     def _get_layers(bind, name):
         layers = []
         material_layers_dict = get_layers_ifc(bind)
-        for layer, values in material_layers_dict.items():
-            layers.append(Layer(bind, values[0], values[1]))
+        for layer in material_layers_dict:
+            new_layer = element.SubElement.factory(layer, 'IfcMaterialLayer')
+            new_layer.parent = bind
+            layers.append(new_layer)
         return layers
 
     layers = attribute.Attribute(
@@ -754,16 +756,14 @@ class Wall(element.Element):
     )
 
 
-class Layer(element.BaseElementNoPorts):
-    ifc_type = None
+class Layer(element.SubElement):
+    ifc_type = 'IfcMaterialLayer'
     material_selected = {}
 
-    def __init__(self, parent, thickness, material_name, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.enrichment = {}
-        self.material = material_name
-        self.parent = parent
-        self.thickness = thickness
+        self.material = self.ifc.Material.Name
+        self.thickness = self.ifc.LayerThickness
 
     def __repr__(self):
         return "<%s (material: %s>" \
@@ -777,11 +777,13 @@ class Layer(element.BaseElementNoPorts):
 
     density = attribute.Attribute(
         name='density',
+        default_ps=True,
         default=0
     )
 
     thermal_conductivity = attribute.Attribute(
         name='thermal_conductivity',
+        default_ps=True,
         default=0
     )
 
@@ -923,8 +925,10 @@ class Slab(element.Element):
     def _get_layers(bind, name):
         layers = []
         material_layers_dict = get_layers_ifc(bind)
-        for layer, values in material_layers_dict.items():
-            layers.append(Layer(bind, values[0], values[1]))
+        for layer in material_layers_dict:
+            new_layer = element.SubElement.factory(layer, 'IfcMaterialLayer')
+            new_layer.parent = bind
+            layers.append(new_layer)
         return layers
 
     layers = attribute.Attribute(

@@ -75,7 +75,7 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
     def get_id(prefix=""):
         prefix_length = len(prefix)
         if prefix_length > 8:
-            raise AttributeError("Max prefix legth is 8!")
+            raise AttributeError("Max prefix length is 8!")
         Root._id_counter += 1
         return "{0:0<8s}{1:0>14d}".format(prefix, Root._id_counter)
 
@@ -116,14 +116,67 @@ class IFCBasedSubElement(Root):
     _ifc_classes = {}
 
     def __init__(self, ifc, *args, **kwargs):
-        super().__init__(*args, guid=ifc.GlobalId, **kwargs)
+        if hasattr(ifc, 'GlobalId'):
+            super().__init__(*args, guid=ifc.GlobalId, **kwargs)
+        # subelement can be an ifc instance that doesnt have a GlobalId
+        else:
+            super().__init__(*args, guid=self.get_id(type(self).__name__), **kwargs)
         self.ifc = ifc
         self.name = ifc.Name
+        self.enrichment = {}
+        self._propertysets = None
+
 
     @property
     def ifc_type(self):
         """Returns IFC type"""
         return self.__class__.ifc_type
+
+    def get_propertysets(self):
+        if self._propertysets is None:
+            self._propertysets = ifc2python.get_property_sets(self.ifc)
+        return self._propertysets
+
+    def get_type_propertysets(self):
+        if self._type_propertysets is None:
+            self._type_propertysets = ifc2python.get_type_property_sets(self.ifc)
+        return self._type_propertysets
+
+    def search_property_hierarchy(self, propertyset_name):
+        """Search for property in all related properties in hierarchical order.
+
+        1. element's propertysets
+        2. element type's propertysets"""
+
+        p_set = None
+        p_sets = self.get_propertysets()
+        try:
+            p_set = p_sets[propertyset_name]
+        except KeyError:
+            pass
+        else:
+            return p_set
+
+        pt_sets = self.get_type_propertysets()
+        try:
+            p_set = pt_sets[propertyset_name]
+        except KeyError:
+            pass
+        else:
+            return p_set
+        return p_set
+
+    def get_exact_property(self, propertyset_name, property_name):
+        """Returns value of property specified by propertyset name and property name
+
+        :Raises: AttributeError if property does not exist"""
+        try:
+            p_set = self.search_property_hierarchy(propertyset_name)
+            value = p_set[property_name]
+        except (AttributeError, KeyError, TypeError):
+            raise NoValueError("Property '%s.%s' does not exist" % (
+                propertyset_name, property_name))
+        return value
 
     def __repr__(self):
         return "<%s (%s)>" % (self.__class__.__name__, self.name)
@@ -707,11 +760,15 @@ class BaseSubElement(BaseElementNoPorts):
     def __repr__(self):
         return "<%s (ports: %d)>" % (self.__class__.__name__, len(self.ports))
 
+
 class SubElement(BaseSubElement, IFCBasedSubElement):
+
+    finder = None
 
     def __init__(self, *args, tool=None, **kwargs):
         super().__init__(*args, **kwargs)
         self._tool = tool
+        self.parent = None
 
     @staticmethod
     def _init_factory():
@@ -777,6 +834,20 @@ class SubElement(BaseSubElement, IFCBasedSubElement):
 
         prefac = cls(ifc=ifc_element, tool=tool)
         return prefac
+
+    @property
+    def source_tool(self):
+        """Name of tool that the parent has been created with"""
+        if hasattr(self.parent, 'source_tool'):
+            self._tool = self.parent.source_tool
+        return self._tool
+
+    @property
+    def finder(self):
+        """finder that the parent has been created with"""
+        if hasattr(self.parent, 'finder'):
+            return self.parent.finder
+
 
     def __repr__(self):
         return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)

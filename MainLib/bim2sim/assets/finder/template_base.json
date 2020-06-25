@@ -130,6 +130,26 @@
     "DEU": {
       "leichtbeton" : "lightweight_concrete",
       "stahlbeton" : "concrete"
+    },
+	"exporter": {
+      "teaser": {
+        "name": [
+          "instance",
+          "material"
+        ],
+        "density": [
+          "instance",
+          "density"
+        ],
+        "heat_capac": [
+          "instance",
+          "heat_capacity"
+        ],
+        "thermal_conduc": [
+          "instance",
+          "thermal_conductivity"
+        ]
+      }
     }
   }
 }
