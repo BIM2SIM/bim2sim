@@ -1,4 +1,4 @@
-﻿"""BIM2SIM library"""
+"""BIM2SIM library"""
 
 import os
 import sys
@@ -143,6 +143,21 @@ def _debug_run_bps():
 
     main(path_example)
 
+def _debug_run_bps_ep():
+    """Create example project and copy ifc if necessary"""
+    path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+
+    rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
+    # rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
+    path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
+    # path_ifc = os.path.normpath(os.path.join('/home/veronika/PycharmProjects/bim2sim-coding/ExampleFiles/AC20-FZK-Haus.ifc'))
+    path_example = r"/home/veronika/testproject_bps_ep"
+
+    if not PROJECT.is_project_folder(path_example):
+        PROJECT.create(path_example, path_ifc, 'ENERGYPLUS')
+
+    main(path_example)
+
 
 
 def _debug_run_hvac_aixlib():
@@ -168,7 +183,8 @@ def _debug_run_cfd():
 
 
 if __name__ == '__main__':
+    # _debug_run_bps()
+    _debug_run_bps_ep()
     # _debug_run_cfd()
-    _debug_run_bps()
     # _debug_run_hvac()
 
