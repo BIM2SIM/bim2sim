@@ -125,6 +125,7 @@ class IFCBasedSubElement(Root):
         self.name = ifc.Name
         self.enrichment = {}
         self._propertysets = None
+        self._type_propertysets = None
 
 
     @property

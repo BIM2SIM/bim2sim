@@ -757,13 +757,21 @@ class Wall(element.Element):
 
 
 class Layer(element.SubElement):
-    ifc_type = 'IfcMaterialLayer'
+    ifc_type = ['IfcMaterialLayer', 'IfcMaterial']
     material_selected = {}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.material = self.ifc.Material.Name
-        self.thickness = self.ifc.LayerThickness
+        if hasattr(self.ifc, 'Material'):
+            material = self.ifc.Material
+        else:
+            material = self.ifc
+        self.material = material.Name
+        if hasattr(self.ifc, 'LayerThickness'):
+            self.thickness = self.ifc.LayerThickness
+        else:
+            self.thickness = 0.1
+            # self.thickness = float(input('Thickness not given, please provide a value:'))
 
     def __repr__(self):
         return "<%s (material: %s>" \
@@ -812,6 +820,20 @@ class Window(element.Element):
         re.compile('Fenster', flags=re.IGNORECASE)
     ]
 
+    def _get_layers(bind, name):
+        layers = []
+        material_layers_dict = get_layers_ifc(bind)
+        for layer in material_layers_dict:
+            new_layer = element.SubElement.factory(layer, layer.is_a())
+            new_layer.parent = bind
+            layers.append(new_layer)
+        return layers
+
+    layers = attribute.Attribute(
+        name='layers',
+        functions=[_get_layers]
+    )
+
     is_external = attribute.Attribute(
         name='is_external',
         default_ps=True,
@@ -844,6 +866,20 @@ class Door(element.Element):
         re.compile('Door', flags=re.IGNORECASE),
         re.compile('Tuer', flags=re.IGNORECASE)
     ]
+
+    def _get_layers(bind, name):
+        layers = []
+        material_layers_dict = get_layers_ifc(bind)
+        for layer in material_layers_dict:
+            new_layer = element.SubElement.factory(layer, layer.is_a())
+            new_layer.parent = bind
+            layers.append(new_layer)
+        return layers
+
+    layers = attribute.Attribute(
+        name='layers',
+        functions=[_get_layers]
+    )
 
     is_external = attribute.Attribute(
         name='is_external',

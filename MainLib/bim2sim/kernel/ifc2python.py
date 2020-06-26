@@ -87,7 +87,11 @@ def get_layers_ifc(element):
     for assoc in assoc_list:
         association = getIfcAttribute(assoc, relation)
         if association is not None:
-            layer_list = association.ForLayerSet.MaterialLayers
+            layer_list = None
+            if hasattr(association, 'ForLayerSet'):
+                layer_list = association.ForLayerSet.MaterialLayers
+            elif hasattr(association, 'Materials'):
+                layer_list = association.Materials
             for layer in layer_list:
                 dict.append(layer)
     return dict
@@ -153,7 +157,10 @@ def get_property_sets(element):
         for defined in element.Material.HasProperties:
             property_set_name = defined.Name
             property_sets[property_set_name] = propertyset2dict(defined)
-
+    elif element.is_a('IfcMaterial'):
+        for defined in element.HasProperties:
+            property_set_name = defined.Name
+            property_sets[property_set_name] = propertyset2dict(defined)
 
     return property_sets
 
@@ -164,9 +171,10 @@ def get_type_property_sets(element):
     :return: dict(of dicts)"""
     # TODO: use guids to get type propertysets (they are userd by many entitys)
     property_sets = {}
-    for defined_type in element.IsTypedBy:
-        for propertyset in defined_type.RelatingType.HasPropertySets:
-            property_sets[propertyset.Name] = propertyset2dict(propertyset)
+    if hasattr(element, 'IsTypedBy'):
+        for defined_type in element.IsTypedBy:
+            for propertyset in defined_type.RelatingType.HasPropertySets:
+                property_sets[propertyset.Name] = propertyset2dict(propertyset)
 
     return property_sets
 

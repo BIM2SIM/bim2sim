@@ -131,6 +131,8 @@ class ExportTEASER(ITask):
 
     @classmethod
     def _create_building(cls, instance, parent):
+        """Creates a building in TEASER by a given BIM2SIM instance
+        Parent: Project"""
         bldg = Building(parent=parent)
         cls._teaser_property_getter(bldg, instance, instance.finder.templates)
 
@@ -138,6 +140,8 @@ class ExportTEASER(ITask):
 
     @classmethod
     def _create_thermal_zone(cls, instance, parent):
+        """Creates a thermal zone in TEASER by a given BIM2SIM instance
+        Parent: Building"""
         tz = ThermalZone(parent=parent)
         cls._teaser_property_getter(tz, instance, instance.finder.templates)
         tz.volume = instance.area * instance.height
@@ -149,6 +153,8 @@ class ExportTEASER(ITask):
 
     @staticmethod
     def _teaser_property_getter(teaser_instance, instance, templates):
+        """get and set all properties necessary to create a Teaser Instance from a BIM2Sim Instance,
+        based on the information on the base.json exporter"""
         sw = type(teaser_instance).__name__
         if sw == 'Rooftop':
             sw = 'Roof'
@@ -158,16 +164,21 @@ class ExportTEASER(ITask):
                     aux = getattr(instance, value[1])
                     if type(aux).__name__ == 'Quantity':
                         aux = aux.magnitude
-                    setattr(teaser_instance, key, aux)
+                    if aux is not None:
+                        try:
+                            setattr(teaser_instance, key, aux)
+                        except ZeroDivisionError:
+                            return True
+                    else:
+                        return True
             else:
                 setattr(teaser_instance, key, value)
-
-        return sw
 
     @classmethod
     def _create_teaser_instance(cls, instance, parent, bldg):
         """creates a teaser instances with a given parent and BIM2SIM instance
-        get exporter necessary properties, from a given instance"""
+        get exporter necessary properties, from a given instance
+        Parent: ThermalZone"""
         # determine if is instance or subinstance (disaggregation)
         if hasattr(instance, 'parent'):
             sw = type(instance.parent).__name__
@@ -184,12 +195,12 @@ class ExportTEASER(ITask):
         cls._teaser_property_getter(teaser_instance, instance, templates)
 
         # instance related especific functions
-        instance_related = {InnerWall: cls._wall_related,
-                            OuterWall: cls._wall_related,
+        instance_related = {InnerWall: cls._instance_related,
+                            OuterWall: cls._instance_related,
                             Window: cls._window_related,
-                            Rooftop: cls._slab_related,
-                            Floor: cls._slab_related,
-                            GroundFloor: cls._slab_related,
+                            Rooftop: cls._instance_related,
+                            Floor: cls._instance_related,
+                            GroundFloor: cls._instance_related,
                             Door: cls._window_related}
 
         related_function = instance_related.get(type(teaser_instance))
@@ -200,31 +211,39 @@ class ExportTEASER(ITask):
 
     @classmethod
     def _bind_instances_to_zone(cls, tz, tz_instance, bldg):
-        """create and bind the instances of a given thermal zone to a teaser instances thermal zone"""
+        """create and bind the instances of a given thermal zone to a teaser instance thermal zone"""
         for bound_element in tz_instance.bound_elements:
             inst = cls._create_teaser_instance(bound_element, tz, bldg)
             cls.insts.append(inst)
 
     @classmethod
-    def _wall_related(cls, wall, instance, bldg):
-        """wall instance specific functions"""
+    def _instance_related(cls, teaser_instance, instance, bldg):
+        """instance specific function, layers creation
+        if layers not given, loads template"""
+        construction_list = ['light', 'EnEv', 'heavy']
         if len(instance.layers) > 0:
             for layer_instance in instance.layers:
-                layer = Layer(parent=wall)
+                layer = Layer(parent=teaser_instance)
                 layer.thickness = layer_instance.thickness
                 cls._material_related(layer, layer_instance, bldg)
         else:
-            wall.load_type_element(year=bldg.year_of_construction, construction="light")
+            decision_construction = ListDecision("one or more materials of the instances were not found, "
+                                                 "select a construction type to continue:",
+                                                 choices=list(construction_list),
+                                                 allow_skip=True, allow_load=True, allow_save=True,
+                                                 collect=False, quick_decide=not True)
+            decision_construction.decide()
+            teaser_instance.load_type_element(year=bldg.year_of_construction, construction=decision_construction.value)
 
     @classmethod
     def _material_related(cls, layer, layer_instance, bldg):
-        """material instance specific functions"""
+        """material instance specific functions, get properties of material and creates Material in teaser,
+        if material or properties not given, loads material template"""
         prj = bldg.parent
         material = Material(parent=layer)
         material_ref = ''.join([i for i in layer_instance.material if not i.isdigit()]).lower().strip()
-        try:
-            cls._teaser_property_getter(material, layer_instance, layer_instance.finder.templates)
-        except ZeroDivisionError:
+        error = cls._teaser_property_getter(material, layer_instance, layer_instance.finder.templates)
+        if error is True:
             try:
                 material_name = cls.materials[layer_instance.material]
             except KeyError:
@@ -269,20 +288,10 @@ class ExportTEASER(ITask):
 
     @classmethod
     def _window_related(cls, window, instance, bldg):
-        """window instance specific functions"""
+        """window instance specific functions, if material not given, loads material"""
         # question necessary?
+        #problem with instance related
         window.load_type_element(year=bldg.year_of_construction, construction="EnEv")
-
-    @classmethod
-    def _slab_related(cls, slab, instance, bldg):
-        """slab instance specific functions"""
-        if len(instance.layers) > 0:
-            for layer_instance in instance.layers:
-                layer = Layer(parent=slab)
-                layer.thickness = layer_instance.thickness
-                cls._material_related(layer, layer_instance, bldg)
-        else:
-            slab.load_type_element(year=bldg.year_of_construction, construction="light")
 
     @Task.log
     def run(self, workflow, instances, ifc):

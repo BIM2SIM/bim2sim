@@ -147,7 +147,7 @@ class Attribute:
         if finder:  # Aggregations have no finder
             try:
                 return bind.finder.find(bind, name)
-            except AttributeError:
+            except (AttributeError, TypeError):
                 pass
         return None
 
