@@ -114,6 +114,7 @@ class IFCBasedSubElement(Root):
     """Mixin for IFC representating subclasses"""
     ifc_type = None
     _ifc_classes = {}
+    _ifc_subclasses = {}
 
     def __init__(self, ifc, *args, **kwargs):
         if hasattr(ifc, 'GlobalId'):
@@ -728,7 +729,7 @@ def get_all_subclasses(cls):
 
 class BaseSubElement(BaseElementNoPorts):
     """Base class for all elements with ports-neighbors
-    relevant for dissagregation than inherits from Element"""
+    relevant for disaggregation than inherits from Element"""
     objects = {}
 
     def __init__(self, *args, **kwargs):
@@ -780,14 +781,14 @@ class SubElement(BaseSubElement, IFCBasedSubElement):
                     conflict = True
                     logger.error("Invalid ifc_type (%s) in '%s'", ifc_type,
                                  cls.__name__)
-                elif ifc_type in SubElement._ifc_classes:
-                    conflicting_cls = SubElement._ifc_classes[ifc_type]
+                elif ifc_type in SubElement._ifc_subclasses:
+                    conflicting_cls = SubElement._ifc_subclasses[ifc_type]
                     if not issubclass(cls, conflicting_cls):
                         conflict = True
                         logger.error(
                             "Conflicting ifc_types (%s) in '%s' and '%s'",
                             ifc_type, cls.__name__,
-                            SubElement._ifc_classes[ifc_type])
+                            SubElement._ifc_subclasses[ifc_type])
                 elif cls.__name__ == "Dummy":
                     Element.dummy = cls
                 elif not ifc_type.lower().startswith("ifc"):
@@ -795,33 +796,32 @@ class SubElement(BaseSubElement, IFCBasedSubElement):
                     logger.error("Invalid ifc_type (%s) in '%s'", ifc_type,
                                  cls.__name__)
                 else:
-                    SubElement._ifc_classes[ifc_type] = cls
+                    SubElement._ifc_subclasses[ifc_type] = cls
 
         if conflict:
             raise AssertionError(
                 "Conflict(s) in Models. (See log for details).")
 
         # Model.dummy = Model.ifc_classes['any']
-        if not SubElement._ifc_classes:
+        if not SubElement._ifc_subclasses:
             raise ElementError(
                 "Failed to initialize Element factory. No elements found!")
 
         model_txt = "\n".join(
-            " - %s" % (model) for model in SubElement._ifc_classes)
+            " - %s" % (model) for model in SubElement._ifc_subclasses)
         logger.debug("IFC model factory initialized with %d ifc classes:\n%s",
-                     len(SubElement._ifc_classes), model_txt)
+                     len(SubElement._ifc_subclasses), model_txt)
 
     @staticmethod
     def factory(ifc_element, alternate_ifc_type=None, tool=None):
         """Create model depending on ifc_subelement"""
-
-        if not SubElement._ifc_classes:
+        if not SubElement._ifc_subclasses:
             SubElement._init_factory()
 
         ifc_type = ifc_element.is_a() \
             if not alternate_ifc_type or alternate_ifc_type == ifc_element.is_a() \
             else alternate_ifc_type
-        cls = SubElement._ifc_classes.get(ifc_type, Element.dummy)
+        cls = SubElement._ifc_subclasses.get(ifc_type, Element.dummy)
         if cls is Element.dummy:
             logger = logging.getLogger(__name__)
             logger.warning("Did not found matching class for %s", ifc_type)
