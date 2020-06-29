@@ -182,28 +182,20 @@ class IFCBasedSubElement(Root):
     def __repr__(self):
         return "<%s (%s)>" % (self.__class__.__name__, self.name)
 
-class IFCBased(Root):
+
+class IFCBased(IFCBasedSubElement):
     """Mixin for all IFC representating classes"""
-    ifc_type = None
     predefined_type = None
-    _ifc_classes = {}
     pattern_ifc_type = []
 
-    def __init__(self, ifc, *args, **kwargs):
-        super().__init__(*args, guid=ifc.GlobalId, **kwargs)
-        self.ifc = ifc
-        self.name = ifc.Name
-        self.predefined_type = ifc2python.get_predefined_type(ifc)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.predefined_type = ifc2python.get_predefined_type(self.ifc)
         self.enrichment = {}
         self._propertysets = None
         self._type_propertysets = None
 
         self._decision_results = {}
-
-    @property
-    def ifc_type(self):
-        """Returns IFC type"""
-        return self.__class__.ifc_type
 
     def calc_position(self):
         """returns absolute position"""
@@ -735,7 +727,8 @@ def get_all_subclasses(cls):
 
 
 class BaseSubElement(BaseElementNoPorts):
-    """Base class for all elements with ports"""
+    """Base class for all elements with ports-neighbors
+    relevant for dissagregation than inherits from Element"""
     objects = {}
 
     def __init__(self, *args, **kwargs):

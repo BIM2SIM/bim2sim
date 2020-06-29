@@ -633,6 +633,7 @@ class Wall(element.Element):
     )
 
     def _get_wall_properties(bind, name):
+        """get wall material properties based on teaser templates if properties not given"""
         material = bind.material
         material_ref = ''.join([i for i in material if not i.isdigit()])
         is_external = bind.is_external
@@ -678,7 +679,7 @@ class Wall(element.Element):
                     bind.material_selected[material_templates[decision1.value[1]]['name']] = {}
                     bind.material_selected[material_templates[decision1.value[1]]['name']]['properties'] = material_templates[decision1.value[1]]
                 else:
-                    print("No possibilities found")
+                    bind.logger.warning("No possibilities found")
                     bind.material_selected[material] = {}
                     bind.material_selected[material]['properties'] = {}
             else:

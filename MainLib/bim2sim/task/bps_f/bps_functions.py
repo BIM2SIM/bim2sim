@@ -3,28 +3,33 @@ import ifcopenshell.geom
 import math
 
 def get_disaggregations_instance(element, thermal_zone):
+    """get all posible disaggregation of an instance, based on the IfcRelSpaceBoundary,
+    return the disagreggation, area and relative position of it.
+    if takes into account if the instances is vertical or horizontal"""
+
     vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
     horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
 
-    if element.__class__.__name__ not in vertical_instances and element.__class__.__name__ not in horizontal_instances:
+    # elements who doesnt apply for a disaggregation
+    if type(element).__name__ not in vertical_instances+horizontal_instances:
         return None
 
     disaggregations = {}
     settings = ifcopenshell.geom.settings()
 
     # thermal zone information
-    dis = 0
+    dis_counter = 0
     for binding in element.ifc.ProvidesBoundaries:
-        x = []
-        y = []
-        z = []
+        x, y, z = [], [], []
+        # find just the disaggregation that corresponds the space
         if binding.RelatingSpace == thermal_zone.ifc:
+            # gets geometrical intersection area between space and element
             try:
                 shape = ifcopenshell.geom.create_shape(settings, binding.ConnectionGeometry.SurfaceOnRelatingElement)
             except RuntimeError:
                 element.logger.warning("Found no geometric information for %s in %s" % (element.name, thermal_zone.name))
                 continue
-
+            # get relative position of resultant disaggregation
             if hasattr(binding.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
                 pos = binding.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
             else:
@@ -41,21 +46,19 @@ def get_disaggregations_instance(element, thermal_zone):
             y.sort()
             z.sort()
 
-            x = x[len(x) - 1] - x[0]
-            y = y[len(y) - 1] - y[0]
-            z = z[len(z) - 1] - z[0]
+            coordinates = [x[len(x) - 1] - x[0], y[len(y) - 1] - y[0], z[len(z) - 1] - z[0]]
 
-            coordinates = [x, y, z]
-
-            if element.__class__.__name__ in vertical_instances:
+            # filter for vertical or horizontal instance -> gets area properly
+            if type(element).__name__ in vertical_instances:
                 for a in coordinates:
                     if a <= 0:
                         del coordinates[coordinates.index(a)]
-            elif element.__class__.__name__ in horizontal_instances:
+            elif type(element).__name__ in horizontal_instances:
                 del coordinates[2]
 
-            disaggregations['disaggregation_%d' % dis] = [coordinates[0]*coordinates[1], pos]
-            dis += 1
+            # returns disagreggation, area and relative position
+            disaggregations['disaggregation_%d' % dis_counter] = [coordinates[0]*coordinates[1], pos]
+            dis_counter += 1
 
     if len(disaggregations) == 0:
         return None

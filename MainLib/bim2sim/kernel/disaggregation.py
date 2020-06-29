@@ -52,15 +52,22 @@ class Disaggregation(BaseSubElement):
 
     @classmethod
     def based_on_thermal_zone(cls, parent, thermal_zone):
+        """creates a disaggregation based on a thermal zone and an instance parent
+        based on area cutting (thermal zone - area)"""
         new_bound_instances = []
         disaggregations = get_disaggregations_instance(parent, thermal_zone)
 
+        # no disaggregation possible
         if disaggregations is None:
             return [parent]
 
+        # for vertical instances: if just one disaggregation is possible, check if disaggregation is parent
+        # disaggregation is parent if has the same area
         if parent.__class__.__name__ in vertical_instances:
             if len(disaggregations) == 1:
-                if abs(disaggregations[next(iter(disaggregations))][0] - parent.area) <= 0.1:
+                disaggregation_area = disaggregations[next(iter(disaggregations))][0]
+                # here was a tolerance of 0.1 necessary in order to get no false positives
+                if abs(disaggregation_area - parent.area) <= 0.1:
                     return [parent]
 
         name = 'Sub' + parent.__class__.__name__ + '_' + parent.name
@@ -72,6 +79,8 @@ class Disaggregation(BaseSubElement):
 
             scontinue = False
             for dis in parent.sub_instances:
+                #  check if disaggregation exists on subinstances, compares disaggregation and existing sub_instances
+                # here was a tolerance of 0.1 necessary in order to get no false positives
                 if abs(disaggregations[ins][0] - dis.area) <= 0.1:
                     new_bound_instances.append(dis)
                     scontinue = True
@@ -79,6 +88,7 @@ class Disaggregation(BaseSubElement):
             if scontinue:
                 continue
 
+            # create instance
             instance = cls(name + '_%d' % i, parent)
             instance.area = disaggregations[ins][0]
 
@@ -152,6 +162,7 @@ class SubOuterWall(Disaggregation):
 
 
 def get_new_position_vertical_instance(parent, sub_position):
+    """get new position based on parent position, orientation and relative disaggregation position"""
     rel_orientation_wall = math.floor(parent.orientation + parent.get_true_north())
     x1, y1, z1 = sub_position
     x, y, z = parent.position
