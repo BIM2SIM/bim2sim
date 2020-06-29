@@ -71,8 +71,9 @@ class Inspect(ITask):
                 entities = ifc.by_type(ifc_type)
                 for entity in entities:
                     element = Element.factory(entity, ifc_type)
-                    if element.guid == '2XPyKWY018sA1ygZKgQPtU':
-                        x = element.tilt
+                    x = element.orientation
+                    if type(element).__name__ is not 'Dummy':
+                        x = element.orientation
                     self.instances[element.guid] = element
             except RuntimeError:
                 pass
