@@ -65,7 +65,6 @@ class Attribute:
         # TODO argument for validation function
 
     def _get_value(self, bind):
-
         value = None
         # default property set
         if value is None and self.default_ps:
@@ -148,7 +147,7 @@ class Attribute:
         if finder:  # Aggregations have no finder
             try:
                 return bind.finder.find(bind, name)
-            except AttributeError:
+            except (AttributeError, TypeError):
                 pass
         return None
 

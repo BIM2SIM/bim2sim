@@ -70,7 +70,7 @@
       "area" : ["QTo_WindowBaseQuantities", "Area"],
       "glass_area" : ["Konstruktion", "Glasflaeche"],
       "g_value" : ["Analytische Eigenschaften (type)", "Gesamtenergiedurchlassgrad"],
-      "glass_thickness" : ["Konstruktion(type)", "Glasstärke"],
+      "glass_thickness" : ["Konstruktion(type)", "Glasst\u00e4rke"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
       "thermal_transmittance" : ["Pset_WindowCommon", "ThermalTransmittance"]
     }

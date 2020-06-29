@@ -116,6 +116,7 @@ class BPSMultiZoneSeparated(Workflow):
             'IfcWallStandardCase',
             'IfcWall',
             'IfcWindow',
+            'IfcDoor',
             'IfcSlab',
             'IfcSpaceHeater',
             'IfcRoof',
