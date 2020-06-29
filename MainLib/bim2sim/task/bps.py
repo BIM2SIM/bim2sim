@@ -193,19 +193,7 @@ class ExportTEASER(ITask):
         teaser_instance = teaser_class(parent=parent)
 
         cls._teaser_property_getter(teaser_instance, instance, templates)
-
-        # instance related especific functions
-        instance_related = {InnerWall: cls._instance_related,
-                            OuterWall: cls._instance_related,
-                            Window: cls._window_related,
-                            Rooftop: cls._instance_related,
-                            Floor: cls._instance_related,
-                            GroundFloor: cls._instance_related,
-                            Door: cls._window_related}
-
-        related_function = instance_related.get(type(teaser_instance))
-        if related_function is not None:
-            related_function(teaser_instance, instance, bldg)
+        cls._instance_related(teaser_instance, instance, bldg)
 
         return teaser_instance
 
@@ -220,20 +208,22 @@ class ExportTEASER(ITask):
     def _instance_related(cls, teaser_instance, instance, bldg):
         """instance specific function, layers creation
         if layers not given, loads template"""
-        construction_list = ['light', 'EnEv', 'heavy']
         if len(instance.layers) > 0:
             for layer_instance in instance.layers:
                 layer = Layer(parent=teaser_instance)
                 layer.thickness = layer_instance.thickness
                 cls._material_related(layer, layer_instance, bldg)
         else:
-            decision_construction = ListDecision("one or more materials of the instances were not found, "
-                                                 "select a construction type to continue:",
-                                                 choices=list(construction_list),
-                                                 allow_skip=True, allow_load=True, allow_save=True,
-                                                 collect=False, quick_decide=not True)
-            decision_construction.decide()
-            teaser_instance.load_type_element(year=bldg.year_of_construction, construction=decision_construction.value)
+            construction_type = {InnerWall: 'light',
+                                 OuterWall: 'light',
+                                 Window: "EnEv",
+                                 Rooftop: 'light',
+                                 Floor: 'light',
+                                 GroundFloor: 'light',
+                                 Door: "EnEv"}
+
+            construction = construction_type.get(type(teaser_instance))
+            teaser_instance.load_type_element(year=bldg.year_of_construction, construction=construction)
 
     @classmethod
     def _material_related(cls, layer, layer_instance, bldg):
@@ -285,13 +275,6 @@ class ExportTEASER(ITask):
                 mat_name=material_name,
                 data_class=prj.data,
             )
-
-    @classmethod
-    def _window_related(cls, window, instance, bldg):
-        """window instance specific functions, if material not given, loads material"""
-        # question necessary?
-        #problem with instance related
-        window.load_type_element(year=bldg.year_of_construction, construction="EnEv")
 
     @Task.log
     def run(self, workflow, instances, ifc):
