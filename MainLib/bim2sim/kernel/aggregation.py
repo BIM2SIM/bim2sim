@@ -480,6 +480,7 @@ class ParallelPump(Aggregation):
 
     def __init__(self, name, element_graph, *args, **kwargs):
         super().__init__(name, element_graph, *args, **kwargs)
+        element_graph = self.merge_additional_junctions(element_graph)
         edge_ports = self.get_edge_ports(element_graph)
         for port in edge_ports:
             self.ports.append(AggregationPort(port, parent=self))
@@ -593,12 +594,35 @@ class ParallelPump(Aggregation):
         return result
 
     def get_replacement_mapping(self):
-        """Returns dict with original ports as values and their aggregated replacement as keys."""
+        """Returns dict with original ports as values and their aggregated
+        replacement as keys."""
         mapping = {port: None for element in self._elements
                    for port in element.ports}
         for port in self.ports:
             mapping[port.original] = port
         return mapping
+
+    @classmethod
+    def merge_additional_junctions(cls, graph):
+        """ Find additional junctions inside the parallel pump network and
+        merge them into each other to create a simplified network."""
+
+        # check if additional junctions exist
+        add_junctions, metas = AggregatedPipeFitting.find_matches(graph)
+        name_builder = '{} {}'
+        i = 0
+        for junction, meta in zip(add_junctions, metas):
+            # todo maybe add except clause
+            aggrPipeFitting = AggregatedPipeFitting(
+                name_builder.format(AggregatedPipeFitting.__name__, i + 1),  junction, **meta)
+            i += 1
+            graph = graph.merge(
+                mapping=aggrPipeFitting.get_replacement_mapping(),
+                inner_connections=aggrPipeFitting.get_inner_connections()
+            )
+        return graph
+
+
 
     def get_additional_connections(self):
         """Returns tuple with additional connections. Needed in case of
@@ -652,8 +676,9 @@ class ParallelPump(Aggregation):
         # TODO: only same size pumps
         wanted = {'IfcPump'}
         innerts = set(cls.aggregatable_elements) - wanted
-        parallels = HvacGraph.get_parallels(graph, wanted, innerts)
-        pot_p_pumps = parallels
+        parallels = HvacGraph.get_parallels(
+            graph, wanted, innerts, grouping={'rated_power': 'equal'},
+            grp_threshold=1)
         metas = [{} for x in parallels]  # no metadata calculated
         return parallels, metas
 
@@ -713,7 +738,7 @@ class ParallelPump(Aggregation):
     #         return parallel_pump
 
 
-class Distributor(Aggregation):
+class AggregatedPipeFitting(Aggregation):
     aggregatable_elements = ['PipeStand', 'IfcPipeSegment', 'IfcPipeFitting']
     threshold = None
     # TODO only merge pipefittings into each other if water volume between is below threshold value
@@ -733,7 +758,8 @@ class Distributor(Aggregation):
         :returns: matches, meta"""
         wanted = {'IfcPipeFitting'}
         innerts = set(cls.aggregatable_elements) - wanted
-        connected_fittings = HvacGraph.get_parallels(graph, wanted, innerts)
+        connected_fittings = HvacGraph.get_connections_between(
+            graph, wanted, innerts)
         metas = [{} for x in connected_fittings]  # no metadata calculated
         return connected_fittings, metas
 

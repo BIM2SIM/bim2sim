@@ -261,6 +261,115 @@ class ParallelPumpHelper(SetupHelper):
         # graph.plot(r'c:\temp')
         return graph, flags
 
+    def get_setup_pumps4(self):
+        """get consumer circuit made of 4 parallel pumps (one small) with
+        pipefittings in between, bypass, space heater and pipes"""
+        flags = {}
+        with self.flag_manager(flags):
+            # generator circuit
+            con_vl_a = [self.element_generator(
+                elements.Pipe, length=100, diameter=30) for i in range(3)]
+            fitting1 = self.element_generator(
+                elements.PipeFitting, flags=['pumps4', 'normal'],
+                n_ports=5, diameter=30, length=60)
+            fitting2 = self.element_generator(
+                elements.PipeFitting, flags=['pumps4', 'normal', 'add'],
+                n_ports=3, diameter=30, length=60)
+            p_pump1_p = [
+                self.element_generator(
+                    elements.Pipe, flags=['pumps4', 'normal'], length=40, diameter=20),
+                self.element_generator(
+                    elements.Pump, flags=['pumps4', 'normal'], rated_power=1, rated_height=8,
+                    rated_volume_flow=6, diameter=20),
+                self.element_generator(
+                    elements.Pipe, flags=['pumps4', 'normal'], length=40, diameter=20),
+            ]
+            p_pump2_p = [
+                self.element_generator(
+                    elements.Pipe, flags=['pumps4', 'normal'], length=40, diameter=20),
+                self.element_generator(
+                    elements.Pump, flags=['pumps4', 'normal'], rated_power=1, rated_height=8,
+                    rated_volume_flow=6, diameter=20),
+                self.element_generator(
+                    elements.Pipe, flags=['pumps4', 'normal'], length=40, diameter=20),
+            ]
+            p_pump3_p = [
+                self.element_generator(
+                    elements.Pipe, flags=['pumps4', 'small'], length=40,
+                    diameter=20),
+                self.element_generator(
+                    elements.Pump, flags=['pumps4', 'small'], rated_power=0.6,
+                    rated_height=6,
+                    rated_volume_flow=6, diameter=20),
+                self.element_generator(
+                    elements.Pipe, flags=['pumps4', 'small'], length=40,
+                    diameter=20),
+            ]
+            p_pump4_p = [
+                self.element_generator(
+                    elements.Pipe, flags=['pumps4', 'normal', 'add'],
+                    length=40,
+                    diameter=20),
+                self.element_generator(
+                    elements.Pump, flags=['pumps4', 'normal', 'add'],
+                    rated_power=1, rated_height=8, rated_volume_flow=6,
+                    diameter=20),
+                self.element_generator(
+                    elements.Pipe, flags=['pumps4', 'normal', 'add'],
+                    length=40, diameter=20),
+            ]
+            fitting3 = self.element_generator(
+                elements.PipeFitting, flags=['pumps4', 'normal'],
+                n_ports=5, diameter=30, length=60)
+            fitting4 = self.element_generator(
+                elements.PipeFitting, flags=['pumps4', 'normal', 'add'],
+                n_ports=3, diameter=30, length=60)
+            con_vl_b = [self.element_generator(
+                elements.Pipe, length=100, diameter=30) for i in range(3)]
+            consumer = self.element_generator(
+                elements.SpaceHeater)
+            con_rl_a = [self.element_generator(
+                elements.Pipe, length=100, diameter=30) for i in range(6)]
+            bypass = [self.element_generator(
+                elements.Pipe, flags=['bypass'], length=60, diameter=30) for
+                i in range(3)]
+        # connect
+        # parallel pumps connections VL
+        self.connect_strait([*con_vl_a, fitting1])
+        self.connect_strait([fitting1, *p_pump1_p, fitting3])
+        self.connect_strait([fitting3, *con_vl_b, consumer, *con_rl_a])
+        self.connect_strait(bypass)
+        self.connect_strait(p_pump2_p)
+        self.connect_strait(p_pump3_p)
+        self.connect_strait(p_pump4_p)
+        fitting1.ports[2].connect(p_pump2_p[0].ports[0])
+        fitting1.ports[3].connect(p_pump3_p[0].ports[0])
+        # bypass connection VL
+        fitting1.ports[4].connect(fitting2.ports[0])
+        fitting2.ports[1].connect(p_pump4_p[0].ports[0])
+        fitting2.ports[2].connect(bypass[0].ports[0])
+        # parallel pumps connection RL
+        p_pump2_p[-1].ports[1].connect(fitting3.ports[2])
+        p_pump3_p[-1].ports[1].connect(fitting3.ports[3])
+
+        # bypass connection RL
+        p_pump4_p[-1].ports[1].connect(fitting4.ports[0])
+        fitting4.ports[1].connect(fitting3.ports[4])
+        bypass[-1].ports[1].connect(fitting4.ports[2])
+
+        # full system
+        gen_circuit = [
+            *con_vl_a, fitting1, *p_pump1_p, *p_pump2_p, *p_pump3_p, *p_pump4_p,
+            *bypass, fitting2, fitting3, fitting4, *con_vl_b, consumer,
+            *con_rl_a
+        ]
+
+        flags['connect'] = [con_vl_a[0], con_rl_a[-1]]
+
+        graph = HvacGraph(gen_circuit)
+        graph.plot(r'c:\temp')
+        return graph, flags
+
     def get_setup_system(self):
         """Simple generator system made of boiler, pump, expansion tank, distributor and pipes"""
         graph1, flags1 = super().get_setup_simple_boiler()
@@ -395,7 +504,29 @@ class TestParallelPumps(unittest.TestCase):
         graph.plot(r'c:\temp')
 
         matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+        import networkx as nx
+        import matplotlib.pyplot as plt
+        for match in matches:
+            nx.draw(match, node_size=6, font_size=5, with_labels=True)
+            plt.draw()
+            plt.show()
+        self.assertEqual(
+            len(matches), 1,
+            "There are 1 cases for ParallelPumps but 'find_matches' returned %d" % len(matches)
+        )
 
+    def test_detection_pumps4(self):
+        """test detection of ParallelPumps in setup pumps4"""
+        graph, flags = self.helper.get_setup_pumps4()
+        graph.plot(r'c:\temp')
+
+        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+        import networkx as nx
+        import matplotlib.pyplot as plt
+        for match in matches:
+            nx.draw(match, node_size=6, font_size=5, with_labels=True)
+            plt.draw()
+            plt.show()
         self.assertEqual(
             len(matches), 1,
             "There are 1 cases for ParallelPumps but 'find_matches' returned %d" % len(matches)
