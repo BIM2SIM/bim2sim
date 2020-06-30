@@ -1,8 +1,7 @@
 ﻿"""Module for aggregation and simplifying elements"""
 
-import logging
 import math
-
+import networkx as nx
 import numpy as np
 
 from bim2sim.kernel.element import BaseElement, BasePort
@@ -30,18 +29,21 @@ def verify_edge_ports(func):
 class AggregationPort(BasePort):
     """Port for Aggregation"""
 
-    def __init__(self, original, *args, **kwargs):
+    def __init__(self, originals, *args, **kwargs):
         if 'guid' not in kwargs:
             kwargs['guid'] = self.get_id("AggPort")
         super().__init__(*args, **kwargs)
-        self.original = original
+        if not type(originals) == list:
+            self.originals = [originals]
+        else:
+            self.originals = originals
 
     # def determine_flow_side(self):
         # return self.original.determine_flow_side()
 
     def calc_position(self):
         """Position of original port"""
-        return self.original.position
+        return self.originals.position
 
 
 class Aggregation(BaseElement):
@@ -207,7 +209,8 @@ class PipeStrand(Aggregation):
         mapping = {port: None for element in self.elements
                    for port in element.ports}
         for port in self.ports:
-            mapping[port.original] = port
+            for original in port.originals:
+                mapping[original] = port
         return mapping
 
     @classmethod
@@ -480,64 +483,61 @@ class ParallelPump(Aggregation):
 
     def __init__(self, name, element_graph, *args, **kwargs):
         super().__init__(name, element_graph, *args, **kwargs)
-        element_graph = self.merge_additional_junctions(element_graph)
+        # element_graph = self.merge_additional_junctions(element_graph)
         edge_ports = self.get_edge_ports(element_graph)
-        for port in edge_ports:
-            self.ports.append(AggregationPort(port, parent=self))
+        # simple case with two edge ports
+        if len(edge_ports) == 2:
+            for port in edge_ports:
+                self.ports.append(AggregationPort(port, parent=self))
+        # more than two edge ports
+        else:
+            # get list of ports to be merged to one aggregation port
+            parents = set((parent for parent in (port.connection.parent for
+                                                 port in edge_ports)))
+            originals_dict = {}
+            for parent in parents:
+                originals_dict[parent] = [port for port in edge_ports if
+                                port.connection.parent == parent]
+            for originals in originals_dict.values():
+                self.ports.append(AggregationPort(originals, parent=self))
 
-    @classmethod
-    def get_edge_ports(cls, graph):
+    def get_edge_ports(self, graph):
         """
-        Finds and returns the two edge ports of element graph.
+        Finds and returns all edge ports of element graph.
 
         :return list of ports:
         """
-
         # detect elements with at least 3 ports
-        pot_edge_elements = [
+        edge_elements = [
             node for node in graph.nodes if len(node.ports) > 2]
-        # for port in (p for e in edge_elements for p in e.ports):
-        #     if not port.connection:
-        #         continue  # end node
-        #     if port.connection.parent not in graph.nodes:
-        #         edge_ports.append(port)
-        # filter edge elements
-
-        edge_elements = []
-        for edge_element in pot_edge_elements:
-            for port in edge_element.ports:
-                if port.connection.parent not in graph.nodes:
-                    edge_elements.append(edge_element)
-
-        pot_edge_ports = []
+        edge_outer_ports = []
+        edge_inner_ports = []
+        # get all ports that are connected to outer elements
+        # todo case that additional connection at one side but not on the other
         for port in (p for e in edge_elements for p in e.ports):
-            pass
-        # for port in (p for e in pot_edge_elements for p in e.ports):
-        #     print(e)
-        #     if port.connection.parent not in graph.nodes:
-        #         edge_elements.append(e)
+            if not port.connection:
+                continue  # end node
+            if port.connection.parent not in graph.nodes:
+                edge_outer_ports.append(port)
+            elif port.connection.parent in graph.nodes:
+                edge_inner_ports.append(port)
 
-        edge_ports = []
-        # ziel: alle edge_elements filtern, welche outer connections haben
+        if len(edge_outer_ports) < 2:
+            raise AttributeError("Found less than two edge ports")
+        # simple case: no other elements connected to junction nodes
+        elif len(edge_outer_ports) == 2:
+            edge_ports = edge_outer_ports
+        # other elements, not in aggregation, connected to junction nodes
+        else:
+            edge_ports = [port.connection for port in edge_inner_ports]
+            parents = set((parent for parent in (port.connection.parent for
+                                                 port in edge_ports)))
+            for parent in parents:
+                aggr_ports = [port for port in edge_inner_ports if
+                                port.parent == parent]
 
-        # for port in (p for e in edge_elements for p in e.ports):
-        #     if not port.connection:
-        #         continue  # end node
-        #     if port.connection.parent not in graph.nodes:
-        #         edge_ports.append(port)
-        #
-        # elif len(edge_elements) > 2:
-        #             pass
-        #
-        # else:
-        #     # todo
-        #     raise NotImplementedError("ParallelPumps with more than two edge ports are currently not supported")
-        #
-        #
-        #
-        # if len(edge_ports) < 2:
-        #     raise AttributeError("Found less than two edge ports")
-
+                aggr = AggregatedPipeFitting('aggr_'+parent.name, nx.subgraph(
+                    graph, parent), aggr_ports)
         return edge_ports
 
     @attribute.multi_calc
@@ -596,10 +596,17 @@ class ParallelPump(Aggregation):
     def get_replacement_mapping(self):
         """Returns dict with original ports as values and their aggregated
         replacement as keys."""
-        mapping = {port: None for element in self._elements
+        mapping = {port: None for element in self.elements
                    for port in element.ports}
         for port in self.ports:
-            mapping[port.original] = port
+            for original in port.originals:
+                mapping[original] = port
+        # search for aggregations made during the parallel pump construction
+        new_aggregations = [element.aggregation for element in self.elements if
+                            element.aggregation is not self]
+        for port in (p for a in new_aggregations for p in a.ports):
+            for original in port.originals:
+                mapping[original] = port
         return mapping
 
     @classmethod
@@ -682,75 +689,41 @@ class ParallelPump(Aggregation):
         metas = [{} for x in parallels]  # no metadata calculated
         return parallels, metas
 
-    # @classmethod
-    # def create_on_match(cls, name, cycle):
-    #     """reduce the found cycles, to just the cycles that fulfill the next criteria:
-    #         1. it's a parallel cycle (the two strands have the same flow direction)
-    #         2. it has one or more pumps in each strand
-    #         finally it creates a list with the founded cycles with the next lists:
-    #         'elements', 'up_strand', 'low_strand', 'ports'
-    #         """
-    #     p_instance = "Pump"
-    #     n_pumps = 0
-    #     total_ports = {}
-    #     # all possible beginning and end of the cycle (always pipe fittings), pumps counting
-    #     for port in cycle:
-    #         if isinstance(port.parent, getattr(elements, p_instance)):
-    #             n_pumps += 1
-    #         if isinstance(port.parent, elements.PipeFitting):
-    #             if port.parent.guid in total_ports:
-    #                 total_ports[port.parent.guid].append(port)
-    #             else:
-    #                 total_ports[port.parent.guid] = []
-    #                 total_ports[port.parent.guid].append(port)
-    #     # 1st filter, cycle has more than 2 pump-ports, 1 pump
-    #     if n_pumps >= 4:
-    #         cycle_elements = list(dict.fromkeys([v.parent for v in cycle]))
-    #     else:
-    #         return
-    #     # 2nd filter, beginning and end of the cycle (parallel check)
-    #     final_ports = []
-    #     for k, ele in total_ports.items():
-    #         if ele[0].flow_direction == ele[1].flow_direction:
-    #             final_ports.append(ele[0])
-    #             final_ports.append(ele[1])
-    #     if len(final_ports) < 4:
-    #         return
-    #     # Strand separation - upper & lower
-    #     upper = []
-    #     lower = []
-    #     for elem in cycle_elements:
-    #         if cycle_elements.index(final_ports[1].parent) \
-    #                 < cycle_elements.index(elem) < cycle_elements.index(final_ports[2].parent):
-    #             upper.append(elem)
-    #         else:
-    #             lower.append(elem)
-    #     # 3rd Filter, each strand has one or more pumps
-    #     check_up = str(dict.fromkeys(upper))
-    #     check_low = str(dict.fromkeys(lower))
-    #
-    #     parallel_pump = cls(name, cycle)
-    #     parallel_pump._elements = cycle_elements
-    #     parallel_pump._up_strand = upper
-    #     parallel_pump._low_strand = lower
-    #
-    #     if (p_instance in check_up) and (p_instance in check_low):
-    #         return parallel_pump
-
 
 class AggregatedPipeFitting(Aggregation):
+    """Aggregates PipeFittings. Used in two cases:
+        - Merge multiple PipeFittings into one aggregates
+        - Use a single PipeFitting and create a aggregated PipeFitting where
+        some ports are aggregated (aggr_ports argument)
+    """
     aggregatable_elements = ['PipeStand', 'IfcPipeSegment', 'IfcPipeFitting']
     threshold = None
-    # TODO only merge pipefittings into each other if water volume between is below threshold value
-    def __init__(self, name, element_graph, *args, **kwargs):
+
+    def __init__(self, name, element_graph, aggr_ports=None, *args, **kwargs):
         super().__init__(name, element_graph, *args, **kwargs)
         edge_ports = self.get_edge_ports(element_graph)
-        for port in edge_ports:
-            self.ports.append(AggregationPort(port, parent=self))
+        for edge_port in edge_ports:
+            if edge_port not in aggr_ports:
+                self.ports.append(AggregationPort(edge_port, parent=self))
+        self.ports.append(AggregationPort(aggr_ports, parent=self))
 
     @classmethod
     def get_edge_ports(cls, graph):
-        pass
+        edge_elements = [
+            node for node in graph.nodes if len(node.ports) > 2]
+
+        edge_ports = []
+        # get all ports that are connected to outer elements
+        for port in (p for e in edge_elements for p in e.ports):
+            if not port.connection:
+                continue  # end node
+            if port.connection.parent not in graph.nodes:
+                edge_ports.append(port)
+
+        if len(edge_ports) < 2:
+            raise AttributeError("Found less than two edge ports")
+
+        return edge_ports
 
     @classmethod
     def find_matches(cls, graph):
@@ -763,7 +736,15 @@ class AggregatedPipeFitting(Aggregation):
         metas = [{} for x in connected_fittings]  # no metadata calculated
         return connected_fittings, metas
 
-
+    def get_replacement_mapping(self):
+        """Returns dict with original ports as values and their aggregated
+        replacement as keys."""
+        mapping = {port: None for element in self.elements
+                   for port in element.ports}
+        for port in self.ports:
+            for original in port.originals:
+                mapping[original] = port
+        return mapping
 
 
 class ParallelSpaceHeater(Aggregation):
@@ -885,10 +866,11 @@ class ParallelSpaceHeater(Aggregation):
 
     def get_replacement_mapping(self):
         """Returns dict with original ports as values and their aggregated replacement as keys."""
-        mapping = {port: None for element in self._elements
+        mapping = {port: None for element in self.elements
                    for port in element.ports}
         for port in self.ports:
-            mapping[port.original] = port
+            for original in port.originals:
+                mapping[original] = port
         return mapping
 
     rated_power = attribute.Attribute(

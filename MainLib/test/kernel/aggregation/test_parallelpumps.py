@@ -1,4 +1,5 @@
 ﻿import unittest
+import math
 
 from bim2sim.kernel import aggregation
 from bim2sim.kernel import elements
@@ -10,7 +11,8 @@ from test.kernel.helper import SetupHelper
 class ParallelPumpHelper(SetupHelper):
 
     def get_setup_pumps1(self):
-        """get consumer circuit made of 6 parallel pumps (one small), space heater and pipes"""
+        """get consumer circuit made of 2 parallel pumps (equal size),
+         space heater and pipes"""
         flags = {}
         with self.flag_manager(flags):
             # generator circuit
@@ -405,27 +407,30 @@ class TestParallelPumps(unittest.TestCase):
 
     def test_pump_setup1(self):
         """Two parallel pumps"""
-
         graph, flags = self.helper.get_setup_pumps1()
         models = flags['pumps1']
         pumps = [item for item in models if isinstance(item, elements.Pump)]
-
+        graph.plot(r'c:\temp\before')
         matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
         self.assertEqual(len(matches), 1)
         agg_pump = aggregation.ParallelPump("Test", matches[0], **meta[0])
 
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
-        expected_volume_flow = sum([p.rated_volume_flow for p in pumps])
+        expected_volume_flow = sum([p.rated_volume_flow for p in pumps]) * ureg.meter**3 / ureg.hour
+        expected_diamter = math.sqrt(sum([p.diameter**2 for p in pumps]))
 
         self.assertAlmostEqual(agg_pump.rated_volume_flow, expected_volume_flow)
         self.assertAlmostEqual(agg_pump.rated_height, expected_height)
         self.assertAlmostEqual(agg_pump.rated_power, expected_power)
-
-        self.assertAlmostEqual(agg_pump.diameter, 20)
+        self.assertAlmostEqual(agg_pump.diameter, expected_diamter)
 
         mapping = agg_pump.get_replacement_mapping()
-
+        graph.merge(
+            mapping=agg_pump.get_replacement_mapping(),
+            inner_connections=agg_pump.get_inner_connections(),
+        )
+        graph.plot(r'c:\temp\after')
         self.assertIs(agg_pump.ports[0], mapping[models[0].ports[0]])
         self.assertIs(agg_pump.ports[1], mapping[models[-1].ports[1]])
 
@@ -434,8 +439,41 @@ class TestParallelPumps(unittest.TestCase):
         graph, flags = self.helper.get_setup_pumps2()
         models = flags['normal']
         pumps = [item for item in models if isinstance(item, elements.Pump)]
-
+        graph.plot(r'c:\temp\before')
         matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+
+        self.assertEqual(len(matches), 1)
+        agg_pump = aggregation.ParallelPump("Test", matches[0], **meta[0])
+
+        expected_power = sum([p.rated_power for p in pumps])
+        expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
+        expected_volume_flow = sum([p.rated_volume_flow for p in pumps]) * ureg.meter**3 / ureg.hour
+        expected_diamter = math.sqrt(sum([p.diameter**2 for p in pumps]))
+
+        self.assertAlmostEqual(agg_pump.rated_volume_flow, expected_volume_flow)
+        self.assertAlmostEqual(agg_pump.rated_height, expected_height)
+        self.assertAlmostEqual(agg_pump.rated_power, expected_power)
+        self.assertAlmostEqual(agg_pump.diameter, expected_diamter)
+
+        mapping = agg_pump.get_replacement_mapping()
+        graph.merge(
+            mapping=agg_pump.get_replacement_mapping(),
+            inner_connections=agg_pump.get_inner_connections(),
+        )
+        graph.plot(r'c:\temp\after')
+        self.assertIs(agg_pump.ports[0], mapping[models[0].ports[0]])
+        self.assertIs(agg_pump.ports[1], mapping[models[-1].ports[1]])
+
+    def test_pump_setupx(self):
+        """Five parallel pumps"""
+        import networkx as nx
+        import matplotlib.pyplot as plt
+        graph, flags = self.helper.get_setup_pumps2()
+        models = flags['normal']
+        pumps = [item for item in models if isinstance(item, elements.Pump)]
+        graph.plot(r'c:\temp\before')
+        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+
         self.assertEqual(len(matches), 1)
         agg_pump = aggregation.ParallelPump("Test", matches[0], **meta[0])
 
@@ -447,10 +485,14 @@ class TestParallelPumps(unittest.TestCase):
         self.assertAlmostEqual(agg_pump.rated_height, expected_height)
         self.assertAlmostEqual(agg_pump.rated_power, expected_power)
 
-        self.assertAlmostEqual(agg_pump.diameter, 20)
+        self.assertAlmostEqual(agg_pump.diameter, 40)
 
         mapping = agg_pump.get_replacement_mapping()
-
+        graph.merge(
+            mapping=agg_pump.get_replacement_mapping(),
+            inner_connections=agg_pump.get_inner_connections(),
+        )
+        graph.plot(r'c:\temp\after')
         self.assertIs(agg_pump.ports[0], mapping[models[0].ports[0]])
         self.assertIs(agg_pump.ports[1], mapping[models[-1].ports[1]])
 
