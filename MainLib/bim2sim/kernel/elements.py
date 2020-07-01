@@ -769,9 +769,6 @@ class Layer(element.SubElement):
         self.material = material.Name
         if hasattr(self.ifc, 'LayerThickness'):
             self.thickness = self.ifc.LayerThickness
-        else:
-            self.thickness = 0.1
-            # self.thickness = float(input('Thickness not given, please provide a value:'))
 
     def __repr__(self):
         return "<%s (material: %s>" \
