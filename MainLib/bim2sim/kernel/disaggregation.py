@@ -21,10 +21,17 @@ class Disaggregation(BaseSubElement):
         self.name = name
         self.ifc_type = element.ifc_type
         self.guid = None
-        # properties getter
+        self.get_disaggregation_properties()
+        self.get_submodule()
+
+    def get_disaggregation_properties(self):
+        """properties getter -> that way no sub instances has to be defined"""
         for prop in self.parent.attributes:
             value = getattr(self.parent, prop)
             setattr(self, prop, value)
+
+    def get_submodule(self):
+        sub_module = 'Sub' + self.parent.__class__.__name__
         switcher = {'SubFloor': SubFloor,
                     'SubGroundFloor': SubGroundFloor,
                     'SubSlab': SubSlab,
@@ -32,7 +39,6 @@ class Disaggregation(BaseSubElement):
                     'SubWall': SubWall,
                     'SubInnerWall': SubInnerWall,
                     'SubOuterWall': SubOuterWall}
-        sub_module = 'Sub' + self.parent.__class__.__name__
         func = switcher.get(sub_module)
         if func is not None:
             self.__class__ = func
