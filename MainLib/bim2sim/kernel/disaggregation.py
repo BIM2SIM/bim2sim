@@ -59,7 +59,7 @@ class Disaggregation(BaseSubElement):
     @classmethod
     def based_on_thermal_zone(cls, parent, thermal_zone):
         """creates a disaggregation based on a thermal zone and an instance parent
-        based on area cutting (thermal zone - area)"""
+        based on area slice (thermal zone - area)"""
         new_bound_instances = []
         disaggregations = get_disaggregations_instance(parent, thermal_zone)
 
