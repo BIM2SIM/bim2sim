@@ -733,12 +733,7 @@ class TestParallelPumps(unittest.TestCase):
         graph.plot(r'c:\temp')
 
         matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
-        import networkx as nx
-        import matplotlib.pyplot as plt
-        for match in matches:
-            nx.draw(match, node_size=6, font_size=5, with_labels=True)
-            plt.draw()
-            plt.show()
+
         self.assertEqual(
             len(matches), 1,
             "There are 1 cases for ParallelPumps but 'find_matches' returned %d" % len(matches)
@@ -750,12 +745,7 @@ class TestParallelPumps(unittest.TestCase):
         graph.plot(r'c:\temp')
 
         matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
-        import networkx as nx
-        import matplotlib.pyplot as plt
-        for match in matches:
-            nx.draw(match, node_size=6, font_size=5, with_labels=True)
-            plt.draw()
-            plt.show()
+
         self.assertEqual(
             len(matches), 1,
             "There are 1 cases for ParallelPumps but 'find_matches' returned %d" % len(matches)
@@ -766,18 +756,21 @@ class TestParallelPumps(unittest.TestCase):
         graph, flags = self.helper.get_setup_system()
 
         matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
-
         self.assertEqual(
             len(matches), 2,
             "There are 2 cases for ParallelPumps but 'find_matches' returned %d" % len(matches)
         )
 
         n_pumps1 = len([item for item in flags['pumps1'] if item.ifc_type == 'IfcPump'])
-        n_pumps2 = len([item for item in flags['pumps2'] if item.ifc_type == 'IfcPump'])
+        n_pumps2 = len([item for item in flags['normal'] if item.ifc_type == 'IfcPump'])
 
+        import matplotlib.pyplot as plt
         match_pumps = []
         for match in matches:
             match_pumps.append([node for node in match if node.ifc_type == 'IfcPump'])
+            nx.draw(match, with_labels=True)
+            plt.draw()
+            plt.show()
 
         self.assertSetEqual({n_pumps1, n_pumps2}, {len(mp) for mp in match_pumps})
 
