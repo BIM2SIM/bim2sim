@@ -1,5 +1,6 @@
 ﻿import unittest
 import math
+import networkx as nx
 
 from bim2sim.kernel import aggregation
 from bim2sim.kernel import elements
@@ -554,6 +555,7 @@ class TestParallelPumps(unittest.TestCase):
         """Five parallel pumps"""
         graph, flags = self.helper.get_setup_pumps2()
         models = flags['normal']
+        small = flags['small']
         pumps = [item for item in models if isinstance(item, elements.Pump)]
         graph.plot(r'c:\temp\before')
         matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
@@ -571,51 +573,32 @@ class TestParallelPumps(unittest.TestCase):
         self.assertAlmostEqual(agg_pump.rated_power, expected_power)
         self.assertAlmostEqual(agg_pump.diameter, expected_diamter)
 
-        mapping = agg_pump.get_replacement_mapping()
         graph.merge(
             mapping=agg_pump.get_replacement_mapping(),
             inner_connections=agg_pump.get_inner_connections(),
         )
         graph.plot(r'c:\temp\after')
-        # todo put correct expections here
-        self.assertIs(agg_pump.ports[0], mapping[models[0].ports[0]])
-        self.assertIs(agg_pump.ports[1], mapping[models[-1].ports[1]])
+        aggr_pipe_fittings = [node for node in graph.element_graph.nodes if
+                              node.__class__.__name__ == 'AggregatedPipeFitting'
+                              ]
+        remaining_pumps = [node for node in graph.element_graph.nodes if
+                           node.__class__.__name__ == 'Pump']
+        small_pumps = [item for item in small if item.__class__.__name__ ==
+                       'Pump']
+        unconnected_nodes = list(nx.isolates(graph))
+
+        # check if aggregated pipe fittings are done correctly
+        self.assertEqual(len(aggr_pipe_fittings), 2)
+        # check of small pump still in graph
+        self.assertCountEqual(remaining_pumps, small_pumps)
+        # check for unconnected nodes
+        self.assertCountEqual(unconnected_nodes, [])
 
     def test_pump_setup4(self):
-        """Five parallel pumps"""
+        """Four parallel pumps, one small with bypass."""
         graph, flags = self.helper.get_setup_pumps4()
         models = flags['normal']
-        pumps = [item for item in models if isinstance(item, elements.Pump)]
-        graph.plot(r'c:\temp\before')
-        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
-
-        self.assertEqual(len(matches), 1)
-        agg_pump = aggregation.ParallelPump("Test", matches[0], **meta[0])
-        # todo before merge check units
-        # expected_power = sum([p.rated_power for p in pumps])
-        # expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
-        # expected_volume_flow = sum([p.rated_volume_flow for p in pumps]) * ureg.meter**3 / ureg.hour
-        # expected_diamter = math.sqrt(sum([p.diameter**2 for p in pumps]))
-        #
-        # self.assertAlmostEqual(agg_pump.rated_volume_flow, expected_volume_flow)
-        # self.assertAlmostEqual(agg_pump.rated_height, expected_height)
-        # self.assertAlmostEqual(agg_pump.rated_power, expected_power)
-        # self.assertAlmostEqual(agg_pump.diameter, expected_diamter)
-
-        mapping = agg_pump.get_replacement_mapping()
-        graph.merge(
-            mapping=agg_pump.get_replacement_mapping(),
-            inner_connections=agg_pump.get_inner_connections(),
-        )
-        graph.plot(r'c:\temp\after')
-        # todo put correct expections here
-        self.assertIs(agg_pump.ports[0], mapping[models[0].ports[0]])
-        self.assertIs(agg_pump.ports[1], mapping[models[-1].ports[1]])
-
-    def test_pump_setup5(self):
-        """Five parallel pumps"""
-        graph, flags = self.helper.get_setup_pumps5()
-        models = flags['normal']
+        small = flags['small']
         pumps = [item for item in models if isinstance(item, elements.Pump)]
         graph.plot(r'c:\temp\before')
         matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
@@ -633,15 +616,72 @@ class TestParallelPumps(unittest.TestCase):
         self.assertAlmostEqual(agg_pump.rated_power, expected_power)
         self.assertAlmostEqual(agg_pump.diameter, expected_diamter)
 
-        mapping = agg_pump.get_replacement_mapping()
         graph.merge(
             mapping=agg_pump.get_replacement_mapping(),
             inner_connections=agg_pump.get_inner_connections(),
         )
         graph.plot(r'c:\temp\after')
-        # todo put correct expections here
-        self.assertIs(agg_pump.ports[0], mapping[models[0].ports[0]])
-        self.assertIs(agg_pump.ports[1], mapping[models[-1].ports[1]])
+        aggr_pipe_fittings = [node for node in graph.element_graph.nodes if
+                              node.__class__.__name__ == 'AggregatedPipeFitting'
+                              ]
+        remaining_pumps = [node for node in graph.element_graph.nodes if
+                           node.__class__.__name__ == 'Pump']
+        small_pumps = [item for item in small if item.__class__.__name__ ==
+                       'Pump']
+        unconnected_nodes = list(nx.isolates(graph))
+
+        # check if aggregated pipe fittings are done correctly
+        self.assertEqual(len(aggr_pipe_fittings), 2)
+        # check of small pump still in graph
+        self.assertCountEqual(remaining_pumps, small_pumps)
+        # check for unconnected nodes
+        self.assertCountEqual(unconnected_nodes, [])
+
+    def test_pump_setup5(self):
+        """Five parallel pumps, one smaller, additional connections."""
+        graph, flags = self.helper.get_setup_pumps5()
+        models = flags['normal']
+        small = flags['small']
+        pumps = [item for item in models if isinstance(item, elements.Pump)]
+        graph.plot(r'c:\temp\before')
+        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+
+        self.assertEqual(len(matches), 1)
+        agg_pump = aggregation.ParallelPump("Test", matches[0], **meta[0])
+        # todo before merge check units
+        expected_power = sum([p.rated_power for p in pumps])
+        expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
+        expected_volume_flow = sum([p.rated_volume_flow for p in pumps]) * ureg.meter**3 / ureg.hour
+        expected_diamter = math.sqrt(sum([p.diameter**2 for p in pumps]))
+        pumps_in_aggr = [item for item in agg_pump.elements if
+                         isinstance(item, elements.Pump)]
+        self.assertAlmostEqual(agg_pump.rated_volume_flow, expected_volume_flow)
+        self.assertAlmostEqual(agg_pump.rated_height, expected_height)
+        self.assertAlmostEqual(agg_pump.rated_power, expected_power)
+        self.assertAlmostEqual(agg_pump.diameter, expected_diamter)
+        self.assertCountEqual(pumps_in_aggr, pumps)
+
+        graph.merge(
+            mapping=agg_pump.get_replacement_mapping(),
+            inner_connections=agg_pump.get_inner_connections(),
+        )
+        graph.plot(r'c:\temp\after')
+
+        aggr_pipe_fittings = [node for node in graph.element_graph.nodes if
+                              node.__class__.__name__ == 'AggregatedPipeFitting'
+                              ]
+        remaining_pumps = [node for node in graph.element_graph.nodes if
+                           node.__class__.__name__ == 'Pump']
+        small_pumps = [item for item in small if item.__class__.__name__ ==
+                       'Pump']
+        unconnected_nodes = list(nx.isolates(graph))
+
+        # check if aggregated pipe fittings are done correctly
+        self.assertEqual(len(aggr_pipe_fittings), 2)
+        # check of small pump still in graph
+        self.assertCountEqual(remaining_pumps, small_pumps)
+        # check for unconnected nodes
+        self.assertCountEqual(unconnected_nodes, [])
 
     def test_basics(self):
         graph, flags = self.helper.get_setup_pumps1()
