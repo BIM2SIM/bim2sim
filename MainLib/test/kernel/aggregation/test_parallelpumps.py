@@ -65,7 +65,6 @@ class ParallelPumpHelper(SetupHelper):
         flags['connect'] = [con_vl_a[0], con_rl_a[-1]]
 
         graph = HvacGraph(gen_circuit)
-        # graph.plot(r'c:\temp')
         return graph, flags
 
     def get_setup_pumps2(self):
@@ -160,7 +159,6 @@ class ParallelPumpHelper(SetupHelper):
         flags['connect'] = [con_vl_a[0], con_rl_a[-1]]
 
         graph = HvacGraph(gen_circuit)
-        # graph.plot(r'c:\temp')
         return graph, flags
 
     def get_setup_pumps3(self):
@@ -261,7 +259,6 @@ class ParallelPumpHelper(SetupHelper):
         flags['connect'] = [con_vl_a[0], con_rl_a[-1]]
 
         graph = HvacGraph(gen_circuit)
-        # graph.plot(r'c:\temp')
         return graph, flags
 
     def get_setup_pumps4(self):
@@ -370,7 +367,6 @@ class ParallelPumpHelper(SetupHelper):
         flags['connect'] = [con_vl_a[0], con_rl_a[-1]]
 
         graph = HvacGraph(gen_circuit)
-        graph.plot(r'c:\temp')
         return graph, flags
 
     def get_setup_pumps5(self):
@@ -486,7 +482,6 @@ class ParallelPumpHelper(SetupHelper):
         flags['connect'] = [con_vl_a[0], con_rl_a[-1]]
 
         graph = HvacGraph(gen_circuit)
-        # graph.plot(r'c:\temp')
         return graph, flags
 
     def get_setup_system(self):
@@ -527,7 +522,6 @@ class TestParallelPumps(unittest.TestCase):
         graph, flags = self.helper.get_setup_pumps1()
         models = flags['pumps1']
         pumps = [item for item in models if isinstance(item, elements.Pump)]
-        graph.plot(r'c:\temp\before')
         matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
         self.assertEqual(len(matches), 1)
         agg_pump = aggregation.ParallelPump("Test", matches[0], **meta[0])
@@ -547,9 +541,9 @@ class TestParallelPumps(unittest.TestCase):
             mapping=agg_pump.get_replacement_mapping(),
             inner_connections=agg_pump.get_inner_connections(),
         )
-        graph.plot(r'c:\temp\after')
-        self.assertIs(agg_pump.ports[0], mapping[models[0].ports[0]])
-        self.assertIs(agg_pump.ports[1], mapping[models[-1].ports[1]])
+        self.assertCountEqual([agg_pump.ports[0], agg_pump.ports[1]],
+                              [mapping[models[0].ports[0]], mapping[models[
+                                  -1].ports[1]]])
 
     def test_pump_setup2(self):
         """Five parallel pumps"""
@@ -557,7 +551,6 @@ class TestParallelPumps(unittest.TestCase):
         models = flags['normal']
         small = flags['small']
         pumps = [item for item in models if isinstance(item, elements.Pump)]
-        graph.plot(r'c:\temp\before')
         matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
 
         self.assertEqual(len(matches), 1)
@@ -577,7 +570,6 @@ class TestParallelPumps(unittest.TestCase):
             mapping=agg_pump.get_replacement_mapping(),
             inner_connections=agg_pump.get_inner_connections(),
         )
-        graph.plot(r'c:\temp\after')
         aggr_pipe_fittings = [node for node in graph.element_graph.nodes if
                               node.__class__.__name__ == 'AggregatedPipeFitting'
                               ]
@@ -600,7 +592,6 @@ class TestParallelPumps(unittest.TestCase):
         models = flags['normal']
         small = flags['small']
         pumps = [item for item in models if isinstance(item, elements.Pump)]
-        graph.plot(r'c:\temp\before')
         matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
 
         self.assertEqual(len(matches), 1)
@@ -620,7 +611,6 @@ class TestParallelPumps(unittest.TestCase):
             mapping=agg_pump.get_replacement_mapping(),
             inner_connections=agg_pump.get_inner_connections(),
         )
-        graph.plot(r'c:\temp\after')
         aggr_pipe_fittings = [node for node in graph.element_graph.nodes if
                               node.__class__.__name__ == 'AggregatedPipeFitting'
                               ]
@@ -643,7 +633,6 @@ class TestParallelPumps(unittest.TestCase):
         models = flags['normal']
         small = flags['small']
         pumps = [item for item in models if isinstance(item, elements.Pump)]
-        graph.plot(r'c:\temp\before')
         matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
 
         self.assertEqual(len(matches), 1)
@@ -665,7 +654,6 @@ class TestParallelPumps(unittest.TestCase):
             mapping=agg_pump.get_replacement_mapping(),
             inner_connections=agg_pump.get_inner_connections(),
         )
-        graph.plot(r'c:\temp\after')
 
         aggr_pipe_fittings = [node for node in graph.element_graph.nodes if
                               node.__class__.__name__ == 'AggregatedPipeFitting'
@@ -693,18 +681,6 @@ class TestParallelPumps(unittest.TestCase):
 
         self.assertTrue(self.helper.elements_in_agg(agg))
 
-    def test_pump_same_size(self):
-        """ParallelPumps only for same sized pumps"""
-        self.skipTest("Not implemented")
-        graph, flags = self.helper.get_setup_pumps2()
-        models = flags['pumps2']
-
-        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
-        self.assertEqual(len(matches), 1)
-
-        with self.assertRaises(Exception):
-            agg_pump = aggregation.ParallelPump("Test", models)
-
     def test_detection_pumps1(self):
         """test detection of ParallelPumps in setup pumps1"""
         graph, flags = self.helper.get_setup_pumps1()
@@ -730,7 +706,6 @@ class TestParallelPumps(unittest.TestCase):
     def test_detection_pumps3(self):
         """test detection of ParallelPumps in setup pumps2"""
         graph, flags = self.helper.get_setup_pumps3()
-        graph.plot(r'c:\temp')
 
         matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
 
@@ -742,7 +717,6 @@ class TestParallelPumps(unittest.TestCase):
     def test_detection_pumps4(self):
         """test detection of ParallelPumps in setup pumps4"""
         graph, flags = self.helper.get_setup_pumps4()
-        graph.plot(r'c:\temp')
 
         matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
 

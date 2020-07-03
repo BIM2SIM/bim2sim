@@ -85,12 +85,6 @@ class Aggregation(BaseElement):
             for n in names:
                 ele.request(n)
 
-    def get_additional_connections(self):
-        """ return additional connections that will be used for merge
-        aggregation into graph network"""
-        connections = []
-        return connections
-
     @classmethod
     def get_empty_mapping(cls, elements: list):
         """Get information to remove elements
@@ -645,15 +639,6 @@ class ParallelPump(Aggregation):
                 name_builder.format(AggregatedPipeFitting.__name__, i + 1),  junction, **meta)
             i += 1
         return graph
-
-    def get_additional_connections(self):
-        """Returns tuple with additional connections. Needed in case of
-        aggregation ports which don't belong to the aggregation component
-        itself (e.g. additional parallel bypass) """
-        connections = []
-        for port in self.ports:
-            connections.append((port, port.connection))
-        return connections
 
     rated_power = attribute.Attribute(
         description="rated power",
