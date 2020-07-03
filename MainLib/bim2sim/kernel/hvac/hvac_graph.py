@@ -231,13 +231,13 @@ class HvacGraph(nx.Graph):
         else:
             inert = set(inert)
         wanted = set(wanted)
-
+        _graph = graph.copy()
         # remove blocking nodes
-        remove = {node for node in graph.nodes if
+        remove = {node for node in _graph.nodes if
                   (node.ifc_type or node.__class__.__name__) not in
                   wanted | inert}
-        graph.remove_nodes_from(remove)
-        return graph
+        _graph.remove_nodes_from(remove)
+        return _graph
 
     @staticmethod
     def get_parallels(graph, wanted, inert=None, grouping=None,

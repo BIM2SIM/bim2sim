@@ -508,24 +508,34 @@ class ParallelPump(Aggregation):
         :return list of ports:
         """
         # detect elements with at least 3 ports
+        # todo detection via number of ports is not safe, because pumps and
+        #  other elements can  have additional signal ports and count as
+        #  edge_elements. current workaround: check for pumps seperatly
         edge_elements = [
-            node for node in graph.nodes if len(node.ports) > 2]
+            node for node in graph.nodes if (len(node.ports) > 2 and
+                    node.__class__.__name__ != 'Pump')]
 
         if len(edge_elements) > 2:
             graph = self.merge_additional_junctions(graph)
 
-        edge_elements = [
-            node for node in graph.nodes if len(node.ports) > 2]
         edge_outer_ports = []
         edge_inner_ports = []
+
+        # get all elements in graph, also if in aggregation
+        elements_in_graph = []
+        for node in graph.nodes:
+            elements_in_graph.append(node)
+            if hasattr(node, 'elements'):
+                for element in node.elements:
+                    elements_in_graph.append(element)
+
         # get all ports that are connected to outer elements
-        # todo case that additional connection at one side but not on the other
         for port in (p for e in edge_elements for p in e.ports):
             if not port.connection:
                 continue  # end node
-            if port.connection.parent not in graph.nodes:
+            if port.connection.parent not in elements_in_graph:
                 edge_outer_ports.append(port)
-            elif port.connection.parent in graph.nodes:
+            elif port.connection.parent in elements_in_graph:
                 edge_inner_ports.append(port)
 
         if len(edge_outer_ports) < 2:
@@ -611,6 +621,7 @@ class ParallelPump(Aggregation):
         for port in self.ports:
             for original in port.originals:
                 mapping[original] = port
+
         # search for aggregations made during the parallel pump construction
         new_aggregations = [element.aggregation for element in self.elements if
                             element.aggregation is not self]
