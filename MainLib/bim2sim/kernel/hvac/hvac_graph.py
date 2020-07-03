@@ -224,6 +224,22 @@ class HvacGraph(nx.Graph):
         return cls(json_graph.adjacency_graph(data))
 
     @staticmethod
+    def remove_not_wanted_nodes(graph, wanted, inert=None):
+        """ removes not wanted and not inert nodes from the given graph."""
+        if inert is None:
+            inert = set()
+        else:
+            inert = set(inert)
+        wanted = set(wanted)
+
+        # remove blocking nodes
+        remove = {node for node in graph.nodes if
+                  (node.ifc_type or node.__class__.__name__) not in
+                  wanted | inert}
+        graph.remove_nodes_from(remove)
+        return graph
+
+    @staticmethod
     def get_parallels(graph, wanted, inert=None, grouping=None,
                       grp_threshold=None):
         """ Detect parallel occurrences of wanted items.
@@ -237,24 +253,13 @@ class HvacGraph(nx.Graph):
         """
         if grouping is None:
             grouping = {}
-        if inert is None:
-            inert = set()
-        else:
-            inert = set(inert)
-        wanted = set(wanted)
-        _graph = graph.copy()
-
-        # remove blocking nodes
-        remove = {node for node in _graph.nodes if node.ifc_type not in
-                  wanted | inert}
-        _graph.remove_nodes_from(remove)
+        _graph = HvacGraph.remove_not_wanted_nodes(graph, wanted, inert)
 
         # detect simple cycles with at least two wanted nodes
         basis_cycles = nx.cycle_basis(_graph)
 
         # remove bypasses which prevent correct finding of parallel pump cycles
         graph_changed = False
-
         for basis_cycle in basis_cycles:
             wanted_guids_cycle = {node.guid for node in
                                   basis_cycle if node.ifc_type in wanted}
@@ -450,8 +455,8 @@ class HvacGraph(nx.Graph):
     @staticmethod
     def get_dir_paths_between(graph, nodes, include_edges=False):
         """ get direct connection between list of nodes in a graph."""
-
         dir_connections = []
+
         for node1, node2 in itertools.combinations(nodes, 2):
             all_paths = list(nx.all_simple_paths(graph, node1, node2))
 
@@ -463,6 +468,8 @@ class HvacGraph(nx.Graph):
                         if not include_edges:
                             path.pop(0)
                             path.pop(-1)
+                        dir_connections.append(path)
+                    elif len(path) == 2 and include_edges:
                         dir_connections.append(path)
         return dir_connections
 
@@ -476,6 +483,7 @@ class HvacGraph(nx.Graph):
         nodes = [root]
         # get direct neighbors
         neighbors_root = nx.all_neighbors(graph, root)
+
         # loop through neighbors until next junction
         for neighbor_root in neighbors_root:
             neighbor = neighbor_root
@@ -498,46 +506,15 @@ class HvacGraph(nx.Graph):
         All graph nodes not in inert or wanted are counted as blocking
         :returns: list of none overlapping subgraphs
         """
-        # find alle wanted elements
-        # remove other than inert and wanted items
-        # get all simple connections between the wanted elements
+        _graph = HvacGraph.remove_not_wanted_nodes(graph, wanted, inert)
 
-        if inert is None:
-            inert = set()
-        else:
-            inert = set(inert)
-        wanted = set(wanted)
-        _graph = graph.copy()
-
-        # remove blocking nodes
-        remove = {node for node in _graph.nodes if node.ifc_type not in
-                  wanted | inert}
-        _graph.remove_nodes_from(remove)
-
-        # detect direct connections between ifc fitting nodes
+        # get connections between the wanted items
         wanted_nodes = {node for node in _graph.nodes
                         if node.ifc_type in wanted}
-        dir_connections = [
-            list(nx.all_simple_paths(_graph, i, j)) for i in wanted_nodes
-            for j in wanted_nodes if i != j and nx.has_path(_graph, i, j)
-        ]
-        # todo continue with get wanted elements out of dir_connections list
 
-        # merge cycles to get multi parallel items
-        node_dict = {node.guid: node for node in _graph.nodes}
+        cons = HvacGraph.get_dir_paths_between(_graph, wanted_nodes, True)
         graphs = []
-        for cycle_set in cycle_sets:
-            nodes = [node_dict[guid] for guids in cycle_set for guid in guids]
-            graphs.append(graph.subgraph(nodes))
-
-
-        # detect simple cycles with at least two wanted nodes
-        basis_cycles = nx.cycle_basis(_graph)
-        nx.draw(graph, node_size=6, font_size=5, with_labels=True)
-        plt.draw()
-        plt.show()
-        basis_cycle_sets = [frozenset((node.guid for node in basis_cycle)) for basis_cycle in basis_cycles]  # hashable
-
-
-
+        for con in cons:
+            subgraph = nx.subgraph(_graph, con)
+            graphs.append(subgraph)
         return graphs

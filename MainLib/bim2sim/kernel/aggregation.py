@@ -478,12 +478,12 @@ class UnderfloorHeating(PipeStrand):
 
 class ParallelPump(Aggregation):
     """Aggregates pumps in parallel"""
-    aggregatable_elements = ['IfcPump', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting']
+    aggregatable_elements = ['IfcPump', 'PipeStrand', 'IfcPipeSegment',
+                             'IfcPipeFitting']
     multi = ('rated_power', 'rated_height', 'rated_volume_flow', 'diameter', 'diameter_strand', 'length')
 
     def __init__(self, name, element_graph, *args, **kwargs):
         super().__init__(name, element_graph, *args, **kwargs)
-        # element_graph = self.merge_additional_junctions(element_graph)
         edge_ports = self.get_edge_ports(element_graph)
         # simple case with two edge ports
         if len(edge_ports) == 2:
@@ -510,6 +510,12 @@ class ParallelPump(Aggregation):
         # detect elements with at least 3 ports
         edge_elements = [
             node for node in graph.nodes if len(node.ports) > 2]
+
+        if len(edge_elements) > 2:
+            graph = self.merge_additional_junctions(graph)
+
+        edge_elements = [
+            node for node in graph.nodes if len(node.ports) > 2]
         edge_outer_ports = []
         edge_inner_ports = []
         # get all ports that are connected to outer elements
@@ -530,14 +536,18 @@ class ParallelPump(Aggregation):
         # other elements, not in aggregation, connected to junction nodes
         else:
             edge_ports = [port.connection for port in edge_inner_ports]
-            parents = set((parent for parent in (port.connection.parent for
-                                                 port in edge_ports)))
+            parents = set(parent for parent in (port.connection.parent for
+                                                port in edge_ports))
             for parent in parents:
                 aggr_ports = [port for port in edge_inner_ports if
                                 port.parent == parent]
-
-                aggr = AggregatedPipeFitting('aggr_'+parent.name, nx.subgraph(
-                    graph, parent), aggr_ports)
+                if not isinstance(parent.aggregation, AggregatedPipeFitting):
+                    AggregatedPipeFitting('aggr_'+parent.name, nx.subgraph(
+                        graph, parent), aggr_ports)
+                else:
+                    for port in aggr_ports:
+                        AggregationPort(
+                            originals=port, parent=parent.aggregation)
         return edge_ports
 
     @attribute.multi_calc
@@ -623,13 +633,7 @@ class ParallelPump(Aggregation):
             aggrPipeFitting = AggregatedPipeFitting(
                 name_builder.format(AggregatedPipeFitting.__name__, i + 1),  junction, **meta)
             i += 1
-            graph = graph.merge(
-                mapping=aggrPipeFitting.get_replacement_mapping(),
-                inner_connections=aggrPipeFitting.get_inner_connections()
-            )
         return graph
-
-
 
     def get_additional_connections(self):
         """Returns tuple with additional connections. Needed in case of
@@ -702,10 +706,17 @@ class AggregatedPipeFitting(Aggregation):
     def __init__(self, name, element_graph, aggr_ports=None, *args, **kwargs):
         super().__init__(name, element_graph, *args, **kwargs)
         edge_ports = self.get_edge_ports(element_graph)
+        # create aggregation ports for all edge ports
         for edge_port in edge_ports:
-            if edge_port not in aggr_ports:
+            if aggr_ports:
+                if edge_port not in aggr_ports:
+                    self.ports.append(AggregationPort(edge_port, parent=self))
+            else:
                 self.ports.append(AggregationPort(edge_port, parent=self))
-        self.ports.append(AggregationPort(aggr_ports, parent=self))
+
+        # create combined aggregation port for all ports in aggr_ports
+        if aggr_ports:
+            self.ports.append(AggregationPort(aggr_ports, parent=self))
 
     @classmethod
     def get_edge_ports(cls, graph):
@@ -953,58 +964,3 @@ class ParallelSpaceHeater(Aggregation):
 
         if (p_instance in check_up) and (p_instance in check_low):
             return instance
-
-# def cycles_reduction(cycles, p_instance):
-#     """reduce the found cycles, to just the cycles that fulfill the next criteria:
-#     1. it's a parallel cycle (the two strands have the same flow direction)
-#     2. it has one or more pumps in each strand
-#     finally it creates a list with the founded cycles with the next lists:
-#     'elements', 'up_strand', 'low_strand', 'ports'
-#     """
-#     new_cycles = []
-#     for cycle in cycles:
-#         n_pumps = 0
-#         total_ports = {}
-#         new_cycle = {}
-#         # all possible beginning and end of the cycle (always pipe fittings), pumps counting
-#         for port in cycle:
-#             if isinstance(port.parent, getattr(elements, p_instance)):
-#                 n_pumps += 1
-#             if isinstance(port.parent, elements.PipeFitting):
-#                 if port.parent.guid in total_ports:
-#                     total_ports[port.parent.guid].append(port)
-#                 else:
-#                     total_ports[port.parent.guid] = []
-#                     total_ports[port.parent.guid].append(port)
-#         # 1st filter, cycle has more than 2 pump-ports, 1 pump
-#         if n_pumps >= 4:
-#             new_cycle["elements"] = list(dict.fromkeys([v.parent for v in cycle]))
-#         else:
-#             continue
-#         # 2nd filter, beginning and end of the cycle (parallel check)
-#         final_ports = []
-#         for k, ele in total_ports.items():
-#             if ele[0].flow_direction == ele[1].flow_direction:
-#                 final_ports.append(ele[0])
-#                 final_ports.append(ele[1])
-#         if len(final_ports) < 4:
-#             continue
-#         # Strand separation - upper & lower
-#         upper = []
-#         lower = []
-#         for elem in new_cycle["elements"]:
-#             if new_cycle["elements"].index(final_ports[1].parent) \
-#                     < new_cycle["elements"].index(elem) < new_cycle["elements"].index(final_ports[2].parent):
-#                 upper.append(elem)
-#             else:
-#                 lower.append(elem)
-#         new_cycle['up_strand'] = upper
-#         new_cycle['low_strand'] = lower
-#         new_cycle["ports"] = final_ports
-#         # 3rd Filter, each strand has one or more pumps
-#         check_up = str(dict.fromkeys(new_cycle['up_strand']))
-#         check_low = str(dict.fromkeys(new_cycle['low_strand']))
-#         if (p_instance in check_up) and (p_instance in check_low):
-#             new_cycles.append(new_cycle)
-#     return new_cycles
-
