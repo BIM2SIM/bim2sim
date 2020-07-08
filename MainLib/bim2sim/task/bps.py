@@ -66,15 +66,17 @@ class Inspect(ITask):
         Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
 
+        check = []
+
         for ifc_type in workflow.relevant_ifc_types:
             try:
                 entities = ifc.by_type(ifc_type)
                 for entity in entities:
                     element = Element.factory(entity, ifc_type)
-                    x = element.orientation
-                    if type(element).__name__ is not 'Dummy':
-                        x = element.orientation
+                    x = element.name
+                    y = element.orientation
                     self.instances[element.guid] = element
+                    check.append([element, element.orientation])
             except RuntimeError:
                 pass
 
@@ -170,6 +172,9 @@ class ExportTEASER(ITask):
                             setattr(teaser_instance, key, aux)
                         except ZeroDivisionError:
                             return True
+                        except IndexError:
+                            aux = input("Please enter a valid %s for %s" % (key, sw))
+                            setattr(teaser_instance, key, aux)
                     else:
                         return True
             else:
@@ -209,22 +214,37 @@ class ExportTEASER(ITask):
     def _instance_related(cls, teaser_instance, instance, bldg):
         """instance specific function, layers creation
         if layers not given, loads template"""
-        if len(instance.layers) > 0:
+        if isinstance(instance.layers, list) and len(instance.layers) > 0:
             for layer_instance in instance.layers:
                 layer = Layer(parent=teaser_instance)
+                if not hasattr(layer_instance, 'thickness'):
+                    # layer_instance.thickness = float(input("Please provide a value for thickness in layer %s" % layer_instance.material))
+                    layer_instance.thickness = 0.1
                 layer.thickness = layer_instance.thickness
                 cls._material_related(layer, layer_instance, bldg)
         else:
-            construction_type = {InnerWall: 'light',
-                                 OuterWall: 'light',
-                                 Window: "EnEv",
-                                 Rooftop: 'light',
-                                 Floor: 'light',
-                                 GroundFloor: 'light',
-                                 Door: "EnEv"}
+            # construction_type = {InnerWall: 'light',
+            #                      OuterWall: 'light',
+            #                      Window: "EnEv",
+            #                      Rooftop: 'light',
+            #                      Floor: 'light',
+            #                      GroundFloor: 'light',
+            #                      Door: "EnEv"}
+            #
+            # construction = construction_type.get(type(teaser_instance))
+            if getattr(bldg, 'year_of_construction') is None:
+                bldg.year_of_construction = int(input("Please provide a valid year of construction for building: "))
+            template_options = cls._get_instance_template(teaser_instance, bldg)
+            decision_template = None
+            if len(template_options) > 0:
+                decision_template = ListDecision("the following construction types were found for year %s and instance %s"
+                                         % (bldg.year_of_construction, teaser_instance.name),
+                                         choices=list(template_options),
+                                         allow_skip=True, allow_load=True, allow_save=True,
+                                         collect=False, quick_decide=not True)
+                decision_template.decide()
 
-            construction = construction_type.get(type(teaser_instance))
-            teaser_instance.load_type_element(year=bldg.year_of_construction, construction=construction)
+            teaser_instance.load_type_element(year=bldg.year_of_construction, construction=decision_template.value)
 
     @classmethod
     def _material_related(cls, layer, layer_instance, bldg):
@@ -277,11 +297,23 @@ class ExportTEASER(ITask):
                 data_class=prj.data,
             )
 
+    @staticmethod
+    def _get_instance_template(teaser_instance, bldg):
+        prj = bldg.parent
+        instance_type = type(teaser_instance).__name__
+        instance_templates = dict(prj.data.element_bind)
+        del instance_templates["version"]
+        template_options = []
+        for i in instance_templates:
+            years = instance_templates[i]['building_age_group']
+            if instance_type in i and years[0] <= bldg.year_of_construction <= years[1]:
+                template_options.append(instance_templates[i]['construction_type'])
+        return template_options
+
     @Task.log
     def run(self, workflow, instances, ifc):
         self.logger.info("Export to TEASER")
         prj = self._create_project(ifc.by_type('IfcProject')[0])
-
         bldg_instances = Inspect.filter_instances(instances, 'Building')
         for bldg_instance in bldg_instances:
             bldg = self._create_building(bldg_instance, prj)

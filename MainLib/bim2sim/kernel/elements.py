@@ -511,6 +511,7 @@ class ThermalZone(element.Element):
                 re.compile('Kitchen', flags=re.IGNORECASE)
             ]
         }
+        return "Kitchen - preparations, storage"
         for usage, pattern in pattern_usage.items():
             for i in pattern:
                 if i.match(bind.zone_name):
@@ -527,8 +528,6 @@ class ThermalZone(element.Element):
                                       quick_decide=not True)
         usage_decision.decide()
         return usage_decision.value
-
-
 
     usage = attribute.Attribute(
         name='usage',
@@ -1033,8 +1032,17 @@ class GroundFloor(Slab):
     #     }
 
 
+class Site(element.Element):
+    ifc_type = "IfcSite"
+
+    # year_of_construction = attribute.Attribute(
+    #     name='year_of_construction',
+    #     default_ps=True
+    # )
+
+
 class Building(element.Element):
-    ifc_type = "IFcBuilding"
+    ifc_type = "IfcBuilding"
 
     year_of_construction = attribute.Attribute(
         name='year_of_construction',

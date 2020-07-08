@@ -229,20 +229,36 @@ class IFCBased(Root):
             if placementrel.RelativePlacement.RefDirection is not None:
                 o2 = placementrel.RelativePlacement.RefDirection.DirectionRatios
                 list_angles.append((placementrel.PlacesObject[0].GlobalId, vector_angle(o2)))
+            else:
+                list_angles.append((placementrel.PlacesObject[0].GlobalId, None))
             placementrel = placementrel.PlacementRelTo
+
         # relative vector + absolute vector
-        if len(list_angles) == 0:
-            return None
-        ang_sum = list_angles[0][1]
+        if len(list_angles) == 1:
+            if list_angles[0][1] is None:
+                return 90
+                # return 0
+
+        ang_sum = 0
+
         for guid, ang in list_angles:
             relative_element = self.get_object(guid)
             if relative_element is self:
+                if ang is not None:
+                    ang_sum += ang
                 continue
             if relative_element is None:
-                ang_sum += ang
+                if ang is not None:
+                    ang_sum += ang
                 continue
-            ang_sum += relative_element.orientation
-            break
+            else:
+                new_ang = relative_element.orientation
+                if new_ang is not None:
+                    ang_sum += new_ang
+                    break
+
+        if ang_sum is None:
+            return None
         # specific case windows
         if self.ifc_type == 'IfcWindow':
             ang_sum += 180

@@ -2,9 +2,11 @@
 
 import math
 import numpy as np
+import pint
 
 from bim2sim.kernel.element import BaseSubElement
 from bim2sim.task.bps_f.bps_functions import get_disaggregations_instance
+
 
 vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
 horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
@@ -58,9 +60,11 @@ class Disaggregation(BaseSubElement):
         if disaggregations is None:
             return [parent]
 
+        parent_area = parent.area.magnitude if isinstance(parent.area, pint.Quantity) else parent.area
+
         if parent.__class__.__name__ in vertical_instances:
             if len(disaggregations) == 1:
-                if abs(disaggregations[next(iter(disaggregations))][0] - parent.area) <= 0.1:
+                if abs(disaggregations[next(iter(disaggregations))][0] - parent_area) <= 0.1:
                     return [parent]
 
         name = 'Sub' + parent.__class__.__name__ + '_' + parent.name
