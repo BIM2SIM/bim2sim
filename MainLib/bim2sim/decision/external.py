@@ -24,6 +24,7 @@ class DecisionService(rpyc.Service):
         self.answers = {}
         self._parse = parse_func
         self._answer = answer_func
+        self.callback = None
         self.done = False
 
     def on_connect(self, conn):
@@ -37,6 +38,11 @@ class DecisionService(rpyc.Service):
         # (to finalize the service, if needed)
         logger.warning("Connection lost. Shutting down.")
         # exit(2)
+
+    def exposed_set_callback(self, func):
+        self.callback = func
+        logger.info("Callback set")
+        self.callback('jo')
 
     @staticmethod
     def reduced(decisions):
