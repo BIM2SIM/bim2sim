@@ -72,10 +72,10 @@ def get_backends(by_entrypoint=False):
     return sim
 
 
-def finish():
+def finish(success=False):
     """cleanup method"""
     logger = logging.getLogger(__name__)
-    Decision.frontend.shutdown()
+    Decision.frontend.shutdown(success)
     logger.info('finished')
 
 
@@ -144,7 +144,7 @@ def main(rootpath=None):
     manager.run()
     #manager.run_interactive()
 
-    finish()
+    finish(success=True)
 
 
 def _debug_run_hvac():

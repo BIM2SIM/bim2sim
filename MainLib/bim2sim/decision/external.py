@@ -42,7 +42,15 @@ class DecisionService(rpyc.Service):
     def exposed_set_callback(self, func):
         self.callback = func
         logger.info("Callback set")
-        self.callback('jo')
+        self.callback('Callback set')
+
+    def notify_error(self):
+        if self.callback:
+            self.callback(error=True)
+
+    def notify_finished(self):
+        if self.callback:
+            self.callback(finished=True)
 
     @staticmethod
     def reduced(decisions):
@@ -248,6 +256,10 @@ class ExternalFrontEnd(FrontEnd):
         self.logger.info("Answer accepted")
         self.service.clear()
 
-    def shutdown(self):
+    def shutdown(self, success):
         self.logger.info("Shutting down external Frontend")
+        if success:
+            self.service.notify_finished()
+        else:
+            self.service.notify_error()
         self.thread.join(.5)

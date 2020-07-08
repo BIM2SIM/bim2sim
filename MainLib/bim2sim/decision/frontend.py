@@ -27,7 +27,7 @@ class FrontEnd:
     def validate(self, decision, value):
         return decision.validate(value)
 
-    def shutdown(self):
+    def shutdown(self, success):
         """Shut down frontend"""
         pass
 
