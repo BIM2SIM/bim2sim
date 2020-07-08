@@ -35,8 +35,10 @@ from teaser.logic import utilities
 import os
 from bim2sim.task.bps_f.bps_functions import orientation_verification
 from bim2sim.kernel.units import conversion
+from googletrans import Translator
+import re
 
-
+translator = Translator()
 
 class SetIFCTypesBPS(ITask):
     """Set list of relevant IFC types"""
@@ -223,15 +225,6 @@ class ExportTEASER(ITask):
                 layer.thickness = layer_instance.thickness
                 cls._material_related(layer, layer_instance, bldg)
         else:
-            # construction_type = {InnerWall: 'light',
-            #                      OuterWall: 'light',
-            #                      Window: "EnEv",
-            #                      Rooftop: 'light',
-            #                      Floor: 'light',
-            #                      GroundFloor: 'light',
-            #                      Door: "EnEv"}
-            #
-            # construction = construction_type.get(type(teaser_instance))
             if getattr(bldg, 'year_of_construction') is None:
                 bldg.year_of_construction = int(input("Please provide a valid year of construction for building: "))
             template_options = cls._get_instance_template(teaser_instance, bldg)
@@ -258,18 +251,25 @@ class ExportTEASER(ITask):
             try:
                 material_name = cls.materials[layer_instance.material]
             except KeyError:
-                Materials_DEU = layer_instance.parent.finder.templates['base']['Material']['DEU']
                 material_templates = dict(prj.data.material_bind)
                 del material_templates['version']
 
-                for k in Materials_DEU:
-                    if material_ref in k:
-                        material_ref = Materials_DEU[k]
+                material_ref = translator.translate(re.sub('[!@#$-_1234567890]', '', layer_instance.material.lower())).text
+                material_ref = material_ref.split()
+                options = {}
+
+                resumed = {}
+                for k in material_templates:
+                    resumed[material_templates[k]['name']] = k
+
+                material_ref = [re.compile('(.*?)wood', flags=re.IGNORECASE), re.compile('(.*?)holz', flags=re.IGNORECASE)]
 
                 options = {}
-                for k in material_templates:
-                    if material_ref in material_templates[k]['name']:
-                        options[k] = material_templates[k]
+                for ref in material_ref:
+                    for mat in resumed:
+                        if ref.match(mat):
+                            options[mat] = resumed[mat]
+
                 while len(options) == 0:
                     decision_ = input(
                         "Material not found, enter value for the material:")
@@ -278,7 +278,7 @@ class ExportTEASER(ITask):
                         if material_ref in material_templates[k]['name']:
                             options[k] = material_templates[k]
 
-                materials_options = [material_templates[k]['name'] for k in options]
+                materials_options = list(options.keys())
                 decision1 = None
                 if len(materials_options) > 0:
                     decision1 = ListDecision("one or more attributes of the material %s for %s are not valid, "

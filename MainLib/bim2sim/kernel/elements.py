@@ -511,7 +511,6 @@ class ThermalZone(element.Element):
                 re.compile('Kitchen', flags=re.IGNORECASE)
             ]
         }
-        return "Kitchen - preparations, storage"
         for usage, pattern in pattern_usage.items():
             for i in pattern:
                 if i.match(bind.zone_name):
