@@ -95,7 +95,7 @@ class Inspect(ITask):
         return delta
 
     @staticmethod
-    def connections_by_position(ports, eps=1):
+    def connections_by_position(ports, eps=10):
         """Connect ports of instances by computing geometric distance"""
         connections = []
         for port1, port2 in itertools.combinations(ports, 2):
