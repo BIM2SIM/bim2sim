@@ -1,3 +1,9 @@
+.only-default: &only-default
+  only:
+    - master
+    - merge_requests
+    - tags
+
 stages:
   - build
   - test
@@ -44,6 +50,7 @@ build_tool:webdevelop:
     - 58-ui-ready-decision-system
 
 unittest3.7:
+  <<: *only-default
   image: $CI_REGISTRY/environment:latest
   stage: test
   script:
@@ -92,49 +99,50 @@ pylint:
       - branches
 
 pages:
-    stage: pages
-    dependencies:
-      - pylint
-    before_script:
-      - apt-get update -y
-      - apt-get install zip unzip -y
-    script:
-      - set +e
-      - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
-      - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
-      - set -e
-      # Add/update content
-      - mkdir -p .public/$CI_COMMIT_REF_NAME
-      - cp -r public/* .public
-      # Zip the content and publish the zip again
-      - zip -r "content.zip" "public"
-      - mv "content.zip" "public/"
-    artifacts:
-      paths:
-      - public
+  <<: *only-default
+  stage: pages
+  dependencies:
+    - pylint
+  before_script:
+    - apt-get update -y
+    - apt-get install zip unzip -y
+  script:
+    - set +e
+    - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
+    - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
+    - set -e
+    # Add/update content
+    - mkdir -p .public/$CI_COMMIT_REF_NAME
+    - cp -r public/* .public
+    # Zip the content and publish the zip again
+    - zip -r "content.zip" "public"
+    - mv "content.zip" "public/"
+  artifacts:
+  paths:
+    - public
 
 
 mrpost:
-    stage: visualize
-    dependencies:
-      - pages
-    before_script:
-      - apt-get update -y
-      - apt-get install jq -y
-    script:
-      - newline=$' \n '
-      - msg1=$'## This is a CI-Post \n '
-      - msg2="**Pyint score** on your branch $CI_MERGE_REQUEST_TARGET_BRANCH_NAME [![pylint]( $CI_PAGES_URL/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME/pylint.svg )]( $CI_PAGES_URL/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME/pylint.html )  "
-      - msg3="**Pyint score** on branch $CI_COMMIT_REF_NAME [![pylint]( $CI_PAGES_URL/$CI_COMMIT_REF_NAME/pylint.svg )]( $CI_PAGES_URL/$CI_COMMIT_REF_NAME/pylint.html ) .  "
-      - msg4="You can view the **Pylint Log** by clicking on the badges  "
-      - msg=$msg1$msg2$newline$msg3$newline$msg4
-      - curl --request GET --header "PRIVATE-TOKEN:$GL_TOKEN" https://git.rwth-aachen.de/api/v4/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes | tee notes.json
-      - mapfile -t ids < <(jq '.[].id' notes.json)
-      - mapfile -t bodys < <(jq '.[].body' notes.json)
-      - len=${#ids[@]}
-      - for i in $(seq 0 $len); do if [[ ${bodys[i]} == *"This is a CI-Post"* ]]; then id=${ids[i]}; break; fi; done
-      - if [ -z ${id+x} ]; then curl -d "body=$msg" --request POST --header "PRIVATE-TOKEN:$GL_TOKEN" https://git.rwth-aachen.de/api/v4/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes?body=note; else curl -d "body=$msg" --request PUT --header "PRIVATE-TOKEN:$GL_TOKEN" https://git.rwth-aachen.de/api/v4/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes/$id/?body=note; fi
-      - curl -d "body=$msg" --request PUT --header "PRIVATE-TOKEN:$GL_TOKEN" https://git.rwth-aachen.de/api/v4/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes/$id/?body=note
-    only:
-      - merge_requests
+  stage: visualize
+  dependencies:
+    - pages
+  before_script:
+    - apt-get update -y
+    - apt-get install jq -y
+  script:
+    - newline=$' \n '
+    - msg1=$'## This is a CI-Post \n '
+    - msg2="**Pyint score** on your branch $CI_MERGE_REQUEST_TARGET_BRANCH_NAME [![pylint]( $CI_PAGES_URL/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME/pylint.svg )]( $CI_PAGES_URL/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME/pylint.html )  "
+    - msg3="**Pyint score** on branch $CI_COMMIT_REF_NAME [![pylint]( $CI_PAGES_URL/$CI_COMMIT_REF_NAME/pylint.svg )]( $CI_PAGES_URL/$CI_COMMIT_REF_NAME/pylint.html ) .  "
+    - msg4="You can view the **Pylint Log** by clicking on the badges  "
+    - msg=$msg1$msg2$newline$msg3$newline$msg4
+    - curl --request GET --header "PRIVATE-TOKEN:$GL_TOKEN" https://git.rwth-aachen.de/api/v4/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes | tee notes.json
+    - mapfile -t ids < <(jq '.[].id' notes.json)
+    - mapfile -t bodys < <(jq '.[].body' notes.json)
+    - len=${#ids[@]}
+    - for i in $(seq 0 $len); do if [[ ${bodys[i]} == *"This is a CI-Post"* ]]; then id=${ids[i]}; break; fi; done
+    - if [ -z ${id+x} ]; then curl -d "body=$msg" --request POST --header "PRIVATE-TOKEN:$GL_TOKEN" https://git.rwth-aachen.de/api/v4/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes?body=note; else curl -d "body=$msg" --request PUT --header "PRIVATE-TOKEN:$GL_TOKEN" https://git.rwth-aachen.de/api/v4/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes/$id/?body=note; fi
+    - curl -d "body=$msg" --request PUT --header "PRIVATE-TOKEN:$GL_TOKEN" https://git.rwth-aachen.de/api/v4/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes/$id/?body=note
+  only:
+    - merge_requests
 
