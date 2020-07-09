@@ -737,15 +737,6 @@ class TestParallelPumps(unittest.TestCase):
 
         n_pumps1 = len([item for item in flags['pumps1'] if item.ifc_type == 'IfcPump'])
         n_pumps2 = len([item for item in flags['normal'] if item.ifc_type == 'IfcPump'])
-
-        import matplotlib.pyplot as plt
-        match_pumps = []
-        for match in matches:
-            match_pumps.append([node for node in match if node.ifc_type == 'IfcPump'])
-            nx.draw(match, with_labels=True)
-            plt.draw()
-            plt.show()
-
         self.assertSetEqual({n_pumps1, n_pumps2}, {len(mp) for mp in match_pumps})
 
 
