@@ -10,9 +10,6 @@ stages:
   - test
   - pages
   - visualize
-#    - compile
-#    - log
-#    - post
 
 build_env:
   image: docker:latest
@@ -97,6 +94,7 @@ pylint:
     - public
   only:
     - branches
+    - merge_requests
 
 pages:
   <<: *only-default
