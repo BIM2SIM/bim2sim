@@ -3,6 +3,8 @@
     - master
     - merge_requests
     - tags
+    - branches
+    - 
 
 stages:
   - build
