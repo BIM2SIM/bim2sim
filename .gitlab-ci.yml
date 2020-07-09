@@ -19,6 +19,7 @@ build_env:
     changes:
       - Environment/Dockerfile
       - Environment/environment.yml
+      - MainLib/requirements.txt
 
 build_tool:release:
   image: docker:latest
