@@ -52,6 +52,7 @@ unittest3.7:
   image: $CI_REGISTRY/environment:latest
   stage: test
   script:
+    - mv ./* /bim2sim/
     - source activate base
     - python MainLib/run_tests.py
   allow_failure: true
