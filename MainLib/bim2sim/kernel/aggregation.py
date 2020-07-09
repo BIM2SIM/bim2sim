@@ -3,7 +3,6 @@
 import math
 import networkx as nx
 import numpy as np
-
 from bim2sim.kernel.element import BaseElement, BasePort
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
@@ -186,7 +185,7 @@ class PipeStrand(Aggregation):
                 self.logger.warning("Ignored '%s' in aggregation", pipe)
                 continue
 
-            diameter_times_length += diameter*length
+            diameter_times_length += diameter * length
             total_length += length
 
         if total_length != 0:
