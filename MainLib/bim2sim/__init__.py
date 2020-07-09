@@ -115,7 +115,7 @@ def main(rootpath=None):
 def _debug_run_hvac():
     """Create example project and copy ifc if necessary"""
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
-    rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc'
+    rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
     path_example = r"C:\temp\bim2sim\testproject"
 
