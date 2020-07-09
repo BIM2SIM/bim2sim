@@ -33,7 +33,7 @@ from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
 from teaser.logic import utilities
 import os
-from bim2sim.task.bps_f.bps_functions import orientation_verification
+from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list
 from bim2sim.kernel.units import conversion
 from googletrans import Translator
 import re
@@ -75,10 +75,12 @@ class Inspect(ITask):
                 entities = ifc.by_type(ifc_type)
                 for entity in entities:
                     element = Element.factory(entity, ifc_type)
-                    x = element.name
-                    y = element.orientation
+                    # x = element.name
+                    # y = element.orientation
+                    # if hasattr(element, 'thickness'):
+                    #     z = element.thickness
                     self.instances[element.guid] = element
-                    check.append([element, element.orientation])
+                    # check.append([element, element.orientation])
             except RuntimeError:
                 pass
 
@@ -230,13 +232,13 @@ class ExportTEASER(ITask):
             template_options = cls._get_instance_template(teaser_instance, bldg)
             decision_template = None
             if len(template_options) > 0:
-                decision_template = ListDecision("the following construction types were found for year %s and instance %s"
-                                         % (bldg.year_of_construction, teaser_instance.name),
-                                         choices=list(template_options),
-                                         allow_skip=True, allow_load=True, allow_save=True,
-                                         collect=False, quick_decide=not True)
+                decision_template = ListDecision("the following construction types were "
+                                                 "found for year %s and instance %s"
+                                                 % (bldg.year_of_construction, teaser_instance.name),
+                                                 choices=list(template_options),
+                                                 allow_skip=True, allow_load=True, allow_save=True,
+                                                 collect=False, quick_decide=not True)
                 decision_template.decide()
-
             teaser_instance.load_type_element(year=bldg.year_of_construction, construction=decision_template.value)
 
     @classmethod
@@ -245,7 +247,6 @@ class ExportTEASER(ITask):
         if material or properties not given, loads material template"""
         prj = bldg.parent
         material = Material(parent=layer)
-        material_ref = ''.join([i for i in layer_instance.material if not i.isdigit()]).lower().strip()
         error = cls._teaser_property_getter(material, layer_instance, layer_instance.finder.templates)
         if error is True:
             try:
@@ -253,38 +254,24 @@ class ExportTEASER(ITask):
             except KeyError:
                 material_templates = dict(prj.data.material_bind)
                 del material_templates['version']
-
-                material_ref = translator.translate(re.sub('[!@#$-_1234567890]', '', layer_instance.material.lower())).text
-                material_ref = material_ref.split()
-                options = {}
-
-                resumed = {}
+                # just material names:
+                resumed = []
                 for k in material_templates:
-                    resumed[material_templates[k]['name']] = k
+                    resumed.append(material_templates[k]['name'])
+                # materials options after search:
+                material_options = get_matches_list(layer_instance.material, resumed)
 
-                material_ref = [re.compile('(.*?)wood', flags=re.IGNORECASE), re.compile('(.*?)holz', flags=re.IGNORECASE)]
-
-                options = {}
-                for ref in material_ref:
-                    for mat in resumed:
-                        if ref.match(mat):
-                            options[mat] = resumed[mat]
-
-                while len(options) == 0:
+                while len(material_options) == 0:
                     decision_ = input(
                         "Material not found, enter value for the material:")
-                    material_ref = decision_
-                    for k in material_templates:
-                        if material_ref in material_templates[k]['name']:
-                            options[k] = material_templates[k]
+                    material_options = get_matches_list(decision_, resumed)
 
-                materials_options = list(options.keys())
                 decision1 = None
-                if len(materials_options) > 0:
+                if len(material_options) > 0:
                     decision1 = ListDecision("one or more attributes of the material %s for %s are not valid, "
                                              "select one of the following templates to continue"
                                              % (layer_instance.material, layer_instance.parent.name),
-                                             choices=list(materials_options),
+                                             choices=list(material_options),
                                              allow_skip=True, allow_load=True, allow_save=True,
                                              collect=False, quick_decide=not True)
                     decision1.decide()
@@ -299,6 +286,7 @@ class ExportTEASER(ITask):
 
     @staticmethod
     def _get_instance_template(teaser_instance, bldg):
+        default = ['heavy', 'light', 'EnEv']
         prj = bldg.parent
         instance_type = type(teaser_instance).__name__
         instance_templates = dict(prj.data.element_bind)
@@ -308,6 +296,8 @@ class ExportTEASER(ITask):
             years = instance_templates[i]['building_age_group']
             if instance_type in i and years[0] <= bldg.year_of_construction <= years[1]:
                 template_options.append(instance_templates[i]['construction_type'])
+        if len(template_options) == 0:
+            return default
         return template_options
 
     @Task.log

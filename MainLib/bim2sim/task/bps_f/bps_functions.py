@@ -1,6 +1,10 @@
 import ifcopenshell
 import ifcopenshell.geom
 import math
+import re
+
+from googletrans import Translator
+
 
 def get_disaggregations_instance(element, thermal_zone):
     vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
@@ -131,6 +135,27 @@ def vector_angle(vector):
         else:
             return tang + 360
 
+
+def get_matches_list(search_words, search_list):
+    """get patterns for a material name in both english and original language,
+    and get afterwards the related elements from list"""
+
+    translator = Translator()
+    material_ref = []
+
+    pattern_material = re.sub('[!@#$-_1234567890]', '', search_words.lower()).split()
+    pattern_material.extend(translator.translate(re.sub('[!@#$-_1234567890]', '', search_words.lower())).text.split())
+
+    for i in pattern_material:
+        material_ref.append(re.compile('(.*?)%s' % i, flags=re.IGNORECASE))
+
+    material_options = []
+    for ref in material_ref:
+        for mat in search_list:
+            if ref.match(mat):
+                material_options.append(mat)
+
+    return material_options
 
 
 

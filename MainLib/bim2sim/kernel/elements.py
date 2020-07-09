@@ -633,10 +633,10 @@ class Wall(element.Element):
     def _get_wall_properties(bind, name):
         material = bind.material
         material_ref = ''.join([i for i in material if not i.isdigit()])
-        is_external = bind.is_external
+        # is_external = bind.is_external
         external = 'external'
-        if not is_external:
-            external = 'internal'
+        # if not is_external:
+        #     external = 'internal'
 
         try:
             bind.material_selected[material]['properties']
@@ -646,8 +646,8 @@ class Wall(element.Element):
                 collect=False)
             first_decision.decide()
             first_decision.stored_decisions.clear()
-            if first_decision.value:
 
+            if first_decision.value:
                 Materials_DEU = bind.finder.templates[bind.source_tool][bind.__class__.__name__]['material']
                 material_templates = dict(DataClass(used_param=2).element_bind)
                 del material_templates['version']
@@ -716,36 +716,30 @@ class Wall(element.Element):
         default=False
     )
 
-    thermal_transmittance = attribute.Attribute(
-        name='thermal_transmittance',
-        default_ps=True,
-        default=0
-    )
-
-    material = attribute.Attribute(
-        name='material',
-        default_ps=True,
-        default=0
-    )
-
-    thickness = attribute.Attribute(
-        name='thickness',
-        default_ps=True,
-        # functions=[_get_wall_properties],
-        default=0
-    )
-
-    heat_capacity = attribute.Attribute(
-        name='heat_capacity',
-        # functions=[_get_wall_properties],
-        default=0
-    )
-
-    density = attribute.Attribute(
-        name='density',
-        # functions=[_get_wall_properties],
-        default=0
-    )
+    # thermal_transmittance = attribute.Attribute(
+    #     name='thermal_transmittance',
+    #     default_ps=True,
+    #     default=0
+    # )
+    #
+    # thickness = attribute.Attribute(
+    #     name='thickness',
+    #     # default_ps=True,
+    #     functions=[_get_wall_properties],
+    #     # default=0
+    # )
+    #
+    # heat_capacity = attribute.Attribute(
+    #     name='heat_capacity',
+    #     # functions=[_get_wall_properties],
+    #     default=0
+    # )
+    #
+    # density = attribute.Attribute(
+    #     name='density',
+    #     # functions=[_get_wall_properties],
+    #     default=0
+    # )
 
     tilt = attribute.Attribute(
         name='thermal_transmittance',
