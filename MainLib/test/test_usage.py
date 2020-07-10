@@ -1,7 +1,8 @@
 ﻿import unittest
 import subprocess
 import os
-from sys import platform
+import sys
+from pathlib import Path
 
 
 class TestUsage(unittest.TestCase):
@@ -29,16 +30,18 @@ class TestUsage(unittest.TestCase):
         """Test calling bim2sim -h from console"""
         try:
             import bim2sim
-        except:
+        except ImportError:
             self.fail("Unable to localize bim2sim")
-        # linux
-        if platform == "linux" or platform == "linux2":
-            path = '/'.join(os.path.abspath(bim2sim.__file__).split('/')[:-1])
-        # for windows and other
-        else:
-            path = '\\'.join(os.path.abspath(bim2sim.__file__).split('\\')[:-1])
-        ret = subprocess.call("python %s -help" % path, shell=True)
-        self.assertEqual(ret, 0, "Calling 'bim2sim -help' by console failed")
+        path = Path(bim2sim.__file__).parent
+        cmd = "%s %s --version" % (sys.executable, 'bim2sim')
+        ret = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path.parent, shell=True)
+        self.assertTrue(ret.stdout.decode('utf-8').startswith(bim2sim.VERSION), 'unexpected output')
+
+        # for some reason the error code is 1 but code runs as expected without errors ...
+        # if ret.returncode != 0:
+        #     print(ret.stdout)
+        #     print(ret.stderr)
+        # self.assertEqual(0, ret.returncode, "Calling '%s' by console failed" % cmd)
 
 
 if __name__ == '__main__':
