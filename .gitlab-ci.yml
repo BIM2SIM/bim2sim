@@ -55,7 +55,6 @@ unittest3.7:
     - mv ./* /bim2sim/
     - source activate base
     - python /bim2sim/MainLib/run_tests.py
-  allow_failure: true
 
 pylint:
   stage: test
