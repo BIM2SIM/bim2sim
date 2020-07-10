@@ -85,7 +85,7 @@ class Test_HVACGraph(unittest.TestCase):
             self.assertNotIn(ele, to_replace)
 
         path_port = nx.shortest_path(
-            graph.graph, strait[0].ports[0], strait[-1].ports[1])
+            graph, strait[0].ports[0], strait[-1].ports[1])
         self.assertIn(replacement.ports[0], path_port)
         self.assertIn(replacement.ports[-1], path_port)
 

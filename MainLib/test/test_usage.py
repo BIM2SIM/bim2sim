@@ -27,7 +27,7 @@ class TestUsage(unittest.TestCase):
             self.skipTest("Plugin available but errors occured on import\ndetails: %s"%(err.msg))
 
     def test_call_console(self):
-        """Test calling bim2sim -h from console"""
+        """Test calling bim2sim --version from console"""
         try:
             import bim2sim
         except ImportError:
