@@ -13,6 +13,7 @@ from bim2sim.decision import ListDecision, RealDecision
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.enrichment_data.data_class import DataClass
 from teaser.logic.buildingobjects.useconditions import UseConditions
+from bim2sim.task.bps_f.bps_functions import get_matches_list
 
 
 def diameter_post_processing(value):
@@ -630,80 +631,6 @@ class Wall(element.Element):
         functions=[_get_layers]
     )
 
-    def _get_wall_properties(bind, name):
-        material = bind.material
-        material_ref = ''.join([i for i in material if not i.isdigit()])
-        # is_external = bind.is_external
-        external = 'external'
-        # if not is_external:
-        #     external = 'internal'
-
-        try:
-            bind.material_selected[material]['properties']
-        except KeyError:
-            first_decision = BoolDecision(
-                question="Do you want for %s_%s_%s to use template" % (str(bind), bind.guid, external),
-                collect=False)
-            first_decision.decide()
-            first_decision.stored_decisions.clear()
-
-            if first_decision.value:
-                Materials_DEU = bind.finder.templates[bind.source_tool][bind.__class__.__name__]['material']
-                material_templates = dict(DataClass(used_param=2).element_bind)
-                del material_templates['version']
-
-                if material_ref not in str(Materials_DEU.keys()):
-                    decision_ = input("Material not found, enter value for the material %s_%s_%s" % (str(bind), bind.guid, external))
-                    material_ref = decision_
-
-                for k in Materials_DEU:
-                    if material_ref in k:
-                        material_ref = Materials_DEU[k]
-
-                options = {}
-                for k in material_templates:
-                    if material_ref in material_templates[k]['name']:
-                        options[k] = material_templates[k]
-                materials_options = [[material_templates[k]['name'], k] for k in options]
-                if len(materials_options) > 0:
-                    decision1 = ListDecision("Multiple possibilities found",
-                                             choices=list(materials_options),
-                                             allow_skip=True, allow_load=True, allow_save=True,
-                                             collect=False, quick_decide=not True)
-                    decision1.decide()
-                    bind.material_selected[material] = {}
-                    bind.material_selected[material]['properties'] = material_templates[decision1.value[1]]
-                    bind.material_selected[material_templates[decision1.value[1]]['name']] = {}
-                    bind.material_selected[material_templates[decision1.value[1]]['name']]['properties'] = material_templates[decision1.value[1]]
-                else:
-                    print("No possibilities found")
-                    bind.material_selected[material] = {}
-                    bind.material_selected[material]['properties'] = {}
-            else:
-                bind.material_selected[material] = {}
-                bind.material_selected[material]['properties'] = {}
-
-        property_template = bind.finder.templates[bind.source_tool]['MaterialTemplates']
-        name_template = name
-        if name in property_template:
-            name_template = property_template[name]
-
-        try:
-            value = bind.material_selected[material]['properties'][name_template]
-        except KeyError:
-            decision2 = RealDecision("Enter value for the parameter %s" % name,
-                                     validate_func=lambda x: isinstance(x, float),  # TODO
-                                     global_key="%s" % name,
-                                     allow_skip=False, allow_load=True, allow_save=True,
-                                     collect=False, quick_decide=False)
-            decision2.decide()
-            value = decision2.value
-        try:
-            bind.material = bind.material_selected[material]['properties']['name']
-        except KeyError:
-            bind.material = material
-        return value
-
     area = attribute.Attribute(
         name='area',
         default_ps=True,
@@ -714,6 +641,12 @@ class Wall(element.Element):
         name='is_external',
         default_ps=True,
         default=False
+    )
+
+    tilt = attribute.Attribute(
+        name='thermal_transmittance',
+        default_ps=True,
+        default=0
     )
 
     # thermal_transmittance = attribute.Attribute(
@@ -741,12 +674,6 @@ class Wall(element.Element):
     #     default=0
     # )
 
-    tilt = attribute.Attribute(
-        name='thermal_transmittance',
-        default_ps=True,
-        default=0
-    )
-
 
 class Layer(element.SubElement):
     ifc_type = ['IfcMaterialLayer', 'IfcMaterial']
@@ -759,6 +686,8 @@ class Layer(element.SubElement):
         else:
             material = self.ifc
         self.material = material.Name
+        # ToDO: what if doesn't have thickness
+        self.thickness = None
         if hasattr(self.ifc, 'LayerThickness'):
             self.thickness = self.ifc.LayerThickness
 
@@ -766,20 +695,77 @@ class Layer(element.SubElement):
         return "<%s (material: %s>" \
                % (self.__class__.__name__, self.material)
 
-    heat_capacity = attribute.Attribute(
+    def _get_material_properties(bind, name):
+        def user_property_input(bind, name):
+            decision2 = RealDecision("Enter value for the parameter %s" % name,
+                                     global_key="%s" % name,
+                                     allow_skip=False, allow_load=True, allow_save=True,
+                                     collect=False, quick_decide=False)
+            decision2.decide()
+            if material not in bind.material_selected:
+                bind.material_selected[material] = {}
+            bind.material_selected[material][name] = decision2.value
+            return decision2.value
+
+        if name == 'thickness':
+            name = 'thickness_default'
+
+        material = bind.material
+        if material in bind.material_selected:
+            if name in bind.material_selected[material]:
+                return bind.material_selected[material][name]
+            else:
+                return user_property_input(bind, name)
+        else:
+            first_decision = BoolDecision(question="Do you want for %s %s to use template, enter 'n' for manual input"
+                                          % (bind.guid, bind.material),
+                                          collect=False)
+            first_decision.decide()
+            first_decision.stored_decisions.clear()
+
+            if first_decision.value:
+                material_templates = dict(DataClass(used_param=2).element_bind)
+                del material_templates['version']
+
+                resumed = {}
+                for k in material_templates:
+                    resumed[material_templates[k]['name']] = k
+
+                material_options = get_matches_list(bind.material, list(resumed.keys()))
+
+                while len(material_options) == 0:
+                    decision_ = input(
+                        "Material not found, enter value for the material:")
+                    material_options = get_matches_list(decision_, list(resumed.keys()))
+
+                decision1 = ListDecision("Multiple possibilities found for material %s" % material,
+                                         choices=list(material_options),
+                                         allow_skip=True, allow_load=True, allow_save=True,
+                                         collect=False, quick_decide=not True)
+                decision1.decide()
+
+                bind.material_selected[material] = material_templates[resumed[decision1.value]]
+                return bind.material_selected[material][name]
+            else:
+                return user_property_input(bind, name)
+
+    heat_capac = attribute.Attribute(
         name='heat_capacity',
         default_ps=True,
+        functions=[_get_material_properties],
         default=0
     )
 
     density = attribute.Attribute(
         name='density',
+        functions=[_get_material_properties],
         default_ps=True,
         default=0
     )
 
-    thermal_conductivity = attribute.Attribute(
+    thermal_conduc = attribute.Attribute(
         name='thermal_conductivity',
+        functions=[_get_material_properties],
         default_ps=True,
         default=0
     )

@@ -111,12 +111,11 @@ class Inspect(ITask):
 class ExportTEASER(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
-
     reads = ('instances', 'ifc', )
     final = True
 
     materials = {}
-    insts = []
+    property_error = {}
 
     instance_switcher = {'OuterWall': OuterWall,
                          'InnerWall': InnerWall,
@@ -133,7 +132,6 @@ class ExportTEASER(ITask):
         prj = Project(load_data=True)
         prj.name = element.Name
         prj.data.load_uc_binding()
-
         return prj
 
     @classmethod
@@ -142,7 +140,6 @@ class ExportTEASER(ITask):
         Parent: Project"""
         bldg = Building(parent=parent)
         cls._teaser_property_getter(bldg, instance, instance.finder.templates)
-
         return bldg
 
     @classmethod
@@ -158,8 +155,34 @@ class ExportTEASER(ITask):
         tz.use_conditions.set_temp_cool = conversion(instance.t_set_cool, '°C', 'K').magnitude
         return tz
 
-    @staticmethod
-    def _teaser_property_getter(teaser_instance, instance, templates):
+    @classmethod
+    def _invalid_property_filter(cls, teaser_instance, instance, key, aux):
+        """Filter the invalid property values and fills it with a template or an user given value,
+        if value is valid, returns the value
+        invalid value: ZeroDivisionError on thermal zone calculations"""
+        error_properties = ['density', 'thickness']
+
+        if (aux is None or aux == 0) and key != 'orientation':
+            name_error = instance.name
+            if hasattr(instance, 'material'):
+                name_error = instance.material
+            try:
+                aux = cls.property_error[name_error][key]
+            except KeyError:
+                if key in error_properties:
+                    if hasattr(instance, '_get_material_properties'):
+                        aux = instance._get_material_properties(key)
+                    while aux is None or aux == 0:
+                        aux = float(input('please enter a valid value for %s from %s' % (key, name_error)))
+                if name_error not in cls.property_error:
+                    cls.property_error[name_error] = {}
+                if key not in cls.property_error[name_error]:
+                    cls.property_error[name_error][key] = aux
+
+        setattr(teaser_instance, key, aux)
+
+    @classmethod
+    def _teaser_property_getter(cls, teaser_instance, instance, templates):
         """get and set all properties necessary to create a Teaser Instance from a BIM2Sim Instance,
         based on the information on the base.json exporter"""
         sw = type(teaser_instance).__name__
@@ -171,16 +194,7 @@ class ExportTEASER(ITask):
                     aux = getattr(instance, value[1])
                     if type(aux).__name__ == 'Quantity':
                         aux = aux.magnitude
-                    if aux is not None:
-                        try:
-                            setattr(teaser_instance, key, aux)
-                        except ZeroDivisionError:
-                            return True
-                        except IndexError:
-                            aux = input("Please enter a valid %s for %s" % (key, sw))
-                            setattr(teaser_instance, key, aux)
-                    else:
-                        return True
+                    cls._invalid_property_filter(teaser_instance, instance, key, aux)
             else:
                 setattr(teaser_instance, key, value)
 
@@ -212,7 +226,6 @@ class ExportTEASER(ITask):
         """create and bind the instances of a given thermal zone to a teaser instance thermal zone"""
         for bound_element in tz_instance.bound_elements:
             inst = cls._create_teaser_instance(bound_element, tz, bldg)
-            cls.insts.append(inst)
 
     @classmethod
     def _instance_related(cls, teaser_instance, instance, bldg):
@@ -221,10 +234,7 @@ class ExportTEASER(ITask):
         if isinstance(instance.layers, list) and len(instance.layers) > 0:
             for layer_instance in instance.layers:
                 layer = Layer(parent=teaser_instance)
-                if not hasattr(layer_instance, 'thickness'):
-                    # layer_instance.thickness = float(input("Please provide a value for thickness in layer %s" % layer_instance.material))
-                    layer_instance.thickness = 0.1
-                layer.thickness = layer_instance.thickness
+                cls._invalid_property_filter(layer, layer_instance, 'thickness', layer_instance.thickness)
                 cls._material_related(layer, layer_instance, bldg)
         else:
             if getattr(bldg, 'year_of_construction') is None:
@@ -245,44 +255,45 @@ class ExportTEASER(ITask):
     def _material_related(cls, layer, layer_instance, bldg):
         """material instance specific functions, get properties of material and creates Material in teaser,
         if material or properties not given, loads material template"""
-        prj = bldg.parent
         material = Material(parent=layer)
-        error = cls._teaser_property_getter(material, layer_instance, layer_instance.finder.templates)
-        if error is True:
-            try:
-                material_name = cls.materials[layer_instance.material]
-            except KeyError:
-                material_templates = dict(prj.data.material_bind)
-                del material_templates['version']
-                # just material names:
-                resumed = []
-                for k in material_templates:
-                    resumed.append(material_templates[k]['name'])
-                # materials options after search:
-                material_options = get_matches_list(layer_instance.material, resumed)
-
-                while len(material_options) == 0:
-                    decision_ = input(
-                        "Material not found, enter value for the material:")
-                    material_options = get_matches_list(decision_, resumed)
-
-                decision1 = None
-                if len(material_options) > 0:
-                    decision1 = ListDecision("one or more attributes of the material %s for %s are not valid, "
-                                             "select one of the following templates to continue"
-                                             % (layer_instance.material, layer_instance.parent.name),
-                                             choices=list(material_options),
-                                             allow_skip=True, allow_load=True, allow_save=True,
-                                             collect=False, quick_decide=not True)
-                    decision1.decide()
-
-                cls.materials[layer_instance.material] = decision1.value
-                material_name = decision1.value
-
-            material.load_material_template(
-                mat_name=material_name,
-                data_class=prj.data,
-            )
+        cls._teaser_property_getter(material, layer_instance, layer_instance.finder.templates)
+        # prj = bldg.parent
+        # error = cls._teaser_property_getter(material, layer_instance, layer_instance.finder.templates)
+        # if error is True:
+            # try:
+            #     material_name = cls.materials[layer_instance.material]
+            # except KeyError:
+            #     material_templates = dict(prj.data.material_bind)
+            #     del material_templates['version']
+            #     # just material names:
+            #     resumed = []
+            #     for k in material_templates:
+            #         resumed.append(material_templates[k]['name'])
+            #     # materials options after search:
+            #     material_options = get_matches_list(layer_instance.material, resumed)
+            #
+            #     while len(material_options) == 0:
+            #         decision_ = input(
+            #             "Material not found, enter value for the material:")
+            #         material_options = get_matches_list(decision_, resumed)
+            #
+            #     decision1 = None
+            #     if len(material_options) > 0:
+            #         decision1 = ListDecision("one or more attributes of the material %s for %s are not valid, "
+            #                                  "select one of the following templates to continue"
+            #                                  % (layer_instance.material, layer_instance.parent.name),
+            #                                  choices=list(material_options),
+            #                                  allow_skip=True, allow_load=True, allow_save=True,
+            #                                  collect=False, quick_decide=not True)
+            #         decision1.decide()
+            #
+            #     cls.materials[layer_instance.material] = decision1.value
+            #     material_name = decision1.value
+            #
+            # material.load_material_template(
+            #     mat_name=material_name,
+            #     data_class=prj.data,
+            # )
 
     @staticmethod
     def _get_instance_template(teaser_instance, bldg):
