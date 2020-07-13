@@ -1,9 +1,11 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from pathlib import Path
 import tempfile
 
-from bim2sim.kernel.element import Root
+import numpy as np
+
+from bim2sim.kernel.element import Root, BasePort, BaseElement
 from bim2sim.task import hvac, common
 from bim2sim.task.hvac import Inspect
 from bim2sim.workflow import PlantSimulation
@@ -59,13 +61,9 @@ class TestInspect(unittest.TestCase):
         """HeatExchange with 4 (semantically) connected pipes"""
 
         self.manager.run()
-        self.manager.playground.state
 
         heat_exchanger = Root.objects.get('0qeZDHlQRzcKJYopY4$fEf')
         self.assertEqual(4, len([port for port in heat_exchanger.ports if port.connection]))
-
-        for port in heat_exchanger.ports:
-            print(port.position)
 
     @patch.object(_Project, 'ifc', sample_root / 'B01_3_HeatExchanger_noPorts.ifc')
     def test_case_2(self):
@@ -94,4 +92,54 @@ class TestInspect(unittest.TestCase):
         self.manager.run()
 
         heat_exchanger = Root.objects.get('3FQzmSvzrgbaIM6zA4FX8S')
-        self.assertEqual(2, len([port for port in heat_exchanger.ports if port.connection]))
+        self.assertEqual(4, len([port for port in heat_exchanger.ports if port.connection]))
+
+
+class TestInspectMethods(unittest.TestCase):
+
+    def tearDown(self) -> None:
+        for item in list(BaseElement.objects.values()):
+            item.discard()
+
+        for port in list(BasePort.objects.values()):
+            port.discard()
+
+    @staticmethod
+    def create_element(positions):
+        parent = BaseElement()
+        for pos in positions:
+            port = BasePort(parent)
+            port.calc_position = MagicMock(return_value=np.array(pos))
+            parent.ports.append(port)
+        return parent
+
+    def test_connect_by_position(self):
+        """Test Inspect.connect_by_position by various scenarios"""
+        parent1 = self.create_element([[0, 0, 0], [0, 0, 20]])
+        parent2 = self.create_element([[0, 0, 20], [0, 0, 40]])
+        parent3 = self.create_element([[0, 5, 40], [0, 0, 60]])
+        parent4 = self.create_element([[0, 0, 0], [0, 0, 0], [0, 0, 5]])
+        parent5 = self.create_element([[0, 0, 25], [0, 20, 0]])
+
+        # no distance
+        connections = Inspect.connections_by_position(parent1.ports + parent2.ports, eps=10)
+        self.assertEqual(1, len(connections))
+        self.assertSetEqual({parent1.ports[1], parent2.ports[0]}, set(connections[0]))
+
+        # accepted distance
+        connections = Inspect.connections_by_position(parent2.ports + parent3.ports, eps=10)
+        self.assertEqual(1, len(connections), "One valid connection")
+        self.assertSetEqual({parent2.ports[1], parent3.ports[0]}, set(connections[0]))
+
+        # not accepted distance
+        connections = Inspect.connections_by_position(parent1.ports + parent3.ports, eps=10)
+        self.assertEqual(0, len(connections), "Not accepted distance")
+
+        # no connections within element
+        connections = Inspect.connections_by_position(parent4.ports, eps=10)
+        self.assertEqual(0, len(connections), "No connections within element")
+
+        # multiple possibilities
+        connections = Inspect.connections_by_position(parent1.ports + parent2.ports + parent5.ports, eps=10)
+        self.assertEqual(1, len(connections), "Only one connection per port allowed")
+        self.assertSetEqual({parent1.ports[1], parent2.ports[0]}, set(connections[0]))
