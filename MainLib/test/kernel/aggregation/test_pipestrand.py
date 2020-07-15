@@ -2,9 +2,9 @@
 
 from bim2sim.kernel import aggregation
 from bim2sim.kernel.element import Port
-from bim2sim.kernel.elements import Pipe
 from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
+from bim2sim.kernel.units import ureg
 
 from test.kernel.helper import SetupHelper
 
@@ -247,7 +247,7 @@ class TestPipeStrand(unittest.TestCase):
         exp_length = sum([e.length for e in ele])
         self.assertAlmostEqual(exp_length, agg.length)
 
-        self.assertAlmostEqual(30, agg.diameter)
+        self.assertAlmostEqual(30 * ureg.millimeter, agg.diameter)
 
     def test_strait_strand_variable(self):
         """Test calculation of aggregated length and diameter"""
@@ -275,6 +275,7 @@ class TestPipeStrand(unittest.TestCase):
             # pass full graph
             agg = aggregation.PipeStrand("Test distributor with strands", graph.element_graph, **{})
 
+    @unittest.skip("PipeStrand aggregation with inert elements not implemented")
     def test_strait_strand_valve(self):
         """Test calculation of aggregated length and diameter"""
         graph, flags = self.helper.get_setup_strait_with_valve()
@@ -285,9 +286,9 @@ class TestPipeStrand(unittest.TestCase):
         agg = aggregation.PipeStrand("Test strait strand with valve", matches[0], **meta[0])
 
         exp_length = sum([e.length for e in flags['pipes']])
-        self.assertAlmostEqual(agg.length, exp_length)
+        self.assertAlmostEqual(exp_length, agg.length)
 
-        self.assertAlmostEqual(agg.diameter, 30)
+        self.assertAlmostEqual(30 * ureg.millimeter, agg.diameter)
 
     def test_filter_strand(self):
         """Test filter for strait strand"""
@@ -315,7 +316,7 @@ class TestPipeStrand(unittest.TestCase):
         ele = flags['strand1'] + flags['strand2'] + flags['strand3'] + flags['strand4'] + flags['strand5']
 
         matches, meta = aggregation.PipeStrand.find_matches(graph.element_graph)
-        self.assertEqual(5, len(matches))
+        self.assertEqual(6, len(matches))
 
         self.assertSetEqual(set(ele), set(sum([list(m.nodes) for m in matches], [])))
 
@@ -342,7 +343,7 @@ class TestPipeStrand(unittest.TestCase):
         exp_length = sum([e.length for e in elements])
         self.assertAlmostEqual(agg.length, exp_length)
 
-        self.assertAlmostEqual(agg.diameter, 40)
+        self.assertAlmostEqual(40 * ureg.millimeter, agg.diameter)
 
     def test_pipestrand2(self):
         """Test calculation of aggregated length and diameter"""
@@ -358,7 +359,7 @@ class TestPipeStrand(unittest.TestCase):
         exp_length = sum([e.length for e in elements])
         self.assertAlmostEqual(exp_length, agg.length)
 
-        self.assertAlmostEqual(15, agg.diameter)
+        self.assertAlmostEqual(15 * ureg.millimeter, agg.diameter)
 
     def test_basics(self):
         graph, flags = self.helper.get_setup_simple_boiler()

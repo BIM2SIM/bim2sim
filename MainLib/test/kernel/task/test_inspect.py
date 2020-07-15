@@ -11,6 +11,7 @@ from bim2sim.task.hvac import Inspect
 from bim2sim.workflow import PlantSimulation
 from bim2sim.project import PROJECT, _Project
 from bim2sim import BIM2SIMManager
+from bim2sim.decision import Decision
 
 
 class DummyManager(BIM2SIMManager):
@@ -60,7 +61,8 @@ class TestInspect(unittest.TestCase):
     def test_case_1(self):
         """HeatExchange with 4 (semantically) connected pipes"""
 
-        self.manager.run()
+        with Decision.debug_answer('IfcHeatPump', validate=True):
+            self.manager.run()
 
         heat_exchanger = Root.objects.get('0qeZDHlQRzcKJYopY4$fEf')
         self.assertEqual(4, len([port for port in heat_exchanger.ports if port.connection]))
@@ -69,7 +71,8 @@ class TestInspect(unittest.TestCase):
     def test_case_2(self):
         """HeatExchange and Pipes are exported without ports"""
 
-        self.manager.run()
+        with Decision.debug_answer('IfcHeatPump', validate=True):
+            self.manager.run()
 
         heat_exchanger = Root.objects.get('0qeZDHlQRzcKJYopY4$fEf')
         self.assertEqual(0, len([port for port in heat_exchanger.ports if port.connection]))
@@ -80,7 +83,8 @@ class TestInspect(unittest.TestCase):
     def test_case_3(self):
         """No connections but ports are less than 10 mm apart"""
 
-        self.manager.run()
+        with Decision.debug_answer('IfcHeatPump', validate=True):
+            self.manager.run()
 
         heat_exchanger = Root.objects.get('3FQzmSvzrgbaIM6zA4FX8S')
         self.assertEqual(4, len([port for port in heat_exchanger.ports if port.connection]))
@@ -89,7 +93,8 @@ class TestInspect(unittest.TestCase):
     def test_case_4(self):
         """Mix of case 1 and 3"""
 
-        self.manager.run()
+        with Decision.debug_answer('IfcHeatPump', validate=True):
+            self.manager.run()
 
         heat_exchanger = Root.objects.get('3FQzmSvzrgbaIM6zA4FX8S')
         self.assertEqual(4, len([port for port in heat_exchanger.ports if port.connection]))

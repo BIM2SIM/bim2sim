@@ -1,7 +1,7 @@
 {
+    "statistical_years":  [2000, 2004],
     "Boiler": {
         "class": "Boiler",
-        "ifc_type": "IfcBoiler",
         "statistical_year": {
             "2000": {
                 "name": "Boiler_enrichment_2000",
@@ -17,28 +17,21 @@
                 "rated_power": 15,
                 "efficiency": 0.98
             }
-        }
-    },
-    "Pump": {
-        "class": [
-            "Pump",
-            "aggregated_Pump"
-        ],
-        "ifc_type": "IfcPump",
-        "statistical_year": {
-            "2000": {
-                "name": "Pump_enrichment_2000",
-                "rated_power": 3,
-                "rated_height": 8,
-                "rated_volume_flow": 4.3,
-                "diameter": 40
+        },
+        "Power[kw]": {
+            "2": {
+                "name": "Boiler_enrichment_2kw",
+                "water_volume": 0.008,
+                "min_power": 16,
+                "rated_power": 16,
+                "efficiency": 0.97
             },
-            "2004": {
-                "name": "Pump_enrichment_2004",
-                "rated_power": 4,
-                "rated_height": 9,
-                "rated_volume_flow": 4.3,
-                "diameter": 40
+            "4": {
+                "name": "Boiler_enrichment_4kw",
+                "water_volume": 0.008,
+                "min_power": 18,
+                "rated_power": 15,
+                "efficiency": 0.98
             }
         }
     },
@@ -57,14 +50,33 @@
             }
         }
     },
-    "ThermalZones": {
-        "class": "ThermalZones",
+    "HeatPump": {
+        "class": "HeatPump",
         "statistical_year": {
             "2000": {
-                "name": "ThermalZones_enrichment_2000"
+                "name": "HeatPump_enrichment_2000",
+                "nominal_power": null,
+                "length": null
             },
             "2004": {
-                "name": "ThermalZones_enrichment_2004"
+                "name": "HeatPump_enrichment_2004",
+                "nominal_power": null,
+                "length": null
+            }
+        }
+    },
+    "Chiller": {
+        "class": "Chiller",
+        "statistical_year": {
+            "2000": {
+                "name": "Chiller_enrichment_2000",
+                "nominal_power": null,
+                "length": null
+            },
+            "2004": {
+                "name": "Chiller_enrichment_2004",
+                "nominal_power": null,
+                "length": null
             }
         }
     }

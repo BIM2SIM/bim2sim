@@ -129,7 +129,7 @@ class Playground:
         read_state = {k: self.state[k] for k in task.reads}
         try:
             result = task.run(self.workflow, **read_state)
-        except:
+        except Exception as ex:
             self.logger.exception("Task '%s' failed!", task)
             raise TaskFailed(str(task))
 

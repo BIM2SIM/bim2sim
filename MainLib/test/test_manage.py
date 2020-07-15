@@ -11,6 +11,7 @@ IFC_PATH = os.path.abspath(os.path.join(
     os.path.dirname(bim2sim.__file__), '../..', 
     r'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc'))
 
+
 class BaseTestManage(unittest.TestCase):
 
     #def __init__(self, methodName = 'runTest'):
@@ -22,7 +23,10 @@ class BaseTestManage(unittest.TestCase):
         self.path = os.path.join(self.directory.name, 'proj')
 
     def tearDown(self):
-        self.directory.cleanup()
+        try:
+            self.directory.cleanup()
+        except PermissionError:
+            pass
 
 
 class TestManage(BaseTestManage):
@@ -60,6 +64,7 @@ class Manager(manage.BIM2SIMManager):
 
     def prepare(self): 
         pass
+
 
 class Test_Manager(BaseTestManage):
 

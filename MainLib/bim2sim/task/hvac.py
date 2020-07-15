@@ -21,6 +21,7 @@ from bim2sim.project import PROJECT
 from bim2sim.kernel import finder
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.enrichment_data import element_input_json
+from bim2sim.decision import ListDecision, RealDecision
 
 
 IFC_TYPES = (
@@ -432,22 +433,39 @@ class Enrich(Task):
         self.enrich_data = {}
         self.enriched_instances = {}
 
-    def enrich_instance(self, instance, enrich_parameter, parameter_value):
+    def enrich_instance(self, instance, json_data):
 
-        json_data = DataClass()
-
-        attrs_enrich = element_input_json.load_element_class(instance, enrich_parameter, parameter_value, json_data)
+        attrs_enrich = element_input_json.load_element_class(instance, json_data)
 
         return attrs_enrich
 
     @Task.log
-    def run(self, instances, enrich_parameter, parameter_value):
+    def run(self, instances):
+        json_data = DataClass(used_param=1)
+
         # enrichment_parameter --> Class
-        self.logger.info("Enrichment of the elements with: \n" + enrich_parameter + " as \"Enrich Parameter\"\n"
-                         + parameter_value + " as \"parameter value\" \n")
+        self.logger.info("Enrichment of the elements...")
+        # general question -> year of construction, all elements
+        decision = RealDecision("Enter value for the construction year",
+                                validate_func=lambda x: isinstance(x, float),  # TODO
+                                global_key="Construction year",
+                                allow_skip=False, allow_load=True, allow_save=True,
+                                collect=False, quick_decide=False)
+        decision.decide()
+        delta = float("inf")
+        year_selected = None
+        for year in json_data.element_bind["statistical_years"]:
+            if abs(year - decision.value) < delta:
+                delta = abs(year - decision.value)
+                year_selected = int(year)
+        enrich_parameter = year_selected
+        # specific question -> each instance
         for instance in instances:
-            enrichment_data = self.enrich_instance(instances[instance], enrich_parameter, parameter_value)
-            setattr(instances[instance], "enrichment_data", enrichment_data)
+            enrichment_data = self.enrich_instance(instances[instance], json_data)
+            if bool(enrichment_data):
+                instances[instance].enrichment["enrichment_data"] = enrichment_data
+                instances[instance].enrichment["enrich_parameter"] = enrich_parameter
+                instances[instance].enrichment["year_enrichment"] = enrichment_data["statistical_year"][str(enrich_parameter)]
 
         self.logger.info("Applied successfully attributes enrichment on elements")
         # runs all enrich methods

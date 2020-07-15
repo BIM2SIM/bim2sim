@@ -14,23 +14,12 @@ from test.kernel.helper import SetupHelper
 
 
 class TestElement(element.Element):
-    ifc_type = "IfcPipeFitting"
+    ifc_type = "IfcTest"
 
-    attr1 = Attribute(
-        name='attr1'
-    )
-
-    attr2 = Attribute(
-        name='attr2'
-    )
-
-    attr3 = Attribute(
-        name='attr3'
-    )
-
-    attr4 = Attribute(
-        name='attr4'
-    )
+    attr1 = Attribute()
+    attr2 = Attribute()
+    attr3 = Attribute()
+    attr4 = Attribute()
 
 
 @unittest.skip("To be defined")  # TODO: test factory, get_by_guid, discard, Dummy, Ports, connections
