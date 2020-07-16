@@ -294,7 +294,6 @@ class TestConsumerAggregation(unittest.TestCase):
         #self.assertAlmostEqual(consumer.height, 1000) Not Implemented
         self.assertIn('SpaceHeater', consumer1.description)  # list of all aggregated consumers description
 
-    @unittest.skip('fixed in branch: 65_automated_tests')
     def test_aggregation_consumer2(self):
         """test aggregation of consumercycle no 2"""
         graph, flags = self.helper.get_setup_system()
@@ -325,7 +324,7 @@ class TestConsumerAggregation(unittest.TestCase):
         #self.assertAlmostEqual(consumer.temperature_outlet, 1000) Not Implemented
         #self.assertAlmostEqual(consumer.volume, 1000) Not Implemented
         #self.assertAlmostEqual(consumer.height, 1000) Not Implemented
-        self.assertIn('Underfloorheating', consumer2.description)  # list of all aggregated consumers description
+        self.assertIn('UnderfloorHeating', consumer2.description)  # list of all aggregated consumers description
 
     def test_aggregation_consumer3(self):
         """test aggregation of consumercycle no 2"""
@@ -353,7 +352,7 @@ class TestConsumerAggregation(unittest.TestCase):
         #self.assertAlmostEqual(consumer.temperature_outlet, 1000) Not Implemented
         #self.assertAlmostEqual(consumer.volume, 1000) Not Implemented
         #self.assertAlmostEqual(consumer.height, 1000) Not Implemented
-        self.assertIn('2 x IfcSpaceHeater', consumer.description)  # list of all aggregated consumers description
+        self.assertIn('2 x SpaceHeater', consumer.description)  # list of all aggregated consumers description
 
 
 if __name__ == '__main__':

@@ -972,8 +972,8 @@ class Consumer(Aggregation):
              'temperature_outlet', 'volume', 'description')
 
     aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting', 'ParallelSpaceHeater']
-    whitelist = [elements.SpaceHeater.ifc_type, ParallelSpaceHeater.ifc_type, UnderfloorHeating.ifc_type]
-    blacklist = [elements.Chiller.ifc_type, elements.Boiler.ifc_type, elements.CoolingTower.ifc_type]
+    whitelist = [elements.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating]
+    blacklist = [elements.Chiller, elements.Boiler, elements.CoolingTower]
 
     def __init__(self, name, element_graph, *args, **kwargs):
         super().__init__(name, element_graph, *args, **kwargs)
@@ -1005,7 +1005,7 @@ class Consumer(Aggregation):
     def find_matches(cls, graph):
         """Find all matches for Aggregation in element graph
         :returns: matches, meta"""
-        boarder_class = {elements.Distributor.ifc_type}
+        boarder_class = {elements.Distributor}
         # innerts = set(cls.aggregatable_elements) - wanted
 
         boarder_class = set(boarder_class)
@@ -1014,7 +1014,7 @@ class Consumer(Aggregation):
         _element_graph = element_graph.copy()
 
         # remove blocking nodes
-        remove = {node for node in _element_graph.nodes if node.ifc_type in boarder_class}
+        remove = {node for node in _element_graph.nodes if node.__class__ in boarder_class}
         _element_graph.remove_nodes_from(remove)
 
         # identify outer connections
@@ -1031,10 +1031,10 @@ class Consumer(Aggregation):
 
         for sub in sub_graphs:
             # check for generator in sub_graphs
-            generator = {node for node in sub if node.ifc_type in cls.blacklist}
+            generator = {node for node in sub if node.__class__ in cls.blacklist}
             if generator:
                 # check for consumer in generator subgraph
-                gen_con = {node for node in sub if node.ifc_type in cls.whitelist}
+                gen_con = {node for node in sub if node.__class__ in cls.whitelist}
                 if gen_con:
                     #ToDO: Consumer separieren
                     a = 1
@@ -1045,7 +1045,7 @@ class Consumer(Aggregation):
                     # subgraph = graph.subgraph(sub)
                     # generator_cycles.append(subgraph)
             else:
-                consumer_cycle = {node for node in sub if node.ifc_type in cls.whitelist}
+                consumer_cycle = {node for node in sub if node.__class__ in cls.whitelist}
                 if consumer_cycle:
                     subgraph = _element_graph.subgraph(sub)
                     outer_con = [outer_connections[ele] for ele in sub if ele in outer_connections]
@@ -1087,7 +1087,7 @@ class Consumer(Aggregation):
 
         total_rated_pump_power = None
 
-        has_pump = False
+
         volume = None
 
         # Spaceheater und andere Consumer
@@ -1096,8 +1096,7 @@ class Consumer(Aggregation):
 
         for ele in self.elements:
             # Pumps
-            if elements.Pump.ifc_type in ele.ifc_type:
-                has_pump = True
+            if elements.Pump is ele.__class__:
                 # Pumpenleistung herausziehen
                 total_rated_pump_power = getattr(ele, "rated_power")
                 # Pumpenhöhe herausziehen
@@ -1152,15 +1151,16 @@ class Consumer(Aggregation):
 
     @attribute.multi_calc
     def _calc_avg_consumer(self):
+        has_pump = False
         total_rated_consumer_power = 0
         con_types = {}
         for ele in self.elements:
-            if elements.Pump.ifc_type in ele.ifc_type:
+            if elements.Pump is ele.__class__:
                 has_pump = True
-            elif ele.ifc_type in Consumer.whitelist:
+            elif ele.__class__ in Consumer.whitelist:
                 # Dict for description consumer
-                con_types[ele.ifc_type] = con_types.get(ele.ifc_type, 0) + 1
-            elif ele.ifc_type in elements.SpaceHeater.ifc_type:
+                con_types[ele.__class__] = con_types.get(ele.__class__, 0) + 1
+            elif ele.__class__ is elements.SpaceHeater:
                 rated_consumer_power = getattr(ele, "rated_power")
                 total_rated_consumer_power += rated_consumer_power
 
@@ -1173,7 +1173,7 @@ class Consumer(Aggregation):
             rated_power=total_rated_consumer_power,
             temperature_inlet=temperaure_inlet,
             temperature_outlet=temperature_outlet,
-            description=', '.join(['{1} x {0}'.format(k, v) for k, v in con_types.items()])
+            description=', '.join(['{1} x {0}'.format(k.__name__, v) for k, v in con_types.items()])
         )
         return result
 
@@ -1230,6 +1230,7 @@ class Consumer(Aggregation):
         description="String with number of Consumers",
         functions=[_calc_avg_consumer]
     )
+
 
 class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation HKESim
     """Aggregates Consumer system boarder"""
