@@ -73,6 +73,8 @@ class _Project():
     def root(self, value):
         if value:
             self._rootpath = Path(value).absolute().resolve()
+            print("Changing working directory to '%s'", self._rootpath)
+            os.chdir(self._rootpath)
         else:
             self._rootpath = None
         print("Rootpath set to '%s'"%(value))
