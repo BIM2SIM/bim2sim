@@ -758,7 +758,7 @@ class ListDecision(Decision):
             self.labels = [str(choice[1]) for choice in choices]
         else:
             self.items = choices
-            self.labels = [str(choice) for choice in self.items]
+            # self.labels = [str(choice) for choice in self.items]
 
         super().__init__(*args, validate_func=None, **kwargs)
 
@@ -769,7 +769,10 @@ class ListDecision(Decision):
 
     @property
     def choices(self):
-        return zip(self.items, self.labels)
+        if hasattr(self, 'labels'):
+            return zip(self.items, self.labels)
+        else:
+            return self.items
 
     def validate(self, value):
         return value in self.items
@@ -782,7 +785,7 @@ class ListDecision(Decision):
                 body.append((i, *item))
             else:
                 # no label provided
-                body.append((i, item, str(item)))
+                body.append((i, item, ' '))
         return body
 
 

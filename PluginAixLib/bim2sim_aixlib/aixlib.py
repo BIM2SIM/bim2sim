@@ -2,6 +2,7 @@
 from ast import literal_eval
 
 from bim2sim.manage import BIM2SIMManager, PROJECT
+
 from bim2sim.task import hvac
 from bim2sim.export.modelica import standardlibrary
 
@@ -22,8 +23,13 @@ class AixLib(BIM2SIMManager):
             inspect.run(self.workflow, self.ifc, hvac.IFC_TYPES)
             inspect.save(PROJECT.workflow)
 
+        # ### Thermalzones
+        # recognition = tz_detection.Recognition()
+        # recognition.run(self.ifc_arch, inspect.instances)
+        # ###
+
         enrich = hvac.Enrich()
-        enrich.run(inspect.instances, "statistical_year", "2004")
+        enrich.run(inspect.instances)
 
         makegraph = hvac.MakeGraph()
         if not makegraph.load(PROJECT.workflow):

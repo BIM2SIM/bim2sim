@@ -3,6 +3,7 @@
 from bim2sim.kernel import aggregation
 from bim2sim.kernel.element import Port
 from bim2sim.kernel.elements import Pipe
+from bim2sim.kernel.units import ureg
 
 from test.kernel.helper import SetupHelper
 
@@ -28,7 +29,7 @@ class TestPipeStrand(unittest.TestCase):
         self.assertEqual(len(matches), 1)
         agg = aggregation.PipeStrand("Test 1", matches[0], **meta[0])
 
-        exp_length = sum([e.length for e in elements])
+        exp_length = sum([e.length for e in elements]) * ureg.meter
         self.assertAlmostEqual(agg.length, exp_length)
 
         self.assertAlmostEqual(agg.diameter, 40)
@@ -44,7 +45,7 @@ class TestPipeStrand(unittest.TestCase):
         self.assertEqual(len(matches), 1)
         agg = aggregation.PipeStrand("Test 2", matches[0], **meta[0])
 
-        exp_length = sum([e.length for e in elements])
+        exp_length = sum([e.length for e in elements]) * ureg.meter
         self.assertAlmostEqual(agg.length, exp_length)
 
         self.assertAlmostEqual(agg.diameter, 15)

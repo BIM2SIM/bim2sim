@@ -6,6 +6,7 @@ import os
 import logging
 import ifcopenshell
 from bim2sim.kernel.units import ifcunits, ureg, parse_ifc
+import math
 
 def load_ifc(path):
     logger = logging.getLogger('bim2sim')
@@ -18,36 +19,88 @@ def load_ifc(path):
 def propertyset2dict(propertyset):
     """Converts IfcPropertySet to python dict"""
     propertydict = {}
-    for prop in propertyset.HasProperties:
-        unit = parse_ifc(prop.Unit) if prop.Unit else None
-        if prop.is_a() == 'IfcPropertySingleValue':
-            if prop.NominalValue is not None:
-                unit = ifcunits.get(prop.NominalValue.is_a()) if not unit else unit
-                if unit:
-                    propertydict[prop.Name] = prop.NominalValue.wrappedValue * unit
-                else:
-                    propertydict[prop.Name] = prop.NominalValue.wrappedValue
+    if hasattr(propertyset, 'HasProperties'):
+        for prop in propertyset.HasProperties:
+            unit = parse_ifc(prop.Unit) if prop.Unit else None
+            if prop.is_a() == 'IfcPropertySingleValue':
+                if prop.NominalValue is not None:
+                    unit = ifcunits.get(prop.NominalValue.is_a()) if not unit else unit
+                    if unit:
+                        propertydict[prop.Name] = prop.NominalValue.wrappedValue * unit
+                    else:
+                        propertydict[prop.Name] = prop.NominalValue.wrappedValue
+            elif prop.is_a() == 'IfcPropertyListValue':
+                # TODO: Unit conversion
+                values = []
+                for value in prop.ListValues:
+                    unit = ifcunits.get(value.is_a()) if not unit else unit
+                    values.append(value.wrappedValue * unit)
+                propertydict[prop.Name] = values
+            elif prop.is_a() == 'IfcPropertyBoundedValue':
+                # TODO: Unit conversion
+                propertydict[prop.Name] = (prop, prop)
+                raise NotImplementedError("Property of type '%s'"%prop.is_a())
             else:
-                a=1
-        elif prop.is_a() == 'IfcPropertyListValue':
-            # TODO: Unit conversion
-            values = []
-            for value in prop.ListValues:
-                unit = ifcunits.get(value.is_a()) if not unit else unit
-                values.append(value.wrappedValue * unit)
-            propertydict[prop.Name] = values
-        elif prop.is_a() == 'IfcPropertyBoundedValue':
-            # TODO: Unit conversion
-            propertydict[prop.Name] = (prop, prop)
-            raise NotImplementedError("Property of type '%s'"%prop.is_a())
-        else:
-            raise NotImplementedError("Property of type '%s'"%prop.is_a())
+                raise NotImplementedError("Property of type '%s'"%prop.is_a())
+    elif hasattr(propertyset, 'Quantities'):
+        for prop in propertyset.Quantities:
+            unit = parse_ifc(prop.Unit) if prop.Unit else None
+            for attr, p_value in vars(prop).items():
+                if attr.endswith('Value'):
+                    if p_value is not None:
+                        if unit:
+                            propertydict[prop.Name] = p_value * unit
+                        else:
+                            propertydict[prop.Name] = p_value
+                        break
+    elif hasattr(propertyset, 'Properties'):
+        for prop in propertyset.Properties:
+            unit = parse_ifc(prop.Unit) if prop.Unit else None
+            if prop.is_a() == 'IfcPropertySingleValue':
+                if prop.NominalValue is not None:
+                    unit = ifcunits.get(prop.NominalValue.is_a()) if not unit else unit
+                    if unit:
+                        propertydict[prop.Name] = prop.NominalValue.wrappedValue * unit
+                    else:
+                        propertydict[prop.Name] = prop.NominalValue.wrappedValue
+            elif prop.is_a() == 'IfcPropertyListValue':
+                # TODO: Unit conversion
+                values = []
+                for value in prop.ListValues:
+                    unit = ifcunits.get(value.is_a()) if not unit else unit
+                    values.append(value.wrappedValue * unit)
+                propertydict[prop.Name] = values
+            elif prop.is_a() == 'IfcPropertyBoundedValue':
+                # TODO: Unit conversion
+                propertydict[prop.Name] = (prop, prop)
+                raise NotImplementedError("Property of type '%s'"%prop.is_a())
+            else:
+                raise NotImplementedError("Property of type '%s'"%prop.is_a())
 
     return propertydict
+
+
+def get_layers_ifc(element):
+    dict = []
+    relation = 'RelatingMaterial'
+    assoc_list = getIfcAttribute(element.ifc, "HasAssociations")
+    for assoc in assoc_list:
+        association = getIfcAttribute(assoc, relation)
+        if association is not None:
+            layer_list = None
+            if hasattr(association, 'ForLayerSet'):
+                layer_list = association.ForLayerSet.MaterialLayers
+            elif hasattr(association, 'Materials'):
+                layer_list = association.Materials
+            for layer in layer_list:
+                dict.append(layer)
+    return dict
+
 
 def getElementByGUID(ifcfile, guid):
     element = ifcfile.by_guid(guid)
     return element
+
 
 def getIfcAttribute(ifcElement, attribute):
     """
@@ -57,6 +110,7 @@ def getIfcAttribute(ifcElement, attribute):
         return getattr(ifcElement, attribute)
     except AttributeError:
         pass
+
 
 def get_Property_Set(PropertySetName, element):
     """
@@ -86,6 +140,7 @@ def get_Property_Set(PropertySetName, element):
     else:
         return None
 
+
 def get_property_sets(element):
     """Returns all PropertySets of element
 
@@ -94,9 +149,18 @@ def get_property_sets(element):
     """
     # TODO: Unit conversion
     property_sets = {}
-    for defined in element.IsDefinedBy:
-        property_set_name = defined.RelatingPropertyDefinition.Name
-        property_sets[property_set_name] = propertyset2dict(defined.RelatingPropertyDefinition)
+    if hasattr(element, 'IsDefinedBy'):
+        for defined in element.IsDefinedBy:
+            property_set_name = defined.RelatingPropertyDefinition.Name
+            property_sets[property_set_name] = propertyset2dict(defined.RelatingPropertyDefinition)
+    elif hasattr(element, 'Material'):
+        for defined in element.Material.HasProperties:
+            property_set_name = defined.Name
+            property_sets[property_set_name] = propertyset2dict(defined)
+    elif element.is_a('IfcMaterial'):
+        for defined in element.HasProperties:
+            property_set_name = defined.Name
+            property_sets[property_set_name] = propertyset2dict(defined)
 
     return property_sets
 
@@ -107,11 +171,23 @@ def get_type_property_sets(element):
     :return: dict(of dicts)"""
     # TODO: use guids to get type propertysets (they are userd by many entitys)
     property_sets = {}
-    for defined_type in element.IsTypedBy:
-        for propertyset in defined_type.RelatingType.HasPropertySets:
-            property_sets[propertyset.Name] = propertyset2dict(propertyset)
+    if hasattr(element, 'IsTypedBy'):
+        for defined_type in element.IsTypedBy:
+            for propertyset in defined_type.RelatingType.HasPropertySets:
+                property_sets[propertyset.Name] = propertyset2dict(propertyset)
 
     return property_sets
+
+
+def get_quantity_sets(element):
+    """Returns all QuantitySets of element"""
+
+    quantity_sets = {}
+    for defined_type in element.IsTypedBy:
+        for quantityset in defined_type.RelatingType.Quantities:
+            quantity_sets[quantityset.Name] = propertyset2dict(quantityset)
+
+    return quantity_sets
 
 def getGUID(ifcElement):
     """
@@ -121,6 +197,17 @@ def getGUID(ifcElement):
         return getattr(ifcElement, 'GlobalId')
     except TypeError:
         pass
+
+def get_predefined_type(ifcElement):
+    """Returns the predifined type of the IFC element"""
+    try:
+        predefined_type = getattr(ifcElement, 'PredefinedType')
+        # todo cache "USERDEFINED" and check where information is stored
+        if predefined_type == "NOTDEFINED":
+            predefined_type = None
+        return predefined_type
+    except AttributeError:
+        return None
 
 
 def getElementType(ifcElement):
@@ -269,6 +356,18 @@ def getProject(ifcElement):
         # ... or the parent of an IfcSpatialZone, which is non-hierarchical.
 
 
+def getTrueNorth(ifcElement):
+    """Find the true north in degree of this element, 0 °C means positive
+    X-axis. 45 °C Degree means middle between X- and Y-Axis"""
+    project = getProject(ifcElement)
+    try:
+        true_north = project.RepresentationContexts[0].TrueNorth.DirectionRatios
+    except AttributeError:
+        true_north = [0, 1]
+    angle_true_north = math.degrees(math.atan(true_north[0] / true_north[1]))
+    return angle_true_north
+
+
 def convertToSI(ifcUnit, value):
     """Return the value in basic SI units, conversion according to ifcUnit."""
     # IfcSIPrefix values
@@ -332,6 +431,7 @@ def summary(ifcelement):
 
     return txt
 
+
 def used_properties(ifc_file):
     """Filters given IFC for propertysets
    returns a dictonary with related ifctypes as keys and lists of usered propertysets as values"""
@@ -347,3 +447,4 @@ def used_properties(ifc_file):
     for tup in tuples:
         type_dict[tup[0]].append(tup[1])
     return type_dict
+

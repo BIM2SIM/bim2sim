@@ -1,10 +1,9 @@
-
 import logging
 from contextlib import contextmanager
 
 import pint
 
-from bim2sim.decision import RealDecision
+from bim2sim.decision import RealDecision, BoolDecision, ListDecision
 
 from bim2sim.kernel.units import ureg
 
@@ -42,6 +41,7 @@ class Attribute:
                  description="",
                  unit=None,
                  default_ps=None,
+                 default_association=None,
                  patterns=None,
                  ifc_postprocessing=None,
                  functions=None,
@@ -53,6 +53,7 @@ class Attribute:
         self.unit = unit
 
         self.default_ps = default_ps
+        self.default_association = default_association
         self.patterns = patterns
         self.functions = functions
         self.default_value = default
@@ -63,16 +64,21 @@ class Attribute:
         # TODO argument for validation function
 
     def _get_value(self, bind):
-
         value = None
         # default property set
         if value is None and self.default_ps:
-            raw_value = self.get_from_default(bind, self.default_ps)
+            raw_value = self.get_from_default_propertyset(bind, self.name)
             value = self.ifc_post_processing(raw_value)
             if value is None:
                 quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet",
                                        self.name, bind.ifc_type, bind.guid)
 
+        if value is None and (self.default_association):
+            raw_value = self.get_from_default_assocation(bind, self.default_association)
+            value = self.ifc_post_processing(raw_value)
+            if value is None:
+                quality_logger.warning("Attribute '%s' of %s %s was not found in default Association",
+                                       self.name, bind.ifc_type, bind.guid)
         # tool specific properties (finder)
         if value is None:
             raw_value = self.get_from_finder(bind, self.name)
@@ -98,16 +104,40 @@ class Attribute:
                 value = value * self.unit
 
         # check unit
-        if value is not None and not isinstance(value, pint.Quantity):
+        if self.unit is not None and value is not None and not isinstance(value, pint.Quantity):
             logger.warning("Unit not set!")
             value = value * self.unit
 
         return value
 
     @staticmethod
-    def get_from_default(bind, default):
+    def get_from_default_propertyset(bind, name):
+        source_tools = bind.finder.templates
+        if bind.source_tool in source_tools:
+            source_tool = bind.source_tool
+        else:
+            bind.logger.warning("No exact source tool found")
+            if bind.source_tool.startswith('Autodesk'):
+                source_tool = 'Autodesk Revit 2019 (DEU)'
+            elif bind.source_tool.startswith('ARCHICAD'):
+                source_tool = 'ARCHICAD-64'
+            else:
+                return None
+            bind.logger.warning("source tool %s selected" % source_tool)
+        try:
+            default = source_tools[source_tool][bind.__class__.__name__]['default_ps'][name]
+        except KeyError:
+            return None
         try:
             value = bind.get_exact_property(default[0], default[1])
+        except Exception:
+            value = None
+        return value
+
+    @staticmethod
+    def get_from_default_assocation(bind, default):
+        try:
+            value = bind.get_exact_association(default[0], default[1])
         except Exception:
             value = None
         return value
@@ -118,7 +148,7 @@ class Attribute:
         if finder:  # Aggregations have no finder
             try:
                 return bind.finder.find(bind, name)
-            except AttributeError:
+            except (AttributeError, TypeError):
                 pass
         return None
 
@@ -143,11 +173,55 @@ class Attribute:
 
     @staticmethod
     def get_from_enrichment(bind, name):
-        enrichment = getattr(bind, 'enrichment_data', None)
-        if enrichment:
-            value = enrichment.get(name)
-        else:
-            value = None
+        value = None
+        if bool(bind.enrichment):
+            attrs_enrich = bind.enrichment["enrichment_data"]
+            if "enrich_decision" not in bind.enrichment:
+                # check if want to enrich instance
+                enrichment_decision = BoolDecision(
+                    question="Do you want for %s_%s to be enriched" % (bind.ifc_type, bind.guid),
+                    collect=False)
+                enrichment_decision.decide()
+                enrichment_decision.stored_decisions.clear()
+                bind.enrichment["enrich_decision"] = enrichment_decision.value
+
+            if bind.enrichment["enrich_decision"]:
+                # enrichment via incomplete data (has enrich parameter value)
+                if name in attrs_enrich:
+                    value = attrs_enrich[name]
+                    if value is not None:
+                        return value
+                if "selected_enrichment_data" not in bind.enrichment:
+                    options_enrich_parameter = list(attrs_enrich.keys())
+                    decision1 = ListDecision("Multiple possibilities found",
+                                             choices=options_enrich_parameter,
+                                             global_key="%s_%s.Enrich_Parameter" % (bind.ifc_type, bind.guid),
+                                             allow_skip=True, allow_load=True, allow_save=True,
+                                             collect=False, quick_decide=not True)
+                    decision1.decide()
+                    decision1.stored_decisions.clear()
+
+                    if decision1.value == 'statistical_year':
+                        # 3. check if general enrichment - construction year
+                        bind.enrichment["selected_enrichment_data"] = bind.enrichment["year_enrichment"]
+                    else:
+                        # specific enrichment (enrichment parameter and values)
+                        decision2 = RealDecision("Enter value for the parameter %s" % decision1.value,
+                                                 validate_func=lambda x: isinstance(x, float),  # TODO
+                                                 global_key="%s" % decision1.value,
+                                                 allow_skip=False, allow_load=True, allow_save=True,
+                                                 collect=False, quick_decide=False)
+                        decision2.decide()
+                        delta = float("inf")
+                        decision2_selected = None
+                        for ele in attrs_enrich[decision1.value]:
+                            if abs(int(ele) - decision2.value) < delta:
+                                delta = abs(int(ele) - decision2.value)
+                                decision2_selected = int(ele)
+
+                        bind.enrichment["selected_enrichment_data"] = attrs_enrich[str(decision1.value)][
+                            str(decision2_selected)]
+                value = bind.enrichment["selected_enrichment_data"][name]
         return value
 
     @staticmethod
@@ -261,6 +335,7 @@ class Attribute:
 
 class AttributeManager(dict):
     """Attribute Manager class"""
+
     def __init__(self, bind):
         super().__init__()
         self.bind = bind
@@ -319,6 +394,7 @@ class AttributeManager(dict):
 
 def multi_calc(func):
     """Decorator for calculation of multiple Attribute values"""
+
     def wrapper(bind, name):
         # inner function call
         result = func(bind)
@@ -326,4 +402,5 @@ def multi_calc(func):
         # send all other result values to AttributeManager instance
         bind.attributes.update(result)
         return value
+
     return wrapper
