@@ -3,8 +3,50 @@ from unittest.mock import patch
 
 import networkx as nx
 
-from bim2sim.kernel import element
+from bim2sim.kernel import element, elements
 from bim2sim.kernel.hvac import hvac_graph
+
+from test.kernel.helper import SetupHelper
+
+
+class GraphHelper(SetupHelper):
+
+    def get_system_elements(self):
+        """Simple generator system made of boiler, pump, expansion tank, distributor and pipes"""
+        flags = {}
+        with self.flag_manager(flags):
+            # generator circuit
+            boiler = self.element_generator(elements.Boiler, rated_power=200)
+            gen_vl_a = [self.element_generator(elements.Pipe, length=100, diameter=40) for i in range(3)]
+            h_pump = self.element_generator(elements.Pump, rated_power=2.2, rated_height=12, rated_volume_flow=8)
+            gen_vl_b = [self.element_generator(elements.Pipe, flags=['strand1'], length=100, diameter=40) for i in
+                        range(5)]
+            distributor = self.element_generator(elements.Distributor, flags=['distributor'])  # , volume=80
+            gen_rl_a = [self.element_generator(elements.Pipe, length=100, diameter=40) for i in range(4)]
+            fitting = self.element_generator(elements.PipeFitting, n_ports=3, diameter=40, length=60)
+            gen_rl_b = [self.element_generator(elements.Pipe, length=100, diameter=40) for i in range(4)]
+            gen_rl_c = [
+                self.element_generator(elements.Pipe, flags=['strand2'], length=(1 + i) * 40, diameter=15)
+                for i in range(3)
+            ]
+            tank = self.element_generator(elements.ExpansionTank, n_ports=1)
+
+        # connect
+        gen_vl = [boiler, *gen_vl_a, h_pump, *gen_vl_b, distributor]
+        self.connect_strait(gen_vl)
+
+        self.connect_strait([distributor, *gen_rl_a, fitting])
+        self.connect_strait([fitting, *gen_rl_b, boiler])
+        self.connect_strait([*gen_rl_c, tank])
+        fitting.ports[2].connect(gen_rl_c[0].ports[0])
+
+        # full system
+        gen_circuit = [
+            boiler, *gen_vl_a, h_pump, *gen_vl_b, distributor,
+            *gen_rl_a, fitting, *gen_rl_b, *gen_rl_c, tank
+        ]
+
+        return gen_circuit, flags
 
 
 def generate_element_strait(number=5, prefix=""):
@@ -53,9 +95,17 @@ def attach(element1, element2, use_existing=False):
 
 @patch.object(element.BaseElement, '__repr__', lambda self: self.name)
 class Test_HVACGraph(unittest.TestCase):
+    helper = None
+
+    @classmethod
+    def setUpClass(cls):
+        cls.helper = GraphHelper()
+
+    def tearDown(self) -> None:
+        self.helper.reset()
 
     def test_create(self):
-        """Instantiatin and basic behaviour"""
+        """Instantiating and basic behaviour"""
         strait = generate_element_strait()
         single_loop = generate_element_strait()
         attach(single_loop[0], single_loop[-1])
@@ -75,7 +125,7 @@ class Test_HVACGraph(unittest.TestCase):
         replacement = generate_element_strait(1, "replacement")[0]
 
         graph = hvac_graph.HvacGraph(strait)
-        mapping = {port:None for ele in to_replace for port in ele.ports}
+        mapping = {port: None for ele in to_replace for port in ele.ports}
         mapping[to_replace[0].ports[0]] = replacement.ports[0]
         mapping[to_replace[-1].ports[1]] = replacement.ports[1]
 
@@ -93,10 +143,19 @@ class Test_HVACGraph(unittest.TestCase):
             graph.element_graph, strait[0], strait[-1])
         self.assertIn(replacement, path_element)
 
-    @unittest.skip("Not implemented")
     def test_type_chain(self):
         """test chain detection"""
-        pass
+        eles, flags = self.helper.get_system_elements()
+        port_graph = hvac_graph.HvacGraph(eles)
+        ele_graph = port_graph.element_graph
+
+        wanted = ['IfcPipeSegment']
+        chains = hvac_graph.HvacGraph.get_type_chains(ele_graph, wanted)
+        self.assertEqual(5, len(chains), "Unexpected number of chains found!")
+
+        wanted = ['IfcPipeSegment', 'IfcPump']
+        chains2 = hvac_graph.HvacGraph.get_type_chains(ele_graph, wanted)
+        self.assertEqual(4, len(chains2), "Unexpected number of chains found!")
 
     def test_cycles(self):
         """cycle detection"""
@@ -127,6 +186,18 @@ class Test_HVACGraph(unittest.TestCase):
         ref_elements = set(core_cycle + attached1[:-1])
         self.assertSetEqual(cyc2_elements, ref_elements)
 
+    def test_nodes(self):
+        """element and port graph nodes"""
+        eles, flags = self.helper.get_system_elements()
+        all_eles = set(eles)
+        all_ports = {port for ele in eles for port in ele.ports}
 
-if __name__ == '__main__':
-    unittest.main()
+        port_graph = hvac_graph.HvacGraph(eles)
+        self.assertSetEqual(set(port_graph.nodes), all_ports)
+        self.assertSetEqual(set(port_graph.elements), all_eles)
+
+        ele_graph = port_graph.element_graph
+        self.assertSetEqual(set(ele_graph.nodes), all_eles)
+
+
+

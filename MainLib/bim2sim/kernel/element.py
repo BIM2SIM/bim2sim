@@ -854,7 +854,6 @@ class SubElement(BaseSubElement, IFCBasedSubElement):
         return "%s" % self.__class__.__name__
 
 
-
 class Element(BaseElement, IFCBased):
     """Base class for IFC model representation
 

@@ -4,9 +4,9 @@ import itertools
 import json
 import os
 import logging
-from itertools import chain
 
 import numpy as np
+import networkx as nx
 
 from bim2sim.task.base import Task, ITask
 from bim2sim.workflow import LOD
@@ -96,16 +96,43 @@ class Inspect(ITask):
         return delta
 
     @staticmethod
-    def connections_by_position(ports, eps=1):
+    def connections_by_position(ports, eps=10):
         """Connect ports of instances by computing geometric distance"""
-        connections = []
+        logger = logging.getLogger('IFCQualityReport')
+        graph = nx.Graph()
         for port1, port2 in itertools.combinations(ports, 2):
+            if port1.parent == port2.parent:
+                continue
             delta = Inspect.port_distance(port1, port2)
             if delta is None:
                 continue
-            if max(abs(delta)) < eps:
-                connections.append((port1, port2))
-        return connections
+            abs_delta = max(abs(delta))
+            if abs_delta < eps:
+                graph.add_edge(port1, port2, delta=abs_delta)
+
+        # verify
+        conflicts = [port for port, deg in graph.degree() if deg > 1]
+        for port in conflicts:
+            candidates = sorted(graph.edges(port, data=True), key=lambda t: t[2].get('delta', eps))
+            # initially there are at least two candidates, but there will be less, if previous conflicts belong to them
+            if len(candidates) <= 1:
+                # no action required
+                continue
+            logger.warning("Found %d geometrically close ports around %s. Details: %s",
+                           len(candidates), port, candidates)
+            if candidates[0][2]['delta'] < candidates[1][2]['delta']:
+                # keep first
+                first = 1
+                logger.info("Accept closest ports with delta as connection (%s - %s)",
+                            candidates[0][2]['delta'], candidates[0][0], candidates[0][1])
+            else:
+                # remove all
+                first = 0
+                logger.warning("No connection determined, because there are no two closest ports.")
+            for cand in candidates[first:]:
+                graph.remove_edge(cand[0], cand[1])
+
+        return list(graph.edges())
 
     @staticmethod
     def connections_by_relation(ports, include_conflicts=False):

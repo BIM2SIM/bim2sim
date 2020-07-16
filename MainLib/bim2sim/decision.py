@@ -428,7 +428,11 @@ class Decision:
 
     def discard(self):
         """Remove decision from traced decisions (Decision.all)"""
-        Decision.all.remove(self)
+        try:
+            Decision.all.remove(self)
+        except ValueError:
+            # not in list
+            pass
         self.reset()
 
     @classmethod

@@ -157,7 +157,7 @@ class Attribute:
     @staticmethod
     def get_from_enrichment(bind, name):
         value = None
-        if bool(bind.enrichment):
+        if hasattr(bind, 'enrichment') and bind.enrichment:
             attrs_enrich = bind.enrichment["enrichment_data"]
             if "enrich_decision" not in bind.enrichment:
                 # check if want to enrich instance
@@ -310,7 +310,14 @@ class Attribute:
         return value
 
     def __set__(self, bind, value):
-        self._inner_set(bind, value, self.STATUS_AVAILABLE)
+        if self.unit:
+            if isinstance(value, ureg.Quantity):
+                _value = value.to(self.unit)
+            else:
+                _value = value * self.unit
+        else:
+            _value = value
+        self._inner_set(bind, _value, self.STATUS_AVAILABLE)
 
     def __str__(self):
         return "Attribute %s" % self.name

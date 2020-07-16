@@ -158,6 +158,10 @@ class PipeStrand(Aggregation):
     multi = ('length', 'diameter')
 
     def __init__(self, name, element_graph, *args, **kwargs):
+        received = {node.ifc_type for node in element_graph.nodes}
+        if received - set(self.aggregatable_elements):
+            raise AssertionError("Can't aggregate elements to %s: %s" %
+                                 (self.__class__.__name__, received - set(self.aggregatable_elements)))
         length = kwargs.pop('length', None)
         diameter = kwargs.pop('diameter', None)
         super().__init__(name, element_graph, *args, **kwargs)
@@ -599,7 +603,7 @@ class ParallelPump(Aggregation):
         if total_length != 0:
             avg_diameter_strand = diameter_times_length / total_length
 
-        total_diameter = total_diameter**0.5
+        total_diameter = total_diameter ** .5
 
         result = dict(
             rated_power=total_rated_power,

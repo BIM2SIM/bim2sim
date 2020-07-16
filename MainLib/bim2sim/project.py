@@ -5,6 +5,7 @@ import sys
 import subprocess
 import shutil
 from distutils.dir_util import copy_tree
+from pathlib import Path
 import configparser
 
 
@@ -56,79 +57,84 @@ class _Project():
     LOG = "log"
     EXPORT = "export"
     RESOURCES = "resources"
+    _src_path = Path(__file__).parent
 
     def __init__(self):
         self._rootpath = None
-        self._src_path = os.path.join(os.path.dirname(__file__))
 
     @property
     def root(self):
         """absolute rootpath"""
         if not self._rootpath:
             return None
-        return os.path.abspath(self._rootpath)
+        return self._rootpath
 
     @root.setter
     def root(self, value):
-        self._rootpath = value
+        if value:
+            self._rootpath = Path(value).absolute().resolve()
+        else:
+            self._rootpath = None
         print("Rootpath set to '%s'"%(value))
 
     @property
-    def source(self):
-        if not self._src_path:
-            return None
-        return os.path.abspath(self._src_path)
+    def assets(self):
+        return self._src_path / 'assets'
+
+    @property
+    def enrichment(self):
+        return self._src_path / 'enrichment_data'
 
     @property
     def config(self):
         """absolute path to config"""
         if not self._rootpath:
             return None
-        return os.path.abspath(os.path.join(self._rootpath, _Project.CONFIG))
+        return self._rootpath / _Project.CONFIG
 
     @property
     def decisions(self):
         """absolute path to decisions"""
-        return os.path.abspath(os.path.join(self._rootpath, _Project.DECISIONS))
+        return self._rootpath / _Project.DECISIONS
 
     @property
     def finder(self):
         """absolute path to decisions"""
-        return os.path.abspath(os.path.join(self._rootpath, _Project.FINDER))
+        return self._rootpath / _Project.FINDER
 
     @property
     def workflow(self):
         """absolute path to task"""
         if not self._rootpath:
             return None
-        return os.path.abspath(os.path.join(self._rootpath, _Project.WORKFLOW))
+        return self._rootpath /_Project.WORKFLOW
 
     @property
     def log(self):
         """absolute path to log folder"""
         if not self._rootpath:
             return None
-        return os.path.abspath(os.path.join(self._rootpath, _Project.LOG))
+        return self._rootpath / _Project.LOG
 
     @property
     def ifc(self):
         """absolute path to ifc folder"""
         if not self._rootpath:
             return None
-        return os.path.abspath(os.path.join(self._rootpath, _Project.IFC))
+        return self._rootpath / _Project.IFC
 
     @property
     def resources(self):
         """absolute path to resources folder"""
         if not self._rootpath:
             return None
-        return os.path.abspath(os.path.join(self._rootpath, _Project.RESOURCES))
+        return self._rootpath / _Project.RESOURCES
     @property
     def export(self):
         """absolute path to export folder"""
         if not self._rootpath:
             return None
-        return os.path.abspath(os.path.join(self._rootpath, _Project.EXPORT))
+        return self._rootpath / _Project.EXPORT
 
     @property
     def subdirs(self):
@@ -136,19 +142,19 @@ class _Project():
         return [self.log, self.ifc, self.resources, self.export, self.workflow,
                 self.finder]
 
-    @staticmethod
-    def copy_assets(path):
+    def copy_assets(self, path):
         """copy assets to project folder"""
-        assets_path = os.path.join(os.path.dirname(__file__), 'assets')
-
-        copy_tree(assets_path, path)
+        copy_tree(str(self.assets), str(path))
 
     def is_project_folder(self, path=None):
         """Check if root path (or given path) is a project folder"""
         root = path or self.root
-        if not root or not os.path.isdir(root):
+        if not root:
             return False
-        if os.path.isfile(os.path.join(root, _Project.CONFIG)):
+        root = Path(root)
+        if not root.is_dir():
+            return False
+        if (root / _Project.CONFIG).is_file():
             return True
         return False
 
@@ -169,8 +175,7 @@ class _Project():
 
         self.copy_assets(self.root)
 
-    def create(self, rootpath, ifc_path=None, target=None, \
-                                                          open_conf=False):
+    def create(self, rootpath, ifc_path=None, target=None, open_conf=False):
         """Set root path, source path, create project folder
         copy ifc, base config setup and open config if needed"""
 
@@ -178,7 +183,7 @@ class _Project():
         self.root = rootpath
 
         if self.is_project_folder():
-            print("Given path is already a project folder ('%s')"%(self.root))
+            print("Given path is already a project folder ('%s')" % self.root)
         else:
             self.create_project_folder()
             config_base_setup(target)
@@ -213,7 +218,7 @@ class _Project():
             raise AssertionError("Can't delete project folder (reason: root not set)")
 
     def __repr__(self):
-        return "<Project (root: %s)>"%(self._rootpath or "NOT SET!")
+        return "<Project (root: %s)>" % (self._rootpath or "NOT SET!")
 
 
 PROJECT = _Project()

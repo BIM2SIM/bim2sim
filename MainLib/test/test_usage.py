@@ -33,7 +33,7 @@ class TestUsage(unittest.TestCase):
         except ImportError:
             self.fail("Unable to localize bim2sim")
         path = Path(bim2sim.__file__).parent
-        cmd = "%s %s --version" % (sys.executable, 'bim2sim')
+        cmd = '"%s" %s --version' % (Path(sys.executable), 'bim2sim')
         ret = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path.parent, shell=True)
         self.assertTrue(ret.stdout.decode('utf-8').startswith(bim2sim.VERSION), 'unexpected output')
 

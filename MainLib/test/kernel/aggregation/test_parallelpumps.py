@@ -528,8 +528,8 @@ class TestParallelPumps(unittest.TestCase):
 
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
-        expected_volume_flow = sum([p.rated_volume_flow for p in pumps]) * ureg.meter**3 / ureg.hour
-        expected_diamter = math.sqrt(sum([p.diameter**2 for p in pumps]))
+        expected_volume_flow = sum([p.rated_volume_flow for p in pumps])
+        expected_diamter = sum([p.diameter**2 for p in pumps])**.5
 
         self.assertAlmostEqual(agg_pump.rated_volume_flow, expected_volume_flow)
         self.assertAlmostEqual(agg_pump.rated_height, expected_height)
@@ -558,8 +558,8 @@ class TestParallelPumps(unittest.TestCase):
         # todo before merge check units
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
-        expected_volume_flow = sum([p.rated_volume_flow for p in pumps]) * ureg.meter**3 / ureg.hour
-        expected_diamter = math.sqrt(sum([p.diameter**2 for p in pumps]))
+        expected_volume_flow = sum([p.rated_volume_flow for p in pumps])
+        expected_diamter = sum([p.diameter**2 for p in pumps])**.5
 
         self.assertAlmostEqual(agg_pump.rated_volume_flow, expected_volume_flow)
         self.assertAlmostEqual(agg_pump.rated_height, expected_height)
@@ -599,8 +599,8 @@ class TestParallelPumps(unittest.TestCase):
         # todo before merge check units
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
-        expected_volume_flow = sum([p.rated_volume_flow for p in pumps]) * ureg.meter**3 / ureg.hour
-        expected_diamter = math.sqrt(sum([p.diameter**2 for p in pumps]))
+        expected_volume_flow = sum([p.rated_volume_flow for p in pumps])
+        expected_diamter = sum([p.diameter**2 for p in pumps])**.5
 
         self.assertAlmostEqual(agg_pump.rated_volume_flow, expected_volume_flow)
         self.assertAlmostEqual(agg_pump.rated_height, expected_height)
@@ -640,8 +640,8 @@ class TestParallelPumps(unittest.TestCase):
         # todo before merge check units
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
-        expected_volume_flow = sum([p.rated_volume_flow for p in pumps]) * ureg.meter**3 / ureg.hour
-        expected_diamter = math.sqrt(sum([p.diameter**2 for p in pumps]))
+        expected_volume_flow = sum([p.rated_volume_flow for p in pumps])
+        expected_diamter = sum([p.diameter**2 for p in pumps])**.5
         pumps_in_aggr = [item for item in agg_pump.elements if
                          isinstance(item, elements.Pump)]
         self.assertAlmostEqual(agg_pump.rated_volume_flow, expected_volume_flow)
