@@ -24,12 +24,10 @@ class DataClass(object):
         self.used_parameters = used_param
         self.element_bind = None
         if self.used_parameters == 1:
-            self.path_te = os.path.join(project.source, 'assets', 'enrichment',
-                                        'TypeBuildingElements.json')
+            self.path_te = project.assets / 'enrichment' / 'TypeBuildingElements.json'
             self.load_te_binding()
         elif self.used_parameters == 2:
-            self.path_te = os.path.join(project.source, 'assets', 'MaterialTemplates',
-                                        'MaterialTemplates.json')
+            self.path_te = project.assets / 'enrichment' / 'MaterialTemplates' / 'MaterialTemplates.json'
             self.load_te_binding()
         elif self.used_parameters is None:
             self.element_bind = None

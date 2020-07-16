@@ -35,7 +35,7 @@ class TestManage(BaseTestManage):
 
         manage.PROJECT.create(self.path, IFC_PATH)
 
-        self.assertEqual(manage.PROJECT.root, self.path)
+        self.assertTrue(os.path.samefile(self.path, manage.PROJECT.root))
         self.assertTrue(os.path.exists(manage.PROJECT.config))
         self.assertTrue(os.path.exists(manage.PROJECT.ifc))
 
