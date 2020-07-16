@@ -18,6 +18,8 @@ class BIM2SIMManager:
         if not PROJECT.is_project_folder():
             raise AssertionError("PROJECT ist not set correctly!")
 
+        print(PROJECT.root)
+        print(os.getcwd())
         if not os.path.samefile(PROJECT.root, os.getcwd()):
             self.logger.info("Changing working directory to '%s'", PROJECT.root)
             os.chdir(PROJECT.root)
