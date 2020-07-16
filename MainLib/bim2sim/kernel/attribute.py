@@ -110,26 +110,9 @@ class Attribute:
 
         return value
 
-    @staticmethod
-    def get_from_default_propertyset(bind, name):
-        source_tools = bind.finder.templates
-        if bind.source_tool in source_tools:
-            source_tool = bind.source_tool
-        else:
-            bind.logger.warning("No exact source tool found")
-            if bind.source_tool.startswith('Autodesk'):
-                source_tool = 'Autodesk Revit 2019 (DEU)'
-            elif bind.source_tool.startswith('ARCHICAD'):
-                source_tool = 'ARCHICAD-64'
-            else:
-                return None
-            bind.logger.warning("source tool %s selected" % source_tool)
+    def get_from_default_propertyset(self, bind, name):
         try:
-            default = source_tools[source_tool][bind.__class__.__name__]['default_ps'][name]
-        except KeyError:
-            return None
-        try:
-            value = bind.get_exact_property(default[0], default[1])
+            value = bind.get_exact_property(*self.default_ps)
         except Exception:
             value = None
         return value
