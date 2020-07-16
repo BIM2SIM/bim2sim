@@ -69,24 +69,15 @@ class TemplateFinder(Finder):
         """Internally saves property_set_name ans property_name as lookup source 
         for tool, element and parameter"""
 
-        element_dict = self.templates.get(tool)
-        if not element_dict:
-            element_dict = {}
-            self.templates[tool] = element_dict
-
         if isinstance(element, str):
-            element_name = element #string
+            element_name = element  # string
         elif isinstance(element.__class__, type):
-            element_name = element.ifc_type #class
+            element_name = element.ifc_type  # class
         else:
-            element_name = element.__class__.ifc_type #instance
-        parameter_dict = element_dict.get(element_name)
-        if not parameter_dict:
-            parameter_dict = {}
-            element_dict[element_name] = parameter_dict
+            element_name = element.__class__.ifc_type  # instance
 
         value = [property_set_name, property_name]
-        parameter_dict[parameter] = value
+        self.templates.setdefault(tool, {}).setdefault(element_name, {}).setdefault('default_ps', {})[parameter] = value
 
     def find(self, element, property_name):
         """Tries to find the required property

@@ -23,32 +23,32 @@ class TestPipeStrand(unittest.TestCase):
         """Test calculation of aggregated length and diameter"""
         graph, flags = self.helper.get_setup_simple_boiler()
         elements = flags['strand1']
-        match_graph = graph.element_graph.subgraph(elements)
+        match_graph = graph.subgraph((port for ele in elements for port in ele.ports))
 
         matches, meta = aggregation.PipeStrand.find_matches(match_graph)
         self.assertEqual(len(matches), 1)
         agg = aggregation.PipeStrand("Test 1", matches[0], **meta[0])
 
-        exp_length = sum([e.length for e in elements]) * ureg.meter
+        exp_length = sum([e.length for e in elements])
         self.assertAlmostEqual(agg.length, exp_length)
 
-        self.assertAlmostEqual(agg.diameter, 40)
+        self.assertAlmostEqual(40 * ureg.millimeter, agg.diameter)
 
     def test_pipestrand2(self):
         """Test calculation of aggregated length and diameter"""
 
         graph, flags = self.helper.get_setup_simple_boiler()
         elements = flags['strand2']
-        match_graph = graph.element_graph.subgraph(elements)
+        match_graph = graph.subgraph((port for ele in elements for port in ele.ports))
 
         matches, meta = aggregation.PipeStrand.find_matches(match_graph)
         self.assertEqual(len(matches), 1)
         agg = aggregation.PipeStrand("Test 2", matches[0], **meta[0])
 
-        exp_length = sum([e.length for e in elements]) * ureg.meter
+        exp_length = sum([e.length for e in elements])
         self.assertAlmostEqual(agg.length, exp_length)
 
-        self.assertAlmostEqual(agg.diameter, 15)
+        self.assertAlmostEqual(15 * ureg.millimeter, agg.diameter)
 
     def test_basics(self):
         graph, flags = self.helper.get_setup_simple_boiler()
@@ -62,7 +62,7 @@ class TestPipeStrand(unittest.TestCase):
     def test_detection(self):
         graph, flags = self.helper.get_setup_simple_boiler()
 
-        matches, meta = aggregation.PipeStrand.find_matches(graph.element_graph)
+        matches, meta = aggregation.PipeStrand.find_matches(graph)
 
         self.assertEqual(
             len(matches), 5,

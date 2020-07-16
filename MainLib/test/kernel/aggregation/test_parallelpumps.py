@@ -522,7 +522,7 @@ class TestParallelPumps(unittest.TestCase):
         graph, flags = self.helper.get_setup_pumps1()
         models = flags['pumps1']
         pumps = [item for item in models if isinstance(item, elements.Pump)]
-        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+        matches, meta = aggregation.ParallelPump.find_matches(graph)
         self.assertEqual(len(matches), 1)
         agg_pump = aggregation.ParallelPump("Test", matches[0], **meta[0])
 
@@ -551,7 +551,7 @@ class TestParallelPumps(unittest.TestCase):
         models = flags['normal']
         small = flags['small']
         pumps = [item for item in models if isinstance(item, elements.Pump)]
-        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+        matches, meta = aggregation.ParallelPump.find_matches(graph)
 
         self.assertEqual(len(matches), 1)
         agg_pump = aggregation.ParallelPump("Test", matches[0], **meta[0])
@@ -592,7 +592,7 @@ class TestParallelPumps(unittest.TestCase):
         models = flags['normal']
         small = flags['small']
         pumps = [item for item in models if isinstance(item, elements.Pump)]
-        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+        matches, meta = aggregation.ParallelPump.find_matches(graph)
 
         self.assertEqual(len(matches), 1)
         agg_pump = aggregation.ParallelPump("Test", matches[0], **meta[0])
@@ -633,7 +633,7 @@ class TestParallelPumps(unittest.TestCase):
         models = flags['normal']
         small = flags['small']
         pumps = [item for item in models if isinstance(item, elements.Pump)]
-        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+        matches, meta = aggregation.ParallelPump.find_matches(graph)
 
         self.assertEqual(len(matches), 1)
         agg_pump = aggregation.ParallelPump("Test", matches[0], **meta[0])
@@ -674,7 +674,7 @@ class TestParallelPumps(unittest.TestCase):
     def test_basics(self):
         graph, flags = self.helper.get_setup_pumps1()
 
-        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+        matches, meta = aggregation.ParallelPump.find_matches(graph)
         self.assertEqual(len(matches), 1)
 
         agg = aggregation.ParallelPump("Test basics", matches[0], **meta[0])
@@ -685,7 +685,7 @@ class TestParallelPumps(unittest.TestCase):
         """test detection of ParallelPumps in setup pumps1"""
         graph, flags = self.helper.get_setup_pumps1()
 
-        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+        matches, meta = aggregation.ParallelPump.find_matches(graph)
 
         self.assertEqual(
             len(matches), 1,
@@ -696,7 +696,7 @@ class TestParallelPumps(unittest.TestCase):
         """test detection of ParallelPumps in setup pumps2"""
         graph, flags = self.helper.get_setup_pumps2()
 
-        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+        matches, meta = aggregation.ParallelPump.find_matches(graph)
 
         self.assertEqual(
             len(matches), 1,
@@ -707,7 +707,7 @@ class TestParallelPumps(unittest.TestCase):
         """test detection of ParallelPumps in setup pumps2"""
         graph, flags = self.helper.get_setup_pumps3()
 
-        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+        matches, meta = aggregation.ParallelPump.find_matches(graph)
 
         self.assertEqual(
             len(matches), 1,
@@ -718,7 +718,7 @@ class TestParallelPumps(unittest.TestCase):
         """test detection of ParallelPumps in setup pumps4"""
         graph, flags = self.helper.get_setup_pumps4()
 
-        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+        matches, meta = aggregation.ParallelPump.find_matches(graph)
 
         self.assertEqual(
             len(matches), 1,
@@ -729,7 +729,7 @@ class TestParallelPumps(unittest.TestCase):
         """test detection of ParallelPumps in setup system"""
         graph, flags = self.helper.get_setup_system()
 
-        matches, meta = aggregation.ParallelPump.find_matches(graph.element_graph)
+        matches, meta = aggregation.ParallelPump.find_matches(graph)
         self.assertEqual(
             len(matches), 2,
             "There are 2 cases for ParallelPumps but 'find_matches' returned %d" % len(matches)

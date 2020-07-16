@@ -91,7 +91,7 @@ class SetupHelper:
                 self.element_generator(elements.Pipe, flags=['strand2'], length=(1 + i) * 40, diameter=15)
                 for i in range(3)
             ]
-            tank = self.element_generator(elements.ExpansionTank, n_ports=1)
+            tank = self.element_generator(elements.Storage, n_ports=1)
 
         # connect
         gen_vl = [boiler, *gen_vl_a, h_pump, *gen_vl_b, distributor]
