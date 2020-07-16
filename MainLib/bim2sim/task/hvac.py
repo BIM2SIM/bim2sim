@@ -12,7 +12,7 @@ from bim2sim.task.base import Task, ITask
 from bim2sim.workflow import LOD
 from bim2sim.filter import TypeFilter, TextFilter
 from bim2sim.kernel.aggregation import Aggregation, PipeStrand, UnderfloorHeating, Consumer, \
-    ParallelPump, ParallelSpaceHeater
+    ParallelPump, ParallelSpaceHeater, ConsumerHeatingDistributorModule
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
@@ -242,13 +242,13 @@ class Inspect(ITask):
         entities_dict, unknown_entities = text_filter.run(ifc_entities)
         answers = {}
         for k, v in entities_dict.items():
-            if len(v) > 1:
+            if len(v) > 0:  # TODO: Define in Configfile
                 ListDecision(
                     "Found following Matches:",
                     # TODO: filter_for_text_fracments() already called in text_filter.run()
-                    choices=[[cls, "Match: '" + ",".join(cls.filter_for_text_fracments(k)) + "' in " + " or ".join(
+                    choices=[[cls.ifc_type, "Match: '" + ",".join(cls.filter_for_text_fracments(k)) + "' in " + " or ".join(
                         ["'%s'" % txt for txt in [k.Name, k.Description] if txt])] for cls in v],
-                    output=self.answers,
+                    output=answers,
                     output_key=k,
                     global_key="%s.%s" % (k.is_a(), k.GlobalId),
                     allow_skip=True, allow_load=True, allow_save=True,
@@ -260,9 +260,9 @@ class Inspect(ITask):
 
         result_entity_dict = {}
         for ifc_entity, element_classes in entities_dict.items():
-            cls = answers.get(ifc_entity)
-            if cls:
-                lst = result_entity_dict.setdefault(cls.ifc_type, [])
+            ifc_type = answers.get(ifc_entity)
+            if ifc_type:
+                lst = result_entity_dict.setdefault(ifc_type, [])
                 lst.append(ifc_entity)
             else:
                 unknown_entities.append(ifc_entity)
@@ -313,7 +313,7 @@ class Inspect(ITask):
             if isinstance(f, TextFilter):
                 # filter by text fracments
                 class_dict, unknown_entities = self.filter_by_text(f, unknown_entities)
-                valids, invalids = self.accept_valids(class_dict)
+                valids, invalids = self.accept_valids(class_dict, force=True)   #  ToDo: Validation skipped....
                 unknown_entities.extend(invalids)
             else:
                 raise NotImplementedError()
@@ -437,7 +437,7 @@ class Prepare(ITask):
         self.logger.info("Setting Filters")
         Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
-        filters = [TypeFilter(relevant_ifc_types), TextFilter(relevant_ifc_types)]
+        filters = [TypeFilter(relevant_ifc_types), TextFilter(relevant_ifc_types, ['Description'])]
         # self.filters.append(TextFilter(['IfcBuildingElementProxy', 'IfcUnitaryEquipment']))
         return filters,
 
@@ -484,6 +484,7 @@ class Reduce(ITask):
             Consumer,
             PipeStrand,
             ParallelPump,
+            ConsumerHeatingDistributorModule
             # ParallelSpaceHeater,
         ]
 
@@ -500,7 +501,7 @@ class Reduce(ITask):
             i = 0
             for match, meta in zip(matches, metas):
                 try:
-                    agg = agg_class(name_builder.format(name, i+1), match.element_graph, **meta)
+                    agg = agg_class(name_builder.format(name, i+1), match, **meta)
                 except Exception as ex:
                     self.logger.exception("Instantiation of '%s' failed", name)
                 else:

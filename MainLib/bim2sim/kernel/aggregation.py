@@ -211,7 +211,7 @@ class PipeStrand(Aggregation):
     def find_matches(cls, graph):
         element_graph = graph.element_graph
         chains = HvacGraph.get_type_chains(element_graph, cls.aggregatable_elements, include_singles=True)
-        element_graphs = [graph.subgraph(chain) for chain in chains if len(chain) > 1]
+        element_graphs = [element_graph.subgraph(chain) for chain in chains if len(chain) > 1]
         metas = [{} for x in element_graphs]  # no metadata calculated
         return element_graphs, metas
 
@@ -253,7 +253,7 @@ class UnderfloorHeating(PipeStrand):
     @classmethod
     def find_matches(cls, graph):
         element_graph = graph.element_graph
-        chains = HvacGraph.get_type_chains(graph, cls.aggregatable_elements, include_singles=True)
+        chains = HvacGraph.get_type_chains(element_graph, cls.aggregatable_elements, include_singles=True)
         element_graphs = [element_graph.subgraph(chain) for chain in chains]
         metas = []
         for g in element_graphs.copy():
@@ -941,6 +941,9 @@ class ParallelSpaceHeater(Aggregation):
 
 class Consumer(Aggregation):
     """Aggregates Consumer system boarder"""
+    multi = ('has_pump', 'rated_power', 'rated_pump_power', 'rated_height', 'rated_volume_flow', 'temperature_inlet',
+             'temperature_outlet', 'volume', 'description')
+
     aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting', 'ParallelSpaceHeater']
     whitelist = [elements.SpaceHeater.ifc_type, ParallelSpaceHeater.ifc_type, UnderfloorHeating.ifc_type]
     blacklist = [elements.Chiller.ifc_type, elements.Boiler.ifc_type, elements.CoolingTower.ifc_type]
@@ -969,36 +972,6 @@ class Consumer(Aggregation):
         for ports in self.outer_connections:
                 agg_ports.append(ports[1])
 
-
-        # total_ports = {}
-        # # all possible beginning and end of the cycle (always pipe fittings), pumps counting
-        # for port in self.elements:
-        #     if isinstance(port.parent, elements.PipeFitting):
-        #         if port.parent.guid in total_ports:
-        #             total_ports[port.parent.guid].append(port)
-        #         else:
-        #             total_ports[port.parent.guid] = []
-        #             total_ports[port.parent.guid].append(port)
-        # # 2nd filter, beginning and end of the cycle (parallel check)
-        # final_ports = []
-        # for k, ele in total_ports.items():
-        #     if ele[0].flow_direction == ele[1].flow_direction:
-        #         # final_ports.append(ele[0].parent)
-        #         final_ports.append(ele[0])
-        #         final_ports.append(ele[1])
-        # agg_ports = []
-        # # first port
-        # for ele in final_ports[0].parent.ports:
-        #     if ele not in final_ports:
-        #         port = ele
-        #         port.aggregated_parent = self
-        #         agg_ports.append(port)
-        # # last port
-        # for ele in final_ports[-1].parent.ports:
-        #     if ele not in final_ports:
-        #         port = ele
-        #         port.aggregated_parent = self
-        #         agg_ports.append(port)
         return agg_ports
 
     @classmethod
@@ -1040,10 +1013,9 @@ class Consumer(Aggregation):
                     a = 1
                     pass
                 else:
-                    # pure generator subgraph
                     pass
+                    # pure generator subgraph
                     # subgraph = graph.subgraph(sub)
-
                     # generator_cycles.append(subgraph)
             else:
                 consumer_cycle = {node for node in sub if node.ifc_type in cls.whitelist}
@@ -1055,41 +1027,62 @@ class Consumer(Aggregation):
 
         return consumer_cycles, metas
 
+    def request(self, name):
+        super().__doc__
+
+        # broadcast request to all nested elements
+        # if one attribute included in multi_calc is requested, all multi_calc attributes are needed
+
+        # 'temperature_inlet'
+        # 'temperature_outlet'
+
+        lst_pump = ['rated_pump_power', 'rated_height', 'rated_volume_flow']
+
+        if name == 'rated_power':
+            for ele in self.elements:
+                if ele.ifc_type in Consumer.whitelist:
+                    ele.request(name)
+        if name in lst_pump:
+            for ele in self.elements:
+                if ele.ifc_type == elements.Pump.ifc_type:
+                    for n in lst_pump:
+                        ele.request(n)
+        if name == 'volume':
+            for ele in self.elements:
+                ele.request(name)
+
     @attribute.multi_calc
-    def _calc_avg(self):
+    def _calc_avg_pump(self):
         """Calculates the parameters of all pump-like elements."""
         avg_rated_height = 0
         total_rated_volume_flow = 0
-        total_diameter = 0
-        avg_diameter_strand = 0
         total_length = 0
-        diameter_times_length = 0
 
-        total_rated_heat_power = 0
+        total_rated_pump_power = None
 
-        con_types = {}
-
-        # Pumps
-        # Pumpenhöhe herausziehen
-        # Volumenstrom
+        has_pump = False
+        volume = None
 
         # Spaceheater und andere Consumer
-        # Leistung zusammenzählen - Unnötig da zb. für fußbodenheizung eh nichts gegeben
-
+        # Leistung zusammenzählen - Unnötig da zb. für fußbodenheizung da nichts gegeben
         # Aus Medium das Temperaturniveau ziehen! Wo steht das Medium? IFCDestributionSystems!?!?!?!
 
         for ele in self.elements:
             # Pumps
             if elements.Pump.ifc_type in ele.ifc_type:
-                rated_power = getattr(ele, "rated_power")
+                has_pump = True
+                # Pumpenleistung herausziehen
+                total_rated_pump_power = getattr(ele, "rated_power")
+                # Pumpenhöhe herausziehen
                 rated_height = getattr(ele, "rated_height")
+                # Volumenstrom
                 rated_volume_flow = getattr(ele, "rated_volume_flow")
-                diameter = getattr(ele, "diameter")
-                if not (rated_power and rated_height and rated_volume_flow and diameter):
-                    self.logger.warning("Ignored '%s' in aggregation", ele)
-                    continue
 
-                total_rated_volume_flow += rated_volume_flow
+                #Volumen
+                #volume_ = getattr(ele, "volume")
+                #if volume_:
+                #    volume += volume_ #ToDo: Sobald ein Volumen nicht vorhanden, Angabe: Nicht vorhanden???
+
                 # this is not avg but max
                 if avg_rated_height != 0:
                     if rated_height < avg_rated_height:
@@ -1097,38 +1090,62 @@ class Consumer(Aggregation):
                 else:
                     avg_rated_height = rated_height
 
-                total_diameter += diameter ** 2
-            elif ele.ifc_type in Consumer.whitelist:
-                con_types[ele.ifc_type] = con_types.get(ele.ifc_type, 0) + 1
+                if not rated_volume_flow:    #Falls eine Pumpe kein volumenstrom hat unvollständig
+                    total_rated_volume_flow = None
+                    continue
+                else:
+                    total_rated_volume_flow += rated_volume_flow
             else:
-                if hasattr(ele, "diameter") and hasattr(ele, "length"):
+                if hasattr(ele, "length"):  # ToDO: Parallel?
                     length = ele.length
-                    diameter = ele.diameter
-                    if not (length and diameter):
+                    if not (length):
                         self.logger.warning("Ignored '%s' in aggregation", ele)
                         continue
 
-                    diameter_times_length += diameter * length
                     total_length += length
 
                 else:
                     self.logger.warning("Ignored '%s' in aggregation", ele)
 
-        if total_length != 0:
-            avg_diameter_strand = diameter_times_length / total_length
+        if not total_rated_pump_power and total_rated_volume_flow and avg_rated_height:
+            g = 9.81 * ureg.meter / (ureg.second ** 2)
+            rho = 1000 * ureg.kilogram / (ureg.meter ** 3)
+            total_rated_pump_power = total_rated_volume_flow * avg_rated_height * g * rho
 
-        total_diameter = total_diameter ** 0.5
-        g = 9.81 * ureg.meter / (ureg.second ** 2)
-        rho = 1000 * ureg.kilogram / (ureg.meter ** 3)
-        total_rated_power = total_rated_volume_flow * avg_rated_height * g * rho
+        #  Volumen zusammenrechnen
+        volume = 1
 
         result = dict(
-            rated_power=total_rated_power,
+            rated_pump_power=total_rated_pump_power,
             rated_height=avg_rated_height,
             rated_volume_flow=total_rated_volume_flow,
-            temperaure_inlet=70,
-            temperature_outlet=55,
-            volume=1,
+            volume=volume
+        )
+        return result
+
+    @attribute.multi_calc
+    def _calc_avg_consumer(self):
+        total_rated_consumer_power = 0
+        con_types = {}
+        for ele in self.elements:
+            if elements.Pump.ifc_type in ele.ifc_type:
+                has_pump = True
+            elif ele.ifc_type in Consumer.whitelist:
+                # Dict for description consumer
+                con_types[ele.ifc_type] = con_types.get(ele.ifc_type, 0) + 1
+            elif ele.ifc_type in elements.SpaceHeater.ifc_type:
+                rated_consumer_power = getattr(ele, "rated_power")
+                total_rated_consumer_power += rated_consumer_power
+
+        # Aus Medium ziehen
+        temperaure_inlet = None
+        temperature_outlet = None
+
+        result = dict(
+            has_pump=has_pump,
+            rated_power=total_rated_consumer_power,
+            temperature_inlet=temperaure_inlet,
+            temperature_outlet=temperature_outlet,
             description=', '.join(['{1} x {0}'.format(k, v) for k, v in con_types.items()])
         )
         return result
@@ -1141,38 +1158,202 @@ class Consumer(Aggregation):
             mapping[port.original] = port
         return mapping
 
-
     rated_power = attribute.Attribute(
         description="rated power",
-        functions=[_calc_avg]
+        functions=[_calc_avg_consumer]
+    )
+
+    has_pump = attribute.Attribute(
+        description="Circle has a pumpsystem",
+        functions=[_calc_avg_consumer]
+    )
+
+    rated_pump_power = attribute.Attribute(
+        description="rated pump power",
+        functions=[_calc_avg_pump]
     )
 
     rated_volume_flow = attribute.Attribute(
         description="rated volume flow",
-        functions=[_calc_avg]
+        functions=[_calc_avg_pump]
     )
 
-    temperaure_inlet = attribute.Attribute(
-        description="temperaure inlet",
-        functions=[_calc_avg]
+    temperature_inlet = attribute.Attribute(
+        description="temperature inlet",
+        functions=[_calc_avg_consumer]
     )
 
     temperature_outlet = attribute.Attribute(
         description="temperature outlet",
-        functions=[_calc_avg]
+        functions=[_calc_avg_consumer]
     )
 
     volume = attribute.Attribute(
         description="volume",
-        functions=[_calc_avg]
+        functions=[_calc_avg_pump]
     )
 
     rated_height = attribute.Attribute(
         description="rated volume flow",
-        functions=[_calc_avg]
+        functions=[_calc_avg_pump]
     )
 
     description = attribute.Attribute(
         description="String with number of Consumers",
+        functions=[_calc_avg_consumer]
+    )
+
+class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation HKESim
+    """Aggregates Consumer system boarder"""
+    aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting', 'ParallelSpaceHeater']
+    whitelist = [elements.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating,
+                 Consumer]
+    blacklist = [elements.Chiller, elements.Boiler, elements.CoolingTower]
+
+    def __init__(self, name, element_graph, *args, **kwargs):
+        self.undefined_consumer_ports = kwargs.pop('undefined_consumer_ports', None)  # TODO: Richtig sO? WORKAROUND
+        super().__init__(name, element_graph, *args, **kwargs)
+        edge_ports = self._get_start_and_end_ports()
+        for port in edge_ports:
+            self.ports.append(AggregationPort(port, parent=self))
+        self._total_rated_power = None
+        self._avg_rated_height = None
+        self._total_rated_volume_flow = None
+        self._total_diameter = None
+        self._total_length = None
+        self._avg_diameter_strand = None
+        self._elements = None
+
+    @verify_edge_ports
+    def _get_start_and_end_ports(self):
+        """
+        Finds external ports of aggregated group
+        :return ports:
+        """
+        agg_ports = []
+
+        for ports in self.outer_connections:
+                agg_ports.append(ports[0])
+
+        for ports in self.undefined_consumer_ports:
+                agg_ports.append(ports[0])
+
+        return agg_ports
+
+    @classmethod
+    def find_matches(cls, graph):
+        """Find all matches for Aggregation in element graph
+        :returns: matches, meta"""
+        boarder_class = {elements.Distributor.ifc_type}
+        boarder_class = set(boarder_class)
+
+        element_graph = graph.element_graph
+
+        #  New Code
+        results = []
+
+        remove = {node for node in element_graph.nodes if node.ifc_type in boarder_class}
+
+        metas = []
+
+        for dist in remove:
+
+            _element_graph = element_graph.copy()
+
+            consumer_cycles = []
+
+            # remove blocking nodes
+            _element_graph.remove_nodes_from({dist})
+
+            # identify outer connections
+            remove_ports = dist.ports
+            outer_connections = {}
+            metas.append({'outer_connections': [],
+                          'undefined_consumer_ports': []})
+
+            for port in remove_ports:
+                outer_connections.update({neighbor.parent: (port, neighbor) for neighbor in graph.neighbors(port) if
+                                          neighbor not in remove_ports})
+
+            sub_graphs = nx.connected_components(_element_graph)  # get_parallels(graph, wanted, innerts)
+
+            for sub in sub_graphs:
+                # check for generator in sub_graphs
+                generator = {node for node in sub if node.__class__ in cls.blacklist}
+                if generator:
+                    # check for consumer in generator subgraph
+                    gen_con = {node for node in sub if node.__class__ in cls.whitelist}
+                    if gen_con:
+                        # ToDO: Consumer separieren
+                        a = 1
+                        pass
+                    else:
+                        outer_con = [outer_connections[ele] for ele in sub if ele in outer_connections]
+                        if outer_con:
+                            metas[-1]['outer_connections'].extend(outer_con)
+                        # pure generator subgraph
+                        # subgraph = graph.subgraph(sub)
+                        # generator_cycles.append(subgraph)
+                else:
+                    consumer_cycle = {node for node in sub if node.__class__ in cls.whitelist}
+                    if consumer_cycle:
+                        subgraph = _element_graph.subgraph(sub)
+                        consumer_cycles.extend(subgraph.nodes)
+                    else:
+                        outer_con = [outer_connections[ele] for ele in sub if ele in outer_connections]
+                        if outer_con:
+                            metas[-1]['undefined_consumer_ports'].extend(outer_con)
+
+            subnodes = [dist, *consumer_cycles]
+
+            result = element_graph.subgraph(subnodes)
+            results.append(result)
+
+        return results, metas
+
+    def get_replacement_mapping(self):
+        """Returns dict with original ports as values and their aggregated replacement as keys."""
+        mapping = {port: None for element in self.elements
+                   for port in element.ports}
+        for port in self.ports:
+            mapping[port.original] = port
+        return mapping
+
+    @attribute.multi_calc
+    def _calc_avg(self):
+        pass
+
+    medium = attribute.Attribute(
+        description="Medium of the DestributerCicle",
+        functions=[_calc_avg]
+    )
+
+    Tconsumer = attribute.Attribute(
+        description="temperature niveau of the destribution cycle",
+        functions=[_calc_avg]
+    )
+
+    useHydraulicSeperator = attribute.Attribute(
+        description="boolean if there is a hdydraulic seperator",
+        functions=[_calc_avg]
+    )
+
+    c1Qflow_nom = attribute.Attribute(
+        description="Qflow_nom of the first consumer",
+        functions=[_calc_avg]
+    )
+
+    c1Name = attribute.Attribute(
+        description="name of the first consumer",
+        functions=[_calc_avg]
+    )
+
+    c1OpenEnd = attribute.Attribute(
+        description="boolean if its an open ende consumer",
+        functions=[_calc_avg]
+    )
+
+    c1TControl = attribute.Attribute(
+        description="boolean if the consumer cycle got a temperature controll",
         functions=[_calc_avg]
     )

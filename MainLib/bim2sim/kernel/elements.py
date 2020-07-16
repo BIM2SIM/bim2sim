@@ -259,7 +259,7 @@ class PipeFitting(element.Element):
     ifc_type = "IfcPipeFitting"
 
     conditions = [
-        condition.RangeCondition("diameter", 5.0*ureg.millimeter, 300.00*ureg.millimeter)   #ToDo: unit?!
+        condition.RangeCondition("diameter", 5.0*ureg.millimeter, 300.00*ureg.millimeter)
     ]
 
     diameter = attribute.Attribute(
@@ -298,33 +298,37 @@ class SpaceHeater(element.Element):
     def is_consumer(self):
         return True
 
-    nominal_power = attribute.Attribute(
-        description="Nominal power of SpaceHeater",
+    rated_power = attribute.Attribute(
+        description="Rated power of SpaceHeater",
         unit=ureg.kilowatt,
         default=42,
     )
 
 
-class ExpansionTank(element.Element):
-    ifc_type = "IfcExpansionTank"   #ToDo: Richtig?!
-    pattern_ifc_type = [
-        re.compile('Expansion.?Tank', flags=re.IGNORECASE),
-        re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
-    ]
+# class ExpansionTank(element.Element):
+#     ifc_type = "IfcTank"   #ToDo: IfcTank, IfcTankType=Expansion
+#     pattern_ifc_type = [
+#         re.compile('Expansion.?Tank', flags=re.IGNORECASE),
+#         re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
+#     ]
 
 
-class StorageDevice(element.Element):
-    ifc_type = "IfcStorageDevice"
-    pattern_ifc_type = [
-        re.compile('Storage.?device', flags=re.IGNORECASE)
-    ]
+# class StorageDevice(element.Element):
+#     """IFC4 CHANGE  This entity has been deprecated for instantiation and will become ABSTRACT in a future release;
+#     new subtypes should now be used instead."""
+#     ifc_type = "IfcStorageDevice"
+#     pattern_ifc_type = [
+#         re.compile('Storage.?device', flags=re.IGNORECASE)
+#     ]
 
 
 class Storage(element.Element):
-    ifc_type = "IfcTank"
+    ifc_type = "IfcTank"    #ToDo: IfcTank, IfcTankType=Storage
     pattern_ifc_type = [
         re.compile('Tank', flags=re.IGNORECASE),
         re.compile('Speicher', flags=re.IGNORECASE),
+        # re.compile('Expansion.?Tank', flags=re.IGNORECASE),
+        re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
     ]
 
     @property
