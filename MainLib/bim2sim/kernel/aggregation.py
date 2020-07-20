@@ -1241,6 +1241,7 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
 
     def __init__(self, name, element_graph, *args, **kwargs):
         self.undefined_consumer_ports = kwargs.pop('undefined_consumer_ports', None)  # TODO: Richtig sO? WORKAROUND
+        self._consumer_cycles = kwargs.pop('consumer_cycles', None)
         super().__init__(name, element_graph, *args, **kwargs)
         edge_ports = self._get_start_and_end_ports()
         for port in edge_ports:
@@ -1298,7 +1299,8 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
             remove_ports = dist.ports
             outer_connections = {}
             metas.append({'outer_connections': [],
-                          'undefined_consumer_ports': []})
+                          'undefined_consumer_ports': [],
+                          'consumer_cycles':[]})
 
             for port in remove_ports:
                 outer_connections.update({neighbor.parent: (port, neighbor) for neighbor in graph.neighbors(port) if
@@ -1328,6 +1330,7 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
                     if consumer_cycle:
                         subgraph = _element_graph.subgraph(sub)
                         consumer_cycles.extend(subgraph.nodes)
+                        metas[-1]['consumer_cycles'].append(subgraph.nodes)
                     else:
                         outer_con = [outer_connections[ele] for ele in sub if ele in outer_connections]
                         if outer_con:
