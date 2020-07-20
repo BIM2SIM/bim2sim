@@ -268,7 +268,7 @@ class TestPipeStrand(unittest.TestCase):
         """Test calculation of aggregated length and diameter"""
         graph, flags = self.helper.get_setup_straits_with_distributor()
 
-        matches, meta = aggregation.PipeStrand.find_matches(graph.element_graph)
+        matches, meta = aggregation.PipeStrand.find_matches(graph)
         self.assertEqual(2, len(matches))
 
         with self.assertRaises(AssertionError, msg="Pipestrand aggregation over a distributor should fail"):
@@ -281,7 +281,7 @@ class TestPipeStrand(unittest.TestCase):
         graph, flags = self.helper.get_setup_strait_with_valve()
         ele = graph.elements
 
-        matches, meta = aggregation.PipeStrand.find_matches(graph.element_graph)
+        matches, meta = aggregation.PipeStrand.find_matches(graph)
         self.assertEqual(1, len(matches))
         agg = aggregation.PipeStrand("Test strait strand with valve", matches[0], **meta[0])
 
@@ -315,7 +315,7 @@ class TestPipeStrand(unittest.TestCase):
         graph, flags = self.helper.get_setup_system()
         ele = flags['strand1'] + flags['strand2'] + flags['strand3'] + flags['strand4'] + flags['strand5']
 
-        matches, meta = aggregation.PipeStrand.find_matches(graph.element_graph)
+        matches, meta = aggregation.PipeStrand.find_matches(graph)
         self.assertEqual(6, len(matches))
 
         self.assertSetEqual(set(ele), set(sum([list(m.nodes) for m in matches], [])))
