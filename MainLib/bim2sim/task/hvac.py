@@ -4,15 +4,15 @@ import itertools
 import json
 import os
 import logging
-from itertools import chain
 
 import numpy as np
+import networkx as nx
 
 from bim2sim.task.base import Task, ITask
 from bim2sim.workflow import LOD
 from bim2sim.filter import TypeFilter, TextFilter
-from bim2sim.kernel.aggregation import Aggregation, PipeStrand, UnderfloorHeating, \
-    ParallelPump, ParallelSpaceHeater
+from bim2sim.kernel.aggregation import Aggregation, PipeStrand, UnderfloorHeating, Consumer,\
+    ParallelPump, ParallelSpaceHeater, ConsumerHeatingDistributorModule
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
@@ -21,6 +21,7 @@ from bim2sim.project import PROJECT
 from bim2sim.kernel import finder
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.enrichment_data import element_input_json
+from bim2sim.decision import ListDecision, RealDecision
 
 
 IFC_TYPES = (
@@ -95,16 +96,43 @@ class Inspect(ITask):
         return delta
 
     @staticmethod
-    def connections_by_position(ports, eps=1):
+    def connections_by_position(ports, eps=10):
         """Connect ports of instances by computing geometric distance"""
-        connections = []
+        logger = logging.getLogger('IFCQualityReport')
+        graph = nx.Graph()
         for port1, port2 in itertools.combinations(ports, 2):
+            if port1.parent == port2.parent:
+                continue
             delta = Inspect.port_distance(port1, port2)
             if delta is None:
                 continue
-            if max(abs(delta)) < eps:
-                connections.append((port1, port2))
-        return connections
+            abs_delta = max(abs(delta))
+            if abs_delta < eps:
+                graph.add_edge(port1, port2, delta=abs_delta)
+
+        # verify
+        conflicts = [port for port, deg in graph.degree() if deg > 1]
+        for port in conflicts:
+            candidates = sorted(graph.edges(port, data=True), key=lambda t: t[2].get('delta', eps))
+            # initially there are at least two candidates, but there will be less, if previous conflicts belong to them
+            if len(candidates) <= 1:
+                # no action required
+                continue
+            logger.warning("Found %d geometrically close ports around %s. Details: %s",
+                           len(candidates), port, candidates)
+            if candidates[0][2]['delta'] < candidates[1][2]['delta']:
+                # keep first
+                first = 1
+                logger.info("Accept closest ports with delta as connection (%s - %s)",
+                            candidates[0][2]['delta'], candidates[0][0], candidates[0][1])
+            else:
+                # remove all
+                first = 0
+                logger.warning("No connection determined, because there are no two closest ports.")
+            for cand in candidates[first:]:
+                graph.remove_edge(cand[0], cand[1])
+
+        return list(graph.edges())
 
     @staticmethod
     def connections_by_relation(ports, include_conflicts=False):
@@ -242,13 +270,13 @@ class Inspect(ITask):
         entities_dict, unknown_entities = text_filter.run(ifc_entities)
         answers = {}
         for k, v in entities_dict.items():
-            if len(v) > 1:
+            if len(v) > 0:  # TODO: Define in Configfile
                 ListDecision(
                     "Found following Matches:",
                     # TODO: filter_for_text_fracments() already called in text_filter.run()
-                    choices=[[cls, "Match: '" + ",".join(cls.filter_for_text_fracments(k)) + "' in " + " or ".join(
+                    choices=[[cls.ifc_type, "Match: '" + ",".join(cls.filter_for_text_fracments(k)) + "' in " + " or ".join(
                         ["'%s'" % txt for txt in [k.Name, k.Description] if txt])] for cls in v],
-                    output=self.answers,
+                    output=answers,
                     output_key=k,
                     global_key="%s.%s" % (k.is_a(), k.GlobalId),
                     allow_skip=True, allow_load=True, allow_save=True,
@@ -260,9 +288,9 @@ class Inspect(ITask):
 
         result_entity_dict = {}
         for ifc_entity, element_classes in entities_dict.items():
-            cls = answers.get(ifc_entity)
-            if cls:
-                lst = result_entity_dict.setdefault(cls.ifc_type, [])
+            ifc_type = answers.get(ifc_entity)
+            if ifc_type:
+                lst = result_entity_dict.setdefault(ifc_type, [])
                 lst.append(ifc_entity)
             else:
                 unknown_entities.append(ifc_entity)
@@ -313,7 +341,7 @@ class Inspect(ITask):
             if isinstance(f, TextFilter):
                 # filter by text fracments
                 class_dict, unknown_entities = self.filter_by_text(f, unknown_entities)
-                valids, invalids = self.accept_valids(class_dict)
+                valids, invalids = self.accept_valids(class_dict, force=True)   #  ToDo: Validation skipped....
                 unknown_entities.extend(invalids)
             else:
                 raise NotImplementedError()
@@ -405,22 +433,39 @@ class Enrich(Task):
         self.enrich_data = {}
         self.enriched_instances = {}
 
-    def enrich_instance(self, instance, enrich_parameter, parameter_value):
+    def enrich_instance(self, instance, json_data):
 
-        json_data = DataClass()
-
-        attrs_enrich = element_input_json.load_element_class(instance, enrich_parameter, parameter_value, json_data)
+        attrs_enrich = element_input_json.load_element_class(instance, json_data)
 
         return attrs_enrich
 
     @Task.log
-    def run(self, instances, enrich_parameter, parameter_value):
+    def run(self, instances):
+        json_data = DataClass(used_param=1)
+
         # enrichment_parameter --> Class
-        self.logger.info("Enrichment of the elements with: \n" + enrich_parameter + " as \"Enrich Parameter\"\n"
-                         + parameter_value + " as \"parameter value\" \n")
+        self.logger.info("Enrichment of the elements...")
+        # general question -> year of construction, all elements
+        decision = RealDecision("Enter value for the construction year",
+                                validate_func=lambda x: isinstance(x, float),  # TODO
+                                global_key="Construction year",
+                                allow_skip=False, allow_load=True, allow_save=True,
+                                collect=False, quick_decide=False)
+        decision.decide()
+        delta = float("inf")
+        year_selected = None
+        for year in json_data.element_bind["statistical_years"]:
+            if abs(year - decision.value) < delta:
+                delta = abs(year - decision.value)
+                year_selected = int(year)
+        enrich_parameter = year_selected
+        # specific question -> each instance
         for instance in instances:
-            enrichment_data = self.enrich_instance(instances[instance], enrich_parameter, parameter_value)
-            setattr(instances[instance], "enrichment_data", enrichment_data)
+            enrichment_data = self.enrich_instance(instances[instance], json_data)
+            if bool(enrichment_data):
+                instances[instance].enrichment["enrichment_data"] = enrichment_data
+                instances[instance].enrichment["enrich_parameter"] = enrich_parameter
+                instances[instance].enrichment["year_enrichment"] = enrichment_data["statistical_year"][str(enrich_parameter)]
 
         self.logger.info("Applied successfully attributes enrichment on elements")
         # runs all enrich methods
@@ -437,7 +482,7 @@ class Prepare(ITask):
         self.logger.info("Setting Filters")
         Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
-        filters = [TypeFilter(relevant_ifc_types), TextFilter(relevant_ifc_types)]
+        filters = [TypeFilter(relevant_ifc_types), TextFilter(relevant_ifc_types, ['Description'])]
         # self.filters.append(TextFilter(['IfcBuildingElementProxy', 'IfcUnitaryEquipment']))
         return filters,
 
@@ -481,8 +526,10 @@ class Reduce(ITask):
 
         aggregations = [
             UnderfloorHeating,
+            Consumer,
             PipeStrand,
             ParallelPump,
+            ConsumerHeatingDistributorModule
             # ParallelSpaceHeater,
         ]
 
@@ -495,7 +542,7 @@ class Reduce(ITask):
             name = agg_class.__name__
             self.logger.info("Aggregating '%s' ...", name)
             name_builder = '{} {}'
-            matches, metas = agg_class.find_matches(graph.element_graph)
+            matches, metas = agg_class.find_matches(graph)
             i = 0
             for match, meta in zip(matches, metas):
                 try:

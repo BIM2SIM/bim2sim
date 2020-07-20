@@ -15,11 +15,9 @@ class BIM2SIMManager:
     def __init__(self, workflow):
         self.logger = logging.getLogger(__name__)
 
-        assert PROJECT.is_project_folder(), "PROJECT ist not set correctly!"
+        if not PROJECT.is_project_folder():
+            raise AssertionError("PROJECT ist not set correctly!")
 
-        if not os.path.samefile(PROJECT.root, os.getcwd()):
-            self.logger.info("Changing working directory to '%s'", PROJECT.root)
-            os.chdir(PROJECT.root)
         # self.init_project()
         self.config = get_config()
 

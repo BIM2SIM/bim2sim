@@ -13,7 +13,7 @@ import pkg_resources
 from bim2sim.kernel import ifc2python
 from bim2sim.manage import BIM2SIMManager
 from bim2sim.project import PROJECT, get_config
-from bim2sim.workflow import PlantSimulation
+from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparated
 from bim2sim.decision import Decision
 
 VERSION = '0.1-dev'
@@ -121,6 +121,7 @@ def main(rootpath=None):
     assert backend, "No backend set. Check config.ini"
 
     logger.info("Loading backend '%s' ...", backend)
+    print(plugins)
     manager_cls = plugins.get(backend.lower())()
 
     if manager_cls is None:
@@ -135,7 +136,8 @@ def main(rootpath=None):
     from bim2sim.decision.external import ExternalFrontEnd as Frontend
     Decision.set_frontend(Frontend())
 
-    workflow = PlantSimulation() #TODO
+    workflow = PlantSimulation()  #TODO
+    # workflow = BPSMultiZoneSeparated()  #TODO
 
     # prepare simulation
     manager = manager_cls(workflow)
@@ -150,7 +152,7 @@ def main(rootpath=None):
 def _debug_run_hvac():
     """Create example project and copy ifc if necessary"""
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
-    rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc'
+    rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
     path_example = r"C:\temp\bim2sim\testproject"
 
@@ -164,16 +166,17 @@ def _debug_run_bps():
     """Create example project and copy ifc if necessary"""
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
 
-    rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur' \
-                      '.ifc'
+    rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
+    # rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
-    path_example = r"C:\temp\bim2sim\testproject_bps"
+    path_example = r"C:\temp\bim2sim\testproject_bps2"
 
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, path_ifc, 'TEASER')
 
     main(path_example)
 
+
 if __name__ == '__main__':
+    _debug_run_bps()
     _debug_run_hvac()
-    # _debug_run_bps()

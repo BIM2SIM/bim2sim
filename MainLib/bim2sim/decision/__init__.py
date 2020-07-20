@@ -118,7 +118,7 @@ class Decision:
         self.validate_checksum = validate_checksum
 
         if global_key and global_key in self.global_keys():
-            self.discard()
+            #self.discard()
             raise KeyError("Decision with key %s already exists!" % global_key)
 
         if self.allow_load:
@@ -167,7 +167,11 @@ class Decision:
 
     def discard(self):
         """Remove decision from traced decisions (Decision.all)"""
-        Decision.all.remove(self)
+        try:
+            Decision.all.remove(self)
+        except ValueError:
+            # not in list
+            pass
         self.reset()
 
     @classmethod
@@ -503,17 +507,21 @@ class ListDecision(Decision):
             self.labels = [str(choice[1]) for choice in choices]
         else:
             self.items = choices
-            self.labels = [str(choice) for choice in self.items]
-
-        if len(self.items) == 1:
-            # auto decide
-            self.value = self.items[0]
+            # self.labels = [str(choice) for choice in self.items]
 
         super().__init__(*args, validate_func=None, **kwargs)
 
+        if len(self.items) == 1:
+            if not self.status != Status.open:
+                # auto decide
+                self.value = self.items[0]
+
     @property
     def choices(self):
-        return zip(self.items, self.labels)
+        if hasattr(self, 'labels'):
+            return zip(self.items, self.labels)
+        else:
+            return self.items
 
     def validate(self, value):
         return value in self.items
@@ -526,7 +534,7 @@ class ListDecision(Decision):
                 body.append((i, *item))
             else:
                 # no label provided
-                body.append((i, item, str(item)))
+                body.append((i, item, ' '))
         return body
 
 

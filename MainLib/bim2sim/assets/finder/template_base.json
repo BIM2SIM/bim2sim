@@ -1,0 +1,161 @@
+{
+  "OuterWall": {
+    "material": {
+      " Leichtbeton " : "lightweight_concrete"
+    },
+    "exporter": {
+      "teaser": {
+        "name": ["instance","name"],
+        "area": ["instance", "area"],
+        "tilt": ["instance", "tilt"],
+        "orientation": ["instance", "orientation"]
+      }
+    }
+  },
+  "InnerWall": {
+    "material": {
+      " Leichtbeton " : "lightweight_concrete"
+    },
+    "exporter": {
+      "teaser": {
+        "name": ["instance","name"],
+        "area": ["instance", "area"]
+      }
+    }
+  },
+  "Wall": {
+    "material": {
+      " Leichtbeton " : "lightweight_concrete"
+    },
+    "exporter": {
+      "teaser": {
+        "name": ["instance","name"],
+        "area": ["instance", "area"],
+        "tilt": ["instance", "tilt"],
+        "orientation": ["instance", "orientation"]
+      }
+    }
+  },
+  "Roof": {
+    "exporter": {
+      "teaser": {
+        "name": ["instance","name"],
+        "area": ["instance", "area"],
+        "orientation": ["instance", "orientation"]
+      }
+    }
+  },
+  "Floor": {
+    "exporter": {
+      "teaser": {
+        "name": ["instance","name"],
+        "area": ["instance", "area"],
+        "orientation": ["instance", "orientation"]
+      }
+    }
+  },
+  "GroundFloor": {
+    "exporter": {
+      "teaser": {
+        "name": ["instance","name"],
+        "area": ["instance", "area"],
+        "orientation": ["instance", "orientation"]
+      }
+    }
+  },
+  "Window": {
+    "exporter": {
+      "teaser": {
+        "name": ["instance","name"],
+        "area": ["instance", "area"],
+        "inner_convection": 0.6,
+        "orientation": ["instance", "orientation"]
+      }
+    }
+  },
+  "Door": {
+    "exporter": {
+      "teaser": {
+        "name": ["instance","name"],
+        "area": ["instance", "area"],
+        "inner_convection": 0.6,
+        "orientation": ["instance", "orientation"]
+      }
+    }
+  },
+  "ThermalZone": {
+    "exporter": {
+      "teaser": {
+        "name": ["instance","name"],
+        "area": ["instance", "area"],
+        "number_of_elements": 2
+      }
+    }
+  },
+  "Building": {
+    "exporter": {
+      "teaser": {
+        "used_library_calc": "AixLib",
+        "name": [
+          "instance",
+          "name"
+        ],
+        "year_of_construction": [
+          "instance",
+          "year_of_construction"
+        ],
+        "number_of_floors": [
+          "instance",
+          "number_of_storeys"
+        ],
+        "net_leased_area": [
+          "instance",
+          "net_area"
+        ]
+      }
+    }
+  },
+  "MaterialTemplates" : {
+    "heat_capacity" : "heat_capac",
+    "thickness" : "thickness_default"
+  },
+  "Material": {
+    "default_ps": {
+      "thermal_conductivity" : ["Pset_MaterialThermal", "ThermalConductivity"],
+      "heat_capacity" : ["Pset_MaterialThermal", "SpecificHeatCapacity"],
+      "density" : ["Pset_MaterialCommon", "MassDensity"],
+      "embodied_energy" : ["AC_Pset_MaterialCustom", "EmbodiedEnergy"],
+      "embodied_carbon" : ["AC_Pset_MaterialCustom", "EmbodiedCarbon"]
+    },
+    "DEU": {
+      "leichtbeton" : "lightweight_concrete",
+      "stahlbeton" : "concrete"
+    },
+	"exporter": {
+      "teaser": {
+        "name": [
+          "instance",
+          "material"
+        ],
+        "density": [
+          "instance",
+          "density"
+        ],
+        "heat_capac": [
+          "instance",
+          "heat_capacity"
+        ],
+        "thermal_conduc": [
+          "instance",
+          "thermal_conductivity"
+        ]
+      }
+    }
+  }
+}
+
+
+
+
+
+
