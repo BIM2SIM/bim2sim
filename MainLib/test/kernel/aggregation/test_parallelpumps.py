@@ -742,7 +742,8 @@ class TestParallelPumps(unittest.TestCase):
         for match in matches:
             match_pumps.append([node for node in match if node.ifc_type == 'IfcPump'])
         
-        self.assertSetEqual({n_pumps1, n_pumps2}, {len(mp) for mp in match_pumps})
+        self.assertSetEqual({n_pumps1, n_pumps2}, {len(mp) for mp in match_pumps}, "{} and {} pumps expected but the "
+                    "finder found {} and {} pumps.".format(*{n_pumps1, n_pumps2}, *{len(mp) for mp in match_pumps}))
 
 
 if __name__ == '__main__':
