@@ -687,11 +687,12 @@ class ParallelPump(Aggregation):
     def find_matches(cls, graph):
         """Find all matches for Aggregation in element graph
         :returns: matches, meta"""
-        # TODO: only same size pumps
         element_graph = graph.element_graph
-        wantetd = {'IfcPump'}
-        innerts = set(cls.aggregatable_elements) - wantetd
-        parallels = HvacGraph.get_parallels(element_graph, wantetd, innerts)
+        wanted = {'IfcPump'}
+        inerts = set(cls.aggregatable_elements) - wanted
+        parallels = HvacGraph.get_parallels(
+            element_graph, wanted, inerts, grouping={'rated_power': 'equal'},
+            grp_threshold=1)
         metas = [{} for x in parallels]  # no metadata calculated
         return parallels, metas
 
