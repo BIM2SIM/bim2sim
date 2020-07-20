@@ -9,11 +9,24 @@ import pint
 
 from bim2sim import decision
 from bim2sim.decision import Decision
+from bim2sim.decision.frontend import FrontEnd
+import bim2sim.decision.console
 from bim2sim.kernel.units import ureg
 
 
 class DecisionTestBase(unittest.TestCase):
     """Base class for Decision tests"""
+    frontend = FrontEnd()
+    _backup = None
+
+    @classmethod
+    def setUpClass(cls):
+        cls._backup = decision.Decision.frontend
+        decision.Decision.set_frontend(cls.frontend)
+
+    @classmethod
+    def tearDownClass(cls):
+        decision.Decision.set_frontend(cls._backup)
 
     def tearDown(self):
         decision.Decision.all.clear()
@@ -332,17 +345,7 @@ class TestListDecision(DecisionTestBase):
 
 @patch('builtins.print', lambda *args, **kwargs: None)
 class TestConsoleFrontend(DecisionTestBase):
-    _backup = None
-
-    @classmethod
-    def setUpClass(cls) -> None:
-        cls._backup = Decision.frontend
-        Decision.frontend = decision.ConsoleFrontEnd()
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        super().tearDownClass()
-        Decision.frontend = cls._backup
+    frontend = decision.console.ConsoleFrontEnd()
 
     def check(self, value):
         return True
