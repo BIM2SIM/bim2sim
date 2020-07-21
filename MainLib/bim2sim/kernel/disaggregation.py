@@ -5,7 +5,7 @@ import numpy as np
 import pint
 import re
 
-from bim2sim.kernel.element import BaseSubElement, get_all_subclasses
+from bim2sim.kernel.element import BaseElement, get_all_subclasses
 from bim2sim.task.bps_f.bps_functions import get_disaggregations_instance
 
 
@@ -13,7 +13,7 @@ vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
 horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
 
 
-class Disaggregation(BaseSubElement):
+class Disaggregation(BaseElement):
     """Base disaggregation of models"""
 
     def __init__(self, name, element, *args, **kwargs):
