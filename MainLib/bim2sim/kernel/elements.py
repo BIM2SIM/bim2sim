@@ -610,12 +610,12 @@ class Wall(element.Element):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ifc_type = self.ifc.is_a()
-        if self.is_external:
-            self.__class__ = OuterWall
-            self.__init__()
-        elif not self.is_external:
-            self.__class__ = InnerWall
-            self.__init__()
+        # if self.is_external:
+        #     self.__class__ = OuterWall
+        #     self.__init__()
+        # elif not self.is_external:
+        #     self.__class__ = InnerWall
+        #     self.__init__()
 
     def _get_layers(bind, name):
         layers = []
@@ -772,13 +772,12 @@ class Layer(element.SubElement):
 
 
 class OuterWall(Wall):
-    def __init__(self, *args, **kwargs):
-        pass
+    special_argument = {'is_external': True}
 
 
 class InnerWall(Wall):
-    def __init__(self, *args, **kwargs):
-        pass
+    special_argument = {'is_external': False}
+
 
 
 class Window(element.Element):
@@ -880,24 +879,6 @@ class Door(element.Element):
         default=0
     )
 
-# class OuterWall(Wall):
-#     pattern_ifc_type = [
-#         re.compile('Outer.?wall', flags=re.IGNORECASE),
-#         re.compile('Au(ß|ss)en.?wand', flags=re.IGNORECASE)
-#     ]
-#
-#     @property
-#     def area(self):
-#         return 1
-#
-#     @property
-#     def u_value(self):
-#         return 1
-#
-#     @property
-#     def g_value(self):
-#         return 1
-
 
 class Plate(element.Element):
     ifc_type = "IfcPlate"
@@ -920,18 +901,15 @@ class Slab(element.Element):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # todo more generic with general function and check of existing
-        # subclasses
-        # todo ask for decision if not type is inserted
-        if self.predefined_type == "ROOF":
-            self.__class__ = Roof
-            self.__init__()
-        if self.predefined_type == "FLOOR":
-            self.__class__ = Floor
-            self.__init__()
-        if self.predefined_type == "BASESLAB":
-            self.__class__ = GroundFloor
-            self.__init__()
+        # if self.predefined_type == "ROOF":
+        #     self.__class__ = Roof
+        #     self.__init__()
+        # if self.predefined_type == "FLOOR":
+        #     self.__class__ = Floor
+        #     self.__init__()
+        # if self.predefined_type == "BASESLAB":
+        #     self.__class__ = GroundFloor
+        #     self.__init__()
 
     def _get_layers(bind, name):
         layers = []
@@ -978,8 +956,8 @@ class Slab(element.Element):
 
 class Roof(Slab):
     ifc_type = "IfcRoof"
-    # ifc_type = ["IfcRoof", "IfcSlab"]
-    # if self.ifc:
+    predefined_type = "ROOF"
+
     def __init__(self, *args, **kwargs):
         if hasattr(self, 'ifc'):
             self.ifc_type = self.ifc.is_a()
@@ -987,32 +965,17 @@ class Roof(Slab):
             super().__init__(*args, **kwargs)
 
 
-    # predefined_type = {
-    #         "IfcSlab": "ROOF",
-    #     }
-
-
 class Floor(Slab):
-
-    def __init__(self, *args, **kwargs):
-        pass
-    # ifc_type = 'IfcSlab'
-    # predefined_type = {
-    #         "IfcSlab": "FLOOR",
-    #     }
+    predefined_type = "FLOOR"
 
 
 class GroundFloor(Slab):
-    def __init__(self, *args, **kwargs):
-        pass
-    # ifc_type = 'IfcSlab'
-    # predefined_type = {
-    #         "IfcSlab": "BASESLAB",
-    #     }
+    predefined_type = "BASESLAB"
 
 
 class Site(element.Element):
     ifc_type = "IfcSite"
+
 
     # year_of_construction = attribute.Attribute(
     #     name='year_of_construction',

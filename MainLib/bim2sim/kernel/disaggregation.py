@@ -3,8 +3,9 @@
 import math
 import numpy as np
 import pint
+import re
 
-from bim2sim.kernel.element import BaseSubElement
+from bim2sim.kernel.element import BaseSubElement, get_all_subclasses
 from bim2sim.task.bps_f.bps_functions import get_disaggregations_instance
 
 
@@ -27,18 +28,6 @@ class Disaggregation(BaseSubElement):
         for prop in self.parent.attributes:
             value = getattr(self.parent, prop)
             setattr(self, prop, value)
-        switcher = {'SubFloor': SubFloor,
-                    'SubGroundFloor': SubGroundFloor,
-                    'SubSlab': SubSlab,
-                    'SubRoof': SubRoof,
-                    'SubWall': SubWall,
-                    'SubInnerWall': SubInnerWall,
-                    'SubOuterWall': SubOuterWall}
-        sub_module = 'Sub' + self.parent.__class__.__name__
-        func = switcher.get(sub_module)
-        if func is not None:
-            self.__class__ = func
-            self.__init__(self.name, self.parent)
 
     def calc_position(self):
         try:
@@ -83,7 +72,16 @@ class Disaggregation(BaseSubElement):
             if scontinue:
                 continue
 
+            type_parent = type(parent).__name__
+            re_search = re.compile('Sub%s' % type_parent)
             instance = cls(name + '_%d' % i, parent)
+
+            for sub_cls in get_all_subclasses(cls):
+                type_search = sub_cls.__name__
+                if re_search.match(type_search):
+                    instance = sub_cls(name + '_%d' % i, parent)
+                    break
+
             instance.area = disaggregations[ins][0]
 
             # position calc
@@ -110,49 +108,29 @@ class Disaggregation(BaseSubElement):
 class SubFloor(Disaggregation):
     disaggregatable_elements = ['IfcSlab']
 
-    def __init__(self, *args, **kwargs):
-        pass
-
 
 class SubGroundFloor(Disaggregation):
     disaggregatable_elements = ['IfcSlab']
-
-    def __init__(self, *args, **kwargs):
-        pass
 
 
 class SubSlab(Disaggregation):
     disaggregatable_elements = ['IfcSlab']
 
-    def __init__(self, *args, **kwargs):
-        pass
 
 class SubRoof(Disaggregation):
     disaggregatable_elements = ['IfcRoof', 'IfcSlab']
-
-    def __init__(self, *args, **kwargs):
-        pass
 
 
 class SubWall(Disaggregation):
     disaggregatable_elements = ['IfcWall']
 
-    def __init__(self, *args, **kwargs):
-        pass
-
 
 class SubInnerWall(Disaggregation):
     disaggregatable_elements = ['IfcWall']
 
-    def __init__(self, *args, **kwargs):
-        pass
-
 
 class SubOuterWall(Disaggregation):
     disaggregatable_elements = ['IfcWall']
-
-    def __init__(self, *args, **kwargs):
-        pass
 
 
 def get_new_position_vertical_instance(parent, sub_position):

@@ -117,6 +117,7 @@ class Attribute:
         if bind.source_tool in source_tools:
             source_tool = bind.source_tool
         else:
+            # ToDo: use re
             if bind.source_tool.startswith('Autodesk'):
                 source_tool = 'Autodesk Revit 2019 (DEU)'
             elif bind.source_tool.startswith('ARCHICAD'):

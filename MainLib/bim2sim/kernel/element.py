@@ -735,6 +735,15 @@ def get_all_subclasses(cls):
 
     return all_subclasses
 
+def get_class_requirements(cls):
+    requirements = {}
+    if cls.predefined_type is not None:
+        requirements['predefined_type'] = cls.predefined_type
+    if hasattr(cls, 'special_argument'):
+        requirements.update(cls.special_argument)
+
+    return requirements
+
 
 class BaseSubElement(BaseElementNoPorts):
     """Base class for all elements with ports"""
@@ -944,6 +953,8 @@ class Element(BaseElement, IFCBased):
     def factory(ifc_element, alternate_ifc_type=None, tool=None):
         """Create model depending on ifc_element"""
 
+        predefined_type = ifc2python.get_predefined_type(ifc_element)
+
         if not Element._ifc_classes:
             Element._init_factory()
 
@@ -951,11 +962,24 @@ class Element(BaseElement, IFCBased):
             if not alternate_ifc_type or alternate_ifc_type == ifc_element.is_a() \
             else alternate_ifc_type
         cls = Element._ifc_classes.get(ifc_type, Element.dummy)
+
+        prefac = cls(ifc=ifc_element, tool=tool)
         if cls is Element.dummy:
             logger = logging.getLogger(__name__)
             logger.warning("Did not found matching class for %s", ifc_type)
+            return prefac
 
-        prefac = cls(ifc=ifc_element, tool=tool)
+        for sub_cls in get_all_subclasses(cls):
+            requirements = get_class_requirements(sub_cls)
+            match = True
+            for req, value in requirements.items():
+                on_ifc = getattr(prefac, req)
+                if on_ifc != value:
+                    match = False
+                    break
+            if match is True:
+                prefac = sub_cls(ifc=ifc_element, tool=tool)
+
         return prefac
         # if prefac.validate():
         #     return prefac
