@@ -1247,6 +1247,20 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
         edge_ports = self._get_start_and_end_ports()
         for port in edge_ports:
             self.ports.append(AggregationPort(port, parent=self))
+
+        self.consumers = []
+
+        for consumer in self._consumer_cycles:
+            for con in consumer:  # ToDo: darf nur ein Consumer sein
+                self.consumers.append(con)
+
+        self.open_consumer_pairs = self._register_open_consumerports()
+        for ports in self.open_consumer_pairs:
+            a = AggregationPort(ports[0], parent=self)
+            b = AggregationPort(ports[1], parent=self)
+            self.ports.append(a)
+            self.ports.append(b)
+
         self._total_rated_power = None
         self._avg_rated_height = None
         self._total_rated_volume_flow = None
@@ -1263,13 +1277,21 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
         """
         agg_ports = []
 
+        #  ToDo: outer_connection immer die anschlussports für erzeugerkreis?
         for ports in self.outer_connections:
-                agg_ports.append(ports[0])
-
-        for ports in self.undefined_consumer_ports:
-                agg_ports.append(ports[0])
+            agg_ports.append(ports[0])
 
         return agg_ports
+
+    def _register_open_consumerports(self):
+
+        consumer_ports = []
+        if (len(self.undefined_consumer_ports) % 2) == 0:
+            for i in range(0, int(len(self.undefined_consumer_ports)/2)):
+                consumer_ports.append((self.undefined_consumer_ports[2*i][0], self.undefined_consumer_ports[2*i+1][0]))
+        else:
+            raise NotImplementedError("Odd Number of loose ends at the distributor.")
+        return consumer_ports
 
     @classmethod
     def find_matches(cls, graph):
@@ -1277,25 +1299,15 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
         :returns: matches, meta"""
         boarder_class = {elements.Distributor.ifc_type}
         boarder_class = set(boarder_class)
-
         element_graph = graph.element_graph
-
-        #  New Code
         results = []
-
         remove = {node for node in element_graph.nodes if node.ifc_type in boarder_class}
-
         metas = []
-
         for dist in remove:
-
             _element_graph = element_graph.copy()
-
             consumer_cycles = []
-
             # remove blocking nodes
             _element_graph.remove_nodes_from({dist})
-
             # identify outer connections
             remove_ports = dist.ports
             outer_connections = {}
@@ -1317,7 +1329,6 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
                     gen_con = {node for node in sub if node.__class__ in cls.whitelist}
                     if gen_con:
                         # ToDO: Consumer separieren
-                        a = 1
                         pass
                     else:
                         outer_con = [outer_connections[ele] for ele in sub if ele in outer_connections]
@@ -1355,7 +1366,14 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
 
     @attribute.multi_calc
     def _calc_avg(self):
-        pass
+
+        result = dict(
+            medium=None,
+            Tconsumer=None,
+            useHydraulicSeperator=False,
+            description='Destributor with X Consumer Cycles'
+        )
+        return result
 
     medium = attribute.Attribute(
         description="Medium of the DestributerCicle",
@@ -1369,25 +1387,5 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
 
     useHydraulicSeperator = attribute.Attribute(
         description="boolean if there is a hdydraulic seperator",
-        functions=[_calc_avg]
-    )
-
-    c1Qflow_nom = attribute.Attribute(
-        description="Qflow_nom of the first consumer",
-        functions=[_calc_avg]
-    )
-
-    c1Name = attribute.Attribute(
-        description="name of the first consumer",
-        functions=[_calc_avg]
-    )
-
-    c1OpenEnd = attribute.Attribute(
-        description="boolean if its an open ende consumer",
-        functions=[_calc_avg]
-    )
-
-    c1TControl = attribute.Attribute(
-        description="boolean if the consumer cycle got a temperature controll",
         functions=[_calc_avg]
     )

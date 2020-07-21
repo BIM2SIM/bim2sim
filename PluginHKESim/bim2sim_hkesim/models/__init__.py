@@ -44,24 +44,51 @@ class ConsumerHeatingDistributorModule(HKESim):
 
 
     def get_params(self):
-        self.params["Tconsumer"] = (80, 60)  # TODO: Werte aus dem Modell
-        self.params["Medium"] = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.params["useHydraulicSeperator"] = True  # TODO: Werte aus dem Modell
+        self.params["Tconsumer"] = (80+273.15, 60+273.15)  # TODO: Werte aus dem Modell
+        self.params["Medium_heating"] = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
+        self.params["useHydraulicSeparator"] = True  # TODO: Werte aus dem Modell
         self.params["V"] = 5  # TODO: Werte aus dem Modell
 
         index = 0
 
-        for consumer in self.element._consumer_cycles:
+        for con in self.element.consumers:
             index += 1
-            for con in consumer:  # ToDo: darf nur ein Consumer sein
-                # self.register_param("rated_power", self.check_numeric(min_value=0), "c{}Qflow_nom".format(index))
-                # self.register_param("description", "c{}Name".format(index))
-                self.params["c{}Qflow_nom".format(index)] = con.rated_power
-                self.params["c{}Name".format(index)] = con.description
+            # self.register_param("rated_power", self.check_numeric(min_value=0), "c{}Qflow_nom".format(index))
+            # self.register_param("description", "c{}Name".format(index))
+            self.params["c{}Qflow_nom".format(index)] = con.rated_power
+            self.params["c{}Name".format(index)] = '"{}"'.format(con.description)
             self.params["c{}OpenEnd".format(index)] = False
-            self.params["c{}TControl".format(index)] = False
-            self.params["Tconsumer{}".format(index)] = (80, 60)  # TODO: Werte aus dem Modell
+            self.params["c{}TControl".format(index)] = False        # TODO: Werte aus dem Modell
+            self.params["Tconsumer{}".format(index)] = (80+273.15, 60+273.15)  # TODO: Werte aus dem Modell
             if index > 1:
                 self.params["isConsumer{}".format(index)] = True
+
+        if self.element.open_consumer_pairs:
+            for pair in self.element.open_consumer_pairs:
+                index += 1
+                self.params["c{}Qflow_nom".format(index)] = 0
+                self.params["c{}Name".format(index)] = '"Open End Consumer{}"'.format(index)
+                self.params["c{}OpenEnd".format(index)] = True
+                self.params["c{}TControl".format(index)] = False        # TODO: Werte aus dem Modell
+                self.params["Tconsumer{}".format(index)] = (80 + 273.15, 60 + 273.15)  # TODO: Werte aus dem Modell
+                if index > 1:
+                    self.params["isConsumer{}".format(index)] = True
+
+    def get_port_name(self, port):
+        try:
+            index = self.element.ports.index(port)
+        except ValueError:
+            # unknown port
+            index = -1
+        if index == 0:
+            return "port_a_consumer"
+        elif index == 1:
+            return "port_b_consumer"
+        elif (index % 2) == 0:
+            return "port_a_consumer{}".format(len(self.element.consumers)+index-1)
+        elif (index % 2) == 1:
+            return "port_b_consumer{}".format(len(self.element.consumers)+index-2)
+        else:
+            return super().get_port_name(port)
 
 

@@ -202,7 +202,7 @@ class Instance:
                 )
 
     def register_param(self, name: str, check, export_name: str=None):
-        """Parameter gests marked as requiered and will be checked.
+        """Parameter gets marked as requiered and will be checked.
 
         run Element.solve_request() after all parameters are registrated."""
         self.element.request(name)
