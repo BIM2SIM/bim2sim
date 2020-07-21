@@ -26,8 +26,12 @@ def get_disaggregations_instance(element, thermal_zone):
             try:
                 shape = ifcopenshell.geom.create_shape(settings, binding.ConnectionGeometry.SurfaceOnRelatingElement)
             except RuntimeError:
-                element.logger.warning("Found no geometric information for %s in %s" % (element.name, thermal_zone.name))
-                continue
+                try:
+                    shape = ifcopenshell.geom.create_shape(settings,
+                                                           binding.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface)
+                except RuntimeError:
+                    element.logger.warning("Found no geometric information for %s in %s" % (element.name, thermal_zone.name))
+                    continue
 
             if hasattr(binding.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
                 pos = binding.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
@@ -45,9 +49,12 @@ def get_disaggregations_instance(element, thermal_zone):
             y.sort()
             z.sort()
 
-            x = x[len(x) - 1] - x[0]
-            y = y[len(y) - 1] - y[0]
-            z = z[len(z) - 1] - z[0]
+            try:
+                x = x[len(x) - 1] - x[0]
+                y = y[len(y) - 1] - y[0]
+                z = z[len(z) - 1] - z[0]
+            except IndexError:
+                continue
 
             coordinates = [x, y, z]
 
@@ -64,11 +71,13 @@ def get_disaggregations_instance(element, thermal_zone):
     if len(disaggregations) == 0:
         return None
 
+    x = len(disaggregations)
+
     return disaggregations
 
 
 def orientation_verification(instance):
-    supported_classes = {'Window', 'OuterWall'}
+    supported_classes = {'Window', 'OuterWall', 'Door'}
     if instance.__class__.__name__ in supported_classes:
         if len(instance.thermal_zones) > 0:
             bo_spaces = {}

@@ -68,19 +68,12 @@ class Inspect(ITask):
         Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
 
-        check = []
-
         for ifc_type in workflow.relevant_ifc_types:
             try:
                 entities = ifc.by_type(ifc_type)
                 for entity in entities:
                     element = Element.factory(entity, ifc_type)
-                    # x = element.name
-                    # y = element.orientation
-                    # if hasattr(element, 'thickness'):
-                    #     z = element.thickness
                     self.instances[element.guid] = element
-                    # check.append([element, element.orientation])
             except RuntimeError:
                 pass
 
@@ -257,43 +250,6 @@ class ExportTEASER(ITask):
         if material or properties not given, loads material template"""
         material = Material(parent=layer)
         cls._teaser_property_getter(material, layer_instance, layer_instance.finder.templates)
-        # prj = bldg.parent
-        # error = cls._teaser_property_getter(material, layer_instance, layer_instance.finder.templates)
-        # if error is True:
-            # try:
-            #     material_name = cls.materials[layer_instance.material]
-            # except KeyError:
-            #     material_templates = dict(prj.data.material_bind)
-            #     del material_templates['version']
-            #     # just material names:
-            #     resumed = []
-            #     for k in material_templates:
-            #         resumed.append(material_templates[k]['name'])
-            #     # materials options after search:
-            #     material_options = get_matches_list(layer_instance.material, resumed)
-            #
-            #     while len(material_options) == 0:
-            #         decision_ = input(
-            #             "Material not found, enter value for the material:")
-            #         material_options = get_matches_list(decision_, resumed)
-            #
-            #     decision1 = None
-            #     if len(material_options) > 0:
-            #         decision1 = ListDecision("one or more attributes of the material %s for %s are not valid, "
-            #                                  "select one of the following templates to continue"
-            #                                  % (layer_instance.material, layer_instance.parent.name),
-            #                                  choices=list(material_options),
-            #                                  allow_skip=True, allow_load=True, allow_save=True,
-            #                                  collect=False, quick_decide=not True)
-            #         decision1.decide()
-            #
-            #     cls.materials[layer_instance.material] = decision1.value
-            #     material_name = decision1.value
-            #
-            # material.load_material_template(
-            #     mat_name=material_name,
-            #     data_class=prj.data,
-            # )
 
     @staticmethod
     def _get_instance_template(teaser_instance, bldg):

@@ -223,39 +223,51 @@ class IFCBased(Root):
         if value is not 'continue':
             return value
 
-        list_angles = []
+        list_angles = {}
         placementrel = self.ifc.ObjectPlacement
         while placementrel is not None:
             if placementrel.RelativePlacement.RefDirection is not None:
                 o2 = placementrel.RelativePlacement.RefDirection.DirectionRatios
-                list_angles.append((placementrel.PlacesObject[0].GlobalId, vector_angle(o2)))
+                list_angles[placementrel.PlacesObject[0].GlobalId] = vector_angle(o2)
             else:
-                list_angles.append((placementrel.PlacesObject[0].GlobalId, None))
+                list_angles[placementrel.PlacesObject[0].GlobalId] = None
             placementrel = placementrel.PlacementRelTo
 
         # relative vector + absolute vector
         if len(list_angles) == 1:
-            if list_angles[0][1] is None:
-                return 90
+            if list_angles[next(iter(list_angles))] is None:
+                return -90
                 # return 0
 
         ang_sum = 0
 
-        for guid, ang in list_angles:
+        self_class = type(self).__name__
+
+        if all(value is None for value in list_angles.values()) and self_class in ['Wall', 'OuterWall', 'InnerWall']:
+            return 0
+
+        for key in list_angles:
+            guid = key
+            ang = list_angles[key]
             relative_element = self.get_object(guid)
-            if relative_element is self:
-                if ang is not None:
-                    ang_sum += ang
-                continue
             if relative_element is None:
                 if ang is not None:
                     ang_sum += ang
                 continue
             else:
-                new_ang = relative_element.orientation
-                if new_ang is not None:
-                    ang_sum += new_ang
-                    break
+                if relative_element is self:
+                    if ang is not None:
+                        ang_sum += ang
+                    continue
+                else:
+                    relative_class = type(relative_element).__name__
+                    if self_class in ['Window', 'Door'] and relative_class in ['Wall', 'OuterWall', 'InnerWall']:
+                        return relative_element.orientation
+
+                    new_ang = relative_element.orientation
+                    if new_ang is not None:
+                        ang_sum += new_ang
+                        break
 
         if ang_sum is None:
             return None
@@ -265,32 +277,6 @@ class IFCBased(Root):
 
         # angle between 0 and 360
         return angle_equivalent(ang_sum)
-
-    # def calc_orientation(self):
-    #     if len(self.thermal_zones) > 0 and self.__class__.__name__ == 'OuterWall':
-    #         spaces = {}
-    #         boundaries1 = {}
-    #         boundaries2 = {}
-    #         for i in self.ifc.ProvidesBoundaries:
-    #             rel_vector_space = i.ConnectionGeometry.SurfaceOnRelatingElement.\
-    #                 BasisSurface.Position.Axis.DirectionRatios
-    #             rel_vector_space2 = i.ConnectionGeometry.SurfaceOnRelatingElement. \
-    #                 BasisSurface.Position.RefDirection.DirectionRatios
-    #             rel_angle_space = vector_angle(rel_vector_space)
-    #             rel_angle_space2 = vector_angle(rel_vector_space2)
-    #             boundaries1[i.RelatingSpace.Name] = rel_angle_space
-    #             boundaries2[i.RelatingSpace.Name] = rel_angle_space2
-    #         for i in self.thermal_zones:
-    #             spaces[i.name] = i.orientation
-    #         print()
-    #
-    #     try:
-    #         if not angle_sum == new_ang:
-    #             return new_ang + angle_sum
-    #     except UnboundLocalError:
-    #         pass
-    #
-    #     return angle_sum
 
     def get_ifc_attribute(self, attribute):
         """
