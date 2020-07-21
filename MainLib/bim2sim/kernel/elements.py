@@ -779,7 +779,6 @@ class InnerWall(Wall):
     special_argument = {'is_external': False}
 
 
-
 class Window(element.Element):
     ifc_type = "IfcWindow"
     # predefined_type = {
