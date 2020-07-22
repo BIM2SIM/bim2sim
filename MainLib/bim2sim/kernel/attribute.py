@@ -95,9 +95,9 @@ class Attribute:
         if value is None and self.functions:
             value = self.get_from_functions(bind, self.functions, self.name)
 
-        # enrichment
-        if value is None:
-            value = self.get_from_enrichment(bind, self.name)
+        # # enrichment
+        # if value is None:
+        #     value = self.get_from_enrichment(bind, self.name)
 
         # default value
         if value is None and self.default_value:
@@ -128,7 +128,11 @@ class Attribute:
             bind._tool = source_tool
             bind.get_project().OwnerHistory.OwningApplication.ApplicationFullName = source_tool
         try:
-            value = bind.get_exact_property(*self.default_ps)
+            default = source_tools[source_tool][type(bind).__name__]['default_ps'][name]
+        except KeyError:
+            return None
+        try:
+            value = bind.get_exact_property(default[0], default[1])
         except Exception:
             value = None
         return value

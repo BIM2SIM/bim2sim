@@ -737,7 +737,7 @@ class Layer(element.SubElement):
             else:
                 return user_property_input(bind, name)
 
-    heat_capacity = attribute.Attribute(
+    heat_capac = attribute.Attribute(
         default_ps=True,
         functions=[_get_material_properties],
         default=0
