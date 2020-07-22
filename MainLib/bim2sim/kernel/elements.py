@@ -266,7 +266,7 @@ class PipeFitting(element.Element):
     ifc_type = "IfcPipeFitting"
 
     conditions = [
-        condition.RangeCondition("diameter", 5.0*ureg.millimeter, 300.00*ureg.millimeter)   #ToDo: unit?!
+        condition.RangeCondition("diameter", 5.0*ureg.millimeter, 300.00*ureg.millimeter)
     ]
 
     diameter = attribute.Attribute(
@@ -305,33 +305,37 @@ class SpaceHeater(element.Element):
     def is_consumer(self):
         return True
 
-    nominal_power = attribute.Attribute(
-        description="Nominal power of SpaceHeater",
+    rated_power = attribute.Attribute(
+        description="Rated power of SpaceHeater",
         unit=ureg.kilowatt,
         default=42,
     )
 
 
-class ExpansionTank(element.Element):
-    ifc_type = "IfcExpansionTank"   #ToDo: Richtig?!
-    pattern_ifc_type = [
-        re.compile('Expansion.?Tank', flags=re.IGNORECASE),
-        re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
-    ]
+# class ExpansionTank(element.Element):
+#     ifc_type = "IfcTank"   #ToDo: IfcTank, IfcTankType=Expansion
+#     pattern_ifc_type = [
+#         re.compile('Expansion.?Tank', flags=re.IGNORECASE),
+#         re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
+#     ]
 
 
-class StorageDevice(element.Element):
-    ifc_type = "IfcStorageDevice"
-    pattern_ifc_type = [
-        re.compile('Storage.?device', flags=re.IGNORECASE)
-    ]
+# class StorageDevice(element.Element):
+#     """IFC4 CHANGE  This entity has been deprecated for instantiation and will become ABSTRACT in a future release;
+#     new subtypes should now be used instead."""
+#     ifc_type = "IfcStorageDevice"
+#     pattern_ifc_type = [
+#         re.compile('Storage.?device', flags=re.IGNORECASE)
+#     ]
 
 
 class Storage(element.Element):
-    ifc_type = "IfcTank"
+    ifc_type = "IfcTank"    #ToDo: IfcTank, IfcTankType=Storage
     pattern_ifc_type = [
         re.compile('Tank', flags=re.IGNORECASE),
         re.compile('Speicher', flags=re.IGNORECASE),
+        # re.compile('Expansion.?Tank', flags=re.IGNORECASE),
+        re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
     ]
 
     @property
@@ -489,7 +493,6 @@ class ThermalZone(element.Element):
     ]
 
     zone_name = attribute.Attribute(
-        name='zone_name',
         default_ps=True
     )
 
@@ -530,35 +533,24 @@ class ThermalZone(element.Element):
         return usage_decision.value
 
     usage = attribute.Attribute(
-        name='usage',
         functions=[_get_usage]
     )
 
     t_set_heat = attribute.Attribute(
-        name='t_set_heat',
         default_ps=True
     )
     t_set_cool = attribute.Attribute(
-        name='t_set_cool',
         default_ps=True
     )
-    # # todo remove default, when regular expression compare is implemented
-    # usage = attribute.Attribute(
-    #     name='usage',
-    #     default='Living'
-    # )
     area = attribute.Attribute(
-        name='area',
         default_ps=True,
         default=0
     )
     net_volume = attribute.Attribute(
-        name='net_volume',
         default_ps=True,
         default=0
     )
     height = attribute.Attribute(
-        name='height',
         default_ps=True,
         default=0
     )
@@ -627,24 +619,20 @@ class Wall(element.Element):
         return layers
 
     layers = attribute.Attribute(
-        name='layers',
         functions=[_get_layers]
     )
 
     area = attribute.Attribute(
-        name='area',
         default_ps=True,
         default=1
     )
 
     is_external = attribute.Attribute(
-        name='is_external',
         default_ps=True,
         default=False
     )
 
     tilt = attribute.Attribute(
-        name='thermal_transmittance',
         default_ps=True,
         default=0
     )
@@ -749,22 +737,19 @@ class Layer(element.SubElement):
             else:
                 return user_property_input(bind, name)
 
-    heat_capac = attribute.Attribute(
-        name='heat_capacity',
+    heat_capacity = attribute.Attribute(
         default_ps=True,
         functions=[_get_material_properties],
         default=0
     )
 
     density = attribute.Attribute(
-        name='density',
         functions=[_get_material_properties],
         default_ps=True,
         default=0
     )
 
     thermal_conduc = attribute.Attribute(
-        name='thermal_conductivity',
         functions=[_get_material_properties],
         default_ps=True,
         default=0
@@ -803,30 +788,25 @@ class Window(element.Element):
         return layers
 
     layers = attribute.Attribute(
-        name='layers',
         functions=[_get_layers]
     )
 
     is_external = attribute.Attribute(
-        name='is_external',
         default_ps=True,
         default=True
     )
 
     area = attribute.Attribute(
-        name='area',
         default_ps=True,
         default=0
     )
 
     thickness = attribute.Attribute(
-        name='thickness',
         default_ps=True,
         default=0
     )
 
     material = attribute.Attribute(
-        name='material',
         default_ps=True,
         default=0
     )
@@ -850,30 +830,25 @@ class Door(element.Element):
         return layers
 
     layers = attribute.Attribute(
-        name='layers',
         functions=[_get_layers]
     )
 
     is_external = attribute.Attribute(
-        name='is_external',
         default_ps=True,
         default=True
     )
 
     area = attribute.Attribute(
-        name='area',
         default_ps=True,
         default=0
     )
 
     thickness = attribute.Attribute(
-        name='thickness',
         default_ps=True,
         default=0
     )
 
     material = attribute.Attribute(
-        name='material',
         default_ps=True,
         default=0
     )
@@ -920,29 +895,24 @@ class Slab(element.Element):
         return layers
 
     layers = attribute.Attribute(
-        name='layers',
         functions=[_get_layers]
     )
     area = attribute.Attribute(
-        name='area',
         default_ps=True,
         default=0
     )
 
     thickness = attribute.Attribute(
-        name='thickness',
         default_ps=True,
         default=0
     )
 
     thermal_transmittance = attribute.Attribute(
-        name='thermal_transmittance',
         default_ps=True,
         default=0
     )
 
     is_external = attribute.Attribute(
-        name='thermal_transmittance',
         default_ps=True,
         default=0
     )
@@ -986,23 +956,18 @@ class Building(element.Element):
     ifc_type = "IfcBuilding"
 
     year_of_construction = attribute.Attribute(
-        name='year_of_construction',
         default_ps=True
     )
     gross_area = attribute.Attribute(
-        name='gross_area',
         default_ps=True
     )
     net_area = attribute.Attribute(
-        name='net_area',
         default_ps=True
     )
     number_of_storeys = attribute.Attribute(
-        name='number_of_storeys',
         default_ps=True
     )
     occupancy_type = attribute.Attribute(
-        name='occupancy_type',
         default_ps=True
     )
 
@@ -1011,20 +976,16 @@ class Storey(element.Element):
     ifc_type = 'IfcBuildingStorey'
 
     gross_floor_area = attribute.Attribute(
-        name='gross_floor_area',
         default_ps=True
     )
     #todo make the lookup for height hierarchical
     net_height = attribute.Attribute(
-        name='net_height',
         default_ps=True
     )
     gross_height = attribute.Attribute(
-        name='gross_height',
         default_ps=True
     )
     height = attribute.Attribute(
-        name='height',
         default_ps=True
     )
 

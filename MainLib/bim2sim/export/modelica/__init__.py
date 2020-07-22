@@ -84,7 +84,7 @@ class Model:
         if os.path.isdir(_path):
             _path = os.path.join(_path, self.name)
 
-        if not path.endswith(".mo"):
+        if not _path.endswith(".mo"):
             _path += ".mo"
 
         data = self.code()

@@ -133,11 +133,6 @@ class IFCBased(Root):
 
         self._decision_results = {}
 
-    @property
-    def ifc_type(self):
-        """Returns IFC type"""
-        return self.__class__.ifc_type
-
     def calc_position(self):
         """returns absolute position"""
         rel = np.array(self.ifc.ObjectPlacement.
@@ -307,8 +302,11 @@ class IFCBased(Root):
 
     @classmethod
     def filter_for_text_fracments(cls, ifc_element, optional_locations: list = None):
+        """Filter for text fracments in the ifc_element to identify the ifc_element."""
         results = []
-        hits = [p.match(ifc_element.Name) for p in cls.pattern_ifc_type if p.match(ifc_element.Name)]
+        hits = [p.search(ifc_element.Name) for p in cls.pattern_ifc_type]
+        hits.extend([p.search(ifc_element.Description) for p in cls.pattern_ifc_type])
+        hits = [x for x in hits if x is not None]
         if any(hits):
             logger = logging.getLogger('IFCModelCreation')
             logger.info("Identified %s through text fracments in name. Criteria: %s", cls.ifc_type, hits)
@@ -316,8 +314,9 @@ class IFCBased(Root):
             # return hits[0][0]
         if optional_locations:
             for loc in optional_locations:
-                hits = [p.match(ifc2python.get_Property_Set(loc, ifc_element)) for p in cls.pattern_ifc_type if
-                        ifc2python.get_Property_Set(loc, ifc_element)]
+                hits = [p.search(ifc2python.get_Property_Set(loc, ifc_element)) for p in cls.pattern_ifc_type
+                        if ifc2python.get_Property_Set(loc, ifc_element)]
+                hits = [x for x in hits if x is not None]
                 if any(hits):
                     logger = logging.getLogger('IFCModelCreation')
                     logger.info("Identified %s through text fracments in %s. Criteria: %s", cls.ifc_type, loc, hits)

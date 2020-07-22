@@ -29,8 +29,8 @@ class TEASERManager(BIM2SIMManager):
         self.playground.run_task(bps.Inspect())
         pass
 
-        self.playground.run_task(bps.ExportTEASER())
-        print()
+        # self.playground.run_task(bps.ExportTEASER())
+        # print()
         #self.playground.run_task(bps.ExportTEASERMultizone())
 
         # export = bps.ExportTEASERMultizone()

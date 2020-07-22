@@ -14,8 +14,8 @@ def get_disaggregations_instance(element, thermal_zone):
     vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
     horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
 
-    # elements that doesnt apply for a disaggregation
-    if element.__class__.__name__ not in vertical_instances and element.__class__.__name__ not in horizontal_instances:
+    # elements who doesnt apply for a disaggregation
+    if type(element).__name__ not in vertical_instances+horizontal_instances:
         return None
 
     disaggregations = {}
@@ -27,6 +27,7 @@ def get_disaggregations_instance(element, thermal_zone):
         x, y, z = [], [], []
         # find just the disaggregation that corresponds the space
         if binding.RelatingSpace == thermal_zone.ifc:
+            # gets geometrical intersection area between space and element
             try:
                 shape = ifcopenshell.geom.create_shape(settings, binding.ConnectionGeometry.SurfaceOnRelatingElement)
             except RuntimeError:
@@ -67,7 +68,7 @@ def get_disaggregations_instance(element, thermal_zone):
                 for a in coordinates:
                     if a <= 0:
                         del coordinates[coordinates.index(a)]
-            elif element.__class__.__name__ in horizontal_instances:
+            elif type(element).__name__ in horizontal_instances:
                 del coordinates[2]
 
             # returns disaggregation, area and relative position

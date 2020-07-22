@@ -38,7 +38,7 @@ class StaticPipe(StandardLibrary):
 
 class ClosedVolume(StandardLibrary):
     path = "Modelica.Fluid.Vessels.ClosedVolume"
-    represents = [elements.Storage, elements.StorageDevice]
+    represents = [elements.Storage]
 
     def __init__(self, element):
         self.check_volume = self.check_numeric(min_value=0)
