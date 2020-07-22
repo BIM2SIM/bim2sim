@@ -2,8 +2,10 @@ import logging
 from contextlib import contextmanager
 
 import pint
+import re
 
 from bim2sim.decision import RealDecision, BoolDecision, ListDecision
+from bim2sim.task.bps_f.bps_functions import get_matches_list
 
 from bim2sim.kernel.units import ureg
 
@@ -117,13 +119,15 @@ class Attribute:
         if bind.source_tool in source_tools:
             source_tool = bind.source_tool
         else:
-            # ToDo: use re
-            if bind.source_tool.startswith('Autodesk'):
-                source_tool = 'Autodesk Revit 2019 (DEU)'
-            elif bind.source_tool.startswith('ARCHICAD'):
-                source_tool = 'ARCHICAD-64'
-            else:
-                return None
+            possible_source_tools = get_matches_list(bind.source_tool, source_tools.keys(), False)
+            decision_source_tool = ListDecision("Multiple templates found for source tool %s" % bind.source_tool,
+                                                choices=list(possible_source_tools),
+                                                allow_skip=True, allow_load=True, allow_save=True,
+                                                collect=False, quick_decide=not True)
+            decision_source_tool.decide()
+            source_tool = decision_source_tool.value
+            bind._tool = source_tool
+            bind.get_project().OwnerHistory.OwningApplication.ApplicationFullName = source_tool
         try:
             default = source_tools[source_tool][bind.__class__.__name__]['default_ps'][name]
         except KeyError:
