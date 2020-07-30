@@ -571,6 +571,10 @@ class SpaceBoundary(element.SubElement):
         else:
             self.physical = False
 
+        # self.position = element.IFCBased.calc_position(self)
+        self.position = element.IFCBased.get_hierarchical_children(self)
+        # print(self.position)
+
 
 class Medium(element.Element):
     ifc_type = "IfcDistributionSystems"
