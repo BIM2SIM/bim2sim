@@ -96,6 +96,10 @@ class Inspect(ITask):
         return instances_filtered
 
 
+class ExportIDF(ITask):
+    """Exports an EnergyPlus input file (IDF) by using the information from IFC"""
+
+
 # class ExportTEASER(ITask):
 #     """Exports a Modelica model with TEASER by using the found information
 #     from IFC"""
