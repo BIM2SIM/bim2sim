@@ -23,8 +23,12 @@ class Disaggregation(BaseSubElement):
         self.guid = None
         # properties getter
         for prop in self.parent.attributes:
-            value = getattr(self.parent, prop)
-            setattr(self, prop, value)
+            status = self.parent.attributes[prop][1]
+            if status == 'AVAILABLE':
+                value = getattr(self.parent, prop)
+                setattr(self, prop, value)
+            else:
+                continue
         switcher = {'SubFloor': SubFloor,
                     'SubGroundFloor': SubGroundFloor,
                     'SubSlab': SubSlab,

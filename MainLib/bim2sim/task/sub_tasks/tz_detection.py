@@ -56,7 +56,7 @@ class Inspect(Task):
         bound_instances = []
         for binding in thermalzone.ifc.BoundedBy:
             bound_element = binding.RelatedBuildingElement
-            if bound_element is not None:
+            if bound_element is not None and binding.PhysicalOrVirtualBoundary is not 'VIRTUAL':
                 bound_element_type = getElementType(bound_element)
             else:
                 continue
