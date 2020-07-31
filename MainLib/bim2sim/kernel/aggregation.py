@@ -154,7 +154,7 @@ class Aggregation(BaseElement):
 
 class PipeStrand(Aggregation):
     """Aggregates pipe strands"""
-    aggregatable_elements = ['IfcPipeSegment', 'IfcPipeFitting']
+    aggregatable_elements = ['IfcPipeSegment', 'IfcPipeFitting', 'IfcValve']
     multi = ('length', 'diameter')
 
     def __init__(self, name, element_graph, *args, **kwargs):
