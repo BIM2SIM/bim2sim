@@ -67,12 +67,16 @@ class ConsumerHeatingDistributorModule(HKESim):
     path = "SystemModules.HeatingSystemModules.ConsumerHeatingDistributorModule"
     represents = [ConsumerHeatingDistributorModule]
 
+    def __init__(self, element):
+        self.check_temp_tupel = True #TODO: Checking System
+        super().__init__(element)
 
     def get_params(self):
-        self.params["Tconsumer"] = (80+273.15, 60+273.15)  # TODO: Werte aus dem Modell
+        # self.register_param("Tconsumer", self.check_temp_tupel, "Tconsumer")
+        self.params["Tconsumer"] = (self.element.temperature_inlet, self.element.temperature_outlet)
         self.params["Medium_heating"] = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.params["useHydraulicSeparator"] = True  # TODO: Werte aus dem Modell
-        self.params["V"] = 5  # TODO: Werte aus dem Modell
+        self.register_param("useHydraulicSeparator", self.check_temp_tupel, "useHydraulicSeparator")
+        self.register_param("hydraulicSeparatorVolume", self.check_temp_tupel, "V")
 
         index = 0
 
@@ -83,8 +87,8 @@ class ConsumerHeatingDistributorModule(HKESim):
             self.params["c{}Qflow_nom".format(index)] = con.rated_power
             self.params["c{}Name".format(index)] = '"{}"'.format(con.description)
             self.params["c{}OpenEnd".format(index)] = False
-            self.params["c{}TControl".format(index)] = False        # TODO: Werte aus dem Modell
-            self.params["Tconsumer{}".format(index)] = (80+273.15, 60+273.15)  # TODO: Werte aus dem Modell
+            self.params["c{}TControl".format(index)] = con.t_controll
+            self.params["Tconsumer{}".format(index)] = (con.temperature_inlet, con.temperature_outlet)
             if index > 1:
                 self.params["isConsumer{}".format(index)] = True
 

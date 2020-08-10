@@ -1152,31 +1152,38 @@ class Consumer(Aggregation):
 
     @attribute.multi_calc
     def _calc_avg_consumer(self):
-        has_pump = False
         total_rated_consumer_power = 0
         con_types = {}
         for ele in self.elements:
-            if elements.Pump is ele.__class__:
-                has_pump = True
-            elif ele.__class__ in Consumer.whitelist:
+            if ele.__class__ in Consumer.whitelist:
                 # Dict for description consumer
                 con_types[ele.__class__] = con_types.get(ele.__class__, 0) + 1
             elif ele.__class__ is elements.SpaceHeater:
                 rated_consumer_power = getattr(ele, "rated_power")
                 total_rated_consumer_power += rated_consumer_power
 
-        # Aus Medium ziehen
+        # ToDO: Aus Medium ziehen
         temperaure_inlet = None
         temperature_outlet = None
 
         result = dict(
-            has_pump=has_pump,
             rated_power=total_rated_consumer_power,
             temperature_inlet=temperaure_inlet,
             temperature_outlet=temperature_outlet,
             description=', '.join(['{1} x {0}'.format(k.__name__, v) for k, v in con_types.items()])
         )
         return result
+
+    def _calc_TControl(self):
+        return True  # ToDo: Look at Boiler Aggregation - David
+
+    def _calc_has_pump(self):
+        has_pump = False
+        for ele in self.elements:
+            if elements.Pump is ele.__class__:
+                has_pump = True
+                break;
+        return has_pump
 
     def get_replacement_mapping(self):
         """Returns dict with original ports as values and their aggregated replacement as keys."""
@@ -1193,8 +1200,8 @@ class Consumer(Aggregation):
     )
 
     has_pump = attribute.Attribute(
-        description="Circle has a pumpsystem",
-        functions=[_calc_avg_consumer]
+        description="Cycle has a pumpsystem",
+        functions=[_calc_has_pump]
     )
 
     rated_pump_power = attribute.Attribute(
@@ -1232,9 +1239,17 @@ class Consumer(Aggregation):
         functions=[_calc_avg_consumer]
     )
 
+    t_controll = attribute.Attribute(
+        description="Bool for temperature controll cycle.",
+        functions=[_calc_TControl]
+    )
+
 
 class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation HKESim
     """Aggregates Consumer system boarder"""
+    multi = ('medium', 'useHydraulicSeperator', 'hydraulicSeperatorVolume', 'temperature_inlet', 'temperature_outlet')
+    # ToDo: Abused to not just sum attributes from elements
+
     aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting', 'ParallelSpaceHeater']
     whitelist = [elements.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating,
                  Consumer]
@@ -1369,23 +1384,35 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
 
         result = dict(
             medium=None,
-            Tconsumer=None,
-            useHydraulicSeperator=False,
-            description='Destributor with X Consumer Cycles'
+            temperature_inlet=None,
+            temperature_outlet=None,
+            useHydraulicSeperator=None,
+            hydraulicSeperatorVolume=None,
+            # description='Destributor with X Consumer Cycles'
         )
         return result
 
     medium = attribute.Attribute(
-        description="Medium of the DestributerCicle",
+        description="Medium of the DestributerCycle",
         functions=[_calc_avg]
     )
 
-    Tconsumer = attribute.Attribute(
-        description="temperature niveau of the destribution cycle",
+    temperature_inlet = attribute.Attribute(
+        description="temperature inlet",
+        functions=[_calc_avg]
+    )
+
+    temperature_outlet = attribute.Attribute(
+        description="temperature outlet",
         functions=[_calc_avg]
     )
 
     useHydraulicSeperator = attribute.Attribute(
         description="boolean if there is a hdydraulic seperator",
+        functions=[_calc_avg]
+    )
+
+    hydraulicSeperatorVolume = attribute.Attribute(
+        description="Volume of the hdydraulic seperator",
         functions=[_calc_avg]
     )
