@@ -32,10 +32,10 @@ build_env:
   script:
     - docker build -t $CI_REGISTRY/environment:latest -f Environment/Dockerfile .
     - docker push $CI_REGISTRY/environment:latest
- # only:
-  #  changes:
-      # - Environment/Dockerfile
-      # - MainLib/requirements.txt
+  only:
+    changes:
+       - Environment/Dockerfile
+       - MainLib/requirements.txt
 
 build_tool:release:
   image: docker:latest
