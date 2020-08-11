@@ -18,8 +18,7 @@ build_env:
     - df
     - cat /etc/resolv.conf
     - cat /etc/hosts
-    # - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY
-    - docker login -u gitlab+deploy-token-91 -p meivSREueA2ZoVvUrtoj registry.git-ce.rwth-aachen.de/ebc0438_bmwi_bim2sim_ges/bim2sim-coding/
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
     - docker build -t $CI_REGISTRY/environment:latest -f Environment/Dockerfile .
     - docker push $CI_REGISTRY/environment:latest
@@ -32,7 +31,7 @@ build_tool:release:
   image: docker:latest
   stage: build
   before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
     - docker build -t $CI_REGISTRY/tool:latest .
     - docker push $CI_REGISTRY/tool:latest
@@ -43,7 +42,7 @@ build_tool:webdevelop:
   image: docker:latest
   stage: build
   before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
     - docker build -t $CI_REGISTRY/tool:web_develop .
     - docker push $CI_REGISTRY/tool:web_develop
