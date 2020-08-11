@@ -46,6 +46,34 @@ class Inspect(Task):
             self.instances[thermal_zone.guid] = thermal_zone
             self.bind_elements_to_zone(thermal_zone)
 
+            thermal_zone._get_is_external()
+            thermal_zone._get_true_orientation()
+
+        groups = self.group_attribute(self.instances.values(), 'is_external')
+        new_groups = {}
+        for group in groups:
+            if len(groups[group]) > 1:
+                groups[group] = self.group_attribute(groups[group], 'usage')
+                for s_group in groups[group]:
+                    if len(groups[group][s_group]) > 1:
+                        groups[group][s_group] = self.group_attribute(groups[group][s_group], 'true_orientation')
+                    else:
+                        groups[group][s_group] = None
+            else:
+                groups[group] = None
+        print()
+
+    @staticmethod
+    def group_attribute(thermal_zones, attribute):
+        groups = {}
+        for ele in thermal_zones:
+            value = getattr(ele, attribute)
+            if value not in groups:
+                groups[value] = []
+            groups[value].append(ele)
+        return groups
+
+
     def recognize_zone_geometrical(self):
         """Recognizes zones/spaces by geometric detection"""
         raise NotImplementedError
@@ -83,7 +111,7 @@ class Inspect(Task):
         entities = ifc.by_type(ifc_type)
         for entity in entities:
             space_boundary = SubElement.factory(entity, ifc_type)
-            self.instances[space_boundary.guid] = space_boundary
+            # self.instances[space_boundary.guid] = space_boundary
             self.bind_space_to_space_boundaries(space_boundary)
 
 

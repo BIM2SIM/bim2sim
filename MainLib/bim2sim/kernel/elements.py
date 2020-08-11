@@ -532,6 +532,24 @@ class ThermalZone(element.Element):
         usage_decision.decide()
         return usage_decision.value
 
+    def _get_is_external(self):
+        for ele in self.bound_elements:
+            if hasattr(ele, 'is_external'):
+                if ele.is_external is True:
+                    self.is_external = True
+                    break
+
+    def _get_true_orientation(self):
+        orientations = []
+        for ele in self.bound_elements:
+            if hasattr(ele, 'is_external') and hasattr(ele, 'orientation'):
+                if ele.is_external is True and ele.orientation not in [-1, -2]:
+                    orientations.append(ele.orientation)
+        if len(list(set(orientations))) == 1:
+            self.true_orientation = list(set(orientations))[0]
+
+        print()
+
     usage = attribute.Attribute(
         functions=[_get_usage]
     )
@@ -558,6 +576,8 @@ class ThermalZone(element.Element):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bound_elements = []
+        self.is_external = False
+        self.true_orientation = None
 
     def get__elements_by_type(self, type):
         raise NotImplementedError
@@ -835,7 +855,7 @@ class Door(element.Element):
 
     is_external = attribute.Attribute(
         default_ps=True,
-        default=True
+        default=False
     )
 
     area = attribute.Attribute(
