@@ -2,8 +2,10 @@ import logging
 from contextlib import contextmanager
 
 import pint
+import re
 
 from bim2sim.decision import RealDecision, BoolDecision, ListDecision
+from bim2sim.task.bps_f.bps_functions import get_matches_list
 
 from bim2sim.kernel.units import ureg
 
@@ -58,14 +60,12 @@ class Attribute:
         self.functions = functions
         self.default_value = default
 
-
         if ifc_postprocessing:
             self.ifc_post_processing = ifc_postprocessing
 
         # TODO argument for validation function
 
     def _get_value(self, bind):
-
         value = None
         # default property set
         if value is None and self.default_ps:
@@ -95,9 +95,9 @@ class Attribute:
         if value is None and self.functions:
             value = self.get_from_functions(bind, self.functions, self.name)
 
-        # enrichment
-        if value is None:
-            value = self.get_from_enrichment(bind, self.name)
+        # # enrichment
+        # if value is None:
+        #     value = self.get_from_enrichment(bind, self.name)
 
         # default value
         if value is None and self.default_value:
@@ -106,7 +106,7 @@ class Attribute:
                 value = value * self.unit
 
         # check unit
-        if value is not None and not isinstance(value, pint.Quantity) and self.unit is not None:
+        if self.unit is not None and value is not None and not isinstance(value, pint.Quantity):
             logger.warning("Unit not set!")
             value = value * self.unit
 
@@ -118,14 +118,17 @@ class Attribute:
         if bind.source_tool in source_tools:
             source_tool = bind.source_tool
         else:
-            if bind.source_tool.startswith('Autodesk'):
-                source_tool = 'Autodesk Revit 2019 (DEU)'
-            elif bind.source_tool.startswith('ARCHICAD'):
-                source_tool = 'ARCHICAD-64'
-            else:
-                return None
+            possible_source_tools = get_matches_list(bind.source_tool, source_tools.keys(), False)
+            decision_source_tool = ListDecision("Multiple templates found for source tool %s" % bind.source_tool,
+                                                choices=list(possible_source_tools),
+                                                allow_skip=True, allow_load=True, allow_save=True,
+                                                collect=False, quick_decide=not True)
+            decision_source_tool.decide()
+            source_tool = decision_source_tool.value
+            bind._tool = source_tool
+            bind.get_project().OwnerHistory.OwningApplication.ApplicationFullName = source_tool
         try:
-            default = source_tools[source_tool][bind.__class__.__name__]['default_ps'][name]
+            default = source_tools[source_tool][type(bind).__name__]['default_ps'][name]
         except KeyError:
             return None
         try:
@@ -148,7 +151,7 @@ class Attribute:
         if finder:  # Aggregations have no finder
             try:
                 return bind.finder.find(bind, name)
-            except AttributeError:
+            except (AttributeError, TypeError):
                 pass
         return None
 
@@ -174,31 +177,24 @@ class Attribute:
     @staticmethod
     def get_from_enrichment(bind, name):
         value = None
-        if bool(bind.enrichment):
+        if hasattr(bind, 'enrichment') and bind.enrichment:
             attrs_enrich = bind.enrichment["enrichment_data"]
-            try:
-                bind.enrichment["enrich_decision"]
-            except KeyError:
+            if "enrich_decision" not in bind.enrichment:
                 # check if want to enrich instance
-                first_decision = BoolDecision(
+                enrichment_decision = BoolDecision(
                     question="Do you want for %s_%s to be enriched" % (bind.ifc_type, bind.guid),
                     collect=False)
-                first_decision.decide()
-                first_decision.stored_decisions.clear()
-                bind.enrichment["enrich_decision"] = first_decision.value
+                enrichment_decision.decide()
+                enrichment_decision.stored_decisions.clear()
+                bind.enrichment["enrich_decision"] = enrichment_decision.value
 
             if bind.enrichment["enrich_decision"]:
                 # enrichment via incomplete data (has enrich parameter value)
-                try:
+                if name in attrs_enrich:
                     value = attrs_enrich[name]
-                except KeyError:
-                    pass
-                else:
                     if value is not None:
                         return value
-                try:
-                    bind.enrichment["selected_enrichment_data"]
-                except KeyError:
+                if "selected_enrichment_data" not in bind.enrichment:
                     options_enrich_parameter = list(attrs_enrich.keys())
                     decision1 = ListDecision("Multiple possibilities found",
                                              choices=options_enrich_parameter,
@@ -334,7 +330,14 @@ class Attribute:
         return value
 
     def __set__(self, bind, value):
-        self._inner_set(bind, value, self.STATUS_AVAILABLE)
+        if self.unit:
+            if isinstance(value, ureg.Quantity):
+                _value = value.to(self.unit)
+            else:
+                _value = value * self.unit
+        else:
+            _value = value
+        self._inner_set(bind, _value, self.STATUS_AVAILABLE)
 
     def __str__(self):
         return "Attribute %s" % self.name

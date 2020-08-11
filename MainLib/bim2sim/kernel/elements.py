@@ -12,6 +12,9 @@ from bim2sim.kernel.units import ureg
 from bim2sim.decision import ListDecision, RealDecision
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.enrichment_data.data_class import DataClass
+from teaser.logic.buildingobjects.useconditions import UseConditions
+from bim2sim.task.bps_f.bps_functions import get_matches_list
+
 
 def diameter_post_processing(value):
     if isinstance(value, list):
@@ -263,7 +266,7 @@ class PipeFitting(element.Element):
     ifc_type = "IfcPipeFitting"
 
     conditions = [
-        condition.RangeCondition("diameter", 5.0*ureg.millimeter, 300.00*ureg.millimeter)   #ToDo: unit?!
+        condition.RangeCondition("diameter", 5.0*ureg.millimeter, 300.00*ureg.millimeter)
     ]
 
     diameter = attribute.Attribute(
@@ -302,33 +305,37 @@ class SpaceHeater(element.Element):
     def is_consumer(self):
         return True
 
-    nominal_power = attribute.Attribute(
-        description="Nominal power of SpaceHeater",
+    rated_power = attribute.Attribute(
+        description="Rated power of SpaceHeater",
         unit=ureg.kilowatt,
         default=42,
     )
 
 
-class ExpansionTank(element.Element):
-    ifc_type = "IfcExpansionTank"   #ToDo: Richtig?!
-    pattern_ifc_type = [
-        re.compile('Expansion.?Tank', flags=re.IGNORECASE),
-        re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
-    ]
+# class ExpansionTank(element.Element):
+#     ifc_type = "IfcTank"   #ToDo: IfcTank, IfcTankType=Expansion
+#     pattern_ifc_type = [
+#         re.compile('Expansion.?Tank', flags=re.IGNORECASE),
+#         re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
+#     ]
 
 
-class StorageDevice(element.Element):
-    ifc_type = "IfcStorageDevice"
-    pattern_ifc_type = [
-        re.compile('Storage.?device', flags=re.IGNORECASE)
-    ]
+# class StorageDevice(element.Element):
+#     """IFC4 CHANGE  This entity has been deprecated for instantiation and will become ABSTRACT in a future release;
+#     new subtypes should now be used instead."""
+#     ifc_type = "IfcStorageDevice"
+#     pattern_ifc_type = [
+#         re.compile('Storage.?device', flags=re.IGNORECASE)
+#     ]
 
 
 class Storage(element.Element):
-    ifc_type = "IfcTank"
+    ifc_type = "IfcTank"    #ToDo: IfcTank, IfcTankType=Storage
     pattern_ifc_type = [
         re.compile('Tank', flags=re.IGNORECASE),
         re.compile('Speicher', flags=re.IGNORECASE),
+        # re.compile('Expansion.?Tank', flags=re.IGNORECASE),
+        re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
     ]
 
     @property
@@ -486,11 +493,32 @@ class ThermalZone(element.Element):
     ]
 
     zone_name = attribute.Attribute(
-        name='zone_name',
-        default_ps=('ArchiCADProperties', 'Raumname')
+        default_ps=True
     )
 
     def _get_usage(bind, name):
+        pattern_usage = {
+            "Living": [
+                re.compile('Living', flags=re.IGNORECASE),
+                re.compile('Wohnen', flags=re.IGNORECASE)
+            ],
+            "Traffic area": [
+                re.compile('Traffic', flags=re.IGNORECASE),
+                re.compile('Flur', flags=re.IGNORECASE)
+            ],
+            "Bed room": [
+                re.compile('Bed', flags=re.IGNORECASE),
+                re.compile('Schlafzimmer', flags=re.IGNORECASE)
+            ],
+            "Kitchen - preparations, storage": [
+                re.compile('Küche', flags=re.IGNORECASE),
+                re.compile('Kitchen', flags=re.IGNORECASE)
+            ]
+        }
+        for usage, pattern in pattern_usage.items():
+            for i in pattern:
+                if i.match(bind.zone_name):
+                    return usage
         usage_decision = ListDecision("Which usage does the Space %s have?" %
                                       (str(bind.zone_name)),
                                       choices=["Living",
@@ -504,44 +532,28 @@ class ThermalZone(element.Element):
         usage_decision.decide()
         return usage_decision.value
 
-
-
     usage = attribute.Attribute(
-        name='usage',
         functions=[_get_usage]
     )
 
     t_set_heat = attribute.Attribute(
-        name='t_set_heat',
-        default_ps=('Pset_SpaceThermalRequirements', 'SpaceTemperatureMin')
+        default_ps=True
     )
     t_set_cool = attribute.Attribute(
-        name='t_set_cool',
-        default_ps=('Pset_SpaceThermalRequirements', 'SpaceTemperatureMax')
+        default_ps=True
     )
-    # # todo remove default, when regular expression compare is implemented
-    # usage = attribute.Attribute(
-    #     name='usage',
-    #     default='Living'
-    # )
     area = attribute.Attribute(
-        name='area',
-        default_ps=('BaseQuantities', 'NetFloorArea'), #fkz haus
-        # default_ps=('Qto_SpaceBaseQuantities', 'NetFloorArea'), #vereinhaus
+        default_ps=True,
         default=0
     )
     net_volume = attribute.Attribute(
-        name='net_volume',
-        default_ps=('BaseQuantities', 'NetVolume'), #fkz haus
-        # default_ps=('Qto_SpaceBaseQuantities', 'NetFloorArea'), #vereinhaus
+        default_ps=True,
         default=0
     )
     height = attribute.Attribute(
-        name='height',
-        default_ps=('BaseQuantities', 'Height'),
+        default_ps=True,
         default=0
     )
-
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -593,193 +605,167 @@ class Wall(element.Element):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.is_external:
-            self.__class__ = OuterWall
-            self.__init__()
-        elif not self.is_external:
-            self.__class__ = InnerWall
-            self.__init__()
+        self.ifc_type = self.ifc.is_a()
+        # if self.is_external:
+        #     self.__class__ = OuterWall
+        #     self.__init__()
+        # elif not self.is_external:
+        #     self.__class__ = InnerWall
+        #     self.__init__()
 
     def _get_layers(bind, name):
         layers = []
         material_layers_dict = get_layers_ifc(bind)
-        for layer, values in material_layers_dict.items():
-            layers.append(Layer(bind, values[0], values[1]))
+        for layer in material_layers_dict:
+            new_layer = element.SubElement.factory(layer, 'IfcMaterialLayer')
+            new_layer.parent = bind
+            layers.append(new_layer)
         return layers
 
     layers = attribute.Attribute(
-        name='layers',
         functions=[_get_layers]
     )
 
-    def _get_wall_properties(bind, name):
-        material = bind.material
-        material_ref = ''.join([i for i in material if not i.isdigit()])
-        is_external = bind.is_external
-        external = 'external'
-        if not is_external:
-            external = 'internal'
-
-        try:
-            bind.material_selected[material]['properties']
-        except KeyError:
-            first_decision = BoolDecision(
-                question="Do you want for %s_%s_%s to use template" % (str(bind), bind.guid, external),
-                collect=False)
-            first_decision.decide()
-            first_decision.stored_decisions.clear()
-            if first_decision.value:
-
-                Materials_DEU = bind.finder.templates[bind.source_tool][bind.__class__.__name__]['material']
-                material_templates = dict(DataClass(used_param=2).element_bind)
-                del material_templates['version']
-
-                if material_ref not in str(Materials_DEU.keys()):
-                    decision_ = input("Material not found, enter value for the material %s_%s_%s" % (str(bind), bind.guid, external))
-                    material_ref = decision_
-
-                for k in Materials_DEU:
-                    if material_ref in k:
-                        material_ref = Materials_DEU[k]
-
-                options = {}
-                for k in material_templates:
-                    if material_ref in material_templates[k]['name']:
-                        options[k] = material_templates[k]
-                materials_options = [[material_templates[k]['name'], k] for k in options]
-                if len(materials_options) > 0:
-                    decision1 = ListDecision("Multiple possibilities found",
-                                             choices=list(materials_options),
-                                             allow_skip=True, allow_load=True, allow_save=True,
-                                             collect=False, quick_decide=not True)
-                    decision1.decide()
-                    bind.material_selected[material] = {}
-                    bind.material_selected[material]['properties'] = material_templates[decision1.value[1]]
-                    bind.material_selected[material_templates[decision1.value[1]]['name']] = {}
-                    bind.material_selected[material_templates[decision1.value[1]]['name']]['properties'] = material_templates[decision1.value[1]]
-                else:
-                    print("No possibilities found")
-                    bind.material_selected[material] = {}
-                    bind.material_selected[material]['properties'] = {}
-            else:
-                bind.material_selected[material] = {}
-                bind.material_selected[material]['properties'] = {}
-
-        property_template = bind.finder.templates[bind.source_tool]['MaterialTemplates']
-        name_template = name
-        if name in property_template:
-            name_template = property_template[name]
-
-        try:
-            value = bind.material_selected[material]['properties'][name_template]
-        except KeyError:
-            decision2 = RealDecision("Enter value for the parameter %s" % name,
-                                     validate_func=lambda x: isinstance(x, float),  # TODO
-                                     global_key="%s" % name,
-                                     allow_skip=False, allow_load=True, allow_save=True,
-                                     collect=False, quick_decide=False)
-            decision2.decide()
-            value = decision2.value
-        try:
-            bind.material = bind.material_selected[material]['properties']['name']
-        except KeyError:
-            bind.material = material
-        return value
-
     area = attribute.Attribute(
-        name='area',
-        default_ps=('BaseQuantities', 'NetSideArea'),
+        default_ps=True,
         default=1
     )
 
     is_external = attribute.Attribute(
-        name='is_external',
-        default_ps=('Pset_WallCommon', 'IsExternal'),
+        default_ps=True,
         default=False
     )
 
-    thermal_transmittance = attribute.Attribute(
-        name='thermal_transmittance',
-        default_ps=('Pset_WallCommon', 'ThermalTransmittance'),
-        default=0
-    )
-
-    material = attribute.Attribute(
-        name='material',
-        # todo just for testing, this is file specific
-        default_ps=('ArchiCADProperties', 'Baustoff/Mehrschicht/Profil'),
-        default=0
-    )
-
-    thickness = attribute.Attribute(
-        name='thickness',
-        default_ps=('BaseQuantities', 'Width'),
-        # functions=[_get_wall_properties],
-        default=0
-    )
-
-    heat_capacity = attribute.Attribute(
-        name='heat_capacity',
-        # functions=[_get_wall_properties],
-        default=0
-    )
-
-    density = attribute.Attribute(
-        name='density',
-        # functions=[_get_wall_properties],
-        default=0
-    )
-
     tilt = attribute.Attribute(
-        name='thermal_transmittance',
-        #todo just for testing, this is file specific
-        default_ps=('ArchiCADProperties', 'Äußerer Neigungswinkel'),
+        default_ps=True,
         default=0
     )
 
+    # thermal_transmittance = attribute.Attribute(
+    #     name='thermal_transmittance',
+    #     default_ps=True,
+    #     default=0
+    # )
+    #
+    # thickness = attribute.Attribute(
+    #     name='thickness',
+    #     # default_ps=True,
+    #     functions=[_get_wall_properties],
+    #     # default=0
+    # )
+    #
+    # heat_capacity = attribute.Attribute(
+    #     name='heat_capacity',
+    #     # functions=[_get_wall_properties],
+    #     default=0
+    # )
+    #
+    # density = attribute.Attribute(
+    #     name='density',
+    #     # functions=[_get_wall_properties],
+    #     default=0
+    # )
 
-class Layer(element.BaseElementNoPorts):
-    ifc_type = None
+
+class Layer(element.SubElement):
+    ifc_type = ['IfcMaterialLayer', 'IfcMaterial']
     material_selected = {}
 
-    def __init__(self, parent, thickness, material_name, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.material = material_name
-        self.parent = parent
-        self.thickness = thickness
+        if hasattr(self.ifc, 'Material'):
+            material = self.ifc.Material
+        else:
+            material = self.ifc
+        self.material = material.Name
+        # ToDO: what if doesn't have thickness
+        self.thickness = None
+        if hasattr(self.ifc, 'LayerThickness'):
+            self.thickness = self.ifc.LayerThickness
 
     def __repr__(self):
         return "<%s (material: %s>" \
                % (self.__class__.__name__, self.material)
 
-    # material = attribute.Attribute(
-    #     name='material',
-    #     # todo just for testing, this is file specific
-    #     default_ps=('ArchiCADProperties', 'Baustoff/Mehrschicht/Profil'),
-    #     default=0
-    # )
+    def _get_material_properties(bind, name):
+        def user_property_input(bind, name):
+            decision2 = RealDecision("Enter value for the parameter %s" % name,
+                                     global_key="%s" % name,
+                                     allow_skip=False, allow_load=True, allow_save=True,
+                                     collect=False, quick_decide=False)
+            decision2.decide()
+            if material not in bind.material_selected:
+                bind.material_selected[material] = {}
+            bind.material_selected[material][name] = decision2.value
+            return decision2.value
 
-    heat_capacity = attribute.Attribute(
-        name='heat_capacity',
+        if name == 'thickness':
+            name = 'thickness_default'
+
+        material = bind.material
+        if material in bind.material_selected:
+            if name in bind.material_selected[material]:
+                return bind.material_selected[material][name]
+            else:
+                return user_property_input(bind, name)
+        else:
+            first_decision = BoolDecision(question="Do you want for %s %s to use template, enter 'n' for manual input"
+                                          % (bind.guid, bind.material),
+                                          collect=False)
+            first_decision.decide()
+            first_decision.stored_decisions.clear()
+
+            if first_decision.value:
+                material_templates = dict(DataClass(used_param=2).element_bind)
+                del material_templates['version']
+
+                resumed = {}
+                for k in material_templates:
+                    resumed[material_templates[k]['name']] = k
+
+                material_options = get_matches_list(bind.material, list(resumed.keys()))
+
+                while len(material_options) == 0:
+                    decision_ = input(
+                        "Material not found, enter value for the material:")
+                    material_options = get_matches_list(decision_, list(resumed.keys()))
+
+                decision1 = ListDecision("Multiple possibilities found for material %s" % material,
+                                         choices=list(material_options),
+                                         allow_skip=True, allow_load=True, allow_save=True,
+                                         collect=False, quick_decide=not True)
+                decision1.decide()
+
+                bind.material_selected[material] = material_templates[resumed[decision1.value]]
+                return bind.material_selected[material][name]
+            else:
+                return user_property_input(bind, name)
+
+    heat_capac = attribute.Attribute(
+        default_ps=True,
+        functions=[_get_material_properties],
         default=0
     )
 
     density = attribute.Attribute(
-        name='density',
+        functions=[_get_material_properties],
+        default_ps=True,
+        default=0
+    )
+
+    thermal_conduc = attribute.Attribute(
+        functions=[_get_material_properties],
+        default_ps=True,
         default=0
     )
 
 
 class OuterWall(Wall):
-    def __init__(self, *args, **kwargs):
-        pass
-        # super().__init__(*args, **kwargs)
+    special_argument = {'is_external': True}
 
 
 class InnerWall(Wall):
-    def __init__(self, *args, **kwargs):
-        pass
-        # super().__init__(*args, **kwargs)
+    special_argument = {'is_external': False}
 
 
 class Window(element.Element):
@@ -796,37 +782,80 @@ class Window(element.Element):
         re.compile('Fenster', flags=re.IGNORECASE)
     ]
 
+    def _get_layers(bind, name):
+        layers = []
+        material_layers_dict = get_layers_ifc(bind)
+        for layer in material_layers_dict:
+            new_layer = element.SubElement.factory(layer, layer.is_a())
+            new_layer.parent = bind
+            layers.append(new_layer)
+        return layers
+
+    layers = attribute.Attribute(
+        functions=[_get_layers]
+    )
 
     is_external = attribute.Attribute(
-        name='is_external',
-        default_ps=('Pset_WindowCommon', 'IsExternal'),
+        default_ps=True,
         default=True
     )
 
     area = attribute.Attribute(
-        name='area',
-        default_ps=('BaseQuantities', 'Area'),
+        default_ps=True,
+        default=0
+    )
+
+    thickness = attribute.Attribute(
+        default_ps=True,
+        default=0
+    )
+
+    material = attribute.Attribute(
+        default_ps=True,
         default=0
     )
 
 
-# class OuterWall(Wall):
-#     pattern_ifc_type = [
-#         re.compile('Outer.?wall', flags=re.IGNORECASE),
-#         re.compile('Au(ß|ss)en.?wand', flags=re.IGNORECASE)
-#     ]
-#
-#     @property
-#     def area(self):
-#         return 1
-#
-#     @property
-#     def u_value(self):
-#         return 1
-#
-#     @property
-#     def g_value(self):
-#         return 1
+class Door(element.Element):
+    ifc_type = "IfcDoor"
+
+    pattern_ifc_type = [
+        re.compile('Door', flags=re.IGNORECASE),
+        re.compile('Tuer', flags=re.IGNORECASE)
+    ]
+
+    def _get_layers(bind, name):
+        layers = []
+        material_layers_dict = get_layers_ifc(bind)
+        for layer in material_layers_dict:
+            new_layer = element.SubElement.factory(layer, layer.is_a())
+            new_layer.parent = bind
+            layers.append(new_layer)
+        return layers
+
+    layers = attribute.Attribute(
+        functions=[_get_layers]
+    )
+
+    is_external = attribute.Attribute(
+        default_ps=True,
+        default=True
+    )
+
+    area = attribute.Attribute(
+        default_ps=True,
+        default=0
+    )
+
+    thickness = attribute.Attribute(
+        default_ps=True,
+        default=0
+    )
+
+    material = attribute.Attribute(
+        default_ps=True,
+        default=0
+    )
 
 
 class Plate(element.Element):
@@ -850,51 +879,45 @@ class Slab(element.Element):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # todo more generic with general function and check of existing
-        # subclasses
-        # todo ask for decision if not type is inserted
-        if self.predefined_type == "ROOF":
-            self.__class__ = Roof
-            self.__init__()
-        if self.predefined_type == "FLOOR":
-            self.__class__ = Floor
-            self.__init__()
-        if self.predefined_type == "BASESLAB":
-            self.__class__ = GroundFloor
-            self.__init__()
+        # if self.predefined_type == "ROOF":
+        #     self.__class__ = Roof
+        #     self.__init__()
+        # if self.predefined_type == "FLOOR":
+        #     self.__class__ = Floor
+        #     self.__init__()
+        # if self.predefined_type == "BASESLAB":
+        #     self.__class__ = GroundFloor
+        #     self.__init__()
 
     def _get_layers(bind, name):
         layers = []
         material_layers_dict = get_layers_ifc(bind)
-        for layer, values in material_layers_dict.items():
-            layers.append(Layer(bind, values[0], values[1]))
+        for layer in material_layers_dict:
+            new_layer = element.SubElement.factory(layer, 'IfcMaterialLayer')
+            new_layer.parent = bind
+            layers.append(new_layer)
         return layers
 
     layers = attribute.Attribute(
-        name='layers',
         functions=[_get_layers]
     )
     area = attribute.Attribute(
-        name='area',
-        default_ps=('BaseQuantities', 'GrossArea'),
+        default_ps=True,
         default=0
     )
 
     thickness = attribute.Attribute(
-        name='thickness',
-        default_ps=('BaseQuantities', 'Width'),
+        default_ps=True,
         default=0
     )
 
     thermal_transmittance = attribute.Attribute(
-        name='thermal_transmittance',
-        default_ps=('Pset_SlabCommon', 'ThermalTransmittance'),
+        default_ps=True,
         default=0
     )
 
     is_external = attribute.Attribute(
-        name='thermal_transmittance',
-        default_ps=('Pset_SlabCommon', 'IsExternal'),
+        default_ps=True,
         default=0
     )
 
@@ -906,8 +929,8 @@ class Slab(element.Element):
 
 class Roof(Slab):
     ifc_type = "IfcRoof"
-    # ifc_type = ["IfcRoof", "IfcSlab"]
-    # if self.ifc:
+    predefined_type = "ROOF"
+
     def __init__(self, *args, **kwargs):
         if hasattr(self, 'ifc'):
             self.ifc_type = self.ifc.is_a()
@@ -915,74 +938,59 @@ class Roof(Slab):
             super().__init__(*args, **kwargs)
 
 
-    # predefined_type = {
-    #         "IfcSlab": "ROOF",
-    #     }
-
-
 class Floor(Slab):
-
-    def __init__(self, *args, **kwargs):
-        pass
-    # ifc_type = 'IfcSlab'
-    # predefined_type = {
-    #         "IfcSlab": "FLOOR",
-    #     }
+    predefined_type = "FLOOR"
 
 
 class GroundFloor(Slab):
-    def __init__(self, *args, **kwargs):
-        pass
-    # ifc_type = 'IfcSlab'
-    # predefined_type = {
-    #         "IfcSlab": "BASESLAB",
-    #     }
+    predefined_type = "BASESLAB"
+
+
+class Site(element.Element):
+    ifc_type = "IfcSite"
+
+
+    # year_of_construction = attribute.Attribute(
+    #     name='year_of_construction',
+    #     default_ps=True
+    # )
 
 
 class Building(element.Element):
-    ifc_type = "IFcBuilding"
+    ifc_type = "IfcBuilding"
 
     year_of_construction = attribute.Attribute(
-        name='year_of_construction',
-        default_ps=('Pset_BuildingCommon', 'YearOfConstruction')
+        default_ps=True
     )
     gross_area = attribute.Attribute(
-        name='gross_area',
-        default_ps=('Pset_BuildingCommon', 'GrossPlannedArea')
+        default_ps=True
     )
     net_area = attribute.Attribute(
-        name='net_area',
-        default_ps=('Pset_BuildingCommon', 'NetAreaPlanned')
+        default_ps=True
     )
     number_of_storeys = attribute.Attribute(
-        name='number_of_storeys',
-        default_ps=('Pset_BuildingCommon', 'NumberOfStoreys')
+        default_ps=True
     )
     occupancy_type = attribute.Attribute(
-        name='occupancy_type',
-        default_ps=('Pset_BuildingCommon', 'OccupancyType')
+        default_ps=True
     )
 
 
 class Storey(element.Element):
     ifc_type = 'IfcBuildingStorey'
 
-    gross_foor_area = attribute.Attribute(
-        name='gross_foor_area',
-        default_ps=('BaseQuantities', 'GrossFloorArea')
+    gross_floor_area = attribute.Attribute(
+        default_ps=True
     )
     #todo make the lookup for height hierarchical
     net_height = attribute.Attribute(
-        name='net_height',
-        default_ps=('BaseQuantities', 'NetHeight')
+        default_ps=True
     )
     gross_height = attribute.Attribute(
-        name='gross_height',
-        default_ps=('BaseQuantities', 'GrossHeight')
+        default_ps=True
     )
     height = attribute.Attribute(
-        name='height',
-        default_ps=('BaseQuantities', 'Height')
+        default_ps=True
     )
 
 

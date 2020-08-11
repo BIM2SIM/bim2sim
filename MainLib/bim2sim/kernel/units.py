@@ -43,6 +43,8 @@ ifc_pint_unitmap = {
 }
 
 
+
+
 def parse_ifc(unit_entity):
 
     unit_type = unit_entity.is_a()
@@ -81,3 +83,12 @@ def parse_ifc(unit_entity):
         return unit
     else:
         pass  # TODO: Implement
+
+
+def conversion(unit, ufrom, uto):
+    if unit is None:
+        unit = 0
+    if not isinstance(unit, ureg.Quantity):
+        unit = ureg.Quantity(unit, getattr(ureg, ufrom))
+    unit = unit.to(uto)
+    return unit.to(uto)

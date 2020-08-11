@@ -134,7 +134,7 @@ class GeometricFilter(Filter):
         super().__init__()
 
         assert any([not lim is None for lim in [x_min, x_max, y_min, y_max, z_min, z_max]]), \
-            "Filter without limits has no effeckt."
+            "Filter without limits has no effect."
         assert (x_min is None or x_max is None) or x_min < x_max, \
             "Invalid arguments for x_min and x_max"
         assert (y_min is None or y_max is None) or y_min < y_max, \

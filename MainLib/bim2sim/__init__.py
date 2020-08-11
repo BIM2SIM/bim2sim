@@ -89,6 +89,7 @@ def main(rootpath=None):
     assert backend, "No backend set. Check config.ini"
 
     logger.info("Loading backend '%s' ...", backend)
+    print(plugins)
     manager_cls = plugins.get(backend.lower())()
 
     if manager_cls is None:

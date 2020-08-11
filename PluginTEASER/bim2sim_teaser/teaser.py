@@ -2,6 +2,7 @@
 from bim2sim.manage import BIM2SIMManager, PROJECT
 from bim2sim.task import bps, base, common, hvac
 from bim2sim.task.sub_tasks import tz_detection
+from googletrans import Translator
 
 # from bim2sim.export.modelica import standardlibrary
 # from bim2sim_hkesim.models import HKESim
@@ -28,8 +29,8 @@ class TEASERManager(BIM2SIMManager):
         self.playground.run_task(bps.Inspect())
         pass
 
-        # self.playground.run_task(bps.ExportTEASER())
-
+        self.playground.run_task(bps.ExportTEASER())
+        print()
         #self.playground.run_task(bps.ExportTEASERMultizone())
 
         # export = bps.ExportTEASERMultizone()

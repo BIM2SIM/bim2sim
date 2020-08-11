@@ -60,7 +60,7 @@ class SetupHelper:
             if name not in element.attributes.names:
                 raise AssertionError("Can't set attribute '%s' to %s. Choices are %s" %
                                      (name, element_cls.__name__, list(element.attributes.names)))
-            setattr(element, name, value)
+            setattr(element, name, value * getattr(element_cls, name).unit)
 
         # add ports
         self.fake_add_ports(element, n_ports)
@@ -91,7 +91,7 @@ class SetupHelper:
                 self.element_generator(elements.Pipe, flags=['strand2'], length=(1 + i) * 40, diameter=15)
                 for i in range(3)
             ]
-            tank = self.element_generator(elements.ExpansionTank, n_ports=1)
+            tank = self.element_generator(elements.Storage, n_ports=1)
 
         # connect
         gen_vl = [boiler, *gen_vl_a, h_pump, *gen_vl_b, distributor]
