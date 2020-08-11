@@ -12,7 +12,7 @@ stages:
   - visualize
 
 build_env:
-  image: docker:latest
+  image: docker:stable
   stage: build
   before_script:
     - df
