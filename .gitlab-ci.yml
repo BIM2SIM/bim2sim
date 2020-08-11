@@ -18,8 +18,8 @@ build_env:
     - df
     - cat /etc/resolv.conf
     - cat /etc/hosts
-#   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY
-    - docker login $CI_REGISTRY
+    # - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY
+    - docker login -u gitlab+deploy-token-91 -p meivSREueA2ZoVvUrtoj registry.git-ce.rwth-aachen.de/ebc0438_bmwi_bim2sim_ges/bim2sim-coding/
   script:
     - docker build -t $CI_REGISTRY/environment:latest -f Environment/Dockerfile .
     - docker push $CI_REGISTRY/environment:latest
