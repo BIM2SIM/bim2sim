@@ -96,7 +96,7 @@ class Inspect(ITask):
         returns them as list"""
         instances_filtered = []
         for instance in instances.values():
-            if instance.__str__() == type_name:
+            if type(instance).__name__ == type_name:
                 instances_filtered.append(instance)
         return instances_filtered
 

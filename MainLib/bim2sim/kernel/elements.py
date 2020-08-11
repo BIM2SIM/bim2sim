@@ -548,8 +548,6 @@ class ThermalZone(element.Element):
         if len(list(set(orientations))) == 1:
             self.true_orientation = list(set(orientations))[0]
 
-        print()
-
     usage = attribute.Attribute(
         functions=[_get_usage]
     )
@@ -577,7 +575,7 @@ class ThermalZone(element.Element):
         super().__init__(*args, **kwargs)
         self.bound_elements = []
         self.is_external = False
-        self.true_orientation = None
+        self.true_orientation = 'Internal'
 
     def get__elements_by_type(self, type):
         raise NotImplementedError
