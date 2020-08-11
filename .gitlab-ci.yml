@@ -22,7 +22,6 @@ build_env:
   only:
     changes:
       - Environment/Dockerfile
-      - Environment/environment.yml
       - MainLib/requirements.txt
 
 build_tool:release:
