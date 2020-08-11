@@ -25,10 +25,7 @@ build_env:
   image: docker:latest
   stage: build
   before_script:
-    - df
-    - cat /etc/resolv.conf
-    - cat /etc/hosts
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME --password-stdin $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
     - docker build -t $CI_REGISTRY/environment:latest -f Environment/Dockerfile .
     - docker push $CI_REGISTRY/environment:latest
