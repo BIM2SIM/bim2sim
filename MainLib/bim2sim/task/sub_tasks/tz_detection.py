@@ -47,9 +47,6 @@ class Inspect(Task):
             self.instances[thermal_zone.guid] = thermal_zone
             self.bind_elements_to_zone(thermal_zone)
 
-            thermal_zone._get_is_external()
-            thermal_zone._get_true_orientation()
-
         tz_groups = self.group_thermal_zones()
         new_aggregations = ThermalZone.based_on_groups(tz_groups, self.instances)
         for inst in new_aggregations:
@@ -109,6 +106,9 @@ class Inspect(Task):
                     thermalzone.bound_elements.append(inst)
                 if thermalzone not in inst.thermal_zones:
                     inst.thermal_zones.append(thermalzone)
+        thermalzone._get_is_external()
+        thermalzone._get_true_orientation()
+
             # disaggregation check:
             # if not Disaggregation.based_on_thermal_zone(bound_instance, thermalzone):
             #     if bound_instance not in thermalzone.bound_elements:

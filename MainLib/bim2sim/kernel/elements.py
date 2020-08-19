@@ -532,14 +532,14 @@ class ThermalZone(element.Element):
         usage_decision.decide()
         return usage_decision.value
 
-    def _get_is_external(self):
+    def get_is_external(self):
         for ele in self.bound_elements:
             if hasattr(ele, 'is_external'):
                 if ele.is_external is True:
                     self.is_external = True
                     break
 
-    def _get_true_orientation(self):
+    def get_true_orientation(self):
         orientations = []
         for ele in self.bound_elements:
             if hasattr(ele, 'is_external') and hasattr(ele, 'orientation'):
