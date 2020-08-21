@@ -6,18 +6,21 @@ from bim2sim.kernel.disaggregation import Disaggregation
 from bim2sim.kernel.aggregation import Aggregated_ThermalZone
 import inspect
 
+
 class Inspect(Task):
     """Analyses IFC, creates Element instances and connects them.
     elements are stored in .instances dict with guid as key"""
 
     def __init__(self, task, workflow):
         super().__init__()
+        self.ifc = None
         self.instances = {}
         self.task = task
         self.workflow = workflow
 
     @Task.log
     def run(self, ifc):
+        self.ifc = ifc
         self.logger.info("Creates python representation for building spaces")
         self.recognize_zone_semantic(ifc)
         if len(self.instances) == 0:
