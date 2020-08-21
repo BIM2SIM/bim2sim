@@ -3,6 +3,11 @@
 import math
 import re
 import numpy as np
+import ifcopenshell
+import ifcopenshell.geom
+from OCC.BRepBuilderAPI import BRepBuilderAPI_Transform
+from OCC.gp import gp_Pnt, gp_Dir, gp_Trsf, gp_Ax1, gp_Vec, gp_XYZ
+from math import pi
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, condition, attribute
@@ -691,6 +696,7 @@ class SpaceBoundary(element.SubElement):
     def __init__(self, *args, **kwargs):
         """spaceboundary __init__ function"""
         super().__init__(*args, **kwargs)
+        self.guid = self.ifc.GlobalId
         self.level_description = self.ifc.Description
         self.thermal_zones.append(self.get_object(self.ifc.RelatingSpace.GlobalId))
         if self.ifc.RelatedBuildingElement is not None:
@@ -705,11 +711,37 @@ class SpaceBoundary(element.SubElement):
             self.physical = True
         else:
             self.physical = False
+        if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
+            self.position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
+        else:
+            self.position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.Position.Location.Coordinates
 
-        # self.position = element.IFCBased.calc_position(self)
-        self.position = element.IFCBased.get_hierarchical_children(self)
-        # print(self.position)
+    @cached_property
+    def bound_shape(self):
+        return self.calc_bound_shape()
 
+    def calc_bound_shape(self):
+        settings = ifcopenshell.geom.settings()
+        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
+        settings.set(settings.USE_WORLD_COORDS, True)
+        shape = ifcopenshell.geom.create_shape(settings, self.ifc.ConnectionGeometry.SurfaceOnRelatingElement)
+        shape = self.get_transformed_shape(shape)
+        return shape
+
+    def get_transformed_shape(self, shape):
+        """transform TOPODS_Shape of each space boundary to correct position"""
+        zone = self.thermal_zones[0]
+        zone_position = gp_XYZ(zone.position[0], zone.position[1], zone.position[2])
+        trsf1 = gp_Trsf()
+        trsf2 = gp_Trsf()
+        trsf2.SetRotation(gp_Ax1(gp_Pnt(zone_position), gp_Dir(0, 0, 1)), -zone.orientation * pi / 180)
+        trsf1.SetTranslation(gp_Vec(gp_XYZ(zone.position[0], zone.position[1], zone.position[2])))
+        try:
+            shape = BRepBuilderAPI_Transform(shape, trsf1).Shape()
+            shape = BRepBuilderAPI_Transform(shape, trsf2).Shape()
+        except:
+            pass
+        return shape
 
 class Medium(element.Element):
     # is deprecated?
