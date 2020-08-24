@@ -1,3 +1,13 @@
+services:
+  - name: docker:dind
+    entrypoint: ["env", "-u", "DOCKER_HOST"]
+    command: ["dockerd-entrypoint.sh"]
+variables:
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay2
+  # See https://github.com/docker-library/docker/pull/166
+  DOCKER_TLS_CERTDIR: ""
+
 .only-default: &only-default
   only:
     - master
@@ -15,21 +25,20 @@ build_env:
   image: docker:latest
   stage: build
   before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
     - docker build -t $CI_REGISTRY/environment:latest -f Environment/Dockerfile .
     - docker push $CI_REGISTRY/environment:latest
   only:
     changes:
-      - Environment/Dockerfile
-      - Environment/environment.yml
-      - MainLib/requirements.txt
+       - Environment/Dockerfile
+       - MainLib/requirements.txt
 
 build_tool:release:
   image: docker:latest
   stage: build
   before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
     - docker build -t $CI_REGISTRY/tool:latest .
     - docker push $CI_REGISTRY/tool:latest
@@ -40,7 +49,7 @@ build_tool:webdevelop:
   image: docker:latest
   stage: build
   before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
     - docker build -t $CI_REGISTRY/tool:web_develop .
     - docker push $CI_REGISTRY/tool:web_develop
