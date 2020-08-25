@@ -4,9 +4,6 @@ from bim2sim.kernel.element import Element, SubElement
 from bim2sim.kernel.ifc2python import getElementType
 from bim2sim.kernel.disaggregation import Disaggregation
 
-from OCC.Display.SimpleGui import init_display
-
-
 
 class Inspect(Task):
     """Analyses IFC, creates Element instances and connects them.
@@ -101,23 +98,4 @@ class Inspect(Task):
         bound_space.space_boundaries.append(spaceboundary)
         if bound_instance is not None:
             bound_instance.space_boundaries.append(spaceboundary)
-
-
-
-
-    def display_shape_of_space_boundaries(self):
-        display, start_display, add_menu, add_function_to_menu = init_display()
-        colors = ['blue', 'red', 'magenta', 'yellow', 'green', 'white', 'cyan']
-        col = 0
-        for inst in self.instances:
-            if self.instances[inst].ifc_type == 'IfcSpace':
-                col += 1
-                zone = self.instances[inst]
-                for bound in zone.space_boundaries:
-                    try:
-                        display.DisplayShape(bound.bound_shape, color=colors[(col - 1) % len(colors)])
-                    except:
-                        continue
-        display.FitAll()
-        start_display()
 
