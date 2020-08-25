@@ -611,3 +611,32 @@ class ExportTEASER(ITask):
 #             tz.calc_zone_parameters()
 #             bldg.calc_building_parameter(number_of_elements=2)
 #             prj.export_aixlib()
+
+
+class ExportEP(ITask):
+    """Exports an EnergyPlus model based on IFC information"""
+
+    reads = ('instances', 'ifc',)
+    final = True
+
+    @Task.log
+    def run(self, workflow, instances, ifc):
+        self._display_shape_of_space_boundaries(instances)
+
+    @staticmethod
+    def _display_shape_of_space_boundaries(instances):
+        """Display topoDS_shapes of space boundaries"""
+        display, start_display, add_menu, add_function_to_menu = init_display()
+        colors = ['blue', 'red', 'magenta', 'yellow', 'green', 'white', 'cyan']
+        col = 0
+        for inst in instances:
+            if instances[inst].ifc_type == 'IfcSpace':
+                col += 1
+                zone = instances[inst]
+                for bound in zone.space_boundaries:
+                    try:
+                        display.DisplayShape(bound.bound_shape, color=colors[(col - 1) % len(colors)])
+                    except:
+                        continue
+        display.FitAll()
+        start_display()
