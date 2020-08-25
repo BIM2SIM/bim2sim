@@ -7,6 +7,7 @@ from bim2sim.kernel.aggregation import Aggregated_ThermalZone
 import inspect
 
 
+
 class Inspect(Task):
     """Analyses IFC, creates Element instances and connects them.
     elements are stored in .instances dict with guid as key"""
