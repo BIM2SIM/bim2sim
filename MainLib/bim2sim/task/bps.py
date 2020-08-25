@@ -37,6 +37,8 @@ from bim2sim.task.bps_f.bps_functions import orientation_verification, get_match
 from bim2sim.kernel.units import conversion
 from googletrans import Translator
 import re
+from OCC.Display.SimpleGui import init_display
+
 
 translator = Translator()
 
@@ -589,3 +591,30 @@ class ExportTEASERSingleZone(Task):
             prj.export_aixlib()
 
 
+class ExportEP(ITask):
+    """Exports an EnergyPlus model based on IFC information"""
+
+    reads = ('instances', 'ifc', )
+    final = True
+
+    @Task.log
+    def run(self, workflow, instances, ifc):
+        self._display_shape_of_space_boundaries(instances)
+
+    @staticmethod
+    def _display_shape_of_space_boundaries(instances):
+        """Display topoDS_shapes of space boundaries"""
+        display, start_display, add_menu, add_function_to_menu = init_display()
+        colors = ['blue', 'red', 'magenta', 'yellow', 'green', 'white', 'cyan']
+        col = 0
+        for inst in instances:
+            if instances[inst].ifc_type == 'IfcSpace':
+                col += 1
+                zone = instances[inst]
+                for bound in zone.space_boundaries:
+                    try:
+                        display.DisplayShape(bound.bound_shape, color=colors[(col - 1) % len(colors)])
+                    except:
+                        continue
+        display.FitAll()
+        start_display()
