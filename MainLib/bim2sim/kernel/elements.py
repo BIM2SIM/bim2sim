@@ -581,9 +581,9 @@ class SpaceBoundary(element.SubElement):
         else:
             self.bound_instance = None
         if self.ifc.InternalOrExternalBoundary.lower() == 'internal':
-            self.is_external = True
-        else:
             self.is_external = False
+        else:
+            self.is_external = True
         if self.ifc.PhysicalOrVirtualBoundary.lower() == 'physical':
             self.physical = True
         else:
