@@ -3,6 +3,12 @@
 import itertools
 import json
 
+from OCC.Display.SimpleGui import init_display
+from OCC.BRepBuilderAPI import BRepBuilderAPI_Transform
+from OCC.BRepExtrema import BRepExtrema_DistShapeShape
+from OCC.Extrema import Extrema_ExtFlag_MIN
+from OCC.gp import gp_Trsf, gp_Vec, gp_XYZ
+
 from bim2sim.task.base import Task, ITask
 # from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort, SubElement
@@ -36,6 +42,7 @@ import os
 from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list, filter_instances, \
     get_pattern_usage
 from bim2sim.kernel.units import conversion
+from OCC.Display.SimpleGui import init_display
 
 
 class SetIFCTypesBPS(ITask):
@@ -621,7 +628,94 @@ class ExportEP(ITask):
 
     @Task.log
     def run(self, workflow, instances, ifc):
+        self._get_parents_and_children(instances)
+        self._move_children_to_parents(instances)
         self._display_shape_of_space_boundaries(instances)
+
+    @staticmethod
+    def _move_children_to_parents(instances):
+        """move external opening boundaries to related parent boundary (e.g. wall)"""
+        for inst in instances:
+            if hasattr(instances[inst], 'related_parent_bound'):
+                opening_obj = instances[inst]
+                # only external openings need to be moved
+                # all other are properly placed within parent boundary
+                if opening_obj.is_external:
+                    distance = BRepExtrema_DistShapeShape(
+                        opening_obj.bound_shape,
+                        opening_obj.related_parent_bound.bound_shape,
+                        Extrema_ExtFlag_MIN
+                    ).Value()
+
+                    prod_vec = []
+                    for i in opening_obj.bound_normal.Coord():
+                        prod_vec.append(distance*i)
+
+                    # moves opening to parent boundary
+                    trsf = gp_Trsf()
+                    coord = gp_XYZ(*prod_vec)
+                    vec = gp_Vec(coord)
+                    trsf.SetTranslation(vec)
+
+                    opening_obj.bound_shape_org = opening_obj.bound_shape
+                    opening_obj.bound_shape = BRepBuilderAPI_Transform(opening_obj.bound_shape, trsf).Shape()
+
+                    # check if opening has been moved to boundary correctly
+                    # and otherwise move again in reversed direction
+                    new_distance = BRepExtrema_DistShapeShape(
+                        opening_obj.bound_shape,
+                        opening_obj.related_parent_bound.bound_shape,
+                        Extrema_ExtFlag_MIN
+                    ).Value()
+                    if new_distance > 1e-3:
+                        prod_vec = []
+                        op_normal = opening_obj.bound_normal.Reversed()
+                        for i in op_normal.Coord():
+                            prod_vec.append(new_distance * i)
+                        trsf = gp_Trsf()
+                        coord = gp_XYZ(*prod_vec)
+                        vec = gp_Vec(coord)
+                        trsf.SetTranslation(vec)
+                        opening_obj.bound_shape = BRepBuilderAPI_Transform(opening_obj.bound_shape, trsf).Shape()
+
+    @staticmethod
+    def _get_parents_and_children(instances):
+        """get parent-children relationships between IfcElements (e.g. Windows, Walls)
+        and the corresponding relationships of their space boundaries"""
+        for inst in instances:
+            inst_obj = instances[inst]
+            inst_type = inst_obj.ifc_type
+            if inst_type != 'IfcRelSpaceBoundary':
+                continue
+            inst_obj_space = inst_obj.ifc.RelatingSpace
+            b_inst = inst_obj.bound_instance
+            if b_inst is None:
+                continue
+            # assign opening elems (Windows, Doors) to parents and vice versa
+            if not hasattr(b_inst.ifc, 'HasOpenings'):
+                continue
+            for opening in b_inst.ifc.HasOpenings:
+                if hasattr(opening.RelatedOpeningElement, 'HasFillings'):
+                    for fill in opening.RelatedOpeningElement.HasFillings:
+                        opening_obj = b_inst.objects[fill.RelatedBuildingElement.GlobalId]
+                        if not hasattr(b_inst, 'related_openings'):
+                            setattr(b_inst, 'related_openings', [])
+                        b_inst.related_openings.append(opening_obj)
+                        if not hasattr(opening_obj, 'related_parent'):
+                            setattr(opening_obj, 'related_parent', [])
+                        opening_obj.related_parent = b_inst
+            # assign space boundaries of opening elems (Windows, Doors) to parents and vice versa
+            if not hasattr(b_inst, 'related_openings'):
+                continue
+            if not hasattr(inst_obj, 'related_opening_bounds'):
+                setattr(inst_obj, 'related_opening_bounds', [])
+            for opening in b_inst.related_openings:
+                for op_bound in opening.space_boundaries:
+                    if op_bound.ifc.RelatingSpace == inst_obj_space:
+                        inst_obj.related_opening_bounds.append(op_bound)
+                        if not hasattr(op_bound, 'related_parent_bound'):
+                            setattr(op_bound, 'related_parent_bound', [])
+                            op_bound.related_parent_bound = inst_obj
 
     @staticmethod
     def _display_shape_of_space_boundaries(instances):
@@ -638,5 +732,6 @@ class ExportEP(ITask):
                         display.DisplayShape(bound.bound_shape, color=colors[(col - 1) % len(colors)])
                     except:
                         continue
+                # display.DisplayShape(zone.space_shape, color=colors[(col - 1) % len(colors)])
         display.FitAll()
         start_display()
