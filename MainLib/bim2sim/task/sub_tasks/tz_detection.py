@@ -54,17 +54,22 @@ class Inspect(Task):
 
     def bind_elements_to_zone(self, thermalzone):
         """Binds the different elements to the belonging zones"""
+        relevant_ifc_types = self.workflow.relevant_ifc_types
         bound_instances = []
+        types = []
         for binding in thermalzone.ifc.BoundedBy:
             bound_element = binding.RelatedBuildingElement
-            if bound_element is not None:# and binding.PhysicalOrVirtualBoundary is not 'VIRTUAL':
+            if bound_element is not None:
                 bound_element_type = getElementType(bound_element)
             else:
                 continue
-            # if bound_element_type in relevant_ifc_types:
-            bound_instance = thermalzone.get_object(bound_element.GlobalId)
-            if bound_instance not in bound_instances and bound_instance is not None:
-                bound_instances.append(bound_instance)
+            if bound_element_type not in types:
+                types.append(bound_element_type)
+            # todo virtual element crashs -> solve
+            if bound_element_type in relevant_ifc_types:
+                bound_instance = thermalzone.get_object(bound_element.GlobalId)
+                if bound_instance not in bound_instances:
+                    bound_instances.append(bound_instance)
         for bound_instance in bound_instances:
             new_bound_instances = Disaggregation.based_on_thermal_zone(bound_instance, thermalzone)
             for inst in new_bound_instances:

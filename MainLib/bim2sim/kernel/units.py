@@ -85,9 +85,7 @@ def parse_ifc(unit_entity):
         pass  # TODO: Implement
 
 
-def conversion(unit, ufrom, uto):
-    if unit is None:
-        unit = 0
+def conversion(unit ,ufrom, uto):
     if not isinstance(unit, ureg.Quantity):
         unit = ureg.Quantity(unit, getattr(ureg, ufrom))
     unit = unit.to(uto)

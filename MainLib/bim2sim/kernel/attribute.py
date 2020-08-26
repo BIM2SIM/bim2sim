@@ -2,10 +2,8 @@ import logging
 from contextlib import contextmanager
 
 import pint
-import re
 
 from bim2sim.decision import RealDecision, BoolDecision, ListDecision
-from bim2sim.task.bps_f.bps_functions import get_matches_list
 
 from bim2sim.kernel.units import ureg
 
@@ -95,9 +93,9 @@ class Attribute:
         if value is None and self.functions:
             value = self.get_from_functions(bind, self.functions, self.name)
 
-        # # enrichment
-        # if value is None:
-        #     value = self.get_from_enrichment(bind, self.name)
+        # enrichment
+        if value is None:
+            value = self.get_from_enrichment(bind, self.name)
 
         # default value
         if value is None and self.default_value:
@@ -112,27 +110,9 @@ class Attribute:
 
         return value
 
-    @staticmethod
-    def get_from_default_propertyset(bind, name):
-        source_tools = bind.finder.templates
-        if bind.source_tool in source_tools:
-            source_tool = bind.source_tool
-        else:
-            possible_source_tools = get_matches_list(bind.source_tool, source_tools.keys(), False)
-            decision_source_tool = ListDecision("Multiple templates found for source tool %s" % bind.source_tool,
-                                                choices=list(possible_source_tools),
-                                                allow_skip=True, allow_load=True, allow_save=True,
-                                                collect=False, quick_decide=not True)
-            decision_source_tool.decide()
-            source_tool = decision_source_tool.value
-            bind._tool = source_tool
-            bind.get_project().OwnerHistory.OwningApplication.ApplicationFullName = source_tool
+    def get_from_default_propertyset(self, bind, name):
         try:
-            default = source_tools[source_tool][type(bind).__name__]['default_ps'][name]
-        except KeyError:
-            return None
-        try:
-            value = bind.get_exact_property(default[0], default[1])
+            value = bind.get_exact_property(*self.default_ps)
         except Exception:
             value = None
         return value

@@ -1,10 +1,6 @@
 import ifcopenshell
 import ifcopenshell.geom
 import math
-import re
-
-from googletrans import Translator
-
 
 def get_disaggregations_instance(element, thermal_zone):
     """get all posible disaggregation of an instance, based on the IfcRelSpaceBoundary,
@@ -31,12 +27,8 @@ def get_disaggregations_instance(element, thermal_zone):
             try:
                 shape = ifcopenshell.geom.create_shape(settings, binding.ConnectionGeometry.SurfaceOnRelatingElement)
             except RuntimeError:
-                try:
-                    shape = ifcopenshell.geom.create_shape(settings,
-                                                           binding.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface)
-                except RuntimeError:
-                    element.logger.warning("Found no geometric information for %s in %s" % (element.name, thermal_zone.name))
-                    continue
+                element.logger.warning("Found no geometric information for %s in %s" % (element.name, thermal_zone.name))
+                continue
             # get relative position of resultant disaggregation
             if hasattr(binding.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
                 pos = binding.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
@@ -54,24 +46,17 @@ def get_disaggregations_instance(element, thermal_zone):
             y.sort()
             z.sort()
 
-            try:
-                x = x[len(x) - 1] - x[0]
-                y = y[len(y) - 1] - y[0]
-                z = z[len(z) - 1] - z[0]
-            except IndexError:
-                continue
-
-            coordinates = [x, y, z]
+            coordinates = [x[len(x) - 1] - x[0], y[len(y) - 1] - y[0], z[len(z) - 1] - z[0]]
 
             # filter for vertical or horizontal instance -> gets area properly
-            if element.__class__.__name__ in vertical_instances:
+            if type(element).__name__ in vertical_instances:
                 for a in coordinates:
                     if a <= 0:
                         del coordinates[coordinates.index(a)]
             elif type(element).__name__ in horizontal_instances:
                 del coordinates[2]
 
-            # returns disaggregation, area and relative position
+            # returns disagreggation, area and relative position
             disaggregations['disaggregation_%d' % dis_counter] = [coordinates[0]*coordinates[1], pos]
             dis_counter += 1
 
@@ -82,7 +67,7 @@ def get_disaggregations_instance(element, thermal_zone):
 
 
 def orientation_verification(instance):
-    supported_classes = {'Window', 'OuterWall', 'Door'}
+    supported_classes = {'Window', 'OuterWall'}
     if instance.__class__.__name__ in supported_classes:
         if len(instance.thermal_zones) > 0:
             bo_spaces = {}
@@ -149,29 +134,6 @@ def vector_angle(vector):
         else:
             return tang + 360
 
-
-def get_matches_list(search_words, search_list, transl=True):
-    """get patterns for a material name in both english and original language,
-    and get afterwards the related elements from list"""
-
-    translator = Translator()
-    material_ref = []
-
-    pattern_material = re.sub('[!@#$-_1234567890]', '', search_words.lower()).split()
-    if transl:
-        pattern_material.extend(translator.translate(re.sub('[!@#$-_1234567890]', '', search_words.lower())).text.split())
-
-    for i in pattern_material:
-        material_ref.append(re.compile('(.*?)%s' % i, flags=re.IGNORECASE))
-
-    material_options = []
-    for ref in material_ref:
-        for mat in search_list:
-            if ref.match(mat):
-                if mat not in material_options:
-                    material_options.append(mat)
-
-    return material_options
 
 
 
