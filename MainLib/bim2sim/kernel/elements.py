@@ -10,7 +10,13 @@ from OCC.Bnd import Bnd_Box
 from OCC.BRep import BRep_Tool
 from OCC.BRepBndLib import brepbndlib_Add
 from OCC.BRepBuilderAPI import BRepBuilderAPI_Transform
+from OCC.BRepGProp import brepgprop_SurfaceProperties
+from OCC.GProp import GProp_GProps
+from OCC.Geom import Handle_Geom_Plane
 from OCC.gp import gp_Pnt, gp_Dir, gp_Trsf, gp_Ax1, gp_Vec, gp_XYZ
+from OCC.TopExp import TopExp_Explorer
+from OCC.TopAbs import TopAbs_FACE
+from OCC.TopoDS import topods_Face
 from math import pi
 
 from bim2sim.decorators import cached_property
@@ -625,6 +631,10 @@ class SpaceBoundary(element.SubElement):
     def bound_shape(self):
         return self.calc_bound_shape()
 
+    @cached_property
+    def bound_normal(self):
+        return self.compute_surface_normals_in_space()
+
     def calc_bound_shape(self):
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
@@ -647,6 +657,44 @@ class SpaceBoundary(element.SubElement):
         except:
             pass
         return shape
+
+    def compute_surface_normals_in_space(self):
+        """
+        This function returns the face normal of the boundary
+        pointing outwarts the center of the space.
+        Additionally, the area of the boundary is computed
+        :return: face normal (gp_XYZ)
+        """
+        bbox_center = self.thermal_zones[0].space_center
+        an_exp = TopExp_Explorer(self.bound_shape, TopAbs_FACE)
+        a_face = an_exp.Current()
+        face = topods_Face(a_face)
+        surf = BRep_Tool.Surface(face)
+        obj = surf.GetObject()
+        assert obj.DynamicType().GetObject().Name() == "Geom_Plane"
+        plane = Handle_Geom_Plane.DownCast(surf).GetObject()
+        face_bbox = Bnd_Box()
+        brepbndlib_Add(face, face_bbox)
+        face_center = ifcopenshell.geom.utils.get_bounding_box_center(face_bbox).XYZ()
+        face_prop = GProp_GProps()
+        brepgprop_SurfaceProperties(self.bound_shape, face_prop)
+        area = face_prop.Mass()
+        face_normal = plane.Axis().Direction().XYZ()
+
+        face_towards_center = bbox_center.XYZ() - face_center
+        face_towards_center.Normalize()
+
+        dot = face_towards_center.Dot(face_normal)
+
+        # check if surface normal points into direction of space center
+        # Transform surface normals to be pointing outwards
+        # For faces without reversed surface normal, reverse the orientation of the face itself
+        if dot > 0:
+            face_normal = face_normal.Reversed()
+        # else:
+        #     self.bound_shape = self.bound_shape.Reversed()
+
+        return face_normal
 
 class Medium(element.Element):
     ifc_type = "IfcDistributionSystems"
