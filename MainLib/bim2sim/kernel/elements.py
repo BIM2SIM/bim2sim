@@ -5,6 +5,9 @@ import re
 import numpy as np
 import ifcopenshell
 import ifcopenshell.geom
+from OCC.Bnd import Bnd_Box
+from OCC.BRep import BRep_Tool
+from OCC.BRepBndLib import brepbndlib_Add
 from OCC.BRepBuilderAPI import BRepBuilderAPI_Transform
 from OCC.gp import gp_Pnt, gp_Dir, gp_Trsf, gp_Ax1, gp_Vec, gp_XYZ
 from math import pi
@@ -688,6 +691,31 @@ class ThermalZone(element.Element):
 
     def get__elements_by_type(self, type):
         raise NotImplementedError
+
+    @cached_property
+    def space_center(self):
+        """returns geometric center of the space (of the bounding box of the space shape)"""
+        return self.get_center_of_space()
+
+    @cached_property
+    def space_shape(self):
+        """returns topods shape of the IfcSpace"""
+        settings = ifcopenshell.geom.main.settings()
+        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
+        settings.set(settings.USE_WORLD_COORDS, True)
+        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+        settings.set(settings.INCLUDE_CURVES, True)
+        return ifcopenshell.geom.create_shape(settings, self.ifc).geometry
+
+    def get_center_of_space(self):
+        """
+        This function returns the center of the bounding box of an ifc space shape
+        :return: center of space bounding box (gp_Pnt)
+        """
+        bbox = Bnd_Box()
+        brepbndlib_Add(self.space_shape, bbox)
+        bbox_center = ifcopenshell.geom.utils.get_bounding_box_center(bbox)
+        return bbox_center
 
 
 class SpaceBoundary(element.SubElement):
