@@ -7,4 +7,5 @@ networkx>=2.2
 pint
 rpyc
 teaser
+OCC
 translators
