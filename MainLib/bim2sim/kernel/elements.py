@@ -871,6 +871,32 @@ class Wall(element.Element):
         default=False
     )
 
+    thermal_transmittance = attribute.Attribute(
+        default_ps=True,
+        default=0
+    )
+
+    material = attribute.Attribute(
+        default_ps=True,
+        default=0
+    )
+
+    thickness = attribute.Attribute(
+        default_ps=True,
+        # functions=[_get_wall_properties],
+        default=0
+    )
+
+    heat_capacity = attribute.Attribute(
+        # functions=[_get_wall_properties],
+        default=0
+    )
+
+    density = attribute.Attribute(
+        # functions=[_get_wall_properties],
+        default=0
+    )
+
     tilt = attribute.Attribute(
         default_ps=True,
         default=0
@@ -893,6 +919,9 @@ class Layer(element.SubElement):
         self.thickness = None
         if hasattr(self.ifc, 'LayerThickness'):
             self.thickness = self.ifc.LayerThickness
+        else:
+            self.thickness = 0.1
+            # self.thickness = float(input('Thickness not given, please provide a value:'))
 
     def __repr__(self):
         return "<%s (material: %s>" \
