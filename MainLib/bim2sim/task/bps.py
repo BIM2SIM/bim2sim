@@ -4,10 +4,21 @@ import itertools
 import json
 
 from OCC.Display.SimpleGui import init_display
-from OCC.BRepBuilderAPI import BRepBuilderAPI_Transform
+from OCC.BRepBuilderAPI import \
+    BRepBuilderAPI_MakeFace, \
+    BRepBuilderAPI_MakeEdge, \
+    BRepBuilderAPI_MakeWire, BRepBuilderAPI_Transform, BRepBuilderAPI_MakeVertex
+from OCC.ShapeAnalysis import ShapeAnalysis_ShapeContents
 from OCC.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Extrema import Extrema_ExtFlag_MIN
-from OCC.gp import gp_Trsf, gp_Vec, gp_XYZ
+from OCC.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Pln
+from OCC.TopoDS import topods_Wire, topods_Face
+from OCC.TopAbs import TopAbs_FACE, TopAbs_WIRE
+from OCC.TopExp import TopExp_Explorer
+from OCC.BRep import BRep_Tool
+from OCC.BRepTools import BRepTools_WireExplorer, breptools_UVBounds
+from OCC.Geom import Handle_Geom_Plane
+from geomeppy import IDF
 
 from bim2sim.task.base import Task, ITask
 from bim2sim.filter import TypeFilter
@@ -613,7 +624,101 @@ class ExportEP(ITask):
     def run(self, workflow, instances, ifc):
         self._get_parents_and_children(instances)
         self._move_children_to_parents(instances)
-        self._display_shape_of_space_boundaries(instances)
+        # self._display_shape_of_space_boundaries(instances)
+
+        idf = self._init_idf()
+        self._set_simulation_control(idf)
+        idf.set_default_constructions()
+        self._export_geom_to_idf(instances, idf)
+        stat = self._set_hvac_template(idf, name="stat1", heating_sp=20, cooling_sp=25)
+
+        for inst in instances:
+            if instances[inst].ifc_type == "IfcSpace":
+                self._init_zone(idf, stat, instances[inst])
+        # idf.set_default_constructions()
+        # idf.printidf()
+        idf.save()
+        idf.view_model()
+        idf.run(output_directory="../../PluginEnergyPlus/results/")
+
+    def _export_geom_to_idf(self, instances, idf):
+        for inst in instances:
+            if instances[inst].ifc_type != "IfcRelSpaceBoundary":
+                continue
+            inst_obj = instances[inst]
+            idfp = IdfObject(inst_obj, idf)
+            if idfp.skip_bound:
+                # idf.popidfobject(idfp.key, -1)
+                self.logger.warning("Boundary with the GUID %s (%s) is skipped (due to missing boundary conditions)!", idfp.name, idfp.surface_type)
+                continue
+
+    @staticmethod
+    def _init_idf():
+        """
+        Initialize the idf with general idf settings and set default weather data.
+        :return:
+        """
+        # path = '/usr/local/EnergyPlus-9-2-0/'
+        path = '/usr/local/EnergyPlus-9-3-0/'
+        IDF.setiddname(path + 'Energy+.idd')
+        idf = IDF(path + "ExampleFiles/Minimal.idf")
+        idf.idfname = "../../PluginEnergyPlus/exports/temp.idf"
+
+        idf.epw = "USA_CO_Golden-NREL.724666_TMY3.epw"
+        return idf
+
+
+    def _init_zone(self, idf, stat, space):
+        """
+        Creates one idf zone per space and initializes with default HVAC Template
+        :param idf: idf file object
+        :param stat: HVAC Template
+        :param space: Space (created from IfcSpace)
+        :return: idf file object, idf zone object
+        """
+
+        zone = idf.newidfobject(
+            'ZONE',
+            Name=space.ifc.GlobalId,
+            Volume=space.space_volume
+        )
+        idf.newidfobject(
+            "HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM",
+            Zone_Name=zone.Name,
+            Template_Thermostat_Name=stat.Name,
+        )
+
+
+    @staticmethod
+    def _set_hvac_template(idf, name, heating_sp, cooling_sp):
+        """
+        Set default HVAC Template
+        :param idf: idf file object
+        :return: stat (HVAC Template)
+        """
+        stat = idf.newidfobject(
+            "HVACTEMPLATE:THERMOSTAT",
+            Name="Zone " + name,
+            Constant_Heating_Setpoint=heating_sp,
+            Constant_Cooling_Setpoint=cooling_sp,
+        )
+        return stat
+
+    @staticmethod
+    def _set_simulation_control(idf):
+        """
+        Set simulation control parameters.
+        :param idf: idf file object
+        :return: idf file object
+        """
+        for sim_control in idf.idfobjects["SIMULATIONCONTROL"]:
+            print("")
+            sim_control.Do_Zone_Sizing_Calculation = "Yes"
+            sim_control.Do_System_Sizing_Calculation = "Yes"
+            sim_control.Do_Plant_Sizing_Calculation = "Yes"
+            sim_control.Run_Simulation_for_Sizing_Periods = "No"
+            sim_control.Run_Simulation_for_Weather_File_Run_Periods = "Yes"
+        # return idf
 
     @staticmethod
     def _move_children_to_parents(instances):
@@ -718,3 +823,387 @@ class ExportEP(ITask):
                 # display.DisplayShape(zone.space_shape, color=colors[(col - 1) % len(colors)])
         display.FitAll()
         start_display()
+
+class IdfObject():
+    def __init__(self, inst_obj, idf):
+        self.name = inst_obj.ifc.GlobalId
+        self.building_surface_name = None
+        self.key = None
+        self.out_bound_cond = ''
+        self.out_bound_cond_obj = ''
+        self.sun_exposed = ''
+        self.wind_exposed = ''
+        self.surface_type = None
+        self.virtual_physical = None
+        self.construction_name = None
+        self.zone_name = inst_obj.ifc.RelatingSpace.GlobalId
+        self.related_bound = inst_obj.related_bound
+        self.skip_bound = False
+        self.bound_shape = inst_obj.bound_shape
+
+        if hasattr(inst_obj, 'related_parent_bound'):
+            self.key = "FENESTRATIONSURFACE:DETAILED"
+        else:
+            self.key = "BUILDINGSURFACE:DETAILED"
+
+        if hasattr(inst_obj, 'related_parent_bound'):
+            self.building_surface_name = inst_obj.related_parent_bound.ifc.GlobalId
+
+        self._map_surface_types(inst_obj)
+        self._map_boundary_conditions(inst_obj)
+        self._set_construction_name()
+        obj = self._set_idfobject_attributes(idf)
+        self._set_idfobject_coordinates(obj, idf, inst_obj)
+
+
+    def _set_construction_name(self):
+        if self.surface_type == "Wall":
+            self.construction_name = "Project Wall"
+            # construction_name = "FZK Exterior Wall"
+        if self.surface_type == "Roof":
+            # construction_name = "Project Flat Roof"
+            self.construction_name = "Project Flat Roof"
+        if self.surface_type == "Ceiling":
+            self.construction_name = "Project Ceiling"
+        if self.surface_type == "Floor":
+            self.construction_name = "Project Floor"
+        if self.surface_type == "Door":
+            self.construction_name = "Project Door"
+        if self.surface_type == "Window":
+            self.construction_name = "Project External Window"
+
+    def _set_idfobject_coordinates(self, obj, idf, inst_obj):
+        # validate bound_shape
+        # self._check_for_vertex_duplicates()
+
+        # write validated bound_shape to obj
+        obj_pnts = self._get_points_of_face(self.bound_shape)
+        obj_coords = []
+        for pnt in obj_pnts:
+            obj_coords.append(pnt.Coord())
+        obj.setcoords(obj_coords)
+
+        circular_shape = self.get_circular_shape(obj_pnts)
+
+        try:
+            if (3 <= len(obj_coords) <= 120 and self.key == "BUILDINGSURFACE:DETAILED") \
+                    or (3 <= len(obj_coords) <= 4 and self.key == "FENESTRATIONSURFACE:DETAILED"):
+                obj.setcoords(obj_coords)
+            elif circular_shape is True and self.surface_type != 'Door':
+                self._process_circular_shapes(idf, obj_coords, obj, inst_obj)
+            else:
+                self._process_other_shapes(inst_obj, obj)
+        except:
+            print("Element", self.name, "NOT EXPORTED")
+
+    # def _check_for_vertex_duplicates(self):
+    #     if self.related_bound is not None:
+    #         nb_vert_this = self._get_number_of_vertices(self.bound_shape)
+    #         nb_vert_other = self._get_number_of_vertices(self.related_bound.bound_shape)
+    #         # if nb_vert_this != nb_vert_other:
+    #         setattr(self, 'bound_shape_org', self.bound_shape)
+    #         vert_list1 = self._get_vertex_list_from_face(self.bound_shape)
+    #         vert_list1 = self._remove_vertex_duplicates(vert_list1)
+    #         vert_list1.reverse()
+    #         vert_list1 = self._remove_vertex_duplicates(vert_list1)
+    #
+    #         setattr(self.related_bound, 'bound_shape_org', self.related_bound.bound_shape)
+    #         vert_list2 = self._get_vertex_list_from_face(self.related_bound.bound_shape)
+    #         vert_list2 = self._remove_vertex_duplicates(vert_list2)
+    #         vert_list2.reverse()
+    #         vert_list2 = self._remove_vertex_duplicates(vert_list2)
+    #
+    #         if len(vert_list1) == len(vert_list2):
+    #             self.bound_shape = self._make_face_from_vertex_list(vert_list1)
+    #             self.related_bound.bound_shape = self._make_face_from_vertex_list(vert_list2)
+
+
+    def _set_idfobject_attributes(self, idf):
+        if self.surface_type is not None:
+            if self.key == "BUILDINGSURFACE:DETAILED":
+                obj = idf.newidfobject(
+                    self.key,
+                    Name=self.name,
+                    Surface_Type=self.surface_type,
+                    Construction_Name=self.construction_name,
+                    Outside_Boundary_Condition=self.out_bound_cond,
+                    Outside_Boundary_Condition_Object=self.out_bound_cond_obj,
+                    Zone_Name=self.zone_name,
+                    Sun_Exposure=self.sun_exposed,
+                    Wind_Exposure=self.wind_exposed,
+                )
+            # elif self.building_surface_name is None or self.out_bound_cond_obj is None:
+            #     self.skip_bound = True
+            #     return
+            else:
+                obj = idf.newidfobject(
+                    self.key,
+                    Name=self.name,
+                    Surface_Type=self.surface_type,
+                    Construction_Name=self.construction_name,
+                    Building_Surface_Name=self.building_surface_name,
+                    Outside_Boundary_Condition_Object=self.out_bound_cond_obj,
+                )
+            return obj
+
+    def _map_surface_types(self, inst_obj):
+        """
+        This function maps the attributes of a SpaceBoundary instance to idf surface type
+        :param elem: SpaceBoundary instance
+        :return: idf surface_type
+        """
+        elem = inst_obj.bound_instance
+        surface_type = None
+        if elem != None:
+            if elem.ifc_type == "IfcWallStandardCase" or elem.ifc_type == "IfcWall":
+                surface_type = 'Wall'
+            elif elem.ifc_type == "IfcDoor":
+                surface_type = "Door"
+            elif elem.ifc_type == "IfcWindow":
+                surface_type = "Window"
+            elif elem.ifc_type == "IfcRoof":
+                surface_type = "Roof"
+            elif elem.ifc_type == "IfcSlab":
+                # if "floor" in str(elem).lower():
+                #     surface_type = "Floor"
+                # elif "roof" in str(elem).lower():
+                #     surface_type = "Roof"
+                # else:
+                #     surface_type = "Floor"
+                #TODO: Include Ceiling
+
+                if inst_obj.top_bottom == "BOTTOM":
+                    surface_type = "Floor"
+                elif inst_obj.top_bottom == "TOP":
+                    surface_type = "Ceiling"
+                    if inst_obj.related_bound is None or inst_obj.is_external:
+                        surface_type = "Roof"
+        elif inst_obj.physical == False:
+            # surface_type = "VIRTUAL"
+            if not self._compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
+                surface_type = 'Wall'
+            else:
+                if inst_obj.bound_normal.Coord() == (0, 0, -1):
+                    surface_type = "Floor"
+                else:
+                    surface_type = 'Ceiling'
+        self.surface_type = surface_type
+
+    def _map_boundary_conditions(self, inst_obj):
+        """
+        This function maps the boundary conditions of a SpaceBoundary instance
+        to the idf space boundary conditions
+        :return:
+        """
+        if inst_obj.is_external: # and inst_obj.related_bound is None:
+            self.out_bound_cond = 'Outdoors'
+            self.sun_exposed = 'SunExposed'
+            self.wind_exposed = 'WindExposed'
+            self.out_bound_cond_obj = ''
+
+        elif self.surface_type == "Floor" and inst_obj.related_bound is None:
+            self.out_bound_cond = "Ground"
+            self.sun_exposed = 'NoSun'
+            self.wind_exposed = 'NoWind'
+        elif inst_obj.related_bound is not None:# or elem.virtual_physical == "VIRTUAL": # elem.internal_external == "INTERNAL"
+            self.out_bound_cond = 'Surface'
+            self.out_bound_cond_obj = inst_obj.related_bound.ifc.GlobalId
+            self.sun_exposed = 'NoSun'
+            self.wind_exposed = 'NoWind'
+        # elif inst_obj.bound_instance is not None and inst_obj.bound_instance.ifc_type == "IfcWindow":
+        elif self.key == "FENESTRATIONSURFACE:DETAILED":
+            # if elem.rel_elem.type == "IfcWindow":
+            self.out_bound_cond = 'Outdoors'
+            self.sun_exposed = 'SunExposed'
+            self.wind_exposed = 'WindExposed'
+            self.out_bound_cond_obj = ''
+        elif self.related_bound is None:
+            self.out_bound_cond = 'Outdoors'
+            self.sun_exposed = 'SunExposed'
+            self.wind_exposed = 'WindExposed'
+            self.out_bound_cond_obj = ''
+        else:
+            self.skip_bound = True
+
+    @staticmethod
+    def _compare_direction_of_normals(normal1, normal2):
+        """
+        Compare the direction of two surface normals (vectors).
+        True, if direction is same or reversed
+        :param normal1: first normal (gp_Pnt)
+        :param normal2: second normal (gp_Pnt)
+        :return: True/False
+        """
+        dotp = normal1.Dot(normal2)
+        check = False
+        if 1-1e-2 < dotp ** 2 < 1+1e-2:
+            check = True
+        return check
+
+    @staticmethod
+    def _get_points_of_face(bound_shape):
+        """
+        This function returns a list of gp_Pnt of a Surface
+        :param face: TopoDS_Shape (Surface)
+        :return: pnt_list (list of gp_Pnt)
+        """
+        an_exp = TopExp_Explorer(bound_shape, TopAbs_WIRE)
+        pnt_list = []
+
+        while an_exp.More():
+            wire = topods_Wire(an_exp.Current())
+            w_exp = BRepTools_WireExplorer(wire)
+            while w_exp.More():
+                pnt1 = BRep_Tool.Pnt(w_exp.CurrentVertex())
+                pnt_list.append(pnt1)
+                w_exp.Next()
+            an_exp.Next()
+        return pnt_list
+
+    @staticmethod
+    def get_circular_shape(obj_pnts):
+        """
+        This function checks if a SpaceBoundary has a circular shape.
+        :param obj_pnts: SpaceBoundary vertices (list of coordinate tuples)
+        :return: True if shape is circular
+        """
+        circular_shape = False
+        # compute if shape is circular:
+        if len(obj_pnts) > 4:
+            pnt = obj_pnts[0]
+            pnt2 = obj_pnts[1]
+            distance_prev = pnt.Distance(pnt2)
+            pnt = pnt2
+            for pnt2 in obj_pnts[2:]:
+                distance = pnt.Distance(pnt2)
+                if (distance_prev - distance) ** 2 < 0.01:
+                    circular_shape = True
+                    pnt = pnt2
+                    distance_prev = distance
+                else:
+                    continue
+        return circular_shape
+
+    @staticmethod
+    def _process_circular_shapes(idf, obj_coords, obj, inst_obj):
+        """
+        This function processes circular boundary shapes. It converts circular shapes
+        to triangular shapes.
+        :param idf: idf file object
+        :param obj_coords: coordinates of an idf object
+        :param obj: idf object
+        :param elem: SpaceBoundary instance
+        :return:
+        """
+        # print("CIRCULAR")
+        drop_count = int(len(obj_coords) / 8)
+        drop_list = obj_coords[0::drop_count]
+        pnt = drop_list[0]
+        counter = 0
+        for pnt2 in drop_list[1:]:
+            counter += 1
+            new_obj = idf.copyidfobject(obj)
+            new_obj.Name = str(obj.Name) + '_' + str(counter)
+            new_obj.setcoords([pnt, pnt2, inst_obj.bound_center.Coord()])
+            pnt = pnt2
+        new_obj = idf.copyidfobject(obj)
+
+        new_obj.Name = str(obj.Name) + '_' + str(counter + 1)
+        new_obj.setcoords([drop_list[-1], drop_list[0], inst_obj.bound_center.Coord()])
+        idf.removeidfobject(obj)
+
+    @staticmethod
+    def _process_other_shapes(inst_obj, obj):
+        """
+        This function processes non-circular shapes with too many vertices
+        by approximation of the shape utilizing the UV-Bounds from OCC
+        (more than 120 vertices for BUILDINGSURFACE:DETAILED
+        and more than 4 vertices for FENESTRATIONSURFACE:DETAILED)
+        :param elem: SpaceBoundary Instance
+        :param obj: idf object
+        :return:
+        """
+        # print("TOO MANY EDGES")
+        obj_pnts = []
+        exp = TopExp_Explorer(inst_obj.bound_shape, TopAbs_FACE)
+        face = topods_Face(exp.Current())
+        umin, umax, vmin, vmax = breptools_UVBounds(face)
+        surf = BRep_Tool.Surface(face)
+        plane = Handle_Geom_Plane.DownCast(surf).GetObject()
+        plane = gp_Pln(plane.Location(), plane.Axis().Direction())
+        new_face = BRepBuilderAPI_MakeFace(plane,
+                                           umin,
+                                           umax,
+                                           vmin,
+                                           vmax).Face().Reversed()
+
+        face_exp = TopExp_Explorer(new_face, TopAbs_WIRE)
+        w_exp = BRepTools_WireExplorer(topods_Wire(face_exp.Current()))
+        while w_exp.More():
+            wire_vert = w_exp.CurrentVertex()
+            obj_pnts.append(BRep_Tool.Pnt(wire_vert))
+            w_exp.Next()
+
+        obj_coords = []
+        for pnt in obj_pnts:
+            obj_coords.append(pnt.Coord())
+        obj.setcoords(obj_coords)
+
+
+    # @staticmethod
+    # def _remove_vertex_duplicates(vert_list):
+    #     for i, vert in enumerate(vert_list):
+    #         edge_pp_p = BRepBuilderAPI_MakeEdge(vert_list[(i) % (len(vert_list) - 1)],
+    #                                             vert_list[(i + 1) % (len(vert_list) - 1)]).Shape()
+    #         distance = BRepExtrema_DistShapeShape(vert_list[(i + 2) % (len(vert_list) - 1)], edge_pp_p,
+    #                                               Extrema_ExtFlag_MIN)
+    #         if 0 < distance.Value() < 0.001:
+    #             # first: project close vertex to edge
+    #             edge = BRepBuilderAPI_MakeEdge(vert_list[(i) % (len(vert_list) - 1)],
+    #                                                 vert_list[(i + 1) % (len(vert_list) - 1)]).Edge()
+    #             projector = GeomAPI_ProjectPointOnCurve(BRep_Tool.Pnt(vert_list[(i + 2) % (len(vert_list) - 1)]),
+    #                                                     BRep_Tool.Curve(edge)[0])
+    #             np = projector.NearestPoint()
+    #             vert_list[(i + 2) % (len(vert_list) - 1)] = BRepBuilderAPI_MakeVertex(np).Vertex()
+    #             # delete additional vertex
+    #             vert_list.pop((i + 1) % (len(vert_list) - 1))
+    #     return vert_list
+    #
+    # @staticmethod
+    # def _make_face_from_vertex_list(vert_list):
+    #     an_edge = []
+    #     for i in range(len(vert_list[:-1])):
+    #         edge = BRepBuilderAPI_MakeEdge(vert_list[i], vert_list[i + 1]).Edge()
+    #         an_edge.append(edge)
+    #     a_wire = BRepBuilderAPI_MakeWire()
+    #     for edge in an_edge:
+    #         a_wire.Add(edge)
+    #     a_wire = a_wire.Wire()
+    #     a_face = BRepBuilderAPI_MakeFace(a_wire).Face()
+    #
+    #     return a_face.Reversed()
+    #
+    # @staticmethod
+    # def _get_vertex_list_from_face(face):
+    #     an_exp = TopExp_Explorer(face, TopAbs_WIRE)
+    #     vert_list = []
+    #     while an_exp.More():
+    #         wire = topods_Wire(an_exp.Current())
+    #         w_exp = BRepTools_WireExplorer(wire)
+    #         while w_exp.More():
+    #             vert1 = w_exp.CurrentVertex()
+    #             vert_list.append(vert1)
+    #             w_exp.Next()
+    #         an_exp.Next()
+    #     vert_list.append(vert_list[0])
+    #
+    #     return vert_list
+    #
+    # @staticmethod
+    # def _get_number_of_vertices(shape):
+    #     shape_analysis = ShapeAnalysis_ShapeContents()
+    #     shape_analysis.Perform(shape)
+    #     nb_vertex = shape_analysis.NbVertices()
+    #
+    #     return nb_vertex
+    #
