@@ -1042,10 +1042,14 @@ class IdfObject():
             if not self._compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
                 surface_type = 'Wall'
             else:
-                if inst_obj.bound_normal.Coord() == (0, 0, -1):
+                if inst_obj.top_bottom == "BOTTOM":
                     surface_type = "Floor"
-                else:
-                    surface_type = 'Ceiling'
+                elif inst_obj.top_bottom == "TOP":
+                    surface_type = "Ceiling"
+                # if inst_obj.bound_normal.Coord() == (0, 0, -1):
+                #     surface_type = "Floor"
+                # else:
+                #     surface_type = 'Ceiling'
         self.surface_type = surface_type
 
     def _map_boundary_conditions(self, inst_obj):
@@ -1054,7 +1058,7 @@ class IdfObject():
         to the idf space boundary conditions
         :return:
         """
-        if inst_obj.is_external: # and inst_obj.related_bound is None:
+        if inst_obj.is_external and inst_obj.physical:
             self.out_bound_cond = 'Outdoors'
             self.sun_exposed = 'SunExposed'
             self.wind_exposed = 'WindExposed'
