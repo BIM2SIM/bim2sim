@@ -8,6 +8,7 @@ from mako.template import Template
 import numpy as np
 
 from bim2sim.kernel import element as elem
+from bim2sim.kernel import elements, aggregation
 from bim2sim.decision import RealDecision
 
 TEMPLATEPATH = os.path.join(os.path.dirname(__file__), 'tmplModel.txt')
@@ -34,7 +35,7 @@ class Model:
         self.comment = comment
         self.instances = instances
 
-        self.size_x = (-100, 100)
+        self.size_x = (-200, 200)
         self.size_y = (-100, 100)
 
         self.connections, self.connections = self.set_positions(instances, connections)
@@ -55,15 +56,50 @@ class Model:
         pos_delta = pos_max - pos_min
         delta_x = self.size_x[1] - self.size_x[0]
         delta_y = self.size_y[1] - self.size_y[0]
+        indexes = [[0, 0], [0, 0], [0, 0]]
+        modelsize = 25
         for inst in instances:
-            if inst.element.position is not None:
-                rel_pos = (inst.element.position - pos_min) / pos_delta
-                x = (self.size_x[0] + rel_pos[0] * delta_x).item()
-                y = (self.size_y[0] + rel_pos[1] * delta_y).item()
+
+            if inst.element.__class__ in [aggregation.ConsumerHeatingDistributorModule, aggregation.Consumer]:
+                x = (self.size_x[0] + delta_x*2/3 + indexes[0][0]*modelsize)
+                y = (self.size_y[0] + indexes[0][1]*modelsize)
                 inst.position = (x, y)
                 instance_dict[inst.name] = inst.position
+                if indexes[0][1]*modelsize + modelsize >= delta_y:
+                    indexes[0][1] = 0
+                    indexes[0][0] += 1
+                else:
+                    indexes[0][1] += 1
+            elif inst.element.__class__ in [elements.Boiler, elements.Chiller]:
+                x = (self.size_x[0] + indexes[1][0]*modelsize)
+                y = (self.size_y[0] + indexes[1][1]*modelsize)
+                inst.position = (x, y)
+                instance_dict[inst.name] = inst.position
+                if indexes[1][1]*modelsize + modelsize >= delta_y:
+                    indexes[1][1] = 0
+                    indexes[1][0] += 1
+                else:
+                    indexes[1][1] += 1
             else:
-                instance_dict[inst.name] = (0, 0)
+                x = (self.size_x[0] + delta_x/3 + indexes[2][0]*modelsize)
+                y = (self.size_y[0] + indexes[2][1]*modelsize)
+                inst.position = (x, y)
+                instance_dict[inst.name] = inst.position
+                if indexes[2][1]*modelsize + modelsize >= delta_y:
+                    indexes[2][1] = 0
+                    indexes[2][0] += 1
+                else:
+                    indexes[2][1] += 1
+
+
+            # if inst.element.position is not None:
+            #     rel_pos = (inst.element.position - pos_min) / pos_delta
+            #     x = (self.size_x[0] + rel_pos[0] * delta_x).item()
+            #     y = (self.size_y[0] + rel_pos[1] * delta_y).item()
+            #     inst.position = (x, y)
+            #     instance_dict[inst.name] = inst.position
+            # else:
+            #     instance_dict[inst.name] = (0, 0)
 
         # add positions to connections
         for inst0, inst1 in connections:
@@ -202,7 +238,7 @@ class Instance:
                 )
 
     def register_param(self, name: str, check, export_name: str=None):
-        """Parameter gests marked as requiered and will be checked.
+        """Parameter gets marked as requiered and will be checked.
 
         run Element.solve_request() after all parameters are registrated."""
         self.element.request(name)
