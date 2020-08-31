@@ -149,6 +149,9 @@ def _debug_run_bps_ep():
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 
     rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
+    # rel_example = 'ExampleFiles/ARC.ifc'
+    # rel_example = 'ExampleFiles/AC-20-Smiley-West-10-Bldg.ifc'
+    # rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
     # rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
     # path_ifc = os.path.normpath(os.path.join('/home/veronika/PycharmProjects/bim2sim-coding/ExampleFiles/AC20-FZK-Haus.ifc'))

@@ -6,16 +6,25 @@ import numpy as np
 import ifcopenshell
 import ifcopenshell.geom
 from OCC.Bnd import Bnd_Box
-from OCC.BRep import BRep_Tool
 from OCC.BRepBndLib import brepbndlib_Add
-from OCC.BRepBuilderAPI import BRepBuilderAPI_Transform
-from OCC.BRepGProp import brepgprop_SurfaceProperties
+from OCC.BRepBuilderAPI import \
+    BRepBuilderAPI_MakeFace, \
+    BRepBuilderAPI_MakeEdge, \
+    BRepBuilderAPI_MakeWire, BRepBuilderAPI_Transform, BRepBuilderAPI_MakeVertex
+from OCC.BRepGProp import brepgprop_SurfaceProperties, brepgprop_VolumeProperties
 from OCC.GProp import GProp_GProps
-from OCC.Geom import Handle_Geom_Plane
-from OCC.gp import gp_Pnt, gp_Dir, gp_Trsf, gp_Ax1, gp_Vec, gp_XYZ
+from OCC.GeomAPI import GeomAPI_ProjectPointOnCurve
+from OCC.ShapeAnalysis import ShapeAnalysis_ShapeContents
+from OCC.BRepExtrema import BRepExtrema_DistShapeShape
+from OCC.gp import gp_Trsf, gp_Vec, gp_XYZ,  gp_Dir, gp_Ax1, gp_Pnt
+from OCC.TopoDS import topods_Wire, topods_Face
+from OCC.TopAbs import TopAbs_FACE, TopAbs_WIRE
 from OCC.TopExp import TopExp_Explorer
-from OCC.TopAbs import TopAbs_FACE
-from OCC.TopoDS import topods_Face
+from OCC.BRep import BRep_Tool
+from OCC.BRepTools import BRepTools_WireExplorer
+from OCC.Geom import Handle_Geom_Plane
+from OCC.Extrema import Extrema_ExtFlag_MIN
+
 from math import pi
 
 from bim2sim.decorators import cached_property
@@ -713,6 +722,13 @@ class ThermalZone(element.Element):
         settings.set(settings.INCLUDE_CURVES, True)
         return ifcopenshell.geom.create_shape(settings, self.ifc).geometry
 
+    @cached_property
+    def space_volume(self):
+        props = GProp_GProps()
+        brepgprop_VolumeProperties(self.space_shape, props)
+        volume = props.Mass()
+        return volume
+
     def get_center_of_space(self):
         """
         This function returns the center of the bounding box of an ifc space shape
@@ -758,6 +774,199 @@ class SpaceBoundary(element.SubElement):
     def bound_normal(self):
         return self.compute_surface_normals_in_space()
 
+    @cached_property
+    def related_bound(self):
+        return self.get_corresponding_bound()
+
+    @cached_property
+    def bound_center(self):
+        return self.get_bound_center()
+
+    @cached_property
+    def top_bottom(self):
+        return self.get_floor_and_ceilings()
+
+    @cached_property
+    def bound_area(self):
+        return self.get_bound_area()
+
+    def get_bound_area(self):
+        """compute area of a space boundary"""
+        bound_prop = GProp_GProps()
+        brepgprop_SurfaceProperties(self.bound_shape, bound_prop)
+        area = bound_prop.Mass()
+        return area
+
+    def get_floor_and_ceilings(self):
+        """
+        This function computes, if the center of a space boundary
+        is below (bottom) or above (top) the center of a space.
+        This function is used to distinguish floors and ceilings (IfcSlab)
+        :return: top_bottom ("TOP", "BOTTOM")
+        """
+        top_bottom = None
+        vertical = gp_XYZ(0.0, 0.0, 1.0)
+        # only assign top and bottom for elements, whose
+        # surface normals are not perpendicular to a vertical
+        if self.bound_normal.Dot(vertical) != 0:
+            direct = self.bound_center.Z() - self.thermal_zones[0].space_center.Z()
+            if direct < 0 and self._compare_direction_of_normals(self.bound_normal, vertical):
+                top_bottom = "BOTTOM"
+            else:
+                top_bottom = "TOP"
+        return top_bottom
+
+    @staticmethod
+    def _compare_direction_of_normals(normal1, normal2):
+        """
+        Compare the direction of two surface normals (vectors).
+        True, if direction is same or reversed
+        :param normal1: first normal (gp_Pnt)
+        :param normal2: second normal (gp_Pnt)
+        :return: True/False
+        """
+        dotp = normal1.Dot(normal2)
+        check = False
+        if 1-1e-2 < dotp ** 2 < 1+1e-2:
+            check = True
+        return check
+
+    def get_bound_center(self):
+        """ compute center of the bounding box of a space boundary"""
+        face_bbox = Bnd_Box()
+        brepbndlib_Add(self.bound_shape, face_bbox)
+        face_center = ifcopenshell.geom.utils.get_bounding_box_center(face_bbox).XYZ()
+        return face_center
+
+    def get_corresponding_bound(self):
+        """
+        Get corresponding space boundary in another space,
+        ensuring that corresponding space boundaries have a matching number of vertices.
+        """
+        if self.bound_instance is None:
+            return None
+        elif len(self.bound_instance.space_boundaries) == 1:
+            return None
+        elif len(self.bound_instance.space_boundaries) == 2:
+            for bound in self.bound_instance.space_boundaries:
+                if bound.ifc.GlobalId == self.ifc.GlobalId:
+                    continue
+                self.check_for_vertex_duplicates(bound)
+                nb_vert_this = self._get_number_of_vertices(self.bound_shape)
+                nb_vert_other = self._get_number_of_vertices(bound.bound_shape)
+                if nb_vert_this == nb_vert_other:
+                    return bound
+                else:
+                    return None
+        elif len(self.bound_instance.space_boundaries) > 2:
+            own_space_id = self.thermal_zones[0].ifc.GlobalId
+            min_dist = 1000
+            corr_bound = None
+            for bound in self.bound_instance.space_boundaries:
+                if bound.thermal_zones[0].ifc.GlobalId == own_space_id:
+                    # skip boundaries within same space (cannot be corresponding bound)
+                    continue
+                distance = BRepExtrema_DistShapeShape(
+                    bound.bound_shape,
+                    self.bound_shape,
+                    Extrema_ExtFlag_MIN
+                ).Value()
+                center_dist = gp_Pnt(self.bound_center).Distance(gp_Pnt(bound.bound_center))**2
+                if (center_dist)**0.5 > 0.5:
+                    continue
+                if distance > min_dist:
+                    continue
+                other_area = bound.bound_area
+                if (other_area - self.bound_area)**2 < 1e1:
+                    self.check_for_vertex_duplicates(bound)
+                    nb_vert_this = self._get_number_of_vertices(self.bound_shape)
+                    nb_vert_other = self._get_number_of_vertices(bound.bound_shape)
+                    if nb_vert_this == nb_vert_other:
+                        corr_bound = bound
+            return corr_bound
+        # todo: include corresponding bound for virtual bounds
+        # (which do not have bound_instance)
+        else:
+            return None
+
+    def check_for_vertex_duplicates(self, rel_bound):
+        nb_vert_this = self._get_number_of_vertices(self.bound_shape)
+        nb_vert_other = self._get_number_of_vertices(rel_bound.bound_shape)
+        # if nb_vert_this != nb_vert_other:
+        setattr(self, 'bound_shape_org', self.bound_shape)
+        vert_list1 = self._get_vertex_list_from_face(self.bound_shape)
+        vert_list1 = self._remove_vertex_duplicates(vert_list1)
+        vert_list1.reverse()
+        vert_list1 = self._remove_vertex_duplicates(vert_list1)
+
+        setattr(rel_bound, 'bound_shape_org', rel_bound.bound_shape)
+        vert_list2 = self._get_vertex_list_from_face(rel_bound.bound_shape)
+        vert_list2 = self._remove_vertex_duplicates(vert_list2)
+        vert_list2.reverse()
+        vert_list2 = self._remove_vertex_duplicates(vert_list2)
+        if len(vert_list1) == len(vert_list2):
+            self.bound_shape = self._make_face_from_vertex_list(vert_list1)
+            rel_bound.bound_shape = self._make_face_from_vertex_list(vert_list2)
+
+
+    @staticmethod
+    def _remove_vertex_duplicates(vert_list):
+        for i, vert in enumerate(vert_list):
+            edge_pp_p = BRepBuilderAPI_MakeEdge(vert_list[(i) % (len(vert_list) - 1)],
+                                                vert_list[(i + 1) % (len(vert_list) - 1)]).Shape()
+            distance = BRepExtrema_DistShapeShape(vert_list[(i + 2) % (len(vert_list) - 1)], edge_pp_p,
+                                                  Extrema_ExtFlag_MIN)
+            if 0 < distance.Value() < 0.001:
+                # first: project close vertex to edge
+                edge = BRepBuilderAPI_MakeEdge(vert_list[(i) % (len(vert_list) - 1)],
+                                                    vert_list[(i + 1) % (len(vert_list) - 1)]).Edge()
+                projector = GeomAPI_ProjectPointOnCurve(BRep_Tool.Pnt(vert_list[(i + 2) % (len(vert_list) - 1)]),
+                                                        BRep_Tool.Curve(edge)[0])
+                np = projector.NearestPoint()
+                vert_list[(i + 2) % (len(vert_list) - 1)] = BRepBuilderAPI_MakeVertex(np).Vertex()
+                # delete additional vertex
+                vert_list.pop((i + 1) % (len(vert_list) - 1))
+        return vert_list
+
+    @staticmethod
+    def _make_face_from_vertex_list(vert_list):
+        an_edge = []
+        for i in range(len(vert_list[:-1])):
+            edge = BRepBuilderAPI_MakeEdge(vert_list[i], vert_list[i + 1]).Edge()
+            an_edge.append(edge)
+        a_wire = BRepBuilderAPI_MakeWire()
+        for edge in an_edge:
+            a_wire.Add(edge)
+        a_wire = a_wire.Wire()
+        a_face = BRepBuilderAPI_MakeFace(a_wire).Face()
+
+        return a_face.Reversed()
+
+    @staticmethod
+    def _get_vertex_list_from_face(face):
+        an_exp = TopExp_Explorer(face, TopAbs_WIRE)
+        vert_list = []
+        while an_exp.More():
+            wire = topods_Wire(an_exp.Current())
+            w_exp = BRepTools_WireExplorer(wire)
+            while w_exp.More():
+                vert1 = w_exp.CurrentVertex()
+                vert_list.append(vert1)
+                w_exp.Next()
+            an_exp.Next()
+        vert_list.append(vert_list[0])
+
+        return vert_list
+
+    @staticmethod
+    def _get_number_of_vertices(shape):
+        shape_analysis = ShapeAnalysis_ShapeContents()
+        shape_analysis.Perform(shape)
+        nb_vertex = shape_analysis.NbVertices()
+
+        return nb_vertex
+
+
     def calc_bound_shape(self):
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
@@ -779,7 +988,7 @@ class SpaceBoundary(element.SubElement):
             shape = BRepBuilderAPI_Transform(shape, trsf2).Shape()
         except:
             pass
-        return shape
+        return shape.Reversed()
 
     def compute_surface_normals_in_space(self):
         """
@@ -796,15 +1005,15 @@ class SpaceBoundary(element.SubElement):
         obj = surf.GetObject()
         assert obj.DynamicType().GetObject().Name() == "Geom_Plane"
         plane = Handle_Geom_Plane.DownCast(surf).GetObject()
-        face_bbox = Bnd_Box()
-        brepbndlib_Add(face, face_bbox)
-        face_center = ifcopenshell.geom.utils.get_bounding_box_center(face_bbox).XYZ()
+        # face_bbox = Bnd_Box()
+        # brepbndlib_Add(face, face_bbox)
+        # face_center = ifcopenshell.geom.utils.get_bounding_box_center(face_bbox).XYZ()
         face_prop = GProp_GProps()
         brepgprop_SurfaceProperties(self.bound_shape, face_prop)
         area = face_prop.Mass()
         face_normal = plane.Axis().Direction().XYZ()
 
-        face_towards_center = bbox_center.XYZ() - face_center
+        face_towards_center = bbox_center.XYZ() - self.bound_center
         face_towards_center.Normalize()
 
         dot = face_towards_center.Dot(face_normal)
