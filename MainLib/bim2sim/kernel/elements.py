@@ -719,6 +719,36 @@ class SpaceBoundary(element.SubElement):
         ensuring that corresponding space boundaries have a matching number of vertices.
         """
         if self.bound_instance is None:
+            if not self.physical:
+                corr_bound = None
+                bounds = []
+                min_dist = 1000
+                for obj in self.thermal_zones[0].objects:
+                    if self.thermal_zones[0].objects[obj].ifc_type == 'IfcRelSpaceBoundary':
+                        bounds.append(self.thermal_zones[0].objects[obj])
+                for bound in bounds:
+                    if bound.physical:
+                        continue
+                    if bound.thermal_zones[0].ifc.GlobalId == self.thermal_zones[0].ifc.GlobalId:
+                        continue
+                    if (bound.bound_area-self.bound_area)**2 > 1:
+                        continue
+                    distance = BRepExtrema_DistShapeShape(
+                        bound.bound_shape,
+                        self.bound_shape,
+                        Extrema_ExtFlag_MIN
+                    ).Value()
+                    if distance > min_dist or distance > 0.4 :
+                        continue
+                    self.check_for_vertex_duplicates(bound)
+                    nb_vert_this = self._get_number_of_vertices(self.bound_shape)
+                    nb_vert_other = self._get_number_of_vertices(bound.bound_shape)
+                    center_dist = gp_Pnt(self.bound_center).Distance(gp_Pnt(bound.bound_center)) ** 2
+                    if (center_dist) > 0.5:
+                        continue
+                    corr_bound = bound
+                return corr_bound
+                # for bound in self.objects.
             return None
         elif len(self.bound_instance.space_boundaries) == 1:
             return None
@@ -752,15 +782,13 @@ class SpaceBoundary(element.SubElement):
                 if distance > min_dist:
                     continue
                 other_area = bound.bound_area
-                if (other_area - self.bound_area)**2 < 1e1:
+                if (other_area - self.bound_area)**2 < 1e-1:
                     self.check_for_vertex_duplicates(bound)
                     nb_vert_this = self._get_number_of_vertices(self.bound_shape)
                     nb_vert_other = self._get_number_of_vertices(bound.bound_shape)
                     if nb_vert_this == nb_vert_other:
                         corr_bound = bound
             return corr_bound
-        # todo: include corresponding bound for virtual bounds
-        # (which do not have bound_instance)
         else:
             return None
 
@@ -780,9 +808,10 @@ class SpaceBoundary(element.SubElement):
         vert_list2.reverse()
         vert_list2 = self._remove_vertex_duplicates(vert_list2)
         if len(vert_list1) == len(vert_list2):
+            vert_list1.reverse()
+            vert_list2.reverse()
             self.bound_shape = self._make_face_from_vertex_list(vert_list1)
             rel_bound.bound_shape = self._make_face_from_vertex_list(vert_list2)
-
 
     @staticmethod
     def _remove_vertex_duplicates(vert_list):
@@ -815,7 +844,7 @@ class SpaceBoundary(element.SubElement):
         a_wire = a_wire.Wire()
         a_face = BRepBuilderAPI_MakeFace(a_wire).Face()
 
-        return a_face.Reversed()
+        return a_face#.Reversed()
 
     @staticmethod
     def _get_vertex_list_from_face(face):
