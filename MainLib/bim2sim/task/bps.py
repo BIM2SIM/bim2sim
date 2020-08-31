@@ -782,12 +782,16 @@ class ExportEP(ITask):
             # assign opening elems (Windows, Doors) to parents and vice versa
             if not hasattr(b_inst.ifc, 'HasOpenings'):
                 continue
+            if len(b_inst.ifc.HasOpenings) == 0:
+                continue
             for opening in b_inst.ifc.HasOpenings:
                 if hasattr(opening.RelatedOpeningElement, 'HasFillings'):
                     for fill in opening.RelatedOpeningElement.HasFillings:
                         opening_obj = b_inst.objects[fill.RelatedBuildingElement.GlobalId]
                         if not hasattr(b_inst, 'related_openings'):
                             setattr(b_inst, 'related_openings', [])
+                        if opening_obj in b_inst.related_openings:
+                            continue
                         b_inst.related_openings.append(opening_obj)
                         if not hasattr(opening_obj, 'related_parent'):
                             setattr(opening_obj, 'related_parent', [])
@@ -800,6 +804,15 @@ class ExportEP(ITask):
             for opening in b_inst.related_openings:
                 for op_bound in opening.space_boundaries:
                     if op_bound.ifc.RelatingSpace == inst_obj_space:
+                        if op_bound in inst_obj.related_opening_bounds:
+                            continue
+                        distance = BRepExtrema_DistShapeShape(
+                            op_bound.bound_shape,
+                            inst_obj.bound_shape,
+                            Extrema_ExtFlag_MIN
+                        ).Value()
+                        if distance > 0.3:
+                            continue
                         inst_obj.related_opening_bounds.append(op_bound)
                         if not hasattr(op_bound, 'related_parent_bound'):
                             setattr(op_bound, 'related_parent_bound', [])
