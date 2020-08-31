@@ -871,6 +871,8 @@ class SpaceBoundary(element.SubElement):
                     center_dist = gp_Pnt(self.bound_center).Distance(gp_Pnt(bound.bound_center)) ** 2
                     if (center_dist) > 0.5:
                         continue
+                    if nb_vert_other != nb_vert_this:
+                        continue
                     corr_bound = bound
                 return corr_bound
                 # for bound in self.objects.
