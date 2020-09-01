@@ -992,6 +992,10 @@ class IdfObject():
                     if inst_obj.related_bound is None or inst_obj.is_external:
                         surface_type = "Roof"
         elif inst_obj.physical == False:
+            ftc = inst_obj.thermal_zones[0].space_center.XYZ() - inst_obj.bound_center
+            ftc.Normalize()
+            if ftc.Dot(inst_obj.bound_normal) < 0:
+                self.bound_shape = inst_obj.bound_shape.Reversed()
             # surface_type = "VIRTUAL"
             if not self._compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
                 surface_type = 'Wall'
@@ -1000,10 +1004,6 @@ class IdfObject():
                     surface_type = "Floor"
                 elif inst_obj.top_bottom == "TOP":
                     surface_type = "Ceiling"
-                # if inst_obj.bound_normal.Coord() == (0, 0, -1):
-                #     surface_type = "Floor"
-                # else:
-                #     surface_type = 'Ceiling'
         self.surface_type = surface_type
 
     def _map_boundary_conditions(self, inst_obj):

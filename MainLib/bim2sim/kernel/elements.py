@@ -719,6 +719,7 @@ class SpaceBoundary(element.SubElement):
         ensuring that corresponding space boundaries have a matching number of vertices.
         """
         if self.bound_instance is None:
+            # check for visual bounds
             if not self.physical:
                 corr_bound = None
                 bounds = []
