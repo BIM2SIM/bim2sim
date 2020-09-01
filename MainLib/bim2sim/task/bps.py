@@ -19,6 +19,12 @@ from OCC.BRep import BRep_Tool
 from OCC.BRepTools import BRepTools_WireExplorer, breptools_UVBounds
 from OCC.Geom import Handle_Geom_Plane
 from geomeppy import IDF
+from OCC.BRepAlgoAPI import BRepAlgoAPI_Cut
+from OCC.StlAPI import StlAPI_Writer
+from OCC.BRepMesh import BRepMesh_IncrementalMesh
+from stl import stl
+from stl import mesh
+
 
 from bim2sim.task.base import Task, ITask
 from bim2sim.filter import TypeFilter
@@ -639,18 +645,32 @@ class ExportEP(ITask):
         # idf.printidf()
         idf.save()
         idf.view_model()
-        idf.run(output_directory="../../PluginEnergyPlus/results/")
+        idf.run(output_directory=str(PROJECT.root) + "/export/EP-results/")
 
     def _export_geom_to_idf(self, instances, idf):
+        stl_name = idf.idfname.replace('.idf', '')
+        stl_name = stl_name.replace(str(PROJECT.root) + "/export/", '')
+
         for inst in instances:
             if instances[inst].ifc_type != "IfcRelSpaceBoundary":
                 continue
             inst_obj = instances[inst]
             idfp = IdfObject(inst_obj, idf)
+            self.export_to_stl(inst_obj, stl_name)
+
             if idfp.skip_bound:
                 # idf.popidfobject(idfp.key, -1)
                 self.logger.warning("Boundary with the GUID %s (%s) is skipped (due to missing boundary conditions)!", idfp.name, idfp.surface_type)
                 continue
+        stl_dir = str(PROJECT.root) + "/export/"
+        with open(stl_dir+stl_name + "_combined_STL.stl", 'wb+') as output_file:
+            for i in os.listdir(stl_dir+'STL/'):
+                if os.path.isfile(os.path.join(stl_dir+'STL/',i)) and (stl_name + "_cfd_") in i:
+                    sb_mesh = mesh.Mesh.from_file(stl_dir+'STL/'+i)
+                    mesh_name = i.split("_",1)[-1]
+                    mesh_name = mesh_name.replace(".stl", "")
+                    sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
+
 
     @staticmethod
     def _init_idf():
@@ -662,7 +682,7 @@ class ExportEP(ITask):
         path = '/usr/local/EnergyPlus-9-3-0/'
         IDF.setiddname(path + 'Energy+.idd')
         idf = IDF(path + "ExampleFiles/Minimal.idf")
-        idf.idfname = "../../PluginEnergyPlus/exports/temp.idf"
+        idf.idfname = str(PROJECT.root) + "/export/temp.idf"
 
         idf.epw = "USA_CO_Golden-NREL.724666_TMY3.epw"
         return idf
@@ -836,6 +856,33 @@ class ExportEP(ITask):
                 # display.DisplayShape(zone.space_shape, color=colors[(col - 1) % len(colors)])
         display.FitAll()
         start_display()
+
+    def export_to_stl(self, elem, stl_name):
+        """
+        This function exports a space to an idf file.
+        :param idf: idf file object
+        :param space: Space instance
+        :param zone: idf zone object
+        :return:
+        """
+        if elem.physical:
+            name = elem.ifc.GlobalId
+            stl_dir = str(PROJECT.root) + "/export/STL/"
+            stl_name = stl_dir + str(stl_name) + "_cfd_" + str(name) + ".stl"
+            os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
+
+            elem.cfd_face = elem.bound_shape
+            if hasattr(elem, 'related_openings'):
+                for opening in elem.related_openings:
+                    elem.cfd_face = BRepAlgoAPI_Cut(elem.cfd_face, opening.bound_shape).Shape()
+
+            triang_face = BRepMesh_IncrementalMesh(elem.cfd_face, 1)
+
+            # Export to STL
+            stl_writer = StlAPI_Writer()
+            stl_writer.SetASCIIMode(True)
+
+            stl_writer.Write(triang_face.Shape(), stl_name)
 
 class IdfObject():
     def __init__(self, inst_obj, idf):
