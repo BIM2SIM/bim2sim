@@ -637,6 +637,7 @@ class ExportEP(ITask):
         idf.set_default_constructions()
         self._export_geom_to_idf(instances, idf)
         stat = self._set_hvac_template(idf, name="stat1", heating_sp=20, cooling_sp=25)
+        # idf.set_default_constructions()
 
         for inst in instances:
             if instances[inst].ifc_type == "IfcSpace":
@@ -909,11 +910,85 @@ class IdfObject():
         if hasattr(inst_obj, 'related_parent_bound'):
             self.building_surface_name = inst_obj.related_parent_bound.ifc.GlobalId
 
+
         self._map_surface_types(inst_obj)
         self._map_boundary_conditions(inst_obj)
-        self._set_construction_name()
+        self._define_materials(inst_obj, idf)
+        if self.construction_name == None:
+            self._set_construction_name()
         obj = self._set_idfobject_attributes(idf)
+
+
         self._set_idfobject_coordinates(obj, idf, inst_obj)
+
+    def _define_materials(self, inst_obj, idf):
+        if inst_obj.bound_instance is None:
+            return
+        if inst_obj.bound_instance.ifc_type is ("IfcWindow" or "IfcDoor"):
+            return
+        if hasattr(inst_obj.bound_instance, 'layers'):
+            if inst_obj.bound_instance.layers == None or len(inst_obj.bound_instance.layers) == 0:
+                return
+            construction_name = self.surface_type
+            for layer in inst_obj.bound_instance.layers:
+                if layer.guid == None:
+                    return
+                construction_name = construction_name + layer.guid[-4:]
+                idf_materials = idf.idfobjects['Material'.upper()]
+                included = False
+                for mat in idf_materials:
+                    if layer.guid in mat.Name:
+                        included = True
+                if included:
+                    continue
+                else:
+                    if layer.thickness is None:
+                        thickness = 0.1
+                    else:
+                        thickness = layer.thickness
+                    if layer.density is None:
+                        density = 1000
+                    else:
+                        density = layer.density
+                    if layer.thermal_conductivity is None:
+                        conductivity = 0.1
+                    else:
+                        conductivity = layer.thermal_conductivity
+                    if layer.heat_capacity is None:
+                        heat_capacity = 1000
+                    else:
+                        heat_capacity = layer.heat_capacity
+
+                    idf.newidfobject("MATERIAL",
+                                     Name=layer.guid,
+                                     Roughness="Rough",
+                                     Thickness=thickness,
+                                     Conductivity=conductivity,
+                                     Density=density,
+                                     Specific_Heat=heat_capacity
+                                     )
+            idf_constr = idf.idfobjects['Construction'.upper()]
+            included = False
+            self.construction_name = construction_name
+            for cons in idf_constr:
+                if construction_name in cons.Name:
+                    included = True
+            if not included:
+                if len(inst_obj.bound_instance.layers) == 1:
+                    idf.newidfobject("CONSTRUCTION",
+                                     Name=construction_name,
+                                     Outside_Layer=inst_obj.bound_instance.layers[0].guid)
+                if len(inst_obj.bound_instance.layers) > 1:
+                    other_layers = {}
+                    for i, layer in enumerate(inst_obj.bound_instance.layers[1:]):
+                        other_layers.update({'Layer_' + str(i+2): layer.guid})
+                    idf.newidfobject("CONSTRUCTION",
+                                            Name=construction_name,
+                                            Outside_Layer=inst_obj.bound_instance.layers[0].guid,
+                                            **other_layers
+                                            )
+
+
 
 
     def _set_construction_name(self):
