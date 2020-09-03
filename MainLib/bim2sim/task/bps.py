@@ -976,15 +976,15 @@ class IdfObject():
         if self.construction_name == None:
             self._set_construction_name()
         obj = self._set_idfobject_attributes(idf)
-
-
         self._set_idfobject_coordinates(obj, idf, inst_obj)
 
     def _define_materials(self, inst_obj, idf):
+        #todo: define default property_sets
+        #todo: request missing values from user-inputs
         if inst_obj.bound_instance is None:
             return
-        if inst_obj.bound_instance.ifc_type is ("IfcWindow" or "IfcDoor"):
-            return
+        # if inst_obj.bound_instance.ifc_type is ("IfcWindow" or "IfcDoor"):
+        #     return
         if hasattr(inst_obj.bound_instance, 'layers'):
             if inst_obj.bound_instance.layers == None or len(inst_obj.bound_instance.layers) == 0:
                 return
@@ -993,39 +993,84 @@ class IdfObject():
                 if layer.guid == None:
                     return
                 construction_name = construction_name + layer.guid[-4:]
-                idf_materials = idf.idfobjects['Material'.upper()]
-                included = False
-                for mat in idf_materials:
-                    if layer.guid in mat.Name:
-                        included = True
-                if included:
-                    continue
-                else:
-                    if layer.thickness is None:
-                        thickness = 0.1
+                if inst_obj.bound_instance.ifc_type is not ("IfcWindow" or "IfcDoor"):
+                    idf_materials = idf.idfobjects['Material'.upper()]
+                    included = False
+                    for mat in idf_materials:
+                        if layer.guid in mat.Name:
+                            included = True
+                    if included:
+                        continue
                     else:
-                        thickness = layer.thickness
-                    if layer.density is None:
-                        density = 1000
-                    else:
-                        density = layer.density
-                    if layer.thermal_conductivity is None:
-                        conductivity = 0.1
-                    else:
-                        conductivity = layer.thermal_conductivity
-                    if layer.heat_capacity is None:
-                        heat_capacity = 1000
-                    else:
-                        heat_capacity = layer.heat_capacity
+                        # todo: use thermal transmittance if available (--> finder)
+                        if layer.thickness is None:
+                            thickness = 0.1
+                        else:
+                            thickness = layer.thickness
+                        if layer.density is None:
+                            density = 1000
+                        else:
+                            density = layer.density
+                        if layer.thermal_conductivity is None:
+                            conductivity = 0.1
+                        else:
+                            conductivity = layer.thermal_conductivity
+                        if layer.heat_capacity is None:
+                            heat_capacity = 1000
+                        else:
+                            heat_capacity = layer.heat_capacity
 
-                    idf.newidfobject("MATERIAL",
-                                     Name=layer.guid,
-                                     Roughness="Rough",
-                                     Thickness=thickness,
-                                     Conductivity=conductivity,
-                                     Density=density,
-                                     Specific_Heat=heat_capacity
-                                     )
+                        idf.newidfobject("MATERIAL",
+                                         Name=layer.guid,
+                                         Roughness="Rough",
+                                         Thickness=thickness,
+                                         Conductivity=conductivity,
+                                         Density=density,
+                                         Specific_Heat=heat_capacity
+                                         )
+                else:
+                    idf_op_materials = idf.idfobjects['WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM'.upper()]
+                    included = False
+                    for mat in idf_op_materials:
+                        if layer.guid in mat.Name:
+                            included = True
+                    if included:
+                        continue
+                    else:
+                        if layer.thickness is None:
+                            thickness = 0.1
+                        else:
+                            thickness = layer.thickness
+                        if layer.thermal_conductivity is None:
+                            conductivity = 0.1
+                        else:
+                            conductivity = layer.thermal_conductivity
+
+                        if layer.thermal_transmittance is not None:
+                            ufactor = layer.thermal_transmittance
+                        else:
+                            try:
+                                #todo: use finder to get transmittance
+                                #todo: ensure thermal_transmittance is not applied to multiple layers
+                                psw = inst_obj.bound_instance.get_propertyset('Pset_WindowCommon')
+                                ufactor = psw['ThermalTransmittance']
+                            except:
+                                ufactor = 1/(0.13+thickness/conductivity+0.04)
+                        # if layer.solar_heat_gain_coefficient is None:
+                        #     solar_heat_gain_coefficient = 0.763
+                        # else:
+                        #     solar_heat_gain_coefficient = layer.solar_heat_gain_coefficient
+                        # if layer.visible_transmittance is None:
+                        #     visible_transmittance = 0.8
+                        # else:
+                        #     visible_transmittance = layer.visible_transmittance
+
+                        idf.newidfobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM",
+                                         Name=layer.guid,
+                                         UFactor=ufactor,
+                                         Solar_Heat_Gain_Coefficient=0.763,
+                                         Visible_Transmittance=0.8
+                                         )
             idf_constr = idf.idfobjects['Construction'.upper()]
             included = False
             self.construction_name = construction_name
@@ -1038,6 +1083,11 @@ class IdfObject():
                                      Name=construction_name,
                                      Outside_Layer=inst_obj.bound_instance.layers[0].guid)
                 if len(inst_obj.bound_instance.layers) > 1:
+                    if inst_obj.bound_instance.ifc_type is ("IfcWindow" or "IfcDoor"):
+                        #todo: Add construction implementation for openings with >1 layer
+                        #todo: required construction: gas needs to be bounded by solid surfaces
+                        self.construction_name = None
+                        return
                     other_layers = {}
                     for i, layer in enumerate(inst_obj.bound_instance.layers[1:]):
                         other_layers.update({'Layer_' + str(i+2): layer.guid})
