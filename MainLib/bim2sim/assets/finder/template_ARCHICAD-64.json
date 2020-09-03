@@ -73,7 +73,8 @@
       "area" : ["BaseQuantities", "Area"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
       "thickness" : ["BaseQuantities", "Width"],
-      "is_external": ["Pset_WindowCommon", "IsExternal"]
+      "is_external": ["Pset_WindowCommon", "IsExternal"],
+      "thermal_transmittance": ["Pset_WindowCommon", "ThermalTransmittance"]
     }
   },
     "Door": {
