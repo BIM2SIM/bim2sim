@@ -1224,6 +1224,11 @@ class Layer(element.SubElement):
         default=0
     )
 
+    thermal_transmittance = attribute.Attribute(
+        default_ps=True,
+        default=0
+    )
+
 
 class OuterWall(Wall):
     special_argument = {'is_external': True}
@@ -1278,6 +1283,11 @@ class Window(element.Element):
     )
 
     material = attribute.Attribute(
+        default_ps=True,
+        default=0
+    )
+
+    thermal_transmittance = attribute.Attribute(
         default_ps=True,
         default=0
     )
