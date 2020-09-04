@@ -967,6 +967,8 @@ class ParallelSpaceHeater(Aggregation):
 
         if (p_instance in check_up) and (p_instance in check_low):
             return instance
+
+
 class Consumer(Aggregation):
     """Aggregates Consumer system boarder"""
     multi = ('has_pump', 'rated_power', 'rated_pump_power', 'rated_height', 'rated_volume_flow', 'temperature_inlet',
@@ -1416,3 +1418,137 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
         description="Volume of the hdydraulic seperator",
         functions=[_calc_avg]
     )
+
+
+class Generator_One_Fluid(Aggregation):
+    """Aggregates generator modules with only one fluid cycle (CHPs, Boilers,
+    ...) Not for Chillers or Heatpumps!"""
+    aggregatable_elements = ['IfcPump', 'PipeStrand', 'IfcPipeSegment',
+                             'IfcPipeFitting', 'IfcBoiler', 'ParallelPumps',
+                             'IfcTank', 'IfcDistributionChamberElement']
+
+    boarder_elements = ['IfcTank', 'IfcDistributionChamberElement']
+    multi = ('rated_power', 'has_pump', 'has_bypass', 'rated_volume_flow',
+             # todo: maybe add later: 'diameter', 'diameter_strand', 'length'
+             )
+
+    def __init__(self, name, element_graph, *args, **kwargs):
+        super().__init__(name, element_graph, *args, **kwargs)
+        edge_ports, element_graph = self.get_edge_ports(element_graph)
+        # todo add edge_ports and expansion tank again to elements
+        self.elements = element_graph.nodes
+        if len(edge_ports) > 2:
+            raise NotImplementedError
+        else:
+            for port in edge_ports:
+                self.ports.append(AggregationPort(port, parent=self))
+
+    @classmethod
+    def get_edge_ports(cls, graph):
+        # make graph unfrozen
+        _graph = graph.copy()
+        edge_ports = []
+        # get boarder elements
+        boarder_elements = [node for node in _graph.nodes if
+                  node.ifc_type in cls.boarder_elements]
+        if len(boarder_elements) > 1:
+            # todo: can this occur? maybe aggregation of distribution
+            #  elements before?
+            raise NotImplementedError
+        else:
+            boarder_element = boarder_elements[0]
+            for port in boarder_element.ports:
+                if port.connection:
+                    if port.connection.parent in _graph.nodes:
+                        edge_ports.append(port.connection)
+        # remove boarder nodes from graph
+        _graph.remove_node(boarder_element)
+
+        return edge_ports, _graph
+
+    def get_replacement_mapping(self):
+        """Returns dict with original ports as values and their aggregated
+        replacement as keys."""
+        mapping = {port: None for element in self.elements
+                   for port in element.ports}
+        for port in self.ports:
+            for original in port.originals:
+                mapping[original] = port
+        return mapping
+
+    @classmethod
+    def find_matches(cls, graph):
+        element_graph = graph.element_graph
+        wanted = {'IfcBoiler'}
+        boarders = set(cls.boarder_elements)
+        inerts = set(cls.aggregatable_elements) - wanted
+        _graph = HvacGraph.remove_not_wanted_nodes(element_graph, wanted, inerts)
+
+        cycles = HvacGraph.get_all_cycles_with_wanted(_graph, wanted)
+
+        bypass_nodes = HvacGraph.detect_bypasses_to_wanted(_graph, wanted,
+                                                           inerts, boarders)
+        _graph.remove_nodes_from(bypass_nodes)
+
+        generator_cycles = [nx.subgraph(_graph, cycle) for cycle in cycles
+                          if any(node.ifc_type == block for block in
+                                 boarders for node in cycle)]
+        # metas = []
+        # metas.append({'bypass_nodes': bypass_nodes})
+
+        # todo pass metas correctly
+        metas = [{} for x in generator_cycles]  # no metadata calculated
+        return generator_cycles, metas
+
+    @attribute.multi_calc
+    def _calc_avg(self):
+        """Calculates the parameters of all pump-like elements."""
+        max_rated_height = 0
+        total_rated_volume_flow = 0
+        total_diameter = 0
+        avg_diameter_strand = 0
+        total_length = 0
+        diameter_times_length = 0
+        total_rated_power = 0
+
+        for item in self.elements:
+            if "Pump" in item.ifc_type:
+
+                total_rated_volume_flow += item.rated_volume_flow
+                total_rated_power += item.rated_power
+
+                if max_rated_height != 0:
+                    if item.rated_height < max_rated_height:
+                        max_rated_height = item.rated_height
+                else:
+                    max_rated_height = item.rated_height
+
+                total_diameter += item.diameter ** 2
+            else:
+                if hasattr(item, "diameter") and hasattr(item, "length"):
+                    length = item.length
+                    diameter = item.diameter
+                    if not (length and diameter):
+                        self.logger.info("Ignored '%s' in aggregation", item)
+                        continue
+
+                    diameter_times_length += diameter * length
+                    total_length += length
+
+                else:
+                    self.logger.info("Ignored '%s' in aggregation", item)
+
+        if total_length != 0:
+            avg_diameter_strand = diameter_times_length / total_length
+
+        total_diameter = total_diameter ** .5
+
+        result = dict(
+            rated_power=total_rated_power,
+            rated_height=max_rated_height,
+            rated_volume_flow=total_rated_volume_flow,
+            diameter=total_diameter,
+            length=total_length,
+            diameter_strand=avg_diameter_strand
+        )
+        return result
