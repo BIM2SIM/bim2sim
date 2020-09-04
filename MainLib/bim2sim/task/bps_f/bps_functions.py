@@ -96,7 +96,9 @@ def orientation_verification(instance):
                 bo_spaces[i.name] = i.orientation
             new_angles = []
             for i in bo_spaces:
-                new_angles.append(bo_spaces[i] + boundaries1[i]-180)
+                # ToDo: Check cases
+                new_angles.append(boundaries1[i])
+                # new_angles.append(bo_spaces[i] + boundaries1[i]-180)
             # can't determine a possible new angle (very rare case)
             if len(set(new_angles)) > 1:
                 return None

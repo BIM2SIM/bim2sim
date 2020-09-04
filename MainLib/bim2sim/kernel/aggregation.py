@@ -1423,19 +1423,35 @@ class ThermalZone(Aggregation):
     def bind_elements(self):
         bound_elements = []
         for e in self.elements:
-            bound_elements.extend(e.bound_elements)
+            for i in e.bound_elements:
+                if i not in bound_elements:
+                    bound_elements.append(i)
         return bound_elements
 
     @classmethod
     def based_on_groups(cls, groups, instances):
         new_aggregations = []
+        total_area = sum(i.area for i in instances.values())
         for group in groups:
-            name = 'ThermalZone(%s)' % group
-            instance = cls(name, groups[group])
-            new_aggregations.append(instance)
-            for e in instance.elements:
-                if e.guid in instances:
-                    del instances[e.guid]
+            if group != 'not_bind':
+                # first criterion based on similarities
+                name = 'ThermalZone(%s)' % group
+                instance = cls(name, groups[group])
+                new_aggregations.append(instance)
+                for e in instance.elements:
+                    if e.guid in instances:
+                        del instances[e.guid]
+            else:
+                # last criterion no similarities
+                area = sum(i.area for i in groups[group])
+                if area/total_area <= 0.05:
+                    # Todo: usage and conditions criterion
+                    name = 'ThermalZone(%s)' % group
+                    instance = cls(name, groups[group])
+                    new_aggregations.append(instance)
+                    for e in instance.elements:
+                        if e.guid in instances:
+                            del instances[e.guid]
         return new_aggregations
 
 

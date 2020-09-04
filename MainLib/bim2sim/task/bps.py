@@ -95,8 +95,12 @@ class Inspect(ITask):
         """Filters the inspected instances by type name (e.g. Wall) and
         returns them as list"""
         instances_filtered = []
-        for instance in instances.values():
-            if type(instance).__name__ == type_name:
+        if type(instances) is dict:
+            list_instances = instances.values()
+        else:
+            list_instances = instances
+        for instance in list_instances:
+            if type_name in type(instance).__name__:
                 instances_filtered.append(instance)
         return instances_filtered
 
@@ -123,7 +127,10 @@ class ExportTEASER(ITask):
         """Creates a project in TEASER by a given BIM2SIM instance
         Parent: None"""
         prj = Project(load_data=True)
-        prj.name = element.Name
+        if len(element.Name) != 0:
+            prj.name = element.Name
+        else:
+            prj.name = element.LongName
         prj.data.load_uc_binding()
         return prj
 
@@ -205,20 +212,16 @@ class ExportTEASER(ITask):
             templates = instance.finder.templates
 
         teaser_class = cls.instance_switcher.get(sw)
-        if teaser_class is None:
-            print('teaser class for instance not found')
-        teaser_instance = teaser_class(parent=parent)
-
-        cls._teaser_property_getter(teaser_instance, instance, templates)
-        cls._instance_related(teaser_instance, instance, bldg)
-
-        return teaser_instance
+        if teaser_class is not None:
+            teaser_instance = teaser_class(parent=parent)
+            cls._teaser_property_getter(teaser_instance, instance, templates)
+            cls._instance_related(teaser_instance, instance, bldg)
 
     @classmethod
     def _bind_instances_to_zone(cls, tz, tz_instance, bldg):
         """create and bind the instances of a given thermal zone to a teaser instance thermal zone"""
         for bound_element in tz_instance.bound_elements:
-            inst = cls._create_teaser_instance(bound_element, tz, bldg)
+            cls._create_teaser_instance(bound_element, tz, bldg)
 
     @classmethod
     def _instance_related(cls, teaser_instance, instance, bldg):

@@ -14,6 +14,7 @@ from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.enrichment_data.data_class import DataClass
 from teaser.logic.buildingobjects.useconditions import UseConditions
 from bim2sim.task.bps_f.bps_functions import get_matches_list
+from bim2sim.task import bps
 
 
 def diameter_post_processing(value):
@@ -500,11 +501,13 @@ class ThermalZone(element.Element):
         pattern_usage = {
             "Living": [
                 re.compile('Living', flags=re.IGNORECASE),
-                re.compile('Wohnen', flags=re.IGNORECASE)
+                re.compile('Wohnen', flags=re.IGNORECASE),
+                re.compile('Büro', flags=re.IGNORECASE)
             ],
             "Traffic area": [
                 re.compile('Traffic', flags=re.IGNORECASE),
-                re.compile('Flur', flags=re.IGNORECASE)
+                re.compile('Flur', flags=re.IGNORECASE),
+                re.compile('WC', flags=re.IGNORECASE)
             ],
             "Bed room": [
                 re.compile('Bed', flags=re.IGNORECASE),
@@ -533,20 +536,58 @@ class ThermalZone(element.Element):
         return usage_decision.value
 
     def get_is_external(self):
-        for ele in self.bound_elements:
+        """determines if a thermal zone is external or internal"""
+        new_elements = bps.Inspect.filter_instances(self.bound_elements, 'Wall') + bps.Inspect.filter_instances(self.bound_elements, 'Window')
+        for ele in new_elements:
             if hasattr(ele, 'is_external'):
                 if ele.is_external is True:
                     self.is_external = True
                     break
 
     def get_true_orientation(self):
-        orientations = []
-        for ele in self.bound_elements:
-            if hasattr(ele, 'is_external') and hasattr(ele, 'orientation'):
-                if ele.is_external is True and ele.orientation not in [-1, -2]:
-                    orientations.append(ele.orientation)
-        if len(list(set(orientations))) == 1:
-            self.true_orientation = list(set(orientations))[0]
+        """determines the orientation of the thermal zone:
+        it can be a corner or an edge """
+        if self.is_external is True:
+            orientations = []
+            for ele in self.bound_elements:
+                if hasattr(ele, 'is_external') and hasattr(ele, 'orientation'):
+                    if ele.is_external is True and ele.orientation not in [-1, -2]:
+                        orientations.append(ele.orientation)
+            if len(list(set(orientations))) == 1:
+                self.true_orientation = list(set(orientations))[0]
+            else:
+                # corner case
+                self.true_orientation = str(list(set(orientations)))
+
+    def get_glass_area(self):
+        """determines the glass area for all the windows in the space
+        0-30: 15
+        30-50: 40
+        50-70: 60
+        70-100: 85"""
+
+        glass_area = 0
+        facade_area = 0
+        if self.is_external is True:
+            for ele in self.bound_elements:
+                if type(ele) is Window:
+                    if ele.area is not None:
+                        glass_area += ele.area
+                if 'Wall' in type(ele).__name__ and ele.is_external is True:
+                    facade_area += ele.area
+            real_gp = 0
+            try:
+                real_gp = 100*(glass_area/(facade_area+glass_area))
+            except ZeroDivisionError:
+                pass
+            if 0 <= real_gp < 30:
+                self.glass_percentage = 15
+            elif 30 <= real_gp < 50:
+                self.glass_percentage = 40
+            elif 50 <= real_gp < 70:
+                self.glass_percentage = 60
+            else:
+                self.glass_percentage = 85
 
     usage = attribute.Attribute(
         functions=[_get_usage]
@@ -576,6 +617,7 @@ class ThermalZone(element.Element):
         self.bound_elements = []
         self.is_external = False
         self.true_orientation = 'Internal'
+        self.glass_percentage = 'Internal'
 
     def get__elements_by_type(self, type):
         raise NotImplementedError
