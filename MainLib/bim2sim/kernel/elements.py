@@ -591,10 +591,12 @@ class ThermalZone(element.Element):
 
     def get_neighbors(self):
         """determines the neighbors of the thermal zone"""
+        neighbors = []
         for ele in self.bound_elements:
             for tz in ele.thermal_zones:
-                if tz is not self and tz not in self.neighbors:
-                    self.neighbors.append(tz)
+                if (tz is not self) and (tz not in neighbors):
+                    neighbors.append(tz)
+        self.space_neighbors = neighbors
 
     usage = attribute.Attribute(
         functions=[_get_usage]
@@ -625,6 +627,7 @@ class ThermalZone(element.Element):
         self.is_external = False
         self.true_orientation = 'Internal'
         self.glass_percentage = 'Internal'
+        self.space_neighbors = []
 
     def get__elements_by_type(self, type):
         raise NotImplementedError

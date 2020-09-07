@@ -163,6 +163,9 @@ class Bind(Task):
                 temp3.append(tz)
         if len(temp3) > 1:
             temp['not_bind'] = temp3
+
+        self.filter_neighbors(temp)
+
         return temp
 
     @staticmethod
@@ -180,6 +183,27 @@ class Bind(Task):
             if len(groups[k]) <= 1:
                 del groups[k]
         return groups
+
+    @staticmethod
+    def filter_neighbors(tz_groups):
+        """filters the thermal zones groups, based on the thermal zones that
+        are neighbors"""
+        for group, tz_group in tz_groups.items():
+            for tz in list(tz_group):
+                neighbor_statement = False
+                for neighbor in tz.space_neighbors:
+                    if neighbor in tz_group:
+                        neighbor_statement = True
+                        break
+                if not neighbor_statement:
+                    tz_groups[group].remove(tz)
+
+        for group in list(tz_groups.keys()):
+            if len(tz_groups[group]) <= 1:
+                del tz_groups[group]
+
+
+
 
     # @staticmethod
     # def check_neighbors(thermal_zones, attribute):
