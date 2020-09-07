@@ -44,11 +44,17 @@ def get_disaggregations_instance(element, thermal_zone):
                 pos = binding.ConnectionGeometry.SurfaceOnRelatingElement.Position.Location.Coordinates
 
             i = 0
-            while i < len(shape.verts):
-                x.append(shape.verts[i])
-                y.append(shape.verts[i + 1])
-                z.append(shape.verts[i + 2])
-                i += 3
+            if len(shape.verts) > 0:
+                while i < len(shape.verts):
+                    x.append(shape.verts[i])
+                    y.append(shape.verts[i + 1])
+                    z.append(shape.verts[i + 2])
+                    i += 3
+            else:
+                for point in binding.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary.Points:
+                    x.append(point.Coordinates[0])
+                    y.append(point.Coordinates[1])
+                    z.append(0)
 
             x.sort()
             y.sort()

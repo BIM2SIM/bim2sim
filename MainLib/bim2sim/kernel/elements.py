@@ -589,6 +589,13 @@ class ThermalZone(element.Element):
             else:
                 self.glass_percentage = 85
 
+    def get_neighbors(self):
+        """determines the neighbors of the thermal zone"""
+        for ele in self.bound_elements:
+            for tz in ele.thermal_zones:
+                if tz is not self and tz not in self.neighbors:
+                    self.neighbors.append(tz)
+
     usage = attribute.Attribute(
         functions=[_get_usage]
     )

@@ -1421,15 +1421,19 @@ class ThermalZone(Aggregation):
             setattr(self, prop, value)
 
     def bind_elements(self):
+        """elements binder for the resultant thermal zone"""
         bound_elements = []
         for e in self.elements:
             for i in e.bound_elements:
                 if i not in bound_elements:
                     bound_elements.append(i)
+
         return bound_elements
 
     @classmethod
     def based_on_groups(cls, groups, instances):
+        """creates a new thermal zone aggregatin instance
+         based on a previous filtering"""
         new_aggregations = []
         total_area = sum(i.area for i in instances.values())
         for group in groups:
