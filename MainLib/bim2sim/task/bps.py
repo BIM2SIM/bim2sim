@@ -644,9 +644,10 @@ class ExportEP(ITask):
                 self._init_zone(idf, stat, instances[inst])
         # idf.set_default_constructions()
         # idf.printidf()
+        self._set_output_variables(idf)
         idf.save()
         idf.view_model()
-        idf.run(output_directory=str(PROJECT.root) + "/export/EP-results/")
+        idf.run(output_directory=str(PROJECT.root) + "/export/EP-results/", readvars=True)
 
     def _export_geom_to_idf(self, instances, idf):
         stl_name = idf.idfname.replace('.idf', '')
@@ -740,6 +741,35 @@ class ExportEP(ITask):
             sim_control.Run_Simulation_for_Sizing_Periods = "No"
             sim_control.Run_Simulation_for_Weather_File_Run_Periods = "Yes"
         # return idf
+
+    @staticmethod
+    def _set_output_variables(idf):
+        """
+        Adds userdefined output variables to the idf file
+        :param idf: idf file object
+        :return: idf file object
+        """
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Ideal Loads Supply Air Total Heating Energy",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Ideal Loads Supply Air Total Cooling Energy",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Surface Inside Face Temperature",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject("OUTPUT:SURFACES:DRAWING",
+                         Report_Type="DXF")
+        idf.newidfobject("OUTPUT:DIAGNOSTICS",
+                         Key_1="DisplayAdvancedReportVariables",
+                         Key_2="DisplayExtraWarnings")
+        return idf
 
     @staticmethod
     def _move_children_to_parents(instances):
