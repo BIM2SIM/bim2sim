@@ -923,7 +923,21 @@ class IdfObject():
         #todo: define default property_sets
         #todo: request missing values from user-inputs
         if inst_obj.bound_instance is None:
-            return
+            idf_constr = idf.idfobjects['CONSTRUCTION:AIRBOUNDARY'.upper()]
+            included = False
+            for cons in idf_constr:
+                if 'Air Wall' in cons.Name:
+                    included = True
+            if included==False:
+                idf.newidfobject("CONSTRUCTION:AIRBOUNDARY",
+                                 Name='Air Wall',
+                                 Solar_and_Daylighting_Method='GroupedZones',
+                                 Radiant_Exchange_Method='GroupedZones',
+                                 Air_Exchange_Method='SimpleMixing',
+                                 Simple_Mixing_Air_Changes_per_Hour=0.5,
+                                 )
+            self.construction_name = 'Air Wall'
+
         # if inst_obj.bound_instance.ifc_type is ("IfcWindow" or "IfcDoor"):
         #     return
         if hasattr(inst_obj.bound_instance, 'layers'):
