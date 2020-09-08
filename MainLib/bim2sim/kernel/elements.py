@@ -961,6 +961,29 @@ class SpaceBoundary(element.SubElement):
         return vert_list
 
     @staticmethod
+    def _make_faces_from_pnts(pnt_list):
+        """
+        This function returns a TopoDS_Face from list of gp_Pnt
+        :param pnt_list: list of gp_Pnt or Coordinate-Tuples
+        :return: TopoDS_Face
+        """
+        an_edge = []
+        if isinstance(pnt_list[0], tuple):
+            new_list = []
+            for pnt in pnt_list:
+                new_list.append(gp_Pnt(gp_XYZ(pnt[0], pnt[1], pnt[2])))
+            pnt_list = new_list
+        for i in range(len(pnt_list[:-1])):
+            edge = BRepBuilderAPI_MakeEdge(pnt_list[i], pnt_list[i + 1]).Edge()
+            an_edge.append(edge)
+        a_wire = BRepBuilderAPI_MakeWire()
+        for edge in an_edge:
+            a_wire.Add(edge)
+        a_wire = a_wire.Wire()
+        a_face = BRepBuilderAPI_MakeFace(a_wire).Face()
+        return a_face
+
+    @staticmethod
     def _make_face_from_vertex_list(vert_list):
         an_edge = []
         for i in range(len(vert_list[:-1])):
@@ -1003,7 +1026,20 @@ class SpaceBoundary(element.SubElement):
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
         settings.set(settings.USE_WORLD_COORDS, True)
-        shape = ifcopenshell.geom.create_shape(settings, self.ifc.ConnectionGeometry.SurfaceOnRelatingElement)
+        try:
+            shape = ifcopenshell.geom.create_shape(settings, self.ifc.ConnectionGeometry.SurfaceOnRelatingElement)
+        except:
+            try:
+                shape = ifcopenshell.geom.create_shape(settings, self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
+            except:
+                poly = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary.Points
+                pnts = []
+                for p in poly:
+                    p.Coordinates = (p.Coordinates[0], p.Coordinates[1], 0.0)
+                    pnts.append((p.Coordinates[:]))
+                shape = self._make_faces_from_pnts(pnts)
+
+
         shape = self.get_transformed_shape(shape)
         return shape
 
@@ -1013,6 +1049,8 @@ class SpaceBoundary(element.SubElement):
         zone_position = gp_XYZ(zone.position[0], zone.position[1], zone.position[2])
         trsf1 = gp_Trsf()
         trsf2 = gp_Trsf()
+        if zone.orientation == None:
+            zone.orientation = 0
         trsf2.SetRotation(gp_Ax1(gp_Pnt(zone_position), gp_Dir(0, 0, 1)), -zone.orientation * pi / 180)
         trsf1.SetTranslation(gp_Vec(gp_XYZ(zone.position[0], zone.position[1], zone.position[2])))
         try:
