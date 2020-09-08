@@ -4,7 +4,7 @@ import math
 import numpy as np
 
 from bim2sim.kernel.element import BaseSubElement
-from bim2sim.task.bps_f.bps_functions import get_disaggregations_instance
+from bim2sim.task.bps_f.bps_functions import get_disaggregations_instance, angle_equivalent, vector_angle
 
 vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
 horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
@@ -50,9 +50,46 @@ class Disaggregation(BaseSubElement):
         except:
             return None
 
-    def calc_orientation(self):
+    @staticmethod
+    def calc_orientation(parent):
         try:
-            return self.parent.orientation
+            # ToDO: true north angle
+            switcher = {'Slab': -1,
+                        'Roof': -1,
+                        'Floor': -2,
+                        'GroundFloor': -2}
+            value = switcher.get(parent.__class__.__name__, 'continue')
+            if value is not 'continue':
+                return value
+
+            list_angles = []
+            placementrel = parent.ifc.ObjectPlacement
+            while placementrel is not None:
+                if placementrel.RelativePlacement.RefDirection is not None:
+                    o2 = placementrel.RelativePlacement.RefDirection.DirectionRatios
+                    list_angles.append((placementrel.PlacesObject[0].GlobalId, vector_angle(o2)))
+                placementrel = placementrel.PlacementRelTo
+            # relative vector + absolute vector
+            if len(list_angles) == 0:
+                return 0
+                # return None
+            ang_sum = list_angles[0][1]
+            for guid, ang in list_angles:
+                relative_element = parent.get_object(guid)
+                if relative_element is parent:
+                    continue
+                if relative_element is None:
+                    ang_sum += ang
+                    continue
+                ang_sum += relative_element.orientation
+                break
+            # specific case windows
+            if parent.ifc_type == 'IfcWindow':
+                ang_sum += 180
+
+            # angle between 0 and 360
+            return angle_equivalent(ang_sum)
+            # return self.parent.orientation
         except:
             return None
 
@@ -97,7 +134,7 @@ class Disaggregation(BaseSubElement):
             # create instance
             instance = cls(name + '_%d' % i, parent)
             instance.area = disaggregations[ins][0]
-
+            parent.orientation = cls.calc_orientation(parent)
             # position calc
             if parent.__class__.__name__ in vertical_instances:
                 instance._pos = get_new_position_vertical_instance(parent, disaggregations[ins][1])
