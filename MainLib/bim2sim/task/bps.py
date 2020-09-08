@@ -1011,7 +1011,7 @@ class IdfObject():
     def _define_materials(self, inst_obj, idf):
         #todo: define default property_sets
         #todo: request missing values from user-inputs
-        if inst_obj.bound_instance is None:
+        if inst_obj.bound_instance is None and self.out_bound_cond == "Surface":
             idf_constr = idf.idfobjects['CONSTRUCTION:AIRBOUNDARY'.upper()]
             included = False
             for cons in idf_constr:
