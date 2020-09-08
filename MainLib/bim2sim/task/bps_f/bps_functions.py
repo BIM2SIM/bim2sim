@@ -78,10 +78,7 @@ def orientation_verification(instance):
                 rel_angle_space = vector_angle(rel_vector_space)
                 boundaries1[i.RelatingSpace.Name] = rel_angle_space
             for i in instance.thermal_zones:
-                if i.orientation == None:
-                    bo_spaces[i.name] = 0
-                else:
-                    bo_spaces[i.name] = i.orientation
+                bo_spaces[i.name] = i.orientation
             new_angles = []
             for i in bo_spaces:
                 new_angles.append(bo_spaces[i] + boundaries1[i]-180)
@@ -91,8 +88,6 @@ def orientation_verification(instance):
             # no true north necessary
             new_angle = angle_equivalent(new_angles[0])
             # new angle return
-            if instance.orientation == None:
-                instance.orientation = 0
             if new_angle - instance.orientation > 0.1:
                 return new_angle
         else:
