@@ -947,7 +947,8 @@ class IdfObject():
         if self.construction_name == None:
             self._set_construction_name()
         obj = self._set_idfobject_attributes(idf)
-        self._set_idfobject_coordinates(obj, idf, inst_obj)
+        if obj is not None:
+            self._set_idfobject_coordinates(obj, idf, inst_obj)
 
     def _define_materials(self, inst_obj, idf):
         #todo: define default property_sets
@@ -1110,7 +1111,10 @@ class IdfObject():
         obj_coords = []
         for pnt in obj_pnts:
             obj_coords.append(pnt.Coord())
-        obj.setcoords(obj_coords)
+        try:
+            obj.setcoords(obj_coords)
+        except:
+            return
 
         circular_shape = self.get_circular_shape(obj_pnts)
 
@@ -1150,6 +1154,8 @@ class IdfObject():
     def _set_idfobject_attributes(self, idf):
         if self.surface_type is not None:
             if self.key == "BUILDINGSURFACE:DETAILED":
+                if self.surface_type.lower() in {"DOOR".lower(), "Window".lower()}:
+                    self.surface_type = "Wall"
                 obj = idf.newidfobject(
                     self.key,
                     Name=self.name,
