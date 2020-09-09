@@ -22,6 +22,8 @@ from geomeppy import IDF
 from OCC.BRepAlgoAPI import BRepAlgoAPI_Cut
 from OCC.StlAPI import StlAPI_Writer
 from OCC.BRepMesh import BRepMesh_IncrementalMesh
+from OCC.BRepGProp import brepgprop_SurfaceProperties
+from OCC.GProp import GProp_GProps
 from stl import stl
 from stl import mesh
 
@@ -660,10 +662,14 @@ class ExportEP(ITask):
             idfp = IdfObject(inst_obj, idf)
             self.export_to_stl(inst_obj, stl_name)
 
+
             if idfp.skip_bound:
                 # idf.popidfobject(idfp.key, -1)
                 self.logger.warning("Boundary with the GUID %s (%s) is skipped (due to missing boundary conditions)!", idfp.name, idfp.surface_type)
                 continue
+
+        self.fill_2b_bound_gaps_for_cfd(instances, stl_name)
+
         stl_dir = str(PROJECT.root) + "/export/"
         with open(stl_dir+stl_name + "_combined_STL.stl", 'wb+') as output_file:
             for i in os.listdir(stl_dir+'STL/'):
@@ -914,6 +920,33 @@ class ExportEP(ITask):
             stl_writer.SetASCIIMode(True)
 
             stl_writer.Write(triang_face.Shape(), stl_name)
+
+    def fill_2b_bound_gaps_for_cfd(self, instances, stl_name):
+        for inst in instances:
+            if instances[inst].ifc_type != "IfcSpace":
+                continue
+            space_obj = instances[inst]
+            space_obj.b_bound_shape = space_obj.space_shape
+            for bound in space_obj.space_boundaries:
+                space_obj.b_bound_shape = BRepAlgoAPI_Cut(space_obj.b_bound_shape, bound.bound_shape).Shape()
+
+            bound_prop = GProp_GProps()
+            brepgprop_SurfaceProperties(space_obj.b_bound_shape, bound_prop)
+            area = bound_prop.Mass()
+            if area > 0:
+                name = space_obj.ifc.GlobalId + "_2B"
+                stl_dir = str(PROJECT.root) + "/export/STL/"
+                this_name = stl_dir + str(stl_name) + "_cfd_" + str(name) + ".stl"
+                os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
+
+                triang_face = BRepMesh_IncrementalMesh(space_obj.b_bound_shape, 1)
+
+                # Export to STL
+                stl_writer = StlAPI_Writer()
+                stl_writer.SetASCIIMode(True)
+
+                stl_writer.Write(triang_face.Shape(), this_name)
+
 
 class IdfObject():
     def __init__(self, inst_obj, idf):
