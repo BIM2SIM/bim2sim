@@ -1177,13 +1177,17 @@ class Consumer(Aggregation):
     def _calc_TControl(self):
         return True  # ToDo: Look at Boiler Aggregation - David
 
+    @attribute.multi_calc
     def _calc_has_pump(self):
         has_pump = False
         for ele in self.elements:
             if elements.Pump is ele.__class__:
                 has_pump = True
                 break;
-        return has_pump
+
+        result = dict(
+            has_pump=has_pump)
+        return result
 
     def get_replacement_mapping(self):
         """Returns dict with original ports as values and their aggregated replacement as keys."""
