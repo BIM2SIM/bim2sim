@@ -903,8 +903,8 @@ class ExportEP(ITask):
             os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
 
             elem.cfd_face = elem.bound_shape
-            if hasattr(elem, 'related_openings'):
-                for opening in elem.related_openings:
+            if hasattr(elem, 'related_opening_bounds'):
+                for opening in elem.related_opening_bounds:
                     elem.cfd_face = BRepAlgoAPI_Cut(elem.cfd_face, opening.bound_shape).Shape()
 
             triang_face = BRepMesh_IncrementalMesh(elem.cfd_face, 1)
