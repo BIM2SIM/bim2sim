@@ -2,7 +2,6 @@
 
 import math
 import re
-
 import numpy as np
 
 from bim2sim.decorators import cached_property
@@ -570,11 +569,15 @@ class ThermalZone(element.Element):
         facade_area = 0
         if self.is_external is True:
             for ele in self.bound_elements:
+                if hasattr(ele.area, "m"):
+                    e_area = ele.area.magnitude
+                else:
+                    e_area = ele.area
                 if type(ele) is Window:
                     if ele.area is not None:
-                        glass_area += ele.area
+                        glass_area += e_area
                 if 'Wall' in type(ele).__name__ and ele.is_external is True:
-                    facade_area += ele.area
+                    facade_area += e_area
             real_gp = 0
             try:
                 real_gp = 100*(glass_area/(facade_area+glass_area))

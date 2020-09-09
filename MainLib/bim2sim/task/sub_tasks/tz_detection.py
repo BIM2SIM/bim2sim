@@ -76,9 +76,9 @@ class Inspect(Task):
                 if thermalzone not in inst.thermal_zones:
                     inst.thermal_zones.append(thermalzone)
 
-        # thermalzone.get_is_external()
-        # thermalzone.get_true_orientation()
-        # thermalzone.get_glass_area()
+        thermalzone.get_is_external()
+        thermalzone.get_true_orientation()
+        thermalzone.get_glass_area()
 
     def recognize_space_boundaries(self, ifc):
         """Recognizes space boundaries in ifc file by semantic detection for
