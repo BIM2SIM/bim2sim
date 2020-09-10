@@ -535,7 +535,8 @@ class ThermalZone(element.Element):
         return usage_decision.value
 
     def get_is_external(self):
-        """determines if a thermal zone is external or internal"""
+        """determines if a thermal zone is external or internal
+        based on its elements"""
         new_elements = bps.Inspect.filter_instances(self.bound_elements, 'Wall') + bps.Inspect.filter_instances(self.bound_elements, 'Window')
         for ele in new_elements:
             if hasattr(ele, 'is_external'):
@@ -544,7 +545,8 @@ class ThermalZone(element.Element):
                     break
 
     def get_true_orientation(self):
-        """determines the orientation of the thermal zone:
+        """determines the orientation of the thermal zone
+        based on its elements
         it can be a corner or an edge """
         if self.is_external is True:
             orientations = []
@@ -559,7 +561,7 @@ class ThermalZone(element.Element):
                 self.true_orientation = str(list(set(orientations)))
 
     def get_glass_area(self):
-        """determines the glass area for all the windows in the space
+        """determines the glass area/facade area ratio for all the windows in the space
         0-30: 15
         30-50: 40
         50-70: 60

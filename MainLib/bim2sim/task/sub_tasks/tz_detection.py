@@ -118,7 +118,6 @@ class Bind(Task):
         if len(self.instances) == 0:
             self.logger.warning("Found no spaces to bind")
 
-        # thermal_zone binding example
         tz_groups = self.group_thermal_zones()
         new_aggregations = ThermalZone.based_on_groups(tz_groups, self.instances)
         for inst in new_aggregations:
@@ -128,20 +127,26 @@ class Bind(Task):
         """groups together all the thermalzones based on three attributes:
         * is_external
         * usage
-        * true_orientation """
+        * true_orientation
+        * neighbors criterion"""
+
         external_binding = []
         internal_binding = []
 
+        # external - internal criterion
         for tz in self.instances.values():
             if tz.is_external:
                 external_binding.append(tz)
             else:
                 internal_binding.append(tz)
 
+        # usage criterion - internal and external
         external_binding = self.group_attribute(external_binding, 'usage')
         internal_binding = self.group_attribute(internal_binding, 'usage')
+        # orientation and glass percentage criterion - external only
         for k, li in external_binding.items():
             external_binding[k] = {}
+            #
             external_binding[k] = self.group_attribute(li, 'true_orientation')
             for nk, nli in external_binding[k].items():
                 external_binding[k][nk] = {}
@@ -161,9 +166,11 @@ class Bind(Task):
         for tz in self.instances.values():
             if tz not in temp2:
                 temp3.append(tz)
+        # no similarities criterion
         if len(temp3) > 1:
             temp['not_bind'] = temp3
 
+        # neighbors - filter criterion
         self.filter_neighbors(temp)
 
         return temp
