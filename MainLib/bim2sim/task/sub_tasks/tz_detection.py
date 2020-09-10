@@ -88,7 +88,7 @@ class Inspect(Task):
         entities = ifc.by_type(ifc_type)
         for entity in entities:
             space_boundary = SubElement.factory(entity, ifc_type)
-            # self.instances[space_boundary.guid] = space_boundary
+            self.instances[space_boundary.guid] = space_boundary
             self.bind_space_to_space_boundaries(space_boundary)
 
     def bind_space_to_space_boundaries(self, spaceboundary):
