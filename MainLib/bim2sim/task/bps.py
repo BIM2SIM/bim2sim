@@ -987,7 +987,17 @@ class ExportEP(ITask):
             space_obj = instances[inst]
             space_obj.b_bound_shape = space_obj.space_shape
             for bound in space_obj.space_boundaries:
-                space_obj.b_bound_shape = BRepAlgoAPI_Cut(space_obj.b_bound_shape, bound.bound_shape).Shape()
+                try:
+                    distance = BRepExtrema_DistShapeShape(
+                        space_obj.b_bound_shape,
+                        bound.bound_shape,
+                        Extrema_ExtFlag_MIN).Value()
+                    if distance > 0:
+                        continue
+                    space_obj.b_bound_shape = BRepAlgoAPI_Cut(space_obj.b_bound_shape, bound.bound_shape).Shape()
+                except:
+                    self.logger.warning("2B space bound generation may be incomplete in IfcSpace %s", space_obj.ifc.GlobalId)
+                    continue
 
             bound_prop = GProp_GProps()
             brepgprop_SurfaceProperties(space_obj.b_bound_shape, bound_prop)
