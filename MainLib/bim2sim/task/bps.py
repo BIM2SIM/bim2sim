@@ -1045,6 +1045,7 @@ class IdfObject():
 
         self._map_surface_types(inst_obj)
         self._map_boundary_conditions(inst_obj)
+        #todo: fix material definitions!
         # self._define_materials(inst_obj, idf)
         if self.construction_name == None:
             self._set_construction_name()
