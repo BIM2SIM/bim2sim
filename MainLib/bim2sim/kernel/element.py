@@ -125,7 +125,11 @@ class IFCBased(Root):
             super().__init__(*args, guid=self.get_id(type(self).__name__), **kwargs)
 
         self.ifc = ifc
-        self.name = ifc.Name
+        if len(ifc.Name) > 0:
+            self.name = ifc.Name
+        else:
+            self.name = input("Please enter name for the instance %s"
+                              % type(self).__name__)
         self.predefined_type = ifc2python.get_predefined_type(ifc)
         self.enrichment = {}
         self._propertysets = None

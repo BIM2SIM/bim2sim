@@ -139,6 +139,7 @@ class ExportTEASER(ITask):
         """Creates a building in TEASER by a given BIM2SIM instance
         Parent: Project"""
         bldg = Building(parent=parent)
+        # name is important here
         cls._teaser_property_getter(bldg, instance, instance.finder.templates)
         return bldg
 
@@ -168,6 +169,7 @@ class ExportTEASER(ITask):
                 name_error = instance.material
             try:
                 aux = cls.property_error[name_error][key]
+            # redundant case for invalid properties
             except KeyError:
                 if key in error_properties:
                     if hasattr(instance, '_get_material_properties'):

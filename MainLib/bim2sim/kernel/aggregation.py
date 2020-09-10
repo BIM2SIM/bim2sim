@@ -1398,7 +1398,7 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
     )
 
 
-class ThermalZone(Aggregation):
+class Aggregated_ThermalZone(Aggregation):
     """Aggregates thermal zones"""
     aggregatable_elements = ["IfcSpace"]
 
@@ -1439,7 +1439,7 @@ class ThermalZone(Aggregation):
         for group in groups:
             if group != 'not_bind':
                 # first criterion based on similarities
-                name = 'ThermalZone(%s)' % group
+                name = 'Aggregated_ThermalZone(%s)' % group
                 instance = cls(name, groups[group])
                 new_aggregations.append(instance)
                 for e in instance.elements:
@@ -1450,7 +1450,7 @@ class ThermalZone(Aggregation):
                 area = sum(i.area for i in groups[group])
                 if area/total_area <= 0.05:
                     # Todo: usage and conditions criterion
-                    name = 'ThermalZone(%s)' % group
+                    name = 'Aggregated_ThermalZone(%s)' % group
                     instance = cls(name, groups[group])
                     new_aggregations.append(instance)
                     for e in instance.elements:

@@ -4,6 +4,8 @@ import math
 import re
 
 from googletrans import Translator
+from bim2sim.enrichment_data.data_class import DataClass
+from bim2sim.decision import ListDecision, RealDecision
 
 
 def get_disaggregations_instance(element, thermal_zone):
@@ -182,6 +184,26 @@ def get_matches_list(search_words, search_list, transl=True):
     return material_options
 
 
+def get_material_templates_resumed():
+    material_templates = dict(DataClass(used_param=2).element_bind)
+    del material_templates['version']
+
+    resumed = {}
+    for k in material_templates:
+        resumed[material_templates[k]['name']] = k
+
+    return material_templates, resumed
 
 
+def real_decision_user_input(bind, name):
+    material = bind.material
+    decision2 = RealDecision("Enter value for the parameter %s" % name,
+                             global_key="%s" % name,
+                             allow_skip=False, allow_load=True, allow_save=True,
+                             collect=False, quick_decide=False)
+    decision2.decide()
+    if material not in bind.material_selected:
+        bind.material_selected[material] = {}
+    bind.material_selected[material][name] = decision2.value
 
+    return decision2.value

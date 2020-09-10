@@ -12,7 +12,7 @@ from bim2sim.decision import ListDecision, RealDecision
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.enrichment_data.data_class import DataClass
 from teaser.logic.buildingobjects.useconditions import UseConditions
-from bim2sim.task.bps_f.bps_functions import get_matches_list
+from bim2sim.task.bps_f.bps_functions import get_matches_list, get_material_templates_resumed, real_decision_user_input
 from bim2sim.task import bps
 
 
@@ -544,7 +544,7 @@ class ThermalZone(element.Element):
                     self.is_external = True
                     break
 
-    def get_true_orientation(self):
+    def get_external_orientation(self):
         """determines the orientation of the thermal zone
         based on its elements
         it can be a corner or an edge """
@@ -555,10 +555,10 @@ class ThermalZone(element.Element):
                     if ele.is_external is True and ele.orientation not in [-1, -2]:
                         orientations.append(ele.orientation)
             if len(list(set(orientations))) == 1:
-                self.true_orientation = list(set(orientations))[0]
+                self.external_orientation = list(set(orientations))[0]
             else:
                 # corner case
-                self.true_orientation = str(list(set(orientations)))
+                self.external_orientationn = str(list(set(orientations)))
 
     def get_glass_area(self):
         """determines the glass area/facade area ratio for all the windows in the space
@@ -585,14 +585,7 @@ class ThermalZone(element.Element):
                 real_gp = 100*(glass_area/(facade_area+glass_area))
             except ZeroDivisionError:
                 pass
-            if 0 <= real_gp < 30:
-                self.glass_percentage = 15
-            elif 30 <= real_gp < 50:
-                self.glass_percentage = 40
-            elif 50 <= real_gp < 70:
-                self.glass_percentage = 60
-            else:
-                self.glass_percentage = 85
+            self.glass_percentage = real_gp
 
     def get_neighbors(self):
         """determines the neighbors of the thermal zone"""
@@ -630,7 +623,7 @@ class ThermalZone(element.Element):
         super().__init__(*args, **kwargs)
         self.bound_elements = []
         self.is_external = False
-        self.true_orientation = 'Internal'
+        self.external_orientation = 'Internal'
         self.glass_percentage = 'Internal'
         self.space_neighbors = []
 
@@ -712,31 +705,6 @@ class Wall(element.Element):
         default=0
     )
 
-    # thermal_transmittance = attribute.Attribute(
-    #     name='thermal_transmittance',
-    #     default_ps=True,
-    #     default=0
-    # )
-    #
-    # thickness = attribute.Attribute(
-    #     name='thickness',
-    #     # default_ps=True,
-    #     functions=[_get_wall_properties],
-    #     # default=0
-    # )
-    #
-    # heat_capacity = attribute.Attribute(
-    #     name='heat_capacity',
-    #     # functions=[_get_wall_properties],
-    #     default=0
-    # )
-    #
-    # density = attribute.Attribute(
-    #     name='density',
-    #     # functions=[_get_wall_properties],
-    #     default=0
-    # )
-
 
 class Layer(element.SubElement):
     ifc_type = ['IfcMaterialLayer', 'IfcMaterial']
@@ -759,17 +727,6 @@ class Layer(element.SubElement):
                % (self.__class__.__name__, self.material)
 
     def _get_material_properties(bind, name):
-        def user_property_input(bind, name):
-            decision2 = RealDecision("Enter value for the parameter %s" % name,
-                                     global_key="%s" % name,
-                                     allow_skip=False, allow_load=True, allow_save=True,
-                                     collect=False, quick_decide=False)
-            decision2.decide()
-            if material not in bind.material_selected:
-                bind.material_selected[material] = {}
-            bind.material_selected[material][name] = decision2.value
-            return decision2.value
-
         if name == 'thickness':
             name = 'thickness_default'
 
@@ -778,7 +735,7 @@ class Layer(element.SubElement):
             if name in bind.material_selected[material]:
                 return bind.material_selected[material][name]
             else:
-                return user_property_input(bind, name)
+                return real_decision_user_input(bind, name)
         else:
             first_decision = BoolDecision(question="Do you want for %s %s to use template, enter 'n' for manual input"
                                           % (bind.guid, bind.material),
@@ -787,13 +744,7 @@ class Layer(element.SubElement):
             first_decision.stored_decisions.clear()
 
             if first_decision.value:
-                material_templates = dict(DataClass(used_param=2).element_bind)
-                del material_templates['version']
-
-                resumed = {}
-                for k in material_templates:
-                    resumed[material_templates[k]['name']] = k
-
+                material_templates, resumed = get_material_templates_resumed()
                 material_options = get_matches_list(bind.material, list(resumed.keys()))
 
                 while len(material_options) == 0:
@@ -810,7 +761,7 @@ class Layer(element.SubElement):
                 bind.material_selected[material] = material_templates[resumed[decision1.value]]
                 return bind.material_selected[material][name]
             else:
-                return user_property_input(bind, name)
+                return real_decision_user_input(bind, name)
 
     heat_capac = attribute.Attribute(
         default_ps=True,
