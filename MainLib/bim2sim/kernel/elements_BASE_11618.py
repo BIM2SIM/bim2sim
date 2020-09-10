@@ -2,30 +2,8 @@
 
 import math
 import re
-import numpy as np
-import ifcopenshell
-import ifcopenshell.geom
-from OCC.Bnd import Bnd_Box
-from OCC.BRepBndLib import brepbndlib_Add
-from OCC.BRepBuilderAPI import \
-    BRepBuilderAPI_MakeFace, \
-    BRepBuilderAPI_MakeEdge, \
-    BRepBuilderAPI_MakeWire, BRepBuilderAPI_Transform, BRepBuilderAPI_MakeVertex
-from OCC.BRepGProp import brepgprop_SurfaceProperties, brepgprop_VolumeProperties
-from OCC.GProp import GProp_GProps
-from OCC.GeomAPI import GeomAPI_ProjectPointOnCurve
-from OCC.ShapeAnalysis import ShapeAnalysis_ShapeContents
-from OCC.BRepExtrema import BRepExtrema_DistShapeShape
-from OCC.gp import gp_Trsf, gp_Vec, gp_XYZ,  gp_Dir, gp_Ax1, gp_Pnt
-from OCC.TopoDS import topods_Wire, topods_Face
-from OCC.TopAbs import TopAbs_FACE, TopAbs_WIRE
-from OCC.TopExp import TopExp_Explorer
-from OCC.BRep import BRep_Tool
-from OCC.BRepTools import BRepTools_WireExplorer
-from OCC.Geom import Handle_Geom_Plane
-from OCC.Extrema import Extrema_ExtFlag_MIN
 
-from math import pi
+import numpy as np
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, condition, attribute
@@ -36,7 +14,6 @@ from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.enrichment_data.data_class import DataClass
 from teaser.logic.buildingobjects.useconditions import UseConditions
 from bim2sim.task.bps_f.bps_functions import get_matches_list
-from bim2sim.task import bps
 
 
 def diameter_post_processing(value):
@@ -523,13 +500,11 @@ class ThermalZone(element.Element):
         pattern_usage = {
             "Living": [
                 re.compile('Living', flags=re.IGNORECASE),
-                re.compile('Wohnen', flags=re.IGNORECASE),
-                re.compile('Büro', flags=re.IGNORECASE)
+                re.compile('Wohnen', flags=re.IGNORECASE)
             ],
             "Traffic area": [
                 re.compile('Traffic', flags=re.IGNORECASE),
-                re.compile('Flur', flags=re.IGNORECASE),
-                re.compile('WC', flags=re.IGNORECASE)
+                re.compile('Flur', flags=re.IGNORECASE)
             ],
             "Bed room": [
                 re.compile('Bed', flags=re.IGNORECASE),
@@ -557,75 +532,6 @@ class ThermalZone(element.Element):
         usage_decision.decide()
         return usage_decision.value
 
-    def get_is_external(self):
-        """determines if a thermal zone is external or internal
-        based on its elements"""
-        new_elements = bps.Inspect.filter_instances(self.bound_elements, 'Wall') + bps.Inspect.filter_instances(self.bound_elements, 'Window')
-        for ele in new_elements:
-            if hasattr(ele, 'is_external'):
-                if ele.is_external is True:
-                    self.is_external = True
-                    break
-
-    def get_true_orientation(self):
-        """determines the orientation of the thermal zone
-        based on its elements
-        it can be a corner or an edge """
-        if self.is_external is True:
-            orientations = []
-            for ele in self.bound_elements:
-                if hasattr(ele, 'is_external') and hasattr(ele, 'orientation'):
-                    if ele.is_external is True and ele.orientation not in [-1, -2]:
-                        orientations.append(ele.orientation)
-            if len(list(set(orientations))) == 1:
-                self.true_orientation = list(set(orientations))[0]
-            else:
-                # corner case
-                self.true_orientation = str(list(set(orientations)))
-
-    def get_glass_area(self):
-        """determines the glass area/facade area ratio for all the windows in the space
-        0-30: 15
-        30-50: 40
-        50-70: 60
-        70-100: 85"""
-
-        glass_area = 0
-        facade_area = 0
-        if self.is_external is True:
-            for ele in self.bound_elements:
-                if hasattr(ele.area, "m"):
-                    e_area = ele.area.magnitude
-                else:
-                    e_area = ele.area
-                if type(ele) is Window:
-                    if ele.area is not None:
-                        glass_area += e_area
-                if 'Wall' in type(ele).__name__ and ele.is_external is True:
-                    facade_area += e_area
-            real_gp = 0
-            try:
-                real_gp = 100*(glass_area/(facade_area+glass_area))
-            except ZeroDivisionError:
-                pass
-            if 0 <= real_gp < 30:
-                self.glass_percentage = 15
-            elif 30 <= real_gp < 50:
-                self.glass_percentage = 40
-            elif 50 <= real_gp < 70:
-                self.glass_percentage = 60
-            else:
-                self.glass_percentage = 85
-
-    def get_neighbors(self):
-        """determines the neighbors of the thermal zone"""
-        neighbors = []
-        for ele in self.bound_elements:
-            for tz in ele.thermal_zones:
-                if (tz is not self) and (tz not in neighbors):
-                    neighbors.append(tz)
-        self.space_neighbors = neighbors
-
     usage = attribute.Attribute(
         functions=[_get_usage]
     )
@@ -652,45 +558,9 @@ class ThermalZone(element.Element):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bound_elements = []
-        self.is_external = False
-        self.true_orientation = 'Internal'
-        self.glass_percentage = 'Internal'
-        self.space_neighbors = []
 
     def get__elements_by_type(self, type):
         raise NotImplementedError
-
-    @cached_property
-    def space_center(self):
-        """returns geometric center of the space (of the bounding box of the space shape)"""
-        return self.get_center_of_space()
-
-    @cached_property
-    def space_shape(self):
-        """returns topods shape of the IfcSpace"""
-        settings = ifcopenshell.geom.main.settings()
-        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
-        settings.set(settings.USE_WORLD_COORDS, True)
-        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-        settings.set(settings.INCLUDE_CURVES, True)
-        return ifcopenshell.geom.create_shape(settings, self.ifc).geometry
-
-    @cached_property
-    def space_volume(self):
-        props = GProp_GProps()
-        brepgprop_VolumeProperties(self.space_shape, props)
-        volume = props.Mass()
-        return volume
-
-    def get_center_of_space(self):
-        """
-        This function returns the center of the bounding box of an ifc space shape
-        :return: center of space bounding box (gp_Pnt)
-        """
-        bbox = Bnd_Box()
-        brepbndlib_Add(self.space_shape, bbox)
-        bbox_center = ifcopenshell.geom.utils.get_bounding_box_center(bbox)
-        return bbox_center
 
 
 class SpaceBoundary(element.SubElement):
@@ -705,349 +575,14 @@ class SpaceBoundary(element.SubElement):
         else:
             self.bound_instance = None
         if self.ifc.InternalOrExternalBoundary.lower() == 'internal':
-            self.is_external = False
-        else:
             self.is_external = True
+        else:
+            self.is_external = False
         if self.ifc.PhysicalOrVirtualBoundary.lower() == 'physical':
             self.physical = True
         else:
             self.physical = False
-        if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
-            self.position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
-        else:
-            self.position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.Position.Location.Coordinates
 
-    @cached_property
-    def bound_shape(self):
-        return self.calc_bound_shape()
-
-    @cached_property
-    def bound_normal(self):
-        return self.compute_surface_normals_in_space()
-
-    @cached_property
-    def related_bound(self):
-        return self.get_corresponding_bound()
-
-    @cached_property
-    def bound_center(self):
-        return self.get_bound_center()
-
-    @cached_property
-    def top_bottom(self):
-        return self.get_floor_and_ceilings()
-
-    @cached_property
-    def bound_area(self):
-        return self.get_bound_area()
-
-    def get_bound_area(self):
-        """compute area of a space boundary"""
-        bound_prop = GProp_GProps()
-        brepgprop_SurfaceProperties(self.bound_shape, bound_prop)
-        area = bound_prop.Mass()
-        return area
-
-    def get_floor_and_ceilings(self):
-        """
-        This function computes, if the center of a space boundary
-        is below (bottom) or above (top) the center of a space.
-        This function is used to distinguish floors and ceilings (IfcSlab)
-        :return: top_bottom ("TOP", "BOTTOM")
-        """
-        top_bottom = None
-        vertical = gp_XYZ(0.0, 0.0, 1.0)
-        # only assign top and bottom for elements, whose
-        # surface normals are not perpendicular to a vertical
-        if self.bound_normal.Dot(vertical) != 0:
-            direct = self.bound_center.Z() - self.thermal_zones[0].space_center.Z()
-            if direct < 0 and self._compare_direction_of_normals(self.bound_normal, vertical):
-                top_bottom = "BOTTOM"
-            else:
-                top_bottom = "TOP"
-        return top_bottom
-
-    @staticmethod
-    def _compare_direction_of_normals(normal1, normal2):
-        """
-        Compare the direction of two surface normals (vectors).
-        True, if direction is same or reversed
-        :param normal1: first normal (gp_Pnt)
-        :param normal2: second normal (gp_Pnt)
-        :return: True/False
-        """
-        dotp = normal1.Dot(normal2)
-        check = False
-        if 1-1e-2 < dotp ** 2 < 1+1e-2:
-            check = True
-        return check
-
-    def get_bound_center(self):
-        """ compute center of the bounding box of a space boundary"""
-        face_bbox = Bnd_Box()
-        brepbndlib_Add(self.bound_shape, face_bbox)
-        face_center = ifcopenshell.geom.utils.get_bounding_box_center(face_bbox).XYZ()
-        return face_center
-
-    def get_corresponding_bound(self):
-        """
-        Get corresponding space boundary in another space,
-        ensuring that corresponding space boundaries have a matching number of vertices.
-        """
-        if self.bound_instance is None:
-            # check for visual bounds
-            if not self.physical:
-                corr_bound = None
-                bounds = []
-                min_dist = 1000
-                for obj in self.thermal_zones[0].objects:
-                    if self.thermal_zones[0].objects[obj].ifc_type == 'IfcRelSpaceBoundary':
-                        bounds.append(self.thermal_zones[0].objects[obj])
-                for bound in bounds:
-                    if bound.physical:
-                        continue
-                    if bound.thermal_zones[0].ifc.GlobalId == self.thermal_zones[0].ifc.GlobalId:
-                        continue
-                    if (bound.bound_area-self.bound_area)**2 > 1:
-                        continue
-                    distance = BRepExtrema_DistShapeShape(
-                        bound.bound_shape,
-                        self.bound_shape,
-                        Extrema_ExtFlag_MIN
-                    ).Value()
-                    if distance > min_dist or distance > 0.4 :
-                        continue
-                    self.check_for_vertex_duplicates(bound)
-                    nb_vert_this = self._get_number_of_vertices(self.bound_shape)
-                    nb_vert_other = self._get_number_of_vertices(bound.bound_shape)
-                    center_dist = gp_Pnt(self.bound_center).Distance(gp_Pnt(bound.bound_center)) ** 2
-                    if (center_dist) > 0.5:
-                        continue
-                    if nb_vert_other != nb_vert_this:
-                        continue
-                    corr_bound = bound
-                return corr_bound
-                # for bound in self.objects.
-            return None
-        elif len(self.bound_instance.space_boundaries) == 1:
-            return None
-        elif len(self.bound_instance.space_boundaries) == 2:
-            for bound in self.bound_instance.space_boundaries:
-                if bound.ifc.GlobalId == self.ifc.GlobalId:
-                    continue
-                self.check_for_vertex_duplicates(bound)
-                nb_vert_this = self._get_number_of_vertices(self.bound_shape)
-                nb_vert_other = self._get_number_of_vertices(bound.bound_shape)
-                if nb_vert_this == nb_vert_other:
-                    return bound
-                else:
-                    return None
-        elif len(self.bound_instance.space_boundaries) > 2:
-            own_space_id = self.thermal_zones[0].ifc.GlobalId
-            min_dist = 1000
-            corr_bound = None
-            for bound in self.bound_instance.space_boundaries:
-                if bound.thermal_zones[0].ifc.GlobalId == own_space_id:
-                    # skip boundaries within same space (cannot be corresponding bound)
-                    continue
-                distance = BRepExtrema_DistShapeShape(
-                    bound.bound_shape,
-                    self.bound_shape,
-                    Extrema_ExtFlag_MIN
-                ).Value()
-                center_dist = gp_Pnt(self.bound_center).Distance(gp_Pnt(bound.bound_center))**2
-                if (center_dist)**0.5 > 0.5:
-                    continue
-                if distance > min_dist:
-                    continue
-                other_area = bound.bound_area
-                if (other_area - self.bound_area)**2 < 1e-1:
-                    self.check_for_vertex_duplicates(bound)
-                    nb_vert_this = self._get_number_of_vertices(self.bound_shape)
-                    nb_vert_other = self._get_number_of_vertices(bound.bound_shape)
-                    if nb_vert_this == nb_vert_other:
-                        corr_bound = bound
-            return corr_bound
-        else:
-            return None
-
-    def check_for_vertex_duplicates(self, rel_bound):
-        nb_vert_this = self._get_number_of_vertices(self.bound_shape)
-        nb_vert_other = self._get_number_of_vertices(rel_bound.bound_shape)
-        # if nb_vert_this != nb_vert_other:
-        setattr(self, 'bound_shape_org', self.bound_shape)
-        vert_list1 = self._get_vertex_list_from_face(self.bound_shape)
-        vert_list1 = self._remove_vertex_duplicates(vert_list1)
-        vert_list1.reverse()
-        vert_list1 = self._remove_vertex_duplicates(vert_list1)
-
-        setattr(rel_bound, 'bound_shape_org', rel_bound.bound_shape)
-        vert_list2 = self._get_vertex_list_from_face(rel_bound.bound_shape)
-        vert_list2 = self._remove_vertex_duplicates(vert_list2)
-        vert_list2.reverse()
-        vert_list2 = self._remove_vertex_duplicates(vert_list2)
-        if len(vert_list1) == len(vert_list2):
-            vert_list1.reverse()
-            vert_list2.reverse()
-            self.bound_shape = self._make_face_from_vertex_list(vert_list1)
-            rel_bound.bound_shape = self._make_face_from_vertex_list(vert_list2)
-
-    @staticmethod
-    def _remove_vertex_duplicates(vert_list):
-        for i, vert in enumerate(vert_list):
-            edge_pp_p = BRepBuilderAPI_MakeEdge(vert_list[(i) % (len(vert_list) - 1)],
-                                                vert_list[(i + 1) % (len(vert_list) - 1)]).Shape()
-            distance = BRepExtrema_DistShapeShape(vert_list[(i + 2) % (len(vert_list) - 1)], edge_pp_p,
-                                                  Extrema_ExtFlag_MIN)
-            if 0 < distance.Value() < 0.001:
-                # first: project close vertex to edge
-                edge = BRepBuilderAPI_MakeEdge(vert_list[(i) % (len(vert_list) - 1)],
-                                                    vert_list[(i + 1) % (len(vert_list) - 1)]).Edge()
-                projector = GeomAPI_ProjectPointOnCurve(BRep_Tool.Pnt(vert_list[(i + 2) % (len(vert_list) - 1)]),
-                                                        BRep_Tool.Curve(edge)[0])
-                np = projector.NearestPoint()
-                vert_list[(i + 2) % (len(vert_list) - 1)] = BRepBuilderAPI_MakeVertex(np).Vertex()
-                # delete additional vertex
-                vert_list.pop((i + 1) % (len(vert_list) - 1))
-        return vert_list
-
-    @staticmethod
-    def _make_faces_from_pnts(pnt_list):
-        """
-        This function returns a TopoDS_Face from list of gp_Pnt
-        :param pnt_list: list of gp_Pnt or Coordinate-Tuples
-        :return: TopoDS_Face
-        """
-        an_edge = []
-        if isinstance(pnt_list[0], tuple):
-            new_list = []
-            for pnt in pnt_list:
-                new_list.append(gp_Pnt(gp_XYZ(pnt[0], pnt[1], pnt[2])))
-            pnt_list = new_list
-        for i in range(len(pnt_list[:-1])):
-            edge = BRepBuilderAPI_MakeEdge(pnt_list[i], pnt_list[i + 1]).Edge()
-            an_edge.append(edge)
-        a_wire = BRepBuilderAPI_MakeWire()
-        for edge in an_edge:
-            a_wire.Add(edge)
-        a_wire = a_wire.Wire()
-        a_face = BRepBuilderAPI_MakeFace(a_wire).Face()
-        return a_face
-
-    @staticmethod
-    def _make_face_from_vertex_list(vert_list):
-        an_edge = []
-        for i in range(len(vert_list[:-1])):
-            edge = BRepBuilderAPI_MakeEdge(vert_list[i], vert_list[i + 1]).Edge()
-            an_edge.append(edge)
-        a_wire = BRepBuilderAPI_MakeWire()
-        for edge in an_edge:
-            a_wire.Add(edge)
-        a_wire = a_wire.Wire()
-        a_face = BRepBuilderAPI_MakeFace(a_wire).Face()
-
-        return a_face#.Reversed()
-
-    @staticmethod
-    def _get_vertex_list_from_face(face):
-        an_exp = TopExp_Explorer(face, TopAbs_WIRE)
-        vert_list = []
-        while an_exp.More():
-            wire = topods_Wire(an_exp.Current())
-            w_exp = BRepTools_WireExplorer(wire)
-            while w_exp.More():
-                vert1 = w_exp.CurrentVertex()
-                vert_list.append(vert1)
-                w_exp.Next()
-            an_exp.Next()
-        vert_list.append(vert_list[0])
-
-        return vert_list
-
-    @staticmethod
-    def _get_number_of_vertices(shape):
-        shape_analysis = ShapeAnalysis_ShapeContents()
-        shape_analysis.Perform(shape)
-        nb_vertex = shape_analysis.NbVertices()
-
-        return nb_vertex
-
-
-    def calc_bound_shape(self):
-        settings = ifcopenshell.geom.settings()
-        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
-        settings.set(settings.USE_WORLD_COORDS, True)
-        try:
-            shape = ifcopenshell.geom.create_shape(settings, self.ifc.ConnectionGeometry.SurfaceOnRelatingElement)
-        except:
-            try:
-                shape = ifcopenshell.geom.create_shape(settings, self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
-            except:
-                poly = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary.Points
-                pnts = []
-                for p in poly:
-                    p.Coordinates = (p.Coordinates[0], p.Coordinates[1], 0.0)
-                    pnts.append((p.Coordinates[:]))
-                shape = self._make_faces_from_pnts(pnts)
-
-
-        shape = self.get_transformed_shape(shape)
-        return shape
-
-    def get_transformed_shape(self, shape):
-        """transform TOPODS_Shape of each space boundary to correct position"""
-        zone = self.thermal_zones[0]
-        zone_position = gp_XYZ(zone.position[0], zone.position[1], zone.position[2])
-        trsf1 = gp_Trsf()
-        trsf2 = gp_Trsf()
-        if zone.orientation == None:
-            zone.orientation = 0
-        trsf2.SetRotation(gp_Ax1(gp_Pnt(zone_position), gp_Dir(0, 0, 1)), -zone.orientation * pi / 180)
-        trsf1.SetTranslation(gp_Vec(gp_XYZ(zone.position[0], zone.position[1], zone.position[2])))
-        try:
-            shape = BRepBuilderAPI_Transform(shape, trsf1).Shape()
-            shape = BRepBuilderAPI_Transform(shape, trsf2).Shape()
-        except:
-            pass
-        return shape.Reversed()
-
-    def compute_surface_normals_in_space(self):
-        """
-        This function returns the face normal of the boundary
-        pointing outwarts the center of the space.
-        Additionally, the area of the boundary is computed
-        :return: face normal (gp_XYZ)
-        """
-        bbox_center = self.thermal_zones[0].space_center
-        an_exp = TopExp_Explorer(self.bound_shape, TopAbs_FACE)
-        a_face = an_exp.Current()
-        face = topods_Face(a_face)
-        surf = BRep_Tool.Surface(face)
-        obj = surf.GetObject()
-        assert obj.DynamicType().GetObject().Name() == "Geom_Plane"
-        plane = Handle_Geom_Plane.DownCast(surf).GetObject()
-        # face_bbox = Bnd_Box()
-        # brepbndlib_Add(face, face_bbox)
-        # face_center = ifcopenshell.geom.utils.get_bounding_box_center(face_bbox).XYZ()
-        face_prop = GProp_GProps()
-        brepgprop_SurfaceProperties(self.bound_shape, face_prop)
-        area = face_prop.Mass()
-        face_normal = plane.Axis().Direction().XYZ()
-
-        face_towards_center = bbox_center.XYZ() - self.bound_center
-        face_towards_center.Normalize()
-
-        dot = face_towards_center.Dot(face_normal)
-
-        # check if surface normal points into direction of space center
-        # Transform surface normals to be pointing outwards
-        # For faces without reversed surface normal, reverse the orientation of the face itself
-        if dot > 0:
-            face_normal = face_normal.Reversed()
-        # else:
-        #     self.bound_shape = self.bound_shape.Reversed()
-
-        return face_normal
 
 class Medium(element.Element):
     ifc_type = "IfcDistributionSystems"
@@ -1300,7 +835,7 @@ class Door(element.Element):
 
     is_external = attribute.Attribute(
         default_ps=True,
-        default=False
+        default=True
     )
 
     area = attribute.Attribute(

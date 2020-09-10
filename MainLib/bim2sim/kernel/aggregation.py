@@ -60,7 +60,10 @@ class Aggregation(BaseElement):
         self.outer_connections = kwargs.pop('outer_connections', None)  # WORKAROUND
         super().__init__(*args, **kwargs)
         self.name = name
-        self.elements = element_graph.nodes
+        if hasattr(element_graph, 'nodes'):
+            self.elements = element_graph.nodes
+        else:
+            self.elements = element_graph
         for model in self.elements:
             model.aggregation = self
 
@@ -967,6 +970,8 @@ class ParallelSpaceHeater(Aggregation):
 
         if (p_instance in check_up) and (p_instance in check_low):
             return instance
+
+
 class Consumer(Aggregation):
     """Aggregates Consumer system boarder"""
     multi = ('has_pump', 'rated_power', 'rated_pump_power', 'rated_height', 'rated_volume_flow', 'temperature_inlet',
@@ -1391,3 +1396,67 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
         description="boolean if the consumer cycle got a temperature controll",
         functions=[_calc_avg]
     )
+
+
+class ThermalZone(Aggregation):
+    """Aggregates thermal zones"""
+    aggregatable_elements = ["IfcSpace"]
+
+    def __init__(self, name, element_graph, *args, **kwargs):
+        super().__init__(name, element_graph, *args, **kwargs)
+        self.get_disaggregation_properties()
+        self.bound_elements = self.bind_elements()
+        self.finder = self.elements[0].finder
+
+    def get_disaggregation_properties(self):
+        """properties getter -> that way no sub instances has to be defined"""
+        exception = ['height', 't_set_cool', 't_set_heat', 'usage']
+        for prop in self.elements[0].attributes:
+            if prop in exception:
+                value = getattr(self.elements[0], prop)
+            else:
+                value = '' if type(getattr(self.elements[0], prop)) is str else 0
+                for e in self.elements:
+                    value += getattr(e, prop)
+            setattr(self, prop, value)
+
+    def bind_elements(self):
+        """elements binder for the resultant thermal zone"""
+        bound_elements = []
+        for e in self.elements:
+            for i in e.bound_elements:
+                if i not in bound_elements:
+                    bound_elements.append(i)
+
+        return bound_elements
+
+    @classmethod
+    def based_on_groups(cls, groups, instances):
+        """creates a new thermal zone aggregatin instance
+         based on a previous filtering"""
+        new_aggregations = []
+        total_area = sum(i.area for i in instances.values())
+        for group in groups:
+            if group != 'not_bind':
+                # first criterion based on similarities
+                name = 'ThermalZone(%s)' % group
+                instance = cls(name, groups[group])
+                new_aggregations.append(instance)
+                for e in instance.elements:
+                    if e.guid in instances:
+                        del instances[e.guid]
+            else:
+                # last criterion no similarities
+                area = sum(i.area for i in groups[group])
+                if area/total_area <= 0.05:
+                    # Todo: usage and conditions criterion
+                    name = 'ThermalZone(%s)' % group
+                    instance = cls(name, groups[group])
+                    new_aggregations.append(instance)
+                    for e in instance.elements:
+                        if e.guid in instances:
+                            del instances[e.guid]
+        return new_aggregations
+
+
+

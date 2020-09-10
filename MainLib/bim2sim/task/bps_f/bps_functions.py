@@ -1,6 +1,10 @@
 import ifcopenshell
 import ifcopenshell.geom
 import math
+import re
+
+from googletrans import Translator
+
 
 def get_disaggregations_instance(element, thermal_zone):
     """get all posible disaggregation of an instance, based on the IfcRelSpaceBoundary,
@@ -27,8 +31,12 @@ def get_disaggregations_instance(element, thermal_zone):
             try:
                 shape = ifcopenshell.geom.create_shape(settings, binding.ConnectionGeometry.SurfaceOnRelatingElement)
             except RuntimeError:
-                element.logger.warning("Found no geometric information for %s in %s" % (element.name, thermal_zone.name))
-                continue
+                try:
+                    shape = ifcopenshell.geom.create_shape(settings,
+                                                           binding.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface)
+                except RuntimeError:
+                    element.logger.warning("Found no geometric information for %s in %s" % (element.name, thermal_zone.name))
+                    continue
             # get relative position of resultant disaggregation
             if hasattr(binding.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
                 pos = binding.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
@@ -36,27 +44,40 @@ def get_disaggregations_instance(element, thermal_zone):
                 pos = binding.ConnectionGeometry.SurfaceOnRelatingElement.Position.Location.Coordinates
 
             i = 0
-            while i < len(shape.verts):
-                x.append(shape.verts[i])
-                y.append(shape.verts[i + 1])
-                z.append(shape.verts[i + 2])
-                i += 3
+            if len(shape.verts) > 0:
+                while i < len(shape.verts):
+                    x.append(shape.verts[i])
+                    y.append(shape.verts[i + 1])
+                    z.append(shape.verts[i + 2])
+                    i += 3
+            else:
+                for point in binding.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary.Points:
+                    x.append(point.Coordinates[0])
+                    y.append(point.Coordinates[1])
+                    z.append(0)
 
             x.sort()
             y.sort()
             z.sort()
 
-            coordinates = [x[len(x) - 1] - x[0], y[len(y) - 1] - y[0], z[len(z) - 1] - z[0]]
+            try:
+                x = x[len(x) - 1] - x[0]
+                y = y[len(y) - 1] - y[0]
+                z = z[len(z) - 1] - z[0]
+            except IndexError:
+                continue
+
+            coordinates = [x, y, z]
 
             # filter for vertical or horizontal instance -> gets area properly
-            if type(element).__name__ in vertical_instances:
+            if element.__class__.__name__ in vertical_instances:
                 for a in coordinates:
                     if a <= 0:
                         del coordinates[coordinates.index(a)]
             elif type(element).__name__ in horizontal_instances:
                 del coordinates[2]
 
-            # returns disagreggation, area and relative position
+            # returns disaggregation, area and relative position
             disaggregations['disaggregation_%d' % dis_counter] = [coordinates[0]*coordinates[1], pos]
             dis_counter += 1
 
@@ -67,7 +88,7 @@ def get_disaggregations_instance(element, thermal_zone):
 
 
 def orientation_verification(instance):
-    supported_classes = {'Window', 'OuterWall'}
+    supported_classes = {'Window', 'OuterWall', 'Door'}
     if instance.__class__.__name__ in supported_classes:
         if len(instance.thermal_zones) > 0:
             bo_spaces = {}
@@ -81,7 +102,9 @@ def orientation_verification(instance):
                 bo_spaces[i.name] = i.orientation
             new_angles = []
             for i in bo_spaces:
-                new_angles.append(bo_spaces[i] + boundaries1[i]-180)
+                # ToDo: Check cases
+                new_angles.append(boundaries1[i])
+                # new_angles.append(bo_spaces[i] + boundaries1[i]-180)
             # can't determine a possible new angle (very rare case)
             if len(set(new_angles)) > 1:
                 return None
@@ -134,6 +157,29 @@ def vector_angle(vector):
         else:
             return tang + 360
 
+
+def get_matches_list(search_words, search_list, transl=True):
+    """get patterns for a material name in both english and original language,
+    and get afterwards the related elements from list"""
+
+    translator = Translator()
+    material_ref = []
+
+    pattern_material = re.sub('[!@#$-_1234567890]', '', search_words.lower()).split()
+    if transl:
+        pattern_material.extend(translator.translate(re.sub('[!@#$-_1234567890]', '', search_words.lower())).text.split())
+
+    for i in pattern_material:
+        material_ref.append(re.compile('(.*?)%s' % i, flags=re.IGNORECASE))
+
+    material_options = []
+    for ref in material_ref:
+        for mat in search_list:
+            if ref.match(mat):
+                if mat not in material_options:
+                    material_options.append(mat)
+
+    return material_options
 
 
 

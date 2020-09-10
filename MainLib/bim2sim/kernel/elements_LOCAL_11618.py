@@ -2,6 +2,7 @@
 
 import math
 import re
+
 import numpy as np
 import ifcopenshell
 import ifcopenshell.geom
@@ -34,9 +35,6 @@ from bim2sim.kernel.units import ureg
 from bim2sim.decision import ListDecision, RealDecision
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.enrichment_data.data_class import DataClass
-from teaser.logic.buildingobjects.useconditions import UseConditions
-from bim2sim.task.bps_f.bps_functions import get_matches_list
-from bim2sim.task import bps
 
 
 def diameter_post_processing(value):
@@ -523,13 +521,11 @@ class ThermalZone(element.Element):
         pattern_usage = {
             "Living": [
                 re.compile('Living', flags=re.IGNORECASE),
-                re.compile('Wohnen', flags=re.IGNORECASE),
-                re.compile('Büro', flags=re.IGNORECASE)
+                re.compile('Wohnen', flags=re.IGNORECASE)
             ],
             "Traffic area": [
                 re.compile('Traffic', flags=re.IGNORECASE),
-                re.compile('Flur', flags=re.IGNORECASE),
-                re.compile('WC', flags=re.IGNORECASE)
+                re.compile('Flur', flags=re.IGNORECASE)
             ],
             "Bed room": [
                 re.compile('Bed', flags=re.IGNORECASE),
@@ -557,75 +553,6 @@ class ThermalZone(element.Element):
         usage_decision.decide()
         return usage_decision.value
 
-    def get_is_external(self):
-        """determines if a thermal zone is external or internal
-        based on its elements"""
-        new_elements = bps.Inspect.filter_instances(self.bound_elements, 'Wall') + bps.Inspect.filter_instances(self.bound_elements, 'Window')
-        for ele in new_elements:
-            if hasattr(ele, 'is_external'):
-                if ele.is_external is True:
-                    self.is_external = True
-                    break
-
-    def get_true_orientation(self):
-        """determines the orientation of the thermal zone
-        based on its elements
-        it can be a corner or an edge """
-        if self.is_external is True:
-            orientations = []
-            for ele in self.bound_elements:
-                if hasattr(ele, 'is_external') and hasattr(ele, 'orientation'):
-                    if ele.is_external is True and ele.orientation not in [-1, -2]:
-                        orientations.append(ele.orientation)
-            if len(list(set(orientations))) == 1:
-                self.true_orientation = list(set(orientations))[0]
-            else:
-                # corner case
-                self.true_orientation = str(list(set(orientations)))
-
-    def get_glass_area(self):
-        """determines the glass area/facade area ratio for all the windows in the space
-        0-30: 15
-        30-50: 40
-        50-70: 60
-        70-100: 85"""
-
-        glass_area = 0
-        facade_area = 0
-        if self.is_external is True:
-            for ele in self.bound_elements:
-                if hasattr(ele.area, "m"):
-                    e_area = ele.area.magnitude
-                else:
-                    e_area = ele.area
-                if type(ele) is Window:
-                    if ele.area is not None:
-                        glass_area += e_area
-                if 'Wall' in type(ele).__name__ and ele.is_external is True:
-                    facade_area += e_area
-            real_gp = 0
-            try:
-                real_gp = 100*(glass_area/(facade_area+glass_area))
-            except ZeroDivisionError:
-                pass
-            if 0 <= real_gp < 30:
-                self.glass_percentage = 15
-            elif 30 <= real_gp < 50:
-                self.glass_percentage = 40
-            elif 50 <= real_gp < 70:
-                self.glass_percentage = 60
-            else:
-                self.glass_percentage = 85
-
-    def get_neighbors(self):
-        """determines the neighbors of the thermal zone"""
-        neighbors = []
-        for ele in self.bound_elements:
-            for tz in ele.thermal_zones:
-                if (tz is not self) and (tz not in neighbors):
-                    neighbors.append(tz)
-        self.space_neighbors = neighbors
-
     usage = attribute.Attribute(
         functions=[_get_usage]
     )
@@ -652,10 +579,6 @@ class ThermalZone(element.Element):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bound_elements = []
-        self.is_external = False
-        self.true_orientation = 'Internal'
-        self.glass_percentage = 'Internal'
-        self.space_neighbors = []
 
     def get__elements_by_type(self, type):
         raise NotImplementedError
@@ -698,6 +621,7 @@ class SpaceBoundary(element.SubElement):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.guid = self.ifc.GlobalId
         self.level_description = self.ifc.Description
         self.thermal_zones.append(self.get_object(self.ifc.RelatingSpace.GlobalId))
         if self.ifc.RelatedBuildingElement is not None:
@@ -1067,12 +991,12 @@ class Wall(element.Element):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ifc_type = self.ifc.is_a()
-        # if self.is_external:
-        #     self.__class__ = OuterWall
-        #     self.__init__()
-        # elif not self.is_external:
-        #     self.__class__ = InnerWall
-        #     self.__init__()
+        if self.is_external:
+            self.__class__ = OuterWall
+            self.__init__()
+        elif not self.is_external:
+            self.__class__ = InnerWall
+            self.__init__()
 
     def _get_layers(bind, name):
         layers = []
@@ -1087,6 +1011,81 @@ class Wall(element.Element):
         functions=[_get_layers]
     )
 
+    def _get_wall_properties(bind, name):
+        """get wall material properties based on teaser templates if properties not given"""
+        material = bind.material
+        material_ref = ''.join([i for i in material if not i.isdigit()])
+        is_external = bind.is_external
+        external = 'external'
+        if not is_external:
+            external = 'internal'
+
+        try:
+            bind.material_selected[material]['properties']
+        except KeyError:
+            first_decision = BoolDecision(
+                question="Do you want for %s_%s_%s to use template" % (str(bind), bind.guid, external),
+                collect=False)
+            first_decision.decide()
+            first_decision.stored_decisions.clear()
+            if first_decision.value:
+
+                Materials_DEU = bind.finder.templates[bind.source_tool][bind.__class__.__name__]['material']
+                material_templates = dict(DataClass(used_param=2).element_bind)
+                del material_templates['version']
+
+                if material_ref not in str(Materials_DEU.keys()):
+                    decision_ = input("Material not found, enter value for the material %s_%s_%s" % (str(bind), bind.guid, external))
+                    material_ref = decision_
+
+                for k in Materials_DEU:
+                    if material_ref in k:
+                        material_ref = Materials_DEU[k]
+
+                options = {}
+                for k in material_templates:
+                    if material_ref in material_templates[k]['name']:
+                        options[k] = material_templates[k]
+                materials_options = [[material_templates[k]['name'], k] for k in options]
+                if len(materials_options) > 0:
+                    decision1 = ListDecision("Multiple possibilities found",
+                                             choices=list(materials_options),
+                                             allow_skip=True, allow_load=True, allow_save=True,
+                                             collect=False, quick_decide=not True)
+                    decision1.decide()
+                    bind.material_selected[material] = {}
+                    bind.material_selected[material]['properties'] = material_templates[decision1.value[1]]
+                    bind.material_selected[material_templates[decision1.value[1]]['name']] = {}
+                    bind.material_selected[material_templates[decision1.value[1]]['name']]['properties'] = material_templates[decision1.value[1]]
+                else:
+                    bind.logger.warning("No possibilities found")
+                    bind.material_selected[material] = {}
+                    bind.material_selected[material]['properties'] = {}
+            else:
+                bind.material_selected[material] = {}
+                bind.material_selected[material]['properties'] = {}
+
+        property_template = bind.finder.templates[bind.source_tool]['MaterialTemplates']
+        name_template = name
+        if name in property_template:
+            name_template = property_template[name]
+
+        try:
+            value = bind.material_selected[material]['properties'][name_template]
+        except KeyError:
+            decision2 = RealDecision("Enter value for the parameter %s" % name,
+                                     validate_func=lambda x: isinstance(x, float),  # TODO
+                                     global_key="%s" % name,
+                                     allow_skip=False, allow_load=True, allow_save=True,
+                                     collect=False, quick_decide=False)
+            decision2.decide()
+            value = decision2.value
+        try:
+            bind.material = bind.material_selected[material]['properties']['name']
+        except KeyError:
+            bind.material = material
+        return value
+
     area = attribute.Attribute(
         default_ps=True,
         default=1
@@ -1097,35 +1096,36 @@ class Wall(element.Element):
         default=False
     )
 
-    tilt = attribute.Attribute(
+    thermal_transmittance = attribute.Attribute(
         default_ps=True,
         default=0
     )
 
-    # thermal_transmittance = attribute.Attribute(
-    #     name='thermal_transmittance',
-    #     default_ps=True,
-    #     default=0
-    # )
-    #
-    # thickness = attribute.Attribute(
-    #     name='thickness',
-    #     # default_ps=True,
-    #     functions=[_get_wall_properties],
-    #     # default=0
-    # )
-    #
-    # heat_capacity = attribute.Attribute(
-    #     name='heat_capacity',
-    #     # functions=[_get_wall_properties],
-    #     default=0
-    # )
-    #
-    # density = attribute.Attribute(
-    #     name='density',
-    #     # functions=[_get_wall_properties],
-    #     default=0
-    # )
+    material = attribute.Attribute(
+        default_ps=True,
+        default=0
+    )
+
+    thickness = attribute.Attribute(
+        default_ps=True,
+        # functions=[_get_wall_properties],
+        default=0
+    )
+
+    heat_capacity = attribute.Attribute(
+        # functions=[_get_wall_properties],
+        default=0
+    )
+
+    density = attribute.Attribute(
+        # functions=[_get_wall_properties],
+        default=0
+    )
+
+    tilt = attribute.Attribute(
+        default_ps=True,
+        default=0
+    )
 
 
 class Layer(element.SubElement):
@@ -1139,94 +1139,45 @@ class Layer(element.SubElement):
         else:
             material = self.ifc
         self.material = material.Name
-        # ToDO: what if doesn't have thickness
-        self.thickness = None
         if hasattr(self.ifc, 'LayerThickness'):
             self.thickness = self.ifc.LayerThickness
+        else:
+            self.thickness = 0.1
+            # self.thickness = float(input('Thickness not given, please provide a value:'))
 
     def __repr__(self):
         return "<%s (material: %s>" \
                % (self.__class__.__name__, self.material)
 
-    def _get_material_properties(bind, name):
-        def user_property_input(bind, name):
-            decision2 = RealDecision("Enter value for the parameter %s" % name,
-                                     global_key="%s" % name,
-                                     allow_skip=False, allow_load=True, allow_save=True,
-                                     collect=False, quick_decide=False)
-            decision2.decide()
-            if material not in bind.material_selected:
-                bind.material_selected[material] = {}
-            bind.material_selected[material][name] = decision2.value
-            return decision2.value
-
-        if name == 'thickness':
-            name = 'thickness_default'
-
-        material = bind.material
-        if material in bind.material_selected:
-            if name in bind.material_selected[material]:
-                return bind.material_selected[material][name]
-            else:
-                return user_property_input(bind, name)
-        else:
-            first_decision = BoolDecision(question="Do you want for %s %s to use template, enter 'n' for manual input"
-                                          % (bind.guid, bind.material),
-                                          collect=False)
-            first_decision.decide()
-            first_decision.stored_decisions.clear()
-
-            if first_decision.value:
-                material_templates = dict(DataClass(used_param=2).element_bind)
-                del material_templates['version']
-
-                resumed = {}
-                for k in material_templates:
-                    resumed[material_templates[k]['name']] = k
-
-                material_options = get_matches_list(bind.material, list(resumed.keys()))
-
-                while len(material_options) == 0:
-                    decision_ = input(
-                        "Material not found, enter value for the material:")
-                    material_options = get_matches_list(decision_, list(resumed.keys()))
-
-                decision1 = ListDecision("Multiple possibilities found for material %s" % material,
-                                         choices=list(material_options),
-                                         allow_skip=True, allow_load=True, allow_save=True,
-                                         collect=False, quick_decide=not True)
-                decision1.decide()
-
-                bind.material_selected[material] = material_templates[resumed[decision1.value]]
-                return bind.material_selected[material][name]
-            else:
-                return user_property_input(bind, name)
-
-    heat_capac = attribute.Attribute(
+    heat_capacity = attribute.Attribute(
         default_ps=True,
-        functions=[_get_material_properties],
         default=0
     )
 
     density = attribute.Attribute(
-        functions=[_get_material_properties],
         default_ps=True,
         default=0
     )
 
-    thermal_conduc = attribute.Attribute(
-        functions=[_get_material_properties],
+    thermal_conductivity = attribute.Attribute(
+        default_ps=True,
+        default=0
+    )
+
+    thermal_transmittance = attribute.Attribute(
         default_ps=True,
         default=0
     )
 
 
 class OuterWall(Wall):
-    special_argument = {'is_external': True}
+    def __init__(self, *args, **kwargs):
+        pass
 
 
 class InnerWall(Wall):
-    special_argument = {'is_external': False}
+    def __init__(self, *args, **kwargs):
+        pass
 
 
 class Window(element.Element):
@@ -1276,6 +1227,11 @@ class Window(element.Element):
         default=0
     )
 
+    thermal_transmittance = attribute.Attribute(
+        default_ps=True,
+        default=0
+    )
+
 
 class Door(element.Element):
     ifc_type = "IfcDoor"
@@ -1300,7 +1256,7 @@ class Door(element.Element):
 
     is_external = attribute.Attribute(
         default_ps=True,
-        default=False
+        default=True
     )
 
     area = attribute.Attribute(
@@ -1317,6 +1273,24 @@ class Door(element.Element):
         default_ps=True,
         default=0
     )
+
+# class OuterWall(Wall):
+#     pattern_ifc_type = [
+#         re.compile('Outer.?wall', flags=re.IGNORECASE),
+#         re.compile('Au(ß|ss)en.?wand', flags=re.IGNORECASE)
+#     ]
+#
+#     @property
+#     def area(self):
+#         return 1
+#
+#     @property
+#     def u_value(self):
+#         return 1
+#
+#     @property
+#     def g_value(self):
+#         return 1
 
 
 class Plate(element.Element):
@@ -1340,15 +1314,18 @@ class Slab(element.Element):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # if self.predefined_type == "ROOF":
-        #     self.__class__ = Roof
-        #     self.__init__()
-        # if self.predefined_type == "FLOOR":
-        #     self.__class__ = Floor
-        #     self.__init__()
-        # if self.predefined_type == "BASESLAB":
-        #     self.__class__ = GroundFloor
-        #     self.__init__()
+        # todo more generic with general function and check of existing
+        # subclasses
+        # todo ask for decision if not type is inserted
+        if self.predefined_type == "ROOF":
+            self.__class__ = Roof
+            self.__init__()
+        if self.predefined_type == "FLOOR":
+            self.__class__ = Floor
+            self.__init__()
+        if self.predefined_type == "BASESLAB":
+            self.__class__ = GroundFloor
+            self.__init__()
 
     def _get_layers(bind, name):
         layers = []
@@ -1390,8 +1367,8 @@ class Slab(element.Element):
 
 class Roof(Slab):
     ifc_type = "IfcRoof"
-    predefined_type = "ROOF"
-
+    # ifc_type = ["IfcRoof", "IfcSlab"]
+    # if self.ifc:
     def __init__(self, *args, **kwargs):
         if hasattr(self, 'ifc'):
             self.ifc_type = self.ifc.is_a()
@@ -1399,26 +1376,32 @@ class Roof(Slab):
             super().__init__(*args, **kwargs)
 
 
+    # predefined_type = {
+    #         "IfcSlab": "ROOF",
+    #     }
+
+
 class Floor(Slab):
-    predefined_type = "FLOOR"
+
+    def __init__(self, *args, **kwargs):
+        pass
+    # ifc_type = 'IfcSlab'
+    # predefined_type = {
+    #         "IfcSlab": "FLOOR",
+    #     }
 
 
 class GroundFloor(Slab):
-    predefined_type = "BASESLAB"
-
-
-class Site(element.Element):
-    ifc_type = "IfcSite"
-
-
-    # year_of_construction = attribute.Attribute(
-    #     name='year_of_construction',
-    #     default_ps=True
-    # )
+    def __init__(self, *args, **kwargs):
+        pass
+    # ifc_type = 'IfcSlab'
+    # predefined_type = {
+    #         "IfcSlab": "BASESLAB",
+    #     }
 
 
 class Building(element.Element):
-    ifc_type = "IfcBuilding"
+    ifc_type = "IFcBuilding"
 
     year_of_construction = attribute.Attribute(
         default_ps=True

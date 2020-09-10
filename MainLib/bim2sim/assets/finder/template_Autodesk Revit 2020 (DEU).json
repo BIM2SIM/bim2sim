@@ -1,99 +1,95 @@
 {
   "OuterWall": {
     "default_ps": {
-      "area" : ["BaseQuantities", "NetSideArea"],
-      "gross_side_area" : ["BaseQuantities", "GrossArea"],
-      "width" : ["BaseQuantities", "Width"],
-      "height" : ["BaseQuantities", "Height"],
+      "area" : ["Abmessungen", "Fl\u00e4che"],
+      "gross_side_area" : ["Qto_DoorBaseQuantities", "GrossSideArea"],
+      "width" : ["Qto_WallBaseQuantities", "Width"],
+      "height" : ["Qto_WallBaseQuantities", "Height"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
       "thermal_transmittance" : ["Pset_WallCommon", "ThermalTransmittance"],
-      "thickness" : ["BaseQuantities", "Width"],
+      "thickness" : ["Qto_WallBaseQuantities", "Width"],
       "tilt" : ["ArchiCADProperties", "\u00c4u\u00dferer Neigungswinkel"],
       "is_external" : ["Pset_WallCommon", "IsExternal"]
     }
   },
   "InnerWall": {
     "default_ps": {
-      "area" : ["BaseQuantities", "NetSideArea"],
-      "gross_side_area" : ["BaseQuantities", "GrossArea"],
-      "width" : ["BaseQuantities", "Width"],
-      "height" : ["BaseQuantities", "Height"],
+      "area" : ["Abmessungen", "Fl\u00e4che"],
+      "gross_side_area" : ["Qto_WallBaseQuantities,", "GrossSideArea"],
+      "width" : ["Qto_WallBaseQuantities", "Width"],
+      "height" : ["Qto_WallBaseQuantities", "Height"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
       "thermal_transmittance" : ["Pset_WallCommon", "ThermalTransmittance"],
-      "thickness" : ["BaseQuantities", "Width"],
+      "thickness" : ["Qto_WallBaseQuantities", "Width"],
       "tilt" : ["ArchiCADProperties", "\u00c4u\u00dferer Neigungswinkel"],
       "is_external" : ["Pset_WallCommon", "IsExternal"]
     }
   },
   "Wall": {
     "default_ps": {
-      "area" : ["BaseQuantities", "NetSideArea"],
-      "gross_side_area" : ["BaseQuantities", "GrossArea"],
-      "width" : ["BaseQuantities", "Width"],
-      "height" : ["BaseQuantities", "Height"],
+      "area" : ["Abmessungen", "Fl\u00e4che"],
+      "gross_side_area" : ["Qto_WallBaseQuantities", "GrossSideArea"],
+      "width" : ["Qto_WallBaseQuantities", "Width"],
+      "height" : ["Qto_WallBaseQuantities", "Height"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
       "thermal_transmittance" : ["Pset_WallCommon", "ThermalTransmittance"],
-      "thickness" : ["BaseQuantities", "Width"],
+      "thickness" : ["Qto_WallBaseQuantities", "Width"],
       "tilt" : ["ArchiCADProperties", "\u00c4u\u00dferer Neigungswinkel"],
       "is_external" : ["Pset_WallCommon", "IsExternal"]
     }
   },
   "Roof": {
     "default_ps": {
-      "area" : ["BaseQuantities", "GrossArea"],
-      "width" : ["BaseQuantities", "Width"],
+      "area" : ["Abmessungen", "Fl\u00e4che"],
+      "width" : ["Abmessungen", "Dicke"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
       "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
-      "thickness" : ["BaseQuantities", "Width"],
+      "thickness" : ["Qto_SlabBaseQuantities", "Width"],
       "is_external" : ["Pset_SlabCommon", "IsExternal"]
     }
   },
   "Floor": {
     "default_ps": {
-      "area" : ["BaseQuantities", "NetArea"],
-      "width" : ["BaseQuantities", "Width"],
+      "area" : ["Qto_SlabBaseQuantities", "GrossArea"],
+      "width" : ["Abmessungen", "Dicke"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
       "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
-      "thickness" : ["BaseQuantities", "Width"],
+      "thickness" : ["Qto_SlabBaseQuantities", "Width"],
       "is_external" : ["Pset_SlabCommon", "IsExternal"]
     }
   },
   "GroundFloor": {
     "default_ps": {
-      "area" : ["BaseQuantities", "NetArea"],
-      "width" : ["BaseQuantities", "Width"],
+      "area" : ["Qto_SlabBaseQuantities", "GrossArea"],
+      "width" : ["Abmessungen", "Dicke"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
       "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
-      "thickness" : ["BaseQuantities", "Width"],
+      "thickness" : ["Qto_SlabBaseQuantities", "Width"],
       "is_external" : ["Pset_SlabCommon", "IsExternal"]
     }
   },
   "Window": {
     "default_ps": {
-      "area" : ["BaseQuantities", "Area"],
+      "area" : ["Qto_WindowBaseQuantities", "Area"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
-      "thickness" : ["BaseQuantities", "Width"],
-      "is_external": ["Pset_WindowCommon", "IsExternal"],
-      "thermal_transmittance": ["Pset_WindowCommon", "ThermalTransmittance"]
+      "thickness" : ["Qto_WindowBaseQuantities", "Width"],
+      "is_external": ["Pset_WindowCommon", "IsExternal"]
     }
   },
-    "Door": {
+  "Door": {
     "default_ps": {
-      "area" : ["BaseQuantities", "Area"],
+      "area" : ["Qto_DoorBaseQuantities", "Area"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
-      "thickness" : ["BaseQuantities", "Width"],
+      "thickness" : ["Qto_DoorBaseQuantities", "Width"],
       "is_external": ["Pset_DoorCommon", "IsExternal"]
     }
   },
   "ThermalZone": {
     "default_ps": {
-      "zone_name" : ["ArchiCADProperties", "Raumname"],
-      "area" : ["BaseQuantities", "NetFloorArea"],
-      "usage" : ["AC_Pset_Allgemeiner_Raumstempel", "Raumname"],
-      "height" : ["BaseQuantities", "Height"],
-      "net_volume" : ["BaseQuantities", "NetVolume"],
-      "gross_side_area" : ["BaseQuantities", "GrossArea"],
-      "width" : ["BaseQuantities", "Width"],
+      "zone_name" : ["ID-Daten", "Raumname"],
+      "area" : ["Qto_SpaceBaseQuantities", "NetFloorArea"],
+      "height" : ["Qto_SpaceBaseQuantities", "Height"],
+      "net_volume" : ["Qto_SpaceBaseQuantities", "GrossVolume"],
       "t_set_heat" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMin"],
       "t_set_cool" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMax"],
       "with_AHU" : ["Pset_SpaceThermalRequirements", "AirConditioning"]
@@ -110,10 +106,10 @@
   },
   "Storey": {
     "default_ps": {
-      "gross_floor_area" : ["BaseQuantities", "GrossFloorArea"],
-      "net_height" : ["BaseQuantities", "NetHeight"],
-      "gross_height" : ["BaseQuantities", "GrossHeight"],
-      "height" : ["BaseQuantities", "Height"]
+      "gross_floor_area" : ["Qto_BuildingStoreyBaseQuantities", "GrossFloorArea"],
+      "net_height" : ["Qto_BuildingStoreyBaseQuantities", "NetHeight"],
+      "gross_height" : ["Qto_BuildingStoreyBaseQuantities", "GrossHeight"],
+      "height" : ["Qto_BuildingStoreyBaseQuantities", "Height"]
     }
   },
   "MaterialTemplates" : {

@@ -34,9 +34,6 @@
     ]
   },
   "Wall": {
-    "material": {
-      "lightweight_concrete": "Leichtbeton"
-    },
     "default_ps": {
       "area" : ["QTo_WallBaseQuantities", "NetSideArea"],
       "width" : ["QTo_WallBaseQuantities", "Width"],
@@ -77,6 +74,7 @@
   },
   "ThermalZone" : {
     "default_ps": {
+	  "zone_name" : ["Pset_SpaceCommon", "Reference"],
       "area" : ["Qto_SpaceBaseQuantities", "NetFloorArea"],
       "usage" : ["Pset_SpaceCommon", "Reference"],
       "height" : ["Qto_SpaceBaseQuantities", "Height"]
