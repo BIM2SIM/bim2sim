@@ -146,6 +146,7 @@ def _debug_run_bps_ep():
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 
     rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
+    # rel_example = 'ExampleFiles/DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
     # rel_example = 'ExampleFiles/ARC.ifc'
     # rel_example = 'ExampleFiles/AC-20-Smiley-West-10-Bldg.ifc'
     # rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
