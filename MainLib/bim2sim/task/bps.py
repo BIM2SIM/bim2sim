@@ -982,7 +982,7 @@ class IdfObject():
         self._map_surface_types(inst_obj)
         self._map_boundary_conditions(inst_obj)
         #todo: fix material definitions!
-        # self._define_materials(inst_obj, idf)
+        self._define_materials(inst_obj, idf)
         if self.construction_name == None:
             self._set_construction_name()
         obj = self._set_idfobject_attributes(idf)
@@ -1032,18 +1032,18 @@ class IdfObject():
                             thickness = 0.1
                         else:
                             thickness = layer.thickness
-                        if layer.density is None:
+                        if layer.density in {None, 0}:
                             density = 1000
                         else:
                             density = layer.density
-                        if layer.thermal_conductivity is None:
+                        if layer.thermal_conduc is None:
                             conductivity = 0.1
                         else:
-                            conductivity = layer.thermal_conductivity
-                        if layer.heat_capacity is None:
+                            conductivity = layer.thermal_conduc
+                        if layer.heat_capac is None:
                             heat_capacity = 1000
                         else:
-                            heat_capacity = layer.heat_capacity
+                            heat_capacity = layer.heat_capac
 
                         idf.newidfobject("MATERIAL",
                                          Name=layer.guid,
@@ -1066,10 +1066,10 @@ class IdfObject():
                             thickness = 0.1
                         else:
                             thickness = layer.thickness
-                        if layer.thermal_conductivity is None:
+                        if layer.thermal_conduc is None:
                             conductivity = 0.1
                         else:
-                            conductivity = layer.thermal_conductivity
+                            conductivity = layer.thermal_conduc
 
                         if layer.thermal_transmittance is not None:
                             ufactor = layer.thermal_transmittance
