@@ -1098,6 +1098,30 @@ class SpaceBoundary(element.SubElement):
 
         return face_normal
 
+class SpaceBoundary2B:
+    """Generated 2nd Level Space boundaries of type 2b
+    (generated if not included in IFC)
+    """
+    def __init__(self):
+        self.guid = None
+        self.bound_shape = None
+        self.bound_neighbors = []
+        self.thermal_zones = []
+        self.bound_instance = None
+
+    @cached_property
+    def bound_center(self):
+        return SpaceBoundary.get_bound_center(self)
+
+    @cached_property
+    def bound_normal(self):
+        return SpaceBoundary.compute_surface_normals_in_space(self)
+
+    @cached_property
+    def bound_area(self):
+        return SpaceBoundary.get_bound_area(self)
+
+
 class Medium(element.Element):
     # is deprecated?
     ifc_type = "IfcDistributionSystems"

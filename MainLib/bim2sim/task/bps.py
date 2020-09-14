@@ -31,6 +31,7 @@ from stl import mesh
 from bim2sim.task.base import Task, ITask
 # from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort, SubElement
+from bim2sim.kernel.elements import SpaceBoundary2B
 # from bim2sim.kernel.bps import ...
 from bim2sim.export import modelica
 from bim2sim.decision import Decision
@@ -992,7 +993,7 @@ class ExportEP(ITask):
                         space_obj.b_bound_shape,
                         bound.bound_shape,
                         Extrema_ExtFlag_MIN).Value()
-                    if distance > 0:
+                    if distance > 1e-6:
                         continue
                     space_obj.b_bound_shape = BRepAlgoAPI_Cut(space_obj.b_bound_shape, bound.bound_shape).Shape()
                 except:
@@ -1002,6 +1003,8 @@ class ExportEP(ITask):
             bound_prop = GProp_GProps()
             brepgprop_SurfaceProperties(space_obj.b_bound_shape, bound_prop)
             area = bound_prop.Mass()
+            faces = self.get_faces_from_shape(space_obj.b_bound_shape)
+            self.create_2B_space_boundaries(faces, space_obj)
             if area > 0:
                 name = space_obj.ifc.GlobalId + "_2B"
                 stl_dir = str(PROJECT.root) + "/export/STL/"
@@ -1015,6 +1018,25 @@ class ExportEP(ITask):
                 stl_writer.SetASCIIMode(True)
 
                 stl_writer.Write(triang_face.Shape(), this_name)
+
+    def create_2B_space_boundaries(self, faces, space_obj):
+        space_obj.space_boundaries_2B = []
+        for i, face in enumerate(faces):
+            b_bound = SpaceBoundary2B()
+            b_bound.bound_shape = face
+            b_bound.guid = space_obj.ifc.GlobalId + "_2B_" + str("%003.f"%(i+1))
+            b_bound.thermal_zones.append(space_obj)
+            space_obj.space_boundaries_2B.append(b_bound)
+
+    @staticmethod
+    def get_faces_from_shape(b_bound_shape):
+        faces = []
+        an_exp = TopExp_Explorer(b_bound_shape, TopAbs_FACE)
+        while an_exp.More():
+            face = topods_Face(an_exp.Current())
+            faces.append(face)
+            an_exp.Next()
+        return faces
 
 
 class IdfObject():
