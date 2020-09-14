@@ -1037,6 +1037,14 @@ class ExportEP(ITask):
             b_bound.thermal_zones.append(space_obj)
             space_obj.space_boundaries_2B.append(b_bound)
 
+            for bound in space_obj.space_boundaries:
+                distance = BRepExtrema_DistShapeShape(bound.bound_shape, b_bound.bound_shape, Extrema_ExtFlag_MIN).Value()
+                if distance == 0:
+                    b_bound.bound_neighbors.append(bound)
+                    if not hasattr(bound, 'bound_neighbors_2b'):
+                        bound.bound_neighbors_2b = []
+                    bound.bound_neighbors_2b.append(b_bound)
+
     @staticmethod
     def get_faces_from_shape(b_bound_shape):
         faces = []
