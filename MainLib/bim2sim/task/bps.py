@@ -692,6 +692,7 @@ class ExportEP(ITask):
     def run(self, workflow, instances, ifc):
         self._get_parents_and_children(instances)
         self._move_children_to_parents(instances)
+        self._get_neighbor_bounds(instances)
         # self._display_shape_of_space_boundaries(instances)
 
         idf = self._init_idf()
@@ -836,6 +837,14 @@ class ExportEP(ITask):
                          Key_1="DisplayAdvancedReportVariables",
                          Key_2="DisplayExtraWarnings")
         return idf
+
+    @staticmethod
+    def _get_neighbor_bounds(instances):
+        for inst in instances:
+            this_obj = instances[inst]
+            if this_obj.ifc_type != 'IfcRelSpaceBoundary':
+                continue
+            neighbors = this_obj.bound_neighbors
 
     @staticmethod
     def _move_children_to_parents(instances):

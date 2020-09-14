@@ -790,6 +790,32 @@ class SpaceBoundary(element.SubElement):
     def bound_area(self):
         return self.get_bound_area()
 
+    @cached_property
+    def bound_neighbors(self):
+        return self.get_bound_neighbors()
+
+    def get_bound_neighbors(self):
+        neighbors = []
+        space_bounds = []
+        if len(self.thermal_zones[0].space_boundaries) == 0:
+            for obj in self.thermal_zones[0].objects:
+                this_obj = self.thermal_zones[0].objects[obj]
+                if this_obj.ifc_type != 'IfcRelSpaceBoundary':
+                    continue
+                if this_obj.thermal_zones[0].ifc.GlobalId != self.thermal_zones[0].ifc.GlobalId:
+                    continue
+                space_bounds.append(this_obj)
+        else:
+            space_bounds = self.thermal_zones[0].space_boundaries
+        for bound in space_bounds:
+            if bound.ifc.GlobalId == self.ifc.GlobalId:
+                continue
+            distance = BRepExtrema_DistShapeShape(bound.bound_shape, self.bound_shape, Extrema_ExtFlag_MIN).Value()
+            if distance == 0:
+                neighbors.append(bound)
+        return neighbors
+
+
     def get_bound_area(self):
         """compute area of a space boundary"""
         bound_prop = GProp_GProps()
