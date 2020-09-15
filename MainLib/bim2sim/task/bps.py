@@ -693,13 +693,15 @@ class ExportEP(ITask):
         self._get_parents_and_children(instances)
         self._move_children_to_parents(instances)
         self._get_neighbor_bounds(instances)
-        # self._display_shape_of_space_boundaries(instances)
+        self.compute_2b_bound_gaps(instances)
 
         idf = self._init_idf()
         self._set_simulation_control(idf)
         idf.set_default_constructions()
         self._export_geom_to_idf(instances, idf)
-        stat = self._set_hvac_template(idf, name="stat1", heating_sp=20, cooling_sp=25)
+        self._export_to_stl_for_cfd(instances, idf)
+        self._display_shape_of_space_boundaries(instances)
+
         # idf.set_default_constructions()
 
         for inst in instances:
@@ -713,24 +715,25 @@ class ExportEP(ITask):
         idf.run(output_directory=str(PROJECT.root) + "/export/EP-results/", readvars=True)
 
     def _export_geom_to_idf(self, instances, idf):
-        stl_name = idf.idfname.replace('.idf', '')
-        stl_name = stl_name.replace(str(PROJECT.root) + "/export/", '')
-
         for inst in instances:
             if instances[inst].ifc_type != "IfcRelSpaceBoundary":
                 continue
             inst_obj = instances[inst]
             idfp = IdfObject(inst_obj, idf)
-            self.export_to_stl(inst_obj, stl_name)
-
-
             if idfp.skip_bound:
                 # idf.popidfobject(idfp.key, -1)
                 self.logger.warning("Boundary with the GUID %s (%s) is skipped (due to missing boundary conditions)!", idfp.name, idfp.surface_type)
                 continue
 
-        self.fill_2b_bound_gaps_for_cfd(instances, stl_name)
+    def _export_to_stl_for_cfd(self, instances, idf):
+        stl_name = idf.idfname.replace('.idf', '')
+        stl_name = stl_name.replace(str(PROJECT.root) + "/export/", '')
+        self.export_bounds_to_stl(instances, stl_name)
+        self.export_2B_bounds_to_stl(instances, stl_name)
+        self.combine_stl_files(stl_name)
 
+    @staticmethod
+    def combine_stl_files(stl_name):
         stl_dir = str(PROJECT.root) + "/export/"
         with open(stl_dir+stl_name + "_combined_STL.stl", 'wb+') as output_file:
             for i in os.listdir(stl_dir+'STL/'):
@@ -954,16 +957,19 @@ class ExportEP(ITask):
             if instances[inst].ifc_type == 'IfcSpace':
                 col += 1
                 zone = instances[inst]
-                for bound in zone.space_boundaries:
+                if not hasattr(zone, 'space_boundaries_2B'):
+                    continue
+                for bound in zone.space_boundaries_2B:
                     try:
                         display.DisplayShape(bound.bound_shape, color=colors[(col - 1) % len(colors)])
                     except:
                         continue
                 # display.DisplayShape(zone.space_shape, color=colors[(col - 1) % len(colors)])
+                # display.DisplayShape(zone.b_bound_shape, color=colors[(col - 1) % len(colors)])
         display.FitAll()
         start_display()
 
-    def export_to_stl(self, elem, stl_name):
+    def export_bounds_to_stl(self, instances, stl_name):
         """
         This function exports a space to an idf file.
         :param idf: idf file object
@@ -971,49 +977,63 @@ class ExportEP(ITask):
         :param zone: idf zone object
         :return:
         """
-        if elem.physical:
-            name = elem.ifc.GlobalId
-            stl_dir = str(PROJECT.root) + "/export/STL/"
-            stl_name = stl_dir + str(stl_name) + "_cfd_" + str(name) + ".stl"
-            os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
+        for inst in instances:
+            if instances[inst].ifc_type != "IfcRelSpaceBoundary":
+                continue
+            inst_obj = instances[inst]
+            if inst_obj.physical:
+                name = inst_obj.ifc.GlobalId
+                stl_dir = str(PROJECT.root) + "/export/STL/"
+                this_name = stl_dir + str(stl_name) + "_cfd_" + str(name) + ".stl"
+                os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
 
-            elem.cfd_face = elem.bound_shape
-            if hasattr(elem, 'related_opening_bounds'):
-                for opening in elem.related_opening_bounds:
-                    elem.cfd_face = BRepAlgoAPI_Cut(elem.cfd_face, opening.bound_shape).Shape()
+                inst_obj.cfd_face = inst_obj.bound_shape
+                if hasattr(inst_obj, 'related_opening_bounds'):
+                    for opening in inst_obj.related_opening_bounds:
+                        inst_obj.cfd_face = BRepAlgoAPI_Cut(inst_obj.cfd_face, opening.bound_shape).Shape()
 
-            triang_face = BRepMesh_IncrementalMesh(elem.cfd_face, 1)
+                triang_face = BRepMesh_IncrementalMesh(inst_obj.cfd_face, 1)
 
-            # Export to STL
-            stl_writer = StlAPI_Writer()
-            stl_writer.SetASCIIMode(True)
+                # Export to STL
+                stl_writer = StlAPI_Writer()
+                stl_writer.SetASCIIMode(True)
 
-            stl_writer.Write(triang_face.Shape(), stl_name)
+                stl_writer.Write(triang_face.Shape(), this_name)
 
-    def fill_2b_bound_gaps_for_cfd(self, instances, stl_name):
+    def compute_2b_bound_gaps(self, instances):
         for inst in instances:
             if instances[inst].ifc_type != "IfcSpace":
                 continue
             space_obj = instances[inst]
             space_obj.b_bound_shape = space_obj.space_shape
             for bound in space_obj.space_boundaries:
-                try:
-                    distance = BRepExtrema_DistShapeShape(
-                        space_obj.b_bound_shape,
-                        bound.bound_shape,
-                        Extrema_ExtFlag_MIN).Value()
-                    if distance > 1e-6:
-                        continue
-                    space_obj.b_bound_shape = BRepAlgoAPI_Cut(space_obj.b_bound_shape, bound.bound_shape).Shape()
-                except:
-                    self.logger.warning("2B space bound generation may be incomplete in IfcSpace %s", space_obj.ifc.GlobalId)
+                if bound.bound_area == 0:
                     continue
+                bound_prop = GProp_GProps()
+                brepgprop_SurfaceProperties(space_obj.b_bound_shape, bound_prop)
+                b_bound_area = bound_prop.Mass()
+                if b_bound_area == 0:
+                    continue
+                distance = BRepExtrema_DistShapeShape(
+                    space_obj.b_bound_shape,
+                    bound.bound_shape,
+                    Extrema_ExtFlag_MIN).Value()
+                if distance > 1e-6:
+                    continue
+                space_obj.b_bound_shape = BRepAlgoAPI_Cut(space_obj.b_bound_shape, bound.bound_shape).Shape()
 
+            faces = self.get_faces_from_shape(space_obj.b_bound_shape)
+            self.create_2B_space_boundaries(faces, space_obj)
+
+
+    def export_2B_bounds_to_stl(self, instances, stl_name):
+        for inst in instances:
+            if instances[inst].ifc_type != "IfcSpace":
+                continue
+            space_obj = instances[inst]
             bound_prop = GProp_GProps()
             brepgprop_SurfaceProperties(space_obj.b_bound_shape, bound_prop)
             area = bound_prop.Mass()
-            faces = self.get_faces_from_shape(space_obj.b_bound_shape)
-            self.create_2B_space_boundaries(faces, space_obj)
             if area > 0:
                 name = space_obj.ifc.GlobalId + "_2B"
                 stl_dir = str(PROJECT.root) + "/export/STL/"
