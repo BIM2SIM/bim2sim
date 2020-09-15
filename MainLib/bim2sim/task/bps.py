@@ -690,25 +690,27 @@ class ExportEP(ITask):
 
     @Task.log
     def run(self, workflow, instances, ifc):
+        # geometric preprocessing before export
+        self.logger.info("Geometric preprocessing for EnergyPlus Export started ...")
+        self.logger.info("Compute relationships between space boundaries")
         self._get_parents_and_children(instances)
         self._move_children_to_parents(instances)
         self._get_neighbor_bounds(instances)
         self.compute_2b_bound_gaps(instances)
-
+        self.logger.info("Geometric preprocessing for EnergyPlus Export finished!")
+        self.logger.info("IDF generation started ...")
         idf = self._init_idf()
+        self._init_zone(instances, idf)
         self._set_simulation_control(idf)
         idf.set_default_constructions()
         self._export_geom_to_idf(instances, idf)
-        self._export_to_stl_for_cfd(instances, idf)
-        self._display_shape_of_space_boundaries(instances)
-
-        # idf.set_default_constructions()
-        self._init_zone(instances, idf)
-        # idf.set_default_constructions()
-        # idf.printidf()
         self._set_output_variables(idf)
         idf.save()
+        self.logger.info("IDF generation finished!")
+
         idf.view_model()
+        self._export_to_stl_for_cfd(instances, idf)
+        self._display_shape_of_space_boundaries(instances)
         idf.run(output_directory=str(PROJECT.root) + "/export/EP-results/", readvars=True)
 
     def _export_geom_to_idf(self, instances, idf):
@@ -723,6 +725,7 @@ class ExportEP(ITask):
                 continue
 
     def _export_to_stl_for_cfd(self, instances, idf):
+        self.logger.info("Export STL for CFD")
         stl_name = idf.idfname.replace('.idf', '')
         stl_name = stl_name.replace(str(PROJECT.root) + "/export/", '')
         self.export_bounds_to_stl(instances, stl_name)
@@ -1003,6 +1006,7 @@ class ExportEP(ITask):
                 stl_writer.Write(triang_face.Shape(), this_name)
 
     def compute_2b_bound_gaps(self, instances):
+        self.logger.info("Generate space boundaries of type 2B")
         for inst in instances:
             if instances[inst].ifc_type != "IfcSpace":
                 continue
