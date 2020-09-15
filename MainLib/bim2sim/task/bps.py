@@ -639,10 +639,7 @@ class ExportEP(ITask):
         self._display_shape_of_space_boundaries(instances)
 
         # idf.set_default_constructions()
-
-        for inst in instances:
-            if instances[inst].ifc_type == "IfcSpace":
-                self._init_zone(idf, stat, instances[inst])
+        self._init_zone(instances, idf)
         # idf.set_default_constructions()
         # idf.printidf()
         self._set_output_variables(idf)
@@ -696,7 +693,7 @@ class ExportEP(ITask):
         return idf
 
 
-    def _init_zone(self, idf, stat, space):
+    def _init_zone(self, instances, idf):
         """
         Creates one idf zone per space and initializes with default HVAC Template
         :param idf: idf file object
@@ -705,16 +702,21 @@ class ExportEP(ITask):
         :return: idf file object, idf zone object
         """
 
-        zone = idf.newidfobject(
-            'ZONE',
-            Name=space.ifc.GlobalId,
-            Volume=space.space_volume
-        )
-        idf.newidfobject(
-            "HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM",
-            Zone_Name=zone.Name,
-            Template_Thermostat_Name=stat.Name,
-        )
+        stat = self._set_hvac_template(idf, name="stat1", heating_sp=20, cooling_sp=25)
+
+        for inst in instances:
+            if instances[inst].ifc_type == "IfcSpace":
+                space = instances[inst]
+                zone = idf.newidfobject(
+                    'ZONE',
+                    Name=space.ifc.GlobalId,
+                    Volume=space.space_volume
+                )
+                idf.newidfobject(
+                    "HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM",
+                    Zone_Name=zone.Name,
+                    Template_Thermostat_Name=stat.Name,
+                )
 
 
     @staticmethod
