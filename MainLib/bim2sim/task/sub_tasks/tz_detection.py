@@ -183,17 +183,7 @@ class Bind(Task):
         """groups together a set of thermal zones, that have an attribute in common """
         groups = {}
         for ele in thermal_zones:
-            value = getattr(ele, attribute)
-            if attribute == 'glass_percentage':
-                # groups based on Norm
-                if 0 <= value < 30:
-                    value = 15
-                elif 30 <= value < 50:
-                    value = 40
-                elif 50 <= value < 70:
-                    value = 60
-                else:
-                    value = 85
+            value = Bind.sub_function_groups(attribute, ele)
             if value not in groups:
                 groups[value] = []
             groups[value].append(ele)
@@ -202,6 +192,39 @@ class Bind(Task):
             if len(groups[k]) <= 1:
                 del groups[k]
         return groups
+
+    @staticmethod
+    def sub_function_groups(attribute, tz):
+        sub_functions = {'glass_percentage': Bind.glass_percentage_group,
+                         'external_orientation': Bind.external_orientation_group}
+        fnc_groups = sub_functions.get(attribute)
+        value = getattr(tz, attribute)
+        if fnc_groups is not None:
+            value = fnc_groups(value)
+        return value
+
+    @staticmethod
+    def glass_percentage_group(value):
+        """groups together a set of thermal zones, that have common glass percentage in common """
+        # groups based on Norm DIN_V_18599_1
+        if 0 <= value < 30:
+            value = '0-30%'
+        elif 30 <= value < 50:
+            value = '30-50%'
+        elif 50 <= value < 70:
+            value = '50-70%'
+        else:
+            value = '70-100%'
+        return value
+
+    @staticmethod
+    def external_orientation_group(value):
+        """groups together a set of thermal zones, that have external orientation in common """
+        if 135 <= value < 315:
+            value = 'S-W'
+        else:
+            value = 'N-E'
+        return value
 
     @staticmethod
     def filter_neighbors(tz_groups):

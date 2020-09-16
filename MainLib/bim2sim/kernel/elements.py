@@ -558,7 +558,12 @@ class ThermalZone(element.Element):
                 self.external_orientation = list(set(orientations))[0]
             else:
                 # corner case
-                self.external_orientationn = str(list(set(orientations)))
+                calc_temp = list(set(orientations))
+                sum_or = sum(calc_temp)
+                if 0 in calc_temp:
+                    if sum_or > 180:
+                        sum_or += 360
+                self.external_orientation = sum_or/len(calc_temp)
 
     def get_glass_area(self):
         """determines the glass area/facade area ratio for all the windows in the space
