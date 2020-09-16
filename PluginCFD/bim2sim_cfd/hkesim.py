@@ -1,19 +1,44 @@
-﻿
-from bim2sim.manage import BIM2SIMManager, PROJECT
-from bim2sim.task import hvac
-from bim2sim.export.modelica import standardlibrary
-from bim2sim_hkesim.models import HKESim
+﻿from bim2sim.manage import BIM2SIMManager
+from bim2sim.task.base import ITask
+from bim2sim.decision import ListDecision
+from bim2sim.project import PROJECT
+from bim2sim.task.common import LoadIFC
+import os
 
 
-class CFDManager(CFDManager):
+class CFDManager(BIM2SIMManager):
 
     def __init__(self, task):
         super().__init__(task)
 
-        self.relevant_ifc_types = cfd.IFC_TYPES
-
     def run(self):
         print("CFD started")
+        self.playground.run_task(Exe)
 
 
+class Exe(ITask):
+    '''
+    coole exe
+    '''
+    final = True
 
+    def run(self, **kwargs): #todo eigtl geht hier workflow rein
+        print("Task started")
+        print(kwargs)
+
+        options = [" ", "Arg2"]  # TODO dict anlegen
+        decision1 = ListDecision("Multiple possibilities found",
+                                 choices=options,
+                                 allow_skip=False, allow_load=False, allow_save=False,
+                                 collect=False, quick_decide=False)
+        args = decision1.decide()
+
+        reader = LoadIFC()
+        input_file = reader.get_ifc(PROJECT.ifc)
+
+        output_file = str(PROJECT.export / "result.obj")
+        cmd = "/home/fluid/Schreibtisch/B/IfcConvert" + " " + input_file + " " + output_file
+        cmd += " " + args
+        print(cmd)
+        os.system(cmd)
+        print("Task finished")
