@@ -632,7 +632,8 @@ class ExportEP(ITask):
         self._get_parents_and_children(instances)
         self._move_children_to_parents(instances)
         self._get_neighbor_bounds(instances)
-        self.compute_2b_bound_gaps(instances)
+        self._compute_2b_bound_gaps(instances)
+        self._get_centerline_bounds(instances)
         self.logger.info("Geometric preprocessing for EnergyPlus Export finished!")
         self.logger.info("IDF generation started ...")
         idf = self._init_idf()
@@ -648,6 +649,99 @@ class ExportEP(ITask):
         self._export_to_stl_for_cfd(instances, idf)
         self._display_shape_of_space_boundaries(instances)
         idf.run(output_directory=str(PROJECT.root) + "/export/EP-results/", readvars=True)
+
+    def _get_centerline_bounds(self, instances):
+        for inst in instances:
+            if instances[inst].ifc_type != "IfcRelSpaceBoundary":
+                continue
+            inst_obj = instances[inst]
+            if not hasattr(inst_obj, 'bound_instance'):
+                continue
+            if inst_obj.bound_instance is None:
+                continue
+            if inst_obj.is_external:
+                if hasattr(inst_obj, 'related_parent_bound'):
+                    continue
+                center_shape = BRepBuilderAPI_MakeVertex(inst_obj.thermal_zones[0].space_center).Shape()
+                center_dist = BRepExtrema_DistShapeShape(
+                    inst_obj.bound_shape,
+                    center_shape,
+                    Extrema_ExtFlag_MIN
+                ).Value()
+                if hasattr(inst_obj.bound_instance, 'thickness'):
+                    thickness = inst_obj.bound_instance.thickness
+                elif hasattr(inst_obj.bound_instance.layers[0], 'thickness'):
+                    thickness = inst_obj.bound_instance.layers[0].thickness
+                else:
+                    thickness = 0.2
+                prod_vec = []
+                for i in inst_obj.bound_normal.Coord():
+                    prod_vec.append(thickness * i)
+
+                # move to center between corresponding boundaries
+                trsf = gp_Trsf()
+                coord = gp_XYZ(*prod_vec)
+                vec = gp_Vec(coord)
+                trsf.SetTranslation(vec)
+                inst_obj.bound_shape_cl = BRepBuilderAPI_Transform(inst_obj.bound_shape, trsf).Shape()
+                # check if boundary has been moved correctly
+                # and otherwise move again in reversed direction
+                new_distance = BRepExtrema_DistShapeShape(
+                    inst_obj.bound_shape_cl,
+                    center_shape,
+                    Extrema_ExtFlag_MIN
+                ).Value()
+                if new_distance > center_dist:
+                    continue
+                else:
+                    prod_vec = []
+                    for i in inst_obj.bound_normal.Reversed().Coord():
+                        prod_vec.append(half_dist * i)
+                    trsf = gp_Trsf()
+                    coord = gp_XYZ(*prod_vec)
+                    vec = gp_Vec(coord)
+                    trsf.SetTranslation(vec)
+                    inst_obj.bound_shape_cl = BRepBuilderAPI_Transform(inst_obj.bound_shape, trsf).Shape()
+
+            if not hasattr(inst_obj, 'related_bound'):
+                continue
+            if inst_obj.related_bound is None:
+                continue
+            if inst_obj.is_external:
+                continue
+            distance = BRepExtrema_DistShapeShape(inst_obj.bound_shape, inst_obj.related_bound.bound_shape, Extrema_ExtFlag_MIN).Value()
+            half_dist = distance/2
+
+            prod_vec = []
+            for i in inst_obj.bound_normal.Coord():
+                prod_vec.append(half_dist * i)
+
+            # move to center between corresponding boundaries
+            trsf = gp_Trsf()
+            coord = gp_XYZ(*prod_vec)
+            vec = gp_Vec(coord)
+            trsf.SetTranslation(vec)
+            inst_obj.bound_shape_cl = BRepBuilderAPI_Transform(inst_obj.bound_shape, trsf).Shape()
+            # check if boundary has been moved correctly
+            # and otherwise move again in reversed direction
+            new_distance = BRepExtrema_DistShapeShape(
+                inst_obj.bound_shape_cl,
+                inst_obj.related_bound.bound_shape,
+                Extrema_ExtFlag_MIN
+            ).Value()
+            if new_distance < distance:
+                continue
+            else:
+                prod_vec = []
+                for i in inst_obj.bound_normal.Reversed().Coord():
+                    prod_vec.append(half_dist * i)
+                trsf = gp_Trsf()
+                coord = gp_XYZ(*prod_vec)
+                vec = gp_Vec(coord)
+                trsf.SetTranslation(vec)
+                inst_obj.bound_shape_cl = BRepBuilderAPI_Transform(inst_obj.bound_shape, trsf).Shape()
+
+
 
     def _export_geom_to_idf(self, instances, idf):
         for inst in instances:
@@ -941,7 +1035,7 @@ class ExportEP(ITask):
 
                 stl_writer.Write(triang_face.Shape(), this_name)
 
-    def compute_2b_bound_gaps(self, instances):
+    def _compute_2b_bound_gaps(self, instances):
         self.logger.info("Generate space boundaries of type 2B")
         for inst in instances:
             if instances[inst].ifc_type != "IfcSpace":

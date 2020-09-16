@@ -836,6 +836,8 @@ class SpaceBoundary(element.SubElement):
                         continue
                     if (bound.bound_area-self.bound_area)**2 > 1:
                         continue
+                    if bound.ifc.GlobalId == self.ifc.GlobalId:
+                        continue
                     distance = BRepExtrema_DistShapeShape(
                         bound.bound_shape,
                         self.bound_shape,
