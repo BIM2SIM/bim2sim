@@ -1,0 +1,105 @@
+{
+  "IfcPipeSegment": {
+    "diameter": [
+      "Abmessungen",
+      "Innendurchmesser"
+    ],
+    "length": [
+      "Abmessungen",
+      "L\u00e4nge"
+    ]
+  },
+  "IfcPipeFitting": {
+    "diameter": [
+      "Abmessungen",
+      "Nenndurchmesser"
+    ],
+	"length": [
+      "Abmessungen",
+      "Muffenl\u00e4nge"
+    ],
+	"radius": [
+      "Abmessungen",
+      "Bogenradius"
+    ],
+	"angle": [
+      "Abmessungen",
+      "Winkel"
+    ]
+  },
+  "IfcTank": {
+    "volume": [
+      "Abmessungen",
+      "Volume"
+    ]
+  },
+  "Wall": {
+    "material": {
+      "lightweight_concrete": "Leichtbeton"
+    },
+    "default_ps": {
+      "area" : ["QTo_WallBaseQuantities", "NetSideArea"],
+      "width" : ["QTo_WallBaseQuantities", "Width"],
+      "height" : ["QTo_WallBaseQuantities", "Height"],
+      "material" : ["MaterialLayerSet", "MaterialLayer"],
+      "thermal_transmittance" : ["Pset_WallCommon", "ThermalTransmittance"],
+      "is_external" : ["Pset_WallCommon", "IsExternal"],
+      "solar_absorption" : ["Analytische Eigenschaften (type)", "Absorptionsgrad"]
+    }
+  },
+  "Floor": {
+    "default_ps": {
+      "area" : ["QTo_SlabBaseQuantities", "GrossArea"],
+      "width" : ["QTo_SlabBaseQuantities", "Width"],
+      "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "is_external" : ["Pset_SlabCommon", "IsExternal"],
+      "material" : ["MaterialLayerSet", "MaterialLayer"]
+    }
+  },
+  "Roof": {
+    "default_ps": {
+      "area" : ["QTo_SlabBaseQuantities", "GrossArea"],
+      "width" : ["QTo_SlabBaseQuantities", "Width"],
+      "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "is_external" : ["Pset_SlabCommon", "IsExternal"],
+      "material" : ["MaterialLayerSet", "MaterialLayer"]
+    }
+  },
+  "Window": {
+    "default_ps": {
+      "area" : ["QTo_WindowBaseQuantities", "Area"],
+      "glass_area" : ["Konstruktion", "Glasflaeche"],
+      "g_value" : ["Analytische Eigenschaften (type)", "Gesamtenergiedurchlassgrad"],
+      "glass_thickness" : ["Konstruktion(type)", "Glasst\u00e4rke"],
+      "material" : ["MaterialLayerSet", "MaterialLayer"],
+      "thermal_transmittance" : ["Pset_WindowCommon", "ThermalTransmittance"]
+    }
+  },
+  "ThermalZone" : {
+    "default_ps": {
+      "area" : ["Qto_SpaceBaseQuantities", "NetFloorArea"],
+      "usage" : ["Pset_SpaceCommon", "Reference"],
+      "height" : ["Qto_SpaceBaseQuantities", "Height"]
+    }
+  },
+  "MaterialTemplates" : {
+    "heat_capacity" : "heat_capac",
+    "thickness" : "thickness_default"
+  },
+  "Material": {
+    "default_ps": {
+      "thermal_conductivity" : ["Pset_MaterialThermal", "ThermalConductivity"],
+      "heat_capacity" : ["Pset_MaterialThermal", "SpecificHeatCapacity"],
+      "density" : ["Pset_MaterialCommon", "MassDensity"],
+      "embodied_energy" : ["AC_Pset_MaterialCustom", "EmbodiedEnergy"],
+      "embodied_carbon" : ["AC_Pset_MaterialCustom", "EmbodiedCarbon"]
+    }
+  }
+}
+
+
+
+
+
+
+
