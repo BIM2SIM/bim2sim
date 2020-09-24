@@ -835,7 +835,7 @@ class ExportEP(ITask):
                     sb_mesh = mesh.Mesh.from_file(stl_dir+'STL/'+i)
                     mesh_name = i.split("_",1)[-1]
                     mesh_name = mesh_name.replace(".stl", "")
-                    mesh_name = mesh_name.replace("$", "_")
+                    mesh_name = mesh_name.replace("$", "___")
                     sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
 
 
