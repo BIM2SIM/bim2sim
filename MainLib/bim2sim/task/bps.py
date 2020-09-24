@@ -2,6 +2,7 @@
 
 import itertools
 import json
+import ifcopenshell
 
 from OCC.Display.SimpleGui import init_display
 from OCC.BRepBuilderAPI import \
@@ -11,9 +12,9 @@ from OCC.BRepBuilderAPI import \
 from OCC.ShapeAnalysis import ShapeAnalysis_ShapeContents
 from OCC.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Extrema import Extrema_ExtFlag_MIN
-from OCC.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Pln
+from OCC.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Pln, gp_Pnt
 from OCC.TopoDS import topods_Wire, topods_Face
-from OCC.TopAbs import TopAbs_FACE, TopAbs_WIRE
+from OCC.TopAbs import TopAbs_FACE, TopAbs_WIRE, TopAbs_SHAPE
 from OCC.TopExp import TopExp_Explorer
 from OCC.BRep import BRep_Tool
 from OCC.BRepTools import BRepTools_WireExplorer, breptools_UVBounds
@@ -23,7 +24,11 @@ from OCC.BRepAlgoAPI import BRepAlgoAPI_Cut
 from OCC.StlAPI import StlAPI_Writer
 from OCC.BRepMesh import BRepMesh_IncrementalMesh
 from OCC.BRepGProp import brepgprop_SurfaceProperties
+from OCC.BRepPrimAPI import BRepPrimAPI_MakeHalfSpace, BRepPrimAPI_MakeBox
 from OCC.GProp import GProp_GProps
+from OCC.BRepAlgoAPI import BRepAlgoAPI_Common
+from OCC.Bnd import Bnd_Box
+from OCC.BRepBndLib import brepbndlib_Add
 from stl import stl
 from stl import mesh
 
@@ -633,7 +638,8 @@ class ExportEP(ITask):
         self._move_children_to_parents(instances)
         self._get_neighbor_bounds(instances)
         self._compute_2b_bound_gaps(instances)
-        self._get_centerline_bounds(instances)
+        self._move_bounds_to_centerline(instances)
+        self._intersect_scaled_centerline_bounds(instances)
         self.logger.info("Geometric preprocessing for EnergyPlus Export finished!")
         self.logger.info("IDF generation started ...")
         idf = self._init_idf()
@@ -650,8 +656,167 @@ class ExportEP(ITask):
         self._display_shape_of_space_boundaries(instances)
         idf.run(output_directory=str(PROJECT.root) + "/export/EP-results/", readvars=True)
 
-    def _get_centerline_bounds(self, instances):
+    def _intersect_centerline_bounds(self, instances):
         for inst in instances:
+            if instances[inst].ifc_type != "IfcSpace":
+                continue
+            space_obj = instances[inst]
+            for bound in space_obj.space_boundaries:
+                halfspaces = []
+                bbox = Bnd_Box()
+                if hasattr(bound, 'related_parent_bound'):
+                    continue
+                if not hasattr(bound, 'bound_shape_cl'):
+                    continue
+                for other_bound in space_obj.space_boundaries:
+                    if hasattr(bound, 'related_parent_bound'):
+                        continue
+                    if other_bound.ifc.GlobalId == bound.ifc.GlobalId:
+                        continue
+                    if hasattr(other_bound, 'bound_shape_cl'):
+                        halfspace = self._create_halfspaces(other_bound.bound_shape_cl, space_obj)
+                        brepbndlib_Add(other_bound.bound_shape_cl, bbox)
+                    else:
+                        halfspace = self._create_halfspaces(other_bound.bound_shape, space_obj)
+                        brepbndlib_Add(other_bound.bound_shape, bbox)
+                    halfspaces.append(halfspace)
+                halfspace = self._create_halfspaces(bound.bound_shape_cl, space_obj)
+                halfspaces.append(halfspace)
+                brepbndlib_Add(bound.bound_shape_cl, bbox)
+                common_shape = BRepPrimAPI_MakeBox(bbox.CornerMin(), bbox.CornerMax()).Shape()
+                for halfspace in halfspaces:
+                    bound_prop = GProp_GProps()
+                    brepgprop_SurfaceProperties(halfspace, bound_prop)
+                    area = bound_prop.Mass()
+                    if area == 0:
+                        continue
+                    #todo: fix common_shape no longer returns zero-area compound
+                    temp_comm = BRepAlgoAPI_Common(common_shape, halfspace.Reversed()).Shape()
+                    comm_prop = GProp_GProps()
+                    brepgprop_SurfaceProperties(temp_comm, comm_prop)
+                    temp_area = comm_prop.Mass()
+                    if temp_area == 0:
+                        temp_comm = BRepAlgoAPI_Common(common_shape, halfspace).Shape()
+                        comm_prop = GProp_GProps()
+                        brepgprop_SurfaceProperties(temp_comm, comm_prop)
+                        temp_area = comm_prop.Mass()
+                        if temp_area == 0:
+                            continue
+                    common_shape = temp_comm
+                space_obj.space_shape_cl = common_shape
+                faces = self.get_faces_from_shape(space_obj.space_shape_cl)
+                bound_cl_prop = GProp_GProps()
+                brepgprop_SurfaceProperties(bound.bound_shape_cl, bound_cl_prop)
+                for face in faces:
+                    distance = BRepExtrema_DistShapeShape(face, bound.bound_shape_cl, Extrema_ExtFlag_MIN).Value()
+                    if distance == 0:
+                        max_area = bound_cl_prop.Mass()
+                        face_prop = GProp_GProps()
+                        brepgprop_SurfaceProperties(face, face_prop)
+                        face_center = face_prop.CentreOfMass()
+
+                        cl_center = bound_cl_prop.CentreOfMass()
+                        center_dist = face_center.Distance(cl_center) ** 2
+                        if center_dist < 0.5:
+                            this_area = face_prop.Mass()
+                            if this_area > max_area:
+                                bound.bound_shape_cl = face
+                                print("newShape", bound_cl_prop.Mass(), face_prop.Mass())
+
+    @staticmethod
+    def get_center_of_face(face):
+        prop = GProp_GProps()
+        center = brepgprop_SurfaceProperties(face, prop)
+        center = prop.CentreOfMass()
+        print("CENTER", center.Coord())
+        return center
+
+
+    def scale_face(self, face, factor):
+        center = self.get_center_of_face(face)
+        trsf = gp_Trsf()
+        trsf.SetScale(center, factor)
+        face_scaled = BRepBuilderAPI_Transform(face, trsf).Shape()
+        return face_scaled
+
+    def _intersect_scaled_centerline_bounds(self, instances):
+        for inst in instances:
+            if instances[inst].ifc_type != "IfcSpace":
+                continue
+            space_obj = instances[inst]
+            bbox = Bnd_Box()
+            halfspaces = []
+            for bound in space_obj.space_boundaries:
+                if hasattr(bound, 'related_parent_bound'):
+                    continue
+                if not hasattr(bound, 'bound_shape_cl'):
+                    continue
+                scaled_bound_cl = self.scale_face(bound.bound_shape_cl, 1.3)
+                halfspace = self._create_halfspaces(scaled_bound_cl, space_obj)
+                halfspaces.append(halfspace)
+                brepbndlib_Add(bound.bound_shape_cl, bbox)
+            common_shape = BRepPrimAPI_MakeBox(bbox.CornerMin(), bbox.CornerMax()).Solid()
+            for halfspace in halfspaces:
+                bound_prop = GProp_GProps()
+                brepgprop_SurfaceProperties(halfspace, bound_prop)
+                area = bound_prop.Mass()
+                if area == 0:
+                    continue
+                #todo: fix common_shape no longer returns zero-area compound
+                temp_comm = BRepAlgoAPI_Common(common_shape, halfspace).Shape()
+                comm_prop = GProp_GProps()
+                brepgprop_SurfaceProperties(temp_comm, comm_prop)
+                temp_area = comm_prop.Mass()
+                if temp_area == 0:
+                    temp_comm = BRepAlgoAPI_Common(common_shape, halfspace).Shape()
+                    comm_prop = GProp_GProps()
+                    brepgprop_SurfaceProperties(temp_comm, comm_prop)
+                    temp_area = comm_prop.Mass()
+                    if temp_area == 0:
+                        continue
+                common_shape = temp_comm
+            space_obj.space_shape_cl = common_shape
+            faces = self.get_faces_from_shape(space_obj.space_shape_cl)
+            for bound in space_obj.space_boundaries:
+                if hasattr(bound, 'related_parent_bound'):
+                    continue
+                if not hasattr(bound, 'bound_shape_cl'):
+                    continue
+                bound_cl_prop = GProp_GProps()
+                brepgprop_SurfaceProperties(bound.bound_shape_cl, bound_cl_prop)
+                for face in faces:
+                    distance = BRepExtrema_DistShapeShape(face, bound.bound_shape_cl, Extrema_ExtFlag_MIN).Value()
+                    if distance < 1e-3:
+                        max_area = bound_cl_prop.Mass()
+                        face_prop = GProp_GProps()
+                        brepgprop_SurfaceProperties(face, face_prop)
+                        face_center = face_prop.CentreOfMass()
+
+                        cl_center = bound_cl_prop.CentreOfMass()
+                        center_dist = face_center.Distance(cl_center) ** 2
+                        if center_dist < 0.5:
+                            this_area = face_prop.Mass()
+                            if this_area > max_area:
+                                bound.bound_shape_cl = face
+                                print("newShape", bound_cl_prop.Mass(), face_prop.Mass())
+            print('WAIT')
+
+    @staticmethod
+    def _create_halfspaces(bound_shape, space_obj):
+        try:
+            halfspace = BRepPrimAPI_MakeHalfSpace(bound_shape, space_obj.space_center).Solid()
+            print("Not a compound")
+        except:
+            an_exp = TopExp_Explorer(bound_shape, TopAbs_FACE)
+            while an_exp.More():
+                shape = topods_Face(an_exp.Current())
+                an_exp.Next()
+            halfspace = BRepPrimAPI_MakeHalfSpace(shape, space_obj.space_center).Solid()
+        return halfspace
+
+    def _move_bounds_to_centerline(self, instances):
+        for inst in instances:
+            # self._intersect_centerline_bounds(instances)
             if instances[inst].ifc_type != "IfcRelSpaceBoundary":
                 continue
             inst_obj = instances[inst]
@@ -740,7 +905,6 @@ class ExportEP(ITask):
                 vec = gp_Vec(coord)
                 trsf.SetTranslation(vec)
                 inst_obj.bound_shape_cl = BRepBuilderAPI_Transform(inst_obj.bound_shape, trsf).Shape()
-
 
 
     def _export_geom_to_idf(self, instances, idf):
