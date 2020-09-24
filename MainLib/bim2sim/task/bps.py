@@ -867,6 +867,41 @@ class ExportEP(ITask):
         )
         idf.newidfobject(
             "OUTPUT:VARIABLE",
+            Variable_Name="Site Outdoor Air Drybulb Temperature",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Mean Air Temperature",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone People Occupant Count",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone People Convective Heating Rate",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Electric Equipment Convective Heating Rate",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Ideal Loads Zone Sensible Cooling Rate",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Ideal Loads Zone Sensible Heating Rate",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
             Variable_Name="Surface Inside Face Temperature",
             Reporting_Frequency="Hourly",
         )
