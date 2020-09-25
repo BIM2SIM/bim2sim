@@ -639,8 +639,9 @@ class ExportEP(ITask):
         self._get_neighbor_bounds(instances)
         self._compute_2b_bound_gaps(instances)
         self._move_bounds_to_centerline(instances)
+        self._fill_2b_gaps(instances)
         # self._vertex_scaled_centerline_bounds(instances)
-        self._intersect_scaled_centerline_bounds(instances)
+        # self._intersect_scaled_centerline_bounds(instances)
         self.logger.info("Geometric preprocessing for EnergyPlus Export finished!")
         self.logger.info("IDF generation started ...")
         idf = self._init_idf()
@@ -926,6 +927,101 @@ class ExportEP(ITask):
                         if not IdfObject._compare_direction_of_normals(inst_obj.bound_normal, b_bound.bound_normal):
                             continue
                         b_bound.bound_shape_cl = BRepBuilderAPI_Transform(b_bound.bound_shape, trsf).Shape()
+
+    def _fill_2b_gaps(self, instances):
+        for inst in instances:
+            if instances[inst].ifc_type != "IfcRelSpaceBoundary":
+                continue
+            bound = instances[inst]
+            if not hasattr(bound, 'bound_shape_cl'):
+                continue
+            if not hasattr(bound, 'bound_neighbors_2b'):
+                continue
+            for b_bound in bound.bound_neighbors_2b:
+                for neighbor in b_bound.bound_neighbors:
+                    if neighbor == bound:
+                        continue
+                    if not hasattr(neighbor, 'bound_shape_cl'):
+                        continue
+                    # if not bound.bound_instance == neighbor.bound_instance:
+                    #     continue
+                    sb_neighbor = neighbor
+                    check1 = IdfObject._compare_direction_of_normals(bound.bound_normal, sb_neighbor.bound_normal)
+                    check2 = IdfObject._compare_direction_of_normals(bound.bound_normal, b_bound.bound_normal)
+                    if not (check1 and check2):
+                        continue
+                    distance = BRepExtrema_DistShapeShape(bound.bound_shape_cl, sb_neighbor.bound_shape_cl, Extrema_ExtFlag_MIN).Value()
+                    if distance < 1e-3:
+                        continue
+                    if distance > 0.4:
+                        continue
+
+                    neigh_normal = (sb_neighbor.bound_center - bound.bound_center)
+                    neigh_normal.Normalize()
+                    anExp = TopExp_Explorer(bound.bound_shape_cl, TopAbs_VERTEX)
+                    result_vert = []
+                    moved_vert_count = 0
+                    while anExp.More():
+                        prod_vec = []
+                        vert = anExp.Current()
+                        vertex = topods_Vertex(vert)
+                        pnt_v1 = BRep_Tool.Pnt(vertex)
+                        dist = BRepExtrema_DistShapeShape(vertex, sb_neighbor.bound_shape_cl, Extrema_ExtFlag_MIN).Value()
+
+                        if (dist - distance)**2 < 1e-2:
+                            for i in neigh_normal.Coord():
+                                prod_vec.append(i * dist/2)
+                            trsf = gp_Trsf()
+                            coord = gp_XYZ(*prod_vec)
+                            vec = gp_Vec(coord)
+                            trsf.SetTranslation(vec)
+                            pnt_v1.Transform(trsf)
+
+                            result_vert.append(pnt_v1)
+                            moved_vert_count +=1
+                        else:
+                            result_vert.append(pnt_v1)
+                        anExp.Next()
+                        anExp.Next()
+                    result_vert.append(result_vert[0])
+                    new_face1 = SpaceBoundary._make_faces_from_pnts(result_vert)
+
+                    neigh_normal = neigh_normal.Reversed()
+                    anExp = TopExp_Explorer(sb_neighbor.bound_shape_cl, TopAbs_VERTEX)
+                    result_vert = []
+                    while anExp.More():
+                        prod_vec = []
+                        vert = anExp.Current()
+                        vertex = topods_Vertex(vert)
+                        pnt_v1 = BRep_Tool.Pnt(vertex)
+                        dist = BRepExtrema_DistShapeShape(vertex, bound.bound_shape_cl, Extrema_ExtFlag_MIN).Value()
+
+                        if (dist - distance)**2 < 1e-2:
+                            for i in neigh_normal.Coord():
+                                prod_vec.append(i * dist / 2)
+                            trsf = gp_Trsf()
+                            coord = gp_XYZ(*prod_vec)
+                            vec = gp_Vec(coord)
+                            trsf.SetTranslation(vec)
+                            pnt_v1.Transform(trsf)
+
+                            result_vert.append(pnt_v1)
+                            moved_vert_count +=1
+                        else:
+                            result_vert.append(pnt_v1)
+                        anExp.Next()
+                        anExp.Next()
+                    result_vert.append(result_vert[0])
+                    new_face2 = SpaceBoundary._make_faces_from_pnts(result_vert)
+                    new_dist = BRepExtrema_DistShapeShape(new_face1, new_face2, Extrema_ExtFlag_MIN).Value()
+                    if new_dist > 1e-3:
+                        continue
+                    bound.bound_shape_cl = new_face1
+                    sb_neighbor.bound_shape_cl = new_face2
+                    # todo: compute new area for bound_shape_cl and compare to area of related bound
+                    # todo: assign reversed bound_shape_cl to related bound if area of related bound is smaller
+
+
 
     def _export_geom_to_idf(self, instances, idf):
         for inst in instances:
