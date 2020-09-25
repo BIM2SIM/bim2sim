@@ -8,19 +8,19 @@ from OCC.Display.SimpleGui import init_display
 from OCC.BRepBuilderAPI import \
     BRepBuilderAPI_MakeFace, \
     BRepBuilderAPI_MakeEdge, \
-    BRepBuilderAPI_MakeWire, BRepBuilderAPI_Transform, BRepBuilderAPI_MakeVertex
+    BRepBuilderAPI_MakeWire, BRepBuilderAPI_Transform, BRepBuilderAPI_MakeVertex, BRepBuilderAPI_MakeShape
 from OCC.ShapeAnalysis import ShapeAnalysis_ShapeContents
 from OCC.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Extrema import Extrema_ExtFlag_MIN
 from OCC.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Pln, gp_Pnt
-from OCC.TopoDS import topods_Wire, topods_Face
-from OCC.TopAbs import TopAbs_FACE, TopAbs_WIRE, TopAbs_SHAPE
+from OCC.TopoDS import topods_Wire, topods_Face, topods_Compound, TopoDS_Compound, TopoDS_Builder, topods_Vertex
+from OCC.TopAbs import TopAbs_FACE, TopAbs_WIRE, TopAbs_SHAPE, TopAbs_VERTEX
 from OCC.TopExp import TopExp_Explorer
 from OCC.BRep import BRep_Tool
 from OCC.BRepTools import BRepTools_WireExplorer, breptools_UVBounds
 from OCC.Geom import Handle_Geom_Plane
 from geomeppy import IDF
-from OCC.BRepAlgoAPI import BRepAlgoAPI_Cut
+from OCC.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Section
 from OCC.StlAPI import StlAPI_Writer
 from OCC.BRepMesh import BRepMesh_IncrementalMesh
 from OCC.BRepGProp import brepgprop_SurfaceProperties
@@ -36,7 +36,7 @@ from stl import mesh
 from bim2sim.task.base import Task, ITask
 # from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort, SubElement
-from bim2sim.kernel.elements import SpaceBoundary2B
+from bim2sim.kernel.elements import SpaceBoundary2B, SpaceBoundary
 # from bim2sim.kernel.bps import ...
 from bim2sim.export import modelica
 from bim2sim.decision import Decision
@@ -703,6 +703,7 @@ class ExportEP(ITask):
         self._get_neighbor_bounds(instances)
         self._compute_2b_bound_gaps(instances)
         self._move_bounds_to_centerline(instances)
+        # self._vertex_scaled_centerline_bounds(instances)
         self._intersect_scaled_centerline_bounds(instances)
         self.logger.info("Geometric preprocessing for EnergyPlus Export finished!")
         self.logger.info("IDF generation started ...")
@@ -815,10 +816,20 @@ class ExportEP(ITask):
                     continue
                 if not hasattr(bound, 'bound_shape_cl'):
                     continue
-                scaled_bound_cl = self.scale_face(bound.bound_shape_cl, 1.3)
-                halfspace = self._create_halfspaces(scaled_bound_cl, space_obj)
+                if not hasattr(bound, 'scaled_bound_cl'):
+                    bound.scaled_bound_cl = self.scale_face(bound.bound_shape_cl, 1.3)
+                halfspace = self._create_halfspaces(bound.scaled_bound_cl, space_obj)
                 halfspaces.append(halfspace)
                 brepbndlib_Add(bound.bound_shape_cl, bbox)
+            if hasattr(space_obj, 'space_boundaries_2B'):
+                for bound_b in space_obj.space_boundaries_2B:
+                    if not hasattr(bound_b, 'bound_shape_cl'):
+                        print("no bound shape 2b")
+                        continue
+                    bound.scaled_bound_cl = self.scale_face(bound_b.bound_shape_cl, 1.3)
+                    halfspace = self._create_halfspaces(bound.scaled_bound_cl, space_obj)
+                    halfspaces.append(halfspace)
+                    brepbndlib_Add(bound_b.bound_shape, bbox)
             common_shape = BRepPrimAPI_MakeBox(bbox.CornerMin(), bbox.CornerMax()).Solid()
             for halfspace in halfspaces:
                 bound_prop = GProp_GProps()
@@ -951,6 +962,11 @@ class ExportEP(ITask):
             vec = gp_Vec(coord)
             trsf.SetTranslation(vec)
             inst_obj.bound_shape_cl = BRepBuilderAPI_Transform(inst_obj.bound_shape, trsf).Shape()
+            if hasattr(inst_obj, 'bound_neighbors_2b'):
+                for b_bound in inst_obj.bound_neighbors_2b:
+                    if not IdfObject._compare_direction_of_normals(inst_obj.bound_normal, b_bound.bound_normal):
+                        continue
+                    b_bound.bound_shape_cl = BRepBuilderAPI_Transform(b_bound.bound_shape, trsf).Shape()
             # check if boundary has been moved correctly
             # and otherwise move again in reversed direction
             new_distance = BRepExtrema_DistShapeShape(
@@ -969,7 +985,11 @@ class ExportEP(ITask):
                 vec = gp_Vec(coord)
                 trsf.SetTranslation(vec)
                 inst_obj.bound_shape_cl = BRepBuilderAPI_Transform(inst_obj.bound_shape, trsf).Shape()
-
+                if hasattr(inst_obj, 'bound_neighbors_2b'):
+                    for b_bound in inst_obj.bound_neighbors_2b:
+                        if not IdfObject._compare_direction_of_normals(inst_obj.bound_normal, b_bound.bound_normal):
+                            continue
+                        b_bound.bound_shape_cl = BRepBuilderAPI_Transform(b_bound.bound_shape, trsf).Shape()
 
     def _export_geom_to_idf(self, instances, idf):
         for inst in instances:
