@@ -704,7 +704,7 @@ class ExportEP(ITask):
         self._compute_2b_bound_gaps(instances)
         self._move_bounds_to_centerline(instances)
         self._fill_2b_gaps(instances)
-        # self._vertex_scaled_centerline_bounds(instances)
+        self._vertex_scaled_centerline_bounds(instances)
         # self._intersect_scaled_centerline_bounds(instances)
         self.logger.info("Geometric preprocessing for EnergyPlus Export finished!")
         self.logger.info("IDF generation started ...")
@@ -873,6 +873,8 @@ class ExportEP(ITask):
                     continue
                 if not hasattr(bound, 'bound_shape_cl'):
                     continue
+                if hasattr(bound, 'bound_neighbors_2b'):
+                    continue
                 bound_cl_prop = GProp_GProps()
                 brepgprop_SurfaceProperties(bound.bound_shape_cl, bound_cl_prop)
                 for face in faces:
@@ -887,9 +889,166 @@ class ExportEP(ITask):
                         center_dist = face_center.Distance(cl_center) ** 2
                         if center_dist < 0.5:
                             this_area = face_prop.Mass()
+                            # only apply for rectangular shapes
+                            nb_vertices = SpaceBoundary._get_number_of_vertices(bound.bound_shape)
+                            if nb_vertices > 8:
+                                continue
                             if this_area > max_area:
                                 bound.bound_shape_cl = face
                                 print("newShape", bound_cl_prop.Mass(), face_prop.Mass())
+                                if not hasattr(bound, 'related_bound'):
+                                    continue
+                                rel_bound = bound.related_bound
+                                if not hasattr(rel_bound, 'bound_neighbors_2b'):
+                                    continue
+                                rel_bound.bound_shape_cl = face.Reversed()
+            print('WAIT')
+
+
+    def _vertex_scaled_centerline_bounds(self, instances):
+        sec_shapes = []
+        for inst in instances:
+            if instances[inst].ifc_type != "IfcSpace":
+                continue
+            space_obj = instances[inst]
+            bbox = Bnd_Box()
+            shapeBuild = TopoDS_Builder()
+            bound_compound = TopoDS_Compound()
+            scaled_compound = TopoDS_Compound()
+            shapeBuild.MakeCompound(bound_compound)
+            shapeBuild.MakeCompound(scaled_compound)
+            halfspaces = []
+            for i, bound in enumerate(space_obj.space_boundaries):
+                if hasattr(bound, 'related_parent_bound'):
+                    continue
+                if not hasattr(bound, 'bound_shape_cl'):
+                    continue
+                if not hasattr(bound, 'scaled_bound_cl'):
+                    bound.scaled_bound_cl = self.scale_face(bound.bound_shape_cl, 1.5)
+                halfspace = self._create_halfspaces(bound.scaled_bound_cl, space_obj)
+                halfspaces.append(halfspace)
+                brepbndlib_Add(bound.bound_shape_cl, bbox)
+                shapeBuild.Add(bound_compound, bound.bound_shape_cl)
+                shapeBuild.Add(scaled_compound, bound.scaled_bound_cl)
+                sections = []
+                for j, other_bound in enumerate(space_obj.space_boundaries[:]):
+                    if other_bound == bound:
+                        if not hasattr(other_bound, 'bound_neighbors_2b'):
+                            continue
+                        for b_bound in other_bound.bound_neighbors_2b:
+                            # take into account 2b space boundaries with different surface normals
+                            check1 = IdfObject._compare_direction_of_normals(bound.bound_normal, b_bound.bound_normal)
+                            if (check1):
+                                continue
+                            if not hasattr(bound, 'scaled_bound_cl'):
+                                bound.scaled_bound_cl = self.scale_face(bound.bound_shape_cl, 1.5)
+                            if not hasattr(b_bound, 'bound_shape_cl'):
+                                if b_bound.bound_instance is None:
+                                    b_bound.bound_shape_cl = b_bound.bound_shape
+                            if not hasattr(b_bound, 'scaled_bound_cl'):
+                                b_bound.scaled_bound_cl = self.scale_face(b_bound.bound_shape_cl, 1.5)
+                            sec = BRepAlgoAPI_Section(bound.scaled_bound_cl, b_bound.scaled_bound_cl)
+                            sections.append(sec)
+                        if other_bound == bound:
+                            continue
+
+                    if hasattr(other_bound, 'related_parent_bound'):
+                        continue
+                    if not hasattr(other_bound, 'bound_shape_cl'):
+                        continue
+                    if not hasattr(other_bound, 'scaled_bound_cl'):
+                        other_bound.scaled_bound_cl = self.scale_face(other_bound.bound_shape_cl, 1.5)
+                    # get bounding box for sectioning face
+                    sec = BRepAlgoAPI_Section(bound.scaled_bound_cl, other_bound.scaled_bound_cl)
+                    distance = BRepExtrema_DistShapeShape(bound.bound_shape_cl, other_bound.bound_shape_cl).Value()
+                    if distance < 1e-6:
+                        sec = BRepAlgoAPI_Section(bound.bound_shape_cl, other_bound.bound_shape_cl)
+                        sec_shape = self.scale_edge(sec.Shape(), 1.5)
+                        sec = BRepAlgoAPI_Section(bound.scaled_bound_cl, sec_shape)
+                    if SpaceBoundary._get_number_of_vertices(sec.Shape()) <2:
+                        sec_box = Bnd_Box()
+                        brepbndlib_Add(other_bound.scaled_bound_cl, sec_box)
+                        sec_solid = BRepPrimAPI_MakeBox(sec_box.CornerMin(), sec_box.CornerMax()).Solid()
+                        sec = BRepAlgoAPI_Section(bound.scaled_bound_cl, sec_solid)
+                    sections.append(sec)
+                sections2 = []
+                for sec in sections:
+                    sec.neighbors = []
+                    sec_bbox = Bnd_Box()
+                    brepbndlib_Add(sec.Shape(), sec_bbox)
+                    try:
+                        sec.center = ifcopenshell.geom.utils.get_bounding_box_center(sec_bbox).XYZ()
+                        sections2.append(sec)
+                    except:
+                        continue
+                    for sec2 in sections:
+                        if sec == sec2:
+                            continue
+                        if not hasattr(sec2, 'center'):
+                            try:
+                                sec2_bbox = Bnd_Box()
+                                brepbndlib_Add(sec2.Shape(), sec2_bbox)
+                                sec2.center = ifcopenshell.geom.utils.get_bounding_box_center(sec2_bbox)
+                            except:
+                                continue
+                        distance = BRepExtrema_DistShapeShape(sec.Shape(), sec2.Shape()).Value()
+                        if distance < 1e-6:
+                            sec.neighbors.append(sec2)
+                if len(sections2) == 0:
+                    continue
+                first_sec = sections2[0]
+                if not hasattr(sections2[0], 'neighbors'):
+                    continue
+                if len(sections2[0].neighbors) <2:
+                    continue
+                prev = sections2[0].neighbors[-1]
+                vertex_list = []
+                sec = sections2[0]
+                for sec in sections2:
+                    sec.next_neighbor = True
+                while_counter = 0
+                while sec.next_neighbor:
+                    if sec == first_sec:
+                        sec.next_neighbor = False
+                    for ne in sec.neighbors:
+                        if ne == prev:
+                            continue
+                        next = ne
+                    vert = BRepAlgoAPI_Section(sec.Shape(), next.Shape())
+                    vertex_list.append(vert)
+                    prev = sec
+                    sec = next
+                    while_counter += 1
+                    if while_counter == 100:
+                        print("BROKE WHILE")
+                        break
+                if while_counter == 100:
+                    continue
+                vert_list2 = []
+                for vert in vertex_list:
+                    an_exp = TopExp_Explorer(vert.Shape(), TopAbs_VERTEX)
+                    while an_exp.More():
+                        vertex = topods_Vertex(an_exp.Current())
+                        vert_list2.append(vertex)
+                        an_exp.Next()
+                if len(vert_list2) == 0:
+                    continue
+                vert_list2.append(vert_list2[0])
+                if len(vert_list2) <4:
+                    continue
+                if len(vert_list2) > 12:
+                    continue
+                try:
+
+                    bound.bound_shape_cl = SpaceBoundary._make_face_from_vertex_list(vert_list2)
+                    if not hasattr(bound, 'related_bound'):
+                        continue
+                    rel_bound = bound.related_bound
+                    if not hasattr(rel_bound, 'bound_neighbors_2b'):
+                        continue
+                    rel_bound.bound_shape_cl = bound.bound_shape_cl.Reversed()
+                except:
+                    continue
             print('WAIT')
 
     @staticmethod
