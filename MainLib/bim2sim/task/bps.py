@@ -23,7 +23,7 @@ from geomeppy import IDF
 from OCC.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Section
 from OCC.StlAPI import StlAPI_Writer
 from OCC.BRepMesh import BRepMesh_IncrementalMesh
-from OCC.BRepGProp import brepgprop_SurfaceProperties
+from OCC.BRepGProp import brepgprop_SurfaceProperties, brepgprop_LinearProperties
 from OCC.BRepPrimAPI import BRepPrimAPI_MakeHalfSpace, BRepPrimAPI_MakeBox
 from OCC.GProp import GProp_GProps
 from OCC.BRepAlgoAPI import BRepAlgoAPI_Common
@@ -733,12 +733,27 @@ class ExportEP(ITask):
         print("CENTER", center.Coord())
         return center
 
+    @staticmethod
+    def get_center_of_edge(edge):
+        prop = GProp_GProps()
+        center = brepgprop_LinearProperties(edge, prop)
+        center = prop.CentreOfMass()
+        print("CENTER", center.Coord())
+        return center
+
 
     def scale_face(self, face, factor):
         center = self.get_center_of_face(face)
         trsf = gp_Trsf()
         trsf.SetScale(center, factor)
         face_scaled = BRepBuilderAPI_Transform(face, trsf).Shape()
+        return face_scaled
+
+    def scale_edge(self, edge, factor):
+        center = self.get_center_of_edge(edge)
+        trsf = gp_Trsf()
+        trsf.SetScale(center, factor)
+        face_scaled = BRepBuilderAPI_Transform(edge, trsf).Shape()
         return face_scaled
 
     def _intersect_scaled_centerline_bounds(self, instances):
