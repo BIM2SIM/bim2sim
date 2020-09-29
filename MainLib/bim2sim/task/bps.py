@@ -847,11 +847,86 @@ class ExportEP(ITask):
             if instances[inst].ifc_type != "IfcRelSpaceBoundary":
                 continue
             inst_obj = instances[inst]
-            if not hasattr(inst_obj, 'bound_instance'):
-                continue
-            if inst_obj.bound_instance is None:
-                continue
-            if inst_obj.is_external:
+
+            # if not hasattr(inst_obj, 'bound_instance'):
+            #     continue
+            # if inst_obj.bound_instance is None:
+            #     continue
+                # # move virtual bounds
+                # if not hasattr(inst_obj, 'related_bound'):
+                #     continue
+                # if inst_obj.related_bound is None:
+                #     continue
+                # distance1 = BRepExtrema_DistShapeShape(inst_obj.bound_shape,
+                #                                       inst_obj.related_bound.bound_shape,
+                #                                       Extrema_ExtFlag_MIN).Value()
+                # # virtual bounds with a distance greater than 0 are moved as all other boundaries
+                # if distance1 > 1e-6:
+                #     continue
+                # # loop through neighbors: if virtualbound_shape has neighbors (not centerline) without distance
+                # # move as they move
+                # if not hasattr(inst_obj, 'bound_neighbors'):
+                #     continue
+                # distance2 = None
+                # for neighbor1 in inst_obj.bound_neighbors:
+                #     if neighbor1 == inst_obj:
+                #         continue
+                #     check1 = IdfObject._compare_direction_of_normals(inst_obj.bound_normal, neighbor1.bound_normal)
+                #     if check1:
+                #         distance2 = BRepExtrema_DistShapeShape(inst_obj.bound_shape, neighbor1.related_bound.bound_shape,
+                #                                               Extrema_ExtFlag_MIN).Value()
+                #         break
+                # if distance2 == None:
+                #     if not hasattr(inst_obj, 'bound_neighbors_2b'):
+                #         continue
+                #     for b_bound in inst_obj.bound_neighbors_2b:
+                #         check1 = IdfObject._compare_direction_of_normals(inst_obj.bound_normal, b_bound.bound_normal)
+                #         if check1:
+                #             continue
+                #         for neighbor2 in b_bound.bound_neighbors:
+                #             if neighbor2 == inst_obj:
+                #                 continue
+                #             check2 = IdfObject._compare_direction_of_normals(inst_obj.bound_normal, neighbor2.bound_normal)
+                #             if not check2:
+                #                 continue
+                #             distance2 = BRepExtrema_DistShapeShape(inst_obj.bound_shape,
+                #                                                    neighbor2.bound_shape,
+                #                                                    Extrema_ExtFlag_MIN).Value()
+                #             break
+                #         break
+                # if distance2 == None:
+                #     continue
+                # half_dist = distance2 / 2
+                # prod_vec = []
+                # for i in inst_obj.bound_normal.Coord():
+                #     prod_vec.append(half_dist * i)
+                # # move to center between corresponding boundaries
+                # trsf = gp_Trsf()
+                # coord = gp_XYZ(*prod_vec)
+                # vec = gp_Vec(coord)
+                # trsf.SetTranslation(vec)
+                # inst_obj.bound_shape_cl = BRepBuilderAPI_Transform(inst_obj.bound_shape, trsf).Shape()
+                # # check if boundary has been moved correctly
+                # # and otherwise move again in reversed direction
+                # new_distance = BRepExtrema_DistShapeShape(
+                #     inst_obj.bound_shape_cl,
+                #     inst_obj.related_bound.bound_shape,
+                #     Extrema_ExtFlag_MIN
+                # ).Value()
+                # if new_distance < distance2:
+                #     break
+                # else:
+                #     prod_vec = []
+                #     for i in inst_obj.bound_normal.Reversed().Coord():
+                #         prod_vec.append(half_dist * i)
+                #     trsf = gp_Trsf()
+                #     coord = gp_XYZ(*prod_vec)
+                #     vec = gp_Vec(coord)
+                #     trsf.SetTranslation(vec)
+                #     inst_obj.bound_shape_cl = BRepBuilderAPI_Transform(inst_obj.bound_shape, trsf).Shape()
+                #     break
+
+            if (inst_obj.is_external and inst_obj.physical):
                 if hasattr(inst_obj, 'related_parent_bound'):
                     continue
                 center_shape = BRepBuilderAPI_MakeVertex(inst_obj.thermal_zones[0].space_center).Shape()
@@ -899,9 +974,37 @@ class ExportEP(ITask):
                 continue
             if inst_obj.related_bound is None:
                 continue
-            if inst_obj.is_external:
-                continue
+            # if inst_obj.is_external:
+            #     continue
             distance = BRepExtrema_DistShapeShape(inst_obj.bound_shape, inst_obj.related_bound.bound_shape, Extrema_ExtFlag_MIN).Value()
+            if distance < 1e-6:
+                # only assign bound_shape to bound_shape_cl for those bounds, which do not have a neighbor with same
+                # surface normal. Those are moved later on.
+                if hasattr(inst_obj, 'bound_neighbors'):
+                    for neighbor in inst_obj.bound_neighbors:
+                        if neighbor.bound_instance == None:
+                            continue
+                        if IdfObject._compare_direction_of_normals(inst_obj.bound_normal, neighbor.bound_normal):
+                            break
+                if not hasattr(inst_obj, 'bound_neighbors_2b'):
+                    inst_obj.bound_shape_cl = inst_obj.bound_shape
+                    continue
+                for b_bound in inst_obj.bound_neighbors_2b:
+                    check1 = IdfObject._compare_direction_of_normals(inst_obj.bound_normal, b_bound.bound_normal)
+                    if not check1:
+                        continue
+                    for neighbor2 in b_bound.bound_neighbors:
+                        if neighbor2.bound_instance == None:
+                            continue
+                        if neighbor2 == inst_obj:
+                            continue
+                        check2 = IdfObject._compare_direction_of_normals(inst_obj.bound_normal,
+                                                                         neighbor2.bound_normal)
+                        if check2:
+                            break
+                if check2 == (None or False):
+                    inst_obj.bound_shape_cl = inst_obj.bound_shape
+                continue
             half_dist = distance/2
 
             prod_vec = []
@@ -919,6 +1022,30 @@ class ExportEP(ITask):
                     if not IdfObject._compare_direction_of_normals(inst_obj.bound_normal, b_bound.bound_normal):
                         continue
                     b_bound.bound_shape_cl = BRepBuilderAPI_Transform(b_bound.bound_shape, trsf).Shape()
+            if hasattr(inst_obj, 'bound_neighbors'):
+                for neighbor in inst_obj.bound_neighbors:
+                    if neighbor.bound_instance != None:
+                        continue
+                    if not IdfObject._compare_direction_of_normals(inst_obj.bound_normal, neighbor.bound_normal):
+                        continue
+                    neighbor.bound_shape_cl = BRepBuilderAPI_Transform(neighbor.bound_shape, trsf).Shape()
+            if hasattr(inst_obj, 'bound_neighbors_2b'):
+                for b_bound in inst_obj.bound_neighbors_2b:
+                    # check1 = IdfObject._compare_direction_of_normals(inst_obj.bound_normal, b_bound.bound_normal)
+                    # if not check1:
+                    #     continue
+                    for neighbor2 in b_bound.bound_neighbors:
+                        if neighbor2.bound_instance != None:
+                            continue
+                        if neighbor2 == inst_obj:
+                            continue
+                        check2 = IdfObject._compare_direction_of_normals(inst_obj.bound_normal, neighbor2.bound_normal)
+                        if not check2:
+                            continue
+                        neighbor2.bound_shape_cl = BRepBuilderAPI_Transform(neighbor2.bound_shape, trsf).Shape()
+                        if neighbor2.related_bound is not None:
+                            neighbor2.related_bound.bound_shape_cl = neighbor2.bound_shape_cl.Reversed()
+
             # check if boundary has been moved correctly
             # and otherwise move again in reversed direction
             new_distance = BRepExtrema_DistShapeShape(
@@ -942,6 +1069,30 @@ class ExportEP(ITask):
                         if not IdfObject._compare_direction_of_normals(inst_obj.bound_normal, b_bound.bound_normal):
                             continue
                         b_bound.bound_shape_cl = BRepBuilderAPI_Transform(b_bound.bound_shape, trsf).Shape()
+                if hasattr(inst_obj, 'bound_neighbors'):
+                    for neighbor in inst_obj.bound_neighbors:
+                        if neighbor.bound_instance != None:
+                            continue
+                        if not IdfObject._compare_direction_of_normals(inst_obj.bound_normal, neighbor.bound_normal):
+                            continue
+                        neighbor.bound_shape_cl = BRepBuilderAPI_Transform(neighbor.bound_shape, trsf).Shape()
+                if hasattr(inst_obj, 'bound_neighbors_2b'):
+                    for b_bound in inst_obj.bound_neighbors_2b:
+                        # check1 = IdfObject._compare_direction_of_normals(inst_obj.bound_normal, b_bound.bound_normal)
+                        # if not check1:
+                        #     continue
+                        for neighbor2 in b_bound.bound_neighbors:
+                            if neighbor2.bound_instance != None:
+                                continue
+                            if neighbor2 == inst_obj:
+                                continue
+                            check2 = IdfObject._compare_direction_of_normals(inst_obj.bound_normal,
+                                                                             neighbor2.bound_normal)
+                            if not check2:
+                                continue
+                            neighbor2.bound_shape_cl = BRepBuilderAPI_Transform(neighbor2.bound_shape, trsf).Shape()
+                            if neighbor2.related_bound is not None:
+                                neighbor2.related_bound.bound_shape_cl = neighbor2.bound_shape_cl.Reversed()
 
     def _fill_2b_gaps(self, instances):
         for inst in instances:
