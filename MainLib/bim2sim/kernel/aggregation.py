@@ -1,13 +1,13 @@
 ﻿"""Module for aggregation and simplifying elements"""
 
 import math
-import networkx as nx
 import numpy as np
 from bim2sim.kernel.element import BaseElement, BasePort
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
 import networkx as nx
+
 
 def verify_edge_ports(func):
     """Decorator to verify edge ports"""

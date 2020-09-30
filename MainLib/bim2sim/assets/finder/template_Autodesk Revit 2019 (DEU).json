@@ -33,6 +33,12 @@
       "Volume"
     ]
   },
+  "PipeFitting": {
+	"default_ps": {
+      "diameter" : ["Abmessungen", "Nenndurchmesser"],
+      "pressure_class" : ["Pset_PipeFittingTypeCommon", "PressureClass"]
+    }
+  },
   "Wall": {
     "default_ps": {
       "area" : ["QTo_WallBaseQuantities", "NetSideArea"],

@@ -4,7 +4,7 @@ import itertools
 import json
 
 from bim2sim.task.base import Task, ITask
-from bim2sim.filter import TypeFilter
+# from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort, SubElement
 # from bim2sim.kernel.bps import ...
 from bim2sim.export import modelica
@@ -39,6 +39,7 @@ from googletrans import Translator
 import re
 
 translator = Translator()
+
 
 class SetIFCTypesBPS(ITask):
     """Set list of relevant IFC types"""
