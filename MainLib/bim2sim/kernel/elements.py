@@ -3,6 +3,7 @@
 import math
 import re
 import numpy as np
+import copy
 import ifcopenshell
 import ifcopenshell.geom
 from OCC.Bnd import Bnd_Box
@@ -38,7 +39,6 @@ from teaser.logic.buildingobjects.useconditions import UseConditions
 from bim2sim.task.bps_f.bps_functions import get_matches_list, get_material_templates_resumed, \
     real_decision_user_input, filter_instances, get_pattern_usage
 import translators as ts
-
 
 def diameter_post_processing(value):
     if isinstance(value, list):
@@ -887,6 +887,8 @@ class SpaceBoundary(element.SubElement):
                         continue
                     if bound.ifc.GlobalId == self.ifc.GlobalId:
                         continue
+                    if bound.bound_normal.Dot(self.bound_normal) != -1:
+                        continue
                     distance = BRepExtrema_DistShapeShape(
                         bound.bound_shape,
                         self.bound_shape,
@@ -901,7 +903,11 @@ class SpaceBoundary(element.SubElement):
                     if (center_dist) > 0.5:
                         continue
                     if nb_vert_other != nb_vert_this:
-                        continue
+                        # replace bound shape by corresponding bound shape
+                        rel_dist = BRepExtrema_DistShapeShape(self.bound_shape, bound.bound_shape, Extrema_ExtFlag_MIN).Value()
+                        self.bound_shape = copy.copy(bound.bound_shape.Reversed())
+                        self.bound_shape = self.move_bound_in_direction_of_normal(self.bound_shape, self.bound_normal,
+                                                                                  rel_dist, reversed=True)
                     corr_bound = bound
                 return corr_bound
                 # for bound in self.objects.
@@ -911,6 +917,8 @@ class SpaceBoundary(element.SubElement):
         elif len(self.bound_instance.space_boundaries) == 2:
             for bound in self.bound_instance.space_boundaries:
                 if bound.ifc.GlobalId == self.ifc.GlobalId:
+                    continue
+                if bound.bound_normal.Dot(self.bound_normal) != -1:
                     continue
                 self.check_for_vertex_duplicates(bound)
                 nb_vert_this = self._get_number_of_vertices(self.bound_shape)
@@ -926,6 +934,8 @@ class SpaceBoundary(element.SubElement):
             for bound in self.bound_instance.space_boundaries:
                 if bound.thermal_zones[0].ifc.GlobalId == own_space_id:
                     # skip boundaries within same space (cannot be corresponding bound)
+                    continue
+                if bound.bound_normal.Dot(self.bound_normal) != -1:
                     continue
                 distance = BRepExtrema_DistShapeShape(
                     bound.bound_shape,
@@ -947,6 +957,24 @@ class SpaceBoundary(element.SubElement):
             return corr_bound
         else:
             return None
+
+    @staticmethod
+    def move_bound_in_direction_of_normal(shape, normal, move_dist, reversed=False):
+        prod_vec = []
+        move_dir = normal.Coord()
+        if reversed:
+            move_dir = normal.Reversed().Coord()
+        for i in move_dir:
+            prod_vec.append(move_dist * i)
+
+        # move bound in direction of bound normal by move_dist
+        trsf = gp_Trsf()
+        coord = gp_XYZ(*prod_vec)
+        vec = gp_Vec(coord)
+        trsf.SetTranslation(vec)
+        moved_shape = BRepBuilderAPI_Transform(shape, trsf).Shape()
+
+        return moved_shape
 
     def check_for_vertex_duplicates(self, rel_bound):
         nb_vert_this = self._get_number_of_vertices(self.bound_shape)
