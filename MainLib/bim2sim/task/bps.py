@@ -923,7 +923,7 @@ class ExportEP(ITask):
             shapeBuild.MakeCompound(bound_compound)
             shapeBuild.MakeCompound(scaled_compound)
             halfspaces = []
-            for i, bound in enumerate(space_obj.space_boundaries):
+            for i, bound in enumerate(space_obj.space_boundaries[:]):
                 if hasattr(bound, 'related_parent_bound'):
                     continue
                 if not hasattr(bound, 'bound_shape_cl'):
@@ -951,28 +951,35 @@ class ExportEP(ITask):
                                 if b_bound.bound_instance is None:
                                     b_bound.bound_shape_cl = b_bound.bound_shape
                             if not hasattr(b_bound, 'scaled_bound_cl'):
-                                b_bound.scaled_bound_cl = self.scale_face(b_bound.bound_shape_cl, 1.5)
+                                b_bound.scaled_bound_cl = self.scale_face(b_bound.bound_shape_cl, 2)
                             sec = BRepAlgoAPI_Section(bound.scaled_bound_cl, b_bound.scaled_bound_cl)
                             sections.append(sec)
                         if other_bound == bound:
                             continue
-
                     if hasattr(other_bound, 'related_parent_bound'):
                         continue
                     if not hasattr(other_bound, 'bound_shape_cl'):
                         continue
                     if not hasattr(other_bound, 'scaled_bound_cl'):
                         other_bound.scaled_bound_cl = self.scale_face(other_bound.bound_shape_cl, 1.5)
+                    scaled_dist = BRepExtrema_DistShapeShape(bound.scaled_bound_cl, other_bound.scaled_bound_cl,
+                                                             Extrema_ExtFlag_MIN).Value()
+                    if scaled_dist > 1e-6:
+                        continue
                     # get bounding box for sectioning face
                     sec = BRepAlgoAPI_Section(bound.scaled_bound_cl, other_bound.scaled_bound_cl)
-                    distance = BRepExtrema_DistShapeShape(bound.bound_shape_cl, other_bound.bound_shape_cl).Value()
+                    distance = BRepExtrema_DistShapeShape(bound.bound_shape_cl, other_bound.bound_shape_cl,
+                                                          Extrema_ExtFlag_MIN).Value()
                     if distance < 1e-6:
+                        # if centerline bounds are direct neighbors, compute section of unscaled bounds
+                        # and scale resulting edge
                         sec = BRepAlgoAPI_Section(bound.bound_shape_cl, other_bound.bound_shape_cl)
                         sec_shape = self.scale_edge(sec.Shape(), 1.5)
                         sec = BRepAlgoAPI_Section(bound.scaled_bound_cl, sec_shape)
                     if SpaceBoundary._get_number_of_vertices(sec.Shape()) <2:
                         sec_solid = self._make_solid_box_shape(other_bound.scaled_bound_cl)
                         sec = BRepAlgoAPI_Section(bound.scaled_bound_cl, sec_solid)
+
                     sections.append(sec)
                 sections2 = []
                 for sec in sections:
@@ -1010,7 +1017,8 @@ class ExportEP(ITask):
                 for sec in sections2:
                     sec.next_neighbor = True
                 while_counter = 0
-                while sec.next_neighbor:
+                # while sec.next_neighbor:
+                while while_counter < len(sections2):
                     if sec == first_sec:
                         sec.next_neighbor = False
                     for ne in sec.neighbors:
@@ -1041,17 +1049,19 @@ class ExportEP(ITask):
                     continue
                 if len(vert_list2) > 12:
                     continue
-                try:
+                # todo: check if all 2B bounds have been fixed yet
+                # bound.bound_shape_cl = SpaceBoundary._make_face_from_vertex_list(vert_list2)
 
+                try:
                     bound.bound_shape_cl = SpaceBoundary._make_face_from_vertex_list(vert_list2)
-                    if not hasattr(bound, 'related_bound'):
-                        continue
-                    rel_bound = bound.related_bound
-                    if not hasattr(rel_bound, 'bound_neighbors_2b'):
-                        continue
-                    rel_bound.bound_shape_cl = bound.bound_shape_cl.Reversed()
                 except:
                     continue
+                if not hasattr(bound, 'related_bound'):
+                    continue
+                rel_bound = bound.related_bound
+                if not hasattr(rel_bound, 'bound_neighbors_2b'):
+                    continue
+                rel_bound.bound_shape_cl = bound.bound_shape_cl.Reversed()
             print('WAIT')
 
     @staticmethod
