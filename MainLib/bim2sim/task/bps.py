@@ -1108,46 +1108,9 @@ class ExportEP(ITask):
                 self._move_bound_in_direction_of_normal(inst_obj, thickness, reversed=True)
             return continue_flag
 
-    # def _assign_virtuals_to_cl(self, inst_obj):
-    #     """
-    #     Assign bound_shape of virtual bounds to centerline bound shape, in case they do not have
-    #     Only assign bound_shape to bound_shape_cl for those bounds, which do not have a neighbor with same
-    #     # surface normal. Those are moved later on."""
-    #     check2=None
-    #     continue_flag = True
-    #     if inst_obj.bound_instance != None:
-    #         return
-    #     if hasattr(inst_obj, 'bound_neighbors'):
-    #         for neighbor in inst_obj.bound_neighbors:
-    #             if neighbor.bound_instance == None:
-    #                 continue
-    #             if neighbor.thermal_zones[0] != inst_obj.thermal_zones[0]:
-    #                 continue
-    #             if IdfObject._compare_direction_of_normals(inst_obj.bound_normal, neighbor.bound_normal):
-    #                 return False
-    #     if not hasattr(inst_obj, 'bound_neighbors_2b'):
-    #         inst_obj.bound_shape_cl = inst_obj.bound_shape
-    #         return continue_flag
-        # for b_bound in inst_obj.bound_neighbors_2b:
-        #     check1 = IdfObject._compare_direction_of_normals(inst_obj.bound_normal, b_bound.bound_normal)
-        #     if not check1:
-        #         continue
-        #     for neighbor2 in b_bound.bound_neighbors:
-        #         if neighbor2.bound_instance == None:
-        #             continue
-        #         if neighbor2 == inst_obj:
-        #             continue
-        #         check2 = IdfObject._compare_direction_of_normals(inst_obj.bound_normal,
-        #                                                          neighbor2.bound_normal)
-        #         if check2:
-        #             break
-        # if check2 == (None or False):
-        #     inst_obj.bound_shape_cl = inst_obj.bound_shape
-        #     return continue_flag
 
     def _move_bounds_to_centerline(self, instances):
         for inst in instances:
-            # self._intersect_centerline_bounds(instances)
             if instances[inst].ifc_type != "IfcRelSpaceBoundary":
                 continue
             inst_obj = instances[inst]
@@ -1159,13 +1122,8 @@ class ExportEP(ITask):
                 continue
             if inst_obj.related_bound is None:
                 continue
-            # if inst_obj.is_external:
-            #     continue
+
             distance = BRepExtrema_DistShapeShape(inst_obj.bound_shape, inst_obj.related_bound.bound_shape, Extrema_ExtFlag_MIN).Value()
-            # if distance < 1e-6:
-            #     continue_flag = self._assign_virtuals_to_cl(inst_obj)
-            #     if continue_flag:
-            #         continue
 
             if hasattr(inst_obj, 'bound_shape_cl'):
                 continue
