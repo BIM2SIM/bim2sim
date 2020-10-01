@@ -794,7 +794,6 @@ class ExportEP(ITask):
         prop = GProp_GProps()
         center = brepgprop_SurfaceProperties(face, prop)
         center = prop.CentreOfMass()
-        print("CENTER", center.Coord())
         return center
 
     @staticmethod
@@ -802,7 +801,6 @@ class ExportEP(ITask):
         prop = GProp_GProps()
         center = brepgprop_LinearProperties(edge, prop)
         center = prop.CentreOfMass()
-        print("CENTER", center.Coord())
         return center
 
 
