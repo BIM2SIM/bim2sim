@@ -902,6 +902,13 @@ class ExportEP(ITask):
                                 rel_bound.bound_shape_cl = face.Reversed()
             print('WAIT')
 
+    @staticmethod
+    def _make_solid_box_shape(shape):
+        box = Bnd_Box()
+        brepbndlib_Add(shape, box)
+        solid_box = BRepPrimAPI_MakeBox(box.CornerMin(), box.CornerMax()).Solid()
+        return solid_box
+
 
     def _vertex_scaled_centerline_bounds(self, instances):
         sec_shapes = []
@@ -964,9 +971,7 @@ class ExportEP(ITask):
                         sec_shape = self.scale_edge(sec.Shape(), 1.5)
                         sec = BRepAlgoAPI_Section(bound.scaled_bound_cl, sec_shape)
                     if SpaceBoundary._get_number_of_vertices(sec.Shape()) <2:
-                        sec_box = Bnd_Box()
-                        brepbndlib_Add(other_bound.scaled_bound_cl, sec_box)
-                        sec_solid = BRepPrimAPI_MakeBox(sec_box.CornerMin(), sec_box.CornerMax()).Solid()
+                        sec_solid = self._make_solid_box_shape(other_bound.scaled_bound_cl)
                         sec = BRepAlgoAPI_Section(bound.scaled_bound_cl, sec_solid)
                     sections.append(sec)
                 sections2 = []
