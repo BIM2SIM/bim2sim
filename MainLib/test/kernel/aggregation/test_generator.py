@@ -304,9 +304,9 @@ class TestGeneratorAggregation(unittest.TestCase):
         graph, flags = self.helper.get_setup_two_seperate_boilers()
         graph.plot(r'c:/temp/')
         matches, meta = aggregation.Generator_One_Fluid.find_matches(graph)
-
+el
         agg_generators = []
-        # self.assertEqual(len(matches), 1)
+        self.assertEqual(len(matches), 2)
         for e, match in enumerate(matches):
             agg_generator = aggregation.Generator_One_Fluid(
                 "Test basics", matches[e], **meta[e])
@@ -322,7 +322,8 @@ class TestGeneratorAggregation(unittest.TestCase):
                 mapping=agg_generator.get_replacement_mapping(),
                 inner_connections=agg_generator.get_inner_connections(),
             )
-            graph.plot(r'c:/temp/')
+        graph.plot(r'c:/temp/')
+        print('test')
 
 
 # test cases:

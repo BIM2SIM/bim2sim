@@ -1426,7 +1426,7 @@ class Generator_One_Fluid(Aggregation):
     aggregatable_elements = ['IfcPump', 'PipeStrand', 'IfcPipeSegment',
                              'IfcPipeFitting', 'IfcBoiler', 'ParallelPumps',
                              'IfcTank', 'IfcDistributionChamberElement']
-
+    wanted_elements = ['IfcBoiler']
     boarder_elements = ['IfcTank', 'IfcDistributionChamberElement']
     multi = ('rated_power', 'has_pump', 'has_bypass', 'rated_volume_flow',
              # todo: maybe add later: 'diameter', 'diameter_strand', 'length'
@@ -1436,6 +1436,8 @@ class Generator_One_Fluid(Aggregation):
         super().__init__(name, element_graph, *args, **kwargs)
         edge_ports, element_graph = self.get_edge_ports(element_graph)
         # todo add edge_ports and expansion tank again to elements
+        bypass_nodes = self.find_bypasses(element_graph)
+        element_graph.remove_nodes_from(bypass_nodes)
         self.elements = element_graph.nodes
         if len(edge_ports) > 2:
             raise NotImplementedError
@@ -1466,6 +1468,15 @@ class Generator_One_Fluid(Aggregation):
 
         return edge_ports, _graph
 
+    @classmethod
+    def find_bypasses(cls, graph):
+        wanted = set(cls.wanted_elements)
+        boarders = set(cls.boarder_elements)
+        inerts = set(cls.aggregatable_elements) - wanted
+        bypass_nodes = HvacGraph.detect_bypasses_to_wanted(
+            graph, wanted, inerts, boarders)
+        return bypass_nodes
+
     def get_replacement_mapping(self):
         """Returns dict with original ports as values and their aggregated
         replacement as keys."""
@@ -1479,16 +1490,16 @@ class Generator_One_Fluid(Aggregation):
     @classmethod
     def find_matches(cls, graph):
         element_graph = graph.element_graph
-        wanted = {'IfcBoiler'}
+        wanted = set(cls.wanted_elements)
         boarders = set(cls.boarder_elements)
         inerts = set(cls.aggregatable_elements) - wanted
         _graph = HvacGraph.remove_not_wanted_nodes(element_graph, wanted, inerts)
 
         cycles = HvacGraph.get_all_cycles_with_wanted(_graph, wanted)
 
-        bypass_nodes = HvacGraph.detect_bypasses_to_wanted(_graph, wanted,
-                                                           inerts, boarders)
-        _graph.remove_nodes_from(bypass_nodes)
+        # bypass_nodes = HvacGraph.detect_bypasses_to_wanted(_graph, wanted,
+        #                                                    inerts, boarders)
+        # _graph.remove_nodes_from(bypass_nodes)
 
         generator_cycles = [nx.subgraph(_graph, cycle) for cycle in cycles
                           if any(node.ifc_type == block for block in
@@ -1512,7 +1523,7 @@ class Generator_One_Fluid(Aggregation):
         total_rated_power = 0
 
         for item in self.elements:
-            if "Pump" in item.ifc_type:
+            if "Boiler" in item.ifc_type:
 
                 total_rated_volume_flow += item.rated_volume_flow
                 total_rated_power += item.rated_power
@@ -1552,3 +1563,38 @@ class Generator_One_Fluid(Aggregation):
             diameter_strand=avg_diameter_strand
         )
         return result
+
+    rated_power = attribute.Attribute(
+        unit=ureg.kilowatt,        description="rated power",
+        functions=[_calc_avg],
+    )
+
+    rated_height = attribute.Attribute(
+        description='rated height',
+        functions=[_calc_avg],
+        unit=ureg.meter,
+    )
+
+    rated_volume_flow = attribute.Attribute(
+        description='rated volume flow',
+        functions=[_calc_avg],
+        unit=ureg.meter**3 / ureg.hour,
+    )
+
+    diameter = attribute.Attribute(
+        description='diameter',
+        functions=[_calc_avg],
+        unit=ureg.millimeter,
+    )
+
+    length = attribute.Attribute(
+        description='length of aggregated pipe elements',
+        functions=[_calc_avg],
+        unit=ureg.meter,
+    )
+
+    diameter_strand = attribute.Attribute(
+        description='average diameter of aggregated pipe elements',
+        functions=[_calc_avg],
+        unit=ureg.millimeter,
+    )
