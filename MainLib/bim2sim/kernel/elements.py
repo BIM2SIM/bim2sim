@@ -788,7 +788,7 @@ class SpaceBoundary(element.SubElement):
 
     @cached_property
     def bound_area(self):
-        return self.get_bound_area()
+        return self.get_bound_area(self.bound_shape)
 
     @cached_property
     def bound_neighbors(self):
@@ -815,11 +815,11 @@ class SpaceBoundary(element.SubElement):
                 neighbors.append(bound)
         return neighbors
 
-
-    def get_bound_area(self):
+    @staticmethod
+    def get_bound_area(bound_shape):
         """compute area of a space boundary"""
         bound_prop = GProp_GProps()
-        brepgprop_SurfaceProperties(self.bound_shape, bound_prop)
+        brepgprop_SurfaceProperties(bound_shape, bound_prop)
         area = bound_prop.Mass()
         return area
 
@@ -1175,7 +1175,7 @@ class SpaceBoundary2B:
 
     @cached_property
     def bound_area(self):
-        return SpaceBoundary.get_bound_area(self)
+        return SpaceBoundary.get_bound_area(self.bound_shape)
 
 
 class Medium(element.Element):
