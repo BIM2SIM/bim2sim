@@ -941,6 +941,7 @@ class ExportEP(ITask):
                 for j, other_bound in enumerate(space_obj.space_boundaries):
                     if (other_bound in b_processed):
                         continue
+                    b_processed.append(other_bound)
                     if other_bound == bound:
                         continue
                         #todo: should no longer be necessary (
