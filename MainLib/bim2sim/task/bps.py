@@ -907,7 +907,7 @@ class ExportEP(ITask):
                         other_bound.scaled_bound_cl = self.scale_face(other_bound.bound_shape_cl, 1.5)
                     scaled_dist = BRepExtrema_DistShapeShape(bound.scaled_bound_cl, other_bound.scaled_bound_cl,
                                                              Extrema_ExtFlag_MIN).Value()
-                    if scaled_dist > 1e-6:
+                    if scaled_dist > 1e-4:
                         continue
                     # todo: loop over neighbors of other_bound. if there are neighbors with the same surface normal
                     # other_bound, check, if this neighbors scaled bound also intersects with curr bounds scaled bound.
