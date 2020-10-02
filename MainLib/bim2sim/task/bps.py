@@ -29,6 +29,7 @@ from OCC.GProp import GProp_GProps
 from OCC.BRepAlgoAPI import BRepAlgoAPI_Common
 from OCC.Bnd import Bnd_Box
 from OCC.BRepBndLib import brepbndlib_Add
+from OCC.ShapeFix import ShapeFix_Face, ShapeFix_Shape
 from stl import stl
 from stl import mesh
 
@@ -1063,6 +1064,20 @@ class ExportEP(ITask):
                     continue
                 rel_bound.bound_shape_cl = bound.bound_shape_cl.Reversed()
             print('WAIT')
+
+    def fix_face(self, face, tolerance=1e-3):
+        fix = ShapeFix_Face(face)
+        fix.SetMaxTolerance(tolerance)
+        fix.Perform()
+        return fix.Face()
+
+    def fix_shape(self, shape, tolerance=1e-3):
+        fix = ShapeFix_Shape(shape)
+        fix.SetFixFreeShellMode(True)
+        sf = fix.FixShellTool()
+        fix.LimitTolerance(tolerance)
+        fix.Perform()
+        return fix.Shape()
 
     @staticmethod
     def _create_halfspaces(bound_shape, space_obj):
