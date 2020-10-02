@@ -1237,6 +1237,9 @@ class ExportEP(ITask):
             if not hasattr(bound, 'bound_neighbors_2b'):
                 continue
             for b_bound in bound.bound_neighbors_2b:
+                check2 = IdfObject._compare_direction_of_normals(bound.bound_normal, b_bound.bound_normal)
+                if not check2:
+                    continue
                 for neighbor in b_bound.bound_neighbors:
                     if neighbor == bound:
                         continue
@@ -1246,8 +1249,7 @@ class ExportEP(ITask):
                     #     continue
                     sb_neighbor = neighbor
                     check1 = IdfObject._compare_direction_of_normals(bound.bound_normal, sb_neighbor.bound_normal)
-                    check2 = IdfObject._compare_direction_of_normals(bound.bound_normal, b_bound.bound_normal)
-                    if not (check1 and check2):
+                    if not (check1):
                         continue
                     distance = BRepExtrema_DistShapeShape(bound.bound_shape_cl, sb_neighbor.bound_shape_cl, Extrema_ExtFlag_MIN).Value()
                     if distance < 1e-3:
@@ -1317,6 +1319,23 @@ class ExportEP(ITask):
                         continue
                     bound.bound_shape_cl = new_face1
                     sb_neighbor.bound_shape_cl = new_face2
+
+                    if bound.related_bound is not None:
+                        if not hasattr(bound.related_bound, 'bound_shape_cl'):
+                            bound.related_bound.bound_shape_cl = bound.bound_shape_cl.Reversed()
+                        area_bound = SpaceBoundary.get_bound_area(bound.bound_shape_cl)
+                        area_related = SpaceBoundary.get_bound_area(bound.related_bound.bound_shape_cl)
+                        if area_bound > area_related:
+                            bound.related_bound.bound_shape_cl = bound.bound_shape_cl.Reversed()
+                    if sb_neighbor.related_bound is not None:
+                        if not hasattr(sb_neighbor.related_bound, 'bound_shape_cl'):
+                            sb_neighbor.related_bound.bound_shape_cl = sb_neighbor.bound_shape_cl.Reversed()
+                            continue
+                        area_bound = SpaceBoundary.get_bound_area(sb_neighbor.bound_shape_cl)
+                        area_related = SpaceBoundary.get_bound_area(sb_neighbor.related_bound.bound_shape_cl)
+                        if area_bound > area_related:
+                            sb_neighbor.related_bound.bound_shape_cl = sb_neighbor.bound_shape_cl.Reversed()
+                            continue
                     # todo: compute new area for bound_shape_cl and compare to area of related bound
                     # todo: assign reversed bound_shape_cl to related bound if area of related bound is smaller
 
