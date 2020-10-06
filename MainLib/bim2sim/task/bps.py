@@ -1369,6 +1369,19 @@ class ExportEP(ITask):
                 # idf.popidfobject(idfp.key, -1)
                 self.logger.warning("Boundary with the GUID %s (%s) is skipped (due to missing boundary conditions)!", idfp.name, idfp.surface_type)
                 continue
+        for inst in instances:
+            if instances[inst].ifc_type != "IfcSpace":
+                continue
+            bound_obj = instances[inst]
+            for b_bound in bound_obj.space_boundaries_2B:
+                idfp = IdfObject(b_bound, idf)
+                if idfp.skip_bound:
+                    # idf.popidfobject(idfp.key, -1)
+                    self.logger.warning(
+                        "Boundary with the GUID %s (%s) is skipped (due to missing boundary conditions)!", idfp.name,
+                        idfp.surface_type)
+                    continue
+
 
     def _export_to_stl_for_cfd(self, instances, idf):
         self.logger.info("Export STL for CFD")
@@ -1732,12 +1745,32 @@ class ExportEP(ITask):
                 stl_writer.Write(triang_face.Shape(), this_name)
 
     def create_2B_space_boundaries(self, faces, space_obj):
+        settings = ifcopenshell.geom.main.settings()
+        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
+        settings.set(settings.USE_WORLD_COORDS, True)
+        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+        settings.set(settings.INCLUDE_CURVES, True)
+
         space_obj.space_boundaries_2B = []
+        bound_obj = []
+        for bound in space_obj.space_boundaries:
+            if bound.bound_instance is not None:
+                bi = bound.bound_instance.ifc
+                bound.bound_instance.shape = ifcopenshell.geom.create_shape(settings, bi).geometry
+                bound_obj.append(bound.bound_instance)
         for i, face in enumerate(faces):
             b_bound = SpaceBoundary2B()
             b_bound.bound_shape = face
             b_bound.guid = space_obj.ifc.GlobalId + "_2B_" + str("%003.f"%(i+1))
             b_bound.thermal_zones.append(space_obj)
+            for instance in bound_obj:
+                if hasattr(instance, 'related_parent'):
+                    continue
+                center_shape = BRepBuilderAPI_MakeVertex(gp_Pnt(b_bound.bound_center)).Shape()
+                distance = BRepExtrema_DistShapeShape(center_shape, instance.shape, Extrema_ExtFlag_MIN).Value()
+                if distance < 1e-3:
+                    b_bound.bound_instance = instance
+                    break
             space_obj.space_boundaries_2B.append(b_bound)
 
             for bound in space_obj.space_boundaries:
@@ -1761,7 +1794,7 @@ class ExportEP(ITask):
 
 class IdfObject():
     def __init__(self, inst_obj, idf):
-        self.name = inst_obj.ifc.GlobalId
+        self.name = inst_obj.guid
         self.building_surface_name = None
         self.key = None
         self.out_bound_cond = ''
@@ -1771,7 +1804,7 @@ class IdfObject():
         self.surface_type = None
         self.virtual_physical = None
         self.construction_name = None
-        self.zone_name = inst_obj.ifc.RelatingSpace.GlobalId
+        self.zone_name = inst_obj.thermal_zones[0].guid
         self.related_bound = inst_obj.related_bound
         self.skip_bound = False
         self.bound_shape = inst_obj.bound_shape
@@ -2079,7 +2112,11 @@ class IdfObject():
         to the idf space boundary conditions
         :return:
         """
-        if inst_obj.is_external and inst_obj.physical:
+        if inst_obj.level_description == '2b':
+            self.out_bound_cond = 'Adiabatic'
+            self.sun_exposed = 'NoSun'
+            self.wind_exposed = 'NoWind'
+        elif inst_obj.is_external and inst_obj.physical:
             self.out_bound_cond = 'Outdoors'
             self.sun_exposed = 'SunExposed'
             self.wind_exposed = 'WindExposed'
