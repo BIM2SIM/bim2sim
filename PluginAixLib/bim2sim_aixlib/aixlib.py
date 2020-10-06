@@ -19,6 +19,8 @@ class AixLibManager(BIM2SIMManager):
 
     def run(self):
 
+        self.playground.run_task(LoadLibrariesAixLib)
+
         self.playground.run_task(hvac.SetIFCTypesHVAC())
         self.playground.run_task(common.LoadIFC())
         self.playground.run_task(hvac.Prepare())

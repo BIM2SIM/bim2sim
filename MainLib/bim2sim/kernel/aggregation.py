@@ -1,6 +1,8 @@
 ﻿"""Module for aggregation and simplifying elements"""
 
 import math
+import sys
+
 import numpy as np
 from bim2sim.kernel.element import BaseElement, BasePort
 from bim2sim.kernel import elements, attribute

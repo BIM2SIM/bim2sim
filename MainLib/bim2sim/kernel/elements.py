@@ -50,6 +50,7 @@ class Chiller(element.Element):
     """"Chiller"""
 
     ifc_type = 'IfcChiller'
+    predefined_types = ['AIRCOOLED', 'WATERCOOLED', 'HEATRECOVERY']
 
     pattern_ifc_type = [
         re.compile('Chiller', flags=re.IGNORECASE),
@@ -74,6 +75,7 @@ class CoolingTower(element.Element):
     """"CoolingTower"""
 
     ifc_type = 'IfcCoolingTower'
+    predefined_types = ['NATURALDRAFT', 'MECHANICALINDUCEDDRAFT', 'MECHANICALFORCEDDRAFT']
 
     pattern_ifc_type = [
         re.compile('Cooling.?Tower', flags=re.IGNORECASE),
@@ -101,6 +103,7 @@ class HeatExchanger(element.Element):
     """"Heatexchanger"""
 
     ifc_type = 'IfcHeatExchanger'
+    predefined_types = ['PLATE', 'SHELLANDTUBE']
 
     pattern_ifc_type = [
         re.compile('Heat.?Exchanger', flags=re.IGNORECASE),
@@ -125,6 +128,7 @@ class HeatExchanger(element.Element):
 class Boiler(element.Element):
     """Boiler"""
     ifc_type = 'IfcBoiler'
+    predefined_types = ['WATER', 'STEAM']
 
     pattern_ifc_type = [
         #re.compile('Heat.?pump', flags=re.IGNORECASE),
@@ -209,6 +213,8 @@ class Boiler(element.Element):
 
 class Pipe(element.Element):
     ifc_type = "IfcPipeSegment"
+    predefined_types = ['CULVERT', 'FLEXIBLESEGMENT', 'RIGIDSEGMENT', 'GUTTER', 'SPOOL']
+
     conditions = [
         condition.RangeCondition("diameter", 5.0*ureg.millimeter, 300.00*ureg.millimeter)   #ToDo: unit?!
     ]
@@ -264,6 +270,7 @@ class Pipe(element.Element):
 
 class PipeFitting(element.Element):
     ifc_type = "IfcPipeFitting"
+    predefined_types = ['BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION', 'OBSTRUCTION', 'TRANSITION']
 
     conditions = [
         condition.RangeCondition("diameter", 5.0*ureg.millimeter, 300.00*ureg.millimeter)
@@ -298,6 +305,8 @@ class PipeFitting(element.Element):
 
 class SpaceHeater(element.Element):
     ifc_type = 'IfcSpaceHeater'
+    predefined_types = ['CONVECTOR', 'RADIATOR']
+
     pattern_ifc_type = [
         re.compile('Space.?heater', flags=re.IGNORECASE)
     ]
@@ -314,6 +323,7 @@ class SpaceHeater(element.Element):
 
 # class ExpansionTank(element.Element):
 #     ifc_type = "IfcTank"   #ToDo: IfcTank, IfcTankType=Expansion
+#     predefined_types = ['BASIN', 'BREAKPRESSURE', 'EXPANSION', 'FEEDANDEXPANSION', 'STORAGE', 'VESSEL']
 #     pattern_ifc_type = [
 #         re.compile('Expansion.?Tank', flags=re.IGNORECASE),
 #         re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
@@ -331,6 +341,8 @@ class SpaceHeater(element.Element):
 
 class Storage(element.Element):
     ifc_type = "IfcTank"    #ToDo: IfcTank, IfcTankType=Storage
+    predefined_types = ['BASIN', 'BREAKPRESSURE', 'EXPANSION', 'FEEDANDEXPANSION', 'STORAGE', 'VESSEL']
+
     pattern_ifc_type = [
         re.compile('Tank', flags=re.IGNORECASE),
         re.compile('Speicher', flags=re.IGNORECASE),
@@ -364,6 +376,9 @@ class Storage(element.Element):
 
 class Distributor(element.Element):
     ifc_type = "IfcDistributionChamberElement"
+    predefined_types = ['FORMEDDUCT', 'INSPECTIONCHAMBER', 'INSPECTIONPIT', 'MANHOLE', 'METERCHAMBER',
+                        'SUMP', 'TRENCH', 'VALVECHAMBER']
+
     pattern_ifc_type = [
         re.compile('Distribution.?chamber', flags=re.IGNORECASE),
         re.compile('Distributior', flags=re.IGNORECASE),
@@ -383,6 +398,9 @@ class Distributor(element.Element):
 
 class Pump(element.Element):
     ifc_type = "IfcPump"
+    predefined_types = ['CIRCULATOR', 'ENDSUCTION', 'SPLITCASE', 'SUBMERSIBLEPUMP', 'SUMPPUMP', 'VERTICALINLINE',
+                        'VERTICALTURBINE']
+
     pattern_ifc_type = [
         re.compile('Pumpe', flags=re.IGNORECASE),
         re.compile('Pump', flags=re.IGNORECASE)
@@ -407,6 +425,11 @@ class Pump(element.Element):
 
 class Valve(element.Element):
     ifc_type = "IfcValve"
+    predefined_types = ['AIRRELEASE', 'ANTIVACUUM', 'CHANGEOVER', 'CHECK', 'COMMISSIONING', 'DIVERTING', 'DRAWOFFCOCK',
+                        'DOUBLECHECK', 'DOUBLEREGULATING', 'FAUCET', 'FLUSHING', 'GASCOCK', 'GASTAP', 'ISOLATING',
+                        'MIXING', 'PRESSUREREDUCING', 'PRESSURERELIEF', 'REGULATING', 'SAFETYCUTOFF', 'STEAMTRAP',
+                        'STOPCOCK']
+
     pattern_ifc_type = [
         re.compile('Valve', flags=re.IGNORECASE),
         re.compile('Drossel', flags=re.IGNORECASE),
@@ -442,6 +465,8 @@ class Valve(element.Element):
 
 class Duct(element.Element):
     ifc_type = "IfcDuctSegment"
+    predefined_types = ['RIGIDSEGMENT', 'FLEXIBLESEGMENT']
+
     pattern_ifc_type = [
         re.compile('Duct.?segment', flags=re.IGNORECASE)
     ]
@@ -458,6 +483,8 @@ class Duct(element.Element):
 
 class DuctFitting(element.Element):
     ifc_type = "IfcDuctFitting"
+    predefined_types = ['BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION', 'OBSTRUCTION', 'TRANSITION']
+
     pattern_ifc_type = [
         re.compile('Duct.?fitting', flags=re.IGNORECASE)
     ]
@@ -474,6 +501,8 @@ class DuctFitting(element.Element):
 
 class AirTerminal(element.Element):
     ifc_type = "IfcAirTerminal"
+    predefined_types = ['DIFFUSER', 'GRILLE', 'LOUVRE', 'REGISTER']
+
     pattern_ifc_type = [
         re.compile('Air.?terminal', flags=re.IGNORECASE)
     ]
@@ -486,6 +515,7 @@ class AirTerminal(element.Element):
 
 class ThermalZone(element.Element):
     ifc_type = "IfcSpace"
+    predefined_types = ['SPACE', 'PARKING', 'GFA', 'INTERNAL', 'EXTERNAL']
 
     pattern_ifc_type = [
         re.compile('Space', flags=re.IGNORECASE),
@@ -658,6 +688,7 @@ class SpaceBoundary(element.SubElement):
 
 
 class Medium(element.Element):
+    # is deprecated?
     ifc_type = "IfcDistributionSystems"
     pattern_ifc_type = [
         re.compile('Medium', flags=re.IGNORECASE)
@@ -666,6 +697,7 @@ class Medium(element.Element):
 
 class Wall(element.Element):
     ifc_type = ["IfcWall", "IfcWallStandardCase"]
+    predefined_types = ['MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL', 'SHEAR', 'SOLIDWALL', 'POLYGONAL']
     pattern_ifc_type = [
         re.compile('Wall', flags=re.IGNORECASE),
         re.compile('Wand', flags=re.IGNORECASE)
@@ -797,6 +829,7 @@ class InnerWall(Wall):
 
 class Window(element.Element):
     ifc_type = "IfcWindow"
+    predefined_types = ['WINDOW', 'SKYLIGHT', 'LIGHTDOME']
     # predefined_type = {
     #     "IfcWindow": ["WINDOW",
     #                   "SKYLIGHT",
@@ -845,6 +878,7 @@ class Window(element.Element):
 
 class Door(element.Element):
     ifc_type = "IfcDoor"
+    predefined_types = ['DOOR', 'GATE', 'TRAPDOOR']
 
     pattern_ifc_type = [
         re.compile('Door', flags=re.IGNORECASE),
@@ -887,6 +921,7 @@ class Door(element.Element):
 
 class Plate(element.Element):
     ifc_type = "IfcPlate"
+    predefined_types = ['CURTAIN_PANEL', 'SHEET']
 
     # @property
     # def area(self):
@@ -903,6 +938,7 @@ class Plate(element.Element):
 
 class Slab(element.Element):
     ifc_type = "IfcSlab"
+    predefined_types = ['FLOOR', 'ROOF', 'LANDING', 'BASESLAB']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -956,6 +992,9 @@ class Slab(element.Element):
 
 class Roof(Slab):
     ifc_type = "IfcRoof"
+    predefined_types = ['FLAT_ROOF', 'SHED_ROOF', 'GABLE_ROOF', 'HIP_ROOF', 'HIPPED_GABLE_ROOF', 'GAMBREL_ROOF',
+                        'MANSARD_ROOF', 'BARREL_ROOF', 'RAINBOW_ROOF', 'BUTTERFLY_ROOF', 'PAVILION_ROOF', 'DOME_ROOF',
+                        'FREEFORM']
     predefined_type = "ROOF"
 
     def __init__(self, *args, **kwargs):
