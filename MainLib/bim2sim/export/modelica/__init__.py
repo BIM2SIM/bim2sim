@@ -59,7 +59,7 @@ class Model:
         indexes = [[0, 0], [0, 0], [0, 0]]
         modelsize = 25
         for inst in instances:
-
+            # Consumer to the right
             if inst.element.__class__ in [aggregation.ConsumerHeatingDistributorModule, aggregation.Consumer]:
                 x = (self.size_x[0] + delta_x*2/3 + indexes[0][0]*modelsize)
                 y = (self.size_y[0] + indexes[0][1]*modelsize)
@@ -70,6 +70,7 @@ class Model:
                     indexes[0][0] += 1
                 else:
                     indexes[0][1] += 1
+            # Generator to the left
             elif inst.element.__class__ in [elements.Boiler, elements.Chiller]:
                 x = (self.size_x[0] + indexes[1][0]*modelsize)
                 y = (self.size_y[0] + indexes[1][1]*modelsize)
@@ -153,6 +154,7 @@ class Instance:
         self.params = {}
         self.validate = {}
         self.get_params()
+        self.manage_params()
         self.comment = self.get_comment()
         self.connections = []
 
@@ -221,7 +223,7 @@ class Instance:
         """Collect parameters from element and checks them"""
         for name, args in self.validate.items():
             check, export_name = args
-            value = self.element.find(name)
+            value = getattr(self.element, name)
             if check(value):
                 self.params[export_name] = value
             else:
@@ -282,9 +284,9 @@ class Instance:
         if isinstance(parameter, (str, int, float)):
             return str(parameter)
         if isinstance(parameter, str):
-            return '"%s"'%parameter
+            return '"%s"' % parameter
         if isinstance(parameter, (list, tuple, set)):
-            return "{%s}"%(",".join((Instance.to_modelica(par) for par in parameter)))
+            return "{%s}" % (",".join((Instance.to_modelica(par) if par is not None else "" for par in parameter)))
         logger = logging.getLogger(__name__)
         logger.warning("Unknown class (%s) for conversion", parameter.__class__)
         return str(parameter)
@@ -305,6 +307,17 @@ class Instance:
             if max_value is not None:
                 return value <= max_value
             return min_value <= value <= max_value
+
+        return inner_check
+
+    @staticmethod
+    def check_dummy():
+        """Dummy Always True
+
+        returns check function"""
+
+        def inner_check(value):
+            return True
 
         return inner_check
 

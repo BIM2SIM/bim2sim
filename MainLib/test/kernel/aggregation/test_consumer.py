@@ -365,7 +365,7 @@ class TestConsumerAggregation(unittest.TestCase):
         self.assertAlmostEqual(0, len(consumer.undefined_consumer_ports))
         self.assertAlmostEqual(2, len(consumer._consumer_cycles), "{} consumer expected, {} consumer cycles found."
                                .format(2, len(consumer._consumer_cycles)))
-        self.assertFalse(consumer.useHydraulicSeperator)
+        self.assertFalse(consumer.use_hydraulic_separator)
         #  ToDo:Medium
         #  ToDo:Temperatur
 

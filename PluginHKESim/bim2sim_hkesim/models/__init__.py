@@ -2,7 +2,7 @@
 
 from bim2sim.export import modelica
 from bim2sim.kernel import elements
-from bim2sim.kernel.aggregation import PipeStrand, Consumer, ConsumerHeatingDistributorModule
+import bim2sim.kernel.aggregation as aggregation
 
 
 class HKESim(modelica.Instance):
@@ -36,11 +36,11 @@ class Boiler(HKESim):
 
 class Radiator(HKESim):
     path = "HKESim.Heating.Consumers.Radiators.Radiator"
-    represents = [elements.SpaceHeater, Consumer]
+    represents = [elements.SpaceHeater, aggregation.Consumer]
 
     def get_params(self):
         self.register_param("rated_power", self.check_numeric(min_value=0), "Q_flow_nominal")
-        self.params["T_nominal"] = (80, 60, 20)
+        # self.params["T_nominal"] = (80, 60, 20)
 
 
 class Pump(HKESim):
@@ -63,20 +63,22 @@ class Pump(HKESim):
         else:
             return super().get_port_name(port)
 
+
 class ConsumerHeatingDistributorModule(HKESim):
     path = "SystemModules.HeatingSystemModules.ConsumerHeatingDistributorModule"
-    represents = [ConsumerHeatingDistributorModule]
+    represents = [aggregation.ConsumerHeatingDistributorModule]
 
     def __init__(self, element):
-        self.check_temp_tupel = True #TODO: Checking System
+        self.check_temp_tupel = self.check_dummy() #TODO: Checking System
         super().__init__(element)
 
     def get_params(self):
         # self.register_param("Tconsumer", self.check_temp_tupel, "Tconsumer")
-        self.params["Tconsumer"] = (self.element.temperature_inlet, self.element.temperature_outlet)
+        if self.element.temperature_inlet or self.element.temperature_outlet:
+            self.params["Tconsumer"] = (self.element.temperature_inlet, self.element.temperature_outlet)
         self.params["Medium_heating"] = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.register_param("useHydraulicSeparator", self.check_temp_tupel, "useHydraulicSeparator")
-        self.register_param("hydraulicSeparatorVolume", self.check_temp_tupel, "V")
+        self.register_param("use_hydraulic_separator", self.check_temp_tupel, "useHydraulicSeparator")
+        self.register_param("hydraulic_separator_volume", self.check_temp_tupel, "V")
 
         index = 0
 
@@ -88,7 +90,8 @@ class ConsumerHeatingDistributorModule(HKESim):
             self.params["c{}Name".format(index)] = '"{}"'.format(con.description)
             self.params["c{}OpenEnd".format(index)] = False
             self.params["c{}TControl".format(index)] = con.t_controll
-            self.params["Tconsumer{}".format(index)] = (con.temperature_inlet, con.temperature_outlet)
+            if con.temperature_inlet or con.temperature_outlet:
+                self.params["Tconsumer{}".format(index)] = (con.temperature_inlet, con.temperature_outlet)
             if index > 1:
                 self.params["isConsumer{}".format(index)] = True
 
@@ -99,7 +102,7 @@ class ConsumerHeatingDistributorModule(HKESim):
                 self.params["c{}Name".format(index)] = '"Open End Consumer{}"'.format(index)
                 self.params["c{}OpenEnd".format(index)] = True
                 self.params["c{}TControl".format(index)] = False        # TODO: Werte aus dem Modell
-                self.params["Tconsumer{}".format(index)] = (80 + 273.15, 60 + 273.15)  # TODO: Werte aus dem Modell
+                # self.params["Tconsumer{}".format(index)] = (80 + 273.15, 60 + 273.15)  # TODO: Werte aus dem Modell
                 if index > 1:
                     self.params["isConsumer{}".format(index)] = True
 

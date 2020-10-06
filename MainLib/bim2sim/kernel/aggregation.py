@@ -82,9 +82,12 @@ class Aggregation(BaseElement):
         else:
             names = (name,)
 
-        for ele in self.elements:
-            for n in names:
-                ele.request(n)
+        # for ele in self.elements:
+        #     for n in names:
+        #         ele.request(n)
+
+        for n in names:
+            super().request(n)
 
     @classmethod
     def get_empty_mapping(cls, elements: list):
@@ -1174,7 +1177,7 @@ class Consumer(Aggregation):
         )
         return result
 
-    def _calc_TControl(self):
+    def _calc_TControl(self, name):
         return True  # ToDo: Look at Boiler Aggregation - David
 
     @attribute.multi_calc
@@ -1251,7 +1254,7 @@ class Consumer(Aggregation):
 
 class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation HKESim
     """Aggregates Consumer system boarder"""
-    multi = ('medium', 'useHydraulicSeperator', 'hydraulicSeperatorVolume', 'temperature_inlet', 'temperature_outlet')
+    multi = ('medium', 'use_hydraulic_separator', 'hydraulic_separator_volume', 'temperature_inlet', 'temperature_outlet')
     # ToDo: Abused to not just sum attributes from elements
 
     aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting', 'ParallelSpaceHeater']
@@ -1332,7 +1335,7 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
             outer_connections = {}
             metas.append({'outer_connections': [],
                           'undefined_consumer_ports': [],
-                          'consumer_cycles':[]})
+                          'consumer_cycles': []})
 
             for port in remove_ports:
                 outer_connections.update({neighbor.parent: (port, neighbor) for neighbor in graph.neighbors(port) if
@@ -1390,9 +1393,8 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
             medium=None,
             temperature_inlet=None,
             temperature_outlet=None,
-            useHydraulicSeperator=None,
-            hydraulicSeperatorVolume=None,
-            # description='Destributor with X Consumer Cycles'
+            use_hydraulic_separator=False,
+            hydraulic_separator_volume=1,
         )
         return result
 
@@ -1411,12 +1413,12 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
         functions=[_calc_avg]
     )
 
-    useHydraulicSeperator = attribute.Attribute(
+    use_hydraulic_separator = attribute.Attribute(
         description="boolean if there is a hdydraulic seperator",
         functions=[_calc_avg]
     )
 
-    hydraulicSeperatorVolume = attribute.Attribute(
+    hydraulic_separator_volume = attribute.Attribute(
         description="Volume of the hdydraulic seperator",
         functions=[_calc_avg]
     )
