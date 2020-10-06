@@ -836,7 +836,7 @@ class SpaceBoundary(element.SubElement):
         # surface normals are not perpendicular to a vertical
         if self.bound_normal.Dot(vertical) != 0:
             direct = self.bound_center.Z() - self.thermal_zones[0].space_center.Z()
-            if direct < 0 and self._compare_direction_of_normals(self.bound_normal, vertical):
+            if direct < 0 and SpaceBoundary._compare_direction_of_normals(self.bound_normal, vertical):
                 top_bottom = "BOTTOM"
             else:
                 top_bottom = "TOP"
@@ -1164,6 +1164,11 @@ class SpaceBoundary2B:
         self.bound_neighbors = []
         self.thermal_zones = []
         self.bound_instance = None
+        self.physical = True
+        self.is_external = False
+        self.related_bound = None
+        self.level_description = '2b'
+
 
     @cached_property
     def bound_center(self):
@@ -1177,6 +1182,9 @@ class SpaceBoundary2B:
     def bound_area(self):
         return SpaceBoundary.get_bound_area(self.bound_shape)
 
+    @cached_property
+    def top_bottom(self):
+        return SpaceBoundary.get_floor_and_ceilings(self)
 
 class Medium(element.Element):
     # is deprecated?
