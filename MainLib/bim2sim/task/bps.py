@@ -2248,6 +2248,7 @@ class IdfObject():
         drop_list = obj_coords[0::drop_count]
         pnt = drop_list[0]
         counter = 0
+        del inst_obj.__dict__['bound_center']
         for pnt2 in drop_list[1:]:
             counter += 1
             new_obj = idf.copyidfobject(obj)
