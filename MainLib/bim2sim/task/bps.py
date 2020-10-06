@@ -1641,18 +1641,13 @@ class ExportEP(ITask):
         colors = ['blue', 'red', 'magenta', 'yellow', 'green', 'white', 'cyan']
         col = 0
         for inst in instances:
-            if instances[inst].ifc_type == 'IfcSpace':
+            if instances[inst].ifc_type == 'IfcRelSpaceBoundary':
                 col += 1
-                zone = instances[inst]
-                if not hasattr(zone, 'space_boundaries_2B'):
+                bound = instances[inst]
+                try:
+                    display.DisplayShape(bound.bound_shape, color=colors[(col - 1) % len(colors)])
+                except:
                     continue
-                for bound in zone.space_boundaries_2B:
-                    try:
-                        display.DisplayShape(bound.bound_shape, color=colors[(col - 1) % len(colors)])
-                    except:
-                        continue
-                # display.DisplayShape(zone.space_shape, color=colors[(col - 1) % len(colors)])
-                # display.DisplayShape(zone.b_bound_shape, color=colors[(col - 1) % len(colors)])
         display.FitAll()
         start_display()
 
