@@ -148,15 +148,15 @@ def _debug_run_bps_ep():
     """Create example project and copy ifc if necessary"""
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 
-    # rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
+    rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
+    # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB.ifc'
     # rel_example = 'ExampleFiles/DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
     # rel_example = 'ExampleFiles/ARC.ifc'
     # rel_example = 'ExampleFiles/AC-20-Smiley-West-10-Bldg.ifc'
-    rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
+    # rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
     # rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
-    # path_ifc = os.path.normpath(os.path.join('/home/veronika/PycharmProjects/bim2sim-coding/ExampleFiles/AC20-FZK-Haus.ifc'))
-    path_example = r"/home/veronika/testproject_bps_ep2"
+    path_example = r"/home/veronika/testproject_bps_ep"
 
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, path_ifc, 'ENERGYPLUS')
