@@ -795,14 +795,14 @@ class SpaceBoundary(element.SubElement):
         # surface normals are not perpendicular to a vertical
         if self.related_bound != None:
             if self.bound_center.Z() > self.related_bound.bound_center.Z():
-                top_bottom = "TOP"
-            else:
                 top_bottom = "BOTTOM"
+            else:
+                top_bottom = "TOP"
         elif self.related_adb_bound != None:
                 if self.bound_center.Z() > self.related_adb_bound.bound_center.Z():
-                    top_bottom = "TOP"
-                else:
                     top_bottom = "BOTTOM"
+                else:
+                    top_bottom = "TOP"
         elif self.bound_normal.Dot(vertical) != 0:
             direct = self.bound_center.Z() - self.thermal_zones[0].space_center.Z()
             if direct < 0 and SpaceBoundary._compare_direction_of_normals(self.bound_normal, vertical):
