@@ -877,10 +877,9 @@ class SpaceBoundary(element.SubElement):
 
     def get_bound_center(self):
         """ compute center of the bounding box of a space boundary"""
-        face_bbox = Bnd_Box()
-        brepbndlib_Add(self.bound_shape, face_bbox)
-        face_center = ifcopenshell.geom.utils.get_bounding_box_center(face_bbox).XYZ()
-        return face_center
+        p = GProp_GProps()
+        brepgprop_SurfaceProperties(self.bound_shape, p)
+        return p.CentreOfMass().XYZ()
 
     def get_corresponding_bound(self):
         """
