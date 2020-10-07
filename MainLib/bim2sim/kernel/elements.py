@@ -8,6 +8,7 @@ import ifcopenshell
 import ifcopenshell.geom
 from OCC.Bnd import Bnd_Box
 from OCC.BRepBndLib import brepbndlib_Add
+from OCC.BRepLib import BRepLib_FuseEdges
 from OCC.BRepBuilderAPI import \
     BRepBuilderAPI_MakeFace, \
     BRepBuilderAPI_MakeEdge, \
@@ -18,7 +19,7 @@ from OCC.GeomAPI import GeomAPI_ProjectPointOnCurve
 from OCC.ShapeAnalysis import ShapeAnalysis_ShapeContents
 from OCC.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.gp import gp_Trsf, gp_Vec, gp_XYZ,  gp_Dir, gp_Ax1, gp_Pnt
-from OCC.TopoDS import topods_Wire, topods_Face
+from OCC.TopoDS import topods_Wire, topods_Face, TopoDS_Iterator
 from OCC.TopAbs import TopAbs_FACE, TopAbs_WIRE
 from OCC.TopExp import TopExp_Explorer
 from OCC.BRep import BRep_Tool
@@ -1033,8 +1034,14 @@ class SpaceBoundary(element.SubElement):
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
         settings.set(settings.USE_WORLD_COORDS, True)
+        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+        settings.set(settings.INCLUDE_CURVES, True)
+
         try:
-            shape = ifcopenshell.geom.create_shape(settings, self.ifc.ConnectionGeometry.SurfaceOnRelatingElement)
+            sore = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement
+            if sore.get_info()["InnerBoundaries"] is None:
+                sore.InnerBoundaries = ()
+            shape = ifcopenshell.geom.create_shape(settings, sore)
         except:
             try:
                 shape = ifcopenshell.geom.create_shape(settings, self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
@@ -1045,10 +1052,12 @@ class SpaceBoundary(element.SubElement):
                     p.Coordinates = (p.Coordinates[0], p.Coordinates[1], 0.0)
                     pnts.append((p.Coordinates[:]))
                 shape = self._make_faces_from_pnts(pnts)
+        shape = BRepLib_FuseEdges(shape).Shape()
 
-
-        shape = self.get_transformed_shape(shape)
-        return shape
+        shape_val = TopoDS_Iterator(self.thermal_zones[0].space_shape).Value()
+        loc = shape_val.Location()
+        shape.Move(loc)
+        return shape.Reversed()
 
     def get_transformed_shape(self, shape):
         """transform TOPODS_Shape of each space boundary to correct position"""
