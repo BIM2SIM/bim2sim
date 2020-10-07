@@ -2115,7 +2115,7 @@ class IdfObject():
         to the idf space boundary conditions
         :return:
         """
-        if inst_obj.level_description == '2b':
+        if inst_obj.level_description == '2b' or inst_obj.related_adb_bound is not None:
             self.out_bound_cond = 'Adiabatic'
             self.sun_exposed = 'NoSun'
             self.wind_exposed = 'NoWind'
