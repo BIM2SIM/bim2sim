@@ -2146,15 +2146,16 @@ class IdfObject():
             elif elem.ifc_type == "IfcRoof":
                 surface_type = "Roof"
             elif elem.ifc_type == "IfcSlab":
-                # if "floor" in str(elem).lower():
-                #     surface_type = "Floor"
-                # elif "roof" in str(elem).lower():
-                #     surface_type = "Roof"
-                # else:
-                #     surface_type = "Floor"
-                #TODO: Include Ceiling
-
-                if inst_obj.top_bottom == "BOTTOM":
+                if elem.predefined_type.lower() =='baseslab':
+                    surface_type = 'Floor'
+                elif elem.predefined_type.lower() == 'roof':
+                    surface_type = 'Roof'
+                elif elem.predefined_type.lower() == 'floor':
+                    if inst_obj.top_bottom == "BOTTOM":
+                        surface_type = "Floor"
+                    elif inst_obj.top_bottom == "TOP":
+                        surface_type = "Ceiling"
+                elif inst_obj.top_bottom == "BOTTOM":
                     surface_type = "Floor"
                 elif inst_obj.top_bottom == "TOP":
                     surface_type = "Ceiling"

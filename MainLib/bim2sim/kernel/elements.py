@@ -842,7 +842,17 @@ class SpaceBoundary(element.SubElement):
         vertical = gp_XYZ(0.0, 0.0, 1.0)
         # only assign top and bottom for elements, whose
         # surface normals are not perpendicular to a vertical
-        if self.bound_normal.Dot(vertical) != 0:
+        if self.related_bound != None:
+            if self.bound_center.Z() > self.related_bound.bound_center.Z():
+                top_bottom = "TOP"
+            else:
+                top_bottom = "BOTTOM"
+        elif self.related_adb_bound != None:
+                if self.bound_center.Z() > self.related_adb_bound.bound_center.Z():
+                    top_bottom = "TOP"
+                else:
+                    top_bottom = "BOTTOM"
+        elif self.bound_normal.Dot(vertical) != 0:
             direct = self.bound_center.Z() - self.thermal_zones[0].space_center.Z()
             if direct < 0 and SpaceBoundary._compare_direction_of_normals(self.bound_normal, vertical):
                 top_bottom = "BOTTOM"
@@ -1202,6 +1212,7 @@ class SpaceBoundary2B:
         self.physical = True
         self.is_external = False
         self.related_bound = None
+        self.related_adb_bound = None
         self.level_description = '2b'
 
 
