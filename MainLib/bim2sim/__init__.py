@@ -148,15 +148,19 @@ def _debug_run_bps_ep():
     """Create example project and copy ifc if necessary"""
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 
-    rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
-    # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB.ifc'
-    # rel_example = 'ExampleFiles/DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
+    # rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
+    rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB.ifc'
+    # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB1.ifc'
+    # rel_example = 'ExampleFiles/DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc' # ok
+    # rel_example = 'ExampleFiles/DigitalHub_Architektur2_P1_V2.ifc' # not complete, but correct trsf
+    # rel_example = 'ExampleFiles/DigitalHub_Architektur2_P1.ifc' # incorrect trsf
+    # rel_example = 'ExampleFiles/DigitalHub_Architektur2_P1_V5.ifc' # incorrect trsf
     # rel_example = 'ExampleFiles/ARC.ifc'
     # rel_example = 'ExampleFiles/AC-20-Smiley-West-10-Bldg.ifc'
     # rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
     # rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
-    path_example = r"/home/veronika/testproject_bps_ep"
+    path_example = r"/home/veronika/testproject_bps_ep0"
 
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, path_ifc, 'ENERGYPLUS')
