@@ -780,6 +780,13 @@ class SpaceBoundary(element.SubElement):
         return self.get_corresponding_bound()
 
     @cached_property
+    def related_adb_bound(self):
+        """get related adiabatic bound within the same space (just considered as thermal mass)"""
+        if not self.related_bound == None:
+            return None
+        return self.get_rel_adiab_bound()
+
+    @cached_property
     def bound_center(self):
         return self.get_bound_center()
 
@@ -958,6 +965,25 @@ class SpaceBoundary(element.SubElement):
             return corr_bound
         else:
             return None
+
+    def get_rel_adiab_bound(self):
+        adb_bound = None
+        if self.bound_instance is None:
+            return None
+            # check for visual bounds
+        if not self.physical:
+            return None
+        for bound in self.bound_instance.space_boundaries:
+            if bound == self:
+                continue
+            if not bound.thermal_zones[0] == self.thermal_zones[0]:
+                continue
+            if (bound.bound_area - self.bound_area)**2 > 0.01:
+                continue
+            if gp_Pnt(bound.bound_center).Distance(gp_Pnt(self.bound_center)) < 0.3:
+                adb_bound = bound
+        return adb_bound
+
 
     @staticmethod
     def move_bound_in_direction_of_normal(shape, normal, move_dist, reversed=False):
