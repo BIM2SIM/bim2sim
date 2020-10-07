@@ -1761,6 +1761,8 @@ class ExportEP(ITask):
         for i, face in enumerate(faces):
             b_bound = SpaceBoundary2B()
             b_bound.bound_shape = face
+            if b_bound.bound_area < 0.1:
+                continue
             b_bound.guid = space_obj.ifc.GlobalId + "_2B_" + str("%003.f"%(i+1))
             b_bound.thermal_zones.append(space_obj)
             for instance in bound_obj:
