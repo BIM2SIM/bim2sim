@@ -1916,7 +1916,10 @@ class IdfObject():
         if hasattr(inst_obj.bound_instance, 'layers'):
             if inst_obj.bound_instance.layers == None or len(inst_obj.bound_instance.layers) == 0:
                 return
-            construction_name = self.surface_type
+            if self.surface_type != None:
+                construction_name = self.surface_type
+            else:
+                construction_name = 'Undefined'
             for layer in inst_obj.bound_instance.layers:
                 if layer.guid == None:
                     return
