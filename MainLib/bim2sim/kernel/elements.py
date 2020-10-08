@@ -1125,8 +1125,8 @@ class SpaceBoundary(element.SubElement):
 
         try:
             sore = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement
-            if sore.get_info()["InnerBoundaries"] is None:
-                sore.InnerBoundaries = ()
+            # if sore.get_info()["InnerBoundaries"] is None:
+            sore.InnerBoundaries = ()
             shape = ifcopenshell.geom.create_shape(settings, sore)
         except:
             try:
