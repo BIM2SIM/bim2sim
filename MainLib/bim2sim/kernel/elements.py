@@ -1123,7 +1123,12 @@ class SpaceBoundary(element.SubElement):
         bbox_center = self.thermal_zones[0].space_center
         an_exp = TopExp_Explorer(self.bound_shape, TopAbs_FACE)
         a_face = an_exp.Current()
-        face = topods_Face(a_face)
+        try:
+            face = topods_Face(a_face)
+        except:
+            pnts = bps.IdfObject._get_points_of_face(a_face)
+            pnts.append(pnts[0])
+            face = self._make_faces_from_pnts(pnts)
         surf = BRep_Tool.Surface(face)
         obj = surf.GetObject()
         assert obj.DynamicType().GetObject().Name() == "Geom_Plane"
