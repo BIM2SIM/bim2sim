@@ -2157,6 +2157,8 @@ class IdfObject():
                         surface_type = "Ceiling"
                     elif inst_obj.top_bottom == "VERTICAL":
                         surface_type = "Wall"
+                    else:
+                        surface_type = "Floor"
             elif elem.ifc_type == "IfcBeam":
                 if not self._compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
                     surface_type = 'Wall'
