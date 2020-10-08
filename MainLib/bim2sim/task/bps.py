@@ -2297,8 +2297,7 @@ class IdfObject():
                     continue
         return circular_shape
 
-    @staticmethod
-    def _process_circular_shapes(idf, obj_coords, obj, inst_obj):
+    def _process_circular_shapes(self, idf, obj_coords, obj, inst_obj):
         """
         This function processes circular boundary shapes. It converts circular shapes
         to triangular shapes.
@@ -2308,7 +2307,6 @@ class IdfObject():
         :param elem: SpaceBoundary instance
         :return:
         """
-        # print("CIRCULAR")
         drop_count = int(len(obj_coords) / 8)
         drop_list = obj_coords[0::drop_count]
         pnt = drop_list[0]
@@ -2318,12 +2316,22 @@ class IdfObject():
             counter += 1
             new_obj = idf.copyidfobject(obj)
             new_obj.Name = str(obj.Name) + '_' + str(counter)
-            new_obj.setcoords([pnt, pnt2, inst_obj.bound_center.Coord()])
+            fc = SpaceBoundary._make_faces_from_pnts([pnt, pnt2, inst_obj.bound_center.Coord(), pnt])
+            fcsc = ExportEP.scale_face(ExportEP, fc, 0.99)
+            new_pnts = self._get_points_of_face(fcsc)
+            new_coords = []
+            for pnt in new_pnts: new_coords.append(pnt.Coord())
+            new_obj.setcoords(new_coords)
             pnt = pnt2
         new_obj = idf.copyidfobject(obj)
 
         new_obj.Name = str(obj.Name) + '_' + str(counter + 1)
-        new_obj.setcoords([drop_list[-1], drop_list[0], inst_obj.bound_center.Coord()])
+        fc = SpaceBoundary._make_faces_from_pnts([drop_list[-1], drop_list[0], inst_obj.bound_center.Coord(), drop_list[-1]])
+        fcsc = ExportEP.scale_face(ExportEP, fc, 0.99)
+        new_pnts = self._get_points_of_face(fcsc)
+        new_coords = []
+        for pnt in new_pnts: new_coords.append(pnt.Coord())
+        new_obj.setcoords(new_coords)
         idf.removeidfobject(obj)
 
     @staticmethod
