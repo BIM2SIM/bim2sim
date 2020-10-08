@@ -2091,6 +2091,26 @@ class IdfObject():
                         surface_type = "Floor"
                     elif inst_obj.top_bottom == "TOP":
                         surface_type = "Ceiling"
+                    elif inst_obj.top_bottom == "VERTICAL":
+                        surface_type = "Wall"
+            elif elem.ifc_type == "IfcBeam":
+                if not self._compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
+                    surface_type = 'Wall'
+                else:
+                    surface_type = 'Ceiling'
+            elif elem.ifc_type == 'IfcColumn':
+                surface_type == 'Wall'
+            elif inst_obj.top_bottom == "BOTTOM":
+                surface_type = "Floor"
+            elif inst_obj.top_bottom == "TOP":
+                surface_type = "Ceiling"
+                if inst_obj.related_bound is None or inst_obj.is_external:
+                    surface_type = "Roof"
+            elif inst_obj.top_bottom == "VERTICAL":
+                surface_type = "Wall"
+            else:
+                if not self._compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
+                    surface_type = 'Wall'
                 elif inst_obj.top_bottom == "BOTTOM":
                     surface_type = "Floor"
                 elif inst_obj.top_bottom == "TOP":
