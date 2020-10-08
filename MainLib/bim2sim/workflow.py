@@ -118,7 +118,7 @@ class BPSMultiZoneSeparated(Workflow):
             'IfcSlab',
             'IfcRoof',
             'IfcBeam',
-            'IfcColumn',
+            # 'IfcColumn',
             'IfcSpaceHeater',
             'IfcAirTerminal',
             'IfcAirTerminalBox',
