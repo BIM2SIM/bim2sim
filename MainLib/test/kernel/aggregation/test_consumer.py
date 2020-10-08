@@ -270,8 +270,6 @@ class TestConsumerAggregation(unittest.TestCase):
         """test aggregation of consumercycle no 1"""
         graph, flags = self.helper.get_setup_system()
 
-        graph.plot(r'c:\temp')
-
         matches, metas = aggregation.Consumer.find_matches(graph)
 
         idx = 0
@@ -283,8 +281,6 @@ class TestConsumerAggregation(unittest.TestCase):
             mapping=consumer1.get_replacement_mapping(),
             inner_connections=consumer1.get_inner_connections()
         )
-
-        #graph.plot(r'c:\temp')
 
         self.assertAlmostEqual(consumer1.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)
         self.assert_(consumer1.has_pump)
@@ -330,12 +326,9 @@ class TestConsumerAggregation(unittest.TestCase):
         """test aggregation of consumercycle no 2"""
         graph, flags = self.helper.get_setup_system2()
 
-        #graph.plot(r'c:\temp')
-
         matches, metas = aggregation.Consumer.find_matches(graph)
 
         idx = 0
-        # meta = {'outer_connections': flags['connect']}
 
         consumer = aggregation.Consumer("Test basics", matches[idx], **metas[idx])
 
@@ -354,6 +347,27 @@ class TestConsumerAggregation(unittest.TestCase):
         #self.assertAlmostEqual(consumer.height, 1000) Not Implemented
         self.assertIn('2 x SpaceHeater', consumer.description)  # list of all aggregated consumers description
 
+    def test_aggregation_consumer4(self):
+        graph, flags = self.helper.get_setup_system()
+
+        matches, metas = aggregation.ConsumerHeatingDistributorModule.find_matches(graph)
+
+        for match, meta in zip(matches, metas):
+            consumer = aggregation.ConsumerHeatingDistributorModule("Test basics", match, **meta)
+
+            graph.merge(
+                mapping=consumer.get_replacement_mapping(),
+                inner_connections=consumer.get_inner_connections()
+            )
+
+        self.assertAlmostEqual(1, len(matches))
+        self.assertAlmostEqual(1, len(metas))
+        self.assertAlmostEqual(0, len(consumer.undefined_consumer_ports))
+        self.assertAlmostEqual(2, len(consumer._consumer_cycles), "{} consumer expected, {} consumer cycles found."
+                               .format(2, len(consumer._consumer_cycles)))
+        self.assertFalse(consumer.use_hydraulic_separator)
+        #  ToDo:Medium
+        #  ToDo:Temperatur
 
 if __name__ == '__main__':
     unittest.main()
