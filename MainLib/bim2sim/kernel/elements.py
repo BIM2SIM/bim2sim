@@ -904,8 +904,8 @@ class SpaceBoundary(element.SubElement):
                 if bound.thermal_zones[0].ifc.GlobalId == own_space_id:
                     # skip boundaries within same space (cannot be corresponding bound)
                     continue
-                if bound.bound_normal.Dot(self.bound_normal) != -1:
-                    continue
+                # if bound.bound_normal.Dot(self.bound_normal) != -1:
+                #     continue
                 distance = BRepExtrema_DistShapeShape(
                     bound.bound_shape,
                     self.bound_shape,
