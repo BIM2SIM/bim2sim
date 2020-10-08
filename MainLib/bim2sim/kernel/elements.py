@@ -805,11 +805,12 @@ class SpaceBoundary(element.SubElement):
                     top_bottom = "TOP"
         elif -1e-3 < self.bound_normal.Dot(vertical) <1e-3:
             top_bottom = "VERTICAL"
-            # direct = self.bound_center.Z() - self.thermal_zones[0].space_center.Z()
-            # if direct < 0 and SpaceBoundary._compare_direction_of_normals(self.bound_normal, vertical):
-            #     top_bottom = "BOTTOM"
-            # else:
-            #     top_bottom = "TOP"
+        else:
+            direct = self.bound_center.Z() - self.thermal_zones[0].space_center.Z()
+            if direct < 0 and SpaceBoundary._compare_direction_of_normals(self.bound_normal, vertical):
+                top_bottom = "BOTTOM"
+            else:
+                top_bottom = "TOP"
         return top_bottom
 
     @staticmethod
