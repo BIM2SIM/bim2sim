@@ -1493,11 +1493,18 @@ class ExportEP(ITask):
         :return: idf file object, idf zone object
         """
 
-        stat = self._set_hvac_template(idf, name="stat1", heating_sp=20, cooling_sp=25)
 
         for inst in instances:
             if instances[inst].ifc_type == "IfcSpace":
                 space = instances[inst]
+                stat_name = "default"
+
+                try:
+                    stat_name = space.guid
+                    stat = self._set_hvac_template(idf, name=stat_name, heating_sp=space.t_set_heat, cooling_sp=space.t_set_cool)
+                except:
+                    stat = self._set_hvac_template(idf, name=stat_name, heating_sp=20, cooling_sp=25)
+
                 zone = idf.newidfobject(
                     'ZONE',
                     Name=space.ifc.GlobalId,
@@ -1519,7 +1526,7 @@ class ExportEP(ITask):
         """
         stat = idf.newidfobject(
             "HVACTEMPLATE:THERMOSTAT",
-            Name="Zone " + name,
+            Name="STAT_" + name,
             Constant_Heating_Setpoint=heating_sp,
             Constant_Cooling_Setpoint=cooling_sp,
         )
