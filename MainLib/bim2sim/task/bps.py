@@ -711,6 +711,9 @@ class ExportEP(ITask):
         self.logger.info("IDF generation started ...")
         idf = self._init_idf()
         self._init_zone(instances, idf)
+        self._init_zonelist(idf)
+        self._set_people(idf, name="all zones")
+        self._set_equipment(idf, name="all zones")
         self._set_simulation_control(idf)
         idf.set_default_constructions()
         self._export_geom_to_idf(instances, idf)
@@ -1479,7 +1482,13 @@ class ExportEP(ITask):
         IDF.setiddname(path + 'Energy+.idd')
         idf = IDF(path + "ExampleFiles/Minimal.idf")
         idf.idfname = str(PROJECT.root) + "/export/temp.idf"
-
+        schedules_idf = IDF(path + "DataSets/Schedules.idf")
+        schedules = schedules_idf.idfobjects["Schedule:Compact".upper()]
+        sch_typelim = schedules_idf.idfobjects["ScheduleTypeLimits".upper()]
+        for s in schedules:
+            idf.copyidfobject(s)
+        for t in sch_typelim:
+            idf.copyidfobject(t)
         idf.epw = "USA_CO_Golden-NREL.724666_TMY3.epw"
         return idf
 
@@ -1492,7 +1501,6 @@ class ExportEP(ITask):
         :param space: Space (created from IfcSpace)
         :return: idf file object, idf zone object
         """
-
 
         for inst in instances:
             if instances[inst].ifc_type == "IfcSpace":
@@ -1515,7 +1523,54 @@ class ExportEP(ITask):
                     Zone_Name=zone.Name,
                     Template_Thermostat_Name=stat.Name,
                 )
+    @staticmethod
+    def _init_zonelist(idf, name=None, zones_in_list=None):
+        if zones_in_list is None:
+            idf_zones = idf.idfobjects["ZONE"]
+            if len(idf_zones) > 20:
+                return
+            if name is None:
+                name = "All_Zones"
+            zs = {}
+            for i, z in enumerate(idf_zones):
+                zs.update({"Zone_"+str(i+1)+ "_Name": z.Name})
+            idf.newidfobject("ZONELIST", Name=name, **zs)
 
+    @staticmethod
+    def _set_people(idf, name, zone_name="All_Zones", method='area'):
+        # set default activity schedule
+        idf.newidfobject("SCHEDULETYPELIMITS", Name="Any Number")
+        idf.newidfobject("SCHEDULE:COMPACT",
+                         Name="ActSchDefault",
+                         Schedule_Type_Limits_Name="Any Number",
+                         Field_1="Through: 12/31",
+                         Field_2="For: Alldays",
+                         Field_3="Until: 24:00",
+                         Field_4="100"
+                         )
+
+        people = idf.newidfobject(
+            "PEOPLE",
+            Name=name,
+            Zone_or_ZoneList_Name=zone_name,
+            Number_of_People_Calculation_Method="People/Area",
+            People_per_Zone_Floor_Area=0.1,
+            Activity_Level_Schedule_Name="ActSchDefault",
+            Number_of_People_Schedule_Name="Multifamily OneZone Occupancy"
+        )
+
+    @staticmethod
+    def _set_equipment(idf, name, zone_name="All_Zones", method='area'):
+        # set default activity schedule
+
+        euip = idf.newidfobject(
+            "ELECTRICEQUIPMENT",
+            Name=name,
+            Zone_or_ZoneList_Name=zone_name,
+            Schedule_Name="Multifamily OneZone Equipment",
+            Design_Level_Calculation_Method="Watts/Area",
+            Watts_per_Zone_Floor_Area=12
+        )
 
     @staticmethod
     def _set_hvac_template(idf, name, heating_sp, cooling_sp):
