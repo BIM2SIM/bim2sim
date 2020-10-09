@@ -1596,9 +1596,9 @@ class ExportEP(ITask):
         """
         for sim_control in idf.idfobjects["SIMULATIONCONTROL"]:
             print("")
-            sim_control.Do_Zone_Sizing_Calculation = "Yes"
+            # sim_control.Do_Zone_Sizing_Calculation = "Yes"
             sim_control.Do_System_Sizing_Calculation = "Yes"
-            sim_control.Do_Plant_Sizing_Calculation = "Yes"
+            # sim_control.Do_Plant_Sizing_Calculation = "Yes"
             sim_control.Run_Simulation_for_Sizing_Periods = "No"
             sim_control.Run_Simulation_for_Weather_File_Run_Periods = "Yes"
         # return idf
