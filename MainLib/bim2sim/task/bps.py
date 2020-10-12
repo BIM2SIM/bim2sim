@@ -1071,13 +1071,15 @@ class ExportEP(ITask):
                  #   continue
             print('WAIT')
 
-    def fix_face(self, face, tolerance=1e-3):
+    @staticmethod
+    def fix_face(face, tolerance=1e-3):
         fix = ShapeFix_Face(face)
         fix.SetMaxTolerance(tolerance)
         fix.Perform()
         return fix.Face()
 
-    def fix_shape(self, shape, tolerance=1e-3):
+    @staticmethod
+    def fix_shape(shape, tolerance=1e-3):
         fix = ShapeFix_Shape(shape)
         fix.SetFixFreeShellMode(True)
         sf = fix.FixShellTool()
