@@ -984,6 +984,8 @@ class SpaceBoundary(element.SubElement):
         vert_list2.reverse()
         vert_list2 = self._remove_vertex_duplicates(vert_list2)
         if len(vert_list1) == len(vert_list2):
+            if len(vert_list1) < 5:
+                return
             vert_list1.reverse()
             vert_list2.reverse()
             self.bound_shape = self._make_face_from_vertex_list(vert_list1)
