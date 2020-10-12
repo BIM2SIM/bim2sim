@@ -1058,6 +1058,20 @@ class SpaceBoundary(element.SubElement):
         return vert_list
 
     @staticmethod
+    def _remove_collinear_vertices(vert_list):
+        vert_list = vert_list[:-1]
+        for i, vert in enumerate(vert_list):
+            edge_pp_p = BRepBuilderAPI_MakeEdge(vert_list[(i) % (len(vert_list))],
+                                                    vert_list[(i + 2) % (len(vert_list))]).Shape()
+            distance = BRepExtrema_DistShapeShape(vert_list[(i + 1) % (len(vert_list))], edge_pp_p,
+                                                  Extrema_ExtFlag_MIN).Value()
+            if distance < 1e-3:
+                vert_list.pop((i + 1) % (len(vert_list)))
+
+        vert_list.append(vert_list[0])
+        return vert_list
+
+    @staticmethod
     def _make_faces_from_pnts(pnt_list):
         """
         This function returns a TopoDS_Face from list of gp_Pnt
@@ -1176,6 +1190,13 @@ class SpaceBoundary(element.SubElement):
                         unify.Build()
                         shape = unify.Shape()
                         shape = bps.ExportEP.fix_shape(shape)
+        vert_list1 = self._get_vertex_list_from_face(shape)
+        vert_list1 = self._remove_collinear_vertices(vert_list1)
+        vert_list1.reverse()
+        vert_list1 = self._remove_collinear_vertices(vert_list1)
+        vert_list1.reverse()
+        shape = self._make_face_from_vertex_list(vert_list1)
+
         return shape
 
     def get_transformed_shape(self, shape):
