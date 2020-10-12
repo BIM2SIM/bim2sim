@@ -13,10 +13,13 @@ from OCC.BRepBuilderAPI import \
     BRepBuilderAPI_MakeFace, \
     BRepBuilderAPI_MakeEdge, \
     BRepBuilderAPI_MakeWire, BRepBuilderAPI_Transform, BRepBuilderAPI_MakeVertex
+from OCC.BRepPrimAPI import BRepPrimAPI_MakeBox
+from OCC.BRepAlgoAPI import BRepAlgoAPI_Fuse
 from OCC.BRepGProp import brepgprop_SurfaceProperties, brepgprop_VolumeProperties
 from OCC.GProp import GProp_GProps
 from OCC.GeomAPI import GeomAPI_ProjectPointOnCurve
 from OCC.ShapeAnalysis import ShapeAnalysis_ShapeContents
+from OCC.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
 from OCC.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.gp import gp_Trsf, gp_Vec, gp_XYZ,  gp_Dir, gp_Ax1, gp_Pnt
 from OCC.TopoDS import topods_Wire, topods_Face, TopoDS_Iterator
@@ -1143,7 +1146,37 @@ class SpaceBoundary(element.SubElement):
         shape_val = TopoDS_Iterator(self.thermal_zones[0].space_shape).Value()
         loc = shape_val.Location()
         shape.Move(loc)
-        return shape.Reversed()
+        shape = shape.Reversed()
+        unify = ShapeUpgrade_UnifySameDomain()
+        unify.Initialize(shape)
+        unify.Build()
+        shape = unify.Shape()
+
+        if self.bound_instance is not None:
+            bi = self.bound_instance
+            if not hasattr(bi, "related_openings"):
+                return shape
+            if len(bi.related_openings) == 0:
+                return shape
+            for op in bi.related_openings:
+                if op.ifc_type != "IfcDoor":
+                    continue
+                # bbox = Bnd_Box()
+                # brepbndlib_Add(shape, bbox)
+                # shape = BRepPrimAPI_MakeBox(bbox.CornerMin(), bbox.CornerMax()).Shape()
+                # shape = bps.ExportEP.fix_shape(shape)
+                opd_shp = None
+                for opb in op.space_boundaries:
+                    distance = BRepExtrema_DistShapeShape(opb.bound_shape, shape).Value()
+                    if distance < 1e-3:
+                        opd_shp = opb.bound_shape
+                        fused_shp = BRepAlgoAPI_Fuse(shape, opd_shp).Shape()
+                        unify = ShapeUpgrade_UnifySameDomain()
+                        unify.Initialize(fused_shp)
+                        unify.Build()
+                        shape = unify.Shape()
+                        shape = bps.ExportEP.fix_shape(shape)
+        return shape
 
     def get_transformed_shape(self, shape):
         """transform TOPODS_Shape of each space boundary to correct position"""
