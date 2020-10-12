@@ -2057,7 +2057,8 @@ class IdfObject():
         obj_pnts = self._get_points_of_face(self.bound_shape)
         obj_coords = []
         for pnt in obj_pnts:
-            obj_coords.append(pnt.Coord())
+            co = tuple(round(p,3) for p in pnt.Coord())
+            obj_coords.append(co)
         try:
             obj.setcoords(obj_coords)
         except:
