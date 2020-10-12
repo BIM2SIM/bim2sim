@@ -1112,6 +1112,10 @@ class SpaceBoundary(element.SubElement):
 
     @staticmethod
     def _get_vertex_list_from_face(face):
+        # fc_exp = TopExp_Explorer(face, TopAbs_FACE)
+        # fc = topods_Face(fc_exp.Current())
+        # fc = bps.ExportEP.fix_face(fc)
+        # an_exp = TopExp_Explorer(fc, TopAbs_WIRE)
         an_exp = TopExp_Explorer(face, TopAbs_WIRE)
         vert_list = []
         while an_exp.More():
@@ -1442,18 +1446,18 @@ class Layer(element.SubElement):
 
     heat_capac = attribute.Attribute(
         default_ps=True,
-        functions=[_get_material_properties],
+        # functions=[_get_material_properties],
         default=0
     )
 
     density = attribute.Attribute(
-        functions=[_get_material_properties],
+        # functions=[_get_material_properties],
         default_ps=True,
         default=0
     )
 
     thermal_conduc = attribute.Attribute(
-        functions=[_get_material_properties],
+        # functions=[_get_material_properties],
         default_ps=True,
         default=0
     )
