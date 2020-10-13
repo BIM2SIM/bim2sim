@@ -1117,7 +1117,7 @@ class SpaceBoundary(element.SubElement):
         shape_val = TopoDS_Iterator(self.thermal_zones[0].space_shape).Value()
         loc = shape_val.Location()
         shape.Move(loc)
-        shape = shape.Reversed()
+        # shape = shape.Reversed()
         unify = ShapeUpgrade_UnifySameDomain()
         unify.Initialize(shape)
         unify.Build()
