@@ -1503,17 +1503,18 @@ class ExportEP(ITask):
         :param space: Space (created from IfcSpace)
         :return: idf file object, idf zone object
         """
-
+        stat_name = "default"
+        stat_default = self._set_hvac_template(idf, name=stat_name, heating_sp=20, cooling_sp=25)
         for inst in instances:
             if instances[inst].ifc_type == "IfcSpace":
                 space = instances[inst]
-                stat_name = "default"
 
-                try:
-                    stat_name = space.guid
-                    stat = self._set_hvac_template(idf, name=stat_name, heating_sp=space.t_set_heat, cooling_sp=space.t_set_cool)
-                except:
-                    stat = self._set_hvac_template(idf, name=stat_name, heating_sp=20, cooling_sp=25)
+                if None not in (space.t_set_cool, space.t_set_heat):
+                    stat_name = "Heat_" + str(space.t_set_heat) + "_Cool_" + str(space.t_set_cool)
+                    if idf.getobject("HVACTEMPLATE:THERMOSTAT", "STAT_"+stat_name) is None:
+                        stat = self._set_hvac_template(idf, name=stat_name, heating_sp=space.t_set_heat, cooling_sp=space.t_set_cool)
+                else:
+                    stat = stat_default
 
                 zone = idf.newidfobject(
                     'ZONE',
