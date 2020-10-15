@@ -706,6 +706,12 @@ class ExportEP(ITask):
         # self._move_bounds_to_centerline(instances)
         # self._fill_2b_gaps(instances)
         # self._vertex_scaled_centerline_bounds(instances)
+        # for inst in instances:
+        #     if instances[inst].ifc_type == "IfcRelSpaceBoundary":
+        #         try:
+        #             instances[inst].bound_shape = instances[inst].bound_shape_cl
+        #         except:
+        #             pass
         # # self._intersect_scaled_centerline_bounds(instances)
         self.logger.info("Geometric preprocessing for EnergyPlus Export finished!")
         self.logger.info("IDF generation started ...")
