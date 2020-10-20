@@ -156,5 +156,5 @@ def _debug_run_hvac_aixlib():
 
 if __name__ == '__main__':
     # _debug_run_hvac()
-    # _debug_run_bps()
-    _debug_run_hvac_aixlib()
+    _debug_run_bps()
+    # _debug_run_hvac_aixlib()

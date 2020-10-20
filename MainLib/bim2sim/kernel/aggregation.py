@@ -1,7 +1,7 @@
 ﻿"""Module for aggregation and simplifying elements"""
 
 import math
-import sys
+import inspect
 
 import numpy as np
 from bim2sim.kernel.element import BaseElement, BasePort
@@ -9,6 +9,7 @@ from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
 import networkx as nx
+from bim2sim.kernel.elements import HeatPump
 
 
 def verify_edge_ports(func):

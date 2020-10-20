@@ -33,7 +33,7 @@ from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
 from teaser.logic import utilities
 import os
-from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list
+from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list, filter_instances
 from bim2sim.kernel.units import conversion
 from googletrans import Translator
 import re
@@ -90,20 +90,6 @@ class Inspect(ITask):
                 self.instances[guid].orientation = verification
 
         return self.instances,
-
-    @staticmethod
-    def filter_instances(instances, type_name):
-        """Filters the inspected instances by type name (e.g. Wall) and
-        returns them as list"""
-        instances_filtered = []
-        if type(instances) is dict:
-            list_instances = instances.values()
-        else:
-            list_instances = instances
-        for instance in list_instances:
-            if type_name in type(instance).__name__:
-                instances_filtered.append(instance)
-        return instances_filtered
 
 
 class ExportTEASER(ITask):
@@ -277,10 +263,10 @@ class ExportTEASER(ITask):
     def run(self, workflow, instances, ifc):
         self.logger.info("Export to TEASER")
         prj = self._create_project(ifc.by_type('IfcProject')[0])
-        bldg_instances = Inspect.filter_instances(instances, 'Building')
+        bldg_instances = filter_instances(instances, 'Building')
         for bldg_instance in bldg_instances:
             bldg = self._create_building(bldg_instance, prj)
-            tz_instances = Inspect.filter_instances(instances, 'ThermalZone')
+            tz_instances = filter_instances(instances, 'ThermalZone')
             for tz_instance in tz_instances:
                 tz = self._create_thermal_zone(tz_instance, bldg)
                 self._bind_instances_to_zone(tz, tz_instance, bldg)
@@ -334,7 +320,7 @@ class ExportTEASERMultizone(ITask):
         #Todo get project name (not set to PROJECT yet)
         prj.name = 'Testproject'
         prj.data.load_uc_binding()
-        bldg_instances = Inspect.filter_instances(instances, 'Building')
+        bldg_instances = filter_instances(instances, 'Building')
         print('test')
 
         for bldg_instance in bldg_instances:
@@ -344,7 +330,7 @@ class ExportTEASERMultizone(ITask):
             bldg.year_of_construction = bldg_instance.year_of_construction
             bldg.number_of_floors = bldg_instance.number_of_storeys
             bldg.net_leased_area = bldg_instance.net_area
-            tz_instances = Inspect.filter_instances(instances, 'ThermalZone')
+            tz_instances = filter_instances(instances, 'ThermalZone')
             for tz_instance in tz_instances:
                 tz = self._create_thermal_zone(tz_instance, bldg)
                 for bound_element in tz_instance.bound_elements:

@@ -114,6 +114,9 @@ class Attribute:
 
     @staticmethod
     def get_from_default_propertyset(bind, name):
+        x = type(bind).__name__
+        if x not in ["PipeFitting", "Pipe"]:
+            print()
         source_tools = bind.finder.templates
         if bind.source_tool in source_tools:
             source_tool = bind.source_tool

@@ -12,8 +12,8 @@ from bim2sim.decision import ListDecision, RealDecision
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.enrichment_data.data_class import DataClass
 from teaser.logic.buildingobjects.useconditions import UseConditions
-from bim2sim.task.bps_f.bps_functions import get_matches_list, get_material_templates_resumed, real_decision_user_input
-from bim2sim.task import bps
+from bim2sim.task.bps_f.bps_functions import get_matches_list, get_material_templates_resumed, \
+    real_decision_user_input, filter_instances
 
 
 def diameter_post_processing(value):
@@ -289,6 +289,7 @@ class PipeFitting(element.Element):
     length = attribute.Attribute(
         unit=ureg.meter,
         default=0,
+        default_ps=True
     )
 
     pressure_class = attribute.Attribute(
@@ -340,7 +341,8 @@ class SpaceHeater(element.Element):
 
 
 class Storage(element.Element):
-    ifc_type = "IfcTank"    #ToDo: IfcTank, IfcTankType=Storage
+    ifc_type = "IfcTank"
+    predefined_type = 'STORAGE'
     predefined_types = ['BASIN', 'BREAKPRESSURE', 'EXPANSION', 'FEEDANDEXPANSION', 'STORAGE', 'VESSEL']
 
     pattern_ifc_type = [
@@ -567,7 +569,8 @@ class ThermalZone(element.Element):
     def get_is_external(self):
         """determines if a thermal zone is external or internal
         based on its elements"""
-        new_elements = bps.Inspect.filter_instances(self.bound_elements, 'Wall') + bps.Inspect.filter_instances(self.bound_elements, 'Window')
+        # fix this function
+        new_elements = filter_instances(self.bound_elements, 'Wall') + filter_instances(self.bound_elements, 'Window')
         for ele in new_elements:
             if hasattr(ele, 'is_external'):
                 if ele.is_external is True:
