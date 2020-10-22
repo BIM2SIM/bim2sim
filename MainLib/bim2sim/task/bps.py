@@ -671,8 +671,15 @@ class ExportEP(ITask):
         idf.run(output_directory=str(PROJECT.root) + "/export/EP-results/", readvars=True)
         self._visualize_results()
 
-    @staticmethod
-    def _visualize_results(csv_name=str(PROJECT.root) + "/export/EP-results/eplusout.csv"):
+    def _convert_datetime(self, date_str):
+        # If the time is 24, set it to 0 and increment day by 1
+        if date_str[8:10] != '24':
+            return pd.to_datetime(date_str, format=' %m/%d  %H:%M:%S')
+
+        date_str = date_str[0:8] + '00' + date_str[10:]
+        return pd.to_datetime(date_str, format=' %m/%d  %H:%M:%S') + pd.Timedelta(days=1)
+
+    def _visualize_results(self, csv_name=str(PROJECT.root) + "/export/EP-results/eplusout.csv"):
         res_df = pd.read_csv(csv_name)
         # df = res_df.loc[:, ~res_df.columns.str.contains('Surface Inside Face Temperature']
         zone_mean_air = res_df.loc[:, res_df.columns.str.contains("Zone Mean Air Temperature")].dropna(axis=0)
