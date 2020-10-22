@@ -1062,9 +1062,16 @@ class SpaceBoundary(element.SubElement):
     @staticmethod
     def _remove_collinear_vertices(vert_list):
         vert_list = vert_list[:-1]
+        if len(vert_list) < 5:
+            return vert_list
         for i, vert in enumerate(vert_list):
+            vert_dist = BRepExtrema_DistShapeShape(vert_list[(i) % (len(vert_list))],
+                                                   vert_list[(i + 2) % (len(vert_list))],
+                                                   Extrema_ExtFlag_MIN).Value()
+            if vert_dist < 1e-3:
+                return vert_list
             edge_pp_p = BRepBuilderAPI_MakeEdge(vert_list[(i) % (len(vert_list))],
-                                                    vert_list[(i + 2) % (len(vert_list))]).Shape()
+                                                vert_list[(i + 2) % (len(vert_list))]).Shape()
             distance = BRepExtrema_DistShapeShape(vert_list[(i + 1) % (len(vert_list))], edge_pp_p,
                                                   Extrema_ExtFlag_MIN).Value()
             if distance < 1e-3:
@@ -1196,12 +1203,12 @@ class SpaceBoundary(element.SubElement):
                         unify.Build()
                         shape = unify.Shape()
                         shape = bps.ExportEP.fix_shape(shape)
-        vert_list1 = self._get_vertex_list_from_face(shape)
-        vert_list1 = self._remove_collinear_vertices(vert_list1)
-        vert_list1.reverse()
-        vert_list1 = self._remove_collinear_vertices(vert_list1)
-        vert_list1.reverse()
-        shape = self._make_face_from_vertex_list(vert_list1)
+                        vert_list1 = self._get_vertex_list_from_face(shape)
+                        vert_list1 = self._remove_collinear_vertices(vert_list1)
+                        vert_list1.reverse()
+                        vert_list1 = self._remove_collinear_vertices(vert_list1)
+                        vert_list1.reverse()
+                        shape = self._make_face_from_vertex_list(vert_list1)
 
         return shape
 
