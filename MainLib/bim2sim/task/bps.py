@@ -1273,8 +1273,9 @@ class ExportEP(ITask):
             ).Value()
             if hasattr(inst_obj.bound_instance, 'thickness'):
                 thickness = inst_obj.bound_instance.thickness
-            elif hasattr(inst_obj.bound_instance.layers[0], 'thickness'):
-                thickness = inst_obj.bound_instance.layers[0].thickness
+            elif hasattr(inst_obj.bound_instance, 'layers'):
+                if hasattr(inst_obj.bound_instance.layers[0], 'thickness'):
+                    thickness = inst_obj.bound_instance.layers[0].thickness
             else:
                 thickness = 0.2
             self._move_bound_in_direction_of_normal(inst_obj, thickness)
