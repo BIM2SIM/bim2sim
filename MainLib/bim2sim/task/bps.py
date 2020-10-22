@@ -3,6 +3,8 @@
 import itertools
 import json
 import ifcopenshell
+import pandas as pd
+import matplotlib.pyplot as plt
 
 from OCC.Display.SimpleGui import init_display
 from OCC.BRepBuilderAPI import \
@@ -731,6 +733,18 @@ class ExportEP(ITask):
         self._export_to_stl_for_cfd(instances, idf)
         self._display_shape_of_space_boundaries(instances)
         idf.run(output_directory=str(PROJECT.root) + "/export/EP-results/", readvars=True)
+        self._visualize_results()
+
+    @staticmethod
+    def _visualize_results(csv_name=str(PROJECT.root) + "/export/EP-results/eplusout.csv"):
+        res_df = pd.read_csv(csv_name)
+        # df = res_df.loc[:, ~res_df.columns.str.contains('Surface Inside Face Temperature']
+        zone_mean_air = res_df.loc[:, res_df.columns.str.contains("Zone Mean Air Temperature")].dropna(axis=0)
+        zone_mean_air.plot(figsize=(10, 5), grid=True)
+        plt.show()
+        res_df.loc[:, res_df.columns.str.contains("Outdoor Air Drybulb Temperature")].dropna(axis=0).plot()
+        plt.show()
+
 
     def _intersect_centerline_bounds(self, instances):
         for inst in instances:
