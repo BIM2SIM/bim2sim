@@ -1145,7 +1145,7 @@ class SpaceBoundary(element.SubElement):
                 # shape = bps.ExportEP.fix_shape(shape)
                 opd_shp = None
                 for opb in op.space_boundaries:
-                    distance = BRepExtrema_DistShapeShape(opb.bound_shape, shape).Value()
+                    distance = BRepExtrema_DistShapeShape(opb.bound_shape, shape, Extrema_ExtFlag_MIN).Value()
                     if distance < 1e-3:
                         opd_shp = opb.bound_shape
                         fused_shp = BRepAlgoAPI_Fuse(shape, opd_shp).Shape()
