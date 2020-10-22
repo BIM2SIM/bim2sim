@@ -681,13 +681,25 @@ class ExportEP(ITask):
 
     def _visualize_results(self, csv_name=str(PROJECT.root) + "/export/EP-results/eplusout.csv"):
         res_df = pd.read_csv(csv_name)
+        res_df["Date/Time"] = res_df["Date/Time"].apply(self._convert_datetime)
         # df = res_df.loc[:, ~res_df.columns.str.contains('Surface Inside Face Temperature']
-        zone_mean_air = res_df.loc[:, res_df.columns.str.contains("Zone Mean Air Temperature")].dropna(axis=0)
-        zone_mean_air.plot(figsize=(10, 5), grid=True)
-        plt.show()
-        res_df.loc[:, res_df.columns.str.contains("Outdoor Air Drybulb Temperature")].dropna(axis=0).plot()
-        plt.show()
-
+        t_col = [col for col in res_df.columns if "Zone Mean Air Temperature" in col]
+        zone_mean_air = res_df[t_col].copy()
+        zone_mean_air["Date/Time"] = res_df["Date/Time"].copy()
+        zone_mean_air = zone_mean_air.set_index("Date/Time", drop=True).dropna()
+        # zone_mean_air = res_df.loc[:, res_df.columns.str.contains("Zone Mean Air Temperature")].dropna(axis=0).reset_index()
+        # zone_mean_air.plot(figsize=(10, 5), grid=True)
+        # plt.show()
+        temp = res_df.loc[:, res_df.columns.str.contains("Outdoor Air Drybulb Temperature")].copy()
+        temp = temp.loc[:, temp.columns.str.contains("Hourly")]
+        temp["Date/Time"] = res_df["Date/Time"].copy()
+        temp = temp.set_index("Date/Time", drop=True).dropna()
+        t_mean = temp.resample('24h').mean()
+        for col in zone_mean_air.columns:
+            ax = zone_mean_air.plot(y=[col], figsize=(10, 5), grid=True)
+            # temp.plot(ax=ax)
+            t_mean.plot(ax=ax)
+            plt.show()
 
     def _intersect_centerline_bounds(self, instances):
         for inst in instances:
