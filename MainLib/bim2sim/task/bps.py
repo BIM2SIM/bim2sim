@@ -1502,6 +1502,7 @@ class ExportEP(ITask):
                     Zone_Name=zone.Name,
                     Template_Thermostat_Name=stat.Name,
                 )
+
     @staticmethod
     def _init_zonelist(idf, name=None, zones_in_list=None):
         if zones_in_list is None:
@@ -1551,20 +1552,81 @@ class ExportEP(ITask):
             Watts_per_Zone_Floor_Area=12
         )
 
-    @staticmethod
-    def _set_hvac_template(idf, name, heating_sp, cooling_sp):
+    def _set_hvac_template(self, idf, name, heating_sp, cooling_sp, mode='setback'):
         """
         Set default HVAC Template
         :param idf: idf file object
         :return: stat (HVAC Template)
         """
-        stat = idf.newidfobject(
-            "HVACTEMPLATE:THERMOSTAT",
-            Name="STAT_" + name,
-            Constant_Heating_Setpoint=heating_sp,
-            Constant_Cooling_Setpoint=cooling_sp,
-        )
+        if mode == "setback":
+            htg_alldays = self._define_schedule_part('Alldays', [('5:00', 18), ('21:00', heating_sp), ('24:00', 18)])
+            clg_alldays = self._define_schedule_part('Alldays', [('5:00', 26), ('21:00', cooling_sp), ('24:00', 26)])
+            htg_name = "H_SetBack_" + str(heating_sp)
+            clg_name = "C_SetBack_" + str(cooling_sp)
+            if idf.getobject("SCHEDULE:COMPACT", htg_name) is None:
+                htg_sched = self._write_schedule(idf, htg_name, [htg_alldays,])
+            else:
+                htg_sched = idf.getobject("SCHEDULE:COMPACT", htg_name)
+            if idf.getobject("SCHEDULE:COMPACT", clg_name) is None:
+                clg_sched = self._write_schedule(idf, clg_name, [clg_alldays,])
+            else:
+                clg_sched = idf.getobject("SCHEDULE:COMPACT", clg_name)
+            stat = idf.newidfobject(
+                "HVACTEMPLATE:THERMOSTAT",
+                Name="STAT_" + name,
+                Heating_Setpoint_Schedule_Name=htg_name,
+                Cooling_Setpoint_Schedule_Name=clg_name,
+            )
+
+        if mode == "constant":
+            stat = idf.newidfobject(
+                "HVACTEMPLATE:THERMOSTAT",
+                Name="STAT_" + name,
+                Constant_Heating_Setpoint=heating_sp,
+                Constant_Cooling_Setpoint=cooling_sp,
+            )
         return stat
+
+    @staticmethod
+    def _write_schedule(idf, sched_name, sched_part_list):
+        """
+        Write schedule from list of schedule parts
+        :param name: Name of the schedule
+        :param sched_part_list: List of schedule parts
+        :return:
+        """
+        sched_list = {}
+        field_count = 1
+        for parts in sched_part_list:
+            field_count += 1
+            sched_list.update({'Field_' + str(field_count): 'For: ' + parts[0]})
+            part = parts[1]
+            for set in part:
+                field_count += 1
+                sched_list.update({'Field_'+ str(field_count): 'Until: '+ str(set[0])})
+                field_count += 1
+                sched_list.update({'Field_'+ str(field_count): str(set[1])})
+        if idf.getobject("SCHEDULETYPELIMITS", "Temperature") is None:
+            idf.newidfobject("SCHEDULETYPELIMITS", Name="Temperature")
+
+        sched = idf.newidfobject(
+            "SCHEDULE:COMPACT",
+            Name=sched_name,
+            Schedule_Type_Limits_Name="Temperature",
+            Field_1="Through: 12/31",
+            **sched_list
+        )
+        return sched
+
+    @staticmethod
+    def _define_schedule_part(days, til_time_temp):
+        """
+        Define part of a schedule
+        :param days: string: Weekdays, Weekends, Alldays, AllOtherDays, Saturdays, Sundays, ...
+        :param til_time_temp: List of tuples (until-time format 'h:mm' (24h) as str), temperature until this time in Celsius), e.g. (05:00, 18)
+        :return:
+        """
+        return [days, til_time_temp]
 
     @staticmethod
     def _set_simulation_control(idf):
