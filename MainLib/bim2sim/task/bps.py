@@ -743,7 +743,14 @@ class ExportEP(ITask):
         date_str = date_str[0:8] + '00' + date_str[10:]
         return pd.to_datetime(date_str, format=' %m/%d  %H:%M:%S') + pd.Timedelta(days=1)
 
-    def _visualize_results(self, csv_name=str(PROJECT.root) + "/export/EP-results/eplusout.csv"):
+    def _visualize_results(self, csv_name=str(PROJECT.root) + "/export/EP-results/eplusout.csv", period="week", number=28):
+        """
+        Plot Zone Mean Air Temperature (Hourly) vs Outdoor Temperature per zone and as an overview on all zones.
+        :param csv_name: path to energyplus outputs (eplusout.csv)
+        :param period: choose plotting period ("year"/"week"/"day")
+        :param number: choose number of day or week (0...365 (day) or 0...52 (week))
+        :return:
+        """
         res_df = pd.read_csv(csv_name)
         res_df["Date/Time"] = res_df["Date/Time"].apply(self._convert_datetime)
         # df = res_df.loc[:, ~res_df.columns.str.contains('Surface Inside Face Temperature']
@@ -759,11 +766,32 @@ class ExportEP(ITask):
         temp["Date/Time"] = res_df["Date/Time"].copy()
         temp = temp.set_index("Date/Time", drop=True).dropna()
         t_mean = temp.resample('24h').mean()
-        for col in zone_mean_air.columns:
-            ax = zone_mean_air.plot(y=[col], figsize=(10, 5), grid=True)
-            # temp.plot(ax=ax)
-            t_mean.plot(ax=ax)
+        if period == "year":
+            for col in zone_mean_air.columns:
+                ax = zone_mean_air.plot(y=[col], figsize=(10, 5), grid=True)
+                # temp.plot(ax=ax)
+                t_mean.plot(ax=ax)
+                plt.show()
+            axc = zone_mean_air.iloc[:].plot(figsize=(10, 5), grid=True)
+            t_mean.iloc[:].plot(ax=axc)
             plt.show()
+            return
+
+        if period == "week":
+            min = number*168
+            max = (number+1)*168
+        elif period == "day":
+            min = number*24
+            max = (number+1)*24
+        for col in zone_mean_air.columns:
+            ax = zone_mean_air.iloc[min:max].plot(y=[col], figsize=(10, 5), grid=True)
+            # temp.plot(ax=ax)
+            temp.iloc[min:max].plot(ax=ax)
+            plt.show()
+        axc = zone_mean_air.iloc[min:max].plot(figsize=(10, 5), grid=True)
+        temp.iloc[min:max].plot(ax=axc)
+        plt.show()
+
 
     def _intersect_centerline_bounds(self, instances):
         for inst in instances:
