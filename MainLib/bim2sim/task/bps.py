@@ -1692,6 +1692,11 @@ class ExportEP(ITask):
         :param idf: idf file object
         :return: stat (HVAC Template)
         """
+        if cooling_sp < 20:
+            cooling_sp = 26
+        elif cooling_sp < 24:
+            cooling_sp = 23
+
         if mode == "setback":
             htg_alldays = self._define_schedule_part('Alldays', [('5:00', 18), ('21:00', heating_sp), ('24:00', 18)])
             clg_alldays = self._define_schedule_part('Alldays', [('5:00', 26), ('21:00', cooling_sp), ('24:00', 26)])
