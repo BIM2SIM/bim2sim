@@ -1557,6 +1557,8 @@ class ExportEP(ITask):
                     stat_name = "Heat_" + str(space.t_set_heat) + "_Cool_" + str(space.t_set_cool)
                     if idf.getobject("HVACTEMPLATE:THERMOSTAT", "STAT_"+stat_name) is None:
                         stat = self._set_hvac_template(idf, name=stat_name, heating_sp=space.t_set_heat, cooling_sp=space.t_set_cool)
+                    else:
+                        stat = idf.getobject("HVACTEMPLATE:THERMOSTAT", "STAT_"+stat_name)
                 else:
                     stat = stat_default
 
@@ -1892,6 +1894,10 @@ class ExportEP(ITask):
             if instances[inst].ifc_type == 'IfcRelSpaceBoundary':
                 col += 1
                 bound = instances[inst]
+                if bound.bound_instance is None:
+                    continue
+                if bound.bound_instance.ifc_type != "IfcWallStandardCase":
+                    pass
                 try:
                     display.DisplayShape(bound.bound_shape, color=colors[(col - 1) % len(colors)])
                 except:
