@@ -746,6 +746,14 @@ class ExportEP(ITask):
         date_str = date_str[0:8] + '00' + date_str[10:]
         return pd.to_datetime(date_str, format=' %m/%d  %H:%M:%S') + pd.Timedelta(days=1)
 
+    @staticmethod
+    def _extract_cols_from_df(df, col_name_part):
+        col = [col for col in df.columns if col_name_part in col]
+        return_df = df[col].copy()
+        return_df["Date/Time"] = df["Date/Time"].copy()
+        return_df = return_df.set_index("Date/Time", drop=True).dropna()
+        return return_df
+
     def _visualize_results(self, csv_name=str(PROJECT.root) + "/export/EP-results/eplusout.csv", period="week", number=28):
         """
         Plot Zone Mean Air Temperature (Hourly) vs Outdoor Temperature per zone and as an overview on all zones.
@@ -757,39 +765,19 @@ class ExportEP(ITask):
         res_df = pd.read_csv(csv_name)
         res_df["Date/Time"] = res_df["Date/Time"].apply(self._convert_datetime)
         # df = res_df.loc[:, ~res_df.columns.str.contains('Surface Inside Face Temperature']
-        t_col = [col for col in res_df.columns if "Zone Mean Air Temperature" in col]
-        zone_mean_air = res_df[t_col].copy()
-        zone_mean_air["Date/Time"] = res_df["Date/Time"].copy()
-        zone_mean_air = zone_mean_air.set_index("Date/Time", drop=True).dropna()
+        zone_mean_air = self._extract_cols_from_df(res_df, "Zone Mean Air Temperature")
+        ideal_loads = self._extract_cols_from_df(res_df, "IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Sensible")
+        equip_rate = self._extract_cols_from_df(res_df, "Zone Electric Equipment Convective Heating Rate")
+        people_rate = self._extract_cols_from_df(res_df, "Zone People Convective Heating Rate")
+        rad_dir = self._extract_cols_from_df(res_df, "Site Direct Solar Radiation Rate per Area")
+        rad_dir_h = rad_dir.resample('1h').mean()
+        temp = self._extract_cols_from_df(res_df, "Outdoor Air Drybulb Temperature [C](Hourly)")
+        t_mean = temp.resample('24h').mean()
         zone_id_list = []
         for col in zone_mean_air.columns:
             z_id = col.partition(':')
             if z_id[0] not in zone_id_list:
                 zone_id_list.append(z_id[0])
-        z_col = [col for col in res_df.columns if "IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Sensible" in col]
-        ideal_loads = res_df[z_col].copy()
-        ideal_loads["Date/Time"] = res_df["Date/Time"].copy()
-        ideal_loads = ideal_loads.set_index("Date/Time", drop=True).dropna()
-        e_col = [col for col in res_df.columns if "Zone Electric Equipment Convective Heating Rate" in col]
-        equip_rate = res_df[e_col].copy()
-        equip_rate["Date/Time"] = res_df["Date/Time"].copy()
-        equip_rate = equip_rate.set_index("Date/Time", drop=True).dropna()
-        p_col = [col for col in res_df.columns if "Zone People Convective Heating Rate" in col]
-        people_rate = res_df[p_col].copy()
-        people_rate["Date/Time"] = res_df["Date/Time"].copy()
-        people_rate = people_rate.set_index("Date/Time", drop=True).dropna()
-        # zone_mean_air = res_df.loc[:, res_df.columns.str.contains("Zone Mean Air Temperature")].dropna(axis=0).reset_index()
-        # zone_mean_air.plot(figsize=(10, 5), grid=True)
-        # plt.show()
-        temp = res_df.loc[:, res_df.columns.str.contains("Outdoor Air Drybulb Temperature")].copy()
-        temp = temp.loc[:, temp.columns.str.contains("Hourly")]
-        temp["Date/Time"] = res_df["Date/Time"].copy()
-        temp = temp.set_index("Date/Time", drop=True).dropna()
-        t_mean = temp.resample('24h').mean()
-        rad_dir = res_df.loc[:, res_df.columns.str.contains("Site Direct Solar Radiation Rate per Area")].copy()
-        rad_dir["Date/Time"] = res_df["Date/Time"].copy()
-        rad_dir = rad_dir.set_index("Date/Time", drop=True).dropna()
-        rad_dir_h = rad_dir.resample('1h').mean()
         if period == "year":
             for col in zone_mean_air.columns:
                 ax = zone_mean_air.plot(y=[col], figsize=(10, 5), grid=True)
@@ -800,8 +788,17 @@ class ExportEP(ITask):
             t_mean.iloc[:].plot(ax=axc)
             plt.show()
             return
-
-        if period == "week":
+        elif period == "month":
+            for col in zone_mean_air.columns:
+                ax = zone_mean_air[zone_mean_air.index.month == number].plot(y=[col], figsize=(10, 5), grid=True)
+                # temp.plot(ax=ax)
+                temp[temp.index.month == number].plot(ax=ax)
+                plt.show()
+            axc = zone_mean_air[zone_mean_air.index.month == number].plot(figsize=(10, 5), grid=True)
+            temp[temp.index.month == number].plot(ax=axc)
+            plt.show()
+            return
+        elif period == "week":
             min = number*168
             max = (number+1)*168
         elif period == "day":
