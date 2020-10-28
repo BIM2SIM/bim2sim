@@ -673,6 +673,9 @@ class ExportEP(ITask):
 
     def _convert_datetime(self, date_str):
         # If the time is 24, set it to 0 and increment day by 1
+        if not date_str[0].isspace():
+            date_str = " " + date_str
+
         if date_str[8:10] != '24':
             return pd.to_datetime(date_str, format=' %m/%d  %H:%M:%S')
 
