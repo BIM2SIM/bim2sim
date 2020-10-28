@@ -697,6 +697,23 @@ class ExportEP(ITask):
         zone_mean_air = res_df[t_col].copy()
         zone_mean_air["Date/Time"] = res_df["Date/Time"].copy()
         zone_mean_air = zone_mean_air.set_index("Date/Time", drop=True).dropna()
+        zone_id_list = []
+        for col in zone_mean_air.columns:
+            z_id = col.partition(':')
+            if z_id[0] not in zone_id_list:
+                zone_id_list.append(z_id[0])
+        z_col = [col for col in res_df.columns if "IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Sensible" in col]
+        ideal_loads = res_df[z_col].copy()
+        ideal_loads["Date/Time"] = res_df["Date/Time"].copy()
+        ideal_loads = ideal_loads.set_index("Date/Time", drop=True).dropna()
+        e_col = [col for col in res_df.columns if "Zone Electric Equipment Convective Heating Rate" in col]
+        equip_rate = res_df[e_col].copy()
+        equip_rate["Date/Time"] = res_df["Date/Time"].copy()
+        equip_rate = equip_rate.set_index("Date/Time", drop=True).dropna()
+        p_col = [col for col in res_df.columns if "Zone People Convective Heating Rate" in col]
+        people_rate = res_df[p_col].copy()
+        people_rate["Date/Time"] = res_df["Date/Time"].copy()
+        people_rate = people_rate.set_index("Date/Time", drop=True).dropna()
         # zone_mean_air = res_df.loc[:, res_df.columns.str.contains("Zone Mean Air Temperature")].dropna(axis=0).reset_index()
         # zone_mean_air.plot(figsize=(10, 5), grid=True)
         # plt.show()
@@ -705,6 +722,10 @@ class ExportEP(ITask):
         temp["Date/Time"] = res_df["Date/Time"].copy()
         temp = temp.set_index("Date/Time", drop=True).dropna()
         t_mean = temp.resample('24h').mean()
+        rad_dir = res_df.loc[:, res_df.columns.str.contains("Site Direct Solar Radiation Rate per Area")].copy()
+        rad_dir["Date/Time"] = res_df["Date/Time"].copy()
+        rad_dir = rad_dir.set_index("Date/Time", drop=True).dropna()
+        rad_dir_h = rad_dir.resample('1h').mean()
         if period == "year":
             for col in zone_mean_air.columns:
                 ax = zone_mean_air.plot(y=[col], figsize=(10, 5), grid=True)
@@ -731,6 +752,22 @@ class ExportEP(ITask):
         temp.iloc[min:max].plot(ax=axc)
         plt.show()
 
+        for zid in zone_id_list:
+            fig, (ax1, ax2) = plt.subplots(2, sharex=True, figsize=(10, 8))
+            fig.suptitle("Zone " + zid, y=1.00)
+            z_col = [col for col in ideal_loads.columns if zid in col]
+            zma_col = [col for col in zone_mean_air.columns if zid in col]
+            ideal_loads[z_col].iloc[min:max].plot(ax=ax1, grid=True)
+            # ax1b = ax1.twinx()
+            # rad_dir_h.iloc[min:max].plot(ax=ax1b)
+            zone_mean_air[zma_col].iloc[min:max].plot(ax=ax2, grid=True, color='green')
+            temp.iloc[min:max].plot(ax=ax2, color='black')
+            ax1.set_title("Loads")
+            ax2.set_title("Temperatures")
+            ax1.autoscale()
+            ax2.autoscale()
+            fig.tight_layout(rect=[0, 0.03, 1, 0.8])
+            plt.show()
 
     def _intersect_centerline_bounds(self, instances):
         for inst in instances:
