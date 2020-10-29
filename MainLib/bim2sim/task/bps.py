@@ -635,6 +635,7 @@ class ExportEP(ITask):
     @Task.log
     def run(self, workflow, instances, ifc):
         # geometric preprocessing before export
+        self._visualize_results()
         self.logger.info("Geometric preprocessing for EnergyPlus Export started ...")
         self.logger.info("Compute relationships between space boundaries")
         self._get_parents_and_children(instances)
@@ -1643,9 +1644,18 @@ class ExportEP(ITask):
         elif cooling_sp < 24:
             cooling_sp = 23
 
+        setback_htg = 18
+        setback_clg = 26
+
+        # ensure setback temperature actually performs a setback on temperature
+        if setback_htg > heating_sp:
+            setback_htg = heating_sp
+        if setback_clg < cooling_sp:
+            setback_clg = cooling_sp
+
         if mode == "setback":
-            htg_alldays = self._define_schedule_part('Alldays', [('5:00', 18), ('21:00', heating_sp), ('24:00', 18)])
-            clg_alldays = self._define_schedule_part('Alldays', [('5:00', 26), ('21:00', cooling_sp), ('24:00', 26)])
+            htg_alldays = self._define_schedule_part('Alldays', [('5:00', setback_htg), ('21:00', heating_sp), ('24:00', setback_htg)])
+            clg_alldays = self._define_schedule_part('Alldays', [('5:00', setback_clg), ('21:00', cooling_sp), ('24:00', setback_clg)])
             htg_name = "H_SetBack_" + str(heating_sp)
             clg_name = "C_SetBack_" + str(cooling_sp)
             if idf.getobject("SCHEDULE:COMPACT", htg_name) is None:
