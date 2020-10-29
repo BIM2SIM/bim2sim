@@ -754,12 +754,13 @@ class ExportEP(ITask):
         return_df = return_df.set_index("Date/Time", drop=True).dropna()
         return return_df
 
-    def _visualize_results(self, csv_name=str(PROJECT.root) + "/export/EP-results/eplusout.csv", period="week", number=28):
+    def _visualize_results(self, csv_name=str(PROJECT.root) + "/export/EP-results/eplusout.csv", period="week", number=28, date=False):
         """
         Plot Zone Mean Air Temperature (Hourly) vs Outdoor Temperature per zone and as an overview on all zones.
         :param csv_name: path to energyplus outputs (eplusout.csv)
-        :param period: choose plotting period ("year"/"week"/"day")
+        :param period: choose plotting period ("year"/"month"/"week"/"day"/"date")
         :param number: choose number of day or week (0...365 (day) or 0...52 (week))
+        :param date: only required if period == date. enter date in format date=[int(month), int(day)]
         :return:
         """
         res_df = pd.read_csv(csv_name)
@@ -796,6 +797,18 @@ class ExportEP(ITask):
                 plt.show()
             axc = zone_mean_air[zone_mean_air.index.month == number].plot(figsize=(10, 5), grid=True)
             temp[temp.index.month == number].plot(ax=axc)
+            plt.show()
+            return
+        elif period == "date":
+            month = date[0]
+            day = date[1]
+            for col in zone_mean_air.columns:
+                ax = zone_mean_air.loc[((zone_mean_air.index.month==month) & (zone_mean_air.index.day == day))].plot(y=[col], figsize=(10, 5), grid=True)
+                # temp.plot(ax=ax)
+                temp.loc[((temp.index.month==month) & (temp.index.day == day))].plot(ax=ax)
+                plt.show()
+            axc = zone_mean_air.loc[((zone_mean_air.index.month==month) & (zone_mean_air.index.day == day))].plot(figsize=(10, 5), grid=True)
+            temp.loc[((temp.index.month==month) & (temp.index.day == day))].plot(ax=axc)
             plt.show()
             return
         elif period == "week":
