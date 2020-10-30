@@ -1627,7 +1627,7 @@ class ExportEP(ITask):
         for inst in instances:
             if instances[inst].ifc_type == "IfcSpace":
                 space = instances[inst]
-
+                space.storey = elements.Storey(space.get_storey())
                 if None not in (space.t_set_cool, space.t_set_heat):
                     stat_name = "Heat_" + str(space.t_set_heat) + "_Cool_" + str(space.t_set_cool)
                     if idf.getobject("HVACTEMPLATE:THERMOSTAT", "STAT_"+stat_name) is None:
