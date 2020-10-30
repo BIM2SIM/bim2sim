@@ -657,6 +657,7 @@ class ExportEP(ITask):
         idf = self._init_idf()
         self._init_zone(instances, idf)
         self._init_zonelist(idf)
+        self._init_zonegroups(instances, idf)
         self._set_people(idf, name="all zones")
         self._set_equipment(idf, name="all zones")
         self._set_simulation_control(idf)
@@ -1601,6 +1602,41 @@ class ExportEP(ITask):
         for i, z in enumerate(idf_zones):
             zs.update({"Zone_"+str(i+1)+ "_Name": z.Name})
         idf.newidfobject("ZONELIST", Name=name, **zs)
+
+
+    def _init_zonegroups(self, instances, idf):
+        """
+        Assign a zonegroup per storey
+        :param instances:
+        :param idf:
+        :return:
+        """
+        storeys = []
+        for inst in instances:
+            if instances[inst].ifc_type == "IfcBuildingStorey":
+                storeys.append(instances[inst])
+                instances[inst].spaces = []
+        for inst in instances:
+            if instances[inst].ifc_type != "IfcSpace":
+                continue
+            space = instances[inst]
+            for st in storeys:
+                if st.guid == space.storey.guid:
+                    st.spaces.append(space)
+        for st in storeys:
+            space_ids = []
+            for space in st.spaces:
+                space_ids.append(space.guid)
+            self._init_zonelist(idf, name=st.name, zones_in_list=space_ids)
+            print(st.name, space_ids)
+        zonelists = [zlist for zlist in idf.idfobjects["ZONELIST"] if zlist.Name is not "All_Zones"]
+
+        for zlist in zonelists:
+            idf.newidfobject("ZONEGROUP",
+                             Name=zlist.Name,
+                             Zone_List_Name=zlist.Name,
+                             Zone_List_Multiplier=1
+                             )
 
     @staticmethod
     def _set_people(idf, name, zone_name="All_Zones", method='area'):
