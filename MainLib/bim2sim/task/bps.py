@@ -635,7 +635,6 @@ class ExportEP(ITask):
     @Task.log
     def run(self, workflow, instances, ifc):
         # geometric preprocessing before export
-        self._visualize_results()
         self.logger.info("Geometric preprocessing for EnergyPlus Export started ...")
         self.logger.info("Compute relationships between space boundaries")
         self._get_parents_and_children(instances)
