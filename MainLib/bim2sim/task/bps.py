@@ -1590,12 +1590,17 @@ class ExportEP(ITask):
             idf_zones = idf.idfobjects["ZONE"]
             if len(idf_zones) > 20:
                 return
-            if name is None:
-                name = "All_Zones"
-            zs = {}
-            for i, z in enumerate(idf_zones):
-                zs.update({"Zone_"+str(i+1)+ "_Name": z.Name})
-            idf.newidfobject("ZONELIST", Name=name, **zs)
+        else:
+            all_idf_zones = idf.idfobjects["ZONE"]
+            idf_zones = [zone for zone in all_idf_zones if zone.Name in zones_in_list]
+            if len(idf_zones) == 0:
+                return
+        if name is None:
+            name = "All_Zones"
+        zs = {}
+        for i, z in enumerate(idf_zones):
+            zs.update({"Zone_"+str(i+1)+ "_Name": z.Name})
+        idf.newidfobject("ZONELIST", Name=name, **zs)
 
     @staticmethod
     def _set_people(idf, name, zone_name="All_Zones", method='area'):
