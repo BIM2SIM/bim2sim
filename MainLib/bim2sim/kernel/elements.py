@@ -844,6 +844,8 @@ class SpaceBoundary(element.SubElement):
         """
         if self.bound_instance is None:
             # check for visual bounds
+            if self.level_description != "2a":
+                return None
             if not self.physical:
                 corr_bound = None
                 bounds = []
@@ -905,6 +907,8 @@ class SpaceBoundary(element.SubElement):
             min_dist = 1000
             corr_bound = None
             for bound in self.bound_instance.space_boundaries:
+                if bound.level_description != "2a":
+                    continue
                 if bound.thermal_zones[0].ifc.GlobalId == own_space_id:
                     # skip boundaries within same space (cannot be corresponding bound)
                     continue
