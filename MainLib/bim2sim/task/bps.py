@@ -721,8 +721,11 @@ class ExportEP(ITask):
         self._init_zone(instances, idf)
         self._init_zonelist(idf)
         self._init_zonegroups(instances, idf)
-        self._set_people(idf, name="all zones")
-        self._set_equipment(idf, name="all zones")
+        for zone in idf.idfobjects["ZONELIST"]:
+            self._set_people(idf, name=zone.Name, zone_name=zone.Name)
+            self._set_equipment(idf, name=zone.Name, zone_name=zone.Name)
+        # self._set_people(idf, name="all zones")
+        # self._set_equipment(idf, name="all zones")
         self._set_simulation_control(idf)
         idf.set_default_constructions()
         self._export_geom_to_idf(instances, idf)
@@ -1706,15 +1709,17 @@ class ExportEP(ITask):
     @staticmethod
     def _set_people(idf, name, zone_name="All_Zones", method='area'):
         # set default activity schedule
-        idf.newidfobject("SCHEDULETYPELIMITS", Name="Any Number")
-        idf.newidfobject("SCHEDULE:COMPACT",
-                         Name="ActSchDefault",
-                         Schedule_Type_Limits_Name="Any Number",
-                         Field_1="Through: 12/31",
-                         Field_2="For: Alldays",
-                         Field_3="Until: 24:00",
-                         Field_4="100"
-                         )
+        if idf.getobject("SCHEDULETYPELIMITS", "Any Number") is None:
+            idf.newidfobject("SCHEDULETYPELIMITS", Name="Any Number")
+        if idf.getobject("SCHEDULE:COMPACT", "ActSchDefault") is None:
+            idf.newidfobject("SCHEDULE:COMPACT",
+                             Name="ActSchDefault",
+                             Schedule_Type_Limits_Name="Any Number",
+                             Field_1="Through: 12/31",
+                             Field_2="For: Alldays",
+                             Field_3="Until: 24:00",
+                             Field_4="100"
+                             )
 
         people = idf.newidfobject(
             "PEOPLE",
