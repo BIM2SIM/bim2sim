@@ -704,7 +704,7 @@ class ExportEP(ITask):
         self._get_parents_and_children(instances)
         self._move_children_to_parents(instances)
         self._get_neighbor_bounds(instances)
-        self._compute_2b_bound_gaps(instances)
+        # self._compute_2b_bound_gaps(instances)
         # self._move_bounds_to_centerline(instances)
         # self._fill_2b_gaps(instances)
         # self._vertex_scaled_centerline_bounds(instances)
@@ -1561,6 +1561,8 @@ class ExportEP(ITask):
             if instances[inst].ifc_type != "IfcSpace":
                 continue
             bound_obj = instances[inst]
+            if not hasattr(bound_obj, "space_boundaries_2B"):
+                continue
             for b_bound in bound_obj.space_boundaries_2B:
                 idfp = IdfObject(b_bound, idf)
                 if idfp.skip_bound:
@@ -2099,6 +2101,8 @@ class ExportEP(ITask):
             if instances[inst].ifc_type != "IfcSpace":
                 continue
             space_obj = instances[inst]
+            if not hasattr(space_obj, "b_bound_shape"):
+                continue
             bound_prop = GProp_GProps()
             brepgprop_SurfaceProperties(space_obj.b_bound_shape, bound_prop)
             area = bound_prop.Mass()
