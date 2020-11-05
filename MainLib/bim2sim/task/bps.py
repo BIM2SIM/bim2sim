@@ -2179,7 +2179,7 @@ class IdfObject():
                 if layer.guid == None:
                     return
                 construction_name = construction_name + layer.guid[-4:]
-                if inst_obj.bound_instance.ifc_type is not ("IfcWindow" or "IfcDoor"):
+                if inst_obj.bound_instance.ifc_type.upper() not in ("IFCWINDOW"):
                     idf_materials = idf.idfobjects['Material'.upper()]
                     included = False
                     for mat in idf_materials:
@@ -2269,7 +2269,7 @@ class IdfObject():
                                      Name=construction_name,
                                      Outside_Layer=inst_obj.bound_instance.layers[0].guid)
                 if len(inst_obj.bound_instance.layers) > 1:
-                    if inst_obj.bound_instance.ifc_type is ("IfcWindow" or "IfcDoor"):
+                    if inst_obj.bound_instance.ifc_type.upper() in ("IFCWINDOW", "IFCDOOR"):
                         #todo: Add construction implementation for openings with >1 layer
                         #todo: required construction: gas needs to be bounded by solid surfaces
                         self.construction_name = None
