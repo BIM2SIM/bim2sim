@@ -1970,6 +1970,8 @@ class ExportEP(ITask):
             inst_type = inst_obj.ifc_type
             if inst_type != 'IfcRelSpaceBoundary':
                 continue
+            if inst_obj.level_description != "2a":
+                continue
             inst_obj_space = inst_obj.ifc.RelatingSpace
             b_inst = inst_obj.bound_instance
             if b_inst is None:
