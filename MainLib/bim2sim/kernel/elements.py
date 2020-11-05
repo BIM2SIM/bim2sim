@@ -1189,30 +1189,30 @@ class SpaceBoundary(element.SubElement):
                 return shape
             if len(bi.related_openings) == 0:
                 return shape
-            for op in bi.related_openings:
-                if op.ifc_type != "IfcDoor":
-                    continue
-                # bbox = Bnd_Box()
-                # brepbndlib_Add(shape, bbox)
-                # shape = BRepPrimAPI_MakeBox(bbox.CornerMin(), bbox.CornerMax()).Shape()
-                # shape = bps.ExportEP.fix_shape(shape)
-                opd_shp = None
-                for opb in op.space_boundaries:
-                    distance = BRepExtrema_DistShapeShape(opb.bound_shape, shape, Extrema_ExtFlag_MIN).Value()
-                    if distance < 1e-3:
-                        opd_shp = opb.bound_shape
-                        fused_shp = BRepAlgoAPI_Fuse(shape, opd_shp).Shape()
-                        unify = ShapeUpgrade_UnifySameDomain()
-                        unify.Initialize(fused_shp)
-                        unify.Build()
-                        shape = unify.Shape()
-                        shape = bps.ExportEP.fix_shape(shape)
-                        vert_list1 = self._get_vertex_list_from_face(shape)
-                        vert_list1 = self._remove_collinear_vertices(vert_list1)
-                        vert_list1.reverse()
-                        vert_list1 = self._remove_collinear_vertices(vert_list1)
-                        vert_list1.reverse()
-                        shape = self._make_face_from_vertex_list(vert_list1)
+            # for op in bi.related_openings:
+            #     if op.ifc_type != "IfcDoor":
+            #         continue
+            #     # bbox = Bnd_Box()
+            #     # brepbndlib_Add(shape, bbox)
+            #     # shape = BRepPrimAPI_MakeBox(bbox.CornerMin(), bbox.CornerMax()).Shape()
+            #     # shape = bps.ExportEP.fix_shape(shape)
+            #     opd_shp = None
+            #     for opb in op.space_boundaries:
+            #         distance = BRepExtrema_DistShapeShape(opb.bound_shape, shape, Extrema_ExtFlag_MIN).Value()
+            #         if distance < 1e-3:
+            #             opd_shp = opb.bound_shape
+            #             fused_shp = BRepAlgoAPI_Fuse(shape, opd_shp).Shape()
+            #             unify = ShapeUpgrade_UnifySameDomain()
+            #             unify.Initialize(fused_shp)
+            #             unify.Build()
+            #             shape = unify.Shape()
+            #             shape = bps.ExportEP.fix_shape(shape)
+            #             vert_list1 = self._get_vertex_list_from_face(shape)
+            #             vert_list1 = self._remove_collinear_vertices(vert_list1)
+            #             vert_list1.reverse()
+            #             vert_list1 = self._remove_collinear_vertices(vert_list1)
+            #             vert_list1.reverse()
+            #             shape = self._make_face_from_vertex_list(vert_list1)
 
         return shape
 
