@@ -1963,6 +1963,14 @@ class ExportEP(ITask):
                         ).Value()
                         if distance > 0.3:
                             continue
+                        center_shape = BRepBuilderAPI_MakeVertex(gp_Pnt(op_bound.bound_center)).Shape()
+                        center_dist = BRepExtrema_DistShapeShape(
+                            inst_obj.bound_shape,
+                            center_shape,
+                            Extrema_ExtFlag_MIN
+                        ).Value()
+                        if center_dist > 0.3:
+                            continue
                         inst_obj.related_opening_bounds.append(op_bound)
                         if not hasattr(op_bound, 'related_parent_bound'):
                             setattr(op_bound, 'related_parent_bound', [])
