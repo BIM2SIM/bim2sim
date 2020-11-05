@@ -1879,6 +1879,11 @@ class ExportEP(ITask):
         )
         idf.newidfobject(
             "OUTPUT:VARIABLE",
+            Variable_Name="Zone Infiltration Mass Flow Rate",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
             Variable_Name="Zone People Occupant Count",
             Reporting_Frequency="Hourly",
         )
@@ -1890,6 +1895,11 @@ class ExportEP(ITask):
         idf.newidfobject(
             "OUTPUT:VARIABLE",
             Variable_Name="Zone Electric Equipment Convective Heating Rate",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Lights Convective Heating Rate",
             Reporting_Frequency="Hourly",
         )
         idf.newidfobject(
