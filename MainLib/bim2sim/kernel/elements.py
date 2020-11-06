@@ -869,7 +869,7 @@ class SpaceBoundary(element.SubElement):
                         self.bound_shape,
                         Extrema_ExtFlag_MIN
                     ).Value()
-                    if distance > min_dist or distance > 0.4 :
+                    if distance > min_dist or distance > 0.4:
                         continue
                     self.check_for_vertex_duplicates(bound)
                     nb_vert_this = self._get_number_of_vertices(self.bound_shape)
