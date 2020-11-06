@@ -1590,7 +1590,6 @@ class ExportEP(ITask):
     @staticmethod
     def export_space_bound_list(instances):
         stl_dir = str(PROJECT.root) + "/export/"
-        space_bound_list = []
         space_bound_df = pd.DataFrame(columns=["space_id", "bound_ids"])
         for inst in instances:
             if instances[inst].ifc_type != "IfcSpace":
@@ -1599,12 +1598,8 @@ class ExportEP(ITask):
             bound_names = []
             for bound in space.space_boundaries:
                 bound_names.append(bound.guid)
-            # temp_df = pd.DataFrame()
             space_bound_df= space_bound_df.append({'space_id':space.guid, 'bound_ids': bound_names}, ignore_index=True)
-            # space_bound_df[space.guid] = [bound_names]
-            # space_bound_df = pd.concat([space_bound_df, temp_df], axis=1, ignore_index=False)
         space_bound_df.to_csv(stl_dir + "space_bound_list.csv")
-
 
     @staticmethod
     def combine_stl_files(stl_name):
@@ -1653,7 +1648,6 @@ class ExportEP(ITask):
             idf.copyidfobject(t)
         idf.epw = "USA_CO_Golden-NREL.724666_TMY3.epw"
         return idf
-
 
     def _init_zone(self, instances, idf):
         """
@@ -1706,7 +1700,6 @@ class ExportEP(ITask):
         for i, z in enumerate(idf_zones):
             zs.update({"Zone_"+str(i+1)+ "_Name": z.Name})
         idf.newidfobject("ZONELIST", Name=name, **zs)
-
 
     def _init_zonegroups(self, instances, idf):
         """
@@ -2119,13 +2112,10 @@ class ExportEP(ITask):
                 if hasattr(inst_obj, 'related_opening_bounds'):
                     for opening in inst_obj.related_opening_bounds:
                         inst_obj.cfd_face = BRepAlgoAPI_Cut(inst_obj.cfd_face, opening.bound_shape).Shape()
-
                 triang_face = BRepMesh_IncrementalMesh(inst_obj.cfd_face, 1)
-
                 # Export to STL
                 stl_writer = StlAPI_Writer()
                 stl_writer.SetASCIIMode(True)
-
                 stl_writer.Write(triang_face.Shape(), this_name)
 
     def export_bounds_per_space_to_stl(self, instances, stl_name):
@@ -2156,7 +2146,6 @@ class ExportEP(ITask):
                 # Export to STL
                 stl_writer = StlAPI_Writer()
                 stl_writer.SetASCIIMode(True)
-
                 stl_writer.Write(triang_face.Shape(), this_name)
             self.combine_space_stl_files(stl_name, space_name)
 
@@ -2182,7 +2171,6 @@ class ExportEP(ITask):
                 if distance > 1e-6:
                     continue
                 space_obj.b_bound_shape = BRepAlgoAPI_Cut(space_obj.b_bound_shape, bound.bound_shape).Shape()
-
             faces = self.get_faces_from_shape(space_obj.b_bound_shape)
             self.create_2B_space_boundaries(faces, space_obj)
 
@@ -2202,13 +2190,10 @@ class ExportEP(ITask):
                 stl_dir = str(PROJECT.root) + "/export/STL/"
                 this_name = stl_dir + str(stl_name) + "_cfd_" + str(name) + ".stl"
                 os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
-
                 triang_face = BRepMesh_IncrementalMesh(space_obj.b_bound_shape, 1)
-
                 # Export to STL
                 stl_writer = StlAPI_Writer()
                 stl_writer.SetASCIIMode(True)
-
                 stl_writer.Write(triang_face.Shape(), this_name)
 
     def create_2B_space_boundaries(self, faces, space_obj):
@@ -2260,7 +2245,6 @@ class ExportEP(ITask):
             an_exp.Next()
         return faces
 
-
 class IdfObject():
     def __init__(self, inst_obj, idf):
         self.name = inst_obj.guid
@@ -2277,16 +2261,12 @@ class IdfObject():
         self.related_bound = inst_obj.related_bound
         self.skip_bound = False
         self.bound_shape = inst_obj.bound_shape
-
         if hasattr(inst_obj, 'related_parent_bound'):
             self.key = "FENESTRATIONSURFACE:DETAILED"
         else:
             self.key = "BUILDINGSURFACE:DETAILED"
-
         if hasattr(inst_obj, 'related_parent_bound'):
             self.building_surface_name = inst_obj.related_parent_bound.ifc.GlobalId
-
-
         self._map_surface_types(inst_obj)
         self._map_boundary_conditions(inst_obj)
         #todo: fix material definitions!
@@ -2315,7 +2295,6 @@ class IdfObject():
                                  Simple_Mixing_Air_Changes_per_Hour=0.5,
                                  )
             self.construction_name = 'Air Wall'
-
         # if inst_obj.bound_instance.ifc_type is ("IfcWindow" or "IfcDoor"):
         #     return
         if hasattr(inst_obj.bound_instance, 'layers'):
@@ -2433,9 +2412,6 @@ class IdfObject():
                                             **other_layers
                                             )
 
-
-
-
     def _set_construction_name(self):
         if self.surface_type == "Wall":
             self.construction_name = "Project Wall"
@@ -2455,7 +2431,6 @@ class IdfObject():
     def _set_idfobject_coordinates(self, obj, idf, inst_obj):
         # validate bound_shape
         # self._check_for_vertex_duplicates()
-
         # write validated bound_shape to obj
         obj_pnts = self._get_points_of_face(self.bound_shape)
         obj_coords = []
@@ -2466,9 +2441,7 @@ class IdfObject():
             obj.setcoords(obj_coords)
         except:
             return
-
         circular_shape = self.get_circular_shape(obj_pnts)
-
         try:
             if (3 <= len(obj_coords) <= 120 and self.key == "BUILDINGSURFACE:DETAILED") \
                     or (3 <= len(obj_coords) <= 4 and self.key == "FENESTRATIONSURFACE:DETAILED"):
@@ -2617,7 +2590,6 @@ class IdfObject():
             self.sun_exposed = 'SunExposed'
             self.wind_exposed = 'WindExposed'
             self.out_bound_cond_obj = ''
-
         elif self.surface_type == "Floor" and inst_obj.related_bound is None:
             self.out_bound_cond = "Ground"
             self.sun_exposed = 'NoSun'
@@ -2666,7 +2638,6 @@ class IdfObject():
         """
         an_exp = TopExp_Explorer(bound_shape, TopAbs_WIRE)
         pnt_list = []
-
         while an_exp.More():
             wire = topods_Wire(an_exp.Current())
             w_exp = BRepTools_WireExplorer(wire)
@@ -2728,7 +2699,6 @@ class IdfObject():
             new_obj.setcoords(new_coords)
             pnt = pnt2
         new_obj = idf.copyidfobject(obj)
-
         new_obj.Name = str(obj.Name) + '_' + str(counter + 1)
         fc = SpaceBoundary._make_faces_from_pnts([drop_list[-1], drop_list[0], inst_obj.bound_center.Coord(), drop_list[-1]])
         fcsc = ExportEP.scale_face(ExportEP, fc, 0.99)
@@ -2762,19 +2732,16 @@ class IdfObject():
                                            umax,
                                            vmin,
                                            vmax).Face().Reversed()
-
         face_exp = TopExp_Explorer(new_face, TopAbs_WIRE)
         w_exp = BRepTools_WireExplorer(topods_Wire(face_exp.Current()))
         while w_exp.More():
             wire_vert = w_exp.CurrentVertex()
             obj_pnts.append(BRep_Tool.Pnt(wire_vert))
             w_exp.Next()
-
         obj_coords = []
         for pnt in obj_pnts:
             obj_coords.append(pnt.Coord())
         obj.setcoords(obj_coords)
-
 
     # @staticmethod
     # def _remove_vertex_duplicates(vert_list):
