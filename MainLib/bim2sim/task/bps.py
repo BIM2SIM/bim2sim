@@ -1521,6 +1521,26 @@ class ExportEP(ITask):
         self.export_bounds_per_space_to_stl(instances, stl_name)
         self.export_2B_bounds_to_stl(instances, stl_name)
         self.combine_stl_files(stl_name)
+        self.export_space_bound_list(instances)
+
+    @staticmethod
+    def export_space_bound_list(instances):
+        stl_dir = str(PROJECT.root) + "/export/"
+        space_bound_list = []
+        space_bound_df = pd.DataFrame(columns=["space_id", "bound_ids"])
+        for inst in instances:
+            if instances[inst].ifc_type != "IfcSpace":
+                continue
+            space = instances[inst]
+            bound_names = []
+            for bound in space.space_boundaries:
+                bound_names.append(bound.guid)
+            # temp_df = pd.DataFrame()
+            space_bound_df= space_bound_df.append({'space_id':space.guid, 'bound_ids': bound_names}, ignore_index=True)
+            # space_bound_df[space.guid] = [bound_names]
+            # space_bound_df = pd.concat([space_bound_df, temp_df], axis=1, ignore_index=False)
+        space_bound_df.to_csv(stl_dir + "space_bound_list.csv")
+
 
     @staticmethod
     def combine_stl_files(stl_name):
