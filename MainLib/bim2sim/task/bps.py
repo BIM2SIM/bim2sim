@@ -1518,6 +1518,7 @@ class ExportEP(ITask):
         stl_name = idf.idfname.replace('.idf', '')
         stl_name = stl_name.replace(str(PROJECT.root) + "/export/", '')
         self.export_bounds_to_stl(instances, stl_name)
+        self.export_bounds_per_space_to_stl(instances, stl_name)
         self.export_2B_bounds_to_stl(instances, stl_name)
         self.combine_stl_files(stl_name)
 
@@ -1527,6 +1528,20 @@ class ExportEP(ITask):
         with open(stl_dir+stl_name + "_combined_STL.stl", 'wb+') as output_file:
             for i in os.listdir(stl_dir+'STL/'):
                 if os.path.isfile(os.path.join(stl_dir+'STL/',i)) and (stl_name + "_cfd_") in i:
+                    sb_mesh = mesh.Mesh.from_file(stl_dir+'STL/'+i)
+                    mesh_name = i.split("_",1)[-1]
+                    mesh_name = mesh_name.replace(".stl", "")
+                    mesh_name = mesh_name.replace("$", "___")
+                    sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
+
+    @staticmethod
+    def combine_space_stl_files(stl_name, space_name):
+        stl_dir = str(PROJECT.root) + "/export/"
+        os.makedirs(os.path.dirname(stl_dir + "space_stl/"), exist_ok=True)
+
+        with open(stl_dir+"space_stl/"+"space_" + space_name + ".stl", 'wb+') as output_file:
+            for i in os.listdir(stl_dir+'STL/'+ space_name + "/"):
+                if os.path.isfile(os.path.join(stl_dir+'STL/'+ space_name + "/",i)) and (stl_name + "_cfd_") in i:
                     sb_mesh = mesh.Mesh.from_file(stl_dir+'STL/'+i)
                     mesh_name = i.split("_",1)[-1]
                     mesh_name = mesh_name.replace(".stl", "")
@@ -2028,6 +2043,38 @@ class ExportEP(ITask):
                 stl_writer.SetASCIIMode(True)
 
                 stl_writer.Write(triang_face.Shape(), this_name)
+
+    def export_bounds_per_space_to_stl(self, instances, stl_name):
+        """
+        This function exports a space to an idf file.
+        :param idf: idf file object
+        :param space: Space instance
+        :param zone: idf zone object
+        :return:
+        """
+        for inst in instances:
+            if instances[inst].ifc_type != "IfcSpace":
+                continue
+            space_obj = instances[inst]
+            space_name = space_obj.ifc.GlobalId
+            stl_dir = str(PROJECT.root) + "/export/STL/" + space_name + "/"
+            os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
+            for inst_obj in space_obj.space_boundaries:
+                if not inst_obj.physical:
+                    continue
+                bound_name = inst_obj.ifc.GlobalId
+                this_name = stl_dir + str(stl_name) + "_cfd_" + str(bound_name) + ".stl"
+                inst_obj.cfd_face = inst_obj.bound_shape
+                if hasattr(inst_obj, 'related_opening_bounds'):
+                    for opening in inst_obj.related_opening_bounds:
+                        inst_obj.cfd_face = BRepAlgoAPI_Cut(inst_obj.cfd_face, opening.bound_shape).Shape()
+                triang_face = BRepMesh_IncrementalMesh(inst_obj.cfd_face, 1)
+                # Export to STL
+                stl_writer = StlAPI_Writer()
+                stl_writer.SetASCIIMode(True)
+
+                stl_writer.Write(triang_face.Shape(), this_name)
+            self.combine_space_stl_files(stl_name, space_name)
 
     def _compute_2b_bound_gaps(self, instances):
         self.logger.info("Generate space boundaries of type 2B")
