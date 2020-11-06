@@ -672,7 +672,8 @@ class ExportEP(ITask):
         idf.view_model()
         self._export_to_stl_for_cfd(instances, idf)
         self._display_shape_of_space_boundaries(instances)
-        idf.run(output_directory=str(PROJECT.root) + "/export/EP-results/", readvars=True)
+        output_string = str(PROJECT.root) + "/export/EP-results/"
+        idf.run(output_directory=output_string, readvars=True)
         self._visualize_results()
 
     def _convert_datetime(self, date_str):
