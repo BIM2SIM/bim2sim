@@ -722,6 +722,7 @@ class ExportEP(ITask):
         self._init_zonelist(idf)
         self._init_zonegroups(instances, idf)
         for zone in idf.idfobjects["ZONELIST"]:
+            self._set_infiltration(idf, name=zone.Name, zone_name=zone.Name)
             self._set_people(idf, name=zone.Name, zone_name=zone.Name)
             self._set_equipment(idf, name=zone.Name, zone_name=zone.Name)
         # self._set_people(idf, name="all zones")
@@ -1771,6 +1772,17 @@ class ExportEP(ITask):
             Schedule_Name="Multifamily OneZone Equipment",
             Design_Level_Calculation_Method="Watts/Area",
             Watts_per_Zone_Floor_Area=12
+        )
+
+    @staticmethod
+    def _set_infiltration(idf, name, zone_name="All_Zones"):
+        inf = idf.newidfobject(
+            "ZONEINFILTRATION:DESIGNFLOWRATE",
+            Name=name,
+            Zone_or_ZoneList_Name=zone_name,
+            Schedule_Name="Continuous",
+            Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+            Air_Changes_per_Hour=0.1,
         )
 
     def _set_hvac_template(self, idf, name, heating_sp, cooling_sp, mode='setback'):
