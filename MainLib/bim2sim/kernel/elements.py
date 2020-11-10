@@ -1270,8 +1270,8 @@ class SpaceBoundary(element.SubElement):
         # check if surface normal points into direction of space center
         # Transform surface normals to be pointing outwards
         # For faces without reversed surface normal, reverse the orientation of the face itself
-        if dot > 0:
-            face_normal = face_normal.Reversed()
+       # if dot > 0:
+        #    face_normal = face_normal.Reversed()
         # else:
         #     self.bound_shape = self.bound_shape.Reversed()
 
