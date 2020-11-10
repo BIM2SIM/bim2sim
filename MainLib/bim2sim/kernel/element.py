@@ -641,26 +641,6 @@ class Port(BasePort, IFCBased):
         return 0
 
 
-def get_all_subclasses(cls):
-    all_subclasses = []
-
-    for subclass in cls.__subclasses__():
-        all_subclasses.append(subclass)
-        all_subclasses.extend(get_all_subclasses(subclass))
-
-    return all_subclasses
-
-
-def get_class_requirements(cls):
-    requirements = {}
-    if cls.predefined_type is not None:
-        requirements['predefined_type'] = cls.predefined_type
-    if hasattr(cls, 'special_argument'):
-        requirements.update(cls.special_argument)
-
-    return requirements
-
-
 class SubElement(BaseElement, IFCBased):
     _ifc_classes = {}
 
@@ -678,7 +658,7 @@ class SubElement(BaseElement, IFCBased):
         """initialize lookup for factory"""
         logger = logging.getLogger(__name__)
         conflict = False
-        all_subclasses = get_all_subclasses(cls)
+        all_subclasses = cls.get_all_subclasses(cls)
         if Element in all_subclasses:
             all_subclasses.pop(all_subclasses.index(Element))
         for cls_selected in all_subclasses:
@@ -739,8 +719,8 @@ class SubElement(BaseElement, IFCBased):
             logger.warning("Did not found matching class for %s", ifc_type)
             return prefac
 
-        for sub_cls in get_all_subclasses(cls_selected):
-            requirements = get_class_requirements(sub_cls)
+        for sub_cls in cls.get_all_subclasses(cls_selected):
+            requirements = cls.get_class_requirements(sub_cls)
             match = True
             for req, value in requirements.items():
                 on_ifc = getattr(prefac, req)
@@ -751,6 +731,26 @@ class SubElement(BaseElement, IFCBased):
                 prefac = sub_cls(ifc=ifc_element, tool=tool)
 
         return prefac
+
+    @staticmethod
+    def get_all_subclasses(cls):
+        all_subclasses = []
+
+        for subclass in cls.__subclasses__():
+            all_subclasses.append(subclass)
+            all_subclasses.extend(cls.get_all_subclasses(subclass))
+
+        return all_subclasses
+
+    @staticmethod
+    def get_class_requirements(cls):
+        requirements = {}
+        if cls.predefined_type is not None:
+            requirements['predefined_type'] = cls.predefined_type
+        if hasattr(cls, 'special_argument'):
+            requirements.update(cls.special_argument)
+
+        return requirements
 
     def validate(self):
         """"Check if standard parameter are in valid range"""

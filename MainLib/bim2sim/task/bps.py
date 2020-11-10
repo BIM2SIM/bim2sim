@@ -16,7 +16,7 @@ from bim2sim.kernel import elements, disaggregation
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.enrichment_data import element_input_json
 from bim2sim.enrichment_data.data_class import DataClass
-from bim2sim.decision import ListDecision
+from bim2sim.decision import ListDecision, BoolDecision
 from teaser.project import Project
 from teaser.logic.buildingobjects.building import Building
 from teaser.logic.buildingobjects.thermalzone import ThermalZone
@@ -33,7 +33,7 @@ from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
 from teaser.logic import utilities
 import os
-from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list, filter_instances
+from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list, filter_instances, get_pattern_usage
 from bim2sim.kernel.units import conversion
 from googletrans import Translator
 import re
@@ -69,6 +69,7 @@ class Inspect(ITask):
         Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
 
+        workflow.relevant_ifc_types = self.use_doors(workflow.relevant_ifc_types)
         for ifc_type in workflow.relevant_ifc_types:
             try:
                 entities = ifc.by_type(ifc_type)
@@ -90,6 +91,16 @@ class Inspect(ITask):
                 self.instances[guid].orientation = verification
 
         return self.instances,
+
+    @staticmethod
+    def use_doors(relevant_ifc_types):
+        ifc_list = list(relevant_ifc_types)
+        doors_decision = BoolDecision(question="Do you want for the doors to be considered on the bps analysis?",
+                                      collect=False)
+        doors_decision.decide()
+        if not doors_decision.value:
+            ifc_list.remove('IfcDoor')
+        return tuple(ifc_list)
 
 
 class ExportTEASER(ITask):

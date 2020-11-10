@@ -1,10 +1,10 @@
 from bim2sim.task.base import Task
-from bim2sim.decision import BoolDecision
+from bim2sim.decision import BoolDecision, ListDecision
 from bim2sim.kernel.element import Element, SubElement
 from bim2sim.kernel.ifc2python import getElementType
 from bim2sim.kernel.disaggregation import Disaggregation
 from bim2sim.kernel.aggregation import Aggregated_ThermalZone
-
+import inspect
 
 class Inspect(Task):
     """Analyses IFC, creates Element instances and connects them.
@@ -47,12 +47,10 @@ class Inspect(Task):
             self.bind_elements_to_zone(thermal_zone)
 
         for k, tz in self.instances.items():
-            tz.get_neighbors()
+            tz.set_neighbors()
 
-        # bind example
         tz_bind = Bind(self, self.workflow)
         tz_bind.run(self.instances)
-        print()
 
     def recognize_zone_geometrical(self):
         """Recognizes zones/spaces by geometric detection"""
@@ -76,9 +74,9 @@ class Inspect(Task):
                 if thermalzone not in inst.thermal_zones:
                     inst.thermal_zones.append(thermalzone)
 
-        thermalzone.get_is_external()
-        thermalzone.get_external_orientation()
-        thermalzone.get_glass_area()
+        thermalzone.set_is_external()
+        thermalzone.set_external_orientation()
+        thermalzone.set_glass_area()
 
     def recognize_space_boundaries(self, ifc):
         """Recognizes space boundaries in ifc file by semantic detection for
@@ -117,14 +115,36 @@ class Bind(Task):
         self.instances = instances
         if len(self.instances) == 0:
             self.logger.warning("Found no spaces to bind")
+        else:
+            self.bind_tz_criteria()
 
-        tz_groups = self.group_thermal_zones_DIN_V_18599_1()
-        new_aggregations = Aggregated_ThermalZone.based_on_groups(tz_groups, self.instances)
-        for inst in new_aggregations:
-            self.instances[inst.guid] = inst
+    def bind_tz_criteria(self):
+        bind_decision = BoolDecision(question="Do you want for thermal zones to be bind?",
+                                     collect=False)
+        bind_decision.decide()
+        if bind_decision.value:
+            criteria_functions = {}
+            for k, func in dict(inspect.getmembers(self, predicate=inspect.ismethod)).items():
+                if k.startswith('group_thermal_zones_'):
+                    criteria_functions[k.replace('group_thermal_zones_', '')] = func
+            if len(criteria_functions) > 0:
+                criteria_decision = ListDecision("the following methods were found for the thermal zone binding",
+                                                 choices=list(criteria_functions.keys()),
+                                                 allow_skip=False,
+                                                 allow_load=True,
+                                                 allow_save=True,
+                                                 quick_decide=not True,
+                                                 collect=False)
+                if not criteria_decision.status.value:
+                    criteria_decision.decide()
+                criteria_function = criteria_functions.get(criteria_decision.value)
+                tz_groups = criteria_function()
+                new_aggregations = Aggregated_ThermalZone.based_on_groups(tz_groups, self.instances)
+                for inst in new_aggregations:
+                    self.instances[inst.guid] = inst
 
     def group_thermal_zones_DIN_V_18599_1(self):
-        """groups together all the thermalzones based on three attributes:
+        """groups together all the thermal zones based on 4 criteria:
         * is_external
         * usage
         * external_orientation
@@ -140,10 +160,10 @@ class Bind(Task):
             else:
                 internal_binding.append(tz)
 
-        # usage criterion - internal and external
+        # usage criterion + internal and external criterion
         external_binding = self.group_attribute(external_binding, 'usage')
         internal_binding = self.group_attribute(internal_binding, 'usage')
-        # orientation and glass percentage criterion - external only
+        # orientation and glass percentage criterion + external only
         for k, li in external_binding.items():
             external_binding[k] = {}
             external_binding[k] = self.group_attribute(li, 'external_orientation')
@@ -151,32 +171,37 @@ class Bind(Task):
                 external_binding[k][nk] = {}
                 external_binding[k][nk] = self.group_attribute(nli, 'glass_percentage')
 
-        temp = {}
+        grouped_instances_criteria = {}
+        # groups the resultant thermal zone as a dictionary with key: all criteria in one
+        # internal groups resumed
         for k, li in internal_binding.items():
-            temp[str(['internal', k])] = li
+            grouped_instances_criteria[str(['internal', k])] = li
+        # external groups resumed
         for k, li in external_binding.items():
             for k2, li2 in li.items():
                 for k3, li3 in li2.items():
-                    temp[str(['external', k, k2, k3])] = li3
-        temp2 = []
-        for i in temp:
-            temp2 += temp[i]
-        temp3 = []
+                    grouped_instances_criteria[str(['external', k, k2, k3])] = li3
+        # list of all thermal instances grouped:
+        grouped_thermal_instances = []
+        for i in grouped_instances_criteria:
+            grouped_thermal_instances += grouped_instances_criteria[i]
+        # ckeck not grouped instances for fourth criterion
+        not_grouped_instances = []
         for tz in self.instances.values():
-            if tz not in temp2:
-                temp3.append(tz)
+            if tz not in grouped_thermal_instances:
+                not_grouped_instances.append(tz)
         # no similarities criterion
-        if len(temp3) > 1:
-            temp['not_bind'] = temp3
+        if len(not_grouped_instances) > 1:
+            grouped_instances_criteria['not_bind'] = not_grouped_instances
 
         # neighbors - filter criterion
         neighbors_decision = BoolDecision(question="Do you want for the linked-spaces to be neighbors?",
                                           collect=False)
         neighbors_decision.decide()
         if neighbors_decision.value:
-            self.filter_neighbors(temp)
+            self.filter_neighbors(grouped_instances_criteria)
 
-        return temp
+        return grouped_instances_criteria
 
     @staticmethod
     def group_attribute(thermal_zones, attribute):
@@ -243,3 +268,12 @@ class Bind(Task):
         for group in list(tz_groups.keys()):
             if len(tz_groups[group]) <= 1:
                 del tz_groups[group]
+
+    @staticmethod
+    def get_tz_neighbors(tz_instances):
+        neighbors_decision = BoolDecision(question="Do you want for the binded thermal zones to be neighbors?",
+                                          collect=False)
+        neighbors_decision.decide()
+        if neighbors_decision.value:
+            for k, tz in tz_instances.items():
+                tz.set_neighbors()

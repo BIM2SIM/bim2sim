@@ -13,13 +13,17 @@ from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.enrichment_data.data_class import DataClass
 from teaser.logic.buildingobjects.useconditions import UseConditions
 from bim2sim.task.bps_f.bps_functions import get_matches_list, get_material_templates_resumed, \
-    real_decision_user_input, filter_instances
+    real_decision_user_input, filter_instances, get_pattern_usage
 
 
 def diameter_post_processing(value):
     if isinstance(value, list):
         return sum(value) / len(value)
     return value
+
+
+pattern_usage = get_pattern_usage()
+
 
 
 class HeatPump(element.Element):
@@ -131,12 +135,12 @@ class Boiler(element.Element):
     predefined_types = ['WATER', 'STEAM']
 
     pattern_ifc_type = [
-        #re.compile('Heat.?pump', flags=re.IGNORECASE),
+        # re.compile('Heat.?pump', flags=re.IGNORECASE),
         re.compile('Kessel', flags=re.IGNORECASE),
         re.compile('Boiler', flags=re.IGNORECASE),
     ]
 
-    #def _add_ports(self):
+    # def _add_ports(self):
     #    super()._add_ports()
     #    for port in self.ports:
     #        if port.flow_direction == 1:
@@ -192,7 +196,7 @@ class Boiler(element.Element):
 
     water_volume = attribute.Attribute(
         description="Water volume of boiler",
-        unit=ureg.meter**3,
+        unit=ureg.meter ** 3,
     )
 
     min_power = attribute.Attribute(
@@ -216,7 +220,7 @@ class Pipe(element.Element):
     predefined_types = ['CULVERT', 'FLEXIBLESEGMENT', 'RIGIDSEGMENT', 'GUTTER', 'SPOOL']
 
     conditions = [
-        condition.RangeCondition("diameter", 5.0*ureg.millimeter, 300.00*ureg.millimeter)   #ToDo: unit?!
+        condition.RangeCondition("diameter", 5.0 * ureg.millimeter, 300.00 * ureg.millimeter)  # ToDo: unit?!
     ]
 
     diameter = attribute.Attribute(
@@ -273,7 +277,7 @@ class PipeFitting(element.Element):
     predefined_types = ['BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION', 'OBSTRUCTION', 'TRANSITION']
 
     conditions = [
-        condition.RangeCondition("diameter", 5.0*ureg.millimeter, 300.00*ureg.millimeter)
+        condition.RangeCondition("diameter", 5.0 * ureg.millimeter, 300.00 * ureg.millimeter)
     ]
 
     diameter = attribute.Attribute(
@@ -406,7 +410,7 @@ class Pump(element.Element):
     pattern_ifc_type = [
         re.compile('Pumpe', flags=re.IGNORECASE),
         re.compile('Pump', flags=re.IGNORECASE)
-        ]
+    ]
 
     rated_power = attribute.Attribute(
         unit=ureg.kilowatt,
@@ -417,7 +421,7 @@ class Pump(element.Element):
     )
 
     rated_volume_flow = attribute.Attribute(
-        unit=ureg.meter**3 / ureg.hour,
+        unit=ureg.meter ** 3 / ureg.hour,
     )
 
     diameter = attribute.Attribute(
@@ -439,7 +443,7 @@ class Valve(element.Element):
     ]
 
     conditions = [
-        condition.RangeCondition("diameter", 5.0*ureg.millimeter, 500.00*ureg.millimeter)  # ToDo: unit?!
+        condition.RangeCondition("diameter", 5.0 * ureg.millimeter, 500.00 * ureg.millimeter)  # ToDo: unit?!
     ]
 
     diameter = attribute.Attribute(
@@ -529,36 +533,13 @@ class ThermalZone(element.Element):
     )
 
     def _get_usage(bind, name):
-        pattern_usage = {
-            "Living": [
-                re.compile('Living', flags=re.IGNORECASE),
-                re.compile('Wohnen', flags=re.IGNORECASE),
-                re.compile('Büro', flags=re.IGNORECASE)
-            ],
-            "Traffic area": [
-                re.compile('Traffic', flags=re.IGNORECASE),
-                re.compile('Flur', flags=re.IGNORECASE),
-                re.compile('WC', flags=re.IGNORECASE)
-            ],
-            "Bed room": [
-                re.compile('Bed', flags=re.IGNORECASE),
-                re.compile('Schlafzimmer', flags=re.IGNORECASE)
-            ],
-            "Kitchen - preparations, storage": [
-                re.compile('Küche', flags=re.IGNORECASE),
-                re.compile('Kitchen', flags=re.IGNORECASE)
-            ]
-        }
         for usage, pattern in pattern_usage.items():
             for i in pattern:
                 if i.match(bind.zone_name):
                     return usage
         usage_decision = ListDecision("Which usage does the Space %s have?" %
                                       (str(bind.zone_name)),
-                                      choices=["Living",
-                                               "Traffic area",
-                                               "Bed room",
-                                               "Kitchen - preparations, storage"],
+                                      choices=list(pattern_usage.keys()),
                                       allow_skip=False,
                                       allow_load=True,
                                       allow_save=True,
@@ -568,19 +549,21 @@ class ThermalZone(element.Element):
 
     def get_is_external(self):
         """determines if a thermal zone is external or internal
-        based on its elements"""
-        # fix this function
-        new_elements = filter_instances(self.bound_elements, 'Wall') + filter_instances(self.bound_elements, 'Window')
-        for ele in new_elements:
+        based on its elements (Walls and windows analysis)"""
+        tz_elements = filter_instances(self.bound_elements, 'Wall') + filter_instances(self.bound_elements, 'Window')
+        for ele in tz_elements:
             if hasattr(ele, 'is_external'):
                 if ele.is_external is True:
-                    self.is_external = True
-                    break
+                    return True
+
+    def set_is_external(self):
+        """set the property is_external -> Bool"""
+        self.is_external = self.get_is_external()
 
     def get_external_orientation(self):
         """determines the orientation of the thermal zone
         based on its elements
-        it can be a corner or an edge """
+        it can be a corner (list of 2 angles) or an edge (1 angle)"""
         if self.is_external is True:
             orientations = []
             for ele in self.bound_elements:
@@ -588,7 +571,7 @@ class ThermalZone(element.Element):
                     if ele.is_external is True and ele.orientation not in [-1, -2]:
                         orientations.append(ele.orientation)
             if len(list(set(orientations))) == 1:
-                self.external_orientation = list(set(orientations))[0]
+                return list(set(orientations))[0]
             else:
                 # corner case
                 calc_temp = list(set(orientations))
@@ -596,14 +579,19 @@ class ThermalZone(element.Element):
                 if 0 in calc_temp:
                     if sum_or > 180:
                         sum_or += 360
-                self.external_orientation = sum_or/len(calc_temp)
+                return sum_or / len(calc_temp)
+
+    def set_external_orientation(self):
+        """set the property external_orientation
+        value can be an angle (edge) or a list of two angles (edge)"""
+        self.external_orientation = self.get_external_orientation()
 
     def get_glass_area(self):
-        """determines the glass area/facade area ratio for all the windows in the space
-        0-30: 15
-        30-50: 40
-        50-70: 60
-        70-100: 85"""
+        """determines the glass area/facade area ratio for all the windows in the space in one of the 4 following ranges
+        0%-30%: 15
+        30%-50%: 40
+        50%-70%: 60
+        70%-100%: 85"""
 
         glass_area = 0
         facade_area = 0
@@ -620,10 +608,14 @@ class ThermalZone(element.Element):
                     facade_area += e_area
             real_gp = 0
             try:
-                real_gp = 100*(glass_area/(facade_area+glass_area))
+                real_gp = 100 * (glass_area / (facade_area + glass_area))
             except ZeroDivisionError:
                 pass
-            self.glass_percentage = real_gp
+            return real_gp
+
+    def set_glass_area(self):
+        """set the property external_orientation"""
+        self.glass_percentage = self.get_glass_area()
 
     def get_neighbors(self):
         """determines the neighbors of the thermal zone"""
@@ -632,7 +624,11 @@ class ThermalZone(element.Element):
             for tz in ele.thermal_zones:
                 if (tz is not self) and (tz not in neighbors):
                     neighbors.append(tz)
-        self.space_neighbors = neighbors
+        return neighbors
+
+    def set_neighbors(self):
+        """set the neighbors of the thermal zone as a list"""
+        self.space_neighbors = self.get_neighbors()
 
     usage = attribute.Attribute(
         functions=[_get_usage]
@@ -778,7 +774,7 @@ class Layer(element.SubElement):
                 return real_decision_user_input(bind, name)
         else:
             first_decision = BoolDecision(question="Do you want for %s %s to use template, enter 'n' for manual input"
-                                          % (bind.guid, bind.material),
+                                                   % (bind.guid, bind.material),
                                           collect=False)
             first_decision.decide()
             first_decision.stored_decisions.clear()
@@ -1018,7 +1014,6 @@ class GroundFloor(Slab):
 class Site(element.Element):
     ifc_type = "IfcSite"
 
-
     # year_of_construction = attribute.Attribute(
     #     name='year_of_construction',
     #     default_ps=True
@@ -1051,7 +1046,7 @@ class Storey(element.Element):
     gross_floor_area = attribute.Attribute(
         default_ps=True
     )
-    #todo make the lookup for height hierarchical
+    # todo make the lookup for height hierarchical
     net_height = attribute.Attribute(
         default_ps=True
     )

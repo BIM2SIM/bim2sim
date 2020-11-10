@@ -2,10 +2,12 @@ import ifcopenshell
 import ifcopenshell.geom
 import math
 import re
+import json
 
 from googletrans import Translator
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.decision import ListDecision, RealDecision
+from teaser.data.input import inputdata
 
 
 def get_disaggregations_instance(element, thermal_zone):
@@ -221,3 +223,25 @@ def filter_instances(instances, type_name):
         if type_name in type(instance).__name__:
             instances_filtered.append(instance)
     return instances_filtered
+
+
+def get_pattern_usage():
+    """get usage patterns to use it on the thermal zones get_usage"""
+    use_conditions_path = inputdata.__file__.replace('__init__.py', '') + 'UseConditions.json'
+    with open(use_conditions_path, 'r+') as f:
+        use_conditions = list(json.load(f).keys())
+        use_conditions.remove('version')
+
+    translator = Translator()
+    pattern_usage_teaser = {}
+    for i in use_conditions:
+        pattern_usage_teaser[i] = []
+        list_engl = i.replace(' (', ', ').replace(')', '').replace(' -', ',').split(', ')
+        for i_eng in list_engl:
+            try:
+                i_deu = translator.translate(i_eng, dest='de', src='en').text
+            except AttributeError:
+                i_deu = i_eng
+            pattern_usage_teaser[i].append(re.compile(i_eng, flags=re.IGNORECASE))
+            pattern_usage_teaser[i].append(re.compile(i_deu, flags=re.IGNORECASE))
+    return pattern_usage_teaser
