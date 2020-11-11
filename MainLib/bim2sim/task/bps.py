@@ -1572,7 +1572,8 @@ class ExportEP(ITask):
         :return:
         """
         # path = '/usr/local/EnergyPlus-9-2-0/'
-        path = '/usr/local/EnergyPlus-9-3-0/'
+        # path = '/usr/local/EnergyPlus-9-3-0/'
+        path = '/usr/local/EnergyPlus-9-4-0/'
         IDF.setiddname(path + 'Energy+.idd')
         idf = IDF(path + "ExampleFiles/Minimal.idf")
         idf.idfname = str(PROJECT.root) + "/export/temp.idf"
