@@ -725,6 +725,7 @@ class ExportEP(ITask):
             self._set_infiltration(idf, name=zone.Name, zone_name=zone.Name)
             self._set_people(idf, name=zone.Name, zone_name=zone.Name)
             self._set_equipment(idf, name=zone.Name, zone_name=zone.Name)
+            self._set_lights(idf, name=zone.Name, zone_name=zone.Name)
         # self._set_people(idf, name="all zones")
         # self._set_equipment(idf, name="all zones")
         self._set_simulation_control(idf)
@@ -1773,6 +1774,28 @@ class ExportEP(ITask):
             Schedule_Name="Multifamily OneZone Equipment",
             Design_Level_Calculation_Method="Watts/Area",
             Watts_per_Zone_Floor_Area=12
+        )
+
+    @staticmethod
+    def _set_lights(idf, name, zone_name="All_Zones", method='area'):
+        #TODO: Define lighting parameters based on IFC (and User-Input otherwise)
+        schedule_name = "Multifamily OneZone Lighting"
+        mode = "Watts/Area"
+        watts_per_zone_floor_area = 16
+        return_air_fraction = 0.0
+        fraction_radiant = 0.42
+        fraction_visible = 0.18
+
+        lights = idf.newidfobject(
+            "LIGHTS",
+            Name=name,
+            Zone_or_ZoneList_Name=zone_name,
+            Schedule_Name=schedule_name,
+            Design_Level_Calculation_Method=mode,
+            Watts_per_Zone_Floor_Area=watts_per_zone_floor_area,
+            Return_Air_Fraction=return_air_fraction,
+            Fraction_Radiant=fraction_radiant,
+            Fraction_Visible=fraction_visible
         )
 
     @staticmethod
