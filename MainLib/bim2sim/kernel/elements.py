@@ -14,6 +14,7 @@ from bim2sim.enrichment_data.data_class import DataClass
 from teaser.logic.buildingobjects.useconditions import UseConditions
 from bim2sim.task.bps_f.bps_functions import get_matches_list, get_material_templates_resumed, \
     real_decision_user_input, filter_instances, get_pattern_usage
+from googletrans import Translator
 
 
 def diameter_post_processing(value):
@@ -23,7 +24,6 @@ def diameter_post_processing(value):
 
 
 pattern_usage = get_pattern_usage()
-
 
 
 class HeatPump(element.Element):
@@ -533,13 +533,34 @@ class ThermalZone(element.Element):
     )
 
     def _get_usage(bind, name):
+        translator = Translator()
+        zone_pattern = []
+        list_org = bind.zone_name.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
+        for i_org in list_org:
+            try:
+                trans_aux = translator.translate(i_org, src='de', dest='en')
+                i_eng = trans_aux.text
+            except AttributeError:
+                i_eng = i_org
+            zone_pattern.append(i_eng)
+
+        matches = []
+        # check if a string matches the zone name
         for usage, pattern in pattern_usage.items():
             for i in pattern:
-                if i.match(bind.zone_name):
-                    return usage
+                for i_name in zone_pattern:
+                    if i.match(i_name):
+                        if usage not in matches:
+                            matches.append(usage)
+        # if just a match given
+        if len(matches) == 1:
+            return matches[0]
+        # if no matches given
+        elif len(matches) == 0:
+            matches = list(pattern_usage.keys())
         usage_decision = ListDecision("Which usage does the Space %s have?" %
                                       (str(bind.zone_name)),
-                                      choices=list(pattern_usage.keys()),
+                                      choices=matches,
                                       allow_skip=False,
                                       allow_load=True,
                                       allow_save=True,

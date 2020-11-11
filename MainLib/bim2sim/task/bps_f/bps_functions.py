@@ -232,16 +232,10 @@ def get_pattern_usage():
         use_conditions = list(json.load(f).keys())
         use_conditions.remove('version')
 
-    translator = Translator()
     pattern_usage_teaser = {}
     for i in use_conditions:
         pattern_usage_teaser[i] = []
-        list_engl = i.replace(' (', ', ').replace(')', '').replace(' -', ',').split(', ')
+        list_engl = i.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
         for i_eng in list_engl:
-            try:
-                i_deu = translator.translate(i_eng, dest='de', src='en').text
-            except AttributeError:
-                i_deu = i_eng
-            pattern_usage_teaser[i].append(re.compile(i_eng, flags=re.IGNORECASE))
-            pattern_usage_teaser[i].append(re.compile(i_deu, flags=re.IGNORECASE))
+            pattern_usage_teaser[i].append(re.compile('(.*?)%s' % i_eng, flags=re.IGNORECASE))
     return pattern_usage_teaser

@@ -738,7 +738,7 @@ class SubElement(BaseElement, IFCBased):
 
         for subclass in cls.__subclasses__():
             all_subclasses.append(subclass)
-            all_subclasses.extend(cls.get_all_subclasses(subclass))
+            all_subclasses.extend(SubElement.get_all_subclasses(subclass))
 
         return all_subclasses
 
