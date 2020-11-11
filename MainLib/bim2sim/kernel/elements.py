@@ -15,6 +15,7 @@ from teaser.logic.buildingobjects.useconditions import UseConditions
 from bim2sim.task.bps_f.bps_functions import get_matches_list, get_material_templates_resumed, \
     real_decision_user_input, filter_instances, get_pattern_usage
 from googletrans import Translator
+import translators as ts
 
 
 def diameter_post_processing(value):
@@ -533,16 +534,11 @@ class ThermalZone(element.Element):
     )
 
     def _get_usage(bind, name):
-        translator = Translator()
         zone_pattern = []
         list_org = bind.zone_name.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
         for i_org in list_org:
-            try:
-                trans_aux = translator.translate(i_org, src='de', dest='en')
-                i_eng = trans_aux.text
-            except AttributeError:
-                i_eng = i_org
-            zone_pattern.append(i_eng)
+            trans_aux = ts.google(i_org, from_language='de')
+            zone_pattern.append(trans_aux)
 
         matches = []
         # check if a string matches the zone name
