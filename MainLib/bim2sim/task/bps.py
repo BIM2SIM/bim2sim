@@ -658,6 +658,8 @@ class ExportEP(ITask):
         self._init_zonelist(idf)
         self._init_zonegroups(instances, idf)
         for zone in idf.idfobjects["ZONELIST"]:
+            if zone.Name == "All_Zones":
+                continue
             self._set_infiltration(idf, name=zone.Name, zone_name=zone.Name)
             self._set_people(idf, name=zone.Name, zone_name=zone.Name)
             self._set_equipment(idf, name=zone.Name, zone_name=zone.Name)
