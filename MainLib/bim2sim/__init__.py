@@ -11,7 +11,7 @@ import pkg_resources
 from bim2sim.kernel import ifc2python
 from bim2sim.manage import BIM2SIMManager
 from bim2sim.project import PROJECT, get_config
-from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparated
+from bim2sim.workflow import PlantSimulation
 
 VERSION = '0.1-dev'
 
@@ -100,8 +100,8 @@ def main(rootpath=None):
     if not BIM2SIMManager in manager_cls.__bases__:
         raise AttributeError("Got invalid manager from %s" % (backend))
 
-    # workflow = PlantSimulation()  # TODO
-    workflow = BPSMultiZoneSeparated()  # TODO
+    workflow = PlantSimulation()  # TODO
+
 
     # prepare simulation
     manager = manager_cls(workflow)
@@ -155,6 +155,6 @@ def _debug_run_cfd():
 
 
 if __name__ == '__main__':
-    #_debug_run_cfd()
-    _debug_run_bps()
+    # _debug_run_cfd()
+    # _debug_run_bps()
     _debug_run_hvac()
