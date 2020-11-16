@@ -88,9 +88,12 @@ class Aggregation(BaseElement):
         else:
             names = (name,)
 
-        for ele in self.elements:
-            for n in names:
-                ele.request(n)
+        # for ele in self.elements:
+        #     for n in names:
+        #         ele.request(n)
+
+        for n in names:
+            super().request(n)
 
     @classmethod
     def get_empty_mapping(cls, elements: list):
@@ -160,7 +163,7 @@ class Aggregation(BaseElement):
 
 class PipeStrand(Aggregation):
     """Aggregates pipe strands"""
-    aggregatable_elements = ['IfcPipeSegment', 'IfcPipeFitting']
+    aggregatable_elements = ['IfcPipeSegment', 'IfcPipeFitting', 'IfcValve']
     multi = ('length', 'diameter')
 
     def __init__(self, name, element_graph, *args, **kwargs):
@@ -1160,30 +1163,41 @@ class Consumer(Aggregation):
 
     @attribute.multi_calc
     def _calc_avg_consumer(self):
-        has_pump = False
         total_rated_consumer_power = 0
         con_types = {}
         for ele in self.elements:
-            if elements.Pump is ele.__class__:
-                has_pump = True
-            elif ele.__class__ in Consumer.whitelist:
+            if ele.__class__ in Consumer.whitelist:
                 # Dict for description consumer
                 con_types[ele.__class__] = con_types.get(ele.__class__, 0) + 1
             elif ele.__class__ is elements.SpaceHeater:
                 rated_consumer_power = getattr(ele, "rated_power")
                 total_rated_consumer_power += rated_consumer_power
 
-        # Aus Medium ziehen
+        # ToDO: Aus Medium ziehen
         temperaure_inlet = None
         temperature_outlet = None
 
         result = dict(
-            has_pump=has_pump,
             rated_power=total_rated_consumer_power,
             temperature_inlet=temperaure_inlet,
             temperature_outlet=temperature_outlet,
             description=', '.join(['{1} x {0}'.format(k.__name__, v) for k, v in con_types.items()])
         )
+        return result
+
+    def _calc_TControl(self, name):
+        return True  # ToDo: Look at Boiler Aggregation - David
+
+    @attribute.multi_calc
+    def _calc_has_pump(self):
+        has_pump = False
+        for ele in self.elements:
+            if elements.Pump is ele.__class__:
+                has_pump = True
+                break;
+
+        result = dict(
+            has_pump=has_pump)
         return result
 
     def get_replacement_mapping(self):
@@ -1201,8 +1215,8 @@ class Consumer(Aggregation):
     )
 
     has_pump = attribute.Attribute(
-        description="Circle has a pumpsystem",
-        functions=[_calc_avg_consumer]
+        description="Cycle has a pumpsystem",
+        functions=[_calc_has_pump]
     )
 
     rated_pump_power = attribute.Attribute(
@@ -1240,9 +1254,17 @@ class Consumer(Aggregation):
         functions=[_calc_avg_consumer]
     )
 
+    t_controll = attribute.Attribute(
+        description="Bool for temperature controll cycle.",
+        functions=[_calc_TControl]
+    )
+
 
 class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation HKESim
     """Aggregates Consumer system boarder"""
+    multi = ('medium', 'use_hydraulic_separator', 'hydraulic_separator_volume', 'temperature_inlet', 'temperature_outlet')
+    # ToDo: Abused to not just sum attributes from elements
+
     aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting', 'ParallelSpaceHeater']
     whitelist = [elements.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating,
                  Consumer]
@@ -1255,6 +1277,20 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
         edge_ports = self._get_start_and_end_ports()
         for port in edge_ports:
             self.ports.append(AggregationPort(port, parent=self))
+
+        self.consumers = []
+
+        for consumer in self._consumer_cycles:
+            for con in consumer:  # ToDo: darf nur ein Consumer sein
+                self.consumers.append(con)
+
+        self.open_consumer_pairs = self._register_open_consumerports()
+        for ports in self.open_consumer_pairs:
+            a = AggregationPort(ports[0], parent=self)
+            b = AggregationPort(ports[1], parent=self)
+            self.ports.append(a)
+            self.ports.append(b)
+
         self._total_rated_power = None
         self._avg_rated_height = None
         self._total_rated_volume_flow = None
@@ -1271,13 +1307,21 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
         """
         agg_ports = []
 
+        #  ToDo: outer_connection immer die anschlussports für erzeugerkreis?
         for ports in self.outer_connections:
-                agg_ports.append(ports[0])
-
-        for ports in self.undefined_consumer_ports:
-                agg_ports.append(ports[0])
+            agg_ports.append(ports[0])
 
         return agg_ports
+
+    def _register_open_consumerports(self):
+
+        consumer_ports = []
+        if (len(self.undefined_consumer_ports) % 2) == 0:
+            for i in range(0, int(len(self.undefined_consumer_ports)/2)):
+                consumer_ports.append((self.undefined_consumer_ports[2*i][0], self.undefined_consumer_ports[2*i+1][0]))
+        else:
+            raise NotImplementedError("Odd Number of loose ends at the distributor.")
+        return consumer_ports
 
     @classmethod
     def find_matches(cls, graph):
@@ -1285,31 +1329,21 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
         :returns: matches, meta"""
         boarder_class = {elements.Distributor.ifc_type}
         boarder_class = set(boarder_class)
-
         element_graph = graph.element_graph
-
-        #  New Code
         results = []
-
         remove = {node for node in element_graph.nodes if node.ifc_type in boarder_class}
-
         metas = []
-
         for dist in remove:
-
             _element_graph = element_graph.copy()
-
             consumer_cycles = []
-
             # remove blocking nodes
             _element_graph.remove_nodes_from({dist})
-
             # identify outer connections
             remove_ports = dist.ports
             outer_connections = {}
             metas.append({'outer_connections': [],
                           'undefined_consumer_ports': [],
-                          'consumer_cycles':[]})
+                          'consumer_cycles': []})
 
             for port in remove_ports:
                 outer_connections.update({neighbor.parent: (port, neighbor) for neighbor in graph.neighbors(port) if
@@ -1325,7 +1359,6 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
                     gen_con = {node for node in sub if node.__class__ in cls.whitelist}
                     if gen_con:
                         # ToDO: Consumer separieren
-                        a = 1
                         pass
                     else:
                         outer_con = [outer_connections[ele] for ele in sub if ele in outer_connections]
@@ -1363,40 +1396,38 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
 
     @attribute.multi_calc
     def _calc_avg(self):
-        pass
+
+        result = dict(
+            medium=None,
+            temperature_inlet=None,
+            temperature_outlet=None,
+            use_hydraulic_separator=False,
+            hydraulic_separator_volume=1,
+        )
+        return result
 
     medium = attribute.Attribute(
-        description="Medium of the DestributerCicle",
+        description="Medium of the DestributerCycle",
         functions=[_calc_avg]
     )
 
-    Tconsumer = attribute.Attribute(
-        description="temperature niveau of the destribution cycle",
+    temperature_inlet = attribute.Attribute(
+        description="temperature inlet",
         functions=[_calc_avg]
     )
 
-    useHydraulicSeperator = attribute.Attribute(
+    temperature_outlet = attribute.Attribute(
+        description="temperature outlet",
+        functions=[_calc_avg]
+    )
+
+    use_hydraulic_separator = attribute.Attribute(
         description="boolean if there is a hdydraulic seperator",
         functions=[_calc_avg]
     )
 
-    c1Qflow_nom = attribute.Attribute(
-        description="Qflow_nom of the first consumer",
-        functions=[_calc_avg]
-    )
-
-    c1Name = attribute.Attribute(
-        description="name of the first consumer",
-        functions=[_calc_avg]
-    )
-
-    c1OpenEnd = attribute.Attribute(
-        description="boolean if its an open ende consumer",
-        functions=[_calc_avg]
-    )
-
-    c1TControl = attribute.Attribute(
-        description="boolean if the consumer cycle got a temperature controll",
+    hydraulic_separator_volume = attribute.Attribute(
+        description="Volume of the hdydraulic seperator",
         functions=[_calc_avg]
     )
 
