@@ -35,10 +35,6 @@ from teaser.logic import utilities
 import os
 from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list, filter_instances, get_pattern_usage
 from bim2sim.kernel.units import conversion
-from googletrans import Translator
-import re
-
-translator = Translator()
 
 
 class SetIFCTypesBPS(ITask):
