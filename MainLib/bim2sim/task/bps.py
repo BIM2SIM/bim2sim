@@ -1652,6 +1652,20 @@ class ExportEP(ITask):
         idf.epw = "USA_CO_Golden-NREL.724666_TMY3.epw"
         return idf
 
+    def _get_ifc_spaces(self, instances):
+        """
+        Extracts ifc spaces from an instance dictionary while also unpacking spaces from aggregated thermal zones.
+        :param instances: The instance dictionary
+        :return: A list of ifc spaces
+        """
+        unpacked_instances = []
+        for instance in instances.values():
+            if isinstance(instance, Aggregated_ThermalZone):
+                unpacked_instances.extend(instance.elements)
+            elif instance.ifc_type == "IfcSpace":
+                unpacked_instances.append(instance)
+        return unpacked_instances
+
     def _init_zone(self, instances, idf):
         """
         Creates one idf zone per space and initializes with default HVAC Template
@@ -1662,29 +1676,28 @@ class ExportEP(ITask):
         """
         stat_name = "default"
         stat_default = self._set_hvac_template(idf, name=stat_name, heating_sp=20, cooling_sp=25)
-        for inst in instances:
-            if instances[inst].ifc_type == "IfcSpace":
-                space = instances[inst]
-                space.storey = elements.Storey(space.get_storey())
-                if None not in (space.t_set_cool, space.t_set_heat):
-                    stat_name = "Heat_" + str(space.t_set_heat) + "_Cool_" + str(space.t_set_cool)
-                    if idf.getobject("HVACTEMPLATE:THERMOSTAT", "STAT_"+stat_name) is None:
-                        stat = self._set_hvac_template(idf, name=stat_name, heating_sp=space.t_set_heat, cooling_sp=space.t_set_cool)
-                    else:
-                        stat = idf.getobject("HVACTEMPLATE:THERMOSTAT", "STAT_"+stat_name)
+        for instance in self._get_ifc_spaces(instances):
+            space = instance
+            space.storey = elements.Storey(space.get_storey())
+            if None not in (space.t_set_cool, space.t_set_heat):
+                stat_name = "Heat_" + str(space.t_set_heat) + "_Cool_" + str(space.t_set_cool)
+                if idf.getobject("HVACTEMPLATE:THERMOSTAT", "STAT_"+stat_name) is None:
+                    stat = self._set_hvac_template(idf, name=stat_name, heating_sp=space.t_set_heat, cooling_sp=space.t_set_cool)
                 else:
-                    stat = stat_default
+                    stat = idf.getobject("HVACTEMPLATE:THERMOSTAT", "STAT_"+stat_name)
+            else:
+                stat = stat_default
 
-                zone = idf.newidfobject(
-                    'ZONE',
-                    Name=space.ifc.GlobalId,
-                    Volume=space.space_volume
-                )
-                idf.newidfobject(
-                    "HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM",
-                    Zone_Name=zone.Name,
-                    Template_Thermostat_Name=stat.Name,
-                )
+            zone = idf.newidfobject(
+                'ZONE',
+                Name=space.ifc.GlobalId,
+                Volume=space.space_volume
+            )
+            idf.newidfobject(
+                "HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM",
+                Zone_Name=zone.Name,
+                Template_Thermostat_Name=stat.Name,
+            )
 
     @staticmethod
     def _init_zonelist(idf, name=None, zones_in_list=None):
