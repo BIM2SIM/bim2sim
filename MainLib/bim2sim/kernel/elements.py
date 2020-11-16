@@ -40,13 +40,18 @@ from bim2sim.decision import ListDecision, RealDecision
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.enrichment_data.data_class import DataClass
 from teaser.logic.buildingobjects.useconditions import UseConditions
-from bim2sim.task.bps_f.bps_functions import get_matches_list
-from bim2sim.task import bps
+from bim2sim.task.bps_f.bps_functions import get_matches_list, get_material_templates_resumed, \
+    real_decision_user_input, filter_instances, get_pattern_usage
+from googletrans import Translator
+import translators as ts
 
 def diameter_post_processing(value):
     if isinstance(value, list):
         return sum(value) / len(value)
     return value
+
+
+pattern_usage = get_pattern_usage()
 
 
 class HeatPump(element.Element):
@@ -77,6 +82,7 @@ class Chiller(element.Element):
     """"Chiller"""
 
     ifc_type = 'IfcChiller'
+    predefined_types = ['AIRCOOLED', 'WATERCOOLED', 'HEATRECOVERY']
 
     pattern_ifc_type = [
         re.compile('Chiller', flags=re.IGNORECASE),
@@ -101,6 +107,7 @@ class CoolingTower(element.Element):
     """"CoolingTower"""
 
     ifc_type = 'IfcCoolingTower'
+    predefined_types = ['NATURALDRAFT', 'MECHANICALINDUCEDDRAFT', 'MECHANICALFORCEDDRAFT']
 
     pattern_ifc_type = [
         re.compile('Cooling.?Tower', flags=re.IGNORECASE),
@@ -128,6 +135,7 @@ class HeatExchanger(element.Element):
     """"Heatexchanger"""
 
     ifc_type = 'IfcHeatExchanger'
+    predefined_types = ['PLATE', 'SHELLANDTUBE']
 
     pattern_ifc_type = [
         re.compile('Heat.?Exchanger', flags=re.IGNORECASE),
@@ -152,14 +160,15 @@ class HeatExchanger(element.Element):
 class Boiler(element.Element):
     """Boiler"""
     ifc_type = 'IfcBoiler'
+    predefined_types = ['WATER', 'STEAM']
 
     pattern_ifc_type = [
-        #re.compile('Heat.?pump', flags=re.IGNORECASE),
+        # re.compile('Heat.?pump', flags=re.IGNORECASE),
         re.compile('Kessel', flags=re.IGNORECASE),
         re.compile('Boiler', flags=re.IGNORECASE),
     ]
 
-    #def _add_ports(self):
+    # def _add_ports(self):
     #    super()._add_ports()
     #    for port in self.ports:
     #        if port.flow_direction == 1:
@@ -215,7 +224,7 @@ class Boiler(element.Element):
 
     water_volume = attribute.Attribute(
         description="Water volume of boiler",
-        unit=ureg.meter**3,
+        unit=ureg.meter ** 3,
     )
 
     min_power = attribute.Attribute(
@@ -236,8 +245,10 @@ class Boiler(element.Element):
 
 class Pipe(element.Element):
     ifc_type = "IfcPipeSegment"
+    predefined_types = ['CULVERT', 'FLEXIBLESEGMENT', 'RIGIDSEGMENT', 'GUTTER', 'SPOOL']
+
     conditions = [
-        condition.RangeCondition("diameter", 5.0*ureg.millimeter, 300.00*ureg.millimeter)   #ToDo: unit?!
+        condition.RangeCondition("diameter", 5.0 * ureg.millimeter, 300.00 * ureg.millimeter)  # ToDo: unit?!
     ]
 
     diameter = attribute.Attribute(
@@ -291,9 +302,10 @@ class Pipe(element.Element):
 
 class PipeFitting(element.Element):
     ifc_type = "IfcPipeFitting"
+    predefined_types = ['BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION', 'OBSTRUCTION', 'TRANSITION']
 
     conditions = [
-        condition.RangeCondition("diameter", 5.0*ureg.millimeter, 300.00*ureg.millimeter)
+        condition.RangeCondition("diameter", 5.0 * ureg.millimeter, 300.00 * ureg.millimeter)
     ]
 
     diameter = attribute.Attribute(
@@ -309,6 +321,7 @@ class PipeFitting(element.Element):
     length = attribute.Attribute(
         unit=ureg.meter,
         default=0,
+        default_ps=True
     )
 
     pressure_class = attribute.Attribute(
@@ -325,6 +338,8 @@ class PipeFitting(element.Element):
 
 class SpaceHeater(element.Element):
     ifc_type = 'IfcSpaceHeater'
+    predefined_types = ['CONVECTOR', 'RADIATOR']
+
     pattern_ifc_type = [
         re.compile('Space.?heater', flags=re.IGNORECASE)
     ]
@@ -341,6 +356,7 @@ class SpaceHeater(element.Element):
 
 # class ExpansionTank(element.Element):
 #     ifc_type = "IfcTank"   #ToDo: IfcTank, IfcTankType=Expansion
+#     predefined_types = ['BASIN', 'BREAKPRESSURE', 'EXPANSION', 'FEEDANDEXPANSION', 'STORAGE', 'VESSEL']
 #     pattern_ifc_type = [
 #         re.compile('Expansion.?Tank', flags=re.IGNORECASE),
 #         re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
@@ -357,7 +373,10 @@ class SpaceHeater(element.Element):
 
 
 class Storage(element.Element):
-    ifc_type = "IfcTank"    #ToDo: IfcTank, IfcTankType=Storage
+    ifc_type = "IfcTank"
+    predefined_type = 'STORAGE'
+    predefined_types = ['BASIN', 'BREAKPRESSURE', 'EXPANSION', 'FEEDANDEXPANSION', 'STORAGE', 'VESSEL']
+
     pattern_ifc_type = [
         re.compile('Tank', flags=re.IGNORECASE),
         re.compile('Speicher', flags=re.IGNORECASE),
@@ -391,6 +410,9 @@ class Storage(element.Element):
 
 class Distributor(element.Element):
     ifc_type = "IfcDistributionChamberElement"
+    predefined_types = ['FORMEDDUCT', 'INSPECTIONCHAMBER', 'INSPECTIONPIT', 'MANHOLE', 'METERCHAMBER',
+                        'SUMP', 'TRENCH', 'VALVECHAMBER']
+
     pattern_ifc_type = [
         re.compile('Distribution.?chamber', flags=re.IGNORECASE),
         re.compile('Distributior', flags=re.IGNORECASE),
@@ -410,10 +432,13 @@ class Distributor(element.Element):
 
 class Pump(element.Element):
     ifc_type = "IfcPump"
+    predefined_types = ['CIRCULATOR', 'ENDSUCTION', 'SPLITCASE', 'SUBMERSIBLEPUMP', 'SUMPPUMP', 'VERTICALINLINE',
+                        'VERTICALTURBINE']
+
     pattern_ifc_type = [
         re.compile('Pumpe', flags=re.IGNORECASE),
         re.compile('Pump', flags=re.IGNORECASE)
-        ]
+    ]
 
     rated_power = attribute.Attribute(
         unit=ureg.kilowatt,
@@ -424,7 +449,7 @@ class Pump(element.Element):
     )
 
     rated_volume_flow = attribute.Attribute(
-        unit=ureg.meter**3 / ureg.hour,
+        unit=ureg.meter ** 3 / ureg.hour,
     )
 
     diameter = attribute.Attribute(
@@ -434,6 +459,11 @@ class Pump(element.Element):
 
 class Valve(element.Element):
     ifc_type = "IfcValve"
+    predefined_types = ['AIRRELEASE', 'ANTIVACUUM', 'CHANGEOVER', 'CHECK', 'COMMISSIONING', 'DIVERTING', 'DRAWOFFCOCK',
+                        'DOUBLECHECK', 'DOUBLEREGULATING', 'FAUCET', 'FLUSHING', 'GASCOCK', 'GASTAP', 'ISOLATING',
+                        'MIXING', 'PRESSUREREDUCING', 'PRESSURERELIEF', 'REGULATING', 'SAFETYCUTOFF', 'STEAMTRAP',
+                        'STOPCOCK']
+
     pattern_ifc_type = [
         re.compile('Valve', flags=re.IGNORECASE),
         re.compile('Drossel', flags=re.IGNORECASE),
@@ -441,7 +471,7 @@ class Valve(element.Element):
     ]
 
     conditions = [
-        condition.RangeCondition("diameter", 5.0*ureg.millimeter, 500.00*ureg.millimeter)  # ToDo: unit?!
+        condition.RangeCondition("diameter", 5.0 * ureg.millimeter, 500.00 * ureg.millimeter)  # ToDo: unit?!
     ]
 
     diameter = attribute.Attribute(
@@ -469,6 +499,8 @@ class Valve(element.Element):
 
 class Duct(element.Element):
     ifc_type = "IfcDuctSegment"
+    predefined_types = ['RIGIDSEGMENT', 'FLEXIBLESEGMENT']
+
     pattern_ifc_type = [
         re.compile('Duct.?segment', flags=re.IGNORECASE)
     ]
@@ -485,6 +517,8 @@ class Duct(element.Element):
 
 class DuctFitting(element.Element):
     ifc_type = "IfcDuctFitting"
+    predefined_types = ['BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION', 'OBSTRUCTION', 'TRANSITION']
+
     pattern_ifc_type = [
         re.compile('Duct.?fitting', flags=re.IGNORECASE)
     ]
@@ -501,6 +535,8 @@ class DuctFitting(element.Element):
 
 class AirTerminal(element.Element):
     ifc_type = "IfcAirTerminal"
+    predefined_types = ['DIFFUSER', 'GRILLE', 'LOUVRE', 'REGISTER']
+
     pattern_ifc_type = [
         re.compile('Air.?terminal', flags=re.IGNORECASE)
     ]
@@ -513,6 +549,7 @@ class AirTerminal(element.Element):
 
 class ThermalZone(element.Element):
     ifc_type = "IfcSpace"
+    predefined_types = ['SPACE', 'PARKING', 'GFA', 'INTERNAL', 'EXTERNAL']
 
     pattern_ifc_type = [
         re.compile('Space', flags=re.IGNORECASE),
@@ -524,36 +561,29 @@ class ThermalZone(element.Element):
     )
 
     def _get_usage(bind, name):
-        pattern_usage = {
-            "Living": [
-                re.compile('Living', flags=re.IGNORECASE),
-                re.compile('Wohnen', flags=re.IGNORECASE),
-                re.compile('Büro', flags=re.IGNORECASE)
-            ],
-            "Traffic area": [
-                re.compile('Traffic', flags=re.IGNORECASE),
-                re.compile('Flur', flags=re.IGNORECASE),
-                re.compile('WC', flags=re.IGNORECASE)
-            ],
-            "Bed room": [
-                re.compile('Bed', flags=re.IGNORECASE),
-                re.compile('Schlafzimmer', flags=re.IGNORECASE)
-            ],
-            "Kitchen - preparations, storage": [
-                re.compile('Küche', flags=re.IGNORECASE),
-                re.compile('Kitchen', flags=re.IGNORECASE)
-            ]
-        }
+        zone_pattern = []
+        list_org = bind.zone_name.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
+        for i_org in list_org:
+            trans_aux = ts.google(i_org, from_language='de')
+            zone_pattern.append(trans_aux)
+
+        matches = []
+        # check if a string matches the zone name
         for usage, pattern in pattern_usage.items():
             for i in pattern:
-                if i.match(bind.zone_name):
-                    return usage
+                for i_name in zone_pattern:
+                    if i.match(i_name):
+                        if usage not in matches:
+                            matches.append(usage)
+        # if just a match given
+        if len(matches) == 1:
+            return matches[0]
+        # if no matches given
+        elif len(matches) == 0:
+            matches = list(pattern_usage.keys())
         usage_decision = ListDecision("Which usage does the Space %s have?" %
                                       (str(bind.zone_name)),
-                                      choices=["Living",
-                                               "Traffic area",
-                                               "Bed room",
-                                               "Kitchen - preparations, storage"],
+                                      choices=matches,
                                       allow_skip=False,
                                       allow_load=True,
                                       allow_save=True,
@@ -563,18 +593,21 @@ class ThermalZone(element.Element):
 
     def get_is_external(self):
         """determines if a thermal zone is external or internal
-        based on its elements"""
-        new_elements = bps.Inspect.filter_instances(self.bound_elements, 'Wall') + bps.Inspect.filter_instances(self.bound_elements, 'Window')
-        for ele in new_elements:
+        based on its elements (Walls and windows analysis)"""
+        tz_elements = filter_instances(self.bound_elements, 'Wall') + filter_instances(self.bound_elements, 'Window')
+        for ele in tz_elements:
             if hasattr(ele, 'is_external'):
                 if ele.is_external is True:
-                    self.is_external = True
-                    break
+                    return True
 
-    def get_true_orientation(self):
+    def set_is_external(self):
+        """set the property is_external -> Bool"""
+        self.is_external = self.get_is_external()
+
+    def get_external_orientation(self):
         """determines the orientation of the thermal zone
         based on its elements
-        it can be a corner or an edge """
+        it can be a corner (list of 2 angles) or an edge (1 angle)"""
         if self.is_external is True:
             orientations = []
             for ele in self.bound_elements:
@@ -582,17 +615,27 @@ class ThermalZone(element.Element):
                     if ele.is_external is True and ele.orientation not in [-1, -2]:
                         orientations.append(ele.orientation)
             if len(list(set(orientations))) == 1:
-                self.true_orientation = list(set(orientations))[0]
+                return list(set(orientations))[0]
             else:
                 # corner case
-                self.true_orientation = str(list(set(orientations)))
+                calc_temp = list(set(orientations))
+                sum_or = sum(calc_temp)
+                if 0 in calc_temp:
+                    if sum_or > 180:
+                        sum_or += 360
+                return sum_or / len(calc_temp)
+
+    def set_external_orientation(self):
+        """set the property external_orientation
+        value can be an angle (edge) or a list of two angles (edge)"""
+        self.external_orientation = self.get_external_orientation()
 
     def get_glass_area(self):
-        """determines the glass area/facade area ratio for all the windows in the space
-        0-30: 15
-        30-50: 40
-        50-70: 60
-        70-100: 85"""
+        """determines the glass area/facade area ratio for all the windows in the space in one of the 4 following ranges
+        0%-30%: 15
+        30%-50%: 40
+        50%-70%: 60
+        70%-100%: 85"""
 
         glass_area = 0
         facade_area = 0
@@ -609,17 +652,14 @@ class ThermalZone(element.Element):
                     facade_area += e_area
             real_gp = 0
             try:
-                real_gp = 100*(glass_area/(facade_area+glass_area))
+                real_gp = 100 * (glass_area / (facade_area + glass_area))
             except ZeroDivisionError:
                 pass
-            if 0 <= real_gp < 30:
-                self.glass_percentage = 15
-            elif 30 <= real_gp < 50:
-                self.glass_percentage = 40
-            elif 50 <= real_gp < 70:
-                self.glass_percentage = 60
-            else:
-                self.glass_percentage = 85
+            return real_gp
+
+    def set_glass_area(self):
+        """set the property external_orientation"""
+        self.glass_percentage = self.get_glass_area()
 
     def get_neighbors(self):
         """determines the neighbors of the thermal zone"""
@@ -628,7 +668,11 @@ class ThermalZone(element.Element):
             for tz in ele.thermal_zones:
                 if (tz is not self) and (tz not in neighbors):
                     neighbors.append(tz)
-        self.space_neighbors = neighbors
+        return neighbors
+
+    def set_neighbors(self):
+        """set the neighbors of the thermal zone as a list"""
+        self.space_neighbors = self.get_neighbors()
 
     usage = attribute.Attribute(
         functions=[_get_usage]
@@ -657,7 +701,7 @@ class ThermalZone(element.Element):
         super().__init__(*args, **kwargs)
         self.bound_elements = []
         self.is_external = False
-        self.true_orientation = 'Internal'
+        self.external_orientation = 'Internal'
         self.glass_percentage = 'Internal'
         self.space_neighbors = []
 
@@ -1262,6 +1306,7 @@ class SpaceBoundary2B:
         return SpaceBoundary.get_floor_and_ceilings(self)
 
 class Medium(element.Element):
+    # is deprecated?
     ifc_type = "IfcDistributionSystems"
     pattern_ifc_type = [
         re.compile('Medium', flags=re.IGNORECASE)
@@ -1270,6 +1315,7 @@ class Medium(element.Element):
 
 class Wall(element.Element):
     ifc_type = ["IfcWall", "IfcWallStandardCase"]
+    predefined_types = ['MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL', 'SHEAR', 'SOLIDWALL', 'POLYGONAL']
     pattern_ifc_type = [
         re.compile('Wall', flags=re.IGNORECASE),
         re.compile('Wand', flags=re.IGNORECASE)
@@ -1314,31 +1360,6 @@ class Wall(element.Element):
         default=0
     )
 
-    # thermal_transmittance = attribute.Attribute(
-    #     name='thermal_transmittance',
-    #     default_ps=True,
-    #     default=0
-    # )
-    #
-    # thickness = attribute.Attribute(
-    #     name='thickness',
-    #     # default_ps=True,
-    #     functions=[_get_wall_properties],
-    #     # default=0
-    # )
-    #
-    # heat_capacity = attribute.Attribute(
-    #     name='heat_capacity',
-    #     # functions=[_get_wall_properties],
-    #     default=0
-    # )
-    #
-    # density = attribute.Attribute(
-    #     name='density',
-    #     # functions=[_get_wall_properties],
-    #     default=0
-    # )
-
 
 class Layer(element.SubElement):
     ifc_type = ['IfcMaterialLayer', 'IfcMaterial']
@@ -1364,17 +1385,6 @@ class Layer(element.SubElement):
                % (self.__class__.__name__, self.material)
 
     def _get_material_properties(bind, name):
-        def user_property_input(bind, name):
-            decision2 = RealDecision("Enter value for the parameter %s" % name,
-                                     global_key="%s" % name,
-                                     allow_skip=False, allow_load=True, allow_save=True,
-                                     collect=False, quick_decide=False)
-            decision2.decide()
-            if material not in bind.material_selected:
-                bind.material_selected[material] = {}
-            bind.material_selected[material][name] = decision2.value
-            return decision2.value
-
         if name == 'thickness':
             name = 'thickness_default'
 
@@ -1383,22 +1393,16 @@ class Layer(element.SubElement):
             if name in bind.material_selected[material]:
                 return bind.material_selected[material][name]
             else:
-                return user_property_input(bind, name)
+                return real_decision_user_input(bind, name)
         else:
             first_decision = BoolDecision(question="Do you want for %s %s to use template, enter 'n' for manual input"
-                                          % (bind.guid, bind.material),
+                                                   % (bind.guid, bind.material),
                                           collect=False)
             first_decision.decide()
             first_decision.stored_decisions.clear()
 
             if first_decision.value:
-                material_templates = dict(DataClass(used_param=2).element_bind)
-                del material_templates['version']
-
-                resumed = {}
-                for k in material_templates:
-                    resumed[material_templates[k]['name']] = k
-
+                material_templates, resumed = get_material_templates_resumed()
                 material_options = get_matches_list(bind.material, list(resumed.keys()))
 
                 while len(material_options) == 0:
@@ -1415,7 +1419,7 @@ class Layer(element.SubElement):
                 bind.material_selected[material] = material_templates[resumed[decision1.value]]
                 return bind.material_selected[material][name]
             else:
-                return user_property_input(bind, name)
+                return real_decision_user_input(bind, name)
 
     heat_capac = attribute.Attribute(
         default_ps=True,
@@ -1452,6 +1456,7 @@ class InnerWall(Wall):
 
 class Window(element.Element):
     ifc_type = "IfcWindow"
+    predefined_types = ['WINDOW', 'SKYLIGHT', 'LIGHTDOME']
     # predefined_type = {
     #     "IfcWindow": ["WINDOW",
     #                   "SKYLIGHT",
@@ -1500,6 +1505,7 @@ class Window(element.Element):
 
 class Door(element.Element):
     ifc_type = "IfcDoor"
+    predefined_types = ['DOOR', 'GATE', 'TRAPDOOR']
 
     pattern_ifc_type = [
         re.compile('Door', flags=re.IGNORECASE),
@@ -1542,6 +1548,7 @@ class Door(element.Element):
 
 class Plate(element.Element):
     ifc_type = "IfcPlate"
+    predefined_types = ['CURTAIN_PANEL', 'SHEET']
 
     # @property
     # def area(self):
@@ -1558,6 +1565,7 @@ class Plate(element.Element):
 
 class Slab(element.Element):
     ifc_type = "IfcSlab"
+    predefined_types = ['FLOOR', 'ROOF', 'LANDING', 'BASESLAB']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1611,6 +1619,9 @@ class Slab(element.Element):
 
 class Roof(Slab):
     ifc_type = "IfcRoof"
+    predefined_types = ['FLAT_ROOF', 'SHED_ROOF', 'GABLE_ROOF', 'HIP_ROOF', 'HIPPED_GABLE_ROOF', 'GAMBREL_ROOF',
+                        'MANSARD_ROOF', 'BARREL_ROOF', 'RAINBOW_ROOF', 'BUTTERFLY_ROOF', 'PAVILION_ROOF', 'DOME_ROOF',
+                        'FREEFORM']
     predefined_type = "ROOF"
 
     def __init__(self, *args, **kwargs):
@@ -1630,7 +1641,6 @@ class GroundFloor(Slab):
 
 class Site(element.Element):
     ifc_type = "IfcSite"
-
 
     # year_of_construction = attribute.Attribute(
     #     name='year_of_construction',
@@ -1664,7 +1674,7 @@ class Storey(element.Element):
     gross_floor_area = attribute.Attribute(
         default_ps=True
     )
-    #todo make the lookup for height hierarchical
+    # todo make the lookup for height hierarchical
     net_height = attribute.Attribute(
         default_ps=True
     )

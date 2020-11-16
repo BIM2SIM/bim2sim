@@ -5,7 +5,7 @@ import numpy as np
 import pint
 import re
 
-from bim2sim.kernel.element import BaseElement, get_all_subclasses
+from bim2sim.kernel.element import BaseElement, SubElement
 from bim2sim.task.bps_f.bps_functions import get_disaggregations_instance
 
 
@@ -90,7 +90,7 @@ class Disaggregation(BaseElement):
             instance = cls(name + '_%d' % i, parent)
 
             # class assignment for subinstances -> based on re and factory
-            for sub_cls in get_all_subclasses(cls):
+            for sub_cls in SubElement.get_all_subclasses(cls):
                 type_search = sub_cls.__name__
                 if re_search.match(type_search):
                     instance = sub_cls(name + '_%d' % i, parent)
