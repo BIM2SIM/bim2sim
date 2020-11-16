@@ -232,10 +232,24 @@ def get_pattern_usage():
         use_conditions = list(json.load(f).keys())
         use_conditions.remove('version')
 
+    common_translations = {
+        'Single office': ['Office'],
+        'Group Office (between 2 and 6 employees)': ['Office'],
+        'Open-plan Office (7 or more employees)': ['Office'],
+        'Kitchen in non-residential buildings': ['Kitchen'],
+        'Kitchen - preparations, storage': ['Kitchen'],
+        'Traffic area': ['Hall'],
+        'WC and sanitary rooms in non-residential buildings': ['bath']}
+
     pattern_usage_teaser = {}
     for i in use_conditions:
         pattern_usage_teaser[i] = []
-        list_engl = i.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
+        list_engl = re.sub('\((.*?)\)', '', i).replace(' - ', ', ').replace(' and ', ', ').replace(' in ', ', ')\
+            .replace(' with ', ', ').replace(' or ', ', ').replace(' the ', ' ').split(', ')
         for i_eng in list_engl:
-            pattern_usage_teaser[i].append(re.compile('(.*?)%s' % i_eng, flags=re.IGNORECASE))
+            new_i_eng = i_eng.replace(' ', '(.*?)')
+            pattern_usage_teaser[i].append(re.compile('(.*?)%s' % new_i_eng, flags=re.IGNORECASE))
+            if i in common_translations:
+                for c_trans in common_translations[i]:
+                    pattern_usage_teaser[i].append(re.compile('(.*?)%s' % c_trans, flags=re.IGNORECASE))
     return pattern_usage_teaser

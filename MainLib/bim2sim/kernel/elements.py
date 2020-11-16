@@ -535,6 +535,7 @@ class ThermalZone(element.Element):
 
     def _get_usage(bind, name):
         zone_pattern = []
+        x = bind.zone_name
         list_org = bind.zone_name.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
         for i_org in list_org:
             trans_aux = ts.google(i_org, from_language='de')
