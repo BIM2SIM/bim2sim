@@ -159,9 +159,10 @@ class ExportTEASER(ITask):
         """Filter the invalid property values and fills it with a template or an user given value,
         if value is valid, returns the value
         invalid value: ZeroDivisionError on thermal zone calculations"""
-        error_properties = ['density', 'thickness']
+        error_properties = ['density', 'thickness'] # properties that are vital to thermal zone calculations
 
         if (aux is None or aux == 0) and key != 'orientation':
+            # name from instance to store in error dict
             name_error = instance.name
             if hasattr(instance, 'material'):
                 name_error = instance.material
@@ -174,11 +175,12 @@ class ExportTEASER(ITask):
                         aux = instance._get_material_properties(key)
                     while aux is None or aux == 0:
                         aux = float(input('please enter a valid value for %s from %s' % (key, name_error)))
+                # check indentation
                 if name_error not in cls.property_error:
                     cls.property_error[name_error] = {}
                 if key not in cls.property_error[name_error]:
                     cls.property_error[name_error][key] = aux
-
+        # orientation case (in which is valid a 0)
         setattr(teaser_instance, key, aux)
 
     @classmethod
@@ -190,12 +192,14 @@ class ExportTEASER(ITask):
             sw = 'Roof'
         for key, value in templates['base'][sw]['exporter']['teaser'].items():
             if isinstance(value, list):
+                # get property from instance (instance dependant on instance)
                 if value[0] == 'instance':
                     aux = getattr(instance, value[1])
                     if type(aux).__name__ == 'Quantity':
                         aux = aux.magnitude
                     cls._invalid_property_filter(teaser_instance, instance, key, aux)
             else:
+                # get property from json (fixed property)
                 setattr(teaser_instance, key, value)
 
     @classmethod
@@ -203,7 +207,7 @@ class ExportTEASER(ITask):
         """creates a teaser instances with a given parent and BIM2SIM instance
         get exporter necessary properties, from a given instance
         Parent: ThermalZone"""
-        # determine if is instance or subinstance (disaggregation)
+        # determine if is instance or subinstance (disaggregation) get templates from instance
         if hasattr(instance, 'parent'):
             sw = type(instance.parent).__name__
             templates = instance.parent.finder.templates
