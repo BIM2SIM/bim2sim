@@ -535,7 +535,6 @@ class ThermalZone(element.Element):
 
     def _get_usage(bind, name):
         zone_pattern = []
-        x = bind.zone_name
         list_org = bind.zone_name.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
         for i_org in list_org:
             trans_aux = ts.google(i_org, from_language='de')
@@ -791,7 +790,8 @@ class Layer(element.SubElement):
             else:
                 return real_decision_user_input(bind, name)
         else:
-            first_decision = BoolDecision(question="Do you want for %s %s to use template, enter 'n' for manual input"
+            first_decision = BoolDecision(question="Do you want for %s with the material %s to use avaiable templates, "
+                                                   "enter 'n' for manual input"
                                                    % (bind.guid, bind.material),
                                           collect=False)
             first_decision.decide()
