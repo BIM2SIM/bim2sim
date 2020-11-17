@@ -22,8 +22,4 @@ class EnergyPlus(BIM2SIMManager):
         self.playground.run_task(bps.Inspect())
         self.playground.run_task(bps.ExportEP())
 
-        sb_only = bps.Inspect.filter_instances(self.playground.state['instances'], "SpaceBoundary")
-
-
-
         return
