@@ -994,7 +994,7 @@ class SpaceBoundary(element.SubElement):
                 continue
             if (bound.bound_area - self.bound_area)**2 > 0.01:
                 continue
-            if gp_Pnt(bound.bound_center).Distance(gp_Pnt(self.bound_center)) < 0.3:
+            if gp_Pnt(bound.bound_center).Distance(gp_Pnt(self.bound_center)) < 0.4:
                 adb_bound = bound
         return adb_bound
 
