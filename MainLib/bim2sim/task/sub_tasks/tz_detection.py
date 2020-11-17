@@ -80,7 +80,7 @@ class Inspect(Task):
 
         thermalzone.set_is_external()
         thermalzone.set_external_orientation()
-        thermalzone.set_glass_area()
+        # thermalzone.set_glass_area()
 
     def recognize_space_boundaries(self, ifc):
         """Recognizes space boundaries in ifc file by semantic detection for

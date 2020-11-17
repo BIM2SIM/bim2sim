@@ -740,7 +740,7 @@ class ExportEP(ITask):
         idf.save()
         self.logger.info("IDF generation finished!")
 
-        idf.view_model()
+        # idf.view_model()
         self._export_to_stl_for_cfd(instances, idf)
         self._display_shape_of_space_boundaries(instances)
         output_string = str(PROJECT.root) + "/export/EP-results/"
