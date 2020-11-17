@@ -49,8 +49,8 @@ class Inspect(Task):
         for k, tz in self.instances.items():
             tz.set_neighbors()
 
-        tz_bind = Bind(self, self.workflow)
-        tz_bind.run(self.instances)
+        # tz_bind = Bind(self, self.workflow)
+        # tz_bind.run(self.instances)
 
     def recognize_zone_geometrical(self):
         """Recognizes zones/spaces by geometric detection"""
