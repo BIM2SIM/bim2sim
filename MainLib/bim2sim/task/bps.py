@@ -264,7 +264,6 @@ class ExportTEASER(ITask):
 
     @classmethod
     def _get_instance_template(cls, teaser_instance, bldg):
-        # cls.instance_template = {'FZKHaus': [[1995, 2015], 'light']}  # ojo borrar
         default = ['heavy', 'light', 'EnEv']
         year_group = [1995, 2015]  # default year group
         prj = bldg.parent

@@ -4,10 +4,10 @@ import math
 import re
 import json
 
-from googletrans import Translator
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.decision import ListDecision, RealDecision
 from teaser.data.input import inputdata
+import translators as ts
 
 
 def get_disaggregations_instance(element, thermal_zone):
@@ -166,12 +166,12 @@ def get_matches_list(search_words, search_list, transl=True):
     """get patterns for a material name in both english and original language,
     and get afterwards the related elements from list"""
 
-    translator = Translator()
     material_ref = []
 
     pattern_material = re.sub('[!@#$-_1234567890]', '', search_words.lower()).split()
     if transl:
-        pattern_material.extend(translator.translate(re.sub('[!@#$-_1234567890]', '', search_words.lower())).text.split())
+        # use of yandex, bing--- https://pypi.org/project/translators/#features
+        pattern_material.extend(ts.bing(re.sub('[!@#$-_1234567890]', '', search_words.lower())).split())
 
     for i in pattern_material:
         material_ref.append(re.compile('(.*?)%s' % i, flags=re.IGNORECASE))
@@ -239,7 +239,7 @@ def get_pattern_usage():
         'Kitchen in non-residential buildings': ['Kitchen'],
         'Kitchen - preparations, storage': ['Kitchen'],
         'Traffic area': ['Hall'],
-        'WC and sanitary rooms in non-residential buildings': ['bath']}
+        'WC and sanitary rooms in non-residential buildings': ['bath', 'bathroom']}
 
     pattern_usage_teaser = {}
     for i in use_conditions:

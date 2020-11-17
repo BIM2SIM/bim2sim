@@ -7,5 +7,4 @@ networkx>=2.2
 pint
 rpyc
 teaser
-googletrans
 translators
