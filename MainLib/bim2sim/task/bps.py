@@ -33,13 +33,14 @@ from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
 from teaser.logic import utilities
 import os
-from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list, filter_instances, get_pattern_usage
+from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list, filter_instances, \
+    get_pattern_usage
 from bim2sim.kernel.units import conversion
 
 
 class SetIFCTypesBPS(ITask):
     """Set list of relevant IFC types"""
-    touches = ('relevant_ifc_types', )
+    touches = ('relevant_ifc_types',)
 
     def run(self, workflow):
         IFC_TYPES = workflow.relevant_ifc_types
@@ -50,8 +51,8 @@ class Inspect(ITask):
     """Analyses IFC and creates Element instances.
     Elements are stored in .instances dict with guid as key"""
 
-    reads = ('ifc', )
-    touches = ('instances', )
+    reads = ('ifc',)
+    touches = ('instances',)
 
     def __init__(self):
         super().__init__()
@@ -102,11 +103,12 @@ class Inspect(ITask):
 class ExportTEASER(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
-    reads = ('instances', 'ifc', )
+    reads = ('instances', 'ifc',)
     final = True
 
     materials = {}
     property_error = {}
+    instance_template = {}
 
     instance_switcher = {'OuterWall': OuterWall,
                          'InnerWall': InnerWall,
@@ -155,7 +157,7 @@ class ExportTEASER(ITask):
         """Filter the invalid property values and fills it with a template or an user given value,
         if value is valid, returns the value
         invalid value: ZeroDivisionError on thermal zone calculations"""
-        error_properties = ['density', 'thickness'] # properties that are vital to thermal zone calculations
+        error_properties = ['density', 'thickness']  # properties that are vital to thermal zone calculations
 
         if (aux is None or aux == 0) and key != 'orientation':
             # name from instance to store in error dict
@@ -227,25 +229,31 @@ class ExportTEASER(ITask):
     def _instance_related(cls, teaser_instance, instance, bldg):
         """instance specific function, layers creation
         if layers not given, loads template"""
+        # property getter if instance has materials/layers
         if isinstance(instance.layers, list) and len(instance.layers) > 0:
             for layer_instance in instance.layers:
                 layer = Layer(parent=teaser_instance)
                 cls._invalid_property_filter(layer, layer_instance, 'thickness', layer_instance.thickness)
                 cls._material_related(layer, layer_instance, bldg)
+        # property getter if instance doesn't have any materials/layers
         else:
             if getattr(bldg, 'year_of_construction') is None:
                 bldg.year_of_construction = int(input("Please provide a valid year of construction for building: "))
-            template_options = cls._get_instance_template(teaser_instance, bldg)
-            decision_template = None
-            if len(template_options) > 0:
+            template_options, years_group = cls._get_instance_template(teaser_instance, bldg)
+            template_value = None
+            if len(template_options) > 1:
                 decision_template = ListDecision("the following construction types were "
                                                  "found for year %s and instance %s"
                                                  % (bldg.year_of_construction, teaser_instance.name),
-                                                 choices=list(template_options),
+                                                 choices=template_options,
                                                  allow_skip=True, allow_load=True, allow_save=True,
                                                  collect=False, quick_decide=not True)
                 decision_template.decide()
-            teaser_instance.load_type_element(year=bldg.year_of_construction, construction=decision_template.value)
+                template_value = decision_template.value
+            elif len(template_options) == 1:
+                template_value = template_options[0]
+            cls.instance_template[bldg.name] = [years_group, template_value]
+            teaser_instance.load_type_element(year=bldg.year_of_construction, construction=template_value)
 
     @classmethod
     def _material_related(cls, layer, layer_instance, bldg):
@@ -254,21 +262,31 @@ class ExportTEASER(ITask):
         material = Material(parent=layer)
         cls._teaser_property_getter(material, layer_instance, layer_instance.finder.templates)
 
-    @staticmethod
-    def _get_instance_template(teaser_instance, bldg):
+    @classmethod
+    def _get_instance_template(cls, teaser_instance, bldg):
+        # cls.instance_template = {'FZKHaus': [[1995, 2015], 'light']}  # ojo borrar
         default = ['heavy', 'light', 'EnEv']
+        year_group = [1995, 2015]  # default year group
         prj = bldg.parent
         instance_type = type(teaser_instance).__name__
         instance_templates = dict(prj.data.element_bind)
         del instance_templates["version"]
+        if bldg.name in cls.instance_template:
+            year_group = str(cls.instance_template[bldg.name][0])
+            selected_template = cls.instance_template[bldg.name][1]
+            aux_template = '%s_%s_%s' % (instance_type, year_group, selected_template)
+            if aux_template in instance_templates:
+                return [selected_template], year_group
+
         template_options = []
         for i in instance_templates:
             years = instance_templates[i]['building_age_group']
-            if instance_type in i and years[0] <= bldg.year_of_construction <= years[1]:
+            if i.startswith(instance_type) and years[0] <= bldg.year_of_construction <= years[1]:
                 template_options.append(instance_templates[i]['construction_type'])
+                year_group = years
         if len(template_options) == 0:
-            return default
-        return template_options
+            return default, year_group
+        return template_options, year_group
 
     @Task.log
     def run(self, workflow, instances, ifc):
@@ -292,7 +310,7 @@ class ExportTEASERMultizone(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
 
-    reads = ('instances', )
+    reads = ('instances',)
     final = True
 
     @staticmethod
@@ -316,7 +334,6 @@ class ExportTEASERMultizone(ITask):
         tz.use_conditions.with_cooling = True
         return tz
 
-
     def run(self, workflow, instances):
         # mapping_dict = {
         #     elements.Floor.instances: Floor,
@@ -328,7 +345,7 @@ class ExportTEASERMultizone(ITask):
 
         self.logger.info("Export to TEASER")
         prj = Project(load_data=True)
-        #Todo get project name (not set to PROJECT yet)
+        # Todo get project name (not set to PROJECT yet)
         prj.name = 'Testproject'
         prj.data.load_uc_binding()
         bldg_instances = filter_instances(instances, 'Building')
@@ -345,7 +362,7 @@ class ExportTEASERMultizone(ITask):
             for tz_instance in tz_instances:
                 tz = self._create_thermal_zone(tz_instance, bldg)
                 for bound_element in tz_instance.bound_elements:
-                    if isinstance(bound_element, elements.InnerWall)\
+                    if isinstance(bound_element, elements.InnerWall) \
                             or isinstance(bound_element,
                                           disaggregation.SubInnerWall):
                         in_wall = InnerWall(parent=tz)
@@ -357,7 +374,7 @@ class ExportTEASERMultizone(ITask):
                         in_wall.load_type_element(
                             year=bldg.year_of_construction,
                             construction="heavy")
-                            # todo material
+                        # todo material
                     elif type(bound_element) == elements.OuterWall or \
                             type(bound_element) == disaggregation.SubOuterWall:
                         out_wall = OuterWall(parent=tz)
@@ -381,7 +398,7 @@ class ExportTEASERMultizone(ITask):
                                 mat_name='Vermiculit_bulk_density_170_100deg'
                                 ,
                                 data_class=prj.data,
-                                )
+                            )
                     elif isinstance(bound_element, elements.Window):
                         window = Window(parent=tz)
                         window.name = bound_element.name
@@ -394,7 +411,7 @@ class ExportTEASERMultizone(ITask):
                         if window.orientation is None:
                             print('damn')
                     elif isinstance(bound_element, elements.Roof) or \
-                        isinstance(bound_element, disaggregation.SubRoof):
+                            isinstance(bound_element, disaggregation.SubRoof):
                         roof_element = Rooftop(parent=tz)
                         # todo remove hardcode
                         roof_element.orientation = -1
@@ -403,7 +420,7 @@ class ExportTEASERMultizone(ITask):
                             year=bldg.year_of_construction, construction="heavy"
                         )
                     elif isinstance(bound_element, elements.Floor) or \
-                        isinstance(bound_element, disaggregation.SubFloor):
+                            isinstance(bound_element, disaggregation.SubFloor):
                         floor_element = Floor(parent=tz)
                         floor_element.area = bound_element.area
                         floor_element.orientation = -2
@@ -411,7 +428,7 @@ class ExportTEASERMultizone(ITask):
                             year=bldg.year_of_construction, construction="heavy"
                         )
                     elif isinstance(bound_element, elements.GroundFloor) or \
-                        isinstance(bound_element, disaggregation.SubGroundFloor):
+                            isinstance(bound_element, disaggregation.SubGroundFloor):
                         gfloor_element = GroundFloor(parent=tz)
                         gfloor_element.orientation = -2
                         gfloor_element.area = bound_element.area
@@ -420,7 +437,7 @@ class ExportTEASERMultizone(ITask):
                         )
 
                 # catch error for no inner walls areas
-                if len(tz.inner_walls) ==0:
+                if len(tz.inner_walls) == 0:
                     in_wall = InnerWall(parent=tz)
                     in_wall.name = "dummy"
                     in_wall.area = 0.01
@@ -438,10 +455,12 @@ class ExportTEASERMultizone(ITask):
                     "/KIT_CampusEPW.mos"))
             prj.export_aixlib()
 
+
 class ExportTEASERSingleZone(Task):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
-    #todo: for this LOD the slab sicing must be deactivated and building
+
+    # todo: for this LOD the slab sicing must be deactivated and building
     # elements must be only included once in the thermalzone even if they are
     # holded by different IfcSpaces
     @staticmethod
@@ -474,7 +493,6 @@ class ExportTEASERSingleZone(Task):
         tz.use_conditions.with_cooling = True
         return tz
 
-
     def run(self, workflow, bps_inspect):
         # mapping_dict = {
         #     elements.Floor.instances: Floor,
@@ -487,7 +505,7 @@ class ExportTEASERSingleZone(Task):
         self.logger.info("Export to TEASER")
         # raise NotImplementedError("Not working probably at the moment")
         prj = Project(load_data=True)
-        #Todo get project name (not set to PROJECT yet)
+        # Todo get project name (not set to PROJECT yet)
         prj.name = 'Testproject'
         prj.data.load_uc_binding()
         bldg_instances = bps_inspect.filter_instances('Building')
@@ -504,7 +522,7 @@ class ExportTEASERSingleZone(Task):
             tz = self._create_thermal_single_zone(tz_instances, bldg)
 
             for bound_element in bps_inspect.instances.values():
-                if isinstance(bound_element, elements.InnerWall)\
+                if isinstance(bound_element, elements.InnerWall) \
                         or isinstance(bound_element,
                                       disaggregation.SubInnerWall):
                     in_wall = InnerWall(parent=tz)
@@ -516,7 +534,7 @@ class ExportTEASERSingleZone(Task):
                     in_wall.load_type_element(
                         year=bldg.year_of_construction,
                         construction="heavy")
-                        # todo material
+                    # todo material
                 elif type(bound_element) == elements.OuterWall or \
                         type(bound_element) == disaggregation.SubOuterWall:
                     out_wall = OuterWall(parent=tz)
@@ -540,7 +558,7 @@ class ExportTEASERSingleZone(Task):
                             mat_name='Vermiculit_bulk_density_170_100deg'
                             ,
                             data_class=prj.data,
-                            )
+                        )
                 elif isinstance(bound_element, elements.Window):
                     window = Window(parent=tz)
                     window.name = bound_element.name
@@ -553,7 +571,7 @@ class ExportTEASERSingleZone(Task):
                     if window.orientation is None:
                         print('damn')
                 elif isinstance(bound_element, elements.Roof) or \
-                    isinstance(bound_element, disaggregation.SubRoof):
+                        isinstance(bound_element, disaggregation.SubRoof):
                     roof_element = Rooftop(parent=tz)
                     # todo remove hardcode
                     roof_element.orientation = -1
@@ -562,7 +580,7 @@ class ExportTEASERSingleZone(Task):
                         year=bldg.year_of_construction, construction="heavy"
                     )
                 elif isinstance(bound_element, elements.Floor) or \
-                    isinstance(bound_element, disaggregation.SubFloor):
+                        isinstance(bound_element, disaggregation.SubFloor):
                     floor_element = Floor(parent=tz)
                     floor_element.area = bound_element.area
                     floor_element.orientation = -2
@@ -570,7 +588,7 @@ class ExportTEASERSingleZone(Task):
                         year=bldg.year_of_construction, construction="heavy"
                     )
                 elif isinstance(bound_element, elements.GroundFloor) or \
-                    isinstance(bound_element, disaggregation.SubGroundFloor):
+                        isinstance(bound_element, disaggregation.SubGroundFloor):
                     gfloor_element = GroundFloor(parent=tz)
                     gfloor_element.orientation = -2
                     gfloor_element.area = bound_element.area
@@ -579,7 +597,7 @@ class ExportTEASERSingleZone(Task):
                     )
 
                 # catch error for no inner walls areas
-                if len(tz.inner_walls) ==0:
+                if len(tz.inner_walls) == 0:
                     in_wall = InnerWall(parent=tz)
                     in_wall.name = "dummy"
                     in_wall.area = 0.01
@@ -590,5 +608,3 @@ class ExportTEASERSingleZone(Task):
             tz.calc_zone_parameters()
             bldg.calc_building_parameter(number_of_elements=2)
             prj.export_aixlib()
-
-
