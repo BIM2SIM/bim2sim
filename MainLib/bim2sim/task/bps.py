@@ -35,7 +35,6 @@ from OCC.ShapeFix import ShapeFix_Face, ShapeFix_Shape
 from stl import stl
 from stl import mesh
 
-
 from bim2sim.task.base import Task, ITask
 # from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort, SubElement
@@ -70,8 +69,14 @@ import os
 from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list, filter_instances, \
     get_pattern_usage
 from bim2sim.kernel.units import conversion
-from OCC.Display.SimpleGui import init_display
+from googletrans import Translator
+from bim2sim.kernel.aggregation import Aggregated_ThermalZone
+import re
 
+Decision.enable_debug("1")
+
+translator = Translator()
+from OCC.Display.SimpleGui import init_display
 
 class SetIFCTypesBPS(ITask):
     """Set list of relevant IFC types"""

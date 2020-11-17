@@ -1498,6 +1498,3 @@ class Aggregated_ThermalZone(Aggregation):
                         if e.guid in instances:
                             del instances[e.guid]
         return new_aggregations
-
-
-

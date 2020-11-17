@@ -12,6 +12,7 @@ from bim2sim.kernel import ifc2python
 from bim2sim.manage import BIM2SIMManager
 from bim2sim.project import PROJECT, get_config
 from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparated
+from decision import Decision
 
 VERSION = '0.1-dev'
 
@@ -148,8 +149,8 @@ def _debug_run_bps_ep():
     """Create example project and copy ifc if necessary"""
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 
-    rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
-    # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB.ifc'
+    # rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
+    rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB.ifc'
     # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB1.ifc'
     # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB2.ifc'
     # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB3.ifc'
