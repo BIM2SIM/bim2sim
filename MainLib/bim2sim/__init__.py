@@ -151,6 +151,7 @@ def _debug_run_bps_ep():
 
     # rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
     rel_example = 'ResultFiles/AC20-FZK-Haus_with_SB.ifc'
+    # rel_example = 'ResultFiles/AC20-Institute-Var-2_with_SB.ifc'
     # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB1.ifc'
     # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB2.ifc'
     # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB3.ifc'
