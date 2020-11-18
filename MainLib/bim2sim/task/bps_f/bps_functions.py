@@ -2,8 +2,12 @@ import ifcopenshell
 import ifcopenshell.geom
 import math
 import re
+import json
 
 from googletrans import Translator
+from bim2sim.enrichment_data.data_class import DataClass
+from bim2sim.decision import ListDecision, RealDecision
+from teaser.data.input import inputdata
 
 
 def get_disaggregations_instance(element, thermal_zone):
@@ -182,6 +186,56 @@ def get_matches_list(search_words, search_list, transl=True):
     return material_options
 
 
+def get_material_templates_resumed():
+    material_templates = dict(DataClass(used_param=2).element_bind)
+    del material_templates['version']
+
+    resumed = {}
+    for k in material_templates:
+        resumed[material_templates[k]['name']] = k
+
+    return material_templates, resumed
 
 
+def real_decision_user_input(bind, name):
+    material = bind.material
+    decision2 = RealDecision("Enter value for the parameter %s" % name,
+                             global_key="%s" % name,
+                             allow_skip=False, allow_load=True, allow_save=True,
+                             collect=False, quick_decide=False)
+    decision2.decide()
+    if material not in bind.material_selected:
+        bind.material_selected[material] = {}
+    bind.material_selected[material][name] = decision2.value
 
+    return decision2.value
+
+
+def filter_instances(instances, type_name):
+    """Filters the inspected instances by type name (e.g. Wall) and
+    returns them as list"""
+    instances_filtered = []
+    if type(instances) is dict:
+        list_instances = instances.values()
+    else:
+        list_instances = instances
+    for instance in list_instances:
+        if type_name in type(instance).__name__:
+            instances_filtered.append(instance)
+    return instances_filtered
+
+
+def get_pattern_usage():
+    """get usage patterns to use it on the thermal zones get_usage"""
+    use_conditions_path = inputdata.__file__.replace('__init__.py', '') + 'UseConditions.json'
+    with open(use_conditions_path, 'r+') as f:
+        use_conditions = list(json.load(f).keys())
+        use_conditions.remove('version')
+
+    pattern_usage_teaser = {}
+    for i in use_conditions:
+        pattern_usage_teaser[i] = []
+        list_engl = i.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
+        for i_eng in list_engl:
+            pattern_usage_teaser[i].append(re.compile('(.*?)%s' % i_eng, flags=re.IGNORECASE))
+    return pattern_usage_teaser

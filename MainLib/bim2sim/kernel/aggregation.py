@@ -1,13 +1,16 @@
 ﻿"""Module for aggregation and simplifying elements"""
 
 import math
-import networkx as nx
+import inspect
+
 import numpy as np
 from bim2sim.kernel.element import BaseElement, BasePort
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
 import networkx as nx
+from bim2sim.kernel.elements import HeatPump
+
 
 def verify_edge_ports(func):
     """Decorator to verify edge ports"""
@@ -1398,7 +1401,7 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
     )
 
 
-class ThermalZone(Aggregation):
+class Aggregated_ThermalZone(Aggregation):
     """Aggregates thermal zones"""
     aggregatable_elements = ["IfcSpace"]
 
@@ -1439,7 +1442,7 @@ class ThermalZone(Aggregation):
         for group in groups:
             if group != 'not_bind':
                 # first criterion based on similarities
-                name = 'ThermalZone(%s)' % group
+                name = 'Aggregated_ThermalZone(%s)' % group
                 instance = cls(name, groups[group])
                 new_aggregations.append(instance)
                 for e in instance.elements:
@@ -1450,13 +1453,10 @@ class ThermalZone(Aggregation):
                 area = sum(i.area for i in groups[group])
                 if area/total_area <= 0.05:
                     # Todo: usage and conditions criterion
-                    name = 'ThermalZone(%s)' % group
+                    name = 'Aggregated_ThermalZone(%s)' % group
                     instance = cls(name, groups[group])
                     new_aggregations.append(instance)
                     for e in instance.elements:
                         if e.guid in instances:
                             del instances[e.guid]
         return new_aggregations
-
-
-

@@ -3,12 +3,11 @@ from bim2sim.task import bps, base, common, hvac
 from bim2sim.task.sub_tasks import tz_detection
 from googletrans import Translator
 
-# from bim2sim.export.modelica import standardlibrary
-# from bim2sim_hkesim.models import HKESim
-#
-#
-# class LoadLibrariesHKESim(base.ITask):
-#     """Load HKESim library for export"""
+from bim2sim.export.modelica import standardlibrary
+
+
+# class LoadLibrariesTEASER(base.ITask):
+#     """Load TEASER library for export"""
 #     touches = ('libraries', )
 #
 #     def run(self, workflow, **kwargs):

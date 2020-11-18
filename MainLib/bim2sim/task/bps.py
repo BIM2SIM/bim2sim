@@ -35,9 +35,8 @@ from OCC.ShapeFix import ShapeFix_Face, ShapeFix_Shape
 from stl import stl
 from stl import mesh
 
-
 from bim2sim.task.base import Task, ITask
-from bim2sim.filter import TypeFilter
+# from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort, SubElement
 from bim2sim.kernel.elements import SpaceBoundary2B, SpaceBoundary
 # from bim2sim.kernel.bps import ...
@@ -50,7 +49,7 @@ from bim2sim.kernel import elements, disaggregation
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.enrichment_data import element_input_json
 from bim2sim.enrichment_data.data_class import DataClass
-from bim2sim.decision import ListDecision
+from bim2sim.decision import ListDecision, BoolDecision
 from teaser.project import Project
 from teaser.logic.buildingobjects.building import Building
 from teaser.logic.buildingobjects.thermalzone import ThermalZone
@@ -67,10 +66,13 @@ from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
 from teaser.logic import utilities
 import os
-from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list
+from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list, filter_instances, get_pattern_usage
 from bim2sim.kernel.units import conversion
 from googletrans import Translator
+from bim2sim.kernel.aggregation import Aggregated_ThermalZone
 import re
+
+Decision.enable_debug("1")
 
 translator = Translator()
 
@@ -102,6 +104,7 @@ class Inspect(ITask):
         Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
 
+        workflow.relevant_ifc_types = self.use_doors(workflow.relevant_ifc_types)
         for ifc_type in workflow.relevant_ifc_types:
             try:
                 entities = ifc.by_type(ifc_type)
@@ -125,18 +128,14 @@ class Inspect(ITask):
         return self.instances,
 
     @staticmethod
-    def filter_instances(instances, type_name):
-        """Filters the inspected instances by type name (e.g. Wall) and
-        returns them as list"""
-        instances_filtered = []
-        if type(instances) is dict:
-            list_instances = instances.values()
-        else:
-            list_instances = instances
-        for instance in list_instances:
-            if type_name in type(instance).__name__:
-                instances_filtered.append(instance)
-        return instances_filtered
+    def use_doors(relevant_ifc_types):
+        ifc_list = list(relevant_ifc_types)
+        doors_decision = BoolDecision(question="Do you want for the doors to be considered on the bps analysis?",
+                                      collect=False)
+        doors_decision.decide()
+        if not doors_decision.value:
+            ifc_list.remove('IfcDoor')
+        return tuple(ifc_list)
 
 
 class ExportTEASER(ITask):
@@ -173,6 +172,7 @@ class ExportTEASER(ITask):
         """Creates a building in TEASER by a given BIM2SIM instance
         Parent: Project"""
         bldg = Building(parent=parent)
+        # name is important here
         cls._teaser_property_getter(bldg, instance, instance.finder.templates)
         return bldg
 
@@ -202,6 +202,7 @@ class ExportTEASER(ITask):
                 name_error = instance.material
             try:
                 aux = cls.property_error[name_error][key]
+            # redundant case for invalid properties
             except KeyError:
                 if key in error_properties:
                     if hasattr(instance, '_get_material_properties'):
@@ -308,10 +309,10 @@ class ExportTEASER(ITask):
     def run(self, workflow, instances, ifc):
         self.logger.info("Export to TEASER")
         prj = self._create_project(ifc.by_type('IfcProject')[0])
-        bldg_instances = Inspect.filter_instances(instances, 'Building')
+        bldg_instances = filter_instances(instances, 'Building')
         for bldg_instance in bldg_instances:
             bldg = self._create_building(bldg_instance, prj)
-            tz_instances = Inspect.filter_instances(instances, 'ThermalZone')
+            tz_instances = filter_instances(instances, 'ThermalZone')
             for tz_instance in tz_instances:
                 tz = self._create_thermal_zone(tz_instance, bldg)
                 self._bind_instances_to_zone(tz, tz_instance, bldg)
@@ -365,7 +366,7 @@ class ExportTEASERMultizone(ITask):
         #Todo get project name (not set to PROJECT yet)
         prj.name = 'Testproject'
         prj.data.load_uc_binding()
-        bldg_instances = Inspect.filter_instances(instances, 'Building')
+        bldg_instances = filter_instances(instances, 'Building')
         print('test')
 
         for bldg_instance in bldg_instances:
@@ -375,7 +376,7 @@ class ExportTEASERMultizone(ITask):
             bldg.year_of_construction = bldg_instance.year_of_construction
             bldg.number_of_floors = bldg_instance.number_of_storeys
             bldg.net_leased_area = bldg_instance.net_area
-            tz_instances = Inspect.filter_instances(instances, 'ThermalZone')
+            tz_instances = filter_instances(instances, 'ThermalZone')
             for tz_instance in tz_instances:
                 tz = self._create_thermal_zone(tz_instance, bldg)
                 for bound_element in tz_instance.bound_elements:
@@ -673,7 +674,7 @@ class ExportEP(ITask):
         idf.save()
         self.logger.info("IDF generation finished!")
 
-        idf.view_model()
+        # idf.view_model()
         self._export_to_stl_for_cfd(instances, idf)
         self._display_shape_of_space_boundaries(instances)
         output_string = str(PROJECT.root) + "/export/EP-results/"
@@ -1590,6 +1591,20 @@ class ExportEP(ITask):
         idf.epw = "USA_CO_Golden-NREL.724666_TMY3.epw"
         return idf
 
+    def _get_ifc_spaces(self, instances):
+        """
+        Extracts ifc spaces from an instance dictionary while also unpacking spaces from aggregated thermal zones.
+        :param instances: The instance dictionary
+        :return: A list of ifc spaces
+        """
+        unpacked_instances = []
+        for instance in instances.values():
+            if isinstance(instance, Aggregated_ThermalZone):
+                unpacked_instances.extend(instance.elements)
+            elif instance.ifc_type == "IfcSpace":
+                unpacked_instances.append(instance)
+        return unpacked_instances
+
     def _init_zone(self, instances, idf):
         """
         Creates one idf zone per space and initializes with default HVAC Template
@@ -1600,29 +1615,28 @@ class ExportEP(ITask):
         """
         stat_name = "default"
         stat_default = self._set_hvac_template(idf, name=stat_name, heating_sp=20, cooling_sp=25)
-        for inst in instances:
-            if instances[inst].ifc_type == "IfcSpace":
-                space = instances[inst]
-                space.storey = elements.Storey(space.get_storey())
-                if None not in (space.t_set_cool, space.t_set_heat):
-                    stat_name = "Heat_" + str(space.t_set_heat) + "_Cool_" + str(space.t_set_cool)
-                    if idf.getobject("HVACTEMPLATE:THERMOSTAT", "STAT_"+stat_name) is None:
-                        stat = self._set_hvac_template(idf, name=stat_name, heating_sp=space.t_set_heat, cooling_sp=space.t_set_cool)
-                    else:
-                        stat = idf.getobject("HVACTEMPLATE:THERMOSTAT", "STAT_"+stat_name)
+        for instance in self._get_ifc_spaces(instances):
+            space = instance
+            space.storey = elements.Storey(space.get_storey())
+            if None not in (space.t_set_cool, space.t_set_heat):
+                stat_name = "Heat_" + str(space.t_set_heat) + "_Cool_" + str(space.t_set_cool)
+                if idf.getobject("HVACTEMPLATE:THERMOSTAT", "STAT_"+stat_name) is None:
+                    stat = self._set_hvac_template(idf, name=stat_name, heating_sp=space.t_set_heat, cooling_sp=space.t_set_cool)
                 else:
-                    stat = stat_default
+                    stat = idf.getobject("HVACTEMPLATE:THERMOSTAT", "STAT_"+stat_name)
+            else:
+                stat = stat_default
 
-                zone = idf.newidfobject(
-                    'ZONE',
-                    Name=space.ifc.GlobalId,
-                    Volume=space.space_volume
-                )
-                idf.newidfobject(
-                    "HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM",
-                    Zone_Name=zone.Name,
-                    Template_Thermostat_Name=stat.Name,
-                )
+            zone = idf.newidfobject(
+                'ZONE',
+                Name=space.ifc.GlobalId,
+                Volume=space.space_volume
+            )
+            idf.newidfobject(
+                "HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM",
+                Zone_Name=zone.Name,
+                Template_Thermostat_Name=stat.Name,
+            )
 
     @staticmethod
     def _init_zonelist(idf, name=None, zones_in_list=None):
