@@ -715,7 +715,7 @@ class ExportEP(ITask):
         equip_rate = self._extract_cols_from_df(res_df, "Zone Electric Equipment Convective Heating Rate")
         people_rate = self._extract_cols_from_df(res_df, "Zone People Convective Heating Rate")
         rad_dir = self._extract_cols_from_df(res_df, "Site Direct Solar Radiation Rate per Area")
-        rad_dir_h = rad_dir.resample('1h').mean()
+        # rad_dir_h = rad_dir.resample('1h').mean()
         temp = self._extract_cols_from_df(res_df, "Outdoor Air Drybulb Temperature [C](Hourly)")
         t_mean = temp.resample('24h').mean()
         zone_id_list = []
@@ -1872,6 +1872,13 @@ class ExportEP(ITask):
         :param idf: idf file object
         :return: idf file object
         """
+
+        # remove all existing output variables with reporting frequency "Timestep"
+        out_var = [v for v in idf.idfobjects['OUTPUT:VARIABLE']
+                     if v.Reporting_Frequency.upper() == "TIMESTEP"]
+        for var in out_var:
+            idf.removeidfobject(var)
+
         idf.newidfobject(
             "OUTPUT:VARIABLE",
             Variable_Name="Zone Ideal Loads Supply Air Total Heating Energy",
