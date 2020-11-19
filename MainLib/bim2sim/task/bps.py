@@ -715,16 +715,16 @@ class ExportEP(ITask):
         :param date: only required if period == date. enter date in format date=[int(month), int(day)]
         :return:
         """
-        res_df = pd.read_csv(csv_name)
-        res_df["Date/Time"] = res_df["Date/Time"].apply(self._string_to_datetime)
-        # df = res_df.loc[:, ~res_df.columns.str.contains('Surface Inside Face Temperature']
-        zone_mean_air = self._extract_cols_from_dataframe(res_df, "Zone Mean Air Temperature")
-        ideal_loads = self._extract_cols_from_dataframe(res_df, "IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Sensible")
-        equip_rate = self._extract_cols_from_dataframe(res_df, "Zone Electric Equipment Convective Heating Rate")
-        people_rate = self._extract_cols_from_dataframe(res_df, "Zone People Convective Heating Rate")
-        rad_dir = self._extract_cols_from_dataframe(res_df, "Site Direct Solar Radiation Rate per Area")
+        res_dataframe = pd.read_csv(csv_name)
+        res_dataframe["Date/Time"] = res_dataframe["Date/Time"].apply(self._string_to_datetime)
+        # df = res_dataframe.loc[:, ~res_dataframe.columns.str.contains('Surface Inside Face Temperature']
+        zone_mean_air = self._extract_cols_from_dataframe(res_dataframe, "Zone Mean Air Temperature")
+        ideal_loads = self._extract_cols_from_dataframe(res_dataframe, "IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Sensible")
+        equip_rate = self._extract_cols_from_dataframe(res_dataframe, "Zone Electric Equipment Convective Heating Rate")
+        people_rate = self._extract_cols_from_dataframe(res_dataframe, "Zone People Convective Heating Rate")
+        rad_dir = self._extract_cols_from_dataframe(res_dataframe, "Site Direct Solar Radiation Rate per Area")
         rad_dir_h = rad_dir.resample('1h').mean()
-        temp = self._extract_cols_from_dataframe(res_df, "Outdoor Air Drybulb Temperature [C](Hourly)")
+        temp = self._extract_cols_from_dataframe(res_dataframe, "Outdoor Air Drybulb Temperature [C](Hourly)")
         t_mean = temp.resample('24h').mean()
         zone_id_list = []
         for col in zone_mean_air.columns:
