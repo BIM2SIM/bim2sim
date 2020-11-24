@@ -6,4 +6,5 @@ mako
 networkx>=2.2
 pint
 rpyc
+scipy
 teaser
