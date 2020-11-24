@@ -423,6 +423,7 @@ class IFCBased(IFCBasedSubElement):
                 value = self.get_exact_property(propertyset_name, property_name)
                 values.append(value)
                 choices.append((propertyset_name, property_name))
+                # choices.append((property_name, value))
                 # print("%s.%s = %s"%(propertyset_name, property_name, value))
 
             # TODO: Decision: save for all following elements of same class (
@@ -433,6 +434,8 @@ class IFCBased(IFCBasedSubElement):
             if len(distinct_values) == 1:
                 # multiple sources but common value
                 return distinct_values.pop()
+            else:
+                return list(distinct_values)[0]
 
         return None
         #     # TODO: Decision with id, key, value

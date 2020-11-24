@@ -352,9 +352,10 @@ class UnderfloorHeating(PipeStrand):
                 (90 * length_unit < y_spacing < 210 * length_unit)):
             return  # spacing criteria failed
 
+        x = (segment for segment in uh_elements)
         # check final kpi criteria
-        total_length = sum(segment.length for segment in uh_elements)
-        avg_diameter = (sum(segment.diameter ** 2 * segment.length for segment in uh_elements) / total_length)**0.5
+        total_length = sum(segment.length for segment in uh_elements if segment.length is not None)
+        avg_diameter = (sum(segment.diameter ** 2 * segment.length for segment in uh_elements if segment.length is not None) / total_length)**0.5
 
         kpi_criteria = (total_length * avg_diameter) / heating_area
 
