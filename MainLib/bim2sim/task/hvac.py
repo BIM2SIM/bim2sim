@@ -11,8 +11,9 @@ import networkx as nx
 from bim2sim.task.base import Task, ITask
 from bim2sim.workflow import LOD
 from bim2sim.filter import TypeFilter, TextFilter
-from bim2sim.kernel.aggregation import Aggregation, PipeStrand, UnderfloorHeating, Consumer,\
-    ParallelPump, ParallelSpaceHeater, ConsumerHeatingDistributorModule
+from bim2sim.kernel.aggregation import Aggregation, PipeStrand, UnderfloorHeating,\
+    ParallelPump, ParallelSpaceHeater
+from bim2sim.kernel.aggregation import Consumer, ConsumerHeatingDistributorModule
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
@@ -68,6 +69,7 @@ class SetIFCTypesHVAC(ITask):
     touches = ('relevant_ifc_types', )
 
     def run(self, workflow):
+        IFC_TYPES = workflow.relevant_ifc_types
         return IFC_TYPES,
 
 
@@ -339,7 +341,7 @@ class Inspect(ITask):
         for f in filters[1:]:
 
             if isinstance(f, TextFilter):
-                # filter by text fracments
+                # filter by text fragments
                 class_dict, unknown_entities = self.filter_by_text(f, unknown_entities)
                 valids, invalids = self.accept_valids(class_dict, force=True)   #  ToDo: Validation skipped....
                 unknown_entities.extend(invalids)
