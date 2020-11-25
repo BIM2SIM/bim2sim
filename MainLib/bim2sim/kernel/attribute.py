@@ -2,8 +2,10 @@ import logging
 from contextlib import contextmanager
 
 import pint
+import re
 
 from bim2sim.decision import RealDecision, BoolDecision, ListDecision
+from bim2sim.task.bps_f.bps_functions import get_matches_list
 
 from bim2sim.kernel.units import ureg
 
@@ -58,7 +60,7 @@ class Attribute:
         self.functions = functions
         self.default_value = default
 
-        if ifc_postprocessing:
+        if ifc_postprocessing is not None:
             self.ifc_post_processing = ifc_postprocessing
 
         # TODO argument for validation function
@@ -69,16 +71,16 @@ class Attribute:
         if value is None and self.default_ps:
             raw_value = self.get_from_default_propertyset(bind, self.name)
             value = self.ifc_post_processing(raw_value)
-            if value is None:
-                quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet",
-                                       self.name, bind.ifc_type, bind.guid)
+            # if value is None:
+            #     quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet",
+            #                            self.name, bind.ifc_type, bind.guid)
 
         if value is None and (self.default_association):
             raw_value = self.get_from_default_assocation(bind, self.default_association)
             value = self.ifc_post_processing(raw_value)
-            if value is None:
-                quality_logger.warning("Attribute '%s' of %s %s was not found in default Association",
-                                       self.name, bind.ifc_type, bind.guid)
+            # if value is None:
+            #     quality_logger.warning("Attribute '%s' of %s %s was not found in default Association",
+            #                            self.name, bind.ifc_type, bind.guid)
         # tool specific properties (finder)
         if value is None:
             raw_value = self.get_from_finder(bind, self.name)
@@ -92,7 +94,10 @@ class Attribute:
         # custom functions
         if value is None and self.functions:
             value = self.get_from_functions(bind, self.functions, self.name)
-
+        if value is None:
+            quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet, default  Association,"
+                                   " finder, patterns or functions",
+                                   self.name, bind.ifc_type, bind.guid)
         # enrichment
         if value is None:
             value = self.get_from_enrichment(bind, self.name)
@@ -110,9 +115,27 @@ class Attribute:
 
         return value
 
-    def get_from_default_propertyset(self, bind, name):
+    @staticmethod
+    def get_from_default_propertyset(bind, name):
+        source_tools = bind.finder.templates
+        if bind.source_tool in source_tools:
+            source_tool = bind.source_tool
+        else:
+            possible_source_tools = get_matches_list(bind.source_tool, source_tools.keys(), False)
+            decision_source_tool = ListDecision("Multiple templates found for source tool %s" % bind.source_tool,
+                                                choices=list(possible_source_tools),
+                                                allow_skip=True, allow_load=True, allow_save=True,
+                                                collect=False, quick_decide=not True)
+            decision_source_tool.decide()
+            source_tool = decision_source_tool.value
+            bind._tool = source_tool
+            bind.get_project().OwnerHistory.OwningApplication.ApplicationFullName = source_tool
         try:
-            value = bind.get_exact_property(*self.default_ps)
+            default = source_tools[source_tool][type(bind).__name__]['default_ps'][name]
+        except KeyError:
+            return None
+        try:
+            value = bind.get_exact_property(default[0], default[1])
         except Exception:
             value = None
         return value

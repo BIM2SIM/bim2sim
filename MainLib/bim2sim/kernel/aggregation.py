@@ -1,13 +1,16 @@
 ﻿"""Module for aggregation and simplifying elements"""
 
 import math
-import networkx as nx
+import inspect
+
 import numpy as np
 from bim2sim.kernel.element import BaseElement, BasePort
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
 import networkx as nx
+from bim2sim.kernel.elements import HeatPump
+
 
 def verify_edge_ports(func):
     """Decorator to verify edge ports"""
@@ -60,7 +63,10 @@ class Aggregation(BaseElement):
         self.outer_connections = kwargs.pop('outer_connections', None)  # WORKAROUND
         super().__init__(*args, **kwargs)
         self.name = name
-        self.elements = element_graph.nodes
+        if hasattr(element_graph, 'nodes'):
+            self.elements = element_graph.nodes
+        else:
+            self.elements = element_graph
         for model in self.elements:
             model.aggregation = self
 

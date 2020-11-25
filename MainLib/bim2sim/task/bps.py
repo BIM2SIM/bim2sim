@@ -4,7 +4,7 @@ import itertools
 import json
 
 from bim2sim.task.base import Task, ITask
-from bim2sim.filter import TypeFilter
+# from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort, SubElement
 # from bim2sim.kernel.bps import ...
 from bim2sim.export import modelica
@@ -16,7 +16,7 @@ from bim2sim.kernel import elements, disaggregation
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.enrichment_data import element_input_json
 from bim2sim.enrichment_data.data_class import DataClass
-from bim2sim.decision import ListDecision
+from bim2sim.decision import ListDecision, BoolDecision
 from teaser.project import Project
 from teaser.logic.buildingobjects.building import Building
 from teaser.logic.buildingobjects.thermalzone import ThermalZone
@@ -33,14 +33,14 @@ from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
 from teaser.logic import utilities
 import os
-from bim2sim.task.bps_f.bps_functions import orientation_verification
+from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list, filter_instances, \
+    get_pattern_usage
 from bim2sim.kernel.units import conversion
-
 
 
 class SetIFCTypesBPS(ITask):
     """Set list of relevant IFC types"""
-    touches = ('relevant_ifc_types', )
+    touches = ('relevant_ifc_types',)
 
     def run(self, workflow):
         IFC_TYPES = workflow.relevant_ifc_types
@@ -51,8 +51,8 @@ class Inspect(ITask):
     """Analyses IFC and creates Element instances.
     Elements are stored in .instances dict with guid as key"""
 
-    reads = ('ifc', )
-    touches = ('instances', )
+    reads = ('ifc',)
+    touches = ('instances',)
 
     def __init__(self):
         super().__init__()
@@ -66,6 +66,7 @@ class Inspect(ITask):
         Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
 
+        workflow.relevant_ifc_types = self.use_doors(workflow.relevant_ifc_types)
         for ifc_type in workflow.relevant_ifc_types:
             try:
                 entities = ifc.by_type(ifc_type)
@@ -89,25 +90,25 @@ class Inspect(ITask):
         return self.instances,
 
     @staticmethod
-    def filter_instances(instances, type_name):
-        """Filters the inspected instances by type name (e.g. Wall) and
-        returns them as list"""
-        instances_filtered = []
-        for instance in instances.values():
-            if instance.__str__() == type_name:
-                instances_filtered.append(instance)
-        return instances_filtered
+    def use_doors(relevant_ifc_types):
+        ifc_list = list(relevant_ifc_types)
+        doors_decision = BoolDecision(question="Do you want for the doors to be considered on the bps analysis?",
+                                      collect=False)
+        doors_decision.decide()
+        if not doors_decision.value:
+            ifc_list.remove('IfcDoor')
+        return tuple(ifc_list)
 
 
 class ExportTEASER(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
-
-    reads = ('instances', 'ifc', )
+    reads = ('instances', 'ifc',)
     final = True
 
     materials = {}
-    insts = []
+    property_error = {}
+    instance_template = {}
 
     instance_switcher = {'OuterWall': OuterWall,
                          'InnerWall': InnerWall,
@@ -122,9 +123,11 @@ class ExportTEASER(ITask):
         """Creates a project in TEASER by a given BIM2SIM instance
         Parent: None"""
         prj = Project(load_data=True)
-        prj.name = element.Name
+        if len(element.Name) != 0:
+            prj.name = element.Name
+        else:
+            prj.name = element.LongName
         prj.data.load_uc_binding()
-
         return prj
 
     @classmethod
@@ -132,8 +135,8 @@ class ExportTEASER(ITask):
         """Creates a building in TEASER by a given BIM2SIM instance
         Parent: Project"""
         bldg = Building(parent=parent)
+        # name is important here
         cls._teaser_property_getter(bldg, instance, instance.finder.templates)
-
         return bldg
 
     @classmethod
@@ -149,8 +152,37 @@ class ExportTEASER(ITask):
         tz.use_conditions.set_temp_cool = conversion(instance.t_set_cool, '°C', 'K').magnitude
         return tz
 
-    @staticmethod
-    def _teaser_property_getter(teaser_instance, instance, templates):
+    @classmethod
+    def _invalid_property_filter(cls, teaser_instance, instance, key, aux):
+        """Filter the invalid property values and fills it with a template or an user given value,
+        if value is valid, returns the value
+        invalid value: ZeroDivisionError on thermal zone calculations"""
+        error_properties = ['density', 'thickness']  # properties that are vital to thermal zone calculations
+
+        if (aux is None or aux == 0) and key != 'orientation':
+            # name from instance to store in error dict
+            name_error = instance.name
+            if hasattr(instance, 'material'):
+                name_error = instance.material
+            try:
+                aux = cls.property_error[name_error][key]
+            # redundant case for invalid properties
+            except KeyError:
+                if key in error_properties:
+                    if hasattr(instance, '_get_material_properties'):
+                        aux = instance._get_material_properties(key)
+                    while aux is None or aux == 0:
+                        aux = float(input('please enter a valid value for %s from %s' % (key, name_error)))
+                # check indentation
+                if name_error not in cls.property_error:
+                    cls.property_error[name_error] = {}
+                if key not in cls.property_error[name_error]:
+                    cls.property_error[name_error][key] = aux
+        # orientation case (in which is valid a 0)
+        setattr(teaser_instance, key, aux)
+
+    @classmethod
+    def _teaser_property_getter(cls, teaser_instance, instance, templates):
         """get and set all properties necessary to create a Teaser Instance from a BIM2Sim Instance,
         based on the information on the base.json exporter"""
         sw = type(teaser_instance).__name__
@@ -158,18 +190,14 @@ class ExportTEASER(ITask):
             sw = 'Roof'
         for key, value in templates['base'][sw]['exporter']['teaser'].items():
             if isinstance(value, list):
+                # get property from instance (instance dependant on instance)
                 if value[0] == 'instance':
                     aux = getattr(instance, value[1])
                     if type(aux).__name__ == 'Quantity':
                         aux = aux.magnitude
-                    if aux is not None:
-                        try:
-                            setattr(teaser_instance, key, aux)
-                        except ZeroDivisionError:
-                            return True
-                    else:
-                        return True
+                    cls._invalid_property_filter(teaser_instance, instance, key, aux)
             else:
+                # get property from json (fixed property)
                 setattr(teaser_instance, key, value)
 
     @classmethod
@@ -177,7 +205,7 @@ class ExportTEASER(ITask):
         """creates a teaser instances with a given parent and BIM2SIM instance
         get exporter necessary properties, from a given instance
         Parent: ThermalZone"""
-        # determine if is instance or subinstance (disaggregation)
+        # determine if is instance or subinstance (disaggregation) get templates from instance
         if hasattr(instance, 'parent'):
             sw = type(instance.parent).__name__
             templates = instance.parent.finder.templates
@@ -186,103 +214,87 @@ class ExportTEASER(ITask):
             templates = instance.finder.templates
 
         teaser_class = cls.instance_switcher.get(sw)
-        if teaser_class is None:
-            print('teaser class for instance not found')
-        teaser_instance = teaser_class(parent=parent)
-
-        cls._teaser_property_getter(teaser_instance, instance, templates)
-        cls._instance_related(teaser_instance, instance, bldg)
-
-        return teaser_instance
+        if teaser_class is not None:
+            teaser_instance = teaser_class(parent=parent)
+            cls._teaser_property_getter(teaser_instance, instance, templates)
+            cls._instance_related(teaser_instance, instance, bldg)
 
     @classmethod
     def _bind_instances_to_zone(cls, tz, tz_instance, bldg):
         """create and bind the instances of a given thermal zone to a teaser instance thermal zone"""
         for bound_element in tz_instance.bound_elements:
-            inst = cls._create_teaser_instance(bound_element, tz, bldg)
-            cls.insts.append(inst)
+            cls._create_teaser_instance(bound_element, tz, bldg)
 
     @classmethod
     def _instance_related(cls, teaser_instance, instance, bldg):
         """instance specific function, layers creation
         if layers not given, loads template"""
-        if len(instance.layers) > 0:
+        # property getter if instance has materials/layers
+        if isinstance(instance.layers, list) and len(instance.layers) > 0:
             for layer_instance in instance.layers:
                 layer = Layer(parent=teaser_instance)
-                layer.thickness = layer_instance.thickness
+                cls._invalid_property_filter(layer, layer_instance, 'thickness', layer_instance.thickness)
                 cls._material_related(layer, layer_instance, bldg)
+        # property getter if instance doesn't have any materials/layers
         else:
-            construction_type = {InnerWall: 'light',
-                                 OuterWall: 'light',
-                                 Window: "EnEv",
-                                 Rooftop: 'light',
-                                 Floor: 'light',
-                                 GroundFloor: 'light',
-                                 Door: "EnEv"}
-
-            construction = construction_type.get(type(teaser_instance))
-            teaser_instance.load_type_element(year=bldg.year_of_construction, construction=construction)
+            if getattr(bldg, 'year_of_construction') is None:
+                bldg.year_of_construction = int(input("Please provide a valid year of construction for building: "))
+            template_options, years_group = cls._get_instance_template(teaser_instance, bldg)
+            template_value = None
+            if len(template_options) > 1:
+                decision_template = ListDecision("the following construction types were "
+                                                 "found for year %s and instance %s"
+                                                 % (bldg.year_of_construction, teaser_instance.name),
+                                                 choices=template_options,
+                                                 allow_skip=True, allow_load=True, allow_save=True,
+                                                 collect=False, quick_decide=not True)
+                decision_template.decide()
+                template_value = decision_template.value
+            elif len(template_options) == 1:
+                template_value = template_options[0]
+            cls.instance_template[bldg.name] = [years_group, template_value]
+            teaser_instance.load_type_element(year=bldg.year_of_construction, construction=template_value)
 
     @classmethod
     def _material_related(cls, layer, layer_instance, bldg):
         """material instance specific functions, get properties of material and creates Material in teaser,
         if material or properties not given, loads material template"""
-        prj = bldg.parent
         material = Material(parent=layer)
-        material_ref = ''.join([i for i in layer_instance.material if not i.isdigit()]).lower().strip()
-        error = cls._teaser_property_getter(material, layer_instance, layer_instance.finder.templates)
-        if error is True:
-            try:
-                material_name = cls.materials[layer_instance.material]
-            except KeyError:
-                Materials_DEU = layer_instance.parent.finder.templates['base']['Material']['DEU']
-                material_templates = dict(prj.data.material_bind)
-                del material_templates['version']
+        cls._teaser_property_getter(material, layer_instance, layer_instance.finder.templates)
 
-                for k in Materials_DEU:
-                    if material_ref in k:
-                        material_ref = Materials_DEU[k]
+    @classmethod
+    def _get_instance_template(cls, teaser_instance, bldg):
+        default = ['heavy', 'light', 'EnEv']
+        year_group = [1995, 2015]  # default year group
+        prj = bldg.parent
+        instance_type = type(teaser_instance).__name__
+        instance_templates = dict(prj.data.element_bind)
+        del instance_templates["version"]
+        if bldg.name in cls.instance_template:
+            year_group = str(cls.instance_template[bldg.name][0])
+            selected_template = cls.instance_template[bldg.name][1]
+            aux_template = '%s_%s_%s' % (instance_type, year_group, selected_template)
+            if aux_template in instance_templates:
+                return [selected_template], year_group
 
-                options = {}
-                for k in material_templates:
-                    if material_ref in material_templates[k]['name']:
-                        options[k] = material_templates[k]
-                while len(options) == 0:
-                    decision_ = input(
-                        "Material not found, enter value for the material:")
-                    material_ref = decision_
-                    for k in material_templates:
-                        if material_ref in material_templates[k]['name']:
-                            options[k] = material_templates[k]
-
-                materials_options = [material_templates[k]['name'] for k in options]
-                decision1 = None
-                if len(materials_options) > 0:
-                    decision1 = ListDecision("one or more attributes of the material %s for %s are not valid, "
-                                             "select one of the following templates to continue"
-                                             % (layer_instance.material, layer_instance.parent.name),
-                                             choices=list(materials_options),
-                                             allow_skip=True, allow_load=True, allow_save=True,
-                                             collect=False, quick_decide=not True)
-                    decision1.decide()
-
-                cls.materials[layer_instance.material] = decision1.value
-                material_name = decision1.value
-
-            material.load_material_template(
-                mat_name=material_name,
-                data_class=prj.data,
-            )
+        template_options = []
+        for i in instance_templates:
+            years = instance_templates[i]['building_age_group']
+            if i.startswith(instance_type) and years[0] <= bldg.year_of_construction <= years[1]:
+                template_options.append(instance_templates[i]['construction_type'])
+                year_group = years
+        if len(template_options) == 0:
+            return default, year_group
+        return template_options, year_group
 
     @Task.log
     def run(self, workflow, instances, ifc):
         self.logger.info("Export to TEASER")
         prj = self._create_project(ifc.by_type('IfcProject')[0])
-
-        bldg_instances = Inspect.filter_instances(instances, 'Building')
+        bldg_instances = filter_instances(instances, 'Building')
         for bldg_instance in bldg_instances:
             bldg = self._create_building(bldg_instance, prj)
-            tz_instances = Inspect.filter_instances(instances, 'ThermalZone')
+            tz_instances = filter_instances(instances, 'ThermalZone')
             for tz_instance in tz_instances:
                 tz = self._create_thermal_zone(tz_instance, bldg)
                 self._bind_instances_to_zone(tz, tz_instance, bldg)
@@ -297,7 +309,7 @@ class ExportTEASERMultizone(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
 
-    reads = ('instances', )
+    reads = ('instances',)
     final = True
 
     @staticmethod
@@ -321,7 +333,6 @@ class ExportTEASERMultizone(ITask):
         tz.use_conditions.with_cooling = True
         return tz
 
-
     def run(self, workflow, instances):
         # mapping_dict = {
         #     elements.Floor.instances: Floor,
@@ -333,10 +344,10 @@ class ExportTEASERMultizone(ITask):
 
         self.logger.info("Export to TEASER")
         prj = Project(load_data=True)
-        #Todo get project name (not set to PROJECT yet)
+        # Todo get project name (not set to PROJECT yet)
         prj.name = 'Testproject'
         prj.data.load_uc_binding()
-        bldg_instances = Inspect.filter_instances(instances, 'Building')
+        bldg_instances = filter_instances(instances, 'Building')
         print('test')
 
         for bldg_instance in bldg_instances:
