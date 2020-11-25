@@ -1,8 +1,5 @@
 {
   "OuterWall": {
-    "material": {
-      " Leichtbeton " : "lightweight_concrete"
-    },
     "exporter": {
       "teaser": {
         "name": ["instance","name"],
@@ -10,23 +7,25 @@
         "tilt": ["instance", "tilt"],
         "orientation": ["instance", "orientation"]
       }
+    },
+    "default_ps": {
+      "thermal_transmittance" : ["Pset_WallCommon", "ThermalTransmittance"],
+      "is_external" : ["Pset_WallCommon", "IsExternal"]
     }
   },
   "InnerWall": {
-    "material": {
-      " Leichtbeton " : "lightweight_concrete"
-    },
     "exporter": {
       "teaser": {
         "name": ["instance","name"],
         "area": ["instance", "area"]
       }
+    },
+    "default_ps": {
+      "thermal_transmittance" : ["Pset_WallCommon", "ThermalTransmittance"],
+      "is_external" : ["Pset_WallCommon", "IsExternal"]
     }
   },
   "Wall": {
-    "material": {
-      " Leichtbeton " : "lightweight_concrete"
-    },
     "exporter": {
       "teaser": {
         "name": ["instance","name"],
@@ -34,6 +33,10 @@
         "tilt": ["instance", "tilt"],
         "orientation": ["instance", "orientation"]
       }
+    },
+    "default_ps": {
+      "thermal_transmittance" : ["Pset_WallCommon", "ThermalTransmittance"],
+      "is_external" : ["Pset_WallCommon", "IsExternal"]
     }
   },
   "Roof": {
@@ -43,6 +46,10 @@
         "area": ["instance", "area"],
         "orientation": ["instance", "orientation"]
       }
+    },
+    "default_ps": {
+      "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "is_external" : ["Pset_SlabCommon", "IsExternal"]
     }
   },
   "Floor": {
@@ -52,6 +59,10 @@
         "area": ["instance", "area"],
         "orientation": ["instance", "orientation"]
       }
+    },
+    "default_ps": {
+      "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "is_external" : ["Pset_SlabCommon", "IsExternal"]
     }
   },
   "GroundFloor": {
@@ -61,6 +72,10 @@
         "area": ["instance", "area"],
         "orientation": ["instance", "orientation"]
       }
+    },
+    "default_ps": {
+      "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "is_external" : ["Pset_SlabCommon", "IsExternal"]
     }
   },
   "Window": {
@@ -71,6 +86,9 @@
         "inner_convection": 0.6,
         "orientation": ["instance", "orientation"]
       }
+    },
+    "default_ps": {
+      "is_external": ["Pset_WindowCommon", "IsExternal"]
     }
   },
   "Door": {
@@ -81,6 +99,9 @@
         "inner_convection": 0.6,
         "orientation": ["instance", "orientation"]
       }
+    },
+    "default_ps": {
+      "is_external": ["Pset_DoorCommon", "IsExternal"]
     }
   },
   "ThermalZone": {
@@ -90,7 +111,12 @@
         "area": ["instance", "area"],
         "number_of_elements": 2
       }
-    }
+    },
+    "default_ps": {
+      "t_set_heat" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMin"],
+      "t_set_cool" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMax"],
+      "with_AHU" : ["Pset_SpaceThermalRequirements", "AirConditioning"]
+	  }
   },
   "Building": {
     "exporter": {
@@ -113,7 +139,14 @@
           "net_area"
         ]
       }
-    }
+    },
+    "default_ps": {
+      "year_of_construction" : ["Pset_BuildingCommon", "YearOfConstruction"],
+      "gross_area" : ["Pset_BuildingCommon", "GrossPlannedArea"],
+      "net_area" : ["Pset_BuildingCommon", "NetAreaPlanned"],
+      "number_of_storeys" : ["Pset_BuildingCommon", "NumberOfStoreys"],
+      "occupancy_type" : ["Pset_BuildingCommon", "OccupancyType"]
+	  }
   },
   "Material": {
     "default_ps": {
