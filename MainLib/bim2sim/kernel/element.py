@@ -434,8 +434,8 @@ class IFCBased(IFCBasedSubElement):
             if len(distinct_values) == 1:
                 # multiple sources but common value
                 return distinct_values.pop()
-            else:
-                return list(distinct_values)[0]
+            # else:
+            #     return list(distinct_values)[0]
 
         return None
         #     # TODO: Decision with id, key, value
