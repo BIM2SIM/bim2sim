@@ -131,9 +131,14 @@ class Attribute:
             bind._tool = source_tool
             bind.get_project().OwnerHistory.OwningApplication.ApplicationFullName = source_tool
         try:
-            default = source_tools[source_tool][type(bind).__name__]['default_ps'][name]
+            # base template
+            default = source_tools['base'][type(bind).__name__]['default_ps'][name]
         except KeyError:
-            return None
+            try:
+                # specific template
+                default = source_tools[source_tool][type(bind).__name__]['default_ps'][name]
+            except KeyError:
+                return None
         try:
             value = bind.get_exact_property(default[0], default[1])
         except Exception:

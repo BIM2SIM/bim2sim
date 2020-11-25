@@ -899,10 +899,10 @@ class Window(element.Element):
         default=0
     )
 
-    material = attribute.Attribute(
-        default_ps=True,
-        default=0
-    )
+    # material = attribute.Attribute(
+    #     default_ps=True,
+    #     default=0
+    # )
 
 
 class Door(element.Element):
@@ -942,10 +942,10 @@ class Door(element.Element):
         default=0
     )
 
-    material = attribute.Attribute(
-        default_ps=True,
-        default=0
-    )
+    # material = attribute.Attribute(
+    #     default_ps=True,
+    #     default=0
+    # )
 
 
 class Plate(element.Element):

@@ -1,4 +1,9 @@
 {
+  "PipeFitting": {
+	"default_ps": {
+      "pressure_class" : ["Pset_PipeFittingTypeCommon", "PressureClass"]
+    }
+  },
   "OuterWall": {
     "exporter": {
       "teaser": {
