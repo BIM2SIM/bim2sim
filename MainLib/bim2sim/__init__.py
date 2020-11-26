@@ -147,7 +147,8 @@ def _debug_run_bps_ep():
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 
     # rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
-    rel_example = 'ResultFiles/AC20-FZK-Haus_with_SB.ifc'
+    rel_example = 'ResultFiles/2020-10-15-KHH-Test_with_SB.ifc'
+    # rel_example = 'ResultFiles/AC20-FZK-Haus_with_SB.ifc'
     # rel_example = 'ResultFiles/AC20-Institute-Var-2_with_SB.ifc'
     # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB1.ifc'
     # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB2.ifc'
@@ -161,7 +162,7 @@ def _debug_run_bps_ep():
     # rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
     # rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
-    path_example = r"/home/max/arbeit/testproject_bps_ep78"
+    path_example = r"/home/max/arbeit/testproject_bps_ep81"
 
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, path_ifc, 'ENERGYPLUS')
