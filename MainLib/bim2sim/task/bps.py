@@ -2674,6 +2674,7 @@ class IdfObject():
         try:
             obj.setcoords(obj_coords)
         except:
+            self.skip_bound = True
             return
         circular_shape = self.get_circular_shape(obj_pnts)
         try:
