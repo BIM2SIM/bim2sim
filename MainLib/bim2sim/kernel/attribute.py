@@ -119,12 +119,15 @@ class Attribute:
             source_tool = bind.source_tool
         else:
             possible_source_tools = get_matches_list(bind.source_tool, source_tools.keys(), False)
-            decision_source_tool = ListDecision("Multiple templates found for source tool %s" % bind.source_tool,
-                                                choices=list(possible_source_tools),
-                                                allow_skip=True, allow_load=True, allow_save=True,
-                                                collect=False, quick_decide=not True)
-            decision_source_tool.decide()
-            source_tool = decision_source_tool.value
+            if possible_source_tools:
+                decision_source_tool = ListDecision("Multiple templates found for source tool %s" % bind.source_tool,
+                                                    choices=list(possible_source_tools),
+                                                    allow_skip=True, allow_load=True, allow_save=True,
+                                                    collect=False, quick_decide=not True)
+                decision_source_tool.decide()
+                source_tool = decision_source_tool.value
+            else:
+                source_tool = 'base'
             bind._tool = source_tool
             bind.get_project().OwnerHistory.OwningApplication.ApplicationFullName = source_tool
         try:
