@@ -2156,6 +2156,25 @@ class ExportEP(ITask):
         display.FitAll()
         start_display()
 
+    @staticmethod
+    def _display_bound_normal_orientation(instances):
+        display, start_display, add_menu, add_function_to_menu = init_display()
+        col = 0
+        for inst in instances:
+            if instances[inst].ifc_type != 'IfcSpace':
+                continue
+            space = instances[inst]
+            for bound in space.space_boundaries:
+                face_towards_center = space.space_center.XYZ() - bound.bound_center
+                face_towards_center.Normalize()
+                dot = face_towards_center.Dot(bound.bound_normal)
+                if dot > 0:
+                    display.DisplayShape(bound.bound_shape, color="red")
+                else:
+                    display.DisplayShape(bound.bound_shape, color="green")
+        display.FitAll()
+        start_display()
+
     def export_bounds_to_stl(self, instances, stl_name):
         """
         This function exports a space to an idf file.
