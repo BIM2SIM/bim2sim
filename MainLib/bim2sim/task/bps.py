@@ -2248,6 +2248,8 @@ class ExportEP(ITask):
             space = instances[inst]
             face_list = []
             for bound in space.space_boundaries:
+                if hasattr(bound, 'related_parent_bound'):
+                    continue
                 exp = TopExp_Explorer(bound.bound_shape, TopAbs_FACE)
                 face = exp.Current()
                 face = topods_Face(face)
@@ -2294,18 +2296,29 @@ class ExportEP(ITask):
                 p = GProp_GProps()
                 brepgprop_SurfaceProperties(face, p)
                 face_center = p.CentreOfMass().XYZ()
+                complemented = False
                 for bound in space.space_boundaries:
                     if (gp_Pnt(bound.bound_center).Distance(gp_Pnt(face_center)) > 1e-3):
                         continue
                     if ((bound.bound_area - p.Mass())**2 < 0.01):
                         if fc.Orientation() == 1:
                             bound.bound_shape.Complement()
+                            complemented = True
                         elif face_normal.Dot(bound.bound_normal) < 0:
                             bound.bound_shape.Complement()
+                            complemented = True
                         # bound.bound_shape = face
+                        if not complemented:
+                            continue
                         if hasattr(bound, 'bound_normal'):
                             del bound.__dict__['bound_normal']
                         print("DONE")
+                        if hasattr(bound, 'related_opening_bounds'):
+                            op_bounds = bound.related_opening_bounds
+                            for op in op_bounds:
+                                op.bound_shape.Complement()
+                                if hasattr(op, 'bound_normal'):
+                                    del op.__dict__['bound_normal']
                         break
                 if not hasattr(space, 'space_boundaries_2B'):
                     continue
