@@ -1,10 +1,12 @@
 ﻿"""BIM2SIM library"""
 
 import os
+import re
 import sys
 import importlib
 import pkgutil
 import logging
+from os.path import expanduser
 
 import pkg_resources
 
@@ -126,6 +128,31 @@ def _debug_run_hvac():
 
     main(path_example)
 
+def _get_debug_project_path():
+    path_file = "debug_dir.user"
+    try:
+        f = open(path_file)
+        path_example = f.read()
+        f.close()
+    except IOError:
+        path_example = str(input("Specify debug root path (Leave blank for '" + expanduser('~')
+                                 + "'). This value will be remembered in '" + path_file + "': "))
+        if len(path_example) == 0:
+            path_example = expanduser('~')
+        f = open(path_file, 'a')
+        f.write(path_example)
+        f.close()
+
+    if not path_example.endswith("/"):
+        path_example += "/"
+
+    max_number = 0
+    for item in os.listdir(path_example):
+        m = re.search('testproject_bps_ep([0-9]+)', item)
+        if m:
+            max_number = max(int(m.group(1)), max_number)
+
+    return path_example + "testproject_bps_ep" + str(max_number + 1)
 
 def _debug_run_bps():
     """Create example project and copy ifc if necessary"""
@@ -165,7 +192,8 @@ def _debug_run_bps_ep():
     rel_example = 'ExampleFiles/DigitalHub_ARCHITEKTUR_with_SB.ifc'
     # rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
-    path_example = r"/home/max/arbeit/testproject_bps_ep78"
+
+    path_example = _get_debug_project_path()
 
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, path_ifc, 'ENERGYPLUS')
