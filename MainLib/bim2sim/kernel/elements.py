@@ -1256,7 +1256,8 @@ class SpaceBoundary(element.SubElement):
         brepgprop_SurfaceProperties(self.bound_shape, face_prop)
         area = face_prop.Mass()
         face_normal = plane.Axis().Direction().XYZ()
-
+        if face.Orientation() == 1:
+            face_normal = face_normal.Reversed()
         face_towards_center = bbox_center.XYZ() - self.bound_center
         face_towards_center.Normalize()
 
@@ -1265,8 +1266,9 @@ class SpaceBoundary(element.SubElement):
         # check if surface normal points into direction of space center
         # Transform surface normals to be pointing outwards
         # For faces without reversed surface normal, reverse the orientation of the face itself
-       # if dot > 0:
+        # if dot > 0:
         #    face_normal = face_normal.Reversed()
+        #     self.bound_shape = self.bound_shape.Reversed()
         # else:
         #     self.bound_shape = self.bound_shape.Reversed()
 
