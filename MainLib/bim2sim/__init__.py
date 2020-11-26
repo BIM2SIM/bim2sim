@@ -135,7 +135,7 @@ def _debug_run_bps():
     # rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
     # path_example = r"C:\temp\bim2sim\testproject_bps2"
-    path_example = r"/home/veronika/testproject_bps2"
+    path_example = r"/home/max/arbeit/testproject_bps27"
 
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, path_ifc, 'TEASER')
@@ -161,7 +161,7 @@ def _debug_run_bps_ep():
     # rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
     # rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
-    path_example = r"/home/veronika/testproject_bps_ep01"
+    path_example = r"/home/max/arbeit/testproject_bps_ep78"
 
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, path_ifc, 'ENERGYPLUS')
