@@ -646,9 +646,8 @@ class ExportEP(ITask):
         self._get_parents_and_children(instances)
         self._move_children_to_parents(instances)
         self._fix_surface_orientation(instances)
-
         self._get_neighbor_bounds(instances)
-        # self._compute_2b_bound_gaps(instances)
+        self._compute_2b_bound_gaps(instances)
         # self._move_bounds_to_centerline(instances)
         # self._fill_2b_gaps(instances)
         # self._vertex_scaled_centerline_bounds(instances)
@@ -2261,6 +2260,11 @@ class ExportEP(ITask):
 
     @staticmethod
     def _fix_surface_orientation(instances):
+        """
+        Fix orientation of space boundaries.
+        Fix orientation of all surfaces but openings by sewing followed by disaggregation.
+        Fix orientation of openings afterwards according to orientation of parent bounds.
+        """
         for inst in instances:
             if instances[inst].ifc_type != 'IfcSpace':
                 continue
@@ -2284,13 +2288,9 @@ class ExportEP(ITask):
                 sew.Add(fc)
             sew.Perform()
             sewed_shape = sew.SewedShape()
-            # fix = ShapeFix_Shape(sewed_shape)
-            # fix.Perform()
-            # fixed_shape = fix.Shape()
             fixed_shape = sewed_shape
             p = GProp_GProps()
             brepgprop_VolumeProperties(fixed_shape, p)
-            print("VOLUME", p.Mass())
             if p.Mass() < 0:
                 fixed_shape.Complement()
             f_exp = TopExp_Explorer(fixed_shape, TopAbs_FACE)
@@ -2299,11 +2299,6 @@ class ExportEP(ITask):
                 fixed_faces.append(topods_Face(f_exp.Current()))
                 f_exp.Next()
             for fc in fixed_faces:
-                fix = ShapeFix_Shape(fc)
-                fix.Perform()
-                fc = fix.Shape()
-                # if fc.Orientation() == 1:
-                #     fc.Complement()
                 an_exp = TopExp_Explorer(fc, TopAbs_FACE)
                 a_face = an_exp.Current()
                 face = topods_Face(a_face)
@@ -2326,12 +2321,10 @@ class ExportEP(ITask):
                         elif face_normal.Dot(bound.bound_normal) < 0:
                             bound.bound_shape.Complement()
                             complemented = True
-                        # bound.bound_shape = face
                         if not complemented:
                             continue
                         if hasattr(bound, 'bound_normal'):
                             del bound.__dict__['bound_normal']
-                        print("DONE")
                         if hasattr(bound, 'related_opening_bounds'):
                             op_bounds = bound.related_opening_bounds
                             for op in op_bounds:
@@ -2346,9 +2339,7 @@ class ExportEP(ITask):
                         bound.bound_shape = face
                         if hasattr(bound, 'bound_normal'):
                             del bound.__dict__['bound_normal']
-                        print("DONE_2B")
                         break
-            print("SPACE_DONE")
 
     def export_2B_bounds_to_stl(self, instances, stl_name):
         for inst in instances:
