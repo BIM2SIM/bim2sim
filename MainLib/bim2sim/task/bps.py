@@ -6,7 +6,6 @@ import ifcopenshell
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from datetime import datetime
 from OCC.Display.SimpleGui import init_display
 from OCC.BRepBuilderAPI import \
     BRepBuilderAPI_MakeFace, \
@@ -631,8 +630,6 @@ class ExportTEASERSingleZone(Task):
 class ExportEP(ITask):
     """Exports an EnergyPlus model based on IFC information"""
 
-    ENERGYPLUS_VERSION = "9-4-0"
-
     reads = ('instances', 'ifc', )
     final = True
 
@@ -682,31 +679,26 @@ class ExportEP(ITask):
         idf.run(output_directory=output_string, readvars=True)
         self._visualize_results()
 
-    def _string_to_datetime(self, date_str):
-        """
-        Converts a date string in the format MM:DD hh:mm:ss into a datetime object.
-        :param date_str: A date string in the specified format.
-        :return: The converted datetime object.
-        """
-        date_str = date_str.strip()
+    def _convert_datetime(self, date_str):
+        # If the time is 24, set it to 0 and increment day by 1
+        if not date_str[0].isspace():
+            date_str = " " + date_str
 
-        if date_str[7:9] != '24':
+        if date_str[8:10] != '24':
             return pd.to_datetime(date_str, format=' %m/%d  %H:%M:%S')
 
-        # If the time is 24, set it to 0 and increment day by 1
-        date_str = date_str[0:7] + '00' + date_str[9:]
+        date_str = date_str[0:8] + '00' + date_str[10:]
         return pd.to_datetime(date_str, format=' %m/%d  %H:%M:%S') + pd.Timedelta(days=1)
 
     @staticmethod
-    def _extract_cols_from_dataframe(dataframe, col_name_part):
-        col = [col for col in dataframe.columns if col_name_part in col]
-        return_dataframe = dataframe[col].copy()
-        return_dataframe["Date/Time"] = dataframe["Date/Time"].copy()
-        return_dataframe = return_dataframe.set_index("Date/Time", drop=True).dropna()
-        return return_dataframe
+    def _extract_cols_from_df(df, col_name_part):
+        col = [col for col in df.columns if col_name_part in col]
+        return_df = df[col].copy()
+        return_df["Date/Time"] = df["Date/Time"].copy()
+        return_df = return_df.set_index("Date/Time", drop=True).dropna()
+        return return_df
 
-    def _visualize_results(self, csv_name=str(PROJECT.root) + "/export/EP-results/eplusout.csv", period="week",
-                           number=28, date=False):
+    def _visualize_results(self, csv_name=str(PROJECT.root) + "/export/EP-results/eplusout.csv", period="week", number=28, date=False):
         """
         Plot Zone Mean Air Temperature (Hourly) vs Outdoor Temperature per zone and as an overview on all zones.
         :param csv_name: path to energyplus outputs (eplusout.csv)
@@ -715,16 +707,16 @@ class ExportEP(ITask):
         :param date: only required if period == date. enter date in format date=[int(month), int(day)]
         :return:
         """
-        res_dataframe = pd.read_csv(csv_name)
-        res_dataframe["Date/Time"] = res_dataframe["Date/Time"].apply(self._string_to_datetime)
-        # df = res_dataframe.loc[:, ~res_dataframe.columns.str.contains('Surface Inside Face Temperature']
-        zone_mean_air = self._extract_cols_from_dataframe(res_dataframe, "Zone Mean Air Temperature")
-        ideal_loads = self._extract_cols_from_dataframe(res_dataframe, "IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Sensible")
-        equip_rate = self._extract_cols_from_dataframe(res_dataframe, "Zone Electric Equipment Convective Heating Rate")
-        people_rate = self._extract_cols_from_dataframe(res_dataframe, "Zone People Convective Heating Rate")
-        rad_dir = self._extract_cols_from_dataframe(res_dataframe, "Site Direct Solar Radiation Rate per Area")
+        res_df = pd.read_csv(csv_name)
+        res_df["Date/Time"] = res_df["Date/Time"].apply(self._convert_datetime)
+        # df = res_df.loc[:, ~res_df.columns.str.contains('Surface Inside Face Temperature']
+        zone_mean_air = self._extract_cols_from_df(res_df, "Zone Mean Air Temperature")
+        ideal_loads = self._extract_cols_from_df(res_df, "IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Sensible")
+        equip_rate = self._extract_cols_from_df(res_df, "Zone Electric Equipment Convective Heating Rate")
+        people_rate = self._extract_cols_from_df(res_df, "Zone People Convective Heating Rate")
+        rad_dir = self._extract_cols_from_df(res_df, "Site Direct Solar Radiation Rate per Area")
         rad_dir_h = rad_dir.resample('1h').mean()
-        temp = self._extract_cols_from_dataframe(res_dataframe, "Outdoor Air Drybulb Temperature [C](Hourly)")
+        temp = self._extract_cols_from_df(res_df, "Outdoor Air Drybulb Temperature [C](Hourly)")
         t_mean = temp.resample('24h').mean()
         zone_id_list = []
         for col in zone_mean_air.columns:
@@ -755,13 +747,11 @@ class ExportEP(ITask):
             month = date[0]
             day = date[1]
             for col in zone_mean_air.columns:
-                ax = zone_mean_air.loc[((zone_mean_air.index.month==month) & (zone_mean_air.index.day == day))]\
-                    .plot(y=[col], figsize=(10, 5), grid=True)
+                ax = zone_mean_air.loc[((zone_mean_air.index.month==month) & (zone_mean_air.index.day == day))].plot(y=[col], figsize=(10, 5), grid=True)
                 # temp.plot(ax=ax)
                 temp.loc[((temp.index.month==month) & (temp.index.day == day))].plot(ax=ax)
                 plt.show()
-            axc = zone_mean_air.loc[((zone_mean_air.index.month==month) & (zone_mean_air.index.day == day))]\
-                .plot(figsize=(10, 5), grid=True)
+            axc = zone_mean_air.loc[((zone_mean_air.index.month==month) & (zone_mean_air.index.day == day))].plot(figsize=(10, 5), grid=True)
             temp.loc[((temp.index.month==month) & (temp.index.day == day))].plot(ax=axc)
             plt.show()
             return
@@ -797,41 +787,185 @@ class ExportEP(ITask):
             fig.tight_layout(rect=[0, 0.03, 1, 0.8])
             plt.show()
 
+    def _intersect_centerline_bounds(self, instances):
+        for inst in instances:
+            if instances[inst].ifc_type != "IfcSpace":
+                continue
+            space_obj = instances[inst]
+            for bound in space_obj.space_boundaries:
+                halfspaces = []
+                bbox = Bnd_Box()
+                if hasattr(bound, 'related_parent_bound'):
+                    continue
+                if not hasattr(bound, 'bound_shape_cl'):
+                    continue
+                for other_bound in space_obj.space_boundaries:
+                    if hasattr(bound, 'related_parent_bound'):
+                        continue
+                    if other_bound.ifc.GlobalId == bound.ifc.GlobalId:
+                        continue
+                    if hasattr(other_bound, 'bound_shape_cl'):
+                        halfspace = self._create_halfspaces(other_bound.bound_shape_cl, space_obj)
+                        brepbndlib_Add(other_bound.bound_shape_cl, bbox)
+                    else:
+                        halfspace = self._create_halfspaces(other_bound.bound_shape, space_obj)
+                        brepbndlib_Add(other_bound.bound_shape, bbox)
+                    halfspaces.append(halfspace)
+                halfspace = self._create_halfspaces(bound.bound_shape_cl, space_obj)
+                halfspaces.append(halfspace)
+                brepbndlib_Add(bound.bound_shape_cl, bbox)
+                common_shape = BRepPrimAPI_MakeBox(bbox.CornerMin(), bbox.CornerMax()).Shape()
+                for halfspace in halfspaces:
+                    bound_prop = GProp_GProps()
+                    brepgprop_SurfaceProperties(halfspace, bound_prop)
+                    area = bound_prop.Mass()
+                    if area == 0:
+                        continue
+                    #todo: fix common_shape no longer returns zero-area compound
+                    temp_comm = BRepAlgoAPI_Common(common_shape, halfspace.Reversed()).Shape()
+                    comm_prop = GProp_GProps()
+                    brepgprop_SurfaceProperties(temp_comm, comm_prop)
+                    temp_area = comm_prop.Mass()
+                    if temp_area == 0:
+                        temp_comm = BRepAlgoAPI_Common(common_shape, halfspace).Shape()
+                        comm_prop = GProp_GProps()
+                        brepgprop_SurfaceProperties(temp_comm, comm_prop)
+                        temp_area = comm_prop.Mass()
+                        if temp_area == 0:
+                            continue
+                    common_shape = temp_comm
+                space_obj.space_shape_cl = common_shape
+                faces = self.get_faces_from_shape(space_obj.space_shape_cl)
+                bound_cl_prop = GProp_GProps()
+                brepgprop_SurfaceProperties(bound.bound_shape_cl, bound_cl_prop)
+                for face in faces:
+                    distance = BRepExtrema_DistShapeShape(face, bound.bound_shape_cl, Extrema_ExtFlag_MIN).Value()
+                    if distance == 0:
+                        max_area = bound_cl_prop.Mass()
+                        face_prop = GProp_GProps()
+                        brepgprop_SurfaceProperties(face, face_prop)
+                        face_center = face_prop.CentreOfMass()
+
+                        cl_center = bound_cl_prop.CentreOfMass()
+                        center_dist = face_center.Distance(cl_center) ** 2
+                        if center_dist < 0.5:
+                            this_area = face_prop.Mass()
+                            if this_area > max_area:
+                                bound.bound_shape_cl = face
+                                print("newShape", bound_cl_prop.Mass(), face_prop.Mass())
+
     @staticmethod
     def get_center_of_face(face):
-        """
-        Calculates the center of the given face. The center point is the center of mass.
-        """
         prop = GProp_GProps()
-        brepgprop_SurfaceProperties(face, prop)
-        return prop.CentreOfMass()
+        center = brepgprop_SurfaceProperties(face, prop)
+        center = prop.CentreOfMass()
+        return center
 
     @staticmethod
     def get_center_of_edge(edge):
-        """
-        Calculates the center of the given edge. The center point is the center of mass.
-        """
         prop = GProp_GProps()
-        brepgprop_LinearProperties(edge, prop)
-        return prop.CentreOfMass()
+        center = brepgprop_LinearProperties(edge, prop)
+        center = prop.CentreOfMass()
+        return center
+
 
     def scale_face(self, face, factor):
-        """
-        Scales the given face by the given factor, using the center of mass of the face as origin of the transformation.
-        """
         center = self.get_center_of_face(face)
         trsf = gp_Trsf()
         trsf.SetScale(center, factor)
-        return BRepBuilderAPI_Transform(face, trsf).Shape()
+        face_scaled = BRepBuilderAPI_Transform(face, trsf).Shape()
+        return face_scaled
 
     def scale_edge(self, edge, factor):
-        """
-        Scales the given edge by the given factor, using the center of mass of the edge as origin of the transformation.
-        """
         center = self.get_center_of_edge(edge)
         trsf = gp_Trsf()
         trsf.SetScale(center, factor)
-        return BRepBuilderAPI_Transform(edge, trsf).Shape()
+        face_scaled = BRepBuilderAPI_Transform(edge, trsf).Shape()
+        return face_scaled
+
+    def _intersect_scaled_centerline_bounds(self, instances):
+        for inst in instances:
+            if instances[inst].ifc_type != "IfcSpace":
+                continue
+            space_obj = instances[inst]
+            bbox = Bnd_Box()
+            halfspaces = []
+            for bound in space_obj.space_boundaries:
+                if hasattr(bound, 'related_parent_bound'):
+                    continue
+                if not hasattr(bound, 'bound_shape_cl'):
+                    continue
+                if not hasattr(bound, 'scaled_bound_cl'):
+                    bound.scaled_bound_cl = self.scale_face(bound.bound_shape_cl, 1.3)
+                halfspace = self._create_halfspaces(bound.scaled_bound_cl, space_obj)
+                halfspaces.append(halfspace)
+                brepbndlib_Add(bound.bound_shape_cl, bbox)
+            if hasattr(space_obj, 'space_boundaries_2B'):
+                for bound_b in space_obj.space_boundaries_2B:
+                    if not hasattr(bound_b, 'bound_shape_cl'):
+                        print("no bound shape 2b")
+                        continue
+                    bound.scaled_bound_cl = self.scale_face(bound_b.bound_shape_cl, 1.3)
+                    halfspace = self._create_halfspaces(bound.scaled_bound_cl, space_obj)
+                    halfspaces.append(halfspace)
+                    brepbndlib_Add(bound_b.bound_shape, bbox)
+            common_shape = BRepPrimAPI_MakeBox(bbox.CornerMin(), bbox.CornerMax()).Solid()
+            for halfspace in halfspaces:
+                bound_prop = GProp_GProps()
+                brepgprop_SurfaceProperties(halfspace, bound_prop)
+                area = bound_prop.Mass()
+                if area == 0:
+                    continue
+                #todo: fix common_shape no longer returns zero-area compound
+                temp_comm = BRepAlgoAPI_Common(common_shape, halfspace).Shape()
+                comm_prop = GProp_GProps()
+                brepgprop_SurfaceProperties(temp_comm, comm_prop)
+                temp_area = comm_prop.Mass()
+                if temp_area == 0:
+                    temp_comm = BRepAlgoAPI_Common(common_shape, halfspace).Shape()
+                    comm_prop = GProp_GProps()
+                    brepgprop_SurfaceProperties(temp_comm, comm_prop)
+                    temp_area = comm_prop.Mass()
+                    if temp_area == 0:
+                        continue
+                common_shape = temp_comm
+            space_obj.space_shape_cl = common_shape
+            faces = self.get_faces_from_shape(space_obj.space_shape_cl)
+            for bound in space_obj.space_boundaries:
+                if hasattr(bound, 'related_parent_bound'):
+                    continue
+                if not hasattr(bound, 'bound_shape_cl'):
+                    continue
+                if hasattr(bound, 'bound_neighbors_2b'):
+                    continue
+                bound_cl_prop = GProp_GProps()
+                brepgprop_SurfaceProperties(bound.bound_shape_cl, bound_cl_prop)
+                for face in faces:
+                    distance = BRepExtrema_DistShapeShape(face, bound.bound_shape_cl, Extrema_ExtFlag_MIN).Value()
+                    if distance < 1e-3:
+                        max_area = bound_cl_prop.Mass()
+                        face_prop = GProp_GProps()
+                        brepgprop_SurfaceProperties(face, face_prop)
+                        face_center = face_prop.CentreOfMass()
+
+                        cl_center = bound_cl_prop.CentreOfMass()
+                        center_dist = face_center.Distance(cl_center) ** 2
+                        if center_dist < 0.5:
+                            this_area = face_prop.Mass()
+                            # only apply for rectangular shapes
+                            nb_vertices = SpaceBoundary._get_number_of_vertices(bound.bound_shape)
+                            if nb_vertices > 8:
+                                continue
+                            if this_area > max_area:
+                                bound.bound_shape_cl = face
+                                print("newShape", bound_cl_prop.Mass(), face_prop.Mass())
+                                if not hasattr(bound, 'related_bound'):
+                                    continue
+                                rel_bound = bound.related_bound
+                                if not hasattr(rel_bound, 'bound_neighbors_2b'):
+                                    continue
+                                rel_bound.bound_shape_cl = face.Reversed()
+            print('WAIT')
 
     @staticmethod
     def _make_solid_box_shape(shape):
@@ -839,6 +973,7 @@ class ExportEP(ITask):
         brepbndlib_Add(shape, box)
         solid_box = BRepPrimAPI_MakeBox(box.CornerMin(), box.CornerMax()).Solid()
         return solid_box
+
 
     def _vertex_scaled_centerline_bounds(self, instances):
         sec_shapes = []
@@ -1106,7 +1241,7 @@ class ExportEP(ITask):
         bound.bound_shape_cl = BRepBuilderAPI_Transform(bound.bound_shape, trsf).Shape()
         return trsf
 
-    def _move_2b_bounds_to_centerline(self, inst_obj, trsf):
+    def _move_2b_bounds_to_cl(self, inst_obj, trsf):
         """
         Moves neighbors (type 2b) of a space boundary to the centerline of the space boundary.
         Only moves the 2b neighbor, if the 2b boundary has the same orientation as the related bound.
@@ -1119,7 +1254,7 @@ class ExportEP(ITask):
                     continue
                 b_bound.bound_shape_cl = BRepBuilderAPI_Transform(b_bound.bound_shape, trsf).Shape()
 
-    def _move_neighbors_to_centerline(self, inst_obj, trsf, first=False):
+    def _move_neighbors_to_cl(self, inst_obj, trsf, first=False):
         """
         Moves virtual neighbors to centerline of this boundary, if virtual bound has same orientation as this boundary.
         """
@@ -1141,7 +1276,7 @@ class ExportEP(ITask):
                         continue
                     neighbor.related_bound.bound_shape_cl = neighbor.bound_shape_cl.Reversed()
 
-    def _move_2b_neighbors_to_centerline(self, inst_obj, trsf, first=False):
+    def _move_2b_neighbors_to_cl(self, inst_obj, trsf, first=False):
         if inst_obj.bound_instance == None:
             return
         if hasattr(inst_obj, 'bound_neighbors_2b'):
@@ -1163,7 +1298,7 @@ class ExportEP(ITask):
                         neighbor2.related_bound.bound_shape_cl = neighbor2.bound_shape_cl.Reversed()
                     return
 
-    def _move_external_bounds_to_centerline(self, inst_obj):
+    def _move_external_bounds_to_cl(self, inst_obj):
         """
         Move external space boundaries (non-virtual) to outer face of bound_instance.
         """
@@ -1205,7 +1340,7 @@ class ExportEP(ITask):
             if instances[inst].ifc_type != "IfcRelSpaceBoundary":
                 continue
             inst_obj = instances[inst]
-            continue_flag = self._move_external_bounds_to_centerline(inst_obj)
+            continue_flag = self._move_external_bounds_to_cl(inst_obj)
             if continue_flag:
                 continue
 
@@ -1221,9 +1356,9 @@ class ExportEP(ITask):
 
             half_dist = distance/2
             trsf = self._move_bound_in_direction_of_normal(inst_obj, half_dist)
-            self._move_2b_bounds_to_centerline(inst_obj, trsf)
-            self._move_neighbors_to_centerline(inst_obj, trsf, first=False)
-            self._move_2b_neighbors_to_centerline(inst_obj, trsf, first=False)
+            self._move_2b_bounds_to_cl(inst_obj, trsf)
+            self._move_neighbors_to_cl(inst_obj, trsf, first=False)
+            self._move_2b_neighbors_to_cl(inst_obj, trsf, first=False)
 
             # check if boundary has been moved correctly
             # and otherwise move again in reversed direction
@@ -1236,9 +1371,10 @@ class ExportEP(ITask):
                 continue
             else:
                 trsf = self._move_bound_in_direction_of_normal(inst_obj, half_dist, reversed=True)
-                self._move_2b_bounds_to_centerline(inst_obj, trsf)
-                self._move_neighbors_to_centerline(inst_obj, trsf, first=False)
-                self._move_2b_neighbors_to_centerline(inst_obj, trsf, first=False)
+                self._move_2b_bounds_to_cl(inst_obj, trsf)
+                self._move_neighbors_to_cl(inst_obj, trsf, first=False)
+                self._move_2b_neighbors_to_cl(inst_obj, trsf, first=False)
+
 
     def _fill_2b_gaps(self, instances):
         for inst in instances:
@@ -1439,7 +1575,7 @@ class ExportEP(ITask):
         """
         # path = '/usr/local/EnergyPlus-9-2-0/'
         # path = '/usr/local/EnergyPlus-9-3-0/'
-        path = f'/usr/local/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
+        path = '/usr/local/EnergyPlus-9-4-0/'
         IDF.setiddname(path + 'Energy+.idd')
         idf = IDF(path + "ExampleFiles/Minimal.idf")
         idf.idfname = str(PROJECT.root) + "/export/temp.idf"
