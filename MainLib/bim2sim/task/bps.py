@@ -679,7 +679,7 @@ class ExportEP(ITask):
         idf.run(output_directory=output_string, readvars=True)
         self._visualize_results()
 
-    def _convert_datetime(self, date_str):
+    def _string_to_datetime(self, date_str):
         # If the time is 24, set it to 0 and increment day by 1
         if not date_str[0].isspace():
             date_str = " " + date_str
@@ -698,7 +698,8 @@ class ExportEP(ITask):
         return_df = return_df.set_index("Date/Time", drop=True).dropna()
         return return_df
 
-    def _visualize_results(self, csv_name=str(PROJECT.root) + "/export/EP-results/eplusout.csv", period="week", number=28, date=False):
+    def _visualize_results(self, csv_name=str(PROJECT.root) + "/export/EP-results/eplusout.csv", period="week",
+                           number=28, date=False):
         """
         Plot Zone Mean Air Temperature (Hourly) vs Outdoor Temperature per zone and as an overview on all zones.
         :param csv_name: path to energyplus outputs (eplusout.csv)
@@ -708,7 +709,7 @@ class ExportEP(ITask):
         :return:
         """
         res_df = pd.read_csv(csv_name)
-        res_df["Date/Time"] = res_df["Date/Time"].apply(self._convert_datetime)
+        res_df["Date/Time"] = res_df["Date/Time"].apply(self._string_to_datetime)
         # df = res_df.loc[:, ~res_df.columns.str.contains('Surface Inside Face Temperature']
         zone_mean_air = self._extract_cols_from_df(res_df, "Zone Mean Air Temperature")
         ideal_loads = self._extract_cols_from_df(res_df, "IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Sensible")
@@ -747,11 +748,13 @@ class ExportEP(ITask):
             month = date[0]
             day = date[1]
             for col in zone_mean_air.columns:
-                ax = zone_mean_air.loc[((zone_mean_air.index.month==month) & (zone_mean_air.index.day == day))].plot(y=[col], figsize=(10, 5), grid=True)
+                ax = zone_mean_air.loc[((zone_mean_air.index.month==month) & (zone_mean_air.index.day == day))]\
+                    .plot(y=[col], figsize=(10, 5), grid=True)
                 # temp.plot(ax=ax)
                 temp.loc[((temp.index.month==month) & (temp.index.day == day))].plot(ax=ax)
                 plt.show()
-            axc = zone_mean_air.loc[((zone_mean_air.index.month==month) & (zone_mean_air.index.day == day))].plot(figsize=(10, 5), grid=True)
+            axc = zone_mean_air.loc[((zone_mean_air.index.month==month) & (zone_mean_air.index.day == day))]\
+                .plot(figsize=(10, 5), grid=True)
             temp.loc[((temp.index.month==month) & (temp.index.day == day))].plot(ax=axc)
             plt.show()
             return
@@ -787,101 +790,30 @@ class ExportEP(ITask):
             fig.tight_layout(rect=[0, 0.03, 1, 0.8])
             plt.show()
 
-    def _intersect_centerline_bounds(self, instances):
-        for inst in instances:
-            if instances[inst].ifc_type != "IfcSpace":
-                continue
-            space_obj = instances[inst]
-            for bound in space_obj.space_boundaries:
-                halfspaces = []
-                bbox = Bnd_Box()
-                if hasattr(bound, 'related_parent_bound'):
-                    continue
-                if not hasattr(bound, 'bound_shape_cl'):
-                    continue
-                for other_bound in space_obj.space_boundaries:
-                    if hasattr(bound, 'related_parent_bound'):
-                        continue
-                    if other_bound.ifc.GlobalId == bound.ifc.GlobalId:
-                        continue
-                    if hasattr(other_bound, 'bound_shape_cl'):
-                        halfspace = self._create_halfspaces(other_bound.bound_shape_cl, space_obj)
-                        brepbndlib_Add(other_bound.bound_shape_cl, bbox)
-                    else:
-                        halfspace = self._create_halfspaces(other_bound.bound_shape, space_obj)
-                        brepbndlib_Add(other_bound.bound_shape, bbox)
-                    halfspaces.append(halfspace)
-                halfspace = self._create_halfspaces(bound.bound_shape_cl, space_obj)
-                halfspaces.append(halfspace)
-                brepbndlib_Add(bound.bound_shape_cl, bbox)
-                common_shape = BRepPrimAPI_MakeBox(bbox.CornerMin(), bbox.CornerMax()).Shape()
-                for halfspace in halfspaces:
-                    bound_prop = GProp_GProps()
-                    brepgprop_SurfaceProperties(halfspace, bound_prop)
-                    area = bound_prop.Mass()
-                    if area == 0:
-                        continue
-                    #todo: fix common_shape no longer returns zero-area compound
-                    temp_comm = BRepAlgoAPI_Common(common_shape, halfspace.Reversed()).Shape()
-                    comm_prop = GProp_GProps()
-                    brepgprop_SurfaceProperties(temp_comm, comm_prop)
-                    temp_area = comm_prop.Mass()
-                    if temp_area == 0:
-                        temp_comm = BRepAlgoAPI_Common(common_shape, halfspace).Shape()
-                        comm_prop = GProp_GProps()
-                        brepgprop_SurfaceProperties(temp_comm, comm_prop)
-                        temp_area = comm_prop.Mass()
-                        if temp_area == 0:
-                            continue
-                    common_shape = temp_comm
-                space_obj.space_shape_cl = common_shape
-                faces = self.get_faces_from_shape(space_obj.space_shape_cl)
-                bound_cl_prop = GProp_GProps()
-                brepgprop_SurfaceProperties(bound.bound_shape_cl, bound_cl_prop)
-                for face in faces:
-                    distance = BRepExtrema_DistShapeShape(face, bound.bound_shape_cl, Extrema_ExtFlag_MIN).Value()
-                    if distance == 0:
-                        max_area = bound_cl_prop.Mass()
-                        face_prop = GProp_GProps()
-                        brepgprop_SurfaceProperties(face, face_prop)
-                        face_center = face_prop.CentreOfMass()
-
-                        cl_center = bound_cl_prop.CentreOfMass()
-                        center_dist = face_center.Distance(cl_center) ** 2
-                        if center_dist < 0.5:
-                            this_area = face_prop.Mass()
-                            if this_area > max_area:
-                                bound.bound_shape_cl = face
-                                print("newShape", bound_cl_prop.Mass(), face_prop.Mass())
-
     @staticmethod
     def get_center_of_face(face):
         prop = GProp_GProps()
-        center = brepgprop_SurfaceProperties(face, prop)
-        center = prop.CentreOfMass()
-        return center
+        brepgprop_SurfaceProperties(face, prop)
+        return prop.CentreOfMass()
 
     @staticmethod
     def get_center_of_edge(edge):
         prop = GProp_GProps()
-        center = brepgprop_LinearProperties(edge, prop)
-        center = prop.CentreOfMass()
-        return center
+        brepgprop_LinearProperties(edge, prop)
+        return prop.CentreOfMass()
 
 
     def scale_face(self, face, factor):
         center = self.get_center_of_face(face)
         trsf = gp_Trsf()
         trsf.SetScale(center, factor)
-        face_scaled = BRepBuilderAPI_Transform(face, trsf).Shape()
-        return face_scaled
+        return BRepBuilderAPI_Transform(face, trsf).Shape()
 
     def scale_edge(self, edge, factor):
         center = self.get_center_of_edge(edge)
         trsf = gp_Trsf()
         trsf.SetScale(center, factor)
-        face_scaled = BRepBuilderAPI_Transform(edge, trsf).Shape()
-        return face_scaled
+        return BRepBuilderAPI_Transform(edge, trsf).Shape()
 
     def _intersect_scaled_centerline_bounds(self, instances):
         for inst in instances:
@@ -973,7 +905,6 @@ class ExportEP(ITask):
         brepbndlib_Add(shape, box)
         solid_box = BRepPrimAPI_MakeBox(box.CornerMin(), box.CornerMax()).Solid()
         return solid_box
-
 
     def _vertex_scaled_centerline_bounds(self, instances):
         sec_shapes = []
@@ -1241,7 +1172,7 @@ class ExportEP(ITask):
         bound.bound_shape_cl = BRepBuilderAPI_Transform(bound.bound_shape, trsf).Shape()
         return trsf
 
-    def _move_2b_bounds_to_cl(self, inst_obj, trsf):
+    def _move_2b_bounds_to_centerline(self, inst_obj, trsf):
         """
         Moves neighbors (type 2b) of a space boundary to the centerline of the space boundary.
         Only moves the 2b neighbor, if the 2b boundary has the same orientation as the related bound.
@@ -1254,7 +1185,7 @@ class ExportEP(ITask):
                     continue
                 b_bound.bound_shape_cl = BRepBuilderAPI_Transform(b_bound.bound_shape, trsf).Shape()
 
-    def _move_neighbors_to_cl(self, inst_obj, trsf, first=False):
+    def _move_neighbors_to_centerline(self, inst_obj, trsf, first=False):
         """
         Moves virtual neighbors to centerline of this boundary, if virtual bound has same orientation as this boundary.
         """
@@ -1276,7 +1207,7 @@ class ExportEP(ITask):
                         continue
                     neighbor.related_bound.bound_shape_cl = neighbor.bound_shape_cl.Reversed()
 
-    def _move_2b_neighbors_to_cl(self, inst_obj, trsf, first=False):
+    def _move_2b_neighbors_to_centerline(self, inst_obj, trsf, first=False):
         if inst_obj.bound_instance == None:
             return
         if hasattr(inst_obj, 'bound_neighbors_2b'):
@@ -1298,7 +1229,7 @@ class ExportEP(ITask):
                         neighbor2.related_bound.bound_shape_cl = neighbor2.bound_shape_cl.Reversed()
                     return
 
-    def _move_external_bounds_to_cl(self, inst_obj):
+    def _move_external_bounds_to_centerline(self, inst_obj):
         """
         Move external space boundaries (non-virtual) to outer face of bound_instance.
         """
@@ -1340,7 +1271,7 @@ class ExportEP(ITask):
             if instances[inst].ifc_type != "IfcRelSpaceBoundary":
                 continue
             inst_obj = instances[inst]
-            continue_flag = self._move_external_bounds_to_cl(inst_obj)
+            continue_flag = self._move_external_bounds_to_centerline(inst_obj)
             if continue_flag:
                 continue
 
@@ -1356,9 +1287,9 @@ class ExportEP(ITask):
 
             half_dist = distance/2
             trsf = self._move_bound_in_direction_of_normal(inst_obj, half_dist)
-            self._move_2b_bounds_to_cl(inst_obj, trsf)
-            self._move_neighbors_to_cl(inst_obj, trsf, first=False)
-            self._move_2b_neighbors_to_cl(inst_obj, trsf, first=False)
+            self._move_2b_bounds_to_centerline(inst_obj, trsf)
+            self._move_neighbors_to_centerline(inst_obj, trsf, first=False)
+            self._move_2b_neighbors_to_centerline(inst_obj, trsf, first=False)
 
             # check if boundary has been moved correctly
             # and otherwise move again in reversed direction
@@ -1371,9 +1302,9 @@ class ExportEP(ITask):
                 continue
             else:
                 trsf = self._move_bound_in_direction_of_normal(inst_obj, half_dist, reversed=True)
-                self._move_2b_bounds_to_cl(inst_obj, trsf)
-                self._move_neighbors_to_cl(inst_obj, trsf, first=False)
-                self._move_2b_neighbors_to_cl(inst_obj, trsf, first=False)
+                self._move_2b_bounds_to_centerline(inst_obj, trsf)
+                self._move_neighbors_to_centerline(inst_obj, trsf, first=False)
+                self._move_2b_neighbors_to_centerline(inst_obj, trsf, first=False)
 
 
     def _fill_2b_gaps(self, instances):
