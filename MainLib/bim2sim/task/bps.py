@@ -32,6 +32,11 @@ from OCC.BRepAlgoAPI import BRepAlgoAPI_Common
 from OCC.Bnd import Bnd_Box
 from OCC.BRepBndLib import brepbndlib_Add
 from OCC.ShapeFix import ShapeFix_Face, ShapeFix_Shape
+from OCC.BRepBuilderAPI import BRepBuilderAPI_Sewing
+from OCC.TopAbs import TopAbs_SHELL
+from OCC.BOPAlgo import BOPAlgo_Builder
+from OCC.BRepGProp import brepgprop_VolumeProperties
+from OCC.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
 from stl import stl
 from stl import mesh
 
@@ -640,6 +645,8 @@ class ExportEP(ITask):
         self.logger.info("Compute relationships between space boundaries")
         self._get_parents_and_children(instances)
         self._move_children_to_parents(instances)
+        self._fix_surface_orientation(instances)
+
         self._get_neighbor_bounds(instances)
         # self._compute_2b_bound_gaps(instances)
         # self._move_bounds_to_centerline(instances)
@@ -2233,6 +2240,83 @@ class ExportEP(ITask):
             faces = self.get_faces_from_shape(space_obj.b_bound_shape)
             self.create_2B_space_boundaries(faces, space_obj)
 
+    @staticmethod
+    def _fix_surface_orientation(instances):
+        for inst in instances:
+            if instances[inst].ifc_type != 'IfcSpace':
+                continue
+            space = instances[inst]
+            face_list = []
+            for bound in space.space_boundaries:
+                exp = TopExp_Explorer(bound.bound_shape, TopAbs_FACE)
+                face = exp.Current()
+                face = topods_Face(face)
+                face_list.append(face)
+            if hasattr(space, 'space_boundaries_2B'):
+                for bound in space.space_boundaries_2B:
+                    exp = TopExp_Explorer(bound.bound_shape, TopAbs_FACE)
+                    face = exp.Current()
+                    face = topods_Face(face)
+                    face_list.append(face)
+            sew = BRepBuilderAPI_Sewing(0.0001)
+            for fc in face_list:
+                sew.Add(fc)
+            sew.Perform()
+            sewed_shape = sew.SewedShape()
+            # fix = ShapeFix_Shape(sewed_shape)
+            # fix.Perform()
+            # fixed_shape = fix.Shape()
+            fixed_shape = sewed_shape
+            p = GProp_GProps()
+            brepgprop_VolumeProperties(fixed_shape, p)
+            print("VOLUME", p.Mass())
+            if p.Mass() < 0:
+                fixed_shape.Complement()
+            f_exp = TopExp_Explorer(fixed_shape, TopAbs_FACE)
+            fixed_faces = []
+            while f_exp.More():
+                fixed_faces.append(topods_Face(f_exp.Current()))
+                f_exp.Next()
+            for fc in fixed_faces:
+                fix = ShapeFix_Shape(fc)
+                fix.Perform()
+                fc = fix.Shape()
+                # if fc.Orientation() == 1:
+                #     fc.Complement()
+                an_exp = TopExp_Explorer(fc, TopAbs_FACE)
+                a_face = an_exp.Current()
+                face = topods_Face(a_face)
+                surf = BRep_Tool.Surface(face)
+                obj = surf.GetObject()
+                assert obj.DynamicType().GetObject().Name() == "Geom_Plane"
+                plane = Handle_Geom_Plane.DownCast(surf).GetObject()
+                face_normal = plane.Axis().Direction().XYZ()
+                p = GProp_GProps()
+                brepgprop_SurfaceProperties(face, p)
+                face_center = p.CentreOfMass().XYZ()
+                for bound in space.space_boundaries:
+                    if (gp_Pnt(bound.bound_center).Distance(gp_Pnt(face_center)) > 1e-3):
+                        continue
+                    if ((bound.bound_area - p.Mass())**2 < 0.01):
+                        if fc.Orientation() == 1:
+                            bound.bound_shape.Complement()
+                        elif face_normal.Dot(bound.bound_normal) < 0:
+                            bound.bound_shape.Complement()
+                        # bound.bound_shape = face
+                        if hasattr(bound, 'bound_normal'):
+                            del bound.__dict__['bound_normal']
+                        print("DONE")
+                        break
+                if not hasattr(space, 'space_boundaries_2B'):
+                    continue
+                for bound in space.space_boundaries_2B:
+                    if gp_Pnt(bound.bound_center).Distance(gp_Pnt(face_center)) < 1e-6:
+                        bound.bound_shape = face
+                        if hasattr(bound, 'bound_normal'):
+                            del bound.__dict__['bound_normal']
+                        print("DONE_2B")
+                        break
+            print("SPACE_DONE")
 
     def export_2B_bounds_to_stl(self, instances, stl_name):
         for inst in instances:
