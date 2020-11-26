@@ -1023,6 +1023,7 @@ class SpaceBoundary(element.SubElement):
         return moved_shape
 
     def check_for_vertex_duplicates(self, rel_bound):
+        return # todo: Bugfix, disabled for now
         nb_vert_this = self._get_number_of_vertices(self.bound_shape)
         nb_vert_other = self._get_number_of_vertices(rel_bound.bound_shape)
         # if nb_vert_this != nb_vert_other:
