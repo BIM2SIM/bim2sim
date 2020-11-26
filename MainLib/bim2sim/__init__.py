@@ -148,10 +148,12 @@ def _debug_run_bps_ep():
 
     # rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
     rel_example = 'ResultFiles/AC20-FZK-Haus_with_SB.ifc'
+    # rel_example = 'ResultFiles/2020-10-15-KHH-Test_with_SB.ifc'
     # rel_example = 'ResultFiles/AC20-Institute-Var-2_with_SB.ifc'
     # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB1.ifc'
     # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB2.ifc'
     # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB3.ifc'
+    # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB7.ifc'
     # rel_example = 'ExampleFiles/DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc' # ok
     # rel_example = 'ExampleFiles/DigitalHub_Architektur2_P1_V2.ifc' # not complete, but correct trsf
     # rel_example = 'ExampleFiles/DigitalHub_Architektur2_P1.ifc' # incorrect trsf
@@ -159,6 +161,8 @@ def _debug_run_bps_ep():
     # rel_example = 'ExampleFiles/ARC.ifc'
     # rel_example = 'ExampleFiles/AC-20-Smiley-West-10-Bldg.ifc'
     # rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
+    # rel_example = 'ExampleFiles/AC20-Institute-Var-2_with_SB5.ifc'
+    rel_example = 'ExampleFiles/DigitalHub_ARCHITEKTUR_with_SB.ifc'
     # rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
     path_example = r"/home/veronika/testproject_bps_ep01"
