@@ -42,7 +42,7 @@
   },
    "Pipe": {
 	"default_ps": {
-      "diameter" : ["HLS", "Nenndurchmesser"],
+      "diameter" : ["HLS", "Durchmesser"],
       "length" : ["Abmessungen", "L\u00e4nge"]
     }
   },

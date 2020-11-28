@@ -94,6 +94,8 @@ class Attribute:
         # custom functions
         if value is None and self.functions:
             value = self.get_from_functions(bind, self.functions, self.name)
+
+        # logger value none
         if value is None:
             quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet, default  Association,"
                                    " finder, patterns or functions",
