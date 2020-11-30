@@ -104,7 +104,8 @@ def main(rootpath=None):
     if not BIM2SIMManager in manager_cls.__bases__:
         raise AttributeError("Got invalid manager from %s" % (backend))
 
-    workflow = PlantSimulation()  # TODO
+    # workflow = PlantSimulation()  # TODO
+    workflow = BPSMultiZoneSeparated()
     # prepare simulation
     manager = manager_cls(workflow)
 
@@ -168,6 +169,6 @@ def _debug_run_cfd():
 
 if __name__ == '__main__':
     # _debug_run_cfd()
-    # _debug_run_bps()
-    _debug_run_hvac()
+    _debug_run_bps()
+    # _debug_run_hvac()
 

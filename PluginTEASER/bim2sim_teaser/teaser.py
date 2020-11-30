@@ -26,17 +26,7 @@ class TEASERManager(BIM2SIMManager):
 
         self.playground.run_task(bps.ExportTEASER())
         print()
-        #self.playground.run_task(bps.ExportTEASERMultizone())
 
-        # export = bps.ExportTEASERMultizone()
-        # # export = bps.ExportTEASERSingleZone()
-        # export.run(self.playground.workflow, self.playground.history[2])
-        # print()
-
-
-        # libraries = (standardlibrary.StandardLibrary, HKESim)
-        # export = bps.Export()
-        # export.run(libraries, reduce.reduced_instances, reduce.connections)
 
 
 

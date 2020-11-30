@@ -149,6 +149,7 @@ class Boiler(element.Element):
     #            port.flow_master = True
 
     def is_generator(self):
+        """boiler is generator function"""
         return True
 
     def get_inner_connections(self):
@@ -387,7 +388,7 @@ class Distributor(element.Element):
 
     pattern_ifc_type = [
         re.compile('Distribution.?chamber', flags=re.IGNORECASE),
-        re.compile('Distributior', flags=re.IGNORECASE),
+        re.compile('Distributor', flags=re.IGNORECASE),
         re.compile('Verteiler', flags=re.IGNORECASE)
     ]
 
@@ -534,20 +535,21 @@ class ThermalZone(element.Element):
 
     def _get_usage(bind, name):
         zone_pattern = []
-        list_org = bind.zone_name.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
-        for i_org in list_org:
-            trans_aux = ts.bing(i_org, from_language='de')
-            # trans_aux = ts.google(i_org, from_language='de')
-            zone_pattern.append(trans_aux)
-
         matches = []
-        # check if a string matches the zone name
-        for usage, pattern in pattern_usage.items():
-            for i in pattern:
-                for i_name in zone_pattern:
-                    if i.match(i_name):
-                        if usage not in matches:
-                            matches.append(usage)
+        if bind.zone_name:
+            list_org = bind.zone_name.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
+            for i_org in list_org:
+                trans_aux = ts.bing(i_org, from_language='de')
+                # trans_aux = ts.google(i_org, from_language='de')
+                zone_pattern.append(trans_aux)
+
+            # check if a string matches the zone name
+            for usage, pattern in pattern_usage.items():
+                for i in pattern:
+                    for i_name in zone_pattern:
+                        if i.match(i_name):
+                            if usage not in matches:
+                                matches.append(usage)
         # if just a match given
         if len(matches) == 1:
             return matches[0]
@@ -671,6 +673,7 @@ class ThermalZone(element.Element):
     )
 
     def __init__(self, *args, **kwargs):
+        """thermalzone __init__ function"""
         super().__init__(*args, **kwargs)
         self.bound_elements = []
         self.is_external = False
@@ -686,6 +689,7 @@ class SpaceBoundary(element.SubElement):
     ifc_type = 'IfcRelSpaceBoundary'
 
     def __init__(self, *args, **kwargs):
+        """spaceboundary __init__ function"""
         super().__init__(*args, **kwargs)
         self.level_description = self.ifc.Description
         self.thermal_zones.append(self.get_object(self.ifc.RelatingSpace.GlobalId))
@@ -721,6 +725,7 @@ class Wall(element.Element):
     material_selected = {}
 
     def __init__(self, *args, **kwargs):
+        """wall __init__ function"""
         super().__init__(*args, **kwargs)
         self.ifc_type = self.ifc.is_a()
         # if self.is_external:
@@ -731,6 +736,7 @@ class Wall(element.Element):
         #     self.__init__()
 
     def _get_layers(bind, name):
+        """wall _get_layers function"""
         layers = []
         material_layers_dict = get_layers_ifc(bind)
         for layer in material_layers_dict:
@@ -764,6 +770,7 @@ class Layer(element.SubElement):
     material_selected = {}
 
     def __init__(self, *args, **kwargs):
+        """layer __init__ function"""
         super().__init__(*args, **kwargs)
         if hasattr(self.ifc, 'Material'):
             material = self.ifc.Material
@@ -860,6 +867,7 @@ class Window(element.Element):
     ]
 
     def _get_layers(bind, name):
+        """window _get_layers function"""
         layers = []
         material_layers_dict = get_layers_ifc(bind)
         for layer in material_layers_dict:
@@ -903,6 +911,7 @@ class Door(element.Element):
     ]
 
     def _get_layers(bind, name):
+        """door _get_layers function"""
         layers = []
         material_layers_dict = get_layers_ifc(bind)
         for layer in material_layers_dict:
@@ -958,6 +967,7 @@ class Slab(element.Element):
     predefined_types = ['FLOOR', 'ROOF', 'LANDING', 'BASESLAB']
 
     def __init__(self, *args, **kwargs):
+        """slab __init__ function"""
         super().__init__(*args, **kwargs)
         # if self.predefined_type == "ROOF":
         #     self.__class__ = Roof
@@ -970,6 +980,7 @@ class Slab(element.Element):
         #     self.__init__()
 
     def _get_layers(bind, name):
+        """slab _get_layers function"""
         layers = []
         material_layers_dict = get_layers_ifc(bind)
         for layer in material_layers_dict:
@@ -1015,6 +1026,7 @@ class Roof(Slab):
     predefined_type = "ROOF"
 
     def __init__(self, *args, **kwargs):
+        """roof __init__ function"""
         if hasattr(self, 'ifc'):
             self.ifc_type = self.ifc.is_a()
         else:
