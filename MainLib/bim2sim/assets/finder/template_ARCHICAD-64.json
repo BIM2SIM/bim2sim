@@ -76,7 +76,7 @@
       "is_external": ["Pset_WindowCommon", "IsExternal"]
     }
   },
-    "Door": {
+  "Door": {
     "default_ps": {
       "area" : ["BaseQuantities", "Area"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],

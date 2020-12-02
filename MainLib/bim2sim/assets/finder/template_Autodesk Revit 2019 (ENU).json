@@ -121,7 +121,7 @@
       "with_AHU" : ["Pset_SpaceThermalRequirements", "AirConditioningCentral"]
     }
   },
-"Building": {
+  "Building": {
     "default_ps": {
       "year_of_construction" : ["Pset_BuildingCommon", "YearOfConstruction"],
       "gross_area" : ["Pset_BuildingCommon", "GrossPlannedArea"],
