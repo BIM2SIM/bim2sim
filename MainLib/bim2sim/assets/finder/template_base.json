@@ -3,14 +3,14 @@
 	"default_ps": {
       "diameter" : {
         "Autodesk Revit 2019 (DEU)": ["Abmessungen", "Nenndurchmesser"],
-        "Autodesk Revit 2019 (ENU)": ["Abmessungen", "Nenndurchmesser"]
+        "Autodesk Revit 2019 (ENU)": ["Pset_PipeFittingTypeCommon", "NominalDiameter"]
       },
       "pressure_class" : {
         "base": ["Pset_PipeFittingTypeCommon", "PressureClass"]
       },
       "length" : {
         "Autodesk Revit 2019 (DEU)": ["Abmessungen", "Muffenl\u00e4nge"],
-        "Autodesk Revit 2019 (ENU)": ["Abmessungen", "Muffenl\u00e4nge"]
+        "Autodesk Revit 2019 (ENU)": ["Qto_PipeFittingTypeCommon", "Length"]
       },
       "radius": {
         "Autodesk Revit 2019 (ENU)": ["Abmessungen", "Bogenradius"]
@@ -24,11 +24,11 @@
 	"default_ps": {
       "diameter" : {
         "Autodesk Revit 2019 (DEU)": ["HLS", "Durchmesser"],
-        "Autodesk Revit 2019 (ENU)": ["Abmessungen", "Innendurchmesser"]
+        "Autodesk Revit 2019 (ENU)": ["Pset_PipeSegmentTypeCommon", "NominalDiameter"]
       },
       "length" : {
         "Autodesk Revit 2019 (DEU)": ["Abmessungen", "L\u00e4nge"],
-        "Autodesk Revit 2019 (ENU)": ["Abmessungen", "L\u00e4nge"]
+        "Autodesk Revit 2019 (ENU)": ["Qto_PipeSegmentBaseQuantities", "Length"]
       }
     }
   },

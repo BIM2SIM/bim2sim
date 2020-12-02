@@ -230,7 +230,7 @@ class Pipe(element.Element):
     ]
 
     diameter = attribute.Attribute(
-        default_ps=('Pset_PipeSegmentTypeCommon', 'NominalDiameter'),
+        default_ps='diameter',
         unit=ureg.millimeter,
         patterns=[
             re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
@@ -247,7 +247,7 @@ class Pipe(element.Element):
             return None
 
     length = attribute.Attribute(
-        default_ps=('Qto_PipeSegmentBaseQuantities', 'Length'),
+        default_ps='length',
         unit=ureg.meter,
         patterns=[
             re.compile('.*Länge.*', flags=re.IGNORECASE),
@@ -288,7 +288,7 @@ class PipeFitting(element.Element):
     ]
 
     diameter = attribute.Attribute(
-        default_ps=('Pset_PipeFittingTypeCommon', 'NominalDiameter'),
+        default_ps='diameter',
         unit=ureg.millimeter,
         patterns=[
             re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
@@ -305,12 +305,12 @@ class PipeFitting(element.Element):
         ],
         default=0,
         ifc_postprocessing=length_post_processing,
-        default_ps=True
+        default_ps='length'
     )
 
     pressure_class = attribute.Attribute(
         unit=ureg.pascal,
-        default_ps=('Pset_PipeFittingTypeCommon', 'PressureClass')
+        default_ps='pressure_class'
     )
 
     @staticmethod
