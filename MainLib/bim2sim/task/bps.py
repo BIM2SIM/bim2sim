@@ -677,7 +677,7 @@ class ExportEP(ITask):
         idf.set_default_constructions()
         self._export_geom_to_idf(instances, idf)
         self._set_output_variables(idf)
-        self._export_surface_areas(idf)
+        self._export_surface_areas(instances, idf)
         idf.save()
         self.logger.info("IDF generation finished!")
 
@@ -1887,14 +1887,14 @@ class ExportEP(ITask):
                          Key_2="DisplayExtraWarnings")
         return idf
 
-    def _export_surface_areas(self, idf):
+    def _export_surface_areas(self, instances, idf):
         """ combines sets of area sums and exports to csv """
         area_df = pd.DataFrame(
-            columns=["granularity", "ID", "out_bound_cond", "area_wall", "area_ceiling", "area_floor", "area_roof",
+            columns=["granularity", "ID", "long_name", "out_bound_cond", "area_wall", "area_ceiling", "area_floor", "area_roof",
                      "area_window", "area_door", "total_surface_area", "total_opening_area"])
         surf = [s for s in idf.idfobjects['BuildingSurface:Detailed'.upper()]]
         glazing = [g for g in idf.idfobjects['FenestrationSurface:Detailed'.upper()]]
-        area_df = self._append_set_of_area_sum(area_df, granularity="GLOBAL", guid="GLOBAL", surface=surf,
+        area_df = self._append_set_of_area_sum(area_df, granularity="GLOBAL", guid="GLOBAL", long_name="GLOBAL", surface=surf,
                                                glazing=glazing)
         zones = [z for z in idf.idfobjects['zone'.upper()]]
         zone_names = [z.Name for z in zones]
@@ -1902,12 +1902,13 @@ class ExportEP(ITask):
         for z_name in zone_names:
             surf_zone = [s for s in surf if s.Zone_Name == z_name]
             surf_names = [s.Name for s in surf_zone]
+            long_name = instances[z_name].ifc.LongName
             glazing_zone = [g for g in glazing for s_name in surf_names if g.Building_Surface_Name == s_name]
-            area_df = self._append_set_of_area_sum(area_df, granularity="ZONE", guid=z_name, surface=surf_zone,
-                                                   glazing=glazing_zone)
+            area_df = self._append_set_of_area_sum(area_df, granularity="ZONE", guid=z_name, long_name=long_name,
+                                                   surface=surf_zone, glazing=glazing_zone)
         area_df.to_csv(path_or_buf=str(PROJECT.export) + "/area.csv")
 
-    def _append_set_of_area_sum(self, area_df, granularity, guid, surface, glazing):
+    def _append_set_of_area_sum(self, area_df, granularity, guid, long_name, surface, glazing):
         """ generate set of area sums for a given granularity for outdoor, surface and adiabatic boundary conditions.
         Appends set to a given dataframe.
         """
@@ -1918,13 +1919,13 @@ class ExportEP(ITask):
         glazing_surface = [g for g in glazing if g.Outside_Boundary_Condition_Object != ""]
         glazing_adiabatic = []
         area_df = area_df.append([
-            self._sum_of_surface_area(granularity=granularity, guid=guid, out_bound_cond="ALL", surface=surface,
-                                      glazing=glazing),
-            self._sum_of_surface_area(granularity=granularity, guid=guid, out_bound_cond="Outdoors",
+            self._sum_of_surface_area(granularity=granularity, guid=guid, long_name=long_name, out_bound_cond="ALL",
+                                      surface=surface, glazing=glazing),
+            self._sum_of_surface_area(granularity=granularity, guid=guid, long_name=long_name, out_bound_cond="Outdoors",
                                       surface=surf_outdoors, glazing=glazing_outdoors),
-            self._sum_of_surface_area(granularity=granularity, guid=guid, out_bound_cond="Surface",
+            self._sum_of_surface_area(granularity=granularity, guid=guid, long_name=long_name, out_bound_cond="Surface",
                                       surface=surf_surface, glazing=glazing_surface),
-            self._sum_of_surface_area(granularity=granularity, guid=guid, out_bound_cond="Adiabatic",
+            self._sum_of_surface_area(granularity=granularity, guid=guid, long_name=long_name, out_bound_cond="Adiabatic",
                                       surface=surf_adiabatic, glazing=glazing_adiabatic)
         ],
             ignore_index=True
@@ -1932,11 +1933,12 @@ class ExportEP(ITask):
         return area_df
 
     @staticmethod
-    def _sum_of_surface_area(granularity, guid, out_bound_cond, surface, glazing):
+    def _sum_of_surface_area(granularity, guid, long_name, out_bound_cond, surface, glazing):
         """ generate row with sum of surface and opening areas to be appended to larger dataframe"""
         row = {
             "granularity": granularity,
             "ID": guid,
+            "long_name": long_name,
             "out_bound_cond": out_bound_cond,
             "area_wall": sum(s.area for s in surface if s.Surface_Type == "Wall"),
             "area_ceiling": sum(s.area for s in surface if s.Surface_Type == "Ceiling"),
