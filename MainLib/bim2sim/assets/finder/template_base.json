@@ -1,4 +1,11 @@
 {
+  "source_tools":[
+    "ARCHICAD-64",
+    "Autodesk Revit 2018 (DEU)",
+    "Autodesk Revit 2019 (DEU)",
+    "Autodesk Revit 2019 (ENU)",
+    "Autodesk Revit 2020 (DEU)"
+  ],
   "PipeFitting": {
 	"default_ps": {
       "diameter" : {

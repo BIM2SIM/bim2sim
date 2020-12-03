@@ -298,19 +298,19 @@ class PipeFitting(element.Element):
     )
 
     length = attribute.Attribute(
+        default_ps='length',
         unit=ureg.meter,
         patterns=[
             re.compile('.*Länge.*', flags=re.IGNORECASE),
             re.compile('.*Length.*', flags=re.IGNORECASE),
         ],
         default=0,
-        ifc_postprocessing=length_post_processing,
-        default_ps='length'
+        ifc_postprocessing=length_post_processing
     )
 
     pressure_class = attribute.Attribute(
-        unit=ureg.pascal,
-        default_ps='pressure_class'
+        default_ps='pressure_class',
+        unit=ureg.pascal
     )
 
     @staticmethod
@@ -541,7 +541,7 @@ class ThermalZone(element.Element):
     ]
 
     zone_name = attribute.Attribute(
-        default_ps=True
+        default_ps='zone_name'
     )
 
     def _get_usage(bind, name):
@@ -664,21 +664,21 @@ class ThermalZone(element.Element):
     )
 
     t_set_heat = attribute.Attribute(
-        default_ps=True
+        default_ps='t_set_heat'
     )
     t_set_cool = attribute.Attribute(
-        default_ps=True
+        default_ps='t_set_cool'
     )
     area = attribute.Attribute(
-        default_ps=True,
+        default_ps='area',
         default=0
     )
     net_volume = attribute.Attribute(
-        default_ps=True,
+        default_ps='net_volume',
         default=0
     )
     height = attribute.Attribute(
-        default_ps=True,
+        default_ps='height',
         default=0
     )
 
@@ -756,17 +756,17 @@ class Wall(element.Element):
     )
 
     area = attribute.Attribute(
-        default_ps=True,
+        default_ps='area',
         default=1
     )
 
     is_external = attribute.Attribute(
-        default_ps=True,
+        default_ps='is_external',
         default=False
     )
 
     tilt = attribute.Attribute(
-        default_ps=True,
+        default_ps='tilt',
         default=0
     )
 
@@ -830,20 +830,20 @@ class Layer(element.SubElement):
                 return real_decision_user_input(bind, name)
 
     heat_capac = attribute.Attribute(
-        default_ps=True,
+        default_ps='heat_capac',
         functions=[_get_material_properties],
         default=0
     )
 
     density = attribute.Attribute(
         functions=[_get_material_properties],
-        default_ps=True,
+        default_ps='density',
         default=0
     )
 
     thermal_conduc = attribute.Attribute(
         functions=[_get_material_properties],
-        default_ps=True,
+        default_ps='thermal_conduc',
         default=0
     )
 
@@ -885,17 +885,17 @@ class Window(element.Element):
     )
 
     is_external = attribute.Attribute(
-        default_ps=True,
+        default_ps='is_external',
         default=True
     )
 
     area = attribute.Attribute(
-        default_ps=True,
+        default_ps='area',
         default=0
     )
 
     thickness = attribute.Attribute(
-        default_ps=True,
+        default_ps='thickness',
         default=0
     )
 
@@ -928,17 +928,17 @@ class Door(element.Element):
     )
 
     is_external = attribute.Attribute(
-        default_ps=True,
+        default_ps='is_external',
         default=False
     )
 
     area = attribute.Attribute(
-        default_ps=True,
+        default_ps='area',
         default=0
     )
 
     thickness = attribute.Attribute(
-        default_ps=True,
+        default_ps='thickness',
         default=0
     )
 
@@ -994,22 +994,22 @@ class Slab(element.Element):
         functions=[_get_layers]
     )
     area = attribute.Attribute(
-        default_ps=True,
+        default_ps='area',
         default=0
     )
 
     thickness = attribute.Attribute(
-        default_ps=True,
+        default_ps='thickness',
         default=0
     )
 
     thermal_transmittance = attribute.Attribute(
-        default_ps=True,
+        default_ps='thermal_transmittance',
         default=0
     )
 
     is_external = attribute.Attribute(
-        default_ps=True,
+        default_ps='is_external',
         default=0
     )
 
@@ -1054,19 +1054,19 @@ class Building(element.Element):
     ifc_type = "IfcBuilding"
 
     year_of_construction = attribute.Attribute(
-        default_ps=True
+        default_ps='year_of_construction'
     )
     gross_area = attribute.Attribute(
-        default_ps=True
+        default_ps='gross_area'
     )
     net_area = attribute.Attribute(
-        default_ps=True
+        default_ps='net_area'
     )
     number_of_storeys = attribute.Attribute(
-        default_ps=True
+        default_ps='number_of_storeys'
     )
     occupancy_type = attribute.Attribute(
-        default_ps=True
+        default_ps='occupancy_type'
     )
 
 
@@ -1074,17 +1074,17 @@ class Storey(element.Element):
     ifc_type = 'IfcBuildingStorey'
 
     gross_floor_area = attribute.Attribute(
-        default_ps=True
+        default_ps='gross_floor_area'
     )
     # todo make the lookup for height hierarchical
     net_height = attribute.Attribute(
-        default_ps=True
+        default_ps='net_height'
     )
     gross_height = attribute.Attribute(
-        default_ps=True
+        default_ps='gross_height'
     )
     height = attribute.Attribute(
-        default_ps=True
+        default_ps='height'
     )
 
 
