@@ -8,6 +8,7 @@ from bim2sim.decision import RealDecision, BoolDecision, ListDecision
 from bim2sim.task.bps_f.bps_functions import get_matches_list
 
 from bim2sim.kernel.units import ureg
+import inspect
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -15,6 +16,7 @@ quality_logger = logging.getLogger('bim2sim.QualityReport')
 
 class AutoAttributeNameMeta(type):
     """Detect setting on Attributes on class level and set name as given"""
+
     def __init__(cls, name, bases, namespace):
         super(AutoAttributeNameMeta, cls).__init__(name, bases, namespace)
         for name, obj in namespace.items():

@@ -137,6 +137,7 @@ class ExportTEASER(ITask):
         bldg = Building(parent=parent)
         # name is important here
         cls._teaser_property_getter(bldg, instance, instance.finder.templates)
+        cls.instance_template[bldg.name] = {}  # create instance template dict
         return bldg
 
     @classmethod
@@ -158,8 +159,8 @@ class ExportTEASER(ITask):
         if value is valid, returns the value
         invalid value: ZeroDivisionError on thermal zone calculations"""
         error_properties = ['density', 'thickness']  # properties that are vital to thermal zone calculations
-
-        if (aux is None or aux == 0) and key != 'orientation':
+        white_list_properties = ['orientation']
+        if (aux is None or aux == 0) and key not in white_list_properties:
             # name from instance to store in error dict
             name_error = instance.name
             if hasattr(instance, 'material'):
@@ -178,7 +179,7 @@ class ExportTEASER(ITask):
                     cls.property_error[name_error] = {}
                 if key not in cls.property_error[name_error]:
                     cls.property_error[name_error][key] = aux
-        # orientation case (in which is valid a 0)
+        # set attr on teaser instance
         setattr(teaser_instance, key, aux)
 
     @classmethod
@@ -243,8 +244,9 @@ class ExportTEASER(ITask):
             template_value = None
             if len(template_options) > 1:
                 decision_template = ListDecision("the following construction types were "
-                                                 "found for year %s and instance %s"
-                                                 % (bldg.year_of_construction, teaser_instance.name),
+                                                 "found for year %s and instance %s (%s)"
+                                                 % (bldg.year_of_construction, teaser_instance.name,
+                                                    type(teaser_instance).__name__),
                                                  choices=template_options,
                                                  allow_skip=True, allow_load=True, allow_save=True,
                                                  collect=False, quick_decide=not True)
@@ -252,7 +254,7 @@ class ExportTEASER(ITask):
                 template_value = decision_template.value
             elif len(template_options) == 1:
                 template_value = template_options[0]
-            cls.instance_template[bldg.name] = [years_group, template_value]
+            cls.instance_template[bldg.name][type(teaser_instance).__name__] = [years_group, template_value]
             teaser_instance.load_type_element(year=bldg.year_of_construction, construction=template_value)
 
     @classmethod
@@ -271,11 +273,13 @@ class ExportTEASER(ITask):
         instance_templates = dict(prj.data.element_bind)
         del instance_templates["version"]
         if bldg.name in cls.instance_template:
-            year_group = str(cls.instance_template[bldg.name][0])
-            selected_template = cls.instance_template[bldg.name][1]
-            aux_template = '%s_%s_%s' % (instance_type, year_group, selected_template)
-            if aux_template in instance_templates:
-                return [selected_template], year_group
+            teaser_name = type(teaser_instance).__name__
+            if teaser_name in cls.instance_template[bldg.name]:
+                year_group = str(cls.instance_template[bldg.name][teaser_name][0])
+                selected_template = cls.instance_template[bldg.name][teaser_name][1]
+                aux_template = '%s_%s_%s' % (instance_type, year_group, selected_template)
+                if aux_template in instance_templates:
+                    return [selected_template], year_group
 
         template_options = []
         for i in instance_templates:

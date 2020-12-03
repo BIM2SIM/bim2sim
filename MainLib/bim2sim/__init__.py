@@ -15,6 +15,10 @@ from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparated
 
 VERSION = '0.1-dev'
 
+workflow_getter = {'aixlib': PlantSimulation,
+                   'TEASER': BPSMultiZoneSeparated,
+                   'hkesim': PlantSimulation}
+
 
 def get_backends(by_entrypoint=False):
     """load all possible plugins"""
@@ -41,11 +45,11 @@ def get_backends(by_entrypoint=False):
     return sim
 
 
+
 def finish():
     """cleanup method"""
     logger = logging.getLogger(__name__)
     logger.info('finished')
-
 
 def logging_setup():
     """Setup for logging module"""
@@ -100,8 +104,9 @@ def main(rootpath=None):
     if not BIM2SIMManager in manager_cls.__bases__:
         raise AttributeError("Got invalid manager from %s" % (backend))
 
-    workflow = PlantSimulation()  # TODO
-
+    workflow_class = workflow_getter.get(backend, None)
+    if workflow_class is not None:
+        workflow = workflow_class()
 
     # prepare simulation
     manager = manager_cls(workflow)

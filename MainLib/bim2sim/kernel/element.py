@@ -125,7 +125,7 @@ class IFCBased(Root):
             super().__init__(*args, guid=self.get_id(type(self).__name__), **kwargs)
 
         self.ifc = ifc
-        if len(ifc.Name) > 0:
+        if ifc.Name is not None and len(ifc.Name) > 0:
             self.name = ifc.Name
         else:
             self.name = input("Please enter name for the instance %s"
