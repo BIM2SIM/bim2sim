@@ -1124,3 +1124,4 @@ class Storey(element.Element):
 
 
 __all__ = [ele for ele in locals().values() if ele in element.Element.__subclasses__()]
+schema = 'IFC4'
