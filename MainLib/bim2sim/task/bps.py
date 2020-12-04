@@ -1890,12 +1890,12 @@ class ExportEP(ITask):
     def _export_surface_areas(self, instances, idf):
         """ combines sets of area sums and exports to csv """
         area_df = pd.DataFrame(
-            columns=["granularity", "ID", "long_name", "out_bound_cond", "area_wall", "area_ceiling", "area_floor", "area_roof",
-                     "area_window", "area_door", "total_surface_area", "total_opening_area"])
-        surf = [s for s in idf.idfobjects['BuildingSurface:Detailed'.upper()]]
+            columns=["granularity", "ID", "long_name", "out_bound_cond", "area_wall", "area_ceiling", "area_floor",
+                     "area_roof", "area_window", "area_door", "total_surface_area", "total_opening_area"])
+        surf = [s for s in idf.idfobjects['BuildingSurface:Detailed'.upper()] if s.Construction_Name != 'Air Wall']
         glazing = [g for g in idf.idfobjects['FenestrationSurface:Detailed'.upper()]]
-        area_df = self._append_set_of_area_sum(area_df, granularity="GLOBAL", guid="GLOBAL", long_name="GLOBAL", surface=surf,
-                                               glazing=glazing)
+        area_df = self._append_set_of_area_sum(area_df, granularity="GLOBAL", guid="GLOBAL", long_name="GLOBAL",
+                                               surface=surf, glazing=glazing)
         zones = [z for z in idf.idfobjects['zone'.upper()]]
         zone_names = [z.Name for z in zones]
 
