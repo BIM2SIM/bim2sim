@@ -164,10 +164,9 @@ class RoofFunctions:
 
     def __init__(self, *args, **kwargs):
         """roof __init__ function"""
+        super().__init__(*args, **kwargs)
         if hasattr(self, 'ifc'):
             self.ifc_type = self.ifc.is_a()
-        else:
-            super().__init__(*args, **kwargs)
 
 
 class SlabFunctions:
@@ -319,20 +318,21 @@ class ThermalZoneFunctions:
 
     def _get_usage(bind, name):
         zone_pattern = []
-        list_org = bind.zone_name.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
-        for i_org in list_org:
-            trans_aux = ts.bing(i_org, from_language='de')
-            # trans_aux = ts.google(i_org, from_language='de')
-            zone_pattern.append(trans_aux)
-
         matches = []
-        # check if a string matches the zone name
-        for usage, pattern in pattern_usage.items():
-            for i in pattern:
-                for i_name in zone_pattern:
-                    if i.match(i_name):
-                        if usage not in matches:
-                            matches.append(usage)
+        if bind.zone_name:
+            list_org = bind.zone_name.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
+            for i_org in list_org:
+                trans_aux = ts.bing(i_org, from_language='de')
+                # trans_aux = ts.google(i_org, from_language='de')
+                zone_pattern.append(trans_aux)
+
+            # check if a string matches the zone name
+            for usage, pattern in pattern_usage.items():
+                for i in pattern:
+                    for i_name in zone_pattern:
+                        if i.match(i_name):
+                            if usage not in matches:
+                                matches.append(usage)
         # if just a match given
         if len(matches) == 1:
             return matches[0]

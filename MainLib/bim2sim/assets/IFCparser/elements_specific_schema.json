@@ -25,6 +25,12 @@
         "    return value",
         "",
         "",
+        "def length_post_processing(value):",
+        "    if isinstance(value, list):",
+        "        return max(value)",
+        "    return value",
+        "",
+        "",
         "pattern_usage = get_pattern_usage()",
         ""
     ],
@@ -125,7 +131,7 @@
         "name": "Pipe",
         "attributes": {
             "diameter": [
-                "default_ps=('Pset_PipeSegmentTypeCommon', 'NominalDiameter'),",
+                "default_ps='diameter',",
                 "unit=ureg.millimeter,",
                 "patterns=[",
                 "re.compile('.*Durchmesser.*', flags=re.IGNORECASE),",
@@ -134,12 +140,13 @@
                 "ifc_postprocessing=diameter_post_processing,"
             ],
             "length": [
-                "default_ps=('Qto_PipeSegmentBaseQuantities', 'Length'),",
+                "default_ps='length',",
                 "unit=ureg.meter,",
                 "patterns=[",
                 "re.compile('.*L\u00e4nge.*', flags=re.IGNORECASE),",
                 "re.compile('.*Length.*', flags=re.IGNORECASE),",
                 "],",
+                "ifc_postprocessing=length_post_processing,",
                 "functions=[_length_from_geometry],"
             ]
         },
@@ -154,7 +161,7 @@
     "IfcPipeFitting": {
         "attributes": {
             "diameter": [
-                "default_ps=('Pset_PipeFittingTypeCommon', 'NominalDiameter'),",
+                "default_ps='diameter',",
                 "unit=ureg.millimeter,",
                 "patterns=[",
                 "re.compile('.*Durchmesser.*', flags=re.IGNORECASE),",
@@ -163,13 +170,18 @@
                 "ifc_postprocessing=diameter_post_processing,"
             ],
             "length": [
+                "default_ps='length',",
                 "unit=ureg.meter,",
+                "patterns=[",
+                "re.compile('.*L\u00e4nge.*', flags=re.IGNORECASE),",
+                "re.compile('.*Length.*', flags=re.IGNORECASE),",
+                "],",
                 "default=0,",
-                "default_ps=True"
+                "ifc_postprocessing=length_post_processing"
             ],
             "pressure_class": [
-                "unit=ureg.pascal,",
-                "default_ps=('Pset_PipeFittingTypeCommon', 'PressureClass')"
+                "default_ps='pressure_class',",
+                "unit=ureg.pascal"
             ]
         },
         "conditions": [
@@ -327,27 +339,27 @@
         "name": "ThermalZone",
         "attributes": {
             "zone_name": [
-                "default_ps=True"
+                "default_ps='zone_name'"
             ],
             "usage": [
                 "functions=[_get_usage]"
             ],
             "t_set_heat": [
-                "default_ps=True"
+                "default_ps='t_set_heat'"
             ],
             "t_set_cool": [
-                "default_ps=True"
+                "default_ps='t_set_cool'"
             ],
             "area": [
-                "default_ps=True,",
+                "default_ps='area',",
                 "default=0"
             ],
             "net_volume": [
-                "default_ps=True,",
+                "default_ps='net_volume',",
                 "default=0"
             ],
             "height": [
-                "default_ps=True,",
+                "default_ps='height',",
                 "default=0"
             ]
         },
@@ -390,15 +402,15 @@
                 "functions=[_get_layers]"
             ],
             "area": [
-                "default_ps=True,",
+                "default_ps='area',",
                 "default=1"
             ],
             "is_external": [
-                "default_ps=True,",
+                "default_ps='is_external',",
                 "default=False"
             ],
             "tilt": [
-                "default_ps=True,",
+                "default_ps='tilt',",
                 "default=0"
             ]
         },
@@ -420,18 +432,18 @@
         "parent": "element.SubElement",
         "attributes": {
             "heat_capac": [
-                "default_ps=True,",
+                "default_ps='heat_capac',",
                 "functions=[_get_material_properties],",
                 "default=0"
             ],
             "density": [
                 "functions=[_get_material_properties],",
-                "default_ps=True,",
+                "default_ps='density',",
                 "default=0"
             ],
             "thermal_conduc": [
                 "functions=[_get_material_properties],",
-                "default_ps=True,",
+                "default_ps='thermal_conduc',",
                 "default=0"
             ]
         },
@@ -447,19 +459,15 @@
                 "functions=[_get_layers]"
             ],
             "is_external": [
-                "default_ps=True,",
+                "default_ps='is_external',",
                 "default=True"
             ],
             "area": [
-                "default_ps=True,",
+                "default_ps='area',",
                 "default=0"
             ],
             "thickness": [
-                "default_ps=True,",
-                "default=0"
-            ],
-            "material": [
-                "default_ps=True,",
+                "default_ps='thickness',",
                 "default=0"
             ]
         },
@@ -477,19 +485,15 @@
                 "functions=[_get_layers]"
             ],
             "is_external": [
-                "default_ps=True,",
+                "default_ps='is_external',",
                 "default=False"
             ],
             "area": [
-                "default_ps=True,",
+                "default_ps='area',",
                 "default=0"
             ],
             "thickness": [
-                "default_ps=True,",
-                "default=0"
-            ],
-            "material": [
-                "default_ps=True,",
+                "default_ps='thickness',",
                 "default=0"
             ]
         },
@@ -510,19 +514,19 @@
                 "functions=[_get_layers]"
             ],
             "area": [
-                "default_ps=True,",
+                "default_ps='area',",
                 "default=0"
             ],
             "thickness": [
-                "default_ps=True,",
+                "default_ps='thickness',",
                 "default=0"
             ],
             "thermal_transmittance": [
-                "default_ps=True,",
+                "default_ps='thermal_transmittance',",
                 "default=0"
             ],
             "is_external": [
-                "default_ps=True,",
+                "default_ps='is_external',",
                 "default=0"
             ]
         },
@@ -549,19 +553,19 @@
     "IfcBuilding": {
         "attributes": {
             "year_of_construction": [
-                "default_ps=True"
+                "default_ps='year_of_construction'"
             ],
             "gross_area": [
-                "default_ps=True"
+                "default_ps='gross_area'"
             ],
             "net_area": [
-                "default_ps=True"
+                "default_ps='net_area'"
             ],
             "number_of_storeys": [
-                "default_ps=True"
+                "default_ps='number_of_storeys'"
             ],
             "occupancy_type": [
-                "default_ps=True"
+                "default_ps='occupancy_type'"
             ]
         }
     },
@@ -569,16 +573,16 @@
         "name": "Storey",
         "attributes": {
             "gross_floor_area": [
-                "default_ps=True"
+                "default_ps='gross_floor_area'"
             ],
             "net_height": [
-                "default_ps=True"
+                "default_ps='net_height'"
             ],
             "gross_height": [
-                "default_ps=True"
+                "default_ps='gross_height'"
             ],
             "height": [
-                "default_ps=True"
+                "default_ps='height'"
             ]
         }
     }
