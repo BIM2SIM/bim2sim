@@ -803,6 +803,8 @@ class SpaceBoundary(element.SubElement):
     def get_bound_neighbors(self):
         neighbors = []
         space_bounds = []
+        if not hasattr(self.thermal_zones[0], 'space_boundaries'):
+            return None
         if len(self.thermal_zones[0].space_boundaries) == 0:
             for obj in self.thermal_zones[0].objects:
                 this_obj = self.thermal_zones[0].objects[obj]

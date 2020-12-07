@@ -84,8 +84,12 @@ class Inspect(Task):
         self.logger.info("Create space boundaries by semantic detection")
         ifc_type = 'IfcRelSpaceBoundary'
         entities = ifc.by_type(ifc_type)
+        self.skipped_bounds = []
         for entity in entities:
             space_boundary = SubElement.factory(entity, ifc_type)
+            if space_boundary.thermal_zones[0] == None:
+                self.skipped_bounds.append(space_boundary)
+                continue
             self.instances[space_boundary.guid] = space_boundary
             self.bind_space_to_space_boundaries(space_boundary)
 
