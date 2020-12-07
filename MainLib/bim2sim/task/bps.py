@@ -678,6 +678,7 @@ class ExportEP(ITask):
         self._export_geom_to_idf(instances, idf)
         self._set_output_variables(idf)
         self._export_surface_areas(instances, idf)
+        self._export_space_info(instances, idf)
         idf.save()
         self.logger.info("IDF generation finished!")
 
@@ -1950,6 +1951,24 @@ class ExportEP(ITask):
             "total_opening_area": sum(g.area for g in glazing)
         }
         return row
+
+    def _export_space_info(self, instances, idf):
+        space_df = pd.DataFrame(
+            columns=["ID", "long_name", "space_center", "space_volume"])
+        for inst in instances:
+            if instances[inst].ifc_type != "IfcSpace":
+                continue
+            space = instances[inst]
+            space_df = space_df.append([
+                {
+                    "ID": space.guid,
+                    "long_name": space.ifc.LongName,
+                    "space_center": space.space_center.XYZ().Coord(),
+                    "space_volume": space.space_volume
+                }],
+                ignore_index=True
+            )
+            space_df.to_csv(path_or_buf=str(PROJECT.export) + "/space.csv")
 
     @staticmethod
     def _get_neighbor_bounds(instances):
