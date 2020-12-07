@@ -291,8 +291,7 @@ class LoadIFC(ITask):
     def get_ifc_structure(self, ifc):
         """creates elements.py file based on elements_specific_schema.json, elements_functions.py
             and schema for specific schema of ifc"""
-        # if elements.schema != ifc.schema:
-        if 1 != ifc.schema:
+        if elements.schema != ifc.schema:
             structure_decision = BoolDecision(question="The schema of the ifc file (%s) doesn't correspond to the "
                                                        "schema of elements.py (%s) Do you want to modify elements.py "
                                                        "based on the schema of the ifc file?" % (ifc.schema,

@@ -563,6 +563,9 @@ class ThermalZone(element.Element):
     def _get_usage(bind, name):
         zone_pattern = []
         matches = []
+        x = bind.zone_name
+        if bind.guid == '3txvJd9V1BPhyU$48F$mnF':
+            print()
         if bind.zone_name:
             list_org = bind.zone_name.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
             for i_org in list_org:
@@ -795,7 +798,7 @@ class Wall(element.Element):
 
 class Layer(element.SubElement):
     ifc_type = ['IfcMaterialLayer', 'IfcMaterial']
-    workflow = ['BPSMultiZoneSeparated']
+    # workflow = ['BPSMultiZoneSeparated']
     material_selected = {}
 
     def __init__(self, *args, **kwargs):
@@ -826,11 +829,13 @@ class Layer(element.SubElement):
             else:
                 return real_decision_user_input(bind, name)
         else:
-            first_decision = BoolDecision(question="Do you want for %s with the material %s to use avaiable templates, "
+            first_decision = BoolDecision(question="Do you want for %s with the material %s to use available templates, "
                                                    "enter 'n' for manual input"
                                                    % (bind.guid, bind.material),
                                           collect=False)
             first_decision.decide()
+            x =bind.parent
+            y = bind.ifc
             first_decision.stored_decisions.clear()
 
             if first_decision.value:

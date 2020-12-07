@@ -122,7 +122,8 @@ class Bind(Task):
         bind_decision = BoolDecision(question="Do you want for thermal zones to be bind? - this allows to bind the "
                                               "thermal zones into a thermal zone aggregation based on different "
                                               "criteria -> Simplified operations",
-                                     collect=False)
+                                     collect=False
+                                     )
         bind_decision.decide()
         if bind_decision.value:
             criteria_functions = {}

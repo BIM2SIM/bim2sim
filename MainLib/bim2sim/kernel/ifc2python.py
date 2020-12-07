@@ -7,6 +7,7 @@ import logging
 import ifcopenshell
 from bim2sim.kernel.units import ifcunits, ureg, parse_ifc
 import math
+from collections.abc import Iterable
 
 def load_ifc(path):
     logger = logging.getLogger('bim2sim')
@@ -108,8 +109,9 @@ def get_layers_ifc(element):
                 layer_list = association.ForLayerSet.MaterialLayers
             elif hasattr(association, 'Materials'):
                 layer_list = association.Materials
-            for layer in layer_list:
-                dict.append(layer)
+            if isinstance(layer_list, Iterable):
+                for layer in layer_list:
+                    dict.append(layer)
     return dict
 
 

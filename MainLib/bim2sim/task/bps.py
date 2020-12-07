@@ -158,13 +158,14 @@ class ExportTEASER(ITask):
         """Filter the invalid property values and fills it with a template or an user given value,
         if value is valid, returns the value
         invalid value: ZeroDivisionError on thermal zone calculations"""
-        error_properties = ['density', 'thickness']  # properties that are vital to thermal zone calculations
+        error_properties = ['density', 'thickness', 'heat_capac', 'thermal_conduc']  # properties that are vital to thermal zone calculations
         white_list_properties = ['orientation']
         if (aux is None or aux == 0) and key not in white_list_properties:
             # name from instance to store in error dict
-            name_error = instance.name
             if hasattr(instance, 'material'):
                 name_error = instance.material
+            else:
+                name_error = instance.name
             try:
                 aux = cls.property_error[name_error][key]
             # redundant case for invalid properties

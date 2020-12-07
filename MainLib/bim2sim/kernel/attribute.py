@@ -136,6 +136,8 @@ class Attribute:
             bind._tool = source_tool
             bind.get_project().OwnerHistory.OwningApplication.ApplicationFullName = source_tool
         default = None
+        if type(bind).__name__ == 'Layer':
+            print()
         if type(bind).__name__ in template:
             if name in template[type(bind).__name__]['default_ps']:
                 # base template

@@ -457,7 +457,7 @@
       }
     }
   },
-  "Material": {
+  "Layer": {
     "exporter": {
       "teaser": {
         "name": ["instance", "material"],
@@ -475,6 +475,16 @@
       },
       "density" :  {
         "base": ["Pset_MaterialCommon", "MassDensity"]
+      }
+    }
+  },
+  "Material": {
+    "exporter": {
+      "teaser": {
+        "name": ["instance", "material"],
+        "density": ["instance", "density"],
+        "heat_capac": ["instance", "heat_capac"],
+        "thermal_conduc": ["instance", "thermal_conduc"]
       }
     }
   },
