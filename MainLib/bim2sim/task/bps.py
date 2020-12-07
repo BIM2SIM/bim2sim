@@ -2445,6 +2445,10 @@ class IdfObject():
         self.related_bound = inst_obj.related_bound
         self.skip_bound = False
         self.bound_shape = inst_obj.bound_shape
+        if not hasattr(inst_obj.thermal_zones[0], 'guid'):
+            self.skip_bound = True
+            return
+        self.zone_name = inst_obj.thermal_zones[0].guid
         if hasattr(inst_obj, 'related_parent_bound'):
             self.key = "FENESTRATIONSURFACE:DETAILED"
         else:
