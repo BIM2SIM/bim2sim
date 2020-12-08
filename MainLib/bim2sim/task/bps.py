@@ -2788,7 +2788,7 @@ class IdfObject():
             self.out_bound_cond = 'Adiabatic'
             self.sun_exposed = 'NoSun'
             self.wind_exposed = 'NoWind'
-        elif inst_obj.is_external and inst_obj.physical:
+        elif inst_obj.is_external and inst_obj.physical and not self.surface_type == 'Floor':
             self.out_bound_cond = 'Outdoors'
             self.sun_exposed = 'SunExposed'
             self.wind_exposed = 'WindExposed'
