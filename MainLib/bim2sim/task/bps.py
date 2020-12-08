@@ -1726,18 +1726,19 @@ class ExportEP(ITask):
                              Schedule_Type_Limits_Name="Any Number",
                              Field_1="Through: 12/31",
                              Field_2="For: Alldays",
-                             Field_3="Until: 24:00",
-                             Field_4="100"
-                             )
+                             Field_3="Until: 24:00", #Max: "persons_profile"
+                             Field_4="100" # in W/Person #Max: ="persons_profile"*"fixed_heat_flow_rate_persons"
+                             )#other method for Field_4 (not used here) ="persons_profile"*"activity_degree_persons"*58,1*1,8 (58.1 W/(m2*met), 1.8m2/Person)
 
         people = idf.newidfobject(
             "PEOPLE",
             Name=name,
             Zone_or_ZoneList_Name=zone_name,
             Number_of_People_Calculation_Method="People/Area",
-            People_per_Zone_Floor_Area=0.1,
+            People_per_Zone_Floor_Area=0.1, #Max: "persons"
             Activity_Level_Schedule_Name="ActSchDefault",
             Number_of_People_Schedule_Name="Multifamily OneZone Occupancy"
+            # Max: add "Fraction_Radiant" = "ratio_conv_rad_persons"
         )
 
     @staticmethod
@@ -1748,20 +1749,21 @@ class ExportEP(ITask):
             "ELECTRICEQUIPMENT",
             Name=name,
             Zone_or_ZoneList_Name=zone_name,
-            Schedule_Name="Multifamily OneZone Equipment",
+            Schedule_Name="Multifamily OneZone Equipment", #Max: Define new Schedule:Compact based on "machines_profile"
             Design_Level_Calculation_Method="Watts/Area",
-            Watts_per_Zone_Floor_Area=12
+            Watts_per_Zone_Floor_Area=12 #Max: "machines"
+            #Max: add "Fraction_Radiant" = "ratio_conv_rad_machines"
         )
 
     @staticmethod
     def _set_lights(idf, name, zone_name="All_Zones", method='area'):
         #TODO: Define lighting parameters based on IFC (and User-Input otherwise)
-        schedule_name = "Multifamily OneZone Lighting"
+        schedule_name = "Multifamily OneZone Lighting" #Max: Define new Schedule:Compact based on "lighting_profile"
         mode = "Watts/Area"
-        watts_per_zone_floor_area = 16
+        watts_per_zone_floor_area = 16 #Max: "lighting_power"
         return_air_fraction = 0.0
-        fraction_radiant = 0.42
-        fraction_visible = 0.18
+        fraction_radiant = 0.42 #cf. Table 1.28 in InputOutputReference EnergyPlus (Version 9.4.0), p. 506
+        fraction_visible = 0.18 #Max: fractions do not match with .json Data. Maybe set by user-input later
 
         lights = idf.newidfobject(
             "LIGHTS",
@@ -1781,9 +1783,9 @@ class ExportEP(ITask):
             "ZONEINFILTRATION:DESIGNFLOWRATE",
             Name=name,
             Zone_or_ZoneList_Name=zone_name,
-            Schedule_Name="Continuous",
+            Schedule_Name="Continuous", #Max: if "use_constant_infiltration"==True (this default continuous schedule seems to be constant anyways")
             Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-            Air_Changes_per_Hour=0.1,
+            Air_Changes_per_Hour=0.1, #Max: infiltration_rate
         )
 
     def _set_hvac_template(self, idf, name, heating_sp, cooling_sp, mode='setback'):
@@ -1797,8 +1799,8 @@ class ExportEP(ITask):
         elif cooling_sp < 24:
             cooling_sp = 23
 
-        setback_htg = 18
-        setback_clg = 26
+        setback_htg = 18 #Max: "T_threshold_heating"
+        setback_clg = 26 #Max: "T_threshold_cooling"
 
         # ensure setback temperature actually performs a setback on temperature
         if setback_htg > heating_sp:
@@ -1815,7 +1817,7 @@ class ExportEP(ITask):
                 htg_sched = self._write_schedule(idf, htg_name, [htg_alldays,])
             else:
                 htg_sched = idf.getobject("SCHEDULE:COMPACT", htg_name)
-            if idf.getobject("SCHEDULE:COMPACT", clg_name) is None:
+            if idf.getobject("SCHEDULE:COMPACT", clg_name) is None: #Max: only if "with_cooling"==True
                 clg_sched = self._write_schedule(idf, clg_name, [clg_alldays,])
             else:
                 clg_sched = idf.getobject("SCHEDULE:COMPACT", clg_name)
@@ -1823,7 +1825,7 @@ class ExportEP(ITask):
                 "HVACTEMPLATE:THERMOSTAT",
                 Name="STAT_" + name,
                 Heating_Setpoint_Schedule_Name=htg_name,
-                Cooling_Setpoint_Schedule_Name=clg_name,
+                Cooling_Setpoint_Schedule_Name=clg_name, #Max: only if "with_cooling"==True
             )
 
         if mode == "constant":
