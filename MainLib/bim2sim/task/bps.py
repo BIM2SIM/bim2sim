@@ -2460,7 +2460,6 @@ class IdfObject():
         self.surface_type = None
         self.virtual_physical = None
         self.construction_name = None
-        self.zone_name = inst_obj.thermal_zones[0].guid
         self.related_bound = inst_obj.related_bound
         self.skip_bound = False
         self.bound_shape = inst_obj.bound_shape
