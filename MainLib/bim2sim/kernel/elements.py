@@ -728,9 +728,9 @@ class SpaceBoundary(element.SubElement):
         else:
             self.bound_instance = None
         if self.ifc.InternalOrExternalBoundary.lower() == 'internal':
-            self.is_external = True
-        else:
             self.is_external = False
+        else:
+            self.is_external = True
         if self.ifc.PhysicalOrVirtualBoundary.lower() == 'physical':
             self.physical = True
         else:
@@ -776,6 +776,17 @@ class Wall(element.Element):
             layers.append(new_layer)
         return layers
 
+    def _get_is_external(bind, name):
+        """wall _get_is_external function"""
+        if len(bind.ifc.ProvidesBoundaries) > 0:
+            boundary = bind.ifc.ProvidesBoundaries[0]
+            if boundary.InternalOrExternalBoundary is not None:
+                if boundary.InternalOrExternalBoundary.lower() == 'external':
+                    return True
+                elif boundary.InternalOrExternalBoundary.lower() == 'internal':
+                    return False
+        return None
+
     layers = attribute.Attribute(
         functions=[_get_layers]
     )
@@ -787,6 +798,7 @@ class Wall(element.Element):
 
     is_external = attribute.Attribute(
         default_ps='is_external',
+        functions=[_get_is_external],
         default=False
     )
 

@@ -118,6 +118,9 @@ class Disaggregation(BaseElement):
         return "<%s '%s' (disaggregation of the element %d)>" % (
             self.__class__.__name__, self.name, len(self.parent))
 
+    def __str__(self):
+        return "%s" % self.__class__.__name__
+
 
 class SubFloor(Disaggregation):
     disaggregatable_elements = ['IfcSlab']
