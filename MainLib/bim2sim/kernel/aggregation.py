@@ -10,6 +10,7 @@ from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
 import networkx as nx
 from bim2sim.kernel.elements import HeatPump
+import ast
 
 
 def verify_edge_ports(func):
@@ -159,6 +160,9 @@ class Aggregation(BaseElement):
     def __repr__(self):
         return "<%s '%s' (aggregation of %d elements)>" % (
             self.__class__.__name__, self.name, len(self.elements))
+
+    def __str__(self):
+        return "%s" % self.__class__.__name__
 
 
 class PipeStrand(Aggregation):
@@ -1441,6 +1445,7 @@ class Aggregated_ThermalZone(Aggregation):
         self.get_disaggregation_properties()
         self.bound_elements = self.bind_elements()
         self.finder = self.elements[0].finder
+        self.description = ''
 
     def get_disaggregation_properties(self):
         """properties getter -> that way no sub instances has to be defined"""
@@ -1473,8 +1478,9 @@ class Aggregated_ThermalZone(Aggregation):
         for group in groups:
             if group != 'not_bind':
                 # first criterion based on similarities
-                name = 'Aggregated_ThermalZone(%s)' % group
+                name = "Aggregated_%s" % '_'.join([i.name for i in groups[group]])
                 instance = cls(name, groups[group])
+                instance.description = ', '.join(ast.literal_eval(group))
                 new_aggregations.append(instance)
                 for e in instance.elements:
                     if e.guid in instances:
@@ -1484,8 +1490,9 @@ class Aggregated_ThermalZone(Aggregation):
                 area = sum(i.area for i in groups[group])
                 if area/total_area <= 0.05:
                     # Todo: usage and conditions criterion
-                    name = 'Aggregated_ThermalZone(%s)' % group
+                    name = "Aggregated_%s" % '_'.join([i.name for i in groups[group]])
                     instance = cls(name, groups[group])
+                    instance.description = group
                     new_aggregations.append(instance)
                     for e in instance.elements:
                         if e.guid in instances:
