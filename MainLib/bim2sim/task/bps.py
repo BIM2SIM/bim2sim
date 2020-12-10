@@ -1647,7 +1647,9 @@ class ExportEP(ITask):
         applicable_dict = {k: v for k, v in be_dict.items() if
                            (v['construction_type'] == ctype and v['building_age_group'][0] <= year <= v['building_age_group'][1])}
         outer_wall = applicable_dict.get([k for k in applicable_dict.keys() if "OuterWall" in k][0])
-        self._set_construction_elem(outer_wall, "BS Exterior Wall", idf)
+        materials = self._set_construction_elem(outer_wall, "BS Exterior Wall", idf)
+        for mat in materials:
+            self._set_material_elem(mt_file[mat[0]], mat[1], idf)
         print("Hold")
 
     def _set_construction_elem(self, elem, name, idf):
@@ -1665,7 +1667,18 @@ class ExportEP(ITask):
                          Outside_Layer=outer_layer['material']['name'],
                          **other_layers
                          )
-        print("hold")
+        materials = [(layer.get(k)['material']['material_id'], layer.get(k)['thickness']) for k in layer.keys()]
+        return materials
+
+    def _set_material_elem(self, mat_dict, thickness, idf):
+        idf.newidfobject("MATERIAL",
+                         Name=mat_dict['name'],
+                         Roughness="MediumRough",
+                         Thickness=thickness,
+                         Conductivity=mat_dict['thermal_conduc'],
+                         Density=mat_dict['density'],
+                         Specific_Heat=mat_dict['heat_capac']*mat_dict['density']*thickness #todo: check calculation
+                         )
 
 
     @staticmethod
