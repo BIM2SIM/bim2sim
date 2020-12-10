@@ -679,6 +679,7 @@ class ExportEP(ITask):
         self._set_output_variables(idf)
         self._export_surface_areas(instances, idf)
         self._export_space_info(instances, idf)
+        self._export_boundary_report(instances, idf, ifc)
         idf.save()
         self.logger.info("IDF generation finished!")
 
@@ -1972,6 +1973,43 @@ class ExportEP(ITask):
             )
             space_df.to_csv(path_or_buf=str(PROJECT.export) + "/space.csv")
 
+    def _export_boundary_report(self, instances, idf, ifc):
+        bound_count = pd.DataFrame(
+            columns=["IFC_SB_all", "IFC_SB_2a", "IFC_SB_2b",
+                     "BIM2SIM_SB_2b",
+                     "IDF_all", "IDF_all_B", "IDF_ADB", "IDF_SFB", "IDF_ODB", "IDF_GDB", "IDF_VTB", "IDF_all_F", "IDF_ODF", "IDF_INF"])
+        ifc_bounds = ifc.by_type('IfcRelSpaceBoundary')
+        bounds_2b = [instances[inst] for inst in instances if instances[inst].__class__.__name__ == "SpaceBoundary2B"]
+        idf_all_b = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"]]
+        idf_adb = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"] if s.Outside_Boundary_Condition =="Adiabatic"]
+        idf_sfb = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"] if s.Outside_Boundary_Condition =="Surface"]
+        idf_odb = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"] if s.Outside_Boundary_Condition =="Outdoors"]
+        idf_gdb = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"] if s.Outside_Boundary_Condition =="Ground"]
+        idf_vtb = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"] if s.Construction_Name =="Air Wall"]
+        idf_all_f = [f for f in idf.idfobjects["FENESTRATIONSURFACE:DETAILED"]]
+        idf_odf = [f for f in idf.idfobjects["FENESTRATIONSURFACE:DETAILED"] if f.Outside_Boundary_Condition_Object =='']
+        idf_inf = [f for f in idf.idfobjects["FENESTRATIONSURFACE:DETAILED"] if f.Outside_Boundary_Condition_Object !='']
+        bound_count = bound_count.append([
+            {
+                "IFC_SB_all": len(ifc_bounds),
+                "IFC_SB_2a": len([b for b in ifc_bounds if b.Description == "2a"]),
+                "IFC_SB_2b": len([b for b in ifc_bounds if b.Description == "2b"]),
+                "BIM2SIM_SB_2b": len(bounds_2b),
+                "IDF_all": len(idf_all_b) + len(idf_all_f),
+                "IDF_all_B": len(idf_all_b),
+                "IDF_ADB": len(idf_adb),
+                "IDF_SFB": len(idf_sfb),
+                "IDF_ODB": len(idf_odb),
+                "IDF_GDB": len(idf_gdb),
+                "IDF_VTB": len(idf_vtb),
+                "IDF_all_F": len(idf_all_f),
+                "IDF_ODF": len(idf_odf),
+                "IDF_INF": len(idf_inf)
+            }],
+            ignore_index=True
+        )
+        bound_count.to_csv(path_or_buf=str(PROJECT.export) + "/bound_count.csv")
+
     @staticmethod
     def _get_neighbor_bounds(instances):
         for inst in instances:
@@ -2318,7 +2356,7 @@ class ExportEP(ITask):
                 stl_writer.SetASCIIMode(True)
                 stl_writer.Write(triang_face.Shape(), this_name)
 
-    def create_2B_space_boundaries(self, faces, space_obj):
+    def create_2B_space_boundaries(self, faces, space_obj, instances):
         settings = ifcopenshell.geom.main.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
         settings.set(settings.USE_WORLD_COORDS, True)
