@@ -1719,6 +1719,7 @@ class ExportEP(ITask):
                              )
 
     def _get_bs2021_materials_and_constructions(self, idf, year=2008, ctype="heavy"):
+        materials = []
         mt_path = str(Path(os.getcwd()).parent.parent) + "/PluginEnergyPlus/data/MaterialTemplates.json"
         be_path = str(Path(os.getcwd()).parent.parent) + "/PluginEnergyPlus/data/TypeBuildingElements.json"
         # uc_path = str(Path(os.getcwd()).parent.parent) + "/PluginEnergyPlus/data/UseConditions.json"
@@ -1732,7 +1733,17 @@ class ExportEP(ITask):
         applicable_dict = {k: v for k, v in be_dict.items() if
                            (v['construction_type'] == ctype and v['building_age_group'][0] <= year <= v['building_age_group'][1])}
         outer_wall = applicable_dict.get([k for k in applicable_dict.keys() if "OuterWall" in k][0])
-        materials = self._set_construction_elem(outer_wall, "BS Exterior Wall", idf)
+        materials.extend(self._set_construction_elem(outer_wall, "BS Exterior Wall", idf))
+        inner_wall = applicable_dict.get([k for k in applicable_dict.keys() if "InnerWall" in k][0])
+        materials.extend(self._set_construction_elem(inner_wall, "BS Interior Wall", idf))
+        ground_floor = applicable_dict.get([k for k in applicable_dict.keys() if "GroundFloor" in k][0])
+        materials.extend(self._set_construction_elem(ground_floor, "BS Ground Floor", idf))
+        floor = applicable_dict.get([k for k in applicable_dict.keys() if "Floor" in k][0])
+        materials.extend(self._set_construction_elem(floor, "BS Interior Floor", idf))
+        ceiling = applicable_dict.get([k for k in applicable_dict.keys() if "Ceiling" in k][0])
+        materials.extend(self._set_construction_elem(ceiling, "BS Ceiling", idf))
+        roof = applicable_dict.get([k for k in applicable_dict.keys() if "Roof" in k][0])
+        materials.extend(self._set_construction_elem(roof, "BS Flat Roof", idf))
         for mat in materials:
             self._set_material_elem(mt_file[mat[0]], mat[1], idf)
         print("Hold")
@@ -1756,15 +1767,19 @@ class ExportEP(ITask):
         return materials
 
     def _set_material_elem(self, mat_dict, thickness, idf):
+        if idf.getobject("MATERIAL", mat_dict['name']) != None:
+            return
+        specific_heat = mat_dict['heat_capac']*mat_dict['density']*thickness
+        if specific_heat < 100:
+            specific_heat = 100
         idf.newidfobject("MATERIAL",
                          Name=mat_dict['name'],
                          Roughness="MediumRough",
                          Thickness=thickness,
                          Conductivity=mat_dict['thermal_conduc'],
                          Density=mat_dict['density'],
-                         Specific_Heat=mat_dict['heat_capac']*mat_dict['density']*thickness #todo: check calculation
+                         Specific_Heat=specific_heat #todo: check calculation
                          )
-
 
     @staticmethod
     def _set_people(idf, name, zone_name="All_Zones", method='area'):
@@ -2730,28 +2745,28 @@ class IdfObject():
 
     def _set_bs2021_construction_name(self):
         if self.surface_type == "Wall":
-            if self.surface_type == "Outdoors":
+            if self.out_bound_cond == "Outdoors":
                 self.construction_name = "BS Exterior Wall"
-            elif self.surface_type in {"Surface", "Adiabatic"}:
+            elif self.out_bound_cond in {"Surface", "Adiabatic"}:
                 self.construction_name = "BS Interior Wall"
-            elif self.surface_type == "Ground":
-                self.construction_name = "BS Ground Wall"
+            elif self.out_bound_cond == "Ground":
+                self.construction_name = "BS Exterior Wall"
         if self.surface_type == "Roof":
             self.construction_name = "BS Flat Roof"
         if self.surface_type == "Ceiling":
             self.construction_name = "BS Ceiling"
         if self.surface_type == "Floor":
-            if self.surface_type in {"Surface", "Adiabatic"}:
+            if self.out_bound_cond in {"Surface", "Adiabatic"}:
                 self.construction_name = "BS Interior Floor"
-            elif self.surface_type == "Ground":
+            elif self.out_bound_cond == "Ground":
                 self.construction_name = "BS Ground Floor"
-        if self.surface_type == "Door":
-            if self.out_bound_cond_obj != "":
-                self.construction_name = "BS Interior Door"
-            else:
-                self.construction_name = "BS Exterior Door"
-        if self.surface_type == "Window":
-            self.construction_name = "BS External Window"
+        # if self.surface_type == "Door":
+        #     if self.out_bound_cond_obj != "":
+        #         self.construction_name = "BS Interior Door"
+        #     else:
+        #         self.construction_name = "BS Exterior Door"
+        # if self.surface_type == "Window":
+        #     self.construction_name = "BS External Window"
 
     def _set_idfobject_coordinates(self, obj, idf, inst_obj):
         # validate bound_shape
