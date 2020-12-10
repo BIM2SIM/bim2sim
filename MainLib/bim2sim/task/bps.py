@@ -2274,6 +2274,7 @@ class ExportEP(ITask):
 
     def _compute_2b_bound_gaps(self, instances):
         self.logger.info("Generate space boundaries of type 2B")
+        inst_2b = dict()
         for inst in instances:
             if instances[inst].ifc_type != "IfcSpace":
                 continue
@@ -2295,7 +2296,8 @@ class ExportEP(ITask):
                     continue
                 space_obj.b_bound_shape = BRepAlgoAPI_Cut(space_obj.b_bound_shape, bound.bound_shape).Shape()
             faces = self.get_faces_from_shape(space_obj.b_bound_shape)
-            self.create_2B_space_boundaries(faces, space_obj)
+            inst_2b.update(self.create_2B_space_boundaries(faces, space_obj, instances))
+        instances.update(inst_2b)
 
     @staticmethod
     def _fix_surface_orientation(instances):
@@ -2407,7 +2409,7 @@ class ExportEP(ITask):
         settings.set(settings.USE_WORLD_COORDS, True)
         settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
         settings.set(settings.INCLUDE_CURVES, True)
-
+        inst_2b = dict()
         space_obj.space_boundaries_2B = []
         bound_obj = []
         for bound in space_obj.space_boundaries:
@@ -2431,7 +2433,7 @@ class ExportEP(ITask):
                     b_bound.bound_instance = instance
                     break
             space_obj.space_boundaries_2B.append(b_bound)
-
+            inst_2b[b_bound.guid] = b_bound
             for bound in space_obj.space_boundaries:
                 distance = BRepExtrema_DistShapeShape(bound.bound_shape, b_bound.bound_shape, Extrema_ExtFlag_MIN).Value()
                 if distance == 0:
@@ -2439,6 +2441,7 @@ class ExportEP(ITask):
                     if not hasattr(bound, 'bound_neighbors_2b'):
                         bound.bound_neighbors_2b = []
                     bound.bound_neighbors_2b.append(b_bound)
+        return inst_2b
 
     @staticmethod
     def get_faces_from_shape(b_bound_shape):

@@ -1287,6 +1287,7 @@ class SpaceBoundary2B:
     (generated if not included in IFC)
     """
     def __init__(self):
+        self.ifc_type = None
         self.guid = None
         self.bound_shape = None
         self.bound_neighbors = []
@@ -1298,6 +1299,8 @@ class SpaceBoundary2B:
         self.related_adb_bound = None
         self.level_description = '2b'
 
+    def __str__(self):
+        return "%s" % self.__class__.__name__
 
     @cached_property
     def bound_center(self):
