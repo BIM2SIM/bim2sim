@@ -2056,7 +2056,7 @@ class ExportEP(ITask):
                 }],
                 ignore_index=True
             )
-            space_df.to_csv(path_or_buf=str(PROJECT.export) + "/space.csv")
+        space_df.to_csv(path_or_buf=str(PROJECT.export) + "/space.csv")
 
     def _export_boundary_report(self, instances, idf, ifc):
         bound_count = pd.DataFrame(
@@ -2334,7 +2334,7 @@ class ExportEP(ITask):
                     continue
                 space_obj.b_bound_shape = BRepAlgoAPI_Cut(space_obj.b_bound_shape, bound.bound_shape).Shape()
             faces = self.get_faces_from_shape(space_obj.b_bound_shape)
-            inst_2b.update(self.create_2B_space_boundaries(faces, space_obj, instances))
+            inst_2b.update(self.create_2B_space_boundaries(faces, space_obj))
         instances.update(inst_2b)
 
     @staticmethod
@@ -2441,7 +2441,7 @@ class ExportEP(ITask):
                 stl_writer.SetASCIIMode(True)
                 stl_writer.Write(triang_face.Shape(), this_name)
 
-    def create_2B_space_boundaries(self, faces, space_obj, instances):
+    def create_2B_space_boundaries(self, faces, space_obj):
         settings = ifcopenshell.geom.main.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
         settings.set(settings.USE_WORLD_COORDS, True)
