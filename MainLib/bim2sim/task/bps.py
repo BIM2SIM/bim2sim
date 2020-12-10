@@ -1,6 +1,7 @@
 """This module holds tasks related to bps"""
 
 import itertools
+from pathlib import Path
 import json
 import ifcopenshell
 import pandas as pd
@@ -735,6 +736,7 @@ class ExportEP(ITask):
         self._init_zone(instances, idf)
         self._init_zonelist(idf)
         self._init_zonegroups(instances, idf)
+        self._get_bs2021_materials_and_constructions(idf)
         for zone in idf.idfobjects["ZONELIST"]:
             if zone.Name == "All_Zones":
                 continue
@@ -1716,6 +1718,41 @@ class ExportEP(ITask):
                              Zone_List_Multiplier=1
                              )
 
+    def _get_bs2021_materials_and_constructions(self, idf, year=2008, ctype="heavy"):
+        mt_path = str(Path(os.getcwd()).parent.parent) + "/PluginEnergyPlus/data/MaterialTemplates.json"
+        be_path = str(Path(os.getcwd()).parent.parent) + "/PluginEnergyPlus/data/TypeBuildingElements.json"
+        # uc_path = str(Path(os.getcwd()).parent.parent) + "/PluginEnergyPlus/data/UseConditions.json"
+        with open(mt_path) as json_file:
+            mt_file = json.load(json_file)
+        with open(be_path) as json_file:
+            be_file = json.load(json_file)
+        # with open(uc_path) as json_file:
+        #     uc_file = json.load(json_file)
+        be_dict = dict([k for k in be_file.items() if type(k[1]) == dict])
+        applicable_dict = {k: v for k, v in be_dict.items() if
+                           (v['construction_type'] == ctype and v['building_age_group'][0] <= year <= v['building_age_group'][1])}
+        outer_wall = applicable_dict.get([k for k in applicable_dict.keys() if "OuterWall" in k][0])
+        self._set_construction_elem(outer_wall, "BS Exterior Wall", idf)
+        print("Hold")
+
+    def _set_construction_elem(self, elem, name, idf):
+        layer = elem.get('layer')
+        outer_layer = layer.get(list(layer)[-1])
+        other_layer_list = list(layer)[:-1]
+        other_layer_list.reverse()
+        other_layers = {}
+        for i, l in enumerate(other_layer_list):
+            lay = layer.get(l)
+            other_layers.update({'Layer_' + str(i + 2): lay['material']['name']})
+
+        idf.newidfobject("CONSTRUCTION",
+                         Name=name,
+                         Outside_Layer=outer_layer['material']['name'],
+                         **other_layers
+                         )
+        print("hold")
+
+
     @staticmethod
     def _set_people(idf, name, zone_name="All_Zones", method='area'):
         # set default activity schedule
@@ -2519,7 +2556,8 @@ class IdfObject():
         self._map_surface_types(inst_obj)
         self._map_boundary_conditions(inst_obj)
         #todo: fix material definitions!
-        self._define_materials(inst_obj, idf)
+        # self._define_materials(inst_obj, idf)
+        self._set_bs2021_construction_name()
         if self.construction_name == None:
             self._set_construction_name()
         obj = self._set_idfobject_attributes(idf)
@@ -2676,6 +2714,31 @@ class IdfObject():
             self.construction_name = "Project Door"
         if self.surface_type == "Window":
             self.construction_name = "Project External Window"
+
+    def _set_bs2021_construction_name(self):
+        if self.surface_type == "Wall":
+            if self.surface_type == "Outdoors":
+                self.construction_name = "BS Exterior Wall"
+            elif self.surface_type in {"Surface", "Adiabatic"}:
+                self.construction_name = "BS Interior Wall"
+            elif self.surface_type == "Ground":
+                self.construction_name = "BS Ground Wall"
+        if self.surface_type == "Roof":
+            self.construction_name = "BS Flat Roof"
+        if self.surface_type == "Ceiling":
+            self.construction_name = "BS Ceiling"
+        if self.surface_type == "Floor":
+            if self.surface_type in {"Surface", "Adiabatic"}:
+                self.construction_name = "BS Interior Floor"
+            elif self.surface_type == "Ground":
+                self.construction_name = "BS Ground Floor"
+        if self.surface_type == "Door":
+            if self.out_bound_cond_obj != "":
+                self.construction_name = "BS Interior Door"
+            else:
+                self.construction_name = "BS Exterior Door"
+        if self.surface_type == "Window":
+            self.construction_name = "BS External Window"
 
     def _set_idfobject_coordinates(self, obj, idf, inst_obj):
         # validate bound_shape
