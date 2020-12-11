@@ -1633,7 +1633,7 @@ class ExportEP(ITask):
                              Zone_List_Multiplier=1
                              )
 
-    def _get_bs2021_materials_and_constructions(self, idf, year=2008, ctype="heavy"):
+    def _get_bs2021_materials_and_constructions(self, idf, year=2008, ctype="heavy", wtype=["Alu", "Waermeschutz", "zwei"]):
         materials = []
         mt_path = str(Path(os.getcwd()).parent.parent) + "/PluginEnergyPlus/data/MaterialTemplates.json"
         be_path = str(Path(os.getcwd()).parent.parent) + "/PluginEnergyPlus/data/TypeBuildingElements.json"
@@ -1647,6 +1647,17 @@ class ExportEP(ITask):
         be_dict = dict([k for k in be_file.items() if type(k[1]) == dict])
         applicable_dict = {k: v for k, v in be_dict.items() if
                            (v['construction_type'] == ctype and v['building_age_group'][0] <= year <= v['building_age_group'][1])}
+        window_dict = {k: v for k, v in be_dict.items() if
+                       (all(p in v['construction_type'] for p in wtype) and
+                        v['building_age_group'][0] <= year <= v['building_age_group'][1])}
+        window = window_dict.get(list(window_dict)[0])
+        window_materials = [*list(*self._set_construction_elem(window, "BS Exterior Window", idf)), window['g_value']]
+        door = list({k: v for k, v in [k for k in mt_file.items() if type(k[1]) == dict] if (v['name'] == 'hardwood')})[0]
+        idf.newidfobject("CONSTRUCTION",
+                         Name="BS Door",
+                         Outside_Layer=mt_file[door]['name']
+                         )
+        materials.extend([(door, 0.04)])
         outer_wall = applicable_dict.get([k for k in applicable_dict.keys() if "OuterWall" in k][0])
         materials.extend(self._set_construction_elem(outer_wall, "BS Exterior Wall", idf))
         inner_wall = applicable_dict.get([k for k in applicable_dict.keys() if "InnerWall" in k][0])
@@ -1661,6 +1672,7 @@ class ExportEP(ITask):
         materials.extend(self._set_construction_elem(roof, "BS Flat Roof", idf))
         for mat in materials:
             self._set_material_elem(mt_file[mat[0]], mat[1], idf)
+        self._set_window_material_elem(mt_file[window_materials[0]], window_materials[1], window_materials[2], idf)
         print("Hold")
 
     def _set_construction_elem(self, elem, name, idf):
@@ -1694,6 +1706,16 @@ class ExportEP(ITask):
                          Conductivity=mat_dict['thermal_conduc'],
                          Density=mat_dict['density'],
                          Specific_Heat=specific_heat #todo: check calculation
+                         )
+
+    def _set_window_material_elem(self, mat_dict, thickness, g_value, idf):
+        if idf.getobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM", mat_dict['name']) != None:
+            return
+        idf.newidfobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM",
+                         Name=mat_dict['name'],
+                         UFactor=1/(0.04+thickness/mat_dict['thermal_conduc']+0.13),
+                         Solar_Heat_Gain_Coefficient=g_value,
+                         Visible_Transmittance=0.8
                          )
 
     @staticmethod
@@ -2675,13 +2697,10 @@ class IdfObject():
                 self.construction_name = "BS Interior Floor"
             elif self.out_bound_cond == "Ground":
                 self.construction_name = "BS Ground Floor"
-        # if self.surface_type == "Door":
-        #     if self.out_bound_cond_obj != "":
-        #         self.construction_name = "BS Interior Door"
-        #     else:
-        #         self.construction_name = "BS Exterior Door"
-        # if self.surface_type == "Window":
-        #     self.construction_name = "BS External Window"
+        if self.surface_type == "Door":
+            self.construction_name = "BS Door"
+        if self.surface_type == "Window":
+            self.construction_name = "BS Exterior Window"
 
     def _set_idfobject_coordinates(self, obj, idf, inst_obj):
         # validate bound_shape
