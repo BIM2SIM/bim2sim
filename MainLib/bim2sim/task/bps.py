@@ -669,10 +669,11 @@ class ExportEP(ITask):
         for zone in idf.idfobjects["ZONE"]:
             if zone.Name == "All_Zones":
                 continue
-            self._set_infiltration(idf, name=zone.Name, zone_name=zone.Name)
-            self._set_people(idf, name=zone.Name, zone_name=zone.Name, key=ifc.by_id(zone.Name).LongName)
-            self._set_equipment(idf, name=zone.Name, zone_name=zone.Name)
-            self._set_lights(idf, name=zone.Name, zone_name=zone.Name)
+            room, room_key = self._get_room_from_zone_dict(key=ifc.by_id(zone.Name).LongName)
+            self._set_infiltration(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
+            self._set_people(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
+            self._set_equipment(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
+            self._set_lights(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
         # self._set_people(idf, name="all zones")
         # self._set_equipment(idf, name="all zones")
         self._set_simulation_control(idf)
@@ -1716,7 +1717,7 @@ class ExportEP(ITask):
                          Visible_Transmittance=0.8
                          )
 
-    def _set_people(self, idf, name, zone_name="All_Zones", key=None, method='area'):
+    def _get_room_from_zone_dict(self, key):
         zone_dict = {
             "Schlafzimmer": "Bed room",
             "Wohnen": "Living",
@@ -1737,6 +1738,9 @@ class ExportEP(ITask):
             uc_file = json.load(json_file)
         room_key = [v for k, v in zone_dict.items() if k in key]
         room = dict([k for k in uc_file.items() if type(k[1]) == dict])[room_key[0]]
+        return room, room_key
+
+    def _set_people(self, idf, name, zone_name, room, room_key, method='area'):
         schedule_name = "Schedule " + "People " + room_key[0]
         profile_name = 'persons_profile'
         self._set_day_week_year_schedule(idf, room, profile_name, schedule_name)
@@ -1786,31 +1790,32 @@ class ExportEP(ITask):
                              End_Month_1=12,
                              End_Day_1=31)
 
-    @staticmethod
-    def _set_equipment(idf, name, zone_name="All_Zones", method='area'):
-        # set default activity schedule
-
-        euip = idf.newidfobject(
+    def _set_equipment(self, idf, name, zone_name, room, room_key, method='area'):
+        schedule_name = "Schedule " + "Equipment " + room_key[0]
+        profile_name = 'machines_profile'
+        self._set_day_week_year_schedule(idf, room, profile_name, schedule_name)
+        idf.newidfobject(
             "ELECTRICEQUIPMENT",
             Name=name,
             Zone_or_ZoneList_Name=zone_name,
-            Schedule_Name="Multifamily OneZone Equipment", #Max: Define new Schedule:Compact based on "machines_profile"
+            Schedule_Name=schedule_name, #Max: Define new Schedule:Compact based on "machines_profile"
             Design_Level_Calculation_Method="Watts/Area",
-            Watts_per_Zone_Floor_Area=12 #Max: "machines"
+            Watts_per_Zone_Floor_Area=room['machines']#Max: "machines"
             #Max: add "Fraction_Radiant" = "ratio_conv_rad_machines"
         )
 
-    @staticmethod
-    def _set_lights(idf, name, zone_name="All_Zones", method='area'):
+    def _set_lights(self, idf, name, zone_name, room, room_key, method='area'):
         #TODO: Define lighting parameters based on IFC (and User-Input otherwise)
-        schedule_name = "Multifamily OneZone Lighting" #Max: Define new Schedule:Compact based on "lighting_profile"
+        schedule_name = "Schedule " + "Lighting " + room_key[0]
+        profile_name = 'lighting_profile'
+        self._set_day_week_year_schedule(idf, room, profile_name, schedule_name)
         mode = "Watts/Area"
-        watts_per_zone_floor_area = 16 #Max: "lighting_power"
+        watts_per_zone_floor_area = room['lighting_power'] #Max: "lighting_power"
         return_air_fraction = 0.0
         fraction_radiant = 0.42 #cf. Table 1.28 in InputOutputReference EnergyPlus (Version 9.4.0), p. 506
         fraction_visible = 0.18 #Max: fractions do not match with .json Data. Maybe set by user-input later
 
-        lights = idf.newidfobject(
+        idf.newidfobject(
             "LIGHTS",
             Name=name,
             Zone_or_ZoneList_Name=zone_name,
@@ -1823,14 +1828,14 @@ class ExportEP(ITask):
         )
 
     @staticmethod
-    def _set_infiltration(idf, name, zone_name="All_Zones"):
-        inf = idf.newidfobject(
+    def _set_infiltration(idf, name, zone_name, room, room_key):
+        idf.newidfobject(
             "ZONEINFILTRATION:DESIGNFLOWRATE",
             Name=name,
             Zone_or_ZoneList_Name=zone_name,
             Schedule_Name="Continuous", #Max: if "use_constant_infiltration"==True (this default continuous schedule seems to be constant anyways")
             Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-            Air_Changes_per_Hour=0.1, #Max: infiltration_rate
+            Air_Changes_per_Hour=room['infiltration_rate'] #Max: infiltration_rate
         )
 
     def _set_hvac_template(self, idf, name, heating_sp, cooling_sp, mode='setback'):
