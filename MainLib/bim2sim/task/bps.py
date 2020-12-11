@@ -1617,7 +1617,7 @@ class ExportEP(ITask):
             idf.copyidfobject(s)
         for t in sch_typelim:
             idf.copyidfobject(t)
-        idf.epw = "USA_CO_Golden-NREL.724666_TMY3.epw"
+        idf.epw = str(Path(os.getcwd()).parent.parent) + "/PluginEnergyPlus/data/DEU_NW_Aachen.105010_TMYx.epw"
         return idf
 
     def _get_ifc_spaces(self, instances):
