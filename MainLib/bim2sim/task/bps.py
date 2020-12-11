@@ -666,11 +666,11 @@ class ExportEP(ITask):
         self._init_zonelist(idf)
         self._init_zonegroups(instances, idf)
         self._get_bs2021_materials_and_constructions(idf)
-        for zone in idf.idfobjects["ZONELIST"]:
+        for zone in idf.idfobjects["ZONE"]:
             if zone.Name == "All_Zones":
                 continue
             self._set_infiltration(idf, name=zone.Name, zone_name=zone.Name)
-            self._set_people(idf, name=zone.Name, zone_name=zone.Name)
+            self._set_people(idf, name=zone.Name, zone_name=zone.Name, key=ifc.by_id(zone.Name).LongName)
             self._set_equipment(idf, name=zone.Name, zone_name=zone.Name)
             self._set_lights(idf, name=zone.Name, zone_name=zone.Name)
         # self._set_people(idf, name="all zones")
@@ -1637,13 +1637,11 @@ class ExportEP(ITask):
         materials = []
         mt_path = str(Path(os.getcwd()).parent.parent) + "/PluginEnergyPlus/data/MaterialTemplates.json"
         be_path = str(Path(os.getcwd()).parent.parent) + "/PluginEnergyPlus/data/TypeBuildingElements.json"
-        # uc_path = str(Path(os.getcwd()).parent.parent) + "/PluginEnergyPlus/data/UseConditions.json"
         with open(mt_path) as json_file:
             mt_file = json.load(json_file)
         with open(be_path) as json_file:
             be_file = json.load(json_file)
-        # with open(uc_path) as json_file:
-        #     uc_file = json.load(json_file)
+
         be_dict = dict([k for k in be_file.items() if type(k[1]) == dict])
         applicable_dict = {k: v for k, v in be_dict.items() if
                            (v['construction_type'] == ctype and v['building_age_group'][0] <= year <= v['building_age_group'][1])}
@@ -1719,7 +1717,44 @@ class ExportEP(ITask):
                          )
 
     @staticmethod
-    def _set_people(idf, name, zone_name="All_Zones", method='area'):
+    def _set_people(idf, name, zone_name="All_Zones", key=None, method='area'):
+        zone_dict = {
+            "Schlafzimmer": "Bed room",
+            "Wohnen": "Living",
+            "Galerie": "Living",
+            "Küche": "Living",
+            "Flur": "Traffic area",
+            "Buero": "Single office",
+            "Besprechungsraum": 'Meeting, Conference, seminar',
+            "Seminarraum": 'Meeting, Conference, seminar',
+            "Technikraum": "Stock, technical equipment, archives",
+            "Dachboden": "Traffic area",
+            "WC": "WC and sanitary rooms in non-residential buildings",
+            "Bad": "WC and sanitary rooms in non-residential buildings",
+            "Labor": "Laboratory"
+        }
+        uc_path = str(Path(os.getcwd()).parent.parent) + "/PluginEnergyPlus/data/UseConditions.json"
+        with open(uc_path) as json_file:
+            uc_file = json.load(json_file)
+        room_key = [v for k, v in zone_dict.items() if k in key]
+        room = dict([k for k in uc_file.items() if type(k[1]) == dict])[room_key[0]]
+        schedule_name = "Schedule " + "People " + room_key[0]
+        if idf.getobject("SCHEDULE:DAY:HOURLY", name=schedule_name) == None:
+            room = dict([k for k in uc_file.items() if type(k[1]) == dict])[room_key[0]]
+            persons = {}
+            for i, l in enumerate(room['persons_profile']):
+                persons.update({'Hour_' + str(i + 1): room['persons_profile'][i]})
+            idf.newidfobject("SCHEDULE:DAY:HOURLY", Name=schedule_name, Schedule_Type_Limits_Name='Fraction', **persons)
+        if idf.getobject("SCHEDULE:WEEK:COMPACT", name=schedule_name) == None:
+            idf.newidfobject("SCHEDULE:WEEK:COMPACT", Name=schedule_name, DayType_List_1="For AllDays", ScheduleDay_Name_1=schedule_name)
+        if idf.getobject("SCHEDULE:YEAR", name=schedule_name) == None:
+            idf.newidfobject("SCHEDULE:YEAR", Name=schedule_name,
+                             ScheduleWeek_Name_1=schedule_name,
+                             Start_Month_1=1,
+                             Start_Day_1=1,
+                             End_Month_1=12,
+                             End_Day_1=31)
+
         # set default activity schedule
         if idf.getobject("SCHEDULETYPELIMITS", "Any Number") is None:
             idf.newidfobject("SCHEDULETYPELIMITS", Name="Any Number")
@@ -1740,7 +1775,7 @@ class ExportEP(ITask):
             Number_of_People_Calculation_Method="People/Area",
             People_per_Zone_Floor_Area=0.1, #Max: "persons"
             Activity_Level_Schedule_Name="ActSchDefault",
-            Number_of_People_Schedule_Name="Multifamily OneZone Occupancy"
+            Number_of_People_Schedule_Name=schedule_name
             # Max: add "Fraction_Radiant" = "ratio_conv_rad_persons"
         )
 
