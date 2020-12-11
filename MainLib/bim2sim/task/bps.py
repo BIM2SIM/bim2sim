@@ -1716,8 +1716,7 @@ class ExportEP(ITask):
                          Visible_Transmittance=0.8
                          )
 
-    @staticmethod
-    def _set_people(idf, name, zone_name="All_Zones", key=None, method='area'):
+    def _set_people(self, idf, name, zone_name="All_Zones", key=None, method='area'):
         zone_dict = {
             "Schlafzimmer": "Bed room",
             "Wohnen": "Living",
@@ -1739,14 +1738,46 @@ class ExportEP(ITask):
         room_key = [v for k, v in zone_dict.items() if k in key]
         room = dict([k for k in uc_file.items() if type(k[1]) == dict])[room_key[0]]
         schedule_name = "Schedule " + "People " + room_key[0]
+        profile_name = 'persons_profile'
+        self._set_day_week_year_schedule(idf, room, profile_name, schedule_name)
+        # set default activity schedule
+        if idf.getobject("SCHEDULETYPELIMITS", "Any Number") is None:
+            idf.newidfobject("SCHEDULETYPELIMITS", Name="Any Number")
+        activity_schedule_name = "Schedule Activity " + str(room['fixed_heat_flow_rate_persons'])
+        if idf.getobject("SCHEDULE:COMPACT", activity_schedule_name) is None:
+            idf.newidfobject("SCHEDULE:COMPACT",
+                             Name=activity_schedule_name,
+                             Schedule_Type_Limits_Name="Any Number",
+                             Field_1="Through: 12/31",
+                             Field_2="For: Alldays",
+                             Field_3="Until: 24:00",
+                             Field_4=room['fixed_heat_flow_rate_persons'] # in W/Person
+                             )#other method for Field_4 (not used here) ="persons_profile"*"activity_degree_persons"*58,1*1,8 (58.1 W/(m2*met), 1.8m2/Person)
+
+        if type(room['persons']) == dict:
+            num_people = room['persons']['/'][0]/room['persons']['/'][1]
+        else:
+            num_people = room['persons']
+        people = idf.newidfobject(
+            "PEOPLE",
+            Name=name,
+            Zone_or_ZoneList_Name=zone_name,
+            Number_of_People_Calculation_Method="People/Area",
+            People_per_Zone_Floor_Area=num_people,
+            Activity_Level_Schedule_Name=activity_schedule_name,
+            Number_of_People_Schedule_Name=schedule_name
+            # Max: add "Fraction_Radiant" = "ratio_conv_rad_persons"
+        )
+
+    def _set_day_week_year_schedule(self, idf, room, profile_name, schedule_name):
         if idf.getobject("SCHEDULE:DAY:HOURLY", name=schedule_name) == None:
-            room = dict([k for k in uc_file.items() if type(k[1]) == dict])[room_key[0]]
-            persons = {}
-            for i, l in enumerate(room['persons_profile']):
-                persons.update({'Hour_' + str(i + 1): room['persons_profile'][i]})
-            idf.newidfobject("SCHEDULE:DAY:HOURLY", Name=schedule_name, Schedule_Type_Limits_Name='Fraction', **persons)
+            hours = {}
+            for i, l in enumerate(room[profile_name]):
+                hours.update({'Hour_' + str(i + 1): room[profile_name][i]})
+            idf.newidfobject("SCHEDULE:DAY:HOURLY", Name=schedule_name, Schedule_Type_Limits_Name='Fraction', **hours)
         if idf.getobject("SCHEDULE:WEEK:COMPACT", name=schedule_name) == None:
-            idf.newidfobject("SCHEDULE:WEEK:COMPACT", Name=schedule_name, DayType_List_1="For AllDays", ScheduleDay_Name_1=schedule_name)
+            idf.newidfobject("SCHEDULE:WEEK:COMPACT", Name=schedule_name, DayType_List_1="For AllDays",
+                             ScheduleDay_Name_1=schedule_name)
         if idf.getobject("SCHEDULE:YEAR", name=schedule_name) == None:
             idf.newidfobject("SCHEDULE:YEAR", Name=schedule_name,
                              ScheduleWeek_Name_1=schedule_name,
@@ -1754,30 +1785,6 @@ class ExportEP(ITask):
                              Start_Day_1=1,
                              End_Month_1=12,
                              End_Day_1=31)
-
-        # set default activity schedule
-        if idf.getobject("SCHEDULETYPELIMITS", "Any Number") is None:
-            idf.newidfobject("SCHEDULETYPELIMITS", Name="Any Number")
-        if idf.getobject("SCHEDULE:COMPACT", "ActSchDefault") is None:
-            idf.newidfobject("SCHEDULE:COMPACT",
-                             Name="ActSchDefault",
-                             Schedule_Type_Limits_Name="Any Number",
-                             Field_1="Through: 12/31",
-                             Field_2="For: Alldays",
-                             Field_3="Until: 24:00", #Max: "persons_profile"
-                             Field_4="100" # in W/Person #Max: ="persons_profile"*"fixed_heat_flow_rate_persons"
-                             )#other method for Field_4 (not used here) ="persons_profile"*"activity_degree_persons"*58,1*1,8 (58.1 W/(m2*met), 1.8m2/Person)
-
-        people = idf.newidfobject(
-            "PEOPLE",
-            Name=name,
-            Zone_or_ZoneList_Name=zone_name,
-            Number_of_People_Calculation_Method="People/Area",
-            People_per_Zone_Floor_Area=0.1, #Max: "persons"
-            Activity_Level_Schedule_Name="ActSchDefault",
-            Number_of_People_Schedule_Name=schedule_name
-            # Max: add "Fraction_Radiant" = "ratio_conv_rad_persons"
-        )
 
     @staticmethod
     def _set_equipment(idf, name, zone_name="All_Zones", method='area'):
