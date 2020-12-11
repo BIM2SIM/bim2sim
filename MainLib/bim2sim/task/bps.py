@@ -690,7 +690,7 @@ class ExportEP(ITask):
         self._display_shape_of_space_boundaries(instances)
         output_string = str(PROJECT.root) + "/export/EP-results/"
         idf.run(output_directory=output_string, readvars=True)
-        self._visualize_results()
+        # self._visualize_results()
 
     def _string_to_datetime(self, date_str):
         # If the time is 24, set it to 0 and increment day by 1
@@ -1696,7 +1696,7 @@ class ExportEP(ITask):
     def _set_material_elem(self, mat_dict, thickness, idf):
         if idf.getobject("MATERIAL", mat_dict['name']) != None:
             return
-        specific_heat = mat_dict['heat_capac']*mat_dict['density']*thickness
+        specific_heat = mat_dict['heat_capac']*1000# *mat_dict['density']*thickness
         if specific_heat < 100:
             specific_heat = 100
         idf.newidfobject("MATERIAL",
@@ -1705,7 +1705,7 @@ class ExportEP(ITask):
                          Thickness=thickness,
                          Conductivity=mat_dict['thermal_conduc'],
                          Density=mat_dict['density'],
-                         Specific_Heat=specific_heat #todo: check calculation
+                         Specific_Heat=specific_heat
                          )
 
     def _set_window_material_elem(self, mat_dict, thickness, g_value, idf):
