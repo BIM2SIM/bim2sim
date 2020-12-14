@@ -1666,14 +1666,17 @@ class ExportEP(ITask):
                 Name=space.ifc.GlobalId,
                 Volume=space.space_volume
             )
-            if room['with_heating']:
-                heating_availability = "On"
-            else:
-                heating_availability = "Off"
-            if room['with_cooling']:
-                cooling_availability = "On"
-            else:
-                cooling_availability = "Off"
+            cooling_availability = "On"
+            heating_availability = "On"
+
+            # if room['with_heating']:
+            #     heating_availability = "On"
+            # else:
+            #     heating_availability = "Off"
+            # if room['with_cooling']:
+            #     cooling_availability = "On"
+            # else:
+            #     cooling_availability = "Off"
 
             idf.newidfobject(
                 "HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM",
@@ -1884,6 +1887,9 @@ class ExportEP(ITask):
                 if profile_name in {'heating_profile', 'cooling_profile'}:
                     if room[profile_name][i] > 270:
                         room[profile_name][i] = room[profile_name][i] - 273.15
+                    # set cooling profile manually to 25°C, #bs2021
+                    if profile_name == 'cooling_profile':
+                        room[profile_name][i] = 25
                 hours.update({'Hour_' + str(i + 1): room[profile_name][i]})
             idf.newidfobject("SCHEDULE:DAY:HOURLY", Name=schedule_name, Schedule_Type_Limits_Name=limits_name, **hours)
         if idf.getobject("SCHEDULE:WEEK:COMPACT", name=schedule_name) == None:
