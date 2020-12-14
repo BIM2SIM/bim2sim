@@ -1756,6 +1756,8 @@ class ExportEP(ITask):
         with open(uc_path) as json_file:
             uc_file = json.load(json_file)
         room_key = [v for k, v in zone_dict.items() if k in key]
+        if room_key == []:
+            room_key = ['Single office']
         room = dict([k for k in uc_file.items() if type(k[1]) == dict])[room_key[0]]
         return room, room_key
 
