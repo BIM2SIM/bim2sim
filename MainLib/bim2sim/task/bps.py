@@ -1776,7 +1776,13 @@ class ExportEP(ITask):
         for mat in materials:
             self._set_material_elem(mt_file[mat[0]], mat[1], idf)
         self._set_window_material_elem(mt_file[window_materials[0]], window_materials[1], window_materials[2], idf)
-        print("Hold")
+        idf.newidfobject("CONSTRUCTION:AIRBOUNDARY",
+                         Name='Air Wall',
+                         Solar_and_Daylighting_Method='GroupedZones',
+                         Radiant_Exchange_Method='GroupedZones',
+                         Air_Exchange_Method='SimpleMixing',
+                         Simple_Mixing_Air_Changes_per_Hour=0.5,
+                         )
 
     def _set_construction_elem(self, elem, name, idf):
         layer = elem.get('layer')
@@ -2867,19 +2873,25 @@ class IdfObject():
                 self.construction_name = "BS Interior Wall"
             elif self.out_bound_cond == "Ground":
                 self.construction_name = "BS Exterior Wall"
-        if self.surface_type == "Roof":
+        elif self.surface_type == "Roof":
             self.construction_name = "BS Flat Roof"
-        if self.surface_type == "Ceiling":
+        elif self.surface_type == "Ceiling":
             self.construction_name = "BS Ceiling"
-        if self.surface_type == "Floor":
+        elif self.surface_type == "Floor":
             if self.out_bound_cond in {"Surface", "Adiabatic"}:
                 self.construction_name = "BS Interior Floor"
             elif self.out_bound_cond == "Ground":
                 self.construction_name = "BS Ground Floor"
-        if self.surface_type == "Door":
+        elif self.surface_type == "Door":
             self.construction_name = "BS Door"
-        if self.surface_type == "Window":
+        elif self.surface_type == "Window":
             self.construction_name = "BS Exterior Window"
+        if not hasattr(self.related_bound, 'bound_instance'):
+            return
+        if self.related_bound.bound_instance is None:
+            if self.out_bound_cond == "Surface":
+                self.construction_name = "Air Wall"
+
 
     def _set_idfobject_coordinates(self, obj, idf, inst_obj):
         # validate bound_shape
