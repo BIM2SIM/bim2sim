@@ -426,6 +426,9 @@
       },
       "with_AHU": {
         "base": ["Pset_SpaceThermalRequirements", "AirConditioning"]
+      },
+      "AreaPerOccupant": {
+        "base": ["Pset_SpaceOccupancyRequirements", "AreaPerOccupant"]
       }
     }
   },

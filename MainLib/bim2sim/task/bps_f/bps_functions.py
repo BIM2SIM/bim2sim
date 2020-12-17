@@ -134,6 +134,13 @@ def is_external_verification(instance):
     return None
 
 
+def layers_verification(instance):
+    supported_classes = {'OuterWall', 'Wall', 'InnerWall'}
+    if instance.__class__.__name__ in supported_classes:
+        if len(instance.layers) > 0:
+            print()
+
+
 def angle_equivalent(angle):
     while angle >= 360 or angle < 0:
         if angle >= 360:

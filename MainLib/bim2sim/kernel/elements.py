@@ -569,7 +569,10 @@ class ThermalZone(element.Element):
         if bind.zone_name:
             list_org = bind.zone_name.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
             for i_org in list_org:
-                trans_aux = ts.bing(i_org, from_language='de')
+                try:
+                    trans_aux = ts.bing(i_org, from_language='de')
+                except:
+                    print()
                 # trans_aux = ts.google(i_org, from_language='de')
                 zone_pattern.append(trans_aux)
 
@@ -694,8 +697,20 @@ class ThermalZone(element.Element):
             else:
                 return False
 
-    def set_cooling(self, cooling_decision):
-        """set_cooling parameter"""
+    def _get_heating(bind, name):
+        """get heating parameters for thermal zone"""
+        if bind.t_set_heat is not None:
+            return True
+        else:
+            heating_decision = BoolDecision(question="Do you want for the thermal zone %s to be heated? - "
+                                                     "with heating" % bind.name,
+                                                     collect=False
+                                            )
+            heating_decision.decide()
+            if heating_decision.value:
+                return True
+            else:
+                return False
 
     usage = attribute.Attribute(
         functions=[_get_usage]
@@ -720,6 +735,15 @@ class ThermalZone(element.Element):
     )
     with_cooling = attribute.Attribute(
         functions=[_get_cooling]
+    )
+    with_heating = attribute.Attribute(
+        functions=[_get_heating]
+    )
+    with_AHU = attribute.Attribute(
+        default_ps='with_AHU'
+    )
+    AreaPerOccupant = attribute.Attribute(
+        default_ps='AreaPerOccupant'
     )
 
     def __init__(self, *args, **kwargs):

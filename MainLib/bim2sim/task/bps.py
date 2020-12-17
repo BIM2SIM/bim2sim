@@ -34,7 +34,7 @@ from teaser.logic.buildingobjects.buildingphysics.door import Door
 from teaser.logic import utilities
 import os
 from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list, filter_instances, \
-    get_pattern_usage, is_external_verification
+    get_pattern_usage, is_external_verification, layers_verification
 from bim2sim.kernel.units import conversion
 
 
@@ -84,6 +84,7 @@ class Inspect(ITask):
 
         for guid, ins in self.instances.items():
             is_external_verification(ins)
+            layers_verification(ins)
             new_orientation = orientation_verification(ins)
             if new_orientation is not None:
                 ins.orientation = new_orientation
@@ -152,8 +153,9 @@ class ExportTEASER(ITask):
         tz.use_conditions.load_use_conditions(instance.usage)
         if instance.t_set_heat:
             tz.use_conditions.set_temp_heat = conversion(instance.t_set_heat, '°C', 'K').magnitude
-        if instance.t_set_cool:
-            tz.use_conditions.set_temp_cool = conversion(instance.t_set_cool, '°C', 'K').magnitude
+        # if instance.t_set_cool:
+        #     tz.use_conditions.set_temp_cool = conversion(instance.t_set_cool, '°C', 'K').magnitude
+        tz.use_conditions.cooling_profile = [conversion(25, '°C', 'K').magnitude] * 25
         tz.use_conditions.with_cooling = instance.with_cooling
         return tz
 
@@ -224,6 +226,7 @@ class ExportTEASER(ITask):
             teaser_instance = teaser_class(parent=parent)
             cls._teaser_property_getter(teaser_instance, instance, templates)
             cls._instance_related(teaser_instance, instance, bldg)
+            print()
 
     @classmethod
     def _bind_instances_to_zone(cls, tz, tz_instance, bldg):
@@ -250,9 +253,8 @@ class ExportTEASER(ITask):
             template_value = None
             if len(template_options) > 1:
                 decision_template = ListDecision("the following construction types were "
-                                                 "found for year %s and instance %s (%s)"
-                                                 % (bldg.year_of_construction, teaser_instance.name,
-                                                    type(teaser_instance).__name__),
+                                                 "found for year %s and instance type %s"
+                                                 % (bldg.year_of_construction, type(teaser_instance).__name__),
                                                  choices=template_options,
                                                  allow_skip=True, allow_load=True, allow_save=True,
                                                  collect=False, quick_decide=not True)
@@ -286,7 +288,6 @@ class ExportTEASER(ITask):
                 aux_template = '%s_%s_%s' % (instance_type, year_group, selected_template)
                 # if aux_template in instance_templates:
                 return [selected_template], year_group
-
 
         template_options = []
         for i in instance_templates:
