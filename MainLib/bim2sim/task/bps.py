@@ -751,10 +751,10 @@ class ExportEP(ITask):
         idf.set_default_constructions()
         self._export_geom_to_idf(instances, idf)
         self._set_output_variables(idf)
+        idf.save()
         self._export_surface_areas(instances, idf)
         self._export_space_info(instances, idf)
         self._export_boundary_report(instances, idf, ifc)
-        idf.save()
         self.logger.info("IDF generation finished!")
 
         # idf.view_model()
