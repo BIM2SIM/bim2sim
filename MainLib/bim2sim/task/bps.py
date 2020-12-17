@@ -34,7 +34,7 @@ from teaser.logic.buildingobjects.buildingphysics.door import Door
 from teaser.logic import utilities
 import os
 from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list, filter_instances, \
-    get_pattern_usage
+    get_pattern_usage, is_external_verification
 from bim2sim.kernel.units import conversion
 
 
@@ -83,9 +83,10 @@ class Inspect(ITask):
         self.instances.update(tz_inspect.instances)
 
         for guid, ins in self.instances.items():
-            verification = orientation_verification(ins)
-            if verification is not None:
-                self.instances[guid].orientation = verification
+            is_external_verification(ins)
+            new_orientation = orientation_verification(ins)
+            if new_orientation is not None:
+                ins.orientation = new_orientation
 
         return self.instances,
 
@@ -149,8 +150,11 @@ class ExportTEASER(ITask):
         tz.volume = instance.area * instance.height
         tz.use_conditions = UseConditions(parent=tz)
         tz.use_conditions.load_use_conditions(instance.usage)
-        tz.use_conditions.set_temp_heat = conversion(instance.t_set_heat, '°C', 'K').magnitude
-        tz.use_conditions.set_temp_cool = conversion(instance.t_set_cool, '°C', 'K').magnitude
+        if instance.t_set_heat:
+            tz.use_conditions.set_temp_heat = conversion(instance.t_set_heat, '°C', 'K').magnitude
+        if instance.t_set_cool:
+            tz.use_conditions.set_temp_cool = conversion(instance.t_set_cool, '°C', 'K').magnitude
+        tz.use_conditions.with_cooling = instance.with_cooling
         return tz
 
     @classmethod
@@ -232,7 +236,8 @@ class ExportTEASER(ITask):
         """instance specific function, layers creation
         if layers not given, loads template"""
         # property getter if instance has materials/layers
-        if isinstance(instance.layers, list) and len(instance.layers) > 0:
+        layers_method = False
+        if layers_method and isinstance(instance.layers, list) and len(instance.layers) > 0:
             for layer_instance in instance.layers:
                 layer = Layer(parent=teaser_instance)
                 cls._invalid_property_filter(layer, layer_instance, 'thickness', layer_instance.thickness)
@@ -279,8 +284,9 @@ class ExportTEASER(ITask):
                 year_group = str(cls.instance_template[bldg.name][teaser_name][0])
                 selected_template = cls.instance_template[bldg.name][teaser_name][1]
                 aux_template = '%s_%s_%s' % (instance_type, year_group, selected_template)
-                if aux_template in instance_templates:
-                    return [selected_template], year_group
+                # if aux_template in instance_templates:
+                return [selected_template], year_group
+
 
         template_options = []
         for i in instance_templates:
@@ -306,7 +312,7 @@ class ExportTEASER(ITask):
                 tz.calc_zone_parameters()
             bldg.calc_building_parameter()
         prj.calc_all_buildings()
-        prj.export_aixlib()
+        prj.export_aixlib(path=PROJECT.root / 'export' / 'TEASEROutput')
         print()
 
 

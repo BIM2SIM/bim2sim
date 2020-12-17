@@ -14,6 +14,7 @@ from bim2sim.enrichment_data.data_class import DataClass
 from teaser.logic.buildingobjects.useconditions import UseConditions
 from bim2sim.task.bps_f.bps_functions import get_matches_list, get_material_templates_resumed, \
     real_decision_user_input, filter_instances, get_pattern_usage
+from bim2sim.kernel.disaggregation import SubInnerWall, SubOuterWall
 import translators as ts
 
 
@@ -563,8 +564,7 @@ class ThermalZone(element.Element):
     def _get_usage(bind, name):
         zone_pattern = []
         matches = []
-        x = bind.zone_name
-        if bind.guid == '3txvJd9V1BPhyU$48F$mnF':
+        if bind.zone_name == 'WC Herren':
             print()
         if bind.zone_name:
             list_org = bind.zone_name.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
@@ -679,10 +679,27 @@ class ThermalZone(element.Element):
         """set the neighbors of the thermal zone as a list"""
         self.space_neighbors = self.get_neighbors()
 
+    def _get_cooling(bind, name):
+        """get cooling parameters for thermal zone"""
+        if bind.t_set_cool is not None:
+            return True
+        else:
+            cooling_decision = BoolDecision(question="Do you want for the thermal zone %s to be cooled? - "
+                                                     "with cooling" % bind.name,
+                                                     collect=False
+                                            )
+            cooling_decision.decide()
+            if cooling_decision.value:
+                return True
+            else:
+                return False
+
+    def set_cooling(self, cooling_decision):
+        """set_cooling parameter"""
+
     usage = attribute.Attribute(
         functions=[_get_usage]
     )
-
     t_set_heat = attribute.Attribute(
         default_ps='t_set_heat'
     )
@@ -700,6 +717,9 @@ class ThermalZone(element.Element):
     height = attribute.Attribute(
         default_ps='height',
         default=0
+    )
+    with_cooling = attribute.Attribute(
+        functions=[_get_cooling]
     )
 
     def __init__(self, *args, **kwargs):
@@ -776,16 +796,20 @@ class Wall(element.Element):
             layers.append(new_layer)
         return layers
 
-    def _get_is_external(bind, name):
-        """wall _get_is_external function"""
-        if len(bind.ifc.ProvidesBoundaries) > 0:
-            boundary = bind.ifc.ProvidesBoundaries[0]
-            if boundary.InternalOrExternalBoundary is not None:
-                if boundary.InternalOrExternalBoundary.lower() == 'external':
-                    return True
-                elif boundary.InternalOrExternalBoundary.lower() == 'internal':
-                    return False
-        return None
+    def _change_wall_class(self, boundary):
+        if boundary.InternalOrExternalBoundary is not None:
+            if boundary.InternalOrExternalBoundary.lower() == 'external':
+                self.__class__ = OuterWall
+                self.is_external = True
+                if hasattr(self, 'sub_instances'):
+                    for sub_ins in self.sub_instances:
+                        sub_ins.__class__ = SubOuterWall
+            elif boundary.InternalOrExternalBoundary.lower() == 'internal':
+                self.__class__ = InnerWall
+                self.is_external = False
+                if hasattr(self, 'sub_instances'):
+                    for sub_ins in self.sub_instances:
+                        sub_ins.__class__ = SubInnerWall
 
     layers = attribute.Attribute(
         functions=[_get_layers]
@@ -798,7 +822,6 @@ class Wall(element.Element):
 
     is_external = attribute.Attribute(
         default_ps='is_external',
-        functions=[_get_is_external],
         default=False
     )
 

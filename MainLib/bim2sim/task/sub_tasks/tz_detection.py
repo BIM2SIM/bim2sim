@@ -46,7 +46,15 @@ class Inspect(Task):
             self.instances[thermal_zone.guid] = thermal_zone
             self.bind_elements_to_zone(thermal_zone)
 
+        cooling_decision = BoolDecision(question="Do you want for all the thermal zones to be cooled? - "
+                                                 "with cooling",
+                                        collect=False
+                                        )
+        cooling_decision.decide()
+
         for k, tz in self.instances.items():
+            if cooling_decision:
+                tz.with_cooling = True
             tz.set_neighbors()
 
         tz_bind = Bind(self, self.workflow)

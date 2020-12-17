@@ -3,11 +3,11 @@ import ifcopenshell.geom
 import math
 import re
 import json
+import translators as ts
 
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.decision import ListDecision, RealDecision
 from teaser.data.input import inputdata
-import translators as ts
 
 
 def get_disaggregations_instance(element, thermal_zone):
@@ -92,7 +92,7 @@ def get_disaggregations_instance(element, thermal_zone):
 
 
 def orientation_verification(instance):
-    supported_classes = {'Window', 'OuterWall', 'Door'}
+    supported_classes = {'Window', 'OuterWall', 'Door', 'Wall'}
     if instance.__class__.__name__ in supported_classes:
         if len(instance.thermal_zones) > 0:
             bo_spaces = {}
@@ -123,6 +123,15 @@ def orientation_verification(instance):
     # not relevant for internal instances
     else:
         return None
+
+
+def is_external_verification(instance):
+    supported_classes = {'OuterWall', 'Wall', 'InnerWall'}
+    if instance.__class__.__name__ in supported_classes:
+        if len(instance.ifc.ProvidesBoundaries) > 0:
+            boundary = instance.ifc.ProvidesBoundaries[0]
+            return instance._change_wall_class(boundary)
+    return None
 
 
 def angle_equivalent(angle):
@@ -239,7 +248,9 @@ def get_pattern_usage():
         'Kitchen in non-residential buildings': ['Kitchen'],
         'Kitchen - preparations, storage': ['Kitchen'],
         'Traffic area': ['Hall'],
-        'WC and sanitary rooms in non-residential buildings': ['bath', 'bathroom']}
+        'WC and sanitary rooms in non-residential buildings': ['bath', 'bathroom', 'WC', 'Toilet'],
+        'Stock, technical equipment, archives': ['Technical room']
+    }
 
     pattern_usage_teaser = {}
     for i in use_conditions:
