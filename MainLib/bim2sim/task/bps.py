@@ -33,8 +33,8 @@ from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
 from teaser.logic import utilities
 import os
-from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list, filter_instances, \
-    get_pattern_usage, is_external_verification, layers_verification
+from bim2sim.task.bps_f.bps_functions import get_matches_list, filter_instances, \
+    get_pattern_usage, vector_angle, angle_equivalent, real_decision_user_input, get_material_value_templates_resumed
 from bim2sim.kernel.units import conversion
 
 
@@ -82,12 +82,12 @@ class Inspect(ITask):
         tz_inspect.run(ifc)
         self.instances.update(tz_inspect.instances)
 
-        for guid, ins in self.instances.items():
-            is_external_verification(ins)
-            layers_verification(ins)
-            new_orientation = orientation_verification(ins)
-            if new_orientation is not None:
-                ins.orientation = new_orientation
+        # for guid, ins in self.instances.items():
+        #     is_external_verification(ins)
+        #     layers_verification(ins)
+        #     new_orientation = orientation_verification(ins)
+        #     if new_orientation is not None:
+        #         ins.orientation = new_orientation
 
         return self.instances,
 
@@ -100,6 +100,146 @@ class Inspect(ITask):
         if not doors_decision.value:
             ifc_list.remove('IfcDoor')
         return tuple(ifc_list)
+
+
+class Prepare(ITask):
+    """Prepares bim2sim instances to later export"""
+    reads = ('instances', 'ifc',)
+    touches = ('instances',)
+
+    # materials = {}
+    # property_error = {}
+    # instance_template = {}
+
+    @Task.log
+    def run(self, workflow, instances, ifc):
+        self.logger.info("setting verifications")
+        for guid, ins in instances.items():
+            self.is_external_verification(ins)
+            self.layers_verification(ins)
+            new_orientation = self.orientation_verification(ins)
+            if new_orientation is not None:
+                ins.orientation = new_orientation
+
+        return instances,
+
+    @staticmethod
+    def orientation_verification(instance):
+        supported_classes = {'Window', 'OuterWall', 'Door', 'Wall'}
+        if instance.__class__.__name__ in supported_classes:
+            if len(instance.thermal_zones) > 0:
+                bo_spaces = {}
+                boundaries1 = {}
+                for i in instance.ifc.ProvidesBoundaries:
+                    rel_vector_space = i.ConnectionGeometry.SurfaceOnRelatingElement. \
+                        BasisSurface.Position.Axis.DirectionRatios
+                    rel_angle_space = vector_angle(rel_vector_space)
+                    boundaries1[i.RelatingSpace.Name] = rel_angle_space
+                for i in instance.thermal_zones:
+                    bo_spaces[i.name] = i.orientation
+                new_angles = []
+                for i in bo_spaces:
+                    # ToDo: Check cases
+                    new_angles.append(boundaries1[i])
+                    # new_angles.append(bo_spaces[i] + boundaries1[i]-180)
+                # can't determine a possible new angle (very rare case)
+                if len(set(new_angles)) > 1:
+                    return None
+                # no true north necessary
+                new_angle = angle_equivalent(new_angles[0])
+                # new angle return
+                if new_angle - instance.orientation > 0.1:
+                    return new_angle
+            else:
+                instance.logger.warning('No space relation for %s found' % instance.name)
+                return None
+        # not relevant for internal instances
+        else:
+            return None
+
+    @staticmethod
+    def is_external_verification(instance):
+        supported_classes = {'OuterWall', 'Wall', 'InnerWall'}
+        if instance.__class__.__name__ in supported_classes:
+            if len(instance.ifc.ProvidesBoundaries) > 0:
+                boundary = instance.ifc.ProvidesBoundaries[0]
+                return instance._change_wall_class(boundary)
+        return None
+
+    @classmethod
+    def layers_verification(cls, instance):
+        supported_classes = {'OuterWall', 'Wall', 'InnerWall'}
+        if instance.__class__.__name__ in supported_classes:
+            if len(instance.layers) > 0:
+                layers_width = 0
+                layers_r = 0
+                for layer in instance.layers:
+                    layers_width += layer.thickness
+                    layers_r += layer.thickness / layer.thermal_conduc
+                # width check
+                if instance.width > layers_width:
+                    print("width doesn't correspond")  # make it
+                    print("is necessary to create new layer")
+                    new_layer = elements.Layer.create_additional_layer(instance.width - layers_width)
+                    instance.layers.append(new_layer)
+                    layers_width += new_layer.thickness
+                    layers_r += new_layer.thickness / new_layer.thermal_conduc
+                total_u = 1 / layers_r
+                # u_value check
+                if abs(instance.u_value - 1 / layers_r)/instance.u_value > 0.2:
+                    print("discrepancy between u values")
+                    cumulative_r = 0
+                    for layer in instance.layers:
+                        if instance.layers[-1] == layer:
+                            lower_tc = (1/(instance.u_value * 1.2) - cumulative_r) * layer.thickness
+                            upper_tc = (1/(instance.u_value * 0.8) - cumulative_r) * layer.thickness
+                            layer.thermal_conduc = cls.get_material_properties(layer, 'thermal_conduc', [lower_tc, upper_tc])
+                        else:
+                            layer.thermal_conduc = cls.get_material_properties(layer, 'thermal_conduc')
+                        cumulative_r += layer.thermal_conduc/layer.thickness
+
+    @staticmethod
+    def get_material_properties(instance, name, tc_range=None):
+        # check if append on layer
+        material = instance.material
+
+        if material in instance.material_selected:
+            if name in instance.material_selected[material]:
+                if tc_range is not None:
+                    if tc_range[0] < instance.material_selected[material][name] < tc_range[1]:
+                        return instance.material_selected[material][name]
+                else:
+                    return instance.material_selected[material][name]
+        else:
+            first_decision = BoolDecision(
+                question="Do you want for %s with the material %s to use available templates, "
+                         "enter 'n' for manual input"
+                         % (instance.guid, instance.material),
+                collect=False)
+            first_decision.decide()
+            first_decision.stored_decisions.clear()
+
+            if first_decision.value:
+                resumed = get_material_value_templates_resumed(name, tc_range)
+                material_options = get_matches_list(instance.material, list(resumed.keys()))
+
+                while len(material_options) == 0:
+                    decision_ = input(
+                        "Material not found, enter value for the material:")
+                    material_options = get_matches_list(decision_, list(resumed.keys()))
+
+                decision1 = ListDecision("Multiple possibilities found for material %s" % material,
+                                         choices=list(material_options),
+                                         allow_skip=True, allow_load=True, allow_save=True,
+                                         collect=False, quick_decide=not True)
+                decision1.decide()
+
+                if material not in instance.material_selected:
+                    instance.material_selected[material] = {} # check this (change structure of materials.jsom?)
+                instance.material_selected[material][name] = resumed[decision1.value]
+                return instance.material_selected[material][name]
+            else:
+                return real_decision_user_input(instance, name)
 
 
 class ExportTEASER(ITask):
@@ -164,7 +304,8 @@ class ExportTEASER(ITask):
         """Filter the invalid property values and fills it with a template or an user given value,
         if value is valid, returns the value
         invalid value: ZeroDivisionError on thermal zone calculations"""
-        error_properties = ['density', 'thickness', 'heat_capac', 'thermal_conduc']  # properties that are vital to thermal zone calculations
+        error_properties = ['density', 'thickness', 'heat_capac',
+                            'thermal_conduc']  # properties that are vital to thermal zone calculations
         white_list_properties = ['orientation']
         if (aux is None or aux == 0) and key not in white_list_properties:
             # name from instance to store in error dict
@@ -373,7 +514,7 @@ class ExportTEASERMultizone(ITask):
             for tz_instance in tz_instances:
                 tz = self._create_thermal_zone(tz_instance, bldg)
                 for bound_element in tz_instance.bound_elements:
-                    if isinstance(bound_element, elements.InnerWall)\
+                    if isinstance(bound_element, elements.InnerWall) \
                             or isinstance(bound_element,
                                           disaggregation.SubInnerWall):
                         in_wall = InnerWall(parent=tz)
@@ -385,7 +526,7 @@ class ExportTEASERMultizone(ITask):
                         in_wall.load_type_element(
                             year=bldg.year_of_construction,
                             construction="heavy")
-                            # todo material
+                        # todo material
                     elif type(bound_element) == elements.OuterWall or \
                             type(bound_element) == disaggregation.SubOuterWall:
                         out_wall = OuterWall(parent=tz)
@@ -409,7 +550,7 @@ class ExportTEASERMultizone(ITask):
                                 mat_name='Vermiculit_bulk_density_170_100deg'
                                 ,
                                 data_class=prj.data,
-                                )
+                            )
                     elif isinstance(bound_element, elements.Window):
                         window = Window(parent=tz)
                         window.name = bound_element.name
@@ -422,7 +563,7 @@ class ExportTEASERMultizone(ITask):
                         if window.orientation is None:
                             print('damn')
                     elif isinstance(bound_element, elements.Roof) or \
-                        isinstance(bound_element, disaggregation.SubRoof):
+                            isinstance(bound_element, disaggregation.SubRoof):
                         roof_element = Rooftop(parent=tz)
                         # todo remove hardcode
                         roof_element.orientation = -1
@@ -431,7 +572,7 @@ class ExportTEASERMultizone(ITask):
                             year=bldg.year_of_construction, construction="heavy"
                         )
                     elif isinstance(bound_element, elements.Floor) or \
-                        isinstance(bound_element, disaggregation.SubFloor):
+                            isinstance(bound_element, disaggregation.SubFloor):
                         floor_element = Floor(parent=tz)
                         floor_element.area = bound_element.area
                         floor_element.orientation = -2
@@ -439,7 +580,7 @@ class ExportTEASERMultizone(ITask):
                             year=bldg.year_of_construction, construction="heavy"
                         )
                     elif isinstance(bound_element, elements.GroundFloor) or \
-                        isinstance(bound_element, disaggregation.SubGroundFloor):
+                            isinstance(bound_element, disaggregation.SubGroundFloor):
                         gfloor_element = GroundFloor(parent=tz)
                         gfloor_element.orientation = -2
                         gfloor_element.area = bound_element.area
@@ -448,7 +589,7 @@ class ExportTEASERMultizone(ITask):
                         )
 
                 # catch error for no inner walls areas
-                if len(tz.inner_walls) ==0:
+                if len(tz.inner_walls) == 0:
                     in_wall = InnerWall(parent=tz)
                     in_wall.name = "dummy"
                     in_wall.area = 0.01
@@ -466,10 +607,12 @@ class ExportTEASERMultizone(ITask):
                     "/KIT_CampusEPW.mos"))
             prj.export_aixlib()
 
+
 class ExportTEASERSingleZone(Task):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
-    #todo: for this LOD the slab sicing must be deactivated and building
+
+    # todo: for this LOD the slab sicing must be deactivated and building
     # elements must be only included once in the thermalzone even if they are
     # holded by different IfcSpaces
     @staticmethod
@@ -502,7 +645,6 @@ class ExportTEASERSingleZone(Task):
         tz.use_conditions.with_cooling = True
         return tz
 
-
     def run(self, workflow, bps_inspect):
         # mapping_dict = {
         #     elements.Floor.instances: Floor,
@@ -515,7 +657,7 @@ class ExportTEASERSingleZone(Task):
         self.logger.info("Export to TEASER")
         # raise NotImplementedError("Not working probably at the moment")
         prj = Project(load_data=True)
-        #Todo get project name (not set to PROJECT yet)
+        # Todo get project name (not set to PROJECT yet)
         prj.name = 'Testproject'
         prj.data.load_uc_binding()
         bldg_instances = bps_inspect.filter_instances('Building')
@@ -532,7 +674,7 @@ class ExportTEASERSingleZone(Task):
             tz = self._create_thermal_single_zone(tz_instances, bldg)
 
             for bound_element in bps_inspect.instances.values():
-                if isinstance(bound_element, elements.InnerWall)\
+                if isinstance(bound_element, elements.InnerWall) \
                         or isinstance(bound_element,
                                       disaggregation.SubInnerWall):
                     in_wall = InnerWall(parent=tz)
@@ -544,7 +686,7 @@ class ExportTEASERSingleZone(Task):
                     in_wall.load_type_element(
                         year=bldg.year_of_construction,
                         construction="heavy")
-                        # todo material
+                    # todo material
                 elif type(bound_element) == elements.OuterWall or \
                         type(bound_element) == disaggregation.SubOuterWall:
                     out_wall = OuterWall(parent=tz)
@@ -568,7 +710,7 @@ class ExportTEASERSingleZone(Task):
                             mat_name='Vermiculit_bulk_density_170_100deg'
                             ,
                             data_class=prj.data,
-                            )
+                        )
                 elif isinstance(bound_element, elements.Window):
                     window = Window(parent=tz)
                     window.name = bound_element.name
@@ -581,7 +723,7 @@ class ExportTEASERSingleZone(Task):
                     if window.orientation is None:
                         print('damn')
                 elif isinstance(bound_element, elements.Roof) or \
-                    isinstance(bound_element, disaggregation.SubRoof):
+                        isinstance(bound_element, disaggregation.SubRoof):
                     roof_element = Rooftop(parent=tz)
                     # todo remove hardcode
                     roof_element.orientation = -1
@@ -590,7 +732,7 @@ class ExportTEASERSingleZone(Task):
                         year=bldg.year_of_construction, construction="heavy"
                     )
                 elif isinstance(bound_element, elements.Floor) or \
-                    isinstance(bound_element, disaggregation.SubFloor):
+                        isinstance(bound_element, disaggregation.SubFloor):
                     floor_element = Floor(parent=tz)
                     floor_element.area = bound_element.area
                     floor_element.orientation = -2
@@ -598,7 +740,7 @@ class ExportTEASERSingleZone(Task):
                         year=bldg.year_of_construction, construction="heavy"
                     )
                 elif isinstance(bound_element, elements.GroundFloor) or \
-                    isinstance(bound_element, disaggregation.SubGroundFloor):
+                        isinstance(bound_element, disaggregation.SubGroundFloor):
                     gfloor_element = GroundFloor(parent=tz)
                     gfloor_element.orientation = -2
                     gfloor_element.area = bound_element.area
@@ -607,7 +749,7 @@ class ExportTEASERSingleZone(Task):
                     )
 
                 # catch error for no inner walls areas
-                if len(tz.inner_walls) ==0:
+                if len(tz.inner_walls) == 0:
                     in_wall = InnerWall(parent=tz)
                     in_wall.name = "dummy"
                     in_wall.area = 0.01
@@ -618,5 +760,3 @@ class ExportTEASERSingleZone(Task):
             tz.calc_zone_parameters()
             bldg.calc_building_parameter(number_of_elements=2)
             prj.export_aixlib()
-
-

@@ -86,7 +86,7 @@
       "is_external": {
         "base": ["Pset_WallCommon", "IsExternal"]
       },
-      "thermal_transmittance": {
+      "u_value": {
         "base": ["Pset_WallCommon", "ThermalTransmittance"]
       }
     }
@@ -135,7 +135,7 @@
       "is_external": {
         "base": ["Pset_WallCommon", "IsExternal"]
       },
-      "thermal_transmittance": {
+      "u_value": {
         "base": ["Pset_WallCommon", "ThermalTransmittance"]
       }
     }
@@ -187,7 +187,7 @@
       "is_external": {
         "base": ["Pset_WallCommon", "IsExternal"]
       },
-      "thermal_transmittance": {
+      "u_value": {
         "base": ["Pset_WallCommon", "ThermalTransmittance"]
       }
     }

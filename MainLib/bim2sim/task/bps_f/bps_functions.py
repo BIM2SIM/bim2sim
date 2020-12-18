@@ -91,54 +91,54 @@ def get_disaggregations_instance(element, thermal_zone):
     return disaggregations
 
 
-def orientation_verification(instance):
-    supported_classes = {'Window', 'OuterWall', 'Door', 'Wall'}
-    if instance.__class__.__name__ in supported_classes:
-        if len(instance.thermal_zones) > 0:
-            bo_spaces = {}
-            boundaries1 = {}
-            for i in instance.ifc.ProvidesBoundaries:
-                rel_vector_space = i.ConnectionGeometry.SurfaceOnRelatingElement.\
-                    BasisSurface.Position.Axis.DirectionRatios
-                rel_angle_space = vector_angle(rel_vector_space)
-                boundaries1[i.RelatingSpace.Name] = rel_angle_space
-            for i in instance.thermal_zones:
-                bo_spaces[i.name] = i.orientation
-            new_angles = []
-            for i in bo_spaces:
-                # ToDo: Check cases
-                new_angles.append(boundaries1[i])
-                # new_angles.append(bo_spaces[i] + boundaries1[i]-180)
-            # can't determine a possible new angle (very rare case)
-            if len(set(new_angles)) > 1:
-                return None
-            # no true north necessary
-            new_angle = angle_equivalent(new_angles[0])
-            # new angle return
-            if new_angle - instance.orientation > 0.1:
-                return new_angle
-        else:
-            instance.logger.warning('No space relation for %s found' % instance.name)
-            return None
-    # not relevant for internal instances
-    else:
-        return None
-
-
-def is_external_verification(instance):
-    supported_classes = {'OuterWall', 'Wall', 'InnerWall'}
-    if instance.__class__.__name__ in supported_classes:
-        if len(instance.ifc.ProvidesBoundaries) > 0:
-            boundary = instance.ifc.ProvidesBoundaries[0]
-            return instance._change_wall_class(boundary)
-    return None
-
-
-def layers_verification(instance):
-    supported_classes = {'OuterWall', 'Wall', 'InnerWall'}
-    if instance.__class__.__name__ in supported_classes:
-        if len(instance.layers) > 0:
-            print()
+# def orientation_verification(instance):
+#     supported_classes = {'Window', 'OuterWall', 'Door', 'Wall'}
+#     if instance.__class__.__name__ in supported_classes:
+#         if len(instance.thermal_zones) > 0:
+#             bo_spaces = {}
+#             boundaries1 = {}
+#             for i in instance.ifc.ProvidesBoundaries:
+#                 rel_vector_space = i.ConnectionGeometry.SurfaceOnRelatingElement.\
+#                     BasisSurface.Position.Axis.DirectionRatios
+#                 rel_angle_space = vector_angle(rel_vector_space)
+#                 boundaries1[i.RelatingSpace.Name] = rel_angle_space
+#             for i in instance.thermal_zones:
+#                 bo_spaces[i.name] = i.orientation
+#             new_angles = []
+#             for i in bo_spaces:
+#                 # ToDo: Check cases
+#                 new_angles.append(boundaries1[i])
+#                 # new_angles.append(bo_spaces[i] + boundaries1[i]-180)
+#             # can't determine a possible new angle (very rare case)
+#             if len(set(new_angles)) > 1:
+#                 return None
+#             # no true north necessary
+#             new_angle = angle_equivalent(new_angles[0])
+#             # new angle return
+#             if new_angle - instance.orientation > 0.1:
+#                 return new_angle
+#         else:
+#             instance.logger.warning('No space relation for %s found' % instance.name)
+#             return None
+#     # not relevant for internal instances
+#     else:
+#         return None
+#
+#
+# def is_external_verification(instance):
+#     supported_classes = {'OuterWall', 'Wall', 'InnerWall'}
+#     if instance.__class__.__name__ in supported_classes:
+#         if len(instance.ifc.ProvidesBoundaries) > 0:
+#             boundary = instance.ifc.ProvidesBoundaries[0]
+#             return instance._change_wall_class(boundary)
+#     return None
+#
+#
+# def layers_verification(instance):
+#     supported_classes = {'OuterWall', 'Wall', 'InnerWall'}
+#     if instance.__class__.__name__ in supported_classes:
+#         if len(instance.layers) > 0:
+#             print()
 
 
 def angle_equivalent(angle):
@@ -184,13 +184,14 @@ def get_matches_list(search_words, search_list, transl=True):
 
     material_ref = []
 
-    pattern_material = re.sub('[!@#$-_1234567890]', '', search_words.lower()).split()
-    if transl:
-        # use of yandex, bing--- https://pypi.org/project/translators/#features
-        pattern_material.extend(ts.bing(re.sub('[!@#$-_1234567890]', '', search_words.lower())).split())
+    if type(search_words) is str:
+        pattern_material = re.sub('[!@#$-_1234567890]', '', search_words.lower()).split()
+        if transl:
+            # use of yandex, bing--- https://pypi.org/project/translators/#features
+            pattern_material.extend(ts.bing(re.sub('[!@#$-_1234567890]', '', search_words.lower())).split())
 
-    for i in pattern_material:
-        material_ref.append(re.compile('(.*?)%s' % i, flags=re.IGNORECASE))
+        for i in pattern_material:
+            material_ref.append(re.compile('(.*?)%s' % i, flags=re.IGNORECASE))
 
     material_options = []
     for ref in material_ref:
@@ -211,6 +212,20 @@ def get_material_templates_resumed():
         resumed[material_templates[k]['name']] = k
 
     return material_templates, resumed
+
+
+def get_material_value_templates_resumed(name, tc_range=None):
+    material_templates = dict(DataClass(used_param=2).element_bind)
+    del material_templates['version']
+
+    resumed = {}
+    for k in material_templates:
+        if tc_range is not None:
+            if tc_range[0] < material_templates[k][name] < tc_range[1]:
+                resumed[material_templates[k]['name']] = material_templates[k][name]
+        else:
+            resumed[material_templates[k]['name']] = material_templates[k][name]
+    return resumed
 
 
 def real_decision_user_input(bind, name):

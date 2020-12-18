@@ -853,6 +853,12 @@ class Wall(element.Element):
         default_ps='tilt',
         default=0
     )
+    u_value = attribute.Attribute(
+        default_ps='u_value'
+    )
+    width = attribute.Attribute(
+        default_ps='width'
+    )
 
 
 class Layer(element.SubElement):
@@ -863,11 +869,13 @@ class Layer(element.SubElement):
     def __init__(self, *args, **kwargs):
         """layer __init__ function"""
         super().__init__(*args, **kwargs)
+        self.material = None
         if hasattr(self.ifc, 'Material'):
             material = self.ifc.Material
         else:
             material = self.ifc
-        self.material = material.Name
+        if material is not None:
+            self.material = material.Name
         # ToDO: what if doesn't have thickness
         self.thickness = None
         if hasattr(self.ifc, 'LayerThickness'):
@@ -876,6 +884,13 @@ class Layer(element.SubElement):
     def __repr__(self):
         return "<%s (material: %s>" \
                % (self.__class__.__name__, self.material)
+
+    @classmethod
+    def create_additional_layer(cls, thickness):
+        new_layer = cls(ifc=None)
+        new_layer.material = None
+        new_layer.thickness = thickness
+        return new_layer
 
     def _get_material_properties(bind, name):
         if name == 'thickness':
@@ -893,8 +908,6 @@ class Layer(element.SubElement):
                                                    % (bind.guid, bind.material),
                                           collect=False)
             first_decision.decide()
-            x =bind.parent
-            y = bind.ifc
             first_decision.stored_decisions.clear()
 
             if first_decision.value:
@@ -912,8 +925,13 @@ class Layer(element.SubElement):
                                          collect=False, quick_decide=not True)
                 decision1.decide()
 
-                bind.material_selected[material] = material_templates[resumed[decision1.value]]
-                return bind.material_selected[material][name]
+                if material is not None:
+                    bind.material_selected[material] = material_templates[resumed[decision1.value]]
+                else:
+                    bind.material = decision1.value
+                    bind.material_selected[bind.material] = material_templates[resumed[decision1.value]]
+
+                return bind.material_selected[bind.material][name]
             else:
                 return real_decision_user_input(bind, name)
 
