@@ -203,15 +203,18 @@ def get_matches_list(search_words, search_list, transl=True):
     return material_options
 
 
-def get_material_templates_resumed():
+def get_material_templates_resumed(name, tc_range):
     material_templates = dict(DataClass(used_param=2).element_bind)
     del material_templates['version']
-
     resumed = {}
     for k in material_templates:
-        resumed[material_templates[k]['name']] = k
+        if tc_range is not None:
+            if tc_range[0] < material_templates[k][name] < tc_range[1]:
+                resumed[material_templates[k]['name']] = material_templates[k]
+        else:
+            resumed[material_templates[k]['name']] = material_templates[k]
 
-    return material_templates, resumed
+    return resumed
 
 
 def get_material_value_templates_resumed(name, tc_range=None):

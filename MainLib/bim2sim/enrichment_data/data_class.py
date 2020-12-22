@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import ast
 from bim2sim.project import PROJECT as project
 
 v = sys.version_info
@@ -31,6 +32,11 @@ class DataClass(object):
                                         'MaterialTemplates.json')
             # self.path_te = project.assets / 'MaterialTemplates' / 'MaterialTemplates.json'
             self.load_te_binding()
+        elif self.used_parameters == 3:
+            self.path_te = os.path.join(project.assets, 'MaterialTemplates',
+                                        'TypeBuildingElements.json')
+            self.load_te_binding()
+            self.typebuildingelements_postprocessing()
         elif self.used_parameters is None:
             self.element_bind = None
 
@@ -48,4 +54,21 @@ class DataClass(object):
                     print("Your TypeElements file seems to be broken.")
         else:
             print("Your TypeElements file has the wrong format.")
+
+    def typebuildingelements_postprocessing(self):
+        instance_templates = self.element_bind
+        del instance_templates["version"]
+        template_options = {}
+        for i in instance_templates:
+            i_name, i_years, i_template = i.split('_')
+            if i_name not in template_options:
+                template_options[i_name] = {}
+            if i_years not in template_options[i_name]:
+                template_options[i_name][i_years] = {}
+            template_options[i_name][i_years][i_template] = instance_templates[i]
+        self.element_bind = template_options
+
+        
+
+
 

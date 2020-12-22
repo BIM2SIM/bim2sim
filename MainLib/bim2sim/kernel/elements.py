@@ -886,38 +886,53 @@ class Layer(element.SubElement):
                % (self.__class__.__name__, self.material)
 
     @classmethod
-    def create_additional_layer(cls, thickness):
+    def create_additional_layer(cls, thickness, material=None):
         new_layer = cls(ifc=None)
-        new_layer.material = None
+        new_layer.material = material
         new_layer.thickness = thickness
         return new_layer
 
-    def _get_material_properties(bind, name):
+    def get_material_properties(bind, name, tc_range=None):
         if name == 'thickness':
             name = 'thickness_default'
 
+        # check if material new properties are previously stored
         material = bind.material
         if material in bind.material_selected:
             if name in bind.material_selected[material]:
-                return bind.material_selected[material][name]
+                # check if range is given
+                if tc_range is not None:
+                    if tc_range[0] < bind.material_selected[material][name] < tc_range[1]:
+                        return bind.material_selected[material][name]
+                else:
+                    return bind.material_selected[material][name]
             else:
                 return real_decision_user_input(bind, name)
         else:
-            first_decision = BoolDecision(question="Do you want for %s with the material %s to use available templates, "
-                                                   "enter 'n' for manual input"
-                                                   % (bind.guid, bind.material),
-                                          collect=False)
+            first_decision = BoolDecision(
+                question="Do you want for %s with the material %s to use available templates, "
+                         "enter 'n' for manual input"
+                         % (bind.guid, bind.material),
+                         collect=False)
             first_decision.decide()
             first_decision.stored_decisions.clear()
 
             if first_decision.value:
-                material_templates, resumed = get_material_templates_resumed()
+                resumed = get_material_templates_resumed(name, tc_range)
+
+                if bind.material in resumed:
+                    bind.material_selected[material] = resumed[material]
+                    return bind.material_selected[bind.material][name]
+
                 material_options = get_matches_list(bind.material, list(resumed.keys()))
 
-                while len(material_options) == 0:
-                    decision_ = input(
-                        "Material not found, enter value for the material:")
-                    material_options = get_matches_list(decision_, list(resumed.keys()))
+                if tc_range is None:
+                    while len(material_options) == 0:
+                        decision_ = input(
+                            "Material not found, enter value for the material:")
+                        material_options = get_matches_list(decision_, list(resumed.keys()))
+                else:
+                    material_options = list(resumed.keys())
 
                 decision1 = ListDecision("Multiple possibilities found for material %s" % material,
                                          choices=list(material_options),
@@ -926,29 +941,30 @@ class Layer(element.SubElement):
                 decision1.decide()
 
                 if material is not None:
-                    bind.material_selected[material] = material_templates[resumed[decision1.value]]
+                    if material not in bind.material_selected:
+                        bind.material_selected[material] = {}
+                    bind.material_selected[material] = resumed[decision1.value]
                 else:
                     bind.material = decision1.value
-                    bind.material_selected[bind.material] = material_templates[resumed[decision1.value]]
-
+                    bind.material_selected[bind.material] = resumed[decision1.value]
                 return bind.material_selected[bind.material][name]
             else:
                 return real_decision_user_input(bind, name)
 
     heat_capac = attribute.Attribute(
         default_ps='heat_capac',
-        functions=[_get_material_properties],
+        functions=[get_material_properties],
         default=0
     )
 
     density = attribute.Attribute(
-        functions=[_get_material_properties],
+        functions=[get_material_properties],
         default_ps='density',
         default=0
     )
 
     thermal_conduc = attribute.Attribute(
-        functions=[_get_material_properties],
+        functions=[get_material_properties],
         default_ps='thermal_conduc',
         default=0
     )

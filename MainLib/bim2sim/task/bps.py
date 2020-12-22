@@ -2,6 +2,7 @@
 
 import itertools
 import json
+import ast
 
 from bim2sim.task.base import Task, ITask
 # from bim2sim.filter import TypeFilter
@@ -16,7 +17,7 @@ from bim2sim.kernel import elements, disaggregation
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.enrichment_data import element_input_json
 from bim2sim.enrichment_data.data_class import DataClass
-from bim2sim.decision import ListDecision, BoolDecision
+from bim2sim.decision import ListDecision, BoolDecision, RealDecision
 from teaser.project import Project
 from teaser.logic.buildingobjects.building import Building
 from teaser.logic.buildingobjects.thermalzone import ThermalZone
@@ -109,14 +110,17 @@ class Prepare(ITask):
 
     # materials = {}
     # property_error = {}
-    # instance_template = {}
+    instance_template = {}
 
     @Task.log
     def run(self, workflow, instances, ifc):
         self.logger.info("setting verifications")
+        building = None
         for guid, ins in instances.items():
+            if type(ins).__name__ == 'Building':
+                building = ins
             self.is_external_verification(ins)
-            self.layers_verification(ins)
+            self.layers_verification(ins, building)
             new_orientation = self.orientation_verification(ins)
             if new_orientation is not None:
                 ins.orientation = new_orientation
@@ -166,20 +170,21 @@ class Prepare(ITask):
                 return instance._change_wall_class(boundary)
         return None
 
-    @classmethod
-    def layers_verification(cls, instance):
+    def layers_verification(self, instance, building):
         supported_classes = {'OuterWall', 'Wall', 'InnerWall'}
         if instance.__class__.__name__ in supported_classes:
+            # instance.layers = [] # probe
+            layers_width = 0
+            layers_r = 0
             if len(instance.layers) > 0:
-                layers_width = 0
-                layers_r = 0
                 for layer in instance.layers:
                     layers_width += layer.thickness
                     layers_r += layer.thickness / layer.thermal_conduc
                 # width check
+                instance.width = 1
                 if instance.width > layers_width:
-                    print("width doesn't correspond")  # make it
-                    print("is necessary to create new layer")
+                    self.logger.warning("width from the wall doesn't correspond to the total width of the layers, "
+                                        "is necessary to create new layer")
                     new_layer = elements.Layer.create_additional_layer(instance.width - layers_width)
                     instance.layers.append(new_layer)
                     layers_width += new_layer.thickness
@@ -187,59 +192,66 @@ class Prepare(ITask):
                 total_u = 1 / layers_r
                 # u_value check
                 if abs(instance.u_value - 1 / layers_r)/instance.u_value > 0.2:
-                    print("discrepancy between u values")
+                    self.logger.warning("discrepancy between the u value from the wall and the total u value "
+                                        "from the layer")
                     cumulative_r = 0
                     for layer in instance.layers:
                         if instance.layers[-1] == layer:
                             lower_tc = (1/(instance.u_value * 1.2) - cumulative_r) * layer.thickness
                             upper_tc = (1/(instance.u_value * 0.8) - cumulative_r) * layer.thickness
-                            layer.thermal_conduc = cls.get_material_properties(layer, 'thermal_conduc', [lower_tc, upper_tc])
+                            layer.thermal_conduc = elements.Layer.get_material_properties(
+                                layer, 'thermal_conduc', [lower_tc, upper_tc])
                         else:
-                            layer.thermal_conduc = cls.get_material_properties(layer, 'thermal_conduc')
+                            layer.thermal_conduc = elements.Layer.get_material_properties(layer, 'thermal_conduc')
                         cumulative_r += layer.thermal_conduc/layer.thickness
-
-    @staticmethod
-    def get_material_properties(instance, name, tc_range=None):
-        # check if append on layer
-        material = instance.material
-
-        if material in instance.material_selected:
-            if name in instance.material_selected[material]:
-                if tc_range is not None:
-                    if tc_range[0] < instance.material_selected[material][name] < tc_range[1]:
-                        return instance.material_selected[material][name]
-                else:
-                    return instance.material_selected[material][name]
-        else:
-            first_decision = BoolDecision(
-                question="Do you want for %s with the material %s to use available templates, "
-                         "enter 'n' for manual input"
-                         % (instance.guid, instance.material),
-                collect=False)
-            first_decision.decide()
-            first_decision.stored_decisions.clear()
-
-            if first_decision.value:
-                resumed = get_material_value_templates_resumed(name, tc_range)
-                material_options = get_matches_list(instance.material, list(resumed.keys()))
-
-                while len(material_options) == 0:
-                    decision_ = input(
-                        "Material not found, enter value for the material:")
-                    material_options = get_matches_list(decision_, list(resumed.keys()))
-
-                decision1 = ListDecision("Multiple possibilities found for material %s" % material,
-                                         choices=list(material_options),
-                                         allow_skip=True, allow_load=True, allow_save=True,
-                                         collect=False, quick_decide=not True)
-                decision1.decide()
-
-                if material not in instance.material_selected:
-                    instance.material_selected[material] = {} # check this (change structure of materials.jsom?)
-                instance.material_selected[material][name] = resumed[decision1.value]
-                return instance.material_selected[material][name]
             else:
-                return real_decision_user_input(instance, name)
+                self.logger.warning("no layers present on the wall, is necessary to use a template to proceed")
+                template = self.get_instance_template(instance, building)
+                for i_layer, layer_props in template['layer'].items():
+                    new_layer = elements.Layer.create_additional_layer(
+                        layer_props['thickness'], material=layer_props['material']['name'])
+                    instance.layers.append(new_layer)
+                    layers_width += new_layer.thickness
+                    layers_r += new_layer.thickness / new_layer.thermal_conduc
+                instance.width = layers_width
+                instance.u_value = 1/layers_r
+
+    @classmethod
+    def get_instance_template(cls, instance, building):
+        instance_switcher = {'OuterWall': OuterWall,
+                             'InnerWall': InnerWall}
+
+        instance_type = instance_switcher.get(type(instance).__name__).__name__
+        instance_templates = dict(DataClass(used_param=3).element_bind)
+        if instance_type in cls.instance_template:
+            return cls.instance_template[instance_type]
+
+        year_of_construction = int(building.year_of_construction)
+        if year_of_construction is None:
+            year_decision = RealDecision("Enter value for the year of construction",
+                                         global_key="year",
+                                         allow_skip=False, allow_load=True, allow_save=True,
+                                         collect=False, quick_decide=False)
+            year_decision.decide()
+            year_of_construction = int(year_decision.value.m)
+        template_options = []
+        for i in instance_templates[instance_type]:
+            years = ast.literal_eval(i)
+            if years[0] <= year_of_construction <= years[1]:
+                template_options = instance_templates[instance_type][i]
+                break
+
+        if len(template_options.keys()) > 1:
+            decision_template = ListDecision("the following construction types were "
+                                             "found for year %s and instance type %s"
+                                             % (year_of_construction, instance_type),
+                                             choices=list(template_options.keys()),
+                                             allow_skip=True, allow_load=True, allow_save=True,
+                                             collect=False, quick_decide=not True)
+            decision_template.decide()
+            template_value = template_options[decision_template.value]
+            cls.instance_template[instance_type] = template_value
+            return template_value
 
 
 class ExportTEASER(ITask):
@@ -422,10 +434,9 @@ class ExportTEASER(ITask):
         instance_templates = dict(prj.data.element_bind)
         del instance_templates["version"]
         if bldg.name in cls.instance_template:
-            teaser_name = type(teaser_instance).__name__
-            if teaser_name in cls.instance_template[bldg.name]:
-                year_group = str(cls.instance_template[bldg.name][teaser_name][0])
-                selected_template = cls.instance_template[bldg.name][teaser_name][1]
+            if instance_type in cls.instance_template[bldg.name]:
+                year_group = str(cls.instance_template[bldg.name][instance_type][0])
+                selected_template = cls.instance_template[bldg.name][instance_type][1]
                 aux_template = '%s_%s_%s' % (instance_type, year_group, selected_template)
                 # if aux_template in instance_templates:
                 return [selected_template], year_group
