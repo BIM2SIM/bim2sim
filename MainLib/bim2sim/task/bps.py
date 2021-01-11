@@ -173,15 +173,38 @@ class Prepare(ITask):
     def layers_verification(self, instance, building):
         supported_classes = {'OuterWall', 'Wall', 'InnerWall'}
         if instance.__class__.__name__ in supported_classes:
+            u_value_verification = self.compare_with_template(instance, building)
             # instance.layers = [] # probe
             layers_width = 0
+            layers_r = 0
+            for layer in instance.layers:
+                layers_width += layer.thickness
+                layers_r += layer.thickness / layer.thermal_conduc
+
+            # critical failure // check units again
+            width_discrepancy = abs(instance.width - layers_width) / instance.width
+            u_discrepancy = abs(instance.u_value - 1 / layers_r) / instance.u_value
+            u_discrepancy = 0.65
+            if width_discrepancy > 0.2 or u_discrepancy > 0.2:
+                decision_layers = ListDecision("the following layer creation methods were ",
+                                               choices=['Manual layers creation (from zero)',
+                                                        'Template layers creation (based on given u value)'],
+                                               allow_skip=True, allow_load=True, allow_save=True,
+                                               collect=False, quick_decide=not True)
+                decision_layers.decide()
+                functions_dict = {'Manual layers creation (from zero)': self.manual_layers_creation,
+                                  'Template layers creation (based on given u value)': self.template_layers_creation}
+                layers_creation_func = functions_dict.get(decision_layers.value)
+                layers_creation_func(instance, building)
+                print()
+
             layers_r = 0
             if len(instance.layers) > 0:
                 for layer in instance.layers:
                     layers_width += layer.thickness
                     layers_r += layer.thickness / layer.thermal_conduc
                 # width check
-                instance.width = 1
+                # instance.width = 1
                 if instance.width > layers_width:
                     self.logger.warning("width from the wall doesn't correspond to the total width of the layers, "
                                         "is necessary to create new layer")
@@ -189,21 +212,20 @@ class Prepare(ITask):
                     instance.layers.append(new_layer)
                     layers_width += new_layer.thickness
                     layers_r += new_layer.thickness / new_layer.thermal_conduc
-                total_u = 1 / layers_r
                 # u_value check
-                if abs(instance.u_value - 1 / layers_r)/instance.u_value > 0.2:
+                if abs(instance.u_value - 1 / layers_r) / instance.u_value > 0.2:
                     self.logger.warning("discrepancy between the u value from the wall and the total u value "
                                         "from the layer")
                     cumulative_r = 0
                     for layer in instance.layers:
                         if instance.layers[-1] == layer:
-                            lower_tc = (1/(instance.u_value * 1.2) - cumulative_r) * layer.thickness
-                            upper_tc = (1/(instance.u_value * 0.8) - cumulative_r) * layer.thickness
+                            lower_tc = (1 / (instance.u_value * 1.2) - cumulative_r) * layer.thickness
+                            upper_tc = (1 / (instance.u_value * 0.8) - cumulative_r) * layer.thickness
                             layer.thermal_conduc = elements.Layer.get_material_properties(
                                 layer, 'thermal_conduc', [lower_tc, upper_tc])
                         else:
                             layer.thermal_conduc = elements.Layer.get_material_properties(layer, 'thermal_conduc')
-                        cumulative_r += layer.thermal_conduc/layer.thickness
+                        cumulative_r += layer.thermal_conduc / layer.thickness
             else:
                 self.logger.warning("no layers present on the wall, is necessary to use a template to proceed")
                 template = self.get_instance_template(instance, building)
@@ -214,7 +236,96 @@ class Prepare(ITask):
                     layers_width += new_layer.thickness
                     layers_r += new_layer.thickness / new_layer.thermal_conduc
                 instance.width = layers_width
-                instance.u_value = 1/layers_r
+                instance.u_value = 1 / layers_r
+
+    @classmethod
+    def manual_layers_creation(cls, instance, building):
+        instance.layers = []
+        layers_width = 0
+        layers_r = 0
+        layers_number_dec = input("Enter value for the number of layers")
+        layers_number = int(layers_number_dec)
+        while layers_number > 0:
+            if layers_number == 1:
+                thickness_value = instance.width-layers_width
+            else:
+                layer_thickness = RealDecision("Enter value for thickness of layer, it muss be <= %r" %
+                                               (instance.width-layers_width),
+                                               global_key="thickness layer_%s_%d" % (instance.name, layers_number),
+                                               allow_skip=False, allow_load=True, allow_save=True,
+                                               collect=False, quick_decide=False)
+                layer_thickness.decide()
+                thickness_value = layer_thickness.value
+                # layer_thickness = input("Enter value for thickness of layer, it muss be <= %r" % (instance.width-layers_width))
+            material_input = input("Enter value for material of layer")
+            new_layer = elements.Layer.create_additional_layer(thickness_value, material=material_input)
+            instance.layers.append(new_layer)
+            layers_width += new_layer.thickness
+            layers_r += new_layer.thickness / new_layer.thermal_conduc
+            if layers_width >= instance.width:
+                break
+            layers_number -= 1
+
+        u_value_verification = cls.compare_with_template(instance, building)
+
+        # check validity of new u value e
+        pass
+
+    @classmethod
+    def template_layers_creation(cls, instance, building):
+        instance.layers = []
+        layers_width = 0
+        layers_r = 0
+        template = cls.get_instance_template(instance, building)
+        for i_layer, layer_props in template['layer'].items():
+            new_layer = elements.Layer.create_additional_layer(
+                layer_props['thickness'], material=layer_props['material']['name'])
+            instance.layers.append(new_layer)
+            layers_width += new_layer.thickness
+            layers_r += new_layer.thickness / new_layer.thermal_conduc
+        instance.width = layers_width
+        instance.u_value = 1 / layers_r
+        u_value_verification = cls.compare_with_template(instance, building)
+        pass
+
+    @classmethod
+    def compare_with_template(cls, instance, building):
+        template_options = []
+
+        year_of_construction = int(building.year_of_construction)
+        if year_of_construction is None:
+            year_decision = RealDecision("Enter value for the year of construction",
+                                         global_key="year",
+                                         allow_skip=False, allow_load=True, allow_save=True,
+                                         collect=False, quick_decide=False)
+            year_decision.decide()
+            year_of_construction = int(year_decision.value.m)
+
+        instance_templates = dict(DataClass(used_param=3).element_bind)
+        material_templates = dict(DataClass(used_param=2).element_bind)
+        instance_type = type(instance).__name__
+        for i in instance_templates[instance_type]:
+            years = ast.literal_eval(i)
+            if years[0] <= year_of_construction <= years[1]:
+                for type_e in instance_templates[instance_type][i]:
+                    relev_info = instance_templates[instance_type][i][type_e]
+                    # if instance_type == 'InnerWall':
+                    #     layers_r = 2 / relev_info['inner_convection']
+                    # else:
+                    #     layers_r = 1 / relev_info['inner_convection'] + 1 / relev_info['outer_convection']
+                    layers_r = 0
+                    for layer, data_layer in instance_templates[instance_type][i][type_e]['layer'].items():
+                        material_tc = material_templates[data_layer['material']['material_id']]['thermal_conduc']
+                        layers_r += data_layer['thickness'] / material_tc
+                    template_options.append(1 / layers_r)  # area?
+                break
+
+        template_options.sort()
+        # check u_value
+        # instance.u_value is not u_value
+        if template_options[0]*0.8 <= instance.u_value <= template_options[1]*1.2:
+            return True
+        return False
 
     @classmethod
     def get_instance_template(cls, instance, building):
