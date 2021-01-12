@@ -3024,7 +3024,7 @@ class IdfObject():
                     Construction_Name=self.construction_name,
                     Building_Surface_Name=self.building_surface_name,
                     Outside_Boundary_Condition_Object=self.out_bound_cond_obj,
-                    Frame_and_Divider_Name="Default"
+                    # Frame_and_Divider_Name="Default"
                 )
             return obj
 
