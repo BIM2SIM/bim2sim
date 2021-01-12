@@ -688,7 +688,7 @@ class ExportEP(ITask):
 
         # idf.view_model()
         self._export_to_stl_for_cfd(instances, idf)
-        self._display_shape_of_space_boundaries(instances)
+        # self._display_shape_of_space_boundaries(instances)
         output_string = str(PROJECT.root) + "/export/EP-results/"
         idf.run(output_directory=output_string, readvars=True)
         # self._visualize_results()
