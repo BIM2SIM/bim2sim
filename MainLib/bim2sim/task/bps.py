@@ -1796,8 +1796,8 @@ class ExportEP(ITask):
             Number_of_People_Calculation_Method="People/Area",
             People_per_Zone_Floor_Area=num_people,
             Activity_Level_Schedule_Name=activity_schedule_name,
-            Number_of_People_Schedule_Name=schedule_name
-            # Max: add "Fraction_Radiant" = "ratio_conv_rad_persons"
+            Number_of_People_Schedule_Name=schedule_name,
+            Fraction_Radiant=room['ratio_conv_rad_persons']
         )
 
     def _set_day_week_year_schedule(self, idf, room, profile_name, schedule_name):
