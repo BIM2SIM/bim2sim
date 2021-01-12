@@ -2129,6 +2129,11 @@ class ExportEP(ITask):
         )
         idf.newidfobject(
             "OUTPUT:VARIABLE",
+            Variable_Name="Zone Operative Temperature",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
             Variable_Name="Zone Infiltration Mass Flow Rate",
             Reporting_Frequency="Hourly",
         )
@@ -2164,9 +2169,124 @@ class ExportEP(ITask):
         )
         idf.newidfobject(
             "OUTPUT:VARIABLE",
-            Variable_Name="Surface Inside Face Temperature",
+            Variable_Name="Zone Windows Total Heat Gain Rate",
             Reporting_Frequency="Hourly",
         )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Windows Total Heat Gain Energy",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Air Heat Balance Internal Convective Heat Gain Rate",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Air Heat Balance Surface Convection Rate",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Air Heat Balance Outdoor Air Transfer Rate",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Air Heat Balance Air Energy Storage Rate",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Site Outdoor Air Humidity Ratio",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Site Outdoor Air Relative Humidity",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Site Outdoor Air Barometric Pressure",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Mixing Current Density Volume Flow Rate",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Mixing Sensible Heat Gain Rate",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Air Relative Humidity",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Air System Sensible Heating Energy",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Air System Sensible Cooling Energy",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Windows Total Transmitted Solar Radiation Energy",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Surface Window Heat Gain Energy",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Surface Inside Face Convection Heat Gain Energy",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Surface Outside Face Convection Heat Gain Energy",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Opaque Surface Outside Face Conduction",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Infiltration Sensible Heat Gain Energy",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Infiltration Sensible Heat Loss Energy",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Infiltration Standard Density Volume Flow Rate",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Air Relative Humidity",
+            Reporting_Frequency="Hourly",
+        )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Surface Inside Face Temperature",
+        #     Reporting_Frequency="Hourly",
+        # )
         idf.newidfobject("OUTPUT:SURFACES:DRAWING",
                          Report_Type="DXF")
         idf.newidfobject("OUTPUT:DIAGNOSTICS",
