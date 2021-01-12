@@ -2287,6 +2287,16 @@ class ExportEP(ITask):
         #     Variable_Name="Surface Inside Face Temperature",
         #     Reporting_Frequency="Hourly",
         # )
+        idf.newidfobject(
+            "OUTPUT:METER",
+            Key_Name="Heating:EnergyTransfer",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:METER",
+            Key_Name="Cooling:EnergyTransfer",
+            Reporting_Frequency="Hourly",
+        )
         idf.newidfobject("OUTPUT:SURFACES:DRAWING",
                          Report_Type="DXF")
         idf.newidfobject("OUTPUT:DIAGNOSTICS",
