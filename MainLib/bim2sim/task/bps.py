@@ -1698,6 +1698,17 @@ class ExportEP(ITask):
                          Air_Exchange_Method='SimpleMixing',
                          Simple_Mixing_Air_Changes_per_Hour=0.5,
                          )
+        idf.newidfobject("WINDOWPROPERTY:FRAMEANDDIVIDER",
+                         Name="Default",
+                         # Frame_Width=0.095,
+                         # Frame_Conductance=3,
+                         Outside_Reveal_Solar_Absorptance=0.7,
+                         Inside_Reveal_Solar_Absorptance=0.7,
+                         Divider_Width=0.1,
+                         Number_of_Horizontal_Dividers=2,
+                         Number_of_Vertical_Dividers=2,
+                         Divider_Conductance=3
+        )
 
     def _set_construction_elem(self, elem, name, idf):
         layer = elem.get('layer')
@@ -2883,6 +2894,7 @@ class IdfObject():
                     Construction_Name=self.construction_name,
                     Building_Surface_Name=self.building_surface_name,
                     Outside_Boundary_Condition_Object=self.out_bound_cond_obj,
+                    Frame_and_Divider_Name="Default"
                 )
             return obj
 
