@@ -23,7 +23,6 @@ class Disaggregation(BaseElement):
         self.parent = element
         self.name = name
         self.ifc_type = element.ifc_type
-        self.guid = None
         self.get_disaggregation_properties()
 
     def get_disaggregation_properties(self):

@@ -339,6 +339,7 @@
       "teaser": {
         "name": ["instance","name"],
         "area": ["instance", "area"],
+        "tilt": ["instance", "tilt"],
         "inner_convection": 0.6,
         "orientation": ["instance", "orientation"]
       }
@@ -383,12 +384,12 @@
         "Autodesk Revit 2020 (ENU)": ["Pset_SpaceCommon", "Reference"]
       },
       "area": {
-        "ARCHICAD-64": ["BaseQuantities", "NetFloorArea"],
-        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "NetFloorArea"],
-        "Autodesk Revit 2019 (DEU)": ["Qto_SpaceBaseQuantities", "NetFloorArea"],
-        "Autodesk Revit 2019 (ENU)": ["Qto_SpaceBaseQuantities", "NetFloorArea"],
-        "Autodesk Revit 2020 (DEU)": ["Qto_SpaceBaseQuantities", "NetFloorArea"],
-        "Autodesk Revit 2020 (ENU)": ["Qto_SpaceBaseQuantities", "NetFloorArea"]
+        "ARCHICAD-64": ["BaseQuantities", "GrossFloorArea"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossFloorArea"],
+        "Autodesk Revit 2019 (DEU)": ["Qto_SpaceBaseQuantities", "GrossFloorArea"],
+        "Autodesk Revit 2019 (ENU)": ["Qto_SpaceBaseQuantities", "GrossFloorArea"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_SpaceBaseQuantities", "GrossFloorArea"],
+        "Autodesk Revit 2020 (ENU)": ["Qto_SpaceBaseQuantities", "GrossFloorArea"]
       },
       "height" : {
         "ARCHICAD-64": ["BaseQuantities", "Height"],

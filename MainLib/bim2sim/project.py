@@ -57,6 +57,7 @@ class _Project():
     LOG = "log"
     EXPORT = "export"
     RESOURCES = "resources"
+    PAPER = True
     _src_path = Path(__file__).parent
 
     def __init__(self):

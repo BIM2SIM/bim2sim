@@ -16,7 +16,7 @@ from bim2sim.task.bps_f.bps_functions import get_matches_list, get_material_temp
     real_decision_user_input, filter_instances, get_pattern_usage
 from bim2sim.kernel.disaggregation import SubInnerWall, SubOuterWall
 import translators as ts
-
+from bim2sim.project import PROJECT
 
 def diameter_post_processing(value):
     if isinstance(value, list):
@@ -564,6 +564,29 @@ class ThermalZone(element.Element):
     def _get_usage(bind, name):
         zone_pattern = []
         matches = []
+
+        if PROJECT.PAPER:
+            # hardcode for investigation of KIT Insti
+            zone_dict = {
+                "Schlafzimmer": "Bed room",
+                "Wohnen": "Living",
+                "Galerie": "Living",
+                "Küche": "Living",
+                "Flur": "Traffic area",
+                "Buero": "Single office",
+                "Besprechungsraum": 'Meeting, Conference, seminar',
+                "Seminarraum": 'Meeting, Conference, seminar',
+                "Technikraum": "Stock, technical equipment, archives",
+                "Dachboden": "Traffic area",
+                "WC": "WC and sanitary rooms in non-residential buildings",
+                "Bad": "WC and sanitary rooms in non-residential buildings",
+                "Labor": "Laboratory"
+            }
+            if bind.zone_name in zone_dict.keys():
+                return zone_dict[bind.zone_name]
+            else:
+                return "Single office"
+
         if bind.zone_name == 'WC Herren':
             print()
         if bind.zone_name:
@@ -589,9 +612,12 @@ class ThermalZone(element.Element):
         # if no matches given
         elif len(matches) == 0:
             matches = list(pattern_usage.keys())
+
+
         usage_decision = ListDecision("Which usage does the Space %s have?" %
                                       (str(bind.zone_name)),
                                       choices=matches,
+                                      global_key='bpsUsage.%s' % bind.guid,
                                       allow_skip=False,
                                       allow_load=True,
                                       allow_save=True,
@@ -792,7 +818,8 @@ class Medium(element.Element):
 class Wall(element.Element):
     ifc_type = ["IfcWall", "IfcWallStandardCase"]
     workflow = ['BPSMultiZoneSeparated']
-    predefined_types = ['MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL', 'SHEAR', 'SOLIDWALL', 'POLYGONAL']
+    predefined_types = ['MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL', 'SHEAR', 'SOLIDWALL', 'POLYGONAL',
+                        'DOOR', 'GATE', 'TRAPDOOR']
     pattern_ifc_type = [
         re.compile('Wall', flags=re.IGNORECASE),
         re.compile('Wand', flags=re.IGNORECASE)
@@ -803,12 +830,6 @@ class Wall(element.Element):
         """wall __init__ function"""
         super().__init__(*args, **kwargs)
         self.ifc_type = self.ifc.is_a()
-        # if self.is_external:
-        #     self.__class__ = OuterWall
-        #     self.__init__()
-        # elif not self.is_external:
-        #     self.__class__ = InnerWall
-        #     self.__init__()
 
     def _get_layers(bind, name):
         """wall _get_layers function"""
@@ -820,7 +841,7 @@ class Wall(element.Element):
             layers.append(new_layer)
         return layers
 
-    def _change_wall_class(self, boundary):
+    def _change_class(self, boundary):
         if boundary.InternalOrExternalBoundary is not None:
             if boundary.InternalOrExternalBoundary.lower() == 'external':
                 self.__class__ = OuterWall
@@ -851,7 +872,7 @@ class Wall(element.Element):
 
     tilt = attribute.Attribute(
         default_ps='tilt',
-        default=0
+        default=90
     )
     u_value = attribute.Attribute(
         default_ps='u_value'
@@ -909,11 +930,19 @@ class Layer(element.SubElement):
             else:
                 return real_decision_user_input(bind, name)
         else:
-            first_decision = BoolDecision(
-                question="Do you want for %s with the material %s to use available templates, "
-                         "enter 'n' for manual input"
-                         % (bind.guid, bind.material),
-                         collect=False)
+            if isinstance(bind, Layer):
+                first_decision = BoolDecision(
+                    question="Do you want to enrich the layers with the material %s by using avaiable templates? \n"
+                             "Belonging Item: %s | GUID: %s \n"
+                             "Enter 'n' for manual input"
+                             % (bind.material, bind.parent.name, bind.parent.guid),
+                    collect=False, allow_load=True, allow_save=True)
+            else:
+                first_decision = BoolDecision(
+                    question="Do you want for %s with the material %s to use available templates, "
+                             "enter 'n' for manual input"
+                             % (bind.guid, bind.material),
+                             collect=False, allow_load=True, allow_save=True)
             first_decision.decide()
             first_decision.stored_decisions.clear()
 
@@ -1074,21 +1103,91 @@ class Door(element.Element):
     # )
 
 
+# class Door(element.Element):
+#     ifc_type = "IfcDoor"
+#     workflow = ['BPSMultiZoneSeparated']
+#     predefined_types = ['DOOR', 'GATE', 'TRAPDOOR']
+#
+#     pattern_ifc_type = [
+#         re.compile('Door', flags=re.IGNORECASE),
+#         re.compile('Tuer', flags=re.IGNORECASE)
+#     ]
+#     material_selected = {}
+#
+#     def __init__(self, *args, **kwargs):
+#         """wall __init__ function"""
+#         super().__init__(*args, **kwargs)
+#         self.ifc_type = self.ifc.is_a()
+#
+#     def _get_layers(bind, name):
+#         """door _get_layers function"""
+#         layers = []
+#         material_layers_dict = get_layers_ifc(bind)
+#         for layer in material_layers_dict:
+#             new_layer = element.SubElement.factory(layer, layer.is_a())
+#             new_layer.parent = bind
+#             layers.append(new_layer)
+#         return layers
+#
+#     def _change_class(self, boundary):
+#         if boundary.InternalOrExternalBoundary is not None:
+#             if boundary.InternalOrExternalBoundary.lower() == 'external':
+#                 self.__class__ = OuterDoor
+#                 self.is_external = True
+#                 if hasattr(self, 'sub_instances'):
+#                     print('damn')
+#                     for sub_ins in self.sub_instances:
+#                         sub_ins.__class__ = SubOuterWall
+#             elif boundary.InternalOrExternalBoundary.lower() == 'internal':
+#                 self.__class__ = InnerDoor
+#                 self.is_external = False
+#                 if hasattr(self, 'sub_instances'):
+#                     print('damn')
+#                     for sub_ins in self.sub_instances:
+#                         sub_ins.__class__ = SubInnerWall
+#     layers = attribute.Attribute(
+#         functions=[_get_layers]
+#     )
+#
+#     is_external = attribute.Attribute(
+#         default_ps='is_external',
+#         default=False
+#     )
+#
+#     area = attribute.Attribute(
+#         default_ps='area',
+#         default=0
+#     )
+#
+#     thickness = attribute.Attribute(
+#         default_ps='thickness',
+#         default=0
+#     )
+#     tilt = attribute.Attribute(
+#         default_ps='tilt',
+#         default=0
+#     )
+#
+#     u_value = attribute.Attribute(
+#         default_ps='u_value'
+#     )
+#
+#     width = attribute.Attribute(
+#         default_ps='width'
+#     )
+#
+#
+# class InnerDoor(Door):
+#     special_argument = {'is_external': False}
+#
+#
+# class OuterDoor(Door):
+#     special_argument = {'is_external': True}
+
+
 class Plate(element.Element):
     ifc_type = "IfcPlate"
     predefined_types = ['CURTAIN_PANEL', 'SHEET']
-
-    # @property
-    # def area(self):
-    #     return 1
-    #
-    # @property
-    # def u_value(self):
-    #     return 1
-    #
-    # @property
-    # def g_value(self):
-    #     return 1
 
 
 class Slab(element.Element):
@@ -1099,15 +1198,6 @@ class Slab(element.Element):
     def __init__(self, *args, **kwargs):
         """slab __init__ function"""
         super().__init__(*args, **kwargs)
-        # if self.predefined_type == "ROOF":
-        #     self.__class__ = Roof
-        #     self.__init__()
-        # if self.predefined_type == "FLOOR":
-        #     self.__class__ = Floor
-        #     self.__init__()
-        # if self.predefined_type == "BASESLAB":
-        #     self.__class__ = GroundFloor
-        #     self.__init__()
 
     def _get_layers(bind, name):
         """slab _get_layers function"""
@@ -1142,11 +1232,6 @@ class Slab(element.Element):
         default=0
     )
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #   self.parent = []
-    #   self.sub_slabs = []
-
 
 class Roof(Slab):
     ifc_type = "IfcRoof"
@@ -1174,11 +1259,6 @@ class GroundFloor(Slab):
 class Site(element.Element):
     ifc_type = "IfcSite"
     workflow = ['BPSMultiZoneSeparated']
-
-    # year_of_construction = attribute.Attribute(
-    #     name='year_of_construction',
-    #     default_ps=True
-    # )
 
 
 class Building(element.Element):

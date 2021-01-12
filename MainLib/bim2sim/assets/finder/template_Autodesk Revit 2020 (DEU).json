@@ -87,7 +87,7 @@
   "ThermalZone": {
     "default_ps": {
       "zone_name" : ["ID-Daten", "Name"],
-      "area" : ["Qto_SpaceBaseQuantities", "NetFloorArea"],
+      "area" : ["Qto_SpaceBaseQuantities", "GrossFloorArea"],
       "height" : ["Qto_SpaceBaseQuantities", "Height"],
       "net_volume" : ["Qto_SpaceBaseQuantities", "GrossVolume"],
       "t_set_heat" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMin"],
