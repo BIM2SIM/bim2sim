@@ -32,7 +32,7 @@ class Inspect(Task):
 
         self.logger.info("Found %d space entities", len(self.instances))
 
-        self.recognize_space_boundaries(ifc)
+        # self.recognize_space_boundaries(ifc)
         self.logger.info("Found %d space boundaries entities", len(self.instances))
 
     def recognize_zone_semantic(self, ifc):
@@ -44,27 +44,36 @@ class Inspect(Task):
         for entity in entities:
             thermal_zone = Element.factory(entity, ifc_type)
             self.instances[thermal_zone.guid] = thermal_zone
-            self.bind_elements_to_zone(thermal_zone)
 
-        cooling_decision = BoolDecision(question="Do you want for all the thermal zones to be cooled? - "
-                                                 "with cooling",
-                                        collect=False,
-                                        allow_skip=True
-                                        )
-        cooling_decision.decide()
-        heating_decision = BoolDecision(question="Do you want for all the thermal zones to be heated? - "
-                                                 "with heating",
-                                        collect=False,
-                                        allow_skip=True
-                                        )
-        heating_decision.decide()
+        # space boundaries creation
+        for entity in ifc.by_type('IfcRelSpaceBoundary'):
+            if entity.RelatedBuildingElement is not None:
+                related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
+                if related_element is not None:
+                    SubElement.factory(entity, 'IfcRelSpaceBoundary')
+        print()
+
+        # cooling_decision = BoolDecision(question="Do you want for all the thermal zones to be cooled? - "
+        #                                          "with cooling",
+        #                                 collect=False,
+        #                                 allow_skip=True
+        #                                 )
+        # cooling_decision.decide()
+        # heating_decision = BoolDecision(question="Do you want for all the thermal zones to be heated? - "
+        #                                          "with heating",
+        #                                 collect=False,
+        #                                 allow_skip=True
+        #                                 )
+        # heating_decision.decide()
 
         for k, tz in self.instances.items():
-            if cooling_decision.value is True:
-                tz.with_cooling = True
-            if heating_decision.value is True:
-                tz.with_heating = True
-            tz.set_neighbors()
+            self.bind_elements_to_zone(tz)
+
+        #     if cooling_decision.value is True:
+        #         tz.with_cooling = True
+        #     if heating_decision.value is True:
+        #         tz.with_heating = True
+        #     tz.set_neighbors()
 
         tz_bind = Bind(self, self.workflow)
         tz_bind.run(self.instances)
@@ -80,22 +89,28 @@ class Inspect(Task):
         thermalzone.with_cooling = True
         thermalzone.with_heating = True
 
-        bound_instances = []
-        for binding in thermalzone.ifc.BoundedBy:
-            bound_element = binding.RelatedBuildingElement
-            if bound_element is None:
-                continue
-            bound_instance = thermalzone.get_object(bound_element.GlobalId)
-            if bound_instance not in bound_instances and bound_instance is not None:
-                bound_instances.append(bound_instance)
-        for bound_instance in bound_instances:
-            new_bound_instances = Disaggregation.based_on_thermal_zone(bound_instance, thermalzone)
-            for inst in new_bound_instances:
-                if inst not in thermalzone.bound_elements:
-                    thermalzone.bound_elements.append(inst)
-                if thermalzone not in inst.thermal_zones:
-                    inst.thermal_zones.append(thermalzone)
+        bound_instances = {}
+        for space_boundary in thermalzone.space_boundaries:
+            bound_instance = space_boundary.bound_instance
+            if bound_instance.guid not in bound_instances:
+                bound_instances[bound_instance.guid] = [space_boundary]
+            else:
+                bound_instances[bound_instance.guid].append(space_boundary)
+        for bound_instance, space_boundaries in bound_instances.items():
+            original_instance = Element.get_object(bound_instance)
+            inst = Disaggregation.based_on_thermal_zone([original_instance, space_boundaries], thermalzone)
+            if inst not in thermalzone.bound_elements:
+                thermalzone.bound_elements.append(inst)
+            if thermalzone not in inst.thermal_zones:
+                inst.thermal_zones.append(thermalzone)
 
+        #     new_bound_instances = Disaggregation.based_on_thermal_zone(bound_instance, thermalzone)
+        #     for inst in new_bound_instances:
+        #         if inst not in thermalzone.bound_elements:
+        #             thermalzone.bound_elements.append(inst)
+        #         if thermalzone not in inst.thermal_zones:
+        #             inst.thermal_zones.append(thermalzone)
+        #
         thermalzone.set_is_external()
         thermalzone.set_external_orientation()
         thermalzone.set_glass_area()

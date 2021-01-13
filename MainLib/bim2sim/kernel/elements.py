@@ -3,6 +3,7 @@
 import math
 import re
 import numpy as np
+import ifcopenshell.geom
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, condition, attribute
@@ -792,11 +793,13 @@ class SpaceBoundary(element.SubElement):
         """spaceboundary __init__ function"""
         super().__init__(*args, **kwargs)
         self.level_description = self.ifc.Description
-        self.thermal_zones.append(self.get_object(self.ifc.RelatingSpace.GlobalId))
-        if self.ifc.RelatedBuildingElement is not None:
-            self.bound_instance = self.get_object(self.ifc.RelatedBuildingElement.GlobalId)
-        else:
-            self.bound_instance = None
+        relating_space = self.get_object(self.ifc.RelatingSpace.GlobalId)
+        relating_space.space_boundaries.append(self)
+        self.thermal_zones.append(relating_space)
+        related_building_element = self.get_object(self.ifc.RelatedBuildingElement.GlobalId)
+        related_building_element.space_boundaries.append(self)
+        self.bound_instance = related_building_element
+
         if self.ifc.InternalOrExternalBoundary.lower() == 'internal':
             self.is_external = False
         else:
@@ -805,6 +808,72 @@ class SpaceBoundary(element.SubElement):
             self.physical = True
         else:
             self.physical = False
+
+        self._get_disaggregation_properties()
+
+    def _get_disaggregation_properties(self):
+        # gets geometrical intersection area between space and element
+        vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
+        horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
+        binding = self.ifc
+        settings = ifcopenshell.geom.settings()
+        x, y, z = [], [], []
+        try:
+            shape = ifcopenshell.geom.create_shape(settings, binding.ConnectionGeometry.SurfaceOnRelatingElement)
+        except RuntimeError:
+            try:
+                shape = ifcopenshell.geom.create_shape(settings,
+                                                       binding.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface)
+            except RuntimeError:
+                self.logger.warning(
+                    "Found no geometric information for %s in %s" % (self.bound_instance.name,
+                                                                     self.thermal_zone[0].name))
+                return None
+
+        # get relative position of resultant disaggregation
+        if hasattr(binding.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
+            pos = binding.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
+        else:
+            pos = binding.ConnectionGeometry.SurfaceOnRelatingElement.Position.Location.Coordinates
+
+        i = 0
+        if len(shape.verts) > 0:
+            while i < len(shape.verts):
+                x.append(shape.verts[i])
+                y.append(shape.verts[i + 1])
+                z.append(shape.verts[i + 2])
+                i += 3
+        else:
+            for point in binding.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary.Points:
+                x.append(point.Coordinates[0])
+                y.append(point.Coordinates[1])
+                z.append(0)
+
+        x.sort()
+        y.sort()
+        z.sort()
+
+        try:
+            x = x[len(x) - 1] - x[0]
+            y = y[len(y) - 1] - y[0]
+            z = z[len(z) - 1] - z[0]
+        except IndexError:
+            return None
+
+        coordinates = [x, y, z]
+
+        # filter for vertical or horizontal instance -> gets area properly
+        if self.bound_instance.__class__.__name__ in vertical_instances:
+            for a in coordinates:
+                if a <= 0:
+                    del coordinates[coordinates.index(a)]
+        elif type(self.bound_instance).__name__ in horizontal_instances:
+            del coordinates[2]
+
+        # returns disaggregation, area and relative position
+        self.area = coordinates[0] * coordinates[1]
+        self.aux_pos = pos
+        print()
 
 
 class Medium(element.Element):

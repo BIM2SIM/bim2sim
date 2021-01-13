@@ -44,48 +44,27 @@ class Disaggregation(BaseElement):
             return None
 
     @classmethod
-    def based_on_thermal_zone(cls, parent, thermal_zone):
+    def based_on_thermal_zone(cls, space_boundaries_info, thermal_zone):
         """creates a disaggregation based on a thermal zone and an instance parent
         based on area slice (thermal zone - area)"""
-
-        if parent.guid == '2qBBp57vj5yguk4qD5Rp6P' and thermal_zone.name == '403':
-            print('test')
-        new_bound_instances = []
-        disaggregations = get_disaggregations_instance(parent, thermal_zone)
-
-        # no disaggregation possible
-        if disaggregations is None:
-            return [parent]
-
-        parent_area = parent.area.magnitude if isinstance(parent.area, pint.Quantity) else parent.area
-
-        # for vertical instances: if just one disaggregation is possible, check if disaggregation is parent
-        # disaggregation is parent if has the same area
-        if parent.__class__.__name__ in vertical_instances:
-            if len(disaggregations) == 1:
-                disaggregation_area = disaggregations[next(iter(disaggregations))][0]
-                # here was a tolerance of 0.1 necessary in order to get no false positives
-                if abs(disaggregation_area - parent_area) <= 0.1:
-                    return [parent]
+        parent = space_boundaries_info[0]
+        space_boundaries = space_boundaries_info[1]
 
         name = 'Sub' + parent.__class__.__name__ + '_' + parent.name
         if not hasattr(parent, "sub_instances"):
             parent.sub_instances = []
 
         i = len(parent.sub_instances)
-        for ins in disaggregations:
+        area_disaggregation = 0
+        new_pos = np.array((0, 0, 0))
+        for s_boundary in space_boundaries:
+            area_disaggregation += s_boundary.area
+            new_pos = new_pos + np.array(s_boundary.aux_pos)
+        new_pos = new_pos / len(space_boundaries)
 
-            # scontinue = False
-            # for dis in parent.sub_instances:
-            #     #  check if disaggregation exists on subinstances, compares disaggregation and existing sub_instances
-            #     # here was a tolerance of 0.1 necessary in order to get no false positives
-            #     if abs(disaggregations[ins][0] - dis.area) <= 0.1:
-            #         new_bound_instances.append(dis)
-            #         scontinue = True
-            #         break
-            # if scontinue:
-            #     continue
-
+        if (parent.area - area_disaggregation) < 0.1 or area_disaggregation == 0 or len(parent.space_boundaries) == 1:
+            return parent
+        else:
             type_parent = type(parent).__name__
             re_search = re.compile('Sub%s' % type_parent)
             instance = cls(name + '_%d' % i, parent)
@@ -97,23 +76,19 @@ class Disaggregation(BaseElement):
                     instance = sub_cls(name + '_%d' % i, parent)
                     break
 
-            instance.area = disaggregations[ins][0]
+            instance.area = area_disaggregation
 
             # position calc
             if parent.__class__.__name__ in vertical_instances:
-                instance._pos = get_new_position_vertical_instance(parent, disaggregations[ins][1])
+                instance._pos = get_new_position_vertical_instance(parent, new_pos)
             if parent.__class__.__name__ in horizontal_instances:
                 instance._pos = thermal_zone.position
 
             parent.sub_instances.append(instance)
-            new_bound_instances.append(instance)
-
             if thermal_zone not in parent.thermal_zones:
                 parent.thermal_zones.append(thermal_zone)
 
-            i += 1
-
-        return new_bound_instances
+            return instance
 
     def __repr__(self):
         return "<%s '%s' (disaggregation of the element %d)>" % (

@@ -120,6 +120,7 @@ class Prepare(ITask):
         for guid, ins in instances.items():
             if type(ins).__name__ == 'Building':
                 building = ins
+
             self.is_external_verification(ins)
             # self.layers_verification(ins, building)
             new_orientation = self.orientation_verification(ins)
