@@ -46,12 +46,7 @@ class Inspect(Task):
             self.instances[thermal_zone.guid] = thermal_zone
 
         # space boundaries creation
-        for entity in ifc.by_type('IfcRelSpaceBoundary'):
-            if entity.RelatedBuildingElement is not None:
-                related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
-                if related_element is not None:
-                    SubElement.factory(entity, 'IfcRelSpaceBoundary')
-        print()
+        self.recognize_space_boundaries(ifc)
 
         # cooling_decision = BoolDecision(question="Do you want for all the thermal zones to be cooled? - "
         #                                          "with cooling",
@@ -68,6 +63,7 @@ class Inspect(Task):
 
         for k, tz in self.instances.items():
             self.bind_elements_to_zone(tz)
+            tz.set_neighbors()
 
         #     if cooling_decision.value is True:
         #         tz.with_cooling = True
@@ -84,8 +80,6 @@ class Inspect(Task):
 
     def bind_elements_to_zone(self, thermalzone):
         """Binds the different elements to the belonging zones"""
-        if thermalzone.name == '403':
-            print('test')
         thermalzone.with_cooling = True
         thermalzone.with_heating = True
 
@@ -104,13 +98,6 @@ class Inspect(Task):
             if thermalzone not in inst.thermal_zones:
                 inst.thermal_zones.append(thermalzone)
 
-        #     new_bound_instances = Disaggregation.based_on_thermal_zone(bound_instance, thermalzone)
-        #     for inst in new_bound_instances:
-        #         if inst not in thermalzone.bound_elements:
-        #             thermalzone.bound_elements.append(inst)
-        #         if thermalzone not in inst.thermal_zones:
-        #             inst.thermal_zones.append(thermalzone)
-        #
         thermalzone.set_is_external()
         thermalzone.set_external_orientation()
         thermalzone.set_glass_area()
@@ -122,17 +109,10 @@ class Inspect(Task):
         ifc_type = 'IfcRelSpaceBoundary'
         entities = ifc.by_type(ifc_type)
         for entity in entities:
-            space_boundary = SubElement.factory(entity, ifc_type)
-            self.instances[space_boundary.guid] = space_boundary
-            self.bind_space_to_space_boundaries(space_boundary)
-
-    def bind_space_to_space_boundaries(self, spaceboundary):
-        """Binds the different spaces to the belonging zones"""
-        bound_space = spaceboundary.thermal_zones[0]
-        bound_instance = spaceboundary.bound_instance
-        bound_space.space_boundaries.append(spaceboundary)
-        if bound_instance is not None:
-            bound_instance.space_boundaries.append(spaceboundary)
+            if entity.RelatedBuildingElement is not None:
+                related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
+                if related_element is not None:
+                    SubElement.factory(entity, 'IfcRelSpaceBoundary')
 
 
 class Bind(Task):
