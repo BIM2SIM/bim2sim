@@ -77,6 +77,9 @@ class Inspect(Task):
         """Binds the different elements to the belonging zones"""
         if thermalzone.name == '403':
             print('test')
+        thermalzone.with_cooling = True
+        thermalzone.with_heating = True
+
         bound_instances = []
         for binding in thermalzone.ifc.BoundedBy:
             bound_element = binding.RelatedBuildingElement

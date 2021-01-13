@@ -48,6 +48,8 @@ class Disaggregation(BaseElement):
         """creates a disaggregation based on a thermal zone and an instance parent
         based on area slice (thermal zone - area)"""
 
+        if parent.guid == '2qBBp57vj5yguk4qD5Rp6P' and thermal_zone.name == '403':
+            print('test')
         new_bound_instances = []
         disaggregations = get_disaggregations_instance(parent, thermal_zone)
 
@@ -73,16 +75,16 @@ class Disaggregation(BaseElement):
         i = len(parent.sub_instances)
         for ins in disaggregations:
 
-            scontinue = False
-            for dis in parent.sub_instances:
-                #  check if disaggregation exists on subinstances, compares disaggregation and existing sub_instances
-                # here was a tolerance of 0.1 necessary in order to get no false positives
-                if abs(disaggregations[ins][0] - dis.area) <= 0.1:
-                    new_bound_instances.append(dis)
-                    scontinue = True
-                    break
-            if scontinue:
-                continue
+            # scontinue = False
+            # for dis in parent.sub_instances:
+            #     #  check if disaggregation exists on subinstances, compares disaggregation and existing sub_instances
+            #     # here was a tolerance of 0.1 necessary in order to get no false positives
+            #     if abs(disaggregations[ins][0] - dis.area) <= 0.1:
+            #         new_bound_instances.append(dis)
+            #         scontinue = True
+            #         break
+            # if scontinue:
+            #     continue
 
             type_parent = type(parent).__name__
             re_search = re.compile('Sub%s' % type_parent)
