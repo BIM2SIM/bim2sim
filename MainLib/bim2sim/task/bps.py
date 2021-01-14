@@ -600,29 +600,29 @@ class ExportTEASER(ITask):
                 tz.calc_zone_parameters()
             bldg.calc_building_parameter()
 
-        prj.weather_file_path = utilities.get_full_path(
-            os.path.join(
-                'D:/09_OfflineArbeiten/Bim2Sim/Validierung_EP_TEASER/Resources/DEU_NW_Aachen.105010_TMYx.mos'))
-        self.logger.info(Decision.summary())
-        import pickle
-
-        filename = os.path.join('D:/09_OfflineArbeiten/Bim2Sim/Validierung_EP_TEASER/TEASERPickles/teaser_pickled_Inst')
-        outfile = open(filename, 'wb')
-        pickle.dump(prj, outfile)
-        outfile.close()
-
-        with open(os.path.join(
-                'D:/09_OfflineArbeiten/Bim2Sim/Validierung_EP_TEASER/TEASERPickles/teaser_pickled_Inst'), 'rb') as f:
-            prj = pickle.load(f)
-
-        print('test')
-        self.logger.info(Decision.summary())
-        Decision.decide_collected()
-        Decision.save(PROJECT.decisions)
-
-        Decision.save(
-            os.path.join('D:/09_OfflineArbeiten/Bim2Sim/Validierung_EP_TEASER/TEASERPickles/current_decisions.json'))
-        prj.calc_all_buildings()
+        # prj.weather_file_path = utilities.get_full_path(
+        #     os.path.join(
+        #         'D:/09_OfflineArbeiten/Bim2Sim/Validierung_EP_TEASER/Resources/DEU_NW_Aachen.105010_TMYx.mos'))
+        # self.logger.info(Decision.summary())
+        # import pickle
+        #
+        # filename = os.path.join('D:/09_OfflineArbeiten/Bim2Sim/Validierung_EP_TEASER/TEASERPickles/teaser_pickled_Inst')
+        # outfile = open(filename, 'wb')
+        # pickle.dump(prj, outfile)
+        # outfile.close()
+        #
+        # with open(os.path.join(
+        #         'D:/09_OfflineArbeiten/Bim2Sim/Validierung_EP_TEASER/TEASERPickles/teaser_pickled_Inst'), 'rb') as f:
+        #     prj = pickle.load(f)
+        #
+        # print('test')
+        # self.logger.info(Decision.summary())
+        # Decision.decide_collected()
+        # Decision.save(PROJECT.decisions)
+        #
+        # Decision.save(
+        #     os.path.join('D:/09_OfflineArbeiten/Bim2Sim/Validierung_EP_TEASER/TEASERPickles/current_decisions.json'))
+        # prj.calc_all_buildings()
 
         prj.export_aixlib(path=PROJECT.root / 'export' / 'TEASEROutput')
         print()
