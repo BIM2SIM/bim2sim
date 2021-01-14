@@ -4,6 +4,7 @@ from bim2sim.kernel.element import Element, SubElement
 from bim2sim.kernel.ifc2python import getElementType
 from bim2sim.kernel.disaggregation import Disaggregation
 from bim2sim.kernel.aggregation import Aggregated_ThermalZone
+from bim2sim.task.bps_f.bps_functions import filter_instances
 import inspect
 
 class Inspect(Task):
@@ -71,8 +72,6 @@ class Inspect(Task):
         #         tz.with_heating = True
         #     tz.set_neighbors()
 
-        tz_bind = Bind(self, self.workflow)
-        tz_bind.run(self.instances)
 
     def recognize_zone_geometrical(self):
         """Recognizes zones/spaces by geometric detection"""
@@ -97,10 +96,6 @@ class Inspect(Task):
                 thermalzone.bound_elements.append(inst)
             if thermalzone not in inst.thermal_zones:
                 inst.thermal_zones.append(thermalzone)
-
-        thermalzone.set_is_external()
-        thermalzone.set_external_orientation()
-        thermalzone.set_glass_area()
 
     def recognize_space_boundaries(self, ifc):
         """Recognizes space boundaries in ifc file by semantic detection for
@@ -176,7 +171,11 @@ class Bind(Task):
         internal_binding = []
 
         # external - internal criterion
-        for tz in self.instances.values():
+        thermal_zones = filter_instances(self.instances, 'ThermalZone')
+        for tz in thermal_zones:
+            tz.set_is_external()
+            tz.set_external_orientation()
+            tz.set_glass_area()
             if tz.is_external:
                 external_binding.append(tz)
             else:
@@ -209,7 +208,7 @@ class Bind(Task):
             grouped_thermal_instances += grouped_instances_criteria[i]
         # ckeck not grouped instances for fourth criterion
         not_grouped_instances = []
-        for tz in self.instances.values():
+        for tz in thermal_zones:
             if tz not in grouped_thermal_instances:
                 not_grouped_instances.append(tz)
         # no similarities criterion

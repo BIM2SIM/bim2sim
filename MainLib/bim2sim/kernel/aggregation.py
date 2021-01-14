@@ -8,6 +8,8 @@ from bim2sim.kernel.element import BaseElement, BasePort
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
+from bim2sim.task.bps_f.bps_functions import filter_instances
+from bim2sim.kernel.disaggregation import Disaggregation
 import networkx as nx
 from bim2sim.kernel.elements import HeatPump
 import ast
@@ -1457,17 +1459,34 @@ class Aggregated_ThermalZone(Aggregation):
             else:
                 value = '' if type(getattr(self.elements[0], prop)) is str else 0
                 for e in self.elements:
-                    value += getattr(e, prop)
+                    if getattr(e, prop) is not None:
+                        value += getattr(e, prop)
             setattr(self, prop, value)
 
     def bind_elements(self):
         """elements binder for the resultant thermal zone"""
         bound_elements = []
+        aux_bound_elements = {}
         for e in self.elements:
             for i in e.bound_elements:
-                if i not in bound_elements:
-                    bound_elements.append(i)
-
+                if not issubclass(type(i), Disaggregation):
+                    if i not in bound_elements:
+                        bound_elements.append(i)
+                else:
+                    parent = i.parent
+                    if parent.guid not in aux_bound_elements:
+                        aux_bound_elements[parent.guid] = {}
+                    if e.guid not in aux_bound_elements[parent.guid]:
+                        aux_bound_elements[parent.guid][e.guid] = []
+                    aux_bound_elements[parent.guid][e.guid].append(i)
+        for ins_guid, tz_list in aux_bound_elements.items():
+            # windows and walls case
+            if len(tz_list) <= 2:
+                bound_elements.extend(tz_list[next(iter(aux_bound_elements[ins_guid]))])
+            # all instances case
+            else:
+                for tz_guid, ins_list in tz_list.items():
+                    bound_elements.extend(ins_list)
         return bound_elements
 
     @classmethod
@@ -1475,7 +1494,8 @@ class Aggregated_ThermalZone(Aggregation):
         """creates a new thermal zone aggregatin instance
          based on a previous filtering"""
         new_aggregations = []
-        total_area = sum(i.area for i in instances.values())
+        thermal_zones = filter_instances(instances, 'ThermalZone')
+        total_area = sum(i.area for i in thermal_zones)
         for group in groups:
             if group != 'not_bind':
                 # first criterion based on similarities

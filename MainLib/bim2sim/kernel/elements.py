@@ -583,10 +583,13 @@ class ThermalZone(element.Element):
                 "Bad": "WC and sanitary rooms in non-residential buildings",
                 "Labor": "Laboratory"
             }
-            if bind.zone_name in zone_dict.keys():
-                return zone_dict[bind.zone_name]
-            else:
-                return "Single office"
+            for key, trans in zone_dict.items():
+                if key in bind.zone_name:
+                    return trans
+            # if bind.zone_name in zone_dict.keys():
+            #     return zone_dict[bind.zone_name]
+            # else:
+            return "Single office"
 
         if bind.zone_name == 'WC Herren':
             print()
@@ -923,12 +926,14 @@ class Wall(element.Element):
                 if hasattr(self, 'sub_instances'):
                     for sub_ins in self.sub_instances:
                         sub_ins.__class__ = SubOuterWall
+                        sub_ins.is_external = True
             elif boundary.InternalOrExternalBoundary.lower() == 'internal':
                 self.__class__ = InnerWall
                 self.is_external = False
                 if hasattr(self, 'sub_instances'):
                     for sub_ins in self.sub_instances:
                         sub_ins.__class__ = SubInnerWall
+                        sub_ins.is_external = False
 
     layers = attribute.Attribute(
         functions=[_get_layers]

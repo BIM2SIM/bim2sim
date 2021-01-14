@@ -116,16 +116,16 @@ class Prepare(ITask):
     @Task.log
     def run(self, workflow, instances, ifc):
         self.logger.info("setting verifications")
-        building = None
+        building = filter_instances(instances, 'Building')
         for guid, ins in instances.items():
-            if type(ins).__name__ == 'Building':
-                building = ins
-
             self.is_external_verification(ins)
             # self.layers_verification(ins, building)
             new_orientation = self.orientation_verification(ins)
             if new_orientation is not None:
                 ins.orientation = new_orientation
+        tz_bind = tz_detection.Bind(self, workflow)
+        tz_bind.run(instances)
+        print()
 
         return instances,
 
@@ -515,7 +515,6 @@ class ExportTEASER(ITask):
             teaser_instance = teaser_class(parent=parent)
             cls._teaser_property_getter(teaser_instance, instance, templates)
             cls._instance_related(teaser_instance, instance, bldg)
-            print()
 
     @classmethod
     def _bind_instances_to_zone(cls, tz, tz_instance, bldg):
