@@ -366,6 +366,70 @@
       }
     }
   },
+  "InnerDoor": {
+    "exporter": {
+      "teaser": {
+        "name": ["instance","name"],
+        "area": ["instance", "area"],
+        "tilt": ["instance", "tilt"],
+        "inner_convection": 0.6,
+        "orientation": ["instance", "orientation"]
+      }
+    },
+    "default_ps": {
+      "area" : {
+        "ARCHICAD-64": ["BaseQuantities", "Area"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Area"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_DoorBaseQuantities", "Area"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_DoorBaseQuantities", "Area"],
+        "Autodesk Revit 2020 (DEU)": ["QTo_DoorBaseQuantities", "Area"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_DoorBaseQuantities", "Area"]
+      },
+      "thickness" : {
+        "ARCHICAD-64": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_DoorBaseQuantities", "Width"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_DoorBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_DoorBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_DoorBaseQuantities", "Width"]
+      },
+      "is_external": {
+        "base": ["Pset_DoorCommon", "IsExternal"]
+      }
+    }
+  },
+  "OuterDoor": {
+    "exporter": {
+      "teaser": {
+        "name": ["instance","name"],
+        "area": ["instance", "area"],
+        "tilt": ["instance", "tilt"],
+        "inner_convection": 0.6,
+        "orientation": ["instance", "orientation"]
+      }
+    },
+    "default_ps": {
+      "area" : {
+        "ARCHICAD-64": ["BaseQuantities", "Area"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Area"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_DoorBaseQuantities", "Area"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_DoorBaseQuantities", "Area"],
+        "Autodesk Revit 2020 (DEU)": ["QTo_DoorBaseQuantities", "Area"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_DoorBaseQuantities", "Area"]
+      },
+      "thickness" : {
+        "ARCHICAD-64": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_DoorBaseQuantities", "Width"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_DoorBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_DoorBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_DoorBaseQuantities", "Width"]
+      },
+      "is_external": {
+        "base": ["Pset_DoorCommon", "IsExternal"]
+      }
+    }
+  },
   "ThermalZone": {
     "exporter": {
       "teaser": {

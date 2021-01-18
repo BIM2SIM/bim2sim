@@ -59,7 +59,7 @@ class Disaggregation(BaseElement):
         new_pos = np.array((0, 0, 0))
         for s_boundary in space_boundaries:
             area_disaggregation += s_boundary.area
-            new_pos = new_pos + np.array(s_boundary.aux_pos)
+            new_pos = new_pos + np.array(s_boundary.position)
         new_pos = new_pos / len(space_boundaries)
 
         if (parent.area - area_disaggregation) < 0.1 or area_disaggregation == 0 or len(parent.space_boundaries) == 1:

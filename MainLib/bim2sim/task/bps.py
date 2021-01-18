@@ -84,13 +84,6 @@ class Inspect(ITask):
         tz_inspect.run(ifc)
         self.instances.update(tz_inspect.instances)
 
-        # for guid, ins in self.instances.items():
-        #     is_external_verification(ins)
-        #     layers_verification(ins)
-        #     new_orientation = orientation_verification(ins)
-        #     if new_orientation is not None:
-        #         ins.orientation = new_orientation
-
         return self.instances,
 
     @staticmethod
@@ -116,9 +109,8 @@ class Prepare(ITask):
     @Task.log
     def run(self, workflow, instances, ifc):
         self.logger.info("setting verifications")
-        building = filter_instances(instances, 'Building')
+        building = filter_instances(instances, 'Building')[0]
         for guid, ins in instances.items():
-            self.is_external_verification(ins)
             # self.layers_verification(ins, building)
             new_orientation = self.orientation_verification(ins)
             if new_orientation is not None:
@@ -131,114 +123,66 @@ class Prepare(ITask):
 
     @staticmethod
     def orientation_verification(instance):
-        supported_classes = {'Window', 'OuterWall', 'Door', 'Wall'}
+        supported_classes = {'Window', 'OuterWall', 'OuterDoor', 'Wall', 'Door'}
         if instance.__class__.__name__ in supported_classes:
-            if len(instance.thermal_zones) > 0:
-                bo_spaces = {}
-                boundaries1 = {}
-                for i in instance.ifc.ProvidesBoundaries:
-                    rel_vector_space = i.ConnectionGeometry.SurfaceOnRelatingElement. \
-                        BasisSurface.Position.Axis.DirectionRatios
-                    rel_angle_space = vector_angle(rel_vector_space)
-                    boundaries1[i.RelatingSpace.Name] = rel_angle_space
-                for i in instance.thermal_zones:
-                    bo_spaces[i.name] = i.orientation
-                new_angles = []
-                for i in bo_spaces:
-                    # ToDo: Check cases
-                    new_angles.append(boundaries1[i])
-                    # new_angles.append(bo_spaces[i] + boundaries1[i]-180)
-                # can't determine a possible new angle (very rare case)
-                if len(set(new_angles)) > 1:
-                    return None
-                # no true north necessary
-                new_angle = angle_equivalent(new_angles[0])
-                # new angle return
-                if new_angle - instance.orientation > 0.1:
-                    return new_angle
-            else:
-                instance.logger.warning('No space relation for %s found' % instance.name)
+            new_angles = list(set([space_boundary.orientation for space_boundary in instance.space_boundaries]))
+            # new_angles = list(set([space_boundary.orientation - space_boundary.thermal_zones[0].orientation for space_boundary in instance.space_boundaries]))
+            if len(new_angles) > 1:
                 return None
-        # not relevant for internal instances
-        else:
-            return None
-
-    @staticmethod
-    def is_external_verification(instance):
-        supported_classes = {'OuterWall', 'Wall', 'InnerWall', 'Door', 'InnerDoor', 'OuterDoor'}
-        if instance.__class__.__name__ in supported_classes:
-            if len(instance.ifc.ProvidesBoundaries) > 0:
-                boundary = instance.ifc.ProvidesBoundaries[0]
-                return instance._change_class(boundary)
-        return None
+            # no true north necessary
+            new_angle = angle_equivalent(new_angles[0])
+            # new angle return
+            if new_angle - instance.orientation > 0.1:
+                return new_angle
 
     def layers_verification(self, instance, building):
         supported_classes = {'OuterWall', 'Wall', 'InnerWall', 'Door', 'InnerDoor', 'OuterDoor'}
         if instance.__class__.__name__ in supported_classes:
+            # through the type elements enrichment without comparisons
+            type_elements_decision = BoolDecision(
+                question="Do you want for Wall %s to be enriched before any calculation "
+                         "with the type elements template," % instance.name,
+                global_key="type_elements_Wall_%s" % instance.guid,
+                collect=False)
+            type_elements_decision.decide()
+            if type_elements_decision.value:
+                self.template_layers_creation(instance, building)
             u_value_verification = self.compare_with_template(instance, building)
+            # comparison with templates value
+            if u_value_verification is False:
+                self.logger.warning("u_value verification failed, the wall u value is "
+                                    "doesn't correspond to the year of construction. Please create new layer set")
+                self.layer_creation(instance, building)
             # instance.layers = [] # probe
             layers_width = 0
             layers_r = 0
             for layer in instance.layers:
                 layers_width += layer.thickness
-                layers_r += layer.thickness / layer.thermal_conduc
+                if layer.thermal_conduc is not None:
+                    if layer.thermal_conduc > 0:
+                        layers_r += layer.thickness / layer.thermal_conduc
 
             # critical failure // check units again
-            width_discrepancy = abs(instance.width - layers_width) / instance.width
-            u_discrepancy = abs(instance.u_value - 1 / layers_r) / instance.u_value
-            u_discrepancy = 0.65
+            width_discrepancy = abs(instance.width - layers_width) / instance.width if \
+                (instance.width is not None and instance.width > 0) else 9999
+            u_discrepancy = abs(instance.u_value - 1 / layers_r) / instance.u_value if \
+                (instance.u_value is not None and instance.u_value > 0) else 9999
             if width_discrepancy > 0.2 or u_discrepancy > 0.2:
-                decision_layers = ListDecision("the following layer creation methods were ",
-                                               choices=['Manual layers creation (from zero)',
-                                                        'Template layers creation (based on given u value)'],
-                                               allow_skip=True, allow_load=True, allow_save=True,
-                                               collect=False, quick_decide=not True)
-                decision_layers.decide()
-                functions_dict = {'Manual layers creation (from zero)': self.manual_layers_creation,
-                                  'Template layers creation (based on given u value)': self.template_layers_creation}
-                layers_creation_func = functions_dict.get(decision_layers.value)
-                layers_creation_func(instance, building)
+                self.logger.warning("Width or U Value discrepancy found. Please create new layer set")
+                self.layer_creation(instance, building)
                 print()
 
-            # layers_r = 0
-            # if len(instance.layers) > 0:
-            #     for layer in instance.layers:
-            #         layers_width += layer.thickness
-            #         layers_r += layer.thickness / layer.thermal_conduc
-            #     # width check
-            #     # instance.width = 1
-            #     if instance.width > layers_width:
-            #         self.logger.warning("width from the wall doesn't correspond to the total width of the layers, "
-            #                             "is necessary to create new layer")
-            #         new_layer = elements.Layer.create_additional_layer(instance.width - layers_width)
-            #         instance.layers.append(new_layer)
-            #         layers_width += new_layer.thickness
-            #         layers_r += new_layer.thickness / new_layer.thermal_conduc
-            #     # u_value check
-            #     if abs(instance.u_value - 1 / layers_r) / instance.u_value > 0.2:
-            #         self.logger.warning("discrepancy between the u value from the wall and the total u value "
-            #                             "from the layer")
-            #         cumulative_r = 0
-            #         for layer in instance.layers:
-            #             if instance.layers[-1] == layer:
-            #                 lower_tc = (1 / (instance.u_value * 1.2) - cumulative_r) * layer.thickness
-            #                 upper_tc = (1 / (instance.u_value * 0.8) - cumulative_r) * layer.thickness
-            #                 layer.thermal_conduc = elements.Layer.get_material_properties(
-            #                     layer, 'thermal_conduc', [lower_tc, upper_tc])
-            #             else:
-            #                 layer.thermal_conduc = elements.Layer.get_material_properties(layer, 'thermal_conduc')
-            #             cumulative_r += layer.thermal_conduc / layer.thickness
-            # else:
-            #     self.logger.warning("no layers present on the wall, is necessary to use a template to proceed")
-            #     template = self.get_instance_template(instance, building)
-            #     for i_layer, layer_props in template['layer'].items():
-            #         new_layer = elements.Layer.create_additional_layer(
-            #             layer_props['thickness'], material=layer_props['material']['name'])
-            #         instance.layers.append(new_layer)
-            #         layers_width += new_layer.thickness
-            #         layers_r += new_layer.thickness / new_layer.thermal_conduc
-            #     instance.width = layers_width
-            #     instance.u_value = 1 / layers_r
+    def layer_creation(self, instance, building):
+        decision_layers = ListDecision("the following layer creation methods were found",
+                                       choices=['Manual layers creation (from zero)',
+                                                'Template layers creation (based on given u value)'],
+                                       allow_skip=True, allow_load=True, allow_save=True,
+                                       collect=False, quick_decide=not True)
+        decision_layers.decide()
+        if decision_layers.value == 'Manual layers creation (from zero)':
+            self.manual_layers_creation(instance, building)
+        elif decision_layers.value == 'Template layers creation (based on given u value)':
+            self.template_layers_creation(instance, building)
 
     def manual_layers_creation(self, instance, building):
         instance.layers = []
@@ -276,17 +220,7 @@ class Prepare(ITask):
         while self.compare_with_template(instance, building) is False:
             self.logger.warning("The created layers does not comply with the valid u_value range, "
                                 "please create new layer set")
-            decision_layers = ListDecision("the following layer creation methods were ",
-                                           choices=['Manual layers creation (from zero)',
-                                                    'Template layers creation (based on given u value)'],
-                                           allow_skip=True, allow_load=True, allow_save=True,
-                                           collect=False, quick_decide=not True)
-            decision_layers.decide()
-            functions_dict = {'Manual layers creation (from zero)': self.manual_layers_creation,
-                              'Template layers creation (based on given u value)': self.template_layers_creation}
-            layers_creation_func = functions_dict.get(decision_layers.value)
-            layers_creation_func(instance, building)
-
+            self.layer_creation(instance, building)
         pass
 
     @classmethod
@@ -297,7 +231,7 @@ class Prepare(ITask):
         template = cls.get_instance_template(instance, building)
         for i_layer, layer_props in template['layer'].items():
             new_layer = elements.Layer.create_additional_layer(
-                layer_props['thickness'], material=layer_props['material']['name'])
+                layer_props['thickness'], instance, material=layer_props['material']['name'])
             instance.layers.append(new_layer)
             layers_width += new_layer.thickness
             layers_r += new_layer.thickness / new_layer.thermal_conduc
@@ -309,8 +243,9 @@ class Prepare(ITask):
     @classmethod
     def compare_with_template(cls, instance, building):
         template_options = []
-
-        year_of_construction = int(building.year_of_construction)
+        if instance.u_value is None:
+            return False
+        year_of_construction = building.year_of_construction
         if year_of_construction is None:
             year_decision = RealDecision("Enter value for the year of construction",
                                          global_key="year",
@@ -318,6 +253,8 @@ class Prepare(ITask):
                                          collect=False, quick_decide=False)
             year_decision.decide()
             year_of_construction = int(year_decision.value.m)
+        else:
+            year_of_construction = int(building.year_of_construction)
 
         instance_templates = dict(DataClass(used_param=3).element_bind)
         material_templates = dict(DataClass(used_param=2).element_bind)
@@ -352,7 +289,7 @@ class Prepare(ITask):
         if instance_type in cls.instance_template:
             return cls.instance_template[instance_type]
 
-        year_of_construction = int(building.year_of_construction)
+        year_of_construction = building.year_of_construction
         if year_of_construction is None:
             year_decision = RealDecision("Enter value for the year of construction",
                                          global_key="year",
@@ -360,6 +297,8 @@ class Prepare(ITask):
                                          collect=False, quick_decide=False)
             year_decision.decide()
             year_of_construction = int(year_decision.value.m)
+        else:
+            year_of_construction = int(building.year_of_construction)
         template_options = []
         for i in instance_templates[instance_type]:
             years = ast.literal_eval(i)

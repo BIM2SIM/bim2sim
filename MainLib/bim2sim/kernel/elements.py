@@ -14,7 +14,7 @@ from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.enrichment_data.data_class import DataClass
 from teaser.logic.buildingobjects.useconditions import UseConditions
 from bim2sim.task.bps_f.bps_functions import get_matches_list, get_material_templates_resumed, \
-    real_decision_user_input, filter_instances, get_pattern_usage
+    real_decision_user_input, filter_instances, get_pattern_usage, vector_angle
 from bim2sim.kernel.disaggregation import SubInnerWall, SubOuterWall, Disaggregation
 import translators as ts
 from bim2sim.project import PROJECT
@@ -841,8 +841,10 @@ class SpaceBoundary(element.SubElement):
         # get relative position of resultant disaggregation
         if hasattr(binding.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
             pos = binding.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
+            axis = binding.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Axis.DirectionRatios
         else:
             pos = binding.ConnectionGeometry.SurfaceOnRelatingElement.Position.Location.Coordinates
+            axis = binding.ConnectionGeometry.SurfaceOnRelatingElement.Position.Axis.DirectionRatios
 
         i = 0
         if len(shape.verts) > 0:
@@ -880,7 +882,8 @@ class SpaceBoundary(element.SubElement):
 
         # returns disaggregation, area and relative position
         self.area = coordinates[0] * coordinates[1]
-        self.aux_pos = pos
+        self.position = pos
+        self.orientation = vector_angle(axis)
         print()
 
 
@@ -918,22 +921,14 @@ class Wall(element.Element):
             layers.append(new_layer)
         return layers
 
-    def _change_class(self, boundary):
-        if boundary.InternalOrExternalBoundary is not None:
-            if boundary.InternalOrExternalBoundary.lower() == 'external':
-                self.__class__ = OuterWall
-                self.is_external = True
-                if hasattr(self, 'sub_instances'):
-                    for sub_ins in self.sub_instances:
-                        sub_ins.__class__ = SubOuterWall
-                        sub_ins.is_external = True
-            elif boundary.InternalOrExternalBoundary.lower() == 'internal':
-                self.__class__ = InnerWall
-                self.is_external = False
-                if hasattr(self, 'sub_instances'):
-                    for sub_ins in self.sub_instances:
-                        sub_ins.__class__ = SubInnerWall
-                        sub_ins.is_external = False
+    def _change_class(self, name):
+        if len(self.ifc.ProvidesBoundaries) > 0:
+            boundary = self.ifc.ProvidesBoundaries[0]
+            if boundary.InternalOrExternalBoundary is not None:
+                if boundary.InternalOrExternalBoundary.lower() == 'external':
+                    return True
+                elif boundary.InternalOrExternalBoundary.lower() == 'internal':
+                    return False
 
     layers = attribute.Attribute(
         functions=[_get_layers]
@@ -945,7 +940,7 @@ class Wall(element.Element):
     )
 
     is_external = attribute.Attribute(
-        default_ps='is_external',
+        functions=[_change_class],
         default=False
     )
 
@@ -986,9 +981,10 @@ class Layer(element.SubElement):
                % (self.__class__.__name__, self.material)
 
     @classmethod
-    def create_additional_layer(cls, thickness, material=None):
+    def create_additional_layer(cls, thickness, parent, material=None):
         new_layer = cls(ifc=None)
         new_layer.material = material
+        new_layer.parent = parent
         new_layer.thickness = thickness
         return new_layer
 
@@ -1157,12 +1153,21 @@ class Door(element.Element):
             layers.append(new_layer)
         return layers
 
+    def _change_class(self, name):
+        if len(self.ifc.ProvidesBoundaries) > 0:
+            boundary = self.ifc.ProvidesBoundaries[0]
+            if boundary.InternalOrExternalBoundary is not None:
+                if boundary.InternalOrExternalBoundary.lower() == 'external':
+                    return True
+                elif boundary.InternalOrExternalBoundary.lower() == 'internal':
+                    return False
+
     layers = attribute.Attribute(
         functions=[_get_layers]
     )
 
     is_external = attribute.Attribute(
-        default_ps='is_external',
+        functions=[_change_class],
         default=False
     )
 
@@ -1180,6 +1185,14 @@ class Door(element.Element):
     #     default_ps=True,
     #     default=0
     # )
+
+
+class InnerDoor(Door):
+    special_argument = {'is_external': False}
+
+
+class OuterDoor(Door):
+    special_argument = {'is_external': True}
 
 
 # class Door(element.Element):
