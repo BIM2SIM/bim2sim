@@ -18,9 +18,9 @@ class Inspect(Task):
         self.workflow = workflow
 
     @Task.log
-    def run(self, ifc):
+    def run(self, ifc, storeys):
         self.logger.info("Creates python representation for building spaces")
-        self.recognize_zone_semantic(ifc)
+        self.recognize_zone_semantic(ifc, storeys)
         if len(self.instances) == 0:
             self.logger.warning("Found no spaces by semantic detection")
             decision = BoolDecision("Try to detect zones by geometrical?")
@@ -33,10 +33,9 @@ class Inspect(Task):
 
         self.logger.info("Found %d space entities", len(self.instances))
 
-        # self.recognize_space_boundaries(ifc)
         self.logger.info("Found %d space boundaries entities", len(self.instances))
 
-    def recognize_zone_semantic(self, ifc):
+    def recognize_zone_semantic(self, ifc, storeys):
         """Recognizes zones/spaces in ifc file by semantic detection for
         IfcSpace entities"""
         self.logger.info("Create zones by semantic detection")
@@ -46,6 +45,8 @@ class Inspect(Task):
             thermal_zone = Element.factory(entity, ifc_type)
             self.instances[thermal_zone.guid] = thermal_zone
 
+        for storey in storeys:
+            storey.set_storey_instances()
         # space boundaries creation
         self.recognize_space_boundaries(ifc)
 
@@ -100,6 +101,33 @@ class Inspect(Task):
     def recognize_space_boundaries(self, ifc):
         """Recognizes space boundaries in ifc file by semantic detection for
         IfcRelSpaceBoundary entities"""
+        # check = []
+        # entities = ifc.by_type('IfcRelSpaceBoundary')
+        #
+        # for entity in entities:
+        #     if entity.RelatedBuildingElement is not None:
+        #         if entity.RelatedBuildingElement.GlobalId == '2Og5$70yb1DxR1TY1w8bzN':
+        #             if entity.RelatingSpace.GlobalId == '3$FatfHY1Cg9apAMwbKPN8':
+        #                 check.append(entity)
+        #             elif entity.RelatingSpace.GlobalId == '24vVAUYDH2SetutQQsZBMv':
+        #                 check.append(entity)
+        #     else:
+        #         print()
+        #
+        # space_boundaries = {}
+        # for tz in self.instances.values():
+        #     entities = tz.ifc.BoundedBy
+        #     for entity in entities:
+        #         if entity.RelatedBuildingElement is not None:
+        #             related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
+        #             if related_element is not None:
+        #                 space_boundary = SubElement.factory(entity, 'IfcRelSpaceBoundary')
+        #                 if related_element.guid not in space_boundaries:
+        #                     space_boundaries[related_element.guid] = {}
+        #                 # if tz.guid
+        #                 space_boundaries[related_element.guid].append(space_boundary)
+        #     print()
+
         self.logger.info("Create space boundaries by semantic detection")
         ifc_type = 'IfcRelSpaceBoundary'
         entities = ifc.by_type(ifc_type)

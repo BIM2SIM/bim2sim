@@ -417,6 +417,7 @@ class BaseElement(Root):
         self.thermal_zones = []
         self.ports = []
         self.space_boundaries = []
+        self.storeys = []
 
     def get_inner_connections(self):
         """Returns inner connections of Element

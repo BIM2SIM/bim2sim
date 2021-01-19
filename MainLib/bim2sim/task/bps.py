@@ -80,8 +80,10 @@ class Inspect(ITask):
 
         self.logger.info("Found %d building elements", len(self.instances))
 
+        storeys = filter_instances(self.instances, 'Storey')
+
         tz_inspect = tz_detection.Inspect(self, workflow)
-        tz_inspect.run(ifc)
+        tz_inspect.run(ifc, storeys)
         self.instances.update(tz_inspect.instances)
 
         return self.instances,
@@ -111,7 +113,7 @@ class Prepare(ITask):
         self.logger.info("setting verifications")
         building = filter_instances(instances, 'Building')[0]
         for guid, ins in instances.items():
-            self.layers_verification(ins, building)
+            # self.layers_verification(ins, building)
             new_orientation = self.orientation_verification(ins)
             if new_orientation is not None:
                 ins.orientation = new_orientation

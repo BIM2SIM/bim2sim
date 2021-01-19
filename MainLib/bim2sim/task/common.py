@@ -3,7 +3,6 @@ import json
 import re
 import shutil
 import inspect
-import elements_functions
 import urllib.request
 
 from bim2sim.kernel import ifc2python
@@ -16,6 +15,7 @@ from bim2sim.kernel import elements
 from bs4 import BeautifulSoup
 from Ifc import SchemaParser
 from bim2sim.decision import BoolDecision, ListDecision
+from bim2sim.assets.IFCparser import elements_functions
 
 
 class Reset(ITask):

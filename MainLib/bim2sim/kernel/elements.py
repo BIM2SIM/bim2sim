@@ -818,6 +818,7 @@ class SpaceBoundary(element.SubElement):
             self.physical = False
 
         self._get_disaggregation_properties()
+        self.storeys = self.get_space_boundary_storeys()
 
     def _get_disaggregation_properties(self):
         # gets geometrical intersection area between space and element
@@ -884,7 +885,17 @@ class SpaceBoundary(element.SubElement):
         self.area = coordinates[0] * coordinates[1]
         self.position = pos
         self.orientation = vector_angle(axis)
-        print()
+        # print()
+
+    def get_space_boundary_storeys(self):
+        # storeys = self.bound_instance.storeys
+        # tz_storeys = self.thermal_zones[0].storeys
+        # for storey in tz_storeys:
+        #     if storey not in storeys:
+        #         storeys.append(storey)
+        storeys = self.thermal_zones[0].storeys
+
+        return storeys
 
 
 class Medium(element.Element):
@@ -933,17 +944,14 @@ class Wall(element.Element):
     layers = attribute.Attribute(
         functions=[_get_layers]
     )
-
     area = attribute.Attribute(
         default_ps='area',
         default=1
     )
-
     is_external = attribute.Attribute(
         functions=[_change_class],
         default=False
     )
-
     tilt = attribute.Attribute(
         default_ps='tilt',
         default=90
@@ -1378,6 +1386,11 @@ class Storey(element.Element):
     ifc_type = 'IfcBuildingStorey'
     workflow = ['BPSMultiZoneSeparated']
 
+    def __init__(self, *args, **kwargs):
+        """storey __init__ function"""
+        super().__init__(*args, **kwargs)
+        self.storey_instances = []
+
     gross_floor_area = attribute.Attribute(
         default_ps='gross_floor_area'
     )
@@ -1391,6 +1404,30 @@ class Storey(element.Element):
     height = attribute.Attribute(
         default_ps='height'
     )
+
+    def get_storey_instances(self):
+        storey_instances = []
+        # instances
+        for ifc_structure in self.ifc.ContainsElements:
+            for ifc_element in ifc_structure.RelatedElements:
+                instance = self.get_object(ifc_element.GlobalId)
+                if instance is not None:
+                    storey_instances.append(instance)
+                    if self not in instance.storeys:
+                        instance.storeys.append(self)
+        # spaces
+        storey_spaces = []
+        for ifc_aggregates in self.ifc.IsDecomposedBy:
+            for ifc_element in ifc_aggregates.RelatedObjects:
+                instance = self.get_object(ifc_element.GlobalId)
+                if instance is not None:
+                    storey_spaces.append(instance)
+                    if self not in instance.storeys:
+                        instance.storeys.append(self)
+        return storey_instances, storey_spaces
+
+    def set_storey_instances(self):
+        self.storey_instances, self.thermal_zones = self.get_storey_instances()
 
 
 __all__ = [ele for ele in locals().values() if ele in element.Element.__subclasses__()]

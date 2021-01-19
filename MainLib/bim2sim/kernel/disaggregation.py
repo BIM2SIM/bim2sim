@@ -8,7 +8,6 @@ import re
 from bim2sim.kernel.element import BaseElement, SubElement
 from bim2sim.task.bps_f.bps_functions import get_disaggregations_instance
 
-
 vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
 horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
 
@@ -44,13 +43,24 @@ class Disaggregation(BaseElement):
             return None
 
     @classmethod
+    def get_supported_classes(cls):
+        supported_classes = {subclass.disaggregatable_elements: subclass for subclass in cls.__subclasses__()}
+        return supported_classes
+
+    @classmethod
     def based_on_thermal_zone(cls, space_boundaries_info, thermal_zone):
         """creates a disaggregation based on a thermal zone and an instance parent
         based on area slice (thermal zone - area)"""
         parent = space_boundaries_info[0]
         space_boundaries = space_boundaries_info[1]
+        supported_classes = cls.get_supported_classes()
+        type_parent = type(parent).__name__
+        disaggregation_class = supported_classes.get(type_parent)
 
-        name = 'Sub' + parent.__class__.__name__ + '_' + parent.name
+        if disaggregation_class is None:
+            return parent
+
+        name = type(disaggregation_class).__name__ + '_' + parent.name
         if not hasattr(parent, "sub_instances"):
             parent.sub_instances = []
 
@@ -64,25 +74,19 @@ class Disaggregation(BaseElement):
 
         if (parent.area - area_disaggregation) < 0.1 or area_disaggregation == 0 or len(parent.space_boundaries) == 1:
             return parent
+
         else:
-            type_parent = type(parent).__name__
-            re_search = re.compile('Sub%s' % type_parent)
-            instance = cls(name + '_%d' % i, parent)
-
-            # class assignment for subinstances -> based on re and factory
-            for sub_cls in SubElement.get_all_subclasses(cls):
-                type_search = sub_cls.__name__
-                if re_search.match(type_search):
-                    instance = sub_cls(name + '_%d' % i, parent)
-                    break
-
+            instance = disaggregation_class(name + '_%d' % i, parent)
             instance.area = area_disaggregation
 
             # position calc
-            if parent.__class__.__name__ in vertical_instances:
+            if type_parent in vertical_instances:
                 instance._pos = get_new_position_vertical_instance(parent, new_pos)
-            if parent.__class__.__name__ in horizontal_instances:
+            if type_parent in horizontal_instances:
                 instance._pos = thermal_zone.position
+                if thermal_zone.area > instance.area:
+                    if abs(1-instance.area/thermal_zone.area) < 0.1:
+                        instance.area = thermal_zone.area
 
             parent.sub_instances.append(instance)
             if thermal_zone not in parent.thermal_zones:
@@ -99,31 +103,31 @@ class Disaggregation(BaseElement):
 
 
 class SubFloor(Disaggregation):
-    disaggregatable_elements = ['IfcSlab']
+    disaggregatable_elements = 'Floor'
 
 
 class SubGroundFloor(Disaggregation):
-    disaggregatable_elements = ['IfcSlab']
+    disaggregatable_elements = 'GroundFloor'
 
 
 class SubSlab(Disaggregation):
-    disaggregatable_elements = ['IfcSlab']
+    disaggregatable_elements = 'Slab'
 
 
 class SubRoof(Disaggregation):
-    disaggregatable_elements = ['IfcRoof', 'IfcSlab']
+    disaggregatable_elements = 'Roof'
 
 
 class SubWall(Disaggregation):
-    disaggregatable_elements = ['IfcWall']
+    disaggregatable_elements = 'IfcWall'
 
 
 class SubInnerWall(Disaggregation):
-    disaggregatable_elements = ['IfcWall']
+    disaggregatable_elements = 'InnerWall'
 
 
 class SubOuterWall(Disaggregation):
-    disaggregatable_elements = ['IfcWall']
+    disaggregatable_elements = 'OuterWall'
 
 
 def get_new_position_vertical_instance(parent, sub_position):
