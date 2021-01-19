@@ -111,7 +111,7 @@ class Prepare(ITask):
         self.logger.info("setting verifications")
         building = filter_instances(instances, 'Building')[0]
         for guid, ins in instances.items():
-            # self.layers_verification(ins, building)
+            self.layers_verification(ins, building)
             new_orientation = self.orientation_verification(ins)
             if new_orientation is not None:
                 ins.orientation = new_orientation
@@ -140,19 +140,20 @@ class Prepare(ITask):
         if instance.__class__.__name__ in supported_classes:
             # through the type elements enrichment without comparisons
             type_elements_decision = BoolDecision(
-                question="Do you want for Wall %s to be enriched before any calculation "
-                         "with the type elements template," % instance.name,
-                global_key="type_elements_Wall_%s" % instance.guid,
+                question="Do you want for %s %s to be enriched before any calculation "
+                         "with the type elements template," % (type(instance).__name__, instance.name),
+                global_key="type_elements_%s_%s" % (type(instance).__name__, instance.guid),
                 collect=False)
             type_elements_decision.decide()
             if type_elements_decision.value:
-                self.template_layers_creation(instance, building)
+                return self.template_layers_creation(instance, building)
             u_value_verification = self.compare_with_template(instance, building)
             # comparison with templates value
             if u_value_verification is False:
-                self.logger.warning("u_value verification failed, the wall u value is "
-                                    "doesn't correspond to the year of construction. Please create new layer set")
-                self.layer_creation(instance, building)
+                self.logger.warning("u_value verification failed, the %s u value is "
+                                    "doesn't correspond to the year of construction. Please create new layer set" %
+                                    type(instance).__name__)
+                return self.layer_creation(instance, building)
             # instance.layers = [] # probe
             layers_width = 0
             layers_r = 0
@@ -170,7 +171,6 @@ class Prepare(ITask):
             if width_discrepancy > 0.2 or u_discrepancy > 0.2:
                 self.logger.warning("Width or U Value discrepancy found. Please create new layer set")
                 self.layer_creation(instance, building)
-                print()
 
     def layer_creation(self, instance, building):
         decision_layers = ListDecision("the following layer creation methods were found",
@@ -229,14 +229,15 @@ class Prepare(ITask):
         layers_width = 0
         layers_r = 0
         template = cls.get_instance_template(instance, building)
-        for i_layer, layer_props in template['layer'].items():
-            new_layer = elements.Layer.create_additional_layer(
-                layer_props['thickness'], instance, material=layer_props['material']['name'])
-            instance.layers.append(new_layer)
-            layers_width += new_layer.thickness
-            layers_r += new_layer.thickness / new_layer.thermal_conduc
-        instance.width = layers_width
-        instance.u_value = 1 / layers_r
+        if template is not None:
+            for i_layer, layer_props in template['layer'].items():
+                new_layer = elements.Layer.create_additional_layer(
+                    layer_props['thickness'], instance, material=layer_props['material']['name'])
+                instance.layers.append(new_layer)
+                layers_width += new_layer.thickness
+                layers_r += new_layer.thickness / new_layer.thermal_conduc
+            instance.width = layers_width
+            instance.u_value = 1 / layers_r
         # with template comparison not necessary
         pass
 
@@ -306,7 +307,7 @@ class Prepare(ITask):
                 template_options = instance_templates[instance_type][i]
                 break
 
-        if len(template_options.keys()) > 1:
+        if len(template_options.keys()) > 0:
             decision_template = ListDecision("the following construction types were "
                                              "found for year %s and instance type %s"
                                              % (year_of_construction, instance_type),
@@ -314,7 +315,8 @@ class Prepare(ITask):
                                              global_key="bpsTemplate.%s" % instance.guid,
                                              allow_skip=True, allow_load=True, allow_save=True,
                                              collect=False, quick_decide=not True)
-            decision_template.decide()
+            if decision_template.value is None:
+                decision_template.decide()
             template_value = template_options[decision_template.value]
             cls.instance_template[instance_type] = template_value
             return template_value

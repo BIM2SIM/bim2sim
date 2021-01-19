@@ -3092,5 +3092,45 @@
                 }
             }
         }
+    },
+    "OuterDoor_[0, 2015]_Typical": {
+        "building_age_group": [
+            0,
+            2015
+        ],
+        "construction_type": "Typical",
+        "inner_radiation": 5.0,
+        "inner_convection": 2.7,
+        "outer_radiation": 5.0,
+        "outer_convection": 20.0,
+        "layer": {
+            "0": {
+                "thickness": 0.05,
+                "material": {
+                    "name": "Door0_2015Typical",
+                    "material_id": "0abb8aa3-83ff-11e6-bfa4-2cd444b2e705"
+                }
+            }
+        }
+    },
+    "InnerDoor_[0, 2015]_Typical": {
+        "building_age_group": [
+            0,
+            2015
+        ],
+        "construction_type": "Typical",
+        "inner_radiation": 5.0,
+        "inner_convection": 2.7,
+        "outer_radiation": 5.0,
+        "outer_convection": 20.0,
+        "layer": {
+            "0": {
+                "thickness": 0.05,
+                "material": {
+                    "name": "Door0_2015Typical",
+                    "material_id": "0abb8aa3-83ff-11e6-bfa4-2cd444b2e705"
+                }
+            }
+        }
     }
 }
