@@ -768,6 +768,14 @@ class ThermalZone(element.Element):
         default_ps='height',
         default=0
     )
+    length = attribute.Attribute(
+        default_ps='length',
+        default=0
+    )
+    width = attribute.Attribute(
+        default_ps='length',
+        default=0
+    )
     with_cooling = attribute.Attribute(
         functions=[_get_cooling]
     )
@@ -860,14 +868,18 @@ class SpaceBoundary(element.SubElement):
                 y.append(point.Coordinates[1])
                 z.append(0)
 
+        x = list(set(x))
+        y = list(set(y))
+        z = list(set(z))
         x.sort()
         y.sort()
         z.sort()
+        pos = self.thermal_zones[0].position - np.array([x[0], y[0], z[0]])
 
         try:
-            x = x[len(x) - 1] - x[0]
-            y = y[len(y) - 1] - y[0]
-            z = z[len(z) - 1] - z[0]
+            x = x[1] - x[0]
+            y = y[1] - y[0]
+            # z = z[1] - z[0]
         except IndexError:
             return None
 
@@ -896,6 +908,29 @@ class SpaceBoundary(element.SubElement):
         storeys = self.thermal_zones[0].storeys
 
         return storeys
+
+    @classmethod
+    def based_on_instance(cls, instance):
+        space_boundaries = []
+        x = instance.ifc.ProvidesBoundaries
+        for sb in instance.ifc.ProvidesBoundaries:
+            space_boundary = element.SubElement.factory(sb, 'IfcRelSpaceBoundary')
+            duplicate = False
+            break_s = False
+            for e_sb in space_boundaries:
+                if space_boundary not in space_boundaries:
+                    compare = e_sb.position - space_boundary.position
+                    if abs(compare[0]) <= 0.2 and abs(compare[1]) <= 0.2:
+                        duplicate = True
+                        break
+                #         break_s = True
+                # if break_s:
+                #     break
+            if not duplicate:
+                space_boundaries.append(space_boundary)
+
+        print()
+
 
 
 class Medium(element.Element):

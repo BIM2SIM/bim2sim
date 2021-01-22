@@ -5,6 +5,7 @@ from bim2sim.kernel.ifc2python import getElementType
 from bim2sim.kernel.disaggregation import Disaggregation
 from bim2sim.kernel.aggregation import Aggregated_ThermalZone
 from bim2sim.task.bps_f.bps_functions import filter_instances
+from bim2sim.kernel.elements import SpaceBoundary
 import inspect
 
 class Inspect(Task):
@@ -44,6 +45,7 @@ class Inspect(Task):
         for entity in entities:
             thermal_zone = Element.factory(entity, ifc_type)
             self.instances[thermal_zone.guid] = thermal_zone
+            x = thermal_zone.position
 
         for storey in storeys:
             storey.set_storey_instances()
@@ -101,18 +103,23 @@ class Inspect(Task):
     def recognize_space_boundaries(self, ifc):
         """Recognizes space boundaries in ifc file by semantic detection for
         IfcRelSpaceBoundary entities"""
-        # check = []
-        # entities = ifc.by_type('IfcRelSpaceBoundary')
-        #
-        # for entity in entities:
-        #     if entity.RelatedBuildingElement is not None:
-        #         if entity.RelatedBuildingElement.GlobalId == '2Og5$70yb1DxR1TY1w8bzN':
-        #             if entity.RelatingSpace.GlobalId == '3$FatfHY1Cg9apAMwbKPN8':
-        #                 check.append(entity)
-        #             elif entity.RelatingSpace.GlobalId == '24vVAUYDH2SetutQQsZBMv':
-        #                 check.append(entity)
-        #     else:
-        #         print()
+        check = []
+        entities = ifc.by_type('IfcRelSpaceBoundary')
+        floors = filter_instances(list(self.instances.values())[0].objects, 'Floor')
+        for floor in floors:
+            SpaceBoundary.based_on_instance(floor)
+
+
+        for entity in entities:
+            if entity.RelatedBuildingElement is not None:
+                if entity.RelatedBuildingElement.GlobalId == '2Og5$70yb1DxR1TY1w8bzN':
+                    if entity.RelatingSpace.GlobalId == '1_Evy7T$DCiwLgTMLHCRoe':
+                        space_boundary = SubElement.factory(entity, 'IfcRelSpaceBoundary')
+                        check.append(space_boundary)
+                    elif entity.RelatingSpace.GlobalId == '0uC7OD3$5F7v$zL3aaoEig':
+                        space_boundary = SubElement.factory(entity, 'IfcRelSpaceBoundary')
+                        check.append(space_boundary)
+
         #
         # space_boundaries = {}
         # for tz in self.instances.values():

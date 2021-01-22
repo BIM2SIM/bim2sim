@@ -463,6 +463,14 @@
         "Autodesk Revit 2020 (DEU)": ["Qto_SpaceBaseQuantities", "Height"],
         "Autodesk Revit 2020 (ENU)": ["Qto_SpaceBaseQuantities", "Height"]
       },
+      "length" : {
+        "ARCHICAD-64": ["BaseQuantities", "Length"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Length"],
+        "Autodesk Revit 2019 (DEU)": ["Qto_SpaceBaseQuantities", "Length"],
+        "Autodesk Revit 2019 (ENU)": ["Qto_SpaceBaseQuantities", "Length"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_SpaceBaseQuantities", "Length"],
+        "Autodesk Revit 2020 (ENU)": ["Qto_SpaceBaseQuantities", "Length"]
+      },
       "net_volume" : {
         "ARCHICAD-64": ["BaseQuantities", "NetVolume"],
         "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossVolume"],

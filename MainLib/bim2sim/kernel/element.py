@@ -5,6 +5,7 @@ from json import JSONEncoder
 import itertools
 import re
 import math
+import ifcopenshell.geom
 
 import numpy as np
 
@@ -13,8 +14,14 @@ from bim2sim.kernel import ifc2python, attribute
 from bim2sim.decision import Decision, ListDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.task.bps_f.bps_functions import angle_equivalent, vector_angle
+from OCC.Core.Bnd import Bnd_Box
+from OCC.Core.BRepBndLib import brepbndlib_Add
 
 logger = logging.getLogger(__name__)
+settings = ifcopenshell.geom.settings()
+settings.set(settings.USE_WORLD_COORDS, True)
+settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+settings.set(settings.INCLUDE_CURVES, True)
 
 
 class ElementError(Exception):
@@ -142,11 +149,35 @@ class IFCBased(Root):
 
     def calc_position(self):
         """returns absolute position"""
-        rel = np.array(self.ifc.ObjectPlacement.
-                       RelativePlacement.Location.Coordinates)
-        relto = np.array(self.ifc.ObjectPlacement.
-                         PlacementRelTo.RelativePlacement.Location.Coordinates)
-        return rel + relto
+        if type(self).__name__ == 'ThermalZone':
+            if self.guid in ['1_Evy7T$DCiwLgTMLHCRoe', '0uC7OD3$5F7v$zL3aaoEig']:
+                print()
+            space_shape = ifcopenshell.geom.create_shape(settings, self.ifc)
+            i = 0
+            x, y, z = [], [], []
+            if len(space_shape.geometry.verts) > 0:
+                while i < len(space_shape.geometry.verts):
+                    x.append(space_shape.geometry.verts[i])
+                    y.append(space_shape.geometry.verts[i+1])
+                    z.append(space_shape.geometry.verts[i+2])
+                    i += 3
+            x = list(set(x))
+            y = list(set(y))
+            z = list(set(z))
+            x.sort()
+            y.sort()
+            z.sort()
+
+            absolute = np.array([x[1], y[1], z[1]])
+            center = np.array([sum(x)/2, sum(y)/2, sum(z)/2])
+        else:
+            absolute = np.array(self.ifc.ObjectPlacement.RelativePlacement.Location.Coordinates)
+            placementrel = self.ifc.ObjectPlacement.PlacementRelTo
+            while placementrel is not None:
+                absolute += placementrel.RelativePlacement.Location.Coordinates
+                placementrel = placementrel.PlacementRelTo
+
+        return absolute
 
     def calc_orientation(self):
         # ToDO: true north angle
@@ -778,7 +809,6 @@ class SubElement(BaseElement, IFCBased):
         """finder that the parent has been created with"""
         if hasattr(self.parent, 'finder'):
             return self.parent.finder
-
 
     def __repr__(self):
         return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)
