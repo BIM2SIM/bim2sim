@@ -45,35 +45,33 @@ class Inspect(Task):
         for entity in entities:
             thermal_zone = Element.factory(entity, ifc_type)
             self.instances[thermal_zone.guid] = thermal_zone
-            x = thermal_zone.position
 
         for storey in storeys:
             storey.set_storey_instances()
         # space boundaries creation
         self.recognize_space_boundaries(ifc)
 
-        # cooling_decision = BoolDecision(question="Do you want for all the thermal zones to be cooled? - "
-        #                                          "with cooling",
-        #                                 collect=False,
-        #                                 allow_skip=True
-        #                                 )
-        # cooling_decision.decide()
-        # heating_decision = BoolDecision(question="Do you want for all the thermal zones to be heated? - "
-        #                                          "with heating",
-        #                                 collect=False,
-        #                                 allow_skip=True
-        #                                 )
-        # heating_decision.decide()
+        cooling_decision = BoolDecision(question="Do you want for all the thermal zones to be cooled? - "
+                                                 "with cooling",
+                                        collect=False,
+                                        allow_skip=True
+                                        )
+        cooling_decision.decide()
+        heating_decision = BoolDecision(question="Do you want for all the thermal zones to be heated? - "
+                                                 "with heating",
+                                        collect=False,
+                                        allow_skip=True
+                                        )
+        heating_decision.decide()
 
         for k, tz in self.instances.items():
             self.bind_elements_to_zone(tz)
             tz.set_neighbors()
-
-        #     if cooling_decision.value is True:
-        #         tz.with_cooling = True
-        #     if heating_decision.value is True:
-        #         tz.with_heating = True
-        #     tz.set_neighbors()
+            if cooling_decision.value is True:
+                tz.with_cooling = True
+            if heating_decision.value is True:
+                tz.with_heating = True
+            tz.set_neighbors()
 
 
     def recognize_zone_geometrical(self):
@@ -105,35 +103,29 @@ class Inspect(Task):
         IfcRelSpaceBoundary entities"""
         check = []
         entities = ifc.by_type('IfcRelSpaceBoundary')
-        floors = filter_instances(list(self.instances.values())[0].objects, 'Floor')
-        for floor in floors:
-            SpaceBoundary.based_on_instance(floor)
 
-
-        for entity in entities:
-            if entity.RelatedBuildingElement is not None:
-                if entity.RelatedBuildingElement.GlobalId == '2Og5$70yb1DxR1TY1w8bzN':
-                    if entity.RelatingSpace.GlobalId == '1_Evy7T$DCiwLgTMLHCRoe':
-                        space_boundary = SubElement.factory(entity, 'IfcRelSpaceBoundary')
-                        check.append(space_boundary)
-                    elif entity.RelatingSpace.GlobalId == '0uC7OD3$5F7v$zL3aaoEig':
-                        space_boundary = SubElement.factory(entity, 'IfcRelSpaceBoundary')
-                        check.append(space_boundary)
-
-        #
-        # space_boundaries = {}
-        # for tz in self.instances.values():
-        #     entities = tz.ifc.BoundedBy
-        #     for entity in entities:
-        #         if entity.RelatedBuildingElement is not None:
-        #             related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
-        #             if related_element is not None:
+        # for entity in entities:
+        #     if entity.RelatedBuildingElement is not None:
+        #         if entity.RelatedBuildingElement.GlobalId == '2Og5$70yb1DxR1TY1w8bzN':
+        #             if entity.RelatingSpace.GlobalId == '1_Evy7T$DCiwLgTMLHCRoe':
         #                 space_boundary = SubElement.factory(entity, 'IfcRelSpaceBoundary')
-        #                 if related_element.guid not in space_boundaries:
-        #                     space_boundaries[related_element.guid] = {}
-        #                 # if tz.guid
-        #                 space_boundaries[related_element.guid].append(space_boundary)
-        #     print()
+        #                 check.append(space_boundary)
+        #             elif entity.RelatingSpace.GlobalId == '0uC7OD3$5F7v$zL3aaoEig':
+        #                 space_boundary = SubElement.factory(entity, 'IfcRelSpaceBoundary')
+        #                 check.append(space_boundary)
+
+        space_boundaries = {}
+        for tz in self.instances.values():
+            entities = tz.ifc.BoundedBy
+            for entity in entities:
+                if entity.RelatedBuildingElement is not None:
+                    related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
+                    if related_element is not None:
+                        space_boundary = SubElement.factory(entity, 'IfcRelSpaceBoundary')
+                        if related_element.guid not in space_boundaries:
+                            space_boundaries[related_element.guid] = []
+                        space_boundaries[related_element.guid].append(space_boundary)
+            # print()
 
         self.logger.info("Create space boundaries by semantic detection")
         ifc_type = 'IfcRelSpaceBoundary'

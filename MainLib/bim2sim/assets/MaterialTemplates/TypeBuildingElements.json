@@ -860,7 +860,7 @@
             }
         }
     },
-    "Rooftop_[0, 1918]_heavy": {
+    "Roof_[0, 1918]_heavy": {
         "building_age_group": [
             0,
             1918
@@ -887,7 +887,7 @@
             }
         }
     },
-    "Rooftop_[0, 1918]_light": {
+    "Roof_[0, 1918]_light": {
         "building_age_group": [
             0,
             1918
@@ -914,7 +914,7 @@
             }
         }
     },
-    "Rooftop_[1919, 1948]_heavy": {
+    "Roof_[1919, 1948]_heavy": {
         "building_age_group": [
             1919,
             1948
@@ -941,7 +941,7 @@
             }
         }
     },
-    "Rooftop_[1919, 1948]_light": {
+    "Roof_[1919, 1948]_light": {
         "building_age_group": [
             1919,
             1948
@@ -975,7 +975,7 @@
             }
         }
     },
-    "Rooftop_[1949, 1968]_heavy": {
+    "Roof_[1949, 1968]_heavy": {
         "building_age_group": [
             1949,
             1968
@@ -1002,7 +1002,7 @@
             }
         }
     },
-    "Rooftop_[1949, 1968]_light": {
+    "Roof_[1949, 1968]_light": {
         "building_age_group": [
             1949,
             1968
@@ -1036,7 +1036,7 @@
             }
         }
     },
-    "Rooftop_[1969, 1978]_heavy": {
+    "Roof_[1969, 1978]_heavy": {
         "building_age_group": [
             1969,
             1978
@@ -1070,7 +1070,7 @@
             }
         }
     },
-    "Rooftop_[1969, 1978]_light": {
+    "Roof_[1969, 1978]_light": {
         "building_age_group": [
             1969,
             1978
@@ -1097,7 +1097,7 @@
             }
         }
     },
-    "Rooftop_[1979, 1983]_heavy": {
+    "Roof_[1979, 1983]_heavy": {
         "building_age_group": [
             1979,
             1983
@@ -1131,7 +1131,7 @@
             }
         }
     },
-    "Rooftop_[1979, 1983]_light": {
+    "Roof_[1979, 1983]_light": {
         "building_age_group": [
             1979,
             1983
@@ -1158,7 +1158,7 @@
             }
         }
     },
-    "Rooftop_[1984, 1994]_heavy": {
+    "Roof_[1984, 1994]_heavy": {
         "building_age_group": [
             1984,
             1994
@@ -1192,7 +1192,7 @@
             }
         }
     },
-    "Rooftop_[1984, 1994]_light": {
+    "Roof_[1984, 1994]_light": {
         "building_age_group": [
             1984,
             1994
@@ -1226,7 +1226,7 @@
             }
         }
     },
-    "Rooftop_[1995, 2015]_heavy": {
+    "Roof_[1995, 2015]_heavy": {
         "building_age_group": [
             1995,
             2015
@@ -1260,7 +1260,7 @@
             }
         }
     },
-    "Rooftop_[1995, 2015]_light": {
+    "Roof_[1995, 2015]_light": {
         "building_age_group": [
             1995,
             2015
