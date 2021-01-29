@@ -19,8 +19,6 @@ from bim2sim.task.bps_f.bps_functions import get_matches_list, get_material_temp
 from bim2sim.kernel.disaggregation import SubInnerWall, SubOuterWall, Disaggregation
 import translators as ts
 from bim2sim.project import PROJECT
-from OCC.Core.BRepLib import BRepLib_FuseEdges
-from OCC.Core import TopoDS
 
 
 def diameter_post_processing(value):
@@ -598,10 +596,7 @@ class ThermalZone(element.Element):
         if bind.zone_name:
             list_org = bind.zone_name.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
             for i_org in list_org:
-                try:
-                    trans_aux = ts.bing(i_org, from_language='de')
-                except:
-                    print()
+                trans_aux = ts.bing(i_org, from_language='de')
                 # trans_aux = ts.google(i_org, from_language='de')
                 zone_pattern.append(trans_aux)
 
@@ -618,8 +613,6 @@ class ThermalZone(element.Element):
         # if no matches given
         elif len(matches) == 0:
             matches = list(pattern_usage.keys())
-
-
         usage_decision = ListDecision("Which usage does the Space %s have?" %
                                       (str(bind.zone_name)),
                                       choices=matches,
@@ -978,7 +971,6 @@ class Wall(element.Element):
 
 class Layer(element.SubElement):
     ifc_type = ['IfcMaterialLayer', 'IfcMaterial']
-    # workflow = ['BPSMultiZoneSeparated']
     material_selected = {}
 
     def __init__(self, *args, **kwargs):
@@ -1147,11 +1139,6 @@ class Window(element.Element):
         default=0
     )
 
-    # material = attribute.Attribute(
-    #     default_ps=True,
-    #     default=0
-    # )
-
 
 class Door(element.Element):
     ifc_type = "IfcDoor"
@@ -1213,88 +1200,6 @@ class InnerDoor(Door):
 
 class OuterDoor(Door):
     special_argument = {'is_external': True}
-
-
-# class Door(element.Element):
-#     ifc_type = "IfcDoor"
-#     workflow = ['BPSMultiZoneSeparated']
-#     predefined_types = ['DOOR', 'GATE', 'TRAPDOOR']
-#
-#     pattern_ifc_type = [
-#         re.compile('Door', flags=re.IGNORECASE),
-#         re.compile('Tuer', flags=re.IGNORECASE)
-#     ]
-#     material_selected = {}
-#
-#     def __init__(self, *args, **kwargs):
-#         """wall __init__ function"""
-#         super().__init__(*args, **kwargs)
-#         self.ifc_type = self.ifc.is_a()
-#
-#     def _get_layers(bind, name):
-#         """door _get_layers function"""
-#         layers = []
-#         material_layers_dict = get_layers_ifc(bind)
-#         for layer in material_layers_dict:
-#             new_layer = element.SubElement.factory(layer, layer.is_a())
-#             new_layer.parent = bind
-#             layers.append(new_layer)
-#         return layers
-#
-#     def _change_class(self, boundary):
-#         if boundary.InternalOrExternalBoundary is not None:
-#             if boundary.InternalOrExternalBoundary.lower() == 'external':
-#                 self.__class__ = OuterDoor
-#                 self.is_external = True
-#                 if hasattr(self, 'sub_instances'):
-#                     print('damn')
-#                     for sub_ins in self.sub_instances:
-#                         sub_ins.__class__ = SubOuterWall
-#             elif boundary.InternalOrExternalBoundary.lower() == 'internal':
-#                 self.__class__ = InnerDoor
-#                 self.is_external = False
-#                 if hasattr(self, 'sub_instances'):
-#                     print('damn')
-#                     for sub_ins in self.sub_instances:
-#                         sub_ins.__class__ = SubInnerWall
-#     layers = attribute.Attribute(
-#         functions=[_get_layers]
-#     )
-#
-#     is_external = attribute.Attribute(
-#         default_ps='is_external',
-#         default=False
-#     )
-#
-#     area = attribute.Attribute(
-#         default_ps='area',
-#         default=0
-#     )
-#
-#     thickness = attribute.Attribute(
-#         default_ps='thickness',
-#         default=0
-#     )
-#     tilt = attribute.Attribute(
-#         default_ps='tilt',
-#         default=0
-#     )
-#
-#     u_value = attribute.Attribute(
-#         default_ps='u_value'
-#     )
-#
-#     width = attribute.Attribute(
-#         default_ps='width'
-#     )
-#
-#
-# class InnerDoor(Door):
-#     special_argument = {'is_external': False}
-#
-#
-# class OuterDoor(Door):
-#     special_argument = {'is_external': True}
 
 
 class Plate(element.Element):

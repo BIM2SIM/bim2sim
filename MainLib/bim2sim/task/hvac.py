@@ -250,8 +250,6 @@ class Inspect(ITask):
             result_dict[ifc_type] = remaining
             for entity in entities:
                 element = Element.factory(entity, ifc_type)
-                if element.guid == '1DeEMz5eL6rQIWtiM7UOy6':
-                    print()
                 if element.validate() or force:
                     valid.append(entity)
                     self.instances[element.guid] = element

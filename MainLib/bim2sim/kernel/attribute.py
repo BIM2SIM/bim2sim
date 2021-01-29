@@ -73,16 +73,11 @@ class Attribute:
         if value is None and self.default_ps:
             raw_value = self.get_from_default_propertyset(bind, self.default_ps)
             value = self.ifc_post_processing(raw_value)
-            # if value is None:
-            #     quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet",
-            #                            self.name, bind.ifc_type, bind.guid)
 
         if value is None and (self.default_association):
             raw_value = self.get_from_default_assocation(bind, self.default_association)
             value = self.ifc_post_processing(raw_value)
-            # if value is None:
-            #     quality_logger.warning("Attribute '%s' of %s %s was not found in default Association",
-            #                            self.name, bind.ifc_type, bind.guid)
+
         # tool specific properties (finder)
         if value is None:
             raw_value = self.get_from_finder(bind, self.name)

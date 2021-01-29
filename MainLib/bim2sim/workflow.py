@@ -76,43 +76,6 @@ class PlantSimulation(Workflow):
             spaces=LOD.ignore,
         )
         self.relevant_ifc_types = self.get_relevant_ifc_types()
-        # self.relevant_ifc_types = (
-        #     'IfcAirTerminal',
-        #     'IfcAirTerminalBox',
-        #     'IfcAirToAirHeatRecovery',
-        #     'IfcBoiler',
-        #     'IfcBurner',
-        #     'IfcChiller',
-        #     'IfcCoil',
-        #     'IfcCompressor',
-        #     'IfcCondenser',
-        #     'IfcCooledBeam',
-        #     'IfcCoolingTower',
-        #     'IfcDamper',
-        #     'IfcDistributionChamberElement',
-        #     'IfcDuctFitting',
-        #     'IfcDuctSegment',
-        #     'IfcDuctSilencer',
-        #     'IfcEngine',
-        #     'IfcEvaporativeCooler',
-        #     'IfcEvaporator',
-        #     'IfcFan',
-        #     'IfcFilter',
-        #     'IfcFlowMeter',
-        #     'IfcHeatExchanger',
-        #     'IfcHumidifier',
-        #     'IfcMedicalDevice',
-        #     'IfcPipeFitting',
-        #     'IfcPipeSegment',
-        #     'IfcPump',
-        #     'IfcSpaceHeater',
-        #     'IfcTank',
-        #     'IfcTubeBundle',
-        #     #'IfcUnitaryEquipment',
-        #     'IfcValve',
-        #     'IfcVibrationIsolator',
-        #     #'IfcHeatPump'
-        # )
 
 
 class BPSMultiZoneSeparated(Workflow):
@@ -129,18 +92,3 @@ class BPSMultiZoneSeparated(Workflow):
             spaces=LOD.full,
         )
         self.relevant_ifc_types = self.get_relevant_ifc_types()
-        # self.relevant_ifc_types = (
-        #     'IfcSite',
-        #     'IfcBuilding',
-        #     'IfcBuildingStorey',
-        #     # 'IfcWallElementedCase',
-        #     # 'IfcWallStandardCase',
-        #     'IfcWall',
-        #     'IfcWindow',
-        #     'IfcDoor',
-        #     'IfcSlab',
-        #     'IfcRoof',
-        #     'IfcSpaceHeater',
-        #     'IfcAirTerminal',
-        #     'IfcAirTerminalBox',
-        # )

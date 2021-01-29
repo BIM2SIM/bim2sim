@@ -5,7 +5,6 @@ from json import JSONEncoder
 import itertools
 import re
 import math
-import ifcopenshell.geom
 
 import numpy as np
 
@@ -14,10 +13,6 @@ from bim2sim.kernel import ifc2python, attribute
 from bim2sim.decision import Decision, ListDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.task.bps_f.bps_functions import angle_equivalent, vector_angle
-from OCC.Core.Bnd import Bnd_Box
-from OCC.Core.BRepBndLib import brepbndlib_Add
-from OCC.Core import TopoDS
-
 
 logger = logging.getLogger(__name__)
 
