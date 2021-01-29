@@ -520,8 +520,6 @@ class ExportTEASER(ITask):
             if instance_type in cls.instance_template[bldg.name]:
                 year_group = str(cls.instance_template[bldg.name][instance_type][0])
                 selected_template = cls.instance_template[bldg.name][instance_type][1]
-                aux_template = '%s_%s_%s' % (instance_type, year_group, selected_template)
-                # if aux_template in instance_templates:
                 return [selected_template], year_group
 
         template_options = []
