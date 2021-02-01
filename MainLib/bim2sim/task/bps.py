@@ -649,9 +649,11 @@ class ExportEP(ITask):
             self.logger.info("All %d IfcRelSpaceBoundary entities PASSED the syntax validation process." % len(sb_checker.bounds))
         else:
             self.logger.warning("%d out of %d IfcRelSpaceBoundary entities FAILED the syntax validation process. \n"
+                                "Occuring sets of errors: %s \n"
                                 "See ifc_SB_error_summary.json for further information on the errors."
-                  % (len(sb_checker.error_summary), len(sb_checker.bounds)))
-
+                                % (len(sb_checker.error_summary),
+                                   len(sb_checker.bounds),
+                                   set(tuple(s) for s in [vals for key, vals in sb_checker.error_summary.items()])))
         self.logger.info("Geometric preprocessing for EnergyPlus Export started ...")
         self.logger.info("Compute relationships between space boundaries")
         self._get_parents_and_children(instances)
@@ -3371,11 +3373,15 @@ class SpaceBoundaryValidation(Checker):
         self._apply_validation_function(self._check_on_relating_elem(), 'SurfaceOnRelatingElement')
         self._apply_validation_function(self._check_on_related_elem(), 'SurfaceOnRelatedElement')
         self._apply_validation_function(self._check_basis_surface(), 'BasisSurface')
-        self._apply_validation_function(self._check_outer_boundary(), 'OuterBoundary')
         self._apply_validation_function(self._check_inner_boundaries(), 'InnerBoundaries')
-        self._apply_validation_function(self._check_segments(), 'Segments')
-        self._apply_validation_function(self._check_segments_poly(), 'SegmentsPolyline')
-        self._apply_validation_function(self._check_segments_poly_coord(), 'SegmentsPolylineCoordinates')
+        if hasattr(self.bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary, 'Segments'):
+            self._apply_validation_function(self._check_outer_boundary_composite(), 'OuterBoundaryCompositeCurve')
+            self._apply_validation_function(self._check_segments(), 'Segments')
+            self._apply_validation_function(self._check_segments_poly(), 'SegmentsPolyline')
+            self._apply_validation_function(self._check_segments_poly_coord(), 'SegmentsPolylineCoordinates')
+        else:
+            self._apply_validation_function(self._check_outer_boundary_poly(), 'OuterBoundaryPolyline')
+            self._apply_validation_function(self._check_outer_boundary_poly_coord(), 'OuterBoundaryPolylineCoordinates')
         self._apply_validation_function(self._check_plane_position(), 'Position')
         self._apply_validation_function(self._check_location(), 'Location')
         self._apply_validation_function(self._check_axis(), 'Axis')
@@ -3427,8 +3433,14 @@ class SpaceBoundaryValidation(Checker):
     def _check_basis_surface(self):
         return self.bound.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.is_a('IfcPlane')
 
-    def _check_outer_boundary(self):
+    def _check_outer_boundary_composite(self):
         return self.bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary.is_a('IfcCompositeCurve')
+
+    def _check_outer_boundary_poly(self):
+        return self._check_poly_points(self.bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
+
+    def _check_outer_boundary_poly_coord(self):
+        return all(self.bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
 
     def _check_inner_boundaries(self):
         return (self.bound.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries is None) or \
