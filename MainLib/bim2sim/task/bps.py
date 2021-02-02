@@ -7,7 +7,6 @@ import ifcopenshell
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from datetime import datetime
 from OCC.Display.SimpleGui import init_display
 from OCC.BRepBuilderAPI import \
     BRepBuilderAPI_MakeFace, \
@@ -792,12 +791,12 @@ class ExportEP(ITask):
         return pd.to_datetime(date_str, format=' %m/%d  %H:%M:%S') + pd.Timedelta(days=1)
 
     @staticmethod
-    def _extract_cols_from_dataframe(dataframe, col_name_part):
-        col = [col for col in dataframe.columns if col_name_part in col]
-        return_dataframe = dataframe[col].copy()
-        return_dataframe["Date/Time"] = dataframe["Date/Time"].copy()
-        return_dataframe = return_dataframe.set_index("Date/Time", drop=True).dropna()
-        return return_dataframe
+    def _extract_cols_from_df(df, col_name_part):
+        col = [col for col in df.columns if col_name_part in col]
+        return_df = df[col].copy()
+        return_df["Date/Time"] = df["Date/Time"].copy()
+        return_df = return_df.set_index("Date/Time", drop=True).dropna()
+        return return_df
 
     def _visualize_results(self, csv_name=str(PROJECT.root) + "/export/EP-results/eplusout.csv", period="week",
                            number=28, date=False):
