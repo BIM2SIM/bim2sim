@@ -894,6 +894,11 @@ class SpaceBoundary(element.SubElement):
         Get corresponding space boundary in another space,
         ensuring that corresponding space boundaries have a matching number of vertices.
         """
+        if hasattr(self.ifc, 'CorrespondingBoundary') and self.ifc.CorrespondingBoundary is not None:
+            corr_bound = self.get_object(self.ifc.CorrespondingBoundary.GlobalId)
+            if corr_bound.ifc.RelatingSpace.is_a('IfcSpace'):
+                if not corr_bound.ifc.RelatingSpace.is_a('IfcExternalSpatialStructure'):
+                    return corr_bound
         if self.bound_instance is None:
             # check for visual bounds
             if self.level_description != "2a":
