@@ -127,18 +127,14 @@ class Bind(Task):
             self.bind_tz_criteria()
 
     def bind_tz_criteria(self):
-        bind_decision = BoolDecision(question="Do you want for thermal zones to be bind? - this allows to bind the "
-                                              "thermal zones into a thermal zone aggregation based on different "
-                                              "criteria -> Simplified operations",
+        bind_decision = BoolDecision(question="Do you want for thermal zones to be bind?",
                                      collect=False)
         bind_decision.decide()
         if bind_decision.value:
             criteria_functions = {}
-            # this finds all the criteria methods implemented
             for k, func in dict(inspect.getmembers(self, predicate=inspect.ismethod)).items():
                 if k.startswith('group_thermal_zones_'):
                     criteria_functions[k.replace('group_thermal_zones_', '')] = func
-            # it ask which criteria method do you want to use, if 1 given is automatic
             if len(criteria_functions) > 0:
                 criteria_decision = ListDecision("the following methods were found for the thermal zone binding",
                                                  choices=list(criteria_functions.keys()),
@@ -207,8 +203,7 @@ class Bind(Task):
             grouped_instances_criteria['not_bind'] = not_grouped_instances
 
         # neighbors - filter criterion
-        neighbors_decision = BoolDecision(question="Do you want for the bound-spaces to be neighbors? - adds additional"
-                                                   " criteria that just bind the thermal zones that are side by side",
+        neighbors_decision = BoolDecision(question="Do you want for the linked-spaces to be neighbors?",
                                           collect=False)
         neighbors_decision.decide()
         if neighbors_decision.value:

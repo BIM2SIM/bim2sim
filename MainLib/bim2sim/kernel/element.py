@@ -123,9 +123,8 @@ class IFCBased(Root):
         # subelement can be an ifc instance that doesnt have a GlobalId
         else:
             super().__init__(*args, guid=self.get_id(type(self).__name__), **kwargs)
-        whitelist = ['Layer']
+
         self.ifc = ifc
-        # if ifc.Name is not None and len(ifc.Name) > 0:
         if len(ifc.Name) > 0:
             self.name = ifc.Name
         else:

@@ -36,33 +36,6 @@ class StaticPipe(StandardLibrary):
             return super().get_port_name(port)
 
 
-class Valve(StandardLibrary):
-    path = "Modelica.Fluid.Valves.ValveIncompressible"
-    represents = [elements.Valve]
-
-    def __init__(self, element):
-        self.check_length = self.check_numeric(min_value=0)
-        self.check_diameter = self.check_numeric(min_value=0)
-        super().__init__(element)
-
-    def get_params(self):
-        self.register_param("length", self.check_length)
-        self.register_param("diameter", self.check_diameter)
-
-    def get_port_name(self, port):
-        try:
-            index = self.element.ports.index(port)
-        except ValueError:
-            # unknown port
-            index = -1
-        if index == 0:
-            return "port_a"
-        elif index == 1:
-            return "port_b"
-        else:
-            return super().get_port_name(port)
-
-
 class ClosedVolume(StandardLibrary):
     path = "Modelica.Fluid.Vessels.ClosedVolume"
     represents = [elements.Storage]

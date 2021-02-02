@@ -316,7 +316,7 @@ class TestPipeStrand(unittest.TestCase):
         ele = flags['strand1'] + flags['strand2'] + flags['strand3'] + flags['strand4'] + flags['strand5']
 
         matches, meta = aggregation.PipeStrand.find_matches(graph)
-        self.assertEqual(5, len(matches))  # Vorher 6?! Sind doch nur 5 matches
+        self.assertEqual(6, len(matches))
 
         self.assertSetEqual(set(ele), set(sum([list(m.nodes) for m in matches], [])))
 

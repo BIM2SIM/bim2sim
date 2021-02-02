@@ -4,10 +4,10 @@ import math
 import re
 import json
 
+from googletrans import Translator
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.decision import ListDecision, RealDecision
 from teaser.data.input import inputdata
-import translators as ts
 
 
 def get_disaggregations_instance(element, thermal_zone):
@@ -166,12 +166,12 @@ def get_matches_list(search_words, search_list, transl=True):
     """get patterns for a material name in both english and original language,
     and get afterwards the related elements from list"""
 
+    translator = Translator()
     material_ref = []
 
     pattern_material = re.sub('[!@#$-_1234567890]', '', search_words.lower()).split()
     if transl:
-        # use of yandex, bing--- https://pypi.org/project/translators/#features
-        pattern_material.extend(ts.bing(re.sub('[!@#$-_1234567890]', '', search_words.lower())).split())
+        pattern_material.extend(translator.translate(re.sub('[!@#$-_1234567890]', '', search_words.lower())).text.split())
 
     for i in pattern_material:
         material_ref.append(re.compile('(.*?)%s' % i, flags=re.IGNORECASE))
@@ -232,24 +232,10 @@ def get_pattern_usage():
         use_conditions = list(json.load(f).keys())
         use_conditions.remove('version')
 
-    common_translations = {
-        'Single office': ['Office'],
-        'Group Office (between 2 and 6 employees)': ['Office'],
-        'Open-plan Office (7 or more employees)': ['Office'],
-        'Kitchen in non-residential buildings': ['Kitchen'],
-        'Kitchen - preparations, storage': ['Kitchen'],
-        'Traffic area': ['Hall'],
-        'WC and sanitary rooms in non-residential buildings': ['bath', 'bathroom']}
-
     pattern_usage_teaser = {}
     for i in use_conditions:
         pattern_usage_teaser[i] = []
-        list_engl = re.sub('\((.*?)\)', '', i).replace(' - ', ', ').replace(' and ', ', ').replace(' in ', ', ')\
-            .replace(' with ', ', ').replace(' or ', ', ').replace(' the ', ' ').split(', ')
+        list_engl = i.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
         for i_eng in list_engl:
-            new_i_eng = i_eng.replace(' ', '(.*?)')
-            pattern_usage_teaser[i].append(re.compile('(.*?)%s' % new_i_eng, flags=re.IGNORECASE))
-            if i in common_translations:
-                for c_trans in common_translations[i]:
-                    pattern_usage_teaser[i].append(re.compile('(.*?)%s' % c_trans, flags=re.IGNORECASE))
+            pattern_usage_teaser[i].append(re.compile('(.*?)%s' % i_eng, flags=re.IGNORECASE))
     return pattern_usage_teaser

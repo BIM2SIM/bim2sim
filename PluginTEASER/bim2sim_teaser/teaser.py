@@ -1,6 +1,8 @@
 from bim2sim.manage import BIM2SIMManager, PROJECT
 from bim2sim.task import bps, base, common, hvac
 from bim2sim.task.sub_tasks import tz_detection
+from googletrans import Translator
+
 from bim2sim.export.modelica import standardlibrary
 
 
@@ -26,7 +28,17 @@ class TEASERManager(BIM2SIMManager):
 
         self.playground.run_task(bps.ExportTEASER())
         print()
+        #self.playground.run_task(bps.ExportTEASERMultizone())
 
+        # export = bps.ExportTEASERMultizone()
+        # # export = bps.ExportTEASERSingleZone()
+        # export.run(self.playground.workflow, self.playground.history[2])
+        # print()
+
+
+        # libraries = (standardlibrary.StandardLibrary, HKESim)
+        # export = bps.Export()
+        # export.run(libraries, reduce.reduced_instances, reduce.connections)
 
 
 
