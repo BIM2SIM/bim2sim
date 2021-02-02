@@ -176,13 +176,14 @@ def _debug_run_bps_ep():
     """Create example project and copy ifc if necessary"""
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 
-    # rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
+    rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
     # rel_example = 'ResultFiles/AC20-FZK-Haus_with_SB_with_externalspatialstructure_externalEnums.ifc'
     # rel_example = 'ResultFiles/AC20-FZK-Haus_with_SB.ifc'
+    # rel_example = 'ResultFiles/AC20-Institute-Var-2_with_SB_corresponding_neu.ifc'
     # rel_example = 'ResultFiles/Proposal_1_Storey_SpaceBoundaries_with_SB.ifc'
     # rel_example = 'ResultFiles/2020-10-15-KHH-Test_with_SB.ifc'
     # rel_example = 'ResultFiles/AC20-Institute-Var-2_with_SB.ifc'
-    rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
+    # rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
     # rel_example = 'ResultFiles/AC20-Institute-Var-2_with_SB_with_externalspatialstructure_externalEnums.ifc'
     # rel_example = 'ResultFiles/AC20-Institute-Var-2_with_SB_korrekte_Unterteilung_am_Dach_ohne_Treppe.ifc'
     # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB1.ifc'
