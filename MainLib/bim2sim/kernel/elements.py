@@ -850,10 +850,15 @@ class SpaceBoundary(element.SubElement):
         if -1e-3 < self.bound_normal.Dot(vertical) <1e-3:
             top_bottom = "VERTICAL"
         elif self.related_bound != None:
-            if self.bound_center.Z() > self.related_bound.bound_center.Z():
+            if (self.bound_center.Z() - self.related_bound.bound_center.Z()) > 1e-2:
                 top_bottom = "BOTTOM"
-            else:
+            elif (self.bound_center.Z() - self.related_bound.bound_center.Z()) < -1e-2:
                 top_bottom = "TOP"
+            else:
+                if vertical.Dot(self.bound_normal) < -0.8:
+                    top_bottom = "BOTTOM"
+                elif vertical.Dot(self.bound_normal) > 0.8:
+                    top_bottom = "TOP"
         elif self.related_adb_bound != None:
                 if self.bound_center.Z() > self.related_adb_bound.bound_center.Z():
                     top_bottom = "BOTTOM"
