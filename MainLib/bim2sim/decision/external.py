@@ -123,6 +123,7 @@ class CommunicationThread(Thread):
         self.server.start()
 
     def join(self, *args, **kwargs):
+        logger.warning("Shutting down frontend communication.")
         self.server.close()
         super().join(*args, **kwargs)
 

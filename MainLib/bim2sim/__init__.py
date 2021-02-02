@@ -143,10 +143,15 @@ def main(rootpath=None):
     manager = manager_cls(workflow)
 
     # run Manager
-    manager.run()
-    #manager.run_interactive()
-
-    finish(success=True)
+    success = False
+    try:
+        manager.run()
+        #manager.run_interactive()
+        success = True
+    except Exception as ex:
+        logger.exception("Something went wring!")
+    finally:
+        finish(success=success)
 
 
 def _debug_run_hvac():
