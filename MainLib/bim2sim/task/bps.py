@@ -72,8 +72,7 @@ from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
 from teaser.logic import utilities
 import os
-from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list, filter_instances, \
-    get_pattern_usage
+from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list, filter_instances, get_pattern_usage
 from bim2sim.kernel.units import conversion
 from googletrans import Translator
 from bim2sim.kernel.aggregation import Aggregated_ThermalZone
@@ -82,7 +81,6 @@ import re
 Decision.enable_debug("1")
 
 translator = Translator()
-from OCC.Display.SimpleGui import init_display
 
 class SetIFCTypesBPS(ITask):
     """Set list of relevant IFC types"""
