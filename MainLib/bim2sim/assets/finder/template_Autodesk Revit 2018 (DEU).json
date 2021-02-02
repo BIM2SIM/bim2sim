@@ -1,8 +1,8 @@
 {
   "OuterWall": {
     "default_ps": {
-      "area" : ["BaseQuantities", "NetSideArea"],
-      "gross_side_area" : ["BaseQuantities", "GrossArea"],
+      "area" : ["Abmessungen", "Fl\u00e4che"],
+      "gross_side_area" : ["BaseQuantities", "GrossSideArea"],
       "width" : ["BaseQuantities", "Width"],
       "height" : ["BaseQuantities", "Height"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
@@ -14,8 +14,8 @@
   },
   "InnerWall": {
     "default_ps": {
-      "area" : ["BaseQuantities", "NetSideArea"],
-      "gross_side_area" : ["BaseQuantities", "GrossArea"],
+      "area" : ["Abmessungen", "Fl\u00e4che"],
+      "gross_side_area" : ["BaseQuantities", "GrossSideArea"],
       "width" : ["BaseQuantities", "Width"],
       "height" : ["BaseQuantities", "Height"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
@@ -27,8 +27,8 @@
   },
   "Wall": {
     "default_ps": {
-      "area" : ["BaseQuantities", "NetSideArea"],
-      "gross_side_area" : ["BaseQuantities", "GrossArea"],
+      "area" : ["Abmessungen", "Fl\u00e4che"],
+      "gross_side_area" : ["BaseQuantities", "GrossSideArea"],
       "width" : ["BaseQuantities", "Width"],
       "height" : ["BaseQuantities", "Height"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
@@ -40,8 +40,8 @@
   },
   "Roof": {
     "default_ps": {
-      "area" : ["BaseQuantities", "GrossArea"],
-      "width" : ["BaseQuantities", "Width"],
+      "area" : ["Abmessungen", "Fl\u00e4che"],
+      "width" : ["Abmessungen", "Dicke"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
       "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
       "thickness" : ["BaseQuantities", "Width"],
@@ -50,8 +50,8 @@
   },
   "Floor": {
     "default_ps": {
-      "area" : ["BaseQuantities", "NetArea"],
-      "width" : ["BaseQuantities", "Width"],
+      "area" : ["BaseQuantities", "GrossArea"],
+      "width" : ["Abmessungen", "Dicke"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
       "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
       "thickness" : ["BaseQuantities", "Width"],
@@ -60,8 +60,8 @@
   },
   "GroundFloor": {
     "default_ps": {
-      "area" : ["BaseQuantities", "NetArea"],
-      "width" : ["BaseQuantities", "Width"],
+      "area" : ["BaseQuantities", "GrossArea"],
+      "width" : ["Abmessungen", "Dicke"],
       "material" : ["MaterialLayerSet", "MaterialLayer"],
       "thermal_transmittance" : ["Pset_SlabCommon", "ThermalTransmittance"],
       "thickness" : ["BaseQuantities", "Width"],
@@ -86,13 +86,10 @@
   },
   "ThermalZone": {
     "default_ps": {
-      "zone_name" : ["ArchiCADProperties", "Raumname"],
+      "zone_name" : ["ID-Daten", "Raumname"],
       "area" : ["BaseQuantities", "NetFloorArea"],
-      "usage" : ["AC_Pset_Allgemeiner_Raumstempel", "Raumname"],
       "height" : ["BaseQuantities", "Height"],
-      "net_volume" : ["BaseQuantities", "NetVolume"],
-      "gross_side_area" : ["BaseQuantities", "GrossArea"],
-      "width" : ["BaseQuantities", "Width"],
+      "net_volume" : ["BaseQuantities", "GrossVolume"],
       "t_set_heat" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMin"],
       "t_set_cool" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMax"],
       "with_AHU" : ["Pset_SpaceThermalRequirements", "AirConditioning"]

@@ -19,6 +19,9 @@ from bim2sim.decision import Decision
 VERSION = '0.1-dev'
 
 # TODO: setup: copy backends to bim2sim/backends
+workflow_getter = {'aixlib': PlantSimulation,
+                   'TEASER': BPSMultiZoneSeparated,
+                   'hkesim': PlantSimulation}
 
 
 def get_default_backends():
@@ -109,7 +112,7 @@ def main(rootpath=None):
     _rootpath = rootpath or os.getcwd()
     PROJECT.root = _rootpath
     assert PROJECT.is_project_folder(), \
-        "'%s' does not look like a project folder. Create a project folder first."%(_rootpath)
+        "'%s' does not look like a project folder. Create a project folder first." % (_rootpath)
 
     logging_setup()
     logger = logging.getLogger(__name__)
@@ -125,13 +128,15 @@ def main(rootpath=None):
     manager_cls = plugins.get(backend.lower())()
 
     if manager_cls is None:
-        msg = "Simulation '%s' not found in plugins. Available plugins:\n - "%(backend)
+        msg = "Simulation '%s' not found in plugins. Available plugins:\n - " % (backend)
         msg += '\n - '.join(list(plugins.keys()) or ['None'])
         raise AttributeError(msg)
 
     if not BIM2SIMManager in manager_cls.__bases__:
-        raise AttributeError("Got invalid manager from %s"%(backend))
+        raise AttributeError("Got invalid manager from %s" % (backend))
 
+    # workflow = PlantSimulation()  # TODO
+    workflow = BPSMultiZoneSeparated()
     # from bim2sim.decision.console import ConsoleFrontEnd as Frontend
     from bim2sim.decision.external import ExternalFrontEnd as Frontend
     Decision.set_frontend(Frontend())
@@ -162,7 +167,7 @@ def _debug_run_hvac():
     path_example = r"C:\temp\bim2sim\testproject"
 
     if not PROJECT.is_project_folder(path_example):
-        PROJECT.create(path_example, path_ifc, 'hkesim',)
+        PROJECT.create(path_example, path_ifc, 'hkesim', )
 
     main(path_example)
 
@@ -182,6 +187,31 @@ def _debug_run_bps():
     main(path_example)
 
 
+
+def _debug_run_hvac_aixlib():
+    """Create example project and copy ifc if necessary"""
+    path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
+    rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'
+    path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
+    path_example = r"C:\temp\bim2sim\testproject_aix"
+
+    if not PROJECT.is_project_folder(path_example):
+        PROJECT.create(path_example, path_ifc, 'aixlib',)
+
+def _debug_run_cfd():
+    """Create example project and copy ifc if necessary"""
+
+    sys.path.append("/home/fluid/Schreibtisch/B/bim2sim-coding/PluginCFD")
+    path_example = r"/home/fluid/Schreibtisch/B/temp"
+    # unter ifc muss datei liegen
+
+    if not PROJECT.is_project_folder(path_example):
+        PROJECT.create(path_example, target='cfd')
+    main(path_example)
+
+
 if __name__ == '__main__':
+    # _debug_run_cfd()
     _debug_run_bps()
-    _debug_run_hvac()
+    # _debug_run_hvac()
+

@@ -2,15 +2,18 @@
 
 import math
 import numpy as np
+import pint
+import re
 
-from bim2sim.kernel.element import BaseSubElement
+from bim2sim.kernel.element import BaseElement, SubElement
 from bim2sim.task.bps_f.bps_functions import get_disaggregations_instance
+
 
 vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
 horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
 
 
-class Disaggregation(BaseSubElement):
+class Disaggregation(BaseElement):
     """Base disaggregation of models"""
 
     def __init__(self, name, element, *args, **kwargs):
@@ -22,27 +25,12 @@ class Disaggregation(BaseSubElement):
         self.ifc_type = element.ifc_type
         self.guid = None
         self.get_disaggregation_properties()
-        self.get_submodule()
 
     def get_disaggregation_properties(self):
         """properties getter -> that way no sub instances has to be defined"""
         for prop in self.parent.attributes:
             value = getattr(self.parent, prop)
             setattr(self, prop, value)
-
-    def get_submodule(self):
-        sub_module = 'Sub' + self.parent.__class__.__name__
-        switcher = {'SubFloor': SubFloor,
-                    'SubGroundFloor': SubGroundFloor,
-                    'SubSlab': SubSlab,
-                    'SubRoof': SubRoof,
-                    'SubWall': SubWall,
-                    'SubInnerWall': SubInnerWall,
-                    'SubOuterWall': SubOuterWall}
-        func = switcher.get(sub_module)
-        if func is not None:
-            self.__class__ = func
-            self.__init__(self.name, self.parent)
 
     def calc_position(self):
         try:
@@ -60,6 +48,7 @@ class Disaggregation(BaseSubElement):
     def based_on_thermal_zone(cls, parent, thermal_zone):
         """creates a disaggregation based on a thermal zone and an instance parent
         based on area slice (thermal zone - area)"""
+
         new_bound_instances = []
         disaggregations = get_disaggregations_instance(parent, thermal_zone)
 
@@ -67,13 +56,15 @@ class Disaggregation(BaseSubElement):
         if disaggregations is None:
             return [parent]
 
+        parent_area = parent.area.magnitude if isinstance(parent.area, pint.Quantity) else parent.area
+
         # for vertical instances: if just one disaggregation is possible, check if disaggregation is parent
         # disaggregation is parent if has the same area
         if parent.__class__.__name__ in vertical_instances:
             if len(disaggregations) == 1:
                 disaggregation_area = disaggregations[next(iter(disaggregations))][0]
                 # here was a tolerance of 0.1 necessary in order to get no false positives
-                if abs(disaggregation_area - parent.area) <= 0.1:
+                if abs(disaggregation_area - parent_area) <= 0.1:
                     return [parent]
 
         name = 'Sub' + parent.__class__.__name__ + '_' + parent.name
@@ -94,8 +85,17 @@ class Disaggregation(BaseSubElement):
             if scontinue:
                 continue
 
-            # create instance
+            type_parent = type(parent).__name__
+            re_search = re.compile('Sub%s' % type_parent)
             instance = cls(name + '_%d' % i, parent)
+
+            # class assignment for subinstances -> based on re and factory
+            for sub_cls in SubElement.get_all_subclasses(cls):
+                type_search = sub_cls.__name__
+                if re_search.match(type_search):
+                    instance = sub_cls(name + '_%d' % i, parent)
+                    break
+
             instance.area = disaggregations[ins][0]
 
             # position calc
@@ -118,53 +118,36 @@ class Disaggregation(BaseSubElement):
         return "<%s '%s' (disaggregation of the element %d)>" % (
             self.__class__.__name__, self.name, len(self.parent))
 
+    def __str__(self):
+        return "%s" % self.__class__.__name__
+
 
 class SubFloor(Disaggregation):
     disaggregatable_elements = ['IfcSlab']
-
-    def __init__(self, *args, **kwargs):
-        pass
 
 
 class SubGroundFloor(Disaggregation):
     disaggregatable_elements = ['IfcSlab']
 
-    def __init__(self, *args, **kwargs):
-        pass
-
 
 class SubSlab(Disaggregation):
     disaggregatable_elements = ['IfcSlab']
 
-    def __init__(self, *args, **kwargs):
-        pass
 
 class SubRoof(Disaggregation):
     disaggregatable_elements = ['IfcRoof', 'IfcSlab']
-
-    def __init__(self, *args, **kwargs):
-        pass
 
 
 class SubWall(Disaggregation):
     disaggregatable_elements = ['IfcWall']
 
-    def __init__(self, *args, **kwargs):
-        pass
-
 
 class SubInnerWall(Disaggregation):
     disaggregatable_elements = ['IfcWall']
 
-    def __init__(self, *args, **kwargs):
-        pass
-
 
 class SubOuterWall(Disaggregation):
     disaggregatable_elements = ['IfcWall']
-
-    def __init__(self, *args, **kwargs):
-        pass
 
 
 def get_new_position_vertical_instance(parent, sub_position):

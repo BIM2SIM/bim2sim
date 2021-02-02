@@ -108,16 +108,16 @@ class BPSMultiZoneSeparated(Workflow):
         )
         self.relevant_ifc_types = (
             'IfcSite',
-            'IFcBuilding',
+            'IfcBuilding',
             'IfcBuildingStorey',
-            'IfcAirTerminal',
-            'IfcAirTerminalBox',
-            'IfcWallElementedCase',
-            'IfcWallStandardCase',
+            # 'IfcWallElementedCase',
+            # 'IfcWallStandardCase',
             'IfcWall',
             'IfcWindow',
             'IfcDoor',
             'IfcSlab',
-            'IfcSpaceHeater',
             'IfcRoof',
+            'IfcSpaceHeater',
+            'IfcAirTerminal',
+            'IfcAirTerminalBox',
         )
