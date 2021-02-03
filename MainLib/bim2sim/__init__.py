@@ -135,14 +135,12 @@ def main(rootpath=None):
     if not BIM2SIMManager in manager_cls.__bases__:
         raise AttributeError("Got invalid manager from %s" % (backend))
 
-    # workflow = PlantSimulation()  # TODO
-    workflow = BPSMultiZoneSeparated()
+    workflow = PlantSimulation()  #TODO
+    # workflow = BPSMultiZoneSeparated()  #TODO
+
     # from bim2sim.decision.console import ConsoleFrontEnd as Frontend
     from bim2sim.decision.external import ExternalFrontEnd as Frontend
     Decision.set_frontend(Frontend())
-
-    workflow = PlantSimulation()  #TODO
-    # workflow = BPSMultiZoneSeparated()  #TODO
 
     # prepare simulation
     manager = manager_cls(workflow)
@@ -212,6 +210,6 @@ def _debug_run_cfd():
 
 if __name__ == '__main__':
     # _debug_run_cfd()
-    _debug_run_bps()
-    # _debug_run_hvac()
+    # _debug_run_bps()
+    _debug_run_hvac()
 
