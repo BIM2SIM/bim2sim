@@ -378,6 +378,9 @@ class Decision:
         self.collect = collect
         self.validate_checksum = validate_checksum
 
+        if (allow_load or allow_save) and not global_key:
+            raise AssertionError("Require global_key to enable save / load.")
+
         if global_key and global_key in self.global_keys():
             #self.discard()
             raise KeyError("Decision with key %s already exists!" % global_key)
