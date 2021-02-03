@@ -225,6 +225,8 @@ class ExternalFrontEnd(FrontEnd):
             options=self.get_options(decision),
             body=json.dumps(self.get_body(decision)),
             kind=self.decision_kind(decision),
+            related=list(decision.related or []),
+            context=list(decision.context or [])
         )
 
         return data
