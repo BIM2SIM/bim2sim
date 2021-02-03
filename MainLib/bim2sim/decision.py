@@ -345,9 +345,9 @@ class Decision:
                  output: dict = None, output_key: str = None, global_key: str = None,
                  allow_skip=False, allow_load=None, allow_save=False,
                  collect=False, quick_decide=False,
-                 validate_checksum=None):
+                 validate_checksum=None, related=None, context=None):
         """
-        :param question: The question asked to thu user
+        :param question: The question asked to the user
         :param validate_func: callable to validate the users input
         :param output: dictionary to store output_key:value in
         :param output_key: key for output
@@ -358,6 +358,8 @@ class Decision:
         :param collect: add decision to collection for later processing. (output and output_key needs to be provided)
         :param quick_decide: calls decide() within __init__()
         :param validate_checksum: if provided, loaded decisions are only valid if checksum matches
+        :param related: iterable of GUIDs this decision is related to (frontend)
+        :param context: iterable of GUIDs for additional context to this decision (frontend)
 
         :raises: :class:'AttributeError'::
         """
@@ -377,6 +379,9 @@ class Decision:
 
         self.collect = collect
         self.validate_checksum = validate_checksum
+
+        self.related = related
+        self.context = context
 
         if (allow_load or allow_save) and not global_key:
             raise AssertionError("Require global_key to enable save / load.")
