@@ -1328,6 +1328,14 @@ class SpaceBoundary2B:
     def top_bottom(self):
         return SpaceBoundary.get_floor_and_ceilings(self)
 
+
+class ExtSpatialSpaceBoundary(element.SubElement):
+    # ifc_type = 'IfcRelSpaceBoundary'
+    # def __init__(self):
+    #     """External Spatial Element spaceboundary __init__ function"""
+        # super().__init__(*args, **kwargs)
+    pass
+
 class Medium(element.Element):
     # is deprecated?
     ifc_type = "IfcDistributionSystems"

@@ -756,6 +756,7 @@ class ExportEP(ITask):
             self._set_lights(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
         # self._set_people(idf, name="all zones")
         # self._set_equipment(idf, name="all zones")
+        self._add_shadings(instances, idf)
         self._set_simulation_control(idf)
         idf.set_default_constructions()
         self._export_geom_to_idf(instances, idf)
@@ -2085,6 +2086,40 @@ class ExportEP(ITask):
         :return:
         """
         return [days, til_time_temp]
+
+    def _add_shadings(self, instances, idf):
+        spatials = []
+        for inst in instances:
+            if instances[inst].ifc_type == None:
+                spatials.append(instances[inst])
+
+        pure_spatials = []
+        for s in spatials:
+            if s.ifc.CorrespondingBoundary == None:
+                continue
+            if s.ifc.CorrespondingBoundary.RelatingSpace.is_a('IfcSpace'):
+                continue
+            pure_spatials.append(s)
+
+        settings = ifcopenshell.geom.main.settings()
+        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
+        settings.set(settings.USE_WORLD_COORDS, True)
+        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+        settings.set(settings.INCLUDE_CURVES, True)
+        for s in pure_spatials:
+            obj = idf.newidfobject('SHADING:BUILDING:DETAILED',
+                                   Name = s.ifc.GlobalId,
+                                   )
+            shape = ifcopenshell.geom.create_shape(settings, s.ifc.ConnectionGeometry.SurfaceOnRelatingElement)
+            obj_pnts = IdfObject._get_points_of_face(shape)
+            obj_coords = []
+            for pnt in obj_pnts:
+                co = tuple(round(p, 3) for p in pnt.Coord())
+                obj_coords.append(co)
+            obj.setcoords(obj_coords)
+            print("HOLD")
+        print("HOLD")
+
 
     @staticmethod
     def _set_simulation_control(idf):
