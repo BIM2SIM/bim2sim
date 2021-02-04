@@ -120,10 +120,11 @@ class CommunicationThread(Thread):
         self.server = ThreadedServer(service, port=port, protocol_config=config)
 
     def run(self) -> None:
+        logger.info("Start frontend CommunicationThread")
         self.server.start()
 
     def join(self, *args, **kwargs):
-        logger.warning("Shutting down frontend communication.")
+        logger.warning("Shutting down frontend CommunicationThread.")
         self.server.close()
         super().join(*args, **kwargs)
 
@@ -137,7 +138,9 @@ class ExternalFrontEnd(FrontEnd):
         self.pending = {}
 
         self.service = DecisionService(self.validate_single_answer, self.parse_answer)
+        logger.debug("DecisionService created")
         self.thread = CommunicationThread(self.service, port)
+        logger.debug("CommunicationTread created")
 
         atexit.register(self.shutdown)
 
