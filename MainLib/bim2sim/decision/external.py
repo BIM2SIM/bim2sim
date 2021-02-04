@@ -262,8 +262,10 @@ class ExternalFrontEnd(FrontEnd):
         self.logger.info("Answer accepted")
         self.service.clear()
 
-    def shutdown(self, success):
+    def shutdown(self, success=False):
         self.logger.info("Shutting down external Frontend")
+        if not self.thread.is_alive():
+            return
         if success:
             self.service.notify_finished()
         else:
