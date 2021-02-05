@@ -26,16 +26,22 @@ class DecisionService(rpyc.Service):
         self._answer = answer_func
         self.callback = None
         self.done = False
+        self._connected = 0
+
+    @property
+    def has_connections(self):
+        return self._connected > 0
 
     def on_connect(self, conn):
         # code that runs when a connection is created
         # (to init the service, if needed)
         logger.info('connection opened')
-        pass
+        self._connected += 1
 
     def on_disconnect(self, conn):
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
+        self._connected -= 1
         logger.warning("Connection lost. Shutting down.")
         # exit(2)
 
@@ -148,6 +154,21 @@ class ExternalFrontEnd(FrontEnd):
         atexit.register(self.shutdown)
 
         self.thread.start()
+        self.wait_for_connection()
+
+    def wait_for_connection(self, timeout=5, throw=False):
+        end = time.time() + timeout
+        logger.info("Waiting for connection")
+        while not self.service.has_connections:
+            time.sleep(0.2)
+            if time.time() > end:
+                if throw:
+                    raise TimeoutError("No connection established within %f seconds." % timeout)
+                else:
+                    logger.warning("No connection established within %f seconds. Continue.", timeout)
+                    break
+        else:
+            logger.info("Connection found.")
 
     def parse_answer(self, key, raw_value):
         """parse answer for decision key"""
