@@ -47,6 +47,9 @@ class DecisionService(rpyc.Service):
     def notify_error(self):
         if self.callback:
             self.callback(error=True)
+            logger.warning("External client informed about error.")
+        else:
+            logger.error("Unable to inform external client about error.")
 
     def notify_finished(self):
         if self.callback:
