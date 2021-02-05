@@ -9,6 +9,7 @@ from bim2sim.kernel.units import ifcunits, ureg, parse_ifc
 import math
 from collections.abc import Iterable
 
+
 def load_ifc(path):
     logger = logging.getLogger('bim2sim')
     logger.info("Loading IFC '%s'", path)
@@ -16,6 +17,7 @@ def load_ifc(path):
         raise IOError("Path '%s' does not exist"%(path))
     ifc_file = ifcopenshell.open(path)
     return ifc_file
+
 
 def propertyset2dict(propertyset):
     """Converts IfcPropertySet to python dict"""

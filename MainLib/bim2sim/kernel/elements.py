@@ -3,8 +3,34 @@
 import math
 import re
 import numpy as np
+import copy
+import ifcopenshell
 import ifcopenshell.geom
-import ast
+from OCC.Core.Bnd import Bnd_Box
+from OCC.Core.BRepBndLib import brepbndlib_Add
+from OCC.Core.BRepLib import BRepLib_FuseEdges
+from OCC.Core.BRepBuilderAPI import \
+    BRepBuilderAPI_MakeFace, \
+    BRepBuilderAPI_MakeEdge, \
+    BRepBuilderAPI_MakeWire, BRepBuilderAPI_Transform, BRepBuilderAPI_MakeVertex
+from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
+from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Fuse
+from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, brepgprop_VolumeProperties
+from OCC.Core.GProp import GProp_GProps
+from OCC.Core.GeomAPI import GeomAPI_ProjectPointOnCurve
+from OCC.Core.ShapeAnalysis import ShapeAnalysis_ShapeContents
+from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
+from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
+from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ,  gp_Dir, gp_Ax1, gp_Pnt
+from OCC.Core.TopoDS import topods_Wire, topods_Face, TopoDS_Iterator
+from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_WIRE
+from OCC.Core.TopExp import TopExp_Explorer
+from OCC.Core.BRep import BRep_Tool
+from OCC.Core.BRepTools import BRepTools_WireExplorer
+# from OCC.Core.Geom import Handle_Geom_Plane
+from OCC.Core.Extrema import Extrema_ExtFlag_MIN
+
+from math import pi
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, condition, attribute
@@ -569,7 +595,7 @@ class ThermalZone(element.Element):
         matches = []
 
         if PROJECT.PAPER:
-            # hardcode for investigation of KIT Insti
+            # hardcode for investigation of KIT Institut
             zone_dict = {
                 "Schlafzimmer": "Bed room",
                 "Wohnen": "Living",
@@ -616,7 +642,7 @@ class ThermalZone(element.Element):
         usage_decision = ListDecision("Which usage does the Space %s have?" %
                                       (str(bind.zone_name)),
                                       choices=matches,
-                                      global_key='bpsUsage.%s' % bind.guid,
+                                      global_key="%s_%s.BpsUsage" % (type(bind).__name__, bind.guid),
                                       allow_skip=False,
                                       allow_load=True,
                                       allow_save=True,
@@ -717,10 +743,11 @@ class ThermalZone(element.Element):
         if bind.t_set_cool is not None:
             return True
         else:
-            cooling_decision = BoolDecision(question="Do you want for the thermal zone %s to be cooled? - "
-                                                     "with cooling" % bind.name,
-                                                     collect=False
-                                            )
+            cooling_decision = BoolDecision(
+                question="Do you want for the thermal zone %s to be cooled? - with cooling" % bind.name,
+                collect=False, global_key="%s_%s.Cooling" % (type(bind).__name__, bind.guid),
+                allow_skip=False, allow_load=True, allow_save=True, quick_decide=not True
+            )
             cooling_decision.decide()
             if cooling_decision.value:
                 return True
@@ -732,15 +759,42 @@ class ThermalZone(element.Element):
         if bind.t_set_heat is not None:
             return True
         else:
-            heating_decision = BoolDecision(question="Do you want for the thermal zone %s to be heated? - "
-                                                     "with heating" % bind.name,
-                                                     collect=False
-                                            )
+            heating_decision = BoolDecision(
+                question="Do you want for the thermal zone %s to be heated? - with heating" % bind.name,
+                collect=False,
+                global_key="%s_%s.Heating" % (type(bind).__name__, bind.guid),
+                allow_skip=False, allow_load=True, allow_save=True, quick_decide=not True
+            )
             heating_decision.decide()
             if heating_decision.value:
                 return True
             else:
                 return False
+
+    def get_space_shape(bind, name):
+        """returns topods shape of the IfcSpace"""
+        settings = ifcopenshell.geom.main.settings()
+        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
+        settings.set(settings.USE_WORLD_COORDS, True)
+        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+        settings.set(settings.INCLUDE_CURVES, True)
+        return ifcopenshell.geom.create_shape(settings, bind.ifc).geometry
+
+    def get_center_of_space(bind, name):
+        """
+        This function returns the center of the bounding box of an ifc space shape
+        :return: center of space bounding box (gp_Pnt)
+        """
+        bbox = Bnd_Box()
+        brepbndlib_Add(bind.space_shape, bbox)
+        bbox_center = ifcopenshell.geom.utils.get_bounding_box_center(bbox)
+        return bbox_center
+
+    def get_space_volume(bind, name):
+        props = GProp_GProps()
+        brepgprop_VolumeProperties(bind.space_shape, props)
+        volume = props.Mass()
+        return volume
 
     usage = attribute.Attribute(
         functions=[_get_usage]
@@ -783,6 +837,15 @@ class ThermalZone(element.Element):
     AreaPerOccupant = attribute.Attribute(
         default_ps='AreaPerOccupant'
     )
+    space_center = attribute.Attribute(
+        functions=[get_center_of_space]
+    )
+    space_shape = attribute.Attribute(
+        functions=[get_space_shape]
+    )
+    space_volume = attribute.Attribute(
+        functions=[get_space_volume]
+    )
 
     def __init__(self, *args, **kwargs):
         """thermalzone __init__ function"""
@@ -803,6 +866,7 @@ class SpaceBoundary(element.SubElement):
     def __init__(self, *args, **kwargs):
         """spaceboundary __init__ function"""
         super().__init__(*args, **kwargs)
+        self.guid = self.ifc.GlobalId
         self.level_description = self.ifc.Description
         relating_space = self.get_object(self.ifc.RelatingSpace.GlobalId)
         relating_space.space_boundaries.append(self)
@@ -819,10 +883,254 @@ class SpaceBoundary(element.SubElement):
             self.physical = True
         else:
             self.physical = False
-
         self._get_disaggregation_properties()
         self.storeys = self.get_space_boundary_storeys()
-        self.position = relating_space.position
+        # self.position = relating_space.position
+        if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
+            self.position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
+        else:
+            self.position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.Position.Location.Coordinates
+
+    def get_bound_neighbors(bind, name):
+        neighbors = []
+        space_bounds = []
+        if not hasattr(bind.thermal_zones[0], 'space_boundaries'):
+            return None
+        if len(bind.thermal_zones[0].space_boundaries) == 0:
+            for obj in bind.thermal_zones[0].objects:
+                this_obj = bind.thermal_zones[0].objects[obj]
+                if this_obj.ifc_type != 'IfcRelSpaceBoundary':
+                    continue
+                if this_obj.thermal_zones[0].ifc.GlobalId != bind.thermal_zones[0].ifc.GlobalId:
+                    continue
+                space_bounds.append(this_obj)
+        else:
+            space_bounds = bind.thermal_zones[0].space_boundaries
+        for bound in space_bounds:
+            if bound.ifc.GlobalId == bind.ifc.GlobalId:
+                continue
+            distance = BRepExtrema_DistShapeShape(bound.bound_shape, bind.bound_shape, Extrema_ExtFlag_MIN).Value()
+            if distance == 0:
+                neighbors.append(bound)
+        return neighbors
+
+    def get_bound_area(bind, name):
+        """compute area of a space boundary"""
+        bound_prop = GProp_GProps()
+        brepgprop_SurfaceProperties(bind.bound_shape, bound_prop)
+        area = bound_prop.Mass()
+        return area
+
+    def get_floor_and_ceilings(bind, name):
+        """
+        This function computes, if the center of a space boundary
+        is below (bottom) or above (top) the center of a space.
+        This function is used to distinguish floors and ceilings (IfcSlab)
+        :return: top_bottom ("TOP", "BOTTOM")
+        """
+        top_bottom = None
+        vertical = gp_XYZ(0.0, 0.0, 1.0)
+        # only assign top and bottom for elements, whose
+        # surface normals are not perpendicular to a vertical
+        if -1e-3 < bind.bound_normal.Dot(vertical) <1e-3:
+            top_bottom = "VERTICAL"
+        elif bind.related_bound != None:
+            if (bind.bound_center.Z() - bind.related_bound.bound_center.Z()) > 1e-2:
+                top_bottom = "BOTTOM"
+            elif (bind.bound_center.Z() - bind.related_bound.bound_center.Z()) < -1e-2:
+                top_bottom = "TOP"
+            else:
+                if vertical.Dot(bind.bound_normal) < -0.8:
+                    top_bottom = "BOTTOM"
+                elif vertical.Dot(bind.bound_normal) > 0.8:
+                    top_bottom = "TOP"
+        elif bind.related_adb_bound != None:
+                if bind.bound_center.Z() > bind.related_adb_bound.bound_center.Z():
+                    top_bottom = "BOTTOM"
+                else:
+                    top_bottom = "TOP"
+        else:
+            # direct = self.bound_center.Z() - self.thermal_zones[0].space_center.Z()
+            # if direct < 0 and SpaceBoundary._compare_direction_of_normals(self.bound_normal, vertical):
+            if vertical.Dot(bind.bound_normal) < -0.8:
+                top_bottom = "BOTTOM"
+            elif vertical.Dot(bind.bound_normal) > 0.8:
+                top_bottom = "TOP"
+        return top_bottom
+
+    # @staticmethod
+    # def _compare_direction_of_normals(normal1, normal2):
+    #     """
+    #     Compare the direction of two surface normals (vectors).
+    #     True, if direction is same or reversed
+    #     :param normal1: first normal (gp_Pnt)
+    #     :param normal2: second normal (gp_Pnt)
+    #     :return: True/False
+    #     """
+    #     dotp = normal1.Dot(normal2)
+    #     check = False
+    #     if 1-1e-2 < dotp ** 2 < 1+1e-2:
+    #         check = True
+    #     return check
+
+    def get_bound_center(bind, name):
+        """ compute center of the bounding box of a space boundary"""
+        p = GProp_GProps()
+        brepgprop_SurfaceProperties(bind.bound_shape, p)
+        return p.CentreOfMass().XYZ()
+
+    def get_corresponding_bound(bind, name):
+        """
+        Get corresponding space boundary in another space,
+        ensuring that corresponding space boundaries have a matching number of vertices.
+        """
+        if hasattr(bind.ifc, 'CorrespondingBoundary') and bind.ifc.CorrespondingBoundary is not None:
+            corr_bound = bind.get_object(bind.ifc.CorrespondingBoundary.GlobalId)
+            if corr_bound.ifc.RelatingSpace.is_a('IfcSpace'):
+                if not corr_bound.ifc.RelatingSpace.is_a('IfcExternalSpatialStructure'):
+                    return corr_bound
+        if bind.bound_instance is None:
+            # check for visual bounds
+            if bind.level_description != "2a":
+                return None
+            if not bind.physical:
+                corr_bound = None
+                bounds = []
+                min_dist = 1000
+                for obj in bind.thermal_zones[0].objects:
+                    if bind.thermal_zones[0].objects[obj].ifc_type == 'IfcRelSpaceBoundary':
+                        bounds.append(bind.thermal_zones[0].objects[obj])
+                for bound in bounds:
+                    if bound.physical:
+                        continue
+                    if bound.thermal_zones[0].ifc.GlobalId == bind.thermal_zones[0].ifc.GlobalId:
+                        continue
+                    if (bound.bound_area-bind.bound_area)**2 > 1:
+                        continue
+                    if bound.ifc.GlobalId == bind.ifc.GlobalId:
+                        continue
+                    if bound.bound_normal.Dot(bind.bound_normal) != -1:
+                        continue
+                    distance = BRepExtrema_DistShapeShape(
+                        bound.bound_shape,
+                        bind.bound_shape,
+                        Extrema_ExtFlag_MIN
+                    ).Value()
+                    if distance > min_dist or distance > 0.4:
+                        continue
+                    bind.check_for_vertex_duplicates(bound)
+                    nb_vert_this = bind._get_number_of_vertices(bind.bound_shape)
+                    nb_vert_other = bind._get_number_of_vertices(bound.bound_shape)
+                    center_dist = gp_Pnt(bind.bound_center).Distance(gp_Pnt(bound.bound_center)) ** 2
+                    if (center_dist) > 0.5:
+                        continue
+                    if nb_vert_other != nb_vert_this:
+                        # replace bound shape by corresponding bound shape
+                        rel_dist = BRepExtrema_DistShapeShape(bind.bound_shape, bound.bound_shape, Extrema_ExtFlag_MIN).Value()
+                        bind.bound_shape = copy.copy(bound.bound_shape.Reversed())
+                        bind.bound_shape = bind.move_bound_in_direction_of_normal(self.bound_shape, self.bound_normal,
+                                                                                  rel_dist, reversed=True)
+                    corr_bound = bound
+                return corr_bound
+                # for bound in self.objects.
+            return None
+        elif len(bind.bound_instance.space_boundaries) == 1:
+            return None
+        elif len(bind.bound_instance.space_boundaries) == 2:
+            for bound in bind.bound_instance.space_boundaries:
+                if bound.ifc.GlobalId == bind.ifc.GlobalId:
+                    continue
+                if bound.bound_normal.Dot(bind.bound_normal) != -1:
+                    continue
+                bind.check_for_vertex_duplicates(bound)
+                nb_vert_this = bind._get_number_of_vertices(bind.bound_shape)
+                nb_vert_other = bind._get_number_of_vertices(bound.bound_shape)
+                if nb_vert_this == nb_vert_other:
+                    return bound
+                else:
+                    return None
+        elif len(bind.bound_instance.space_boundaries) > 2:
+            own_space_id = bind.thermal_zones[0].ifc.GlobalId
+            min_dist = 1000
+            corr_bound = None
+            for bound in bind.bound_instance.space_boundaries:
+                if bound.level_description != "2a":
+                    continue
+                if bound.thermal_zones[0].ifc.GlobalId == own_space_id:
+                    # skip boundaries within same space (cannot be corresponding bound)
+                    continue
+                # if bound.bound_normal.Dot(self.bound_normal) != -1:
+                #     continue
+                distance = BRepExtrema_DistShapeShape(
+                    bound.bound_shape,
+                    bind.bound_shape,
+                    Extrema_ExtFlag_MIN
+                ).Value()
+                center_dist = gp_Pnt(bind.bound_center).Distance(gp_Pnt(bound.bound_center))**2
+                if (center_dist)**0.5 > 0.5:
+                    continue
+                if distance > min_dist:
+                    continue
+                other_area = bound.bound_area
+                if (other_area - bind.bound_area)**2 < 1e-1:
+                    bind.check_for_vertex_duplicates(bound)
+                    nb_vert_this = bind._get_number_of_vertices(bind.bound_shape)
+                    nb_vert_other = bind._get_number_of_vertices(bound.bound_shape)
+                    if nb_vert_this == nb_vert_other:
+                        corr_bound = bound
+            return corr_bound
+        else:
+            return None
+
+    def get_rel_adiab_bound(bind, name):
+        adb_bound = None
+        if bind.bound_instance is None:
+            return None
+            # check for visual bounds
+        if not bind.physical:
+            return None
+        for bound in bind.bound_instance.space_boundaries:
+            if bound == bind:
+                continue
+            if not bound.thermal_zones[0] == bind.thermal_zones[0]:
+                continue
+            if (bound.bound_area - bind.bound_area)**2 > 0.01:
+                continue
+            if gp_Pnt(bound.bound_center).Distance(gp_Pnt(bind.bound_center)) < 0.4:
+                adb_bound = bound
+        return adb_bound
+
+    # @cached_property
+    # def related_adb_bound(self):
+    #     """get related adiabatic bound within the same space (just considered as thermal mass)"""
+    #     if not self.related_bound == None:
+    #         return None
+    #     return self.get_rel_adiab_bound()
+
+    # bound_shape = attribute.Attribute(
+    #     functions=[calc_bound_shape]
+    # )
+    # bound_normal = attribute.Attribute(
+    #     functions=[compute_surface_normals_in_space]
+    # )
+    related_bound = attribute.Attribute(
+        functions=[get_corresponding_bound]
+    )
+    related_adb_bound = attribute.Attribute(
+        functions=[get_rel_adiab_bound]
+    )
+    bound_center = attribute.Attribute(
+        functions=[get_bound_center]
+    )
+    top_bottom = attribute.Attribute(
+        functions=[get_floor_and_ceilings]
+    )
+    bound_area = attribute.Attribute(
+        functions=[get_bound_area]
+    )
+    bound_neighbors = attribute.Attribute(
+        functions=[get_bound_neighbors]
+    )
 
     def _get_disaggregation_properties(self):
         # gets geometrical intersection area between space and element
@@ -846,7 +1154,6 @@ class SpaceBoundary(element.SubElement):
                     "Found no geometric information for %s in %s" % (self.bound_instance.name,
                                                                      self.thermal_zone[0].name))
                 return None
-
 
         # get relative position of resultant disaggregation
         if hasattr(binding.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
@@ -1019,17 +1326,20 @@ class Layer(element.SubElement):
         else:
             if isinstance(bind, Layer):
                 first_decision = BoolDecision(
-                    question="Do you want to enrich the layers with the material %s by using avaiable templates? \n"
+                    question="Do you want to enrich the layers with the material %s by using available templates? \n"
                              "Belonging Item: %s | GUID: %s \n"
                              "Enter 'n' for manual input"
                              % (bind.material, bind.parent.name, bind.parent.guid),
-                    collect=False, allow_load=True, allow_save=True)
+                    collect=False, global_key='%s_layer_enriched' % bind.material,
+                    allow_load=True, allow_save=True)
             else:
                 first_decision = BoolDecision(
-                    question="Do you want for %s with the material %s to use available templates, "
-                             "enter 'n' for manual input"
-                             % (bind.guid, bind.material),
-                             collect=False, allow_load=True, allow_save=True)
+                    question="Do you want to enrich the material %s by using available templates? \n"
+                             "Belonging Item: %s | GUID: %s \n"
+                             "Enter 'n' for manual input"
+                             % (bind.material, bind.parent.name, bind.parent.guid),
+                    collect=False, global_key='%s_material_enriched' % bind.material,
+                    allow_load=True, allow_save=True)
             first_decision.decide()
             first_decision.stored_decisions.clear()
 
@@ -1050,10 +1360,14 @@ class Layer(element.SubElement):
                 else:
                     material_options = list(resumed.keys())
 
-                decision1 = ListDecision("Multiple possibilities found for material %s" % material,
-                                         choices=list(material_options),
-                                         allow_skip=True, allow_load=True, allow_save=True,
-                                         collect=False, quick_decide=not True)
+                decision1 = ListDecision(
+                    "Multiple possibilities found for material %s\n"
+                    "Belonging Item: %s | GUID: %s \n"
+                    "Enter 'n' for manual input"
+                    % (bind.material, bind.parent.name, bind.parent.guid),
+                    choices=list(material_options), global_key='%s_material_enrichment' % bind.material,
+                    allow_skip=True, allow_load=True, allow_save=True,
+                    collect=False, quick_decide=not True)
                 decision1.decide()
 
                 if material is not None:
@@ -1134,9 +1448,12 @@ class Window(element.Element):
         default=0
     )
 
-    thickness = attribute.Attribute(
-        default_ps='thickness',
+    width = attribute.Attribute(
+        default_ps='width',
         default=0
+    )
+    u_value = attribute.Attribute(
+        default_ps='u_value'
     )
 
 
@@ -1183,9 +1500,12 @@ class Door(element.Element):
         default=0
     )
 
-    thickness = attribute.Attribute(
-        default_ps='thickness',
+    width = attribute.Attribute(
+        default_ps='width',
         default=0
+    )
+    u_value = attribute.Attribute(
+        default_ps='u_value'
     )
 
     # material = attribute.Attribute(
@@ -1234,13 +1554,13 @@ class Slab(element.Element):
         default=0
     )
 
-    thickness = attribute.Attribute(
-        default_ps='thickness',
+    width = attribute.Attribute(
+        default_ps='width',
         default=0
     )
 
-    thermal_transmittance = attribute.Attribute(
-        default_ps='thermal_transmittance',
+    u_value = attribute.Attribute(
+        default_ps='u_value',
         default=0
     )
 

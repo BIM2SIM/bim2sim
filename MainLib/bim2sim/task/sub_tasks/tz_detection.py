@@ -53,15 +53,15 @@ class Inspect(Task):
 
         cooling_decision = BoolDecision(question="Do you want for all the thermal zones to be cooled? - "
                                                  "with cooling",
-                                        collect=False,
-                                        allow_skip=True
-                                        )
+                                        global_key='Thermal_Zones.Cooling',
+                                        allow_skip=True, allow_load=True, allow_save=True,
+                                        collect=False, quick_decide=not True)
         cooling_decision.decide()
         heating_decision = BoolDecision(question="Do you want for all the thermal zones to be heated? - "
                                                  "with heating",
-                                        collect=False,
-                                        allow_skip=True
-                                        )
+                                        global_key='Thermal_Zones.Heating',
+                                        allow_skip=True, allow_load=True, allow_save=True,
+                                        collect=False, quick_decide=not True)
         heating_decision.decide()
 
         for k, tz in self.instances.items():
@@ -72,7 +72,6 @@ class Inspect(Task):
             if heating_decision.value is True:
                 tz.with_heating = True
             tz.set_neighbors()
-
 
     def recognize_zone_geometrical(self):
         """Recognizes zones/spaces by geometric detection"""
@@ -161,7 +160,9 @@ class Bind(Task):
         bind_decision = BoolDecision(question="Do you want for thermal zones to be bind? - this allows to bind the "
                                               "thermal zones into a thermal zone aggregation based on different "
                                               "criteria -> Simplified operations",
-                                     collect=False)
+                                     global_key='Thermal_Zones.Bind',
+                                     allow_load=True, allow_save=True,
+                                     collect=False, quick_decide=not True)
         bind_decision.decide()
         if bind_decision.value:
             criteria_functions = {}
@@ -173,11 +174,9 @@ class Bind(Task):
             if len(criteria_functions) > 0:
                 criteria_decision = ListDecision("the following methods were found for the thermal zone binding",
                                                  choices=list(criteria_functions.keys()),
-                                                 allow_skip=False,
-                                                 allow_load=True,
-                                                 allow_save=True,
-                                                 quick_decide=not True,
-                                                 collect=False)
+                                                 global_key='Thermal_Zones.Bind_Method',
+                                                 allow_load=True, allow_save=True,
+                                                 collect=False, quick_decide=not True)
                 if not criteria_decision.status.value:
                     criteria_decision.decide()
                 criteria_function = criteria_functions.get(criteria_decision.value)
@@ -197,7 +196,7 @@ class Bind(Task):
         internal_binding = []
 
         # external - internal criterion
-        thermal_zones = filter_instances(self.instances, 'ThermalZone')
+        thermal_zones = SubElement.get_class_instances('ThermalZone')
         for tz in thermal_zones:
             tz.set_is_external()
             tz.set_external_orientation()
@@ -244,7 +243,9 @@ class Bind(Task):
         # neighbors - filter criterion
         neighbors_decision = BoolDecision(question="Do you want for the bound-spaces to be neighbors? - adds additional"
                                                    " criteria that just bind the thermal zones that are side by side",
-                                          collect=False)
+                                          global_key='Thermal_Zones.Neighbors',
+                                          allow_load=True, allow_save=True,
+                                          collect=False, quick_decide=not True)
         neighbors_decision.decide()
         if neighbors_decision.value:
             self.filter_neighbors(grouped_instances_criteria)
@@ -316,12 +317,3 @@ class Bind(Task):
         for group in list(tz_groups.keys()):
             if len(tz_groups[group]) <= 1:
                 del tz_groups[group]
-
-    @staticmethod
-    def get_tz_neighbors(tz_instances):
-        neighbors_decision = BoolDecision(question="Do you want for the binded thermal zones to be neighbors?",
-                                          collect=False)
-        neighbors_decision.decide()
-        if neighbors_decision.value:
-            for k, tz in tz_instances.items():
-                tz.set_neighbors()

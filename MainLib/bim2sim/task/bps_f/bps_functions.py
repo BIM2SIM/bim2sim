@@ -149,6 +149,9 @@ def get_matches_list(search_words, search_list, transl=True):
                 if mat not in material_options:
                     material_options.append(mat)
 
+    if len(material_options) == 0:
+        return search_list
+
     return material_options
 
 
@@ -184,7 +187,7 @@ def get_material_value_templates_resumed(name, tc_range=None):
 def real_decision_user_input(bind, name):
     material = bind.material
     decision2 = RealDecision("Enter value for the parameter %s" % name,
-                             global_key="%s" % name,
+                             global_key="%s_%s.%s" % (type(bind).__name__, bind.guid, name),
                              allow_skip=False, allow_load=True, allow_save=True,
                              collect=False, quick_decide=False)
     decision2.decide()

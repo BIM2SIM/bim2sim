@@ -119,19 +119,7 @@ class Attribute:
         if bind.finder is None:
             return None
         template = bind.finder.templates['base']
-        source_tools = template['source_tools']
-        if bind.source_tool in source_tools:
-            source_tool = bind.source_tool
-        else:
-            possible_source_tools = get_matches_list(bind.source_tool, source_tools, False)
-            decision_source_tool = ListDecision("Multiple templates found for source tool %s" % bind.source_tool,
-                                                choices=list(possible_source_tools),
-                                                allow_skip=True, allow_load=True, allow_save=True,
-                                                collect=False, quick_decide=not True)
-            decision_source_tool.decide()
-            source_tool = decision_source_tool.value
-            bind._tool = source_tool
-            bind.get_project().OwnerHistory.OwningApplication.ApplicationFullName = source_tool
+        source_tool = bind.source_tool
         default = None
         if type(bind).__name__ in template:
             if name in template[type(bind).__name__]['default_ps']:
@@ -195,8 +183,9 @@ class Attribute:
             if "enrich_decision" not in bind.enrichment:
                 # check if want to enrich instance
                 enrichment_decision = BoolDecision(
-                    question="Do you want for %s_%s to be enriched" % (bind.ifc_type, bind.guid),
-                    collect=False)
+                    question="Do you want for %s_%s to be enriched" % (type(bind).__name__, bind.guid),
+                    collect=False, global_key='%s_%s.Enrichment_Decision' % (type(bind).__name__, bind.guid),
+                    allow_load=True, allow_save=True)
                 enrichment_decision.decide()
                 enrichment_decision.stored_decisions.clear()
                 bind.enrichment["enrich_decision"] = enrichment_decision.value
@@ -209,9 +198,9 @@ class Attribute:
                         return value
                 if "selected_enrichment_data" not in bind.enrichment:
                     options_enrich_parameter = list(attrs_enrich.keys())
-                    decision1 = ListDecision("Multiple possibilities found",
+                    decision1 = ListDecision("Select an Enrich Parameter to continue",
                                              choices=options_enrich_parameter,
-                                             global_key="%s_%s.Enrich_Parameter" % (bind.ifc_type, bind.guid),
+                                             global_key="%s_%s.Enrich_Parameter" % (type(bind).__name__, bind.guid),
                                              allow_skip=True, allow_load=True, allow_save=True,
                                              collect=False, quick_decide=not True)
                     decision1.decide()
@@ -224,7 +213,7 @@ class Attribute:
                         # specific enrichment (enrichment parameter and values)
                         decision2 = RealDecision("Enter value for the parameter %s" % decision1.value,
                                                  validate_func=lambda x: isinstance(x, float),  # TODO
-                                                 global_key="%s" % decision1.value,
+                                                 global_key="%s_%s.%s_Enrichment" % (type(bind).__name__, bind.guid, name),
                                                  allow_skip=False, allow_load=True, allow_save=True,
                                                  collect=False, quick_decide=False)
                         decision2.decide()

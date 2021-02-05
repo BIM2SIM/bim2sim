@@ -122,7 +122,9 @@ class LoadIFC(ITask):
             overwrites pattern, conditions and attributes in file elements_specific_schema.json"""
         emods_decision = BoolDecision(question="Do you want to use the last modifications made in elements.py for your "
                                                "new ifc structure?",
-                                      collect=False)
+                                      global_key="load_modifications_ifc",
+                                      allow_skip=False, allow_load=True, allow_save=True,
+                                      collect=False, quick_decide=False)
         emods_decision.decide()
         if emods_decision.value:
             assets = {'functions': 'assets/IFCparser/elements_functions.py',
@@ -296,7 +298,9 @@ class LoadIFC(ITask):
                                                        "schema of elements.py (%s) Do you want to modify elements.py "
                                                        "based on the schema of the ifc file?" % (ifc.schema,
                                                                                                  elements.schema),
-                                              collect=False)
+                                              global_key="modify_project_schema",
+                                              allow_skip=False, allow_load=True, allow_save=True,
+                                              collect=False, quick_decide=False)
             structure_decision.decide()
             if structure_decision.value:
                 # get schema version of ifc file
@@ -340,6 +344,7 @@ class LoadIFC(ITask):
                     ifc_express = ListDecision("the following express schemas were found, select one for %s" %
                                                schema_version,
                                                choices=list(links),
+                                               global_key="selected_schema",
                                                allow_skip=False,
                                                allow_load=True,
                                                allow_save=True,

@@ -34,9 +34,9 @@ from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
 from teaser.logic import utilities
 import os
-from bim2sim.task.bps_f.bps_functions import get_matches_list, filter_instances, \
+from bim2sim.task.bps_f.bps_functions import get_matches_list, \
     get_pattern_usage, vector_angle, angle_equivalent, real_decision_user_input
-    # get_material_value_templates_resumed
+# get_material_value_templates_resumed
 from bim2sim.kernel.units import conversion
 
 
@@ -77,7 +77,7 @@ class Inspect(ITask):
                     self.instances[element.guid] = element
             except RuntimeError:
                 pass
-
+        x = SubElement.get_class_instances('InnerWall')
         self.logger.info("Found %d building elements", len(self.instances))
 
         return self.instances,
@@ -86,7 +86,9 @@ class Inspect(ITask):
     def use_doors(relevant_ifc_types):
         ifc_list = list(relevant_ifc_types)
         doors_decision = BoolDecision(question="Do you want for the doors to be considered on the bps analysis?",
-                                      collect=False)
+                                      collect=False, global_key="Bps_Doors",
+                                      allow_skip=False, allow_load=True, allow_save=True, quick_decide=not True
+                                      )
         doors_decision.decide()
         if not doors_decision.value:
             ifc_list.remove('IfcDoor')
@@ -105,11 +107,11 @@ class Prepare(ITask):
     @Task.log
     def run(self, workflow, instances, ifc):
         self.logger.info("setting verifications")
-        building = filter_instances(instances, 'Building')[0]
+        building = SubElement.get_class_instances('Building')[0]
         for guid, ins in instances.items():
             self.layers_verification(ins, building)
 
-        storeys = filter_instances(instances, 'Storey')
+        storeys = SubElement.get_class_instances('Storey')
 
         tz_inspect = tz_detection.Inspect(self, workflow)
         tz_inspect.run(ifc, storeys)
@@ -139,31 +141,80 @@ class Prepare(ITask):
             if new_angle - instance.orientation > 0.1:
                 return new_angle
 
-    @classmethod
-    def layers_verification(cls, instance, building):
+    # @classmethod
+    # def layers_verification(cls, instance, building):
+    #     supported_classes = {'OuterWall', 'Wall', 'InnerWall', 'Door', 'InnerDoor', 'OuterDoor', 'Roof', 'Floor',
+    #                          'GroundFloor', 'Window'}
+    #     instance_type = instance.__class__.__name__
+    #     if instance_type in supported_classes:
+    #         # through the type elements enrichment without comparisons
+    #         if instance_type not in cls.instance_template:
+    #             type_elements_decision = BoolDecision(
+    #                 question="Do you want for all %ss to be enriched before any calculation "
+    #                          "with the type elements template," % type(instance).__name__,
+    #                 global_key="type_elements_%s" % type(instance).__name__,
+    #                 collect=False)
+    #             type_elements_decision.decide()
+    #             if type_elements_decision.value:
+    #                 return cls.template_layers_creation(instance, building)
+    #         else:
+    #             return cls.template_layers_creation(instance, building)
+    #         u_value_verification = cls.compare_with_template(instance, building)
+    #         # comparison with templates value
+    #         if u_value_verification is False:
+    #             # ToDo logger
+    #             print("u_value verification failed, the %s u value is "
+    #                                 "doesn't correspond to the year of construction. Please create new layer set" %
+    #                                 type(instance).__name__)
+    #             # cls.logger.warning("u_value verification failed, the %s u value is "
+    #             #                     "doesn't correspond to the year of construction. Please create new layer set" %
+    #             #                     type(instance).__name__)
+    #             return cls.layer_creation(instance, building)
+    #         # instance.layers = [] # probe
+    #         layers_width = 0
+    #         layers_r = 0
+    #         for layer in instance.layers:
+    #             layers_width += layer.thickness
+    #             if layer.thermal_conduc is not None:
+    #                 if layer.thermal_conduc > 0:
+    #                     layers_r += layer.thickness / layer.thermal_conduc
+    #
+    #         # critical failure // check units again
+    #         width_discrepancy = abs(instance.width - layers_width) / instance.width if \
+    #             (instance.width is not None and instance.width > 0) else 9999
+    #         u_discrepancy = abs(instance.u_value - 1 / layers_r) / instance.u_value if \
+    #             (instance.u_value is not None and instance.u_value > 0) else 9999
+    #         if width_discrepancy > 0.2 or u_discrepancy > 0.2:
+    #             # ToDo Logger
+    #             print("Width or U Value discrepancy found. Please create new layer set")
+    #             # cls.logger.warning("Width or U Value discrepancy found. Please create new layer set")
+    #             cls.layer_creation(instance, building)
+
+    def layers_verification(self, instance, building):
         supported_classes = {'OuterWall', 'Wall', 'InnerWall', 'Door', 'InnerDoor', 'OuterDoor', 'Roof', 'Floor',
                              'GroundFloor', 'Window'}
         instance_type = instance.__class__.__name__
         if instance_type in supported_classes:
             # through the type elements enrichment without comparisons
-            if instance_type not in cls.instance_template:
+            if instance_type not in self.instance_template:
                 type_elements_decision = BoolDecision(
-                    question="Do you want for all %ss to be enriched before any calculation "
+                    question="Do you want for all %s's to be enriched before any calculation "
                              "with the type elements template," % type(instance).__name__,
-                    global_key="type_elements_%s" % type(instance).__name__,
-                    collect=False)
+                    global_key="%s_type_elements_used" % type(instance).__name__,
+                    collect=False, allow_load=True, allow_save=True,
+                    quick_decide=not True)
                 type_elements_decision.decide()
                 if type_elements_decision.value:
-                    return cls.template_layers_creation(instance, building)
+                    return self.template_layers_creation(instance, building)
             else:
-                return cls.template_layers_creation(instance, building)
-            u_value_verification = cls.compare_with_template(instance, building)
+                return self.template_layers_creation(instance, building)
+            u_value_verification = self.compare_with_template(instance, building)
             # comparison with templates value
             if u_value_verification is False:
-                cls.logger.warning("u_value verification failed, the %s u value is "
+                self.logger.warning("u_value verification failed, the %s u value is "
                                     "doesn't correspond to the year of construction. Please create new layer set" %
                                     type(instance).__name__)
-                return cls.layer_creation(instance, building)
+                return self.layer_creation(instance, building)
             # instance.layers = [] # probe
             layers_width = 0
             layers_r = 0
@@ -179,45 +230,60 @@ class Prepare(ITask):
             u_discrepancy = abs(instance.u_value - 1 / layers_r) / instance.u_value if \
                 (instance.u_value is not None and instance.u_value > 0) else 9999
             if width_discrepancy > 0.2 or u_discrepancy > 0.2:
-                cls.logger.warning("Width or U Value discrepancy found. Please create new layer set")
-                cls.layer_creation(instance, building)
+                self.logger.warning("Width or U Value discrepancy found. Please create new layer set")
+                self.layer_creation(instance, building)
 
-    def layer_creation(self, instance, building):
-        decision_layers = ListDecision("the following layer creation methods were found",
+    def layer_creation(self, instance, building, iteration=0):
+        decision_layers = ListDecision("the following layer creation methods were found for \n"
+                                       "Belonging Item: %s | GUID: %s \n" % (instance.name, instance.guid),
                                        choices=['Manual layers creation (from zero)',
                                                 'Template layers creation (based on given u value)'],
+                                       global_key='%s_%s.layer_creation_method_%d' %
+                                                  (type(instance).__name__, instance.guid, iteration),
                                        allow_skip=True, allow_load=True, allow_save=True,
                                        collect=False, quick_decide=not True)
         decision_layers.decide()
         if decision_layers.value == 'Manual layers creation (from zero)':
-            self.manual_layers_creation(instance, building)
+            self.manual_layers_creation(instance, building, iteration)
         elif decision_layers.value == 'Template layers creation (based on given u value)':
             self.template_layers_creation(instance, building)
 
-    def manual_layers_creation(self, instance, building):
+    def manual_layers_creation(self, instance, building, iteration):
         instance.layers = []
         layers_width = 0
         layers_r = 0
         layers_number_dec = RealDecision("Enter value for the number of layers",
-                                         # global_key="layers_number_%s" % instance.name,
+                                         global_key='%s_%s.layers_number_%d' %
+                                                    (type(instance).__name__, instance.guid, iteration),
                                          allow_skip=False, allow_load=True, allow_save=True,
                                          collect=False, quick_decide=False)
         layers_number_dec.decide()
         layers_number = int(layers_number_dec.value)
         layer_number = 1
+        if instance.width is None:
+            instance_width = RealDecision("Enter value for width of instance %d" % instance.name,
+                                          global_key='%s_%s.instance_width_%d' %
+                                                     (type(instance).__name__, instance.guid, iteration),
+                                          allow_skip=False, allow_load=True, allow_save=True,
+                                          collect=False, quick_decide=False)
+            instance_width.decide()
+            instance.width = instance_width.value
         while layer_number <= layers_number:
             if layer_number == layers_number:
-                thickness_value = instance.width-layers_width
+                thickness_value = instance.width - layers_width
             else:
                 layer_thickness = RealDecision("Enter value for thickness of layer %d, it muss be <= %r" %
-                                               (layer_number, instance.width-layers_width),
-                                               # global_key="thickness layer_%s_%d" % (instance.name, layer_number),
+                                               (layer_number, instance.width - layers_width),
+                                               global_key='%s_%s.layer_%d_width%d' %
+                                                          (type(instance).__name__, instance.guid, layer_number,
+                                                           iteration),
                                                allow_skip=False, allow_load=True, allow_save=True,
                                                collect=False, quick_decide=False)
                 layer_thickness.decide()
                 thickness_value = layer_thickness.value
-            material_input = input("Enter material for the layer %d (it will be searched or manual input)" % layer_number)
-            new_layer = elements.Layer.create_additional_layer(thickness_value, material=material_input)
+            material_input = input(
+                "Enter material for the layer %d (it will be searched or manual input)" % layer_number)
+            new_layer = elements.Layer.create_additional_layer(thickness_value, material=material_input, parent=instance)
             instance.layers.append(new_layer)
             layers_width += new_layer.thickness
             layers_r += new_layer.thickness / new_layer.thermal_conduc
@@ -225,12 +291,14 @@ class Prepare(ITask):
                 break
             layer_number += 1
 
-        instance.u_value = 1/layers_r
+        instance.u_value = 1 / layers_r
         # check validity of new u value e
+        iteration = 1
         while self.compare_with_template(instance, building) is False:
             self.logger.warning("The created layers does not comply with the valid u_value range, "
                                 "please create new layer set")
-            self.layer_creation(instance, building)
+            self.layer_creation(instance, building, iteration)
+            iteration += 1
         pass
 
     @classmethod
@@ -258,8 +326,8 @@ class Prepare(ITask):
             return False
         year_of_construction = building.year_of_construction
         if year_of_construction is None:
-            year_decision = RealDecision("Enter value for the year of construction",
-                                         global_key="year",
+            year_decision = RealDecision("Enter value for the buildings year of construction",
+                                         global_key="Building_%s.year_of_construction" % building.guid,
                                          allow_skip=False, allow_load=True, allow_save=True,
                                          collect=False, quick_decide=False)
             year_decision.decide()
@@ -288,7 +356,7 @@ class Prepare(ITask):
 
         template_options.sort()
         # check u_value
-        if template_options[0]*0.8 <= instance.u_value <= template_options[1]*1.2:
+        if template_options[0] * 0.8 <= instance.u_value <= template_options[1] * 1.2:
             return True
         return False
 
@@ -302,8 +370,8 @@ class Prepare(ITask):
 
         year_of_construction = building.year_of_construction
         if year_of_construction is None:
-            year_decision = RealDecision("Enter value for the year of construction",
-                                         global_key="year",
+            year_decision = RealDecision("Enter value for the buildings year of construction",
+                                         global_key="Building_%s.year_of_construction" % building.guid,
                                          allow_skip=False, allow_load=True, allow_save=True,
                                          collect=False, quick_decide=False)
             year_decision.decide()
@@ -322,7 +390,7 @@ class Prepare(ITask):
                                              "found for year %s and instance type %s"
                                              % (year_of_construction, instance_type),
                                              choices=list(template_options.keys()),
-                                             global_key="bpsTemplate.%s" % instance.guid,
+                                             global_key="%s_%s.bpsTemplate" % (type(instance).__name__, instance.guid),
                                              allow_skip=True, allow_load=True, allow_save=True,
                                              collect=False, quick_decide=not True)
             if decision_template.value is None:
@@ -490,8 +558,10 @@ class ExportTEASER(ITask):
             if len(template_options) > 1:
                 decision_template = ListDecision("the following construction types were "
                                                  "found for year %s and instance type %s"
-                                                 % (bldg.year_of_construction, type(teaser_instance).__name__),
-                                                 choices=template_options,
+                                                 % (bldg.year_of_construction, type(instance).__name__),
+                                                 choices=list(template_options.keys()),
+                                                 global_key="%s_%s.bpsTemplate" %
+                                                            (type(instance).__name__, instance.guid),
                                                  allow_skip=True, allow_load=True, allow_save=True,
                                                  collect=False, quick_decide=not True)
                 decision_template.decide()
@@ -536,10 +606,10 @@ class ExportTEASER(ITask):
     def run(self, workflow, instances, ifc):
         self.logger.info("Export to TEASER")
         prj = self._create_project(ifc.by_type('IfcProject')[0])
-        bldg_instances = filter_instances(instances, 'Building')
+        bldg_instances = SubElement.get_class_instances('Building')
         for bldg_instance in bldg_instances:
             bldg = self._create_building(bldg_instance, prj)
-            tz_instances = filter_instances(instances, 'ThermalZone')
+            tz_instances = SubElement.get_class_instances('ThermalZone')
             for tz_instance in tz_instances:
                 tz = self._create_thermal_zone(tz_instance, bldg)
                 self._bind_instances_to_zone(tz, tz_instance, bldg)

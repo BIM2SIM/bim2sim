@@ -4,7 +4,7 @@ import math
 import inspect
 
 import numpy as np
-from bim2sim.kernel.element import BaseElement, BasePort
+from bim2sim.kernel.element import BaseElement, BasePort, SubElement
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
@@ -1491,10 +1491,10 @@ class Aggregated_ThermalZone(Aggregation):
 
     @classmethod
     def based_on_groups(cls, groups, instances):
-        """creates a new thermal zone aggregatin instance
+        """creates a new thermal zone aggregation instance
          based on a previous filtering"""
         new_aggregations = []
-        thermal_zones = filter_instances(instances, 'ThermalZone')
+        thermal_zones = SubElement.get_class_instances('ThermalZone')
         total_area = sum(i.area for i in thermal_zones)
         for group in groups:
             if group != 'not_bind':
@@ -1506,6 +1506,9 @@ class Aggregated_ThermalZone(Aggregation):
                 for e in instance.elements:
                     if e.guid in instances:
                         del instances[e.guid]
+                    if e.guid in e.instances['ThermalZone']:
+                        del e.instances['ThermalZone'][e.guid]
+                SubElement.instances['ThermalZone'][instance.guid] = instance
             else:
                 # last criterion no similarities
                 area = sum(i.area for i in groups[group])
@@ -1518,6 +1521,9 @@ class Aggregated_ThermalZone(Aggregation):
                     for e in instance.elements:
                         if e.guid in instances:
                             del instances[e.guid]
+                        if e.guid in e.instances['ThermalZone']:
+                            del e.instances['ThermalZone'][e.guid]
+                    SubElement.instances['ThermalZone'][instance.guid] = instance
         return new_aggregations
 
 

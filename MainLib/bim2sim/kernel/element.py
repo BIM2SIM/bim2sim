@@ -12,7 +12,7 @@ from bim2sim.decorators import cached_property
 from bim2sim.kernel import ifc2python, attribute
 from bim2sim.decision import Decision, ListDecision
 from bim2sim.kernel.units import ureg
-from bim2sim.task.bps_f.bps_functions import angle_equivalent, vector_angle
+from bim2sim.task.bps_f.bps_functions import angle_equivalent, vector_angle, get_matches_list
 
 logger = logging.getLogger(__name__)
 
@@ -696,6 +696,7 @@ class SubElement(BaseElement, IFCBased):
     dummy = None
     finder = None
     conditions = []
+    instances = {}
 
     def __init__(self, *args, tool=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -778,7 +779,12 @@ class SubElement(BaseElement, IFCBased):
                     break
             if match is True:
                 prefac = sub_cls(ifc=ifc_element, tool=tool)
-
+                break
+        if type(prefac).__name__ not in cls.instances:
+            cls.instances[type(prefac).__name__] = {prefac.guid: prefac}
+        else:
+            if prefac.guid not in cls.instances[type(prefac).__name__]:
+                cls.instances[type(prefac).__name__][prefac.guid] = prefac
         return prefac
 
     @staticmethod
@@ -786,10 +792,23 @@ class SubElement(BaseElement, IFCBased):
         all_subclasses = []
 
         for subclass in cls.__subclasses__():
-            all_subclasses.append(subclass)
-            all_subclasses.extend(SubElement.get_all_subclasses(subclass))
+            if subclass not in all_subclasses:
+                all_subclasses.append(subclass)
+                all_subclasses.extend(cls.get_all_subclasses(subclass))
 
         return all_subclasses
+
+    @staticmethod
+    def get_dict_subclasses(cls):
+        all_subclasses = {}
+
+        for subclass in cls.__subclasses__():
+            if subclass.__name__ not in all_subclasses:
+                all_subclasses[subclass.__name__] = subclass
+                all_subclasses.update(cls.get_dict_subclasses(subclass))
+
+        return all_subclasses
+
 
     @staticmethod
     def get_class_requirements(cls):
@@ -800,6 +819,13 @@ class SubElement(BaseElement, IFCBased):
             requirements.update(cls.special_argument)
 
         return requirements
+
+    @classmethod
+    def get_class_instances(cls, instance_class):
+        if isinstance(instance_class, str):
+            return list(cls.instances[instance_class].values())
+        else:
+            return list(cls.instances[instance_class.__name__].values())
 
     def validate(self):
         """"Check if standard parameter are in valid range"""
@@ -868,7 +894,20 @@ class Element(SubElement):
     def source_tool(self):
         """Name of tool the ifc has been created with"""
         if not self._tool:
-            self._tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
+            tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
+            template = self.finder.templates['base']
+            source_tools = template['source_tools']
+            if tool not in source_tools:
+                possible_source_tools = get_matches_list(tool, source_tools, False)
+                decision_source_tool = ListDecision("Multiple templates found for source tool %s" % tool,
+                                                    choices=list(possible_source_tools),
+                                                    global_key="Project_Source_Tool",
+                                                    allow_skip=True, allow_load=True, allow_save=True,
+                                                    collect=False, quick_decide=not True)
+                decision_source_tool.decide()
+                tool = decision_source_tool.value
+                self.get_project().OwnerHistory.OwningApplication.ApplicationFullName = tool
+            self._tool = tool
         return self._tool
 
     @property
