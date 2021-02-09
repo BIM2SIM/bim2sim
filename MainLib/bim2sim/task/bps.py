@@ -16,7 +16,8 @@ from OCC.ShapeAnalysis import ShapeAnalysis_ShapeContents
 from OCC.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Extrema import Extrema_ExtFlag_MIN
 from OCC.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Pln, gp_Pnt
-from OCC.TopoDS import topods_Wire, topods_Face, topods_Compound, TopoDS_Compound, TopoDS_Builder, topods_Vertex
+from OCC.TopoDS import topods_Wire, topods_Face, topods_Compound, TopoDS_Compound, TopoDS_Builder, topods_Vertex,\
+    TopoDS_Iterator
 from OCC.TopAbs import TopAbs_FACE, TopAbs_WIRE, TopAbs_SHAPE, TopAbs_VERTEX
 from OCC.TopExp import TopExp_Explorer
 from OCC.BRep import BRep_Tool
@@ -2095,6 +2096,8 @@ class ExportEP(ITask):
 
         pure_spatials = []
         for s in spatials:
+            if not hasattr(s.ifc, 'CorrespondingBoundary'):
+                continue
             if s.ifc.CorrespondingBoundary == None:
                 continue
             if s.ifc.CorrespondingBoundary.RelatingSpace.is_a('IfcSpace'):
@@ -2108,17 +2111,21 @@ class ExportEP(ITask):
         settings.set(settings.INCLUDE_CURVES, True)
         for s in pure_spatials:
             obj = idf.newidfobject('SHADING:BUILDING:DETAILED',
-                                   Name = s.ifc.GlobalId,
+                                   Name=s.ifc.GlobalId,
                                    )
             shape = ifcopenshell.geom.create_shape(settings, s.ifc.ConnectionGeometry.SurfaceOnRelatingElement)
+            space_shape = ifcopenshell.geom.create_shape(settings, s.ifc.RelatingSpace).geometry
+            shape_val = TopoDS_Iterator(space_shape).Value()
+            loc = shape_val.Location()
+            shape.Move(loc)
             obj_pnts = IdfObject._get_points_of_face(shape)
             obj_coords = []
             for pnt in obj_pnts:
                 co = tuple(round(p, 3) for p in pnt.Coord())
                 obj_coords.append(co)
             obj.setcoords(obj_coords)
-            print("HOLD")
-        print("HOLD")
+            # print("HOLD")
+        # print("HOLD")
 
 
     @staticmethod
