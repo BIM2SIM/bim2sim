@@ -21,7 +21,10 @@ def propertyset2dict(propertyset):
     propertydict = {}
     if hasattr(propertyset, 'HasProperties'):
         for prop in propertyset.HasProperties:
-            unit = parse_ifc(prop.Unit) if prop.Unit else None
+            if hasattr(prop, 'Unit'):
+                unit = parse_ifc(prop.Unit) if prop.Unit else None
+            else:
+                unit = None
             if prop.is_a() == 'IfcPropertySingleValue':
                 if prop.NominalValue is not None:
                     unit = ifcunits.get(prop.NominalValue.is_a()) if not unit else unit
@@ -34,12 +37,25 @@ def propertyset2dict(propertyset):
                 values = []
                 for value in prop.ListValues:
                     unit = ifcunits.get(value.is_a()) if not unit else unit
-                    values.append(value.wrappedValue * unit)
+                    if unit:
+                        values.append(value.wrappedValue * unit)
+                    else:
+                        values.append(value.wrappedValue)
                 propertydict[prop.Name] = values
             elif prop.is_a() == 'IfcPropertyBoundedValue':
                 # TODO: Unit conversion
                 propertydict[prop.Name] = (prop, prop)
                 raise NotImplementedError("Property of type '%s'"%prop.is_a())
+            elif prop.is_a() == 'IfcPropertyEnumeratedValue':
+                # TODO: Unit conversion
+                values = []
+                for value in prop.EnumerationValues:
+                    unit = ifcunits.get(value.is_a()) if not unit else unit
+                    if unit:
+                        values.append(value.wrappedValue * unit)
+                    else:
+                        values.append(value.wrappedValue)
+                propertydict[prop.Name] = values
             else:
                 raise NotImplementedError("Property of type '%s'"%prop.is_a())
     elif hasattr(propertyset, 'Quantities'):
