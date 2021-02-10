@@ -165,7 +165,7 @@ def vector_angle(vector):
 def get_matches_list(search_words, search_list, transl=True):
     """get patterns for a material name in both english and original language,
     and get afterwards the related elements from list"""
-
+    # TODO: rename and/or move to kernel
     material_ref = []
 
     pattern_material = re.sub('[!@#$-_1234567890]', '', search_words.lower()).split()

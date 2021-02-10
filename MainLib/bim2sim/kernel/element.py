@@ -792,6 +792,7 @@ class Element(SubElement):
     dummy = None
     finder = None
     conditions = []
+    _source_tool = None
 
     def __init__(self, *args, tool=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -820,9 +821,9 @@ class Element(SubElement):
     @property
     def source_tool(self):
         """Name of tool the ifc has been created with"""
-        if not self._tool:
-            self._tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
-        return self._tool
+        if not self.__class__._source_tool:
+            self.__class__._source_tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
+        return self.__class__._source_tool
 
     @property
     def neighbors(self):
