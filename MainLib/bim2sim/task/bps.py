@@ -3258,9 +3258,10 @@ class IdfObject():
             self.out_bound_cond = 'Adiabatic'
             self.sun_exposed = 'NoSun'
             self.wind_exposed = 'NoWind'
-        elif (hasattr(inst_obj.ifc, 'CorrespondingBoundary') \
-                and (inst_obj.ifc.CorrespondingBoundary.InternalOrExternalBoundary.upper() == 'EXTERNAL_EARTH')\
-                and (self.key == "BUILDINGSURFACE:DETAILED") \
+        elif (hasattr(inst_obj.ifc, 'CorrespondingBoundary')
+              and ((inst_obj.ifc.CorrespondingBoundary is not None)
+                   and (inst_obj.ifc.CorrespondingBoundary.InternalOrExternalBoundary.upper() == 'EXTERNAL_EARTH'))
+              and (self.key == "BUILDINGSURFACE:DETAILED")
               and not (hasattr(inst_obj, 'related_opening_bounds') and (len(inst_obj.related_opening_bounds) > 0))):
             self.out_bound_cond = "Ground"
             self.sun_exposed = 'NoSun'
