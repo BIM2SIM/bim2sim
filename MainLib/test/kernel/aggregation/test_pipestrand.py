@@ -1,4 +1,4 @@
-﻿import unittest
+import unittest
 
 from bim2sim.kernel import aggregation
 from bim2sim.kernel.element import Port
@@ -163,7 +163,7 @@ class StrandHelper(SetupHelper):
             strand2 = [self.element_generator(elements.Pipe, flags=['strand2'], length=100, diameter=40) for i in range(5)]
             spaceheater = self.element_generator(elements.SpaceHeater, flags=['spaceheater'])  # , volume=80
             strand3a = [self.element_generator(elements.Pipe, flags=['strand3'], length=100, diameter=40) for i in range(4)]
-            valve = self.element_generator(elements.Valve)
+            valve = self.element_generator(elements.Valve, flags=['valve'])
             strand3b = [self.element_generator(elements.Pipe, flags=['strand3'], length=100, diameter=40) for i in range(4)]
             fitting = self.element_generator(elements.PipeFitting, n_ports=3, diameter=40, length=60)
             strand4 = [self.element_generator(elements.Pipe, flags=['strand4'], length=100, diameter=40) for i in range(4)]
@@ -220,7 +220,7 @@ class StrandHelper(SetupHelper):
         ]
 
         graph = HvacGraph(gen_circuit)
-        graph.plot(r'c:\temp')
+        # graph.plot(r'c:\temp')
         return graph, flags
 
 
@@ -313,10 +313,11 @@ class TestPipeStrand(unittest.TestCase):
     def test_filter_system(self):
         """Test filter for crossing strands"""
         graph, flags = self.helper.get_setup_system()
-        ele = flags['strand1'] + flags['strand2'] + flags['strand3'] + flags['strand4'] + flags['strand5']
+        ele = flags['strand1'] + flags['strand2'] + flags['strand3'] + flags['strand4'] + flags['strand5'] \
+              + flags['valve']
 
         matches, meta = aggregation.PipeStrand.find_matches(graph)
-        self.assertEqual(6, len(matches))
+        self.assertEqual(5, len(matches))
 
         self.assertSetEqual(set(ele), set(sum([list(m.nodes) for m in matches], [])))
 

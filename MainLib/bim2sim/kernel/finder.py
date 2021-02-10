@@ -2,8 +2,10 @@
 
 import os
 import json
+import hashlib
 
 from bim2sim.kernel import ifc2python
+from bim2sim.decision import ListDecision, Decision
 
 
 # DEFAULT_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets\\finder')
@@ -106,18 +108,24 @@ class TemplateFinder(Finder):
         return pset.get(res[1])
 
     def check_template(self, element):
-        """Check the given IFC Creation tool and choos the template."""
+        """Check the given IFC Creation tool and chose the template."""
         if element.source_tool in self.blacklist:
             raise AttributeError('No finder template found for {}.'.format(element.source_tool))
+
         elif element.source_tool not in self.templates:
-            # try to set similar template
-            if element.source_tool.lower().startswith('Autodesk'.lower()):
-                tool_name = 'Autodesk Revit 2019 (DEU)'
-            elif element.source_tool.lower().startswith('ARCHICAD'.lower()):
-                tool_name = 'ARCHICAD-64'
-            else:
-                # no matching template
-                element.logger.warning('No finder template found for {}.'.format(element.source_tool))
+            # no matching template
+            element.logger.warning('No finder template found for {}.'.format(element.source_tool))
+
+            choices = list(self.templates.keys()) + ['Other']
+            decision_source_tool = ListDecision(
+                "Please select best matching source tool %s" % element.source_tool,
+                choices=choices,
+                global_key='tool_' + hashlib.md5(''.join(choices).encode('utf-8')).hexdigest(),
+                allow_skip=True, allow_load=True, allow_save=True,
+                collect=False, quick_decide=not True)
+            tool_name = decision_source_tool.decide()
+
+            if tool_name == 'Other':
                 self.blacklist.append(element.source_tool)
                 raise AttributeError('No finder template found for {}.'.format(element.source_tool))
 
