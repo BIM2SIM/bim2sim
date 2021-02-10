@@ -1,4 +1,4 @@
-﻿import unittest
+import unittest
 
 from bim2sim.kernel import aggregation
 from bim2sim.kernel.element import Port
@@ -186,7 +186,7 @@ class StrandHelper(SetupHelper):
         ]
 
         graph = HvacGraph(gen_circuit)
-        graph.plot(r'c:\temp')
+        # graph.plot(r'c:\temp')
         return graph, flags
 
     def get_setup_loop(self):
@@ -220,7 +220,7 @@ class StrandHelper(SetupHelper):
         ]
 
         graph = HvacGraph(gen_circuit)
-        graph.plot(r'c:\temp')
+        # graph.plot(r'c:\temp')
         return graph, flags
 
 
