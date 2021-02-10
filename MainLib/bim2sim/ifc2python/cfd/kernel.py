@@ -11,6 +11,8 @@ import numpy as np
 import math
 
 
+# todo test this before merge into master
+
 def filter_ifc_products(model, pc_incl, pc_excl, pg_incl, pg_excl):
     products_guid = []
     for p in model.by_type("IfcProduct"):
