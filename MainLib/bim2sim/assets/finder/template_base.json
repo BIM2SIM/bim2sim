@@ -115,21 +115,13 @@
       }
     }
   },
-  "MaterialTemplates" : {
-    "heat_capacity" : "heat_capac",
-    "thickness" : "thickness_default"
-  },
   "Material": {
     "default_ps": {
-      "thermal_conductivity" : ["Pset_MaterialThermal", "ThermalConductivity"],
-      "heat_capacity" : ["Pset_MaterialThermal", "SpecificHeatCapacity"],
+      "thermal_conduc" : ["Pset_MaterialThermal", "ThermalConductivity"],
+      "heat_capac" : ["Pset_MaterialThermal", "SpecificHeatCapacity"],
       "density" : ["Pset_MaterialCommon", "MassDensity"],
       "embodied_energy" : ["AC_Pset_MaterialCustom", "EmbodiedEnergy"],
       "embodied_carbon" : ["AC_Pset_MaterialCustom", "EmbodiedCarbon"]
-    },
-    "DEU": {
-      "leichtbeton" : "lightweight_concrete",
-      "stahlbeton" : "concrete"
     },
 	"exporter": {
       "teaser": {
@@ -143,11 +135,11 @@
         ],
         "heat_capac": [
           "instance",
-          "heat_capacity"
+          "heat_capac"
         ],
         "thermal_conduc": [
           "instance",
-          "thermal_conductivity"
+          "thermal_conduc"
         ]
       }
     }
