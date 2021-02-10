@@ -1,7 +1,7 @@
 {
+    "statistical_years":  [2000, 2004],
     "Boiler": {
         "class": "Boiler",
-        "ifc_type": "IfcBoiler",
         "statistical_year": {
             "2000": {
                 "name": "Boiler_enrichment_2000",
@@ -17,64 +17,21 @@
                 "rated_power": 15,
                 "efficiency": 0.98
             }
-        }
-    },
-    "Pump": {
-        "class": [
-            "Pump",
-            "aggregated_Pump"
-        ],
-        "ifc_type": "IfcPump",
-        "statistical_year": {
-            "2000": {
-                "name": "Pump_enrichment_2000",
-                "rated_power": 3,
-                "rated_height": 8,
-                "rated_volume_flow": 4.3,
-                "diameter": 40
+        },
+        "Power[kw]": {
+            "2": {
+                "name": "Boiler_enrichment_2kw",
+                "water_volume": 0.008,
+                "min_power": 16,
+                "rated_power": 16,
+                "efficiency": 0.97
             },
-            "2004": {
-                "name": "Pump_enrichment_2004",
-                "rated_power": 4,
-                "rated_height": 9,
-                "rated_volume_flow": 4.3,
-                "diameter": 40
-            }
-        }
-    },
-    "Pipe": {
-        "class": "Pipe",
-        "statistical_year": {
-            "2000": {
-                "name": "Pipe_enrichment_2000",
-                "Pset_PipeSegmentTypeCommon": null,
-                "diameter": 3,
-                "length": 4
-            },
-            "2004": {
-                "name": "Pipe_enrichment_2004",
-                "Pset_PipeSegmentTypeCommon": null,
-                "diameter": null,
-                "length": null
-            }
-        }
-    },
-    "PipeFitting": {
-        "class": "PipeFitting",
-        "statistical_year": {
-            "2000": {
-                "name": "PipeFitting_enrichment_2000",
-                "Pset_PipeFittingTypeCommon": null,
-                "diameter": 3,
-                "length": 4,
-                "pressure_class": null
-            },
-            "2004": {
-                "name": "PipeFitting_enrichment_2004",
-                "Pset_PipeFittingTypeCommon": null,
-                "diameter": null,
-                "length": null,
-                "pressure_class": null
+            "4": {
+                "name": "Boiler_enrichment_4kw",
+                "water_volume": 0.008,
+                "min_power": 18,
+                "rated_power": 15,
+                "efficiency": 0.98
             }
         }
     },
@@ -93,166 +50,33 @@
             }
         }
     },
-    "StorageDevice": {
-        "class": "StorageDevice",
+    "HeatPump": {
+        "class": "HeatPump",
         "statistical_year": {
             "2000": {
-                "name": "StorageDevice_enrichment_2000"
-            },
-            "2004": {
-                "name": "StorageDevice_enrichment_2004"
-            }
-        }
-    },
-    "Storage": {
-        "class": "Storage",
-        "statistical_year": {
-            "2000": {
-                "name": "Storage_enrichment_2000",
-                "storage_type": null,
-                "height": null,
-                "diameter": null,
-                "port_positions": null,
-                "volume": null
-            },
-            "2004": {
-                "name": "Storage_enrichment_2004",
-                "storage_type": null,
-                "height": null,
-                "diameter": null,
-                "port_positions": null,
-                "volume": null
-            }
-        }
-    },
-    "Valve": {
-        "class": "Valve",
-        "statistical_year": {
-            "2000": {
-                "name": "Valve_enrichment_2000",
-                "diameter": null,
+                "name": "HeatPump_enrichment_2000",
+                "nominal_power": null,
                 "length": null
             },
             "2004": {
-                "name": "Valve_enrichment_2004",
-                "diameter": null,
+                "name": "HeatPump_enrichment_2004",
+                "nominal_power": null,
                 "length": null
             }
         }
     },
-    "Duct": {
-        "class": "Duct",
+    "Chiller": {
+        "class": "Chiller",
         "statistical_year": {
             "2000": {
-                "name": "Duct_enrichment_2000",
-                "diameter": null,
+                "name": "Chiller_enrichment_2000",
+                "nominal_power": null,
                 "length": null
             },
             "2004": {
-                "name": "Duct_enrichment_2004",
-                "diameter": null,
+                "name": "Chiller_enrichment_2004",
+                "nominal_power": null,
                 "length": null
-            }
-        }
-    },
-    "DuctFitting": {
-        "class": "DuctFitting",
-        "statistical_year": {
-            "2000": {
-                "name": "DuctFitting_enrichment_2000",
-                "diameter": null,
-                "length": null
-            },
-            "2004": {
-                "name": "DuctFitting_enrichment_2004",
-                "diameter": null,
-                "length": null
-            }
-        }
-    },
-    "AirTerminal": {
-        "class": "AirTerminal",
-        "statistical_year": {
-            "2000": {
-                "name": "AirTerminal_enrichment_2000",
-                "diameter": null
-            },
-            "2004": {
-                "name": "AirTerminal_enrichment_2004",
-                "diameter": null
-            }
-        }
-    },
-    "ThermalZones": {
-        "class": "ThermalZones",
-        "statistical_year": {
-            "2000": {
-                "name": "ThermalZones_enrichment_2000"
-            },
-            "2004": {
-                "name": "ThermalZones_enrichment_2004"
-            }
-        }
-    },
-    "Medium": {
-        "class": "Medium",
-        "statistical_year": {
-            "2000": {
-                "name": "Medium_enrichment_2000"
-            },
-            "2004": {
-                "name": "Medium_enrichment_2004"
-            }
-        }
-    },
-    "Wall": {
-        "class": "Wall",
-        "statistical_year": {
-            "2000": {
-                "name": "Wall_enrichment_2000",
-                "area": null,
-                "capacity": null,
-                "u_value": null
-            },
-            "2004": {
-                "name": "Wall_enrichment_2004",
-                "area": null,
-                "capacity": null,
-                "u_value": null
-            }
-        }
-    },
-    "OuterWall": {
-        "class": "OuterWall",
-        "statistical_year": {
-            "2000": {
-                "name": "OuterWall_enrichment_2000",
-                "area": null,
-                "capacity": null,
-                "u_value": null
-            },
-            "2004": {
-                "name": "OuterWall_enrichment_2004",
-                "area": null,
-                "capacity": null,
-                "u_value": null
-            }
-        }
-    },
-    "Window": {
-        "class": "Window",
-        "statistical_year": {
-            "2000": {
-                "name": "Window_enrichment_2000",
-                "area": null,
-                "u_value": null,
-                "g_value": null
-            },
-            "2004": {
-                "name": "Window_enrichment_2004",
-                "area": null,
-                "u_value": null,
-                "g_value": null
             }
         }
     }

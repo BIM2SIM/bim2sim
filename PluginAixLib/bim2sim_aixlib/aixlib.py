@@ -2,42 +2,58 @@
 from ast import literal_eval
 
 from bim2sim.manage import BIM2SIMManager, PROJECT
-from bim2sim.workflow import hvac
+from bim2sim.task import base, common, hvac
 from bim2sim.export.modelica import standardlibrary
+from bim2sim_aixlib.models import AixLib
 
-class AixLib(BIM2SIMManager):
 
-    def __init__(self, task):
-        super().__init__(task)
+class LoadLibrariesAixLib(base.ITask):
+    """Load AixLib library for export"""
+    touches = ('libraries', )
 
-        self.relevant_ifc_types = hvac.IFC_TYPES
+    def run(self, workflow, **kwargs):
+        return (standardlibrary.StandardLibrary, AixLib),
+
+
+class AixLibManager(BIM2SIMManager):
 
     def run(self):
 
-        prepare = hvac.Prepare()
-        prepare.run(hvac.IFC_TYPES)
+        self.playground.run_task(hvac.SetIFCTypesHVAC())
+        self.playground.run_task(common.LoadIFC())
+        self.playground.run_task(hvac.Prepare())
+        self.playground.run_task(hvac.Inspect())
+        self.playground.run_task(hvac.MakeGraph())
+        self.playground.run_task(hvac.Reduce())
+        self.playground.run_task(LoadLibrariesAixLib)
+        self.playground.run_task(hvac.Export())
 
-        inspect = hvac.Inspect()
-        if not inspect.load(PROJECT.workflow):
-            inspect.run(self.ifc, hvac.IFC_TYPES)
-            inspect.save(PROJECT.workflow)
+        # inspect = hvac.Inspect()
+        # if not inspect.load(PROJECT.workflow):
+        #     inspect.run(self.workflow, self.ifc, hvac.IFC_TYPES)
+        #     inspect.save(PROJECT.workflow)
+        #
+        # # ### Thermalzones
+        # # recognition = tz_detection.Recognition()
+        # # recognition.run(self.ifc_arch, inspect.instances)
+        # # ###
+        #
+        # enrich = hvac.Enrich()
+        # enrich.run(inspect.instances)
+        #
+        # makegraph = hvac.MakeGraph()
+        # if not makegraph.load(PROJECT.workflow):
+        #     makegraph.run(self.workflow, list(inspect.instances.values()))
+        #     makegraph.save(PROJECT.workflow)
+        #
+        # reduce = hvac.Reduce()
+        # reduce.run(self.workflow, makegraph.graph)
+        #
+        # libraries = (standardlibrary.StandardLibrary, )
+        # export = hvac.Export()
+        # export.run(self.workflow, libraries, reduce.reduced_instances, reduce.connections)
 
-        makegraph = hvac.MakeGraph()
-        if not makegraph.load(PROJECT.workflow):
-            makegraph.run(list(inspect.instances.values()))
-            makegraph.save(PROJECT.workflow)
-
-        reduce = hvac.Reduce()
-        reduce.run(makegraph.graph)
-
-        enrich = hvac.Enrich()
-        enrich.run(reduce.reduced_instances, "statistical_year", "2000", "class")
-
-        libraries = (standardlibrary.StandardLibrary, )
-        export = hvac.Export()
-        export.run(libraries, reduce.reduced_instances, reduce.connections)
-
-    def create_modelica_table_from_list(self,curve):
+    def create_modelica_table_from_list(self, curve):
         """
 
         :param curve:
