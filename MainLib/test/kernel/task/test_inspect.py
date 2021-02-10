@@ -26,6 +26,7 @@ class DummyManager(BIM2SIMManager):
 sample_root = Path(__file__).parent.parent.parent / 'TestModels'
 
 
+@unittest.skip("Fix this!")  # TODO
 class TestInspect(unittest.TestCase):
     """Basic scenario for connection tests with HeatExchanger (IfcPipeFitting) and four Pipes (IfcPipeSegment)"""
 
