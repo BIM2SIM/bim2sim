@@ -16,7 +16,7 @@ from OCC.ShapeAnalysis import ShapeAnalysis_ShapeContents
 from OCC.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Extrema import Extrema_ExtFlag_MIN
 from OCC.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Pln, gp_Pnt
-from OCC.TopoDS import topods_Wire, topods_Face, topods_Compound, TopoDS_Compound, TopoDS_Builder, topods_Vertex,\
+from OCC.TopoDS import topods_Wire, topods_Face, topods_Compound, TopoDS_Compound, TopoDS_Builder, topods_Vertex, \
     TopoDS_Iterator
 from OCC.TopAbs import TopAbs_FACE, TopAbs_WIRE, TopAbs_SHAPE, TopAbs_VERTEX
 from OCC.TopExp import TopExp_Explorer
@@ -73,7 +73,8 @@ from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
 from teaser.logic import utilities
 import os
-from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list, filter_instances, get_pattern_usage
+from bim2sim.task.bps_f.bps_functions import orientation_verification, get_matches_list, filter_instances, \
+    get_pattern_usage
 from bim2sim.kernel.units import conversion
 from googletrans import Translator
 from bim2sim.kernel.aggregation import Aggregated_ThermalZone
@@ -82,6 +83,7 @@ import re
 Decision.enable_debug("1")
 
 translator = Translator()
+
 
 class SetIFCTypesBPS(ITask):
     """Set list of relevant IFC types"""
@@ -705,7 +707,7 @@ class ExportEP(ITask):
 
     ENERGYPLUS_VERSION = "9-4-0"
 
-    reads = ('instances', 'ifc', )
+    reads = ('instances', 'ifc',)
     final = True
 
     @Task.log
@@ -715,7 +717,8 @@ class ExportEP(ITask):
         sb_checker = Checker(ifc)
         self.logger.info("All tests done!")
         if len(sb_checker.error_summary) == 0:
-            self.logger.info("All %d IfcRelSpaceBoundary entities PASSED the syntax validation process." % len(sb_checker.bounds))
+            self.logger.info(
+                "All %d IfcRelSpaceBoundary entities PASSED the syntax validation process." % len(sb_checker.bounds))
         else:
             self.logger.warning("%d out of %d IfcRelSpaceBoundary entities FAILED the syntax validation process. \n"
                                 "Occuring sets of errors: %s \n"
@@ -853,22 +856,22 @@ class ExportEP(ITask):
             month = date[0]
             day = date[1]
             for col in zone_mean_air.columns:
-                ax = zone_mean_air.loc[((zone_mean_air.index.month==month) & (zone_mean_air.index.day == day))]\
+                ax = zone_mean_air.loc[((zone_mean_air.index.month == month) & (zone_mean_air.index.day == day))] \
                     .plot(y=[col], figsize=(10, 5), grid=True)
                 # temp.plot(ax=ax)
-                temp.loc[((temp.index.month==month) & (temp.index.day == day))].plot(ax=ax)
+                temp.loc[((temp.index.month == month) & (temp.index.day == day))].plot(ax=ax)
                 plt.show()
-            axc = zone_mean_air.loc[((zone_mean_air.index.month==month) & (zone_mean_air.index.day == day))]\
+            axc = zone_mean_air.loc[((zone_mean_air.index.month == month) & (zone_mean_air.index.day == day))] \
                 .plot(figsize=(10, 5), grid=True)
-            temp.loc[((temp.index.month==month) & (temp.index.day == day))].plot(ax=axc)
+            temp.loc[((temp.index.month == month) & (temp.index.day == day))].plot(ax=axc)
             plt.show()
             return
         elif period == "week":
-            min = number*168
-            max = (number+1)*168
+            min = number * 168
+            max = (number + 1) * 168
         elif period == "day":
-            min = number*24
-            max = (number+1)*24
+            min = number * 24
+            max = (number + 1) * 24
         for col in zone_mean_air.columns:
             ax = zone_mean_air.iloc[min:max].plot(y=[col], figsize=(10, 5), grid=True)
             # temp.plot(ax=ax)
@@ -964,7 +967,7 @@ class ExportEP(ITask):
                 area = bound_prop.Mass()
                 if area == 0:
                     continue
-                #todo: fix common_shape no longer returns zero-area compound
+                # todo: fix common_shape no longer returns zero-area compound
                 temp_comm = BRepAlgoAPI_Common(common_shape, halfspace).Shape()
                 comm_prop = GProp_GProps()
                 brepgprop_SurfaceProperties(temp_comm, comm_prop)
@@ -1055,7 +1058,7 @@ class ExportEP(ITask):
                     b_processed.append(other_bound)
                     if other_bound == bound:
                         continue
-                        #todo: should no longer be necessary (
+                        # todo: should no longer be necessary (
                         if not hasattr(other_bound, 'bound_neighbors_2b'):
                             continue
                         for b_bound in other_bound.bound_neighbors_2b:
@@ -1081,7 +1084,7 @@ class ExportEP(ITask):
                     if not hasattr(other_bound, 'scaled_bound_cl'):
                         other_bound.scaled_bound_cl = self.scale_face(other_bound.bound_shape_cl, 1.5)
                     unscaled_dist = BRepExtrema_DistShapeShape(bound.bound_shape_cl, other_bound.bound_shape_cl,
-                                                             Extrema_ExtFlag_MIN).Value()
+                                                               Extrema_ExtFlag_MIN).Value()
                     if unscaled_dist < 0.3:
                         scaled_dist = BRepExtrema_DistShapeShape(bound.scaled_bound_cl, other_bound.scaled_bound_cl,
                                                                  Extrema_ExtFlag_MIN).Value()
@@ -1123,15 +1126,17 @@ class ExportEP(ITask):
                             continue
                         if not hasattr(neighbor, 'scaled_bound_cl'):
                             neighbor.scaled_bound_cl = self.scale_face(neighbor.bound_shape_cl, 1.5)
-                        no_dist = BRepExtrema_DistShapeShape(neighbor.scaled_bound_cl, other_bound.scaled_bound_cl, Extrema_ExtFlag_MIN).Value()
+                        no_dist = BRepExtrema_DistShapeShape(neighbor.scaled_bound_cl, other_bound.scaled_bound_cl,
+                                                             Extrema_ExtFlag_MIN).Value()
                         if no_dist > 1e-6:
                             continue
                         if not (neighbor in bound.bound_neighbors):
-                            nb_dist = BRepExtrema_DistShapeShape(neighbor.scaled_bound_cl, bound.scaled_bound_cl, Extrema_ExtFlag_MIN).Value()
+                            nb_dist = BRepExtrema_DistShapeShape(neighbor.scaled_bound_cl, bound.scaled_bound_cl,
+                                                                 Extrema_ExtFlag_MIN).Value()
                             if nb_dist > 1e-6:
                                 continue
                         brepbndlib_Add(neighbor.scaled_bound_cl, neighbor_box)
-                        neighbor_count +=1
+                        neighbor_count += 1
                         b_processed.append(neighbor)
                     if neighbor_count > 0:
                         neighbor_shape = BRepPrimAPI_MakeBox(neighbor_box.CornerMin(), neighbor_box.CornerMax()).Shape()
@@ -1149,7 +1154,7 @@ class ExportEP(ITask):
                     #     sec = BRepAlgoAPI_Section(bound.bound_shape_cl, other_bound.bound_shape_cl)
                     #     sec_shape = self.scale_edge(sec.Shape(), 2)
                     #     sec = BRepAlgoAPI_Section(bound.scaled_bound_cl, sec_shape)
-                    if SpaceBoundary._get_number_of_vertices(sec.Shape()) <2:
+                    if SpaceBoundary._get_number_of_vertices(sec.Shape()) < 2:
                         sec_solid = self._make_solid_box_shape(other_bound.scaled_bound_cl)
                         sec = BRepAlgoAPI_Section(bound.scaled_bound_cl, sec_solid)
 
@@ -1182,7 +1187,7 @@ class ExportEP(ITask):
                 first_sec = sections2[0]
                 if not hasattr(sections2[0], 'neighbors'):
                     continue
-                if len(sections2[0].neighbors) <2:
+                if len(sections2[0].neighbors) < 2:
                     continue
                 prev = sections2[0].neighbors[-1]
                 vertex_list = []
@@ -1218,7 +1223,7 @@ class ExportEP(ITask):
                 if len(vert_list2) == 0:
                     continue
                 vert_list2.append(vert_list2[0])
-                if len(vert_list2) <4:
+                if len(vert_list2) < 4:
                     continue
                 if len(vert_list2) > 12:
                     continue
@@ -1239,8 +1244,8 @@ class ExportEP(ITask):
                 if area_bound > area_related:
                     rel_bound.bound_shape_cl = bound.bound_shape_cl.Reversed()
 
-                #if not hasattr(rel_bound, 'bound_neighbors_2b'):
-                 #   continue
+                # if not hasattr(rel_bound, 'bound_neighbors_2b'):
+                #   continue
             print('WAIT')
 
     @staticmethod
@@ -1364,7 +1369,7 @@ class ExportEP(ITask):
             elif hasattr(inst_obj.bound_instance, 'layers') \
                     and inst_obj.bound_instance.layers is not None \
                     and hasattr(inst_obj.bound_instance.layers[0], 'thickness'):
-                        thickness = inst_obj.bound_instance.layers[0].thickness
+                thickness = inst_obj.bound_instance.layers[0].thickness
             else:
                 thickness = 0.2
             self._move_bound_in_direction_of_normal(inst_obj, thickness)
@@ -1382,7 +1387,6 @@ class ExportEP(ITask):
                 self._move_bound_in_direction_of_normal(inst_obj, thickness, reversed=True)
             return continue_flag
 
-
     def _move_bounds_to_centerline(self, instances):
         for inst in instances:
             if instances[inst].ifc_type != "IfcRelSpaceBoundary":
@@ -1397,12 +1401,13 @@ class ExportEP(ITask):
             if inst_obj.related_bound is None:
                 continue
 
-            distance = BRepExtrema_DistShapeShape(inst_obj.bound_shape, inst_obj.related_bound.bound_shape, Extrema_ExtFlag_MIN).Value()
+            distance = BRepExtrema_DistShapeShape(inst_obj.bound_shape, inst_obj.related_bound.bound_shape,
+                                                  Extrema_ExtFlag_MIN).Value()
 
             if hasattr(inst_obj, 'bound_shape_cl'):
                 continue
 
-            half_dist = distance/2
+            half_dist = distance / 2
             trsf = self._move_bound_in_direction_of_normal(inst_obj, half_dist)
             self._move_2b_bounds_to_centerline(inst_obj, trsf)
             self._move_neighbors_to_centerline(inst_obj, trsf, first=False)
@@ -1447,7 +1452,8 @@ class ExportEP(ITask):
                     check1 = IdfObject._compare_direction_of_normals(bound.bound_normal, sb_neighbor.bound_normal)
                     if not (check1):
                         continue
-                    distance = BRepExtrema_DistShapeShape(bound.bound_shape_cl, sb_neighbor.bound_shape_cl, Extrema_ExtFlag_MIN).Value()
+                    distance = BRepExtrema_DistShapeShape(bound.bound_shape_cl, sb_neighbor.bound_shape_cl,
+                                                          Extrema_ExtFlag_MIN).Value()
                     if distance < 1e-3:
                         continue
                     if distance > 0.4:
@@ -1463,11 +1469,12 @@ class ExportEP(ITask):
                         vert = anExp.Current()
                         vertex = topods_Vertex(vert)
                         pnt_v1 = BRep_Tool.Pnt(vertex)
-                        dist = BRepExtrema_DistShapeShape(vertex, sb_neighbor.bound_shape_cl, Extrema_ExtFlag_MIN).Value()
+                        dist = BRepExtrema_DistShapeShape(vertex, sb_neighbor.bound_shape_cl,
+                                                          Extrema_ExtFlag_MIN).Value()
 
-                        if (dist - distance)**2 < 1e-2:
+                        if (dist - distance) ** 2 < 1e-2:
                             for i in neigh_normal.Coord():
-                                prod_vec.append(i * dist/2)
+                                prod_vec.append(i * dist / 2)
                             trsf = gp_Trsf()
                             coord = gp_XYZ(*prod_vec)
                             vec = gp_Vec(coord)
@@ -1475,7 +1482,7 @@ class ExportEP(ITask):
                             pnt_v1.Transform(trsf)
 
                             result_vert.append(pnt_v1)
-                            moved_vert_count +=1
+                            moved_vert_count += 1
                         else:
                             result_vert.append(pnt_v1)
                         anExp.Next()
@@ -1493,7 +1500,7 @@ class ExportEP(ITask):
                         pnt_v1 = BRep_Tool.Pnt(vertex)
                         dist = BRepExtrema_DistShapeShape(vertex, bound.bound_shape_cl, Extrema_ExtFlag_MIN).Value()
 
-                        if (dist - distance)**2 < 1e-2:
+                        if (dist - distance) ** 2 < 1e-2:
                             for i in neigh_normal.Coord():
                                 prod_vec.append(i * dist / 2)
                             trsf = gp_Trsf()
@@ -1503,7 +1510,7 @@ class ExportEP(ITask):
                             pnt_v1.Transform(trsf)
 
                             result_vert.append(pnt_v1)
-                            moved_vert_count +=1
+                            moved_vert_count += 1
                         else:
                             result_vert.append(pnt_v1)
                         anExp.Next()
@@ -1535,8 +1542,6 @@ class ExportEP(ITask):
                     # todo: compute new area for bound_shape_cl and compare to area of related bound
                     # todo: assign reversed bound_shape_cl to related bound if area of related bound is smaller
 
-
-
     def _export_geom_to_idf(self, instances, idf):
         for inst in instances:
             if instances[inst].ifc_type != "IfcRelSpaceBoundary":
@@ -1545,7 +1550,8 @@ class ExportEP(ITask):
             idfp = IdfObject(inst_obj, idf)
             if idfp.skip_bound:
                 # idf.popidfobject(idfp.key, -1)
-                self.logger.warning("Boundary with the GUID %s (%s) is skipped (due to missing boundary conditions)!", idfp.name, idfp.surface_type)
+                self.logger.warning("Boundary with the GUID %s (%s) is skipped (due to missing boundary conditions)!",
+                                    idfp.name, idfp.surface_type)
                 continue
         for inst in instances:
             if instances[inst].ifc_type != "IfcSpace":
@@ -1561,7 +1567,6 @@ class ExportEP(ITask):
                         "Boundary with the GUID %s (%s) is skipped (due to missing boundary conditions)!", idfp.name,
                         idfp.surface_type)
                     continue
-
 
     def _export_to_stl_for_cfd(self, instances, idf):
         self.logger.info("Export STL for CFD")
@@ -1584,17 +1589,18 @@ class ExportEP(ITask):
             bound_names = []
             for bound in space.space_boundaries:
                 bound_names.append(bound.guid)
-            space_bound_df= space_bound_df.append({'space_id':space.guid, 'bound_ids': bound_names}, ignore_index=True)
+            space_bound_df = space_bound_df.append({'space_id': space.guid, 'bound_ids': bound_names},
+                                                   ignore_index=True)
         space_bound_df.to_csv(stl_dir + "space_bound_list.csv")
 
     @staticmethod
     def combine_stl_files(stl_name):
         stl_dir = str(PROJECT.root) + "/export/"
-        with open(stl_dir+stl_name + "_combined_STL.stl", 'wb+') as output_file:
-            for i in os.listdir(stl_dir+'STL/'):
-                if os.path.isfile(os.path.join(stl_dir+'STL/',i)) and (stl_name + "_cfd_") in i:
-                    sb_mesh = mesh.Mesh.from_file(stl_dir+'STL/'+i)
-                    mesh_name = i.split("_",1)[-1]
+        with open(stl_dir + stl_name + "_combined_STL.stl", 'wb+') as output_file:
+            for i in os.listdir(stl_dir + 'STL/'):
+                if os.path.isfile(os.path.join(stl_dir + 'STL/', i)) and (stl_name + "_cfd_") in i:
+                    sb_mesh = mesh.Mesh.from_file(stl_dir + 'STL/' + i)
+                    mesh_name = i.split("_", 1)[-1]
                     mesh_name = mesh_name.replace(".stl", "")
                     mesh_name = mesh_name.replace("$", "___")
                     sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
@@ -1604,15 +1610,14 @@ class ExportEP(ITask):
         stl_dir = str(PROJECT.root) + "/export/"
         os.makedirs(os.path.dirname(stl_dir + "space_stl/"), exist_ok=True)
 
-        with open(stl_dir+"space_stl/"+"space_" + space_name + ".stl", 'wb+') as output_file:
-            for i in os.listdir(stl_dir+'STL/'+ space_name + "/"):
-                if os.path.isfile(os.path.join(stl_dir+'STL/'+ space_name + "/",i)) and (stl_name + "_cfd_") in i:
-                    sb_mesh = mesh.Mesh.from_file(stl_dir+'STL/'+i)
-                    mesh_name = i.split("_",1)[-1]
+        with open(stl_dir + "space_stl/" + "space_" + space_name + ".stl", 'wb+') as output_file:
+            for i in os.listdir(stl_dir + 'STL/' + space_name + "/"):
+                if os.path.isfile(os.path.join(stl_dir + 'STL/' + space_name + "/", i)) and (stl_name + "_cfd_") in i:
+                    sb_mesh = mesh.Mesh.from_file(stl_dir + 'STL/' + i)
+                    mesh_name = i.split("_", 1)[-1]
                     mesh_name = mesh_name.replace(".stl", "")
                     mesh_name = mesh_name.replace("$", "___")
                     sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
-
 
     @staticmethod
     def _init_idf():
@@ -1664,7 +1669,7 @@ class ExportEP(ITask):
             space = instance
             space.storey = elements.Storey(space.get_storey())
             room, room_key = self._get_room_from_zone_dict(key=space.ifc.LongName)
-            stat_name = "STATS " + room_key[0].replace(",","")
+            stat_name = "STATS " + room_key[0].replace(",", "")
             if idf.getobject("HVACTEMPLATE:THERMOSTAT", stat_name) is None:
                 stat = self._set_day_hvac_template(idf, stat_name, room, room_key)
             else:
@@ -1717,7 +1722,7 @@ class ExportEP(ITask):
             name = "All_Zones"
         zs = {}
         for i, z in enumerate(idf_zones):
-            zs.update({"Zone_"+str(i+1)+ "_Name": z.Name})
+            zs.update({"Zone_" + str(i + 1) + "_Name": z.Name})
         idf.newidfobject("ZONELIST", Name=name, **zs)
 
     def _init_zonegroups(self, instances, idf):
@@ -1765,13 +1770,15 @@ class ExportEP(ITask):
 
         be_dict = dict([k for k in be_file.items() if type(k[1]) == dict])
         applicable_dict = {k: v for k, v in be_dict.items() if
-                           (v['construction_type'] == ctype and v['building_age_group'][0] <= year <= v['building_age_group'][1])}
+                           (v['construction_type'] == ctype and v['building_age_group'][0] <= year <=
+                            v['building_age_group'][1])}
         window_dict = {k: v for k, v in be_dict.items() if
                        (all(p in v['construction_type'] for p in wtype) and
                         v['building_age_group'][0] <= year <= v['building_age_group'][1])}
         window = window_dict.get(list(window_dict)[0])
         window_materials = [*list(*self._set_construction_elem(window, "BS Exterior Window", idf)), window['g_value']]
-        door = list({k: v for k, v in [k for k in mt_file.items() if type(k[1]) == dict] if (v['name'] == 'hardwood')})[0]
+        door = list({k: v for k, v in [k for k in mt_file.items() if type(k[1]) == dict] if (v['name'] == 'hardwood')})[
+            0]
         idf.newidfobject("CONSTRUCTION",
                          Name="BS Door",
                          Outside_Layer=mt_file[door]['name']
@@ -1809,7 +1816,7 @@ class ExportEP(ITask):
                          Number_of_Horizontal_Dividers=2,
                          Number_of_Vertical_Dividers=2,
                          Divider_Conductance=3
-        )
+                         )
 
     def _set_construction_elem(self, elem, name, idf):
         layer = elem.get('layer')
@@ -1832,7 +1839,7 @@ class ExportEP(ITask):
     def _set_material_elem(self, mat_dict, thickness, idf):
         if idf.getobject("MATERIAL", mat_dict['name']) != None:
             return
-        specific_heat = mat_dict['heat_capac']*1000# *mat_dict['density']*thickness
+        specific_heat = mat_dict['heat_capac'] * 1000  # *mat_dict['density']*thickness
         if specific_heat < 100:
             specific_heat = 100
         idf.newidfobject("MATERIAL",
@@ -1849,7 +1856,7 @@ class ExportEP(ITask):
             return
         idf.newidfobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM",
                          Name=mat_dict['name'],
-                         UFactor=1/(0.04+thickness/mat_dict['thermal_conduc']+0.13),
+                         UFactor=1 / (0.04 + thickness / mat_dict['thermal_conduc'] + 0.13),
                          Solar_Heat_Gain_Coefficient=g_value,
                          Visible_Transmittance=0.8
                          )
@@ -1880,7 +1887,7 @@ class ExportEP(ITask):
         return room, room_key
 
     def _set_people(self, idf, name, zone_name, room, room_key, method='area'):
-        schedule_name = "Schedule " + "People " + room_key[0].replace(',','')
+        schedule_name = "Schedule " + "People " + room_key[0].replace(',', '')
         profile_name = 'persons_profile'
         self._set_day_week_year_schedule(idf, room, profile_name, schedule_name)
         # set default activity schedule
@@ -1894,11 +1901,11 @@ class ExportEP(ITask):
                              Field_1="Through: 12/31",
                              Field_2="For: Alldays",
                              Field_3="Until: 24:00",
-                             Field_4=room['fixed_heat_flow_rate_persons'] # in W/Person
-                             )#other method for Field_4 (not used here) ="persons_profile"*"activity_degree_persons"*58,1*1,8 (58.1 W/(m2*met), 1.8m2/Person)
+                             Field_4=room['fixed_heat_flow_rate_persons']  # in W/Person
+                             )  # other method for Field_4 (not used here) ="persons_profile"*"activity_degree_persons"*58,1*1,8 (58.1 W/(m2*met), 1.8m2/Person)
 
         if type(room['persons']) == dict:
-            num_people = room['persons']['/'][0]/room['persons']['/'][1]
+            num_people = room['persons']['/'][0] / room['persons']['/'][1]
         else:
             num_people = room['persons']
         people = idf.newidfobject(
@@ -1940,29 +1947,29 @@ class ExportEP(ITask):
                              End_Day_1=31)
 
     def _set_equipment(self, idf, name, zone_name, room, room_key, method='area'):
-        schedule_name = "Schedule " + "Equipment " + room_key[0].replace(',','')
+        schedule_name = "Schedule " + "Equipment " + room_key[0].replace(',', '')
         profile_name = 'machines_profile'
         self._set_day_week_year_schedule(idf, room, profile_name, schedule_name)
         idf.newidfobject(
             "ELECTRICEQUIPMENT",
             Name=name,
             Zone_or_ZoneList_Name=zone_name,
-            Schedule_Name=schedule_name, #Max: Define new Schedule:Compact based on "machines_profile"
+            Schedule_Name=schedule_name,  # Max: Define new Schedule:Compact based on "machines_profile"
             Design_Level_Calculation_Method="Watts/Area",
-            Watts_per_Zone_Floor_Area=room['machines']#Max: "machines"
-            #Max: add "Fraction_Radiant" = "ratio_conv_rad_machines"
+            Watts_per_Zone_Floor_Area=room['machines']  # Max: "machines"
+            # Max: add "Fraction_Radiant" = "ratio_conv_rad_machines"
         )
 
     def _set_lights(self, idf, name, zone_name, room, room_key, method='area'):
-        #TODO: Define lighting parameters based on IFC (and User-Input otherwise)
-        schedule_name = "Schedule " + "Lighting " + room_key[0].replace(',','')
+        # TODO: Define lighting parameters based on IFC (and User-Input otherwise)
+        schedule_name = "Schedule " + "Lighting " + room_key[0].replace(',', '')
         profile_name = 'lighting_profile'
         self._set_day_week_year_schedule(idf, room, profile_name, schedule_name)
         mode = "Watts/Area"
-        watts_per_zone_floor_area = room['lighting_power'] #Max: "lighting_power"
+        watts_per_zone_floor_area = room['lighting_power']  # Max: "lighting_power"
         return_air_fraction = 0.0
-        fraction_radiant = 0.42 #cf. Table 1.28 in InputOutputReference EnergyPlus (Version 9.4.0), p. 506
-        fraction_visible = 0.18 #Max: fractions do not match with .json Data. Maybe set by user-input later
+        fraction_radiant = 0.42  # cf. Table 1.28 in InputOutputReference EnergyPlus (Version 9.4.0), p. 506
+        fraction_visible = 0.18  # Max: fractions do not match with .json Data. Maybe set by user-input later
 
         idf.newidfobject(
             "LIGHTS",
@@ -1982,18 +1989,19 @@ class ExportEP(ITask):
             "ZONEINFILTRATION:DESIGNFLOWRATE",
             Name=name,
             Zone_or_ZoneList_Name=zone_name,
-            Schedule_Name="Continuous", #Max: if "use_constant_infiltration"==True (this default continuous schedule seems to be constant anyways")
+            Schedule_Name="Continuous",
+            # Max: if "use_constant_infiltration"==True (this default continuous schedule seems to be constant anyways")
             Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-            Air_Changes_per_Hour=room['infiltration_rate'] #Max: infiltration_rate
+            Air_Changes_per_Hour=room['infiltration_rate']  # Max: infiltration_rate
         )
 
     def _set_day_hvac_template(self, idf, name, room, room_key):
         clg_schedule_name = ''
-        htg_schedule_name = "Schedule " + "Heating " + room_key[0].replace(',','')
+        htg_schedule_name = "Schedule " + "Heating " + room_key[0].replace(',', '')
         self._set_day_week_year_schedule(idf, room, 'heating_profile', htg_schedule_name)
 
         # if room['with_cooling']:
-        clg_schedule_name = "Schedule " + "Cooling " + room_key[0].replace(',','')
+        clg_schedule_name = "Schedule " + "Cooling " + room_key[0].replace(',', '')
         self._set_day_week_year_schedule(idf, room, 'cooling_profile', clg_schedule_name)
         stat = idf.newidfobject(
             "HVACTEMPLATE:THERMOSTAT",
@@ -2014,8 +2022,8 @@ class ExportEP(ITask):
         elif cooling_sp < 24:
             cooling_sp = 23
 
-        setback_htg = 18 #Max: "T_threshold_heating"
-        setback_clg = 26 #Max: "T_threshold_cooling"
+        setback_htg = 18  # Max: "T_threshold_heating"
+        setback_clg = 26  # Max: "T_threshold_cooling"
 
         # ensure setback temperature actually performs a setback on temperature
         if setback_htg > heating_sp:
@@ -2024,23 +2032,25 @@ class ExportEP(ITask):
             setback_clg = cooling_sp
 
         if mode == "setback":
-            htg_alldays = self._define_schedule_part('Alldays', [('5:00', setback_htg), ('21:00', heating_sp), ('24:00', setback_htg)])
-            clg_alldays = self._define_schedule_part('Alldays', [('5:00', setback_clg), ('21:00', cooling_sp), ('24:00', setback_clg)])
+            htg_alldays = self._define_schedule_part('Alldays', [('5:00', setback_htg), ('21:00', heating_sp),
+                                                                 ('24:00', setback_htg)])
+            clg_alldays = self._define_schedule_part('Alldays', [('5:00', setback_clg), ('21:00', cooling_sp),
+                                                                 ('24:00', setback_clg)])
             htg_name = "H_SetBack_" + str(heating_sp)
             clg_name = "C_SetBack_" + str(cooling_sp)
             if idf.getobject("SCHEDULE:COMPACT", htg_name) is None:
-                htg_sched = self._write_schedule(idf, htg_name, [htg_alldays,])
+                htg_sched = self._write_schedule(idf, htg_name, [htg_alldays, ])
             else:
                 htg_sched = idf.getobject("SCHEDULE:COMPACT", htg_name)
-            if idf.getobject("SCHEDULE:COMPACT", clg_name) is None: #Max: only if "with_cooling"==True
-                clg_sched = self._write_schedule(idf, clg_name, [clg_alldays,])
+            if idf.getobject("SCHEDULE:COMPACT", clg_name) is None:  # Max: only if "with_cooling"==True
+                clg_sched = self._write_schedule(idf, clg_name, [clg_alldays, ])
             else:
                 clg_sched = idf.getobject("SCHEDULE:COMPACT", clg_name)
             stat = idf.newidfobject(
                 "HVACTEMPLATE:THERMOSTAT",
                 Name="STAT_" + name,
                 Heating_Setpoint_Schedule_Name=htg_name,
-                Cooling_Setpoint_Schedule_Name=clg_name, #Max: only if "with_cooling"==True
+                Cooling_Setpoint_Schedule_Name=clg_name,  # Max: only if "with_cooling"==True
             )
 
         if mode == "constant":
@@ -2068,9 +2078,9 @@ class ExportEP(ITask):
             part = parts[1]
             for set in part:
                 field_count += 1
-                sched_list.update({'Field_'+ str(field_count): 'Until: '+ str(set[0])})
+                sched_list.update({'Field_' + str(field_count): 'Until: ' + str(set[0])})
                 field_count += 1
-                sched_list.update({'Field_'+ str(field_count): str(set[1])})
+                sched_list.update({'Field_' + str(field_count): str(set[1])})
         if idf.getobject("SCHEDULETYPELIMITS", "Temperature") is None:
             idf.newidfobject("SCHEDULETYPELIMITS", Name="Temperature")
 
@@ -2132,7 +2142,6 @@ class ExportEP(ITask):
             # print("HOLD")
         # print("HOLD")
 
-
     @staticmethod
     def _set_simulation_control(idf):
         """
@@ -2159,7 +2168,7 @@ class ExportEP(ITask):
 
         # remove all existing output variables with reporting frequency "Timestep"
         out_var = [v for v in idf.idfobjects['OUTPUT:VARIABLE']
-                     if v.Reporting_Frequency.upper() == "TIMESTEP"]
+                   if v.Reporting_Frequency.upper() == "TIMESTEP"]
         for var in out_var:
             idf.removeidfobject(var)
 
@@ -2394,11 +2403,13 @@ class ExportEP(ITask):
         area_df = area_df.append([
             self._sum_of_surface_area(granularity=granularity, guid=guid, long_name=long_name, out_bound_cond="ALL",
                                       surface=surface, glazing=glazing),
-            self._sum_of_surface_area(granularity=granularity, guid=guid, long_name=long_name, out_bound_cond="Outdoors",
+            self._sum_of_surface_area(granularity=granularity, guid=guid, long_name=long_name,
+                                      out_bound_cond="Outdoors",
                                       surface=surf_outdoors, glazing=glazing_outdoors),
             self._sum_of_surface_area(granularity=granularity, guid=guid, long_name=long_name, out_bound_cond="Surface",
                                       surface=surf_surface, glazing=glazing_surface),
-            self._sum_of_surface_area(granularity=granularity, guid=guid, long_name=long_name, out_bound_cond="Adiabatic",
+            self._sum_of_surface_area(granularity=granularity, guid=guid, long_name=long_name,
+                                      out_bound_cond="Adiabatic",
                                       surface=surf_adiabatic, glazing=glazing_adiabatic)
         ],
             ignore_index=True
@@ -2446,18 +2457,21 @@ class ExportEP(ITask):
         bound_count = pd.DataFrame(
             columns=["IFC_SB_all", "IFC_SB_2a", "IFC_SB_2b",
                      "BIM2SIM_SB_2b",
-                     "IDF_all", "IDF_all_B", "IDF_ADB", "IDF_SFB", "IDF_ODB", "IDF_GDB", "IDF_VTB", "IDF_all_F", "IDF_ODF", "IDF_INF"])
+                     "IDF_all", "IDF_all_B", "IDF_ADB", "IDF_SFB", "IDF_ODB", "IDF_GDB", "IDF_VTB", "IDF_all_F",
+                     "IDF_ODF", "IDF_INF"])
         ifc_bounds = ifc.by_type('IfcRelSpaceBoundary')
         bounds_2b = [instances[inst] for inst in instances if instances[inst].__class__.__name__ == "SpaceBoundary2B"]
         idf_all_b = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"]]
-        idf_adb = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"] if s.Outside_Boundary_Condition =="Adiabatic"]
-        idf_sfb = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"] if s.Outside_Boundary_Condition =="Surface"]
-        idf_odb = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"] if s.Outside_Boundary_Condition =="Outdoors"]
-        idf_gdb = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"] if s.Outside_Boundary_Condition =="Ground"]
-        idf_vtb = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"] if s.Construction_Name =="Air Wall"]
+        idf_adb = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"] if s.Outside_Boundary_Condition == "Adiabatic"]
+        idf_sfb = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"] if s.Outside_Boundary_Condition == "Surface"]
+        idf_odb = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"] if s.Outside_Boundary_Condition == "Outdoors"]
+        idf_gdb = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"] if s.Outside_Boundary_Condition == "Ground"]
+        idf_vtb = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"] if s.Construction_Name == "Air Wall"]
         idf_all_f = [f for f in idf.idfobjects["FENESTRATIONSURFACE:DETAILED"]]
-        idf_odf = [f for f in idf.idfobjects["FENESTRATIONSURFACE:DETAILED"] if f.Outside_Boundary_Condition_Object =='']
-        idf_inf = [f for f in idf.idfobjects["FENESTRATIONSURFACE:DETAILED"] if f.Outside_Boundary_Condition_Object !='']
+        idf_odf = [f for f in idf.idfobjects["FENESTRATIONSURFACE:DETAILED"] if
+                   f.Outside_Boundary_Condition_Object == '']
+        idf_inf = [f for f in idf.idfobjects["FENESTRATIONSURFACE:DETAILED"] if
+                   f.Outside_Boundary_Condition_Object != '']
         bound_count = bound_count.append([
             {
                 "IFC_SB_all": len(ifc_bounds),
@@ -2504,7 +2518,7 @@ class ExportEP(ITask):
 
                     prod_vec = []
                     for i in opening_obj.bound_normal.Coord():
-                        prod_vec.append(distance*i)
+                        prod_vec.append(distance * i)
 
                     # moves opening to parent boundary
                     trsf = gp_Trsf()
@@ -2777,7 +2791,7 @@ class ExportEP(ITask):
                 for bound in space.space_boundaries:
                     if (gp_Pnt(bound.bound_center).Distance(gp_Pnt(face_center)) > 1e-3):
                         continue
-                    if ((bound.bound_area - p.Mass())**2 < 0.01):
+                    if ((bound.bound_area - p.Mass()) ** 2 < 0.01):
                         if fc.Orientation() == 1:
                             bound.bound_shape.Complement()
                             complemented = True
@@ -2842,9 +2856,9 @@ class ExportEP(ITask):
         for i, face in enumerate(faces):
             b_bound = SpaceBoundary2B()
             b_bound.bound_shape = face
-            if b_bound.bound_area <1e-6:
+            if b_bound.bound_area < 1e-6:
                 continue
-            b_bound.guid = space_obj.ifc.GlobalId + "_2B_" + str("%003.f"%(i+1))
+            b_bound.guid = space_obj.ifc.GlobalId + "_2B_" + str("%003.f" % (i + 1))
             b_bound.thermal_zones.append(space_obj)
             for instance in bound_obj:
                 if hasattr(instance, 'related_parent'):
@@ -2857,7 +2871,8 @@ class ExportEP(ITask):
             space_obj.space_boundaries_2B.append(b_bound)
             inst_2b[b_bound.guid] = b_bound
             for bound in space_obj.space_boundaries:
-                distance = BRepExtrema_DistShapeShape(bound.bound_shape, b_bound.bound_shape, Extrema_ExtFlag_MIN).Value()
+                distance = BRepExtrema_DistShapeShape(bound.bound_shape, b_bound.bound_shape,
+                                                      Extrema_ExtFlag_MIN).Value()
                 if distance == 0:
                     b_bound.bound_neighbors.append(bound)
                     if not hasattr(bound, 'bound_neighbors_2b'):
@@ -2903,7 +2918,7 @@ class IdfObject():
             self.building_surface_name = inst_obj.related_parent_bound.ifc.GlobalId
         self._map_surface_types(inst_obj)
         self._map_boundary_conditions(inst_obj)
-        #todo: fix material definitions!
+        # todo: fix material definitions!
         # self._define_materials(inst_obj, idf)
         self._set_bs2021_construction_name()
         if self.construction_name == None:
@@ -2913,15 +2928,15 @@ class IdfObject():
             self._set_idfobject_coordinates(obj, idf, inst_obj)
 
     def _define_materials(self, inst_obj, idf):
-        #todo: define default property_sets
-        #todo: request missing values from user-inputs
+        # todo: define default property_sets
+        # todo: request missing values from user-inputs
         if inst_obj.bound_instance is None and self.out_bound_cond == "Surface":
             idf_constr = idf.idfobjects['CONSTRUCTION:AIRBOUNDARY'.upper()]
             included = False
             for cons in idf_constr:
                 if 'Air Wall' in cons.Name:
                     included = True
-            if included==False:
+            if included == False:
                 idf.newidfobject("CONSTRUCTION:AIRBOUNDARY",
                                  Name='Air Wall',
                                  Solar_and_Daylighting_Method='GroupedZones',
@@ -3000,12 +3015,12 @@ class IdfObject():
                             ufactor = layer.thermal_transmittance
                         else:
                             try:
-                                #todo: use finder to get transmittance
-                                #todo: ensure thermal_transmittance is not applied to multiple layers
+                                # todo: use finder to get transmittance
+                                # todo: ensure thermal_transmittance is not applied to multiple layers
                                 psw = inst_obj.bound_instance.get_propertyset('Pset_WindowCommon')
                                 ufactor = psw['ThermalTransmittance']
                             except:
-                                ufactor = 1/(0.13+thickness/conductivity+0.04)
+                                ufactor = 1 / (0.13 + thickness / conductivity + 0.04)
                         # if layer.solar_heat_gain_coefficient is None:
                         #     solar_heat_gain_coefficient = 0.763
                         # else:
@@ -3034,18 +3049,18 @@ class IdfObject():
                                      Outside_Layer=inst_obj.bound_instance.layers[0].guid)
                 if len(inst_obj.bound_instance.layers) > 1:
                     if inst_obj.bound_instance.ifc_type.upper() in ("IFCWINDOW", "IFCDOOR"):
-                        #todo: Add construction implementation for openings with >1 layer
-                        #todo: required construction: gas needs to be bounded by solid surfaces
+                        # todo: Add construction implementation for openings with >1 layer
+                        # todo: required construction: gas needs to be bounded by solid surfaces
                         self.construction_name = None
                         return
                     other_layers = {}
                     for i, layer in enumerate(inst_obj.bound_instance.layers[1:]):
-                        other_layers.update({'Layer_' + str(i+2): layer.guid})
+                        other_layers.update({'Layer_' + str(i + 2): layer.guid})
                     idf.newidfobject("CONSTRUCTION",
-                                            Name=construction_name,
-                                            Outside_Layer=inst_obj.bound_instance.layers[0].guid,
-                                            **other_layers
-                                            )
+                                     Name=construction_name,
+                                     Outside_Layer=inst_obj.bound_instance.layers[0].guid,
+                                     **other_layers
+                                     )
 
     def _set_construction_name(self):
         if self.surface_type == "Wall":
@@ -3090,7 +3105,6 @@ class IdfObject():
             if self.out_bound_cond == "Surface":
                 self.construction_name = "Air Wall"
 
-
     def _set_idfobject_coordinates(self, obj, idf, inst_obj):
         # validate bound_shape
         # self._check_for_vertex_duplicates()
@@ -3098,7 +3112,7 @@ class IdfObject():
         obj_pnts = self._get_points_of_face(self.bound_shape)
         obj_coords = []
         for pnt in obj_pnts:
-            co = tuple(round(p,3) for p in pnt.Coord())
+            co = tuple(round(p, 3) for p in pnt.Coord())
             obj_coords.append(co)
         try:
             obj.setcoords(obj_coords)
@@ -3137,7 +3151,6 @@ class IdfObject():
     #         if len(vert_list1) == len(vert_list2):
     #             self.bound_shape = self._make_face_from_vertex_list(vert_list1)
     #             self.related_bound.bound_shape = self._make_face_from_vertex_list(vert_list2)
-
 
     def _set_idfobject_attributes(self, idf):
         if self.surface_type is not None:
@@ -3188,7 +3201,7 @@ class IdfObject():
             elif elem.ifc_type == "IfcRoof":
                 surface_type = "Roof"
             elif elem.ifc_type == "IfcSlab":
-                if elem.predefined_type.lower() =='baseslab':
+                if elem.predefined_type.lower() == 'baseslab':
                     surface_type = 'Floor'
                 elif elem.predefined_type.lower() == 'roof':
                     surface_type = 'Roof'
@@ -3261,7 +3274,7 @@ class IdfObject():
             self.out_bound_cond = "Ground"
             self.sun_exposed = 'NoSun'
             self.wind_exposed = 'NoWind'
-        elif inst_obj.related_bound is not None:# or elem.virtual_physical == "VIRTUAL": # elem.internal_external == "INTERNAL"
+        elif inst_obj.related_bound is not None:  # or elem.virtual_physical == "VIRTUAL": # elem.internal_external == "INTERNAL"
             self.out_bound_cond = 'Surface'
             self.out_bound_cond_obj = inst_obj.related_bound.ifc.GlobalId
             self.sun_exposed = 'NoSun'
@@ -3292,7 +3305,7 @@ class IdfObject():
         """
         dotp = normal1.Dot(normal2)
         check = False
-        if 1-1e-2 < dotp ** 2 < 1+1e-2:
+        if 1 - 1e-2 < dotp ** 2 < 1 + 1e-2:
             check = True
         return check
 
@@ -3367,7 +3380,8 @@ class IdfObject():
             pnt = pnt2
         new_obj = idf.copyidfobject(obj)
         new_obj.Name = str(obj.Name) + '_' + str(counter + 1)
-        fc = SpaceBoundary._make_faces_from_pnts([drop_list[-1], drop_list[0], inst_obj.bound_center.Coord(), drop_list[-1]])
+        fc = SpaceBoundary._make_faces_from_pnts(
+            [drop_list[-1], drop_list[0], inst_obj.bound_center.Coord(), drop_list[-1]])
         fcsc = ExportEP.scale_face(ExportEP, fc, 0.99)
         new_pnts = self._get_points_of_face(fcsc)
         new_coords = []
@@ -3496,7 +3510,6 @@ class SpaceBoundaryValidation(Checker):
 
         self._validate_space_boundaries()
 
-
     def _validate_space_boundaries(self):
         self._apply_validation_function(self._check_unique(), 'GlobalId')
         self._apply_validation_function(self._check_level(), '2ndLevel')
@@ -3540,7 +3553,8 @@ class SpaceBoundaryValidation(Checker):
         return self.bound.Description in {'2a', '2b'}
 
     def _check_rel_space(self):
-        return any([self.bound.RelatingSpace.is_a('IfcSpace') or self.bound.RelatingSpace.is_a('IfcExternalSpatialElement')])
+        return any(
+            [self.bound.RelatingSpace.is_a('IfcSpace') or self.bound.RelatingSpace.is_a('IfcExternalSpatialElement')])
 
     def _check_rel_building_elem(self):
         if self.bound.RelatedBuildingElement is not None:
@@ -3580,8 +3594,8 @@ class SpaceBoundaryValidation(Checker):
 
     def _check_inner_boundaries(self):
         return (self.bound.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries is None) or \
-            (i.is_a('IfcCompositeCurve')
-             for i in self.bound.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries)
+               (i.is_a('IfcCompositeCurve')
+                for i in self.bound.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries)
 
     def _check_segments(self):
         return (s.is_a('IfcPolyline')
@@ -3602,19 +3616,21 @@ class SpaceBoundaryValidation(Checker):
         return polyline.is_a('IfcPolyline')
 
     def _check_location(self):
-        return self.bound.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.is_a('IfcCartesianPoint')
+        return self.bound.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.is_a(
+            'IfcCartesianPoint')
 
     def _check_axis(self):
         return self.bound.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Axis.is_a('IfcDirection')
 
     def _check_refdirection(self):
-        return self.bound.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.RefDirection.is_a('IfcDirection')
+        return self.bound.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.RefDirection.is_a(
+            'IfcDirection')
 
     def _check_coords(self, points):
-        return points.is_a('IfcCartesianPoint') and 1 <= len(points.Coordinates) <=4
+        return points.is_a('IfcCartesianPoint') and 1 <= len(points.Coordinates) <= 4
 
     def _check_dir_ratios(self, dir_ratios):
-        return 2 <= len(dir_ratios.DirectionRatios) <=3
+        return 2 <= len(dir_ratios.DirectionRatios) <= 3
 
     def _check_poly_points_coord(self, polyline):
         return all(self._check_coords(p) for p in polyline.Points)
@@ -3626,5 +3642,5 @@ class SpaceBoundaryValidation(Checker):
         return self._check_dir_ratios(self.bound.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Axis)
 
     def _check_refdirection_dir_ratios(self):
-        return self._check_dir_ratios(self.bound.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.RefDirection)
-
+        return self._check_dir_ratios(
+            self.bound.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.RefDirection)
