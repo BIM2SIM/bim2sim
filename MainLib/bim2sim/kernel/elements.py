@@ -1100,6 +1100,282 @@ class SpaceBoundary(element.SubElement):
                 adb_bound = bound
         return adb_bound
 
+    @staticmethod
+    def move_bound_in_direction_of_normal(shape, normal, move_dist, reversed=False):
+        prod_vec = []
+        move_dir = normal.Coord()
+        if reversed:
+            move_dir = normal.Reversed().Coord()
+        for i in move_dir:
+            prod_vec.append(move_dist * i)
+
+        # move bound in direction of bound normal by move_dist
+        trsf = gp_Trsf()
+        coord = gp_XYZ(*prod_vec)
+        vec = gp_Vec(coord)
+        trsf.SetTranslation(vec)
+        moved_shape = BRepBuilderAPI_Transform(shape, trsf).Shape()
+
+        return moved_shape
+
+    def check_for_vertex_duplicates(self, rel_bound):
+        return  # todo: Bugfix, disabled for now
+        nb_vert_this = self._get_number_of_vertices(self.bound_shape)
+        nb_vert_other = self._get_number_of_vertices(rel_bound.bound_shape)
+        # if nb_vert_this != nb_vert_other:
+        setattr(self, 'bound_shape_org', self.bound_shape)
+        vert_list1 = self._get_vertex_list_from_face(self.bound_shape)
+        vert_list1 = self._remove_vertex_duplicates(vert_list1)
+        vert_list1.reverse()
+        vert_list1 = self._remove_vertex_duplicates(vert_list1)
+
+        setattr(rel_bound, 'bound_shape_org', rel_bound.bound_shape)
+        vert_list2 = self._get_vertex_list_from_face(rel_bound.bound_shape)
+        vert_list2 = self._remove_vertex_duplicates(vert_list2)
+        vert_list2.reverse()
+        vert_list2 = self._remove_vertex_duplicates(vert_list2)
+        if len(vert_list1) == len(vert_list2):
+            if len(vert_list1) < 5:
+                return
+            vert_list1.reverse()
+            vert_list2.reverse()
+            self.bound_shape = self._make_face_from_vertex_list(vert_list1)
+            rel_bound.bound_shape = self._make_face_from_vertex_list(vert_list2)
+
+    @staticmethod
+    def _remove_vertex_duplicates(vert_list):
+        for i, vert in enumerate(vert_list):
+            edge_pp_p = BRepBuilderAPI_MakeEdge(vert_list[(i) % (len(vert_list) - 1)],
+                                                vert_list[(i + 1) % (len(vert_list) - 1)]).Shape()
+            distance = BRepExtrema_DistShapeShape(vert_list[(i + 2) % (len(vert_list) - 1)], edge_pp_p,
+                                                  Extrema_ExtFlag_MIN)
+            if 0 < distance.Value() < 0.001:
+                # first: project close vertex to edge
+                edge = BRepBuilderAPI_MakeEdge(vert_list[(i) % (len(vert_list) - 1)],
+                                               vert_list[(i + 1) % (len(vert_list) - 1)]).Edge()
+                projector = GeomAPI_ProjectPointOnCurve(BRep_Tool.Pnt(vert_list[(i + 2) % (len(vert_list) - 1)]),
+                                                        BRep_Tool.Curve(edge)[0])
+                np = projector.NearestPoint()
+                vert_list[(i + 2) % (len(vert_list) - 1)] = BRepBuilderAPI_MakeVertex(np).Vertex()
+                # delete additional vertex
+                vert_list.pop((i + 1) % (len(vert_list) - 1))
+        return vert_list
+
+    @staticmethod
+    def _remove_collinear_vertices(vert_list):
+        vert_list = vert_list[:-1]
+        if len(vert_list) < 5:
+            return vert_list
+        for i, vert in enumerate(vert_list):
+            vert_dist = BRepExtrema_DistShapeShape(vert_list[(i) % (len(vert_list))],
+                                                   vert_list[(i + 2) % (len(vert_list))],
+                                                   Extrema_ExtFlag_MIN).Value()
+            if vert_dist < 1e-3:
+                return vert_list
+            edge_pp_p = BRepBuilderAPI_MakeEdge(vert_list[(i) % (len(vert_list))],
+                                                vert_list[(i + 2) % (len(vert_list))]).Shape()
+            distance = BRepExtrema_DistShapeShape(vert_list[(i + 1) % (len(vert_list))], edge_pp_p,
+                                                  Extrema_ExtFlag_MIN).Value()
+            if distance < 1e-3:
+                vert_list.pop((i + 1) % (len(vert_list)))
+
+        vert_list.append(vert_list[0])
+        return vert_list
+
+    @staticmethod
+    def _make_faces_from_pnts(pnt_list):
+        """
+        This function returns a TopoDS_Face from list of gp_Pnt
+        :param pnt_list: list of gp_Pnt or Coordinate-Tuples
+        :return: TopoDS_Face
+        """
+        an_edge = []
+        if isinstance(pnt_list[0], tuple):
+            new_list = []
+            for pnt in pnt_list:
+                new_list.append(gp_Pnt(gp_XYZ(pnt[0], pnt[1], pnt[2])))
+            pnt_list = new_list
+        for i in range(len(pnt_list[:-1])):
+            edge = BRepBuilderAPI_MakeEdge(pnt_list[i], pnt_list[i + 1]).Edge()
+            an_edge.append(edge)
+        a_wire = BRepBuilderAPI_MakeWire()
+        for edge in an_edge:
+            a_wire.Add(edge)
+        a_wire = a_wire.Wire()
+        a_face = BRepBuilderAPI_MakeFace(a_wire).Face()
+        return a_face
+
+    @staticmethod
+    def _make_face_from_vertex_list(vert_list):
+        an_edge = []
+        for i in range(len(vert_list[:-1])):
+            edge = BRepBuilderAPI_MakeEdge(vert_list[i], vert_list[i + 1]).Edge()
+            an_edge.append(edge)
+        a_wire = BRepBuilderAPI_MakeWire()
+        for edge in an_edge:
+            a_wire.Add(edge)
+        a_wire = a_wire.Wire()
+        a_face = BRepBuilderAPI_MakeFace(a_wire).Face()
+
+        return a_face  # .Reversed()
+
+    @staticmethod
+    def _get_vertex_list_from_face(face):
+        # fc_exp = TopExp_Explorer(face, TopAbs_FACE)
+        # fc = topods_Face(fc_exp.Current())
+        # fc = bps.ExportEP.fix_face(fc)
+        # an_exp = TopExp_Explorer(fc, TopAbs_WIRE)
+        an_exp = TopExp_Explorer(face, TopAbs_WIRE)
+        vert_list = []
+        while an_exp.More():
+            wire = topods_Wire(an_exp.Current())
+            w_exp = BRepTools_WireExplorer(wire)
+            while w_exp.More():
+                vert1 = w_exp.CurrentVertex()
+                vert_list.append(vert1)
+                w_exp.Next()
+            an_exp.Next()
+        vert_list.append(vert_list[0])
+
+        return vert_list
+
+    @staticmethod
+    def _get_number_of_vertices(shape):
+        shape_analysis = ShapeAnalysis_ShapeContents()
+        shape_analysis.Perform(shape)
+        nb_vertex = shape_analysis.NbVertices()
+
+        return nb_vertex
+
+    def calc_bound_shape(self):
+        settings = ifcopenshell.geom.settings()
+        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
+        settings.set(settings.USE_WORLD_COORDS, True)
+        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+        settings.set(settings.INCLUDE_CURVES, True)
+
+        try:
+            sore = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement
+            # if sore.get_info()["InnerBoundaries"] is None:
+            sore.InnerBoundaries = ()
+            shape = ifcopenshell.geom.create_shape(settings, sore)
+        except:
+            try:
+                shape = ifcopenshell.geom.create_shape(settings,
+                                                       self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
+            except:
+                poly = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary.Points
+                pnts = []
+                for p in poly:
+                    p.Coordinates = (p.Coordinates[0], p.Coordinates[1], 0.0)
+                    pnts.append((p.Coordinates[:]))
+                shape = self._make_faces_from_pnts(pnts)
+        shape = BRepLib_FuseEdges(shape).Shape()
+
+        shape_val = TopoDS_Iterator(self.thermal_zones[0].space_shape).Value()
+        loc = shape_val.Location()
+        shape.Move(loc)
+        # shape = shape.Reversed()
+        unify = ShapeUpgrade_UnifySameDomain()
+        unify.Initialize(shape)
+        unify.Build()
+        shape = unify.Shape()
+
+        if self.bound_instance is not None:
+            bi = self.bound_instance
+            if not hasattr(bi, "related_openings"):
+                return shape
+            if len(bi.related_openings) == 0:
+                return shape
+            # for op in bi.related_openings:
+            #     if op.ifc_type != "IfcDoor":
+            #         continue
+            #     # bbox = Bnd_Box()
+            #     # brepbndlib_Add(shape, bbox)
+            #     # shape = BRepPrimAPI_MakeBox(bbox.CornerMin(), bbox.CornerMax()).Shape()
+            #     # shape = bps.ExportEP.fix_shape(shape)
+            #     opd_shp = None
+            #     for opb in op.space_boundaries:
+            #         distance = BRepExtrema_DistShapeShape(opb.bound_shape, shape, Extrema_ExtFlag_MIN).Value()
+            #         if distance < 1e-3:
+            #             opd_shp = opb.bound_shape
+            #             fused_shp = BRepAlgoAPI_Fuse(shape, opd_shp).Shape()
+            #             unify = ShapeUpgrade_UnifySameDomain()
+            #             unify.Initialize(fused_shp)
+            #             unify.Build()
+            #             shape = unify.Shape()
+            #             shape = bps.ExportEP.fix_shape(shape)
+            #             vert_list1 = self._get_vertex_list_from_face(shape)
+            #             vert_list1 = self._remove_collinear_vertices(vert_list1)
+            #             vert_list1.reverse()
+            #             vert_list1 = self._remove_collinear_vertices(vert_list1)
+            #             vert_list1.reverse()
+            #             shape = self._make_face_from_vertex_list(vert_list1)
+
+        return shape
+
+    def get_transformed_shape(self, shape):
+        """transform TOPODS_Shape of each space boundary to correct position"""
+        zone = self.thermal_zones[0]
+        zone_position = gp_XYZ(zone.position[0], zone.position[1], zone.position[2])
+        trsf1 = gp_Trsf()
+        trsf2 = gp_Trsf()
+        if zone.orientation == None:
+            zone.orientation = 0
+        trsf2.SetRotation(gp_Ax1(gp_Pnt(zone_position), gp_Dir(0, 0, 1)), -zone.orientation * pi / 180)
+        trsf1.SetTranslation(gp_Vec(gp_XYZ(zone.position[0], zone.position[1], zone.position[2])))
+        try:
+            shape = BRepBuilderAPI_Transform(shape, trsf1).Shape()
+            shape = BRepBuilderAPI_Transform(shape, trsf2).Shape()
+        except:
+            pass
+        return shape.Reversed()
+
+    def compute_surface_normals_in_space(self, name):
+        """
+        This function returns the face normal of the boundary
+        pointing outwarts the center of the space.
+        Additionally, the area of the boundary is computed
+        :return: face normal (gp_XYZ)
+        """
+        bbox_center = self.thermal_zones[0].space_center
+        an_exp = TopExp_Explorer(self.bound_shape, TopAbs_FACE)
+        a_face = an_exp.Current()
+        try:
+            face = topods_Face(a_face)
+        except:
+            pnts = bps.IdfObject._get_points_of_face(a_face)
+            pnts.append(pnts[0])
+            face = self._make_faces_from_pnts(pnts)
+        surf = BRep_Tool.Surface(face)
+        obj = surf.GetObject()
+        assert obj.DynamicType().GetObject().Name() == "Geom_Plane"
+        plane = Handle_Geom_Plane.DownCast(surf).GetObject()
+        # face_bbox = Bnd_Box()
+        # brepbndlib_Add(face, face_bbox)
+        # face_center = ifcopenshell.geom.utils.get_bounding_box_center(face_bbox).XYZ()
+        face_prop = GProp_GProps()
+        brepgprop_SurfaceProperties(self.bound_shape, face_prop)
+        area = face_prop.Mass()
+        face_normal = plane.Axis().Direction().XYZ()
+        if face.Orientation() == 1:
+            face_normal = face_normal.Reversed()
+        face_towards_center = bbox_center.XYZ() - self.bound_center
+        face_towards_center.Normalize()
+
+        dot = face_towards_center.Dot(face_normal)
+
+        # check if surface normal points into direction of space center
+        # Transform surface normals to be pointing outwards
+        # For faces without reversed surface normal, reverse the orientation of the face itself
+        # if dot > 0:
+        #    face_normal = face_normal.Reversed()
+        #     self.bound_shape = self.bound_shape.Reversed()
+        # else:
+        #     self.bound_shape = self.bound_shape.Reversed()
+
+        return face_normal
+
     # @cached_property
     # def related_adb_bound(self):
     #     """get related adiabatic bound within the same space (just considered as thermal mass)"""
@@ -1110,9 +1386,9 @@ class SpaceBoundary(element.SubElement):
     # bound_shape = attribute.Attribute(
     #     functions=[calc_bound_shape]
     # )
-    # bound_normal = attribute.Attribute(
-    #     functions=[compute_surface_normals_in_space]
-    # )
+    bound_normal = attribute.Attribute(
+        functions=[compute_surface_normals_in_space]
+    )
     related_bound = attribute.Attribute(
         functions=[get_corresponding_bound]
     )
