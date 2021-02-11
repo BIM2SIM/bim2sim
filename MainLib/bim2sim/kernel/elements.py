@@ -1290,6 +1290,20 @@ class SpaceBoundary(element.SubElement):
 
         return face_normal
 
+    @staticmethod
+    def compute_simple_face_normal(shape):
+        an_exp = TopExp_Explorer(shape, TopAbs_FACE)
+        a_face = an_exp.Current()
+        face = topods_Face(a_face)
+        surf = BRep_Tool.Surface(face)
+        obj = surf.GetObject()
+        assert obj.DynamicType().GetObject().Name() == "Geom_Plane"
+        plane = Handle_Geom_Plane.DownCast(surf).GetObject()
+        face_prop = GProp_GProps()
+        brepgprop_SurfaceProperties(shape, face_prop)
+        face_normal = plane.Axis().Direction().XYZ()
+        return face_normal
+
 class SpaceBoundary2B:
     """Generated 2nd Level Space boundaries of type 2b
     (generated if not included in IFC)
