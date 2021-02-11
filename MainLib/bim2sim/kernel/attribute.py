@@ -2,10 +2,8 @@ import logging
 from contextlib import contextmanager
 
 import pint
-import re
 
 from bim2sim.decision import RealDecision, BoolDecision, ListDecision
-from bim2sim.task.bps_f.bps_functions import get_matches_list
 
 from bim2sim.kernel.units import ureg
 
@@ -69,7 +67,7 @@ class Attribute:
         value = None
         # default property set
         if value is None and self.default_ps:
-            raw_value = self.get_from_default_propertyset(bind, self.name)
+            raw_value = self.get_from_default_propertyset(bind, self.default_ps)
             value = self.ifc_post_processing(raw_value)
             if value is None:
                 quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet",
@@ -100,7 +98,7 @@ class Attribute:
         #     value = self.get_from_enrichment(bind, self.name)
 
         # default value
-        if value is None and self.default_value:
+        if value is None and self.default_value is not None:
             value = self.default_value
             if value and self.unit:
                 value = value * self.unit
@@ -113,26 +111,9 @@ class Attribute:
         return value
 
     @staticmethod
-    def get_from_default_propertyset(bind, name):
-        source_tools = bind.finder.templates
-        if bind.source_tool in source_tools:
-            source_tool = bind.source_tool
-        else:
-            possible_source_tools = get_matches_list(bind.source_tool, source_tools.keys(), False)
-            decision_source_tool = ListDecision("Multiple templates found for source tool %s" % bind.source_tool,
-                                                choices=list(possible_source_tools),
-                                                allow_skip=True, allow_load=True, allow_save=True,
-                                                collect=False, quick_decide=not True)
-            decision_source_tool.decide()
-            source_tool = decision_source_tool.value
-            bind._tool = source_tool
-            bind.get_project().OwnerHistory.OwningApplication.ApplicationFullName = source_tool
+    def get_from_default_propertyset(bind, default):
         try:
-            default = source_tools[source_tool][type(bind).__name__]['default_ps'][name]
-        except KeyError:
-            return None
-        try:
-            value = bind.get_exact_property(default[0], default[1])
+            value = bind.get_exact_property(*default)
         except Exception:
             value = None
         return value

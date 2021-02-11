@@ -66,6 +66,7 @@ class TextFilter(Filter):
         """"
         :param mode:    0 - include search in all ifc_types of previous filter
                         1 - only search ifc_types of this filter
+        :param optional_locations: additional locations to ifc_types to check patterns
         """
         super().__init__()
         self.ifc_types = ifc_types

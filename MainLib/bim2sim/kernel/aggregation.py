@@ -1,16 +1,17 @@
 ﻿"""Module for aggregation and simplifying elements"""
 
 import math
-import inspect
 
+import ast
 import numpy as np
+import networkx as nx
+
+
 from bim2sim.kernel.element import BaseElement, BasePort
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
-import networkx as nx
-from bim2sim.kernel.elements import HeatPump
-import ast
+
 
 
 def verify_edge_ports(func):

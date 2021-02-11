@@ -1,8 +1,12 @@
 ﻿"""Package for Python representations of HKESim models"""
 
+import pint
+
 from bim2sim.export import modelica
 from bim2sim.kernel import elements
+from bim2sim.kernel.units import  ureg
 import bim2sim.kernel.aggregation as aggregation
+
 
 
 class HKESim(modelica.Instance):
@@ -14,7 +18,7 @@ class Boiler(HKESim):
     represents = [elements.Boiler]
 
     def __init__(self, element):
-        self.check_power = self.check_numeric(min_value=0) #TODO: Checking System
+        self.check_power = self.check_numeric(min_value=0 * ureg.kilowatt) #TODO: Checking System
         super().__init__(element)
 
     def get_params(self):
@@ -39,7 +43,7 @@ class Radiator(HKESim):
     represents = [elements.SpaceHeater, aggregation.Consumer]
 
     def get_params(self):
-        self.register_param("rated_power", self.check_numeric(min_value=0), "Q_flow_nominal")
+        self.register_param("rated_power", self.check_numeric(min_value=0 * ureg.kilowatt), "Q_flow_nominal")
         # self.params["T_nominal"] = (80, 60, 20)
 
 
@@ -84,7 +88,7 @@ class ConsumerHeatingDistributorModule(HKESim):
 
         for con in self.element.consumers:
             index += 1
-            # self.register_param("rated_power", self.check_numeric(min_value=0), "c{}Qflow_nom".format(index))
+            # self.register_param("rated_power", self.check_numeric(min_value=0 * ureg.kilowatt), "c{}Qflow_nom".format(index))
             # self.register_param("description", "c{}Name".format(index))
             self.params["c{}Qflow_nom".format(index)] = con.rated_power
             self.params["c{}Name".format(index)] = '"{}"'.format(con.description)

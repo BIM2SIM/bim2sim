@@ -4,21 +4,18 @@ import math
 import re
 import numpy as np
 
-from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, condition, attribute
 from bim2sim.decision import BoolDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.decision import ListDecision, RealDecision
 from bim2sim.kernel.ifc2python import get_layers_ifc
-from bim2sim.enrichment_data.data_class import DataClass
-from teaser.logic.buildingobjects.useconditions import UseConditions
 from bim2sim.task.bps_f.bps_functions import get_matches_list, get_material_templates_resumed, \
     real_decision_user_input, filter_instances, get_pattern_usage
 import translators as ts
 
 
 def diameter_post_processing(value):
-    if isinstance(value, list):
+    if isinstance(value, (list, set)):
         return sum(value) / len(value)
     return value
 
@@ -294,7 +291,7 @@ class PipeFitting(element.Element):
     length = attribute.Attribute(
         unit=ureg.meter,
         default=0,
-        default_ps=True
+        # default_ps=True
     )
 
     pressure_class = attribute.Attribute(
@@ -654,7 +651,8 @@ class ThermalZone(element.Element):
     )
 
     t_set_heat = attribute.Attribute(
-        default_ps=True
+        default_ps=True,
+        unit=ureg.degreeC  # todo
     )
     t_set_cool = attribute.Attribute(
         default_ps=True
@@ -1054,10 +1052,12 @@ class Building(element.Element):
     ifc_type = "IfcBuilding"
 
     year_of_construction = attribute.Attribute(
-        default_ps=True
+        default_ps=True,
+        unit=ureg.dimensionless
     )
     gross_area = attribute.Attribute(
-        default_ps=True
+        default_ps=True,
+        unit=ureg.s
     )
     net_area = attribute.Attribute(
         default_ps=True
