@@ -1401,6 +1401,9 @@ class SpaceBoundary(element.SubElement):
     bound_area = attribute.Attribute(
         functions=[get_bound_area]
     )
+    area = attribute.Attribute(
+        functions=[get_bound_area]
+    )
     bound_neighbors = attribute.Attribute(
         functions=[get_bound_neighbors]
     )
@@ -1469,7 +1472,8 @@ class SpaceBoundary(element.SubElement):
         #     del coordinates[2]
 
         # returns disaggregation, area and relative position
-        self.area = coordinates[0] * coordinates[1]
+
+        # self.area = coordinates[0] * coordinates[1]
         self.orientation = vector_angle(axis)
 
     def get_space_boundary_storeys(self):
