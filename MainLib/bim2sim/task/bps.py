@@ -114,7 +114,7 @@ class Prepare(ITask):
         storeys = SubElement.get_class_instances('Storey')
 
         tz_inspect = tz_detection.Inspect(self, workflow)
-        tz_inspect.run(ifc, storeys)
+        tz_inspect.run(ifc, instances, storeys)
         instances.update(tz_inspect.instances)
 
         for guid, ins in instances.items():

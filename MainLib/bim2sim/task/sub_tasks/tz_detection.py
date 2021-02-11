@@ -19,9 +19,9 @@ class Inspect(Task):
         self.workflow = workflow
 
     @Task.log
-    def run(self, ifc, storeys):
+    def run(self, ifc, bound_instances, storeys):
         self.logger.info("Creates python representation for building spaces")
-        self.recognize_zone_semantic(ifc, storeys)
+        self.recognize_zone_semantic(ifc, bound_instances, storeys)
         if len(self.instances) == 0:
             self.logger.warning("Found no spaces by semantic detection")
             decision = BoolDecision("Try to detect zones by geometrical?")
@@ -36,7 +36,7 @@ class Inspect(Task):
 
         self.logger.info("Found %d space boundaries entities", len(self.instances))
 
-    def recognize_zone_semantic(self, ifc, storeys):
+    def recognize_zone_semantic(self, ifc, bound_instances, storeys):
         """Recognizes zones/spaces in ifc file by semantic detection for
         IfcSpace entities"""
         self.logger.info("Create zones by semantic detection")
@@ -64,8 +64,8 @@ class Inspect(Task):
                                         collect=False, quick_decide=not True)
         heating_decision.decide()
 
+        self.bind_elements_to_zone(bound_instances)
         for k, tz in self.instances.items():
-            self.bind_elements_to_zone(tz)
             tz.set_neighbors()
             if cooling_decision.value is True:
                 tz.with_cooling = True
@@ -77,25 +77,42 @@ class Inspect(Task):
         """Recognizes zones/spaces by geometric detection"""
         raise NotImplementedError
 
-    def bind_elements_to_zone(self, thermalzone):
+    def bind_elements_to_zone(self, bound_instances):
         """Binds the different elements to the belonging zones"""
-        thermalzone.with_cooling = True
-        thermalzone.with_heating = True
 
-        bound_instances = {}
-        for space_boundary in thermalzone.space_boundaries:
-            bound_instance = space_boundary.bound_instance
-            if bound_instance.guid not in bound_instances:
-                bound_instances[bound_instance.guid] = [space_boundary]
-            else:
-                bound_instances[bound_instance.guid].append(space_boundary)
-        for bound_instance, space_boundaries in bound_instances.items():
-            original_instance = Element.get_object(bound_instance)
-            inst = Disaggregation.based_on_thermal_zone([original_instance, space_boundaries], thermalzone)
-            if inst not in thermalzone.bound_elements:
-                thermalzone.bound_elements.append(inst)
-            if thermalzone not in inst.thermal_zones:
-                inst.thermal_zones.append(thermalzone)
+        for bound_instance in bound_instances.values():
+            disaggregation = {}
+            for sb in bound_instance.space_boundaries:
+                thermalzone = sb.thermal_zones[0]
+                if sb.related_bound is not None:
+                    if sb.guid in disaggregation:
+                        inst = disaggregation[sb.guid]
+                    else:
+                        inst = Disaggregation.based_on_thermal_zone(bound_instance, sb, thermalzone)
+                        disaggregation[sb.related_bound.guid] = inst
+                else:
+                    inst = Disaggregation.based_on_thermal_zone(bound_instance, sb, thermalzone)
+                if sb not in inst.space_boundaries:
+                    inst.space_boundaries.append(sb)
+                if inst not in thermalzone.bound_elements:
+                    thermalzone.bound_elements.append(inst)
+                if thermalzone not in inst.thermal_zones:
+                    inst.thermal_zones.append(thermalzone)
+        print()
+        # bound_instances = {}
+        # for space_boundary in thermalzone.space_boundaries:
+        #     bound_instance = space_boundary.bound_instance
+        #     if bound_instance.guid not in bound_instances:
+        #         bound_instances[bound_instance.guid] = [space_boundary]
+        #     else:
+        #         bound_instances[bound_instance.guid].append(space_boundary)
+        # for bound_instance, space_boundaries in bound_instances.items():
+        #     original_instance = Element.get_object(bound_instance)
+        #     inst = Disaggregation.based_on_thermal_zone([original_instance, space_boundaries], thermalzone)
+        #     if inst not in thermalzone.bound_elements:
+        #         thermalzone.bound_elements.append(inst)
+        #     if thermalzone not in inst.thermal_zones:
+        #         inst.thermal_zones.append(thermalzone)
 
     def recognize_space_boundaries(self, ifc):
         """Recognizes space boundaries in ifc file by semantic detection for
@@ -114,30 +131,30 @@ class Inspect(Task):
         #                 check.append(space_boundary)
 
         space_boundaries = []
+        ifc_type = 'IfcRelSpaceBoundary'
         for entity in entities:
             if entity.RelatedBuildingElement is not None:
                 related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
                 if related_element is not None:
-                    space_boundary = SubElement.factory(entity, 'IfcRelSpaceBoundary')
+                    space_boundary = SubElement.factory(entity, ifc_type)
                     space_boundaries.append(space_boundary)
 
-        new_space_boundaries = {}
-        no_rel_bound = {}
-        for sb in space_boundaries:
-            bi_guid = sb.bound_instance.guid
-            bi_class = type(sb.bound_instance).__name__
-            if sb.related_bound is not None:
-                if bi_guid not in new_space_boundaries:
-                    new_space_boundaries[bi_guid] = [sb]
-                else:
-                    new_space_boundaries[bi_guid].append(sb)
-            else:
-                new_name = bi_guid + '_' + bi_class
-                if new_name not in no_rel_bound:
-                    no_rel_bound[new_name] = [sb]
-                else:
-                    no_rel_bound[new_name].append(sb)
-        print()
+        # new_space_boundaries = {}
+        # no_rel_bound = {}
+        # for sb in space_boundaries:
+        #     bi_guid = sb.bound_instance.guid
+        #     bi_class = type(sb.bound_instance).__name__
+        #     if sb.related_bound is not None:
+        #         if bi_guid not in new_space_boundaries:
+        #             new_space_boundaries[bi_guid] = [sb]
+        #         else:
+        #             new_space_boundaries[bi_guid].append(sb)
+        #     else:
+        #         new_name = bi_guid + '_' + bi_class
+        #         if new_name not in no_rel_bound:
+        #             no_rel_bound[new_name] = [sb]
+        #         else:
+        #             no_rel_bound[new_name].append(sb)
 
         # for tz in self.instances.values():
         #     entities = tz.ifc.BoundedBy
@@ -152,13 +169,13 @@ class Inspect(Task):
             # print()
 
         self.logger.info("Create space boundaries by semantic detection")
-        ifc_type = 'IfcRelSpaceBoundary'
-        entities = ifc.by_type(ifc_type)
-        for entity in entities:
-            if entity.RelatedBuildingElement is not None:
-                related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
-                if related_element is not None:
-                    SubElement.factory(entity, 'IfcRelSpaceBoundary')
+        # ifc_type = 'IfcRelSpaceBoundary'
+        # entities = ifc.by_type(ifc_type)
+        # for entity in entities:
+        #     if entity.RelatedBuildingElement is not None:
+        #         related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
+        #         if related_element is not None:
+        #             SubElement.factory(entity, 'IfcRelSpaceBoundary')
 
 
 class Bind(Task):

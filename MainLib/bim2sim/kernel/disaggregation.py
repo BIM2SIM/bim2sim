@@ -23,6 +23,7 @@ class Disaggregation(BaseElement):
         self.name = name
         self.ifc_type = element.ifc_type
         self.get_disaggregation_properties()
+        space_boundaries = []
 
     def get_disaggregation_properties(self):
         """properties getter -> that way no sub instances has to be defined"""
@@ -48,11 +49,9 @@ class Disaggregation(BaseElement):
         return supported_classes
 
     @classmethod
-    def based_on_thermal_zone(cls, space_boundaries_info, thermal_zone):
+    def based_on_thermal_zone(cls, parent, space_boundary, thermal_zone):
         """creates a disaggregation based on a thermal zone and an instance parent
         based on area slice (thermal zone - area)"""
-        parent = space_boundaries_info[0]
-        space_boundaries = space_boundaries_info[1]
         supported_classes = cls.get_supported_classes()
         type_parent = type(parent).__name__
         disaggregation_class = supported_classes.get(type_parent)
@@ -60,19 +59,19 @@ class Disaggregation(BaseElement):
         if disaggregation_class is None:
             return parent
 
-        name = type(disaggregation_class).__name__ + '_' + parent.name
+        name = 'Sub' + disaggregation_class.disaggregatable_elements + '_' + parent.name
         if not hasattr(parent, "sub_instances"):
             parent.sub_instances = []
 
         i = len(parent.sub_instances)
-        area_disaggregation = 0
-        new_pos = np.array((0, 0, 0))
-        for s_boundary in space_boundaries:
-            area_disaggregation += s_boundary.area
-            new_pos = new_pos + np.array(s_boundary.position)
-        new_pos = new_pos / len(space_boundaries)
+        new_pos = np.array(space_boundary.position)
+        area_disaggregation = space_boundary.area
+        if hasattr(parent, 'gross_side_area'):
+            parent_area = parent.gross_side_area
+        else:
+            parent_area = parent.area
 
-        if (parent.area - area_disaggregation) < 0.1 or area_disaggregation == 0 or len(parent.space_boundaries) == 1:
+        if abs(parent_area - area_disaggregation) < 0.1 or area_disaggregation == 0 or len(parent.space_boundaries) == 1:
             return parent
 
         else:

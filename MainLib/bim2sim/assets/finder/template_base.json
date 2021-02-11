@@ -59,7 +59,7 @@
         "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "NetSideArea"]
       },
       "gross_side_area": {
-        "ARCHICAD-64": ["BaseQuantities", "GrossArea"],
+        "ARCHICAD-64": ["BaseQuantities", "GrossSideArea"],
         "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossSideArea"],
         "Autodesk Revit 2020 (DEU)": ["Qto_WallBaseQuantities", "GrossSideArea"],
         "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "GrossSideArea"]
@@ -108,7 +108,7 @@
         "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "NetSideArea"]
       },
       "gross_side_area": {
-        "ARCHICAD-64": ["BaseQuantities", "GrossArea"],
+        "ARCHICAD-64": ["BaseQuantities", "GrossSideArea"],
         "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossSideArea"],
         "Autodesk Revit 2020 (DEU)": ["Qto_WallBaseQuantities", "GrossSideArea"],
         "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "GrossSideArea"]
@@ -160,7 +160,7 @@
 
       },
       "gross_side_area": {
-        "ARCHICAD-64": ["BaseQuantities", "GrossArea"],
+        "ARCHICAD-64": ["BaseQuantities", "GrossSideArea"],
         "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossSideArea"],
         "Autodesk Revit 2020 (DEU)": ["Qto_WallBaseQuantities", "GrossSideArea"],
         "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "GrossSideArea"]

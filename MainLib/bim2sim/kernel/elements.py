@@ -874,6 +874,7 @@ class SpaceBoundary(element.SubElement):
         related_building_element = self.get_object(self.ifc.RelatedBuildingElement.GlobalId)
         related_building_element.space_boundaries.append(self)
         self.bound_instance = related_building_element
+        self.disaggregation = []
 
         if self.ifc.InternalOrExternalBoundary.lower() == 'internal':
             self.is_external = False
@@ -1530,6 +1531,10 @@ class Wall(element.Element):
     )
     area = attribute.Attribute(
         default_ps='area',
+        default=1
+    )
+    gross_side_area = attribute.Attribute(
+        default_ps='gross_side_area',
         default=1
     )
     is_external = attribute.Attribute(
