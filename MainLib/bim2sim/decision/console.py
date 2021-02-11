@@ -78,7 +78,7 @@ class ConsoleFrontEnd(FrontEnd):
         if extra_options:
             options = options + extra_options
         options_txt = self.get_options_txt(options)
-        body = self.get_body(decision)
+        body = self.get_body(decision) if isinstance(decision, ListDecision) else None
         input_txt = self.get_input_txt(decision)
         if progress:
             progress += ' '
@@ -110,7 +110,7 @@ class ConsoleFrontEnd(FrontEnd):
                 if attempt <= max_attempts:
                     if attempt == max_attempts:
                         print("Last try before auto Cancel!")
-                    print("'%s' is no valid input! Try again." % raw_value)
+                    print(f"'{raw_value}' (interpreted as {value}) is no valid input! Try again.")
                 else:
                     raise DecisionCancle("Too many invalid attempts. Canceling input.")
             attempt += 1

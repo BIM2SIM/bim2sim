@@ -1,4 +1,4 @@
-"""Package holding decision system"""
+﻿"""Package holding decision system"""
 
 import logging
 import enum
@@ -9,7 +9,7 @@ from contextlib import contextmanager
 import pint
 
 from bim2sim.kernel.units import ureg
-# from .frontend import ConsoleFrontEnd
+
 
 __VERSION__ = '0.1'
 
@@ -73,8 +73,6 @@ class Decision:
     _debug_mode = False
     _debug_validate = False
 
-    # frontend = ConsoleFrontEnd()
-    # frontend = ExternalFrontEnd()
     frontend = None
     logger = logging.getLogger(__name__)
 
@@ -100,8 +98,6 @@ class Decision:
 
         :raises: :class:'AttributeError'::
         """
-        if not self.frontend:
-            raise AssertionError("No frontend set!")
         self.status = Status.open
         self._value = None
 
@@ -289,8 +285,6 @@ class Decision:
 
         _collection = collection or cls.collection()
         _collection = [d for d in _collection if d.status == Status.open]
-        if not _collection:
-            return
 
         if cls._debug_mode:
             # debug
@@ -470,6 +464,9 @@ class RealDecision(Decision):
     def get_question(self):
         return "{} in [{}]".format(self.question, self.unit)
 
+    def get_body(self):
+        return {'unit': str(self.unit)}
+
     def get_debug_answer(self):
         return self._debug_answer * self.unit
 
@@ -481,7 +478,7 @@ class RealDecision(Decision):
         return kwargs
 
     def reset_from_deserialized(self, kwargs):
-        kwargs['value'] = pint.Quantity(kwargs['value'], kwargs.pop('unit', str(self.unit)))
+        kwargs['value'] = kwargs['value'] * ureg[kwargs.pop('unit', str(self.unit))]
         super().reset_from_deserialized(kwargs)
 
 

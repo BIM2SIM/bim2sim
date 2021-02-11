@@ -7,6 +7,7 @@ from pathlib import Path
 import codecs
 from mako.template import Template
 import numpy as np
+import pint
 
 import bim2sim
 from bim2sim.kernel import element as elem
@@ -231,6 +232,7 @@ class Instance:
             else:
                 RealDecision(
                     question="Please enter parameter for %s"%(self.name + "." + export_name),
+                    unit=self.element.attributes.get_unit(name),
                     validate_func=check,
                     output=self.params,
                     output_key=export_name,
@@ -296,11 +298,14 @@ class Instance:
     @staticmethod
     def check_numeric(min_value=None, max_value=None):
         """Generic check function generator
-
         returns check function"""
+        if not isinstance(min_value, (pint.Quantity, type(None))):
+            raise AssertionError("min_value is no pint quantity with unit")
+        if not isinstance(max_value, (pint.Quantity, type(None))):
+            raise AssertionError("max_value is no pint quantity with unit")
 
         def inner_check(value):
-            if not isinstance(value, (int, float)):
+            if not isinstance(value, pint.Quantity):
                 return False
             if min_value is None and max_value is None:
                 return True

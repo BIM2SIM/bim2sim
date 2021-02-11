@@ -20,8 +20,9 @@ VERSION = '0.1-dev'
 
 # TODO: setup: copy backends to bim2sim/backends
 workflow_getter = {'aixlib': PlantSimulation,
-                   'TEASER': BPSMultiZoneSeparated,
-                   'hkesim': PlantSimulation}
+                   'teaser': BPSMultiZoneSeparated,
+                   'hkesim': PlantSimulation,
+                   'energyplus': BPSMultiZoneSeparated}
 
 
 def get_default_backends():
@@ -135,11 +136,18 @@ def main(rootpath=None):
     if not BIM2SIMManager in manager_cls.__bases__:
         raise AttributeError("Got invalid manager from %s" % (backend))
 
-    workflow = PlantSimulation()  #TODO
-    # workflow = BPSMultiZoneSeparated()  #TODO
+    workflow = workflow_getter[backend]()
 
-    # from bim2sim.decision.console import ConsoleFrontEnd as Frontend
-    from bim2sim.decision.external import ExternalFrontEnd as Frontend
+    # set Frontend for Decisions
+    try:
+        frontend_name = conf['Frontend']['use']
+    except KeyError:
+        frontend_name = 'default'
+
+    if frontend_name == 'ExternalFrontEnd':
+        from bim2sim.decision.external import ExternalFrontEnd as Frontend
+    else:
+        from bim2sim.decision.console import ConsoleFrontEnd as Frontend
     Decision.set_frontend(Frontend())
 
     # prepare simulation
@@ -180,10 +188,9 @@ def _debug_run_bps():
     path_example = r"C:\temp\bim2sim\testproject_bps2"
 
     if not PROJECT.is_project_folder(path_example):
-        PROJECT.create(path_example, path_ifc, 'TEASER')
+        PROJECT.create(path_example, path_ifc, 'teaser')
 
     main(path_example)
-
 
 
 def _debug_run_hvac_aixlib():
@@ -195,6 +202,7 @@ def _debug_run_hvac_aixlib():
 
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, path_ifc, 'aixlib',)
+
 
 def _debug_run_cfd():
     """Create example project and copy ifc if necessary"""
