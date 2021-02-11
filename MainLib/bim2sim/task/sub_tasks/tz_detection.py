@@ -113,17 +113,42 @@ class Inspect(Task):
         #                 space_boundary = SubElement.factory(entity, 'IfcRelSpaceBoundary')
         #                 check.append(space_boundary)
 
-        space_boundaries = {}
-        for tz in self.instances.values():
-            entities = tz.ifc.BoundedBy
-            for entity in entities:
-                if entity.RelatedBuildingElement is not None:
-                    related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
-                    if related_element is not None:
-                        space_boundary = SubElement.factory(entity, 'IfcRelSpaceBoundary')
-                        if related_element.guid not in space_boundaries:
-                            space_boundaries[related_element.guid] = []
-                        space_boundaries[related_element.guid].append(space_boundary)
+        space_boundaries = []
+        for entity in entities:
+            if entity.RelatedBuildingElement is not None:
+                related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
+                if related_element is not None:
+                    space_boundary = SubElement.factory(entity, 'IfcRelSpaceBoundary')
+                    space_boundaries.append(space_boundary)
+
+        new_space_boundaries = {}
+        no_rel_bound = {}
+        for sb in space_boundaries:
+            bi_guid = sb.bound_instance.guid
+            bi_class = type(sb.bound_instance).__name__
+            if sb.related_bound is not None:
+                if bi_guid not in new_space_boundaries:
+                    new_space_boundaries[bi_guid] = [sb]
+                else:
+                    new_space_boundaries[bi_guid].append(sb)
+            else:
+                new_name = bi_guid + '_' + bi_class
+                if new_name not in no_rel_bound:
+                    no_rel_bound[new_name] = [sb]
+                else:
+                    no_rel_bound[new_name].append(sb)
+        print()
+
+        # for tz in self.instances.values():
+        #     entities = tz.ifc.BoundedBy
+        #     for entity in entities:
+        #         if entity.RelatedBuildingElement is not None:
+        #             related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
+        #             if related_element is not None:
+        #                 space_boundary = SubElement.factory(entity, 'IfcRelSpaceBoundary')
+        #                 if related_element.guid not in space_boundaries:
+        #                     space_boundaries[related_element.guid] = []
+        #                 space_boundaries[related_element.guid].append(space_boundary)
             # print()
 
         self.logger.info("Create space boundaries by semantic detection")

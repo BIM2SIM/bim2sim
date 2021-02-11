@@ -108,8 +108,8 @@ class Prepare(ITask):
     def run(self, workflow, instances, ifc):
         self.logger.info("setting verifications")
         building = SubElement.get_class_instances('Building')[0]
-        for guid, ins in instances.items():
-            self.layers_verification(ins, building)
+        # for guid, ins in instances.items():
+        #     self.layers_verification(ins, building)
 
         storeys = SubElement.get_class_instances('Storey')
 

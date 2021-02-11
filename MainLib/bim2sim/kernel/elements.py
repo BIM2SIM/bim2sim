@@ -27,7 +27,7 @@ from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_WIRE
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepTools import BRepTools_WireExplorer
-# from OCC.Core.Geom import Handle_Geom_Plane
+from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 
 from math import pi
@@ -990,66 +990,69 @@ class SpaceBoundary(element.SubElement):
                 if not corr_bound.ifc.RelatingSpace.is_a('IfcExternalSpatialStructure'):
                     return corr_bound
         if bind.bound_instance is None:
-            # check for visual bounds
-            if bind.level_description != "2a":
-                return None
-            if not bind.physical:
-                corr_bound = None
-                bounds = []
-                min_dist = 1000
-                for obj in bind.thermal_zones[0].objects:
-                    if bind.thermal_zones[0].objects[obj].ifc_type == 'IfcRelSpaceBoundary':
-                        bounds.append(bind.thermal_zones[0].objects[obj])
-                for bound in bounds:
-                    if bound.physical:
-                        continue
-                    if bound.thermal_zones[0].ifc.GlobalId == bind.thermal_zones[0].ifc.GlobalId:
-                        continue
-                    if (bound.bound_area-bind.bound_area)**2 > 1:
-                        continue
-                    if bound.ifc.GlobalId == bind.ifc.GlobalId:
-                        continue
-                    if bound.bound_normal.Dot(bind.bound_normal) != -1:
-                        continue
-                    distance = BRepExtrema_DistShapeShape(
-                        bound.bound_shape,
-                        bind.bound_shape,
-                        Extrema_ExtFlag_MIN
-                    ).Value()
-                    if distance > min_dist or distance > 0.4:
-                        continue
-                    bind.check_for_vertex_duplicates(bound)
-                    nb_vert_this = bind._get_number_of_vertices(bind.bound_shape)
-                    nb_vert_other = bind._get_number_of_vertices(bound.bound_shape)
-                    center_dist = gp_Pnt(bind.bound_center).Distance(gp_Pnt(bound.bound_center)) ** 2
-                    if (center_dist) > 0.5:
-                        continue
-                    if nb_vert_other != nb_vert_this:
-                        # replace bound shape by corresponding bound shape
-                        rel_dist = BRepExtrema_DistShapeShape(bind.bound_shape, bound.bound_shape, Extrema_ExtFlag_MIN).Value()
-                        bind.bound_shape = copy.copy(bound.bound_shape.Reversed())
-                        bind.bound_shape = bind.move_bound_in_direction_of_normal(self.bound_shape, self.bound_normal,
-                                                                                  rel_dist, reversed=True)
-                    corr_bound = bound
-                return corr_bound
-                # for bound in self.objects.
             return None
+            # check for visual bounds
+            # if bind.level_description != "2a":
+            #     return None
+            # if not bind.physical:
+            #     corr_bound = None
+            #     bounds = []
+            #     min_dist = 1000
+            #     for obj in bind.thermal_zones[0].objects:
+            #         if bind.thermal_zones[0].objects[obj].ifc_type == 'IfcRelSpaceBoundary':
+            #             bounds.append(bind.thermal_zones[0].objects[obj])
+            #     for bound in bounds:
+            #         if bound.physical:
+            #             continue
+            #         if bound.thermal_zones[0].ifc.GlobalId == bind.thermal_zones[0].ifc.GlobalId:
+            #             continue
+            #         if (bound.bound_area-bind.bound_area)**2 > 1:
+            #             continue
+            #         if bound.ifc.GlobalId == bind.ifc.GlobalId:
+            #             continue
+            #         if bound.bound_normal.Dot(bind.bound_normal) != -1:
+            #             continue
+            #         distance = BRepExtrema_DistShapeShape(
+            #             bound.bound_shape,
+            #             bind.bound_shape,
+            #             Extrema_ExtFlag_MIN
+            #         ).Value()
+            #         if distance > min_dist or distance > 0.4:
+            #             continue
+            #         bind.check_for_vertex_duplicates(bound)
+            #         nb_vert_this = bind._get_number_of_vertices(bind.bound_shape)
+            #         nb_vert_other = bind._get_number_of_vertices(bound.bound_shape)
+            #         center_dist = gp_Pnt(bind.bound_center).Distance(gp_Pnt(bound.bound_center)) ** 2
+            #         if (center_dist) > 0.5:
+            #             continue
+            #         if nb_vert_other != nb_vert_this:
+            #             # replace bound shape by corresponding bound shape
+            #             rel_dist = BRepExtrema_DistShapeShape(bind.bound_shape, bound.bound_shape, Extrema_ExtFlag_MIN).Value()
+            #             bind.bound_shape = copy.copy(bound.bound_shape.Reversed())
+            #             bind.bound_shape = bind.move_bound_in_direction_of_normal(bind.bound_shape, bind.bound_normal,
+            #                                                                       rel_dist, reversed=True)
+            #         corr_bound = bound
+            #     return corr_bound
+            #     # for bound in self.objects.
+            # return None
         elif len(bind.bound_instance.space_boundaries) == 1:
             return None
-        elif len(bind.bound_instance.space_boundaries) == 2:
-            for bound in bind.bound_instance.space_boundaries:
-                if bound.ifc.GlobalId == bind.ifc.GlobalId:
-                    continue
-                if bound.bound_normal.Dot(bind.bound_normal) != -1:
-                    continue
-                bind.check_for_vertex_duplicates(bound)
-                nb_vert_this = bind._get_number_of_vertices(bind.bound_shape)
-                nb_vert_other = bind._get_number_of_vertices(bound.bound_shape)
-                if nb_vert_this == nb_vert_other:
-                    return bound
-                else:
-                    return None
-        elif len(bind.bound_instance.space_boundaries) > 2:
+        # elif len(bind.bound_instance.space_boundaries) == 2:
+        #     if bind.bound_instance.guid == '3QvvbxsHP1IRaR5M7CZy9i':
+        #         print()
+        #     for bound in bind.bound_instance.space_boundaries:
+        #         if bound.ifc.GlobalId == bind.ifc.GlobalId:
+        #             continue
+        #         if bound.bound_normal.Dot(bind.bound_normal) != -1:
+        #             continue
+        #         bind.check_for_vertex_duplicates(bound)
+        #         nb_vert_this = bind._get_number_of_vertices(bind.bound_shape)
+        #         nb_vert_other = bind._get_number_of_vertices(bound.bound_shape)
+        #         if nb_vert_this == nb_vert_other:
+        #             return bound
+        #         else:
+        #             return None
+        elif len(bind.bound_instance.space_boundaries) >= 2:
             own_space_id = bind.thermal_zones[0].ifc.GlobalId
             min_dist = 1000
             corr_bound = None
@@ -1082,21 +1085,21 @@ class SpaceBoundary(element.SubElement):
         else:
             return None
 
-    def get_rel_adiab_bound(bind, name):
+    def get_rel_adiab_bound(self, name):
         adb_bound = None
-        if bind.bound_instance is None:
+        if self.bound_instance is None:
             return None
             # check for visual bounds
-        if not bind.physical:
+        if not self.physical:
             return None
-        for bound in bind.bound_instance.space_boundaries:
-            if bound == bind:
+        for bound in self.bound_instance.space_boundaries:
+            if bound == self:
                 continue
-            if not bound.thermal_zones[0] == bind.thermal_zones[0]:
+            if not bound.thermal_zones[0] == self.thermal_zones[0]:
                 continue
-            if (bound.bound_area - bind.bound_area)**2 > 0.01:
+            if (bound.bound_area - self.bound_area)**2 > 0.01:
                 continue
-            if gp_Pnt(bound.bound_center).Distance(gp_Pnt(bind.bound_center)) < 0.4:
+            if gp_Pnt(bound.bound_center).Distance(gp_Pnt(self.bound_center)) < 0.4:
                 adb_bound = bound
         return adb_bound
 
@@ -1247,7 +1250,7 @@ class SpaceBoundary(element.SubElement):
 
         return nb_vertex
 
-    def calc_bound_shape(self):
+    def calc_bound_shape(self, name):
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
         settings.set(settings.USE_WORLD_COORDS, True)
@@ -1350,7 +1353,7 @@ class SpaceBoundary(element.SubElement):
         surf = BRep_Tool.Surface(face)
         obj = surf.GetObject()
         assert obj.DynamicType().GetObject().Name() == "Geom_Plane"
-        plane = Handle_Geom_Plane.DownCast(surf).GetObject()
+        plane = Handle_Geom_Plane_DownCast(surf).GetObject()
         # face_bbox = Bnd_Box()
         # brepbndlib_Add(face, face_bbox)
         # face_center = ifcopenshell.geom.utils.get_bounding_box_center(face_bbox).XYZ()
@@ -1376,18 +1379,11 @@ class SpaceBoundary(element.SubElement):
 
         return face_normal
 
-    # @cached_property
-    # def related_adb_bound(self):
-    #     """get related adiabatic bound within the same space (just considered as thermal mass)"""
-    #     if not self.related_bound == None:
-    #         return None
-    #     return self.get_rel_adiab_bound()
-
-    # bound_shape = attribute.Attribute(
-    #     functions=[calc_bound_shape]
-    # )
+    bound_shape = attribute.Attribute(
+        functions=[calc_bound_shape]
+    )
     bound_normal = attribute.Attribute(
-        functions=[compute_surface_normals_in_space]
+        # functions=[compute_surface_normals_in_space]
     )
     related_bound = attribute.Attribute(
         functions=[get_corresponding_bound]
