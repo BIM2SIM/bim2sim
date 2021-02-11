@@ -32,6 +32,7 @@ from OCC.Extrema import Extrema_ExtFlag_MIN
 
 from math import pi
 
+from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, condition, attribute
 from bim2sim.decision import BoolDecision
 from bim2sim.kernel.units import ureg
