@@ -225,15 +225,12 @@ class Instance:
         for name, args in self.validate.items():
             check, export_name = args
             value = getattr(self.element, name)
-            try:
-                check_val = check(value)
-            except:
-                print('')
-            if check_val:
+            if check(value):
                 self.params[export_name] = value
             else:
                 RealDecision(
                     question="Please enter parameter for %s"%(self.name + "." + export_name),
+                    unit=self.element.attributes.get_unit(name),
                     validate_func=check,
                     output=self.params,
                     output_key=export_name,

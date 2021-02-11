@@ -209,12 +209,11 @@ class Attribute:
         return value
 
     @staticmethod
-    def get_from_decision(bind, name):
+    def get_from_decision(bind, name, unit=None):
         # TODO: decision
         decision = RealDecision(
             "Enter value for %s of %s" % (name, bind.name),
-            # output=self,
-            # output_key=name,
+            unit=unit,
             global_key="%s_%s.%s" % (bind.ifc_type, bind.guid, name),
             allow_skip=False, allow_load=True, allow_save=True,
             validate_func=lambda x: True,  # TODO meaningful validation
@@ -300,7 +299,7 @@ class Attribute:
             changed = True
 
         if self._force and value is None:
-            value = self.get_from_decision(bind, self.name)
+            value = self.get_from_decision(bind, self.name, self.unit)
             status = Attribute.STATUS_AVAILABLE
             changed = True
 
