@@ -2111,13 +2111,14 @@ class ExportEP(ITask):
 
         pure_spatials = []
         for s in spatials:
-            if not hasattr(s.ifc, 'CorrespondingBoundary'):
-                continue
-            if s.ifc.CorrespondingBoundary == None:
-                continue
-            if s.ifc.CorrespondingBoundary.RelatingSpace.is_a('IfcSpace'):
-                continue
-            pure_spatials.append(s)
+            if hasattr(s, 'ifc'):
+                if not hasattr(s.ifc, 'CorrespondingBoundary'):
+                    continue
+                if s.ifc.CorrespondingBoundary == None:
+                    continue
+                if s.ifc.CorrespondingBoundary.RelatingSpace.is_a('IfcSpace'):
+                    continue
+                pure_spatials.append(s)
 
         settings = ifcopenshell.geom.main.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
