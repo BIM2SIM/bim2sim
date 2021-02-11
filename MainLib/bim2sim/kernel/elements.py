@@ -1172,8 +1172,13 @@ class SpaceBoundary(element.SubElement):
         try:
             sore = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement
             # if sore.get_info()["InnerBoundaries"] is None:
-            sore.InnerBoundaries = ()
+
             shape = ifcopenshell.geom.create_shape(settings, sore)
+            shape_normal = self.compute_simple_face_normal(shape)
+
+            # if wall: z-Normal close to 0 --> no inner boundaries allowed!
+            sore.InnerBoundaries = ()
+            # else floor/ ceiling: inner boundaries allowed, use inner_loop removal
         except:
             try:
                 shape = ifcopenshell.geom.create_shape(settings, self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
@@ -1185,7 +1190,6 @@ class SpaceBoundary(element.SubElement):
                     pnts.append((p.Coordinates[:]))
                 shape = self._make_faces_from_pnts(pnts)
         shape = BRepLib_FuseEdges(shape).Shape()
-
         shape_val = TopoDS_Iterator(self.thermal_zones[0].space_shape).Value()
         loc = shape_val.Location()
         shape.Move(loc)
