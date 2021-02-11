@@ -98,7 +98,7 @@ class Attribute:
         #     value = self.get_from_enrichment(bind, self.name)
 
         # default value
-        if value is None and self.default_value:
+        if value is None and self.default_value is not None:
             value = self.default_value
             if value and self.unit:
                 value = value * self.unit

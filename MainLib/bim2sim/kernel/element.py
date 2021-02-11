@@ -310,7 +310,7 @@ class IFCBased(Root):
         """Filter for text fracments in the ifc_element to identify the ifc_element."""
         results = []
         hits = [p.search(ifc_element.Name) for p in cls.pattern_ifc_type]
-        hits.extend([p.search(ifc_element.Description) for p in cls.pattern_ifc_type])
+        # hits.extend([p.search(ifc_element.Description or '') for p in cls.pattern_ifc_type])
         hits = [x for x in hits if x is not None]
         if any(hits):
             logger = logging.getLogger('IFCModelCreation')
@@ -319,7 +319,7 @@ class IFCBased(Root):
             # return hits[0][0]
         if optional_locations:
             for loc in optional_locations:
-                hits = [p.search(ifc2python.get_Property_Set(loc, ifc_element)) for p in cls.pattern_ifc_type
+                hits = [p.search(ifc2python.get_Property_Set(loc, ifc_element) or '') for p in cls.pattern_ifc_type
                         if ifc2python.get_Property_Set(loc, ifc_element)]
                 hits = [x for x in hits if x is not None]
                 if any(hits):
@@ -375,6 +375,10 @@ class IFCBased(Root):
             if len(distinct_values) == 1:
                 # multiple sources but common value
                 return distinct_values.pop()
+            else:
+                self.logger.warning('Found multiple values for attributes %s of instance %s' % (
+                    ', '.join((str((m[0], m[1])) for m in matches)), self))
+                return distinct_values
 
         return None
         #     # TODO: Decision with id, key, value

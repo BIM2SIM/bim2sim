@@ -15,7 +15,7 @@ import translators as ts
 
 
 def diameter_post_processing(value):
-    if isinstance(value, list):
+    if isinstance(value, (list, set)):
         return sum(value) / len(value)
     return value
 
@@ -291,7 +291,7 @@ class PipeFitting(element.Element):
     length = attribute.Attribute(
         unit=ureg.meter,
         default=0,
-        default_ps=True
+        # default_ps=True
     )
 
     pressure_class = attribute.Attribute(
@@ -651,7 +651,8 @@ class ThermalZone(element.Element):
     )
 
     t_set_heat = attribute.Attribute(
-        default_ps=True
+        default_ps=True,
+        unit=ureg.degreeC  # todo
     )
     t_set_cool = attribute.Attribute(
         default_ps=True
@@ -1051,10 +1052,12 @@ class Building(element.Element):
     ifc_type = "IfcBuilding"
 
     year_of_construction = attribute.Attribute(
-        default_ps=True
+        default_ps=True,
+        unit=ureg.dimensionless
     )
     gross_area = attribute.Attribute(
-        default_ps=True
+        default_ps=True,
+        unit=ureg.s
     )
     net_area = attribute.Attribute(
         default_ps=True
