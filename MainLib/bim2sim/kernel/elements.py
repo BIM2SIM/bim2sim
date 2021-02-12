@@ -722,19 +722,15 @@ class ThermalZone(element.Element):
 
     def get_neighbors(self):
         """determines the neighbors of the thermal zone"""
-        # working now for possible neighbors, not exact neighbors
         neighbors = []
-        for ele in self.bound_elements:
-            if issubclass(type(ele), Disaggregation):
-                ins = ele.parent
-            else:
-                ins = ele
-            for tz in ins.thermal_zones:
+        for sb in self.space_boundaries:
+            if sb.related_bound is not None:
+                tz = sb.related_bound.thermal_zones[0]
                 if (tz is not self) and (tz not in neighbors):
                     neighbors.append(tz)
         return neighbors
 
-    def set_neighbors(self):
+    def set_space_neighbors(self):
         """set the neighbors of the thermal zone as a list"""
         self.space_neighbors = self.get_neighbors()
 
@@ -885,10 +881,10 @@ class SpaceBoundary(element.SubElement):
         else:
             self.physical = False
         self.storeys = self.get_space_boundary_storeys()
-        # if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
-        #     self.position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
-        # else:
-        #     self.position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.Position.Location.Coordinates
+        if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
+            self.position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
+        else:
+            self.position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.Position.Location.Coordinates
 
     def get_bound_neighbors(bind, name):
         neighbors = []

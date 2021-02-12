@@ -66,12 +66,12 @@ class Inspect(Task):
 
         self.bind_elements_to_zone(bound_instances)
         for k, tz in self.instances.items():
-            tz.set_neighbors()
+            tz.set_space_neighbors()
             if cooling_decision.value is True:
                 tz.with_cooling = True
             if heating_decision.value is True:
                 tz.with_heating = True
-            tz.set_neighbors()
+        print()
 
     def recognize_zone_geometrical(self):
         """Recognizes zones/spaces by geometric detection"""
@@ -98,21 +98,6 @@ class Inspect(Task):
                     thermalzone.bound_elements.append(inst)
                 if thermalzone not in inst.thermal_zones:
                     inst.thermal_zones.append(thermalzone)
-        # print()
-        # bound_instances = {}
-        # for space_boundary in thermalzone.space_boundaries:
-        #     bound_instance = space_boundary.bound_instance
-        #     if bound_instance.guid not in bound_instances:
-        #         bound_instances[bound_instance.guid] = [space_boundary]
-        #     else:
-        #         bound_instances[bound_instance.guid].append(space_boundary)
-        # for bound_instance, space_boundaries in bound_instances.items():
-        #     original_instance = Element.get_object(bound_instance)
-        #     inst = Disaggregation.based_on_thermal_zone([original_instance, space_boundaries], thermalzone)
-        #     if inst not in thermalzone.bound_elements:
-        #         thermalzone.bound_elements.append(inst)
-        #     if thermalzone not in inst.thermal_zones:
-        #         inst.thermal_zones.append(thermalzone)
 
     def recognize_space_boundaries(self, ifc):
         """Recognizes space boundaries in ifc file by semantic detection for
