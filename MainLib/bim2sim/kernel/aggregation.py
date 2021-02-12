@@ -1445,7 +1445,7 @@ class Aggregated_ThermalZone(Aggregation):
 
     def __init__(self, name, element_graph, *args, **kwargs):
         super().__init__(name, element_graph, *args, **kwargs)
-        self.get_disaggregation_properties()
+        # self.get_disaggregation_properties()
         self.bound_elements = self.bind_elements()
         self.finder = self.elements[0].finder
         self.description = ''
