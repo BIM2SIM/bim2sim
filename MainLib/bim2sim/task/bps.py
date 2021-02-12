@@ -108,8 +108,8 @@ class Prepare(ITask):
     def run(self, workflow, instances, ifc):
         self.logger.info("setting verifications")
         building = SubElement.get_class_instances('Building')[0]
-        # for guid, ins in instances.items():
-        #     self.layers_verification(ins, building)
+        for guid, ins in instances.items():
+            self.layers_verification(ins, building)
 
         storeys = SubElement.get_class_instances('Storey')
 
@@ -281,6 +281,7 @@ class Prepare(ITask):
                                                collect=False, quick_decide=False)
                 layer_thickness.decide()
                 thickness_value = layer_thickness.value
+            # ToDo: Input through decision
             material_input = input(
                 "Enter material for the layer %d (it will be searched or manual input)" % layer_number)
             new_layer = elements.Layer.create_additional_layer(thickness_value, material=material_input, parent=instance)

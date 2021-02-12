@@ -8,4 +8,4 @@ pint
 rpyc
 teaser
 translators
-OCC
+OCC-Core>=7.4
