@@ -884,13 +884,11 @@ class SpaceBoundary(element.SubElement):
             self.physical = True
         else:
             self.physical = False
-        self._get_disaggregation_properties()
         self.storeys = self.get_space_boundary_storeys()
-        # self.position = relating_space.position
-        if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
-            self.position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
-        else:
-            self.position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.Position.Location.Coordinates
+        # if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
+        #     self.position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
+        # else:
+        #     self.position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.Position.Location.Coordinates
 
     def get_bound_neighbors(bind, name):
         neighbors = []
@@ -1401,90 +1399,17 @@ class SpaceBoundary(element.SubElement):
     bound_area = attribute.Attribute(
         functions=[get_bound_area]
     )
-    area = attribute.Attribute(
-        functions=[get_bound_area]
-    )
+    # area = attribute.Attribute(
+    #     functions=[get_bound_area]
+    # )
     bound_neighbors = attribute.Attribute(
         functions=[get_bound_neighbors]
     )
-
-    def _get_disaggregation_properties(self):
-        # gets geometrical intersection area between space and element
-        vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
-        horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
-        binding = self.ifc
-        settings = ifcopenshell.geom.settings()
-        settings.set(settings.USE_WORLD_COORDS, True)
-        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-        settings.set(settings.INCLUDE_CURVES, True)
-
-        x, y, z = [], [], []
-        try:
-            shape = ifcopenshell.geom.create_shape(settings, binding.ConnectionGeometry.SurfaceOnRelatingElement)
-        except RuntimeError:
-            try:
-                shape = ifcopenshell.geom.create_shape(settings,
-                                                       binding.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface)
-            except RuntimeError:
-                self.logger.warning(
-                    "Found no geometric information for %s in %s" % (self.bound_instance.name,
-                                                                     self.thermal_zone[0].name))
-                return None
-
-        # get relative position of resultant disaggregation
-        if hasattr(binding.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
-            axis = binding.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Axis.DirectionRatios
-        else:
-            axis = binding.ConnectionGeometry.SurfaceOnRelatingElement.Position.Axis.DirectionRatios
-
-        i = 0
-        if len(shape.verts) > 0:
-            while i < len(shape.verts):
-                x.append(shape.verts[i])
-                y.append(shape.verts[i + 1])
-                z.append(shape.verts[i + 2])
-                i += 3
-        else:
-            for point in binding.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary.Points:
-                x.append(point.Coordinates[0])
-                y.append(point.Coordinates[1])
-                z.append(0)
-
-        x = list(set(x))
-        y = list(set(y))
-        z = list(set(z))
-        x.sort()
-        y.sort()
-        z.sort()
-
-        coordinates_group = [x, y, z]
-        coordinates = []
-        for coor in coordinates_group:
-            if len(coor) > 1:
-                coordinates.append(coor[1] - coor[0])
-
-        # # filter for vertical or horizontal instance -> gets area properly
-        # if self.bound_instance.__class__.__name__ in vertical_instances:
-        #     for a in coordinates:
-        #         if a <= 0:
-        #             del coordinates[coordinates.index(a)]
-        # elif type(self.bound_instance).__name__ in horizontal_instances:
-        #     del coordinates[2]
-
-        # returns disaggregation, area and relative position
-
-        # self.area = coordinates[0] * coordinates[1]
-        self.orientation = vector_angle(axis)
 
     def get_space_boundary_storeys(self):
         storeys = self.thermal_zones[0].storeys
 
         return storeys
-
-    @classmethod
-    def based_on_instance(cls, instance):
-        space_boundaries = {}
-        # ToDO: Space boundaries creation based on instances, in order to avoid duplicates and find neighbors
 
 
 class Medium(element.Element):
@@ -1537,7 +1462,7 @@ class Wall(element.Element):
         default_ps='area',
         default=1
     )
-    gross_side_area = attribute.Attribute(
+    gross_area = attribute.Attribute(
         default_ps='gross_side_area',
         default=1
     )
@@ -1833,6 +1758,10 @@ class Slab(element.Element):
     area = attribute.Attribute(
         default_ps='area',
         default=0
+    )
+    gross_area = attribute.Attribute(
+        default_ps='gross_area',
+        default=1
     )
 
     width = attribute.Attribute(

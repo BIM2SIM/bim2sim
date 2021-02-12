@@ -65,7 +65,7 @@ class Disaggregation(BaseElement):
 
         i = len(parent.sub_instances)
         new_pos = np.array(space_boundary.position)
-        area_disaggregation = space_boundary.area
+        area_disaggregation = space_boundary.bound_area
         if hasattr(parent, 'gross_side_area'):
             parent_area = parent.gross_side_area
         else:

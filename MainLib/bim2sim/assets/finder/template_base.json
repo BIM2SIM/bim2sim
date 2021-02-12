@@ -201,13 +201,19 @@
       }
     },
     "default_ps": {
-      "area" : {
-        "ARCHICAD-64": ["BaseQuantities", "GrossArea"],
+      "area": {
+        "ARCHICAD-64": ["BaseQuantities", "NetArea"],
         "Autodesk Revit 2018 (DEU)": ["Abmessungen", "Fl\u00e4che"],
-        "Autodesk Revit 2019 (DEU)": ["QTo_SlabBaseQuantities", "GrossArea"],
-        "Autodesk Revit 2019 (ENU)": ["QTo_SlabBaseQuantities", "NetArea"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_WallBaseQuantities", "NetArea"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_WallBaseQuantities", "NetArea"],
         "Autodesk Revit 2020 (DEU)": ["Abmessungen", "Fl\u00e4che"],
-        "Autodesk Revit 2020 (ENU)": ["QTo_SlabBaseQuantities", "Height"]
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "NetArea"]
+      },
+      "gross_area": {
+        "ARCHICAD-64": ["BaseQuantities", "GrossArea"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossArea"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_WallBaseQuantities", "GrossArea"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "GrossArea"]
       },
       "width" : {
         "ARCHICAD-64": ["BaseQuantities", "Width"],
@@ -234,13 +240,19 @@
       }
     },
     "default_ps": {
-      "area" : {
+      "area": {
         "ARCHICAD-64": ["BaseQuantities", "NetArea"],
+        "Autodesk Revit 2018 (DEU)": ["Abmessungen", "Fl\u00e4che"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_WallBaseQuantities", "NetArea"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_WallBaseQuantities", "NetArea"],
+        "Autodesk Revit 2020 (DEU)": ["Abmessungen", "Fl\u00e4che"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "NetArea"]
+      },
+      "gross_area": {
+        "ARCHICAD-64": ["BaseQuantities", "GrossArea"],
         "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossArea"],
-        "Autodesk Revit 2019 (DEU)": ["QTo_SlabBaseQuantities", "GrossArea"],
-        "Autodesk Revit 2019 (ENU)": ["Qto_SlabBaseQuantities", "NetArea"],
-        "Autodesk Revit 2020 (DEU)": ["Qto_SlabBaseQuantities", "GrossArea"],
-        "Autodesk Revit 2020 (ENU)": ["QTo_SlabBaseQuantities", "GrossArea"]
+        "Autodesk Revit 2020 (DEU)": ["Qto_WallBaseQuantities", "GrossArea"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "GrossArea"]
       },
       "width" : {
         "ARCHICAD-64": ["BaseQuantities", "Width"],
@@ -267,13 +279,19 @@
       }
     },
     "default_ps": {
-      "area" : {
+      "area": {
         "ARCHICAD-64": ["BaseQuantities", "NetArea"],
+        "Autodesk Revit 2018 (DEU)": ["Abmessungen", "Fl\u00e4che"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_WallBaseQuantities", "NetArea"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_WallBaseQuantities", "NetArea"],
+        "Autodesk Revit 2020 (DEU)": ["Abmessungen", "Fl\u00e4che"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "NetArea"]
+      },
+      "gross_area": {
+        "ARCHICAD-64": ["BaseQuantities", "GrossArea"],
         "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossArea"],
-        "Autodesk Revit 2019 (DEU)": ["QTo_SlabBaseQuantities", "GrossArea"],
-        "Autodesk Revit 2019 (ENU)": ["Qto_SlabBaseQuantities", "NetArea"],
-        "Autodesk Revit 2020 (DEU)": ["Qto_SlabBaseQuantities", "GrossArea"],
-        "Autodesk Revit 2020 (ENU)": ["QTo_SlabBaseQuantities", "GrossArea"]
+        "Autodesk Revit 2020 (DEU)": ["Qto_WallBaseQuantities", "GrossArea"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "GrossArea"]
       },
       "width" : {
         "ARCHICAD-64": ["BaseQuantities", "Width"],

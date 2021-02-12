@@ -98,7 +98,7 @@ class Inspect(Task):
                     thermalzone.bound_elements.append(inst)
                 if thermalzone not in inst.thermal_zones:
                     inst.thermal_zones.append(thermalzone)
-        print()
+        # print()
         # bound_instances = {}
         # for space_boundary in thermalzone.space_boundaries:
         #     bound_instance = space_boundary.bound_instance
