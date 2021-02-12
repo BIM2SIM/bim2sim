@@ -1466,27 +1466,28 @@ class Aggregated_ThermalZone(Aggregation):
     def bind_elements(self):
         """elements binder for the resultant thermal zone"""
         bound_elements = []
-        aux_bound_elements = {}
+        aux_bound_elements = []
         for e in self.elements:
             for i in e.bound_elements:
-                if not issubclass(type(i), Disaggregation):
-                    if i not in bound_elements:
-                        bound_elements.append(i)
-                else:
-                    parent = i.parent
-                    if parent.guid not in aux_bound_elements:
-                        aux_bound_elements[parent.guid] = {}
-                    if e.guid not in aux_bound_elements[parent.guid]:
-                        aux_bound_elements[parent.guid][e.guid] = []
-                    aux_bound_elements[parent.guid][e.guid].append(i)
-        for ins_guid, tz_list in aux_bound_elements.items():
-            # windows and walls case
-            if len(tz_list) <= 2:
-                bound_elements.extend(tz_list[next(iter(aux_bound_elements[ins_guid]))])
-            # all instances case
-            else:
-                for tz_guid, ins_list in tz_list.items():
-                    bound_elements.extend(ins_list)
+                # if not issubclass(type(i), Disaggregation):
+                aux_bound_elements.append(i)
+                if i not in bound_elements:
+                    bound_elements.append(i)
+                # else:
+                #     parent = i.parent
+                #     if parent.guid not in aux_bound_elements:
+                #         aux_bound_elements[parent.guid] = {}
+                #     if e.guid not in aux_bound_elements[parent.guid]:
+                #         aux_bound_elements[parent.guid][e.guid] = []
+                #     aux_bound_elements[parent.guid][e.guid].append(i)
+        # for ins_guid, tz_list in aux_bound_elements.items():
+        #     # windows and walls case
+        #     if len(tz_list) <= 2:
+        #         bound_elements.extend(tz_list[next(iter(aux_bound_elements[ins_guid]))])
+        #     # all instances case
+        #     else:
+        #         for tz_guid, ins_list in tz_list.items():
+        #             bound_elements.extend(ins_list)
         return bound_elements
 
     @classmethod

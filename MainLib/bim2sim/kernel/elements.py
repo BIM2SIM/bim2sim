@@ -881,10 +881,27 @@ class SpaceBoundary(element.SubElement):
         else:
             self.physical = False
         self.storeys = self.get_space_boundary_storeys()
+        self.orientation = self._get_orientation()
+        self.position = self._get_position()
+
+    def _get_orientation(self):
+
+        # get relative position of resultant disaggregation
         if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
-            self.position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
+            axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Axis.DirectionRatios
         else:
-            self.position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.Position.Location.Coordinates
+            axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.Position.Axis.DirectionRatios
+
+        return vector_angle(axis)
+
+    def _get_position(self):
+        # get relative position of resultant disaggregation
+        if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
+            position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
+        else:
+            position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.Position.Location.Coordinates
+
+        return position
 
     def get_bound_neighbors(bind, name):
         neighbors = []

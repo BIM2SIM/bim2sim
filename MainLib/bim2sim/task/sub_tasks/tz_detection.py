@@ -71,7 +71,6 @@ class Inspect(Task):
                 tz.with_cooling = True
             if heating_decision.value is True:
                 tz.with_heating = True
-        print()
 
     def recognize_zone_geometrical(self):
         """Recognizes zones/spaces by geometric detection"""
