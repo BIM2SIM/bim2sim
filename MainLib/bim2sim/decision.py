@@ -444,6 +444,12 @@ class Decision:
         self.reset()
 
     @classmethod
+    def reset_decisions(cls):
+        """Reset state of Decision class."""
+        cls.stored_decisions.clear()
+        cls.all.clear()
+
+    @classmethod
     def global_keys(cls):
         """Global key generator"""
         for decision in cls.all:

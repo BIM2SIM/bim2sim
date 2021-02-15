@@ -3,6 +3,7 @@
 import os
 import json
 import hashlib
+import contextlib
 
 from bim2sim.kernel import ifc2python
 from bim2sim.decision import ListDecision, Decision
@@ -17,6 +18,10 @@ class Finder:
     def find(self, element, property_name):
         raise NotImplementedError()
 
+    def reset(self):
+        """Reset finder instance"""
+        raise NotImplementedError()
+
 
 class TemplateFinder(Finder):
     """TemplateFinder works like a multi key diktonary.
@@ -28,31 +33,22 @@ class TemplateFinder(Finder):
 
     def __init__(self):
         super().__init__()
-        #{tool: {Element class name: {parameter: (Pset name, property name)}}}
+        # {tool: {Element class name: {parameter: (Pset name, property name)}}}
         self.templates = {}
         self.blacklist = []
+        self.path = None
+        self.load(DEFAULT_PATH)  # load default path
+        self.enabled = True
 
     def load(self, path):
         """loads templates from given path. Each *.json file is interpretet as tool with name *
         also searches default templates"""
+        self.path = path
 
-        # search in project folder
+        # search in path
         for filename in os.listdir(path):
             if filename.lower().startswith(TemplateFinder.prefix) and filename.lower().endswith(".json"):
                 tool = filename[len(TemplateFinder.prefix):-5]
-                try:
-                    with open(os.path.join(path, filename)) as file:
-                        self.templates[tool] = json.load(file)
-                except (IOError, json.JSONDecodeError) as ex:
-                    continue
-
-        # search for default finder templates
-        for filename in os.listdir(DEFAULT_PATH):
-            if filename.lower().startswith(TemplateFinder.prefix) and filename.lower().endswith(".json"):
-                tool = filename[len(TemplateFinder.prefix):-5]
-                if tool in self.templates:
-                    # not overwrite project templates
-                    continue
                 try:
                     with open(os.path.join(path, filename)) as file:
                         self.templates[tool] = json.load(file)
@@ -86,6 +82,8 @@ class TemplateFinder(Finder):
         
         :return: value of property or None if propertyset or property is not available
         :raises: AttributeError if TemplateFinder does not know about given input"""
+        if not self.enabled:
+            raise AttributeError("Finder is disabled")
 
         self.check_template(element)
 
@@ -120,13 +118,24 @@ class TemplateFinder(Finder):
                 choices=choices,
                 global_key='tool_' + hashlib.md5(''.join(choices).encode('utf-8')).hexdigest(),
                 allow_skip=True, allow_load=True, allow_save=True,
-                collect=False, quick_decide=not True)
+                collect=False, quick_decide=False)
             tool_name = decision_source_tool.decide()
 
-            if tool_name == 'Other':
+            if not tool_name or tool_name == 'Other':
                 self.blacklist.append(element.source_tool)
                 raise AttributeError('No finder template found for {}.'.format(element.source_tool))
 
             self.templates[element.source_tool] = self.templates[tool_name]
             element.logger.info("Set {} as finder template for {}.".format(tool_name, element.source_tool))
 
+    def reset(self):
+        self.blacklist.clear()
+        self.templates.clear()
+        self.load(self.path)
+
+    @contextlib.contextmanager
+    def disable(self):
+        temp = self.enabled
+        self.enabled = False
+        yield
+        self.enabled = temp

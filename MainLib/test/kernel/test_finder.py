@@ -4,7 +4,6 @@
 import unittest
 import os
 import tempfile
-import shutil
 
 import bim2sim
 from bim2sim.kernel import ifc2python
@@ -33,8 +32,12 @@ class Test_TemplateFinder(unittest.TestCase):
         cls.pipefitting1 = elements.PipeFitting(pipefittings[0])
         cls.pipefitting2 = elements.PipeFitting(pipefittings[1])
 
+        element.IFCBased.finder.enabled = False
+
     @classmethod
     def tearDownClass(cls):
+        element.IFCBased.finder.enabled = True
+        Decision.reset_decisions()
         cls.root.cleanup()
 
     def setUp(self):
@@ -44,9 +47,8 @@ class Test_TemplateFinder(unittest.TestCase):
 
     def tearDown(self):
         del self.finder
-        element.Element.finder = None
+        element.Element.finder = self.backup
 
-    @unittest.skip("Fix this!")  # TODO
     def test_set_find(self):
         cls = self.__class__
         tool = cls.pipe1.source_tool

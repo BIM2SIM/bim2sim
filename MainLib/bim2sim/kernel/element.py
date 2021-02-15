@@ -13,6 +13,7 @@ from bim2sim.kernel import ifc2python, attribute
 from bim2sim.decision import Decision, ListDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.task.bps_f.bps_functions import angle_equivalent, vector_angle
+from bim2sim.kernel.finder import TemplateFinder
 
 logger = logging.getLogger(__name__)
 
@@ -116,6 +117,7 @@ class IFCBased(Root):
     predefined_type = None
     _ifc_classes = {}
     pattern_ifc_type = []
+    finder = TemplateFinder()
 
     def __init__(self, ifc, *args, **kwargs):
         if hasattr(ifc, 'GlobalId'):
@@ -650,7 +652,6 @@ class SubElement(BaseElement, IFCBased):
     _ifc_classes = {}
 
     dummy = None
-    finder = None
     conditions = []
 
     def __init__(self, *args, tool=None, **kwargs):
@@ -772,11 +773,11 @@ class SubElement(BaseElement, IFCBased):
             self._tool = self.parent.source_tool
         return self._tool
 
-    @property
-    def finder(self):
-        """finder that the parent has been created with"""
-        if hasattr(self.parent, 'finder'):
-            return self.parent.finder
+    # @property
+    # def finder(self):
+    #     """finder that the parent has been created with"""
+    #     if hasattr(self.parent, 'finder'):
+    #         return self.parent.finder
 
 
     def __repr__(self):
@@ -794,7 +795,6 @@ class Element(SubElement):
     _ifc_classes = {}
 
     dummy = None
-    finder = None
     conditions = []
     _source_tool = None
 
