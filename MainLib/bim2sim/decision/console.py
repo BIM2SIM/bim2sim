@@ -152,3 +152,11 @@ class ConsoleFrontEnd(FrontEnd):
 
         return raw_value
 
+    @staticmethod
+    def parse_string_input(raw_input):
+        raw_value = None
+        try:
+            raw_value = str(raw_input)
+        except Exception:
+            pass
+        return raw_value

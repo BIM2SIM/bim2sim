@@ -543,21 +543,12 @@ class ListDecision(Decision):
         return body
 
 
-# class DictDecision(CollectionDecision):
-#     """Accepts index of dict element as input"""
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.choices = OrderedDict(self.choices)
-#
-#     def from_index(self, index):
-#         return list(self.choices.values())[index]
-#
-#     def option_txt(self, options):
-#         len_keys = max([len(str(key)) for key in self.choices.keys()])
-#         header_str = "  {id:2s}  {key:%ds}  {value:s}"%(len_keys)
-#         format_str = "\n {id:3d}  {key:%ds}  {value:s}"%(len_keys)
-#         options_txt = header_str.format(id="id", key="key", value="value")
-#         for i, (k, v) in enumerate(self.choices.items()):
-#             options_txt += format_str.format(id=i, key=str(k), value=str(v))
-#         return options_txt
+class StringDecision(Decision):
+    """Accepts string input"""
+
+    def __init__(self, *args, min_length=1, **kwargs):
+        self.min_length = min_length
+        super().__init__(*args, **kwargs)
+
+    def _validate(self, value):
+        return isinstance(value, str) and len(value) >= self.min_length

@@ -1,6 +1,6 @@
 import logging
 
-from ..decision import Decision, BoolDecision, RealDecision, ListDecision
+from ..decision import BoolDecision, RealDecision, ListDecision, StringDecision
 
 
 class FrontEnd:
@@ -38,6 +38,8 @@ class FrontEnd:
             return self.parse_real_input(raw_answer, decision.unit)
         elif isinstance(decision, ListDecision):
             return self.parse_list_input(raw_answer, decision.items)
+        elif isinstance(decision, StringDecision):
+            return self.parse_string_input(raw_answer)
 
     @staticmethod
     def parse_real_input(raw_input, unit=None):
@@ -66,4 +68,12 @@ class FrontEnd:
             raw_value = items[raw_input]
         except Exception:
             raise NotImplementedError("Parsing list index not implemented.")
+        return raw_value
+
+    @staticmethod
+    def parse_string_input(raw_input):
+        try:
+            raw_value = str(raw_input)
+        except Exception:
+            raise NotImplementedError("Parsing string not implemented.")
         return raw_value
