@@ -563,66 +563,32 @@
       }
     }
   },
-  "Storey": {
-    "default_ps": {
-      "gross_floor_area": {
-        "ARCHICAD-64": ["BaseQuantities", "GrossFloorArea"],
-        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossFloorArea"],
-        "Autodesk Revit 2019 (ENU)": ["BaseQuantities", "GrossFloorArea"],
-        "Autodesk Revit 2020 (DEU)": ["Qto_BuildingStoreyBaseQuantities", "GrossFloorArea"],
-        "Autodesk Revit 2020 (ENU)": ["Qto_BuildingStoreyBaseQuantities", "GrossFloorArea"]
-      },
-      "gross_height": {
-        "ARCHICAD-64": ["BaseQuantities", "GrossHeight"],
-        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossHeight"],
-        "Autodesk Revit 2019 (ENU)": ["BaseQuantities", "GrossHeight"],
-        "Autodesk Revit 2020 (DEU)": ["Qto_BuildingStoreyBaseQuantities", "GrossHeight"],
-        "Autodesk Revit 2020 (ENU)": ["Qto_BuildingStoreyBaseQuantities", "GrossHeight"]
-      },
-      "net_height": {
-        "ARCHICAD-64": ["BaseQuantities", "NetHeight"],
-        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "NetHeight"],
-        "Autodesk Revit 2019 (ENU)": ["BaseQuantities", "NetHeight"],
-        "Autodesk Revit 2020 (DEU)":  ["Qto_BuildingStoreyBaseQuantities", "NetHeight"],
-        "Autodesk Revit 2020 (ENU)": ["Qto_BuildingStoreyBaseQuantities", "NetHeight"]
-      },
-      "height": {
-        "ARCHICAD-64": ["BaseQuantities", "Height"],
-        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Height"],
-        "Autodesk Revit 2019 (ENU)": ["BaseQuantities", "Height"],
-        "Autodesk Revit 2020 (DEU)": ["Qto_BuildingStoreyBaseQuantities", "Height"],
-        "Autodesk Revit 2020 (ENU)": ["Qto_BuildingStoreyBaseQuantities", "Height"]
-      }
-    }
-  },
-  "Layer": {
-    "exporter": {
-      "teaser": {
-        "name": ["instance", "material"],
-        "density": ["instance", "density"],
-        "heat_capac": ["instance", "heat_capac"],
-        "thermal_conduc": ["instance", "thermal_conduc"]
-      }
-    },
-    "default_ps": {
-      "thermal_conduc" : {
-        "base": ["Pset_MaterialThermal", "ThermalConductivity"]
-      },
-      "heat_capac" : {
-        "base": ["Pset_MaterialThermal", "SpecificHeatCapacity"]
-      },
-      "density" :  {
-        "base": ["Pset_MaterialCommon", "MassDensity"]
-      }
-    }
-  },
   "Material": {
-    "exporter": {
+    "default_ps": {
+      "thermal_conduc" : ["Pset_MaterialThermal", "ThermalConductivity"],
+      "heat_capac" : ["Pset_MaterialThermal", "SpecificHeatCapacity"],
+      "density" : ["Pset_MaterialCommon", "MassDensity"],
+      "embodied_energy" : ["AC_Pset_MaterialCustom", "EmbodiedEnergy"],
+      "embodied_carbon" : ["AC_Pset_MaterialCustom", "EmbodiedCarbon"]
+    },
+	"exporter": {
       "teaser": {
-        "name": ["instance", "material"],
-        "density": ["instance", "density"],
-        "heat_capac": ["instance", "heat_capac"],
-        "thermal_conduc": ["instance", "thermal_conduc"]
+        "name": [
+          "instance",
+          "material"
+        ],
+        "density": [
+          "instance",
+          "density"
+        ],
+        "heat_capac": [
+          "instance",
+          "heat_capac"
+        ],
+        "thermal_conduc": [
+          "instance",
+          "thermal_conduc"
+        ]
       }
     }
   },

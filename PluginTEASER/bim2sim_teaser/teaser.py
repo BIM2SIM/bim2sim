@@ -26,7 +26,7 @@ class TEASERManager(BIM2SIMManager):
         pass
 
         self.playground.run_task(bps.ExportTEASER())
-        print()
+
 
 
 

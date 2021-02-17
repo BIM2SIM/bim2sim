@@ -1,6 +1,7 @@
 
 import logging
 
+
 def log(name):
     """Decorator for logging of entering and leaving method"""
     logger = logging.getLogger(__name__)
@@ -11,6 +12,7 @@ def log(name):
             logger.info("Done %s.", name)
         return wrapper
     return log_decorator
+
 
 class cached_property(property):
     def __init__(self, func, name=None, doc=None):
@@ -30,6 +32,7 @@ class cached_property(property):
             value = self.func(obj)
             obj.__dict__[self.__name__] = value
         return value
+
 
 if __name__ == "__main__":
 

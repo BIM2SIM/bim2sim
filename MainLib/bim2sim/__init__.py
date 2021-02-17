@@ -16,8 +16,9 @@ from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparated
 VERSION = '0.1-dev'
 
 workflow_getter = {'aixlib': PlantSimulation,
-                   'TEASER': BPSMultiZoneSeparated,
-                   'hkesim': PlantSimulation}
+                   'teaser': BPSMultiZoneSeparated,
+                   'hkesim': PlantSimulation,
+                   'energyplus': BPSMultiZoneSeparated}
 
 
 def get_backends(by_entrypoint=False):
@@ -104,10 +105,7 @@ def main(rootpath=None):
     if not BIM2SIMManager in manager_cls.__bases__:
         raise AttributeError("Got invalid manager from %s" % (backend))
 
-    workflow_class = workflow_getter.get(backend, None)
-    if workflow_class is not None:
-        workflow = workflow_class()
-
+    workflow = workflow_getter[backend]()  # TODO
     # prepare simulation
     manager = manager_cls(workflow)
 
@@ -142,10 +140,9 @@ def _debug_run_bps():
     path_example = r"C:\temp\bim2sim\testproject_bps2"
 
     if not PROJECT.is_project_folder(path_example):
-        PROJECT.create(path_example, path_ifc, 'TEASER')
+        PROJECT.create(path_example, path_ifc, 'teaser')
 
     main(path_example)
-
 
 
 def _debug_run_hvac_aixlib():
@@ -157,6 +154,7 @@ def _debug_run_hvac_aixlib():
 
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, path_ifc, 'aixlib',)
+
 
 def _debug_run_cfd():
     """Create example project and copy ifc if necessary"""

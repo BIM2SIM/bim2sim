@@ -48,7 +48,7 @@ from bim2sim.project import PROJECT
 
 
 def diameter_post_processing(value):
-    if isinstance(value, list):
+    if isinstance(value, (list, set)):
         return sum(value) / len(value)
     return value
 
@@ -591,9 +591,6 @@ class ThermalZone(element.Element):
     )
 
     def _get_usage(bind, name):
-        zone_pattern = []
-        matches = []
-
         if PROJECT.PAPER:
             # hardcode for investigation of KIT Institut
             zone_dict = {
@@ -613,11 +610,35 @@ class ThermalZone(element.Element):
             }
             for key, trans in zone_dict.items():
                 if key in bind.zone_name:
-                    return trans
+        #             return trans
+            # if bind.zone_name in zone_dict.keys():
+        zone_pattern = []
+        matches = []
+
+        #if PROJECT.PAPER:
+        #    # hardcode for investigation of KIT Institut
+        #    zone_dict = {
+        #        "Schlafzimmer": "Bed room",
+        #        "Wohnen": "Living",
+        #        "Galerie": "Living",
+        #        "Küche": "Living",
+        #        "Flur": "Traffic area",
+        #        "Buero": "Single office",
+        #        "Besprechungsraum": 'Meeting, Conference, seminar',
+        #        "Seminarraum": 'Meeting, Conference, seminar',
+        #        "Technikraum": "Stock, technical equipment, archives",
+        #        "Dachboden": "Traffic area",
+        #        "WC": "WC and sanitary rooms in non-residential buildings",
+        #        "Bad": "WC and sanitary rooms in non-residential buildings",
+        #        "Labor": "Laboratory"
+        #    }
+        #    for key, trans in zone_dict.items():
+        #        if key in bind.zone_name:
+        #           return trans
             # if bind.zone_name in zone_dict.keys():
             #     return zone_dict[bind.zone_name]
             # else:
-            return "Single office"
+        #    return "Single office"
 
         if bind.zone_name:
             list_org = bind.zone_name.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()

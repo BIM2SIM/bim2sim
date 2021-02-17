@@ -102,7 +102,7 @@ class Attribute:
             value = self.get_from_enrichment(bind, self.name)
 
         # default value
-        if value is None and self.default_value:
+        if value is None and self.default_value is not None:
             value = self.default_value
             if value and self.unit:
                 value = value * self.unit
@@ -115,25 +115,9 @@ class Attribute:
         return value
 
     @staticmethod
-    def get_from_default_propertyset(bind, name):
-        if bind.finder is None:
-            return None
-        template = bind.finder.templates['base']
-        source_tool = bind.source_tool
-        default = None
-        if type(bind).__name__ in template:
-            if name in template[type(bind).__name__]['default_ps']:
-                # base template
-                if 'base' in template[type(bind).__name__]['default_ps'][name]:
-                    default = template[type(bind).__name__]['default_ps'][name]['base']
-                else:
-                    # specific template
-                    if source_tool in template[type(bind).__name__]['default_ps'][name]:
-                        default = template[type(bind).__name__]['default_ps'][name][source_tool]
-        if default is None:
-            return None
+    def get_from_default_propertyset(bind, default):
         try:
-            value = bind.get_exact_property(default[0], default[1])
+            value = bind.get_exact_property(*default)
         except Exception:
             value = None
         return value
@@ -230,12 +214,11 @@ class Attribute:
         return value
 
     @staticmethod
-    def get_from_decision(bind, name):
+    def get_from_decision(bind, name, unit=None):
         # TODO: decision
         decision = RealDecision(
             "Enter value for %s of %s" % (name, bind.name),
-            # output=self,
-            # output_key=name,
+            unit=unit,
             global_key="%s_%s.%s" % (bind.ifc_type, bind.guid, name),
             allow_skip=False, allow_load=True, allow_save=True,
             validate_func=lambda x: True,  # TODO meaningful validation
@@ -321,7 +304,7 @@ class Attribute:
             changed = True
 
         if self._force and value is None:
-            value = self.get_from_decision(bind, self.name)
+            value = self.get_from_decision(bind, self.name, self.unit)
             status = Attribute.STATUS_AVAILABLE
             changed = True
 

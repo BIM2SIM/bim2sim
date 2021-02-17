@@ -98,6 +98,10 @@ class Inspect(Task):
                 if thermalzone not in inst.thermal_zones:
                     inst.thermal_zones.append(thermalzone)
 
+        thermalzone.set_is_external()
+        thermalzone.set_external_orientation()
+        thermalzone.set_glass_area()
+
     def recognize_space_boundaries(self, ifc):
         """Recognizes space boundaries in ifc file by semantic detection for
         IfcRelSpaceBoundary entities"""
@@ -161,6 +165,10 @@ class Inspect(Task):
         #         if related_element is not None:
         #             SubElement.factory(entity, 'IfcRelSpaceBoundary')
 
+class Bind(Task):
+    """Analyses thermal zone instances, bind instances and connects them.
+    based on various criteria
+    elements are stored in .instances dict with guid as key"""
 
 class Bind(Task):
     """Analyses thermal zone instances, bind instances and connects them.

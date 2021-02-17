@@ -8,6 +8,7 @@ import re
 from bim2sim.kernel.element import BaseElement, SubElement
 from bim2sim.task.bps_f.bps_functions import get_disaggregations_instance
 
+
 vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
 horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
 

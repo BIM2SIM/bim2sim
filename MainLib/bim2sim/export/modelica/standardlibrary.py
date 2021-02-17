@@ -2,6 +2,7 @@
 
 from bim2sim.export import modelica
 from bim2sim.kernel import elements, aggregation
+from bim2sim.kernel.units import ureg
 
 from bim2sim.decision import RealDecision
 
@@ -14,8 +15,8 @@ class StaticPipe(StandardLibrary):
     represents = [elements.Pipe, elements.PipeFitting, aggregation.PipeStrand]
 
     def __init__(self, element):
-        self.check_length = self.check_numeric(min_value=0)
-        self.check_diameter = self.check_numeric(min_value=0)
+        self.check_length = self.check_numeric(min_value=0 * ureg.meter)
+        self.check_diameter = self.check_numeric(min_value=0 * ureg.meter)
         super().__init__(element)
 
     def get_params(self):
@@ -41,8 +42,8 @@ class Valve(StandardLibrary):
     represents = [elements.Valve]
 
     def __init__(self, element):
-        self.check_length = self.check_numeric(min_value=0)
-        self.check_diameter = self.check_numeric(min_value=0)
+        self.check_length = self.check_numeric(min_value=0 * ureg.meter)
+        self.check_diameter = self.check_numeric(min_value=0 * ureg.meter)
         super().__init__(element)
 
     def get_params(self):
@@ -68,7 +69,7 @@ class ClosedVolume(StandardLibrary):
     represents = [elements.Storage]
 
     def __init__(self, element):
-        self.check_volume = self.check_numeric(min_value=0)
+        self.check_volume = self.check_numeric(min_value=0 * ureg.meter ** 3)
         super().__init__(element)
 
     def volume(self):
