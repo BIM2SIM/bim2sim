@@ -610,35 +610,9 @@ class ThermalZone(element.Element):
             }
             for key, trans in zone_dict.items():
                 if key in bind.zone_name:
-        #             return trans
-            # if bind.zone_name in zone_dict.keys():
+                    return trans
         zone_pattern = []
         matches = []
-
-        #if PROJECT.PAPER:
-        #    # hardcode for investigation of KIT Institut
-        #    zone_dict = {
-        #        "Schlafzimmer": "Bed room",
-        #        "Wohnen": "Living",
-        #        "Galerie": "Living",
-        #        "Küche": "Living",
-        #        "Flur": "Traffic area",
-        #        "Buero": "Single office",
-        #        "Besprechungsraum": 'Meeting, Conference, seminar',
-        #        "Seminarraum": 'Meeting, Conference, seminar',
-        #        "Technikraum": "Stock, technical equipment, archives",
-        #        "Dachboden": "Traffic area",
-        #        "WC": "WC and sanitary rooms in non-residential buildings",
-        #        "Bad": "WC and sanitary rooms in non-residential buildings",
-        #        "Labor": "Laboratory"
-        #    }
-        #    for key, trans in zone_dict.items():
-        #        if key in bind.zone_name:
-        #           return trans
-            # if bind.zone_name in zone_dict.keys():
-            #     return zone_dict[bind.zone_name]
-            # else:
-        #    return "Single office"
 
         if bind.zone_name:
             list_org = bind.zone_name.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()

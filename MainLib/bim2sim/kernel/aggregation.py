@@ -1448,14 +1448,15 @@ class Aggregated_ThermalZone(Aggregation):
 
     def __init__(self, name, element_graph, *args, **kwargs):
         super().__init__(name, element_graph, *args, **kwargs)
-        # self.get_disaggregation_properties()
+        self.get_disaggregation_properties()
         self.bound_elements = self.bind_elements()
         self.finder = self.elements[0].finder
         self.description = ''
 
     def get_disaggregation_properties(self):
         """properties getter -> that way no sub instances has to be defined"""
-        exception = ['height', 't_set_cool', 't_set_heat', 'usage']
+        exception = ['height', 't_set_cool', 't_set_heat', 'usage', 'space_center', 'space_shape', 'with_cooling',
+                     'with_heating', 'with_AHU', 'zone_name']
         for prop in self.elements[0].attributes:
             if prop in exception:
                 value = getattr(self.elements[0], prop)

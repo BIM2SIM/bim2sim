@@ -115,9 +115,17 @@ class Attribute:
         return value
 
     @staticmethod
-    def get_from_default_propertyset(bind, default):
+    def get_from_default_propertyset(bind, name):
+        if bind.finder is None:
+            return None
+        template = bind.finder.templates[bind.source_tool].get(type(bind).__name__).get('default_ps')
+        default = None
+        if name in template:
+            default = template[name]
+        if default is None:
+            return None
         try:
-            value = bind.get_exact_property(*default)
+            value = bind.get_exact_property(default[0], default[1])
         except Exception:
             value = None
         return value

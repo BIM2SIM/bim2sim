@@ -1,17 +1,17 @@
 {
   "PipeFitting": {
 	"default_ps": {
-      "diameter" : ["Abmessungen", "Nenndurchmesser"],
+      "diameter" : ["Pset_PipeFittingTypeCommon", "NominalDiameter"],
       "pressure_class" : ["Pset_PipeFittingTypeCommon", "PressureClass"],
-      "length" : ["Abmessungen", "Muffenl\u00e4nge"],
+      "length" : ["Qto_PipeFittingTypeCommon", "Length"],
       "radius": ["Abmessungen", "Bogenradius"],
       "angle": ["Abmessungen", "Winkel"]
     }
   },
   "Pipe": {
 	"default_ps": {
-      "diameter" : ["HLS", "Durchmesser"],
-      "length" : ["Abmessungen", "L\u00e4nge"]
+      "diameter" : ["Pset_PipeSegmentTypeCommon", "NominalDiameter"],
+      "length" : ["Qto_PipeSegmentBaseQuantities", "Length"]
     }
   },
   "OuterWall": {
@@ -28,9 +28,6 @@
   "InnerWall": {
     "default_ps": {
       "area": ["QTo_WallBaseQuantities", "NetSideArea"],
-        "Autodesk Revit 2019 (ENU)": ["QTo_WallBaseQuantities", "NetSideArea"],
-        "Autodesk Revit 2020 (DEU)": ["Abmessungen", "Fl\u00e4che"],
-        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "NetSideArea"],
       "gross_side_area": ["QTo_WallBaseQuantities", "GrossSideArea"],
       "width": ["QTo_WallBaseQuantities", "Width"],
       "height": ["QTo_WallBaseQuantities", "Height"],

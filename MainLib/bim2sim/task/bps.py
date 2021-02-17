@@ -77,7 +77,6 @@ class Inspect(ITask):
                     self.instances[element.guid] = element
             except RuntimeError:
                 pass
-        x = SubElement.get_class_instances('InnerWall')
         self.logger.info("Found %d building elements", len(self.instances))
 
         return self.instances,
