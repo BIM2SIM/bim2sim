@@ -4,6 +4,7 @@ import math
 import re
 
 import numpy as np
+import copy
 import translators as ts
 import ifcopenshell
 import ifcopenshell.geom
@@ -720,6 +721,9 @@ class ThermalZone(element.Element):
         for sb in self.space_boundaries:
             if sb.related_bound is not None:
                 tz = sb.related_bound.thermal_zones[0]
+                #todo: check if computation of neighbors works as expected
+                #what if boundary has no related bound but still has a neighbor?
+                #hint: neighbors != related bounds
                 if (tz is not self) and (tz not in neighbors):
                     neighbors.append(tz)
         return neighbors

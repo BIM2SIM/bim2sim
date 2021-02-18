@@ -8,6 +8,8 @@ from bim2sim.kernel import ifc2python
 from bim2sim.decision import ListDecision, Decision
 
 
+# DEFAULT_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets\\finder')
+# DEFAULT_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets/finder')
 DEFAULT_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                             'assets', 'finder')
 
