@@ -207,7 +207,7 @@ def _debug_run_bps_ep():
     path_example = _get_debug_project_path()
 
     if not PROJECT.is_project_folder(path_example):
-        PROJECT.create(path_example, path_ifc, 'ENERGYPLUS')
+        PROJECT.create(path_example, path_ifc, 'energyplus')
 
     main(path_example)
 
@@ -237,7 +237,7 @@ def _debug_run_cfd():
 
 if __name__ == '__main__':
     # _debug_run_cfd()
-    _debug_run_bps()
+    # _debug_run_bps()
     _debug_run_bps_ep()
     # _debug_run_hvac()
 

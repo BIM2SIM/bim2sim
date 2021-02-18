@@ -9,37 +9,37 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from OCC.Display.SimpleGui import init_display
-from OCC.BRepBuilderAPI import \
+from OCC.Core.BRepBuilderAPI import \
     BRepBuilderAPI_MakeFace, \
     BRepBuilderAPI_MakeEdge, \
     BRepBuilderAPI_MakeWire, BRepBuilderAPI_Transform, BRepBuilderAPI_MakeVertex, BRepBuilderAPI_MakeShape
-from OCC.ShapeAnalysis import ShapeAnalysis_ShapeContents
-from OCC.BRepExtrema import BRepExtrema_DistShapeShape
-from OCC.Extrema import Extrema_ExtFlag_MIN
-from OCC.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Pln, gp_Pnt
-from OCC.TopoDS import topods_Wire, topods_Face, topods_Compound, TopoDS_Compound, TopoDS_Builder, topods_Vertex, \
+from OCC.Core.ShapeAnalysis import ShapeAnalysis_ShapeContents
+from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
+from OCC.Core.Extrema import Extrema_ExtFlag_MIN
+from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Pln, gp_Pnt
+from OCC.Core.TopoDS import topods_Wire, topods_Face, topods_Compound, TopoDS_Compound, TopoDS_Builder, topods_Vertex, \
     TopoDS_Iterator
-from OCC.TopAbs import TopAbs_FACE, TopAbs_WIRE, TopAbs_SHAPE, TopAbs_VERTEX
-from OCC.TopExp import TopExp_Explorer
-from OCC.BRep import BRep_Tool
-from OCC.BRepTools import BRepTools_WireExplorer, breptools_UVBounds
-from OCC.Geom import Handle_Geom_Plane
+from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_WIRE, TopAbs_SHAPE, TopAbs_VERTEX
+from OCC.Core.TopExp import TopExp_Explorer
+from OCC.Core.BRep import BRep_Tool
+from OCC.Core.BRepTools import BRepTools_WireExplorer, breptools_UVBounds
+from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from geomeppy import IDF
-from OCC.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Section
-from OCC.StlAPI import StlAPI_Writer
-from OCC.BRepMesh import BRepMesh_IncrementalMesh
-from OCC.BRepGProp import brepgprop_SurfaceProperties, brepgprop_LinearProperties
-from OCC.BRepPrimAPI import BRepPrimAPI_MakeHalfSpace, BRepPrimAPI_MakeBox
-from OCC.GProp import GProp_GProps
-from OCC.BRepAlgoAPI import BRepAlgoAPI_Common
-from OCC.Bnd import Bnd_Box
-from OCC.BRepBndLib import brepbndlib_Add
-from OCC.ShapeFix import ShapeFix_Face, ShapeFix_Shape
-from OCC.BRepBuilderAPI import BRepBuilderAPI_Sewing
-from OCC.TopAbs import TopAbs_SHELL
-from OCC.BOPAlgo import BOPAlgo_Builder
-from OCC.BRepGProp import brepgprop_VolumeProperties
-from OCC.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
+from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Section
+from OCC.Core.StlAPI import StlAPI_Writer
+from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
+from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, brepgprop_LinearProperties
+from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeHalfSpace, BRepPrimAPI_MakeBox
+from OCC.Core.GProp import GProp_GProps
+from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Common
+from OCC.Core.Bnd import Bnd_Box
+from OCC.Core.BRepBndLib import brepbndlib_Add
+from OCC.Core.ShapeFix import ShapeFix_Face, ShapeFix_Shape
+from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Sewing
+from OCC.Core.TopAbs import TopAbs_SHELL
+from OCC.Core.BOPAlgo import BOPAlgo_Builder
+from OCC.Core.BRepGProp import brepgprop_VolumeProperties
+from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
 from stl import stl
 from stl import mesh
 
@@ -52,6 +52,7 @@ from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
 from bim2sim.kernel import finder
+from bim2sim.kernel.aggregation import Aggregated_ThermalZone
 from bim2sim.task.sub_tasks import tz_detection
 from bim2sim.kernel import elements, disaggregation
 from bim2sim.kernel.finder import TemplateFinder
@@ -761,7 +762,7 @@ class ExportEP(ITask):
         self.logger.info("IDF generation finished!")
 
         # idf.view_model()
-        self._export_to_stl_for_cfd(instances, idf)
+        # self._export_to_stl_for_cfd(instances, idf)
         # self._display_shape_of_space_boundaries(instances)
         output_string = str(PROJECT.root) + "/export/EP-results/"
         idf.run(output_directory=output_string, readvars=True)
@@ -2767,7 +2768,7 @@ class ExportEP(ITask):
                 surf = BRep_Tool.Surface(face)
                 obj = surf.GetObject()
                 assert obj.DynamicType().GetObject().Name() == "Geom_Plane"
-                plane = Handle_Geom_Plane.DownCast(surf).GetObject()
+                plane = Handle_Geom_Plane_DownCast(surf).GetObject()
                 face_normal = plane.Axis().Direction().XYZ()
                 p = GProp_GProps()
                 brepgprop_SurfaceProperties(face, p)
@@ -3392,7 +3393,7 @@ class IdfObject():
         face = topods_Face(exp.Current())
         umin, umax, vmin, vmax = breptools_UVBounds(face)
         surf = BRep_Tool.Surface(face)
-        plane = Handle_Geom_Plane.DownCast(surf).GetObject()
+        plane = Handle_Geom_Plane_DownCast(surf).GetObject()
         plane = gp_Pln(plane.Location(), plane.Axis().Direction())
         new_face = BRepBuilderAPI_MakeFace(plane,
                                            umin,

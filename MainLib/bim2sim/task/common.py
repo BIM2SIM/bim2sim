@@ -13,7 +13,7 @@ from jinja2 import Environment, FileSystemLoader
 from dill.source import getsource
 from bim2sim.kernel import elements
 from bs4 import BeautifulSoup
-from Ifc import SchemaParser
+# from Ifc import SchemaParser
 from bim2sim.decision import BoolDecision, ListDecision
 from bim2sim.assets.IFCparser import elements_functions
 
