@@ -2,8 +2,9 @@
 
 import math
 import re
+
 import numpy as np
-import copy
+import translators as ts
 import ifcopenshell
 import ifcopenshell.geom
 from OCC.Core.Bnd import Bnd_Box
@@ -30,8 +31,6 @@ from OCC.Core.BRepTools import BRepTools_WireExplorer
 from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 
-from math import pi
-
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, condition, attribute
 from bim2sim.decision import BoolDecision
@@ -43,7 +42,6 @@ from teaser.logic.buildingobjects.useconditions import UseConditions
 from bim2sim.task.bps_f.bps_functions import get_matches_list, get_material_templates_resumed, \
     real_decision_user_input, filter_instances, get_pattern_usage, vector_angle
 from bim2sim.kernel.disaggregation import SubInnerWall, SubOuterWall, Disaggregation
-import translators as ts
 from bim2sim.project import PROJECT
 
 
@@ -1333,7 +1331,7 @@ class SpaceBoundary(element.SubElement):
         trsf2 = gp_Trsf()
         if zone.orientation == None:
             zone.orientation = 0
-        trsf2.SetRotation(gp_Ax1(gp_Pnt(zone_position), gp_Dir(0, 0, 1)), -zone.orientation * pi / 180)
+        trsf2.SetRotation(gp_Ax1(gp_Pnt(zone_position), gp_Dir(0, 0, 1)), -zone.orientation * math.pi / 180)
         trsf1.SetTranslation(gp_Vec(gp_XYZ(zone.position[0], zone.position[1], zone.position[2])))
         try:
             shape = BRepBuilderAPI_Transform(shape, trsf1).Shape()
