@@ -1,4 +1,4 @@
-from ClassRegistry import ifc_definition
+from PluginIFCparser.Ifc.ClassRegistry import ifc_definition
 import re
 
 @ifc_definition

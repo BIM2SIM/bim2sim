@@ -1,5 +1,5 @@
-from ClassRegistry import ifc_definition
-from Misc import find_matching_paren_pair
+from PluginIFCparser.Ifc.ClassRegistry import ifc_definition
+from PluginIFCparser.Ifc.Misc import find_matching_paren_pair
 
 @ifc_definition
 class Entity:

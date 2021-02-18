@@ -25,16 +25,16 @@ if args["json"]:
     for idx in sorted(ifcdb.entities.keys()):
         result["entities"].append({"idx": idx, "entity": ifcdb.entities[idx]})
 
-    print json.dumps(result, cls=IfcJSONEncoder)
+    print(json.dumps(result, cls=IfcJSONEncoder))
 
 else: # !args["json"]
 
     if args["header"]:
-        print "\nIFC Header:"
-        print ifcdb.header
+        print("\nIFC Header:")
+        print(ifcdb.header)
 
-    print "\nIFC Data:"
+    print("\nIFC Data:")
     for idx in sorted(ifcdb.entities.keys()):
-        print "{i}: {e}".format(i=idx, e=ifcdb.entities[idx])
+        print("){i}: {e}".format(i=idx, e=ifcdb.entities[idx]))
 
 # vim: set sw=4 ts=4 et:

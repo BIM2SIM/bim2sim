@@ -1,8 +1,9 @@
 import json
 import uuid
 import struct
-from ClassRegistry import create_entity
-from IfcBase import Omitted, Reference, EnumValue, omitted
+
+from PluginIFCparser.Ifc.ClassRegistry import create_entity
+from PluginIFCparser.Ifc.IfcBase import Omitted, Reference, EnumValue, omitted
 
 
 class StatementFileReader:

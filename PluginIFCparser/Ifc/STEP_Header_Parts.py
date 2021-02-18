@@ -1,6 +1,6 @@
-from ClassRegistry import ifc_class, ifc_abstract_class
-from IfcBase import IfcEntity, BOOLEAN, REAL, BINARY, INTEGER, NUMBER, STRING, LOGICAL
-from Misc import parse_uuid
+from PluginIFCparser.Ifc.ClassRegistry import ifc_class, ifc_abstract_class
+from PluginIFCparser.Ifc.IfcBase import IfcEntity, BOOLEAN, REAL, BINARY, INTEGER, NUMBER, STRING, LOGICAL
+from PluginIFCparser.Ifc.Misc import parse_uuid
 
 @ifc_class
 class time_stamp_text(STRING):

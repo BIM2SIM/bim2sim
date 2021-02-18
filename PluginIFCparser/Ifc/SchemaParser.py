@@ -1,13 +1,12 @@
 #!/usr/bin/env python
-from Misc import StatementFileReader
-from ClassRegistry import create_definition
-
-from GenericDefinition import GenericDefinition
-from Entity import Entity
-from Function import Function
-from Type import Type
-from Rule import Rule
-from Schema import Schema
+from PluginIFCparser.Ifc.Misc import StatementFileReader
+from PluginIFCparser.Ifc.ClassRegistry import create_definition
+from PluginIFCparser.Ifc.GenericDefinition import GenericDefinition
+from PluginIFCparser.Ifc.Entity import Entity
+from PluginIFCparser.Ifc.Function import Function
+from PluginIFCparser.Ifc.Type import Type
+from PluginIFCparser.Ifc.Rule import Rule
+from PluginIFCparser.Ifc.Schema import Schema
 
 class SchemaParser(StatementFileReader):
     """

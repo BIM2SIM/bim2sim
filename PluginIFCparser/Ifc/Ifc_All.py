@@ -3,6 +3,7 @@
 import math
 import re
 import numpy as np
+import translators as ts
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, condition, attribute
@@ -14,7 +15,6 @@ from bim2sim.enrichment_data.data_class import DataClass
 from teaser.logic.buildingobjects.useconditions import UseConditions
 from bim2sim.task.bps_f.bps_functions import get_matches_list, get_material_templates_resumed, \
     real_decision_user_input, filter_instances, get_pattern_usage
-import translators as ts
 
 
 def diameter_post_processing(value):
@@ -34,7 +34,7 @@ class Chiller(element.Element):
 
     pattern_ifc_type = [
         re.compile('Chiller', flags=re.IGNORECASE),
-        re.compile('K(ä|ae)lte.?maschine', flags=re.IGNORECASE),
+        re.compile('K(ï¿½|ae)lte.?maschine', flags=re.IGNORECASE),
     ]
 
     min_power = attribute.Attribute(
@@ -60,8 +60,8 @@ class CoolingTower(element.Element):
     pattern_ifc_type = [
         re.compile('Cooling.?Tower', flags=re.IGNORECASE),
         re.compile('Recooling.?Plant', flags=re.IGNORECASE),
-        re.compile('K(ü|ue)hl.?turm', flags=re.IGNORECASE),
-        re.compile('R(ü|ue)ck.?K(ü|ue)hl.?(werk|turm|er)', flags=re.IGNORECASE),
+        re.compile('K(ï¿½|ue)hl.?turm', flags=re.IGNORECASE),
+        re.compile('R(ï¿½|ue)ck.?K(ï¿½|ue)hl.?(werk|turm|er)', flags=re.IGNORECASE),
         re.compile('RKA', flags=re.IGNORECASE),
     ]
 
@@ -87,8 +87,8 @@ class HeatExchanger(element.Element):
 
     pattern_ifc_type = [
         re.compile('Heat.?Exchanger', flags=re.IGNORECASE),
-        re.compile('W(ä|ae)rme.?(ü|e)bertrager', flags=re.IGNORECASE),
-        re.compile('W(ä|ae)rme.?tauscher', flags=re.IGNORECASE),
+        re.compile('W(ï¿½|ae)rme.?(ï¿½|e)bertrager', flags=re.IGNORECASE),
+        re.compile('W(ï¿½|ae)rme.?tauscher', flags=re.IGNORECASE),
     ]
 
     min_power = attribute.Attribute(
@@ -120,7 +120,7 @@ class Boiler(element.Element):
     def get_inner_connections(self):
         connections = []
         vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
-        rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
+        rl_pattern = re.compile('.*rï¿½cklauf.*', re.IGNORECASE)
         VL = []
         RL = []
         for port in self.ports:
@@ -236,7 +236,7 @@ class Pipe(element.Element):
         default_ps=('Qto_PipeSegmentBaseQuantities', 'Length'),
         unit=ureg.meter,
         patterns=[
-        re.compile('.*Länge.*', flags=re.IGNORECASE),
+        re.compile('.*Lï¿½nge.*', flags=re.IGNORECASE),
         re.compile('.*Length.*', flags=re.IGNORECASE),
         ],
         functions=[_length_from_geometry],
@@ -313,7 +313,7 @@ class Storage(element.Element):
         re.compile('Tank', flags=re.IGNORECASE),
         re.compile('Speicher', flags=re.IGNORECASE),
         re.compile('Expansion.?Tank', flags=re.IGNORECASE),
-        re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
+        re.compile('Ausdehnungs.?gef(ï¿½|ae)(ss|ï¿½)', flags=re.IGNORECASE),
     ]
 
     def _calc_volume(self):
