@@ -54,7 +54,7 @@ def diameter_post_processing(value):
 
 
 def length_post_processing(value):
-    if isinstance(value, list):
+    if isinstance(value, (list, set)):
         return max(value)
     return value
 
@@ -65,8 +65,9 @@ pattern_usage = get_pattern_usage()
 class HeatPump(element.Element):
     """"HeatPump"""
 
-    ifc_type = 'IfcHeatPump'
-    workflow = ['PlantSimulation']
+    ifc_type = 'IfcUnitaryEquipment'
+    workflow = []
+    predefined_type = ['USERDEFINED']
 
     pattern_ifc_type = [
         re.compile('Heat.?pump', flags=re.IGNORECASE),
