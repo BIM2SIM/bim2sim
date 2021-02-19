@@ -1,4 +1,4 @@
-﻿"""BIM2SIM library"""
+"""BIM2SIM library"""
 
 import os
 import re
@@ -7,6 +7,8 @@ import importlib
 import pkgutil
 import logging
 from os.path import expanduser
+from pathlib import Path
+import site
 
 import pkg_resources
 
@@ -14,18 +16,46 @@ from bim2sim.kernel import ifc2python
 from bim2sim.manage import BIM2SIMManager
 from bim2sim.project import PROJECT, get_config
 from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparated
+from bim2sim.decision import Decision
 
 VERSION = '0.1-dev'
 
+# TODO: setup: copy backends to bim2sim/backends
 workflow_getter = {'aixlib': PlantSimulation,
                    'teaser': BPSMultiZoneSeparated,
                    'hkesim': PlantSimulation,
                    'energyplus': BPSMultiZoneSeparated}
 
 
+def get_default_backends():
+    path = Path(__file__).parent / 'backends'
+    backends = []
+    for pkg in [item for item in path.glob('**/*') if item.is_dir()]:
+        if pkg.name.startswith('bim2sim_'):
+            backends.append(pkg)
+    return backends
+
+
+def get_dev_backends():
+    path = Path(__file__).parent.parent.parent
+    backends = []
+    for plugin in [item for item in path.glob('**/*') if item.is_dir()]:
+        if plugin.name.startswith('Plugin'):
+            for pkg in [item for item in plugin.glob('**/*') if item.is_dir()]:
+                if pkg.name.startswith('bim2sim_'):
+                    backends.append(pkg)
+    return backends
+
+
 def get_backends(by_entrypoint=False):
     """load all possible plugins"""
     logger = logging.getLogger(__name__)
+
+    default = get_default_backends()
+    dev = get_dev_backends()
+
+    # add all plugins to PATH
+    sys.path.extend([str(path.parent) for path in default + dev])
 
     if by_entrypoint:
         sim = {}
@@ -48,9 +78,10 @@ def get_backends(by_entrypoint=False):
     return sim
 
 
-def finish():
+def finish(success=False):
     """cleanup method"""
     logger = logging.getLogger(__name__)
+    Decision.frontend.shutdown(success)
     logger.info('finished')
 
 
@@ -107,15 +138,33 @@ def main(rootpath=None):
     if not BIM2SIMManager in manager_cls.__bases__:
         raise AttributeError("Got invalid manager from %s" % (backend))
 
-    workflow = workflow_getter[backend]()  # TODO
+    workflow = workflow_getter[backend]()
+
+    # set Frontend for Decisions
+    try:
+        frontend_name = conf['Frontend']['use']
+    except KeyError:
+        frontend_name = 'default'
+
+    if frontend_name == 'ExternalFrontEnd':
+        from bim2sim.decision.external import ExternalFrontEnd as Frontend
+    else:
+        from bim2sim.decision.console import ConsoleFrontEnd as Frontend
+    Decision.set_frontend(Frontend())
+
     # prepare simulation
     manager = manager_cls(workflow)
 
     # run Manager
-    manager.run()
-    # manager.run_interactive()
-
-    finish()
+    success = False
+    try:
+        manager.run()
+        #manager.run_interactive()
+        success = True
+    except Exception as ex:
+        logger.exception("Something went wrong!")
+    finally:
+        finish(success=success)
 
 
 def _debug_run_hvac():
