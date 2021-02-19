@@ -2771,9 +2771,9 @@ class ExportEP(ITask):
                 a_face = an_exp.Current()
                 face = topods_Face(a_face)
                 surf = BRep_Tool.Surface(face)
-                obj = surf.GetObject()
-                assert obj.DynamicType().GetObject().Name() == "Geom_Plane"
-                plane = Handle_Geom_Plane_DownCast(surf).GetObject()
+                obj = surf
+                assert obj.DynamicType().Name() == "Geom_Plane"
+                plane = Handle_Geom_Plane_DownCast(surf)
                 face_normal = plane.Axis().Direction().XYZ()
                 p = GProp_GProps()
                 brepgprop_SurfaceProperties(face, p)
