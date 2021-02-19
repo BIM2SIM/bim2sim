@@ -20,6 +20,7 @@ class EnergyPlus(BIM2SIMManager):
         self.playground.run_task(bps.SetIFCTypesBPS())
         self.playground.run_task(common.LoadIFC())
         self.playground.run_task(bps.Inspect())
+        self.playground.run_task(bps.Prepare())
         self.playground.run_task(bps.ExportEP())
 
         return
