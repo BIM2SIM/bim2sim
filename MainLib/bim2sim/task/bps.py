@@ -81,7 +81,7 @@ from bim2sim.task.bps_f.bps_functions import get_matches_list, \
 # get_material_value_templates_resumed
 from bim2sim.kernel.units import conversion
 
-Decision.enable_debug("1")
+# Decision.enable_debug("0")
 
 class SetIFCTypesBPS(ITask):
     """Set list of relevant IFC types"""
