@@ -720,13 +720,13 @@ class ExportEP(ITask):
         self.logger.info("Compute relationships between space boundaries")
         self.logger.info("Compute relationships between openings and their base surfaces")
         self._get_parents_and_children(instances)
-        self.logger.info("Move openings to base surface, if needed")
-        self._move_children_to_parents(instances)
-        self.logger.info("Fix surface orientation")
-        self._fix_surface_orientation(instances)
+        # self.logger.info("Move openings to base surface, if needed")
+        # self._move_children_to_parents(instances) # todo: fix
+        # self.logger.info("Fix surface orientation")
+        # self._fix_surface_orientation(instances) # todo: fix
         # self.logger.info("Get neighboring space boundaries")
         # self._get_neighbor_bounds(instances)
-        # self._compute_2b_bound_gaps(instances)
+        # self._compute_2b_bound_gaps(instances) # todo: fix
         # self._move_bounds_to_centerline(instances)
         # self._fill_2b_gaps(instances)
         # self._vertex_scaled_centerline_bounds(instances)
@@ -761,7 +761,7 @@ class ExportEP(ITask):
         self._export_geom_to_idf(instances, idf)
         self._set_output_variables(idf)
         idf.save()
-        self._export_surface_areas(instances, idf)
+        # self._export_surface_areas(instances, idf) # todo: fix
         self._export_space_info(instances, idf)
         self._export_boundary_report(instances, idf, ifc)
         self.logger.info("IDF generation finished!")
