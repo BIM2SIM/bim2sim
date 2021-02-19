@@ -30,6 +30,8 @@ def config_base_setup(backend=None):
         config.add_section("Aggregation")
         config.add_section("Backend")
         config["Backend"]["use"] = backend
+        config.add_section("Frontend")
+        config["Frontend"]["use"] = 'ConsoleFrontEnd'
         config.add_section("Modelica")
         config["Modelica"]["Version"] = "3.2.2"
 

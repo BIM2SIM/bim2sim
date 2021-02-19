@@ -65,7 +65,6 @@ class Inspect(ITask):
     def run(self, workflow, ifc):
         self.logger.info("Creates python representation of relevant ifc types")
 
-        Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
 
         workflow.relevant_ifc_types = self.use_doors(workflow.relevant_ifc_types)

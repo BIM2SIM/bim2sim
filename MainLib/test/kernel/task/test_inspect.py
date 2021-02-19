@@ -5,7 +5,7 @@ import tempfile
 
 import numpy as np
 
-from bim2sim.kernel.element import Root, BasePort, BaseElement
+from bim2sim.kernel.element import Root, BasePort, BaseElement, IFCBased
 from bim2sim.task import hvac, common
 from bim2sim.task.hvac import Inspect
 from bim2sim.workflow import PlantSimulation
@@ -26,7 +26,6 @@ class DummyManager(BIM2SIMManager):
 sample_root = Path(__file__).parent.parent.parent / 'TestModels'
 
 
-@unittest.skip("Fix this!")  # TODO
 class TestInspect(unittest.TestCase):
     """Basic scenario for connection tests with HeatExchanger (IfcPipeFitting) and four Pipes (IfcPipeSegment)"""
 
@@ -37,6 +36,8 @@ class TestInspect(unittest.TestCase):
         print(cls.test_dir.name)
         PROJECT.create(cls.test_dir.name)
 
+        IFCBased.finder.enabled = False
+
     @classmethod
     def tearDownClass(cls):
         print('tear down class')
@@ -46,6 +47,7 @@ class TestInspect(unittest.TestCase):
         except PermissionError:
             # for unknown reason the empty folder contend is cleared but folder itself cant be removed --> ignore
             pass
+        IFCBased.finder.enabled = True
 
     def setUp(self):
         workflow = PlantSimulation()
@@ -57,6 +59,7 @@ class TestInspect(unittest.TestCase):
             r.discard()
 
         self.manager = None
+        Decision.reset_decisions()
 
     @patch.object(_Project, 'ifc', sample_root / 'B01_2_HeatExchanger_Pipes.ifc')
     def test_case_1(self):

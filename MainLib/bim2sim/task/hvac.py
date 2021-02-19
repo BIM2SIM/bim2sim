@@ -482,7 +482,6 @@ class Prepare(ITask):
     @Task.log
     def run(self, workflow, relevant_ifc_types):
         self.logger.info("Setting Filters")
-        Element.finder = finder.TemplateFinder()
         Element.finder.load(PROJECT.finder)
         # filters = [TypeFilter(relevant_ifc_types), TextFilter(relevant_ifc_types, ['Description'])]
         filters = [TypeFilter(relevant_ifc_types)]
