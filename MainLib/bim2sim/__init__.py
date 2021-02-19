@@ -1,4 +1,4 @@
-﻿"""BIM2SIM library"""
+"""BIM2SIM library"""
 
 import os
 import sys
@@ -160,7 +160,7 @@ def main(rootpath=None):
         #manager.run_interactive()
         success = True
     except Exception as ex:
-        logger.exception("Something went wring!")
+        logger.exception("Something went wrong!")
     finally:
         finish(success=success)
 
