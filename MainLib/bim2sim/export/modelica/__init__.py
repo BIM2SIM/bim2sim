@@ -2,17 +2,19 @@
 
 import os
 import logging
+from pathlib import Path
 
 import codecs
 from mako.template import Template
 import numpy as np
 import pint
 
+import bim2sim
 from bim2sim.kernel import element as elem
 from bim2sim.kernel import elements, aggregation
 from bim2sim.decision import RealDecision
 
-TEMPLATEPATH = os.path.join(os.path.dirname(__file__), 'tmplModel.txt')
+TEMPLATEPATH = Path(bim2sim.__file__).parent / 'assets/tmplModel.txt'
 # prevent mako newline bug by reading file seperatly
 with open(TEMPLATEPATH) as f:
     templateStr = f.read()
@@ -225,15 +227,12 @@ class Instance:
         for name, args in self.validate.items():
             check, export_name = args
             value = getattr(self.element, name)
-            try:
-                check_val = check(value)
-            except:
-                print('')
-            if check_val:
+            if check(value):
                 self.params[export_name] = value
             else:
                 RealDecision(
                     question="Please enter parameter for %s"%(self.name + "." + export_name),
+                    unit=self.element.attributes.get_unit(name),
                     validate_func=check,
                     output=self.params,
                     output_key=export_name,

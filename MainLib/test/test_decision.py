@@ -9,11 +9,24 @@ import pint
 
 from bim2sim import decision
 from bim2sim.decision import Decision
+from bim2sim.decision.frontend import FrontEnd
+import bim2sim.decision.console
 from bim2sim.kernel.units import ureg
 
 
 class DecisionTestBase(unittest.TestCase):
     """Base class for Decision tests"""
+    frontend = FrontEnd()
+    _backup = None
+
+    @classmethod
+    def setUpClass(cls):
+        cls._backup = decision.Decision.frontend
+        decision.Decision.set_frontend(cls.frontend)
+
+    @classmethod
+    def tearDownClass(cls):
+        decision.Decision.set_frontend(cls._backup)
 
     def tearDown(self):
         decision.Decision.all.clear()
@@ -330,19 +343,77 @@ class TestListDecision(DecisionTestBase):
         self.assertIsInstance(dec_loaded.value, str)
 
 
+class TestStringDecision(DecisionTestBase):
+    """test RealDecisions"""
+
+    def check(self, value):
+        """validation func"""
+        return value == 'success'
+
+    def test_validation(self):
+        """test value validation"""
+        dec = decision.StringDecision(question="??")
+
+        self.assertTrue(dec.validate('1'))
+        self.assertTrue(dec.validate('test'))
+        self.assertFalse(dec.validate(1))
+        self.assertFalse(dec.validate(None))
+        self.assertFalse(dec.validate(''))
+
+        dec_val = decision.StringDecision(question="??", validate_func=self.check)
+
+        self.assertTrue(dec_val.validate('success'))
+        self.assertFalse(dec_val.validate('other'))
+
+    def test_save_load(self):
+        """test saving decisions an loading them"""
+        key1 = "key1"
+        key2 = "key2"
+        with Decision.debug_answer('success'):
+            dec1 = decision.StringDecision(
+                question="??",
+                global_key=key1,
+                allow_save=True)
+            dec1.decide()
+            dec2 = decision.StringDecision(
+                question="??",
+                validate_func=self.check,
+                global_key=key2,
+                allow_save=True)
+            dec2.decide()
+
+        self.assertEqual('success', dec1.value)
+        self.assertEqual('success', dec2.value)
+
+        with tempfile.TemporaryDirectory(prefix='bim2sim_') as directory:
+            path = os.path.join(directory, "real")
+
+            decision.Decision.save(path)
+
+            # clear variables to simulate program restart
+            decision.Decision.all.clear()
+            decision.Decision.stored_decisions.clear()
+
+            with Decision.debug_answer(True):
+                decision.Decision.load(path)
+
+        dec1_loaded = decision.StringDecision(
+            question="??",
+            global_key=key1,
+            allow_load=True)
+        self.assertEqual('success', dec1_loaded.value)
+
+        dec2_loaded = decision.StringDecision(
+            question="??",
+            validate_func=self.check,
+            global_key=key2,
+            allow_load=True)
+        self.assertEqual('success', dec2_loaded.value)
+
+
 @patch('builtins.print', lambda *args, **kwargs: None)
 class TestConsoleFrontend(DecisionTestBase):
-    _backup = None
-
-    @classmethod
-    def setUpClass(cls) -> None:
-        cls._backup = Decision.frontend
-        Decision.frontend = decision.ConsoleFrontEnd()
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        super().tearDownClass()
-        Decision.frontend = cls._backup
+    frontend = decision.console.ConsoleFrontEnd()
 
     def check(self, value):
         return True
@@ -450,6 +521,20 @@ class TestConsoleFrontend(DecisionTestBase):
 
         parsed_str = Decision.frontend.parse(dec, 'a')
         self.assertIsNone(parsed_str)
+
+    def test_string_parse(self):
+        """test string input"""
+        answers = ('success', 'other')
+        for inp in answers:
+            with patch('builtins.input', lambda *args: inp):
+                dec = decision.StringDecision(question="??")
+                dec.decide()
+                self.assertEqual(inp, dec.value)
+
+        with patch('builtins.input', lambda *args: ''):
+            with self.assertRaises(decision.DecisionCancle):
+                dec = decision.StringDecision(question="??")
+                dec.decide()
 
 
 if __name__ == '__main__':
