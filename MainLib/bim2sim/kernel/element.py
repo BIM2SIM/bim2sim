@@ -1,4 +1,4 @@
-﻿"""Definition for basic representations of IFC elements"""
+"""Definition for basic representations of IFC elements"""
 
 import logging
 from json import JSONEncoder
@@ -772,13 +772,6 @@ class SubElement(BaseElement, IFCBased):
         if hasattr(self.parent, 'source_tool'):
             self._tool = self.parent.source_tool
         return self._tool
-
-    # @property
-    # def finder(self):
-    #     """finder that the parent has been created with"""
-    #     if hasattr(self.parent, 'finder'):
-    #         return self.parent.finder
-
 
     def __repr__(self):
         return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)
