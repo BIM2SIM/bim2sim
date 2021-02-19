@@ -7,7 +7,7 @@ import atexit
 import rpyc
 from rpyc.utils.server import OneShotServer, ThreadedServer
 
-from ..decision import DecisionException, BoolDecision, RealDecision, ListDecision
+from ..decision import DecisionException, BoolDecision, RealDecision, ListDecision, StringDecision
 from .frontend import FrontEnd
 
 
@@ -241,6 +241,8 @@ class ExternalFrontEnd(FrontEnd):
             return 'numeric'
         elif isinstance(decision, ListDecision):
             return 'list'
+        elif isinstance(decision, StringDecision):
+            return 'text'
         else:
             return 'unknown'
 
