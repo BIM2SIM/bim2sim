@@ -3,6 +3,8 @@
 from bim2sim.manage import BIM2SIMManager, PROJECT
 from bim2sim.task import bps, base, common, hvac
 from bim2sim.task.sub_tasks import tz_detection
+from bim2sim.kernel.element import IFCBased
+
 
 class EnergyPlus(BIM2SIMManager):
 
@@ -16,11 +18,11 @@ class EnergyPlus(BIM2SIMManager):
         return
 
     def run(self):
-
-        self.playground.run_task(bps.SetIFCTypesBPS())
-        self.playground.run_task(common.LoadIFC())
-        self.playground.run_task(bps.Inspect())
-        self.playground.run_task(bps.Prepare())
-        self.playground.run_task(bps.ExportEP())
+        with IFCBased.finder.disable():
+            self.playground.run_task(bps.SetIFCTypesBPS())
+            self.playground.run_task(common.LoadIFC())
+            self.playground.run_task(bps.Inspect())
+            self.playground.run_task(bps.Prepare())
+            self.playground.run_task(bps.ExportEP())
 
         return

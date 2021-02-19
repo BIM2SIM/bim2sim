@@ -1,5 +1,5 @@
 from bim2sim.task.base import Task
-from bim2sim.decision import BoolDecision, ListDecision
+from bim2sim.decision import BoolDecision, ListDecision, Decision
 from bim2sim.kernel.element import Element, SubElement
 # from bim2sim.kernel.elements import ExtSpatialSpaceBoundary
 from bim2sim.kernel.ifc2python import getElementType
@@ -23,7 +23,8 @@ class Inspect(Task):
     @Task.log
     def run(self, ifc, bound_instances, storeys):
         self.logger.info("Creates python representation for building spaces")
-        self.recognize_zone_semantic(ifc, bound_instances, storeys)
+        with Decision.debug_answer('1'): # todo Diego: Add debug and default value to simplify debugging
+            self.recognize_zone_semantic(ifc, bound_instances, storeys)
         if len(self.instances) == 0:
             self.logger.warning("Found no spaces by semantic detection")
             decision = BoolDecision("Try to detect zones by geometrical?")
@@ -203,13 +204,14 @@ class Bind(Task):
             self.bind_tz_criteria()
 
     def bind_tz_criteria(self):
-        bind_decision = BoolDecision(question="Do you want for thermal zones to be bind? - this allows to bind the "
-                                              "thermal zones into a thermal zone aggregation based on different "
-                                              "criteria -> Simplified operations",
-                                     global_key='Thermal_Zones.Bind',
-                                     allow_load=True, allow_save=True,
-                                     collect=False, quick_decide=not True)
-        bind_decision.decide()
+        with Decision.debug_answer('0'): # todo Diego: Add debug and default value to simplify debugging
+            bind_decision = BoolDecision(question="Do you want for thermal zones to be bind? - this allows to bind the "
+                                                  "thermal zones into a thermal zone aggregation based on different "
+                                                  "criteria -> Simplified operations",
+                                         global_key='Thermal_Zones.Bind',
+                                         allow_load=True, allow_save=True,
+                                         collect=False, quick_decide=not True)
+            bind_decision.decide()
         if bind_decision.value:
             criteria_functions = {}
             # this finds all the criteria methods implemented
@@ -287,12 +289,13 @@ class Bind(Task):
             grouped_instances_criteria['not_bind'] = not_grouped_instances
 
         # neighbors - filter criterion
-        neighbors_decision = BoolDecision(question="Do you want for the bound-spaces to be neighbors? - adds additional"
-                                                   " criteria that just bind the thermal zones that are side by side",
-                                          global_key='Thermal_Zones.Neighbors',
-                                          allow_load=True, allow_save=True,
-                                          collect=False, quick_decide=not True)
-        neighbors_decision.decide()
+        with Decision.debug_answer('0'): # todo Diego: Add debug and default value to simplify debugging
+            neighbors_decision = BoolDecision(question="Do you want for the bound-spaces to be neighbors? - adds additional"
+                                                       " criteria that just bind the thermal zones that are side by side",
+                                              global_key='Thermal_Zones.Neighbors',
+                                              allow_load=True, allow_save=True,
+                                              collect=False, quick_decide=not True)
+            neighbors_decision.decide()
         if neighbors_decision.value:
             self.filter_neighbors(grouped_instances_criteria)
 
