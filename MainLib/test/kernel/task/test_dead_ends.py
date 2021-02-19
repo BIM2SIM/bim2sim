@@ -12,9 +12,9 @@ class DeadEndHelper(SetupHelper):
          some connected pipes and dead ends"""
         flags = {}
         with self.flag_manager(flags):
-            fitting_4port = self.element_generator(elements.PipeFitting, flags=['fitting_4port'], n_ports=4, name="fit4")
-            fitting_3port_1 = self.element_generator(elements.PipeFitting, flags=['fitting_3port_1'], n_ports=3, name="fit3_1")
-            fitting_3port_2 = self.element_generator(elements.PipeFitting, flags=['fitting_3port_2'], n_ports=3, name="fit3_2")
+            fitting_4port = self.element_generator(elements.PipeFitting, flags=['fitting_4port'], n_ports=4)
+            fitting_3port_1 = self.element_generator(elements.PipeFitting, flags=['fitting_3port_1'], n_ports=3)
+            fitting_3port_2 = self.element_generator(elements.PipeFitting, flags=['fitting_3port_2'], n_ports=3)
             pipestrand1 = [self.element_generator(elements.Pipe, length=100, diameter=30, name="ps1") for i in range(1)]
             pipestrand2 = [self.element_generator(elements.Pipe, length=100, diameter=30, name="ps2") for i in range(1)]
             pipestrand3 = [self.element_generator(elements.Pipe, length=100, diameter=30, name="ps3") for i in range(1)]

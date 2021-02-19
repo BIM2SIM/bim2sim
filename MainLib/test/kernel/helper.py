@@ -49,12 +49,11 @@ class SetupHelper:
                 last.ports[1].connect(item.ports[0])
             last = item
 
-    def element_generator(self, element_cls, n_ports=2, flags=None, name=None, **kwargs):
+    def element_generator(self, element_cls, n_ports=2, flags=None, **kwargs):
         # instantiate
         with mock.patch.object(Element, '_add_ports', return_value=None):
             element = element_cls(self.ifc)
         self.elements.append(element)
-        element.name = name
         # set attributes
         for name, value in kwargs.items():
             if name not in element.attributes.names:
