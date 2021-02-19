@@ -1,9 +1,12 @@
 import unittest
 
 from test.kernel.helper import SetupHelper
+from bim2sim.decision import Decision
 from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.task import dead_ends
+from bim2sim import decision
+from bim2sim.decision.console import ConsoleFrontEnd as FrontEnd
 
 
 class DeadEndHelper(SetupHelper):
@@ -45,31 +48,40 @@ class DeadEndHelper(SetupHelper):
             return graph, flags
 
 
-class TestDeadEndIdentification(unittest.TestCase):
+class TestOnlyDeadEnds(unittest.TestCase):
+    """ Test with a small circuit with 10 dead ends and no open ports for consumers."""
+    
+    frontend = FrontEnd()
     helper = None
+    _backup = None
 
     @classmethod
     def setUpClass(cls):
+        cls._backup = decision.Decision.frontend
+        decision.Decision.set_frontend(cls.frontend)
         cls.helper = DeadEndHelper()
 
-    def tearDown(self) -> None:
+    @classmethod
+    def tearDownClass(cls):
+        decision.Decision.set_frontend(cls._backup)
+
+    def tearDown(self):
+        decision.Decision.all.clear()
+        decision.Decision.stored_decisions.clear()
         self.helper.reset()
 
     def test_dead_end_identification(self):
+        """Test performs search and remove of the dead ends"""
+        
         graph, flags = self.helper.get_simple_circuit()
-        dead_ends_fc = dead_ends.deadEnds.identify_deadends(graph)
+        dead_ends_fc = dead_ends.DeadEnds.identify_deadends(graph)
         dead_ends_fc_compare = [
             flags['ps1'][0].ports[1],
             flags['ps3'][0].ports[1],
             flags['fitting_4port'][0].ports[3],
             flags['ps6'][0].ports[1],
         ]
-        print("Found %s possible dead ends in network." % len(dead_ends_fc))
         self.assertCountEqual(dead_ends_fc_compare, dead_ends_fc)
-        graph, n_removed = dead_ends.deadEnds.decide_deadends(graph, dead_ends_fc)
-        print("Removed %s ports due to found dead ends." % n_removed)
-
-
-
-
-
+        with Decision.debug_answer(True):
+            graph, n_removed = dead_ends.DeadEnds.decide_deadends(graph, dead_ends_fc)
+        self.assertEqual(n_removed, 10, msg='Number of removed elements doesnt equal %s' % n_removed)

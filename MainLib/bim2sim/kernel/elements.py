@@ -1,5 +1,7 @@
 ﻿"""Module contains the different classes for all HVAC elements"""
 
+from functools import lru_cache
+
 import math
 import re
 import numpy as np
@@ -149,6 +151,7 @@ class Boiler(element.Element):
         """boiler is generator function"""
         return True
 
+    @lru_cache()
     def get_inner_connections(self):
         connections = []
         vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
