@@ -50,270 +50,6 @@ def convert(from_version, to_version, data):
         return convert_0_to_0_1(data)
 
 
-class FrontEnd:
-    """Basic FrontEnd for decision solving"""
-
-    def __init__(self):
-        self.logger = logging.getLogger(__name__ + '.DecisonFrontend')
-
-    def solve(self, decision):
-        raise NotImplementedError
-
-    def solve_collection(self, collection):
-        raise NotImplementedError
-
-    def get_question(self, decision):
-        return decision.get_question()
-
-    def get_body(self, decision):
-        return decision.get_body()
-
-    def get_options(self, decision):
-        return decision.get_options()
-
-    def validate(self, decision, value):
-        return decision.validate(value)
-
-
-class ConsoleFrontEnd(FrontEnd):
-
-    @staticmethod
-    def get_input_txt(decision):
-        txt = 'Enter value: '
-        if isinstance(decision, ListDecision):
-            txt = 'Enter key: '
-
-        return txt
-
-    @staticmethod
-    def get_options_txt(options):
-        return "Additional commands: %s" % (", ".join(options))
-
-    @staticmethod
-    def get_body_txt(body):
-        len_labels = max(len(str(item[2])) for item in body)
-        header_str = "  {key:3s}  {label:%ds}  {value:s}" % (len_labels)
-        format_str = "\n  {key:3s}  {label:%ds}  {value:s}" % (len_labels)
-        body_txt = header_str.format(key="key", label="label", value="value")
-
-        for key, value, label in body:
-            body_txt += format_str.format(key=str(key), label=str(label), value=str(value))
-
-        return body_txt
-
-    @staticmethod
-    def collection_progress(collection):
-        total = len(collection)
-        for i, decision in enumerate(collection):
-            yield decision, "[Decision {}/{}]".format(i + 1, total)
-
-    def solve(self, decision):
-        try:
-            decision.value = self.user_input(decision)
-        except DecisionSkip:
-            decision.skip()
-        except DecisionCancle as ex:
-            self.logger.info("Canceling decisions")
-            raise
-        return
-
-    def solve_collection(self, collection):
-
-        skip_all = False
-        extra_options = []
-        if all([d.allow_skip for d in collection]):
-            extra_options.append(Decision.SKIPALL)
-
-        for decision, progress in self.collection_progress(collection):
-            if skip_all and decision.allow_skip:
-                decision.skip()
-            else:
-                if skip_all:
-                    self.logger.info("Decision can not be skipped")
-                try:
-                    decision.value = self.user_input(decision, extra_options=extra_options, progress=progress)
-                except DecisionSkip:
-                    decision.skip()
-                except DecisionSkipAll:
-                    skip_all = True
-                    self.logger.info("Skipping remaining decisions")
-                except DecisionCancle as ex:
-                    self.logger.info("Canceling decisions")
-                    raise
-
-    # TODO: based on decision type
-    # TODO: merge from element_filter_by_text
-    def user_input(self, decision, extra_options=None, progress=''):
-
-        question = self.get_question(decision)
-        options = self.get_options(decision)
-        if extra_options:
-            options = options + extra_options
-        options_txt = self.get_options_txt(options)
-        body = self.get_body(decision) if isinstance(decision, ListDecision) else None
-        input_txt = self.get_input_txt(decision)
-        if progress:
-            progress += ' '
-
-        print(progress, end='')
-        print(question)
-        print(options_txt)
-        if body:
-            print(self.get_body_txt(body))
-
-        max_attempts = 10
-        attempt = 0
-        while True:
-            raw_value = input(input_txt)
-            if raw_value.lower() == Decision.SKIP.lower() and Decision.SKIP in options:
-                raise DecisionSkip
-                # decision.skip()
-                # return None
-            if raw_value.lower() == Decision.SKIPALL.lower() and Decision.SKIPALL in options:
-                decision.skip()
-                raise DecisionSkipAll
-            if raw_value.lower() == Decision.CANCEL.lower() and Decision.CANCEL in options:
-                raise DecisionCancle
-
-            value = self.parse(decision, raw_value)
-            if self.validate(decision, value):
-                break
-            else:
-                if attempt <= max_attempts:
-                    if attempt == max_attempts:
-                        print("Last try before auto Cancel!")
-                    print(f"'{raw_value}' (interpreted as {value}) is no valid input! Try again.")
-                else:
-                    raise DecisionCancle("Too many invalid attempts. Canceling input.")
-            attempt += 1
-
-        return value
-
-    def parse(self, decision, raw_answer):
-        if isinstance(decision, BoolDecision):
-            return self.parse_bool_input(raw_answer)
-        elif isinstance(decision, RealDecision):
-            return self.parse_real_input(raw_answer, decision.unit)
-        elif isinstance(decision, ListDecision):
-            return self.parse_list_input(raw_answer, decision.items)
-
-    @staticmethod
-    def parse_real_input(raw_input, unit=None):
-        """Convert input to float"""
-
-        try:
-            if unit:
-                value = float(raw_input) * unit
-            else:
-                value = float(raw_input)
-        except:
-            value = None
-        return value
-
-    @staticmethod
-    def parse_bool_input(raw_input):
-        """Convert input to bool"""
-
-        inp = raw_input.lower()
-        if inp in BoolDecision.POSITIVES:
-            return True
-        if inp in BoolDecision.NEGATIVES:
-            return False
-        return None
-
-    @staticmethod
-    def parse_list_input(raw_input, items):
-        raw_value = None
-        try:
-            index = int(raw_input)
-            raw_value = items[index]
-        except Exception:
-            pass
-
-        return raw_value
-
-
-class ExternalFrontEnd(FrontEnd):
-
-    def __init__(self):
-        super().__init__()
-
-        self.id_gen = self._get_id_gen()
-        self.pending = {}
-
-    def __iter__(self):
-        raise StopIteration
-
-    def check_answer(self, answer):
-
-        for key, raw_value in answer.copy().items():
-            decision = self.pending.get(key)
-            if not decision:
-                self.logger.warning("Removed unknown answer (%s) for key %s", answer[key], key)
-                del answer[key]
-                continue
-
-            value = self.parse(decision, raw_value)
-            if self.validate(decision, value):
-                decision.value = value
-                del answer[key]
-                del self.pending[key]
-
-        if answer:
-            self.logger.warning("Unused/invalid answers: %s", answer)
-        return answer
-
-    def solve(self, decision):
-        return self.solve_collection([decision])
-
-    def solve_collection(self, collection):
-        if self.pending:
-            raise AssertionError("Solve pending decisions first!")
-
-        for decision in collection:
-            self.pending[next(self.id_gen)] = decision
-
-        for loop in range(10):
-            answer = self.send()
-            remaining = self.check_answer(answer)
-            if not remaining:
-                break
-        else:
-            raise DecisionException("Failed to solve decisions after %d retries", loop + 1)
-        return
-
-    @staticmethod
-    def _get_id_gen():
-        i = 0
-        while True:
-            i += 1
-            yield i
-
-    def to_dict(self, key, decision):
-
-        data = dict(
-            id=key,
-            question=decision.question,
-            options=self.get_options(decision),
-            body=self.get_body(decision),
-        )
-
-        return data
-
-    def send(self):
-        data = []
-        for key, decision in self.pending.items():
-            data.append(self.to_dict(key, decision))
-
-        # TODO: request to UI
-        serialized = json.dumps(data, indent=2)
-        print(serialized)
-        # fake data
-        answer = {item['id']: '1' for item in data}
-
-        return answer
-
-
 class Decision:
     """Class for handling decisions and user interaction
 
@@ -337,8 +73,7 @@ class Decision:
     _debug_mode = False
     _debug_validate = False
 
-    frontend = ConsoleFrontEnd()
-    # frontend = ExternalFrontEnd()
+    frontend = None
     logger = logging.getLogger(__name__)
 
     def __init__(self, question: str, validate_func=None,
@@ -444,12 +179,6 @@ class Decision:
         self.reset()
 
     @classmethod
-    def reset_decisions(cls):
-        """Reset state of Decision class."""
-        cls.stored_decisions.clear()
-        cls.all.clear()
-
-    @classmethod
     def global_keys(cls):
         """Global key generator"""
         for decision in cls.all:
@@ -474,6 +203,10 @@ class Decision:
     @classmethod
     def collection(cls):
         return [d for d in cls.filtered() if d.collect]
+
+    @classmethod
+    def set_frontend(cls, frontend):
+        cls.frontend = frontend
 
     @classmethod
     def enable_debug(cls, answer, validate=False):
@@ -745,7 +478,7 @@ class RealDecision(Decision):
         return kwargs
 
     def reset_from_deserialized(self, kwargs):
-        kwargs['value'] = pint.Quantity(kwargs['value'], kwargs.pop('unit', str(self.unit)))
+        kwargs['value'] = kwargs['value'] * ureg[kwargs.pop('unit', str(self.unit))]
         super().reset_from_deserialized(kwargs)
 
 
@@ -810,21 +543,12 @@ class ListDecision(Decision):
         return body
 
 
-# class DictDecision(CollectionDecision):
-#     """Accepts index of dict element as input"""
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.choices = OrderedDict(self.choices)
-#
-#     def from_index(self, index):
-#         return list(self.choices.values())[index]
-#
-#     def option_txt(self, options):
-#         len_keys = max([len(str(key)) for key in self.choices.keys()])
-#         header_str = "  {id:2s}  {key:%ds}  {value:s}"%(len_keys)
-#         format_str = "\n {id:3d}  {key:%ds}  {value:s}"%(len_keys)
-#         options_txt = header_str.format(id="id", key="key", value="value")
-#         for i, (k, v) in enumerate(self.choices.items()):
-#             options_txt += format_str.format(id=i, key=str(k), value=str(v))
-#         return options_txt
+class StringDecision(Decision):
+    """Accepts string input"""
+
+    def __init__(self, *args, min_length=1, **kwargs):
+        self.min_length = min_length
+        super().__init__(*args, **kwargs)
+
+    def _validate(self, value):
+        return isinstance(value, str) and len(value) >= self.min_length
