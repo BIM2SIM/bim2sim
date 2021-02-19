@@ -46,7 +46,8 @@ from stl import mesh
 from bim2sim.task.base import Task, ITask
 # from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort, SubElement
-from bim2sim.kernel.elements import SpaceBoundary2B, SpaceBoundary
+# from bim2sim.kernel.elements import SpaceBoundary2B, SpaceBoundary
+from bim2sim.kernel.elements import SpaceBoundary
 # from bim2sim.kernel.bps import ...
 from bim2sim.export import modelica
 from bim2sim.decision import Decision

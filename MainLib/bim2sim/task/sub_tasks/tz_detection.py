@@ -1,7 +1,7 @@
 from bim2sim.task.base import Task
 from bim2sim.decision import BoolDecision, ListDecision
 from bim2sim.kernel.element import Element, SubElement
-from bim2sim.kernel.elements import ExtSpatialSpaceBoundary
+# from bim2sim.kernel.elements import ExtSpatialSpaceBoundary
 from bim2sim.kernel.ifc2python import getElementType
 from bim2sim.kernel.disaggregation import Disaggregation
 from bim2sim.kernel.aggregation import Aggregated_ThermalZone
