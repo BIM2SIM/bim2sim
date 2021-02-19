@@ -698,6 +698,10 @@ class ExportEP(ITask):
 
     @Task.log
     def run(self, workflow, instances, ifc):
+        for inst in list(instances):
+            if instances[inst].ifc_type == "IfcSpace":
+                for bound in instances[inst].space_boundaries:
+                    instances[bound.guid] = bound
         # geometric preprocessing before export
         self.logger.info("Check syntax of IfcRelSpaceBoundary")
         sb_checker = Checker(ifc)
