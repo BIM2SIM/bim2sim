@@ -15,12 +15,12 @@ class DeadEndHelper(SetupHelper):
             fitting_4port = self.element_generator(elements.PipeFitting, flags=['fitting_4port'], n_ports=4)
             fitting_3port_1 = self.element_generator(elements.PipeFitting, flags=['fitting_3port_1'], n_ports=3)
             fitting_3port_2 = self.element_generator(elements.PipeFitting, flags=['fitting_3port_2'], n_ports=3)
-            pipestrand1 = [self.element_generator(elements.Pipe, length=100, diameter=30, name="ps1") for i in range(1)]
-            pipestrand2 = [self.element_generator(elements.Pipe, length=100, diameter=30, name="ps2") for i in range(1)]
-            pipestrand3 = [self.element_generator(elements.Pipe, length=100, diameter=30, name="ps3") for i in range(1)]
-            pipestrand4 = [self.element_generator(elements.Pipe, length=100, diameter=30, name="ps4") for i in range(1)]
-            pipestrand5 = [self.element_generator(elements.Pipe, length=100, diameter=30, name="ps5") for i in range(1)]
-            pipestrand6 = [self.element_generator(elements.Pipe, length=100, diameter=30, name="ps6") for i in range(1)]
+            pipestrand1 = [self.element_generator(elements.Pipe, length=100, diameter=30, flags=['ps1']) for i in range(1)]
+            pipestrand2 = [self.element_generator(elements.Pipe, length=100, diameter=30, flags=['ps2']) for i in range(1)]
+            pipestrand3 = [self.element_generator(elements.Pipe, length=100, diameter=30, flags=['ps3']) for i in range(1)]
+            pipestrand4 = [self.element_generator(elements.Pipe, length=100, diameter=30, flags=['ps4']) for i in range(1)]
+            pipestrand5 = [self.element_generator(elements.Pipe, length=100, diameter=30, flags=['ps5']) for i in range(1)]
+            pipestrand6 = [self.element_generator(elements.Pipe, length=100, diameter=30, flags=['ps6']) for i in range(1)]
 
             self.connect_strait([*pipestrand1])
             self.connect_strait([*pipestrand2])
@@ -57,10 +57,18 @@ class TestDeadEndIdentification(unittest.TestCase):
 
     def test_dead_end_identification(self):
         graph, flags = self.helper.get_simple_circuit()
-        dead_ends_fc = dead_ends.Reduce.identify_deadends(graph)
+        dead_ends_fc = dead_ends.deadEnds.identify_deadends(graph)
+        dead_ends_fc_compare = [
+            flags['ps1'][0].ports[1],
+            flags['ps3'][0].ports[1],
+            flags['fitting_4port'][0].ports[3],
+            flags['ps6'][0].ports[1],
+        ]
         print("Found %s possible dead ends in network." % len(dead_ends_fc))
-        graph, n_removed = dead_ends.Reduce.decide_deadends(graph, dead_ends_fc)
+        self.assertCountEqual(dead_ends_fc_compare, dead_ends_fc)
+        graph, n_removed = dead_ends.deadEnds.decide_deadends(graph, dead_ends_fc)
         print("Removed %s ports due to found dead ends." % n_removed)
+
 
 
 

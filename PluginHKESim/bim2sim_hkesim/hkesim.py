@@ -23,6 +23,6 @@ class HKESimManager(BIM2SIMManager):
         self.playground.run_task(hvac.Inspect())
         self.playground.run_task(hvac.MakeGraph())
         self.playground.run_task(hvac.Reduce())
-        self.playground.run_task(dead_ends.Reduce())
+        self.playground.run_task(dead_ends.deadEnds())
         self.playground.run_task(LoadLibrariesHKESim())
         self.playground.run_task(hvac.Export())

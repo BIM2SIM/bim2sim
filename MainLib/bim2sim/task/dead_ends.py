@@ -3,7 +3,7 @@ from bim2sim.decision import Decision, ListDecision
 from bim2sim.task.hvac import hvac_graph
 
 
-class Reduce(ITask):
+class deadEnds(ITask):
     """Analyses graph network for dead ends"""
 
     reads = ('graph', )
@@ -26,14 +26,12 @@ class Reduce(ITask):
         for node in element_graph.nodes:
             inner_edges = node.get_inner_connections()
             uncoupled_graph.remove_edges_from(inner_edges)
-
         # find first class dead ends (open ports)
         dead_ends_fc = [v for v, d in uncoupled_graph.degree() if d == 0]
         return dead_ends_fc
 
     @staticmethod
     def decide_deadends(graph: hvac_graph.HvacGraph, dead_ends_fc):
-        # todo: what do we do with dead elements: no open ports but no usage (e.g. pressure expansion tanks)
         remove_ports = {}
         for dead_end in dead_ends_fc:
             if len(dead_end.parent.ports) > 2:
@@ -41,6 +39,7 @@ class Reduce(ITask):
                 remove_ports[dead_end] = [dead_end]
                 continue
             else:
+                # todo: how to handle devices where we might want to connect dead ends istead delete
                 remove_ports_strand = []
                 # find if there are more elements in strand to be removed
                 strand = hvac_graph.HvacGraph.get_path_without_junctions(graph, dead_end, include_edges=True)

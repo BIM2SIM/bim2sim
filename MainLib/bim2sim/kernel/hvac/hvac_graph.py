@@ -487,6 +487,7 @@ class HvacGraph(nx.Graph):
         # loop through neighbors until next junction
         for neighbor_root in neighbors_root:
             neighbor = neighbor_root
+            # todo handle elements without neighbors
             while True:
                 neighbors = [neighbor for neighbor in
                              nx.all_neighbors(graph, neighbor) if not
