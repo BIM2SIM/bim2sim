@@ -45,8 +45,6 @@ from bim2sim.task.bps_f.bps_functions import get_matches_list, get_material_temp
 from bim2sim.kernel.disaggregation import SubInnerWall, SubOuterWall, Disaggregation
 from bim2sim.project import PROJECT
 
-Decision.enable_debug("1") # todo Diego: Add debug and default value to simplify debugging
-
 
 def diameter_post_processing(value):
     if isinstance(value, (list, set)):

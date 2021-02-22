@@ -204,7 +204,7 @@ class Bind(Task):
             self.bind_tz_criteria()
 
     def bind_tz_criteria(self):
-        with Decision.debug_answer('0'): # todo Diego: Add debug and default value to simplify debugging
+        with Decision.debug_answer(False): # todo Diego: Add debug and default value to simplify debugging
             bind_decision = BoolDecision(question="Do you want for thermal zones to be bind? - this allows to bind the "
                                                   "thermal zones into a thermal zone aggregation based on different "
                                                   "criteria -> Simplified operations",
@@ -289,13 +289,12 @@ class Bind(Task):
             grouped_instances_criteria['not_bind'] = not_grouped_instances
 
         # neighbors - filter criterion
-        with Decision.debug_answer('0'): # todo Diego: Add debug and default value to simplify debugging
-            neighbors_decision = BoolDecision(question="Do you want for the bound-spaces to be neighbors? - adds additional"
-                                                       " criteria that just bind the thermal zones that are side by side",
-                                              global_key='Thermal_Zones.Neighbors',
-                                              allow_load=True, allow_save=True,
-                                              collect=False, quick_decide=not True)
-            neighbors_decision.decide()
+        neighbors_decision = BoolDecision(question="Do you want for the bound-spaces to be neighbors? - adds additional"
+                                                   " criteria that just bind the thermal zones that are side by side",
+                                          global_key='Thermal_Zones.Neighbors',
+                                          allow_load=True, allow_save=True,
+                                          collect=False, quick_decide=not True)
+        neighbors_decision.decide()
         if neighbors_decision.value:
             self.filter_neighbors(grouped_instances_criteria)
 

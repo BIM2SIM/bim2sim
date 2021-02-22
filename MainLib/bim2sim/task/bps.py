@@ -81,7 +81,6 @@ from bim2sim.task.bps_f.bps_functions import get_matches_list, \
 # get_material_value_templates_resumed
 from bim2sim.kernel.units import conversion
 
-Decision.enable_debug("1") # todo Diego: Add debug and default value to simplify debugging
 
 class SetIFCTypesBPS(ITask):
     """Set list of relevant IFC types"""
@@ -109,8 +108,8 @@ class Inspect(ITask):
         self.logger.info("Creates python representation of relevant ifc types")
 
         Element.finder.load(PROJECT.finder)
-
-        workflow.relevant_ifc_types = self.use_doors(workflow.relevant_ifc_types)
+        with Decision.debug_answer('1'): # todo Diego: Add debug and default value to simplify debugging
+            workflow.relevant_ifc_types = self.use_doors(workflow.relevant_ifc_types)
         for ifc_type in workflow.relevant_ifc_types:
             try:
                 entities = ifc.by_type(ifc_type)
