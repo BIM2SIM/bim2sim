@@ -3397,7 +3397,7 @@ class IdfObject():
         face = topods_Face(exp.Current())
         umin, umax, vmin, vmax = breptools_UVBounds(face)
         surf = BRep_Tool.Surface(face)
-        plane = Handle_Geom_Plane_DownCast(surf).GetObject()
+        plane = Handle_Geom_Plane_DownCast(surf)
         plane = gp_Pln(plane.Location(), plane.Axis().Direction())
         new_face = BRepBuilderAPI_MakeFace(plane,
                                            umin,
