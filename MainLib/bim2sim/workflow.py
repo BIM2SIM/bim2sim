@@ -86,7 +86,7 @@ class PlantSimulation(Workflow):
             'IfcSpaceHeater',
             'IfcTank',
             'IfcTubeBundle',
-            #'IfcUnitaryEquipment',
+            'IfcUnitaryEquipment',
             'IfcValve',
             'IfcVibrationIsolator',
             #'IfcHeatPump'
