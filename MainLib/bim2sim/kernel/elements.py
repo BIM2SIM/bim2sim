@@ -1361,9 +1361,9 @@ class SpaceBoundary(element.SubElement):
             pnts.append(pnts[0])
             face = self._make_faces_from_pnts(pnts)
         surf = BRep_Tool.Surface(face)
-        obj = surf.GetObject()
-        assert obj.DynamicType().GetObject().Name() == "Geom_Plane"
-        plane = Handle_Geom_Plane_DownCast(surf).GetObject()
+        obj = surf
+        assert obj.DynamicType().Name() == "Geom_Plane"
+        plane = Handle_Geom_Plane_DownCast(surf)
         # face_bbox = Bnd_Box()
         # brepbndlib_Add(face, face_bbox)
         # face_center = ifcopenshell.geom.utils.get_bounding_box_center(face_bbox).XYZ()
@@ -1393,7 +1393,7 @@ class SpaceBoundary(element.SubElement):
         functions=[calc_bound_shape]
     )
     bound_normal = attribute.Attribute(
-        # functions=[compute_surface_normals_in_space]
+        functions=[compute_surface_normals_in_space]
     )
     related_bound = attribute.Attribute(
         functions=[get_corresponding_bound]

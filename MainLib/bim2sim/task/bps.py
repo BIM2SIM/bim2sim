@@ -719,8 +719,8 @@ class ExportEP(ITask):
         self.logger.info("Compute relationships between space boundaries")
         self.logger.info("Compute relationships between openings and their base surfaces")
         self._get_parents_and_children(instances)
-        # self.logger.info("Move openings to base surface, if needed")
-        # self._move_children_to_parents(instances) # todo: fix
+        self.logger.info("Move openings to base surface, if needed")
+        self._move_children_to_parents(instances)
         # self.logger.info("Fix surface orientation")
         # self._fix_surface_orientation(instances) # todo: fix
         # self.logger.info("Get neighboring space boundaries")
