@@ -158,6 +158,33 @@ class TestDecision(DecisionTestBase):
             allow_load=True)
         self.assertFalse(dec_bool_loaded.value)
 
+    def test_debug_answers(self):
+        """Test implementation of debug answers"""
+        with Decision.debug_answer(True):
+            dec = decision.BoolDecision(
+                question="??")
+            dec.decide()
+        self.assertTrue(dec.value)
+
+        answers = (True, 3.2, False)
+
+        with Decision.debug_answer(answers, multi=True):
+            dec0 = decision.BoolDecision(question="??")
+            dec0.decide()
+            dec1 = decision.RealDecision(question="??")
+            dec1.decide()
+            dec2 = decision.BoolDecision(question="??")
+            dec2.decide()
+        self.assertTupleEqual(answers, (dec0.value, dec1.value, dec2.value))
+
+        output = {}
+        with Decision.debug_answer(answers, multi=True):
+            dec0 = decision.BoolDecision(question="??", collect=True, output=output, output_key=0)
+            dec1 = decision.RealDecision(question="??", collect=True, output=output, output_key=1)
+            dec2 = decision.BoolDecision(question="??", collect=True, output=output, output_key=2)
+            decision.Decision.decide_collected()
+        self.assertTupleEqual(answers, tuple(output[i] for i in range(3)))
+
 
 class TestBoolDecision(DecisionTestBase):
     """test BoolDecisions"""
