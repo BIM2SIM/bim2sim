@@ -201,7 +201,7 @@ class IFCBased(Root):
                     'Floor': -2,
                     'GroundFloor': -2}
         value = switcher.get(self.__class__.__name__, 'continue')
-        if value is not 'continue':
+        if value != 'continue':
             return value
 
         list_angles = {}

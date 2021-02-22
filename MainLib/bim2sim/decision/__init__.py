@@ -70,7 +70,8 @@ class Decision:
     options = [SKIP, SKIPALL, CANCEL]
 
     _debug_answer = None
-    _debug_mode = False
+    _debug_answer_index = 0
+    _debug_mode = 0
     _debug_validate = False
 
     frontend = None
@@ -131,7 +132,7 @@ class Decision:
         if quick_decide and not self.status == Status.loadeddone:
             self.decide()
 
-        if self.collect and not (isinstance(self.output, dict) and self.output_key):
+        if self.collect and not (isinstance(self.output, dict) and self.output_key is not None):
             raise AttributeError("Can not collect Decision if output dict or output_key is missing.")
 
         Decision.all.append(self)
@@ -215,29 +216,38 @@ class Decision:
         cls.frontend = frontend
 
     @classmethod
-    def enable_debug(cls, answer, validate=False):
+    def enable_debug(cls, answer, validate=False, multi=False):
         """Enabled debug mode. All decisions are answered with answer"""
-        cls._debug_mode = True
+        cls._debug_mode = 2 if multi else 1
         cls._debug_answer = answer
+        cls._debug_answer_index = 0
         cls._debug_validate = validate
 
     @classmethod
     def disable_debug(cls):
         """Disable debug mode"""
         cls._debug_answer = None
-        cls._debug_mode = False
+        cls._debug_answer_index = 0
+        cls._debug_mode = 0
         cls._debug_validate = False
 
     @classmethod
     @contextmanager
-    def debug_answer(cls, answer, validate=False):
+    def debug_answer(cls, answer, validate=False, multi=False):
         """Contextmanager enabling debug mode temporarily with given answer"""
-        cls.enable_debug(answer, validate)
+        cls.enable_debug(answer, validate, multi)
         yield
         cls.disable_debug()
 
-    def get_debug_answer(self):
-        return self._debug_answer
+    @classmethod
+    def get_debug_answer(cls):
+        if cls._debug_mode == 1:
+            return cls._debug_answer
+        elif cls._debug_mode == 2:
+            answer = cls._debug_answer[cls._debug_answer_index]
+            Decision._debug_answer_index += 1
+            return answer
+        raise AssertionError("Decision debug mode not enabled")
 
     def _validate(self, value):
         raise NotImplementedError("Implement method _validate!")
@@ -296,9 +306,9 @@ class Decision:
             # debug
             for decision in _collection:
                 if cls._debug_validate:
-                    decision.value = cls._debug_answer
+                    decision.value = decision.get_debug_answer()
                 else:
-                    decision._value = cls._debug_answer
+                    decision._value = decision.get_debug_answer()
                     decision.status = Status.done
                     decision._post()
         else:
@@ -474,7 +484,7 @@ class RealDecision(Decision):
         return {'unit': str(self.unit)}
 
     def get_debug_answer(self):
-        return self._debug_answer * self.unit
+        return super().get_debug_answer() * self.unit
 
     def serialize_value(self):
         kwargs = {
