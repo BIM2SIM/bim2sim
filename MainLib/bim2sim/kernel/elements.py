@@ -28,7 +28,8 @@ pattern_usage = get_pattern_usage()
 class HeatPump(element.Element):
     """"HeatPump"""
 
-    ifc_type = 'IfcHeatPump'
+    ifc_type = 'IfcUnitaryEquipment'
+    predefined_type = ['NOTDEFINED']
 
     pattern_ifc_type = [
         re.compile('Heat.?pump', flags=re.IGNORECASE),
