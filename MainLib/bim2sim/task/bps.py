@@ -721,9 +721,9 @@ class ExportEP(ITask):
         self._get_parents_and_children(instances)
         self.logger.info("Move openings to base surface, if needed")
         self._move_children_to_parents(instances)
-        # self.logger.info("Fix surface orientation")
-        # self._fix_surface_orientation(instances) # todo: fix
-        # self.logger.info("Get neighboring space boundaries")
+        self.logger.info("Fix surface orientation")
+        self._fix_surface_orientation(instances) # todo: Check if working properly
+        self.logger.info("Get neighboring space boundaries")
         # self._get_neighbor_bounds(instances)
         # self._compute_2b_bound_gaps(instances) # todo: fix
         # self._move_bounds_to_centerline(instances)
@@ -2790,14 +2790,14 @@ class ExportEP(ITask):
                             complemented = True
                         if not complemented:
                             continue
-                        if hasattr(bound, 'bound_normal'):
-                            del bound.__dict__['bound_normal']
+                        # if hasattr(bound, 'bound_normal'):
+                        #     del bound.__dict__['bound_normal']
                         if hasattr(bound, 'related_opening_bounds'):
                             op_bounds = bound.related_opening_bounds
                             for op in op_bounds:
                                 op.bound_shape.Complement()
-                                if hasattr(op, 'bound_normal'):
-                                    del op.__dict__['bound_normal']
+                                # if hasattr(op, 'bound_normal'):
+                                #     del op.__dict__['bound_normal']
                         break
                 if not hasattr(space, 'space_boundaries_2B'):
                     continue
@@ -3357,7 +3357,7 @@ class IdfObject():
         drop_list = obj_coords[0::drop_count]
         pnt = drop_list[0]
         counter = 0
-        del inst_obj.__dict__['bound_center']
+        # del inst_obj.__dict__['bound_center']
         for pnt2 in drop_list[1:]:
             counter += 1
             new_obj = idf.copyidfobject(obj)
