@@ -1,5 +1,7 @@
 ﻿"""Module contains the different classes for all HVAC elements"""
 
+from functools import lru_cache
+
 import math
 import re
 import numpy as np
@@ -26,7 +28,8 @@ pattern_usage = get_pattern_usage()
 class HeatPump(element.Element):
     """"HeatPump"""
 
-    ifc_type = 'IfcHeatPump'
+    ifc_type = 'IfcUnitaryEquipment'
+    predefined_type = ['NOTDEFINED']
 
     pattern_ifc_type = [
         re.compile('Heat.?pump', flags=re.IGNORECASE),
@@ -149,6 +152,7 @@ class Boiler(element.Element):
         """boiler is generator function"""
         return True
 
+    @lru_cache()
     def get_inner_connections(self):
         connections = []
         vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern

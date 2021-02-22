@@ -54,7 +54,6 @@ class SetupHelper:
         with mock.patch.object(Element, '_add_ports', return_value=None):
             element = element_cls(self.ifc)
         self.elements.append(element)
-
         # set attributes
         for name, value in kwargs.items():
             if name not in element.attributes.names:
