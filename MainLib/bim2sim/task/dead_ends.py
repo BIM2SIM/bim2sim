@@ -1,7 +1,8 @@
+from bim2sim.project import PROJECT
 from bim2sim.task.base import Task, ITask
 from bim2sim.decision import Decision, BoolDecision
 from bim2sim.task.hvac import hvac_graph
-from bim2sim.kernel.element import BasePort
+
 
 class DeadEnds(ITask):
     """Analyses graph network for dead ends"""
@@ -16,6 +17,10 @@ class DeadEnds(ITask):
         self.logger.info("Found %s possible dead ends in network." % len(dead_ends_fc))
         graph, n_removed = self.decide_deadends(graph, dead_ends_fc)
         self.logger.info("Removed %s ports due to found dead ends." % n_removed)
+        if __debug__:
+            self.logger.info("Plotting graph ...")
+            graph.plot(PROJECT.export)
+            graph.plot(PROJECT.export, ports=True)
         return (graph, )
 
     @staticmethod
@@ -28,9 +33,8 @@ class DeadEnds(ITask):
             inner_edges = node.get_inner_connections()
             uncoupled_graph.remove_edges_from(inner_edges)
         # find first class dead ends (open ports)
-        # dead_ends_fc = (port for port in BasePort.objects.values()
-        #                      if not port.is_connected())
         dead_ends_fc = [v for v, d in uncoupled_graph.degree() if d == 0]
+        uncoupled_graph.plot('D:/10_ProgramTesting/uncoupled', ports=False)
         return dead_ends_fc
 
     @staticmethod

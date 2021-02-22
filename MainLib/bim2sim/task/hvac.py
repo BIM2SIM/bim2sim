@@ -24,7 +24,7 @@ from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.enrichment_data import element_input_json
 from bim2sim.decision import ListDecision, RealDecision
 
-
+# todo remove because obsolete
 IFC_TYPES = (
     'IfcAirTerminal',
     'IfcAirTerminalBox',
