@@ -717,6 +717,37 @@ class Medium(element.Element):
     ]
 
 
+class CHP(element.Element):
+    ifc_type = 'IfcElectricGenerator'
+    predefined_type = ['CHP']
+
+    rated_power = attribute.Attribute(
+        default_ps=('Pset_ElectricGeneratorTypeCommon', 'MaximumPowerOutput'),
+        description="Rated power of CHP",
+        patterns=[
+          re.compile('.*Nennleistung', flags=re.IGNORECASE),
+          re.compile('.*capacity', flags=re.IGNORECASE),
+        ],
+        unit=ureg.kilowatt,
+    )
+
+    efficiency = attribute.Attribute(
+        default_ps=('Pset_ElectricGeneratorTypeCommon', 'ElectricGeneratorEfficiency'),
+        description="Electric efficiency of CHP",
+        patterns=[
+            re.compile('.*electric.*efficiency', flags=re.IGNORECASE),
+            re.compile('.*el.*efficiency', flags=re.IGNORECASE),
+        ],
+        unit=ureg.dimensionless,
+    )
+
+    water_volume = attribute.Attribute(
+        description="Water volume CHP chp",
+        unit=ureg.meter ** 3,
+    )
+
+
+
 class Wall(element.Element):
     ifc_type = ["IfcWall", "IfcWallStandardCase"]
     predefined_types = ['MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL', 'SHEAR', 'SOLIDWALL', 'POLYGONAL']
