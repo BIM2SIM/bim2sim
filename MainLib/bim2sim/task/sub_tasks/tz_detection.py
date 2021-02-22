@@ -136,7 +136,8 @@ class Inspect(Task):
             # self.bind_space_to_space_boundaries(space_boundary)
             if entity.RelatedBuildingElement is not None:
                 related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
-                if related_element is not None:
+                relating_space = Element.get_object(entity.RelatingSpace.GlobalId)
+                if related_element and relating_space:
                     space_boundary = SubElement.factory(entity, ifc_type)
                     space_boundaries.append(space_boundary)
 
