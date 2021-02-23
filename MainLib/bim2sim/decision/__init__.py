@@ -361,7 +361,7 @@ class Decision:
 
         if decisions:
             msg = "Found %d previous made decisions. Continue using them?"%(len(decisions))
-            reuse = BoolDecision(question=msg).decide()
+            reuse = BoolDecision(question=msg, default=True).decide()
             if reuse:
                 cls.stored_decisions.clear()
                 cls.stored_decisions.update(**decisions)
