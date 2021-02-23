@@ -18,9 +18,6 @@ class FrontEnd:
     def get_question(self, decision):
         return decision.get_question()
 
-    def get_default(self, decision):
-        return decision.default
-
     def get_body(self, decision):
         return decision.get_body()
 
