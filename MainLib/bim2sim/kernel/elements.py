@@ -561,8 +561,8 @@ class ThermalZone(element.Element):
                                       (str(bind.zone_name)),
                                       choices=matches,
                                       allow_skip=False,
-                                      allow_load=True,
-                                      allow_save=True,
+                                      # allow_load=True,
+                                      # allow_save=True,
                                       quick_decide=not True)
         usage_decision.decide()
         return usage_decision.value
