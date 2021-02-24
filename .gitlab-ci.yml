@@ -54,7 +54,7 @@ build_tool:webdevelop:
     - docker build -t $CI_REGISTRY/tool:web_develop .
     - docker push $CI_REGISTRY/tool:web_develop
   only:
-    - 58-ui-ready-decision-system
+    - frontend
 
 unittest3.7:
   <<: *only-default
