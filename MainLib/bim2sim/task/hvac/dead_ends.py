@@ -1,7 +1,7 @@
 from bim2sim.project import PROJECT
 from bim2sim.task.base import Task, ITask
 from bim2sim.decision import Decision, BoolDecision
-from bim2sim.task.hvac import hvac_graph
+from bim2sim.task.hvac.hvac import hvac_graph
 
 
 class DeadEnds(ITask):

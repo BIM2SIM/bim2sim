@@ -4,15 +4,13 @@ import logging
 from json import JSONEncoder
 import itertools
 import re
-import math
 
 import numpy as np
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import ifc2python, attribute
-from bim2sim.decision import Decision, ListDecision
-from bim2sim.kernel.units import ureg
-from bim2sim.task.bps_f.bps_functions import angle_equivalent, vector_angle
+from bim2sim.decision import Decision
+from bim2sim.task.bps.bps_functions import angle_equivalent, vector_angle
 from bim2sim.kernel.finder import TemplateFinder
 
 logger = logging.getLogger(__name__)
@@ -857,4 +855,3 @@ class Dummy(Element):
 
 
 # import Element classes for Element.factory
-import bim2sim.kernel.elements
