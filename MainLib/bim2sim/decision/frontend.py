@@ -1,6 +1,6 @@
 import logging
 
-from ..decision import BoolDecision, RealDecision, ListDecision, StringDecision
+from ..decision import BoolDecision, RealDecision, ListDecision, StringDecision, GuidDecision
 
 
 class FrontEnd:
@@ -40,6 +40,8 @@ class FrontEnd:
             return self.parse_list_input(raw_answer, decision.items)
         elif isinstance(decision, StringDecision):
             return self.parse_string_input(raw_answer)
+        elif isinstance(decision, GuidDecision):
+            return self.parse_guid_input(raw_answer)
 
     @staticmethod
     def parse_real_input(raw_input, unit=None):
@@ -76,4 +78,12 @@ class FrontEnd:
             raw_value = str(raw_input)
         except Exception:
             raise NotImplementedError("Parsing string not implemented.")
+        return raw_value
+
+    @staticmethod
+    def parse_guid_input(raw_input):
+        try:
+            raw_value = set(raw_input)
+        except Exception:
+            raise NotImplementedError("Parsing guid not implemented.")
         return raw_value

@@ -171,3 +171,13 @@ class ConsoleFrontEnd(FrontEnd):
         except Exception:
             pass
         return raw_value
+
+    @staticmethod
+    def parse_guid_input(raw_input):
+        raw_value = None
+        try:
+            parts = str(raw_input).replace(',', ' ').split(' ')
+            raw_value = {guid for guid in parts if guid}
+        except Exception:
+            pass
+        return raw_value
