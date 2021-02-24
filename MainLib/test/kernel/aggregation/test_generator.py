@@ -280,31 +280,33 @@ class TestGeneratorAggregation(unittest.TestCase):
         # import matplotlib.pyplot as plt
         # plt.show()
         matches, meta = aggregation.Generator_One_Fluid.find_matches(graph)
+        # todo add asserts
 
     def test_detection_boiler_with_bypass(self):
         graph, flags = self.helper.get_setup_boiler_with_bypass()
         graph.plot(r'c:/temp')
         matches, meta = aggregation.Generator_One_Fluid.find_matches(graph)
+        # todo add asserts
 
     def test_simple_boiler(self):
-        graph, flags = self.helper.get_setup_simple_boiler()
-        graph.plot(r'c:/temp/')
+        graph, flags = self.helper.get_setup_boiler_with_bypass()
+        graph.plot(r'D:/10_ProgramTesting/before')
         matches, meta = aggregation.Generator_One_Fluid.find_matches(graph)
         self.assertEqual(len(matches), 1)
         agg_generator = aggregation.Generator_One_Fluid(
             "Test", matches[0], **meta[0])
-        mapping = agg_generator.get_replacement_mapping()
+        # mapping = agg_generator.get_replacement_mapping()
         graph.merge(
             mapping=agg_generator.get_replacement_mapping(),
             inner_connections=agg_generator.get_inner_connections(),
         )
-        graph.plot(r'c:/temp/')
+        graph.plot(r'D:/10_ProgramTesting/after')
 
     def test_two_simple_boiler_with_bypass(self):
         graph, flags = self.helper.get_setup_two_seperate_boilers()
-        graph.plot(r'c:/temp/')
+        graph.plot(r'D:/10_ProgramTesting/before')
         matches, meta = aggregation.Generator_One_Fluid.find_matches(graph)
-el
+
         agg_generators = []
         self.assertEqual(len(matches), 2)
         for e, match in enumerate(matches):
@@ -322,7 +324,7 @@ el
                 mapping=agg_generator.get_replacement_mapping(),
                 inner_connections=agg_generator.get_inner_connections(),
             )
-        graph.plot(r'c:/temp/')
+        graph.plot(r'D:/10_ProgramTesting/after')
         print('test')
 
 

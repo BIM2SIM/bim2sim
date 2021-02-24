@@ -1432,6 +1432,7 @@ class Generator_One_Fluid(Aggregation):
              # todo: maybe add later: 'diameter', 'diameter_strand', 'length'
              )
 
+    # todo fill has_pump
     def __init__(self, name, element_graph, *args, **kwargs):
         super().__init__(name, element_graph, *args, **kwargs)
         edge_ports, element_graph = self.get_edge_ports(element_graph)
@@ -1489,6 +1490,9 @@ class Generator_One_Fluid(Aggregation):
 
     @classmethod
     def find_matches(cls, graph):
+        """
+        # todo docstring
+        """
         element_graph = graph.element_graph
         wanted = set(cls.wanted_elements)
         boarders = set(cls.boarder_elements)
