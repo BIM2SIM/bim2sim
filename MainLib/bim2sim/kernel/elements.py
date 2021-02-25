@@ -1,5 +1,7 @@
 ﻿"""Module contains the different classes for all HVAC elements"""
 
+from functools import lru_cache
+
 import math
 import re
 
@@ -35,7 +37,7 @@ from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, condition, attribute
 from bim2sim.decision import BoolDecision
 from bim2sim.kernel.units import ureg
-from bim2sim.decision import ListDecision, RealDecision
+from bim2sim.decision import ListDecision
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.enrichment_data.data_class import DataClass
 from teaser.logic.buildingobjects.useconditions import UseConditions
@@ -192,6 +194,7 @@ class Boiler(element.Element):
         """boiler is generator function"""
         return True
 
+    @lru_cache()
     def get_inner_connections(self):
         connections = []
         vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
@@ -638,8 +641,8 @@ class ThermalZone(element.Element):
                                       choices=matches,
                                       global_key="%s_%s.BpsUsage" % (type(bind).__name__, bind.guid),
                                       allow_skip=False,
-                                      allow_load=True,
-                                      allow_save=True,
+                                      # allow_load=True,
+                                      # allow_save=True,
                                       quick_decide=not True)
         usage_decision.decide()
         return usage_decision.value
@@ -1425,6 +1428,37 @@ class Medium(element.Element):
     pattern_ifc_type = [
         re.compile('Medium', flags=re.IGNORECASE)
     ]
+
+
+class CHP(element.Element):
+    ifc_type = 'IfcElectricGenerator'
+    predefined_type = ['CHP']
+
+    rated_power = attribute.Attribute(
+        default_ps=('Pset_ElectricGeneratorTypeCommon', 'MaximumPowerOutput'),
+        description="Rated power of CHP",
+        patterns=[
+          re.compile('.*Nennleistung', flags=re.IGNORECASE),
+          re.compile('.*capacity', flags=re.IGNORECASE),
+        ],
+        unit=ureg.kilowatt,
+    )
+
+    efficiency = attribute.Attribute(
+        default_ps=('Pset_ElectricGeneratorTypeCommon', 'ElectricGeneratorEfficiency'),
+        description="Electric efficiency of CHP",
+        patterns=[
+            re.compile('.*electric.*efficiency', flags=re.IGNORECASE),
+            re.compile('.*el.*efficiency', flags=re.IGNORECASE),
+        ],
+        unit=ureg.dimensionless,
+    )
+
+    water_volume = attribute.Attribute(
+        description="Water volume CHP chp",
+        unit=ureg.meter ** 3,
+    )
+
 
 
 class Wall(element.Element):

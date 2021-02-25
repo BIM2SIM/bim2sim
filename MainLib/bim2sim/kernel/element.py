@@ -4,7 +4,6 @@ import logging
 from json import JSONEncoder
 import itertools
 import re
-import math
 
 import numpy as np
 
@@ -930,4 +929,3 @@ class Dummy(Element):
 
 
 # import Element classes for Element.factory
-import bim2sim.kernel.elements

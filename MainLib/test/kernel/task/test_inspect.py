@@ -6,8 +6,9 @@ import tempfile
 import numpy as np
 
 from bim2sim.kernel.element import Root, BasePort, BaseElement, IFCBased
-from bim2sim.task import hvac, common
-from bim2sim.task.hvac import Inspect
+from bim2sim.task.hvac import hvac
+from bim2sim.task.common import common
+from bim2sim.task.hvac.hvac import Inspect
 from bim2sim.workflow import PlantSimulation
 from bim2sim.project import PROJECT, _Project
 from bim2sim import BIM2SIMManager
