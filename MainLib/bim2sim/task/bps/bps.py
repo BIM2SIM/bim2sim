@@ -20,7 +20,7 @@ from teaser.logic.buildingobjects.buildingphysics.innerwall import InnerWall
 from teaser.logic.buildingobjects.buildingphysics.layer import Layer
 from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
-from bim2sim.task.bps.bps_functions import orientation_verification, filter_instances
+from common.common_functions import orientation_verification, filter_instances
 from bim2sim.kernel.units import conversion
 
 

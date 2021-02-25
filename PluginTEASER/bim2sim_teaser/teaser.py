@@ -1,6 +1,7 @@
 from bim2sim.manage import BIM2SIMManager
-from bim2sim.task.bps import bps
-from bim2sim.task.common import common
+from bim2sim.task import bps
+from bim2sim.task import common
+
 
 
 

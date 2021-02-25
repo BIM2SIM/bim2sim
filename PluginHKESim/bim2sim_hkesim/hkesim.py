@@ -1,8 +1,8 @@
 ﻿
 from bim2sim.manage import BIM2SIMManager
 from bim2sim.task import base
-from bim2sim.task.common import common
-from bim2sim.task.hvac import hvac
+from bim2sim.task import common
+from bim2sim.task import hvac
 from bim2sim.task.hvac import dead_ends
 from bim2sim.export.modelica import standardlibrary
 from bim2sim_hkesim.models import HKESim
