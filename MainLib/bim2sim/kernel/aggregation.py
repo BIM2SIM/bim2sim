@@ -17,7 +17,6 @@ from bim2sim.task.bps.bps_functions import filter_instances
 from bim2sim.kernel.elements import HeatPump
 
 
-
 def verify_edge_ports(func):
     """Decorator to verify edge ports"""
 

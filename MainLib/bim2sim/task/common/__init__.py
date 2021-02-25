@@ -1,1 +1,1 @@
-from task.common.LoadIFC import LoadIFC
+from .common import Reset, Quit, LoadIFC

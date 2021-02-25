@@ -34,7 +34,7 @@ from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
 from teaser.logic import utilities
 import os
-from bim2sim.task.bps.bps_functions import get_matches_list, \
+from common.common_functions import get_matches_list, \
     get_pattern_usage, vector_angle, angle_equivalent, real_decision_user_input
 # get_material_value_templates_resumed
 from bim2sim.kernel.units import conversion
