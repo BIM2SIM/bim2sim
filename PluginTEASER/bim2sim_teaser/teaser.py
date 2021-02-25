@@ -28,7 +28,7 @@ class TEASERManager(BIM2SIMManager):
 
         self.playground.run_task(bps.SetIFCTypes())
         self.playground.run_task(common.LoadIFC())
-        self.playground.run_task(Inspect.Inspect())
+        self.playground.run_task(bps.Inspect())
 
         print()
         # self.playground.run_task(bps.SetIFCTypesBPS())

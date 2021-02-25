@@ -4,7 +4,7 @@ from bim2sim.kernel.element import Element, SubElement
 from bim2sim.kernel.ifc2python import getElementType
 from bim2sim.kernel.disaggregation import Disaggregation
 from bim2sim.kernel.aggregation import Aggregated_ThermalZone
-from bim2sim.task.bps.bps_functions import filter_instances
+from common.common_functions import filter_instances
 from bim2sim.kernel.elements import SpaceBoundary
 import inspect
 
