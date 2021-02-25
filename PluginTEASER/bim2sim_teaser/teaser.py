@@ -1,6 +1,12 @@
 from bim2sim.manage import BIM2SIMManager
-from bim2sim.task.bps import bps
-from bim2sim.task.common import common
+from bim2sim.task import common
+
+from bim2sim.task import bps
+
+from bim2sim.task.bps import Inspect
+
+from bim2sim.task.bps import bps as bps2
+# from bim2sim.task.common import common
 
 
 
@@ -19,13 +25,19 @@ class TEASERManager(BIM2SIMManager):
 
     def run(self):
 
-        self.playground.run_task(bps.SetIFCTypesBPS())
+        self.playground.run_task(bps.SetIFCTypes())
         self.playground.run_task(common.LoadIFC())
-        self.playground.run_task(bps.Inspect())
-        self.playground.run_task(bps.Prepare())
-        pass
+        self.playground.run_task(Inspect.Inspect())
 
-        self.playground.run_task(bps.ExportTEASER())
+        print()
+        # self.playground.run_task(bps.SetIFCTypesBPS())
+        # self.playground.run_task(common.LoadIFC())
+        # self.playground.run_task(bps.Inspect())
+        #
+        # self.playground.run_task(bps.Prepare())
+        # pass
+        #
+        # self.playground.run_task(bps.ExportTEASER())
 
 
 
