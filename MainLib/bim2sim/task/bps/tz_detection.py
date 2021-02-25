@@ -4,7 +4,7 @@ from bim2sim.kernel.element import Element, SubElement
 from bim2sim.kernel.ifc2python import getElementType
 from bim2sim.kernel.disaggregation import Disaggregation
 from bim2sim.kernel.aggregation import Aggregated_ThermalZone
-from bim2sim.task.bps_f.bps_functions import filter_instances
+from bim2sim.task.bps.bps_functions import filter_instances
 from bim2sim.kernel.elements import SpaceBoundary
 import inspect
 
@@ -164,11 +164,6 @@ class Inspect(Task):
         #         related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
         #         if related_element is not None:
         #             SubElement.factory(entity, 'IfcRelSpaceBoundary')
-
-class Bind(Task):
-    """Analyses thermal zone instances, bind instances and connects them.
-    based on various criteria
-    elements are stored in .instances dict with guid as key"""
 
 class Bind(Task):
     """Analyses thermal zone instances, bind instances and connects them.

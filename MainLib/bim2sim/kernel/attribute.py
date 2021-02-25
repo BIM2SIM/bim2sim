@@ -5,7 +5,7 @@ import pint
 import re
 
 from bim2sim.decision import RealDecision, BoolDecision, ListDecision
-from bim2sim.task.bps_f.bps_functions import get_matches_list
+from bim2sim.task.bps.bps_functions import get_matches_list
 
 from bim2sim.kernel.units import ureg
 import inspect

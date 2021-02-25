@@ -13,7 +13,7 @@ from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
 from bim2sim.kernel.disaggregation import Disaggregation
-from bim2sim.task.bps_f.bps_functions import filter_instances
+from bim2sim.task.bps.bps_functions import filter_instances
 from bim2sim.kernel.elements import HeatPump
 
 
@@ -1453,6 +1453,7 @@ class Aggregated_ThermalZone(Aggregation):
         self.get_disaggregation_properties()
         self.bound_elements = self.bind_elements()
         self.description = ''
+        self.finder = self.elements[0].finder
 
     def get_disaggregation_properties(self):
         """properties getter -> that way no sub instances has to be defined"""
