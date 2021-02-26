@@ -13,7 +13,6 @@ from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
 
 
-
 def verify_edge_ports(func):
     """Decorator to verify edge ports"""
 
