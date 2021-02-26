@@ -11,7 +11,7 @@ from bim2sim.decision import BoolDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.decision import ListDecision
 from bim2sim.kernel.ifc2python import get_layers_ifc
-from common.common_functions import get_matches_list, get_material_templates_resumed, \
+from bim2sim.task.common.common_functions import get_matches_list, get_material_templates_resumed, \
     real_decision_user_input, filter_instances, get_pattern_usage
 import translators as ts
 
