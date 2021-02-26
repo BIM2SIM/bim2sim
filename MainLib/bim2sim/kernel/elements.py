@@ -41,7 +41,7 @@ from bim2sim.decision import ListDecision
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.enrichment_data.data_class import DataClass
 from teaser.logic.buildingobjects.useconditions import UseConditions
-from common.common_functions import get_matches_list, get_material_templates_resumed, \
+from bim2sim.task.common.common_functions import get_matches_list, get_material_templates_resumed, \
     real_decision_user_input, filter_instances, get_pattern_usage, vector_angle
 from bim2sim.kernel.disaggregation import SubInnerWall, SubOuterWall, Disaggregation
 from bim2sim.project import PROJECT
@@ -1538,10 +1538,6 @@ class Layer(element.SubElement):
             material = self.ifc
         if material is not None:
             self.material = material.Name
-        # ToDO: what if doesn't have thickness
-        self.thickness = None
-        if hasattr(self.ifc, 'LayerThickness'):
-            self.thickness = self.ifc.LayerThickness
 
     def __repr__(self):
         return "<%s (material: %s>" \
@@ -1554,6 +1550,10 @@ class Layer(element.SubElement):
         new_layer.parent = parent
         new_layer.thickness = thickness
         return new_layer
+
+    def get_ifc_thickness(bind, name):
+        if hasattr(bind.ifc, 'LayerThickness'):
+            return bind.ifc.LayerThickness
 
     def get_material_properties(bind, name, tc_range=None):
         if name == 'thickness':
@@ -1644,6 +1644,10 @@ class Layer(element.SubElement):
     thermal_conduc = attribute.Attribute(
         functions=[get_material_properties],
         default_ps='thermal_conduc',
+        default=0
+    )
+    thickness = attribute.Attribute(
+        functions=[get_ifc_thickness, get_material_properties],
         default=0
     )
 

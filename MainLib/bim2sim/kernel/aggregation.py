@@ -13,7 +13,7 @@ from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
 from bim2sim.kernel.disaggregation import Disaggregation
-from common.common_functions import filter_instances
+from bim2sim.task.common.common_functions import filter_instances
 from bim2sim.kernel.elements import HeatPump
 
 
@@ -1512,8 +1512,8 @@ class Aggregated_ThermalZone(Aggregation):
                 for e in instance.elements:
                     if e.guid in instances:
                         del instances[e.guid]
-                    if e.guid in e.instances['ThermalZone']:
-                        del e.instances['ThermalZone'][e.guid]
+                    if e.guid in e.tz_instances['ThermalZone']:
+                        del e.tz_instances['ThermalZone'][e.guid]
                 SubElement.instances['ThermalZone'][instance.guid] = instance
             else:
                 # last criterion no similarities
@@ -1527,8 +1527,8 @@ class Aggregated_ThermalZone(Aggregation):
                     for e in instance.elements:
                         if e.guid in instances:
                             del instances[e.guid]
-                        if e.guid in e.instances['ThermalZone']:
-                            del e.instances['ThermalZone'][e.guid]
+                        if e.guid in e.tz_instances['ThermalZone']:
+                            del e.tz_instances['ThermalZone'][e.guid]
                     SubElement.instances['ThermalZone'][instance.guid] = instance
         return new_aggregations
 

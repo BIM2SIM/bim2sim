@@ -3,9 +3,8 @@ from bim2sim.task import common
 
 from bim2sim.task import bps
 
-from bim2sim.task.bps import Inspect
 
-from bim2sim.task.bps import bps as bps2
+# from bim2sim.task.bps import bps as bps2
 # from bim2sim.task.common import common
 
 
@@ -29,7 +28,9 @@ class TEASERManager(BIM2SIMManager):
         self.playground.run_task(bps.SetIFCTypes())
         self.playground.run_task(common.LoadIFC())
         self.playground.run_task(bps.Inspect())
-
+        self.playground.run_task(bps.TZInspect())
+        self.playground.run_task(bps.BuildingVerification())
+        self.playground.run_task(bps.EnrichNonValid())
         print()
         # self.playground.run_task(bps.SetIFCTypesBPS())
         # self.playground.run_task(common.LoadIFC())
