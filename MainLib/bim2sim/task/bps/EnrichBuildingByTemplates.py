@@ -4,7 +4,7 @@ from bim2sim.task.base import Task, ITask
 from bim2sim.kernel.element import SubElement
 from bim2sim.kernel import elements
 from bim2sim.enrichment_data.data_class import DataClass
-from bim2sim.decision import RealDecision, ListDecision
+from bim2sim.decision import ListDecision
 
 
 class EnrichBuildingByTemplates(ITask):
@@ -20,8 +20,6 @@ class EnrichBuildingByTemplates(ITask):
         self.logger.info("setting verifications")
         for instance in invalid:
             self.template_layers_creation(instance, construction_type)
-            print()
-
         return instances,
 
     @staticmethod

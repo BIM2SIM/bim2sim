@@ -34,6 +34,7 @@ class TEASERManager(BIM2SIMManager):
         # self.playground.run_task(bps.EnrichNonValid())
         self.playground.run_task(bps.EnrichBuildingByTemplates())
 
+        self.playground.run_task(bps.Disaggregation_creation())
         print()
         # self.playground.run_task(bps.SetIFCTypesBPS())
         # self.playground.run_task(common.LoadIFC())

@@ -1572,62 +1572,69 @@ class Layer(element.SubElement):
             else:
                 return real_decision_user_input(bind, name)
         else:
-            if isinstance(bind, Layer):
-                first_decision = BoolDecision(
-                    question="Do you want to enrich the layers with the material %s by using available templates? \n"
-                             "Belonging Item: %s | GUID: %s \n"
-                             "Enter 'n' for manual input"
-                             % (bind.material, bind.parent.name, bind.parent.guid),
-                    collect=False, global_key='%s_layer_enriched' % bind.material,
-                    allow_load=True, allow_save=True)
-            else:
-                first_decision = BoolDecision(
-                    question="Do you want to enrich the material %s by using available templates? \n"
-                             "Belonging Item: %s | GUID: %s \n"
-                             "Enter 'n' for manual input"
-                             % (bind.material, bind.parent.name, bind.parent.guid),
-                    collect=False, global_key='%s_material_enriched' % bind.material,
-                    allow_load=True, allow_save=True)
-            first_decision.decide()
-            first_decision.stored_decisions.clear()
+            resumed = get_material_templates_resumed(name, tc_range)
+            try:
+                selected_properties = resumed[material]
+            except KeyError:
+                if isinstance(bind, Layer):
+                    first_decision = BoolDecision(
+                        question="Do you want to enrich the layers with the material %s by using available templates? \n"
+                                 "Belonging Item: %s | GUID: %s \n"
+                                 "Enter 'n' for manual input"
+                                 % (bind.material, bind.parent.name, bind.parent.guid),
+                        collect=False, global_key='%s_layer_enriched' % bind.material,
+                        allow_load=True, allow_save=True)
+                else:
+                    first_decision = BoolDecision(
+                        question="Do you want to enrich the material %s by using available templates? \n"
+                                 "Belonging Item: %s | GUID: %s \n"
+                                 "Enter 'n' for manual input"
+                                 % (bind.material, bind.parent.name, bind.parent.guid),
+                        collect=False, global_key='%s_material_enriched' % bind.material,
+                        allow_load=True, allow_save=True)
+                first_decision.decide()
+                first_decision.stored_decisions.clear()
 
-            if first_decision.value:
-                resumed = get_material_templates_resumed(name, tc_range)
+                if first_decision.value:
+                    if bind.material in resumed:
+                        bind.material_selected[material] = resumed[material]
+                        return bind.material_selected[bind.material][name]
 
-                if bind.material in resumed:
-                    bind.material_selected[material] = resumed[material]
+                    material_options = get_matches_list(bind.material, list(resumed.keys()))
+
+                    if tc_range is None:
+                        while len(material_options) == 0:
+                            decision_ = input(
+                                "Material not found, enter value for the material:")
+                            material_options = get_matches_list(decision_, list(resumed.keys()))
+                    else:
+                        material_options = list(resumed.keys())
+
+                    decision1 = ListDecision(
+                        "Multiple possibilities found for material %s\n"
+                        "Belonging Item: %s | GUID: %s \n"
+                        "Enter 'n' for manual input"
+                        % (bind.material, bind.parent.name, bind.parent.guid),
+                        choices=list(material_options), global_key='%s_material_enrichment' % bind.material,
+                        allow_skip=True, allow_load=True, allow_save=True,
+                        collect=False, quick_decide=not True)
+                    decision1.decide()
+
+                    if material is not None:
+                        if material not in bind.material_selected:
+                            bind.material_selected[material] = {}
+                        bind.material_selected[material] = resumed[decision1.value]
+                    else:
+                        bind.material = decision1.value
+                        bind.material_selected[bind.material] = resumed[decision1.value]
                     return bind.material_selected[bind.material][name]
-
-                material_options = get_matches_list(bind.material, list(resumed.keys()))
-
-                if tc_range is None:
-                    while len(material_options) == 0:
-                        decision_ = input(
-                            "Material not found, enter value for the material:")
-                        material_options = get_matches_list(decision_, list(resumed.keys()))
                 else:
-                    material_options = list(resumed.keys())
-
-                decision1 = ListDecision(
-                    "Multiple possibilities found for material %s\n"
-                    "Belonging Item: %s | GUID: %s \n"
-                    "Enter 'n' for manual input"
-                    % (bind.material, bind.parent.name, bind.parent.guid),
-                    choices=list(material_options), global_key='%s_material_enrichment' % bind.material,
-                    allow_skip=True, allow_load=True, allow_save=True,
-                    collect=False, quick_decide=not True)
-                decision1.decide()
-
-                if material is not None:
-                    if material not in bind.material_selected:
-                        bind.material_selected[material] = {}
-                    bind.material_selected[material] = resumed[decision1.value]
-                else:
-                    bind.material = decision1.value
-                    bind.material_selected[bind.material] = resumed[decision1.value]
-                return bind.material_selected[bind.material][name]
+                    return real_decision_user_input(bind, name)
             else:
-                return real_decision_user_input(bind, name)
+                if material not in bind.material_selected:
+                    bind.material_selected[material] = {}
+                bind.material_selected[material] = selected_properties
+                return bind.material_selected[bind.material][name]
 
     heat_capac = attribute.Attribute(
         default_ps='heat_capac',

@@ -89,9 +89,6 @@ class Disaggregation(BaseElement):
                         instance.area = thermal_zone.area
 
             parent.sub_instances.append(instance)
-            if thermal_zone not in parent.thermal_zones:
-                parent.thermal_zones.append(thermal_zone)
-
             return instance
 
     def __repr__(self):
