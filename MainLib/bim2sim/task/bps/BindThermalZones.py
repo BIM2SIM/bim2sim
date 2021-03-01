@@ -20,6 +20,8 @@ class BindThermalZones(ITask):
         else:
             self.bind_tz_criteria(instances)
 
+        return instances,
+
     def bind_tz_criteria(self, instances):
         bind_decision = BoolDecision(question="Do you want for thermal zones to be bind? - this allows to bind the "
                                               "thermal zones into a thermal zone aggregation based on different "
