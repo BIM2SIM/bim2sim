@@ -2,19 +2,15 @@ import ast
 
 from bim2sim.task.base import Task, ITask
 from bim2sim.kernel.element import SubElement
-from bim2sim.task.bps import tz_detection
 from bim2sim.kernel import elements
 from bim2sim.enrichment_data.data_class import DataClass
-from bim2sim.decision import ListDecision, BoolDecision, RealDecision
-from bim2sim.task.common.common_functions import angle_equivalent
+from bim2sim.decision import RealDecision
 
 
 class EnrichNonValid(ITask):
     """Prepares bim2sim instances to later export"""
     reads = ('instances', 'invalid',)
     touches = ('instances',)
-
-    instance_template = {}
 
     @Task.log
     def run(self, workflow, instances, invalid):
@@ -84,7 +80,7 @@ class EnrichNonValid(ITask):
         template_options = []
         building = SubElement.get_class_instances('Building')[0]
 
-        year_of_construction = building.year_of_construction
+        year_of_construction = int(building.year_of_construction)
         instance_templates = dict(DataClass(used_param=3).element_bind)
         material_templates = dict(DataClass(used_param=2).element_bind)
         instance_type = type(instance).__name__

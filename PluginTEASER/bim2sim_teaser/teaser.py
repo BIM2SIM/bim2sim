@@ -31,7 +31,9 @@ class TEASERManager(BIM2SIMManager):
         self.playground.run_task(bps.TZInspect())
         self.playground.run_task(bps.BuildingVerification())
 
-        self.playground.run_task(bps.EnrichNonValid())
+        # self.playground.run_task(bps.EnrichNonValid())
+        self.playground.run_task(bps.EnrichBuildingByTemplates())
+
         print()
         # self.playground.run_task(bps.SetIFCTypesBPS())
         # self.playground.run_task(common.LoadIFC())
