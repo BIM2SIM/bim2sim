@@ -164,7 +164,8 @@ class Attribute:
                 logger.error("Function %d of %s.%s raised %s", i, bind, name, ex)
                 pass
             else:
-                break
+                if value is not None:
+                    break
         return value
 
     @staticmethod

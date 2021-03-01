@@ -10,7 +10,7 @@ from bim2sim.task.common.common_functions import angle_equivalent
 class BuildingVerification(ITask):
     """Prepares bim2sim instances to later export"""
 
-    reads = ('instances', 'ifc',)
+    reads = ('instances',)
     touches = ('instances', 'invalid')
 
     def __init__(self):
@@ -19,7 +19,7 @@ class BuildingVerification(ITask):
         pass
 
     @Task.log
-    def run(self, workflow, instances, ifc):
+    def run(self, workflow, instances):
         self.logger.info("setting verifications")
         self.check_building_year()
 
@@ -66,49 +66,36 @@ class BuildingVerification(ITask):
         instance_type = type(instance).__name__
         if instance_type in supported_classes:
             # comparison with templates value
+            layers_width, layers_u = self.get_layers_properties(instance)
+            if not self.compare_instance_with_layers(instance, layers_u, layers_width):
+                return False
             if not self.compare_with_template(instance, building):
                 return False
-            ## tiull here
-            layers_width = 0
-            layers_r = 0
-            for layer in instance.layers:
-                layers_width += layer.thickness
-                x = layer.thermal_conduc
-                print()
-                if layer.thermal_conduc is not None:
-                    if layer.thermal_conduc > 0:
-                        layers_r += layer.thickness / layer.thermal_conduc
 
-            # critical failure // check units again
-            width_discrepancy = abs(instance.width - layers_width) / instance.width if \
-                (instance.width is not None and instance.width > 0) else 9999
-            u_discrepancy = abs(instance.u_value - 1 / layers_r) / instance.u_value if \
-                (instance.u_value is not None and instance.u_value > 0) else 9999
-            if width_discrepancy > 0.2 or u_discrepancy > 0.2:
-                return False
         return True
 
-    @classmethod
-    def compare_with_template(cls, instance, building):
-        template_options = []
-        instance_u = instance.u_value
-        if instance.u_value is None:
-            instance_u = 0
+    @staticmethod
+    def get_layers_properties(instance):
         layers_width = 0
         layers_r = 0
         layers_u = 0
         for layer in instance.layers:
-            if layer.thickness is None:
-                print()
             layers_width += layer.thickness
             if layer.thermal_conduc is not None:
                 if layer.thermal_conduc > 0:
                     layers_r += layer.thickness / layer.thermal_conduc
+
         if layers_r > 0:
             layers_u = 1 / layers_r
 
-        if instance_u == 0 and layers_u == 0:
-            return False
+        if instance.u_value is None:
+            instance.u_value = 0
+
+        return layers_width, layers_u
+
+    @staticmethod
+    def compare_with_template(instance, building):
+        template_options = []
 
         year_of_construction = building.year_of_construction
         instance_templates = dict(DataClass(used_param=3).element_bind)
@@ -135,3 +122,20 @@ class BuildingVerification(ITask):
         if template_options[0] * 0.8 <= instance.u_value <= template_options[1] * 1.2:
             return True
         return False
+
+    @staticmethod
+    def compare_instance_with_layers(instance, layers_u, layers_width):
+        # critical failure // u value comparison
+        if instance.u_value == 0 and layers_u == 0:
+            return False
+        elif instance.u_value == 0 and layers_u > 0:
+            instance.u_value = layers_u
+        elif instance.u_value > 0 and layers_u > 0:
+            instance.u_value = max(instance.u_value, layers_u)
+
+        # critical failure // check units again
+        width_discrepancy = abs(instance.width - layers_width) / instance.width if \
+            (instance.width is not None and instance.width > 0) else 9999
+        if width_discrepancy > 0.2:
+            return False
+        return True
