@@ -35,6 +35,8 @@ class TEASERManager(BIM2SIMManager):
         self.playground.run_task(bps.EnrichBuildingByTemplates())
 
         self.playground.run_task(bps.Disaggregation_creation())
+        self.playground.run_task(bps.BindThermalZones())
+
         print()
         # self.playground.run_task(bps.SetIFCTypesBPS())
         # self.playground.run_task(common.LoadIFC())

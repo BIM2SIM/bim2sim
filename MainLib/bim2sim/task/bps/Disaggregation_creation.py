@@ -1,10 +1,5 @@
-import ast
-
 from bim2sim.task.base import Task, ITask
 from bim2sim.kernel.element import SubElement
-from bim2sim.kernel import elements
-from bim2sim.enrichment_data.data_class import DataClass
-from bim2sim.decision import ListDecision
 from bim2sim.kernel.disaggregation import Disaggregation
 
 
@@ -23,7 +18,7 @@ class Disaggregation_creation(ITask):
             tz.bound_elements = tz_disaggregations
             self.set_tz_properties(tz)
 
-        return instances
+        return instances,
 
     @classmethod
     def get_thermal_zone_disaggregations(cls, tz):
