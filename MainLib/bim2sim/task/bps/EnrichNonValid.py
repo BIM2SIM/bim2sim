@@ -5,6 +5,8 @@ from bim2sim.kernel.element import SubElement
 from bim2sim.kernel import elements
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.decision import RealDecision
+from bim2sim.workflow import LOD
+from bim2sim.task.bps.EnrichBuildingByTemplates import EnrichBuildingByTemplates
 
 
 class EnrichNonValid(ITask):
@@ -15,11 +17,18 @@ class EnrichNonValid(ITask):
     @Task.log
     def run(self, workflow, instances, invalid):
         self.logger.info("setting verifications")
-        for instance in invalid:
-            self.manual_layers_creation(instance)
-            print()
+        if workflow.layers is LOD.full:
+            construction_type = EnrichBuildingByTemplates.get_construction_type()
+            for instance in invalid['layers']:
+                self.layers_creation(instance, construction_type)
 
         return instances,
+
+    def layers_creation(self, instance, construction_type):
+        if len(instance.layers) == 0:
+            EnrichBuildingByTemplates.template_layers_creation(instance, construction_type)
+        else:
+            self.manual_layers_creation(instance)
 
     def manual_layers_creation(self, instance, iteration=0):
         instance.layers = []
@@ -80,7 +89,7 @@ class EnrichNonValid(ITask):
         template_options = []
         building = SubElement.get_class_instances('Building')[0]
 
-        year_of_construction = int(building.year_of_construction)
+        year_of_construction = building.year_of_construction.m
         instance_templates = dict(DataClass(used_param=3).element_bind)
         material_templates = dict(DataClass(used_param=2).element_bind)
         instance_type = type(instance).__name__

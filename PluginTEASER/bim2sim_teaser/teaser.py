@@ -22,6 +22,7 @@ class TEASERManager(BIM2SIMManager):
 
     def __init__(self, workflow):
         super().__init__(workflow)
+        self.workflow = workflow
 
     def run(self):
 
@@ -29,15 +30,16 @@ class TEASERManager(BIM2SIMManager):
         self.playground.run_task(common.LoadIFC())
         self.playground.run_task(bps.Inspect())
         self.playground.run_task(bps.TZInspect())
+        self.playground.run_task(bps.OrientationGetter())
         self.playground.run_task(bps.BuildingVerification())
 
-        # self.playground.run_task(bps.EnrichNonValid())
+        self.playground.run_task(bps.EnrichNonValid())
         self.playground.run_task(bps.EnrichBuildingByTemplates())
 
         self.playground.run_task(bps.Disaggregation_creation())
         self.playground.run_task(bps.BindThermalZones())
         self.playground.run_task(bps.ExportTEASER())
-        print()
+        pass
         # self.playground.run_task(bps.SetIFCTypesBPS())
         # self.playground.run_task(common.LoadIFC())
         # self.playground.run_task(bps.Inspect())

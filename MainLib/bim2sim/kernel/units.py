@@ -43,8 +43,6 @@ ifc_pint_unitmap = {
 }
 
 
-
-
 def parse_ifc(unit_entity):
 
     unit_type = unit_entity.is_a()

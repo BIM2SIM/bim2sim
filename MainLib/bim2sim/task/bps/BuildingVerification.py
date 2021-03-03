@@ -3,8 +3,6 @@ import ast
 from bim2sim.task.base import Task, ITask
 from bim2sim.kernel.element import SubElement
 from bim2sim.enrichment_data.data_class import DataClass
-from bim2sim.decision import RealDecision
-from bim2sim.task.common.common_functions import angle_equivalent
 
 
 class BuildingVerification(ITask):
@@ -15,49 +13,18 @@ class BuildingVerification(ITask):
 
     def __init__(self):
         super().__init__()
-        self.invalid = []
+        self.invalid = {'layers': []}
         pass
 
     @Task.log
     def run(self, workflow, instances):
         self.logger.info("setting verifications")
-        self.check_building_year()
-
         for guid, ins in instances.items():
             if not self.layers_verification(ins):
-                self.invalid.append(ins)
-            new_orientation = self.orientation_verification(ins)
-            if new_orientation is not None:
-                ins.orientation = new_orientation
-        self.logger.warning("Found %d invalid instances", len(self.invalid))
+                self.invalid['layers'].append(ins)
+        self.logger.warning("Found %d invalid layers", len(self.invalid['layers']))
 
         return instances, self.invalid
-
-    @staticmethod
-    def check_building_year():
-        building = SubElement.get_class_instances('Building')[0]
-        if building.year_of_construction is None:
-            year_decision = RealDecision("Enter value for the buildings year of construction",
-                                         global_key="Building_%s.year_of_construction" % building.guid,
-                                         allow_skip=False, allow_load=True, allow_save=True,
-                                         collect=False, quick_decide=False)
-            year_decision.decide()
-            building.year_of_construction = int(year_decision.value.m)
-
-    @staticmethod
-    def orientation_verification(instance):
-        supported_classes = {'Window', 'OuterWall', 'OuterDoor', 'Wall', 'Door'}
-        instance_type = type(instance).__name__
-        if instance_type in supported_classes:
-            new_angles = list(set([space_boundary.orientation for space_boundary in instance.space_boundaries]))
-            # new_angles = list(set([space_boundary.orientation - space_boundary.thermal_zones[0].orientation for space_boundary in instance.space_boundaries]))
-            if len(new_angles) > 1:
-                return None
-            # no true north necessary
-            new_angle = angle_equivalent(new_angles[0])
-            # new angle return
-            if new_angle - instance.orientation > 0.1:
-                return new_angle
 
     def layers_verification(self, instance):
         supported_classes = {'OuterWall', 'Wall', 'InnerWall', 'Door', 'InnerDoor', 'OuterDoor', 'Roof', 'Floor',
@@ -97,7 +64,7 @@ class BuildingVerification(ITask):
     def compare_with_template(instance, building):
         template_options = []
 
-        year_of_construction = building.year_of_construction
+        year_of_construction = building.year_of_construction.m
         instance_templates = dict(DataClass(used_param=3).element_bind)
         material_templates = dict(DataClass(used_param=2).element_bind)
         instance_type = type(instance).__name__

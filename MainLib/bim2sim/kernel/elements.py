@@ -35,7 +35,7 @@ from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, condition, attribute
-from bim2sim.decision import BoolDecision
+from bim2sim.decision import BoolDecision, RealDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.decision import ListDecision
 from bim2sim.kernel.ifc2python import get_layers_ifc
@@ -1865,8 +1865,18 @@ class Building(element.Element):
     ifc_type = "IfcBuilding"
     workflow = ['BPSMultiZoneSeparated']
 
+    def check_building_year(bind, name):
+        year_decision = RealDecision("Enter value for the buildings year of construction",
+                                     global_key="Building_%s.year_of_construction" % bind.guid,
+                                     allow_skip=False, allow_load=True, allow_save=True,
+                                     collect=False, quick_decide=False, unit=ureg.year)
+        year_decision.decide()
+        return year_decision.value
+
     year_of_construction = attribute.Attribute(
-        default_ps='year_of_construction'
+        default_ps='year_of_construction',
+        functions=[check_building_year],
+        unit=ureg.year
     )
     gross_area = attribute.Attribute(
         default_ps='gross_area'

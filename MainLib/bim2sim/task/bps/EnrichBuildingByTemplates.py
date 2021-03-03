@@ -5,6 +5,7 @@ from bim2sim.kernel.element import SubElement
 from bim2sim.kernel import elements
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.decision import ListDecision
+from bim2sim.workflow import LOD
 
 
 class EnrichBuildingByTemplates(ITask):
@@ -16,10 +17,12 @@ class EnrichBuildingByTemplates(ITask):
 
     @Task.log
     def run(self, workflow, instances, invalid):
-        construction_type = self.get_construction_type()
         self.logger.info("setting verifications")
-        for instance in invalid:
-            self.template_layers_creation(instance, construction_type)
+        if workflow.layers is LOD.low:
+            construction_type = self.get_construction_type()
+            for instance in invalid['layers']:
+                self.template_layers_creation(instance, construction_type)
+
         return instances,
 
     @staticmethod
@@ -60,7 +63,7 @@ class EnrichBuildingByTemplates(ITask):
         if instance_type in cls.instance_template:
             return cls.instance_template[instance_type]
 
-        year_of_construction = int(building.year_of_construction)
+        year_of_construction = building.year_of_construction.m
         template_options = []
         for i in instance_templates[instance_type]:
             years = ast.literal_eval(i)

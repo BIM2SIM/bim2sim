@@ -4,6 +4,7 @@ from bim2sim.task.base import Task, ITask
 from bim2sim.decision import BoolDecision, ListDecision
 from bim2sim.kernel.element import SubElement
 from bim2sim.kernel.aggregation import Aggregated_ThermalZone
+from bim2sim.workflow import LOD
 
 
 class BindThermalZones(ITask):
@@ -14,11 +15,12 @@ class BindThermalZones(ITask):
     @Task.log
     def run(self, workflow, instances):
         self.logger.info("Binds thermal zones based on criteria")
-        thermal_zones = SubElement.get_class_instances('ThermalZone')
-        if len(thermal_zones) == 0:
-            self.logger.warning("Found no spaces to bind")
-        else:
-            self.bind_tz_criteria(instances)
+        if workflow.layers is LOD.low:
+            thermal_zones = SubElement.get_class_instances('ThermalZone')
+            if len(thermal_zones) == 0:
+                self.logger.warning("Found no spaces to bind")
+            else:
+                self.bind_tz_criteria(instances)
 
         return instances,
 
