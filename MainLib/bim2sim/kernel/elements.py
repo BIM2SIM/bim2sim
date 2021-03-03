@@ -35,9 +35,8 @@ from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, condition, attribute
-from bim2sim.decision import BoolDecision, RealDecision
+from bim2sim.decision import BoolDecision, RealDecision, ListDecision
 from bim2sim.kernel.units import ureg
-from bim2sim.decision import ListDecision
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.enrichment_data.data_class import DataClass
 from teaser.logic.buildingobjects.useconditions import UseConditions

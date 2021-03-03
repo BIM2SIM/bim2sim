@@ -8,3 +8,4 @@ from .Disaggregation_creation import Disaggregation_creation
 from .BindThermalZones import BindThermalZones
 from .ExportTEASER import ExportTEASER
 from .OrientationGetter import OrientationGetter
+from .EnrichMaterial import EnrichMaterial
