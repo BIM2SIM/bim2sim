@@ -8,23 +8,23 @@ from bim2sim.enrichment_data.data_class import DataClass
 class BuildingVerification(ITask):
     """Prepares bim2sim instances to later export"""
 
-    reads = ('instances',)
+    reads = ('instances', 'invalid')
     touches = ('instances', 'invalid')
 
     def __init__(self):
         super().__init__()
-        self.invalid = {'layers': []}
         pass
 
     @Task.log
-    def run(self, workflow, instances):
+    def run(self, workflow, instances, invalid):
+        invalid['layers'] = []
         self.logger.info("setting verifications")
         for guid, ins in instances.items():
             if not self.layers_verification(ins):
-                self.invalid['layers'].append(ins)
-        self.logger.warning("Found %d invalid layers", len(self.invalid['layers']))
+                invalid['layers'].append(ins)
+        self.logger.warning("Found %d invalid layers", len(invalid['layers']))
 
-        return instances, self.invalid
+        return instances, invalid,
 
     def layers_verification(self, instance):
         supported_classes = {'OuterWall', 'Wall', 'InnerWall', 'Door', 'InnerDoor', 'OuterDoor', 'Roof', 'Floor',

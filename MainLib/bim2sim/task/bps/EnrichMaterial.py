@@ -4,12 +4,13 @@ import translators as ts
 from bim2sim.task.base import Task, ITask
 from bim2sim.decision import BoolDecision, ListDecision, RealDecision
 from bim2sim.enrichment_data.data_class import DataClass
+from bim2sim.workflow import LOD
 
 
 class EnrichMaterial(ITask):
     """Prepares bim2sim instances to later export"""
 
-    reads = ('instances',)
+    reads = ('instances', 'invalid',)
     touches = ('instances',)
 
     def __init__(self):
@@ -18,22 +19,23 @@ class EnrichMaterial(ITask):
         pass
 
     @Task.log
-    def run(self, workflow, instances):
+    def run(self, workflow, instances, invalid):
         self.logger.info("setting verifications")
-        for guid, ins in instances.items():
-            self.get_layer_properties(ins)
+        if workflow.layers is LOD.full:
+            for instance in invalid['materials']:
+                self.get_layer_properties(instance)
+        return instances,
 
     def get_layer_properties(self, instance):
         if hasattr(instance, 'layers'):
             for layer in instance.layers:
                 self.set_material_properties(layer)
-                print()
 
     def set_material_properties(self, layer):
         values, units = self.get_layer_attributes(layer)
         new_attributes = self.get_material_properties(layer, units)
         for attr, value in values.items():
-            if value is None or value == 'invalid':
+            if value == 'invalid':
                 while not self.validate_attribute(attr, new_attributes[attr]):      #check key in decision problem
                     self.manual_attribute_value(attr, units[attr], layer)
                 setattr(layer, attr, new_attributes[attr])

@@ -9,3 +9,5 @@ from .BindThermalZones import BindThermalZones
 from .ExportTEASER import ExportTEASER
 from .OrientationGetter import OrientationGetter
 from .EnrichMaterial import EnrichMaterial
+from .MaterialVerification import MaterialVerification
+

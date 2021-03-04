@@ -31,7 +31,7 @@ class TEASERManager(BIM2SIMManager):
         self.playground.run_task(bps.Inspect())
         self.playground.run_task(bps.TZInspect())
         self.playground.run_task(bps.OrientationGetter())
-        # Material Verification
+        self.playground.run_task(bps.MaterialVerification())
         self.playground.run_task(bps.EnrichMaterial())
         self.playground.run_task(bps.BuildingVerification())
 
