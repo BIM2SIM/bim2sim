@@ -170,6 +170,22 @@ def get_material_templates_resumed(name, tc_range):
     return resumed
 
 
+def get_resumed_material_templates(attrs):
+    material_templates = dict(DataClass(used_param=2).element_bind)
+    del material_templates['version']
+
+    resumed = {}
+    for k in material_templates:
+        resumed[material_templates[k]['name']] = {}
+        for attr in attrs:
+            if attr == 'thickness':
+                resumed[material_templates[k]['name']][attr] = material_templates[k]['thickness_default']
+            else:
+                resumed[material_templates[k]['name']][attr] = material_templates[k][attr]
+
+    return resumed
+
+
 def get_material_value_templates_resumed(name, tc_range=None):
     material_templates = dict(DataClass(used_param=2).element_bind)
     del material_templates['version']

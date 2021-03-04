@@ -116,7 +116,7 @@ class SubRoof(Disaggregation):
 
 
 class SubWall(Disaggregation):
-    disaggregatable_elements = 'IfcWall'
+    disaggregatable_elements = 'Wall'
 
 
 class SubInnerWall(Disaggregation):

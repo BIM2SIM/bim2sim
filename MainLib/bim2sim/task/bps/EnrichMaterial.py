@@ -1,10 +1,9 @@
-import ast
+import re
+import translators as ts
 
 from bim2sim.task.base import Task, ITask
-from bim2sim.task.common.common_functions import get_matches_list, get_material_templates_resumed, \
-    real_decision_user_input
-from bim2sim.decision import BoolDecision, ListDecision
-from bim2sim.kernel.elements import Layer
+from bim2sim.decision import BoolDecision, ListDecision, RealDecision
+from bim2sim.enrichment_data.data_class import DataClass
 
 
 class EnrichMaterial(ITask):
@@ -15,10 +14,7 @@ class EnrichMaterial(ITask):
 
     def __init__(self):
         super().__init__()
-        # self.material_selected = {}
-        self.material_selected = {'Stahlbeton 2747937872': {
-            'density':1, 'heat_capac':2, 'thermal_conduc':3, 'thickness':4}}
-
+        self.material_selected = {}
         pass
 
     @Task.log
@@ -30,41 +26,23 @@ class EnrichMaterial(ITask):
     def get_layer_properties(self, instance):
         if hasattr(instance, 'layers'):
             for layer in instance.layers:
-                self.get_material_properties(layer, 'thickness')
+                self.set_material_properties(layer)
                 print()
 
-    def get_material_properties(self, layer, name, tc_range=None):
-        attributes = self.get_layer_attributes(layer)
+    def set_material_properties(self, layer):
+        values, units = self.get_layer_attributes(layer)
+        new_attributes = self.get_material_properties(layer, units)
+        for attr, value in values.items():
+            if value is None or value == 'invalid':
+                while not self.validate_attribute(attr, new_attributes[attr]):      #check key in decision problem
+                    self.manual_attribute_value(attr, units[attr], layer)
+                setattr(layer, attr, new_attributes[attr])
+
+    def get_material_properties(self, layer, attributes):
         material = layer.material
 
-        if material in self.material_selected:
-            for attr in attributes:
-
-            if name in self.material_selected[material]:
-                # check if range is given
-                if tc_range is not None:
-                    if tc_range[0] < self.material_selected[material][name] < tc_range[1]:
-                        return self.material_selected[material][name]
-                else:
-                    return self.material_selected[material][name]
-
-        if name == 'thickness':
-            name = 'thickness_default'
-
-        # check if material new properties are previously stored
-        material = layer.material
-        if material in self.material_selected:
-            if name in self.material_selected[material]:
-                # check if range is given
-                if tc_range is not None:
-                    if tc_range[0] < self.material_selected[material][name] < tc_range[1]:
-                        return self.material_selected[material][name]
-                else:
-                    return self.material_selected[material][name]
-            else:
-                return real_decision_user_input(layer, name)
-        else:
-            resumed = get_material_templates_resumed(name, tc_range)
+        if material not in self.material_selected:
+            resumed = self.get_resumed_material_templates(attributes)
             try:
                 selected_properties = resumed[material]
             except KeyError:
@@ -79,50 +57,102 @@ class EnrichMaterial(ITask):
                 first_decision.stored_decisions.clear()
 
                 if first_decision.value:
-                    if layer.material in resumed:
-                        self.material_selected[material] = resumed[material]
-                        return self.material_selected[layer.material][name]
-
-                    material_options = get_matches_list(layer.material, list(resumed.keys()))
-
-                    if tc_range is None:
-                        while len(material_options) == 0:
-                            decision_ = input(
-                                "Material not found, enter value for the material:")
-                            material_options = get_matches_list(decision_, list(resumed.keys()))
-                    else:
-                        material_options = list(resumed.keys())
+                    material_options = self.get_matches_list(layer.material, list(resumed.keys()))
+                    while len(material_options) == 0:
+                        decision_ = input(
+                            "Material not found, enter value for the material:")
+                        material_options = self.get_matches_list(decision_, list(resumed.keys()))
 
                     decision1 = ListDecision(
                         "Multiple possibilities found for material %s\n"
                         "Belonging Item: %s | GUID: %s \n"
                         "Enter 'n' for manual input"
                         % (layer.material, layer.parent.name, layer.parent.guid),
-                        choices=list(material_options), global_key='%s_material_enrichment' % self.material,
+                        choices=list(material_options), global_key='%s_material_enrichment' % layer.material,
                         allow_skip=True, allow_load=True, allow_save=True,
                         collect=False, quick_decide=not True)
                     decision1.decide()
 
-                    if material is not None:
-                        if material not in self.material_selected:
-                            self.material_selected[material] = {}
-                        self.material_selected[material] = resumed[decision1.value]
-                    else:
+                    if material is None:
                         layer.material = decision1.value
-                        self.material_selected[layer.material] = resumed[decision1.value]
-                    return self.material_selected[layer.material][name]
+                    self.material_selected[layer.material] = resumed[decision1.value]
                 else:
-                    return real_decision_user_input(layer, name)
+                    self.material_selected[layer.material] = {}
+                    for attr in attributes:
+                        self.manual_attribute_value(attr, attributes[attr], layer)
             else:
-                if material not in self.material_selected:
-                    self.material_selected[material] = {}
                 self.material_selected[material] = selected_properties
-                return self.material_selected[layer.material][name]
+        return self.material_selected[material]
 
     @staticmethod
     def get_layer_attributes(layer):
-        attributes = {}
+        values = {}
+        units = {}
         for attr in layer.attributes:
-            attributes[attr] = getattr(layer, attr)
+            value = getattr(layer, attr)
+            values[attr] = value.m
+            # values[attr] = 'invalid'
+            units[attr] = value.u
 
-        return attributes
+        return values, units
+
+    def manual_attribute_value(self, attr, unit, layer):
+        attr_decision = RealDecision("Enter value for the %s for: \n"
+                                     "Belonging Item: %s | GUID: %s"
+                                     % (attr, layer.material, layer.guid),
+                                     global_key="Layer_%s.%s" % (layer.guid, attr),
+                                     allow_skip=False, allow_load=True, allow_save=True,
+                                     collect=False, quick_decide=False, unit=unit)  # unit missing
+        attr_decision.decide()
+        self.material_selected[layer.material][attr] = attr_decision.value
+
+    @staticmethod
+    def validate_attribute(attr, value):
+        error_properties = ['density', 'thickness', 'heat_capac', 'thermal_conduc']
+        if (value <= 0) and attr in error_properties:
+            return False
+        return True
+
+    @staticmethod
+    def get_resumed_material_templates(attrs):
+        material_templates = dict(DataClass(used_param=2).element_bind)
+        del material_templates['version']
+
+        resumed = {}
+        for k in material_templates:
+            resumed[material_templates[k]['name']] = {}
+            for attr in attrs:
+                if attr == 'thickness':
+                    resumed[material_templates[k]['name']][attr] = material_templates[k]['thickness_default']
+                else:
+                    resumed[material_templates[k]['name']][attr] = material_templates[k][attr]
+
+        return resumed
+
+    @staticmethod
+    def get_matches_list(search_words, search_list, transl=True):
+        """get patterns for a material name in both english and original language,
+        and get afterwards the related elements from list"""
+
+        material_ref = []
+
+        if type(search_words) is str:
+            pattern_material = re.sub('[!@#$-_1234567890]', '', search_words.lower()).split()
+            if transl:
+                # use of yandex, bing--- https://pypi.org/project/translators/#features
+                pattern_material.extend(ts.bing(re.sub('[!@#$-_1234567890]', '', search_words.lower())).split())
+
+            for i in pattern_material:
+                material_ref.append(re.compile('(.*?)%s' % i, flags=re.IGNORECASE))
+
+        material_options = []
+        for ref in material_ref:
+            for mat in search_list:
+                if ref.match(mat):
+                    if mat not in material_options:
+                        material_options.append(mat)
+
+        if len(material_options) == 0:
+            return search_list
+
+        return material_options

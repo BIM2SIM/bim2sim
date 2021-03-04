@@ -1638,23 +1638,27 @@ class Layer(element.SubElement):
     heat_capac = attribute.Attribute(
         default_ps='heat_capac',
         functions=[get_material_properties],
-        default=0
+        default=0,
+        unit=ureg.J/ureg.K
     )
 
     density = attribute.Attribute(
         functions=[get_material_properties],
         default_ps='density',
-        default=0
+        default=0,
+        unit=ureg.kg/ureg.m**3
     )
 
     thermal_conduc = attribute.Attribute(
         functions=[get_material_properties],
         default_ps='thermal_conduc',
-        default=0
+        default=0,
+        unit=ureg.W/(ureg.m*ureg.K)
     )
     thickness = attribute.Attribute(
         functions=[get_ifc_thickness, get_material_properties],
-        default=0
+        default=0,
+        unit=ureg.m
     )
 
 
