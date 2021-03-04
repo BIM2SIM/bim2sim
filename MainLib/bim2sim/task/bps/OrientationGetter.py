@@ -28,9 +28,10 @@ class OrientationGetter(ITask):
 
     @staticmethod
     def orientation_verification(instance):
-        supported_classes = {'Window', 'OuterWall', 'OuterDoor', 'Wall', 'Door'}
+        vertical_instances = ['Window', 'OuterWall', 'OuterDoor', 'Wall', 'Door']
+        horizontal_instances = ['Slab', 'Roof', 'Floor', 'GroundFloor']
         instance_type = type(instance).__name__
-        if instance_type in supported_classes and len(instance.space_boundaries) > 0:
+        if instance_type in vertical_instances and len(instance.space_boundaries) > 0:
             new_angles = list(set([space_boundary.orientation for space_boundary in instance.space_boundaries]))
             # new_angles = list(set([space_boundary.orientation - space_boundary.thermal_zones[0].orientation
             # for space_boundary in instance.space_boundaries]))
@@ -41,3 +42,10 @@ class OrientationGetter(ITask):
             # new angle return
             if new_angle - instance.orientation > 0.1:
                 return new_angle
+        elif instance_type in horizontal_instances:
+            switcher = {'Slab': -1,
+                        'Roof': -1,
+                        'Floor': -2,
+                        'GroundFloor': -2}
+            return switcher[instance_type]
+        return None
