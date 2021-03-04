@@ -399,7 +399,7 @@ class Decision:
             return
         if (not self.validate_func) or self.validate_func(value):
             if checksum == self.validate_checksum:
-                self.value = value
+                self.value = self.deserialize_value(value)
                 self.status = Status.loadeddone
                 self.logger.info("Loaded decision '%s' with value: %s", self.global_key, value)
             else:
@@ -420,6 +420,10 @@ class Decision:
 
     def serialize_value(self):
         return {'value': self.value}
+
+    def deserialize_value(self, value):
+        """rebuild value from json deserialized object"""
+        return value
 
     def get_serializable(self):
         """Returns json serializable object representing state of decision"""
@@ -588,3 +592,24 @@ class StringDecision(Decision):
 
     def _validate(self, value):
         return isinstance(value, str) and len(value) >= self.min_length
+
+
+class GuidDecision(Decision):
+    """Accepts GUID(s) as input. Value is a set of GUID(s)"""
+
+    def __init__(self, *args, multi=False, **kwargs):
+        self.multi = multi
+        super().__init__(*args, **kwargs)
+
+    def _validate(self, value):
+        if isinstance(value, set) and value:
+            if not self.multi and len(value) != 1:
+                return False
+            return all(isinstance(guid, str) and len(guid) == 22 for guid in value)
+        return False
+
+    def serialize_value(self):
+        return {'value': list(self.value)}
+
+    def deserialize_value(self, value):
+        return set(value)
