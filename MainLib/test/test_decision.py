@@ -185,6 +185,29 @@ class TestDecision(DecisionTestBase):
             decision.Decision.decide_collected()
         self.assertTupleEqual(answers, tuple(output[i] for i in range(3)))
 
+    def test_default_value(self):
+        """test if default value is used correctly with debug_answer"""
+        real_dec = decision.RealDecision("??", unit=ureg.m, default=10)
+        bool_dec = decision.BoolDecision("??", default=False)
+        list_dec = decision.ListDecision("??", choices="ABC", default="C")
+
+        # use default answer where possible ('x' should be overwritten by defaults)
+        with Decision.debug_answer('x', validate=True, overwrite_default=False):
+            self.assertEqual(10 * ureg.m, real_dec.decide())
+            self.assertFalse(bool_dec.decide())
+            self.assertEqual("C", list_dec.decide())
+
+        real_dec2 = decision.RealDecision("??", unit=ureg.m, default=10)
+        bool_dec2 = decision.BoolDecision("??", default=False)
+        list_dec2 = decision.ListDecision("??", choices="ABC", default="C")
+
+        # default answers are overwritten by debug answers
+        answers = (5, True, "A")
+        with Decision.debug_answer(answers, validate=True, multi=True):
+            self.assertEqual(answers[0] * ureg.m, real_dec2.decide())
+            self.assertEqual(answers[1], bool_dec2.decide())
+            self.assertEqual(answers[2], list_dec2.decide())
+
 
 class TestBoolDecision(DecisionTestBase):
     """test BoolDecisions"""
@@ -562,6 +585,17 @@ class TestConsoleFrontend(DecisionTestBase):
             with self.assertRaises(decision.DecisionCancle):
                 dec = decision.StringDecision(question="??")
                 dec.decide()
+
+    def test_default_value(self):
+        """test if default value is used on empty input"""
+        real_dec = decision.RealDecision("??", unit=ureg.meter, default=10)
+        bool_dec = decision.BoolDecision("??", default=False)
+        list_dec = decision.ListDecision("??", choices="ABC", default="C")
+
+        with patch('builtins.input', lambda *args, **kwargs: ''):
+            self.assertEqual(10 * ureg.meter, real_dec.decide())
+            self.assertFalse(bool_dec.decide())
+            self.assertEqual("C", list_dec.decide())
 
 
 if __name__ == '__main__':

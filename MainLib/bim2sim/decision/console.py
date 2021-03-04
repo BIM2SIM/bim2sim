@@ -14,6 +14,13 @@ class ConsoleFrontEnd(FrontEnd):
         return txt
 
     @staticmethod
+    def get_default_txt(decision):
+        if decision.default is not None:
+            return f"default={decision.default} (leave blank to use default)"
+        else:
+            return ''
+
+    @staticmethod
     def get_options_txt(options):
         return "Additional commands: %s" % (", ".join(options))
 
@@ -78,6 +85,7 @@ class ConsoleFrontEnd(FrontEnd):
         if extra_options:
             options = options + extra_options
         options_txt = self.get_options_txt(options)
+        default = self.get_default_txt(decision)
         body = self.get_body(decision) if isinstance(decision, ListDecision) else None
         input_txt = self.get_input_txt(decision)
         if progress:
@@ -85,7 +93,7 @@ class ConsoleFrontEnd(FrontEnd):
 
         print(progress, end='')
         print(question)
-        print(options_txt)
+        print(options_txt + ' ' + default)
         if body:
             print(self.get_body_txt(body))
 
@@ -102,6 +110,9 @@ class ConsoleFrontEnd(FrontEnd):
                 raise DecisionSkipAll
             if raw_value.lower() == Decision.CANCEL.lower() and Decision.CANCEL in options:
                 raise DecisionCancle
+
+            if not raw_value and decision.default is not None:
+                return decision.default
 
             value = self.parse(decision, raw_value)
             if self.validate(decision, value):
