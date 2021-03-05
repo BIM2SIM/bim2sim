@@ -220,6 +220,7 @@ def _debug_run_bps():
 
     main(path_example)
 
+
 def _debug_run_bps_ep():
     """Create example project and copy ifc if necessary"""
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
@@ -252,6 +253,20 @@ def _debug_run_bps_ep():
     # rel_example = 'ExampleFiles/DigitalHub_ARCHITEKTUR_with_SB.ifc'
     # rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
+
+    path_example = _get_debug_project_path()
+
+    if not PROJECT.is_project_folder(path_example):
+        PROJECT.create(path_example, path_ifc, 'energyplus')
+
+    main(path_example)
+
+
+def _test_run_bps_ep(rel_path):
+    """Create example project and copy ifc if necessary. Added for EnergyPlus integration tests"""
+    path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+
+    path_ifc = os.path.normpath(os.path.join(path_base, rel_path))
 
     path_example = _get_debug_project_path()
 
