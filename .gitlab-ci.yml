@@ -22,7 +22,7 @@ stages:
   - visualize
 
 build_env:
-  image: docker:stable
+  image: docker:latest
   stage: build
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
@@ -35,7 +35,7 @@ build_env:
        - MainLib/requirements.txt
 
 build_tool:release:
-  image: docker:stable
+  image: docker:latest
   stage: build
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
@@ -46,7 +46,7 @@ build_tool:release:
     - master
 
 build_tool:webdevelop:
-  image: docker:stable
+  image: docker:latest
   stage: build
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
