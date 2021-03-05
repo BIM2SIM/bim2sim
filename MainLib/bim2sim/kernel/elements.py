@@ -1432,7 +1432,6 @@ class CHP(element.Element):
     )
 
 
-
 class Wall(element.Element):
     ifc_type = ["IfcWall", "IfcWallStandardCase"]
     predefined_types = ['MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL', 'SHEAR', 'SOLIDWALL', 'POLYGONAL',
@@ -1473,7 +1472,7 @@ class Wall(element.Element):
     area = attribute.Attribute(
         default=1
     )
-    gross_area = attribute.Attribute(
+    gross_side_area = attribute.Attribute(
         default=1
     )
     is_external = attribute.Attribute(

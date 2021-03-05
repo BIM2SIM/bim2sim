@@ -94,16 +94,12 @@ class TemplateFinder(Finder):
         key4 = property_name
         try:
             res = self.templates[key1][key2][key3][key4]
-            if type(element).__name__ == 'ThermalZone':
-                print('Test')
         except KeyError:
             raise AttributeError("%s does not know where to look for %s"%(
                 self.__class__.__name__, (key1, key2, key3, key4)))
 
         try:
             pset = ifc2python.get_Property_Set(res[0], element.ifc)
-            if type(element).__name__ == 'ThermalZone':
-                print('Test')
         except AttributeError:
             raise AttributeError("Can't find property as defined by template.")
         return pset.get(res[1])
