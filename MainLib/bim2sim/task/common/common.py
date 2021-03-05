@@ -7,7 +7,7 @@ import urllib.request
 
 from bim2sim.kernel import ifc2python
 from bim2sim.manage import PROJECT
-from .base import ITask
+from bim2sim.task.base import ITask
 from bim2sim.kernel.units import ifcunits, ureg, ifc_pint_unitmap, parse_ifc
 from jinja2 import Environment, FileSystemLoader
 from dill.source import getsource

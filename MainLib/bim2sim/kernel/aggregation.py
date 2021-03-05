@@ -17,7 +17,6 @@ from bim2sim.task.bps_f.bps_functions import filter_instances
 from bim2sim.kernel.elements import HeatPump
 
 
-
 def verify_edge_ports(func):
     """Decorator to verify edge ports"""
 
@@ -146,7 +145,9 @@ class Aggregation(BaseElement):
         edge_ports = []
         for port in (p for e in edge_elements for p in e.ports):
             if not port.connection:
-                continue  # end node
+                edge_ports.append(port)
+                continue
+            #     continue  # end node
             if port.connection.parent not in graph.nodes:
                 edge_ports.append(port)
 

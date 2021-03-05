@@ -1,6 +1,9 @@
 ﻿
 from bim2sim.manage import BIM2SIMManager
-from bim2sim.task import base, common, hvac
+from bim2sim.task import base
+from bim2sim.task import common
+from bim2sim.task import hvac
+from bim2sim.task.hvac import dead_ends
 from bim2sim.export.modelica import standardlibrary
 from bim2sim_hkesim.models import HKESim
 
@@ -23,5 +26,6 @@ class HKESimManager(BIM2SIMManager):
         self.playground.run_task(hvac.Inspect())
         self.playground.run_task(hvac.MakeGraph())
         self.playground.run_task(hvac.Reduce())
+        self.playground.run_task(dead_ends.DeadEnds())
         self.playground.run_task(LoadLibrariesHKESim())
         self.playground.run_task(hvac.Export())

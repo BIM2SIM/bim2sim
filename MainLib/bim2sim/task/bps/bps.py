@@ -1,23 +1,16 @@
 """This module holds tasks related to bps"""
 
-import itertools
-import json
 import ast
 
 from bim2sim.task.base import Task, ITask
 # from bim2sim.filter import TypeFilter
-from bim2sim.kernel.element import Element, ElementEncoder, BasePort, SubElement
+from bim2sim.kernel.element import Element
 # from bim2sim.kernel.bps import ...
 from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
-from bim2sim.kernel import finder
-from bim2sim.task.sub_tasks import tz_detection
-from bim2sim.kernel import elements, disaggregation
-from bim2sim.kernel.finder import TemplateFinder
-from bim2sim.enrichment_data import element_input_json
-from bim2sim.enrichment_data.data_class import DataClass
-from bim2sim.decision import ListDecision, BoolDecision, RealDecision
+from bim2sim.task.bps import tz_detection
+from bim2sim.decision import ListDecision, BoolDecision
 from teaser.project import Project
 from teaser.logic.buildingobjects.building import Building
 from teaser.logic.buildingobjects.thermalzone import ThermalZone
@@ -32,11 +25,7 @@ from teaser.logic.buildingobjects.buildingphysics.innerwall import InnerWall
 from teaser.logic.buildingobjects.buildingphysics.layer import Layer
 from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
-from teaser.logic import utilities
-import os
-from bim2sim.task.bps_f.bps_functions import get_matches_list, \
-    get_pattern_usage, vector_angle, angle_equivalent, real_decision_user_input
-# get_material_value_templates_resumed
+from bim2sim.task.common.common_functions import orientation_verification, filter_instances
 from bim2sim.kernel.units import conversion
 
 

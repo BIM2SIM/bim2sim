@@ -117,6 +117,7 @@ class TemplateFinder(Finder):
             decision_source_tool = ListDecision(
                 "Please select best matching source tool %s" % element.source_tool,
                 choices=choices,
+                default='Other',
                 global_key='tool_' + hashlib.md5(''.join(choices).encode('utf-8')).hexdigest(),
                 allow_skip=True, allow_load=True, allow_save=True,
                 collect=False, quick_decide=False)
