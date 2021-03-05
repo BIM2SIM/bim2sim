@@ -2,7 +2,7 @@ import re
 import translators as ts
 
 from bim2sim.task.base import Task, ITask
-from bim2sim.decision import BoolDecision, ListDecision, RealDecision
+from bim2sim.decision import BoolDecision, ListDecision, RealDecision, StringDecision
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.workflow import LOD
 
@@ -36,13 +36,12 @@ class EnrichMaterial(ITask):
         new_attributes = self.get_material_properties(layer, units)
         for attr, value in values.items():
             if value == 'invalid':
-                while not self.validate_attribute(attr, new_attributes[attr]):      #check key in decision problem
+                if not self.validate_manual_attribute(new_attributes[attr]):
                     self.manual_attribute_value(attr, units[attr], layer)
                 setattr(layer, attr, new_attributes[attr])
 
     def get_material_properties(self, layer, attributes):
         material = layer.material
-
         if material not in self.material_selected:
             resumed = self.get_resumed_material_templates(attributes)
             try:
@@ -61,9 +60,16 @@ class EnrichMaterial(ITask):
                 if first_decision.value:
                     material_options = self.get_matches_list(layer.material, list(resumed.keys()))
                     while len(material_options) == 0:
-                        decision_ = input(
-                            "Material not found, enter value for the material:")
-                        material_options = self.get_matches_list(decision_, list(resumed.keys()))
+                        material_decision = StringDecision(
+                            "Material not found, enter value for the material %s:\n"
+                            "Belonging Item: %s | GUID: %s \n"
+                            "Enter 'n' for manual input"
+                            % (layer.material, layer.parent.name, layer.parent.guid),
+                            global_key='Layer_Material_%s' % layer.guid,
+                            allow_skip=True, allow_load=True, allow_save=True,
+                            collect=False, quick_decide=not True)
+                        material_decision.decide()
+                        material_options = self.get_matches_list(material_decision.value, list(resumed.keys()))
 
                     decision1 = ListDecision(
                         "Multiple possibilities found for material %s\n"
@@ -104,14 +110,14 @@ class EnrichMaterial(ITask):
                                      % (attr, layer.material, layer.guid),
                                      global_key="Layer_%s.%s" % (layer.guid, attr),
                                      allow_skip=False, allow_load=True, allow_save=True,
-                                     collect=False, quick_decide=False, unit=unit)  # unit missing
+                                     collect=False, quick_decide=False, unit=unit,
+                                     validate_func=self.validate_manual_attribute)  # unit missing
         attr_decision.decide()
         self.material_selected[layer.material][attr] = attr_decision.value
 
     @staticmethod
-    def validate_attribute(attr, value):
-        error_properties = ['density', 'thickness', 'heat_capac', 'thermal_conduc']
-        if (value <= 0) and attr in error_properties:
+    def validate_manual_attribute(value):
+        if value <= 0.0:
             return False
         return True
 
