@@ -22,7 +22,7 @@ stages:
   - visualize
 
 build_env:
-  image: docker:latest
+  image: docker:stable
   stage: build
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
