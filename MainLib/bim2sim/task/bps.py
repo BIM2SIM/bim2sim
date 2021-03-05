@@ -1624,7 +1624,7 @@ class ExportEP(ITask):
             idf.copyidfobject(s)
         for t in sch_typelim:
             idf.copyidfobject(t)
-        idf.epw = str(Path(os.getcwd()).parent.parent) + "/PluginEnergyPlus/data/DEU_NW_Aachen.105010_TMYx.epw"
+        idf.epw = PROJECT.root / 'resources/DEU_NW_Aachen.105010_TMYx.epw'
         return idf
 
     def _get_ifc_spaces(self, instances):
@@ -1747,8 +1747,8 @@ class ExportEP(ITask):
 
     def _get_bs2021_materials_and_constructions(self, idf, year=2008, ctype="heavy", wtype=["Alu", "Waermeschutz", "zwei"]):
         materials = []
-        mt_path = str(Path(os.getcwd()).parent.parent) + "/PluginEnergyPlus/data/MaterialTemplates.json"
-        be_path = str(Path(os.getcwd()).parent.parent) + "/PluginEnergyPlus/data/TypeBuildingElements.json"
+        mt_path = PROJECT.root / 'MaterialTemplates/MaterialTemplates.json'
+        be_path = PROJECT.root / 'MaterialTemplates/TypeBuildingElements.json'
         with open(mt_path) as json_file:
             mt_file = json.load(json_file)
         with open(be_path) as json_file:
@@ -1863,7 +1863,7 @@ class ExportEP(ITask):
             "Bad": "WC and sanitary rooms in non-residential buildings",
             "Labor": "Laboratory"
         }
-        uc_path = str(Path(os.getcwd()).parent.parent) + "/PluginEnergyPlus/data/UseConditions.json"
+        uc_path = PROJECT.root / 'MaterialTemplates/UseConditions.json'
         with open(uc_path) as json_file:
             uc_file = json.load(json_file)
         room_key = [v for k, v in zone_dict.items() if k in key]
