@@ -108,8 +108,7 @@ class Inspect(ITask):
         self.logger.info("Creates python representation of relevant ifc types")
 
         Element.finder.load(PROJECT.finder)
-        with Decision.debug_answer('1'): # todo Diego: Add debug and default value to simplify debugging
-            workflow.relevant_ifc_types = self.use_doors(workflow.relevant_ifc_types)
+        workflow.relevant_ifc_types = self.use_doors(workflow.relevant_ifc_types)
         for ifc_type in workflow.relevant_ifc_types:
             try:
                 entities = ifc.by_type(ifc_type)
@@ -149,8 +148,7 @@ class Prepare(ITask):
         self.logger.info("setting verifications")
         building = SubElement.get_class_instances('Building')[0]
         for guid, ins in instances.items():
-            with Decision.debug_answer('1'): # todo Diego: Add debug and default value to simplify debugging
-                self.layers_verification(ins, building)
+            self.layers_verification(ins, building)
 
         storeys = SubElement.get_class_instances('Storey')
 
@@ -427,19 +425,18 @@ class Prepare(ITask):
                 template_options = instance_templates[instance_type][i]
                 break
         if len(template_options.keys()) > 0:
-            with Decision.debug_answer(list(template_options)[0]): # todo Diego: Add debug and default value to simplify debugging
-                decision_template = ListDecision("the following construction types were "
-                                                 "found for year %s and instance type %s"
-                                                 % (year_of_construction, instance_type),
-                                                 choices=list(template_options.keys()),
-                                                 global_key="%s_%s.bpsTemplate" % (type(instance).__name__, instance.guid),
-                                                 allow_skip=True, allow_load=True, allow_save=True,
-                                                 collect=False, quick_decide=not True)
-                if decision_template.value is None:
-                    decision_template.decide()
-                template_value = template_options[decision_template.value]
-                cls.instance_template[instance_type] = template_value
-                return template_value
+            decision_template = ListDecision("the following construction types were "
+                                             "found for year %s and instance type %s"
+                                             % (year_of_construction, instance_type),
+                                             choices=list(template_options.keys()),
+                                             global_key="%s_%s.bpsTemplate" % (type(instance).__name__, instance.guid),
+                                             allow_skip=True, allow_load=True, allow_save=True,
+                                             collect=False, quick_decide=not True)
+            if decision_template.value is None:
+                decision_template.decide()
+            template_value = template_options[decision_template.value]
+            cls.instance_template[instance_type] = template_value
+            return template_value
 
 
 class ExportTEASER(ITask):

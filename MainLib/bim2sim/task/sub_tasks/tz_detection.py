@@ -23,8 +23,7 @@ class Inspect(Task):
     @Task.log
     def run(self, ifc, bound_instances, storeys):
         self.logger.info("Creates python representation for building spaces")
-        with Decision.debug_answer('1'): # todo Diego: Add debug and default value to simplify debugging
-            self.recognize_zone_semantic(ifc, bound_instances, storeys)
+        self.recognize_zone_semantic(ifc, bound_instances, storeys)
         if len(self.instances) == 0:
             self.logger.warning("Found no spaces by semantic detection")
             decision = BoolDecision("Try to detect zones by geometrical?")
@@ -205,14 +204,13 @@ class Bind(Task):
             self.bind_tz_criteria()
 
     def bind_tz_criteria(self):
-        with Decision.debug_answer(False): # todo Diego: Add debug and default value to simplify debugging
-            bind_decision = BoolDecision(question="Do you want for thermal zones to be bind? - this allows to bind the "
-                                                  "thermal zones into a thermal zone aggregation based on different "
-                                                  "criteria -> Simplified operations",
-                                         global_key='Thermal_Zones.Bind',
-                                         allow_load=True, allow_save=True,
-                                         collect=False, quick_decide=not True)
-            bind_decision.decide()
+        bind_decision = BoolDecision(question="Do you want for thermal zones to be bind? - this allows to bind the "
+                                              "thermal zones into a thermal zone aggregation based on different "
+                                              "criteria -> Simplified operations",
+                                     global_key='Thermal_Zones.Bind',
+                                     allow_load=True, allow_save=True,
+                                     collect=False, quick_decide=not True)
+        bind_decision.decide()
         if bind_decision.value:
             criteria_functions = {}
             # this finds all the criteria methods implemented
