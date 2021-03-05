@@ -119,6 +119,7 @@ class LoadIFC(ITask):
     def get_elements_modifications(self):
         """overwrites functions from elements.py in file elements_functions.py and
             overwrites pattern, conditions and attributes in file elements_specific_schema.json"""
+        from bim2sim.kernel import elements
         emods_decision = BoolDecision(question="Do you want to use the last modifications made in elements.py for your "
                                                "new ifc structure?",
                                       global_key="load_modifications_ifc",
