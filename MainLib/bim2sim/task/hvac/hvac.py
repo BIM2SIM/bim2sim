@@ -11,7 +11,7 @@ import networkx as nx
 from bim2sim.task.base import Task, ITask
 from bim2sim.workflow import LOD
 from bim2sim.filter import TypeFilter, TextFilter
-from bim2sim.kernel.aggregation import Aggregation, PipeStrand, UnderfloorHeating,\
+from bim2sim.kernel.aggregation import HVACAggregation, PipeStrand, UnderfloorHeating,\
     ParallelPump, ParallelSpaceHeater
 from bim2sim.kernel.aggregation import Consumer, ConsumerHeatingDistributorModule
 from bim2sim.kernel.element import Element, ElementEncoder, BasePort
