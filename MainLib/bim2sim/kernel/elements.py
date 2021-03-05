@@ -43,6 +43,7 @@ from bim2sim.task.common.common_functions import get_matches_list, get_material_
 import translators as ts
 from bim2sim.project import PROJECT
 
+
 def diameter_post_processing(value):
     if isinstance(value, (list, set)):
         return sum(value) / len(value)

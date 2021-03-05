@@ -3,6 +3,7 @@ import os
 import logging
 from abc import ABCMeta, abstractmethod
 
+# import bim2sim.kernel.elements
 from bim2sim.project import PROJECT, get_config
 from bim2sim.decision import Decision, ListDecision
 from bim2sim.task.base import Playground

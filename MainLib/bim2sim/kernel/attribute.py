@@ -5,7 +5,6 @@ import pint
 import re
 
 from bim2sim.decision import RealDecision, BoolDecision, ListDecision
-from bim2sim.task.bps_f.bps_functions import get_matches_list
 
 from bim2sim.kernel.units import ureg
 import inspect
@@ -115,17 +114,9 @@ class Attribute:
         return value
 
     @staticmethod
-    def get_from_default_propertyset(bind, name):
-        if bind.finder is None:
-            return None
-        template = bind.finder.templates[bind.source_tool].get(type(bind).__name__).get('default_ps')
-        default = None
-        if name in template:
-            default = template[name]
-        if default is None:
-            return None
+    def get_from_default_propertyset(bind, default):
         try:
-            value = bind.get_exact_property(default[0], default[1])
+            value = bind.get_exact_property(*default)
         except Exception:
             value = None
         return value
