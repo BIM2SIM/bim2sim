@@ -49,7 +49,7 @@ class AggregationPort(BasePort):
         return self.originals.position
 
 
-class Aggregation(BaseElement):
+class HVACAggregation(BaseElement):
     """Base aggregation of models"""
     ifc_type = None
     multi = ()
@@ -167,7 +167,7 @@ class Aggregation(BaseElement):
         return "%s" % self.__class__.__name__
 
 
-class PipeStrand(Aggregation):
+class PipeStrand(HVACAggregation):
     """Aggregates pipe strands"""
     aggregatable_elements = ['IfcPipeSegment', 'IfcPipeFitting', 'IfcValve']
     multi = ('length', 'diameter')
@@ -493,7 +493,7 @@ class UnderfloorHeating(PipeStrand):
         # else kpi criteria failed
 
 
-class ParallelPump(Aggregation):
+class ParallelPump(HVACAggregation):
     """Aggregates pumps in parallel"""
     aggregatable_elements = ['IfcPump', 'PipeStrand', 'IfcPipeSegment',
                              'IfcPipeFitting']
@@ -712,7 +712,7 @@ class ParallelPump(Aggregation):
         return parallels, metas
 
 
-class AggregatedPipeFitting(Aggregation):
+class AggregatedPipeFitting(HVACAggregation):
     """Aggregates PipeFittings. Used in two cases:
         - Merge multiple PipeFittings into one aggregates
         - Use a single PipeFitting and create a aggregated PipeFitting where
@@ -776,7 +776,7 @@ class AggregatedPipeFitting(Aggregation):
         return mapping
 
 
-class ParallelSpaceHeater(Aggregation):
+class ParallelSpaceHeater(HVACAggregation):
     """Aggregates Space heater in parallel"""
     aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting']
 
@@ -984,7 +984,7 @@ class ParallelSpaceHeater(Aggregation):
             return instance
 
 
-class Consumer(Aggregation):
+class Consumer(HVACAggregation):
     """Aggregates Consumer system boarder"""
     multi = ('has_pump', 'rated_power', 'rated_pump_power', 'rated_height', 'rated_volume_flow', 'temperature_inlet',
              'temperature_outlet', 'volume', 'description')
@@ -1266,7 +1266,7 @@ class Consumer(Aggregation):
     )
 
 
-class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation HKESim
+class ConsumerHeatingDistributorModule(HVACAggregation): #ToDo: Export Aggregation HKESim
     """Aggregates Consumer system boarder"""
     multi = ('medium', 'use_hydraulic_separator', 'hydraulic_separator_volume', 'temperature_inlet', 'temperature_outlet')
     # ToDo: Abused to not just sum attributes from elements
@@ -1438,7 +1438,7 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
     )
 
 
-class Aggregated_ThermalZone(Aggregation):
+class Aggregated_ThermalZone(HVACAggregation):
     """Aggregates thermal zones"""
     aggregatable_elements = ["IfcSpace"]
 

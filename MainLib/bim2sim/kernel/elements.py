@@ -24,7 +24,7 @@ def diameter_post_processing(value):
 
 pattern_usage = get_pattern_usage()
 
-
+# todo correct inheritance
 class HeatPump(element.Element):
     """"HeatPump"""
 
@@ -943,13 +943,13 @@ class Door(element.Element):
         re.compile('Tuer', flags=re.IGNORECASE)
     ]
 
-    def _get_layers(bind, name):
+    def _get_layers(self, name):
         """door _get_layers function"""
         layers = []
-        material_layers_dict = get_layers_ifc(bind)
+        material_layers_dict = get_layers_ifc(self)
         for layer in material_layers_dict:
             new_layer = element.SubElement.factory(layer, layer.is_a())
-            new_layer.parent = bind
+            new_layer.parent = self
             layers.append(new_layer)
         return layers
 
@@ -1012,13 +1012,13 @@ class Slab(element.Element):
         #     self.__class__ = GroundFloor
         #     self.__init__()
 
-    def _get_layers(bind, name):
+    def _get_layers(self, name):
         """slab _get_layers function"""
         layers = []
-        material_layers_dict = get_layers_ifc(bind)
+        material_layers_dict = get_layers_ifc(self)
         for layer in material_layers_dict:
             new_layer = element.SubElement.factory(layer, 'IfcMaterialLayer')
-            new_layer.parent = bind
+            new_layer.parent = self
             layers.append(new_layer)
         return layers
 
