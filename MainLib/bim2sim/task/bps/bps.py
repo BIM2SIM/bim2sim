@@ -10,7 +10,7 @@ from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
 from bim2sim.task.bps import tz_detection
-from bim2sim.decision import ListDecision, BoolDecision
+from bim2sim.decision import ListDecision, BoolDecision, RealDecision
 from teaser.project import Project
 from teaser.logic.buildingobjects.building import Building
 from teaser.logic.buildingobjects.thermalzone import ThermalZone
@@ -25,8 +25,12 @@ from teaser.logic.buildingobjects.buildingphysics.innerwall import InnerWall
 from teaser.logic.buildingobjects.buildingphysics.layer import Layer
 from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
-from bim2sim.task.common.common_functions import orientation_verification, filter_instances
 from bim2sim.kernel.units import conversion
+from bim2sim.kernel.element import SubElement
+# todo new name :)
+from bim2sim.enrichment_data.data_class import DataClass
+from bim2sim.task.common.common_functions import angle_equivalent
+from bim2sim.kernel import elements
 
 
 class SetIFCTypesBPS(ITask):
@@ -498,7 +502,7 @@ class ExportTEASER(ITask):
         if value is valid, returns the value
         invalid value: ZeroDivisionError on thermal zone calculations"""
         error_properties = ['density', 'thickness', 'heat_capac',
-                            'thermal_conduc']  # properties that are vital to thermal zone calculations
+                            'thermal_conduc', 'area']  # properties that are vital to thermal zone calculations
         white_list_properties = ['orientation']
         if (aux is None or aux == 0) and key not in white_list_properties:
             # name from instance to store in error dict

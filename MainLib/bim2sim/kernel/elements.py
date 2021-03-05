@@ -42,6 +42,7 @@ from bim2sim.task.common.common_functions import get_matches_list, get_material_
     real_decision_user_input, filter_instances, get_pattern_usage
 import translators as ts
 from bim2sim.project import PROJECT
+from bim2sim.task.common.common_functions import vector_angle
 
 
 def diameter_post_processing(value):
