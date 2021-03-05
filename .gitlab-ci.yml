@@ -21,18 +21,35 @@ stages:
   - pages
   - visualize
 
-build_env:
+build_env:development:
   image: docker:latest
   stage: build
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/environment:latest -f Environment/Dockerfile .
-    - docker push $CI_REGISTRY/environment:latest
+    - docker build -t $CI_REGISTRY/environment:development -f Environment/Dockerfile .
+    - docker push $CI_REGISTRY/environment:development
   only:
+    branches:
+      - development
     changes:
        - Environment/Dockerfile
        - MainLib/requirements.txt
+
+build_env:master:
+  image: docker:latest
+  stage: build
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+  script:
+    - docker build -t $CI_REGISTRY/environment:master -f Environment/Dockerfile .
+    - docker push $CI_REGISTRY/environment:master
+  only:
+    branches:
+      - master
+    changes:
+       - Environment/Dockerfile
+       - MainLib/requirements.txt      
 
 build_tool:release:
   image: docker:latest
@@ -58,7 +75,7 @@ build_tool:webdevelop:
 
 unittest3.7:
   <<: *only-default
-  image: $CI_REGISTRY/environment:latest
+  image: $CI_REGISTRY/environment:development
   stage: test
   script:
     - mv ./* /bim2sim/
