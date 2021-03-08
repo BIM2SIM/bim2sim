@@ -30,8 +30,7 @@ build_env:development:
     - docker build -t $CI_REGISTRY/environment:development -f Environment/Dockerfile .
     - docker push $CI_REGISTRY/environment:development
   only:
-    branches:
-      - development
+    - development
     changes:
        - Environment/Dockerfile
        - MainLib/requirements.txt
@@ -45,8 +44,7 @@ build_env:master:
     - docker build -t $CI_REGISTRY/environment:master -f Environment/Dockerfile .
     - docker push $CI_REGISTRY/environment:master
   only:
-    branches:
-      - master
+    - master
     changes:
        - Environment/Dockerfile
        - MainLib/requirements.txt      
