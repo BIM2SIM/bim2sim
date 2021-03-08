@@ -32,6 +32,7 @@ build_env:development:
   only:
     refs:
        - development
+       - 102-fix_CI_bug
     changes:
        - Environment/Dockerfile
        - MainLib/requirements.txt
