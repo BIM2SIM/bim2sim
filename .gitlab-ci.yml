@@ -35,6 +35,7 @@ build_env:development:
     changes:
        - Environment/Dockerfile
        - MainLib/requirements.txt
+       - .gitlab-ci.yml
 
 build_env:master:
   image: docker:latest
