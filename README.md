@@ -1,4 +1,4 @@
-# Bim2Sim [![pylint]( https://bim2sim.pages.rwth-aachen.de/bim2sim-coding/master/pylint.svg )]( https://bim2sim.pages.rwth-aachen.de/bim2sim-coding/master/pylint.html )
+# Bim2Sim [![pylint]( https://ebc.pages.git-ce.rwth-aachen.de/projects/EBC0438_BMWi_BIM2SIM_GES/bim2sim-coding/development/pylint.svg )]( https://ebc.pages.git-ce.rwth-aachen.de/projects/EBC0438_BMWi_BIM2SIM_GES/bim2sim-coding/development/pylint.html )
 bim2sim ist eine Bibliothek um BIM Modelle aus dem .ifc Format für unterschiedliche Simulationstools aufzubereiten.
 Die grundlegende Struktur des Projekts ist hier dargestellt:
 ![Toolchain](https://git.rwth-aachen.de/Bim2Sim/Bim2Sim-documentation/raw/master/01_Grafiken/Toolchain.jpg)
