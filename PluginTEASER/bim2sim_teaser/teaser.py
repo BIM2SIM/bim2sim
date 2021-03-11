@@ -8,8 +8,6 @@ from bim2sim.task import bps
 # from bim2sim.task.common import common
 
 
-
-
 # class LoadLibrariesTEASER(base.ITask):
 #     """Load TEASER library for export"""
 #     touches = ('libraries', )
@@ -25,23 +23,24 @@ class TEASERManager(BIM2SIMManager):
         self.workflow = workflow
 
     def run(self):
-
         self.playground.run_task(bps.SetIFCTypes())
         self.playground.run_task(common.LoadIFC())
         self.playground.run_task(bps.Inspect())
         self.playground.run_task(bps.TZInspect())
         self.playground.run_task(bps.OrientationGetter())
-        self.playground.run_task(bps.MaterialVerification())
-        self.playground.run_task(bps.EnrichMaterial())
-        self.playground.run_task(bps.BuildingVerification())
 
-        self.playground.run_task(bps.EnrichNonValid())
-        self.playground.run_task(bps.EnrichBuildingByTemplates())
+        self.playground.run_task(bps.MaterialVerification())  # LOD.full
+        self.playground.run_task(bps.EnrichMaterial())  # LOD.full
+        self.playground.run_task(bps.BuildingVerification())  # all LODs
+
+        self.playground.run_task(bps.EnrichNonValid())  # LOD.full
+        self.playground.run_task(bps.EnrichBuildingByTemplates())  # LOD.low
 
         self.playground.run_task(bps.Disaggregation_creation())
         self.playground.run_task(bps.BindThermalZones())
         self.playground.run_task(bps.ExportTEASER())
         pass
+
         # self.playground.run_task(bps.SetIFCTypesBPS())
         # self.playground.run_task(common.LoadIFC())
         # self.playground.run_task(bps.Inspect())
@@ -50,8 +49,3 @@ class TEASERManager(BIM2SIMManager):
         # pass
         #
         # self.playground.run_task(bps.ExportTEASER())
-
-
-
-
-

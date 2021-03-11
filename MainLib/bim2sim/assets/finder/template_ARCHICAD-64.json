@@ -77,7 +77,7 @@
   "Window": {
     "default_ps": {
       "area" : ["BaseQuantities", "Area"],
-      "width" : ["BaseQuantities", "Width"],
+      "width" : ["BaseQuantities", "Depth"],
       "is_external": ["Pset_WindowCommon", "IsExternal"],
       "glass_area": ["Konstruktion", "Glasflaeche"],
       "g_value": ["Analytische Eigenschaften (type)", "Gesamtenergiedurchlassgrad"],
@@ -88,7 +88,7 @@
   "Door": {
     "default_ps": {
       "area" : ["BaseQuantities", "Area"],
-      "width" : ["BaseQuantities", "Width"],
+      "width" : ["BaseQuantities", "Depth"],
       "is_external": ["Pset_DoorCommon", "IsExternal"],
       "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"]
     }
@@ -96,7 +96,7 @@
   "InnerDoor": {
     "default_ps": {
       "area" : ["BaseQuantities", "Area"],
-      "width" : ["BaseQuantities", "Width"],
+      "width" : ["BaseQuantities", "Depth"],
       "is_external": ["Pset_DoorCommon", "IsExternal"],
       "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"]
     }
@@ -104,7 +104,7 @@
   "OuterDoor": {
     "default_ps": {
       "area" : ["BaseQuantities", "Area"],
-      "width" : ["BaseQuantities", "Width"],
+      "width" : ["BaseQuantities", "Depth"],
       "is_external": ["Pset_DoorCommon", "IsExternal"],
       "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"]
     }

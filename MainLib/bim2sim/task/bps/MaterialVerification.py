@@ -1,8 +1,5 @@
-import ast
-
+from bim2sim.workflow import LOD
 from bim2sim.task.base import Task, ITask
-from bim2sim.kernel.element import SubElement
-from bim2sim.enrichment_data.data_class import DataClass
 
 
 class MaterialVerification(ITask):
@@ -19,10 +16,11 @@ class MaterialVerification(ITask):
     @Task.log
     def run(self, workflow, instances):
         self.logger.info("setting verifications")
-        for guid, ins in instances.items():
-            if not self.materials_verification(ins):
-                self.invalid['materials'].append(ins)
-        self.logger.warning("Found %d invalid layers", len(self.invalid['materials']))
+        if workflow.layers is not LOD.low:
+            for guid, ins in instances.items():
+                if not self.materials_verification(ins):
+                    self.invalid['materials'].append(ins)
+            self.logger.warning("Found %d invalid layers", len(self.invalid['materials']))
 
         return instances, self.invalid,
 

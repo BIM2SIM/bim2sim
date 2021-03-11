@@ -29,14 +29,16 @@ class BuildingVerification(ITask):
     def layers_verification(self, instance):
         supported_classes = {'OuterWall', 'Wall', 'InnerWall', 'Door', 'InnerDoor', 'OuterDoor', 'Roof', 'Floor',
                              'GroundFloor', 'Window'}
-        building = SubElement.get_class_instances('Building')[0]
         instance_type = type(instance).__name__
         if instance_type in supported_classes:
-            # comparison with templates value
-            layers_width, layers_u = self.get_layers_properties(instance)
-            if not self.compare_instance_with_layers(instance, layers_u, layers_width):
+            if len(instance.layers) == 0:  # no layers given
                 return False
-            if not self.compare_with_template(instance, building):
+            layers_width, layers_u = self.get_layers_properties(instance)
+            if not self.width_comparison(instance, layers_width):
+                return False
+            if not self.u_value_comparison(instance, layers_u):
+                return False
+            if not self.compare_with_template(instance):
                 return False
 
         return True
@@ -61,8 +63,29 @@ class BuildingVerification(ITask):
         return layers_width, layers_u
 
     @staticmethod
-    def compare_with_template(instance, building):
+    def width_comparison(instance, layers_width):
+        # critical failure
+        width_discrepancy = abs(instance.width - layers_width) / instance.width if \
+            (instance.width is not None and instance.width > 0) else 9999
+        if width_discrepancy > 0.2:
+            return False
+        return True
+
+    @staticmethod
+    def u_value_comparison(instance, layers_u):
+        # critical failure
+        if instance.u_value == 0 and layers_u == 0:
+            return False
+        elif instance.u_value == 0 and layers_u > 0:
+            instance.u_value = layers_u
+        elif instance.u_value > 0 and layers_u > 0:
+            instance.u_value = max(instance.u_value, layers_u)
+        return True
+
+    @staticmethod
+    def compare_with_template(instance):
         template_options = []
+        building = SubElement.get_class_instances('Building')[0]
 
         year_of_construction = building.year_of_construction.m
         instance_templates = dict(DataClass(used_param=3).element_bind)
@@ -86,23 +109,6 @@ class BuildingVerification(ITask):
 
         template_options.sort()
         # check u_value
-        if template_options[0] * 0.8 <= instance.u_value <= template_options[1] * 1.2:
+        if template_options[0] * 0.8 <= instance.u_value.m <= template_options[1] * 1.2:
             return True
         return False
-
-    @staticmethod
-    def compare_instance_with_layers(instance, layers_u, layers_width):
-        # critical failure // u value comparison
-        if instance.u_value == 0 and layers_u == 0:
-            return False
-        elif instance.u_value == 0 and layers_u > 0:
-            instance.u_value = layers_u
-        elif instance.u_value > 0 and layers_u > 0:
-            instance.u_value = max(instance.u_value, layers_u)
-
-        # critical failure // check units again
-        width_discrepancy = abs(instance.width - layers_width) / instance.width if \
-            (instance.width is not None and instance.width > 0) else 9999
-        if width_discrepancy > 0.2:
-            return False
-        return True

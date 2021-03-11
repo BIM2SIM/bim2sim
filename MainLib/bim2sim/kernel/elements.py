@@ -816,7 +816,8 @@ class ThermalZone(element.Element):
     )
     width = attribute.Attribute(
         default_ps='length',
-        default=0
+        default=0,
+        unit=ureg.m
     )
     with_cooling = attribute.Attribute(
         functions=[_get_cooling]
@@ -1519,7 +1520,8 @@ class Wall(element.Element):
         default_ps='u_value'
     )
     width = attribute.Attribute(
-        default_ps='width'
+        default_ps='width',
+        unit=ureg.m
     )
 
 
@@ -1543,11 +1545,15 @@ class Layer(element.SubElement):
                % (self.__class__.__name__, self.material)
 
     @classmethod
-    def create_additional_layer(cls, thickness, parent, material=None):
+    def create_additional_layer(cls, thickness, parent, material=None, material_properties=None):
         new_layer = cls(ifc=None)
         new_layer.material = material
         new_layer.parent = parent
         new_layer.thickness = thickness
+        if material_properties is not None:
+            for attr in new_layer.attributes:
+                if getattr(new_layer, attr) == 0:
+                    setattr(new_layer, attr, material_properties[attr])
         return new_layer
 
     def get_ifc_thickness(bind, name):
@@ -1713,7 +1719,8 @@ class Window(element.Element):
 
     width = attribute.Attribute(
         default_ps='width',
-        default=0
+        default=0,
+        unit=ureg.m
     )
     u_value = attribute.Attribute(
         default_ps='u_value'
@@ -1765,7 +1772,8 @@ class Door(element.Element):
 
     width = attribute.Attribute(
         default_ps='width',
-        default=0
+        default=0,
+        unit=ureg.m
     )
     u_value = attribute.Attribute(
         default_ps='u_value'
@@ -1823,7 +1831,8 @@ class Slab(element.Element):
 
     width = attribute.Attribute(
         default_ps='width',
-        default=0
+        default=0,
+        unit=ureg.m
     )
 
     u_value = attribute.Attribute(

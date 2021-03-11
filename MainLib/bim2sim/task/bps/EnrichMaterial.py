@@ -5,6 +5,7 @@ from bim2sim.task.base import Task, ITask
 from bim2sim.decision import BoolDecision, ListDecision, RealDecision, StringDecision
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.workflow import LOD
+from functools import partial
 
 
 class EnrichMaterial(ITask):
@@ -21,7 +22,7 @@ class EnrichMaterial(ITask):
     @Task.log
     def run(self, workflow, instances, invalid):
         self.logger.info("setting verifications")
-        if workflow.layers is LOD.full:
+        if workflow.layers is not LOD.low:
             for instance in invalid['materials']:
                 self.get_layer_properties(instance)
         return instances,
@@ -58,32 +59,11 @@ class EnrichMaterial(ITask):
                 first_decision.stored_decisions.clear()
 
                 if first_decision.value:
-                    material_options = self.get_matches_list(layer.material, list(resumed.keys()))
-                    while len(material_options) == 0:
-                        material_decision = StringDecision(
-                            "Material not found, enter value for the material %s:\n"
-                            "Belonging Item: %s | GUID: %s \n"
-                            "Enter 'n' for manual input"
-                            % (layer.material, layer.parent.name, layer.parent.guid),
-                            global_key='Layer_Material_%s' % layer.guid,
-                            allow_skip=True, allow_load=True, allow_save=True,
-                            collect=False, quick_decide=not True)
-                        material_decision.decide()
-                        material_options = self.get_matches_list(material_decision.value, list(resumed.keys()))
-
-                    decision1 = ListDecision(
-                        "Multiple possibilities found for material %s\n"
-                        "Belonging Item: %s | GUID: %s \n"
-                        "Enter 'n' for manual input"
-                        % (layer.material, layer.parent.name, layer.parent.guid),
-                        choices=list(material_options), global_key='%s_material_enrichment' % layer.material,
-                        allow_skip=True, allow_load=True, allow_save=True,
-                        collect=False, quick_decide=not True)
-                    decision1.decide()
-
+                    material_options = self.material_options_decision(resumed, layer)
+                    selected_material = self.material_selection_decision(layer.material, layer.parent, material_options)
                     if material is None:
-                        layer.material = decision1.value
-                    self.material_selected[layer.material] = resumed[decision1.value]
+                        layer.material = selected_material
+                    self.material_selected[layer.material] = resumed[selected_material]
                 else:
                     self.material_selected[layer.material] = {}
                     for attr in attributes:
@@ -121,20 +101,32 @@ class EnrichMaterial(ITask):
             return False
         return True
 
+    @classmethod
+    def validate_new_material(cls, resumed_keys, value):
+        if len(cls.get_matches_list(value, resumed_keys)) == 0:
+            return False
+        return True
+
     @staticmethod
-    def get_resumed_material_templates(attrs):
+    def get_resumed_material_templates(attrs=None):
         material_templates = dict(DataClass(used_param=2).element_bind)
         del material_templates['version']
 
         resumed = {}
         for k in material_templates:
             resumed[material_templates[k]['name']] = {}
-            for attr in attrs:
-                if attr == 'thickness':
-                    resumed[material_templates[k]['name']][attr] = material_templates[k]['thickness_default']
-                else:
-                    resumed[material_templates[k]['name']][attr] = material_templates[k][attr]
-
+            if attrs is not None:
+                for attr in attrs:
+                    if attr == 'thickness':
+                        resumed[material_templates[k]['name']][attr] = material_templates[k]['thickness_default']
+                    else:
+                        resumed[material_templates[k]['name']][attr] = material_templates[k][attr]
+            else:
+                for attr in material_templates[k]:
+                    if attr == 'thickness_default':
+                        resumed[material_templates[k]['name']]['thickness'] = material_templates[k][attr]
+                    else:
+                        resumed[material_templates[k]['name']][attr] = material_templates[k][attr]
         return resumed
 
     @staticmethod
@@ -160,7 +152,34 @@ class EnrichMaterial(ITask):
                     if mat not in material_options:
                         material_options.append(mat)
 
-        if len(material_options) == 0:
-            return search_list
-
         return material_options
+
+    @classmethod
+    def material_options_decision(cls, resumed, layer):
+        material_options = cls.get_matches_list(layer.material, list(resumed.keys()))
+        if len(material_options) == 0:
+            material_decision = StringDecision(
+                "Material not found, enter value for the material %s:\n"
+                "Belonging Item: %s | GUID: %s \n"
+                "Enter 'n' for manual input"
+                % (layer.material, layer.parent.name, layer.parent.guid),
+                global_key='Layer_Material_%s' % layer.guid,
+                allow_skip=True, allow_load=True, allow_save=True,
+                collect=False, quick_decide=not True,
+                validate_func=partial(cls.validate_new_material, list(resumed.keys())))  # unit missing
+            material_decision.decide()
+            material_options = cls.get_matches_list(material_decision.value, list(resumed.keys()))
+        return material_options
+
+    @classmethod
+    def material_selection_decision(cls, material_input, parent, material_options):
+        material_selection = ListDecision(
+            "Multiple possibilities found for material %s\n"
+            "Belonging Item: %s | GUID: %s \n"
+            "Enter 'n' for manual input"
+            % (material_input, parent.name, parent.guid),
+            choices=list(material_options), global_key='%s_material_enrichment' % material_input,
+            allow_skip=True, allow_load=True, allow_save=True,
+            collect=False, quick_decide=not True)
+        material_selection.decide()
+        return material_selection.value
