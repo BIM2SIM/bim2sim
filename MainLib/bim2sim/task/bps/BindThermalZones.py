@@ -9,20 +9,29 @@ from bim2sim.workflow import LOD
 
 class BindThermalZones(ITask):
     """Prepares bim2sim instances to later export"""
+    # for 1Zone Building - workflow.spaces: LOD.low - Disaggregations not necessary
     reads = ('instances',)
     touches = ('instances',)
 
     @Task.log
     def run(self, workflow, instances):
         self.logger.info("Binds thermal zones based on criteria")
-        if workflow.layers is LOD.low:
-            thermal_zones = SubElement.get_class_instances('ThermalZone')
-            if len(thermal_zones) == 0:
-                self.logger.warning("Found no spaces to bind")
-            else:
+        thermal_zones = SubElement.get_class_instances('ThermalZone')
+        if len(thermal_zones) == 0:
+            self.logger.warning("Found no spaces to bind")
+        else:
+            if workflow.spaces is LOD.low:
+                self.bind_tz_one_zone(thermal_zones, instances)
+            if workflow.spaces is LOD.medium:
                 self.bind_tz_criteria(instances)
 
         return instances,
+
+    def bind_tz_one_zone(self, thermal_zones, instances):
+        tz_group = {'one_zone_building': thermal_zones}
+        new_aggregations = Aggregated_ThermalZone.based_on_groups(tz_group, instances)
+        for inst in new_aggregations:
+            instances[inst.guid] = inst
 
     def bind_tz_criteria(self, instances):
         bind_decision = BoolDecision(question="Do you want for thermal zones to be bind? - this allows to bind the "

@@ -1,10 +1,12 @@
 from bim2sim.task.base import Task, ITask
 from bim2sim.kernel.element import SubElement
 from bim2sim.kernel.disaggregation import Disaggregation
+from bim2sim.workflow import LOD
 
 
 class Disaggregation_creation(ITask):
     """Prepares bim2sim instances to later export"""
+    # for 1Zone Building - workflow.spaces: LOD.low - Disaggregations not necessary
     reads = ('instances',)
     touches = ('instances',)
 
@@ -13,10 +15,11 @@ class Disaggregation_creation(ITask):
     @Task.log
     def run(self, workflow, instances):
         thermal_zones = SubElement.get_class_instances('ThermalZone')
-        for tz in thermal_zones:
-            tz_disaggregations = self.get_thermal_zone_disaggregations(tz)
-            tz.bound_elements = tz_disaggregations
-            self.set_tz_properties(tz)
+        if workflow.spaces is not LOD.low:
+            for tz in thermal_zones:
+                tz_disaggregations = self.get_thermal_zone_disaggregations(tz)
+                tz.bound_elements = tz_disaggregations
+                self.set_tz_properties(tz)
 
         return instances,
 

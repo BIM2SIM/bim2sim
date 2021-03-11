@@ -1487,11 +1487,10 @@ class Aggregated_ThermalZone(Aggregation):
         thermal_zones = SubElement.get_class_instances('ThermalZone')
         total_area = sum(i.area for i in thermal_zones)
         for group in groups:
-            if group != 'not_bind':
-                # first criterion based on similarities
-                name = "Aggregated_%s" % '_'.join([i.name for i in groups[group]])
+            if group == 'one_zone_building':
+                name = "Aggregated_%s" % group
                 instance = cls(name, groups[group])
-                instance.description = ', '.join(ast.literal_eval(group))
+                instance.description = group
                 new_aggregations.append(instance)
                 for e in instance.elements:
                     if e.guid in instances:
@@ -1499,7 +1498,7 @@ class Aggregated_ThermalZone(Aggregation):
                     if e.guid in e.instances['ThermalZone']:
                         del e.instances['ThermalZone'][e.guid]
                 SubElement.instances['ThermalZone'][instance.guid] = instance
-            else:
+            elif group == 'not_bind':
                 # last criterion no similarities
                 area = sum(i.area for i in groups[group])
                 if area/total_area <= 0.05:
@@ -1514,6 +1513,18 @@ class Aggregated_ThermalZone(Aggregation):
                         if e.guid in e.instances['ThermalZone']:
                             del e.instances['ThermalZone'][e.guid]
                     SubElement.instances['ThermalZone'][instance.guid] = instance
+            else:
+                # first criterion based on similarities
+                name = "Aggregated_%s" % '_'.join([i.name for i in groups[group]])
+                instance = cls(name, groups[group])
+                instance.description = ', '.join(ast.literal_eval(group))
+                new_aggregations.append(instance)
+                for e in instance.elements:
+                    if e.guid in instances:
+                        del instances[e.guid]
+                    if e.guid in e.instances['ThermalZone']:
+                        del e.instances['ThermalZone'][e.guid]
+                SubElement.instances['ThermalZone'][instance.guid] = instance
         return new_aggregations
 
 

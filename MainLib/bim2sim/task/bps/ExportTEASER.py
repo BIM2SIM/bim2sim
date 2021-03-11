@@ -18,7 +18,8 @@ from teaser.logic.buildingobjects.buildingphysics.innerwall import InnerWall
 from teaser.logic.buildingobjects.buildingphysics.layer import Layer
 from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
-from bim2sim.kernel.units import conversion
+from bim2sim.kernel.units import conversion, ureg
+
 
 
 class ExportTEASER(ITask):
@@ -90,7 +91,7 @@ class ExportTEASER(ITask):
                 # get property from instance (instance dependant on instance)
                 if value[0] == 'instance':
                     aux = getattr(instance, value[1])
-                    if type(aux).__name__ == 'Quantity':
+                    if type(aux) is ureg.Quantity:
                         aux = aux.magnitude
                     cls._invalid_property_filter(teaser_instance, instance, key, aux)
             else:
@@ -181,7 +182,7 @@ class ExportTEASER(ITask):
         if isinstance(instance.layers, list) and len(instance.layers) > 0:
             for layer_instance in instance.layers:
                 layer = Layer(parent=teaser_instance)
-                cls._invalid_property_filter(layer, layer_instance, 'thickness', layer_instance.thickness)
+                cls._invalid_property_filter(layer, layer_instance, 'thickness', layer_instance.thickness.m)
                 cls._material_related(layer, layer_instance, bldg)
 
     @classmethod
