@@ -185,6 +185,29 @@ class TestDecision(DecisionTestBase):
             decision.Decision.decide_collected()
         self.assertTupleEqual(answers, tuple(output[i] for i in range(3)))
 
+    def test_default_value(self):
+        """test if default value is used correctly with debug_answer"""
+        real_dec = decision.RealDecision("??", unit=ureg.m, default=10)
+        bool_dec = decision.BoolDecision("??", default=False)
+        list_dec = decision.ListDecision("??", choices="ABC", default="C")
+
+        # use default answer where possible ('x' should be overwritten by defaults)
+        with Decision.debug_answer('x', validate=True, overwrite_default=False):
+            self.assertEqual(10 * ureg.m, real_dec.decide())
+            self.assertFalse(bool_dec.decide())
+            self.assertEqual("C", list_dec.decide())
+
+        real_dec2 = decision.RealDecision("??", unit=ureg.m, default=10)
+        bool_dec2 = decision.BoolDecision("??", default=False)
+        list_dec2 = decision.ListDecision("??", choices="ABC", default="C")
+
+        # default answers are overwritten by debug answers
+        answers = (5, True, "A")
+        with Decision.debug_answer(answers, validate=True, multi=True):
+            self.assertEqual(answers[0] * ureg.m, real_dec2.decide())
+            self.assertEqual(answers[1], bool_dec2.decide())
+            self.assertEqual(answers[2], list_dec2.decide())
+
 
 class TestBoolDecision(DecisionTestBase):
     """test BoolDecisions"""
@@ -438,6 +461,85 @@ class TestStringDecision(DecisionTestBase):
         self.assertEqual('success', dec2_loaded.value)
 
 
+class TestGuidDecision(DecisionTestBase):
+
+    def check(self, value):
+        """validation func"""
+        valids = (
+            '2tHa09veL10P9$ol9urWrT',
+            '0otlA1TWvCPvzfXTM_RO1R',
+            '2GCvzU9J93CxAS3rHyr1a6'
+        )
+        return all(guid in valids for guid in value)
+
+    def test_validation(self):
+        """test value validation"""
+        dec = decision.GuidDecision(question="??", multi=False)
+
+        self.assertTrue(dec.validate({'2tHa09veL10P9$ol9urWrT'}))
+        self.assertFalse(dec.validate({'2tHa09veL10P9$ol9urWrT, 0otlA1TWvCPvzfXTM_RO1R'}), 'multi not allowed')
+        self.assertFalse(dec.validate({'2tHa09veL10P9$ol'}))
+        self.assertFalse(dec.validate(''))
+        self.assertFalse(dec.validate(1))
+        self.assertFalse(dec.validate(None))
+
+        dec_multi = decision.GuidDecision(question="??", validate_func=self.check, multi=True)
+
+        self.assertTrue(dec_multi.validate({'2tHa09veL10P9$ol9urWrT'}))
+        self.assertTrue(dec_multi.validate({'2tHa09veL10P9$ol9urWrT', '0otlA1TWvCPvzfXTM_RO1R'}))
+        self.assertFalse(dec_multi.validate({'2tHa09veL10P9$ol9urWrT', 'GUID_not_in_valid_list'}))
+
+    def test_save_load(self):
+        """test saving decisions an loading them"""
+        key1 = "key1"
+        key2 = "key2"
+        guid1 = {'2tHa09veL10P9$ol9urWrT'}
+        guid2 = {'2tHa09veL10P9$ol9urWrT', '2GCvzU9J93CxAS3rHyr1a6'}
+
+        with Decision.debug_answer((guid1, guid2), multi=True):
+            dec1 = decision.GuidDecision(
+                question="??",
+                global_key=key1,
+                allow_save=True)
+            dec1.decide()
+            dec2 = decision.GuidDecision(
+                question="??",
+                multi=True,
+                validate_func=self.check,
+                global_key=key2,
+                allow_save=True)
+            dec2.decide()
+
+        self.assertSetEqual(guid1, dec1.value)
+        self.assertSetEqual(guid2, dec2.value)
+
+        with tempfile.TemporaryDirectory(prefix='bim2sim_') as directory:
+            path = os.path.join(directory, "real")
+
+            decision.Decision.save(path)
+
+            # clear variables to simulate program restart
+            decision.Decision.all.clear()
+            decision.Decision.stored_decisions.clear()
+
+            with Decision.debug_answer(True):
+                decision.Decision.load(path)
+
+        dec1_loaded = decision.GuidDecision(
+            question="??",
+            global_key=key1,
+            allow_load=True)
+        self.assertEqual(guid1, dec1_loaded.value)
+
+        dec2_loaded = decision.GuidDecision(
+            question="??",
+            multi=True,
+            validate_func=self.check,
+            global_key=key2,
+            allow_load=True)
+        self.assertEqual(guid2, dec2_loaded.value)
+
+
 @patch('builtins.print', lambda *args, **kwargs: None)
 class TestConsoleFrontend(DecisionTestBase):
     frontend = decision.console.ConsoleFrontEnd()
@@ -562,6 +664,56 @@ class TestConsoleFrontend(DecisionTestBase):
             with self.assertRaises(decision.DecisionCancle):
                 dec = decision.StringDecision(question="??")
                 dec.decide()
+
+    def test_guid_parse(self):
+
+        def check(value):
+            valids = (
+                '2tHa09veL10P9$ol9urWrT',
+                '0otlA1TWvCPvzfXTM_RO1R',
+                '2GCvzU9J93CxAS3rHyr1a6'
+            )
+            return all(guid in valids for guid in value)
+
+        def valid_parsed(guid_decision, inp):
+            return guid_decision.validate(self.frontend.parse_guid_input(inp))
+
+        # test parse + validate
+        dec = decision.GuidDecision(question="??", multi=False)
+        self.assertTrue(valid_parsed(dec, '2tHa09veL10P9$ol9urWrT'))
+        self.assertFalse(valid_parsed(dec, '2tHa09veL10P9$ol9urWrT, 0otlA1TWvCPvzfXTM_RO1R'))  # multi not allowed
+        self.assertFalse(valid_parsed(dec, '2tHa09veL10P9$ol'))
+        self.assertFalse(valid_parsed(dec, ''))
+        self.assertFalse(valid_parsed(dec, 1))
+        self.assertFalse(valid_parsed(dec, None))
+
+        # test parse + validate in multi guid decision
+        dec_multi = decision.GuidDecision(question="??", validate_func=check, multi=True)
+        self.assertTrue(valid_parsed(dec_multi, '2tHa09veL10P9$ol9urWrT'))
+        self.assertTrue(valid_parsed(dec_multi, '2tHa09veL10P9$ol9urWrT, 0otlA1TWvCPvzfXTM_RO1R'))
+        self.assertTrue(valid_parsed(dec_multi, '2tHa09veL10P9$ol9urWrT 0otlA1TWvCPvzfXTM_RO1R'))
+        self.assertTrue(valid_parsed(dec_multi, '2tHa09veL10P9$ol9urWrT,0otlA1TWvCPvzfXTM_RO1R'))
+        self.assertFalse(valid_parsed(dec_multi, '2tHa09veL10P9$ol9urWrT, GUID_not_in_valid_list'))
+        self.assertFalse(valid_parsed(dec_multi, '2tHa09veL10P9$ol9urWrT; 0otlA1TWvCPvzfXTM_RO1R'))
+
+        # full test
+        with patch('builtins.input', lambda *args: '2tHa09veL10P9$ol9urWrT'):
+            value = decision.GuidDecision(question="??").decide()
+            self.assertSetEqual({'2tHa09veL10P9$ol9urWrT'}, value)
+        with patch('builtins.input', lambda *args: '2tHa09veL10P9$ol9urWrT, 0otlA1TWvCPvzfXTM_RO1R'):
+            value = decision.GuidDecision(question="??", validate_func=check, multi=True).decide()
+            self.assertSetEqual({'2tHa09veL10P9$ol9urWrT', '0otlA1TWvCPvzfXTM_RO1R'}, value)
+
+    def test_default_value(self):
+        """test if default value is used on empty input"""
+        real_dec = decision.RealDecision("??", unit=ureg.meter, default=10)
+        bool_dec = decision.BoolDecision("??", default=False)
+        list_dec = decision.ListDecision("??", choices="ABC", default="C")
+
+        with patch('builtins.input', lambda *args, **kwargs: ''):
+            self.assertEqual(10 * ureg.meter, real_dec.decide())
+            self.assertFalse(bool_dec.decide())
+            self.assertEqual("C", list_dec.decide())
 
 
 if __name__ == '__main__':

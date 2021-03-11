@@ -70,6 +70,7 @@ class Decision:
     options = [SKIP, SKIPALL, CANCEL]
 
     _debug_answer = None
+    _debug_overwrite_default = False
     _debug_answer_index = 0
     _debug_mode = 0
     _debug_validate = False
@@ -81,7 +82,8 @@ class Decision:
                  output: dict = None, output_key: str = None, global_key: str = None,
                  allow_skip=False, allow_load=None, allow_save=False,
                  collect=False, quick_decide=False,
-                 validate_checksum=None, related=None, context=None):
+                 validate_checksum=None, related=None, context=None,
+                 default=None):
         """
         :param question: The question asked to the user
         :param validate_func: callable to validate the users input
@@ -96,6 +98,7 @@ class Decision:
         :param validate_checksum: if provided, loaded decisions are only valid if checksum matches
         :param related: iterable of GUIDs this decision is related to (frontend)
         :param context: iterable of GUIDs for additional context to this decision (frontend)
+        :param default: default answer
 
         :raises: :class:'AttributeError'::
         """
@@ -104,6 +107,14 @@ class Decision:
 
         self.question = question
         self.validate_func = validate_func
+        self.default = None
+        if default is not None:
+            if self.validate(default):
+                self.default = default
+                self._debug_answer = default
+            else:
+                self.logger.warning("Invalid default value (%s) for %s: %s",
+                                    default, self.__class__.__name__, self.question)
 
         self.output = output
         self.output_key = output_key
@@ -216,10 +227,11 @@ class Decision:
         cls.frontend = frontend
 
     @classmethod
-    def enable_debug(cls, answer, validate=False, multi=False):
+    def enable_debug(cls, answer, validate=False, multi=False, overwrite_default=True):
         """Enabled debug mode. All decisions are answered with answer"""
         cls._debug_mode = 2 if multi else 1
         cls._debug_answer = answer
+        cls._debug_overwrite_default = overwrite_default
         cls._debug_answer_index = 0
         cls._debug_validate = validate
 
@@ -233,18 +245,20 @@ class Decision:
 
     @classmethod
     @contextmanager
-    def debug_answer(cls, answer, validate=False, multi=False):
+    def debug_answer(cls, answer, validate=False, multi=False, overwrite_default=True):
         """Contextmanager enabling debug mode temporarily with given answer"""
-        cls.enable_debug(answer, validate, multi)
+        cls.enable_debug(answer, validate, multi, overwrite_default)
         yield
         cls.disable_debug()
 
-    @classmethod
-    def get_debug_answer(cls):
-        if cls._debug_mode == 1:
-            return cls._debug_answer
-        elif cls._debug_mode == 2:
-            answer = cls._debug_answer[cls._debug_answer_index]
+    def get_debug_answer(self):
+        if self._debug_mode == 1:
+            if self._debug_overwrite_default:
+                return Decision._debug_answer
+            else:
+                return self._debug_answer
+        elif self._debug_mode == 2:
+            answer = Decision._debug_answer[Decision._debug_answer_index]
             Decision._debug_answer_index += 1
             return answer
         raise AssertionError("Decision debug mode not enabled")
@@ -347,7 +361,7 @@ class Decision:
 
         if decisions:
             msg = "Found %d previous made decisions. Continue using them?"%(len(decisions))
-            reuse = BoolDecision(question=msg).decide()
+            reuse = BoolDecision(question=msg, default=True).decide()
             if reuse:
                 cls.stored_decisions.clear()
                 cls.stored_decisions.update(**decisions)
@@ -385,7 +399,7 @@ class Decision:
             return
         if (not self.validate_func) or self.validate_func(value):
             if checksum == self.validate_checksum:
-                self.value = value
+                self.value = self.deserialize_value(value)
                 self.status = Status.loadeddone
                 self.logger.info("Loaded decision '%s' with value: %s", self.global_key, value)
             else:
@@ -406,6 +420,10 @@ class Decision:
 
     def serialize_value(self):
         return {'value': self.value}
+
+    def deserialize_value(self, value):
+        """rebuild value from json deserialized object"""
+        return value
 
     def get_serializable(self):
         """Returns json serializable object representing state of decision"""
@@ -465,6 +483,9 @@ class RealDecision(Decision):
     def __init__(self, *args, unit=None, **kwargs):
         """"""
         self.unit = unit if unit else ureg.dimensionless
+        default = kwargs.get('default')
+        if default is not None and not isinstance(default, pint.Quantity):
+            kwargs['default'] = default * self.unit
         super().__init__(*args, **kwargs)
 
     def _validate(self, value):
@@ -484,7 +505,10 @@ class RealDecision(Decision):
         return {'unit': str(self.unit)}
 
     def get_debug_answer(self):
-        return super().get_debug_answer() * self.unit
+        answer = super().get_debug_answer()
+        if isinstance(answer, pint.Quantity):
+            return answer.to(self.unit)
+        return answer * self.unit
 
     def serialize_value(self):
         kwargs = {
@@ -568,3 +592,24 @@ class StringDecision(Decision):
 
     def _validate(self, value):
         return isinstance(value, str) and len(value) >= self.min_length
+
+
+class GuidDecision(Decision):
+    """Accepts GUID(s) as input. Value is a set of GUID(s)"""
+
+    def __init__(self, *args, multi=False, **kwargs):
+        self.multi = multi
+        super().__init__(*args, **kwargs)
+
+    def _validate(self, value):
+        if isinstance(value, set) and value:
+            if not self.multi and len(value) != 1:
+                return False
+            return all(isinstance(guid, str) and len(guid) == 22 for guid in value)
+        return False
+
+    def serialize_value(self):
+        return {'value': list(self.value)}
+
+    def deserialize_value(self, value):
+        return set(value)

@@ -1,7 +1,8 @@
-from bim2sim.manage import BIM2SIMManager, PROJECT
-from bim2sim.task import bps, base, common, hvac
-from bim2sim.task.sub_tasks import tz_detection
-from bim2sim.export.modelica import standardlibrary
+from bim2sim.manage import BIM2SIMManager
+from bim2sim.task import bps
+from bim2sim.task import common
+
+
 
 
 # class LoadLibrariesTEASER(base.ITask):

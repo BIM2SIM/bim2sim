@@ -4,7 +4,7 @@ from test.kernel.helper import SetupHelper
 from bim2sim.decision import Decision
 from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
-from bim2sim.task import dead_ends
+from bim2sim.task.hvac import dead_ends
 from bim2sim import decision
 from bim2sim.decision.console import ConsoleFrontEnd as FrontEnd
 
