@@ -6,6 +6,7 @@ from bim2sim.kernel import elements
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.decision import ListDecision
 from bim2sim.workflow import LOD
+from bim2sim.task.bps.EnrichMaterial import EnrichMaterial
 
 
 class EnrichBuildingByTemplates(ITask):
@@ -42,10 +43,13 @@ class EnrichBuildingByTemplates(ITask):
         layers_width = 0
         layers_r = 0
         template = cls.get_instance_template(instance, construction_type)
+        resumed = EnrichMaterial.get_resumed_material_templates()
         if template is not None:
             for i_layer, layer_props in template['layer'].items():
+                material_properties = resumed[layer_props['material']['name']]
                 new_layer = elements.Layer.create_additional_layer(
-                    layer_props['thickness'], instance, material=layer_props['material']['name'])
+                    layer_props['thickness'], instance, material=layer_props['material']['name'],
+                    material_properties=material_properties)
                 instance.layers.append(new_layer)
                 layers_width += new_layer.thickness
                 layers_r += new_layer.thickness / new_layer.thermal_conduc
@@ -76,15 +80,18 @@ class EnrichBuildingByTemplates(ITask):
             return template_value
         except KeyError:
             if len(template_options.keys()) > 0:
-                decision_template = ListDecision("the following construction types were "
-                                                 "found for year %s and instance type %s"
-                                                 % (year_of_construction, instance_type),
-                                                 choices=list(template_options.keys()),
-                                                 global_key="%s_%s.bpsTemplate" % (type(instance).__name__, instance.guid),
-                                                 allow_skip=True, allow_load=True, allow_save=True,
-                                                 collect=False, quick_decide=not True)
-                if decision_template.value is None:
-                    decision_template.decide()
-                template_value = template_options[decision_template.value]
-                cls.instance_template[instance_type] = template_value
-                return template_value
+                cls.get_alternative_construction_type(year_of_construction, instance_type, template_options, instance)
+                return cls.instance_template[instance_type]
+
+    @classmethod
+    def get_alternative_construction_type(cls, year_of_construction, instance_type, template_options, instance):
+        decision_template = ListDecision("the following construction types were "
+                                         "found for year %s and instance type %s"
+                                         % (year_of_construction, instance_type),
+                                         choices=list(template_options.keys()),
+                                         global_key="%s_%s.bpsTemplate" % (type(instance).__name__, instance.guid),
+                                         allow_skip=True, allow_load=True, allow_save=True,
+                                         collect=False, quick_decide=not True)
+        if decision_template.value is None:
+            decision_template.decide()
+        cls.instance_template[instance_type] = template_options[decision_template.value]
