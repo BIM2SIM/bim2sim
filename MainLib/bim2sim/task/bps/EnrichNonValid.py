@@ -1,9 +1,5 @@
-import ast
-
 from bim2sim.task.base import Task, ITask
-from bim2sim.kernel.element import SubElement
 from bim2sim.kernel import elements
-from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.decision import RealDecision, StringDecision
 from bim2sim.workflow import LOD
 from bim2sim.task.bps.EnrichBuildingByTemplates import EnrichBuildingByTemplates
