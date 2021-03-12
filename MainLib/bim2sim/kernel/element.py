@@ -4,6 +4,7 @@ import logging
 from json import JSONEncoder
 import itertools
 import re
+import typing
 
 import numpy as np
 
@@ -50,8 +51,28 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
         self.related_decisions = []
         self.attributes = attribute.AttributeManager(bind=self)
 
+    @classmethod
+    def __subclasshook__(cls):
+        return super().__subclasshook__()
+
     def __hash__(self):
         return hash(self.guid)
+
+    @classmethod
+    def synthesize(cls, **kwargs):
+        """Create instance from synthetic values instead of ifc"""
+        raise NotImplementedError(f"Method synthesize not implemented for {cls.__name__}.")
+
+        # https://stackoverflow.com/questions/682504/what-is-a-clean-pythonic-way-to-have-multiple-constructors-in-python
+        obj = cls.__new__(cls)  # Does not call __init__
+        super(MyClass, obj).__init__()  # Don't forget to call any polymorphic base class initializers
+        obj._value = load_from_somewhere(somename)
+        return obj
+
+    @classmethod
+    def validate(cls, ifc):
+        """Check if ifc meets conditions to create element from ist"""
+        raise NotImplementedError
 
     def calc_position(self):
         """Returns position (calculation may be expensive)"""
@@ -107,6 +128,61 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
         del Root.objects[self.guid]
         for d in self.related_decisions:
             d.discard()
+
+
+class RelatedSubElementMixin:  # TODO Mixin with __new__ is probably not a good idea
+    """Mixin which allows automated sub class selection in instantiation"""
+    _subclass_registry = {}
+    predefined_types: typing.Set[str] = None
+
+    def __init__(self, *args, **kwargs):
+        kwargs.pop('predefined_type', None)
+        super().__init__(*args, **kwargs)
+
+    def __new__(cls, *args, **kwargs):
+        predefined_type = kwargs.pop('predefined_type', None)
+        if predefined_type:
+            matching_sub_classes = cls._subclass_registry[predefined_type]
+            for sub_class in matching_sub_classes:
+                if cls in sub_class.__bases__:
+                    return super().__new__(sub_class)
+
+        return super().__new__(cls)
+
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        if cls.predefined_types:
+            for pre_type in cls.predefined_types:
+                # if predefined_type is globally unique there could be just cls
+                cls._subclass_registry.setdefault(pre_type, set()).add(cls)
+
+        return super().__init_subclass__()
+
+
+class IFCMixin:  # TBD
+    """"""
+    ifc_type: str = None
+
+    def __init__(self, ifc, *args, **kwargs):
+        ifc_args, ifc_kwargs = self.ifc2args(ifc)
+        kwargs.update(ifc_kwargs)
+        super().__init__(*(args + ifc_args), **kwargs)
+
+        self.ifc = ifc
+        self.predefined_type = ifc2python.get_predefined_type(ifc)
+
+        # TBD
+        self.enrichment = {}
+        self._propertysets = None
+        self._type_propertysets = None
+        self._decision_results = {}
+
+    @staticmethod
+    def ifc2args(ifc) -> typing.Tuple[tuple, dict]:
+        """Extract init args from ifc"""
+        # subelement can be an ifc instance that doesnt have a GlobalId
+        guid = getattr(ifc, 'GlobalId', None)
+        return (), {'guid': guid}
 
 
 class RelationBased(Root):
@@ -169,36 +245,6 @@ class RelationBased(Root):
         logger.debug("IFC model factory initialized with %d ifc classes:\n%s",
                      len(cls._ifc_classes), model_txt)
 
-    @classmethod
-    def factory(cls, ifc_element, alternate_ifc_type=None, tool=None):
-        """Create model depending on ifc_element"""
-        if not cls._ifc_classes:
-            cls._init_factory()
-
-        ifc_type = ifc_element.is_a() \
-            if not alternate_ifc_type or alternate_ifc_type == ifc_element.is_a() \
-            else alternate_ifc_type
-        cls_selected = cls._ifc_classes.get(ifc_type, cls.dummy)
-
-        prefac = cls_selected(ifc=ifc_element, tool=tool)
-        if cls_selected is cls.dummy:
-            logger = logging.getLogger(__name__)
-            logger.warning("Did not found matching class for %s", ifc_type)
-            return prefac
-
-        for sub_cls in cls.get_all_subclasses(cls_selected):
-            requirements = cls.get_class_requirements(sub_cls)
-            match = True
-            for req, value in requirements.items():
-                on_ifc = getattr(prefac, req)
-                if on_ifc != value:
-                    match = False
-                    break
-            if match is True:
-                prefac = sub_cls(ifc=ifc_element, tool=tool)
-
-        return prefac
-
     @staticmethod
     def get_all_subclasses(cls):
         all_subclasses = []
@@ -244,16 +290,67 @@ class RelationBased(Root):
 class ProductBased(Root):
     """Base class for all elements with ports"""
     objects = {}
+    ifc_type: str = None
+    predefined_types: typing.List[str]
+    dummy = None
+
+    _element_registry = {}
+
+    # TBD
     default_materials = {}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         BaseElement.objects[self.guid] = self
-        self.logger = logging.getLogger(__name__)
+
+        # TBD
         self.aggregation = None
         self.thermal_azones = []
         self.ports = []
         self.space_boundaries = []
+
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        # replaces old init factory
+        if not cls.ifc_type.lower().startswith("ifc"):
+            raise AssertionError(f"Ifc_type {cls.ifc_type} does not start with 'ifc'. Check {cls}")
+        if cls.ifc_type in cls._element_registry:
+            raise AssertionError(f"Cant register {cls} for ifc_type {cls.ifc_type}. "
+                                 f"Conflict with {cls._element_registry[cls.ifc_type]}")
+        cls._element_registry[cls.ifc_type] = cls
+        # TODO:
+        # Dummy
+        # abstract cls
+        # enum subclass
+        # agg / disagg
+        return super().__init_subclass__()
+
+    @classmethod
+    def factory(cls, ifc_element, alternate_ifc_type=None, tool=None):
+        """Create model depending on ifc_element"""
+
+        ifc_type = ifc_element.is_a() \
+            if not alternate_ifc_type or alternate_ifc_type == ifc_element.is_a() \
+            else alternate_ifc_type
+        cls_selected = cls._element_registry.get(ifc_type, cls.dummy)
+
+        prefac = cls_selected(ifc=ifc_element, tool=tool)
+        if cls_selected is cls.dummy:
+            logger.warning("Did not found matching class for %s", ifc_type)
+            return prefac
+
+        for sub_cls in cls.get_all_subclasses(cls_selected):
+            requirements = cls.get_class_requirements(sub_cls)
+            match = True
+            for req, value in requirements.items():
+                on_ifc = getattr(prefac, req)
+                if on_ifc != value:
+                    match = False
+                    break
+            if match is True:
+                prefac = sub_cls(ifc=ifc_element, tool=tool)
+
+        return prefac
 
     def get_inner_connections(self):
         """Returns inner connections of Element
