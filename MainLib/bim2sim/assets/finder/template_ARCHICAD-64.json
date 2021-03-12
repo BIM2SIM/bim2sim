@@ -90,7 +90,7 @@
       "area" : ["BaseQuantities", "Area"],
       "width" : ["BaseQuantities", "Depth"],
       "is_external": ["Pset_DoorCommon", "IsExternal"],
-      "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"]
+      "u_value" : ["Pset_DoorCommon", "ThermalTransmittance"]
     }
   },
   "InnerDoor": {

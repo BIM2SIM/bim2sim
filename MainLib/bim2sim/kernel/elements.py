@@ -330,6 +330,7 @@ class PipeFitting(element.Element):
     )
 
     length = attribute.Attribute(
+        default_ps=("Qto_PipeSegmentBaseQuantities", "Length"),
         unit=ureg.meter,
         patterns=[
             re.compile('.*Länge.*', flags=re.IGNORECASE),
@@ -775,26 +776,33 @@ class ThermalZone(element.Element):
         functions=[_get_usage]
     )
     t_set_heat = attribute.Attribute(
+        default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMin"),
         unit=ureg.degC,
         default=15
     )
     t_set_cool = attribute.Attribute(
+        default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMax"),
         unit=ureg.degC,
         default=22
     )
     area = attribute.Attribute(
+        default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
         default=0
     )
     net_volume = attribute.Attribute(
+        default_ps=("Qto_SpaceBaseQuantities", "NetVolume"),
         default=0
     )
     height = attribute.Attribute(
+        default_ps=("Qto_SpaceBaseQuantities", "Height"),
         default=0
     )
     length = attribute.Attribute(
+        default_ps=("Qto_SpaceBaseQuantities", "Length"),
         default=0
     )
     width = attribute.Attribute(
+        default_ps=("Qto_SpaceBaseQuantities", "Width"),
         default=0,
         unit=ureg.m
     )
@@ -805,8 +813,10 @@ class ThermalZone(element.Element):
         functions=[_get_heating]
     )
     with_AHU = attribute.Attribute(
+        default_ps=("Pset_SpaceThermalRequirements", "AirConditioning"),
     )
     AreaPerOccupant = attribute.Attribute(
+        default_ps=("Pset_SpaceOccupancyRequirements", "AreaPerOccupant"),
     )
     space_center = attribute.Attribute(
         functions=[get_center_of_space]
@@ -1476,9 +1486,11 @@ class Wall(element.Element):
         functions=[_get_layers]
     )
     area = attribute.Attribute(
+        default_ps=("QTo_WallBaseQuantities", "NetSideArea"),
         default=1
     )
     gross_area = attribute.Attribute(
+        default_ps=("QTo_WallBaseQuantities", "GrossSideArea"),
         default=1
     )
     is_external = attribute.Attribute(
@@ -1489,8 +1501,10 @@ class Wall(element.Element):
         default=90
     )
     u_value = attribute.Attribute(
+        default_ps=("Pset_WallCommon", "ThermalTransmittance"),
     )
     width = attribute.Attribute(
+        default_ps=("QTo_WallBaseQuantities", "Width"),
         unit=ureg.m
     )
 
@@ -1530,98 +1544,20 @@ class Layer(element.SubElement):
         if hasattr(bind.ifc, 'LayerThickness'):
             return bind.ifc.LayerThickness
 
-    def get_material_properties(bind, name, tc_range=None):
-        if name == 'thickness':
-            name = 'thickness_default'
-
-        # check if material new properties are previously stored
-        material = bind.material
-        if material in bind.material_selected:
-            if name in bind.material_selected[material]:
-                # check if range is given
-                if tc_range is not None:
-                    if tc_range[0] < bind.material_selected[material][name] < tc_range[1]:
-                        return bind.material_selected[material][name]
-                else:
-                    return bind.material_selected[material][name]
-            else:
-                return real_decision_user_input(bind, name)
-        else:
-            resumed = get_material_templates_resumed(name, tc_range)
-            try:
-                selected_properties = resumed[material]
-            except KeyError:
-                if isinstance(bind, Layer):
-                    first_decision = BoolDecision(
-                        question="Do you want to enrich the layers with the material %s by using available templates? \n"
-                                 "Belonging Item: %s | GUID: %s \n"
-                                 "Enter 'n' for manual input"
-                                 % (bind.material, bind.parent.name, bind.parent.guid),
-                        collect=False, global_key='%s_layer_enriched' % bind.material,
-                        allow_load=True, allow_save=True)
-                else:
-                    first_decision = BoolDecision(
-                        question="Do you want to enrich the material %s by using available templates? \n"
-                                 "Belonging Item: %s | GUID: %s \n"
-                                 "Enter 'n' for manual input"
-                                 % (bind.material, bind.parent.name, bind.parent.guid),
-                        collect=False, global_key='%s_material_enriched' % bind.material,
-                        allow_load=True, allow_save=True)
-                first_decision.decide()
-                first_decision.stored_decisions.clear()
-
-                if first_decision.value:
-                    if bind.material in resumed:
-                        bind.material_selected[material] = resumed[material]
-                        return bind.material_selected[bind.material][name]
-
-                    material_options = get_matches_list(bind.material, list(resumed.keys()))
-
-                    if tc_range is None:
-                        while len(material_options) == 0:
-                            decision_ = input(
-                                "Material not found, enter value for the material:")
-                            material_options = get_matches_list(decision_, list(resumed.keys()))
-                    else:
-                        material_options = list(resumed.keys())
-
-                    decision1 = ListDecision(
-                        "Multiple possibilities found for material %s\n"
-                        "Belonging Item: %s | GUID: %s \n"
-                        "Enter 'n' for manual input"
-                        % (bind.material, bind.parent.name, bind.parent.guid),
-                        choices=list(material_options), global_key='%s_material_enrichment' % bind.material,
-                        allow_skip=True, allow_load=True, allow_save=True,
-                        collect=False, quick_decide=not True)
-                    decision1.decide()
-
-                    if material is not None:
-                        if material not in bind.material_selected:
-                            bind.material_selected[material] = {}
-                        bind.material_selected[material] = resumed[decision1.value]
-                    else:
-                        bind.material = decision1.value
-                        bind.material_selected[bind.material] = resumed[decision1.value]
-                    return bind.material_selected[bind.material][name]
-                else:
-                    return real_decision_user_input(bind, name)
-            else:
-                if material not in bind.material_selected:
-                    bind.material_selected[material] = {}
-                bind.material_selected[material] = selected_properties
-                return bind.material_selected[bind.material][name]
-
     heat_capac = attribute.Attribute(
+        default_ps=("Pset_MaterialThermal", "SpecificHeatCapacity"),
         default=0,
         unit=ureg.J/ureg.K
     )
 
     density = attribute.Attribute(
+        default_ps=("Pset_MaterialThermal", "MassDensity"),
         default=0,
         unit=ureg.kg/ureg.m**3
     )
 
     thermal_conduc = attribute.Attribute(
+        default_ps=("Pset_MaterialThermal", "ThermalConductivity"),
         default=0,
         unit=ureg.W/(ureg.m*ureg.K)
     )
@@ -1670,12 +1606,15 @@ class Window(element.Element):
     )
 
     is_external = attribute.Attribute(
+        default_ps=("Pset_WindowCommon", "IsExternal"),
         default=True
     )
     area = attribute.Attribute(
+        default_ps=("QTo_WindowBaseQuantities", "Area"),
         default=0
     )
     width = attribute.Attribute(
+        default_ps=("QTo_WindowBaseQuantities", "Depth"),
         default=0,
         unit=ureg.m
     )
@@ -1716,15 +1655,18 @@ class Door(element.Element):
     )
 
     is_external = attribute.Attribute(
+        default_ps=("Pset_DoorCommon", "IsExternal"),
         functions=[_change_class],
         default=False
     )
 
     area = attribute.Attribute(
+        default_ps=("QTo_DoorBaseQuantities", "Area"),
         default=0
     )
 
     width = attribute.Attribute(
+        default_ps=("QTo_DoorBaseQuantities", "Depth"),
         default=0,
         unit=ureg.m
     )
@@ -1767,22 +1709,27 @@ class Slab(element.Element):
         functions=[_get_layers]
     )
     area = attribute.Attribute(
+        default_ps=("QTo_SlabBaseQuantities", "NetArea"),
         default=0
     )
     gross_area = attribute.Attribute(
+        default_ps=("QTo_SlabBaseQuantities", "GrossArea"),
         default=1
     )
 
     width = attribute.Attribute(
+        default_ps=("QTo_SlabBaseQuantities", "Width"),
         default=0,
         unit=ureg.m
     )
 
     u_value = attribute.Attribute(
+        default_ps=("Pset_SlabCommon", "ThermalTransmittance"),
         default=0
     )
 
     is_external = attribute.Attribute(
+        default_ps=("Pset_SlabCommon", "IsExternal"),
         default=0
     )
 
@@ -1825,16 +1772,21 @@ class Building(element.Element):
         return year_decision.value
 
     year_of_construction = attribute.Attribute(
+        default_ps=("Pset_BuildingCommon", "YearOfConstruction"),
         functions=[check_building_year],
         unit=ureg.year
     )
     gross_area = attribute.Attribute(
+        default_ps=("Pset_BuildingCommon", "GrossPlannedArea"),
     )
     net_area = attribute.Attribute(
+        default_ps=("Pset_BuildingCommon", "NetAreaPlanned"),
     )
     number_of_storeys = attribute.Attribute(
+        default_ps=("Pset_BuildingCommon", "NumberOfStoreys"),
     )
     occupancy_type = attribute.Attribute(
+        default_ps=("Pset_BuildingCommon", "OccupancyType"),
     )
 
 
@@ -1847,13 +1799,17 @@ class Storey(element.Element):
         self.storey_instances = []
 
     gross_floor_area = attribute.Attribute(
+        default_ps=("Qto_BuildingStoreyBaseQuantities", "GrossFloorArea"),
     )
     # todo make the lookup for height hierarchical
     net_height = attribute.Attribute(
+        default_ps=("Qto_BuildingStoreyBaseQuantities", "NetHeight"),
     )
     gross_height = attribute.Attribute(
+        default_ps=("Qto_BuildingStoreyBaseQuantities", "GrossHeight"),
     )
     height = attribute.Attribute(
+        default_ps=("Qto_BuildingStoreyBaseQuantities", "Height"),
     )
 
     def get_storey_instances(self):
