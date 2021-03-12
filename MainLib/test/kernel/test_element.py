@@ -27,5 +27,39 @@ class TestElement(unittest.TestCase):
     pass
 
 
+class NotPredefinedElement(element.RelatedSubElementMixin, element.ProductBased):
+    ifc_type = 'IfcSomething'
+
+    def __init__(self, *args, **kwargs):
+        self.some_attr = 2
+        super().__init__(*args, **kwargs)
+
+
+class PredefinedElement(NotPredefinedElement):
+    predefined_types = ('ITEM_A', 'ITEM_B')
+
+    def __init__(self, *args, **kwargs):
+        self.some_other_attr = 3
+        super().__init__(*args, **kwargs)
+
+
+class TestPredefinedTypes(unittest.TestCase):
+
+    def test_instanciate_element_with_predefined_sub_elements(self):
+        """"""
+        instance = NotPredefinedElement(predefined_type='ITEM_A')
+        self.assertIsInstance(instance, PredefinedElement)
+        # check successfull init
+        self.assertEqual(2, instance.some_attr)
+        self.assertEqual(3, instance.some_other_attr)
+
+    def test_instantiate_actual_element(self):
+        instance = PredefinedElement()
+        self.assertIsInstance(instance, PredefinedElement)
+        # check successfull init
+        self.assertEqual(2, instance.some_attr)
+        self.assertEqual(3, instance.some_other_attr)
+
+
 if __name__ == '__main__':
     unittest.main()
