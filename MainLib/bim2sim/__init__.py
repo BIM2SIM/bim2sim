@@ -79,6 +79,10 @@ def get_backends(by_entrypoint=False):
 def finish(success=False):
     """cleanup method"""
     logger = logging.getLogger(__name__)
+    if not success:
+        pth = PROJECT.root / 'decisions_backup.json'
+        Decision.save(pth)
+        logger.warning("Decisions are saved in '%s'. Rename file to 'decisions.json' to reuse them.", pth)
     Decision.frontend.shutdown(success)
     logger.info('finished')
 

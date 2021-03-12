@@ -147,18 +147,8 @@ def get_Property_Set(PropertySetName, element):
     AllPropertySetsList = element.IsDefinedBy
     property_set = next((item for item in AllPropertySetsList if
                          item.RelatingPropertyDefinition.Name == PropertySetName), None)
-    if property_set is not None:
-        properties = property_set.RelatingPropertyDefinition.HasProperties
-        propertydict = {}
-        for Property in properties:
-            unit = ifcunits.get(Property.NominalValue.is_a())
-            if unit:
-                propertydict[Property.Name] = Property.NominalValue.wrappedValue * unit
-            else:
-                propertydict[Property.Name] = Property.NominalValue.wrappedValue
-        return propertydict
-    else:
-        return None
+    if hasattr(property_set, 'RelatingPropertyDefinition'):
+        return propertyset2dict(property_set.RelatingPropertyDefinition)
 
 
 def get_property_sets(element):

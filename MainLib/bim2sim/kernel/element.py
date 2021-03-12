@@ -9,10 +9,8 @@ import numpy as np
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import ifc2python, attribute
-from bim2sim.decision import Decision, ListDecision
-from bim2sim.kernel.units import ureg
 from bim2sim.decision import Decision
-from bim2sim.task.common.common_functions import angle_equivalent, vector_angle, get_matches_list
+from bim2sim.task.common.common_functions import angle_equivalent, vector_angle
 from bim2sim.kernel.finder import TemplateFinder
 
 logger = logging.getLogger(__name__)
@@ -136,7 +134,6 @@ class IFCBased(Root):
                     self.name = input("Please enter name for the instance %s"
                                       % type(self).__name__)
         self.predefined_type = ifc2python.get_predefined_type(ifc)
-
         self.enrichment = {}
         self._propertysets = None
         self._type_propertysets = None
@@ -145,44 +142,6 @@ class IFCBased(Root):
 
     def calc_position(self):
         """returns absolute position"""
-        # if type(self).__name__ == 'ThermalZone':
-        #     settings = ifcopenshell.geom.settings()
-        #     settings.set(settings.USE_WORLD_COORDS, True)
-        #     settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-        #     settings.set(settings.INCLUDE_CURVES, True)
-        #     space_shape = ifcopenshell.geom.create_shape(settings, self.ifc)
-        #     i = 0
-        #     x, y, z = [], [], []
-        #     if len(space_shape.geometry.verts) > 0:
-        #         while i < len(space_shape.geometry.verts):
-        #             x.append(space_shape.geometry.verts[i])
-        #             y.append(space_shape.geometry.verts[i+1])
-        #             z.append(space_shape.geometry.verts[i+2])
-        #             i += 3
-        #     x = list(set(x))
-        #     y = list(set(y))
-        #     z = list(set(z))
-        #     x.sort()
-        #     y.sort()
-        #     z.sort()
-        #
-        #     absolute1 = np.array([x[0], y[0], z[0]])
-        #
-        #     settings = ifcopenshell.geom.main.settings()
-        #     settings.set(settings.USE_PYTHON_OPENCASCADE, True)
-        #     settings.set(settings.USE_WORLD_COORDS, True)
-        #     settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-        #     settings.set(settings.INCLUDE_CURVES, True)
-        #     space_shape = ifcopenshell.geom.create_shape(settings, self.ifc).geometry
-        #     shape_val = TopoDS.TopoDS_Iterator(space_shape).Value()
-        #     aux = shape_val.Location().Transformation().TranslationPart()
-        #     absolute = np.array([aux.X(), aux.Y(), aux.Z()])
-        #     # absolute = shape_val.Location()
-        #     print()
-        #
-        #
-        #     # absolute = np.array([sum(x)/2, sum(y)/2, sum(z)/2])
-        # else:
         if hasattr(self.ifc, 'ObjectPlacement'):
             absolute = np.array(self.ifc.ObjectPlacement.RelativePlacement.Location.Coordinates)
             placementrel = self.ifc.ObjectPlacement.PlacementRelTo
@@ -700,6 +659,7 @@ class SubElement(BaseElement, IFCBased):
 
     dummy = None
     conditions = []
+    # todo move this to upper class?
     instances = {}
 
     def __init__(self, *args, tool=None, **kwargs):
@@ -927,6 +887,3 @@ class Dummy(Element):
 
     def __str__(self):
         return "Dummy '%s'" % self.name
-
-
-# import Element classes for Element.factory

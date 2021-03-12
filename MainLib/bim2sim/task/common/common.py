@@ -11,7 +11,6 @@ from bim2sim.task.base import ITask
 from bim2sim.kernel.units import ifcunits, ureg, ifc_pint_unitmap, parse_ifc
 from jinja2 import Environment, FileSystemLoader
 from dill.source import getsource
-from bim2sim.kernel import elements
 from bs4 import BeautifulSoup
 from Ifc import SchemaParser
 from bim2sim.decision import BoolDecision, ListDecision
@@ -120,6 +119,7 @@ class LoadIFC(ITask):
     def get_elements_modifications(self):
         """overwrites functions from elements.py in file elements_functions.py and
             overwrites pattern, conditions and attributes in file elements_specific_schema.json"""
+        from bim2sim.kernel import elements
         emods_decision = BoolDecision(question="Do you want to use the last modifications made in elements.py for your "
                                                "new ifc structure?",
                                       global_key="load_modifications_ifc",
@@ -293,6 +293,7 @@ class LoadIFC(ITask):
     def get_ifc_structure(self, ifc):
         """creates elements.py file based on elements_specific_schema.json, elements_functions.py
             and schema for specific schema of ifc"""
+        from bim2sim.kernel import elements
         if elements.schema != ifc.schema:
             structure_decision = BoolDecision(question="The schema of the ifc file (%s) doesn't correspond to the "
                                                        "schema of elements.py (%s) Do you want to modify elements.py "

@@ -6,9 +6,9 @@ import tempfile
 import numpy as np
 
 from bim2sim.kernel.element import Root, BasePort, BaseElement, IFCBased
-from bim2sim.task.hvac import hvac
-from bim2sim.task.common import common
-from bim2sim.task.hvac.hvac import Inspect
+from bim2sim.task import hvac
+from bim2sim.task import common
+from bim2sim.task.hvac import Inspect
 from bim2sim.workflow import PlantSimulation
 from bim2sim.project import PROJECT, _Project
 from bim2sim import BIM2SIMManager
@@ -66,7 +66,7 @@ class TestInspect(unittest.TestCase):
     def test_case_1(self):
         """HeatExchange with 4 (semantically) connected pipes"""
 
-        with Decision.debug_answer('IfcHeatPump', validate=True):
+        with Decision.debug_answer('IfcUnitaryEquipment', validate=True):
             self.manager.run()
 
         heat_exchanger = Root.objects.get('0qeZDHlQRzcKJYopY4$fEf')
@@ -76,7 +76,7 @@ class TestInspect(unittest.TestCase):
     def test_case_2(self):
         """HeatExchange and Pipes are exported without ports"""
 
-        with Decision.debug_answer('IfcHeatPump', validate=True):
+        with Decision.debug_answer('IfcUnitaryEquipment', validate=True):
             self.manager.run()
 
         heat_exchanger = Root.objects.get('0qeZDHlQRzcKJYopY4$fEf')
@@ -88,7 +88,7 @@ class TestInspect(unittest.TestCase):
     def test_case_3(self):
         """No connections but ports are less than 10 mm apart"""
 
-        with Decision.debug_answer('IfcHeatPump', validate=True):
+        with Decision.debug_answer('IfcUnitaryEquipment', validate=True):
             self.manager.run()
 
         heat_exchanger = Root.objects.get('3FQzmSvzrgbaIM6zA4FX8S')
@@ -98,7 +98,7 @@ class TestInspect(unittest.TestCase):
     def test_case_4(self):
         """Mix of case 1 and 3"""
 
-        with Decision.debug_answer('IfcHeatPump', validate=True):
+        with Decision.debug_answer('IfcUnitaryEquipment', validate=True):
             self.manager.run()
 
         heat_exchanger = Root.objects.get('3FQzmSvzrgbaIM6zA4FX8S')
