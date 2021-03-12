@@ -462,7 +462,11 @@
       "teaser": {
         "name": ["instance","name"],
         "area": ["instance", "area"],
-        "number_of_elements": 2
+        "number_of_elements": 2,
+        "set_temp_heat": ["instance", "t_set_heat"],
+        "set_temp_cool": ["instance", "t_set_cool"],
+        "with_cooling": ["instance", "with_cooling"],
+        "with_heating": ["instance", "with_heating"]
       }
     },
     "default_ps": {

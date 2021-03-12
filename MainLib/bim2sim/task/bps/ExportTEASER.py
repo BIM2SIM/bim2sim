@@ -1,10 +1,6 @@
-import inspect
-
 from bim2sim.task.base import Task, ITask
-from bim2sim.decision import BoolDecision, ListDecision
 from bim2sim.kernel.element import SubElement
 from bim2sim.project import PROJECT
-from bim2sim.kernel.aggregation import Aggregated_ThermalZone
 from teaser.project import Project
 from teaser.logic.buildingobjects.building import Building
 from teaser.logic.buildingobjects.thermalzone import ThermalZone
@@ -19,7 +15,6 @@ from teaser.logic.buildingobjects.buildingphysics.layer import Layer
 from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
 from bim2sim.kernel.units import conversion, ureg
-
 
 
 class ExportTEASER(ITask):
@@ -51,7 +46,7 @@ class ExportTEASER(ITask):
             tz_instances = SubElement.get_class_instances('ThermalZone')
             for tz_instance in tz_instances:
                 tz = self._create_thermal_zone(tz_instance, bldg)
-                self._bind_instances_to_zone(tz, tz_instance, bldg)
+                self._bind_instances_to_zone(tz, tz_instance)
                 tz.calc_zone_parameters()
             bldg.calc_building_parameter()
 
@@ -92,55 +87,39 @@ class ExportTEASER(ITask):
                 if value[0] == 'instance':
                     aux = getattr(instance, value[1])
                     if type(aux) is ureg.Quantity:
-                        aux = aux.magnitude
-                    cls._invalid_property_filter(teaser_instance, instance, key, aux)
+                        if aux.u == ureg.degC:
+                            aux = aux.to('kelvin').magnitude
+                        else:
+                            aux = aux.magnitude
+                    cls._invalid_property_filter(teaser_instance, key, aux)
             else:
                 # get property from json (fixed property)
                 setattr(teaser_instance, key, value)
 
     @classmethod
-    def _invalid_property_filter(cls, teaser_instance, instance, key, aux):
+    def _invalid_property_filter(cls, teaser_instance, key, aux):
         """Filter the invalid property values and fills it with a template or an user given value,
         if value is valid, returns the value
         invalid value: ZeroDivisionError on thermal zone calculations"""
-        error_properties = ['density', 'thickness', 'heat_capac',
-                            'thermal_conduc']  # properties that are vital to thermal zone calculations
-        white_list_properties = ['orientation']
-        if (aux is None or aux == 0) and key not in white_list_properties:
-            # name from instance to store in error dict
-            if hasattr(instance, 'material'):
-                name_error = instance.material
-            else:
-                name_error = instance.name
-            try:
-                aux = cls.property_error[name_error][key]
-            # redundant case for invalid properties
-            except KeyError:
-                if key in error_properties:
-                    aux = instance.get_material_properties(key)
-                    if name_error not in cls.property_error:
-                        cls.property_error[name_error] = {}
-                    cls.property_error[name_error][key] = aux
+        error_properties = ['thickness', 'thermal_conduc']  # properties that are vital to thermal zone calculations
+        if (aux is None or aux == 0) and key in error_properties:
+            raise ZeroDivisionError
         # set attr on teaser instance
         setattr(teaser_instance, key, aux)
-
 
     @classmethod
     def _create_thermal_zone(cls, instance, parent):
         """Creates a thermal zone in TEASER by a given BIM2SIM instance
         Parent: Building"""
         tz = ThermalZone(parent=parent)
-        cls._teaser_property_getter(tz, instance, instance.finder.templates)
-        tz.volume = instance.area * instance.height
         tz.use_conditions = UseConditions(parent=tz)
         tz.use_conditions.load_use_conditions(instance.usage)
-        if instance.t_set_heat:
-            tz.use_conditions.set_temp_heat = conversion(instance.t_set_heat, '°C', 'K').magnitude
-        if instance.t_set_cool:
-            tz.use_conditions.set_temp_cool = conversion(instance.t_set_cool, '°C', 'K').magnitude
+        cls._teaser_property_getter(tz, instance, instance.finder.templates)
+        tz.volume = instance.area * instance.height
 
-        tz.use_conditions.cooling_profile = [conversion(25, '°C', 'K').magnitude] * 25
-        tz.use_conditions.with_cooling = instance.with_cooling
+        tz.use_conditions.cooling_profile = [tz.set_temp_cool] * 25
+        tz.use_conditions.heating_profile = [tz.set_temp_heat] * 25
+        # hardcode for paper:
         if PROJECT.PAPER:
             tz.use_conditions.cooling_profile = [conversion(25, '°C', 'K').magnitude] * 25
             tz.use_conditions.with_cooling = instance.with_cooling
@@ -150,13 +129,13 @@ class ExportTEASER(ITask):
         return tz
 
     @classmethod
-    def _bind_instances_to_zone(cls, tz, tz_instance, bldg):
+    def _bind_instances_to_zone(cls, tz, tz_instance):
         """create and bind the instances of a given thermal zone to a teaser instance thermal zone"""
         for bound_element in tz_instance.bound_elements:
-            cls._create_teaser_instance(bound_element, tz, bldg)
+            cls._create_teaser_instance(bound_element, tz)
 
     @classmethod
-    def _create_teaser_instance(cls, instance, parent, bldg):
+    def _create_teaser_instance(cls, instance, parent):
         """creates a teaser instances with a given parent and BIM2SIM instance
         get exporter necessary properties, from a given instance
         Parent: ThermalZone"""
@@ -172,21 +151,21 @@ class ExportTEASER(ITask):
         if teaser_class is not None:
             teaser_instance = teaser_class(parent=parent)
             cls._teaser_property_getter(teaser_instance, instance, templates)
-            cls._instance_related(teaser_instance, instance, bldg)
+            cls._instance_related(teaser_instance, instance)
 
     @classmethod
-    def _instance_related(cls, teaser_instance, instance, bldg):
+    def _instance_related(cls, teaser_instance, instance):
         """instance specific function, layers creation
         if layers not given, loads template"""
         # property getter if instance has materials/layers
         if isinstance(instance.layers, list) and len(instance.layers) > 0:
             for layer_instance in instance.layers:
                 layer = Layer(parent=teaser_instance)
-                cls._invalid_property_filter(layer, layer_instance, 'thickness', layer_instance.thickness.m)
-                cls._material_related(layer, layer_instance, bldg)
+                cls._invalid_property_filter(layer, 'thickness', layer_instance.thickness.m)
+                cls._material_related(layer, layer_instance)
 
     @classmethod
-    def _material_related(cls, layer, layer_instance, bldg):
+    def _material_related(cls, layer, layer_instance):
         """material instance specific functions, get properties of material and creates Material in teaser,
         if material or properties not given, loads material template"""
         material = Material(parent=layer)

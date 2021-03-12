@@ -793,10 +793,14 @@ class ThermalZone(element.Element):
         functions=[_get_usage]
     )
     t_set_heat = attribute.Attribute(
-        default_ps='t_set_heat'
+        default_ps='t_set_heat',
+        unit=ureg.degC,
+        default=15
     )
     t_set_cool = attribute.Attribute(
-        default_ps='t_set_cool'
+        default_ps='t_set_cool',
+        unit=ureg.degC,
+        default=22
     )
     area = attribute.Attribute(
         default_ps='area',
