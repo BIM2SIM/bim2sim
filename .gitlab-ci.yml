@@ -119,7 +119,6 @@ sphinxdoc:
   stage: doc
 
   before_script:
-    # - pip install --upgrade pip
     - pip install sphinx anybadge sphinx-rtd-theme
     - pip install m2r2
     
@@ -127,8 +126,6 @@ sphinxdoc:
     - mv ./* /bim2sim/
     - source activate base
     - mkdir -p $CI_COMMIT_REF_NAME/docs
-    - echo ${PYTHONPATH}
-    - ls
     - sphinx-apidoc -o /bim2sim/docs/source /bim2sim  # create rst files for all python files 
     - sphinx-build -b html /bim2sim/docs/source $CI_COMMIT_REF_NAME/docs
     - anybadge --value="passing" --file=$CI_COMMIT_REF_NAME/docs/doc.svg --label documentation
@@ -138,28 +135,28 @@ sphinxdoc:
     - $CI_COMMIT_REF_NAME/docs
     expire_in: 2 hrs
 
-# pages:
-# # Page to generate content to be downloaded in the artifact-section.
-#   image: ubuntu:latest
-#   stage: deploy
-#   before_script:
-#     - apt-get update -y
-#     - apt-get install zip unzip -y
-#   script:
-#     - set +e
-#     - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
-#     - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
-#     - set -e
-#     # Add/update content
-#     # TODO: mv $CI_COMMIT_REF_NAME/* to public/$CI_COMMIT_REF_NAME/*
-#     - mkdir -p public/$CI_COMMIT_REF_NAME
-#     - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
-#     # Zip the content and publish the zip again
-#     - zip -r "content.zip" "public"
-#     - mv "content.zip" "public/"
-#   artifacts:
-#     paths:
-#       - public
+pages:
+# Page to generate content to be downloaded in the artifact-section.
+  image: ubuntu:latest
+  stage: deploy
+  before_script:
+    - apt-get update -y
+    - apt-get install zip unzip -y
+  script:
+    - set +e
+    - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
+    - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
+    - set -e
+    # Add/update content
+    # TODO: mv $CI_COMMIT_REF_NAME/* to public/$CI_COMMIT_REF_NAME/*
+    - mkdir -p public/$CI_COMMIT_REF_NAME
+    - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
+    # Zip the content and publish the zip again
+    - zip -r "content.zip" "public"
+    - mv "content.zip" "public/"
+  artifacts:
+    paths:
+      - public
 
 # mrpost:
 #   stage: visualize
