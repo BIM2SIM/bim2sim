@@ -1,13 +1,3 @@
-# services:
-#   - name: docker:dind
-#     entrypoint: ["env", "-u", "DOCKER_HOST"]
-#     command: ["dockerd-entrypoint.sh"]
-# variables:
-#   DOCKER_HOST: tcp://docker:2375/
-#   DOCKER_DRIVER: overlay2
-#   # See https://github.com/docker-library/docker/pull/166
-#   DOCKER_TLS_CERTDIR: ""
-
 .only-default: &only-default
   only:
     - master
@@ -85,24 +75,25 @@ unittest3.7:
     - source activate base
     - python /bim2sim/MainLib/run_tests.py
 
-pylint:
-  stage: test
-  image: python:3.6
-  script:
-    - pip install pylint pylint-json2html pylint-exit anybadge --quiet
-    - mkdir public
-    - shopt -s globstar
-    - pylint --output-format=text **/*.py | tee public/pylint.txt || pylint-exit $?
-    - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' public/pylint.txt)
-    - echo "Pylint score was $score"
-    - anybadge --value=$score --file=public/pylint.svg pylint
-    - pylint --output-format=jsonextended --disable=import-error --load-plugins=pylint_json2html **/*.py | tee public/pylint.json || pylint-exit $?
-    - pylint-json2html -f jsonextended -o public/index.html < public/pylint.json
-  artifacts:
-    paths:
-    - public
-  only:
-    - master
+#todo check if this is still needed or if master branch results are also available under $CI_COMMIT_REF_NAME/...
+# pylint:
+#   stage: test
+#   image: python:3.6
+#   script:
+#     - pip install pylint pylint-json2html pylint-exit anybadge --quiet
+#     - mkdir public
+#     - shopt -s globstar
+#     - pylint --output-format=text **/*.py | tee public/pylint.txt || pylint-exit $?
+#     - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' public/pylint.txt)
+#     - echo "Pylint score was $score"
+#     - anybadge --value=$score --file=public/pylint.svg pylint
+#     - pylint --output-format=jsonextended --disable=import-error --load-plugins=pylint_json2html **/*.py | tee public/pylint.json || pylint-exit $?
+#     - pylint-json2html -f jsonextended -o public/index.html < public/pylint.json
+#   artifacts:
+#     paths:
+#     - public
+#   only:
+#     - master
 
 pylint:
   stage: test
@@ -122,10 +113,6 @@ pylint:
   artifacts:
     paths:
     - $CI_COMMIT_REF_NAME/pylint
-  only:
-    - branches
-    - merge_requests
-
 
 sphinxdoc:
   image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:python-latest
@@ -150,25 +137,6 @@ sphinxdoc:
     - $CI_COMMIT_REF_NAME/docs
     expire_in: 2 hrs
 
-
-# pages:
-#   # Remove all present files to ensure not to overstep artifact size
-#   image: ubuntu:latest
-#   stage: deploy
-#   before_script:
-#   - apt-get update -y
-#   script:
-#     - mkdir -p public/$CI_COMMIT_REF_NAME
-#     - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
-#   only:
-#     - master
-#     - development
-#     - 113-add-Sphinx
-#   artifacts:
-#     paths:
-#       - public
-
-
 pages:
 # Page to generate content to be downloaded in the artifact-section.
   image: ubuntu:latest
@@ -191,7 +159,6 @@ pages:
   artifacts:
     paths:
       - public
-      # Make the minor documentation expire in a reasonable development time
 
 mrpost:
   stage: visualize
