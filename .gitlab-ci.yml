@@ -10,11 +10,12 @@ sphinxdoc:
     - pip install --upgrade pip
     - test -e requirements.txt && pip install -r requirements.txt || echo no requirements to install
     - test -e setup.py && pip install -e . || echo no setup.py found
-    - pip install sphinx anybadge
+    - pip install sphinx anybadge sphinx-rtd-theme
     - pip install m2r2
     
   script:
     - mkdir -p $CI_COMMIT_REF_NAME/docs
+    - sphinx-apidoc -o ./docs/source ./  # create rst files for all python files 
     - sphinx-build -b html docs/source $CI_COMMIT_REF_NAME/docs
     - anybadge --value="passing" --file=$CI_COMMIT_REF_NAME/docs/doc.svg --label documentation
 
