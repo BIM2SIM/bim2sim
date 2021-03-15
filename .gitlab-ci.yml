@@ -63,7 +63,7 @@ pages:
     # Zip the content and publish the zip again
     - zip -r "content.zip" "public"
     - mv "content.zip" "public/"
-  except:
+  only:
     - master
     - development
     - 113-add-Sphinx
