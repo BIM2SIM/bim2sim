@@ -192,7 +192,7 @@ pages:
     paths:
       - public
       # Make the minor documentation expire in a reasonable development time
-    expire_in: 3 days
+    expire_in: 1 second
 
 mrpost:
   stage: visualize
