@@ -119,13 +119,13 @@ sphinxdoc:
   stage: doc
 
   before_script:
-    - mv ./* /bim2sim/
-    - source activate base
     # - pip install --upgrade pip
     - pip install sphinx anybadge sphinx-rtd-theme
     - pip install m2r2
     
   script:
+    - mv ./* /bim2sim/
+    - source activate base
     - mkdir -p $CI_COMMIT_REF_NAME/docs
     - sphinx-apidoc -o /bim2sim/docs/source /bim2sim  # create rst files for all python files 
     - sphinx-build -b html /bim2sim/docs/source $CI_COMMIT_REF_NAME/docs
