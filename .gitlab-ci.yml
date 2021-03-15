@@ -119,6 +119,7 @@ sphinxdoc:
   stage: doc
 
   before_script:
+    - mv ./* /bim2sim/
     - source activate base
     # - pip install --upgrade pip
     - pip install sphinx anybadge sphinx-rtd-theme
@@ -126,7 +127,7 @@ sphinxdoc:
     
   script:
     - mkdir -p $CI_COMMIT_REF_NAME/docs
-    - sphinx-apidoc -o ./docs/source ./  # create rst files for all python files 
+    - sphinx-apidoc -o ./docs/source /bim2sim  # create rst files for all python files 
     - sphinx-build -b html docs/source $CI_COMMIT_REF_NAME/docs
     - anybadge --value="passing" --file=$CI_COMMIT_REF_NAME/docs/doc.svg --label documentation
 
