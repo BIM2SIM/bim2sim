@@ -19,6 +19,7 @@ stages:
   - build
   - test
   - pages
+  - doc
   - visualize
 
 build_env:development:
@@ -147,6 +148,29 @@ pages:
   artifacts:
     paths:
       - public
+
+sphinxdoc:
+  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:python-latest
+  stage: doc
+
+  before_script:
+    - source activate python37
+    - pip install --upgrade pip
+    - test -e requirements.txt && pip install -r requirements.txt || echo no requirements to install
+    - test -e setup.py && pip install -e . || echo no setup.py found
+    - pip install sphinx anybadge
+    - pip install m2r2
+    
+  script:
+    - mkdir -p $CI_COMMIT_REF_NAME/docs
+    - sphinx-build -b html docs/source $CI_COMMIT_REF_NAME/docs
+    - anybadge --value="passing" --file=$CI_COMMIT_REF_NAME/docs/doc.svg --label documentation
+
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/docs
+    expire_in: 2 hrs
+
 
 
 mrpost:
