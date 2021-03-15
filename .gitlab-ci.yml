@@ -75,6 +75,24 @@ unittest3.7:
     - source activate base
     - python /bim2sim/MainLib/run_tests.py
 
+coverage:
+  <<: *only-default
+  image: $CI_REGISTRY/environment:development
+  stage: test
+  before_script:
+    - pip install coverage
+  script:
+    - mv ./* /bim2sim/
+    - source activate base
+    - coverage -m unittest discover -s /bim2sim/MainLib/test/
+    - coverage report
+    - mkdir -p $CI_COMMIT_REF_NAME/coverage
+    - coverage html
+    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/coverage
+
 #todo check if this is still needed or if master branch results are also available under $CI_COMMIT_REF_NAME/...
 # pylint:
 #   stage: test
