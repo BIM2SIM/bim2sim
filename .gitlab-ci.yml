@@ -1,5 +1,6 @@
 stages:
   - doc
+  - deploy
 
 sphinxdoc:
   image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:python-latest
@@ -23,3 +24,51 @@ sphinxdoc:
     paths:
     - $CI_COMMIT_REF_NAME/docs
     expire_in: 2 hrs
+
+
+pages:
+  # Remove all present files to ensure not to overstep artifact size
+  image: ubuntu:latest
+  stage: deploy
+  before_script:
+  - apt-get update -y
+  script:
+    - mkdir -p public/$CI_COMMIT_REF_NAME
+    - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
+  only:
+    - master
+    - development
+  artifacts:
+    paths:
+      - public
+
+
+pages_issues:
+# Page to generate content to be downloaded in the artifact-section.
+  image: ubuntu:latest
+  stage: deploy
+  before_script:
+    - apt-get update -y
+    - apt-get install zip unzip -y
+  script:
+    - set +e
+    - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
+    - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
+    - set -e
+    # Add/update content
+    # TODO: mv $CI_COMMIT_REF_NAME/* to public/$CI_COMMIT_REF_NAME/*
+    - mkdir -p public/$CI_COMMIT_REF_NAME
+    - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
+    # Zip the content and publish the zip again
+    - zip -r "content.zip" "public"
+    - mv "content.zip" "public/"
+  except:
+    - master
+    - development
+  artifacts:
+    paths:
+      - public
+      # Make the minor documentation expire in a reasonable development time
+    expire_in: 2 weeks
+
+
