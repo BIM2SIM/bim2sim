@@ -109,19 +109,19 @@ pylint:
   image: python:3.6
   script:
     - pip install pylint pylint-json2html pylint-exit anybadge --quiet
-    - mkdir -p public/$CI_COMMIT_REF_NAME
+    - mkdir -p $CI_COMMIT_REF_NAME/pylint
     - shopt -s globstar
-    - pylint --output-format=text **/*.py | tee public/$CI_COMMIT_REF_NAME/pylint.txt || pylint-exit $?
-    - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' public/$CI_COMMIT_REF_NAME/pylint.txt)
+    - pylint --output-format=text **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.txt || pylint-exit $?
+    - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' $CI_COMMIT_REF_NAME/pylint/pylint.txt)
     - echo "Pylint score was $score"
-    - anybadge --value=$score --file=public/$CI_COMMIT_REF_NAME/pylint.svg pylint
-    - pylint --output-format=jsonextended --disable=import-error --load-plugins=pylint_json2html **/*.py | tee public/$CI_COMMIT_REF_NAME/pylint.json || pylint-exit $?
-    - pylint-json2html -f jsonextended -o public/$CI_COMMIT_REF_NAME/pylint.html < public/$CI_COMMIT_REF_NAME/pylint.json
+    - anybadge --value=$score --file=$CI_COMMIT_REF_NAME/pylint/pylint.svg pylint
+    - pylint --output-format=jsonextended --disable=import-error --load-plugins=pylint_json2html **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.json || pylint-exit $?
+    - pylint-json2html -f jsonextended -o $CI_COMMIT_REF_NAME/pylint/pylint.html < $CI_COMMIT_REF_NAME/pylint/pylint.json
     # todo integrate, that batch in readme.md is changed automaticly for branches
     # - sed -i 's/pylint](.*)/pylint]( test )/g' README.md
   artifacts:
     paths:
-    - public
+    - $CI_COMMIT_REF_NAME/pylint
   only:
     - branches
     - merge_requests
@@ -192,7 +192,6 @@ pages:
     paths:
       - public
       # Make the minor documentation expire in a reasonable development time
-    expire_in: 1 second
 
 mrpost:
   stage: visualize
