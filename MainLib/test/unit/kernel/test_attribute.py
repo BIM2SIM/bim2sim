@@ -7,7 +7,7 @@ from bim2sim.kernel.attribute import Attribute
 from bim2sim.decision import Decision
 from bim2sim.kernel.units import ureg
 
-from test.kernel.helper import SetupHelper
+from test.unit.kernel.helper import SetupHelper
 
 
 class TestElement(element.Element):
