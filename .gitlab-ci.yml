@@ -66,14 +66,14 @@ build_tool:webdevelop:
   only:
     - frontend
 
-# unittest3.7:
-#   <<: *only-default
-#   image: $CI_REGISTRY/environment:development
-#   stage: test
-#   script:
-#     - mv ./* /bim2sim/
-#     - source activate base
-#     - python /bim2sim/MainLib/run_tests.py
+unittest3.7:
+  <<: *only-default
+  image: $CI_REGISTRY/environment:development
+  stage: test
+  script:
+    - mv ./* /bim2sim/
+    - source activate base
+    - python /bim2sim/MainLib/run_tests.py
 
 #todo check if this is still needed or if master branch results are also available under $CI_COMMIT_REF_NAME/...
 # pylint:
@@ -95,24 +95,24 @@ build_tool:webdevelop:
 #   only:
 #     - master
 
-# pylint:
-#   stage: test
-#   image: python:3.6
-#   script:
-#     - pip install pylint pylint-json2html pylint-exit anybadge --quiet
-#     - mkdir -p $CI_COMMIT_REF_NAME/pylint
-#     - shopt -s globstar
-#     - pylint --output-format=text **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.txt || pylint-exit $?
-#     - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' $CI_COMMIT_REF_NAME/pylint/pylint.txt)
-#     - echo "Pylint score was $score"
-#     - anybadge --value=$score --file=$CI_COMMIT_REF_NAME/pylint/pylint.svg pylint
-#     - pylint --output-format=jsonextended --disable=import-error --load-plugins=pylint_json2html **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.json || pylint-exit $?
-#     - pylint-json2html -f jsonextended -o $CI_COMMIT_REF_NAME/pylint/pylint.html < $CI_COMMIT_REF_NAME/pylint/pylint.json
-#     # todo integrate, that batch in readme.md is changed automaticly for branches
-#     # - sed -i 's/pylint](.*)/pylint]( test )/g' README.md
-#   artifacts:
-#     paths:
-#     - $CI_COMMIT_REF_NAME/pylint
+pylint:
+  stage: test
+  image: python:3.6
+  script:
+    - pip install pylint pylint-json2html pylint-exit anybadge --quiet
+    - mkdir -p $CI_COMMIT_REF_NAME/pylint
+    - shopt -s globstar
+    - pylint --output-format=text **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.txt || pylint-exit $?
+    - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' $CI_COMMIT_REF_NAME/pylint/pylint.txt)
+    - echo "Pylint score was $score"
+    - anybadge --value=$score --file=$CI_COMMIT_REF_NAME/pylint/pylint.svg pylint
+    - pylint --output-format=jsonextended --disable=import-error --load-plugins=pylint_json2html **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.json || pylint-exit $?
+    - pylint-json2html -f jsonextended -o $CI_COMMIT_REF_NAME/pylint/pylint.html < $CI_COMMIT_REF_NAME/pylint/pylint.json
+    # todo integrate, that batch in readme.md is changed automaticly for branches
+    # - sed -i 's/pylint](.*)/pylint]( test )/g' README.md
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/pylint
 
 sphinxdoc:
   image: $CI_REGISTRY/environment:development
