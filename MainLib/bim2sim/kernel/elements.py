@@ -37,10 +37,8 @@ from bim2sim.kernel import element, condition, attribute
 from bim2sim.decision import BoolDecision, RealDecision, ListDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.kernel.ifc2python import get_layers_ifc
-from bim2sim.enrichment_data.data_class import DataClass
 from teaser.logic.buildingobjects.useconditions import UseConditions
-from bim2sim.task.common.common_functions import get_matches_list, get_material_templates_resumed, \
-    real_decision_user_input, filter_instances, get_pattern_usage, vector_angle
+from bim2sim.task.common.common_functions import get_pattern_usage, vector_angle
 from bim2sim.kernel.disaggregation import SubInnerWall, SubOuterWall, Disaggregation
 from bim2sim.project import PROJECT
 import translators as ts
@@ -633,11 +631,11 @@ class ThermalZone(element.Element):
     def get_is_external(self):
         """determines if a thermal zone is external or internal
         based on its elements (Walls and windows analysis)"""
-        tz_elements = filter_instances(self.bound_elements, 'Wall') + filter_instances(self.bound_elements, 'Window')
-        for ele in tz_elements:
-            if hasattr(ele, 'is_external'):
-                if ele.is_external is True:
-                    return True
+        outer_elements = self.get_class_instances('OuterWall')
+        if len(outer_elements) > 0:
+            return True
+        else:
+            return False
 
     def set_is_external(self):
         """set the property is_external -> Bool"""
@@ -1473,7 +1471,7 @@ class Wall(element.Element):
             layers.append(new_layer)
         return layers
 
-    def _change_class(self, name):
+    def get_is_external(self, name):
         if len(self.ifc.ProvidesBoundaries) > 0:
             boundary = self.ifc.ProvidesBoundaries[0]
             if boundary.InternalOrExternalBoundary is not None:
@@ -1494,7 +1492,7 @@ class Wall(element.Element):
         default=1
     )
     is_external = attribute.Attribute(
-        functions=[_change_class],
+        functions=[get_is_external],
         default=False
     )
     tilt = attribute.Attribute(
@@ -1641,7 +1639,7 @@ class Door(element.Element):
             layers.append(new_layer)
         return layers
 
-    def _change_class(self, name):
+    def get_is_external(self, name):
         if len(self.ifc.ProvidesBoundaries) > 0:
             boundary = self.ifc.ProvidesBoundaries[0]
             if boundary.InternalOrExternalBoundary is not None:
@@ -1655,8 +1653,7 @@ class Door(element.Element):
     )
 
     is_external = attribute.Attribute(
-        default_ps=("Pset_DoorCommon", "IsExternal"),
-        functions=[_change_class],
+        functions=[get_is_external],
         default=False
     )
 

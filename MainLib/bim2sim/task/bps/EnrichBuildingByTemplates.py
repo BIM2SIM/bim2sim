@@ -3,10 +3,10 @@ import ast
 from bim2sim.task.base import Task, ITask
 from bim2sim.kernel.element import SubElement
 from bim2sim.kernel import elements
-from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.decision import ListDecision
 from bim2sim.workflow import LOD
 from bim2sim.task.bps.EnrichMaterial import EnrichMaterial
+from bim2sim.task.common.common_functions import get_type_building_elements
 
 
 class EnrichBuildingByTemplates(ITask):
@@ -63,7 +63,7 @@ class EnrichBuildingByTemplates(ITask):
         building = SubElement.get_class_instances('Building')[0]
 
         instance_type = type(instance).__name__
-        instance_templates = dict(DataClass(used_param=3).element_bind)
+        instance_templates = get_type_building_elements()
         if instance_type in cls.instance_template:
             return cls.instance_template[instance_type]
 

@@ -2,7 +2,7 @@ import ast
 
 from bim2sim.task.base import Task, ITask
 from bim2sim.kernel.element import SubElement
-from bim2sim.enrichment_data.data_class import DataClass
+from bim2sim.task.common.common_functions import get_type_building_elements, get_material_templates
 
 
 class BuildingVerification(ITask):
@@ -33,11 +33,11 @@ class BuildingVerification(ITask):
         if instance_type in supported_classes:
             if len(instance.layers) == 0:  # no layers given
                 return False
-            layers_width, layers_u = self.get_layers_properties(instance)
-            if not self.width_comparison(instance, layers_width):
-                return False
-            if not self.u_value_comparison(instance, layers_u):
-                return False
+            # layers_width, layers_u = self.get_layers_properties(instance)
+            # if not self.width_comparison(instance, layers_width):
+            #     return False
+            # if not self.u_value_comparison(instance, layers_u):
+            #     return False
             if not self.compare_with_template(instance):
                 return False
 
@@ -82,14 +82,13 @@ class BuildingVerification(ITask):
             instance.u_value = max(instance.u_value, layers_u)
         return True
 
-    @staticmethod
-    def compare_with_template(instance):
+    def compare_with_template(self, instance):
         template_options = []
         building = SubElement.get_class_instances('Building')[0]
 
         year_of_construction = building.year_of_construction.m
-        instance_templates = dict(DataClass(used_param=3).element_bind)
-        material_templates = dict(DataClass(used_param=2).element_bind)
+        instance_templates = get_type_building_elements()
+        material_templates = get_material_templates()
         instance_type = type(instance).__name__
         for i in instance_templates[instance_type]:
             years = ast.literal_eval(i)

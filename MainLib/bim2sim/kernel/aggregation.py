@@ -13,7 +13,6 @@ from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
 from bim2sim.kernel.disaggregation import Disaggregation
-from bim2sim.task.common.common_functions import filter_instances
 from bim2sim.kernel.elements import HeatPump
 
 

@@ -3,9 +3,9 @@ import translators as ts
 
 from bim2sim.task.base import Task, ITask
 from bim2sim.decision import BoolDecision, ListDecision, RealDecision, StringDecision
-from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.workflow import LOD
 from functools import partial
+from bim2sim.task.common.common_functions import get_material_templates
 
 
 class EnrichMaterial(ITask):
@@ -109,7 +109,7 @@ class EnrichMaterial(ITask):
 
     @staticmethod
     def get_resumed_material_templates(attrs=None):
-        material_templates = dict(DataClass(used_param=2).element_bind)
+        material_templates = get_material_templates()
         del material_templates['version']
 
         resumed = {}
