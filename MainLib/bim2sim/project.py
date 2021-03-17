@@ -287,9 +287,9 @@ class Project:
         self._log_handler = self._setup_logger()  # setup project specific handlers
 
     @classmethod
-    def create(cls, project_folder, ifc_path=None, default_plugin: str = None):
+    def create(cls, project_folder, ifc_path=None, default_plugin: str = None, open_conf=False):
         """Load existing project from folder"""
-        path = FolderStructure.create(project_folder, ifc_path, default_plugin)
+        path = FolderStructure.create(project_folder, ifc_path, default_plugin, open_conf)
         project = cls(project_folder)
 
         return project
