@@ -1,4 +1,4 @@
-﻿from bim2sim.manage import BIM2SIMManager
+﻿from bim2sim.plugin import Plugin
 from bim2sim.task.base import ITask
 from bim2sim.decision import ListDecision
 from bim2sim.project import PROJECT
@@ -6,7 +6,7 @@ from bim2sim.task.common import LoadIFC
 import os
 
 
-class CFDManager(BIM2SIMManager):
+class CFDManager(Plugin):
 
     def __init__(self, task):
         super().__init__(task)

@@ -1,5 +1,6 @@
 ﻿
-from bim2sim.manage import BIM2SIMManager
+from bim2sim.plugin import Plugin
+from bim2sim.workflow import PlantSimulation
 from bim2sim.task import base
 from bim2sim.task import common
 from bim2sim.task import hvac
@@ -16,16 +17,19 @@ class LoadLibrariesHKESim(base.ITask):
         return (standardlibrary.StandardLibrary, HKESim),
 
 
-class HKESimManager(BIM2SIMManager):
+class PluginHKESim(Plugin):
+    name = 'HKESim'
+    default_workflow = PlantSimulation
+    tasks = {LoadLibrariesHKESim}
 
-    def run(self):
+    def run(self, playground):
 
-        self.playground.run_task(hvac.SetIFCTypesHVAC())
-        self.playground.run_task(common.LoadIFC())
-        self.playground.run_task(hvac.Prepare())
-        self.playground.run_task(hvac.Inspect())
-        self.playground.run_task(hvac.MakeGraph())
-        self.playground.run_task(hvac.Reduce())
-        self.playground.run_task(dead_ends.DeadEnds())
-        self.playground.run_task(LoadLibrariesHKESim())
-        self.playground.run_task(hvac.Export())
+        playground.run_task(hvac.SetIFCTypesHVAC())
+        playground.run_task(common.LoadIFC())
+        playground.run_task(hvac.Prepare())
+        playground.run_task(hvac.Inspect())
+        playground.run_task(hvac.MakeGraph())
+        playground.run_task(hvac.Reduce())
+        playground.run_task(dead_ends.DeadEnds())
+        playground.run_task(LoadLibrariesHKESim())
+        playground.run_task(hvac.Export())

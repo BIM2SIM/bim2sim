@@ -1,7 +1,6 @@
 ﻿"""Module for defining workflows"""
 
 from enum import Enum
-from bim2sim.project import get_config
 
 
 class LOD(Enum):
@@ -12,7 +11,6 @@ class LOD(Enum):
     full = 3  # keep full details
 
 
-# TODO: config Aggregation can overwrite LODs
 class Workflow:
     """Specification of Workflow"""
 
@@ -36,8 +34,12 @@ class Workflow:
 
         self.relevant_ifc_types = None
 
-        # TODO: defaults should come from Workflow child classes
-        config = get_config()
+        # default values
+        self.pipes = LOD.medium
+        self.underfloorheatings = LOD.medium
+        self.pumps = LOD.medium
+
+    def update_from_config(self, config):
         self.pipes = LOD(config['Aggregation'].getint('Pipes', 2))
         self.underfloorheatings = LOD(config['Aggregation'].getint('UnderfloorHeating', 2))
         self.pumps = LOD(config['Aggregation'].getint('Pumps', 2))
