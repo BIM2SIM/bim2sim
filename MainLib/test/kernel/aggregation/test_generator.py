@@ -294,7 +294,7 @@ class TestGeneratorAggregation(unittest.TestCase):
         matches, meta = aggregation.Generator_One_Fluid.find_matches(graph)
         self.assertEqual(len(matches), 1)
         agg_generator = aggregation.Generator_One_Fluid(
-            "Test", matches[0], **meta[0])
+            "Test", matches[0], **meta["meta"][0])
         # mapping = agg_generator.get_replacement_mapping()
         graph.merge(
             mapping=agg_generator.get_replacement_mapping(),
@@ -326,6 +326,9 @@ class TestGeneratorAggregation(unittest.TestCase):
             )
         graph.plot(r'D:/10_ProgramTesting/after')
         print('test')
+
+
+# todo test for multiple parallel boilers
 
 
 # test cases:

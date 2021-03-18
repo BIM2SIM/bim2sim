@@ -7,6 +7,7 @@ from bim2sim.kernel.element import BaseElement, BasePort
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
+from bim2sim.decision import BoolDecision
 import networkx as nx
 
 def verify_edge_ports(func):
@@ -146,6 +147,23 @@ class Aggregation(BaseElement):
         :returns: matches, meta"""
         element_graph = graph.element_graph
         raise NotImplementedError("Method %s.find_matches not implemented" % cls.__name__)  # TODO
+
+    @attribute.multi_calc
+    def calc_has_pump(self):
+        """Checks if the aggregation has a pump
+            Args:
+                None
+            Returns:
+                True if the aggregation has a pump, false if not
+            Raises:
+                None
+        """
+        has_pump = False
+        for ele in self.elements:
+            if elements.Pump is ele.__class__:
+                has_pump = True
+                break
+        return dict(has_pump=has_pump)
 
     def __repr__(self):
         return "<%s '%s' (aggregation of %d elements)>" % (
@@ -1179,13 +1197,14 @@ class Consumer(Aggregation):
     def _calc_TControl(self):
         return True  # ToDo: Look at Boiler Aggregation - David
 
+    @attribute.multi_calc
     def _calc_has_pump(self):
         has_pump = False
         for ele in self.elements:
             if elements.Pump is ele.__class__:
                 has_pump = True
-                break;
-        return has_pump
+                break
+        return dict(has_pump=has_pump)
 
     def get_replacement_mapping(self):
         """Returns dict with original ports as values and their aggregated replacement as keys."""
@@ -1394,6 +1413,8 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
         )
         return result
 
+
+
     medium = attribute.Attribute(
         description="Medium of the DestributerCycle",
         functions=[_calc_avg]
@@ -1426,19 +1447,17 @@ class Generator_One_Fluid(Aggregation):
     aggregatable_elements = ['IfcPump', 'PipeStrand', 'IfcPipeSegment',
                              'IfcPipeFitting', 'IfcBoiler', 'ParallelPumps',
                              'IfcTank', 'IfcDistributionChamberElement']
+    # todo add chp etc.
     wanted_elements = ['IfcBoiler']
     boarder_elements = ['IfcTank', 'IfcDistributionChamberElement']
-    multi = ('rated_power', 'has_pump', 'has_bypass', 'rated_volume_flow',
+    multi = ('rated_power', 'has_bypass', 'rated_volume_flow',
              # todo: maybe add later: 'diameter', 'diameter_strand', 'length'
              )
 
-    # todo fill has_pump
     def __init__(self, name, element_graph, *args, **kwargs):
         super().__init__(name, element_graph, *args, **kwargs)
         edge_ports, element_graph = self.get_edge_ports(element_graph)
         # todo add edge_ports and expansion tank again to elements
-        bypass_nodes = self.find_bypasses(element_graph)
-        element_graph.remove_nodes_from(bypass_nodes)
         self.elements = element_graph.nodes
         if len(edge_ports) > 2:
             raise NotImplementedError
@@ -1499,19 +1518,30 @@ class Generator_One_Fluid(Aggregation):
         inerts = set(cls.aggregatable_elements) - wanted
         _graph = HvacGraph.remove_not_wanted_nodes(element_graph, wanted, inerts)
 
-        cycles = HvacGraph.get_all_cycles_with_wanted(_graph, wanted)
+        dict_all_cycles_wanted = HvacGraph.get_all_cycles_with_wanted(_graph, wanted)
+        all_cycles_wanted = [*dict_all_cycles_wanted.values()]
+        # check for generation cycles
+        generator_cycles = []
+        for cycles_list in all_cycles_wanted:
+            generator_cycles.extend([nx.subgraph(_graph, cycle) for cycle in cycles_list
+                              if any(node.ifc_type == block for block in
+                                     boarders for node in cycle)])
 
+        # todo list of elements which are not relevant (all_cycles_wanted- generator_cycles)
+        # todo use np.setdiff1d()
+        non_relevant = []
         # bypass_nodes = HvacGraph.detect_bypasses_to_wanted(_graph, wanted,
         #                                                    inerts, boarders)
         # _graph.remove_nodes_from(bypass_nodes)
-
-        generator_cycles = [nx.subgraph(_graph, cycle) for cycle in cycles
-                          if any(node.ifc_type == block for block in
-                                 boarders for node in cycle)]
         # metas = []
         # metas.append({'bypass_nodes': bypass_nodes})
 
-        # todo pass metas correctly
+        # todo metas to dict with
+        metas = {
+            'metas': [{} for x in generator_cycles]
+        }
+        metas['non_relevant'] = non_relevant
+        #
         metas = [{} for x in generator_cycles]  # no metadata calculated
         return generator_cycles, metas
 
@@ -1567,6 +1597,37 @@ class Generator_One_Fluid(Aggregation):
             diameter_strand=avg_diameter_strand
         )
         return result
+
+    @attribute.multi_calc
+    def _calc_has_bypass(self):
+        decision = BoolDecision(
+            "Does the generator %s has a bypass?" % (self.name),
+            global_key=self.guid+'.bypass',
+            allow_save=True,
+            allow_load=True,
+            related=[guid for guid in self.elements.guid],)
+        has_bypass = decision.decide()
+        return dict(has_bypass=has_bypass)
+
+    @attribute.multi_calc
+    def _calc_has_pump(self):
+        has_pump = False
+        for ele in self.elements:
+            if elements.Pump is ele.__class__:
+                has_pump = True
+                break
+        return dict(has_pump=has_pump)
+
+
+    has_pump = attribute.Attribute(
+        description="Cycle has a pumpsystem",
+        functions=[Aggregation.calc_has_pump]
+    )
+
+    has_bypass = attribute.Attribute(
+        description="Cycle has bypass",
+        functions=[_calc_has_bypass]
+    )
 
     rated_power = attribute.Attribute(
         unit=ureg.kilowatt,        description="rated power",

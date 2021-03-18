@@ -274,26 +274,33 @@ class HvacGraph(nx.Graph):
     @staticmethod
     def get_all_cycles_with_wanted(graph, wanted):
         """Returns a list of cycles with wanted element in it."""
+        # todo how to handle cascaded boilers
 
         directed = graph.to_directed()
         simple_cycles = list(nx.simple_cycles(directed))
         # filter cycles:
-        # remove all cycles without wanted and less than 3 elements
         cycles = [cycle for cycle in simple_cycles for node in cycle if
                   node.ifc_type in wanted and len(cycle) > 2]
 
         # remove duplicate cycles with only different orientation
-        # copy list
         cycles_sorted = cycles.copy()
         # sort copy by guid
         for i, my_list in enumerate(cycles_sorted):
             cycles_sorted[i] = sorted(my_list, key=lambda x: x.guid,
                                       reverse=True)
-        # get unique indexes
+        # remove duplicates
         unique_cycles = [list(x) for x in set(tuple(x) for x in cycles_sorted)]
-        # finally remove duplicates
 
-        return unique_cycles
+        # group cycles by wanted elements
+        wanted_elements = [node for node in graph.nodes if node.ifc_type in wanted]
+        cycles_dict = {}
+        for wanted_element in wanted_elements:
+            cycles_dict[wanted_element] = []
+            for cycle in unique_cycles:
+                if wanted_element in cycle:
+                    cycles_dict[wanted_element].append(cycle)
+
+        return cycles_dict
 
     @staticmethod
     def detect_bypasses_to_wanted(graph, wanted, inert, blockers):
@@ -303,6 +310,8 @@ class HvacGraph(nx.Graph):
         distributor.
         :returns: list of nodes
         """
+        # todo currently not working, this might be reused later
+        raise NotImplementedError
         pot_edge_elements = inert - blockers - wanted
 
         cycles = HvacGraph.get_all_cycles_with_wanted(graph, wanted)
