@@ -1448,17 +1448,18 @@ class Generator_One_Fluid(Aggregation):
                              'IfcPipeFitting', 'IfcBoiler', 'ParallelPumps',
                              'IfcTank', 'IfcDistributionChamberElement']
     # todo add chp etc.
-    wanted_elements = ['IfcBoiler']
+    wanted_elements = ['IfcBoiler' ]
     boarder_elements = ['IfcTank', 'IfcDistributionChamberElement']
     multi = ('rated_power', 'has_bypass', 'rated_volume_flow',
              # todo: maybe add later: 'diameter', 'diameter_strand', 'length'
              )
 
     def __init__(self, name, element_graph, *args, **kwargs):
+        non_relevant = kwargs.pop('non_relevant')  # todo is this fine? @earnsdev :)
         super().__init__(name, element_graph, *args, **kwargs)
         edge_ports, element_graph = self.get_edge_ports(element_graph)
         # todo add edge_ports and expansion tank again to elements
-        self.elements = element_graph.nodes
+        self.elements = set(element_graph.nodes) | non_relevant
         if len(edge_ports) > 2:
             raise NotImplementedError
         else:
@@ -1510,7 +1511,9 @@ class Generator_One_Fluid(Aggregation):
     @classmethod
     def find_matches(cls, graph):
         """
-        # todo docstring
+        Finds matches of generators with one fluid.
+
+
         """
         element_graph = graph.element_graph
         wanted = set(cls.wanted_elements)
@@ -1519,30 +1522,25 @@ class Generator_One_Fluid(Aggregation):
         _graph = HvacGraph.remove_not_wanted_nodes(element_graph, wanted, inerts)
 
         dict_all_cycles_wanted = HvacGraph.get_all_cycles_with_wanted(_graph, wanted)
-        all_cycles_wanted = [*dict_all_cycles_wanted.values()]
+        list_all_cycles_wanted = [*dict_all_cycles_wanted.values()]
+
+        # create flat lists to substract for non relevant
+        generator_flat = set()
+        wanted_flat = set()
+
         # check for generation cycles
         generator_cycles = []
-        for cycles_list in all_cycles_wanted:
-            generator_cycles.extend([nx.subgraph(_graph, cycle) for cycle in cycles_list
+        for cycles_list in list_all_cycles_wanted:
+            generator_set = [nx.subgraph(_graph, cycle) for cycle in cycles_list
                               if any(node.ifc_type == block for block in
-                                     boarders for node in cycle)])
+                                     boarders for node in cycle)]
+            generator_cycles.extend(generator_set)
+            generator_flat.update(generator_set[0].nodes)
+            wanted_flat.update([item for sublist in cycles_list for item in sublist])
 
-        # todo list of elements which are not relevant (all_cycles_wanted- generator_cycles)
-        # todo use np.setdiff1d()
-        non_relevant = []
-        # bypass_nodes = HvacGraph.detect_bypasses_to_wanted(_graph, wanted,
-        #                                                    inerts, boarders)
-        # _graph.remove_nodes_from(bypass_nodes)
-        # metas = []
-        # metas.append({'bypass_nodes': bypass_nodes})
 
-        # todo metas to dict with
-        metas = {
-            'metas': [{} for x in generator_cycles]
-        }
-        metas['non_relevant'] = non_relevant
-        #
-        metas = [{} for x in generator_cycles]  # no metadata calculated
+        non_relevant = wanted_flat - generator_flat
+        metas = [{'non_relevant': non_relevant}] * len(generator_cycles)
         return generator_cycles, metas
 
     @attribute.multi_calc

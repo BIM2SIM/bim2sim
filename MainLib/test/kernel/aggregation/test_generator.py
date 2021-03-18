@@ -291,10 +291,10 @@ class TestGeneratorAggregation(unittest.TestCase):
     def test_simple_boiler(self):
         graph, flags = self.helper.get_setup_boiler_with_bypass()
         graph.plot(r'D:/10_ProgramTesting/before')
-        matches, meta = aggregation.Generator_One_Fluid.find_matches(graph)
+        matches, metas = aggregation.Generator_One_Fluid.find_matches(graph)
         self.assertEqual(len(matches), 1)
         agg_generator = aggregation.Generator_One_Fluid(
-            "Test", matches[0], **meta["meta"][0])
+            "Test", matches[0], **metas[0])
         # mapping = agg_generator.get_replacement_mapping()
         graph.merge(
             mapping=agg_generator.get_replacement_mapping(),
