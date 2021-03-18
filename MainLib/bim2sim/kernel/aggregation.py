@@ -1523,10 +1523,6 @@ class Aggregated_ThermalZone(Aggregation):
         return new_aggregations
 
 
-
-
-
-
 class Generator_One_Fluid(Aggregation):
     """Aggregates generator modules with only one fluid cycle (CHPs, Boilers,
     ...) Not for Chillers or Heatpumps!"""
