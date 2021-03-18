@@ -91,7 +91,6 @@ class DecisionService(rpyc.Service):
     def exposed_answer(self, key, value):
         logger.debug("Received answer %r for decision %s", value, key)
         # print("currend decisions: ", self.decisions)
-
         try:
             parsed = self._parse(key, value)
         except NotImplementedError:
@@ -100,6 +99,7 @@ class DecisionService(rpyc.Service):
         # print("parsed: %r" % parsed)
 
         valid = self._answer(key, parsed)
+        logger.debug("Key: %s, value: %s, type of value: %s, valid: %s", key, value, type(value), valid)
         if valid:
             with lock:
                 self.answers[key] = parsed
