@@ -104,3 +104,19 @@ def get_type_building_elements_hvac():
         type_building_elements = json.load(f)
         del type_building_elements['version']
     return type_building_elements
+
+
+def filter_instances(instances, type_name):
+    """Filters the inspected instances by type name (e.g. Wall) and
+    returns them as list"""
+    instances_filtered = []
+    if type(instances) is dict:
+        list_instances = instances.values()
+    else:
+        list_instances = instances
+    for instance in list_instances:
+        if type_name in type(instance).__name__:
+            instances_filtered.append(instance)
+    return instances_filtered
+
+

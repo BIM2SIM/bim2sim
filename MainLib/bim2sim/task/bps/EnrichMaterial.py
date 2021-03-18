@@ -42,30 +42,30 @@ class EnrichMaterial(ITask):
                 setattr(layer, attr, new_attributes[attr])
 
     def get_material_properties(self, layer, attributes):
-        material = layer.material
+        # material = layer.material
+        material = re.sub('[!@#$-_1234567890]', '', layer.material.lower())
         if material not in self.material_selected:
             resumed = self.get_resumed_material_templates(attributes)
             try:
                 selected_properties = resumed[material]
             except KeyError:
+                material_options, new_material = self.material_options_decision(resumed, layer, material)
                 first_decision = BoolDecision(
-                    question="Do you want to enrich the layers with the material %s by using available templates? \n"
+                    question="Do you want to enrich the layers with the material \'%s\' "
+                             "by using available templates? \n"
                              "Belonging Item: %s | GUID: %s \n"
                              "Enter 'n' for manual input"
-                             % (layer.material, layer.parent.name, layer.parent.guid),
+                             % (new_material, layer.parent.name, layer.parent.guid),
                     collect=False, global_key='%s_layer_enriched' % layer.material,
-                    allow_load=True, allow_save=True)
+                    allow_load=True, allow_save=True, context=layer.parent.name, related=layer.parent.guid)
                 first_decision.decide()
-                first_decision.stored_decisions.clear()
-
                 if first_decision.value:
-                    material_options = self.material_options_decision(resumed, layer)
-                    selected_material = self.material_selection_decision(layer.material, layer.parent, material_options)
+                    selected_material = self.material_selection_decision(new_material, layer.parent, material_options)
                     if material is None:
                         layer.material = selected_material
-                    self.material_selected[layer.material] = resumed[selected_material]
+                    self.material_selected[material] = resumed[selected_material]
                 else:
-                    self.material_selected[layer.material] = {}
+                    self.material_selected[material] = {}
                     for attr in attributes:
                         self.manual_attribute_value(attr, attributes[attr], layer)
             else:
@@ -85,13 +85,14 @@ class EnrichMaterial(ITask):
         return values, units
 
     def manual_attribute_value(self, attr, unit, layer):
-        attr_decision = RealDecision("Enter value for the %s for: \n"
+        attr_decision = RealDecision("Enter value for the material %s for: \n"
                                      "Belonging Item: %s | GUID: %s"
                                      % (attr, layer.material, layer.guid),
                                      global_key="Layer_%s.%s" % (layer.guid, attr),
                                      allow_skip=False, allow_load=True, allow_save=True,
                                      collect=False, quick_decide=False, unit=unit,
-                                     validate_func=self.validate_manual_attribute)  # unit missing
+                                     validate_func=self.validate_manual_attribute,
+                                     context=layer.material, related=layer.guid)  # unit missing
         attr_decision.decide()
         self.material_selected[layer.material][attr] = attr_decision.value
 
@@ -110,8 +111,6 @@ class EnrichMaterial(ITask):
     @staticmethod
     def get_resumed_material_templates(attrs=None):
         material_templates = get_material_templates()
-        del material_templates['version']
-
         resumed = {}
         for k in material_templates:
             resumed[material_templates[k]['name']] = {}
@@ -137,10 +136,10 @@ class EnrichMaterial(ITask):
         material_ref = []
 
         if type(search_words) is str:
-            pattern_material = re.sub('[!@#$-_1234567890]', '', search_words.lower()).split()
+            pattern_material = search_words.split()
             if transl:
                 # use of yandex, bing--- https://pypi.org/project/translators/#features
-                pattern_material.extend(ts.bing(re.sub('[!@#$-_1234567890]', '', search_words.lower())).split())
+                pattern_material.extend(ts.bing(search_words).split())
 
             for i in pattern_material:
                 material_ref.append(re.compile('(.*?)%s' % i, flags=re.IGNORECASE))
@@ -155,21 +154,24 @@ class EnrichMaterial(ITask):
         return material_options
 
     @classmethod
-    def material_options_decision(cls, resumed, layer):
-        material_options = cls.get_matches_list(layer.material, list(resumed.keys()))
+    def material_options_decision(cls, resumed, layer, material):
+        material_options = cls.get_matches_list(material, list(resumed.keys()))
         if len(material_options) == 0:
             material_decision = StringDecision(
-                "Material not found, enter value for the material %s:\n"
+                "Material not found, enter  more common name for the material %s:\n"
                 "Belonging Item: %s | GUID: %s \n"
                 "Enter 'n' for manual input"
                 % (layer.material, layer.parent.name, layer.parent.guid),
                 global_key='Layer_Material_%s' % layer.guid,
                 allow_skip=True, allow_load=True, allow_save=True,
                 collect=False, quick_decide=not True,
-                validate_func=partial(cls.validate_new_material, list(resumed.keys())))  # unit missing
+                validate_func=partial(cls.validate_new_material, list(resumed.keys())),
+                context=layer.parent.name, related=layer.parent.guid)
             material_decision.decide()
             material_options = cls.get_matches_list(material_decision.value, list(resumed.keys()))
-        return material_options
+            material = material_decision.value
+        return material_options, material
+
 
     @classmethod
     def material_selection_decision(cls, material_input, parent, material_options):
@@ -180,6 +182,6 @@ class EnrichMaterial(ITask):
             % (material_input, parent.name, parent.guid),
             choices=list(material_options), global_key='%s_material_enrichment' % material_input,
             allow_skip=True, allow_load=True, allow_save=True,
-            collect=False, quick_decide=not True)
+            collect=False, quick_decide=not True, context=parent.name, related=parent.guid)
         material_selection.decide()
         return material_selection.value

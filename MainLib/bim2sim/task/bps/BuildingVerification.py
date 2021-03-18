@@ -33,11 +33,11 @@ class BuildingVerification(ITask):
         if instance_type in supported_classes:
             if len(instance.layers) == 0:  # no layers given
                 return False
-            # layers_width, layers_u = self.get_layers_properties(instance)
-            # if not self.width_comparison(instance, layers_width):
-            #     return False
-            # if not self.u_value_comparison(instance, layers_u):
-            #     return False
+            layers_width, layers_u = self.get_layers_properties(instance)
+            if not self.width_comparison(instance, layers_width):
+                return False
+            if not self.u_value_comparison(instance, layers_u):
+                return False
             if not self.compare_with_template(instance):
                 return False
 
@@ -79,10 +79,11 @@ class BuildingVerification(ITask):
         elif instance.u_value == 0 and layers_u > 0:
             instance.u_value = layers_u
         elif instance.u_value > 0 and layers_u > 0:
-            instance.u_value = max(instance.u_value, layers_u)
+            instance.u_value = max(instance.u_value, layers_u)  # decisions valid
         return True
 
-    def compare_with_template(self, instance):
+    @staticmethod
+    def compare_with_template(instance, tolerance=0.2):
         template_options = []
         building = SubElement.get_class_instances('Building')[0]
 
@@ -108,6 +109,6 @@ class BuildingVerification(ITask):
 
         template_options.sort()
         # check u_value
-        if template_options[0] * 0.8 <= instance.u_value.m <= template_options[1] * 1.2:
+        if template_options[0] * (1-tolerance) <= instance.u_value.m <= template_options[1] * (1 + tolerance):
             return True
         return False

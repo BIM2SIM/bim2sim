@@ -79,7 +79,8 @@ class EnrichNonValid(ITask):
                                                     (type(instance).__name__, instance.guid, iteration),
                                          allow_skip=False, allow_load=True, allow_save=True,
                                          collect=False, quick_decide=False,
-                                         validate_func=cls.validate_positive)
+                                         validate_func=cls.validate_positive,
+                                         context=instance.name, related=instance.guid)
         layers_number_dec.decide()
         return int(layers_number_dec.value)
 
@@ -120,7 +121,8 @@ class EnrichNonValid(ITask):
             global_key='Layer_Material%d_%s%d' % (layer_number, instance.guid, iteration),
             allow_skip=True, allow_load=True, allow_save=True,
             collect=False, quick_decide=not True,
-            validate_func=partial(EnrichMaterial.validate_new_material, list(resumed.keys())))
+            validate_func=partial(EnrichMaterial.validate_new_material, list(resumed.keys())),
+            context=instance.name, related=instance.guid)
         material_input.decide()
         return material_input.value
 
@@ -141,4 +143,3 @@ class EnrichNonValid(ITask):
         if value <= 0.0 or value > instance.width:
             return False
         return True
-

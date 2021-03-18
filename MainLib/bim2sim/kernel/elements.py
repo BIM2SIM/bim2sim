@@ -38,7 +38,7 @@ from bim2sim.decision import BoolDecision, RealDecision, ListDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from teaser.logic.buildingobjects.useconditions import UseConditions
-from bim2sim.task.common.common_functions import get_pattern_usage, vector_angle
+from bim2sim.task.common.common_functions import get_pattern_usage, vector_angle, filter_instances
 from bim2sim.kernel.disaggregation import SubInnerWall, SubOuterWall, Disaggregation
 from bim2sim.project import PROJECT
 import translators as ts
@@ -631,8 +631,8 @@ class ThermalZone(element.Element):
     def get_is_external(self):
         """determines if a thermal zone is external or internal
         based on its elements (Walls and windows analysis)"""
-        outer_elements = self.get_class_instances('OuterWall')
-        if len(outer_elements) > 0:
+        outer_walls = filter_instances(self.bound_elements, 'OuterWall')
+        if len(outer_walls) > 0:
             return True
         else:
             return False
@@ -647,10 +647,10 @@ class ThermalZone(element.Element):
         it can be a corner (list of 2 angles) or an edge (1 angle)"""
         if self.is_external is True:
             orientations = []
-            for ele in self.bound_elements:
-                if hasattr(ele, 'is_external') and hasattr(ele, 'orientation'):
-                    if ele.is_external is True and ele.orientation not in [-1, -2]:
-                        orientations.append(ele.orientation)
+            outer_walls = filter_instances(self.bound_elements, 'OuterWall')
+            for ele in outer_walls:
+                if hasattr(ele, 'orientation'):
+                    orientations.append(ele.orientation)
             if len(list(set(orientations))) == 1:
                 return list(set(orientations))[0]
             else:
@@ -674,25 +674,10 @@ class ThermalZone(element.Element):
         50%-70%: 60
         70%-100%: 85"""
 
-        glass_area = 0
-        facade_area = 0
-        if self.is_external is True:
-            for ele in self.bound_elements:
-                if hasattr(ele.area, "m"):
-                    e_area = ele.area.magnitude
-                else:
-                    e_area = ele.area
-                if type(ele) is Window:
-                    if ele.area is not None:
-                        glass_area += e_area
-                if 'Wall' in type(ele).__name__ and ele.is_external is True:
-                    facade_area += e_area
-            real_gp = 0
-            try:
-                real_gp = 100 * (glass_area / (facade_area + glass_area))
-            except ZeroDivisionError:
-                pass
-            return real_gp
+        glass_area = sum(wi.area for wi in filter_instances(self.bound_elements, 'Window'))
+        facade_area = sum(wa.area for wa in filter_instances(self.bound_elements, 'OuterWall'))
+        if facade_area + glass_area > 0:
+            return 100 * (glass_area / (facade_area + glass_area))
 
     def set_glass_area(self):
         """set the property external_orientation"""
@@ -1485,7 +1470,7 @@ class Wall(element.Element):
     )
     area = attribute.Attribute(
         default_ps=("QTo_WallBaseQuantities", "NetSideArea"),
-        default=1
+        default=0
     )
     gross_area = attribute.Attribute(
         default_ps=("QTo_WallBaseQuantities", "GrossSideArea"),
@@ -1727,7 +1712,7 @@ class Slab(element.Element):
 
     is_external = attribute.Attribute(
         default_ps=("Pset_SlabCommon", "IsExternal"),
-        default=0
+        default=False
     )
 
 
