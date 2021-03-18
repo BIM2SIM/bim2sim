@@ -216,6 +216,9 @@ class ExternalFrontEnd(FrontEnd):
         if self.pending:
             raise AssertionError("Solve pending decisions first!")
 
+        if not collection:
+            return
+
         for decision in collection:
             self.pending[next(self.id_gen)] = decision
 

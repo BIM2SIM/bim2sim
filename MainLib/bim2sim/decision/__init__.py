@@ -316,6 +316,10 @@ class Decision:
         _collection = collection or cls.collection()
         _collection = [d for d in _collection if d.status == Status.open]
 
+        if not _collection:
+            logger.debug("No collected decisions to decide.")
+            return
+
         if cls._debug_mode:
             # debug
             for decision in _collection:
