@@ -237,7 +237,7 @@ class ExternalFrontEnd(FrontEnd):
         i = 0
         while True:
             i += 1
-            yield i
+            yield str(i)
 
     @staticmethod
     def decision_kind(decision):
