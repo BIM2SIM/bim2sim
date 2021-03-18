@@ -1533,8 +1533,7 @@ class Generator_One_Fluid(Aggregation):
     aggregatable_elements = ['IfcPump', 'PipeStrand', 'IfcPipeSegment',
                              'IfcPipeFitting', 'IfcBoiler', 'ParallelPumps',
                              'IfcTank', 'IfcDistributionChamberElement']
-    # todo add chp etc.
-    wanted_elements = ['IfcBoiler' ]
+    wanted_elements = ['IfcBoiler', 'IfcElectricGenerator']
     boarder_elements = ['IfcTank', 'IfcDistributionChamberElement']
     multi = ('rated_power', 'has_bypass', 'rated_volume_flow',
              # todo: maybe add later: 'diameter', 'diameter_strand', 'length'
