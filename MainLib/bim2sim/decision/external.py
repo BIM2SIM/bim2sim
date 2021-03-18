@@ -186,6 +186,7 @@ class ExternalFrontEnd(FrontEnd):
         """validate answer. Returns True/False or None for invalid keys"""
         decision = self.pending.get(key, None)
         if decision is None:
+            logger.debug("Pending Decisions: %s", self.pending)
             return None
         valid = self.validate(decision, value)
         return valid
