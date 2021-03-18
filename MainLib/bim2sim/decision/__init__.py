@@ -1,4 +1,4 @@
-﻿"""Package holding decision system"""
+"""Package holding decision system"""
 
 import logging
 import enum
@@ -50,270 +50,6 @@ def convert(from_version, to_version, data):
         return convert_0_to_0_1(data)
 
 
-class FrontEnd:
-    """Basic FrontEnd for decision solving"""
-
-    def __init__(self):
-        self.logger = logging.getLogger(__name__ + '.DecisonFrontend')
-
-    def solve(self, decision):
-        raise NotImplementedError
-
-    def solve_collection(self, collection):
-        raise NotImplementedError
-
-    def get_question(self, decision):
-        return decision.get_question()
-
-    def get_body(self, decision):
-        return decision.get_body()
-
-    def get_options(self, decision):
-        return decision.get_options()
-
-    def validate(self, decision, value):
-        return decision.validate(value)
-
-
-class ConsoleFrontEnd(FrontEnd):
-
-    @staticmethod
-    def get_input_txt(decision):
-        txt = 'Enter value: '
-        if isinstance(decision, ListDecision):
-            txt = 'Enter key: '
-
-        return txt
-
-    @staticmethod
-    def get_options_txt(options):
-        return "Additional commands: %s" % (", ".join(options))
-
-    @staticmethod
-    def get_body_txt(body):
-        len_labels = max(len(str(item[2])) for item in body)
-        header_str = "  {key:3s}  {label:%ds}  {value:s}" % (len_labels)
-        format_str = "\n  {key:3s}  {label:%ds}  {value:s}" % (len_labels)
-        body_txt = header_str.format(key="key", label="label", value="value")
-
-        for key, value, label in body:
-            body_txt += format_str.format(key=str(key), label=str(label), value=str(value))
-
-        return body_txt
-
-    @staticmethod
-    def collection_progress(collection):
-        total = len(collection)
-        for i, decision in enumerate(collection):
-            yield decision, "[Decision {}/{}]".format(i + 1, total)
-
-    def solve(self, decision):
-        try:
-            decision.value = self.user_input(decision)
-        except DecisionSkip:
-            decision.skip()
-        except DecisionCancle as ex:
-            self.logger.info("Canceling decisions")
-            raise
-        return
-
-    def solve_collection(self, collection):
-
-        skip_all = False
-        extra_options = []
-        if all([d.allow_skip for d in collection]):
-            extra_options.append(Decision.SKIPALL)
-
-        for decision, progress in self.collection_progress(collection):
-            if skip_all and decision.allow_skip:
-                decision.skip()
-            else:
-                if skip_all:
-                    self.logger.info("Decision can not be skipped")
-                try:
-                    decision.value = self.user_input(decision, extra_options=extra_options, progress=progress)
-                except DecisionSkip:
-                    decision.skip()
-                except DecisionSkipAll:
-                    skip_all = True
-                    self.logger.info("Skipping remaining decisions")
-                except DecisionCancle as ex:
-                    self.logger.info("Canceling decisions")
-                    raise
-
-    # TODO: based on decision type
-    # TODO: merge from element_filter_by_text
-    def user_input(self, decision, extra_options=None, progress=''):
-
-        question = self.get_question(decision)
-        options = self.get_options(decision)
-        if extra_options:
-            options = options + extra_options
-        options_txt = self.get_options_txt(options)
-        body = self.get_body(decision)
-        input_txt = self.get_input_txt(decision)
-        if progress:
-            progress += ' '
-
-        print(progress, end='')
-        print(question)
-        print(options_txt)
-        if body:
-            print(self.get_body_txt(body))
-
-        max_attempts = 10
-        attempt = 0
-        while True:
-            raw_value = input(input_txt)
-            if raw_value.lower() == Decision.SKIP.lower() and Decision.SKIP in options:
-                raise DecisionSkip
-                # decision.skip()
-                # return None
-            if raw_value.lower() == Decision.SKIPALL.lower() and Decision.SKIPALL in options:
-                decision.skip()
-                raise DecisionSkipAll
-            if raw_value.lower() == Decision.CANCEL.lower() and Decision.CANCEL in options:
-                raise DecisionCancle
-
-            value = self.parse(decision, raw_value)
-            if self.validate(decision, value):
-                break
-            else:
-                if attempt <= max_attempts:
-                    if attempt == max_attempts:
-                        print("Last try before auto Cancel!")
-                    print("'%s' is no valid input! Try again." % raw_value)
-                else:
-                    raise DecisionCancle("Too many invalid attempts. Canceling input.")
-            attempt += 1
-
-        return value
-
-    def parse(self, decision, raw_answer):
-        if isinstance(decision, BoolDecision):
-            return self.parse_bool_input(raw_answer)
-        elif isinstance(decision, RealDecision):
-            return self.parse_real_input(raw_answer, decision.unit)
-        elif isinstance(decision, ListDecision):
-            return self.parse_list_input(raw_answer, decision.items)
-
-    @staticmethod
-    def parse_real_input(raw_input, unit=None):
-        """Convert input to float"""
-
-        try:
-            if unit:
-                value = float(raw_input) * unit
-            else:
-                value = float(raw_input)
-        except:
-            value = None
-        return value
-
-    @staticmethod
-    def parse_bool_input(raw_input):
-        """Convert input to bool"""
-
-        inp = raw_input.lower()
-        if inp in BoolDecision.POSITIVES:
-            return True
-        if inp in BoolDecision.NEGATIVES:
-            return False
-        return None
-
-    @staticmethod
-    def parse_list_input(raw_input, items):
-        raw_value = None
-        try:
-            index = int(raw_input)
-            raw_value = items[index]
-        except Exception:
-            pass
-
-        return raw_value
-
-
-class ExternalFrontEnd(FrontEnd):
-
-    def __init__(self):
-        super().__init__()
-
-        self.id_gen = self._get_id_gen()
-        self.pending = {}
-
-    def __iter__(self):
-        raise StopIteration
-
-    def check_answer(self, answer):
-
-        for key, raw_value in answer.copy().items():
-            decision = self.pending.get(key)
-            if not decision:
-                self.logger.warning("Removed unknown answer (%s) for key %s", answer[key], key)
-                del answer[key]
-                continue
-
-            value = self.parse(decision, raw_value)
-            if self.validate(decision, value):
-                decision.value = value
-                del answer[key]
-                del self.pending[key]
-
-        if answer:
-            self.logger.warning("Unused/invalid answers: %s", answer)
-        return answer
-
-    def solve(self, decision):
-        return self.solve_collection([decision])
-
-    def solve_collection(self, collection):
-        if self.pending:
-            raise AssertionError("Solve pending decisions first!")
-
-        for decision in collection:
-            self.pending[next(self.id_gen)] = decision
-
-        for loop in range(10):
-            answer = self.send()
-            remaining = self.check_answer(answer)
-            if not remaining:
-                break
-        else:
-            raise DecisionException("Failed to solve decisions after %d retries", loop + 1)
-        return
-
-    @staticmethod
-    def _get_id_gen():
-        i = 0
-        while True:
-            i += 1
-            yield i
-
-    def to_dict(self, key, decision):
-
-        data = dict(
-            id=key,
-            question=decision.question,
-            options=self.get_options(decision),
-            body=self.get_body(decision),
-        )
-
-        return data
-
-    def send(self):
-        data = []
-        for key, decision in self.pending.items():
-            data.append(self.to_dict(key, decision))
-
-        # TODO: request to UI
-        serialized = json.dumps(data, indent=2)
-        print(serialized)
-        # fake data
-        answer = {item['id']: '1' for item in data}
-
-        return answer
-
-
 class Decision:
     """Class for handling decisions and user interaction
 
@@ -334,20 +70,22 @@ class Decision:
     options = [SKIP, SKIPALL, CANCEL]
 
     _debug_answer = None
-    _debug_mode = False
+    _debug_overwrite_default = False
+    _debug_answer_index = 0
+    _debug_mode = 0
     _debug_validate = False
 
-    frontend = ConsoleFrontEnd()
-    # frontend = ExternalFrontEnd()
+    frontend = None
     logger = logging.getLogger(__name__)
 
     def __init__(self, question: str, validate_func=None,
                  output: dict = None, output_key: str = None, global_key: str = None,
                  allow_skip=False, allow_load=None, allow_save=False,
                  collect=False, quick_decide=False,
-                 validate_checksum=None):
+                 validate_checksum=None, related=None, context=None,
+                 default=None):
         """
-        :param question: The question asked to thu user
+        :param question: The question asked to the user
         :param validate_func: callable to validate the users input
         :param output: dictionary to store output_key:value in
         :param output_key: key for output
@@ -358,6 +96,9 @@ class Decision:
         :param collect: add decision to collection for later processing. (output and output_key needs to be provided)
         :param quick_decide: calls decide() within __init__()
         :param validate_checksum: if provided, loaded decisions are only valid if checksum matches
+        :param related: iterable of GUIDs this decision is related to (frontend)
+        :param context: iterable of GUIDs for additional context to this decision (frontend)
+        :param default: default answer
 
         :raises: :class:'AttributeError'::
         """
@@ -366,6 +107,14 @@ class Decision:
 
         self.question = question
         self.validate_func = validate_func
+        self.default = None
+        if default is not None:
+            if self.validate(default):
+                self.default = default
+                self._debug_answer = default
+            else:
+                self.logger.warning("Invalid default value (%s) for %s: %s",
+                                    default, self.__class__.__name__, self.question)
 
         self.output = output
         self.output_key = output_key
@@ -378,6 +127,12 @@ class Decision:
         self.collect = collect
         self.validate_checksum = validate_checksum
 
+        self.related = related
+        self.context = context
+
+        if (allow_load or allow_save) and not global_key:
+            raise AssertionError("Require global_key to enable save / load.")
+
         if global_key and global_key in self.global_keys():
             #self.discard()
             raise KeyError("Decision with key %s already exists!" % global_key)
@@ -388,7 +143,7 @@ class Decision:
         if quick_decide and not self.status == Status.loadeddone:
             self.decide()
 
-        if self.collect and not (isinstance(self.output, dict) and self.output_key):
+        if self.collect and not (isinstance(self.output, dict) and self.output_key is not None):
             raise AttributeError("Can not collect Decision if output dict or output_key is missing.")
 
         Decision.all.append(self)
@@ -436,6 +191,12 @@ class Decision:
         self.reset()
 
     @classmethod
+    def reset_decisions(cls):
+        """Reset state of Decision class."""
+        cls.stored_decisions.clear()
+        cls.all.clear()
+
+    @classmethod
     def global_keys(cls):
         """Global key generator"""
         for decision in cls.all:
@@ -462,29 +223,45 @@ class Decision:
         return [d for d in cls.filtered() if d.collect]
 
     @classmethod
-    def enable_debug(cls, answer, validate=False):
+    def set_frontend(cls, frontend):
+        cls.frontend = frontend
+
+    @classmethod
+    def enable_debug(cls, answer, validate=False, multi=False, overwrite_default=True):
         """Enabled debug mode. All decisions are answered with answer"""
-        cls._debug_mode = True
+        cls._debug_mode = 2 if multi else 1
         cls._debug_answer = answer
+        cls._debug_overwrite_default = overwrite_default
+        cls._debug_answer_index = 0
         cls._debug_validate = validate
 
     @classmethod
     def disable_debug(cls):
         """Disable debug mode"""
         cls._debug_answer = None
-        cls._debug_mode = False
+        cls._debug_answer_index = 0
+        cls._debug_mode = 0
         cls._debug_validate = False
 
     @classmethod
     @contextmanager
-    def debug_answer(cls, answer, validate=False):
+    def debug_answer(cls, answer, validate=False, multi=False, overwrite_default=True):
         """Contextmanager enabling debug mode temporarily with given answer"""
-        cls.enable_debug(answer, validate)
+        cls.enable_debug(answer, validate, multi, overwrite_default)
         yield
         cls.disable_debug()
 
     def get_debug_answer(self):
-        return self._debug_answer
+        if self._debug_mode == 1:
+            if self._debug_overwrite_default:
+                return Decision._debug_answer
+            else:
+                return self._debug_answer
+        elif self._debug_mode == 2:
+            answer = Decision._debug_answer[Decision._debug_answer_index]
+            Decision._debug_answer_index += 1
+            return answer
+        raise AssertionError("Decision debug mode not enabled")
 
     def _validate(self, value):
         raise NotImplementedError("Implement method _validate!")
@@ -543,9 +320,9 @@ class Decision:
             # debug
             for decision in _collection:
                 if cls._debug_validate:
-                    decision.value = cls._debug_answer
+                    decision.value = decision.get_debug_answer()
                 else:
-                    decision._value = cls._debug_answer
+                    decision._value = decision.get_debug_answer()
                     decision.status = Status.done
                     decision._post()
         else:
@@ -584,7 +361,7 @@ class Decision:
 
         if decisions:
             msg = "Found %d previous made decisions. Continue using them?"%(len(decisions))
-            reuse = BoolDecision(question=msg).decide()
+            reuse = BoolDecision(question=msg, default=True).decide()
             if reuse:
                 cls.stored_decisions.clear()
                 cls.stored_decisions.update(**decisions)
@@ -622,7 +399,7 @@ class Decision:
             return
         if (not self.validate_func) or self.validate_func(value):
             if checksum == self.validate_checksum:
-                self.value = value
+                self.value = self.deserialize_value(value)
                 self.status = Status.loadeddone
                 self.logger.info("Loaded decision '%s' with value: %s", self.global_key, value)
             else:
@@ -643,6 +420,10 @@ class Decision:
 
     def serialize_value(self):
         return {'value': self.value}
+
+    def deserialize_value(self, value):
+        """rebuild value from json deserialized object"""
+        return value
 
     def get_serializable(self):
         """Returns json serializable object representing state of decision"""
@@ -702,6 +483,9 @@ class RealDecision(Decision):
     def __init__(self, *args, unit=None, **kwargs):
         """"""
         self.unit = unit if unit else ureg.dimensionless
+        default = kwargs.get('default')
+        if default is not None and not isinstance(default, pint.Quantity):
+            kwargs['default'] = default * self.unit
         super().__init__(*args, **kwargs)
 
     def _validate(self, value):
@@ -717,8 +501,14 @@ class RealDecision(Decision):
     def get_question(self):
         return "{} in [{}]".format(self.question, self.unit)
 
+    def get_body(self):
+        return {'unit': str(self.unit)}
+
     def get_debug_answer(self):
-        return self._debug_answer * self.unit
+        answer = super().get_debug_answer()
+        if isinstance(answer, pint.Quantity):
+            return answer.to(self.unit)
+        return answer * self.unit
 
     def serialize_value(self):
         kwargs = {
@@ -728,7 +518,7 @@ class RealDecision(Decision):
         return kwargs
 
     def reset_from_deserialized(self, kwargs):
-        kwargs['value'] = pint.Quantity(kwargs['value'], kwargs.pop('unit', str(self.unit)))
+        kwargs['value'] = kwargs['value'] * ureg[kwargs.pop('unit', str(self.unit))]
         super().reset_from_deserialized(kwargs)
 
 
@@ -793,21 +583,33 @@ class ListDecision(Decision):
         return body
 
 
-# class DictDecision(CollectionDecision):
-#     """Accepts index of dict element as input"""
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.choices = OrderedDict(self.choices)
-#
-#     def from_index(self, index):
-#         return list(self.choices.values())[index]
-#
-#     def option_txt(self, options):
-#         len_keys = max([len(str(key)) for key in self.choices.keys()])
-#         header_str = "  {id:2s}  {key:%ds}  {value:s}"%(len_keys)
-#         format_str = "\n {id:3d}  {key:%ds}  {value:s}"%(len_keys)
-#         options_txt = header_str.format(id="id", key="key", value="value")
-#         for i, (k, v) in enumerate(self.choices.items()):
-#             options_txt += format_str.format(id=i, key=str(k), value=str(v))
-#         return options_txt
+class StringDecision(Decision):
+    """Accepts string input"""
+
+    def __init__(self, *args, min_length=1, **kwargs):
+        self.min_length = min_length
+        super().__init__(*args, **kwargs)
+
+    def _validate(self, value):
+        return isinstance(value, str) and len(value) >= self.min_length
+
+
+class GuidDecision(Decision):
+    """Accepts GUID(s) as input. Value is a set of GUID(s)"""
+
+    def __init__(self, *args, multi=False, **kwargs):
+        self.multi = multi
+        super().__init__(*args, **kwargs)
+
+    def _validate(self, value):
+        if isinstance(value, set) and value:
+            if not self.multi and len(value) != 1:
+                return False
+            return all(isinstance(guid, str) and len(guid) == 22 for guid in value)
+        return False
+
+    def serialize_value(self):
+        return {'value': list(self.value)}
+
+    def deserialize_value(self, value):
+        return set(value)

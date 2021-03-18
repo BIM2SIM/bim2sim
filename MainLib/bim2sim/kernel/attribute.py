@@ -67,7 +67,7 @@ class Attribute:
         value = None
         # default property set
         if value is None and self.default_ps:
-            raw_value = self.get_from_default_propertyset(bind, self.name)
+            raw_value = self.get_from_default_propertyset(bind, self.default_ps)
             value = self.ifc_post_processing(raw_value)
             if value is None:
                 quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet",
@@ -93,12 +93,12 @@ class Attribute:
         if value is None and self.functions:
             value = self.get_from_functions(bind, self.functions, self.name)
 
-        # enrichment
-        if value is None:
-            value = self.get_from_enrichment(bind, self.name)
+        # # enrichment
+        # if value is None:
+        #     value = self.get_from_enrichment(bind, self.name)
 
         # default value
-        if value is None and self.default_value:
+        if value is None and self.default_value is not None:
             value = self.default_value
             if value and self.unit:
                 value = value * self.unit
@@ -110,9 +110,10 @@ class Attribute:
 
         return value
 
-    def get_from_default_propertyset(self, bind, name):
+    @staticmethod
+    def get_from_default_propertyset(bind, default):
         try:
-            value = bind.get_exact_property(*self.default_ps)
+            value = bind.get_exact_property(*default)
         except Exception:
             value = None
         return value
@@ -208,12 +209,11 @@ class Attribute:
         return value
 
     @staticmethod
-    def get_from_decision(bind, name):
+    def get_from_decision(bind, name, unit=None):
         # TODO: decision
         decision = RealDecision(
             "Enter value for %s of %s" % (name, bind.name),
-            # output=self,
-            # output_key=name,
+            unit=unit,
             global_key="%s_%s.%s" % (bind.ifc_type, bind.guid, name),
             allow_skip=False, allow_load=True, allow_save=True,
             validate_func=lambda x: True,  # TODO meaningful validation
@@ -299,7 +299,7 @@ class Attribute:
             changed = True
 
         if self._force and value is None:
-            value = self.get_from_decision(bind, self.name)
+            value = self.get_from_decision(bind, self.name, self.unit)
             status = Attribute.STATUS_AVAILABLE
             changed = True
 

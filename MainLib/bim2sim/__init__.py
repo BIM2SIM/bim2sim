@@ -1,10 +1,12 @@
-﻿"""BIM2SIM library"""
+"""BIM2SIM library"""
 
 import os
 import sys
 import importlib
 import pkgutil
 import logging
+from pathlib import Path
+import site
 
 import pkg_resources
 
@@ -12,13 +14,46 @@ from bim2sim.kernel import ifc2python
 from bim2sim.manage import BIM2SIMManager
 from bim2sim.project import PROJECT, get_config
 from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparated
+from bim2sim.decision import Decision
 
 VERSION = '0.1-dev'
+
+# TODO: setup: copy backends to bim2sim/backends
+workflow_getter = {'aixlib': PlantSimulation,
+                   'teaser': BPSMultiZoneSeparated,
+                   'hkesim': PlantSimulation,
+                   'energyplus': BPSMultiZoneSeparated}
+
+
+def get_default_backends():
+    path = Path(__file__).parent / 'backends'
+    backends = []
+    for pkg in [item for item in path.glob('**/*') if item.is_dir()]:
+        if pkg.name.startswith('bim2sim_'):
+            backends.append(pkg)
+    return backends
+
+
+def get_dev_backends():
+    path = Path(__file__).parent.parent.parent
+    backends = []
+    for plugin in [item for item in path.glob('**/*') if item.is_dir()]:
+        if plugin.name.startswith('Plugin'):
+            for pkg in [item for item in plugin.glob('**/*') if item.is_dir()]:
+                if pkg.name.startswith('bim2sim_'):
+                    backends.append(pkg)
+    return backends
 
 
 def get_backends(by_entrypoint=False):
     """load all possible plugins"""
     logger = logging.getLogger(__name__)
+
+    default = get_default_backends()
+    dev = get_dev_backends()
+
+    # add all plugins to PATH
+    sys.path.extend([str(path.parent) for path in default + dev])
 
     if by_entrypoint:
         sim = {}
@@ -41,11 +76,16 @@ def get_backends(by_entrypoint=False):
     return sim
 
 
-
-def finish():
+def finish(success=False):
     """cleanup method"""
     logger = logging.getLogger(__name__)
+    if not success:
+        pth = PROJECT.root / 'decisions_backup.json'
+        Decision.save(pth)
+        logger.warning("Decisions are saved in '%s'. Rename file to 'decisions.json' to reuse them.", pth)
+    Decision.frontend.shutdown(success)
     logger.info('finished')
+
 
 def logging_setup():
     """Setup for logging module"""
@@ -77,7 +117,7 @@ def main(rootpath=None):
     _rootpath = rootpath or os.getcwd()
     PROJECT.root = _rootpath
     assert PROJECT.is_project_folder(), \
-        "'%s' does not look like a project folder. Create a project folder first."%(_rootpath)
+        "'%s' does not look like a project folder. Create a project folder first." % (_rootpath)
 
     logging_setup()
     logger = logging.getLogger(__name__)
@@ -93,24 +133,40 @@ def main(rootpath=None):
     manager_cls = plugins.get(backend.lower())()
 
     if manager_cls is None:
-        msg = "Simulation '%s' not found in plugins. Available plugins:\n - "%(backend)
+        msg = "Simulation '%s' not found in plugins. Available plugins:\n - " % (backend)
         msg += '\n - '.join(list(plugins.keys()) or ['None'])
         raise AttributeError(msg)
 
     if not BIM2SIMManager in manager_cls.__bases__:
-        raise AttributeError("Got invalid manager from %s"%(backend))
+        raise AttributeError("Got invalid manager from %s" % (backend))
 
-    # workflow = PlantSimulation()  # TODO
-    workflow = BPSMultiZoneSeparated() #TODO
+    workflow = workflow_getter[backend]()
+
+    # set Frontend for Decisions
+    try:
+        frontend_name = conf['Frontend']['use']
+    except KeyError:
+        frontend_name = 'default'
+
+    if frontend_name == 'ExternalFrontEnd':
+        from bim2sim.decision.external import ExternalFrontEnd as Frontend
+    else:
+        from bim2sim.decision.console import ConsoleFrontEnd as Frontend
+    Decision.set_frontend(Frontend())
 
     # prepare simulation
     manager = manager_cls(workflow)
 
     # run Manager
-    manager.run()
-    #manager.run_interactive()
-
-    finish()
+    success = False
+    try:
+        manager.run()
+        #manager.run_interactive()
+        success = True
+    except Exception as ex:
+        logger.exception("Something went wrong!")
+    finally:
+        finish(success=success)
 
 
 def _debug_run_hvac():
@@ -121,7 +177,7 @@ def _debug_run_hvac():
     path_example = r"C:\temp\bim2sim\testproject"
 
     if not PROJECT.is_project_folder(path_example):
-        PROJECT.create(path_example, path_ifc, 'hkesim',)
+        PROJECT.create(path_example, path_ifc, 'hkesim', )
 
     main(path_example)
 
@@ -136,11 +192,36 @@ def _debug_run_bps():
     path_example = r"C:\temp\bim2sim\testproject_bps2"
 
     if not PROJECT.is_project_folder(path_example):
-        PROJECT.create(path_example, path_ifc, 'TEASER')
+        PROJECT.create(path_example, path_ifc, 'teaser')
 
     main(path_example)
 
 
+def _debug_run_hvac_aixlib():
+    """Create example project and copy ifc if necessary"""
+    path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
+    rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'
+    path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
+    path_example = r"C:\temp\bim2sim\testproject_aix"
+
+    if not PROJECT.is_project_folder(path_example):
+        PROJECT.create(path_example, path_ifc, 'aixlib',)
+
+
+def _debug_run_cfd():
+    """Create example project and copy ifc if necessary"""
+
+    sys.path.append("/home/fluid/Schreibtisch/B/bim2sim-coding/PluginCFD")
+    path_example = r"/home/fluid/Schreibtisch/B/temp"
+    # unter ifc muss datei liegen
+
+    if not PROJECT.is_project_folder(path_example):
+        PROJECT.create(path_example, target='cfd')
+    main(path_example)
+
+
 if __name__ == '__main__':
+    # _debug_run_cfd()
     _debug_run_bps()
-    _debug_run_hvac()
+    # _debug_run_hvac()
+

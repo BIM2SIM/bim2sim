@@ -5,8 +5,9 @@ import tempfile
 
 import numpy as np
 
-from bim2sim.kernel.element import Root, BasePort, BaseElement
-from bim2sim.task import hvac, common
+from bim2sim.kernel.element import Root, BasePort, BaseElement, IFCBased
+from bim2sim.task import hvac
+from bim2sim.task import common
 from bim2sim.task.hvac import Inspect
 from bim2sim.workflow import PlantSimulation
 from bim2sim.project import PROJECT, _Project
@@ -36,6 +37,8 @@ class TestInspect(unittest.TestCase):
         print(cls.test_dir.name)
         PROJECT.create(cls.test_dir.name)
 
+        IFCBased.finder.enabled = False
+
     @classmethod
     def tearDownClass(cls):
         print('tear down class')
@@ -45,6 +48,7 @@ class TestInspect(unittest.TestCase):
         except PermissionError:
             # for unknown reason the empty folder contend is cleared but folder itself cant be removed --> ignore
             pass
+        IFCBased.finder.enabled = True
 
     def setUp(self):
         workflow = PlantSimulation()
@@ -56,6 +60,7 @@ class TestInspect(unittest.TestCase):
             r.discard()
 
         self.manager = None
+        Decision.reset_decisions()
 
     @patch.object(_Project, 'ifc', sample_root / 'B01_2_HeatExchanger_Pipes.ifc')
     def test_case_1(self):
@@ -67,7 +72,6 @@ class TestInspect(unittest.TestCase):
         heat_exchanger = Root.objects.get('0qeZDHlQRzcKJYopY4$fEf')
         self.assertEqual(4, len([port for port in heat_exchanger.ports if port.connection]))
 
-    @unittest.skip("Fix in branch 35_identify_consumer_systemboarder")
     @patch.object(_Project, 'ifc', sample_root / 'B01_3_HeatExchanger_noPorts.ifc')
     def test_case_2(self):
         """HeatExchange and Pipes are exported without ports"""
@@ -90,7 +94,6 @@ class TestInspect(unittest.TestCase):
         heat_exchanger = Root.objects.get('3FQzmSvzrgbaIM6zA4FX8S')
         self.assertEqual(4, len([port for port in heat_exchanger.ports if port.connection]))
 
-    @unittest.skip("Fix in branch 35_identify_consumer_systemboarder")
     @patch.object(_Project, 'ifc', sample_root / 'B01_5_HeatExchanger_mixConnection.ifc')
     def test_case_4(self):
         """Mix of case 1 and 3"""

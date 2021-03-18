@@ -4,6 +4,8 @@ from bim2sim.export import modelica
 from bim2sim.kernel import elements
 from bim2sim.kernel.aggregation import PipeStrand, Consumer, \
     ConsumerHeatingDistributorModule, Generator_One_Fluid
+from bim2sim.kernel.units import ureg
+
 
 
 class AixLib(modelica.Instance):
@@ -16,7 +18,7 @@ class Boiler(AixLib):
     represents = [elements.Boiler]
 
     def __init__(self, element):
-        self.check_power = self.check_numeric(min_value=0) #TODO: Checking System
+        self.check_power = self.check_numeric(min_value=0 * ureg.kilowatt) #TODO: Checking System
         super().__init__(element)
 
     def get_params(self):

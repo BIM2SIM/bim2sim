@@ -1,14 +1,19 @@
 ﻿"""Module for aggregation and simplifying elements"""
 
 import math
-import networkx as nx
+
+import ast
 import numpy as np
+import networkx as nx
+
+
 from bim2sim.kernel.element import BaseElement, BasePort
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
 from bim2sim.decision import BoolDecision
 import networkx as nx
+
 
 def verify_edge_ports(func):
     """Decorator to verify edge ports"""
@@ -61,7 +66,10 @@ class Aggregation(BaseElement):
         self.outer_connections = kwargs.pop('outer_connections', None)  # WORKAROUND
         super().__init__(*args, **kwargs)
         self.name = name
-        self.elements = element_graph.nodes
+        if hasattr(element_graph, 'nodes'):
+            self.elements = element_graph.nodes
+        else:
+            self.elements = element_graph
         for model in self.elements:
             model.aggregation = self
 
@@ -83,9 +91,12 @@ class Aggregation(BaseElement):
         else:
             names = (name,)
 
-        for ele in self.elements:
-            for n in names:
-                ele.request(n)
+        # for ele in self.elements:
+        #     for n in names:
+        #         ele.request(n)
+
+        for n in names:
+            super().request(n)
 
     @classmethod
     def get_empty_mapping(cls, elements: list):
@@ -132,7 +143,9 @@ class Aggregation(BaseElement):
         edge_ports = []
         for port in (p for e in edge_elements for p in e.ports):
             if not port.connection:
-                continue  # end node
+                edge_ports.append(port)
+                continue
+            #     continue  # end node
             if port.connection.parent not in graph.nodes:
                 edge_ports.append(port)
 
@@ -168,6 +181,9 @@ class Aggregation(BaseElement):
     def __repr__(self):
         return "<%s '%s' (aggregation of %d elements)>" % (
             self.__class__.__name__, self.name, len(self.elements))
+
+    def __str__(self):
+        return "%s" % self.__class__.__name__
 
 
 class PipeStrand(Aggregation):
@@ -1194,7 +1210,7 @@ class Consumer(Aggregation):
         )
         return result
 
-    def _calc_TControl(self):
+    def _calc_TControl(self, name):
         return True  # ToDo: Look at Boiler Aggregation - David
 
     @attribute.multi_calc
@@ -1205,6 +1221,10 @@ class Consumer(Aggregation):
                 has_pump = True
                 break
         return dict(has_pump=has_pump)
+
+        result = dict(
+            has_pump=has_pump)
+        return result
 
     def get_replacement_mapping(self):
         """Returns dict with original ports as values and their aggregated replacement as keys."""
@@ -1268,7 +1288,7 @@ class Consumer(Aggregation):
 
 class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation HKESim
     """Aggregates Consumer system boarder"""
-    multi = ('medium', 'useHydraulicSeperator', 'hydraulicSeperatorVolume', 'temperature_inlet', 'temperature_outlet')
+    multi = ('medium', 'use_hydraulic_separator', 'hydraulic_separator_volume', 'temperature_inlet', 'temperature_outlet')
     # ToDo: Abused to not just sum attributes from elements
 
     aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting', 'ParallelSpaceHeater']
@@ -1349,7 +1369,7 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
             outer_connections = {}
             metas.append({'outer_connections': [],
                           'undefined_consumer_ports': [],
-                          'consumer_cycles':[]})
+                          'consumer_cycles': []})
 
             for port in remove_ports:
                 outer_connections.update({neighbor.parent: (port, neighbor) for neighbor in graph.neighbors(port) if
@@ -1407,9 +1427,8 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
             medium=None,
             temperature_inlet=None,
             temperature_outlet=None,
-            useHydraulicSeperator=None,
-            hydraulicSeperatorVolume=None,
-            # description='Destributor with X Consumer Cycles'
+            use_hydraulic_separator=False,
+            hydraulic_separator_volume=1,
         )
         return result
 
@@ -1430,15 +1449,82 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
         functions=[_calc_avg]
     )
 
-    useHydraulicSeperator = attribute.Attribute(
+    use_hydraulic_separator = attribute.Attribute(
         description="boolean if there is a hdydraulic seperator",
         functions=[_calc_avg]
     )
 
-    hydraulicSeperatorVolume = attribute.Attribute(
+    hydraulic_separator_volume = attribute.Attribute(
         description="Volume of the hdydraulic seperator",
         functions=[_calc_avg]
     )
+
+
+class Aggregated_ThermalZone(Aggregation):
+    """Aggregates thermal zones"""
+    aggregatable_elements = ["IfcSpace"]
+
+    def __init__(self, name, element_graph, *args, **kwargs):
+        super().__init__(name, element_graph, *args, **kwargs)
+        self.get_disaggregation_properties()
+        self.bound_elements = self.bind_elements()
+        self.description = ''
+
+    def get_disaggregation_properties(self):
+        """properties getter -> that way no sub instances has to be defined"""
+        exception = ['height', 't_set_cool', 't_set_heat', 'usage']
+        for prop in self.elements[0].attributes:
+            if prop in exception:
+                value = getattr(self.elements[0], prop)
+            else:
+                value = '' if type(getattr(self.elements[0], prop)) is str else 0
+                for e in self.elements:
+                    value += getattr(e, prop)
+            setattr(self, prop, value)
+
+    def bind_elements(self):
+        """elements binder for the resultant thermal zone"""
+        bound_elements = []
+        for e in self.elements:
+            for i in e.bound_elements:
+                if i not in bound_elements:
+                    bound_elements.append(i)
+
+        return bound_elements
+
+    @classmethod
+    def based_on_groups(cls, groups, instances):
+        """creates a new thermal zone aggregatin instance
+         based on a previous filtering"""
+        new_aggregations = []
+        total_area = sum(i.area for i in instances.values())
+        for group in groups:
+            if group != 'not_bind':
+                # first criterion based on similarities
+                name = "Aggregated_%s" % '_'.join([i.name for i in groups[group]])
+                instance = cls(name, groups[group])
+                instance.description = ', '.join(ast.literal_eval(group))
+                new_aggregations.append(instance)
+                for e in instance.elements:
+                    if e.guid in instances:
+                        del instances[e.guid]
+            else:
+                # last criterion no similarities
+                area = sum(i.area for i in groups[group])
+                if area/total_area <= 0.05:
+                    # Todo: usage and conditions criterion
+                    name = "Aggregated_%s" % '_'.join([i.name for i in groups[group]])
+                    instance = cls(name, groups[group])
+                    instance.description = group
+                    new_aggregations.append(instance)
+                    for e in instance.elements:
+                        if e.guid in instances:
+                            del instances[e.guid]
+        return new_aggregations
+
+
+
+
 
 
 class Generator_One_Fluid(Aggregation):

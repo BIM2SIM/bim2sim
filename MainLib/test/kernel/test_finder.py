@@ -4,16 +4,18 @@
 import unittest
 import os
 import tempfile
-import shutil
 
 import bim2sim
 from bim2sim.kernel import ifc2python
 from bim2sim.kernel import element, elements
 from bim2sim.kernel.finder import TemplateFinder
+from bim2sim.decision import Decision
+
 
 IFC_PATH = os.path.abspath(os.path.join(
     os.path.dirname(bim2sim.__file__), '../..', 
     r'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc'))
+
 
 class Test_TemplateFinder(unittest.TestCase):
 
@@ -30,9 +32,12 @@ class Test_TemplateFinder(unittest.TestCase):
         cls.pipefitting1 = elements.PipeFitting(pipefittings[0])
         cls.pipefitting2 = elements.PipeFitting(pipefittings[1])
 
+        element.IFCBased.finder.enabled = False
 
     @classmethod
     def tearDownClass(cls):
+        element.IFCBased.finder.enabled = True
+        Decision.reset_decisions()
         cls.root.cleanup()
 
     def setUp(self):
@@ -42,7 +47,7 @@ class Test_TemplateFinder(unittest.TestCase):
 
     def tearDown(self):
         del self.finder
-        element.Element.finder = None
+        element.Element.finder = self.backup
 
     def test_set_find(self):
         cls = self.__class__
@@ -52,11 +57,12 @@ class Test_TemplateFinder(unittest.TestCase):
         self.finder.set(tool, cls.pipe1, 'diameter', 'Abmessungen', 'Innendurchmesser')
         self.finder.set(tool, 'IfcPipeFitting', 'diameter', 'Abmessungen', 'Nenndurchmesser')
 
-        l1 = self.finder.find(cls.pipe1, 'length')
-        d1 = self.finder.find(cls.pipe1, 'diameter')
-        l2 = self.finder.find(cls.pipe2, 'length')
-        d2 = self.finder.find(cls.pipe2, 'diameter')
-        d3 = self.finder.find(cls.pipefitting1, 'diameter')
+        with Decision.debug_answer('Other', validate=False):
+            l1 = self.finder.find(cls.pipe1, 'length')
+            d1 = self.finder.find(cls.pipe1, 'diameter')
+            l2 = self.finder.find(cls.pipe2, 'length')
+            d2 = self.finder.find(cls.pipe2, 'diameter')
+            d3 = self.finder.find(cls.pipefitting1, 'diameter')
 
         with self.assertRaises(AttributeError):
             self.finder.find(cls.pipefitting1, 'length')

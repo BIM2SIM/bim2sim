@@ -119,7 +119,7 @@
     "heat_capacity" : "heat_capac",
     "thickness" : "thickness_default"
   },
-  "Material": {
+  "Layer": {
     "default_ps": {
       "thermal_conductivity" : ["Pset_MaterialThermal", "ThermalConductivity"],
       "heat_capacity" : ["Pset_MaterialThermal", "SpecificHeatCapacity"],

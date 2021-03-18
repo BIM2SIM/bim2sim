@@ -570,22 +570,36 @@ class HvacGraph(nx.Graph):
 
     @staticmethod
     def get_path_without_junctions(graph, root, include_edges=False):
-        """ Get not orientated list of nodes for paths that includes the
-        defined root element. The edges are any junction elements.
+        """Get not orientated list of nodes for paths that includes the
+        defined root element. The edges areany junction elements.
         These edges are not included by default.
-        Return all nodes in this path."""
+        Return all nodes in thisde path.
+        # todo make this correct!
+        :graph =
+        :root = element which must be in path
+        :include_edges = include edges of path or not"""
+
+        # def create_subgraph(graph, sub_G, start_node):
+        #     sub_G.add_node(start_node)
+        #     for n in graph.neighbors_iter(start_node):
+        #         if n not in sub_G.neighbors(start_node):
+        #
+        #             sub_G.add_path([start_node, n])
+        #             create_subgraph(G, sub_G, n)
 
         nodes = [root]
         # get direct neighbors
         neighbors_root = nx.all_neighbors(graph, root)
-
+        if not neighbors_root:
+            return nodes
         # loop through neighbors until next junction
-        for neighbor_root in neighbors_root:
-            neighbor = neighbor_root
+        for neighbor in neighbors_root:
             while True:
                 neighbors = [neighbor for neighbor in
                              nx.all_neighbors(graph, neighbor) if not
                              neighbor in nodes]
+                if not neighbors:
+                    break
                 if len(neighbors) > 1:
                     if include_edges:
                         nodes.append(neighbor)

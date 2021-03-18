@@ -33,10 +33,20 @@
       "Volume"
     ]
   },
+  "PipeFitting": {
+	"default_ps": {
+      "diameter" : ["Abmessungen", "Nenndurchmesser"],
+      "pressure_class" : ["Pset_PipeFittingTypeCommon", "PressureClass"],
+      "length" : ["Abmessungen", "Muffenl\u00e4nge"]
+    }
+  },
+   "Pipe": {
+	"default_ps": {
+      "diameter" : ["HLS", "Nenndurchmesser"],
+      "length" : ["Abmessungen", "L\u00e4nge"]
+    }
+  },
   "Wall": {
-    "material": {
-      "lightweight_concrete": "Leichtbeton"
-    },
     "default_ps": {
       "area" : ["QTo_WallBaseQuantities", "NetSideArea"],
       "width" : ["QTo_WallBaseQuantities", "Width"],
@@ -77,6 +87,7 @@
   },
   "ThermalZone" : {
     "default_ps": {
+	  "zone_name" : ["Pset_SpaceCommon", "Reference"],
       "area" : ["Qto_SpaceBaseQuantities", "NetFloorArea"],
       "usage" : ["Pset_SpaceCommon", "Reference"],
       "height" : ["Qto_SpaceBaseQuantities", "Height"]

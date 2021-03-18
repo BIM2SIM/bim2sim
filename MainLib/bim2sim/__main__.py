@@ -23,6 +23,7 @@ import docopt
 
 from bim2sim import main, PROJECT, VERSION
 
+
 def commandline_interface():
     """user interface"""
 
@@ -47,6 +48,7 @@ def commandline_interface():
         print("Invalid arguments")
         exit()
 
+
 def debug_params():
     """Set debug console arguments"""
 
@@ -65,6 +67,7 @@ def debug_params():
     sys.argv.append(r'C:\temp\bim2sim\testproject')
 
     print("Debug parameters:\n%s"%("\n".join(sys.argv[1:])))
+
 
 if len(sys.argv) <= 1:
     debug_params()

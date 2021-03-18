@@ -2,16 +2,19 @@
 
 import os
 import logging
+from pathlib import Path
 
 import codecs
 from mako.template import Template
 import numpy as np
+import pint
 
+import bim2sim
 from bim2sim.kernel import element as elem
 from bim2sim.kernel import elements, aggregation
 from bim2sim.decision import RealDecision
 
-TEMPLATEPATH = os.path.join(os.path.dirname(__file__), 'tmplModel.txt')
+TEMPLATEPATH = Path(bim2sim.__file__).parent / 'assets/tmplModel.txt'
 # prevent mako newline bug by reading file seperatly
 with open(TEMPLATEPATH) as f:
     templateStr = f.read()
@@ -59,7 +62,7 @@ class Model:
         indexes = [[0, 0], [0, 0], [0, 0]]
         modelsize = 25
         for inst in instances:
-
+            # Consumer to the right
             if inst.element.__class__ in [aggregation.ConsumerHeatingDistributorModule, aggregation.Consumer]:
                 x = (self.size_x[0] + delta_x*2/3 + indexes[0][0]*modelsize)
                 y = (self.size_y[0] + indexes[0][1]*modelsize)
@@ -70,6 +73,7 @@ class Model:
                     indexes[0][0] += 1
                 else:
                     indexes[0][1] += 1
+            # Generator to the left
             elif inst.element.__class__ in [elements.Boiler, elements.Chiller]:
                 x = (self.size_x[0] + indexes[1][0]*modelsize)
                 y = (self.size_y[0] + indexes[1][1]*modelsize)
@@ -153,6 +157,7 @@ class Instance:
         self.params = {}
         self.validate = {}
         self.get_params()
+        self.manage_params()
         self.comment = self.get_comment()
         self.connections = []
 
@@ -221,12 +226,13 @@ class Instance:
         """Collect parameters from element and checks them"""
         for name, args in self.validate.items():
             check, export_name = args
-            value = self.element.find(name)
+            value = getattr(self.element, name)
             if check(value):
                 self.params[export_name] = value
             else:
                 RealDecision(
                     question="Please enter parameter for %s"%(self.name + "." + export_name),
+                    unit=self.element.attributes.get_unit(name),
                     validate_func=check,
                     output=self.params,
                     output_key=export_name,
@@ -282,9 +288,9 @@ class Instance:
         if isinstance(parameter, (str, int, float)):
             return str(parameter)
         if isinstance(parameter, str):
-            return '"%s"'%parameter
+            return '"%s"' % parameter
         if isinstance(parameter, (list, tuple, set)):
-            return "{%s}"%(",".join((Instance.to_modelica(par) for par in parameter)))
+            return "{%s}" % (",".join((Instance.to_modelica(par) if par is not None else "" for par in parameter)))
         logger = logging.getLogger(__name__)
         logger.warning("Unknown class (%s) for conversion", parameter.__class__)
         return str(parameter)
@@ -292,11 +298,14 @@ class Instance:
     @staticmethod
     def check_numeric(min_value=None, max_value=None):
         """Generic check function generator
-
         returns check function"""
+        if not isinstance(min_value, (pint.Quantity, type(None))):
+            raise AssertionError("min_value is no pint quantity with unit")
+        if not isinstance(max_value, (pint.Quantity, type(None))):
+            raise AssertionError("max_value is no pint quantity with unit")
 
         def inner_check(value):
-            if not isinstance(value, (int, float)):
+            if not isinstance(value, pint.Quantity):
                 return False
             if min_value is None and max_value is None:
                 return True
@@ -305,6 +314,17 @@ class Instance:
             if max_value is not None:
                 return value <= max_value
             return min_value <= value <= max_value
+
+        return inner_check
+
+    @staticmethod
+    def check_dummy():
+        """Dummy Always True
+
+        returns check function"""
+
+        def inner_check(value):
+            return True
 
         return inner_check
 

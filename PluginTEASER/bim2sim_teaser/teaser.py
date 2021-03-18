@@ -1,19 +1,16 @@
+from bim2sim.manage import BIM2SIMManager
+from bim2sim.task import bps
+from bim2sim.task import common
 
-from bim2sim.manage import BIM2SIMManager, PROJECT
-from bim2sim.task import bps, base, common, hvac
-from bim2sim.task.sub_tasks import tz_detection
 
-# from bim2sim.export.modelica import standardlibrary
-# from bim2sim_hkesim.models import HKESim
-#
-#
-# class LoadLibrariesHKESim(base.ITask):
-#     """Load HKESim library for export"""
+
+
+# class LoadLibrariesTEASER(base.ITask):
+#     """Load TEASER library for export"""
 #     touches = ('libraries', )
 #
 #     def run(self, workflow, **kwargs):
 #         return (standardlibrary.StandardLibrary, HKESim),
-
 
 
 class TEASERManager(BIM2SIMManager):
@@ -28,19 +25,9 @@ class TEASERManager(BIM2SIMManager):
         self.playground.run_task(bps.Inspect())
         pass
 
-        # self.playground.run_task(bps.ExportTEASER())
-        # print()
-        #self.playground.run_task(bps.ExportTEASERMultizone())
-
-        # export = bps.ExportTEASERMultizone()
-        # # export = bps.ExportTEASERSingleZone()
-        # export.run(self.playground.workflow, self.playground.history[2])
-        # print()
+        self.playground.run_task(bps.ExportTEASER())
 
 
-        # libraries = (standardlibrary.StandardLibrary, HKESim)
-        # export = bps.Export()
-        # export.run(libraries, reduce.reduced_instances, reduce.connections)
 
 
 
