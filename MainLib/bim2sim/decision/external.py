@@ -61,6 +61,10 @@ class DecisionService(rpyc.Service):
         if self.callback:
             self.callback(finished=True)
 
+    def notify_info(self, message):
+        if self.callback:
+            self.callback(message)
+
     @staticmethod
     def reduced(decisions):
         return json.dumps(decisions)
@@ -267,6 +271,7 @@ class ExternalFrontEnd(FrontEnd):
             data[key] = self.to_dict(key, decision)
 
         self.service.set_decisions(data)
+        self.service.notify_info("New decisions available")
 
         # print("Wait for answers", end='')
         while not self.service.done:
