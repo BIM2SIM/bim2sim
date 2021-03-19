@@ -89,7 +89,6 @@ class DecisionService(rpyc.Service):
                 return False
 
     def exposed_answer(self, key, value):
-        # TODO: key and value are from other interpreter instance. convert them to internal value
         key = str(key)
         logger.debug("Received answer %r for decision %s", value, key)
         # print("currend decisions: ", self.decisions)
@@ -180,7 +179,7 @@ class ExternalFrontEnd(FrontEnd):
         """parse answer for decision key"""
         decision = self.pending.get(key, None)
         if decision is None:
-            logger.debug("Pending Decisions: %s", self.pending)
+            logger.debug("Did not found decision with key %s in pending Decisions: %s", key, self.pending)
             return None
         value = self.parse(decision, raw_value)
         return value
@@ -189,7 +188,7 @@ class ExternalFrontEnd(FrontEnd):
         """validate answer. Returns True/False or None for invalid keys"""
         decision = self.pending.get(key, None)
         if decision is None:
-            logger.debug("Pending Decisions: %s", self.pending)
+            logger.debug("Did not found decision with key %s in pending Decisions: %s", key, self.pending)
             return None
         valid = self.validate(decision, value)
         return valid
