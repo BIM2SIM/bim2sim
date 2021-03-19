@@ -127,6 +127,7 @@ def main(rootpath=None):
     conf = get_config()
     backend = conf["Backend"].get("use")
     assert backend, "No backend set. Check config.ini"
+    backend = backend.lower()
 
     logger.info("Loading backend '%s' ...", backend)
     print(plugins)

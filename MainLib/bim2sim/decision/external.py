@@ -61,6 +61,10 @@ class DecisionService(rpyc.Service):
         if self.callback:
             self.callback(finished=True)
 
+    def notify_info(self, message):
+        if self.callback:
+            self.callback(message)
+
     @staticmethod
     def reduced(decisions):
         return json.dumps(decisions)
@@ -85,9 +89,9 @@ class DecisionService(rpyc.Service):
                 return False
 
     def exposed_answer(self, key, value):
+        key = str(key)
         logger.debug("Received answer %r for decision %s", value, key)
         # print("currend decisions: ", self.decisions)
-
         try:
             parsed = self._parse(key, value)
         except NotImplementedError:
@@ -96,6 +100,7 @@ class DecisionService(rpyc.Service):
         # print("parsed: %r" % parsed)
 
         valid = self._answer(key, parsed)
+        logger.debug("Key: %s, value: %s, type of value: %s, valid: %s", key, value, type(value), valid)
         if valid:
             with lock:
                 self.answers[key] = parsed
@@ -174,6 +179,7 @@ class ExternalFrontEnd(FrontEnd):
         """parse answer for decision key"""
         decision = self.pending.get(key, None)
         if decision is None:
+            logger.debug("Did not found decision with key %s in pending Decisions: %s", key, self.pending)
             return None
         value = self.parse(decision, raw_value)
         return value
@@ -182,6 +188,7 @@ class ExternalFrontEnd(FrontEnd):
         """validate answer. Returns True/False or None for invalid keys"""
         decision = self.pending.get(key, None)
         if decision is None:
+            logger.debug("Did not found decision with key %s in pending Decisions: %s", key, self.pending)
             return None
         valid = self.validate(decision, value)
         return valid
@@ -212,6 +219,9 @@ class ExternalFrontEnd(FrontEnd):
         if self.pending:
             raise AssertionError("Solve pending decisions first!")
 
+        if not collection:
+            return
+
         for decision in collection:
             self.pending[next(self.id_gen)] = decision
 
@@ -230,7 +240,7 @@ class ExternalFrontEnd(FrontEnd):
         i = 0
         while True:
             i += 1
-            yield i
+            yield str(i)
 
     @staticmethod
     def decision_kind(decision):
@@ -267,6 +277,7 @@ class ExternalFrontEnd(FrontEnd):
             data[key] = self.to_dict(key, decision)
 
         self.service.set_decisions(data)
+        self.service.notify_info("New decisions available")
 
         # print("Wait for answers", end='')
         while not self.service.done:
