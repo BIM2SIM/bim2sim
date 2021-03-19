@@ -3,6 +3,8 @@ import ast
 from bim2sim.task.base import Task, ITask
 from bim2sim.kernel.element import SubElement
 from bim2sim.task.common.common_functions import get_type_building_elements, get_material_templates
+from bim2sim.decision import ListDecision
+from bim2sim.workflow import LOD
 
 
 class BuildingVerification(ITask):
@@ -20,13 +22,13 @@ class BuildingVerification(ITask):
         invalid['layers'] = []
         self.logger.info("setting verifications")
         for guid, ins in instances.items():
-            if not self.layers_verification(ins):
+            if not self.layers_verification(ins, workflow):
                 invalid['layers'].append(ins)
         self.logger.warning("Found %d invalid layers", len(invalid['layers']))
 
         return instances, invalid,
 
-    def layers_verification(self, instance):
+    def layers_verification(self, instance, workflow):
         supported_classes = {'OuterWall', 'Wall', 'InnerWall', 'Door', 'InnerDoor', 'OuterDoor', 'Roof', 'Floor',
                              'GroundFloor', 'Window'}
         instance_type = type(instance).__name__
@@ -34,7 +36,7 @@ class BuildingVerification(ITask):
             if len(instance.layers) == 0:  # no layers given
                 return False
             layers_width, layers_u = self.get_layers_properties(instance)
-            if not self.width_comparison(instance, layers_width):
+            if not self.width_comparison(workflow, instance, layers_width):
                 return False
             if not self.u_value_comparison(instance, layers_u):
                 return False
@@ -63,13 +65,16 @@ class BuildingVerification(ITask):
         return layers_width, layers_u
 
     @staticmethod
-    def width_comparison(instance, layers_width):
+    def width_comparison(workflow, instance, layers_width):
         # critical failure
-        width_discrepancy = abs(instance.width - layers_width) / instance.width if \
-            (instance.width is not None and instance.width > 0) else 9999
-        if width_discrepancy > 0.2:
-            return False
-        return True
+        if workflow.layers is not LOD.low:
+            return True
+        else:
+            width_discrepancy = abs(instance.width - layers_width) / instance.width if \
+                (instance.width is not None and instance.width > 0) else 9999
+            if width_discrepancy > 0.2:
+                return False
+            return True
 
     @staticmethod
     def u_value_comparison(instance, layers_u):
@@ -79,7 +84,16 @@ class BuildingVerification(ITask):
         elif instance.u_value == 0 and layers_u > 0:
             instance.u_value = layers_u
         elif instance.u_value > 0 and layers_u > 0:
-            instance.u_value = max(instance.u_value, layers_u)  # decisions valid
+            u_selection = ListDecision(
+                "Multiple possibilities found for u_value\n"
+                "Belonging Item: %s | GUID: %s \n"
+                "Enter 'n' for manual input"
+                % (instance.name, instance.guid),
+                choices=[instance.u_value, layers_u], global_key='%s_u_value' % instance.name,
+                allow_skip=True, allow_load=True, allow_save=True,
+                collect=False, quick_decide=not True, context=instance.name, related=instance.guid)
+            u_selection.decide()
+            instance.u_value = u_selection.value
         return True
 
     @staticmethod
