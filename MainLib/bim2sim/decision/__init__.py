@@ -60,6 +60,7 @@ class Decision:
     On instantiating a decision with a global_key matching a loaded key it gets the loaded value assigned
     """
 
+    # TODO: save in Project instance
     all = []  # all decision instances
     stored_decisions = {}  # Decisions ready to save
     _logger = None

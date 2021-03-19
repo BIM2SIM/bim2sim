@@ -15,6 +15,7 @@ import configparser
 from bim2sim.decision import Decision, ListDecision
 from bim2sim.task.base import Playground
 from bim2sim.plugin import Plugin
+from bim2sim.kernel.element import Root
 
 
 logger = logging.getLogger(__name__)
@@ -264,6 +265,7 @@ class FolderStructure:
 class Project:
     """Project resource handling"""
     formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
+    _active_project = None  # lock to prevent multiple interfering projects
 
     def __init__(self, path=None):
         """Load existing project"""
@@ -282,8 +284,6 @@ class Project:
         initials = {'paths': self.paths}
         self.playground = Playground(workflow, initials)
 
-        Decision.load(self.paths.decisions)
-
         self._log_handler = self._setup_logger()  # setup project specific handlers
 
     @classmethod
@@ -297,6 +297,26 @@ class Project:
     @staticmethod
     def is_project_folder(path: str):
         return FolderStructure(path).is_project_folder()
+
+    @classmethod
+    def _lock(cls, project):
+        if cls._active_project is None:
+            cls._active_project = project
+        else:
+            raise AssertionError("Cant lock Project while other project is active")
+
+    @classmethod
+    def _release(cls, project):
+        if cls._active_project is project:
+            cls._active_project = None
+        elif cls._active_project is None:
+            raise AssertionError("Cant release Project. No active project.")
+        else:
+            raise AssertionError("Cant release from other project.")
+
+    def is_active(self) -> bool:
+        """Return True if current project is active, False otherwise."""
+        return Project._active_project is self
 
     def _setup_logger(self):
         file_handler = logging.FileHandler(os.path.join(self.paths.log, "bim2sim.log"))
@@ -322,12 +342,17 @@ class Project:
         if not self.paths.is_project_folder():
             raise AssertionError("Project ist not set correctly!")
 
+        # lock current project
+        Project._lock(self)
+
+        Decision.load(self.paths.decisions)
+
         success = False
         try:
             if interactive:
-                self.run_interactive()
+                self._run_interactive()
             else:
-                self.run_default()
+                self._run_default()
             success = True
         except Exception as ex:
             logger.exception("Something went wrong!")
@@ -335,13 +360,13 @@ class Project:
             self.finalize(success=success)
         return 0 if success else -1
 
-    def run_default(self, plugin=None):
+    def _run_default(self, plugin=None):
         """Execution of plugins default run"""
         # run plugin default
         _plugin = plugin or self.default_plugin
         _plugin().run(self.playground)
 
-    def run_interactive(self):
+    def _run_interactive(self):
         """Interactive execution of available ITasks"""
         while True:
             tasks_classes = {task.__name__: task for task in self.playground.available_tasks()}
@@ -354,12 +379,30 @@ class Project:
 
     def finalize(self, success=False):
         """cleanup method"""
-        if not success:
-            pth = self.paths.root / 'decisions_backup.json'
-            Decision.save(pth)
-            logger.warning("Decisions are saved in '%s'. Rename file to 'decisions.json' to reuse them.", pth)
+
+        if self.is_active():
+            # clean up run relics
+            #  backup decisions
+            if not success:
+                pth = self.paths.root / 'decisions_backup.json'
+                Decision.save(pth)
+                logger.warning("Decisions are saved in '%s'. Rename file to 'decisions.json' to reuse them.", pth)
+            #  clean decisions
+            # TODO: for now clean them after project finished. change this in #126
+            Decision.reset_decisions()
+            # clean Elements
+            # TODO: this should not be necessary. Move all side effects to project context
+            Root.full_reset()
+            # releas project
+            Project._release(self)
+
+        # clean up init relics
+        # clean up Decisions frontend
+        # TODO: this is global and not project specific
         if Decision.frontend:
             Decision.frontend.shutdown(success)
+
+        #  clean logger
         logger.info('finished')
         self._teardown_logger()
 
