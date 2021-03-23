@@ -6,6 +6,7 @@ import sys
 import importlib
 import pkgutil
 import logging
+import tempfile
 from os.path import expanduser
 from pathlib import Path
 import site
@@ -262,13 +263,17 @@ def _debug_run_bps_ep():
     main(path_example)
 
 
-def _test_run_bps_ep(rel_path):
+def _test_run_bps_ep(rel_path, temp_project=False):
     """Create example project and copy ifc if necessary. Added for EnergyPlus integration tests"""
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 
     path_ifc = os.path.normpath(os.path.join(path_base, rel_path))
 
-    path_example = _get_debug_project_path()
+    if not temp_project:
+        path_example = _get_debug_project_path()
+    else:
+        path_example = tempfile.mkdtemp()
+    print("Project directory: " + path_example)
 
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, path_ifc, 'energyplus')

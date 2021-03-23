@@ -1,3 +1,4 @@
+import sys
 import unittest
 
 from bim2sim import _test_run_bps_ep
@@ -17,8 +18,10 @@ class TestEPIntegration(unittest.TestCase):
         answers = (True, True, True, True, True, 'light', True, True,True,True,True,'light',True,'light',
                    True,True,True,True,'light', True,'light', True,True,True,
                    'Kunststofffenster, Isolierverglasung',True,True,True,False)
+        old_stderr = sys.stderr
         with Decision.debug_answer(answers, multi=True):
-            _test_run_bps_ep(rel_path=rel_path)
+            _test_run_bps_ep(rel_path=rel_path, temp_project=True)
+        sys.stderr = old_stderr
 
     def test_base_FZK_SB(self):
         """Test IFC File from FZK-Haus (KIT) with generated Space Boundaries"""
@@ -27,8 +30,10 @@ class TestEPIntegration(unittest.TestCase):
         answers = (True, True, True, True, True, 'light', True,True,True,True,True,'light',True,'light',
                    True,True,True,True,'light', True,'light', True,True,True, 'Kunststofffenster, Isolierverglasung',
                    True,True,True,False)
+        old_stderr = sys.stderr
         with Decision.debug_answer(answers, multi=True):
-            _test_run_bps_ep(rel_path=rel_path)
+            _test_run_bps_ep(rel_path=rel_path, temp_project=True)
+        sys.stderr = old_stderr
 
     def test_base_KIT_Inst(self):
         """Test Original IFC File from Institute (KIT)"""
@@ -37,8 +42,10 @@ class TestEPIntegration(unittest.TestCase):
         answers = (True, True, '1', True, True, True, 'light',
                    True,True,True,True,'light',True,True,'light', True,True,True,'light', True,
                    'Kunststofffenster, Isolierverglasung',True, True,True,False)
+        old_stderr = sys.stderr
         with Decision.debug_answer(answers, multi=True):
-            _test_run_bps_ep(rel_path=rel_path)
+            _test_run_bps_ep(rel_path=rel_path, temp_project=True)
+        sys.stderr = old_stderr
 
     def test_base_KIT_Inst_SB(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
@@ -47,8 +54,10 @@ class TestEPIntegration(unittest.TestCase):
         answers = (True, True, '1', True, True, True, 'light',
                    True,True,True,True,'light',True,True,'light', True,True,True,'light', True,
                    'Kunststofffenster, Isolierverglasung',True, True,True,False)
+        old_stderr = sys.stderr
         with Decision.debug_answer(answers, multi=True):
-            _test_run_bps_ep(rel_path=rel_path)
+            _test_run_bps_ep(rel_path=rel_path, temp_project=True)
+        sys.stderr = old_stderr
 
     def test_base_DH(self):
         """Test DigitalHub IFC"""
@@ -57,8 +66,10 @@ class TestEPIntegration(unittest.TestCase):
         answers = (True, True, '1', *(True,)*3, 'light',
                    *(True,)*4,'light',True,'light', True,True,'light', *(True,)*3,'light', True,
                    'Kunststofffenster, Isolierverglasung',True,True,True,False)
+        old_stderr = sys.stderr
         with Decision.debug_answer(answers, multi=True):
-            _test_run_bps_ep(rel_path=rel_path)
+            _test_run_bps_ep(rel_path=rel_path, temp_project=True)
+        sys.stderr = old_stderr
 
 
 if __name__ == '__main__':
