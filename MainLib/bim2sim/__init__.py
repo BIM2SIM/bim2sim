@@ -255,15 +255,20 @@ def _test_run_bps_ep(rel_path, temp_project=False):
         path_example = _get_debug_project_path()
     else:
         path_example = tempfile.mkdtemp()
-    print("Project directory: " + path_example)
-
-    if not PROJECT.is_project_folder(path_example):
-        PROJECT.create(path_example, path_ifc, 'energyplus')
-
-    #HACK: We have to remember stderr because eppy resets it currently.
+        
     old_stderr = sys.stderr
-    main(path_example)
-    sys.stderr = old_stderr
+    working_dir = os.getcwd()
+    try:
+        print("Project directory: " + path_example)
+        os.chdir(path_example)
+        if not PROJECT.is_project_folder(path_example):
+            PROJECT.create(path_example, path_ifc, 'energyplus')
+
+        #HACK: We have to remember stderr because eppy resets it currently.
+        main(path_example)
+    finally:
+        os.chdir(working_dir)
+        sys.stderr = old_stderr
 
 
 def _debug_run_hvac_aixlib():
