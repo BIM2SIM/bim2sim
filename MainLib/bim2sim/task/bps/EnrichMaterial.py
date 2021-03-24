@@ -12,22 +12,24 @@ from units import ureg
 class EnrichMaterial(ITask):
     """Prepares bim2sim instances to later export"""
 
-    reads = ('instances', 'invalid',)
-    touches = ('instances',)
+    reads = ('instances', 'invalid_materials',)
+    touches = ('enriched_materials',)
 
     def __init__(self):
         super().__init__()
         self.material_selected = {}
+        self.enriched_materials = []
         pass
 
     @Task.log
-    def run(self, workflow, instances, invalid):
+    def run(self, workflow, instances, invalid_materials):
         self.logger.info("setting verifications")
         if workflow.layers is not LOD.low:
-            for instance in invalid['materials']:
+            for instance in invalid_materials:
                 self.get_layer_properties(instance)
+                self.enriched_materials.append(instance)
 
-        return instances,
+        return self.enriched_materials,
 
     def get_layer_properties(self, instance):
         if hasattr(instance, 'layers'):

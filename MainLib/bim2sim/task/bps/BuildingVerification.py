@@ -10,23 +10,23 @@ from bim2sim.workflow import LOD
 class BuildingVerification(ITask):
     """Prepares bim2sim instances to later export"""
 
-    reads = ('instances', 'invalid')
-    touches = ('instances', 'invalid')
+    reads = ('instances',)
+    touches = ('invalid_layers',)
 
     def __init__(self):
         super().__init__()
+        self.invalid_layers = []
         pass
 
     @Task.log
-    def run(self, workflow, instances, invalid):
-        invalid['layers'] = []
+    def run(self, workflow, instances,):
         self.logger.info("setting verifications")
         for guid, ins in instances.items():
             if not self.layers_verification(ins, workflow):
-                invalid['layers'].append(ins)
-        self.logger.warning("Found %d invalid layers", len(invalid['layers']))
+                self.invalid_layers.append(ins)
+        self.logger.warning("Found %d invalid layers", self.invalid_layers)
 
-        return instances, invalid,
+        return self.invalid_layers,
 
     def layers_verification(self, instance, workflow):
         supported_classes = {'OuterWall', 'Wall', 'InnerWall', 'Door', 'InnerDoor', 'OuterDoor', 'Roof', 'Floor',

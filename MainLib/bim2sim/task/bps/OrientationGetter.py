@@ -6,7 +6,7 @@ class OrientationGetter(ITask):
     """Gets Instances Orientation based on the space boundaries"""
 
     reads = ('instances',)
-    touches = ('instances',)
+    touches = ('oriented_instances',)
 
     def __init__(self):
         super().__init__()
@@ -24,12 +24,16 @@ class OrientationGetter(ITask):
                 self.corrected.append(ins)
         self.logger.info("Corrected %d instances", len(self.corrected))
 
-        return instances,
+        return self.corrected,
 
     @staticmethod
     def orientation_verification(instance):
         vertical_instances = ['Window', 'OuterWall', 'OuterDoor', 'Wall', 'Door']
         horizontal_instances = ['Slab', 'Roof', 'Floor', 'GroundFloor']
+        switcher = {'Slab': -1,
+                    'Roof': -1,
+                    'Floor': -2,
+                    'GroundFloor': -2}
         instance_type = type(instance).__name__
         if instance_type in vertical_instances and len(instance.space_boundaries) > 0:
             new_angles = list(set([space_boundary.orientation for space_boundary in instance.space_boundaries]))
@@ -43,9 +47,5 @@ class OrientationGetter(ITask):
             if new_angle - instance.orientation > 0.1:
                 return new_angle
         elif instance_type in horizontal_instances:
-            switcher = {'Slab': -1,
-                        'Roof': -1,
-                        'Floor': -2,
-                        'GroundFloor': -2}
             return switcher[instance_type]
         return None

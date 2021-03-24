@@ -11,20 +11,25 @@ from bim2sim.task.common.common_functions import get_type_building_elements
 
 class EnrichBuildingByTemplates(ITask):
     """Prepares bim2sim instances to later export"""
-    reads = ('instances', 'invalid',)
-    touches = ('instances',)
+    reads = ('invalid_layers',)
+    touches = ('enriched_layers',)
 
-    instance_template = {}
+    def __init__(self):
+        super().__init__()
+        self.instance_template = {}
+        self.enriched_layers = []
+        pass
 
     @Task.log
-    def run(self, workflow, instances, invalid):
+    def run(self, workflow, invalid_layers):
         self.logger.info("setting verifications")
         if workflow.layers is LOD.low:
             construction_type = self.get_construction_type()
-            for instance in invalid['layers']:
+            for instance in invalid_layers:
                 self.template_layers_creation(instance, construction_type)
+                self.enriched_layers.append(instance)
 
-        return instances,
+        return self.enriched_layers,
 
     @staticmethod
     def get_construction_type():
@@ -37,12 +42,11 @@ class EnrichBuildingByTemplates(ITask):
             decision_template.decide()
         return decision_template.value
 
-    @classmethod
-    def template_layers_creation(cls, instance, construction_type):
+    def template_layers_creation(self, instance, construction_type):
         instance.layers = []
         layers_width = 0
         layers_r = 0
-        template = cls.get_instance_template(instance, construction_type)
+        template = self.get_instance_template(instance, construction_type)
         resumed = EnrichMaterial.get_resumed_material_templates()
         if template is not None:
             for i_layer, layer_props in template['layer'].items():
@@ -58,14 +62,13 @@ class EnrichBuildingByTemplates(ITask):
         # with template comparison not necessary
         pass
 
-    @classmethod
-    def get_instance_template(cls, instance, construction_type):
+    def get_instance_template(self, instance, construction_type):
         building = SubElement.get_class_instances('Building')[0]
 
         instance_type = type(instance).__name__
         instance_templates = get_type_building_elements()
-        if instance_type in cls.instance_template:
-            return cls.instance_template[instance_type]
+        if instance_type in self.instance_template:
+            return self.instance_template[instance_type]
 
         year_of_construction = building.year_of_construction.m
         template_options = []
@@ -76,15 +79,14 @@ class EnrichBuildingByTemplates(ITask):
                 break
         try:
             template_value = template_options[construction_type]
-            cls.instance_template[instance_type] = template_value
+            self.instance_template[instance_type] = template_value
             return template_value
         except KeyError:
             if len(template_options.keys()) > 0:
-                cls.get_alternative_construction_type(year_of_construction, instance_type, template_options, instance)
-                return cls.instance_template[instance_type]
+                self.get_alternative_construction_type(year_of_construction, instance_type, template_options, instance)
+                return self.instance_template[instance_type]
 
-    @classmethod
-    def get_alternative_construction_type(cls, year_of_construction, instance_type, template_options, instance):
+    def get_alternative_construction_type(self, year_of_construction, instance_type, template_options, instance):
         decision_template = ListDecision("the following construction types were "
                                          "found for year %s and instance type %s"
                                          % (year_of_construction, instance_type),
@@ -94,4 +96,4 @@ class EnrichBuildingByTemplates(ITask):
                                          collect=False, quick_decide=not True)
         if decision_template.value is None:
             decision_template.decide()
-        cls.instance_template[instance_type] = template_options[decision_template.value]
+        self.instance_template[instance_type] = template_options[decision_template.value]

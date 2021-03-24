@@ -11,23 +11,25 @@ from bim2sim.kernel.units import ureg
 
 class EnrichNonValid(ITask):
     """Prepares bim2sim instances to later export"""
-    reads = ('instances', 'invalid',)
-    touches = ('instances',)
+    reads = ('invalid_layers',)
+    touches = ('enriched_layers',)
 
     def __init__(self):
         super().__init__()
         self.material_selected = {}
+        self.enriched_layers = []
         pass
 
     @Task.log
-    def run(self, workflow, instances, invalid):
+    def run(self, workflow, invalid_layers):
         self.logger.info("setting verifications")
         if workflow.layers is not LOD.low:
             construction_type = EnrichBuildingByTemplates.get_construction_type()
-            for instance in invalid['layers']:
+            for instance in invalid_layers:
                 self.layers_creation(instance, construction_type)
+                self.enriched_layers.append(instance)
 
-        return instances,
+        return self.enriched_layers,
 
     def layers_creation(self, instance, construction_type):
         if len(instance.layers) == 0:

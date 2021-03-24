@@ -20,7 +20,7 @@ from bim2sim.kernel.units import conversion, ureg
 class ExportTEASER(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
-    reads = ('instances', 'ifc',)
+    reads = ('ifc', 'bounded_tz')
     final = True
 
     materials = {}
@@ -37,14 +37,13 @@ class ExportTEASER(ITask):
                          }
 
     @Task.log
-    def run(self, workflow, instances, ifc):
+    def run(self, workflow, ifc, bounded_tz):
         self.logger.info("Export to TEASER")
         prj = self._create_project(ifc.by_type('IfcProject')[0])
         bldg_instances = SubElement.get_class_instances('Building')
         for bldg_instance in bldg_instances:
             bldg = self._create_building(bldg_instance, prj)
-            tz_instances = SubElement.get_class_instances('ThermalZone')
-            for tz_instance in tz_instances:
+            for tz_instance in bounded_tz:
                 tz = self._create_thermal_zone(tz_instance, bldg)
                 self._bind_instances_to_zone(tz, tz_instance)
                 tz.calc_zone_parameters()

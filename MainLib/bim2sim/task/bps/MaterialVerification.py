@@ -6,11 +6,11 @@ class MaterialVerification(ITask):
     """Prepares bim2sim instances to later export"""
 
     reads = ('instances',)
-    touches = ('instances', 'invalid')
+    touches = ('invalid_materials',)
 
     def __init__(self):
         super().__init__()
-        self.invalid = {'materials': []}
+        self.invalid = []
         pass
 
     @Task.log
@@ -19,10 +19,10 @@ class MaterialVerification(ITask):
         if workflow.layers is not LOD.low:
             for guid, ins in instances.items():
                 if not self.materials_verification(ins):
-                    self.invalid['materials'].append(ins)
-            self.logger.warning("Found %d invalid layers", len(self.invalid['materials']))
+                    self.invalid.append(ins)
+            self.logger.warning("Found %d invalid layers", len(self.invalid))
 
-        return instances, self.invalid,
+        return self.invalid,
 
     def materials_verification(self, instance):
         invalid = True

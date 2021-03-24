@@ -8,7 +8,7 @@ class TZInspect(ITask):
     elements are stored in .instances dict with guid as key"""
 
     reads = ('instances', 'ifc',)
-    touches = ('instances',)
+    touches = ('tz_instances',)
 
     def __init__(self):
         super().__init__()
@@ -39,7 +39,7 @@ class TZInspect(ITask):
         self.logger.info("Found %d space boundaries entities", len(self.sb_instances))
 
         instances.update(self.tz_instances)
-        return instances,
+        return self.tz_instances,
 
     def recognize_zone_semantic(self, ifc):
         """Recognizes zones/spaces in ifc file by semantic detection for

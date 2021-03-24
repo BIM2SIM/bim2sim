@@ -1479,7 +1479,7 @@ class Aggregated_ThermalZone(Aggregation):
         return bound_elements
 
     @classmethod
-    def based_on_groups(cls, groups, instances):
+    def based_on_groups(cls, groups):
         """creates a new thermal zone aggregation instance
          based on a previous filtering"""
         new_aggregations = []
@@ -1492,8 +1492,6 @@ class Aggregated_ThermalZone(Aggregation):
                 instance.description = group
                 new_aggregations.append(instance)
                 for e in instance.elements:
-                    if e.guid in instances:
-                        del instances[e.guid]
                     if e.guid in e.instances['ThermalZone']:
                         del e.instances['ThermalZone'][e.guid]
                 SubElement.instances['ThermalZone'][instance.guid] = instance
@@ -1507,8 +1505,6 @@ class Aggregated_ThermalZone(Aggregation):
                     instance.description = group
                     new_aggregations.append(instance)
                     for e in instance.elements:
-                        if e.guid in instances:
-                            del instances[e.guid]
                         if e.guid in e.instances['ThermalZone']:
                             del e.instances['ThermalZone'][e.guid]
                     SubElement.instances['ThermalZone'][instance.guid] = instance
@@ -1519,8 +1515,6 @@ class Aggregated_ThermalZone(Aggregation):
                 instance.description = ', '.join(ast.literal_eval(group))
                 new_aggregations.append(instance)
                 for e in instance.elements:
-                    if e.guid in instances:
-                        del instances[e.guid]
                     if e.guid in e.instances['ThermalZone']:
                         del e.instances['ThermalZone'][e.guid]
                 SubElement.instances['ThermalZone'][instance.guid] = instance
