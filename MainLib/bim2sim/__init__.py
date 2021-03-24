@@ -227,32 +227,14 @@ def _debug_run_bps_ep():
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 
     rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
-    # rel_example = 'ResultFiles/AC20-FZK-Haus_with_SB_with_externalspatialstructure_externalEnums.ifc'
-    # rel_example = 'ResultFiles/AC20-FZK-Haus_with_SB.ifc'
     # rel_example = 'ResultFiles/AC20-Institute-Var-2_with_SB11.ifc' # aktuell
-    # rel_example = 'ResultFiles/AC20-Institute-Var-2_with_SB_corresponding_neu.ifc'
-    # rel_example = 'ResultFiles/AC20-FZK-Haus_with_SB_full_corresponding_and_split.ifc'
     # rel_example = 'ResultFiles/AC20-FZK-Haus_with_SB44.ifc' # aktuell
     # rel_example = 'ResultFiles/FM_ARC_DigitalHub_with_SB11.ifc'
     # rel_example = 'ResultFiles/Proposal_1_Storey_SpaceBoundaries_with_SB.ifc'
     # rel_example = 'ResultFiles/2020-10-15-KHH-Test_with_SB.ifc'
-    # rel_example = 'ResultFiles/AC20-Institute-Var-2_with_SB.ifc'
     # rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
-    # rel_example = 'ResultFiles/AC20-Institute-Var-2_with_SB_with_externalspatialstructure_externalEnums.ifc'
-    # rel_example = 'ResultFiles/AC20-Institute-Var-2_with_SB_korrekte_Unterteilung_am_Dach_ohne_Treppe.ifc'
-    # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB1.ifc'
-    # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB2.ifc'
-    # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB3.ifc'
-    # rel_example = 'ExampleFiles/AC20-FZK-Haus_with_SB7.ifc'
     # rel_example = 'ExampleFiles/DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc' # ok
-    # rel_example = 'ExampleFiles/DigitalHub_Architektur2_P1_V2.ifc' # not complete, but correct trsf
-    # rel_example = 'ExampleFiles/DigitalHub_Architektur2_P1.ifc' # incorrect trsf
-    # rel_example = 'ExampleFiles/DigitalHub_Architektur2_P1_V5.ifc' # incorrect trsf
-    # rel_example = 'ExampleFiles/ARC.ifc'
     # rel_example = 'ExampleFiles/AC-20-Smiley-West-10-Bldg.ifc'
-    # rel_example = 'ExampleFiles/AC20-Institute-Var-2_with_SB5.ifc'
-    # rel_example = 'ExampleFiles/DigitalHub_ARCHITEKTUR_with_SB.ifc'
-    # rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
 
     path_example = _get_debug_project_path()
