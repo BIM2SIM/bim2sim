@@ -1000,8 +1000,10 @@ class Plate(element.Element):
 
 
 class Slab(element.Element):
-    ifc_type = "IfcSlab"
-    predefined_types = ['FLOOR', 'ROOF', 'LANDING', 'BASESLAB']
+    ifc_types = {
+        "IfcSlab": ['LANDING', 'BASESLAB']
+
+    }
 
     def __init__(self, *args, **kwargs):
         """slab __init__ function"""
@@ -1056,11 +1058,13 @@ class Slab(element.Element):
 
 
 class Roof(Slab):
-    ifc_type = "IfcRoof"
-    predefined_types = ['FLAT_ROOF', 'SHED_ROOF', 'GABLE_ROOF', 'HIP_ROOF', 'HIPPED_GABLE_ROOF', 'GAMBREL_ROOF',
+    ifc_types = {
+        "IfcRoof": ['FLAT_ROOF', 'SHED_ROOF', 'GABLE_ROOF', 'HIP_ROOF', 'HIPPED_GABLE_ROOF', 'GAMBREL_ROOF',
                         'MANSARD_ROOF', 'BARREL_ROOF', 'RAINBOW_ROOF', 'BUTTERFLY_ROOF', 'PAVILION_ROOF', 'DOME_ROOF',
-                        'FREEFORM']
-    predefined_type = "ROOF"
+                        'FREEFORM'],
+        "IfcSlab": ['ROOF']
+
+    }
 
     def __init__(self, *args, **kwargs):
         """roof __init__ function"""
