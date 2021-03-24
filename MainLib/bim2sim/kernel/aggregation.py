@@ -1523,7 +1523,7 @@ class Generator_One_Fluid(Aggregation):
 
     def __init__(self, name, element_graph, *args, **kwargs):
         self.non_relevant = kwargs.pop('non_relevant', set())  # todo workaround
-        self.has_parallel = kargs.pop('has_parallel', False)
+        self.has_parallel = kwargs.pop('has_parallel', False)
         super().__init__(name, element_graph, *args, **kwargs)
         edge_ports, element_graph = self.get_edge_ports(element_graph)
         # todo add edge_ports and expansion tank again to elements
@@ -1577,11 +1577,13 @@ class Generator_One_Fluid(Aggregation):
         return mapping
 
     @classmethod
-    def find_matches(cls, graph: {HvacGraph.element_graph}) -> [HvacGraph.element_graph, list]:
+    def find_matches(cls, graph: {HvacGraph.element_graph}) -> \
+            [HvacGraph.element_graph, list]:
         """
         Finds matches of generators with one fluid.
 
-        Non relevant elements like bypasses are added to metas information to delete later.
+        Non relevant elements like bypasses are added to metas information to
+        delete later.
 
         Args:
             graph: element_graph that should be checked for one fluid generators
