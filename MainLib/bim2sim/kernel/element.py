@@ -187,24 +187,6 @@ class IFCMixin:  # TBD
         kwargs.update(ifc_kwargs)
         return super().__init__(*(args + ifc_args), **kwargs)
 
-    @staticmethod
-    def create_ifc_mapping():
-        """
-
-
-        return
-        """
-        #TODO: cover virtual elements e.g. Space Boundaries (not products)
-        #
-        # create default dict where all stars are taken into account key :'IfcSlab' and value Slab
-        # create negative dict where all - are taken into account, key: ('IfcRoof', 'WeiredStuff'), value: ? (None?)
-        # create "normal" list, dict with key ('IfcSlab', 'Roof') and value Roof
-
-        # usage
-        # 1. go over normal list, if found match --> return
-        # 2. go over negative list, if found match --> not existing
-        # 3. go over default list, if found match --> return
-
     def get_ifc_attribute(self, attribute):
         """
         Fetches non-empty attributes (if they exist).
@@ -866,21 +848,6 @@ class BaseSpaceBoundary(RelationBased):
     pass
 
 
-# todo maybe create SynteticElements major class
-
-# todo do we need synthetic port? or is aggregation port fine
-# class SyntheticPort(BasePort):
-#     pass
-
-
-class SyntheticLayer(BaseLayer):
-    pass
-
-
-class SyntheticSpaceBoundary(BaseSpaceBoundary):
-    pass
-
-
 class Port(BasePort):
     """Port of Element"""
     vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
@@ -1510,6 +1477,51 @@ class HVACIfcProductBased(IfcProductBased, HVACProduct):
 #
 #     def __str__(self):
 #         return "%s" % self.__class__.__name__
+
+
+class Factory:
+    """Element Factory
+
+    Example:
+        factory = Factory([Pipe, Boiler]]
+        ele = factory(some_ifc_element)
+        """
+
+    def __init__(self, relevant_elements: typing.List[ProductBased]):
+        self.mapping, self.blacklist, self.defaults = self.create_ifc_mapping(relevant_elements)
+
+    def __call__(self, ifc, *args, **kwargs):
+        ifc_type = ifc.is_a()
+        predefined_type = ifc2python.get_predefined_type(ifc)
+        element_cls = self.get_element(ifc_type, predefined_type)
+        if not element_cls:
+            raise LookupError(f"No element found for {ifc}")
+        return element_cls.from_ifc(ifc, *args, **kwargs)
+
+    def get_element(self, ifc_type, predefined_type) -> ProductBased:
+        key = (ifc_type, predefined_type)
+        # 1. go over normal list, if found match --> return
+        element = self.mapping.get(key)
+        if element:
+            return element
+        # 2. go over negative list, if found match --> not existing
+        if key in self.blacklist:
+            return None
+        # 3. go over default list, if found match --> return
+        return self.defaults.get(ifc_type)
+
+    @staticmethod
+    def create_ifc_mapping(elements) -> typing.Tuple[dict, dict, dict]:
+        """
+
+
+        return
+        """
+        # TODO: cover virtual elements e.g. Space Boundaries (not products)
+        #
+        # create default dict where all stars are taken into account key :'IfcSlab' and value Slab
+        # create negative dict where all - are taken into account, key: ('IfcRoof', 'WeiredStuff'), value: ? (None?)
+        # create "normal" list, dict with key ('IfcSlab', 'Roof') and value Roof
 
 
 class Dummy(Element):
