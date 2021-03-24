@@ -315,6 +315,8 @@ class ProductBased(Root):
         if not cls.ifc_type.lower().startswith("ifc"):
             raise AssertionError(f"Ifc_type {cls.ifc_type} does not start with 'ifc'. Check {cls}")
         if cls.ifc_type in cls._element_registry:
+            # todo how to deal with "overwritten" elements in plugins for
+            #  example (explicit instead of implicit?)
             raise AssertionError(f"Cant register {cls} for ifc_type {cls.ifc_type}. "
                                  f"Conflict with {cls._element_registry[cls.ifc_type]}")
         cls._element_registry[cls.ifc_type] = cls
@@ -385,8 +387,39 @@ class ProductBased(Root):
 
 
 class IfcBased(Root):
-    """Mixin for all IFC representing classes (Related elementes and product based elements)"""
-    pass
+    """Mixin for all IFC representing classes (Related elementes and product based elements)
+
+    Longer description (#todo)
+
+    Attributes:
+        ifc_types: Dict with ifc_type as key and list of predifined types that
+        fit to the class as values.
+        Special values for predifined types:
+            '*' all which are not overwritten in other classes predfined types.
+            '-Something'  start with minus to exclude
+
+        For example:
+        {'IfcSlab': ['*', '-SomethingSpecialWeDontWant', 'BASESLAB]}
+        {'IfcRoof': ['FLAT_ROOF', 'SHED_ROOF',...],
+         'IfcSlab': ['ROOF']}
+    """
+
+    @staticmethod
+    def create_ifc_mapping():
+        """
+
+
+        return
+        """
+        #
+        # create default dict where all stars are taken into account key :'IfcSlab' and value Slab
+        # create negative dict where all - are taken into account, key: ('IfcRoof', 'WeiredStuff'), value: ? (None?)
+        # create "normal" list, dict with key ('IfcSlab', 'Roof') and value Roof
+        # 1. go over normal list, if found match --> return
+        # 2. go over negative list, if found match --> not existing
+        # 3. go over default list, if found match --> return
+
+
 
 
 class IfcRelationBased(RelationBased, IfcBased):
@@ -1479,7 +1512,9 @@ class HVACIfcProductBased(IfcProductBased, HVACProduct):
 class Dummy(Element):
     """Dummy for all unknown elements"""
 
-    # ifc_type = 'any'
+    ifc_types = {
+        "IfcElementProxy": ['*']
+    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
