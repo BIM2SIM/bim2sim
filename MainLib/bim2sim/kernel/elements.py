@@ -879,6 +879,10 @@ class Layer(element.SubElement):
 class OuterWall(Wall):
     special_argument = {'is_external': True}
 
+    def i_want_to_be(self):
+        if ??:
+            return InnerWall
+
 
 class InnerWall(Wall):
     special_argument = {'is_external': False}

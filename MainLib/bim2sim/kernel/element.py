@@ -160,13 +160,16 @@ class RelatedSubElementMixin:  # TODO Mixin with __new__ is probably not a good 
 
 
 class IFCMixin:  # TBD
-    """"""
+    """Mixin to enable instantiation from ifc and provide related methods.
+
+    Attributes:
+        ifc: IfcOpenShell element instance
+    """
+
     ifc_type: str = None
 
-    def __init__(self, ifc, *args, **kwargs):
-        ifc_args, ifc_kwargs = self.ifc2args(ifc)
-        kwargs.update(ifc_kwargs)
-        super().__init__(*(args + ifc_args), **kwargs)
+    def __init__(self, *args, ifc=None, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.ifc = ifc
         self.predefined_type = ifc2python.get_predefined_type(ifc)
@@ -184,8 +187,14 @@ class IFCMixin:  # TBD
         guid = getattr(ifc, 'GlobalId', None)
         return (), {'guid': guid}
 
+    @classmethod
+    def from_ifc(cls, ifc, *args, **kwargs):
+        ifc_args, ifc_kwargs = cls.ifc2args(ifc)
+        kwargs.update(ifc_kwargs)
+        return super().__init__(*(args + ifc_args), **kwargs)
 
-class RelationBased(Root):
+
+class RelationBased(IFCMixin, Root):
     _ifc_classes = {}
 
     dummy = None
@@ -287,7 +296,7 @@ class RelationBased(Root):
         return "%s" % self.__class__.__name__
 
 
-class ProductBased(Root):
+class ProductBased(IFCMixin, Root):
     """Base class for all elements with ports"""
     objects = {}
     ifc_type: str = None
@@ -308,6 +317,13 @@ class ProductBased(Root):
         self.thermal_azones = []
         self.ports = []
         self.space_boundaries = []
+
+    def __new__(cls, *args, **kwargs):
+        element = super().__new__(cls)
+        change = element.i_wont_to_be()
+        if change:
+            element.discard()
+            return change.__new__(change)
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
@@ -352,6 +368,9 @@ class ProductBased(Root):
 
         return prefac
 
+    def i_wont_to_be(self):
+        return None
+
     def get_inner_connections(self):
         """Returns inner connections of Element
 
@@ -384,17 +403,17 @@ class ProductBased(Root):
         return "<%s (ports: %d)>" % (self.__class__.__name__, len(self.ports))
 
 
-class IfcBased(Root):
+class IfcBased(Root):  # todo: remove
     """Mixin for all IFC representing classes (Related elementes and product based elements)"""
     pass
 
 
-class IfcRelationBased(RelationBased, IfcBased):
+class IfcRelationBased(RelationBased, IfcBased):  # todo: remove
     """Mixin for all relation based IFC representing classes"""
     pass
 
 
-class IfcProductBased(ProductBased, IfcBased):
+class IfcProductBased(ProductBased, IfcBased):  # todo: remove
     """Mixin for all IFC representing classes, which are products"""
     ifc_type = None
     predefined_type = None
