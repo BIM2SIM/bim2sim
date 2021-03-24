@@ -45,11 +45,18 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
     objects = {}
     _id_counter = 0
 
-    def __init__(self, guid=None):
+    def __init__(self, guid=None, **kwargs):
         self.guid = guid or self.get_id()
         Root.objects[self.guid] = self
         self.related_decisions = []
         self.attributes = attribute.AttributeManager(bind=self)
+
+        # set attributes based on kwargs
+        for kw, arg in kwargs.items():
+            if kw in self.attributes:  # allow only attributes
+                setattr(self, kw, arg)
+            else:
+                raise AttributeError(f"Unused argument in kwargs: {kw}: {arg}")
 
     def __hash__(self):
         return hash(self.guid)
