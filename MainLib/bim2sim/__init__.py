@@ -166,6 +166,7 @@ def main(rootpath=None):
         logger.exception("Something went wrong!")
     finally:
         finish(success=success)
+        return success
 
 
 def _debug_run_hvac():
@@ -258,6 +259,7 @@ def _test_run_bps_ep(rel_path, temp_project=False):
         
     old_stderr = sys.stderr
     working_dir = os.getcwd()
+    success = False
     try:
         print("Project directory: " + path_example)
         os.chdir(path_example)
@@ -265,10 +267,11 @@ def _test_run_bps_ep(rel_path, temp_project=False):
             PROJECT.create(path_example, path_ifc, 'energyplus')
 
         #HACK: We have to remember stderr because eppy resets it currently.
-        main(path_example)
+        success = main(path_example)
     finally:
         os.chdir(working_dir)
         sys.stderr = old_stderr
+        return success
 
 
 def _debug_run_hvac_aixlib():
