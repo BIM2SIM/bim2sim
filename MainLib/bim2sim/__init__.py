@@ -166,6 +166,7 @@ def main(rootpath=None):
         logger.exception("Something went wrong!")
     finally:
         finish(success=success)
+        return success
 
 
 def _debug_run_hvac():
@@ -262,8 +263,9 @@ def _test_run_bps_ep(rel_path, temp_project=False):
 
     #HACK: We have to remember stderr because eppy resets it currently.
     old_stderr = sys.stderr
-    main(path_example)
+    success = main(path_example)
     sys.stderr = old_stderr
+    return success
 
 
 def _debug_run_hvac_aixlib():
