@@ -99,7 +99,7 @@ class EnrichMaterial(ITask):
                                      allow_skip=False, allow_load=True, allow_save=True,
                                      collect=False, quick_decide=False, unit=unit,
                                      validate_func=self.validate_manual_attribute,
-                                     context=layer.material, related=layer.guid)  # unit missing
+                                     context=layer.material, related=layer.guid)
         attr_decision.decide()
         self.material_selected[material][attr] = attr_decision.value
 
@@ -141,7 +141,7 @@ class EnrichMaterial(ITask):
                                      allow_skip=False, allow_load=True, allow_save=True,
                                      collect=False, quick_decide=False, unit=unit,
                                      validate_func=partial(self.validate_thickness, layer),
-                                     context=layer.material, related=layer.guid)  # unit missing
+                                     context=layer.material, related=layer.guid)
         attr_decision.decide()
         self.material_selected[material][attr] = attr_decision.value
 
