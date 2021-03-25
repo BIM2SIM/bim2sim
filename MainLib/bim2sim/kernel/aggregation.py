@@ -1539,19 +1539,16 @@ class Generator_One_Fluid(Aggregation):
         # make graph unfrozen
         _graph = graph.copy()
         edge_ports = []
+        # todo edge_ports are only once connected ports in _graph
         # get boarder elements
         boarder_elements = [node for node in _graph.nodes if
                   node.ifc_type in cls.boarder_elements]
-        if len(boarder_elements) > 1:
-            # todo: can this occur? maybe aggregation of distribution
-            #  elements before?
-            raise NotImplementedError
-        else:
-            boarder_element = boarder_elements[0]
-            for port in boarder_element.ports:
-                if port.connection:
-                    if port.connection.parent in _graph.nodes:
-                        edge_ports.append(port.connection)
+
+        boarder_element = boarder_elements[0]
+        for port in boarder_element.ports:
+            if port.connection:
+                if port.connection.parent in _graph.nodes:
+                    edge_ports.append(port.connection)
         # remove boarder nodes from graph
         _graph.remove_node(boarder_element)
 
@@ -1627,6 +1624,8 @@ class Generator_One_Fluid(Aggregation):
 
         non_relevant = wanted_flat - generator_flat
         # metas = [{'non_relevant': non_relevant}] * len(generator_cycles)
+        # todo add non_relevant to first found match
+        # todo remove all items from all matches witch occur in all matches
         metas = [{}] * (len(generator_cycles)-1)
         metas.append({'non_relevant': non_relevant})
         return generator_cycles, metas

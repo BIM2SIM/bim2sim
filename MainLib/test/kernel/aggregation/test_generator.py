@@ -274,7 +274,7 @@ class GeneratorHelper(SetupHelper):
 
         return HvacGraph(gen_circuit), flags
 
-    # todo
+
     def setup_get_two_parallel_boilers(self):
         """Generator system made of two boilers, two pumps,  1 bypass, expansion
         tank, distributor and pipes.
