@@ -66,6 +66,8 @@ class TZInspect(ITask):
         for entity in entities:
             if entity.RelatedBuildingElement is not None:
                 related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
+                if not entity.RelatingSpace.is_a('IfcSpace'):
+                    continue
                 if related_element is not None:
                     space_boundary = SubElement.factory(entity, ifc_type)
                     self.sb_instances[space_boundary.guid] = space_boundary
