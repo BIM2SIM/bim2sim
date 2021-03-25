@@ -8,4 +8,6 @@ pint
 rpyc
 teaser
 translators
-OCC-Core>=7.4
+geomeppy
+shapely
+numpy-stl
