@@ -15,9 +15,11 @@ class TestEPIntegration(unittest.TestCase):
         """Test Original IFC File from FZK-Haus (KIT)"""
 
         rel_path = 'ExampleFiles/AC20-FZK-Haus.ifc'
-        answers = (True, True, True, True, True, 'light', True, True,True,True,True,'light',True,'light',
-                   True,True,True,True,'light', True,'light', True,True,True,
-                   'Kunststofffenster, Isolierverglasung',True,True,True,False)
+        answers = (True, True, 2015, 'heavy', True, True, True, 'heavy', True,
+                   True, True,
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
+                   True, True, True, True, True, 'heavy', True, True, 'heavy',
+                   True, 'heavy', True, True, True, True, False)
         with Decision.debug_answer(answers, multi=True):
             success = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
             self.assertTrue(success)

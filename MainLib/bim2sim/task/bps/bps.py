@@ -56,7 +56,7 @@ from bim2sim.decision import Decision
 from bim2sim.project import PROJECT
 from bim2sim.kernel import finder
 from bim2sim.kernel.aggregation import Aggregated_ThermalZone
-from bim2sim.task.sub_tasks import tz_detection
+from bim2sim.task.bps import tz_detection
 from bim2sim.kernel import elements, disaggregation
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.enrichment_data import element_input_json
@@ -1617,8 +1617,8 @@ class ExportEP(ITask):
         """
         # path = '/usr/local/EnergyPlus-9-2-0/'
         # path = '/usr/local/EnergyPlus-9-3-0/'
-        path = f'/usr/local/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
-        # path = f'D:/04_Programme/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
+        # path = f'/usr/local/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
+        path = f'D:/04_Programme/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
         IDF.setiddname(path + 'Energy+.idd')
         idf = IDF(path + "ExampleFiles/Minimal.idf")
         idf.idfname = str(PROJECT.root) + "/export/temp.idf"
