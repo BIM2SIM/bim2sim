@@ -54,6 +54,9 @@ class ConsoleFrontEnd(FrontEnd):
 
     def solve_collection(self, collection):
 
+        if not collection:
+            return
+
         skip_all = False
         extra_options = []
         if all([d.allow_skip for d in collection]):

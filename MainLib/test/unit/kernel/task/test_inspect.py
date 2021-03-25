@@ -24,7 +24,7 @@ class DummyManager(BIM2SIMManager):
         self.playground.run_task(hvac.Inspect())
 
 
-sample_root = Path(__file__).parent.parent.parent / 'TestModels'
+sample_root = Path(__file__).parent.parent.parent.parent / 'TestModels'
 
 
 class TestInspect(unittest.TestCase):

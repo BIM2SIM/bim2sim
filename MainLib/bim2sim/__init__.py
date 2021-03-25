@@ -130,6 +130,7 @@ def main(rootpath=None):
     conf = get_config()
     backend = conf["Backend"].get("use")
     assert backend, "No backend set. Check config.ini"
+    backend = backend.lower()
 
     logger.info("Loading backend '%s' ...", backend)
     print(plugins)
@@ -172,6 +173,8 @@ def main(rootpath=None):
         finish(success=success)
         return success
 
+    return 0 if success else -1
+
 
 def _debug_run_hvac():
     """Create example project and copy ifc if necessary"""
@@ -183,7 +186,7 @@ def _debug_run_hvac():
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, path_ifc, 'hkesim', )
 
-    main(path_example)
+    return main(path_example)
 
 def _get_debug_project_path():
     path_file = "debug_dir.user"
@@ -224,7 +227,7 @@ def _debug_run_bps():
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, path_ifc, 'teaser')
 
-    main(path_example)
+    return main(path_example)
 
 
 def _debug_run_bps_ep():
@@ -298,7 +301,7 @@ def _debug_run_cfd():
 
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, target='cfd')
-    main(path_example)
+    return main(path_example)
 
 
 if __name__ == '__main__':
