@@ -70,7 +70,7 @@ class EnrichBuildingByTemplates(ITask):
         if instance_type in self.instance_template:
             return self.instance_template[instance_type]
 
-        year_of_construction = building.year_of_construction.m
+        year_of_construction = int(building.year_of_construction.m)
         template_options = []
         for i in instance_templates[instance_type]:
             years = ast.literal_eval(i)

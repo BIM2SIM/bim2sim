@@ -75,7 +75,7 @@ class BuildingVerification(ITask):
             width_discrepancy = \
                 abs(instance.width - layers_width) / instance.width if \
                 (instance.width is not None and instance.width > 0) else None
-            if width_discrepancy > threshold or not width_discrepancy:
+            if not width_discrepancy or width_discrepancy > threshold:
                 return False
             return True
 
