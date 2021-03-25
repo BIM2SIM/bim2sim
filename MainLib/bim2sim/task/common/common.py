@@ -12,7 +12,7 @@ from bim2sim.kernel.units import ifcunits, ureg, ifc_pint_unitmap, parse_ifc
 from jinja2 import Environment, FileSystemLoader
 from dill.source import getsource
 from bs4 import BeautifulSoup
-from Ifc import SchemaParser
+# from Ifc import SchemaParser
 from bim2sim.decision import BoolDecision, ListDecision
 from bim2sim.assets.IFCparser import elements_functions
 

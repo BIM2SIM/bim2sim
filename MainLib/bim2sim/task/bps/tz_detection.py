@@ -1,11 +1,13 @@
 from bim2sim.task.base import Task
-from bim2sim.decision import BoolDecision, ListDecision
+from bim2sim.decision import BoolDecision, ListDecision, Decision
 from bim2sim.kernel.element import Element, SubElement
+# from bim2sim.kernel.elements import ExtSpatialSpaceBoundary
 from bim2sim.kernel.ifc2python import getElementType
 from bim2sim.kernel.disaggregation import Disaggregation
 from bim2sim.kernel.aggregation import Aggregated_ThermalZone
 from bim2sim.kernel.elements import SpaceBoundary
 import inspect
+
 
 class Inspect(Task):
     """Analyses IFC, creates Element instances and connects them.
@@ -119,10 +121,21 @@ class Inspect(Task):
 
         space_boundaries = []
         ifc_type = 'IfcRelSpaceBoundary'
+        self.skipped_bounds = []
         for entity in entities:
+            # todo: Fix ExternalSpatialSpaceBoundary for Use in EnergyPlus
+            # space_boundary = SubElement.factory(entity, ifc_type)
+            # if space_boundary.thermal_zones[0] == None:
+            #     space_boundary.__class__ = ExtSpatialSpaceBoundary
+            #     self.skipped_bounds.append(space_boundary)
+            #     self.instances[space_boundary.guid] = space_boundary
+            #     continue
+            # self.instances[space_boundary.guid] = space_boundary
+            # self.bind_space_to_space_boundaries(space_boundary)
             if entity.RelatedBuildingElement is not None:
                 related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
-                if related_element is not None:
+                relating_space = Element.get_object(entity.RelatingSpace.GlobalId)
+                if related_element and relating_space:
                     space_boundary = SubElement.factory(entity, ifc_type)
                     space_boundaries.append(space_boundary)
 

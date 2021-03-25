@@ -6,6 +6,7 @@ import math
 import re
 
 import numpy as np
+import copy
 import translators as ts
 import ifcopenshell
 import ifcopenshell.geom
@@ -34,7 +35,7 @@ from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 
 from bim2sim.kernel import element, condition, attribute
-from bim2sim.decision import BoolDecision
+from bim2sim.decision import BoolDecision, Decision
 from bim2sim.kernel.units import ureg
 from bim2sim.decision import ListDecision
 from bim2sim.kernel.ifc2python import get_layers_ifc
@@ -704,6 +705,9 @@ class ThermalZone(element.Element):
         for sb in self.space_boundaries:
             if sb.related_bound is not None:
                 tz = sb.related_bound.thermal_zones[0]
+                #todo: check if computation of neighbors works as expected
+                #what if boundary has no related bound but still has a neighbor?
+                #hint: neighbors != related bounds
                 if (tz is not self) and (tz not in neighbors):
                     neighbors.append(tz)
         return neighbors
@@ -1332,9 +1336,9 @@ class SpaceBoundary(element.SubElement):
             pnts.append(pnts[0])
             face = self._make_faces_from_pnts(pnts)
         surf = BRep_Tool.Surface(face)
-        obj = surf.GetObject()
-        assert obj.DynamicType().GetObject().Name() == "Geom_Plane"
-        plane = Handle_Geom_Plane_DownCast(surf).GetObject()
+        obj = surf
+        assert obj.DynamicType().Name() == "Geom_Plane"
+        plane = Handle_Geom_Plane_DownCast(surf)
         # face_bbox = Bnd_Box()
         # brepbndlib_Add(face, face_bbox)
         # face_center = ifcopenshell.geom.utils.get_bounding_box_center(face_bbox).XYZ()
@@ -1364,7 +1368,7 @@ class SpaceBoundary(element.SubElement):
         functions=[calc_bound_shape]
     )
     bound_normal = attribute.Attribute(
-        # functions=[compute_surface_normals_in_space]
+        functions=[compute_surface_normals_in_space]
     )
     related_bound = attribute.Attribute(
         functions=[get_corresponding_bound]
@@ -1393,6 +1397,49 @@ class SpaceBoundary(element.SubElement):
 
         return storeys
 
+# class SpaceBoundary2B:
+#     """Generated 2nd Level Space boundaries of type 2b
+#     (generated if not included in IFC)
+#     """
+#     def __init__(self):
+#         self.ifc_type = None
+#         self.guid = None
+#         self.bound_shape = None
+#         self.bound_neighbors = []
+#         self.thermal_zones = []
+#         self.bound_instance = None
+#         self.physical = True
+#         self.is_external = False
+#         self.related_bound = None
+#         self.related_adb_bound = None
+#         self.level_description = '2b'
+#
+#     def __str__(self):
+#         return "%s" % self.__class__.__name__
+#
+#     @cached_property
+#     def bound_center(self):
+#         return SpaceBoundary.get_bound_center(self)
+#
+#     @cached_property
+#     def bound_normal(self):
+#         return SpaceBoundary.compute_surface_normals_in_space(self)
+#
+#     @cached_property
+#     def bound_area(self):
+#         return SpaceBoundary.get_bound_area(self.bound_shape)
+#
+#     @cached_property
+#     def top_bottom(self):
+#         return SpaceBoundary.get_floor_and_ceilings(self)
+#
+#
+# class ExtSpatialSpaceBoundary(element.SubElement):
+#     # ifc_type = 'IfcRelSpaceBoundary'
+#     # def __init__(self):
+#     #     """External Spatial Element spaceboundary __init__ function"""
+#         # super().__init__(*args, **kwargs)
+#     pass
 
 class Medium(element.Element):
     # is deprecated?
