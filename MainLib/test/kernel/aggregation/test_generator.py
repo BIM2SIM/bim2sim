@@ -392,7 +392,7 @@ class TestGeneratorAggregation(unittest.TestCase):
     def test_simple_boiler_with_bypass(self):
         graph, flags = self.helper.get_setup_boiler_with_bypass()
         # todo remove before merge
-        graph.plot(r'D:/10_ProgramTesting/before')
+        graph.plot(r'C:\temp\bim2sim\Tests\before')
         matches, metas = aggregation.Generator_One_Fluid.find_matches(graph)
         self.assertEqual(
             len(matches), 1,
@@ -415,7 +415,7 @@ class TestGeneratorAggregation(unittest.TestCase):
             inner_connections=agg_generator.get_inner_connections(),
         )
         # todo remove before merge
-        graph.plot(r'D:/10_ProgramTesting/after')
+        graph.plot(r'C:\temp\bim2sim\Tests\after')
 
     # todo finish
     def test_two_simple_boiler_with_bypass(self):
@@ -446,7 +446,7 @@ class TestGeneratorAggregation(unittest.TestCase):
     # todo
     def test_two_parallel_boilers_with_bypass(self):
         graph, flags = self.helper.setup_get_two_parallel_boilers()
-        graph.plot(r'D:/10_ProgramTesting/before')
+        graph.plot(r'C:\temp\bim2sim\Tests\before')
         matches, metas = aggregation.Generator_One_Fluid.find_matches(graph)
         self.assertEqual(
             len(matches), 2,
@@ -476,7 +476,7 @@ class TestGeneratorAggregation(unittest.TestCase):
                 mapping=agg_generator.get_replacement_mapping(),
                 inner_connections=agg_generator.get_inner_connections(),
             )
-            graph.plot(r'D:/10_ProgramTesting/after')
+            graph.plot(r'C:\temp\bim2sim\Tests\after')
         # # todo remove before merge
         # graph.plot(r'D:/10_ProgramTesting/after')
 

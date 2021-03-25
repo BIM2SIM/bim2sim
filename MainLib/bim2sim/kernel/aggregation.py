@@ -1524,6 +1524,7 @@ class Generator_One_Fluid(Aggregation):
     def __init__(self, name, element_graph, *args, **kwargs):
         self.non_relevant = kwargs.pop('non_relevant', set())  # todo workaround
         self.has_parallel = kwargs.pop('has_parallel', False)
+        self.bypass_elements = kwargs.pop('bypass_elements', set())
         super().__init__(name, element_graph, *args, **kwargs)
         edge_ports, element_graph = self.get_edge_ports(element_graph)
         # todo add edge_ports and expansion tank again to elements
@@ -1541,16 +1542,23 @@ class Generator_One_Fluid(Aggregation):
         edge_ports = []
         # todo edge_ports are only once connected ports in _graph
         # get boarder elements
-        boarder_elements = [node for node in _graph.nodes if
-                  node.ifc_type in cls.boarder_elements]
 
-        boarder_element = boarder_elements[0]
-        for port in boarder_element.ports:
-            if port.connection:
-                if port.connection.parent in _graph.nodes:
-                    edge_ports.append(port.connection)
-        # remove boarder nodes from graph
-        _graph.remove_node(boarder_element)
+        # boarder_elements = [node for node in _graph.nodes if
+        #           node.ifc_type in cls.boarder_elements]
+        #
+        # boarder_element = boarder_elements[0]
+        # for port in boarder_element.ports:
+        #     if port.connection:
+        #         if port.connection.parent in _graph.nodes:
+        #             edge_ports.append(port.connection)
+        # # remove boarder nodes from graph
+        # _graph.remove_node(boarder_element)
+
+        for ele in _graph:
+            for port in ele.ports:
+                if port.connection:
+                    if port.connection.parent not in _graph.nodes:
+                        edge_ports.append(port)
 
         return edge_ports, _graph
 
@@ -1626,9 +1634,34 @@ class Generator_One_Fluid(Aggregation):
         # metas = [{'non_relevant': non_relevant}] * len(generator_cycles)
         # todo add non_relevant to first found match
         # todo remove all items from all matches witch occur in all matches
-        metas = [{}] * (len(generator_cycles)-1)
-        metas.append({'non_relevant': non_relevant})
-        return generator_cycles, metas
+
+        #Remove overlapping Elements in GeneratorCycles
+        cleaned_generator_cycles = []
+        for gen_cycle in generator_cycles:
+            pseudo_lst = gen_cycle.copy()
+            for gen_cycle_two in generator_cycles:
+                if gen_cycle == gen_cycle_two:
+                    continue
+                pseudo_lst.remove_nodes_from(gen_cycle_two)
+            cleaned_generator_cycles.append(pseudo_lst)
+
+        metas = []
+
+        #match bypass elements from non relevant elements
+        for i in range(len(cleaned_generator_cycles)):
+            metas.append(dict())
+            for cycle in list_all_cycles_wanted[i]:
+                if len(cycle - cleaned_generator_cycles[i].nodes - non_relevant) > 0:
+                    continue
+                bypass_elements = cycle - cleaned_generator_cycles[i].nodes
+                cleaned_generator_cycles[i].add_nodes_from(bypass_elements)
+                non_relevant.difference_update(bypass_elements)
+                metas[i]['bypass_elements'] = bypass_elements
+
+        #metas = [{}] * (len(cleaned_generator_cycles)-1)
+        if len(metas) > 0:
+            metas[0]['non_relevant'] = non_relevant
+        return cleaned_generator_cycles, metas
 
     @attribute.multi_calc
     def _calc_avg(self):
