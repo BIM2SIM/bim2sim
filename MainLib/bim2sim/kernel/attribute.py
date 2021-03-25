@@ -5,7 +5,6 @@ import pint
 import re
 
 from bim2sim.decision import RealDecision, BoolDecision, ListDecision
-
 from bim2sim.kernel.units import ureg
 import inspect
 
@@ -103,11 +102,11 @@ class Attribute:
         # default value
         if value is None and self.default_value is not None:
             value = self.default_value
-            if value and self.unit:
+            if value is not None and self.unit:
                 value = value * self.unit
 
         # check unit
-        if self.unit is not None and value is not None and not isinstance(value, pint.Quantity):
+        if self.unit is not None and value is not None and not isinstance(value, ureg.Quantity):
             logger.warning("Unit not set!")
             value = value * self.unit
 
@@ -155,7 +154,8 @@ class Attribute:
                 logger.error("Function %d of %s.%s raised %s", i, bind, name, ex)
                 pass
             else:
-                break
+                if value is not None:
+                    break
         return value
 
     @staticmethod
@@ -299,7 +299,7 @@ class Attribute:
 
         if value is None and status == self.STATUS_UNKNOWN:
             value = self._get_value(bind)
-            status = self.STATUS_AVAILABLE if value else self.STATUS_NOT_AVAILABLE
+            status = self.STATUS_AVAILABLE if value is not None else self.STATUS_NOT_AVAILABLE  # change for temperature
             changed = True
 
         if self._force and value is None:

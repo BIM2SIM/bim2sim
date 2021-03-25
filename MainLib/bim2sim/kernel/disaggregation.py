@@ -6,7 +6,6 @@ import pint
 import re
 
 from bim2sim.kernel.element import BaseElement, SubElement
-from bim2sim.task.common.common_functions import get_disaggregations_instance
 
 
 vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
@@ -89,9 +88,6 @@ class Disaggregation(BaseElement):
                         instance.area = thermal_zone.area
 
             parent.sub_instances.append(instance)
-            if thermal_zone not in parent.thermal_zones:
-                parent.thermal_zones.append(thermal_zone)
-
             return instance
 
     def __repr__(self):
@@ -119,7 +115,7 @@ class SubRoof(Disaggregation):
 
 
 class SubWall(Disaggregation):
-    disaggregatable_elements = 'IfcWall'
+    disaggregatable_elements = 'Wall'
 
 
 class SubInnerWall(Disaggregation):

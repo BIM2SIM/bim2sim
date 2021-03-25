@@ -35,15 +35,14 @@ from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 
 from bim2sim.kernel import element, condition, attribute
-from bim2sim.decision import BoolDecision, Decision
+from bim2sim.decision import BoolDecision, RealDecision, ListDecision
 from bim2sim.kernel.units import ureg
-from bim2sim.decision import ListDecision
 from bim2sim.kernel.ifc2python import get_layers_ifc
-from bim2sim.task.common.common_functions import get_matches_list, get_material_templates_resumed, \
-    real_decision_user_input, filter_instances, get_pattern_usage
-import translators as ts
+from teaser.logic.buildingobjects.useconditions import UseConditions
+from bim2sim.task.common.common_functions import get_pattern_usage, vector_angle, filter_instances
+from bim2sim.kernel.disaggregation import SubInnerWall, SubOuterWall, Disaggregation
 from bim2sim.project import PROJECT
-from bim2sim.task.common.common_functions import vector_angle
+import translators as ts
 
 
 def diameter_post_processing(value):
@@ -330,6 +329,7 @@ class PipeFitting(element.Element):
     )
 
     length = attribute.Attribute(
+        default_ps=("Qto_PipeSegmentBaseQuantities", "Length"),
         unit=ureg.meter,
         patterns=[
             re.compile('.*Länge.*', flags=re.IGNORECASE),
@@ -632,11 +632,11 @@ class ThermalZone(element.Element):
     def get_is_external(self):
         """determines if a thermal zone is external or internal
         based on its elements (Walls and windows analysis)"""
-        tz_elements = filter_instances(self.bound_elements, 'Wall') + filter_instances(self.bound_elements, 'Window')
-        for ele in tz_elements:
-            if hasattr(ele, 'is_external'):
-                if ele.is_external is True:
-                    return True
+        outer_walls = filter_instances(self.bound_elements, 'OuterWall')
+        if len(outer_walls) > 0:
+            return True
+        else:
+            return False
 
     def set_is_external(self):
         """set the property is_external -> Bool"""
@@ -648,10 +648,10 @@ class ThermalZone(element.Element):
         it can be a corner (list of 2 angles) or an edge (1 angle)"""
         if self.is_external is True:
             orientations = []
-            for ele in self.bound_elements:
-                if hasattr(ele, 'is_external') and hasattr(ele, 'orientation'):
-                    if ele.is_external is True and ele.orientation not in [-1, -2]:
-                        orientations.append(ele.orientation)
+            outer_walls = filter_instances(self.bound_elements, 'OuterWall')
+            for ele in outer_walls:
+                if hasattr(ele, 'orientation'):
+                    orientations.append(ele.orientation)
             if len(list(set(orientations))) == 1:
                 return list(set(orientations))[0]
             else:
@@ -675,25 +675,10 @@ class ThermalZone(element.Element):
         50%-70%: 60
         70%-100%: 85"""
 
-        glass_area = 0
-        facade_area = 0
-        if self.is_external is True:
-            for ele in self.bound_elements:
-                if hasattr(ele.area, "m"):
-                    e_area = ele.area.magnitude
-                else:
-                    e_area = ele.area
-                if type(ele) is Window:
-                    if ele.area is not None:
-                        glass_area += e_area
-                if 'Wall' in type(ele).__name__ and ele.is_external is True:
-                    facade_area += e_area
-            real_gp = 0
-            try:
-                real_gp = 100 * (glass_area / (facade_area + glass_area))
-            except ZeroDivisionError:
-                pass
-            return real_gp
+        glass_area = sum(wi.area for wi in filter_instances(self.bound_elements, 'Window'))
+        facade_area = sum(wa.area for wa in filter_instances(self.bound_elements, 'OuterWall'))
+        if facade_area + glass_area > 0:
+            return 100 * (glass_area / (facade_area + glass_area))
 
     def set_glass_area(self):
         """set the property external_orientation"""
@@ -778,24 +763,35 @@ class ThermalZone(element.Element):
         functions=[_get_usage]
     )
     t_set_heat = attribute.Attribute(
-        unit=ureg.degreeC  # todo
+        default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMin"),
+        unit=ureg.degC,
+        default=15
     )
     t_set_cool = attribute.Attribute(
+        default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMax"),
+        unit=ureg.degC,
+        default=22
     )
     area = attribute.Attribute(
+        default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
         default=0
     )
     net_volume = attribute.Attribute(
+        default_ps=("Qto_SpaceBaseQuantities", "NetVolume"),
         default=0
     )
     height = attribute.Attribute(
+        default_ps=("Qto_SpaceBaseQuantities", "Height"),
         default=0
     )
     length = attribute.Attribute(
+        default_ps=("Qto_SpaceBaseQuantities", "Length"),
         default=0
     )
     width = attribute.Attribute(
-        default=0
+        default_ps=("Qto_SpaceBaseQuantities", "Width"),
+        default=0,
+        unit=ureg.m
     )
     with_cooling = attribute.Attribute(
         functions=[_get_cooling]
@@ -804,8 +800,10 @@ class ThermalZone(element.Element):
         functions=[_get_heating]
     )
     with_AHU = attribute.Attribute(
+        default_ps=("Pset_SpaceThermalRequirements", "AirConditioning"),
     )
     AreaPerOccupant = attribute.Attribute(
+        default_ps=("Pset_SpaceOccupancyRequirements", "AreaPerOccupant"),
     )
     space_center = attribute.Attribute(
         functions=[get_center_of_space]
@@ -836,6 +834,7 @@ class SpaceBoundary(element.SubElement):
     def __init__(self, *args, **kwargs):
         """spaceboundary __init__ function"""
         super().__init__(*args, **kwargs)
+        self.guid = self.ifc.GlobalId  # check this
         self.level_description = self.ifc.Description
         relating_space = self.get_object(self.ifc.RelatingSpace.GlobalId)
         relating_space.space_boundaries.append(self)
@@ -1504,7 +1503,7 @@ class Wall(element.Element):
             layers.append(new_layer)
         return layers
 
-    def _change_class(self, name):
+    def get_is_external(self, name):
         if len(self.ifc.ProvidesBoundaries) > 0:
             boundary = self.ifc.ProvidesBoundaries[0]
             if boundary.InternalOrExternalBoundary is not None:
@@ -1517,21 +1516,26 @@ class Wall(element.Element):
         functions=[_get_layers]
     )
     area = attribute.Attribute(
-        default=1
+        default_ps=("QTo_WallBaseQuantities", "NetSideArea"),
+        default=0
     )
-    gross_side_area = attribute.Attribute(
+    gross_area = attribute.Attribute(
+        default_ps=("QTo_WallBaseQuantities", "GrossSideArea"),
         default=1
     )
     is_external = attribute.Attribute(
-        functions=[_change_class],
+        functions=[get_is_external],
         default=False
     )
     tilt = attribute.Attribute(
         default=90
     )
     u_value = attribute.Attribute(
+        default_ps=("Pset_WallCommon", "ThermalTransmittance"),
     )
     width = attribute.Attribute(
+        default_ps=("QTo_WallBaseQuantities", "Width"),
+        unit=ureg.m
     )
 
 
@@ -1549,113 +1553,48 @@ class Layer(element.SubElement):
             material = self.ifc
         if material is not None:
             self.material = material.Name
-        # ToDO: what if doesn't have thickness
-        self.thickness = None
-        if hasattr(self.ifc, 'LayerThickness'):
-            self.thickness = self.ifc.LayerThickness
 
     def __repr__(self):
         return "<%s (material: %s>" \
                % (self.__class__.__name__, self.material)
 
     @classmethod
-    def create_additional_layer(cls, thickness, parent, material=None):
+    def create_additional_layer(cls, thickness, parent, material=None, material_properties=None):
         new_layer = cls(ifc=None)
         new_layer.material = material
         new_layer.parent = parent
         new_layer.thickness = thickness
+        if material_properties is not None:
+            for attr in new_layer.attributes:
+                if getattr(new_layer, attr) == 0:
+                    setattr(new_layer, attr, material_properties[attr])
         return new_layer
 
-    def get_material_properties(bind, name, tc_range=None):
-        if name == 'thickness':
-            name = 'thickness_default'
-
-        # check if material new properties are previously stored
-        material = bind.material
-        if material in bind.material_selected:
-            if name in bind.material_selected[material]:
-                # check if range is given
-                if tc_range is not None:
-                    if tc_range[0] < bind.material_selected[material][name] < tc_range[1]:
-                        return bind.material_selected[material][name]
-                else:
-                    return bind.material_selected[material][name]
-            else:
-                return real_decision_user_input(bind, name)
-        else:
-            if isinstance(bind, Layer):
-                first_decision = BoolDecision(
-                    question="Do you want to enrich the layers with the material %s by using available templates? \n"
-                             "Belonging Item: %s | GUID: %s \n"
-                             "Enter 'n' for manual input"
-                             % (bind.material, bind.parent.name, bind.parent.guid),
-                    collect=False, global_key='%s_layer_enriched' % bind.material,
-                    allow_load=True, allow_save=True)
-            else:
-                first_decision = BoolDecision(
-                    question="Do you want to enrich the material %s by using available templates? \n"
-                             "Belonging Item: %s | GUID: %s \n"
-                             "Enter 'n' for manual input"
-                             % (bind.material, bind.parent.name, bind.parent.guid),
-                    collect=False, global_key='%s_material_enriched' % bind.material,
-                    allow_load=True, allow_save=True)
-            first_decision.decide()
-            first_decision.stored_decisions.clear()
-
-            if first_decision.value:
-                resumed = get_material_templates_resumed(name, tc_range)
-
-                if bind.material in resumed:
-                    bind.material_selected[material] = resumed[material]
-                    return bind.material_selected[bind.material][name]
-
-                material_options = get_matches_list(bind.material, list(resumed.keys()))
-
-                if tc_range is None:
-                    while len(material_options) == 0:
-                        decision_ = input(
-                            "Material not found, enter value for the material:")
-                        material_options = get_matches_list(decision_, list(resumed.keys()))
-                else:
-                    material_options = list(resumed.keys())
-
-                decision1 = ListDecision(
-                    "Multiple possibilities found for material %s\n"
-                    "Belonging Item: %s | GUID: %s \n"
-                    "Enter 'n' for manual input"
-                    % (bind.material, bind.parent.name, bind.parent.guid),
-                    choices=list(material_options), global_key='%s_material_enrichment' % bind.material,
-                    allow_skip=True, allow_load=True, allow_save=True,
-                    collect=False, quick_decide=not True)
-                decision1.decide()
-
-                if material is not None:
-                    if material not in bind.material_selected:
-                        bind.material_selected[material] = {}
-                    bind.material_selected[material] = resumed[decision1.value]
-                else:
-                    bind.material = decision1.value
-                    bind.material_selected[bind.material] = resumed[decision1.value]
-                return bind.material_selected[bind.material][name]
-            else:
-                return real_decision_user_input(bind, name)
+    def get_ifc_thickness(bind, name):
+        if hasattr(bind.ifc, 'LayerThickness'):
+            return bind.ifc.LayerThickness
 
     heat_capac = attribute.Attribute(
-        default_ps='heat_capac',
-        functions=[get_material_properties],
-        default=0
+        default_ps=("Pset_MaterialThermal", "SpecificHeatCapacity"),
+        default=0,
+        unit=ureg.J/ureg.K
     )
 
     density = attribute.Attribute(
-        functions=[get_material_properties],
-        default_ps='density',
-        default=0
+        default_ps=("Pset_MaterialThermal", "MassDensity"),
+        default=0,
+        unit=ureg.kg/ureg.m**3
     )
 
     thermal_conduc = attribute.Attribute(
-        functions=[get_material_properties],
-        default_ps='thermal_conduc',
-        default=0
+        default_ps=("Pset_MaterialThermal", "ThermalConductivity"),
+        default=0,
+        unit=ureg.W/(ureg.m*ureg.K)
+    )
+    thickness = attribute.Attribute(
+        functions=[get_ifc_thickness],
+        default=0,
+        unit=ureg.m
     )
 
 
@@ -1697,13 +1636,17 @@ class Window(element.Element):
     )
 
     is_external = attribute.Attribute(
+        default_ps=("Pset_WindowCommon", "IsExternal"),
         default=True
     )
     area = attribute.Attribute(
+        default_ps=("QTo_WindowBaseQuantities", "Area"),
         default=0
     )
     width = attribute.Attribute(
-        default=0
+        default_ps=("QTo_WindowBaseQuantities", "Depth"),
+        default=0,
+        unit=ureg.m
     )
     u_value = attribute.Attribute(
     )
@@ -1728,7 +1671,7 @@ class Door(element.Element):
             layers.append(new_layer)
         return layers
 
-    def _change_class(self, name):
+    def get_is_external(self, name):
         if len(self.ifc.ProvidesBoundaries) > 0:
             boundary = self.ifc.ProvidesBoundaries[0]
             if boundary.InternalOrExternalBoundary is not None:
@@ -1742,16 +1685,19 @@ class Door(element.Element):
     )
 
     is_external = attribute.Attribute(
-        functions=[_change_class],
+        functions=[get_is_external],
         default=False
     )
 
     area = attribute.Attribute(
+        default_ps=("QTo_DoorBaseQuantities", "Area"),
         default=0
     )
 
     width = attribute.Attribute(
-        default=0
+        default_ps=("QTo_DoorBaseQuantities", "Depth"),
+        default=0,
+        unit=ureg.m
     )
     u_value = attribute.Attribute(
     )
@@ -1792,23 +1738,28 @@ class Slab(element.Element):
         functions=[_get_layers]
     )
     area = attribute.Attribute(
-
+        default_ps=("QTo_SlabBaseQuantities", "NetArea"),
         default=0
     )
     gross_area = attribute.Attribute(
+        default_ps=("QTo_SlabBaseQuantities", "GrossArea"),
         default=1
     )
 
     width = attribute.Attribute(
-        default=0
+        default_ps=("QTo_SlabBaseQuantities", "Width"),
+        default=0,
+        unit=ureg.m
     )
 
     u_value = attribute.Attribute(
+        default_ps=("Pset_SlabCommon", "ThermalTransmittance"),
         default=0
     )
 
     is_external = attribute.Attribute(
-        default=0
+        default_ps=("Pset_SlabCommon", "IsExternal"),
+        default=False
     )
 
 
@@ -1841,15 +1792,30 @@ class Site(element.Element):
 class Building(element.Element):
     ifc_type = "IfcBuilding"
 
+    def check_building_year(bind, name):
+        year_decision = RealDecision("Enter value for the buildings year of construction",
+                                     global_key="Building_%s.year_of_construction" % bind.guid,
+                                     allow_skip=False, allow_load=True, allow_save=True,
+                                     collect=False, quick_decide=False, unit=ureg.year)
+        year_decision.decide()
+        return year_decision.value
+
     year_of_construction = attribute.Attribute(
+        default_ps=("Pset_BuildingCommon", "YearOfConstruction"),
+        functions=[check_building_year],
+        unit=ureg.year
     )
     gross_area = attribute.Attribute(
+        default_ps=("Pset_BuildingCommon", "GrossPlannedArea"),
     )
     net_area = attribute.Attribute(
+        default_ps=("Pset_BuildingCommon", "NetAreaPlanned"),
     )
     number_of_storeys = attribute.Attribute(
+        default_ps=("Pset_BuildingCommon", "NumberOfStoreys"),
     )
     occupancy_type = attribute.Attribute(
+        default_ps=("Pset_BuildingCommon", "OccupancyType"),
     )
 
 
@@ -1862,13 +1828,17 @@ class Storey(element.Element):
         self.storey_instances = []
 
     gross_floor_area = attribute.Attribute(
+        default_ps=("Qto_BuildingStoreyBaseQuantities", "GrossFloorArea"),
     )
     # todo make the lookup for height hierarchical
     net_height = attribute.Attribute(
+        default_ps=("Qto_BuildingStoreyBaseQuantities", "NetHeight"),
     )
     gross_height = attribute.Attribute(
+        default_ps=("Qto_BuildingStoreyBaseQuantities", "GrossHeight"),
     )
     height = attribute.Attribute(
+        default_ps=("Qto_BuildingStoreyBaseQuantities", "Height"),
     )
 
     def get_storey_instances(self):

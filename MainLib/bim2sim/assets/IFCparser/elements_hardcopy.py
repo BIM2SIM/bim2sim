@@ -10,7 +10,6 @@ from bim2sim.decision import BoolDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.decision import ListDecision, RealDecision
 from bim2sim.kernel.ifc2python import get_layers_ifc
-from bim2sim.enrichment_data.data_class import DataClass
 from teaser.logic.buildingobjects.useconditions import UseConditions
 from bim2sim.task.bps_f.bps_functions import get_matches_list, get_material_templates_resumed, \
     real_decision_user_input, filter_instances, get_pattern_usage

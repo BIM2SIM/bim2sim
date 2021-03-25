@@ -20,9 +20,10 @@ from bim2sim.export import modelica
 from bim2sim.decision import Decision, ListDecision
 from bim2sim.project import PROJECT
 from bim2sim.kernel import finder
-from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.enrichment_data import element_input_json
 from bim2sim.decision import ListDecision, RealDecision, BoolDecision
+from bim2sim.task.common.common_functions import get_type_building_elements_hvac
+
 
 # todo remove because obsolete
 IFC_TYPES = (
@@ -443,7 +444,7 @@ class Enrich(Task):
 
     @Task.log
     def run(self, instances):
-        json_data = DataClass(used_param=1)
+        json_data = get_type_building_elements_hvac()
 
         # enrichment_parameter --> Class
         self.logger.info("Enrichment of the elements...")

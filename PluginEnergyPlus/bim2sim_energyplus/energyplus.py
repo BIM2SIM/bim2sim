@@ -2,7 +2,8 @@
 from pathlib import Path
 
 from bim2sim.manage import BIM2SIMManager, PROJECT
-from bim2sim.task import bps, base, common, hvac
+from bim2sim.task.bps import bps
+from bim2sim.task import common
 from bim2sim.kernel.element import IFCBased
 
 

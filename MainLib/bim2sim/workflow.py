@@ -23,6 +23,7 @@ class Workflow:
                  generator: LOD,
                  hvac: LOD,
                  spaces: LOD,
+                 layers: LOD,
                  filters: list = None):
 
         self.ductwork = ductwork
@@ -31,6 +32,7 @@ class Workflow:
         self.generator = generator
         self.hvac = hvac
         self.spaces = spaces
+        self.layers = layers
 
         self.filters = filters if filters else []
 
@@ -53,6 +55,7 @@ class PlantSimulation(Workflow):
             generator=LOD.full,
             hvac=LOD.low,
             spaces=LOD.ignore,
+            layers=LOD.full,
         )
         self.relevant_ifc_types = (
             'IfcAirTerminal',
@@ -104,7 +107,11 @@ class BPSMultiZoneSeparated(Workflow):
             consumer=LOD.low,
             generator=LOD.ignore,
             hvac=LOD.low,
+            # spaces=LOD.low,
+            # spaces=LOD.low,
             spaces=LOD.full,
+            layers=LOD.low,
+            # layers=LOD.full,
         )
         self.relevant_ifc_types = (
             'IfcSite',
