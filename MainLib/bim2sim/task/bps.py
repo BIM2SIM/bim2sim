@@ -1614,6 +1614,7 @@ class ExportEP(ITask):
         # path = '/usr/local/EnergyPlus-9-2-0/'
         # path = '/usr/local/EnergyPlus-9-3-0/'
         path = f'/usr/local/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
+        # path = f'D:/04_Programme/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
         IDF.setiddname(path + 'Energy+.idd')
         idf = IDF(path + "ExampleFiles/Minimal.idf")
         idf.idfname = str(PROJECT.root) + "/export/temp.idf"
@@ -1736,7 +1737,7 @@ class ExportEP(ITask):
                 space_ids.append(space.guid)
             self._init_zonelist(idf, name=st.name, zones_in_list=space_ids)
             print(st.name, space_ids)
-        zonelists = [zlist for zlist in idf.idfobjects["ZONELIST"] if zlist.Name is not "All_Zones"]
+        zonelists = [zlist for zlist in idf.idfobjects["ZONELIST"] if zlist.Name != "All_Zones"]
 
         for zlist in zonelists:
             idf.newidfobject("ZONEGROUP",
