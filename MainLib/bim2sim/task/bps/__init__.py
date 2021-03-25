@@ -1,3 +1,4 @@
+# todo uncomment for TEASER
 from .SetIFCTypes import SetIFCTypes
 from .Inspect import Inspect
 from .TZ_Inspect import TZInspect
@@ -11,5 +12,7 @@ from .OrientationGetter import OrientationGetter
 from .EnrichMaterial import EnrichMaterial
 from .MaterialVerification import MaterialVerification
 
-from .bps import SetIFCTypesBPS, Inspect, Prepare, ExportTEASER, tz_detection, ExportEP
+# todo uncomment for EP
+# from .bps import SetIFCTypesBPS, Inspect, Prepare, ExportTEASER, tz_detection,
+from .bps import ExportEP
 

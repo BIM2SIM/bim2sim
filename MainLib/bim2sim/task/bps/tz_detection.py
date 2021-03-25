@@ -1,3 +1,4 @@
+# todo delete this after seperating energyplus tasks into single tasks
 from bim2sim.task.base import Task
 from bim2sim.decision import BoolDecision, ListDecision, Decision
 from bim2sim.kernel.element import Element, SubElement

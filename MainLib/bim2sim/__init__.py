@@ -234,13 +234,13 @@ def _debug_run_bps_ep():
     """Create example project and copy ifc if necessary"""
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 
-    rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
+    # rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
     # rel_example = 'ResultFiles/AC20-Institute-Var-2_with_SB11.ifc' # aktuell
     # rel_example = 'ResultFiles/AC20-FZK-Haus_with_SB44.ifc' # aktuell
     # rel_example = 'ResultFiles/FM_ARC_DigitalHub_with_SB11.ifc'
     # rel_example = 'ResultFiles/Proposal_1_Storey_SpaceBoundaries_with_SB.ifc'
     # rel_example = 'ResultFiles/2020-10-15-KHH-Test_with_SB.ifc'
-    # rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
+    rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
     # rel_example = 'ExampleFiles/DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc' # ok
     # rel_example = 'ExampleFiles/AC-20-Smiley-West-10-Bldg.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
@@ -306,7 +306,7 @@ def _debug_run_cfd():
 
 if __name__ == '__main__':
     # _debug_run_cfd()
-    _debug_run_bps()
-    # _debug_run_bps_ep()
+    # _debug_run_bps()
+    _debug_run_bps_ep()
     # _debug_run_hvac()
 

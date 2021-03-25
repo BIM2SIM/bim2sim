@@ -1,3 +1,4 @@
+# todo delete this after seperating energyplus tasks into single tasks
 """This module holds tasks related to bps"""
 
 import itertools
@@ -60,7 +61,6 @@ from bim2sim.task.bps import tz_detection
 from bim2sim.kernel import elements, disaggregation
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.enrichment_data import element_input_json
-from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.task.bps import tz_detection
 from bim2sim.decision import ListDecision, BoolDecision, RealDecision
 from teaser.project import Project
@@ -420,11 +420,11 @@ class Prepare(ITask):
             year_decision.decide()
             building.year_of_construction = int(year_decision.value.m)
 
-        year_of_construction = int(building.year_of_construction)
+        year_of_construction = building.year_of_construction.m
         template_options = []
         for i in instance_templates[instance_type]:
             years = ast.literal_eval(i)
-            if years[0] <= year_of_construction <= years[1]:
+            if years[0] <= int(year_of_construction) <= years[1]:
                 template_options = instance_templates[instance_type][i]
                 break
 
