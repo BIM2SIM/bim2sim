@@ -11,15 +11,15 @@ from .base import IntegrationBase
 raise unittest.SkipTest("Integration tests not reliable for automated use")
 
 
-class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
+class TestIntegrationTEASER(IntegrationBase, unittest.TestCase):
 
     def test_run_kitfzkhaus(self):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
-        # todo add answers
-        answers = (True, True, *(True,)*14, 50)
+        # todo add answers, in disaggreagtion branch
+        answers = ()
         with bim2sim.decision.Decision.debug_answer(answers, multi=True):
-            return_code = self.run_project(ifc, 'hkesim')
+            return_code = self.run_project(ifc, 'TEASER')
         self.assertEqual(0, return_code, "Project did not finish successfully.")
 
     # def test_run_kitoffice(self):
