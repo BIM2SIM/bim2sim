@@ -102,7 +102,7 @@ class Attribute:
         # default value
         if value is None and self.default_value is not None:
             value = self.default_value
-            if value and self.unit:
+            if value is not None and self.unit:
                 value = value * self.unit
 
         # check unit

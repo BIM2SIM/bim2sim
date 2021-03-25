@@ -44,10 +44,12 @@ class EnrichMaterial(ITask):
                 if attr != 'thickness':
                     if not self.validate_manual_attribute(new_attributes[attr]):
                         self.manual_attribute_value(attr, units[attr], layer)
+                    # todo check with christian if this is clean
                     setattr(layer, attr, new_attributes[attr])
                 else:
                     if not self.validate_thickness(layer, new_attributes[attr]):
                         self.manual_thickness_value(attr, units[attr], layer)
+                    # todo check with christian if this is clean
                     setattr(layer, attr, new_attributes[attr])
 
     def get_material_properties(self, layer, attributes):

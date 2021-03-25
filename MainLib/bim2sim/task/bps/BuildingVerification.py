@@ -2,7 +2,8 @@ import ast
 
 from bim2sim.task.base import Task, ITask
 from bim2sim.kernel.element import SubElement
-from bim2sim.task.common.common_functions import get_type_building_elements, get_material_templates
+from bim2sim.task.common.common_functions import get_type_building_elements, \
+    get_material_templates
 from bim2sim.decision import ListDecision
 from bim2sim.workflow import LOD
 
@@ -24,12 +25,13 @@ class BuildingVerification(ITask):
         for guid, ins in instances.items():
             if not self.layers_verification(ins, workflow):
                 self.invalid_layers.append(ins)
-        self.logger.warning("Found %d invalid layers", self.invalid_layers)
+        self.logger.warning("Found %d invalid layers", len(self.invalid_layers))
 
         return self.invalid_layers,
 
     def layers_verification(self, instance, workflow):
-        supported_classes = {'OuterWall', 'Wall', 'InnerWall', 'Door', 'InnerDoor', 'OuterDoor', 'Roof', 'Floor',
+        supported_classes = {'OuterWall', 'Wall', 'InnerWall', 'Door',
+                             'InnerDoor', 'OuterDoor', 'Roof', 'Floor',
                              'GroundFloor', 'Window'}
         instance_type = type(instance).__name__
         if instance_type in supported_classes:
@@ -65,14 +67,15 @@ class BuildingVerification(ITask):
         return layers_width, layers_u
 
     @staticmethod
-    def width_comparison(workflow, instance, layers_width):
+    def width_comparison(workflow, instance, layers_width, threshold=0.2):
         # critical failure
         if workflow.layers is not LOD.low:
             return True
         else:
-            width_discrepancy = abs(instance.width - layers_width) / instance.width if \
-                (instance.width is not None and instance.width > 0) else 9999
-            if width_discrepancy > 0.2:
+            width_discrepancy = \
+                abs(instance.width - layers_width) / instance.width if \
+                (instance.width is not None and instance.width > 0) else None
+            if width_discrepancy > threshold or not width_discrepancy:
                 return False
             return True
 
@@ -89,9 +92,11 @@ class BuildingVerification(ITask):
                 "Belonging Item: %s | GUID: %s \n"
                 "Enter 'n' for manual input"
                 % (instance.name, instance.guid),
-                choices=[instance.u_value, layers_u], global_key='%s_u_value' % instance.name,
+                choices=[instance.u_value, layers_u],
+                global_key='%s_u_value' % instance.name,
                 allow_skip=True, allow_load=True, allow_save=True,
-                collect=False, quick_decide=not True, context=instance.name, related=instance.guid)
+                collect=False, quick_decide=not True, context=instance.name,
+                related=instance.guid)
             u_selection.decide()
             instance.u_value = u_selection.value
         return True
@@ -109,20 +114,27 @@ class BuildingVerification(ITask):
             years = ast.literal_eval(i)
             if years[0] <= year_of_construction <= years[1]:
                 for type_e in instance_templates[instance_type][i]:
+                    # todo how is ifc u-value structured? (specific or absolut,
+                    # convection integrated?)
                     # relev_info = instance_templates[instance_type][i][type_e]
                     # if instance_type == 'InnerWall':
                     #     layers_r = 2 / relev_info['inner_convection']
                     # else:
-                    #     layers_r = 1 / relev_info['inner_convection'] + 1 / relev_info['outer_convection']
+                    #     layers_r = 1 / relev_info['inner_convection'] + 1 \
+                    #                / relev_info['outer_convection']
                     layers_r = 0
-                    for layer, data_layer in instance_templates[instance_type][i][type_e]['layer'].items():
-                        material_tc = material_templates[data_layer['material']['material_id']]['thermal_conduc']
+                    for layer, data_layer in \
+                            instance_templates[
+                                instance_type][i][type_e]['layer'].items():
+                        material_tc = material_templates[data_layer['material']
+                        ['material_id']]['thermal_conduc']
                         layers_r += data_layer['thickness'] / material_tc
                     template_options.append(1 / layers_r)  # area?
                 break
 
         template_options.sort()
         # check u_value
-        if template_options[0] * (1-tolerance) <= instance.u_value.m <= template_options[1] * (1 + tolerance):
+        if template_options[0] * (1-tolerance) \
+                <= instance.u_value.m <= template_options[1] * (1 + tolerance):
             return True
         return False

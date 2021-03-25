@@ -1451,7 +1451,7 @@ class Aggregated_ThermalZone(Aggregation):
         self.get_disaggregation_properties()
         self.bound_elements = self.bind_elements()
         self.description = ''
-        self.finder = self.elements[0].finder
+        # todo lump usage conditions of existing zones
 
     def get_disaggregation_properties(self):
         """properties getter -> that way no sub instances has to be defined"""
@@ -1519,6 +1519,3 @@ class Aggregated_ThermalZone(Aggregation):
                         del e.instances['ThermalZone'][e.guid]
                 SubElement.instances['ThermalZone'][instance.guid] = instance
         return new_aggregations
-
-
-

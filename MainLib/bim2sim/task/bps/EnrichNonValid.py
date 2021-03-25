@@ -67,10 +67,10 @@ class EnrichNonValid(ITask):
         instance.u_value = 1 / layers_r
         iteration += 1
         # check validity of new u value e
-        while BuildingVerification.compare_with_template(instance) is False:
-            self.logger.warning("The created layers does not comply with the valid u_value range, "
-                                "please create new layer set")
-            self.manual_layers_creation(instance, iteration)
+        # while BuildingVerification.compare_with_template(instance) is False:
+        #     self.logger.warning("The created layers does not comply with the valid u_value range, "
+        #                         "please create new layer set")
+        #     self.manual_layers_creation(instance, iteration)
 
     @classmethod
     def layers_numbers_decision(cls, instance, iteration):

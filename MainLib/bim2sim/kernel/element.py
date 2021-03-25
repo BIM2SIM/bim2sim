@@ -414,6 +414,8 @@ class BaseElement(Root):
     """Base class for all elements with ports"""
     objects = {}
     default_materials = {}
+    # todo this is a hotfix
+    finder = TemplateFinder()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
