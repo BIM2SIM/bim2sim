@@ -28,9 +28,11 @@ class TestEPIntegration(unittest.TestCase):
         """Test IFC File from FZK-Haus (KIT) with generated Space Boundaries"""
 
         rel_path = 'ResultFiles/AC20-FZK-Haus_with_SB44.ifc'
-        answers = (True, True, True, True, True, 'light', True,True,True,True,True,'light',True,'light',
-                   True,True,True,True,'light', True,'light', True,True,True, 'Kunststofffenster, Isolierverglasung',
-                   True,True,True,False)
+        answers = (True, True, 2015, 'heavy', True, True, True, 'heavy', True,
+                   True, True,
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
+                   True, True, True, True, True, 'heavy', True, True, 'heavy',
+                   True, 'heavy', True, True, True, True, False)
         with Decision.debug_answer(answers, multi=True):
             success = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
             self.assertTrue(success)
@@ -39,9 +41,11 @@ class TestEPIntegration(unittest.TestCase):
         """Test Original IFC File from Institute (KIT)"""
 
         rel_path = 'ExampleFiles/AC20-Institute-Var-2.ifc'
-        answers = (True, True, '1', True, True, True, 'light',
-                   True,True,True,True,'light',True,True,'light', True,True,True,'light', True,
-                   'Kunststofffenster, Isolierverglasung',True, True,True,False)
+        answers = (True, True, 2015, 'heavy', True, True, True, 'heavy', True,
+                   True, True,
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
+                   True, True, True, True, True, 'heavy', True, True, 'heavy',
+                   True, 'heavy', True, True, False)
         with Decision.debug_answer(answers, multi=True):
             success = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
             self.assertTrue(success)
@@ -50,9 +54,11 @@ class TestEPIntegration(unittest.TestCase):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
 
         rel_path = 'ResultFiles/AC20-Institute-Var-2_with_SB11.ifc'
-        answers = (True, True, '1', True, True, True, 'light',
-                   True,True,True,True,'light',True,True,'light', True,True,True,'light', True,
-                   'Kunststofffenster, Isolierverglasung',True, True,True,False)
+        answers = (True, True, 2015, 'heavy', True, True, True, 'heavy', True,
+                   True, True,
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
+                   True, True, True, True, True, 'heavy', True, True, 'heavy',
+                   True, 'heavy', True, True, False)
         with Decision.debug_answer(answers, multi=True):
             success = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
             self.assertTrue(success)
