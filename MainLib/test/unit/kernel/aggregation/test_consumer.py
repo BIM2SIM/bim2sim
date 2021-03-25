@@ -6,7 +6,7 @@ from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 
 from bim2sim.kernel.units import ureg
 
-from test.kernel.helper import SetupHelper
+from test.unit.kernel.helper import SetupHelper
 
 import networkx as nx
 

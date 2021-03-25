@@ -169,6 +169,8 @@ def main(rootpath=None):
     finally:
         finish(success=success)
 
+    return 0 if success else -1
+
 
 def _debug_run_hvac():
     """Create example project and copy ifc if necessary"""
@@ -180,7 +182,7 @@ def _debug_run_hvac():
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, path_ifc, 'hkesim', )
 
-    main(path_example)
+    return main(path_example)
 
 
 def _debug_run_bps():
@@ -195,7 +197,7 @@ def _debug_run_bps():
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, path_ifc, 'teaser')
 
-    main(path_example)
+    return main(path_example)
 
 
 def _debug_run_hvac_aixlib():
@@ -218,7 +220,7 @@ def _debug_run_cfd():
 
     if not PROJECT.is_project_folder(path_example):
         PROJECT.create(path_example, target='cfd')
-    main(path_example)
+    return main(path_example)
 
 
 if __name__ == '__main__':
