@@ -6,7 +6,7 @@ from bim2sim.decision import BoolDecision, ListDecision, RealDecision, StringDec
 from bim2sim.workflow import LOD
 from functools import partial
 from bim2sim.task.common.common_functions import get_material_templates
-from units import ureg
+from bim2sim.kernel.units import ureg
 
 
 class EnrichMaterial(ITask):
