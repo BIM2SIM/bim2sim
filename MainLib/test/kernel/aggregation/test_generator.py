@@ -389,6 +389,7 @@ class TestGeneratorAggregation(unittest.TestCase):
         decision.Decision.stored_decisions.clear()
         self.helper.reset()
 
+    @unittest.skip("Skip because ExpansionTank not detected, remove when issue 125 is fixed")
     def test_simple_boiler_with_bypass(self):
         graph, flags = self.helper.get_setup_boiler_with_bypass()
         # todo remove before merge
@@ -418,9 +419,10 @@ class TestGeneratorAggregation(unittest.TestCase):
         graph.plot(r'C:\temp\bim2sim\Tests\after')
 
     # todo finish
+    @unittest.skip("Skip because ExpansionTank not detected, remove when issue 125 is fixed")
     def test_two_simple_boiler_with_bypass(self):
         graph, flags = self.helper.get_setup_two_seperate_boilers()
-        graph.plot(r'D:/10_ProgramTesting/before')
+        graph.plot(r'C:\temp\bim2sim\Tests\before')
         matches, meta = aggregation.Generator_One_Fluid.find_matches(graph)
 
         agg_generators = []
@@ -440,7 +442,7 @@ class TestGeneratorAggregation(unittest.TestCase):
                 mapping=agg_generator.get_replacement_mapping(),
                 inner_connections=agg_generator.get_inner_connections(),
             )
-        graph.plot(r'D:/10_ProgramTesting/after')
+        graph.plot(r'C:\temp\bim2sim\Tests\after')
         print('test')
 
     # todo

@@ -1553,7 +1553,8 @@ class Generator_One_Fluid(Aggregation):
         #             edge_ports.append(port.connection)
         # # remove boarder nodes from graph
         # _graph.remove_node(boarder_element)
-
+        #ToDo: Connection To GraphNetwork
+        #[v for v, d in _graph.degree() if d == 1]
         for ele in _graph:
             for port in ele.ports:
                 if port.connection:
