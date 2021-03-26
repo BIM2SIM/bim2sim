@@ -20,7 +20,7 @@ class BuildingVerification(ITask):
         pass
 
     @Task.log
-    def run(self, workflow, instances,):
+    def run(self, workflow, instances, ):
         self.logger.info("setting verifications")
         for guid, ins in instances.items():
             if not self.layers_verification(ins, workflow):
@@ -72,9 +72,8 @@ class BuildingVerification(ITask):
         if workflow.layers is not LOD.low:
             return True
         else:
-            width_discrepancy = \
-                abs(instance.width - layers_width) / instance.width if \
-                (instance.width is not None and instance.width > 0) else None
+            width_discrepancy = abs(instance.width - layers_width) / instance.width \
+                if (instance.width is not None and instance.width > 0) else None
             if not width_discrepancy or width_discrepancy > threshold:
                 return False
             return True
@@ -102,7 +101,7 @@ class BuildingVerification(ITask):
         return True
 
     @staticmethod
-    def compare_with_template(instance, tolerance=0.2):
+    def compare_with_template(instance, threshold=0.2):
         template_options = []
         building = SubElement.get_class_instances('Building')[0]
 
@@ -126,15 +125,16 @@ class BuildingVerification(ITask):
                     for layer, data_layer in \
                             instance_templates[
                                 instance_type][i][type_e]['layer'].items():
-                        material_tc = material_templates[data_layer['material']
-                        ['material_id']]['thermal_conduc']
+                        material_tc = material_templates[data_layer['material']['material_id']]['thermal_conduc']
                         layers_r += data_layer['thickness'] / material_tc
                     template_options.append(1 / layers_r)  # area?
                 break
 
         template_options.sort()
+        if len(template_options) == 1:
+            template_options = template_options*2
         # check u_value
-        if template_options[0] * (1-tolerance) \
-                <= instance.u_value.m <= template_options[1] * (1 + tolerance):
+        if template_options[0] * (1 - threshold) \
+                <= instance.u_value.m <= template_options[1] * (1 + threshold):
             return True
         return False

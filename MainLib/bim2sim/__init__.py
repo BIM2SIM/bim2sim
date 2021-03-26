@@ -306,7 +306,7 @@ def _debug_run_cfd():
 
 if __name__ == '__main__':
     # _debug_run_cfd()
-    # _debug_run_bps()
-    _debug_run_bps_ep()
+    _debug_run_bps()
+    # _debug_run_bps_ep()
     # _debug_run_hvac()
 

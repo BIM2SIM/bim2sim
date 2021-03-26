@@ -30,6 +30,7 @@ class BindThermalZones(ITask):
                 self.bind_tz_criteria()
             else:
                 self.bounded_tz = list(tz_instances.values())
+            self.logger.info("obtained %d thermal zones", len(self.bounded_tz))
 
         return self.bounded_tz,
 
@@ -96,7 +97,6 @@ class BindThermalZones(ITask):
         internal_binding = self.group_attribute(internal_binding, 'usage')
         # orientation and glass percentage criterion + external only
         for k, li in external_binding.items():
-            external_binding[k] = {}
             external_binding[k] = self.group_attribute(li, 'external_orientation')
             for nk, nli in external_binding[k].items():
                 external_binding[k][nk] = {}
@@ -116,7 +116,7 @@ class BindThermalZones(ITask):
         grouped_thermal_instances = []
         for i in grouped_instances_criteria:
             grouped_thermal_instances += grouped_instances_criteria[i]
-        # ckeck not grouped instances for fourth criterion
+        # check not grouped instances for fourth criterion
         not_grouped_instances = []
         for tz in thermal_zones:
             if tz not in grouped_thermal_instances:

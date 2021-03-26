@@ -40,12 +40,3 @@ class TEASERManager(BIM2SIMManager):
         self.playground.run_task(bps.BindThermalZones())
         self.playground.run_task(bps.ExportTEASER())
         pass
-
-        # self.playground.run_task(bps.SetIFCTypesBPS())
-        # self.playground.run_task(common.LoadIFC())
-        # self.playground.run_task(bps.Inspect())
-        #
-        # self.playground.run_task(bps.Prepare())
-        # pass
-        #
-        # self.playground.run_task(bps.ExportTEASER())

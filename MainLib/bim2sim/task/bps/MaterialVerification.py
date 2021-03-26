@@ -41,6 +41,3 @@ class MaterialVerification(ITask):
         if (value <= 0 or value is None) and attr in error_properties:
             return False
         return True
-
-
-

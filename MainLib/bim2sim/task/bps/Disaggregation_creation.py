@@ -1,5 +1,4 @@
 from bim2sim.task.base import Task, ITask
-from bim2sim.kernel.element import SubElement
 from bim2sim.kernel.disaggregation import Disaggregation
 from bim2sim.workflow import LOD
 
@@ -22,6 +21,7 @@ class Disaggregation_creation(ITask):
                 tz_disaggregations = self.get_thermal_zone_disaggregations(tz)
                 tz.bound_elements = tz_disaggregations
                 self.set_tz_properties(tz)
+            self.logger.info("disaggregated %d instances", len(self.disaggregations))
 
         return self.disaggregations,
 
@@ -50,5 +50,3 @@ class Disaggregation_creation(ITask):
         tz.set_is_external()
         tz.set_external_orientation()
         tz.set_glass_area()
-
-

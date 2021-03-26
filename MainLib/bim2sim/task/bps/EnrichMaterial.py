@@ -28,6 +28,7 @@ class EnrichMaterial(ITask):
             for instance in invalid_materials:
                 self.get_layer_properties(instance)
                 self.enriched_materials.append(instance)
+            self.logger.info("enriched %d invalid materials", len(self.enriched_materials))
 
         return self.enriched_materials,
 
@@ -53,7 +54,7 @@ class EnrichMaterial(ITask):
                     setattr(layer, attr, new_attributes[attr])
 
     def get_material_properties(self, layer, attributes):
-        material = re.sub('[!@#$-_1234567890]', '', layer.material.lower())
+        material = re.sub(r'[^\w]*?[0-9]', '', layer.material)
         if material not in self.material_selected:
             resumed = self.get_resumed_material_templates(attributes)
             try:
@@ -95,7 +96,7 @@ class EnrichMaterial(ITask):
         return values, units
 
     def manual_attribute_value(self, attr, unit, layer):
-        material = re.sub('[!@#$-_1234567890]', '', layer.material.lower())
+        material = re.sub(r'[^\w]*?[0-9]', '', layer.material)
         attr_decision = RealDecision("Enter value for the material %s for: \n"
                                      "Belonging Item: %s | GUID: %s"
                                      % (attr, layer.material, layer.guid),
@@ -120,7 +121,7 @@ class EnrichMaterial(ITask):
         return True
 
     def validate_thickness(self, layer, value):
-        material = re.sub('[!@#$-_1234567890]', '', layer.material.lower())
+        material = re.sub(r'[^\w]*?[0-9]', '', layer.material)
         instance_width = layer.parent.width
         layers_list = layer.parent.layers
         layer_index = layers_list.index(layer)
@@ -131,14 +132,16 @@ class EnrichMaterial(ITask):
             self.material_selected[material]['thickness'] = available_width
             return True
         else:
+            if isinstance(value, ureg.Quantity):
+                value = value.m
             if 0 < value <= available_width:
                 return True
             return False
 
     def manual_thickness_value(self, attr, unit, layer):
-        material = re.sub('[!@#$-_1234567890]', '', layer.material.lower())
-        attr_decision = RealDecision("Enter value for the material %s for: \n"
-                                     "it must be < %s"
+        material = re.sub(r'[^\w]*?[0-9]', '', layer.material)
+        attr_decision = RealDecision("Enter value for the material %s "
+                                     "it must be < %s\n"
                                      "Belonging Item: %s | GUID: %s"
                                      % (attr, layer.parent.width, layer.material, layer.guid),
                                      global_key="Layer_%s.%s" % (layer.guid, attr),
