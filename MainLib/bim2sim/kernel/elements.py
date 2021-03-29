@@ -715,7 +715,7 @@ class ThermalZone(element.Element):
     area = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
         default=0,
-        unit = ureg.meter ** 2
+        unit=ureg.meter ** 2
     )
     net_volume = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "NetVolume"),
@@ -1459,7 +1459,8 @@ class Wall(element.Element):
     )
     area = attribute.Attribute(
         default_ps=("QTo_WallBaseQuantities", "NetSideArea"),
-        default=0
+        default=0,
+        unit=ureg.meter ** 2
     )
     gross_area = attribute.Attribute(
         default_ps=("QTo_WallBaseQuantities", "GrossSideArea"),
@@ -1583,7 +1584,8 @@ class Window(element.Element):
     )
     area = attribute.Attribute(
         default_ps=("QTo_WindowBaseQuantities", "Area"),
-        default=0
+        default=0,
+        unit=ureg.meter ** 2
     )
     width = attribute.Attribute(
         default_ps=("QTo_WindowBaseQuantities", "Depth"),
@@ -1633,7 +1635,8 @@ class Door(element.Element):
 
     area = attribute.Attribute(
         default_ps=("QTo_DoorBaseQuantities", "Area"),
-        default=0
+        default=0,
+        unit=ureg.meter ** 2
     )
 
     width = attribute.Attribute(
@@ -1681,7 +1684,8 @@ class Slab(element.Element):
     )
     area = attribute.Attribute(
         default_ps=("QTo_SlabBaseQuantities", "NetArea"),
-        default=0
+        default=0,
+        unit=ureg.meter ** 2
     )
     gross_area = attribute.Attribute(
         default_ps=("QTo_SlabBaseQuantities", "GrossArea"),

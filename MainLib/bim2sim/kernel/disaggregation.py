@@ -83,8 +83,8 @@ class Disaggregation(BaseElement):
                 instance._pos = get_new_position_vertical_instance(parent, new_pos)
             if type_parent in horizontal_instances:
                 instance._pos = thermal_zone.position
-                if thermal_zone.area > instance.area:
-                    if abs(1-instance.area/thermal_zone.area) < 0.1:
+                if thermal_zone.area.m > instance.area.m:
+                    if abs(1-instance.area.m/thermal_zone.area.m) < 0.1:
                         instance.area = thermal_zone.area
 
             parent.sub_instances.append(instance)
