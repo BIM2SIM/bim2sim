@@ -1,6 +1,7 @@
 import math
 import re
 import json
+import translators as ts
 
 from bim2sim.project import PROJECT
 
@@ -58,19 +59,21 @@ def get_pattern_usage():
         use_conditions.remove('version')
 
     common_translations = {
-        'Single office': ['Office'],
-        'Group Office (between 2 and 6 employees)': ['Office'],
-        'Open-plan Office (7 or more employees)': ['Office'],
+        "Bed room": ['Schlafzimmer'],
+        "Living": ["Galerie"],
+        "Laboratory": "Labor",
+        'office_function': ['Office', 'Buero'],
+        "Meeting, Conference, seminar": ['Besprechungsraum', 'Seminarraum'],
         'Kitchen in non-residential buildings': ['Kitchen'],
         'Kitchen - preparations, storage': ['Kitchen'],
-        'Traffic area': ['Hall'],
-        'WC and sanitary rooms in non-residential buildings': ['bath', 'bathroom', 'WC', 'Toilet'],
-        'Stock, technical equipment, archives': ['Technical room']
+        'Traffic area': ['Hall', 'Flur', 'Dachboden'],
+        'WC and sanitary rooms in non-residential buildings': ['bath', 'bathroom', 'WC', 'Toilet', 'Bad'],
+        'Stock, technical equipment, archives': ['Technical room', 'Technikraum']
     }
-
     pattern_usage_teaser = {}
     for i in use_conditions:
         pattern_usage_teaser[i] = []
+        trans = ts.bing(i, from_language='en', to_language='de')
         list_engl = re.sub('\((.*?)\)', '', i).replace(' - ', ', ').replace(' and ', ', ').replace(' in ', ', ')\
             .replace(' with ', ', ').replace(' or ', ', ').replace(' the ', ' ').split(', ')
         for i_eng in list_engl:
@@ -79,6 +82,15 @@ def get_pattern_usage():
             if i in common_translations:
                 for c_trans in common_translations[i]:
                     pattern_usage_teaser[i].append(re.compile('(.*?)%s' % c_trans, flags=re.IGNORECASE))
+        list_de = re.sub('\((.*?)\)', '', trans).replace(' - ', ', ').replace(' and ', ', ').replace(' in ', ', ')\
+            .replace(' with ', ', ').replace(' or ', ', ').replace(' the ', ' ').split(', ')
+        for i_de in list_de:
+            new_i_de = i_de.replace(' ', '(.*?)')
+            pattern_usage_teaser[i].append(re.compile('(.*?)%s' % new_i_de, flags=re.IGNORECASE))
+
+    pattern_usage_teaser['office_function'] = [re.compile('(.*?)Office', re.IGNORECASE),
+                                               re.compile('(.*?)Buero', re.IGNORECASE)]
+
     return pattern_usage_teaser
 
 

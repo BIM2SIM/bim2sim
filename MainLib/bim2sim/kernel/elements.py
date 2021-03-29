@@ -39,10 +39,9 @@ from bim2sim.decision import BoolDecision, RealDecision, ListDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from teaser.logic.buildingobjects.useconditions import UseConditions
-from bim2sim.task.common.common_functions import get_pattern_usage, vector_angle, filter_instances
+from bim2sim.task.common.common_functions import vector_angle, filter_instances
 from bim2sim.kernel.disaggregation import SubInnerWall, SubOuterWall, Disaggregation
 from bim2sim.project import PROJECT
-import translators as ts
 
 
 def diameter_post_processing(value):
@@ -55,9 +54,6 @@ def length_post_processing(value):
     if isinstance(value, (list, set)):
         return max(value)
     return value
-
-
-pattern_usage = get_pattern_usage()
 
 
 class HeatPump(element.Element):
@@ -718,7 +714,8 @@ class ThermalZone(element.Element):
     )
     area = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
-        default=0
+        default=0,
+        unit = ureg.meter ** 2
     )
     net_volume = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "NetVolume"),
