@@ -11,6 +11,7 @@ from .ExportTEASER import ExportTEASER
 from .OrientationGetter import OrientationGetter
 from .EnrichMaterial import EnrichMaterial
 from .MaterialVerification import MaterialVerification
+from .EnrichUseConditions import EnrichUseConditions
 
 # todo uncomment for EP
 # from .bps import SetIFCTypesBPS, Inspect, Prepare, ExportTEASER, tz_detection,

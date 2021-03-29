@@ -42,6 +42,14 @@ def vector_angle(vector):
             return tang + 360
 
 
+def get_usage_list():
+    usage_path = PROJECT.assets / 'MaterialTemplates' / 'UseConditions.json'
+    with open(usage_path, 'r+') as f:
+        usage_dict = json.load(f)
+        del usage_dict['version']
+    return list(usage_dict.keys())
+
+
 def get_pattern_usage():
     """get usage patterns to use it on the thermal zones get_usage"""
     use_conditions_path = PROJECT.assets / 'MaterialTemplates' / 'UseConditions.json'

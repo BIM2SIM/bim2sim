@@ -574,61 +574,6 @@ class ThermalZone(element.Element):
     zone_name = attribute.Attribute(
     )
 
-    def _get_usage(bind, name):
-        if PROJECT.PAPER:
-            # hardcode for investigation of KIT Institut
-            zone_dict = {
-                "Schlafzimmer": "Bed room",
-                "Wohnen": "Living",
-                "Galerie": "Living",
-                "Küche": "Living",
-                "Flur": "Traffic area",
-                "Buero": "Single office",
-                "Besprechungsraum": 'Meeting, Conference, seminar',
-                "Seminarraum": 'Meeting, Conference, seminar',
-                "Technikraum": "Stock, technical equipment, archives",
-                "Dachboden": "Traffic area",
-                "WC": "WC and sanitary rooms in non-residential buildings",
-                "Bad": "WC and sanitary rooms in non-residential buildings",
-                "Labor": "Laboratory"
-            }
-            for key, trans in zone_dict.items():
-                if key in bind.zone_name:
-                    return trans
-        zone_pattern = []
-        matches = []
-
-        if bind.zone_name:
-            list_org = bind.zone_name.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
-            for i_org in list_org:
-                trans_aux = ts.bing(i_org, from_language='de')
-                # trans_aux = ts.google(i_org, from_language='de')
-                zone_pattern.append(trans_aux)
-
-            # check if a string matches the zone name
-            for usage, pattern in pattern_usage.items():
-                for i in pattern:
-                    for i_name in zone_pattern:
-                        if i.match(i_name):
-                            if usage not in matches:
-                                matches.append(usage)
-        # if just a match given
-        if len(matches) == 1:
-            return matches[0]
-        # if no matches given
-        elif len(matches) == 0:
-            matches = list(pattern_usage.keys())
-        usage_decision = ListDecision("Which usage does the Space %s have?" %
-                                      (str(bind.zone_name)),
-                                      choices=matches,
-                                      global_key="%s_%s.BpsUsage" % (type(bind).__name__, bind.guid),
-                                      allow_skip=False,
-                                      allow_load=True,
-                                      allow_save=True,
-                                      quick_decide=not True)
-        usage_decision.decide()
-        return usage_decision.value
-
     def get_is_external(self):
         """determines if a thermal zone is external or internal
         based on its elements (Walls and windows analysis)"""
@@ -760,7 +705,6 @@ class ThermalZone(element.Element):
         return volume
 
     usage = attribute.Attribute(
-        functions=[_get_usage]
     )
     t_set_heat = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMin"),

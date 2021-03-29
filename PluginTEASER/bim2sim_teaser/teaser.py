@@ -27,6 +27,7 @@ class TEASERManager(BIM2SIMManager):
         self.playground.run_task(common.LoadIFC())
         self.playground.run_task(bps.Inspect())
         self.playground.run_task(bps.TZInspect())
+        self.playground.run_task(bps.EnrichUseConditions())
         self.playground.run_task(bps.OrientationGetter())
 
         self.playground.run_task(bps.MaterialVerification())  # LOD.full
