@@ -1553,24 +1553,7 @@ class Aggregated_ThermalZone(Aggregation):
 
     def _get_tz_usage(self, name):
         """usage properties getter"""
-        if self.name.endswith('one_zone_building'):
-            usage_path = PROJECT.assets / 'MaterialTemplates' / 'UseConditions.json'
-            with open(usage_path, 'r+') as f:
-                usage_dict = json.load(f)
-                del usage_dict['version']
-            usage_decision = ListDecision("Which usage does the new aggregated zone %s have?\n"
-                                          "Belonging Item: %s | GUID: %s \n" % (str(self.name), self.name, self.guid),
-                                          choices=list(usage_dict.keys()),
-                                          global_key="%s_%s.Usage" % (type(self).__name__, self.guid),
-                                          allow_skip=False,
-                                          allow_load=True,
-                                          allow_save=True,
-                                          quick_decide=not True,
-                                          context=self.name, related=self.guid)
-            usage_decision.decide()
-            return usage_decision.value
-        else:
-            return self.elements[0].usage
+        return self.elements[0].usage
 
     usage = attribute.Attribute(
         functions=[_get_tz_usage]
