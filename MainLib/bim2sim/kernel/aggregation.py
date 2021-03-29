@@ -1458,21 +1458,6 @@ class Aggregated_ThermalZone(Aggregation):
         print(self.usage)
         # todo lump usage conditions of existing zones
 
-    def get_disaggregation_properties(self):
-        """properties getter -> that way no sub instances has to be defined"""
-        intensive = ['height', 't_set_cool', 't_set_heat', 'usage', 'space_center', 'space_shape', 'with_cooling',
-                     'with_heating', 'with_AHU', 'zone_name']
-        extensive = []
-        for prop in self.elements[0].attributes:
-            if prop in intensive:
-                value = getattr(self.elements[0], prop)
-            else:
-                value = '' if type(getattr(self.elements[0], prop)) is str else 0
-                for e in self.elements:
-                    if getattr(e, prop) is not None:
-                        value += getattr(e, prop)
-            setattr(self, prop, value)
-
     def bind_elements(self):
         """elements binder for the resultant thermal zone"""
         bound_elements = []
