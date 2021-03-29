@@ -110,8 +110,8 @@ class BPSMultiZoneSeparated(Workflow):
             # spaces=LOD.low,
             # spaces=LOD.low,
             spaces=LOD.full,
-            # layers=LOD.low,
-            layers=LOD.full,
+            layers=LOD.low,
+            # layers=LOD.full,
         )
         self.relevant_ifc_types = (
             'IfcSite',
