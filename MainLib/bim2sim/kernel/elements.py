@@ -782,6 +782,7 @@ class ThermalZone(element.Element):
     )
     height = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "Height"),
+        unit=ureg.meter,
         default=0
     )
     length = attribute.Attribute(

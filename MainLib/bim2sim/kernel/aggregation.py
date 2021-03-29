@@ -6,12 +6,14 @@ import inspect
 import ast
 import numpy as np
 import networkx as nx
-
+import json
 
 from bim2sim.kernel.element import BaseElement, BasePort, SubElement
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
+from bim2sim.project import PROJECT
+from bim2sim.decision import ListDecision
 from bim2sim.kernel.disaggregation import Disaggregation
 from bim2sim.kernel.elements import HeatPump
 
@@ -45,7 +47,7 @@ class AggregationPort(BasePort):
             self.originals = originals
 
     # def determine_flow_side(self):
-        # return self.original.determine_flow_side()
+    # return self.original.determine_flow_side()
 
     def calc_position(self):
         """Position of original port"""
@@ -370,7 +372,7 @@ class UnderfloorHeating(PipeStrand):
         # check final kpi criteria
         total_length = sum(segment.length for segment in uh_elements if segment.length is not None)
         avg_diameter = (sum(segment.diameter ** 2 * segment.length for segment in uh_elements if segment.length is not
-                            None) / total_length)**0.5
+                            None) / total_length) ** 0.5
 
         kpi_criteria = (total_length * avg_diameter) / heating_area
 
@@ -471,8 +473,8 @@ class UnderfloorHeating(PipeStrand):
                     y_orientation.append(element)
                 if abs(element.ports[0].position[1] - element.ports[1].position[1]) < 1:
                     x_orientation.append(element)
-        heating_area = (max_x - min_x) * (max_y - min_y) * ureg.meter**2
-        if heating_area < 1e6 * ureg.meter**2:
+        heating_area = (max_x - min_x) * (max_y - min_y) * ureg.meter ** 2
+        if heating_area < 1e6 * ureg.meter ** 2:
             return  # heating area criteria failed
 
         # TODO: this is not correct for some layouts
@@ -492,7 +494,7 @@ class UnderfloorHeating(PipeStrand):
 
         kpi_criteria = (underfloor_heating.length * underfloor_heating.diameter) / heating_area
 
-        if 0.09*ureg.dimensionless > kpi_criteria > 0.01*ureg.dimensionless:
+        if 0.09 * ureg.dimensionless > kpi_criteria > 0.01 * ureg.dimensionless:
             return underfloor_heating
         # else kpi criteria failed
 
@@ -518,7 +520,7 @@ class ParallelPump(Aggregation):
             originals_dict = {}
             for parent in parents:
                 originals_dict[parent] = [port for port in edge_ports if
-                                port.connection.parent == parent]
+                                          port.connection.parent == parent]
             for originals in originals_dict.values():
                 self.ports.append(AggregationPort(originals, parent=self))
 
@@ -534,7 +536,7 @@ class ParallelPump(Aggregation):
         #  edge_elements. current workaround: check for pumps seperatly
         edge_elements = [
             node for node in graph.nodes if (len(node.ports) > 2 and
-                    node.__class__.__name__ != 'Pump')]
+                                             node.__class__.__name__ != 'Pump')]
 
         if len(edge_elements) > 2:
             graph = self.merge_additional_junctions(graph)
@@ -571,9 +573,9 @@ class ParallelPump(Aggregation):
                                                 port in edge_ports))
             for parent in parents:
                 aggr_ports = [port for port in edge_inner_ports if
-                                port.parent == parent]
+                              port.parent == parent]
                 if not isinstance(parent.aggregation, AggregatedPipeFitting):
-                    AggregatedPipeFitting('aggr_'+parent.name, nx.subgraph(
+                    AggregatedPipeFitting('aggr_' + parent.name, nx.subgraph(
                         graph, parent), aggr_ports)
                 else:
                     for port in aggr_ports:
@@ -663,12 +665,12 @@ class ParallelPump(Aggregation):
         for junction, meta in zip(add_junctions, metas):
             # todo maybe add except clause
             aggrPipeFitting = AggregatedPipeFitting(
-                name_builder.format(AggregatedPipeFitting.__name__, i + 1),  junction, **meta)
+                name_builder.format(AggregatedPipeFitting.__name__, i + 1), junction, **meta)
             i += 1
         return graph
 
     rated_power = attribute.Attribute(
-        unit=ureg.kilowatt,        description="rated power",
+        unit=ureg.kilowatt, description="rated power",
         functions=[_calc_avg],
     )
 
@@ -681,7 +683,7 @@ class ParallelPump(Aggregation):
     rated_volume_flow = attribute.Attribute(
         description='rated volume flow',
         functions=[_calc_avg],
-        unit=ureg.meter**3 / ureg.hour,
+        unit=ureg.meter ** 3 / ureg.hour,
     )
 
     diameter = attribute.Attribute(
@@ -1019,7 +1021,7 @@ class Consumer(Aggregation):
         agg_ports = []
 
         for ports in self.outer_connections:
-                agg_ports.append(ports[1])
+            agg_ports.append(ports[1])
 
         return agg_ports
 
@@ -1043,7 +1045,8 @@ class Consumer(Aggregation):
         remove_ports = [port for ele in remove for port in ele.ports]
         outer_connections = {}
         for port in remove_ports:
-            outer_connections.update({neighbor.parent: (port, neighbor) for neighbor in graph.neighbors(port) if neighbor not in remove_ports})
+            outer_connections.update({neighbor.parent: (port, neighbor) for neighbor in graph.neighbors(port) if
+                                      neighbor not in remove_ports})
 
         sub_graphs = nx.connected_components(_element_graph)  # get_parallels(graph, wanted, innerts)
 
@@ -1058,7 +1061,7 @@ class Consumer(Aggregation):
                 # check for consumer in generator subgraph
                 gen_con = {node for node in sub if node.__class__ in cls.whitelist}
                 if gen_con:
-                    #ToDO: Consumer separieren
+                    # ToDO: Consumer separieren
                     a = 1
                     pass
                 else:
@@ -1109,7 +1112,6 @@ class Consumer(Aggregation):
 
         total_rated_pump_power = None
 
-
         volume = None
 
         # Spaceheater und andere Consumer
@@ -1126,9 +1128,9 @@ class Consumer(Aggregation):
                 # Volumenstrom
                 rated_volume_flow = getattr(ele, "rated_volume_flow")
 
-                #Volumen
-                #volume_ = getattr(ele, "volume")
-                #if volume_:
+                # Volumen
+                # volume_ = getattr(ele, "volume")
+                # if volume_:
                 #    volume += volume_ #ToDo: Sobald ein Volumen nicht vorhanden, Angabe: Nicht vorhanden???
 
                 # this is not avg but max
@@ -1138,7 +1140,7 @@ class Consumer(Aggregation):
                 else:
                     avg_rated_height = rated_height
 
-                if not rated_volume_flow:    #Falls eine Pumpe kein volumenstrom hat unvollständig
+                if not rated_volume_flow:  # Falls eine Pumpe kein volumenstrom hat unvollständig
                     total_rated_volume_flow = None
                     continue
                 else:
@@ -1270,9 +1272,10 @@ class Consumer(Aggregation):
     )
 
 
-class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation HKESim
+class ConsumerHeatingDistributorModule(Aggregation):  # ToDo: Export Aggregation HKESim
     """Aggregates Consumer system boarder"""
-    multi = ('medium', 'use_hydraulic_separator', 'hydraulic_separator_volume', 'temperature_inlet', 'temperature_outlet')
+    multi = (
+    'medium', 'use_hydraulic_separator', 'hydraulic_separator_volume', 'temperature_inlet', 'temperature_outlet')
     # ToDo: Abused to not just sum attributes from elements
 
     aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting', 'ParallelSpaceHeater']
@@ -1327,8 +1330,9 @@ class ConsumerHeatingDistributorModule(Aggregation): #ToDo: Export Aggregation H
 
         consumer_ports = []
         if (len(self.undefined_consumer_ports) % 2) == 0:
-            for i in range(0, int(len(self.undefined_consumer_ports)/2)):
-                consumer_ports.append((self.undefined_consumer_ports[2*i][0], self.undefined_consumer_ports[2*i+1][0]))
+            for i in range(0, int(len(self.undefined_consumer_ports) / 2)):
+                consumer_ports.append(
+                    (self.undefined_consumer_ports[2 * i][0], self.undefined_consumer_ports[2 * i + 1][0]))
         else:
             raise NotImplementedError("Odd Number of loose ends at the distributor.")
         return consumer_ports
@@ -1448,17 +1452,19 @@ class Aggregated_ThermalZone(Aggregation):
 
     def __init__(self, name, element_graph, *args, **kwargs):
         super().__init__(name, element_graph, *args, **kwargs)
-        self.get_disaggregation_properties()
+        # self.get_disaggregation_properties()
         self.bound_elements = self.bind_elements()
         self.description = ''
+        print(self.usage)
         # todo lump usage conditions of existing zones
 
     def get_disaggregation_properties(self):
         """properties getter -> that way no sub instances has to be defined"""
-        exception = ['height', 't_set_cool', 't_set_heat', 'usage', 'space_center', 'space_shape', 'with_cooling',
+        intensive = ['height', 't_set_cool', 't_set_heat', 'usage', 'space_center', 'space_shape', 'with_cooling',
                      'with_heating', 'with_AHU', 'zone_name']
+        extensive = []
         for prop in self.elements[0].attributes:
-            if prop in exception:
+            if prop in intensive:
                 value = getattr(self.elements[0], prop)
             else:
                 value = '' if type(getattr(self.elements[0], prop)) is str else 0
@@ -1498,7 +1504,7 @@ class Aggregated_ThermalZone(Aggregation):
             elif group == 'not_bind':
                 # last criterion no similarities
                 area = sum(i.area for i in groups[group])
-                if area/total_area <= 0.05:
+                if area / total_area <= 0.05:
                     # Todo: usage and conditions criterion
                     name = "Aggregated_%s" % '_'.join([i.name for i in groups[group]])
                     instance = cls(name, groups[group])
@@ -1519,3 +1525,101 @@ class Aggregated_ThermalZone(Aggregation):
                         del e.instances['ThermalZone'][e.guid]
                 SubElement.instances['ThermalZone'][instance.guid] = instance
         return new_aggregations
+
+    def _intensive_calc(self, name):
+        """intensive properties getter"""
+        valid = 0
+        prop_sum = 0
+        for tz in self.elements:
+            prop = getattr(tz, name)
+            if prop is not None:
+                if hasattr(prop, 'm'):
+                    prop_sum += prop.m
+                else:
+                    prop_sum += prop
+                valid += 1
+        if valid > 0:
+            return prop_sum / valid
+        else:
+            return None
+
+    def _extensive_calc(self, name):
+        """extensive properties getter"""
+        prop_sum = 0
+        for tz in self.elements:
+            prop = getattr(tz, name)
+            if prop is not None:
+                if hasattr(prop, 'm'):
+                    prop_sum += prop.m
+                else:
+                    prop_sum += prop
+        return prop_sum
+
+    def _bool_calc(self, name):
+        """bool properties getter"""
+        prop_bool = False
+        for tz in self.elements:
+            prop = getattr(tz, name)
+            if prop is not None:
+                if prop:
+                    prop_bool = True
+                    break
+        return prop_bool
+
+    def _get_tz_usage(self, name):
+        """usage properties getter"""
+        if self.name.endswith('one_zone_building'):
+            usage_path = PROJECT.assets / 'MaterialTemplates' / 'UseConditions.json'
+            with open(usage_path, 'r+') as f:
+                usage_dict = json.load(f)
+                del usage_dict['version']
+            usage_decision = ListDecision("Which usage does the new aggregated zone %s have?\n"
+                                          "Belonging Item: %s | GUID: %s \n" % (str(self.name), self.name, self.guid),
+                                          choices=list(usage_dict.keys()),
+                                          global_key="%s_%s.Usage" % (type(self).__name__, self.guid),
+                                          allow_skip=False,
+                                          allow_load=True,
+                                          allow_save=True,
+                                          quick_decide=not True,
+                                          context=self.name, related=self.guid)
+            usage_decision.decide()
+            return usage_decision.value
+        else:
+            return self.elements[0].usage
+
+    usage = attribute.Attribute(
+        functions=[_get_tz_usage]
+    )
+    t_set_heat = attribute.Attribute(
+        functions=[_intensive_calc],
+        unit=ureg.degC
+    )
+    t_set_cool = attribute.Attribute(
+        functions=[_intensive_calc],
+        unit=ureg.degC
+    )
+    area = attribute.Attribute(
+        functions=[_extensive_calc],
+        unit=ureg.meter ** 2
+    )
+    net_volume = attribute.Attribute(
+        functions=[_extensive_calc],
+        unit=ureg.meter ** 3
+    )
+    height = attribute.Attribute(
+        functions=[_intensive_calc],
+        unit=ureg.meter
+    )
+    with_cooling = attribute.Attribute(
+        functions=[_bool_calc]
+    )
+    with_heating = attribute.Attribute(
+        functions=[_bool_calc]
+    )
+    with_AHU = attribute.Attribute(
+        functions=[_bool_calc]
+    )
+    AreaPerOccupant = attribute.Attribute(
+        functions=[_intensive_calc],
+        unit=ureg.meter ** 2
+    )
