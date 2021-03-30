@@ -51,7 +51,7 @@ def get_usage_list():
     return list(usage_dict.keys())
 
 
-def get_pattern_usage():
+def get_pattern_usage(translate=False):
     """get usage patterns to use it on the thermal zones get_usage"""
     use_conditions_path = PROJECT.assets / 'MaterialTemplates' / 'UseConditions.json'
     with open(use_conditions_path, 'r+') as f:
@@ -64,8 +64,8 @@ def get_pattern_usage():
         "Laboratory": ["Labor"],
         'office_function': ['Office', 'Buero'],
         "Meeting, Conference, seminar": ['Besprechungsraum', 'Seminarraum'],
-        'Kitchen in non-residential buildings': ['Kitchen'],
-        'Kitchen - preparations, storage': ['Kitchen'],
+        'Kitchen in non-residential buildings': ['Kitchen', 'Küche'],
+        'Kitchen - preparations, storage': ['Kitchen', 'Küche'],
         'Traffic area': ['Hall', 'Flur', 'Dachboden'],
         'WC and sanitary rooms in non-residential buildings': ['bath', 'bathroom', 'WC', 'Toilet', 'Bad'],
         'Stock, technical equipment, archives': ['Technical room', 'Technikraum']
@@ -73,8 +73,7 @@ def get_pattern_usage():
     pattern_usage_teaser = {}
     for i in use_conditions:
         pattern_usage_teaser[i] = []
-        trans = ts.bing(i, from_language='en', to_language='de')
-        list_engl = re.sub('\((.*?)\)', '', i).replace(' - ', ', ').replace(' and ', ', ').replace(' in ', ', ')\
+        list_engl = re.sub('\((.*?)\)', '', i).replace(' - ', ', ').replace(' and ', ', ').replace(' in ', ', ') \
             .replace(' with ', ', ').replace(' or ', ', ').replace(' the ', ' ').split(', ')
         for i_eng in list_engl:
             new_i_eng = i_eng.replace(' ', '(.*?)')
@@ -82,11 +81,14 @@ def get_pattern_usage():
             if i in common_translations:
                 for c_trans in common_translations[i]:
                     pattern_usage_teaser[i].append(re.compile('(.*?)%s' % c_trans, flags=re.IGNORECASE))
-        list_de = re.sub('\((.*?)\)', '', trans).replace(' - ', ', ').replace(' and ', ', ').replace(' in ', ', ')\
-            .replace(' with ', ', ').replace(' or ', ', ').replace(' the ', ' ').split(', ')
-        for i_de in list_de:
-            new_i_de = i_de.replace(' ', '(.*?)')
-            pattern_usage_teaser[i].append(re.compile('(.*?)%s' % new_i_de, flags=re.IGNORECASE))
+        if translate:
+            trans = ts.bing(i, from_language='en', to_language='de')
+
+            list_de = re.sub('\((.*?)\)', '', trans).replace(' - ', ', ').replace(' and ', ', ').replace(' in ', ', ') \
+                .replace(' with ', ', ').replace(' or ', ', ').replace(' the ', ' ').split(', ')
+            for i_de in list_de:
+                new_i_de = i_de.replace(' ', '(.*?)')
+                pattern_usage_teaser[i].append(re.compile('(.*?)%s' % new_i_de, flags=re.IGNORECASE))
 
     pattern_usage_teaser['office_function'] = [re.compile('(.*?)Office', re.IGNORECASE),
                                                re.compile('(.*?)Buero', re.IGNORECASE)]
@@ -138,5 +140,3 @@ def filter_instances(instances, type_name):
         if type_name in type(instance).__name__:
             instances_filtered.append(instance)
     return instances_filtered
-
-

@@ -17,11 +17,13 @@ class BuildingVerification(ITask):
     def __init__(self):
         super().__init__()
         self.invalid_layers = []
+        self.template_range = {}
         pass
 
     @Task.log
     def run(self, workflow, instances, ):
         self.logger.info("setting verifications")
+        self.get_template_threshold()
         for guid, ins in instances.items():
             if not self.layers_verification(ins, workflow):
                 self.invalid_layers.append(ins)
@@ -91,50 +93,53 @@ class BuildingVerification(ITask):
                 "Belonging Item: %s | GUID: %s \n"
                 "Enter 'n' for manual input"
                 % (instance.name, instance.guid),
-                choices=[instance.u_value, layers_u],
-                global_key='%s_u_value' % instance.name,
+                choices=[instance.u_value.m, layers_u.m],
+                global_key='%s_%s_u_value' % (instance.name, instance.guid),
                 allow_skip=True, allow_load=True, allow_save=True,
                 collect=False, quick_decide=not True, context=instance.name,
                 related=instance.guid)
             u_selection.decide()
-            instance.u_value = u_selection.value
+            instance.u_value = u_selection.value * instance.u_value.u
         return True
 
-    @staticmethod
-    def compare_with_template(instance, threshold=0.2):
-        template_options = []
-        building = SubElement.get_class_instances('Building')[0]
-
-        year_of_construction = building.year_of_construction.m
-        instance_templates = get_type_building_elements()
-        material_templates = get_material_templates()
+    def compare_with_template(self, instance, threshold=0.2):
         instance_type = type(instance).__name__
-        for i in instance_templates[instance_type]:
-            years = ast.literal_eval(i)
-            if years[0] <= year_of_construction <= years[1]:
-                for type_e in instance_templates[instance_type][i]:
-                    # todo how is ifc u-value structured? (specific or absolut,
-                    # convection integrated?)
-                    # relev_info = instance_templates[instance_type][i][type_e]
-                    # if instance_type == 'InnerWall':
-                    #     layers_r = 2 / relev_info['inner_convection']
-                    # else:
-                    #     layers_r = 1 / relev_info['inner_convection'] + 1 \
-                    #                / relev_info['outer_convection']
-                    layers_r = 0
-                    for layer, data_layer in \
-                            instance_templates[
-                                instance_type][i][type_e]['layer'].items():
-                        material_tc = material_templates[data_layer['material']['material_id']]['thermal_conduc']
-                        layers_r += data_layer['thickness'] / material_tc
-                    template_options.append(1 / layers_r)  # area?
-                break
-
-        template_options.sort()
-        if len(template_options) == 1:
-            template_options = template_options*2
+        template_instance_range = self.template_range[instance_type]
         # check u_value
-        if template_options[0] * (1 - threshold) \
-                <= instance.u_value.m <= template_options[1] * (1 + threshold):
+        if template_instance_range[0] * (1 - threshold) \
+                <= instance.u_value.m <= template_instance_range[-1] * (1 + threshold):
             return True
         return False
+
+    def get_template_threshold(self):
+        building = SubElement.get_class_instances('Building')[0]
+        year_of_construction = int(building.year_of_construction.m)
+        instance_templates = get_type_building_elements()
+        material_templates = get_material_templates()
+        for i_type in instance_templates:
+            template_options = []
+            for i in instance_templates[i_type]:
+                years = ast.literal_eval(i)
+                if years[0] <= year_of_construction <= years[1]:
+                    for type_e in instance_templates[i_type][i]:
+                        # todo how is ifc u-value structured? (specific or absolut,
+                        # convection integrated?)
+                        # relev_info = instance_templates[instance_type][i][type_e]
+                        # if instance_type == 'InnerWall':
+                        #     layers_r = 2 / relev_info['inner_convection']
+                        # else:
+                        #     layers_r = 1 / relev_info['inner_convection'] + 1 \
+                        #                / relev_info['outer_convection']
+                        layers_r = 0
+                        for layer, data_layer in \
+                                instance_templates[
+                                    i_type][i][type_e]['layer'].items():
+                            material_tc = material_templates[data_layer['material']['material_id']]['thermal_conduc']
+                            layers_r += data_layer['thickness'] / material_tc
+                        template_options.append(1 / layers_r)  # area?
+                    break
+
+            template_options.sort()
+            if len(template_options) == 1:
+                template_options = template_options * 2
+            self.template_range[i_type] = template_options

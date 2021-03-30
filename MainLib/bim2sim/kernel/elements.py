@@ -1473,6 +1473,7 @@ class Wall(element.Element):
     )
     u_value = attribute.Attribute(
         default_ps=("Pset_WallCommon", "ThermalTransmittance"),
+        unit=ureg.W / ureg.K / ureg.meter ** 2
     )
     width = attribute.Attribute(
         default_ps=("QTo_WallBaseQuantities", "Width"),
@@ -1591,6 +1592,7 @@ class Window(element.Element):
         unit=ureg.m
     )
     u_value = attribute.Attribute(
+        unit=ureg.W / ureg.K / ureg.meter ** 2
     )
 
 
@@ -1643,6 +1645,7 @@ class Door(element.Element):
         unit=ureg.m
     )
     u_value = attribute.Attribute(
+        unit=ureg.W / ureg.K / ureg.meter ** 2
     )
 
 
@@ -1699,7 +1702,8 @@ class Slab(element.Element):
 
     u_value = attribute.Attribute(
         default_ps=("Pset_SlabCommon", "ThermalTransmittance"),
-        default=0
+        default=0,
+        unit = ureg.W / ureg.K / ureg.meter ** 2
     )
 
     is_external = attribute.Attribute(
