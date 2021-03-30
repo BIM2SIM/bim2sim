@@ -579,10 +579,6 @@ class ThermalZone(element.Element):
         else:
             return False
 
-    # def set_is_external(self):
-    #     """set the property is_external -> Bool"""
-    #     self.is_external = self.get_is_external()
-
     def get_external_orientation(self, name):
         """determines the orientation of the thermal zone
         based on its elements
@@ -605,11 +601,6 @@ class ThermalZone(element.Element):
                 return sum_or / len(calc_temp)
         else:
             return 'Internal'
-
-    # def set_external_orientation(self):
-    #     """set the property external_orientation
-    #     value can be an angle (edge) or a list of two angles (edge)"""
-    #     self.external_orientation = self.get_external_orientation()
 
     def get_glass_area(self, name):
         """determines the glass area/facade area ratio for all the windows in the space in one of the 4 following ranges
@@ -638,10 +629,6 @@ class ThermalZone(element.Element):
                 if (tz is not self) and (tz not in neighbors):
                     neighbors.append(tz)
         return neighbors
-
-    # def set_space_neighbors(self):
-    #     """set the neighbors of the thermal zone as a list"""
-    #     self.space_neighbors = self.get_neighbors()
 
     def _get_cooling(bind, name):
         """get cooling parameters for thermal zone"""

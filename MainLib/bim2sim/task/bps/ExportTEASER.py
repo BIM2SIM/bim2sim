@@ -114,16 +114,16 @@ class ExportTEASER(ITask):
         tz.use_conditions = UseConditions(parent=tz)
         tz.use_conditions.load_use_conditions(instance.usage)
         cls._teaser_property_getter(tz, instance, instance.finder.templates)
-        tz.volume = instance.area * instance.height
+        tz.volume = instance.area.m * instance.height.m
 
         tz.use_conditions.cooling_profile = [tz.set_temp_cool] * 25
         tz.use_conditions.heating_profile = [tz.set_temp_heat] * 25
         # hardcode for paper:
-        if PROJECT.PAPER:
-            tz.use_conditions.cooling_profile = [conversion(25, '°C', 'K').magnitude] * 25
-            tz.use_conditions.with_cooling = instance.with_cooling
-            tz.use_conditions.use_constant_infiltration = True
-            tz.use_conditions.infiltration_rate = 0.2
+        # if PROJECT.PAPER:
+        #     tz.use_conditions.cooling_profile = [conversion(25, '°C', 'K').magnitude] * 25
+        #     tz.use_conditions.with_cooling = instance.with_cooling
+        #     tz.use_conditions.use_constant_infiltration = True
+        #     tz.use_conditions.infiltration_rate = 0.2
 
         return tz
 

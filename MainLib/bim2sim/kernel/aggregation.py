@@ -1455,7 +1455,6 @@ class Aggregated_ThermalZone(Aggregation):
         # self.get_disaggregation_properties()
         self.bound_elements = self.bind_elements()
         self.description = ''
-        print(self.usage)
         # todo lump usage conditions of existing zones
 
     def bind_elements(self):
