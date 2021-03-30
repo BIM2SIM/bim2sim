@@ -135,7 +135,10 @@ class EnrichNonValid(ITask):
     def store_new_material(self, instance, material_input):
         resumed = EnrichMaterial.get_resumed_material_templates()
         material_options = EnrichMaterial.get_matches_list(material_input, list(resumed.keys()))
-        material_selected = EnrichMaterial.material_selection_decision(material_input, instance, material_options)
+        if len(material_options) > 1:
+            material_selected = EnrichMaterial.material_selection_decision(material_input, instance, material_options)
+        else:
+            print()
         self.material_selected[material_input] = resumed[material_selected]
 
     @staticmethod
