@@ -60,7 +60,7 @@ def get_pattern_usage():
 
     common_translations = {
         "Bed room": ['Schlafzimmer'],
-        "Living": ["Galerie"],
+        "Living": ["Galerie", "Wohnen"],
         "Laboratory": ["Labor"],
         'office_function': ['Office', 'Buero'],
         "Meeting, Conference, seminar": ['Besprechungsraum', 'Seminarraum'],
