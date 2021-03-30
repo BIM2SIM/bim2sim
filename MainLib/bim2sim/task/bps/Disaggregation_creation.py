@@ -20,7 +20,7 @@ class Disaggregation_creation(ITask):
             for guid, tz in tz_instances.items():
                 tz_disaggregations = self.get_thermal_zone_disaggregations(tz)
                 tz.bound_elements = tz_disaggregations
-                self.set_tz_properties(tz)
+                # self.set_tz_properties(tz)
             self.logger.info("disaggregated %d instances", len(self.disaggregations))
 
         return self.disaggregations,

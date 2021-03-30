@@ -570,7 +570,7 @@ class ThermalZone(element.Element):
     zone_name = attribute.Attribute(
     )
 
-    def get_is_external(self):
+    def get_is_external(self, name):
         """determines if a thermal zone is external or internal
         based on its elements (Walls and windows analysis)"""
         outer_walls = filter_instances(self.bound_elements, 'OuterWall')
@@ -579,11 +579,11 @@ class ThermalZone(element.Element):
         else:
             return False
 
-    def set_is_external(self):
-        """set the property is_external -> Bool"""
-        self.is_external = self.get_is_external()
+    # def set_is_external(self):
+    #     """set the property is_external -> Bool"""
+    #     self.is_external = self.get_is_external()
 
-    def get_external_orientation(self):
+    def get_external_orientation(self, name):
         """determines the orientation of the thermal zone
         based on its elements
         it can be a corner (list of 2 angles) or an edge (1 angle)"""
@@ -603,29 +603,30 @@ class ThermalZone(element.Element):
                     if sum_or > 180:
                         sum_or += 360
                 return sum_or / len(calc_temp)
+        else:
+            return 'Internal'
 
-    def set_external_orientation(self):
-        """set the property external_orientation
-        value can be an angle (edge) or a list of two angles (edge)"""
-        self.external_orientation = self.get_external_orientation()
+    # def set_external_orientation(self):
+    #     """set the property external_orientation
+    #     value can be an angle (edge) or a list of two angles (edge)"""
+    #     self.external_orientation = self.get_external_orientation()
 
-    def get_glass_area(self):
+    def get_glass_area(self, name):
         """determines the glass area/facade area ratio for all the windows in the space in one of the 4 following ranges
         0%-30%: 15
         30%-50%: 40
         50%-70%: 60
         70%-100%: 85"""
-
-        glass_area = sum(wi.area for wi in filter_instances(self.bound_elements, 'Window'))
-        facade_area = sum(wa.area for wa in filter_instances(self.bound_elements, 'OuterWall'))
-        if facade_area + glass_area > 0:
+        windows = filter_instances(self.bound_elements, 'Window')
+        outer_walls = filter_instances(self.bound_elements, 'OuterWall')
+        glass_area = sum(wi.area for wi in windows).m if len(windows) > 0 else 0
+        facade_area = sum(wa.area for wa in outer_walls).m if len(outer_walls) > 0 else 0
+        if facade_area > 0:
             return 100 * (glass_area / (facade_area + glass_area))
+        else:
+            return 'Internal'
 
-    def set_glass_area(self):
-        """set the property external_orientation"""
-        self.glass_percentage = self.get_glass_area()
-
-    def get_neighbors(self):
+    def get_neighbors(self, name):
         """determines the neighbors of the thermal zone"""
         neighbors = []
         for sb in self.space_boundaries:
@@ -638,9 +639,9 @@ class ThermalZone(element.Element):
                     neighbors.append(tz)
         return neighbors
 
-    def set_space_neighbors(self):
-        """set the neighbors of the thermal zone as a list"""
-        self.space_neighbors = self.get_neighbors()
+    # def set_space_neighbors(self):
+    #     """set the neighbors of the thermal zone as a list"""
+    #     self.space_neighbors = self.get_neighbors()
 
     def _get_cooling(bind, name):
         """get cooling parameters for thermal zone"""
@@ -756,15 +757,23 @@ class ThermalZone(element.Element):
     space_volume = attribute.Attribute(
         functions=[get_space_volume]
     )
+    glass_percentage = attribute.Attribute(
+        functions=[get_glass_area]
+    )
+    is_external = attribute.Attribute(
+        functions=[get_is_external]
+    )
+    external_orientation = attribute.Attribute(
+        functions=[get_external_orientation]
+    )
+    space_neighbors = attribute.Attribute(
+        functions=[get_neighbors]
+    )
 
     def __init__(self, *args, **kwargs):
         """thermalzone __init__ function"""
         super().__init__(*args, **kwargs)
         self.bound_elements = []
-        self.is_external = False
-        self.external_orientation = 'Internal'
-        self.glass_percentage = 'Internal'
-        self.space_neighbors = []
 
     def get__elements_by_type(self, type):
         raise NotImplementedError
@@ -1001,7 +1010,7 @@ class SpaceBoundary(element.SubElement):
                 if distance > min_dist:
                     continue
                 other_area = bound.bound_area
-                if (other_area - bind.bound_area)**2 < 1e-1:
+                if (other_area.m - bind.bound_area.m)**2 < 1e-1:
                     bind.check_for_vertex_duplicates(bound)
                     nb_vert_this = bind._get_number_of_vertices(bind.bound_shape)
                     nb_vert_other = bind._get_number_of_vertices(bound.bound_shape)
@@ -1023,7 +1032,7 @@ class SpaceBoundary(element.SubElement):
                 continue
             if not bound.thermal_zones[0] == self.thermal_zones[0]:
                 continue
-            if (bound.bound_area - self.bound_area)**2 > 0.01:
+            if (bound.bound_area.m - self.bound_area.m)**2 > 0.01:
                 continue
             if gp_Pnt(bound.bound_center).Distance(gp_Pnt(self.bound_center)) < 0.4:
                 adb_bound = bound
@@ -1324,7 +1333,8 @@ class SpaceBoundary(element.SubElement):
         functions=[get_floor_and_ceilings]
     )
     bound_area = attribute.Attribute(
-        functions=[get_bound_area]
+        functions=[get_bound_area],
+        unit=ureg.meter ** 2
     )
     # area = attribute.Attribute(
     #     functions=[get_bound_area]
@@ -1464,7 +1474,8 @@ class Wall(element.Element):
     )
     gross_area = attribute.Attribute(
         default_ps=("QTo_WallBaseQuantities", "GrossSideArea"),
-        default=1
+        default=1,
+        unit=ureg.meter ** 2
     )
     is_external = attribute.Attribute(
         functions=[get_is_external],
@@ -1689,7 +1700,8 @@ class Slab(element.Element):
     )
     gross_area = attribute.Attribute(
         default_ps=("QTo_SlabBaseQuantities", "GrossArea"),
-        default=1
+        default=1,
+        unit=ureg.meter ** 2
     )
 
     width = attribute.Attribute(
@@ -1753,9 +1765,11 @@ class Building(element.Element):
     )
     gross_area = attribute.Attribute(
         default_ps=("Pset_BuildingCommon", "GrossPlannedArea"),
+        unit=ureg.meter ** 2
     )
     net_area = attribute.Attribute(
         default_ps=("Pset_BuildingCommon", "NetAreaPlanned"),
+        unit=ureg.meter ** 2
     )
     number_of_storeys = attribute.Attribute(
         default_ps=("Pset_BuildingCommon", "NumberOfStoreys"),
@@ -1775,6 +1789,7 @@ class Storey(element.Element):
 
     gross_floor_area = attribute.Attribute(
         default_ps=("Qto_BuildingStoreyBaseQuantities", "GrossFloorArea"),
+        unit=ureg.meter ** 2
     )
     # todo make the lookup for height hierarchical
     net_height = attribute.Attribute(
