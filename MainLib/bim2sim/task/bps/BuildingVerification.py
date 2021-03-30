@@ -42,9 +42,12 @@ class BuildingVerification(ITask):
             layers_width, layers_u = self.get_layers_properties(instance)
             if not self.width_comparison(workflow, instance, layers_width):
                 return False
-            if not self.u_value_comparison(instance, layers_u):
+            u_value_comparison = self.u_value_comparison(instance, layers_u)
+            if not u_value_comparison:
                 return False
-            if not self.compare_with_template(instance):
+            elif u_value_comparison == 'valid':
+                return True
+            if not self.compare_with_template(instance, instance.u_value):
                 return False
 
         return True
@@ -80,34 +83,43 @@ class BuildingVerification(ITask):
                 return False
             return True
 
-    @staticmethod
-    def u_value_comparison(instance, layers_u):
+    def u_value_comparison(self, instance, layers_u):
         # critical failure
         if instance.u_value == 0 and layers_u == 0:
             return False
         elif instance.u_value == 0 and layers_u > 0:
             instance.u_value = layers_u
         elif instance.u_value > 0 and layers_u > 0:
-            u_selection = ListDecision(
-                "Multiple possibilities found for u_value\n"
-                "Belonging Item: %s | GUID: %s \n"
-                "Enter 'n' for manual input"
-                % (instance.name, instance.guid),
-                choices=[instance.u_value.m, layers_u.m],
-                global_key='%s_%s_u_value' % (instance.name, instance.guid),
-                allow_skip=True, allow_load=True, allow_save=True,
-                collect=False, quick_decide=not True, context=instance.name,
-                related=instance.guid)
-            u_selection.decide()
-            instance.u_value = u_selection.value * instance.u_value.u
+            if self.compare_with_template(instance, instance.u_value) and \
+                    self.compare_with_template(instance, layers_u):
+                u_selection = ListDecision(
+                    "Multiple possibilities found for u_value\n"
+                    "Belonging Item: %s | GUID: %s \n"
+                    "Enter 'n' for manual input"
+                    % (instance.name, instance.guid),
+                    choices=[instance.u_value.m, layers_u.m],
+                    global_key='%s_%s_u_value' % (instance.name, instance.guid),
+                    allow_skip=True, allow_load=True, allow_save=True,
+                    collect=False, quick_decide=not True, context=instance.name,
+                    related=instance.guid)
+                u_selection.decide()
+                instance.u_value = u_selection.value * instance.u_value.u
+            elif not self.compare_with_template(instance, instance.u_value) and \
+                    self.compare_with_template(instance, layers_u):
+                instance.u_value = layers_u
+            elif self.compare_with_template(instance, instance.u_value) and \
+                    not self.compare_with_template(instance, layers_u):
+                return 'valid'
+            else:
+                return False
         return True
 
-    def compare_with_template(self, instance, threshold=0.2):
+    def compare_with_template(self, instance, u_value, threshold=0.2):
         instance_type = type(instance).__name__
         template_instance_range = self.template_range[instance_type]
         # check u_value
         if template_instance_range[0] * (1 - threshold) \
-                <= instance.u_value.m <= template_instance_range[-1] * (1 + threshold):
+                <= u_value.m <= template_instance_range[-1] * (1 + threshold):
             return True
         return False
 
