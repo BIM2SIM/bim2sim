@@ -61,6 +61,15 @@ class TestEPIntegration(unittest.TestCase):
             success = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
             self.assertTrue(success)
 
+    def test_base_KHH(self):
+        """Test KIT KHH 3 storey IFC"""
+        rel_path = 'ExampleFiles/KIT-EDC.ifc'
+        answers = ('ARCHICAD-64', True, True, 'heavy', 2015,
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
+        with Decision.debug_answer(answers, multi=True):
+            success = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
+            self.assertTrue(success)
+
 
 if __name__ == '__main__':
     unittest.main()
