@@ -74,10 +74,7 @@ class EnrichMaterial(ITask):
                     selected_material = self.material_selection_decision(new_material, layer.parent, material_options)
                     if material is None:
                         layer.material = selected_material
-                    try:
-                        self.material_selected[material] = resumed[selected_material]
-                    except KeyError:
-                        print()
+                    self.material_selected[material] = resumed[selected_material]
                 else:
                     self.material_selected[material] = {}
                     for attr in attributes:

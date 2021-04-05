@@ -8,7 +8,7 @@ from .base import IntegrationBase
 # WARNING: run only one test per interpreter Instance.
 # To use tests uncomment line below und run single test
 # ------------------------------------------------------------------------------
-# raise unittest.SkipTest("Integration tests not reliable for automated use")
+raise unittest.SkipTest("Integration tests not reliable for automated use")
 
 
 class TestIntegrationTEASER(IntegrationBase, unittest.TestCase):
@@ -16,7 +16,6 @@ class TestIntegrationTEASER(IntegrationBase, unittest.TestCase):
     # def test_run_kitfzkhaus_test1(self):
     #     """Run project with AC20-FZK-Haus.ifc"""
     #     ifc = 'AC20-FZK-Haus.ifc'
-    #     # todo add answers, in disaggreagtion branch
     #     # test -> spaces-low, layer-low
     #     answers = (True, True, 'Living', 'heavy', 'EnEv')
     #     with bim2sim.decision.Decision.debug_answer(answers, multi=True):
@@ -35,7 +34,6 @@ class TestIntegrationTEASER(IntegrationBase, unittest.TestCase):
     # def test_run_kitfzkhaus_test2(self):
     #     """Run project with AC20-FZK-Haus.ifc"""
     #     ifc = 'AC20-FZK-Haus.ifc'
-    #     # todo add answers, in disaggreagtion branch
     #     # test -> spaces-medium, layer-low
     #     answers = (True, True, 'Kitchen - preparations, storage', 'heavy', 'EnEv', False)
     #     with bim2sim.decision.Decision.debug_answer(answers, multi=True):
