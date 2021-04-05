@@ -73,7 +73,7 @@ def get_pattern_usage(translate=False):
     pattern_usage_teaser = {}
     for i in use_conditions:
         pattern_usage_teaser[i] = []
-        list_engl = re.sub('\((.*?)\)', '', i).replace(' - ', ', ').replace(' and ', ', ').replace(' in ', ', ') \
+        list_engl = re.sub(r'\((.*?)\)', '', i).replace(' - ', ', ').replace(' and ', ', ').replace(' in ', ', ') \
             .replace(' with ', ', ').replace(' or ', ', ').replace(' the ', ' ').split(', ')
         for i_eng in list_engl:
             new_i_eng = i_eng.replace(' ', '(.*?)')
@@ -84,7 +84,7 @@ def get_pattern_usage(translate=False):
         if translate:
             trans = ts.bing(i, from_language='en', to_language='de')
 
-            list_de = re.sub('\((.*?)\)', '', trans).replace(' - ', ', ').replace(' and ', ', ').replace(' in ', ', ') \
+            list_de = re.sub(r'\((.*?)\)', '', trans).replace(' - ', ', ').replace(' and ', ', ').replace(' in ', ', ') \
                 .replace(' with ', ', ').replace(' or ', ', ').replace(' the ', ' ').split(', ')
             for i_de in list_de:
                 new_i_de = i_de.replace(' ', '(.*?)')

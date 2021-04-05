@@ -138,7 +138,7 @@ class EnrichNonValid(ITask):
         if len(material_options) > 1:
             material_selected = EnrichMaterial.material_selection_decision(material_input, instance, material_options)
         else:
-            print()
+            material_selected = material_options[0]
         self.material_selected[material_input] = resumed[material_selected]
 
     @staticmethod

@@ -12,7 +12,7 @@ from bim2sim.kernel.units import ifcunits, ureg, ifc_pint_unitmap, parse_ifc
 from jinja2 import Environment, FileSystemLoader
 from dill.source import getsource
 from bs4 import BeautifulSoup
-# from Ifc import SchemaParser
+from Ifc import SchemaParser
 from bim2sim.decision import BoolDecision, ListDecision
 from bim2sim.assets.IFCparser import elements_functions
 
@@ -58,7 +58,7 @@ class LoadIFC(ITask):
 
         ifcunits.update(**self.get_ifcunits(ifc))
 
-        self.get_ifc_structure(ifc)
+        # self.get_ifc_structure(ifc)
 
         self.logger.info("The exporter version of the IFC file is '%s'",
                          ifc.wrapped_data.header.file_name.originating_system)
@@ -152,7 +152,7 @@ class LoadIFC(ITask):
                         s_index = instance_str.index(instance_line)
                         aux_str = instance_str[s_index:]
                         for instance_line2 in aux_str[1:]:
-                            if re.compile('    \)(.*?)', flags=re.IGNORECASE).match(instance_line2):
+                            if re.compile(r'    \)(.*?)', flags=re.IGNORECASE).match(instance_line2):
                                 f_index = aux_str.index(instance_line2)
                                 attr_lines = aux_str[1:f_index]
                                 new_attr_lines = []
@@ -165,7 +165,7 @@ class LoadIFC(ITask):
                         s_index = instance_str.index(instance_line)
                         aux_str = instance_str[s_index:]
                         for instance_line2 in aux_str[1:]:
-                            if re.compile('    \]', flags=re.IGNORECASE).match(instance_line2):
+                            if re.compile(r'    \]', flags=re.IGNORECASE).match(instance_line2):
                                 f_index = aux_str.index(instance_line2)
                                 attr_lines = aux_str[1:f_index]
                                 new_attr_lines = []
@@ -178,7 +178,7 @@ class LoadIFC(ITask):
                         s_index = instance_str.index(instance_line)
                         aux_str = instance_str[s_index:]
                         for instance_line2 in aux_str[1:]:
-                            if re.compile('    \]', flags=re.IGNORECASE).match(instance_line2):
+                            if re.compile(r'    \]', flags=re.IGNORECASE).match(instance_line2):
                                 f_index = aux_str.index(instance_line2)
                                 attr_lines = aux_str[1:f_index]
                                 new_attr_lines = []
@@ -436,7 +436,3 @@ class LoadIFC(ITask):
                 fd.write("\n__all__ = [ele for ele in locals().values() if ele in element.Element.__subclasses__()]")
                 fd.write("\nschema = '%s'\n" % ifc.schema)
                 fd.close()
-        print()
-
-
-

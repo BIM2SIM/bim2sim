@@ -74,7 +74,10 @@ class EnrichMaterial(ITask):
                     selected_material = self.material_selection_decision(new_material, layer.parent, material_options)
                     if material is None:
                         layer.material = selected_material
-                    self.material_selected[material] = resumed[selected_material]
+                    try:
+                        self.material_selected[material] = resumed[selected_material]
+                    except KeyError:
+                        print()
                 else:
                     self.material_selected[material] = {}
                     for attr in attributes:
@@ -134,7 +137,7 @@ class EnrichMaterial(ITask):
         else:
             if isinstance(value, ureg.Quantity):
                 value = value.m
-            if 0 < value <= available_width:
+            if 0 < value < available_width:
                 return True
             return False
 
