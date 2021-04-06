@@ -1,5 +1,7 @@
 from bim2sim.task.base import Task, ITask
 from bim2sim.task.common.common_functions import angle_equivalent
+from bim2sim.workflow import Workflow
+from bim2sim.kernel.element import Element
 
 
 class OrientationGetter(ITask):
@@ -14,7 +16,7 @@ class OrientationGetter(ITask):
         pass
 
     @Task.log
-    def run(self, workflow, instances):
+    def run(self, workflow: Workflow, instances: dict):
         self.logger.info("setting verifications")
 
         for guid, ins in instances.items():
@@ -27,7 +29,8 @@ class OrientationGetter(ITask):
         return self.corrected,
 
     @staticmethod
-    def orientation_verification(instance):
+    def orientation_verification(instance: Element):
+        """gets new angle based on space boundaries and compares it with the geometric value"""
         vertical_instances = ['Window', 'OuterWall', 'OuterDoor', 'Wall', 'Door']
         horizontal_instances = ['Slab', 'Roof', 'Floor', 'GroundFloor']
         switcher = {'Slab': -1,
