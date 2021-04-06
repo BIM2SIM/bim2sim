@@ -7,10 +7,14 @@ from bim2sim.workflow import LOD
 from functools import partial
 from bim2sim.task.common.common_functions import get_material_templates
 from bim2sim.kernel.units import ureg
+from bim2sim.workflow import Workflow
+from bim2sim.kernel.element import Element
+from bim2sim.kernel.elements import Layer
 
 
 class EnrichMaterial(ITask):
-    """Prepares bim2sim instances to later export"""
+    """Enriches material properties that were recognized as invalid
+    LOD.layers = Medium & Full"""
 
     reads = ('instances', 'invalid_materials',)
     touches = ('enriched_materials',)
@@ -22,7 +26,7 @@ class EnrichMaterial(ITask):
         pass
 
     @Task.log
-    def run(self, workflow, instances, invalid_materials):
+    def run(self, workflow: Workflow, instances: dict, invalid_materials: list):
         self.logger.info("setting verifications")
         if workflow.layers is not LOD.low:
             for instance in invalid_materials:
@@ -32,28 +36,33 @@ class EnrichMaterial(ITask):
 
         return self.enriched_materials,
 
-    def get_layer_properties(self, instance):
+    def get_layer_properties(self, instance: Element):
+        """gets all layers of instance to after treatment"""
         if hasattr(instance, 'layers'):
             for layer in instance.layers:
                 self.set_material_properties(layer)
 
-    def set_material_properties(self, layer):
+    def set_material_properties(self, layer: Layer):
+        """enrich layer properties that are invalid"""
         values, units = self.get_layer_attributes(layer)
         new_attributes = self.get_material_properties(layer, units)
         for attr, value in values.items():
             if value == 'invalid':
+                # case all other properties
                 if attr != 'thickness':
                     if not self.validate_manual_attribute(new_attributes[attr]):
                         self.manual_attribute_value(attr, units[attr], layer)
                     # todo check with christian if this is clean
                     setattr(layer, attr, new_attributes[attr])
+                # case thickness
                 else:
                     if not self.validate_thickness(layer, new_attributes[attr]):
                         self.manual_thickness_value(attr, units[attr], layer)
                     # todo check with christian if this is clean
                     setattr(layer, attr, new_attributes[attr])
 
-    def get_material_properties(self, layer, attributes):
+    def get_material_properties(self, layer: Layer, attributes: dict):
+        """get new attribute value, based on template or manual enrichment"""
         material = re.sub(r'[^\w]*?[0-9]', '', layer.material)
         if material not in self.material_selected:
             resumed = self.get_resumed_material_templates(attributes)
@@ -78,24 +87,28 @@ class EnrichMaterial(ITask):
                 else:
                     self.material_selected[material] = {}
                     for attr in attributes:
-                        self.manual_attribute_value(attr, attributes[attr], layer)
+                        if attr != 'thickness':
+                            self.manual_attribute_value(attr, attributes[attr], layer)
+                        else:
+                            self.manual_thickness_value(attr, attributes[attr], layer)
             else:
                 self.material_selected[material] = selected_properties
         return self.material_selected[material]
 
     @staticmethod
-    def get_layer_attributes(layer):
+    def get_layer_attributes(layer: Layer):
+        """get actual values and units of layer attributes"""
         values = {}
         units = {}
         for attr in layer.attributes:
             value = getattr(layer, attr)
             values[attr] = value.m
-            # values[attr] = 'invalid'
             units[attr] = value.u
 
         return values, units
 
-    def manual_attribute_value(self, attr, unit, layer):
+    def manual_attribute_value(self, attr: str, unit: ureg.Unit, layer: Layer):
+        """manual enrichment of attribute, with unit handling"""
         material = re.sub(r'[^\w]*?[0-9]', '', layer.material)
         attr_decision = RealDecision("Enter value for the material %s for: \n"
                                      "Belonging Item: %s | GUID: %s"
@@ -110,17 +123,20 @@ class EnrichMaterial(ITask):
 
     @staticmethod
     def validate_manual_attribute(value):
+        """validation function of manual enrichment and attribute setting - not thickness"""
         if value <= 0.0:
             return False
         return True
 
     @classmethod
-    def validate_new_material(cls, resumed_keys, value):
+    def validate_new_material(cls, resumed_keys: list, value: str):
+        """validation function of str new material, if it matches with templates"""
         if len(cls.get_matches_list(value, resumed_keys)) == 0:
             return False
         return True
 
-    def validate_thickness(self, layer, value):
+    def validate_thickness(self, layer: Layer, value):
+        """validation function of manual enrichment and attribute setting - thickness"""
         material = re.sub(r'[^\w]*?[0-9]', '', layer.material)
         instance_width = layer.parent.width
         layers_list = layer.parent.layers
@@ -138,7 +154,8 @@ class EnrichMaterial(ITask):
                 return True
             return False
 
-    def manual_thickness_value(self, attr, unit, layer):
+    def manual_thickness_value(self, attr: str, unit: ureg.Unit, layer: Layer):
+        """decision to enrich an attribute by manual"""
         material = re.sub(r'[^\w]*?[0-9]', '', layer.material)
         attr_decision = RealDecision("Enter value for the material %s "
                                      "it must be < %s\n"
@@ -153,7 +170,8 @@ class EnrichMaterial(ITask):
         self.material_selected[material][attr] = attr_decision.value
 
     @staticmethod
-    def get_resumed_material_templates(attrs=None):
+    def get_resumed_material_templates(attrs: dict = None) -> dict:
+        """get dict with the material templates and its respective attributes"""
         material_templates = get_material_templates()
         resumed = {}
         for k in material_templates:
@@ -173,7 +191,7 @@ class EnrichMaterial(ITask):
         return resumed
 
     @staticmethod
-    def get_matches_list(search_words, search_list, transl=True):
+    def get_matches_list(search_words: str, search_list: list, transl: bool = True) -> list:
         """get patterns for a material name in both english and original language,
         and get afterwards the related elements from list"""
 
@@ -198,7 +216,9 @@ class EnrichMaterial(ITask):
         return material_options
 
     @classmethod
-    def material_options_decision(cls, resumed, layer, material):
+    def material_options_decision(cls, resumed: dict, layer: Layer, material: str) -> [list, str]:
+        """get list of matching materials
+        if material has no matches, more common name necessary"""
         material_options = cls.get_matches_list(material, list(resumed.keys()))
         if len(material_options) == 0:
             material_decision = StringDecision(
@@ -217,7 +237,8 @@ class EnrichMaterial(ITask):
         return material_options, material
 
     @classmethod
-    def material_selection_decision(cls, material_input, parent, material_options):
+    def material_selection_decision(cls, material_input: str, parent: Element, material_options: list):
+        """select one of the material of given matches list"""
         material_selection = ListDecision(
             "Multiple possibilities found for material %s\n"
             "Belonging Item: %s | GUID: %s \n"
