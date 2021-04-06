@@ -58,6 +58,10 @@ def logging_setup():
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(formatter)
     root_logger.addHandler(stream_handler)
+    # File
+    # file_handler = logging.FileHandler(os.path.join(PROJECT.log, "bim2sim.log"))
+    # file_handler.setFormatter(formatter)
+    # root_logger.addHandler(file_handler)
 
     root_logger.setLevel(logging.DEBUG)
 
