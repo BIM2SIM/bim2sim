@@ -54,7 +54,6 @@ class LoadIFC(ITask):
             ifc_path = path
         else:
             raise AssertionError("No ifc found. Check '%s'" % path)
-
         ifc = ifc2python.load_ifc(os.path.abspath(ifc_path))
 
         ifcunits.update(**self.get_ifcunits(ifc))
