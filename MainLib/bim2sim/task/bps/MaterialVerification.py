@@ -2,6 +2,7 @@ from bim2sim.workflow import LOD
 from bim2sim.task.base import Task, ITask
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.element import Element
+from bim2sim.kernel.units import ureg
 
 
 class MaterialVerification(ITask):
@@ -40,11 +41,9 @@ class MaterialVerification(ITask):
         return invalid
 
     @staticmethod
-    def value_verification(attr: str, value):
+    def value_verification(attr: str, value: ureg.Quantity):
         """checks validity of the properties if they are on the blacklist"""
         blacklist = ['density', 'thickness', 'heat_capac', 'thermal_conduc']
-        if attr in blacklist:
-            print()
         if (value <= 0 or value is None) and attr in blacklist:
             return False
         return True
