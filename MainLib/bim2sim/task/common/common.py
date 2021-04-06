@@ -15,6 +15,7 @@ from bs4 import BeautifulSoup
 from Ifc import SchemaParser
 from bim2sim.decision import BoolDecision, ListDecision
 from bim2sim.assets.IFCparser import elements_functions
+from ifcopenshell.file import file
 
 
 class Reset(ITask):
@@ -81,7 +82,8 @@ class LoadIFC(ITask):
         return None
 
     @staticmethod
-    def get_ifcunits(ifc):
+    def get_ifcunits(ifc: file):
+        """Returns dict with units available on ifc file"""
 
         unit_assignment = ifc.by_type('IfcUnitAssignment')
 
@@ -290,7 +292,7 @@ class LoadIFC(ITask):
                 f.close()
         print()
 
-    def get_ifc_structure(self, ifc):
+    def get_ifc_structure(self, ifc: file):
         """creates elements.py file based on elements_specific_schema.json, elements_functions.py
             and schema for specific schema of ifc"""
         from bim2sim.kernel import elements
