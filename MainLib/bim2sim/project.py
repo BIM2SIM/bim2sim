@@ -337,7 +337,7 @@ class Project:
             config.read(self.paths.config)
         return config
 
-    def run(self, interactive=False):
+    def run(self, interactive=False, cleanup=True):
         """Run project"""
         if not self.paths.is_project_folder():
             raise AssertionError("Project ist not set correctly!")
@@ -357,7 +357,8 @@ class Project:
         except Exception as ex:
             logger.exception("Something went wrong!")
         finally:
-            self.finalize(success=success)
+            if cleanup:
+                self.finalize(success=success)
         return 0 if success else -1
 
     def _run_default(self, plugin=None):
