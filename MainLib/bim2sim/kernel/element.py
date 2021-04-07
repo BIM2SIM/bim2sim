@@ -804,9 +804,9 @@ class SubElement(BaseElement, IFCBased):
     @property
     def source_tool(self):
         """Name of tool that the parent has been created with"""
-        if hasattr(self.parent, 'source_tool'):
-            self._tool = self.parent.source_tool
-        return self._tool
+        if not self.__class__._source_tool:
+            self.__class__._source_tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
+        return self.__class__._source_tool
 
     def __repr__(self):
         return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)

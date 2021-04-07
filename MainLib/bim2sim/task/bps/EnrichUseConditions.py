@@ -1,14 +1,14 @@
-import translators as ts
-
 from bim2sim.task.base import Task, ITask
 from bim2sim.workflow import LOD
 from bim2sim.task.common.common_functions import get_usage_list, get_pattern_usage
-from bim2sim.project import PROJECT
 from bim2sim.decision import ListDecision
+from bim2sim.workflow import Workflow
+from bim2sim.kernel.elements import ThermalZone
 
 
 class EnrichUseConditions(ITask):
-    """Prepares bim2sim instances to later export"""
+    """Enriches Use Conditions of thermal zones
+    based on decisions and translation of zone names"""
 
     reads = ('tz_instances',)
     touches = ('enriched_tz',)
@@ -18,27 +18,32 @@ class EnrichUseConditions(ITask):
         self.enriched_tz = []
 
     @Task.log
-    def run(self, workflow, tz_instances):
+    def run(self, workflow: Workflow, tz_instances: dict):
         self.logger.info("enriches thermal zones usage")
+        # case no thermal zones found
         if len(tz_instances) == 0:
             self.logger.warning("Found no spaces to bind")
         else:
+            # one zone case
             if workflow.spaces is LOD.low:
-                self.one_zone_usage(list(tz_instances.values()))
+                self.one_zone_usage(tz_instances)
+            # aggregation and separated zones case
             else:
-                self.multi_zone_usage(list(tz_instances.values()))
+                self.multi_zone_usage(tz_instances)
             self.logger.info("obtained %d thermal zones", len(self.enriched_tz))
 
         return self.enriched_tz,
 
-    def multi_zone_usage(self, thermal_zones):
+    def multi_zone_usage(self, thermal_zones: dict):
+        """defines an usage to a determined thermal zone"""
         pattern_usage = get_pattern_usage()
-        for tz in thermal_zones:
+        for tz in list(thermal_zones.values()):
             if tz.usage is None:
                 matches = []
                 if tz.zone_name:
-                    list_org = tz.zone_name.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
-                    for usage, patterns in pattern_usage.items(): # optimize this
+                    list_org = tz.zone_name.replace(' (', ' ').replace(')', ' '). \
+                        replace(' -', ' ').replace(', ', ' ').split()
+                    for usage, patterns in pattern_usage.items():  # optimize this
                         for i in patterns:
                             for i_name in list_org:
                                 if i.match(i_name):
@@ -46,8 +51,10 @@ class EnrichUseConditions(ITask):
                                         matches.append(usage)
                 # if just a match given
                 if len(matches) == 1:
+                    # case its an office
                     if 'office_function' == matches[0]:
                         tz.usage = self.office_usage(tz)
+                    # other zone usage
                     else:
                         tz.usage = matches[0]
                     self.enriched_tz.append(tz)
@@ -58,7 +65,8 @@ class EnrichUseConditions(ITask):
                 tz.usage = self.list_decision_usage(tz, matches)
                 self.enriched_tz.append(tz)
 
-    def one_zone_usage(self, thermal_zones):
+    def one_zone_usage(self, thermal_zones: dict):
+        """defines an usage to all the building - since its a singular zone"""
         usage_decision = ListDecision("Which usage does the one_zone_building %s have?",
                                       choices=get_usage_list(),
                                       global_key="one_zone_usage",
@@ -67,17 +75,18 @@ class EnrichUseConditions(ITask):
                                       allow_save=True,
                                       quick_decide=not True)
         usage_decision.decide()
-        for tz in thermal_zones:
+        for tz in list(thermal_zones.values()):
             tz.usage = usage_decision.value
             self.enriched_tz.append(tz)
 
-    def office_usage(self, tz):
-        """function to determine which office corresponds based
-        https://skepp.com/en/blog/office-tips/this-is-how-many-square-meters-of-office-space-you-need-per-person
-        table"""
+    def office_usage(self, tz: ThermalZone):
+        """function to determine which office corresponds based on the area of the thermal zone and the table on:
+        https://skepp.com/en/blog/office-tips/this-is-how-many-square-meters-of-office-space-you-need-per-person"""
+
         default_matches = ["Single office", "Group Office (between 2 and 6 employees)",
                            "Open-plan Office (7 or more employees)"]
         area = tz.area.m
+        # case area its available
         if area is not None:
             if area <= 7:
                 return default_matches[0]
@@ -85,11 +94,13 @@ class EnrichUseConditions(ITask):
                 return default_matches[1]
             else:
                 return default_matches[2]
+        # case area not available
         else:
             self.list_decision_usage(tz, default_matches)
 
     @staticmethod
-    def list_decision_usage(tz, matches):
+    def list_decision_usage(tz: ThermalZone, matches: list):
+        """decision to select an usage that matches the zone name"""
         usage_decision = ListDecision("Which usage does the Space %s have?" %
                                       (str(tz.zone_name)),
                                       choices=matches,
