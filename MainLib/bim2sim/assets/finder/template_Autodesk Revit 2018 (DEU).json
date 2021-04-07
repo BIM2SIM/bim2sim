@@ -121,7 +121,7 @@
       "width" : ["BaseQuantities", "Width"],
       "t_set_heat" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMin"],
       "t_set_cool" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMax"],
-      "with_AHU": ["Pset_SpaceThermalRequirements", "AirConditioning"],
+      "with_ahu": ["Pset_SpaceThermalRequirements", "AirConditioning"],
       "AreaPerOccupant": ["Pset_SpaceOccupancyRequirements", "AreaPerOccupant"]
 
     }

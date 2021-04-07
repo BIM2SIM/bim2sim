@@ -5,6 +5,8 @@ from bim2sim.decision import ListDecision
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.elements import ThermalZone
 
+UseConditions = get_usage_list()
+
 
 class EnrichUseConditions(ITask):
     """Enriches Use Conditions of thermal zones
@@ -24,12 +26,7 @@ class EnrichUseConditions(ITask):
         if len(tz_instances) == 0:
             self.logger.warning("Found no spaces to bind")
         else:
-            # one zone case
-            if workflow.spaces is LOD.low:
-                self.one_zone_usage(tz_instances)
-            # aggregation and separated zones case
-            else:
-                self.multi_zone_usage(tz_instances)
+            self.multi_zone_usage(tz_instances)
             self.logger.info("obtained %d thermal zones", len(self.enriched_tz))
 
         return self.enriched_tz,
@@ -57,27 +54,29 @@ class EnrichUseConditions(ITask):
                     # other zone usage
                     else:
                         tz.usage = matches[0]
+                    self.load_usage(tz)
                     self.enriched_tz.append(tz)
                     continue
                 # if no matches given
                 elif len(matches) == 0:
                     matches = list(pattern_usage.keys())
                 tz.usage = self.list_decision_usage(tz, matches)
+                self.load_usage(tz)
                 self.enriched_tz.append(tz)
 
-    def one_zone_usage(self, thermal_zones: dict):
-        """defines an usage to all the building - since its a singular zone"""
-        usage_decision = ListDecision("Which usage does the one_zone_building %s have?",
-                                      choices=get_usage_list(),
-                                      global_key="one_zone_usage",
-                                      allow_skip=False,
-                                      allow_load=True,
-                                      allow_save=True,
-                                      quick_decide=not True)
-        usage_decision.decide()
-        for tz in list(thermal_zones.values()):
-            tz.usage = usage_decision.value
-            self.enriched_tz.append(tz)
+    # def one_zone_usage(self, thermal_zones: dict):
+    #     """defines an usage to all the building - since its a singular zone"""
+    #     usage_decision = ListDecision("Which usage does the one_zone_building %s have?",
+    #                                   choices=list(UseConditions.keys()),
+    #                                   global_key="one_zone_usage",
+    #                                   allow_skip=False,
+    #                                   allow_load=True,
+    #                                   allow_save=True,
+    #                                   quick_decide=not True)
+    #     usage_decision.decide()
+    #     for tz in list(thermal_zones.values()):
+    #         tz.usage = usage_decision.value
+    #         self.enriched_tz.append(tz)
 
     def office_usage(self, tz: ThermalZone):
         """function to determine which office corresponds based on the area of the thermal zone and the table on:
@@ -111,3 +110,16 @@ class EnrichUseConditions(ITask):
                                       quick_decide=not True)
         usage_decision.decide()
         return usage_decision.value
+
+    @staticmethod
+    def load_usage(tz: ThermalZone):
+        whitelist = ['t_set_cool', 't_set_heat', 'with_cooling', 'with_heating', 'with_ahu']
+        use_condition = UseConditions[tz.usage]
+        for attr in whitelist:
+            overwrite_attr = getattr(tz, attr)
+            if overwrite_attr is not None:
+                use_condition[attr] = overwrite_attr
+
+        setattr(tz, 'use_condition', use_condition)
+        print()
+

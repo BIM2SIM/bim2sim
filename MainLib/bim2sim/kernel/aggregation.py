@@ -1526,7 +1526,8 @@ class Aggregated_ThermalZone(Aggregation):
 
     def _bool_calc(self, name):
         """bool properties getter
-        bool_attributes = ['with_cooling', 'with_heating', 'with_AHU']"""
+        bool_attributes = ['with_cooling', 'with_heating', 'with_ahu']"""
+        # todo: log
         prop_bool = False
         for tz in self.elements:
             prop = getattr(tz, name)
@@ -1573,7 +1574,7 @@ class Aggregated_ThermalZone(Aggregation):
     with_heating = attribute.Attribute(
         functions=[_bool_calc]
     )
-    with_AHU = attribute.Attribute(
+    with_ahu = attribute.Attribute(
         functions=[_bool_calc]
     )
     AreaPerOccupant = attribute.Attribute(

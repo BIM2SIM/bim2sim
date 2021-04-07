@@ -737,7 +737,7 @@ class ThermalZone(element.Element):
     with_heating = attribute.Attribute(
         functions=[_get_heating]
     )
-    with_AHU = attribute.Attribute(
+    with_ahu = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "AirConditioning"),
     )
     AreaPerOccupant = attribute.Attribute(

@@ -528,7 +528,7 @@
       "t_set_cool" : {
         "base": ["Pset_SpaceThermalRequirements", "SpaceTemperatureMax"]
       },
-      "with_AHU": {
+      "with_ahu": {
         "base": ["Pset_SpaceThermalRequirements", "AirConditioning"]
       },
       "AreaPerOccupant": {

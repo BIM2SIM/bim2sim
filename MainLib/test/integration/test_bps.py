@@ -22,14 +22,14 @@ class TestIntegrationTEASER(IntegrationBase, unittest.TestCase):
             return_code = self.run_project(ifc, 'TEASER')
         self.assertEqual(0, return_code, "Project did not finish successfully.")
 
-    # def test_run_kitoffice_test1(self):
-    #     """Run project with AC20-Institute-Var-2.ifc"""
-    #     ifc = 'AC20-Institute-Var-2.ifc'
-    #     # test -> spaces-low, layer-low
-    #     answers = (True, True, 'Open-plan Office (7 or more employees)', 2015, 'heavy', 'EnEv')
-    #     with bim2sim.decision.Decision.debug_answer(answers, multi=True):
-    #         return_code = self.run_project(ifc, 'TEASER')
-    #     self.assertEqual(0, return_code, "Project did not finish successfully.")
+    def test_run_kitoffice_test1(self):
+        """Run project with AC20-Institute-Var-2.ifc"""
+        ifc = 'AC20-Institute-Var-2.ifc'
+        # test -> spaces-low, layer-low
+        answers = (True, True, 'Open-plan Office (7 or more employees)', 2015, 'heavy', 'EnEv')
+        with bim2sim.decision.Decision.debug_answer(answers, multi=True):
+            return_code = self.run_project(ifc, 'TEASER')
+        self.assertEqual(0, return_code, "Project did not finish successfully.")
 
     # def test_run_kitfzkhaus_test2(self):
     #     """Run project with AC20-FZK-Haus.ifc"""
