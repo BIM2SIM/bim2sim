@@ -1511,36 +1511,22 @@ class Aggregated_ThermalZone(Aggregation):
         return new_aggregations
 
     def _intensive_calc(self, name):
-        """intensive properties getter"""
-        valid = 0
-        prop_sum = 0
-        for tz in self.elements:
-            prop = getattr(tz, name)
-            if prop is not None:
-                if hasattr(prop, 'm'):
-                    prop_sum += prop.m
-                else:
-                    prop_sum += prop
-                valid += 1
-        if valid > 0:
-            return prop_sum / valid
-        else:
-            return None
+        """intensive properties getter - volumetric mean
+        intensive_attributes = ['t_set_heat', 't_set_cool', 'height',  'AreaPerOccupant']"""
+        prop_sum = sum(getattr(tz, name) * tz.volume for tz in self.elements if getattr(tz, name) is not None
+                       and tz.volume is not None)
+        vol_total = sum(tz.volume for tz in self.elements if tz.volume is not None)
+        return prop_sum / vol_total
 
     def _extensive_calc(self, name):
-        """extensive properties getter"""
-        prop_sum = 0
-        for tz in self.elements:
-            prop = getattr(tz, name)
-            if prop is not None:
-                if hasattr(prop, 'm'):
-                    prop_sum += prop.m
-                else:
-                    prop_sum += prop
+        """extensive properties getter
+        intensive_attributes = ['area', 'volume']"""
+        prop_sum = sum(getattr(tz, name) for tz in self.elements if getattr(tz, name) is not None )
         return prop_sum
 
     def _bool_calc(self, name):
-        """bool properties getter"""
+        """bool properties getter
+        bool_attributes = ['with_cooling', 'with_heating', 'with_AHU']"""
         prop_bool = False
         for tz in self.elements:
             prop = getattr(tz, name)
@@ -1570,6 +1556,10 @@ class Aggregated_ThermalZone(Aggregation):
         unit=ureg.meter ** 2
     )
     net_volume = attribute.Attribute(
+        functions=[_extensive_calc],
+        unit=ureg.meter ** 3
+    )
+    volume = attribute.Attribute(
         functions=[_extensive_calc],
         unit=ureg.meter ** 3
     )

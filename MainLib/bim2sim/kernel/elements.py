@@ -688,6 +688,9 @@ class ThermalZone(element.Element):
         volume = props.Mass()
         return volume
 
+    def _get_volume(self, name):
+        return self.area*self.height
+
     usage = attribute.Attribute(
     )
     t_set_heat = attribute.Attribute(
@@ -707,6 +710,11 @@ class ThermalZone(element.Element):
     )
     net_volume = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "NetVolume"),
+        default=0
+    )
+    volume = attribute.Attribute(
+        functions=[_get_volume],
+        unit=ureg.meter**3,
         default=0
     )
     height = attribute.Attribute(
@@ -734,6 +742,7 @@ class ThermalZone(element.Element):
     )
     AreaPerOccupant = attribute.Attribute(
         default_ps=("Pset_SpaceOccupancyRequirements", "AreaPerOccupant"),
+        unit=ureg.meter ** 2
     )
     space_center = attribute.Attribute(
         functions=[get_center_of_space]
