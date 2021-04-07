@@ -16,7 +16,7 @@ import pkg_resources
 from bim2sim.kernel import ifc2python
 from bim2sim.manage import BIM2SIMManager
 from bim2sim.project import PROJECT, get_config
-from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparated
+from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparated, BPSMultiZoneSeparatedEP
 from bim2sim.decision import Decision
 
 VERSION = '0.1-dev'
@@ -25,7 +25,7 @@ VERSION = '0.1-dev'
 workflow_getter = {'aixlib': PlantSimulation,
                    'teaser': BPSMultiZoneSeparated,
                    'hkesim': PlantSimulation,
-                   'energyplus': BPSMultiZoneSeparated}
+                   'energyplus': BPSMultiZoneSeparatedEP}
 
 
 def get_default_backends():

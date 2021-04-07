@@ -128,3 +128,34 @@ class BPSMultiZoneSeparated(Workflow):
             'IfcAirTerminal',
             'IfcAirTerminalBox',
         )
+
+
+class BPSMultiZoneSeparatedEP(Workflow):
+    """Building performance simulation with every space as single zone
+    separated from each other - no aggregation,
+    used within the EnergyPlus Workflow"""
+
+    def __init__(self):
+        super().__init__(
+            ductwork=LOD.low,
+            hull=LOD.medium,
+            consumer=LOD.low,
+            generator=LOD.ignore,
+            hvac=LOD.low,
+            spaces=LOD.full,
+            layers=LOD.low,
+        )
+        self.relevant_ifc_types = (
+            'IfcSite',
+            'IfcBuilding',
+            'IfcBuildingStorey',
+            'IfcBeam',
+            'IfcWall',
+            'IfcWindow',
+            'IfcDoor',
+            'IfcSlab',
+            'IfcRoof',
+            'IfcSpaceHeater',
+            'IfcAirTerminal',
+            'IfcAirTerminalBox',
+        )
