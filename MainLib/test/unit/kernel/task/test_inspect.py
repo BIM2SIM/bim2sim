@@ -36,44 +36,40 @@ class TestInspect(unittest.TestCase):
     def setUpClass(cls):
         cls.test_dir = tempfile.TemporaryDirectory()
         print(cls.test_dir.name)
-        cls.project = Project.create(cls.test_dir.name, default_plugin='test')
+
+        # create initial folder structure
+        project = Project.create(cls.test_dir.name, default_plugin='test')
+        # deactivate created project
+        project.finalize(True)
 
         IFCBased.finder.enabled = False
 
     @classmethod
     def tearDownClass(cls):
-        print('tear down class')
-        cls.project.finalize()
-        try:
-            cls.test_dir.cleanup()
-        except PermissionError:
-            # for unknown reason the empty folder contend is cleared but folder itself cant be removed --> ignore
-            pass
+        cls.test_dir.cleanup()
+
         IFCBased.finder.enabled = True
 
-    def tearDown(self):
-        # clear objects
-        for r in Root.objects.copy().values():
-            r.discard()
+    def setUp(self) -> None:
+        self.project = Project(self.test_dir.name)
 
-        Decision.reset_decisions()
+    def tearDown(self):
+        self.project.finalize()
 
     def test_case_1(self):
         """HeatExchange with 4 (semantically) connected pipes"""
-        project = Project(self.test_dir.name)
         with patch.object(FolderStructure, 'ifc', sample_root / 'B01_2_HeatExchanger_Pipes.ifc'):
             with Decision.debug_answer('IfcHeatPump', validate=True):
-                project.run()
+                self.project.run(cleanup=False)
 
         heat_exchanger = Root.objects.get('0qeZDHlQRzcKJYopY4$fEf')
         self.assertEqual(4, len([port for port in heat_exchanger.ports if port.connection]))
 
     def test_case_2(self):
         """HeatExchange and Pipes are exported without ports"""
-        project = Project(self.test_dir.name)
         with patch.object(FolderStructure, 'ifc', sample_root / 'B01_3_HeatExchanger_noPorts.ifc'):
             with Decision.debug_answer('IfcHeatPump', validate=True):
-                project.run()
+                self.project.run(cleanup=False)
 
         heat_exchanger = Root.objects.get('0qeZDHlQRzcKJYopY4$fEf')
         self.assertEqual(0, len([port for port in heat_exchanger.ports if port.connection]))
@@ -82,20 +78,18 @@ class TestInspect(unittest.TestCase):
 
     def test_case_3(self):
         """No connections but ports are less than 10 mm apart"""
-        project = Project(self.test_dir.name)
         with patch.object(FolderStructure, 'ifc', sample_root / 'B01_4_HeatExchanger_noConnection.ifc'):
             with Decision.debug_answer('IfcHeatPump', validate=True):
-                project.run()
+                self.project.run(cleanup=False)
 
         heat_exchanger = Root.objects.get('3FQzmSvzrgbaIM6zA4FX8S')
         self.assertEqual(4, len([port for port in heat_exchanger.ports if port.connection]))
 
     def test_case_4(self):
         """Mix of case 1 and 3"""
-        project = Project(self.test_dir.name)
         with patch.object(FolderStructure, 'ifc', sample_root / 'B01_5_HeatExchanger_mixConnection.ifc'):
             with Decision.debug_answer('IfcHeatPump', validate=True):
-                project.run()
+                self.project.run(cleanup=False)
 
         heat_exchanger = Root.objects.get('3FQzmSvzrgbaIM6zA4FX8S')
         self.assertEqual(4, len([port for port in heat_exchanger.ports if port.connection]))
