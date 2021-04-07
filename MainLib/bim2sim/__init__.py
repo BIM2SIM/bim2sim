@@ -72,7 +72,7 @@ def logging_setup():
     logging.debug("Logging setup done.")
 
 
-def setup_default(frontend_name='default'):
+def setup_default():
     """Main entry point"""
     logging_setup()
     logger = logging.getLogger(__name__)
@@ -81,6 +81,11 @@ def setup_default(frontend_name='default'):
     # if not plugins:
     #     raise AssertionError("No plugins found!")
 
+    from bim2sim.decision.console import ConsoleFrontEnd
+    Decision.set_frontend(ConsoleFrontEnd())
+
+
+def setup(frontend_name='default'):
     if frontend_name == 'ExternalFrontEnd':
         from bim2sim.decision.external import ExternalFrontEnd as Frontend
     else:
@@ -152,6 +157,8 @@ def _debug_run_cfd():
 
     project.run()
 
+
+setup_default()
 
 if __name__ == '__main__':
     # _debug_run_cfd()
