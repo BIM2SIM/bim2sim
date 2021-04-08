@@ -2509,7 +2509,8 @@ class ExportEP(ITask):
                         opening_obj.related_parent_bound.bound_shape,
                         Extrema_ExtFlag_MIN
                     ).Value()
-
+                    if distance < 0.001:
+                        continue
                     prod_vec = []
                     for i in opening_obj.bound_normal.Coord():
                         prod_vec.append(distance * i)
@@ -2540,6 +2541,8 @@ class ExportEP(ITask):
                         vec = gp_Vec(coord)
                         trsf.SetTranslation(vec)
                         opening_obj.bound_shape = BRepBuilderAPI_Transform(opening_obj.bound_shape, trsf).Shape()
+                    # update bound center attribute for new shape location
+                    opening_obj.bound_center = SpaceBoundary.get_bound_center(opening_obj, 'bound_center')
 
     @staticmethod
     def _get_parents_and_children(instances):
