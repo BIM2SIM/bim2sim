@@ -37,7 +37,7 @@ class Attribute:
     STATUS_NOT_AVAILABLE = 'NOT_AVAILABLE'
     _force = False
 
-    def __init__(self, name=None,
+    def __init__(self,
                  description="",
                  unit=None,
                  default_ps=None,
@@ -46,8 +46,7 @@ class Attribute:
                  ifc_postprocessing=None,
                  functions=None,
                  default=None):
-        if name:
-            logger.warning("'name' is obsolete. Remove name '%s'" % name)
+
         self.name = None  # auto set by AutoAttributeNameMeta
         self.description = description
         self.unit = unit
