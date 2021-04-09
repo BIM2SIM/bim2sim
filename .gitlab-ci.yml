@@ -18,14 +18,14 @@ build_env:development:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/environment:development -f Environment/Dockerfile .
+    - docker build -t $CI_REGISTRY/environment:development -f Environment/Dockerfile_Base .
     - docker push $CI_REGISTRY/environment:development
   only:
     refs:
        - development
        - 102-fix_CI_bug
     changes:
-       - Environment/Dockerfile
+       - Environment/Dockerfile_Base
        - MainLib/requirements.txt
        - .gitlab-ci.yml
 
@@ -35,13 +35,13 @@ build_env:master:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/environment:master -f Environment/Dockerfile .
+    - docker build -t $CI_REGISTRY/environment:master -f Environment/Dockerfile_Base .
     - docker push $CI_REGISTRY/environment:master
   only:
     refs:
        - master
     changes:
-       - Environment/Dockerfile
+       - Environment/Dockerfile_Base
        - MainLib/requirements.txt      
 
 build_tool:release:
