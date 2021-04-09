@@ -8,4 +8,7 @@ pint
 rpyc
 teaser
 translators
+geomeppy
+shapely
+numpy-stl
 dill
