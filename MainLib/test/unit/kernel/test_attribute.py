@@ -19,6 +19,9 @@ class TestElement(element.Element):
     attr2 = Attribute()
     attr3 = Attribute()
     attr4 = Attribute()
+    attr5 = Attribute(
+        functions=[lambda self, attr:42]
+    )
 
 
 class TestAttribute(unittest.TestCase):
@@ -105,6 +108,10 @@ class TestAttribute(unittest.TestCase):
         """Test getting an invalid attribute"""
         with self.assertRaises(KeyError):
             self.subject.attributes['invalid_attribute']
+
+    def test_from_function(self):
+        """test getting attribute from function"""
+        self.assertEqual(42, self.subject.attr5)
 
 
 if __name__ == '__main__':
