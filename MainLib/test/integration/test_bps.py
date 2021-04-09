@@ -8,7 +8,7 @@ from .base import IntegrationBase
 # WARNING: run only one test per interpreter Instance.
 # To use tests uncomment line below und run single test
 # ------------------------------------------------------------------------------
-raise unittest.SkipTest("Integration tests not reliable for automated use")
+# raise unittest.SkipTest("Integration tests not reliable for automated use")
 
 
 class TestIntegrationTEASER(IntegrationBase, unittest.TestCase):

@@ -1805,6 +1805,8 @@ class Storey(element.Element):
     def get_storey_instances(self):
         storey_instances = []
         # instances
+        if not hasattr(self.ifc, 'ContainsElements'):
+            print()
         for ifc_structure in self.ifc.ContainsElements:
             for ifc_element in ifc_structure.RelatedElements:
                 instance = self.get_object(ifc_element.GlobalId)

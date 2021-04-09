@@ -107,7 +107,7 @@ class BPSMultiZoneSeparated(Workflow):
             consumer=LOD.low,
             generator=LOD.ignore,
             hvac=LOD.low,
-            spaces=LOD.full,
+            spaces=LOD.low,
             layers=LOD.low,
             # layers=LOD.full,
         )

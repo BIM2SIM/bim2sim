@@ -746,11 +746,11 @@ class SubElement(BaseElement, IFCBased):
             if match is True:
                 prefac = sub_cls(ifc=ifc_element, tool=tool)
                 break
-        if type(prefac).__name__ not in cls.instances:
-            cls.instances[type(prefac).__name__] = {prefac.guid: prefac}
+        if type(prefac).__name__ not in SubElement.instances:
+            SubElement.instances[type(prefac).__name__] = {prefac.guid: prefac}
         else:
-            if prefac.guid not in cls.instances[type(prefac).__name__]:
-                cls.instances[type(prefac).__name__][prefac.guid] = prefac
+            if prefac.guid not in SubElement.instances[type(prefac).__name__]:
+                SubElement.instances[type(prefac).__name__][prefac.guid] = prefac
         return prefac
 
     @staticmethod
@@ -786,12 +786,13 @@ class SubElement(BaseElement, IFCBased):
 
         return requirements
 
-    @classmethod
-    def get_class_instances(cls, instance_class):
+    @staticmethod
+    def get_class_instances(instance_class):
+
         if isinstance(instance_class, str):
-            return list(cls.instances[instance_class].values())
+            return list(SubElement.instances[instance_class].values())
         else:
-            return list(cls.instances[instance_class.__name__].values())
+            return list(SubElement.instances[instance_class.__name__].values())
 
     def validate(self):
         """"Check if standard parameter are in valid range"""

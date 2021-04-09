@@ -56,8 +56,8 @@ class TZInspect(ITask):
     @staticmethod
     def bind_elements_to_storey():
         """Bind thermal_zones and instances to each floor/storey"""
-        storeys = SubElement.get_class_instances('Storey')
-        for storey in storeys:
+        storeys = SubElement.instances['Storey']
+        for storey in storeys.values():
             storey.set_storey_instances()
 
     def recognize_space_boundaries(self, ifc: file):

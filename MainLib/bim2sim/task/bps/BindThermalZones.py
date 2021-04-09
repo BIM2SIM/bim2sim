@@ -37,7 +37,6 @@ class BindThermalZones(ITask):
     def bind_tz_one_zone(self, thermal_zones):
         tz_group = {'one_zone_building': thermal_zones}
         new_aggregations = Aggregated_ThermalZone.based_on_groups(tz_group)
-
         for inst in new_aggregations:
             self.bounded_tz.append(inst)
 

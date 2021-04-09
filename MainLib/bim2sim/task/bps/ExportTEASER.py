@@ -112,7 +112,7 @@ class ExportTEASER(ITask):
         Parent: Building"""
         tz = ThermalZone(parent=parent)
         tz.use_conditions = UseConditions(parent=tz)
-        tz.use_conditions.load_use_conditions(instance.usage)
+        cls.load_use_conditions(tz, instance)
         cls._teaser_property_getter(tz, instance, instance.finder.templates)
         tz.volume = instance.area.m * instance.height.m
 
@@ -126,6 +126,11 @@ class ExportTEASER(ITask):
         #     tz.use_conditions.infiltration_rate = 0.2
 
         return tz
+
+    @staticmethod
+    def load_use_conditions(tz, instance):
+        for attr, value in instance.use_condition.items():
+            setattr(tz.use_conditions, attr, value)
 
     @classmethod
     def _bind_instances_to_zone(cls, tz, tz_instance):

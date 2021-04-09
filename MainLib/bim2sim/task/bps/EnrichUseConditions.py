@@ -1,11 +1,11 @@
 from bim2sim.task.base import Task, ITask
 from bim2sim.workflow import LOD
-from bim2sim.task.common.common_functions import get_usage_list, get_pattern_usage
+from bim2sim.task.common.common_functions import get_usage_dict, get_pattern_usage
 from bim2sim.decision import ListDecision
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.elements import ThermalZone
 
-UseConditions = get_usage_list()
+UseConditions = get_usage_dict()
 
 
 class EnrichUseConditions(ITask):
@@ -113,7 +113,7 @@ class EnrichUseConditions(ITask):
 
     @staticmethod
     def load_usage(tz: ThermalZone):
-        whitelist = ['t_set_cool', 't_set_heat', 'with_cooling', 'with_heating', 'with_ahu']
+        whitelist = ['with_cooling', 'with_heating', 'with_ahu']
         use_condition = UseConditions[tz.usage]
         for attr in whitelist:
             overwrite_attr = getattr(tz, attr)
@@ -121,5 +121,3 @@ class EnrichUseConditions(ITask):
                 use_condition[attr] = overwrite_attr
 
         setattr(tz, 'use_condition', use_condition)
-        print()
-

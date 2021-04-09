@@ -42,6 +42,8 @@ class IntegrationBase:
         # element.objects
         for item in list(bim2sim.kernel.element.Root.objects.values()):
             item.discard()
+        # element.instances
+        bim2sim.kernel.element.SubElement.instances = {}
 
     def run_project(self, ifc_file: str, backend: str):
         """Create example project and copy ifc if necessary

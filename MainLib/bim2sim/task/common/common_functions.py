@@ -43,7 +43,7 @@ def vector_angle(vector):
             return tang + 360
 
 
-def get_usage_list() -> dict:
+def get_usage_dict() -> dict:
     usage_path = PROJECT.assets / 'MaterialTemplates' / 'UseConditions.json'
     with open(usage_path, 'r+') as f:
         usage_dict = json.load(f)
