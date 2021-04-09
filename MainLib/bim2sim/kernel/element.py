@@ -108,6 +108,12 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
         for d in self.related_decisions:
             d.discard()
 
+    @classmethod
+    def full_reset(cls):
+        # TODO: remove other side effects
+        for r in Root.objects.copy().values():
+            r.discard()
+
 
 class IFCBased(Root):
     """Mixin for all IFC representating classes"""
@@ -709,6 +715,8 @@ class SubElement(BaseElement, IFCBased):
     @classmethod
     def factory(cls, ifc_element, alternate_ifc_type=None, tool=None):
         """Create model depending on ifc_element"""
+        # TODO: pass ifc classes and storage for element objects in project context.
+        #  see #120. do in #109
         if not cls._ifc_classes:
             cls._init_factory()
 

@@ -1,6 +1,6 @@
 import unittest
 
-from test.kernel.helper import SetupHelper
+from test.unit.kernel.helper import SetupHelper
 from bim2sim.decision import Decision
 from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph

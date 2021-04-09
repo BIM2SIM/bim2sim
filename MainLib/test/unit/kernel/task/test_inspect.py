@@ -10,21 +10,23 @@ from bim2sim.task import hvac
 from bim2sim.task import common
 from bim2sim.task.hvac import Inspect
 from bim2sim.workflow import PlantSimulation
-from bim2sim.project import PROJECT, _Project
-from bim2sim import BIM2SIMManager
+from bim2sim.project import Project, FolderStructure
+from bim2sim import Plugin
 from bim2sim.decision import Decision
 
 
-class DummyManager(BIM2SIMManager):
+class DummyPlugin(Plugin):
+    name = 'test'
+    default_workflow = PlantSimulation
 
-    def run(self):
-        self.playground.run_task(hvac.SetIFCTypesHVAC())
-        self.playground.run_task(common.LoadIFC())
-        self.playground.run_task(hvac.Prepare())
-        self.playground.run_task(hvac.Inspect())
+    def run(self, playground):
+        playground.run_task(hvac.SetIFCTypesHVAC())
+        playground.run_task(common.LoadIFC())
+        playground.run_task(hvac.Prepare())
+        playground.run_task(hvac.Inspect())
 
 
-sample_root = Path(__file__).parent.parent.parent / 'TestModels'
+sample_root = Path(__file__).parent.parent.parent.parent / 'TestModels'
 
 
 class TestInspect(unittest.TestCase):
@@ -33,73 +35,61 @@ class TestInspect(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.test_dir = tempfile.TemporaryDirectory()
-        # PROJECT.root = cls.test_dir.name
         print(cls.test_dir.name)
-        PROJECT.create(cls.test_dir.name)
+
+        # create initial folder structure
+        project = Project.create(cls.test_dir.name, default_plugin='test')
+        # deactivate created project
+        project.finalize(True)
 
         IFCBased.finder.enabled = False
 
     @classmethod
     def tearDownClass(cls):
-        print('tear down class')
-        PROJECT.root = None
-        try:
-            cls.test_dir.cleanup()
-        except PermissionError:
-            # for unknown reason the empty folder contend is cleared but folder itself cant be removed --> ignore
-            pass
+        cls.test_dir.cleanup()
+
         IFCBased.finder.enabled = True
 
-    def setUp(self):
-        workflow = PlantSimulation()
-        self.manager = DummyManager(workflow)
+    def setUp(self) -> None:
+        self.project = Project(self.test_dir.name)
 
     def tearDown(self):
-        # clear objects
-        for r in Root.objects.copy().values():
-            r.discard()
+        self.project.finalize()
 
-        self.manager = None
-        Decision.reset_decisions()
-
-    @patch.object(_Project, 'ifc', sample_root / 'B01_2_HeatExchanger_Pipes.ifc')
     def test_case_1(self):
         """HeatExchange with 4 (semantically) connected pipes"""
-
-        with Decision.debug_answer('IfcHeatPump', validate=True):
-            self.manager.run()
+        with patch.object(FolderStructure, 'ifc', sample_root / 'B01_2_HeatExchanger_Pipes.ifc'):
+            with Decision.debug_answer('IfcHeatPump', validate=True):
+                self.project.run(cleanup=False)
 
         heat_exchanger = Root.objects.get('0qeZDHlQRzcKJYopY4$fEf')
         self.assertEqual(4, len([port for port in heat_exchanger.ports if port.connection]))
 
-    @patch.object(_Project, 'ifc', sample_root / 'B01_3_HeatExchanger_noPorts.ifc')
     def test_case_2(self):
         """HeatExchange and Pipes are exported without ports"""
-
-        with Decision.debug_answer('IfcHeatPump', validate=True):
-            self.manager.run()
+        with patch.object(FolderStructure, 'ifc', sample_root / 'B01_3_HeatExchanger_noPorts.ifc'):
+            with Decision.debug_answer('IfcHeatPump', validate=True):
+                self.project.run(cleanup=False)
 
         heat_exchanger = Root.objects.get('0qeZDHlQRzcKJYopY4$fEf')
         self.assertEqual(0, len([port for port in heat_exchanger.ports if port.connection]))
 
         # assert warnings ??
 
-    @patch.object(_Project, 'ifc', sample_root / 'B01_4_HeatExchanger_noConnection.ifc')
     def test_case_3(self):
         """No connections but ports are less than 10 mm apart"""
-
-        with Decision.debug_answer('IfcHeatPump', validate=True):
-            self.manager.run()
+        with patch.object(FolderStructure, 'ifc', sample_root / 'B01_4_HeatExchanger_noConnection.ifc'):
+            with Decision.debug_answer('IfcHeatPump', validate=True):
+                self.project.run(cleanup=False)
 
         heat_exchanger = Root.objects.get('3FQzmSvzrgbaIM6zA4FX8S')
         self.assertEqual(4, len([port for port in heat_exchanger.ports if port.connection]))
 
-    @patch.object(_Project, 'ifc', sample_root / 'B01_5_HeatExchanger_mixConnection.ifc')
     def test_case_4(self):
         """Mix of case 1 and 3"""
-
-        with Decision.debug_answer('IfcHeatPump', validate=True):
-            self.manager.run()
+        with patch.object(FolderStructure, 'ifc', sample_root / 'B01_5_HeatExchanger_mixConnection.ifc'):
+            with Decision.debug_answer('IfcHeatPump', validate=True):
+                self.project.run(cleanup=False)
 
         heat_exchanger = Root.objects.get('3FQzmSvzrgbaIM6zA4FX8S')
         self.assertEqual(4, len([port for port in heat_exchanger.ports if port.connection]))

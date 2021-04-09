@@ -5,7 +5,7 @@ import unittest
 from bim2sim.kernel import element
 from bim2sim.kernel.attribute import Attribute
 
-from test.kernel.helper import SetupHelper
+from test.unit.kernel.helper import SetupHelper
 
 
 # IFC_PATH = os.path.abspath(os.path.join(
