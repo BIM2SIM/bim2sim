@@ -179,10 +179,12 @@ def _debug_run_bps_ep():
 
     path_example = _get_debug_project_path()
 
-    if not PROJECT.is_project_folder(path_example):
-        PROJECT.create(path_example, path_ifc, 'energyplus')
+    if Project.is_project_folder(path_example):
+        project = Project(path_example)
+    else:
+        project = Project.create(path_example, path_ifc, 'energyplus', )
 
-    main(path_example)
+    project.run()
 
 
 def _test_run_bps_ep(rel_path, temp_project=False):
@@ -199,14 +201,21 @@ def _test_run_bps_ep(rel_path, temp_project=False):
     old_stderr = sys.stderr
     working_dir = os.getcwd()
     success = False
+    if Project.is_project_folder(path_example):
+        project = Project(path_example)
+    else:
+        project = Project.create(path_example, path_ifc, 'energyplus', )
+
     try:
         print("Project directory: " + path_example)
         os.chdir(path_example)
-        if not PROJECT.is_project_folder(path_example):
-            PROJECT.create(path_example, path_ifc, 'energyplus')
+        if Project.is_project_folder(path_example):
+            project = Project(path_example)
+        else:
+            project = Project.create(path_example, path_ifc, 'energyplus', )
 
         #HACK: We have to remember stderr because eppy resets it currently.
-        success = main(path_example)
+        success = project.run()
     finally:
         os.chdir(working_dir)
         sys.stderr = old_stderr

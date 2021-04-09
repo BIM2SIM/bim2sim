@@ -252,7 +252,7 @@ class TestConsumerAggregation(unittest.TestCase):
         """test detection of Consumer Cycle in setup system"""
         graph, flags = self.helper.get_setup_system()
 
-        graph.plot(r'c:\temp')
+        # graph.plot(r'c:\temp')
 
         matches, meta = aggregation.Consumer.find_matches(graph)
 
@@ -270,7 +270,7 @@ class TestConsumerAggregation(unittest.TestCase):
         """test aggregation of consumercycle no 1"""
         graph, flags = self.helper.get_setup_system()
 
-        graph.plot(r'c:\temp')
+        # graph.plot(r'c:\temp')
 
         matches, metas = aggregation.Consumer.find_matches(graph)
 

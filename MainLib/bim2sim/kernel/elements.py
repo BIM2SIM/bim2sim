@@ -41,7 +41,6 @@ from bim2sim.kernel.ifc2python import get_layers_ifc
 from teaser.logic.buildingobjects.useconditions import UseConditions
 from bim2sim.task.common.common_functions import get_pattern_usage, vector_angle, filter_instances
 from bim2sim.kernel.disaggregation import SubInnerWall, SubOuterWall, Disaggregation
-from bim2sim.project import PROJECT
 import translators as ts
 
 
@@ -575,26 +574,26 @@ class ThermalZone(element.Element):
     )
 
     def _get_usage(bind, name):
-        if PROJECT.PAPER:
-            # hardcode for investigation of KIT Institut
-            zone_dict = {
-                "Schlafzimmer": "Bed room",
-                "Wohnen": "Living",
-                "Galerie": "Living",
-                "Küche": "Living",
-                "Flur": "Traffic area",
-                "Buero": "Single office",
-                "Besprechungsraum": 'Meeting, Conference, seminar',
-                "Seminarraum": 'Meeting, Conference, seminar',
-                "Technikraum": "Stock, technical equipment, archives",
-                "Dachboden": "Traffic area",
-                "WC": "WC and sanitary rooms in non-residential buildings",
-                "Bad": "WC and sanitary rooms in non-residential buildings",
-                "Labor": "Laboratory"
-            }
-            for key, trans in zone_dict.items():
-                if key in bind.zone_name:
-                    return trans
+        # if PROJECT.PAPER:
+        #     # hardcode for investigation of KIT Institut
+        #     zone_dict = {
+        #         "Schlafzimmer": "Bed room",
+        #         "Wohnen": "Living",
+        #         "Galerie": "Living",
+        #         "Küche": "Living",
+        #         "Flur": "Traffic area",
+        #         "Buero": "Single office",
+        #         "Besprechungsraum": 'Meeting, Conference, seminar',
+        #         "Seminarraum": 'Meeting, Conference, seminar',
+        #         "Technikraum": "Stock, technical equipment, archives",
+        #         "Dachboden": "Traffic area",
+        #         "WC": "WC and sanitary rooms in non-residential buildings",
+        #         "Bad": "WC and sanitary rooms in non-residential buildings",
+        #         "Labor": "Laboratory"
+        #     }
+        #     for key, trans in zone_dict.items():
+        #         if key in bind.zone_name:
+        #             return trans
         zone_pattern = []
         matches = []
 

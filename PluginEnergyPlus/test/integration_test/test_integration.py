@@ -1,12 +1,29 @@
 import sys
 import unittest
 
+import os
+
 from bim2sim import _test_run_bps_ep
 from bim2sim.decision import Decision
+from bim2sim.utilities.test import IntegrationBase
 
 # raise unittest.SkipTest("Integration tests not reliable for automated use")
 
-class TestEPIntegration(unittest.TestCase):
+
+class IntegrationBaseEP(IntegrationBase):
+    # HACK: We have to remember stderr because eppy resets it currently.
+    def setUp(self):
+        self.old_stderr = sys.stderr
+        self.working_dir = os.getcwd()
+        super().setUp()
+
+    def tearDown(self):
+        os.chdir(self.working_dir)
+        sys.stderr = self.old_stderr
+        super().tearDown()
+
+
+class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     """
     Integration tests for multiple IFC example files.
     Tested are both original IFC files and files from Eric Fichter's Space Boundary Generation tool.
@@ -14,13 +31,13 @@ class TestEPIntegration(unittest.TestCase):
 
     def test_base_FZK(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
-
-        rel_path = 'ExampleFiles/AC20-FZK-Haus.ifc'
+        ifc = 'AC20-FZK-Haus.ifc'
+        project = self.create_project(ifc, 'energyplus')
         answers = (True, True,  'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
         with Decision.debug_answer(answers, multi=True):
-            success = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
-            self.assertTrue(success)
+            return_code = project.run()
+        self.assertEqual(0, return_code)
 
     def test_base_FZK_SB(self):
         """Test IFC File from FZK-Haus (KIT) with generated Space Boundaries"""
@@ -30,8 +47,9 @@ class TestEPIntegration(unittest.TestCase):
         answers = (True, True, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
         with Decision.debug_answer(answers, multi=True):
-            success = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
-            self.assertTrue(success)
+            return_code = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
+            self.assertEqual(0, return_code)
+
 
     def test_base_KIT_Inst(self):
         """Test Original IFC File from Institute (KIT)"""
@@ -40,8 +58,9 @@ class TestEPIntegration(unittest.TestCase):
         answers = (True, True,  'heavy', 2015,
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
         with Decision.debug_answer(answers, multi=True):
-            success = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
-            self.assertTrue(success)
+            return_code = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
+            self.assertEqual(0, return_code)
+
 
     def test_base_KIT_Inst_SB(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
@@ -51,8 +70,9 @@ class TestEPIntegration(unittest.TestCase):
         answers = (True, True,  'heavy', 2015,
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
         with Decision.debug_answer(answers, multi=True):
-            success = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
-            self.assertTrue(success)
+            return_code = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
+            self.assertEqual(0, return_code)
+
 
     def test_base_DH(self):
         """Test DigitalHub IFC"""
@@ -62,8 +82,9 @@ class TestEPIntegration(unittest.TestCase):
         answers = (True, True, 'heavy', 2015,
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
         with Decision.debug_answer(answers, multi=True):
-            success = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
-            self.assertTrue(success)
+            return_code = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
+            self.assertEqual(0, return_code)
+
 
     def test_base_KHH(self):
         """Test KIT KHH 3 storey IFC"""
@@ -71,8 +92,9 @@ class TestEPIntegration(unittest.TestCase):
         answers = ('ARCHICAD-64', True, True, 'heavy', 2015,
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
         with Decision.debug_answer(answers, multi=True):
-            success = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
-            self.assertTrue(success)
+            return_code = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
+            self.assertEqual(0, return_code)
+
 
     def test_base_EDC_SB(self):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
@@ -80,8 +102,9 @@ class TestEPIntegration(unittest.TestCase):
         answers = ('ARCHICAD-64', True, True, 'heavy', 2015,
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
         with Decision.debug_answer(answers, multi=True):
-            success = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
-            self.assertTrue(success)
+            return_code = _test_run_bps_ep(rel_path=rel_path, temp_project=True)
+            self.assertEqual(0, return_code)
+
 
 
 if __name__ == '__main__':
