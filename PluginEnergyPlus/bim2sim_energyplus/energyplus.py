@@ -3,7 +3,9 @@
 import bim2sim
 from bim2sim.plugin import Plugin
 
+
 class EnergyPlus(Plugin):
+    name = 'EnergyPlus'
 
     def prepare(self, model):
         

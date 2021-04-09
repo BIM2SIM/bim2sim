@@ -18,6 +18,8 @@ class Plugin:
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
+        if not cls.name:
+            raise NameError(str(cls))
         if cls.name in cls.available_plugins:
             logger.warning("Plugin with name '%s' already registered. Skipping.", cls.name)
         else:
