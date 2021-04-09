@@ -4,6 +4,7 @@ import unittest
 from bim2sim import _test_run_bps_ep
 from bim2sim.decision import Decision
 
+# raise unittest.SkipTest("Integration tests not reliable for automated use")
 
 class TestEPIntegration(unittest.TestCase):
     """
@@ -24,7 +25,8 @@ class TestEPIntegration(unittest.TestCase):
     def test_base_FZK_SB(self):
         """Test IFC File from FZK-Haus (KIT) with generated Space Boundaries"""
 
-        rel_path = 'ResultFiles/AC20-FZK-Haus_with_SB44.ifc'
+        # rel_path = 'ResultFiles/AC20-FZK-Haus_with_SB44.ifc'
+        rel_path = 'ResultFiles/AC20-FZK-Haus_with_SB55.ifc'
         answers = (True, True, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
         with Decision.debug_answer(answers, multi=True):
@@ -44,7 +46,8 @@ class TestEPIntegration(unittest.TestCase):
     def test_base_KIT_Inst_SB(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
 
-        rel_path = 'ResultFiles/AC20-Institute-Var-2_with_SB11.ifc'
+        # rel_path = 'ResultFiles/AC20-Institute-Var-2_with_SB11.ifc'
+        rel_path = 'ResultFiles/AC20-Institute-Var-2_with_SB55.ifc'
         answers = (True, True,  'heavy', 2015,
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
         with Decision.debug_answer(answers, multi=True):
@@ -54,7 +57,8 @@ class TestEPIntegration(unittest.TestCase):
     def test_base_DH(self):
         """Test DigitalHub IFC"""
         # rel_path = 'ExampleFiles/DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
-        rel_path = 'ResultFiles/FM_ARC_DigitalHub_with_SB11.ifc'
+        # rel_path = 'ResultFiles/FM_ARC_DigitalHub_with_SB11.ifc'
+        rel_path = 'ResultFiles/FM_ARC_DigitalHub_with_SB55.ifc'
         answers = (True, True, 'heavy', 2015,
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
         with Decision.debug_answer(answers, multi=True):
