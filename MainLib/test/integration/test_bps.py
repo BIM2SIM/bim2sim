@@ -2,7 +2,6 @@ import unittest
 
 import bim2sim
 
-from .base import IntegrationBase
 
 # ------------------------------------------------------------------------------
 # WARNING: run only one test per interpreter Instance.

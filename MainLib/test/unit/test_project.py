@@ -46,9 +46,10 @@ class TestProject(BaseTestProject):
         """Test creating two projects in same dir"""
         project = Project.create(self.path, IFC_PATH, 'dummy')
         self.assertTrue(os.path.exists(project.paths.ifc))
-
+        project.finalize(True)
         shutil.rmtree(project.paths.ifc)
         self.assertFalse(os.path.exists(project.paths.ifc))
 
         project2 = Project.create(self.path, IFC_PATH, 'dummy')
         self.assertTrue(os.path.exists(project2.paths.ifc))
+        project2.finalize(True)
