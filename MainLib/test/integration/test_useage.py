@@ -13,18 +13,18 @@ class TestUsage(unittest.TestCase):
         try:
             import bim2sim
         except ImportError as err:
-            self.fail("Unable to import bim2sim\nreason: %s"%(err.msg))
+            self.fail("Unable to import bim2sim\nreason: %s"%(err))
         except Exception as err:
-            self.skipTest("bim2sim available but errors occured on import\ndetails: %s"%(err.msg))
+            self.skipTest("bim2sim available but errors occured on import\ndetails: %s"%(err))
 
     def test_import_plugin(self):
         """Test importing bim2sim_energyplus in python script"""
         try:
             import bim2sim_energyplus
         except ImportError as err:
-            self.fail("Unable to import plugin\nreason: %s"%(err.msg))
+            self.fail("Unable to import plugin\nreason: %s"%(err))
         except Exception as err:
-            self.skipTest("Plugin available but errors occured on import\ndetails: %s"%(err.msg))
+            self.skipTest("Plugin available but errors occured on import\ndetails: %s"%(err))
 
     def test_call_console(self):
         """Test calling bim2sim --version from console"""

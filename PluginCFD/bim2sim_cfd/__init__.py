@@ -4,7 +4,7 @@ Prepares ifc files for CFD simulation
 '''
 
 def get_cfd():
-    from .cfd import CFDManager
-    return CFDManager
+    from .cfd import PluginCFD
+    return PluginCFD
 
 CONTEND = {'cfd':get_cfd}
