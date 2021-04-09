@@ -31,7 +31,7 @@ ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/MainLib"
 ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginEnergyPlus"
 ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginCFD"
 ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginAixLib"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginHKESIM"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginHKESim"
 ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginTEASER"
 
 # The code to run when container is started:
