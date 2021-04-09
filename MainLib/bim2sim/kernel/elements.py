@@ -574,26 +574,26 @@ class ThermalZone(element.Element):
     )
 
     def _get_usage(bind, name):
-        # if PROJECT.PAPER:
-        #     # hardcode for investigation of KIT Institut
-        #     zone_dict = {
-        #         "Schlafzimmer": "Bed room",
-        #         "Wohnen": "Living",
-        #         "Galerie": "Living",
-        #         "Küche": "Living",
-        #         "Flur": "Traffic area",
-        #         "Buero": "Single office",
-        #         "Besprechungsraum": 'Meeting, Conference, seminar',
-        #         "Seminarraum": 'Meeting, Conference, seminar',
-        #         "Technikraum": "Stock, technical equipment, archives",
-        #         "Dachboden": "Traffic area",
-        #         "WC": "WC and sanitary rooms in non-residential buildings",
-        #         "Bad": "WC and sanitary rooms in non-residential buildings",
-        #         "Labor": "Laboratory"
-        #     }
-        #     for key, trans in zone_dict.items():
-        #         if key in bind.zone_name:
-        #             return trans
+        # todo remove hardcode
+        # hardcode for investigation of KIT Institut
+        zone_dict = {
+            "Schlafzimmer": "Bed room",
+            "Wohnen": "Living",
+            "Galerie": "Living",
+            "Küche": "Living",
+            "Flur": "Traffic area",
+            "Buero": "Single office",
+            "Besprechungsraum": 'Meeting, Conference, seminar',
+            "Seminarraum": 'Meeting, Conference, seminar',
+            "Technikraum": "Stock, technical equipment, archives",
+            "Dachboden": "Traffic area",
+            "WC": "WC and sanitary rooms in non-residential buildings",
+            "Bad": "WC and sanitary rooms in non-residential buildings",
+            "Labor": "Laboratory"
+        }
+        for key, trans in zone_dict.items():
+            if key in bind.zone_name:
+                return trans
         zone_pattern = []
         matches = []
 
