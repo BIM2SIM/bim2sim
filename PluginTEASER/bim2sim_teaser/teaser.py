@@ -1,4 +1,5 @@
-from bim2sim.manage import BIM2SIMManager
+from bim2sim.plugin import Plugin
+from bim2sim.task import bps
 from bim2sim.task import common
 
 from bim2sim.task import bps
@@ -16,7 +17,8 @@ from bim2sim.task import bps
 #         return (standardlibrary.StandardLibrary, HKESim),
 
 
-class TEASERManager(BIM2SIMManager):
+class TEASERManager(Plugin):
+    name = 'TEASER'
 
     def __init__(self, workflow):
         super().__init__(workflow)

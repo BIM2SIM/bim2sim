@@ -21,7 +21,7 @@ import sys
 
 import docopt
 
-from bim2sim import main, PROJECT, VERSION
+from bim2sim import setup_default, Project, VERSION
 
 
 def commandline_interface():
@@ -41,9 +41,10 @@ def commandline_interface():
 
     if project:
         if create:
-            PROJECT.create(path, source, target, open_conf)
+            pro = Project.create(path, source, target, open_conf)
         elif load:
-            main(path)
+            pro = Project(path)
+        pro.run()
     else:
         print("Invalid arguments")
         exit()

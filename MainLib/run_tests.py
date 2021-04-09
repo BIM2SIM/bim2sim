@@ -2,7 +2,7 @@
 from pathlib import Path
 
 
-unit_dir = Path(__file__).parent / 'test/unit'
+unit_dir = Path(__file__).parent / 'test'
 
 if __name__ == '__main__':
     import unittest

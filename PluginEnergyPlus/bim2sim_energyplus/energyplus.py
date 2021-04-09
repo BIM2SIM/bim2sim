@@ -6,8 +6,12 @@ from bim2sim.task import bps
 from bim2sim.task import common
 from bim2sim.kernel.element import IFCBased
 
+import bim2sim
+from bim2sim.plugin import Plugin
 
-class EnergyPlus(BIM2SIMManager):
+
+class EnergyPlus(Plugin):
+    name = 'EnergyPlus'
 
     def __init__(self, workflow):
         super().__init__(workflow)

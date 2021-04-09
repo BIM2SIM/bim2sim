@@ -106,8 +106,10 @@ class ITask(Task):
 class Playground:
     """Playground for executing ITasks"""
 
-    def __init__(self, workflow=None):
+    def __init__(self, workflow, initials: dict = None):
+        self.initials = initials or {}
         self.state = {}
+        self.state.update(self.initials)
         self.workflow = workflow
         self.history = []
         self.logger = logging.getLogger("Playground")
@@ -136,6 +138,7 @@ class Playground:
         if task.touches == '__reset__':
             # special case
             self.state.clear()
+            self.state.update(self.initials)
             self.history.clear()
         else:
             # normal case
