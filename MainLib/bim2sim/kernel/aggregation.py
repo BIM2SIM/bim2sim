@@ -1525,7 +1525,7 @@ class Aggregated_ThermalZone(Aggregation):
         prop_sum = sum(getattr(tz, name) for tz in self.elements if getattr(tz, name) is not None)
         return prop_sum
 
-    def _bool_calc(self, name):
+    def _bool_calc(self, name) -> bool:
         """bool properties getter
         bool_attributes = ['with_cooling', 'with_heating', 'with_ahu']"""
         # todo: log
@@ -1538,11 +1538,11 @@ class Aggregated_ThermalZone(Aggregation):
                     break
         return prop_bool
 
-    def _get_tz_usage(self, name):
+    def _get_tz_usage(self, name) -> str:
         """usage properties getter"""
         return self.elements[0].usage
 
-    def _aggregate_use_conditions(self, name):
+    def _aggregate_use_conditions(self, name) -> dict:
         aggregated_use_condition = {}
         list_attrs = {'heating_profile': 25, 'cooling_profile': 25, 'persons_profile': 24,
                       'machines_profile': 24, 'lighting_profile': 24, 'max_overheating_infiltration': 2,
@@ -1557,10 +1557,12 @@ class Aggregated_ThermalZone(Aggregation):
         total_vol = sum(tz.volume for tz in self.elements if tz.volume is not None).m
 
         # ToDo: how 'persons'
+        # intensive attributes mean
         for attr in intensive_attrs:
             aggregated_use_condition[attr] = \
                 sum(tz.use_condition[attr] * tz.volume.m for tz in self.elements if attr in tz.use_condition
                     and tz.volume is not None) / total_vol
+        # bool attributes
         for attr in bool_attrs:
             prop_bool = False
             for tz in self.elements:
@@ -1569,6 +1571,7 @@ class Aggregated_ThermalZone(Aggregation):
                         prop_bool = True
                         break
             aggregated_use_condition[attr] = prop_bool
+        # list attributes
         for attr, length in list_attrs.items():
             aux = []
             for x in range(0, length):
