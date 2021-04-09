@@ -1552,11 +1552,10 @@ class Aggregated_ThermalZone(Aggregation):
                            'fixed_heat_flow_rate_persons', 'internal_gains_moisture_no_people', 'T_threshold_cooling',
                            'ratio_conv_rad_persons', 'machines', 'ratio_conv_rad_machines', 'lighting_power',
                            'ratio_conv_rad_lighting', 'infiltration_rate', 'max_user_infiltration', 'min_ahu',
-                           'max_ahu']
+                           'max_ahu', 'persons']
         bool_attrs = ['with_heating', 'with_cooling', 'with_ahu', 'use_constant_infiltration', 'with_ideal_thresholds']
         total_vol = sum(tz.volume for tz in self.elements if tz.volume is not None).m
 
-        # ToDo: how 'persons'
         # intensive attributes mean
         for attr in intensive_attrs:
             aggregated_use_condition[attr] = \
