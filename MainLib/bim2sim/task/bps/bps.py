@@ -761,7 +761,7 @@ class ExportEP(ITask):
         self._export_geom_to_idf(instances, idf)
         self._set_output_variables(idf)
         idf.save()
-        # self._export_surface_areas(instances, idf) # todo: fix
+        self._export_surface_areas(instances, idf) # todo: fix
         self._export_space_info(instances, idf)
         self._export_boundary_report(instances, idf, ifc)
         self.logger.info("IDF generation finished!")
@@ -2159,6 +2159,8 @@ class ExportEP(ITask):
         :param idf: idf file object
         :return: idf file object
         """
+        out_control = idf.idfobjects['OUTPUTCONTROL:TABLE:STYLE']
+        out_control[0].Column_Separator = 'CommaAndHTML'
 
         # remove all existing output variables with reporting frequency "Timestep"
         out_var = [v for v in idf.idfobjects['OUTPUT:VARIABLE']
