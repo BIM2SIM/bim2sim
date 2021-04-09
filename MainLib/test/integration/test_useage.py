@@ -35,7 +35,7 @@ class TestUsage(unittest.TestCase):
         path = Path(bim2sim.__file__).parent
         cmd = '"%s" %s --version' % (Path(sys.executable), 'bim2sim')
         ret = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path.parent, shell=True)
-        self.assertTrue(ret.stdout.decode('utf-8').startswith(bim2sim.VERSION), 'unexpected output')
+        self.assertIn(bim2sim.VERSION, ret.stdout.decode('utf-8'), 'unexpected output')
 
         # for some reason the error code is 1 but code runs as expected without errors ...
         # if ret.returncode != 0:
