@@ -165,7 +165,7 @@ class Instance:
     def _lookup_add(key, value):
         """Adds key and value to Instance.lookup. Returns conflict"""
         logger = logging.getLogger(__name__)
-        if key in Instance.lookup:
+        if key in Instance.lookup and value is not Instance.lookup[key]:
             logger.error("Conflicting representations (%s) in '%s' and '%s'",
                          key, value.__name__, Instance.lookup[key].__name__)
             return True

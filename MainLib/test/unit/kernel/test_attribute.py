@@ -71,9 +71,9 @@ class TestAttribute(unittest.TestCase):
         """Test attribute manager"""
         self.assertIsNone(self.subject.attr1)
 
-        self.assertEqual(4, len(self.subject.attributes), "All Attributes should be registered in AttributeManager")
+        self.assertEqual(5, len(self.subject.attributes), "All Attributes should be registered in AttributeManager")
 
-        self.assertEqual(4, len(list(self.subject.attributes.names)))
+        self.assertEqual(5, len(list(self.subject.attributes.names)))
 
         self.assertIn('attr1', self.subject.attributes)
 
@@ -95,7 +95,7 @@ class TestAttribute(unittest.TestCase):
     def test_attribute_manager_names(self):
         """test names of manager"""
 
-        target = {'attr1', 'attr2', 'attr3', 'attr4'}
+        target = {'attr1', 'attr2', 'attr3', 'attr4', 'attr5'}
         found = set(self.subject.attributes.names)
         self.assertEqual(target, found)
 

@@ -1,7 +1,6 @@
 import os
 
 from bim2sim.kernel import ifc2python
-from bim2sim.manage import PROJECT
 from bim2sim.task.base import ITask
 from bim2sim.kernel.units import ifcunits, ureg, ifc_pint_unitmap, parse_ifc
 
@@ -29,12 +28,13 @@ class Quit(ITask):
 
 class LoadIFC(ITask):
     """Load IFC file from PROJECT.ifc path (file or dir)"""
+    reads = ('paths', )
     touches = ('ifc', )
 
-    def run(self, workflow):
+    def run(self, workflow, paths):
         # TODO: use multiple ifs files
 
-        path = PROJECT.ifc  # TODO: extra ITask to load Project settings?
+        path = paths.ifc
 
         if os.path.isdir(path):
             ifc_path = self.get_ifc(path)

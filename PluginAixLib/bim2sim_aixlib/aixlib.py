@@ -1,7 +1,7 @@
 ﻿import re
 from ast import literal_eval
 
-from bim2sim.manage import BIM2SIMManager, PROJECT
+from bim2sim.plugin import Plugin
 from bim2sim.task import base, common, hvac
 from bim2sim.export.modelica import standardlibrary
 from bim2sim_aixlib.models import AixLib
@@ -15,7 +15,7 @@ class LoadLibrariesAixLib(base.ITask):
         return (standardlibrary.StandardLibrary, AixLib),
 
 
-class AixLibManager(BIM2SIMManager):
+class AixLibManager(Plugin):
 
     def run(self):
 

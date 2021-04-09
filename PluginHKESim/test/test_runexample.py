@@ -16,7 +16,7 @@ class TestRunExample(unittest.TestCase):
         
         with tempfile.TemporaryDirectory(prefix='bim2sim_') as path:
             bim2sim.PROJECT.create(path, IFC_PATH, 'hkesim')
-            bim2sim.main(path)
+            bim2sim.setup_default(path)
 
             results = os.listdir(bim2sim.PROJECT.export)
 

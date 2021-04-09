@@ -1,7 +1,9 @@
 import os
 import sys
 import json
-from bim2sim.project import PROJECT as project
+from pathlib import Path
+
+import bim2sim
 
 v = sys.version_info
 if v >= (2, 7):
@@ -18,16 +20,17 @@ class DataClass(object):
     Class for Enrichment method, that loads the enrichment data from a
     file (source_path), it can support various enrichment parameters
     """
+    assets = Path(bim2sim.__file__).parent / 'assets'
 
     def __init__(self, used_param):
 
         self.used_parameters = used_param
         self.element_bind = None
         if self.used_parameters == 1:
-            self.path_te = project.assets / 'enrichment' / 'TypeBuildingElements.json'
+            self.path_te = self.assets / 'enrichment' / 'TypeBuildingElements.json'
             self.load_te_binding()
         elif self.used_parameters == 2:
-            self.path_te = os.path.join(project.assets, 'MaterialTemplates',
+            self.path_te = os.path.join(self.assets, 'MaterialTemplates',
                                         'MaterialTemplates.json')
             # self.path_te = project.assets / 'MaterialTemplates' / 'MaterialTemplates.json'
             self.load_te_binding()
