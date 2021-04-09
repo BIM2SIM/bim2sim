@@ -14,6 +14,7 @@ from bim2sim.task import common
 
 
 class TEASERManager(Plugin):
+    name = 'TEASER'
 
     def __init__(self, workflow):
         super().__init__(workflow)
