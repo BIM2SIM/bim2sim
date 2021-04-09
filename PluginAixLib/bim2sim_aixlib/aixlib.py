@@ -15,7 +15,8 @@ class LoadLibrariesAixLib(base.ITask):
         return (standardlibrary.StandardLibrary, AixLib),
 
 
-class AixLibManager(Plugin):
+class PluginAixLib(Plugin):
+    name = 'AixLib'
 
     def run(self):
 
