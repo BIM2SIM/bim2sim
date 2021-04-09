@@ -5,7 +5,8 @@ from bim2sim.task.common import LoadIFC
 import os
 
 
-class CFDManager(Plugin):
+class PluginCFD(Plugin):
+    name = 'CFD'
 
     def __init__(self, task):
         super().__init__(task)
