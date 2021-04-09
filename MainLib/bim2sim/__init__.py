@@ -36,6 +36,7 @@ def load_plugins(names: typing.Iterable[str] = None) -> typing.Dict[str, Plugin]
     # load all
     for finder, name, ispkg in pkgutil.iter_modules():
         if name.startswith('bim2sim_'):
+            print(name)
             module = importlib.import_module(name)
             contend = getattr(module, 'CONTEND', None)
             if not contend:
