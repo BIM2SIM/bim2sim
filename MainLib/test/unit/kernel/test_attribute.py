@@ -19,6 +19,9 @@ class TestElement(element.Element):
     attr2 = Attribute()
     attr3 = Attribute()
     attr4 = Attribute()
+    attr5 = Attribute(
+        functions=[lambda self, attr:42]
+    )
 
 
 class TestAttribute(unittest.TestCase):
@@ -68,9 +71,9 @@ class TestAttribute(unittest.TestCase):
         """Test attribute manager"""
         self.assertIsNone(self.subject.attr1)
 
-        self.assertEqual(4, len(self.subject.attributes), "All Attributes should be registered in AttributeManager")
+        self.assertEqual(5, len(self.subject.attributes), "All Attributes should be registered in AttributeManager")
 
-        self.assertEqual(4, len(list(self.subject.attributes.names)))
+        self.assertEqual(5, len(list(self.subject.attributes.names)))
 
         self.assertIn('attr1', self.subject.attributes)
 
@@ -92,7 +95,7 @@ class TestAttribute(unittest.TestCase):
     def test_attribute_manager_names(self):
         """test names of manager"""
 
-        target = {'attr1', 'attr2', 'attr3', 'attr4'}
+        target = {'attr1', 'attr2', 'attr3', 'attr4', 'attr5'}
         found = set(self.subject.attributes.names)
         self.assertEqual(target, found)
 
@@ -105,6 +108,10 @@ class TestAttribute(unittest.TestCase):
         """Test getting an invalid attribute"""
         with self.assertRaises(KeyError):
             self.subject.attributes['invalid_attribute']
+
+    def test_from_function(self):
+        """test getting attribute from function"""
+        self.assertEqual(42, self.subject.attr5)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,5 @@
 from bim2sim.task.base import Task, ITask
 from bim2sim.kernel.element import SubElement
-from bim2sim.project import PROJECT
 from teaser.project import Project
 from teaser.logic.buildingobjects.building import Building
 from teaser.logic.buildingobjects.thermalzone import ThermalZone
@@ -20,7 +19,7 @@ from bim2sim.kernel.units import conversion, ureg
 class ExportTEASER(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
-    reads = ('ifc', 'bounded_tz')
+    reads = ('ifc', 'bounded_tz', 'paths')
     final = True
 
     materials = {}
@@ -37,7 +36,7 @@ class ExportTEASER(ITask):
                          }
 
     @Task.log
-    def run(self, workflow, ifc, bounded_tz):
+    def run(self, workflow, ifc, bounded_tz, paths):
         self.logger.info("Export to TEASER")
         prj = self._create_project(ifc.by_type('IfcProject')[0])
         bldg_instances = SubElement.get_class_instances('Building')
@@ -49,7 +48,7 @@ class ExportTEASER(ITask):
                 tz.calc_zone_parameters()
             bldg.calc_building_parameter()
 
-        prj.export_aixlib(path=PROJECT.root / 'export' / 'TEASEROutput')
+        prj.export_aixlib(path=paths.export / 'TEASEROutput')
 
     @staticmethod
     def _create_project(element):
@@ -119,6 +118,7 @@ class ExportTEASER(ITask):
         tz.use_conditions.cooling_profile = [tz.set_temp_cool] * 25
         tz.use_conditions.heating_profile = [tz.set_temp_heat] * 25
         # hardcode for paper:
+        # todo dja
         # if PROJECT.PAPER:
         #     tz.use_conditions.cooling_profile = [conversion(25, '°C', 'K').magnitude] * 25
         #     tz.use_conditions.with_cooling = instance.with_cooling

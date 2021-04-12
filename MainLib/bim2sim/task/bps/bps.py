@@ -54,7 +54,6 @@ from bim2sim.kernel.elements import SpaceBoundary
 # from bim2sim.kernel.bps import ...
 from bim2sim.export import modelica
 from bim2sim.decision import Decision
-from bim2sim.project import PROJECT
 from bim2sim.kernel import finder
 from bim2sim.kernel.aggregation import Aggregated_ThermalZone
 from bim2sim.task.bps import tz_detection
@@ -85,607 +84,609 @@ from bim2sim.task.common.common_functions import angle_equivalent
 from bim2sim.kernel import elements
 
 
-class SetIFCTypesBPS(ITask):
-    """Set list of relevant IFC types"""
-    touches = ('relevant_ifc_types',)
-
-    def run(self, workflow):
-        IFC_TYPES = workflow.relevant_ifc_types
-        return IFC_TYPES,
-
-
-class Inspect(ITask):
-    """Analyses IFC and creates Element instances.
-    Elements are stored in .instances dict with guid as key"""
-
-    reads = ('ifc',)
-    touches = ('instances',)
-
-    def __init__(self):
-        super().__init__()
-        self.instances = {}
-        pass
-
-    @Task.log
-    def run(self, workflow, ifc):
-        self.logger.info("Creates python representation of relevant ifc types")
-
-        Element.finder.load(PROJECT.finder)
-        workflow.relevant_ifc_types = self.use_doors(workflow.relevant_ifc_types)
-        for ifc_type in workflow.relevant_ifc_types:
-            try:
-                entities = ifc.by_type(ifc_type)
-                for entity in entities:
-                    element = Element.factory(entity, ifc_type)
-                    self.instances[element.guid] = element
-            except RuntimeError:
-                pass
-        self.logger.info("Found %d building elements", len(self.instances))
-
-        return self.instances,
-
-    @staticmethod
-    def use_doors(relevant_ifc_types):
-        ifc_list = list(relevant_ifc_types)
-        doors_decision = BoolDecision(question="Do you want for the doors to be considered on the bps analysis?",
-                                      collect=False, global_key="Bps_Doors",
-                                      allow_skip=False, allow_load=True, allow_save=True, quick_decide=not True
-                                      )
-        doors_decision.decide()
-        if not doors_decision.value:
-            ifc_list.remove('IfcDoor')
-        return tuple(ifc_list)
-
-
-class Prepare(ITask):
-    """Prepares bim2sim instances to later export"""
-    reads = ('instances', 'ifc',)
-    touches = ('instances',)
-
-    # materials = {}
-    # property_error = {}
-    instance_template = {}
-
-    @Task.log
-    def run(self, workflow, instances, ifc):
-        self.logger.info("setting verifications")
-        building = SubElement.get_class_instances('Building')[0]
-        for guid, ins in instances.items():
-            self.layers_verification(ins, building)
-
-        storeys = SubElement.get_class_instances('Storey')
-
-        tz_inspect = tz_detection.Inspect(self, workflow)
-        tz_inspect.run(ifc, instances, storeys)
-        instances.update(tz_inspect.instances)
-
-        for guid, ins in instances.items():
-            new_orientation = self.orientation_verification(ins)
-            if new_orientation is not None:
-                ins.orientation = new_orientation
-
-        tz_bind = tz_detection.Bind(self, workflow)
-        tz_bind.run(instances)
-
-        return instances,
-
-    @staticmethod
-    def orientation_verification(instance):
-        supported_classes = {'Window', 'OuterWall', 'OuterDoor', 'Wall', 'Door'}
-        if instance.__class__.__name__ in supported_classes:
-            new_angles = list(set([space_boundary.orientation for space_boundary in instance.space_boundaries]))
-            # new_angles = list(set([space_boundary.orientation - space_boundary.thermal_zones[0].orientation for space_boundary in instance.space_boundaries]))
-            if len(new_angles) > 1:
-                return None
-            # no true north necessary
-            new_angle = angle_equivalent(new_angles[0])
-            # new angle return
-            if new_angle - instance.orientation > 0.1:
-                return new_angle
-
-    # @classmethod
-    # def layers_verification(cls, instance, building):
-    #     supported_classes = {'OuterWall', 'Wall', 'InnerWall', 'Door', 'InnerDoor', 'OuterDoor', 'Roof', 'Floor',
-    #                          'GroundFloor', 'Window'}
-    #     instance_type = instance.__class__.__name__
-    #     if instance_type in supported_classes:
-    #         # through the type elements enrichment without comparisons
-    #         if instance_type not in cls.instance_template:
-    #             type_elements_decision = BoolDecision(
-    #                 question="Do you want for all %ss to be enriched before any calculation "
-    #                          "with the type elements template," % type(instance).__name__,
-    #                 global_key="type_elements_%s" % type(instance).__name__,
-    #                 collect=False)
-    #             type_elements_decision.decide()
-    #             if type_elements_decision.value:
-    #                 return cls.template_layers_creation(instance, building)
-    #         else:
-    #             return cls.template_layers_creation(instance, building)
-    #         u_value_verification = cls.compare_with_template(instance, building)
-    #         # comparison with templates value
-    #         if u_value_verification is False:
-    #             # ToDo logger
-    #             print("u_value verification failed, the %s u value is "
-    #                                 "doesn't correspond to the year of construction. Please create new layer set" %
-    #                                 type(instance).__name__)
-    #             # cls.logger.warning("u_value verification failed, the %s u value is "
-    #             #                     "doesn't correspond to the year of construction. Please create new layer set" %
-    #             #                     type(instance).__name__)
-    #             return cls.layer_creation(instance, building)
-    #         # instance.layers = [] # probe
-    #         layers_width = 0
-    #         layers_r = 0
-    #         for layer in instance.layers:
-    #             layers_width += layer.thickness
-    #             if layer.thermal_conduc is not None:
-    #                 if layer.thermal_conduc > 0:
-    #                     layers_r += layer.thickness / layer.thermal_conduc
-    #
-    #         # critical failure // check units again
-    #         width_discrepancy = abs(instance.width - layers_width) / instance.width if \
-    #             (instance.width is not None and instance.width > 0) else 9999
-    #         u_discrepancy = abs(instance.u_value - 1 / layers_r) / instance.u_value if \
-    #             (instance.u_value is not None and instance.u_value > 0) else 9999
-    #         if width_discrepancy > 0.2 or u_discrepancy > 0.2:
-    #             # ToDo Logger
-    #             print("Width or U Value discrepancy found. Please create new layer set")
-    #             # cls.logger.warning("Width or U Value discrepancy found. Please create new layer set")
-    #             cls.layer_creation(instance, building)
-
-    def layers_verification(self, instance, building):
-        supported_classes = {'OuterWall', 'Wall', 'InnerWall', 'Door', 'InnerDoor', 'OuterDoor', 'Roof', 'Floor',
-                             'GroundFloor', 'Window'}
-        instance_type = instance.__class__.__name__
-        if instance_type in supported_classes:
-            # through the type elements enrichment without comparisons
-            if instance_type not in self.instance_template:
-                type_elements_decision = BoolDecision(
-                    question="Do you want for all %s's to be enriched before any calculation "
-                             "with the type elements template," % type(instance).__name__,
-                    global_key="%s_type_elements_used" % type(instance).__name__,
-                    collect=False, allow_load=True, allow_save=True,
-                    quick_decide=not True)
-                type_elements_decision.decide()
-                if type_elements_decision.value:
-                    return self.template_layers_creation(instance, building)
-            else:
-                return self.template_layers_creation(instance, building)
-            u_value_verification = self.compare_with_template(instance, building)
-            # comparison with templates value
-            if u_value_verification is False:
-                self.logger.warning("u_value verification failed, the %s u value is "
-                                    "doesn't correspond to the year of construction. Please create new layer set" %
-                                    type(instance).__name__)
-                return self.layer_creation(instance, building)
-            # instance.layers = [] # probe
-            layers_width = 0
-            layers_r = 0
-            for layer in instance.layers:
-                layers_width += layer.thickness
-                if layer.thermal_conduc is not None:
-                    if layer.thermal_conduc > 0:
-                        layers_r += layer.thickness / layer.thermal_conduc
-
-            # critical failure // check units again
-            width_discrepancy = abs(instance.width - layers_width) / instance.width if \
-                (instance.width is not None and instance.width > 0) else 9999
-            u_discrepancy = abs(instance.u_value - 1 / layers_r) / instance.u_value if \
-                (instance.u_value is not None and instance.u_value > 0) else 9999
-            if width_discrepancy > 0.2 or u_discrepancy > 0.2:
-                self.logger.warning("Width or U Value discrepancy found. Please create new layer set")
-                self.layer_creation(instance, building)
-
-    def layer_creation(self, instance, building, iteration=0):
-        decision_layers = ListDecision("the following layer creation methods were found for \n"
-                                       "Belonging Item: %s | GUID: %s \n" % (instance.name, instance.guid),
-                                       choices=['Manual layers creation (from zero)',
-                                                'Template layers creation (based on given u value)'],
-                                       global_key='%s_%s.layer_creation_method_%d' %
-                                                  (type(instance).__name__, instance.guid, iteration),
-                                       allow_skip=True, allow_load=True, allow_save=True,
-                                       collect=False, quick_decide=not True)
-        decision_layers.decide()
-        if decision_layers.value == 'Manual layers creation (from zero)':
-            self.manual_layers_creation(instance, building, iteration)
-        elif decision_layers.value == 'Template layers creation (based on given u value)':
-            self.template_layers_creation(instance, building)
-
-    def manual_layers_creation(self, instance, building, iteration):
-        instance.layers = []
-        layers_width = 0
-        layers_r = 0
-        layers_number_dec = RealDecision("Enter value for the number of layers",
-                                         global_key='%s_%s.layers_number_%d' %
-                                                    (type(instance).__name__, instance.guid, iteration),
-                                         allow_skip=False, allow_load=True, allow_save=True,
-                                         collect=False, quick_decide=False)
-        layers_number_dec.decide()
-        layers_number = int(layers_number_dec.value)
-        layer_number = 1
-        if instance.width is None:
-            instance_width = RealDecision("Enter value for width of instance %d" % instance.name,
-                                          global_key='%s_%s.instance_width_%d' %
-                                                     (type(instance).__name__, instance.guid, iteration),
-                                          allow_skip=False, allow_load=True, allow_save=True,
-                                          collect=False, quick_decide=False)
-            instance_width.decide()
-            instance.width = instance_width.value
-        while layer_number <= layers_number:
-            if layer_number == layers_number:
-                thickness_value = instance.width - layers_width
-            else:
-                layer_thickness = RealDecision("Enter value for thickness of layer %d, it muss be <= %r" %
-                                               (layer_number, instance.width - layers_width),
-                                               global_key='%s_%s.layer_%d_width%d' %
-                                                          (type(instance).__name__, instance.guid, layer_number,
-                                                           iteration),
-                                               allow_skip=False, allow_load=True, allow_save=True,
-                                               collect=False, quick_decide=False)
-                layer_thickness.decide()
-                thickness_value = layer_thickness.value
-            # ToDo: Input through decision
-            material_input = input(
-                "Enter material for the layer %d (it will be searched or manual input)" % layer_number)
-            new_layer = elements.Layer.create_additional_layer(thickness_value, material=material_input, parent=instance)
-            instance.layers.append(new_layer)
-            layers_width += new_layer.thickness
-            layers_r += new_layer.thickness / new_layer.thermal_conduc
-            if layers_width >= instance.width:
-                break
-            layer_number += 1
-
-        instance.u_value = 1 / layers_r
-        # check validity of new u value e
-        iteration = 1
-        while self.compare_with_template(instance, building) is False:
-            self.logger.warning("The created layers does not comply with the valid u_value range, "
-                                "please create new layer set")
-            self.layer_creation(instance, building, iteration)
-            iteration += 1
-        pass
-
-    @classmethod
-    def template_layers_creation(cls, instance, building):
-        instance.layers = []
-        layers_width = 0
-        layers_r = 0
-        template = cls.get_instance_template(instance, building)
-        if template is not None:
-            for i_layer, layer_props in template['layer'].items():
-                new_layer = elements.Layer.create_additional_layer(
-                    layer_props['thickness'], instance, material=layer_props['material']['name'])
-                instance.layers.append(new_layer)
-                layers_width += new_layer.thickness
-                layers_r += new_layer.thickness / new_layer.thermal_conduc
-            instance.width = layers_width
-            instance.u_value = 1 / layers_r
-        # with template comparison not necessary
-        pass
-
-    @classmethod
-    def compare_with_template(cls, instance, building):
-        template_options = []
-        if instance.u_value is None:
-            return False
-        year_of_construction = building.year_of_construction
-        if year_of_construction is None:
-            year_decision = RealDecision("Enter value for the buildings year of construction",
-                                         global_key="Building_%s.year_of_construction" % building.guid,
-                                         allow_skip=False, allow_load=True, allow_save=True,
-                                         collect=False, quick_decide=False)
-            year_decision.decide()
-            year_of_construction = int(year_decision.value.m)
-        else:
-            year_of_construction = int(building.year_of_construction)
-
-        instance_templates = dict(DataClass(used_param=3).element_bind)
-        material_templates = dict(DataClass(used_param=2).element_bind)
-        instance_type = type(instance).__name__
-        for i in instance_templates[instance_type]:
-            years = ast.literal_eval(i)
-            if years[0] <= year_of_construction <= years[1]:
-                for type_e in instance_templates[instance_type][i]:
-                    # relev_info = instance_templates[instance_type][i][type_e]
-                    # if instance_type == 'InnerWall':
-                    #     layers_r = 2 / relev_info['inner_convection']
-                    # else:
-                    #     layers_r = 1 / relev_info['inner_convection'] + 1 / relev_info['outer_convection']
-                    layers_r = 0
-                    for layer, data_layer in instance_templates[instance_type][i][type_e]['layer'].items():
-                        material_tc = material_templates[data_layer['material']['material_id']]['thermal_conduc']
-                        layers_r += data_layer['thickness'] / material_tc
-                    template_options.append(1 / layers_r)  # area?
-                break
-
-        template_options.sort()
-        # check u_value
-        if template_options[0] * 0.8 <= instance.u_value <= template_options[1] * 1.2:
-            return True
-        return False
-
-    @classmethod
-    def get_instance_template(cls, instance, building):
-
-        instance_type = type(instance).__name__
-        instance_templates = dict(DataClass(used_param=3).element_bind)
-        if instance_type in cls.instance_template:
-            return cls.instance_template[instance_type]
-
-        year_of_construction = building.year_of_construction
-        if year_of_construction is None:
-            year_decision = RealDecision("Enter value for the buildings year of construction",
-                                         global_key="Building_%s.year_of_construction" % building.guid,
-                                         allow_skip=False, allow_load=True, allow_save=True,
-                                         collect=False, quick_decide=False)
-            year_decision.decide()
-            building.year_of_construction = int(year_decision.value.m)
-
-        year_of_construction = building.year_of_construction.m
-        template_options = []
-        for i in instance_templates[instance_type]:
-            years = ast.literal_eval(i)
-            if years[0] <= int(year_of_construction) <= years[1]:
-                template_options = instance_templates[instance_type][i]
-                break
-
-        if len(template_options.keys()) > 0:
-            decision_template = ListDecision("the following construction types were "
-                                             "found for year %s and instance type %s"
-                                             % (year_of_construction, instance_type),
-                                             choices=list(template_options.keys()),
-                                             global_key="%s_%s.bpsTemplate" % (type(instance).__name__, instance.guid),
-                                             allow_skip=True, allow_load=True, allow_save=True,
-                                             collect=False, quick_decide=not True)
-            if decision_template.value is None:
-                decision_template.decide()
-            template_value = template_options[decision_template.value]
-            cls.instance_template[instance_type] = template_value
-            return template_value
-
-
-class ExportTEASER(ITask):
-    """Exports a Modelica model with TEASER by using the found information
-    from IFC"""
-    reads = ('instances', 'ifc',)
-    final = True
-
-    materials = {}
-    property_error = {}
-    instance_template = {}
-
-    instance_switcher = {'OuterWall': OuterWall,
-                         'InnerWall': InnerWall,
-                         'Floor': Floor,
-                         'Window': Window,
-                         'GroundFloor': GroundFloor,
-                         'Roof': Rooftop,
-                         # 'OuterDoor': OuterWall,
-                         # 'InnerDoor': InnerWall
-                         }
-
-    @staticmethod
-    def _create_project(element):
-        """Creates a project in TEASER by a given BIM2SIM instance
-        Parent: None"""
-        prj = Project(load_data=True)
-        if len(element.Name) != 0:
-            prj.name = element.Name
-        else:
-            prj.name = element.LongName
-        prj.data.load_uc_binding()
-        return prj
-
-    @classmethod
-    def _create_building(cls, instance, parent):
-        """Creates a building in TEASER by a given BIM2SIM instance
-        Parent: Project"""
-        bldg = Building(parent=parent)
-        # name is important here
-        cls._teaser_property_getter(bldg, instance, instance.finder.templates)
-        cls.instance_template[bldg.name] = {}  # create instance template dict
-        return bldg
-
-    @classmethod
-    def _create_thermal_zone(cls, instance, parent):
-        """Creates a thermal zone in TEASER by a given BIM2SIM instance
-        Parent: Building"""
-        tz = ThermalZone(parent=parent)
-        cls._teaser_property_getter(tz, instance, instance.finder.templates)
-        tz.volume = instance.area * instance.height
-        tz.use_conditions = UseConditions(parent=tz)
-        tz.use_conditions.load_use_conditions(instance.usage)
-        if instance.t_set_heat:
-            tz.use_conditions.set_temp_heat = conversion(instance.t_set_heat, '°C', 'K').magnitude
-        if instance.t_set_cool:
-            tz.use_conditions.set_temp_cool = conversion(instance.t_set_cool, '°C', 'K').magnitude
-
-        tz.use_conditions.cooling_profile = [conversion(25, '°C', 'K').magnitude] * 25
-        tz.use_conditions.with_cooling = instance.with_cooling
-        if PROJECT.PAPER:
-            tz.use_conditions.cooling_profile = [conversion(25, '°C', 'K').magnitude] * 25
-            tz.use_conditions.with_cooling = instance.with_cooling
-            tz.use_conditions.use_constant_infiltration = True
-            tz.use_conditions.infiltration_rate = 0.2
-
-        return tz
-
-    @classmethod
-    def _create_teaser_instance(cls, instance, parent, bldg):
-        """creates a teaser instances with a given parent and BIM2SIM instance
-        get exporter necessary properties, from a given instance
-        Parent: ThermalZone"""
-        # determine if is instance or subinstance (disaggregation) get templates from instance
-        if hasattr(instance, 'parent'):
-            sw = type(instance.parent).__name__
-            templates = instance.parent.finder.templates
-        else:
-            sw = type(instance).__name__
-            templates = instance.finder.templates
-
-        teaser_class = cls.instance_switcher.get(sw)
-        if teaser_class is not None:
-            teaser_instance = teaser_class(parent=parent)
-            cls._teaser_property_getter(teaser_instance, instance, templates)
-            cls._instance_related(teaser_instance, instance, bldg)
-
-    @classmethod
-    def _teaser_property_getter(cls, teaser_instance, instance, templates):
-        """get and set all properties necessary to create a Teaser Instance from a BIM2Sim Instance,
-        based on the information on the base.json exporter"""
-        sw = type(teaser_instance).__name__
-        if sw == 'Rooftop':
-            sw = 'Roof'
-        for key, value in templates['base'][sw]['exporter']['teaser'].items():
-            if isinstance(value, list):
-                # get property from instance (instance dependant on instance)
-                if value[0] == 'instance':
-                    aux = getattr(instance, value[1])
-                    if type(aux).__name__ == 'Quantity':
-                        aux = aux.magnitude
-                    cls._invalid_property_filter(teaser_instance, instance, key, aux)
-            else:
-                # get property from json (fixed property)
-                setattr(teaser_instance, key, value)
-
-    @classmethod
-    def _invalid_property_filter(cls, teaser_instance, instance, key, aux):
-        """Filter the invalid property values and fills it with a template or an user given value,
-        if value is valid, returns the value
-        invalid value: ZeroDivisionError on thermal zone calculations"""
-        error_properties = ['density', 'thickness', 'heat_capac',
-                            'thermal_conduc', 'area']  # properties that are vital to thermal zone calculations
-        white_list_properties = ['orientation']
-        if (aux is None or aux == 0) and key not in white_list_properties:
-            # name from instance to store in error dict
-            if hasattr(instance, 'material'):
-                name_error = instance.material
-            else:
-                name_error = instance.name
-            try:
-                aux = cls.property_error[name_error][key]
-            # redundant case for invalid properties
-            except KeyError:
-                if key in error_properties:
-                    if hasattr(instance, 'get_material_properties'):
-                        aux = instance.get_material_properties(key)
-                    while aux is None or aux == 0:
-                        aux = float(input('please enter a valid value for %s from %s' % (key, name_error)))
-                    if name_error not in cls.property_error:
-                        cls.property_error[name_error] = {}
-                    cls.property_error[name_error][key] = aux
-        # set attr on teaser instance
-        setattr(teaser_instance, key, aux)
-
-    @classmethod
-    def _bind_instances_to_zone(cls, tz, tz_instance, bldg):
-        """create and bind the instances of a given thermal zone to a teaser instance thermal zone"""
-        for bound_element in tz_instance.bound_elements:
-            cls._create_teaser_instance(bound_element, tz, bldg)
-
-    @classmethod
-    def _instance_related(cls, teaser_instance, instance, bldg):
-        """instance specific function, layers creation
-        if layers not given, loads template"""
-        # property getter if instance has materials/layers
-        if isinstance(instance.layers, list) and len(instance.layers) > 0:
-            for layer_instance in instance.layers:
-                layer = Layer(parent=teaser_instance)
-                cls._invalid_property_filter(layer, layer_instance, 'thickness', layer_instance.thickness)
-                cls._material_related(layer, layer_instance, bldg)
-        # property getter if instance doesn't have any materials/layers
-        else:
-            if getattr(bldg, 'year_of_construction') is None:
-                bldg.year_of_construction = int(input("Please provide a valid year of construction for building: "))
-            template_options, years_group = cls._get_instance_template(teaser_instance, bldg)
-            template_value = None
-            if len(template_options) > 1:
-                decision_template = ListDecision("the following construction types were "
-                                                 "found for year %s and instance type %s"
-                                                 % (bldg.year_of_construction, type(instance).__name__),
-                                                 choices=list(template_options.keys()),
-                                                 global_key="%s_%s.bpsTemplate" %
-                                                            (type(instance).__name__, instance.guid),
-                                                 allow_skip=True, allow_load=True, allow_save=True,
-                                                 collect=False, quick_decide=not True)
-                decision_template.decide()
-                template_value = decision_template.value
-            elif len(template_options) == 1:
-                template_value = template_options[0]
-            cls.instance_template[bldg.name][type(teaser_instance).__name__] = [years_group, template_value]
-            teaser_instance.load_type_element(year=bldg.year_of_construction, construction=template_value)
-
-    @classmethod
-    def _material_related(cls, layer, layer_instance, bldg):
-        """material instance specific functions, get properties of material and creates Material in teaser,
-        if material or properties not given, loads material template"""
-        material = Material(parent=layer)
-        cls._teaser_property_getter(material, layer_instance, layer_instance.finder.templates)
-
-    @classmethod
-    def _get_instance_template(cls, teaser_instance, bldg):
-        default = ['heavy', 'light', 'EnEv']
-        year_group = [1995, 2015]  # default year group
-        prj = bldg.parent
-        instance_type = type(teaser_instance).__name__
-        instance_templates = dict(prj.data.element_bind)
-        del instance_templates["version"]
-        if bldg.name in cls.instance_template:
-            if instance_type in cls.instance_template[bldg.name]:
-                year_group = str(cls.instance_template[bldg.name][instance_type][0])
-                selected_template = cls.instance_template[bldg.name][instance_type][1]
-                return [selected_template], year_group
-
-        template_options = []
-        for i in instance_templates:
-            years = instance_templates[i]['building_age_group']
-            if i.startswith(instance_type) and years[0] <= bldg.year_of_construction <= years[1]:
-                template_options.append(instance_templates[i]['construction_type'])
-                year_group = years
-        if len(template_options) == 0:
-            return default, year_group
-        return template_options, year_group
-
-    @Task.log
-    def run(self, workflow, instances, ifc):
-        self.logger.info("Export to TEASER")
-        prj = self._create_project(ifc.by_type('IfcProject')[0])
-        bldg_instances = SubElement.get_class_instances('Building')
-        for bldg_instance in bldg_instances:
-            bldg = self._create_building(bldg_instance, prj)
-            tz_instances = SubElement.get_class_instances('ThermalZone')
-            for tz_instance in tz_instances:
-                tz = self._create_thermal_zone(tz_instance, bldg)
-                self._bind_instances_to_zone(tz, tz_instance, bldg)
-                tz.calc_zone_parameters()
-            bldg.calc_building_parameter()
-
-        # prj.weather_file_path = utilities.get_full_path(
-        #     os.path.join(
-        #         'D:/09_OfflineArbeiten/Bim2Sim/Validierung_EP_TEASER/Resources/DEU_NW_Aachen.105010_TMYx.mos'))
-        # self.logger.info(Decision.summary())
-        # import pickle
-        #
-        # filename = os.path.join('D:/09_OfflineArbeiten/Bim2Sim/Validierung_EP_TEASER/TEASERPickles/teaser_pickled_Inst')
-        # outfile = open(filename, 'wb')
-        # pickle.dump(prj, outfile)
-        # outfile.close()
-        #
-        # with open(os.path.join(
-        #         'D:/09_OfflineArbeiten/Bim2Sim/Validierung_EP_TEASER/TEASERPickles/teaser_pickled_Inst'), 'rb') as f:
-        #     prj = pickle.load(f)
-        #
-        # print('test')
-        # self.logger.info(Decision.summary())
-        # Decision.decide_collected()
-        # Decision.save(PROJECT.decisions)
-        #
-        # Decision.save(
-        #     os.path.join('D:/09_OfflineArbeiten/Bim2Sim/Validierung_EP_TEASER/TEASERPickles/current_decisions.json'))
-        # prj.calc_all_buildings()
-
-        prj.export_aixlib(path=PROJECT.root / 'export' / 'TEASEROutput')
-        print()
-
+# class SetIFCTypesBPS(ITask):
+#     """Set list of relevant IFC types"""
+#     touches = ('relevant_ifc_types',)
+#
+#     def run(self, workflow):
+#         IFC_TYPES = workflow.relevant_ifc_types
+#         return IFC_TYPES,
+#
+#
+# class Inspect(ITask):
+#     """Analyses IFC and creates Element instances.
+#     Elements are stored in .instances dict with guid as key"""
+#
+#     reads = ('ifc', 'paths')
+#     touches = ('instances',)
+#
+#     def __init__(self):
+#         super().__init__()
+#         self.instances = {}
+#         pass
+#
+#     @Task.log
+#     def run(self, workflow, ifc, paths):
+#         self.logger.info("Creates python representation of relevant ifc types")
+#
+#         Element.finder.load(paths.finder)
+#         workflow.relevant_ifc_types = self.use_doors(workflow.relevant_ifc_types)
+#         for ifc_type in workflow.relevant_ifc_types:
+#             try:
+#                 entities = ifc.by_type(ifc_type)
+#                 for entity in entities:
+#                     element = Element.factory(entity, ifc_type)
+#                     self.instances[element.guid] = element
+#             except RuntimeError:
+#                 pass
+#         self.logger.info("Found %d building elements", len(self.instances))
+#
+#         return self.instances,
+#
+#     @staticmethod
+#     def use_doors(relevant_ifc_types):
+#         ifc_list = list(relevant_ifc_types)
+#         doors_decision = BoolDecision(question="Do you want for the doors to be considered on the bps analysis?",
+#                                       collect=False, global_key="Bps_Doors",
+#                                       allow_skip=False, allow_load=True, allow_save=True, quick_decide=not True
+#                                       )
+#         doors_decision.decide()
+#         if not doors_decision.value:
+#             ifc_list.remove('IfcDoor')
+#         return tuple(ifc_list)
+#
+#
+# class Prepare(ITask):
+#     """Prepares bim2sim instances to later export"""
+#     reads = ('instances', 'ifc',)
+#     touches = ('instances',)
+#
+#     # materials = {}
+#     # property_error = {}
+#     instance_template = {}
+#
+#     @Task.log
+#     def run(self, workflow, instances, ifc):
+#         self.logger.info("setting verifications")
+#         building = SubElement.get_class_instances('Building')[0]
+#         for guid, ins in instances.items():
+#             self.layers_verification(ins, building)
+#
+#         storeys = SubElement.get_class_instances('Storey')
+#
+#         tz_inspect = tz_detection.Inspect(self, workflow)
+#         tz_inspect.run(ifc, instances, storeys)
+#         instances.update(tz_inspect.instances)
+#
+#         for guid, ins in instances.items():
+#             new_orientation = self.orientation_verification(ins)
+#             if new_orientation is not None:
+#                 ins.orientation = new_orientation
+#
+#         tz_bind = tz_detection.Bind(self, workflow)
+#         tz_bind.run(instances)
+#
+#         return instances,
+#
+#     @staticmethod
+#     def orientation_verification(instance):
+#         supported_classes = {'Window', 'OuterWall', 'OuterDoor', 'Wall', 'Door'}
+#         if instance.__class__.__name__ in supported_classes:
+#             new_angles = list(set([space_boundary.orientation for space_boundary in instance.space_boundaries]))
+#             # new_angles = list(set([space_boundary.orientation - space_boundary.thermal_zones[0].orientation for space_boundary in instance.space_boundaries]))
+#             if len(new_angles) > 1:
+#                 return None
+#             # no true north necessary
+#             new_angle = angle_equivalent(new_angles[0])
+#             # new angle return
+#             if new_angle - instance.orientation > 0.1:
+#                 return new_angle
+#
+#     # @classmethod
+#     # def layers_verification(cls, instance, building):
+#     #     supported_classes = {'OuterWall', 'Wall', 'InnerWall', 'Door', 'InnerDoor', 'OuterDoor', 'Roof', 'Floor',
+#     #                          'GroundFloor', 'Window'}
+#     #     instance_type = instance.__class__.__name__
+#     #     if instance_type in supported_classes:
+#     #         # through the type elements enrichment without comparisons
+#     #         if instance_type not in cls.instance_template:
+#     #             type_elements_decision = BoolDecision(
+#     #                 question="Do you want for all %ss to be enriched before any calculation "
+#     #                          "with the type elements template," % type(instance).__name__,
+#     #                 global_key="type_elements_%s" % type(instance).__name__,
+#     #                 collect=False)
+#     #             type_elements_decision.decide()
+#     #             if type_elements_decision.value:
+#     #                 return cls.template_layers_creation(instance, building)
+#     #         else:
+#     #             return cls.template_layers_creation(instance, building)
+#     #         u_value_verification = cls.compare_with_template(instance, building)
+#     #         # comparison with templates value
+#     #         if u_value_verification is False:
+#     #             # ToDo logger
+#     #             print("u_value verification failed, the %s u value is "
+#     #                                 "doesn't correspond to the year of construction. Please create new layer set" %
+#     #                                 type(instance).__name__)
+#     #             # cls.logger.warning("u_value verification failed, the %s u value is "
+#     #             #                     "doesn't correspond to the year of construction. Please create new layer set" %
+#     #             #                     type(instance).__name__)
+#     #             return cls.layer_creation(instance, building)
+#     #         # instance.layers = [] # probe
+#     #         layers_width = 0
+#     #         layers_r = 0
+#     #         for layer in instance.layers:
+#     #             layers_width += layer.thickness
+#     #             if layer.thermal_conduc is not None:
+#     #                 if layer.thermal_conduc > 0:
+#     #                     layers_r += layer.thickness / layer.thermal_conduc
+#     #
+#     #         # critical failure // check units again
+#     #         width_discrepancy = abs(instance.width - layers_width) / instance.width if \
+#     #             (instance.width is not None and instance.width > 0) else 9999
+#     #         u_discrepancy = abs(instance.u_value - 1 / layers_r) / instance.u_value if \
+#     #             (instance.u_value is not None and instance.u_value > 0) else 9999
+#     #         if width_discrepancy > 0.2 or u_discrepancy > 0.2:
+#     #             # ToDo Logger
+#     #             print("Width or U Value discrepancy found. Please create new layer set")
+#     #             # cls.logger.warning("Width or U Value discrepancy found. Please create new layer set")
+#     #             cls.layer_creation(instance, building)
+#
+#     def layers_verification(self, instance, building):
+#         supported_classes = {'OuterWall', 'Wall', 'InnerWall', 'Door', 'InnerDoor', 'OuterDoor', 'Roof', 'Floor',
+#                              'GroundFloor', 'Window'}
+#         instance_type = instance.__class__.__name__
+#         if instance_type in supported_classes:
+#             # through the type elements enrichment without comparisons
+#             if instance_type not in self.instance_template:
+#                 type_elements_decision = BoolDecision(
+#                     question="Do you want for all %s's to be enriched before any calculation "
+#                              "with the type elements template," % type(instance).__name__,
+#                     global_key="%s_type_elements_used" % type(instance).__name__,
+#                     collect=False, allow_load=True, allow_save=True,
+#                     quick_decide=not True)
+#                 type_elements_decision.decide()
+#                 if type_elements_decision.value:
+#                     return self.template_layers_creation(instance, building)
+#             else:
+#                 return self.template_layers_creation(instance, building)
+#             u_value_verification = self.compare_with_template(instance, building)
+#             # comparison with templates value
+#             if u_value_verification is False:
+#                 self.logger.warning("u_value verification failed, the %s u value is "
+#                                     "doesn't correspond to the year of construction. Please create new layer set" %
+#                                     type(instance).__name__)
+#                 return self.layer_creation(instance, building)
+#             # instance.layers = [] # probe
+#             layers_width = 0
+#             layers_r = 0
+#             for layer in instance.layers:
+#                 layers_width += layer.thickness
+#                 if layer.thermal_conduc is not None:
+#                     if layer.thermal_conduc > 0:
+#                         layers_r += layer.thickness / layer.thermal_conduc
+#
+#             # critical failure // check units again
+#             width_discrepancy = abs(instance.width - layers_width) / instance.width if \
+#                 (instance.width is not None and instance.width > 0) else 9999
+#             u_discrepancy = abs(instance.u_value - 1 / layers_r) / instance.u_value if \
+#                 (instance.u_value is not None and instance.u_value > 0) else 9999
+#             if width_discrepancy > 0.2 or u_discrepancy > 0.2:
+#                 self.logger.warning("Width or U Value discrepancy found. Please create new layer set")
+#                 self.layer_creation(instance, building)
+#
+#     def layer_creation(self, instance, building, iteration=0):
+#         decision_layers = ListDecision("the following layer creation methods were found for \n"
+#                                        "Belonging Item: %s | GUID: %s \n" % (instance.name, instance.guid),
+#                                        choices=['Manual layers creation (from zero)',
+#                                                 'Template layers creation (based on given u value)'],
+#                                        global_key='%s_%s.layer_creation_method_%d' %
+#                                                   (type(instance).__name__, instance.guid, iteration),
+#                                        allow_skip=True, allow_load=True, allow_save=True,
+#                                        collect=False, quick_decide=not True)
+#         decision_layers.decide()
+#         if decision_layers.value == 'Manual layers creation (from zero)':
+#             self.manual_layers_creation(instance, building, iteration)
+#         elif decision_layers.value == 'Template layers creation (based on given u value)':
+#             self.template_layers_creation(instance, building)
+#
+#     def manual_layers_creation(self, instance, building, iteration):
+#         instance.layers = []
+#         layers_width = 0
+#         layers_r = 0
+#         layers_number_dec = RealDecision("Enter value for the number of layers",
+#                                          global_key='%s_%s.layers_number_%d' %
+#                                                     (type(instance).__name__, instance.guid, iteration),
+#                                          allow_skip=False, allow_load=True, allow_save=True,
+#                                          collect=False, quick_decide=False)
+#         layers_number_dec.decide()
+#         layers_number = int(layers_number_dec.value)
+#         layer_number = 1
+#         if instance.width is None:
+#             instance_width = RealDecision("Enter value for width of instance %d" % instance.name,
+#                                           global_key='%s_%s.instance_width_%d' %
+#                                                      (type(instance).__name__, instance.guid, iteration),
+#                                           allow_skip=False, allow_load=True, allow_save=True,
+#                                           collect=False, quick_decide=False)
+#             instance_width.decide()
+#             instance.width = instance_width.value
+#         while layer_number <= layers_number:
+#             if layer_number == layers_number:
+#                 thickness_value = instance.width - layers_width
+#             else:
+#                 layer_thickness = RealDecision("Enter value for thickness of layer %d, it muss be <= %r" %
+#                                                (layer_number, instance.width - layers_width),
+#                                                global_key='%s_%s.layer_%d_width%d' %
+#                                                           (type(instance).__name__, instance.guid, layer_number,
+#                                                            iteration),
+#                                                allow_skip=False, allow_load=True, allow_save=True,
+#                                                collect=False, quick_decide=False)
+#                 layer_thickness.decide()
+#                 thickness_value = layer_thickness.value
+#             # ToDo: Input through decision
+#             material_input = input(
+#                 "Enter material for the layer %d (it will be searched or manual input)" % layer_number)
+#             new_layer = elements.Layer.create_additional_layer(thickness_value, material=material_input, parent=instance)
+#             instance.layers.append(new_layer)
+#             layers_width += new_layer.thickness
+#             layers_r += new_layer.thickness / new_layer.thermal_conduc
+#             if layers_width >= instance.width:
+#                 break
+#             layer_number += 1
+#
+#         instance.u_value = 1 / layers_r
+#         # check validity of new u value e
+#         iteration = 1
+#         while self.compare_with_template(instance, building) is False:
+#             self.logger.warning("The created layers does not comply with the valid u_value range, "
+#                                 "please create new layer set")
+#             self.layer_creation(instance, building, iteration)
+#             iteration += 1
+#         pass
+#
+#     @classmethod
+#     def template_layers_creation(cls, instance, building):
+#         instance.layers = []
+#         layers_width = 0
+#         layers_r = 0
+#         template = cls.get_instance_template(instance, building)
+#         if template is not None:
+#             for i_layer, layer_props in template['layer'].items():
+#                 new_layer = elements.Layer.create_additional_layer(
+#                     layer_props['thickness'], instance, material=layer_props['material']['name'])
+#                 instance.layers.append(new_layer)
+#                 layers_width += new_layer.thickness
+#                 layers_r += new_layer.thickness / new_layer.thermal_conduc
+#             instance.width = layers_width
+#             instance.u_value = 1 / layers_r
+#         # with template comparison not necessary
+#         pass
+#
+#     @classmethod
+#     def compare_with_template(cls, instance, building):
+#         template_options = []
+#         if instance.u_value is None:
+#             return False
+#         year_of_construction = building.year_of_construction
+#         if year_of_construction is None:
+#             year_decision = RealDecision("Enter value for the buildings year of construction",
+#                                          global_key="Building_%s.year_of_construction" % building.guid,
+#                                          allow_skip=False, allow_load=True, allow_save=True,
+#                                          collect=False, quick_decide=False)
+#             year_decision.decide()
+#             year_of_construction = int(year_decision.value.m)
+#         else:
+#             year_of_construction = int(building.year_of_construction)
+#
+#         instance_templates = dict(DataClass(used_param=3).element_bind)
+#         material_templates = dict(DataClass(used_param=2).element_bind)
+#         instance_type = type(instance).__name__
+#         for i in instance_templates[instance_type]:
+#             years = ast.literal_eval(i)
+#             if years[0] <= year_of_construction <= years[1]:
+#                 for type_e in instance_templates[instance_type][i]:
+#                     # relev_info = instance_templates[instance_type][i][type_e]
+#                     # if instance_type == 'InnerWall':
+#                     #     layers_r = 2 / relev_info['inner_convection']
+#                     # else:
+#                     #     layers_r = 1 / relev_info['inner_convection'] + 1 / relev_info['outer_convection']
+#                     layers_r = 0
+#                     for layer, data_layer in instance_templates[instance_type][i][type_e]['layer'].items():
+#                         material_tc = material_templates[data_layer['material']['material_id']]['thermal_conduc']
+#                         layers_r += data_layer['thickness'] / material_tc
+#                     template_options.append(1 / layers_r)  # area?
+#                 break
+#
+#         template_options.sort()
+#         # check u_value
+#         if template_options[0] * 0.8 <= instance.u_value <= template_options[1] * 1.2:
+#             return True
+#         return False
+#
+#     @classmethod
+#     def get_instance_template(cls, instance, building):
+#
+#         instance_type = type(instance).__name__
+#         instance_templates = dict(DataClass(used_param=3).element_bind)
+#         if instance_type in cls.instance_template:
+#             return cls.instance_template[instance_type]
+#
+#         year_of_construction = building.year_of_construction
+#         if year_of_construction is None:
+#             year_decision = RealDecision("Enter value for the buildings year of construction",
+#                                          global_key="Building_%s.year_of_construction" % building.guid,
+#                                          allow_skip=False, allow_load=True, allow_save=True,
+#                                          collect=False, quick_decide=False)
+#             year_decision.decide()
+#             building.year_of_construction = int(year_decision.value.m)
+#
+#         year_of_construction = building.year_of_construction.m
+#         template_options = []
+#         for i in instance_templates[instance_type]:
+#             years = ast.literal_eval(i)
+#             if years[0] <= int(year_of_construction) <= years[1]:
+#                 template_options = instance_templates[instance_type][i]
+#                 break
+#
+#         if len(template_options.keys()) > 0:
+#             decision_template = ListDecision("the following construction types were "
+#                                              "found for year %s and instance type %s"
+#                                              % (year_of_construction, instance_type),
+#                                              choices=list(template_options.keys()),
+#                                              global_key="%s_%s.bpsTemplate" % (type(instance).__name__, instance.guid),
+#                                              allow_skip=True, allow_load=True, allow_save=True,
+#                                              collect=False, quick_decide=not True)
+#             if decision_template.value is None:
+#                 decision_template.decide()
+#             template_value = template_options[decision_template.value]
+#             cls.instance_template[instance_type] = template_value
+#             return template_value
+#
+#
+# class ExportTEASER(ITask):
+#     """Exports a Modelica model with TEASER by using the found information
+#     from IFC"""
+#     reads = ('instances', 'ifc',)
+#     final = True
+#
+#     materials = {}
+#     property_error = {}
+#     instance_template = {}
+#
+#     instance_switcher = {'OuterWall': OuterWall,
+#                          'InnerWall': InnerWall,
+#                          'Floor': Floor,
+#                          'Window': Window,
+#                          'GroundFloor': GroundFloor,
+#                          'Roof': Rooftop,
+#                          # 'OuterDoor': OuterWall,
+#                          # 'InnerDoor': InnerWall
+#                          }
+#
+#     @staticmethod
+#     def _create_project(element):
+#         """Creates a project in TEASER by a given BIM2SIM instance
+#         Parent: None"""
+#         prj = Project(load_data=True)
+#         if len(element.Name) != 0:
+#             prj.name = element.Name
+#         else:
+#             prj.name = element.LongName
+#         prj.data.load_uc_binding()
+#         return prj
+#
+#     @classmethod
+#     def _create_building(cls, instance, parent):
+#         """Creates a building in TEASER by a given BIM2SIM instance
+#         Parent: Project"""
+#         bldg = Building(parent=parent)
+#         # name is important here
+#         cls._teaser_property_getter(bldg, instance, instance.finder.templates)
+#         cls.instance_template[bldg.name] = {}  # create instance template dict
+#         return bldg
+#
+#     @classmethod
+#     def _create_thermal_zone(cls, instance, parent):
+#         """Creates a thermal zone in TEASER by a given BIM2SIM instance
+#         Parent: Building"""
+#         tz = ThermalZone(parent=parent)
+#         cls._teaser_property_getter(tz, instance, instance.finder.templates)
+#         tz.volume = instance.area * instance.height
+#         tz.use_conditions = UseConditions(parent=tz)
+#         tz.use_conditions.load_use_conditions(instance.usage)
+#         if instance.t_set_heat:
+#             tz.use_conditions.set_temp_heat = conversion(instance.t_set_heat, '°C', 'K').magnitude
+#         if instance.t_set_cool:
+#             tz.use_conditions.set_temp_cool = conversion(instance.t_set_cool, '°C', 'K').magnitude
+#
+#         tz.use_conditions.cooling_profile = [conversion(25, '°C', 'K').magnitude] * 25
+#         tz.use_conditions.with_cooling = instance.with_cooling
+#         # hardcode for paper:
+#         # todo dja
+#         # if PROJECT.PAPER:
+#         #     tz.use_conditions.cooling_profile = [conversion(25, '°C', 'K').magnitude] * 25
+#         #     tz.use_conditions.with_cooling = instance.with_cooling
+#         #     tz.use_conditions.use_constant_infiltration = True
+#         #     tz.use_conditions.infiltration_rate = 0.2
+#
+#         return tz
+#
+#     @classmethod
+#     def _create_teaser_instance(cls, instance, parent, bldg):
+#         """creates a teaser instances with a given parent and BIM2SIM instance
+#         get exporter necessary properties, from a given instance
+#         Parent: ThermalZone"""
+#         # determine if is instance or subinstance (disaggregation) get templates from instance
+#         if hasattr(instance, 'parent'):
+#             sw = type(instance.parent).__name__
+#             templates = instance.parent.finder.templates
+#         else:
+#             sw = type(instance).__name__
+#             templates = instance.finder.templates
+#
+#         teaser_class = cls.instance_switcher.get(sw)
+#         if teaser_class is not None:
+#             teaser_instance = teaser_class(parent=parent)
+#             cls._teaser_property_getter(teaser_instance, instance, templates)
+#             cls._instance_related(teaser_instance, instance, bldg)
+#
+#     @classmethod
+#     def _teaser_property_getter(cls, teaser_instance, instance, templates):
+#         """get and set all properties necessary to create a Teaser Instance from a BIM2Sim Instance,
+#         based on the information on the base.json exporter"""
+#         sw = type(teaser_instance).__name__
+#         if sw == 'Rooftop':
+#             sw = 'Roof'
+#         for key, value in templates['base'][sw]['exporter']['teaser'].items():
+#             if isinstance(value, list):
+#                 # get property from instance (instance dependant on instance)
+#                 if value[0] == 'instance':
+#                     aux = getattr(instance, value[1])
+#                     if type(aux).__name__ == 'Quantity':
+#                         aux = aux.magnitude
+#                     cls._invalid_property_filter(teaser_instance, instance, key, aux)
+#             else:
+#                 # get property from json (fixed property)
+#                 setattr(teaser_instance, key, value)
+#
+#     @classmethod
+#     def _invalid_property_filter(cls, teaser_instance, instance, key, aux):
+#         """Filter the invalid property values and fills it with a template or an user given value,
+#         if value is valid, returns the value
+#         invalid value: ZeroDivisionError on thermal zone calculations"""
+#         error_properties = ['density', 'thickness', 'heat_capac',
+#                             'thermal_conduc', 'area']  # properties that are vital to thermal zone calculations
+#         white_list_properties = ['orientation']
+#         if (aux is None or aux == 0) and key not in white_list_properties:
+#             # name from instance to store in error dict
+#             if hasattr(instance, 'material'):
+#                 name_error = instance.material
+#             else:
+#                 name_error = instance.name
+#             try:
+#                 aux = cls.property_error[name_error][key]
+#             # redundant case for invalid properties
+#             except KeyError:
+#                 if key in error_properties:
+#                     if hasattr(instance, 'get_material_properties'):
+#                         aux = instance.get_material_properties(key)
+#                     while aux is None or aux == 0:
+#                         aux = float(input('please enter a valid value for %s from %s' % (key, name_error)))
+#                     if name_error not in cls.property_error:
+#                         cls.property_error[name_error] = {}
+#                     cls.property_error[name_error][key] = aux
+#         # set attr on teaser instance
+#         setattr(teaser_instance, key, aux)
+#
+#     @classmethod
+#     def _bind_instances_to_zone(cls, tz, tz_instance, bldg):
+#         """create and bind the instances of a given thermal zone to a teaser instance thermal zone"""
+#         for bound_element in tz_instance.bound_elements:
+#             cls._create_teaser_instance(bound_element, tz, bldg)
+#
+#     @classmethod
+#     def _instance_related(cls, teaser_instance, instance, bldg):
+#         """instance specific function, layers creation
+#         if layers not given, loads template"""
+#         # property getter if instance has materials/layers
+#         if isinstance(instance.layers, list) and len(instance.layers) > 0:
+#             for layer_instance in instance.layers:
+#                 layer = Layer(parent=teaser_instance)
+#                 cls._invalid_property_filter(layer, layer_instance, 'thickness', layer_instance.thickness)
+#                 cls._material_related(layer, layer_instance, bldg)
+#         # property getter if instance doesn't have any materials/layers
+#         else:
+#             if getattr(bldg, 'year_of_construction') is None:
+#                 bldg.year_of_construction = int(input("Please provide a valid year of construction for building: "))
+#             template_options, years_group = cls._get_instance_template(teaser_instance, bldg)
+#             template_value = None
+#             if len(template_options) > 1:
+#                 decision_template = ListDecision("the following construction types were "
+#                                                  "found for year %s and instance type %s"
+#                                                  % (bldg.year_of_construction, type(instance).__name__),
+#                                                  choices=list(template_options.keys()),
+#                                                  global_key="%s_%s.bpsTemplate" %
+#                                                             (type(instance).__name__, instance.guid),
+#                                                  allow_skip=True, allow_load=True, allow_save=True,
+#                                                  collect=False, quick_decide=not True)
+#                 decision_template.decide()
+#                 template_value = decision_template.value
+#             elif len(template_options) == 1:
+#                 template_value = template_options[0]
+#             cls.instance_template[bldg.name][type(teaser_instance).__name__] = [years_group, template_value]
+#             teaser_instance.load_type_element(year=bldg.year_of_construction, construction=template_value)
+#
+#     @classmethod
+#     def _material_related(cls, layer, layer_instance, bldg):
+#         """material instance specific functions, get properties of material and creates Material in teaser,
+#         if material or properties not given, loads material template"""
+#         material = Material(parent=layer)
+#         cls._teaser_property_getter(material, layer_instance, layer_instance.finder.templates)
+#
+#     @classmethod
+#     def _get_instance_template(cls, teaser_instance, bldg):
+#         default = ['heavy', 'light', 'EnEv']
+#         year_group = [1995, 2015]  # default year group
+#         prj = bldg.parent
+#         instance_type = type(teaser_instance).__name__
+#         instance_templates = dict(prj.data.element_bind)
+#         del instance_templates["version"]
+#         if bldg.name in cls.instance_template:
+#             if instance_type in cls.instance_template[bldg.name]:
+#                 year_group = str(cls.instance_template[bldg.name][instance_type][0])
+#                 selected_template = cls.instance_template[bldg.name][instance_type][1]
+#                 return [selected_template], year_group
+#
+#         template_options = []
+#         for i in instance_templates:
+#             years = instance_templates[i]['building_age_group']
+#             if i.startswith(instance_type) and years[0] <= bldg.year_of_construction <= years[1]:
+#                 template_options.append(instance_templates[i]['construction_type'])
+#                 year_group = years
+#         if len(template_options) == 0:
+#             return default, year_group
+#         return template_options, year_group
+#
+#     @Task.log
+#     def run(self, workflow, instances, ifc):
+#         self.logger.info("Export to TEASER")
+#         prj = self._create_project(ifc.by_type('IfcProject')[0])
+#         bldg_instances = SubElement.get_class_instances('Building')
+#         for bldg_instance in bldg_instances:
+#             bldg = self._create_building(bldg_instance, prj)
+#             tz_instances = SubElement.get_class_instances('ThermalZone')
+#             for tz_instance in tz_instances:
+#                 tz = self._create_thermal_zone(tz_instance, bldg)
+#                 self._bind_instances_to_zone(tz, tz_instance, bldg)
+#                 tz.calc_zone_parameters()
+#             bldg.calc_building_parameter()
+#
+#         # prj.weather_file_path = utilities.get_full_path(
+#         #     os.path.join(
+#         #         'D:/09_OfflineArbeiten/Bim2Sim/Validierung_EP_TEASER/Resources/DEU_NW_Aachen.105010_TMYx.mos'))
+#         # self.logger.info(Decision.summary())
+#         # import pickle
+#         #
+#         # filename = os.path.join('D:/09_OfflineArbeiten/Bim2Sim/Validierung_EP_TEASER/TEASERPickles/teaser_pickled_Inst')
+#         # outfile = open(filename, 'wb')
+#         # pickle.dump(prj, outfile)
+#         # outfile.close()
+#         #
+#         # with open(os.path.join(
+#         #         'D:/09_OfflineArbeiten/Bim2Sim/Validierung_EP_TEASER/TEASERPickles/teaser_pickled_Inst'), 'rb') as f:
+#         #     prj = pickle.load(f)
+#         #
+#         # print('test')
+#         # self.logger.info(Decision.summary())
+#         # Decision.decide_collected()
+#         # Decision.save(PROJECT.decisions)
+#         #
+#         # Decision.save(
+#         #     os.path.join('D:/09_OfflineArbeiten/Bim2Sim/Validierung_EP_TEASER/TEASERPickles/current_decisions.json'))
+#         # prj.calc_all_buildings()
+#
+#         prj.export_aixlib(path=PROJECT.root / 'export' / 'TEASEROutput')
+#         print()
+#
 
 
 class ExportEP(ITask):
@@ -693,18 +694,19 @@ class ExportEP(ITask):
 
     ENERGYPLUS_VERSION = "9-4-0"
 
-    reads = ('instances', 'ifc',)
+    reads = ('instances', 'ifc', 'paths')
     final = True
 
     @Task.log
-    def run(self, workflow, instances, ifc):
+    def run(self, workflow, instances, ifc, paths):
         for inst in list(instances):
             if instances[inst].ifc_type == "IfcSpace":
                 for bound in instances[inst].space_boundaries:
                     instances[bound.guid] = bound
         # geometric preprocessing before export
+        self.paths = paths
         self.logger.info("Check syntax of IfcRelSpaceBoundary")
-        sb_checker = Checker(ifc)
+        sb_checker = Checker(ifc, paths)
         self.logger.info("All tests done!")
         if len(sb_checker.error_summary) == 0:
             self.logger.info(
@@ -739,7 +741,7 @@ class ExportEP(ITask):
         # # self._intersect_scaled_centerline_bounds(instances)
         self.logger.info("Geometric preprocessing for EnergyPlus Export finished!")
         self.logger.info("IDF generation started ...")
-        idf = self._init_idf()
+        idf = self._init_idf(paths)
         self._init_zone(instances, idf)
         self._init_zonelist(idf)
         self._init_zonegroups(instances, idf)
@@ -761,7 +763,7 @@ class ExportEP(ITask):
         self._export_geom_to_idf(instances, idf)
         self._set_output_variables(idf)
         idf.save()
-        # self._export_surface_areas(instances, idf) # todo: fix
+        self._export_surface_areas(instances, idf) # todo: fix
         self._export_space_info(instances, idf)
         self._export_boundary_report(instances, idf, ifc)
         self.logger.info("IDF generation finished!")
@@ -769,9 +771,10 @@ class ExportEP(ITask):
         # idf.view_model()
         # self._export_to_stl_for_cfd(instances, idf)
         # self._display_shape_of_space_boundaries(instances)
-        output_string = str(PROJECT.root) + "/export/EP-results/"
+        output_string = str(paths.export / 'EP-results/')
         idf.run(output_directory=output_string, readvars=True)
-        # self._visualize_results()
+        # self._visualize_results(
+        #     csv_name=paths.export / 'EP-results/eplusout.csv')
 
     def _string_to_datetime(self, date_str):
         """
@@ -796,7 +799,7 @@ class ExportEP(ITask):
         return_df = return_df.set_index("Date/Time", drop=True).dropna()
         return return_df
 
-    def _visualize_results(self, csv_name=str(PROJECT.root) + "/export/EP-results/eplusout.csv", period="week",
+    def _visualize_results(self, csv_name, period="week",
                            number=28, date=False):
         """
         Plot Zone Mean Air Temperature (Hourly) vs Outdoor Temperature per zone and as an overview on all zones.
@@ -1561,7 +1564,7 @@ class ExportEP(ITask):
     def _export_to_stl_for_cfd(self, instances, idf):
         self.logger.info("Export STL for CFD")
         stl_name = idf.idfname.replace('.idf', '')
-        stl_name = stl_name.replace(str(PROJECT.root) + "/export/", '')
+        stl_name = stl_name.replace(str(self.paths.export), '')
         self.export_bounds_to_stl(instances, stl_name)
         self.export_bounds_per_space_to_stl(instances, stl_name)
         self.export_2B_bounds_to_stl(instances, stl_name)
@@ -1569,8 +1572,8 @@ class ExportEP(ITask):
         self.export_space_bound_list(instances)
 
     @staticmethod
-    def export_space_bound_list(instances):
-        stl_dir = str(PROJECT.root) + "/export/"
+    def export_space_bound_list(instances, paths):
+        stl_dir = str(paths.export)
         space_bound_df = pd.DataFrame(columns=["space_id", "bound_ids"])
         for inst in instances:
             if instances[inst].ifc_type != "IfcSpace":
@@ -1584,8 +1587,8 @@ class ExportEP(ITask):
         space_bound_df.to_csv(stl_dir + "space_bound_list.csv")
 
     @staticmethod
-    def combine_stl_files(stl_name):
-        stl_dir = str(PROJECT.root) + "/export/"
+    def combine_stl_files(stl_name, paths):
+        stl_dir = str(paths.export)
         with open(stl_dir + stl_name + "_combined_STL.stl", 'wb+') as output_file:
             for i in os.listdir(stl_dir + 'STL/'):
                 if os.path.isfile(os.path.join(stl_dir + 'STL/', i)) and (stl_name + "_cfd_") in i:
@@ -1596,8 +1599,8 @@ class ExportEP(ITask):
                     sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
 
     @staticmethod
-    def combine_space_stl_files(stl_name, space_name):
-        stl_dir = str(PROJECT.root) + "/export/"
+    def combine_space_stl_files(stl_name, space_name, paths):
+        stl_dir = str(paths.export)
         os.makedirs(os.path.dirname(stl_dir + "space_stl/"), exist_ok=True)
 
         with open(stl_dir + "space_stl/" + "space_" + space_name + ".stl", 'wb+') as output_file:
@@ -1610,7 +1613,7 @@ class ExportEP(ITask):
                     sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
 
     @staticmethod
-    def _init_idf():
+    def _init_idf(paths):
         """
         Initialize the idf with general idf settings and set default weather data.
         :return:
@@ -1621,7 +1624,7 @@ class ExportEP(ITask):
         path = f'D:/04_Programme/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
         IDF.setiddname(path + 'Energy+.idd')
         idf = IDF(path + "ExampleFiles/Minimal.idf")
-        idf.idfname = str(PROJECT.root) + "/export/temp.idf"
+        idf.idfname = str(paths.export / 'temp.idf')
         schedules_idf = IDF(path + "DataSets/Schedules.idf")
         schedules = schedules_idf.idfobjects["Schedule:Compact".upper()]
         sch_typelim = schedules_idf.idfobjects["ScheduleTypeLimits".upper()]
@@ -1629,7 +1632,7 @@ class ExportEP(ITask):
             idf.copyidfobject(s)
         for t in sch_typelim:
             idf.copyidfobject(t)
-        idf.epw = PROJECT.root / 'resources/DEU_NW_Aachen.105010_TMYx.epw'
+        idf.epw = str(paths.root / 'resources/DEU_NW_Aachen.105010_TMYx.epw')
         return idf
 
     def _get_ifc_spaces(self, instances):
@@ -1752,8 +1755,8 @@ class ExportEP(ITask):
 
     def _get_bs2021_materials_and_constructions(self, idf, year=2008, ctype="heavy", wtype=["Alu", "Waermeschutz", "zwei"]):
         materials = []
-        mt_path = PROJECT.root / 'MaterialTemplates/MaterialTemplates.json'
-        be_path = PROJECT.root / 'MaterialTemplates/TypeBuildingElements.json'
+        mt_path = self.paths.root / 'MaterialTemplates/MaterialTemplates.json'
+        be_path = self.paths.root / 'MaterialTemplates/TypeBuildingElements.json'
         with open(mt_path) as json_file:
             mt_file = json.load(json_file)
         with open(be_path) as json_file:
@@ -1868,11 +1871,13 @@ class ExportEP(ITask):
             "Bad": "WC and sanitary rooms in non-residential buildings",
             "Labor": "Laboratory"
         }
-        uc_path = PROJECT.root / 'MaterialTemplates/UseConditions.json'
+        uc_path = self.paths.root / 'MaterialTemplates/UseConditions.json'
         with open(uc_path) as json_file:
             uc_file = json.load(json_file)
-        room_key = [v for k, v in zone_dict.items() if k in key]
-        if room_key == []:
+        room_key = []
+        if key is not None:
+            room_key = [v for k, v in zone_dict.items() if k in key]
+        if not room_key:
             room_key = ['Single office']
         room = dict([k for k in uc_file.items() if type(k[1]) == dict])[room_key[0]]
         return room, room_key
@@ -2157,6 +2162,8 @@ class ExportEP(ITask):
         :param idf: idf file object
         :return: idf file object
         """
+        out_control = idf.idfobjects['OUTPUTCONTROL:TABLE:STYLE']
+        out_control[0].Column_Separator = 'CommaAndHTML'
 
         # remove all existing output variables with reporting frequency "Timestep"
         out_var = [v for v in idf.idfobjects['OUTPUT:VARIABLE']
@@ -2380,7 +2387,7 @@ class ExportEP(ITask):
             glazing_zone = [g for g in glazing for s_name in surf_names if g.Building_Surface_Name == s_name]
             area_df = self._append_set_of_area_sum(area_df, granularity="ZONE", guid=z_name, long_name=long_name,
                                                    surface=surf_zone, glazing=glazing_zone)
-        area_df.to_csv(path_or_buf=str(PROJECT.export) + "/area.csv")
+        area_df.to_csv(path_or_buf=str(self.paths.export) + "/area.csv")
 
     def _append_set_of_area_sum(self, area_df, granularity, guid, long_name, surface, glazing):
         """ generate set of area sums for a given granularity for outdoor, surface and adiabatic boundary conditions.
@@ -2443,7 +2450,7 @@ class ExportEP(ITask):
                 }],
                 ignore_index=True
             )
-        space_df.to_csv(path_or_buf=str(PROJECT.export) + "/space.csv")
+        space_df.to_csv(path_or_buf=str(self.paths.export) + "/space.csv")
 
     def _export_boundary_report(self, instances, idf, ifc):
         bound_count = pd.DataFrame(
@@ -2483,7 +2490,7 @@ class ExportEP(ITask):
             }],
             ignore_index=True
         )
-        bound_count.to_csv(path_or_buf=str(PROJECT.export) + "/bound_count.csv")
+        bound_count.to_csv(path_or_buf=str(self.paths.export) + "/bound_count.csv")
 
     @staticmethod
     def _get_neighbor_bounds(instances):
@@ -2507,7 +2514,8 @@ class ExportEP(ITask):
                         opening_obj.related_parent_bound.bound_shape,
                         Extrema_ExtFlag_MIN
                     ).Value()
-
+                    if distance < 0.001:
+                        continue
                     prod_vec = []
                     for i in opening_obj.bound_normal.Coord():
                         prod_vec.append(distance * i)
@@ -2538,6 +2546,8 @@ class ExportEP(ITask):
                         vec = gp_Vec(coord)
                         trsf.SetTranslation(vec)
                         opening_obj.bound_shape = BRepBuilderAPI_Transform(opening_obj.bound_shape, trsf).Shape()
+                    # update bound center attribute for new shape location
+                    opening_obj.bound_center = SpaceBoundary.get_bound_center(opening_obj, 'bound_center')
 
     @staticmethod
     def _get_parents_and_children(instances):
@@ -2655,7 +2665,7 @@ class ExportEP(ITask):
             inst_obj = instances[inst]
             if inst_obj.physical:
                 name = inst_obj.ifc.GlobalId
-                stl_dir = str(PROJECT.root) + "/export/STL/"
+                stl_dir = str(self.paths.root) + "/export/STL/"
                 this_name = stl_dir + str(stl_name) + "_cfd_" + str(name) + ".stl"
                 os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
 
@@ -2682,7 +2692,7 @@ class ExportEP(ITask):
                 continue
             space_obj = instances[inst]
             space_name = space_obj.ifc.GlobalId
-            stl_dir = str(PROJECT.root) + "/export/STL/" + space_name + "/"
+            stl_dir = str(self.paths.root) + "/export/STL/" + space_name + "/"
             os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
             for inst_obj in space_obj.space_boundaries:
                 if not inst_obj.physical:
@@ -2822,7 +2832,7 @@ class ExportEP(ITask):
             area = bound_prop.Mass()
             if area > 0:
                 name = space_obj.ifc.GlobalId + "_2B"
-                stl_dir = str(PROJECT.root) + "/export/STL/"
+                stl_dir = str(self.paths.root) + "/export/STL/"
                 this_name = stl_dir + str(stl_name) + "_cfd_" + str(name) + ".stl"
                 os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
                 triang_face = BRepMesh_IncrementalMesh(space_obj.b_bound_shape, 1)
@@ -3477,10 +3487,11 @@ class IdfObject():
 
 
 class Checker:
-    def __init__(self, ifc):
+    def __init__(self, ifc, paths):
         self.error_summary = {}
         self.bounds = ifc.by_type('IfcRelSpaceBoundary')
         self.id_list = [e.GlobalId for e in ifc.by_type("IfcRoot")]
+        self.paths = paths
         self._check_space_boundaries()
         self._write_errors_to_json()
 
@@ -3491,7 +3502,7 @@ class Checker:
                 self.error_summary.update({bound.GlobalId: sbv.error})
 
     def _write_errors_to_json(self):
-        with open(str(PROJECT.root) + "/export/" + 'ifc_SB_error_summary.json', 'w+') as fp:
+        with open(str(self.paths.root) + "/export/" + 'ifc_SB_error_summary.json', 'w+') as fp:
             json.dump(self.error_summary, fp, indent="\t")
 
 

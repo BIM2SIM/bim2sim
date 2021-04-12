@@ -3,7 +3,8 @@ import re
 import json
 import translators as ts
 
-from bim2sim.project import PROJECT
+import bim2sim
+from pathlib import Path
 
 
 def angle_equivalent(angle):
@@ -43,8 +44,11 @@ def vector_angle(vector):
             return tang + 360
 
 
+assets = Path(bim2sim.__file__).parent/'assets'
+
+
 def get_usage_dict() -> dict:
-    usage_path = PROJECT.assets / 'MaterialTemplates' / 'UseConditions.json'
+    usage_path = assets/'MaterialTemplates'/'UseConditions.json'
     with open(usage_path, 'r+') as f:
         usage_dict = json.load(f)
         del usage_dict['version']
@@ -53,7 +57,7 @@ def get_usage_dict() -> dict:
 
 def get_pattern_usage(translate=False):
     """get usage patterns to use it on the thermal zones get_usage"""
-    use_conditions_path = PROJECT.assets / 'MaterialTemplates' / 'UseConditions.json'
+    use_conditions_path = assets/'MaterialTemplates/UseConditions.json'
     with open(use_conditions_path, 'r+') as f:
         use_conditions = list(json.load(f).keys())
         use_conditions.remove('version')
@@ -97,7 +101,8 @@ def get_pattern_usage(translate=False):
 
 
 def get_type_building_elements():
-    type_building_elements_path = PROJECT.assets / 'MaterialTemplates' / 'TypeBuildingElements.json'
+    type_building_elements_path = \
+        assets/'MaterialTemplates/TypeBuildingElements.json'
     with open(type_building_elements_path, 'r+') as f:
         type_building_elements = json.load(f)
         del type_building_elements['version']
@@ -113,7 +118,7 @@ def get_type_building_elements():
 
 
 def get_material_templates():
-    material_templates_path = PROJECT.assets / 'MaterialTemplates' / 'MaterialTemplates.json'
+    material_templates_path = assets/'MaterialTemplates/MaterialTemplates.json'
     with open(material_templates_path, 'r+') as f:
         material_templates = json.load(f)
         del material_templates['version']
@@ -121,7 +126,7 @@ def get_material_templates():
 
 
 def get_type_building_elements_hvac():
-    type_building_elements_path = PROJECT.assets / 'enrichment' / 'TypeBuildingElements.json'
+    type_building_elements_path = assets/'enrichment/TypeBuildingElements.json'
     with open(type_building_elements_path, 'r+') as f:
         type_building_elements = json.load(f)
         del type_building_elements['version']

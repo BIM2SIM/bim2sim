@@ -38,10 +38,7 @@ from bim2sim.kernel import element, condition, attribute
 from bim2sim.decision import BoolDecision, RealDecision, ListDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.kernel.ifc2python import get_layers_ifc
-from teaser.logic.buildingobjects.useconditions import UseConditions
 from bim2sim.task.common.common_functions import vector_angle, filter_instances
-from bim2sim.kernel.disaggregation import SubInnerWall, SubOuterWall, Disaggregation
-from bim2sim.project import PROJECT
 
 
 def diameter_post_processing(value):
@@ -1805,8 +1802,6 @@ class Storey(element.Element):
     def get_storey_instances(self):
         storey_instances = []
         # instances
-        if not hasattr(self.ifc, 'ContainsElements'):
-            print()
         for ifc_structure in self.ifc.ContainsElements:
             for ifc_element in ifc_structure.RelatedElements:
                 instance = self.get_object(ifc_element.GlobalId)

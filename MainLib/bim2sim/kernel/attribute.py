@@ -1,5 +1,6 @@
 import logging
 from contextlib import contextmanager
+from typing import Tuple, Iterable, Callable, Any
 
 import pint
 import re
@@ -29,7 +30,7 @@ class AutoAttributeNameMeta(type):
 
 
 class Attribute:
-    """Descriptor of element attribute
+    """Descriptor of element attribute to get its value from various sources.
 
     value and status of attribute are stored in __dict__ of bound instance"""
     # https://rszalski.github.io/magicmethods/
@@ -39,17 +40,27 @@ class Attribute:
     STATUS_NOT_AVAILABLE = 'NOT_AVAILABLE'
     _force = False
 
-    def __init__(self, name=None,
-                 description="",
-                 unit=None,
-                 default_ps=None,
-                 default_association=None,
-                 patterns=None,
-                 ifc_postprocessing=None,
-                 functions=None,
+    def __init__(self,
+                 description: str = "",
+                 unit: pint.Unit = None,
+                 default_ps: Tuple[str, str] = None,
+                 default_association: Tuple[str, str] = None,
+                 patterns: Iterable = None,
+                 ifc_postprocessing: Callable[[Any], Any] = None,
+                 functions: Iterable[Callable[[object, str], Any]] = None,
                  default=None):
-        if name:
-            logger.warning("'name' is obsolete. Remove name '%s'" % name)
+        """
+
+        Args:
+            description: Description of attribute
+            unit: pint unit of attribute, defaults to dimensionless
+            default_ps: tuple of propertyset name and property name
+            default_association: tuple of association name and property name
+            patterns: iterable of (compiled) re patterns
+            ifc_postprocessing: callable to apply on initial value, returns final value
+            functions: iterable of callable with signature func(bind, name) -> value. First return with no error is used as value.
+            default: default value which is used if no other source is successful
+        """
         self.name = None  # auto set by AutoAttributeNameMeta
         self.description = description
         self.unit = unit
@@ -114,6 +125,7 @@ class Attribute:
 
     @staticmethod
     def get_from_default_propertyset(bind, default):
+        """Get value from default property set"""
         try:
             value = bind.get_exact_property(*default)
         except Exception:
@@ -122,6 +134,7 @@ class Attribute:
 
     @staticmethod
     def get_from_default_assocation(bind, default):
+        """Get value from default association"""
         try:
             value = bind.get_exact_association(default[0], default[1])
         except Exception:
@@ -140,12 +153,16 @@ class Attribute:
 
     @staticmethod
     def get_from_patterns(bind, patterns, name):
+        """Get value from non default property sets matching patterns"""
         # TODO: prevent decision on call by get()
         value = bind.select_from_potential_properties(patterns, name, False)
         return value
 
     @staticmethod
     def get_from_functions(bind, functions, name):
+        """Get value from functions.
+
+        First successful function calls return value is used"""
         value = None
         for i, func in enumerate(functions):
             try:
