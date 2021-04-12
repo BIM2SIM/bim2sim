@@ -12,7 +12,6 @@ from bim2sim.kernel.element import BaseElement, BasePort, SubElement
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
-from bim2sim.project import PROJECT
 from bim2sim.decision import ListDecision
 from bim2sim.kernel.disaggregation import Disaggregation
 from bim2sim.kernel.elements import HeatPump

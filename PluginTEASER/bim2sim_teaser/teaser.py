@@ -1,12 +1,14 @@
 from bim2sim.plugin import Plugin
 from bim2sim.task import common
-from bim2sim.workflow import BPSMultiZoneSeparated
+from bim2sim.workflow import BPSMultiZoneSeparated, BPSMultiZoneAggregated, BPSOneZoneAggregated
 from bim2sim.task import bps
 
 
 class TEASERManager(Plugin):
     name = 'TEASER'
     default_workflow = BPSMultiZoneSeparated
+    # default_workflow = BPSMultiZoneAggregated
+    # default_workflow = BPSOneZoneAggregated
 
     def run(self, playground):
         playground.run_task(bps.SetIFCTypes())
