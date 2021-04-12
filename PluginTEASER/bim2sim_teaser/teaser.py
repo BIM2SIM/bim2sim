@@ -6,9 +6,9 @@ from bim2sim.task import bps
 
 class TEASERManager(Plugin):
     name = 'TEASER'
-    default_workflow = BPSMultiZoneSeparated
+    default_workflow = BPSOneZoneAggregated
     # default_workflow = BPSMultiZoneAggregated
-    # default_workflow = BPSOneZoneAggregated
+    # default_workflow = BPSMultiZoneSeparated
 
     def run(self, playground):
         playground.run_task(bps.SetIFCTypes())

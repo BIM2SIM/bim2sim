@@ -16,7 +16,7 @@ class TestIntegrationTEASER(IntegrationBase, unittest.TestCase):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'TEASER')
-        answers = (True, True, 'Living', 'heavy', 'EnEv')
+        answers = (True, True, 'Kitchen - preparations, storage', 'heavy', 'EnEv')
         with bim2sim.decision.Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code, "Project did not finish successfully.")
@@ -25,7 +25,7 @@ class TestIntegrationTEASER(IntegrationBase, unittest.TestCase):
         """Run project with AC20-Institute-Var-2.ifc"""
         ifc = 'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc, 'TEASER')
-        answers = (True, True, 'Open-plan Office (7 or more employees)', 2015, 'heavy', 'EnEv')
+        answers = (True, True, 2015, 'heavy', 'EnEv')
         with bim2sim.decision.Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code, "Project did not finish successfully.")
@@ -38,7 +38,7 @@ class TestIntegrationTEASER(IntegrationBase, unittest.TestCase):
     #     with bim2sim.decision.Decision.debug_answer(answers, multi=True):
     #         return_code = project.run()
     #     self.assertEqual(0, return_code, "Project did not finish successfully.")
-
+    #
     # def test_run_kitoffice_spaces_medium_layers_low(self):
     #     """Run project with AC20-Institute-Var-2.ifc"""
     #     ifc = 'AC20-Institute-Var-2.ifc'
@@ -60,7 +60,7 @@ class TestIntegrationTEASER(IntegrationBase, unittest.TestCase):
     #     with bim2sim.decision.Decision.debug_answer(answers, multi=True):
     #         return_code = project.run()
     #     self.assertEqual(0, return_code, "Project did not finish successfully.")
-
+    #
     # def test_run_kitoffice_spaces_medium_layers_full(self):
     #     """Run project with AC20-Institute-Var-2.ifc"""
     #     ifc = 'AC20-Institute-Var-2.ifc'
@@ -82,7 +82,7 @@ class TestIntegrationTEASER(IntegrationBase, unittest.TestCase):
     #     with bim2sim.decision.Decision.debug_answer(answers, multi=True):
     #         return_code = project.run()
     #     self.assertEqual(0, return_code, "Project did not finish successfully.")
-
+    #
     # def test_run_kitoffice_spaces_full_layers_full(self):
     #     """Run project with AC20-Institute-Var-2.ifc"""
     #     ifc = 'AC20-Institute-Var-2.ifc'

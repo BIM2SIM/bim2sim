@@ -48,7 +48,9 @@ class ExportTEASER(ITask):
                 tz.calc_zone_parameters()
             bldg.calc_building_parameter()
 
-        prj.export_aixlib(path=paths.export / 'TEASEROutput')
+        # prj.export_aixlib(path=paths.export / 'TEASEROutput')
+        prj.export_aixlib()
+
 
     @staticmethod
     def _create_project(element):
