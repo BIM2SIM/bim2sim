@@ -28,13 +28,12 @@ class Quit(ITask):
 
 class LoadIFC(ITask):
     """Load IFC file from PROJECT.ifc path (file or dir)"""
-    reads = ('paths', )
     touches = ('ifc', )
 
-    def run(self, workflow, paths):
+    def run(self, workflow):
         # TODO: use multiple ifs files
 
-        path = paths.ifc
+        path = self.paths.ifc
 
         if os.path.isdir(path):
             ifc_path = self.get_ifc(path)

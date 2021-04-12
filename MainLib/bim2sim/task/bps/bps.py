@@ -36,7 +36,7 @@ class Inspect(ITask):
     """Analyses IFC and creates Element instances.
     Elements are stored in .instances dict with guid as key"""
 
-    reads = ('ifc', 'paths')
+    reads = ('ifc')
     touches = ('instances',)
 
     def __init__(self):
@@ -45,10 +45,10 @@ class Inspect(ITask):
         pass
 
     @Task.log
-    def run(self, workflow, ifc, paths):
+    def run(self, workflow, ifc):
         self.logger.info("Creates python representation of relevant ifc types")
 
-        Element.finder.load(paths.finder)
+        Element.finder.load(self.paths.finder)
 
         workflow.relevant_ifc_types = self.use_doors(workflow.relevant_ifc_types)
         for ifc_type in workflow.relevant_ifc_types:
