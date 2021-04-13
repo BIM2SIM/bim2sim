@@ -1,6 +1,7 @@
 import sys
 import unittest
 import tempfile
+from shutil import copyfile, copytree, rmtree
 from pathlib import Path
 
 import os
@@ -14,6 +15,8 @@ from bim2sim.project import Project
 
 EXAMPLE_PATH = Path(os.path.abspath(os.path.dirname(__file__))).parent.parent.parent / 'ExampleFiles'
 RESULT_PATH = Path(os.path.abspath(os.path.dirname(__file__))).parent.parent.parent / 'ResultFiles'
+DEBUG_ENERGYPLUS = False
+
 
 class IntegrationBaseEP(IntegrationBase):
     # HACK: We have to remember stderr because eppy resets it currently.
@@ -23,6 +26,18 @@ class IntegrationBaseEP(IntegrationBase):
         super().setUp()
 
     def tearDown(self):
+        if DEBUG_ENERGYPLUS: # copy EP-results to home directory for further debugging.
+            if not os.path.exists(Path.home() / 'idf'):
+                os.mkdir(Path.home() / 'idf')
+            ifc_name = str(os.listdir(self.project.paths.ifc)[0].split('.ifc')[0])
+            temp_dir = Path(self.project.paths.export) / "EP-results/"
+            debug_dir = Path.home() / 'idf' / Path(ifc_name + '_EP-results/')
+            if os.path.exists(debug_dir):
+                rmtree(debug_dir)
+            copytree(temp_dir,
+                     debug_dir)
+            copyfile(str(debug_dir) + "/eplusout.expidf",
+                     str(debug_dir) + "/eplusout.idf")
         os.chdir(self.working_dir)
         sys.stderr = self.old_stderr
         super().tearDown()
