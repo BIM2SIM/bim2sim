@@ -11,13 +11,13 @@ from jinja2 import Environment, FileSystemLoader
 from dill.source import getsource
 from bs4 import BeautifulSoup
 from ifcopenshell.file import file
-from bim2sim.kernel import elements
 from Ifc.SchemaParser import SchemaParser
 
 
 class Schema2Python:
     @staticmethod
     def get_elements_modifications():
+        from bim2sim.kernel import elements
         """overwrites functions from elements.py in file elements_functions.py and
             overwrites pattern, conditions and attributes in file elements_specific_schema.json"""
         emods_decision = BoolDecision(question="Do you want to use the last modifications made in elements.py for your "
@@ -191,6 +191,7 @@ class Schema2Python:
 
     @classmethod
     def get_ifc_structure(cls, ifc: file):
+        from bim2sim.kernel import elements
         """creates elements.py file based on elements_specific_schema.json, elements_functions.py
             and schema for specific schema of ifc"""
         if elements.schema != ifc.schema:
