@@ -64,7 +64,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     Tested are both original IFC files and files from Eric Fichter's Space Boundary Generation tool.
     """
 
-    def test_base_FZK(self):
+    def test_base_01_FZK(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'energyplus')
@@ -74,7 +74,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
-    def test_base_FZK_SB(self):
+    def test_base_02_FZK_SB(self):
         """Test IFC File from FZK-Haus (KIT) with generated Space Boundaries"""
         # ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB44.ifc'
         ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
@@ -86,7 +86,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         self.assertEqual(0, return_code)
 
 
-    def test_base_KIT_Inst(self):
+    def test_base_03_KIT_Inst(self):
         """Test Original IFC File from Institute (KIT)"""
 
         ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
@@ -98,7 +98,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         self.assertEqual(0, return_code)
 
 
-    def test_base_KIT_Inst_SB(self):
+    def test_base_04_KIT_Inst_SB(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
 
         # ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB11.ifc'
@@ -111,7 +111,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         self.assertEqual(0, return_code)
 
 
-    def test_base_DH(self):
+    def test_base_05_DH(self):
         """Test DigitalHub IFC"""
         # ifc = EXAMPLE_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
         # ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB11.ifc'
@@ -124,7 +124,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         self.assertEqual(0, return_code)
 
 
-    def test_base_KHH(self):
+    def test_base_06_KHH(self):
         """Test KIT KHH 3 storey IFC"""
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
         project = self.create_project(ifc, 'energyplus')
@@ -135,7 +135,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         self.assertEqual(0, return_code)
 
 
-    def test_base_EDC_SB(self):
+    def test_base_07_EDC_SB(self):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
