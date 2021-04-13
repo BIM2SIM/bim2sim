@@ -1,7 +1,5 @@
 import tempfile
 from pathlib import Path
-from bim2sim.kernel.element import SubElement
-
 from bim2sim.project import Project
 
 
@@ -15,7 +13,6 @@ class IntegrationBase:
         self.project = None
 
     def tearDown(self):
-        SubElement.instances = {}
         if self.project:
             self.project.delete()
             self.assertFalse(self.project.paths.root.exists())

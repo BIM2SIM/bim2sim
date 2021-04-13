@@ -1,16 +1,19 @@
 import unittest
 from bim2sim.utilities.test import IntegrationBase
 import bim2sim
+from bim2sim.kernel.element import SubElement
 
 
-# ------------------------------------------------------------------------------
-# WARNING: run only one test per interpreter Instance.
-# To use tests uncomment line below und run single test
-# ------------------------------------------------------------------------------
-# raise unittest.SkipTest("Integration tests not reliable for automated use")
+class IntegrationBaseTEASER(IntegrationBase):
+    def tearDown(self):
+        SubElement.instances = {}
+        if self.project:
+            self.project.delete()
+            self.assertFalse(self.project.paths.root.exists())
+            self.project = None
 
 
-class TestIntegrationTEASER(IntegrationBase, unittest.TestCase):
+class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
 
     def test_run_kitfzkhaus_spaces_low_layers_low(self):
         """Run project with AC20-FZK-Haus.ifc"""
