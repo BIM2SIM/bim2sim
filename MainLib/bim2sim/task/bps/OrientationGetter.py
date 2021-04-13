@@ -19,10 +19,6 @@ class OrientationGetter(ITask):
     def run(self, workflow: Workflow, instances: dict):
         self.logger.info("setting verifications")
 
-        # x1 = self.group_attribute(Element.instances['Window'].values(), 'orientation')
-        # x2 = self.group_attribute(Element.instances['OuterWall'].values(), 'orientation')
-        # x3 = self.group_attribute(Element.instances['Roof'].values(), 'orientation')
-
         for guid, ins in instances.items():
             new_orientation = self.orientation_verification(ins)
             if new_orientation is not None:
@@ -46,14 +42,23 @@ class OrientationGetter(ITask):
                     'Floor': -2,
                     'GroundFloor': -2}
         instance_type = type(instance).__name__
+        guid = instance.guid
         if instance_type in vertical_instances and len(instance.space_boundaries) > 0:
-            new_angles = list(set([space_boundary.orientation for space_boundary in instance.space_boundaries]))
-            # new_angles = list(set([space_boundary.orientation - space_boundary.thermal_zones[0].orientation
-            # for space_boundary in instance.space_boundaries]))
+            new_angles2 = list(set([space_boundary.orientation for space_boundary in instance.space_boundaries]))
+            new_angles = list(set([space_boundary.orientation - space_boundary.thermal_zones[0].orientation
+                                   for space_boundary in instance.space_boundaries]))
+            new_angles3 = list(set([space_boundary.orientation + space_boundary.thermal_zones[0].orientation
+                                    for space_boundary in instance.space_boundaries]))
+            new_angles4 = list(set([-space_boundary.orientation - space_boundary.thermal_zones[0].orientation
+                                    for space_boundary in instance.space_boundaries]))
+            new_angles5 = list(set([-space_boundary.orientation + space_boundary.thermal_zones[0].orientation
+                                    for space_boundary in instance.space_boundaries]))
             if len(new_angles) > 1:
                 return None
             # no true north necessary
             new_angle = angle_equivalent(new_angles[0])
+            if instance.guid == '2xrOyxR9nEifMekjrljPsL':
+                print()
             # new angle return
             if new_angle - instance.orientation > 0.1:
                 return new_angle
