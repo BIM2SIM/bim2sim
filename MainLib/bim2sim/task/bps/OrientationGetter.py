@@ -19,20 +19,12 @@ class OrientationGetter(ITask):
     def run(self, workflow: Workflow, instances: dict):
         self.logger.info("setting verifications")
 
-        # x1 = self.group_attribute(Element.instances['Window'].values(), 'orientation')
-        # x2 = self.group_attribute(Element.instances['OuterWall'].values(), 'orientation')
-        # x3 = self.group_attribute(Element.instances['Roof'].values(), 'orientation')
-
         for guid, ins in instances.items():
             new_orientation = self.orientation_verification(ins)
             if new_orientation is not None:
                 ins.orientation = new_orientation
                 self.corrected.append(ins)
         self.logger.info("Corrected %d instances", len(self.corrected))
-
-        # x1 = self.group_attribute(Element.instances['Window'].values(), 'orientation')
-        # x2 = self.group_attribute(Element.instances['OuterWall'].values(), 'orientation')
-        # x3 = self.group_attribute(Element.instances['Roof'].values(), 'orientation')
 
         return self.corrected,
 
@@ -63,7 +55,7 @@ class OrientationGetter(ITask):
 
     @classmethod
     def group_attribute(cls, elements, attribute):
-        """groups together a set of thermal zones, that have an attribute in common """
+        """groups together a set of elements, that have an attribute in common """
         groups = {}
         for ele in elements:
             value = cls.cardinal_direction(getattr(ele, attribute))
@@ -75,8 +67,7 @@ class OrientationGetter(ITask):
 
     @staticmethod
     def cardinal_direction(value):
-        """groups together a set of thermal zones, that have common glass percentage in common """
-        # groups based on Norm DIN_V_18599_1
+        """groups together a set of elements based on the orientation """
         if 45 <= value < 135:
             value = 'E'
         elif 135 <= value < 225:
