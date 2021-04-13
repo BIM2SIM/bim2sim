@@ -113,6 +113,7 @@ class EnrichUseConditions(ITask):
     @staticmethod
     def load_usage(tz: ThermalZone):
         whitelist = ['with_cooling', 'with_heating', 'with_ahu']
+        # heating, cooling profile
         use_condition = UseConditions[tz.usage]
         for attr in whitelist:
             overwrite_attr = getattr(tz, attr)
