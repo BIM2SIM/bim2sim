@@ -44,12 +44,12 @@ class OrientationGetter(ITask):
         instance_type = type(instance).__name__
         guid = instance.guid
         if instance_type in vertical_instances and len(instance.space_boundaries) > 0:
-            new_angles = list(set([space_boundary.orientation - space_boundary.thermal_zones[0].orientation
+            new_angles1 = list(set([space_boundary.orientation - space_boundary.thermal_zones[0].orientation
+                                    for space_boundary in instance.space_boundaries]))
+            new_angles2 = list(set([-space_boundary.orientation - space_boundary.thermal_zones[0].orientation
+                                    for space_boundary in instance.space_boundaries]))
+            new_angles = list(set([-space_boundary.orientation + space_boundary.thermal_zones[0].orientation
                                    for space_boundary in instance.space_boundaries]))
-            new_angles4 = list(set([-space_boundary.orientation - space_boundary.thermal_zones[0].orientation
-                                    for space_boundary in instance.space_boundaries]))
-            new_angles5 = list(set([-space_boundary.orientation + space_boundary.thermal_zones[0].orientation
-                                    for space_boundary in instance.space_boundaries]))
             if len(new_angles) > 1:
                 return None
             # no true north necessary
