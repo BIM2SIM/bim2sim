@@ -2719,7 +2719,7 @@ class ExportEP(ITask):
             space_obj = instances[inst]
             space_obj.b_bound_shape = space_obj.space_shape
             for bound in space_obj.space_boundaries:
-                if bound.bound_area == 0:
+                if bound.bound_area.m == 0:
                     continue
                 bound_prop = GProp_GProps()
                 brepgprop_SurfaceProperties(space_obj.b_bound_shape, bound_prop)
@@ -2793,7 +2793,7 @@ class ExportEP(ITask):
                 for bound in space.space_boundaries:
                     if (gp_Pnt(bound.bound_center).Distance(gp_Pnt(face_center)) > 1e-3):
                         continue
-                    if ((bound.bound_area - p.Mass()) ** 2 < 0.01):
+                    if ((bound.bound_area.m - p.Mass()) ** 2 < 0.01):
                         if fc.Orientation() == 1:
                             bound.bound_shape.Complement()
                             complemented = True
@@ -2858,7 +2858,7 @@ class ExportEP(ITask):
         for i, face in enumerate(faces):
             b_bound = SpaceBoundary2B()
             b_bound.bound_shape = face
-            if b_bound.bound_area < 1e-6:
+            if b_bound.bound_area.m < 1e-6:
                 continue
             b_bound.guid = space_obj.ifc.GlobalId + "_2B_" + str("%003.f" % (i + 1))
             b_bound.thermal_zones.append(space_obj)

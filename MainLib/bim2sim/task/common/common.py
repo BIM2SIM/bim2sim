@@ -8,12 +8,12 @@ import urllib.request
 from bim2sim.kernel import ifc2python
 from bim2sim.task.base import ITask
 from bim2sim.kernel.units import ifcunits, ureg, ifc_pint_unitmap, parse_ifc
+from bim2sim.decision import BoolDecision, ListDecision
+from bim2sim.assets.IFCparser import elements_functions
+
 from jinja2 import Environment, FileSystemLoader
 from dill.source import getsource
 from bs4 import BeautifulSoup
-from Ifc import SchemaParser
-from bim2sim.decision import BoolDecision, ListDecision
-from bim2sim.assets.IFCparser import elements_functions
 from ifcopenshell.file import file
 
 
@@ -117,6 +117,7 @@ class LoadIFC(ITask):
 
         return results
 
+    # todo move this to PluginIfcParser
     def get_elements_modifications(self):
         """overwrites functions from elements.py in file elements_functions.py and
             overwrites pattern, conditions and attributes in file elements_specific_schema.json"""
@@ -291,6 +292,7 @@ class LoadIFC(ITask):
                 f.close()
         print()
 
+    # todo move this to PluginIfcParser
     def get_ifc_structure(self, ifc: file):
         """creates elements.py file based on elements_specific_schema.json, elements_functions.py
             and schema for specific schema of ifc"""

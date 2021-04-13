@@ -10,6 +10,7 @@ from bim2sim import _test_run_bps_ep
 from bim2sim.decision import Decision
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.project import Project
+from bim2sim.kernel.element import SubElement
 
 # raise unittest.SkipTest("Integration tests not reliable for automated use")
 
@@ -40,6 +41,8 @@ class IntegrationBaseEP(IntegrationBase):
                      str(debug_dir) + "/eplusout.idf")
         os.chdir(self.working_dir)
         sys.stderr = self.old_stderr
+        # todo test if this helps
+        SubElement.instances = {}
         super().tearDown()
 
     def create_project(self, ifc_path: str, plugin: str):
@@ -57,7 +60,6 @@ class IntegrationBaseEP(IntegrationBase):
         return self.project
 
 
-
 class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     """
     Integration tests for multiple IFC example files.
@@ -68,19 +70,20 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True,  'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
+        answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
-
+    @unittest.skip("Test currently holds inputs, "
+                   "which have to be moved to decisions")
     def test_base_02_FZK_SB(self):
         """Test IFC File from FZK-Haus (KIT) with generated Space Boundaries"""
         # ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB44.ifc'
         ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
+        answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
@@ -91,8 +94,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
 
         ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True,  'heavy', 2015,
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
+        answers = (True, True,  2015, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
@@ -104,26 +107,27 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         # ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB11.ifc'
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True,  'heavy', 2015,
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
+        answers = (True, True,  2015, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
-
+    @unittest.skip("Test currently holds inputs, "
+                   "which have to be moved to decisions")
     def test_base_05_DH(self):
         """Test DigitalHub IFC"""
         # ifc = EXAMPLE_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
         # ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB11.ifc'
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True, 'heavy', 2015,
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
+        answers = (True, True,  2015, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
-
+    # todo fix answers
     def test_base_06_KHH(self):
         """Test KIT KHH 3 storey IFC"""
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
@@ -134,7 +138,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
-
+    # todo fix answers
     def test_base_07_EDC_SB(self):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
