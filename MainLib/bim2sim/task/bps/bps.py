@@ -1852,7 +1852,7 @@ class ExportEP(ITask):
                          Name=mat_dict['name'],
                          UFactor=1 / (0.04 + thickness / mat_dict['thermal_conduc'] + 0.13),
                          Solar_Heat_Gain_Coefficient=g_value,
-                         Visible_Transmittance=0.8
+                         # Visible_Transmittance=0.8    # optional
                          )
 
     def _get_room_from_zone_dict(self, key):

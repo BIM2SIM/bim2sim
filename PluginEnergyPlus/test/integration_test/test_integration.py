@@ -1,6 +1,7 @@
 import sys
 import unittest
 import tempfile
+from shutil import copyfile, copytree, rmtree
 from pathlib import Path
 
 import os
@@ -14,6 +15,8 @@ from bim2sim.project import Project
 
 EXAMPLE_PATH = Path(os.path.abspath(os.path.dirname(__file__))).parent.parent.parent / 'ExampleFiles'
 RESULT_PATH = Path(os.path.abspath(os.path.dirname(__file__))).parent.parent.parent / 'ResultFiles'
+DEBUG_ENERGYPLUS = False
+
 
 class IntegrationBaseEP(IntegrationBase):
     # HACK: We have to remember stderr because eppy resets it currently.
@@ -23,6 +26,18 @@ class IntegrationBaseEP(IntegrationBase):
         super().setUp()
 
     def tearDown(self):
+        if DEBUG_ENERGYPLUS: # copy EP-results to home directory for further debugging.
+            if not os.path.exists(Path.home() / 'idf'):
+                os.mkdir(Path.home() / 'idf')
+            ifc_name = str(os.listdir(self.project.paths.ifc)[0].split('.ifc')[0])
+            temp_dir = Path(self.project.paths.export) / "EP-results/"
+            debug_dir = Path.home() / 'idf' / Path(ifc_name + '_EP-results/')
+            if os.path.exists(debug_dir):
+                rmtree(debug_dir)
+            copytree(temp_dir,
+                     debug_dir)
+            copyfile(str(debug_dir) + "/eplusout.expidf",
+                     str(debug_dir) + "/eplusout.idf")
         os.chdir(self.working_dir)
         sys.stderr = self.old_stderr
         super().tearDown()
@@ -49,7 +64,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     Tested are both original IFC files and files from Eric Fichter's Space Boundary Generation tool.
     """
 
-    def test_base_FZK(self):
+    def test_base_01_FZK(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'energyplus')
@@ -59,7 +74,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
-    def test_base_FZK_SB(self):
+    def test_base_02_FZK_SB(self):
         """Test IFC File from FZK-Haus (KIT) with generated Space Boundaries"""
         # ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB44.ifc'
         ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
@@ -71,7 +86,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         self.assertEqual(0, return_code)
 
 
-    def test_base_KIT_Inst(self):
+    def test_base_03_KIT_Inst(self):
         """Test Original IFC File from Institute (KIT)"""
 
         ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
@@ -83,7 +98,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         self.assertEqual(0, return_code)
 
 
-    def test_base_KIT_Inst_SB(self):
+    def test_base_04_KIT_Inst_SB(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
 
         # ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB11.ifc'
@@ -96,7 +111,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         self.assertEqual(0, return_code)
 
 
-    def test_base_DH(self):
+    def test_base_05_DH(self):
         """Test DigitalHub IFC"""
         # ifc = EXAMPLE_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
         # ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB11.ifc'
@@ -109,7 +124,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         self.assertEqual(0, return_code)
 
 
-    def test_base_KHH(self):
+    def test_base_06_KHH(self):
         """Test KIT KHH 3 storey IFC"""
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
         project = self.create_project(ifc, 'energyplus')
@@ -120,7 +135,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         self.assertEqual(0, return_code)
 
 
-    def test_base_EDC_SB(self):
+    def test_base_07_EDC_SB(self):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
