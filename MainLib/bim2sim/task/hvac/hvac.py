@@ -18,9 +18,12 @@ from bim2sim.kernel.element import Element, ElementEncoder, BasePort
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
 from bim2sim.decision import Decision, ListDecision
+from bim2sim.kernel import finder
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.enrichment_data import element_input_json
 from bim2sim.decision import ListDecision, RealDecision, BoolDecision
+from bim2sim.task.common.common_functions import get_type_building_elements_hvac
+
 
 # todo remove because obsolete
 IFC_TYPES = (
@@ -441,7 +444,7 @@ class Enrich(Task):
 
     @Task.log
     def run(self, instances):
-        json_data = DataClass(used_param=1)
+        json_data = get_type_building_elements_hvac()
 
         # enrichment_parameter --> Class
         self.logger.info("Enrichment of the elements...")
@@ -481,7 +484,8 @@ class Prepare(ITask):
     def run(self, workflow, relevant_ifc_types, paths):
         self.logger.info("Setting Filters")
         Element.finder.load(paths.finder)
-        filters = [TypeFilter(relevant_ifc_types), TextFilter(relevant_ifc_types, ['Description'])]
+        # filters = [TypeFilter(relevant_ifc_types), TextFilter(relevant_ifc_types, ['Description'])]
+        filters = [TypeFilter(relevant_ifc_types)]
         # self.filters.append(TextFilter(['IfcBuildingElementProxy', 'IfcUnitaryEquipment']))
         return filters,
 

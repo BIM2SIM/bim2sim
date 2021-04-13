@@ -1,10 +1,14 @@
+# todo delete this after seperating energyplus tasks into single tasks
 from bim2sim.task.base import Task
-from bim2sim.decision import BoolDecision, ListDecision
+from bim2sim.decision import BoolDecision, ListDecision, Decision
 from bim2sim.kernel.element import Element, SubElement
+# from bim2sim.kernel.elements import ExtSpatialSpaceBoundary
 from bim2sim.kernel.ifc2python import getElementType
 from bim2sim.kernel.disaggregation import Disaggregation
 from bim2sim.kernel.aggregation import Aggregated_ThermalZone
+from bim2sim.kernel.elements import SpaceBoundary
 import inspect
+
 
 class Inspect(Task):
     """Analyses IFC, creates Element instances and connects them.
@@ -17,9 +21,9 @@ class Inspect(Task):
         self.workflow = workflow
 
     @Task.log
-    def run(self, ifc):
+    def run(self, ifc, bound_instances, storeys):
         self.logger.info("Creates python representation for building spaces")
-        self.recognize_zone_semantic(ifc)
+        self.recognize_zone_semantic(ifc, bound_instances, storeys)
         if len(self.instances) == 0:
             self.logger.warning("Found no spaces by semantic detection")
             decision = BoolDecision("Try to detect zones by geometrical?")
@@ -32,10 +36,9 @@ class Inspect(Task):
 
         self.logger.info("Found %d space entities", len(self.instances))
 
-        self.recognize_space_boundaries(ifc)
         self.logger.info("Found %d space boundaries entities", len(self.instances))
 
-    def recognize_zone_semantic(self, ifc):
+    def recognize_zone_semantic(self, ifc, bound_instances, storeys):
         """Recognizes zones/spaces in ifc file by semantic detection for
         IfcSpace entities"""
         self.logger.info("Create zones by semantic detection")
@@ -44,31 +47,54 @@ class Inspect(Task):
         for entity in entities:
             thermal_zone = Element.factory(entity, ifc_type)
             self.instances[thermal_zone.guid] = thermal_zone
-            self.bind_elements_to_zone(thermal_zone)
 
+        for storey in storeys:
+            storey.set_storey_instances()
+        # space boundaries creation
+        self.recognize_space_boundaries(ifc)
+
+        cooling_decision = BoolDecision(question="Do you want for all the thermal zones to be cooled? - "
+                                                 "with cooling",
+                                        global_key='Thermal_Zones.Cooling',
+                                        allow_skip=True, allow_load=True, allow_save=True,
+                                        collect=False, quick_decide=not True)
+        cooling_decision.decide()
+        heating_decision = BoolDecision(question="Do you want for all the thermal zones to be heated? - "
+                                                 "with heating",
+                                        global_key='Thermal_Zones.Heating',
+                                        allow_skip=True, allow_load=True, allow_save=True,
+                                        collect=False, quick_decide=not True)
+        heating_decision.decide()
+
+        self.bind_elements_to_zone(bound_instances)
         for k, tz in self.instances.items():
-            tz.set_neighbors()
-
-        tz_bind = Bind(self, self.workflow)
-        tz_bind.run(self.instances)
+            tz.set_space_neighbors()
+            if cooling_decision.value is True:
+                tz.with_cooling = True
+            if heating_decision.value is True:
+                tz.with_heating = True
 
     def recognize_zone_geometrical(self):
         """Recognizes zones/spaces by geometric detection"""
         raise NotImplementedError
 
-    def bind_elements_to_zone(self, thermalzone):
+    def bind_elements_to_zone(self, bound_instances):
         """Binds the different elements to the belonging zones"""
-        bound_instances = []
-        for binding in thermalzone.ifc.BoundedBy:
-            bound_element = binding.RelatedBuildingElement
-            if bound_element is None:
-                continue
-            bound_instance = thermalzone.get_object(bound_element.GlobalId)
-            if bound_instance not in bound_instances and bound_instance is not None:
-                bound_instances.append(bound_instance)
-        for bound_instance in bound_instances:
-            new_bound_instances = Disaggregation.based_on_thermal_zone(bound_instance, thermalzone)
-            for inst in new_bound_instances:
+
+        for bound_instance in bound_instances.values():
+            disaggregation = {}
+            for sb in bound_instance.space_boundaries:
+                thermalzone = sb.thermal_zones[0]
+                if sb.related_bound is not None:
+                    if sb.guid in disaggregation:
+                        inst = disaggregation[sb.guid]
+                    else:
+                        inst = Disaggregation.based_on_thermal_zone(bound_instance, sb, thermalzone)
+                        disaggregation[sb.related_bound.guid] = inst
+                else:
+                    inst = Disaggregation.based_on_thermal_zone(bound_instance, sb, thermalzone)
+                if sb not in inst.space_boundaries:
+                    inst.space_boundaries.append(sb)
                 if inst not in thermalzone.bound_elements:
                     thermalzone.bound_elements.append(inst)
                 if thermalzone not in inst.thermal_zones:
@@ -81,22 +107,81 @@ class Inspect(Task):
     def recognize_space_boundaries(self, ifc):
         """Recognizes space boundaries in ifc file by semantic detection for
         IfcRelSpaceBoundary entities"""
-        self.logger.info("Create space boundaries by semantic detection")
+        check = []
+        entities = ifc.by_type('IfcRelSpaceBoundary')
+
+        # for entity in entities:
+        #     if entity.RelatedBuildingElement is not None:
+        #         if entity.RelatedBuildingElement.GlobalId == '2Og5$70yb1DxR1TY1w8bzN':
+        #             if entity.RelatingSpace.GlobalId == '1_Evy7T$DCiwLgTMLHCRoe':
+        #                 space_boundary = SubElement.factory(entity, 'IfcRelSpaceBoundary')
+        #                 check.append(space_boundary)
+        #             elif entity.RelatingSpace.GlobalId == '0uC7OD3$5F7v$zL3aaoEig':
+        #                 space_boundary = SubElement.factory(entity, 'IfcRelSpaceBoundary')
+        #                 check.append(space_boundary)
+
+        space_boundaries = []
         ifc_type = 'IfcRelSpaceBoundary'
-        entities = ifc.by_type(ifc_type)
+        self.skipped_bounds = []
         for entity in entities:
-            space_boundary = SubElement.factory(entity, ifc_type)
-            self.instances[space_boundary.guid] = space_boundary
-            self.bind_space_to_space_boundaries(space_boundary)
+            # todo: Fix ExternalSpatialSpaceBoundary for Use in EnergyPlus
+            # space_boundary = SubElement.factory(entity, ifc_type)
+            # if space_boundary.thermal_zones[0] == None:
+            #     space_boundary.__class__ = ExtSpatialSpaceBoundary
+            #     self.skipped_bounds.append(space_boundary)
+            #     self.instances[space_boundary.guid] = space_boundary
+            #     continue
+            # self.instances[space_boundary.guid] = space_boundary
+            # self.bind_space_to_space_boundaries(space_boundary)
+            if entity.RelatedBuildingElement is not None:
+                related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
+                relating_space = Element.get_object(entity.RelatingSpace.GlobalId)
+                if related_element and relating_space:
+                    space_boundary = SubElement.factory(entity, ifc_type)
+                    space_boundaries.append(space_boundary)
 
-    def bind_space_to_space_boundaries(self, spaceboundary):
-        """Binds the different spaces to the belonging zones"""
-        bound_space = spaceboundary.thermal_zones[0]
-        bound_instance = spaceboundary.bound_instance
-        bound_space.space_boundaries.append(spaceboundary)
-        if bound_instance is not None:
-            bound_instance.space_boundaries.append(spaceboundary)
+        # new_space_boundaries = {}
+        # no_rel_bound = {}
+        # for sb in space_boundaries:
+        #     bi_guid = sb.bound_instance.guid
+        #     bi_class = type(sb.bound_instance).__name__
+        #     if sb.related_bound is not None:
+        #         if bi_guid not in new_space_boundaries:
+        #             new_space_boundaries[bi_guid] = [sb]
+        #         else:
+        #             new_space_boundaries[bi_guid].append(sb)
+        #     else:
+        #         new_name = bi_guid + '_' + bi_class
+        #         if new_name not in no_rel_bound:
+        #             no_rel_bound[new_name] = [sb]
+        #         else:
+        #             no_rel_bound[new_name].append(sb)
 
+        # for tz in self.instances.values():
+        #     entities = tz.ifc.BoundedBy
+        #     for entity in entities:
+        #         if entity.RelatedBuildingElement is not None:
+        #             related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
+        #             if related_element is not None:
+        #                 space_boundary = SubElement.factory(entity, 'IfcRelSpaceBoundary')
+        #                 if related_element.guid not in space_boundaries:
+        #                     space_boundaries[related_element.guid] = []
+        #                 space_boundaries[related_element.guid].append(space_boundary)
+            # print()
+
+        self.logger.info("Create space boundaries by semantic detection")
+        # ifc_type = 'IfcRelSpaceBoundary'
+        # entities = ifc.by_type(ifc_type)
+        # for entity in entities:
+        #     if entity.RelatedBuildingElement is not None:
+        #         related_element = Element.get_object(entity.RelatedBuildingElement.GlobalId)
+        #         if related_element is not None:
+        #             SubElement.factory(entity, 'IfcRelSpaceBoundary')
+
+class Bind(Task):
+    """Analyses thermal zone instances, bind instances and connects them.
+    based on various criteria
+    elements are stored in .instances dict with guid as key"""
 
 class Bind(Task):
     """Analyses thermal zone instances, bind instances and connects them.
@@ -122,7 +207,9 @@ class Bind(Task):
         bind_decision = BoolDecision(question="Do you want for thermal zones to be bind? - this allows to bind the "
                                               "thermal zones into a thermal zone aggregation based on different "
                                               "criteria -> Simplified operations",
-                                     collect=False)
+                                     global_key='Thermal_Zones.Bind',
+                                     allow_load=True, allow_save=True,
+                                     collect=False, quick_decide=not True)
         bind_decision.decide()
         if bind_decision.value:
             criteria_functions = {}
@@ -134,11 +221,9 @@ class Bind(Task):
             if len(criteria_functions) > 0:
                 criteria_decision = ListDecision("the following methods were found for the thermal zone binding",
                                                  choices=list(criteria_functions.keys()),
-                                                 allow_skip=False,
-                                                 allow_load=True,
-                                                 allow_save=True,
-                                                 quick_decide=not True,
-                                                 collect=False)
+                                                 global_key='Thermal_Zones.Bind_Method',
+                                                 allow_load=True, allow_save=True,
+                                                 collect=False, quick_decide=not True)
                 if not criteria_decision.status.value:
                     criteria_decision.decide()
                 criteria_function = criteria_functions.get(criteria_decision.value)
@@ -158,7 +243,11 @@ class Bind(Task):
         internal_binding = []
 
         # external - internal criterion
-        for tz in self.instances.values():
+        thermal_zones = SubElement.get_class_instances('ThermalZone')
+        for tz in thermal_zones:
+            tz.set_is_external()
+            tz.set_external_orientation()
+            tz.set_glass_area()
             if tz.is_external:
                 external_binding.append(tz)
             else:
@@ -191,7 +280,7 @@ class Bind(Task):
             grouped_thermal_instances += grouped_instances_criteria[i]
         # ckeck not grouped instances for fourth criterion
         not_grouped_instances = []
-        for tz in self.instances.values():
+        for tz in thermal_zones:
             if tz not in grouped_thermal_instances:
                 not_grouped_instances.append(tz)
         # no similarities criterion
@@ -201,7 +290,9 @@ class Bind(Task):
         # neighbors - filter criterion
         neighbors_decision = BoolDecision(question="Do you want for the bound-spaces to be neighbors? - adds additional"
                                                    " criteria that just bind the thermal zones that are side by side",
-                                          collect=False)
+                                          global_key='Thermal_Zones.Neighbors',
+                                          allow_load=True, allow_save=True,
+                                          collect=False, quick_decide=not True)
         neighbors_decision.decide()
         if neighbors_decision.value:
             self.filter_neighbors(grouped_instances_criteria)
@@ -273,12 +364,3 @@ class Bind(Task):
         for group in list(tz_groups.keys()):
             if len(tz_groups[group]) <= 1:
                 del tz_groups[group]
-
-    @staticmethod
-    def get_tz_neighbors(tz_instances):
-        neighbors_decision = BoolDecision(question="Do you want for the binded thermal zones to be neighbors?",
-                                          collect=False)
-        neighbors_decision.decide()
-        if neighbors_decision.value:
-            for k, tz in tz_instances.items():
-                tz.set_neighbors()

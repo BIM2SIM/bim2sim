@@ -89,7 +89,7 @@ class TemplateFinder(Finder):
         self.check_template(element)
 
         key1 = element.source_tool
-        key2 = element.ifc_type
+        key2 = type(element).__name__
         key3 = 'default_ps'
         key4 = property_name
         try:

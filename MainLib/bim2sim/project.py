@@ -113,6 +113,8 @@ class FolderStructure:
     LOG = "log"
     EXPORT = "export"
     RESOURCES = "resources"
+    PAPER = True
+    _src_path = Path(__file__).parent
 
     _src_path = Path(__file__).parent  # base path to bim2sim assets
 

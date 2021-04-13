@@ -59,7 +59,7 @@ class TestInspect(unittest.TestCase):
     def test_case_1(self):
         """HeatExchange with 4 (semantically) connected pipes"""
         with patch.object(FolderStructure, 'ifc', sample_root / 'B01_2_HeatExchanger_Pipes.ifc'):
-            with Decision.debug_answer('IfcHeatPump', validate=True):
+            with Decision.debug_answer('IfcUnitaryEquipment', validate=True):
                 self.project.run(cleanup=False)
 
         heat_exchanger = Root.objects.get('0qeZDHlQRzcKJYopY4$fEf')
@@ -68,7 +68,7 @@ class TestInspect(unittest.TestCase):
     def test_case_2(self):
         """HeatExchange and Pipes are exported without ports"""
         with patch.object(FolderStructure, 'ifc', sample_root / 'B01_3_HeatExchanger_noPorts.ifc'):
-            with Decision.debug_answer('IfcHeatPump', validate=True):
+            with Decision.debug_answer('IfcUnitaryEquipment', validate=True):
                 self.project.run(cleanup=False)
 
         heat_exchanger = Root.objects.get('0qeZDHlQRzcKJYopY4$fEf')
@@ -79,7 +79,7 @@ class TestInspect(unittest.TestCase):
     def test_case_3(self):
         """No connections but ports are less than 10 mm apart"""
         with patch.object(FolderStructure, 'ifc', sample_root / 'B01_4_HeatExchanger_noConnection.ifc'):
-            with Decision.debug_answer('IfcHeatPump', validate=True):
+            with Decision.debug_answer('IfcUnitaryEquipment', validate=True):
                 self.project.run(cleanup=False)
 
         heat_exchanger = Root.objects.get('3FQzmSvzrgbaIM6zA4FX8S')
@@ -88,7 +88,7 @@ class TestInspect(unittest.TestCase):
     def test_case_4(self):
         """Mix of case 1 and 3"""
         with patch.object(FolderStructure, 'ifc', sample_root / 'B01_5_HeatExchanger_mixConnection.ifc'):
-            with Decision.debug_answer('IfcHeatPump', validate=True):
+            with Decision.debug_answer('IfcUnitaryEquipment', validate=True):
                 self.project.run(cleanup=False)
 
         heat_exchanger = Root.objects.get('3FQzmSvzrgbaIM6zA4FX8S')
