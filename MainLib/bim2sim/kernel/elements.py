@@ -1,7 +1,7 @@
 ﻿"""Module contains the different classes for all HVAC elements"""
 
 from functools import lru_cache
-
+import logging
 import math
 import re
 import numpy as np
@@ -22,10 +22,39 @@ def diameter_post_processing(value):
     return value
 
 
+logger = logging.getLogger(__name__)
 pattern_usage = get_pattern_usage()
 
-# todo correct inheritance
-class HeatPump(element.Element):
+
+class HVACProduct(element.ProductBased):
+
+    def get_ports(self):
+        ports = []
+        try:
+            for nested in self.ifc.IsNestedBy:
+                # valid for IFC for Revit v19.2.0.0
+                for element_port_connection in nested.RelatedObjects:
+                    if element_port_connection.is_a() == 'IfcDistributionPort':
+                        ports.append(element.HVACPort(
+                            parent=self, ifc=element_port_connection))
+                    else:
+                        logger.warning(
+                            "Not included %s as Port in %s",
+                            element_port_connection.is_a(), self)
+        except AttributeError:
+            pass
+        # valid for IFC for Revit v19.1.0.0
+        element_port_connections = getattr(self.ifc, 'HasPorts', [])
+        for element_port_connection in element_port_connections:
+            ports.append(element.HVACPort(parent=self, ifc=element_port_connection.RelatingPort))
+        return ports
+
+
+class BPSProduct(element.ProductBased):
+    pass
+
+
+class HeatPump(HVACProduct):
     """"HeatPump"""
 
     ifc_type = 'IfcUnitaryEquipment'
@@ -50,7 +79,7 @@ class HeatPump(element.Element):
     )
 
 
-class Chiller(element.Element):
+class Chiller(HVACProduct):
     """"Chiller"""
 
     ifc_type = 'IfcChiller'
@@ -75,7 +104,7 @@ class Chiller(element.Element):
     )
 
 
-class CoolingTower(element.Element):
+class CoolingTower(HVACProduct):
     """"CoolingTower"""
 
     ifc_type = 'IfcCoolingTower'
@@ -103,7 +132,7 @@ class CoolingTower(element.Element):
     )
 
 
-class HeatExchanger(element.Element):
+class HeatExchanger(HVACProduct):
     """"Heatexchanger"""
 
     ifc_type = 'IfcHeatExchanger'
@@ -129,7 +158,7 @@ class HeatExchanger(element.Element):
     )
 
 
-class Boiler(element.Element):
+class Boiler(HVACProduct):
     """Boiler"""
     ifc_type = 'IfcBoiler'
     predefined_types = ['WATER', 'STEAM']
@@ -217,7 +246,7 @@ class Boiler(element.Element):
     )
 
 
-class Pipe(element.Element):
+class Pipe(HVACProduct):
     ifc_type = "IfcPipeSegment"
     predefined_types = ['CULVERT', 'FLEXIBLESEGMENT', 'RIGIDSEGMENT', 'GUTTER', 'SPOOL']
 
@@ -274,7 +303,7 @@ class Pipe(element.Element):
         return candidates[0]
 
 
-class PipeFitting(element.Element):
+class PipeFitting(HVACProduct):
     ifc_type = "IfcPipeFitting"
     predefined_types = ['BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION', 'OBSTRUCTION', 'TRANSITION']
 
@@ -310,7 +339,7 @@ class PipeFitting(element.Element):
         return value
 
 
-class SpaceHeater(element.Element):
+class SpaceHeater(HVACProduct):
     ifc_type = 'IfcSpaceHeater'
     predefined_types = ['CONVECTOR', 'RADIATOR']
 
@@ -328,7 +357,7 @@ class SpaceHeater(element.Element):
     )
 
 
-# class ExpansionTank(element.Element):
+# class ExpansionTank(HVACProduct):
 #     ifc_type = "IfcTank"   #ToDo: IfcTank, IfcTankType=Expansion
 #     predefined_types = ['BASIN', 'BREAKPRESSURE', 'EXPANSION', 'FEEDANDEXPANSION', 'STORAGE', 'VESSEL']
 #     pattern_ifc_type = [
@@ -337,7 +366,7 @@ class SpaceHeater(element.Element):
 #     ]
 
 
-# class StorageDevice(element.Element):
+# class StorageDevice(HVACProduct):
 #     """IFC4 CHANGE  This entity has been deprecated for instantiation and will become ABSTRACT in a future release;
 #     new subtypes should now be used instead."""
 #     ifc_type = "IfcStorageDevice"
@@ -346,7 +375,7 @@ class SpaceHeater(element.Element):
 #     ]
 
 
-class Storage(element.Element):
+class Storage(HVACProduct):
     ifc_type = "IfcTank"
     predefined_type = 'STORAGE'
     predefined_types = ['BASIN', 'BREAKPRESSURE', 'EXPANSION', 'FEEDANDEXPANSION', 'STORAGE', 'VESSEL']
@@ -382,7 +411,7 @@ class Storage(element.Element):
     )
 
 
-class Distributor(element.Element):
+class Distributor(HVACProduct):
     ifc_type = "IfcDistributionChamberElement"
     predefined_types = ['FORMEDDUCT', 'INSPECTIONCHAMBER', 'INSPECTIONPIT', 'MANHOLE', 'METERCHAMBER',
                         'SUMP', 'TRENCH', 'VALVECHAMBER']
@@ -404,7 +433,7 @@ class Distributor(element.Element):
     )
 
 
-class Pump(element.Element):
+class Pump(HVACProduct):
     ifc_type = "IfcPump"
     predefined_types = ['CIRCULATOR', 'ENDSUCTION', 'SPLITCASE', 'SUBMERSIBLEPUMP', 'SUMPPUMP', 'VERTICALINLINE',
                         'VERTICALTURBINE']
@@ -431,7 +460,7 @@ class Pump(element.Element):
     )
 
 
-class Valve(element.Element):
+class Valve(HVACProduct):
     ifc_type = "IfcValve"
     predefined_types = ['AIRRELEASE', 'ANTIVACUUM', 'CHANGEOVER', 'CHECK', 'COMMISSIONING', 'DIVERTING', 'DRAWOFFCOCK',
                         'DOUBLECHECK', 'DOUBLEREGULATING', 'FAUCET', 'FLUSHING', 'GASCOCK', 'GASTAP', 'ISOLATING',
@@ -471,7 +500,7 @@ class Valve(element.Element):
     )
 
 
-class Duct(element.Element):
+class Duct(HVACProduct):
     ifc_type = "IfcDuctSegment"
     predefined_types = ['RIGIDSEGMENT', 'FLEXIBLESEGMENT']
 
@@ -489,7 +518,7 @@ class Duct(element.Element):
     )
 
 
-class DuctFitting(element.Element):
+class DuctFitting(HVACProduct):
     ifc_type = "IfcDuctFitting"
     predefined_types = ['BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION', 'OBSTRUCTION', 'TRANSITION']
 
@@ -507,7 +536,7 @@ class DuctFitting(element.Element):
     )
 
 
-class AirTerminal(element.Element):
+class AirTerminal(HVACProduct):
     ifc_type = "IfcAirTerminal"
     predefined_types = ['DIFFUSER', 'GRILLE', 'LOUVRE', 'REGISTER']
 
@@ -521,7 +550,7 @@ class AirTerminal(element.Element):
     )
 
 
-class ThermalZone(element.Element):
+class ThermalZone(BPSProduct):
     ifc_type = "IfcSpace"
     predefined_types = ['SPACE', 'PARKING', 'GFA', 'INTERNAL', 'EXTERNAL']
 
@@ -687,7 +716,7 @@ class ThermalZone(element.Element):
         raise NotImplementedError
 
 
-class SpaceBoundary(element.SubElement):
+class SpaceBoundary(element.SpaceBoundary):
     ifc_type = 'IfcRelSpaceBoundary'
 
     def __init__(self, *args, **kwargs):
@@ -709,7 +738,7 @@ class SpaceBoundary(element.SubElement):
             self.physical = False
 
 
-class Medium(element.Element):
+class Medium(HVACProduct):
     # is deprecated?
     ifc_type = "IfcDistributionSystems"
     pattern_ifc_type = [
@@ -717,7 +746,7 @@ class Medium(element.Element):
     ]
 
 
-class CHP(element.Element):
+class CHP(HVACProduct):
     ifc_type = 'IfcElectricGenerator'
     predefined_type = ['CHP']
 
@@ -747,8 +776,7 @@ class CHP(element.Element):
     )
 
 
-
-class Wall(element.Element):
+class Wall(BPSProduct):
     ifc_type = ["IfcWall", "IfcWallStandardCase"]
     predefined_types = ['MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL', 'SHEAR', 'SOLIDWALL', 'POLYGONAL']
     pattern_ifc_type = [
@@ -778,6 +806,12 @@ class Wall(element.Element):
             layers.append(new_layer)
         return layers
 
+    def get_better_subclass(self):
+        if 'some_condition':
+            return InnerWall
+        else:
+            return OuterWall
+
     layers = attribute.Attribute(
         functions=[_get_layers]
     )
@@ -798,7 +832,7 @@ class Wall(element.Element):
     )
 
 
-class Layer(element.SubElement):
+class Layer(element.Layer):
     ifc_type = ['IfcMaterialLayer', 'IfcMaterial']
     material_selected = {}
 
@@ -879,16 +913,12 @@ class Layer(element.SubElement):
 class OuterWall(Wall):
     special_argument = {'is_external': True}
 
-    def i_want_to_be(self):
-        if ??:
-            return InnerWall
-
 
 class InnerWall(Wall):
     special_argument = {'is_external': False}
 
 
-class Window(element.Element):
+class Window(BPSProduct):
     ifc_type = "IfcWindow"
     predefined_types = ['WINDOW', 'SKYLIGHT', 'LIGHTDOME']
     # predefined_type = {
@@ -938,7 +968,7 @@ class Window(element.Element):
     )
 
 
-class Door(element.Element):
+class Door(BPSProduct):
     ifc_type = "IfcDoor"
     predefined_types = ['DOOR', 'GATE', 'TRAPDOOR']
 
@@ -982,7 +1012,7 @@ class Door(element.Element):
     )
 
 
-class Plate(element.Element):
+class Plate(BPSProduct):
     ifc_type = "IfcPlate"
     predefined_types = ['CURTAIN_PANEL', 'SHEET']
 
@@ -999,7 +1029,7 @@ class Plate(element.Element):
     #     return 1
 
 
-class Slab(element.Element):
+class Slab(BPSProduct):
     ifc_types = {
         "IfcSlab": ['LANDING', 'BASESLAB']
 
@@ -1082,7 +1112,7 @@ class GroundFloor(Slab):
     predefined_type = "BASESLAB"
 
 
-class Site(element.Element):
+class Site(BPSProduct):
     ifc_type = "IfcSite"
 
     # year_of_construction = attribute.Attribute(
@@ -1091,7 +1121,7 @@ class Site(element.Element):
     # )
 
 
-class Building(element.Element):
+class Building(BPSProduct):
     ifc_type = "IfcBuilding"
 
     year_of_construction = attribute.Attribute(
@@ -1113,7 +1143,7 @@ class Building(element.Element):
     )
 
 
-class Storey(element.Element):
+class Storey(BPSProduct):
     ifc_type = 'IfcBuildingStorey'
 
     gross_floor_area = attribute.Attribute(
@@ -1131,4 +1161,4 @@ class Storey(element.Element):
     )
 
 
-__all__ = [ele for ele in locals().values() if ele in element.Element.__subclasses__()]
+# __all__ = [ele for ele in locals().values() if ele in element.Element.__subclasses__()]
