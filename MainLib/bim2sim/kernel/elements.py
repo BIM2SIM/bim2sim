@@ -764,12 +764,12 @@ class ThermalZone(element.Element):
     t_set_heat = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMin"),
         unit=ureg.degC,
-        default=15
+        default=21
     )
     t_set_cool = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMax"),
         unit=ureg.degC,
-        default=22
+        default=25
     )
     area = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
@@ -1733,6 +1733,15 @@ class Slab(element.Element):
             layers.append(new_layer)
         return layers
 
+    def get_is_external(self, name):
+        if len(self.ifc.ProvidesBoundaries) > 0:
+            boundary = self.ifc.ProvidesBoundaries[0]
+            if boundary.InternalOrExternalBoundary is not None:
+                if boundary.InternalOrExternalBoundary.lower() == 'external':
+                    return True
+                elif boundary.InternalOrExternalBoundary.lower() == 'internal':
+                    return False
+
     layers = attribute.Attribute(
         functions=[_get_layers]
     )
@@ -1757,10 +1766,9 @@ class Slab(element.Element):
     )
 
     is_external = attribute.Attribute(
-        default_ps=("Pset_SlabCommon", "IsExternal"),
+        functions=[get_is_external],
         default=False
     )
-
 
 class Roof(Slab):
     ifc_type = "IfcRoof"
@@ -1782,6 +1790,10 @@ class Floor(Slab):
 
 class GroundFloor(Slab):
     predefined_type = "BASESLAB"
+    # pattern_ifc_type = [
+    #     re.compile('Bodenplatte', flags=re.IGNORECASE),
+    #     re.compile('')
+    # ]
 
 
 class Site(element.Element):
