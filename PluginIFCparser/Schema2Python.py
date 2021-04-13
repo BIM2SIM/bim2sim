@@ -7,12 +7,12 @@ import urllib.request
 
 from bim2sim.decision import BoolDecision, ListDecision
 from bim2sim.assets.IFCparser import elements_functions
-
 from jinja2 import Environment, FileSystemLoader
 from dill.source import getsource
 from bs4 import BeautifulSoup
 from ifcopenshell.file import file
 from bim2sim.kernel import elements
+from Ifc.SchemaParser import SchemaParser
 
 
 class Schema2Python:
