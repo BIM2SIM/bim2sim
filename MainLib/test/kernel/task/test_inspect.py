@@ -5,7 +5,7 @@ import tempfile
 
 import numpy as np
 
-from bim2sim.kernel.element import Root, BasePort, BaseElement, IFCBased
+from bim2sim.kernel.element import Root, Port, BaseElement, IFCBased
 from bim2sim.task import hvac
 from bim2sim.task import common
 from bim2sim.task.hvac import Inspect
@@ -111,14 +111,14 @@ class TestInspectMethods(unittest.TestCase):
         for item in list(BaseElement.objects.values()):
             item.discard()
 
-        for port in list(BasePort.objects.values()):
+        for port in list(Port.objects.values()):
             port.discard()
 
     @staticmethod
     def create_element(positions):
         parent = BaseElement()
         for pos in positions:
-            port = BasePort(parent)
+            port = Port(parent)
             port.calc_position = MagicMock(return_value=np.array(pos))
             parent.ports.append(port)
         return parent

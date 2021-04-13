@@ -1,7 +1,7 @@
 from unittest import mock
 from contextlib import contextmanager
 
-from bim2sim.kernel.element import Element, Port, Root
+from bim2sim.kernel.element import Element, HVACPort, Root
 from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 
@@ -36,7 +36,7 @@ class SetupHelper:
 
     @classmethod
     def fake_add_ports(cls, parent, n=2):
-        new_ports = [Port(parent=parent, ifc=cls.ifc) for i in range(n)]
+        new_ports = [HVACPort(parent=parent, ifc=cls.ifc) for i in range(n)]
         parent.ports.extend(new_ports)
         return new_ports
 

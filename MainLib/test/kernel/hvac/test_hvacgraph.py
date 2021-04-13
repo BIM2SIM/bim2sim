@@ -57,8 +57,8 @@ def generate_element_strait(number=5, prefix=""):
     for i in range(number):
         ele = element.BaseElement()
         ele.name = prefix + str(i)
-        ele.ports.append(element.BasePort(ele))
-        ele.ports.append(element.BasePort(ele))
+        ele.ports.append(element.Port(ele))
+        ele.ports.append(element.Port(ele))
         elements.append(ele)
         # connect
         if i > 0:
@@ -81,13 +81,13 @@ def attach(element1, element2, use_existing=False):
     if free_ports1:
         port_e1 = free_ports1[0]
     else:
-        port_e1 = element.BasePort(element1)
+        port_e1 = element.Port(element1)
         element1.ports.append(port_e1)
 
     if free_ports2:
         port_e2 = free_ports2[0]
     else:
-        port_e2 = element.BasePort(element2)
+        port_e2 = element.Port(element2)
         element2.ports.append(port_e2)
 
     port_e1.connect(port_e2)

@@ -14,7 +14,7 @@ from bim2sim.filter import TypeFilter, TextFilter
 from bim2sim.kernel.aggregation import HVACAggregation, PipeStrand, UnderfloorHeating,\
     ParallelPump, ParallelSpaceHeater
 from bim2sim.kernel.aggregation import Consumer, ConsumerHeatingDistributorModule
-from bim2sim.kernel.element import Element, ElementEncoder, BasePort
+from bim2sim.kernel.element import Element, ElementEncoder, Port
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
 from bim2sim.decision import Decision, ListDecision
@@ -384,9 +384,9 @@ class Inspect(ITask):
         self.check_element_ports(self.instances.values())
         self.logger.info("Connecting the relevant elements")
         self.logger.info(" - Connecting by relations ...")
-        test = BasePort.objects
+        test = Port.objects
         rel_connections = self.connections_by_relation(
-            BasePort.objects.values())
+            Port.objects.values())
         self.logger.info(" - Found %d potential connections.",
                          len(rel_connections))
 
@@ -400,7 +400,7 @@ class Inspect(ITask):
             # unconfirmed have no position data and cant be connected by position
             port1.connect(port2)
 
-        unconnected_ports = (port for port in BasePort.objects.values()
+        unconnected_ports = (port for port in Port.objects.values()
                              if not port.is_connected())
         self.logger.info(" - Connecting remaining ports by position ...")
         pos_connections = self.connections_by_position(unconnected_ports)
@@ -409,8 +409,8 @@ class Inspect(ITask):
         for port1, port2 in pos_connections:
             port1.connect(port2)
 
-        nr_total = len(BasePort.objects)
-        unconnected = [port for port in BasePort.objects.values()
+        nr_total = len(Port.objects)
+        unconnected = [port for port in Port.objects.values()
                        if not port.is_connected()]
         nr_unconnected = len(unconnected)
         nr_connected = nr_total - nr_unconnected

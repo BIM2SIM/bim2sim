@@ -7,7 +7,7 @@ import numpy as np
 import networkx as nx
 
 
-from bim2sim.kernel.element import BaseElement, BasePort
+from bim2sim.kernel.element import BaseElement, Port
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
@@ -29,7 +29,7 @@ def verify_edge_ports(func):
     return wrapper
 
 
-class AggregationPort(BasePort):
+class AggregationPort(Port):
     """Port for Aggregation"""
 
     def __init__(self, originals, *args, **kwargs):
