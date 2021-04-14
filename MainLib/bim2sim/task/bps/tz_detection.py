@@ -178,10 +178,6 @@ class Inspect(Task):
         #         if related_element is not None:
         #             SubElement.factory(entity, 'IfcRelSpaceBoundary')
 
-class Bind(Task):
-    """Analyses thermal zone instances, bind instances and connects them.
-    based on various criteria
-    elements are stored in .instances dict with guid as key"""
 
 class Bind(Task):
     """Analyses thermal zone instances, bind instances and connects them.
