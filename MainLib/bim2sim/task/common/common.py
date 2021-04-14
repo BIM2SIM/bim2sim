@@ -4,7 +4,7 @@ from bim2sim.kernel import ifc2python
 from bim2sim.task.base import ITask
 from bim2sim.kernel.units import ifcunits, ureg, ifc_pint_unitmap, parse_ifc
 from ifcopenshell.file import file
-from PluginIFCparser.Schema2Python import Schema2Python
+# from PluginIFCparser.Schema2Python import Schema2Python
 
 
 class Reset(ITask):
