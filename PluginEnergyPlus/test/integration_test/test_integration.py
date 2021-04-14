@@ -134,7 +134,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015,'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
-        with Decision.debug_answer(answers, multi=True):
+        with Decision.debug_answer(answers, multi=True, validate=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
