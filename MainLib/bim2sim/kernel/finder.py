@@ -2,7 +2,6 @@
 
 import os
 import json
-import hashlib
 import contextlib
 from pathlib import Path
 
@@ -114,11 +113,12 @@ class TemplateFinder(Finder):
             element.logger.warning('No finder template found for {}.'.format(element.source_tool))
 
             choices = list(self.templates.keys()) + ['Other']
+            choice_checksum = ListDecision.build_checksum(choices)
             decision_source_tool = ListDecision(
                 "Please select best matching source tool %s" % element.source_tool,
                 choices=choices,
                 default='Other',
-                global_key='tool_' + hashlib.md5(''.join(choices).encode('utf-8')).hexdigest(),
+                global_key=f'tool_{element.source_tool}_{choice_checksum}',
                 allow_skip=True, allow_load=True, allow_save=True,
                 collect=False, quick_decide=False)
             tool_name = decision_source_tool.decide()
@@ -133,7 +133,7 @@ class TemplateFinder(Finder):
     def reset(self):
         self.blacklist.clear()
         self.templates.clear()
-        self.load(self.path)
+        self.load(DEFAULT_PATH)
 
     @contextlib.contextmanager
     def disable(self):
