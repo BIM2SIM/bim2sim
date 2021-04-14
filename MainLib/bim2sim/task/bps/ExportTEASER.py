@@ -134,10 +134,13 @@ class ExportTEASER(ITask):
         tz.use_conditions = UseConditions(parent=tz)
         tz.use_conditions.load_use_conditions(instance.usage)
         cls._teaser_property_getter(tz, instance, instance.finder.templates)
-        tz.volume = instance.area * instance.height
-
+        tz.volume = instance.area.m * instance.height.m
+        tz.use_conditions.lighting_profile = [0] * 24
+        tz.use_conditions.persons_profile = [0] * 24
+        tz.use_conditions.persons_profile = [0] * 24
+        tz.use_conditions.machines_profile = [0] * 24
         tz.use_conditions.cooling_profile = [tz.set_temp_cool] * 25
-        tz.use_conditions.heating_profile = [tz.set_temp_heat] * 25
+        # tz.use_conditions.heating_profile = [tz.set_temp_heat] * 25
         # hardcode for paper:
         # todo dja
         # if PROJECT.PAPER:
