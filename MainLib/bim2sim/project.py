@@ -15,7 +15,7 @@ import configparser
 from bim2sim.decision import Decision, ListDecision
 from bim2sim.task.base import Playground
 from bim2sim.plugin import Plugin
-from bim2sim.kernel.element import Root, IFCBased
+from bim2sim.kernel.element import Root, IFCBased, BaseElement
 
 
 logger = logging.getLogger(__name__)
@@ -398,6 +398,7 @@ class Project:
             Root.full_reset()
             # clean finder
             IFCBased.finder.reset()
+            BaseElement.finder.reset()  # due to a 'hotfix' there are two finder instances
             # releas project
             Project._release(self)
 
