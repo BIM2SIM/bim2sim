@@ -460,3 +460,6 @@ workspace/
 # Energy plus intermediate files
 *.mvi
 *.rvi
+
+# Energy plus input files
+*.idf
