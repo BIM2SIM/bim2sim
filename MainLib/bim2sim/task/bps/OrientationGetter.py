@@ -26,9 +26,8 @@ class OrientationGetter(ITask):
                 self.corrected.append(ins)
         self.logger.info("Corrected %d instances", len(self.corrected))
 
-        # x1 = self.group_attribute(Element.instances['Window'].values(), 'orientation')
-        # x2 = self.group_attribute(Element.instances['OuterWall'].values(), 'orientation')
-        # x3 = self.group_attribute(Element.instances['Roof'].values(), 'orientation')
+        x1 = self.group_attribute(Element.instances['Window'].values(), 'orientation')
+        x2 = self.group_attribute(Element.instances['OuterWall'].values(), 'orientation')
 
         return self.corrected,
 
@@ -46,16 +45,14 @@ class OrientationGetter(ITask):
         if instance_type in vertical_instances and len(instance.space_boundaries) > 0:
             new_angles1 = list(set([space_boundary.orientation - space_boundary.thermal_zones[0].orientation
                                     for space_boundary in instance.space_boundaries]))
-            new_angles2 = list(set([-space_boundary.orientation - space_boundary.thermal_zones[0].orientation
-                                    for space_boundary in instance.space_boundaries]))
-            new_angles = list(set([-space_boundary.orientation + space_boundary.thermal_zones[0].orientation
+            new_angles = list(set([-space_boundary.orientation - space_boundary.thermal_zones[0].orientation
                                    for space_boundary in instance.space_boundaries]))
+            new_angles2 = list(set([-space_boundary.orientation + space_boundary.thermal_zones[0].orientation
+                                    for space_boundary in instance.space_boundaries]))
             if len(new_angles) > 1:
                 return None
             # no true north necessary
             new_angle = angle_equivalent(new_angles[0])
-            if instance.guid == '2xrOyxR9nEifMekjrljPsL':
-                print()
             # new angle return
             if new_angle - instance.orientation > 0.1:
                 return new_angle

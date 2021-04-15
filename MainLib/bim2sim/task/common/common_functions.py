@@ -8,11 +8,16 @@ from pathlib import Path
 
 
 def angle_equivalent(angle):
-    while angle >= 360 or angle < 0:
-        if angle >= 360:
-            angle -= 360
-        elif angle < 0:
-            angle += 360
+    if angle == -180.0:
+        angle = 0
+    elif angle == -360:
+        angle = 180
+    else:
+        while angle >= 360 or angle < 0:
+            if angle >= 360:
+                angle -= 360
+            elif angle < 0:
+                angle += 360
     return angle
 
 
@@ -66,13 +71,15 @@ def get_pattern_usage(translate=False):
         "Bed room": ['Schlafzimmer'],
         "Living": ["Galerie", "Wohnen"],
         "Laboratory": ["Labor"],
-        'office_function': ['Office', 'Buero'],
-        "Meeting, Conference, seminar": ['Besprechungsraum', 'Seminarraum'],
+        "Meeting, Conference, seminar": ['Besprechungsraum', 'Seminarraum', 'Besprechung'],
         'Kitchen in non-residential buildings': ['Kitchen', 'Küche'],
         'Kitchen - preparations, storage': ['Kitchen', 'Küche'],
-        'Traffic area': ['Hall', 'Flur', 'Dachboden'],
+        'Traffic area': ['Hall', 'Flur', 'Dachboden', 'TH', 'Treppenhaus'],
         'WC and sanitary rooms in non-residential buildings': ['bath', 'bathroom', 'WC', 'Toilet', 'Bad'],
-        'Stock, technical equipment, archives': ['Technical room', 'Technikraum']
+        'Stock, technical equipment, archives': ['Technical room', 'Technikraum', 'Technik', 'Heizung', 'Server',
+                                                 'Archiv'],
+        'Storehouse, logistics building': ['Abstell'],
+        'Exhibition room and museum conservational demands': ['Ausstellung']
     }
     pattern_usage_teaser = {}
     for i in use_conditions:
@@ -95,7 +102,9 @@ def get_pattern_usage(translate=False):
                 pattern_usage_teaser[i].append(re.compile('(.*?)%s' % new_i_de, flags=re.IGNORECASE))
 
     pattern_usage_teaser['office_function'] = [re.compile('(.*?)Office', re.IGNORECASE),
-                                               re.compile('(.*?)Buero', re.IGNORECASE)]
+                                               re.compile('(.*?)Buero', re.IGNORECASE),
+                                               re.compile('(.*?)Büro', re.IGNORECASE),
+                                               re.compile('(.*?)Pool', re.IGNORECASE)]
 
     return pattern_usage_teaser
 
