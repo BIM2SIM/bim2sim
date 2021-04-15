@@ -8,15 +8,35 @@ SHELL ["/bin/sh", "--login", "-c"]
 # Copy files
 COPY ./MainLib/requirements.txt .
 
+
 # install needed packages
-RUN /opt/conda/bin/conda install --yes --freeze-installed \
-        -c conda-forge ifcopenshell=v0.6.0 \
-        nomkl \
-    && /opt/conda/bin/conda clean -afy \
-    && find /opt/conda/ -follow -type f -name '*.a' -delete \
-    && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
-    && find /opt/conda/ -follow -type f -name '*.js.map' -delete
+
 RUN pip install -r ./requirements.txt
+
+## install ifcopenshell
+RUN /opt/conda/bin/conda install --yes --freeze-installed \
+	    -c dlr-sc pythonocc-core=7.4.1 \
+	    nomkl \
+	&& /opt/conda/bin/conda clean -afy \
+	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
+	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \
+	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
+## install pythonocc
+RUN wget -O /tmp/ifcopenshell.zip https://s3.amazonaws.com/ifcopenshell-builds/ifcopenshell-python-37-master-8625aab-linux64.zip \
+&& unzip '/tmp/ifcopenshell.zip' -d /opt/conda/lib/python3.7/site-packages/ && rm /tmp/ifcopenshell.zip || true ;
+## install occ utils
+RUN wget -O /tmp/occ-utils.zip https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip \
+&& unzip '/tmp/occ-utils.zip' -d /tmp/occ-utils || true \
+&& mv /tmp/occ-utils/pythonocc-utils-master/OCCUtils /opt/conda/lib/python3.7/site-packages/ ;
+
+#RUN /opt/conda/bin/conda install --yes --freeze-installed \
+#        -c conda-forge ifcopenshell=v0.6.0 \
+#        nomkl \
+#    && /opt/conda/bin/conda clean -afy \
+#    && find /opt/conda/ -follow -type f -name '*.a' -delete \
+#    && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
+#    && find /opt/conda/ -follow -type f -name '*.js.map' -delete
+
 
 # Set Pythonpath
 ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/MainLib"

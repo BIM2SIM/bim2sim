@@ -144,6 +144,7 @@ def _get_debug_project_path():
 
     return path_example + "testproject_bps_ep" + str(max_number + 1)
 
+
 def _debug_run_bps():
     """Create example project and copy ifc if necessary"""
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))

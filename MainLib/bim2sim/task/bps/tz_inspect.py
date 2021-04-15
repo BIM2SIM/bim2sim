@@ -1,11 +1,13 @@
 from bim2sim.task.base import Task, ITask
 from bim2sim.decision import BoolDecision
 from bim2sim.kernel.element import Element, SubElement
+from ifcopenshell.file import file
+from bim2sim.workflow import Workflow
 
 
 class TZInspect(ITask):
-    """Analyses IFC, creates Element instances and connects them.
-    elements are stored in .instances dict with guid as key"""
+    """Analyses IFC, creates Element instances corresponding to thermal zones and connects them.
+    elements are stored in .tz_instances dict with guid as key"""
 
     reads = ('instances', 'ifc',)
     touches = ('tz_instances',)
@@ -17,7 +19,7 @@ class TZInspect(ITask):
         pass
 
     @Task.log
-    def run(self, workflow, ifc, instances):
+    def run(self, workflow: Workflow, ifc: file, instances: dict):
         self.logger.info("Creates python representation for building spaces")
         self.recognize_zone_semantic(ifc)
         if len(self.tz_instances) == 0:
@@ -41,7 +43,7 @@ class TZInspect(ITask):
         instances.update(self.tz_instances)
         return self.tz_instances,
 
-    def recognize_zone_semantic(self, ifc):
+    def recognize_zone_semantic(self, ifc: file):
         """Recognizes zones/spaces in ifc file by semantic detection for
         IfcSpace entities"""
         self.logger.info("Create zones by semantic detection")
@@ -53,13 +55,15 @@ class TZInspect(ITask):
 
     @staticmethod
     def bind_elements_to_storey():
-        storeys = SubElement.get_class_instances('Storey')
-        for storey in storeys:
+        """Bind thermal_zones and instances to each floor/storey"""
+        storeys = SubElement.instances['Storey']
+        for storey in storeys.values():
             storey.set_storey_instances()
 
-    def recognize_space_boundaries(self, ifc):
+    def recognize_space_boundaries(self, ifc: file):
         """Recognizes space boundaries in ifc file by semantic detection for
-        IfcRelSpaceBoundary entities"""
+        IfcRelSpaceBoundary entities
+        space boundaries are stored in .sb_instances dict with guid as key"""
         entities = ifc.by_type('IfcRelSpaceBoundary')
 
         ifc_type = 'IfcRelSpaceBoundary'
@@ -75,7 +79,7 @@ class TZInspect(ITask):
         self.logger.info("Create space boundaries by semantic detection")
 
     @staticmethod
-    def bind_elements_to_zone(bound_instances):
+    def bind_elements_to_zone(bound_instances: dict):
         """Binds the different elements to the belonging zones"""
 
         for bound_instance in bound_instances.values():
@@ -87,24 +91,27 @@ class TZInspect(ITask):
                     bound_instance.thermal_zones.append(thermal_zone)
 
     def set_space_properties(self):
-        cooling_decision = BoolDecision(question="Do you want for all the thermal zones to be cooled? - "
-                                                 "with cooling",
-                                        global_key='Thermal_Zones.Cooling',
-                                        allow_skip=True, allow_load=True, allow_save=True,
-                                        collect=False, quick_decide=not True)
-        cooling_decision.decide()
-        heating_decision = BoolDecision(question="Do you want for all the thermal zones to be heated? - "
-                                                 "with heating",
-                                        global_key='Thermal_Zones.Heating',
-                                        allow_skip=True, allow_load=True, allow_save=True,
-                                        collect=False, quick_decide=not True)
-        heating_decision.decide()
+        """set cooling and heating values based on general question for all building"""
+
+        cooling_decision = self.tz_property_decision('cool')
+        heating_decision = self.tz_property_decision('heat')
 
         for k, tz in self.tz_instances.items():
-            if cooling_decision.value is True:
+            if cooling_decision is True:
                 tz.with_cooling = True
-            if heating_decision.value is True:
+            if heating_decision is True:
                 tz.with_heating = True
+
+    @staticmethod
+    def tz_property_decision(property_name: str):
+        """thermal zone property decision corresponding cooling and heating for building"""
+        decision = BoolDecision(question="Do you want for all the thermal zones to be %sed? - "
+                                         "with %sing" % (property_name, property_name),
+                                global_key='Thermal_Zones.%sing' % property_name,
+                                allow_skip=True, allow_load=True, allow_save=True,
+                                collect=False, quick_decide=not True)
+        decision.decide()
+        return decision.value
 
     def recognize_zone_geometrical(self):
         """Recognizes zones/spaces by geometric detection"""

@@ -20,7 +20,6 @@ class Disaggregation_creation(ITask):
             for guid, tz in tz_instances.items():
                 tz_disaggregations = self.get_thermal_zone_disaggregations(tz)
                 tz.bound_elements = tz_disaggregations
-                self.set_tz_properties(tz)
             self.logger.info("disaggregated %d instances", len(self.disaggregations))
 
         return self.disaggregations,
@@ -43,10 +42,3 @@ class Disaggregation_creation(ITask):
             if tz not in inst.thermal_zones:
                 inst.thermal_zones.append(tz)
         return tz_disaggregations
-
-    @staticmethod
-    def set_tz_properties(tz):
-        tz.set_space_neighbors()
-        tz.set_is_external()
-        tz.set_external_orientation()
-        tz.set_glass_area()

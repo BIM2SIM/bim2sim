@@ -109,11 +109,9 @@ class BPSMultiZoneSeparated(Workflow):
             consumer=LOD.low,
             generator=LOD.ignore,
             hvac=LOD.low,
-            # spaces=LOD.low,
-            # spaces=LOD.low,
             spaces=LOD.full,
-            layers=LOD.low,
-            # layers=LOD.full,
+            # layers=LOD.low,
+            layers=LOD.full,
         )
         self.relevant_ifc_types = (
             'IfcSite',
@@ -185,6 +183,68 @@ class BPSMultiZoneSeparatedEP(Workflow):
             'IfcBuilding',
             'IfcBuildingStorey',
             'IfcBeam',
+            'IfcWall',
+            'IfcWindow',
+            'IfcDoor',
+            'IfcSlab',
+            'IfcRoof',
+            'IfcSpaceHeater',
+            'IfcAirTerminal',
+            'IfcAirTerminalBox',
+        )
+
+
+class BPSMultiZoneAggregated(Workflow):
+    """Building performance simulation with spaces aggregated - aggregations"""
+
+    def __init__(self):
+        super().__init__(
+            ductwork=LOD.low,
+            hull=LOD.medium,
+            consumer=LOD.low,
+            generator=LOD.ignore,
+            hvac=LOD.low,
+            spaces=LOD.medium,
+            # layers=LOD.low,
+            layers=LOD.full,
+        )
+        self.relevant_ifc_types = (
+            'IfcSite',
+            'IfcBuilding',
+            'IfcBuildingStorey',
+            # 'IfcWallElementedCase',
+            # 'IfcWallStandardCase',
+            'IfcWall',
+            'IfcWindow',
+            'IfcDoor',
+            'IfcSlab',
+            'IfcRoof',
+            'IfcSpaceHeater',
+            'IfcAirTerminal',
+            'IfcAirTerminalBox',
+        )
+
+
+class BPSOneZoneAggregated(Workflow):
+    """Building performance simulation with spaces aggregated - aggregations"""
+
+    def __init__(self):
+        super().__init__(
+            ductwork=LOD.low,
+            hull=LOD.medium,
+            consumer=LOD.low,
+            generator=LOD.ignore,
+            hvac=LOD.low,
+            spaces=LOD.low,
+            layers=LOD.low,
+            # layers=LOD.full,
+        )
+        self.relevant_ifc_types = (
+            'IfcSite',
+            'IfcBuilding',
+            'IfcBuildingStorey',
+            # 'IfcWallElementedCase',
+            # 'IfcWallStandardCase',
             'IfcWall',
             'IfcWindow',
             'IfcDoor',

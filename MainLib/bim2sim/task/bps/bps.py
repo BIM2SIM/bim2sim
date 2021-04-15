@@ -56,11 +56,9 @@ from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.kernel import finder
 from bim2sim.kernel.aggregation import Aggregated_ThermalZone
-from bim2sim.task.bps import tz_detection
 from bim2sim.kernel import elements, disaggregation
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.enrichment_data import element_input_json
-from bim2sim.task.bps import tz_detection
 from bim2sim.decision import ListDecision, BoolDecision, RealDecision
 from teaser.project import Project
 from teaser.logic.buildingobjects.building import Building
@@ -82,6 +80,7 @@ from bim2sim.kernel.element import SubElement
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.task.common.common_functions import angle_equivalent
 from bim2sim.kernel import elements
+import bim2sim
 
 
 # class SetIFCTypesBPS(ITask):
@@ -1852,7 +1851,7 @@ class ExportEP(ITask):
                          Name=mat_dict['name'],
                          UFactor=1 / (0.04 + thickness / mat_dict['thermal_conduc'] + 0.13),
                          Solar_Heat_Gain_Coefficient=g_value,
-                         Visible_Transmittance=0.8
+                         # Visible_Transmittance=0.8    # optional
                          )
 
     def _get_room_from_zone_dict(self, key):
@@ -1871,7 +1870,8 @@ class ExportEP(ITask):
             "Bad": "WC and sanitary rooms in non-residential buildings",
             "Labor": "Laboratory"
         }
-        uc_path = self.paths.root / 'MaterialTemplates/UseConditions.json'
+        uc_path = Path(bim2sim.__file__).parent.parent.parent / 'PluginEnergyPlus' / 'data' / 'UseConditions.json'
+        # uc_path = self.paths.root / 'MaterialTemplates/UseConditions.json' #todo: use this file (error in people?)
         with open(uc_path) as json_file:
             uc_file = json.load(json_file)
         room_key = []
@@ -2719,7 +2719,7 @@ class ExportEP(ITask):
             space_obj = instances[inst]
             space_obj.b_bound_shape = space_obj.space_shape
             for bound in space_obj.space_boundaries:
-                if bound.bound_area == 0:
+                if bound.bound_area.m == 0:
                     continue
                 bound_prop = GProp_GProps()
                 brepgprop_SurfaceProperties(space_obj.b_bound_shape, bound_prop)
@@ -2793,7 +2793,7 @@ class ExportEP(ITask):
                 for bound in space.space_boundaries:
                     if (gp_Pnt(bound.bound_center).Distance(gp_Pnt(face_center)) > 1e-3):
                         continue
-                    if ((bound.bound_area - p.Mass()) ** 2 < 0.01):
+                    if ((bound.bound_area.m - p.Mass()) ** 2 < 0.01):
                         if fc.Orientation() == 1:
                             bound.bound_shape.Complement()
                             complemented = True
@@ -2858,7 +2858,7 @@ class ExportEP(ITask):
         for i, face in enumerate(faces):
             b_bound = SpaceBoundary2B()
             b_bound.bound_shape = face
-            if b_bound.bound_area < 1e-6:
+            if b_bound.bound_area.m < 1e-6:
                 continue
             b_bound.guid = space_obj.ifc.GlobalId + "_2B_" + str("%003.f" % (i + 1))
             b_bound.thermal_zones.append(space_obj)

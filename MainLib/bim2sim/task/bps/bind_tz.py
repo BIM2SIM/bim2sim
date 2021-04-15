@@ -37,7 +37,6 @@ class BindThermalZones(ITask):
     def bind_tz_one_zone(self, thermal_zones):
         tz_group = {'one_zone_building': thermal_zones}
         new_aggregations = Aggregated_ThermalZone.based_on_groups(tz_group)
-
         for inst in new_aggregations:
             self.bounded_tz.append(inst)
 
@@ -84,9 +83,6 @@ class BindThermalZones(ITask):
         # external - internal criterion
         thermal_zones = SubElement.get_class_instances('ThermalZone')
         for tz in thermal_zones:
-            tz.set_is_external()
-            tz.set_external_orientation()
-            tz.set_glass_area()
             if tz.is_external:
                 external_binding.append(tz)
             else:

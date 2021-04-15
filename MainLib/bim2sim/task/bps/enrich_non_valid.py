@@ -2,8 +2,8 @@ from bim2sim.task.base import Task, ITask
 from bim2sim.kernel import elements
 from bim2sim.decision import RealDecision, StringDecision
 from bim2sim.workflow import LOD
-from bim2sim.task.bps.EnrichBuildingByTemplates import EnrichBuildingByTemplates
-from bim2sim.task.bps.EnrichMaterial import EnrichMaterial
+from bim2sim.task.bps.enrich_bldg_templ import EnrichBuildingByTemplates
+from bim2sim.task.bps.enrich_mat import EnrichMaterial
 from functools import partial
 from bim2sim.kernel.units import ureg
 
@@ -135,7 +135,10 @@ class EnrichNonValid(ITask):
     def store_new_material(self, instance, material_input):
         resumed = EnrichMaterial.get_resumed_material_templates()
         material_options = EnrichMaterial.get_matches_list(material_input, list(resumed.keys()))
-        material_selected = EnrichMaterial.material_selection_decision(material_input, instance, material_options)
+        if len(material_options) > 1:
+            material_selected = EnrichMaterial.material_selection_decision(material_input, instance, material_options)
+        else:
+            material_selected = material_options[0]
         self.material_selected[material_input] = resumed[material_selected]
 
     @staticmethod

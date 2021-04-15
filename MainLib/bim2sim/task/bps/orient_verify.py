@@ -1,5 +1,7 @@
 from bim2sim.task.base import Task, ITask
 from bim2sim.task.common.common_functions import angle_equivalent
+from bim2sim.workflow import Workflow
+from bim2sim.kernel.element import Element
 
 
 class OrientationGetter(ITask):
@@ -14,7 +16,7 @@ class OrientationGetter(ITask):
         pass
 
     @Task.log
-    def run(self, workflow, instances):
+    def run(self, workflow: Workflow, instances: dict):
         self.logger.info("setting verifications")
 
         for guid, ins in instances.items():
@@ -27,7 +29,8 @@ class OrientationGetter(ITask):
         return self.corrected,
 
     @staticmethod
-    def orientation_verification(instance):
+    def orientation_verification(instance: Element):
+        """gets new angle based on space boundaries and compares it with the geometric value"""
         vertical_instances = ['Window', 'OuterWall', 'OuterDoor', 'Wall', 'Door']
         horizontal_instances = ['Slab', 'Roof', 'Floor', 'GroundFloor']
         switcher = {'Slab': -1,
@@ -49,3 +52,28 @@ class OrientationGetter(ITask):
         elif instance_type in horizontal_instances:
             return switcher[instance_type]
         return None
+
+    @classmethod
+    def group_attribute(cls, elements, attribute):
+        """groups together a set of elements, that have an attribute in common """
+        groups = {}
+        for ele in elements:
+            value = cls.cardinal_direction(getattr(ele, attribute))
+            if value not in groups:
+                groups[value] = {}
+            groups[value][ele.guid] = ele
+
+        return groups
+
+    @staticmethod
+    def cardinal_direction(value):
+        """groups together a set of elements based on the orientation """
+        if 45 <= value < 135:
+            value = 'E'
+        elif 135 <= value < 225:
+            value = 'S'
+        elif 225 <= value < 315:
+            value = 'W'
+        else:
+            value = 'N'
+        return value

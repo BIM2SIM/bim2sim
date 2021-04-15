@@ -664,6 +664,7 @@ class Port(BasePort, IFCBased):
 
 class SubElement(BaseElement, IFCBased):
     _ifc_classes = {}
+    # _source_tool = None
 
     dummy = None
     conditions = []
@@ -754,11 +755,11 @@ class SubElement(BaseElement, IFCBased):
             if match is True:
                 prefac = sub_cls(ifc=ifc_element, tool=tool)
                 break
-        if type(prefac).__name__ not in cls.instances:
-            cls.instances[type(prefac).__name__] = {prefac.guid: prefac}
+        if type(prefac).__name__ not in SubElement.instances:
+            SubElement.instances[type(prefac).__name__] = {prefac.guid: prefac}
         else:
-            if prefac.guid not in cls.instances[type(prefac).__name__]:
-                cls.instances[type(prefac).__name__][prefac.guid] = prefac
+            if prefac.guid not in SubElement.instances[type(prefac).__name__]:
+                SubElement.instances[type(prefac).__name__][prefac.guid] = prefac
         return prefac
 
     @staticmethod
@@ -794,12 +795,13 @@ class SubElement(BaseElement, IFCBased):
 
         return requirements
 
-    @classmethod
-    def get_class_instances(cls, instance_class):
+    @staticmethod
+    def get_class_instances(instance_class):
+
         if isinstance(instance_class, str):
-            return list(cls.instances[instance_class].values())
+            return list(SubElement.instances[instance_class].values())
         else:
-            return list(cls.instances[instance_class.__name__].values())
+            return list(SubElement.instances[instance_class.__name__].values())
 
     def validate(self):
         """"Check if standard parameter are in valid range"""
@@ -812,8 +814,8 @@ class SubElement(BaseElement, IFCBased):
     @property
     def source_tool(self):
         """Name of tool that the parent has been created with"""
-        if hasattr(self.parent, 'source_tool'):
-            self._tool = self.parent.source_tool
+        if not self._tool:
+            self._tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
         return self._tool
 
     def __repr__(self):
@@ -832,7 +834,6 @@ class Element(SubElement):
 
     dummy = None
     conditions = []
-    _source_tool = None
 
     def __init__(self, *args, tool=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -857,13 +858,6 @@ class Element(SubElement):
         element_port_connections = getattr(self.ifc, 'HasPorts', [])
         for element_port_connection in element_port_connections:
             self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
-
-    @property
-    def source_tool(self):
-        """Name of tool the ifc has been created with"""
-        if not self.__class__._source_tool:
-            self.__class__._source_tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
-        return self.__class__._source_tool
 
     @property
     def neighbors(self):
