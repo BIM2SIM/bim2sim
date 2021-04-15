@@ -1,3 +1,6 @@
+from pathlib import Path
+
+import bim2sim
 from bim2sim.task.base import Task, ITask
 from bim2sim.kernel.element import SubElement
 from teaser.project import Project
@@ -45,11 +48,27 @@ class ExportTEASER(ITask):
             for tz_instance in bounded_tz:
                 tz = self._create_thermal_zone(tz_instance, bldg)
                 self._bind_instances_to_zone(tz, tz_instance)
+                # Todo remove dirty hack
+                if len(tz.outer_walls + tz.rooftops) == 0:
+                    ow_min = OuterWall(parent=tz)
+                    ow_min.area = 0.01
+                    ow_min.load_type_element(
+                        year=bldg.year_of_construction,
+                        construction='heavy',
+                    )
+                    ow_min.tilt = 90
+                    ow_min.orientation = 0
                 tz.calc_zone_parameters()
             bldg.calc_building_parameter()
+            assets = Path(bim2sim.__file__).parent / 'assets'
 
-        # prj.export_aixlib(path=paths.export / 'TEASEROutput')
-        prj.export_aixlib()
+            prj.weather_file_path = \
+                assets / 'weatherfiles' / 'DEU_NW_Aachen.105010_TMYx.mos'
+
+            from teaser.data.output.reports import model_report
+            prj.export_aixlib(path=paths.export / 'TEASEROutput')
+            prj_data = model_report.calc_report_data(
+                prj, path=paths.export / 'TEASEROutput')
 
 
     @staticmethod
