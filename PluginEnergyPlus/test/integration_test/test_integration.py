@@ -101,7 +101,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
-    # @unittest.skip("")
+    @unittest.skip("Skipped due to performance for CI")
     def test_base_04_KIT_Inst_SB(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
 
@@ -127,7 +127,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
-    # @unittest.skip("")
+    @unittest.skip("Skipped due to performance for CI")
     def test_base_06_KHH(self):
         """Test KIT KHH 3 storey IFC"""
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
@@ -138,7 +138,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
-    # @unittest.skip("")
+    @unittest.skip("Skipped due to performance for CI")
     def test_base_07_EDC_SB(self):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
@@ -148,7 +148,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
-
 
 
 if __name__ == '__main__':
