@@ -6,7 +6,7 @@ import networkx as nx
 from bim2sim.kernel import element, elements
 from bim2sim.kernel.hvac import hvac_graph
 
-from test.kernel.helper import SetupHelper
+from test.unit.kernel.helper import SetupHelper
 
 
 class GraphHelper(SetupHelper):

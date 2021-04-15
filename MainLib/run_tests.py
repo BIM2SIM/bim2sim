@@ -1,12 +1,14 @@
 ﻿"""Run all tests"""
-from os import path
-this_dir = path.abspath(path.dirname(__file__))
+from pathlib import Path
+
+
+unit_dir = Path(__file__).parent / 'test'
 
 if __name__ == '__main__':
     import unittest
 
     loader = unittest.TestLoader()
-    tests = loader.discover(path.join(this_dir))
+    tests = loader.discover(unit_dir)
     testRunner = unittest.runner.TextTestRunner()
     result = testRunner.run(tests)
     if result.wasSuccessful():

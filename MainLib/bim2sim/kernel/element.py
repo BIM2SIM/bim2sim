@@ -120,6 +120,11 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
         for d in self.related_decisions:
             d.discard()
 
+    @classmethod
+    def full_reset(cls):
+        # TODO: remove other side effects
+        for r in Root.objects.copy().values():
+            r.discard()
 
 class RelatedSubElementMixin:  # TODO this gets replaced by idea behind get_ifc_mapping
     """Mixin which allows automated sub class selection in instantiation"""

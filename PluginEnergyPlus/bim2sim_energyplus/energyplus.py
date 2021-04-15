@@ -1,9 +1,11 @@
 ﻿
 
 import bim2sim
-from bim2sim.manage import BIM2SIMManager
+from bim2sim.plugin import Plugin
 
-class EnergyPlus(BIM2SIMManager):
+
+class EnergyPlus(Plugin):
+    name = 'EnergyPlus'
 
     def prepare(self, model):
         
