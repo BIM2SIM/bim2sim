@@ -26,8 +26,8 @@ class OrientationGetter(ITask):
                 self.corrected.append(ins)
         self.logger.info("Corrected %d instances", len(self.corrected))
 
-        x1 = self.group_attribute(Element.instances['Window'].values(), 'orientation')
-        x2 = self.group_attribute(Element.instances['OuterWall'].values(), 'orientation')
+        # x1 = self.group_attribute(Element.instances['Window'].values(), 'orientation')
+        # x2 = self.group_attribute(Element.instances['OuterWall'].values(), 'orientation')
 
         return self.corrected,
 
@@ -43,11 +43,13 @@ class OrientationGetter(ITask):
         instance_type = type(instance).__name__
         guid = instance.guid
         if instance_type in vertical_instances and len(instance.space_boundaries) > 0:
-            new_angles1 = list(set([space_boundary.orientation - space_boundary.thermal_zones[0].orientation
-                                    for space_boundary in instance.space_boundaries]))
             new_angles = list(set([-space_boundary.orientation - space_boundary.thermal_zones[0].orientation
+                                   for space_boundary in instance.space_boundaries
+                                   if space_boundary.orientation != space_boundary.thermal_zones[0].orientation]))
+
+            new_angles_alt = list(set([-space_boundary.orientation - space_boundary.thermal_zones[0].orientation
                                    for space_boundary in instance.space_boundaries]))
-            if len(new_angles) > 1:
+            if len(new_angles) > 1 or len(new_angles) == 0:
                 return None
             # no true north necessary
             new_angle = angle_equivalent(new_angles[0])
@@ -73,7 +75,6 @@ class OrientationGetter(ITask):
     @staticmethod
     def cardinal_direction(value):
         """groups together a set of thermal zones, that have common glass percentage in common """
-        # groups based on Norm DIN_V_18599_1
         if 45 <= value < 135:
             value = 'E'
         elif 135 <= value < 225:
