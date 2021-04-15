@@ -4,9 +4,10 @@ import re
 import shutil
 import inspect
 import urllib.request
+import pathlib
 
 from bim2sim.decision import BoolDecision, ListDecision
-from IFCparser import elements_functions
+from assets import elements_functions
 from jinja2 import Environment, FileSystemLoader
 from dill.source import getsource
 from bs4 import BeautifulSoup
@@ -27,8 +28,9 @@ class Schema2Python:
                                       collect=False, quick_decide=False)
         emods_decision.decide()
         if emods_decision.value:
-            assets = {'functions': 'assets/IFCparser/elements_functions.py',
-                      'specific_schema': 'assets/IFCparser/elements_specific_schema.json'}
+            plugin_path= pathlib.Path(__file__).parent
+            assets = {'functions': plugin_path/'assets/elements_functions.py',
+                      'specific_schema': plugin_path/'assets/elements_specific_schema.json'}
             # find instances in elements.py
             instances = {m[0]: m[1] for m in inspect.getmembers(elements, inspect.isclass) if
                          m[1].__module__ == 'bim2sim.kernel.elements'}
@@ -195,7 +197,8 @@ class Schema2Python:
         from bim2sim.kernel import elements
         """creates elements.py file based on elements_specific_schema.json, elements_functions.py
             and schema for specific schema of ifc"""
-        if elements.schema != ifc.schema:
+        # if elements.schema != ifc.schema:
+        if elements.schema != 80:
             structure_decision = BoolDecision(question="The schema of the ifc file (%s) doesn't correspond to the "
                                                        "schema of elements.py (%s) Do you want to modify elements.py "
                                                        "based on the schema of the ifc file?" % (ifc.schema,
@@ -208,23 +211,21 @@ class Schema2Python:
                 # get schema version of ifc file
                 schema_version = ifc.schema.replace('X', 'x')
                 cls.get_elements_modifications()
-
-                args = {'schema': 'assets/IFCparser/schema.exp',
-                        'module': 'kernel/elements.py',
-                        'hardcopy': 'assets/IFCparser/elements_hardcopy.py',
-                        'json': 'assets/IFCparser/elements_specific_schema.json'}
+                plugin_path = pathlib.Path(__file__).parent
+                bim2sim_path = pathlib.Path().absolute()
+                args = {'schema': plugin_path/'assets/schema.exp',
+                        'module': bim2sim_path/'kernel/elements.py',
+                        'hardcopy': plugin_path/'assets/elements_hardcopy.py',
+                        'json': plugin_path/'assets/elements_specific_schema.json'}
 
                 # initialise the jinja2 engine
                 env = Environment(
-                    loader=FileSystemLoader('./PluginIFCparser/templates'),
+                    loader=FileSystemLoader(plugin_path/'templates'),
                     trim_blocks=True,
                     lstrip_blocks=True
                 )
                 # read the templates
-                owd = os.getcwd()
-                os.chdir('../../')
                 entity_template = env.get_template("entity_parser.template.py")
-                os.chdir(owd)
                 # get corresponding version for the ifc schema
                 IFC_RELEASE = 'https://standards.buildingsmart.org/IFC/RELEASE/'
                 webUrl = urllib.request.urlopen(IFC_RELEASE)
