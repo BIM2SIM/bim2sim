@@ -4,7 +4,7 @@ import logging
 from json import JSONEncoder
 import itertools
 import re
-import typing
+from typing import Union, Set, Iterable, Dict, List, Tuple
 
 import numpy as np
 
@@ -126,34 +126,6 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
         for r in Root.objects.copy().values():
             r.discard()
 
-class RelatedSubElementMixin:  # TODO this gets replaced by idea behind get_ifc_mapping
-    """Mixin which allows automated sub class selection in instantiation"""
-    _subclass_registry = {}
-    predefined_types: typing.Set[str] = None
-
-    def __init__(self, *args, **kwargs):
-        kwargs.pop('predefined_type', None)
-        super().__init__(*args, **kwargs)
-
-    def __new__(cls, *args, **kwargs):
-        predefined_type = kwargs.pop('predefined_type', None)
-        if predefined_type:
-            matching_sub_classes = cls._subclass_registry[predefined_type]
-            for sub_class in matching_sub_classes:
-                if cls in sub_class.__bases__:
-                    return super().__new__(sub_class)
-
-        return super().__new__(cls)
-
-    @classmethod
-    def __init_subclass__(cls, **kwargs):
-        if cls.predefined_types:
-            for pre_type in cls.predefined_types:
-                # if predefined_type is globally unique there could be just cls
-                cls._subclass_registry.setdefault(pre_type, set()).add(cls)
-
-        return super().__init_subclass__()
-
 
 class IFCMixin:  # TBD
     """Mixin to enable instantiation from ifc and provide related methods.
@@ -167,11 +139,11 @@ class IFCMixin:  # TBD
             '-Something'  start with minus to exclude
 
         For example:
-        {'IfcSlab': ['*', '-SomethingSpecialWeDontWant', 'BASESLAB]}
+        {'IfcSlab': ['*', '-SomethingSpecialWeDontWant', 'BASESLAB']}
         {'IfcRoof': ['FLAT_ROOF', 'SHED_ROOF',...],
          'IfcSlab': ['ROOF']}"""
 
-    ifc_types: typing.Dict[str, typing.List[str]] = None
+    ifc_types: Dict[str, List[str]] = None
 
     # TBD
     pattern_ifc_type = []
@@ -190,7 +162,7 @@ class IFCMixin:  # TBD
         self._decision_results = {}
 
     @staticmethod
-    def ifc2args(ifc) -> typing.Tuple[tuple, dict]:
+    def ifc2args(ifc) -> Tuple[tuple, dict]:
         """Extract init args from ifc"""
         # subelement can be an ifc instance that doesnt have a GlobalId
         guid = getattr(ifc, 'GlobalId', None)
@@ -200,7 +172,7 @@ class IFCMixin:  # TBD
     def from_ifc(cls, ifc, *args, **kwargs):
         ifc_args, ifc_kwargs = cls.ifc2args(ifc)
         kwargs.update(ifc_kwargs)
-        return super().__init__(*(args + ifc_args), **kwargs)
+        return cls(*(args + ifc_args), **kwargs)
 
     @property
     def source_tool(self):  # TBD: this incl. Finder could live in Factory
@@ -405,7 +377,7 @@ class IFCMixin:  # TBD
                     results.append(hits[0][0])
         return results if results else ''
 
-    def get_exact_property(self, propertyset_name, property_name):
+    def get_exact_property(self, propertyset_name:str, property_name: str):
         """Returns value of property specified by propertyset name and property name
 
         :Raises: AttributeError if property does not exist"""
@@ -506,8 +478,7 @@ class RelationBased(IFCMixin, Root):
 
 class ProductBased(IFCMixin, Root):
     """Base class for all elements with ports"""
-    ifc_type: str = None
-    predefined_types: typing.List[str]
+    predefined_types: List[str]
     conditions = []
 
     # TBD
@@ -632,46 +603,47 @@ class Factory:
         ele = factory(some_ifc_element)
         """
 
-    def __init__(self, relevant_elements: typing.List[ProductBased], dummy):
+    def __init__(self, relevant_elements: List[ProductBased], dummy):
         self.mapping, self.blacklist, self.defaults = self.create_ifc_mapping(relevant_elements)
         self.dummy = dummy
         self.objects = {}
 
-    def __call__(self, ifc, *args, **kwargs) -> ProductBased:
-        ifc_type = ifc.is_a()
-        predefined_type = ifc2python.get_predefined_type(ifc)
+    def __call__(self, ifc_entity, *args, **kwargs) -> ProductBased:
+        ifc_type = ifc_entity.is_a()
+        predefined_type = ifc2python.get_predefined_type(ifc_entity)
         element_cls = self.get_element(ifc_type, predefined_type)
         if not element_cls:
-            raise LookupError(f"No element found for {ifc}")
+            raise LookupError(f"No element found for {ifc_entity}")
         # instantiate element
-        element = element_cls.from_ifc(ifc, *args, **kwargs)
+        element = element_cls.from_ifc(ifc_entity, *args, **kwargs)
         # check if it preferes to be sth else
         better_cls = element.get_better_subclass()
         if better_cls:
             logger.info("Creating %s instead of %s", better_cls, element_cls)
-            element = better_cls.from_ifc(ifc, *args, **kwargs)
+            element = better_cls.from_ifc(ifc_entity, *args, **kwargs)
         # register in object dict
         self.objects[element.guid] = element
         return element
 
-    def get_element(self, ifc_type, predefined_type) -> \
-            typing.Union[ProductBased, None]:
-        key = (ifc_type, predefined_type)
-        # 1. go over normal list, if found match --> return
-        element = self.mapping.get(key)
-        if element:
-            return element
-        # 2. go over negative list, if found match --> not existing
-        if key in self.blacklist:
-            return None
+    def get_element(self, ifc_type: str, predefined_type: Union[str, None]) -> \
+            Union[ProductBased, None]:
+        if predefined_type:
+            key = (ifc_type.lower(), predefined_type.upper())
+            # 1. go over normal list, if found match --> return
+            element = self.mapping.get(key)
+            if element:
+                return element
+            # 2. go over negative list, if found match --> not existing
+            if key in self.blacklist:
+                return None
         # 3. go over default list, if found match --> return
-        return self.defaults.get(ifc_type)
+        return self.defaults.get(ifc_type.lower())
 
     @staticmethod
-    def create_ifc_mapping(elements) -> typing.Tuple[
-        typing.Dict[typing.Tuple[str, str], ProductBased],
-        typing.List[typing.Tuple[str, ProductBased]],
-        typing.Dict[str, ProductBased]
+    def create_ifc_mapping(elements: Iterable) -> Tuple[
+        Dict[Tuple[str, str], ProductBased],
+        List[Tuple[str, ProductBased]],
+        Dict[str, ProductBased]
     ]:
         """
 
@@ -695,13 +667,13 @@ class Factory:
                     if token == '*':
                         if ifc_type in default:
                             raise NameError()  # TBD
-                        default[ifc_type] = ele
+                        default[ifc_type.lower()] = ele
                     # blacklist
                     elif token.startswith('-'):
-                        blacklist.append((ifc_type, token[1:]))
+                        blacklist.append((ifc_type.lower(), token[1:].upper()))
                     # normal
                     else:
-                        mapping[(ifc_type, token)] = ele
+                        mapping[(ifc_type.lower(), token.upper())] = ele
 
         return mapping, blacklist, default
 
