@@ -56,11 +56,9 @@ from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.kernel import finder
 from bim2sim.kernel.aggregation import Aggregated_ThermalZone
-from bim2sim.task.bps import tz_detection
 from bim2sim.kernel import elements, disaggregation
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.enrichment_data import element_input_json
-from bim2sim.task.bps import tz_detection
 from bim2sim.decision import ListDecision, BoolDecision, RealDecision
 from teaser.project import Project
 from teaser.logic.buildingobjects.building import Building
@@ -82,6 +80,7 @@ from bim2sim.kernel.element import SubElement
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.task.common.common_functions import angle_equivalent
 from bim2sim.kernel import elements
+import bim2sim
 
 
 # class SetIFCTypesBPS(ITask):
@@ -1871,7 +1870,8 @@ class ExportEP(ITask):
             "Bad": "WC and sanitary rooms in non-residential buildings",
             "Labor": "Laboratory"
         }
-        uc_path = self.paths.root / 'MaterialTemplates/UseConditions.json'
+        uc_path = Path(bim2sim.__file__).parent.parent.parent / 'PluginEnergyPlus' / 'data' / 'UseConditions.json'
+        # uc_path = self.paths.root / 'MaterialTemplates/UseConditions.json' #todo: use this file (error in people?)
         with open(uc_path) as json_file:
             uc_file = json.load(json_file)
         room_key = []

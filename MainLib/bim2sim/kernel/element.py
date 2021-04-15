@@ -664,6 +664,7 @@ class Port(BasePort, IFCBased):
 
 class SubElement(BaseElement, IFCBased):
     _ifc_classes = {}
+    # _source_tool = None
 
     dummy = None
     conditions = []
@@ -813,9 +814,9 @@ class SubElement(BaseElement, IFCBased):
     @property
     def source_tool(self):
         """Name of tool that the parent has been created with"""
-        if not self.__class__._source_tool:
-            self.__class__._source_tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
-        return self.__class__._source_tool
+        if not self._tool:
+            self._tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
+        return self._tool
 
     def __repr__(self):
         return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)
@@ -833,7 +834,6 @@ class Element(SubElement):
 
     dummy = None
     conditions = []
-    _source_tool = None
 
     def __init__(self, *args, tool=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -858,13 +858,6 @@ class Element(SubElement):
         element_port_connections = getattr(self.ifc, 'HasPorts', [])
         for element_port_connection in element_port_connections:
             self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
-
-    @property
-    def source_tool(self):
-        """Name of tool the ifc has been created with"""
-        if not self.__class__._source_tool:
-            self.__class__._source_tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
-        return self.__class__._source_tool
 
     @property
     def neighbors(self):

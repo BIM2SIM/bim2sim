@@ -5,7 +5,7 @@ from bim2sim.kernel.element import SubElement
 from bim2sim.kernel import elements
 from bim2sim.decision import ListDecision
 from bim2sim.workflow import LOD
-from bim2sim.task.bps.EnrichMaterial import EnrichMaterial
+from bim2sim.task.bps.enrich_mat import EnrichMaterial
 from bim2sim.task.common.common_functions import get_type_building_elements
 
 

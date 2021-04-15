@@ -66,6 +66,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     Tested are both original IFC files and files from Eric Fichter's Space Boundary Generation tool.
     """
 
+    # @unittest.skip("")
     def test_base_01_FZK(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
@@ -75,20 +76,20 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
-    @unittest.skip("Test currently holds inputs, "
-                   "which have to be moved to decisions")
+
+    # @unittest.skip("")
     def test_base_02_FZK_SB(self):
         """Test IFC File from FZK-Haus (KIT) with generated Space Boundaries"""
         # ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB44.ifc'
         ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
+        answers = (True, True, *('Single office',)*4, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
-
+    # @unittest.skip("")
     def test_base_03_KIT_Inst(self):
         """Test Original IFC File from Institute (KIT)"""
 
@@ -100,55 +101,53 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
-
+    @unittest.skip("Skipped due to performance for CI")
     def test_base_04_KIT_Inst_SB(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
 
         # ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB11.ifc'
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True,  2015, 'heavy',
+        answers = (True, True,  *('Single office',)*78, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
-    @unittest.skip("Test currently holds inputs, "
-                   "which have to be moved to decisions")
+    @unittest.skip("Test currently holds inputs, which have to be moved to decisions")
     def test_base_05_DH(self):
         """Test DigitalHub IFC"""
         # ifc = EXAMPLE_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
         # ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB11.ifc'
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True,  2015, 'heavy',
+        answers = (True, True,  *('Single office',)*59, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
-    # todo fix answers
+    @unittest.skip("Skipped due to performance for CI")
     def test_base_06_KHH(self):
         """Test KIT KHH 3 storey IFC"""
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, 'heavy', 2015,
+        answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015,'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
-        with Decision.debug_answer(answers, multi=True):
+        with Decision.debug_answer(answers, multi=True, validate=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
-    # todo fix answers
+    @unittest.skip("Skipped due to performance for CI")
     def test_base_07_EDC_SB(self):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, 'heavy', 2015,
+        answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
-
 
 
 if __name__ == '__main__':

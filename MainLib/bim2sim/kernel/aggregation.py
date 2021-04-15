@@ -2,6 +2,7 @@
 
 import math
 import inspect
+import operator
 
 import ast
 import numpy as np
@@ -1551,8 +1552,9 @@ class Aggregated_ThermalZone(Aggregation):
                            'fixed_heat_flow_rate_persons', 'internal_gains_moisture_no_people', 'T_threshold_cooling',
                            'ratio_conv_rad_persons', 'machines', 'ratio_conv_rad_machines', 'lighting_power',
                            'ratio_conv_rad_lighting', 'infiltration_rate', 'max_user_infiltration', 'min_ahu',
-                           'max_ahu', 'persons']
+                           'max_ahu']
         bool_attrs = ['with_heating', 'with_cooling', 'with_ahu', 'use_constant_infiltration', 'with_ideal_thresholds']
+        special_attrs = ['persons']
         total_vol = sum(tz.volume for tz in self.elements if tz.volume is not None).m
 
         # intensive attributes mean
@@ -1576,6 +1578,23 @@ class Aggregated_ThermalZone(Aggregation):
                 aux.append(sum(tz.use_condition[attr][x] * tz.volume.m for tz in self.elements if attr in
                                tz.use_condition and tz.volume is not None) / total_vol)
             aggregated_use_condition[attr] = aux
+
+        # special attributes
+        for attr in special_attrs:
+            attr_val = 0
+            for tz in self.elements:
+                # check if dict, because it can be division dict like
+                # {"/":[1,15]}, or float value
+                # todo remove this mess
+                if isinstance(tz.use_condition[attr], dict):
+                    division_res = list(tz.use_condition[attr].values())[0][0] \
+                                   / list(tz.use_condition[attr].values())[0][1]
+                    attr_val += division_res * tz.volume.m
+                else:
+                    attr_val += tz.use_condition[attr] * tz.volume.m
+                attr_val = attr_val / total_vol
+            aggregated_use_condition[attr] = attr_val
+
         return aggregated_use_condition
 
     usage = attribute.Attribute(

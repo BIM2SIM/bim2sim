@@ -2,8 +2,8 @@ from bim2sim.task.base import Task, ITask
 from bim2sim.kernel import elements
 from bim2sim.decision import RealDecision, StringDecision
 from bim2sim.workflow import LOD
-from bim2sim.task.bps.EnrichBuildingByTemplates import EnrichBuildingByTemplates
-from bim2sim.task.bps.EnrichMaterial import EnrichMaterial
+from bim2sim.task.bps.enrich_bldg_templ import EnrichBuildingByTemplates
+from bim2sim.task.bps.enrich_mat import EnrichMaterial
 from functools import partial
 from bim2sim.kernel.units import ureg
 
