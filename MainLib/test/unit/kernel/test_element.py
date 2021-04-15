@@ -1,64 +1,109 @@
 ﻿"""Testing classes of module element"""
 
 import unittest
+from pathlib import Path
+from unittest.mock import MagicMock
 
 from bim2sim.kernel import element
 from bim2sim.kernel.attribute import Attribute
-
-from test.unit.kernel.helper import SetupHelper
-
-
-# IFC_PATH = os.path.abspath(os.path.join(
-#     os.path.dirname(bim2sim.__file__), '../..',
-#     r'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc'))
+from bim2sim.kernel.ifc2python import load_ifc
 
 
-class TestElement(element.Element):
-    ifc_type = "IfcTest"
-
-    attr1 = Attribute()
-    attr2 = Attribute()
-    attr3 = Attribute()
-    attr4 = Attribute()
+TEST_MODELS = Path(__file__).parent.parent.parent / 'TestModels'
 
 
-@unittest.skip("To be defined")  # TODO: test factory, get_by_guid, discard, Dummy, Ports, connections
-class TestElement(unittest.TestCase):
+# TODO test:
+#  Root request attr
+#  Root/ProductBased validate
+#  Factory
+#  Factory/IfcMixin ifc_types
+#  ProductBased better subclass
+
+def get_ifc(file: str):
+    """Get IfcOpenShell wrapper instance for file"""
+    ifc = load_ifc(TEST_MODELS / file)
+    return ifc
+
+
+class Element1(element.ProductBased):
+    ifc_types = {'IFCPIPESEGMENT': ['*']}
+    attr_a = Attribute()
+
+
+class Element2(element.ProductBased):
+    ifc_types = {'IFCPIPEFITTING': ['*']}
+    attr_x = Attribute()
+
+
+class TestSlap(element.ProductBased):
+    ifc_types = {'IfcSlab': ['*', '-SomethingSpecialWeDontWant', 'BASESLAB']}
+
+
+class TestRoof(element.ProductBased):
+    ifc_types = {
+        'IfcRoof': ['FLAT_ROOF', 'SHED_ROOF'],
+        'IfcSlab': ['ROOF']
+    }
+
+
+class TestProductBased(unittest.TestCase):
+
+    def test_init(self):
+        item = Element1()
+        self.assertIsInstance(item, element.ProductBased)
+
+        item2 = Element1(attr_a=4)
+        self.assertEqual(4, item2.attr_a)
+
+    def test_from_ifc(self):
+        ifc = get_ifc('B01_2_HeatExchanger_Pipes.ifc')
+        guid = '2aUc0GQrtLYqyOs0qLuQL7'
+        ifc_entity = ifc.by_guid(guid)
+        item = Element1.from_ifc(ifc_entity)
+
+        self.assertIsInstance(item, element.ProductBased)
+        self.assertEqual(guid, item.guid)
+
+
+@unittest.skip("Not implemented")
+class TestRelationBased(unittest.TestCase):
     pass
 
 
-class NotPredefinedElement(element.RelatedSubElementMixin, element.ProductBased):
-    ifc_type = 'IfcSomething'
+class TestFactory(unittest.TestCase):
 
-    def __init__(self, *args, **kwargs):
-        self.some_attr = 2
-        super().__init__(*args, **kwargs)
+    def test_init(self):
+        relevant_elements = [
+            Element1,
+            Element2
+        ]
+        factory = element.Factory(relevant_elements, dummy=None)
+        self.assertIsInstance(factory, element.Factory)
 
+    def test_factory_create(self):
+        ifc = get_ifc('B01_2_HeatExchanger_Pipes.ifc')
+        entities = ifc.by_type('IFCPIPESEGMENT')
+        relevant_elements = [
+            Element1,
+            Element2
+        ]
+        factory = element.Factory(relevant_elements, dummy=None)
+        item = factory(entities[0])
 
-class PredefinedElement(NotPredefinedElement):
-    predefined_types = ('ITEM_A', 'ITEM_B')
+        self.assertIsInstance(item, element.ProductBased)
 
-    def __init__(self, *args, **kwargs):
-        self.some_other_attr = 3
-        super().__init__(*args, **kwargs)
+    @unittest.skip("Not implemented")
+    def test_factory_create_better_cls(self):
+        pass
 
+    def test_create_mapping(self):
+        """Test if Factory uses ifc_types correctly"""
+        factory = element.Factory([TestRoof, TestSlap], None)
 
-class TestPredefinedTypes(unittest.TestCase):
-
-    def test_instanciate_element_with_predefined_sub_elements(self):
-        """"""
-        instance = NotPredefinedElement(predefined_type='ITEM_A')
-        self.assertIsInstance(instance, PredefinedElement)
-        # check successfull init
-        self.assertEqual(2, instance.some_attr)
-        self.assertEqual(3, instance.some_other_attr)
-
-    def test_instantiate_actual_element(self):
-        instance = PredefinedElement()
-        self.assertIsInstance(instance, PredefinedElement)
-        # check successfull init
-        self.assertEqual(2, instance.some_attr)
-        self.assertEqual(3, instance.some_other_attr)
+        self.assertIs(factory.get_element('IfcSlab', 'BASESLAB'), TestSlap)
+        self.assertIs(factory.get_element('IfcSlab', 'OTHER'), TestSlap)
+        self.assertIsNone(factory.get_element('IfcSlab', 'SomethingSpecialWeDontWant'))
+        self.assertIs(factory.get_element('IfcSlab', 'ROOF'), TestRoof)
 
 
 if __name__ == '__main__':
