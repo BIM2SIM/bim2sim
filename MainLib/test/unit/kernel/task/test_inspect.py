@@ -59,7 +59,8 @@ class TestInspect(unittest.TestCase):
     def test_case_1(self):
         """HeatExchange with 4 (semantically) connected pipes"""
         with patch.object(FolderStructure, 'ifc', sample_root / 'B01_2_HeatExchanger_Pipes.ifc'):
-            with Decision.debug_answer('IfcUnitaryEquipment', validate=True):
+            with Decision.debug_answer('IfcUnitaryEquipment', validate=True,
+                                       overwrite_default=False):
                 self.project.run(cleanup=False)
 
         heat_exchanger = Root.objects.get('0qeZDHlQRzcKJYopY4$fEf')
