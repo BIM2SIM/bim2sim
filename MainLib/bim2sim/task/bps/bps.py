@@ -56,11 +56,9 @@ from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.kernel import finder
 from bim2sim.kernel.aggregation import Aggregated_ThermalZone
-from bim2sim.task.bps import tz_detection
 from bim2sim.kernel import elements, disaggregation
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.enrichment_data import element_input_json
-from bim2sim.task.bps import tz_detection
 from bim2sim.decision import ListDecision, BoolDecision, RealDecision
 from teaser.project import Project
 from teaser.logic.buildingobjects.building import Building
