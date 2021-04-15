@@ -13,7 +13,8 @@ COPY ./MainLib/requirements.txt .
 
 RUN pip install -r ./requirements.txt
 
-## install ifcopenshell
+# install needed packages
+## install pythonocc
 RUN /opt/conda/bin/conda install --yes --freeze-installed \
 	    -c dlr-sc pythonocc-core=7.4.1 \
 	    nomkl \
@@ -21,9 +22,16 @@ RUN /opt/conda/bin/conda install --yes --freeze-installed \
 	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
 	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \
 	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
-## install pythonocc
-RUN wget -O /tmp/ifcopenshell.zip https://s3.amazonaws.com/ifcopenshell-builds/ifcopenshell-python-37-master-8625aab-linux64.zip \
-&& unzip '/tmp/ifcopenshell.zip' -d /opt/conda/lib/python3.7/site-packages/ && rm /tmp/ifcopenshell.zip || true ;
+RUN /opt/conda/bin/conda install --yes --freeze-installed \
+	    -c conda-forge -c oce -c dlr-sc -c ifcopenshell ifcopenshell \
+	    nomkl \
+	&& /opt/conda/bin/conda clean -afy \
+	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
+	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \
+	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
+## install ifcopenshell
+#RUN wget -O /tmp/ifcopenshell.zip https://s3.amazonaws.com/ifcopenshell-builds/ifcopenshell-python-37-master-8625aab-linux64.zip \
+#&& unzip '/tmp/ifcopenshell.zip' -d /opt/conda/lib/python3.7/site-packages/ && rm /tmp/ifcopenshell.zip || true ;
 ## install occ utils
 RUN wget -O /tmp/occ-utils.zip https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip \
 && unzip '/tmp/occ-utils.zip' -d /tmp/occ-utils || true \
