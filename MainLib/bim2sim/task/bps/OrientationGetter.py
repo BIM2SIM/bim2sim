@@ -47,8 +47,6 @@ class OrientationGetter(ITask):
                                     for space_boundary in instance.space_boundaries]))
             new_angles = list(set([-space_boundary.orientation - space_boundary.thermal_zones[0].orientation
                                    for space_boundary in instance.space_boundaries]))
-            new_angles2 = list(set([-space_boundary.orientation + space_boundary.thermal_zones[0].orientation
-                                    for space_boundary in instance.space_boundaries]))
             if len(new_angles) > 1:
                 return None
             # no true north necessary
