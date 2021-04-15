@@ -6,7 +6,7 @@ import inspect
 import urllib.request
 
 from bim2sim.decision import BoolDecision, ListDecision
-from bim2sim.assets.IFCparser import elements_functions
+from IFCparser import elements_functions
 from jinja2 import Environment, FileSystemLoader
 from dill.source import getsource
 from bs4 import BeautifulSoup
@@ -149,7 +149,8 @@ class Schema2Python:
                                         function_index = aux_data[class_index:].index(line_auxd) + class_index
                                         break
                                 if function_index is not None:
-                                    function_stored = getattr(getattr(elements_functions, "%sFunctions" % instance), n_func)
+                                    function_stored = getattr(getattr(
+                                        elements_functions, "%sFunctions" % instance), n_func)
                                     f_stored_lines = getsource(function_stored).splitlines()
                                     original_index = aux_data[class_index:next_class_index].index(
                                         f_stored_lines[0]) + class_index
@@ -322,11 +323,13 @@ class Schema2Python:
                                 entity.name = entity.sschema['name']
                             if 'parent' in entity.sschema:
                                 entity.parent = entity.sschema['parent']
-                            if 'functions' in entity.sschema and hasattr(elements_functions, "%sFunctions" % entity.name):
+                            if 'functions' in entity.sschema and hasattr(
+                                    elements_functions, "%sFunctions" % entity.name):
                                 e_functions = []
                                 for fun in entity.sschema['functions']:
                                     e_functions.append(
-                                        getsource(getattr(getattr(elements_functions, "%sFunctions" % entity.name), fun)))
+                                        getsource(getattr(getattr(
+                                            elements_functions, "%sFunctions" % entity.name), fun)))
                                 entity.functions = e_functions
                         try:
                             entity_template.stream(entity.__dict__).dump(fd)
