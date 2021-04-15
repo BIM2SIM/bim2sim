@@ -10,14 +10,14 @@ COPY ./MainLib/requirements.txt .
 
 # install needed packages
 RUN /opt/conda/bin/conda install --yes --freeze-installed \
-        -c conda-forge ifcopenshell=v0.6.0 \
+        -c conda-forge pythonocc-core=7.4.1 \
         nomkl \
     && /opt/conda/bin/conda clean -afy \
     && find /opt/conda/ -follow -type f -name '*.a' -delete \
     && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
     && find /opt/conda/ -follow -type f -name '*.js.map' -delete
 RUN /opt/conda/bin/conda install --yes --freeze-installed \
-        -c conda-forge pythonocc-core=7.4.1 \
+        -c conda-forge ifcopenshell=v0.6.0 \
         nomkl \
     && /opt/conda/bin/conda clean -afy \
     && find /opt/conda/ -follow -type f -name '*.a' -delete \
