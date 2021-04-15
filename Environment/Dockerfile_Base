@@ -1,11 +1,5 @@
 FROM frolvlad/alpine-miniconda3
 
-#install unzip and wget
-RUN \
-apt-get update && \
-apt-get install unzip wget -y && \
-rm -rf /var/lib/apt/lists/*
-
 # Make RUN commands use `bash --login`:
 SHELL ["/bin/sh", "--login", "-c"]
 
