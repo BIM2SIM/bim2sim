@@ -1,6 +1,8 @@
+# todo delete this after seperating energyplus tasks into single tasks
 import os
 import sys
 import json
+
 from pathlib import Path
 
 import bim2sim
@@ -11,8 +13,6 @@ if v >= (2, 7):
         FileNotFoundError
     except:
         FileNotFoundError = IOError
-
-# elements_data = inspect.getmembers(elements)
 
 
 class DataClass(object):
@@ -34,6 +34,11 @@ class DataClass(object):
                                         'MaterialTemplates.json')
             # self.path_te = project.assets / 'MaterialTemplates' / 'MaterialTemplates.json'
             self.load_te_binding()
+        elif self.used_parameters == 3:
+            self.path_te = os.path.join(project.assets, 'MaterialTemplates',
+                                        'TypeBuildingElements.json')
+            self.load_te_binding()
+            self.typebuildingelements_postprocessing()
         elif self.used_parameters is None:
             self.element_bind = None
 
@@ -44,11 +49,24 @@ class DataClass(object):
         """
 
         if self.path_te.endswith("json"):
-                try:
-                    with open(self.path_te, 'r+') as f:
-                        self.element_bind = json.load(f)
-                except json.decoder.JSONDecodeError:
-                    print("Your TypeElements file seems to be broken.")
+            try:
+                with open(self.path_te, 'r+') as f:
+                    self.element_bind = json.load(f)
+            except json.decoder.JSONDecodeError:
+                print("Your TypeElements file seems to be broken.")
         else:
             print("Your TypeElements file has the wrong format.")
 
+    def typebuildingelements_postprocessing(self):
+        instance_templates = self.element_bind
+        del instance_templates["version"]
+        template_options = {}
+        for i in instance_templates:
+            i_name, i_years, i_template = i.split('_')
+            if i_name not in template_options:
+                template_options[i_name] = {}
+            if i_years not in template_options[i_name]:
+                template_options[i_name][i_years] = {}
+            template_options[i_name][i_years][i_template] = instance_templates[
+                i]
+        self.element_bind = template_options

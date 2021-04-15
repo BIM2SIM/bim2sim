@@ -3,6 +3,8 @@
 Holds logic to run a simulation based on prepared ifc data
 '''
 
-from .energyplus import EnergyPlus
+def get_energyplus():
+    from .energyplus import EnergyPlus
+    return EnergyPlus
 
-CONTEND = {'energyplus':EnergyPlus}
+CONTEND = {'energyplus':get_energyplus}

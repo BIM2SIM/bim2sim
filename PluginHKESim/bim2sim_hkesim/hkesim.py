@@ -16,14 +16,13 @@ class LoadLibrariesHKESim(base.ITask):
     def run(self, workflow, **kwargs):
         return (standardlibrary.StandardLibrary, HKESim),
 
- 
+
 class PluginHKESim(Plugin):
     name = 'HKESim'
     default_workflow = PlantSimulation
     tasks = {LoadLibrariesHKESim}
 
     def run(self, playground):
-
         playground.run_task(hvac.SetIFCTypesHVAC())
         playground.run_task(common.LoadIFC())
         playground.run_task(hvac.Prepare())

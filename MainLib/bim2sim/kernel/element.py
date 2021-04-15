@@ -129,14 +129,16 @@ class IFCBased(Root):
         # subelement can be an ifc instance that doesnt have a GlobalId
         else:
             super().__init__(*args, guid=self.get_id(type(self).__name__), **kwargs)
-        whitelist = ['Layer']
+
         self.ifc = ifc
-        # if ifc.Name is not None and len(ifc.Name) > 0:
-        if len(ifc.Name) > 0:
-            self.name = ifc.Name
-        else:
-            self.name = input("Please enter name for the instance %s"
-                              % type(self).__name__)
+        # todo to reduce decision querys we should only do this for needed names like Building or projectname
+        if ifc is not None:
+            if ifc.Name is not None:
+                if len(ifc.Name) > 0:
+                    self.name = ifc.Name
+                else:
+                    self.name = input("Please enter name for the instance %s"
+                                      % type(self).__name__)
         self.predefined_type = ifc2python.get_predefined_type(ifc)
         self.enrichment = {}
         self._propertysets = None
@@ -146,11 +148,16 @@ class IFCBased(Root):
 
     def calc_position(self):
         """returns absolute position"""
-        rel = np.array(self.ifc.ObjectPlacement.
-                       RelativePlacement.Location.Coordinates)
-        relto = np.array(self.ifc.ObjectPlacement.
-                         PlacementRelTo.RelativePlacement.Location.Coordinates)
-        return rel + relto
+        if hasattr(self.ifc, 'ObjectPlacement'):
+            absolute = np.array(self.ifc.ObjectPlacement.RelativePlacement.Location.Coordinates)
+            placementrel = self.ifc.ObjectPlacement.PlacementRelTo
+            while placementrel is not None:
+                absolute += np.array(placementrel.RelativePlacement.Location.Coordinates)
+                placementrel = placementrel.PlacementRelTo
+        else:
+            absolute = None
+
+        return absolute
 
     def calc_orientation(self):
         # ToDO: true north angle
@@ -413,6 +420,8 @@ class BaseElement(Root):
     """Base class for all elements with ports"""
     objects = {}
     default_materials = {}
+    # todo this is a hotfix
+    finder = TemplateFinder()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -423,6 +432,7 @@ class BaseElement(Root):
         self.thermal_zones = []
         self.ports = []
         self.space_boundaries = []
+        self.storeys = []
 
     def get_inner_connections(self):
         """Returns inner connections of Element
@@ -654,9 +664,12 @@ class Port(BasePort, IFCBased):
 
 class SubElement(BaseElement, IFCBased):
     _ifc_classes = {}
+    # _source_tool = None
 
     dummy = None
     conditions = []
+    # todo move this to upper class?
+    instances = {}
 
     def __init__(self, *args, tool=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -741,7 +754,12 @@ class SubElement(BaseElement, IFCBased):
                     break
             if match is True:
                 prefac = sub_cls(ifc=ifc_element, tool=tool)
-
+                break
+        if type(prefac).__name__ not in SubElement.instances:
+            SubElement.instances[type(prefac).__name__] = {prefac.guid: prefac}
+        else:
+            if prefac.guid not in SubElement.instances[type(prefac).__name__]:
+                SubElement.instances[type(prefac).__name__][prefac.guid] = prefac
         return prefac
 
     @staticmethod
@@ -749,10 +767,23 @@ class SubElement(BaseElement, IFCBased):
         all_subclasses = []
 
         for subclass in cls.__subclasses__():
-            all_subclasses.append(subclass)
-            all_subclasses.extend(SubElement.get_all_subclasses(subclass))
+            if subclass not in all_subclasses:
+                all_subclasses.append(subclass)
+                all_subclasses.extend(cls.get_all_subclasses(subclass))
 
         return all_subclasses
+
+    @staticmethod
+    def get_dict_subclasses(cls):
+        all_subclasses = {}
+
+        for subclass in cls.__subclasses__():
+            if subclass.__name__ not in all_subclasses:
+                all_subclasses[subclass.__name__] = subclass
+                all_subclasses.update(cls.get_dict_subclasses(subclass))
+
+        return all_subclasses
+
 
     @staticmethod
     def get_class_requirements(cls):
@@ -763,6 +794,14 @@ class SubElement(BaseElement, IFCBased):
             requirements.update(cls.special_argument)
 
         return requirements
+
+    @staticmethod
+    def get_class_instances(instance_class):
+
+        if isinstance(instance_class, str):
+            return list(SubElement.instances[instance_class].values())
+        else:
+            return list(SubElement.instances[instance_class.__name__].values())
 
     def validate(self):
         """"Check if standard parameter are in valid range"""
@@ -775,8 +814,8 @@ class SubElement(BaseElement, IFCBased):
     @property
     def source_tool(self):
         """Name of tool that the parent has been created with"""
-        if hasattr(self.parent, 'source_tool'):
-            self._tool = self.parent.source_tool
+        if not self._tool:
+            self._tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
         return self._tool
 
     def __repr__(self):
@@ -795,7 +834,6 @@ class Element(SubElement):
 
     dummy = None
     conditions = []
-    _source_tool = None
 
     def __init__(self, *args, tool=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -820,13 +858,6 @@ class Element(SubElement):
         element_port_connections = getattr(self.ifc, 'HasPorts', [])
         for element_port_connection in element_port_connections:
             self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
-
-    @property
-    def source_tool(self):
-        """Name of tool the ifc has been created with"""
-        if not self.__class__._source_tool:
-            self.__class__._source_tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
-        return self.__class__._source_tool
 
     @property
     def neighbors(self):
@@ -860,6 +891,3 @@ class Dummy(Element):
 
     def __str__(self):
         return "Dummy '%s'" % self.name
-
-
-# import Element classes for Element.factory

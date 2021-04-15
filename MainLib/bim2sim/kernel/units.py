@@ -2,7 +2,7 @@
 
 from pint import UnitRegistry
 
-ureg = UnitRegistry()
+ureg = UnitRegistry(autoconvert_offset_to_baseunit=True)  # to avoid temperature problems
 
 # Dictionary of the units from IfcUnitAssignment
 ifcunits = {}
@@ -41,8 +41,6 @@ ifc_pint_unitmap = {
     'WATT': 'watt',
     'WEBER': 'weber'
 }
-
-
 
 
 def parse_ifc(unit_entity):

@@ -3,6 +3,7 @@ import os
 from bim2sim.kernel import ifc2python
 from bim2sim.task.base import ITask
 from bim2sim.kernel.units import ifcunits, ureg, ifc_pint_unitmap, parse_ifc
+from ifcopenshell.file import file
 
 
 class Reset(ITask):
@@ -42,10 +43,11 @@ class LoadIFC(ITask):
             ifc_path = path
         else:
             raise AssertionError("No ifc found. Check '%s'" % path)
-
         ifc = ifc2python.load_ifc(os.path.abspath(ifc_path))
 
         ifcunits.update(**self.get_ifcunits(ifc))
+
+        # Schema2Python.get_ifc_structure(ifc)
 
         self.logger.info("The exporter version of the IFC file is '%s'",
                          ifc.wrapped_data.header.file_name.originating_system)
@@ -68,7 +70,8 @@ class LoadIFC(ITask):
         return None
 
     @staticmethod
-    def get_ifcunits(ifc):
+    def get_ifcunits(ifc: file):
+        """Returns dict with units available on ifc file"""
 
         unit_assignment = ifc.by_type('IfcUnitAssignment')
 
@@ -102,4 +105,3 @@ class LoadIFC(ITask):
                 print("Failed to parse %s" % unit_entity)
 
         return results
-

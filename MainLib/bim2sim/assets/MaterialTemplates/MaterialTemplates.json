@@ -7461,5 +7461,19 @@
         "thickness_default": 0.0,
         "thickness_list": [],
         "solar_absorp": 0.5
+    },
+    "0abb8aa3-83ff-11e6-bfa4-2cd444b2e705": {
+        "name": "Door0_2015Typical",
+        "density": 650.0,
+        "thermal_conduc": 0.08,
+        "heat_capac": 1.5,
+        "thickness_default": 0.05,
+        "thickness_list": [
+            0.02,
+            0.03,
+            0.035,
+            0.04
+        ],
+        "solar_absorp": 0.5
     }
 }
