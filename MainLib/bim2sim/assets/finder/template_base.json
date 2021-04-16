@@ -1,8 +1,46 @@
 {
+  "source_tools":[
+    "ARCHICAD-64",
+    "Autodesk Revit 2018 (DEU)",
+    "Autodesk Revit 2019 (DEU)",
+    "Autodesk Revit 2019 (ENU)",
+    "Autodesk Revit 2020 (DEU)",
+    "Autodesk Revit 2020 (ENU)"
+  ],
+  "PipeFitting": {
+	"default_ps": {
+      "diameter" : {
+        "Autodesk Revit 2019 (DEU)": ["Abmessungen", "Nenndurchmesser"],
+        "Autodesk Revit 2019 (ENU)": ["Pset_PipeFittingTypeCommon", "NominalDiameter"]
+      },
+      "pressure_class" : {
+        "base": ["Pset_PipeFittingTypeCommon", "PressureClass"]
+      },
+      "length" : {
+        "Autodesk Revit 2019 (DEU)": ["Abmessungen", "Muffenl\u00e4nge"],
+        "Autodesk Revit 2019 (ENU)": ["Qto_PipeFittingTypeCommon", "Length"]
+      },
+      "radius": {
+        "Autodesk Revit 2019 (ENU)": ["Abmessungen", "Bogenradius"]
+      },
+      "angle": {
+        "Autodesk Revit 2019 (ENU)": ["Abmessungen", "Winkel"]
+      }
+    }
+  },
+  "Pipe": {
+	"default_ps": {
+      "diameter" : {
+        "Autodesk Revit 2019 (DEU)": ["HLS", "Durchmesser"],
+        "Autodesk Revit 2019 (ENU)": ["Pset_PipeSegmentTypeCommon", "NominalDiameter"]
+      },
+      "length" : {
+        "Autodesk Revit 2019 (DEU)": ["Abmessungen", "L\u00e4nge"],
+        "Autodesk Revit 2019 (ENU)": ["Qto_PipeSegmentBaseQuantities", "Length"]
+      }
+    }
+  },
   "OuterWall": {
-    "material": {
-      " Leichtbeton " : "lightweight_concrete"
-    },
     "exporter": {
       "teaser": {
         "name": ["instance","name"],
@@ -10,29 +48,147 @@
         "tilt": ["instance", "tilt"],
         "orientation": ["instance", "orientation"]
       }
+    },
+    "default_ps": {
+      "area": {
+        "ARCHICAD-64": ["BaseQuantities", "NetSideArea"],
+        "Autodesk Revit 2018 (DEU)": ["Abmessungen", "Fl\u00e4che"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_WallBaseQuantities", "NetSideArea"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_WallBaseQuantities", "NetSideArea"],
+        "Autodesk Revit 2020 (DEU)": ["Abmessungen", "Fl\u00e4che"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "NetSideArea"]
+      },
+      "gross_side_area": {
+        "ARCHICAD-64": ["BaseQuantities", "GrossSideArea"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossSideArea"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_WallBaseQuantities", "GrossSideArea"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "GrossSideArea"]
+      },
+      "width": {
+        "ARCHICAD-64": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_WallBaseQuantities", "Width"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_WallBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_WallBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "Width"]
+      },
+      "height": {
+        "ARCHICAD-64": ["BaseQuantities", "Height"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Height"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_WallBaseQuantities", "Height"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_WallBaseQuantities", "Height"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_WallBaseQuantities", "Height"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "Height"]
+      },
+      "tilt": {
+        "ARCHICAD-64": ["ArchiCADProperties", "\u00c4u\u00dferer Neigungswinkel"]
+      },
+      "is_external": {
+        "base": ["Pset_WallCommon", "IsExternal"]
+      },
+      "u_value": {
+        "base": ["Pset_WallCommon", "ThermalTransmittance"]
+      }
     }
   },
   "InnerWall": {
-    "material": {
-      " Leichtbeton " : "lightweight_concrete"
-    },
     "exporter": {
       "teaser": {
         "name": ["instance","name"],
         "area": ["instance", "area"]
       }
+    },
+    "default_ps": {
+      "area": {
+        "ARCHICAD-64": ["BaseQuantities", "NetSideArea"],
+        "Autodesk Revit 2018 (DEU)": ["Abmessungen", "Fl\u00e4che"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_WallBaseQuantities", "NetSideArea"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_WallBaseQuantities", "NetSideArea"],
+        "Autodesk Revit 2020 (DEU)": ["Abmessungen", "Fl\u00e4che"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "NetSideArea"]
+      },
+      "gross_side_area": {
+        "ARCHICAD-64": ["BaseQuantities", "GrossSideArea"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossSideArea"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_WallBaseQuantities", "GrossSideArea"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "GrossSideArea"]
+      },
+      "width": {
+        "ARCHICAD-64": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_WallBaseQuantities", "Width"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_WallBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_WallBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "Width"]
+      },
+      "height": {
+        "ARCHICAD-64": ["BaseQuantities", "Height"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Height"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_WallBaseQuantities", "Height"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_WallBaseQuantities", "Height"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_WallBaseQuantities", "Height"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "Height"]
+      },
+      "tilt": {
+        "ARCHICAD-64": ["ArchiCADProperties", "\u00c4u\u00dferer Neigungswinkel"]
+      },
+      "is_external": {
+        "base": ["Pset_WallCommon", "IsExternal"]
+      },
+      "u_value": {
+        "base": ["Pset_WallCommon", "ThermalTransmittance"]
+      }
     }
   },
   "Wall": {
-    "material": {
-      " Leichtbeton " : "lightweight_concrete"
-    },
     "exporter": {
       "teaser": {
         "name": ["instance","name"],
         "area": ["instance", "area"],
         "tilt": ["instance", "tilt"],
         "orientation": ["instance", "orientation"]
+      }
+    },
+    "default_ps": {
+      "area": {
+        "ARCHICAD-64": ["BaseQuantities", "NetSideArea"],
+        "Autodesk Revit 2018 (DEU)": ["Abmessungen", "Fl\u00e4che"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_WallBaseQuantities", "NetSideArea"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_WallBaseQuantities", "NetSideArea"],
+        "Autodesk Revit 2020 (DEU)": ["Abmessungen", "Fl\u00e4che"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "NetSideArea"]
+
+      },
+      "gross_side_area": {
+        "ARCHICAD-64": ["BaseQuantities", "GrossSideArea"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossSideArea"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_WallBaseQuantities", "GrossSideArea"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "GrossSideArea"]
+      },
+      "width": {
+        "ARCHICAD-64": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_WallBaseQuantities", "Width"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_WallBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_WallBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "Width"]
+      },
+      "height": {
+        "ARCHICAD-64": ["BaseQuantities", "Height"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Height"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_WallBaseQuantities", "Height"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_WallBaseQuantities", "Height"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_WallBaseQuantities", "Height"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "Height"]
+      },
+      "tilt": {
+        "ARCHICAD-64": ["ArchiCADProperties", "\u00c4u\u00dferer Neigungswinkel"]
+      },
+      "is_external": {
+        "base": ["Pset_WallCommon", "IsExternal"]
+      },
+      "u_value": {
+        "base": ["Pset_WallCommon", "ThermalTransmittance"]
       }
     }
   },
@@ -43,6 +199,36 @@
         "area": ["instance", "area"],
         "orientation": ["instance", "orientation"]
       }
+    },
+    "default_ps": {
+      "area": {
+        "ARCHICAD-64": ["BaseQuantities", "NetArea"],
+        "Autodesk Revit 2018 (DEU)": ["Abmessungen", "Fl\u00e4che"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_WallBaseQuantities", "NetArea"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_WallBaseQuantities", "NetArea"],
+        "Autodesk Revit 2020 (DEU)": ["Abmessungen", "Fl\u00e4che"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "NetArea"]
+      },
+      "gross_area": {
+        "ARCHICAD-64": ["BaseQuantities", "GrossArea"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossArea"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_WallBaseQuantities", "GrossArea"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "GrossArea"]
+      },
+      "width" : {
+        "ARCHICAD-64": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2018 (DEU)": ["Abmessungen", "Dicke"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_SlabBaseQuantities", "Width"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_SlabBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (DEU)": ["QTo_SlabBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_SlabBaseQuantities", "Width"]
+      },
+      "u_value" : {
+        "base": ["Pset_SlabCommon", "ThermalTransmittance"]
+      },
+      "is_external" : {
+        "base": ["Pset_SlabCommon", "IsExternal"]
+      }
     }
   },
   "Floor": {
@@ -52,6 +238,36 @@
         "area": ["instance", "area"],
         "orientation": ["instance", "orientation"]
       }
+    },
+    "default_ps": {
+      "area": {
+        "ARCHICAD-64": ["BaseQuantities", "NetArea"],
+        "Autodesk Revit 2018 (DEU)": ["Abmessungen", "Fl\u00e4che"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_WallBaseQuantities", "NetArea"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_WallBaseQuantities", "NetArea"],
+        "Autodesk Revit 2020 (DEU)": ["Abmessungen", "Fl\u00e4che"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "NetArea"]
+      },
+      "gross_area": {
+        "ARCHICAD-64": ["BaseQuantities", "GrossArea"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossArea"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_WallBaseQuantities", "GrossArea"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "GrossArea"]
+      },
+      "width" : {
+        "ARCHICAD-64": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2018 (DEU)": ["Abmessungen", "Dicke"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_SlabBaseQuantities", "Width"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_SlabBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (DEU)": ["QTo_SlabBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_SlabBaseQuantities", "Width"]
+      },
+      "u_value" : {
+        "base": ["Pset_SlabCommon", "ThermalTransmittance"]
+      },
+      "is_external" : {
+        "base": ["Pset_SlabCommon", "IsExternal"]
+      }
     }
   },
   "GroundFloor": {
@@ -60,6 +276,36 @@
         "name": ["instance","name"],
         "area": ["instance", "area"],
         "orientation": ["instance", "orientation"]
+      }
+    },
+    "default_ps": {
+      "area": {
+        "ARCHICAD-64": ["BaseQuantities", "NetArea"],
+        "Autodesk Revit 2018 (DEU)": ["Abmessungen", "Fl\u00e4che"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_WallBaseQuantities", "NetArea"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_WallBaseQuantities", "NetArea"],
+        "Autodesk Revit 2020 (DEU)": ["Abmessungen", "Fl\u00e4che"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "NetArea"]
+      },
+      "gross_area": {
+        "ARCHICAD-64": ["BaseQuantities", "GrossArea"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossArea"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_WallBaseQuantities", "GrossArea"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_WallBaseQuantities", "GrossArea"]
+      },
+      "width" : {
+        "ARCHICAD-64": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2018 (DEU)": ["Abmessungen", "Dicke"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_SlabBaseQuantities", "Width"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_SlabBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (DEU)": ["QTo_SlabBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_SlabBaseQuantities", "Width"]
+      },
+      "u_value" : {
+        "base": ["Pset_SlabCommon", "ThermalTransmittance"]
+      },
+      "is_external" : {
+        "base": ["Pset_SlabCommon", "IsExternal"]
       }
     }
   },
@@ -71,6 +317,42 @@
         "inner_convection": 0.6,
         "orientation": ["instance", "orientation"]
       }
+    },
+    "default_ps": {
+      "area" : {
+        "ARCHICAD-64": ["BaseQuantities", "Area"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Area"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_WindowBaseQuantities", "Area"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_WindowBaseQuantities", "Area"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_WindowBaseQuantities", "Area"],
+        "Autodesk Revit 2020 (ENU)": ["Qto_WindowBaseQuantities", "Area"]
+      },
+      "width" : {
+        "ARCHICAD-64": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_WindowBaseQuantities", "Width"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_WindowBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_WindowBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (ENU)": ["Qto_WindowBaseQuantities", "Width"]
+      },
+      "is_external": {
+        "base": ["Pset_WindowCommon", "IsExternal"]
+      },
+      "glass_area": {
+        "Autodesk Revit 2019 (DEU)": ["Konstruktion", "Glasflaeche"],
+        "Autodesk Revit 2019 (ENU)": ["Konstruktion", "Glasflaeche"]
+      },
+      "g_value": {
+        "Autodesk Revit 2019 (DEU)": ["Analytische Eigenschaften (type)", "Gesamtenergiedurchlassgrad"],
+        "Autodesk Revit 2019 (ENU)": ["Analytische Eigenschaften (type)", "Gesamtenergiedurchlassgrad"]
+      },
+      "glass_thickness": {
+        "Autodesk Revit 2019 (DEU)": ["Konstruktion(type)", "Glasst\u00e4rke"],
+        "Autodesk Revit 2019 (ENU)": ["Konstruktion(type)", "Glasst\u00e4rke"]
+      },
+      "u_value" : {
+        "base": ["Pset_WindowCommon", "ThermalTransmittance"]
+      }
     }
   },
   "Door": {
@@ -81,6 +363,98 @@
         "inner_convection": 0.6,
         "orientation": ["instance", "orientation"]
       }
+    },
+    "default_ps": {
+      "area" : {
+        "ARCHICAD-64": ["BaseQuantities", "Area"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Area"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_DoorBaseQuantities", "Area"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_DoorBaseQuantities", "Area"],
+        "Autodesk Revit 2020 (DEU)": ["QTo_DoorBaseQuantities", "Area"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_DoorBaseQuantities", "Area"]
+      },
+      "width" : {
+        "ARCHICAD-64": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_DoorBaseQuantities", "Width"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_DoorBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_DoorBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_DoorBaseQuantities", "Width"]
+      },
+      "is_external": {
+        "base": ["Pset_DoorCommon", "IsExternal"]
+      },
+      "u_value" : {
+        "base": ["Pset_WindowCommon", "ThermalTransmittance"]
+      }
+    }
+  },
+  "InnerDoor": {
+    "exporter": {
+      "teaser": {
+        "name": ["instance","name"],
+        "area": ["instance", "area"],
+        "inner_convection": 0.6,
+        "orientation": ["instance", "orientation"]
+      }
+    },
+    "default_ps": {
+      "area" : {
+        "ARCHICAD-64": ["BaseQuantities", "Area"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Area"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_DoorBaseQuantities", "Area"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_DoorBaseQuantities", "Area"],
+        "Autodesk Revit 2020 (DEU)": ["QTo_DoorBaseQuantities", "Area"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_DoorBaseQuantities", "Area"]
+      },
+      "width" : {
+        "ARCHICAD-64": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_DoorBaseQuantities", "Width"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_DoorBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_DoorBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_DoorBaseQuantities", "Width"]
+      },
+      "is_external": {
+        "base": ["Pset_DoorCommon", "IsExternal"]
+      },
+      "u_value" : {
+        "base": ["Pset_WindowCommon", "ThermalTransmittance"]
+      }
+    }
+  },
+  "OuterDoor": {
+    "exporter": {
+      "teaser": {
+        "name": ["instance","name"],
+        "area": ["instance", "area"],
+        "inner_convection": 0.6,
+        "orientation": ["instance", "orientation"]
+      }
+    },
+    "default_ps": {
+      "area" : {
+        "ARCHICAD-64": ["BaseQuantities", "Area"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Area"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_DoorBaseQuantities", "Area"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_DoorBaseQuantities", "Area"],
+        "Autodesk Revit 2020 (DEU)": ["QTo_DoorBaseQuantities", "Area"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_DoorBaseQuantities", "Area"]
+      },
+      "width" : {
+        "ARCHICAD-64": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2019 (DEU)": ["QTo_DoorBaseQuantities", "Width"],
+        "Autodesk Revit 2019 (ENU)": ["QTo_DoorBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_DoorBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (ENU)": ["QTo_DoorBaseQuantities", "Width"]
+      },
+      "is_external": {
+        "base": ["Pset_DoorCommon", "IsExternal"]
+      },
+      "u_value" : {
+        "base": ["Pset_WindowCommon", "ThermalTransmittance"]
+      }
     }
   },
   "ThermalZone": {
@@ -88,7 +462,77 @@
       "teaser": {
         "name": ["instance","name"],
         "area": ["instance", "area"],
-        "number_of_elements": 2
+        "number_of_elements": 2,
+        "set_temp_heat": ["instance", "t_set_heat"],
+        "set_temp_cool": ["instance", "t_set_cool"],
+        "with_cooling": ["instance", "with_cooling"],
+        "with_heating": ["instance", "with_heating"]
+      }
+    },
+    "default_ps": {
+      "zone_name" : {
+        "ARCHICAD-64": ["ArchiCADProperties", "Raumname"],
+        "Autodesk Revit 2018 (DEU)": ["ID-Daten", "Raumname"],
+        "Autodesk Revit 2019 (DEU)": ["Pset_SpaceCommon", "Reference"],
+        "Autodesk Revit 2019 (ENU)": ["Pset_SpaceCommon", "Reference"],
+        "Autodesk Revit 2020 (DEU)": ["ID-Daten", "Name"],
+        "Autodesk Revit 2020 (ENU)": ["Pset_SpaceCommon", "Reference"]
+      },
+      "area": {
+        "ARCHICAD-64": ["BaseQuantities", "GrossFloorArea"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossFloorArea"],
+        "Autodesk Revit 2019 (DEU)": ["Qto_SpaceBaseQuantities", "GrossFloorArea"],
+        "Autodesk Revit 2019 (ENU)": ["Qto_SpaceBaseQuantities", "GrossFloorArea"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_SpaceBaseQuantities", "GrossFloorArea"],
+        "Autodesk Revit 2020 (ENU)": ["Qto_SpaceBaseQuantities", "GrossFloorArea"]
+      },
+      "height" : {
+        "ARCHICAD-64": ["BaseQuantities", "Height"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Height"],
+        "Autodesk Revit 2019 (DEU)": ["Qto_SpaceBaseQuantities", "Height"],
+        "Autodesk Revit 2019 (ENU)": ["Qto_SpaceBaseQuantities", "Height"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_SpaceBaseQuantities", "Height"],
+        "Autodesk Revit 2020 (ENU)": ["Qto_SpaceBaseQuantities", "Height"]
+      },
+      "length" : {
+        "ARCHICAD-64": ["BaseQuantities", "Length"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Length"],
+        "Autodesk Revit 2019 (DEU)": ["Qto_SpaceBaseQuantities", "Length"],
+        "Autodesk Revit 2019 (ENU)": ["Qto_SpaceBaseQuantities", "Length"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_SpaceBaseQuantities", "Length"],
+        "Autodesk Revit 2020 (ENU)": ["Qto_SpaceBaseQuantities", "Length"]
+      },
+      "net_volume" : {
+        "ARCHICAD-64": ["BaseQuantities", "NetVolume"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossVolume"],
+        "Autodesk Revit 2019 (DEU)": ["Qto_SpaceBaseQuantities", "GrossVolume"],
+        "Autodesk Revit 2019 (ENU)": ["Qto_SpaceBaseQuantities", "GrossVolume"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_SpaceBaseQuantities", "GrossVolume"],
+        "Autodesk Revit 2020 (ENU)": ["Qto_SpaceBaseQuantities", "GrossVolume"]
+      },
+      "gross_side_area" : {
+        "ARCHICAD-64": ["BaseQuantities", "GrossArea"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "GrossArea"]
+      },
+      "width" : {
+        "ARCHICAD-64": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2018 (DEU)": ["BaseQuantities", "Width"],
+        "Autodesk Revit 2019 (DEU)": ["Qto_SpaceBaseQuantities", "Width"],
+        "Autodesk Revit 2019 (ENU)": ["Qto_SpaceBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (DEU)": ["Qto_SpaceBaseQuantities", "Width"],
+        "Autodesk Revit 2020 (ENU)": ["Qto_SpaceBaseQuantities", "Width"]
+      },
+      "t_set_heat" : {
+        "base": ["Pset_SpaceThermalRequirements", "SpaceTemperatureMin"]
+      },
+      "t_set_cool" : {
+        "base": ["Pset_SpaceThermalRequirements", "SpaceTemperatureMax"]
+      },
+      "with_ahu": {
+        "base": ["Pset_SpaceThermalRequirements", "AirConditioning"]
+      },
+      "AreaPerOccupant": {
+        "base": ["Pset_SpaceOccupancyRequirements", "AreaPerOccupant"]
       }
     }
   },
@@ -96,22 +540,27 @@
     "exporter": {
       "teaser": {
         "used_library_calc": "AixLib",
-        "name": [
-          "instance",
-          "name"
-        ],
-        "year_of_construction": [
-          "instance",
-          "year_of_construction"
-        ],
-        "number_of_floors": [
-          "instance",
-          "number_of_storeys"
-        ],
-        "net_leased_area": [
-          "instance",
-          "net_area"
-        ]
+        "name": ["instance", "name"],
+        "year_of_construction": ["instance", "year_of_construction"],
+        "number_of_floors": ["instance", "number_of_storeys"],
+        "net_leased_area": ["instance", "net_area"]
+      }
+    },
+    "default_ps": {
+      "year_of_construction" : {
+        "base": ["Pset_BuildingCommon", "YearOfConstruction"]
+      },
+      "gross_area" : {
+        "base": ["Pset_BuildingCommon", "GrossPlannedArea"]
+      },
+      "net_area" : {
+        "base": ["Pset_BuildingCommon", "NetAreaPlanned"]
+      },
+      "number_of_storeys" : {
+        "base": ["Pset_BuildingCommon", "NumberOfStoreys"]
+      },
+      "occupancy_type" : {
+        "base": ["Pset_BuildingCommon", "OccupancyType"]
       }
     }
   },
@@ -143,11 +592,16 @@
         ]
       }
     }
+  },
+  "Storage": {
+    "default_ps": {
+      "volume" : {
+        "Autodesk Revit 2019 (ENU)": ["Abmessungen", "Volume"]
+      }
+    }
+  },
+  "MaterialTemplates" : {
+    "heat_capacity" : "heat_capac",
+    "thickness" : "thickness_default"
   }
 }
-
-
-
-
-
-

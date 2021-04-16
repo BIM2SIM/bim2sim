@@ -23,7 +23,6 @@ class PluginHKESim(Plugin):
     tasks = {LoadLibrariesHKESim}
 
     def run(self, playground):
-
         playground.run_task(hvac.SetIFCTypesHVAC())
         playground.run_task(common.LoadIFC())
         playground.run_task(hvac.Prepare())

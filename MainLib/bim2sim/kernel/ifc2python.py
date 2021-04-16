@@ -7,6 +7,8 @@ import logging
 import ifcopenshell
 from bim2sim.kernel.units import ifcunits, ureg, parse_ifc
 import math
+from collections.abc import Iterable
+
 
 def load_ifc(path):
     logger = logging.getLogger('bim2sim')
@@ -15,6 +17,7 @@ def load_ifc(path):
         raise IOError("Path '%s' does not exist"%(path))
     ifc_file = ifcopenshell.open(path)
     return ifc_file
+
 
 def propertyset2dict(propertyset):
     """Converts IfcPropertySet to python dict"""
@@ -108,8 +111,9 @@ def get_layers_ifc(element):
                 layer_list = association.ForLayerSet.MaterialLayers
             elif hasattr(association, 'Materials'):
                 layer_list = association.Materials
-            for layer in layer_list:
-                dict.append(layer)
+            if isinstance(layer_list, Iterable):
+                for layer in layer_list:
+                    dict.append(layer)
     return dict
 
 
@@ -143,18 +147,8 @@ def get_Property_Set(PropertySetName, element):
     AllPropertySetsList = element.IsDefinedBy
     property_set = next((item for item in AllPropertySetsList if
                          item.RelatingPropertyDefinition.Name == PropertySetName), None)
-    if property_set is not None:
-        properties = property_set.RelatingPropertyDefinition.HasProperties
-        propertydict = {}
-        for Property in properties:
-            unit = ifcunits.get(Property.NominalValue.is_a())
-            if unit:
-                propertydict[Property.Name] = Property.NominalValue.wrappedValue * unit
-            else:
-                propertydict[Property.Name] = Property.NominalValue.wrappedValue
-        return propertydict
-    else:
-        return None
+    if hasattr(property_set, 'RelatingPropertyDefinition'):
+        return propertyset2dict(property_set.RelatingPropertyDefinition)
 
 
 def get_property_sets(element):

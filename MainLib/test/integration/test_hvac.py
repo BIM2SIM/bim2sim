@@ -2,7 +2,7 @@ import unittest
 
 import bim2sim
 
-from .base import IntegrationBase
+from bim2sim.utilities.test import IntegrationBase
 
 
 class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):

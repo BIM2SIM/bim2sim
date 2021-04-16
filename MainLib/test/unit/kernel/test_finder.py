@@ -62,10 +62,8 @@ class Test_TemplateFinder(unittest.TestCase):
             d1 = self.finder.find(cls.pipe1, 'diameter')
             l2 = self.finder.find(cls.pipe2, 'length')
             d2 = self.finder.find(cls.pipe2, 'diameter')
+            l3 = self.finder.find(cls.pipefitting1, 'length')
             d3 = self.finder.find(cls.pipefitting1, 'diameter')
-
-        with self.assertRaises(AttributeError):
-            self.finder.find(cls.pipefitting1, 'length')
 
     def test_save_load(self):
         cls = self.__class__

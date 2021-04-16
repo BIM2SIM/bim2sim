@@ -40,7 +40,6 @@ def commandline_interface():
     open_conf = args.get('--open')
 
     if project:
-        setup_default(path)
         if create:
             pro = Project.create(path, source, target, open_conf)
         elif load:
