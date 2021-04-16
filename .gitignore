@@ -456,3 +456,10 @@ ASALocalRun/
 
 # Workspace for local data
 workspace/
+
+# Energy plus intermediate files
+*.mvi
+*.rvi
+
+# Energy plus input files
+*.idf

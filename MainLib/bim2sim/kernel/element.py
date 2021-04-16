@@ -153,6 +153,14 @@ class IFCMixin:  # TBD
         super().__init__(*args, **kwargs)
 
         self.ifc = ifc
+        # # todo to reduce decision querys we should only do this for needed names like Building or projectname
+        # if ifc is not None:
+        #     if ifc.Name is not None:
+        #         if len(ifc.Name) > 0:
+        #             self.name = ifc.Name
+        #         else:
+        #             self.name = input("Please enter name for the instance %s"
+        #                               % type(self).__name__)
         self.predefined_type = ifc2python.get_predefined_type(ifc)
 
         # TBD
@@ -188,11 +196,16 @@ class IFCMixin:  # TBD
 
     def calc_position(self):
         """returns absolute position"""
-        rel = np.array(self.ifc.ObjectPlacement.
-                       RelativePlacement.Location.Coordinates)
-        relto = np.array(self.ifc.ObjectPlacement.
-                         PlacementRelTo.RelativePlacement.Location.Coordinates)
-        return rel + relto
+        if hasattr(self.ifc, 'ObjectPlacement'):
+            absolute = np.array(self.ifc.ObjectPlacement.RelativePlacement.Location.Coordinates)
+            placementrel = self.ifc.ObjectPlacement.PlacementRelTo
+            while placementrel is not None:
+                absolute += np.array(placementrel.RelativePlacement.Location.Coordinates)
+                placementrel = placementrel.PlacementRelTo
+        else:
+            absolute = None
+
+        return absolute
 
     def calc_orientation(self):
         # TODO: this is Building specific, move to ?
@@ -483,6 +496,8 @@ class ProductBased(IFCMixin, Root):
 
     # TBD
     default_materials = {}
+    # todo this is a hotfix
+    finder = TemplateFinder()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -492,6 +507,7 @@ class ProductBased(IFCMixin, Root):
         self.aggregation = None
         self.thermal_zones = []
         self.space_boundaries = []
+        self.storeys = []
 
     def get_ports(self):
         return []

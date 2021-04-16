@@ -1,6 +1,5 @@
 import tempfile
 from pathlib import Path
-
 from bim2sim.project import Project
 
 

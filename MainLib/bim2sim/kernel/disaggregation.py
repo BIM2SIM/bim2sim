@@ -6,7 +6,6 @@ import pint
 import re
 
 from bim2sim.kernel.element import BaseElement, SubElement
-from bim2sim.task.common.common_functions import get_disaggregations_instance
 
 
 vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
@@ -23,8 +22,8 @@ class Disaggregation(BaseElement):
         self.parent = element
         self.name = name
         self.ifc_type = element.ifc_type
-        self.guid = None
         self.get_disaggregation_properties()
+        space_boundaries = []
 
     def get_disaggregation_properties(self):
         """properties getter -> that way no sub instances has to be defined"""
@@ -45,74 +44,52 @@ class Disaggregation(BaseElement):
             return None
 
     @classmethod
-    def based_on_thermal_zone(cls, parent, thermal_zone):
+    def get_supported_classes(cls):
+        supported_classes = {subclass.disaggregatable_elements: subclass for subclass in cls.__subclasses__()}
+        return supported_classes
+
+    @classmethod
+    def based_on_thermal_zone(cls, parent, space_boundary, thermal_zone):
         """creates a disaggregation based on a thermal zone and an instance parent
         based on area slice (thermal zone - area)"""
+        supported_classes = cls.get_supported_classes()
+        type_parent = type(parent).__name__
+        disaggregation_class = supported_classes.get(type_parent)
 
-        new_bound_instances = []
-        disaggregations = get_disaggregations_instance(parent, thermal_zone)
+        if disaggregation_class is None:
+            return parent
 
-        # no disaggregation possible
-        if disaggregations is None:
-            return [parent]
-
-        parent_area = parent.area.magnitude if isinstance(parent.area, pint.Quantity) else parent.area
-
-        # for vertical instances: if just one disaggregation is possible, check if disaggregation is parent
-        # disaggregation is parent if has the same area
-        if parent.__class__.__name__ in vertical_instances:
-            if len(disaggregations) == 1:
-                disaggregation_area = disaggregations[next(iter(disaggregations))][0]
-                # here was a tolerance of 0.1 necessary in order to get no false positives
-                if abs(disaggregation_area - parent_area) <= 0.1:
-                    return [parent]
-
-        name = 'Sub' + parent.__class__.__name__ + '_' + parent.name
+        name = 'Sub' + disaggregation_class.disaggregatable_elements + '_' + parent.name
         if not hasattr(parent, "sub_instances"):
             parent.sub_instances = []
 
         i = len(parent.sub_instances)
-        for ins in disaggregations:
+        new_pos = np.array(space_boundary.position)
+        area_disaggregation = space_boundary.bound_area
+        if hasattr(parent, 'gross_area'):
+            parent_area = parent.gross_area
+        else:
+            parent_area = parent.area
 
-            scontinue = False
-            for dis in parent.sub_instances:
-                #  check if disaggregation exists on subinstances, compares disaggregation and existing sub_instances
-                # here was a tolerance of 0.1 necessary in order to get no false positives
-                if abs(disaggregations[ins][0] - dis.area) <= 0.1:
-                    new_bound_instances.append(dis)
-                    scontinue = True
-                    break
-            if scontinue:
-                continue
+        if abs(parent_area.m - area_disaggregation.m) < 0.1 or area_disaggregation.m == 0 or \
+                len(parent.space_boundaries) == 1:
+            return parent
 
-            type_parent = type(parent).__name__
-            re_search = re.compile('Sub%s' % type_parent)
-            instance = cls(name + '_%d' % i, parent)
-
-            # class assignment for subinstances -> based on re and factory
-            for sub_cls in SubElement.get_all_subclasses(cls):
-                type_search = sub_cls.__name__
-                if re_search.match(type_search):
-                    instance = sub_cls(name + '_%d' % i, parent)
-                    break
-
-            instance.area = disaggregations[ins][0]
+        else:
+            instance = disaggregation_class(name + '_%d' % i, parent)
+            instance.area = area_disaggregation
 
             # position calc
-            if parent.__class__.__name__ in vertical_instances:
-                instance._pos = get_new_position_vertical_instance(parent, disaggregations[ins][1])
-            if parent.__class__.__name__ in horizontal_instances:
+            if type_parent in vertical_instances:
+                instance._pos = get_new_position_vertical_instance(parent, new_pos)
+            if type_parent in horizontal_instances:
                 instance._pos = thermal_zone.position
+                if thermal_zone.area.m > instance.area.m:
+                    if abs(1-instance.area.m/thermal_zone.area.m) < 0.1:
+                        instance.area = thermal_zone.area
 
             parent.sub_instances.append(instance)
-            new_bound_instances.append(instance)
-
-            if thermal_zone not in parent.thermal_zones:
-                parent.thermal_zones.append(thermal_zone)
-
-            i += 1
-
-        return new_bound_instances
+            return instance
 
     def __repr__(self):
         return "<%s '%s' (disaggregation of the element %d)>" % (
@@ -123,31 +100,31 @@ class Disaggregation(BaseElement):
 
 
 class SubFloor(Disaggregation):
-    disaggregatable_elements = ['IfcSlab']
+    disaggregatable_elements = 'Floor'
 
 
 class SubGroundFloor(Disaggregation):
-    disaggregatable_elements = ['IfcSlab']
+    disaggregatable_elements = 'GroundFloor'
 
 
 class SubSlab(Disaggregation):
-    disaggregatable_elements = ['IfcSlab']
+    disaggregatable_elements = 'Slab'
 
 
 class SubRoof(Disaggregation):
-    disaggregatable_elements = ['IfcRoof', 'IfcSlab']
+    disaggregatable_elements = 'Roof'
 
 
 class SubWall(Disaggregation):
-    disaggregatable_elements = ['IfcWall']
+    disaggregatable_elements = 'Wall'
 
 
 class SubInnerWall(Disaggregation):
-    disaggregatable_elements = ['IfcWall']
+    disaggregatable_elements = 'InnerWall'
 
 
 class SubOuterWall(Disaggregation):
-    disaggregatable_elements = ['IfcWall']
+    disaggregatable_elements = 'OuterWall'
 
 
 def get_new_position_vertical_instance(parent, sub_position):

@@ -6,11 +6,11 @@ from bim2sim.task.hvac.hvac import hvac_graph
 class DeadEnds(ITask):
     """Analyses graph network for dead ends"""
 
-    reads = ('graph', 'paths')
+    reads = ('graph', )
     touches = ('graph', )
 
     @Task.log
-    def run(self, workflow, graph, paths):
+    def run(self, workflow, graph):
         self.logger.info("Inspecting for dead ends")
         dead_ends_fc = self.identify_deadends(graph)
         self.logger.info("Found %s possible dead ends in network." % len(dead_ends_fc))
@@ -18,8 +18,8 @@ class DeadEnds(ITask):
         self.logger.info("Removed %s ports due to found dead ends." % n_removed)
         if __debug__:
             self.logger.info("Plotting graph ...")
-            graph.plot(paths.export)
-            graph.plot(paths.export, ports=True)
+            graph.plot(self.paths.export)
+            graph.plot(self.paths.export, ports=True)
         return (graph, )
 
     @staticmethod
