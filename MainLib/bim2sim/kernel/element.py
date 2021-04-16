@@ -1,6 +1,7 @@
 """Definition for basic representations of IFC elements"""
 
 import logging
+from abc import ABC
 from json import JSONEncoder
 import itertools
 import re
@@ -377,7 +378,7 @@ class IFCMixin:  # TBD
                     results.append(hits[0][0])
         return results if results else ''
 
-    def get_exact_property(self, propertyset_name:str, property_name: str):
+    def get_exact_property(self, propertyset_name: str, property_name: str):
         """Returns value of property specified by propertyset name and property name
 
         :Raises: AttributeError if property does not exist"""
@@ -449,7 +450,7 @@ class IFCMixin:  # TBD
         # raise NoValueError("No matching property for %s" % (patterns))
 
 
-class RelationBased(IFCMixin, Root):
+class RelationBased(IFCMixin, Root, ABC):
     _ifc_classes = {}  # TBD
 
     @staticmethod
@@ -476,7 +477,7 @@ class RelationBased(IFCMixin, Root):
         return "%s" % self.__class__.__name__
 
 
-class ProductBased(IFCMixin, Root):
+class ProductBased(IFCMixin, Root, ABC):
     """Base class for all elements with ports"""
     predefined_types: List[str]
     conditions = []
@@ -497,9 +498,10 @@ class ProductBased(IFCMixin, Root):
         return []
 
     def get_better_subclass(self):
-        """Returns subclass of current object which is better suited to represent it.
+        """Returns alternative subclass of current object.
 
-        CAUTION: only use this if you cant know the result before instantiation of base class
+        CAUTION: only use this if you can't know the result before instantiation
+         of base class
         :returns: subclass of ProductBased or None"""
         return None
 
@@ -532,7 +534,8 @@ class ProductBased(IFCMixin, Root):
         """"Check if standard parameter are in valid range"""
         for cond in self.conditions:
             if not cond.check(self):
-                logger.warning("%s validation (%s) failed for %s", self.ifc_type, cond.name, self.guid)
+                logger.warning("%s validation (%s) failed for %s",
+                               self.ifc_type, cond.name, self.guid)
                 return False
         return True
 
@@ -604,7 +607,8 @@ class Factory:
         """
 
     def __init__(self, relevant_elements: List[ProductBased], dummy):
-        self.mapping, self.blacklist, self.defaults = self.create_ifc_mapping(relevant_elements)
+        self.mapping, self.blacklist, self.defaults = \
+            self.create_ifc_mapping(relevant_elements)
         self.dummy = dummy
         self.objects = {}
 
@@ -616,7 +620,7 @@ class Factory:
             raise LookupError(f"No element found for {ifc_entity}")
         # instantiate element
         element = element_cls.from_ifc(ifc_entity, *args, **kwargs)
-        # check if it preferes to be sth else
+        # check if it prefers to be sth else
         better_cls = element.get_better_subclass()
         if better_cls:
             logger.info("Creating %s instead of %s", better_cls, element_cls)
@@ -627,6 +631,7 @@ class Factory:
 
     def get_element(self, ifc_type: str, predefined_type: Union[str, None]) -> \
             Union[ProductBased, None]:
+        """Get element class by ifc type and predefined type"""
         if predefined_type:
             key = (ifc_type.lower(), predefined_type.upper())
             # 1. go over normal list, if found match --> return
@@ -645,35 +650,44 @@ class Factory:
         List[Tuple[str, ProductBased]],
         Dict[str, ProductBased]
     ]:
-        """
+        """Create mapping dict, blacklist and default dict from elements
 
-
-        return
+        WARNING: ifc_type is always converted to lowe case
+        and predefined types to upper case
         """
         # TODO: cover virtual elements e.g. Space Boundaries (not products)
-        #
-        # create "normal" dict with key ('IfcSlab', 'Roof') and value Roof
-        # create blacklist where all - are taken into account, key: ('IfcRoof', 'WeiredStuff'), value: ? (None?)
-        # create default dict where all stars are taken into account key :'IfcSlab' and value Slab
 
         mapping = {}
         blacklist = []
         default = {}
+        _all_ifc_types = set()
 
         for ele in elements:
             for ifc_type, tokens in ele.ifc_types.items():
+                _all_ifc_types.add(ifc_type.lower())
                 for token in tokens:
-                    # default
+                    # create default dict where all stars are taken into account
+                    # items 'IfcSlab': Slab
                     if token == '*':
                         if ifc_type in default:
                             raise NameError()  # TBD
                         default[ifc_type.lower()] = ele
-                    # blacklist
+                        # create blacklist where all - are taken into account
+                        # items: ('IfcRoof', 'WeiredStuff')
                     elif token.startswith('-'):
                         blacklist.append((ifc_type.lower(), token[1:].upper()))
-                    # normal
+                        # create mapping dict
+                        # items ('IfcSlab', 'Roof'): Roof
                     else:
                         mapping[(ifc_type.lower(), token.upper())] = ele
+
+        # check ifc types without default
+        no_default = _all_ifc_types - set(default)
+        if no_default:
+            logger.warning("The following ifc types have no default "
+                           "representing Elemet class. There will be no match "
+                           "if predefined type is not provided.\n%s",
+                           no_default)
 
         return mapping, blacklist, default
 
