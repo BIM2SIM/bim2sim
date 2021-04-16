@@ -1,7 +1,6 @@
 """Definition for basic representations of IFC elements"""
 
 import logging
-from abc import ABC
 from json import JSONEncoder
 import itertools
 import re
@@ -450,7 +449,7 @@ class IFCMixin:  # TBD
         # raise NoValueError("No matching property for %s" % (patterns))
 
 
-class RelationBased(IFCMixin, Root, ABC):
+class RelationBased(IFCMixin, Root):
     _ifc_classes = {}  # TBD
 
     @staticmethod
@@ -477,7 +476,7 @@ class RelationBased(IFCMixin, Root, ABC):
         return "%s" % self.__class__.__name__
 
 
-class ProductBased(IFCMixin, Root, ABC):
+class ProductBased(IFCMixin, Root):
     """Base class for all elements with ports"""
     predefined_types: List[str]
     conditions = []
@@ -591,11 +590,41 @@ class Port(RelationBased):
 
 
 class Layer(RelationBased):
-    pass
+    @classmethod
+    def pre_validate(cls, ifc) -> bool:
+        return True
+
+    def validate(self) -> bool:
+        return True
 
 
 class SpaceBoundary(RelationBased):
-    pass
+    @classmethod
+    def pre_validate(cls, ifc) -> bool:
+        return True
+
+    def validate(self) -> bool:
+        return True
+
+
+class Dummy(ProductBased):
+    """Dummy for all unknown elements"""
+
+    ifc_types = {
+        "IfcElementProxy": ['*']
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._ifc_type = self.ifc.get_info()['type']
+
+    @property
+    def ifc_type(self):
+        return self._ifc_type
+
+    def __str__(self):
+        return "Dummy '%s'" % self.ifc_type
 
 
 class Factory:
@@ -606,18 +635,31 @@ class Factory:
         ele = factory(some_ifc_element)
         """
 
-    def __init__(self, relevant_elements: List[ProductBased], dummy):
+    def __init__(self, relevant_elements: List[ProductBased], dummy=Dummy):
         self.mapping, self.blacklist, self.defaults = \
             self.create_ifc_mapping(relevant_elements)
-        self.dummy = dummy
+        self.dummy_cls = dummy
         self.objects = {}
 
-    def __call__(self, ifc_entity, *args, **kwargs) -> ProductBased:
+    def __call__(self, ifc_entity, *args, use_dummy=True, **kwargs) \
+            -> ProductBased:
+        """Run factory to create element instance.
+
+        :param ifc_entity: IfcOpenShell entity
+        :param args: additional args passed to element
+        :param use_dummy: use dummy class if nothing is found
+        :param kwargs: additional kwargs passed to element
+
+        :raises LookupError: if no element found an use_dummy = False
+        """
         ifc_type = ifc_entity.is_a()
         predefined_type = ifc2python.get_predefined_type(ifc_entity)
         element_cls = self.get_element(ifc_type, predefined_type)
         if not element_cls:
-            raise LookupError(f"No element found for {ifc_entity}")
+            if use_dummy:
+                element_cls = self.dummy_cls
+            else:
+                raise LookupError(f"No element found for {ifc_entity}")
         # instantiate element
         element = element_cls.from_ifc(ifc_entity, *args, **kwargs)
         # check if it prefers to be sth else
@@ -690,6 +732,7 @@ class Factory:
                            no_default)
 
         return mapping, blacklist, default
+
 
 # @classmethod
 # def _init_factory(cls):
@@ -767,35 +810,15 @@ class Factory:
 #
 #     return prefac
 
-    # @staticmethod
-    # def get_all_subclasses(cls):
-    #     all_subclasses = []
-    #
-    #     for subclass in cls.__subclasses__():
-    #         all_subclasses.append(subclass)
-    #         all_subclasses.extend(SubElement.get_all_subclasses(subclass))
-    #
-    #     return all_subclasses
-
-
-class Dummy(ProductBased):
-    """Dummy for all unknown elements"""
-
-    ifc_types = {
-        "IfcElementProxy": ['*']
-    }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self._ifc_type = self.ifc.get_info()['type']
-
-    @property
-    def ifc_type(self):
-        return self._ifc_type
-
-    def __str__(self):
-        return "Dummy '%s'" % self.ifc_type
+# @staticmethod
+# def get_all_subclasses(cls):
+#     all_subclasses = []
+#
+#     for subclass in cls.__subclasses__():
+#         all_subclasses.append(subclass)
+#         all_subclasses.extend(SubElement.get_all_subclasses(subclass))
+#
+#     return all_subclasses
 
 
 # --- Domain Implementations (move to package) ---
@@ -841,6 +864,13 @@ class HVACPort(Port):
             logger = logging.getLogger('IFCQualityReport')
             logger.info("Suspect position [0, 0, 0] for %s", self)
         return coordinates
+
+    @classmethod
+    def pre_validate(cls, ifc) -> bool:
+        return True
+
+    def validate(self) -> bool:
+        return True
 
     @property
     def flow_master(self):
