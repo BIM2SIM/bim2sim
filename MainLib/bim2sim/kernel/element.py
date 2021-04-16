@@ -65,21 +65,21 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
         """Check if current instance is valid"""
         raise NotImplementedError
 
-    def calc_position(self):
+    def calc_position(self) -> np.array:
         """Returns position (calculation may be expensive)"""
         return None
 
-    def calc_orientation(self):
+    def calc_orientation(self) -> np.array:
         """Returns position (calculation may be expensive)"""
         return None
 
     @cached_property
-    def position(self):
+    def position(self) -> np.array:
         """Position calculated only once by calling calc_position"""
         return self.calc_position()
 
     @cached_property
-    def orientation(self):
+    def orientation(self) -> np.array:
         return self.calc_orientation()
 
     @staticmethod

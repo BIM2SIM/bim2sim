@@ -1,13 +1,14 @@
 ﻿"""Module for aggregation and simplifying elements"""
 
 import math
+from typing import Sequence, List, Union
 
 import ast
 import numpy as np
 import networkx as nx
 
 
-from bim2sim.kernel.element import BaseElement, Port
+from bim2sim.kernel.element import ProductBased, Port
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
@@ -49,7 +50,34 @@ class AggregationPort(Port):
         return self.originals.position
 
 
-class HVACAggregation(BaseElement):
+# # TODO / TBD:
+# class AggregationMixin:
+#     multi = ()
+#
+#     def __init__(self, elements: Sequence[ProductBased], *args, **kwargs):
+#         # guid
+#         # how to handle attributes an multi_calc etc.? Overwrite them?
+#         super().__init__(*args, **kwargs)
+#         self.elements = elements
+#
+#     def calc_position(self):
+#         return sum(ele.position for ele in self.elements) / len(self.elements)
+#
+#     # TODO: general Aggregation methods
+#
+#
+# class HVACAggregationMixin(AggregationMixin):
+#     def __init__(self, element_graph, *args, **kwargs):
+#         super().__init__(element_graph.nodes, *args, **kwargs)
+#
+#     # TODO: methods from HVACAggregation
+#
+#
+# class PipeStrand(HVACAggregationMixin, elements.Pipe):
+#     pass  # TODO
+
+
+class HVACAggregation(ProductBased):
     """Base aggregation of models"""
     ifc_type = None
     multi = ()
