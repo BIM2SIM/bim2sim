@@ -49,8 +49,12 @@ class ExportTEASER(ITask):
             bldg.calc_building_parameter()
 
         # prj.export_aixlib(path=paths.export / 'TEASEROutput')
-        prj.export_aixlib()
-
+        prj.export_aixlib(path=self.paths.export)
+        # todo remove the following lines after
+        #  https://github.com/RWTH-EBC/TEASER/pull/687 is corrected in TEASER
+        import os
+        os.chdir(self.paths.root)
+        os.chdir('..')
 
     @staticmethod
     def _create_project(element):
