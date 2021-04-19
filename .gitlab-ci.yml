@@ -88,7 +88,7 @@ coverage:
     - coverage run -m unittest discover -s /bim2sim/MainLib/test/
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
-    - coverage html
+    - coverage html -i 
     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
     - coverage-badge -o coverage.svg
     - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
