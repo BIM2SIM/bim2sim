@@ -477,13 +477,13 @@ class Enrich(Task):
 class Prepare(ITask):
     """Configurate"""  # TODO: based on task
 
-    reads = ('relevant_ifc_types', 'paths')
+    reads = ('relevant_ifc_types', )
     touches = ('filters', )
 
     @Task.log
-    def run(self, workflow, relevant_ifc_types, paths):
+    def run(self, workflow, relevant_ifc_types):
         self.logger.info("Setting Filters")
-        Element.finder.load(paths.finder)
+        Element.finder.load(self.paths.finder)
         # filters = [TypeFilter(relevant_ifc_types), TextFilter(relevant_ifc_types, ['Description'])]
         filters = [TypeFilter(relevant_ifc_types)]
         # self.filters.append(TextFilter(['IfcBuildingElementProxy', 'IfcUnitaryEquipment']))
@@ -514,11 +514,11 @@ class MakeGraph(ITask):
 class Reduce(ITask):
     """Reduce number of elements by aggregation"""
 
-    reads = ('graph', 'paths')
+    reads = ('graph', )
     touches = ('reduced_instances', 'connections')
 
     @Task.log
-    def run(self, workflow, graph: hvac_graph.HvacGraph, paths):
+    def run(self, workflow, graph: hvac_graph.HvacGraph):
         self.logger.info("Reducing elements by applying aggregations")
         number_of_nodes_old = len(graph.element_graph.nodes)
         number_ps = 0
@@ -576,8 +576,8 @@ class Reduce(ITask):
 
         if __debug__:
             self.logger.info("Plotting graph ...")
-            graph.plot(paths.export)
-            graph.plot(paths.export, ports=True)
+            graph.plot(self.paths.export)
+            graph.plot(self.paths.export, ports=True)
 
         return reduced_instances, connections
 
@@ -639,10 +639,10 @@ class DetectCycles(ITask):
 class Export(ITask):
     """Export to Dymola/Modelica"""
 
-    reads = ('libraries', 'reduced_instances', 'connections', 'paths')
+    reads = ('libraries', 'reduced_instances', 'connections')
     final = True
 
-    def run(self, workflow, libraries, reduced_instances, connections, paths):
+    def run(self, workflow, libraries, reduced_instances, connections):
         self.logger.info("Export to Modelica code")
 
         modelica.Instance.init_factory(libraries)
@@ -652,7 +652,7 @@ class Export(ITask):
 
         self.logger.info(Decision.summary())
         Decision.decide_collected()
-        Decision.save(paths.decisions)
+        Decision.save(self.paths.decisions)
 
         connection_port_names = []
         for connection in connections:
@@ -675,4 +675,4 @@ class Export(ITask):
         # print("-"*80)
         # print(modelica_model.code())
         # print("-"*80)
-        modelica_model.save(paths.export)
+        modelica_model.save(self.paths.export)

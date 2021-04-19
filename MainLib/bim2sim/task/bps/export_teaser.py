@@ -22,7 +22,7 @@ from bim2sim.kernel.units import conversion, ureg
 class ExportTEASER(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
-    reads = ('ifc', 'bounded_tz', 'paths')
+    reads = ('ifc', 'bounded_tz')
     final = True
 
     materials = {}
@@ -39,7 +39,7 @@ class ExportTEASER(ITask):
                          }
 
     @Task.log
-    def run(self, workflow, ifc, bounded_tz, paths):
+    def run(self, workflow, ifc, bounded_tz):
         self.logger.info("Export to TEASER")
         prj = self._create_project(ifc.by_type('IfcProject')[0])
         bldg_instances = SubElement.get_class_instances('Building')
@@ -62,14 +62,18 @@ class ExportTEASER(ITask):
             bldg.calc_building_parameter()
             assets = Path(bim2sim.__file__).parent / 'assets'
 
-            prj.weather_file_path = \
+        
+        prj.weather_file_path = \
                 assets / 'weatherfiles' / 'DEU_NW_Aachen.105010_TMYx.mos'
-
-            from teaser.data.output.reports import model_report
-            prj.export_aixlib(path=paths.export / 'TEASEROutput')
-            prj_data = model_report.calc_report_data(
+        prj.export_aixlib(path=self.paths.export)
+        # todo remove the following lines after
+        #  https://github.com/RWTH-EBC/TEASER/pull/687 is corrected in TEASER
+        import os
+        os.chdir(self.paths.root)
+        os.chdir('..')
+        from teaser.data.output.reports import model_report
+        prj_data = model_report.calc_report_data(
                 prj, path=paths.export / 'TEASEROutput')
-
 
     @staticmethod
     def _create_project(element):

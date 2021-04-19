@@ -283,8 +283,7 @@ class Project:
         self.default_plugin = Plugin.get_plugin(self.config['Backend']['use'])
         workflow = self.default_plugin.default_workflow()
         workflow.update_from_config(self.config)
-        initials = {'paths': self.paths}
-        self.playground = Playground(workflow, initials)
+        self.playground = Playground(workflow, self.paths)
 
         self._log_handler = self._setup_logger()  # setup project specific handlers
 

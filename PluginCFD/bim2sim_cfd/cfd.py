@@ -20,10 +20,9 @@ class Exe(ITask):
     '''
     coole exe
     '''
-    reads = ('paths',)
     final = True
 
-    def run(self, workflow, paths, **kwargs):  #todo eigtl geht hier workflow rein
+    def run(self, workflow, **kwargs):  #todo eigtl geht hier workflow rein
         print("Task started")
         print(kwargs)
 
@@ -35,9 +34,9 @@ class Exe(ITask):
         args = decision1.decide()
 
         reader = LoadIFC()
-        input_file = reader.get_ifc(paths.ifc)
+        input_file = reader.get_ifc(self.paths.ifc)
 
-        output_file = str(paths.export / "result.obj")
+        output_file = str(self.paths.export / "result.obj")
         cmd = "/home/fluid/Schreibtisch/B/IfcConvert" + " " + input_file + " " + output_file
         cmd += " " + args
         print(cmd)
