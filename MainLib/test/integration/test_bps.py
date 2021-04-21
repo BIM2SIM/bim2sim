@@ -12,15 +12,15 @@ class IntegrationBaseTEASER(IntegrationBase):
 
 class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
 
-    def test_run_kitfzkhaus_spaces_low_layers_low(self):
-        """Run project with AC20-FZK-Haus.ifc"""
-        ifc = 'AC20-FZK-Haus.ifc'
-        project = self.create_project(ifc, 'TEASER')
-        answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
-        with bim2sim.decision.Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
-        self.assertEqual(0, return_code, "Project did not finish successfully.")
+    # def test_run_kitfzkhaus_spaces_low_layers_low(self):
+    #     """Run project with AC20-FZK-Haus.ifc"""
+    #     ifc = 'AC20-FZK-Haus.ifc'
+    #     project = self.create_project(ifc, 'TEASER')
+    #     answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
+    #                'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+    #     with bim2sim.decision.Decision.debug_answer(answers, multi=True):
+    #         return_code = project.run()
+    #     self.assertEqual(0, return_code, "Project did not finish successfully.")
 
     def test_run_kitoffice_spaces_low_layers_low(self):
         """Run project with AC20-Institute-Var-2.ifc"""

@@ -693,12 +693,12 @@ class ThermalZone(element.Element):
     t_set_heat = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMin"),
         unit=ureg.degC,
-        default=15
+        default=21
     )
     t_set_cool = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMax"),
         unit=ureg.degC,
-        default=22
+        default=25
     )
     area = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
@@ -1598,7 +1598,33 @@ class Window(element.Element):
         unit=ureg.m
     )
     u_value = attribute.Attribute(
+        default_ps=("Pset_WallCommon", "ThermalTransmittance"),
         unit=ureg.W / ureg.K / ureg.meter ** 2
+    )
+
+    a_conv = attribute.Attribute(
+        default=0.07
+    )
+    g_value = attribute.Attribute(# material
+        default=0.65
+    )
+    inner_convection = attribute.Attribute(
+        default=2.7
+    )
+    inner_radiation = attribute.Attribute(
+        default=5.0
+    )
+    outer_radiation = attribute.Attribute(
+        default=5.0
+    )
+    outer_convection = attribute.Attribute(
+        default=20.0
+    )
+    shading_g_total = attribute.Attribute(
+        default=1.0
+    )
+    shading_max_irr = attribute.Attribute(
+        default=100.0
     )
 
 
@@ -1686,6 +1712,15 @@ class Slab(element.Element):
             layers.append(new_layer)
         return layers
 
+    def get_is_external(self, name):
+        if len(self.ifc.ProvidesBoundaries) > 0:
+            boundary = self.ifc.ProvidesBoundaries[0]
+            if boundary.InternalOrExternalBoundary is not None:
+                if boundary.InternalOrExternalBoundary.lower() == 'external':
+                    return True
+                elif boundary.InternalOrExternalBoundary.lower() == 'internal':
+                    return False
+
     layers = attribute.Attribute(
         functions=[_get_layers]
     )
@@ -1713,7 +1748,7 @@ class Slab(element.Element):
     )
 
     is_external = attribute.Attribute(
-        default_ps=("Pset_SlabCommon", "IsExternal"),
+        functions=[get_is_external],
         default=False
     )
 

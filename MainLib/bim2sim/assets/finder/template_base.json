@@ -314,7 +314,14 @@
       "teaser": {
         "name": ["instance","name"],
         "area": ["instance", "area"],
-        "inner_convection": 0.6,
+        "a_conv": ["instance", "a_conv"],
+        "g_value": ["instance", "g_value"],
+        "inner_convection": ["instance", "inner_convection"],
+        "inner_radiation": ["instance", "inner_radiation"],
+        "outer_radiation": ["instance", "outer_radiation"],
+        "outer_convection": ["instance", "outer_convection"],
+        "shading_g_total": ["instance", "shading_g_total"],
+        "shading_max_irr": ["instance", "shading_max_irr"],
         "orientation": ["instance", "orientation"]
       }
     },

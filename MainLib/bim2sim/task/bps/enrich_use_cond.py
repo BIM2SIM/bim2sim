@@ -3,6 +3,7 @@ from bim2sim.task.common.common_functions import get_usage_dict, get_pattern_usa
 from bim2sim.decision import ListDecision
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.elements import ThermalZone
+from bim2sim.kernel.units import ureg
 
 UseConditions = get_usage_dict()
 
@@ -110,14 +111,31 @@ class EnrichUseConditions(ITask):
         usage_decision.decide()
         return usage_decision.value
 
-    @staticmethod
-    def load_usage(tz: ThermalZone):
-        whitelist = ['with_cooling', 'with_heating', 'with_ahu']
+    def load_usage(self, tz: ThermalZone):
+        bool_overwriter = ['with_cooling', 'with_heating', 'with_ahu']
+        list_overwriter = {'heating_profile': [25, 't_set_heat'], 'cooling_profile': [25, 't_set_cool']}
         # heating, cooling profile
         use_condition = UseConditions[tz.usage]
-        for attr in whitelist:
+        for attr in bool_overwriter:
             overwrite_attr = getattr(tz, attr)
             if overwrite_attr is not None:
                 use_condition[attr] = overwrite_attr
 
+        for attr, value in list_overwriter.items():
+            overwrite_attr = getattr(tz, value[1]).to(ureg.kelvin).m
+            if overwrite_attr is not None:
+                use_condition[attr] = [overwrite_attr] * value[0]
+
+        self.check_use_condition(use_condition)
         setattr(tz, 'use_condition', use_condition)
+
+    @staticmethod
+    def check_use_condition(use_condition: dict):
+        # check if dict, because it can be division dict like
+        # {"/":[1,15]}, or float value
+        for attr, value in use_condition.items():
+            if isinstance(value, dict):
+                values = next(iter(value.values()))
+                division_res = values[0]/values[1]
+                use_condition[attr] = division_res
+

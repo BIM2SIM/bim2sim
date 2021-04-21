@@ -33,6 +33,7 @@ class ExportTEASER(ITask):
                          'GroundFloor': GroundFloor,
                          'Roof': Rooftop,
                          'OuterDoor': Door,
+                         'InnerDoor': InnerWall
                          }
 
     @Task.log
@@ -85,6 +86,8 @@ class ExportTEASER(ITask):
         sw = type(teaser_instance).__name__
         if sw == 'Rooftop':
             sw = 'Roof'
+        if sw == 'Window':
+            print('test')
         for key, value in templates['base'][sw]['exporter']['teaser'].items():
             if isinstance(value, list):
                 # get property from instance (instance dependant on instance)
@@ -119,10 +122,7 @@ class ExportTEASER(ITask):
         tz.use_conditions = UseConditions(parent=tz)
         cls.load_use_conditions(tz, instance)
         cls._teaser_property_getter(tz, instance, instance.finder.templates)
-        tz.volume = instance.area.m * instance.height.m
-
-        tz.use_conditions.cooling_profile = [tz.set_temp_cool] * 25
-        tz.use_conditions.heating_profile = [tz.set_temp_heat] * 25
+        tz.volume = instance.volume.m
         # hardcode for paper:
         # todo dja
         # if PROJECT.PAPER:
@@ -173,6 +173,7 @@ class ExportTEASER(ITask):
                 layer = Layer(parent=teaser_instance)
                 cls._invalid_property_filter(layer, 'thickness', layer_instance.thickness.m)
                 cls._material_related(layer, layer_instance)
+            print('Test')
 
     @classmethod
     def _material_related(cls, layer, layer_instance):
