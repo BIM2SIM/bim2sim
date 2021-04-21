@@ -1020,6 +1020,9 @@ class SpaceBoundary(element.SubElement):
             # check for visual bounds
         if not self.physical:
             return None
+        if self.related_bound:
+            if self.thermal_zones[0] == self.related_bound.thermal_zones[0]:
+                adb_bound = self.related_bound
         for bound in self.bound_instance.space_boundaries:
             if bound == self:
                 continue
