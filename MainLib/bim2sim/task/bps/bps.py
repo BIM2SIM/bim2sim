@@ -771,8 +771,14 @@ class ExportEP(ITask):
         # idf.view_model()
         # self._export_to_stl_for_cfd(instances, idf)
         # self._display_shape_of_space_boundaries(instances)
+        run_decision = BoolDecision(question="Do you want to run the full energyplus simulation (annual, readvars)?",
+                                    global_key='EnergyPlus.FullRun', allow_load=True, allow_save=True, collect=False)
+        ep_full = run_decision.decide()
+        design_day = False
+        if not ep_full:
+            design_day = True
         output_string = str(self.paths.export / 'EP-results/')
-        idf.run(output_directory=output_string, readvars=True)
+        idf.run(output_directory=output_string, readvars=ep_full, annual=ep_full, design_day=design_day)
         # self._visualize_results(
         #     csv_name=paths.export / 'EP-results/eplusout.csv')
 

@@ -72,7 +72,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
@@ -84,7 +84,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True, *('Single office',)*4, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
@@ -96,7 +96,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True,  2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
@@ -109,7 +109,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True,  *('Single office',)*78, 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
@@ -122,7 +122,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True,  *('Single office',)*59, 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
@@ -133,7 +133,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015,'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         with Decision.debug_answer(answers, multi=True, validate=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
@@ -144,7 +144,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
