@@ -1193,16 +1193,13 @@ class SpaceBoundary(element.SubElement):
             sore = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement
             # if sore.get_info()["InnerBoundaries"] is None:
             shape = ifcopenshell.geom.create_shape(settings, sore)
-            shape_it_loc = TopoDS_Iterator(shape).Value()
-            shape_loc = shape_it_loc.Location()
 
             if sore.InnerBoundaries:
                 shape = remove_inner_loops(shape)
                 if not shape:
                     sore.InnerBoundaries = ()
                     shape = ifcopenshell.geom.create_shape(settings, sore)
-                else:
-                    shape.Move(shape_loc)
+
         except:
             try:
                 shape = ifcopenshell.geom.create_shape(settings,

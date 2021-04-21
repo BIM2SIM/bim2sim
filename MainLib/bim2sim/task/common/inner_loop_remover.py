@@ -351,4 +351,10 @@ def remove_inner_loops(shape: TopoDS_Shape) -> TopoDS_Shape:
 
     cut_polygon = _reconstruct_cut_polygon(out_edges, cut_edges, plane)
 
-    return SpaceBoundary._make_faces_from_pnts(cut_polygon)
+    new_shape = SpaceBoundary._make_faces_from_pnts(cut_polygon)
+
+    # Copy over shape location
+    shape_loc = TopoDS_Iterator(shape).Value().Location()
+    new_shape.Move(shape_loc)
+
+    return new_shape
