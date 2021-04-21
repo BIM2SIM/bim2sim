@@ -85,7 +85,7 @@ coverage:
   script:
     - mv ./* /bim2sim/
 #    - source activate base
-    - coverage run -m unittest discover
+    - coverage run -m unittest discover /bim2sim
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
     - coverage html -i 
