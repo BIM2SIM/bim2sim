@@ -30,29 +30,31 @@ class _UnionFind(Generic[T]):
     """
     Implementation of a union-find data structure with union-by-size and path compression.
     """
-    __parents = dict()
-    __sizes = dict()
+
+    def __init__(self):
+        self._parents = dict()
+        self._sizes = dict()
 
     def union(self, element1: T, element2: T) -> T:
         key1 = self.find(element1)
         key2 = self.find(element2)
         if key1 == key2: 
             return
-        if self.__sizes[key1] < self.__sizes[key2]:
+        if self._sizes[key1] < self._sizes[key2]:
             key1, key2 = key2, key1
-        self.__parents[key2] = key1
-        self.__sizes[key1] += self.__sizes[key2]
+        self._parents[key2] = key1
+        self._sizes[key1] += self._sizes[key2]
         
     def find(self, element: T) -> T:
-        if element not in self.__parents:
-            self.__parents[element] = None
-            self.__sizes[element] = 1
+        if element not in self._parents:
+            self._parents[element] = None
+            self._sizes[element] = 1
         root = element
-        while self.__parents[root] is not None:
-            root = self.__parents[root]
-        while self.__parents[element] is not None:
-            parent = self.__parents[element]
-            self.__parents[element] = root
+        while self._parents[root] is not None:
+            root = self._parents[root]
+        while self._parents[element] is not None:
+            parent = self._parents[element]
+            self._parents[element] = root
             element = parent
         return element
 
