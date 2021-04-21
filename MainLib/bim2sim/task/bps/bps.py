@@ -694,7 +694,7 @@ class ExportEP(ITask):
     ENERGYPLUS_VERSION = "9-4-0"
 
     reads = ('instances', 'ifc')
-    touches = ('instances',)
+    final = True
 
     @Task.log
     def run(self, workflow, instances, ifc):
@@ -771,8 +771,14 @@ class ExportEP(ITask):
         # idf.view_model()
         # self._export_to_stl_for_cfd(instances, idf)
         # self._display_shape_of_space_boundaries(instances)
+        run_decision = BoolDecision(question="Do you want to run the full energyplus simulation (annual, readvars)?",
+                                    global_key='EnergyPlus.FullRun', allow_load=True, allow_save=True, collect=False)
+        ep_full = run_decision.decide()
+        design_day = False
+        if not ep_full:
+            design_day = True
         output_string = str(self.paths.export / 'EP-results/')
-        idf.run(output_directory=output_string, readvars=True)
+        idf.run(output_directory=output_string, readvars=ep_full, annual=ep_full, design_day=design_day)
         # self._visualize_results(
         #     csv_name=paths.export / 'EP-results/eplusout.csv')
 
@@ -1620,8 +1626,8 @@ class ExportEP(ITask):
         """
         # path = '/usr/local/EnergyPlus-9-2-0/'
         # path = '/usr/local/EnergyPlus-9-3-0/'
-        # path = f'/usr/local/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
-        path = f'D:/04_Programme/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
+        path = f'/usr/local/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
+        #path = f'D:/04_Programme/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
         IDF.setiddname(path + 'Energy+.idd')
         idf = IDF(path + "ExampleFiles/Minimal.idf")
         idf.idfname = str(paths.export / 'temp.idf')

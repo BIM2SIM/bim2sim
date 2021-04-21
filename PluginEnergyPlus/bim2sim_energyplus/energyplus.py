@@ -39,7 +39,7 @@ class EnergyPlus(Plugin):
         playground.run_task(bps.BindThermalZones())
         # todo own task?
         copyfile(Path(__file__).parent.parent / 'data' / weather_file,
-                 playground.state['paths'].root /'resources'/ weather_file)
+                 playground.paths.resources / weather_file)
         playground.run_task(bps.ExportEP())
 
         return
