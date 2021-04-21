@@ -700,6 +700,10 @@ class ThermalZone(element.Element):
         unit=ureg.degC,
         default=25
     )
+    t_ground = attribute.Attribute(
+        unit=ureg.degC,
+        default=13
+    )
     area = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
         default=0,

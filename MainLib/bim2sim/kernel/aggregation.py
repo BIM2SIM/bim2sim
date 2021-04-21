@@ -1594,6 +1594,10 @@ class Aggregated_ThermalZone(Aggregation):
         functions=[_intensive_calc],
         unit=ureg.degC
     )
+    t_ground = attribute.Attribute(
+        functions=[_intensive_calc],
+        unit=ureg.degC,
+    )
     area = attribute.Attribute(
         functions=[_extensive_calc],
         unit=ureg.meter ** 2
