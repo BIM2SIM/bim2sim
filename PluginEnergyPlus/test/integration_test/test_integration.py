@@ -68,6 +68,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
 
     # @unittest.skip("")
     def test_base_01_FZK(self):
+        from task.common.inner_loop_remover import remove_inner_loops
+        remove_inner_loops(None)
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'energyplus')
@@ -127,7 +129,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
-    @unittest.skip("Skipped due to performance for CI")
+    #@unittest.skip("Skipped due to performance for CI")
     def test_base_06_KHH(self):
         """Test KIT KHH 3 storey IFC"""
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
