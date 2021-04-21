@@ -694,7 +694,7 @@ class ExportEP(ITask):
     ENERGYPLUS_VERSION = "9-4-0"
 
     reads = ('instances', 'ifc')
-    touches = ('instances',)
+    final = True
 
     @Task.log
     def run(self, workflow, instances, ifc):
