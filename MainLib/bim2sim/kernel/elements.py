@@ -39,7 +39,7 @@ from bim2sim.decision import BoolDecision, RealDecision, ListDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.task.common.common_functions import vector_angle, filter_instances
-from task.common.inner_loop_remover import remove_inner_loops
+from bim2sim.task.common.inner_loop_remover import remove_inner_loops
 
 
 def diameter_post_processing(value):
@@ -1193,11 +1193,16 @@ class SpaceBoundary(element.SubElement):
             sore = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement
             # if sore.get_info()["InnerBoundaries"] is None:
             shape = ifcopenshell.geom.create_shape(settings, sore)
+            shape_it_loc = TopoDS_Iterator(shape).Value()
+            shape_loc = shape_it_loc.Location()
+
             if sore.InnerBoundaries:
                 shape = remove_inner_loops(shape)
                 if not shape:
                     sore.InnerBoundaries = ()
                     shape = ifcopenshell.geom.create_shape(settings, sore)
+                else:
+                    shape.Move(shape_loc)
         except:
             try:
                 shape = ifcopenshell.geom.create_shape(settings,
