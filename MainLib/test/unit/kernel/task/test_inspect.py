@@ -5,7 +5,8 @@ import tempfile
 
 import numpy as np
 
-from bim2sim.kernel.element import Root, Port, BaseElement, IFCBased
+from bim2sim.kernel.element import Root, Port, ProductBased
+from bim2sim.kernel.elements import Pipe, PipeFitting, HeatExchanger
 from bim2sim.task import hvac
 from bim2sim.task import common
 from bim2sim.task.hvac import Inspect
@@ -18,6 +19,7 @@ from bim2sim.decision import Decision
 class DummyPlugin(Plugin):
     name = 'test'
     default_workflow = PlantSimulation
+    elements = {Pipe, PipeFitting, HeatExchanger}
 
     def run(self, playground):
         playground.run_task(hvac.SetIFCTypesHVAC())
@@ -42,13 +44,13 @@ class TestInspect(unittest.TestCase):
         # deactivate created project
         project.finalize(True)
 
-        IFCBased.finder.enabled = False
+        ProductBased.finder.enabled = False
 
     @classmethod
     def tearDownClass(cls):
         cls.test_dir.cleanup()
 
-        IFCBased.finder.enabled = True
+        ProductBased.finder.enabled = True
 
     def setUp(self) -> None:
         self.project = Project(self.test_dir.name)
@@ -101,7 +103,7 @@ class TestInspect(unittest.TestCase):
 class TestInspectMethods(unittest.TestCase):
 
     def tearDown(self) -> None:
-        for item in list(BaseElement.objects.values()):
+        for item in list(ProductBased.objects.values()):
             item.discard()
 
         for port in list(Port.objects.values()):
@@ -109,7 +111,7 @@ class TestInspectMethods(unittest.TestCase):
 
     @staticmethod
     def create_element(positions):
-        parent = BaseElement()
+        parent = ProductBased()
         for pos in positions:
             port = Port(parent)
             port.calc_position = MagicMock(return_value=np.array(pos))

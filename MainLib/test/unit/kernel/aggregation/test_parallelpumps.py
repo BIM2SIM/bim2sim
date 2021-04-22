@@ -524,7 +524,7 @@ class TestParallelPumps(unittest.TestCase):
         pumps = [item for item in models if isinstance(item, elements.Pump)]
         matches, meta = aggregation.ParallelPump.find_matches(graph)
         self.assertEqual(len(matches), 1)
-        agg_pump = aggregation.ParallelPump("Test", matches[0], **meta[0])
+        agg_pump = aggregation.ParallelPump(matches[0], **meta[0])
 
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
@@ -554,17 +554,17 @@ class TestParallelPumps(unittest.TestCase):
         matches, meta = aggregation.ParallelPump.find_matches(graph)
 
         self.assertEqual(len(matches), 1)
-        agg_pump = aggregation.ParallelPump("Test", matches[0], **meta[0])
+        agg_pump = aggregation.ParallelPump(matches[0], **meta[0])
         # todo before merge check units
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
         expected_volume_flow = sum([p.rated_volume_flow for p in pumps])
-        expected_diamter = sum([p.diameter**2 for p in pumps])**.5
+        expected_diameter = sum([p.diameter**2 for p in pumps])**.5
 
         self.assertAlmostEqual(agg_pump.rated_volume_flow, expected_volume_flow)
         self.assertAlmostEqual(agg_pump.rated_height, expected_height)
         self.assertAlmostEqual(agg_pump.rated_power, expected_power)
-        self.assertAlmostEqual(agg_pump.diameter, expected_diamter)
+        self.assertAlmostEqual(agg_pump.diameter, expected_diameter)
 
         graph.merge(
             mapping=agg_pump.get_replacement_mapping(),
@@ -595,7 +595,7 @@ class TestParallelPumps(unittest.TestCase):
         matches, meta = aggregation.ParallelPump.find_matches(graph)
 
         self.assertEqual(len(matches), 1)
-        agg_pump = aggregation.ParallelPump("Test", matches[0], **meta[0])
+        agg_pump = aggregation.ParallelPump(matches[0], **meta[0])
         # todo before merge check units
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
@@ -636,7 +636,7 @@ class TestParallelPumps(unittest.TestCase):
         matches, meta = aggregation.ParallelPump.find_matches(graph)
 
         self.assertEqual(len(matches), 1)
-        agg_pump = aggregation.ParallelPump("Test", matches[0], **meta[0])
+        agg_pump = aggregation.ParallelPump(matches[0], **meta[0])
         # todo before merge check units
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
@@ -677,7 +677,7 @@ class TestParallelPumps(unittest.TestCase):
         matches, meta = aggregation.ParallelPump.find_matches(graph)
         self.assertEqual(len(matches), 1)
 
-        agg = aggregation.ParallelPump("Test basics", matches[0], **meta[0])
+        agg = aggregation.ParallelPump(matches[0], **meta[0])
 
         self.assertTrue(self.helper.elements_in_agg(agg))
 
@@ -735,15 +735,22 @@ class TestParallelPumps(unittest.TestCase):
             "There are 2 cases for ParallelPumps but 'find_matches' returned %d" % len(matches)
         )
 
-        n_pumps1 = len([item for item in flags['pumps1'] if item.ifc_type == 'IfcPump'])
-        n_pumps2 = len([item for item in flags['normal'] if item.ifc_type == 'IfcPump'])
-        
+        n_pumps1 = len([item for item in flags['pumps1']
+                        if isinstance(item, elements.Pump)])
+        n_pumps2 = len([item for item in flags['normal']
+                        if isinstance(item, elements.Pump)])
+
         match_pumps = []
         for match in matches:
-            match_pumps.append([node for node in match if node.ifc_type == 'IfcPump'])
-        
-        self.assertSetEqual({n_pumps1, n_pumps2}, {len(mp) for mp in match_pumps}, "{} and {} pumps expected but the "
-                    "finder found {} and {} pumps.".format(*{n_pumps1, n_pumps2}, *{len(mp) for mp in match_pumps}))
+            match_pumps.append([node for node in match
+                                if isinstance(node, elements.Pump)])
+
+        target_pumps = {n_pumps1, n_pumps2}
+        actual_pumps = {len(mp) for mp in match_pumps}
+        self.assertSetEqual(
+            target_pumps, actual_pumps,
+            "{} and {} pumps expected but the finder found {} and {} "
+            "pumps.".format(*target_pumps, *actual_pumps))
 
 
 if __name__ == '__main__':

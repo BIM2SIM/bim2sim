@@ -55,7 +55,7 @@ def generate_element_strait(number=5, prefix=""):
 
     #create elements
     for i in range(number):
-        ele = element.BaseElement()
+        ele = element.ProductBased()
         ele.name = prefix + str(i)
         ele.ports.append(element.Port(ele))
         ele.ports.append(element.Port(ele))
@@ -93,7 +93,7 @@ def attach(element1, element2, use_existing=False):
     port_e1.connect(port_e2)
 
 
-@patch.object(element.BaseElement, '__repr__', lambda self: self.name)
+# @patch.object(element.BaseElement, '__repr__', lambda self: self.name)
 class Test_HVACGraph(unittest.TestCase):
     helper = None
 

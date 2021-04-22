@@ -17,37 +17,37 @@ IFC_PATH = os.path.abspath(os.path.join(
     r'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc'))
 
 
-class Test_TemplateFinder(unittest.TestCase):
+class TestTemplateFinder(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         cls.root = tempfile.TemporaryDirectory(prefix='bim2sim_')
         os.mkdir(os.path.join(cls.root.name, 'templates'))
         cls.ifc = ifc2python.load_ifc(IFC_PATH)
-        pipefittings = Test_TemplateFinder.ifc.by_type("IfcPipeFitting")
-        pipes = Test_TemplateFinder.ifc.by_type("IfcPipeSegment")
+        pipefittings = TestTemplateFinder.ifc.by_type("IfcPipeFitting")
+        pipes = TestTemplateFinder.ifc.by_type("IfcPipeSegment")
 
         cls.pipe1 = elements.Pipe(ifc=pipes[0])
         cls.pipe2 = elements.Pipe(ifc=pipes[1])
         cls.pipefitting1 = elements.PipeFitting(pipefittings[0])
         cls.pipefitting2 = elements.PipeFitting(pipefittings[1])
 
-        element.IFCBased.finder.enabled = False
+        element.ProductBased.finder.enabled = False
 
     @classmethod
     def tearDownClass(cls):
-        element.IFCBased.finder.enabled = True
+        element.ProductBased.finder.enabled = True
         Decision.reset_decisions()
         cls.root.cleanup()
 
     def setUp(self):
         self.finder = TemplateFinder()
-        self.backup = element.Element.finder
-        element.Element.finder = self.finder
+        self.backup = element.ProductBased.finder
+        element.ProductBased.finder = self.finder
 
     def tearDown(self):
         del self.finder
-        element.Element.finder = self.backup
+        element.ProductBased.finder = self.backup
 
     def test_set_find(self):
         cls = self.__class__
@@ -82,6 +82,7 @@ class Test_TemplateFinder(unittest.TestCase):
         self.finder.load(path)
 
         self.assertDictEqual(data, self.finder.templates)
+
 
 if __name__ == '__main__':
     unittest.main()

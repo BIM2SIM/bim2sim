@@ -1,7 +1,7 @@
 from unittest import mock
 from contextlib import contextmanager
 
-from bim2sim.kernel.element import Element, HVACPort, Root
+from bim2sim.kernel.element import HVACPort, Root
 from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 
@@ -36,7 +36,7 @@ class SetupHelper:
 
     @classmethod
     def fake_add_ports(cls, parent, n=2):
-        new_ports = [HVACPort(parent=parent, ifc=cls.ifc) for i in range(n)]
+        new_ports = [HVACPort(parent=parent) for i in range(n)]
         parent.ports.extend(new_ports)
         return new_ports
 
@@ -51,15 +51,15 @@ class SetupHelper:
 
     def element_generator(self, element_cls, n_ports=2, flags=None, **kwargs):
         # instantiate
-        with mock.patch.object(Element, '_add_ports', return_value=None):
-            element = element_cls(self.ifc)
+        with mock.patch.object(elements.HVACProduct, 'get_ports', return_value=[]):
+            element = element_cls(**kwargs)
         self.elements.append(element)
-        # set attributes
-        for name, value in kwargs.items():
-            if name not in element.attributes.names:
-                raise AssertionError("Can't set attribute '%s' to %s. Choices are %s" %
-                                     (name, element_cls.__name__, list(element.attributes.names)))
-            setattr(element, name, value * getattr(element_cls, name).unit)
+        # # set attributes
+        # for name, value in kwargs.items():
+        #     if name not in element.attributes.names:
+        #         raise AssertionError("Can't set attribute '%s' to %s. Choices are %s" %
+        #                              (name, element_cls.__name__, list(element.attributes.names)))
+        #     setattr(element, name, value * getattr(element_cls, name).unit)
 
         # add ports
         self.fake_add_ports(element, n_ports)
@@ -125,6 +125,6 @@ class SetupHelper:
             return False
 
         for ele in agg.elements:
-            if not isinstance(ele, Element):
+            if not isinstance(ele, elements.HVACProduct):
                 return False
         return True

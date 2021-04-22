@@ -48,14 +48,14 @@ from stl import mesh
 
 from bim2sim.task.base import Task, ITask
 # from bim2sim.filter import TypeFilter
-from bim2sim.kernel.element import Element, ElementEncoder, BasePort, SubElement
+from bim2sim.kernel.element import ProductBased, ElementEncoder, Port
 # from bim2sim.kernel.elements import SpaceBoundary2B, SpaceBoundary
 from bim2sim.kernel.elements import SpaceBoundary
 # from bim2sim.kernel.bps import ...
 from bim2sim.export import modelica
 from bim2sim.decision import Decision
 from bim2sim.kernel import finder
-from bim2sim.kernel.aggregation import Aggregated_ThermalZone
+from bim2sim.kernel.aggregation import AggregatedThermalZone
 from bim2sim.kernel import elements, disaggregation
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.enrichment_data import element_input_json
@@ -75,7 +75,7 @@ from teaser.logic.buildingobjects.buildingphysics.layer import Layer
 from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
 from bim2sim.kernel.units import conversion
-from bim2sim.kernel.element import SubElement
+from bim2sim.kernel.element import RelationBased
 # todo new name :)
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.task.common.common_functions import angle_equivalent
@@ -1643,7 +1643,7 @@ class ExportEP(ITask):
         """
         unpacked_instances = []
         for instance in instances.values():
-            if isinstance(instance, Aggregated_ThermalZone):
+            if isinstance(instance, AggregatedThermalZone):
                 unpacked_instances.extend(instance.elements)
             elif instance.ifc_type == "IfcSpace":
                 unpacked_instances.append(instance)

@@ -48,7 +48,7 @@ def diameter_post_processing(value):
 
 
 logger = logging.getLogger(__name__)
-pattern_usage = get_pattern_usage()
+# pattern_usage = get_pattern_usage()
 def length_post_processing(value):
     if isinstance(value, (list, set)):
         return max(value)
@@ -56,6 +56,7 @@ def length_post_processing(value):
 
 
 class HVACProduct(element.ProductBased):
+    domain = 'HVAC'
 
     def get_ports(self):
         ports = []
@@ -80,13 +81,13 @@ class HVACProduct(element.ProductBased):
 
 
 class BPSProduct(element.ProductBased):
-    pass
+    domain = 'BPS'
 
 
 class HeatPump(HVACProduct):
     """"HeatPump"""
 
-    ifc_type = 'IfcUnitaryEquipment'
+    ifc_types = {'IfcUnitaryEquipment':['*']}  # TBD
     predefined_type = ['NOTDEFINED']
 
     pattern_ifc_type = [
@@ -111,8 +112,7 @@ class HeatPump(HVACProduct):
 class Chiller(HVACProduct):
     """"Chiller"""
 
-    ifc_type = 'IfcChiller'
-    predefined_types = ['AIRCOOLED', 'WATERCOOLED', 'HEATRECOVERY']
+    ifc_types = {'IfcChiller':['AIRCOOLED', 'WATERCOOLED', 'HEATRECOVERY']}
 
     pattern_ifc_type = [
         re.compile('Chiller', flags=re.IGNORECASE),
@@ -136,8 +136,10 @@ class Chiller(HVACProduct):
 class CoolingTower(HVACProduct):
     """"CoolingTower"""
 
-    ifc_type = 'IfcCoolingTower'
-    predefined_types = ['NATURALDRAFT', 'MECHANICALINDUCEDDRAFT', 'MECHANICALFORCEDDRAFT']
+    ifc_types = {
+        'IfcCoolingTower':
+            ['NATURALDRAFT', 'MECHANICALINDUCEDDRAFT', 'MECHANICALFORCEDDRAFT']
+    }
 
     pattern_ifc_type = [
         re.compile('Cooling.?Tower', flags=re.IGNORECASE),
@@ -164,8 +166,7 @@ class CoolingTower(HVACProduct):
 class HeatExchanger(HVACProduct):
     """"Heatexchanger"""
 
-    ifc_type = 'IfcHeatExchanger'
-    predefined_types = ['PLATE', 'SHELLANDTUBE']
+    ifc_types = {'IfcHeatExchanger': ['PLATE', 'SHELLANDTUBE']}
 
     pattern_ifc_type = [
         re.compile('Heat.?Exchanger', flags=re.IGNORECASE),
@@ -189,8 +190,7 @@ class HeatExchanger(HVACProduct):
 
 class Boiler(HVACProduct):
     """Boiler"""
-    ifc_type = 'IfcBoiler'
-    predefined_types = ['WATER', 'STEAM']
+    ifc_types = {'IfcBoiler': ['WATER', 'STEAM']}
 
     pattern_ifc_type = [
         # re.compile('Heat.?pump', flags=re.IGNORECASE),
@@ -222,7 +222,7 @@ class Boiler(HVACProduct):
                 if port.flow_direction == 1:
                     VL.append(port)
                 else:
-                    self.logger.warning("Flow direction (%s) of %s does not match %s",
+                    logger.warning("Flow direction (%s) of %s does not match %s",
                                         port.verbose_flow_direction, port, port.groups)
                     decision = BoolDecision(
                         "Use %s as VL?" % (port),
@@ -236,7 +236,7 @@ class Boiler(HVACProduct):
                 if port.flow_direction == -1:
                     RL.append(port)
                 else:
-                    self.logger.warning("Flow direction (%s) of %s does not match %s",
+                    logger.warning("Flow direction (%s) of %s does not match %s",
                                         port.verbose_flow_direction, port, port.groups)
                     decision = BoolDecision(
                         "Use %s as RL?" % (port),
@@ -251,7 +251,7 @@ class Boiler(HVACProduct):
             RL[0].flow_side = -1
             connections.append((RL[0], VL[0]))
         else:
-            self.logger.warning("Unable to solve inner connections for %s", self)
+            logger.warning("Unable to solve inner connections for %s", self)
         return connections
 
     water_volume = attribute.Attribute(
@@ -276,8 +276,10 @@ class Boiler(HVACProduct):
 
 
 class Pipe(HVACProduct):
-    ifc_type = "IfcPipeSegment"
-    predefined_types = ['CULVERT', 'FLEXIBLESEGMENT', 'RIGIDSEGMENT', 'GUTTER', 'SPOOL']
+    ifc_types = {
+        "IfcPipeSegment":
+            ['CULVERT', 'FLEXIBLESEGMENT', 'RIGIDSEGMENT', 'GUTTER', 'SPOOL']
+    }
 
     conditions = [
         condition.RangeCondition("diameter", 5.0 * ureg.millimeter, 300.00 * ureg.millimeter)  # ToDo: unit?!
@@ -334,8 +336,11 @@ class Pipe(HVACProduct):
 
 
 class PipeFitting(HVACProduct):
-    ifc_type = "IfcPipeFitting"
-    predefined_types = ['BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION', 'OBSTRUCTION', 'TRANSITION']
+    ifc_types = {
+        "IfcPipeFitting":
+            ['BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION', 'OBSTRUCTION',
+             'TRANSITION']
+    }
 
     conditions = [
         condition.RangeCondition("diameter", 5.0 * ureg.millimeter, 300.00 * ureg.millimeter)
@@ -375,8 +380,7 @@ class PipeFitting(HVACProduct):
 
 
 class SpaceHeater(HVACProduct):
-    ifc_type = 'IfcSpaceHeater'
-    predefined_types = ['CONVECTOR', 'RADIATOR']
+    ifc_types = {'IfcSpaceHeater': ['CONVECTOR', 'RADIATOR']}
 
     pattern_ifc_type = [
         re.compile('Space.?heater', flags=re.IGNORECASE)
@@ -411,9 +415,11 @@ class SpaceHeater(HVACProduct):
 
 
 class Storage(HVACProduct):
-    ifc_type = "IfcTank"
-    predefined_type = 'STORAGE'
-    predefined_types = ['BASIN', 'BREAKPRESSURE', 'EXPANSION', 'FEEDANDEXPANSION', 'STORAGE', 'VESSEL']
+    ifc_types = {
+        "IfcTank":
+            ['BASIN', 'BREAKPRESSURE', 'EXPANSION', 'FEEDANDEXPANSION',
+             'STORAGE', 'VESSEL']
+    }
 
     pattern_ifc_type = [
         re.compile('Tank', flags=re.IGNORECASE),
@@ -447,9 +453,11 @@ class Storage(HVACProduct):
 
 
 class Distributor(HVACProduct):
-    ifc_type = "IfcDistributionChamberElement"
-    predefined_types = ['FORMEDDUCT', 'INSPECTIONCHAMBER', 'INSPECTIONPIT', 'MANHOLE', 'METERCHAMBER',
-                        'SUMP', 'TRENCH', 'VALVECHAMBER']
+    ifc_types = {
+        "IfcDistributionChamberElement":
+            ['FORMEDDUCT', 'INSPECTIONCHAMBER', 'INSPECTIONPIT',
+             'MANHOLE', 'METERCHAMBER', 'SUMP', 'TRENCH', 'VALVECHAMBER']
+    }
 
     pattern_ifc_type = [
         re.compile('Distribution.?chamber', flags=re.IGNORECASE),
@@ -469,9 +477,11 @@ class Distributor(HVACProduct):
 
 
 class Pump(HVACProduct):
-    ifc_type = "IfcPump"
-    predefined_types = ['CIRCULATOR', 'ENDSUCTION', 'SPLITCASE', 'SUBMERSIBLEPUMP', 'SUMPPUMP', 'VERTICALINLINE',
-                        'VERTICALTURBINE']
+    ifc_types = {
+        "IfcPump":
+            ['CIRCULATOR', 'ENDSUCTION', 'SPLITCASE', 'SUBMERSIBLEPUMP',
+             'SUMPPUMP', 'VERTICALINLINE', 'VERTICALTURBINE']
+    }
 
     pattern_ifc_type = [
         re.compile('Pumpe', flags=re.IGNORECASE),
@@ -496,11 +506,15 @@ class Pump(HVACProduct):
 
 
 class Valve(HVACProduct):
-    ifc_type = "IfcValve"
-    predefined_types = ['AIRRELEASE', 'ANTIVACUUM', 'CHANGEOVER', 'CHECK', 'COMMISSIONING', 'DIVERTING', 'DRAWOFFCOCK',
-                        'DOUBLECHECK', 'DOUBLEREGULATING', 'FAUCET', 'FLUSHING', 'GASCOCK', 'GASTAP', 'ISOLATING',
-                        'MIXING', 'PRESSUREREDUCING', 'PRESSURERELIEF', 'REGULATING', 'SAFETYCUTOFF', 'STEAMTRAP',
-                        'STOPCOCK']
+    ifc_types = {
+        "IfcValve":
+            ['AIRRELEASE', 'ANTIVACUUM', 'CHANGEOVER', 'CHECK',
+             'COMMISSIONING', 'DIVERTING', 'DRAWOFFCOCK', 'DOUBLECHECK',
+             'DOUBLEREGULATING', 'FAUCET', 'FLUSHING', 'GASCOCK',
+             'GASTAP', 'ISOLATING', 'MIXING', 'PRESSUREREDUCING',
+             'PRESSURERELIEF', 'REGULATING', 'SAFETYCUTOFF', 'STEAMTRAP',
+             'STOPCOCK']
+    }
 
     pattern_ifc_type = [
         re.compile('Valve', flags=re.IGNORECASE),
@@ -536,8 +550,7 @@ class Valve(HVACProduct):
 
 
 class Duct(HVACProduct):
-    ifc_type = "IfcDuctSegment"
-    predefined_types = ['RIGIDSEGMENT', 'FLEXIBLESEGMENT']
+    ifc_types = {"IfcDuctSegment": ['RIGIDSEGMENT', 'FLEXIBLESEGMENT']}
 
     pattern_ifc_type = [
         re.compile('Duct.?segment', flags=re.IGNORECASE)
@@ -554,8 +567,11 @@ class Duct(HVACProduct):
 
 
 class DuctFitting(HVACProduct):
-    ifc_type = "IfcDuctFitting"
-    predefined_types = ['BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION', 'OBSTRUCTION', 'TRANSITION']
+    ifc_types = {
+        "IfcDuctFitting":
+            ['BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION',
+             'OBSTRUCTION', 'TRANSITION']
+    }
 
     pattern_ifc_type = [
         re.compile('Duct.?fitting', flags=re.IGNORECASE)
@@ -572,8 +588,10 @@ class DuctFitting(HVACProduct):
 
 
 class AirTerminal(HVACProduct):
-    ifc_type = "IfcAirTerminal"
-    predefined_types = ['DIFFUSER', 'GRILLE', 'LOUVRE', 'REGISTER']
+    ifc_types = {
+        "IfcAirTerminal":
+            ['DIFFUSER', 'GRILLE', 'LOUVRE', 'REGISTER']
+    }
 
     pattern_ifc_type = [
         re.compile('Air.?terminal', flags=re.IGNORECASE)
@@ -586,8 +604,10 @@ class AirTerminal(HVACProduct):
 
 
 class ThermalZone(BPSProduct):
-    ifc_type = "IfcSpace"
-    predefined_types = ['SPACE', 'PARKING', 'GFA', 'INTERNAL', 'EXTERNAL']
+    ifc_types = {
+        "IfcSpace":
+            ['SPACE', 'PARKING', 'GFA', 'INTERNAL', 'EXTERNAL']
+    }
 
     pattern_ifc_type = [
         re.compile('Space', flags=re.IGNORECASE),
@@ -803,12 +823,11 @@ class ThermalZone(BPSProduct):
 
 
 class SpaceBoundary(element.SpaceBoundary):
-    ifc_type = 'IfcRelSpaceBoundary'
-
+    ifc_types = {'IfcRelSpaceBoundary': ['*']}
+    # TBD
     def __init__(self, *args, **kwargs):
         """spaceboundary __init__ function"""
         super().__init__(*args, **kwargs)
-        self.guid = self.ifc.GlobalId  # check this
         self.level_description = self.ifc.Description
         relating_space = self.get_object(self.ifc.RelatingSpace.GlobalId)
         relating_space.space_boundaries.append(self)
@@ -1418,15 +1437,14 @@ class SpaceBoundary(element.SpaceBoundary):
 
 class Medium(HVACProduct):
     # is deprecated?
-    ifc_type = "IfcDistributionSystems"
+    ifc_types = {"IfcDistributionSystems": ['*']}
     pattern_ifc_type = [
         re.compile('Medium', flags=re.IGNORECASE)
     ]
 
 
 class CHP(HVACProduct):
-    ifc_type = 'IfcElectricGenerator'
-    predefined_type = ['CHP']
+    ifc_types = {'IfcElectricGenerator': ['CHP']}
 
     rated_power = attribute.Attribute(
         default_ps=('Pset_ElectricGeneratorTypeCommon', 'MaximumPowerOutput'),
@@ -1455,9 +1473,15 @@ class CHP(HVACProduct):
 
 
 class Wall(BPSProduct):
-    ifc_type = ["IfcWall", "IfcWallStandardCase"]
-    predefined_types = ['MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL', 'SHEAR', 'SOLIDWALL', 'POLYGONAL',
-                        'DOOR', 'GATE', 'TRAPDOOR']
+    ifc_types = {  # TBD
+        "IfcWall":
+            ['MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL',
+             'SHEAR', 'SOLIDWALL', 'POLYGONAL', 'DOOR', 'GATE', 'TRAPDOOR'],
+        "IfcWallStandardCase":
+            ['MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL',
+             'SHEAR', 'SOLIDWALL', 'POLYGONAL', 'DOOR', 'GATE', 'TRAPDOOR'],
+    }
+
     pattern_ifc_type = [
         re.compile('Wall', flags=re.IGNORECASE),
         re.compile('Wand', flags=re.IGNORECASE)
@@ -1480,7 +1504,7 @@ class Wall(BPSProduct):
         return layers
 
     def get_better_subclass(self):
-        if 'some_condition':
+        if 'some_condition':  # TODO
             return InnerWall
         else:
             return OuterWall
@@ -1525,7 +1549,7 @@ class Wall(BPSProduct):
 
 
 class Layer(element.Layer):
-    ifc_type = ['IfcMaterialLayer', 'IfcMaterial']
+    ifc_types = {'IfcMaterialLayer': ['*'], 'IfcMaterial': ['*']}
     material_selected = {}
 
     def __init__(self, *args, **kwargs):
@@ -1592,14 +1616,7 @@ class InnerWall(Wall):
 
 
 class Window(BPSProduct):
-    ifc_type = "IfcWindow"
-    predefined_types = ['WINDOW', 'SKYLIGHT', 'LIGHTDOME']
-    # predefined_type = {
-    #     "IfcWindow": ["WINDOW",
-    #                   "SKYLIGHT",
-    #                   "LIGHTDOME"
-    #                   ]
-    # }
+    ifc_types = {"IfcWindow": ['WINDOW', 'SKYLIGHT', 'LIGHTDOME']}
 
     pattern_ifc_type = [
         re.compile('Window', flags=re.IGNORECASE),
@@ -1640,8 +1657,7 @@ class Window(BPSProduct):
 
 
 class Door(BPSProduct):
-    ifc_type = "IfcDoor"
-    predefined_types = ['DOOR', 'GATE', 'TRAPDOOR']
+    ifc_types = {"IfcDoor": ['DOOR', 'GATE', 'TRAPDOOR']}
 
     pattern_ifc_type = [
         re.compile('Door', flags=re.IGNORECASE),
@@ -1701,14 +1717,12 @@ class OuterDoor(Door):
 
 
 class Plate(BPSProduct):
-    ifc_type = "IfcPlate"
-    predefined_types = ['CURTAIN_PANEL', 'SHEET']
+    ifc_types = {"IfcPlate": ['CURTAIN_PANEL', 'SHEET']}
 
 
 class Slab(BPSProduct):
     ifc_types = {
         "IfcSlab": ['LANDING', 'BASESLAB']
-
     }
 
     def __init__(self, *args, **kwargs):
@@ -1759,34 +1773,33 @@ class Slab(BPSProduct):
 
 class Roof(Slab):
     ifc_types = {
-        "IfcRoof": ['FLAT_ROOF', 'SHED_ROOF', 'GABLE_ROOF', 'HIP_ROOF', 'HIPPED_GABLE_ROOF', 'GAMBREL_ROOF',
-                        'MANSARD_ROOF', 'BARREL_ROOF', 'RAINBOW_ROOF', 'BUTTERFLY_ROOF', 'PAVILION_ROOF', 'DOME_ROOF',
-                        'FREEFORM'],
+        "IfcRoof":
+            ['FLAT_ROOF', 'SHED_ROOF', 'GABLE_ROOF', 'HIP_ROOF',
+             'HIPPED_GABLE_ROOF', 'GAMBREL_ROOF', 'MANSARD_ROOF',
+             'BARREL_ROOF', 'RAINBOW_ROOF', 'BUTTERFLY_ROOF', 'PAVILION_ROOF',
+             'DOME_ROOF', 'FREEFORM'],
         "IfcSlab": ['ROOF']
-
     }
-
-    def __init__(self, *args, **kwargs):
-        """roof __init__ function"""
-        super().__init__(*args, **kwargs)
-        if hasattr(self, 'ifc'):
-            self.ifc_type = self.ifc.is_a()
 
 
 class Floor(Slab):
-    predefined_type = "FLOOR"
+    ifc_types = {
+        "IfcSlab": ['FLOOR']
+    }
 
 
 class GroundFloor(Slab):
-    predefined_type = "BASESLAB"
+    ifc_types = {
+        "IfcSlab": ['BASESLAB']
+    }
 
 
 class Site(BPSProduct):
-    ifc_type = "IfcSite"
+    ifc_types = {"IfcSite": ['*']}
 
 
 class Building(BPSProduct):
-    ifc_type = "IfcBuilding"
+    ifc_types = {"IfcBuilding": ['*']}
 
     def check_building_year(bind, name):
         year_decision = RealDecision("Enter value for the buildings year of construction",
@@ -1818,7 +1831,7 @@ class Building(BPSProduct):
 
 
 class Storey(BPSProduct):
-    ifc_type = 'IfcBuildingStorey'
+    ifc_types = {'IfcBuildingStorey': ['*']}
 
     def __init__(self, *args, **kwargs):
         """storey __init__ function"""

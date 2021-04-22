@@ -1,5 +1,5 @@
 from bim2sim.task.base import Task, ITask
-from bim2sim.kernel.element import Element
+from bim2sim.kernel.element import ProductBased
 from ifcopenshell.file import file
 from bim2sim.workflow import Workflow
 

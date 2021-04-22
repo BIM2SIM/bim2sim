@@ -13,8 +13,8 @@ class Plugin:
 
     name: str = None
     default_workflow = None
-    tasks: set = None
-    elements: set = None
+    tasks: set = set()
+    elements: set = set()
 
     @classmethod
     def __init_subclass__(cls, **kwargs):

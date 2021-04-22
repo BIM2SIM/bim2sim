@@ -6,10 +6,12 @@ where each node represents a hvac-component
 import os
 import logging
 import itertools
+from typing import Set, Iterable, Type
 
 import networkx as nx
 from networkx.readwrite import json_graph
 
+from bim2sim.kernel.element import ProductBased
 
 logger = logging.getLogger(__name__)
 
@@ -104,15 +106,19 @@ class HvacGraph(nx.Graph):
         return cycles
 
     @staticmethod
-    def get_type_chains(element_graph, types, include_singles=False):
+    def get_type_chains(
+            element_graph: nx.Graph,
+            types: Iterable[Type[ProductBased]],
+            include_singles=False):
         """Returns lists of consecutive elements of the given types ordered as connected.
 
+        :param include_singles:
         :param element_graph: graph object with elements as nodes
-        :param types: iterable of ifcType names"""
+        :param types: items the chains are built of"""
 
         undirected_graph = element_graph
         nodes_degree2 = [v for v, d in undirected_graph.degree() if 1 <= d <= 2
-                         and v.ifc_type in types]
+                         and type(v) in types]
         subgraph_aggregations = nx.subgraph(undirected_graph, nodes_degree2)
 
         chain_lists = []
@@ -226,24 +232,24 @@ class HvacGraph(nx.Graph):
         return cls(json_graph.adjacency_graph(data))
 
     @staticmethod
-    def remove_not_wanted_nodes(graph, wanted, inert=None):
+    def remove_not_wanted_nodes(
+            graph,
+            wanted: Set[ProductBased],
+            inert: Set[ProductBased] = set()):
         """ removes not wanted and not inert nodes from the given graph."""
-        if inert is None:
-            inert = set()
-        else:
-            inert = set(inert)
-        wanted = set(wanted)
         _graph = graph.copy()
         # remove blocking nodes
-        remove = {node for node in _graph.nodes if
-                  (node.ifc_type or node.__class__.__name__) not in
-                  wanted | inert}
+        remove = {node for node in _graph.nodes
+                  if type(node) not in wanted | inert}
         _graph.remove_nodes_from(remove)
         return _graph
 
     @staticmethod
-    def get_parallels(graph, wanted, inert=None, grouping=None,
-                      grp_threshold=None):
+    def get_parallels(
+            graph,
+            wanted: Set[ProductBased],
+            inert: Set[ProductBased] = set(),
+            grouping=None, grp_threshold=None):
         """ Detect parallel occurrences of wanted items.
         All graph nodes not in inert or wanted are counted as blocking.
         Grouping can hold additional arguments like only same size.
@@ -264,7 +270,7 @@ class HvacGraph(nx.Graph):
         graph_changed = False
         for basis_cycle in basis_cycles:
             wanted_guids_cycle = {node.guid for node in
-                                  basis_cycle if node.ifc_type in wanted}
+                                  basis_cycle if type(node) in wanted}
 
             if len(wanted_guids_cycle) < 2:
                 edge_elements = [
@@ -277,7 +283,7 @@ class HvacGraph(nx.Graph):
 
                 # remove strands without wanted items
                 for dir_connection in dir_connections:
-                    if not any(node.ifc_type == want for want in wanted
+                    if not any(type(node) is want for want in wanted
                                for node in dir_connection):
                         _graph.remove_nodes_from(
                             [node for node in dir_connection])
@@ -287,7 +293,7 @@ class HvacGraph(nx.Graph):
             basis_cycles = nx.cycle_basis(_graph)
 
         basis_cycle_sets = [frozenset((node.guid for node in basis_cycle)) for basis_cycle in basis_cycles]  # hashable
-        wanted_guids = {node.guid for node in _graph.nodes if node.ifc_type in wanted}
+        wanted_guids = {node.guid for node in _graph.nodes if type(node) in wanted}
 
         occurrence_cycles = {}
         cycle_occurrences = {}
@@ -328,7 +334,7 @@ class HvacGraph(nx.Graph):
                 raise NotImplementedError()
 
             graphs = []
-            nodes = [node for node in graph.nodes if node.ifc_type in
+            nodes = [node for node in graph.nodes if type(node) in
                      wanted]
 
             # group elements by group_attr
@@ -517,7 +523,10 @@ class HvacGraph(nx.Graph):
         return nodes
 
     @staticmethod
-    def get_connections_between(graph, wanted, inert=None):
+    def get_connections_between(
+            graph,
+            wanted: Set[ProductBased],
+            inert: Set[ProductBased] = set()):
         """Detect simple connections between wanted items.
         All graph nodes not in inert or wanted are counted as blocking
         :returns: list of none overlapping subgraphs
@@ -526,7 +535,7 @@ class HvacGraph(nx.Graph):
 
         # get connections between the wanted items
         wanted_nodes = {node for node in _graph.nodes
-                        if node.ifc_type in wanted}
+                        if type(node) in wanted}
 
         cons = HvacGraph.get_dir_paths_between(_graph, wanted_nodes, True)
         graphs = []

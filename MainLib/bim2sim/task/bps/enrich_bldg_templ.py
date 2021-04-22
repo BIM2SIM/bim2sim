@@ -1,7 +1,7 @@
 import ast
 
 from bim2sim.task.base import Task, ITask
-from bim2sim.kernel.element import SubElement
+from bim2sim.kernel.element import ProductBased
 from bim2sim.kernel import elements
 from bim2sim.decision import ListDecision
 from bim2sim.workflow import LOD

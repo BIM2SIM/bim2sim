@@ -1,7 +1,7 @@
 import ast
 
 from bim2sim.task.base import Task, ITask
-from bim2sim.kernel.element import SubElement
+from bim2sim.kernel.element import ProductBased
 from bim2sim.task.common.common_functions import get_type_building_elements, \
     get_material_templates
 from bim2sim.decision import ListDecision

@@ -1,7 +1,7 @@
 from bim2sim.workflow import LOD
 from bim2sim.task.base import Task, ITask
 from bim2sim.workflow import Workflow
-from bim2sim.kernel.element import Element
+from bim2sim.kernel.element import ProductBased
 from bim2sim.kernel.units import ureg
 
 
@@ -27,7 +27,7 @@ class MaterialVerification(ITask):
 
         return self.invalid,
 
-    def materials_verification(self, instance: Element):
+    def materials_verification(self, instance: ProductBased):
         """checks validity of the layer property values"""
         invalid = True
         if hasattr(instance, 'layers'):

@@ -76,6 +76,17 @@ class Attribute:
 
         # TODO argument for validation function
 
+    def to_aggregation(self, calc=None, **kwargs):
+        """Create new Attribute suited for aggregation."""
+        options = {
+            'description': self.description,
+            'unit': self.unit,
+            'default': self.default_value
+        }
+        options.update(kwargs)
+        options['functions'] = [calc]
+        return Attribute(**options)
+
     def _get_value(self, bind):
         value = None
         # default property set

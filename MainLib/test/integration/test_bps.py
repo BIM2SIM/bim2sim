@@ -1,7 +1,7 @@
 import unittest
 from bim2sim.utilities.test import IntegrationBase
 import bim2sim
-from bim2sim.kernel.element import SubElement
+from bim2sim.kernel.element import RelationBased
 
 
 class IntegrationBaseTEASER(IntegrationBase):

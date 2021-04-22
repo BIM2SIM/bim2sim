@@ -10,7 +10,7 @@ from bim2sim import _test_run_bps_ep
 from bim2sim.decision import Decision
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.project import Project
-from bim2sim.kernel.element import SubElement
+from bim2sim.kernel.element import ProductBased
 
 # raise unittest.SkipTest("Integration tests not reliable for automated use")
 

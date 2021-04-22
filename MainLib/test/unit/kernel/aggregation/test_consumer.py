@@ -124,7 +124,7 @@ class ConsumerHelper(SetupHelper):
 
         uf_ports = (port for pipe in underfloor_pipes for port in pipe.ports)
         subgraph = graph.subgraph(uf_ports)
-        consumer = aggregation.UnderfloorHeating('Underfloor1', subgraph.element_graph)
+        consumer = aggregation.UnderfloorHeating(subgraph.element_graph)
         flags['underfloor'] = [consumer]
 
         graph.merge(
@@ -238,6 +238,7 @@ class ConsumerHelper(SetupHelper):
         flags = {**flags1, **flags2}
         return graph, flags
 
+
 class TestConsumerAggregation(unittest.TestCase):
     helper = None
 
@@ -277,7 +278,7 @@ class TestConsumerAggregation(unittest.TestCase):
         idx = 0
         # meta = {'outer_connections': flags['connect']}
 
-        consumer1 = aggregation.Consumer("Test basics", matches[idx], **metas[idx])
+        consumer1 = aggregation.Consumer(matches[idx], **metas[idx])
 
         graph.merge(
             mapping=consumer1.get_replacement_mapping(),
@@ -298,7 +299,6 @@ class TestConsumerAggregation(unittest.TestCase):
         """test aggregation of consumercycle no 2"""
         graph, flags = self.helper.get_setup_system()
 
-
         matches, metas = aggregation.Consumer.find_matches(graph)
 
         consumer2 = None
@@ -306,7 +306,7 @@ class TestConsumerAggregation(unittest.TestCase):
         for e, match in enumerate(matches):
             for ele in flags['con2']:
                 if ele in match:
-                    consumer2 = aggregation.Consumer("Test basics", matches[e], **metas[e])
+                    consumer2 = aggregation.Consumer(matches[e], **metas[e])
                     break
             if consumer2:
                 break
@@ -337,7 +337,7 @@ class TestConsumerAggregation(unittest.TestCase):
         idx = 0
         # meta = {'outer_connections': flags['connect']}
 
-        consumer = aggregation.Consumer("Test basics", matches[idx], **metas[idx])
+        consumer = aggregation.Consumer(matches[idx], **metas[idx])
 
         graph.merge(
             mapping=consumer.get_replacement_mapping(),

@@ -11,10 +11,10 @@ import networkx as nx
 from bim2sim.task.base import Task, ITask
 from bim2sim.workflow import LOD
 from bim2sim.filter import TypeFilter, TextFilter
-from bim2sim.kernel.aggregation import HVACAggregation, PipeStrand, UnderfloorHeating,\
+from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating,\
     ParallelPump, ParallelSpaceHeater
 from bim2sim.kernel.aggregation import Consumer, ConsumerHeatingDistributorModule
-from bim2sim.kernel.element import Element, ElementEncoder, Port
+from bim2sim.kernel.element import ProductBased, Factory, ElementEncoder, Port
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
 from bim2sim.decision import Decision, ListDecision
@@ -143,6 +143,8 @@ class Inspect(ITask):
         logger = logging.getLogger('IFCQualityReport')
         connections = []
         for port in ports:
+            if not port.ifc:
+                continue
             connected_ports = \
                 [conn.RelatingPort for conn in port.ifc.ConnectedFrom] \
                 + [conn.RelatedPort for conn in port.ifc.ConnectedTo]
@@ -250,7 +252,7 @@ class Inspect(ITask):
             remaining = []
             result_dict[ifc_type] = remaining
             for entity in entities:
-                element = Element.factory(entity, ifc_type)
+                element = self.factory(entity)
                 if element.validate() or force:
                     valid.append(entity)
                     self.instances[element.guid] = element
@@ -300,15 +302,16 @@ class Inspect(ITask):
 
         return result_entity_dict, unknown_entities
 
-    def set_class_by_user(self, unknown_entities):
+    def set_class_by_user(self, unknown_entities, possible_elements):
         """Ask user for every given ifc_entity to specify matching element class"""
         answers = {}
-        checksum = Decision.build_checksum(list(Element._ifc_classes.keys()))  # assert same list of ifc_classes
+        checksum = Decision.build_checksum([pe.key for pe in possible_elements])  # assert same list of ifc_classes
+        # checksum = Decision.build_checksum(list(Element._ifc_classes.keys()))  # assert same list of ifc_classes
         for ifc_entity in unknown_entities:
             ListDecision(
                 "Found unidentified Element of %s (Name: %s, Description: %s):" % (
                 ifc_entity.is_a(), ifc_entity.Name, ifc_entity.Description),
-                choices=[ifc_type for ifc_type in Element._ifc_classes.keys()],
+                choices=[pe.key for pe in possible_elements],
                 output=answers,
                 output_key=ifc_entity,
                 global_key="%s.%s" % (ifc_entity.is_a(), ifc_entity.GlobalId),
@@ -333,6 +336,8 @@ class Inspect(ITask):
     def run(self, workflow, ifc, filters):
         self.logger.info("Creates python representation of relevant ifc types")
 
+        self.factory = Factory(workflow.relevant_elements)
+
         # filter by type
         initial_filter = filters[0]  #ToDo: TypeFilter must be first if the following Filter should also search in this types!
         initial_entities_dict, unknown_entities = initial_filter.run(ifc)
@@ -354,7 +359,8 @@ class Inspect(ITask):
                          len(unknown_entities))
 
         #Identification of remaining Elements through the user
-        class_dict, unknown_entities = self.set_class_by_user(unknown_entities)
+        class_dict, unknown_entities = self.set_class_by_user(
+            unknown_entities, workflow.relevant_elements)
         valids, invalids = self.accept_valids(class_dict, force=True)
         if invalids:
             self.logger.info("Removed %d entities with no class set", len(invalids))
@@ -385,9 +391,10 @@ class Inspect(ITask):
         self.check_element_ports(self.instances.values())
         self.logger.info("Connecting the relevant elements")
         self.logger.info(" - Connecting by relations ...")
-        test = Port.objects
+
+        all_ports = [port for item in self.instances.values() for port in item.ports]
         rel_connections = self.connections_by_relation(
-            Port.objects.values())
+            all_ports)
         self.logger.info(" - Found %d potential connections.",
                          len(rel_connections))
 
@@ -401,7 +408,7 @@ class Inspect(ITask):
             # unconfirmed have no position data and cant be connected by position
             port1.connect(port2)
 
-        unconnected_ports = (port for port in Port.objects.values()
+        unconnected_ports = (port for port in all_ports
                              if not port.is_connected())
         self.logger.info(" - Connecting remaining ports by position ...")
         pos_connections = self.connections_by_position(unconnected_ports)
@@ -411,7 +418,7 @@ class Inspect(ITask):
             port1.connect(port2)
 
         nr_total = len(Port.objects)
-        unconnected = [port for port in Port.objects.values()
+        unconnected = [port for port in all_ports
                        if not port.is_connected()]
         nr_unconnected = len(unconnected)
         nr_connected = nr_total - nr_unconnected
@@ -483,7 +490,7 @@ class Prepare(ITask):
     @Task.log
     def run(self, workflow, relevant_ifc_types):
         self.logger.info("Setting Filters")
-        Element.finder.load(self.paths.finder)
+        ProductBased.finder.load(self.paths.finder)
         # filters = [TypeFilter(relevant_ifc_types), TextFilter(relevant_ifc_types, ['Description'])]
         filters = [TypeFilter(relevant_ifc_types)]
         # self.filters.append(TextFilter(['IfcBuildingElementProxy', 'IfcUnitaryEquipment']))

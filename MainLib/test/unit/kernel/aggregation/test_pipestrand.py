@@ -242,7 +242,7 @@ class TestPipeStrand(unittest.TestCase):
 
         matches, meta = aggregation.PipeStrand.find_matches(graph)
         self.assertEqual(1, len(matches))
-        agg = aggregation.PipeStrand("Test strait strand", matches[0], **meta[0])
+        agg = aggregation.PipeStrand(matches[0], **meta[0])
 
         exp_length = sum([e.length for e in ele])
         self.assertAlmostEqual(exp_length, agg.length)
@@ -256,7 +256,7 @@ class TestPipeStrand(unittest.TestCase):
 
         matches, meta = aggregation.PipeStrand.find_matches(graph)
         self.assertEqual(1, len(matches))
-        agg = aggregation.PipeStrand("Test strait strand variable", matches[0], **meta[0])
+        agg = aggregation.PipeStrand(matches[0], **meta[0])
 
         exp_length = sum([e.length for e in ele])
         self.assertAlmostEqual(exp_length, agg.length)
@@ -273,7 +273,7 @@ class TestPipeStrand(unittest.TestCase):
 
         with self.assertRaises(AssertionError, msg="Pipestrand aggregation over a distributor should fail"):
             # pass full graph
-            agg = aggregation.PipeStrand("Test distributor with strands", graph, **{})
+            agg = aggregation.PipeStrand(graph, **{})
 
     @unittest.skip("PipeStrand aggregation with inert elements not implemented")
     def test_strait_strand_valve(self):
@@ -283,7 +283,7 @@ class TestPipeStrand(unittest.TestCase):
 
         matches, meta = aggregation.PipeStrand.find_matches(graph)
         self.assertEqual(1, len(matches))
-        agg = aggregation.PipeStrand("Test strait strand with valve", matches[0], **meta[0])
+        agg = aggregation.PipeStrand(matches[0], **meta[0])
 
         exp_length = sum([e.length for e in flags['pipes']])
         self.assertAlmostEqual(exp_length, agg.length)
@@ -339,7 +339,7 @@ class TestPipeStrand(unittest.TestCase):
 
         matches, meta = aggregation.PipeStrand.find_matches(match_graph)
         self.assertEqual(1, len(matches))
-        agg = aggregation.PipeStrand("Test 1", matches[0], **meta[0])
+        agg = aggregation.PipeStrand(matches[0], **meta[0])
 
         exp_length = sum([e.length for e in elements])
         self.assertAlmostEqual(agg.length, exp_length)
@@ -355,7 +355,7 @@ class TestPipeStrand(unittest.TestCase):
 
         matches, meta = aggregation.PipeStrand.find_matches(match_graph)
         self.assertEqual(1, len(matches))
-        agg = aggregation.PipeStrand("Test 2", matches[0], **meta[0])
+        agg = aggregation.PipeStrand(matches[0], **meta[0])
 
         exp_length = sum([e.length for e in elements])
         self.assertAlmostEqual(exp_length, agg.length)
@@ -367,7 +367,7 @@ class TestPipeStrand(unittest.TestCase):
         elements = flags['strand1']
         match = graph.element_graph.subgraph(elements)
 
-        agg = aggregation.PipeStrand("Test", match)
+        agg = aggregation.PipeStrand(match)
 
         self.assertTrue(self.helper.elements_in_agg(agg))
 

@@ -1,10 +1,11 @@
 """Definition for basic representations of IFC elements"""
+# from __future__ import annotations
 
 import logging
 from json import JSONEncoder
 import itertools
 import re
-from typing import Union, Set, Iterable, Dict, List, Tuple
+from typing import Union, Set, Iterable, Dict, List, Tuple, Type
 
 import numpy as np
 
@@ -183,6 +184,11 @@ class IFCMixin:  # TBD
         return cls(*(args + ifc_args), **kwargs)
 
     @property
+    def ifc_type(self):
+        if self.ifc:
+            return self.ifc.is_a()
+
+    @property
     def source_tool(self):  # TBD: this incl. Finder could live in Factory
         """Name of tool the ifc has been created with"""
         if not self.__class__._source_tool:
@@ -191,7 +197,7 @@ class IFCMixin:  # TBD
 
     @classmethod
     def pre_validate(cls, ifc) -> bool:
-        """Check if ifc meets conditions to create element from ist"""
+        """Check if ifc meets conditions to create element from it"""
         raise NotImplementedError
 
     def calc_position(self):
@@ -463,17 +469,6 @@ class IFCMixin:  # TBD
 
 
 class RelationBased(IFCMixin, Root):
-    _ifc_classes = {}  # TBD
-
-    @staticmethod
-    def get_class_requirements(cls):  # TODO: remove
-        requirements = {}
-        if cls.predefined_type is not None:
-            requirements['predefined_type'] = cls.predefined_type
-        if hasattr(cls, 'special_argument'):
-            requirements.update(cls.special_argument)
-
-        return requirements
 
     @property
     def source_tool(self):  # TBD: this incl. Finder could live in Factory
@@ -491,7 +486,8 @@ class RelationBased(IFCMixin, Root):
 
 class ProductBased(IFCMixin, Root):
     """Base class for all elements with ports"""
-    predefined_types: List[str]
+    domain = 'GENERAL'
+    key: str = ''
     conditions = []
 
     # TBD
@@ -509,10 +505,14 @@ class ProductBased(IFCMixin, Root):
         self.space_boundaries = []
         self.storeys = []
 
+    def __init_subclass__(cls, **kwargs):
+        # set key for each class
+        cls.key = f'{cls.domain}-{cls.__name__}'
+
     def get_ports(self):
         return []
 
-    def get_better_subclass(self):
+    def get_better_subclass(self) -> Union[None, 'ProductBased']:
         """Returns alternative subclass of current object.
 
         CAUTION: only use this if you can't know the result before instantiation
@@ -630,10 +630,10 @@ class Dummy(ProductBased):
         "IfcElementProxy": ['*']
     }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self._ifc_type = self.ifc.get_info()['type']
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #
+    #     self._ifc_type = self.ifc.get_info()['type']
 
     @property
     def ifc_type(self):
@@ -702,6 +702,15 @@ class Factory:
         # 3. go over default list, if found match --> return
         return self.defaults.get(ifc_type.lower())
 
+    def get_by_guid(self, guid: str) -> Union[ProductBased, None]:
+        """Get item from given guid created by this factory."""
+        return self.objects.get(guid)
+
+    def get_by_cls(self, item_cls: Type[ProductBased]) -> List[ProductBased]:
+        """Get list of child items from given class created by this factory."""
+        return [item for item in self.objects.values()
+                if isinstance(item, item_cls)]
+
     @staticmethod
     def create_ifc_mapping(elements: Iterable) -> Tuple[
         Dict[Tuple[str, str], ProductBased],
@@ -750,93 +759,6 @@ class Factory:
         return mapping, blacklist, default
 
 
-# @classmethod
-# def _init_factory(cls):
-#     """initialize lookup for factory"""
-#     logger = logging.getLogger(__name__)
-#     conflict = False
-#     all_subclasses = cls.get_all_subclasses(cls)
-#     if Element in all_subclasses:
-#         all_subclasses.pop(all_subclasses.index(Element))
-#     for cls_selected in all_subclasses:
-#         if not isinstance(cls_selected.ifc_type, list):
-#             ifc_types = [cls_selected.ifc_type]
-#         else:
-#             ifc_types = cls_selected.ifc_type
-#         for ifc_type in ifc_types:
-#             if ifc_type is None:
-#                 conflict = True
-#                 logger.error("Invalid ifc_type (%s) in '%s'", ifc_type,
-#                              cls_selected.__name__)
-#             elif ifc_type in cls._ifc_classes:
-#                 conflicting_cls = cls._ifc_classes[ifc_type]
-#                 if not issubclass(cls_selected, conflicting_cls):
-#                     conflict = True
-#                     logger.error(
-#                         "Conflicting ifc_types (%s) in '%s' and '%s'",
-#                         ifc_type, cls_selected.__name__,
-#                         cls._ifc_classes[ifc_type])
-#             elif cls_selected.__name__ == "Dummy":
-#                 cls.dummy = cls_selected
-#             elif not ifc_type.lower().startswith("ifc"):
-#                 conflict = True
-#                 logger.error("Invalid ifc_type (%s) in '%s'", ifc_type,
-#                              cls_selected.__name__)
-#             else:
-#                 cls._ifc_classes[ifc_type] = cls_selected
-#
-#     if conflict:
-#         raise AssertionError(
-#             "Conflict(s) in Models. (See log for details).")
-#
-#     # Model.dummy = Model.ifc_classes['any']
-#     if not cls._ifc_classes:
-#         raise ElementError(
-#             "Failed to initialize Element factory. No elements found!")
-#
-#     model_txt = "\n".join(
-#         " - %s" % (model) for model in cls._ifc_classes)
-#     logger.debug("IFC model factory initialized with %d ifc classes:\n%s",
-#                  len(cls._ifc_classes), model_txt)
-#
-# @classmethod
-# def factory(cls, ifc_element, alternate_ifc_type=None, tool=None):
-#     """Create model depending on ifc_element"""
-#     # TODO: pass explicit list of element classes to chose from
-#     ifc_type = ifc_element.is_a() \
-#         if not alternate_ifc_type or alternate_ifc_type == ifc_element.is_a() \
-#         else alternate_ifc_type
-#     cls_selected = cls._element_registry.get(ifc_type, cls.dummy)
-#
-#     prefac = cls_selected(ifc=ifc_element, tool=tool)
-#     if cls_selected is cls.dummy:
-#         logger.warning("Did not found matching class for %s", ifc_type)
-#         return prefac
-#
-#     for sub_cls in cls.get_all_subclasses(cls_selected):
-#         requirements = cls.get_class_requirements(sub_cls)
-#         match = True
-#         for req, value in requirements.items():
-#             on_ifc = getattr(prefac, req)
-#             if on_ifc != value:
-#                 match = False
-#                 break
-#         if match is True:
-#             prefac = sub_cls(ifc=ifc_element, tool=tool)
-#
-#     return prefac
-
-# @staticmethod
-# def get_all_subclasses(cls):
-#     all_subclasses = []
-#
-#     for subclass in cls.__subclasses__():
-#         all_subclasses.append(subclass)
-#         all_subclasses.extend(SubElement.get_all_subclasses(subclass))
-#
-#     return all_subclasses
-
-
 # --- Domain Implementations (move to package) ---
 
 class HVACPort(Port):
@@ -844,21 +766,33 @@ class HVACPort(Port):
     vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
     rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+            self, *args, groups: Set = None,
+            flow_direction: int = 0, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._flow_master = False
         self._flow_direction = None
         self._flow_side = None
-        self.groups = {assg.RelatingGroup.ObjectType
-                       for assg in self.ifc.HasAssignments}
 
-        if self.ifc.FlowDirection == 'SOURCE':
-            self.flow_direction = 1
-        elif self.ifc.FlowDirection == 'SINK':
-            self.flow_direction = -1
-        elif self.ifc.FlowDirection == 'SINKANDSOURCE':
-            self.flow_direction = 0
+        self.groups = groups or set()
+        self.flow_direction = flow_direction
+
+    @staticmethod
+    def ifc2args(ifc) -> Tuple[tuple, dict]:
+        args, kwargs = super().ifc2args(ifc)
+        groups = {assg.RelatingGroup.ObjectType
+                  for assg in ifc.HasAssignments}
+        if ifc.FlowDirection == 'SOURCE':
+            flow_direction = 1
+        elif ifc.FlowDirection == 'SINK':
+            flow_direction = -1
+        elif ifc.FlowDirection == 'SINKANDSOURCE':
+            flow_direction = 0
+
+        kwargs['groups'] = groups
+        kwargs['flow_direction'] = flow_direction
+        return args, kwargs
 
     def calc_position(self):
         """returns absolute position as np.array"""

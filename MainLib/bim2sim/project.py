@@ -15,7 +15,7 @@ import configparser
 from bim2sim.decision import Decision, ListDecision
 from bim2sim.task.base import Playground
 from bim2sim.plugin import Plugin
-from bim2sim.kernel.element import Root, IFCBased, BaseElement
+from bim2sim.kernel.element import Root
 
 
 logger = logging.getLogger(__name__)
@@ -282,6 +282,7 @@ class Project:
         #  'external' Plugins ca specify a meaningful workflow, builtins cant. How to get a generic workflow?
         self.default_plugin = Plugin.get_plugin(self.config['Backend']['use'])
         workflow = self.default_plugin.default_workflow()
+        workflow.relevant_elements = self.default_plugin.elements
         workflow.update_from_config(self.config)
         self.playground = Playground(workflow, self.paths)
 
@@ -396,8 +397,8 @@ class Project:
             # TODO: this should not be necessary. Move all side effects to project context
             Root.full_reset()
             # clean finder
-            IFCBased.finder.reset()
-            BaseElement.finder.reset()  # due to a 'hotfix' there are two finder instances
+            # IFCBased.finder.reset()
+            # BaseElement.finder.reset()  # due to a 'hotfix' there are two finder instances
             # releas project
             Project._release(self)
 

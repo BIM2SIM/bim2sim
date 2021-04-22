@@ -1,5 +1,5 @@
 from bim2sim.task.base import Task, ITask
-from bim2sim.kernel.element import SubElement
+from bim2sim.kernel.element import RelationBased
 from teaser.project import Project
 from teaser.logic.buildingobjects.building import Building
 from teaser.logic.buildingobjects.thermalzone import ThermalZone

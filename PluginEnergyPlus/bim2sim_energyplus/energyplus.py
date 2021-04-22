@@ -3,7 +3,6 @@ from pathlib import Path
 
 from bim2sim.task import bps
 from bim2sim.task import common
-from bim2sim.kernel.element import IFCBased
 from bim2sim.plugin import Plugin
 from bim2sim.workflow import BPSMultiZoneSeparatedEP
 
