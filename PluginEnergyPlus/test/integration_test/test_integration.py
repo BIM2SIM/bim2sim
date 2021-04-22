@@ -10,7 +10,6 @@ from bim2sim import _test_run_bps_ep
 from bim2sim.decision import Decision
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.project import Project
-from bim2sim.kernel.element import SubElement
 
 # raise unittest.SkipTest("Integration tests not reliable for automated use")
 
@@ -41,8 +40,6 @@ class IntegrationBaseEP(IntegrationBase):
                      str(debug_dir) + "/eplusout.idf")
         os.chdir(self.working_dir)
         sys.stderr = self.old_stderr
-        # todo test if this helps
-        SubElement.instances = {}
         super().tearDown()
 
     def create_project(self, ifc_path: str, plugin: str):
