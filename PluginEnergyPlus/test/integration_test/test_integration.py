@@ -137,8 +137,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     def test_base_07_KIT_Inst_SB_design_day(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
 
-        # ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB11.ifc'
-        ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB55.ifc'
+        ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True,  *('Single office',)*78, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
@@ -150,9 +149,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     def test_base_08_KIT_Inst_SB_full_run(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
 
-        # ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB11.ifc'
-        # ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB55.ifc'
-        ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB66.ifc'
+        ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True,  *('Single office',)*78, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
