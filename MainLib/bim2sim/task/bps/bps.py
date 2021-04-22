@@ -5,6 +5,7 @@ import itertools
 import json
 import ast
 import os
+import subprocess
 from pathlib import Path
 
 import ifcopenshell
@@ -694,7 +695,7 @@ class ExportEP(ITask):
     ENERGYPLUS_VERSION = "9-4-0"
 
     reads = ('instances', 'ifc')
-    touches = ('instances',)
+    final = True
 
     @Task.log
     def run(self, workflow, instances, ifc):
@@ -762,6 +763,7 @@ class ExportEP(ITask):
         self._export_geom_to_idf(instances, idf)
         self._set_output_variables(idf)
         idf.save()
+        subprocess.run(['energyplus', '-x', '-c', '--convert-only', '-d', self.paths.export, idf.idfname])
         self._export_surface_areas(instances, idf) # todo: fix
         self._export_space_info(instances, idf)
         self._export_boundary_report(instances, idf, ifc)
@@ -771,8 +773,14 @@ class ExportEP(ITask):
         # idf.view_model()
         # self._export_to_stl_for_cfd(instances, idf)
         # self._display_shape_of_space_boundaries(instances)
+        run_decision = BoolDecision(question="Do you want to run the full energyplus simulation (annual, readvars)?",
+                                    global_key='EnergyPlus.FullRun', allow_load=True, allow_save=True, collect=False)
+        ep_full = run_decision.decide()
+        design_day = False
+        if not ep_full:
+            design_day = True
         output_string = str(self.paths.export / 'EP-results/')
-        idf.run(output_directory=output_string, readvars=True)
+        idf.run(output_directory=output_string, readvars=ep_full, annual=ep_full, design_day=design_day)
         # self._visualize_results(
         #     csv_name=paths.export / 'EP-results/eplusout.csv')
 
@@ -1620,11 +1628,12 @@ class ExportEP(ITask):
         """
         # path = '/usr/local/EnergyPlus-9-2-0/'
         # path = '/usr/local/EnergyPlus-9-3-0/'
-        # path = f'/usr/local/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
-        path = f'D:/04_Programme/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
+        path = f'/usr/local/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
+        # path = f'D:/04_Programme/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
         IDF.setiddname(path + 'Energy+.idd')
         idf = IDF(path + "ExampleFiles/Minimal.idf")
-        idf.idfname = str(paths.export / 'temp.idf')
+        ifc_name = os.listdir(paths.ifc)[0].strip('.ifc')
+        idf.idfname = str(paths.export) + '/' + ifc_name + '.idf'
         schedules_idf = IDF(path + "DataSets/Schedules.idf")
         schedules = schedules_idf.idfobjects["Schedule:Compact".upper()]
         sch_typelim = schedules_idf.idfobjects["ScheduleTypeLimits".upper()]
@@ -3375,7 +3384,7 @@ class IdfObject():
             counter += 1
             new_obj = idf.copyidfobject(obj)
             new_obj.Name = str(obj.Name) + '_' + str(counter)
-            fc = SpaceBoundary._make_faces_from_pnts([pnt, pnt2, inst_obj.bound_center.Coord(), pnt])
+            fc = SpaceBoundary._make_faces_from_pnts([pnt, pnt2, inst_obj.bound_center.Coord()])
             fcsc = ExportEP.scale_face(ExportEP, fc, 0.99)
             new_pnts = self._get_points_of_face(fcsc)
             new_coords = []
@@ -3385,7 +3394,7 @@ class IdfObject():
         new_obj = idf.copyidfobject(obj)
         new_obj.Name = str(obj.Name) + '_' + str(counter + 1)
         fc = SpaceBoundary._make_faces_from_pnts(
-            [drop_list[-1], drop_list[0], inst_obj.bound_center.Coord(), drop_list[-1]])
+            [drop_list[-1], drop_list[0], inst_obj.bound_center.Coord()])
         fcsc = ExportEP.scale_face(ExportEP, fc, 0.99)
         new_pnts = self._get_points_of_face(fcsc)
         new_coords = []
