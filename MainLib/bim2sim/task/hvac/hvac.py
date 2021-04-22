@@ -243,7 +243,7 @@ class Inspect(ITask):
         return connections
 
     @Task.log
-    def accept_valids(self, entities_dict, warn=True, force=False):
+    def accept_valids(self, entities_dict, warn=True):
         """Instantiate ifc_entities using given element class.
         Resulting instances are validated (if not force) ans added to self.instances on success."""
         valid, invalid = [], []
@@ -252,21 +252,21 @@ class Inspect(ITask):
             remaining = []
             result_dict[ifc_type] = remaining
             for entity in entities:
-                element = self.factory(entity)
-                if element.validate() or force:
+                try:
+                    element = self.factory(entity, use_dummy=False)
+                except LookupError:
+                    element = None
+
+                if element and element.validate():
                     valid.append(entity)
                     self.instances[element.guid] = element
-                elif force:
-                    valid.append(entity)
-                    self.instances[element.guid] = element
-                    if warn:
-                        self.logger.warning("Validation failed for %s %s but instantiated anyway", ifc_type, element)
                 else:
                     if warn:
                         self.logger.warning("Validation failed for %s %s", ifc_type, element)
                     invalid.append(entity)
                     remaining.append(entity)
-                    element.discard()
+                    if element:
+                        element.discard()
 
         return valid, invalid
 
@@ -322,12 +322,13 @@ class Inspect(ITask):
 
         result_entity_dict = {}
         ignore = []
-        for ifc_entity, ifc_type in answers.items():
+        for ifc_entity, element_key in answers.items():
 
-            if ifc_type is None:
+            if element_key is None:
                 ignore.append(ifc_entity)
             else:
-                lst = result_entity_dict.setdefault(ifc_type, [])
+                element_cls = ProductBased.key_map[element_key]
+                lst = result_entity_dict.setdefault(element_cls, [])
                 lst.append(ifc_entity)
 
         return result_entity_dict, ignore
@@ -361,7 +362,14 @@ class Inspect(ITask):
         #Identification of remaining Elements through the user
         class_dict, unknown_entities = self.set_class_by_user(
             unknown_entities, workflow.relevant_elements)
-        valids, invalids = self.accept_valids(class_dict, force=True)
+        invalids = []
+        for element_cls, ifc_entities in class_dict.items():
+            for ifc_entity in ifc_entities:
+                try:
+                    item = self.factory.create(element_cls, ifc_entity)
+                    self.instances[item.guid] = item  # TODO: remove self.instances, see factory.objects
+                except:
+                    invalids.append(ifc_entity)
         if invalids:
             self.logger.info("Removed %d entities with no class set", len(invalids))
 

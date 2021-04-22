@@ -87,7 +87,7 @@ class BPSProduct(element.ProductBased):
 class HeatPump(HVACProduct):
     """"HeatPump"""
 
-    ifc_types = {'IfcUnitaryEquipment':['*']}  # TBD
+    ifc_types = {'IfcUnitaryEquipment': ['*']}  # TBD
     predefined_type = ['NOTDEFINED']
 
     pattern_ifc_type = [
@@ -112,7 +112,7 @@ class HeatPump(HVACProduct):
 class Chiller(HVACProduct):
     """"Chiller"""
 
-    ifc_types = {'IfcChiller':['AIRCOOLED', 'WATERCOOLED', 'HEATRECOVERY']}
+    ifc_types = {'IfcChiller': ['*', 'AIRCOOLED', 'WATERCOOLED', 'HEATRECOVERY']}
 
     pattern_ifc_type = [
         re.compile('Chiller', flags=re.IGNORECASE),
@@ -138,7 +138,8 @@ class CoolingTower(HVACProduct):
 
     ifc_types = {
         'IfcCoolingTower':
-            ['NATURALDRAFT', 'MECHANICALINDUCEDDRAFT', 'MECHANICALFORCEDDRAFT']
+            ['*', 'NATURALDRAFT', 'MECHANICALINDUCEDDRAFT',
+             'MECHANICALFORCEDDRAFT']
     }
 
     pattern_ifc_type = [
@@ -166,7 +167,7 @@ class CoolingTower(HVACProduct):
 class HeatExchanger(HVACProduct):
     """"Heatexchanger"""
 
-    ifc_types = {'IfcHeatExchanger': ['PLATE', 'SHELLANDTUBE']}
+    ifc_types = {'IfcHeatExchanger': ['*', 'PLATE', 'SHELLANDTUBE']}
 
     pattern_ifc_type = [
         re.compile('Heat.?Exchanger', flags=re.IGNORECASE),
@@ -190,7 +191,7 @@ class HeatExchanger(HVACProduct):
 
 class Boiler(HVACProduct):
     """Boiler"""
-    ifc_types = {'IfcBoiler': ['WATER', 'STEAM']}
+    ifc_types = {'IfcBoiler': ['*', 'WATER', 'STEAM']}
 
     pattern_ifc_type = [
         # re.compile('Heat.?pump', flags=re.IGNORECASE),
@@ -278,7 +279,8 @@ class Boiler(HVACProduct):
 class Pipe(HVACProduct):
     ifc_types = {
         "IfcPipeSegment":
-            ['CULVERT', 'FLEXIBLESEGMENT', 'RIGIDSEGMENT', 'GUTTER', 'SPOOL']
+            ['*', 'CULVERT', 'FLEXIBLESEGMENT', 'RIGIDSEGMENT', 'GUTTER',
+             'SPOOL']
     }
 
     conditions = [
@@ -380,7 +382,7 @@ class PipeFitting(HVACProduct):
 
 
 class SpaceHeater(HVACProduct):
-    ifc_types = {'IfcSpaceHeater': ['CONVECTOR', 'RADIATOR']}
+    ifc_types = {'IfcSpaceHeater': ['*', 'CONVECTOR', 'RADIATOR']}
 
     pattern_ifc_type = [
         re.compile('Space.?heater', flags=re.IGNORECASE)
@@ -479,8 +481,9 @@ class Distributor(HVACProduct):
 class Pump(HVACProduct):
     ifc_types = {
         "IfcPump":
-            ['CIRCULATOR', 'ENDSUCTION', 'SPLITCASE', 'SUBMERSIBLEPUMP',
-             'SUMPPUMP', 'VERTICALINLINE', 'VERTICALTURBINE']
+            ['*', 'CIRCULATOR', 'ENDSUCTION', 'SPLITCASE',
+             'SUBMERSIBLEPUMP', 'SUMPPUMP', 'VERTICALINLINE',
+             'VERTICALTURBINE']
     }
 
     pattern_ifc_type = [
@@ -508,7 +511,7 @@ class Pump(HVACProduct):
 class Valve(HVACProduct):
     ifc_types = {
         "IfcValve":
-            ['AIRRELEASE', 'ANTIVACUUM', 'CHANGEOVER', 'CHECK',
+            ['*', 'AIRRELEASE', 'ANTIVACUUM', 'CHANGEOVER', 'CHECK',
              'COMMISSIONING', 'DIVERTING', 'DRAWOFFCOCK', 'DOUBLECHECK',
              'DOUBLEREGULATING', 'FAUCET', 'FLUSHING', 'GASCOCK',
              'GASTAP', 'ISOLATING', 'MIXING', 'PRESSUREREDUCING',
@@ -550,7 +553,7 @@ class Valve(HVACProduct):
 
 
 class Duct(HVACProduct):
-    ifc_types = {"IfcDuctSegment": ['RIGIDSEGMENT', 'FLEXIBLESEGMENT']}
+    ifc_types = {"IfcDuctSegment": ['*', 'RIGIDSEGMENT', 'FLEXIBLESEGMENT']}
 
     pattern_ifc_type = [
         re.compile('Duct.?segment', flags=re.IGNORECASE)
@@ -569,7 +572,7 @@ class Duct(HVACProduct):
 class DuctFitting(HVACProduct):
     ifc_types = {
         "IfcDuctFitting":
-            ['BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION',
+            ['*', 'BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION',
              'OBSTRUCTION', 'TRANSITION']
     }
 
@@ -590,7 +593,7 @@ class DuctFitting(HVACProduct):
 class AirTerminal(HVACProduct):
     ifc_types = {
         "IfcAirTerminal":
-            ['DIFFUSER', 'GRILLE', 'LOUVRE', 'REGISTER']
+            ['*', 'DIFFUSER', 'GRILLE', 'LOUVRE', 'REGISTER']
     }
 
     pattern_ifc_type = [
@@ -825,6 +828,7 @@ class ThermalZone(BPSProduct):
 class SpaceBoundary(element.SpaceBoundary):
     ifc_types = {'IfcRelSpaceBoundary': ['*']}
     # TBD
+
     def __init__(self, *args, **kwargs):
         """spaceboundary __init__ function"""
         super().__init__(*args, **kwargs)
@@ -1475,10 +1479,10 @@ class CHP(HVACProduct):
 class Wall(BPSProduct):
     ifc_types = {  # TBD
         "IfcWall":
-            ['MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL',
+            ['*', 'MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL',
              'SHEAR', 'SOLIDWALL', 'POLYGONAL', 'DOOR', 'GATE', 'TRAPDOOR'],
         "IfcWallStandardCase":
-            ['MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL',
+            ['*', 'MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL',
              'SHEAR', 'SOLIDWALL', 'POLYGONAL', 'DOOR', 'GATE', 'TRAPDOOR'],
     }
 
@@ -1487,11 +1491,11 @@ class Wall(BPSProduct):
         re.compile('Wand', flags=re.IGNORECASE)
     ]
     material_selected = {}
+    is_external: bool = None
 
     def __init__(self, *args, **kwargs):
         """wall __init__ function"""
         super().__init__(*args, **kwargs)
-        self.ifc_type = self.ifc.is_a()
 
     def _get_layers(bind, name):
         """wall _get_layers function"""
@@ -1608,15 +1612,15 @@ class Layer(element.Layer):
 
 
 class OuterWall(Wall):
-    special_argument = {'is_external': True}
+    is_external = True
 
 
 class InnerWall(Wall):
-    special_argument = {'is_external': False}
+    is_external = False
 
 
 class Window(BPSProduct):
-    ifc_types = {"IfcWindow": ['WINDOW', 'SKYLIGHT', 'LIGHTDOME']}
+    ifc_types = {"IfcWindow": ['*', 'WINDOW', 'SKYLIGHT', 'LIGHTDOME']}
 
     pattern_ifc_type = [
         re.compile('Window', flags=re.IGNORECASE),
@@ -1657,7 +1661,7 @@ class Window(BPSProduct):
 
 
 class Door(BPSProduct):
-    ifc_types = {"IfcDoor": ['DOOR', 'GATE', 'TRAPDOOR']}
+    ifc_types = {"IfcDoor": ['*', 'DOOR', 'GATE', 'TRAPDOOR']}
 
     pattern_ifc_type = [
         re.compile('Door', flags=re.IGNORECASE),
@@ -1709,20 +1713,20 @@ class Door(BPSProduct):
 
 
 class InnerDoor(Door):
-    special_argument = {'is_external': False}
+    is_external = False
 
 
 class OuterDoor(Door):
-    special_argument = {'is_external': True}
+    is_external = True
 
 
 class Plate(BPSProduct):
-    ifc_types = {"IfcPlate": ['CURTAIN_PANEL', 'SHEET']}
+    ifc_types = {"IfcPlate": ['*', 'CURTAIN_PANEL', 'SHEET']}
 
 
 class Slab(BPSProduct):
     ifc_types = {
-        "IfcSlab": ['LANDING', 'BASESLAB']
+        "IfcSlab": ['*', 'LANDING', 'BASESLAB']
     }
 
     def __init__(self, *args, **kwargs):
@@ -1774,7 +1778,7 @@ class Slab(BPSProduct):
 class Roof(Slab):
     ifc_types = {
         "IfcRoof":
-            ['FLAT_ROOF', 'SHED_ROOF', 'GABLE_ROOF', 'HIP_ROOF',
+            ['*', 'FLAT_ROOF', 'SHED_ROOF', 'GABLE_ROOF', 'HIP_ROOF',
              'HIPPED_GABLE_ROOF', 'GAMBREL_ROOF', 'MANSARD_ROOF',
              'BARREL_ROOF', 'RAINBOW_ROOF', 'BUTTERFLY_ROOF', 'PAVILION_ROOF',
              'DOME_ROOF', 'FREEFORM'],

@@ -89,24 +89,25 @@ class Attribute:
 
     def _get_value(self, bind):
         value = None
-        # default property set
-        if value is None and self.default_ps:
-            raw_value = self.get_from_default_propertyset(bind, self.default_ps)
-            value = self.ifc_post_processing(raw_value)
+        if bind.ifc:  # don't bother if there is no ifc
+            # default property set
+            if value is None and self.default_ps:
+                raw_value = self.get_from_default_propertyset(bind, self.default_ps)
+                value = self.ifc_post_processing(raw_value)
 
-        if value is None and (self.default_association):
-            raw_value = self.get_from_default_assocation(bind, self.default_association)
-            value = self.ifc_post_processing(raw_value)
+            if value is None and (self.default_association):
+                raw_value = self.get_from_default_assocation(bind, self.default_association)
+                value = self.ifc_post_processing(raw_value)
 
-        # tool specific properties (finder)
-        if value is None:
-            raw_value = self.get_from_finder(bind, self.name)
-            value = self.ifc_post_processing(raw_value)
+            # tool specific properties (finder)
+            if value is None:
+                raw_value = self.get_from_finder(bind, self.name)
+                value = self.ifc_post_processing(raw_value)
 
-        # custom properties by patterns
-        if value is None and self.patterns:
-            raw_value = self.get_from_patterns(bind, self.patterns, self.name)
-            value = self.ifc_post_processing(raw_value)
+            # custom properties by patterns
+            if value is None and self.patterns:
+                raw_value = self.get_from_patterns(bind, self.patterns, self.name)
+                value = self.ifc_post_processing(raw_value)
 
         # custom functions
         if value is None and self.functions:

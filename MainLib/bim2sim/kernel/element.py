@@ -175,7 +175,7 @@ class IFCMixin:  # TBD
         """Extract init args from ifc"""
         # subelement can be an ifc instance that doesnt have a GlobalId
         guid = getattr(ifc, 'GlobalId', None)
-        return (), {'guid': guid}
+        return (), {'guid': guid, 'ifc': ifc}
 
     @classmethod
     def from_ifc(cls, ifc, *args, **kwargs):
@@ -488,6 +488,7 @@ class ProductBased(IFCMixin, Root):
     """Base class for all elements with ports"""
     domain = 'GENERAL'
     key: str = ''
+    key_map: Dict[str, 'Type[ProductBased]'] = {}
     conditions = []
 
     # TBD
@@ -508,6 +509,7 @@ class ProductBased(IFCMixin, Root):
     def __init_subclass__(cls, **kwargs):
         # set key for each class
         cls.key = f'{cls.domain}-{cls.__name__}'
+        cls.key_map[cls.key] = cls
 
     def get_ports(self):
         return []
@@ -676,6 +678,12 @@ class Factory:
                 element_cls = self.dummy_cls
             else:
                 raise LookupError(f"No element found for {ifc_entity}")
+
+        element = self.create(element_cls, ifc_entity, *args, **kwargs)
+        return element
+
+    def create(self, element_cls, ifc_entity, *args, **kwargs):
+        """Create Element from class and ifc"""
         # instantiate element
         element = element_cls.from_ifc(ifc_entity, *args, **kwargs)
         # check if it prefers to be sth else

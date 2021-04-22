@@ -162,7 +162,7 @@ class Decision:
             self.status = Status.done
             self._post()
         else:
-            raise ValueError("Invalid value: %r" % value)
+            raise ValueError("Invalid value: %r for %s" % (value, self.question))
 
     def reset(self):
         self.status = Status.open
