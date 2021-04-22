@@ -1627,7 +1627,7 @@ class ExportEP(ITask):
         # path = '/usr/local/EnergyPlus-9-2-0/'
         # path = '/usr/local/EnergyPlus-9-3-0/'
         path = f'/usr/local/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
-        #path = f'D:/04_Programme/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
+        # path = f'D:/04_Programme/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
         IDF.setiddname(path + 'Energy+.idd')
         idf = IDF(path + "ExampleFiles/Minimal.idf")
         idf.idfname = str(paths.export / 'temp.idf')
@@ -3381,7 +3381,7 @@ class IdfObject():
             counter += 1
             new_obj = idf.copyidfobject(obj)
             new_obj.Name = str(obj.Name) + '_' + str(counter)
-            fc = SpaceBoundary._make_faces_from_pnts([pnt, pnt2, inst_obj.bound_center.Coord(), pnt])
+            fc = SpaceBoundary._make_faces_from_pnts([pnt, pnt2, inst_obj.bound_center.Coord()])
             fcsc = ExportEP.scale_face(ExportEP, fc, 0.99)
             new_pnts = self._get_points_of_face(fcsc)
             new_coords = []
@@ -3391,7 +3391,7 @@ class IdfObject():
         new_obj = idf.copyidfobject(obj)
         new_obj.Name = str(obj.Name) + '_' + str(counter + 1)
         fc = SpaceBoundary._make_faces_from_pnts(
-            [drop_list[-1], drop_list[0], inst_obj.bound_center.Coord(), drop_list[-1]])
+            [drop_list[-1], drop_list[0], inst_obj.bound_center.Coord()])
         fcsc = ExportEP.scale_face(ExportEP, fc, 0.99)
         new_pnts = self._get_points_of_face(fcsc)
         new_coords = []
