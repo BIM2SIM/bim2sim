@@ -5,6 +5,7 @@ import itertools
 import json
 import ast
 import os
+import subprocess
 from pathlib import Path
 
 import ifcopenshell
@@ -762,6 +763,7 @@ class ExportEP(ITask):
         self._export_geom_to_idf(instances, idf)
         self._set_output_variables(idf)
         idf.save()
+        subprocess.run(['energyplus', '-x', '-c', '--convert-only', '-d', self.paths.export, idf.idfname])
         self._export_surface_areas(instances, idf) # todo: fix
         self._export_space_info(instances, idf)
         self._export_boundary_report(instances, idf, ifc)
@@ -1630,7 +1632,8 @@ class ExportEP(ITask):
         # path = f'D:/04_Programme/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
         IDF.setiddname(path + 'Energy+.idd')
         idf = IDF(path + "ExampleFiles/Minimal.idf")
-        idf.idfname = str(paths.export / 'temp.idf')
+        ifc_name = os.listdir(paths.ifc)[0].strip('.ifc')
+        idf.idfname = str(paths.export) + '/' + ifc_name + '.idf'
         schedules_idf = IDF(path + "DataSets/Schedules.idf")
         schedules = schedules_idf.idfobjects["Schedule:Compact".upper()]
         sch_typelim = schedules_idf.idfobjects["ScheduleTypeLimits".upper()]
