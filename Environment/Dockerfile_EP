@@ -81,6 +81,7 @@ COPY ./MainLib/requirements.txt .
 RUN 	conda create -n env python=3.7
 RUN		conda update -n base -c defaults conda
 RUN 	echo "source activate env" > ~/.bashrc
+ENV 	PATH /root/miniconda3/envs/env/bin:$PATH
 SHELL 	["conda", "run", "-n", "env", "/bin/bash", "-c"]
 
 # install needed packages
