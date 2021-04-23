@@ -39,9 +39,9 @@ RUN cd /usr/local/bin \
     && find -L . -type l -delete
 
 # Add in the test files
-ADD test /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION/test_run
-RUN cp /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION/Energy+.idd \
-        /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION/test_run/
+#ADD test /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION/test_run
+#RUN cp /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION/Energy+.idd \
+#        /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION/test_run/
 
 VOLUME /var/simdata/energyplus
 WORKDIR /var/simdata/energyplus
