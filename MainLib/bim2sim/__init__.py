@@ -170,7 +170,6 @@ def _debug_run_bps_ep():
     # rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
     # rel_example = 'ResultFiles/AC20-Institute-Var-2_with_SB11.ifc' # aktuell
     # rel_example = 'ResultFiles/AC20-FZK-Haus_with_SB44.ifc' # aktuell
-    # rel_example = 'ResultFiles/FM_ARC_DigitalHub_with_SB11.ifc'
     # rel_example = 'ResultFiles/Proposal_1_Storey_SpaceBoundaries_with_SB.ifc'
     # rel_example = 'ResultFiles/2020-10-15-KHH-Test_with_SB.ifc'
     rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
