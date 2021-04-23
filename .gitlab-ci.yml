@@ -123,8 +123,8 @@ coverage_EP:
     - pip install coverage-badge
   script:
     - mv ./* /bim2sim/
-#    - source activate base
-    - ls /root/miniconda3/envs/env/lib/python3.7/site-packages/ifcopenshell/
+    # this shouldn't be needed. hotfix
+    - source activate env
     - coverage run -m unittest discover /bim2sim/PluginEnergyPlus/test/integration_test
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
