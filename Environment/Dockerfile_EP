@@ -101,7 +101,7 @@ RUN conda install --yes --freeze-installed \
 
 ## install ifcopenshell via existing file
 RUN wget -O /tmp/ifcopenshell.zip https://s3.amazonaws.com/ifcopenshell-builds/ifcopenshell-python-37-v0.6.0-ff7219b-linux64.zip \
-	&& unzip '/tmp/ifcopenshell.zip' -d /opt/conda/envs/env/lib/python3.7/site-packages/ && rm /tmp/ifcopenshell.zip || true ;
+	&& unzip '/tmp/ifcopenshell.zip' -d /root/miniconda3/envs/env/lib/python3.7/site-packages/ && rm /tmp/ifcopenshell.zip || true ;
 
 
 # install occ utils via existing file 
