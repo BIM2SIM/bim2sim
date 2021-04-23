@@ -1,87 +1,20 @@
-FROM ubuntu:18.04 AS base
 
-## EnergyPlus part
+FROM continuumio/miniconda3
 
-# This is not ideal. The tarballs are not named nicely and EnergyPlus versioning is strange
-#ARG ENERGYPLUS_VERSION
-#ARG ENERGYPLUS_TAG
-#ARG ENERGYPLUS_SHA
-#ARG ENERGYPLUS_INSTALL_VERSION
-ENV ENERGYPLUS_VERSION=9.4.0
-ENV ENERGYPLUS_TAG=v9.4.0
-ENV ENERGYPLUS_SHA=998c4b761e
-
-# This should be x.y.z, but EnergyPlus convention is x-y-z
-ENV ENERGYPLUS_INSTALL_VERSION=9-4-0
-
-# Downloading from Github
-# e.g. https://github.com/NREL/EnergyPlus/releases/download/v8.3.0/EnergyPlus-8.3.0-6d97d074ea-Linux-x86_64.sh
-ENV ENERGYPLUS_DOWNLOAD_BASE_URL https://github.com/NREL/EnergyPlus/releases/download/$ENERGYPLUS_TAG
-ENV ENERGYPLUS_DOWNLOAD_FILENAME EnergyPlus-$ENERGYPLUS_VERSION-$ENERGYPLUS_SHA-Linux-Ubuntu18.04-x86_64.sh
-ENV ENERGYPLUS_DOWNLOAD_URL $ENERGYPLUS_DOWNLOAD_BASE_URL/$ENERGYPLUS_DOWNLOAD_FILENAME
-#ENV ENERGYPLUS_DOWNLOAD_URL https://github.com/NREL/EnergyPlus/releases/download/v9.4.0/EnergyPlus-9.4.0-998c4b761e-Linux-Ubuntu18.04-x86_64.sh
-
-# Collapse the update of packages, download and installation into one command
-# to make the container smaller & remove a bunch of the auxiliary apps/files
-# that are not needed in the container
-RUN apt-get update && apt-get install -y ca-certificates curl libx11-6 libexpat1\
-    && rm -rf /var/lib/apt/lists/* \
-    && curl -SLO $ENERGYPLUS_DOWNLOAD_URL \
-    && chmod +x $ENERGYPLUS_DOWNLOAD_FILENAME \
-    && echo "y\r" | ./$ENERGYPLUS_DOWNLOAD_FILENAME \
-    && rm $ENERGYPLUS_DOWNLOAD_FILENAME \
-    && cd /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION \
-    && rm -rf DataSets Documentation ExampleFiles WeatherData MacroDataSets PostProcess/convertESOMTRpgm \
-    PostProcess/EP-Compare PreProcess/FMUParser PreProcess/ParametricPreProcessor PreProcess/IDFVersionUpdater
-
-# Remove the broken symlinks
-RUN cd /usr/local/bin \
-    && find -L . -type l -delete
-
-# Add in the test files
-#ADD test /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION/test_run
-#RUN cp /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION/Energy+.idd \
-#        /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION/test_run/
-
-VOLUME /var/simdata/energyplus
-WORKDIR /var/simdata/energyplus
-
-CMD [ "/bin/bash" ]
-
- 
-## bim2sim part
 
 WORKDIR /bim2sim
-ENV DOWNLOAD_MINICONDA_URL=https://repo.anaconda.com/miniconda/Miniconda3-py37_4.9.2-Linux-x86_64.sh
-ENV MINICONDA_DOWNLOAD_FILENAME=Miniconda3-py37_4.9.2-Linux-x86_64.sh
-
-
-
-
-ENV PATH="/root/miniconda3/bin:${PATH}"
-ARG PATH="/root/miniconda3/bin:${PATH}"
-RUN apt-get update
-
-RUN apt-get install -y wget && rm -rf /var/lib/apt/lists/*
-
-RUN wget \
-    $DOWNLOAD_MINICONDA_URL \
-    && mkdir /root/.conda \
-    && bash $MINICONDA_DOWNLOAD_FILENAME -b \
-    && rm -f $MINICONDA_DOWNLOAD_FILENAME 
-RUN conda --version
 
 RUN apt-get update
 RUN apt-get -y install unzip
 RUN apt-get -y install libgl-dev 
 
 # Copy files
-
 COPY ./MainLib/requirements.txt .
 
 RUN 	conda create -n env python=3.7
 RUN		conda update -n base -c defaults conda
 RUN 	echo "source activate env" > ~/.bashrc
+ENV 	PATH /opt/conda/envs/env/bin:$PATH
 SHELL 	["conda", "run", "-n", "env", "/bin/bash", "-c"]
 
 # install needed packages
@@ -91,23 +24,23 @@ RUN pip install -r ./requirements.txt
 # install needed packages
 
 ## install pythonocc via conda
-RUN conda install --yes --freeze-installed \
+RUN /opt/conda/bin/conda install --yes --freeze-installed \
 	    -c dlr-sc pythonocc-core=7.4.1 \
 	    nomkl \
-	&& conda clean -afy \
-	&& find /root/miniconda3/ -follow -type f -name '*.a' -delete \
-	&& find /root/miniconda3/ -follow -type f -name '*.pyc' -delete \
-	&& find /root/miniconda3/ -follow -type f -name '*.js.map' -delete
+	&& /opt/conda/bin/conda clean -afy \
+	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
+	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \
+	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
 
 ## install ifcopenshell via existing file
 RUN wget -O /tmp/ifcopenshell.zip https://s3.amazonaws.com/ifcopenshell-builds/ifcopenshell-python-37-v0.6.0-ff7219b-linux64.zip \
-	&& unzip '/tmp/ifcopenshell.zip' -d /opt/conda/envs/env/lib/python3.7/site-packages/ && rm /tmp/ifcopenshell.zip || true ;
+&& unzip '/tmp/ifcopenshell.zip' -d /opt/conda/envs/env/lib/python3.7/site-packages/ && rm /tmp/ifcopenshell.zip || true ;
 
 
-# install occ utils via existing file 
+## install occ utils via existing file 
 RUN wget -O /tmp/occ-utils.zip https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip \
-	&& unzip '/tmp/occ-utils.zip' -d /tmp/occ-utils || true \
-	&& mv /tmp/occ-utils/pythonocc-utils-master/OCCUtils /root/miniconda3/envs/env/lib/python3.7/site-packages/ ;
+&& unzip '/tmp/occ-utils.zip' -d /tmp/occ-utils || true \
+&& mv /tmp/occ-utils/pythonocc-utils-master/OCCUtils /opt/conda/envs/env/lib/python3.7/site-packages/ ;
 
 
 # Set Pythonpath
