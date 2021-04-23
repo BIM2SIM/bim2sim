@@ -9,7 +9,7 @@ import numpy as np
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import ifc2python, attribute
-from bim2sim.decision import Decision
+from bim2sim.decision import Decision, StringDecision
 from bim2sim.task.common.common_functions import angle_equivalent, vector_angle
 from bim2sim.kernel.finder import TemplateFinder
 
@@ -137,8 +137,10 @@ class IFCBased(Root):
                 if len(ifc.Name) > 0:
                     self.name = ifc.Name
                 else:
-                    self.name = input("Please enter name for the instance %s"
-                                      % type(self).__name__)
+                    name_dec = StringDecision(question="Please enter name for the instance %s" % type(self).__name__,
+                                              default="default_name", global_key='IfcName-Decision',
+                                              allow_load=True, allow_save=True)
+                    self.name = name_dec.decide()
         self.predefined_type = ifc2python.get_predefined_type(ifc)
         self.enrichment = {}
         self._propertysets = None
