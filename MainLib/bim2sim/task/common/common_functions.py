@@ -7,7 +7,7 @@ import bim2sim
 from pathlib import Path
 
 
-def angle_equivalent(angle):
+def angle_equivalent(angle): # check this
     if angle == -180.0:
         angle = 0
     elif angle == -360:
@@ -28,25 +28,27 @@ def vector_angle(vector):
         tang = math.degrees(math.atan(x / y))
     except ZeroDivisionError:
         if x > 0:
-            return 90
+            angle = 90
         elif x < 0:
-            return 270
+            angle = 270
         else:
-            return 0
-    if x >= 0:
-        # quadrant 1
-        if y > 0:
-            return tang
-        # quadrant 2
-        else:
-            return tang + 180
+            angle = 0
     else:
-        # quadrant 3
-        if y < 0:
-            return tang + 180
-        # quadrant 4
+        if x >= 0:
+            # quadrant 1
+            if y > 0:
+                angle = tang
+            # quadrant 2
+            else:
+                angle = tang + 180
         else:
-            return tang + 360
+            # quadrant 3
+            if y < 0:
+                angle = tang + 180
+            # quadrant 4
+            else:
+                angle = tang + 360
+    return angle
 
 
 assets = Path(bim2sim.__file__).parent/'assets'

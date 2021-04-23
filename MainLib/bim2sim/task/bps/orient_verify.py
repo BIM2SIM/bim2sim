@@ -1,5 +1,5 @@
 from bim2sim.task.base import Task, ITask
-from bim2sim.task.common.common_functions import angle_equivalent
+from bim2sim.task.common.common_functions import angle_equivalent, vector_angle
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.element import Element
 
@@ -43,8 +43,9 @@ class OrientationGetter(ITask):
         instance_type = type(instance).__name__
         guid = instance.guid
         if instance_type in vertical_instances and len(instance.space_boundaries) > 0:
-            x = instance.space_boundaries[0].bound_normal.Coord()
-
+            x = vector_angle(instance.space_boundaries[0].bound_normal.Coord()) + 180
+            if abs(x - instance.orientation) > 0.2:
+                print()
             new_angles = list(set([-space_boundary.orientation - space_boundary.thermal_zones[0].orientation
                                    for space_boundary in instance.space_boundaries
                                    if space_boundary.orientation != space_boundary.thermal_zones[0].orientation]))
