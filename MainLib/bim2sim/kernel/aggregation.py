@@ -1563,18 +1563,8 @@ class Aggregated_ThermalZone(Aggregation):
         """usage properties getter"""
         return self.elements[0].usage
 
-    def _aggregate_use_conditions(self, name) -> dict:
-        aggregated_use_condition = {}
-        for attr in getattr(self.elements[0], name):
-            aggregated_use_condition[attr] = getattr(self, attr)
-
-        return aggregated_use_condition
-
     usage = attribute.Attribute(
         functions=[_get_tz_usage]
-    )
-    teaser_use_condition = attribute.Attribute(
-        functions=[_aggregate_use_conditions]
     )
     t_set_heat = attribute.Attribute(
         functions=[_intensive_calc],

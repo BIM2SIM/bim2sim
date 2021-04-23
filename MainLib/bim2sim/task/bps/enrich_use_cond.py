@@ -33,35 +33,39 @@ class EnrichUseConditions(ITask):
 
     def multi_zone_usage(self, thermal_zones: dict):
         """defines an usage to a determined thermal zone"""
+        selected_usage = {}
         pattern_usage = get_pattern_usage()
         for tz in list(thermal_zones.values()):
-            if tz.usage not in pattern_usage:
-                matches = []
-                list_org = tz.usage.replace(' (', ' ').replace(')', ' '). \
-                    replace(' -', ' ').replace(', ', ' ').split()
-                for usage, patterns in pattern_usage.items():  # optimize this
-                    for i in patterns:
-                        for i_name in list_org:
-                            if i.match(i_name):
-                                if usage not in matches:
-                                    matches.append(usage)
-                # if just a match given
-                if len(matches) == 1:
-                    # case its an office
-                    if 'office_function' == matches[0]:
-                        tz.usage = self.office_usage(tz)
-                    # other zone usage
-                    else:
-                        tz.usage = matches[0]
-                    self.load_usage(tz)
-                    self.enriched_tz.append(tz)
-                    continue
-                # if no matches given
-                elif len(matches) == 0:
-                    matches = list(pattern_usage.keys())
-                tz.usage = self.list_decision_usage(tz, matches)
-                self.load_usage(tz)
-                self.enriched_tz.append(tz)
+            if tz.usage in selected_usage:
+                tz.usage = selected_usage[tz.usage]
+            else:
+                previous_usage = str(tz.usage)
+                if previous_usage not in pattern_usage:
+                    matches = []
+                    list_org = tz.usage.replace(' (', ' ').replace(')', ' '). \
+                        replace(' -', ' ').replace(', ', ' ').split()
+                    for usage, patterns in pattern_usage.items():  # optimize this
+                        for i in patterns:
+                            for i_name in list_org:
+                                if i.match(i_name):
+                                    if usage not in matches:
+                                        matches.append(usage)
+                    # if just a match given
+                    if len(matches) == 1:
+                        # case its an office
+                        if 'office_function' == matches[0]:
+                            tz.usage = self.office_usage(tz)
+                        # other zone usage
+                        else:
+                            tz.usage = matches[0]
+                    # if no matches given
+                    elif len(matches) == 0:
+                        matches = list(pattern_usage.keys())
+                    if len(matches) > 1:
+                        tz.usage = self.list_decision_usage(tz, matches)
+                    selected_usage[previous_usage] = tz.usage
+            self.load_usage(tz)
+            self.enriched_tz.append(tz)
 
     # def one_zone_usage(self, thermal_zones: dict):
     #     """defines an usage to all the building - since its a singular zone"""
@@ -112,15 +116,11 @@ class EnrichUseConditions(ITask):
 
     def load_usage(self, tz: ThermalZone):
         use_condition = UseConditions[tz.usage]
-        new_use_condition = {}
         for attr, value in use_condition.items():
             # avoid to overwrite attrs present on the instance
             if getattr(tz, attr) is None:
                 value = self.value_processing(value)
                 setattr(tz, attr, value)
-            new_use_condition[attr] = getattr(tz, attr)
-
-        setattr(tz, 'teaser_use_condition', new_use_condition)
 
     @staticmethod
     def value_processing(value):
