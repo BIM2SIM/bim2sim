@@ -48,7 +48,6 @@ WORKDIR /var/simdata/energyplus
 
 CMD [ "/bin/bash" ]
 
- 
 ## bim2sim part
 
 WORKDIR /bim2sim
