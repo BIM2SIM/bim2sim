@@ -23,7 +23,23 @@ build_env:development:
   only:
     refs:
        - development
-       - 102-fix_CI_bug
+    changes:
+       - Environment/Dockerfile_Base
+       - MainLib/requirements.txt
+       - .gitlab-ci.yml
+
+build_env:energyplus:
+  image: docker:latest
+  stage: build
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+  script:
+    - docker build -t $CI_REGISTRY/environment:energyplus -f Environment/Dockerfile_EP .
+    - docker push $CI_REGISTRY/environment:energyplus
+  only:
+    refs:
+       - development
+       - 128_energyPlusDocker
     changes:
        - Environment/Dockerfile_Base
        - MainLib/requirements.txt
@@ -97,6 +113,28 @@ coverage:
     paths:
     - $CI_COMMIT_REF_NAME/coverage
 
+
+coverage_EP:
+  <<: *only-default
+  image: $CI_REGISTRY/environment:energyplus
+  stage: test
+  before_script:
+    - pip install coverage
+    - pip install coverage-badge
+  script:
+    - mv ./* /bim2sim/
+#    - source activate base
+    - coverage run -m unittest discover /bim2sim/PluginEnergyPlus/test/integration_test
+    - coverage report -i
+    - mkdir -p $CI_COMMIT_REF_NAME/coverage
+    - coverage html -i 
+    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+    # skip this for now as its only cosmetic and leads to problems
+    # - coverage-badge -o coverage.svg
+    # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/coverage
 
 #todo check if this is still needed or if master branch results are also available under $CI_COMMIT_REF_NAME/...
 # pylint:
