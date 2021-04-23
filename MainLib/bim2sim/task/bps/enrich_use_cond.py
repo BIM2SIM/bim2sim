@@ -35,17 +35,16 @@ class EnrichUseConditions(ITask):
         """defines an usage to a determined thermal zone"""
         pattern_usage = get_pattern_usage()
         for tz in list(thermal_zones.values()):
-            if tz.usage is None:
+            if tz.usage not in pattern_usage:
                 matches = []
-                if tz.zone_name:
-                    list_org = tz.zone_name.replace(' (', ' ').replace(')', ' '). \
-                        replace(' -', ' ').replace(', ', ' ').split()
-                    for usage, patterns in pattern_usage.items():  # optimize this
-                        for i in patterns:
-                            for i_name in list_org:
-                                if i.match(i_name):
-                                    if usage not in matches:
-                                        matches.append(usage)
+                list_org = tz.usage.replace(' (', ' ').replace(')', ' '). \
+                    replace(' -', ' ').replace(', ', ' ').split()
+                for usage, patterns in pattern_usage.items():  # optimize this
+                    for i in patterns:
+                        for i_name in list_org:
+                            if i.match(i_name):
+                                if usage not in matches:
+                                    matches.append(usage)
                 # if just a match given
                 if len(matches) == 1:
                     # case its an office
@@ -101,7 +100,7 @@ class EnrichUseConditions(ITask):
     def list_decision_usage(tz: ThermalZone, matches: list):
         """decision to select an usage that matches the zone name"""
         usage_decision = ListDecision("Which usage does the Space %s have?" %
-                                      (str(tz.zone_name)),
+                                      (str(tz.usage)),
                                       choices=matches,
                                       global_key="%s_%s.BpsUsage" % (type(tz).__name__, tz.guid),
                                       allow_skip=False,
