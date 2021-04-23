@@ -39,6 +39,7 @@ from bim2sim.decision import BoolDecision, RealDecision, ListDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.task.common.common_functions import vector_angle, filter_instances
+from bim2sim.task.common.inner_loop_remover import remove_inner_loops
 
 
 def diameter_post_processing(value):
@@ -1020,6 +1021,9 @@ class SpaceBoundary(element.SubElement):
             # check for visual bounds
         if not self.physical:
             return None
+        if self.related_bound:
+            if self.thermal_zones[0] == self.related_bound.thermal_zones[0]:
+                adb_bound = self.related_bound
         for bound in self.bound_instance.space_boundaries:
             if bound == self:
                 continue
@@ -1126,8 +1130,8 @@ class SpaceBoundary(element.SubElement):
             for pnt in pnt_list:
                 new_list.append(gp_Pnt(gp_XYZ(pnt[0], pnt[1], pnt[2])))
             pnt_list = new_list
-        for i in range(len(pnt_list[:-1])):
-            edge = BRepBuilderAPI_MakeEdge(pnt_list[i], pnt_list[i + 1]).Edge()
+        for i in range(len(pnt_list)):
+            edge = BRepBuilderAPI_MakeEdge(pnt_list[i], pnt_list[(i + 1) % len(pnt_list)]).Edge()
             an_edge.append(edge)
         a_wire = BRepBuilderAPI_MakeWire()
         for edge in an_edge:
@@ -1188,8 +1192,14 @@ class SpaceBoundary(element.SubElement):
         try:
             sore = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement
             # if sore.get_info()["InnerBoundaries"] is None:
-            sore.InnerBoundaries = ()
             shape = ifcopenshell.geom.create_shape(settings, sore)
+
+            if sore.InnerBoundaries:
+                shape = remove_inner_loops(shape)
+                if not shape:
+                    sore.InnerBoundaries = ()
+                    shape = ifcopenshell.geom.create_shape(settings, sore)
+
         except:
             try:
                 shape = ifcopenshell.geom.create_shape(settings,
