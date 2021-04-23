@@ -43,6 +43,8 @@ class OrientationGetter(ITask):
         instance_type = type(instance).__name__
         guid = instance.guid
         if instance_type in vertical_instances and len(instance.space_boundaries) > 0:
+            x = instance.space_boundaries[0].bound_normal.Coord()
+
             new_angles = list(set([-space_boundary.orientation - space_boundary.thermal_zones[0].orientation
                                    for space_boundary in instance.space_boundaries
                                    if space_boundary.orientation != space_boundary.thermal_zones[0].orientation]))

@@ -16,7 +16,7 @@ class TEASERManager(Plugin):
         playground.run_task(bps.Inspect())
         playground.run_task(bps.TZInspect())
         playground.run_task(bps.EnrichUseConditions())
-        # playground.run_task(bps.OrientationGetter())
+        playground.run_task(bps.OrientationGetter())
 
         playground.run_task(bps.MaterialVerification())  # LOD.full
         playground.run_task(bps.EnrichMaterial())  # LOD.full
