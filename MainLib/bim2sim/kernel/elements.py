@@ -564,9 +564,6 @@ class ThermalZone(element.Element):
         re.compile('Zone', flags=re.IGNORECASE)
     ]
 
-    zone_name = attribute.Attribute(
-    )
-
     def get_is_external(self, name):
         """determines if a thermal zone is external or internal
         based on its elements (Walls and windows analysis)"""
@@ -688,7 +685,20 @@ class ThermalZone(element.Element):
     def _get_volume(self, name):
         return self.area*self.height
 
+    def _get_usage(self, name):
+        if self.zone_name is not None:
+            usage = self.zone_name
+        elif self.ifc.LongName is not None:
+            usage = self.ifc.LongName
+        else:
+            usage = self.name
+        return usage
+
+    zone_name = attribute.Attribute(
+    )
     usage = attribute.Attribute(
+        default_ps=("Pset_SpaceOccupancyRequirements", "OccupancyType"),
+        functions=[_get_usage]
     )
     t_set_heat = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMin"),
