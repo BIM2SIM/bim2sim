@@ -120,7 +120,7 @@ class EnrichUseConditions(ITask):
                 setattr(tz, attr, value)
             new_use_condition[attr] = getattr(tz, attr)
 
-        setattr(tz, 'use_condition', new_use_condition)
+        setattr(tz, 'teaser_use_condition', new_use_condition)
 
     @staticmethod
     def value_processing(value):

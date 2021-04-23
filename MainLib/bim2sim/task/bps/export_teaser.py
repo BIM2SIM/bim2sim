@@ -135,7 +135,7 @@ class ExportTEASER(ITask):
 
     @staticmethod
     def load_use_conditions(tz, instance):
-        for attr, value in instance.use_condition.items():
+        for attr, value in instance.teaser_use_condition.items():
             setattr(tz.use_conditions, attr, value)
 
     @classmethod
