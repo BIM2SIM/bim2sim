@@ -1631,10 +1631,10 @@ class ExportEP(ITask):
         path = f'/usr/local/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
         # path = f'D:/04_Programme/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
         IDF.setiddname(path + 'Energy+.idd')
-        idf = IDF(path + "ExampleFiles/Minimal.idf")
+        idf = IDF(path + "ExampleFiles/Minimal.idf") # todo: Add to Docker Image
         ifc_name = os.listdir(paths.ifc)[0].strip('.ifc')
         idf.idfname = str(paths.export) + '/' + ifc_name + '.idf'
-        schedules_idf = IDF(path + "DataSets/Schedules.idf")
+        schedules_idf = IDF(path + "DataSets/Schedules.idf") # todo: Add to Docker Image
         schedules = schedules_idf.idfobjects["Schedule:Compact".upper()]
         sch_typelim = schedules_idf.idfobjects["ScheduleTypeLimits".upper()]
         for s in schedules:
