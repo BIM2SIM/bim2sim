@@ -109,7 +109,6 @@ RUN wget -O /tmp/occ-utils.zip https://github.com/tpaviot/pythonocc-utils/archiv
 	&& unzip '/tmp/occ-utils.zip' -d /tmp/occ-utils || true \
 	&& mv /tmp/occ-utils/pythonocc-utils-master/OCCUtils /root/miniconda3/envs/env/lib/python3.7/site-packages/ ;
 
-
 # Set Pythonpath
 ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/MainLib"
 ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginEnergyPlus"
