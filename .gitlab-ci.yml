@@ -41,7 +41,7 @@ build_env:energyplus:
        - development
        - 128_energyPlusDocker
     changes:
-       - Environment/Dockerfile_Base
+       - Environment/Dockerfile_EP
        - MainLib/requirements.txt
        - .gitlab-ci.yml
 
