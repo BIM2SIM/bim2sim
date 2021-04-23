@@ -1,4 +1,5 @@
-FROM ubuntu:18.04 AS base
+FROM registry.git-ce.rwth-aachen.de/ebc/projects/ebc0438_bmwi_bim2sim_ges/bim2sim-coding/environment:development
+
 
 ## EnergyPlus part
 
@@ -39,81 +40,11 @@ RUN cd /usr/local/bin \
     && find -L . -type l -delete
 
 # Add in the test files
-#ADD test /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION/test_run
-#RUN cp /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION/Energy+.idd \
-#        /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION/test_run/
+ADD test /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION/test_run
+RUN cp /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION/Energy+.idd \
+        /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION/test_run/
 
 VOLUME /var/simdata/energyplus
 WORKDIR /var/simdata/energyplus
 
-CMD [ "/bin/bash" ]
-
-## bim2sim part
-
-WORKDIR /bim2sim
-ENV DOWNLOAD_MINICONDA_URL=https://repo.anaconda.com/miniconda/Miniconda3-py37_4.9.2-Linux-x86_64.sh
-ENV MINICONDA_DOWNLOAD_FILENAME=Miniconda3-py37_4.9.2-Linux-x86_64.sh
-
-
-
-
-ENV PATH="/root/miniconda3/bin:${PATH}"
-ARG PATH="/root/miniconda3/bin:${PATH}"
-RUN apt-get update
-
-RUN apt-get install -y wget && rm -rf /var/lib/apt/lists/*
-
-RUN wget \
-    $DOWNLOAD_MINICONDA_URL \
-    && mkdir /root/.conda \
-    && bash $MINICONDA_DOWNLOAD_FILENAME -b \
-    && rm -f $MINICONDA_DOWNLOAD_FILENAME 
-RUN conda --version
-
-RUN apt-get update
-RUN apt-get -y install unzip
-RUN apt-get -y install libgl-dev 
-
-# Copy files
-
-COPY ./MainLib/requirements.txt .
-
-RUN 	conda create -n env python=3.7
-RUN		conda update -n base -c defaults conda
-RUN 	echo "source activate env" > ~/.bashrc
-ENV 	PATH /root/miniconda3/envs/env/bin:$PATH
-SHELL 	["conda", "run", "-n", "env", "/bin/bash", "-c"]
-
-# install needed packages
-
-RUN pip install -r ./requirements.txt
-
-# install needed packages
-
-## install pythonocc via conda
-RUN conda install --yes --freeze-installed \
-	    -c dlr-sc pythonocc-core=7.4.1 \
-	    nomkl \
-	&& conda clean -afy \
-	&& find /root/miniconda3/ -follow -type f -name '*.a' -delete \
-	&& find /root/miniconda3/ -follow -type f -name '*.pyc' -delete \
-	&& find /root/miniconda3/ -follow -type f -name '*.js.map' -delete
-
-## install ifcopenshell via existing file
-RUN wget -O /tmp/ifcopenshell.zip https://s3.amazonaws.com/ifcopenshell-builds/ifcopenshell-python-37-v0.6.0-ff7219b-linux64.zip \
-	&& unzip '/tmp/ifcopenshell.zip' -d /root/miniconda3/envs/env/lib/python3.7/site-packages/ && rm /tmp/ifcopenshell.zip || true ;
-
-
-# install occ utils via existing file 
-RUN wget -O /tmp/occ-utils.zip https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip \
-	&& unzip '/tmp/occ-utils.zip' -d /tmp/occ-utils || true \
-	&& mv /tmp/occ-utils/pythonocc-utils-master/OCCUtils /root/miniconda3/envs/env/lib/python3.7/site-packages/ ;
-
-
-# Set Pythonpath
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/MainLib"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginEnergyPlus"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginCFD"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginAixLib"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginHKESim"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginTEASER"
+#CMD [ "/bin/bash" ]
