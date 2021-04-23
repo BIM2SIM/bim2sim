@@ -694,6 +694,21 @@ class ThermalZone(element.Element):
             usage = self.name
         return usage
 
+    def _get_heating_profile(self, name):
+        profile = None
+        if self.t_set_heat is not None:
+            profile = [self.t_set_heat.to(ureg.kelvin).m] * 25
+        return profile
+
+    def _get_cooling_profile(self, name):
+        profile = None
+        if self.t_set_cool is not None:
+            profile = [self.t_set_cool.to(ureg.kelvin).m] * 25
+        return profile
+
+    def _get_persons(self, name):
+        return 1/self.AreaPerOccupant
+
     zone_name = attribute.Attribute(
     )
     usage = attribute.Attribute(
@@ -742,15 +757,6 @@ class ThermalZone(element.Element):
         default=0,
         unit=ureg.m
     )
-    with_cooling = attribute.Attribute(
-        functions=[_get_cooling]
-    )
-    with_heating = attribute.Attribute(
-        functions=[_get_heating]
-    )
-    with_ahu = attribute.Attribute(
-        default_ps=("Pset_SpaceThermalRequirements", "AirConditioning"),
-    )
     AreaPerOccupant = attribute.Attribute(
         default_ps=("Pset_SpaceOccupancyRequirements", "AreaPerOccupant"),
         unit=ureg.meter ** 2
@@ -775,6 +781,73 @@ class ThermalZone(element.Element):
     )
     space_neighbors = attribute.Attribute(
         functions=[get_neighbors]
+    )
+    # use conditions
+    with_cooling = attribute.Attribute(
+        functions=[_get_cooling]
+    )
+    with_heating = attribute.Attribute(
+        functions=[_get_heating]
+    )
+    with_ahu = attribute.Attribute(
+        default_ps=("Pset_SpaceThermalRequirements", "AirConditioning"),
+    )
+    heating_profile = attribute.Attribute(
+        functions=[_get_heating_profile]
+    )
+    cooling_profile = attribute.Attribute(
+        functions=[_get_cooling_profile]
+    )
+    persons = attribute.Attribute(
+        functions=[_get_persons]
+    )
+    typical_length = attribute.Attribute(
+    )
+    typical_width = attribute.Attribute(
+    )
+    T_threshold_heating = attribute.Attribute(
+    )
+    activity_degree_persons = attribute.Attribute(
+    )
+    fixed_heat_flow_rate_persons = attribute.Attribute(
+    )
+    internal_gains_moisture_no_people = attribute.Attribute(
+    )
+    T_threshold_cooling = attribute.Attribute(
+    )
+    ratio_conv_rad_persons = attribute.Attribute(
+    )
+    machines = attribute.Attribute(
+    )
+    ratio_conv_rad_machines = attribute.Attribute(
+    )
+    lighting_power = attribute.Attribute(
+    )
+    ratio_conv_rad_lighting = attribute.Attribute(
+    )
+    use_constant_infiltration = attribute.Attribute(
+    )
+    infiltration_rate = attribute.Attribute(
+    )
+    max_user_infiltration = attribute.Attribute(
+    )
+    max_overheating_infiltration = attribute.Attribute(
+    )
+    max_summer_infiltration = attribute.Attribute(
+    )
+    winter_reduction_infiltration = attribute.Attribute(
+    )
+    min_ahu = attribute.Attribute(
+    )
+    max_ahu = attribute.Attribute(
+    )
+    with_ideal_thresholds = attribute.Attribute(
+    )
+    persons_profile = attribute.Attribute(
+    )
+    machines_profile = attribute.Attribute(
+    )
+    lighting_profile = attribute.Attribute(
     )
 
     def __init__(self, *args, **kwargs):

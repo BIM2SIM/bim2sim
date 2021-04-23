@@ -111,30 +111,21 @@ class EnrichUseConditions(ITask):
         return usage_decision.value
 
     def load_usage(self, tz: ThermalZone):
-        bool_overwriter = ['with_cooling', 'with_heating', 'with_ahu']
-        list_overwriter = {'heating_profile': [25, 't_set_heat'], 'cooling_profile': [25, 't_set_cool']}
-        # heating, cooling profile
         use_condition = UseConditions[tz.usage]
-        for attr in bool_overwriter:
-            overwrite_attr = getattr(tz, attr)
-            if overwrite_attr is not None:
-                use_condition[attr] = overwrite_attr
+        new_use_condition = {}
+        for attr, value in use_condition.items():
+            # avoid to overwrite attrs present on the instance
+            if getattr(tz, attr) is None:
+                value = self.value_processing(value)
+                setattr(tz, attr, value)
+            new_use_condition[attr] = getattr(tz, attr)
 
-        for attr, value in list_overwriter.items():
-            overwrite_attr = getattr(tz, value[1]).to(ureg.kelvin).m
-            if overwrite_attr is not None:
-                use_condition[attr] = [overwrite_attr] * value[0]
-
-        self.check_use_condition(use_condition)
-        setattr(tz, 'use_condition', use_condition)
+        setattr(tz, 'use_condition', new_use_condition)
 
     @staticmethod
-    def check_use_condition(use_condition: dict):
-        # check if dict, because it can be division dict like
-        # {"/":[1,15]}, or float value
-        for attr, value in use_condition.items():
-            if isinstance(value, dict):
-                values = next(iter(value.values()))
-                division_res = values[0]/values[1]
-                use_condition[attr] = division_res
-
+    def value_processing(value):
+        if isinstance(value, dict):
+            values = next(iter(value.values()))
+            return values[0]/values[1]
+        else:
+            return value
