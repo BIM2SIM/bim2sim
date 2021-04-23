@@ -135,6 +135,7 @@ coverage_EP:
   artifacts:
     paths:
     - $CI_COMMIT_REF_NAME/coverage
+    
 
 #todo check if this is still needed or if master branch results are also available under $CI_COMMIT_REF_NAME/...
 # pylint:
