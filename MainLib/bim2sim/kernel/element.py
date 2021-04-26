@@ -138,7 +138,7 @@ class IFCBased(Root):
                     self.name = ifc.Name
                 else:
                     name_dec = StringDecision(question="Please enter name for the instance %s" % type(self).__name__,
-                                              default="default_name", global_key='IfcName-Decision',
+                                              default="unnamed", global_key=f'IfcName-Decision-{self.guid}',
                                               allow_load=True, allow_save=True)
                     self.name = name_dec.decide()
         self.predefined_type = ifc2python.get_predefined_type(ifc)
