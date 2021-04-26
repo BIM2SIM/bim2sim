@@ -22,7 +22,7 @@ from bim2sim.kernel.units import conversion, ureg
 class ExportTEASER(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
-    reads = ('ifc', 'bounded_tz')
+    reads = ('ifc', 'bounded_tz', 'paths')
     final = True
 
     materials = {}
@@ -39,7 +39,7 @@ class ExportTEASER(ITask):
                          }
 
     @Task.log
-    def run(self, workflow, ifc, bounded_tz):
+    def run(self, workflow, ifc, bounded_tz, paths):
         self.logger.info("Export to TEASER")
         prj = self._create_project(ifc.by_type('IfcProject')[0])
         bldg_instances = SubElement.get_class_instances('Building')
@@ -48,8 +48,9 @@ class ExportTEASER(ITask):
             for tz_instance in bounded_tz:
                 tz = self._create_thermal_zone(tz_instance, bldg)
                 self._bind_instances_to_zone(tz, tz_instance)
+
                 # Todo remove dirty hack
-                if len(tz.outer_walls + tz.rooftops) == 0:
+                if len(tz.outer_walls +tz.rooftops) == 0:
                     ow_min = OuterWall(parent=tz)
                     ow_min.area = 0.01
                     ow_min.load_type_element(
@@ -60,20 +61,15 @@ class ExportTEASER(ITask):
                     ow_min.orientation = 0
                 tz.calc_zone_parameters()
             bldg.calc_building_parameter()
-            assets = Path(bim2sim.__file__).parent / 'assets'
+        assets = Path(bim2sim.__file__).parent / 'assets'
 
-        
         prj.weather_file_path = \
-                assets / 'weatherfiles' / 'DEU_NW_Aachen.105010_TMYx.mos'
-        prj.export_aixlib(path=self.paths.export)
-        # todo remove the following lines after
-        #  https://github.com/RWTH-EBC/TEASER/pull/687 is corrected in TEASER
-        import os
-        os.chdir(self.paths.root)
-        os.chdir('..')
+            assets / 'weatherfiles' / 'DEU_NW_Aachen.105010_TMYx.mos'
+
         from teaser.data.output.reports import model_report
+        prj.export_aixlib(path=paths.export / 'TEASEROutput')
         prj_data = model_report.calc_report_data(
-                prj, path=paths.export / 'TEASEROutput')
+            prj, path=paths.export / 'TEASEROutput')
 
     @staticmethod
     def _create_project(element):
@@ -136,12 +132,15 @@ class ExportTEASER(ITask):
         Parent: Building"""
         tz = ThermalZone(parent=parent)
         tz.use_conditions = UseConditions(parent=tz)
-        cls.load_use_conditions(tz, instance)
+        tz.use_conditions.load_use_conditions(instance.usage)
         cls._teaser_property_getter(tz, instance, instance.finder.templates)
         tz.volume = instance.area.m * instance.height.m
-
+        tz.use_conditions.lighting_profile = [0] * 24
+        tz.use_conditions.persons_profile = [0] * 24
+        tz.use_conditions.persons_profile = [0] * 24
+        tz.use_conditions.machines_profile = [0] * 24
         tz.use_conditions.cooling_profile = [tz.set_temp_cool] * 25
-        tz.use_conditions.heating_profile = [tz.set_temp_heat] * 25
+        # tz.use_conditions.heating_profile = [tz.set_temp_heat] * 25
         # hardcode for paper:
         # todo dja
         # if PROJECT.PAPER:
@@ -151,11 +150,6 @@ class ExportTEASER(ITask):
         #     tz.use_conditions.infiltration_rate = 0.2
 
         return tz
-
-    @staticmethod
-    def load_use_conditions(tz, instance):
-        for attr, value in instance.use_condition.items():
-            setattr(tz.use_conditions, attr, value)
 
     @classmethod
     def _bind_instances_to_zone(cls, tz, tz_instance):
