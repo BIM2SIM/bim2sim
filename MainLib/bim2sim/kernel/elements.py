@@ -83,12 +83,17 @@ class HVACProduct(element.ProductBased):
 class BPSProduct(element.ProductBased):
     domain = 'BPS'
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.thermal_zones = []
+        self.space_boundaries = []
+        self.storeys = []
+
 
 class HeatPump(HVACProduct):
     """"HeatPump"""
 
-    ifc_types = {'IfcUnitaryEquipment': ['*']}  # TBD
-    predefined_type = ['NOTDEFINED']
+    ifc_types = {}  # IFC Schema does not support Heatpumps
 
     pattern_ifc_type = [
         re.compile('Heat.?pump', flags=re.IGNORECASE),
@@ -827,7 +832,6 @@ class ThermalZone(BPSProduct):
 
 class SpaceBoundary(element.SpaceBoundary):
     ifc_types = {'IfcRelSpaceBoundary': ['*']}
-    # TBD
 
     def __init__(self, *args, **kwargs):
         """spaceboundary __init__ function"""
@@ -1477,13 +1481,14 @@ class CHP(HVACProduct):
 
 
 class Wall(BPSProduct):
-    ifc_types = {  # TBD
+    ifc_types = {
         "IfcWall":
             ['*', 'MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL',
              'SHEAR', 'SOLIDWALL', 'POLYGONAL', 'DOOR', 'GATE', 'TRAPDOOR'],
         "IfcWallStandardCase":
             ['*', 'MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL',
              'SHEAR', 'SOLIDWALL', 'POLYGONAL', 'DOOR', 'GATE', 'TRAPDOOR'],
+        # "IfcElementedCase": "?"  # TODO
     }
 
     pattern_ifc_type = [

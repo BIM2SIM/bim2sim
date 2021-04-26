@@ -128,7 +128,7 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
             r.discard()
 
 
-class IFCMixin:  # TBD
+class IFCMixin:
     """Mixin to enable instantiation from ifc and provide related methods.
 
         Attributes:
@@ -145,27 +145,19 @@ class IFCMixin:  # TBD
          'IfcSlab': ['ROOF']}"""
 
     ifc_types: Dict[str, List[str]] = None
+    pattern_ifc_type = []
 
     # TBD
-    pattern_ifc_type = []
     finder = TemplateFinder()
 
     def __init__(self, *args, ifc=None, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.ifc = ifc
-        # # todo to reduce decision querys we should only do this for needed names like Building or projectname
-        # if ifc is not None:
-        #     if ifc.Name is not None:
-        #         if len(ifc.Name) > 0:
-        #             self.name = ifc.Name
-        #         else:
-        #             self.name = input("Please enter name for the instance %s"
-        #                               % type(self).__name__)
         self.predefined_type = ifc2python.get_predefined_type(ifc)
 
         # TBD
-        self.enrichment = {}
+        self.enrichment = {}  # TODO: DJA
         self._propertysets = None
         self._type_propertysets = None
         self._decision_results = {}
@@ -179,6 +171,7 @@ class IFCMixin:  # TBD
 
     @classmethod
     def from_ifc(cls, ifc, *args, **kwargs):
+        """Factory method to create instance from ifc"""
         ifc_args, ifc_kwargs = cls.ifc2args(ifc)
         kwargs.update(ifc_kwargs)
         return cls(*(args + ifc_args), **kwargs)
@@ -470,6 +463,10 @@ class IFCMixin:  # TBD
 
 class RelationBased(IFCMixin, Root):
 
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.parent: ProductBased = parent
+
     @property
     def source_tool(self):  # TBD: this incl. Finder could live in Factory
         """Name of tool that the parent has been created with"""
@@ -485,14 +482,13 @@ class RelationBased(IFCMixin, Root):
 
 
 class ProductBased(IFCMixin, Root):
-    """Base class for all elements with ports"""
+    """Elements based on IFC products."""
     domain = 'GENERAL'
     key: str = ''
     key_map: Dict[str, 'Type[ProductBased]'] = {}
     conditions = []
 
     # TBD
-    default_materials = {}
     # todo this is a hotfix
     finder = TemplateFinder()
 
@@ -502,9 +498,6 @@ class ProductBased(IFCMixin, Root):
 
         # TBD
         self.aggregation = None
-        self.thermal_zones = []
-        self.space_boundaries = []
-        self.storeys = []
 
     def __init_subclass__(cls, **kwargs):
         # set key for each class
@@ -563,9 +556,8 @@ class ProductBased(IFCMixin, Root):
 class Port(RelationBased):
     """Basic port"""
 
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.parent: ProductBased = parent  # TBD: move to RelationBased ?
         self.connection = None
 
     def connect(self, other):
@@ -608,6 +600,8 @@ class Port(RelationBased):
 
 
 class Layer(RelationBased):
+    default_materials = {}
+
     @classmethod
     def pre_validate(cls, ifc) -> bool:
         return True
@@ -617,6 +611,8 @@ class Layer(RelationBased):
 
 
 class SpaceBoundary(RelationBased):
+    # TODO: move to BPS elements
+
     @classmethod
     def pre_validate(cls, ifc) -> bool:
         return True
@@ -745,7 +741,7 @@ class Factory:
                     # items 'IfcSlab': Slab
                     if token == '*':
                         if ifc_type in default:
-                            raise NameError()  # TBD
+                            raise NameError(f"Conflicting default ifc_types for {ifc_type}")  # TBD
                         default[ifc_type.lower()] = ele
                         # create blacklist where all - are taken into account
                         # items: ('IfcRoof', 'WeiredStuff')

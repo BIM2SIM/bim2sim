@@ -20,7 +20,7 @@ class Inspect(ITask):
     def run(self, workflow: Workflow, ifc: file):
         self.logger.info("Creates python representation of relevant ifc types")
 
-        Element.finder.load(self.paths.finder)
+        ProductBased.finder.load(self.paths.finder)
 
         for ifc_type in workflow.relevant_ifc_types:
             try:

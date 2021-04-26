@@ -60,7 +60,6 @@ class AggregationPort(Port):
         return self.originals.position
 
 
-# TODO / TBD:
 class AggregationMixin:
     multi = ()
     aggregatable_elements: Set[ProductBased] = set()
@@ -597,7 +596,7 @@ class ParallelPump(HVACAggregationMixin, elements.Pump):
         total_rated_power = 0
 
         for item in self.elements:
-            if "Pump" in item.ifc_type:
+            if isinstance(item, elements.Pump):
 
                 total_rated_volume_flow += item.rated_volume_flow
                 total_rated_power += item.rated_power
@@ -647,6 +646,7 @@ class ParallelPump(HVACAggregationMixin, elements.Pump):
             for original in port.originals:
                 mapping[original] = port
 
+        # TODO: cant this be solved in find_matches?
         # search for aggregations made during the parallel pump construction
         new_aggregations = [element.aggregation for element in self.elements if
                             element.aggregation is not self]
@@ -1004,7 +1004,7 @@ class Consumer(HVACAggregationMixin, elements.HVACProduct):
     # aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting', 'ParallelSpaceHeater']
     aggregatable_elements = {
         elements.SpaceHeater, elements.Pipe, elements.PipeFitting,
-        PipeStrand, ParallelSpaceHeater}
+        PipeStrand, ParallelSpaceHeater, elements.Pump, elements.Valve}
     whitelist = [elements.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating]
     blacklist = [elements.Chiller, elements.Boiler, elements.CoolingTower]
 
