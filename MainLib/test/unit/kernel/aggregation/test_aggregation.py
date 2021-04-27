@@ -3,6 +3,7 @@ from typing import List, Tuple
 
 import networkx as nx
 
+import bim2sim.kernel.elements.all
 from bim2sim.kernel.attribute import Attribute, multi_calc
 from bim2sim.kernel import aggregation
 from bim2sim.kernel import elements
@@ -57,7 +58,7 @@ class TestAggregation(unittest.TestCase):
 
 # --- domain Aggregations ---
 
-class SampleHVACElement(elements.HVACProduct):
+class SampleHVACElement(bim2sim.kernel.elements.all.HVACProduct):
     attr1 = Attribute()
     attr2 = Attribute()
     attr3 = Attribute()

@@ -1,5 +1,6 @@
 import unittest
 
+import bim2sim.kernel.elements.all
 from test.unit.kernel.helper import SetupHelper
 from bim2sim.decision import Decision
 from bim2sim.kernel import elements
@@ -15,15 +16,15 @@ class DeadEndHelper(SetupHelper):
          some connected pipes and dead ends"""
         flags = {}
         with self.flag_manager(flags):
-            fitting_4port = self.element_generator(elements.PipeFitting, flags=['fitting_4port'], n_ports=4)
-            fitting_3port_1 = self.element_generator(elements.PipeFitting, flags=['fitting_3port_1'], n_ports=3)
-            fitting_3port_2 = self.element_generator(elements.PipeFitting, flags=['fitting_3port_2'], n_ports=3)
-            pipestrand1 = [self.element_generator(elements.Pipe, length=100, diameter=30, flags=['ps1']) for i in range(1)]
-            pipestrand2 = [self.element_generator(elements.Pipe, length=100, diameter=30, flags=['ps2']) for i in range(1)]
-            pipestrand3 = [self.element_generator(elements.Pipe, length=100, diameter=30, flags=['ps3']) for i in range(1)]
-            pipestrand4 = [self.element_generator(elements.Pipe, length=100, diameter=30, flags=['ps4']) for i in range(1)]
-            pipestrand5 = [self.element_generator(elements.Pipe, length=100, diameter=30, flags=['ps5']) for i in range(1)]
-            pipestrand6 = [self.element_generator(elements.Pipe, length=100, diameter=30, flags=['ps6']) for i in range(1)]
+            fitting_4port = self.element_generator(bim2sim.kernel.elements.all.PipeFitting, flags=['fitting_4port'], n_ports=4)
+            fitting_3port_1 = self.element_generator(bim2sim.kernel.elements.all.PipeFitting, flags=['fitting_3port_1'], n_ports=3)
+            fitting_3port_2 = self.element_generator(bim2sim.kernel.elements.all.PipeFitting, flags=['fitting_3port_2'], n_ports=3)
+            pipestrand1 = [self.element_generator(bim2sim.kernel.elements.all.Pipe, length=100, diameter=30, flags=['ps1']) for i in range(1)]
+            pipestrand2 = [self.element_generator(bim2sim.kernel.elements.all.Pipe, length=100, diameter=30, flags=['ps2']) for i in range(1)]
+            pipestrand3 = [self.element_generator(bim2sim.kernel.elements.all.Pipe, length=100, diameter=30, flags=['ps3']) for i in range(1)]
+            pipestrand4 = [self.element_generator(bim2sim.kernel.elements.all.Pipe, length=100, diameter=30, flags=['ps4']) for i in range(1)]
+            pipestrand5 = [self.element_generator(bim2sim.kernel.elements.all.Pipe, length=100, diameter=30, flags=['ps5']) for i in range(1)]
+            pipestrand6 = [self.element_generator(bim2sim.kernel.elements.all.Pipe, length=100, diameter=30, flags=['ps6']) for i in range(1)]
 
             self.connect_strait([*pipestrand1])
             self.connect_strait([*pipestrand2])

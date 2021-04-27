@@ -1,5 +1,6 @@
 import unittest
 
+import bim2sim.kernel.elements.all
 from bim2sim.kernel import aggregation
 from bim2sim.kernel.element import HVACPort
 from bim2sim.kernel import elements
@@ -17,7 +18,7 @@ class StrandHelper(SetupHelper):
         with self.flag_manager(flags):
             # generator circuit
             strand = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(10)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(10)]
 
         # connect
         self.connect_strait(strand)
@@ -39,13 +40,13 @@ class StrandHelper(SetupHelper):
         with self.flag_manager(flags):
             # generator circuit
             strand1 = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(2)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(2)]
             strand2 = [self.element_generator(
-                elements.Pipe, length=200, diameter=50) for i in range(2)]
+                bim2sim.kernel.elements.all.Pipe, length=200, diameter=50) for i in range(2)]
             strand3 = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(2)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(2)]
             strand4 = [self.element_generator(
-                elements.Pipe, length=50, diameter=15) for i in range(2)]
+                bim2sim.kernel.elements.all.Pipe, length=50, diameter=15) for i in range(2)]
 
         strand = [*strand1, *strand2, *strand3, *strand4]
         # connect
@@ -68,10 +69,10 @@ class StrandHelper(SetupHelper):
         with self.flag_manager(flags):
             # generator circuit
             strand1 = [self.element_generator(
-                elements.Pipe, flags=['pipes'], length=100, diameter=30) for i in range(3)]
+                bim2sim.kernel.elements.all.Pipe, flags=['pipes'], length=100, diameter=30) for i in range(3)]
             strand2 = [self.element_generator(
-                elements.Pipe, flags=['pipes'], length=100, diameter=30) for i in range(3)]
-            valve = self.element_generator(elements.Valve, flags=['valve'], diameter=30)
+                bim2sim.kernel.elements.all.Pipe, flags=['pipes'], length=100, diameter=30) for i in range(3)]
+            valve = self.element_generator(bim2sim.kernel.elements.all.Valve, flags=['valve'], diameter=30)
 
         strand = [*strand1, valve, *strand2]
         # connect
@@ -94,10 +95,10 @@ class StrandHelper(SetupHelper):
         with self.flag_manager(flags):
             # generator circuit
             strand1 = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(2)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(2)]
             strand2 = [self.element_generator(
-                elements.Pipe, length=200, diameter=50) for i in range(2)]
-            distributor = self.element_generator(elements.Distributor, flags=['distributor'])
+                bim2sim.kernel.elements.all.Pipe, length=200, diameter=50) for i in range(2)]
+            distributor = self.element_generator(bim2sim.kernel.elements.all.Distributor, flags=['distributor'])
 
         # connect
         self.connect_strait([*strand1, distributor, *strand2])
@@ -119,14 +120,14 @@ class StrandHelper(SetupHelper):
         with self.flag_manager(flags):
             # generator circuit
             strand1 = [self.element_generator(
-                elements.Pipe, flags=['strand1'], length=100, diameter=30) for i in range(4)]
+                bim2sim.kernel.elements.all.Pipe, flags=['strand1'], length=100, diameter=30) for i in range(4)]
             strand2 = [self.element_generator(
-                elements.Pipe, flags=['strand2'], length=100, diameter=30) for i in range(4)]
+                bim2sim.kernel.elements.all.Pipe, flags=['strand2'], length=100, diameter=30) for i in range(4)]
             strand3 = [self.element_generator(
-                elements.Pipe, flags=['strand3'], length=100, diameter=30) for i in range(4)]
+                bim2sim.kernel.elements.all.Pipe, flags=['strand3'], length=100, diameter=30) for i in range(4)]
             strand4 = [self.element_generator(
-                elements.Pipe, flags=['strand4'], length=100, diameter=30) for i in range(4)]
-            cross = self.element_generator(elements.PipeFitting, n_ports=4, flags='cross')
+                bim2sim.kernel.elements.all.Pipe, flags=['strand4'], length=100, diameter=30) for i in range(4)]
+            cross = self.element_generator(bim2sim.kernel.elements.all.PipeFitting, n_ports=4, flags='cross')
 
         # connect
         self.connect_strait(strand1)
@@ -157,19 +158,19 @@ class StrandHelper(SetupHelper):
         flags = {}
         with self.flag_manager(flags):
             # generator circuit
-            boiler = self.element_generator(elements.Boiler, rated_power=200)
-            strand1 = [self.element_generator(elements.Pipe, flags=['strand1'], length=100, diameter=40) for i in range(3)]
-            h_pump = self.element_generator(elements.Pump, rated_power=2.2, rated_height=12, rated_volume_flow=8)
-            strand2 = [self.element_generator(elements.Pipe, flags=['strand2'], length=100, diameter=40) for i in range(5)]
-            spaceheater = self.element_generator(elements.SpaceHeater, flags=['spaceheater'])  # , volume=80
-            strand3a = [self.element_generator(elements.Pipe, flags=['strand3'], length=100, diameter=40) for i in range(4)]
-            valve = self.element_generator(elements.Valve, flags=['valve'])
-            strand3b = [self.element_generator(elements.Pipe, flags=['strand3'], length=100, diameter=40) for i in range(4)]
-            fitting = self.element_generator(elements.PipeFitting, n_ports=3, diameter=40, length=60)
-            strand4 = [self.element_generator(elements.Pipe, flags=['strand4'], length=100, diameter=40) for i in range(4)]
+            boiler = self.element_generator(bim2sim.kernel.elements.all.Boiler, rated_power=200)
+            strand1 = [self.element_generator(bim2sim.kernel.elements.all.Pipe, flags=['strand1'], length=100, diameter=40) for i in range(3)]
+            h_pump = self.element_generator(bim2sim.kernel.elements.all.Pump, rated_power=2.2, rated_height=12, rated_volume_flow=8)
+            strand2 = [self.element_generator(bim2sim.kernel.elements.all.Pipe, flags=['strand2'], length=100, diameter=40) for i in range(5)]
+            spaceheater = self.element_generator(bim2sim.kernel.elements.all.SpaceHeater, flags=['spaceheater'])  # , volume=80
+            strand3a = [self.element_generator(bim2sim.kernel.elements.all.Pipe, flags=['strand3'], length=100, diameter=40) for i in range(4)]
+            valve = self.element_generator(bim2sim.kernel.elements.all.Valve, flags=['valve'])
+            strand3b = [self.element_generator(bim2sim.kernel.elements.all.Pipe, flags=['strand3'], length=100, diameter=40) for i in range(4)]
+            fitting = self.element_generator(bim2sim.kernel.elements.all.PipeFitting, n_ports=3, diameter=40, length=60)
+            strand4 = [self.element_generator(bim2sim.kernel.elements.all.Pipe, flags=['strand4'], length=100, diameter=40) for i in range(4)]
             strand5 = [
-                self.element_generator(elements.Pipe, flags=['strand5'], length=100, diameter=40) for i in range(4)]
-            tank = self.element_generator(elements.Storage, n_ports=1)
+                self.element_generator(bim2sim.kernel.elements.all.Pipe, flags=['strand5'], length=100, diameter=40) for i in range(4)]
+            tank = self.element_generator(bim2sim.kernel.elements.all.Storage, n_ports=1)
 
         # connect
         circuit = [
@@ -195,13 +196,13 @@ class StrandHelper(SetupHelper):
         with self.flag_manager(flags):
             # generator circuit
             strand1 = [self.element_generator(
-                elements.Pipe, flags=['strand1'], length=100, diameter=30) for i in range(6)]
+                bim2sim.kernel.elements.all.Pipe, flags=['strand1'], length=100, diameter=30) for i in range(6)]
             strand2 = [self.element_generator(
-                elements.Pipe, flags=['strand2'], length=100, diameter=30) for i in range(6)]
+                bim2sim.kernel.elements.all.Pipe, flags=['strand2'], length=100, diameter=30) for i in range(6)]
             strand3 = [self.element_generator(
-                elements.Pipe, flags=['strand3'], length=100, diameter=30) for i in range(4)]
-            cross1 = self.element_generator(elements.PipeFitting, n_ports=3, flags='cross')
-            cross2 = self.element_generator(elements.PipeFitting, n_ports=3, flags='cross')
+                bim2sim.kernel.elements.all.Pipe, flags=['strand3'], length=100, diameter=30) for i in range(4)]
+            cross1 = self.element_generator(bim2sim.kernel.elements.all.PipeFitting, n_ports=3, flags='cross')
+            cross2 = self.element_generator(bim2sim.kernel.elements.all.PipeFitting, n_ports=3, flags='cross')
 
         # connect
         self.connect_strait([cross1, *strand1, cross2])

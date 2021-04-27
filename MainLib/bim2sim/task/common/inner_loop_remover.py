@@ -321,7 +321,7 @@ def _reconstruct_cut_polygon(out_edges: List[Edge], cut_edges: List[Edge], plane
 
 
 def remove_inner_loops(shape: TopoDS_Shape) -> TopoDS_Shape:
-    from bim2sim.kernel.elements import SpaceBoundary
+    from bim2sim.kernel.elements.all import SpaceBoundary
     # if not shape:
     #     _big_rect = SpaceBoundary._make_faces_from_pnts([(1, 1, 0), (5, 1, 0), (5, 5, 0), (1, 5, 0)])
     #     _small_rect = SpaceBoundary._make_faces_from_pnts([(2, 2, 0), (3, 2, 0), (3, 3, 0), (2, 3, 0)])

@@ -1,5 +1,5 @@
 ﻿"""Package for Python representations of HKESim models"""
-
+import bim2sim.kernel.elements.all
 from bim2sim.export import modelica
 from bim2sim.kernel import elements
 from bim2sim.kernel.units import ureg
@@ -13,7 +13,7 @@ class AixLib(modelica.Instance):
 
 class Boiler(AixLib):
     path = "AixLib.FastHVAC.Components.HeatGenerators.Boiler.Boiler"
-    represents = elements.Boiler
+    represents = bim2sim.kernel.elements.all.Boiler
 
     def __init__(self, element):
         self.check_power = self.check_numeric(min_value=0 * ureg.kilowatt) #TODO: Checking System

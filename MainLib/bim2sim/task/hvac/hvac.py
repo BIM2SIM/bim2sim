@@ -8,6 +8,7 @@ import logging
 import numpy as np
 import networkx as nx
 
+import bim2sim.kernel.elements.all
 from bim2sim.task.base import Task, ITask
 from bim2sim.workflow import LOD
 from bim2sim.filter import TypeFilter, TextFilter
@@ -589,7 +590,7 @@ class Reduce(ITask):
         #Element.solve_requests()
 
         if __debug__:
-            self.logger.info("Plotting graph ...")
+            bim2sim.kernel.elements.all.logger.info("Plotting graph ...")
             graph.plot(self.paths.export)
             graph.plot(self.paths.export, ports=True)
 

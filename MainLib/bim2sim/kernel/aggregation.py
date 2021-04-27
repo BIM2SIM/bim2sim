@@ -10,14 +10,14 @@ import numpy as np
 import networkx as nx
 import json
 
-
+import bim2sim.kernel.elements.all
 from bim2sim.kernel.element import ProductBased, Port, HVACPort
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
 from bim2sim.decision import ListDecision
 from bim2sim.kernel.disaggregation import Disaggregation
-from bim2sim.kernel.elements import HeatPump
+from bim2sim.kernel.elements.all import HeatPump
 from bim2sim.task.common.common_functions import get_usage_dict
 
 
@@ -191,9 +191,10 @@ class HVACAggregationMixin(AggregationMixin):
         raise NotImplementedError("Method %s.find_matches not implemented" % cls.__name__)  # TODO
 
 
-class PipeStrand(HVACAggregationMixin, elements.Pipe):
+class PipeStrand(HVACAggregationMixin, bim2sim.kernel.elements.all.Pipe):
     """Aggregates pipe strands"""
-    aggregatable_elements = {elements.Pipe, elements.PipeFitting, elements.Valve}
+    aggregatable_elements = {bim2sim.kernel.elements.all.Pipe, bim2sim.kernel.elements.all.PipeFitting,
+                             bim2sim.kernel.elements.all.Valve}
     multi = ('length', 'diameter')
 
     def __init__(self, element_graph, *args, **kwargs):
@@ -496,12 +497,12 @@ class UnderfloorHeating(PipeStrand):
         # else kpi criteria failed
 
 
-class ParallelPump(HVACAggregationMixin, elements.Pump):
+class ParallelPump(HVACAggregationMixin, bim2sim.kernel.elements.all.Pump):
     """Aggregates pumps in parallel"""
     # aggregatable_elements = ['IfcPump', 'PipeStrand', 'IfcPipeSegment',
     #                          'IfcPipeFitting']
     aggregatable_elements = {
-        elements.Pump, elements.Pipe, elements.PipeFitting, PipeStrand}
+        bim2sim.kernel.elements.all.Pump, bim2sim.kernel.elements.all.Pipe, bim2sim.kernel.elements.all.PipeFitting, PipeStrand}
     multi = ('rated_power', 'rated_height', 'rated_volume_flow', 'diameter', 'diameter_strand', 'length')
 
     def __init__(self, element_graph, *args, **kwargs):
@@ -594,7 +595,7 @@ class ParallelPump(HVACAggregationMixin, elements.Pump):
         total_rated_power = 0
 
         for item in self.elements:
-            if isinstance(item, elements.Pump):
+            if isinstance(item, bim2sim.kernel.elements.all.Pump):
 
                 total_rated_volume_flow += item.rated_volume_flow
                 total_rated_power += item.rated_power
@@ -709,7 +710,7 @@ class ParallelPump(HVACAggregationMixin, elements.Pump):
         """Find all matches for Aggregation in element graph
         :returns: matches, meta"""
         element_graph = graph.element_graph
-        wanted = {elements.Pump}
+        wanted = {bim2sim.kernel.elements.all.Pump}
         inerts = cls.aggregatable_elements - wanted
         parallels = HvacGraph.get_parallels(
             element_graph, wanted, inerts, grouping={'rated_power': 'equal'},
@@ -718,14 +719,14 @@ class ParallelPump(HVACAggregationMixin, elements.Pump):
         return parallels, metas
 
 
-class AggregatedPipeFitting(HVACAggregationMixin, elements.PipeFitting):
+class AggregatedPipeFitting(HVACAggregationMixin, bim2sim.kernel.elements.all.PipeFitting):
     """Aggregates PipeFittings. Used in two cases:
         - Merge multiple PipeFittings into one aggregates
         - Use a single PipeFitting and create a aggregated PipeFitting where
         some ports are aggregated (aggr_ports argument)
     """
     # aggregatable_elements = ['PipeStand', 'IfcPipeSegment', 'IfcPipeFitting']
-    aggregatable_elements = {elements.Pipe, elements.PipeFitting, PipeStrand}
+    aggregatable_elements = {bim2sim.kernel.elements.all.Pipe, bim2sim.kernel.elements.all.PipeFitting, PipeStrand}
     threshold = None
 
     def __init__(self, element_graph, aggr_ports=None, *args, **kwargs):
@@ -783,11 +784,11 @@ class AggregatedPipeFitting(HVACAggregationMixin, elements.PipeFitting):
         return mapping
 
 
-class ParallelSpaceHeater(HVACAggregationMixin, elements.SpaceHeater):
+class ParallelSpaceHeater(HVACAggregationMixin, bim2sim.kernel.elements.all.SpaceHeater):
     """Aggregates Space heater in parallel"""
     # aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting']
-    aggregatable_elements = {elements.SpaceHeater, elements.Pipe,
-                             elements.PipeFitting, PipeStrand}
+    aggregatable_elements = {bim2sim.kernel.elements.all.SpaceHeater, bim2sim.kernel.elements.all.Pipe,
+                             bim2sim.kernel.elements.all.PipeFitting, PipeStrand}
 
     def __init__(self, element_graph, *args, **kwargs):
         super().__init__(element_graph, *args, **kwargs)
@@ -811,7 +812,7 @@ class ParallelSpaceHeater(HVACAggregationMixin, elements.SpaceHeater):
         total_ports = {}
         # all possible beginning and end of the cycle (always pipe fittings), pumps counting
         for port in self.elements:
-            if isinstance(port.parent, elements.PipeFitting):
+            if isinstance(port.parent, bim2sim.kernel.elements.all.PipeFitting):
                 if port.parent.guid in total_ports:
                     total_ports[port.parent.guid].append(port)
                 else:
@@ -953,7 +954,7 @@ class ParallelSpaceHeater(HVACAggregationMixin, elements.SpaceHeater):
         for port in cycle:
             if isinstance(port.parent, getattr(elements, p_instance)):
                 n_element += 1
-            if isinstance(port.parent, elements.PipeFitting):
+            if isinstance(port.parent, bim2sim.kernel.elements.all.PipeFitting):
                 if port.parent.guid in total_ports:
                     total_ports[port.parent.guid].append(port)
                 else:
@@ -994,17 +995,19 @@ class ParallelSpaceHeater(HVACAggregationMixin, elements.SpaceHeater):
             return instance
 
 
-class Consumer(HVACAggregationMixin, elements.HVACProduct):
+class Consumer(HVACAggregationMixin, bim2sim.kernel.elements.all.HVACProduct):
     """Aggregates Consumer system boarder"""
     multi = ('has_pump', 'rated_power', 'rated_pump_power', 'rated_height', 'rated_volume_flow', 'temperature_inlet',
              'temperature_outlet', 'volume', 'description')
 
     aggregatable_elements = {
-        elements.SpaceHeater, elements.Pipe, elements.PipeFitting,
-        elements.Pump, elements.Valve,
+        bim2sim.kernel.elements.all.SpaceHeater, bim2sim.kernel.elements.all.Pipe,
+        bim2sim.kernel.elements.all.PipeFitting,
+        bim2sim.kernel.elements.all.Pump, bim2sim.kernel.elements.all.Valve,
         PipeStrand, ParallelSpaceHeater, UnderfloorHeating}
-    whitelist = [elements.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating]
-    blacklist = [elements.Chiller, elements.Boiler, elements.CoolingTower]
+    whitelist = [bim2sim.kernel.elements.all.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating]
+    blacklist = [bim2sim.kernel.elements.all.Chiller, bim2sim.kernel.elements.all.Boiler,
+                 bim2sim.kernel.elements.all.CoolingTower]
 
     def __init__(self, element_graph, *args, **kwargs):
         super().__init__(element_graph, *args, **kwargs)
@@ -1036,7 +1039,7 @@ class Consumer(HVACAggregationMixin, elements.HVACProduct):
     def find_matches(cls, graph):
         """Find all matches for Aggregation in element graph
         :returns: matches, meta"""
-        boarder_class = {elements.Distributor}
+        boarder_class = {bim2sim.kernel.elements.all.Distributor}
         # innerts = set(cls.aggregatable_elements) - wanted
 
         boarder_class = set(boarder_class)
@@ -1103,7 +1106,7 @@ class Consumer(HVACAggregationMixin, elements.HVACProduct):
                     ele.request(name)
         if name in lst_pump:
             for ele in self.elements:
-                if ele.ifc_type == elements.Pump.ifc_type:
+                if ele.ifc_type == bim2sim.kernel.elements.all.Pump.ifc_type:
                     for n in lst_pump:
                         ele.request(n)
         if name == 'volume':
@@ -1127,7 +1130,7 @@ class Consumer(HVACAggregationMixin, elements.HVACProduct):
 
         for ele in self.elements:
             # Pumps
-            if elements.Pump is ele.__class__:
+            if bim2sim.kernel.elements.all.Pump is ele.__class__:
                 # Pumpenleistung herausziehen
                 total_rated_pump_power = getattr(ele, "rated_power")
                 # Pumpenhöhe herausziehen
@@ -1188,7 +1191,7 @@ class Consumer(HVACAggregationMixin, elements.HVACProduct):
             if ele.__class__ in Consumer.whitelist:
                 # Dict for description consumer
                 con_types[ele.__class__] = con_types.get(ele.__class__, 0) + 1
-            elif ele.__class__ is elements.SpaceHeater:
+            elif ele.__class__ is bim2sim.kernel.elements.all.SpaceHeater:
                 rated_consumer_power = getattr(ele, "rated_power")
                 total_rated_consumer_power += rated_consumer_power
 
@@ -1211,7 +1214,7 @@ class Consumer(HVACAggregationMixin, elements.HVACProduct):
     def _calc_has_pump(self):
         has_pump = False
         for ele in self.elements:
-            if elements.Pump is ele.__class__:
+            if bim2sim.kernel.elements.all.Pump is ele.__class__:
                 has_pump = True
                 break;
 
@@ -1283,7 +1286,7 @@ class Consumer(HVACAggregationMixin, elements.HVACProduct):
     )
 
 
-class ConsumerHeatingDistributorModule(HVACAggregationMixin, elements.HVACProduct): #ToDo: Export Aggregation HKESim
+class ConsumerHeatingDistributorModule(HVACAggregationMixin, bim2sim.kernel.elements.all.HVACProduct): #ToDo: Export Aggregation HKESim
     """Aggregates Consumer system boarder"""
     multi = (
         'medium', 'use_hydraulic_separator', 'hydraulic_separator_volume', 'temperature_inlet', 'temperature_outlet')
@@ -1291,11 +1294,13 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, elements.HVACProduc
 
     # aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting', 'ParallelSpaceHeater']
     aggregatable_elements = {
-        elements.SpaceHeater, elements.Pipe, elements.PipeFitting,
+        bim2sim.kernel.elements.all.SpaceHeater, bim2sim.kernel.elements.all.Pipe,
+        bim2sim.kernel.elements.all.PipeFitting,
         PipeStrand, ParallelSpaceHeater}
-    whitelist = [elements.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating,
+    whitelist = [bim2sim.kernel.elements.all.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating,
                  Consumer]
-    blacklist = [elements.Chiller, elements.Boiler, elements.CoolingTower]
+    blacklist = [bim2sim.kernel.elements.all.Chiller, bim2sim.kernel.elements.all.Boiler,
+                 bim2sim.kernel.elements.all.CoolingTower]
 
     def __init__(self, element_graph, *args, **kwargs):
         self.undefined_consumer_ports = kwargs.pop('undefined_consumer_ports', None)  # TODO: Richtig sO? WORKAROUND
@@ -1355,7 +1360,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, elements.HVACProduc
     def find_matches(cls, graph):
         """Find all matches for Aggregation in element graph
         :returns: matches, meta"""
-        boarder_class = {elements.Distributor.ifc_type}
+        boarder_class = {bim2sim.kernel.elements.all.Distributor.ifc_type}
         boarder_class = set(boarder_class)
         element_graph = graph.element_graph
         results = []
@@ -1460,10 +1465,10 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, elements.HVACProduc
     )
 
 
-class AggregatedThermalZone(HVACAggregationMixin, elements.ThermalZone):
+class AggregatedThermalZone(HVACAggregationMixin, bim2sim.kernel.elements.all.ThermalZone):
     """Aggregates thermal zones"""
     # aggregatable_elements = ["IfcSpace"]
-    aggregatable_elements = {elements.SpaceHeater}
+    aggregatable_elements = {bim2sim.kernel.elements.all.SpaceHeater}
 
     def __init__(self, element_graph, *args, **kwargs):
         super().__init__(element_graph, *args, **kwargs)

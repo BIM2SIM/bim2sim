@@ -2,6 +2,7 @@
 import math
 import networkx as nx
 
+import bim2sim.kernel.elements.all
 from bim2sim.kernel import aggregation
 from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
@@ -18,35 +19,35 @@ class ParallelPumpHelper(SetupHelper):
         with self.flag_manager(flags):
             # generator circuit
             con_vl_a = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(3)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(3)]
             fitting1 = self.element_generator(
-                elements.PipeFitting, flags=['pumps1'], n_ports=3, diameter=30, length=60)
+                bim2sim.kernel.elements.all.PipeFitting, flags=['pumps1'], n_ports=3, diameter=30, length=60)
             p_pump1_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps1'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps1'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps1'], rated_power=1, rated_height=8,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps1'], rated_power=1, rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps1'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps1'], length=40, diameter=20),
             ]
             p_pump2_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps1'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps1'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps1'], rated_power=1, rated_height=8,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps1'], rated_power=1, rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps1'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps1'], length=40, diameter=20),
             ]
             fitting2 = self.element_generator(
-                elements.PipeFitting, flags=['pumps1'], n_ports=3, diameter=30, length=60)
+                bim2sim.kernel.elements.all.PipeFitting, flags=['pumps1'], n_ports=3, diameter=30, length=60)
             con_vl_b = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(3)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(3)]
             consumer = self.element_generator(
-                elements.SpaceHeater)
+                bim2sim.kernel.elements.all.SpaceHeater)
             con_rl_a = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(6)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(6)]
 
         # connect
         self.connect_strait([*con_vl_a, fitting1])
@@ -74,64 +75,64 @@ class ParallelPumpHelper(SetupHelper):
         with self.flag_manager(flags):
             # generator circuit
             con_vl_a = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(3)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(3)]
             fitting1 = self.element_generator(
-                elements.PipeFitting, flags=['pumps2', 'normal', 'small'],
+                bim2sim.kernel.elements.all.PipeFitting, flags=['pumps2', 'normal', 'small'],
                 n_ports=6, diameter=30, length=60)
             p_pump1_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
             ]
             p_pump2_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
             ]
             p_pump3_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
             ]
             p_pump4_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
             ]
             p_pump5_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'small'], length=40, diameter=15),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'small'], length=40, diameter=15),
                 self.element_generator(
-                    elements.Pump, flags=['pumps2', 'small'], rated_power=0.22, rated_height=8,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps2', 'small'], rated_power=0.22, rated_height=8,
                     rated_volume_flow=0.8, diameter=15),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'small'], length=40, diameter=15),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'small'], length=40, diameter=15),
             ]
             fitting2 = self.element_generator(
-                elements.PipeFitting, flags=['pumps2', 'normal', 'small'],
+                bim2sim.kernel.elements.all.PipeFitting, flags=['pumps2', 'normal', 'small'],
                 n_ports=6, diameter=30, length=60)
             con_vl_b = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(3)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(3)]
             consumer = self.element_generator(
-                elements.SpaceHeater)
+                bim2sim.kernel.elements.all.SpaceHeater)
             con_rl_a = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(6)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(6)]
 
         # connect
         self.connect_strait([*con_vl_a, fitting1])
@@ -168,66 +169,66 @@ class ParallelPumpHelper(SetupHelper):
         with self.flag_manager(flags):
             # generator circuit
             con_vl_a = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(3)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(3)]
             fitting1 = self.element_generator(
-                elements.PipeFitting, flags=['pumps2', 'normal', 'small'],
+                bim2sim.kernel.elements.all.PipeFitting, flags=['pumps2', 'normal', 'small'],
                 n_ports=7, diameter=30, length=60)
             p_pump1_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
             ]
             p_pump2_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
             ]
             p_pump3_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
             ]
             p_pump4_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps2', 'normal'], rated_power=1, rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40, diameter=20),
             ]
             p_pump5_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'small'], length=40, diameter=15),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'small'], length=40, diameter=15),
                 self.element_generator(
-                    elements.Pump, flags=['pumps2', 'small'], rated_power=0.22, rated_height=8,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps2', 'small'], rated_power=0.22, rated_height=8,
                     rated_volume_flow=0.8, diameter=15),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'small'], length=40, diameter=15),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'small'], length=40, diameter=15),
             ]
             fitting2 = self.element_generator(
-                elements.PipeFitting, flags=['pumps2', 'normal', 'small'],
+                bim2sim.kernel.elements.all.PipeFitting, flags=['pumps2', 'normal', 'small'],
                 n_ports=7, diameter=30, length=60)
             con_vl_b = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(3)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(3)]
             consumer = self.element_generator(
-                elements.SpaceHeater)
+                bim2sim.kernel.elements.all.SpaceHeater)
             con_rl_a = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(6)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(6)]
             bypass = [self.element_generator(
-                elements.Pipe, flags=['bypass'], length=60, diameter=30) for
+                bim2sim.kernel.elements.all.Pipe, flags=['bypass'], length=60, diameter=30) for
                 i in range(3)]
 
         # connect
@@ -268,70 +269,70 @@ class ParallelPumpHelper(SetupHelper):
         with self.flag_manager(flags):
             # generator circuit
             con_vl_a = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(3)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(3)]
             fitting1 = self.element_generator(
-                elements.PipeFitting, flags=['pumps4', 'normal'],
+                bim2sim.kernel.elements.all.PipeFitting, flags=['pumps4', 'normal'],
                 n_ports=5, diameter=30, length=60)
             fitting2 = self.element_generator(
-                elements.PipeFitting, flags=['pumps4', 'normal', 'add'],
+                bim2sim.kernel.elements.all.PipeFitting, flags=['pumps4', 'normal', 'add'],
                 n_ports=3, diameter=30, length=60)
             p_pump1_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps4', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps4', 'normal'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps4', 'normal'], rated_power=1, rated_height=8,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps4', 'normal'], rated_power=1, rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps4', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps4', 'normal'], length=40, diameter=20),
             ]
             p_pump2_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps4', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps4', 'normal'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps4', 'normal'], rated_power=1, rated_height=8,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps4', 'normal'], rated_power=1, rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps4', 'normal'], length=40, diameter=20),
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps4', 'normal'], length=40, diameter=20),
             ]
             p_pump3_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps4', 'small'], length=40,
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps4', 'small'], length=40,
                     diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps4', 'small'], rated_power=0.6,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps4', 'small'], rated_power=0.6,
                     rated_height=6,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps4', 'small'], length=40,
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps4', 'small'], length=40,
                     diameter=20),
             ]
             p_pump4_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps4', 'normal', 'add'],
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps4', 'normal', 'add'],
                     length=40,
                     diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps4', 'normal', 'add'],
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps4', 'normal', 'add'],
                     rated_power=1, rated_height=8, rated_volume_flow=6,
                     diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps4', 'normal', 'add'],
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps4', 'normal', 'add'],
                     length=40, diameter=20),
             ]
             fitting3 = self.element_generator(
-                elements.PipeFitting, flags=['pumps4', 'normal'],
+                bim2sim.kernel.elements.all.PipeFitting, flags=['pumps4', 'normal'],
                 n_ports=5, diameter=30, length=60)
             fitting4 = self.element_generator(
-                elements.PipeFitting, flags=['pumps4', 'normal', 'add'],
+                bim2sim.kernel.elements.all.PipeFitting, flags=['pumps4', 'normal', 'add'],
                 n_ports=3, diameter=30, length=60)
             con_vl_b = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(3)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(3)]
             consumer = self.element_generator(
-                elements.SpaceHeater)
+                bim2sim.kernel.elements.all.SpaceHeater)
             con_rl_a = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(6)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(6)]
             bypass = [self.element_generator(
-                elements.Pipe, flags=['bypass'], length=60, diameter=30) for
+                bim2sim.kernel.elements.all.Pipe, flags=['bypass'], length=60, diameter=30) for
                 i in range(3)]
         # connect
         # parallel pumps connections VL
@@ -377,81 +378,81 @@ class ParallelPumpHelper(SetupHelper):
         with self.flag_manager(flags):
             # generator circuit
             con_vl_a = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(3)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(3)]
             fitting1 = self.element_generator(
-                elements.PipeFitting, flags=['pumps2', 'normal', 'small'],
+                bim2sim.kernel.elements.all.PipeFitting, flags=['pumps2', 'normal', 'small'],
                 n_ports=7, diameter=30, length=60)
             p_pump1_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40,
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40,
                     diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps2', 'normal'], rated_power=1,
                     rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40,
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40,
                     diameter=20),
             ]
             p_pump2_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40,
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40,
                     diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps2', 'normal'], rated_power=1,
                     rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40,
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40,
                     diameter=20),
             ]
             p_pump3_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40,
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40,
                     diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps2', 'normal'], rated_power=1,
                     rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40,
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40,
                     diameter=20),
             ]
             p_pump4_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40,
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40,
                     diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['pumps2', 'normal'], rated_power=1,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps2', 'normal'], rated_power=1,
                     rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'normal'], length=40,
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'normal'], length=40,
                     diameter=20),
             ]
             p_pump5_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'small'], length=40,
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'small'], length=40,
                     diameter=15),
                 self.element_generator(
-                    elements.Pump, flags=['pumps2', 'small'], rated_power=0.22,
+                    bim2sim.kernel.elements.all.Pump, flags=['pumps2', 'small'], rated_power=0.22,
                     rated_height=8,
                     rated_volume_flow=0.8, diameter=15),
                 self.element_generator(
-                    elements.Pipe, flags=['pumps2', 'small'], length=40,
+                    bim2sim.kernel.elements.all.Pipe, flags=['pumps2', 'small'], length=40,
                     diameter=15),
             ]
             fitting2 = self.element_generator(
-                elements.PipeFitting, flags=['pumps2', 'normal', 'small'],
+                bim2sim.kernel.elements.all.PipeFitting, flags=['pumps2', 'normal', 'small'],
                 n_ports=6, diameter=30, length=60)
             con_vl_b = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(3)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(3)]
             consumer = self.element_generator(
-                elements.SpaceHeater)
+                bim2sim.kernel.elements.all.SpaceHeater)
             con_rl_a = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(6)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(6)]
             add_con = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(3)]
+                bim2sim.kernel.elements.all.Pipe, length=100, diameter=30) for i in range(3)]
 
         # connect
         self.connect_strait([*con_vl_a, fitting1])
@@ -521,7 +522,7 @@ class TestParallelPumps(unittest.TestCase):
         """Two parallel pumps"""
         graph, flags = self.helper.get_setup_pumps1()
         models = flags['pumps1']
-        pumps = [item for item in models if isinstance(item, elements.Pump)]
+        pumps = [item for item in models if isinstance(item, bim2sim.kernel.elements.all.Pump)]
         matches, meta = aggregation.ParallelPump.find_matches(graph)
         self.assertEqual(len(matches), 1)
         agg_pump = aggregation.ParallelPump(matches[0], **meta[0])
@@ -550,7 +551,7 @@ class TestParallelPumps(unittest.TestCase):
         graph, flags = self.helper.get_setup_pumps2()
         models = flags['normal']
         small = flags['small']
-        pumps = [item for item in models if isinstance(item, elements.Pump)]
+        pumps = [item for item in models if isinstance(item, bim2sim.kernel.elements.all.Pump)]
         matches, meta = aggregation.ParallelPump.find_matches(graph)
 
         self.assertEqual(len(matches), 1)
@@ -591,7 +592,7 @@ class TestParallelPumps(unittest.TestCase):
         graph, flags = self.helper.get_setup_pumps4()
         models = flags['normal']
         small = flags['small']
-        pumps = [item for item in models if isinstance(item, elements.Pump)]
+        pumps = [item for item in models if isinstance(item, bim2sim.kernel.elements.all.Pump)]
         matches, meta = aggregation.ParallelPump.find_matches(graph)
 
         self.assertEqual(len(matches), 1)
@@ -632,7 +633,7 @@ class TestParallelPumps(unittest.TestCase):
         graph, flags = self.helper.get_setup_pumps5()
         models = flags['normal']
         small = flags['small']
-        pumps = [item for item in models if isinstance(item, elements.Pump)]
+        pumps = [item for item in models if isinstance(item, bim2sim.kernel.elements.all.Pump)]
         matches, meta = aggregation.ParallelPump.find_matches(graph)
 
         self.assertEqual(len(matches), 1)
@@ -643,7 +644,7 @@ class TestParallelPumps(unittest.TestCase):
         expected_volume_flow = sum([p.rated_volume_flow for p in pumps])
         expected_diamter = sum([p.diameter**2 for p in pumps])**.5
         pumps_in_aggr = [item for item in agg_pump.elements if
-                         isinstance(item, elements.Pump)]
+                         isinstance(item, bim2sim.kernel.elements.all.Pump)]
         self.assertAlmostEqual(agg_pump.rated_volume_flow, expected_volume_flow)
         self.assertAlmostEqual(agg_pump.rated_height, expected_height)
         self.assertAlmostEqual(agg_pump.rated_power, expected_power)
@@ -736,14 +737,14 @@ class TestParallelPumps(unittest.TestCase):
         )
 
         n_pumps1 = len([item for item in flags['pumps1']
-                        if isinstance(item, elements.Pump)])
+                        if isinstance(item, bim2sim.kernel.elements.all.Pump)])
         n_pumps2 = len([item for item in flags['normal']
-                        if isinstance(item, elements.Pump)])
+                        if isinstance(item, bim2sim.kernel.elements.all.Pump)])
 
         match_pumps = []
         for match in matches:
             match_pumps.append([node for node in match
-                                if isinstance(node, elements.Pump)])
+                                if isinstance(node, bim2sim.kernel.elements.all.Pump)])
 
         target_pumps = {n_pumps1, n_pumps2}
         actual_pumps = {len(mp) for mp in match_pumps}

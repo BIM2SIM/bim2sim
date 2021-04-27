@@ -1,3 +1,4 @@
+import bim2sim.kernel.elements.all
 from bim2sim.task.base import Task, ITask
 from bim2sim.kernel import elements
 from bim2sim.decision import RealDecision, StringDecision
@@ -61,9 +62,9 @@ class EnrichNonValid(ITask):
                 material_input = self.material_input_decision(instance, layer_number)
                 if material_input not in self.material_selected:
                     self.store_new_material(instance, material_input)
-                new_layer = elements.Layer.create_additional_layer(thickness_value, material=material_input,
-                                                                   parent=instance,
-                                                                   material_properties=self.material_selected[
+                new_layer = bim2sim.kernel.elements.all.Layer.create_additional_layer(thickness_value, material=material_input,
+                                                                                      parent=instance,
+                                                                                      material_properties=self.material_selected[
                                                                        material_input])
                 instance.layers.append(new_layer)
                 layers_width += new_layer.thickness

@@ -1,5 +1,5 @@
 ﻿"""Modul containing model representations from the Modelica Standard Library"""
-
+import bim2sim.kernel.elements.all
 from bim2sim.export import modelica
 from bim2sim.kernel import elements, aggregation
 from bim2sim.kernel.units import ureg
@@ -12,7 +12,7 @@ class StandardLibrary(modelica.Instance):
 
 class StaticPipe(StandardLibrary):
     path = "Modelica.Fluid.Pipes.StaticPipe"
-    represents = [elements.Pipe, elements.PipeFitting, aggregation.PipeStrand]
+    represents = [bim2sim.kernel.elements.all.Pipe, bim2sim.kernel.elements.all.PipeFitting, aggregation.PipeStrand]
 
     def __init__(self, element):
         self.check_length = self.check_numeric(min_value=0 * ureg.meter)
@@ -39,7 +39,7 @@ class StaticPipe(StandardLibrary):
 
 class Valve(StandardLibrary):
     path = "Modelica.Fluid.Valves.ValveIncompressible"
-    represents = [elements.Valve]
+    represents = [bim2sim.kernel.elements.all.Valve]
 
     def __init__(self, element):
         self.check_length = self.check_numeric(min_value=0 * ureg.meter)
@@ -66,7 +66,7 @@ class Valve(StandardLibrary):
 
 class ClosedVolume(StandardLibrary):
     path = "Modelica.Fluid.Vessels.ClosedVolume"
-    represents = [elements.Storage]
+    represents = [bim2sim.kernel.elements.all.Storage]
 
     def __init__(self, element):
         self.check_volume = self.check_numeric(min_value=0 * ureg.meter ** 3)

@@ -1,6 +1,7 @@
 from unittest import mock
 from contextlib import contextmanager
 
+import bim2sim.kernel.elements.all
 from bim2sim.kernel.element import HVACPort, Root
 from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
@@ -51,7 +52,7 @@ class SetupHelper:
 
     def element_generator(self, element_cls, n_ports=2, flags=None, **kwargs):
         # instantiate
-        with mock.patch.object(elements.HVACProduct, 'get_ports', return_value=[]):
+        with mock.patch.object(bim2sim.kernel.elements.all.HVACProduct, 'get_ports', return_value=[]):
             element = element_cls(**kwargs)
         self.elements.append(element)
         # # set attributes
@@ -78,19 +79,19 @@ class SetupHelper:
         flags = {}
         with self.flag_manager(flags):
             # generator circuit
-            boiler = self.element_generator(elements.Boiler, rated_power=200)
-            gen_vl_a = [self.element_generator(elements.Pipe, length=100, diameter=40) for i in range(3)]
-            h_pump = self.element_generator(elements.Pump, rated_power=2.2, rated_height=12, rated_volume_flow=8)
-            gen_vl_b = [self.element_generator(elements.Pipe, flags=['strand1'], length=100, diameter=40) for i in range(5)]
-            distributor = self.element_generator(elements.Distributor, flags=['distributor'])  # , volume=80
-            gen_rl_a = [self.element_generator(elements.Pipe, length=100, diameter=40) for i in range(4)]
-            fitting = self.element_generator(elements.PipeFitting, n_ports=3, diameter=40, length=60)
-            gen_rl_b = [self.element_generator(elements.Pipe, length=100, diameter=40) for i in range(4)]
+            boiler = self.element_generator(bim2sim.kernel.elements.all.Boiler, rated_power=200)
+            gen_vl_a = [self.element_generator(bim2sim.kernel.elements.all.Pipe, length=100, diameter=40) for i in range(3)]
+            h_pump = self.element_generator(bim2sim.kernel.elements.all.Pump, rated_power=2.2, rated_height=12, rated_volume_flow=8)
+            gen_vl_b = [self.element_generator(bim2sim.kernel.elements.all.Pipe, flags=['strand1'], length=100, diameter=40) for i in range(5)]
+            distributor = self.element_generator(bim2sim.kernel.elements.all.Distributor, flags=['distributor'])  # , volume=80
+            gen_rl_a = [self.element_generator(bim2sim.kernel.elements.all.Pipe, length=100, diameter=40) for i in range(4)]
+            fitting = self.element_generator(bim2sim.kernel.elements.all.PipeFitting, n_ports=3, diameter=40, length=60)
+            gen_rl_b = [self.element_generator(bim2sim.kernel.elements.all.Pipe, length=100, diameter=40) for i in range(4)]
             gen_rl_c = [
-                self.element_generator(elements.Pipe, flags=['strand2'], length=(1 + i) * 40, diameter=15)
+                self.element_generator(bim2sim.kernel.elements.all.Pipe, flags=['strand2'], length=(1 + i) * 40, diameter=15)
                 for i in range(3)
             ]
-            tank = self.element_generator(elements.Storage, n_ports=1)
+            tank = self.element_generator(bim2sim.kernel.elements.all.Storage, n_ports=1)
 
         # connect
         gen_vl = [boiler, *gen_vl_a, h_pump, *gen_vl_b, distributor]
@@ -125,6 +126,6 @@ class SetupHelper:
             return False
 
         for ele in agg.elements:
-            if not isinstance(ele, elements.HVACProduct):
+            if not isinstance(ele, bim2sim.kernel.elements.all.HVACProduct):
                 return False
         return True

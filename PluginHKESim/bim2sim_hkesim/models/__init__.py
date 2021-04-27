@@ -2,6 +2,7 @@
 
 import pint
 
+import bim2sim.kernel.elements.all
 from bim2sim.export import modelica
 from bim2sim.kernel import elements
 from bim2sim.kernel.units import  ureg
@@ -15,7 +16,7 @@ class HKESim(modelica.Instance):
 
 class Boiler(HKESim):
     path = "HKESim.Heating.Boilers.Boiler"
-    represents = [elements.Boiler]
+    represents = [bim2sim.kernel.elements.all.Boiler]
 
     def __init__(self, element):
         self.check_power = self.check_numeric(min_value=0 * ureg.kilowatt) #TODO: Checking System
@@ -40,7 +41,7 @@ class Boiler(HKESim):
 
 class Radiator(HKESim):
     path = "HKESim.Heating.Consumers.Radiators.Radiator"
-    represents = [elements.SpaceHeater, aggregation.Consumer]
+    represents = [bim2sim.kernel.elements.all.SpaceHeater, aggregation.Consumer]
 
     def get_params(self):
         self.register_param("rated_power", self.check_numeric(min_value=0 * ureg.kilowatt), "Q_flow_nominal")
@@ -49,7 +50,7 @@ class Radiator(HKESim):
 
 class Pump(HKESim):
     path = "HKESim.Heating.Pumps.Pump"
-    represents = [elements.Pump]
+    represents = [bim2sim.kernel.elements.all.Pump]
 
     def get_params(self):
         pass
