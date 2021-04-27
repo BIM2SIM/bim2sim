@@ -149,11 +149,11 @@ class Test_HVACGraph(unittest.TestCase):
         port_graph = hvac_graph.HvacGraph(eles)
         ele_graph = port_graph.element_graph
 
-        wanted = ['IfcPipeSegment']
+        wanted = [elements.Pipe]
         chains = hvac_graph.HvacGraph.get_type_chains(ele_graph, wanted)
         self.assertEqual(5, len(chains), "Unexpected number of chains found!")
 
-        wanted = ['IfcPipeSegment', 'IfcPump']
+        wanted = [elements.Pipe, elements.Pump]
         chains2 = hvac_graph.HvacGraph.get_type_chains(ele_graph, wanted)
         self.assertEqual(4, len(chains2), "Unexpected number of chains found!")
 
