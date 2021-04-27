@@ -67,7 +67,8 @@ class TestInspect(unittest.TestCase):
     def test_case_2(self):
         """HeatExchange and Pipes are exported without ports"""
         with patch.object(FolderStructure, 'ifc', sample_root / 'B01_3_HeatExchanger_noPorts.ifc'):
-            with Decision.debug_answer(HeatExchanger.key, validate=True):
+            with Decision.debug_answer(HeatExchanger.key, validate=True,
+                                       overwrite_default=False):
                 self.project.run(cleanup=False)
 
         heat_exchanger = Root.objects.get('0qeZDHlQRzcKJYopY4$fEf')
