@@ -1001,10 +1001,10 @@ class Consumer(HVACAggregationMixin, elements.HVACProduct):
     multi = ('has_pump', 'rated_power', 'rated_pump_power', 'rated_height', 'rated_volume_flow', 'temperature_inlet',
              'temperature_outlet', 'volume', 'description')
 
-    # aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting', 'ParallelSpaceHeater']
     aggregatable_elements = {
         elements.SpaceHeater, elements.Pipe, elements.PipeFitting,
-        PipeStrand, ParallelSpaceHeater, elements.Pump, elements.Valve}
+        elements.Pump, elements.Valve,
+        PipeStrand, ParallelSpaceHeater, UnderfloorHeating}
     whitelist = [elements.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating]
     blacklist = [elements.Chiller, elements.Boiler, elements.CoolingTower]
 

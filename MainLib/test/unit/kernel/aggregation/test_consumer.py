@@ -275,25 +275,25 @@ class TestConsumerAggregation(unittest.TestCase):
 
         matches, metas = aggregation.Consumer.find_matches(graph)
 
-        idx = 0
-        # meta = {'outer_connections': flags['connect']}
-
-        consumer1 = aggregation.Consumer(matches[idx], **metas[idx])
+        for match, meta in zip(matches, metas):
+            consumer = aggregation.Consumer(match, **meta)
+            if elements.SpaceHeater in {type(ele) for ele in consumer.elements}:
+                # we only want consumer with SpaceHeater
+                break
 
         graph.merge(
-            mapping=consumer1.get_replacement_mapping(),
-            inner_connections=consumer1.get_inner_connections()
+            mapping=consumer.get_replacement_mapping(),
+            inner_connections=consumer.get_inner_connections()
         )
+        # graph.plot(r'c:\temp')
 
-        #graph.plot(r'c:\temp')
-
-        self.assertAlmostEqual(consumer1.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)
-        self.assert_(consumer1.has_pump)
+        self.assertAlmostEqual(consumer.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)
+        self.assert_(consumer.has_pump)
         #self.assertAlmostEqual(consumer.temperaure_inlet, 1000) Not Implemented
         #self.assertAlmostEqual(consumer.temperature_outlet, 1000) Not Implemented
         #self.assertAlmostEqual(consumer.volume, 1000) Not Implemented
         #self.assertAlmostEqual(consumer.height, 1000) Not Implemented
-        self.assertIn('SpaceHeater', consumer1.description)  # list of all aggregated consumers description
+        self.assertIn('SpaceHeater', consumer.description)  # list of all aggregated consumers description
 
     def test_aggregation_consumer2(self):
         """test aggregation of consumercycle no 2"""
