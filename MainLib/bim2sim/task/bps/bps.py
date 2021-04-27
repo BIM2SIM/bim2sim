@@ -46,12 +46,12 @@ from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
 from stl import stl
 from stl import mesh
 
-import bim2sim.kernel.elements.all
+from bim2sim.kernel.elements import bps
 from bim2sim.task.base import Task, ITask
 # from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import ProductBased, ElementEncoder, Port
 # from bim2sim.kernel.elements import SpaceBoundary2B, SpaceBoundary
-from bim2sim.kernel.elements.all import SpaceBoundary
+from bim2sim.kernel.elements.bps import SpaceBoundary
 # from bim2sim.kernel.bps import ...
 from bim2sim.export import modelica
 from bim2sim.decision import Decision
@@ -1662,7 +1662,7 @@ class ExportEP(ITask):
         stat_default = self._set_hvac_template(idf, name=stat_name, heating_sp=20, cooling_sp=25)
         for instance in self._get_ifc_spaces(instances):
             space = instance
-            space.storey = bim2sim.kernel.elements.all.Storey(space.get_storey())
+            space.storey = bps.Storey(space.get_storey())
             room, room_key = self._get_room_from_zone_dict(key=space.ifc.LongName)
             stat_name = "STATS " + room_key[0].replace(",", "")
             if idf.getobject("HVACTEMPLATE:THERMOSTAT", stat_name) is None:

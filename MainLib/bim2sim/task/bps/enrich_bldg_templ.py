@@ -1,6 +1,6 @@
 import ast
 
-import bim2sim.kernel.elements.all
+from bim2sim.kernel.elements import bps
 from bim2sim.task.base import Task, ITask
 from bim2sim.kernel.element import ProductBased
 from bim2sim.kernel import elements
@@ -56,7 +56,7 @@ class EnrichBuildingByTemplates(ITask):
         if template is not None:
             for i_layer, layer_props in template['layer'].items():
                 material_properties = resumed[layer_props['material']['name']]
-                new_layer = bim2sim.kernel.elements.all.Layer.create_additional_layer(
+                new_layer = bps.Layer.create_additional_layer(
                     layer_props['thickness'], instance, material=layer_props['material']['name'],
                     material_properties=material_properties)
                 instance.layers.append(new_layer)

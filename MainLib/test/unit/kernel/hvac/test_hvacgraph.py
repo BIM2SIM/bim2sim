@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import networkx as nx
 
-import bim2sim.kernel.elements.all
+from bim2sim.kernel.elements import hvac
 from bim2sim.kernel import element, elements
 from bim2sim.kernel.hvac import hvac_graph
 
@@ -17,20 +17,20 @@ class GraphHelper(SetupHelper):
         flags = {}
         with self.flag_manager(flags):
             # generator circuit
-            boiler = self.element_generator(bim2sim.kernel.elements.all.Boiler, rated_power=200)
-            gen_vl_a = [self.element_generator(bim2sim.kernel.elements.all.Pipe, length=100, diameter=40) for i in range(3)]
-            h_pump = self.element_generator(bim2sim.kernel.elements.all.Pump, rated_power=2.2, rated_height=12, rated_volume_flow=8)
-            gen_vl_b = [self.element_generator(bim2sim.kernel.elements.all.Pipe, flags=['strand1'], length=100, diameter=40) for i in
+            boiler = self.element_generator(hvac.Boiler, rated_power=200)
+            gen_vl_a = [self.element_generator(hvac.Pipe, length=100, diameter=40) for i in range(3)]
+            h_pump = self.element_generator(hvac.Pump, rated_power=2.2, rated_height=12, rated_volume_flow=8)
+            gen_vl_b = [self.element_generator(hvac.Pipe, flags=['strand1'], length=100, diameter=40) for i in
                         range(5)]
-            distributor = self.element_generator(bim2sim.kernel.elements.all.Distributor, flags=['distributor'])  # , volume=80
-            gen_rl_a = [self.element_generator(bim2sim.kernel.elements.all.Pipe, length=100, diameter=40) for i in range(4)]
-            fitting = self.element_generator(bim2sim.kernel.elements.all.PipeFitting, n_ports=3, diameter=40, length=60)
-            gen_rl_b = [self.element_generator(bim2sim.kernel.elements.all.Pipe, length=100, diameter=40) for i in range(4)]
+            distributor = self.element_generator(hvac.Distributor, flags=['distributor'])  # , volume=80
+            gen_rl_a = [self.element_generator(hvac.Pipe, length=100, diameter=40) for i in range(4)]
+            fitting = self.element_generator(hvac.PipeFitting, n_ports=3, diameter=40, length=60)
+            gen_rl_b = [self.element_generator(hvac.Pipe, length=100, diameter=40) for i in range(4)]
             gen_rl_c = [
-                self.element_generator(bim2sim.kernel.elements.all.Pipe, flags=['strand2'], length=(1 + i) * 40, diameter=15)
+                self.element_generator(hvac.Pipe, flags=['strand2'], length=(1 + i) * 40, diameter=15)
                 for i in range(3)
             ]
-            tank = self.element_generator(bim2sim.kernel.elements.all.Storage, n_ports=1)
+            tank = self.element_generator(hvac.Storage, n_ports=1)
 
         # connect
         gen_vl = [boiler, *gen_vl_a, h_pump, *gen_vl_b, distributor]
@@ -150,11 +150,11 @@ class Test_HVACGraph(unittest.TestCase):
         port_graph = hvac_graph.HvacGraph(eles)
         ele_graph = port_graph.element_graph
 
-        wanted = [bim2sim.kernel.elements.all.Pipe]
+        wanted = [hvac.Pipe]
         chains = hvac_graph.HvacGraph.get_type_chains(ele_graph, wanted)
         self.assertEqual(5, len(chains), "Unexpected number of chains found!")
 
-        wanted = [bim2sim.kernel.elements.all.Pipe, bim2sim.kernel.elements.all.Pump]
+        wanted = [hvac.Pipe, hvac.Pump]
         chains2 = hvac_graph.HvacGraph.get_type_chains(ele_graph, wanted)
         self.assertEqual(4, len(chains2), "Unexpected number of chains found!")
 

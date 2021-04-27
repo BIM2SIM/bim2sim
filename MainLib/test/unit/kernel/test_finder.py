@@ -6,7 +6,7 @@ import os
 import tempfile
 
 import bim2sim
-import bim2sim.kernel.elements.all
+from bim2sim.kernel.elements import hvac
 from bim2sim.kernel import ifc2python
 from bim2sim.kernel import element, elements
 from bim2sim.kernel.finder import TemplateFinder
@@ -28,10 +28,10 @@ class TestTemplateFinder(unittest.TestCase):
         pipefittings = TestTemplateFinder.ifc.by_type("IfcPipeFitting")
         pipes = TestTemplateFinder.ifc.by_type("IfcPipeSegment")
 
-        cls.pipe1 = bim2sim.kernel.elements.all.Pipe(ifc=pipes[0])
-        cls.pipe2 = bim2sim.kernel.elements.all.Pipe(ifc=pipes[1])
-        cls.pipefitting1 = bim2sim.kernel.elements.all.PipeFitting(ifc=pipefittings[0])
-        cls.pipefitting2 = bim2sim.kernel.elements.all.PipeFitting(ifc=pipefittings[1])
+        cls.pipe1 = hvac.Pipe(ifc=pipes[0])
+        cls.pipe2 = hvac.Pipe(ifc=pipes[1])
+        cls.pipefitting1 = hvac.PipeFitting(ifc=pipefittings[0])
+        cls.pipefitting2 = hvac.PipeFitting(ifc=pipefittings[1])
 
     @classmethod
     def tearDownClass(cls):

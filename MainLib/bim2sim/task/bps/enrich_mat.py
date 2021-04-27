@@ -9,7 +9,7 @@ from bim2sim.task.common.common_functions import get_material_templates
 from bim2sim.kernel.units import ureg
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.element import ProductBased
-from bim2sim.kernel.elements.all import Layer
+from bim2sim.kernel.elements.bps import Layer
 
 
 class EnrichMaterial(ITask):
