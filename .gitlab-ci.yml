@@ -91,7 +91,6 @@ coverage_Base:
     - pip install coverage-badge
   script:
     - mv ./* /bim2sim/
-#    - source activate base
     - coverage run -m unittest discover /bim2sim/MainLib/
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
@@ -113,10 +112,6 @@ coverage_EP:
     - pip install coverage
     - pip install coverage-badge
   script:
-    #- mkdir /usr/local/EnergyPlus-9-4-0/ExampleFiles
-    #- mkdir /usr/local/EnergyPlus-9-4-0/DataSets/
-    #- cp PluginEnergyPlus/data/Minimal.idf /usr/local/EnergyPlus-9-4-0/ExampleFiles/
-    #- cp PluginEnergyPlus/data/Schedules.idf /usr/local/EnergyPlus-9-4-0/DataSets/
     - mv ./* /bim2sim/
     - coverage run -m unittest discover /bim2sim/PluginEnergyPlus/test/integration_test
     - coverage report -i
