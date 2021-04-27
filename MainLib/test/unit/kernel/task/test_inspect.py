@@ -88,7 +88,7 @@ class TestInspect(unittest.TestCase):
     def test_case_4(self):
         """Mix of case 1 and 3"""
         with patch.object(FolderStructure, 'ifc', sample_root / 'B01_5_HeatExchanger_mixConnection.ifc'):
-            with Decision.debug_answer('IfcUnitaryEquipment', validate=True,
+            with Decision.debug_answer('HVAC-HeatExchanger', validate=True,
                                        overwrite_default=False):
                 self.project.run(cleanup=False)
 

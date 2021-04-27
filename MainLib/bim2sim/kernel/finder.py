@@ -4,12 +4,14 @@ import os
 import json
 import contextlib
 from pathlib import Path
+import logging
 
 import bim2sim
 from bim2sim.kernel import ifc2python
 from bim2sim.decision import ListDecision, Decision
 
 
+logger = logging.getLogger(__name__)
 DEFAULT_PATH = Path(bim2sim.__file__).parent / 'assets/finder'
 
 
@@ -63,19 +65,12 @@ class TemplateFinder(Finder):
             with open(full_path, 'w') as file:
                 json.dump(element_dict, file, indent=2)
 
-    def set(self, tool, element, parameter, property_set_name, property_name):
+    def set(self, tool, ifc_type: str, parameter, property_set_name, property_name):
         """Internally saves property_set_name ans property_name as lookup source 
         for tool, element and parameter"""
 
-        if isinstance(element, str):
-            element_name = element  # string
-        elif isinstance(element.__class__, type):
-            element_name = element.ifc_type  # class
-        else:
-            element_name = element.__class__.ifc_type  # instance
-
         value = [property_set_name, property_name]
-        self.templates.setdefault(tool, {}).setdefault(element_name, {}).setdefault('default_ps', {})[parameter] = value
+        self.templates.setdefault(tool, {}).setdefault(ifc_type, {}).setdefault('default_ps', {})[parameter] = value
 
     def find(self, element, property_name):
         """Tries to find the required property
@@ -110,7 +105,7 @@ class TemplateFinder(Finder):
 
         elif element.source_tool not in self.templates:
             # no matching template
-            element.logger.warning('No finder template found for {}.'.format(element.source_tool))
+            logger.warning('No finder template found for {}.'.format(element.source_tool))
 
             choices = list(self.templates.keys()) + ['Other']
             choice_checksum = ListDecision.build_checksum(choices)
@@ -128,7 +123,7 @@ class TemplateFinder(Finder):
                 raise AttributeError('No finder template found for {}.'.format(element.source_tool))
 
             self.templates[element.source_tool] = self.templates[tool_name]
-            element.logger.info("Set {} as finder template for {}.".format(tool_name, element.source_tool))
+            logger.info("Set {} as finder template for {}.".format(tool_name, element.source_tool))
 
     def reset(self):
         self.blacklist.clear()

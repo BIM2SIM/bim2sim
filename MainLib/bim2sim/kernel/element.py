@@ -157,6 +157,7 @@ class IFCMixin:
         self.ifc = ifc
         self.predefined_type = ifc2python.get_predefined_type(ifc)
         self.finder = finder
+        self._source_tool: str = None
 
         # TBD
         self.enrichment = {}  # TODO: DJA
@@ -166,10 +167,10 @@ class IFCMixin:
 
     @staticmethod
     def ifc2args(ifc) -> Tuple[tuple, dict]:
-        """Extract init args from ifc"""
-        # subelement can be an ifc instance that doesnt have a GlobalId
+        """Extract init args and kwargs from ifc"""
         guid = getattr(ifc, 'GlobalId', None)
-        return (), {'guid': guid, 'ifc': ifc}
+        kwargs = {'guid': guid, 'ifc': ifc}
+        return (), kwargs
 
     @classmethod
     def from_ifc(cls, ifc, *args, **kwargs):
@@ -186,9 +187,9 @@ class IFCMixin:
     @property
     def source_tool(self):  # TBD: this incl. Finder could live in Factory
         """Name of tool the ifc has been created with"""
-        if not self.__class__._source_tool:
-            self.__class__._source_tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
-        return self.__class__._source_tool
+        if not self._source_tool and self.ifc:
+            self._source_tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
+        return self._source_tool
 
     @classmethod
     def pre_validate(cls, ifc) -> bool:
@@ -472,9 +473,7 @@ class RelationBased(IFCMixin, Root):
     @property
     def source_tool(self):  # TBD: this incl. Finder could live in Factory
         """Name of tool that the parent has been created with"""
-        if hasattr(self.parent, 'source_tool'):
-            self._tool = self.parent.source_tool
-        return self._tool
+        return getattr(self.parent, 'source_tool')
 
     def __repr__(self):
         return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)
