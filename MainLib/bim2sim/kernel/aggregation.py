@@ -40,13 +40,14 @@ def verify_edge_ports(func):
     return wrapper
 
 
-class AggregationPort(Port):
+class HVACAggregationPort(HVACPort):
     """Port for Aggregation"""
 
     def __init__(self, originals, *args, **kwargs):
         if 'guid' not in kwargs:
             kwargs['guid'] = self.get_id("AggPort")
         super().__init__(*args, **kwargs)
+        # TODO / TBD: DJA: can one Port replace multiple? what about position?
         if not type(originals) == list:
             self.originals = [originals]
         else:
@@ -202,7 +203,7 @@ class PipeStrand(HVACAggregationMixin, elements.Pipe):
         super().__init__(element_graph, *args, **kwargs)
         edge_ports = self.get_edge_ports(element_graph)
         for port in edge_ports:
-            self.ports.append(AggregationPort(port, parent=self))
+            self.ports.append(HVACAggregationPort(port, parent=self))
 
     @classmethod
     def get_edge_ports(cls, graph):
@@ -512,7 +513,7 @@ class ParallelPump(HVACAggregationMixin, elements.Pump):
         # simple case with two edge ports
         if len(edge_ports) == 2:
             for port in edge_ports:
-                self.ports.append(AggregationPort(port, parent=self))
+                self.ports.append(HVACAggregationPort(port, parent=self))
         # more than two edge ports
         else:
             # get list of ports to be merged to one aggregation port
@@ -523,7 +524,7 @@ class ParallelPump(HVACAggregationMixin, elements.Pump):
                 originals_dict[parent] = [port for port in edge_ports if
                                           port.connection.parent == parent]
             for originals in originals_dict.values():
-                self.ports.append(AggregationPort(originals, parent=self))
+                self.ports.append(HVACAggregationPort(originals, parent=self))
 
     def get_edge_ports(self, graph):
         """
@@ -580,7 +581,7 @@ class ParallelPump(HVACAggregationMixin, elements.Pump):
                         graph, parent), aggr_ports)
                 else:
                     for port in aggr_ports:
-                        AggregationPort(
+                        HVACAggregationPort(
                             originals=port, parent=parent.aggregation)
         return edge_ports
 
@@ -737,13 +738,13 @@ class AggregatedPipeFitting(HVACAggregationMixin, elements.PipeFitting):
         for edge_port in edge_ports:
             if aggr_ports:
                 if edge_port not in aggr_ports:
-                    self.ports.append(AggregationPort(edge_port, parent=self))
+                    self.ports.append(HVACAggregationPort(edge_port, parent=self))
             else:
-                self.ports.append(AggregationPort(edge_port, parent=self))
+                self.ports.append(HVACAggregationPort(edge_port, parent=self))
 
         # create combined aggregation port for all ports in aggr_ports
         if aggr_ports:
-            self.ports.append(AggregationPort(aggr_ports, parent=self))
+            self.ports.append(HVACAggregationPort(aggr_ports, parent=self))
 
     @classmethod
     def get_edge_ports(cls, graph):
@@ -794,8 +795,8 @@ class ParallelSpaceHeater(HVACAggregationMixin, elements.SpaceHeater):
     def __init__(self, element_graph, *args, **kwargs):
         super().__init__(element_graph, *args, **kwargs)
         edge_ports = self._get_start_and_end_ports()
-        self.ports.append(AggregationPort(edge_ports[0], parent=self))
-        self.ports.append(AggregationPort(edge_ports[1], parent=self))
+        self.ports.append(HVACAggregationPort(edge_ports[0], parent=self))
+        self.ports.append(HVACAggregationPort(edge_ports[1], parent=self))
         # self._total_rated_power = None
         # self._avg_rated_height = None
         # self._total_rated_volume_flow = None
@@ -1011,8 +1012,8 @@ class Consumer(HVACAggregationMixin, elements.HVACProduct):
     def __init__(self, element_graph, *args, **kwargs):
         super().__init__(element_graph, *args, **kwargs)
         edge_ports = self._get_start_and_end_ports()
-        self.ports.append(AggregationPort(edge_ports[0], parent=self))
-        self.ports.append(AggregationPort(edge_ports[1], parent=self))
+        self.ports.append(HVACAggregationPort(edge_ports[0], parent=self))
+        self.ports.append(HVACAggregationPort(edge_ports[1], parent=self))
         # self._total_rated_power = None
         # self._avg_rated_height = None
         # self._total_rated_volume_flow = None
@@ -1305,7 +1306,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, elements.HVACProduc
         super().__init__(element_graph, *args, **kwargs)
         edge_ports = self._get_start_and_end_ports()
         for port in edge_ports:
-            self.ports.append(AggregationPort(port, parent=self))
+            self.ports.append(HVACAggregationPort(port, parent=self))
 
         self.consumers = []
 
@@ -1315,8 +1316,8 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, elements.HVACProduc
 
         self.open_consumer_pairs = self._register_open_consumerports()
         for ports in self.open_consumer_pairs:
-            a = AggregationPort(ports[0], parent=self)
-            b = AggregationPort(ports[1], parent=self)
+            a = HVACAggregationPort(ports[0], parent=self)
+            b = HVACAggregationPort(ports[1], parent=self)
             self.ports.append(a)
             self.ports.append(b)
 
