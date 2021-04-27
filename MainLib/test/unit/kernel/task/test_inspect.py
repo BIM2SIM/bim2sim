@@ -44,13 +44,9 @@ class TestInspect(unittest.TestCase):
         # deactivate created project
         project.finalize(True)
 
-        ProductBased.finder.enabled = False
-
     @classmethod
     def tearDownClass(cls):
         cls.test_dir.cleanup()
-
-        ProductBased.finder.enabled = True
 
     def setUp(self) -> None:
         self.project = Project(self.test_dir.name)

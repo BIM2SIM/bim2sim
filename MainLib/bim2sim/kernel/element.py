@@ -5,6 +5,7 @@ import logging
 from json import JSONEncoder
 import itertools
 import re
+from pathlib import Path
 from typing import Union, Set, Iterable, Dict, List, Tuple, Type
 
 import numpy as np
@@ -147,14 +148,15 @@ class IFCMixin:
     ifc_types: Dict[str, List[str]] = None
     pattern_ifc_type = []
 
-    # TBD
-    finder = TemplateFinder()
-
-    def __init__(self, *args, ifc=None, **kwargs):
+    def __init__(self, *args,
+                 ifc=None,
+                 finder: TemplateFinder = None,
+                 **kwargs):
         super().__init__(*args, **kwargs)
 
         self.ifc = ifc
         self.predefined_type = ifc2python.get_predefined_type(ifc)
+        self.finder = finder
 
         # TBD
         self.enrichment = {}  # TODO: DJA
@@ -488,10 +490,6 @@ class ProductBased(IFCMixin, Root):
     key_map: Dict[str, 'Type[ProductBased]'] = {}
     conditions = []
 
-    # TBD
-    # todo this is a hotfix
-    finder = TemplateFinder()
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ports = self.get_ports()
@@ -649,10 +647,15 @@ class Factory:
         ele = factory(some_ifc_element)
         """
 
-    def __init__(self, relevant_elements: List[ProductBased], dummy=Dummy):
+    def __init__(
+            self, relevant_elements: List[ProductBased],
+            finder_path: Union[str, Path, None] = None, dummy=Dummy):
         self.mapping, self.blacklist, self.defaults = \
             self.create_ifc_mapping(relevant_elements)
         self.dummy_cls = dummy
+        self.finder = TemplateFinder()
+        if finder_path:
+            self.finder.load(finder_path)
         self.objects = {}
 
     def __call__(self, ifc_entity, *args, use_dummy=True, **kwargs) \
@@ -681,7 +684,8 @@ class Factory:
     def create(self, element_cls, ifc_entity, *args, **kwargs):
         """Create Element from class and ifc"""
         # instantiate element
-        element = element_cls.from_ifc(ifc_entity, *args, **kwargs)
+        element = element_cls.from_ifc(
+            ifc_entity, finder=self.finder, *args, **kwargs)
         # check if it prefers to be sth else
         better_cls = element.get_better_subclass()
         if better_cls:

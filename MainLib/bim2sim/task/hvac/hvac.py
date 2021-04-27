@@ -337,7 +337,7 @@ class Inspect(ITask):
     def run(self, workflow, ifc, filters):
         self.logger.info("Creates python representation of relevant ifc types")
 
-        self.factory = Factory(workflow.relevant_elements)
+        self.factory = Factory(workflow.relevant_elements, self.paths.finder)
 
         # filter by type
         initial_filter = filters[0]  #ToDo: TypeFilter must be first if the following Filter should also search in this types!
@@ -498,7 +498,6 @@ class Prepare(ITask):
     @Task.log
     def run(self, workflow, relevant_ifc_types):
         self.logger.info("Setting Filters")
-        ProductBased.finder.load(self.paths.finder)
         # filters = [TypeFilter(relevant_ifc_types), TextFilter(relevant_ifc_types, ['Description'])]
         filters = [TypeFilter(relevant_ifc_types)]
         # self.filters.append(TextFilter(['IfcBuildingElementProxy', 'IfcUnitaryEquipment']))

@@ -32,22 +32,16 @@ class TestTemplateFinder(unittest.TestCase):
         cls.pipefitting1 = elements.PipeFitting(pipefittings[0])
         cls.pipefitting2 = elements.PipeFitting(pipefittings[1])
 
-        element.ProductBased.finder.enabled = False
-
     @classmethod
     def tearDownClass(cls):
-        element.ProductBased.finder.enabled = True
         Decision.reset_decisions()
         cls.root.cleanup()
 
     def setUp(self):
         self.finder = TemplateFinder()
-        self.backup = element.ProductBased.finder
-        element.ProductBased.finder = self.finder
 
     def tearDown(self):
         del self.finder
-        element.ProductBased.finder = self.backup
 
     def test_set_find(self):
         cls = self.__class__
