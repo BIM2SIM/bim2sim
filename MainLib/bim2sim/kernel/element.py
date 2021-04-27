@@ -45,10 +45,11 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
 
     keeps track of created instances and guids"""
     objects = {}
+    guid_prefix = ''
     _id_counter = 0
 
     def __init__(self, guid=None, **kwargs):
-        self.guid = guid or self.get_id()
+        self.guid = guid or self.get_id(self.guid_prefix)
         Root.objects[self.guid] = self
         self.related_decisions = []
         self.attributes = attribute.AttributeManager(bind=self)

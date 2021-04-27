@@ -14,10 +14,9 @@ horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
 
 class Disaggregation(ProductBased):
     """Base disaggregation of models"""
+    guid_prefix = 'Disagg'
 
     def __init__(self, name, element, *args, **kwargs):
-        if 'guid' not in kwargs:
-            kwargs['guid'] = self.get_id("Disagg")
         super().__init__(*args, **kwargs)
         self.parent = element
         self.name = name

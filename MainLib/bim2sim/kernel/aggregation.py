@@ -42,10 +42,9 @@ def verify_edge_ports(func):
 
 class HVACAggregationPort(HVACPort):
     """Port for Aggregation"""
+    guid_prefix = 'AggPort'
 
     def __init__(self, originals, *args, **kwargs):
-        if 'guid' not in kwargs:
-            kwargs['guid'] = self.get_id("AggPort")
         super().__init__(*args, **kwargs)
         # TODO / TBD: DJA: can one Port replace multiple? what about position?
         if not type(originals) == list:
@@ -62,6 +61,7 @@ class HVACAggregationPort(HVACPort):
 
 
 class AggregationMixin:
+    guid_prefix = 'Agg'
     multi = ()
     aggregatable_elements: Set[ProductBased] = set()
 
@@ -72,12 +72,9 @@ class AggregationMixin:
             if mismatch:
                 raise AssertionError("Can't aggregate %s form elements: %s" %
                                      (self.__class__.__name__, mismatch))
-        if 'guid' not in kwargs:
-            # TODO: make guid reproduceable unique for same aggregation elements
-            #  e.g. hash of all (ordered?) element guids?
-            #  Needed for save/load decisions on aggregations
-            kwargs['guid'] = self.get_id("Agg")
-        # how to handle attributes an multi_calc etc.? Overwrite them?
+        # TODO: make guid reproduceable unique for same aggregation elements
+        #  e.g. hash of all (ordered?) element guids?
+        #  Needed for save/load decisions on aggregations
         super().__init__(*args, **kwargs)
         self.elements = elements
         # TBD
