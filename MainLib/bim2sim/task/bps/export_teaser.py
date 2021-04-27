@@ -65,9 +65,7 @@ class ExportTEASER(ITask):
         
         prj.weather_file_path = \
                 assets / 'weatherfiles' / 'DEU_NW_Aachen.105010_TMYx.mos'
-
-        export_path = str(self.paths.export)
-        prj.export_aixlib(path=export_path)
+        prj.export_aixlib(path=self.paths.export)
         # todo remove the following lines after
         #  https://github.com/RWTH-EBC/TEASER/pull/687 is corrected in TEASER
         import os
