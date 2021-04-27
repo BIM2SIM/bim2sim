@@ -124,7 +124,8 @@ coverage_EP:
   script:
     - mkdir /usr/local/EnergyPlus-9-4-0/ExampleFiles
     - ls
-    - mv Environment/EPExampleFiles/Minimal.idf /usr/local/EnergyPlus-9-4-0/ExampleFiles/
+    - cp PluginEnergyPlus/data/Minimal.idf /usr/local/EnergyPlus-9-4-0/ExampleFiles/
+    - cp PluginEnergyPlus/data/Schedules.idf /usr/local/EnergyPlus-9-4-0/ExampleFiles/
     - mv ./* /bim2sim/
     # this shouldn't be needed. hotfix
     - coverage run -m unittest discover /bim2sim/PluginEnergyPlus/test/integration_test
