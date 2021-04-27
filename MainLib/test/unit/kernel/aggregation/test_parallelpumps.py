@@ -600,12 +600,12 @@ class TestParallelPumps(unittest.TestCase):
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
         expected_volume_flow = sum([p.rated_volume_flow for p in pumps])
-        expected_diamter = sum([p.diameter**2 for p in pumps])**.5
+        expected_diameter = sum([p.diameter**2 for p in pumps])**.5
 
         self.assertAlmostEqual(agg_pump.rated_volume_flow, expected_volume_flow)
         self.assertAlmostEqual(agg_pump.rated_height, expected_height)
         self.assertAlmostEqual(agg_pump.rated_power, expected_power)
-        self.assertAlmostEqual(agg_pump.diameter, expected_diamter)
+        self.assertAlmostEqual(agg_pump.diameter, expected_diameter)
 
         graph.merge(
             mapping=agg_pump.get_replacement_mapping(),
