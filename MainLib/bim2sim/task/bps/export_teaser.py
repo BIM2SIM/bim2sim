@@ -60,11 +60,11 @@ class ExportTEASER(ITask):
                     ow_min.orientation = 0
                 tz.calc_zone_parameters()
             bldg.calc_building_parameter()
-            assets = Path(bim2sim.__file__).parent / 'assets'
-
-        
-        prj.weather_file_path = \
-                assets / 'weatherfiles' / 'DEU_NW_Aachen.105010_TMYx.mos'
+        #     assets = Path(bim2sim.__file__).parent / 'assets'
+        #
+        #
+        # prj.weather_file_path = \
+        #         assets / 'weatherfiles' / 'DEU_NW_Aachen.105010_TMYx.mos'
         prj.export_aixlib(path=self.paths.export)
         # todo remove the following lines after
         #  https://github.com/RWTH-EBC/TEASER/pull/687 is corrected in TEASER
