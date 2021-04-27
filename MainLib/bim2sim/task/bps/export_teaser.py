@@ -71,9 +71,7 @@ class ExportTEASER(ITask):
         import os
         os.chdir(self.paths.root)
         os.chdir('..')
-        from teaser.data.output.reports import model_report
-        prj_data = model_report.calc_report_data(
-                prj, path=paths.export / 'TEASEROutput')
+
 
     @staticmethod
     def _create_project(element):
