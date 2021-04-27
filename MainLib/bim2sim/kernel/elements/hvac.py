@@ -1,44 +1,20 @@
 ﻿"""Module contains the different classes for all HVAC elements"""
-
+import inspect
+import sys
 from functools import lru_cache
 import logging
 import math
 import re
+from typing import Set
 
 import numpy as np
-import copy
-import translators as ts
-import ifcopenshell
-import ifcopenshell.geom
-from OCC.Core.Bnd import Bnd_Box
-from OCC.Core.BRepBndLib import brepbndlib_Add
-from OCC.Core.BRepLib import BRepLib_FuseEdges
-from OCC.Core.BRepBuilderAPI import \
-    BRepBuilderAPI_MakeFace, \
-    BRepBuilderAPI_MakeEdge, \
-    BRepBuilderAPI_MakeWire, BRepBuilderAPI_Transform, BRepBuilderAPI_MakeVertex
-from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
-from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Fuse
-from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, brepgprop_VolumeProperties
-from OCC.Core.GProp import GProp_GProps
-from OCC.Core.GeomAPI import GeomAPI_ProjectPointOnCurve
-from OCC.Core.ShapeAnalysis import ShapeAnalysis_ShapeContents
-from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
-from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
-from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ,  gp_Dir, gp_Ax1, gp_Pnt
-from OCC.Core.TopoDS import topods_Wire, topods_Face, TopoDS_Iterator
-from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_WIRE
-from OCC.Core.TopExp import TopExp_Explorer
-from OCC.Core.BRep import BRep_Tool
-from OCC.Core.BRepTools import BRepTools_WireExplorer
-from OCC.Core._Geom import Handle_Geom_Plane_DownCast
-from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 
 from bim2sim.kernel import element, condition, attribute
-from bim2sim.decision import BoolDecision, RealDecision, ListDecision
+from bim2sim.decision import BoolDecision
 from bim2sim.kernel.units import ureg
-from bim2sim.kernel.ifc2python import get_layers_ifc
-from bim2sim.task.common.common_functions import vector_angle, filter_instances
+
+
+logger = logging.getLogger(__name__)
 
 
 def diameter_post_processing(value):
@@ -47,8 +23,6 @@ def diameter_post_processing(value):
     return value
 
 
-logger = logging.getLogger(__name__)
-# pattern_usage = get_pattern_usage()
 def length_post_processing(value):
     if isinstance(value, (list, set)):
         return max(value)
@@ -78,16 +52,6 @@ class HVACProduct(element.ProductBased):
         for element_port_connection in element_port_connections:
             ports.append(element.HVACPort(parent=self, ifc=element_port_connection.RelatingPort))
         return ports
-
-
-class BPSProduct(element.ProductBased):
-    domain = 'BPS'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.thermal_zones = []
-        self.space_boundaries = []
-        self.storeys = []
 
 
 class HeatPump(HVACProduct):
@@ -345,7 +309,7 @@ class Pipe(HVACProduct):
 class PipeFitting(HVACProduct):
     ifc_types = {
         "IfcPipeFitting":
-            ['BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION', 'OBSTRUCTION',
+            ['*', 'BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION', 'OBSTRUCTION',
              'TRANSITION']
     }
 
@@ -647,3 +611,13 @@ class CHP(HVACProduct):
         unit=ureg.meter ** 3,
     )
 
+
+# collect all domain classes
+items: Set[HVACProduct] = set()
+for name, cls in inspect.getmembers(
+        sys.modules[__name__],
+        lambda member: inspect.isclass(member)  # class at all
+                       and issubclass(member, HVACProduct)  # domain subclass
+                       and member is not HVACProduct  # but not base class
+                       and member.__module__ == __name__):  # declared here
+    items.add(cls)

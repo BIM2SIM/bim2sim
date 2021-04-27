@@ -1,8 +1,10 @@
 ﻿"""Module contains the different classes for all HVAC elements"""
-
+import inspect
 import logging
 import math
 import re
+import sys
+from typing import Set
 
 import ifcopenshell
 import ifcopenshell.geom
@@ -1287,3 +1289,14 @@ class Storey(BPSProduct):
 
     def set_storey_instances(self):
         self.storey_instances, self.thermal_zones = self.get_storey_instances()
+
+
+# collect all domain classes
+items: Set[BPSProduct] = set()
+for name, cls in inspect.getmembers(
+        sys.modules[__name__],
+        lambda member: inspect.isclass(member)  # class at all
+                       and issubclass(member, BPSProduct)  # domain subclass
+                       and member is not BPSProduct  # but not base class
+                       and member.__module__ == __name__):  # declared here
+    items.add(cls)

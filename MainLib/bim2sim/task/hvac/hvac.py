@@ -4,6 +4,7 @@ import itertools
 import json
 import os
 import logging
+from typing import Tuple, List, Any, Type
 
 import numpy as np
 import networkx as nx
@@ -243,7 +244,8 @@ class Inspect(ITask):
         return connections
 
     @Task.log
-    def accept_valids(self, entities_dict, warn=True):
+    def accept_valids(self, entities_dict, warn=True) -> \
+            Tuple[List[ProductBased], List[Tuple[Any, Type[ProductBased]]]]:
         """Instantiate ifc_entities using given element class.
         Resulting instances are validated (if not force) ans added to self.instances on success."""
         valid, invalid = [], []
@@ -263,7 +265,7 @@ class Inspect(ITask):
                 else:
                     if warn:
                         self.logger.warning("Validation failed for %s %s", ifc_type, element)
-                    invalid.append(entity)
+                    invalid.append((entity, type(element) if element else None))
                     remaining.append(entity)
                     if element:
                         element.discard()
@@ -307,11 +309,13 @@ class Inspect(ITask):
         answers = {}
         checksum = Decision.build_checksum([pe.key for pe in possible_elements])  # assert same list of ifc_classes
         # checksum = Decision.build_checksum(list(Element._ifc_classes.keys()))  # assert same list of ifc_classes
-        for ifc_entity in unknown_entities:
+        for ifc_entity, best_guess_cls in unknown_entities:
+            best_guess = best_guess_cls.key if best_guess_cls else None
             ListDecision(
                 "Found unidentified Element of %s (Name: %s, Description: %s):" % (
                 ifc_entity.is_a(), ifc_entity.Name, ifc_entity.Description),
                 choices=[pe.key for pe in possible_elements],
+                default=best_guess,
                 output=answers,
                 output_key=ifc_entity,
                 global_key="%s.%s" % (ifc_entity.is_a(), ifc_entity.GlobalId),
@@ -349,7 +353,7 @@ class Inspect(ITask):
 
             if isinstance(f, TextFilter):
                 # filter by text fragments
-                class_dict, unknown_entities = self.filter_by_text(f, unknown_entities)
+                class_dict, unknown_entities = self.filter_by_text(f, [item[0] for item in unknown_entities])
                 valids, invalids = self.accept_valids(class_dict, force=True)   #  ToDo: Validation skipped....
                 unknown_entities.extend(invalids)
             else:
@@ -563,7 +567,7 @@ class Reduce(ITask):
             i = 0
             for match, meta in zip(matches, metas):
                 try:
-                    agg = agg_class(name_builder.format(name, i+1), match, **meta)
+                    agg = agg_class(match, **meta)
                 except Exception as ex:
                     self.logger.exception("Instantiation of '%s' failed", name)
                 else:
