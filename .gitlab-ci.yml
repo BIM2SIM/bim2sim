@@ -43,7 +43,7 @@ build_env:energyplus:
     changes:
        - Environment/Dockerfile_EP
        - MainLib/requirements.txt
-       # - .gitlab-ci.yml
+       - .gitlab-ci.yml
 
 build_env:master:
   image: docker:latest
@@ -82,15 +82,6 @@ build_tool:webdevelop:
   only:
     - frontend
 
-# unittest3.7:
-#   <<: *only-default
-#   image: $CI_REGISTRY/environment:development
-#   stage: test
-#   script:
-#     - mv ./* /bim2sim/
-# #    - source activate base
-#     - python /bim2sim/MainLib/run_tests.py
-
 coverage_Base:
   <<: *only-default
   image: $CI_REGISTRY/environment:development
@@ -128,7 +119,6 @@ coverage_EP:
     - cp PluginEnergyPlus/data/Minimal.idf /usr/local/EnergyPlus-9-4-0/ExampleFiles/
     - cp PluginEnergyPlus/data/Schedules.idf /usr/local/EnergyPlus-9-4-0/DataSets/
     - mv ./* /bim2sim/
-    # this shouldn't be needed. hotfix
     - coverage run -m unittest discover /bim2sim/PluginEnergyPlus/test/integration_test
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
