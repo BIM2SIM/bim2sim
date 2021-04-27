@@ -220,7 +220,7 @@ class PipeStrand(HVACAggregationMixin, elements.Pipe):
             length = getattr(pipe, "length")
             diameter = getattr(pipe, "diameter")
             if not (length and diameter):
-                self.logger.warning("Ignored '%s' in aggregation", pipe)
+                logger.warning("Ignored '%s' in aggregation", pipe)
                 continue
 
             diameter_times_length += diameter * length
@@ -613,14 +613,14 @@ class ParallelPump(HVACAggregationMixin, elements.Pump):
                     length = item.length
                     diameter = item.diameter
                     if not (length and diameter):
-                        self.logger.info("Ignored '%s' in aggregation", item)
+                        logger.info("Ignored '%s' in aggregation", item)
                         continue
 
                     diameter_times_length += diameter * length
                     total_length += length
 
                 else:
-                    self.logger.info("Ignored '%s' in aggregation", item)
+                    logger.info("Ignored '%s' in aggregation", item)
 
         if total_length != 0:
             avg_diameter_strand = diameter_times_length / total_length
@@ -859,7 +859,7 @@ class ParallelSpaceHeater(HVACAggregationMixin, elements.SpaceHeater):
                 rated_volume_flow = getattr(pump, "rated_volume_flow")
                 diameter = getattr(pump, "diameter")
                 if not (rated_power and rated_height and rated_volume_flow and diameter):
-                    self.logger.warning("Ignored '%s' in aggregation", pump)
+                    logger.warning("Ignored '%s' in aggregation", pump)
                     continue
 
                 total_rated_volume_flow += rated_volume_flow
@@ -876,14 +876,14 @@ class ParallelSpaceHeater(HVACAggregationMixin, elements.SpaceHeater):
                     length = pump.length
                     diameter = pump.diameter
                     if not (length and diameter):
-                        self.logger.warning("Ignored '%s' in aggregation", pump)
+                        logger.warning("Ignored '%s' in aggregation", pump)
                         continue
 
                     diameter_times_length += diameter * length
                     total_length += length
 
                 else:
-                    self.logger.warning("Ignored '%s' in aggregation", pump)
+                    logger.warning("Ignored '%s' in aggregation", pump)
 
         if total_length != 0:
             avg_diameter_strand = diameter_times_length / total_length
@@ -1158,13 +1158,13 @@ class Consumer(HVACAggregationMixin, elements.HVACProduct):
                 if hasattr(ele, "length"):  # ToDO: Parallel?
                     length = ele.length
                     if not (length):
-                        self.logger.warning("Ignored '%s' in aggregation", ele)
+                        logger.warning("Ignored '%s' in aggregation", ele)
                         continue
 
                     total_length += length
 
                 else:
-                    self.logger.warning("Ignored '%s' in aggregation", ele)
+                    logger.warning("Ignored '%s' in aggregation", ele)
 
         if not total_rated_pump_power and total_rated_volume_flow and avg_rated_height:
             g = 9.81 * ureg.meter / (ureg.second ** 2)
