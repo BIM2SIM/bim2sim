@@ -71,15 +71,15 @@ def get_pattern_usage(translate=False):
 
     common_translations = {
         "Bed room": ['Schlafzimmer'],
-        "Living": ["Galerie", "Wohnen"],
+        "Living": ["Galerie", "Wohnen", 'Wohnzimmer'],
         "Laboratory": ["Labor"],
         'office_function': ['Office', 'Buero', 'Büro', 'Pool'],
         "Meeting, Conference, seminar": ['Besprechungsraum', 'Seminarraum', 'Besprechung', 'Konferenz', 'Meeting',
                                          'Mehrzweckraum'],
 
-        'Kitchen in non-residential buildings': ['Kitchen', 'Küche'],
+        'Kitchen in non-residential buildings': ['Kitchen', 'Küche', 'Kueche'],
         'Kitchen - preparations, storage': ['Kitchen', 'Küche'],
-        'Traffic area': ['Hall', 'Flur', 'Dachboden', 'TH', 'Treppenhaus', 'Korridor', 'Übergang'],
+        'Traffic area': ['Hall', 'Flur', 'Dachboden', 'TH', 'Treppenhaus', 'Korridor', 'Corridor', 'Übergang'],
         'WC and sanitary rooms in non-residential buildings': ['bath', 'bathroom', 'WC', 'Toilet', 'Bad', 'Toiletten'],
         'Stock, technical equipment, archives': ['Technical room', 'Technikraum', 'Technik', 'Heizung', 'Server',
                                                  'Archiv', 'Elektro/HLS', 'Lager'],
