@@ -106,8 +106,6 @@ def get_pattern_usage(translate=False):
 
     pattern_usage_teaser['office_function'] = [re.compile('(.*?)%s' % c_trans, re.IGNORECASE) for c_trans in
                                                common_translations['office_function']]
-    # pattern_usage_teaser['office_function'] = [re.compile('(.*?)Office', re.IGNORECASE),
-    #                                            re.compile('(.*?)Buero', re.IGNORECASE)]
 
     return pattern_usage_teaser
 
