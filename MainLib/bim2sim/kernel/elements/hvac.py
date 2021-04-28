@@ -39,13 +39,14 @@ class HVACProduct(element.ProductBased):
                 # valid for IFC for Revit v19.2.0.0
                 for element_port_connection in nested.RelatedObjects:
                     if element_port_connection.is_a() == 'IfcDistributionPort':
-                        ports.append(element.HVACPort(
-                            parent=self, ifc=element_port_connection))
+                        ports.append(element.HVACPort.from_ifc(
+                            ifc=element_port_connection, parent=self))
                     else:
                         logger.warning(
                             "Not included %s as Port in %s",
                             element_port_connection.is_a(), self)
-        except AttributeError:
+        except AttributeError as ae:
+            logger.warning("Failed to create Port")
             pass
         # valid for IFC for Revit v19.1.0.0
         element_port_connections = getattr(self.ifc, 'HasPorts', [])

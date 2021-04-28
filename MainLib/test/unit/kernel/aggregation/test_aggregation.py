@@ -71,6 +71,10 @@ class SampleHVACElementAggregation(
     def find_matches(cls, graph: HvacGraph) -> Tuple[List[nx.Graph], List[dict]]:
         return [graph.element_graph], [{}]
 
+    @classmethod
+    def get_edge_ports(cls, graph) -> List[HVACPort]:
+        return []
+
     def _calc_attr1(self, name):
         total = 0
         for e in self.elements:

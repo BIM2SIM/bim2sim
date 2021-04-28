@@ -166,8 +166,8 @@ class IFCMixin:
         self._type_propertysets = None
         self._decision_results = {}
 
-    @staticmethod
-    def ifc2args(ifc) -> Tuple[tuple, dict]:
+    @classmethod
+    def ifc2args(cls, ifc) -> Tuple[tuple, dict]:
         """Extract init args and kwargs from ifc"""
         guid = getattr(ifc, 'GlobalId', None)
         kwargs = {'guid': guid, 'ifc': ifc}
@@ -786,11 +786,12 @@ class HVACPort(Port):
         self.groups = groups or set()
         self.flow_direction = flow_direction
 
-    @staticmethod
-    def ifc2args(ifc) -> Tuple[tuple, dict]:
+    @classmethod
+    def ifc2args(cls, ifc) -> Tuple[tuple, dict]:
         args, kwargs = super().ifc2args(ifc)
         groups = {assg.RelatingGroup.ObjectType
                   for assg in ifc.HasAssignments}
+        flow_direction = None
         if ifc.FlowDirection == 'SOURCE':
             flow_direction = 1
         elif ifc.FlowDirection == 'SINK':
