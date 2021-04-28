@@ -7,17 +7,17 @@ import bim2sim
 from pathlib import Path
 
 
-def angle_equivalent(angle): # check this
-    if angle == -180.0:
-        angle = 0
-    elif angle == -360:
-        angle = 180
-    else:
-        while angle >= 360 or angle < 0:
-            if angle >= 360:
-                angle -= 360
-            elif angle < 0:
-                angle += 360
+def angle_equivalent(angle):
+    # if angle == -180.0:
+    #     angle = 0
+    # elif angle == -360:
+    #     angle = 180
+    # else:
+    while angle >= 360 or angle < 0:
+        if angle >= 360:
+            angle -= 360
+        elif angle < 0:
+            angle += 360
     return angle
 
 
