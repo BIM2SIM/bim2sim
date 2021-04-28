@@ -96,7 +96,7 @@ import bim2sim
 #     """Analyses IFC and creates Element instances.
 #     Elements are stored in .instances dict with guid as key"""
 #
-#     reads = ('ifc', 'paths')
+#     reads = ('ifc')
 #     touches = ('instances',)
 #
 #     def __init__(self):
@@ -105,10 +105,10 @@ import bim2sim
 #         pass
 #
 #     @Task.log
-#     def run(self, workflow, ifc, paths):
+#     def run(self, workflow, ifc):
 #         self.logger.info("Creates python representation of relevant ifc types")
 #
-#         Element.finder.load(paths.finder)
+#         Element.finder.load(self.paths.finder)
 #         workflow.relevant_ifc_types = self.use_doors(workflow.relevant_ifc_types)
 #         for ifc_type in workflow.relevant_ifc_types:
 #             try:
@@ -693,19 +693,19 @@ class ExportEP(ITask):
 
     ENERGYPLUS_VERSION = "9-4-0"
 
-    reads = ('instances', 'ifc', 'paths')
-    final = True
+    reads = ('instances', 'ifc')
+    touches = ('instances',)
 
     @Task.log
-    def run(self, workflow, instances, ifc, paths):
+    def run(self, workflow, instances, ifc):
+        self.logger.info("Creates python representation of relevant ifc types")
         for inst in list(instances):
             if instances[inst].ifc_type == "IfcSpace":
                 for bound in instances[inst].space_boundaries:
                     instances[bound.guid] = bound
         # geometric preprocessing before export
-        self.paths = paths
         self.logger.info("Check syntax of IfcRelSpaceBoundary")
-        sb_checker = Checker(ifc, paths)
+        sb_checker = Checker(ifc, self.paths)
         self.logger.info("All tests done!")
         if len(sb_checker.error_summary) == 0:
             self.logger.info(
@@ -740,7 +740,7 @@ class ExportEP(ITask):
         # # self._intersect_scaled_centerline_bounds(instances)
         self.logger.info("Geometric preprocessing for EnergyPlus Export finished!")
         self.logger.info("IDF generation started ...")
-        idf = self._init_idf(paths)
+        idf = self._init_idf(self.paths)
         self._init_zone(instances, idf)
         self._init_zonelist(idf)
         self._init_zonegroups(instances, idf)
@@ -767,10 +767,11 @@ class ExportEP(ITask):
         self._export_boundary_report(instances, idf, ifc)
         self.logger.info("IDF generation finished!")
 
+        Element.finder.load(self.paths.finder)
         # idf.view_model()
         # self._export_to_stl_for_cfd(instances, idf)
         # self._display_shape_of_space_boundaries(instances)
-        output_string = str(paths.export / 'EP-results/')
+        output_string = str(self.paths.export / 'EP-results/')
         idf.run(output_directory=output_string, readvars=True)
         # self._visualize_results(
         #     csv_name=paths.export / 'EP-results/eplusout.csv')

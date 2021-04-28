@@ -564,9 +564,6 @@ class ThermalZone(element.Element):
         re.compile('Zone', flags=re.IGNORECASE)
     ]
 
-    zone_name = attribute.Attribute(
-    )
-
     def get_is_external(self, name):
         """determines if a thermal zone is external or internal
         based on its elements (Walls and windows analysis)"""
@@ -688,17 +685,49 @@ class ThermalZone(element.Element):
     def _get_volume(self, name):
         return self.area*self.height
 
+    def _get_usage(self, name):
+        if self.zone_name is not None:
+            usage = self.zone_name
+        elif self.ifc.LongName is not None:
+            usage = self.ifc.LongName
+        else:
+            usage = self.name
+        return usage
+
+    def _get_heating_profile(self, name):
+        profile = None
+        if self.t_set_heat is not None:
+            profile = [self.t_set_heat.to(ureg.kelvin).m] * 25
+        return profile
+
+    def _get_cooling_profile(self, name):
+        profile = None
+        if self.t_set_cool is not None:
+            profile = [self.t_set_cool.to(ureg.kelvin).m] * 25
+        return profile
+
+    def _get_persons(self, name):
+        return 1/self.AreaPerOccupant
+
+    zone_name = attribute.Attribute(
+    )
     usage = attribute.Attribute(
+        default_ps=("Pset_SpaceOccupancyRequirements", "OccupancyType"),
+        functions=[_get_usage]
     )
     t_set_heat = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMin"),
         unit=ureg.degC,
-        default=15
+        default=21
     )
     t_set_cool = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMax"),
         unit=ureg.degC,
-        default=22
+        default=25
+    )
+    t_ground = attribute.Attribute(
+        unit=ureg.degC,
+        default=13
     )
     area = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
@@ -728,15 +757,6 @@ class ThermalZone(element.Element):
         default=0,
         unit=ureg.m
     )
-    with_cooling = attribute.Attribute(
-        functions=[_get_cooling]
-    )
-    with_heating = attribute.Attribute(
-        functions=[_get_heating]
-    )
-    with_ahu = attribute.Attribute(
-        default_ps=("Pset_SpaceThermalRequirements", "AirConditioning"),
-    )
     AreaPerOccupant = attribute.Attribute(
         default_ps=("Pset_SpaceOccupancyRequirements", "AreaPerOccupant"),
         unit=ureg.meter ** 2
@@ -761,6 +781,73 @@ class ThermalZone(element.Element):
     )
     space_neighbors = attribute.Attribute(
         functions=[get_neighbors]
+    )
+    # use conditions
+    with_cooling = attribute.Attribute(
+        functions=[_get_cooling]
+    )
+    with_heating = attribute.Attribute(
+        functions=[_get_heating]
+    )
+    with_ahu = attribute.Attribute(
+        default_ps=("Pset_SpaceThermalRequirements", "AirConditioning"),
+    )
+    heating_profile = attribute.Attribute(
+        functions=[_get_heating_profile]
+    )
+    cooling_profile = attribute.Attribute(
+        functions=[_get_cooling_profile]
+    )
+    persons = attribute.Attribute(
+        functions=[_get_persons]
+    )
+    typical_length = attribute.Attribute(
+    )
+    typical_width = attribute.Attribute(
+    )
+    T_threshold_heating = attribute.Attribute(
+    )
+    activity_degree_persons = attribute.Attribute(
+    )
+    fixed_heat_flow_rate_persons = attribute.Attribute(
+    )
+    internal_gains_moisture_no_people = attribute.Attribute(
+    )
+    T_threshold_cooling = attribute.Attribute(
+    )
+    ratio_conv_rad_persons = attribute.Attribute(
+    )
+    machines = attribute.Attribute(
+    )
+    ratio_conv_rad_machines = attribute.Attribute(
+    )
+    lighting_power = attribute.Attribute(
+    )
+    ratio_conv_rad_lighting = attribute.Attribute(
+    )
+    use_constant_infiltration = attribute.Attribute(
+    )
+    infiltration_rate = attribute.Attribute(
+    )
+    max_user_infiltration = attribute.Attribute(
+    )
+    max_overheating_infiltration = attribute.Attribute(
+    )
+    max_summer_infiltration = attribute.Attribute(
+    )
+    winter_reduction_infiltration = attribute.Attribute(
+    )
+    min_ahu = attribute.Attribute(
+    )
+    max_ahu = attribute.Attribute(
+    )
+    with_ideal_thresholds = attribute.Attribute(
+    )
+    persons_profile = attribute.Attribute(
+    )
+    machines_profile = attribute.Attribute(
+    )
+    lighting_profile = attribute.Attribute(
     )
 
     def __init__(self, *args, **kwargs):
@@ -1598,7 +1685,33 @@ class Window(element.Element):
         unit=ureg.m
     )
     u_value = attribute.Attribute(
+        default_ps=("Pset_WallCommon", "ThermalTransmittance"),
         unit=ureg.W / ureg.K / ureg.meter ** 2
+    )
+
+    a_conv = attribute.Attribute(
+        default=0.07
+    )
+    g_value = attribute.Attribute(# material
+        default=0.65
+    )
+    inner_convection = attribute.Attribute(
+        default=2.7
+    )
+    inner_radiation = attribute.Attribute(
+        default=5.0
+    )
+    outer_radiation = attribute.Attribute(
+        default=5.0
+    )
+    outer_convection = attribute.Attribute(
+        default=20.0
+    )
+    shading_g_total = attribute.Attribute(
+        default=1.0
+    )
+    shading_max_irr = attribute.Attribute(
+        default=100.0
     )
 
 
@@ -1686,6 +1799,15 @@ class Slab(element.Element):
             layers.append(new_layer)
         return layers
 
+    def get_is_external(self, name):
+        if len(self.ifc.ProvidesBoundaries) > 0:
+            boundary = self.ifc.ProvidesBoundaries[0]
+            if boundary.InternalOrExternalBoundary is not None:
+                if boundary.InternalOrExternalBoundary.lower() == 'external':
+                    return True
+                elif boundary.InternalOrExternalBoundary.lower() == 'internal':
+                    return False
+
     layers = attribute.Attribute(
         functions=[_get_layers]
     )
@@ -1713,7 +1835,7 @@ class Slab(element.Element):
     )
 
     is_external = attribute.Attribute(
-        default_ps=("Pset_SlabCommon", "IsExternal"),
+        functions=[get_is_external],
         default=False
     )
 

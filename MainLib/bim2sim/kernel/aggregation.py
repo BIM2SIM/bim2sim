@@ -1513,11 +1513,32 @@ class Aggregated_ThermalZone(Aggregation):
 
     def _intensive_calc(self, name):
         """intensive properties getter - volumetric mean
-        intensive_attributes = ['t_set_heat', 't_set_cool', 'height',  'AreaPerOccupant']"""
+        intensive_attributes = ['t_set_heat', 't_set_cool', 'height',  'AreaPerOccupant', 'typical_length',
+        'typical_width', 'T_threshold_heating', 'activity_degree_persons', 'fixed_heat_flow_rate_persons',
+        'internal_gains_moisture_no_people', 'T_threshold_cooling', 'ratio_conv_rad_persons', 'machines',
+        'ratio_conv_rad_machines', 'lighting_power', 'ratio_conv_rad_lighting', 'infiltration_rate',
+        'max_user_infiltration', 'min_ahu', 'max_ahu', 'persons']"""
         prop_sum = sum(getattr(tz, name) * tz.volume for tz in self.elements if getattr(tz, name) is not None
                        and tz.volume is not None)
         vol_total = sum(tz.volume for tz in self.elements if tz.volume is not None)
         return prop_sum / vol_total
+
+    def _intensive_list_calc(self, name):
+        """intensive list properties getter - volumetric mean
+        intensive_list_attributes = ['heating_profile', 'cooling_profile', 'persons_profile', 'machines_profile',
+         'lighting_profile', 'max_overheating_infiltration', 'max_summer_infiltration',
+         'winter_reduction_infiltration']"""
+        list_attrs = {'heating_profile': 25, 'cooling_profile': 25, 'persons_profile': 24,
+                      'machines_profile': 24, 'lighting_profile': 24, 'max_overheating_infiltration': 2,
+                      'max_summer_infiltration': 3,
+                      'winter_reduction_infiltration': 3}
+        length = list_attrs[name]
+        vol_total = sum(tz.volume for tz in self.elements if tz.volume is not None).m
+        aux = []
+        for x in range(0, length):
+            aux.append(sum(getattr(tz, name)[x] * tz.volume.m for tz in self.elements if getattr(tz, name) is not None
+                           and tz.volume is not None) / vol_total)
+        return aux
 
     def _extensive_calc(self, name):
         """extensive properties getter
@@ -1542,66 +1563,8 @@ class Aggregated_ThermalZone(Aggregation):
         """usage properties getter"""
         return self.elements[0].usage
 
-    def _aggregate_use_conditions(self, name) -> dict:
-        aggregated_use_condition = {}
-        list_attrs = {'heating_profile': 25, 'cooling_profile': 25, 'persons_profile': 24,
-                      'machines_profile': 24, 'lighting_profile': 24, 'max_overheating_infiltration': 2,
-                      'max_summer_infiltration': 3,
-                      'winter_reduction_infiltration': 3}
-        intensive_attrs = ['typical_length', 'typical_width', 'T_threshold_heating', 'activity_degree_persons',
-                           'fixed_heat_flow_rate_persons', 'internal_gains_moisture_no_people', 'T_threshold_cooling',
-                           'ratio_conv_rad_persons', 'machines', 'ratio_conv_rad_machines', 'lighting_power',
-                           'ratio_conv_rad_lighting', 'infiltration_rate', 'max_user_infiltration', 'min_ahu',
-                           'max_ahu']
-        bool_attrs = ['with_heating', 'with_cooling', 'with_ahu', 'use_constant_infiltration', 'with_ideal_thresholds']
-        special_attrs = ['persons']
-        total_vol = sum(tz.volume for tz in self.elements if tz.volume is not None).m
-
-        # intensive attributes mean
-        for attr in intensive_attrs:
-            aggregated_use_condition[attr] = \
-                sum(tz.use_condition[attr] * tz.volume.m for tz in self.elements if attr in tz.use_condition
-                    and tz.volume is not None) / total_vol
-        # bool attributes
-        for attr in bool_attrs:
-            prop_bool = False
-            for tz in self.elements:
-                if attr in tz.use_condition:
-                    if tz.use_condition[attr]:
-                        prop_bool = True
-                        break
-            aggregated_use_condition[attr] = prop_bool
-        # list attributes
-        for attr, length in list_attrs.items():
-            aux = []
-            for x in range(0, length):
-                aux.append(sum(tz.use_condition[attr][x] * tz.volume.m for tz in self.elements if attr in
-                               tz.use_condition and tz.volume is not None) / total_vol)
-            aggregated_use_condition[attr] = aux
-
-        # special attributes
-        for attr in special_attrs:
-            attr_val = 0
-            for tz in self.elements:
-                # check if dict, because it can be division dict like
-                # {"/":[1,15]}, or float value
-                # todo remove this mess
-                if isinstance(tz.use_condition[attr], dict):
-                    division_res = list(tz.use_condition[attr].values())[0][0] \
-                                   / list(tz.use_condition[attr].values())[0][1]
-                    attr_val += division_res * tz.volume.m
-                else:
-                    attr_val += tz.use_condition[attr] * tz.volume.m
-                attr_val = attr_val / total_vol
-            aggregated_use_condition[attr] = attr_val
-
-        return aggregated_use_condition
-
     usage = attribute.Attribute(
         functions=[_get_tz_usage]
-    )
-    use_condition = attribute.Attribute(
-        functions=[_aggregate_use_conditions]
     )
     t_set_heat = attribute.Attribute(
         functions=[_intensive_calc],
@@ -1610,6 +1573,10 @@ class Aggregated_ThermalZone(Aggregation):
     t_set_cool = attribute.Attribute(
         functions=[_intensive_calc],
         unit=ureg.degC
+    )
+    t_ground = attribute.Attribute(
+        functions=[_intensive_calc],
+        unit=ureg.degC,
     )
     area = attribute.Attribute(
         functions=[_extensive_calc],
@@ -1627,6 +1594,11 @@ class Aggregated_ThermalZone(Aggregation):
         functions=[_intensive_calc],
         unit=ureg.meter
     )
+    AreaPerOccupant = attribute.Attribute(
+        functions=[_intensive_calc],
+        unit=ureg.meter ** 2
+    )
+    # use conditions
     with_cooling = attribute.Attribute(
         functions=[_bool_calc]
     )
@@ -1636,7 +1608,84 @@ class Aggregated_ThermalZone(Aggregation):
     with_ahu = attribute.Attribute(
         functions=[_bool_calc]
     )
-    AreaPerOccupant = attribute.Attribute(
-        functions=[_intensive_calc],
-        unit=ureg.meter ** 2
+    heating_profile = attribute.Attribute(
+        functions=[_intensive_list_calc]
+    )
+    cooling_profile = attribute.Attribute(
+        functions=[_intensive_list_calc]
+    )
+    persons = attribute.Attribute(
+        functions=[_intensive_calc]
+    )
+    typical_length = attribute.Attribute(
+        functions=[_intensive_calc]
+    )
+    typical_width = attribute.Attribute(
+        functions=[_intensive_calc]
+    )
+    T_threshold_heating = attribute.Attribute(
+        functions=[_intensive_calc]
+    )
+    activity_degree_persons = attribute.Attribute(
+        functions=[_intensive_calc]
+    )
+    fixed_heat_flow_rate_persons = attribute.Attribute(
+        functions=[_intensive_calc]
+    )
+    internal_gains_moisture_no_people = attribute.Attribute(
+        functions=[_intensive_calc]
+    )
+    T_threshold_cooling = attribute.Attribute(
+        functions=[_intensive_calc]
+    )
+    ratio_conv_rad_persons = attribute.Attribute(
+        functions=[_intensive_calc]
+    )
+    machines = attribute.Attribute(
+        functions=[_intensive_calc]
+    )
+    ratio_conv_rad_machines = attribute.Attribute(
+        functions=[_intensive_calc]
+    )
+    lighting_power = attribute.Attribute(
+        functions=[_intensive_calc]
+    )
+    ratio_conv_rad_lighting = attribute.Attribute(
+        functions=[_intensive_calc]
+    )
+    use_constant_infiltration = attribute.Attribute(
+        functions=[_bool_calc]
+    )
+    infiltration_rate = attribute.Attribute(
+        functions=[_intensive_calc]
+    )
+    max_user_infiltration = attribute.Attribute(
+        functions=[_intensive_calc]
+    )
+    max_overheating_infiltration = attribute.Attribute(
+        functions=[_intensive_list_calc]
+    )
+    max_summer_infiltration = attribute.Attribute(
+        functions=[_intensive_list_calc]
+    )
+    winter_reduction_infiltration = attribute.Attribute(
+        functions=[_intensive_list_calc]
+    )
+    min_ahu = attribute.Attribute(
+        functions=[_intensive_calc]
+    )
+    max_ahu = attribute.Attribute(
+        functions=[_intensive_calc]
+    )
+    with_ideal_thresholds = attribute.Attribute(
+        functions=[_bool_calc]
+    )
+    persons_profile = attribute.Attribute(
+        functions=[_intensive_list_calc]
+    )
+    machines_profile = attribute.Attribute(
+        functions=[_intensive_list_calc]
+    )
+    lighting_profile = attribute.Attribute(
+        functions=[_intensive_list_calc]
     )

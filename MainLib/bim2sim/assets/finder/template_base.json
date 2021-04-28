@@ -314,7 +314,14 @@
       "teaser": {
         "name": ["instance","name"],
         "area": ["instance", "area"],
-        "inner_convection": 0.6,
+        "a_conv": ["instance", "a_conv"],
+        "g_value": ["instance", "g_value"],
+        "inner_convection": ["instance", "inner_convection"],
+        "inner_radiation": ["instance", "inner_radiation"],
+        "outer_radiation": ["instance", "outer_radiation"],
+        "outer_convection": ["instance", "outer_convection"],
+        "shading_g_total": ["instance", "shading_g_total"],
+        "shading_max_irr": ["instance", "shading_max_irr"],
         "orientation": ["instance", "orientation"]
       }
     },
@@ -465,8 +472,8 @@
         "number_of_elements": 2,
         "set_temp_heat": ["instance", "t_set_heat"],
         "set_temp_cool": ["instance", "t_set_cool"],
-        "with_cooling": ["instance", "with_cooling"],
-        "with_heating": ["instance", "with_heating"]
+        "t_ground":  ["instance", "t_ground"],
+        "volume": ["instance", "volume"]
       }
     },
     "default_ps": {
@@ -533,6 +540,42 @@
       },
       "AreaPerOccupant": {
         "base": ["Pset_SpaceOccupancyRequirements", "AreaPerOccupant"]
+      }
+    }
+  },
+  "UseConditions": {
+    "exporter": {
+      "teaser": {
+        "with_cooling": ["instance", "with_cooling"],
+        "with_heating": ["instance", "with_heating"],
+        "with_ahu": ["instance", "with_ahu"],
+        "heating_profile": ["instance", "heating_profile"],
+        "cooling_profile": ["instance", "cooling_profile"],
+        "persons": ["instance", "persons"],
+        "typical_length": ["instance", "typical_length"],
+        "typical_width": ["instance", "typical_width"],
+        "T_threshold_heating": ["instance", "T_threshold_heating"],
+        "activity_degree_persons": ["instance", "activity_degree_persons"],
+        "fixed_heat_flow_rate_persons": ["instance", "fixed_heat_flow_rate_persons"],
+        "internal_gains_moisture_no_people": ["instance", "internal_gains_moisture_no_people"],
+        "T_threshold_cooling": ["instance", "T_threshold_cooling"],
+        "ratio_conv_rad_persons": ["instance", "ratio_conv_rad_persons"],
+        "machines": ["instance", "machines"],
+        "ratio_conv_rad_machines": ["instance", "ratio_conv_rad_machines"],
+        "lighting_power": ["instance", "lighting_power"],
+        "ratio_conv_rad_lighting": ["instance", "ratio_conv_rad_lighting"],
+        "use_constant_infiltration": ["instance", "use_constant_infiltration"],
+        "infiltration_rate": ["instance", "infiltration_rate"],
+        "max_user_infiltration": ["instance", "max_user_infiltration"],
+        "max_overheating_infiltration": ["instance", "max_overheating_infiltration"],
+        "max_summer_infiltration": ["instance", "max_summer_infiltration"],
+        "winter_reduction_infiltration": ["instance", "winter_reduction_infiltration"],
+        "min_ahu": ["instance", "min_ahu"],
+        "max_ahu": ["instance", "max_ahu"],
+        "with_ideal_thresholds": ["instance", "with_ideal_thresholds"],
+        "persons_profile": ["instance", "persons_profile"],
+        "machines_profile": ["instance", "machines_profile"],
+        "lighting_profile": ["instance", "lighting_profile"]
       }
     }
   },

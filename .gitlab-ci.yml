@@ -66,14 +66,14 @@ build_tool:webdevelop:
   only:
     - frontend
 
-unittest3.7:
-  <<: *only-default
-  image: $CI_REGISTRY/environment:development
-  stage: test
-  script:
-    - mv ./* /bim2sim/
-    - source activate base
-    - python /bim2sim/MainLib/run_tests.py
+# unittest3.7:
+#   <<: *only-default
+#   image: $CI_REGISTRY/environment:development
+#   stage: test
+#   script:
+#     - mv ./* /bim2sim/
+# #    - source activate base
+#     - python /bim2sim/MainLib/run_tests.py
 
 coverage:
   <<: *only-default
@@ -84,14 +84,15 @@ coverage:
     - pip install coverage-badge
   script:
     - mv ./* /bim2sim/
-    - source activate base
-    - coverage run -m unittest discover -s /bim2sim/MainLib/test/
-    - coverage report
+#    - source activate base
+    - coverage run -m unittest discover /bim2sim
+    - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
-    - coverage html
+    - coverage html -i 
     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-    - coverage-badge -o coverage.svg
-    - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
+    # skip this for now as its only cosmetic and leads to problems
+    # - coverage-badge -o coverage.svg
+    # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
   artifacts:
     paths:
     - $CI_COMMIT_REF_NAME/coverage
@@ -146,7 +147,7 @@ sphinxdoc:
     
   script:
     - mv ./* /bim2sim/
-    - source activate base
+#    - source activate base
     - mkdir -p $CI_COMMIT_REF_NAME/docs
     - sphinx-apidoc -o /bim2sim/docs/source /bim2sim  # create rst files for all python files 
     - sphinx-build -b html /bim2sim/docs/source $CI_COMMIT_REF_NAME/docs

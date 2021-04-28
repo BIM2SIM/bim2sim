@@ -73,16 +73,23 @@ def get_pattern_usage(translate=False):
         "Bed room": ['Schlafzimmer'],
         "Living": ["Galerie", "Wohnen"],
         "Laboratory": ["Labor"],
-        "Meeting, Conference, seminar": ['Besprechungsraum', 'Seminarraum', 'Besprechung'],
+        'office_function': ['Office', 'Buero', 'Büro', 'Pool'],
+        "Meeting, Conference, seminar": ['Besprechungsraum', 'Seminarraum', 'Besprechung', 'Konferenz', 'Meeting',
+                                         'Mehrzweckraum'],
+
         'Kitchen in non-residential buildings': ['Kitchen', 'Küche'],
         'Kitchen - preparations, storage': ['Kitchen', 'Küche'],
-        'Traffic area': ['Hall', 'Flur', 'Dachboden', 'TH', 'Treppenhaus'],
-        'WC and sanitary rooms in non-residential buildings': ['bath', 'bathroom', 'WC', 'Toilet', 'Bad'],
+        'Traffic area': ['Hall', 'Flur', 'Dachboden', 'TH', 'Treppenhaus', 'Korridor', 'Übergang'],
+        'WC and sanitary rooms in non-residential buildings': ['bath', 'bathroom', 'WC', 'Toilet', 'Bad', 'Toiletten'],
         'Stock, technical equipment, archives': ['Technical room', 'Technikraum', 'Technik', 'Heizung', 'Server',
-                                                 'Archiv'],
+                                                 'Archiv', 'Elektro/HLS', 'Lager'],
         'Storehouse, logistics building': ['Abstell'],
-        'Exhibition room and museum conservational demands': ['Ausstellung']
+        'Exhibition room and museum conservational demands': ['Ausstellung'],
+        'Parking garages (office and private usage)': ['Parkbereich', 'Parkhaus'],
+        'Further common rooms': ['Umkleideraum'],
+        'Library - reading room': ['Bibliothek'],
     }
+
     pattern_usage_teaser = {}
     for i in use_conditions:
         pattern_usage_teaser[i] = []
@@ -103,10 +110,8 @@ def get_pattern_usage(translate=False):
                 new_i_de = i_de.replace(' ', '(.*?)')
                 pattern_usage_teaser[i].append(re.compile('(.*?)%s' % new_i_de, flags=re.IGNORECASE))
 
-    pattern_usage_teaser['office_function'] = [re.compile('(.*?)Office', re.IGNORECASE),
-                                               re.compile('(.*?)Buero', re.IGNORECASE),
-                                               re.compile('(.*?)Büro', re.IGNORECASE),
-                                               re.compile('(.*?)Pool', re.IGNORECASE)]
+    pattern_usage_teaser['office_function'] = [re.compile('(.*?)%s' % c_trans, re.IGNORECASE) for c_trans in
+                                               common_translations['office_function']]
 
     return pattern_usage_teaser
 

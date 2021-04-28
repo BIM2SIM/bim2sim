@@ -19,7 +19,7 @@ from bim2sim.kernel.units import conversion, ureg
 class ExportTEASER(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
-    reads = ('ifc', 'bounded_tz', 'paths')
+    reads = ('ifc', 'bounded_tz')
     final = True
 
     materials = {}
@@ -33,10 +33,11 @@ class ExportTEASER(ITask):
                          'GroundFloor': GroundFloor,
                          'Roof': Rooftop,
                          'OuterDoor': Door,
+                         'InnerDoor': InnerWall
                          }
 
     @Task.log
-    def run(self, workflow, ifc, bounded_tz, paths):
+    def run(self, workflow, ifc, bounded_tz):
         self.logger.info("Export to TEASER")
         prj = self._create_project(ifc.by_type('IfcProject')[0])
         bldg_instances = SubElement.get_class_instances('Building')
@@ -49,8 +50,13 @@ class ExportTEASER(ITask):
             bldg.calc_building_parameter()
 
         # prj.export_aixlib(path=paths.export / 'TEASEROutput')
-        prj.export_aixlib()
-
+        # prj.export_aixlib()
+        prj.export_aixlib(path=self.paths.export)
+        # todo remove the following lines after
+        #  https://github.com/RWTH-EBC/TEASER/pull/687 is corrected in TEASER
+        import os
+        os.chdir(self.paths.root)
+        os.chdir('..')
 
     @staticmethod
     def _create_project(element):
@@ -81,6 +87,8 @@ class ExportTEASER(ITask):
         sw = type(teaser_instance).__name__
         if sw == 'Rooftop':
             sw = 'Roof'
+        if sw == 'Window':
+            print('test')
         for key, value in templates['base'][sw]['exporter']['teaser'].items():
             if isinstance(value, list):
                 # get property from instance (instance dependant on instance)
@@ -113,12 +121,8 @@ class ExportTEASER(ITask):
         Parent: Building"""
         tz = ThermalZone(parent=parent)
         tz.use_conditions = UseConditions(parent=tz)
-        cls.load_use_conditions(tz, instance)
+        cls._teaser_property_getter(tz.use_conditions, instance, instance.finder.templates)
         cls._teaser_property_getter(tz, instance, instance.finder.templates)
-        tz.volume = instance.area.m * instance.height.m
-
-        tz.use_conditions.cooling_profile = [tz.set_temp_cool] * 25
-        tz.use_conditions.heating_profile = [tz.set_temp_heat] * 25
         # hardcode for paper:
         # todo dja
         # if PROJECT.PAPER:
@@ -128,11 +132,6 @@ class ExportTEASER(ITask):
         #     tz.use_conditions.infiltration_rate = 0.2
 
         return tz
-
-    @staticmethod
-    def load_use_conditions(tz, instance):
-        for attr, value in instance.use_condition.items():
-            setattr(tz.use_conditions, attr, value)
 
     @classmethod
     def _bind_instances_to_zone(cls, tz, tz_instance):
@@ -169,6 +168,7 @@ class ExportTEASER(ITask):
                 layer = Layer(parent=teaser_instance)
                 cls._invalid_property_filter(layer, 'thickness', layer_instance.thickness.m)
                 cls._material_related(layer, layer_instance)
+            print('Test')
 
     @classmethod
     def _material_related(cls, layer, layer_instance):
