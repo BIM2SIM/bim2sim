@@ -389,9 +389,13 @@ class SpaceHeater(HVACProduct):
 class Storage(HVACProduct):
     ifc_types = {
         "IfcTank":
-            ['BASIN', 'BREAKPRESSURE', 'EXPANSION', 'FEEDANDEXPANSION',
-             'STORAGE', 'VESSEL']
+            ['BASIN', 'STORAGE', 'VESSEL']
+        # 'BREAKPRESSURE', 'EXPANSION', 'FEEDANDEXPANSION',
     }
+
+    conditions = [
+        condition.RangeCondition('volume', 50 * ureg.liter, math.inf * ureg.liter)
+    ]
 
     pattern_ifc_type = [
         re.compile('Tank', flags=re.IGNORECASE),
