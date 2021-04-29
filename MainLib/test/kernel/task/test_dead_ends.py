@@ -49,7 +49,8 @@ class DeadEndHelper(SetupHelper):
 
 
 class TestOnlyDeadEnds(unittest.TestCase):
-    """ Test with a small circuit with 10 dead ends and no open ports for consumers."""
+    """ Test with a small circuit with 10 dead ends and no open ports for
+     consumers."""
     
     frontend = FrontEnd()
     helper = None

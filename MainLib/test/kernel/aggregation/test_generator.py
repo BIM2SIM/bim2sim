@@ -481,15 +481,3 @@ class TestGeneratorAggregation(unittest.TestCase):
             graph.plot(r'C:\temp\bim2sim\Tests\after')
         # # todo remove before merge
         # graph.plot(r'D:/10_ProgramTesting/after')
-
-# test cases:
-# normal
-# bypass
-# distributor
-# storage
-
-
-
-
-if __name__ == '__main__':
-    unittest.main()

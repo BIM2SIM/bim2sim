@@ -17,15 +17,12 @@ class DeadEnds(ITask):
         self.logger.info("Found %s possible dead ends in network." % len(dead_ends_fc))
         graph, n_removed = self.decide_deadends(graph, dead_ends_fc)
         self.logger.info("Removed %s ports due to found dead ends." % n_removed)
-        if __debug__:
-            self.logger.info("Plotting graph ...")
-            graph.plot(PROJECT.export)
-            graph.plot(PROJECT.export, ports=True)
-        return (graph, )
+        return graph
 
     @staticmethod
     def identify_deadends(graph: hvac_graph.HvacGraph):
-        """Identify deadends in graph. Dead ends are all ports of elements which are not connected with another port."""
+        """Identify deadenhds in graph. Dead ends are all ports of elements which
+         are not connected with another port."""
 
         uncoupled_graph = graph.copy()
         element_graph = uncoupled_graph.element_graph
