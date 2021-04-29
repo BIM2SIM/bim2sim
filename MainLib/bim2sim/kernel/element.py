@@ -492,10 +492,8 @@ class ProductBased(IFCMixin, Root):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.ports = self.get_ports()
-
-        # TBD
         self.aggregation = None
+        self.ports = self.get_ports()
 
     def __init_subclass__(cls, **kwargs):
         # set key for each class

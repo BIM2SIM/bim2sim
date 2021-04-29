@@ -72,10 +72,9 @@ class AggregationMixin:
         #  e.g. hash of all (ordered?) element guids?
         #  Needed for save/load decisions on aggregations
         self.elements = elements
-        super().__init__(*args, **kwargs)
-        # TBD
         for model in self.elements:
             model.aggregation = self
+        super().__init__(*args, **kwargs)
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
@@ -529,7 +528,6 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
 
     def __init__(self, element_graph, *args, **kwargs):
         super().__init__(element_graph, *args, **kwargs)
-        # self.get_ports(element_graph)
 
     def get_ports(self, graph):
         ports = []
@@ -683,12 +681,10 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
 
         # check if additional junctions exist
         add_junctions, metas = AggregatedPipeFitting.find_matches(graph)
-        name_builder = '{} {}'
         i = 0
         for junction, meta in zip(add_junctions, metas):
             # todo maybe add except clause
-            aggrPipeFitting = AggregatedPipeFitting(
-                name_builder.format(AggregatedPipeFitting.__name__, i + 1), junction, **meta)
+            aggrPipeFitting = AggregatedPipeFitting(junction, **meta)
             i += 1
         return graph
 
@@ -793,7 +789,7 @@ class AggregatedPipeFitting(HVACAggregationMixin, hvac.PipeFitting):
     def find_matches(cls, graph):
         """Find all matches for Aggregation in element graph
         :returns: matches, meta"""
-        wanted = {'IfcPipeFitting'}
+        wanted = {elements.hvac.PipeFitting}
         innerts = cls.aggregatable_elements - wanted
         connected_fittings = HvacGraph.get_connections_between(
             graph, wanted, innerts)

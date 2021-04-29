@@ -622,7 +622,7 @@ class TestParallelPumps(unittest.TestCase):
         unconnected_nodes = list(nx.isolates(graph))
 
         # check if aggregated pipe fittings are done correctly
-        self.assertEqual(len(aggr_pipe_fittings), 2)
+        self.assertEqual(2, len(aggr_pipe_fittings))
         # check of small pump still in graph
         self.assertCountEqual(remaining_pumps, small_pumps)
         # check for unconnected nodes
