@@ -1,5 +1,4 @@
 import unittest
-import networkx as nx
 
 from test.kernel.helper import SetupHelper
 from bim2sim.kernel import aggregation
@@ -8,7 +7,7 @@ from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg
 from bim2sim import decision
 from bim2sim.decision.console import ConsoleFrontEnd as FrontEnd
-
+from bim2sim.task.hvac import expansiontanks, dead_ends
 
 class GeneratorHelper(SetupHelper):
 
@@ -419,10 +418,18 @@ class TestGeneratorAggregation(unittest.TestCase):
         graph.plot(r'C:\temp\bim2sim\Tests\after')
 
     # todo finish
-    @unittest.skip("Skip because ExpansionTank not detected, remove when issue 125 is fixed")
+    # @unittest.skip("Skip because ExpansionTank not detected, remove when issue 125 is fixed")
     def test_two_simple_boiler_with_bypass(self):
         graph, flags = self.helper.get_setup_two_seperate_boilers()
         graph.plot(r'C:\temp\bim2sim\Tests\before')
+        pot_tanks = \
+            expansiontanks.ExpansionTanks.identify_expansion_tanks(graph)
+        graph, n_removed_tanks = expansiontanks.ExpansionTanks.decide_expansion_tanks(
+            graph, pot_tanks, force=True)
+        dead_ends_found = dead_ends.DeadEnds.identify_deadends(graph)
+        graph, n_removed_dead_ends = dead_ends.DeadEnds.decide_deadends(
+            graph, dead_ends_found, True)
+        graph.plot(r'C:\temp\bim2sim\Tests\after')
         matches, meta = aggregation.Generator_One_Fluid.find_matches(graph)
 
         agg_generators = []

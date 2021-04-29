@@ -66,7 +66,7 @@ class TestExpansionTank(unittest.TestCase):
             1, len(pot_tanks),
             f"There is 1 expansion tank but ony {len(pot_tanks)} was identified."
         )
-        graph, n_removed = expansiontanks.ExpansionTanks.delete_expansion_tanks(
+        graph, n_removed = expansiontanks.ExpansionTanks.decide_expansion_tanks(
                 graph, pot_tanks, force=True)
 
         self.assertEqual(n_removed, 1)
@@ -81,6 +81,6 @@ class TestExpansionTank(unittest.TestCase):
         )
         with decision.Decision.debug_answer(True):
             graph, n_removed = \
-                expansiontanks.ExpansionTanks.delete_expansion_tanks(
+                expansiontanks.ExpansionTanks.decide_expansion_tanks(
                     graph, pot_tanks, force=False)
         self.assertEqual(n_removed, 1)

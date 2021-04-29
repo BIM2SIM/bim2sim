@@ -71,18 +71,36 @@ class TestOnlyDeadEnds(unittest.TestCase):
         decision.Decision.stored_decisions.clear()
         self.helper.reset()
 
-    def test_dead_end_identification(self):
-        """Test performs search and remove of the dead ends"""
+    def test_dead_end_identification_decision(self):
+        """Test performs search and remove of the dead ends by decision"""
         
         graph, flags = self.helper.get_simple_circuit()
-        dead_ends_fc = dead_ends.DeadEnds.identify_deadends(graph)
-        dead_ends_fc_compare = [
+        pot_dead_ends = dead_ends.DeadEnds.identify_deadends(graph)
+        pot_dead_ends_compare = [
             flags['ps1'][0].ports[1],
             flags['ps3'][0].ports[1],
             flags['fitting_4port'][0].ports[3],
             flags['ps6'][0].ports[1],
         ]
-        self.assertCountEqual(dead_ends_fc_compare, dead_ends_fc)
+        self.assertCountEqual(pot_dead_ends_compare, pot_dead_ends)
         with Decision.debug_answer(True):
-            graph, n_removed = dead_ends.DeadEnds.decide_deadends(graph, dead_ends_fc)
-        self.assertEqual(n_removed, 10, msg='Number of removed elements doesnt equal %s' % n_removed)
+            graph, n_removed = dead_ends.DeadEnds.decide_deadends(
+                graph, pot_dead_ends, False)
+        self.assertEqual(10, n_removed)
+
+    def test_dead_end_identification_forced(self):
+        """Test performs search and remove of the dead ends with forced deletion
+        """
+
+        graph, flags = self.helper.get_simple_circuit()
+        pot_dead_ends = dead_ends.DeadEnds.identify_deadends(graph)
+        pot_dead_ends_compare = [
+            flags['ps1'][0].ports[1],
+            flags['ps3'][0].ports[1],
+            flags['fitting_4port'][0].ports[3],
+            flags['ps6'][0].ports[1],
+        ]
+        self.assertCountEqual(pot_dead_ends_compare, pot_dead_ends)
+        graph, n_removed = dead_ends.DeadEnds.decide_deadends(
+                graph, pot_dead_ends, True)
+        self.assertEqual(10, n_removed)

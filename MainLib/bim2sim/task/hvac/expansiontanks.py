@@ -15,7 +15,7 @@ class ExpansionTanks(ITask):
         pot_tanks = self.identify_expansion_tanks(graph)
         self.logger.info(f"Found {pot_tanks} potential expansion tanks  in "
                          "network.")
-        graph, n_removed = self.delete_expansion_tanks(graph, pot_tanks, force)
+        graph, n_removed = self.decide_expansion_tanks(graph, pot_tanks, force)
         self.logger.info(f"Removed {n_removed} elements because they were "
                          "expansion tanks.")
         return graph
@@ -31,8 +31,8 @@ class ExpansionTanks(ITask):
         return pot_tanks
 
     @staticmethod
-    def delete_expansion_tanks(graph: hvac_graph.HvacGraph, pot_tanks,
-                               force=True):
+    def decide_expansion_tanks(graph: hvac_graph.HvacGraph, pot_tanks,
+                               force=True) -> [{hvac_graph.HvacGraph}, int]:
         """Delete the found expansions tanks, if force is false a decision will
         be called"""
         n_removed = 0
@@ -60,7 +60,7 @@ class ExpansionTanks(ITask):
                 for element, answer in answers.items():
                     if answer:
                         remove = element.ports
-                        n_removed += len(remove)
+                        n_removed += 1
                         graph.remove_nodes_from(remove)
                     else:
                         raise NotImplementedError()
