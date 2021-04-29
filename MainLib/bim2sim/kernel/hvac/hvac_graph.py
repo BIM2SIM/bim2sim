@@ -234,9 +234,13 @@ class HvacGraph(nx.Graph):
     @staticmethod
     def remove_not_wanted_nodes(
             graph,
-            wanted: Set[ProductBased],
-            inert: Set[ProductBased] = set()):
+            wanted: Set[Type[ProductBased]],
+            inert: Set[Type[ProductBased]] = None):
         """ removes not wanted and not inert nodes from the given graph."""
+        if inert is None:
+            inert = set()
+        if not all(map(lambda item: issubclass(item, ProductBased), wanted | inert)):
+            raise AssertionError("Invalid type")
         _graph = graph.copy()
         # remove blocking nodes
         remove = {node for node in _graph.nodes
@@ -247,8 +251,8 @@ class HvacGraph(nx.Graph):
     @staticmethod
     def get_parallels(
             graph,
-            wanted: Set[ProductBased],
-            inert: Set[ProductBased] = set(),
+            wanted: Set[Type[ProductBased]],
+            inert: Set[Type[ProductBased]] = None,
             grouping=None, grp_threshold=None):
         """ Detect parallel occurrences of wanted items.
         All graph nodes not in inert or wanted are counted as blocking.
@@ -259,6 +263,8 @@ class HvacGraph(nx.Graph):
         :grp_threshold: float for minimum group size
         :returns: list of none overlapping subgraphs
         """
+        if inert is None:
+            inert = set()
         if grouping is None:
             grouping = {}
         _graph = HvacGraph.remove_not_wanted_nodes(graph, wanted, inert)
@@ -525,12 +531,14 @@ class HvacGraph(nx.Graph):
     @staticmethod
     def get_connections_between(
             graph,
-            wanted: Set[ProductBased],
-            inert: Set[ProductBased] = set()):
+            wanted: Set[Type[ProductBased]],
+            inert: Set[Type[ProductBased]] = set()):
         """Detect simple connections between wanted items.
         All graph nodes not in inert or wanted are counted as blocking
         :returns: list of none overlapping subgraphs
         """
+        if not all(map(lambda item: issubclass(item, ProductBased), wanted | inert)):
+            raise AssertionError("Invalid type")
         _graph = HvacGraph.remove_not_wanted_nodes(graph, wanted, inert)
 
         # get connections between the wanted items
