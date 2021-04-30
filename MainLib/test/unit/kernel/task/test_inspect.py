@@ -9,7 +9,7 @@ from bim2sim.kernel.element import Root, Port, ProductBased
 from bim2sim.kernel.elements.hvac import HeatExchanger, Pipe, PipeFitting
 from bim2sim.task import hvac
 from bim2sim.task import common
-from bim2sim.task.hvac import Inspect
+from bim2sim.task.hvac import ConnectElements
 from bim2sim.workflow import PlantSimulation
 from bim2sim.project import Project, FolderStructure
 from bim2sim import Plugin
@@ -25,7 +25,7 @@ class DummyPlugin(Plugin):
         playground.run_task(hvac.SetIFCTypesHVAC())
         playground.run_task(common.LoadIFC())
         playground.run_task(hvac.Prepare())
-        playground.run_task(hvac.Inspect())
+        playground.run_task(hvac.ConnectElements())
 
 
 sample_root = Path(__file__).parent.parent.parent.parent / 'TestModels'
@@ -124,24 +124,24 @@ class TestInspectMethods(unittest.TestCase):
         parent5 = self.create_element([[0, 0, 25], [0, 20, 0]])
 
         # no distance
-        connections = Inspect.connections_by_position(parent1.ports + parent2.ports, eps=10)
+        connections = ConnectElements.connections_by_position(parent1.ports + parent2.ports, eps=10)
         self.assertEqual(1, len(connections))
         self.assertSetEqual({parent1.ports[1], parent2.ports[0]}, set(connections[0]))
 
         # accepted distance
-        connections = Inspect.connections_by_position(parent2.ports + parent3.ports, eps=10)
+        connections = ConnectElements.connections_by_position(parent2.ports + parent3.ports, eps=10)
         self.assertEqual(1, len(connections), "One valid connection")
         self.assertSetEqual({parent2.ports[1], parent3.ports[0]}, set(connections[0]))
 
         # not accepted distance
-        connections = Inspect.connections_by_position(parent1.ports + parent3.ports, eps=10)
+        connections = ConnectElements.connections_by_position(parent1.ports + parent3.ports, eps=10)
         self.assertEqual(0, len(connections), "Not accepted distance")
 
         # no connections within element
-        connections = Inspect.connections_by_position(parent4.ports, eps=10)
+        connections = ConnectElements.connections_by_position(parent4.ports, eps=10)
         self.assertEqual(0, len(connections), "No connections within element")
 
         # multiple possibilities
-        connections = Inspect.connections_by_position(parent1.ports + parent2.ports + parent5.ports, eps=10)
+        connections = ConnectElements.connections_by_position(parent1.ports + parent2.ports + parent5.ports, eps=10)
         self.assertEqual(1, len(connections), "Only one connection per port allowed")
         self.assertSetEqual({parent1.ports[1], parent2.ports[0]}, set(connections[0]))

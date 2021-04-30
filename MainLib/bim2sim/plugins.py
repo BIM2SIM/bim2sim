@@ -16,4 +16,4 @@ class DummyPlugin(Plugin):
 class HVACPlugin(Plugin):
     name = 'hvac'
     elements = {}
-    tasks = {hvac.Inspect}
+    tasks = {hvac.ConnectElements}

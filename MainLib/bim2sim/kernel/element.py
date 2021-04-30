@@ -503,7 +503,7 @@ class ProductBased(IFCMixin, Root):
     def get_ports(self):
         return []
 
-    def get_better_subclass(self) -> Union[None, 'ProductBased']:
+    def get_better_subclass(self) -> Union[None, Type['ProductBased']]:
         """Returns alternative subclass of current object.
 
         CAUTION: only use this if you can't know the result before instantiation
@@ -656,20 +656,22 @@ class Factory:
             self.finder.load(finder_path)
         self.objects = {}
 
-    def __call__(self, ifc_entity, *args, use_dummy=True, **kwargs) \
-            -> ProductBased:
+    def __call__(self, ifc_entity, *args, ifc_type: str = None, use_dummy=True,
+                 **kwargs) -> ProductBased:
         """Run factory to create element instance.
 
         :param ifc_entity: IfcOpenShell entity
         :param args: additional args passed to element
+        :param ifc_type: ify type to create element for.
+            defaults to ifc_entity.is_a()
         :param use_dummy: use dummy class if nothing is found
         :param kwargs: additional kwargs passed to element
 
         :raises LookupError: if no element found an use_dummy = False
         """
-        ifc_type = ifc_entity.is_a()
+        _ifc_type = ifc_type or ifc_entity.is_a()
         predefined_type = ifc2python.get_predefined_type(ifc_entity)
-        element_cls = self.get_element(ifc_type, predefined_type)
+        element_cls = self.get_element(_ifc_type, predefined_type)
         if not element_cls:
             if use_dummy:
                 element_cls = self.dummy_cls
