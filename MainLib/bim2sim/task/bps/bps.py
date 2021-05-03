@@ -1,9 +1,7 @@
 # todo delete this after seperating energyplus tasks into single tasks
 """This module holds tasks related to bps"""
 
-import itertools
 import json
-import ast
 import os
 from pathlib import Path
 
@@ -14,15 +12,13 @@ import matplotlib.pyplot as plt
 from OCC.Display.SimpleGui import init_display
 from OCC.Core.BRepBuilderAPI import \
     BRepBuilderAPI_MakeFace, \
-    BRepBuilderAPI_MakeEdge, \
-    BRepBuilderAPI_MakeWire, BRepBuilderAPI_Transform, BRepBuilderAPI_MakeVertex, BRepBuilderAPI_MakeShape
-from OCC.Core.ShapeAnalysis import ShapeAnalysis_ShapeContents
+    BRepBuilderAPI_Transform, BRepBuilderAPI_MakeVertex
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Pln, gp_Pnt
-from OCC.Core.TopoDS import topods_Wire, topods_Face, topods_Compound, TopoDS_Compound, TopoDS_Builder, topods_Vertex, \
+from OCC.Core.TopoDS import topods_Wire, topods_Face, TopoDS_Compound, TopoDS_Builder, topods_Vertex, \
     TopoDS_Iterator
-from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_WIRE, TopAbs_SHAPE, TopAbs_VERTEX
+from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_WIRE, TopAbs_VERTEX
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepTools import BRepTools_WireExplorer, breptools_UVBounds
@@ -39,48 +35,18 @@ from OCC.Core.Bnd import Bnd_Box
 from OCC.Core.BRepBndLib import brepbndlib_Add
 from OCC.Core.ShapeFix import ShapeFix_Face, ShapeFix_Shape
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Sewing
-from OCC.Core.TopAbs import TopAbs_SHELL
-from OCC.Core.BOPAlgo import BOPAlgo_Builder
 from OCC.Core.BRepGProp import brepgprop_VolumeProperties
-from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
 from stl import stl
 from stl import mesh
 
 from bim2sim.kernel.elements import bps
 from bim2sim.task.base import Task, ITask
 # from bim2sim.filter import TypeFilter
-from bim2sim.kernel.element import ProductBased, ElementEncoder, Port
 # from bim2sim.kernel.elements import SpaceBoundary2B, SpaceBoundary
 from bim2sim.kernel.elements.bps import SpaceBoundary
 # from bim2sim.kernel.bps import ...
-from bim2sim.export import modelica
-from bim2sim.decision import Decision
-from bim2sim.kernel import finder
 from bim2sim.kernel.aggregation import AggregatedThermalZone
-from bim2sim.kernel import elements, disaggregation
-from bim2sim.kernel.finder import TemplateFinder
-from bim2sim.enrichment_data import element_input_json
-from bim2sim.decision import ListDecision, BoolDecision, RealDecision
-from teaser.project import Project
-from teaser.logic.buildingobjects.building import Building
-from teaser.logic.buildingobjects.thermalzone import ThermalZone
-from teaser.logic.buildingobjects.useconditions import UseConditions
-from teaser.logic.buildingobjects.buildingphysics.outerwall import OuterWall
-from teaser.logic.buildingobjects.buildingphysics.floor import Floor
-from teaser.logic.buildingobjects.buildingphysics.rooftop import Rooftop
-from teaser.logic.buildingobjects.buildingphysics.groundfloor import GroundFloor
-from teaser.logic.buildingobjects.buildingphysics.ceiling import Ceiling
-from teaser.logic.buildingobjects.buildingphysics.window import Window
-from teaser.logic.buildingobjects.buildingphysics.innerwall import InnerWall
-from teaser.logic.buildingobjects.buildingphysics.layer import Layer
-from teaser.logic.buildingobjects.buildingphysics.material import Material
-from teaser.logic.buildingobjects.buildingphysics.door import Door
-from bim2sim.kernel.units import conversion
-from bim2sim.kernel.element import RelationBased
 # todo new name :)
-from bim2sim.enrichment_data.data_class import DataClass
-from bim2sim.task.common.common_functions import angle_equivalent
-from bim2sim.kernel import elements
 import bim2sim
 
 

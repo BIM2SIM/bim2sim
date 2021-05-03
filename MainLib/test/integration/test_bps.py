@@ -1,12 +1,11 @@
 import unittest
-from bim2sim.utilities.test import IntegrationBase
 import bim2sim
+from bim2sim.utilities.test import IntegrationBase
 from bim2sim.kernel.element import RelationBased
 
 
 class IntegrationBaseTEASER(IntegrationBase):
     def tearDown(self):
-        SubElement.instances = {}
         if self.project:
             self.project.delete()
             self.assertFalse(self.project.paths.root.exists())
@@ -21,8 +20,8 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc, 'TEASER')
         answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
-        with bim2sim.decision.Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
+        # with bim2sim.decision.Decision.debug_answer(answers, multi=True):
+        return_code = project.run()
         self.assertEqual(0, return_code, "Project did not finish successfully.")
 
     def test_run_kitoffice_spaces_low_layers_low(self):

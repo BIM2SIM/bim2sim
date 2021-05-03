@@ -13,7 +13,7 @@ import numpy as np
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import ifc2python, attribute
 from bim2sim.decision import Decision
-from bim2sim.task.common.common_functions import angle_equivalent, vector_angle
+from bim2sim.utilities.common_functions import angle_equivalent, vector_angle
 from bim2sim.kernel.finder import TemplateFinder
 
 logger = logging.getLogger(__name__)

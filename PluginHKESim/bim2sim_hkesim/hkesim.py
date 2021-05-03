@@ -1,5 +1,4 @@
-﻿
-from bim2sim.plugin import Plugin
+﻿from bim2sim.plugin import Plugin
 from bim2sim.workflow import PlantSimulation
 from bim2sim.kernel.elements import hvac as hvac_elements
 from bim2sim.task import base
@@ -26,7 +25,7 @@ class PluginHKESim(Plugin):
     def run(self, playground):
         playground.run_task(hvac.SetIFCTypesHVAC())
         playground.run_task(common.LoadIFC())
-        playground.run_task(hvac.CreateElements())
+        playground.run_task(common.CreateElements())
         playground.run_task(hvac.ConnectElements())
         playground.run_task(hvac.MakeGraph())
         playground.run_task(hvac.Reduce())

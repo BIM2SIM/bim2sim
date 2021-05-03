@@ -5,7 +5,7 @@ from bim2sim.task.base import Task, ITask
 from bim2sim.decision import BoolDecision, ListDecision, RealDecision, StringDecision
 from bim2sim.workflow import LOD
 from functools import partial
-from bim2sim.task.common.common_functions import get_material_templates
+from bim2sim.utilities.common_functions import get_material_templates
 from bim2sim.kernel.units import ureg
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.element import ProductBased

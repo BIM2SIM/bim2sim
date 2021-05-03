@@ -15,8 +15,6 @@ from OCC.Core.BRepBuilderAPI import \
     BRepBuilderAPI_MakeFace, \
     BRepBuilderAPI_MakeEdge, \
     BRepBuilderAPI_MakeWire, BRepBuilderAPI_Transform, BRepBuilderAPI_MakeVertex
-from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
-from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Fuse
 from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, brepgprop_VolumeProperties
 from OCC.Core.GProp import GProp_GProps
 from OCC.Core.GeomAPI import GeomAPI_ProjectPointOnCurve
@@ -32,11 +30,11 @@ from OCC.Core.BRepTools import BRepTools_WireExplorer
 from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 
-from bim2sim.kernel import element, condition, attribute
-from bim2sim.decision import BoolDecision, RealDecision, ListDecision
+from bim2sim.kernel import element, attribute
+from bim2sim.decision import BoolDecision, RealDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.kernel.ifc2python import get_layers_ifc
-from bim2sim.task.common.common_functions import vector_angle, filter_instances
+from bim2sim.utilities.common_functions import vector_angle, filter_instances
 
 
 logger = logging.getLogger(__name__)

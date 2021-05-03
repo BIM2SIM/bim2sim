@@ -1,5 +1,5 @@
 from bim2sim.task.base import Task, ITask
-from bim2sim.task.common.common_functions import get_usage_dict, get_pattern_usage
+from bim2sim.utilities.common_functions import get_usage_dict, get_pattern_usage
 from bim2sim.decision import ListDecision
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.elements.bps import ThermalZone

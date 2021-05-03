@@ -16,11 +16,11 @@ import site
 import pkg_resources
 
 from bim2sim.kernel import ifc2python
-from bim2sim.plugin import Plugin
-from bim2sim.project import Project, FolderStructure
-from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparated, BPSMultiZoneSeparatedEP
 from bim2sim.decision import Decision
+from bim2sim.project import Project, FolderStructure
+from bim2sim.plugin import Plugin
 from bim2sim.plugins import DummyPlugin
+from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparated, BPSMultiZoneSeparatedEP
 
 VERSION = '0.1-dev'
 
