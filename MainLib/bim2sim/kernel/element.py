@@ -371,8 +371,8 @@ class IFCMixin:
         return matches
 
     @classmethod
-    def filter_for_text_fracments(cls, ifc_element, optional_locations: list = None):
-        """Filter for text fracments in the ifc_element to identify the ifc_element."""
+    def filter_for_text_fragments(cls, ifc_element, optional_locations: list = None):
+        """Filter for text fragments in the ifc_element to identify the ifc_element."""
         results = []
         hits = [p.search(ifc_element.Name) for p in cls.pattern_ifc_type]
         # hits.extend([p.search(ifc_element.Description or '') for p in cls.pattern_ifc_type])

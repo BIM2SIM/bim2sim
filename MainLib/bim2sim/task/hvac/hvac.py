@@ -111,7 +111,7 @@ class CreateElements(ITask):
         entity_class_dict, unknown_entities = self.filter_by_text(
             text_filter, unknown_entities)
         entity_best_guess_dict.update(entity_class_dict)
-        valids, invalids = self.accept_valids(entity_class_dict)
+        valids, invalids = self.accept_valids(entity_class_dict, force=True)
         instance_lst.extend(valids)
         unknown_entities.extend(invalids)
 
@@ -140,10 +140,12 @@ class CreateElements(ITask):
         return instances,
 
     @Task.log
-    def accept_valids(self, entities_dict, warn=True) -> \
+    def accept_valids(self, entities_dict, warn=True, force=False) -> \
             Tuple[List[ProductBased], List[Any]]:
         """Instantiate ifc_entities using given element class.
-        Resulting instances are validated (if not force) ans added to self.instances on success."""
+        Resulting instances are validated (if not force).
+        Results are two lists, one with valid elements and one with
+        remaining entities."""
         valid, invalid = [], []
         for entity, ifc_type_or_element_cls in entities_dict.items():
             try:
@@ -158,38 +160,50 @@ class CreateElements(ITask):
 
             if element.validate():
                 valid.append(element)
+            elif force:
+                valid.append(element)
+                if warn:
+                    self.logger.warning("Force accept invalid element %s %s",
+                                        ifc_type_or_element_cls, element)
             else:
                 if warn:
-                    self.logger.warning("Validation failed for %s %s", ifc_type_or_element_cls, element)
+                    self.logger.warning("Validation failed for %s %s",
+                                        ifc_type_or_element_cls, element)
                 invalid.append(entity)
                 element.discard()
 
         return valid, invalid
 
     def filter_by_text(self, text_filter, ifc_entities):
-        """Filter ifc elements using given TextFilter. Ambiguous results are solved by decisions"""
+        """Filter ifc elements using given TextFilter.
+
+        Ambiguous results are solved by decisions"""
         entities_dict, unknown_entities = text_filter.run(ifc_entities)
         answers = {}
         for entity, classes in entities_dict.items():
-            if len(classes) > 1:  # TODO: Define in Configfile
-                # TODO: Add "Other" option for no matching suggested class
-                choices = [[cls.key, "Match: '" + ",".join(cls.filter_for_text_fracments(entity)) + "' in " + " or ".join(
-                    ["'%s'" % txt for txt in [entity.Name, entity.Description] if txt])] for cls in classes]
-                # TODO: order choices
+            sorted_classes = sorted(classes, key=lambda item: item.key)
+            if len(sorted_classes) > 1:
+                # choices
+                choices = []
+                for element_cls in sorted_classes:
+                    # TODO: filter_for_text_fragments() already called in text_filter.run()
+                    hints = f"Matches: '" + "', '".join(
+                        element_cls.filter_for_text_fragments(entity)) + "'"
+                    choices.append([element_cls.key, hints])
                 choices.append(["Other", "Other"])
                 ListDecision(
-                    "Textfracments give the following class hints. Please select best match.",
-                    # TODO: filter_for_text_fracments() already called in text_filter.run()
+                    f"Searching for text fragments in [Name: '{entity.Name}', "
+                    f"Description: '{entity.Description}]' gave the following class hints. Please select best match.",
                     choices=choices,
                     output=answers,
                     output_key=entity,
-                    global_key="%s.%s" % (entity.is_a(), entity.GlobalId),
+                    global_key="TextFilter:%s.%s" % (entity.is_a(), entity.GlobalId),
                     allow_skip=True, allow_load=True, allow_save=True,
                     collect=True, quick_decide=False,
                     context=[entity.GlobalId])
-            elif len(classes) == 1:
-                answers[entity] = classes[0]
-
+            elif len(sorted_classes) == 1:
+                answers[entity] = sorted_classes[0].key
+            # empty classes are covered below
         Decision.decide_collected()
 
         result_entity_dict = {}
@@ -206,19 +220,19 @@ class CreateElements(ITask):
     def set_class_by_user(self, unknown_entities, possible_elements, best_guess_dict):
         """Ask user for every given ifc_entity to specify matching element class"""
         answers = {}
-        checksum = Decision.build_checksum([pe.key for pe in possible_elements])  # assert same list of ifc_classes
-        # checksum = Decision.build_checksum(list(Element._ifc_classes.keys()))  # assert same list of ifc_classes
+        sorted_elements = sorted(possible_elements, key=lambda item: item.key)
+        checksum = Decision.build_checksum([pe.key for pe in sorted_elements])  # assert same list of ifc_classes
         for ifc_entity in unknown_entities:
             best_guess_cls = best_guess_dict.get(ifc_entity)
             best_guess = best_guess_cls.key if best_guess_cls else None
             ListDecision(
                 "Found unidentified Element of %s (Name: %s, Description: %s):" % (
                     ifc_entity.is_a(), ifc_entity.Name, ifc_entity.Description),
-                choices=[pe.key for pe in possible_elements],
+                choices=[ele.key for ele in sorted_elements],
                 default=best_guess,
                 output=answers,
                 output_key=ifc_entity,
-                global_key="%s.%s" % (ifc_entity.is_a(), ifc_entity.GlobalId),
+                global_key="SetClass:%s.%s" % (ifc_entity.is_a(), ifc_entity.GlobalId),
                 allow_skip=True, allow_load=True, allow_save=True,
                 collect=True, quick_decide=not True,
                 validate_checksum=checksum)

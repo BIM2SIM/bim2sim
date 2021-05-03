@@ -95,7 +95,7 @@ class TextFilter(Filter):
         # check matches for all entities on all classes
         for entity in ifc_entities:
             matches = [cls for cls in self.elements_classes
-                       if cls.filter_for_text_fracments(entity, self.optional_locations)]
+                       if cls.filter_for_text_fragments(entity, self.optional_locations)]
             if matches:
                 filter_results[entity] = matches
             else:
@@ -110,12 +110,12 @@ class TextFilter(Filter):
         if self.mode == 0:
             for ifc_type, ifc_elements in source_ifc_elements.items():
                 for ifc_element in ifc_elements:
-                    filter_results[ifc_element] = [cls for cls in Element._ifc_classes.values() if cls.filter_for_text_fracments(ifc_element, self.optional_locations)]
+                    filter_results[ifc_element] = [cls for cls in Element._ifc_classes.values() if cls.filter_for_text_fragments(ifc_element, self.optional_locations)]
 
         elif self.mode == 1:
             for ifc_type in self.elements_classes:
                 for ifc_element in source_ifc_elements[ifc_type]:
-                    filter_results[ifc_element] = [cls for cls in Element._ifc_classes.values() if cls.filter_for_text_fracments(ifc_element, self.optional_locations)]
+                    filter_results[ifc_element] = [cls for cls in Element._ifc_classes.values() if cls.filter_for_text_fragments(ifc_element, self.optional_locations)]
 
         return source_ifc_elements, filter_results
 
