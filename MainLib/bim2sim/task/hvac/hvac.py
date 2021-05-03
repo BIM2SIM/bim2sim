@@ -339,7 +339,7 @@ class Enrich(Task):
         # runs all enrich methods
 
 
-class Prepare(ITask):
+class Prepare(ITask):  # Todo: obsolete
     """Configurate"""  # TODO: based on task
 
     reads = ('relevant_ifc_types', )
