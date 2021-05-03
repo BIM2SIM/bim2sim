@@ -398,12 +398,9 @@ class Project:
             # clean Elements
             # TODO: this should not be necessary. Move all side effects to project context
             Root.full_reset()
-            # clean finder
-            # IFCBased.finder.reset()
-            # BaseElement.finder.reset()  # due to a 'hotfix' there are two finder instances
-            SubElement.instances = {}
+            # clean enrich building templates
             EnrichBuildingByTemplates.instance_template = {}
-            # releas project
+            # release project
             Project._release(self)
 
         # clean up init relics
