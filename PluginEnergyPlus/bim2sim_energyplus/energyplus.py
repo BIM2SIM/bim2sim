@@ -5,11 +5,13 @@ from bim2sim.task import bps
 from bim2sim.task import common
 from bim2sim.plugin import Plugin
 from bim2sim.workflow import BPSMultiZoneSeparatedEP
+from bim2sim.kernel.elements import bps as bps_elements
 
 
 class EnergyPlus(Plugin):
     name = 'EnergyPlus'
     default_workflow = BPSMultiZoneSeparatedEP
+    elements = {*bps_elements.items}
 
     def run(self, playground):
         weather_file = 'DEU_NW_Aachen.105010_TMYx.epw'
@@ -21,7 +23,8 @@ class EnergyPlus(Plugin):
             # self.playground.run_task(bps.Prepare())
         playground.run_task(bps.SetIFCTypes())
         playground.run_task(common.LoadIFC())
-        playground.run_task(bps.Inspect())
+        playground.run_task(common.CreateElements())
+        # playground.run_task(bps.Inspect())
         playground.run_task(bps.TZInspect())
         playground.run_task(bps.EnrichUseConditions())
 
