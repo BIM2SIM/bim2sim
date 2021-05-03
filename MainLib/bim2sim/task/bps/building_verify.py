@@ -124,6 +124,7 @@ class BuildingVerification(ITask):
 
     def get_template_threshold(self):
         building = SubElement.get_class_instances('Building')[0]
+        # todo @ dja check if this is total date (e.g. 01.01.2000, then use only year)
         year_of_construction = int(building.year_of_construction.m)
         instance_templates = get_type_building_elements()
         material_templates = get_material_templates()

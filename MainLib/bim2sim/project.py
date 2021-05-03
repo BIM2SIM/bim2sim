@@ -17,6 +17,8 @@ from bim2sim.task.base import Playground
 from bim2sim.plugin import Plugin
 from bim2sim.kernel.element import Root
 
+from bim2sim.task.bps.enrich_bldg_templ import EnrichBuildingByTemplates
+
 
 logger = logging.getLogger(__name__)
 
@@ -399,6 +401,8 @@ class Project:
             # clean finder
             # IFCBased.finder.reset()
             # BaseElement.finder.reset()  # due to a 'hotfix' there are two finder instances
+            SubElement.instances = {}
+            EnrichBuildingByTemplates.instance_template = {}
             # releas project
             Project._release(self)
 

@@ -6,10 +6,7 @@ from bim2sim.kernel.element import RelationBased
 
 class IntegrationBaseTEASER(IntegrationBase):
     def tearDown(self):
-        if self.project:
-            self.project.delete()
-            self.assertFalse(self.project.paths.root.exists())
-            self.project = None
+        super().tearDown()
 
 
 class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
