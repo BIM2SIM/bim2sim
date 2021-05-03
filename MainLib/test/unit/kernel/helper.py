@@ -22,8 +22,8 @@ class SetupHelper:
         # self.setup.plot(r'c:\temp')
 
     def reset(self) -> None:
-        for r in Root.objects.copy().values():
-            r.discard()
+        # for r in Root.objects.copy().values():
+        #     r.discard()
 
         self.elements.clear()
         # self.setup = None

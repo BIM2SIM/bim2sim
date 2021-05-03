@@ -44,14 +44,14 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
     """Most basic class
 
     keeps track of created instances and guids"""
-    objects = {}
+    # objects = {}
     guid_prefix = ''
     _id_counter = 0
 
     def __init__(self, guid=None, **kwargs):
         self.guid = guid or self.get_id(self.guid_prefix)
-        Root.objects[self.guid] = self
-        self.related_decisions = []
+        # Root.objects[self.guid] = self
+        self.related_decisions: List[Decision] = []
         self.attributes = attribute.AttributeManager(bind=self)
 
         # set attributes based on kwargs
@@ -98,36 +98,38 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
         """Get Root object instance with given guid
 
         :returns: None if object with guid was not instanciated"""
-        return Root.objects.get(guid)
+        raise AssertionError("Obsolete method. "
+                             "Don't rely on global Element.objects. "
+                             "Use e.g. instances from task/playground.")
 
     def request(self, name):
         self.attributes.request(name)
 
-    def solve_requested_decisions(self=None):
+    def solve_requested_decisions(
+            self=None, instances: Iterable['Root'] = None):
         """Solve all requested decisions.
         If called by instance, all instance related decisions are solved
         else all decisions of all instances are solved."""
         if not self:
             # called from class
-            related_decisions = []
-            for obj in Root.objects.values():
-                related_decisions.extend(obj.related_decisions)
-            Decision.decide_collected(collection=set(related_decisions))
+            decisions = [decision for inst in instances for decision in inst.related_decisions]
+            Decision.decide_collected(collection=set(decisions))
         else:
             # called from instance
+            if instances:
+                raise AssertionError(
+                    "Only use instances argument on call from class")
             Decision.decide_collected(collection=self.related_decisions)
 
     def discard(self):
         """Remove from tracked objects. Related decisions are also discarded."""
-        del Root.objects[self.guid]
+        # del Root.objects[self.guid]
         for d in self.related_decisions:
             d.discard()
 
     @classmethod
     def full_reset(cls):
-        # TODO: remove other side effects
-        for r in Root.objects.copy().values():
-            r.discard()
+        raise AssertionError("Obsolete method. not required any more.")
 
 
 class IFCMixin:

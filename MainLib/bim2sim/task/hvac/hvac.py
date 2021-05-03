@@ -138,6 +138,7 @@ class ConnectElements(ITask):
         """Inspects IFC relations of ports"""
         logger = logging.getLogger('IFCQualityReport')
         connections = []
+        port_mapping = {port.guid: port for port in ports}
         for port in ports:
             if not port.ifc:
                 continue
@@ -151,7 +152,7 @@ class ConnectElements(ITask):
                     logger.warning("%s has multiple connections", port.ifc)
                     possibilities = []
                     for connected_port in connected_ports:
-                        possible_port = port.get_object(connected_port.GlobalId)
+                        possible_port = port_mapping.get(connected_port.GlobalId)
 
                         if possible_port.parent is not None:
                             possibilities.append(possible_port)
@@ -169,7 +170,7 @@ class ConnectElements(ITask):
                                          "Continue without connecting %s", port.ifc)
                 else:
                     # explicit
-                    other_port = port.get_object(
+                    other_port = port_mapping.get(
                         connected_ports[0].GlobalId)
                 if other_port:
                     if port.parent and other_port.parent:
@@ -274,7 +275,7 @@ class ConnectElements(ITask):
         for port1, port2 in pos_connections:
             port1.connect(port2)
 
-        nr_total = len(Port.objects)
+        nr_total = len(all_ports)
         unconnected = [port for port in all_ports
                        if not port.is_connected()]
         nr_unconnected = len(unconnected)
@@ -512,7 +513,8 @@ class Export(ITask):
         modelica.Instance.init_factory(libraries)
         export_instances = {inst: modelica.Instance.factory(inst) for inst in reduced_instances}
 
-        ProductBased.solve_requested_decisions()
+        for instance in reduced_instances:
+            instance.solve_requested_decisions()
 
         self.logger.info(Decision.summary())
         Decision.decide_collected()

@@ -395,9 +395,6 @@ class Project:
             #  clean decisions
             # TODO: for now clean them after project finished. change this in #126
             Decision.reset_decisions()
-            # clean Elements
-            # TODO: this should not be necessary. Move all side effects to project context
-            Root.full_reset()
             # clean enrich building templates
             EnrichBuildingByTemplates.instance_template = {}
             # release project
