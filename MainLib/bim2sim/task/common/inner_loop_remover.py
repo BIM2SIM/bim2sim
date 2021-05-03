@@ -10,15 +10,15 @@ from collections import defaultdict
 import numpy
 import math
 
-from OCC.BRep import BRep_Tool
-from OCC.BRepMesh import BRepMesh_IncrementalMesh
-from OCC.TopAbs import TopAbs_FACE
-from OCC.TopExp import TopExp_Explorer
-from OCC.TopoDS import TopoDS_Shape, topods_Face
-from OCC.TopLoc import TopLoc_Location
-from OCC.gp import gp_Pnt
-
 # Type aliases that are used throughout this module
+from OCC.Core.BRep import BRep_Tool
+from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
+from OCC.Core.TopAbs import TopAbs_FACE
+from OCC.Core.TopExp import TopExp_Explorer
+from OCC.Core.TopLoc import TopLoc_Location
+from OCC.Core.TopoDS import TopoDS_Iterator, TopoDS_Shape, topods_Face
+from OCC.Core.gp import gp_Pnt
+
 Vertex = Vector = Tuple[float, float, float]
 Edge = Tuple[Vertex, Vertex]
 Triangulation = List[List[Vertex]]
@@ -30,29 +30,31 @@ class _UnionFind(Generic[T]):
     """
     Implementation of a union-find data structure with union-by-size and path compression.
     """
-    __parents = dict()
-    __sizes = dict()
+
+    def __init__(self):
+        self._parents = dict()
+        self._sizes = dict()
 
     def union(self, element1: T, element2: T) -> T:
         key1 = self.find(element1)
         key2 = self.find(element2)
         if key1 == key2: 
             return
-        if self.__sizes[key1] < self.__sizes[key2]:
+        if self._sizes[key1] < self._sizes[key2]:
             key1, key2 = key2, key1
-        self.__parents[key2] = key1
-        self.__sizes[key1] += self.__sizes[key2]
+        self._parents[key2] = key1
+        self._sizes[key1] += self._sizes[key2]
         
     def find(self, element: T) -> T:
-        if element not in self.__parents:
-            self.__parents[element] = None
-            self.__sizes[element] = 1
+        if element not in self._parents:
+            self._parents[element] = None
+            self._sizes[element] = 1
         root = element
-        while self.__parents[root] is not None:
-            root = self.__parents[root]
-        while self.__parents[element] is not None:
-            parent = self.__parents[element]
-            self.__parents[element] = root
+        while self._parents[root] is not None:
+            root = self._parents[root]
+        while self._parents[element] is not None:
+            parent = self._parents[element]
+            self._parents[element] = root
             element = parent
         return element
 
@@ -66,7 +68,6 @@ def _gp_pnt_to_coord_tuple(pnt: gp_Pnt) -> Vertex:
 
 
 def _subshapes(shape):
-    from OCC.TopoDS import TopoDS_Iterator
     it = TopoDS_Iterator(shape)
     clist = []
     while it.More():
@@ -85,8 +86,7 @@ def _get_triangulation(face: TopoDS_Shape) -> Triangulation:
     bt = BRep_Tool()
     result = []
     while ex.More():
-        triangulation = bt.Triangulation(topods_Face(ex.Current()), TopLoc_Location()) \
-            .GetObject()
+        triangulation = bt.Triangulation(topods_Face(ex.Current()), TopLoc_Location())
         triangles = triangulation.Triangles()
         vertices = triangulation.Nodes()
         for i in range(1, triangulation.NbTriangles() + 1):
@@ -322,21 +322,17 @@ def _reconstruct_cut_polygon(out_edges: List[Edge], cut_edges: List[Edge], plane
 
 def remove_inner_loops(shape: TopoDS_Shape) -> TopoDS_Shape:
     from bim2sim.kernel.elements import SpaceBoundary
-    # if not shape:
-    #     _big_rect = SpaceBoundary._make_faces_from_pnts([(1, 1, 0), (5, 1, 0), (5, 5, 0), (1, 5, 0)])
-    #     _small_rect = SpaceBoundary._make_faces_from_pnts([(2, 2, 0), (3, 2, 0), (3, 3, 0), (2, 3, 0)])
-    #     _extra_small_rect = SpaceBoundary._make_faces_from_pnts([(2, 4, 0), (2, 3.5, 0), (2.5, 3.5, 0), (2.5, 4, 0)])
-    #     _small_trig = SpaceBoundary._make_faces_from_pnts([(4, 3, 0), (4, 4, 0), (3, 4, 0)])
-    #     from OCC.BRepAlgoAPI import BRepAlgoAPI_Cut
-    #     shape = _big_rect
-    #     shape = BRepAlgoAPI_Cut(shape, _small_rect).Shape()
-    #     shape = BRepAlgoAPI_Cut(shape, _extra_small_rect).Shape()
-    #     shape = BRepAlgoAPI_Cut(shape, _small_trig).Shape()
 
     # Build all necessary data structures.
     triangulation = _get_triangulation(shape)
     in_edges, out_edges = _get_inside_outside_edges(triangulation)
     partition = _UnionFind()
+
+    plane = _calculate_plane_vectors(triangulation[0])
+
+    # HACK: Check if shape is a floor/ceiling.
+    if abs(plane[0][2]) < 0.5:
+        return None
 
     # Build initial partition state. After that, every loop (either the main polygon or a hole)
     # is in its own disjoint set.
@@ -353,7 +349,12 @@ def remove_inner_loops(shape: TopoDS_Shape) -> TopoDS_Shape:
             cut_edges.append(edge)
             partition.union(edge[0], edge[1])
 
-    plane = _calculate_plane_vectors(triangulation[0])
     cut_polygon = _reconstruct_cut_polygon(out_edges, cut_edges, plane)
 
-    return SpaceBoundary._make_faces_from_pnts(cut_polygon)
+    new_shape = SpaceBoundary._make_faces_from_pnts(cut_polygon)
+
+    # Copy over shape location
+    shape_loc = TopoDS_Iterator(shape).Value().Location()
+    new_shape.Move(shape_loc)
+
+    return new_shape

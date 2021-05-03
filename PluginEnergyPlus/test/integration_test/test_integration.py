@@ -10,7 +10,6 @@ from bim2sim import _test_run_bps_ep
 from bim2sim.decision import Decision
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.project import Project
-from bim2sim.kernel.element import SubElement
 
 # raise unittest.SkipTest("Integration tests not reliable for automated use")
 
@@ -41,8 +40,6 @@ class IntegrationBaseEP(IntegrationBase):
                      str(debug_dir) + "/eplusout.idf")
         os.chdir(self.working_dir)
         sys.stderr = self.old_stderr
-        # todo test if this helps
-        SubElement.instances = {}
         super().tearDown()
 
     def create_project(self, ifc_path: str, plugin: str):
@@ -67,84 +64,166 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     """
 
     # @unittest.skip("")
-    def test_base_01_FZK(self):
+    def test_base_01_FZK_design_day(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
+        with Decision.debug_answer(answers, multi=True):
+            return_code = project.run()
+        self.assertEqual(0, return_code)
+
+    @unittest.skip("")
+    def test_base_02_FZK_full_run(self):
+        """Test Original IFC File from FZK-Haus (KIT)"""
+        ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
+        project = self.create_project(ifc, 'energyplus')
+        answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
     # @unittest.skip("")
-    def test_base_02_FZK_SB(self):
+    def test_base_03_FZK_SB_design_day(self):
         """Test IFC File from FZK-Haus (KIT) with generated Space Boundaries"""
         # ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB44.ifc'
         ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True, *('Single office',)*4, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
+        with Decision.debug_answer(answers, multi=True):
+            return_code = project.run()
+        self.assertEqual(0, return_code)
+
+    @unittest.skip("")
+    def test_base_04_FZK_SB_full_run(self):
+        """Test IFC File from FZK-Haus (KIT) with generated Space Boundaries"""
+        # ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB44.ifc'
+        ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
+        project = self.create_project(ifc, 'energyplus')
+        answers = (True, True, *('Single office',)*4, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
     # @unittest.skip("")
-    def test_base_03_KIT_Inst(self):
+    def test_base_05_KIT_Inst_design_day(self):
         """Test Original IFC File from Institute (KIT)"""
 
         ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True,  2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
-    @unittest.skip("Skipped due to performance for CI")
-    def test_base_04_KIT_Inst_SB(self):
+    @unittest.skip("")
+    def test_base_06_KIT_Inst_full_run(self):
+        """Test Original IFC File from Institute (KIT)"""
+
+        ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
+        project = self.create_project(ifc, 'energyplus')
+        answers = (True, True,  2015, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
+        with Decision.debug_answer(answers, multi=True):
+            return_code = project.run()
+        self.assertEqual(0, return_code)
+
+    # @unittest.skip("Skipped due to performance for CI")
+    def test_base_07_KIT_Inst_SB_design_day(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
 
         # ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB11.ifc'
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True,  *('Single office',)*78, 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
+        with Decision.debug_answer(answers, multi=True):
+            return_code = project.run()
+        self.assertEqual(0, return_code)
+
+    @unittest.skip("Skipped due to performance for CI")
+    def test_base_08_KIT_Inst_SB_full_run(self):
+        """Test IFC File from Institute (KIT) with generated Space Boundaries"""
+
+        # ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB11.ifc'
+        # ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB55.ifc'
+        ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB66.ifc'
+        project = self.create_project(ifc, 'energyplus')
+        answers = (True, True,  *('Single office',)*78, 2015, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
     @unittest.skip("Test currently holds inputs, which have to be moved to decisions")
-    def test_base_05_DH(self):
+    def test_base_09_DH_design_day(self):
         """Test DigitalHub IFC"""
         # ifc = EXAMPLE_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
-        # ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB11.ifc'
-        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB55.ifc'
+        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB88.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True,  *('Single office',)*59, 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+        answers = ('default', True, True,  *('Single office',)*59, 2015, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
-    @unittest.skip("Skipped due to performance for CI")
-    def test_base_06_KHH(self):
+    @unittest.skip("Test currently holds inputs, which have to be moved to decisions")
+    def test_base_10_DH_full_run(self):
+        """Test DigitalHub IFC"""
+        # ifc = EXAMPLE_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
+        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB88.ifc'
+        project = self.create_project(ifc, 'energyplus')
+        answers = ('default', True, True,  *('Single office',)*59, 2015, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
+        with Decision.debug_answer(answers, multi=True):
+            return_code = project.run()
+        self.assertEqual(0, return_code)
+
+    @unittest.skip("Skipped, issue with inner loop algorithm") # todo: find bug related to inner_loop_remover
+    def test_base_11_KHH_design_day(self):
         """Test KIT KHH 3 storey IFC"""
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015,'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         with Decision.debug_answer(answers, multi=True, validate=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
     @unittest.skip("Skipped due to performance for CI")
-    def test_base_07_EDC_SB(self):
+    def test_base_12_KHH_full_run(self):
+        """Test KIT KHH 3 storey IFC"""
+        ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
+        project = self.create_project(ifc, 'energyplus')
+        answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015,'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
+        with Decision.debug_answer(answers, multi=True, validate=True):
+            return_code = project.run()
+        self.assertEqual(0, return_code)
+
+    # @unittest.skip("Skipped due to performance for CI")
+    def test_base_13_EDC_SB_design_day(self):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', 'ARCHICAD-64')
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
+        with Decision.debug_answer(answers, multi=True):
+            return_code = project.run()
+        self.assertEqual(0, return_code)
+
+    @unittest.skip("Skipped due to performance for CI")
+    def test_base_14_EDC_SB_full_run(self):
+        """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
+        ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
+        project = self.create_project(ifc, 'energyplus')
+        answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
