@@ -1785,7 +1785,7 @@ class ExportEP(ITask):
             0]
         idf.newidfobject("CONSTRUCTION",
                          Name="BS Door",
-                         Outside_Layer=mt_file[door]['name']
+                         Outside_Layer=mt_file[door]['name']+"_"+str(0.04)
                          )
         materials.extend([(door, 0.04)])
         outer_wall = applicable_dict.get([k for k in applicable_dict.keys() if "OuterWall" in k][0])
@@ -1830,24 +1830,24 @@ class ExportEP(ITask):
         other_layers = {}
         for i, l in enumerate(other_layer_list):
             lay = layer.get(l)
-            other_layers.update({'Layer_' + str(i + 2): lay['material']['name']})
+            other_layers.update({'Layer_' + str(i + 2): lay['material']['name']+"_"+str(lay['thickness'])})
 
         idf.newidfobject("CONSTRUCTION",
                          Name=name,
-                         Outside_Layer=outer_layer['material']['name'],
+                         Outside_Layer=outer_layer['material']['name']+"_"+str(outer_layer['thickness']),
                          **other_layers
                          )
         materials = [(layer.get(k)['material']['material_id'], layer.get(k)['thickness']) for k in layer.keys()]
         return materials
 
     def _set_material_elem(self, mat_dict, thickness, idf):
-        if idf.getobject("MATERIAL", mat_dict['name']) != None:
+        if idf.getobject("MATERIAL", mat_dict['name']+"_"+str(thickness)) != None:
             return
         specific_heat = mat_dict['heat_capac'] * 1000  # *mat_dict['density']*thickness
         if specific_heat < 100:
             specific_heat = 100
         idf.newidfobject("MATERIAL",
-                         Name=mat_dict['name'],
+                         Name=mat_dict['name']+"_"+str(thickness),
                          Roughness="MediumRough",
                          Thickness=thickness,
                          Conductivity=mat_dict['thermal_conduc'],
@@ -1856,10 +1856,10 @@ class ExportEP(ITask):
                          )
 
     def _set_window_material_elem(self, mat_dict, thickness, g_value, idf):
-        if idf.getobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM", mat_dict['name']) != None:
+        if idf.getobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM", mat_dict['name']+"_"+str(thickness)) != None:
             return
         idf.newidfobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM",
-                         Name=mat_dict['name'],
+                         Name=mat_dict['name']+"_"+str(thickness),
                          UFactor=1 / (0.04 + thickness / mat_dict['thermal_conduc'] + 0.13),
                          Solar_Heat_Gain_Coefficient=g_value,
                          # Visible_Transmittance=0.8    # optional
