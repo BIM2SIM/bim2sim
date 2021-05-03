@@ -51,7 +51,8 @@ class HVACProduct(element.ProductBased):
         # valid for IFC for Revit v19.1.0.0
         element_port_connections = getattr(self.ifc, 'HasPorts', [])
         for element_port_connection in element_port_connections:
-            ports.append(element.HVACPort(parent=self, ifc=element_port_connection.RelatingPort))
+            ports.append(element.HVACPort.from_ifc(
+                ifc=element_port_connection.RelatingPort, parent=self))
         return ports
 
 
