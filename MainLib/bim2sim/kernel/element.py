@@ -656,7 +656,6 @@ class Factory:
         self.finder = TemplateFinder()
         if finder_path:
             self.finder.load(finder_path)
-        self.objects = {}
 
     def __call__(self, ifc_entity, *args, ifc_type: str = None, use_dummy=True,
                  **kwargs) -> ProductBased:
@@ -693,8 +692,6 @@ class Factory:
         if better_cls:
             logger.info("Creating %s instead of %s", better_cls, element_cls)
             element = better_cls.from_ifc(ifc_entity, *args, **kwargs)
-        # register in object dict
-        self.objects[element.guid] = element
         return element
 
     def get_element(self, ifc_type: str, predefined_type: Union[str, None]) -> \
@@ -712,14 +709,14 @@ class Factory:
         # 3. go over default list, if found match --> return
         return self.defaults.get(ifc_type.lower())
 
-    def get_by_guid(self, guid: str) -> Union[ProductBased, None]:
-        """Get item from given guid created by this factory."""
-        return self.objects.get(guid)
-
-    def get_by_cls(self, item_cls: Type[ProductBased]) -> List[ProductBased]:
-        """Get list of child items from given class created by this factory."""
-        return [item for item in self.objects.values()
-                if isinstance(item, item_cls)]
+    # def _get_by_guid(self, guid: str) -> Union[ProductBased, None]:
+    #     """Get item from given guid created by this factory."""
+    #     return self._objects.get(guid)
+    #
+    # def _get_by_cls(self, item_cls: Type[ProductBased]) -> List[ProductBased]:
+    #     """Get list of child items from given class created by this factory."""
+    #     return [item for item in self._objects.values()
+    #             if isinstance(item, item_cls)]
 
     @staticmethod
     def create_ifc_mapping(elements: Iterable) -> Tuple[
