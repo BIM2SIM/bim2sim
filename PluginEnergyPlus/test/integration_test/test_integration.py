@@ -161,10 +161,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     def test_base_09_DH_design_day(self):
         """Test DigitalHub IFC"""
         # ifc = EXAMPLE_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
-        # ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB11.ifc'
-        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB55.ifc'
+        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB88.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True,  *('Single office',)*59, 2015, 'heavy',
+        answers = ('default', True, True,  *('Single office',)*59, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
@@ -174,11 +173,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     def test_base_10_DH_full_run(self):
         """Test DigitalHub IFC"""
         # ifc = EXAMPLE_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
-        # ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB11.ifc'
-        # ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB55.ifc'
-        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB66.ifc'
+        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB88.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True,  *('Single office',)*59, 2015, 'heavy',
+        answers = ('default', True, True,  *('Single office',)*59, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()

@@ -20,7 +20,7 @@ from OCC.Core.BRepBuilderAPI import \
 from OCC.Core.ShapeAnalysis import ShapeAnalysis_ShapeContents
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
-from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Pln, gp_Pnt
+from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Pln, gp_Pnt, gp_Dir
 from OCC.Core.TopoDS import topods_Wire, topods_Face, topods_Compound, TopoDS_Compound, TopoDS_Builder, topods_Vertex, \
     TopoDS_Iterator
 from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_WIRE, TopAbs_SHAPE, TopAbs_VERTEX
@@ -721,7 +721,7 @@ class ExportEP(ITask):
         self.logger.info("Geometric preprocessing for EnergyPlus Export started ...")
         self.logger.info("Compute relationships between space boundaries")
         self.logger.info("Compute relationships between openings and their base surfaces")
-        self._get_parents_and_children(instances)
+        instances = self._get_parents_and_children(instances)
         self.logger.info("Move openings to base surface, if needed")
         self._move_children_to_parents(instances)
         self.logger.info("Fix surface orientation")
@@ -1630,11 +1630,12 @@ class ExportEP(ITask):
         # path = '/usr/local/EnergyPlus-9-3-0/'
         path = f'/usr/local/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
         # path = f'D:/04_Programme/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
+        plugin_ep_path = str(Path(__file__).parent.parent.parent.parent.parent / 'PluginEnergyPlus')
         IDF.setiddname(path + 'Energy+.idd')
-        idf = IDF(path + "ExampleFiles/Minimal.idf")
+        idf = IDF(plugin_ep_path + '/data/Minimal.idf')
         ifc_name = os.listdir(paths.ifc)[0].strip('.ifc')
         idf.idfname = str(paths.export) + '/' + ifc_name + '.idf'
-        schedules_idf = IDF(path + "DataSets/Schedules.idf")
+        schedules_idf = IDF(plugin_ep_path + '/data/Schedules.idf')
         schedules = schedules_idf.idfobjects["Schedule:Compact".upper()]
         sch_typelim = schedules_idf.idfobjects["ScheduleTypeLimits".upper()]
         for s in schedules:
@@ -1784,7 +1785,7 @@ class ExportEP(ITask):
             0]
         idf.newidfobject("CONSTRUCTION",
                          Name="BS Door",
-                         Outside_Layer=mt_file[door]['name']
+                         Outside_Layer=mt_file[door]['name']+"_"+str(0.04)
                          )
         materials.extend([(door, 0.04)])
         outer_wall = applicable_dict.get([k for k in applicable_dict.keys() if "OuterWall" in k][0])
@@ -1829,24 +1830,24 @@ class ExportEP(ITask):
         other_layers = {}
         for i, l in enumerate(other_layer_list):
             lay = layer.get(l)
-            other_layers.update({'Layer_' + str(i + 2): lay['material']['name']})
+            other_layers.update({'Layer_' + str(i + 2): lay['material']['name']+"_"+str(lay['thickness'])})
 
         idf.newidfobject("CONSTRUCTION",
                          Name=name,
-                         Outside_Layer=outer_layer['material']['name'],
+                         Outside_Layer=outer_layer['material']['name']+"_"+str(outer_layer['thickness']),
                          **other_layers
                          )
         materials = [(layer.get(k)['material']['material_id'], layer.get(k)['thickness']) for k in layer.keys()]
         return materials
 
     def _set_material_elem(self, mat_dict, thickness, idf):
-        if idf.getobject("MATERIAL", mat_dict['name']) != None:
+        if idf.getobject("MATERIAL", mat_dict['name']+"_"+str(thickness)) != None:
             return
         specific_heat = mat_dict['heat_capac'] * 1000  # *mat_dict['density']*thickness
         if specific_heat < 100:
             specific_heat = 100
         idf.newidfobject("MATERIAL",
-                         Name=mat_dict['name'],
+                         Name=mat_dict['name']+"_"+str(thickness),
                          Roughness="MediumRough",
                          Thickness=thickness,
                          Conductivity=mat_dict['thermal_conduc'],
@@ -1855,10 +1856,10 @@ class ExportEP(ITask):
                          )
 
     def _set_window_material_elem(self, mat_dict, thickness, g_value, idf):
-        if idf.getobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM", mat_dict['name']) != None:
+        if idf.getobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM", mat_dict['name']+"_"+str(thickness)) != None:
             return
         idf.newidfobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM",
-                         Name=mat_dict['name'],
+                         Name=mat_dict['name']+"_"+str(thickness),
                          UFactor=1 / (0.04 + thickness / mat_dict['thermal_conduc'] + 0.13),
                          Solar_Heat_Gain_Coefficient=g_value,
                          # Visible_Transmittance=0.8    # optional
@@ -2563,6 +2564,7 @@ class ExportEP(ITask):
     def _get_parents_and_children(instances):
         """get parent-children relationships between IfcElements (e.g. Windows, Walls)
         and the corresponding relationships of their space boundaries"""
+        drop_list = {} # HACK: dictionary for bounds which have to be removed from instances (due to duplications)
         for inst in instances:
             inst_obj = instances[inst]
             inst_type = inst_obj.ifc_type
@@ -2616,10 +2618,56 @@ class ExportEP(ITask):
                         ).Value()
                         if center_dist > 0.3:
                             continue
-                        inst_obj.related_opening_bounds.append(op_bound)
-                        if not hasattr(op_bound, 'related_parent_bound'):
-                            setattr(op_bound, 'related_parent_bound', [])
+                        # HACK:
+                        # some space boundaries have inner loops which are removed for vertical bounds in
+                        # calc_bound_shape (elements.py). Those inner loops contain an additional vertical bound (wall)
+                        # which is "parent" of an opening. EnergyPlus does not accept openings having a parent surface
+                        # of same size as the opening. Thus, since inner loops are removed from shapes beforehand,
+                        # those boundaries are removed from "instances" and the openings are assigned to have the larger
+                        # boundary as a parent.
+                        #
+                        # find cases where opening area matches area of corresponding wall (within inner loop)
+                        if (inst_obj.bound_area - op_bound.bound_area).m < 0.01:
+                            drop_list[inst] = inst_obj
+                            ib = [b for b in b_inst.space_boundaries if
+                                  b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries if
+                                  b.thermal_zones[0] == op_bound.thermal_zones[0]]
+                            if len(ib) == 1:
+                                rel_bound = ib[0]
+                            elif len(ib) > 1:
+                                rel_bound = None
+                                for b in ib:
+                                    # check if orientation of possibly related bound is the same as opening
+                                    angle = gp_Dir(b.bound_normal).Angle(gp_Dir(op_bound.bound_normal))
+                                    if not (angle < 0.1 or angle > 179.9):
+                                        continue
+                                    distance = BRepExtrema_DistShapeShape(
+                                        b.bound_shape,
+                                        op_bound.bound_shape,
+                                        Extrema_ExtFlag_MIN
+                                    ).Value()
+                                    if distance > 0.3:
+                                        continue
+                                    else:
+                                        rel_bound = b
+                                if not rel_bound:
+                                    continue
+                            else:
+                                continue
+                            if not hasattr(rel_bound, 'related_opening_bounds'):
+                                setattr(rel_bound, 'related_opening_bounds', [])
+                            rel_bound.related_opening_bounds.append(op_bound)
+                            if not hasattr(op_bound, 'related_parent_bound'):
+                                setattr(op_bound, 'related_parent_bound', [])
+                            op_bound.related_parent_bound = rel_bound
+                        else:
+                            inst_obj.related_opening_bounds.append(op_bound)
+                            if not hasattr(op_bound, 'related_parent_bound'):
+                                setattr(op_bound, 'related_parent_bound', [])
                             op_bound.related_parent_bound = inst_obj
+        # remove boundaries from instances if they are false duplicates of windows in shape of walls
+        instances = {k: v for k, v in instances.items() if k not in drop_list}
+        return instances
 
     @staticmethod
     def _display_shape_of_space_boundaries(instances):
