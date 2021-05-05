@@ -23,26 +23,27 @@ def vector_angle(vector):
         tang = math.degrees(math.atan(x / y))
     except ZeroDivisionError:
         if x > 0:
-            return 90
+            angle = 90
         elif x < 0:
-            return 270
+            angle = 270
         else:
-            return 0
-
-    if x >= 0:
-        # quadrant 1
-        if y > 0:
-            return tang
-        # quadrant 2
-        else:
-            return tang + 180
+            angle = 0
     else:
-        # quadrant 3
-        if y < 0:
-            return tang + 180
-        # quadrant 4
+        if x >= 0:
+            # quadrant 1
+            if y > 0:
+                angle = tang
+            # quadrant 2
+            else:
+                angle = tang + 180
         else:
-            return tang + 360
+            # quadrant 3
+            if y < 0:
+                angle = tang + 180
+            # quadrant 4
+            else:
+                angle = tang + 360
+    return angle
 
 
 assets = Path(bim2sim.__file__).parent/'assets'
@@ -65,15 +66,15 @@ def get_pattern_usage(translate=False):
 
     common_translations = {
         "Bed room": ['Schlafzimmer'],
-        "Living": ["Galerie", "Wohnen"],
+        "Living": ["Galerie", "Wohnen", 'Wohnzimmer'],
         "Laboratory": ["Labor"],
         'office_function': ['Office', 'Buero', 'Büro', 'Pool'],
         "Meeting, Conference, seminar": ['Besprechungsraum', 'Seminarraum', 'Besprechung', 'Konferenz', 'Meeting',
                                          'Mehrzweckraum'],
 
-        'Kitchen in non-residential buildings': ['Kitchen', 'Küche'],
+        'Kitchen in non-residential buildings': ['Kitchen', 'Küche', 'Kueche'],
         'Kitchen - preparations, storage': ['Kitchen', 'Küche'],
-        'Traffic area': ['Hall', 'Flur', 'Dachboden', 'TH', 'Treppenhaus', 'Korridor', 'Übergang'],
+        'Traffic area': ['Hall', 'Flur', 'Dachboden', 'TH', 'Treppenhaus', 'Korridor', 'Corridor', 'Übergang'],
         'WC and sanitary rooms in non-residential buildings': ['bath', 'bathroom', 'WC', 'Toilet', 'Bad', 'Toiletten'],
         'Stock, technical equipment, archives': ['Technical room', 'Technikraum', 'Technik', 'Heizung', 'Server',
                                                  'Archiv', 'Elektro/HLS', 'Lager'],
