@@ -1,12 +1,11 @@
 import ast
 
+from bim2sim.kernel.elements import bps
 from bim2sim.task.base import Task, ITask
-from bim2sim.kernel.element import SubElement
-from bim2sim.kernel import elements
 from bim2sim.decision import ListDecision
 from bim2sim.workflow import LOD
 from bim2sim.task.bps.enrich_mat import EnrichMaterial
-from bim2sim.task.common.common_functions import get_type_building_elements
+from bim2sim.utilities.common_functions import get_type_building_elements
 
 
 class EnrichBuildingByTemplates(ITask):
@@ -55,7 +54,7 @@ class EnrichBuildingByTemplates(ITask):
         if template is not None:
             for i_layer, layer_props in template['layer'].items():
                 material_properties = resumed[layer_props['material']['name']]
-                new_layer = elements.Layer.create_additional_layer(
+                new_layer = bps.Layer.create_additional_layer(
                     layer_props['thickness'], instance, material=layer_props['material']['name'],
                     material_properties=material_properties)
                 instance.layers.append(new_layer)

@@ -5,11 +5,11 @@ from bim2sim.task.base import Task, ITask
 from bim2sim.decision import BoolDecision, ListDecision, RealDecision, StringDecision
 from bim2sim.workflow import LOD
 from functools import partial
-from bim2sim.task.common.common_functions import get_material_templates
+from bim2sim.utilities.common_functions import get_material_templates
 from bim2sim.kernel.units import ureg
 from bim2sim.workflow import Workflow
-from bim2sim.kernel.element import Element
-from bim2sim.kernel.elements import Layer
+from bim2sim.kernel.element import ProductBased
+from bim2sim.kernel.elements.bps import Layer
 
 
 class EnrichMaterial(ITask):
@@ -36,7 +36,7 @@ class EnrichMaterial(ITask):
 
         return self.enriched_materials,
 
-    def get_layer_properties(self, instance: Element):
+    def get_layer_properties(self, instance: ProductBased):
         """gets all layers of instance to after treatment"""
         if hasattr(instance, 'layers'):
             for layer in instance.layers:
@@ -237,7 +237,7 @@ class EnrichMaterial(ITask):
         return material_options, material
 
     @classmethod
-    def material_selection_decision(cls, material_input: str, parent: Element, material_options: list):
+    def material_selection_decision(cls, material_input: str, parent: ProductBased, material_options: list):
         """select one of the material of given matches list"""
         material_selection = ListDecision(
             "Multiple possibilities found for material %s\n"

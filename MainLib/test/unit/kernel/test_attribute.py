@@ -10,7 +10,7 @@ from bim2sim.kernel.units import ureg
 from test.unit.kernel.helper import SetupHelper
 
 
-class TestElement(element.Element):
+class TestElement(element.ProductBased):
     ifc_type = "IfcTest"
 
     attr1 = Attribute(

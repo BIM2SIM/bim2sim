@@ -2,8 +2,8 @@ import inspect
 
 from bim2sim.task.base import Task, ITask
 from bim2sim.decision import BoolDecision, ListDecision
-from bim2sim.kernel.element import SubElement
-from bim2sim.kernel.aggregation import Aggregated_ThermalZone
+from bim2sim.kernel.element import RelationBased
+from bim2sim.kernel.aggregation import AggregatedThermalZone
 from bim2sim.workflow import LOD
 
 
@@ -36,7 +36,7 @@ class BindThermalZones(ITask):
 
     def bind_tz_one_zone(self, thermal_zones):
         tz_group = {'one_zone_building': thermal_zones}
-        new_aggregations = Aggregated_ThermalZone.based_on_groups(tz_group)
+        new_aggregations = AggregatedThermalZone.based_on_groups(tz_group)
         for inst in new_aggregations:
             self.bounded_tz.append(inst)
 
@@ -66,7 +66,7 @@ class BindThermalZones(ITask):
                     criteria_decision.decide()
                 criteria_function = criteria_functions.get(criteria_decision.value)
                 tz_groups = criteria_function()
-                new_aggregations = Aggregated_ThermalZone.based_on_groups(tz_groups)
+                new_aggregations = AggregatedThermalZone.based_on_groups(tz_groups)
                 for inst in new_aggregations:
                     self.bounded_tz.append(inst)
 

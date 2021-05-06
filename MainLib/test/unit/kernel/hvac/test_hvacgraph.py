@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 import networkx as nx
 
+from bim2sim.kernel.elements import hvac
 from bim2sim.kernel import element, elements
 from bim2sim.kernel.hvac import hvac_graph
 
@@ -16,20 +17,20 @@ class GraphHelper(SetupHelper):
         flags = {}
         with self.flag_manager(flags):
             # generator circuit
-            boiler = self.element_generator(elements.Boiler, rated_power=200)
-            gen_vl_a = [self.element_generator(elements.Pipe, length=100, diameter=40) for i in range(3)]
-            h_pump = self.element_generator(elements.Pump, rated_power=2.2, rated_height=12, rated_volume_flow=8)
-            gen_vl_b = [self.element_generator(elements.Pipe, flags=['strand1'], length=100, diameter=40) for i in
+            boiler = self.element_generator(hvac.Boiler, rated_power=200)
+            gen_vl_a = [self.element_generator(hvac.Pipe, length=100, diameter=40) for i in range(3)]
+            h_pump = self.element_generator(hvac.Pump, rated_power=2.2, rated_height=12, rated_volume_flow=8)
+            gen_vl_b = [self.element_generator(hvac.Pipe, flags=['strand1'], length=100, diameter=40) for i in
                         range(5)]
-            distributor = self.element_generator(elements.Distributor, flags=['distributor'])  # , volume=80
-            gen_rl_a = [self.element_generator(elements.Pipe, length=100, diameter=40) for i in range(4)]
-            fitting = self.element_generator(elements.PipeFitting, n_ports=3, diameter=40, length=60)
-            gen_rl_b = [self.element_generator(elements.Pipe, length=100, diameter=40) for i in range(4)]
+            distributor = self.element_generator(hvac.Distributor, flags=['distributor'])  # , volume=80
+            gen_rl_a = [self.element_generator(hvac.Pipe, length=100, diameter=40) for i in range(4)]
+            fitting = self.element_generator(hvac.PipeFitting, n_ports=3, diameter=40, length=60)
+            gen_rl_b = [self.element_generator(hvac.Pipe, length=100, diameter=40) for i in range(4)]
             gen_rl_c = [
-                self.element_generator(elements.Pipe, flags=['strand2'], length=(1 + i) * 40, diameter=15)
+                self.element_generator(hvac.Pipe, flags=['strand2'], length=(1 + i) * 40, diameter=15)
                 for i in range(3)
             ]
-            tank = self.element_generator(elements.Storage, n_ports=1)
+            tank = self.element_generator(hvac.Storage, n_ports=1)
 
         # connect
         gen_vl = [boiler, *gen_vl_a, h_pump, *gen_vl_b, distributor]
@@ -55,10 +56,10 @@ def generate_element_strait(number=5, prefix=""):
 
     #create elements
     for i in range(number):
-        ele = element.BaseElement()
+        ele = element.ProductBased()
         ele.name = prefix + str(i)
-        ele.ports.append(element.BasePort(ele))
-        ele.ports.append(element.BasePort(ele))
+        ele.ports.append(element.Port(ele))
+        ele.ports.append(element.Port(ele))
         elements.append(ele)
         # connect
         if i > 0:
@@ -81,19 +82,19 @@ def attach(element1, element2, use_existing=False):
     if free_ports1:
         port_e1 = free_ports1[0]
     else:
-        port_e1 = element.BasePort(element1)
+        port_e1 = element.Port(element1)
         element1.ports.append(port_e1)
 
     if free_ports2:
         port_e2 = free_ports2[0]
     else:
-        port_e2 = element.BasePort(element2)
+        port_e2 = element.Port(element2)
         element2.ports.append(port_e2)
 
     port_e1.connect(port_e2)
 
 
-@patch.object(element.BaseElement, '__repr__', lambda self: self.name)
+# @patch.object(element.BaseElement, '__repr__', lambda self: self.name)
 class Test_HVACGraph(unittest.TestCase):
     helper = None
 
@@ -149,11 +150,11 @@ class Test_HVACGraph(unittest.TestCase):
         port_graph = hvac_graph.HvacGraph(eles)
         ele_graph = port_graph.element_graph
 
-        wanted = ['IfcPipeSegment']
+        wanted = [hvac.Pipe]
         chains = hvac_graph.HvacGraph.get_type_chains(ele_graph, wanted)
         self.assertEqual(5, len(chains), "Unexpected number of chains found!")
 
-        wanted = ['IfcPipeSegment', 'IfcPump']
+        wanted = [hvac.Pipe, hvac.Pump]
         chains2 = hvac_graph.HvacGraph.get_type_chains(ele_graph, wanted)
         self.assertEqual(4, len(chains2), "Unexpected number of chains found!")
 

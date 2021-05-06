@@ -15,7 +15,8 @@ import configparser
 from bim2sim.decision import Decision, ListDecision
 from bim2sim.task.base import Playground
 from bim2sim.plugin import Plugin
-from bim2sim.kernel.element import Root, IFCBased, BaseElement, SubElement
+from bim2sim.kernel.element import Root
+
 from bim2sim.task.bps.enrich_bldg_templ import EnrichBuildingByTemplates
 
 
@@ -283,6 +284,7 @@ class Project:
         #  'external' Plugins ca specify a meaningful workflow, builtins cant. How to get a generic workflow?
         self.default_plugin = Plugin.get_plugin(self.config['Backend']['use'])
         workflow = self.default_plugin.default_workflow()
+        workflow.relevant_elements = self.default_plugin.elements
         workflow.update_from_config(self.config)
         self.playground = Playground(workflow, self.paths)
 
@@ -393,15 +395,9 @@ class Project:
             #  clean decisions
             # TODO: for now clean them after project finished. change this in #126
             Decision.reset_decisions()
-            # clean Elements
-            # TODO: this should not be necessary. Move all side effects to project context
-            Root.full_reset()
-            # clean finder
-            IFCBased.finder.reset()
-            BaseElement.finder.reset()  # due to a 'hotfix' there are two finder instances
-            SubElement.instances = {}
+            # clean enrich building templates
             EnrichBuildingByTemplates.instance_template = {}
-            # releas project
+            # release project
             Project._release(self)
 
         # clean up init relics

@@ -22,8 +22,8 @@ class PluginAixLib(Plugin):
 
         self.playground.run_task(hvac.SetIFCTypesHVAC())
         self.playground.run_task(common.LoadIFC())
-        self.playground.run_task(hvac.Prepare())
-        self.playground.run_task(hvac.Inspect())
+        self.playground.run_task(common.CreateElements())
+        self.playground.run_task(hvac.ConnectElements())
         self.playground.run_task(hvac.MakeGraph())
         self.playground.run_task(hvac.Reduce())
         self.playground.run_task(LoadLibrariesAixLib)

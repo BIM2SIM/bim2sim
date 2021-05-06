@@ -5,6 +5,7 @@ import enum
 import json
 import hashlib
 from contextlib import contextmanager
+from typing import Iterable
 
 import pint
 
@@ -162,7 +163,7 @@ class Decision:
             self.status = Status.done
             self._post()
         else:
-            raise ValueError("Invalid value: %r" % value)
+            raise ValueError("Invalid value: %r for %s" % (value, self.question))
 
     def reset(self):
         self.status = Status.open
@@ -309,7 +310,7 @@ class Decision:
         return self.value
 
     @classmethod
-    def decide_collected(cls, collection=None):
+    def decide_collected(cls, collection: Iterable['Decision'] = None):
         """Solve all stored decisions"""
 
         logger = logging.getLogger(__name__)

@@ -1,6 +1,7 @@
-from bim2sim.task.base import Task, ITask
-from bim2sim.kernel.element import Element
 from ifcopenshell.file import file
+
+from bim2sim.task.base import Task, ITask
+from bim2sim.kernel.element import ProductBased
 from bim2sim.workflow import Workflow
 
 
@@ -20,7 +21,7 @@ class Inspect(ITask):
     def run(self, workflow: Workflow, ifc: file):
         self.logger.info("Creates python representation of relevant ifc types")
 
-        Element.finder.load(self.paths.finder)
+        ProductBased.finder.load(self.paths.finder)
 
         for ifc_type in workflow.relevant_ifc_types:
             try:

@@ -1,12 +1,11 @@
 import unittest
-from bim2sim.utilities.test import IntegrationBase
 import bim2sim
-from bim2sim.kernel.element import SubElement
+from bim2sim.utilities.test import IntegrationBase
+from bim2sim.kernel.element import RelationBased
 
 
 class IntegrationBaseTEASER(IntegrationBase):
     def tearDown(self):
-        SubElement.instances = {}
         super().tearDown()
 
 
@@ -16,6 +15,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'TEASER')
+        # TODO: update answers
         answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
         with bim2sim.decision.Decision.debug_answer(answers, multi=True):
@@ -26,6 +26,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-Institute-Var-2.ifc"""
         ifc = 'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc, 'TEASER')
+        # TODO: update answers
         answers = (True, True, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
         with bim2sim.decision.Decision.debug_answer(answers, multi=True):

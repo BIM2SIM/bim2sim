@@ -1,7 +1,8 @@
 from unittest import mock
 from contextlib import contextmanager
 
-from bim2sim.kernel.element import Element, Port, Root
+from bim2sim.kernel.elements import hvac
+from bim2sim.kernel.element import HVACPort, Root
 from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 
@@ -21,8 +22,8 @@ class SetupHelper:
         # self.setup.plot(r'c:\temp')
 
     def reset(self) -> None:
-        for r in Root.objects.copy().values():
-            r.discard()
+        # for r in Root.objects.copy().values():
+        #     r.discard()
 
         self.elements.clear()
         # self.setup = None
@@ -36,7 +37,7 @@ class SetupHelper:
 
     @classmethod
     def fake_add_ports(cls, parent, n=2):
-        new_ports = [Port(parent=parent, ifc=cls.ifc) for i in range(n)]
+        new_ports = [HVACPort(parent=parent) for i in range(n)]
         parent.ports.extend(new_ports)
         return new_ports
 
@@ -51,15 +52,15 @@ class SetupHelper:
 
     def element_generator(self, element_cls, n_ports=2, flags=None, **kwargs):
         # instantiate
-        with mock.patch.object(Element, '_add_ports', return_value=None):
-            element = element_cls(self.ifc)
+        with mock.patch.object(hvac.HVACProduct, 'get_ports', return_value=[]):
+            element = element_cls(**kwargs)
         self.elements.append(element)
-        # set attributes
-        for name, value in kwargs.items():
-            if name not in element.attributes.names:
-                raise AssertionError("Can't set attribute '%s' to %s. Choices are %s" %
-                                     (name, element_cls.__name__, list(element.attributes.names)))
-            setattr(element, name, value * getattr(element_cls, name).unit)
+        # # set attributes
+        # for name, value in kwargs.items():
+        #     if name not in element.attributes.names:
+        #         raise AssertionError("Can't set attribute '%s' to %s. Choices are %s" %
+        #                              (name, element_cls.__name__, list(element.attributes.names)))
+        #     setattr(element, name, value * getattr(element_cls, name).unit)
 
         # add ports
         self.fake_add_ports(element, n_ports)
@@ -78,19 +79,19 @@ class SetupHelper:
         flags = {}
         with self.flag_manager(flags):
             # generator circuit
-            boiler = self.element_generator(elements.Boiler, rated_power=200)
-            gen_vl_a = [self.element_generator(elements.Pipe, length=100, diameter=40) for i in range(3)]
-            h_pump = self.element_generator(elements.Pump, rated_power=2.2, rated_height=12, rated_volume_flow=8)
-            gen_vl_b = [self.element_generator(elements.Pipe, flags=['strand1'], length=100, diameter=40) for i in range(5)]
-            distributor = self.element_generator(elements.Distributor, flags=['distributor'])  # , volume=80
-            gen_rl_a = [self.element_generator(elements.Pipe, length=100, diameter=40) for i in range(4)]
-            fitting = self.element_generator(elements.PipeFitting, n_ports=3, diameter=40, length=60)
-            gen_rl_b = [self.element_generator(elements.Pipe, length=100, diameter=40) for i in range(4)]
+            boiler = self.element_generator(hvac.Boiler, rated_power=200)
+            gen_vl_a = [self.element_generator(hvac.Pipe, length=100, diameter=40) for i in range(3)]
+            h_pump = self.element_generator(hvac.Pump, rated_power=2.2, rated_height=12, rated_volume_flow=8)
+            gen_vl_b = [self.element_generator(hvac.Pipe, flags=['strand1'], length=100, diameter=40) for i in range(5)]
+            distributor = self.element_generator(hvac.Distributor, flags=['distributor'])  # , volume=80
+            gen_rl_a = [self.element_generator(hvac.Pipe, length=100, diameter=40) for i in range(4)]
+            fitting = self.element_generator(hvac.PipeFitting, n_ports=3, diameter=40, length=60)
+            gen_rl_b = [self.element_generator(hvac.Pipe, length=100, diameter=40) for i in range(4)]
             gen_rl_c = [
-                self.element_generator(elements.Pipe, flags=['strand2'], length=(1 + i) * 40, diameter=15)
+                self.element_generator(hvac.Pipe, flags=['strand2'], length=(1 + i) * 40, diameter=15)
                 for i in range(3)
             ]
-            tank = self.element_generator(elements.Storage, n_ports=1)
+            tank = self.element_generator(hvac.Storage, n_ports=1)
 
         # connect
         gen_vl = [boiler, *gen_vl_a, h_pump, *gen_vl_b, distributor]
@@ -125,6 +126,6 @@ class SetupHelper:
             return False
 
         for ele in agg.elements:
-            if not isinstance(ele, Element):
+            if not isinstance(ele, hvac.HVACProduct):
                 return False
         return True

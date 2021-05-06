@@ -1,22 +1,23 @@
 ﻿"""Module for aggregation and simplifying elements"""
-
+import logging
 import math
+from functools import partial
+from typing import Sequence, List, Union, Iterable, Tuple, Set, Dict
 import inspect
 import operator
 
 import ast
 import numpy as np
 import networkx as nx
-import json
 
-from bim2sim.kernel.element import BaseElement, BasePort, SubElement
+from bim2sim.kernel.element import ProductBased, Port, HVACPort
+from bim2sim.kernel.elements import hvac, bps
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
-from bim2sim.decision import ListDecision
-from bim2sim.kernel.disaggregation import Disaggregation
-from bim2sim.kernel.elements import HeatPump
-from bim2sim.task.common.common_functions import get_usage_dict
+
+
+logger = logging.getLogger(__name__)
 
 
 def verify_edge_ports(func):
@@ -35,13 +36,13 @@ def verify_edge_ports(func):
     return wrapper
 
 
-class AggregationPort(BasePort):
+class HVACAggregationPort(HVACPort):
     """Port for Aggregation"""
+    guid_prefix = 'AggPort'
 
     def __init__(self, originals, *args, **kwargs):
-        if 'guid' not in kwargs:
-            kwargs['guid'] = self.get_id("AggPort")
         super().__init__(*args, **kwargs)
+        # TODO / TBD: DJA: can one Port replace multiple? what about position?
         if not type(originals) == list:
             self.originals = [originals]
         else:
@@ -55,38 +56,48 @@ class AggregationPort(BasePort):
         return self.originals.position
 
 
-class Aggregation(BaseElement):
-    """Base aggregation of models"""
-    ifc_type = None
+class AggregationMixin:
+    guid_prefix = 'Agg'
     multi = ()
+    aggregatable_elements: Set[ProductBased] = set()
 
-    def __init__(self, name, element_graph, *args, **kwargs):
-        if 'guid' not in kwargs:
-            # TODO: make guid reproducable unique for same aggregation elements
-            # e.g. hash of all (ordered?) element guids?
-            # Needed for save/load decisions on aggregations
-            kwargs['guid'] = self.get_id("Agg")
-        # TODO: handle outer_connections from meta
-        self.outer_connections = kwargs.pop('outer_connections', None)  # WORKAROUND
-        super().__init__(*args, **kwargs)
-        self.name = name
-        if hasattr(element_graph, 'nodes'):
-            self.elements = element_graph.nodes
-        else:
-            self.elements = element_graph
+    def __init__(self, elements: Sequence[ProductBased], *args, **kwargs):
+        if self.aggregatable_elements:
+            received = {type(ele) for ele in elements}
+            mismatch = received - self.aggregatable_elements
+            if mismatch:
+                raise AssertionError("Can't aggregate %s form elements: %s" %
+                                     (self.__class__.__name__, mismatch))
+        # TODO: make guid reproduceable unique for same aggregation elements
+        #  e.g. hash of all (ordered?) element guids?
+        #  Needed for save/load decisions on aggregations
+        self.elements = elements
         for model in self.elements:
             model.aggregation = self
+        super().__init__(*args, **kwargs)
+
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if ProductBased not in cls.__bases__:
+            # raise AssertionError("%s only supports sub classes of ProductBased" % cls)
+            logger.error("%s only supports sub classes of ProductBased", cls)
+
+        # TODO: this are only temporary checks
+        if hasattr(cls, 'ifc_type'):
+            logger.warning("Obsolete use of 'ifc_type' in %s" % cls)
+        if hasattr(cls, 'predefined_types'):
+            logger.warning("Obsolete use of 'predefined_types' in %s" % cls)
 
     def calc_position(self):
         """Position based on first and last element"""
         try:
             return (self.elements[0].position + self.elements[-1].position) / 2
+            # return sum(ele.position for ele in self.elements) / len(self.elements)
         except:
             return None
 
     def request(self, name):
-        super().__doc__
-
         # broadcast request to all nested elements
         # if one attribute included in multi_calc is requested, all multi_calc attributes are needed
 
@@ -102,8 +113,36 @@ class Aggregation(BaseElement):
         for n in names:
             super().request(n)
 
+    def __repr__(self):
+        return "<%s (aggregation of %d elements)>" % (
+            self.__class__.__name__, len(self.elements))
+
+    def __str__(self):
+        return "%s" % self.__class__.__name__
+
+
+class HVACAggregationMixin(AggregationMixin):
+    def __init__(self, element_graph, *args, outer_connections=None, **kwargs):
+        # TODO: handle outer_connections from meta
+        self.outer_connections = outer_connections  # WORKAROUND
+        # make get_ports signature match ProductBased.get_ports
+        self.get_ports = partial(self.get_ports, element_graph)
+        super().__init__(list(element_graph.nodes), *args, **kwargs)
+
+    @verify_edge_ports
+    def get_ports(self, graph):
+        # TBD: use of outer_connections
+        if not self.outer_connections:
+            edge_ports = self.get_edge_ports(graph)
+            ports = [HVACAggregationPort(port, parent=self)
+                     for port in edge_ports]
+        else:
+            ports = [HVACAggregationPort(port, parent=self)
+                     for port in self.outer_connections]
+        return ports
+
     @classmethod
-    def get_empty_mapping(cls, elements: list):
+    def get_empty_mapping(cls, elements: Iterable[ProductBased]):
         """Get information to remove elements
         :returns tuple of
             mapping dict with original ports as values and None as keys
@@ -122,17 +161,23 @@ class Aggregation(BaseElement):
 
         return mapping, connections
 
-    @classmethod
-    def get_edge_ports(cls, graph):
-        """
-        Finds and returns the edge ports of element graph.
+    def get_replacement_mapping(self) \
+            -> Dict[HVACPort, Union[HVACAggregationPort, None]]:
+        """Get replacement dict for existing ports."""
+        mapping = {port: None for element in self.elements
+                   for port in element.ports}
+        for port in self.ports:
+            for original in port.originals:
+                mapping[original] = port
+        return mapping
 
-        :return list of ports:
-        """
+    @classmethod
+    def get_edge_ports(cls, graph) -> List[HVACPort]:
+        """Finds and returns the original edge ports of element graph."""
         raise NotImplementedError()
 
     @classmethod
-    def get_edge_ports_of_strait(cls, graph):
+    def get_edge_ports_of_strait(cls, graph) -> List[HVACPort]:
         """
         Finds and returns the edge ports of element graph
         with exactly one strait chain of connected elements.
@@ -159,40 +204,25 @@ class Aggregation(BaseElement):
         return edge_ports
 
     @classmethod
-    def find_matches(cls, graph):
+    def find_matches(cls, graph: HvacGraph)\
+            -> Tuple[List[nx.Graph], List[dict]]:
         """Find all matches for Aggregation in element graph
-        :returns: matches, meta"""
-        element_graph = graph.element_graph
-        raise NotImplementedError("Method %s.find_matches not implemented" % cls.__name__)  # TODO
-
-    def __repr__(self):
-        return "<%s '%s' (aggregation of %d elements)>" % (
-            self.__class__.__name__, self.name, len(self.elements))
-
-    def __str__(self):
-        return "%s" % self.__class__.__name__
+        :returns: matches, metas"""
+        raise NotImplementedError(
+            "Method %s.find_matches not implemented" % cls.__name__)
 
 
-class PipeStrand(Aggregation):
+class PipeStrand(HVACAggregationMixin, hvac.Pipe):
     """Aggregates pipe strands"""
-    aggregatable_elements = ['IfcPipeSegment', 'IfcPipeFitting', 'IfcValve']
+    aggregatable_elements = {hvac.Pipe, hvac.PipeFitting,
+                             hvac.Valve}
     multi = ('length', 'diameter')
 
-    def __init__(self, name, element_graph, *args, **kwargs):
-        received = {node.ifc_type for node in element_graph.nodes}
-        if received - set(self.aggregatable_elements):
-            raise AssertionError("Can't aggregate elements to %s: %s" %
-                                 (self.__class__.__name__, received - set(self.aggregatable_elements)))
-        length = kwargs.pop('length', None)
-        diameter = kwargs.pop('diameter', None)
-        super().__init__(name, element_graph, *args, **kwargs)
-        if length:
-            self.length = length
-        if diameter:
-            self.diameter = diameter
-        edge_ports = self.get_edge_ports(element_graph)
-        for port in edge_ports:
-            self.ports.append(AggregationPort(port, parent=self))
+    def __init__(self, element_graph, *args, **kwargs):
+        super().__init__(element_graph, *args, **kwargs)
+        # edge_ports = self.get_edge_ports(element_graph)
+        # for port in edge_ports:
+        #     self.ports.append(HVACAggregationPort(port, parent=self))
 
     @classmethod
     def get_edge_ports(cls, graph):
@@ -210,7 +240,7 @@ class PipeStrand(Aggregation):
             length = getattr(pipe, "length")
             diameter = getattr(pipe, "diameter")
             if not (length and diameter):
-                self.logger.warning("Ignored '%s' in aggregation", pipe)
+                logger.warning("Ignored '%s' in aggregation", pipe)
                 continue
 
             diameter_times_length += diameter * length
@@ -225,14 +255,14 @@ class PipeStrand(Aggregation):
         )
         return result
 
-    def get_replacement_mapping(self):
-        """Returns dict with original ports as values and their aggregated replacement as keys."""
-        mapping = {port: None for element in self.elements
-                   for port in element.ports}
-        for port in self.ports:
-            for original in port.originals:
-                mapping[original] = port
-        return mapping
+    # def get_replacement_mapping(self):
+    #     """Returns dict with original ports as values and their aggregated replacement as keys."""
+    #     mapping = {port: None for element in self.elements
+    #                for port in element.ports}
+    #     for port in self.ports:
+    #         for original in port.originals:
+    #             mapping[original] = port
+    #     return mapping
 
     @classmethod
     def find_matches(cls, graph):
@@ -259,23 +289,11 @@ class UnderfloorHeating(PipeStrand):
     """Aggregates UnderfloorHeating, normal pitch (spacing) between
     pipes is between 0.1m and 0.2m"""
 
-    def __init__(self, name, element_graph, *args, **kwargs):
-        x_spacing = kwargs.pop('x_spacing', None)
-        y_spacing = kwargs.pop('y_spacing', None)
-        heating_area = kwargs.pop('heating_area', None)
-        super().__init__(name, element_graph, *args, **kwargs)
+    def __init__(self, element_graph, *args, **kwargs):
+        super().__init__(element_graph, *args, **kwargs)
         # edge_ports = self.get_edge_ports(element_graph)
         # for port in edge_ports:
         #     self.ports.append(AggregationPort(port, parent=self))
-
-        if x_spacing:
-            self.x_spacing = x_spacing
-
-        if y_spacing:
-            self.y_spacing = x_spacing
-
-        if heating_area:
-            self.heating_area = heating_area
 
     @classmethod
     def find_matches(cls, graph):
@@ -415,7 +433,7 @@ class UnderfloorHeating(PipeStrand):
     )
 
     @classmethod
-    def create_on_match(cls, name, uh_elements):
+    def create_on_match(cls, name, uh_elements):  # TODO: obsolete and equal? to check_conditions
         """checks ps_elements and returns instance of UnderfloorHeating if all following criteria are fulfilled:
             0. minimum of 20 elements
             1. the pipe strand is located horizontally -- parallel to the floor
@@ -487,7 +505,7 @@ class UnderfloorHeating(PipeStrand):
             return  # spacing criteria failed
 
         # create instance to check final kpi criteria
-        underfloor_heating = cls(name, uh_elements)
+        underfloor_heating = cls(uh_elements)
         # pre set _calc_avg results
         underfloor_heating._heating_area = heating_area
         underfloor_heating._x_spacing = x_spacing
@@ -500,19 +518,24 @@ class UnderfloorHeating(PipeStrand):
         # else kpi criteria failed
 
 
-class ParallelPump(Aggregation):
+class ParallelPump(HVACAggregationMixin, hvac.Pump):
     """Aggregates pumps in parallel"""
-    aggregatable_elements = ['IfcPump', 'PipeStrand', 'IfcPipeSegment',
-                             'IfcPipeFitting']
+    # aggregatable_elements = ['IfcPump', 'PipeStrand', 'IfcPipeSegment',
+    #                          'IfcPipeFitting']
+    aggregatable_elements = {
+        hvac.Pump, hvac.Pipe, hvac.PipeFitting, PipeStrand}
     multi = ('rated_power', 'rated_height', 'rated_volume_flow', 'diameter', 'diameter_strand', 'length')
 
-    def __init__(self, name, element_graph, *args, **kwargs):
-        super().__init__(name, element_graph, *args, **kwargs)
-        edge_ports = self.get_edge_ports(element_graph)
+    def __init__(self, element_graph, *args, **kwargs):
+        super().__init__(element_graph, *args, **kwargs)
+
+    def get_ports(self, graph):
+        ports = []
+        edge_ports = self.get_edge_ports(graph)
         # simple case with two edge ports
         if len(edge_ports) == 2:
             for port in edge_ports:
-                self.ports.append(AggregationPort(port, parent=self))
+                ports.append(HVACAggregationPort(port, parent=self))
         # more than two edge ports
         else:
             # get list of ports to be merged to one aggregation port
@@ -523,7 +546,8 @@ class ParallelPump(Aggregation):
                 originals_dict[parent] = [port for port in edge_ports if
                                           port.connection.parent == parent]
             for originals in originals_dict.values():
-                self.ports.append(AggregationPort(originals, parent=self))
+                ports.append(HVACAggregationPort(originals, parent=self))
+        return ports
 
     def get_edge_ports(self, graph):
         """
@@ -576,16 +600,16 @@ class ParallelPump(Aggregation):
                 aggr_ports = [port for port in edge_inner_ports if
                               port.parent == parent]
                 if not isinstance(parent.aggregation, AggregatedPipeFitting):
-                    AggregatedPipeFitting('aggr_' + parent.name, nx.subgraph(
+                    AggregatedPipeFitting(nx.subgraph(
                         graph, parent), aggr_ports)
                 else:
                     for port in aggr_ports:
-                        AggregationPort(
+                        HVACAggregationPort(
                             originals=port, parent=parent.aggregation)
         return edge_ports
 
     @attribute.multi_calc
-    def _calc_avg(self):
+    def _calc_avg(self) -> dict:
         """Calculates the parameters of all pump-like elements."""
         max_rated_height = 0
         total_rated_volume_flow = 0
@@ -596,7 +620,7 @@ class ParallelPump(Aggregation):
         total_rated_power = 0
 
         for item in self.elements:
-            if "Pump" in item.ifc_type:
+            if isinstance(item, hvac.Pump):
 
                 total_rated_volume_flow += item.rated_volume_flow
                 total_rated_power += item.rated_power
@@ -613,14 +637,14 @@ class ParallelPump(Aggregation):
                     length = item.length
                     diameter = item.diameter
                     if not (length and diameter):
-                        self.logger.info("Ignored '%s' in aggregation", item)
+                        logger.info("Ignored '%s' in aggregation", item)
                         continue
 
                     diameter_times_length += diameter * length
                     total_length += length
 
                 else:
-                    self.logger.info("Ignored '%s' in aggregation", item)
+                    logger.info("Ignored '%s' in aggregation", item)
 
         if total_length != 0:
             avg_diameter_strand = diameter_times_length / total_length
@@ -637,15 +661,11 @@ class ParallelPump(Aggregation):
         )
         return result
 
-    def get_replacement_mapping(self):
-        """Returns dict with original ports as values and their aggregated
-        replacement as keys."""
-        mapping = {port: None for element in self.elements
-                   for port in element.ports}
-        for port in self.ports:
-            for original in port.originals:
-                mapping[original] = port
+    def get_replacement_mapping(self) \
+            -> Dict[HVACPort, Union[HVACAggregationPort, None]]:
+        mapping = super().get_replacement_mapping()
 
+        # TODO: cant this be solved in find_matches?
         # search for aggregations made during the parallel pump construction
         new_aggregations = [element.aggregation for element in self.elements if
                             element.aggregation is not self]
@@ -661,12 +681,10 @@ class ParallelPump(Aggregation):
 
         # check if additional junctions exist
         add_junctions, metas = AggregatedPipeFitting.find_matches(graph)
-        name_builder = '{} {}'
         i = 0
         for junction, meta in zip(add_junctions, metas):
             # todo maybe add except clause
-            aggrPipeFitting = AggregatedPipeFitting(
-                name_builder.format(AggregatedPipeFitting.__name__, i + 1), junction, **meta)
+            aggrPipeFitting = AggregatedPipeFitting(junction, **meta)
             i += 1
         return graph
 
@@ -710,8 +728,8 @@ class ParallelPump(Aggregation):
         """Find all matches for Aggregation in element graph
         :returns: matches, meta"""
         element_graph = graph.element_graph
-        wanted = {'IfcPump'}
-        inerts = set(cls.aggregatable_elements) - wanted
+        wanted = {hvac.Pump}
+        inerts = cls.aggregatable_elements - wanted
         parallels = HvacGraph.get_parallels(
             element_graph, wanted, inerts, grouping={'rated_power': 'equal'},
             grp_threshold=1)
@@ -719,29 +737,35 @@ class ParallelPump(Aggregation):
         return parallels, metas
 
 
-class AggregatedPipeFitting(Aggregation):
+class AggregatedPipeFitting(HVACAggregationMixin, hvac.PipeFitting):
     """Aggregates PipeFittings. Used in two cases:
         - Merge multiple PipeFittings into one aggregates
         - Use a single PipeFitting and create a aggregated PipeFitting where
         some ports are aggregated (aggr_ports argument)
     """
-    aggregatable_elements = ['PipeStand', 'IfcPipeSegment', 'IfcPipeFitting']
+    # aggregatable_elements = ['PipeStand', 'IfcPipeSegment', 'IfcPipeFitting']
+    aggregatable_elements = {hvac.Pipe, hvac.PipeFitting, PipeStrand}
     threshold = None
 
-    def __init__(self, name, element_graph, aggr_ports=None, *args, **kwargs):
-        super().__init__(name, element_graph, *args, **kwargs)
-        edge_ports = self.get_edge_ports(element_graph)
+    def __init__(self, element_graph, aggr_ports=None, *args, **kwargs):
+        self.get_ports = partial(self.get_ports, aggr_ports)
+        super().__init__(element_graph, *args, **kwargs)
+        # self.get_ports(aggr_ports, element_graph)
+
+    def get_ports(self, aggr_ports, graph):  # TBD
+        ports = []
+        edge_ports = self.get_edge_ports(graph)
         # create aggregation ports for all edge ports
         for edge_port in edge_ports:
             if aggr_ports:
                 if edge_port not in aggr_ports:
-                    self.ports.append(AggregationPort(edge_port, parent=self))
+                    ports.append(HVACAggregationPort(edge_port, parent=self))
             else:
-                self.ports.append(AggregationPort(edge_port, parent=self))
-
+                ports.append(HVACAggregationPort(edge_port, parent=self))
         # create combined aggregation port for all ports in aggr_ports
         if aggr_ports:
-            self.ports.append(AggregationPort(aggr_ports, parent=self))
+            ports.append(HVACAggregationPort(aggr_ports, parent=self))
+        return ports
 
     @classmethod
     def get_edge_ports(cls, graph):
@@ -765,40 +789,46 @@ class AggregatedPipeFitting(Aggregation):
     def find_matches(cls, graph):
         """Find all matches for Aggregation in element graph
         :returns: matches, meta"""
-        wanted = {'IfcPipeFitting'}
-        innerts = set(cls.aggregatable_elements) - wanted
+        wanted = {elements.hvac.PipeFitting}
+        innerts = cls.aggregatable_elements - wanted
         connected_fittings = HvacGraph.get_connections_between(
             graph, wanted, innerts)
         metas = [{} for x in connected_fittings]  # no metadata calculated
         return connected_fittings, metas
 
-    def get_replacement_mapping(self):
-        """Returns dict with original ports as values and their aggregated
-        replacement as keys."""
-        mapping = {port: None for element in self.elements
-                   for port in element.ports}
-        for port in self.ports:
-            for original in port.originals:
-                mapping[original] = port
-        return mapping
+    # def get_replacement_mapping(self):
+    #     """Returns dict with original ports as values and their aggregated
+    #     replacement as keys."""
+    #     mapping = {port: None for element in self.elements
+    #                for port in element.ports}
+    #     for port in self.ports:
+    #         for original in port.originals:
+    #             mapping[original] = port
+    #     return mapping
 
 
-class ParallelSpaceHeater(Aggregation):
+class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
     """Aggregates Space heater in parallel"""
-    aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting']
 
-    def __init__(self, name, element_graph, *args, **kwargs):
-        super().__init__(name, element_graph, *args, **kwargs)
-        edge_ports = self._get_start_and_end_ports()
-        self.ports.append(AggregationPort(edge_ports[0], parent=self))
-        self.ports.append(AggregationPort(edge_ports[1], parent=self))
-        self._total_rated_power = None
-        self._avg_rated_height = None
-        self._total_rated_volume_flow = None
-        self._total_diameter = None
-        self._total_length = None
-        self._avg_diameter_strand = None
-        self._elements = None
+    aggregatable_elements = {hvac.SpaceHeater, hvac.Pipe,
+                             hvac.PipeFitting, PipeStrand}
+    # aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting']
+
+    def __init__(self, element_graph, *args, **kwargs):
+        super().__init__(element_graph, *args, **kwargs)
+        # edge_ports = self._get_start_and_end_ports()
+        # self.ports.append(HVACAggregationPort(edge_ports[0], parent=self))
+        # self.ports.append(HVACAggregationPort(edge_ports[1], parent=self))
+        # self._total_rated_power = None
+        # self._avg_rated_height = None
+        # self._total_rated_volume_flow = None
+        # self._total_diameter = None
+        # self._total_length = None
+        # self._avg_diameter_strand = None
+        # self._elements = None
+
+    def get_ports(self, graph):
+        return self._get_start_and_end_ports()
 
     @verify_edge_ports
     def _get_start_and_end_ports(self):
@@ -809,7 +839,7 @@ class ParallelSpaceHeater(Aggregation):
         total_ports = {}
         # all possible beginning and end of the cycle (always pipe fittings), pumps counting
         for port in self.elements:
-            if isinstance(port.parent, elements.PipeFitting):
+            if isinstance(port.parent, hvac.PipeFitting):
                 if port.parent.guid in total_ports:
                     total_ports[port.parent.guid].append(port)
                 else:
@@ -838,6 +868,15 @@ class ParallelSpaceHeater(Aggregation):
                 agg_ports.append(port)
         return agg_ports
 
+    @classmethod
+    def get_edge_ports(cls, graph) -> List[HVACPort]:
+        pass  # TODO
+
+    @classmethod
+    def find_matches(cls, graph: HvacGraph) \
+            -> Tuple[List[nx.Graph], List[dict]]:
+        pass  # TODO
+
     @attribute.multi_calc
     def _calc_avg(self):
         """Calculates the parameters of all pump-like elements."""
@@ -855,7 +894,7 @@ class ParallelSpaceHeater(Aggregation):
                 rated_volume_flow = getattr(pump, "rated_volume_flow")
                 diameter = getattr(pump, "diameter")
                 if not (rated_power and rated_height and rated_volume_flow and diameter):
-                    self.logger.warning("Ignored '%s' in aggregation", pump)
+                    logger.warning("Ignored '%s' in aggregation", pump)
                     continue
 
                 total_rated_volume_flow += rated_volume_flow
@@ -872,14 +911,14 @@ class ParallelSpaceHeater(Aggregation):
                     length = pump.length
                     diameter = pump.diameter
                     if not (length and diameter):
-                        self.logger.warning("Ignored '%s' in aggregation", pump)
+                        logger.warning("Ignored '%s' in aggregation", pump)
                         continue
 
                     diameter_times_length += diameter * length
                     total_length += length
 
                 else:
-                    self.logger.warning("Ignored '%s' in aggregation", pump)
+                    logger.warning("Ignored '%s' in aggregation", pump)
 
         if total_length != 0:
             avg_diameter_strand = diameter_times_length / total_length
@@ -900,14 +939,14 @@ class ParallelSpaceHeater(Aggregation):
         )
         return result
 
-    def get_replacement_mapping(self):
-        """Returns dict with original ports as values and their aggregated replacement as keys."""
-        mapping = {port: None for element in self.elements
-                   for port in element.ports}
-        for port in self.ports:
-            for original in port.originals:
-                mapping[original] = port
-        return mapping
+    # def get_replacement_mapping(self):
+    #     """Returns dict with original ports as values and their aggregated replacement as keys."""
+    #     mapping = {port: None for element in self.elements
+    #                for port in element.ports}
+    #     for port in self.ports:
+    #         for original in port.originals:
+    #             mapping[original] = port
+    #     return mapping
 
     rated_power = attribute.Attribute(
         description="rated power",
@@ -919,6 +958,7 @@ class ParallelSpaceHeater(Aggregation):
     )
     rated_volume_flow = attribute.Attribute(
         description="rated volume flow",
+        unit=ureg.meter ** 3 / ureg.hour,
         functions=[_calc_avg]
     )
     diameter = attribute.Attribute(
@@ -935,7 +975,7 @@ class ParallelSpaceHeater(Aggregation):
     )
 
     @classmethod
-    def create_on_match(cls, name, cycle):
+    def create_on_match(cls, cycle):  # TODO: obsolete, use find_matches
         """reduce the found cycles, to just the cycles that fulfill the next criteria:
             1. it's a parallel cycle (the two strands have the same flow direction)
             2. it has one or more pumps in each strand
@@ -950,7 +990,7 @@ class ParallelSpaceHeater(Aggregation):
         for port in cycle:
             if isinstance(port.parent, getattr(elements, p_instance)):
                 n_element += 1
-            if isinstance(port.parent, elements.PipeFitting):
+            if isinstance(port.parent, hvac.PipeFitting):
                 if port.parent.guid in total_ports:
                     total_ports[port.parent.guid].append(port)
                 else:
@@ -982,7 +1022,7 @@ class ParallelSpaceHeater(Aggregation):
         check_up = str(dict.fromkeys(upper))
         check_low = str(dict.fromkeys(lower))
 
-        instance = cls(name, cycle)
+        instance = cls(cycle)
         instance._elements = new_cycle["elements"]
         instance._up_strand = upper
         instance._low_strand = lower
@@ -991,27 +1031,36 @@ class ParallelSpaceHeater(Aggregation):
             return instance
 
 
-class Consumer(Aggregation):
+class Consumer(HVACAggregationMixin, hvac.HVACProduct):
     """Aggregates Consumer system boarder"""
     multi = ('has_pump', 'rated_power', 'rated_pump_power', 'rated_height', 'rated_volume_flow', 'temperature_inlet',
              'temperature_outlet', 'volume', 'description')
 
-    aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting', 'ParallelSpaceHeater']
-    whitelist = [elements.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating]
-    blacklist = [elements.Chiller, elements.Boiler, elements.CoolingTower]
+    aggregatable_elements = {
+        hvac.SpaceHeater, hvac.Pipe,
+        hvac.PipeFitting,
+        hvac.Pump, hvac.Valve,
+        PipeStrand, ParallelSpaceHeater, UnderfloorHeating}
+    whitelist = [hvac.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating]
+    blacklist = [hvac.Chiller, hvac.Boiler,
+                 hvac.CoolingTower]
 
-    def __init__(self, name, element_graph, *args, **kwargs):
-        super().__init__(name, element_graph, *args, **kwargs)
-        edge_ports = self._get_start_and_end_ports()
-        self.ports.append(AggregationPort(edge_ports[0], parent=self))
-        self.ports.append(AggregationPort(edge_ports[1], parent=self))
-        self._total_rated_power = None
-        self._avg_rated_height = None
-        self._total_rated_volume_flow = None
-        self._total_diameter = None
-        self._total_length = None
-        self._avg_diameter_strand = None
-        self._elements = None
+    def __init__(self, element_graph, *args, **kwargs):
+        super().__init__(element_graph, *args, **kwargs)
+        # edge_ports = self._get_start_and_end_ports()
+        # self.ports.append(HVACAggregationPort(edge_ports[0], parent=self))
+        # self.ports.append(HVACAggregationPort(edge_ports[1], parent=self))
+        # self._total_rated_power = None
+        # self._avg_rated_height = None
+        # self._total_rated_volume_flow = None
+        # self._total_diameter = None
+        # self._total_length = None
+        # self._avg_diameter_strand = None
+        # self._elements = None
+
+    def get_ports(self, graph):
+        return [HVACAggregationPort(port, parent=self)
+                for port in self._get_start_and_end_ports()]
 
     @verify_edge_ports
     def _get_start_and_end_ports(self):
@@ -1022,15 +1071,20 @@ class Consumer(Aggregation):
         agg_ports = []
 
         for ports in self.outer_connections:
-            agg_ports.append(ports[1])
+            agg_ports.append(ports[1])  # TBD: only one port?
 
         return agg_ports
 
     @classmethod
-    def find_matches(cls, graph):
+    def get_edge_ports(cls, graph) -> List[HVACPort]:
+        pass  # TODO
+
+    @classmethod
+    def find_matches(cls, graph: HvacGraph) \
+            -> Tuple[List[nx.Graph], List[dict]]:
         """Find all matches for Aggregation in element graph
         :returns: matches, meta"""
-        boarder_class = {elements.Distributor}
+        boarder_class = {hvac.Distributor}
         # innerts = set(cls.aggregatable_elements) - wanted
 
         boarder_class = set(boarder_class)
@@ -1097,7 +1151,7 @@ class Consumer(Aggregation):
                     ele.request(name)
         if name in lst_pump:
             for ele in self.elements:
-                if ele.ifc_type == elements.Pump.ifc_type:
+                if ele.ifc_type == hvac.Pump.ifc_type:
                     for n in lst_pump:
                         ele.request(n)
         if name == 'volume':
@@ -1121,7 +1175,7 @@ class Consumer(Aggregation):
 
         for ele in self.elements:
             # Pumps
-            if elements.Pump is ele.__class__:
+            if hvac.Pump is ele.__class__:
                 # Pumpenleistung herausziehen
                 total_rated_pump_power = getattr(ele, "rated_power")
                 # Pumpenhöhe herausziehen
@@ -1150,13 +1204,13 @@ class Consumer(Aggregation):
                 if hasattr(ele, "length"):  # ToDO: Parallel?
                     length = ele.length
                     if not (length):
-                        self.logger.warning("Ignored '%s' in aggregation", ele)
+                        logger.warning("Ignored '%s' in aggregation", ele)
                         continue
 
                     total_length += length
 
                 else:
-                    self.logger.warning("Ignored '%s' in aggregation", ele)
+                    logger.warning("Ignored '%s' in aggregation", ele)
 
         if not total_rated_pump_power and total_rated_volume_flow and avg_rated_height:
             g = 9.81 * ureg.meter / (ureg.second ** 2)
@@ -1182,7 +1236,7 @@ class Consumer(Aggregation):
             if ele.__class__ in Consumer.whitelist:
                 # Dict for description consumer
                 con_types[ele.__class__] = con_types.get(ele.__class__, 0) + 1
-            elif ele.__class__ is elements.SpaceHeater:
+            elif ele.__class__ is hvac.SpaceHeater:
                 rated_consumer_power = getattr(ele, "rated_power")
                 total_rated_consumer_power += rated_consumer_power
 
@@ -1205,7 +1259,7 @@ class Consumer(Aggregation):
     def _calc_has_pump(self):
         has_pump = False
         for ele in self.elements:
-            if elements.Pump is ele.__class__:
+            if hvac.Pump is ele.__class__:
                 has_pump = True
                 break;
 
@@ -1213,17 +1267,18 @@ class Consumer(Aggregation):
             has_pump=has_pump)
         return result
 
-    def get_replacement_mapping(self):
-        """Returns dict with original ports as values and their aggregated replacement as keys."""
-        mapping = {port: None for element in self.elements
-                   for port in element.ports}
-        for port in self.ports:
-            for original in port.originals:
-                mapping[original] = port
-        return mapping
+    # def get_replacement_mapping(self):
+    #     """Returns dict with original ports as values and their aggregated replacement as keys."""
+    #     mapping = {port: None for element in self.elements
+    #                for port in element.ports}
+    #     for port in self.ports:
+    #         for original in port.originals:
+    #             mapping[original] = port
+    #     return mapping
 
     rated_power = attribute.Attribute(
         description="rated power",
+        unit=ureg.kilowatt,
         functions=[_calc_avg_consumer]
     )
 
@@ -1234,11 +1289,13 @@ class Consumer(Aggregation):
 
     rated_pump_power = attribute.Attribute(
         description="rated pump power",
+        unit=ureg.kilowatt,
         functions=[_calc_avg_pump]
     )
 
     rated_volume_flow = attribute.Attribute(
         description="rated volume flow",
+        unit=ureg.meter ** 3 / ureg.hour,
         functions=[_calc_avg_pump]
     )
 
@@ -1254,6 +1311,7 @@ class Consumer(Aggregation):
 
     volume = attribute.Attribute(
         description="volume",
+        unit=ureg.meter ** 3,
         functions=[_calc_avg_pump]
     )
 
@@ -1273,24 +1331,29 @@ class Consumer(Aggregation):
     )
 
 
-class ConsumerHeatingDistributorModule(Aggregation):  # ToDo: Export Aggregation HKESim
+class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): #ToDo: Export Aggregation HKESim
     """Aggregates Consumer system boarder"""
     multi = (
         'medium', 'use_hydraulic_separator', 'hydraulic_separator_volume', 'temperature_inlet', 'temperature_outlet')
     # ToDo: Abused to not just sum attributes from elements
 
-    aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting', 'ParallelSpaceHeater']
-    whitelist = [elements.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating,
+    # aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting', 'ParallelSpaceHeater']
+    aggregatable_elements = {
+        hvac.SpaceHeater, hvac.Pipe,
+        hvac.PipeFitting,
+        PipeStrand, ParallelSpaceHeater}
+    whitelist = [hvac.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating,
                  Consumer]
-    blacklist = [elements.Chiller, elements.Boiler, elements.CoolingTower]
+    blacklist = [hvac.Chiller, hvac.Boiler,
+                 hvac.CoolingTower]
 
-    def __init__(self, name, element_graph, *args, **kwargs):
+    def __init__(self, element_graph, *args, **kwargs):
         self.undefined_consumer_ports = kwargs.pop('undefined_consumer_ports', None)  # TODO: Richtig sO? WORKAROUND
         self._consumer_cycles = kwargs.pop('consumer_cycles', None)
-        super().__init__(name, element_graph, *args, **kwargs)
+        super().__init__(element_graph, *args, **kwargs)
         edge_ports = self._get_start_and_end_ports()
         for port in edge_ports:
-            self.ports.append(AggregationPort(port, parent=self))
+            self.ports.append(HVACAggregationPort(port, parent=self))
 
         self.consumers = []
 
@@ -1300,8 +1363,8 @@ class ConsumerHeatingDistributorModule(Aggregation):  # ToDo: Export Aggregation
 
         self.open_consumer_pairs = self._register_open_consumerports()
         for ports in self.open_consumer_pairs:
-            a = AggregationPort(ports[0], parent=self)
-            b = AggregationPort(ports[1], parent=self)
+            a = HVACAggregationPort(ports[0], parent=self)
+            b = HVACAggregationPort(ports[1], parent=self)
             self.ports.append(a)
             self.ports.append(b)
 
@@ -1327,6 +1390,10 @@ class ConsumerHeatingDistributorModule(Aggregation):  # ToDo: Export Aggregation
 
         return agg_ports
 
+    @classmethod
+    def get_edge_ports(cls, graph) -> List[HVACPort]:
+        pass  # TODO
+
     def _register_open_consumerports(self):
 
         consumer_ports = []
@@ -1342,7 +1409,7 @@ class ConsumerHeatingDistributorModule(Aggregation):  # ToDo: Export Aggregation
     def find_matches(cls, graph):
         """Find all matches for Aggregation in element graph
         :returns: matches, meta"""
-        boarder_class = {elements.Distributor.ifc_type}
+        boarder_class = {hvac.Distributor.ifc_type}
         boarder_class = set(boarder_class)
         element_graph = graph.element_graph
         results = []
@@ -1400,14 +1467,14 @@ class ConsumerHeatingDistributorModule(Aggregation):  # ToDo: Export Aggregation
 
         return results, metas
 
-    def get_replacement_mapping(self):
-        """Returns dict with original ports as values and their aggregated replacement as keys."""
-        mapping = {port: None for element in self.elements
-                   for port in element.ports}
-        for port in self.ports:
-            for original in port.originals:
-                mapping[original] = port
-        return mapping
+    # def get_replacement_mapping(self):
+    #     """Returns dict with original ports as values and their aggregated replacement as keys."""
+    #     mapping = {port: None for element in self.elements
+    #                for port in element.ports}
+    #     for port in self.ports:
+    #         for original in port.originals:
+    #             mapping[original] = port
+    #     return mapping
 
     @attribute.multi_calc
     def _calc_avg(self):
@@ -1447,12 +1514,13 @@ class ConsumerHeatingDistributorModule(Aggregation):  # ToDo: Export Aggregation
     )
 
 
-class Aggregated_ThermalZone(Aggregation):
+class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
     """Aggregates thermal zones"""
-    aggregatable_elements = ["IfcSpace"]
+    # aggregatable_elements = ["IfcSpace"]
+    aggregatable_elements = {hvac.SpaceHeater}
 
-    def __init__(self, name, element_graph, *args, **kwargs):
-        super().__init__(name, element_graph, *args, **kwargs)
+    def __init__(self, elements, *args, **kwargs):
+        super().__init__(elements, *args, **kwargs)
         # self.get_disaggregation_properties()
         self.bound_elements = self.bind_elements()
         self.description = ''
@@ -1479,7 +1547,7 @@ class Aggregated_ThermalZone(Aggregation):
         for group in groups:
             if group == 'one_zone_building':
                 name = "Aggregated_%s" % group
-                instance = cls(name, groups[group])
+                instance = cls(groups[group], name=name)
                 instance.description = group
                 new_aggregations.append(instance)
                 for e in instance.elements:
@@ -1492,7 +1560,7 @@ class Aggregated_ThermalZone(Aggregation):
                 if area / total_area <= 0.05:
                     # Todo: usage and conditions criterion
                     name = "Aggregated_%s" % '_'.join([i.name for i in groups[group]])
-                    instance = cls(name, groups[group])
+                    instance = cls(groups[group], name=name)
                     instance.description = group
                     new_aggregations.append(instance)
                     for e in instance.elements:
@@ -1502,7 +1570,7 @@ class Aggregated_ThermalZone(Aggregation):
             else:
                 # first criterion based on similarities
                 name = "Aggregated_%s" % '_'.join([i.name for i in groups[group]])
-                instance = cls(name, groups[group])
+                instance = cls(groups[group], name=name)
                 instance.description = ', '.join(ast.literal_eval(group))
                 new_aggregations.append(instance)
                 for e in instance.elements:

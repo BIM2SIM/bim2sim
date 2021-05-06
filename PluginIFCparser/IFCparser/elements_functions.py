@@ -161,12 +161,7 @@ class PipeFittingFunctions:
 
 
 class RoofFunctions:
-
-    def __init__(self, *args, **kwargs):
-        """roof __init__ function"""
-        super().__init__(*args, **kwargs)
-        if hasattr(self, 'ifc'):
-            self.ifc_type = self.ifc.is_a()
+    pass
 
 
 class SlabFunctions:
@@ -351,11 +346,6 @@ class ThermalZoneFunctions:
 
 
 class WallFunctions:
-
-    def __init__(self, *args, **kwargs):
-        """wall __init__ function"""
-        super().__init__(*args, **kwargs)
-        self.ifc_type = self.ifc.is_a()
 
     def _get_layers(bind, name):
         """wall _get_layers function"""

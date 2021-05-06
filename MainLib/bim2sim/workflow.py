@@ -2,6 +2,8 @@
 
 from enum import Enum
 
+from bim2sim.kernel import elements
+
 
 class LOD(Enum):
     """Level of detail"""
@@ -34,7 +36,8 @@ class Workflow:
 
         self.filters = filters if filters else []
 
-        self.relevant_ifc_types = None
+        self.relevant_ifc_types = None  # TODO: obsolete
+        self.relevant_elements = []
 
         # default values
         self.pipes = LOD.medium

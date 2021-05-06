@@ -1,5 +1,6 @@
 import unittest
 
+from bim2sim.kernel.elements import hvac
 from bim2sim.kernel import aggregation
 from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
@@ -19,35 +20,35 @@ class ConsumerHelper(SetupHelper):
         with self.flag_manager(flags):
             # generator circuit
             con_vl_a = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(3)]
+                hvac.Pipe, length=100, diameter=30) for i in range(3)]
             fitting1 = self.element_generator(
-                elements.PipeFitting, flags=['con1'], n_ports=3, diameter=30, length=60)
+                hvac.PipeFitting, flags=['con1'], n_ports=3, diameter=30, length=60)
             p_pump1_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['con1'], length=40, diameter=20),
+                    hvac.Pipe, flags=['con1'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['con1'], rated_power=1, rated_height=8,
+                    hvac.Pump, flags=['con1'], rated_power=1, rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['con1'], length=40, diameter=20),
+                    hvac.Pipe, flags=['con1'], length=40, diameter=20),
             ]
             p_pump2_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['con1'], length=40, diameter=20),
+                    hvac.Pipe, flags=['con1'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['con1'], rated_power=1, rated_height=8,
+                    hvac.Pump, flags=['con1'], rated_power=1, rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['con1'], length=40, diameter=20),
+                    hvac.Pipe, flags=['con1'], length=40, diameter=20),
             ]
             fitting2 = self.element_generator(
-                elements.PipeFitting, flags=['con2'], n_ports=3, diameter=30, length=60)
+                hvac.PipeFitting, flags=['con2'], n_ports=3, diameter=30, length=60)
             con_vl_b = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(3)]
+                hvac.Pipe, length=100, diameter=30) for i in range(3)]
             consumer = self.element_generator(
-                elements.SpaceHeater, flags=['spaceheater'])
+                hvac.SpaceHeater, flags=['spaceheater'])
             con_rl_a = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(6)]
+                hvac.Pipe, length=100, diameter=30) for i in range(6)]
 
         # connect
         self.connect_strait([*con_vl_a, fitting1])
@@ -74,35 +75,35 @@ class ConsumerHelper(SetupHelper):
         with self.flag_manager(flags):
             # generator circuit
             con_vl_a = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(3)]
+                hvac.Pipe, length=100, diameter=30) for i in range(3)]
             fitting1 = self.element_generator(
-                elements.PipeFitting, flags=['con2'], n_ports=3, diameter=30, length=60)
+                hvac.PipeFitting, flags=['con2'], n_ports=3, diameter=30, length=60)
             p_pump1_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['con2'], length=40, diameter=20),
+                    hvac.Pipe, flags=['con2'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['con2'], rated_power=1, rated_height=8,
+                    hvac.Pump, flags=['con2'], rated_power=1, rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['con2'], length=40, diameter=20),
+                    hvac.Pipe, flags=['con2'], length=40, diameter=20),
             ]
             p_pump2_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['con2'], length=40, diameter=20),
+                    hvac.Pipe, flags=['con2'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['con2'], rated_power=1, rated_height=8,
+                    hvac.Pump, flags=['con2'], rated_power=1, rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['con2'], length=40, diameter=20),
+                    hvac.Pipe, flags=['con2'], length=40, diameter=20),
             ]
             fitting2 = self.element_generator(
-                elements.PipeFitting, flags=['con2'], n_ports=3, diameter=30, length=60)
+                hvac.PipeFitting, flags=['con2'], n_ports=3, diameter=30, length=60)
             con_vl_b = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(3)]
+                hvac.Pipe, length=100, diameter=30) for i in range(3)]
             underfloor_pipes = [self.element_generator(
-                elements.Pipe, length=1000, diameter=10) for i in range(3)]
+                hvac.Pipe, length=1000, diameter=10) for i in range(3)]
             con_rl_a = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(6)]
+                hvac.Pipe, length=100, diameter=30) for i in range(6)]
 
         # connect
         self.connect_strait([*con_vl_a, fitting1])
@@ -124,7 +125,7 @@ class ConsumerHelper(SetupHelper):
 
         uf_ports = (port for pipe in underfloor_pipes for port in pipe.ports)
         subgraph = graph.subgraph(uf_ports)
-        consumer = aggregation.UnderfloorHeating('Underfloor1', subgraph.element_graph)
+        consumer = aggregation.UnderfloorHeating(subgraph.element_graph)
         flags['underfloor'] = [consumer]
 
         graph.merge(
@@ -144,39 +145,39 @@ class ConsumerHelper(SetupHelper):
         with self.flag_manager(flags):
             # generator circuit
             con_vl_a = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(3)]
+                hvac.Pipe, length=100, diameter=30) for i in range(3)]
             fitting1 = self.element_generator(
-                elements.PipeFitting, flags=['con3'], n_ports=3, diameter=30, length=60)
+                hvac.PipeFitting, flags=['con3'], n_ports=3, diameter=30, length=60)
             p_pump1_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['con3'], length=40, diameter=20),
+                    hvac.Pipe, flags=['con3'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['con3'], rated_power=1, rated_height=8,
+                    hvac.Pump, flags=['con3'], rated_power=1, rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['con3'], length=40, diameter=20),
+                    hvac.Pipe, flags=['con3'], length=40, diameter=20),
             ]
             p_pump2_p = [
                 self.element_generator(
-                    elements.Pipe, flags=['con3'], length=40, diameter=20),
+                    hvac.Pipe, flags=['con3'], length=40, diameter=20),
                 self.element_generator(
-                    elements.Pump, flags=['con3'], rated_power=1, rated_height=8,
+                    hvac.Pump, flags=['con3'], rated_power=1, rated_height=8,
                     rated_volume_flow=6, diameter=20),
                 self.element_generator(
-                    elements.Pipe, flags=['con3'], length=40, diameter=20),
+                    hvac.Pipe, flags=['con3'], length=40, diameter=20),
             ]
             fitting2 = self.element_generator(
-                elements.PipeFitting, flags=['con3'], n_ports=3, diameter=30, length=60)
+                hvac.PipeFitting, flags=['con3'], n_ports=3, diameter=30, length=60)
             con_vl_b = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(3)]
+                hvac.Pipe, length=100, diameter=30) for i in range(3)]
             consumer1 = self.element_generator(
-                elements.SpaceHeater, flags=['spaceheater'])
+                hvac.SpaceHeater, flags=['spaceheater'])
             con_mid = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(6)]
+                hvac.Pipe, length=100, diameter=30) for i in range(6)]
             consumer2 = self.element_generator(
-                elements.SpaceHeater, flags=['spaceheater'])
+                hvac.SpaceHeater, flags=['spaceheater'])
             con_rl_a = [self.element_generator(
-                elements.Pipe, length=100, diameter=30) for i in range(6)]
+                hvac.Pipe, length=100, diameter=30) for i in range(6)]
 
         # connect
         self.connect_strait([*con_vl_a, fitting1])
@@ -238,6 +239,7 @@ class ConsumerHelper(SetupHelper):
         flags = {**flags1, **flags2}
         return graph, flags
 
+
 class TestConsumerAggregation(unittest.TestCase):
     helper = None
 
@@ -274,30 +276,29 @@ class TestConsumerAggregation(unittest.TestCase):
 
         matches, metas = aggregation.Consumer.find_matches(graph)
 
-        idx = 0
-        # meta = {'outer_connections': flags['connect']}
-
-        consumer1 = aggregation.Consumer("Test basics", matches[idx], **metas[idx])
+        for match, meta in zip(matches, metas):
+            consumer = aggregation.Consumer(match, **meta)
+            if hvac.SpaceHeater in {type(ele) for ele in consumer.elements}:
+                # we only want consumer with SpaceHeater
+                break
 
         graph.merge(
-            mapping=consumer1.get_replacement_mapping(),
-            inner_connections=consumer1.get_inner_connections()
+            mapping=consumer.get_replacement_mapping(),
+            inner_connections=consumer.get_inner_connections()
         )
+        # graph.plot(r'c:\temp')
 
-        #graph.plot(r'c:\temp')
-
-        self.assertAlmostEqual(consumer1.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)
-        self.assert_(consumer1.has_pump)
+        self.assertAlmostEqual(consumer.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)
+        self.assert_(consumer.has_pump)
         #self.assertAlmostEqual(consumer.temperaure_inlet, 1000) Not Implemented
         #self.assertAlmostEqual(consumer.temperature_outlet, 1000) Not Implemented
         #self.assertAlmostEqual(consumer.volume, 1000) Not Implemented
         #self.assertAlmostEqual(consumer.height, 1000) Not Implemented
-        self.assertIn('SpaceHeater', consumer1.description)  # list of all aggregated consumers description
+        self.assertIn('SpaceHeater', consumer.description)  # list of all aggregated consumers description
 
     def test_aggregation_consumer2(self):
         """test aggregation of consumercycle no 2"""
         graph, flags = self.helper.get_setup_system()
-
 
         matches, metas = aggregation.Consumer.find_matches(graph)
 
@@ -306,7 +307,7 @@ class TestConsumerAggregation(unittest.TestCase):
         for e, match in enumerate(matches):
             for ele in flags['con2']:
                 if ele in match:
-                    consumer2 = aggregation.Consumer("Test basics", matches[e], **metas[e])
+                    consumer2 = aggregation.Consumer(matches[e], **metas[e])
                     break
             if consumer2:
                 break
@@ -337,7 +338,7 @@ class TestConsumerAggregation(unittest.TestCase):
         idx = 0
         # meta = {'outer_connections': flags['connect']}
 
-        consumer = aggregation.Consumer("Test basics", matches[idx], **metas[idx])
+        consumer = aggregation.Consumer(matches[idx], **metas[idx])
 
         graph.merge(
             mapping=consumer.get_replacement_mapping(),

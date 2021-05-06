@@ -1,7 +1,13 @@
 import os
+from typing import Tuple, List, Any, Type, Set
+
+from bim2sim import Decision
+from bim2sim.decision import ListDecision
+from bim2sim.filter import TypeFilter, TextFilter
 
 from bim2sim.kernel import ifc2python
-from bim2sim.task.base import ITask
+from bim2sim.kernel.element import Factory, ProductBased
+from bim2sim.task.base import ITask, Task
 from bim2sim.kernel.units import ifcunits, ureg, ifc_pint_unitmap, parse_ifc
 from ifcopenshell.file import file
 
@@ -104,3 +110,188 @@ class LoadIFC(ITask):
                 print("Failed to parse %s" % unit_entity)
 
         return results
+
+
+class CreateElements(ITask):
+    """Create internal elements from ifc."""
+
+    reads = ('ifc',)
+    touches = ('instances', )
+
+    def run(self, workflow, ifc):
+        self.logger.info("Creates elements of relevant ifc types")
+
+        default_ifc_types = {'IfcBuildingElementProxy', 'IfcUnitaryEquipment'}
+        relevant_ifc_types = self.get_ifc_types(workflow.relevant_elements)
+        relevant_ifc_types.update(default_ifc_types)
+
+        self.factory = Factory(workflow.relevant_elements, self.paths.finder)
+
+        # Filtering:
+        #  filter returns dict of entities: suggested class and list of unknown
+        #  accept_valids returns created elements and lst of invalids
+
+        instance_lst = []
+        entity_best_guess_dict = {}
+        # filter by type
+        type_filter = TypeFilter(relevant_ifc_types)
+        entity_type_dict, unknown_entities = type_filter.run(ifc)
+        # entity_class_dict = {entity: self.factory.get_element(ifc_type)
+        #                      for entity, ifc_type in entity_type_dict.items()}
+        # entity_best_guess_dict.update(entity_type_dict)
+        valids, invalids = self.accept_valids(entity_type_dict)
+        instance_lst.extend(valids)
+        unknown_entities.extend(invalids)
+
+        # filter by text
+        text_filter = TextFilter(workflow.relevant_elements, ['Description'])
+        entity_class_dict, unknown_entities = self.filter_by_text(
+            text_filter, unknown_entities)
+        entity_best_guess_dict.update(entity_class_dict)
+        valids, invalids = self.accept_valids(entity_class_dict, force=True)
+        instance_lst.extend(valids)
+        unknown_entities.extend(invalids)
+
+        self.logger.info("Found %d relevant elements", len(instance_lst))
+        self.logger.info("Found %d ifc_entities that could not be "
+                         "identified and transformed into a python element.",
+                         len(unknown_entities))
+
+        # Identification of remaining entities by user
+        entity_class_dict, unknown_entities = self.set_class_by_user(
+            unknown_entities, workflow.relevant_elements, entity_best_guess_dict)
+        entity_best_guess_dict.update(entity_class_dict)
+        invalids = []
+        for element_cls, ifc_entities in entity_class_dict.items():
+            for ifc_entity in ifc_entities:
+                try:
+                    item = self.factory.create(element_cls, ifc_entity)
+                    instance_lst.append(item)
+                except Exception as ex:
+                    invalids.append(ifc_entity)
+        if invalids:
+            self.logger.info("Removed %d entities with no class set",
+                             len(invalids))
+        self.logger.info("Created %d elements", len(instance_lst))
+        instances = {inst.guid: inst for inst in instance_lst}
+        return instances,
+
+    @Task.log
+    def accept_valids(self, entities_dict, warn=True, force=False) -> \
+            Tuple[List[ProductBased], List[Any]]:
+        """Instantiate ifc_entities using given element class.
+        Resulting instances are validated (if not force).
+        Results are two lists, one with valid elements and one with
+        remaining entities."""
+        valid, invalid = [], []
+        for entity, ifc_type_or_element_cls in entities_dict.items():
+            try:
+                if isinstance(ifc_type_or_element_cls, str):
+                    element = self.factory(
+                        entity, ifc_type=ifc_type_or_element_cls, use_dummy=False)
+                else:
+                    element = self.factory.create(ifc_type_or_element_cls, entity)
+            except LookupError:
+                invalid.append(entity)
+                continue
+
+            if element.validate():
+                valid.append(element)
+            elif force:
+                valid.append(element)
+                if warn:
+                    self.logger.warning("Force accept invalid element %s %s",
+                                        ifc_type_or_element_cls, element)
+            else:
+                if warn:
+                    self.logger.warning("Validation failed for %s %s",
+                                        ifc_type_or_element_cls, element)
+                invalid.append(entity)
+                element.discard()
+
+        return valid, invalid
+
+    def filter_by_text(self, text_filter, ifc_entities):
+        """Filter ifc elements using given TextFilter.
+
+        Ambiguous results are solved by decisions"""
+        entities_dict, unknown_entities = text_filter.run(ifc_entities)
+        answers = {}
+        for entity, classes in entities_dict.items():
+            sorted_classes = sorted(classes, key=lambda item: item.key)
+            if len(sorted_classes) > 1:
+                # choices
+                choices = []
+                for element_cls in sorted_classes:
+                    # TODO: filter_for_text_fragments() already called in text_filter.run()
+                    hints = f"Matches: '" + "', '".join(
+                        element_cls.filter_for_text_fragments(entity)) + "'"
+                    choices.append([element_cls.key, hints])
+                choices.append(["Other", "Other"])
+                ListDecision(
+                    f"Searching for text fragments in [Name: '{entity.Name}', "
+                    f"Description: '{entity.Description}]' gave the following class hints. Please select best match.",
+                    choices=choices,
+                    output=answers,
+                    output_key=entity,
+                    global_key="TextFilter:%s.%s" % (entity.is_a(), entity.GlobalId),
+                    allow_skip=True, allow_load=True, allow_save=True,
+                    collect=True, quick_decide=False,
+                    context=[entity.GlobalId])
+            elif len(sorted_classes) == 1:
+                answers[entity] = sorted_classes[0].key
+            # empty classes are covered below
+        Decision.decide_collected()
+
+        result_entity_dict = {}
+        for ifc_entity, element_classes in entities_dict.items():
+            element_key = answers.get(ifc_entity)
+            element_cls = ProductBased.key_map.get(element_key)
+            if element_cls:
+                result_entity_dict[ifc_entity] = element_cls
+            else:
+                unknown_entities.append(ifc_entity)
+
+        return result_entity_dict, unknown_entities
+
+    def set_class_by_user(self, unknown_entities, possible_elements, best_guess_dict):
+        """Ask user for every given ifc_entity to specify matching element class"""
+        answers = {}
+        sorted_elements = sorted(possible_elements, key=lambda item: item.key)
+        checksum = Decision.build_checksum([pe.key for pe in sorted_elements])  # assert same list of ifc_classes
+        for ifc_entity in unknown_entities:
+            best_guess_cls = best_guess_dict.get(ifc_entity)
+            best_guess = best_guess_cls.key if best_guess_cls else None
+            ListDecision(
+                "Found unidentified Element of %s (Name: %s, Description: %s):" % (
+                    ifc_entity.is_a(), ifc_entity.Name, ifc_entity.Description),
+                choices=[ele.key for ele in sorted_elements],
+                default=best_guess,
+                output=answers,
+                output_key=ifc_entity,
+                global_key="SetClass:%s.%s" % (ifc_entity.is_a(), ifc_entity.GlobalId),
+                allow_skip=True, allow_load=True, allow_save=True,
+                collect=True, quick_decide=not True,
+                validate_checksum=checksum)
+        Decision.decide_collected()
+
+        result_entity_dict = {}
+        ignore = []
+        for ifc_entity, element_key in answers.items():
+
+            if element_key is None:
+                ignore.append(ifc_entity)
+            else:
+                element_cls = ProductBased.key_map[element_key]
+                lst = result_entity_dict.setdefault(element_cls, [])
+                lst.append(ifc_entity)
+
+        return result_entity_dict, ignore
+
+    def get_ifc_types(self, relevant_elements: List[Type[ProductBased]]) \
+            -> Set[str]:
+        """Extract used ifc types from list of elements."""
+        relevant_ifc_types = []
+        for ele in relevant_elements:
+            relevant_ifc_types.extend(ele.ifc_types.keys())
+        return set(relevant_ifc_types)

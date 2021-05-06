@@ -4,6 +4,8 @@ Holds logic for target simulation independent file parsing, checking, and data e
 """
 import os
 import logging
+import typing
+
 import ifcopenshell
 from bim2sim.kernel.units import ifcunits, ureg, parse_ifc
 import math
@@ -208,7 +210,8 @@ def getGUID(ifcElement):
     except TypeError:
         pass
 
-def get_predefined_type(ifcElement):
+
+def get_predefined_type(ifcElement) -> typing.Union[str, None]:
     """Returns the predifined type of the IFC element"""
     try:
         predefined_type = getattr(ifcElement, 'PredefinedType')

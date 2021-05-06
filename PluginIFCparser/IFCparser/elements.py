@@ -675,11 +675,6 @@ class Wall(element.Element):
         re.compile('Wand', flags=re.IGNORECASE),
     ]
 
-    def __init__(self, *args, **kwargs):
-        """wall __init__ function"""
-        super().__init__(*args, **kwargs)
-        self.ifc_type = self.ifc.is_a()
-
     def _get_layers(bind, name):
         """wall _get_layers function"""
         layers = []
@@ -954,13 +949,6 @@ class Roof(Slab):
 
     pattern_ifc_type = [
     ]
-
-    def __init__(self, *args, **kwargs):
-        """roof __init__ function"""
-        if hasattr(self, 'ifc'):
-            self.ifc_type = self.ifc.is_a()
-        else:
-            super().__init__(*args, **kwargs)
 
 
 class Site(element.Element):

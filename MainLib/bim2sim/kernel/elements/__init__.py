@@ -1,0 +1,2 @@
+
+schema = 'IFC4'

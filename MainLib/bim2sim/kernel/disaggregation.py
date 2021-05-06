@@ -5,19 +5,18 @@ import numpy as np
 import pint
 import re
 
-from bim2sim.kernel.element import BaseElement, SubElement
+from bim2sim.kernel.element import ProductBased
 
 
 vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
 horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
 
 
-class Disaggregation(BaseElement):
+class Disaggregation(ProductBased):
     """Base disaggregation of models"""
+    guid_prefix = 'Disagg'
 
     def __init__(self, name, element, *args, **kwargs):
-        if 'guid' not in kwargs:
-            kwargs['guid'] = self.get_id("Disagg")
         super().__init__(*args, **kwargs)
         self.parent = element
         self.name = name
