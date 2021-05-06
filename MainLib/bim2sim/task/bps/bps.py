@@ -762,6 +762,7 @@ class ExportEP(ITask):
         self.logger.info("Export IDF geometry")
         self._export_geom_to_idf(instances, idf)
         self._set_output_variables(idf)
+        self._idf_validity_check(idf)
         idf.save()
         subprocess.run(['energyplus', '-x', '-c', '--convert-only', '-d', self.paths.export, idf.idfname])
         self._export_surface_areas(instances, idf) # todo: fix
@@ -2378,6 +2379,44 @@ class ExportEP(ITask):
                          Key_1="DisplayAdvancedReportVariables",
                          Key_2="DisplayExtraWarnings")
         return idf
+
+    def _idf_validity_check(self, idf):
+        """basic validity check of idf.
+        Remove openings from adiabatic surfaces
+        """
+        self.logger.info('Start IDF Validity Checker')
+
+        fenestration = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
+        for f in fenestration:
+            if not f.Building_Surface_Name:
+                self.logger.info('Removed Fenestration: %s' % f.Name)
+                idf.removeidfobject(f)
+            fbco = f.Building_Surface_Name
+            bs = idf.getobject('BUILDINGSURFACE:DETAILED', fbco)
+            if bs.Outside_Boundary_Condition == 'Adiabatic':
+                self.logger.info('Removed Fenestration: %s' % f.Name)
+                idf.removeidfobject(f)
+        for f in fenestration:
+            fbco = f.Building_Surface_Name
+            bs = idf.getobject('BUILDINGSURFACE:DETAILED', fbco)
+            if bs.Outside_Boundary_Condition == 'Adiabatic':
+                self.logger.info('Removed Fenestration in second try: %s' % f.Name)
+                idf.removeidfobject(f)
+
+        sfs = idf.getsurfaces()
+        small_area_obj = [sf for sf in sfs if sf.area < 0.0001]
+
+        for obj in small_area_obj:
+            self.logger.info('Removed small area: %s' % obj.Name)
+            idf.removeidfobject(obj)
+
+        bsd = idf.idfobjects['BUILDINGSURFACE:DETAILED']
+        for sf in bsd:
+            if sf.Construction_Name == 'BS Exterior Window':
+                self.logger.info('Surface due to invalid material: %s' % sf.Name)
+                idf.removeidfobject(sf)
+        self.logger.info('IDF Validity Checker done')
+
 
     def _export_surface_areas(self, instances, idf):
         """ combines sets of area sums and exports to csv """
