@@ -225,6 +225,18 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
+    @unittest.skip("Not fully implemented yet")
+    def test_base_19_linear_SB_design_day(self):
+        """Test Linear Building with generated Space Boundaries"""
+        # ifc = RESULT_PATH / 'Office_Building_Architectural_IFC_export_with_SB.ifc'
+        ifc = RESULT_PATH / 'B.ifc'
+        project = self.create_project(ifc, 'energyplus')
+        answers = ('Linear-Building', 'Autodesk Revit 2020 (DEU)', True, True, *('Single office',)*71, 2015, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
+        with Decision.debug_answer(answers, multi=True):
+            return_code = project.run()
+        self.assertEqual(0, return_code)
+
 
 if __name__ == '__main__':
     unittest.main()
