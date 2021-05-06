@@ -2667,6 +2667,7 @@ class ExportEP(ITask):
                         #
                         # find cases where opening area matches area of corresponding wall (within inner loop)
                         if (inst_obj.bound_area - op_bound.bound_area).m < 0.01:
+                            rel_bound = None
                             drop_list[inst] = inst_obj
                             ib = [b for b in b_inst.space_boundaries if
                                   b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries if
@@ -2674,7 +2675,6 @@ class ExportEP(ITask):
                             if len(ib) == 1:
                                 rel_bound = ib[0]
                             elif len(ib) > 1:
-                                rel_bound = None
                                 for b in ib:
                                     # check if orientation of possibly related bound is the same as opening
                                     angle = gp_Dir(b.bound_normal).Angle(gp_Dir(op_bound.bound_normal))
@@ -2685,7 +2685,24 @@ class ExportEP(ITask):
                                         op_bound.bound_shape,
                                         Extrema_ExtFlag_MIN
                                     ).Value()
-                                    if distance > 0.3:
+                                    if distance > 0.4:
+                                        continue
+                                    else:
+                                        rel_bound = b
+                            elif not rel_bound:
+                                tzb = [b for b in op_bound.thermal_zones[0].space_boundaries if
+                                       b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries]
+                                for b in tzb:
+                                    # check if orientation of possibly related bound is the same as opening
+                                    angle = gp_Dir(b.bound_normal).Angle(gp_Dir(op_bound.bound_normal))
+                                    if not (angle < 0.1 or angle > 179.9):
+                                        continue
+                                    distance = BRepExtrema_DistShapeShape(
+                                        b.bound_shape,
+                                        op_bound.bound_shape,
+                                        Extrema_ExtFlag_MIN
+                                    ).Value()
+                                    if distance > 0.4:
                                         continue
                                     else:
                                         rel_bound = b
