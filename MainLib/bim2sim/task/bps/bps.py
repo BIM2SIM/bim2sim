@@ -1754,7 +1754,7 @@ class ExportEP(ITask):
             for space in st.spaces:
                 space_ids.append(space.guid)
             self._init_zonelist(idf, name=st.name, zones_in_list=space_ids)
-            print(st.name, space_ids)
+            # print(st.name, space_ids)
         zonelists = [zlist for zlist in idf.idfobjects["ZONELIST"] if zlist.Name != "All_Zones"]
 
         for zlist in zonelists:
