@@ -619,3 +619,10 @@ class GuidDecision(Decision):
 
     def deserialize_value(self, value):
         return set(value)
+
+
+class DecisionBunch(list):
+
+    def __init__(self, group=None):
+        super().__init__()
+        self.group = group

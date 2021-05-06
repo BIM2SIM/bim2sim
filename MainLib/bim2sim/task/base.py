@@ -1,7 +1,8 @@
-
+import inspect
 import os
 import logging
 import json
+import types
 
 
 class TaskFailed(Exception): pass
@@ -122,14 +123,18 @@ class Playground:
         return [task for task in self.all_tasks() if task.requirements_met(self.state, self.history)]
 
     def run_task(self, task: ITask):
-        """Execute task with arguments specified in task.reads"""
+        """Generator executing task with arguments specified in task.reads."""
         if not task.requirements_met(self.state, self.history):
             raise AssertionError("%s requirements not met." % task)
 
         read_state = {k: self.state[k] for k in task.reads}
         try:
             task.paths = self.paths
-            result = task.run(self.workflow, **read_state)
+            if inspect.isgeneratorfunction(task.run):
+                result = yield from task.run(self.workflow, **read_state)
+            else:
+                # no decisions
+                result = task.run(self.workflow, **read_state)
         except Exception as ex:
             self.logger.exception("Task '%s' failed!", task)
             raise TaskFailed(str(task))

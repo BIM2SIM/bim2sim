@@ -2,7 +2,7 @@ import os
 from typing import Tuple, List, Any, Type, Set
 
 from bim2sim import Decision
-from bim2sim.decision import ListDecision
+from bim2sim.decision import ListDecision, DecisionBunch
 from bim2sim.filter import TypeFilter, TextFilter
 
 from bim2sim.kernel import ifc2python
@@ -158,7 +158,7 @@ class CreateElements(ITask):
                          len(unknown_entities))
 
         # Identification of remaining entities by user
-        entity_class_dict, unknown_entities = self.set_class_by_user(
+        entity_class_dict, unknown_entities = yield from self.set_class_by_user(
             unknown_entities, workflow.relevant_elements, entity_best_guess_dict)
         entity_best_guess_dict.update(entity_class_dict)
         invalids = []
@@ -259,10 +259,11 @@ class CreateElements(ITask):
         answers = {}
         sorted_elements = sorted(possible_elements, key=lambda item: item.key)
         checksum = Decision.build_checksum([pe.key for pe in sorted_elements])  # assert same list of ifc_classes
+        decisions = DecisionBunch()
         for ifc_entity in unknown_entities:
             best_guess_cls = best_guess_dict.get(ifc_entity)
             best_guess = best_guess_cls.key if best_guess_cls else None
-            ListDecision(
+            decisions.append(ListDecision(
                 "Found unidentified Element of %s (Name: %s, Description: %s):" % (
                     ifc_entity.is_a(), ifc_entity.Name, ifc_entity.Description),
                 choices=[ele.key for ele in sorted_elements],
@@ -272,8 +273,8 @@ class CreateElements(ITask):
                 global_key="SetClass:%s.%s" % (ifc_entity.is_a(), ifc_entity.GlobalId),
                 allow_skip=True, allow_load=True, allow_save=True,
                 collect=True, quick_decide=not True,
-                validate_checksum=checksum)
-        Decision.decide_collected()
+                validate_checksum=checksum))
+        yield decisions
 
         result_entity_dict = {}
         ignore = []

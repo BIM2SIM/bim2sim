@@ -21,6 +21,17 @@ class PluginHKESim(Plugin):
     default_workflow = PlantSimulation
     tasks = {LoadLibrariesHKESim}
     elements = {*hvac_elements.items}
+    default_tasks = [
+        hvac.SetIFCTypesHVAC,
+        common.LoadIFC,
+        common.CreateElements,
+        hvac.ConnectElements,
+        hvac.MakeGraph,
+        hvac.Reduce,
+        hvac.DeadEnds,
+        LoadLibrariesHKESim,
+        hvac.Export,
+    ]
 
     def run(self, playground):
         playground.run_task(hvac.SetIFCTypesHVAC())

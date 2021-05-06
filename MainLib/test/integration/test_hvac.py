@@ -1,6 +1,7 @@
 import unittest
 
 import bim2sim
+from bim2sim.decision.frontend import DebugFrontend
 
 from bim2sim.utilities.test import IntegrationBase
 
@@ -13,9 +14,10 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
         project = self.create_project(ifc, 'hkesim')
         answers = ('HVAC-HeatPump', 'HVAC-Storage', 'HVAC-Storage',
                    True, True, *(True,)*14, 50)
+        frontend = DebugFrontend(answers)
         with bim2sim.decision.Decision.debug_answer(
                 answers, multi=True, validate=True):
-            return_code = project.run()
+            return_code = frontend.handle(project.run())
         self.assertEqual(0, return_code, "Project did not finish successfully.")
 
     def test_run_vereinshaus2(self):

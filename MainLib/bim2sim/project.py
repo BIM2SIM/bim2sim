@@ -349,14 +349,17 @@ class Project:
         # lock current project
         Project._lock(self)
 
+        # TODO
         Decision.load(self.paths.decisions)
 
         success = False
+        if interactive:
+            run = self._run_interactive
+        else:
+            run = self._run_default
         try:
-            if interactive:
-                self._run_interactive()
-            else:
-                self._run_default()
+            for decision_bunch in run():
+                yield decision_bunch
             success = True
         except Exception as ex:
             logger.exception("Something went wrong!")
@@ -368,8 +371,10 @@ class Project:
     def _run_default(self, plugin=None):
         """Execution of plugins default run"""
         # run plugin default
-        _plugin = plugin or self.default_plugin
-        _plugin().run(self.playground)
+        plugin_cls = plugin or self.default_plugin
+        _plugin = plugin_cls()
+        for task_cls in _plugin.default_tasks:
+            yield from self.playground.run_task(task_cls())
 
     def _run_interactive(self):
         """Interactive execution of available ITasks"""
@@ -378,7 +383,7 @@ class Project:
             choices = [(name, task.__doc__) for name, task in tasks_classes.items()]
             task_name = ListDecision("What shall we do?", choices=choices).decide()  # TODO savable decision
             task_class = tasks_classes[task_name]
-            self.playground.run_task(task_class())
+            yield from self.playground.run_task(task_class())
             if task_class.final:
                 break
 

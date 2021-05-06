@@ -1,4 +1,6 @@
 import logging
+from types import GeneratorType
+from typing import Iterable
 
 from ..decision import BoolDecision, RealDecision, ListDecision, StringDecision, GuidDecision
 
@@ -8,6 +10,9 @@ class FrontEnd:
 
     def __init__(self):
         self.logger = logging.getLogger(__name__ + '.DecisonFrontend')
+
+    def handle(self, decision_generator: GeneratorType):
+        raise NotImplementedError
 
     def solve(self, decision):
         raise NotImplementedError
@@ -87,3 +92,25 @@ class FrontEnd:
         except Exception:
             raise NotImplementedError("Parsing guid not implemented.")
         return raw_value
+
+
+class DebugFrontend(FrontEnd):
+    """Simply use a predefined list of values as answers."""
+
+    def __init__(self, answers: Iterable):
+        super().__init__()
+        self.answers = answers
+
+    def handle(self, decision_generator: GeneratorType):
+        """Map predefined answers to decisions."""
+        answers = (ans for ans in self.answers)
+        # We preserve the return value of the generator
+        # by using next and StopIteration instead of just iterating
+        try:
+            while True:
+                decision_bunch = next(decision_generator)
+                for decision in decision_bunch:
+                    decision.value = next(answers)
+        except StopIteration as generator_return:
+            return_value = generator_return.value
+        return return_value
