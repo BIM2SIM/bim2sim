@@ -1197,9 +1197,13 @@ class SpaceBoundary(element.SubElement):
             if sore.InnerBoundaries:
                 shape = remove_inner_loops(shape) # todo: return None if not horizontal shape
                 # if not shape:
-                if self.bound_instance.ifc_type == 'IfcWall': # todo: remove this hotfix (generalize)
-                    sore.InnerBoundaries = ()
-                    shape = ifcopenshell.geom.create_shape(settings, sore)
+                if self.bound_instance.ifc.is_a('IfcWall'): # todo: remove this hotfix (generalize)
+                    ifc_new = ifcopenshell.file()
+                    temp_sore = ifc_new.create_entity('IfcCurveBoundedPlane', OuterBoundary=sore.OuterBoundary,
+                                                      BasisSurface=sore.BasisSurface)
+                    temp_sore.InnerBoundaries = ()
+                    shape = ifcopenshell.geom.create_shape(settings, temp_sore)
+
 
         except:
             try:

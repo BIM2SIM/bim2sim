@@ -762,6 +762,7 @@ class ExportEP(ITask):
         self.logger.info("Export IDF geometry")
         self._export_geom_to_idf(instances, idf)
         self._set_output_variables(idf)
+        self._idf_validity_check(idf)
         idf.save()
         subprocess.run(['energyplus', '-x', '-c', '--convert-only', '-d', self.paths.export, idf.idfname])
         self._export_surface_areas(instances, idf) # todo: fix
@@ -1753,7 +1754,7 @@ class ExportEP(ITask):
             for space in st.spaces:
                 space_ids.append(space.guid)
             self._init_zonelist(idf, name=st.name, zones_in_list=space_ids)
-            print(st.name, space_ids)
+            # print(st.name, space_ids)
         zonelists = [zlist for zlist in idf.idfobjects["ZONELIST"] if zlist.Name != "All_Zones"]
 
         for zlist in zonelists:
@@ -2379,6 +2380,44 @@ class ExportEP(ITask):
                          Key_2="DisplayExtraWarnings")
         return idf
 
+    def _idf_validity_check(self, idf):
+        """basic validity check of idf.
+        Remove openings from adiabatic surfaces
+        """
+        self.logger.info('Start IDF Validity Checker')
+
+        fenestration = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
+        for f in fenestration:
+            if not f.Building_Surface_Name:
+                self.logger.info('Removed Fenestration: %s' % f.Name)
+                idf.removeidfobject(f)
+            fbco = f.Building_Surface_Name
+            bs = idf.getobject('BUILDINGSURFACE:DETAILED', fbco)
+            if bs.Outside_Boundary_Condition == 'Adiabatic':
+                self.logger.info('Removed Fenestration: %s' % f.Name)
+                idf.removeidfobject(f)
+        for f in fenestration:
+            fbco = f.Building_Surface_Name
+            bs = idf.getobject('BUILDINGSURFACE:DETAILED', fbco)
+            if bs.Outside_Boundary_Condition == 'Adiabatic':
+                self.logger.info('Removed Fenestration in second try: %s' % f.Name)
+                idf.removeidfobject(f)
+
+        sfs = idf.getsurfaces()
+        small_area_obj = [sf for sf in sfs if sf.area < 0.0001]
+
+        for obj in small_area_obj:
+            self.logger.info('Removed small area: %s' % obj.Name)
+            idf.removeidfobject(obj)
+
+        bsd = idf.idfobjects['BUILDINGSURFACE:DETAILED']
+        for sf in bsd:
+            if sf.Construction_Name == 'BS Exterior Window':
+                self.logger.info('Surface due to invalid material: %s' % sf.Name)
+                idf.removeidfobject(sf)
+        self.logger.info('IDF Validity Checker done')
+
+
     def _export_surface_areas(self, instances, idf):
         """ combines sets of area sums and exports to csv """
         area_df = pd.DataFrame(
@@ -2628,6 +2667,7 @@ class ExportEP(ITask):
                         #
                         # find cases where opening area matches area of corresponding wall (within inner loop)
                         if (inst_obj.bound_area - op_bound.bound_area).m < 0.01:
+                            rel_bound = None
                             drop_list[inst] = inst_obj
                             ib = [b for b in b_inst.space_boundaries if
                                   b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries if
@@ -2635,7 +2675,6 @@ class ExportEP(ITask):
                             if len(ib) == 1:
                                 rel_bound = ib[0]
                             elif len(ib) > 1:
-                                rel_bound = None
                                 for b in ib:
                                     # check if orientation of possibly related bound is the same as opening
                                     angle = gp_Dir(b.bound_normal).Angle(gp_Dir(op_bound.bound_normal))
@@ -2646,7 +2685,24 @@ class ExportEP(ITask):
                                         op_bound.bound_shape,
                                         Extrema_ExtFlag_MIN
                                     ).Value()
-                                    if distance > 0.3:
+                                    if distance > 0.4:
+                                        continue
+                                    else:
+                                        rel_bound = b
+                            elif not rel_bound:
+                                tzb = [b for b in op_bound.thermal_zones[0].space_boundaries if
+                                       b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries]
+                                for b in tzb:
+                                    # check if orientation of possibly related bound is the same as opening
+                                    angle = gp_Dir(b.bound_normal).Angle(gp_Dir(op_bound.bound_normal))
+                                    if not (angle < 0.1 or angle > 179.9):
+                                        continue
+                                    distance = BRepExtrema_DistShapeShape(
+                                        b.bound_shape,
+                                        op_bound.bound_shape,
+                                        Extrema_ExtFlag_MIN
+                                    ).Value()
+                                    if distance > 0.4:
                                         continue
                                     else:
                                         rel_bound = b

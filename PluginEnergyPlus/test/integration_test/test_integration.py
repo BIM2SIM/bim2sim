@@ -157,7 +157,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
-    @unittest.skip("Test currently holds inputs, which have to be moved to decisions")
+    # @unittest.skip("Skipped due to performance for CI")
     def test_base_09_DH_design_day(self):
         """Test DigitalHub IFC"""
         # ifc = EXAMPLE_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
@@ -169,7 +169,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
-    @unittest.skip("Test currently holds inputs, which have to be moved to decisions")
+    @unittest.skip("Skipped due to performance for CI")
     def test_base_10_DH_full_run(self):
         """Test DigitalHub IFC"""
         # ifc = EXAMPLE_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
@@ -221,6 +221,18 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
+        with Decision.debug_answer(answers, multi=True):
+            return_code = project.run()
+        self.assertEqual(0, return_code)
+
+    @unittest.skip("Not fully implemented yet")
+    def test_base_19_linear_SB_design_day(self):
+        """Test Linear Building with generated Space Boundaries"""
+        # ifc = RESULT_PATH / 'Office_Building_Architectural_IFC_export_with_SB.ifc'
+        ifc = RESULT_PATH / 'B.ifc'
+        project = self.create_project(ifc, 'energyplus')
+        answers = ('Linear-Building', 'Autodesk Revit 2020 (DEU)', True, True, *('Single office',)*71, 2015, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
