@@ -32,7 +32,7 @@ class HvacGraph(nx.Graph):
 
         nodes = [port for instance in instances for port in instance.ports]
         inner_edges = [connection for instance in instances
-                       for connection in instance.get_inner_connections()]
+                       for connection in instance.inner_connections]
         edges = [(port, port.connection) for port in nodes if port.connection]
 
         self.update(nodes=nodes, edges=edges + inner_edges)

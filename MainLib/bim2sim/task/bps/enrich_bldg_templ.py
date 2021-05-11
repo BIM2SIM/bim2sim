@@ -20,7 +20,6 @@ class EnrichBuildingByTemplates(ITask):
         self.enriched_layers = []
         pass
 
-    @Task.log
     def run(self, workflow, invalid_layers):
         self.logger.info("setting verifications")
         if workflow.layers is LOD.low:

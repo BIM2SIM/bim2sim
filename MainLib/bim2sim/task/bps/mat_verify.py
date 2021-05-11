@@ -16,7 +16,6 @@ class MaterialVerification(ITask):
         self.invalid = []
         pass
 
-    @Task.log
     def run(self, workflow: Workflow, instances: dict):
         self.logger.info("setting verifications")
         if workflow.layers is not LOD.low:

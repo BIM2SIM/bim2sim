@@ -3,16 +3,15 @@
 
 import logging
 from json import JSONEncoder
-import itertools
 import re
 from pathlib import Path
-from typing import Union, Set, Iterable, Dict, List, Tuple, Type
+from typing import Union, Set, Iterable, Dict, List, Tuple, Type, Generator
 
 import numpy as np
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import ifc2python, attribute
-from bim2sim.decision import Decision, StringDecision
+from bim2sim.decision import Decision, StringDecision, DecisionBunch
 from bim2sim.utilities.common_functions import angle_equivalent, vector_angle
 from bim2sim.kernel.finder import TemplateFinder
 
@@ -106,20 +105,25 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
         self.attributes.request(name)
 
     def solve_requested_decisions(
-            self=None, instances: Iterable['Root'] = None):
+            self=None, instances: Iterable['Root'] = None) -> \
+            Generator[DecisionBunch, None, None]:
         """Solve all requested decisions.
         If called by instance, all instance related decisions are solved
         else all decisions of all instances are solved."""
         if not self:
             # called from class
-            decisions = [decision for inst in instances for decision in inst.related_decisions]
-            Decision.decide_collected(collection=set(decisions))
+            decisions = DecisionBunch([decision for inst in instances
+                                       for decision in inst.related_decisions])
         else:
             # called from instance
             if instances:
                 raise AssertionError(
                     "Only use instances argument on call from class")
-            Decision.decide_collected(collection=self.related_decisions)
+            decisions = DecisionBunch(self.related_decisions)
+
+        yield decisions
+        # apply decisions
+
 
     def discard(self):
         """Remove from tracked objects. Related decisions are also discarded."""
@@ -452,7 +456,7 @@ class IFCMixin:
         #     decision = DictDecision("Multiple possibilities found",
         #                             choices=dict(zip(choices, values)),
         #                             output=self.attributes,
-        #                             output_key=name,
+        #                             key=name,
         #                             global_key="%s_%s.%s" % (self.ifc_type,
         #                             self.guid, name),
         #                             allow_skip=True, allow_load=True,
@@ -512,17 +516,6 @@ class ProductBased(IFCMixin, Root):
          of base class
         :returns: subclass of ProductBased or None"""
         return None
-
-    def get_inner_connections(self):
-        """Returns inner connections of Element
-
-        by default each port is connected to each other port.
-        Overwrite for other connections"""
-
-        connections = []
-        for port0, port1 in itertools.combinations(self.ports, 2):
-            connections.append((port0, port1))
-        return connections
 
     @property
     def neighbors(self):

@@ -130,7 +130,7 @@ class ConsumerHelper(SetupHelper):
 
         graph.merge(
             mapping=consumer.get_replacement_mapping(),
-            inner_connections=consumer.get_inner_connections()
+            inner_connections=consumer.inner_connections
         )
         # #ToDO: Workaround.... Hvac Graph.elements haben keine Portverknüpfungen ... vielleicht das problem
         # for port_a, port_b in consumer.get_replacement_mapping().items():
@@ -284,7 +284,7 @@ class TestConsumerAggregation(unittest.TestCase):
 
         graph.merge(
             mapping=consumer.get_replacement_mapping(),
-            inner_connections=consumer.get_inner_connections()
+            inner_connections=consumer.inner_connections
         )
         # graph.plot(r'c:\temp')
 
@@ -316,7 +316,7 @@ class TestConsumerAggregation(unittest.TestCase):
 
         graph.merge(
             mapping=consumer2.get_replacement_mapping(),
-            inner_connections=consumer2.get_inner_connections()
+            inner_connections=consumer2.inner_connections
         )
 
         self.assertAlmostEqual(consumer2.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)
@@ -342,7 +342,7 @@ class TestConsumerAggregation(unittest.TestCase):
 
         graph.merge(
             mapping=consumer.get_replacement_mapping(),
-            inner_connections=consumer.get_inner_connections()
+            inner_connections=consumer.inner_connections
         )
 
         #graph.plot(r'c:\temp')

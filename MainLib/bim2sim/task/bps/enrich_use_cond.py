@@ -18,7 +18,6 @@ class EnrichUseConditions(ITask):
         super().__init__()
         self.enriched_tz = []
 
-    @Task.log
     def run(self, workflow: Workflow, tz_instances: dict):
         self.logger.info("enriches thermal zones usage")
         # case no thermal zones found

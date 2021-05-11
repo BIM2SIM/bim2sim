@@ -1,16 +1,18 @@
 ﻿"""Module contains the different classes for all HVAC elements"""
 import inspect
+import itertools
 import sys
 from functools import lru_cache
 import logging
 import math
 import re
-from typing import Set
+from typing import Set, List, Tuple, Generator
 
 import numpy as np
 
-from bim2sim.kernel import element, condition, attribute
-from bim2sim.decision import BoolDecision
+from bim2sim.kernel import condition, attribute
+from bim2sim.decision import BoolDecision, ListDecision, DecisionBunch
+from bim2sim.kernel.element import HVACPort, ProductBased
 from bim2sim.kernel.units import ureg
 
 
@@ -29,8 +31,14 @@ def length_post_processing(value):
     return value
 
 
-class HVACProduct(element.ProductBased):
+class HVACProduct(ProductBased):
     domain = 'HVAC'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.inner_connections: List[Tuple[HVACPort, HVACPort]] \
+            = self.get_inner_connections()
 
     def get_ports(self):
         ports = []
@@ -39,7 +47,7 @@ class HVACProduct(element.ProductBased):
                 # valid for IFC for Revit v19.2.0.0
                 for element_port_connection in nested.RelatedObjects:
                     if element_port_connection.is_a() == 'IfcDistributionPort':
-                        ports.append(element.HVACPort.from_ifc(
+                        ports.append(HVACPort.from_ifc(
                             ifc=element_port_connection, parent=self))
                     else:
                         logger.warning(
@@ -51,9 +59,78 @@ class HVACProduct(element.ProductBased):
         # valid for IFC for Revit v19.1.0.0
         element_port_connections = getattr(self.ifc, 'HasPorts', [])
         for element_port_connection in element_port_connections:
-            ports.append(element.HVACPort.from_ifc(
+            ports.append(HVACPort.from_ifc(
                 ifc=element_port_connection.RelatingPort, parent=self))
         return ports
+
+    def get_inner_connections(self) -> List[Tuple[HVACPort, HVACPort]]:
+        """Returns inner connections of Element
+
+        by default each port is connected to each other port.
+        Overwrite for other connections"""
+
+        connections = []
+        for port0, port1 in itertools.combinations(self.ports, 2):
+            connections.append((port0, port1))
+        return connections
+
+    def decide_inner_connections(self) -> Generator[DecisionBunch, None, None]:
+        """Generator method yielding decisions to set inner connections."""
+        if len(self.ports) < 2:
+            # no chance to connect anything
+            return
+
+        # TODO: extend pattern
+        vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)
+        rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
+
+        # use score for ports to help user find best match
+        score_vl = {}
+        score_rl = {}
+        for port in self.ports:
+            bonus_vl = 0
+            bonus_rl = 0
+            # connected to pipe
+            if port.connection and type(port.connection.parent) in [Pipe, PipeFitting]:
+                bonus_vl += 1
+                bonus_rl += 1
+            # string hints
+            if any(filter(vl_pattern.match, port.groups)):
+                bonus_vl += 1
+            if any(filter(rl_pattern.match, port.groups)):
+                bonus_rl += 1
+            # flow direction
+            if port.flow_direction == 1:
+                bonus_vl += .5
+            if port.flow_direction == -1:
+                bonus_rl += .5
+            score_vl[port] = bonus_vl
+            score_rl[port] = bonus_rl
+
+        # created sorted choices
+        choices_vl = [port.guid for port, score in
+                      sorted(score_vl.items(), key=lambda item: item[1],
+                             reverse=True)]
+        choices_rl = [port.guid for port, score in
+                      sorted(score_rl.items(), key=lambda item: item[1],
+                             reverse=True)]
+        decision_vl = ListDecision(f"Please select VL Port for {self}.",
+                                   choices=choices_vl,
+                                   default=choices_vl[0],  # best guess
+                                   key='VL',
+                                   global_key='VL_port_of_' + self.guid)
+        decision_rl = ListDecision(f"Please select RL Port for {self}.",
+                                   choices=choices_rl,
+                                   default=choices_rl[0],  # best guess
+                                   key='RL',
+                                   global_key='RL_port_of_' + self.guid)
+        decisions = DecisionBunch((decision_vl, decision_rl))
+        yield decisions
+
+        port_dict = {port.guid: port for port in self.ports}
+        vl = port_dict[decision_vl.value]
+        rl = port_dict[decision_rl.value]
+        self.inner_connections.append((vl, rl))
 
 
 class HeatPump(HVACProduct):
@@ -182,49 +259,46 @@ class Boiler(HVACProduct):
         """boiler is generator function"""
         return True
 
-    @lru_cache()
+    # @lru_cache()
     def get_inner_connections(self):
-        connections = []
-        vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
-        rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
-        VL = []
-        RL = []
-        for port in self.ports:
-            if any(filter(vl_pattern.match, port.groups)):
-                if port.flow_direction == 1:
-                    VL.append(port)
-                else:
-                    logger.warning("Flow direction (%s) of %s does not match %s",
-                                        port.verbose_flow_direction, port, port.groups)
-                    decision = BoolDecision(
-                        "Use %s as VL?" % (port),
-                        global_key=port.guid,
-                        allow_save=True,
-                        allow_load=True)
-                    use = decision.decide()
-                    if use:
-                        VL.append(port)
-            elif any(filter(rl_pattern.match, port.groups)):
-                if port.flow_direction == -1:
-                    RL.append(port)
-                else:
-                    logger.warning("Flow direction (%s) of %s does not match %s",
-                                        port.verbose_flow_direction, port, port.groups)
-                    decision = BoolDecision(
-                        "Use %s as RL?" % (port),
-                        global_key=port.guid,
-                        allow_save=True,
-                        allow_load=True)
-                    use = decision.decide()
-                    if use:
-                        RL.append(port)
-        if len(VL) == 1 and len(RL) == 1:
-            VL[0].flow_side = 1
-            RL[0].flow_side = -1
-            connections.append((RL[0], VL[0]))
-        else:
-            logger.warning("Unable to solve inner connections for %s", self)
-        return connections
+        return []  #
+        # connections = []
+        # vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
+        # rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
+        # VL = []
+        # RL = []
+        # for port in self.ports:
+        #     if any(filter(vl_pattern.match, port.groups)):
+        #         if port.flow_direction == 1:
+        #             VL.append(port)
+        #         else:
+        #             logger.warning("Flow direction (%s) of %s does not match %s",
+        #                                 port.verbose_flow_direction, port, port.groups)
+        #             decision = BoolDecision(
+        #                 "Use %s as VL?" % (port),
+        #                 global_key=port.guid)
+        #             use = decision.decide()
+        #             if use:
+        #                 VL.append(port)
+        #     elif any(filter(rl_pattern.match, port.groups)):
+        #         if port.flow_direction == -1:
+        #             RL.append(port)
+        #         else:
+        #             logger.warning("Flow direction (%s) of %s does not match %s",
+        #                                 port.verbose_flow_direction, port, port.groups)
+        #             decision = BoolDecision(
+        #                 "Use %s as RL?" % (port),
+        #                 global_key=port.guid)
+        #             use = decision.decide()
+        #             if use:
+        #                 RL.append(port)
+        # if len(VL) == 1 and len(RL) == 1:
+        #     VL[0].flow_side = 1
+        #     RL[0].flow_side = -1
+        #     connections.append((RL[0], VL[0]))
+        # else:
+        #     logger.warning("Unable to solve inner connections for %s", self)
+        # return connections
 
     water_volume = attribute.Attribute(
         description="Water volume of boiler",

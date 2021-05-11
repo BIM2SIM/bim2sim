@@ -18,7 +18,6 @@ class BindThermalZones(ITask):
         self.bounded_tz = []
         pass
 
-    @Task.log
     def run(self, workflow, tz_instances):
         self.logger.info("Binds thermal zones based on criteria")
         if len(tz_instances) == 0:

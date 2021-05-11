@@ -3,10 +3,12 @@
 import itertools
 import json
 import logging
+from typing import Generator, Iterable
 
 import numpy as np
 import networkx as nx
 
+from bim2sim.kernel.elements.hvac import HVACProduct
 from bim2sim.task.base import Task, ITask
 from bim2sim.filter import TypeFilter
 from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating,\
@@ -15,7 +17,7 @@ from bim2sim.kernel.aggregation import Consumer, ConsumerHeatingDistributorModul
 from bim2sim.kernel.element import ProductBased, ElementEncoder, Port
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
-from bim2sim.decision import Decision
+from bim2sim.decision import Decision, DecisionBunch
 from bim2sim.enrichment_data import element_input_json
 from bim2sim.decision import RealDecision, BoolDecision
 from bim2sim.utilities.common_functions import get_type_building_elements_hvac
@@ -239,7 +241,6 @@ class ConnectElements(ITask):
         connections = []
         return connections
 
-    @Task.log
     def run(self, workflow, instances):
         self.logger.info("Connect elements")
         self.instances = instances  # TODO: remove self.instances
@@ -291,9 +292,21 @@ class ConnectElements(ITask):
             bb_connections = self.connections_by_boundingbox(unconnected, unconnected_elements)
             self.logger.warning("Connecting by bounding box is not implemented.")
 
+        # inner connections
+        yield from self.check_inner_connections(instances.values())
+
         # TODO: manualy add / modify connections
         return self.instances,
 
+    def check_inner_connections(self, instances: Iterable[ProductBased])\
+            -> Generator[DecisionBunch, None, None]:
+        """Check inner connections of HVACProducts."""
+        # If a lot of decisions occur, it would help to merge DecisionBunches
+        # before yielding them
+        for instance in instances:
+            if isinstance(instance, HVACProduct) \
+                    and not instance.inner_connections:
+                yield from instance.decide_inner_connections()
 
 
 class Enrich(Task):
@@ -308,7 +321,6 @@ class Enrich(Task):
 
         return attrs_enrich
 
-    @Task.log
     def run(self, instances):
         json_data = get_type_building_elements_hvac()
 
@@ -346,7 +358,6 @@ class Prepare(ITask):  # Todo: obsolete
     reads = ('relevant_ifc_types', )
     touches = ('filters', )
 
-    @Task.log
     def run(self, workflow, relevant_ifc_types):
         self.logger.info("Setting Filters")
         # filters = [TypeFilter(relevant_ifc_types), TextFilter(relevant_ifc_types, ['Description'])]
@@ -361,9 +372,9 @@ class MakeGraph(ITask):
     reads = ('instances', )
     touches = ('graph', )
 
-    @Task.log
     def run(self, workflow, instances):
         self.logger.info("Creating graph from IFC elements")
+
         graph = hvac_graph.HvacGraph(instances.values())
         return graph,
 
@@ -382,7 +393,6 @@ class Reduce(ITask):
     reads = ('graph', )
     touches = ('reduced_instances', 'connections')
 
-    @Task.log
     def run(self, workflow, graph: hvac_graph.HvacGraph):
         self.logger.info("Reducing elements by applying aggregations")
         number_of_nodes_old = len(graph.element_graph.nodes)
@@ -420,7 +430,7 @@ class Reduce(ITask):
                 else:
                     graph.merge(
                         mapping=agg.get_replacement_mapping(),
-                        inner_connections=agg.get_inner_connections()
+                        inner_connections=agg.inner_connections
                     )
                     i += 1
             statistics[name] = i
@@ -494,7 +504,6 @@ class DetectCycles(ITask):
 
     # TODO: sth usefull like grouping or medium assignment
 
-    @Task.log
     def run(self, workflow, graph: hvac_graph.HvacGraph):
         self.logger.info("Detecting cycles")
         cycles = graph.get_cycles()
@@ -513,12 +522,11 @@ class Export(ITask):
         modelica.Instance.init_factory(libraries)
         export_instances = {inst: modelica.Instance.factory(inst) for inst in reduced_instances}
 
-        for instance in reduced_instances:
-            instance.solve_requested_decisions()
+        ProductBased.solve_requested_decisions(reduced_instances)
 
-        self.logger.info(Decision.summary())
-        Decision.decide_collected()
-        Decision.save(self.paths.decisions)
+        # self.logger.info(Decision.summary())
+        # Decision.decide_collected()
+        # save(self.paths.decisions)
 
         connection_port_names = []
         for connection in connections:

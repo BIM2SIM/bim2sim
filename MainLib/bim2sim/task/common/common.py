@@ -1,5 +1,5 @@
 import os
-from typing import Tuple, List, Any, Type, Set
+from typing import Tuple, List, Any, Type, Set, Dict, Generator
 
 from bim2sim import Decision
 from bim2sim.decision import ListDecision, DecisionBunch
@@ -145,7 +145,7 @@ class CreateElements(ITask):
 
         # filter by text
         text_filter = TextFilter(workflow.relevant_elements, ['Description'])
-        entity_class_dict, unknown_entities = self.filter_by_text(
+        entity_class_dict, unknown_entities = yield from self.filter_by_text(
             text_filter, unknown_entities)
         entity_best_guess_dict.update(entity_class_dict)
         valids, invalids = self.accept_valids(entity_class_dict, force=True)
@@ -176,7 +176,6 @@ class CreateElements(ITask):
         instances = {inst.guid: inst for inst in instance_lst}
         return instances,
 
-    @Task.log
     def accept_valids(self, entities_dict, warn=True, force=False) -> \
             Tuple[List[ProductBased], List[Any]]:
         """Instantiate ifc_entities using given element class.
@@ -211,12 +210,15 @@ class CreateElements(ITask):
 
         return valid, invalid
 
-    def filter_by_text(self, text_filter, ifc_entities):
-        """Filter ifc elements using given TextFilter.
+    def filter_by_text(self, text_filter, ifc_entities) \
+            -> Generator[DecisionBunch, None,
+                         Tuple[Dict[Any, Type[ProductBased]], List]]:
+        """Generator method filtering ifc elements by given TextFilter.
 
-        Ambiguous results are solved by decisions"""
+        yields decision bunch for ambiguous results"""
         entities_dict, unknown_entities = text_filter.run(ifc_entities)
         answers = {}
+        decisions = DecisionBunch()
         for entity, classes in entities_dict.items():
             sorted_classes = sorted(classes, key=lambda item: item.key)
             if len(sorted_classes) > 1:
@@ -228,21 +230,19 @@ class CreateElements(ITask):
                         element_cls.filter_for_text_fragments(entity)) + "'"
                     choices.append([element_cls.key, hints])
                 choices.append(["Other", "Other"])
-                ListDecision(
+                decisions.append(ListDecision(
                     f"Searching for text fragments in [Name: '{entity.Name}', "
                     f"Description: '{entity.Description}]' gave the following class hints. Please select best match.",
                     choices=choices,
-                    output=answers,
-                    output_key=entity,
+                    key=entity,
                     global_key="TextFilter:%s.%s" % (entity.is_a(), entity.GlobalId),
-                    allow_skip=True, allow_load=True, allow_save=True,
-                    collect=True, quick_decide=False,
-                    context=[entity.GlobalId])
+                    allow_skip=True,
+                    context=[entity.GlobalId]))
             elif len(sorted_classes) == 1:
                 answers[entity] = sorted_classes[0].key
             # empty classes are covered below
-        Decision.decide_collected()
-
+        yield decisions
+        answers.update(decisions.to_answer_dict())
         result_entity_dict = {}
         for ifc_entity, element_classes in entities_dict.items():
             element_key = answers.get(ifc_entity)
@@ -256,7 +256,6 @@ class CreateElements(ITask):
 
     def set_class_by_user(self, unknown_entities, possible_elements, best_guess_dict):
         """Ask user for every given ifc_entity to specify matching element class"""
-        answers = {}
         sorted_elements = sorted(possible_elements, key=lambda item: item.key)
         checksum = Decision.build_checksum([pe.key for pe in sorted_elements])  # assert same list of ifc_classes
         decisions = DecisionBunch()
@@ -268,14 +267,12 @@ class CreateElements(ITask):
                     ifc_entity.is_a(), ifc_entity.Name, ifc_entity.Description),
                 choices=[ele.key for ele in sorted_elements],
                 default=best_guess,
-                output=answers,
-                output_key=ifc_entity,
+                key=ifc_entity,
                 global_key="SetClass:%s.%s" % (ifc_entity.is_a(), ifc_entity.GlobalId),
-                allow_skip=True, allow_load=True, allow_save=True,
-                collect=True, quick_decide=not True,
+                allow_skip=True,
                 validate_checksum=checksum))
         yield decisions
-
+        answers = decisions.to_answer_dict()
         result_entity_dict = {}
         ignore = []
         for ifc_entity, element_key in answers.items():

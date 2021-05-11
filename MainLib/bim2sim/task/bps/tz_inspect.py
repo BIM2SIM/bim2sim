@@ -18,7 +18,6 @@ class TZInspect(ITask):
         self.sb_instances = {}
         pass
 
-    @Task.log
     def run(self, workflow: Workflow, ifc: file, instances: dict):
         self.logger.info("Creates python representation for building spaces")
         self.recognize_zone_semantic(ifc)

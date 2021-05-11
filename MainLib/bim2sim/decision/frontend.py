@@ -1,18 +1,46 @@
 import logging
 from types import GeneratorType
-from typing import Iterable
+from typing import Iterable, Generator, Any
 
-from ..decision import BoolDecision, RealDecision, ListDecision, StringDecision, GuidDecision
+from ..decision import BoolDecision, RealDecision, ListDecision, StringDecision, \
+    GuidDecision, DecisionBunch
 
 
+# TODO: contextmanager (shutdown) or how to make sure shutdown is called?
 class FrontEnd:
     """Basic FrontEnd for decision solving"""
 
     def __init__(self):
-        self.logger = logging.getLogger(__name__ + '.DecisonFrontend')
+        self.logger = logging.getLogger(__name__ + '.DecisionFrontend')
+        self.return_value = None
 
-    def handle(self, decision_generator: GeneratorType):
+    def handle(self, decision_gen: Generator[DecisionBunch, None, Any], saved_decisions: dict):
+        """Run the generator and apply answers to occurring decisions."""
+        for decision, answer in self.decision_answer_mapping(decision_gen):
+            decision.value = answer
+        return self.return_value
+
+    def get_answers_for_bunch(self, bunch: DecisionBunch) -> list:
+        """Collect and return answers for given decision bunch."""
         raise NotImplementedError
+
+    def decision_answer_mapping(
+            self, decision_generator: Generator[DecisionBunch, None, None]):
+        """
+        Generator method yielding tuples of decision and answer.
+
+        the return value of decision_generator can be
+        obtained from self.return_value
+        """
+        # We preserve the return value of the generator
+        # by using next and StopIteration instead of just iterating
+        try:
+            while True:
+                decision_bunch = next(decision_generator)
+                answer_bunch = self.get_answers_for_bunch(decision_bunch)
+                yield from zip(decision_bunch, answer_bunch)
+        except StopIteration as generator_return:
+            self.return_value = generator_return.value
 
     def solve(self, decision):
         raise NotImplementedError
@@ -99,18 +127,9 @@ class DebugFrontend(FrontEnd):
 
     def __init__(self, answers: Iterable):
         super().__init__()
-        self.answers = answers
+        # turn answers into a generator
+        self.answers = (ans for ans in answers)
 
-    def handle(self, decision_generator: GeneratorType):
-        """Map predefined answers to decisions."""
-        answers = (ans for ans in self.answers)
-        # We preserve the return value of the generator
-        # by using next and StopIteration instead of just iterating
-        try:
-            while True:
-                decision_bunch = next(decision_generator)
-                for decision in decision_bunch:
-                    decision.value = next(answers)
-        except StopIteration as generator_return:
-            return_value = generator_return.value
-        return return_value
+    def get_answers_for_bunch(self, bunch: DecisionBunch) -> list:
+        answers = [next(self.answers) for decision in bunch]
+        return answers

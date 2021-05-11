@@ -21,7 +21,8 @@ import sys
 
 import docopt
 
-from bim2sim import setup_default, Project, VERSION
+from bim2sim import setup_default, Project, VERSION, run_project
+from bim2sim.decision.console import ConsoleFrontEnd
 
 
 def commandline_interface():
@@ -44,7 +45,9 @@ def commandline_interface():
             pro = Project.create(path, source, target, open_conf)
         elif load:
             pro = Project(path)
-        pro.run()
+        frontend = ConsoleFrontEnd()
+        run_project(pro, frontend)
+        frontend.shutdown(True)
     else:
         print("Invalid arguments")
         exit()

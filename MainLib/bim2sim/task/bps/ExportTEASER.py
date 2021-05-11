@@ -38,7 +38,6 @@ class ExportTEASER(ITask):
                          'OuterDoor': Door,
                          }
 
-    @Task.log
     def run(self, workflow, ifc, bounded_tz, paths):
         self.logger.info("Export to TEASER")
         prj = self._create_project(ifc.by_type('IfcProject')[0])

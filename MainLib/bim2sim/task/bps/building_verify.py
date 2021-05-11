@@ -19,7 +19,6 @@ class BuildingVerification(ITask):
         self.template_range = {}
         pass
 
-    @Task.log
     def run(self, workflow, instances, ):
         self.logger.info("setting verifications")
         self.get_template_threshold()

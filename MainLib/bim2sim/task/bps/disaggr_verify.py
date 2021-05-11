@@ -14,7 +14,6 @@ class Disaggregation_creation(ITask):
         self.disaggregations = {}
         pass
 
-    @Task.log
     def run(self, workflow, tz_instances):
         if workflow.spaces is not LOD.low:
             for guid, tz in tz_instances.items():

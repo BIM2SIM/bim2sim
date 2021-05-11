@@ -64,13 +64,13 @@ class TestDecision(DecisionTestBase):
         dec1 = decision.BoolDecision(
             question="??",
             output=target_dict,
-            output_key="key1",
+            key="key1",
             collect=True,
             allow_skip=True)
         dec2 = decision.BoolDecision(
             question="??",
             output=target_dict,
-            output_key="key2",
+            key="key2",
             collect=True,
             allow_skip=False)
 
@@ -87,13 +87,13 @@ class TestDecision(DecisionTestBase):
         dec1 = decision.BoolDecision(
             question="??",
             output=target_dict,
-            output_key="key1",
+            key="key1",
             collect=True)
         dec_list.append(dec1)
         dec_list.append(decision.BoolDecision(
             question="??",
             output=target_dict,
-            output_key="key2",
+            key="key2",
             collect=True))
 
         self.assertIsNone(dec1.value)
@@ -104,7 +104,7 @@ class TestDecision(DecisionTestBase):
 
         self.assertTrue(all(target_dict.values()))
 
-        with self.assertRaises(AttributeError, msg="Collect without output_key"):
+        with self.assertRaises(AttributeError, msg="Collect without key"):
             decision.BoolDecision(question="??", collect=True)
 
     def check(self, value):
@@ -135,7 +135,7 @@ class TestDecision(DecisionTestBase):
 
         with tempfile.TemporaryDirectory(prefix='bim2sim_') as directory:
             path = os.path.join(directory, "mixed")
-            decision.Decision.save(path)
+            save(path)
 
             # clear variables to simulate program restart
             del dec_bool
@@ -144,7 +144,7 @@ class TestDecision(DecisionTestBase):
             decision.Decision.stored_decisions.clear()
 
             with Decision.debug_answer(True):
-                decision.Decision.load(path)
+                load(path)
 
         dec_real_loaded = decision.RealDecision(
             question="??",
@@ -179,9 +179,9 @@ class TestDecision(DecisionTestBase):
 
         output = {}
         with Decision.debug_answer(answers, multi=True):
-            dec0 = decision.BoolDecision(question="??", collect=True, output=output, output_key=0)
-            dec1 = decision.RealDecision(question="??", collect=True, output=output, output_key=1)
-            dec2 = decision.BoolDecision(question="??", collect=True, output=output, output_key=2)
+            dec0 = decision.BoolDecision(question="??", collect=True, output=output, key=0)
+            dec1 = decision.RealDecision(question="??", collect=True, output=output, key=1)
+            dec2 = decision.BoolDecision(question="??", collect=True, output=output, key=2)
             decision.Decision.decide_collected()
         self.assertTupleEqual(answers, tuple(output[i] for i in range(3)))
 
@@ -247,14 +247,14 @@ class TestBoolDecision(DecisionTestBase):
         with tempfile.TemporaryDirectory(prefix='bim2sim_') as directory:
             path = os.path.join(directory, "bool")
 
-            decision.Decision.save(path)
+            save(path)
 
             # clear variables to simulate program restart
             decision.Decision.all.clear()
             decision.Decision.stored_decisions.clear()
 
             with Decision.debug_answer(True):
-                decision.Decision.load(path)
+                load(path)
 
         dec_loaded = decision.BoolDecision(question="??", global_key=key, allow_load=True)
         self.assertTrue(dec_loaded.value)
@@ -311,14 +311,14 @@ class TestRealDecision(DecisionTestBase):
         with tempfile.TemporaryDirectory(prefix='bim2sim_') as directory:
             path = os.path.join(directory, "real")
 
-            decision.Decision.save(path)
+            save(path)
 
             # clear variables to simulate program restart
             decision.Decision.all.clear()
             decision.Decision.stored_decisions.clear()
 
             with Decision.debug_answer(True):
-                decision.Decision.load(path)
+                load(path)
 
         dec1_loaded = decision.RealDecision(
             question="??",
@@ -375,14 +375,14 @@ class TestListDecision(DecisionTestBase):
         with tempfile.TemporaryDirectory(prefix='bim2sim_') as directory:
             path = os.path.join(directory, "real")
 
-            decision.Decision.save(path)
+            save(path)
 
             # clear variables to simulate program restart
             decision.Decision.all.clear()
             decision.Decision.stored_decisions.clear()
 
             with Decision.debug_answer(True):
-                decision.Decision.load(path)
+                load(path)
 
         dec_loaded = decision.ListDecision(
             question="??",
@@ -438,14 +438,14 @@ class TestStringDecision(DecisionTestBase):
         with tempfile.TemporaryDirectory(prefix='bim2sim_') as directory:
             path = os.path.join(directory, "real")
 
-            decision.Decision.save(path)
+            save(path)
 
             # clear variables to simulate program restart
             decision.Decision.all.clear()
             decision.Decision.stored_decisions.clear()
 
             with Decision.debug_answer(True):
-                decision.Decision.load(path)
+                load(path)
 
         dec1_loaded = decision.StringDecision(
             question="??",
@@ -516,14 +516,14 @@ class TestGuidDecision(DecisionTestBase):
         with tempfile.TemporaryDirectory(prefix='bim2sim_') as directory:
             path = os.path.join(directory, "real")
 
-            decision.Decision.save(path)
+            save(path)
 
             # clear variables to simulate program restart
             decision.Decision.all.clear()
             decision.Decision.stored_decisions.clear()
 
             with Decision.debug_answer(True):
-                decision.Decision.load(path)
+                load(path)
 
         dec1_loaded = decision.GuidDecision(
             question="??",
@@ -562,7 +562,7 @@ class TestConsoleFrontend(DecisionTestBase):
             decision.BoolDecision(
                 question="??",
                 output=target_dict,
-                output_key=key,
+                key=key,
                 collect=True,
                 allow_skip=True)
 

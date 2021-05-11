@@ -263,7 +263,7 @@ class Attribute:
             "Enter value for %s of %s" % (self.name, bind.name),
             # validate_func=lambda x: isinstance(x, float),
             output=bind.attributes,
-            output_key=self.name,
+            key=self.name,
             global_key="%s_%s.%s" % (bind.ifc_type, bind.guid, self.name),
             allow_skip=False, allow_load=True, allow_save=True,
             validate_func=lambda x: True,  # TODO meaningful validation

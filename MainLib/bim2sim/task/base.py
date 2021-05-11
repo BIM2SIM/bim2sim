@@ -3,6 +3,9 @@ import os
 import logging
 import json
 import types
+from typing import Generator
+
+from bim2sim.decision import DecisionBunch
 
 
 class TaskFailed(Exception): pass
@@ -20,16 +23,16 @@ class Task:
     def __repr__(self):
         return "<Workflow (%s)>"%(self.name)
 
-    @staticmethod
-    def log(func):
-        """Decorator for logging of entering and leaving method"""
-        def wrapper(*args, **kwargs):
-            self = args[0]
-            self.logger.info("Started %s ...", self.name)
-            res = func(*args, **kwargs)
-            self.logger.info("Done %s."%(self.name))
-            return res
-        return wrapper
+    # @staticmethod
+    # def log(func):
+    #     """Decorator for logging of entering and leaving method"""
+    #     def wrapper(*args, **kwargs):
+    #         self = args[0]
+    #         self.logger.info("Started %s ...", self.name)
+    #         res = func(*args, **kwargs)
+    #         self.logger.info("Done %s."%(self.name))
+    #         return res
+    #     return wrapper
 
     def run(self, task, *args, **kwargs):
         """Run job"""
@@ -122,11 +125,12 @@ class Playground:
         """Returns list of available tasks"""
         return [task for task in self.all_tasks() if task.requirements_met(self.state, self.history)]
 
-    def run_task(self, task: ITask):
+    def run_task(self, task: ITask) -> Generator[DecisionBunch, None, None]:
         """Generator executing task with arguments specified in task.reads."""
         if not task.requirements_met(self.state, self.history):
             raise AssertionError("%s requirements not met." % task)
 
+        self.logger.info("Starting Task '%s'", task)
         read_state = {k: self.state[k] for k in task.reads}
         try:
             task.paths = self.paths
@@ -138,6 +142,8 @@ class Playground:
         except Exception as ex:
             self.logger.exception("Task '%s' failed!", task)
             raise TaskFailed(str(task))
+        else:
+            self.logger.info("Successfully finished Task '%s'", task)
 
         if task.touches == '__reset__':
             # special case

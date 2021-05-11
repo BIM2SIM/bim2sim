@@ -664,7 +664,6 @@ class ExportEP(ITask):
     reads = ('instances', 'ifc')
     final = True
 
-    @Task.log
     def run(self, workflow, instances, ifc):
         self.logger.info("Creates python representation of relevant ifc types")
         for inst in list(instances):
@@ -736,7 +735,7 @@ class ExportEP(ITask):
         self._export_boundary_report(instances, idf, ifc)
         self.logger.info("IDF generation finished!")
 
-        Element.finder.load(self.paths.finder)
+        load(self.paths.finder)
         # idf.view_model()
         # self._export_to_stl_for_cfd(instances, idf)
         # self._display_shape_of_space_boundaries(instances)
@@ -1571,7 +1570,7 @@ class ExportEP(ITask):
                     mesh_name = i.split("_", 1)[-1]
                     mesh_name = mesh_name.replace(".stl", "")
                     mesh_name = mesh_name.replace("$", "___")
-                    sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
+                    save(mesh_name, output_file, mode=stl.Mode.ASCII)
 
     @staticmethod
     def combine_space_stl_files(stl_name, space_name, paths):
@@ -1585,7 +1584,7 @@ class ExportEP(ITask):
                     mesh_name = i.split("_", 1)[-1]
                     mesh_name = mesh_name.replace(".stl", "")
                     mesh_name = mesh_name.replace("$", "___")
-                    sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
+                    save(mesh_name, output_file, mode=stl.Mode.ASCII)
 
     @staticmethod
     def _init_idf(paths):

@@ -15,6 +15,9 @@ import site
 
 import pkg_resources
 
+import bim2sim
+from bim2sim.decision.console import ConsoleFrontEnd
+from bim2sim.decision.frontend import FrontEnd
 from bim2sim.kernel import ifc2python
 from bim2sim.decision import Decision
 from bim2sim.project import Project, FolderStructure
@@ -89,9 +92,6 @@ def setup_default():
     # if not plugins:
     #     raise AssertionError("No plugins found!")
 
-    from bim2sim.decision.console import ConsoleFrontEnd
-    Decision.set_frontend(ConsoleFrontEnd())
-
 
 def setup(frontend_name='default'):
     if frontend_name == 'ExternalFrontEnd':
@@ -99,6 +99,11 @@ def setup(frontend_name='default'):
     else:
         from bim2sim.decision.console import ConsoleFrontEnd as Frontend
     Decision.set_frontend(Frontend())
+
+
+def run_project(project: Project, frontend: FrontEnd):
+    """Run project using frontend."""
+    return frontend.handle(project.run(), project.loaded_decisions)
 
 
 def _debug_run_hvac():
@@ -116,7 +121,8 @@ def _debug_run_hvac():
         project = Project.create(path_example, path_ifc, 'hkesim', )
 
     # setup_defualt(project.config['Frontend']['use'])
-    project.run()
+    run_project(project, ConsoleFrontEnd())
+
 
 def _get_debug_project_path():
     path_file = "debug_dir.user"
@@ -255,7 +261,7 @@ setup_default()
 
 if __name__ == '__main__':
     # _debug_run_cfd()
-    _debug_run_bps()
+    # _debug_run_bps()
     # _debug_run_bps_ep()
-    # _debug_run_hvac()
+    _debug_run_hvac()
 

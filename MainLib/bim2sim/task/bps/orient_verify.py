@@ -15,7 +15,6 @@ class OrientationGetter(ITask):
         self.corrected = []
         pass
 
-    @Task.log
     def run(self, workflow: Workflow, instances: dict):
         self.logger.info("setting verifications")
 

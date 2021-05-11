@@ -21,7 +21,6 @@ class EnrichNonValid(ITask):
         self.enriched_class = {}
         pass
 
-    @Task.log
     def run(self, workflow, invalid_layers):
         self.logger.info("setting verifications")
         if workflow.layers is not LOD.low:

@@ -1,5 +1,5 @@
 from bim2sim.task.base import Task, ITask
-from bim2sim.decision import Decision, BoolDecision
+from bim2sim.decision import Decision, BoolDecision, DecisionBunch
 from bim2sim.task.hvac.hvac import hvac_graph
 
 
@@ -9,12 +9,11 @@ class DeadEnds(ITask):
     reads = ('graph', )
     touches = ('graph', )
 
-    @Task.log
     def run(self, workflow, graph):
         self.logger.info("Inspecting for dead ends")
         dead_ends_fc = self.identify_deadends(graph)
         self.logger.info("Found %s possible dead ends in network." % len(dead_ends_fc))
-        graph, n_removed = self.decide_deadends(graph, dead_ends_fc)
+        graph, n_removed = yield from self.decide_deadends(graph, dead_ends_fc)
         self.logger.info("Removed %s ports due to found dead ends." % n_removed)
         if __debug__:
             self.logger.info("Plotting graph ...")
@@ -29,7 +28,7 @@ class DeadEnds(ITask):
         uncoupled_graph = graph.copy()
         element_graph = uncoupled_graph.element_graph
         for node in element_graph.nodes:
-            inner_edges = node.get_inner_connections()
+            inner_edges = node.inner_connections
             uncoupled_graph.remove_edges_from(inner_edges)
         # find first class dead ends (open ports)
         dead_ends_fc = [v for v, d in uncoupled_graph.degree() if d == 0]
@@ -58,19 +57,18 @@ class DeadEnds(ITask):
                     remove_elements_strand.append(element)
                 remove_ports[dead_end] = (remove_ports_strand, remove_elements_strand)
 
-        answers = {}
-        decisions = []
+        decisions = DecisionBunch()
         for dead_end, (port_strand, element_strand) in remove_ports.items():
             cur_decision = BoolDecision(
                 "Found possible dead end at port %s with guid %s in system, "
                 "please check if it is a dead end:" % (dead_end, dead_end.guid),
-                output=answers,
-                output_key=dead_end,
+                key=dead_end,
                 global_key="deadEnd.%s" % dead_end.guid,
-                allow_skip=True, allow_load=True, allow_save=True,
-                collect=True, quick_decide=False, related={dead_end.guid}, context=set(element.guid for element in element_strand))
+                allow_skip=True,
+                related={dead_end.guid}, context=set(element.guid for element in element_strand))
             decisions.append(cur_decision)
-        Decision.decide_collected(collection=decisions)
+        yield decisions
+        answers = decisions.to_answer_dict()
         n_removed = 0
         for element, answer in answers.items():
             if answer:
