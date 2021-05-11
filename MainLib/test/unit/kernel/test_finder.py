@@ -35,7 +35,7 @@ class TestTemplateFinder(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        Decision.reset_decisions()
+        # Decision.reset_decisions()
         cls.root.cleanup()
 
     def setUp(self):

@@ -28,15 +28,15 @@ class TestAttribute(unittest.TestCase):
 
     helper = SetupHelper()
 
-    @classmethod
-    def setUpClass(cls):
-        # cls.helper = SetupHelper()
-        Decision.enable_debug(None)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.helper = None
-        Decision.disable_debug()
+    # @classmethod
+    # def setUpClass(cls):
+    #     # cls.helper = SetupHelper()
+    #     Decision.enable_debug(None)
+    #
+    # @classmethod
+    # def tearDownClass(cls):
+    #     cls.helper = None
+    #     Decision.disable_debug()
 
     def setUp(self):
         self.subject = self.helper.element_generator(TestElement)

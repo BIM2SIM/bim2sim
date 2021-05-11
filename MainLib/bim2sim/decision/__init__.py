@@ -52,10 +52,10 @@ def convert(from_version, to_version, data):
     if from_version == '0' and to_version == '0.1':
         return convert_0_to_0_1(data)
 
-
-class empty:
-    """Sentinel value for empty Decision value."""
-
+#
+# class empty:
+#     """Sentinel value for empty Decision value."""
+#
 
 class Decision:
     """Class for handling decisions and user interaction
@@ -90,7 +90,7 @@ class Decision:
                  key: str = None, global_key: str = None,
                  allow_skip=False, validate_checksum=None,
                  related: List[str] = None, context: List[str] = None,
-                 default=empty, group: str = None):
+                 default=None, group: str = None):
 
         """
         :param question: The question asked to the user
@@ -106,12 +106,12 @@ class Decision:
         :raises: :class:'AttributeError'::
         """
         self.status = Status.open
-        self._value = empty
+        self._value = None
 
         self.question = question
         self.validate_func = validate_func
-        self.default = empty
-        if default is not empty:
+        self.default = None
+        if default is not None:
             if self.validate(default):
                 self.default = default
                 self._debug_answer = default
@@ -155,14 +155,18 @@ class Decision:
 
     @property
     def value(self):
-        return self._value
+        if self.valid():
+            return self._value
+        else:
+            raise ValueError("Can't get value from invalid decision.")
 
     @value.setter
     def value(self, value):
         if self.status != Status.open:
             raise ValueError("Decision is not open. Call reset() first.")
-        if self.validate(value):
-            self._value = value
+        _value = self.convert(value)
+        if self.validate(_value):
+            self._value = _value
             self.status = Status.ok
             # self._post()
         else:
@@ -170,7 +174,7 @@ class Decision:
 
     def reset(self):
         self.status = Status.open
-        self._value = empty
+        self._value = None
         # if self.output_key in self.output:
         #     del self.output[self.output_key]
         # if self.output_key in Decision.stored_decisions:
@@ -271,23 +275,31 @@ class Decision:
     #         return answer
     #     raise AssertionError("Decision debug mode not enabled")
 
+    def convert(self, value):
+        """Convert value to inner type"""
+        return value
+
     def _validate(self, value):
         raise NotImplementedError("Implement method _validate!")
 
     def validate(self, value):
         """Checks value with validate_func and returns truth value"""
-
-        basic_valid = self._validate(value)
+        _value = self.convert(value)
+        basic_valid = self._validate(_value)
 
         if self.validate_func:
             try:
-                external_valid = bool(self.validate_func(value))
+                external_valid = bool(self.validate_func(_value))
             except:
                 external_valid = False
         else:
             external_valid = True
 
         return basic_valid and external_valid
+
+    def valid(self):
+        return self.status == Status.ok \
+               or (self.status == Status.skipped and self.allow_skip)
 
     # def decide(self):
     #     """Decide by user input
@@ -367,7 +379,7 @@ class Decision:
         if (not self.validate_func) or self.validate_func(value):
             if checksum == self.validate_checksum:
                 self.value = self.deserialize_value(value)
-                self.status = Status.loadeddone
+                self.status = Status.ok
                 self.logger.info("Loaded decision '%s' with value: %s", self.global_key, value)
             else:
                 self.logger.warning("Checksum mismatch for loaded decision '%s", self.global_key)
@@ -463,6 +475,14 @@ class RealDecision(Decision):
         if default is not None and not isinstance(default, pint.Quantity):
             kwargs['default'] = default * self.unit
         super().__init__(*args, **kwargs)
+
+    def convert(self, value):
+        if not isinstance(value, pint.Quantity):
+            try:
+                return value * self.unit
+            except:
+                pass
+        return value
 
     def _validate(self, value):
         if isinstance(value, pint.Quantity):
@@ -641,8 +661,8 @@ def save(bunch: DecisionBunch, path):
     logger.info("Saved %d decisions.", len(bunch))
 
 
-def load(path) -> DecisionBunch:
-    """Load previously solved Decisions from file system"""
+def load(path) -> Dict[str, Any]:
+    """Load previously solved Decisions from file system."""
 
     logger = logging.getLogger(__name__)
     try:
@@ -650,7 +670,7 @@ def load(path) -> DecisionBunch:
             data = json.load(file)
     except IOError as ex:
         logger.info("Unable to load decisions. (%s)", ex)
-        return DecisionBunch()
+        return {}
     version = data.get('version', '0')
     if version != __VERSION__:
         try:
@@ -658,7 +678,7 @@ def load(path) -> DecisionBunch:
             logger.info("Converted stored decisions from version '%s' to '%s'", version, __VERSION__)
         except:
             logger.error("Decision conversion from %s to %s failed")
-            return DecisionBunch()
+            return {}
     decisions = data.get('decisions')
     logger.info("Found %d previous made decisions.", len(decisions or []))
     return decisions

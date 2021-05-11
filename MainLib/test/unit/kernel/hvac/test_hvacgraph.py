@@ -56,10 +56,10 @@ def generate_element_strait(number=5, prefix=""):
 
     #create elements
     for i in range(number):
-        ele = element.ProductBased()
+        ele = hvac.HVACProduct()
         ele.name = prefix + str(i)
-        ele.ports.append(element.Port(ele))
-        ele.ports.append(element.Port(ele))
+        ele.ports.append(hvac.HVACPort(ele))
+        ele.ports.append(hvac.HVACPort(ele))
         elements.append(ele)
         # connect
         if i > 0:

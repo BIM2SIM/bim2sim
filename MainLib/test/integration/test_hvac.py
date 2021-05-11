@@ -18,7 +18,8 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
         frontend = DebugFrontend(answers)
         for decision, answer in frontend.decision_answer_mapping(project.run()):
             decision.value = answer
-        self.assertEqual(0, frontend.return_value, "Project did not finish successfully.")
+        self.assertEqual(0, frontend.return_value,
+                         "Project did not finish successfully.")
 
     def test_run_vereinshaus2(self):
         """Run project with KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc"""
@@ -26,9 +27,11 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
         project = self.create_project(ifc, 'hkesim')
         answers = ('HVAC-HeatPump', 'HVAC-Storage', 'HVAC-Storage',
                    *(True,)*16, 200)
-        with bim2sim.decision.Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
-        self.assertEqual(0, return_code, "Project did not finish successfully.")
+        frontend = DebugFrontend(answers)
+        for decision, answer in frontend.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, frontend.return_value,
+                         "Project did not finish successfully.")
 
 
 class TestIntegrationAixLib(unittest.TestCase):

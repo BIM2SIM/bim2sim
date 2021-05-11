@@ -91,7 +91,8 @@ class HVACProduct(ProductBased):
             bonus_vl = 0
             bonus_rl = 0
             # connected to pipe
-            if port.connection and type(port.connection.parent) in [Pipe, PipeFitting]:
+            if port.connection and type(port.connection.parent) \
+                    in [Pipe, PipeFitting]:
                 bonus_vl += 1
                 bonus_rl += 1
             # string hints
@@ -130,6 +131,9 @@ class HVACProduct(ProductBased):
         port_dict = {port.guid: port for port in self.ports}
         vl = port_dict[decision_vl.value]
         rl = port_dict[decision_rl.value]
+        # set flow correct side
+        vl.flow_side = 1
+        rl.flow_side = -1
         self.inner_connections.append((vl, rl))
 
 

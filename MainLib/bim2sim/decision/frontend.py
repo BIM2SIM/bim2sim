@@ -14,7 +14,7 @@ class FrontEnd:
         self.logger = logging.getLogger(__name__ + '.DecisionFrontend')
         self.return_value = None
 
-    def handle(self, decision_gen: Generator[DecisionBunch, None, Any], saved_decisions: dict):
+    def handle(self, decision_gen: Generator[DecisionBunch, None, Any], saved_decisions: dict = None):
         """Run the generator and apply answers to occurring decisions."""
         for decision, answer in self.decision_answer_mapping(decision_gen):
             decision.value = answer

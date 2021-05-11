@@ -1,4 +1,5 @@
-from ..decision import Decision, BoolDecision, RealDecision, ListDecision
+from ..decision import Decision, BoolDecision, RealDecision, ListDecision, \
+    DecisionBunch
 from ..decision import DecisionCancle, DecisionSkip, DecisionSkipAll, PendingDecisionError, DecisionException
 from .frontend import FrontEnd
 
@@ -52,24 +53,26 @@ class ConsoleFrontEnd(FrontEnd):
             raise
         return
 
-    def solve_collection(self, collection):
-
-        if not collection:
-            return
+    # def solve_collection(self, collection):
+    def get_answers_for_bunch(self, bunch: DecisionBunch) -> list:
+        answers = []
+        if not bunch:
+            return answers
 
         skip_all = False
         extra_options = []
-        if all([d.allow_skip for d in collection]):
+        if all([d.allow_skip for d in bunch]):
             extra_options.append(Decision.SKIPALL)
 
-        for decision, progress in self.collection_progress(collection):
+        for decision, progress in self.collection_progress(bunch):
+            answer = None
             if skip_all and decision.allow_skip:
                 decision.skip()
             else:
                 if skip_all:
                     self.logger.info("Decision can not be skipped")
                 try:
-                    decision.value = self.user_input(decision, extra_options=extra_options, progress=progress)
+                    answer = self.user_input(decision, extra_options=extra_options, progress=progress)
                 except DecisionSkip:
                     decision.skip()
                 except DecisionSkipAll:
@@ -78,6 +81,8 @@ class ConsoleFrontEnd(FrontEnd):
                 except DecisionCancle as ex:
                     self.logger.info("Canceling decisions")
                     raise
+            answers.append(answer)
+        return answers
 
     # TODO: based on decision type
     # TODO: merge from element_filter_by_text

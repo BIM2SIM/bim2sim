@@ -3,7 +3,6 @@ from contextlib import contextmanager
 
 from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.element import HVACPort, Root
-from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 
 
@@ -39,6 +38,8 @@ class SetupHelper:
     def fake_add_ports(cls, parent, n=2):
         new_ports = [HVACPort(parent=parent) for i in range(n)]
         parent.ports.extend(new_ports)
+        if isinstance(parent, hvac.HVACProduct):
+            parent.inner_connections = parent.get_inner_connections()
         return new_ports
 
     @staticmethod
