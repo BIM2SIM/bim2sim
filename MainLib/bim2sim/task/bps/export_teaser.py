@@ -87,8 +87,6 @@ class ExportTEASER(ITask):
         sw = type(teaser_instance).__name__
         if sw == 'Rooftop':
             sw = 'Roof'
-        if sw == 'Window':
-            print('test')
         for key, value in templates['base'][sw]['exporter']['teaser'].items():
             if isinstance(value, list):
                 # get property from instance (instance dependant on instance)
