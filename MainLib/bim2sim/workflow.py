@@ -203,8 +203,8 @@ class BPSOneZoneAggregated(Workflow):
             generator=LOD.ignore,
             hvac=LOD.low,
             spaces=LOD.low,
-            # layers=LOD.low,
-            layers=LOD.full,
+            layers=LOD.low,
+            # layers=LOD.full,
         )
         self.relevant_ifc_types = (
             'IfcSite',
