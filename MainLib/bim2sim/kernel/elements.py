@@ -1631,9 +1631,10 @@ class Layer(element.SubElement):
         default=0,
         unit=ureg.m
     )
-    g_value = attribute.Attribute(
-        default_ps=('Pset_MaterialOptical', 'SolarTransmittance'),
-        default=0.65
+    solar_absorp = attribute.Attribute(
+        # default_ps=('Pset_MaterialOptical', 'SolarTransmittance'),
+        default=0,
+        unit=ureg.percent
     )
 
 
@@ -1693,32 +1694,24 @@ class Window(element.Element):
         unit=ureg.W / ureg.K / ureg.meter ** 2
     )
     g_value = attribute.Attribute(# material
-        default=0.65
     )
     a_conv = attribute.Attribute(
-        default=0.07
     )
     shading_g_total = attribute.Attribute(
-        default=1.0
     )
     shading_max_irr = attribute.Attribute(
-        default=100.0
     )
     inner_convection = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
-        default=2.7
     )
     inner_radiation = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
-        default=5.0
     )
     outer_radiation = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
-        default=5.0
     )
     outer_convection = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
-        default=20.0
     )
 
 

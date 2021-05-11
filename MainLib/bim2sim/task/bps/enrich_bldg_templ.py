@@ -29,6 +29,10 @@ class EnrichBuildingByTemplates(ITask):
             for instance in invalid_layers:
                 self.template_layers_creation(instance, construction_type)
                 self.enriched_layers.append(instance)
+            windows = SubElement.instances['Window']
+            for window in windows:
+                print()
+
 
         self.logger.info("enriched %d invalid layers", len(self.enriched_layers))
 

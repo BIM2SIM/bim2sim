@@ -102,7 +102,10 @@ class EnrichMaterial(ITask):
         units = {}
         for attr in layer.attributes:
             value = getattr(layer, attr)
-            values[attr] = value.m
+            try:
+                values[attr] = value.m
+            except AttributeError:
+                print()
             units[attr] = value.u
 
         return values, units
