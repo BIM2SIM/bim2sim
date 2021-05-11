@@ -6,7 +6,7 @@ import json
 import hashlib
 from collections import Counter
 from contextlib import contextmanager
-from typing import Iterable, Callable, List
+from typing import Iterable, Callable, List, Dict, Any
 
 import pint
 
@@ -592,6 +592,7 @@ class GuidDecision(Decision):
 
 
 class DecisionBunch(list):
+    """Collection of decisions."""
 
     def __init__(self, decisions: Iterable[Decision] = ()):
         super().__init__(decisions)
@@ -601,10 +602,12 @@ class DecisionBunch(list):
         return all(decision.status in (Status.ok, Status.skipped)
                    for decision in self)
 
-    def to_answer_dict(self) -> dict:
+    def to_answer_dict(self) -> Dict[Any, Decision]:
+        """Create dict from DecisionBunch using decision.key."""
         return {decision.key: decision.value for decision in self}
 
     def to_serializable(self) -> dict:
+        """Create JSON serializable dict of decisions."""
         decisions = {decision.global_key: decision.get_serializable()
                      for decision in self}
         return decisions
