@@ -77,7 +77,7 @@ def logging_setup():
     # matlog = logging.getLogger('matplotlib')
     # matlog.level = logging.INFO
 
-    logging.debug("Logging setup done.")
+    root_logger.debug("Logging setup done.")
 
 
 def setup_default():
@@ -107,8 +107,6 @@ def _debug_run_hvac():
     rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
     path_example = r"C:\temp\bim2sim\testproject"
-
-    setup_default()
 
     if Project.is_project_folder(path_example):
         project = Project(path_example)
