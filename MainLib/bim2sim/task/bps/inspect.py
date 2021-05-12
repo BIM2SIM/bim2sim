@@ -8,7 +8,7 @@ class Inspect(ITask):
     """Analyses IFC and creates Element instances.
     Elements are stored in .instances dict with guid as key"""
 
-    reads = ('ifc', 'paths')
+    reads = ('ifc',)
     touches = ('instances',)
 
     def __init__(self):
@@ -17,10 +17,10 @@ class Inspect(ITask):
         pass
 
     @Task.log
-    def run(self, workflow: Workflow, ifc: file, paths):
+    def run(self, workflow: Workflow, ifc: file):
         self.logger.info("Creates python representation of relevant ifc types")
 
-        Element.finder.load(paths.finder)
+        Element.finder.load(self.paths.finder)
 
         for ifc_type in workflow.relevant_ifc_types:
             try:

@@ -2,7 +2,7 @@
 from pathlib import Path
 
 
-unit_dir = Path(__file__).parent / 'test'
+unit_dir = Path(__file__).parent.parent
 
 if __name__ == '__main__':
     import unittest
@@ -15,6 +15,3 @@ if __name__ == '__main__':
         exit(0)
     else:
         exit(1)
-
-
-

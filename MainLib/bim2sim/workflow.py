@@ -130,6 +130,39 @@ class BPSMultiZoneSeparated(Workflow):
         )
 
 
+class BPSMultiZoneCombined(Workflow):
+    """Building performance simulation with every space as single zone
+    separated from each other - no aggregation"""
+
+    def __init__(self):
+        super().__init__(
+            ductwork=LOD.low,
+            hull=LOD.medium,
+            consumer=LOD.low,
+            generator=LOD.ignore,
+            hvac=LOD.low,
+            # spaces=LOD.low,
+            # spaces=LOD.low,
+            spaces=LOD.medium,
+            layers=LOD.low,
+            # layers=LOD.full,
+        )
+        self.relevant_ifc_types = (
+            'IfcSite',
+            'IfcBuilding',
+            'IfcBuildingStorey',
+            # 'IfcWallElementedCase',
+            # 'IfcWallStandardCase',
+            'IfcWall',
+            'IfcWindow',
+            'IfcDoor',
+            'IfcSlab',
+            'IfcRoof',
+            'IfcSpaceHeater',
+            'IfcAirTerminal',
+            'IfcAirTerminalBox',
+        )
+
 class BPSMultiZoneSeparatedEP(Workflow):
     """Building performance simulation with every space as single zone
     separated from each other - no aggregation,

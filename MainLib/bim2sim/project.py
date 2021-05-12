@@ -15,7 +15,8 @@ import configparser
 from bim2sim.decision import Decision, ListDecision
 from bim2sim.task.base import Playground
 from bim2sim.plugin import Plugin
-from bim2sim.kernel.element import Root, IFCBased, BaseElement
+from bim2sim.kernel.element import Root, IFCBased, BaseElement, SubElement
+from bim2sim.task.bps.enrich_bldg_templ import EnrichBuildingByTemplates
 
 
 logger = logging.getLogger(__name__)
@@ -283,8 +284,7 @@ class Project:
         self.default_plugin = Plugin.get_plugin(self.config['Backend']['use'])
         workflow = self.default_plugin.default_workflow()
         workflow.update_from_config(self.config)
-        initials = {'paths': self.paths}
-        self.playground = Playground(workflow, initials)
+        self.playground = Playground(workflow, self.paths)
 
         self._log_handler = self._setup_logger()  # setup project specific handlers
 
@@ -399,6 +399,8 @@ class Project:
             # clean finder
             IFCBased.finder.reset()
             BaseElement.finder.reset()  # due to a 'hotfix' there are two finder instances
+            SubElement.instances = {}
+            EnrichBuildingByTemplates.instance_template = {}
             # releas project
             Project._release(self)
 
