@@ -5,12 +5,13 @@ from functools import lru_cache
 import logging
 import math
 import re
-from typing import Set
+from typing import Set, Tuple
 
 import numpy as np
 
 from bim2sim.kernel import element, condition, attribute
 from bim2sim.decision import BoolDecision
+from bim2sim.kernel.element import Port
 from bim2sim.kernel.units import ureg
 
 
@@ -29,6 +30,159 @@ def length_post_processing(value):
     return value
 
 
+class HVACPort(Port):
+    """Port of HVACProduct."""
+    vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
+    rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
+
+    def __init__(
+            self, *args, groups: Set = None,
+            flow_direction: int = 0, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._flow_master = False
+        self._flow_direction = None
+        self._flow_side = None
+
+        self.groups = groups or set()
+        self.flow_direction = flow_direction
+
+    @classmethod
+    def ifc2args(cls, ifc) -> Tuple[tuple, dict]:
+        args, kwargs = super().ifc2args(ifc)
+        groups = {assg.RelatingGroup.ObjectType
+                  for assg in ifc.HasAssignments}
+        flow_direction = None
+        if ifc.FlowDirection == 'SOURCE':
+            flow_direction = 1
+        elif ifc.FlowDirection == 'SINK':
+            flow_direction = -1
+        elif ifc.FlowDirection == 'SINKANDSOURCE':
+            flow_direction = 0
+
+        kwargs['groups'] = groups
+        kwargs['flow_direction'] = flow_direction
+        return args, kwargs
+
+    def calc_position(self):
+        """returns absolute position as np.array"""
+        try:
+            relative_placement = \
+                self.parent.ifc.ObjectPlacement.RelativePlacement
+            x_direction = np.array(relative_placement.RefDirection.DirectionRatios)
+            z_direction = np.array(relative_placement.Axis.DirectionRatios)
+        except AttributeError:
+            x_direction = np.array([1, 0, 0])
+            z_direction = np.array([0, 0, 1])
+        y_direction = np.cross(z_direction, x_direction)
+        directions = np.array((x_direction, y_direction, z_direction)).T
+        port_coordinates_relative = \
+            np.array(self.ifc.ObjectPlacement.RelativePlacement.Location.Coordinates)
+        coordinates = self.parent.position + np.matmul(directions, port_coordinates_relative)
+
+        if all(coordinates == np.array([0, 0, 0])):
+            logger = logging.getLogger('IFCQualityReport')
+            logger.info("Suspect position [0, 0, 0] for %s", self)
+        return coordinates
+
+    @classmethod
+    def pre_validate(cls, ifc) -> bool:
+        return True
+
+    def validate(self) -> bool:
+        return True
+
+    @property
+    def flow_master(self):
+        """Lock flow direction for port"""
+        return self._flow_master
+
+    @flow_master.setter
+    def flow_master(self, value: bool):
+        self._flow_master = value
+
+    @property
+    def flow_direction(self):
+        """Flow direction of port
+
+        -1 = medium flows into port
+        1 = medium flows out of port
+        0 = medium flow undirected
+        None = flow direction unknown"""
+        return self._flow_direction
+
+    @flow_direction.setter
+    def flow_direction(self, value):
+        if self._flow_master:
+            raise AttributeError("Can't set flow direction for flow master.")
+        if value not in (-1, 0, 1, None):
+            raise AttributeError("Invalid value. Use one of (-1, 0, 1, None).")
+        self._flow_direction = value
+
+    @property
+    def verbose_flow_direction(self):
+        """Flow direction of port"""
+        if self.flow_direction == -1:
+            return 'SINK'
+        if self.flow_direction == 0:
+            return 'SINKANDSOURCE'
+        if self.flow_direction == 1:
+            return 'SOURCE'
+        return 'UNKNOWN'
+
+    @property
+    def flow_side(self):
+        """VL(1), RL(-1), UNKNOWN(0)"""
+        if self._flow_side is None:
+            self._flow_side = self.determine_flow_side()
+        return self._flow_side
+
+    @flow_side.setter
+    def flow_side(self, value):
+        if value not in (-1, 0, 1):
+            raise ValueError("allowed values for flow_side are 1, 0, -1")
+        previous = self._flow_side
+        self._flow_side = value
+        if previous:
+            if previous != value:
+                logger.info("Overwriting flow_side for %r with %s" % (self, self.verbose_flow_side))
+        else:
+            logger.debug("Set flow_side for %r to %s" % (self, self.verbose_flow_side))
+
+    @property
+    def verbose_flow_side(self):
+        if self.flow_side == 1:
+            return "VL"
+        if self.flow_side == -1:
+            return "RL"
+        return "UNKNOWN"
+
+    def determine_flow_side(self):
+        """Check groups for hints of flow_side and returns flow_side if hints are definitely"""
+        vl = None
+        rl = None
+        if self.parent.is_generator():
+            if self.flow_direction == 1:
+                vl = True
+            elif self.flow_direction == -1:
+                rl = True
+        elif self.parent.is_consumer():
+            if self.flow_direction == 1:
+                rl = True
+            elif self.flow_direction == -1:
+                vl = True
+        if not vl:
+            vl = any(filter(self.vl_pattern.match, self.groups))
+        if not rl:
+            rl = any(filter(self.rl_pattern.match, self.groups))
+
+        if vl and not rl:
+            return 1
+        if rl and not vl:
+            return -1
+        return 0
+
+
 class HVACProduct(element.ProductBased):
     domain = 'HVAC'
 
@@ -39,7 +193,7 @@ class HVACProduct(element.ProductBased):
                 # valid for IFC for Revit v19.2.0.0
                 for element_port_connection in nested.RelatedObjects:
                     if element_port_connection.is_a() == 'IfcDistributionPort':
-                        ports.append(element.HVACPort.from_ifc(
+                        ports.append(HVACPort.from_ifc(
                             ifc=element_port_connection, parent=self))
                     else:
                         logger.warning(
@@ -51,7 +205,7 @@ class HVACProduct(element.ProductBased):
         # valid for IFC for Revit v19.1.0.0
         element_port_connections = getattr(self.ifc, 'HasPorts', [])
         for element_port_connection in element_port_connections:
-            ports.append(element.HVACPort.from_ifc(
+            ports.append(HVACPort.from_ifc(
                 ifc=element_port_connection.RelatingPort, parent=self))
         return ports
 

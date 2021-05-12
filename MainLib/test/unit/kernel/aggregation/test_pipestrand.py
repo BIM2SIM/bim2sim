@@ -2,7 +2,7 @@ import unittest
 
 from bim2sim.kernel.elements import hvac
 from bim2sim.kernel import aggregation
-from bim2sim.kernel.element import HVACPort
+from bim2sim.kernel.elements.hvac import HVACPort
 from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg

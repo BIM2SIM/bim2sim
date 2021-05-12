@@ -70,8 +70,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
-        with Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
+        # with Decision.debug_answer(answers, multi=True):
+        return_code = project.run()
         self.assertEqual(0, return_code)
 
     @unittest.skip("")
