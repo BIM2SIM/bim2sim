@@ -126,7 +126,9 @@ class CreateElements(ITask):
         relevant_ifc_types.update(default_ifc_types)
 
         self.factory = Factory(workflow.relevant_elements, self.paths.finder)
-
+        for app in ifc.by_type('IfcApplication'):
+            for decision in self.factory.finder.check_tool_template(app.ApplicationFullName):
+                yield DecisionBunch([decision])
         # Filtering:
         #  filter returns dict of entities: suggested class and list of unknown
         #  accept_valids returns created elements and lst of invalids

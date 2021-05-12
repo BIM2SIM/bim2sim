@@ -196,7 +196,8 @@ class IFCMixin:
     def source_tool(self):  # TBD: this incl. Finder could live in Factory
         """Name of tool the ifc has been created with"""
         if not self._source_tool and self.ifc:
-            self._source_tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
+            self._source_tool = self.get_project().OwnerHistory.\
+                OwningApplication.ApplicationFullName
         return self._source_tool
 
     @classmethod

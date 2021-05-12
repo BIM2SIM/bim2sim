@@ -122,7 +122,7 @@ class FrontEnd:
         return raw_value
 
 
-class DebugFrontend(FrontEnd):
+class DebugFrontEnd(FrontEnd):
     """Simply use a predefined list of values as answers."""
 
     def __init__(self, answers: Iterable):

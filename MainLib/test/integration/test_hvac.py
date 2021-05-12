@@ -1,7 +1,7 @@
 import unittest
 
 import bim2sim
-from bim2sim.decision.frontend import DebugFrontend
+from bim2sim.decision.frontend import DebugFrontEnd
 
 from bim2sim.utilities.test import IntegrationBase
 
@@ -15,7 +15,7 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
         answers = ('HVAC-HeatPump', 'HVAC-Storage', 'HVAC-Storage',
                    '2lU4kSSzH16v7KPrwcL7KZ', '0t2j$jKmf74PQpOI0ZmPCc',
                    True, True, *(True,)*14, 50)
-        frontend = DebugFrontend(answers)
+        frontend = DebugFrontEnd(answers)
         for decision, answer in frontend.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, frontend.return_value,
@@ -27,7 +27,7 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
         project = self.create_project(ifc, 'hkesim')
         answers = ('HVAC-HeatPump', 'HVAC-Storage', 'HVAC-Storage',
                    *(True,)*16, 200)
-        frontend = DebugFrontend(answers)
+        frontend = DebugFrontEnd(answers)
         for decision, answer in frontend.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, frontend.return_value,

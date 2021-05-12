@@ -5,7 +5,7 @@ import tempfile
 
 import numpy as np
 
-from bim2sim.decision.frontend import DebugFrontend
+from bim2sim.decision.frontend import DebugFrontEnd
 from bim2sim.kernel.element import Root, Port, ProductBased
 from bim2sim.kernel.elements.hvac import HeatExchanger, Pipe, PipeFitting
 from bim2sim.task import hvac
@@ -14,7 +14,6 @@ from bim2sim.task.hvac import ConnectElements
 from bim2sim.workflow import PlantSimulation
 from bim2sim.project import Project, FolderStructure
 from bim2sim import Plugin
-from bim2sim.decision import Decision
 
 
 class DummyPlugin(Plugin):
@@ -65,7 +64,7 @@ class TestInspect(unittest.TestCase):
         """HeatExchange with 4 (semantically) connected pipes"""
         with patch.object(FolderStructure, 'ifc',
                           sample_root / 'B01_2_HeatExchanger_Pipes.ifc'):
-            frontend = DebugFrontend([HeatExchanger.key])
+            frontend = DebugFrontEnd(["Other", HeatExchanger.key])
             frontend.handle(self.project.run(cleanup=False))
 
         instances = self.project.playground.state['instances']
@@ -76,7 +75,7 @@ class TestInspect(unittest.TestCase):
         """HeatExchange and Pipes are exported without ports"""
         with patch.object(FolderStructure, 'ifc',
                           sample_root / 'B01_3_HeatExchanger_noPorts.ifc'):
-            frontend = DebugFrontend([HeatExchanger.key])
+            frontend = DebugFrontEnd(["Other", HeatExchanger.key])
             frontend.handle(self.project.run(cleanup=False))
         instances = self.project.playground.state['instances']
         heat_exchanger = instances.get('0qeZDHlQRzcKJYopY4$fEf')
@@ -89,7 +88,7 @@ class TestInspect(unittest.TestCase):
         """No connections but ports are less than 10 mm apart"""
         with patch.object(FolderStructure, 'ifc',
                           sample_root / 'B01_4_HeatExchanger_noConnection.ifc'):
-            frontend = DebugFrontend([HeatExchanger.key])
+            frontend = DebugFrontEnd(["Other", HeatExchanger.key])
             frontend.handle(self.project.run(cleanup=False))
 
         instances = self.project.playground.state['instances']
@@ -101,7 +100,7 @@ class TestInspect(unittest.TestCase):
         """Mix of case 1 and 3"""
         file = 'B01_5_HeatExchanger_mixConnection.ifc'
         with patch.object(FolderStructure, 'ifc', sample_root / file):
-            frontend = DebugFrontend([HeatExchanger.key])
+            frontend = DebugFrontEnd(["Other", HeatExchanger.key])
             frontend.handle(self.project.run(cleanup=False))
 
         instances = self.project.playground.state['instances']

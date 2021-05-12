@@ -12,8 +12,7 @@ import numpy as np
 
 from bim2sim.kernel import condition, attribute
 from bim2sim.decision import BoolDecision, ListDecision, DecisionBunch
-from bim2sim.kernel.element import HVACPort, ProductBased
-from bim2sim.kernel.element import Port
+from bim2sim.kernel.element import Port, ProductBased
 from bim2sim.kernel.units import ureg
 
 

@@ -40,7 +40,7 @@ class SetupHelper:
         new_ports = [HVACPort(parent=parent) for i in range(n)]
         parent.ports.extend(new_ports)
         if isinstance(parent, hvac.HVACProduct):
-            parent.inner_connections = parent.get_inner_connections()
+            parent.inner_connections.extend(parent.get_inner_connections())
         return new_ports
 
     @staticmethod
