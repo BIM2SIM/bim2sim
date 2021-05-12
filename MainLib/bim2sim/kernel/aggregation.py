@@ -10,7 +10,8 @@ import ast
 import numpy as np
 import networkx as nx
 
-from bim2sim.kernel.element import ProductBased, Port, HVACPort
+from bim2sim.kernel.element import ProductBased, Port
+from bim2sim.kernel.elements.hvac import HVACPort
 from bim2sim.kernel.elements import hvac, bps
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph

@@ -2,7 +2,8 @@ from unittest import mock
 from contextlib import contextmanager
 
 from bim2sim.kernel.elements import hvac
-from bim2sim.kernel.element import HVACPort, Root
+from bim2sim.kernel.element import Root
+from bim2sim.kernel.elements.hvac import HVACPort
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 
 

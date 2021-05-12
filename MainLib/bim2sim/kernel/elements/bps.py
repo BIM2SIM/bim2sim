@@ -4,7 +4,7 @@ import logging
 import math
 import re
 import sys
-from typing import Set
+from typing import Set, Tuple
 
 import ifcopenshell
 import ifcopenshell.geom
@@ -54,7 +54,7 @@ class BPSProduct(element.ProductBased):
 class ThermalZone(BPSProduct):
     ifc_types = {
         "IfcSpace":
-            ['SPACE', 'PARKING', 'GFA', 'INTERNAL', 'EXTERNAL']
+            ['*', 'SPACE', 'PARKING', 'GFA', 'INTERNAL', 'EXTERNAL']
     }
 
     pattern_ifc_type = [
@@ -270,7 +270,7 @@ class ThermalZone(BPSProduct):
         raise NotImplementedError
 
 
-class SpaceBoundary(element.SpaceBoundary):
+class SpaceBoundary(element.RelationBased):
     ifc_types = {'IfcRelSpaceBoundary': ['*']}
 
     def __init__(self, *args, **kwargs):
@@ -294,10 +294,8 @@ class SpaceBoundary(element.SpaceBoundary):
         else:
             self.physical = False
         self.storeys = self.get_space_boundary_storeys()
-        self.orientation = self._get_orientation()
-        self.position = self._get_position()
 
-    def _get_orientation(self):
+    def calc_orientation(self):
 
         # get relative position of resultant disaggregation
         if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
@@ -307,7 +305,7 @@ class SpaceBoundary(element.SpaceBoundary):
 
         return vector_angle(axis)
 
-    def _get_position(self):
+    def calc_position(self):
         # get relative position of resultant disaggregation
         if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement, 'BasisSurface'):
             position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
@@ -315,6 +313,13 @@ class SpaceBoundary(element.SpaceBoundary):
             position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.Position.Location.Coordinates
 
         return position
+
+    @classmethod
+    def pre_validate(cls, ifc) -> bool:
+        return True
+
+    def validate(self) -> bool:
+        return True
 
     def get_bound_neighbors(bind, name):
         neighbors = []
@@ -970,24 +975,37 @@ class Wall(BPSProduct):
     )
 
 
-class Layer(element.Layer):
+class Layer(element.RelationBased):
     ifc_types = {'IfcMaterialLayer': ['*'], 'IfcMaterial': ['*']}
     material_selected = {}
+    default_materials = {}
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, material='', **kwargs):
         """layer __init__ function"""
         super().__init__(*args, **kwargs)
-        self.material = None
-        if hasattr(self.ifc, 'Material'):
-            material = self.ifc.Material
-        else:
-            material = self.ifc
-        if material is not None:
-            self.material = material.Name
+        self.material: str = material
 
     def __repr__(self):
         return "<%s (material: %s>" \
                % (self.__class__.__name__, self.material)
+
+    @classmethod
+    def ifc2args(cls, ifc) -> Tuple[tuple, dict]:
+        args, kwargs = super().ifc2args(ifc)
+        if hasattr(ifc, 'Material'):
+            material = ifc.Material
+        else:
+            material = ifc
+        if material is not None:
+            kwargs['material'] = material.Name
+        return args, kwargs
+
+    @classmethod
+    def pre_validate(cls, ifc) -> bool:
+        return True
+
+    def validate(self) -> bool:
+        return True
 
     @classmethod
     def create_additional_layer(cls, thickness, parent, material=None, material_properties=None):
@@ -1200,6 +1218,7 @@ class Slab(BPSProduct):
         functions=[get_is_external],
         default=False
     )
+
 
 class Roof(Slab):
     ifc_types = {
