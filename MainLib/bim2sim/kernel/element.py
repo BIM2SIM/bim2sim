@@ -215,54 +215,20 @@ class IFCMixin:
 
     def calc_orientation(self):
         # ToDO: true north angle
-        list_angles = {}
+        ang_sum = 0
         placementrel = self.ifc.ObjectPlacement
         while placementrel is not None:
             if placementrel.RelativePlacement.RefDirection is not None:
                 o2 = placementrel.RelativePlacement.RefDirection.DirectionRatios
-                list_angles[placementrel.PlacesObject[0].GlobalId] = vector_angle(o2)
-            else:
-                list_angles[placementrel.PlacesObject[0].GlobalId] = None
+                ang_sum += vector_angle(o2)
             placementrel = placementrel.PlacementRelTo
 
         # relative vector + absolute vector
-        if len(list_angles) == 1:
-            if list_angles[next(iter(list_angles))] is None:
-                return -90
-                # return 0
+        # if len(list_angles) == 1:
+        #     if list_angles[next(iter(list_angles))] is None:
+        #         return -90
+        #         # return 0
 
-        ang_sum = 0
-
-        self_class = type(self).__name__
-
-        if all(value is None for value in list_angles.values()) and self_class in ['Wall', 'OuterWall', 'InnerWall']:
-            return 0
-
-        for key in list_angles:
-            guid = key
-            ang = list_angles[key]
-            relative_element = self.get_object(guid)
-            if relative_element is None:
-                if ang is not None:
-                    ang_sum += ang
-                continue
-            else:
-                if relative_element is self:
-                    if ang is not None:
-                        ang_sum += ang
-                    continue
-                else:
-                    relative_class = type(relative_element).__name__
-                    if self_class in ['Window', 'Door'] and relative_class in ['Wall', 'OuterWall', 'InnerWall']:
-                        return relative_element.orientation
-
-                    new_ang = relative_element.orientation
-                    if new_ang is not None:
-                        ang_sum += new_ang
-                        break
-
-        if ang_sum is None:
-            return None
         # specific case windows
         if self.ifc_type == 'IfcWindow':
             ang_sum += 180

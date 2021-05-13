@@ -1016,10 +1016,10 @@ class Wall(BPSProduct):
         return layers
 
     def get_better_subclass(self):
-        if 'some_condition':  # TODO
-            return InnerWall
-        else:
+        if self.is_external:
             return OuterWall
+        else:
+            return InnerWall
 
     def get_is_external(self, name):
         if len(self.ifc.ProvidesBoundaries) > 0:

@@ -2,7 +2,7 @@ from bim2sim.task.base import Task, ITask
 from bim2sim.utilities.common_functions import angle_equivalent, vector_angle
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.element import ProductBased
-
+from bim2sim.utilities.common_functions import filter_instances
 
 class OrientationGetter(ITask):
     """Gets Instances Orientation based on the space boundaries"""
@@ -18,6 +18,8 @@ class OrientationGetter(ITask):
     @Task.log
     def run(self, workflow: Workflow, instances: dict):
         self.logger.info("setting verifications")
+        x1 = self.group_attribute(filter_instances(instances, 'Window'), 'orientation')
+        x2 = self.group_attribute(filter_instances(instances, 'OuterWall'), 'orientation')
 
         for guid, ins in instances.items():
             new_orientation = self.orientation_verification(ins)
@@ -31,7 +33,7 @@ class OrientationGetter(ITask):
     @staticmethod
     def orientation_verification(instance: ProductBased, threshold=0.1):
         """gets new angle based on space boundaries and compares it with the geometric value"""
-        vertical_instances = ['Window', 'OuterWall', 'OuterDoor', 'Wall', 'Door', 'InnerDoor']
+        vertical_instances = ['Window', 'OuterWall', 'OuterDoor', 'Wall', 'Door']
         horizontal_instances = ['Slab', 'Roof', 'Floor', 'GroundFloor']
         switcher = {'Slab': -1,
                     'Roof': -1,
@@ -48,6 +50,8 @@ class OrientationGetter(ITask):
             # new_angle = angle_equivalent(new_angles[0] + 180)  # no sb55. eg: FZK Buildings
             # new angle return
 
+            x = instance.orientation
+            print()
             # if new_angle - instance.orientation > 0.1:
             #     return new_angle
 
