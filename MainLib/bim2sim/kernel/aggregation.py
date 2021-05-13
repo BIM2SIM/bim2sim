@@ -1518,8 +1518,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
 
 class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
     """Aggregates thermal zones"""
-    # aggregatable_elements = ["IfcSpace"]
-    aggregatable_elements = {hvac.SpaceHeater}
+    aggregatable_elements = {bps.ThermalZone}
 
     def __init__(self, elements, *args, **kwargs):
         super().__init__(elements, *args, **kwargs)
@@ -1549,12 +1548,15 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         for group in groups:
             if group == 'one_zone_building':
                 name = "Aggregated_%s" % group
-                instance = cls(groups[group], name=name)
+                # ToDO: Check Name property
+                instance = cls(groups[group])
+                instance.name = name
+                # instance = cls(groups[group], name=name)
                 instance.description = group
                 new_aggregations.append(instance)
                 for tz in instance.elements:
-                    if tz.guid in instances['ThermalZone']:
-                        del instances['ThermalZone'][tz.guid]
+                    if tz.guid in instances:
+                        del instances[tz.guid]
                 instances[instance.guid] = instance
             elif group == 'not_bind':
                 # last criterion no similarities
@@ -1562,22 +1564,28 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                 if area / total_area <= 0.05:
                     # Todo: usage and conditions criterion
                     name = "Aggregated_%s" % '_'.join([i.name for i in groups[group]])
-                    instance = cls(groups[group], name=name)
+                    # ToDO: Check Name property
+                    instance = cls(groups[group])
+                    instance.name = name
+                    # instance = cls(groups[group], name=name)
                     instance.description = group
                     new_aggregations.append(instance)
                     for tz in instance.elements:
-                        if tz.guid in instances['ThermalZone']:
-                            del instances['ThermalZone'][tz.guid]
+                        if tz.guid in instances:
+                            del instances[tz.guid]
                     instances[instance.guid] = instance
             else:
                 # first criterion based on similarities
                 name = "Aggregated_%s" % '_'.join([i.name for i in groups[group]])
-                instance = cls(groups[group], name=name)
+                # ToDO: Check Name property
+                instance = cls(groups[group])
+                instance.name = name
+                # instance = cls(groups[group], name=name)
                 instance.description = ', '.join(ast.literal_eval(group))
                 new_aggregations.append(instance)
                 for tz in instance.elements:
-                    if tz.guid in instances['ThermalZone']:
-                        del instances['ThermalZone'][tz.guid]
+                    if tz.guid in instances:
+                        del instances[tz.guid]
                 instances[instance.guid] = instance
         return new_aggregations
 
