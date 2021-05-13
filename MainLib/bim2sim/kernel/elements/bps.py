@@ -36,6 +36,7 @@ from bim2sim.kernel.units import ureg
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.utilities.common_functions import vector_angle, filter_instances
 from bim2sim.task.common.inner_loop_remover import remove_inner_loops
+from bim2sim.kernel.finder import TemplateFinder
 
 
 logger = logging.getLogger(__name__)
@@ -1009,7 +1010,7 @@ class Wall(BPSProduct):
         layers = []
         material_layers_dict = get_layers_ifc(bind)
         for layer in material_layers_dict:
-            new_layer = element.SubElement.factory(layer, 'IfcMaterialLayer')
+            new_layer = Layer.from_ifc(layer, finder=TemplateFinder())
             new_layer.parent = bind
             layers.append(new_layer)
         return layers
@@ -1152,7 +1153,7 @@ class Window(BPSProduct):
         layers = []
         material_layers_dict = get_layers_ifc(bind)
         for layer in material_layers_dict:
-            new_layer = element.SubElement.factory(layer, layer.is_a())
+            new_layer = Layer.from_ifc(layer, finder=TemplateFinder())
             new_layer.parent = bind
             layers.append(new_layer)
         return layers
@@ -1219,7 +1220,7 @@ class Door(BPSProduct):
         layers = []
         material_layers_dict = get_layers_ifc(self)
         for layer in material_layers_dict:
-            new_layer = element.SubElement.factory(layer, layer.is_a())
+            new_layer = Layer.from_ifc(layer, finder=TemplateFinder())
             new_layer.parent = self
             layers.append(new_layer)
         return layers
@@ -1284,7 +1285,7 @@ class Slab(BPSProduct):
         layers = []
         material_layers_dict = get_layers_ifc(self)
         for layer in material_layers_dict:
-            new_layer = element.SubElement.factory(layer, 'IfcMaterialLayer')
+            new_layer = Layer.from_ifc(layer, finder=TemplateFinder())
             new_layer.parent = self
             layers.append(new_layer)
         return layers

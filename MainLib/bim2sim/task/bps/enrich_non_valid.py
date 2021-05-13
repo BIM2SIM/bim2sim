@@ -7,7 +7,7 @@ from bim2sim.task.bps.enrich_bldg_templ import EnrichBuildingByTemplates
 from bim2sim.task.bps.enrich_mat import EnrichMaterial
 from functools import partial
 from bim2sim.kernel.units import ureg
-from bim2sim.kernel.element import SubElement
+# from bim2sim.kernel.element import SubElement
 
 
 class EnrichNonValid(ITask):

@@ -29,9 +29,9 @@ class OrientationGetter(ITask):
         return self.corrected,
 
     @staticmethod
-    def orientation_verification(instance: ProductBased):
+    def orientation_verification(instance: ProductBased, threshold=0.1):
         """gets new angle based on space boundaries and compares it with the geometric value"""
-        vertical_instances = ['Window', 'OuterWall', 'OuterDoor', 'Wall', 'Door']
+        vertical_instances = ['Window', 'OuterWall', 'OuterDoor', 'Wall', 'Door', 'InnerDoor']
         horizontal_instances = ['Slab', 'Roof', 'Floor', 'GroundFloor']
         switcher = {'Slab': -1,
                     'Roof': -1,
@@ -47,8 +47,10 @@ class OrientationGetter(ITask):
             new_angle = angle_equivalent(new_angles[0])
             # new_angle = angle_equivalent(new_angles[0] + 180)  # no sb55. eg: FZK Buildings
             # new angle return
-            if new_angle - instance.orientation > 0.1:
-                return new_angle
+
+            # if new_angle - instance.orientation > 0.1:
+            #     return new_angle
+
         elif instance_type in horizontal_instances:
             return switcher[instance_type]
         return None
