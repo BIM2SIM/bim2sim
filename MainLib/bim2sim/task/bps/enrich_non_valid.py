@@ -7,6 +7,7 @@ from bim2sim.task.bps.enrich_bldg_templ import EnrichBuildingByTemplates
 from bim2sim.task.bps.enrich_mat import EnrichMaterial
 from functools import partial
 from bim2sim.kernel.units import ureg
+from bim2sim.kernel.element import SubElement
 
 
 class EnrichNonValid(ITask):
@@ -19,6 +20,7 @@ class EnrichNonValid(ITask):
         self.material_selected = {}
         self.enriched_layers = []
         self.enriched_class = {}
+        self.window_enrichment = {}
         pass
 
     @Task.log
@@ -29,6 +31,9 @@ class EnrichNonValid(ITask):
             for instance in invalid_layers:
                 self.layers_creation(instance, construction_type)
                 self.enriched_layers.append(instance)
+            windows = SubElement.instances['Window']
+            for window in windows.values():
+                self.window_manual_enrichment(window)
 
         self.logger.info("enriched %d invalid layers", len(self.enriched_layers))
 
@@ -153,3 +158,24 @@ class EnrichNonValid(ITask):
         if value <= 0.0 or value > instance.width:
             return False
         return True
+
+    def window_manual_enrichment(self, window):
+        enriched_attrs = ['g_value', 'a_conv', 'shading_g_total', 'shading_max_irr', 'inner_convection',
+                          'inner_radiation', 'outer_radiation', 'outer_convection']
+        for attr in enriched_attrs:
+            value = getattr(window, attr)
+            if value is None:
+                if attr not in self.window_enrichment:
+                    new_value = self.manual_attribute_enrichment(window, attr).m
+                    self.window_enrichment[attr] = new_value
+                setattr(window, attr, self.window_enrichment[attr])
+
+    @classmethod
+    def manual_attribute_enrichment(cls, instance, attribute):
+        new_attribute = RealDecision("Enter value for %s of instance %s" % (attribute, type(instance).__name__),
+                                     global_key='%s_%s' % (type(instance).__name__, attribute),
+                                     allow_skip=False, allow_load=True, allow_save=True,
+                                     collect=False, quick_decide=False,
+                                     validate_func=cls.validate_positive)
+        new_attribute.decide()
+        return new_attribute.value

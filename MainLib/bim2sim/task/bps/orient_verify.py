@@ -55,7 +55,7 @@ class OrientationGetter(ITask):
 
     @classmethod
     def group_attribute(cls, elements, attribute):
-        """groups together a set of elements, that have an attribute in common """
+        """groups together a set of thermal zones, that have an attribute in common """
         groups = {}
         for ele in elements:
             value = cls.cardinal_direction(getattr(ele, attribute))
@@ -67,7 +67,7 @@ class OrientationGetter(ITask):
 
     @staticmethod
     def cardinal_direction(value):
-        """groups together a set of elements based on the orientation """
+        """groups together a set of thermal zones, that have common glass percentage in common """
         if 45 <= value < 135:
             value = 'E'
         elif 135 <= value < 225:

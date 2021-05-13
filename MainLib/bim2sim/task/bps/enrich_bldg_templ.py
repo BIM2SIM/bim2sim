@@ -29,6 +29,9 @@ class EnrichBuildingByTemplates(ITask):
             for instance in invalid_layers:
                 self.template_layers_creation(instance, construction_type, instances)
                 self.enriched_layers.append(instance)
+            windows = SubElement.instances['Window']
+            for window in windows.values():
+                self.window_template_enrichment(window, construction_type)
 
         self.logger.info("enriched %d invalid layers", len(self.enriched_layers))
 
@@ -103,3 +106,12 @@ class EnrichBuildingByTemplates(ITask):
         if decision_template.value is None:
             decision_template.decide()
         cls.instance_template[instance_type] = template_options[decision_template.value]
+
+    def window_template_enrichment(self, window, construction_type):
+        enriched_attrs = ['g_value', 'a_conv', 'shading_g_total', 'shading_max_irr', 'inner_convection',
+                          'inner_radiation', 'outer_radiation', 'outer_convection']
+        template = self.get_instance_template(window, construction_type)
+        for attr in enriched_attrs:
+            value = getattr(window, attr)
+            if value is None:
+                setattr(window, attr, template[attr])
