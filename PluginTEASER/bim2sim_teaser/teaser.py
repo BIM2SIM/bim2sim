@@ -16,8 +16,9 @@ class TEASERManager(Plugin):
         playground.run_task(bps.SetIFCTypes())
         playground.run_task(common.LoadIFC())
         playground.run_task(common.CreateElements())
-        # playground.run_task(bps.Inspect())
-        playground.run_task(bps.TZInspect())
+
+        playground.run_task(bps.CreateSpaceBoundaries())
+        playground.run_task(bps.TZPrepare())
         playground.run_task(bps.EnrichUseConditions())
         # playground.run_task(bps.OrientationGetter())
 

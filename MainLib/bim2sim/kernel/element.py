@@ -214,16 +214,7 @@ class IFCMixin:
         return absolute
 
     def calc_orientation(self):
-        # TODO: this is Building specific, move to ?
         # ToDO: true north angle
-        switcher = {'Slab': -1,
-                    'Roof': -1,
-                    'Floor': -2,
-                    'GroundFloor': -2}
-        value = switcher.get(self.__class__.__name__, 'continue')
-        if value != 'continue':
-            return value
-
         list_angles = {}
         placementrel = self.ifc.ObjectPlacement
         while placementrel is not None:
@@ -470,6 +461,9 @@ class IFCMixin:
 
 class RelationBased(IFCMixin, Root):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     def __repr__(self):
         return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)
 
@@ -664,7 +658,7 @@ class Factory:
         element = element_cls.from_ifc(
             ifc_entity, finder=self.finder, *args, **kwargs)
         # check if it prefers to be sth else
-        better_cls = element.get_better_subclass()
+        better_cls = element.get_better_subclass() if hasattr(element, 'get_better_subclass') else None
         if better_cls:
             logger.info("Creating %s instead of %s", better_cls, element_cls)
             element = better_cls.from_ifc(ifc_entity, *args, **kwargs)

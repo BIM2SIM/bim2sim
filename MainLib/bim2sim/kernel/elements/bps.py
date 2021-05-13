@@ -276,15 +276,12 @@ class SpaceBoundary(element.RelationBased):
     def __init__(self, *args, **kwargs):
         """spaceboundary __init__ function"""
         super().__init__(*args, **kwargs)
-        self.level_description = self.ifc.Description
-        relating_space = self.get_object(self.ifc.RelatingSpace.GlobalId)
-        relating_space.space_boundaries.append(self)
-        self.thermal_zones.append(relating_space)
-        related_building_element = self.get_object(self.ifc.RelatedBuildingElement.GlobalId)
-        related_building_element.space_boundaries.append(self)
-        self.bound_instance = related_building_element
         self.disaggregation = []
+        self.thermal_zones = []  # ToDo: Delete?
+        self.bound_instance = None
+        self.bound_thermal_zone = None
 
+        self.level_description = self.ifc.Description
         if self.ifc.InternalOrExternalBoundary.lower() == 'internal':
             self.is_external = False
         else:
@@ -293,7 +290,6 @@ class SpaceBoundary(element.RelationBased):
             self.physical = True
         else:
             self.physical = False
-        self.storeys = self.get_space_boundary_storeys()
 
     def calc_orientation(self):
 
@@ -324,18 +320,18 @@ class SpaceBoundary(element.RelationBased):
     def get_bound_neighbors(bind, name):
         neighbors = []
         space_bounds = []
-        if not hasattr(bind.thermal_zones[0], 'space_boundaries'):
+        if not hasattr(bind.bound_thermal_zone, 'space_boundaries'):
             return None
-        if len(bind.thermal_zones[0].space_boundaries) == 0:
-            for obj in bind.thermal_zones[0].objects:
-                this_obj = bind.thermal_zones[0].objects[obj]
+        if len(bind.bound_thermal_zone.space_boundaries) == 0:
+            for obj in bind.bound_thermal_zone.objects:
+                this_obj = bind.bound_thermal_zone.objects[obj]
                 if this_obj.ifc_type != 'IfcRelSpaceBoundary':
                     continue
-                if this_obj.thermal_zones[0].ifc.GlobalId != bind.thermal_zones[0].ifc.GlobalId:
+                if this_obj.bound_thermal_zone.ifc.GlobalId != bind.bound_thermal_zone.ifc.GlobalId:
                     continue
                 space_bounds.append(this_obj)
         else:
-            space_bounds = bind.thermal_zones[0].space_boundaries
+            space_bounds = bind.bound_thermal_zone.space_boundaries
         for bound in space_bounds:
             if bound.ifc.GlobalId == bind.ifc.GlobalId:
                 continue
@@ -483,13 +479,13 @@ class SpaceBoundary(element.RelationBased):
         #         else:
         #             return None
         elif len(bind.bound_instance.space_boundaries) >= 2:
-            own_space_id = bind.thermal_zones[0].ifc.GlobalId
+            own_space_id = bind.bound_thermal_zone.ifc.GlobalId
             min_dist = 1000
             corr_bound = None
             for bound in bind.bound_instance.space_boundaries:
                 if bound.level_description != "2a":
                     continue
-                if bound.thermal_zones[0].ifc.GlobalId == own_space_id:
+                if bound.bound_thermal_zone.ifc.GlobalId == own_space_id:
                     # skip boundaries within same space (cannot be corresponding bound)
                     continue
                 # if bound.bound_normal.Dot(self.bound_normal) != -1:
@@ -523,12 +519,12 @@ class SpaceBoundary(element.RelationBased):
         if not self.physical:
             return None
         if self.related_bound:
-            if self.thermal_zones[0] == self.related_bound.thermal_zones[0]:
+            if self.bound_thermal_zone == self.related_bound.bound_thermal_zone:
                 adb_bound = self.related_bound
         for bound in self.bound_instance.space_boundaries:
             if bound == self:
                 continue
-            if not bound.thermal_zones[0] == self.thermal_zones[0]:
+            if not bound.bound_thermal_zone == self.bound_thermal_zone:
                 continue
             if (bound.bound_area.m - self.bound_area.m)**2 > 0.01:
                 continue
@@ -715,7 +711,7 @@ class SpaceBoundary(element.RelationBased):
                 shape = self._make_faces_from_pnts(pnts)
         shape = BRepLib_FuseEdges(shape).Shape()
 
-        shape_val = TopoDS_Iterator(self.thermal_zones[0].space_shape).Value()
+        shape_val = TopoDS_Iterator(self.bound_thermal_zone.space_shape).Value()
         loc = shape_val.Location()
         shape.Move(loc)
         # shape = shape.Reversed()
@@ -759,7 +755,7 @@ class SpaceBoundary(element.RelationBased):
 
     def get_transformed_shape(self, shape):
         """transform TOPODS_Shape of each space boundary to correct position"""
-        zone = self.thermal_zones[0]
+        zone = self.bound_thermal_zone
         zone_position = gp_XYZ(zone.position[0], zone.position[1], zone.position[2])
         trsf1 = gp_Trsf()
         trsf2 = gp_Trsf()
@@ -781,7 +777,7 @@ class SpaceBoundary(element.RelationBased):
         Additionally, the area of the boundary is computed
         :return: face normal (gp_XYZ)
         """
-        bbox_center = self.thermal_zones[0].space_center
+        bbox_center = self.bound_thermal_zone.space_center
         an_exp = TopExp_Explorer(self.bound_shape, TopAbs_FACE)
         a_face = an_exp.Current()
         try:
@@ -819,6 +815,10 @@ class SpaceBoundary(element.RelationBased):
 
         return face_normal
 
+    def get_space_boundary_storeys(self, name):
+        storeys = self.bound_thermal_zone.storeys
+        return storeys
+
     bound_shape = attribute.Attribute(
         functions=[calc_bound_shape]
     )
@@ -847,11 +847,9 @@ class SpaceBoundary(element.RelationBased):
     bound_neighbors = attribute.Attribute(
         functions=[get_bound_neighbors]
     )
-
-    def get_space_boundary_storeys(self):
-        storeys = self.thermal_zones[0].storeys
-
-        return storeys
+    storeys = attribute.Attribute(
+        functions=[get_space_boundary_storeys]
+    )
 
 # class SpaceBoundary2B:
 #     """Generated 2nd Level Space boundaries of type 2b
@@ -1305,30 +1303,6 @@ class Storey(BPSProduct):
     height = attribute.Attribute(
         default_ps=("Qto_BuildingStoreyBaseQuantities", "Height"),
     )
-
-    def get_storey_instances(self):
-        storey_instances = []
-        # instances
-        for ifc_structure in self.ifc.ContainsElements:
-            for ifc_element in ifc_structure.RelatedElements:
-                instance = self.get_object(ifc_element.GlobalId)
-                if instance is not None:
-                    storey_instances.append(instance)
-                    if self not in instance.storeys:
-                        instance.storeys.append(self)
-        # spaces
-        storey_spaces = []
-        for ifc_aggregates in self.ifc.IsDecomposedBy:
-            for ifc_element in ifc_aggregates.RelatedObjects:
-                instance = self.get_object(ifc_element.GlobalId)
-                if instance is not None:
-                    storey_spaces.append(instance)
-                    if self not in instance.storeys:
-                        instance.storeys.append(self)
-        return storey_instances, storey_spaces
-
-    def set_storey_instances(self):
-        self.storey_instances, self.thermal_zones = self.get_storey_instances()
 
 
 # collect all domain classes
