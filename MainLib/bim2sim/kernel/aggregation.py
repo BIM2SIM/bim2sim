@@ -16,6 +16,7 @@ from bim2sim.kernel.elements import hvac, bps
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
+from bim2sim.utilities.common_functions import filter_instances
 
 
 logger = logging.getLogger(__name__)
@@ -1539,11 +1540,11 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         return bound_elements
 
     @classmethod
-    def based_on_groups(cls, groups):
+    def based_on_groups(cls, groups, instances):
         """creates a new thermal zone aggregation instance
          based on a previous filtering"""
         new_aggregations = []
-        thermal_zones = SubElement.get_class_instances('ThermalZone')
+        thermal_zones = filter_instances(instances, 'ThermalZone')
         total_area = sum(i.area for i in thermal_zones)
         for group in groups:
             if group == 'one_zone_building':
@@ -1551,10 +1552,10 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                 instance = cls(groups[group], name=name)
                 instance.description = group
                 new_aggregations.append(instance)
-                for e in instance.elements:
-                    if e.guid in e.instances['ThermalZone']:
-                        del e.instances['ThermalZone'][e.guid]
-                SubElement.instances['ThermalZone'][instance.guid] = instance
+                for tz in instance.elements:
+                    if tz.guid in instances['ThermalZone']:
+                        del instances['ThermalZone'][tz.guid]
+                instances[instance.guid] = instance
             elif group == 'not_bind':
                 # last criterion no similarities
                 area = sum(i.area for i in groups[group])
@@ -1564,20 +1565,20 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                     instance = cls(groups[group], name=name)
                     instance.description = group
                     new_aggregations.append(instance)
-                    for e in instance.elements:
-                        if e.guid in e.instances['ThermalZone']:
-                            del e.instances['ThermalZone'][e.guid]
-                    SubElement.instances['ThermalZone'][instance.guid] = instance
+                    for tz in instance.elements:
+                        if tz.guid in instances['ThermalZone']:
+                            del instances['ThermalZone'][tz.guid]
+                    instances[instance.guid] = instance
             else:
                 # first criterion based on similarities
                 name = "Aggregated_%s" % '_'.join([i.name for i in groups[group]])
                 instance = cls(groups[group], name=name)
                 instance.description = ', '.join(ast.literal_eval(group))
                 new_aggregations.append(instance)
-                for e in instance.elements:
-                    if e.guid in e.instances['ThermalZone']:
-                        del e.instances['ThermalZone'][e.guid]
-                SubElement.instances['ThermalZone'][instance.guid] = instance
+                for tz in instance.elements:
+                    if tz.guid in instances['ThermalZone']:
+                        del instances['ThermalZone'][tz.guid]
+                instances[instance.guid] = instance
         return new_aggregations
 
     def _intensive_calc(self, name):

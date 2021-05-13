@@ -5,12 +5,13 @@ from bim2sim.decision import BoolDecision, ListDecision
 from bim2sim.kernel.element import RelationBased
 from bim2sim.kernel.aggregation import AggregatedThermalZone
 from bim2sim.workflow import LOD
+from bim2sim.utilities.common_functions import filter_instances
 
 
 class BindThermalZones(ITask):
     """Prepares bim2sim instances to later export"""
     # for 1Zone Building - workflow.spaces: LOD.low - Disaggregations not necessary
-    reads = ('tz_instances',)
+    reads = ('tz_instances', 'instances')
     touches = ('bounded_tz',)
 
     def __init__(self):
@@ -19,58 +20,49 @@ class BindThermalZones(ITask):
         pass
 
     @Task.log
-    def run(self, workflow, tz_instances):
+    def run(self, workflow, tz_instances, instances):
         self.logger.info("Binds thermal zones based on criteria")
         if len(tz_instances) == 0:
             self.logger.warning("Found no spaces to bind")
         else:
             if workflow.spaces is LOD.low:
-                self.bind_tz_one_zone(list(tz_instances.values()))
+                self.bind_tz_one_zone(list(tz_instances.values()), instances)
             elif workflow.spaces is LOD.medium:
-                self.bind_tz_criteria()
+                self.bind_tz_criteria(instances)
             else:
                 self.bounded_tz = list(tz_instances.values())
             self.logger.info("obtained %d thermal zones", len(self.bounded_tz))
 
         return self.bounded_tz,
 
-    def bind_tz_one_zone(self, thermal_zones):
+    def bind_tz_one_zone(self, thermal_zones, instances):
         tz_group = {'one_zone_building': thermal_zones}
-        new_aggregations = AggregatedThermalZone.based_on_groups(tz_group)
+        new_aggregations = AggregatedThermalZone.based_on_groups(tz_group, instances)
         for inst in new_aggregations:
             self.bounded_tz.append(inst)
 
-    def bind_tz_criteria(self):
-        bind_decision = BoolDecision(question="Do you want for thermal zones to be bind? - this allows to bind the "
-                                              "thermal zones into a thermal zone aggregation based on different "
-                                              "criteria -> Simplified operations",
-                                     global_key='Thermal_Zones.Bind',
-                                     allow_load=True, allow_save=True,
-                                     collect=False, quick_decide=not True)
-        bind_decision.value = True
-        # bind_decision.decide()
-        if bind_decision.value:
-            criteria_functions = {}
-            # this finds all the criteria methods implemented
-            for k, func in dict(inspect.getmembers(self, predicate=inspect.ismethod)).items():
-                if k.startswith('group_thermal_zones_'):
-                    criteria_functions[k.replace('group_thermal_zones_', '')] = func
-            # it ask which criteria method do you want to use, if 1 given is automatic
-            if len(criteria_functions) > 0:
-                criteria_decision = ListDecision("the following methods were found for the thermal zone binding",
-                                                 choices=list(criteria_functions.keys()),
-                                                 global_key='Thermal_Zones.Bind_Method',
-                                                 allow_load=True, allow_save=True,
-                                                 collect=False, quick_decide=not True)
-                if not criteria_decision.status.value:
-                    criteria_decision.decide()
-                criteria_function = criteria_functions.get(criteria_decision.value)
-                tz_groups = criteria_function()
-                new_aggregations = AggregatedThermalZone.based_on_groups(tz_groups)
-                for inst in new_aggregations:
-                    self.bounded_tz.append(inst)
+    def bind_tz_criteria(self, instances):
+        criteria_functions = {}
+        # this finds all the criteria methods implemented
+        for k, func in dict(inspect.getmembers(self, predicate=inspect.ismethod)).items():
+            if k.startswith('group_thermal_zones_'):
+                criteria_functions[k.replace('group_thermal_zones_', '')] = func
+        # it ask which criteria method do you want to use, if 1 given is automatic
+        if len(criteria_functions) > 0:
+            criteria_decision = ListDecision("the following methods were found for the thermal zone binding",
+                                             choices=list(criteria_functions.keys()),
+                                             global_key='Thermal_Zones.Bind_Method',
+                                             allow_load=True, allow_save=True,
+                                             collect=False, quick_decide=not True)
+            if not criteria_decision.status.value:
+                criteria_decision.decide()
+            criteria_function = criteria_functions.get(criteria_decision.value)
+            tz_groups = criteria_function(instances)
+            new_aggregations = AggregatedThermalZone.based_on_groups(tz_groups, instances)
+            for inst in new_aggregations:
+                self.bounded_tz.append(inst)
 
-    def group_thermal_zones_DIN_V_18599_1(self):
+    def group_thermal_zones_DIN_V_18599_1(self, instances):
         """groups together all the thermal zones based on 4 criteria:
         * is_external
         * usage
@@ -81,7 +73,7 @@ class BindThermalZones(ITask):
         internal_binding = []
 
         # external - internal criterion
-        thermal_zones = SubElement.get_class_instances('ThermalZone')
+        thermal_zones = filter_instances(instances, 'ThermalZone')
         for tz in thermal_zones:
             if tz.is_external:
                 external_binding.append(tz)
