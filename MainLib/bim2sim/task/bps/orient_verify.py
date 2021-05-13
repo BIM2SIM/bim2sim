@@ -1,5 +1,5 @@
 from bim2sim.task.base import Task, ITask
-from bim2sim.utilities.common_functions import angle_equivalent
+from bim2sim.utilities.common_functions import angle_equivalent, vector_angle
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.element import ProductBased
 
@@ -39,13 +39,13 @@ class OrientationGetter(ITask):
                     'GroundFloor': -2}
         instance_type = type(instance).__name__
         if instance_type in vertical_instances and len(instance.space_boundaries) > 0:
-            new_angles = list(set([space_boundary.orientation for space_boundary in instance.space_boundaries]))
-            # new_angles = list(set([space_boundary.orientation - space_boundary.thermal_zones[0].orientation
-            # for space_boundary in instance.space_boundaries]))
-            if len(new_angles) > 1:
+            new_angles = list(set([vector_angle(space_boundary.bound_normal.Coord())
+                                   for space_boundary in instance.space_boundaries]))
+            if len(new_angles) > 1 or len(new_angles) == 0:
                 return None
             # no true north necessary
             new_angle = angle_equivalent(new_angles[0])
+            # new_angle = angle_equivalent(new_angles[0] + 180)  # no sb55. eg: FZK Buildings
             # new angle return
             if new_angle - instance.orientation > 0.1:
                 return new_angle

@@ -37,6 +37,7 @@ class ExportTEASER(ITask):
                          'GroundFloor': GroundFloor,
                          'Roof': Rooftop,
                          'OuterDoor': Door,
+                         'InnerDoor': InnerWall
                          }
 
     @Task.log
@@ -73,7 +74,6 @@ class ExportTEASER(ITask):
         import os
         os.chdir(self.paths.root)
         os.chdir('..')
-
 
     @staticmethod
     def _create_project(element):
@@ -136,12 +136,8 @@ class ExportTEASER(ITask):
         Parent: Building"""
         tz = ThermalZone(parent=parent)
         tz.use_conditions = UseConditions(parent=tz)
-        cls.load_use_conditions(tz, instance)
+        cls._teaser_property_getter(tz.use_conditions, instance, instance.finder.templates)
         cls._teaser_property_getter(tz, instance, instance.finder.templates)
-        tz.volume = instance.area.m * instance.height.m
-
-        tz.use_conditions.cooling_profile = [tz.set_temp_cool] * 25
-        tz.use_conditions.heating_profile = [tz.set_temp_heat] * 25
         # hardcode for paper:
         # todo dja
         # if PROJECT.PAPER:
@@ -151,11 +147,6 @@ class ExportTEASER(ITask):
         #     tz.use_conditions.infiltration_rate = 0.2
 
         return tz
-
-    @staticmethod
-    def load_use_conditions(tz, instance):
-        for attr, value in instance.use_condition.items():
-            setattr(tz.use_conditions, attr, value)
 
     @classmethod
     def _bind_instances_to_zone(cls, tz, tz_instance):

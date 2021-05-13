@@ -8,6 +8,11 @@ from pathlib import Path
 
 
 def angle_equivalent(angle):
+    # if angle == -180.0:
+    #     angle = 0
+    # elif angle == -360:
+    #     angle = 180
+    # else:
     while angle >= 360 or angle < 0:
         if angle >= 360:
             angle -= 360
@@ -23,25 +28,27 @@ def vector_angle(vector):
         tang = math.degrees(math.atan(x / y))
     except ZeroDivisionError:
         if x > 0:
-            return 90
+            angle = 90
         elif x < 0:
-            return 270
+            angle = 270
         else:
-            return 0
-    if x >= 0:
-        # quadrant 1
-        if y > 0:
-            return tang
-        # quadrant 2
-        else:
-            return tang + 180
+            angle = 0
     else:
-        # quadrant 3
-        if y < 0:
-            return tang + 180
-        # quadrant 4
+        if x >= 0:
+            # quadrant 1
+            if y > 0:
+                angle = tang
+            # quadrant 2
+            else:
+                angle = tang + 180
         else:
-            return tang + 360
+            # quadrant 3
+            if y < 0:
+                angle = tang + 180
+            # quadrant 4
+            else:
+                angle = tang + 360
+    return angle
 
 
 assets = Path(bim2sim.__file__).parent/'assets'
@@ -64,16 +71,25 @@ def get_pattern_usage(translate=False):
 
     common_translations = {
         "Bed room": ['Schlafzimmer'],
-        "Living": ["Galerie", "Wohnen"],
+        "Living": ["Galerie", "Wohnen", 'Wohnzimmer'],
         "Laboratory": ["Labor"],
-        'office_function': ['Office', 'Buero'],
-        "Meeting, Conference, seminar": ['Besprechungsraum', 'Seminarraum'],
-        'Kitchen in non-residential buildings': ['Kitchen', 'Küche'],
+        'office_function': ['Office', 'Buero', 'Büro', 'Pool'],
+        "Meeting, Conference, seminar": ['Besprechungsraum', 'Seminarraum', 'Besprechung', 'Konferenz', 'Meeting',
+                                         'Mehrzweckraum'],
+
+        'Kitchen in non-residential buildings': ['Kitchen', 'Küche', 'Kueche'],
         'Kitchen - preparations, storage': ['Kitchen', 'Küche'],
-        'Traffic area': ['Hall', 'Flur', 'Dachboden'],
-        'WC and sanitary rooms in non-residential buildings': ['bath', 'bathroom', 'WC', 'Toilet', 'Bad'],
-        'Stock, technical equipment, archives': ['Technical room', 'Technikraum']
+        'Traffic area': ['Hall', 'Flur', 'Dachboden', 'TH', 'Treppenhaus', 'Korridor', 'Corridor', 'Übergang'],
+        'WC and sanitary rooms in non-residential buildings': ['bath', 'bathroom', 'WC', 'Toilet', 'Bad', 'Toiletten'],
+        'Stock, technical equipment, archives': ['Technical room', 'Technikraum', 'Technik', 'Heizung', 'Server',
+                                                 'Archiv', 'Elektro/HLS', 'Lager'],
+        'Storehouse, logistics building': ['Abstell'],
+        'Exhibition room and museum conservational demands': ['Ausstellung'],
+        'Parking garages (office and private usage)': ['Parkbereich', 'Parkhaus'],
+        'Further common rooms': ['Umkleideraum'],
+        'Library - reading room': ['Bibliothek'],
     }
+
     pattern_usage_teaser = {}
     for i in use_conditions:
         pattern_usage_teaser[i] = []
@@ -94,8 +110,8 @@ def get_pattern_usage(translate=False):
                 new_i_de = i_de.replace(' ', '(.*?)')
                 pattern_usage_teaser[i].append(re.compile('(.*?)%s' % new_i_de, flags=re.IGNORECASE))
 
-    pattern_usage_teaser['office_function'] = [re.compile('(.*?)Office', re.IGNORECASE),
-                                               re.compile('(.*?)Buero', re.IGNORECASE)]
+    pattern_usage_teaser['office_function'] = [re.compile('(.*?)%s' % c_trans, re.IGNORECASE) for c_trans in
+                                               common_translations['office_function']]
 
     return pattern_usage_teaser
 
