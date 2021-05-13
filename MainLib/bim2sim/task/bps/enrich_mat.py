@@ -75,9 +75,9 @@ class EnrichMaterial(ITask):
                              "by using available templates? \n"
                              "Belonging Item: %s | GUID: %s \n"
                              "Enter 'n' for manual input"
-                             % (new_material, layer.parent.name, layer.parent.guid),
+                             % (new_material, layer.parent.key, layer.parent.guid),
                     collect=False, global_key='%s_layer_enriched' % layer.material,
-                    allow_load=True, allow_save=True, context=layer.parent.name, related=layer.parent.guid)
+                    allow_load=True, allow_save=True, context=layer.parent.key, related=layer.parent.guid)
                 first_decision.decide()
                 if first_decision.value:
                     selected_material = self.material_selection_decision(new_material, layer.parent, material_options)
@@ -160,6 +160,7 @@ class EnrichMaterial(ITask):
     def manual_thickness_value(self, attr: str, unit: ureg.Unit, layer: Layer):
         """decision to enrich an attribute by manual"""
         material = re.sub(r'[^\w]*?[0-9]', '', layer.material)
+        x = layer.parent.width
         attr_decision = RealDecision("Enter value for the material %s "
                                      "it must be < %s\n"
                                      "Belonging Item: %s | GUID: %s"
@@ -228,12 +229,13 @@ class EnrichMaterial(ITask):
                 "Material not found, enter  more common name for the material %s:\n"
                 "Belonging Item: %s | GUID: %s \n"
                 "Enter 'n' for manual input"
-                % (layer.material, layer.parent.name, layer.parent.guid),
+                # ToDO: what happened to name?
+                % (layer.material, layer.parent.key, layer.parent.guid),
                 global_key='Layer_Material_%s' % layer.guid,
                 allow_skip=True, allow_load=True, allow_save=True,
                 collect=False, quick_decide=not True,
                 validate_func=partial(cls.validate_new_material, list(resumed.keys())),
-                context=layer.parent.name, related=layer.parent.guid)
+                context=layer.parent.key, related=layer.parent.guid)
             material_decision.decide()
             material_options = cls.get_matches_list(material_decision.value, list(resumed.keys()))
             material = material_decision.value
@@ -246,9 +248,9 @@ class EnrichMaterial(ITask):
             "Multiple possibilities found for material %s\n"
             "Belonging Item: %s | GUID: %s \n"
             "Enter 'n' for manual input"
-            % (material_input, parent.name, parent.guid),
+            % (material_input, parent.key, parent.guid),
             choices=list(material_options), global_key='%s_material_enrichment' % material_input,
             allow_skip=True, allow_load=True, allow_save=True,
-            collect=False, quick_decide=not True, context=parent.name, related=parent.guid)
+            collect=False, quick_decide=not True, context=parent.key, related=parent.guid)
         material_selection.decide()
         return material_selection.value

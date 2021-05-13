@@ -627,7 +627,7 @@ class Factory:
         better_cls = element.get_better_subclass() if hasattr(element, 'get_better_subclass') else None
         if better_cls:
             logger.info("Creating %s instead of %s", better_cls, element_cls)
-            element = better_cls.from_ifc(ifc_entity, *args, **kwargs)
+            element = better_cls.from_ifc(ifc_entity, finder=self.finder, *args, **kwargs)
         return element
 
     def get_element(self, ifc_type: str, predefined_type: Union[str, None]) -> \
