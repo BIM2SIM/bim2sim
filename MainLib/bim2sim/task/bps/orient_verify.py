@@ -18,8 +18,6 @@ class OrientationGetter(ITask):
     @Task.log
     def run(self, workflow: Workflow, instances: dict):
         self.logger.info("setting verifications")
-        # x1 = self.group_attribute(filter_instances(instances, 'Window'), 'orientation')
-        # x2 = self.group_attribute(filter_instances(instances, 'OuterWall'), 'orientation')
 
         for guid, ins in instances.items():
             new_orientation = self.orientation_verification(ins)
@@ -49,11 +47,8 @@ class OrientationGetter(ITask):
             new_angle = angle_equivalent(new_angles[0])
             # new_angle = angle_equivalent(new_angles[0] + 180)  # no sb55. eg: FZK Buildings
             # new angle return
-
-            x = instance.orientation
-            print()
-            # if new_angle - instance.orientation > 0.1:
-            #     return new_angle
+            if new_angle - instance.orientation > 0.1:
+                return new_angle
 
         elif instance_type in horizontal_instances:
             return switcher[instance_type]
