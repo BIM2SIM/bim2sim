@@ -160,7 +160,6 @@ class EnrichMaterial(ITask):
     def manual_thickness_value(self, attr: str, unit: ureg.Unit, layer: Layer):
         """decision to enrich an attribute by manual"""
         material = re.sub(r'[^\w]*?[0-9]', '', layer.material)
-        x = layer.parent.width
         attr_decision = RealDecision("Enter value for the material %s "
                                      "it must be < %s\n"
                                      "Belonging Item: %s | GUID: %s"

@@ -1130,6 +1130,11 @@ class Layer(element.RelationBased):
         default=0,
         unit=ureg.m
     )
+    solar_absorp = attribute.Attribute(
+        # default_ps=('Pset_MaterialOptical', 'SolarTransmittance'),
+        default=0,
+        unit=ureg.percent
+    )
 
 
 class OuterWall(Wall):
@@ -1180,30 +1185,25 @@ class Window(BPSProduct):
         default_ps=("Pset_WallCommon", "ThermalTransmittance"),
         unit=ureg.W / ureg.K / ureg.meter ** 2
     )
-
+    g_value = attribute.Attribute(  # material
+    )
     a_conv = attribute.Attribute(
-        default=0.07
-    )
-    g_value = attribute.Attribute(# material
-        default=0.65
-    )
-    inner_convection = attribute.Attribute(
-        default=2.7
-    )
-    inner_radiation = attribute.Attribute(
-        default=5.0
-    )
-    outer_radiation = attribute.Attribute(
-        default=5.0
-    )
-    outer_convection = attribute.Attribute(
-        default=20.0
     )
     shading_g_total = attribute.Attribute(
-        default=1.0
     )
     shading_max_irr = attribute.Attribute(
-        default=100.0
+    )
+    inner_convection = attribute.Attribute(
+        unit=ureg.W / ureg.K / ureg.meter ** 2,
+    )
+    inner_radiation = attribute.Attribute(
+        unit=ureg.W / ureg.K / ureg.meter ** 2,
+    )
+    outer_radiation = attribute.Attribute(
+        unit=ureg.W / ureg.K / ureg.meter ** 2,
+    )
+    outer_convection = attribute.Attribute(
+        unit=ureg.W / ureg.K / ureg.meter ** 2,
     )
 
 

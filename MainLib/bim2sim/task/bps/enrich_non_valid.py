@@ -1,18 +1,17 @@
 import bim2sim.kernel.elements.bps
 from bim2sim.task.base import Task, ITask
-from bim2sim.kernel import elements
 from bim2sim.decision import RealDecision, StringDecision
 from bim2sim.workflow import LOD
 from bim2sim.task.bps.enrich_bldg_templ import EnrichBuildingByTemplates
 from bim2sim.task.bps.enrich_mat import EnrichMaterial
 from functools import partial
 from bim2sim.kernel.units import ureg
-# from bim2sim.kernel.element import SubElement
+from bim2sim.utilities.common_functions import filter_instances
 
 
 class EnrichNonValid(ITask):
     """Prepares bim2sim instances to later export"""
-    reads = ('invalid_layers',)
+    reads = ('invalid_layers', 'instances')
     touches = ('enriched_layers',)
 
     def __init__(self):
@@ -24,24 +23,25 @@ class EnrichNonValid(ITask):
         pass
 
     @Task.log
-    def run(self, workflow, invalid_layers):
+    def run(self, workflow, invalid_layers, instances):
         self.logger.info("setting verifications")
         if workflow.layers is not LOD.low:
             construction_type = EnrichBuildingByTemplates.get_construction_type()
             for instance in invalid_layers:
-                self.layers_creation(instance, construction_type)
+                self.layers_creation(instance, construction_type, instances)
                 self.enriched_layers.append(instance)
-            windows = SubElement.instances['Window']
-            for window in windows.values():
+            windows = filter_instances(instances, 'Window')
+
+            for window in windows:
                 self.window_manual_enrichment(window)
 
         self.logger.info("enriched %d invalid layers", len(self.enriched_layers))
 
         return self.enriched_layers,
 
-    def layers_creation(self, instance, construction_type):
+    def layers_creation(self, instance, construction_type, instances):
         if len(instance.layers) == 0:
-            EnrichBuildingByTemplates.template_layers_creation(instance, construction_type)
+            EnrichBuildingByTemplates.template_layers_creation(instance, construction_type, instances)
         else:
             self.manual_layers_creation(instance)
 
@@ -87,19 +87,19 @@ class EnrichNonValid(ITask):
     def layers_numbers_decision(cls, instance):
         layers_number_dec = RealDecision("Enter value for the number of layers \n"
                                          "Belonging Item: %s_%s | GUID: %s" %
-                                         (type(instance).__name__, instance.name, instance.guid),
+                                         (type(instance).__name__, instance.key, instance.guid),
                                          global_key='%s_%s.layers_number' %
                                                     (type(instance).__name__, instance.guid),
                                          allow_skip=False, allow_load=True, allow_save=True,
                                          collect=False, quick_decide=False,
                                          validate_func=cls.validate_positive,
-                                         context=instance.name, related=instance.guid)
+                                         context=instance.key, related=instance.guid)
         layers_number_dec.decide()
         return int(layers_number_dec.value)
 
     @classmethod
     def instance_width_decision(cls, instance):
-        instance_width = RealDecision("Enter value for width of instance %d" % instance.name,
+        instance_width = RealDecision("Enter value for width of instance %d" % instance.key,
                                       global_key='%s_%s.instance_width' %
                                                  (type(instance).__name__, instance.guid),
                                       allow_skip=False, allow_load=True, allow_save=True,
@@ -129,12 +129,12 @@ class EnrichNonValid(ITask):
             "Enter material for the layer %d (it will be searched or manual input)\n"
             "Belonging Item: %s | GUID: %s \n"
             "Enter 'n' for manual input"
-            % (layer_number, instance.name, instance.guid),
+            % (layer_number, instance.key, instance.guid),
             global_key='Layer_Material%d_%s' % (layer_number, instance.guid),
             allow_skip=True, allow_load=True, allow_save=True,
             collect=False, quick_decide=not True,
             validate_func=partial(EnrichMaterial.validate_new_material, list(resumed.keys())),
-            context=instance.name, related=instance.guid)
+            context=instance.key, related=instance.guid)
         material_input.decide()
         return material_input.value
 
