@@ -18,8 +18,8 @@ class OrientationGetter(ITask):
     @Task.log
     def run(self, workflow: Workflow, instances: dict):
         self.logger.info("setting verifications")
-        x1 = self.group_attribute(filter_instances(instances, 'Window'), 'orientation')
-        x2 = self.group_attribute(filter_instances(instances, 'OuterWall'), 'orientation')
+        # x1 = self.group_attribute(filter_instances(instances, 'Window'), 'orientation')
+        # x2 = self.group_attribute(filter_instances(instances, 'OuterWall'), 'orientation')
 
         for guid, ins in instances.items():
             new_orientation = self.orientation_verification(ins)
