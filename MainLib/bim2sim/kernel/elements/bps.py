@@ -1225,6 +1225,12 @@ class Door(BPSProduct):
             layers.append(new_layer)
         return layers
 
+    def get_better_subclass(self):
+        if self.is_external:
+            return OuterDoor
+        else:
+            return InnerDoor
+
     def get_is_external(self, name):
         if len(self.ifc.ProvidesBoundaries) > 0:
             boundary = self.ifc.ProvidesBoundaries[0]
