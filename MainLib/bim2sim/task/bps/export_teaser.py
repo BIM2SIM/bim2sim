@@ -17,12 +17,13 @@ from teaser.logic.buildingobjects.buildingphysics.layer import Layer
 from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
 from bim2sim.kernel.units import conversion, ureg
+from bim2sim.utilities.common_functions import filter_instances
 
 
 class ExportTEASER(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
-    reads = ('ifc', 'bounded_tz')
+    reads = ('ifc', 'bounded_tz', 'paths', 'instances')
     final = True
 
     materials = {}
@@ -39,15 +40,16 @@ class ExportTEASER(ITask):
                          }
 
     @Task.log
-    def run(self, workflow, ifc, bounded_tz):
+    def run(self, workflow, ifc, bounded_tz, paths, instances):
         self.logger.info("Export to TEASER")
         prj = self._create_project(ifc.by_type('IfcProject')[0])
-        bldg_instances = SubElement.get_class_instances('Building')
+        bldg_instances = filter_instances(instances, 'Building')
         for bldg_instance in bldg_instances:
             bldg = self._create_building(bldg_instance, prj)
             for tz_instance in bounded_tz:
                 tz = self._create_thermal_zone(tz_instance, bldg)
                 self._bind_instances_to_zone(tz, tz_instance)
+
                 # Todo remove dirty hack
                 if len(tz.outer_walls + tz.rooftops) == 0:
                     ow_min = OuterWall(parent=tz)

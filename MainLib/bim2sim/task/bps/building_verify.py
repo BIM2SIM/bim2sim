@@ -5,6 +5,7 @@ from bim2sim.utilities.common_functions import get_type_building_elements, \
     get_material_templates
 from bim2sim.decision import ListDecision
 from bim2sim.workflow import LOD
+from bim2sim.utilities.common_functions import filter_instances
 
 
 class BuildingVerification(ITask):
@@ -20,9 +21,9 @@ class BuildingVerification(ITask):
         pass
 
     @Task.log
-    def run(self, workflow, instances, ):
+    def run(self, workflow, instances,):
         self.logger.info("setting verifications")
-        self.get_template_threshold()
+        self.get_template_threshold(instances)
         for guid, ins in instances.items():
             if not self.layers_verification(ins, workflow):
                 self.invalid_layers.append(ins)
@@ -122,8 +123,8 @@ class BuildingVerification(ITask):
             return True
         return False
 
-    def get_template_threshold(self):
-        building = SubElement.get_class_instances('Building')[0]
+    def get_template_threshold(self, instances):
+        building = filter_instances(instances, 'Building')[0]
         # todo @ dja check if this is total date (e.g. 01.01.2000, then use only year)
         year_of_construction = int(building.year_of_construction.m)
         instance_templates = get_type_building_elements()
