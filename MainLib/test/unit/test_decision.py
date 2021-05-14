@@ -411,7 +411,7 @@ class TestConsoleFrontend(DecisionTestBase):
         """test behaviour on bad input"""
         dec = BoolDecision(question="??")
         bunch = DecisionBunch([dec])
-        with self.assertRaises(decision.DecisionCancle):
+        with self.assertRaises(decision.DecisionCancel):
             self.frontend.get_answers_for_bunch(bunch)
 
     def test_skip_all(self):
@@ -520,7 +520,7 @@ class TestConsoleFrontend(DecisionTestBase):
                 self.assertEqual(inp, answer)
 
         with patch('builtins.input', lambda *args: ''):
-            with self.assertRaises(decision.DecisionCancle):
+            with self.assertRaises(decision.DecisionCancel):
                 dec = decision.StringDecision(question="??")
                 self.frontend.user_input(dec)
 

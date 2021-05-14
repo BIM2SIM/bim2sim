@@ -1,3 +1,4 @@
+# TODO this is obsolete. import bim2sim directly in django frontend
 import logging
 import time
 import json

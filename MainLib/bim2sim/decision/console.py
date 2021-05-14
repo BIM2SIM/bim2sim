@@ -1,6 +1,6 @@
 from ..decision import Decision, BoolDecision, RealDecision, ListDecision, \
     DecisionBunch
-from ..decision import DecisionCancle, DecisionSkip, DecisionSkipAll, PendingDecisionError, DecisionException
+from ..decision import DecisionCancel, DecisionSkip, DecisionSkipAll, PendingDecisionError, DecisionException
 from .frontend import FrontEnd
 
 
@@ -48,7 +48,7 @@ class ConsoleFrontEnd(FrontEnd):
             decision.value = self.user_input(decision)
         except DecisionSkip:
             decision.skip()
-        except DecisionCancle as ex:
+        except DecisionCancel as ex:
             self.logger.info("Canceling decisions")
             raise
         return
@@ -78,7 +78,7 @@ class ConsoleFrontEnd(FrontEnd):
                 except DecisionSkipAll:
                     skip_all = True
                     self.logger.info("Skipping remaining decisions")
-                except DecisionCancle as ex:
+                except DecisionCancel as ex:
                     self.logger.info("Canceling decisions")
                     raise
             answers.append(answer)
@@ -117,7 +117,7 @@ class ConsoleFrontEnd(FrontEnd):
                 decision.skip()
                 raise DecisionSkipAll
             if raw_value.lower() == Decision.CANCEL.lower() and Decision.CANCEL in options:
-                raise DecisionCancle
+                raise DecisionCancel
 
             if not raw_value and decision.default is not None:
                 return decision.default
@@ -131,7 +131,7 @@ class ConsoleFrontEnd(FrontEnd):
                         print("Last try before auto Cancel!")
                     print(f"'{raw_value}' (interpreted as {value}) is no valid input! Try again.")
                 else:
-                    raise DecisionCancle("Too many invalid attempts. Canceling input.")
+                    raise DecisionCancel("Too many invalid attempts. Canceling input.")
             attempt += 1
 
         return value

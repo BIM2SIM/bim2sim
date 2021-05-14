@@ -1,11 +1,17 @@
-"""Package holding decision system"""
+"""
+Decision system.
+
+This package contains:
+    - class Decision (and child classes) for representing decisions
+    - class DecisionBunch for handling collections of Decision instances
+    - functions save() and load() to save to file system
+    - interfaces to handle decisions"""
 
 import logging
 import enum
 import json
 import hashlib
 from collections import Counter
-from contextlib import contextmanager
 from typing import Iterable, Callable, List, Dict, Any
 
 import pint
@@ -14,16 +20,25 @@ from bim2sim.kernel.units import ureg
 
 
 __VERSION__ = '0.1'
+logger = logging.getLogger(__name__)
 
 
 class DecisionException(Exception):
     """Base Exception for Decisions"""
+
+
 class DecisionSkip(DecisionException):
     """Exception raised on skipping Decision"""
+
+
 class DecisionSkipAll(DecisionException):
     """Exception raised on skipping all Decisions"""
-class DecisionCancle(DecisionException):
+
+
+class DecisionCancel(DecisionException):
     """Exception raised on canceling Decisions"""
+
+
 class PendingDecisionError(DecisionException):
     """Exception for unsolved Decisions"""
 
@@ -32,8 +47,6 @@ class Status(enum.Enum):
     """Enum for status of Decision"""
     open = 1  # decision not yet made
     ok = 2  # decision made
-    # loadeddone = 3  # previous made decision loaded
-    # saveddone = 4  # decision made and saved
     skipped = 5  # decision was skipped
     error = 6  # invalid answer
 
@@ -52,39 +65,23 @@ def convert(from_version, to_version, data):
     if from_version == '0' and to_version == '0.1':
         return convert_0_to_0_1(data)
 
-#
-# class empty:
-#     """Sentinel value for empty Decision value."""
-#
 
 class Decision:
-    """Class for handling decisions and user interaction
+    """A question and a value which should be set to answer the question.
 
-    To make a single Decision call decision.decide() on an instance
-    Decisions can be collected and decided in an bunch. Call Decision.decide_collected()
-    Decisions with a global_key can be saved. Call Decision.save(<path>) to save all saveable decisions
-    Decisions can be loaded. Call Decision.load(<path>) to load them internally.
-    On instantiating a decision with a global_key matching a loaded key it gets the loaded value assigned
+    Example:
+        decision = Decision("How much is the fish?", allow_skip=True)
+        decision.value  # will raise ValueError
+        decision.value = 10  # ok
+        decision.value = 12  # value cant be changed, will raise ValueError
+        decision.reset()  # reset to initial state
+        decision.skip()  # set value to None, only works if allow_skip flag set
     """
-
-    # TODO: save in Project instance
-    # all = []  # all decision instances
-    # stored_decisions = {}  # Decisions ready to save
-    _logger = None
 
     SKIP = "skip"
     SKIPALL = "skip all"
     CANCEL = "cancel"
     options = [SKIP, SKIPALL, CANCEL]
-
-    _debug_answer = None
-    _debug_overwrite_default = False
-    _debug_answer_index = 0
-    _debug_mode = 0
-    _debug_validate = False
-
-    frontend = None
-    logger = logging.getLogger(__name__)
 
     def __init__(self, question: str, validate_func: Callable = None,
                  key: str = None, global_key: str = None,
@@ -114,20 +111,16 @@ class Decision:
         if default is not None:
             if self.validate(default):
                 self.default = default
-                self._debug_answer = default
             else:
-                self.logger.warning("Invalid default value (%s) for %s: %s",
-                                    default, self.__class__.__name__, self.question)
+                logger.warning("Invalid default value (%s) for %s: %s",
+                               default, self.__class__.__name__, self.question)
 
-        # self.output = output
         self.key = key
         self.global_key = global_key
 
         self.allow_skip = allow_skip
         self.allow_save_load = bool(global_key)
-        # self.allow_load = allow_save if allow_load is None else allow_load
 
-        # self.collect = collect
         self.validate_checksum = validate_checksum
 
         self.related = related
@@ -135,26 +128,11 @@ class Decision:
 
         self.group = group
 
-        # if (allow_load or allow_save) and not global_key:
-        #     raise AssertionError("Require global_key to enable save / load.")
-        #
-        # if global_key and global_key in self.global_keys():
-        #     #self.discard()
-        #     raise KeyError("Decision with key %s already exists!" % global_key)
-        #
-        # if self.allow_load:
-        #     self._inner_load()
-        #
-        # if quick_decide and not self.status == Status.loadeddone:
-        #     self.decide()
-        #
-        # if self.collect and not (isinstance(self.output, dict) and self.output_key is not None):
-        #     raise AttributeError("Can not collect Decision if output dict or output_key is missing.")
-        #
-        # Decision.all.append(self)
-
     @property
     def value(self):
+        """Answer value of decision.
+
+        Getting the value will raise a ValueError until set with valid value."""
         if self.valid():
             return self._value
         else:
@@ -175,10 +153,6 @@ class Decision:
     def reset(self):
         self.status = Status.open
         self._value = None
-        # if self.output_key in self.output:
-        #     del self.output[self.output_key]
-        # if self.output_key in Decision.stored_decisions:
-        #     del Decision.stored_decisions[self.global_key]
 
     def skip(self):
         """Set value to None und mark as solved."""
@@ -189,91 +163,12 @@ class Decision:
                 "This Decision is not open. Call reset() first.")
         self._value = None
         self.status = Status.skipped
-        # self._post()
-
-    # def discard(self):
-    #     """Remove decision from traced decisions (Decision.all)"""
-    #     try:
-    #         Decision.all.remove(self)
-    #     except ValueError:
-    #         # not in list
-    #         pass
-    #     self.reset()
-    #
-    # @classmethod
-    # def reset_decisions(cls):
-    #     """Reset state of Decision class."""
-    #     cls.stored_decisions.clear()
-    #     cls.all.clear()
-    #
-    # @classmethod
-    # def global_keys(cls):
-    #     """Global key generator"""
-    #     for decision in cls.all:
-    #         if decision.global_key:
-    #             yield decision.global_key
 
     @staticmethod
     def build_checksum(item):
         """Create checksum for item."""
         return hashlib.md5(json.dumps(item, sort_keys=True)
                            .encode('utf-8')).hexdigest()
-    #
-    # @classmethod
-    # def filtered(cls, active=True):
-    #     if active:
-    #         for d in cls.all:
-    #             if d.status == Status.open:
-    #                 yield d
-    #     else:
-    #         for d in cls.all:
-    #             if d.status != Status.open:
-    #                 yield d
-    #
-    # @classmethod
-    # def collection(cls):
-    #     return [d for d in cls.filtered() if d.collect]
-    #
-    # @classmethod
-    # def set_frontend(cls, frontend):
-    #     cls.frontend = frontend
-    #
-    # @classmethod
-    # def enable_debug(cls, answer, validate=False, multi=False, overwrite_default=True):
-    #     """Enabled debug mode. All decisions are answered with answer"""
-    #     cls._debug_mode = 2 if multi else 1
-    #     cls._debug_answer = answer
-    #     cls._debug_overwrite_default = overwrite_default
-    #     cls._debug_answer_index = 0
-    #     cls._debug_validate = validate
-    #
-    # @classmethod
-    # def disable_debug(cls):
-    #     """Disable debug mode"""
-    #     cls._debug_answer = None
-    #     cls._debug_answer_index = 0
-    #     cls._debug_mode = 0
-    #     cls._debug_validate = False
-    #
-    # @classmethod
-    # @contextmanager
-    # def debug_answer(cls, answer, validate=False, multi=False, overwrite_default=True):
-    #     """Contextmanager enabling debug mode temporarily with given answer"""
-    #     cls.enable_debug(answer, validate, multi, overwrite_default)
-    #     yield
-    #     cls.disable_debug()
-    #
-    # def get_debug_answer(self):
-    #     if self._debug_mode == 1:
-    #         if self._debug_overwrite_default:
-    #             return Decision._debug_answer
-    #         else:
-    #             return self._debug_answer
-    #     elif self._debug_mode == 2:
-    #         answer = Decision._debug_answer[Decision._debug_answer_index]
-    #         Decision._debug_answer_index += 1
-    #         return answer
-    #     raise AssertionError("Decision debug mode not enabled")
 
     def convert(self, value):
         """Convert value to inner type"""
@@ -301,77 +196,8 @@ class Decision:
         return self.status == Status.ok \
                or (self.status == Status.skipped and self.allow_skip)
 
-    # def decide(self):
-    #     """Decide by user input
-    #     reuses loaded decision if available
-    #
-    #     :returns: value of decision"""
-    #
-    #     if self.status == Status.loadeddone:
-    #         return self.value
-    #
-    #     if self.status != Status.open:
-    #         raise AssertionError("Cannot call decide() for Decision with status != open")
-    #
-    #     if self._debug_mode:
-    #         if self._debug_validate:
-    #             self.value = self.get_debug_answer()
-    #         else:
-    #             self._value = self.get_debug_answer()
-    #             self.status = Status.done
-    #             self._post()
-    #     else:
-    #         self.frontend.solve(self)
-    #
-    #     # self.status = Status.done
-    #     # self._post()
-    #     return self.value
-    #
-    # @classmethod
-    # def decide_collected(cls, collection: Iterable['Decision'] = None):
-    #     """Solve all stored decisions"""
-    #
-    #     logger = logging.getLogger(__name__)
-    #
-    #     _collection = collection or cls.collection()
-    #     _collection = [d for d in _collection if d.status == Status.open]
-    #
-    #     if not _collection:
-    #         logger.debug("No collected decisions to decide.")
-    #         return
-    #
-    #     if cls._debug_mode:
-    #         # debug
-    #         for decision in _collection:
-    #             if cls._debug_validate:
-    #                 decision.value = decision.get_debug_answer()
-    #             else:
-    #                 decision._value = decision.get_debug_answer()
-    #                 decision.status = Status.done
-    #                 decision._post()
-    #     else:
-    #         # normal
-    #         try:
-    #             cls.frontend.solve_collection(_collection)
-    #         except DecisionSkipAll:
-    #             logger.info("Skipping remaining decisions")
-    #             for decision in _collection:
-    #                 if decision.status == Status.open:
-    #                     decision.skip()
-    #         except DecisionCancle as ex:
-    #             logger.info("Canceling decisions")
-    #             raise
-
-    # @classmethod
-    # def summary(cls):
-    #     """Returns summary string"""
-    #
-    #     txt = "%d open decisions" % (len(list(cls.filtered(active=True))))
-    #     txt += ""
-    #     return txt
-
     def reset_from_deserialized(self, kwargs):
-        """"""
+        """Reset decision from its serialized form."""
         value = kwargs['value']
         checksum = kwargs.get('checksum')
         if value is None:
@@ -380,24 +206,15 @@ class Decision:
             if checksum == self.validate_checksum:
                 self.value = self.deserialize_value(value)
                 self.status = Status.ok
-                self.logger.info("Loaded decision '%s' with value: %s", self.global_key, value)
+                logger.info("Loaded decision '%s' with value: %s", self.global_key, value)
             else:
-                self.logger.warning("Checksum mismatch for loaded decision '%s", self.global_key)
+                logger.warning("Checksum mismatch for loaded decision '%s", self.global_key)
         else:
-            self.logger.warning("Check for loaded decision '%s' failed. Loaded value: %s",
-                                self.global_key, value)
-
-    # def _inner_load(self):
-    #     """Loads decision with matching global_key.
-    #
-    #     Decision.load() first."""
-    #
-    #     if self.global_key:
-    #         kwargs = Decision.stored_decisions.get(self.global_key, None)
-    #         if kwargs is not None:
-    #             self.reset_from_deserialized(kwargs)
+            logger.warning("Check for loaded decision '%s' failed. Loaded value: %s",
+                           self.global_key, value)
 
     def serialize_value(self):
+        """Return JSON serializable value."""
         return {'value': self.value}
 
     def deserialize_value(self, value):
@@ -410,33 +227,6 @@ class Decision:
         if self.validate_checksum:
             kwargs['checksum'] = self.validate_checksum
         return kwargs
-
-    # def _inner_save(self):
-    #     """Make decision saveable by Decision.save()"""
-    #
-    #     if self.status == Status.loadeddone:
-    #         self.logger.debug("Not saving loaded decision")
-    #         return
-    #
-    #     if self.global_key:
-    #         # assert self.global_key not in Decision.stored_decisions or self.allow_overwrite, \
-    #         #     "Decision id '%s' is not unique!"%(self.global_key)
-    #         assert self.status != Status.open, \
-    #             "Decision not made. There is nothing to store."
-    #         kwargs = self.get_serializable()
-    #
-    #         Decision.stored_decisions[self.global_key] = kwargs
-    #         self.status = Status.saveddone
-    #         self.logger.info("Stored decision '%s' with value: %s", self.global_key, self.value)
-    #
-    # def _post(self):
-    #     """Write result to output dict"""
-    #     if self.status == Status.open:
-    #         return
-    #     if not self.status == Status.skipped and self.allow_save:
-    #         self._inner_save()
-    #     if self.collect:
-    #         self.output[self.output_key] = self.value
 
     def get_options(self):
         options = [Decision.CANCEL]
@@ -454,15 +244,6 @@ class Decision:
 
     def __repr__(self):
         return '<%s (<%s> Q: "%s" A: %s)>' % (self.__class__.__name__, self.status, self.question, self.value)
-
-
-    # if decisions:
-    #     msg = "Found %d previous made decisions. Continue using them?"%(len(decisions))
-    #     reuse = BoolDecision(question=msg, default=True).decide()
-    #     if reuse:
-    #         cls.stored_decisions.clear()
-    #         cls.stored_decisions.update(**decisions)
-    #         logger.info("Loaded decisions.")
 
 
 class RealDecision(Decision):

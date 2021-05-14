@@ -42,12 +42,6 @@ class FrontEnd:
         except StopIteration as generator_return:
             self.return_value = generator_return.value
 
-    def solve(self, decision):
-        raise NotImplementedError
-
-    def solve_collection(self, collection):
-        raise NotImplementedError
-
     def get_question(self, decision):
         return decision.get_question()
 
@@ -116,7 +110,7 @@ class FrontEnd:
     @staticmethod
     def parse_guid_input(raw_input):
         try:
-            raw_value = set(raw_input)
+            raw_value = str(raw_input)
         except Exception:
             raise NotImplementedError("Parsing guid not implemented.")
         return raw_value
