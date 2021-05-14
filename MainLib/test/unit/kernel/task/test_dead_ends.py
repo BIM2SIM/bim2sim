@@ -2,12 +2,9 @@ import unittest
 
 from bim2sim.kernel.elements import hvac
 from test.unit.kernel.helper import SetupHelper
-from bim2sim.decision import Decision
 from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.task.hvac import dead_ends
-from bim2sim import decision
-from bim2sim.decision.console import ConsoleFrontEnd as FrontEnd
 
 
 class DeadEndHelper(SetupHelper):
@@ -52,23 +49,14 @@ class DeadEndHelper(SetupHelper):
 class TestOnlyDeadEnds(unittest.TestCase):
     """ Test with a small circuit with 10 dead ends and no open ports for consumers."""
     
-    frontend = FrontEnd()
     helper = None
     _backup = None
 
     @classmethod
     def setUpClass(cls):
-        # cls._backup = decision.Decision.frontend
-        # decision.Decision.set_frontend(cls.frontend)
         cls.helper = DeadEndHelper()
 
-    # @classmethod
-    # def tearDownClass(cls):
-    #     decision.Decision.set_frontend(cls._backup)
-
     def tearDown(self):
-        # decision.Decision.all.clear()
-        # decision.Decision.stored_decisions.clear()
         self.helper.reset()
 
     def test_dead_end_identification(self):

@@ -1,10 +1,10 @@
 from ..decision import Decision, BoolDecision, RealDecision, ListDecision, \
     DecisionBunch
 from ..decision import DecisionCancel, DecisionSkip, DecisionSkipAll, PendingDecisionError, DecisionException
-from .frontend import FrontEnd
+from .decisionhandler import DecisionHandler
 
 
-class ConsoleFrontEnd(FrontEnd):
+class ConsoleDecisionHandler(DecisionHandler):
 
     @staticmethod
     def get_input_txt(decision):

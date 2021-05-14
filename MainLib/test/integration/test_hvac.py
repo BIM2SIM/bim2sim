@@ -1,7 +1,7 @@
 import unittest
 
 import bim2sim
-from bim2sim.decision.frontend import DebugFrontEnd
+from bim2sim.decision.decisionhandler import DebugDecisionHandler
 
 from bim2sim.utilities.test import IntegrationBase
 
@@ -15,10 +15,10 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
         answers = ('HVAC-HeatPump', 'HVAC-Storage', 'HVAC-Storage',
                    '2lU4kSSzH16v7KPrwcL7KZ', '0t2j$jKmf74PQpOI0ZmPCc',
                    True, True, *(True,)*14, 50)
-        frontend = DebugFrontEnd(answers)
-        for decision, answer in frontend.decision_answer_mapping(project.run()):
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
-        self.assertEqual(0, frontend.return_value,
+        self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
 
     def test_run_vereinshaus2(self):
@@ -28,10 +28,10 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
         answers = ('HVAC-HeatPump', 'HVAC-Storage', 'HVAC-Storage',
                    '0k0IjzL0z6aOYAX23H_dA5', '1U379nXO902R21a41MGQRw',
                    *(True,)*16, 200)
-        frontend = DebugFrontEnd(answers)
-        for decision, answer in frontend.decision_answer_mapping(project.run()):
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
-        self.assertEqual(0, frontend.return_value,
+        self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
 
 

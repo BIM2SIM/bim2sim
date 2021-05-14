@@ -7,11 +7,11 @@ from ..decision import BoolDecision, RealDecision, ListDecision, StringDecision,
 
 
 # TODO: contextmanager (shutdown) or how to make sure shutdown is called?
-class FrontEnd:
-    """Basic FrontEnd for decision solving"""
+class DecisionHandler:
+    """Basic DecisionHandler for decision solving"""
 
     def __init__(self):
-        self.logger = logging.getLogger(__name__ + '.DecisionFrontend')
+        self.logger = logging.getLogger(__name__ + '.DecisionHandler')
         self.return_value = None
 
     def handle(self, decision_gen: Generator[DecisionBunch, None, Any], saved_decisions: dict = None):
@@ -55,7 +55,7 @@ class FrontEnd:
         return decision.validate(value)
 
     def shutdown(self, success):
-        """Shut down frontend"""
+        """Shut down handler"""
         pass
 
     def parse(self, decision, raw_answer):
@@ -116,7 +116,7 @@ class FrontEnd:
         return raw_value
 
 
-class DebugFrontEnd(FrontEnd):
+class DebugDecisionHandler(DecisionHandler):
     """Simply use a predefined list of values as answers."""
 
     def __init__(self, answers: Iterable):

@@ -10,7 +10,7 @@ import pint
 from bim2sim import decision
 from bim2sim.decision import Decision, BoolDecision, save, load, RealDecision, \
     DecisionBunch, ListDecision, GuidDecision
-from bim2sim.decision.console import ConsoleFrontEnd
+from bim2sim.decision.console import ConsoleDecisionHandler
 from bim2sim.kernel.units import ureg
 
 
@@ -387,8 +387,8 @@ class TestGuidDecision(DecisionTestBase):
 
 
 @patch('builtins.print', lambda *args, **kwargs: None)
-class TestConsoleFrontend(DecisionTestBase):
-    frontend = ConsoleFrontEnd()
+class TestConsoleHandler(DecisionTestBase):
+    handler = ConsoleDecisionHandler()
 
     def check(self, value):
         return True
@@ -401,7 +401,7 @@ class TestConsoleFrontend(DecisionTestBase):
         decisions = DecisionBunch((real_dec, bool_dec, list_dec))
 
         with patch('builtins.input', lambda *args, **kwargs: ''):
-            answers = self.frontend.get_answers_for_bunch(decisions)
+            answers = self.handler.get_answers_for_bunch(decisions)
 
         expected = [10 * ureg.m, False, 'C']
         self.assertListEqual(expected, answers)
@@ -412,11 +412,10 @@ class TestConsoleFrontend(DecisionTestBase):
         dec = BoolDecision(question="??")
         bunch = DecisionBunch([dec])
         with self.assertRaises(decision.DecisionCancel):
-            self.frontend.get_answers_for_bunch(bunch)
+            self.handler.get_answers_for_bunch(bunch)
 
     def test_skip_all(self):
         """test skipping collected decisions"""
-        target_dict = {}
         decisions = DecisionBunch()
         for i in range(3):
             key = "n%d" % i
@@ -426,7 +425,7 @@ class TestConsoleFrontend(DecisionTestBase):
                 allow_skip=True))
 
         with patch('builtins.input', lambda *args, **kwargs: 'skip all'):
-            answers = self.frontend.get_answers_for_bunch(decisions)
+            answers = self.handler.get_answers_for_bunch(decisions)
 
         self.assertEqual(len(answers), 3)
         self.assertFalse(any(answers))
@@ -446,7 +445,7 @@ class TestConsoleFrontend(DecisionTestBase):
         for inp, res in expected_valids.items():
             with patch('builtins.input', lambda *args: inp):
                 dec = RealDecision(question="??", unit=unit, validate_func=self.check)
-                answer = self.frontend.user_input(dec)
+                answer = self.handler.user_input(dec)
                 self.assertEqual(res * unit, answer)
 
     def test_bool_parse(self):
@@ -455,18 +454,18 @@ class TestConsoleFrontend(DecisionTestBase):
         dec = decision.BoolDecision(question="??")
         self.assertFalse(dec.valid())
 
-        parsed_int1 = self.frontend.parse(dec, '1')
+        parsed_int1 = self.handler.parse(dec, '1')
         self.assertTrue(parsed_int1)
         self.assertIsInstance(parsed_int1, bool)
-        parsed_int0 = self.frontend.parse(dec, '0')
+        parsed_int0 = self.handler.parse(dec, '0')
         self.assertFalse(parsed_int0)
         self.assertIsInstance(parsed_int0, bool)
-        parsed_real = self.frontend.parse(dec, '1.1')
+        parsed_real = self.handler.parse(dec, '1.1')
         self.assertIsNone(parsed_real)
-        parsed_str = self.frontend.parse(dec, 'y')
+        parsed_str = self.handler.parse(dec, 'y')
         self.assertTrue(parsed_str)
         self.assertIsInstance(parsed_str, bool)
-        parsed_invalid = self.frontend.parse(dec, 'foo')
+        parsed_invalid = self.handler.parse(dec, 'foo')
         self.assertIsNone(parsed_invalid)
 
     def test_real_parse(self):
@@ -475,16 +474,16 @@ class TestConsoleFrontend(DecisionTestBase):
         dec = RealDecision(question="??")
         self.assertFalse(dec.valid())
 
-        parsed_int = self.frontend.parse(dec, 5)
+        parsed_int = self.handler.parse(dec, 5)
         self.assertEqual(parsed_int, 5.)
         self.assertIsInstance(parsed_int, pint.Quantity)
-        parsed_real = self.frontend.parse(dec, 5.)
+        parsed_real = self.handler.parse(dec, 5.)
         self.assertEqual(parsed_real, 5.)
         self.assertIsInstance(parsed_real, pint.Quantity)
-        parsed_str = self.frontend.parse(dec, '5')
+        parsed_str = self.handler.parse(dec, '5')
         self.assertEqual(parsed_str, 5.)
         self.assertIsInstance(parsed_str, pint.Quantity)
-        parsed_invalid = self.frontend.parse(dec, 'five')
+        parsed_invalid = self.handler.parse(dec, 'five')
         self.assertIsNone(parsed_invalid)
 
     def test_list_parse(self):
@@ -498,16 +497,16 @@ class TestConsoleFrontend(DecisionTestBase):
         dec = ListDecision("??", choices=choices)
         self.assertFalse(dec.valid())
 
-        parsed_int = self.frontend.parse(dec, 0)
+        parsed_int = self.handler.parse(dec, 0)
         self.assertEqual(parsed_int, 'a')
 
-        parsed_real = self.frontend.parse(dec, 2)
+        parsed_real = self.handler.parse(dec, 2)
         self.assertEqual(parsed_real, 'c')
 
-        parsed_str = self.frontend.parse(dec, 3)
+        parsed_str = self.handler.parse(dec, 3)
         self.assertIsNone(parsed_str)
 
-        parsed_str = self.frontend.parse(dec, 'a')
+        parsed_str = self.handler.parse(dec, 'a')
         self.assertIsNone(parsed_str)
 
     def test_string_parse(self):
@@ -516,13 +515,13 @@ class TestConsoleFrontend(DecisionTestBase):
         for inp in answers:
             with patch('builtins.input', lambda *args: inp):
                 dec = decision.StringDecision(question="??")
-                answer = self.frontend.user_input(dec)
+                answer = self.handler.user_input(dec)
                 self.assertEqual(inp, answer)
 
         with patch('builtins.input', lambda *args: ''):
             with self.assertRaises(decision.DecisionCancel):
                 dec = decision.StringDecision(question="??")
-                self.frontend.user_input(dec)
+                self.handler.user_input(dec)
 
     def test_guid_parse(self):
 
@@ -535,7 +534,7 @@ class TestConsoleFrontend(DecisionTestBase):
             return all(guid in valids for guid in value)
 
         def valid_parsed(guid_decision, inp):
-            return guid_decision.validate(self.frontend.parse_guid_input(inp))
+            return guid_decision.validate(self.handler.parse_guid_input(inp))
 
         # test parse + validate
         dec = decision.GuidDecision(question="??", multi=False)
@@ -558,12 +557,12 @@ class TestConsoleFrontend(DecisionTestBase):
         # full test
         dec1 = GuidDecision(question="??")
         with patch('builtins.input', lambda *args: '2tHa09veL10P9$ol9urWrT'):
-            answer = self.frontend.user_input(dec1)
+            answer = self.handler.user_input(dec1)
             self.assertSetEqual({'2tHa09veL10P9$ol9urWrT'}, answer)
 
         dec2 = GuidDecision(question="??", validate_func=check, multi=True)
         with patch('builtins.input', lambda *args: '2tHa09veL10P9$ol9urWrT, 0otlA1TWvCPvzfXTM_RO1R'):
-            answer2 = self.frontend.user_input(dec2)
+            answer2 = self.handler.user_input(dec2)
             self.assertSetEqual({'2tHa09veL10P9$ol9urWrT', '0otlA1TWvCPvzfXTM_RO1R'}, answer2)
 
 

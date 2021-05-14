@@ -11,8 +11,8 @@ import pkgutil
 import tempfile
 from os.path import expanduser
 
-from bim2sim.decision.console import ConsoleFrontEnd
-from bim2sim.decision.frontend import FrontEnd
+from bim2sim.decision.console import ConsoleDecisionHandler
+from bim2sim.decision.decisionhandler import DecisionHandler
 from bim2sim.kernel import ifc2python
 from bim2sim.decision import Decision
 from bim2sim.project import Project, FolderStructure
@@ -83,9 +83,9 @@ def setup_default():
     #     raise AssertionError("No plugins found!")
 
 
-def run_project(project: Project, frontend: FrontEnd):
-    """Run project using frontend."""
-    return frontend.handle(project.run(), project.loaded_decisions)
+def run_project(project: Project, handler: DecisionHandler):
+    """Run project using decision handler."""
+    return handler.handle(project.run(), project.loaded_decisions)
 
 
 def _debug_run_hvac():
@@ -101,7 +101,7 @@ def _debug_run_hvac():
         project = Project.create(path_example, path_ifc, 'hkesim', )
 
     # setup_defualt(project.config['Frontend']['use'])
-    run_project(project, ConsoleFrontEnd())
+    run_project(project, ConsoleDecisionHandler())
 
 
 def _get_debug_project_path():
@@ -146,7 +146,7 @@ def _debug_run_bps():
     else:
         project = Project.create(path_example, path_ifc, 'teaser', )
 
-    run_project(project, ConsoleFrontEnd())
+    run_project(project, ConsoleDecisionHandler())
 
 
 def _debug_run_bps_ep():
@@ -169,7 +169,7 @@ def _debug_run_bps_ep():
     else:
         project = Project.create(path_example, path_ifc, 'energyplus', )
 
-    run_project(project, ConsoleFrontEnd())
+    run_project(project, ConsoleDecisionHandler())
 
 
 def _test_run_bps_ep(rel_path, temp_project=False):
@@ -200,7 +200,7 @@ def _test_run_bps_ep(rel_path, temp_project=False):
             project = Project.create(path_example, path_ifc, 'energyplus', )
 
         #HACK: We have to remember stderr because eppy resets it currently.
-        success = run_project(project, ConsoleFrontEnd())
+        success = run_project(project, ConsoleDecisionHandler())
     finally:
         os.chdir(working_dir)
         sys.stderr = old_stderr
