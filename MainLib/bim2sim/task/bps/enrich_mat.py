@@ -189,6 +189,10 @@ class EnrichMaterial(ITask):
                 for attr in material_templates[k]:
                     if attr == 'thickness_default':
                         resumed[material_templates[k]['name']]['thickness'] = material_templates[k][attr]
+                    elif attr == 'name':
+                        resumed[material_templates[k]['name']]['material'] = material_templates[k][attr]
+                    elif attr == 'thickness_list':
+                        continue
                     else:
                         resumed[material_templates[k]['name']][attr] = material_templates[k][attr]
         return resumed

@@ -37,6 +37,7 @@ from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.utilities.common_functions import vector_angle, filter_instances
 from bim2sim.task.common.inner_loop_remover import remove_inner_loops
 from bim2sim.kernel.finder import TemplateFinder
+from bim2sim.decision import StringDecision
 
 
 logger = logging.getLogger(__name__)
@@ -50,6 +51,16 @@ class BPSProduct(element.ProductBased):
         self.thermal_zones = []
         self.space_boundaries = []
         self.storeys = []
+        # HACK: what happened to name?
+        if self.ifc is not None:
+            if self.ifc.Name is not None:
+                if len(self.ifc.Name) > 0:
+                    self.name = self.ifc.Name
+                else:
+                    name_dec = StringDecision(question="Please enter name for the instance %s" % type(self).__name__,
+                                              default="unnamed", global_key=f'IfcName-Decision-{self.guid}',
+                                              allow_load=True, allow_save=True)
+                    self.name = name_dec.decide()
 
 
 class ThermalZone(BPSProduct):
@@ -1094,10 +1105,8 @@ class Layer(element.RelationBased):
 
     @classmethod
     def create_additional_layer(cls, thickness, parent, material=None, material_properties=None):
-        new_layer = cls(ifc=None)
-        new_layer.material = material
+        new_layer = cls(finder=TemplateFinder(), material=material, thickness=thickness)
         new_layer.parent = parent
-        new_layer.thickness = thickness
         if material_properties is not None:
             for attr in new_layer.attributes:
                 if getattr(new_layer, attr) == 0:

@@ -17,6 +17,7 @@ from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
 from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.kernel.finder import TemplateFinder
 
 
 logger = logging.getLogger(__name__)
@@ -1549,7 +1550,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
             if group == 'one_zone_building':
                 name = "Aggregated_%s" % group
                 # ToDO: Check Name property
-                instance = cls(groups[group])
+                instance = cls(groups[group], finder=TemplateFinder())
                 instance.name = name
                 # instance = cls(groups[group], name=name)
                 instance.description = group
@@ -1565,7 +1566,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                     # Todo: usage and conditions criterion
                     name = "Aggregated_%s" % '_'.join([i.name for i in groups[group]])
                     # ToDO: Check Name property
-                    instance = cls(groups[group])
+                    instance = cls(groups[group], finder=TemplateFinder())
                     instance.name = name
                     # instance = cls(groups[group], name=name)
                     instance.description = group
@@ -1578,7 +1579,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                 # first criterion based on similarities
                 name = "Aggregated_%s" % '_'.join([i.name for i in groups[group]])
                 # ToDO: Check Name property
-                instance = cls(groups[group])
+                instance = cls(groups[group], finder=TemplateFinder())
                 instance.name = name
                 # instance = cls(groups[group], name=name)
                 instance.description = ', '.join(ast.literal_eval(group))

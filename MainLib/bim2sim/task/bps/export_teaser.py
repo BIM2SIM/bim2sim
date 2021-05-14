@@ -1,8 +1,4 @@
-from pathlib import Path
-
-import bim2sim
 from bim2sim.task.base import Task, ITask
-from bim2sim.kernel.element import RelationBased
 from teaser.project import Project
 from teaser.logic.buildingobjects.building import Building
 from teaser.logic.buildingobjects.thermalzone import ThermalZone
@@ -16,14 +12,14 @@ from teaser.logic.buildingobjects.buildingphysics.innerwall import InnerWall
 from teaser.logic.buildingobjects.buildingphysics.layer import Layer
 from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
-from bim2sim.kernel.units import conversion, ureg
+from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import filter_instances
 
 
 class ExportTEASER(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
-    reads = ('ifc', 'bounded_tz', 'paths', 'instances')
+    reads = ('ifc', 'bounded_tz', 'instances')
     final = True
 
     materials = {}
@@ -41,7 +37,7 @@ class ExportTEASER(ITask):
                          }
 
     @Task.log
-    def run(self, workflow, ifc, bounded_tz, paths, instances):
+    def run(self, workflow, ifc, bounded_tz, instances):
         self.logger.info("Export to TEASER")
         prj = self._create_project(ifc.by_type('IfcProject')[0])
         bldg_instances = filter_instances(instances, 'Building')
@@ -49,18 +45,7 @@ class ExportTEASER(ITask):
             bldg = self._create_building(bldg_instance, prj)
             for tz_instance in bounded_tz:
                 tz = self._create_thermal_zone(tz_instance, bldg)
-                self._bind_instances_to_zone(tz, tz_instance)
-
-                # Todo remove dirty hack
-                if len(tz.outer_walls + tz.rooftops) == 0:
-                    ow_min = OuterWall(parent=tz)
-                    ow_min.area = 0.01
-                    ow_min.load_type_element(
-                        year=bldg.year_of_construction,
-                        construction='heavy',
-                    )
-                    ow_min.tilt = 90
-                    ow_min.orientation = 0
+                self._bind_instances_to_zone(tz, tz_instance, bldg)
                 tz.calc_zone_parameters()
             bldg.calc_building_parameter()
         #     assets = Path(bim2sim.__file__).parent / 'assets'
@@ -149,10 +134,23 @@ class ExportTEASER(ITask):
         return tz
 
     @classmethod
-    def _bind_instances_to_zone(cls, tz, tz_instance):
+    def _bind_instances_to_zone(cls, tz, tz_instance, bldg):
         """create and bind the instances of a given thermal zone to a teaser instance thermal zone"""
         for bound_element in tz_instance.bound_elements:
             cls._create_teaser_instance(bound_element, tz)
+        cls.min_admissible_elements(tz, bldg)
+
+    @staticmethod
+    def min_admissible_elements(tz, bldg):
+        if len(tz.outer_walls + tz.rooftops) == 0:
+            ow_min = OuterWall(parent=tz)
+            ow_min.area = 0.01
+            ow_min.load_type_element(
+                year=bldg.year_of_construction,
+                construction='heavy',
+            )
+            ow_min.tilt = 90
+            ow_min.orientation = 0
 
     @classmethod
     def _create_teaser_instance(cls, instance, parent):

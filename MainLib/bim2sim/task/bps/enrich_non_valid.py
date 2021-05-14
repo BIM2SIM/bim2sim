@@ -1,4 +1,3 @@
-import bim2sim.kernel.elements.bps
 from bim2sim.task.base import Task, ITask
 from bim2sim.decision import RealDecision, StringDecision
 from bim2sim.workflow import LOD
@@ -7,6 +6,8 @@ from bim2sim.task.bps.enrich_mat import EnrichMaterial
 from functools import partial
 from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.kernel.elements import bps
+from bim2sim.kernel.finder import TemplateFinder
 
 
 class EnrichNonValid(ITask):
@@ -67,10 +68,9 @@ class EnrichNonValid(ITask):
                 material_input = self.material_input_decision(instance, layer_number)
                 if material_input not in self.material_selected:
                     self.store_new_material(instance, material_input)
-                new_layer = bim2sim.kernel.elements.bps.Layer.create_additional_layer(thickness_value, material=material_input,
-                                                                                      parent=instance,
-                                                                                      material_properties=self.material_selected[
-                                                                       material_input])
+                new_layer = bps.Layer(finder=TemplateFinder(), **self.material_selected[material_input],
+                                      thickness=thickness_value)
+                new_layer.parent = instance
                 instance.layers.append(new_layer)
                 layers_width += new_layer.thickness
                 layers_r += new_layer.thickness / new_layer.thermal_conduc
@@ -145,7 +145,9 @@ class EnrichNonValid(ITask):
             material_selected = EnrichMaterial.material_selection_decision(material_input, instance, material_options)
         else:
             material_selected = material_options[0]
-        self.material_selected[material_input] = resumed[material_selected]
+        material_dict = dict(resumed[material_selected])
+        del material_dict['thickness']
+        self.material_selected[material_input] = material_dict
 
     @staticmethod
     def validate_positive(value):
