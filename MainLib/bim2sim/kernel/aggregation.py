@@ -5,6 +5,7 @@ from functools import partial
 from typing import Sequence, List, Union, Iterable, Tuple, Set, Dict
 import inspect
 import operator
+import re
 
 import ast
 import numpy as np
@@ -1564,7 +1565,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                 area = sum(i.area for i in groups[group])
                 if area / total_area <= 0.05:
                     # Todo: usage and conditions criterion
-                    name = "Aggregated_%s" % '_'.join([i.name for i in groups[group]])
+                    name = "Aggregated_not_neighbors"
                     # ToDO: Check Name property
                     instance = cls(groups[group], finder=TemplateFinder())
                     instance.name = name
@@ -1577,7 +1578,8 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                     instances[instance.guid] = instance
             else:
                 # first criterion based on similarities
-                name = "Aggregated_%s" % '_'.join([i.name for i in groups[group]])
+                group_name = re.sub('[\'\[\]]', '', group)
+                name = "Aggregated_%s" % group_name.replace(', ', '_')
                 # ToDO: Check Name property
                 instance = cls(groups[group], finder=TemplateFinder())
                 instance.name = name

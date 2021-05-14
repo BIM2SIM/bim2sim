@@ -113,8 +113,8 @@ class BPSMultiZoneSeparated(Workflow):
             generator=LOD.ignore,
             hvac=LOD.low,
             spaces=LOD.full,
-            layers=LOD.low,
-            # layers=LOD.full,
+            # layers=LOD.low,
+            layers=LOD.full,
         )
         self.relevant_ifc_types = (
             'IfcSite',
@@ -238,7 +238,7 @@ class BPSOneZoneAggregated(Workflow):
             consumer=LOD.low,
             generator=LOD.ignore,
             hvac=LOD.low,
-            spaces=LOD.full,
+            spaces=LOD.low,
             layers=LOD.low,
             # layers=LOD.full,
         )

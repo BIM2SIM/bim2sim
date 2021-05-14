@@ -255,5 +255,6 @@ class EnrichMaterial(ITask):
             choices=list(material_options), global_key='%s_material_enrichment' % material_input,
             allow_skip=True, allow_load=True, allow_save=True,
             collect=False, quick_decide=not True, context=parent.key, related=parent.guid)
-        material_selection.decide()
+        if len(list(material_options)) > 1:
+            material_selection.decide()
         return material_selection.value

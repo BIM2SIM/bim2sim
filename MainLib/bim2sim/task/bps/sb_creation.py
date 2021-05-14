@@ -45,9 +45,10 @@ class CreateSpaceBoundaries(ITask):
 
         if space_boundary.ifc.RelatedBuildingElement:
             related_building_element = instances.get(space_boundary.ifc.RelatedBuildingElement.GlobalId, None)
-            related_building_element.space_boundaries.append(space_boundary)
-            space_boundary.bound_instance = related_building_element
-            self.connect_instance_to_zone(relating_space, related_building_element)
+            if related_building_element:
+                related_building_element.space_boundaries.append(space_boundary)
+                space_boundary.bound_instance = related_building_element
+                self.connect_instance_to_zone(relating_space, related_building_element)
 
     @staticmethod
     def connect_instance_to_zone(thermal_zone, bound_instance):

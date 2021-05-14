@@ -118,9 +118,12 @@ class BuildingVerification(ITask):
         instance_type = type(instance).__name__
         template_instance_range = self.template_range[instance_type]
         # check u_value
-        if template_instance_range[0] * (1 - threshold) \
-                <= u_value.m <= template_instance_range[-1] * (1 + threshold):
-            return True
+        try:
+            if template_instance_range[0] * (1 - threshold) \
+                    <= u_value.m <= template_instance_range[-1] * (1 + threshold):
+                return True
+        except:
+            print()
         return False
 
     def get_template_threshold(self, instances):
