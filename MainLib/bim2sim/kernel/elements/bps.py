@@ -1103,16 +1103,6 @@ class Layer(element.RelationBased):
     def validate(self) -> bool:
         return True
 
-    @classmethod
-    def create_additional_layer(cls, thickness, parent, material=None, material_properties=None):
-        new_layer = cls(finder=TemplateFinder(), material=material, thickness=thickness)
-        new_layer.parent = parent
-        if material_properties is not None:
-            for attr in new_layer.attributes:
-                if getattr(new_layer, attr) == 0:
-                    setattr(new_layer, attr, material_properties[attr])
-        return new_layer
-
     def get_ifc_thickness(bind, name):
         if hasattr(bind.ifc, 'LayerThickness'):
             return bind.ifc.LayerThickness
