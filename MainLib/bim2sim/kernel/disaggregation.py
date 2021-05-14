@@ -4,7 +4,7 @@ import math
 import numpy as np
 import pint
 import re
-
+from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.kernel.element import ProductBased
 
 
@@ -20,9 +20,10 @@ class Disaggregation(ProductBased):
         super().__init__(*args, **kwargs)
         self.parent = element
         self.name = name
-        self.ifc_type = element.ifc_type
+        # self.ifc_type = element.ifc_type
         self.get_disaggregation_properties()
-        space_boundaries = []
+        self.space_boundaries = []
+        self.thermal_zones = []
 
     def get_disaggregation_properties(self):
         """properties getter -> that way no sub instances has to be defined"""
@@ -75,7 +76,7 @@ class Disaggregation(ProductBased):
             return parent
 
         else:
-            instance = disaggregation_class(name + '_%d' % i, parent)
+            instance = disaggregation_class(finder=TemplateFinder(), name=name + '_%d' % i, element=parent)
             instance.area = area_disaggregation
 
             # position calc

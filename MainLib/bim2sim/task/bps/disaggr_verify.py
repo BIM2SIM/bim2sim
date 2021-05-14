@@ -28,17 +28,18 @@ class Disaggregation_creation(ITask):
         tz_disaggregations = []
         for sb in tz.space_boundaries:
             bound_instance = sb.bound_instance
-            if sb.related_bound is not None:
-                if sb.guid in self.disaggregations:
-                    inst = self.disaggregations[sb.guid]
+            if bound_instance is not None:
+                if sb.related_bound is not None:
+                    if sb.guid in self.disaggregations:
+                        inst = self.disaggregations[sb.guid]
+                    else:
+                        inst = Disaggregation.based_on_thermal_zone(bound_instance, sb, tz)
+                        self.disaggregations[sb.related_bound.guid] = inst
                 else:
                     inst = Disaggregation.based_on_thermal_zone(bound_instance, sb, tz)
-                    self.disaggregations[sb.related_bound.guid] = inst
-            else:
-                inst = Disaggregation.based_on_thermal_zone(bound_instance, sb, tz)
-            tz_disaggregations.append(inst)
-            if sb not in inst.space_boundaries:
-                inst.space_boundaries.append(sb)
-            if tz not in inst.thermal_zones:
-                inst.thermal_zones.append(tz)
+                tz_disaggregations.append(inst)
+                if sb not in inst.space_boundaries:
+                    inst.space_boundaries.append(sb)
+                if tz not in inst.thermal_zones:
+                    inst.thermal_zones.append(tz)
         return tz_disaggregations
