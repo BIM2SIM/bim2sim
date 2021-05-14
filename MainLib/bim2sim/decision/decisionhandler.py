@@ -1,5 +1,26 @@
+"""
+DecisionHandlers prepare decisions to allow easy answering.
+
+DecisionHandlers are designed to handle DecisionBunch yielding generators.
+
+Example:
+    def degen():
+        decision = StringDecision("Whats your name?")
+        yield DecisionBunch([decision])
+        print(decision.value)
+
+    handler = DebugDecisionHandler(["R2D2"])
+
+    # version 1: no further interaction needed
+    handler.handle(degen())
+
+    # version 2: iterate over decisions and answers and apply them on your own
+    for decision, answer in handler.decision_answer_mapping(degen()):
+        decision.value = answer
+
+"""
 import logging
-from types import GeneratorType
+from abc import ABCMeta
 from typing import Iterable, Generator, Any
 
 from ..decision import BoolDecision, RealDecision, ListDecision, StringDecision, \
@@ -7,7 +28,7 @@ from ..decision import BoolDecision, RealDecision, ListDecision, StringDecision,
 
 
 # TODO: contextmanager (shutdown) or how to make sure shutdown is called?
-class DecisionHandler:
+class DecisionHandler(metaclass=ABCMeta):
     """Basic DecisionHandler for decision solving"""
 
     def __init__(self):

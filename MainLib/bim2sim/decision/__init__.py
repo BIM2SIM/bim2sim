@@ -4,8 +4,9 @@ Decision system.
 This package contains:
     - class Decision (and child classes) for representing decisions
     - class DecisionBunch for handling collections of Decision instances
+    - class DecisionHandler to handle decisions
     - functions save() and load() to save to file system
-    - interfaces to handle decisions"""
+    """
 
 import logging
 import enum
@@ -243,7 +244,9 @@ class Decision:
         return None
 
     def __repr__(self):
-        return '<%s (<%s> Q: "%s" A: %s)>' % (self.__class__.__name__, self.status, self.question, self.value)
+        value = str(self.value) if self.status == Status.ok else '???'
+        return '<%s (<%s> Q: "%s" A: %s)>' % (
+            self.__class__.__name__, self.status, self.question, value)
 
 
 class RealDecision(Decision):
@@ -344,6 +347,9 @@ class ListDecision(Decision):
             return zip(self.items, self.labels)
         else:
             return self.items
+
+    def _validate(self, value):
+        pass  # _validate not required. see validate
 
     def validate(self, value):
         return value in self.items
