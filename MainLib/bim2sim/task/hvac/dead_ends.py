@@ -32,7 +32,7 @@ class DeadEnds(ITask):
             uncoupled_graph.remove_edges_from(inner_edges)
         # find first class dead ends (open ports)
         dead_ends_fc = [v for v, d in uncoupled_graph.degree() if d == 0]
-        uncoupled_graph.plot('D:/10_ProgramTesting/uncoupled', ports=False)
+        # uncoupled_graph.plot('D:/10_ProgramTesting/uncoupled', ports=False)
         return dead_ends_fc
 
     @staticmethod
