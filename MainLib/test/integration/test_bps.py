@@ -1,5 +1,6 @@
 import unittest
 import bim2sim
+from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.kernel.element import RelationBased
 
@@ -18,9 +19,11 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         # TODO: update answers
         answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
-        with bim2sim.decision.Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
-        self.assertEqual(0, return_code, "Project did not finish successfully.")
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value,
+                         "Project did not finish successfully.")
 
     def test_run_kitoffice_spaces_low_layers_low(self):
         """Run project with AC20-Institute-Var-2.ifc"""
@@ -29,9 +32,10 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         # TODO: update answers
         answers = (True, True, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
-        with bim2sim.decision.Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
-        self.assertEqual(0, return_code, "Project did not finish successfully.")
+        handler = DebugDecisionHandler(answers)
+        handler.handle(project.run())
+        self.assertEqual(0, handler.return_value,
+                         "Project did not finish successfully.")
 
     # def test_run_kitfzkhaus_spaces_medium_layers_low(self):
     #     """Run project with AC20-FZK-Haus.ifc"""
