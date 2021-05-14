@@ -12,8 +12,25 @@ class EnergyPlus(Plugin):
     name = 'EnergyPlus'
     default_workflow = BPSMultiZoneSeparatedEP
     elements = {*bps_elements.items}
+    default_tasks = [
+        bps.SetIFCTypes,
+        common.LoadIFC,
+        common.CreateElements,
+        bps.TZInspect,
+        bps.EnrichUseConditions,
+        bps.MaterialVerification,  # LOD.full
+        bps.EnrichMaterial,  # LOD.full
+        bps.BuildingVerification,  # all LODs
+        bps.EnrichNonValid,  # LOD.full
+        bps.EnrichBuildingByTemplates,  # LOD.low
+        bps.Disaggregation_creation,
+        bps.BindThermalZones,
+        # todo see todo below!
+        bps.ExportEP,
+    ]
 
     def run(self, playground):
+        # todo: run() is obsolete, use default_tasks instead
         weather_file = 'DEU_NW_Aachen.105010_TMYx.epw'
 
         # with IFCBased.finder.disable():

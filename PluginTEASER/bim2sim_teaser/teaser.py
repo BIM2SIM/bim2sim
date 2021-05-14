@@ -11,8 +11,24 @@ class TEASERManager(Plugin):
     # default_workflow = BPSMultiZoneAggregated
     # default_workflow = BPSMultiZoneSeparated
     elements = {*bps_elements.items}
+    default_tasks = [
+        bps.SetIFCTypes,
+        common.LoadIFC,
+        common.CreateElements,
+        bps.TZInspect,
+        bps.EnrichUseConditions,
+        bps.MaterialVerification,  # LOD.full
+        bps.EnrichMaterial,  # LOD.full
+        bps.BuildingVerification,  # all LODs
+        bps.EnrichNonValid,  # LOD.full
+        bps.EnrichBuildingByTemplates,  # LOD.low
+        bps.Disaggregation_creation,
+        bps.BindThermalZones,
+        bps.ExportTEASER,
+    ]
 
     def run(self, playground):
+        # todo: run() is obsolete, use default_tasks instead
         playground.run_task(bps.SetIFCTypes())
         playground.run_task(common.LoadIFC())
         playground.run_task(common.CreateElements())
