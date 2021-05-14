@@ -1,4 +1,4 @@
-from bim2sim.task.base import Task, ITask
+from bim2sim.task.base import  ITask
 from bim2sim.kernel.disaggregation import Disaggregation
 from bim2sim.workflow import LOD
 

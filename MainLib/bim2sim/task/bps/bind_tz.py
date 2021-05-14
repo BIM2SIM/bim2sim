@@ -1,6 +1,6 @@
 import inspect
 
-from bim2sim.task.base import Task, ITask
+from bim2sim.task.base import ITask
 from bim2sim.decision import BoolDecision, ListDecision
 from bim2sim.kernel.element import RelationBased
 from bim2sim.kernel.aggregation import AggregatedThermalZone

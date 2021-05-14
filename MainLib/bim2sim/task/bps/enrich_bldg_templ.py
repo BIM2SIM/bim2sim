@@ -1,7 +1,7 @@
 import ast
 
 from bim2sim.kernel.elements import bps
-from bim2sim.task.base import Task, ITask
+from bim2sim.task.base import ITask
 from bim2sim.decision import ListDecision
 from bim2sim.workflow import LOD
 from bim2sim.task.bps.enrich_mat import EnrichMaterial

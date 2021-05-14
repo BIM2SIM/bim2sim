@@ -9,7 +9,7 @@ import numpy as np
 import networkx as nx
 
 from bim2sim.kernel.elements.hvac import HVACProduct
-from bim2sim.task.base import Task, ITask
+from bim2sim.task.base import ITask
 from bim2sim.filter import TypeFilter
 from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating,\
     ParallelPump
@@ -309,7 +309,7 @@ class ConnectElements(ITask):
                 yield from instance.decide_inner_connections()
 
 
-class Enrich(Task):
+class Enrich(ITask):
     def __init__(self):
         super().__init__()
         self.enrich_data = {}

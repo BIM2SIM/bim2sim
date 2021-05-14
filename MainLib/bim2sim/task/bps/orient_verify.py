@@ -1,4 +1,4 @@
-from bim2sim.task.base import Task, ITask
+from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import angle_equivalent
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.element import ProductBased

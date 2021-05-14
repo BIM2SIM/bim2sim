@@ -41,7 +41,7 @@ from stl import stl
 from stl import mesh
 
 from bim2sim.kernel.elements import bps
-from bim2sim.task.base import Task, ITask
+from bim2sim.task.base import ITask
 # from bim2sim.filter import TypeFilter
 # from bim2sim.kernel.elements import SpaceBoundary2B, SpaceBoundary
 from bim2sim.kernel.elements.bps import SpaceBoundary

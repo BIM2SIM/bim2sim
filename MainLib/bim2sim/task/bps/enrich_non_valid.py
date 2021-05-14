@@ -1,5 +1,5 @@
 import bim2sim.kernel.elements.bps
-from bim2sim.task.base import Task, ITask
+from bim2sim.task.base import ITask
 from bim2sim.kernel import elements
 from bim2sim.decision import RealDecision, StringDecision
 from bim2sim.workflow import LOD

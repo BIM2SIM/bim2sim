@@ -1,4 +1,4 @@
-from bim2sim.task.base import Task, ITask
+from bim2sim.task.base import ITask
 from bim2sim.decision import BoolDecision
 from bim2sim.kernel.element import ProductBased
 from ifcopenshell.file import file

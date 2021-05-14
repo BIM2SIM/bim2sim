@@ -1,7 +1,7 @@
 import re
 import translators as ts
 
-from bim2sim.task.base import Task, ITask
+from bim2sim.task.base import ITask
 from bim2sim.decision import BoolDecision, ListDecision, RealDecision, StringDecision
 from bim2sim.workflow import LOD
 from functools import partial

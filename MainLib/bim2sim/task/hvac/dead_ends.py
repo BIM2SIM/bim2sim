@@ -1,4 +1,4 @@
-from bim2sim.task.base import Task, ITask
+from bim2sim.task.base import ITask
 from bim2sim.decision import Decision, BoolDecision, DecisionBunch
 from bim2sim.task.hvac.hvac import hvac_graph
 
