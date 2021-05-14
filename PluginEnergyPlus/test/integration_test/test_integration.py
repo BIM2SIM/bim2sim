@@ -6,8 +6,7 @@ from pathlib import Path
 
 import os
 
-from bim2sim import _test_run_bps_ep
-from bim2sim.decision import Decision
+from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.project import Project
 
@@ -70,9 +69,10 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
-        # with Decision.debug_answer(answers, multi=True):
-        return_code = project.run()
-        self.assertEqual(0, return_code)
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value)
 
     @unittest.skip("")
     def test_base_02_FZK_full_run(self):
@@ -81,8 +81,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
-        with Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
     # @unittest.skip("")
@@ -93,8 +93,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True, *('Single office',)*4, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
-        with Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
     @unittest.skip("")
@@ -105,8 +105,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True, *('Single office',)*4, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
-        with Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
     # @unittest.skip("")
@@ -117,8 +117,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True,  2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
-        with Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
     @unittest.skip("")
@@ -129,8 +129,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True,  2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
-        with Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
     # @unittest.skip("Skipped due to performance for CI")
@@ -141,8 +141,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True,  *('Single office',)*78, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
-        with Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
     @unittest.skip("Skipped due to performance for CI")
@@ -153,8 +153,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True,  *('Single office',)*78, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
-        with Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
     @unittest.skip("Test currently holds inputs, which have to be moved to decisions")
@@ -165,8 +165,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = ('default', True, True,  *('Single office',)*59, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
-        with Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
     @unittest.skip("Test currently holds inputs, which have to be moved to decisions")
@@ -177,8 +177,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = ('default', True, True,  *('Single office',)*59, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
-        with Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
     @unittest.skip("Skipped, issue with inner loop algorithm") # todo: find bug related to inner_loop_remover
@@ -188,8 +188,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015,'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
-        with Decision.debug_answer(answers, multi=True, validate=True):
-            return_code = project.run()
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
     @unittest.skip("Skipped due to performance for CI")
@@ -199,8 +199,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015,'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
-        with Decision.debug_answer(answers, multi=True, validate=True):
-            return_code = project.run()
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
     # @unittest.skip("Skipped due to performance for CI")
@@ -210,8 +210,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
-        with Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
     @unittest.skip("Skipped due to performance for CI")
@@ -221,8 +221,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
-        with Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
 
