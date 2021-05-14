@@ -14,7 +14,6 @@ from os.path import expanduser
 from bim2sim.decision.console import ConsoleDecisionHandler
 from bim2sim.decision.decisionhandler import DecisionHandler
 from bim2sim.kernel import ifc2python
-from bim2sim.decision import Decision
 from bim2sim.project import Project, FolderStructure
 from bim2sim.plugin import Plugin
 from bim2sim.plugins import DummyPlugin

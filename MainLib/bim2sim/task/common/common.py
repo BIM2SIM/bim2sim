@@ -1,13 +1,12 @@
 import os
 from typing import Tuple, List, Any, Type, Set, Dict, Generator
 
-from bim2sim import Decision
-from bim2sim.decision import ListDecision, DecisionBunch
+from bim2sim.decision import Decision, ListDecision, DecisionBunch
 from bim2sim.filter import TypeFilter, TextFilter
 
 from bim2sim.kernel import ifc2python
 from bim2sim.kernel.element import Factory, ProductBased
-from bim2sim.task.base import ITask, Task
+from bim2sim.task.base import ITask
 from bim2sim.kernel.units import ifcunits, ureg, ifc_pint_unitmap, parse_ifc
 from ifcopenshell.file import file
 
