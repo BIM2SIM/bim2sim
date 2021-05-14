@@ -26,6 +26,7 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
         ifc = 'KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc'
         project = self.create_project(ifc, 'hkesim')
         answers = ('HVAC-HeatPump', 'HVAC-Storage', 'HVAC-Storage',
+                   '0k0IjzL0z6aOYAX23H_dA5', '1U379nXO902R21a41MGQRw',
                    *(True,)*16, 200)
         frontend = DebugFrontEnd(answers)
         for decision, answer in frontend.decision_answer_mapping(project.run()):
