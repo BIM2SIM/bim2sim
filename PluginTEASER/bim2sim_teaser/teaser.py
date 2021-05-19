@@ -1,22 +1,19 @@
 from bim2sim.plugin import Plugin
 from bim2sim.task import common
-from bim2sim.workflow import BPSMultiZoneSeparated, BPSMultiZoneAggregated, BPSOneZoneAggregated
+from bim2sim.workflow import BPSMultiZoneSeparatedLayersLow
 from bim2sim.kernel.elements import bps as bps_elements
 from bim2sim.task import bps
 
 
 class TEASERManager(Plugin):
     name = 'TEASER'
-    # default_workflow = BPSOneZoneAggregated
-    # default_workflow = BPSMultiZoneAggregated
-    default_workflow = BPSMultiZoneSeparated
+    default_workflow = BPSMultiZoneSeparatedLayersLow
     elements = {*bps_elements.items}
 
     def run(self, playground):
         playground.run_task(bps.SetIFCTypes())
         playground.run_task(common.LoadIFC())
         playground.run_task(common.CreateElements())
-        # todo take finder from playground in all relevant tasks
         playground.run_task(bps.CreateSpaceBoundaries())
         playground.run_task(bps.TZPrepare())
         playground.run_task(bps.EnrichUseConditions())

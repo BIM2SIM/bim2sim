@@ -18,7 +18,6 @@ from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
 from bim2sim.utilities.common_functions import filter_instances
-from bim2sim.kernel.finder import TemplateFinder
 
 
 logger = logging.getLogger(__name__)
@@ -1541,7 +1540,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         return bound_elements
 
     @classmethod
-    def based_on_groups(cls, groups, instances):
+    def based_on_groups(cls, groups, instances, finder):
         """creates a new thermal zone aggregation instance
          based on a previous filtering"""
         new_aggregations = []
@@ -1551,7 +1550,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
             if group == 'one_zone_building':
                 name = "Aggregated_%s" % group
                 # ToDO: Check Name property
-                instance = cls(groups[group], finder=TemplateFinder())
+                instance = cls(groups[group], finder=finder)
                 instance.name = name
                 # instance = cls(groups[group], name=name)
                 instance.description = group
@@ -1567,7 +1566,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                     # Todo: usage and conditions criterion
                     name = "Aggregated_not_neighbors"
                     # ToDO: Check Name property
-                    instance = cls(groups[group], finder=TemplateFinder())
+                    instance = cls(groups[group], finder=finder)
                     instance.name = name
                     # instance = cls(groups[group], name=name)
                     instance.description = group
@@ -1581,7 +1580,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                 group_name = re.sub('[\'\[\]]', '', group)
                 name = "Aggregated_%s" % group_name.replace(', ', '_')
                 # ToDO: Check Name property
-                instance = cls(groups[group], finder=TemplateFinder())
+                instance = cls(groups[group], finder=finder)
                 instance.name = name
                 # instance = cls(groups[group], name=name)
                 instance.description = ', '.join(ast.literal_eval(group))

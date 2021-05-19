@@ -1,10 +1,8 @@
 """Module for disaggregation"""
-
 import math
+
 import numpy as np
-import pint
-import re
-from bim2sim.kernel.finder import TemplateFinder
+
 from bim2sim.kernel.element import ProductBased
 
 
@@ -49,7 +47,7 @@ class Disaggregation(ProductBased):
         return supported_classes
 
     @classmethod
-    def based_on_thermal_zone(cls, parent, space_boundary, thermal_zone):
+    def based_on_thermal_zone(cls, parent, space_boundary, thermal_zone, finder):
         """creates a disaggregation based on a thermal zone and an instance parent
         based on area slice (thermal zone - area)"""
         supported_classes = cls.get_supported_classes()
@@ -76,7 +74,8 @@ class Disaggregation(ProductBased):
             return parent
 
         else:
-            instance = disaggregation_class(finder=TemplateFinder(), name=name + '_%d' % i, element=parent)
+            instance = disaggregation_class(
+                finder=finder, name=name + '_%d' % i, element=parent)
             instance.area = area_disaggregation
 
             # position calc

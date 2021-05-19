@@ -20,13 +20,14 @@ from bim2sim.decision import Decision
 from bim2sim.project import Project, FolderStructure
 from bim2sim.plugin import Plugin
 from bim2sim.plugins import DummyPlugin
-from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparated, BPSMultiZoneSeparatedEP
+from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparatedLayersLow,\
+    BPSMultiZoneSeparatedEP
 
 VERSION = '0.1-dev'
 
 # TODO: setup: copy backends to bim2sim/backends
 workflow_getter = {'aixlib': PlantSimulation,
-                   'teaser': BPSMultiZoneSeparated,
+                   'teaser': BPSMultiZoneSeparatedLayersLow,
                    'hkesim': PlantSimulation,
                    'energyplus': BPSMultiZoneSeparatedEP}
 

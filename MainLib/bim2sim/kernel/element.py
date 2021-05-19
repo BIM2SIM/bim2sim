@@ -221,7 +221,7 @@ class IFCMixin:
         while placementrel is not None:
             if placementrel.RelativePlacement.RefDirection is not None:
                 vector = placementrel.RelativePlacement.RefDirection.DirectionRatios
-                # ang_sum += vector_angle(o2)
+                ang_sum += vector_angle(vector)
             placementrel = placementrel.PlacementRelTo
 
         # relative vector + absolute vector
@@ -235,7 +235,7 @@ class IFCMixin:
             ang_sum += 180
 
         # angle between 0 and 360
-        return vector
+        return ang_sum
 
     def get_ifc_attribute(self, attribute):
         """

@@ -11,7 +11,7 @@ from bim2sim.utilities.common_functions import filter_instances
 class BindThermalZones(ITask):
     """Prepares bim2sim instances to later export"""
     # for 1Zone Building - workflow.spaces: LOD.low - Disaggregations not necessary
-    reads = ('tz_instances', 'instances')
+    reads = ('tz_instances', 'instances', 'finder')
     touches = ('bounded_tz',)
 
     def __init__(self):
@@ -20,28 +20,30 @@ class BindThermalZones(ITask):
         pass
 
     @Task.log
-    def run(self, workflow, tz_instances, instances):
+    def run(self, workflow, tz_instances, instances, finder):
         self.logger.info("Binds thermal zones based on criteria")
         if len(tz_instances) == 0:
             self.logger.warning("Found no spaces to bind")
         else:
             if workflow.spaces is LOD.low:
-                self.bind_tz_one_zone(list(tz_instances.values()), instances)
+                self.bind_tz_one_zone(
+                    list(tz_instances.values()), instances, finder)
             elif workflow.spaces is LOD.medium:
-                self.bind_tz_criteria(instances)
+                self.bind_tz_criteria(instances, finder)
             else:
                 self.bounded_tz = list(tz_instances.values())
             self.logger.info("obtained %d thermal zones", len(self.bounded_tz))
 
         return self.bounded_tz,
 
-    def bind_tz_one_zone(self, thermal_zones, instances):
+    def bind_tz_one_zone(self, thermal_zones, instances, finder):
         tz_group = {'one_zone_building': thermal_zones}
-        new_aggregations = AggregatedThermalZone.based_on_groups(tz_group, instances)
+        new_aggregations = AggregatedThermalZone.based_on_groups(
+            tz_group, instances, finder)
         for inst in new_aggregations:
             self.bounded_tz.append(inst)
 
-    def bind_tz_criteria(self, instances):
+    def bind_tz_criteria(self, instances, finder):
         criteria_functions = {}
         # this finds all the criteria methods implemented
         for k, func in dict(inspect.getmembers(self, predicate=inspect.ismethod)).items():
@@ -58,7 +60,8 @@ class BindThermalZones(ITask):
                 criteria_decision.decide()
             criteria_function = criteria_functions.get(criteria_decision.value)
             tz_groups = criteria_function(instances)
-            new_aggregations = AggregatedThermalZone.based_on_groups(tz_groups, instances)
+            new_aggregations = AggregatedThermalZone.based_on_groups(
+                tz_groups, instances, finder=finder)
             for inst in new_aggregations:
                 self.bounded_tz.append(inst)
 
