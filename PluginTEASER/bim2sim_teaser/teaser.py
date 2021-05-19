@@ -16,7 +16,7 @@ class TEASERManager(Plugin):
         playground.run_task(bps.SetIFCTypes())
         playground.run_task(common.LoadIFC())
         playground.run_task(common.CreateElements())
-
+        # todo take finder from playground in all relevant tasks
         playground.run_task(bps.CreateSpaceBoundaries())
         playground.run_task(bps.TZPrepare())
         playground.run_task(bps.EnrichUseConditions())

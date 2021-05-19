@@ -1,6 +1,7 @@
 import tempfile
 from pathlib import Path
 from bim2sim.project import Project
+from bim2sim import workflow
 
 
 sample_root = Path(__file__).parent.parent.parent / 'test/TestModels'
@@ -18,7 +19,7 @@ class IntegrationBase:
             self.assertFalse(self.project.paths.root.exists())
             self.project = None
 
-    def create_project(self, ifc: str, plugin: str):
+    def create_project(self, ifc: str, plugin: str, workflow: workflow):
         """create project in temporary directory which is cleaned automatically after test.
 
         :param plugin: Project plugin e.g. 'hkesim', 'aixlib', ...
@@ -26,7 +27,7 @@ class IntegrationBase:
         self.project = Project.create(
             tempfile.TemporaryDirectory(prefix='bim2sim_').name,
             ifc_path=sample_root / ifc,
-            default_plugin=plugin)
+            default_plugin=plugin, workflow=workflow)
         return self.project
 
     # def run_project(self, ifc_file: str, backend: str):

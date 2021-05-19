@@ -1647,12 +1647,14 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
     usage = attribute.Attribute(
         functions=[_get_tz_usage]
     )
-    t_set_heat = attribute.Attribute(
-        functions=[_intensive_calc],
-        unit=ureg.degC
-    )
+    # t_set_heat = attribute.Attribute(
+    #     functions=[_intensive_calc],
+    #     unit=ureg.degC
+    # )
+    # todo refactor this to remove redundancy for units
+    t_set_heat = bps.ThermalZone.t_set_heat.to_aggregation(_intensive_calc)
+
     t_set_cool = attribute.Attribute(
-        functions=[_intensive_calc],
         unit=ureg.degC
     )
     t_ground = attribute.Attribute(

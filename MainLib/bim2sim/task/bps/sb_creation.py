@@ -3,27 +3,28 @@ from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import RelationBased
 from bim2sim.task.base import ITask, Task
 from bim2sim.kernel.elements.bps import SpaceBoundary
-from bim2sim.kernel.finder import TemplateFinder
 
 
 class CreateSpaceBoundaries(ITask):
     """Create internal elements from ifc."""
 
-    reads = ('ifc', 'instances',)
+    reads = ('ifc', 'instances', 'finder')
     touches = ('space_boundaries', )
 
-    def run(self, workflow, ifc, instances):
+    def run(self, workflow, ifc, instances, finder):
         self.logger.info("Creates elements of relevant ifc types")
         type_filter = TypeFilter(('IfcRelSpaceBoundary',))
         entity_type_dict, unknown_entities = type_filter.run(ifc)
-        instance_lst = self.instantiate_space_boundaries(entity_type_dict, instances)
+        instance_lst = self.instantiate_space_boundaries(
+            entity_type_dict, instances, finder)
         self.logger.info("Created %d elements", len(instance_lst))
 
         space_boundaries = {inst.guid: inst for inst in instance_lst}
         return space_boundaries,
 
     @Task.log
-    def instantiate_space_boundaries(self, entities_dict, instances) -> List[RelationBased]:
+    def instantiate_space_boundaries(self, entities_dict, instances,
+                                     finder) -> List[RelationBased]:
         """Instantiate ifc_entities using given element class.
         Resulting instances are validated (if not force).
         Results are two lists, one with valid elements and one with
@@ -31,7 +32,7 @@ class CreateSpaceBoundaries(ITask):
 
         instance_lst = []
         for entity in entities_dict:
-            element = SpaceBoundary.from_ifc(entity, finder=TemplateFinder())
+            element = SpaceBoundary.from_ifc(entity, finder=finder)
             self.connect_space_boundaries(element, instances)
             instance_lst.append(element)
 

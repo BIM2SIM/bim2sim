@@ -118,15 +118,14 @@ class BuildingVerification(ITask):
         instance_type = type(instance).__name__
         template_instance_range = self.template_range[instance_type]
         # check u_value
-        try:
-            if template_instance_range[0] * (1 - threshold) \
-                    <= u_value.m <= template_instance_range[-1] * (1 + threshold):
-                return True
-        except:
-            print()
+        if template_instance_range[0] * (1 - threshold) \
+                <= u_value.m <= template_instance_range[-1] * (1 + threshold):
+            return True
+
         return False
 
     def get_template_threshold(self, instances):
+        # todo we might have multiple buildings see issue #165
         building = filter_instances(instances, 'Building')[0]
         # todo @ dja check if this is total date (e.g. 01.01.2000, then use only year)
         year_of_construction = int(building.year_of_construction.m)

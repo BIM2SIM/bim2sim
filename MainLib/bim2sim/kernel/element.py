@@ -213,14 +213,15 @@ class IFCMixin:
 
         return absolute
 
-    def calc_orientation(self):
+    def calc_orientation(self) -> np.array:
         # ToDO: true north angle
+        # ToDO: we want a consistent return which is a absolute vector.
         ang_sum = 0
         placementrel = self.ifc.ObjectPlacement
         while placementrel is not None:
             if placementrel.RelativePlacement.RefDirection is not None:
-                o2 = placementrel.RelativePlacement.RefDirection.DirectionRatios
-                ang_sum += vector_angle(o2)
+                vector = placementrel.RelativePlacement.RefDirection.DirectionRatios
+                # ang_sum += vector_angle(o2)
             placementrel = placementrel.PlacementRelTo
 
         # relative vector + absolute vector
@@ -234,7 +235,7 @@ class IFCMixin:
             ang_sum += 180
 
         # angle between 0 and 360
-        return angle_equivalent(ang_sum)
+        return vector
 
     def get_ifc_attribute(self, attribute):
         """
@@ -426,9 +427,6 @@ class IFCMixin:
 
 
 class RelationBased(IFCMixin, Root):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
     def __repr__(self):
         return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)
@@ -624,7 +622,7 @@ class Factory:
         element = element_cls.from_ifc(
             ifc_entity, finder=self.finder, *args, **kwargs)
         # check if it prefers to be sth else
-        better_cls = element.get_better_subclass() if hasattr(element, 'get_better_subclass') else None
+        better_cls = element.get_better_subclass()
         if better_cls:
             logger.info("Creating %s instead of %s", better_cls, element_cls)
             element = better_cls.from_ifc(ifc_entity, finder=self.finder, *args, **kwargs)

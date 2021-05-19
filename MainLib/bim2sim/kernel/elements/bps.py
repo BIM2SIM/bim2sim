@@ -372,6 +372,8 @@ class ThermalZone(BPSProduct):
 class SpaceBoundary(element.RelationBased):
     ifc_types = {'IfcRelSpaceBoundary': ['*']}
 
+
+
     def __init__(self, *args, **kwargs):
         """spaceboundary __init__ function"""
         super().__init__(*args, **kwargs)
@@ -413,7 +415,9 @@ class SpaceBoundary(element.RelationBased):
         return True
 
     def validate(self) -> bool:
-        return True
+        if self.bound_area and self.bound_area < 1e-2 * ureg.meter ** 2:
+            return True
+        return False
 
     def get_bound_neighbors(bind, name):
         neighbors = []
@@ -1016,13 +1020,13 @@ class Wall(BPSProduct):
         """wall __init__ function"""
         super().__init__(*args, **kwargs)
 
-    def _get_layers(bind, name):
+    def _get_layers(self, name):
         """wall _get_layers function"""
         layers = []
-        material_layers_dict = get_layers_ifc(bind)
+        material_layers_dict = get_layers_ifc(self)
         for layer in material_layers_dict:
-            new_layer = Layer.from_ifc(layer, finder=TemplateFinder())
-            new_layer.parent = bind
+            new_layer = Layer.from_ifc(layer, finder=self.finder)
+            new_layer.parent = self
             layers.append(new_layer)
         return layers
 
