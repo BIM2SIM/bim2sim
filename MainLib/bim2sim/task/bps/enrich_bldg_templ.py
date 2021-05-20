@@ -27,7 +27,7 @@ class EnrichBuildingByTemplates(ITask):
         self.logger.info("setting verifications")
         if workflow.layers is LOD.low:
             construction_type = self.get_construction_type()
-            for instance in invalid_layers:
+            for instance in invalid_layers.values():
                 self.template_layers_creation(instance, construction_type, instances)
                 self.enriched_layers.append(instance)
             windows = filter_instances(instances, 'Window')

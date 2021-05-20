@@ -1140,11 +1140,13 @@ class Layer(element.RelationBased):
 
 
 class OuterWall(Wall):
-    is_external = True
+    pass
+    # is_external = True
 
 
 class InnerWall(Wall):
-    is_external = False
+    pass
+    # is_external = False
 
 
 class Window(BPSProduct):
@@ -1268,11 +1270,13 @@ class Door(BPSProduct):
 
 
 class InnerDoor(Door):
-    is_external = False
+    # is_external = False
+    pass
 
 
 class OuterDoor(Door):
-    is_external = True
+    # is_external = True
+    pass
 
 
 class Plate(BPSProduct):

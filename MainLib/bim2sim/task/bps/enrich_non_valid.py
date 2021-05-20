@@ -28,11 +28,10 @@ class EnrichNonValid(ITask):
         self.logger.info("setting verifications")
         if workflow.layers is not LOD.low:
             construction_type = EnrichBuildingByTemplates.get_construction_type()
-            for instance in invalid_layers:
+            for instance in invalid_layers.values():
                 self.layers_creation(instance, construction_type, instances)
                 self.enriched_layers.append(instance)
             windows = filter_instances(instances, 'Window')
-
             for window in windows:
                 self.window_manual_enrichment(window)
 

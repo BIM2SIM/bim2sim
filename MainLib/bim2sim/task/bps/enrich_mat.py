@@ -26,10 +26,10 @@ class EnrichMaterial(ITask):
         pass
 
     @Task.log
-    def run(self, workflow: Workflow, instances: dict, invalid_materials: list):
+    def run(self, workflow: Workflow, instances: dict, invalid_materials: dict):
         self.logger.info("setting verifications")
         if workflow.layers is not LOD.low:
-            for instance in invalid_materials:
+            for instance in invalid_materials.values():
                 self.get_layer_properties(instance)
                 self.enriched_materials.append(instance)
             self.logger.info("enriched %d invalid materials", len(self.enriched_materials))

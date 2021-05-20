@@ -118,21 +118,21 @@ class BPSMultiZoneSeparatedLayersFull(Workflow):
             # layers=LOD.low,
             layers=LOD.full,
         )
-        self.relevant_ifc_types = (
-            'IfcSite',
-            'IfcBuilding',
-            'IfcBuildingStorey',
-            # 'IfcWallElementedCase',
-            # 'IfcWallStandardCase',
-            'IfcWall',
-            'IfcWindow',
-            'IfcDoor',
-            'IfcSlab',
-            'IfcRoof',
-            'IfcSpaceHeater',
-            'IfcAirTerminal',
-            'IfcAirTerminalBox',
-        )
+        # self.relevant_ifc_types = (
+        #     'IfcSite',
+        #     'IfcBuilding',
+        #     'IfcBuildingStorey',
+        #     # 'IfcWallElementedCase',
+        #     # 'IfcWallStandardCase',
+        #     'IfcWall',
+        #     'IfcWindow',
+        #     'IfcDoor',
+        #     'IfcSlab',
+        #     'IfcRoof',
+        #     'IfcSpaceHeater',
+        #     'IfcAirTerminal',
+        #     'IfcAirTerminalBox',
+        # )
 
 
 class BPSMultiZoneSeparatedLayersLow(Workflow):
@@ -149,21 +149,6 @@ class BPSMultiZoneSeparatedLayersLow(Workflow):
             hvac=LOD.low,
             spaces=LOD.full,
             layers=LOD.low,
-        )
-        self.relevant_ifc_types = (
-            'IfcSite',
-            'IfcBuilding',
-            'IfcBuildingStorey',
-            # 'IfcWallElementedCase',
-            # 'IfcWallStandardCase',
-            'IfcWall',
-            'IfcWindow',
-            'IfcDoor',
-            'IfcSlab',
-            'IfcRoof',
-            'IfcSpaceHeater',
-            'IfcAirTerminal',
-            'IfcAirTerminalBox',
         )
 
 
@@ -182,21 +167,6 @@ class BPSMultiZoneCombinedLayersFull(Workflow):
             spaces=LOD.medium,
             layers=LOD.full,
         )
-        self.relevant_ifc_types = (
-            'IfcSite',
-            'IfcBuilding',
-            'IfcBuildingStorey',
-            # 'IfcWallElementedCase',
-            # 'IfcWallStandardCase',
-            'IfcWall',
-            'IfcWindow',
-            'IfcDoor',
-            'IfcSlab',
-            'IfcRoof',
-            'IfcSpaceHeater',
-            'IfcAirTerminal',
-            'IfcAirTerminalBox',
-        )
 
 
 class BPSMultiZoneCombinedLayersLow(Workflow):
@@ -214,21 +184,6 @@ class BPSMultiZoneCombinedLayersLow(Workflow):
             spaces=LOD.medium,
             layers=LOD.low,
         )
-        self.relevant_ifc_types = (
-            'IfcSite',
-            'IfcBuilding',
-            'IfcBuildingStorey',
-            # 'IfcWallElementedCase',
-            # 'IfcWallStandardCase',
-            'IfcWall',
-            'IfcWindow',
-            'IfcDoor',
-            'IfcSlab',
-            'IfcRoof',
-            'IfcSpaceHeater',
-            'IfcAirTerminal',
-            'IfcAirTerminalBox',
-        )
 
 
 class BPSMultiZoneAggregatedLayersLow(Workflow):
@@ -245,21 +200,6 @@ class BPSMultiZoneAggregatedLayersLow(Workflow):
             spaces=LOD.medium,
             layers=LOD.low,
         )
-        self.relevant_ifc_types = (
-            'IfcSite',
-            'IfcBuilding',
-            'IfcBuildingStorey',
-            # 'IfcWallElementedCase',
-            # 'IfcWallStandardCase',
-            'IfcWall',
-            'IfcWindow',
-            'IfcDoor',
-            'IfcSlab',
-            'IfcRoof',
-            'IfcSpaceHeater',
-            'IfcAirTerminal',
-            'IfcAirTerminalBox',
-        )
 
 
 class BPSMultiZoneAggregatedLayersFull(Workflow):
@@ -275,21 +215,6 @@ class BPSMultiZoneAggregatedLayersFull(Workflow):
             hvac=LOD.low,
             spaces=LOD.medium,
             layers=LOD.full,
-        )
-        self.relevant_ifc_types = (
-            'IfcSite',
-            'IfcBuilding',
-            'IfcBuildingStorey',
-            # 'IfcWallElementedCase',
-            # 'IfcWallStandardCase',
-            'IfcWall',
-            'IfcWindow',
-            'IfcDoor',
-            'IfcSlab',
-            'IfcRoof',
-            'IfcSpaceHeater',
-            'IfcAirTerminal',
-            'IfcAirTerminalBox',
         )
 
 
@@ -308,21 +233,6 @@ class BPSOneZoneAggregatedLayersLow(Workflow):
             layers=LOD.low,
             # layers=LOD.full,
         )
-        self.relevant_ifc_types = (
-            'IfcSite',
-            'IfcBuilding',
-            'IfcBuildingStorey',
-            # 'IfcWallElementedCase',
-            # 'IfcWallStandardCase',
-            'IfcWall',
-            'IfcWindow',
-            'IfcDoor',
-            'IfcSlab',
-            'IfcRoof',
-            'IfcSpaceHeater',
-            'IfcAirTerminal',
-            'IfcAirTerminalBox',
-        )
 
 
 class BPSOneZoneAggregatedLayersFull(Workflow):
@@ -338,21 +248,6 @@ class BPSOneZoneAggregatedLayersFull(Workflow):
             hvac=LOD.low,
             spaces=LOD.low,
             layers=LOD.full,
-        )
-        self.relevant_ifc_types = (
-            'IfcSite',
-            'IfcBuilding',
-            'IfcBuildingStorey',
-            # 'IfcWallElementedCase',
-            # 'IfcWallStandardCase',
-            'IfcWall',
-            'IfcWindow',
-            'IfcDoor',
-            'IfcSlab',
-            'IfcRoof',
-            'IfcSpaceHeater',
-            'IfcAirTerminal',
-            'IfcAirTerminalBox',
         )
 
 
@@ -370,18 +265,4 @@ class BPSMultiZoneSeparatedEP(Workflow):
             hvac=LOD.low,
             spaces=LOD.full,
             layers=LOD.low,
-        )
-        self.relevant_ifc_types = (
-            'IfcSite',
-            'IfcBuilding',
-            'IfcBuildingStorey',
-            'IfcBeam',
-            'IfcWall',
-            'IfcWindow',
-            'IfcDoor',
-            'IfcSlab',
-            'IfcRoof',
-            'IfcSpaceHeater',
-            'IfcAirTerminal',
-            'IfcAirTerminalBox',
         )

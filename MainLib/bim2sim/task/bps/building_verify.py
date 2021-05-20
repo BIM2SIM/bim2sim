@@ -16,18 +16,22 @@ class BuildingVerification(ITask):
 
     def __init__(self):
         super().__init__()
-        self.invalid_layers = []
+        # self.invalid_layers = []
+        self.invalid_layers = {}
         self.template_range = {}
         pass
 
     @Task.log
-    def run(self, workflow, instances,):
+    def run(self, workflow, instances):
         self.logger.info("setting verifications")
         self.get_template_threshold(instances)
         for guid, ins in instances.items():
             if not self.layers_verification(ins, workflow):
-                self.invalid_layers.append(ins)
+                # self.invalid_layers.append(ins)
+                self.invalid_layers[ins.guid] = ins
         self.logger.warning("Found %d invalid layers", len(self.invalid_layers))
+        dict_items = self.invalid_layers.items()
+        self.invalid_layers = dict(sorted(dict_items))
 
         return self.invalid_layers,
 

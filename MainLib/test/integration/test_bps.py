@@ -58,21 +58,21 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BPSMultiZoneCombinedLayersFull()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'Kitchen - preparations, storage', True, 'Concrete_DK', True, 'solid_brick_h', True,
-                   'Light_Concrete_DK', True, 'hardwood', 'heavy', 1, 'Brick', 'brick_H', 'EnEv', 1, 'Door', *(1,) * 8,
-                   False)
+        answers = (True, True, 'Kitchen - preparations, storage', True, 'solid_brick_h', True, 'hardwood', True,
+                   'Concrete_DK', True, 'Light_Concrete_DK', 'heavy', 1, 'Door', 1, 'Brick', 'brick_H', 'EnEv',
+                   *(1,) * 8, False)
         with bim2sim.decision.Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code, "Project did not finish successfully.")
-    #
+
     def test_run_kitoffice_spaces_medium_layers_full(self):
         """Run project with AC20-Institute-Var-2.ifc"""
         ifc = 'AC20-Institute-Var-2.ifc'
         used_workflow = workflow.BPSMultiZoneCombinedLayersFull()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, True, 'Concrete_DK', True, 'belgian_brick', 'Door', True, True, 'air_layer', 2015,
-                   'heavy', 1, 'Beton', 'Light_Concrete_DK', 1, 'Beton', 1, 'Beton', 1, 'Door', 1,
-                   'Door', *(1,) * 8, False)
+        answers = (True, True, 'Glas', True, 'glas_generic', 500, 1.5, 0.2, True, 'air_layer', True, 'belgian_brick',
+                   0.1, True, 'Concrete_DK', 2015, 'heavy', 1, 'Beton', 'Light_Concrete_DK', 1, 'Beton', 1, 'Door',
+                   1, 'Beton', *(1,) * 8, False)
         with bim2sim.decision.Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code, "Project did not finish successfully.")
@@ -82,8 +82,8 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BPSMultiZoneSeparatedLayersFull()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'Kitchen - preparations, storage', True, 'hardwood', True, 'Concrete_DK', True,
-                   'Light_Concrete_DK', True, 'solid_brick_a', 'heavy', 1, 'Door', 'EnEv', 1, 'Brick', 'brick_H',
+        answers = (True, True, 'Kitchen - preparations, storage', True, 'solid_brick_a', True, 'hardwood', True,
+                   'Light_Concrete_DK', True, 'Concrete_DK', 'heavy', 1, 'Door', 1, 'Brick', 'brick_H', 'EnEv',
                    *(1,) * 8)
         with bim2sim.decision.Decision.debug_answer(answers, multi=True):
             return_code = project.run()
@@ -94,9 +94,9 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-Institute-Var-2.ifc'
         used_workflow = workflow.BPSMultiZoneSeparatedLayersFull()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, True, 'Concrete_DK', 'Glas', True, 'glas_generic', 500, 1.5, 0.2, True, 'air_layer',
-                   True, 'belgian_brick', 0.1, 2015, 'heavy', 1, 'Beton', 'Light_Concrete_DK', 1, 'Beton', 1, 'Door',
-                   *(1,) * 8)
+        answers = (True, True, 'Glas', True, 'glas_generic', 500, 1.5, 0.2, True, 'air_layer', True, 'belgian_brick',
+                   0.1, True, 'Concrete_DK', 2015, 'heavy', 1, 'Beton', 'Light_Concrete_DK', 1, 'Beton', 1, 'Door', 1,
+                   'Beton', *(1,) * 8)
         with bim2sim.decision.Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code, "Project did not finish successfully.")
