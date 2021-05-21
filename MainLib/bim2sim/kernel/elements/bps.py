@@ -567,6 +567,8 @@ class SpaceBoundary(element.RelationBased):
             min_dist = 1000
             corr_bound = None
             for bound in self.bound_instance.space_boundaries:
+                if self.guid == '1ihHcK0hCk3AOyf8uB_ya9' and bound.guid == '1l0JNoTpoyIitPk8HO1rqb':
+                    print()
                 if bound.level_description != "2a":
                     continue
                 if bound.bound_thermal_zone.ifc.GlobalId == own_space_id:
@@ -922,19 +924,23 @@ class SpaceBoundary(element.RelationBased):
         opening_area = 0
         for opening_boundary in self.opening_bounds:
             opening_area += opening_boundary.bound_area.m
-        area = self.bound_area - opening_area
+        area = self.bound_area.m - opening_area
         return area
 
     def get_openings(self, name):
+        if self.guid == '1SI$RS_iA1OGydUirgPJ6w':
+            print()
         opening_bounds = []
+        opening_instances = []
         if self.bound_instance:
             bound_element_ifc = self.bound_instance.ifc
             for sb in self.bound_thermal_zone.space_boundaries:
-                if sb.bound_instance:
+                if sb.bound_instance and sb.bound_instance not in opening_instances:
                     if len(sb.bound_instance.ifc.FillsVoids) > 0:
                         if sb.bound_instance.ifc.FillsVoids[0].RelatingOpeningElement.VoidsElements[0]. \
                                 RelatingBuildingElement == bound_element_ifc:
                             opening_bounds.append(sb)
+                            opening_instances.append(sb.bound_instance)
         return opening_bounds
 
     bound_shape = attribute.Attribute(
@@ -1075,6 +1081,26 @@ class Wall(BPSProduct):
                 elif boundary.InternalOrExternalBoundary.lower() == 'internal':
                     return False
 
+    def get_bound_area(self, name):
+        bound_area = 0
+        for sb in self.non_duplicated_sb:
+            bound_area += sb.bound_area
+        return bound_area
+
+    def get_net_bound_area(self, name):
+        net_bound_area = 0
+        for sb in self.non_duplicated_sb:
+            net_bound_area += sb.net_bound_area
+        return net_bound_area
+
+    def get_non_duplicated_sb(self, name):
+        valid_sb = list(self.space_boundaries)
+        for sb in self.space_boundaries:
+            if sb in valid_sb:
+                if sb.related_bound and sb.related_bound in valid_sb:
+                    valid_sb.remove(sb.related_bound)
+        return valid_sb
+
     layers = attribute.Attribute(
         functions=[_get_layers]
     )
@@ -1085,7 +1111,7 @@ class Wall(BPSProduct):
     )
     gross_area = attribute.Attribute(
         default_ps=("QTo_WallBaseQuantities", "GrossSideArea"),
-        default=1,
+        default=0,
         unit=ureg.meter ** 2
     )
     is_external = attribute.Attribute(
@@ -1102,6 +1128,17 @@ class Wall(BPSProduct):
     width = attribute.Attribute(
         default_ps=("QTo_WallBaseQuantities", "Width"),
         unit=ureg.m
+    )
+    bound_area = attribute.Attribute(
+        functions=[get_bound_area],
+        unit=ureg.meter ** 2
+    )
+    net_bound_area = attribute.Attribute(
+        functions=[get_net_bound_area],
+        unit=ureg.meter ** 2
+    )
+    non_duplicated_sb = attribute.Attribute(
+        functions=[get_non_duplicated_sb],
     )
 
 

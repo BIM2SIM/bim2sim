@@ -2,7 +2,7 @@ from typing import List
 from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import RelationBased
 from bim2sim.task.base import ITask, Task
-from bim2sim.kernel.elements.bps import SpaceBoundary
+from bim2sim.kernel.elements.bps import SpaceBoundary, InnerWall
 
 
 class CreateSpaceBoundaries(ITask):
@@ -34,7 +34,11 @@ class CreateSpaceBoundaries(ITask):
         for entity in entities_dict:
             element = SpaceBoundary.from_ifc(entity, finder=finder)
             self.connect_space_boundaries(element, instances)
+            self.get_boundary_openings(element, instances)
             instance_lst.append(element)
+
+        for sb in instance_lst:
+            x = sb.opening_bounds
 
         return instance_lst
 
