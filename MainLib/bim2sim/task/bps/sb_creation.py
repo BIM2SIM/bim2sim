@@ -34,6 +34,8 @@ class CreateSpaceBoundaries(ITask):
         for entity in entities_dict:
             element = SpaceBoundary.from_ifc(entity, finder=finder)
             self.connect_space_boundaries(element, instances)
+            if element.opening_bounds is None:
+                print()
             instance_lst.append(element)
 
         return instance_lst

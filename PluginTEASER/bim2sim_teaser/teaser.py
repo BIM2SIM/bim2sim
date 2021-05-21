@@ -8,8 +8,8 @@ from bim2sim.task import bps
 
 class TEASERManager(Plugin):
     name = 'TEASER'
-    # default_workflow = BPSMultiZoneSeparatedLayersLow
-    default_workflow = BPSMultiZoneSeparatedLayersFull
+    default_workflow = BPSMultiZoneSeparatedLayersLow
+    # default_workflow = BPSMultiZoneSeparatedLayersFull
     # default_workflow = BPSMultiZoneCombinedLayersFull
     elements = {*bps_elements.items}
 
@@ -29,7 +29,7 @@ class TEASERManager(Plugin):
         playground.run_task(bps.EnrichNonValid())  # LOD.full
         playground.run_task(bps.EnrichBuildingByTemplates())  # LOD.low
 
-        playground.run_task(bps.Disaggregation_creation())
+        playground.run_task(bps.DisaggregationCreation())
         playground.run_task(bps.BindThermalZones())
         playground.run_task(bps.ExportTEASER())
         pass

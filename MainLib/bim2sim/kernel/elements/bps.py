@@ -21,7 +21,7 @@ from OCC.Core.GeomAPI import GeomAPI_ProjectPointOnCurve
 from OCC.Core.ShapeAnalysis import ShapeAnalysis_ShapeContents
 from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
-from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ,  gp_Dir, gp_Ax1, gp_Pnt
+from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt
 from OCC.Core.TopoDS import topods_Wire, topods_Face, TopoDS_Iterator
 from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_WIRE
 from OCC.Core.TopExp import TopExp_Explorer
@@ -38,7 +38,6 @@ from bim2sim.utilities.common_functions import vector_angle, filter_instances
 from bim2sim.task.common.inner_loop_remover import remove_inner_loops
 from bim2sim.decision import StringDecision
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -50,16 +49,6 @@ class BPSProduct(element.ProductBased):
         self.thermal_zones = []
         self.space_boundaries = []
         self.storeys = []
-        # HACK: what happened to name?
-        if self.ifc is not None:
-            if self.ifc.Name is not None:
-                if len(self.ifc.Name) > 0:
-                    self.name = self.ifc.Name
-                else:
-                    name_dec = StringDecision(question="Please enter name for the instance %s" % type(self).__name__,
-                                              default="unnamed", global_key=f'IfcName-Decision-{self.guid}',
-                                              allow_load=True, allow_save=True)
-                    self.name = name_dec.decide()
 
 
 class ThermalZone(BPSProduct):
@@ -126,9 +115,9 @@ class ThermalZone(BPSProduct):
         for sb in self.space_boundaries:
             if sb.related_bound is not None:
                 tz = sb.related_bound.thermal_zones[0]
-                #todo: check if computation of neighbors works as expected
-                #what if boundary has no related bound but still has a neighbor?
-                #hint: neighbors != related bounds
+                # todo: check if computation of neighbors works as expected
+                # what if boundary has no related bound but still has a neighbor?
+                # hint: neighbors != related bounds
                 if (tz is not self) and (tz not in neighbors):
                     neighbors.append(tz)
         return neighbors
@@ -192,7 +181,7 @@ class ThermalZone(BPSProduct):
         return volume
 
     def _get_volume(self, name):
-        return self.area*self.height
+        return self.area * self.height
 
     def _get_usage(self, name):
         if self.zone_name is not None:
@@ -216,8 +205,14 @@ class ThermalZone(BPSProduct):
         return profile
 
     def _get_persons(self, name):
-        return 1/self.AreaPerOccupant
+        return 1 / self.AreaPerOccupant
 
+    def _get_name(self, name):
+        return self.ifc.Name
+
+    name = attribute.Attribute(
+        functions=[_get_name]
+    )
     zone_name = attribute.Attribute(
     )
     usage = attribute.Attribute(
@@ -249,7 +244,7 @@ class ThermalZone(BPSProduct):
     )
     volume = attribute.Attribute(
         functions=[_get_volume],
-        unit=ureg.meter**3,
+        unit=ureg.meter ** 3,
         default=0
     )
     height = attribute.Attribute(
@@ -371,24 +366,12 @@ class ThermalZone(BPSProduct):
 class SpaceBoundary(element.RelationBased):
     ifc_types = {'IfcRelSpaceBoundary': ['*']}
 
-
-
     def __init__(self, *args, **kwargs):
         """spaceboundary __init__ function"""
         super().__init__(*args, **kwargs)
         self.disaggregation = []
         self.bound_instance = None
         self.bound_thermal_zone = None
-
-        self.level_description = self.ifc.Description
-        if self.ifc.InternalOrExternalBoundary.lower() == 'internal':
-            self.is_external = False
-        else:
-            self.is_external = True
-        if self.ifc.PhysicalOrVirtualBoundary.lower() == 'physical':
-            self.physical = True
-        else:
-            self.physical = False
 
     def calc_orientation(self):
 
@@ -459,7 +442,7 @@ class SpaceBoundary(element.RelationBased):
         vertical = gp_XYZ(0.0, 0.0, 1.0)
         # only assign top and bottom for elements, whose
         # surface normals are not perpendicular to a vertical
-        if -1e-3 < self.bound_normal.Dot(vertical) <1e-3:
+        if -1e-3 < self.bound_normal.Dot(vertical) < 1e-3:
             top_bottom = "VERTICAL"
         elif self.related_bound != None:
             if (self.bound_center.Z() - self.related_bound.bound_center.Z()) > 1e-2:
@@ -472,10 +455,10 @@ class SpaceBoundary(element.RelationBased):
                 elif vertical.Dot(self.bound_normal) > 0.8:
                     top_bottom = "TOP"
         elif self.related_adb_bound != None:
-                if self.bound_center.Z() > self.related_adb_bound.bound_center.Z():
-                    top_bottom = "BOTTOM"
-                else:
-                    top_bottom = "TOP"
+            if self.bound_center.Z() > self.related_adb_bound.bound_center.Z():
+                top_bottom = "BOTTOM"
+            else:
+                top_bottom = "TOP"
         else:
             # direct = self.bound_center.Z() - self.thermal_zones[0].space_center.Z()
             # if direct < 0 and SpaceBoundary._compare_direction_of_normals(self.bound_normal, vertical):
@@ -597,12 +580,12 @@ class SpaceBoundary(element.RelationBased):
                     Extrema_ExtFlag_MIN
                 ).Value()
                 center_dist = gp_Pnt(self.bound_center).Distance(gp_Pnt(bound.bound_center)) ** 2
-                if (center_dist)**0.5 > 0.5:
+                if (center_dist) ** 0.5 > 0.5:
                     continue
                 if distance > min_dist:
                     continue
                 other_area = bound.bound_area
-                if (other_area.m - self.bound_area.m)**2 < 1e-1:
+                if (other_area.m - self.bound_area.m) ** 2 < 1e-1:
                     self.check_for_vertex_duplicates(bound)
                     nb_vert_this = self._get_number_of_vertices(self.bound_shape)
                     nb_vert_other = self._get_number_of_vertices(bound.bound_shape)
@@ -627,7 +610,7 @@ class SpaceBoundary(element.RelationBased):
                 continue
             if not bound.bound_thermal_zone == self.bound_thermal_zone:
                 continue
-            if (bound.bound_area.m - self.bound_area.m)**2 > 0.01:
+            if (bound.bound_area.m - self.bound_area.m) ** 2 > 0.01:
                 continue
             if gp_Pnt(bound.bound_center).Distance(gp_Pnt(self.bound_center)) < 0.4:
                 adb_bound = bound
@@ -793,9 +776,9 @@ class SpaceBoundary(element.RelationBased):
             shape = ifcopenshell.geom.create_shape(settings, sore)
 
             if sore.InnerBoundaries:
-                shape = remove_inner_loops(shape) # todo: return None if not horizontal shape
+                shape = remove_inner_loops(shape)  # todo: return None if not horizontal shape
                 # if not shape:
-                if self.bound_instance.ifc_type == 'IfcWall': # todo: remove this hotfix (generalize)
+                if self.bound_instance.ifc_type == 'IfcWall':  # todo: remove this hotfix (generalize)
                     sore.InnerBoundaries = ()
                     shape = ifcopenshell.geom.create_shape(settings, sore)
 
@@ -920,6 +903,38 @@ class SpaceBoundary(element.RelationBased):
         storeys = self.bound_thermal_zone.storeys
         return storeys
 
+    def get_level_description(self, name):
+        return self.ifc.Description
+
+    def get_is_external(self, name):
+        if self.ifc.InternalOrExternalBoundary.lower() == 'internal':
+            return False
+        else:
+            return True
+
+    def get_physical(self, name):
+        if self.ifc.PhysicalOrVirtualBoundary.lower() == 'physical':
+            return True
+        else:
+            return False
+
+    def get_net_bound_area(self, name):
+        opening_area = 0
+        for opening_boundary in self.opening_bounds:
+            opening_area += opening_boundary.bound_area.m
+        area = self.bound_area - opening_area
+        return area
+
+    def get_openings(self, name):
+        bound_element_ifc = self.bound_instance.ifc
+        opening_bounds = []
+        for sb in self.bound_thermal_zone.space_boundaries:
+            if len(sb.bound_instance.ifc.FillsVoids) > 0:
+                if sb.bound_instance.ifc.FillsVoids[0].RelatingOpeningElement.VoidsElements[0]. \
+                        RelatingBuildingElement == bound_element_ifc:
+                    opening_bounds.append(sb)
+        return opening_bounds
+
     bound_shape = attribute.Attribute(
         functions=[calc_bound_shape]
     )
@@ -942,15 +957,29 @@ class SpaceBoundary(element.RelationBased):
         functions=[get_bound_area],
         unit=ureg.meter ** 2
     )
-    # area = attribute.Attribute(
-    #     functions=[get_bound_area]
-    # )
+    net_bound_area = attribute.Attribute(
+        functions=[get_net_bound_area],
+        unit=ureg.meter ** 2
+    )
     bound_neighbors = attribute.Attribute(
         functions=[get_bound_neighbors]
     )
     storeys = attribute.Attribute(
         functions=[get_space_boundary_storeys]
     )
+    level_description = attribute.Attribute(
+        functions=[get_level_description]
+    )
+    is_external = attribute.Attribute(
+        functions=[get_is_external]
+    )
+    physical = attribute.Attribute(
+        functions=[get_physical]
+    )
+    opening_bounds = attribute.Attribute(
+        functions=[get_openings]
+    )
+
 
 # class SpaceBoundary2B:
 #     """Generated 2nd Level Space boundaries of type 2b
@@ -1113,19 +1142,19 @@ class Layer(element.RelationBased):
     heat_capac = attribute.Attribute(
         default_ps=("Pset_MaterialThermal", "SpecificHeatCapacity"),
         default=0,
-        unit=ureg.J/ureg.K
+        unit=ureg.J / ureg.K
     )
 
     density = attribute.Attribute(
         default_ps=("Pset_MaterialThermal", "MassDensity"),
         default=0,
-        unit=ureg.kg/ureg.m**3
+        unit=ureg.kg / ureg.m ** 3
     )
 
     thermal_conduc = attribute.Attribute(
         default_ps=("Pset_MaterialThermal", "ThermalConductivity"),
         default=0,
-        unit=ureg.W/(ureg.m*ureg.K)
+        unit=ureg.W / (ureg.m * ureg.K)
     )
     thickness = attribute.Attribute(
         functions=[get_ifc_thickness],
@@ -1321,7 +1350,7 @@ class Slab(BPSProduct):
     )
     gross_area = attribute.Attribute(
         default_ps=("QTo_SlabBaseQuantities", "GrossArea"),
-        default=1,
+        default=0,
         unit=ureg.meter ** 2
     )
 
@@ -1334,7 +1363,7 @@ class Slab(BPSProduct):
     u_value = attribute.Attribute(
         default_ps=("Pset_SlabCommon", "ThermalTransmittance"),
         default=0,
-        unit = ureg.W / ureg.K / ureg.meter ** 2
+        unit=ureg.W / ureg.K / ureg.meter ** 2
     )
 
     is_external = attribute.Attribute(
@@ -1377,6 +1406,19 @@ class Site(BPSProduct):
 class Building(BPSProduct):
     ifc_types = {"IfcBuilding": ['*']}
 
+    def _get_name(self, name):
+        building_name = None
+        if self.ifc is not None:
+            if self.ifc.Name is not None:
+                if len(self.ifc.Name) > 0:
+                    building_name = self.ifc.Name
+                else:
+                    name_dec = StringDecision(question="Please enter name for the instance %s" % type(self).__name__,
+                                              default="unnamed", global_key=f'IfcName-Decision-{self.guid}',
+                                              allow_load=True, allow_save=True)
+                    building_name = name_dec.decide()
+        return building_name
+
     def check_building_year(self, name):
         year_decision = RealDecision("Enter value for the buildings year of construction",
                                      global_key="Building_%s.year_of_construction" % self.guid,
@@ -1385,6 +1427,9 @@ class Building(BPSProduct):
         year_decision.decide()
         return year_decision.value
 
+    name = attribute.Attribute(
+        functions=[_get_name]
+    )
     year_of_construction = attribute.Attribute(
         default_ps=("Pset_BuildingCommon", "YearOfConstruction"),
         functions=[check_building_year],
