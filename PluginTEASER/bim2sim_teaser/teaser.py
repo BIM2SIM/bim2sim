@@ -11,7 +11,7 @@ class TEASERManager(Plugin):
     # default_workflow = BPSMultiZoneSeparatedLayersLow
     default_workflow = BPSMultiZoneSeparatedLayersFull
     # default_workflow = BPSMultiZoneCombinedLayersFull
-    elements = {*bps_elements.items}  # ToDo: problem with subclasses
+    elements = {*bps_elements.items}
 
     def run(self, playground):
         playground.run_task(bps.SetIFCTypes())
