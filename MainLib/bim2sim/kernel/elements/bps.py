@@ -926,13 +926,15 @@ class SpaceBoundary(element.RelationBased):
         return area
 
     def get_openings(self, name):
-        bound_element_ifc = self.bound_instance.ifc
         opening_bounds = []
-        for sb in self.bound_thermal_zone.space_boundaries:
-            if len(sb.bound_instance.ifc.FillsVoids) > 0:
-                if sb.bound_instance.ifc.FillsVoids[0].RelatingOpeningElement.VoidsElements[0]. \
-                        RelatingBuildingElement == bound_element_ifc:
-                    opening_bounds.append(sb)
+        if self.bound_instance:
+            bound_element_ifc = self.bound_instance.ifc
+            for sb in self.bound_thermal_zone.space_boundaries:
+                if sb.bound_instance:
+                    if len(sb.bound_instance.ifc.FillsVoids) > 0:
+                        if sb.bound_instance.ifc.FillsVoids[0].RelatingOpeningElement.VoidsElements[0]. \
+                                RelatingBuildingElement == bound_element_ifc:
+                            opening_bounds.append(sb)
         return opening_bounds
 
     bound_shape = attribute.Attribute(
