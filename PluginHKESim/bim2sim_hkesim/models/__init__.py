@@ -99,6 +99,8 @@ class ConsumerHeatingDistributorModule(HKESim):
             if index > 1:
                 self.params["isConsumer{}".format(index)] = True
 
+        # TODO: this should be obsolete: consumers added to open ends from
+        #  dead ends
         if self.element.open_consumer_pairs:
             for pair in self.element.open_consumer_pairs:
                 index += 1
