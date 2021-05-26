@@ -1552,7 +1552,7 @@ class ExportEP(ITask):
             inst_obj = instances[inst]
             idfp = IdfObject(inst_obj, idf)
             if idfp.skip_bound:
-                # idf.popidfobject(idfp.key, -1)
+                idf.popidfobject(idfp.key, -1)
                 self.logger.warning("Boundary with the GUID %s (%s) is skipped (due to missing boundary conditions)!",
                                     idfp.name, idfp.surface_type)
                 continue
@@ -2405,7 +2405,7 @@ class ExportEP(ITask):
                 idf.removeidfobject(f)
 
         sfs = idf.getsurfaces()
-        small_area_obj = [sf for sf in sfs if sf.area < 0.0001]
+        small_area_obj = [sf for sf in sfs if sf.area < 0.01]
 
         for obj in small_area_obj:
             self.logger.info('Removed small area: %s' % obj.Name)
