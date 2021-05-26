@@ -919,8 +919,8 @@ class SpaceBoundary(element.SubElement):
                 if not corr_bound.ifc.RelatingSpace.is_a('IfcExternalSpatialStructure'):
                     nb_vert_this = bind._get_number_of_vertices(bind.bound_shape)
                     nb_vert_other = bind._get_number_of_vertices(corr_bound.bound_shape)
-                    if not nb_vert_this == nb_vert_other:
-                        print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
+                    # if not nb_vert_this == nb_vert_other:
+                    #     print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
                     if nb_vert_this == nb_vert_other:
                         return corr_bound
         if bind.bound_instance is None:
@@ -1001,8 +1001,8 @@ class SpaceBoundary(element.SubElement):
                     # bind.check_for_vertex_duplicates(bound)
                     nb_vert_this = bind._get_number_of_vertices(bind.bound_shape)
                     nb_vert_other = bind._get_number_of_vertices(bound.bound_shape)
-                    if not nb_vert_this == nb_vert_other:
-                        print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
+                    # if not nb_vert_this == nb_vert_other:
+                    #     print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
                     if nb_vert_this == nb_vert_other:
                         corr_bound = bound
             return corr_bound
@@ -1119,19 +1119,12 @@ class SpaceBoundary(element.SubElement):
         v_b = np.array(vert_list[-1].Coord())
         for i, vert in enumerate(vert_list):
             v = np.array(vert.Coord())
-            # v_b = np.array(vert_list[(i-1) % (len(vert_list))].Coord())
-            # d_b = np.linalg.norm(v-v_b)
-            # if d_b > tol_dist:
-            #     new_list.append(vert)
-            # elif new_list:
-            # if new_list:
-            #     v_b = np.array(new_list[-1].Coord())
             d_b = np.linalg.norm(v - v_b)
             if d_b > tol_dist:
                 new_list.append(vert)
                 v_b = v
-            else:
-                print("Coincident points")
+            # else:
+            #     print("Coincident points")
         return new_list
 
     @staticmethod
@@ -1145,8 +1138,6 @@ class SpaceBoundary(element.SubElement):
             v_f = np.array(vert_list[(i+1) % (len(vert_list))].Coord())
             v1 = v-v_b
             v2 = v_f-v_b
-            # n1 = v1/np.linalg.norm(v1)
-            # n2 = v2 / np.linalg.norm(v2)
             if np.linalg.norm(np.cross(v1, v2)) / np.linalg.norm(v2) > tol_cross:
                 new_list.append(vert)
         return new_list
@@ -1252,7 +1243,7 @@ class SpaceBoundary(element.SubElement):
             pnt_list_new = self._remove_collinear_vertices2(pnt_list_new)
             # pnt_list_new = self._remove_collinear_vertices2(pnt_list)
             if pnt_list_new != pnt_list:
-                print("vert new vs old", len(pnt_list_new), len(pnt_list))
+                # print("vert new vs old", len(pnt_list_new), len(pnt_list))
                 if len(pnt_list_new) < 3:
                     pnt_list_new = pnt_list
                 shape = self._make_faces_from_pnts(pnt_list_new)
@@ -1271,7 +1262,7 @@ class SpaceBoundary(element.SubElement):
                     pnt_list_new = self._remove_collinear_vertices2(pnt_list_new)
                     # pnt_list_new = self._remove_collinear_vertices2(pnt_list)
                     if pnt_list_new != pnt_list:
-                        print("vert new vs old", len(pnt_list_new), len(pnt_list))
+                        # print("vert new vs old", len(pnt_list_new), len(pnt_list))
                         if len(pnt_list_new) < 3:
                             pnt_list_new = pnt_list
                         shape = self._make_faces_from_pnts(pnt_list_new)
