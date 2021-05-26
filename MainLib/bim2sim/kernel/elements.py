@@ -1113,6 +1113,45 @@ class SpaceBoundary(element.SubElement):
         return vert_list
 
     @staticmethod
+    def _remove_coincident_vertices(vert_list):
+        tol_dist = 1e-2
+        new_list = []
+        v_b = np.array(vert_list[-1].Coord())
+        for i, vert in enumerate(vert_list):
+            v = np.array(vert.Coord())
+            # v_b = np.array(vert_list[(i-1) % (len(vert_list))].Coord())
+            # d_b = np.linalg.norm(v-v_b)
+            # if d_b > tol_dist:
+            #     new_list.append(vert)
+            # elif new_list:
+            # if new_list:
+            #     v_b = np.array(new_list[-1].Coord())
+            d_b = np.linalg.norm(v - v_b)
+            if d_b > tol_dist:
+                new_list.append(vert)
+                v_b = v
+            else:
+                print("Coincident points")
+        return new_list
+
+    @staticmethod
+    def _remove_collinear_vertices2(vert_list):
+        tol_cross = 1e-3
+        new_list = []
+
+        for i, vert in enumerate(vert_list):
+            v = np.array(vert.Coord())
+            v_b = np.array(vert_list[(i-1) % (len(vert_list))].Coord())
+            v_f = np.array(vert_list[(i+1) % (len(vert_list))].Coord())
+            v1 = v-v_b
+            v2 = v_f-v_b
+            # n1 = v1/np.linalg.norm(v1)
+            # n2 = v2 / np.linalg.norm(v2)
+            if np.linalg.norm(np.cross(v1, v2)) / np.linalg.norm(v2) > tol_cross:
+                new_list.append(vert)
+        return new_list
+
+    @staticmethod
     def _make_faces_from_pnts(pnt_list):
         """
         This function returns a TopoDS_Face from list of gp_Pnt
@@ -1177,6 +1216,25 @@ class SpaceBoundary(element.SubElement):
 
         return nb_vertex
 
+    @staticmethod
+    def _get_points_of_face(shape):
+        """
+        This function returns a list of gp_Pnt of a Surface
+        :param face: TopoDS_Shape (Surface)
+        :return: pnt_list (list of gp_Pnt)
+        """
+        an_exp = TopExp_Explorer(shape, TopAbs_WIRE)
+        pnt_list = []
+        while an_exp.More():
+            wire = topods_Wire(an_exp.Current())
+            w_exp = BRepTools_WireExplorer(wire)
+            while w_exp.More():
+                pnt1 = BRep_Tool.Pnt(w_exp.CurrentVertex())
+                pnt_list.append(pnt1)
+                w_exp.Next()
+            an_exp.Next()
+        return pnt_list
+
     def calc_bound_shape(self, name):
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
@@ -1189,6 +1247,16 @@ class SpaceBoundary(element.SubElement):
             # if sore.get_info()["InnerBoundaries"] is None:
             shape = ifcopenshell.geom.create_shape(settings, sore)
 
+            pnt_list = self._get_points_of_face(shape)
+            pnt_list_new = self._remove_coincident_vertices(pnt_list)
+            pnt_list_new = self._remove_collinear_vertices2(pnt_list_new)
+            # pnt_list_new = self._remove_collinear_vertices2(pnt_list)
+            if pnt_list_new != pnt_list:
+                print("vert new vs old", len(pnt_list_new), len(pnt_list))
+                if len(pnt_list_new) < 3:
+                    pnt_list_new = pnt_list
+                shape = self._make_faces_from_pnts(pnt_list_new)
+
             if sore.InnerBoundaries:
                 shape = remove_inner_loops(shape) # todo: return None if not horizontal shape
                 # if not shape:
@@ -1198,6 +1266,15 @@ class SpaceBoundary(element.SubElement):
                                                       BasisSurface=sore.BasisSurface)
                     temp_sore.InnerBoundaries = ()
                     shape = ifcopenshell.geom.create_shape(settings, temp_sore)
+                    pnt_list = self._get_points_of_face(shape)
+                    pnt_list_new = self._remove_coincident_vertices(pnt_list)
+                    pnt_list_new = self._remove_collinear_vertices2(pnt_list_new)
+                    # pnt_list_new = self._remove_collinear_vertices2(pnt_list)
+                    if pnt_list_new != pnt_list:
+                        print("vert new vs old", len(pnt_list_new), len(pnt_list))
+                        if len(pnt_list_new) < 3:
+                            pnt_list_new = pnt_list
+                        shape = self._make_faces_from_pnts(pnt_list_new)
 
 
         except:
@@ -1285,8 +1362,8 @@ class SpaceBoundary(element.SubElement):
         try:
             face = topods_Face(a_face)
         except:
-            pnts = bps.IdfObject._get_points_of_face(a_face)
-            pnts.append(pnts[0])
+            pnts = self._get_points_of_face(a_face)
+            # pnts.append(pnts[0])
             face = self._make_faces_from_pnts(pnts)
         surf = BRep_Tool.Surface(face)
         obj = surf
