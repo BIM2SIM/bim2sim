@@ -4,6 +4,7 @@
 import itertools
 import json
 import ast
+import math
 import os
 import subprocess
 from pathlib import Path
@@ -2677,7 +2678,7 @@ class ExportEP(ITask):
                             elif len(ib) > 1:
                                 for b in ib:
                                     # check if orientation of possibly related bound is the same as opening
-                                    angle = gp_Dir(b.bound_normal).Angle(gp_Dir(op_bound.bound_normal))
+                                    angle = math.degrees(gp_Dir(b.bound_normal).Angle(gp_Dir(op_bound.bound_normal)))
                                     if not (angle < 0.1 or angle > 179.9):
                                         continue
                                     distance = BRepExtrema_DistShapeShape(
@@ -2694,7 +2695,10 @@ class ExportEP(ITask):
                                        b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries]
                                 for b in tzb:
                                     # check if orientation of possibly related bound is the same as opening
-                                    angle = gp_Dir(b.bound_normal).Angle(gp_Dir(op_bound.bound_normal))
+                                    try:
+                                        angle = math.degrees(gp_Dir(b.bound_normal).Angle(gp_Dir(op_bound.bound_normal)))
+                                    except:
+                                        pass
                                     if not (angle < 0.1 or angle > 179.9):
                                         continue
                                     distance = BRepExtrema_DistShapeShape(
@@ -2868,8 +2872,14 @@ class ExportEP(ITask):
                     continue
                 exp = TopExp_Explorer(bound.bound_shape, TopAbs_FACE)
                 face = exp.Current()
-                face = topods_Face(face)
-                face_list.append(face)
+                try:
+                    face = topods_Face(face)
+                    face_list.append(face)
+                except:
+                    exp1 = TopExp_Explorer(bound.bound_shape, TopAbs_WIRE)
+                    wire = exp1.Current()
+                    face = BRepBuilderAPI_MakeFace(wire).Face()
+                    face_list.append(face)
             if hasattr(space, 'space_boundaries_2B'):
                 for bound in space.space_boundaries_2B:
                     exp = TopExp_Explorer(bound.bound_shape, TopAbs_FACE)
