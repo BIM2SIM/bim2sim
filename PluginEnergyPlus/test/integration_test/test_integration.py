@@ -237,6 +237,17 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
             return_code = project.run()
         self.assertEqual(0, return_code)
 
+    @unittest.skip("Not fully implemented yet")
+    def test_base_20_olabarri_design_day(self):
+        """Test Original IFC File from FZK-Haus (KIT)"""
+        ifc = EXAMPLE_PATH / 'Olabarri_49.ifc'
+        project = self.create_project(ifc, 'energyplus')
+        answers = ('Building', 'Autodesk Revit 2020 (DEU)', True, True, *("Single office",) * 12, 2015, 'heavy',
+                   'Alu- oder Stahlfenster, Isolierverglasung', False)
+        with Decision.debug_answer(answers, multi=True):
+            return_code = project.run()
+        self.assertEqual(0, return_code)
+
 
 if __name__ == '__main__':
     unittest.main()
