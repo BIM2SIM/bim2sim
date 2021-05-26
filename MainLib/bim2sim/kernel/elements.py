@@ -917,7 +917,12 @@ class SpaceBoundary(element.SubElement):
             corr_bound = bind.get_object(bind.ifc.CorrespondingBoundary.GlobalId)
             if corr_bound.ifc.RelatingSpace.is_a('IfcSpace'):
                 if not corr_bound.ifc.RelatingSpace.is_a('IfcExternalSpatialStructure'):
-                    return corr_bound
+                    nb_vert_this = bind._get_number_of_vertices(bind.bound_shape)
+                    nb_vert_other = bind._get_number_of_vertices(corr_bound.bound_shape)
+                    if not nb_vert_this == nb_vert_other:
+                        print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
+                    if nb_vert_this == nb_vert_other:
+                        return corr_bound
         if bind.bound_instance is None:
             return None
             # check for visual bounds
@@ -966,21 +971,6 @@ class SpaceBoundary(element.SubElement):
             # return None
         elif len(bind.bound_instance.space_boundaries) == 1:
             return None
-        # elif len(bind.bound_instance.space_boundaries) == 2:
-        #     if bind.bound_instance.guid == '3QvvbxsHP1IRaR5M7CZy9i':
-        #         print()
-        #     for bound in bind.bound_instance.space_boundaries:
-        #         if bound.ifc.GlobalId == bind.ifc.GlobalId:
-        #             continue
-        #         if bound.bound_normal.Dot(bind.bound_normal) != -1:
-        #             continue
-        #         bind.check_for_vertex_duplicates(bound)
-        #         nb_vert_this = bind._get_number_of_vertices(bind.bound_shape)
-        #         nb_vert_other = bind._get_number_of_vertices(bound.bound_shape)
-        #         if nb_vert_this == nb_vert_other:
-        #             return bound
-        #         else:
-        #             return None
         elif len(bind.bound_instance.space_boundaries) >= 2:
             own_space_id = bind.thermal_zones[0].ifc.GlobalId
             min_dist = 1000
@@ -988,9 +978,11 @@ class SpaceBoundary(element.SubElement):
             for bound in bind.bound_instance.space_boundaries:
                 if bound.level_description != "2a":
                     continue
-                if bound.thermal_zones[0].ifc.GlobalId == own_space_id:
-                    # skip boundaries within same space (cannot be corresponding bound)
+                if bound == bind:
                     continue
+                # if bound.thermal_zones[0].ifc.GlobalId == own_space_id:
+                #     # skip boundaries within same space (cannot be corresponding bound)
+                #     continue
                 # if bound.bound_normal.Dot(self.bound_normal) != -1:
                 #     continue
                 distance = BRepExtrema_DistShapeShape(
@@ -999,15 +991,18 @@ class SpaceBoundary(element.SubElement):
                     Extrema_ExtFlag_MIN
                 ).Value()
                 center_dist = gp_Pnt(bind.bound_center).Distance(gp_Pnt(bound.bound_center))**2
-                if (center_dist)**0.5 > 0.5:
+                if abs(center_dist) > 0.5:
                     continue
-                if distance > min_dist:
+                min_dist = abs(center_dist)
+                if distance < min_dist:
                     continue
                 other_area = bound.bound_area
                 if (other_area.m - bind.bound_area.m)**2 < 1e-1:
-                    bind.check_for_vertex_duplicates(bound)
+                    # bind.check_for_vertex_duplicates(bound)
                     nb_vert_this = bind._get_number_of_vertices(bind.bound_shape)
                     nb_vert_other = bind._get_number_of_vertices(bound.bound_shape)
+                    if not nb_vert_this == nb_vert_other:
+                        print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
                     if nb_vert_this == nb_vert_other:
                         corr_bound = bound
             return corr_bound
