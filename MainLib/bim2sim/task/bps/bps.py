@@ -688,6 +688,7 @@ import bim2sim
 #         prj.export_aixlib(path=PROJECT.root / 'export' / 'TEASEROutput')
 #         print()
 #
+from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 
 class ExportEP(ITask):
@@ -901,41 +902,6 @@ class ExportEP(ITask):
             fig.tight_layout(rect=[0, 0.03, 1, 0.8])
             plt.show()
 
-    @staticmethod
-    def get_center_of_face(face):
-        """
-        Calculates the center of the given face. The center point is the center of mass.
-        """
-        prop = GProp_GProps()
-        brepgprop_SurfaceProperties(face, prop)
-        return prop.CentreOfMass()
-
-    @staticmethod
-    def get_center_of_edge(edge):
-        """
-        Calculates the center of the given edge. The center point is the center of mass.
-        """
-        prop = GProp_GProps()
-        brepgprop_LinearProperties(edge, prop)
-        return prop.CentreOfMass()
-
-    def scale_face(self, face, factor):
-        """
-        Scales the given face by the given factor, using the center of mass of the face as origin of the transformation.
-        """
-        center = self.get_center_of_face(face)
-        trsf = gp_Trsf()
-        trsf.SetScale(center, factor)
-        return BRepBuilderAPI_Transform(face, trsf).Shape()
-
-    def scale_edge(self, edge, factor):
-        """
-        Scales the given edge by the given factor, using the center of mass of the edge as origin of the transformation.
-        """
-        center = self.get_center_of_edge(edge)
-        trsf = gp_Trsf()
-        trsf.SetScale(center, factor)
-        return BRepBuilderAPI_Transform(edge, trsf).Shape()
 
     def _intersect_scaled_centerline_bounds(self, instances):
         for inst in instances:
@@ -950,7 +916,7 @@ class ExportEP(ITask):
                 if not hasattr(bound, 'bound_shape_cl'):
                     continue
                 if not hasattr(bound, 'scaled_bound_cl'):
-                    bound.scaled_bound_cl = self.scale_face(bound.bound_shape_cl, 1.3)
+                    bound.scaled_bound_cl = PyOCCTools.scale_face(bound.bound_shape_cl, 1.3)
                 halfspace = self._create_halfspaces(bound.scaled_bound_cl, space_obj)
                 halfspaces.append(halfspace)
                 brepbndlib_Add(bound.bound_shape_cl, bbox)
@@ -959,7 +925,7 @@ class ExportEP(ITask):
                     if not hasattr(bound_b, 'bound_shape_cl'):
                         print("no bound shape 2b")
                         continue
-                    bound.scaled_bound_cl = self.scale_face(bound_b.bound_shape_cl, 1.3)
+                    bound.scaled_bound_cl = PyOCCTools.scale_face(bound_b.bound_shape_cl, 1.3)
                     halfspace = self._create_halfspaces(bound.scaled_bound_cl, space_obj)
                     halfspaces.append(halfspace)
                     brepbndlib_Add(bound_b.bound_shape, bbox)
@@ -1007,7 +973,7 @@ class ExportEP(ITask):
                         if center_dist < 0.5:
                             this_area = face_prop.Mass()
                             # only apply for rectangular shapes
-                            nb_vertices = SpaceBoundary._get_number_of_vertices(bound.bound_shape)
+                            nb_vertices = PyOCCTools.get_number_of_vertices(bound.bound_shape)
                             if nb_vertices > 8:
                                 continue
                             if this_area > max_area:
@@ -1021,12 +987,6 @@ class ExportEP(ITask):
                                 rel_bound.bound_shape_cl = face.Reversed()
             print('WAIT')
 
-    @staticmethod
-    def _make_solid_box_shape(shape):
-        box = Bnd_Box()
-        brepbndlib_Add(shape, box)
-        solid_box = BRepPrimAPI_MakeBox(box.CornerMin(), box.CornerMax()).Solid()
-        return solid_box
 
     def _vertex_scaled_centerline_bounds(self, instances):
         sec_shapes = []
@@ -1047,7 +1007,7 @@ class ExportEP(ITask):
                 if not hasattr(bound, 'bound_shape_cl'):
                     continue
                 if not hasattr(bound, 'scaled_bound_cl'):
-                    bound.scaled_bound_cl = self.scale_face(bound.bound_shape_cl, 1.5)
+                    bound.scaled_bound_cl = PyOCCTools.scale_face(bound.bound_shape_cl, 1.5)
                 halfspace = self._create_halfspaces(bound.scaled_bound_cl, space_obj)
                 halfspaces.append(halfspace)
                 brepbndlib_Add(bound.bound_shape_cl, bbox)
@@ -1070,12 +1030,12 @@ class ExportEP(ITask):
                             if (check1):
                                 continue
                             if not hasattr(bound, 'scaled_bound_cl'):
-                                bound.scaled_bound_cl = self.scale_face(bound.bound_shape_cl, 1.5)
+                                bound.scaled_bound_cl = PyOCCTools.scale_face(bound.bound_shape_cl, 1.5)
                             if not hasattr(b_bound, 'bound_shape_cl'):
                                 if b_bound.bound_instance is None:
                                     b_bound.bound_shape_cl = b_bound.bound_shape
                             if not hasattr(b_bound, 'scaled_bound_cl'):
-                                b_bound.scaled_bound_cl = self.scale_face(b_bound.bound_shape_cl, 2)
+                                b_bound.scaled_bound_cl = PyOCCTools.scale_face(b_bound.bound_shape_cl, 2)
                             sec = BRepAlgoAPI_Section(bound.scaled_bound_cl, b_bound.scaled_bound_cl)
                             sections.append(sec)
                         if other_bound == bound:
@@ -1085,7 +1045,7 @@ class ExportEP(ITask):
                     if not hasattr(other_bound, 'bound_shape_cl'):
                         continue
                     if not hasattr(other_bound, 'scaled_bound_cl'):
-                        other_bound.scaled_bound_cl = self.scale_face(other_bound.bound_shape_cl, 1.5)
+                        other_bound.scaled_bound_cl = PyOCCTools.scale_face(other_bound.bound_shape_cl, 1.5)
                     unscaled_dist = BRepExtrema_DistShapeShape(bound.bound_shape_cl, other_bound.bound_shape_cl,
                                                                Extrema_ExtFlag_MIN).Value()
                     if unscaled_dist < 0.3:
@@ -1107,7 +1067,7 @@ class ExportEP(ITask):
                         if or_distance > 1e-6:
                             continue
                         sec = BRepAlgoAPI_Section(bound.bound_shape_cl, other_bound.bound_shape_cl)
-                        sec_shape = self.scale_edge(sec.Shape(), 2)
+                        sec_shape = PyOCCTools.scale_edge(sec.Shape(), 2)
                         sec = BRepAlgoAPI_Section(bound.scaled_bound_cl, sec_shape)
                         sections.append(sec)
                         continue
@@ -1128,7 +1088,7 @@ class ExportEP(ITask):
                         if not IdfObject._compare_direction_of_normals(other_bound.bound_normal, neighbor.bound_normal):
                             continue
                         if not hasattr(neighbor, 'scaled_bound_cl'):
-                            neighbor.scaled_bound_cl = self.scale_face(neighbor.bound_shape_cl, 1.5)
+                            neighbor.scaled_bound_cl = PyOCCTools.scale_face(neighbor.bound_shape_cl, 1.5)
                         no_dist = BRepExtrema_DistShapeShape(neighbor.scaled_bound_cl, other_bound.scaled_bound_cl,
                                                              Extrema_ExtFlag_MIN).Value()
                         if no_dist > 1e-6:
@@ -1157,8 +1117,8 @@ class ExportEP(ITask):
                     #     sec = BRepAlgoAPI_Section(bound.bound_shape_cl, other_bound.bound_shape_cl)
                     #     sec_shape = self.scale_edge(sec.Shape(), 2)
                     #     sec = BRepAlgoAPI_Section(bound.scaled_bound_cl, sec_shape)
-                    if SpaceBoundary._get_number_of_vertices(sec.Shape()) < 2:
-                        sec_solid = self._make_solid_box_shape(other_bound.scaled_bound_cl)
+                    if PyOCCTools.get_number_of_vertices(sec.Shape()) < 2:
+                        sec_solid = PyOCCTools.make_solid_box_shape(other_bound.scaled_bound_cl)
                         sec = BRepAlgoAPI_Section(bound.scaled_bound_cl, sec_solid)
 
                     sections.append(sec)
@@ -1231,10 +1191,10 @@ class ExportEP(ITask):
                 if len(vert_list2) > 12:
                     continue
                 # todo: check if all 2B bounds have been fixed yet
-                # bound.bound_shape_cl = SpaceBoundary._make_face_from_vertex_list(vert_list2)
+                # bound.bound_shape_cl = PyOCCTools.make_face_from_vertex_list(vert_list2)
 
                 try:
-                    bound.bound_shape_cl = SpaceBoundary._make_face_from_vertex_list(vert_list2)
+                    bound.bound_shape_cl = PyOCCTools.make_face_from_vertex_list(vert_list2)
                 except:
                     continue
                 # bound.bound_shape_cl = self.fix_face(bound.bound_shape_cl)
@@ -1491,7 +1451,7 @@ class ExportEP(ITask):
                         anExp.Next()
                         anExp.Next()
                     result_vert.append(result_vert[0])
-                    new_face1 = SpaceBoundary._make_faces_from_pnts(result_vert)
+                    new_face1 = PyOCCTools.make_faces_from_pnts(result_vert)
 
                     neigh_normal = neigh_normal.Reversed()
                     anExp = TopExp_Explorer(sb_neighbor.bound_shape_cl, TopAbs_VERTEX)
@@ -1519,7 +1479,7 @@ class ExportEP(ITask):
                         anExp.Next()
                         anExp.Next()
                     result_vert.append(result_vert[0])
-                    new_face2 = SpaceBoundary._make_faces_from_pnts(result_vert)
+                    new_face2 = PyOCCTools.make_faces_from_pnts(result_vert)
                     new_dist = BRepExtrema_DistShapeShape(new_face1, new_face2, Extrema_ExtFlag_MIN).Value()
                     if new_dist > 1e-3:
                         continue
@@ -2143,7 +2103,7 @@ class ExportEP(ITask):
             shape_val = TopoDS_Iterator(space_shape).Value()
             loc = shape_val.Location()
             shape.Move(loc)
-            obj_pnts = IdfObject._get_points_of_face(shape)
+            obj_pnts = PyOCCTools.get_points_of_face(shape)
             obj_coords = []
             for pnt in obj_pnts:
                 co = tuple(round(p, 3) for p in pnt.Coord())
@@ -2714,6 +2674,8 @@ class ExportEP(ITask):
                                     continue
                             else:
                                 continue
+                            if not rel_bound:
+                                continue
                             if not hasattr(rel_bound, 'related_opening_bounds'):
                                 setattr(rel_bound, 'related_opening_bounds', [])
                             rel_bound.related_opening_bounds.append(op_bound)
@@ -3235,10 +3197,10 @@ class IdfObject():
         # validate bound_shape
         # self._check_for_vertex_duplicates()
         # write validated bound_shape to obj
-        obj_pnts = self._get_points_of_face(self.bound_shape)
+        obj_pnts = PyOCCTools.get_points_of_face(self.bound_shape)
         obj_coords = []
-        # obj_pnts_new = SpaceBoundary._remove_coincident_vertices(obj_pnts)
-        # obj_pnts_new = SpaceBoundary._remove_collinear_vertices2(obj_pnts_new)
+        # obj_pnts_new = PyOCCTools.remove_coincident_vertices(obj_pnts)
+        # obj_pnts_new = PyOCCTools.remove_collinear_vertices2(obj_pnts_new)
         # #todo: check if corresponding boundaries still have matching partner
         # if len(obj_pnts_new) < 3:
         #     self.skip_bound = True
@@ -3267,24 +3229,24 @@ class IdfObject():
 
     # def _check_for_vertex_duplicates(self):
     #     if self.related_bound is not None:
-    #         nb_vert_this = self._get_number_of_vertices(self.bound_shape)
-    #         nb_vert_other = self._get_number_of_vertices(self.related_bound.bound_shape)
+    #         nb_vert_this = self.get_number_of_vertices(self.bound_shape)
+    #         nb_vert_other = self.get_number_of_vertices(self.related_bound.bound_shape)
     #         # if nb_vert_this != nb_vert_other:
     #         setattr(self, 'bound_shape_org', self.bound_shape)
-    #         vert_list1 = self._get_vertex_list_from_face(self.bound_shape)
-    #         vert_list1 = self._remove_vertex_duplicates(vert_list1)
+    #         vert_list1 = self.get_vertex_list_from_face(self.bound_shape)
+    #         vert_list1 = self.remove_vertex_duplicates(vert_list1)
     #         vert_list1.reverse()
-    #         vert_list1 = self._remove_vertex_duplicates(vert_list1)
+    #         vert_list1 = self.remove_vertex_duplicates(vert_list1)
     #
     #         setattr(self.related_bound, 'bound_shape_org', self.related_bound.bound_shape)
-    #         vert_list2 = self._get_vertex_list_from_face(self.related_bound.bound_shape)
-    #         vert_list2 = self._remove_vertex_duplicates(vert_list2)
+    #         vert_list2 = self.get_vertex_list_from_face(self.related_bound.bound_shape)
+    #         vert_list2 = self.remove_vertex_duplicates(vert_list2)
     #         vert_list2.reverse()
-    #         vert_list2 = self._remove_vertex_duplicates(vert_list2)
+    #         vert_list2 = self.remove_vertex_duplicates(vert_list2)
     #
     #         if len(vert_list1) == len(vert_list2):
-    #             self.bound_shape = self._make_face_from_vertex_list(vert_list1)
-    #             self.related_bound.bound_shape = self._make_face_from_vertex_list(vert_list2)
+    #             self.bound_shape = self.make_face_from_vertex_list(vert_list1)
+    #             self.related_bound.bound_shape = self.make_face_from_vertex_list(vert_list2)
 
     def _set_idfobject_attributes(self, idf):
         if self.surface_type is not None:
@@ -3445,25 +3407,6 @@ class IdfObject():
         return check
 
     @staticmethod
-    def _get_points_of_face(bound_shape):
-        """
-        This function returns a list of gp_Pnt of a Surface
-        :param face: TopoDS_Shape (Surface)
-        :return: pnt_list (list of gp_Pnt)
-        """
-        an_exp = TopExp_Explorer(bound_shape, TopAbs_WIRE)
-        pnt_list = []
-        while an_exp.More():
-            wire = topods_Wire(an_exp.Current())
-            w_exp = BRepTools_WireExplorer(wire)
-            while w_exp.More():
-                pnt1 = BRep_Tool.Pnt(w_exp.CurrentVertex())
-                pnt_list.append(pnt1)
-                w_exp.Next()
-            an_exp.Next()
-        return pnt_list
-
-    @staticmethod
     def get_circular_shape(obj_pnts):
         """
         This function checks if a SpaceBoundary has a circular shape.
@@ -3506,19 +3449,19 @@ class IdfObject():
             counter += 1
             new_obj = idf.copyidfobject(obj)
             new_obj.Name = str(obj.Name) + '_' + str(counter)
-            fc = SpaceBoundary._make_faces_from_pnts([pnt, pnt2, inst_obj.bound_center.Coord()])
-            fcsc = ExportEP.scale_face(ExportEP, fc, 0.99)
-            new_pnts = self._get_points_of_face(fcsc)
+            fc = PyOCCTools.make_faces_from_pnts([pnt, pnt2, inst_obj.bound_center.Coord()])
+            fcsc = PyOCCTools.scale_face(fc, 0.99)
+            new_pnts = PyOCCTools.get_points_of_face(fcsc)
             new_coords = []
             for pnt in new_pnts: new_coords.append(pnt.Coord())
             new_obj.setcoords(new_coords)
             pnt = pnt2
         new_obj = idf.copyidfobject(obj)
         new_obj.Name = str(obj.Name) + '_' + str(counter + 1)
-        fc = SpaceBoundary._make_faces_from_pnts(
+        fc = PyOCCTools.make_faces_from_pnts(
             [drop_list[-1], drop_list[0], inst_obj.bound_center.Coord()])
-        fcsc = ExportEP.scale_face(ExportEP, fc, 0.99)
-        new_pnts = self._get_points_of_face(fcsc)
+        fcsc = PyOCCTools.scale_face(fc, 0.99)
+        new_pnts = PyOCCTools.get_points_of_face(fcsc)
         new_coords = []
         for pnt in new_pnts: new_coords.append(pnt.Coord())
         new_obj.setcoords(new_coords)
@@ -3560,7 +3503,7 @@ class IdfObject():
         obj.setcoords(obj_coords)
 
     # @staticmethod
-    # def _remove_vertex_duplicates(vert_list):
+    # def remove_vertex_duplicates(vert_list):
     #     for i, vert in enumerate(vert_list):
     #         edge_pp_p = BRepBuilderAPI_MakeEdge(vert_list[(i) % (len(vert_list) - 1)],
     #                                             vert_list[(i + 1) % (len(vert_list) - 1)]).Shape()
@@ -3579,7 +3522,7 @@ class IdfObject():
     #     return vert_list
     #
     # @staticmethod
-    # def _make_face_from_vertex_list(vert_list):
+    # def make_face_from_vertex_list(vert_list):
     #     an_edge = []
     #     for i in range(len(vert_list[:-1])):
     #         edge = BRepBuilderAPI_MakeEdge(vert_list[i], vert_list[i + 1]).Edge()
@@ -3593,7 +3536,7 @@ class IdfObject():
     #     return a_face.Reversed()
     #
     # @staticmethod
-    # def _get_vertex_list_from_face(face):
+    # def get_vertex_list_from_face(face):
     #     an_exp = TopExp_Explorer(face, TopAbs_WIRE)
     #     vert_list = []
     #     while an_exp.More():
@@ -3609,7 +3552,7 @@ class IdfObject():
     #     return vert_list
     #
     # @staticmethod
-    # def _get_number_of_vertices(shape):
+    # def get_number_of_vertices(shape):
     #     shape_analysis = ShapeAnalysis_ShapeContents()
     #     shape_analysis.Perform(shape)
     #     nb_vertex = shape_analysis.NbVertices()

@@ -40,7 +40,7 @@ from bim2sim.kernel.units import ureg
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.task.common.common_functions import vector_angle, filter_instances
 from bim2sim.task.common.inner_loop_remover import remove_inner_loops
-
+from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 def diameter_post_processing(value):
     if isinstance(value, (list, set)):
@@ -917,8 +917,8 @@ class SpaceBoundary(element.SubElement):
             corr_bound = bind.get_object(bind.ifc.CorrespondingBoundary.GlobalId)
             if corr_bound.ifc.RelatingSpace.is_a('IfcSpace'):
                 if not corr_bound.ifc.RelatingSpace.is_a('IfcExternalSpatialStructure'):
-                    nb_vert_this = bind._get_number_of_vertices(bind.bound_shape)
-                    nb_vert_other = bind._get_number_of_vertices(corr_bound.bound_shape)
+                    nb_vert_this = PyOCCTools.get_number_of_vertices(bind.bound_shape)
+                    nb_vert_other = PyOCCTools.get_number_of_vertices(corr_bound.bound_shape)
                     # if not nb_vert_this == nb_vert_other:
                     #     print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
                     if nb_vert_this == nb_vert_other:
@@ -954,8 +954,8 @@ class SpaceBoundary(element.SubElement):
             #         if distance > min_dist or distance > 0.4:
             #             continue
             #         bind.check_for_vertex_duplicates(bound)
-            #         nb_vert_this = bind._get_number_of_vertices(bind.bound_shape)
-            #         nb_vert_other = bind._get_number_of_vertices(bound.bound_shape)
+            #         nb_vert_this = bind.get_number_of_vertices(bind.bound_shape)
+            #         nb_vert_other = bind.get_number_of_vertices(bound.bound_shape)
             #         center_dist = gp_Pnt(bind.bound_center).Distance(gp_Pnt(bound.bound_center)) ** 2
             #         if (center_dist) > 0.5:
             #             continue
@@ -999,8 +999,8 @@ class SpaceBoundary(element.SubElement):
                 other_area = bound.bound_area
                 if (other_area.m - bind.bound_area.m)**2 < 1e-1:
                     # bind.check_for_vertex_duplicates(bound)
-                    nb_vert_this = bind._get_number_of_vertices(bind.bound_shape)
-                    nb_vert_other = bind._get_number_of_vertices(bound.bound_shape)
+                    nb_vert_this = PyOCCTools.get_number_of_vertices(bind.bound_shape)
+                    nb_vert_other = PyOCCTools.get_number_of_vertices(bound.bound_shape)
                     # if not nb_vert_this == nb_vert_other:
                     #     print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
                     if nb_vert_this == nb_vert_other:
@@ -1050,181 +1050,28 @@ class SpaceBoundary(element.SubElement):
 
     def check_for_vertex_duplicates(self, rel_bound):
         return  # todo: Bugfix, disabled for now
-        nb_vert_this = self._get_number_of_vertices(self.bound_shape)
-        nb_vert_other = self._get_number_of_vertices(rel_bound.bound_shape)
+        nb_vert_this = PyOCCTools.get_number_of_vertices(self.bound_shape)
+        nb_vert_other = PyOCCTools.get_number_of_vertices(rel_bound.bound_shape)
         # if nb_vert_this != nb_vert_other:
         setattr(self, 'bound_shape_org', self.bound_shape)
-        vert_list1 = self._get_vertex_list_from_face(self.bound_shape)
-        vert_list1 = self._remove_vertex_duplicates(vert_list1)
+        vert_list1 = PyOCCTools.get_vertex_list_from_face(self.bound_shape)
+        vert_list1 = PyOCCTools.remove_vertex_duplicates(vert_list1)
         vert_list1.reverse()
-        vert_list1 = self._remove_vertex_duplicates(vert_list1)
+        vert_list1 = PyOCCTools.remove_vertex_duplicates(vert_list1)
 
         setattr(rel_bound, 'bound_shape_org', rel_bound.bound_shape)
-        vert_list2 = self._get_vertex_list_from_face(rel_bound.bound_shape)
-        vert_list2 = self._remove_vertex_duplicates(vert_list2)
+        vert_list2 = PyOCCTools.get_vertex_list_from_face(rel_bound.bound_shape)
+        vert_list2 = PyOCCTools.remove_vertex_duplicates(vert_list2)
         vert_list2.reverse()
-        vert_list2 = self._remove_vertex_duplicates(vert_list2)
+        vert_list2 = PyOCCTools.remove_vertex_duplicates(vert_list2)
         if len(vert_list1) == len(vert_list2):
             if len(vert_list1) < 5:
                 return
             vert_list1.reverse()
             vert_list2.reverse()
-            self.bound_shape = self._make_face_from_vertex_list(vert_list1)
-            rel_bound.bound_shape = self._make_face_from_vertex_list(vert_list2)
+            self.bound_shape = PyOCCTools.make_face_from_vertex_list(vert_list1)
+            rel_bound.bound_shape = PyOCCTools.make_face_from_vertex_list(vert_list2)
 
-    @staticmethod
-    def _remove_vertex_duplicates(vert_list):
-        for i, vert in enumerate(vert_list):
-            edge_pp_p = BRepBuilderAPI_MakeEdge(vert_list[(i) % (len(vert_list) - 1)],
-                                                vert_list[(i + 1) % (len(vert_list) - 1)]).Shape()
-            distance = BRepExtrema_DistShapeShape(vert_list[(i + 2) % (len(vert_list) - 1)], edge_pp_p,
-                                                  Extrema_ExtFlag_MIN)
-            if 0 < distance.Value() < 0.001:
-                # first: project close vertex to edge
-                edge = BRepBuilderAPI_MakeEdge(vert_list[(i) % (len(vert_list) - 1)],
-                                               vert_list[(i + 1) % (len(vert_list) - 1)]).Edge()
-                projector = GeomAPI_ProjectPointOnCurve(BRep_Tool.Pnt(vert_list[(i + 2) % (len(vert_list) - 1)]),
-                                                        BRep_Tool.Curve(edge)[0])
-                np = projector.NearestPoint()
-                vert_list[(i + 2) % (len(vert_list) - 1)] = BRepBuilderAPI_MakeVertex(np).Vertex()
-                # delete additional vertex
-                vert_list.pop((i + 1) % (len(vert_list) - 1))
-        return vert_list
-
-    @staticmethod
-    def _remove_collinear_vertices(vert_list):
-        vert_list = vert_list[:-1]
-        if len(vert_list) < 5:
-            return vert_list
-        for i, vert in enumerate(vert_list):
-            vert_dist = BRepExtrema_DistShapeShape(vert_list[(i) % (len(vert_list))],
-                                                   vert_list[(i + 2) % (len(vert_list))],
-                                                   Extrema_ExtFlag_MIN).Value()
-            if vert_dist < 1e-3:
-                return vert_list
-            edge_pp_p = BRepBuilderAPI_MakeEdge(vert_list[(i) % (len(vert_list))],
-                                                vert_list[(i + 2) % (len(vert_list))]).Shape()
-            distance = BRepExtrema_DistShapeShape(vert_list[(i + 1) % (len(vert_list))], edge_pp_p,
-                                                  Extrema_ExtFlag_MIN).Value()
-            if distance < 1e-3:
-                vert_list.pop((i + 1) % (len(vert_list)))
-
-        vert_list.append(vert_list[0])
-        return vert_list
-
-    @staticmethod
-    def _remove_coincident_vertices(vert_list):
-        tol_dist = 1e-2
-        new_list = []
-        v_b = np.array(vert_list[-1].Coord())
-        for i, vert in enumerate(vert_list):
-            v = np.array(vert.Coord())
-            d_b = np.linalg.norm(v - v_b)
-            if d_b > tol_dist:
-                new_list.append(vert)
-                v_b = v
-            # else:
-            #     print("Coincident points")
-        return new_list
-
-    @staticmethod
-    def _remove_collinear_vertices2(vert_list):
-        tol_cross = 1e-3
-        new_list = []
-
-        for i, vert in enumerate(vert_list):
-            v = np.array(vert.Coord())
-            v_b = np.array(vert_list[(i-1) % (len(vert_list))].Coord())
-            v_f = np.array(vert_list[(i+1) % (len(vert_list))].Coord())
-            v1 = v-v_b
-            v2 = v_f-v_b
-            if np.linalg.norm(np.cross(v1, v2)) / np.linalg.norm(v2) > tol_cross:
-                new_list.append(vert)
-        return new_list
-
-    @staticmethod
-    def _make_faces_from_pnts(pnt_list):
-        """
-        This function returns a TopoDS_Face from list of gp_Pnt
-        :param pnt_list: list of gp_Pnt or Coordinate-Tuples
-        :return: TopoDS_Face
-        """
-        an_edge = []
-        if isinstance(pnt_list[0], tuple):
-            new_list = []
-            for pnt in pnt_list:
-                new_list.append(gp_Pnt(gp_XYZ(pnt[0], pnt[1], pnt[2])))
-            pnt_list = new_list
-        for i in range(len(pnt_list)):
-            edge = BRepBuilderAPI_MakeEdge(pnt_list[i], pnt_list[(i + 1) % len(pnt_list)]).Edge()
-            an_edge.append(edge)
-        a_wire = BRepBuilderAPI_MakeWire()
-        for edge in an_edge:
-            a_wire.Add(edge)
-        a_wire = a_wire.Wire()
-        a_face = BRepBuilderAPI_MakeFace(a_wire).Face()
-        return a_face
-
-    @staticmethod
-    def _make_face_from_vertex_list(vert_list):
-        an_edge = []
-        for i in range(len(vert_list[:-1])):
-            edge = BRepBuilderAPI_MakeEdge(vert_list[i], vert_list[i + 1]).Edge()
-            an_edge.append(edge)
-        a_wire = BRepBuilderAPI_MakeWire()
-        for edge in an_edge:
-            a_wire.Add(edge)
-        a_wire = a_wire.Wire()
-        a_face = BRepBuilderAPI_MakeFace(a_wire).Face()
-
-        return a_face  # .Reversed()
-
-    @staticmethod
-    def _get_vertex_list_from_face(face):
-        # fc_exp = TopExp_Explorer(face, TopAbs_FACE)
-        # fc = topods_Face(fc_exp.Current())
-        # fc = bps.ExportEP.fix_face(fc)
-        # an_exp = TopExp_Explorer(fc, TopAbs_WIRE)
-        an_exp = TopExp_Explorer(face, TopAbs_WIRE)
-        vert_list = []
-        while an_exp.More():
-            wire = topods_Wire(an_exp.Current())
-            w_exp = BRepTools_WireExplorer(wire)
-            while w_exp.More():
-                vert1 = w_exp.CurrentVertex()
-                vert_list.append(vert1)
-                w_exp.Next()
-            an_exp.Next()
-        vert_list.append(vert_list[0])
-
-        return vert_list
-
-    @staticmethod
-    def _get_number_of_vertices(shape):
-        shape_analysis = ShapeAnalysis_ShapeContents()
-        shape_analysis.Perform(shape)
-        nb_vertex = shape_analysis.NbVertices()
-
-        return nb_vertex
-
-    @staticmethod
-    def _get_points_of_face(shape):
-        """
-        This function returns a list of gp_Pnt of a Surface
-        :param face: TopoDS_Shape (Surface)
-        :return: pnt_list (list of gp_Pnt)
-        """
-        an_exp = TopExp_Explorer(shape, TopAbs_WIRE)
-        pnt_list = []
-        while an_exp.More():
-            wire = topods_Wire(an_exp.Current())
-            w_exp = BRepTools_WireExplorer(wire)
-            while w_exp.More():
-                pnt1 = BRep_Tool.Pnt(w_exp.CurrentVertex())
-                pnt_list.append(pnt1)
-                w_exp.Next()
-            an_exp.Next()
-        return pnt_list
 
     def calc_bound_shape(self, name):
         settings = ifcopenshell.geom.settings()
@@ -1238,15 +1085,15 @@ class SpaceBoundary(element.SubElement):
             # if sore.get_info()["InnerBoundaries"] is None:
             shape = ifcopenshell.geom.create_shape(settings, sore)
 
-            pnt_list = self._get_points_of_face(shape)
-            pnt_list_new = self._remove_coincident_vertices(pnt_list)
-            pnt_list_new = self._remove_collinear_vertices2(pnt_list_new)
+            pnt_list = PyOCCTools.get_points_of_face(shape)
+            pnt_list_new = PyOCCTools.remove_coincident_vertices(pnt_list)
+            pnt_list_new = PyOCCTools.remove_collinear_vertices2(pnt_list_new)
             # pnt_list_new = self._remove_collinear_vertices2(pnt_list)
             if pnt_list_new != pnt_list:
                 # print("vert new vs old", len(pnt_list_new), len(pnt_list))
                 if len(pnt_list_new) < 3:
                     pnt_list_new = pnt_list
-                shape = self._make_faces_from_pnts(pnt_list_new)
+                shape = PyOCCTools.make_faces_from_pnts(pnt_list_new)
 
             if sore.InnerBoundaries:
                 shape = remove_inner_loops(shape) # todo: return None if not horizontal shape
@@ -1257,28 +1104,32 @@ class SpaceBoundary(element.SubElement):
                                                       BasisSurface=sore.BasisSurface)
                     temp_sore.InnerBoundaries = ()
                     shape = ifcopenshell.geom.create_shape(settings, temp_sore)
-                    pnt_list = self._get_points_of_face(shape)
-                    pnt_list_new = self._remove_coincident_vertices(pnt_list)
-                    pnt_list_new = self._remove_collinear_vertices2(pnt_list_new)
+                    pnt_list = PyOCCTools.get_points_of_face(shape)
+                    pnt_list_new = PyOCCTools.remove_coincident_vertices(pnt_list)
+                    pnt_list_new = PyOCCTools.remove_collinear_vertices2(pnt_list_new)
                     # pnt_list_new = self._remove_collinear_vertices2(pnt_list)
                     if pnt_list_new != pnt_list:
                         # print("vert new vs old", len(pnt_list_new), len(pnt_list))
                         if len(pnt_list_new) < 3:
                             pnt_list_new = pnt_list
-                        shape = self._make_faces_from_pnts(pnt_list_new)
+                        shape = PyOCCTools.make_faces_from_pnts(pnt_list_new)
 
 
         except:
             try:
-                shape = ifcopenshell.geom.create_shape(settings,
-                                                       self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
+                sore = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement
+                ifc_new = ifcopenshell.file()
+                temp_sore = ifc_new.create_entity('IfcCurveBoundedPlane', OuterBoundary=sore.OuterBoundary,
+                                                  BasisSurface=sore.BasisSurface)
+                temp_sore.InnerBoundaries = ()
+                shape = ifcopenshell.geom.create_shape(settings, temp_sore)
             except:
                 poly = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary.Points
                 pnts = []
                 for p in poly:
                     p.Coordinates = (p.Coordinates[0], p.Coordinates[1], 0.0)
                     pnts.append((p.Coordinates[:]))
-                shape = self._make_faces_from_pnts(pnts)
+                shape = PyOCCTools.make_faces_from_pnts(pnts)
         shape = BRepLib_FuseEdges(shape).Shape()
 
         shape_val = TopoDS_Iterator(self.thermal_zones[0].space_shape).Value()
@@ -1314,12 +1165,12 @@ class SpaceBoundary(element.SubElement):
             #             unify.Build()
             #             shape = unify.Shape()
             #             shape = bps.ExportEP.fix_shape(shape)
-            #             vert_list1 = self._get_vertex_list_from_face(shape)
-            #             vert_list1 = self._remove_collinear_vertices(vert_list1)
+            #             vert_list1 = self.get_vertex_list_from_face(shape)
+            #             vert_list1 = self.remove_collinear_vertices(vert_list1)
             #             vert_list1.reverse()
-            #             vert_list1 = self._remove_collinear_vertices(vert_list1)
+            #             vert_list1 = self.remove_collinear_vertices(vert_list1)
             #             vert_list1.reverse()
-            #             shape = self._make_face_from_vertex_list(vert_list1)
+            #             shape = self.make_face_from_vertex_list(vert_list1)
 
         return shape
 
@@ -1353,9 +1204,9 @@ class SpaceBoundary(element.SubElement):
         try:
             face = topods_Face(a_face)
         except:
-            pnts = self._get_points_of_face(a_face)
+            pnts = PyOCCTools.get_points_of_face(a_face)
             # pnts.append(pnts[0])
-            face = self._make_faces_from_pnts(pnts)
+            face = PyOCCTools.make_faces_from_pnts(pnts)
         surf = BRep_Tool.Surface(face)
         obj = surf
         assert obj.DynamicType().Name() == "Geom_Plane"
