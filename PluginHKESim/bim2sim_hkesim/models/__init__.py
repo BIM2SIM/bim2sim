@@ -73,7 +73,7 @@ class ConsumerHeatingDistributorModule(HKESim):
     represents = [aggregation.ConsumerHeatingDistributorModule]
 
     def __init__(self, element):
-        self.check_temp_tupel = self.check_dummy() #TODO: Checking System
+        self.check_volume = self.check_numeric(min_value=0 * ureg.meter ** 3)
         super().__init__(element)
 
     def get_params(self):
@@ -81,8 +81,8 @@ class ConsumerHeatingDistributorModule(HKESim):
         if self.element.temperature_inlet or self.element.temperature_outlet:
             self.params["Tconsumer"] = (self.element.temperature_inlet, self.element.temperature_outlet)
         self.params["Medium_heating"] = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.register_param("use_hydraulic_separator", self.check_temp_tupel, "useHydraulicSeparator")
-        self.register_param("hydraulic_separator_volume", self.check_temp_tupel, "V")
+        self.register_param("use_hydraulic_separator", lambda value: True, "useHydraulicSeparator")
+        self.register_param("hydraulic_separator_volume", self.check_volume, "V")
 
         index = 0
 
