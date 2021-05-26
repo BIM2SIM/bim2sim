@@ -43,17 +43,6 @@ class ConsoleDecisionHandler(DecisionHandler):
         for i, decision in enumerate(collection):
             yield decision, "[Decision {}/{}]".format(i + 1, total)
 
-    def solve(self, decision):
-        try:
-            decision.value = self.user_input(decision)
-        except DecisionSkip:
-            decision.skip()
-        except DecisionCancel as ex:
-            self.logger.info("Canceling decisions")
-            raise
-        return
-
-    # def solve_collection(self, collection):
     def get_answers_for_bunch(self, bunch: DecisionBunch) -> list:
         answers = []
         if not bunch:
@@ -67,14 +56,16 @@ class ConsoleDecisionHandler(DecisionHandler):
         for decision, progress in self.collection_progress(bunch):
             answer = None
             if skip_all and decision.allow_skip:
-                decision.skip()
+                # decision.skip()
+                pass
             else:
                 if skip_all:
                     self.logger.info("Decision can not be skipped")
                 try:
                     answer = self.user_input(decision, extra_options=extra_options, progress=progress)
                 except DecisionSkip:
-                    decision.skip()
+                    # decision.skip()
+                    pass
                 except DecisionSkipAll:
                     skip_all = True
                     self.logger.info("Skipping remaining decisions")
@@ -114,7 +105,7 @@ class ConsoleDecisionHandler(DecisionHandler):
                 # decision.skip()
                 # return None
             if raw_value.lower() == Decision.SKIPALL.lower() and Decision.SKIPALL in options:
-                decision.skip()
+                # decision.skip()
                 raise DecisionSkipAll
             if raw_value.lower() == Decision.CANCEL.lower() and Decision.CANCEL in options:
                 raise DecisionCancel

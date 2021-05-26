@@ -144,10 +144,11 @@ class Decision:
         if self.status != Status.open:
             raise ValueError("Decision is not open. Call reset() first.")
         _value = self.convert(value)
-        if self.validate(_value):
+        if _value is None:
+            self.skip()
+        elif self.validate(_value):
             self._value = _value
             self.status = Status.ok
-            # self._post()
         else:
             raise ValueError("Invalid value: %r for %s" % (value, self.question))
 
