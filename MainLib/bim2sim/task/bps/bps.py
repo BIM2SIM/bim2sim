@@ -3237,6 +3237,14 @@ class IdfObject():
         # write validated bound_shape to obj
         obj_pnts = self._get_points_of_face(self.bound_shape)
         obj_coords = []
+        # obj_pnts_new = SpaceBoundary._remove_coincident_vertices(obj_pnts)
+        # obj_pnts_new = SpaceBoundary._remove_collinear_vertices2(obj_pnts_new)
+        # #todo: check if corresponding boundaries still have matching partner
+        # if len(obj_pnts_new) < 3:
+        #     self.skip_bound = True
+        #     return
+        # else:
+        #     obj_pnts = obj_pnts_new
         for pnt in obj_pnts:
             co = tuple(round(p, 3) for p in pnt.Coord())
             obj_coords.append(co)
