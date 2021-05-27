@@ -3311,7 +3311,7 @@ class IdfObject():
                     else:
                         surface_type = "Floor"
             elif elem.ifc_type == "IfcBeam":
-                if not self._compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
+                if not PyOCCTools._compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
                     surface_type = 'Wall'
                 else:
                     surface_type = 'Ceiling'
@@ -3326,7 +3326,7 @@ class IdfObject():
             elif inst_obj.top_bottom == "VERTICAL":
                 surface_type = "Wall"
             else:
-                if not self._compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
+                if not PyOCCTools._compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
                     surface_type = 'Wall'
                 elif inst_obj.top_bottom == "BOTTOM":
                     surface_type = "Floor"
@@ -3335,7 +3335,7 @@ class IdfObject():
                     if inst_obj.related_bound is None or inst_obj.is_external:
                         surface_type = "Roof"
         elif inst_obj.physical == False:
-            if not self._compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
+            if not PyOCCTools._compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
                 surface_type = 'Wall'
             else:
                 if inst_obj.top_bottom == "BOTTOM":
@@ -3390,21 +3390,6 @@ class IdfObject():
             self.out_bound_cond_obj = ''
         else:
             self.skip_bound = True
-
-    @staticmethod
-    def _compare_direction_of_normals(normal1, normal2):
-        """
-        Compare the direction of two surface normals (vectors).
-        True, if direction is same or reversed
-        :param normal1: first normal (gp_Pnt)
-        :param normal2: second normal (gp_Pnt)
-        :return: True/False
-        """
-        dotp = normal1.Dot(normal2)
-        check = False
-        if 1 - 1e-2 < dotp ** 2 < 1 + 1e-2:
-            check = True
-        return check
 
     @staticmethod
     def get_circular_shape(obj_pnts):

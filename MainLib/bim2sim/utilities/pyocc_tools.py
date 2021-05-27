@@ -14,10 +14,11 @@ from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.GProp import GProp_GProps
 from OCC.Core.GeomAPI import GeomAPI_ProjectPointOnCurve
 from OCC.Core.ShapeAnalysis import ShapeAnalysis_ShapeContents
+from OCC.Core.ShapeFix import ShapeFix_Face, ShapeFix_Shape
 from OCC.Core.TopAbs import TopAbs_WIRE
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopoDS import topods_Wire
-from OCC.Core.gp import gp_XYZ, gp_Pnt, gp_Trsf
+from OCC.Core.gp import gp_XYZ, gp_Pnt, gp_Trsf, gp_Vec
 
 
 class PyOCCTools:
@@ -131,10 +132,6 @@ class PyOCCTools:
 
     @staticmethod
     def get_vertex_list_from_face(face):
-        # fc_exp = TopExp_Explorer(face, TopAbs_FACE)
-        # fc = topods_Face(fc_exp.Current())
-        # fc = bps.ExportEP.fix_face(fc)
-        # an_exp = TopExp_Explorer(fc, TopAbs_WIRE)
         an_exp = TopExp_Explorer(face, TopAbs_WIRE)
         vert_list = []
         while an_exp.More():
@@ -150,7 +147,7 @@ class PyOCCTools:
         return vert_list
 
     @staticmethod
-    def get_number_of_vertices(shape: object) -> object:
+    def get_number_of_vertices(shape):
         shape_analysis = ShapeAnalysis_ShapeContents()
         shape_analysis.Perform(shape)
         nb_vertex = shape_analysis.NbVertices()
@@ -221,3 +218,50 @@ class PyOCCTools:
         brepbndlib_Add(shape, box)
         solid_box = BRepPrimAPI_MakeBox(box.CornerMin(), box.CornerMax()).Solid()
         return solid_box
+
+    @staticmethod
+    def fix_face(face, tolerance=1e-3):
+        fix = ShapeFix_Face(face)
+        fix.SetMaxTolerance(tolerance)
+        fix.Perform()
+        return fix.Face()
+
+    @staticmethod
+    def fix_shape(shape, tolerance=1e-3):
+        fix = ShapeFix_Shape(shape)
+        fix.SetFixFreeShellMode(True)
+        sf = fix.FixShellTool()
+        fix.LimitTolerance(tolerance)
+        fix.Perform()
+        return fix.Shape()
+
+    @staticmethod
+    def _move_bound_in_direction_of_normal(bound, move_dist, reversed=False):
+        prod_vec = []
+        move_dir = bound.bound_normal.Coord()
+        if reversed:
+            move_dir = bound.bound_normal.Reversed().Coord()
+        for i in move_dir:
+            prod_vec.append(move_dist * i)
+        # move bound in direction of bound normal by move_dist
+        trsf = gp_Trsf()
+        coord = gp_XYZ(*prod_vec)
+        vec = gp_Vec(coord)
+        trsf.SetTranslation(vec)
+        bound.bound_shape_cl = BRepBuilderAPI_Transform(bound.bound_shape, trsf).Shape()
+        return trsf
+
+    @staticmethod
+    def _compare_direction_of_normals(normal1, normal2):
+        """
+        Compare the direction of two surface normals (vectors).
+        True, if direction is same or reversed
+        :param normal1: first normal (gp_Pnt)
+        :param normal2: second normal (gp_Pnt)
+        :return: True/False
+        """
+        dotp = normal1.Dot(normal2)
+        check = False
+        if 1 - 1e-2 < dotp ** 2 < 1 + 1e-2:
+            check = True
+        return check
