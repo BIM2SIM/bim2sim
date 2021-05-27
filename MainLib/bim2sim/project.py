@@ -239,7 +239,7 @@ class FolderStructure:
 
         if open_conf:
             # open config for user interaction
-            open_config()
+            open_config(self.config)
         print("Project folder created.")
         return self
 
