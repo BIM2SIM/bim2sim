@@ -80,17 +80,22 @@ class DisaggregationCreation(ITask):
         type_parent = subclass.__name__
 
         inst.parent = parent
-        for prop in inst.attributes:
-            value = getattr(inst.parent, prop)
-            setattr(inst, prop, value)
-        inst.area = sb.bound_area
+        inst.space_boundaries.append(sb)
+        inst.thermal_zones.append(tz)
+        inst.area = sb.net_bound_area
+        inst.gross_area = sb.bound_area
         inst.orientation = parent.orientation
+        for prop in inst.attributes:
+            dis_value = getattr(inst, prop)
+            if not dis_value or dis_value == 0:
+                parent_value = getattr(inst.parent, prop)
+                setattr(inst, prop, parent_value)
 
         new_pos = np.array(sb.position)
         if type_parent in self.vertical_instances:
-            inst._pos = self.get_new_position_vertical_instance(parent, new_pos)
+            inst.position = self.get_new_position_vertical_instance(parent, new_pos)
         if type_parent in self.horizontal_instances:
-            inst._pos = tz.position
+            inst.position = tz.position
             if tz.area > inst.area:
                 if abs(1 - inst.area / tz.area) < threshold:
                     inst.area = tz.area
