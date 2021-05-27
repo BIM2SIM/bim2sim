@@ -1218,6 +1218,7 @@ class Layer(element.RelationBased):
     solar_absorp = attribute.Attribute(
         # default_ps=('Pset_MaterialOptical', 'SolarTransmittance'),
         default=0.7,
+        unit=ureg.percent
     )
 
 

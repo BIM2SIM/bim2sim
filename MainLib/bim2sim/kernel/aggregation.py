@@ -1595,7 +1595,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                 instance = cls(groups[group], finder=finder)
                 instance.name = name
                 # instance = cls(groups[group], name=name)
-                instance.description = ', '.join(ast.literal_eval(group))
+                instance.description = group
                 new_aggregations.append(instance)
                 for tz in instance.elements:
                     if tz.guid in instances:
