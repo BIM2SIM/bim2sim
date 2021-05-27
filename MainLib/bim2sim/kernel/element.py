@@ -40,12 +40,8 @@ class ElementEncoder(JSONEncoder):
         return JSONEncoder.default()
 
 
-# TODO: rename to Element after all old imports of Element are fixed
 class Element(metaclass=attribute.AutoAttributeNameMeta):
-    """Most basic class
-
-    keeps track of created instances and guids"""
-    # objects = {}
+    """Most basic class"""
     guid_prefix = ''
     _id_counter = 0
 
@@ -131,8 +127,8 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         raise AssertionError("Obsolete method. not required any more.")
 
 
-class IFCMixin:
-    """Mixin to enable instantiation from ifc and provide related methods.
+class IFCBased(Element):
+    """Element with instantiation from ifc and related methods.
 
         Attributes:
         ifc: IfcOpenShell element instance
@@ -424,7 +420,7 @@ class IFCMixin:
         # raise NoValueError("No matching property for %s" % (patterns))
 
 
-class RelationBased(IFCMixin, Element):
+class RelationBased(IFCBased):
 
     def __repr__(self):
         return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)
@@ -433,7 +429,7 @@ class RelationBased(IFCMixin, Element):
         return "%s" % self.__class__.__name__
 
 
-class ProductBased(IFCMixin, Element):
+class ProductBased(IFCBased):
     """Elements based on IFC products."""
     domain = 'GENERAL'
     key: str = ''
