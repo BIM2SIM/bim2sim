@@ -35,8 +35,6 @@ class EnergyPlus(Plugin):
         playground.run_task(bps.EnrichNonValid())  # LOD.full
         playground.run_task(bps.EnrichBuildingByTemplates())  # LOD.low
 
-        playground.run_task(bps.Disaggregation_creation())
-        playground.run_task(bps.BindThermalZones())
         # todo own task?
         copyfile(Path(__file__).parent.parent / 'data' / weather_file,
                  playground.paths.resources / weather_file)
