@@ -5,7 +5,7 @@ import tempfile
 
 import numpy as np
 
-from bim2sim.kernel.element import Root, Port, ProductBased
+from bim2sim.kernel.element import Element, Port, ProductBased
 from bim2sim.kernel.elements.hvac import HeatExchanger, Pipe, PipeFitting
 from bim2sim.task import hvac
 from bim2sim.task import common

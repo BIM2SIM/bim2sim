@@ -35,13 +35,13 @@ class ElementEncoder(JSONEncoder):
     # mayby weakref to other elements (Ports, connections, ...)
 
     def default(self, o):
-        if isinstance(o, Root):
+        if isinstance(o, Element):
             return "<Element(%s)>" % o.guid
         return JSONEncoder.default()
 
 
 # TODO: rename to Element after all old imports of Element are fixed
-class Root(metaclass=attribute.AutoAttributeNameMeta):
+class Element(metaclass=attribute.AutoAttributeNameMeta):
     """Most basic class
 
     keeps track of created instances and guids"""
@@ -51,7 +51,6 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
 
     def __init__(self, guid=None, **kwargs):
         self.guid = guid or self.get_id(self.guid_prefix)
-        # Root.objects[self.guid] = self
         self.related_decisions: List[Decision] = []
         self.attributes = attribute.AttributeManager(bind=self)
 
@@ -91,12 +90,12 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
         prefix_length = len(prefix)
         if prefix_length > 8:
             raise AttributeError("Max prefix length is 8!")
-        Root._id_counter += 1
-        return "{0:0<8s}{1:0>14d}".format(prefix, Root._id_counter)
+        Element._id_counter += 1
+        return "{0:0<8s}{1:0>14d}".format(prefix, Element._id_counter)
 
     @staticmethod
     def get_object(guid):
-        """Get Root object instance with given guid
+        """Get Element object instance with given guid
 
         :returns: None if object with guid was not instanciated"""
         raise AssertionError("Obsolete method. "
@@ -107,7 +106,7 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
         self.attributes.request(name)
 
     def solve_requested_decisions(
-            self=None, instances: Iterable['Root'] = None):
+            self=None, instances: Iterable['Element'] = None):
         """Solve all requested decisions.
         If called by instance, all instance related decisions are solved
         else all decisions of all instances are solved."""
@@ -124,7 +123,6 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
 
     def discard(self):
         """Remove from tracked objects. Related decisions are also discarded."""
-        # del Root.objects[self.guid]
         for d in self.related_decisions:
             d.discard()
 
@@ -426,7 +424,7 @@ class IFCMixin:
         # raise NoValueError("No matching property for %s" % (patterns))
 
 
-class RelationBased(IFCMixin, Root):
+class RelationBased(IFCMixin, Element):
 
     def __repr__(self):
         return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)
@@ -435,7 +433,7 @@ class RelationBased(IFCMixin, Root):
         return "%s" % self.__class__.__name__
 
 
-class ProductBased(IFCMixin, Root):
+class ProductBased(IFCMixin, Element):
     """Elements based on IFC products."""
     domain = 'GENERAL'
     key: str = ''

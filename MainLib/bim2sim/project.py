@@ -15,7 +15,7 @@ import configparser
 from bim2sim.decision import Decision, ListDecision
 from bim2sim.task.base import Playground
 from bim2sim.plugin import Plugin
-from bim2sim.kernel.element import Root
+from bim2sim.kernel.element import Element
 
 from bim2sim.task.bps.enrich_bldg_templ import EnrichBuildingByTemplates
 
