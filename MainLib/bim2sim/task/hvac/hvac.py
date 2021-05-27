@@ -292,8 +292,16 @@ class ConnectElements(ITask):
             self.logger.warning("Connecting by bounding box is not implemented.")
 
         # TODO: manualy add / modify connections
-        return self.instances,
 
+        # remove all unconnected ports
+        # TODO: this is a WORKAROUND. Those ports could be used otherwise.
+        #  See #167
+        un_ports = {port for port in all_ports if not port.connection}
+        for port in un_ports:
+            port.parent.ports.remove(port)
+        self.logger.warning(
+            "Removed %d remaining unconnected ports", len(un_ports))
+        return self.instances,
 
 
 class Enrich(Task):
@@ -413,6 +421,7 @@ class Reduce(ITask):
             matches, metas = agg_class.find_matches(graph)
             i = 0
             for match, meta in zip(matches, metas):
+                # TODO: See #167
                 # outer_connections = agg_class.get_edge_ports2(graph, match)
                 try:
                     agg = agg_class(match, **meta)

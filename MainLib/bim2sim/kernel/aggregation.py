@@ -177,7 +177,7 @@ class HVACAggregationMixin(AggregationMixin):
         """Finds and returns the original edge ports of element graph."""
         raise NotImplementedError()
 
-    # TODO: get edge ports based on graph. Problem: matches are Element graphs
+    # TODO: get edge ports based on graph. See #167
     @classmethod
     def get_edge_ports2(cls, graph: HvacGraph, match: HvacGraph) -> List[HVACPort]:
         """Get edge ports based on graph."""
