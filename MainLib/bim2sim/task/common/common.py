@@ -260,7 +260,8 @@ class CreateElements(ITask):
         sorted_elements = sorted(possible_elements, key=lambda item: item.key)
         checksum = Decision.build_checksum([pe.key for pe in sorted_elements])  # assert same list of ifc_classes
         decisions = DecisionBunch()
-        for ifc_entity in unknown_entities:
+        for ifc_entity in sorted(unknown_entities,
+                                 key=lambda it: it.Name + it.GlobalId):
             best_guess_cls = best_guess_dict.get(ifc_entity)
             best_guess = best_guess_cls.key if best_guess_cls else None
             decisions.append(ListDecision(
