@@ -1,7 +1,9 @@
 import unittest
+from collections import Counter
 
-import bim2sim
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
+from bim2sim.decision.console import ConsoleDecisionHandler
+from bim2sim.kernel.aggregation import ConsumerHeatingDistributorModule
 
 from bim2sim.utilities.test import IntegrationBase
 
@@ -31,6 +33,26 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
+        self.assertEqual(0, handler.return_value,
+                         "Project did not finish successfully.")
+
+    def test_run_b03_heating(self):
+        """Run project with B03_Heating.ifc"""
+        ifc = 'B03_Heating.ifc'
+        project = self.create_project(ifc, 'hkesim')
+        # handler = ConsoleDecisionHandler()
+        # handler.handle(project.run())
+        answers = ('Other', None, None, 'HVAC-Distributor', 'HVAC-Boiler',
+                   None, *('HVAC-Valve',)*14,
+                   '2PFOreSeyfWqxUJNMz5nFO', '2YKblmYbhnh4RrfqKcCxPJ',
+                   *(True,)*29)
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+
+        graph = project.playground.state['graph']
+        aggregated = Counter((type(item) for item in graph.element_graph.nodes))
+        self.assertIn(ConsumerHeatingDistributorModule, aggregated)
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
 
