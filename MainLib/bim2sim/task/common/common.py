@@ -116,7 +116,7 @@ class CreateElements(ITask):
     """Create internal elements from ifc."""
 
     reads = ('ifc',)
-    touches = ('instances', )
+    touches = ('instances', 'finder')
 
     def run(self, workflow, ifc):
         self.logger.info("Creates elements of relevant ifc types")
@@ -174,7 +174,7 @@ class CreateElements(ITask):
                              len(invalids))
         self.logger.info("Created %d elements", len(instance_lst))
         instances = {inst.guid: inst for inst in instance_lst}
-        return instances,
+        return instances, self.factory.finder
 
     @Task.log
     def accept_valids(self, entities_dict, warn=True, force=False) -> \

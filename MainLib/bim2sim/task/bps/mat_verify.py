@@ -13,7 +13,8 @@ class MaterialVerification(ITask):
 
     def __init__(self):
         super().__init__()
-        self.invalid = []
+        # self.invalid = []
+        self.invalid = {}
         pass
 
     @Task.log
@@ -22,8 +23,11 @@ class MaterialVerification(ITask):
         if workflow.layers is not LOD.low:
             for guid, ins in instances.items():
                 if not self.materials_verification(ins):
-                    self.invalid.append(ins)
+                    # self.invalid.append(ins)
+                    self.invalid[ins.guid] = ins
             self.logger.warning("Found %d invalid layers", len(self.invalid))
+            dict_items = self.invalid.items()
+            self.invalid = dict(sorted(dict_items))
 
         return self.invalid,
 

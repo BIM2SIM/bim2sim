@@ -271,7 +271,7 @@ class Project:
     formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
     _active_project = None  # lock to prevent multiple interfering projects
 
-    def __init__(self, path=None):
+    def __init__(self, path=None, workflow=None):
         """Load existing project"""
         self.storage = {}  # project related items
 
@@ -283,7 +283,8 @@ class Project:
         #  which should be loaded anyway. In config additional Plugins can be specified.
         #  'external' Plugins ca specify a meaningful workflow, builtins cant. How to get a generic workflow?
         self.default_plugin = Plugin.get_plugin(self.config['Backend']['use'])
-        workflow = self.default_plugin.default_workflow()
+        if not workflow:
+            workflow = self.default_plugin.default_workflow()
         workflow.relevant_elements = self.default_plugin.elements
         workflow.update_from_config(self.config)
         self.playground = Playground(workflow, self.paths)
@@ -291,10 +292,13 @@ class Project:
         self._log_handler = self._setup_logger()  # setup project specific handlers
 
     @classmethod
-    def create(cls, project_folder, ifc_path=None, default_plugin: str = None, open_conf=False):
-        """Load existing project from folder"""
-        path = FolderStructure.create(project_folder, ifc_path, default_plugin, open_conf)
-        project = cls(project_folder)
+    def create(cls, project_folder, ifc_path=None, default_plugin: str = None,
+               open_conf=False, workflow=None):
+        """Create new project"""
+        # create folder first
+        FolderStructure.create(
+            project_folder, ifc_path, default_plugin, open_conf)
+        project = cls(project_folder, workflow)
 
         return project
 
