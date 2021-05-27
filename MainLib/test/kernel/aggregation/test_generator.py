@@ -9,6 +9,7 @@ from bim2sim import decision
 from bim2sim.decision.console import ConsoleFrontEnd as FrontEnd
 from bim2sim.task.hvac import expansiontanks, dead_ends
 
+
 class GeneratorHelper(SetupHelper):
 
     def get_setup_boiler_with_bypass(self):
@@ -38,12 +39,12 @@ class GeneratorHelper(SetupHelper):
             gen_rl_a = [
                 self.element_generator(elements.Pipe, length=100, diameter=40)
                 for i in range(4)]
-            fitting = self.element_generator(elements.PipeFitting, n_ports=3,
-                                             diameter=40, length=60)
-            fitting_bp_1 = self.element_generator(elements.PipeFitting, n_ports=3,
-                                             diameter=40, length=60)
-            fitting_bp_2 = self.element_generator(elements.PipeFitting, n_ports=3,
-                                             diameter=40, length=60)
+            fitting = self.element_generator(
+                elements.PipeFitting, n_ports=3, diameter=40, length=60)
+            fitting_bp_1 = self.element_generator(
+                elements.PipeFitting, n_ports=3, diameter=40, length=60)
+            fitting_bp_2 = self.element_generator(
+                elements.PipeFitting, n_ports=3, diameter=40, length=60)
             gen_rl_b1 = [
                 self.element_generator(elements.Pipe, length=100, diameter=40)
                 for i in range(2)]
@@ -53,15 +54,19 @@ class GeneratorHelper(SetupHelper):
             gen_rl_c = [
                 self.element_generator(elements.Pipe, flags=['strand2'],
                                        length=(1 + i) * 40, diameter=15)
-                for i in range(3)
+                for i in range(1)
             ]
             tank = self.element_generator(elements.Storage, n_ports=1)
             bypass = [self.element_generator(
                 elements.Pipe, flags=['bypass'], length=60, diameter=30) for
                 i in range(3)]
-            pipe_outer_vl_distr = [self.element_generator(elements.Pipe, flags=['outer_vl'], length=100, diameter=40)
+            pipe_outer_vl_distr = [
+                self.element_generator(
+                    elements.Pipe, flags=['outer_vl'], length=100, diameter=40)
                 for i in range(2)]
-            pipe_outer_rl_distr = [self.element_generator(elements.Pipe, flags=['outer_rl'],length=100, diameter=40)
+            pipe_outer_rl_distr = [
+                self.element_generator(
+                    elements.Pipe, flags=['outer_rl'],length=100, diameter=40)
                 for i in range(2)]
 
         # connect
@@ -76,7 +81,8 @@ class GeneratorHelper(SetupHelper):
         self.connect_strait([*bypass])
         self.connect_strait([*pipe_outer_rl_distr])
         self.connect_strait([*pipe_outer_vl_distr])
-        pipe_outer_vl_distr[-1].ports[-1].connect(pipe_outer_rl_distr[0].ports[0])
+        pipe_outer_vl_distr[-1].ports[-1].connect(
+            pipe_outer_rl_distr[0].ports[0])
         distributor.ports[2].connect(pipe_outer_vl_distr[0].ports[0])
         distributor.ports[3].connect(pipe_outer_rl_distr[-1].ports[-1])
         fitting.ports[2].connect(gen_rl_c[0].ports[0])
@@ -87,11 +93,11 @@ class GeneratorHelper(SetupHelper):
         gen_circuit = [
             boiler, *gen_vl_a, h_pump, *gen_vl_b1, *gen_vl_b2,  distributor,
             *gen_rl_a, fitting, fitting_bp_1, fitting_bp_2, *bypass, *gen_rl_b1,
-            *gen_rl_b2, *gen_rl_c, tank, *pipe_outer_vl_distr, *pipe_outer_rl_distr
+            *gen_rl_b2, *gen_rl_c, tank, *pipe_outer_vl_distr,
+            *pipe_outer_rl_distr
         ]
 
         return HvacGraph(gen_circuit), flags
-
 
     def get_setup_two_seperate_boilers(self):
         """Simple generator system made of boiler, pump, bypass, expansion
@@ -121,10 +127,10 @@ class GeneratorHelper(SetupHelper):
                 for i in range(4)]
             fitting = self.element_generator(elements.PipeFitting, n_ports=3,
                                              diameter=40, length=60)
-            fitting_bp_1 = self.element_generator(elements.PipeFitting, n_ports=3,
-                                             diameter=40, length=60)
-            fitting_bp_2 = self.element_generator(elements.PipeFitting, n_ports=3,
-                                             diameter=40, length=60)
+            fitting_bp_1 = self.element_generator(
+                elements.PipeFitting, n_ports=3, diameter=40, length=60)
+            fitting_bp_2 = self.element_generator(
+                elements.PipeFitting, n_ports=3, diameter=40, length=60)
             gen_rl_b1 = [
                 self.element_generator(elements.Pipe, length=100, diameter=40)
                 for i in range(2)]
@@ -163,14 +169,14 @@ class GeneratorHelper(SetupHelper):
             h_pump2 = self.element_generator(elements.Pump, rated_power=2.2,
                                             rated_height=12,
                                             rated_volume_flow=8)
-            gen_vl_b12 = [self.element_generator(elements.Pipe, flags=[
-                'strand12'],
-                                                length=100, diameter=40) for i in
-                         range(2)]
-            gen_vl_b22 = [self.element_generator(elements.Pipe, flags=[
-                'strand12'],
-                                                length=100, diameter=40) for i in
-                         range(3)]
+            gen_vl_b12 = [
+                self.element_generator(
+                    elements.Pipe, flags=['strand12'], length=100,
+                    diameter=40) for i in range(2)]
+            gen_vl_b22 = [
+                self.element_generator(
+                    elements.Pipe, flags=['strand12'], length=100,
+                    diameter=40) for i in range(3)]
             distributor2 = self.element_generator(elements.Distributor, flags=[
                 'distributor2'], n_ports=4)  # , volume=80
             gen_rl_a2 = [
@@ -178,10 +184,10 @@ class GeneratorHelper(SetupHelper):
                 for i in range(4)]
             fitting2 = self.element_generator(elements.PipeFitting, n_ports=3,
                                              diameter=40, length=60)
-            fitting_bp_12 = self.element_generator(elements.PipeFitting, n_ports=3,
-                                                  diameter=40, length=60)
-            fitting_bp_22 = self.element_generator(elements.PipeFitting, n_ports=3,
-                                                  diameter=40, length=60)
+            fitting_bp_12 = self.element_generator(
+                elements.PipeFitting, n_ports=3, diameter=40, length=60)
+            fitting_bp_22 = self.element_generator(
+                elements.PipeFitting, n_ports=3, diameter=40, length=60)
             gen_rl_b12 = [
                 self.element_generator(elements.Pipe, length=100, diameter=40)
                 for i in range(2)]
@@ -273,7 +279,6 @@ class GeneratorHelper(SetupHelper):
 
         return HvacGraph(gen_circuit), flags
 
-
     def setup_get_two_parallel_boilers(self):
         """Generator system made of two boilers, two pumps,  1 bypass, expansion
         tank, distributor and pipes.
@@ -283,8 +288,10 @@ class GeneratorHelper(SetupHelper):
         flags = {}
         with self.flag_manager(flags):
             # generator circuit
-            boiler1 = self.element_generator(elements.Boiler, rated_power=200)
-            boiler2 = self.element_generator(elements.Boiler, rated_power=400)
+            boiler1 = self.element_generator(elements.Boiler, rated_power=200,
+                                             flags=['boiler200kW'])
+            boiler2 = self.element_generator(elements.Boiler, rated_power=400,
+                                             flags=['boiler400kW'])
             h_pump1 = self.element_generator(elements.Pump, rated_power=2.2,
                                             rated_height=12,
                                             rated_volume_flow=8)
@@ -323,11 +330,14 @@ class GeneratorHelper(SetupHelper):
                                              diameter=40, length=60)
             fitting4 = self.element_generator(elements.PipeFitting, n_ports=3,
                                              diameter=40, length=60)
-            pipe_outer_vl_distr = [self.element_generator(elements.Pipe, flags=['outer_vl'], length=100, diameter=40)
+            pipe_outer_vl_distr = [
+                self.element_generator(
+                    elements.Pipe, flags=['outer_vl'], length=100, diameter=40)
                 for i in range(2)]
-            pipe_outer_rl_distr = [self.element_generator(elements.Pipe, flags=['outer_rl'],length=100, diameter=40)
+            pipe_outer_rl_distr = [
+                self.element_generator(
+                    elements.Pipe, flags=['outer_rl'],length=100, diameter=40)
                 for i in range(2)]
-            # todo tank = self.element_generator(elements.Storage, n_ports=1)
 
         # connect
         gen_dis = [*gen_strand1, distributor, *gen_strand2]
@@ -388,20 +398,15 @@ class TestGeneratorAggregation(unittest.TestCase):
         decision.Decision.stored_decisions.clear()
         self.helper.reset()
 
-    # @unittest.skip("Skip because ExpansionTank not detected, remove when issue 125 is fixed")
     def test_simple_boiler_with_bypass(self):
         graph, flags = self.helper.get_setup_boiler_with_bypass()
-        # todo remove before merge
-        graph.plot(r'C:\temp\bim2sim\Tests\before')
         pot_tanks = \
             expansiontanks.ExpansionTanks.identify_expansion_tanks(graph)
-        graph, n_removed_tanks = expansiontanks.ExpansionTanks.decide_expansion_tanks(
-            graph, pot_tanks, force=True)
-        graph.plot(r'C:\temp\bim2sim\Tests\after')
+        graph, n_removed_tanks = expansiontanks.ExpansionTanks.\
+            decide_expansion_tanks(graph, pot_tanks, force=True)
         dead_ends_found = dead_ends.DeadEnds.identify_deadends(graph)
         graph, n_removed_dead_ends = dead_ends.DeadEnds.decide_deadends(
             graph, dead_ends_found, True)
-        graph.plot(r'C:\temp\bim2sim\Tests\after')
         matches, metas = aggregation.Generator_One_Fluid.find_matches(graph)
         self.assertEqual(
             len(matches), 1,
@@ -410,46 +415,50 @@ class TestGeneratorAggregation(unittest.TestCase):
         )
         agg_generator = aggregation.Generator_One_Fluid(
             "Test", matches[0], **metas[0])
-        print(agg_generator.rated_power)
         self.assertEqual(agg_generator.rated_power, 200 * ureg.kilowatt)
         self.assertTrue(agg_generator.has_pump,
                         "No pump was found in generator cycle but there should"
                         " be one existing")
         with decision.Decision.debug_answer(True):
             self.assertTrue(agg_generator.has_bypass,
-                            "No bypass was found in generator cycle but there should"
-                            " be one existing")
+                            "No bypass was found in generator cycle but there "
+                            "should be one existing")
         graph.merge(
             mapping=agg_generator.get_replacement_mapping(),
             inner_connections=agg_generator.get_inner_connections(),
         )
-        # todo remove before merge
-        graph.plot(r'C:\temp\bim2sim\Tests\after')
 
-    # todo finish
-    # @unittest.skip("Skip because ExpansionTank not detected, remove when issue 125 is fixed")
     def test_two_simple_boiler_with_bypass(self):
         graph, flags = self.helper.get_setup_two_seperate_boilers()
-        graph.plot(r'C:\temp\bim2sim\Tests\before')
         pot_tanks = \
             expansiontanks.ExpansionTanks.identify_expansion_tanks(graph)
-        graph, n_removed_tanks = expansiontanks.ExpansionTanks.decide_expansion_tanks(
-            graph, pot_tanks, force=True)
-        graph.plot(r'C:\temp\bim2sim\Tests\after')
+        graph, n_removed_tanks = expansiontanks.ExpansionTanks.\
+            decide_expansion_tanks(graph, pot_tanks, force=True)
         dead_ends_found = dead_ends.DeadEnds.identify_deadends(graph)
         graph, n_removed_dead_ends = dead_ends.DeadEnds.decide_deadends(
             graph, dead_ends_found, True)
-        graph.plot(r'C:\temp\bim2sim\Tests\after')
-        matches, meta = aggregation.Generator_One_Fluid.find_matches(graph)
-
+        matches, metas = aggregation.Generator_One_Fluid.find_matches(graph)
         agg_generators = []
-        self.assertEqual(len(matches), 2)
-        for e, match in enumerate(matches):
+        self.assertEqual(
+            len(matches), 2,
+            "There are 2 generation cycles but 'find_matches' "
+            "returned %d" % len(matches)
+        )
+
+        name_builder = '{} {}'
+        i = 0
+        for match, meta in zip(matches, metas):
             agg_generator = aggregation.Generator_One_Fluid(
-                "Test basics", matches[e], **meta[e])
+                name_builder.format('generator', i + 1), match, **meta)
+            i += 1
             agg_generators.append(agg_generator)
-        if len(agg_generators) == 0:
-            self.assertTrue(False, 'Kein Generator Kreis idendifiziert!')
+            self.assertEqual(agg_generator.rated_power, 200 * ureg.kilowatt)
+            self.assertTrue(agg_generator.has_pump,
+                            "No pump was found in generator cycle but there"
+                            " should be one existing")
+
+        self.assertEqual(len(matches), 2, f"2 Generator should be created but "
+                                          f"only {len(matches)} where created ")
 
         mappings = []
         for agg_generator in agg_generators[::-1]:
@@ -459,10 +468,7 @@ class TestGeneratorAggregation(unittest.TestCase):
                 mapping=agg_generator.get_replacement_mapping(),
                 inner_connections=agg_generator.get_inner_connections(),
             )
-        graph.plot(r'C:\temp\bim2sim\Tests\after')
-        print('test')
 
-    # todo
     def test_two_parallel_boilers_with_bypass(self):
         graph, flags = self.helper.setup_get_two_parallel_boilers()
         graph.plot(r'C:\temp\bim2sim\Tests\before')
@@ -475,26 +481,31 @@ class TestGeneratorAggregation(unittest.TestCase):
         name_builder = '{} {}'
         i = 0
         agg_generators = []
+        boiler200kw_guid = [b.guid for b in flags['boiler200kW']]
+        boiler400kw_guid = [b.guid for b in flags['boiler400kW']]
         for match, meta in zip(matches, metas):
             agg_generator = aggregation.Generator_One_Fluid(
                 name_builder.format('generator', i+1), match, **meta)
             i += 1
             agg_generators.append(agg_generator)
-        # todo fix
-        print(agg_generator.rated_power)
-        # self.assertEqual(agg_generator.rated_power, 200 * ureg.kilowatt)
-        # self.assertTrue(agg_generator.has_pump,
-        #                 "No pump was found in generator cycle but there should"
-        #                 " be one existing")
-        # with decision.Decision.debug_answer(True):
-        #     self.assertTrue(agg_generator.has_bypass,
-        #                     "No bypass was found in generator cycle but there should"
-        #                     " be one existing")
-        for agg_generator in agg_generators:
+            boiler_element = [element for element in agg_generator.elements
+                              if isinstance(element, elements.Boiler)][0]
+            if boiler_element.guid == boiler200kw_guid:
+                self.assertEqual(agg_generator.rated_power, 200 * ureg.kilowatt)
+            if boiler_element.guid == boiler400kw_guid:
+                self.assertEqual(agg_generator.rated_power, 400 * ureg.kilowatt)
+            self.assertTrue(agg_generator.has_pump,
+                            "No pump was found in generator cycle but there"
+                            " should be one existing")
+
+        self.assertEqual(len(matches), 2, f"2 Generator should be created but "
+                                          f"only {len(matches)} where created ")
+
+        mappings = []
+        for agg_generator in agg_generators[::-1]:
+            mapping = agg_generator.get_replacement_mapping()
+            mappings.append(mapping)
             graph.merge(
                 mapping=agg_generator.get_replacement_mapping(),
                 inner_connections=agg_generator.get_inner_connections(),
             )
-            graph.plot(r'C:\temp\bim2sim\Tests\after')
-        # # todo remove before merge
-        # graph.plot(r'D:/10_ProgramTesting/after')

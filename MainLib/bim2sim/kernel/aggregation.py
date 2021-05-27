@@ -1527,7 +1527,6 @@ class Generator_One_Fluid(Aggregation):
         self.bypass_elements = kwargs.pop('bypass_elements', set())
         super().__init__(name, element_graph, *args, **kwargs)
         edge_ports, element_graph = self.get_edge_ports(element_graph)
-        # todo add edge_ports and expansion tank again to elements
         self.elements = set(element_graph.nodes) | self.non_relevant
         if len(edge_ports) > 2:
             raise NotImplementedError
@@ -1540,25 +1539,28 @@ class Generator_One_Fluid(Aggregation):
         # make graph unfrozen
         _graph = graph.copy()
         edge_ports = []
-        # todo edge_ports are only once connected ports in _graph
-        # get boarder elements
+        # find and remove boarder elements from graph if existing
+        # (not the case if parallel generators where found)
 
-        # boarder_elements = [node for node in _graph.nodes if
-        #           node.ifc_type in cls.boarder_elements]
-        #
-        # boarder_element = boarder_elements[0]
-        # for port in boarder_element.ports:
-        #     if port.connection:
-        #         if port.connection.parent in _graph.nodes:
-        #             edge_ports.append(port.connection)
-        # # remove boarder nodes from graph
-        # _graph.remove_node(boarder_element)
-        #ToDo: Connection To GraphNetwork
-        #[v for v, d in _graph.degree() if d == 1]
-        for ele in _graph:
-            for port in ele.ports:
+        boarder_elements = [node for node in _graph.nodes if
+                  node.ifc_type in cls.boarder_elements]
+        if len(boarder_elements) > 1:
+            raise NotImplementedError
+        if boarder_elements:
+            boarder_element = boarder_elements[0]
+            for port in boarder_element.ports:
                 if port.connection:
-                    if port.connection.parent not in _graph.nodes:
+                    if port.connection.parent in _graph.nodes:
+                        edge_ports.append(port.connection)
+            _graph.remove_node(boarder_element)
+
+        # find edge ports
+        outer_elements = [v for v, d in _graph.degree() if d == 1]
+        for outer_element in outer_elements:
+            for port in outer_element.ports:
+                if port.connection:
+                    if port.connection.parent not in _graph.nodes \
+                            and port not in edge_ports:
                         edge_ports.append(port)
 
         return edge_ports, _graph
@@ -1632,9 +1634,6 @@ class Generator_One_Fluid(Aggregation):
             wanted_flat.update([item for sublist in cycles_list for item in sublist])
 
         non_relevant = wanted_flat - generator_flat
-        # metas = [{'non_relevant': non_relevant}] * len(generator_cycles)
-        # todo add non_relevant to first found match
-        # todo remove all items from all matches witch occur in all matches
 
         # Remove overlapping Elements in GeneratorCycles
         cleaned_generator_cycles = []
@@ -1651,14 +1650,14 @@ class Generator_One_Fluid(Aggregation):
         # match bypass elements from non relevant elements
         for i in range(len(cleaned_generator_cycles)):
             metas.append(dict())
-            all_cycles_wanted=set().union(*list_all_cycles_wanted[i])
-            # for cycle in list_all_cycles_wanted[i]:
-            if len(all_cycles_wanted - cleaned_generator_cycles[i].nodes - non_relevant) > 0:
-                continue
-            bypass_elements = all_cycles_wanted - cleaned_generator_cycles[i].nodes
-            cleaned_generator_cycles[i].add_nodes_from(bypass_elements)
-            non_relevant.difference_update(bypass_elements)
-            metas[i]['bypass_elements'] = bypass_elements
+            metas[i]['bypass_elements'] = []
+            for cycle in list_all_cycles_wanted[i]:
+                if len(cycle - cleaned_generator_cycles[i].nodes - non_relevant) > 0:
+                    continue
+                bypass_elements = cycle - cleaned_generator_cycles[i].nodes
+                cleaned_generator_cycles[i].add_nodes_from(bypass_elements)
+                non_relevant.difference_update(bypass_elements)
+                metas[i]['bypass_elements'].append(bypass_elements)
 
 
         #metas = [{}] * (len(cleaned_generator_cycles)-1)
