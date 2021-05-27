@@ -179,6 +179,18 @@ class HVACAggregationMixin(AggregationMixin):
         """Finds and returns the original edge ports of element graph."""
         raise NotImplementedError()
 
+    # TODO: get edge ports based on graph. Problem: matches are Element graphs
+    @classmethod
+    def get_edge_ports2(cls, graph: HvacGraph, match: HvacGraph) -> List[HVACPort]:
+        """Get edge ports based on graph."""
+        # edges of g excluding all relations to s
+        e1 = graph.subgraph(graph.nodes - match.nodes).edges
+        # all edges related to s
+        e2 = graph.edges - e1
+        # related to s but not s exclusive
+        e3 = e2 - match.edges
+        return e3
+
     @classmethod
     def get_edge_ports_of_strait(cls, graph) -> List[HVACPort]:
         """

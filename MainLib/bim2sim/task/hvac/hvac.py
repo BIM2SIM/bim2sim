@@ -413,6 +413,7 @@ class Reduce(ITask):
             matches, metas = agg_class.find_matches(graph)
             i = 0
             for match, meta in zip(matches, metas):
+                # outer_connections = agg_class.get_edge_ports2(graph, match)
                 try:
                     agg = agg_class(match, **meta)
                 except Exception as ex:
