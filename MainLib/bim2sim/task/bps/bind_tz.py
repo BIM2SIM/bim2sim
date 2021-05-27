@@ -65,7 +65,7 @@ class BindThermalZones(ITask):
             for inst in new_aggregations:
                 self.bounded_tz.append(inst)
 
-    def group_thermal_zones_by_criteria(self, instances):
+    def group_thermal_zones_by_all_criteria(self, instances):
         """groups together all the thermal zones based on 4 criteria:
         * is_external
         * usage
@@ -92,6 +92,37 @@ class BindThermalZones(ITask):
             self.filter_neighbors(grouped_instances)
 
         return grouped_instances
+
+    def group_thermal_zones_by_is_external(self, instances):
+        """groups together all the thermal zones based on criteria:
+        * is_external"""
+
+        thermal_zones = filter_instances(instances, 'ThermalZone')
+        return self.group_by_is_external(thermal_zones)
+
+    def group_thermal_zones_by_is_external_and_orientation(self, instances):
+        """groups together all the thermal zones based on criteria:
+        * is_external"""
+
+        thermal_zones = filter_instances(instances, 'ThermalZone')
+        grouped_instances = self.group_by_is_external(thermal_zones)
+        return self.group_grouped_tz(grouped_instances, self.group_by_external_orientation)
+
+    def group_thermal_zones_by_usage(self, instances):
+        """groups together all the thermal zones based on criteria:
+        * is_external"""
+
+        thermal_zones = filter_instances(instances, 'ThermalZone')
+        return self.group_by_usage(thermal_zones)
+
+    def group_thermal_zones_by_is_external_orientation_and_usage(self, instances):
+        """groups together all the thermal zones based on criteria:
+        * is_external"""
+
+        thermal_zones = filter_instances(instances, 'ThermalZone')
+        grouped_instances = self.group_by_is_external(thermal_zones)
+        grouped_instances = self.group_grouped_tz(grouped_instances, self.group_by_usage)
+        return self.group_grouped_tz(grouped_instances, self.group_by_external_orientation)
 
     def group_by_is_external(self, thermal_zones: list) -> dict:
         grouped_tz = {'external': [], 'internal': []}
