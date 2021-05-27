@@ -295,6 +295,7 @@ class ThermalZone(BPSProduct):
     )
     length = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "Length"),
+        unit=ureg.meter,
         default=0
     )
     width = attribute.Attribute(
@@ -1216,8 +1217,7 @@ class Layer(element.RelationBased):
     )
     solar_absorp = attribute.Attribute(
         # default_ps=('Pset_MaterialOptical', 'SolarTransmittance'),
-        default=0,
-        unit=ureg.percent
+        default=0.7,
     )
 
 

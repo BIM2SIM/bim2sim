@@ -38,7 +38,7 @@ class BindThermalZones(ITask):
 
     def bind_tz_one_zone(self, thermal_zones, instances, finder):
         tz_group = {'one_zone_building': thermal_zones}
-        new_aggregations = AggregatedThermalZone.based_on_groups(
+        new_aggregations = AggregatedThermalZone.find_matches(
             tz_group, instances, finder)
         for inst in new_aggregations:
             self.bounded_tz.append(inst)
@@ -60,7 +60,7 @@ class BindThermalZones(ITask):
                 criteria_decision.decide()
             criteria_function = criteria_functions.get(criteria_decision.value)
             tz_groups = criteria_function(instances)
-            new_aggregations = AggregatedThermalZone.based_on_groups(
+            new_aggregations = AggregatedThermalZone.find_matches(
                 tz_groups, instances, finder=finder)
             for inst in new_aggregations:
                 self.bounded_tz.append(inst)

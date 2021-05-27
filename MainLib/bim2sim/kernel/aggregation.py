@@ -1552,7 +1552,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         return bound_elements
 
     @classmethod
-    def based_on_groups(cls, groups, instances, finder):
+    def find_matches(cls, groups, instances, finder):
         """creates a new thermal zone aggregation instance
          based on a previous filtering"""
         new_aggregations = []
