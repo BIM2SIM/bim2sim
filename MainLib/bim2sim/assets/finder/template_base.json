@@ -43,7 +43,6 @@
   "OuterWall": {
     "exporter": {
       "teaser": {
-        "name": ["instance","name"],
         "area": ["instance", "area"],
         "tilt": ["instance", "tilt"],
         "orientation": ["instance", "orientation"]
@@ -94,7 +93,6 @@
   "InnerWall": {
     "exporter": {
       "teaser": {
-        "name": ["instance","name"],
         "area": ["instance", "area"]
       }
     },
@@ -195,7 +193,6 @@
   "Roof": {
     "exporter": {
       "teaser": {
-        "name": ["instance","name"],
         "area": ["instance", "area"],
         "orientation": ["instance", "orientation"]
       }
@@ -234,7 +231,6 @@
   "Floor": {
     "exporter": {
       "teaser": {
-        "name": ["instance","name"],
         "area": ["instance", "area"],
         "orientation": ["instance", "orientation"]
       }
@@ -273,7 +269,6 @@
   "GroundFloor": {
     "exporter": {
       "teaser": {
-        "name": ["instance","name"],
         "area": ["instance", "area"],
         "orientation": ["instance", "orientation"]
       }
@@ -312,7 +307,6 @@
   "Window": {
     "exporter": {
       "teaser": {
-        "name": ["instance","name"],
         "area": ["instance", "area"],
         "a_conv": ["instance", "a_conv"],
         "g_value": ["instance", "g_value"],
@@ -365,7 +359,6 @@
   "Door": {
     "exporter": {
       "teaser": {
-        "name": ["instance","name"],
         "area": ["instance", "area"],
         "inner_convection": 0.6,
         "orientation": ["instance", "orientation"]
@@ -399,7 +392,6 @@
   "InnerDoor": {
     "exporter": {
       "teaser": {
-        "name": ["instance","name"],
         "area": ["instance", "area"],
         "inner_convection": 0.6,
         "orientation": ["instance", "orientation"]
@@ -433,7 +425,6 @@
   "OuterDoor": {
     "exporter": {
       "teaser": {
-        "name": ["instance","name"],
         "area": ["instance", "area"],
         "inner_convection": 0.6,
         "orientation": ["instance", "orientation"]
