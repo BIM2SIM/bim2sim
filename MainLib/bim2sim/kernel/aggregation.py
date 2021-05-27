@@ -1599,9 +1599,9 @@ class Generator_One_Fluid(Aggregation):
                 List of element_graphs that hold a generator cycle including the
                 distributor.
             metas:
-                List of dict with metas information for, one element for each
+                List of dict with metas information. One element for each
                 element_graph. In this case it holds non_relevant nodes, which
-                have to be deleted later but are not contained in the
+                have to be deleted later but are not contained in the **resulting graph?** #todo
                 element_graph. Because we are currently not able to distinguish
                 to which graph these non_relevant nodes belong, we just output
                 the complete list of non relevant nodes for every element_graph.
@@ -1636,7 +1636,7 @@ class Generator_One_Fluid(Aggregation):
         # todo add non_relevant to first found match
         # todo remove all items from all matches witch occur in all matches
 
-        #Remove overlapping Elements in GeneratorCycles
+        # Remove overlapping Elements in GeneratorCycles
         cleaned_generator_cycles = []
         for gen_cycle in generator_cycles:
             pseudo_lst = gen_cycle.copy()
@@ -1648,16 +1648,18 @@ class Generator_One_Fluid(Aggregation):
 
         metas = []
 
-        #match bypass elements from non relevant elements
+        # match bypass elements from non relevant elements
         for i in range(len(cleaned_generator_cycles)):
             metas.append(dict())
-            for cycle in list_all_cycles_wanted[i]:
-                if len(cycle - cleaned_generator_cycles[i].nodes - non_relevant) > 0:
-                    continue
-                bypass_elements = cycle - cleaned_generator_cycles[i].nodes
-                cleaned_generator_cycles[i].add_nodes_from(bypass_elements)
-                non_relevant.difference_update(bypass_elements)
-                metas[i]['bypass_elements'] = bypass_elements
+            all_cycles_wanted=set().union(*list_all_cycles_wanted[i])
+            # for cycle in list_all_cycles_wanted[i]:
+            if len(all_cycles_wanted - cleaned_generator_cycles[i].nodes - non_relevant) > 0:
+                continue
+            bypass_elements = all_cycles_wanted - cleaned_generator_cycles[i].nodes
+            cleaned_generator_cycles[i].add_nodes_from(bypass_elements)
+            non_relevant.difference_update(bypass_elements)
+            metas[i]['bypass_elements'] = bypass_elements
+
 
         #metas = [{}] * (len(cleaned_generator_cycles)-1)
         if len(metas) > 0:

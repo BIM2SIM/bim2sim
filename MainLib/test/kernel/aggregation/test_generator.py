@@ -388,11 +388,20 @@ class TestGeneratorAggregation(unittest.TestCase):
         decision.Decision.stored_decisions.clear()
         self.helper.reset()
 
-    @unittest.skip("Skip because ExpansionTank not detected, remove when issue 125 is fixed")
+    # @unittest.skip("Skip because ExpansionTank not detected, remove when issue 125 is fixed")
     def test_simple_boiler_with_bypass(self):
         graph, flags = self.helper.get_setup_boiler_with_bypass()
         # todo remove before merge
         graph.plot(r'C:\temp\bim2sim\Tests\before')
+        pot_tanks = \
+            expansiontanks.ExpansionTanks.identify_expansion_tanks(graph)
+        graph, n_removed_tanks = expansiontanks.ExpansionTanks.decide_expansion_tanks(
+            graph, pot_tanks, force=True)
+        graph.plot(r'C:\temp\bim2sim\Tests\after')
+        dead_ends_found = dead_ends.DeadEnds.identify_deadends(graph)
+        graph, n_removed_dead_ends = dead_ends.DeadEnds.decide_deadends(
+            graph, dead_ends_found, True)
+        graph.plot(r'C:\temp\bim2sim\Tests\after')
         matches, metas = aggregation.Generator_One_Fluid.find_matches(graph)
         self.assertEqual(
             len(matches), 1,
@@ -426,6 +435,7 @@ class TestGeneratorAggregation(unittest.TestCase):
             expansiontanks.ExpansionTanks.identify_expansion_tanks(graph)
         graph, n_removed_tanks = expansiontanks.ExpansionTanks.decide_expansion_tanks(
             graph, pot_tanks, force=True)
+        graph.plot(r'C:\temp\bim2sim\Tests\after')
         dead_ends_found = dead_ends.DeadEnds.identify_deadends(graph)
         graph, n_removed_dead_ends = dead_ends.DeadEnds.decide_deadends(
             graph, dead_ends_found, True)
