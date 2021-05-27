@@ -39,7 +39,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         used_workflow = workflow.BPSMultiZoneCombinedLayersLow()
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'Kitchen - preparations, storage',
-                   'heavy', 'EnEv', False)
+                   'heavy', 'EnEv', 'by_all_criteria', False)
         with bim2sim.decision.Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code, "Project did not finish successfully.")
@@ -49,7 +49,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-Institute-Var-2.ifc'
         used_workflow = workflow.BPSMultiZoneCombinedLayersLow()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 2015, 'heavy', 'EnEv', False)
+        answers = (True, True, 2015, 'heavy', 'EnEv', 'by_all_criteria', False)
         with bim2sim.decision.Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code, "Project did not finish successfully.")
@@ -63,7 +63,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
                    'solid_brick_h', True, 'hardwood', True,
                    'Concrete_DK', True, 'Light_Concrete_DK', 'heavy', 1,
                    'Door', 1, 'Brick', 'brick_H', 'EnEv',
-                   *(1,) * 8, False)
+                   *(1,) * 8, 'by_all_criteria', False)
         with bim2sim.decision.Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code, "Project did not finish successfully.")
@@ -77,7 +77,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
                    True, 'air_layer', 'sandstone', True, 'belgian_brick',
                    0.1, True, 'Concrete_DK', 2015, 'heavy', 1, 'Beton',
                    'Light_Concrete_DK', 1, 'Beton', 1, 'Door',
-                   1, 'Beton', *(1,) * 8, False)
+                   1, 'Beton', *(1,) * 8, 'by_all_criteria', False)
         with bim2sim.decision.Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code, "Project did not finish successfully.")

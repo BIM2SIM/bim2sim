@@ -56,7 +56,7 @@ class BindThermalZones(ITask):
                                              global_key='Thermal_Zones.Bind_Method',
                                              allow_load=True, allow_save=True,
                                              collect=False, quick_decide=not True)
-            if not criteria_decision.status.value:
+            if not criteria_decision.value:
                 criteria_decision.decide()
             criteria_function = criteria_functions.get(criteria_decision.value)
             tz_groups = criteria_function(instances)
