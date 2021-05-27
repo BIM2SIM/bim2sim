@@ -226,6 +226,17 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         self.assertEqual(0, return_code)
 
     @unittest.skip("Not fully implemented yet")
+    def test_base_17_ERC_design_day(self):
+        """Test ERC Main Building"""
+        ifc = EXAMPLE_PATH / '26.05space_modified.ifc'
+        project = self.create_project(ifc, 'energyplus')
+        answers = ('Autodesk Revit 2020 (DEU)', True, True, *('Single office',)*165, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
+        with Decision.debug_answer(answers, multi=True):
+            return_code = project.run()
+        self.assertEqual(0, return_code)
+
+    @unittest.skip("Not fully implemented yet")
     def test_base_19_linear_SB_design_day(self):
         """Test Linear Building with generated Space Boundaries"""
         # ifc = RESULT_PATH / 'Office_Building_Architectural_IFC_export_with_SB.ifc'
