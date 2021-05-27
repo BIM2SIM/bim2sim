@@ -65,56 +65,21 @@ class BindThermalZones(ITask):
             for inst in new_aggregations:
                 self.bounded_tz.append(inst)
 
-    def group_thermal_zones_DIN_V_18599_1(self, instances):
+    def group_thermal_zones_by_criteria(self, instances):
         """groups together all the thermal zones based on 4 criteria:
         * is_external
         * usage
         * external_orientation
         * neighbors criterion"""
 
-        external_binding = []
-        internal_binding = []
-
-        # external - internal criterion
         thermal_zones = filter_instances(instances, 'ThermalZone')
-        for tz in thermal_zones:
-            if tz.is_external:
-                external_binding.append(tz)
-            else:
-                internal_binding.append(tz)
 
-        # usage criterion + internal and external criterion
-        external_binding = self.group_attribute(external_binding, 'usage')
-        internal_binding = self.group_attribute(internal_binding, 'usage')
-        # orientation and glass percentage criterion + external only
-        for k, li in external_binding.items():
-            external_binding[k] = self.group_attribute(li, 'external_orientation')
-            for nk, nli in external_binding[k].items():
-                external_binding[k][nk] = {}
-                external_binding[k][nk] = self.group_attribute(nli, 'glass_percentage')
+        grouped_instances = self.group_by_is_external(thermal_zones)
+        grouped_instances = self.group_grouped_tz(grouped_instances, self.group_by_usage)
+        grouped_instances = self.group_grouped_tz(grouped_instances, self.group_by_external_orientation)
+        grouped_instances = self.group_grouped_tz(grouped_instances, self.group_by_glass_percentage)
 
-        grouped_instances_criteria = {}
-        # groups the resultant thermal zone as a dictionary with key: all criteria in one
-        # internal groups resumed
-        for k, li in internal_binding.items():
-            grouped_instances_criteria[str(['internal', k])] = li
-        # external groups resumed
-        for k, li in external_binding.items():
-            for k2, li2 in li.items():
-                for k3, li3 in li2.items():
-                    grouped_instances_criteria[str(['external', k, k2, k3])] = li3
-        # list of all thermal instances grouped:
-        grouped_thermal_instances = []
-        for i in grouped_instances_criteria:
-            grouped_thermal_instances += grouped_instances_criteria[i]
-        # check not grouped instances for fourth criterion
-        not_grouped_instances = []
-        for tz in thermal_zones:
-            if tz not in grouped_thermal_instances:
-                not_grouped_instances.append(tz)
-        # no similarities criterion
-        if len(not_grouped_instances) > 1:
-            grouped_instances_criteria['not_bind'] = not_grouped_instances
+        self.group_not_grouped_tz(grouped_instances, thermal_zones)
 
         # neighbors - filter criterion
         neighbors_decision = BoolDecision(question="Do you want for the bound-spaces to be neighbors? - adds additional"
@@ -124,34 +89,79 @@ class BindThermalZones(ITask):
                                           collect=False, quick_decide=not True)
         neighbors_decision.decide()
         if neighbors_decision.value:
-            self.filter_neighbors(grouped_instances_criteria)
+            self.filter_neighbors(grouped_instances)
 
-        return grouped_instances_criteria
+        return grouped_instances
 
-    @classmethod
-    def group_attribute(cls, thermal_zones, attribute):
-        """groups together a set of thermal zones, that have an attribute in common """
-        groups = {}
-        for ele in thermal_zones:
-            value = cls.sub_function_groups(attribute, ele)
-            if value not in groups:
-                groups[value] = []
-            groups[value].append(ele)
-        # discard groups with one element
-        for k in list(groups.keys()):
-            if len(groups[k]) <= 1:
-                del groups[k]
-        return groups
+    def group_by_is_external(self, thermal_zones: list) -> dict:
+        grouped_tz = {'external': [], 'internal': []}
+        for tz in thermal_zones:
+            if tz.is_external:
+                grouped_tz['external'].append(tz)
+            else:
+                grouped_tz['internal'].append(tz)
+        self.discard_1_element_groups(grouped_tz)
+        return grouped_tz
 
-    @classmethod
-    def sub_function_groups(cls, attribute, tz):
-        sub_functions = {'glass_percentage': cls.glass_percentage_group,
-                         'external_orientation': cls.external_orientation_group}
-        fnc_groups = sub_functions.get(attribute)
-        value = getattr(tz, attribute)
-        if fnc_groups is not None:
-            value = fnc_groups(value)
-        return value
+    def group_by_usage(self, thermal_zones: list) -> dict:
+        grouped_tz = {}
+        for tz in thermal_zones:
+            value = getattr(tz, 'usage')
+            if value not in grouped_tz:
+                grouped_tz[value] = []
+            grouped_tz[value].append(tz)
+        self.discard_1_element_groups(grouped_tz)
+        return grouped_tz
+
+    def group_by_external_orientation(self, thermal_zones: list) -> dict:
+        grouped_tz = {}
+        for tz in thermal_zones:
+            value = self.external_orientation_group(getattr(tz, 'external_orientation'))
+            if value not in grouped_tz:
+                grouped_tz[value] = []
+            grouped_tz[value].append(tz)
+        self.discard_1_element_groups(grouped_tz)
+        return grouped_tz
+
+    def group_by_glass_percentage(self, thermal_zones: list) -> dict:
+        grouped_tz = {}
+        for tz in thermal_zones:
+            value = self.glass_percentage_group(getattr(tz, 'glass_percentage'))
+            if value not in grouped_tz:
+                grouped_tz[value] = []
+            grouped_tz[value].append(tz)
+        self.discard_1_element_groups(grouped_tz)
+        return grouped_tz
+
+    @staticmethod
+    def discard_1_element_groups(grouped):
+        for k in list(grouped.keys()):
+            if len(grouped[k]) <= 1:
+                del grouped[k]
+
+    @staticmethod
+    def group_grouped_tz(grouped_thermal_zones: dict, group_function) -> dict:
+        grouped_tz = {}
+        for group, items in grouped_thermal_zones.items():
+            sub_grouped = group_function(items)
+            for sub_group, sub_items in sub_grouped.items():
+                grouped_name = '%s_%s' % (group, sub_group)
+                grouped_tz[grouped_name] = sub_items
+        return grouped_tz
+
+    @staticmethod
+    def group_not_grouped_tz(grouped_thermal_zones: dict, thermal_zones):
+        # list of all thermal instances grouped:
+        grouped_thermal_instances = []
+        for criteria in grouped_thermal_zones:
+            grouped_thermal_instances += grouped_thermal_zones[criteria]
+        # check not grouped instances for fourth criterion
+        not_grouped_instances = []
+        for tz in thermal_zones:
+            if tz not in grouped_thermal_instances:
+                not_grouped_instances.append(tz)
+        if len(not_grouped_instances) > 1:
+            grouped_thermal_zones['not_bind'] = not_grouped_instances
 
     @staticmethod
     def glass_percentage_group(value):
