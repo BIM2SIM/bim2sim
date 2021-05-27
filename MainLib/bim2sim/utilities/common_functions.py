@@ -1,7 +1,6 @@
 import math
 import re
 import json
-import translators as ts
 
 import bim2sim
 from pathlib import Path
@@ -102,7 +101,7 @@ def get_pattern_usage(translate=False):
                 for c_trans in common_translations[i]:
                     pattern_usage_teaser[i].append(re.compile('(.*?)%s' % c_trans, flags=re.IGNORECASE))
         if translate:
-            trans = ts.bing(i, from_language='en', to_language='de')
+            trans = translate_deep(i, source='en', target='de')
 
             list_de = re.sub(r'\((.*?)\)', '', trans).replace(' - ', ', ').replace(' and ', ', ').replace(' in ', ', ') \
                 .replace(' with ', ', ').replace(' or ', ', ').replace(' the ', ' ').split(', ')
@@ -161,3 +160,17 @@ def filter_instances(instances, type_name):
         if type_name in type(instance).__name__:
             instances_filtered.append(instance)
     return instances_filtered
+
+
+def translate_deep(text, source='auto', target='en'):
+    """ translate function that uses deep_translator package with
+    Google Translator"""
+    from deep_translator import GoogleTranslator
+
+    # proxies_example = {
+    #     "https": "34.195.196.27:8080",
+    #     "http": "34.195.196.27:8080"
+    # }
+    translated = GoogleTranslator(
+        source=source, target=target).translate(text=text)
+    return translated

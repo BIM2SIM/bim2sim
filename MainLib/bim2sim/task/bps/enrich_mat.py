@@ -1,11 +1,10 @@
 import re
-import translators as ts
 
 from bim2sim.task.base import Task, ITask
 from bim2sim.decision import BoolDecision, ListDecision, RealDecision, StringDecision
 from bim2sim.workflow import LOD
 from functools import partial
-from bim2sim.utilities.common_functions import get_material_templates
+from bim2sim.utilities.common_functions import get_material_templates, translate_deep
 from bim2sim.kernel.units import ureg
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.element import ProductBased
@@ -205,7 +204,7 @@ class EnrichMaterial(ITask):
             pattern_material = search_words.split()
             if transl:
                 # use of yandex, bing--- https://pypi.org/project/translators/#features
-                pattern_material.extend(ts.bing(search_words).split())
+                pattern_material.extend(translate_deep(search_words).split())
 
             for i in pattern_material:
                 material_ref.append(re.compile('(.*?)%s' % i, flags=re.IGNORECASE))
