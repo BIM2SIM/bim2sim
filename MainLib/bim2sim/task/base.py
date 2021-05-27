@@ -3,8 +3,6 @@ import os
 import logging
 import json
 
-from bim2sim.kernel import ifc2python
-
 
 class TaskFailed(Exception): pass
 
@@ -16,6 +14,7 @@ class Task:
     def __init__(self):
         self.name = self.__class__.__name__
         self.logger = logging.getLogger("%s.%s"%(__name__, self.name))
+        self.paths = None
 
     def __repr__(self):
         return "<Workflow (%s)>"%(self.name)
@@ -106,7 +105,8 @@ class ITask(Task):
 class Playground:
     """Playground for executing ITasks"""
 
-    def __init__(self, workflow=None):
+    def __init__(self, workflow, paths):
+        self.paths = paths
         self.state = {}
         self.workflow = workflow
         self.history = []
@@ -121,13 +121,14 @@ class Playground:
         """Returns list of available tasks"""
         return [task for task in self.all_tasks() if task.requirements_met(self.state, self.history)]
 
-    def run_task(self, task):
+    def run_task(self, task: ITask):
         """Execute task with arguments specified in task.reads"""
         if not task.requirements_met(self.state, self.history):
             raise AssertionError("%s requirements not met." % task)
 
         read_state = {k: self.state[k] for k in task.reads}
         try:
+            task.paths = self.paths
             result = task.run(self.workflow, **read_state)
         except Exception as ex:
             self.logger.exception("Task '%s' failed!", task)

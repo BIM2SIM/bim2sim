@@ -1,7 +1,6 @@
 ﻿"""Module for defining workflows"""
 
 from enum import Enum
-from bim2sim.project import get_config
 
 
 class LOD(Enum):
@@ -12,7 +11,6 @@ class LOD(Enum):
     full = 3  # keep full details
 
 
-# TODO: config Aggregation can overwrite LODs
 class Workflow:
     """Specification of Workflow"""
 
@@ -23,6 +21,7 @@ class Workflow:
                  generator: LOD,
                  hvac: LOD,
                  spaces: LOD,
+                 layers: LOD,
                  filters: list = None):
 
         self.ductwork = ductwork
@@ -31,13 +30,18 @@ class Workflow:
         self.generator = generator
         self.hvac = hvac
         self.spaces = spaces
+        self.layers = layers
 
         self.filters = filters if filters else []
 
         self.relevant_ifc_types = None
 
-        # TODO: defaults should come from Workflow child classes
-        config = get_config()
+        # default values
+        self.pipes = LOD.medium
+        self.underfloorheatings = LOD.medium
+        self.pumps = LOD.medium
+
+    def update_from_config(self, config):
         self.pipes = LOD(config['Aggregation'].getint('Pipes', 2))
         self.underfloorheatings = LOD(config['Aggregation'].getint('UnderfloorHeating', 2))
         self.pumps = LOD(config['Aggregation'].getint('Pumps', 2))
@@ -53,6 +57,7 @@ class PlantSimulation(Workflow):
             generator=LOD.full,
             hvac=LOD.low,
             spaces=LOD.ignore,
+            layers=LOD.full,
         )
         self.relevant_ifc_types = (
             'IfcAirTerminal',
@@ -105,6 +110,134 @@ class BPSMultiZoneSeparated(Workflow):
             generator=LOD.ignore,
             hvac=LOD.low,
             spaces=LOD.full,
+            # layers=LOD.low,
+            layers=LOD.full,
+        )
+        self.relevant_ifc_types = (
+            'IfcSite',
+            'IfcBuilding',
+            'IfcBuildingStorey',
+            # 'IfcWallElementedCase',
+            # 'IfcWallStandardCase',
+            'IfcWall',
+            'IfcWindow',
+            'IfcDoor',
+            'IfcSlab',
+            'IfcRoof',
+            'IfcSpaceHeater',
+            'IfcAirTerminal',
+            'IfcAirTerminalBox',
+        )
+
+
+class BPSMultiZoneCombined(Workflow):
+    """Building performance simulation with every space as single zone
+    separated from each other - no aggregation"""
+
+    def __init__(self):
+        super().__init__(
+            ductwork=LOD.low,
+            hull=LOD.medium,
+            consumer=LOD.low,
+            generator=LOD.ignore,
+            hvac=LOD.low,
+            # spaces=LOD.low,
+            # spaces=LOD.low,
+            spaces=LOD.medium,
+            layers=LOD.low,
+            # layers=LOD.full,
+        )
+        self.relevant_ifc_types = (
+            'IfcSite',
+            'IfcBuilding',
+            'IfcBuildingStorey',
+            # 'IfcWallElementedCase',
+            # 'IfcWallStandardCase',
+            'IfcWall',
+            'IfcWindow',
+            'IfcDoor',
+            'IfcSlab',
+            'IfcRoof',
+            'IfcSpaceHeater',
+            'IfcAirTerminal',
+            'IfcAirTerminalBox',
+        )
+
+class BPSMultiZoneSeparatedEP(Workflow):
+    """Building performance simulation with every space as single zone
+    separated from each other - no aggregation,
+    used within the EnergyPlus Workflow"""
+
+    def __init__(self):
+        super().__init__(
+            ductwork=LOD.low,
+            hull=LOD.medium,
+            consumer=LOD.low,
+            generator=LOD.ignore,
+            hvac=LOD.low,
+            spaces=LOD.full,
+            layers=LOD.low,
+        )
+        self.relevant_ifc_types = (
+            'IfcSite',
+            'IfcBuilding',
+            'IfcBuildingStorey',
+            'IfcBeam',
+            'IfcWall',
+            'IfcWindow',
+            'IfcDoor',
+            'IfcSlab',
+            'IfcRoof',
+            'IfcSpaceHeater',
+            'IfcAirTerminal',
+            'IfcAirTerminalBox',
+        )
+
+
+class BPSMultiZoneAggregated(Workflow):
+    """Building performance simulation with spaces aggregated - aggregations"""
+
+    def __init__(self):
+        super().__init__(
+            ductwork=LOD.low,
+            hull=LOD.medium,
+            consumer=LOD.low,
+            generator=LOD.ignore,
+            hvac=LOD.low,
+            spaces=LOD.medium,
+            # layers=LOD.low,
+            layers=LOD.full,
+        )
+        self.relevant_ifc_types = (
+            'IfcSite',
+            'IfcBuilding',
+            'IfcBuildingStorey',
+            # 'IfcWallElementedCase',
+            # 'IfcWallStandardCase',
+            'IfcWall',
+            'IfcWindow',
+            'IfcDoor',
+            'IfcSlab',
+            'IfcRoof',
+            'IfcSpaceHeater',
+            'IfcAirTerminal',
+            'IfcAirTerminalBox',
+        )
+
+
+class BPSOneZoneAggregated(Workflow):
+    """Building performance simulation with spaces aggregated - aggregations"""
+
+    def __init__(self):
+        super().__init__(
+            ductwork=LOD.low,
+            hull=LOD.medium,
+            consumer=LOD.low,
+            generator=LOD.ignore,
+            hvac=LOD.low,
+            spaces=LOD.low,
+            layers=LOD.low,
+            # layers=LOD.full,
         )
         self.relevant_ifc_types = (
             'IfcSite',

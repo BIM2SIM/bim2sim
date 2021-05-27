@@ -1,18 +1,43 @@
-﻿
+﻿from shutil import copyfile
+from pathlib import Path
 
-import bim2sim
-from bim2sim.manage import BIM2SIMManager
+from bim2sim.task import bps
+from bim2sim.task import common
+from bim2sim.kernel.element import IFCBased
+from bim2sim.plugin import Plugin
+from bim2sim.workflow import BPSMultiZoneSeparatedEP
 
-class EnergyPlus(BIM2SIMManager):
 
-    def prepare(self, model):
-        
-        self.logger.info('preparing stuff')
+class EnergyPlus(Plugin):
+    name = 'EnergyPlus'
+    default_workflow = BPSMultiZoneSeparatedEP
 
-        return
+    def run(self, playground):
+        weather_file = 'DEU_NW_Aachen.105010_TMYx.epw'
 
-    def run(self):
+        # with IFCBased.finder.disable():
+            # self.playground.run_task(bps.SetIFCTypesBPS())
+            # self.playground.run_task(common.LoadIFC())
+            # self.playground.run_task(bps.Inspect())
+            # self.playground.run_task(bps.Prepare())
+        playground.run_task(bps.SetIFCTypes())
+        playground.run_task(common.LoadIFC())
+        playground.run_task(bps.Inspect())
+        playground.run_task(bps.TZInspect())
+        playground.run_task(bps.EnrichUseConditions())
 
-        self.logger.info('doing stuff')
+        # playground.run_task(bps.OrientationGetter())
+
+        playground.run_task(bps.MaterialVerification())  # LOD.full
+        playground.run_task(bps.EnrichMaterial())  # LOD.full
+        playground.run_task(bps.BuildingVerification())  # all LODs
+
+        playground.run_task(bps.EnrichNonValid())  # LOD.full
+        playground.run_task(bps.EnrichBuildingByTemplates())  # LOD.low
+
+        # todo own task?
+        copyfile(Path(__file__).parent.parent / 'data' / weather_file,
+                 playground.paths.resources / weather_file)
+        playground.run_task(bps.ExportEP())
 
         return

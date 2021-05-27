@@ -9,8 +9,7 @@ import itertools
 
 import networkx as nx
 from networkx.readwrite import json_graph
-import matplotlib.pyplot as plt
-from collections import Counter
+
 
 logger = logging.getLogger(__name__)
 
@@ -170,6 +169,9 @@ class HvacGraph(nx.Graph):
         """Plot graph
 
         if path is provided plot is saved as pdf else it gets displayed"""
+        # importing matplotlib is slow and plotting is optional
+        import matplotlib.pyplot as plt
+
         # https://plot.ly/python/network-graphs/
         colors = {
             1: 'green',

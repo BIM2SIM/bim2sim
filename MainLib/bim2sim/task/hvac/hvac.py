@@ -18,11 +18,12 @@ from bim2sim.kernel.element import Element, ElementEncoder, BasePort
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
 from bim2sim.decision import Decision, ListDecision
-from bim2sim.project import PROJECT
 from bim2sim.kernel import finder
 from bim2sim.enrichment_data.data_class import DataClass
 from bim2sim.enrichment_data import element_input_json
 from bim2sim.decision import ListDecision, RealDecision, BoolDecision
+from bim2sim.task.common.common_functions import get_type_building_elements_hvac
+
 
 # todo remove because obsolete
 IFC_TYPES = (
@@ -443,7 +444,7 @@ class Enrich(Task):
 
     @Task.log
     def run(self, instances):
-        json_data = DataClass(used_param=1)
+        json_data = get_type_building_elements_hvac()
 
         # enrichment_parameter --> Class
         self.logger.info("Enrichment of the elements...")
@@ -482,8 +483,9 @@ class Prepare(ITask):
     @Task.log
     def run(self, workflow, relevant_ifc_types):
         self.logger.info("Setting Filters")
-        Element.finder.load(PROJECT.finder)
-        filters = [TypeFilter(relevant_ifc_types), TextFilter(relevant_ifc_types, ['Description'])]
+        Element.finder.load(self.paths.finder)
+        # filters = [TypeFilter(relevant_ifc_types), TextFilter(relevant_ifc_types, ['Description'])]
+        filters = [TypeFilter(relevant_ifc_types)]
         # self.filters.append(TextFilter(['IfcBuildingElementProxy', 'IfcUnitaryEquipment']))
         return filters,
 
@@ -574,8 +576,8 @@ class Reduce(ITask):
 
         if __debug__:
             self.logger.info("Plotting graph ...")
-            graph.plot(PROJECT.export)
-            graph.plot(PROJECT.export, ports=True)
+            graph.plot(self.paths.export)
+            graph.plot(self.paths.export, ports=True)
 
         return reduced_instances, connections
 
@@ -650,7 +652,7 @@ class Export(ITask):
 
         self.logger.info(Decision.summary())
         Decision.decide_collected()
-        Decision.save(PROJECT.decisions)
+        Decision.save(self.paths.decisions)
 
         connection_port_names = []
         for connection in connections:
@@ -673,4 +675,4 @@ class Export(ITask):
         # print("-"*80)
         # print(modelica_model.code())
         # print("-"*80)
-        modelica_model.save(PROJECT.export)
+        modelica_model.save(self.paths.export)

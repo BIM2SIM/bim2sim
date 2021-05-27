@@ -11,7 +11,6 @@ import pint
 
 import bim2sim
 from bim2sim.kernel import element as elem
-from bim2sim.kernel import elements, aggregation
 from bim2sim.decision import RealDecision
 
 TEMPLATEPATH = Path(bim2sim.__file__).parent / 'assets/tmplModel.txt'
@@ -38,7 +37,7 @@ class Model:
         self.comment = comment
         self.instances = instances
 
-        self.size_x = (-200, 200)
+        self.size_x = (-100, 100)
         self.size_y = (-100, 100)
 
         self.connections, self.connections = self.set_positions(instances, connections)
@@ -59,51 +58,15 @@ class Model:
         pos_delta = pos_max - pos_min
         delta_x = self.size_x[1] - self.size_x[0]
         delta_y = self.size_y[1] - self.size_y[0]
-        indexes = [[0, 0], [0, 0], [0, 0]]
-        modelsize = 25
         for inst in instances:
-            # Consumer to the right
-            if inst.element.__class__ in [aggregation.ConsumerHeatingDistributorModule, aggregation.Consumer]:
-                x = (self.size_x[0] + delta_x*2/3 + indexes[0][0]*modelsize)
-                y = (self.size_y[0] + indexes[0][1]*modelsize)
+            if inst.element.position is not None:
+                rel_pos = (inst.element.position - pos_min) / pos_delta
+                x = (self.size_x[0] + rel_pos[0] * delta_x).item()
+                y = (self.size_y[0] + rel_pos[1] * delta_y).item()
                 inst.position = (x, y)
                 instance_dict[inst.name] = inst.position
-                if indexes[0][1]*modelsize + modelsize >= delta_y:
-                    indexes[0][1] = 0
-                    indexes[0][0] += 1
-                else:
-                    indexes[0][1] += 1
-            # Generator to the left
-            elif inst.element.__class__ in [elements.Boiler, elements.Chiller]:
-                x = (self.size_x[0] + indexes[1][0]*modelsize)
-                y = (self.size_y[0] + indexes[1][1]*modelsize)
-                inst.position = (x, y)
-                instance_dict[inst.name] = inst.position
-                if indexes[1][1]*modelsize + modelsize >= delta_y:
-                    indexes[1][1] = 0
-                    indexes[1][0] += 1
-                else:
-                    indexes[1][1] += 1
             else:
-                x = (self.size_x[0] + delta_x/3 + indexes[2][0]*modelsize)
-                y = (self.size_y[0] + indexes[2][1]*modelsize)
-                inst.position = (x, y)
-                instance_dict[inst.name] = inst.position
-                if indexes[2][1]*modelsize + modelsize >= delta_y:
-                    indexes[2][1] = 0
-                    indexes[2][0] += 1
-                else:
-                    indexes[2][1] += 1
-
-
-            # if inst.element.position is not None:
-            #     rel_pos = (inst.element.position - pos_min) / pos_delta
-            #     x = (self.size_x[0] + rel_pos[0] * delta_x).item()
-            #     y = (self.size_y[0] + rel_pos[1] * delta_y).item()
-            #     inst.position = (x, y)
-            #     instance_dict[inst.name] = inst.position
-            # else:
-            #     instance_dict[inst.name] = (0, 0)
+                instance_dict[inst.name] = (0, 0)
 
         # add positions to connections
         for inst0, inst1 in connections:
@@ -157,7 +120,6 @@ class Instance:
         self.params = {}
         self.validate = {}
         self.get_params()
-        self.manage_params()
         self.comment = self.get_comment()
         self.connections = []
 
@@ -165,7 +127,7 @@ class Instance:
     def _lookup_add(key, value):
         """Adds key and value to Instance.lookup. Returns conflict"""
         logger = logging.getLogger(__name__)
-        if key in Instance.lookup:
+        if key in Instance.lookup and value is not Instance.lookup[key]:
             logger.error("Conflicting representations (%s) in '%s' and '%s'",
                          key, value.__name__, Instance.lookup[key].__name__)
             return True
@@ -226,7 +188,7 @@ class Instance:
         """Collect parameters from element and checks them"""
         for name, args in self.validate.items():
             check, export_name = args
-            value = getattr(self.element, name)
+            value = self.element.find(name)
             if check(value):
                 self.params[export_name] = value
             else:
@@ -244,7 +206,7 @@ class Instance:
                 )
 
     def register_param(self, name: str, check, export_name: str=None):
-        """Parameter gets marked as requiered and will be checked.
+        """Parameter gests marked as requiered and will be checked.
 
         run Element.solve_request() after all parameters are registrated."""
         self.element.request(name)
@@ -288,9 +250,9 @@ class Instance:
         if isinstance(parameter, (str, int, float)):
             return str(parameter)
         if isinstance(parameter, str):
-            return '"%s"' % parameter
+            return '"%s"'%parameter
         if isinstance(parameter, (list, tuple, set)):
-            return "{%s}" % (",".join((Instance.to_modelica(par) if par is not None else "" for par in parameter)))
+            return "{%s}"%(",".join((Instance.to_modelica(par) for par in parameter)))
         logger = logging.getLogger(__name__)
         logger.warning("Unknown class (%s) for conversion", parameter.__class__)
         return str(parameter)
@@ -314,17 +276,6 @@ class Instance:
             if max_value is not None:
                 return value <= max_value
             return min_value <= value <= max_value
-
-        return inner_check
-
-    @staticmethod
-    def check_dummy():
-        """Dummy Always True
-
-        returns check function"""
-
-        def inner_check(value):
-            return True
 
         return inner_check
 

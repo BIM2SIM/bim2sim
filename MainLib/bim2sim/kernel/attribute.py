@@ -1,11 +1,13 @@
 import logging
 from contextlib import contextmanager
+from typing import Tuple, Iterable, Callable, Any
 
 import pint
+import re
 
 from bim2sim.decision import RealDecision, BoolDecision, ListDecision
-
 from bim2sim.kernel.units import ureg
+import inspect
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -13,6 +15,7 @@ quality_logger = logging.getLogger('bim2sim.QualityReport')
 
 class AutoAttributeNameMeta(type):
     """Detect setting on Attributes on class level and set name as given"""
+
     def __init__(cls, name, bases, namespace):
         super(AutoAttributeNameMeta, cls).__init__(name, bases, namespace)
         for name, obj in namespace.items():
@@ -27,7 +30,7 @@ class AutoAttributeNameMeta(type):
 
 
 class Attribute:
-    """Descriptor of element attribute
+    """Descriptor of element attribute to get its value from various sources.
 
     value and status of attribute are stored in __dict__ of bound instance"""
     # https://rszalski.github.io/magicmethods/
@@ -37,17 +40,27 @@ class Attribute:
     STATUS_NOT_AVAILABLE = 'NOT_AVAILABLE'
     _force = False
 
-    def __init__(self, name=None,
-                 description="",
-                 unit=None,
-                 default_ps=None,
-                 default_association=None,
-                 patterns=None,
-                 ifc_postprocessing=None,
-                 functions=None,
+    def __init__(self,
+                 description: str = "",
+                 unit: pint.Unit = None,
+                 default_ps: Tuple[str, str] = None,
+                 default_association: Tuple[str, str] = None,
+                 patterns: Iterable = None,
+                 ifc_postprocessing: Callable[[Any], Any] = None,
+                 functions: Iterable[Callable[[object, str], Any]] = None,
                  default=None):
-        if name:
-            logger.warning("'name' is obsolete. Remove name '%s'" % name)
+        """
+
+        Args:
+            description: Description of attribute
+            unit: pint unit of attribute, defaults to dimensionless
+            default_ps: tuple of propertyset name and property name
+            default_association: tuple of association name and property name
+            patterns: iterable of (compiled) re patterns
+            ifc_postprocessing: callable to apply on initial value, returns final value
+            functions: iterable of callable with signature func(bind, name) -> value. First return with no error is used as value.
+            default: default value which is used if no other source is successful
+        """
         self.name = None  # auto set by AutoAttributeNameMeta
         self.description = description
         self.unit = unit
@@ -58,7 +71,7 @@ class Attribute:
         self.functions = functions
         self.default_value = default
 
-        if ifc_postprocessing:
+        if ifc_postprocessing is not None:
             self.ifc_post_processing = ifc_postprocessing
 
         # TODO argument for validation function
@@ -69,16 +82,11 @@ class Attribute:
         if value is None and self.default_ps:
             raw_value = self.get_from_default_propertyset(bind, self.default_ps)
             value = self.ifc_post_processing(raw_value)
-            if value is None:
-                quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet",
-                                       self.name, bind.ifc_type, bind.guid)
 
         if value is None and (self.default_association):
             raw_value = self.get_from_default_assocation(bind, self.default_association)
             value = self.ifc_post_processing(raw_value)
-            if value is None:
-                quality_logger.warning("Attribute '%s' of %s %s was not found in default Association",
-                                       self.name, bind.ifc_type, bind.guid)
+
         # tool specific properties (finder)
         if value is None:
             raw_value = self.get_from_finder(bind, self.name)
@@ -93,18 +101,23 @@ class Attribute:
         if value is None and self.functions:
             value = self.get_from_functions(bind, self.functions, self.name)
 
-        # # enrichment
-        # if value is None:
-        #     value = self.get_from_enrichment(bind, self.name)
+        # logger value none
+        if value is None:
+            quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet, default  Association,"
+                                   " finder, patterns or functions",
+                                   self.name, bind.ifc_type, bind.guid)
+        # enrichment
+        if value is None:
+            value = self.get_from_enrichment(bind, self.name)
 
         # default value
         if value is None and self.default_value is not None:
             value = self.default_value
-            if value and self.unit:
+            if value is not None and self.unit:
                 value = value * self.unit
 
         # check unit
-        if self.unit is not None and value is not None and not isinstance(value, pint.Quantity):
+        if self.unit is not None and value is not None and not isinstance(value, ureg.Quantity):
             logger.warning("Unit not set!")
             value = value * self.unit
 
@@ -112,6 +125,7 @@ class Attribute:
 
     @staticmethod
     def get_from_default_propertyset(bind, default):
+        """Get value from default property set"""
         try:
             value = bind.get_exact_property(*default)
         except Exception:
@@ -120,6 +134,7 @@ class Attribute:
 
     @staticmethod
     def get_from_default_assocation(bind, default):
+        """Get value from default association"""
         try:
             value = bind.get_exact_association(default[0], default[1])
         except Exception:
@@ -138,12 +153,16 @@ class Attribute:
 
     @staticmethod
     def get_from_patterns(bind, patterns, name):
+        """Get value from non default property sets matching patterns"""
         # TODO: prevent decision on call by get()
         value = bind.select_from_potential_properties(patterns, name, False)
         return value
 
     @staticmethod
     def get_from_functions(bind, functions, name):
+        """Get value from functions.
+
+        First successful function calls return value is used"""
         value = None
         for i, func in enumerate(functions):
             try:
@@ -152,7 +171,8 @@ class Attribute:
                 logger.error("Function %d of %s.%s raised %s", i, bind, name, ex)
                 pass
             else:
-                break
+                if value is not None:
+                    break
         return value
 
     @staticmethod
@@ -163,8 +183,9 @@ class Attribute:
             if "enrich_decision" not in bind.enrichment:
                 # check if want to enrich instance
                 enrichment_decision = BoolDecision(
-                    question="Do you want for %s_%s to be enriched" % (bind.ifc_type, bind.guid),
-                    collect=False)
+                    question="Do you want for %s_%s to be enriched" % (type(bind).__name__, bind.guid),
+                    collect=False, global_key='%s_%s.Enrichment_Decision' % (type(bind).__name__, bind.guid),
+                    allow_load=True, allow_save=True)
                 enrichment_decision.decide()
                 enrichment_decision.stored_decisions.clear()
                 bind.enrichment["enrich_decision"] = enrichment_decision.value
@@ -177,9 +198,9 @@ class Attribute:
                         return value
                 if "selected_enrichment_data" not in bind.enrichment:
                     options_enrich_parameter = list(attrs_enrich.keys())
-                    decision1 = ListDecision("Multiple possibilities found",
+                    decision1 = ListDecision("Select an Enrich Parameter to continue",
                                              choices=options_enrich_parameter,
-                                             global_key="%s_%s.Enrich_Parameter" % (bind.ifc_type, bind.guid),
+                                             global_key="%s_%s.Enrich_Parameter" % (type(bind).__name__, bind.guid),
                                              allow_skip=True, allow_load=True, allow_save=True,
                                              collect=False, quick_decide=not True)
                     decision1.decide()
@@ -192,7 +213,7 @@ class Attribute:
                         # specific enrichment (enrichment parameter and values)
                         decision2 = RealDecision("Enter value for the parameter %s" % decision1.value,
                                                  validate_func=lambda x: isinstance(x, float),  # TODO
-                                                 global_key="%s" % decision1.value,
+                                                 global_key="%s_%s.%s_Enrichment" % (type(bind).__name__, bind.guid, name),
                                                  allow_skip=False, allow_load=True, allow_save=True,
                                                  collect=False, quick_decide=False)
                         decision2.decide()
@@ -295,7 +316,7 @@ class Attribute:
 
         if value is None and status == self.STATUS_UNKNOWN:
             value = self._get_value(bind)
-            status = self.STATUS_AVAILABLE if value else self.STATUS_NOT_AVAILABLE
+            status = self.STATUS_AVAILABLE if value is not None else self.STATUS_NOT_AVAILABLE  # change for temperature
             changed = True
 
         if self._force and value is None:

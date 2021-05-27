@@ -1,4 +1,3 @@
-from bim2sim.project import PROJECT
 from bim2sim.task.base import Task, ITask
 from bim2sim.decision import Decision, BoolDecision
 from bim2sim.task.hvac.hvac import hvac_graph
@@ -17,7 +16,11 @@ class DeadEnds(ITask):
         self.logger.info("Found %s possible dead ends in network." % len(pot_dead_ends))
         graph, n_removed = self.decide_deadends(graph, pot_dead_ends, False)
         self.logger.info("Removed %s ports due to found dead ends." % n_removed)
-        return graph
+        if __debug__:
+            self.logger.info("Plotting graph ...")
+            graph.plot(self.paths.export)
+            graph.plot(self.paths.export, ports=True)
+        return (graph, )
 
     @staticmethod
     def identify_deadends(graph: hvac_graph.HvacGraph):

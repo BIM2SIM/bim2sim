@@ -1,12 +1,12 @@
-﻿from bim2sim.manage import BIM2SIMManager
-from bim2sim.task.base import ITask
+﻿from bim2sim.task.base import ITask
 from bim2sim.decision import ListDecision
-from bim2sim.project import PROJECT
+from bim2sim.plugin import Plugin
 from bim2sim.task.common import LoadIFC
 import os
 
 
-class CFDManager(BIM2SIMManager):
+class PluginCFD(Plugin):
+    name = 'CFD'
 
     def __init__(self, task):
         super().__init__(task)
@@ -22,7 +22,7 @@ class Exe(ITask):
     '''
     final = True
 
-    def run(self, **kwargs): #todo eigtl geht hier workflow rein
+    def run(self, workflow, **kwargs):  #todo eigtl geht hier workflow rein
         print("Task started")
         print(kwargs)
 
@@ -34,9 +34,9 @@ class Exe(ITask):
         args = decision1.decide()
 
         reader = LoadIFC()
-        input_file = reader.get_ifc(PROJECT.ifc)
+        input_file = reader.get_ifc(self.paths.ifc)
 
-        output_file = str(PROJECT.export / "result.obj")
+        output_file = str(self.paths.export / "result.obj")
         cmd = "/home/fluid/Schreibtisch/B/IfcConvert" + " " + input_file + " " + output_file
         cmd += " " + args
         print(cmd)

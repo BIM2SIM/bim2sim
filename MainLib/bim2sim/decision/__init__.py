@@ -60,6 +60,7 @@ class Decision:
     On instantiating a decision with a global_key matching a loaded key it gets the loaded value assigned
     """
 
+    # TODO: save in Project instance
     all = []  # all decision instances
     stored_decisions = {}  # Decisions ready to save
     _logger = None
@@ -315,6 +316,10 @@ class Decision:
 
         _collection = collection or cls.collection()
         _collection = [d for d in _collection if d.status == Status.open]
+
+        if not _collection:
+            logger.debug("No collected decisions to decide.")
+            return
 
         if cls._debug_mode:
             # debug
