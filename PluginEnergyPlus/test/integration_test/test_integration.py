@@ -163,7 +163,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         # ifc = EXAMPLE_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB88.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (*(None,)*150, 'default', True, True,  *('Single office',)*59, 2015, 'heavy',
+        answers = (*(None,)*150, True, True,  *('Single office',)*59, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
