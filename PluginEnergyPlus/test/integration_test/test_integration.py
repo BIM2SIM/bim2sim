@@ -103,7 +103,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         # ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB44.ifc'
         ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True, *('Single office',)*4, 'heavy',
+        answers = (True, True, 'Single office', 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
@@ -139,7 +139,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
 
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True,  *('Single office',)*78, 2015, 'heavy',
+        answers = (True, True, 'Single office', 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
@@ -151,7 +151,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
 
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True,  *('Single office',)*78, 2015, 'heavy',
+        answers = (True, True,  'Single office', 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
@@ -163,7 +163,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         # ifc = EXAMPLE_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB88.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('default', True, True,  *('Single office',)*59, 2015, 'heavy',
+        answers = (*(None,)*150, 'default', True, True,  *('Single office',)*59, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
