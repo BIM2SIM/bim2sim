@@ -44,8 +44,9 @@ class CreateSpaceBoundaries(ITask):
         instance_lst = []
         for entity in entities_dict:
             element = SpaceBoundary.from_ifc(entity, finder=finder)
-            self.connect_space_boundaries(element, instances)
-            instance_lst.append(element)
+            if element.ifc.RelatingSpace.is_a('IfcSpace'):
+                self.connect_space_boundaries(element, instances)
+                instance_lst.append(element)
 
         return instance_lst
 
