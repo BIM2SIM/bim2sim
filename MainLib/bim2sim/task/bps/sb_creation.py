@@ -19,7 +19,7 @@ class CreateSpaceBoundaries(ITask):
 
     def __init__(self):
         super().__init__()
-        self.classes = []
+        self.non_sb_elements = []
 
     def run(self, workflow, ifc, instances, finder):
         self.logger.info("Creates elements of relevant ifc types")
@@ -102,13 +102,18 @@ class CreateSpaceBoundaries(ITask):
                     # opening with element (windows for example)
                     opening_instance = instances.get(related_building_element.GlobalId, None)
                     matched_sb = self.find_opening_bound(instance, opening_instance)
-                    if not matched_sb[0].opening_bounds:
-                        matched_sb[0].opening_bounds = []
-                    matched_sb[0].opening_bounds.append(matched_sb[1])
-                    if matched_sb[0].related_bound:
-                        if not matched_sb[0].related_bound.opening_bounds:
-                            matched_sb[0].related_bound.opening_bounds = []
-                        matched_sb[0].related_bound.opening_bounds.append(matched_sb[1])
+                    if matched_sb:
+                        normal_sb = matched_sb[0]
+                        opening_sb = matched_sb[1]
+                        if not normal_sb.opening_bounds:
+                            normal_sb.opening_bounds = []
+                        normal_sb.opening_bounds.append(opening_sb)
+                        if normal_sb.related_bound:
+                            if not normal_sb.related_bound.opening_bounds:
+                                normal_sb.related_bound.opening_bounds = []
+                            normal_sb.related_bound.opening_bounds.append(opening_sb)
+                    else:
+                        self.non_sb_elements.append(opening_instance)
                 else:
                     # opening with no element (stairs for example)
                     matched_sb = self.filter_matching_sbs(corresponding, instance)
@@ -140,7 +145,6 @@ class CreateSpaceBoundaries(ITask):
 
     @staticmethod
     def find_opening_bound(instance, opening_instance):
-        corresponding = []
         distances = {}
         for sb in instance.space_boundaries:
             for sb_opening in opening_instance.space_boundaries:
@@ -152,9 +156,8 @@ class CreateSpaceBoundaries(ITask):
                         Extrema_ExtFlag_MIN
                     ).Value()
                     distances[shape_dist] = (sb, sb_opening)
-                    corresponding.append((sb, sb_opening))
-        if len(corresponding) == 1:
-            return corresponding[0]
+        sorted_distances = dict(sorted(distances.items()))
+        if len(sorted_distances) > 0:
+            return next(iter(sorted_distances.values()))
         else:
-            sorted_distances = dict(sorted(distances.items()))
-            return sorted_distances[0]
+            return None
