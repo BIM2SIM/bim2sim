@@ -242,6 +242,114 @@ class HvacGraph(nx.Graph):
         return _graph
 
     @staticmethod
+    def find_bypasses_in_cycle(graph, cycle, wanted):
+        """
+        Detects bypasses in the given cycle of the given graph. Bypasses are any
+        direct connections between edge elements which don't hold wanted
+        elements.
+        :returns: nested list: list of bypasses with a list of
+        elements in the bypass.
+        """
+        bypasses = []
+        # get wanted guids in the cycle
+        wanted_guids_cycle = {node.guid for node in
+                              cycle if node.ifc_type in wanted}
+
+        # check that it's not a parallel connection of wanted elements
+        if len(wanted_guids_cycle) < 2:
+            # get edge_elements
+            edge_elements = [
+                node for node in cycle if len(node.ports) > 2]
+
+            # get direct connections between the edges
+            subgraph = graph.subgraph(cycle)
+            dir_connections = HvacGraph.get_dir_paths_between(
+                subgraph, edge_elements)
+
+            # remove strands without wanted items
+            for dir_connection in dir_connections:
+                if not any(node.ifc_type == want for want in wanted
+                           for node in dir_connection):
+                    bypasses.append(dir_connection)
+        return bypasses
+
+    @staticmethod
+    def get_all_cycles_with_wanted(graph, wanted):
+        """Returns a list of cycles with wanted element in it."""
+        # todo how to handle cascaded boilers
+
+        directed = graph.to_directed()
+        simple_cycles = list(nx.simple_cycles(directed))
+        # filter cycles:
+        cycles = [cycle for cycle in simple_cycles for node in cycle if
+                  node.ifc_type in wanted and len(cycle) > 2]
+
+        # remove duplicate cycles with only different orientation
+        cycles_sorted = cycles.copy()
+        # sort copy by guid
+        for i, my_list in enumerate(cycles_sorted):
+            cycles_sorted[i] = sorted(my_list, key=lambda x: x.guid,
+                                      reverse=True)
+        # remove duplicates
+        unique_cycles = [list(x) for x in set(tuple(x) for x in cycles_sorted)]
+
+        # group cycles by wanted elements
+        wanted_elements = [node for node in graph.nodes if node.ifc_type in wanted]
+        cycles_dict = {}
+        for wanted_element in wanted_elements:
+            cycles_dict[wanted_element] = []
+            for cycle in unique_cycles:
+                if wanted_element in cycle:
+                    cycles_dict[wanted_element].append(cycle)
+
+        return cycles_dict
+
+    @staticmethod
+    def detect_bypasses_to_wanted(graph, wanted, inert, blockers):
+        """
+        Returns a list of nodes which build a bypass to the wanted elements
+        and blockers. E.g. used to find bypasses between generator and
+        distributor.
+        :returns: list of nodes
+        """
+        # todo currently not working, this might be reused later
+        raise NotImplementedError
+        pot_edge_elements = inert - blockers - wanted
+
+        cycles = HvacGraph.get_all_cycles_with_wanted(graph, wanted)
+
+        # get cycle with blocker (can't hold bypass if has wanted and blocker)
+        blocker_cycles = [cycle for cycle in cycles
+                          if any(node.ifc_type == block for block in
+                                 blockers for node in cycle)]
+        for blocker_cycle in blocker_cycles:
+            cycles.remove(blocker_cycle)
+
+        pot_bypass_nodes = []
+        for cycle in cycles:
+            # get edge_elements
+            edge_elements = [node for node in cycle if
+                             len(list(nx.all_neighbors(graph, node))) > 2 and
+                             node.ifc_type in pot_edge_elements]
+            # get direct connections between edge_elements
+            dir_connections = HvacGraph.get_dir_paths_between(
+                graph, edge_elements)
+            # filter connections, that has no wanted nodes
+            for dir_connection in dir_connections:
+                if not any(node.ifc_type == want for want in wanted for node in
+                           dir_connection):
+                    pot_bypass_nodes.extend(dir_connection)
+        # filter the potential bypass nodes for the once not in blocker cycles
+        bypass_nodes = [pot_bypass_node
+                        for pot_bypass_node in pot_bypass_nodes
+                        for blocker_cycle in blocker_cycles
+                        if pot_bypass_node not in blocker_cycle]
+        # remove duplicates
+        bypass_nodes = list(set(bypass_nodes))
+
+        return bypass_nodes
+
+    @staticmethod
     def get_parallels(graph, wanted, inert=None, grouping=None,
                       grp_threshold=None):
         """ Detect parallel occurrences of wanted items.
@@ -257,33 +365,20 @@ class HvacGraph(nx.Graph):
             grouping = {}
         _graph = HvacGraph.remove_not_wanted_nodes(graph, wanted, inert)
 
-        # detect simple cycles with at least two wanted nodes
+        # detect simple cycles
         basis_cycles = nx.cycle_basis(_graph)
-
-        # remove bypasses which prevent correct finding of parallel pump cycles
         graph_changed = False
+        # remove bypasses which prevent correct finding of parallel pump cycles
         for basis_cycle in basis_cycles:
-            wanted_guids_cycle = {node.guid for node in
-                                  basis_cycle if node.ifc_type in wanted}
+            bypasses = HvacGraph.find_bypasses_in_cycle(
+                _graph, basis_cycle, wanted)
+            if bypasses:
+                graph_changed = True
+                for bypass in bypasses:
+                    _graph.remove_nodes_from([node for node in bypass])
 
-            if len(wanted_guids_cycle) < 2:
-                edge_elements = [
-                    node for node in basis_cycle if len(node.ports) > 2]
-
-                # get direct connections between the edges
-                subgraph = _graph.subgraph(basis_cycle)
-                dir_connections = HvacGraph.get_dir_paths_between(
-                    subgraph, edge_elements)
-
-                # remove strands without wanted items
-                for dir_connection in dir_connections:
-                    if not any(node.ifc_type == want for want in wanted
-                               for node in dir_connection):
-                        _graph.remove_nodes_from(
-                            [node for node in dir_connection])
-                        graph_changed = True
-        # get cycles again if graph changed
         if graph_changed:
+            # update graph after removing bypasses
             basis_cycles = nx.cycle_basis(_graph)
 
         basis_cycle_sets = [frozenset((node.guid for node in basis_cycle)) for basis_cycle in basis_cycles]  # hashable

@@ -13,7 +13,7 @@ from bim2sim.kernel.element import BaseElement, BasePort, SubElement
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
-from bim2sim.decision import ListDecision
+from bim2sim.decision import ListDecision, BoolDecision
 from bim2sim.kernel.disaggregation import Disaggregation
 from bim2sim.kernel.elements import HeatPump
 from bim2sim.task.common.common_functions import get_usage_dict
@@ -164,6 +164,23 @@ class Aggregation(BaseElement):
         :returns: matches, meta"""
         element_graph = graph.element_graph
         raise NotImplementedError("Method %s.find_matches not implemented" % cls.__name__)  # TODO
+
+    @attribute.multi_calc
+    def calc_has_pump(self):
+        """Checks if the aggregation has a pump
+            Args:
+                None
+            Returns:
+                True if the aggregation has a pump, false if not
+            Raises:
+                None
+        """
+        has_pump = False
+        for ele in self.elements:
+            if elements.Pump is ele.__class__:
+                has_pump = True
+                break
+        return dict(has_pump=has_pump)
 
     def __repr__(self):
         return "<%s '%s' (aggregation of %d elements)>" % (
@@ -1201,18 +1218,6 @@ class Consumer(Aggregation):
     def _calc_TControl(self, name):
         return True  # ToDo: Look at Boiler Aggregation - David
 
-    @attribute.multi_calc
-    def _calc_has_pump(self):
-        has_pump = False
-        for ele in self.elements:
-            if elements.Pump is ele.__class__:
-                has_pump = True
-                break;
-
-        result = dict(
-            has_pump=has_pump)
-        return result
-
     def get_replacement_mapping(self):
         """Returns dict with original ports as values and their aggregated replacement as keys."""
         mapping = {port: None for element in self.elements
@@ -1229,7 +1234,7 @@ class Consumer(Aggregation):
 
     has_pump = attribute.Attribute(
         description="Cycle has a pumpsystem",
-        functions=[_calc_has_pump]
+        functions=[Aggregation.calc_has_pump]
     )
 
     rated_pump_power = attribute.Attribute(
@@ -1420,6 +1425,8 @@ class ConsumerHeatingDistributorModule(Aggregation):  # ToDo: Export Aggregation
             hydraulic_separator_volume=1,
         )
         return result
+
+
 
     medium = attribute.Attribute(
         description="Medium of the DestributerCycle",
@@ -1639,4 +1646,361 @@ class Aggregated_ThermalZone(Aggregation):
     AreaPerOccupant = attribute.Attribute(
         functions=[_intensive_calc],
         unit=ureg.meter ** 2
+    )
+
+class GeneratorOneFluid(Aggregation):
+    """Aggregates generator modules with only one fluid cycle (CHPs, Boilers,
+    ...) Not for Chillers or Heatpumps!"""
+    aggregatable_elements = ['IfcPump', 'PipeStrand', 'IfcPipeSegment',
+                             'IfcPipeFitting', 'IfcBoiler', 'ParallelPumps',
+                             'IfcTank', 'IfcDistributionChamberElement',
+                             'IfcValve']
+    wanted_elements = ['IfcBoiler', 'IfcElectricGenerator']
+    boarder_elements = ['IfcTank', 'IfcDistributionChamberElement']
+    multi = ('rated_power', 'has_bypass', 'rated_height', 'volume',
+             'rated_volume_flow', 'rated_pump_power', 'has_pump')
+
+    def __init__(self, name, element_graph, *args, **kwargs):
+        self.non_relevant = kwargs.pop('non_relevant', set())  # todo workaround
+        self.has_parallel = kwargs.pop('has_parallel', False)
+        self.bypass_elements = kwargs.pop('bypass_elements', set())
+        super().__init__(name, element_graph, *args, **kwargs)
+        edge_ports, element_graph = self.get_edge_ports(element_graph)
+        self.elements = set(element_graph.nodes) | self.non_relevant
+        if len(edge_ports) > 2:
+            raise NotImplementedError
+        else:
+            for port in edge_ports:
+                self.ports.append(AggregationPort(port, parent=self))
+
+    @classmethod
+    def get_edge_ports(cls, graph):
+        # make graph unfrozen
+        _graph = graph.copy()
+        edge_ports = []
+        # find and remove boarder elements from graph if existing
+        # (not the case if parallel generators where found)
+
+        boarder_elements = [node for node in _graph.nodes if
+                  node.ifc_type in cls.boarder_elements]
+        if len(boarder_elements) > 1:
+            raise NotImplementedError
+        if boarder_elements:
+            boarder_element = boarder_elements[0]
+            for port in boarder_element.ports:
+                if port.connection:
+                    if port.connection.parent in _graph.nodes:
+                        edge_ports.append(port.connection)
+            _graph.remove_node(boarder_element)
+
+        # find edge ports
+        outer_elements = [v for v, d in _graph.degree() if d == 1]
+        for outer_element in outer_elements:
+            for port in outer_element.ports:
+                if port.connection:
+                    if port.connection.parent not in _graph.nodes \
+                            and port not in edge_ports:
+                        edge_ports.append(port)
+
+        return edge_ports, _graph
+
+    @classmethod
+    def find_bypasses(cls, graph):
+        wanted = set(cls.wanted_elements)
+        boarders = set(cls.boarder_elements)
+        inerts = set(cls.aggregatable_elements) - wanted
+        bypass_nodes = HvacGraph.detect_bypasses_to_wanted(
+            graph, wanted, inerts, boarders)
+        return bypass_nodes
+
+    def get_replacement_mapping(self):
+        """Returns dict with original ports as values and their aggregated
+        replacement as keys."""
+        mapping = {port: None for element in self.elements
+                   for port in element.ports}
+        for port in self.ports:
+            for original in port.originals:
+                mapping[original] = port
+        return mapping
+
+    @classmethod
+    def find_matches(cls, graph: {HvacGraph.element_graph}) -> \
+            [HvacGraph.element_graph, list]:
+        """
+        Finds matches of generators with one fluid.
+
+        Non relevant elements like bypasses are added to metas information to
+        delete later.
+
+        Args:
+            graph: element_graph that should be checked for one fluid generators
+
+        Returns:
+            generator_cycles:
+                List of element_graphs that hold a generator cycle including the
+                distributor.
+            metas:
+                List of dict with metas information. One element for each
+                element_graph. In this case it holds non_relevant nodes, which
+                have to be deleted later but are not contained in the **resulting graph?** #todo
+                element_graph. Because we are currently not able to distinguish
+                to which graph these non_relevant nodes belong, we just output
+                the complete list of non relevant nodes for every element_graph.
+
+        Raises:
+            None
+        """
+        element_graph = graph.element_graph
+        wanted = set(cls.wanted_elements)
+        boarders = set(cls.boarder_elements)
+        inerts = set(cls.aggregatable_elements) - wanted
+        _graph = HvacGraph.remove_not_wanted_nodes(element_graph, wanted, inerts)
+        dict_all_cycles_wanted = HvacGraph.get_all_cycles_with_wanted(_graph, wanted)
+        list_all_cycles_wanted = [*dict_all_cycles_wanted.values()]
+
+        # create flat lists to substract for non relevant
+        generator_flat = set()
+        wanted_flat = set()
+
+        # check for generation cycles
+        generator_cycles = []
+        for cycles_list in list_all_cycles_wanted:
+            generators = list(nx.subgraph(_graph, cycle) for cycle in cycles_list
+                              if any(node.ifc_type == block for block in
+                                     boarders for node in cycle))
+            generator_cycles.extend(generators)
+            generator_flat.update(generators[0].nodes)
+            wanted_flat.update([item for sublist in cycles_list for item in sublist])
+
+        non_relevant = wanted_flat - generator_flat
+
+        # Remove overlapping Elements in GeneratorCycles
+        cleaned_generator_cycles = []
+        for gen_cycle in generator_cycles:
+            pseudo_lst = gen_cycle.copy()
+            for gen_cycle_two in generator_cycles:
+                if gen_cycle == gen_cycle_two:
+                    continue
+                pseudo_lst.remove_nodes_from(gen_cycle_two)
+            cleaned_generator_cycles.append(pseudo_lst)
+
+        metas = []
+
+        # match bypass elements from non relevant elements
+        for i in range(len(cleaned_generator_cycles)):
+            metas.append(dict())
+            metas[i]['bypass_elements'] = []
+            for cycle in list_all_cycles_wanted[i]:
+                if len(cycle - cleaned_generator_cycles[i].nodes - non_relevant) > 0:
+                    continue
+                bypass_elements = cycle - cleaned_generator_cycles[i].nodes
+                cleaned_generator_cycles[i].add_nodes_from(bypass_elements)
+                non_relevant.difference_update(bypass_elements)
+                metas[i]['bypass_elements'].append(bypass_elements)
+
+
+        #metas = [{}] * (len(cleaned_generator_cycles)-1)
+        if len(metas) > 0:
+            metas[0]['non_relevant'] = non_relevant
+        return cleaned_generator_cycles, metas
+
+    @attribute.multi_calc
+    def _calc_avg(self):
+        """Calculates the parameters of all the below listed elements."""
+        max_rated_height = 0
+        total_rated_volume_flow = 0
+        total_diameter = 0
+        avg_diameter_strand = 0
+        total_length = 0
+        diameter_times_length = 0
+        total_rated_power = 0
+
+        for item in self.elements:
+            if "Boiler" in item.ifc_type:
+
+                total_rated_volume_flow += item.rated_volume_flow
+                total_rated_power += item.rated_power
+
+                if max_rated_height != 0:
+                    if item.rated_height < max_rated_height:
+                        max_rated_height = item.rated_height
+                else:
+                    max_rated_height = item.rated_height
+
+                total_diameter += item.diameter ** 2
+            else:
+                if hasattr(item, "diameter") and hasattr(item, "length"):
+                    length = item.length
+                    diameter = item.diameter
+                    if not (length and diameter):
+                        self.logger.info("Ignored '%s' in aggregation", item)
+                        continue
+
+                    diameter_times_length += diameter * length
+                    total_length += length
+
+                else:
+                    self.logger.info("Ignored '%s' in aggregation", item)
+
+        if total_length != 0:
+            avg_diameter_strand = diameter_times_length / total_length
+
+        total_diameter = total_diameter ** .5
+
+        result = dict(
+            rated_power=total_rated_power,
+            rated_height=max_rated_height,
+            rated_volume_flow=total_rated_volume_flow,
+            diameter=total_diameter,
+            length=total_length,
+            diameter_strand=avg_diameter_strand
+        )
+        return result
+
+    @attribute.multi_calc
+    def _calc_has_bypass(self):
+        decision = BoolDecision(
+            "Does the generator %s has a bypass?" % self.name,
+            global_key=self.guid+'.bypass',
+            allow_save=True,
+            allow_load=True,
+            related=[element.guid for element in self.elements],)
+        has_bypass = decision.decide()
+        print(has_bypass)
+        return dict(has_bypass=has_bypass)
+
+    @attribute.multi_calc
+    def _calc_generator_attributes(self):
+        """Calculates all directly generator related attributes"""
+        total_rated_power = 0
+        for ele in self.elements:
+            if ele.ifc_type in self.wanted_elements:
+                total_rated_power += getattr(ele, "rated_power")
+        result = dict(
+            rated_power=total_rated_power
+        )
+        return result
+
+    # todo move to base class? But method is not completed yet?
+    @attribute.multi_calc
+    def _calc_avg_pump(self):
+        """Calculates the parameters of all pump-like elements."""
+        avg_rated_height = 0
+        total_rated_volume_flow = 0
+        total_length = 0
+
+        total_rated_pump_power = None
+
+        volume = None
+
+        # Spaceheater und andere Consumer
+        # Leistung zusammenzählen - Unnötig da zb. für fußbodenheizung da nichts gegeben
+        # Aus Medium das Temperaturniveau ziehen! Wo steht das Medium? IFCDestributionSystems!?!?!?!
+
+        for ele in self.elements:
+            # Pumps
+            if elements.Pump is ele.__class__:
+                # Pumpenleistung herausziehen
+                total_rated_pump_power = getattr(ele, "rated_power")
+                # Pumpenhöhe herausziehen
+                rated_height = getattr(ele, "rated_height")
+                # Volumenstrom
+                rated_volume_flow = getattr(ele, "rated_volume_flow")
+
+                # Volumen
+                # volume_ = getattr(ele, "volume")
+                # if volume_:
+                #    volume += volume_ #ToDo: Sobald ein Volumen nicht vorhanden, Angabe: Nicht vorhanden???
+
+                # this is not avg but max
+                if avg_rated_height != 0:
+                    if rated_height < avg_rated_height:
+                        avg_rated_height = rated_height
+                else:
+                    avg_rated_height = rated_height
+
+                if not rated_volume_flow:  # Falls eine Pumpe kein volumenstrom hat unvollständig
+                    total_rated_volume_flow = None
+                    continue
+                else:
+                    total_rated_volume_flow += rated_volume_flow
+            else:
+                if hasattr(ele, "length"):  # ToDO: Parallel?
+                    length = ele.length
+                    if not (length):
+                        self.logger.warning("Ignored '%s' in aggregation", ele)
+                        continue
+
+                    total_length += length
+
+                else:
+                    self.logger.warning("Ignored '%s' in aggregation", ele)
+
+        if not total_rated_pump_power and total_rated_volume_flow and avg_rated_height:
+            g = 9.81 * ureg.meter / (ureg.second ** 2)
+            rho = 1000 * ureg.kilogram / (ureg.meter ** 3)
+            total_rated_pump_power = total_rated_volume_flow * avg_rated_height * g * rho
+
+        #  Volumen zusammenrechnen
+        volume = 1
+
+        result = dict(
+            rated_pump_power=total_rated_pump_power,
+            rated_height=avg_rated_height,
+            rated_volume_flow=total_rated_volume_flow,
+            volume=volume
+        )
+        return result
+
+    # generator related attributes
+    rated_power = attribute.Attribute(
+        unit=ureg.kilowatt, description="rated power",
+        functions=[_calc_generator_attributes],
+    )
+    # Not implemented
+    # diameter = attribute.Attribute(
+    #     description='diameter',
+    #     functions=[_calc_avg],
+    #     unit=ureg.millimeter,
+    # )
+    #
+    # length = attribute.Attribute(
+    #     description='length of aggregated pipe elements',
+    #     functions=[_calc_avg],
+    #     unit=ureg.meter,
+    # )
+    #
+    # diameter_strand = attribute.Attribute(
+    #     description='average diameter of aggregated pipe elements',
+    #     functions=[_calc_avg],
+    #     unit=ureg.millimeter,
+    # )
+    # pump related attributes
+    has_pump = attribute.Attribute(
+        description="Cycle has a pumpsystem",
+        functions=[Aggregation.calc_has_pump]
+    )
+    rated_pump_power = attribute.Attribute(
+        description="rated pump power",
+        functions=[_calc_avg_pump]
+    )
+
+    rated_volume_flow = attribute.Attribute(
+        description="rated volume flow",
+        functions=[_calc_avg_pump]
+    )
+
+    volume = attribute.Attribute(
+        description="volume",
+        functions=[_calc_avg_pump]
+    )
+
+    rated_height = attribute.Attribute(
+        description="rated volume flow",
+        functions=[_calc_avg_pump]
+    )
+    # bypass
+    has_bypass = attribute.Attribute(
+        description="Cycle has bypass",
+        functions=[_calc_has_bypass]
     )

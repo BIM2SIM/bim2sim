@@ -630,6 +630,7 @@ class TestParallelPumps(unittest.TestCase):
     def test_pump_setup5(self):
         """Five parallel pumps, one smaller, additional connections."""
         graph, flags = self.helper.get_setup_pumps5()
+
         models = flags['normal']
         small = flags['small']
         pumps = [item for item in models if isinstance(item, elements.Pump)]
