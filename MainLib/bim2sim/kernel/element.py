@@ -34,23 +34,18 @@ class ElementEncoder(JSONEncoder):
     # mayby weakref to other elements (Ports, connections, ...)
 
     def default(self, o):
-        if isinstance(o, Root):
+        if isinstance(o, Element):
             return "<Element(%s)>" % o.guid
         return JSONEncoder.default()
 
 
-# TODO: rename to Element after all old imports of Element are fixed
-class Root(metaclass=attribute.AutoAttributeNameMeta):
-    """Most basic class
-
-    keeps track of created instances and guids"""
-    # objects = {}
+class Element(metaclass=attribute.AutoAttributeNameMeta):
+    """Most basic class"""
     guid_prefix = ''
     _id_counter = 0
 
     def __init__(self, guid=None, **kwargs):
         self.guid = guid or self.get_id(self.guid_prefix)
-        # Root.objects[self.guid] = self
         self.related_decisions: List[Decision] = []
         self.attributes = attribute.AttributeManager(bind=self)
 
@@ -90,12 +85,12 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
         prefix_length = len(prefix)
         if prefix_length > 8:
             raise AttributeError("Max prefix length is 8!")
-        Root._id_counter += 1
-        return "{0:0<8s}{1:0>14d}".format(prefix, Root._id_counter)
+        Element._id_counter += 1
+        return "{0:0<8s}{1:0>14d}".format(prefix, Element._id_counter)
 
     @staticmethod
     def get_object(guid):
-        """Get Root object instance with given guid
+        """Get Element object instance with given guid
 
         :returns: None if object with guid was not instanciated"""
         raise AssertionError("Obsolete method. "
@@ -106,7 +101,7 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
         self.attributes.request(name)
 
     def solve_requested_decisions(
-            self=None, instances: Iterable['Root'] = None) -> \
+            self=None, instances: Iterable['Element'] = None) -> \
             Generator[DecisionBunch, None, None]:
         """Solve all requested decisions.
         If called by instance, all instance related decisions are solved
@@ -128,7 +123,6 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
 
     def discard(self):
         """Remove from tracked objects. Related decisions are also discarded."""
-        # del Root.objects[self.guid]
         for d in self.related_decisions:
             d.discard()
 
@@ -137,8 +131,8 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
         raise AssertionError("Obsolete method. not required any more.")
 
 
-class IFCMixin:
-    """Mixin to enable instantiation from ifc and provide related methods.
+class IFCBased(Element):
+    """Element with instantiation from ifc and related methods.
 
         Attributes:
         ifc: IfcOpenShell element instance
@@ -218,71 +212,29 @@ class IFCMixin:
 
         return absolute
 
-    def calc_orientation(self):
-        # TODO: this is Building specific, move to ?
+    def calc_orientation(self) -> np.array:
         # ToDO: true north angle
-        switcher = {'Slab': -1,
-                    'Roof': -1,
-                    'Floor': -2,
-                    'GroundFloor': -2}
-        value = switcher.get(self.__class__.__name__, 'continue')
-        if value != 'continue':
-            return value
-
-        list_angles = {}
+        # ToDO: we want a consistent return which is a absolute vector.
+        ang_sum = 0
         placementrel = self.ifc.ObjectPlacement
         while placementrel is not None:
             if placementrel.RelativePlacement.RefDirection is not None:
-                o2 = placementrel.RelativePlacement.RefDirection.DirectionRatios
-                list_angles[placementrel.PlacesObject[0].GlobalId] = vector_angle(o2)
-            else:
-                list_angles[placementrel.PlacesObject[0].GlobalId] = None
+                vector = placementrel.RelativePlacement.RefDirection.DirectionRatios
+                ang_sum += vector_angle(vector)
             placementrel = placementrel.PlacementRelTo
 
         # relative vector + absolute vector
-        if len(list_angles) == 1:
-            if list_angles[next(iter(list_angles))] is None:
-                return -90
-                # return 0
+        # if len(list_angles) == 1:
+        #     if list_angles[next(iter(list_angles))] is None:
+        #         return -90
+        #         # return 0
 
-        ang_sum = 0
-
-        self_class = type(self).__name__
-
-        if all(value is None for value in list_angles.values()) and self_class in ['Wall', 'OuterWall', 'InnerWall']:
-            return 0
-
-        for key in list_angles:
-            guid = key
-            ang = list_angles[key]
-            relative_element = self.get_object(guid)
-            if relative_element is None:
-                if ang is not None:
-                    ang_sum += ang
-                continue
-            else:
-                if relative_element is self:
-                    if ang is not None:
-                        ang_sum += ang
-                    continue
-                else:
-                    relative_class = type(relative_element).__name__
-                    if self_class in ['Window', 'Door'] and relative_class in ['Wall', 'OuterWall', 'InnerWall']:
-                        return relative_element.orientation
-
-                    new_ang = relative_element.orientation
-                    if new_ang is not None:
-                        ang_sum += new_ang
-                        break
-
-        if ang_sum is None:
-            return None
         # specific case windows
         if self.ifc_type == 'IfcWindow':
             ang_sum += 180
 
         # angle between 0 and 360
-        return angle_equivalent(ang_sum)
+        return ang_sum
 
     def get_ifc_attribute(self, attribute):
         """
@@ -473,7 +425,7 @@ class IFCMixin:
         # raise NoValueError("No matching property for %s" % (patterns))
 
 
-class RelationBased(IFCMixin, Root):
+class RelationBased(IFCBased):
 
     def __repr__(self):
         return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)
@@ -482,7 +434,7 @@ class RelationBased(IFCMixin, Root):
         return "%s" % self.__class__.__name__
 
 
-class ProductBased(IFCMixin, Root):
+class ProductBased(IFCBased):
     """Elements based on IFC products."""
     domain = 'GENERAL'
     key: str = ''
@@ -661,7 +613,7 @@ class Factory:
         better_cls = element.get_better_subclass()
         if better_cls:
             logger.info("Creating %s instead of %s", better_cls, element_cls)
-            element = better_cls.from_ifc(ifc_entity, *args, **kwargs)
+            element = better_cls.from_ifc(ifc_entity, finder=self.finder, *args, **kwargs)
         return element
 
     def get_element(self, ifc_type: str, predefined_type: Union[str, None]) -> \

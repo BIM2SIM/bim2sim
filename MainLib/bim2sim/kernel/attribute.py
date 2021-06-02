@@ -188,6 +188,7 @@ class Attribute:
         return value
 
     @staticmethod
+    # todo only used for HVAC. Move to own task similar to BPS
     def get_from_enrichment(bind, name):
         value = None
         if hasattr(bind, 'enrichment') and bind.enrichment:

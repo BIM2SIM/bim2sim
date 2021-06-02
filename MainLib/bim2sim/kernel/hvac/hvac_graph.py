@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class HvacGraph(nx.Graph):
-    """HVAC related graph manipulations"""
+    """HVAC related graph manipulations based on ports."""
 
     def __init__(self, elements=None, **attr):
         super().__init__(incoming_graph_data=None, **attr)
@@ -26,11 +26,11 @@ class HvacGraph(nx.Graph):
 
     def _update_from_elements(self, instances):
         """
-        Factory method creates a graph network of the raw instances. Each
-        component and each port of the instances is represented by a node.
+        Update graph based on ports of elements.
         """
 
-        nodes = [port for instance in instances for port in instance.ports]
+        nodes = [port for instance in instances for port in instance.ports
+                 if port.connection]
         inner_edges = [connection for instance in instances
                        for connection in instance.inner_connections]
         edges = [(port, port.connection) for port in nodes if port.connection]

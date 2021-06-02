@@ -17,7 +17,7 @@ from bim2sim.kernel import ifc2python
 from bim2sim.project import Project, FolderStructure
 from bim2sim.plugin import Plugin
 from bim2sim.plugins import DummyPlugin
-from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparated, \
+from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparatedLayersLow,\
     BPSMultiZoneSeparatedEP
 
 VERSION = '0.1-dev'

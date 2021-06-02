@@ -1,8 +1,8 @@
 from bim2sim.task.base import ITask
-from bim2sim.utilities.common_functions import angle_equivalent
+from bim2sim.utilities.common_functions import angle_equivalent, vector_angle
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.element import ProductBased
-
+from bim2sim.utilities.common_functions import filter_instances
 
 class OrientationGetter(ITask):
     """Gets Instances Orientation based on the space boundaries"""
@@ -28,7 +28,7 @@ class OrientationGetter(ITask):
         return self.corrected,
 
     @staticmethod
-    def orientation_verification(instance: ProductBased):
+    def orientation_verification(instance: ProductBased, threshold=0.1):
         """gets new angle based on space boundaries and compares it with the geometric value"""
         vertical_instances = ['Window', 'OuterWall', 'OuterDoor', 'Wall', 'Door']
         horizontal_instances = ['Slab', 'Roof', 'Floor', 'GroundFloor']
@@ -38,23 +38,24 @@ class OrientationGetter(ITask):
                     'GroundFloor': -2}
         instance_type = type(instance).__name__
         if instance_type in vertical_instances and len(instance.space_boundaries) > 0:
-            new_angles = list(set([space_boundary.orientation for space_boundary in instance.space_boundaries]))
-            # new_angles = list(set([space_boundary.orientation - space_boundary.thermal_zones[0].orientation
-            # for space_boundary in instance.space_boundaries]))
-            if len(new_angles) > 1:
+            new_angles = list(set([vector_angle(space_boundary.bound_normal.Coord())
+                                   for space_boundary in instance.space_boundaries]))
+            if len(new_angles) > 1 or len(new_angles) == 0:
                 return None
             # no true north necessary
             new_angle = angle_equivalent(new_angles[0])
+            # new_angle = angle_equivalent(new_angles[0] + 180)  # no sb55. eg: FZK Buildings
             # new angle return
             if new_angle - instance.orientation > 0.1:
                 return new_angle
+
         elif instance_type in horizontal_instances:
             return switcher[instance_type]
         return None
 
     @classmethod
     def group_attribute(cls, elements, attribute):
-        """groups together a set of elements, that have an attribute in common """
+        """groups together a set of thermal zones, that have an attribute in common """
         groups = {}
         for ele in elements:
             value = cls.cardinal_direction(getattr(ele, attribute))
@@ -66,7 +67,7 @@ class OrientationGetter(ITask):
 
     @staticmethod
     def cardinal_direction(value):
-        """groups together a set of elements based on the orientation """
+        """groups together a set of thermal zones, that have common glass percentage in common """
         if 45 <= value < 135:
             value = 'E'
         elif 135 <= value < 225:

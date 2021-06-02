@@ -2,7 +2,7 @@ from unittest import mock
 from contextlib import contextmanager
 
 from bim2sim.kernel.elements import hvac
-from bim2sim.kernel.element import Root
+from bim2sim.kernel.element import Element
 from bim2sim.kernel.elements.hvac import HVACPort
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 
@@ -22,12 +22,7 @@ class SetupHelper:
         # self.setup.plot(r'c:\temp')
 
     def reset(self) -> None:
-        # for r in Root.objects.copy().values():
-        #     r.discard()
-
         self.elements.clear()
-        # self.setup = None
-        # self.flags.clear()
 
     @contextmanager
     def flag_manager(self, flags):

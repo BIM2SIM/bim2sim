@@ -13,8 +13,8 @@ TEST_MODELS = Path(__file__).parent.parent.parent / 'TestModels'
 
 
 # TODO test:
-#  Root request attr
-#  Root/ProductBased validate
+#  Element request attr
+#  Element/ProductBased validate
 #  Factory
 #  Factory/IfcMixin ifc_types
 #  ProductBased better subclass
