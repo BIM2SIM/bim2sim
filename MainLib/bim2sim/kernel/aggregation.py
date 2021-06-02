@@ -1648,7 +1648,7 @@ class Aggregated_ThermalZone(Aggregation):
         unit=ureg.meter ** 2
     )
 
-class Generator_One_Fluid(Aggregation):
+class GeneratorOneFluid(Aggregation):
     """Aggregates generator modules with only one fluid cycle (CHPs, Boilers,
     ...) Not for Chillers or Heatpumps!"""
     aggregatable_elements = ['IfcPump', 'PipeStrand', 'IfcPipeSegment',

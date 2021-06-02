@@ -1,6 +1,6 @@
 import unittest
 
-from test.kernel.helper import SetupHelper
+from test.unit.kernel.helper import SetupHelper
 from bim2sim.kernel import aggregation
 from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
@@ -407,13 +407,13 @@ class TestGeneratorAggregation(unittest.TestCase):
         dead_ends_found = dead_ends.DeadEnds.identify_deadends(graph)
         graph, n_removed_dead_ends = dead_ends.DeadEnds.decide_deadends(
             graph, dead_ends_found, True)
-        matches, metas = aggregation.Generator_One_Fluid.find_matches(graph)
+        matches, metas = aggregation.GeneratorOneFluid.find_matches(graph)
         self.assertEqual(
             len(matches), 1,
             "There is 1 case for generation cycles but 'find_matches' "
             "returned %d" % len(matches)
         )
-        agg_generator = aggregation.Generator_One_Fluid(
+        agg_generator = aggregation.GeneratorOneFluid(
             "Test", matches[0], **metas[0])
         self.assertEqual(agg_generator.rated_power, 200 * ureg.kilowatt)
         self.assertTrue(agg_generator.has_pump,
@@ -437,7 +437,7 @@ class TestGeneratorAggregation(unittest.TestCase):
         dead_ends_found = dead_ends.DeadEnds.identify_deadends(graph)
         graph, n_removed_dead_ends = dead_ends.DeadEnds.decide_deadends(
             graph, dead_ends_found, True)
-        matches, metas = aggregation.Generator_One_Fluid.find_matches(graph)
+        matches, metas = aggregation.GeneratorOneFluid.find_matches(graph)
         agg_generators = []
         self.assertEqual(
             len(matches), 2,
@@ -448,7 +448,7 @@ class TestGeneratorAggregation(unittest.TestCase):
         name_builder = '{} {}'
         i = 0
         for match, meta in zip(matches, metas):
-            agg_generator = aggregation.Generator_One_Fluid(
+            agg_generator = aggregation.GeneratorOneFluid(
                 name_builder.format('generator', i + 1), match, **meta)
             i += 1
             agg_generators.append(agg_generator)
@@ -471,8 +471,7 @@ class TestGeneratorAggregation(unittest.TestCase):
 
     def test_two_parallel_boilers_with_bypass(self):
         graph, flags = self.helper.setup_get_two_parallel_boilers()
-        graph.plot(r'C:\temp\bim2sim\Tests\before')
-        matches, metas = aggregation.Generator_One_Fluid.find_matches(graph)
+        matches, metas = aggregation.GeneratorOneFluid.find_matches(graph)
         self.assertEqual(
             len(matches), 2,
             "There are 2 generation cycles but 'find_matches' "
@@ -484,7 +483,7 @@ class TestGeneratorAggregation(unittest.TestCase):
         boiler200kw_guid = [b.guid for b in flags['boiler200kW']]
         boiler400kw_guid = [b.guid for b in flags['boiler400kW']]
         for match, meta in zip(matches, metas):
-            agg_generator = aggregation.Generator_One_Fluid(
+            agg_generator = aggregation.GeneratorOneFluid(
                 name_builder.format('generator', i+1), match, **meta)
             i += 1
             agg_generators.append(agg_generator)
@@ -497,10 +496,8 @@ class TestGeneratorAggregation(unittest.TestCase):
             self.assertTrue(agg_generator.has_pump,
                             "No pump was found in generator cycle but there"
                             " should be one existing")
-
         self.assertEqual(len(matches), 2, f"2 Generator should be created but "
                                           f"only {len(matches)} where created ")
-
         mappings = []
         for agg_generator in agg_generators[::-1]:
             mapping = agg_generator.get_replacement_mapping()

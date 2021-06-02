@@ -3,7 +3,7 @@
 from bim2sim.export import modelica
 from bim2sim.kernel import elements
 from bim2sim.kernel.aggregation import PipeStrand, Consumer, \
-    ConsumerHeatingDistributorModule, Generator_One_Fluid
+    ConsumerHeatingDistributorModule, GeneratorOneFluid
 from bim2sim.kernel.units import ureg
 
 
@@ -27,7 +27,7 @@ class Boiler(AixLib):
 
 class BoilerModule(AixLib):
     path = "ModularEnergySystems.EnergyModules.BoilerSystem"
-    represents = [Generator_One_Fluid]
+    represents = [GeneratorOneFluid]
 
     def __init__(self, element):
         self.check_temp_tupel = True #TODO: Checking System
