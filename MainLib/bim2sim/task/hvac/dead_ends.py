@@ -34,7 +34,6 @@ class DeadEnds(ITask):
             uncoupled_graph.remove_edges_from(inner_edges)
         # find first class dead ends (open ports)
         pot_dead_ends = [v for v, d in uncoupled_graph.degree() if d == 0]
-        uncoupled_graph.plot('D:/10_ProgramTesting/uncoupled', ports=False)
         return pot_dead_ends
 
     @staticmethod
@@ -70,20 +69,23 @@ class DeadEnds(ITask):
             decisions = []
             for dead_end, (port_strand, element_strand) in remove_ports.items():
                 cur_decision = BoolDecision(
-                    "Found possible dead end at port %s with guid %s in system, "
-                    "please check if it is a dead end:" % (dead_end, dead_end.guid),
+                    "Found possible dead end at port %s with guid %s in system,"
+                    " please check if it is a dead end:"
+                    % (dead_end, dead_end.guid),
                     output=answers,
                     output_key=dead_end,
                     global_key="deadEnd.%s" % dead_end.guid,
                     allow_skip=True, allow_load=True, allow_save=True,
-                    collect=True, quick_decide=False, related={dead_end.guid}, context=set(element.guid for element in element_strand))
+                    collect=True, quick_decide=False, related={dead_end.guid},
+                    context=set(element.guid for element in element_strand))
                 decisions.append(cur_decision)
             Decision.decide_collected(collection=decisions)
             for element, answer in answers.items():
                 if answer:
                     remove = remove_ports[element][0]
                     n_removed += len(set(remove))
-                    graph.remove_nodes_from([n for n in graph if n in set(remove)])
+                    graph.remove_nodes_from(
+                        [n for n in graph if n in set(remove)])
                 else:
                     # todo handle consumers
                     # dead end identification with guid decision (see issue97 add_gui_decision)
