@@ -57,9 +57,13 @@ class GeneratorHelper(SetupHelper):
                 for i in range(1)
             ]
             tank = self.element_generator(elements.Storage, n_ports=1)
-            bypass = [self.element_generator(
-                elements.Pipe, flags=['bypass'], length=60, diameter=30) for
-                i in range(3)]
+            bypass = [
+                self.element_generator(
+                    elements.Pipe, flags=['bypass'], length=60, diameter=30),
+                self.element_generator(
+                    elements.Valve, flags=['bypass'], length=10, diameter=30),
+                self.element_generator(
+                    elements.Pipe, flags=['bypass'], length=60, diameter=30)]
             pipe_outer_vl_distr = [
                 self.element_generator(
                     elements.Pipe, flags=['outer_vl'], length=100, diameter=40)

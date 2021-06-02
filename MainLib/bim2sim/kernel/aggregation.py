@@ -1653,7 +1653,8 @@ class GeneratorOneFluid(Aggregation):
     ...) Not for Chillers or Heatpumps!"""
     aggregatable_elements = ['IfcPump', 'PipeStrand', 'IfcPipeSegment',
                              'IfcPipeFitting', 'IfcBoiler', 'ParallelPumps',
-                             'IfcTank', 'IfcDistributionChamberElement']
+                             'IfcTank', 'IfcDistributionChamberElement',
+                             'IfcValve']
     wanted_elements = ['IfcBoiler', 'IfcElectricGenerator']
     boarder_elements = ['IfcTank', 'IfcDistributionChamberElement']
     multi = ('rated_power', 'has_bypass', 'rated_height', 'volume',
