@@ -630,7 +630,6 @@ class TestParallelPumps(unittest.TestCase):
     def test_pump_setup5(self):
         """Five parallel pumps, one smaller, additional connections."""
         graph, flags = self.helper.get_setup_pumps5()
-        graph.plot(r'D:/10_ProgramTesting/before')
 
         models = flags['normal']
         small = flags['small']
@@ -656,7 +655,6 @@ class TestParallelPumps(unittest.TestCase):
             mapping=agg_pump.get_replacement_mapping(),
             inner_connections=agg_pump.get_inner_connections(),
         )
-        graph.plot(r'D:/10_ProgramTesting/after')
 
         aggr_pipe_fittings = [node for node in graph.element_graph.nodes if
                               node.__class__.__name__ == 'AggregatedPipeFitting'
