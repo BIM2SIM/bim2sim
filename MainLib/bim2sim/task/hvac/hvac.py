@@ -339,9 +339,8 @@ class Enrich(ITask):
         decision = RealDecision("Enter value for the construction year",
                                 validate_func=lambda x: isinstance(x, float),  # TODO
                                 global_key="Construction year",
-                                allow_skip=False, allow_load=True, allow_save=True,
-                                collect=False, quick_decide=False)
-        decision.decide()
+                                allow_skip=False)
+        yield DecisionBunch([decision])
         delta = float("inf")
         year_selected = None
         for year in json_data.element_bind["statistical_years"]:
@@ -492,7 +491,8 @@ class Reduce(ITask):
                     # ask user to fix conflicts (and retry in next while loop)
                     for port in masters:
                         decision = BoolDecision("Use %r as VL (y) or RL (n)?" % port)
-                        use = decision.decide()
+                        yield DecisionBunch([decision])
+                        use = decision.value
                         if use:
                             port.flow_side = 1
                         else:

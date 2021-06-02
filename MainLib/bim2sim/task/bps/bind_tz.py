@@ -1,7 +1,7 @@
 import inspect
 
 from bim2sim.task.base import ITask
-from bim2sim.decision import BoolDecision, ListDecision
+from bim2sim.decision import BoolDecision, ListDecision, DecisionBunch
 from bim2sim.kernel.element import RelationBased
 from bim2sim.kernel.aggregation import AggregatedThermalZone
 from bim2sim.workflow import LOD
@@ -28,7 +28,7 @@ class BindThermalZones(ITask):
                 self.bind_tz_one_zone(
                     list(tz_instances.values()), instances, finder)
             elif workflow.spaces is LOD.medium:
-                self.bind_tz_criteria(instances, finder)
+                yield from self.bind_tz_criteria(instances, finder)
             else:
                 self.bounded_tz = list(tz_instances.values())
             self.logger.info("obtained %d thermal zones", len(self.bounded_tz))
@@ -50,13 +50,11 @@ class BindThermalZones(ITask):
                 criteria_functions[k.replace('group_thermal_zones_', '')] = func
         # it ask which criteria method do you want to use, if 1 given is automatic
         if len(criteria_functions) > 0:
-            criteria_decision = ListDecision("the following methods were found for the thermal zone binding",
-                                             choices=list(criteria_functions.keys()),
-                                             global_key='Thermal_Zones.Bind_Method',
-                                             allow_load=True, allow_save=True,
-                                             collect=False, quick_decide=not True)
-            if not criteria_decision.value:
-                criteria_decision.decide()
+            criteria_decision = ListDecision(
+                "the following methods were found for the thermal zone binding",
+                choices=list(criteria_functions.keys()),
+                global_key='Thermal_Zones.Bind_Method')
+            yield DecisionBunch([criteria_decision])
             criteria_function = criteria_functions.get(criteria_decision.value)
             tz_groups = criteria_function(instances)
             new_aggregations = AggregatedThermalZone.find_matches(
@@ -81,12 +79,12 @@ class BindThermalZones(ITask):
         self.group_not_grouped_tz(grouped_instances, thermal_zones)
 
         # neighbors - filter criterion
-        neighbors_decision = BoolDecision(question="Do you want for the bound-spaces to be neighbors? - adds additional"
-                                                   " criteria that just bind the thermal zones that are side by side",
-                                          global_key='Thermal_Zones.Neighbors',
-                                          allow_load=True, allow_save=True,
-                                          collect=False, quick_decide=not True)
-        neighbors_decision.decide()
+        neighbors_decision = BoolDecision(
+            question="Do you want for the bound-spaces to be neighbors? "
+                     "- adds additional criteria that just bind the thermal "
+                     "zones that are side by side",
+                     global_key='Thermal_Zones.Neighbors')
+        yield neighbors_decision
         if neighbors_decision.value:
             self.filter_neighbors(grouped_instances)
 

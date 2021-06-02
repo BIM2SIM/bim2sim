@@ -1,6 +1,6 @@
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import get_usage_dict, get_pattern_usage
-from bim2sim.decision import ListDecision
+from bim2sim.decision import ListDecision, DecisionBunch
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.elements.bps import ThermalZone
 from bim2sim.kernel.units import ureg
@@ -25,7 +25,7 @@ class EnrichUseConditions(ITask):
         if len(tz_instances) == 0:
             self.logger.warning("Found no spaces to enrich")
         else:
-            self.multi_zone_usage(tz_instances)
+            yield from self.multi_zone_usage(tz_instances)
             self.logger.info("obtained %d thermal zones", len(self.enriched_tz))
 
         return self.enriched_tz,
@@ -53,7 +53,7 @@ class EnrichUseConditions(ITask):
                     if len(matches) == 1:
                         # case its an office
                         if 'office_function' == matches[0]:
-                            tz.usage = self.office_usage(tz)
+                            tz.usage = yield from self.office_usage(tz)
                         # other zone usage
                         else:
                             tz.usage = matches[0]
@@ -61,7 +61,7 @@ class EnrichUseConditions(ITask):
                     elif len(matches) == 0:
                         matches = list(pattern_usage.keys())
                     if len(matches) > 1:
-                        tz.usage = self.list_decision_usage(tz, matches)
+                        tz.usage = yield from self.list_decision_usage(tz, matches)
                     selected_usage[previous_usage] = tz.usage
             self.load_usage(tz)
             self.enriched_tz.append(tz)
@@ -97,7 +97,7 @@ class EnrichUseConditions(ITask):
                 return default_matches[2]
         # case area not available
         else:
-            self.list_decision_usage(tz, default_matches)
+            yield from self.list_decision_usage(tz, default_matches)
 
     @staticmethod
     def list_decision_usage(tz: ThermalZone, matches: list):
@@ -105,12 +105,10 @@ class EnrichUseConditions(ITask):
         usage_decision = ListDecision("Which usage does the Space %s have?" %
                                       (str(tz.usage)),
                                       choices=matches,
-                                      global_key="%s_%s.BpsUsage" % (type(tz).__name__, tz.guid),
-                                      allow_skip=False,
-                                      allow_load=True,
-                                      allow_save=True,
-                                      quick_decide=not True)
-        usage_decision.decide()
+                                      global_key="%s_%s.BpsUsage" %
+                                                 (type(tz).__name__, tz.guid),
+                                      allow_skip=False)
+        yield DecisionBunch([usage_decision])
         return usage_decision.value
 
     def load_usage(self, tz: ThermalZone):

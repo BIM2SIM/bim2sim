@@ -50,7 +50,7 @@ from stl import mesh
 
 from bim2sim.kernel.elements import bps
 from bim2sim.task.base import ITask
-from bim2sim.decision import BoolDecision
+from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.kernel.element import Element, ElementEncoder
 # from bim2sim.kernel.elements import SpaceBoundary2B, SpaceBoundary
 from bim2sim.kernel.elements.bps import SpaceBoundary
@@ -736,9 +736,12 @@ class ExportEP(ITask):
         # idf.view_model()
         # self._export_to_stl_for_cfd(instances, idf)
         # self._display_shape_of_space_boundaries(instances)
-        run_decision = BoolDecision(question="Do you want to run the full energyplus simulation (annual, readvars)?",
-                                    global_key='EnergyPlus.FullRun', allow_load=True, allow_save=True, collect=False)
-        ep_full = run_decision.decide()
+        run_decision = BoolDecision(
+            question="Do you want to run the full energyplus simulation"
+                     " (annual, readvars)?",
+                     global_key='EnergyPlus.FullRun')
+        yield DecisionBunch([run_decision])
+        ep_full = run_decision.value
         design_day = False
         if not ep_full:
             design_day = True

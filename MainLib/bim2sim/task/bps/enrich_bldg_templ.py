@@ -2,7 +2,7 @@ import ast
 
 from bim2sim.kernel.elements import bps
 from bim2sim.task.base import ITask
-from bim2sim.decision import ListDecision
+from bim2sim.decision import ListDecision, DecisionBunch
 from bim2sim.workflow import LOD
 from bim2sim.task.bps.enrich_mat import EnrichMaterial
 from bim2sim.utilities.common_functions import get_type_building_elements
@@ -25,9 +25,10 @@ class EnrichBuildingByTemplates(ITask):
     def run(self, workflow, invalid_layers, instances):
         self.logger.info("setting verifications")
         if workflow.layers is LOD.low:
-            construction_type = self.get_construction_type()
+            construction_type = yield from self.get_construction_type()
             for instance in invalid_layers.values():
-                self.template_layers_creation(instance, construction_type, instances)
+                yield from self.template_layers_creation(
+                    instance, construction_type, instances)
                 self.enriched_layers.append(instance)
             windows = filter_instances(instances, 'Window')
             for window in windows:
@@ -39,13 +40,12 @@ class EnrichBuildingByTemplates(ITask):
 
     @staticmethod
     def get_construction_type():
-        decision_template = ListDecision("Choose one of the following construction types to proceed",
-                                         choices=['heavy', 'light'],
-                                         global_key="construction_type.bpsTemplate",
-                                         allow_skip=True, allow_load=True, allow_save=True,
-                                         collect=False, quick_decide=not True)
-        if decision_template.value is None:
-            decision_template.decide()
+        decision_template = ListDecision(
+            "Choose one of the following construction types to proceed",
+            choices=['heavy', 'light'],
+            global_key="construction_type.bpsTemplate",
+            allow_skip=True)
+        yield DecisionBunch([decision_template])
         return decision_template.value
 
     @classmethod
@@ -53,7 +53,9 @@ class EnrichBuildingByTemplates(ITask):
         instance.layers = []
         layers_width = 0
         layers_r = 0
-        template = dict(cls.get_instance_template(instance, construction_type, instances))
+        data = yield from cls.get_instance_template(
+            instance, construction_type, instances)
+        template = dict(data)
         resumed = EnrichMaterial.get_resumed_material_templates()
         if template is not None:
             for i_layer, layer_props in template['layer'].items():
@@ -97,20 +99,21 @@ class EnrichBuildingByTemplates(ITask):
             return template_value
         except KeyError:
             if len(template_options.keys()) > 0:
-                cls.get_alternative_construction_type(year_of_construction, instance_type, template_options, instance)
+                yield from cls.get_alternative_construction_type(
+                    year_of_construction, instance_type, template_options,
+                    instance)
                 return cls.instance_template[instance_type]
 
     @classmethod
     def get_alternative_construction_type(cls, year_of_construction, instance_type, template_options, instance):
-        decision_template = ListDecision("the following construction types were "
-                                         "found for year %s and instance type %s"
-                                         % (year_of_construction, instance_type),
-                                         choices=list(template_options.keys()),
-                                         global_key="%s_%s.bpsTemplate" % (type(instance).__name__, instance.guid),
-                                         allow_skip=True, allow_load=True, allow_save=True,
-                                         collect=False, quick_decide=not True)
-        if decision_template.value is None:
-            decision_template.decide()
+        decision_template = ListDecision(
+            "the following construction types were "
+            "found for year %s and instance type %s"
+            % (year_of_construction, instance_type),
+            choices=list(template_options.keys()),
+            global_key="%s_%s.bpsTemplate" % (type(instance).__name__, instance.guid),
+            allow_skip=True)
+        yield DecisionBunch([decision_template])
         cls.instance_template[instance_type] = template_options[decision_template.value]
 
     def window_template_enrichment(self, window, construction_type, instances):

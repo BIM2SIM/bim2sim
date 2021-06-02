@@ -3,7 +3,7 @@ import ast
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import get_type_building_elements, \
     get_material_templates
-from bim2sim.decision import ListDecision
+from bim2sim.decision import ListDecision, DecisionBunch
 from bim2sim.workflow import LOD
 from bim2sim.utilities.common_functions import filter_instances
 
@@ -25,7 +25,8 @@ class BuildingVerification(ITask):
         self.logger.info("setting verifications")
         self.get_template_threshold(instances)
         for guid, ins in instances.items():
-            if not self.layers_verification(ins, workflow):
+            valid = yield from self.layers_verification(ins, workflow)
+            if not valid:
                 # self.invalid_layers.append(ins)
                 self.invalid_layers[ins.guid] = ins
         self.logger.warning("Found %d invalid layers", len(self.invalid_layers))
@@ -45,7 +46,7 @@ class BuildingVerification(ITask):
             layers_width, layers_u = self.get_layers_properties(instance)
             if not self.width_comparison(workflow, instance, layers_width):
                 return False
-            u_value_comparison = self.u_value_comparison(instance, layers_u)
+            u_value_comparison = yield from self.u_value_comparison(instance, layers_u)
             if not u_value_comparison:
                 return False
             elif u_value_comparison == 'valid':
@@ -102,10 +103,8 @@ class BuildingVerification(ITask):
                     % (instance.name, instance.guid),
                     choices=[instance.u_value.m, layers_u.m],
                     global_key='%s_%s_u_value' % (instance.name, instance.guid),
-                    allow_skip=True, allow_load=True, allow_save=True,
-                    collect=False, quick_decide=not True, context=instance.name,
-                    related=instance.guid)
-                u_selection.decide()
+                    context=instance.name, related=instance.guid)
+                yield DecisionBunch([u_selection])
                 instance.u_value = u_selection.value * instance.u_value.u
             elif not self.compare_with_template(instance, instance.u_value) and \
                     self.compare_with_template(instance, layers_u):

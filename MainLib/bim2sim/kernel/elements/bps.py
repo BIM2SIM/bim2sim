@@ -168,6 +168,7 @@ class ThermalZone(BPSProduct):
         if self.t_set_cool is not None:
             return True
         else:
+            # TODO #170
             cooling_decision = BoolDecision(
                 question="Do you want for the thermal zone %s to be cooled? - with cooling" % self.name,
                 collect=False, global_key="%s_%s.Cooling" % (type(self).__name__, self.guid),
@@ -184,6 +185,7 @@ class ThermalZone(BPSProduct):
         if self.t_set_heat is not None:
             return True
         else:
+            # TODO #170
             heating_decision = BoolDecision(
                 question="Do you want for the thermal zone %s to be heated? - with heating" % self.name,
                 collect=False,
@@ -1387,6 +1389,7 @@ class Building(BPSProduct):
                 if len(self.ifc.Name) > 0:
                     building_name = self.ifc.Name
                 else:
+                    # TODO #170
                     name_dec = StringDecision(question="Please enter name for the instance %s" % type(self).__name__,
                                               default="unnamed", global_key=f'IfcName-Decision-{self.guid}',
                                               allow_load=True, allow_save=True)
@@ -1394,6 +1397,7 @@ class Building(BPSProduct):
         return building_name
 
     def check_building_year(self, name):
+        # TODO #170
         year_decision = RealDecision("Enter value for the buildings year of construction",
                                      global_key="Building_%s.year_of_construction" % self.guid,
                                      allow_skip=False, allow_load=True, allow_save=True,
