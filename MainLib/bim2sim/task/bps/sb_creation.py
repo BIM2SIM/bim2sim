@@ -81,6 +81,8 @@ class CreateSpaceBoundaries(ITask):
                 self.add_opening_bound(matched_sb)
 
     def get_instance_openings(self, instance, instances, no_element_sbs, no_element_openings):
+        """get openings for a given instance as space boundary and opening instance (if given)
+        An opening can have a related instance (windows, doors for example) or not (staircase for example)"""
         if hasattr(instance.ifc, 'HasOpenings'):
             for opening in instance.ifc.HasOpenings:
                 related_building_element = opening.RelatedOpeningElement.HasFillings[0].RelatedBuildingElement if \
@@ -91,7 +93,6 @@ class CreateSpaceBoundaries(ITask):
                     matched_sb = self.find_opening_bound(instance, opening_instance)
                     if matched_sb:
                         return [matched_sb]
-                        # self.add_opening_bound(*matched_sb)
                     else:
                         self.non_sb_elements.append(opening_instance)
                 else:
@@ -99,11 +100,11 @@ class CreateSpaceBoundaries(ITask):
                     matched_sb = self.find_no_element_opening_bound(no_element_openings, instance, no_element_sbs)
                     if matched_sb:
                         return matched_sb
-
         return None
 
     @staticmethod
     def get_corresponding_opening(space_boundaries, selected_sb):
+        """get corresponding opening space boundary for openings that doesn't have a related instance"""
         corresponding = {}
         for sb_opening in selected_sb.values():
             distances = {}
@@ -124,6 +125,8 @@ class CreateSpaceBoundaries(ITask):
 
     @staticmethod
     def get_no_element_space_boundaries(space_boundaries):
+        """get a dictionary with all space boundaries that doesn't have a related building element,
+         represents all space boundaries that could be a virtual opening"""
         selected_sb = {}
         for sb in space_boundaries:
             if not sb.bound_instance:
@@ -132,6 +135,7 @@ class CreateSpaceBoundaries(ITask):
 
     @staticmethod
     def find_no_element_opening_bound(no_element_openings, instance, no_element_sb):
+        """for a given instance finds corresponding no element opening bounds"""
         matched = []
         for guid, sb in no_element_openings.items():
             if sb.bound_instance == instance:
@@ -141,6 +145,8 @@ class CreateSpaceBoundaries(ITask):
 
     @staticmethod
     def find_opening_bound(instance, opening_instance):
+        """for a given instance get corresponding opening space boundary,
+         applies openings that do have a related instance, physical space boundary"""
         distances = {}
         for sb in instance.space_boundaries:
             for sb_opening in opening_instance.space_boundaries:
@@ -160,6 +166,8 @@ class CreateSpaceBoundaries(ITask):
 
     @staticmethod
     def add_opening_bound(matched_sb):
+        """adds opening corresponding space boundary to the instance
+        space boundary where the opening locates"""
         for normal_sb, opening_sb in matched_sb:
             if not normal_sb.opening_bounds:
                 normal_sb.opening_bounds = []
