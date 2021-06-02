@@ -81,7 +81,6 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 #         self.instances = {}
 #         pass
 #
-#     @Task.log
 #     def run(self, workflow, ifc):
 #         self.logger.info("Creates python representation of relevant ifc types")
 #
@@ -121,7 +120,6 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 #     # property_error = {}
 #     instance_template = {}
 #
-#     @Task.log
 #     def run(self, workflow, instances, ifc):
 #         self.logger.info("setting verifications")
 #         building = SubElement.get_class_instances('Building')[0]
@@ -622,7 +620,6 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 #             return default, year_group
 #         return template_options, year_group
 #
-#     @Task.log
 #     def run(self, workflow, instances, ifc):
 #         self.logger.info("Export to TEASER")
 #         prj = self._create_project(ifc.by_type('IfcProject')[0])

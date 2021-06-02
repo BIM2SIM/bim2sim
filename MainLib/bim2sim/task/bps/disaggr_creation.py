@@ -1,7 +1,7 @@
 import math
 import numpy as np
 
-from bim2sim.task.base import Task, ITask
+from bim2sim.task.base import ITask
 from bim2sim.workflow import LOD
 from bim2sim.utilities.common_functions import filter_instances
 
@@ -18,8 +18,6 @@ class DisaggregationCreation(ITask):
         self.vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
         self.horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
 
-
-    @Task.log
     def run(self, workflow, finder, instances):
         thermal_zones = filter_instances(instances, 'ThermalZone')
         if workflow.spaces is not LOD.low:

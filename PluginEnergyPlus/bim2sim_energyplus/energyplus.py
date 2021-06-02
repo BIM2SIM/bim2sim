@@ -16,14 +16,14 @@ class EnergyPlus(Plugin):
         bps.SetIFCTypes,
         common.LoadIFC,
         common.CreateElements,
-        bps.TZInspect,
+        # bps.TZInspect,
         bps.EnrichUseConditions,
         bps.MaterialVerification,  # LOD.full
         bps.EnrichMaterial,  # LOD.full
         bps.BuildingVerification,  # all LODs
         bps.EnrichNonValid,  # LOD.full
         bps.EnrichBuildingByTemplates,  # LOD.low
-        bps.Disaggregation_creation,
+        # bps.Disaggregation_creation,
         bps.BindThermalZones,
         # todo see todo below!
         bps.ExportEP,

@@ -1,7 +1,7 @@
 from typing import List
 from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import RelationBased
-from bim2sim.task.base import ITask, Task
+from bim2sim.task.base import ITask
 from bim2sim.kernel.elements.bps import SpaceBoundary, InnerWall
 from OCC.Core.GProp import GProp_GProps
 from OCC.Core.BRepGProp import brepgprop_SurfaceProperties
@@ -33,7 +33,6 @@ class CreateSpaceBoundaries(ITask):
         space_boundaries = {inst.guid: inst for inst in instance_lst}
         return space_boundaries,
 
-    @Task.log
     def instantiate_space_boundaries(self, entities_dict, instances,
                                      finder) -> List[RelationBased]:
         """Instantiate ifc_entities using given element class.
