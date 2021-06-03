@@ -32,24 +32,3 @@ class TEASERManager(Plugin):
         bps.ExportTEASER,
     ]
 
-    def run(self, playground):
-        # todo: run() is obsolete, use default_tasks instead
-        playground.run_task(bps.SetIFCTypes())
-        playground.run_task(common.LoadIFC())
-        playground.run_task(common.CreateElements())
-        playground.run_task(bps.CreateSpaceBoundaries())
-        playground.run_task(bps.TZPrepare())
-        playground.run_task(bps.EnrichUseConditions())
-        playground.run_task(bps.OrientationGetter())
-
-        playground.run_task(bps.MaterialVerification())  # LOD.full
-        playground.run_task(bps.EnrichMaterial())  # LOD.full
-        playground.run_task(bps.BuildingVerification())  # all LODs
-
-        playground.run_task(bps.EnrichNonValid())  # LOD.full
-        playground.run_task(bps.EnrichBuildingByTemplates())  # LOD.low
-
-        playground.run_task(bps.DisaggregationCreation())
-        playground.run_task(bps.BindThermalZones())
-        playground.run_task(bps.ExportTEASER())
-        pass
