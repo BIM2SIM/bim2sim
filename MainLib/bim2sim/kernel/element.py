@@ -46,7 +46,7 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
 
     def __init__(self, guid=None, **kwargs):
         self.guid = guid or self.get_id(self.guid_prefix)
-        self.related_decisions: List[Decision] = []
+        # self.related_decisions: List[Decision] = []
         self.attributes = attribute.AttributeManager(bind=self)
 
         # set attributes based on kwargs
@@ -97,34 +97,33 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
                              "Don't rely on global Element.objects. "
                              "Use e.g. instances from task/playground.")
 
-    def request(self, name):
-        self.attributes.request(name)
+    def request(self, name, external_decision: Decision = None) \
+            -> Union[None, Decision]:
+        """Request attribute
+        :param name: Name of attribute
+        :param external_decision: Decision to use instead of default decision
+        """
+        return self.attributes.request(name, external_decision)
 
-    def solve_requested_decisions(
-            self=None, instances: Iterable['Element'] = None) -> \
-            Generator[DecisionBunch, None, None]:
-        """Solve all requested decisions.
-        If called by instance, all instance related decisions are solved
-        else all decisions of all instances are solved."""
-        if not self:
-            # called from class
-            decisions = DecisionBunch([decision for inst in instances
-                                       for decision in inst.related_decisions])
-        else:
-            # called from instance
-            if instances:
-                raise AssertionError(
-                    "Only use instances argument on call from class")
-            decisions = DecisionBunch(self.related_decisions)
+    @classmethod
+    def get_pending_attribute_decisions(
+            cls, instances: Iterable['Element'] = None) -> DecisionBunch:
+        """Get all requested decisions of attributes.
 
-        yield decisions
-        # apply decisions
-
-
-    def discard(self):
-        """Remove from tracked objects. Related decisions are also discarded."""
-        for d in self.related_decisions:
-            d.discard()
+        all decisions related to given instances are returned"""
+        # if not self or not isinstance(self, Element):
+        # called from class
+        decisions = DecisionBunch()
+        for inst in instances:
+            for bunch in inst.attributes.get_decisions():
+                decisions.extend(bunch)
+        # else:
+        #     # called from instance
+        #     if instances:
+        #         raise AssertionError(
+        #             "Only use instances argument on call from class")
+        #     decisions = self.attributes.get_decisions()
+        return decisions
 
     @classmethod
     def full_reset(cls):

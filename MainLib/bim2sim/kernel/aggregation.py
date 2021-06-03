@@ -11,6 +11,7 @@ import ast
 import numpy as np
 import networkx as nx
 
+from bim2sim.decision import DecisionBunch
 from bim2sim.kernel.element import ProductBased, Port
 from bim2sim.kernel.elements.hvac import HVACPort
 from bim2sim.kernel.elements import hvac, bps
@@ -100,21 +101,22 @@ class AggregationMixin:
         except:
             return None
 
-    def request(self, name):
-        # broadcast request to all nested elements
-        # if one attribute included in multi_calc is requested, all multi_calc attributes are needed
-
-        if name in self.multi:
-            names = self.multi
-        else:
-            names = (name,)
-
-        # for ele in self.elements:
-        #     for n in names:
-        #         ele.request(n)
-
-        for n in names:
-            super().request(n)
+    # def request(self, name):
+    #     # broadcast request to all nested elements
+    #     # if one attribute included in multi_calc is requested, all multi_calc attributes are needed
+    #
+    #     if name in self.multi:
+    #         names = self.multi
+    #     else:
+    #         names = (name,)
+    #
+    #     # for ele in self.elements:
+    #     #     for n in names:
+    #     #         ele.request(n)
+    #     decisions = DecisionBunch()
+    #     for n in names:
+    #         decisions.append(super().request(n))
+    #     return decisions
 
     def __repr__(self):
         return "<%s (aggregation of %d elements)>" % (

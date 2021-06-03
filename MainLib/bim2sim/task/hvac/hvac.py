@@ -533,7 +533,7 @@ class Export(ITask):
         modelica.Instance.init_factory(libraries)
         export_instances = {inst: modelica.Instance.factory(inst) for inst in reduced_instances}
 
-        ProductBased.solve_requested_decisions(reduced_instances)
+        yield ProductBased.get_pending_attribute_decisions(reduced_instances)
 
         # self.logger.info(Decision.summary())
         # Decision.decide_collected()

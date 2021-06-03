@@ -1,11 +1,14 @@
 import logging
 from contextlib import contextmanager
-from typing import Tuple, Iterable, Callable, Any
+from typing import Tuple, Iterable, Callable, Any, Union
 
 import pint
 import re
 
-from bim2sim.decision import RealDecision, BoolDecision, ListDecision
+from unicodedata import decimal
+
+from bim2sim.decision import RealDecision, BoolDecision, ListDecision, Decision, \
+    DecisionBunch
 from bim2sim.kernel.units import ureg
 import inspect
 
@@ -38,7 +41,6 @@ class Attribute:
     STATUS_REQUESTED = 'REQUESTED'
     STATUS_AVAILABLE = 'AVAILABLE'
     STATUS_NOT_AVAILABLE = 'NOT_AVAILABLE'
-    _force = False
 
     def __init__(self,
                  description: str = "",
@@ -166,7 +168,6 @@ class Attribute:
     @staticmethod
     def get_from_patterns(bind, patterns, name):
         """Get value from non default property sets matching patterns"""
-        # TODO: prevent decision on call by get()
         value = bind.select_from_potential_properties(patterns, name, False)
         return value
 
@@ -243,44 +244,20 @@ class Attribute:
                 value = bind.enrichment["selected_enrichment_data"][name]
         return value
 
-    @staticmethod
-    def get_from_decision(bind, name, unit=None):
-        # TODO: decision
-        decision = RealDecision(
-            "Enter value for %s of %s" % (name, bind.name),
-            unit=unit,
-            global_key="%s_%s.%s" % (bind.ifc_type, bind.guid, name),
-            allow_skip=False, allow_load=True, allow_save=True,
-            validate_func=lambda x: True,  # TODO meaningful validation
-            collect=False,
-            quick_decide=True
-        )
-        value = decision.value
-        return value
-
-    def create_decision(self, bind, collect=True):
+    def create_decision(self, bind):
         """Created Decision for this Attribute"""
         # TODO: set state in output dict -> attributemanager
         decision = RealDecision(
-            "Enter value for %s of %s" % (self.name, bind.name),
+            "Enter value for %s of %s" % (self.name, bind),
             # validate_func=lambda x: isinstance(x, float),
-            output=bind.attributes,
+            # output=bind.attributes,
             key=self.name,
             global_key="%s_%s.%s" % (bind.ifc_type, bind.guid, self.name),
-            allow_skip=False, allow_load=True, allow_save=True,
+            allow_skip=False,
             validate_func=lambda x: True,  # TODO meaningful validation
-            collect=collect,
             unit=self.unit,
         )
         return decision
-
-    @staticmethod
-    @contextmanager
-    def force_get():
-        """Contextmanager to get missing attributes immediately"""
-        Attribute._force = True
-        yield
-        Attribute._force = False
 
     @staticmethod
     def ifc_post_processing(value):
@@ -288,8 +265,11 @@ class Attribute:
         by default this function does nothing"""
         return value
 
-    def request(self, bind):
-        """Request attribute"""
+    def request(self, bind, external_decision=None):
+        """Request attribute
+        :param bind: bound instance of attribute
+        :param external_decision: Decision to use instead of default decision
+        """
 
         # read current value and status
         value, status = self._inner_get(bind)
@@ -297,11 +277,14 @@ class Attribute:
         if value is None:
             if status == Attribute.STATUS_NOT_AVAILABLE:
                 # actual request
-                decision = self.create_decision(bind)
-                bind.related_decisions.append(decision)
+                _decision = external_decision or self.create_decision(bind)
+                # bind.related_decisions.append(decision)
                 status = Attribute.STATUS_REQUESTED
-                self._inner_set(bind, value, status)
-                return decision
+                self._inner_set(bind, _decision, status)
+                return _decision
+        elif isinstance(value, Decision):
+            # already a decision stored in value
+            return value
         else:
             # already requested or available
             return
@@ -321,21 +304,29 @@ class Attribute:
         bind.attributes[self.name] = (value, status)
 
     def __get__(self, bind, owner):
+        # this gets called if attribute is accessed
         if bind is None:
             return self
 
         # read current value and status
-        value, status = self._inner_get(bind)
+        value_or_decision, status = self._inner_get(bind)
         changed = False
+        value = None
+
+        if isinstance(value_or_decision, Decision):
+            # decision
+            if status != self.STATUS_REQUESTED:
+                raise AssertionError("Inconsistent status")
+            if value_or_decision.valid():
+                value = value_or_decision.value
+                status = self.STATUS_AVAILABLE
+                changed = True
+        else:
+            value = value_or_decision
 
         if value is None and status == self.STATUS_UNKNOWN:
             value = self._get_value(bind)
             status = self.STATUS_AVAILABLE if value is not None else self.STATUS_NOT_AVAILABLE  # change for temperature
-            changed = True
-
-        if self._force and value is None:
-            value = self.get_from_decision(bind, self.name, self.unit)
-            status = Attribute.STATUS_AVAILABLE
             changed = True
 
         if changed:
@@ -383,24 +374,31 @@ class AttributeManager(dict):
         for k, v in other.items():
             self.__setitem__(k, v)
 
-    def request(self, name=None):
-        """Request attribute by name. (name=None -> all)"""
-        if name:
-            names = [name]
-        else:
-            names = self.names
+    def request(self, name: str, external_decision: Decision = None) \
+            -> Union[None, Decision]:
+        """Request attribute by name.
 
-        for n in names:
-            try:
-                attr = self.get_attribute(n)
-            except KeyError:
-                raise KeyError("%s has no Attribute '%s'" % (self.bind, n))
+        :param name: name of requested attribute
+        :param external_decision: custom decision to get attribute from"""
+        try:
+            attr = self.get_attribute(name)
+        except KeyError:
+            raise KeyError("%s has no Attribute '%s'" % (self.bind, name))
 
-            value, status = self[n]
-            if value is None:
-                if status == Attribute.STATUS_NOT_AVAILABLE:
-                    decision = attr.request(self.bind)
-                    # self.bind.related_decisions.append(decision)
+        value, status = self[name]
+        if status == Attribute.STATUS_UNKNOWN:
+            # make sure default methods are tried
+            getattr(self.bind, name)
+            value, status = self[name]
+        if value is None:
+            if status == Attribute.STATUS_NOT_AVAILABLE:
+                decision = attr.request(self.bind, external_decision)
+                return decision
+        if isinstance(value, Decision):
+            if external_decision and value is not external_decision:
+                raise AttributeError("Can't set external decision for an "
+                                     "already requested attribute.")
+            return value
         else:
             # already requested or available
             return
@@ -414,7 +412,16 @@ class AttributeManager(dict):
 
     @property
     def names(self):
-        return (name for name in dir(type(self.bind)) if isinstance(getattr(type(self.bind), name), Attribute))
+        return (name for name in dir(type(self.bind))
+                if isinstance(getattr(type(self.bind), name), Attribute))
+
+    def get_decisions(self) -> DecisionBunch:
+        """Return all decision of attributes with status REQUESTED."""
+        decisions = DecisionBunch()
+        for dec, status in self.items():
+            if status == Attribute.STATUS_REQUESTED:
+                decisions.append(dec)
+        return decisions
 
 
 def multi_calc(func):
