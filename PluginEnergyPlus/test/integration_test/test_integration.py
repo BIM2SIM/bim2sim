@@ -232,8 +232,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = ('Autodesk Revit 2020 (DEU)', True, True, *('Single office',)*165, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
-        with Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
     @unittest.skip("Not fully implemented yet")
@@ -244,8 +244,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = ('Linear-Building', 'Autodesk Revit 2020 (DEU)', True, True, *('Single office',)*72, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
-        with Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
     @unittest.skip("Not fully implemented yet")
@@ -255,8 +255,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = ('Building', 'Autodesk Revit 2020 (DEU)', True, True, *("Single office",) * 12, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Isolierverglasung', False)
-        with Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
 

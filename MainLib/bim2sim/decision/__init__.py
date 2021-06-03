@@ -339,8 +339,9 @@ class ListDecision(Decision):
 
         if len(self.items) == 1:
             if not self.status != Status.open:
-                # auto decide
-                self.value = self.items[0]
+                # set only item as default
+                if self.default is None:
+                    self.default = self.items[0]
 
     @property
     def choices(self):

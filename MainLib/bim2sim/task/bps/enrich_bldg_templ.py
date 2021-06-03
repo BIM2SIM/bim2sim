@@ -32,7 +32,8 @@ class EnrichBuildingByTemplates(ITask):
                 self.enriched_layers.append(instance)
             windows = filter_instances(instances, 'Window')
             for window in windows:
-                self.window_template_enrichment(window, construction_type, instances)
+                yield from self.window_template_enrichment(
+                    window, construction_type, instances)
 
         self.logger.info("enriched %d invalid layers", len(self.enriched_layers))
 
@@ -106,20 +107,26 @@ class EnrichBuildingByTemplates(ITask):
 
     @classmethod
     def get_alternative_construction_type(cls, year_of_construction, instance_type, template_options, instance):
-        decision_template = ListDecision(
-            "the following construction types were "
-            "found for year %s and instance type %s"
-            % (year_of_construction, instance_type),
-            choices=list(template_options.keys()),
-            global_key="%s_%s.bpsTemplate" % (type(instance).__name__, instance.guid),
-            allow_skip=True)
-        yield DecisionBunch([decision_template])
-        cls.instance_template[instance_type] = template_options[decision_template.value]
+        if len(template_options) > 1:
+            decision_template = ListDecision(
+                "the following construction types were "
+                "found for year %s and instance type %s"
+                % (year_of_construction, instance_type),
+                choices=list(template_options.keys()),
+                global_key="%s_%s.bpsTemplate" % (type(instance).__name__, instance.guid),
+                allow_skip=True)
+            yield DecisionBunch([decision_template])
+            cls.instance_template[instance_type] = \
+                template_options[decision_template.value]
+        else:
+            cls.instance_template[instance_type] = \
+                template_options[next(iter(template_options))]
 
     def window_template_enrichment(self, window, construction_type, instances):
         enriched_attrs = ['g_value', 'a_conv', 'shading_g_total', 'shading_max_irr', 'inner_convection',
                           'inner_radiation', 'outer_radiation', 'outer_convection']
-        template = self.get_instance_template(window, construction_type, instances)
+        template = yield from self.get_instance_template(
+            window, construction_type, instances)
         for attr in enriched_attrs:
             value = getattr(window, attr)
             if value is None:

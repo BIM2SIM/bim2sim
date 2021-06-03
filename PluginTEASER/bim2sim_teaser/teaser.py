@@ -18,14 +18,16 @@ class TEASERManager(Plugin):
         bps.SetIFCTypes,
         common.LoadIFC,
         common.CreateElements,
-        # bps.TZInspect,
+        bps.CreateSpaceBoundaries,
+        bps.TZPrepare,
         bps.EnrichUseConditions,
+        bps.OrientationGetter,
         bps.MaterialVerification,  # LOD.full
         bps.EnrichMaterial,  # LOD.full
         bps.BuildingVerification,  # all LODs
         bps.EnrichNonValid,  # LOD.full
         bps.EnrichBuildingByTemplates,  # LOD.low
-        # bps.Disaggregation_creation,
+        bps.DisaggregationCreation,
         bps.BindThermalZones,
         bps.ExportTEASER,
     ]
