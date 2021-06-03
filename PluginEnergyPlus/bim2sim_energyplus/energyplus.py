@@ -7,6 +7,8 @@ from bim2sim.plugin import Plugin
 from bim2sim.workflow import BPSMultiZoneSeparatedEP
 from bim2sim.kernel.elements import bps as bps_elements
 
+from bim2sim_energyplus.weather import Weather
+
 
 class EnergyPlus(Plugin):
     name = 'EnergyPlus'
@@ -16,22 +18,22 @@ class EnergyPlus(Plugin):
         bps.SetIFCTypes,
         common.LoadIFC,
         common.CreateElements,
-        # bps.TZInspect,
+        bps.CreateSpaceBoundaries,
+        bps.TZPrepare,
         bps.EnrichUseConditions,
         bps.MaterialVerification,  # LOD.full
         bps.EnrichMaterial,  # LOD.full
         bps.BuildingVerification,  # all LODs
         bps.EnrichNonValid,  # LOD.full
         bps.EnrichBuildingByTemplates,  # LOD.low
-        # bps.Disaggregation_creation,
+        bps.DisaggregationCreation,
         bps.BindThermalZones,
-        # todo see todo below!
+        Weather,
         bps.ExportEP,
     ]
 
     def run(self, playground):
         # todo: run() is obsolete, use default_tasks instead
-        weather_file = 'DEU_NW_Aachen.105010_TMYx.epw'
 
         playground.run_task(bps.SetIFCTypes())
         playground.run_task(common.LoadIFC())
@@ -48,9 +50,7 @@ class EnergyPlus(Plugin):
         playground.run_task(bps.EnrichNonValid())  # LOD.full
         playground.run_task(bps.EnrichBuildingByTemplates())  # LOD.low
 
-        # todo own task?
-        copyfile(Path(__file__).parent.parent / 'data' / weather_file,
-                 playground.paths.resources / weather_file)
+        playground.run_task(Weather())
         playground.run_task(bps.ExportEP())
 
         return
