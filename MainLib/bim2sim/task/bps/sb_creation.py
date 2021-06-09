@@ -102,6 +102,8 @@ class CreateSpaceBoundaries(ITask):
                     # opening with element (windows for example)
                     opening_instance = instances.get(related_building_element.GlobalId, None)
                     matched_sb = self.find_opening_bound(instance, opening_instance)
+                    if not matched_sb:
+                        continue
                     if not matched_sb[0].opening_bounds:
                         matched_sb[0].opening_bounds = []
                     matched_sb[0].opening_bounds.append(matched_sb[1])
@@ -156,5 +158,5 @@ class CreateSpaceBoundaries(ITask):
         if len(corresponding) == 1:
             return corresponding[0]
         else:
-            sorted_distances = dict(sorted(distances.items()))
-            return sorted_distances[0]
+            if distances:
+                return sorted(distances.items())[0][1]
