@@ -37,6 +37,7 @@ from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.utilities.common_functions import vector_angle, filter_instances
 from bim2sim.task.common.inner_loop_remover import remove_inner_loops
 from bim2sim.decision import StringDecision
+from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 logger = logging.getLogger(__name__)
 
@@ -549,7 +550,7 @@ class SpaceBoundary(element.RelationBased):
             corr_bound = self.get_object(self.ifc.CorrespondingBoundary.GlobalId)
             if corr_bound.ifc.RelatingSpace.is_a('IfcSpace'):
                 if not corr_bound.ifc.RelatingSpace.is_a('IfcExternalSpatialStructure'):
-                    nb_vert_this = PyOCCTools.get_number_of_vertices(bind.bound_shape)
+                    nb_vert_this = PyOCCTools.get_number_of_vertices(self.bound_shape)
                     nb_vert_other = PyOCCTools.get_number_of_vertices(corr_bound.bound_shape)
                     # if not nb_vert_this == nb_vert_other:
                     #     print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
@@ -628,7 +629,7 @@ class SpaceBoundary(element.RelationBased):
                 other_area = bound.bound_area
                 if (other_area.m - self.bound_area.m)**2 < 1e-1:
                     # self.check_for_vertex_duplicates(bound)
-                    nb_vert_this = PyOCCTools.get_number_of_vertices(bind.bound_shape)
+                    nb_vert_this = PyOCCTools.get_number_of_vertices(self.bound_shape)
                     nb_vert_other = PyOCCTools.get_number_of_vertices(bound.bound_shape)
                     # if not nb_vert_this == nb_vert_other:
                     #     print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
