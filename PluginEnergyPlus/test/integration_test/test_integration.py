@@ -187,7 +187,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test KIT KHH 3 storey IFC"""
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015,'heavy',
+        answers = ('ARCHICAD-64', True, True, *('Single office',)*12, 2015,'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         with Decision.debug_answer(answers, multi=True, validate=True):
             return_code = project.run()
@@ -198,7 +198,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test KIT KHH 3 storey IFC"""
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015,'heavy',
+        answers = ('ARCHICAD-64', True, True, *('Single office',)*12, 2015,'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
         with Decision.debug_answer(answers, multi=True, validate=True):
             return_code = project.run()
@@ -221,7 +221,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015, 'heavy',
+        answers = ('ARCHICAD-64', True, True, 'Single office', 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
@@ -232,7 +232,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test ERC Main Building"""
         ifc = EXAMPLE_PATH / '26.05space_modified.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('Autodesk Revit 2020 (DEU)', True, True, *('Single office',)*165, 'heavy',
+        answers = ('Autodesk Revit 2020 (DEU)', True, True, *('Single office',)*5, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
@@ -255,7 +255,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'Olabarri_49.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('Building', 'Autodesk Revit 2020 (DEU)', True, True, *("Single office",) * 12, 2015, 'heavy',
+        answers = ('Other', True, True, *("Single office",) * 7, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Isolierverglasung', False)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
