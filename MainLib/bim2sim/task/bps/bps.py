@@ -2198,6 +2198,8 @@ class ExportEP(ITask):
                     wire = exp1.Current()
                     face = BRepBuilderAPI_MakeFace(wire).Face()
                     face_list.append(face)
+            if not face_list:
+                continue
             if hasattr(space, 'space_boundaries_2B'):
                 for bound in space.space_boundaries_2B:
                     exp = TopExp_Explorer(bound.bound_shape, TopAbs_FACE)
