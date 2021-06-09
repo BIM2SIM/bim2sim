@@ -73,6 +73,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
+        #todo: fix virtual bounds (assigned to be outdoors for some reason)
 
     @unittest.skip("")
     def test_base_02_FZK_full_run(self):

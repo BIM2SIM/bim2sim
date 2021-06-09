@@ -418,12 +418,13 @@ class ThermalZone(BPSProduct):
 class SpaceBoundary(element.RelationBased):
     ifc_types = {'IfcRelSpaceBoundary': ['*']}
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, instances: dict, **kwargs):
         """spaceboundary __init__ function"""
         super().__init__(*args, **kwargs)
         self.disaggregation = []
         self.bound_instance = None
         self.bound_thermal_zone = None
+        self._instances = instances
 
     def calc_orientation(self):
 
@@ -547,8 +548,8 @@ class SpaceBoundary(element.RelationBased):
         ensuring that corresponding space boundaries have a matching number of vertices.
         """
         if hasattr(self.ifc, 'CorrespondingBoundary') and self.ifc.CorrespondingBoundary is not None:
-            corr_bound = self.get_object(self.ifc.CorrespondingBoundary.GlobalId)
-            if corr_bound.ifc.RelatingSpace.is_a('IfcSpace'):
+            corr_bound = self._instances.get(self.ifc.CorrespondingBoundary.GlobalId)
+            if corr_bound and corr_bound.ifc.RelatingSpace.is_a('IfcSpace'):
                 if not corr_bound.ifc.RelatingSpace.is_a('IfcExternalSpatialStructure'):
                     nb_vert_this = PyOCCTools.get_number_of_vertices(self.bound_shape)
                     nb_vert_other = PyOCCTools.get_number_of_vertices(corr_bound.bound_shape)
