@@ -207,7 +207,6 @@ class CreateElements(ITask):
                     self.logger.warning("Validation failed for %s %s",
                                         ifc_type_or_element_cls, element)
                 invalid.append(entity)
-                element.discard()
 
         return valid, invalid
 
