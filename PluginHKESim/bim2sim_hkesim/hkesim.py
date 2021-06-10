@@ -24,6 +24,7 @@ class PluginHKESim(Plugin):
     default_tasks = [
         hvac.SetIFCTypesHVAC,
         common.LoadIFC,
+        # hvac.FixPorts,
         common.CreateElements,
         hvac.ConnectElements,
         hvac.MakeGraph,
