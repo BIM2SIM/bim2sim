@@ -366,6 +366,8 @@ class Project:
                 yield decision_bunch
                 if not decision_bunch.valid():
                     raise AssertionError("Cant continue with invalid decisions")
+                for decision in decision_bunch:
+                    decision.freeze()
                 self._made_decisions.extend(decision_bunch)
                 self._made_decisions.validate_global_keys()
             success = True
