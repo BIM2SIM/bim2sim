@@ -1,12 +1,15 @@
 from itertools import permutations
+from pathlib import Path
 
+import ifcopenshell
 import numpy as np
 
+import bim2sim
 from bim2sim.task.base import ITask
 
 
 class FixPorts(ITask):
-    """"""
+    """Remove invalid ports from ifc."""
 
     reads = ('ifc', )
     touches = ('ifc', )
@@ -22,7 +25,9 @@ class FixPorts(ITask):
         print(to_remove)
         self.logger.info("Removing %d ports ...", len(to_remove))
         for entity in to_remove:
-            ifc.remove(entity)  # this fails on ifcopenshell 0.6
+            # this fails on ifcopenshell 0.6
+            # https://github.com/IfcOpenShell/IfcOpenShell/issues/275
+            ifc.remove(entity)
         path = './cleaned.ifc'
         ifc.write(path)
         return (ifc, )
@@ -95,7 +100,6 @@ class FixPorts(ITask):
             np.array(entity.ObjectPlacement.RelativePlacement.Location.Coordinates)
 
         parent = entity.ContainedIn[0].RelatedElement
-        # parent = entity.ConnectedTo[0].RelatedPort.ContainedIn[0].RelatedElement
         try:
             relative_placement = parent.ObjectPlacement.RelativePlacement
             x_direction = np.array(relative_placement.RefDirection.DirectionRatios)
@@ -121,3 +125,10 @@ class FixPorts(ITask):
         else:
             absolute = None
         return absolute
+
+
+if __name__ == '__main__':
+    folder = Path(bim2sim.__file__).parent.parent / 'test/TestModels'
+    path = folder / 'B03_Heating.ifc'
+    ifc = ifcopenshell.open(path)
+    FixPorts().run(None, ifc)
