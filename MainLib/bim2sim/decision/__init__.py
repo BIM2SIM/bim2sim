@@ -46,7 +46,7 @@ class PendingDecisionError(DecisionException):
 
 class Status(enum.Enum):
     """Enum for status of Decision"""
-    open = 1  # decision not yet made
+    pending = 1  # decision not yet made
     ok = 2  # decision made
     skipped = 5  # decision was skipped
     error = 6  # invalid answer
@@ -74,7 +74,9 @@ class Decision:
         decision = Decision("How much is the fish?", allow_skip=True)
         decision.value  # will raise ValueError
         decision.value = 10  # ok
-        decision.value = 12  # value cant be changed, will raise ValueError
+        decision.freeze()  # decision cant be changed afterwards
+        decision.value = 12  # value cant be changed, will raise AssertionError
+        decision.freeze(False)  # unfreeze decision
         decision.reset()  # reset to initial state
         decision.skip()  # set value to None, only works if allow_skip flag set
     """
@@ -103,7 +105,8 @@ class Decision:
         :param group: group of decisions this decision belongs to
         :raises: :class:'AttributeError'::
         """
-        self.status = Status.open
+        self.status = Status.pending
+        self._frozen = False
         self._value = None
 
         self.question = question
@@ -141,8 +144,10 @@ class Decision:
 
     @value.setter
     def value(self, value):
-        if self.status != Status.open:
-            raise ValueError("Decision is not open. Call reset() first.")
+        if self._frozen:
+            raise AssertionError("Can't change value of frozen decision")
+        # if self.status != Status.pending:
+        #     raise ValueError("Decision is not pending. Call reset() first.")
         _value = self.convert(value)
         if _value is None:
             self.skip()
@@ -153,16 +158,26 @@ class Decision:
             raise ValueError("Invalid value: %r for %s" % (value, self.question))
 
     def reset(self):
-        self.status = Status.open
+        if self._frozen:
+            raise AssertionError("Can't change frozen decision")
+        self.status = Status.pending
         self._value = None
+
+    def freeze(self, freeze=True):
+        if self.status == Status.pending and freeze:
+            raise AssertionError(
+                "Can't freeze pending decision. Set valid value first.")
+        self._frozen = freeze
 
     def skip(self):
         """Set value to None und mark as solved."""
         if not self.allow_skip:
             raise DecisionException("This Decision can not be skipped.")
-        if self.status != Status.open:
+        if self._frozen:
+            raise DecisionException("Can't change frozen decision.")
+        if self.status != Status.pending:
             raise DecisionException(
-                "This Decision is not open. Call reset() first.")
+                "This Decision is not pending. Call reset() first.")
         self._value = None
         self.status = Status.skipped
 
@@ -338,7 +353,7 @@ class ListDecision(Decision):
         super().__init__(*args, validate_func=None, **kwargs)
 
         if len(self.items) == 1:
-            if not self.status != Status.open:
+            if not self.status != Status.pending:
                 # set only item as default
                 if self.default is None:
                     self.default = self.items[0]

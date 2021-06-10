@@ -62,6 +62,16 @@ class TestDecision(DecisionTestBase):
         with self.assertRaises(decision.DecisionException):
             dec2.skip()
 
+    def test_freeze_decision(self):
+        """Test freezing a decision and change value."""
+        dec = BoolDecision('??')
+        with self.assertRaises(AssertionError):
+            dec.freeze()
+        dec.value = True
+        dec.freeze()
+        with self.assertRaises(AssertionError):
+            dec.value = False
+
     def check(self, value):
         """validation func"""
         return 0 < float(value) < 10
