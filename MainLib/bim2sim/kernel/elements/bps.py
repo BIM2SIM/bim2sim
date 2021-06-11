@@ -81,6 +81,19 @@ class BPSProduct(element.ProductBased):
         else:
             return None
 
+    def get_top_bottom(self, name):
+        if type(self) != ThermalZone:
+            tbs = []
+            for sb in self.non_duplicated_sb:
+                tbs.append(sb.top_bottom)
+            tbs_new = list(set(tbs))
+            if len(tbs_new) == 1:
+                return tbs_new[0]
+            else:
+                return tbs_new
+        else:
+            return None
+
     bound_area = attribute.Attribute(
         functions=[get_bound_area],
         unit=ureg.meter ** 2
@@ -91,6 +104,9 @@ class BPSProduct(element.ProductBased):
     )
     non_duplicated_sb = attribute.Attribute(
         functions=[get_non_duplicated_sb],
+    )
+    top_bottom = attribute.Attribute(
+        functions=[get_top_bottom],
     )
 
 
@@ -1297,6 +1313,12 @@ class Slab(BPSProduct):
     def __init__(self, *args, **kwargs):
         """slab __init__ function"""
         super().__init__(*args, **kwargs)
+
+    def get_better_subclass(self):
+        if self.is_external:
+            return GroundFloor
+        else:
+            return Floor
 
     def _get_layers(self, name):
         """slab _get_layers function"""
