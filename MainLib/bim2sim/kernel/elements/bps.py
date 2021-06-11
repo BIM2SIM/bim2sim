@@ -87,10 +87,7 @@ class BPSProduct(element.ProductBased):
             for sb in self.non_duplicated_sb:
                 tbs.append(sb.top_bottom)
             tbs_new = list(set(tbs))
-            if len(tbs_new) == 1:
-                return tbs_new[0]
-            else:
-                return tbs_new
+            return tbs_new
         else:
             return None
 
@@ -1313,12 +1310,6 @@ class Slab(BPSProduct):
     def __init__(self, *args, **kwargs):
         """slab __init__ function"""
         super().__init__(*args, **kwargs)
-
-    def get_better_subclass(self):
-        if self.is_external:
-            return GroundFloor
-        else:
-            return Floor
 
     def _get_layers(self, name):
         """slab _get_layers function"""

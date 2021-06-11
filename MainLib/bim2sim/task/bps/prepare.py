@@ -2,6 +2,7 @@ from bim2sim.task.base import Task, ITask
 from bim2sim.decision import BoolDecision
 from bim2sim.workflow import Workflow
 from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.kernel.elements.bps import Slab, GroundFloor, Floor, Roof
 
 
 class Prepare(ITask):  # ToDo: change to prepare
@@ -19,6 +20,7 @@ class Prepare(ITask):  # ToDo: change to prepare
     @Task.log
     def run(self, workflow: Workflow, instances: dict, space_boundaries: dict):
         self.prepare_thermal_zones(instances)
+        self.prepare_instances(instances)
 
         return self.tz_instances,
 
@@ -93,3 +95,25 @@ class Prepare(ITask):  # ToDo: change to prepare
         """Recognizes zones/spaces by geometric detection"""
         raise NotImplementedError
 
+    def prepare_instances(self, instances):
+        """prepare instances based on recheck, can change classes"""
+        for inst in instances.values():
+            self.prepare_instance_class(inst)
+
+    @staticmethod
+    def prepare_instance_class(instance):
+        """do a recheck of selected classes if necessary, and changes it to a new class
+        based on criteria and information of the space boundaries"""
+        if type(instance).__bases__[0] is Slab:
+            # GroundFloor recognition
+            new_class = Floor
+            if instance.is_external:
+                if instance.top_bottom:
+                    if len(instance.top_bottom) == 1:
+                        if instance.top_bottom[0] == 'TOP':
+                            new_class = GroundFloor
+                        else:
+                            new_class = Roof
+            if new_class != type(instance):
+                instance.__class__ = new_class
+                # ToDo: More clean way to do this?
