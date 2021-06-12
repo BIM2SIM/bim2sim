@@ -131,6 +131,7 @@ class Prepare(ITask):  # ToDo: change to prepare
                     inst = instances.get(inst_ifc.GlobalId, None)
                     if inst:
                         self.set_decompositions(instance, inst)
+                        self.set_decomposition_properties(instance, inst)
 
     @staticmethod
     def set_decompositions(instance, d_instance):
@@ -140,3 +141,10 @@ class Prepare(ITask):  # ToDo: change to prepare
         if not hasattr(d_instance, 'decomposes'):
             d_instance.decomposes = []
         d_instance.decomposes.append(instance)
+
+    @staticmethod
+    def set_decomposition_properties(instance, d_instance):
+        # when decomposed,decomposes instance has the layers of the decomposed instance
+        for attr, (value, available) in instance.attributes.items():
+            if not value and getattr(d_instance, attr):
+                setattr(instance, attr, getattr(d_instance, attr))

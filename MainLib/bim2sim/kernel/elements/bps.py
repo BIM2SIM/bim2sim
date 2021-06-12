@@ -1072,8 +1072,8 @@ class Wall(BPSProduct):
         unit=ureg.meter ** 2
     )
     gross_area = attribute.Attribute(
-        default_ps=("QTo_WallBaseQuantities", "GrossSideArea"),
-        default=1,
+        default_ps=("Qto_WallBaseQuantities", "GrossSideArea"),
+        default=0,
         unit=ureg.meter ** 2
     )
     is_external = attribute.Attribute(
@@ -1088,7 +1088,7 @@ class Wall(BPSProduct):
         unit=ureg.W / ureg.K / ureg.meter ** 2
     )
     width = attribute.Attribute(
-        default_ps=("QTo_WallBaseQuantities", "Width"),
+        default_ps=("Qto_WallBaseQuantities", "Width"),
         unit=ureg.m
     )
 
@@ -1136,7 +1136,7 @@ class Layer(element.RelationBased):
     )
 
     density = attribute.Attribute(
-        default_ps=("Pset_MaterialThermal", "MassDensity"),
+        default_ps=("Pset_MaterialCommon", "MassDensity"),
         default=0,
         unit=ureg.kg / ureg.m ** 3
     )
@@ -1193,12 +1193,12 @@ class Window(BPSProduct):
         default=True
     )
     area = attribute.Attribute(
-        default_ps=("QTo_WindowBaseQuantities", "Area"),
+        default_ps=("Qto_WindowBaseQuantities", "Area"),
         default=0,
         unit=ureg.meter ** 2
     )
     width = attribute.Attribute(
-        default_ps=("QTo_WindowBaseQuantities", "Depth"),
+        default_ps=("Qto_WindowBaseQuantities", "Depth"),
         default=0,
         unit=ureg.m
     )
@@ -1271,13 +1271,13 @@ class Door(BPSProduct):
     )
 
     area = attribute.Attribute(
-        default_ps=("QTo_DoorBaseQuantities", "Area"),
+        default_ps=("Qto_DoorBaseQuantities", "Area"),
         default=0,
         unit=ureg.meter ** 2
     )
 
     width = attribute.Attribute(
-        default_ps=("QTo_DoorBaseQuantities", "Depth"),
+        default_ps=("Qto_DoorBaseQuantities", "Depth"),
         default=0,
         unit=ureg.m
     )
@@ -1333,18 +1333,18 @@ class Slab(BPSProduct):
         functions=[_get_layers]
     )
     area = attribute.Attribute(
-        default_ps=("QTo_SlabBaseQuantities", "NetArea"),
+        default_ps=("Qto_SlabBaseQuantities", "NetArea"),
         default=0,
         unit=ureg.meter ** 2
     )
     gross_area = attribute.Attribute(
-        default_ps=("QTo_SlabBaseQuantities", "GrossArea"),
-        default=1,
+        default_ps=("Qto_SlabBaseQuantities", "GrossArea"),
+        default=0,
         unit=ureg.meter ** 2
     )
 
     width = attribute.Attribute(
-        default_ps=("QTo_SlabBaseQuantities", "Width"),
+        default_ps=("Qto_SlabBaseQuantities", "Width"),
         default=0,
         unit=ureg.m
     )
@@ -1362,6 +1362,7 @@ class Slab(BPSProduct):
 
 
 class Roof(Slab):
+    is_external = True
     ifc_types = {
         "IfcRoof":
             ['*', 'FLAT_ROOF', 'SHED_ROOF', 'GABLE_ROOF', 'HIP_ROOF',
@@ -1379,6 +1380,7 @@ class Floor(Slab):
 
 
 class GroundFloor(Slab):
+    is_external = True
     ifc_types = {
         "IfcSlab": ['BASESLAB']
     }
