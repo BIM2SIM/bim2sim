@@ -27,6 +27,10 @@ class Prepare(ITask):  # ToDo: change to prepare
         return self.tz_instances, self.reduced_instances
 
     def prepare_thermal_zones(self, instances):
+        """prepare the thermal zones by:
+        * binding the elements to a storey, and storeys to the elements
+        * setting space properties, with cooling and heating"""
+
         thermal_zones = filter_instances(instances, 'ThermalZone')
         self.tz_instances = {inst.guid: inst for inst in thermal_zones}
 
@@ -47,7 +51,7 @@ class Prepare(ITask):  # ToDo: change to prepare
 
     @staticmethod
     def bind_elements_to_storey(instances):
-        """Bind thermal_zones and instances to each floor/storey"""
+        """Bind thermal_zones and instances to each floor/storey and vice versa"""
         storeys = filter_instances(instances, 'Storey')
         for storey in storeys:
             storey_instances = []
@@ -103,15 +107,18 @@ class Prepare(ITask):  # ToDo: change to prepare
             self.prepare_instance_class(inst, instances)
 
     def prepare_instance_class(self, instance, instances):
-        """do a recheck of selected classes if necessary, and changes it to a new class
-        based on criteria and information of the space boundaries"""
+        """prepare instances based on different functions:
+        * slabs class recheck
+        * recognize decomposed roofs"""
+
         if type(instance).__bases__[0] is Slab or type(instance) is Slab:
             self.better_slab_class(instance)
             self.recognize_decomposed_roofs(instance, instances)
 
     @staticmethod
     def better_slab_class(instance):
-        # GroundFloor recognition
+        """do a recheck of selected classes if necessary, and changes it to a new class
+        based on criteria and information of the space boundaries"""
         if len(instance.space_boundaries) > 0:
             new_class = Floor
             if instance.is_external:
@@ -127,6 +134,9 @@ class Prepare(ITask):  # ToDo: change to prepare
                 # ToDo: More clean way to do this?
 
     def recognize_decomposed_roofs(self, instance, instances):
+        """recognize the roofs that are decomposed on another slabs, and after that:
+        * set decompositions on decomposed instance
+        * set decomposition properties on decomposed instance"""
         if instance.ifc.IsDecomposedBy:
             for decomp in instance.ifc.IsDecomposedBy:
                 for inst_ifc in decomp.RelatedObjects:
@@ -138,6 +148,7 @@ class Prepare(ITask):  # ToDo: change to prepare
 
     @staticmethod
     def set_decompositions(instance, d_instance):
+        """set decompositions of a decomposed slab and vice versa as list in the instance"""
         if not hasattr(instance, 'decomposed_by'):
             instance.decomposed_by = []
         instance.decomposed_by.append(d_instance)
@@ -147,6 +158,7 @@ class Prepare(ITask):  # ToDo: change to prepare
 
     @staticmethod
     def set_decomposition_properties(instance, d_instance):
+        """set attributes of decomposes instance, if attribute of decomposed instance not available or invalid"""
         # when decomposed,decomposes instance has attributes of the decomposed instance
         for attr, (value, available) in instance.attributes.items():
             if not value and getattr(d_instance, attr):
