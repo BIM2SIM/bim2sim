@@ -5,7 +5,7 @@ from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.kernel.elements.bps import Slab, GroundFloor, Floor, Roof
 
 
-class Prepare(ITask):  # ToDo: change to prepare
+class Prepare(ITask):
     """Analyses IFC, creates Element instances corresponding to thermal zones and connects them.
     elements are stored in .tz_instances dict with guid as key"""
 
@@ -121,14 +121,12 @@ class Prepare(ITask):  # ToDo: change to prepare
         based on criteria and information of the space boundaries"""
         if len(instance.space_boundaries) > 0:
             new_class = Floor
-            if instance.is_external:
+            if instance.is_external is True:
                 new_class = Roof
                 if instance.top_bottom:
                     if len(instance.top_bottom) == 1:
                         if instance.top_bottom[0] == 'TOP':
                             new_class = GroundFloor
-                        # else:
-                        #     new_class = Roof
             if new_class != type(instance):
                 instance.__class__ = new_class
                 # ToDo: More clean way to do this?

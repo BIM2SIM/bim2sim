@@ -1036,12 +1036,14 @@ class Wall(BPSProduct):
 
     def get_is_external(self, name):
         if len(self.ifc.ProvidesBoundaries) > 0:
-            boundary = self.ifc.ProvidesBoundaries[0]
-            if boundary.InternalOrExternalBoundary is not None:
-                if boundary.InternalOrExternalBoundary.lower() == 'external':
+            ext_int = list(set([boundary.InternalOrExternalBoundary for boundary in self.ifc.ProvidesBoundaries]))
+            if len(ext_int) == 1:
+                if ext_int[0].lower() == 'external':
                     return True
-                elif boundary.InternalOrExternalBoundary.lower() == 'internal':
+                if ext_int[0].lower() == 'internal':
                     return False
+            else:
+                return ext_int
 
     def get_bound_area(self, name):
         bound_area = 0
@@ -1254,12 +1256,14 @@ class Door(BPSProduct):
 
     def get_is_external(self, name):
         if len(self.ifc.ProvidesBoundaries) > 0:
-            boundary = self.ifc.ProvidesBoundaries[0]
-            if boundary.InternalOrExternalBoundary is not None:
-                if boundary.InternalOrExternalBoundary.lower() == 'external':
+            ext_int = list(set([boundary.InternalOrExternalBoundary for boundary in self.ifc.ProvidesBoundaries]))
+            if len(ext_int) == 1:
+                if ext_int[0].lower() == 'external':
                     return True
-                elif boundary.InternalOrExternalBoundary.lower() == 'internal':
+                if ext_int[0].lower() == 'internal':
                     return False
+            else:
+                return ext_int
 
     layers = attribute.Attribute(
         functions=[_get_layers]
@@ -1320,14 +1324,13 @@ class Slab(BPSProduct):
     def get_is_external(self, name):
         if len(self.ifc.ProvidesBoundaries) > 0:
             ext_int = list(set([boundary.InternalOrExternalBoundary for boundary in self.ifc.ProvidesBoundaries]))
-            if len(ext_int) > 1:
-                print()
-            boundary = self.ifc.ProvidesBoundaries[0]
-            if boundary.InternalOrExternalBoundary is not None:
-                if boundary.InternalOrExternalBoundary.lower() == 'external':
+            if len(ext_int) == 1:
+                if ext_int[0].lower() == 'external':
                     return True
-                elif boundary.InternalOrExternalBoundary.lower() == 'internal':
+                if ext_int[0].lower() == 'internal':
                     return False
+            else:
+                return ext_int
 
     layers = attribute.Attribute(
         functions=[_get_layers]
