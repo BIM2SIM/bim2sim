@@ -81,6 +81,16 @@ class BPSProduct(element.ProductBased):
         else:
             return None
 
+    def get_top_bottom(self, name):
+        if type(self) != ThermalZone:
+            tbs = []
+            for sb in self.non_duplicated_sb:
+                tbs.append(sb.top_bottom)
+            tbs_new = list(set(tbs))
+            return tbs_new
+        else:
+            return None
+
     bound_area = attribute.Attribute(
         functions=[get_bound_area],
         unit=ureg.meter ** 2
@@ -91,6 +101,9 @@ class BPSProduct(element.ProductBased):
     )
     non_duplicated_sb = attribute.Attribute(
         functions=[get_non_duplicated_sb],
+    )
+    top_bottom = attribute.Attribute(
+        functions=[get_top_bottom],
     )
 
 

@@ -1,7 +1,7 @@
 # todo uncomment for TEASER
 from .set_ifc_types import SetIFCTypes
 from .sb_creation import CreateSpaceBoundaries
-from .tz_prepare import TZPrepare
+from .prepare import Prepare
 from .building_verify import BuildingVerification
 from .enrich_non_valid import EnrichNonValid
 from .enrich_bldg_templ import EnrichBuildingByTemplates
