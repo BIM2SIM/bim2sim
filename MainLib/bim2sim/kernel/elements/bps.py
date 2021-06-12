@@ -1159,13 +1159,11 @@ class Layer(element.RelationBased):
 
 
 class OuterWall(Wall):
-    pass
-    # is_external = True
+    ifc_types = {}
 
 
 class InnerWall(Wall):
-    pass
-    # is_external = False
+    ifc_types = {}
 
 
 class Window(BPSProduct):
@@ -1289,13 +1287,11 @@ class Door(BPSProduct):
 
 
 class InnerDoor(Door):
-    # is_external = False
-    pass
+    ifc_types = {}
 
 
 class OuterDoor(Door):
-    # is_external = True
-    pass
+    ifc_types = {}
 
 
 class Plate(BPSProduct):
@@ -1304,7 +1300,7 @@ class Plate(BPSProduct):
 
 class Slab(BPSProduct):
     ifc_types = {
-        "IfcSlab": ['*', 'LANDING', 'BASESLAB']
+        "IfcSlab": ['*', 'LANDING']
     }
 
     def __init__(self, *args, **kwargs):
@@ -1323,6 +1319,9 @@ class Slab(BPSProduct):
 
     def get_is_external(self, name):
         if len(self.ifc.ProvidesBoundaries) > 0:
+            ext_int = list(set([boundary.InternalOrExternalBoundary for boundary in self.ifc.ProvidesBoundaries]))
+            if len(ext_int) > 1:
+                print()
             boundary = self.ifc.ProvidesBoundaries[0]
             if boundary.InternalOrExternalBoundary is not None:
                 if boundary.InternalOrExternalBoundary.lower() == 'external':

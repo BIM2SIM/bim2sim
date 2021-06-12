@@ -97,8 +97,23 @@ class Prepare(ITask):  # ToDo: change to prepare
 
     def prepare_instances(self, instances):
         """prepare instances based on recheck, can change classes"""
+
+        gfs = filter_instances(instances, 'GroundFloor')
+        for i in gfs:
+            x = i.is_external
+
         for inst in instances.values():
             self.prepare_instance_class(inst)
+
+        slabs = filter_instances(instances, 'Floor') + filter_instances(instances, 'GroundFloor') \
+            + filter_instances(instances, 'Roof')
+        g_slabs = {inst.guid: inst for inst in slabs}
+
+        for sl in slabs:
+            if sl.ifc.IsDecomposedBy:
+                print()
+            elif sl.ifc.Decomposes:
+                print()
 
     @staticmethod
     def prepare_instance_class(instance):
@@ -108,12 +123,13 @@ class Prepare(ITask):  # ToDo: change to prepare
             # GroundFloor recognition
             new_class = Floor
             if instance.is_external:
+                new_class = Roof
                 if instance.top_bottom:
                     if len(instance.top_bottom) == 1:
                         if instance.top_bottom[0] == 'TOP':
                             new_class = GroundFloor
-                        else:
-                            new_class = Roof
+                        # else:
+                        #     new_class = Roof
             if new_class != type(instance):
                 instance.__class__ = new_class
                 # ToDo: More clean way to do this?
