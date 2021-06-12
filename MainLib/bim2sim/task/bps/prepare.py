@@ -97,30 +97,20 @@ class Prepare(ITask):  # ToDo: change to prepare
 
     def prepare_instances(self, instances):
         """prepare instances based on recheck, can change classes"""
-
-        gfs = filter_instances(instances, 'GroundFloor')
-        for i in gfs:
-            x = i.is_external
-
         for inst in instances.values():
-            self.prepare_instance_class(inst)
+            self.prepare_instance_class(inst, instances)
 
-        slabs = filter_instances(instances, 'Floor') + filter_instances(instances, 'GroundFloor') \
-            + filter_instances(instances, 'Roof')
-        g_slabs = {inst.guid: inst for inst in slabs}
-
-        for sl in slabs:
-            if sl.ifc.IsDecomposedBy:
-                print()
-            elif sl.ifc.Decomposes:
-                print()
-
-    @staticmethod
-    def prepare_instance_class(instance):
+    def prepare_instance_class(self, instance, instances):
         """do a recheck of selected classes if necessary, and changes it to a new class
         based on criteria and information of the space boundaries"""
-        if type(instance).__bases__[0] is Slab:
-            # GroundFloor recognition
+        if type(instance).__bases__[0] is Slab or type(instance) is Slab:
+            self.better_slab_class(instance)
+            self.recognize_decomposed_roofs(instance, instances)
+
+    @staticmethod
+    def better_slab_class(instance):
+        # GroundFloor recognition
+        if len(instance.space_boundaries) > 0:
             new_class = Floor
             if instance.is_external:
                 new_class = Roof
@@ -133,3 +123,20 @@ class Prepare(ITask):  # ToDo: change to prepare
             if new_class != type(instance):
                 instance.__class__ = new_class
                 # ToDo: More clean way to do this?
+
+    def recognize_decomposed_roofs(self, instance, instances):
+        if instance.ifc.IsDecomposedBy:
+            for decomp in instance.ifc.IsDecomposedBy:
+                for inst_ifc in decomp.RelatedObjects:
+                    inst = instances.get(inst_ifc.GlobalId, None)
+                    if inst:
+                        self.set_decompositions(instance, inst)
+
+    @staticmethod
+    def set_decompositions(instance, d_instance):
+        if not hasattr(instance, 'decomposed_by'):
+            instance.decomposed_by = []
+        instance.decomposed_by.append(d_instance)
+        if not hasattr(d_instance, 'decomposes'):
+            d_instance.decomposes = []
+        d_instance.decomposes.append(instance)
