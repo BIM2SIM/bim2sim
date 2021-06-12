@@ -10,19 +10,21 @@ class Prepare(ITask):  # ToDo: change to prepare
     elements are stored in .tz_instances dict with guid as key"""
 
     reads = ('instances', 'space_boundaries',)
-    touches = ('tz_instances',)
+    touches = ('tz_instances', 'instances',)
 
     def __init__(self):
         super().__init__()
         self.tz_instances = {}
+        self.reduced_instances = {}
         pass
 
     @Task.log
     def run(self, workflow: Workflow, instances: dict, space_boundaries: dict):
+        self.reduced_instances = dict(instances)
         self.prepare_thermal_zones(instances)
         self.prepare_instances(instances)
 
-        return self.tz_instances,
+        return self.tz_instances, self.reduced_instances
 
     def prepare_thermal_zones(self, instances):
         thermal_zones = filter_instances(instances, 'ThermalZone')
@@ -132,6 +134,7 @@ class Prepare(ITask):  # ToDo: change to prepare
                     if inst:
                         self.set_decompositions(instance, inst)
                         self.set_decomposition_properties(instance, inst)
+                        del self.reduced_instances[inst.guid]
 
     @staticmethod
     def set_decompositions(instance, d_instance):
@@ -144,7 +147,7 @@ class Prepare(ITask):  # ToDo: change to prepare
 
     @staticmethod
     def set_decomposition_properties(instance, d_instance):
-        # when decomposed,decomposes instance has the layers of the decomposed instance
+        # when decomposed,decomposes instance has attributes of the decomposed instance
         for attr, (value, available) in instance.attributes.items():
             if not value and getattr(d_instance, attr):
                 setattr(instance, attr, getattr(d_instance, attr))
