@@ -80,6 +80,7 @@ class EnrichBuildingByTemplates(ITask):
 
     @classmethod
     def get_instance_template(cls, instance, construction_type, instances):
+        # TODO multiple buildings #165
         building = filter_instances(instances, 'Building')[0]
 
         instance_type = type(instance).__name__

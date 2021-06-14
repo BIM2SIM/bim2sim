@@ -120,9 +120,6 @@ class Attribute:
             quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet, default  Association,"
                                    " finder, patterns or functions",
                                    self.name, bind.ifc_type, bind.guid)
-        # enrichment
-        if value is None:
-            value = self.get_from_enrichment(bind, self.name)
 
         # default value
         if value is None and self.default_value is not None:
@@ -190,59 +187,7 @@ class Attribute:
 
     @staticmethod
     # todo only used for HVAC. Move to own task similar to BPS
-    def get_from_enrichment(bind, name):
-        # TODO #170
-        value = None
-        if hasattr(bind, 'enrichment') and bind.enrichment:
-            attrs_enrich = bind.enrichment["enrichment_data"]
-            if "enrich_decision" not in bind.enrichment:
-                # check if want to enrich instance
-                enrichment_decision = BoolDecision(
-                    question="Do you want for %s_%s to be enriched" % (type(bind).__name__, bind.guid),
-                    collect=False, global_key='%s_%s.Enrichment_Decision' % (type(bind).__name__, bind.guid),
-                    allow_load=True, allow_save=True)
-                enrichment_decision.decide()
-                enrichment_decision.stored_decisions.clear()
-                bind.enrichment["enrich_decision"] = enrichment_decision.value
 
-            if bind.enrichment["enrich_decision"]:
-                # enrichment via incomplete data (has enrich parameter value)
-                if name in attrs_enrich:
-                    value = attrs_enrich[name]
-                    if value is not None:
-                        return value
-                if "selected_enrichment_data" not in bind.enrichment:
-                    options_enrich_parameter = list(attrs_enrich.keys())
-                    decision1 = ListDecision("Select an Enrich Parameter to continue",
-                                             choices=options_enrich_parameter,
-                                             global_key="%s_%s.Enrich_Parameter" % (type(bind).__name__, bind.guid),
-                                             allow_skip=True, allow_load=True, allow_save=True,
-                                             collect=False, quick_decide=not True)
-                    decision1.decide()
-                    decision1.stored_decisions.clear()
-
-                    if decision1.value == 'statistical_year':
-                        # 3. check if general enrichment - construction year
-                        bind.enrichment["selected_enrichment_data"] = bind.enrichment["year_enrichment"]
-                    else:
-                        # specific enrichment (enrichment parameter and values)
-                        decision2 = RealDecision("Enter value for the parameter %s" % decision1.value,
-                                                 validate_func=lambda x: isinstance(x, float),  # TODO
-                                                 global_key="%s_%s.%s_Enrichment" % (type(bind).__name__, bind.guid, name),
-                                                 allow_skip=False, allow_load=True, allow_save=True,
-                                                 collect=False, quick_decide=False)
-                        decision2.decide()
-                        delta = float("inf")
-                        decision2_selected = None
-                        for ele in attrs_enrich[decision1.value]:
-                            if abs(int(ele) - decision2.value) < delta:
-                                delta = abs(int(ele) - decision2.value)
-                                decision2_selected = int(ele)
-
-                        bind.enrichment["selected_enrichment_data"] = attrs_enrich[str(decision1.value)][
-                            str(decision2_selected)]
-                value = bind.enrichment["selected_enrichment_data"][name]
-        return value
 
     def create_decision(self, bind):
         """Created Decision for this Attribute"""

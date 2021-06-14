@@ -1,11 +1,13 @@
 import ast
 
 from bim2sim.task.base import ITask
+from bim2sim.kernel.elements.bps import Building
 from bim2sim.utilities.common_functions import get_type_building_elements, \
     get_material_templates
-from bim2sim.decision import ListDecision, DecisionBunch
+from bim2sim.decision import ListDecision, DecisionBunch, RealDecision
 from bim2sim.workflow import LOD
 from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.kernel.units import ureg
 
 
 class BuildingVerification(ITask):
@@ -23,7 +25,11 @@ class BuildingVerification(ITask):
 
     def run(self, workflow, instances):
         self.logger.info("setting verifications")
-        self.get_template_threshold(instances)
+        # todo we might have multiple buildings see issue #165
+        building = filter_instances(instances, 'Building')[0]
+        building = yield from self.validate_high_level_params(building)
+        year_of_construction_val = int(building.year_of_construction.m)
+        self.get_template_threshold(year_of_construction_val)
         for guid, ins in instances.items():
             valid = yield from self.layers_verification(ins, workflow)
             if not valid:
@@ -34,6 +40,36 @@ class BuildingVerification(ITask):
         self.invalid_layers = dict(sorted(dict_items))
 
         return self.invalid_layers,
+
+    def validate_high_level_params(self, building: Building) -> Building:
+        """Validates and enriches high level building parameters like Year of
+        construction"""
+        # TODO Needs to be adapter for multiple building #165
+        if not building.year_of_construction:
+            building.year_of_construction \
+                = yield from self.get_construction_year(building)
+
+        building.name = self.get_building_name(building)
+        return building
+
+    @staticmethod
+    def get_construction_year(building):
+        year_decision = RealDecision(
+            "Enter value for the buildings year of construction",
+            global_key="Building_%s.year_of_construction" % building.guid,
+            allow_skip=False, unit=ureg.year)
+        yield DecisionBunch([year_decision])
+        return year_decision.value
+
+    @staticmethod
+    def get_building_name(building):
+        if building.ifc is not None:
+            if building.ifc.Name is not None:
+                if len(building.ifc.Name) > 0:
+                    building_name = building.ifc.Name
+        else:
+            building_name = "Building1"
+        return building_name
 
     def layers_verification(self, instance, workflow):
         supported_classes = {'OuterWall', 'Wall', 'InnerWall', 'Door',
@@ -126,11 +162,7 @@ class BuildingVerification(ITask):
 
         return False
 
-    def get_template_threshold(self, instances):
-        # todo we might have multiple buildings see issue #165
-        building = filter_instances(instances, 'Building')[0]
-        # todo @ dja check if this is total date (e.g. 01.01.2000, then use only year)
-        year_of_construction = int(building.year_of_construction.m)
+    def get_template_threshold(self, year_of_construction):
         instance_templates = get_type_building_elements()
         material_templates = get_material_templates()
         for i_type in instance_templates:

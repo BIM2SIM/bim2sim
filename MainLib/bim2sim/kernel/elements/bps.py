@@ -163,41 +163,6 @@ class ThermalZone(BPSProduct):
                     neighbors.append(tz)
         return neighbors
 
-    def _get_cooling(self, name):
-        """get cooling parameters for thermal zone"""
-        if self.t_set_cool is not None:
-            return True
-        else:
-            # TODO #170
-            cooling_decision = BoolDecision(
-                question="Do you want for the thermal zone %s to be cooled? - with cooling" % self.name,
-                collect=False, global_key="%s_%s.Cooling" % (type(self).__name__, self.guid),
-                allow_skip=False, allow_load=True, allow_save=True, quick_decide=not True
-            )
-            cooling_decision.decide()
-            if cooling_decision.value:
-                return True
-            else:
-                return False
-
-    def _get_heating(self, name):
-        """get heating parameters for thermal zone"""
-        if self.t_set_heat is not None:
-            return True
-        else:
-            # TODO #170
-            heating_decision = BoolDecision(
-                question="Do you want for the thermal zone %s to be heated? - with heating" % self.name,
-                collect=False,
-                global_key="%s_%s.Heating" % (type(self).__name__, self.guid),
-                allow_skip=False, allow_load=True, allow_save=True, quick_decide=not True
-            )
-            heating_decision.decide()
-            if heating_decision.value:
-                return True
-            else:
-                return False
-
     def get_space_shape(self, name):
         """returns topods shape of the IfcSpace"""
         settings = ifcopenshell.geom.main.settings()
@@ -305,15 +270,6 @@ class ThermalZone(BPSProduct):
         default=0,
         unit=ureg.m
     )
-    with_cooling = attribute.Attribute(
-        functions=[_get_cooling]
-    )
-    with_heating = attribute.Attribute(
-        functions=[_get_heating]
-    )
-    with_ahu = attribute.Attribute(
-        default_ps=("Pset_SpaceThermalRequirements", "AirConditioning"),
-    )
     AreaPerOccupant = attribute.Attribute(
         default_ps=("Pset_SpaceOccupancyRequirements", "AreaPerOccupant"),
         unit=ureg.meter ** 2
@@ -341,10 +297,8 @@ class ThermalZone(BPSProduct):
     )
     # use conditions
     with_cooling = attribute.Attribute(
-        functions=[_get_cooling]
     )
     with_heating = attribute.Attribute(
-        functions=[_get_heating]
     )
     with_ahu = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "AirConditioning"),
@@ -1382,35 +1336,10 @@ class Site(BPSProduct):
 class Building(BPSProduct):
     ifc_types = {"IfcBuilding": ['*']}
 
-    def _get_name(self, name):
-        building_name = None
-        if self.ifc is not None:
-            if self.ifc.Name is not None:
-                if len(self.ifc.Name) > 0:
-                    building_name = self.ifc.Name
-                else:
-                    # TODO #170
-                    name_dec = StringDecision(question="Please enter name for the instance %s" % type(self).__name__,
-                                              default="unnamed", global_key=f'IfcName-Decision-{self.guid}',
-                                              allow_load=True, allow_save=True)
-                    building_name = name_dec.decide()
-        return building_name
-
-    def check_building_year(self, name):
-        # TODO #170
-        year_decision = RealDecision("Enter value for the buildings year of construction",
-                                     global_key="Building_%s.year_of_construction" % self.guid,
-                                     allow_skip=False, allow_load=True, allow_save=True,
-                                     collect=False, quick_decide=False, unit=ureg.year)
-        year_decision.decide()
-        return year_decision.value
-
     name = attribute.Attribute(
-        functions=[_get_name]
     )
     year_of_construction = attribute.Attribute(
         default_ps=("Pset_BuildingCommon", "YearOfConstruction"),
-        functions=[check_building_year],
         unit=ureg.year
     )
     gross_area = attribute.Attribute(
