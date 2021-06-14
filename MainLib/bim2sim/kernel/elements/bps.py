@@ -30,6 +30,7 @@ from OCC.Core.BRepTools import BRepTools_WireExplorer
 from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 
+from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, attribute
 from bim2sim.decision import BoolDecision, RealDecision
 from bim2sim.kernel.units import ureg
@@ -37,6 +38,7 @@ from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.utilities.common_functions import vector_angle, filter_instances
 from bim2sim.task.common.inner_loop_remover import remove_inner_loops
 from bim2sim.decision import StringDecision
+from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 logger = logging.getLogger(__name__)
 
@@ -419,12 +421,13 @@ class ThermalZone(BPSProduct):
 class SpaceBoundary(element.RelationBased):
     ifc_types = {'IfcRelSpaceBoundary': ['*']}
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, instances: dict, **kwargs):
         """spaceboundary __init__ function"""
         super().__init__(*args, **kwargs)
         self.disaggregation = []
         self.bound_instance = None
         self.bound_thermal_zone = None
+        self._instances = instances
 
     def calc_orientation(self):
 
@@ -482,7 +485,7 @@ class SpaceBoundary(element.RelationBased):
         bound_prop = GProp_GProps()
         brepgprop_SurfaceProperties(self.bound_shape, bound_prop)
         area = bound_prop.Mass()
-        return area
+        return area * ureg.meter ** 2
 
     def get_floor_and_ceilings(self, name):
         """
@@ -548,10 +551,10 @@ class SpaceBoundary(element.RelationBased):
         ensuring that corresponding space boundaries have a matching number of vertices.
         """
         if hasattr(self.ifc, 'CorrespondingBoundary') and self.ifc.CorrespondingBoundary is not None:
-            corr_bound = self.get_object(self.ifc.CorrespondingBoundary.GlobalId)
-            if corr_bound.ifc.RelatingSpace.is_a('IfcSpace'):
+            corr_bound = self._instances.get(self.ifc.CorrespondingBoundary.GlobalId)
+            if corr_bound and corr_bound.ifc.RelatingSpace.is_a('IfcSpace'):
                 if not corr_bound.ifc.RelatingSpace.is_a('IfcExternalSpatialStructure'):
-                    nb_vert_this = PyOCCTools.get_number_of_vertices(bind.bound_shape)
+                    nb_vert_this = PyOCCTools.get_number_of_vertices(self.bound_shape)
                     nb_vert_other = PyOCCTools.get_number_of_vertices(corr_bound.bound_shape)
                     # if not nb_vert_this == nb_vert_other:
                     #     print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
@@ -630,7 +633,7 @@ class SpaceBoundary(element.RelationBased):
                 other_area = bound.bound_area
                 if (other_area.m - self.bound_area.m)**2 < 1e-1:
                     # self.check_for_vertex_duplicates(bound)
-                    nb_vert_this = PyOCCTools.get_number_of_vertices(bind.bound_shape)
+                    nb_vert_this = PyOCCTools.get_number_of_vertices(self.bound_shape)
                     nb_vert_other = PyOCCTools.get_number_of_vertices(bound.bound_shape)
                     # if not nb_vert_this == nb_vert_other:
                     #     print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
@@ -873,16 +876,10 @@ class SpaceBoundary(element.RelationBased):
         return self.ifc.Description
 
     def get_is_external(self, name):
-        if self.ifc.InternalOrExternalBoundary.lower() == 'internal':
-            return False
-        else:
-            return True
+        return not self.ifc.InternalOrExternalBoundary.lower() == 'internal'
 
     def get_physical(self, name):
-        if self.ifc.PhysicalOrVirtualBoundary.lower() == 'physical':
-            return True
-        else:
-            return False
+        return self.ifc.PhysicalOrVirtualBoundary.lower() == 'physical'
 
     def get_net_bound_area(self, name):
         opening_area = 0
@@ -892,24 +889,30 @@ class SpaceBoundary(element.RelationBased):
         area = self.bound_area.m - opening_area
         return area
 
-    bound_shape = attribute.Attribute(
-        functions=[calc_bound_shape]
-    )
-    bound_normal = attribute.Attribute(
-        functions=[compute_surface_normals_in_space]
-    )
-    related_bound = attribute.Attribute(
-        functions=[get_corresponding_bound]
-    )
-    related_adb_bound = attribute.Attribute(
-        functions=[get_rel_adiab_bound]
-    )
-    bound_center = attribute.Attribute(
-        functions=[get_bound_center]
-    )
-    top_bottom = attribute.Attribute(
-        functions=[get_floor_and_ceilings]
-    )
+    @cached_property
+    def bound_shape(self):
+        return self.calc_bound_shape('')
+
+    @cached_property
+    def bound_normal(self):
+        return self.compute_surface_normals_in_space('')
+
+    @cached_property
+    def related_bound(self):
+        return self.get_corresponding_bound('')
+
+    @cached_property
+    def related_adb_bound(self):
+        return self.get_rel_adiab_bound('')
+
+    @cached_property
+    def bound_center(self):
+        return self.get_bound_center('')
+
+    @cached_property
+    def top_bottom(self):
+        return self.get_floor_and_ceilings('')
+
     bound_area = attribute.Attribute(
         functions=[get_bound_area],
         unit=ureg.meter ** 2

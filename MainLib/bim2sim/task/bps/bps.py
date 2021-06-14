@@ -673,7 +673,7 @@ class ExportEP(ITask):
     def run(self, workflow, instances, ifc):
         self.logger.info("Creates python representation of relevant ifc types")
         for inst in list(instances):
-            if instances[inst].ifc_type == "IfcSpace":
+            if instances[inst].ifc.is_a("IfcSpace"):
                 for bound in instances[inst].space_boundaries:
                     instances[bound.guid] = bound
         # geometric preprocessing before export
@@ -863,7 +863,7 @@ class ExportEP(ITask):
 
     def _export_geom_to_idf(self, instances, idf):
         for inst in instances:
-            if instances[inst].ifc_type != "IfcRelSpaceBoundary":
+            if not instances[inst].ifc.is_a("IfcRelSpaceBoundary"):
                 continue
             inst_obj = instances[inst]
             idfp = IdfObject(inst_obj, idf)
@@ -873,7 +873,7 @@ class ExportEP(ITask):
                                     idfp.name, idfp.surface_type)
                 continue
         for inst in instances:
-            if instances[inst].ifc_type != "IfcSpace":
+            if not instances[inst].ifc.is_a("IfcSpace"):
                 continue
             bound_obj = instances[inst]
             if not hasattr(bound_obj, "space_boundaries_2B"):
@@ -902,7 +902,7 @@ class ExportEP(ITask):
         stl_dir = str(paths.export)
         space_bound_df = pd.DataFrame(columns=["space_id", "bound_ids"])
         for inst in instances:
-            if instances[inst].ifc_type != "IfcSpace":
+            if not instances[inst].ifc.is_a("IfcSpace"):
                 continue
             space = instances[inst]
             bound_names = []
@@ -974,7 +974,7 @@ class ExportEP(ITask):
         for instance in instances.values():
             if isinstance(instance, AggregatedThermalZone):
                 unpacked_instances.extend(instance.elements)
-            elif instance.ifc_type == "IfcSpace":
+            elif instance.ifc.is_a("IfcSpace"):
                 unpacked_instances.append(instance)
         return unpacked_instances
 
@@ -1923,10 +1923,9 @@ class ExportEP(ITask):
         drop_list = {} # HACK: dictionary for bounds which have to be removed from instances (due to duplications)
         for inst in instances:
             inst_obj = instances[inst]
-            inst_type = inst_obj.ifc.is_a()
-            if inst_type != 'IfcRelSpaceBoundary':
+            if not inst_obj.ifc.is_a('IfcRelSpaceBoundary'):
                 continue
-            if inst_obj.level_description != "2a":
+            if inst_obj.level_description == "2b":
                 continue
             inst_obj_space = inst_obj.ifc.RelatingSpace
             b_inst = inst_obj.bound_instance
@@ -2054,12 +2053,12 @@ class ExportEP(ITask):
         colors = ['blue', 'red', 'magenta', 'yellow', 'green', 'white', 'cyan']
         col = 0
         for inst in instances:
-            if instances[inst].ifc.is_a() == 'IfcRelSpaceBoundary':
+            if instances[inst].ifc.is_a('IfcRelSpaceBoundary'):
                 col += 1
                 bound = instances[inst]
                 if bound.bound_instance is None:
                     continue
-                if bound.bound_instance.ifc.is_a() != "IfcWallStandardCase":
+                if not bound.bound_instance.ifc.is_a("IfcWall"):
                     pass
                 try:
                     display.DisplayShape(bound.bound_shape, color=colors[(col - 1) % len(colors)])
@@ -2096,7 +2095,7 @@ class ExportEP(ITask):
         :return:
         """
         for inst in instances:
-            if instances[inst].ifc.is_a() != "IfcRelSpaceBoundary":
+            if not instances[inst].ifc.is_a("IfcRelSpaceBoundary"):
                 continue
             inst_obj = instances[inst]
             if inst_obj.physical:
@@ -2198,6 +2197,8 @@ class ExportEP(ITask):
                     wire = exp1.Current()
                     face = BRepBuilderAPI_MakeFace(wire).Face()
                     face_list.append(face)
+            if not face_list:
+                continue
             if hasattr(space, 'space_boundaries_2B'):
                 for bound in space.space_boundaries_2B:
                     exp = TopExp_Explorer(bound.bound_shape, TopAbs_FACE)

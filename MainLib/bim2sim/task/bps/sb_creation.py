@@ -40,14 +40,14 @@ class CreateSpaceBoundaries(ITask):
         Results are two lists, one with valid elements and one with
         remaining entities."""
 
-        instance_lst = []
+        instance_lst = {}
         for entity in entities_dict:
-            element = SpaceBoundary.from_ifc(entity, finder=finder)
+            element = SpaceBoundary.from_ifc(entity, instances=instance_lst, finder=finder)
             if element.ifc.RelatingSpace.is_a('IfcSpace'):
                 self.connect_space_boundaries(element, instances)
-                instance_lst.append(element)
+                instance_lst[element.guid] = element
 
-        return instance_lst
+        return list(instance_lst.values())
 
     def connect_space_boundaries(self, space_boundary, instances):
         relating_space = instances.get(space_boundary.ifc.RelatingSpace.GlobalId, None)
@@ -101,6 +101,8 @@ class CreateSpaceBoundaries(ITask):
                     # opening with element (windows for example)
                     opening_instance = instances.get(related_building_element.GlobalId, None)
                     matched_sb = self.find_opening_bound(instance, opening_instance)
+                    if not matched_sb:
+                        continue
                     if not matched_sb[0].opening_bounds:
                         matched_sb[0].opening_bounds = []
                     matched_sb[0].opening_bounds.append(matched_sb[1])
@@ -155,5 +157,5 @@ class CreateSpaceBoundaries(ITask):
         if len(corresponding) == 1:
             return corresponding[0]
         else:
-            sorted_distances = dict(sorted(distances.items()))
-            return sorted_distances[0]
+            if distances:
+                return sorted(distances.items())[0][1]

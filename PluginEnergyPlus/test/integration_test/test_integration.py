@@ -73,6 +73,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value)
+        #todo: fix virtual bounds (assigned to be outdoors for some reason)
 
     @unittest.skip("")
     def test_base_02_FZK_full_run(self):
@@ -186,7 +187,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test KIT KHH 3 storey IFC"""
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015,'heavy',
+        answers = ('ARCHICAD-64', True, True, *('Single office',)*12, 2015,'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -197,7 +198,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test KIT KHH 3 storey IFC"""
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015,'heavy',
+        answers = ('ARCHICAD-64', True, True, *('Single office',)*12, 2015,'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -208,18 +209,19 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015, 'heavy',
+        answers = ('ARCHICAD-64', True, True, 'Single office', 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
+        #todo: fix windows (in idf Fenestration with Wall Attributes)
 
     @unittest.skip("Skipped due to performance for CI")
     def test_base_14_EDC_SB_full_run(self):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015, 'heavy',
+        answers = ('ARCHICAD-64', True, True, 'Single office', 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -230,7 +232,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test ERC Main Building"""
         ifc = EXAMPLE_PATH / '26.05space_modified.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('Autodesk Revit 2020 (DEU)', True, True, *('Single office',)*165, 'heavy',
+        answers = ('Autodesk Revit 2020 (DEU)', True, True, *('Single office',)*5, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -253,7 +255,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'Olabarri_49.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('Building', 'Autodesk Revit 2020 (DEU)', True, True, *("Single office",) * 12, 2015, 'heavy',
+        answers = ('Other', True, True, *("Single office",) * 7, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Isolierverglasung', False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
