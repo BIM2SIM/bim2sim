@@ -440,16 +440,11 @@ class ProductBased(IFCBased):
     key: str = ''
     key_map: Dict[str, 'Type[ProductBased]'] = {}
     conditions = []
-    # TODO: this is a HACK. see #169
-    with open(Path(bim2sim.__file__).parent / 'assets/port_blacklist.json') \
-            as file:
-        port_blacklist = json.load(file)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.aggregation = None
-        self.ports = [port for port in self.get_ports()
-                      if port.guid not in self.port_blacklist]
+        self.ports = self.get_ports()
 
     def __init_subclass__(cls, **kwargs):
         # set key for each class
