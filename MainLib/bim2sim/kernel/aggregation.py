@@ -216,8 +216,12 @@ class HVACAggregationMixin(AggregationMixin):
                 edge_ports.append(port)
 
         if len(edge_ports) > 2:
-            raise AttributeError("Graph elements are not only (2 port) pipes")
-
+            # randomly select first two an ignore superfluous ports
+            # TODO: see #169 this is a dirty workaround
+            logger.error("Found more than two edge ports in strait element. "
+                         "Ignoring superfluous ports.")
+            # raise AttributeError("Graph elements are not only (2 port) pipes")
+            edge_ports = edge_ports[:2]
         return edge_ports
 
     @classmethod
