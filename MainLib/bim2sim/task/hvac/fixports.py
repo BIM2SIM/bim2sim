@@ -1,3 +1,4 @@
+import json
 from itertools import permutations
 from pathlib import Path
 
@@ -24,6 +25,9 @@ class FixPorts(ITask):
 
         print(to_remove)
         self.logger.info("Removing %d ports ...", len(to_remove))
+        with open('./port_blacklist.json', 'w') as file:
+            json.dump([entity.GlobalId for entity in to_remove], file)
+        raise NotImplementedError("This task is only a temporary fix.")
         for entity in to_remove:
             # this fails on ifcopenshell 0.6
             # https://github.com/IfcOpenShell/IfcOpenShell/issues/275

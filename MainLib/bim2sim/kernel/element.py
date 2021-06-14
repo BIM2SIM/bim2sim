@@ -1,6 +1,6 @@
 """Definition for basic representations of IFC elements"""
 # from __future__ import annotations
-
+import json
 import logging
 from json import JSONEncoder
 import re
@@ -9,6 +9,7 @@ from typing import Union, Set, Iterable, Dict, List, Tuple, Type, Generator
 
 import numpy as np
 
+import bim2sim
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import ifc2python, attribute
 from bim2sim.decision import Decision, DecisionBunch
@@ -439,11 +440,16 @@ class ProductBased(IFCBased):
     key: str = ''
     key_map: Dict[str, 'Type[ProductBased]'] = {}
     conditions = []
+    # TODO: this is a HACK. see #169
+    with open(Path(bim2sim.__file__).parent / 'assets/port_blacklist.json') \
+            as file:
+        port_blacklist = json.load(file)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.aggregation = None
-        self.ports = self.get_ports()
+        self.ports = [port for port in self.get_ports()
+                      if port.guid not in self.port_blacklist]
 
     def __init_subclass__(cls, **kwargs):
         # set key for each class
