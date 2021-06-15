@@ -11,6 +11,17 @@ class IntegrationBaseTEASER(IntegrationBase):
 
 class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
 
+    # @unittest.skip("Not fully implemented yet")
+    def test_base_17_ERC_design_day(self):
+        """Test ERC Main Building"""
+        ifc = 'ERC_Mainbuilding_Arch.ifc'
+        project = self.create_project(ifc, 'energyplus')
+        answers = ('Autodesk Revit 2020 (DEU)', True, True, *('Single office',)*165, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
+        # with bim2sim.decision.Decision.debug_answer(answers, multi=True):
+        return_code = project.run()
+        self.assertEqual(0, return_code)
+
     def test_run_kitfzkhaus_spaces_low_layers_low(self):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
