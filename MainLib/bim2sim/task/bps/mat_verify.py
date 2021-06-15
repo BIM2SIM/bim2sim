@@ -48,6 +48,6 @@ class MaterialVerification(ITask):
     def value_verification(attr: str, value: ureg.Quantity):
         """checks validity of the properties if they are on the blacklist"""
         blacklist = ['density', 'thickness', 'heat_capac', 'thermal_conduc']
-        if (value <= 0 or value is None) and attr in blacklist:
+        if (value is None or value <= 0) and attr in blacklist:
             return False
         return True

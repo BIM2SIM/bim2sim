@@ -22,13 +22,14 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
                    "Library - reading room",
                    "Library - reading room",
                    "Laboratory",
-                    "Roofing_DK",
-                   "concrete",
-                   "lime_cement_plaster",
-                   "EPS_perimeter_insulation_top_layer",
-                   "Vermiculit_bulk_density_170_100deg",
-                   "EPS_perimeter_insulation_core",
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+                   #  "Roofing_DK",
+                   # "concrete",
+                   # "lime_cement_plaster",
+                   # "EPS_perimeter_insulation_top_layer",
+                   # "Vermiculit_bulk_density_170_100deg",
+                   # "EPS_perimeter_insulation_core",
+                   # 'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
+                   )
         # with bim2sim.decision.Decision.debug_answer(answers, multi=True):
         return_code = project.run()
         self.assertEqual(0, return_code)
