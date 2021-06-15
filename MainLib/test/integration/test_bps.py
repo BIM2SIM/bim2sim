@@ -12,7 +12,7 @@ class IntegrationBaseTEASER(IntegrationBase):
 class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
 
     # @unittest.skip("Not fully implemented yet")
-    def test_base_17_ERC_design_day(self):
+    def test_ERC_Full(self):
         """Test ERC Main Building"""
         ifc = 'ERC_Mainbuilding_Arch.ifc'
         used_workflow = workflow.BPSMultiZoneSeparatedLayersFull()
@@ -20,8 +20,9 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         answers = ('Autodesk Revit 2020 (DEU)', True, True,
                    "Kitchen in non-residential buildings",
                    "Library - reading room",
-                   "Library - reading room",
+                   "MultiUseComputerRoom",
                    "Laboratory",
+                   "Stock, technical equipment, archives",
                    #  "Roofing_DK",
                    # "concrete",
                    # "lime_cement_plaster",
@@ -30,8 +31,8 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
                    # "EPS_perimeter_insulation_core",
                    # 'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
                    )
-        # with bim2sim.decision.Decision.debug_answer(answers, multi=True):
-        return_code = project.run()
+        with bim2sim.decision.Decision.debug_answer(answers, multi=True):
+            return_code = project.run()
         self.assertEqual(0, return_code)
 
     def test_ERC_Low(self):

@@ -87,6 +87,7 @@ def get_pattern_usage(translate=False):
         'Parking garages (office and private usage)': ['Parkbereich', 'Parkhaus'],
         'Further common rooms': ['Umkleideraum'],
         'Library - reading room': ['Bibliothek'],
+        'MultiUseComputerRoom': ['Bibliothek', 'Audiovisuell']
     }
 
     pattern_usage_teaser = {}
