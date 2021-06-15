@@ -1133,24 +1133,20 @@ class Layer(element.RelationBased):
 
     heat_capac = attribute.Attribute(
         default_ps=("Pset_MaterialThermal", "SpecificHeatCapacity"),
-        default=0,
         unit=ureg.J / ureg.K
     )
 
     density = attribute.Attribute(
         default_ps=("Pset_MaterialCommon", "MassDensity"),
-        default=0,
         unit=ureg.kg / ureg.m ** 3
     )
 
     thermal_conduc = attribute.Attribute(
         default_ps=("Pset_MaterialThermal", "ThermalConductivity"),
-        default=0,
         unit=ureg.W / (ureg.m * ureg.K)
     )
     thickness = attribute.Attribute(
         functions=[get_ifc_thickness],
-        default=0,
         unit=ureg.m
     )
     solar_absorp = attribute.Attribute(
