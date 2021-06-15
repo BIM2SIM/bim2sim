@@ -81,6 +81,16 @@ class BPSProduct(element.ProductBased):
         else:
             return None
 
+    def get_top_bottom(self, name):
+        if type(self) != ThermalZone:
+            tbs = []
+            for sb in self.non_duplicated_sb:
+                tbs.append(sb.top_bottom)
+            tbs_new = list(set(tbs))
+            return tbs_new
+        else:
+            return None
+
     bound_area = attribute.Attribute(
         functions=[get_bound_area],
         unit=ureg.meter ** 2
@@ -91,6 +101,9 @@ class BPSProduct(element.ProductBased):
     )
     non_duplicated_sb = attribute.Attribute(
         functions=[get_non_duplicated_sb],
+    )
+    top_bottom = attribute.Attribute(
+        functions=[get_top_bottom],
     )
 
 
@@ -1023,12 +1036,14 @@ class Wall(BPSProduct):
 
     def get_is_external(self, name):
         if len(self.ifc.ProvidesBoundaries) > 0:
-            boundary = self.ifc.ProvidesBoundaries[0]
-            if boundary.InternalOrExternalBoundary is not None:
-                if boundary.InternalOrExternalBoundary.lower() == 'external':
+            ext_int = list(set([boundary.InternalOrExternalBoundary for boundary in self.ifc.ProvidesBoundaries]))
+            if len(ext_int) == 1:
+                if ext_int[0].lower() == 'external':
                     return True
-                elif boundary.InternalOrExternalBoundary.lower() == 'internal':
+                if ext_int[0].lower() == 'internal':
                     return False
+            else:
+                return ext_int
 
     def get_bound_area(self, name):
         bound_area = 0
@@ -1059,8 +1074,8 @@ class Wall(BPSProduct):
         unit=ureg.meter ** 2
     )
     gross_area = attribute.Attribute(
-        default_ps=("QTo_WallBaseQuantities", "GrossSideArea"),
-        default=1,
+        default_ps=("Qto_WallBaseQuantities", "GrossSideArea"),
+        default=0,
         unit=ureg.meter ** 2
     )
     is_external = attribute.Attribute(
@@ -1075,7 +1090,7 @@ class Wall(BPSProduct):
         unit=ureg.W / ureg.K / ureg.meter ** 2
     )
     width = attribute.Attribute(
-        default_ps=("QTo_WallBaseQuantities", "Width"),
+        default_ps=("Qto_WallBaseQuantities", "Width"),
         unit=ureg.m
     )
 
@@ -1123,7 +1138,7 @@ class Layer(element.RelationBased):
     )
 
     density = attribute.Attribute(
-        default_ps=("Pset_MaterialThermal", "MassDensity"),
+        default_ps=("Pset_MaterialCommon", "MassDensity"),
         default=0,
         unit=ureg.kg / ureg.m ** 3
     )
@@ -1146,13 +1161,11 @@ class Layer(element.RelationBased):
 
 
 class OuterWall(Wall):
-    pass
-    # is_external = True
+    ifc_types = {}
 
 
 class InnerWall(Wall):
-    pass
-    # is_external = False
+    ifc_types = {}
 
 
 class Window(BPSProduct):
@@ -1182,12 +1195,12 @@ class Window(BPSProduct):
         default=True
     )
     area = attribute.Attribute(
-        default_ps=("QTo_WindowBaseQuantities", "Area"),
+        default_ps=("Qto_WindowBaseQuantities", "Area"),
         default=0,
         unit=ureg.meter ** 2
     )
     width = attribute.Attribute(
-        default_ps=("QTo_WindowBaseQuantities", "Depth"),
+        default_ps=("Qto_WindowBaseQuantities", "Depth"),
         default=0,
         unit=ureg.m
     )
@@ -1243,12 +1256,14 @@ class Door(BPSProduct):
 
     def get_is_external(self, name):
         if len(self.ifc.ProvidesBoundaries) > 0:
-            boundary = self.ifc.ProvidesBoundaries[0]
-            if boundary.InternalOrExternalBoundary is not None:
-                if boundary.InternalOrExternalBoundary.lower() == 'external':
+            ext_int = list(set([boundary.InternalOrExternalBoundary for boundary in self.ifc.ProvidesBoundaries]))
+            if len(ext_int) == 1:
+                if ext_int[0].lower() == 'external':
                     return True
-                elif boundary.InternalOrExternalBoundary.lower() == 'internal':
+                if ext_int[0].lower() == 'internal':
                     return False
+            else:
+                return ext_int
 
     layers = attribute.Attribute(
         functions=[_get_layers]
@@ -1260,13 +1275,13 @@ class Door(BPSProduct):
     )
 
     area = attribute.Attribute(
-        default_ps=("QTo_DoorBaseQuantities", "Area"),
+        default_ps=("Qto_DoorBaseQuantities", "Area"),
         default=0,
         unit=ureg.meter ** 2
     )
 
     width = attribute.Attribute(
-        default_ps=("QTo_DoorBaseQuantities", "Depth"),
+        default_ps=("Qto_DoorBaseQuantities", "Depth"),
         default=0,
         unit=ureg.m
     )
@@ -1276,13 +1291,11 @@ class Door(BPSProduct):
 
 
 class InnerDoor(Door):
-    # is_external = False
-    pass
+    ifc_types = {}
 
 
 class OuterDoor(Door):
-    # is_external = True
-    pass
+    ifc_types = {}
 
 
 class Plate(BPSProduct):
@@ -1291,7 +1304,7 @@ class Plate(BPSProduct):
 
 class Slab(BPSProduct):
     ifc_types = {
-        "IfcSlab": ['*', 'LANDING', 'BASESLAB']
+        "IfcSlab": ['*', 'LANDING']
     }
 
     def __init__(self, *args, **kwargs):
@@ -1310,29 +1323,31 @@ class Slab(BPSProduct):
 
     def get_is_external(self, name):
         if len(self.ifc.ProvidesBoundaries) > 0:
-            boundary = self.ifc.ProvidesBoundaries[0]
-            if boundary.InternalOrExternalBoundary is not None:
-                if boundary.InternalOrExternalBoundary.lower() == 'external':
+            ext_int = list(set([boundary.InternalOrExternalBoundary for boundary in self.ifc.ProvidesBoundaries]))
+            if len(ext_int) == 1:
+                if ext_int[0].lower() == 'external':
                     return True
-                elif boundary.InternalOrExternalBoundary.lower() == 'internal':
+                if ext_int[0].lower() == 'internal':
                     return False
+            else:
+                return ext_int
 
     layers = attribute.Attribute(
         functions=[_get_layers]
     )
     area = attribute.Attribute(
-        default_ps=("QTo_SlabBaseQuantities", "NetArea"),
+        default_ps=("Qto_SlabBaseQuantities", "NetArea"),
         default=0,
         unit=ureg.meter ** 2
     )
     gross_area = attribute.Attribute(
-        default_ps=("QTo_SlabBaseQuantities", "GrossArea"),
-        default=1,
+        default_ps=("Qto_SlabBaseQuantities", "GrossArea"),
+        default=0,
         unit=ureg.meter ** 2
     )
 
     width = attribute.Attribute(
-        default_ps=("QTo_SlabBaseQuantities", "Width"),
+        default_ps=("Qto_SlabBaseQuantities", "Width"),
         default=0,
         unit=ureg.m
     )
@@ -1350,6 +1365,7 @@ class Slab(BPSProduct):
 
 
 class Roof(Slab):
+    is_external = True
     ifc_types = {
         "IfcRoof":
             ['*', 'FLAT_ROOF', 'SHED_ROOF', 'GABLE_ROOF', 'HIP_ROOF',
@@ -1367,6 +1383,7 @@ class Floor(Slab):
 
 
 class GroundFloor(Slab):
+    is_external = True
     ifc_types = {
         "IfcSlab": ['BASESLAB']
     }

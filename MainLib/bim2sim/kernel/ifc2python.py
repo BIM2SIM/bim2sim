@@ -113,6 +113,8 @@ def get_layers_ifc(element):
                 layer_list = association.ForLayerSet.MaterialLayers
             elif hasattr(association, 'Materials'):
                 layer_list = association.Materials
+            elif hasattr(association, 'MaterialLayers'):
+                layer_list = association.MaterialLayers
             if isinstance(layer_list, Iterable):
                 for layer in layer_list:
                     dict.append(layer)
