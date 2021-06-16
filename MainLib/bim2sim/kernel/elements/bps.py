@@ -30,6 +30,7 @@ from OCC.Core.BRepTools import BRepTools_WireExplorer
 from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 
+from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, attribute
 from bim2sim.decision import BoolDecision, RealDecision
 from bim2sim.kernel.units import ureg
@@ -37,6 +38,7 @@ from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.utilities.common_functions import vector_angle, filter_instances
 from bim2sim.task.common.inner_loop_remover import remove_inner_loops
 from bim2sim.decision import StringDecision
+from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 logger = logging.getLogger(__name__)
 
@@ -417,12 +419,13 @@ class ThermalZone(BPSProduct):
 class SpaceBoundary(element.RelationBased):
     ifc_types = {'IfcRelSpaceBoundary': ['*']}
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, instances: dict, **kwargs):
         """spaceboundary __init__ function"""
         super().__init__(*args, **kwargs)
         self.disaggregation = []
         self.bound_instance = None
         self.bound_thermal_zone = None
+        self._instances = instances
 
     def calc_orientation(self):
 
@@ -546,10 +549,10 @@ class SpaceBoundary(element.RelationBased):
         ensuring that corresponding space boundaries have a matching number of vertices.
         """
         if hasattr(self.ifc, 'CorrespondingBoundary') and self.ifc.CorrespondingBoundary is not None:
-            corr_bound = self.get_object(self.ifc.CorrespondingBoundary.GlobalId)
-            if corr_bound.ifc.RelatingSpace.is_a('IfcSpace'):
+            corr_bound = self._instances.get(self.ifc.CorrespondingBoundary.GlobalId)
+            if corr_bound and corr_bound.ifc.RelatingSpace.is_a('IfcSpace'):
                 if not corr_bound.ifc.RelatingSpace.is_a('IfcExternalSpatialStructure'):
-                    nb_vert_this = PyOCCTools.get_number_of_vertices(bind.bound_shape)
+                    nb_vert_this = PyOCCTools.get_number_of_vertices(self.bound_shape)
                     nb_vert_other = PyOCCTools.get_number_of_vertices(corr_bound.bound_shape)
                     # if not nb_vert_this == nb_vert_other:
                     #     print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
@@ -628,7 +631,7 @@ class SpaceBoundary(element.RelationBased):
                 other_area = bound.bound_area
                 if (other_area.m - self.bound_area.m)**2 < 1e-1:
                     # self.check_for_vertex_duplicates(bound)
-                    nb_vert_this = PyOCCTools.get_number_of_vertices(bind.bound_shape)
+                    nb_vert_this = PyOCCTools.get_number_of_vertices(self.bound_shape)
                     nb_vert_other = PyOCCTools.get_number_of_vertices(bound.bound_shape)
                     # if not nb_vert_this == nb_vert_other:
                     #     print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)

@@ -13,6 +13,7 @@ import pkg_resources
 import configparser
 
 from bim2sim.decision import Decision, ListDecision
+from bim2sim.kernel.units import ifcunits
 from bim2sim.task.base import Playground
 from bim2sim.plugin import Plugin
 from bim2sim.kernel.element import Element
@@ -399,8 +400,11 @@ class Project:
             #  clean decisions
             # TODO: for now clean them after project finished. change this in #126
             Decision.reset_decisions()
+            # TODO: fix #172
             # clean enrich building templates
             EnrichBuildingByTemplates.instance_template = {}
+            # reset ifc file specific unit declarations
+            ifcunits.clear()
             # release project
             Project._release(self)
 
