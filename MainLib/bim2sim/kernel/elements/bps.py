@@ -1,4 +1,4 @@
-﻿"""Module contains the different classes for all HVAC elements"""
+"""Module contains the different classes for all HVAC elements"""
 import inspect
 import logging
 import math
@@ -940,6 +940,10 @@ class SpaceBoundary(element.RelationBased):
     )
     level_description = attribute.Attribute(
         functions=[get_level_description],
+        # Todo this should be removed in near future. We should either 
+        # find # a way to distinguish the level of SB by something 
+        # different or should check this during the creation of SBs 
+        # and throw an error if the level is not defined.
         default='2a'
         # HACK: Rou's Model has 2a boundaries but, the description is None,
         # default set to 2a to temporary solve this problem
