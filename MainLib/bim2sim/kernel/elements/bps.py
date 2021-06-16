@@ -939,7 +939,10 @@ class SpaceBoundary(element.RelationBased):
         functions=[get_space_boundary_storeys]
     )
     level_description = attribute.Attribute(
-        functions=[get_level_description]
+        functions=[get_level_description],
+        default='2a'
+        # HACK: Rou's Model has 2a boundaries but, the description is None,
+        # default set to 2a to temporary solve this problem
     )
     is_external = attribute.Attribute(
         functions=[get_is_external]
