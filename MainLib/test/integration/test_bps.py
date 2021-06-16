@@ -23,14 +23,9 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
                    "MultiUseComputerRoom",
                    "Laboratory",
                    "Stock, technical equipment, archives",
-                   #  "Roofing_DK",
-                   # "concrete",
-                   # "lime_cement_plaster",
-                   # "EPS_perimeter_insulation_top_layer",
-                   # "Vermiculit_bulk_density_170_100deg",
-                   # "EPS_perimeter_insulation_core",
-                   # 'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
-                   )
+                   True, "air_layer", "perlite", True, "heavy", 1, "beton",
+                   "Concrete_DK", "EnEv", 1, 0.3, "beton", 1, "beton", 1, "beton",
+                   *(1,) * 8)
         with bim2sim.decision.Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
@@ -118,7 +113,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
                    True, 'air_layer', 'sandstone', True, 'belgian_brick',
                    0.1, True, 'Concrete_DK', 2015, 'heavy', 1, 'Beton',
                    'Light_Concrete_DK', 1, 'Beton', 1, 'Door',
-                   1, 'Beton', *(1,) * 8, 'by_all_criteria', False)
+                   1, 'Beton', 1, 'Beton', *(1,) * 8, 'by_all_criteria', False)
         with bim2sim.decision.Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code, "Project did not finish successfully.")
@@ -144,7 +139,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'Glas', True, 'glas_generic', 500, 1.5, 0.2, True, 'air_layer', 'sandstone', True, 'belgian_brick',
                    0.1, True, 'Concrete_DK', 2015, 'heavy', 1, 'Beton', 'Light_Concrete_DK', 1, 'Beton', 1, 'Door', 1,
-                   'Beton', *(1,) * 8)
+                   'Beton', 1, 'Beton', *(1,) * 8)
         with bim2sim.decision.Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code, "Project did not finish successfully.")

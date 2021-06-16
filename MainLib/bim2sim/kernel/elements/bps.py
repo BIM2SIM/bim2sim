@@ -1150,6 +1150,7 @@ class Layer(element.RelationBased):
     )
     thickness = attribute.Attribute(
         functions=[get_ifc_thickness],
+        default=0,
         unit=ureg.m
     )
     solar_absorp = attribute.Attribute(
