@@ -292,15 +292,6 @@ class ConnectElements(ITask):
             self.logger.warning("Connecting by bounding box is not implemented.")
 
         # TODO: manualy add / modify connections
-
-        # remove all unconnected ports
-        # TODO: this is a WORKAROUND. Those ports could be used otherwise.
-        #  See #167
-        un_ports = {port for port in all_ports if not port.connection}
-        for port in un_ports:
-            port.parent.ports.remove(port)
-        self.logger.warning(
-            "Removed %d remaining unconnected ports", len(un_ports))
         return self.instances,
 
 

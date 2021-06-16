@@ -483,7 +483,7 @@ class SpaceBoundary(element.RelationBased):
         bound_prop = GProp_GProps()
         brepgprop_SurfaceProperties(self.bound_shape, bound_prop)
         area = bound_prop.Mass()
-        return area
+        return area * ureg.meter ** 2
 
     def get_floor_and_ceilings(self, name):
         """
@@ -874,16 +874,10 @@ class SpaceBoundary(element.RelationBased):
         return self.ifc.Description
 
     def get_is_external(self, name):
-        if self.ifc.InternalOrExternalBoundary.lower() == 'internal':
-            return False
-        else:
-            return True
+        return not self.ifc.InternalOrExternalBoundary.lower() == 'internal'
 
     def get_physical(self, name):
-        if self.ifc.PhysicalOrVirtualBoundary.lower() == 'physical':
-            return True
-        else:
-            return False
+        return self.ifc.PhysicalOrVirtualBoundary.lower() == 'physical'
 
     def get_net_bound_area(self, name):
         opening_area = 0
@@ -893,24 +887,30 @@ class SpaceBoundary(element.RelationBased):
         area = self.bound_area.m - opening_area
         return area
 
-    bound_shape = attribute.Attribute(
-        functions=[calc_bound_shape]
-    )
-    bound_normal = attribute.Attribute(
-        functions=[compute_surface_normals_in_space]
-    )
-    related_bound = attribute.Attribute(
-        functions=[get_corresponding_bound]
-    )
-    related_adb_bound = attribute.Attribute(
-        functions=[get_rel_adiab_bound]
-    )
-    bound_center = attribute.Attribute(
-        functions=[get_bound_center]
-    )
-    top_bottom = attribute.Attribute(
-        functions=[get_floor_and_ceilings]
-    )
+    @cached_property
+    def bound_shape(self):
+        return self.calc_bound_shape('')
+
+    @cached_property
+    def bound_normal(self):
+        return self.compute_surface_normals_in_space('')
+
+    @cached_property
+    def related_bound(self):
+        return self.get_corresponding_bound('')
+
+    @cached_property
+    def related_adb_bound(self):
+        return self.get_rel_adiab_bound('')
+
+    @cached_property
+    def bound_center(self):
+        return self.get_bound_center('')
+
+    @cached_property
+    def top_bottom(self):
+        return self.get_floor_and_ceilings('')
+
     bound_area = attribute.Attribute(
         functions=[get_bound_area],
         unit=ureg.meter ** 2
