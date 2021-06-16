@@ -208,7 +208,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, *('Single office',)*58, 2015, 'heavy',
+        answers = ('ARCHICAD-64', True, True, 'Single office', 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
