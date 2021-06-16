@@ -34,6 +34,6 @@ class EnergyPlus(Plugin):
         # todo own task?
         copyfile(Path(__file__).parent.parent / 'data' / weather_file,
                  playground.paths.resources / weather_file)
-        playground.run_task(bps.ExportEP())
+        # playground.run_task(bps.ExportEP())
 
         return
