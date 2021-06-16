@@ -18,6 +18,7 @@ class EnergyPlus(Plugin):
         bps.CreateSpaceBoundaries,
         bps.TZPrepare,
         bps.EnrichUseConditions,
+        bps.OrientationGetter,
         bps.MaterialVerification,  # LOD.full
         bps.EnrichMaterial,  # LOD.full
         bps.BuildingVerification,  # all LODs
