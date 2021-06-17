@@ -28,18 +28,13 @@ class EnrichMaterial(ITask):
     def run(self, workflow: Workflow, instances: dict, invalid_materials: dict):
         self.logger.info("setting verifications")
         if workflow.layers is not LOD.low:
-            for instance in invalid_materials.values():
-                self.get_layer_properties(instance)
-                self.enriched_materials.append(instance)
+            for instance_guid, layers in invalid_materials.items():
+                for layer in layers:
+                    self.set_material_properties(layer)
+                    self.enriched_materials.append(layer)
             self.logger.info("enriched %d invalid materials", len(self.enriched_materials))
 
         return self.enriched_materials,
-
-    def get_layer_properties(self, instance: ProductBased):
-        """gets all layers of instance to after treatment"""
-        if hasattr(instance, 'layers'):
-            for layer in instance.layers:
-                self.set_material_properties(layer)
 
     def set_material_properties(self, layer: Layer):
         """enrich layer properties that are invalid"""

@@ -11,6 +11,42 @@ class IntegrationBaseTEASER(IntegrationBase):
 
 class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
 
+    # @unittest.skip("Not fully implemented yet")
+    def test_ERC_Full(self):
+        """Test ERC Main Building"""
+        ifc = 'ERC_Mainbuilding_Arch.ifc'
+        used_workflow = workflow.BPSMultiZoneSeparatedLayersFull()
+        project = self.create_project(ifc, 'TEASER', used_workflow)
+        answers = ('Autodesk Revit 2020 (DEU)', True, True,
+                   "Kitchen in non-residential buildings",
+                   "Library - reading room",
+                   "MultiUseComputerRoom",
+                   "Laboratory",
+                   "Stock, technical equipment, archives",
+                   True, "air_layer", "perlite", True, "heavy", 1, "beton",
+                   "Concrete_DK", "EnEv", 1, 0.3, "beton", 1, "beton", 1, "beton",
+                   *(1,) * 8)
+        with bim2sim.decision.Decision.debug_answer(answers, multi=True):
+            return_code = project.run()
+        self.assertEqual(0, return_code)
+
+    def test_ERC_Low(self):
+        """Test ERC Main Building"""
+        ifc = 'ERC_Mainbuilding_Arch.ifc'
+        used_workflow = workflow.BPSOneZoneAggregatedLayersLow()
+        project = self.create_project(ifc, 'TEASER', used_workflow)
+        answers = ('Autodesk Revit 2020 (DEU)', True, True,
+                   "Kitchen in non-residential buildings",
+                   "Library - reading room",
+                   "Library - reading room",
+                   "Laboratory",
+                   "Stock, technical equipment, archives",
+                   'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+        with bim2sim.decision.Decision.debug_answer(answers, multi=True):
+            return_code = project.run()
+        self.assertEqual(0, return_code)
+
     def test_run_kitfzkhaus_spaces_low_layers_low(self):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'

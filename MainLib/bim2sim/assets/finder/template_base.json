@@ -6,7 +6,7 @@
   "OuterWall": {
     "exporter": {
       "teaser": {
-        "area": ["instance", "area"],
+        "area": ["instance", "net_bound_area"],
         "tilt": ["instance", "tilt"],
         "orientation": ["instance", "orientation"]
       }
@@ -15,7 +15,7 @@
   "InnerWall": {
     "exporter": {
       "teaser": {
-        "area": ["instance", "area"]
+        "area": ["instance", "net_bound_area"]
       }
     }
   },
@@ -23,7 +23,7 @@
     "exporter": {
       "teaser": {
         "name": ["instance","name"],
-        "area": ["instance", "area"],
+        "area": ["instance", "net_bound_area"],
         "tilt": ["instance", "tilt"],
         "orientation": ["instance", "orientation"]
       }
@@ -32,7 +32,7 @@
   "Roof": {
     "exporter": {
       "teaser": {
-        "area": ["instance", "area"],
+        "area": ["instance", "net_bound_area"],
         "orientation": ["instance", "orientation"]
       }
     }
@@ -40,7 +40,7 @@
   "Floor": {
     "exporter": {
       "teaser": {
-        "area": ["instance", "area"],
+        "area": ["instance", "net_bound_area"],
         "orientation": ["instance", "orientation"]
       }
     }
@@ -48,7 +48,7 @@
   "GroundFloor": {
     "exporter": {
       "teaser": {
-        "area": ["instance", "area"],
+        "area": ["instance", "net_bound_area"],
         "orientation": ["instance", "orientation"]
       }
     }
@@ -56,7 +56,7 @@
   "Window": {
     "exporter": {
       "teaser": {
-        "area": ["instance", "area"],
+        "area": ["instance", "net_bound_area"],
         "a_conv": ["instance", "a_conv"],
         "g_value": ["instance", "g_value"],
         "inner_convection": ["instance", "inner_convection"],
@@ -72,7 +72,7 @@
   "Door": {
     "exporter": {
       "teaser": {
-        "area": ["instance", "area"],
+        "area": ["instance", "net_bound_area"],
         "inner_convection": 0.6,
         "orientation": ["instance", "orientation"]
       }
@@ -81,7 +81,7 @@
   "InnerDoor": {
     "exporter": {
       "teaser": {
-        "area": ["instance", "area"],
+        "area": ["instance", "net_bound_area"],
         "inner_convection": 0.6,
         "orientation": ["instance", "orientation"]
       }
@@ -90,7 +90,7 @@
   "OuterDoor": {
     "exporter": {
       "teaser": {
-        "area": ["instance", "area"],
+        "area": ["instance", "net_bound_area"],
         "inner_convection": 0.6,
         "orientation": ["instance", "orientation"]
       }

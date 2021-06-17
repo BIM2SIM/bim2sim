@@ -57,7 +57,7 @@ class EnrichNonValid(ITask):
             layers_r = 0
             layers_number = self.layers_numbers_decision(instance)
             layer_number = 1
-            if instance.width is None:
+            if instance.width is None or instance.width <= 0:
                 instance.width = self.instance_width_decision(instance)
             while layer_number <= layers_number:
                 if layer_number == layers_number:
@@ -76,7 +76,10 @@ class EnrichNonValid(ITask):
                 if layers_width >= instance.width:
                     break
                 layer_number += 1
-            instance.u_value = 1 / layers_r
+            try:
+                instance.u_value = 1 / layers_r
+            except:
+                print()
             self.enriched_class[instance_class] = {}
             self.enriched_class[instance_class]['width'] = instance.width
             self.enriched_class[instance_class]['layers'] = instance.layers
@@ -98,7 +101,7 @@ class EnrichNonValid(ITask):
 
     @classmethod
     def instance_width_decision(cls, instance):
-        instance_width = RealDecision("Enter value for width of instance %d" % instance.key,
+        instance_width = RealDecision("Enter value for width of instance %s" % instance.key,
                                       global_key='%s_%s.instance_width' %
                                                  (type(instance).__name__, instance.guid),
                                       allow_skip=False, allow_load=True, allow_save=True,
@@ -143,7 +146,10 @@ class EnrichNonValid(ITask):
         if len(material_options) > 1:
             material_selected = EnrichMaterial.material_selection_decision(material_input, instance, material_options)
         else:
-            material_selected = material_options[0]
+            try:
+                material_selected = material_options[0]
+            except:
+                print()
         material_dict = dict(resumed[material_selected])
         del material_dict['thickness']
         self.material_selected[material_input] = material_dict

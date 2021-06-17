@@ -70,15 +70,15 @@ def get_pattern_usage(translate=False):
 
     common_translations = {
         "Bed room": ['Schlafzimmer'],
-        "Living": ["Galerie", "Wohnen", 'Wohnzimmer'],
+        "Living": ["Galerie", "Wohnen"],
         "Laboratory": ["Labor"],
         'office_function': ['Office', 'Buero', 'Büro', 'Pool'],
         "Meeting, Conference, seminar": ['Besprechungsraum', 'Seminarraum', 'Besprechung', 'Konferenz', 'Meeting',
                                          'Mehrzweckraum'],
 
-        'Kitchen in non-residential buildings': ['Kitchen', 'Küche', 'Kueche'],
+        'Kitchen in non-residential buildings': ['Kitchen', 'Küche'],
         'Kitchen - preparations, storage': ['Kitchen', 'Küche'],
-        'Traffic area': ['Hall', 'Flur', 'Dachboden', 'TH', 'Treppenhaus', 'Korridor', 'Corridor', 'Übergang'],
+        'Traffic area': ['Hall', 'Flur', 'Dachboden', 'TH', 'Treppenhaus', 'Korridor', 'Übergang'],
         'WC and sanitary rooms in non-residential buildings': ['bath', 'bathroom', 'WC', 'Toilet', 'Bad', 'Toiletten'],
         'Stock, technical equipment, archives': ['Technical room', 'Technikraum', 'Technik', 'Heizung', 'Server',
                                                  'Archiv', 'Elektro/HLS', 'Lager'],
@@ -87,6 +87,7 @@ def get_pattern_usage(translate=False):
         'Parking garages (office and private usage)': ['Parkbereich', 'Parkhaus'],
         'Further common rooms': ['Umkleideraum'],
         'Library - reading room': ['Bibliothek'],
+        'MultiUseComputerRoom': ['Bibliothek', 'Audiovisuell']
     }
 
     pattern_usage_teaser = {}

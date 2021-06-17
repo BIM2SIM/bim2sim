@@ -1,4 +1,4 @@
-﻿"""Module contains the different classes for all HVAC elements"""
+"""Module contains the different classes for all HVAC elements"""
 import inspect
 import logging
 import math
@@ -939,7 +939,14 @@ class SpaceBoundary(element.RelationBased):
         functions=[get_space_boundary_storeys]
     )
     level_description = attribute.Attribute(
-        functions=[get_level_description]
+        functions=[get_level_description],
+        # Todo this should be removed in near future. We should either 
+        # find # a way to distinguish the level of SB by something 
+        # different or should check this during the creation of SBs 
+        # and throw an error if the level is not defined.
+        default='2a'
+        # HACK: Rou's Model has 2a boundaries but, the description is None,
+        # default set to 2a to temporary solve this problem
     )
     is_external = attribute.Attribute(
         functions=[get_is_external]
@@ -1133,19 +1140,16 @@ class Layer(element.RelationBased):
 
     heat_capac = attribute.Attribute(
         default_ps=("Pset_MaterialThermal", "SpecificHeatCapacity"),
-        default=0,
         unit=ureg.J / ureg.K
     )
 
     density = attribute.Attribute(
         default_ps=("Pset_MaterialCommon", "MassDensity"),
-        default=0,
         unit=ureg.kg / ureg.m ** 3
     )
 
     thermal_conduc = attribute.Attribute(
         default_ps=("Pset_MaterialThermal", "ThermalConductivity"),
-        default=0,
         unit=ureg.W / (ureg.m * ureg.K)
     )
     thickness = attribute.Attribute(

@@ -13,7 +13,6 @@ class MaterialVerification(ITask):
 
     def __init__(self):
         super().__init__()
-        # self.invalid = []
         self.invalid = {}
         pass
 
@@ -22,9 +21,9 @@ class MaterialVerification(ITask):
         self.logger.info("setting verifications")
         if workflow.layers is not LOD.low:
             for guid, ins in instances.items():
-                if not self.materials_verification(ins):
-                    # self.invalid.append(ins)
-                    self.invalid[ins.guid] = ins
+                invalid_layers = self.materials_verification(ins)
+                if len(invalid_layers) > 0:
+                    self.invalid[ins.guid] = invalid_layers
             self.logger.warning("Found %d invalid layers", len(self.invalid))
             dict_items = self.invalid.items()
             self.invalid = dict(sorted(dict_items))
@@ -33,21 +32,24 @@ class MaterialVerification(ITask):
 
     def materials_verification(self, instance: ProductBased):
         """checks validity of the layer property values"""
-        invalid = True
+        invalid_layers = []
         if hasattr(instance, 'layers'):
             if len(instance.layers) > 0:
                 for layer in instance.layers:
+                    invalid = False
                     for attr in layer.attributes:
                         value = getattr(layer, attr)
                         if not self.value_verification(attr, value):
                             setattr(layer, attr, 'invalid')
-                            invalid = False
-        return invalid
+                            invalid = True
+                    if invalid:
+                        invalid_layers.append(layer)
+        return invalid_layers
 
     @staticmethod
     def value_verification(attr: str, value: ureg.Quantity):
         """checks validity of the properties if they are on the blacklist"""
         blacklist = ['density', 'thickness', 'heat_capac', 'thermal_conduc']
-        if (value <= 0 or value is None) and attr in blacklist:
+        if (value is None or value <= 0) and attr in blacklist:
             return False
         return True
