@@ -1,4 +1,4 @@
-from bim2sim.task.base import Task, ITask
+from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import angle_equivalent, vector_angle
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.element import ProductBased
@@ -15,7 +15,6 @@ class OrientationGetter(ITask):
         self.corrected = []
         pass
 
-    @Task.log
     def run(self, workflow: Workflow, instances: dict):
         self.logger.info("setting verifications")
 

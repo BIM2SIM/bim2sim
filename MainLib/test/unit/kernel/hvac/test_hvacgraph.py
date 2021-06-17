@@ -5,6 +5,7 @@ import networkx as nx
 
 from bim2sim.kernel.elements import hvac
 from bim2sim.kernel import element, elements
+from bim2sim.kernel.elements.hvac import HVACPort
 from bim2sim.kernel.hvac import hvac_graph
 
 from test.unit.kernel.helper import SetupHelper
@@ -56,10 +57,11 @@ def generate_element_strait(number=5, prefix=""):
 
     #create elements
     for i in range(number):
-        ele = element.ProductBased()
+        ele = hvac.HVACProduct()
         ele.name = prefix + str(i)
-        ele.ports.append(element.Port(ele))
-        ele.ports.append(element.Port(ele))
+        ele.ports.append(hvac.HVACPort(ele))
+        ele.ports.append(hvac.HVACPort(ele))
+        ele.inner_connections.extend(ele.get_inner_connections())
         elements.append(ele)
         # connect
         if i > 0:
@@ -82,14 +84,17 @@ def attach(element1, element2, use_existing=False):
     if free_ports1:
         port_e1 = free_ports1[0]
     else:
-        port_e1 = element.Port(element1)
+        port_e1 = HVACPort(element1)
         element1.ports.append(port_e1)
 
     if free_ports2:
         port_e2 = free_ports2[0]
     else:
-        port_e2 = element.Port(element2)
+        port_e2 = HVACPort(element2)
         element2.ports.append(port_e2)
+
+    element1.inner_connections = element1.get_inner_connections()
+    element2.inner_connections = element2.get_inner_connections()
 
     port_e1.connect(port_e2)
 

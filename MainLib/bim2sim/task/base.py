@@ -1,96 +1,30 @@
-
-import os
+import inspect
 import logging
-import json
+from typing import Generator, Tuple
+
+from bim2sim.decision import DecisionBunch
 
 
-class TaskFailed(Exception): pass
+class TaskFailed(Exception):
+    pass
 
 
-class Task:
-    """Base class for single Workload blocks"""
-    saveable = False
-
-    def __init__(self):
-        self.name = self.__class__.__name__
-        self.logger = logging.getLogger("%s.%s"%(__name__, self.name))
-        self.paths = None
-
-    def __repr__(self):
-        return "<Workflow (%s)>"%(self.name)
-
-    @staticmethod
-    def log(func):
-        """Decorator for logging of entering and leaving method"""
-        def wrapper(*args, **kwargs):
-            self = args[0]
-            self.logger.info("Started %s ...", self.name)
-            res = func(*args, **kwargs)
-            self.logger.info("Done %s."%(self.name))
-            return res
-        return wrapper
-
-    def run(self, task, *args, **kwargs):
-        """Run job"""
-        raise NotImplementedError
-
-    def serialize(self):
-        """Returns state of this Workflow instance as string"""
-        raise NotImplementedError("%s has not implemented serialize()"%(self.name))
-
-    def deserialize(self, data):
-        """Sets state of this Workflow instance from data string"""
-        raise NotImplementedError("%s has not implemented deserialize()"%(self.name))
-
-    def get_arg_hash(self):
-        """Returns hash value of arguments.
-
-        Userd to compare for equality of arguments on saving and loading."""
-        raise NotImplementedError("%s has not implemented get_arg_hash()"%(self.name))
-
-    def save(self, path):
-        """Saves state of this Workflow instance to filesystem"""
-        if not self.__class__.saveable:
-            self.logger.debug("Workflow %s is not saveable", self.name)
-            return False
-        arg_hash = self.get_arg_hash()
-        data = self.serialize()
-        with open(os.path.join(path, self.name + '.json'), 'w') as file:
-            json.dump(dict(hash=arg_hash, data=data), file, indent=2)
-        return True
-
-    def load(self, path):
-        """Sets state of this Workflow instance from filesystem"""
-        if not self.__class__.saveable:
-            self.logger.debug("Workflow %s is not load/saveable", self.name)
-            return False
-        arg_hash = self.get_arg_hash()
-        try:
-            with open(os.path.join(path, self.name + '.json'), 'r') as file:
-                content = json.load(file)
-        except IOError as ex:
-            self.logger.error("Failed to load (%s)", ex)
-            return False
-        except json.JSONDecodeError as ex:
-            self.logger.error("Failed to decode (%s)", ex)
-            return False
-        if arg_hash != content.get('hash'):
-            return False
-        data = content.get('data')
-        self.deserialize(data)
-        return True
-
-
-class ITask(Task):
+class ITask:
     """Interactive Task"""
 
-    reads = tuple()
-    touches = tuple()
+    reads: Tuple[str] = tuple()
+    touches: Tuple[str] = tuple()
     final = False
     single_use = True
 
+    def __init__(self):
+        self.name = self.__class__.__name__
+        self.logger = logging.getLogger("%s.%s" % (__name__, self.name))
+        self.paths = None
+
     def run(self, workflow, **kwargs):
-        pass
+        """Run task."""
+        raise NotImplementedError
 
     @classmethod
     def requirements_met(cls, state, history):
@@ -100,6 +34,9 @@ class ITask(Task):
                     return False
         # uses_ok = cls not in history if cls.single_use else True
         return all((r in state for r in cls.reads))
+
+    def __repr__(self):
+        return "<Task (%s)>" % self.name
 
 
 class Playground:
@@ -121,18 +58,25 @@ class Playground:
         """Returns list of available tasks"""
         return [task for task in self.all_tasks() if task.requirements_met(self.state, self.history)]
 
-    def run_task(self, task: ITask):
-        """Execute task with arguments specified in task.reads"""
+    def run_task(self, task: ITask) -> Generator[DecisionBunch, None, None]:
+        """Generator executing task with arguments specified in task.reads."""
         if not task.requirements_met(self.state, self.history):
             raise AssertionError("%s requirements not met." % task)
 
+        self.logger.info("Starting Task '%s'", task)
         read_state = {k: self.state[k] for k in task.reads}
         try:
             task.paths = self.paths
-            result = task.run(self.workflow, **read_state)
+            if inspect.isgeneratorfunction(task.run):
+                result = yield from task.run(self.workflow, **read_state)
+            else:
+                # no decisions
+                result = task.run(self.workflow, **read_state)
         except Exception as ex:
             self.logger.exception("Task '%s' failed!", task)
             raise TaskFailed(str(task))
+        else:
+            self.logger.info("Successfully finished Task '%s'", task)
 
         if task.touches == '__reset__':
             # special case

@@ -21,7 +21,8 @@ import sys
 
 import docopt
 
-from bim2sim import setup_default, Project, VERSION
+from bim2sim import Project, VERSION, run_project, FolderStructure
+from bim2sim.decision.console import ConsoleDecisionHandler
 
 
 def commandline_interface():
@@ -41,10 +42,14 @@ def commandline_interface():
 
     if project:
         if create:
-            pro = Project.create(path, source, target, open_conf)
+            FolderStructure.create(path, source, target, open_conf)
+            exit(0)
+            # pro = Project.create(path, source, target, open_conf)
         elif load:
             pro = Project(path)
-        pro.run()
+            handler = ConsoleDecisionHandler()
+            run_project(pro, handler)
+            handler.shutdown(True)
     else:
         print("Invalid arguments")
         exit()

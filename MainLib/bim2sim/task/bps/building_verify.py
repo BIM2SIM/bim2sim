@@ -1,11 +1,13 @@
 import ast
 
-from bim2sim.task.base import Task, ITask
+from bim2sim.task.base import ITask
+from bim2sim.kernel.elements.bps import Building
 from bim2sim.utilities.common_functions import get_type_building_elements, \
     get_material_templates
-from bim2sim.decision import ListDecision
+from bim2sim.decision import ListDecision, DecisionBunch, RealDecision
 from bim2sim.workflow import LOD
 from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.kernel.units import ureg
 
 
 class BuildingVerification(ITask):
@@ -21,12 +23,16 @@ class BuildingVerification(ITask):
         self.template_range = {}
         pass
 
-    @Task.log
     def run(self, workflow, instances):
         self.logger.info("setting verifications")
-        self.get_template_threshold(instances)
+        # todo we might have multiple buildings see issue #165
+        building = filter_instances(instances, 'Building')[0]
+        building = yield from self.validate_high_level_params(building)
+        year_of_construction_val = int(building.year_of_construction.m)
+        self.get_template_threshold(year_of_construction_val)
         for guid, ins in instances.items():
-            if not self.layers_verification(ins, workflow):
+            valid = yield from self.layers_verification(ins, workflow)
+            if not valid:
                 # self.invalid_layers.append(ins)
                 self.invalid_layers[ins.guid] = ins
         self.logger.warning("Found %d invalid layers", len(self.invalid_layers))
@@ -34,6 +40,36 @@ class BuildingVerification(ITask):
         self.invalid_layers = dict(sorted(dict_items))
 
         return self.invalid_layers,
+
+    def validate_high_level_params(self, building: Building) -> Building:
+        """Validates and enriches high level building parameters like Year of
+        construction"""
+        # TODO Needs to be adapter for multiple building #165
+        if not building.year_of_construction:
+            building.year_of_construction \
+                = yield from self.get_construction_year(building)
+
+        building.name = self.get_building_name(building)
+        return building
+
+    @staticmethod
+    def get_construction_year(building):
+        year_decision = RealDecision(
+            "Enter value for the buildings year of construction",
+            global_key="Building_%s.year_of_construction" % building.guid,
+            allow_skip=False, unit=ureg.year)
+        yield DecisionBunch([year_decision])
+        return year_decision.value
+
+    @staticmethod
+    def get_building_name(building):
+        if building.ifc is not None:
+            if building.ifc.Name is not None:
+                if len(building.ifc.Name) > 0:
+                    building_name = building.ifc.Name
+        else:
+            building_name = "Building1"
+        return building_name
 
     def layers_verification(self, instance, workflow):
         supported_classes = {'OuterWall', 'Wall', 'InnerWall', 'Door',
@@ -46,7 +82,7 @@ class BuildingVerification(ITask):
             layers_width, layers_u = self.get_layers_properties(instance)
             if not self.width_comparison(workflow, instance, layers_width):
                 return False
-            u_value_comparison = self.u_value_comparison(instance, layers_u)
+            u_value_comparison = yield from self.u_value_comparison(instance, layers_u)
             if not u_value_comparison:
                 return False
             elif u_value_comparison == 'valid':
@@ -103,10 +139,8 @@ class BuildingVerification(ITask):
                     % (instance.name, instance.guid),
                     choices=[instance.u_value.m, layers_u.m],
                     global_key='%s_%s_u_value' % (instance.name, instance.guid),
-                    allow_skip=True, allow_load=True, allow_save=True,
-                    collect=False, quick_decide=not True, context=instance.name,
-                    related=instance.guid)
-                u_selection.decide()
+                    context=instance.name, related=instance.guid)
+                yield DecisionBunch([u_selection])
                 instance.u_value = u_selection.value * instance.u_value.u
             elif not self.compare_with_template(instance, instance.u_value) and \
                     self.compare_with_template(instance, layers_u):
@@ -128,11 +162,7 @@ class BuildingVerification(ITask):
 
         return False
 
-    def get_template_threshold(self, instances):
-        # todo we might have multiple buildings see issue #165
-        building = filter_instances(instances, 'Building')[0]
-        # todo @ dja check if this is total date (e.g. 01.01.2000, then use only year)
-        year_of_construction = int(building.year_of_construction.m)
+    def get_template_threshold(self, year_of_construction):
         instance_templates = get_type_building_elements()
         material_templates = get_material_templates()
         for i_type in instance_templates:

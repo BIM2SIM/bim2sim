@@ -49,8 +49,8 @@ from stl import stl
 from stl import mesh
 
 from bim2sim.kernel.elements import bps
-from bim2sim.task.base import Task, ITask
-from bim2sim.decision import BoolDecision
+from bim2sim.task.base import ITask
+from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.kernel.element import Element, ElementEncoder
 # from bim2sim.kernel.elements import SpaceBoundary2B, SpaceBoundary
 from bim2sim.kernel.elements.bps import SpaceBoundary
@@ -81,7 +81,6 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 #         self.instances = {}
 #         pass
 #
-#     @Task.log
 #     def run(self, workflow, ifc):
 #         self.logger.info("Creates python representation of relevant ifc types")
 #
@@ -121,7 +120,6 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 #     # property_error = {}
 #     instance_template = {}
 #
-#     @Task.log
 #     def run(self, workflow, instances, ifc):
 #         self.logger.info("setting verifications")
 #         building = SubElement.get_class_instances('Building')[0]
@@ -622,7 +620,6 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 #             return default, year_group
 #         return template_options, year_group
 #
-#     @Task.log
 #     def run(self, workflow, instances, ifc):
 #         self.logger.info("Export to TEASER")
 #         prj = self._create_project(ifc.by_type('IfcProject')[0])
@@ -673,7 +670,6 @@ class ExportEP(ITask):
     reads = ('instances', 'ifc')
     final = True
 
-    @Task.log
     def run(self, workflow, instances, ifc):
         self.logger.info("Creates python representation of relevant ifc types")
         for inst in list(instances):
@@ -737,9 +733,12 @@ class ExportEP(ITask):
         # idf.view_model()
         # self._export_to_stl_for_cfd(instances, idf)
         # self._display_shape_of_space_boundaries(instances)
-        run_decision = BoolDecision(question="Do you want to run the full energyplus simulation (annual, readvars)?",
-                                    global_key='EnergyPlus.FullRun', allow_load=True, allow_save=True, collect=False)
-        ep_full = run_decision.decide()
+        run_decision = BoolDecision(
+            question="Do you want to run the full energyplus simulation"
+                     " (annual, readvars)?",
+                     global_key='EnergyPlus.FullRun')
+        yield DecisionBunch([run_decision])
+        ep_full = run_decision.value
         design_day = False
         if not ep_full:
             design_day = True
@@ -923,7 +922,7 @@ class ExportEP(ITask):
                     mesh_name = i.split("_", 1)[-1]
                     mesh_name = mesh_name.replace(".stl", "")
                     mesh_name = mesh_name.replace("$", "___")
-                    sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
+                    save(mesh_name, output_file, mode=stl.Mode.ASCII)
 
     @staticmethod
     def combine_space_stl_files(stl_name, space_name, paths):
@@ -937,7 +936,7 @@ class ExportEP(ITask):
                     mesh_name = i.split("_", 1)[-1]
                     mesh_name = mesh_name.replace(".stl", "")
                     mesh_name = mesh_name.replace("$", "___")
-                    sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
+                    save(mesh_name, output_file, mode=stl.Mode.ASCII)
 
     @staticmethod
     def _init_idf(paths):

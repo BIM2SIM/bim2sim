@@ -12,8 +12,7 @@ import pkg_resources
 
 import configparser
 
-from bim2sim.decision import Decision, ListDecision
-from bim2sim.kernel.units import ifcunits
+from bim2sim.decision import Decision, ListDecision, DecisionBunch, save, load
 from bim2sim.task.base import Playground
 from bim2sim.plugin import Plugin
 from bim2sim.kernel.element import Element
@@ -240,7 +239,7 @@ class FolderStructure:
 
         if open_conf:
             # open config for user interaction
-            open_config()
+            open_config(self.config)
         print("Project folder created.")
         return self
 
@@ -280,6 +279,9 @@ class Project:
         if not self.paths.is_project_folder():
             raise AssertionError("Project path is no valid project directory. "
                                  "Use Project.create() to create a new Project")
+        self._made_decisions = DecisionBunch()
+        self.loaded_decisions = load(self.paths.decisions)
+
         # TODO: Plugins provide Tasks and Elements. there are 'builtin' Plugins
         #  which should be loaded anyway. In config additional Plugins can be specified.
         #  'external' Plugins ca specify a meaningful workflow, builtins cant. How to get a generic workflow?
@@ -354,14 +356,20 @@ class Project:
         # lock current project
         Project._lock(self)
 
-        Decision.load(self.paths.decisions)
-
         success = False
+        if interactive:
+            run = self._run_interactive
+        else:
+            run = self._run_default
         try:
-            if interactive:
-                self._run_interactive()
-            else:
-                self._run_default()
+            for decision_bunch in run():
+                yield decision_bunch
+                if not decision_bunch.valid():
+                    raise AssertionError("Cant continue with invalid decisions")
+                for decision in decision_bunch:
+                    decision.freeze()
+                self._made_decisions.extend(decision_bunch)
+                self._made_decisions.validate_global_keys()
             success = True
         except Exception as ex:
             logger.exception("Something went wrong!")
@@ -373,17 +381,21 @@ class Project:
     def _run_default(self, plugin=None):
         """Execution of plugins default run"""
         # run plugin default
-        _plugin = plugin or self.default_plugin
-        _plugin().run(self.playground)
+        plugin_cls = plugin or self.default_plugin
+        _plugin = plugin_cls()
+        for task_cls in _plugin.default_tasks:
+            yield from self.playground.run_task(task_cls())
 
     def _run_interactive(self):
         """Interactive execution of available ITasks"""
         while True:
             tasks_classes = {task.__name__: task for task in self.playground.available_tasks()}
             choices = [(name, task.__doc__) for name, task in tasks_classes.items()]
-            task_name = ListDecision("What shall we do?", choices=choices).decide()  # TODO savable decision
+            task_decision = ListDecision("What shall we do?", choices=choices)
+            yield DecisionBunch([task_decision])
+            task_name = task_decision.value
             task_class = tasks_classes[task_name]
-            self.playground.run_task(task_class())
+            yield from self.playground.run_task(task_class())
             if task_class.final:
                 break
 
@@ -395,11 +407,10 @@ class Project:
             #  backup decisions
             if not success:
                 pth = self.paths.root / 'decisions_backup.json'
-                Decision.save(pth)
+                save(self._made_decisions, pth)
                 logger.warning("Decisions are saved in '%s'. Rename file to 'decisions.json' to reuse them.", pth)
-            #  clean decisions
-            # TODO: for now clean them after project finished. change this in #126
-            Decision.reset_decisions()
+            else:
+                save(self._made_decisions, self.paths.decisions)
             # TODO: fix #172
             # clean enrich building templates
             EnrichBuildingByTemplates.instance_template = {}
@@ -409,11 +420,6 @@ class Project:
             Project._release(self)
 
         # clean up init relics
-        # clean up Decisions frontend
-        # TODO: this is global and not project specific
-        if Decision.frontend:
-            Decision.frontend.shutdown(success)
-
         #  clean logger
         logger.info('finished')
         self._teardown_logger()

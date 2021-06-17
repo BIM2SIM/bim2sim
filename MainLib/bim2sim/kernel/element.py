@@ -3,16 +3,15 @@
 
 import logging
 from json import JSONEncoder
-import itertools
 import re
 from pathlib import Path
-from typing import Union, Iterable, Dict, List, Tuple, Type
+from typing import Union, Set, Iterable, Dict, List, Tuple, Type, Generator
 
 import numpy as np
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import ifc2python, attribute
-from bim2sim.decision import Decision
+from bim2sim.decision import Decision, DecisionBunch
 from bim2sim.utilities.common_functions import angle_equivalent, vector_angle
 from bim2sim.kernel.finder import TemplateFinder
 
@@ -47,7 +46,7 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
 
     def __init__(self, guid=None, **kwargs):
         self.guid = guid or self.get_id(self.guid_prefix)
-        self.related_decisions: List[Decision] = []
+        # self.related_decisions: List[Decision] = []
         self.attributes = attribute.AttributeManager(bind=self)
 
         # set attributes based on kwargs
@@ -98,29 +97,33 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
                              "Don't rely on global Element.objects. "
                              "Use e.g. instances from task/playground.")
 
-    def request(self, name):
-        self.attributes.request(name)
+    def request(self, name, external_decision: Decision = None) \
+            -> Union[None, Decision]:
+        """Request attribute
+        :param name: Name of attribute
+        :param external_decision: Decision to use instead of default decision
+        """
+        return self.attributes.request(name, external_decision)
 
-    def solve_requested_decisions(
-            self=None, instances: Iterable['Element'] = None):
-        """Solve all requested decisions.
-        If called by instance, all instance related decisions are solved
-        else all decisions of all instances are solved."""
-        if not self:
-            # called from class
-            decisions = [decision for inst in instances for decision in inst.related_decisions]
-            Decision.decide_collected(collection=set(decisions))
-        else:
-            # called from instance
-            if instances:
-                raise AssertionError(
-                    "Only use instances argument on call from class")
-            Decision.decide_collected(collection=self.related_decisions)
+    @classmethod
+    def get_pending_attribute_decisions(
+            cls, instances: Iterable['Element'] = None) -> DecisionBunch:
+        """Get all requested decisions of attributes.
 
-    def discard(self):
-        """Remove from tracked objects. Related decisions are also discarded."""
-        for d in self.related_decisions:
-            d.discard()
+        all decisions related to given instances are returned"""
+        # if not self or not isinstance(self, Element):
+        # called from class
+        decisions = DecisionBunch()
+        for inst in instances:
+            for bunch in inst.attributes.get_decisions():
+                decisions.extend(bunch)
+        # else:
+        #     # called from instance
+        #     if instances:
+        #         raise AssertionError(
+        #             "Only use instances argument on call from class")
+        #     decisions = self.attributes.get_decisions()
+        return decisions
 
     @classmethod
     def full_reset(cls):
@@ -186,7 +189,8 @@ class IFCBased(Element):
     def source_tool(self):  # TBD: this incl. Finder could live in Factory
         """Name of tool the ifc has been created with"""
         if not self._source_tool and self.ifc:
-            self._source_tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
+            self._source_tool = self.get_project().OwnerHistory.\
+                OwningApplication.ApplicationFullName
         return self._source_tool
 
     @classmethod
@@ -405,7 +409,7 @@ class IFCBased(Element):
         #     decision = DictDecision("Multiple possibilities found",
         #                             choices=dict(zip(choices, values)),
         #                             output=self.attributes,
-        #                             output_key=name,
+        #                             key=name,
         #                             global_key="%s_%s.%s" % (self.ifc_type,
         #                             self.guid, name),
         #                             allow_skip=True, allow_load=True,
@@ -456,17 +460,6 @@ class ProductBased(IFCBased):
          of base class
         :returns: subclass of ProductBased or None"""
         return None
-
-    def get_inner_connections(self):
-        """Returns inner connections of Element
-
-        by default each port is connected to each other port.
-        Overwrite for other connections"""
-
-        connections = []
-        for port0, port1 in itertools.combinations(self.ports, 2):
-            connections.append((port0, port1))
-        return connections
 
     @property
     def neighbors(self):

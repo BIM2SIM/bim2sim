@@ -1,5 +1,5 @@
-from bim2sim.task.base import Task, ITask
-from bim2sim.decision import BoolDecision
+from bim2sim.task.base import ITask
+from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.workflow import Workflow
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.kernel.elements.bps import Slab, GroundFloor, Floor, Roof
@@ -18,7 +18,6 @@ class Prepare(ITask):
         self.reduced_instances = {}
         pass
 
-    @Task.log
     def run(self, workflow: Workflow, instances: dict, space_boundaries: dict):
         self.reduced_instances = dict(instances)
         self.prepare_thermal_zones(instances)
@@ -37,7 +36,8 @@ class Prepare(ITask):
         if len(self.tz_instances) == 0:  # ToDo: Geometric Method before SB creation
             self.logger.warning("Found no spaces by semantic detection")
             decision = BoolDecision("Try to detect zones by geometrical?")
-            use = decision.decide()
+            yield DecisionBunch([decision])
+            use = decision.value
             if use:
                 self.recognize_zone_geometrical()
             else:
@@ -45,7 +45,7 @@ class Prepare(ITask):
                 raise NotImplementedError
 
         self.bind_elements_to_storey(instances)
-        self.set_space_properties()
+        yield from self.set_space_properties()
 
         self.logger.info("Found %d space entities", len(self.tz_instances))
 
@@ -77,8 +77,8 @@ class Prepare(ITask):
     def set_space_properties(self):
         """set cooling and heating values based on general question for all building"""
 
-        cooling_decision = self.tz_property_decision('cool')
-        heating_decision = self.tz_property_decision('heat')
+        cooling_decision = yield from self.tz_property_decision('cool')
+        heating_decision = yield from self.tz_property_decision('heat')
 
         for k, tz in self.tz_instances.items():
             if cooling_decision is True:
@@ -89,12 +89,12 @@ class Prepare(ITask):
     @staticmethod
     def tz_property_decision(property_name: str):
         """thermal zone property decision corresponding cooling and heating for building"""
-        decision = BoolDecision(question="Do you want for all the thermal zones to be %sed? - "
-                                         "with %sing" % (property_name, property_name),
-                                global_key='Thermal_Zones.%sing' % property_name,
-                                allow_skip=True, allow_load=True, allow_save=True,
-                                collect=False, quick_decide=not True)
-        decision.decide()
+        decision = BoolDecision(
+            question="Do you want for all the thermal zones to be %sed? - "
+                     "with %sing" % (property_name, property_name),
+                     global_key='Thermal_Zones.%sing' % property_name,
+                     allow_skip=True)
+        yield DecisionBunch([decision])
         return decision.value
 
     def recognize_zone_geometrical(self):

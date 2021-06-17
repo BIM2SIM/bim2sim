@@ -1,4 +1,5 @@
-from bim2sim.task.base import Task, ITask
+import os
+
 from teaser.project import Project
 from teaser.logic.buildingobjects.building import Building
 from teaser.logic.buildingobjects.thermalzone import ThermalZone
@@ -12,10 +13,10 @@ from teaser.logic.buildingobjects.buildingphysics.innerwall import InnerWall
 from teaser.logic.buildingobjects.buildingphysics.layer import Layer
 from teaser.logic.buildingobjects.buildingphysics.material import Material
 from teaser.logic.buildingobjects.buildingphysics.door import Door
+from bim2sim.task.base import ITask
 from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import filter_instances
 
-import os
 
 
 class ExportTEASER(ITask):
@@ -38,7 +39,6 @@ class ExportTEASER(ITask):
                          'InnerDoor': InnerWall
                          }
 
-    @Task.log
     def run(self, workflow, ifc, bounded_tz, instances):
         self.logger.info("Export to TEASER")
         prj = self._create_project(ifc.by_type('IfcProject')[0])

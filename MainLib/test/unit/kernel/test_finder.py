@@ -35,7 +35,7 @@ class TestTemplateFinder(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        Decision.reset_decisions()
+        # Decision.reset_decisions()
         cls.root.cleanup()
 
     def setUp(self):
@@ -46,18 +46,19 @@ class TestTemplateFinder(unittest.TestCase):
 
     def test_set_find(self):
         tool = self.pipe1.source_tool
+        for decision in self.finder.check_tool_template(tool):
+            decision.value = 'Other'
 
         self.finder.set(tool, 'IfcPipeSegment', 'length', 'Abmessungen', 'Länge')
         self.finder.set(tool, 'IfcPipeSegment', 'diameter', 'Abmessungen', 'Innendurchmesser')
         self.finder.set(tool, 'IfcPipeFitting', 'diameter', 'Abmessungen', 'Nenndurchmesser')
 
-        with Decision.debug_answer('Other', validate=False):
-            l1 = self.finder.find(self.pipe1, 'length')
-            d1 = self.finder.find(self.pipe1, 'diameter')
-            l2 = self.finder.find(self.pipe2, 'length')
-            d2 = self.finder.find(self.pipe2, 'diameter')
-            l3 = self.finder.find(self.pipefitting1, 'length')
-            d3 = self.finder.find(self.pipefitting1, 'diameter')
+        l1 = self.finder.find(self.pipe1, 'length')
+        d1 = self.finder.find(self.pipe1, 'diameter')
+        l2 = self.finder.find(self.pipe2, 'length')
+        d2 = self.finder.find(self.pipe2, 'diameter')
+        l3 = self.finder.find(self.pipefitting1, 'length')
+        d3 = self.finder.find(self.pipefitting1, 'diameter')
 
     def test_save_load(self):
         tool = self.pipe1.source_tool

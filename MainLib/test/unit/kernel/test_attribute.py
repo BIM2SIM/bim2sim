@@ -4,14 +4,14 @@ import unittest
 
 from bim2sim.kernel import element
 from bim2sim.kernel.attribute import Attribute
-from bim2sim.decision import Decision
+from bim2sim.decision import Decision, DecisionBunch, RealDecision
 from bim2sim.kernel.units import ureg
 
 from test.unit.kernel.helper import SetupHelper
 
 
 class TestElement(element.ProductBased):
-    ifc_type = "IfcTest"
+    ifc_types = {}
 
     attr1 = Attribute(
         unit=ureg.meter
@@ -27,16 +27,6 @@ class TestElement(element.ProductBased):
 class TestAttribute(unittest.TestCase):
 
     helper = SetupHelper()
-
-    @classmethod
-    def setUpClass(cls):
-        # cls.helper = SetupHelper()
-        Decision.enable_debug(None)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.helper = None
-        Decision.disable_debug()
 
     def setUp(self):
         self.subject = self.helper.element_generator(TestElement)
@@ -112,6 +102,70 @@ class TestAttribute(unittest.TestCase):
     def test_from_function(self):
         """test getting attribute from function"""
         self.assertEqual(42, self.subject.attr5)
+
+
+class TestAttributeDecisions(unittest.TestCase):
+
+    def test_request_attribute(self):
+        """Test to set attribute by decision."""
+        ele = TestElement()
+        self.assertIsNone(ele.attr2)
+        ele.attributes['attr2']
+        decision = ele.request('attr2')
+        self.assertIsNone(ele.attr2)
+
+        decision.value = 1
+        self.assertEqual(1, ele.attr2)
+
+    def test_request_requested(self):
+        """Test requesting an already requested attribute"""
+        ele = TestElement()
+        decision1 = ele.request('attr2')
+        decision2 = ele.request('attr2')
+        self.assertIs(decision1, decision2)
+        decision1.value = 5
+        self.assertEqual(5, ele.attr2)
+
+    def test_request_available(self):
+        """Test requesting an already available attribute"""
+        ele = TestElement()
+        ele.attr3 = 7
+        decision1 = ele.request('attr3')
+        decision2 = ele.request('attr5')  # from function
+
+        self.assertIsNone(decision1)
+        self.assertIsNone(decision2)
+
+    def test_request_many_attributes(self):
+        """Test getting many decisions for elements and answer them together."""
+        ele1 = TestElement()
+        ele1.attr3 = 3
+        ele2 = TestElement()
+        attrs = ('attr1', 'attr2', 'attr3')
+        bunch = DecisionBunch()
+        for attr in attrs:
+            for ele in (ele1, ele2):
+                decision = ele.request(attr)
+                if decision:
+                    bunch.append(decision)
+
+        for d in bunch:
+            d.value = 42
+
+        self.assertEqual(42 * ureg.meter, ele1.attr1)
+        self.assertEqual(42 * ureg.meter, ele2.attr1)
+        self.assertEqual(3, ele1.attr3)
+        self.assertEqual(42, ele2.attr3)
+
+    def test_external_decision(self):
+        """Test to set attribute by external decision."""
+        ele = TestElement()
+        ext_decision = RealDecision("For attr2")
+        decision = ele.request('attr2', ext_decision)
+        self.assertIs(ext_decision, decision)
+
+        ext_decision.value = 99
+        self.assertEqual(99, ele.attr2)
 
 
 if __name__ == '__main__':

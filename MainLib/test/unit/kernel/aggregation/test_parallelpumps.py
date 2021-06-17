@@ -540,7 +540,7 @@ class TestParallelPumps(unittest.TestCase):
         mapping = agg_pump.get_replacement_mapping()
         graph.merge(
             mapping=agg_pump.get_replacement_mapping(),
-            inner_connections=agg_pump.get_inner_connections(),
+            inner_connections=agg_pump.inner_connections,
         )
         self.assertCountEqual([agg_pump.ports[0], agg_pump.ports[1]],
                               [mapping[models[0].ports[0]], mapping[models[
@@ -569,7 +569,7 @@ class TestParallelPumps(unittest.TestCase):
 
         graph.merge(
             mapping=agg_pump.get_replacement_mapping(),
-            inner_connections=agg_pump.get_inner_connections(),
+            inner_connections=agg_pump.inner_connections,
         )
         aggr_pipe_fittings = [node for node in graph.element_graph.nodes if
                               node.__class__.__name__ == 'AggregatedPipeFitting'
@@ -610,7 +610,7 @@ class TestParallelPumps(unittest.TestCase):
 
         graph.merge(
             mapping=agg_pump.get_replacement_mapping(),
-            inner_connections=agg_pump.get_inner_connections(),
+            inner_connections=agg_pump.inner_connections,
         )
         aggr_pipe_fittings = [node for node in graph.element_graph.nodes if
                               node.__class__.__name__ == 'AggregatedPipeFitting'
@@ -653,7 +653,7 @@ class TestParallelPumps(unittest.TestCase):
 
         graph.merge(
             mapping=agg_pump.get_replacement_mapping(),
-            inner_connections=agg_pump.get_inner_connections(),
+            inner_connections=agg_pump.inner_connections,
         )
 
         aggr_pipe_fittings = [node for node in graph.element_graph.nodes if

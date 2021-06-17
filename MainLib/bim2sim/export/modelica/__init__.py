@@ -197,7 +197,7 @@ class Instance:
                     unit=self.element.attributes.get_unit(name),
                     validate_func=check,
                     output=self.params,
-                    output_key=export_name,
+                    key=export_name,
                     global_key=self.name + "." + name,
                     collect=True,
                     allow_load=True,

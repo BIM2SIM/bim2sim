@@ -5,6 +5,7 @@ import json
 import contextlib
 from pathlib import Path
 import logging
+from typing import Generator
 
 import bim2sim
 from bim2sim.kernel import ifc2python
@@ -80,8 +81,6 @@ class TemplateFinder(Finder):
         if not self.enabled:
             raise AttributeError("Finder is disabled")
 
-        self.check_template(element)
-
         key1 = element.source_tool
         key2 = type(element).__name__
         key3 = 'default_ps'
@@ -98,32 +97,37 @@ class TemplateFinder(Finder):
             raise AttributeError("Can't find property as defined by template.")
         return pset.get(res[1])
 
-    def check_template(self, element):
+    def check_tool_template(self, source_tool) \
+            -> Generator[Decision, None, None]:
         """Check the given IFC Creation tool and chose the template."""
-        if element.source_tool in self.blacklist:
-            raise AttributeError('No finder template found for {}.'.format(element.source_tool))
+        if source_tool in self.blacklist:
+            logger.warning('No finder template found for %s.', source_tool)
+            return
 
-        elif element.source_tool not in self.templates:
+        elif source_tool not in self.templates:
             # no matching template
-            logger.warning('No finder template found for {}.'.format(element.source_tool))
+            logger.warning('No finder template found for {}.'
+                           .format(source_tool))
 
             choices = list(self.templates.keys()) + ['Other']
             choice_checksum = ListDecision.build_checksum(choices)
             decision_source_tool = ListDecision(
-                "Please select best matching source tool %s" % element.source_tool,
+                "Please select best matching source tool %s" % source_tool,
                 choices=choices,
                 default='Other',
-                global_key=f'tool_{element.source_tool}_{choice_checksum}',
-                allow_skip=True, allow_load=True, allow_save=True,
-                collect=False, quick_decide=False)
-            tool_name = decision_source_tool.decide()
+                global_key=f'tool_{source_tool}_{choice_checksum}',
+                allow_skip=True)
+            yield decision_source_tool
+            tool_name = decision_source_tool.value
 
             if not tool_name or tool_name == 'Other':
-                self.blacklist.append(element.source_tool)
-                raise AttributeError('No finder template found for {}.'.format(element.source_tool))
+                self.blacklist.append(source_tool)
+                logger.warning('No finder template found for %s.', source_tool)
+                return
 
-            self.templates[element.source_tool] = self.templates[tool_name]
-            logger.info("Set {} as finder template for {}.".format(tool_name, element.source_tool))
+            self.templates[source_tool] = self.templates[tool_name]
+            logger.info("Set {} as finder template for {}."
+                        .format(tool_name, source_tool))
 
     def reset(self):
         self.blacklist.clear()
