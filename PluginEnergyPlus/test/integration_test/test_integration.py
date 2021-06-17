@@ -7,6 +7,7 @@ from pathlib import Path
 import os
 
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
+from bim2sim.decision.console import ConsoleDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.project import Project
 
@@ -92,7 +93,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         # ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB44.ifc'
         ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True, 'Single office', 'heavy',
+        answers = ('ARCHICAD-64', True, True, 'Single office', 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -140,7 +141,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
 
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True, 'Single office', 2015, 'heavy',
+        answers = ('ARCHICAD-64', True, True, 'Single office', 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -158,17 +159,23 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
+
+
     # @unittest.skip("Skipped due to performance for CI")
     def test_base_09_DH_design_day(self):
         """Test DigitalHub IFC"""
         # ifc = EXAMPLE_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB88.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (*(None,)*150, True, True, 'Single office', 2015, 'heavy',
+        answers = ('ARCHICAD-64', *(None,)*150, True, True,  'Single office', 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
+        # handler = ConsoleDecisionHandler()
+        # handler.handle(project.run())
         handler = DebugDecisionHandler(answers)
-        return_code = handler.handle(project.run())
-        self.assertEqual(0, return_code)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value,
+                         "Project did not finish successfully.")
 
     @unittest.skip("Skipped due to performance for CI")
     def test_base_10_DH_full_run(self):
@@ -209,11 +216,13 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, 'Single office', 2015, 'heavy',
+        answers = ('ARCHICAD-64', 'ARCHICAD-64', True, True, 'Single office', 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         handler = DebugDecisionHandler(answers)
-        return_code = handler.handle(project.run())
-        self.assertEqual(0, return_code)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value,
+                         "Project did not finish successfully.")
 
     @unittest.skip("Skipped due to performance for CI")
     def test_base_14_EDC_SB_full_run(self):

@@ -63,11 +63,12 @@ class BuildingVerification(ITask):
 
     @staticmethod
     def get_building_name(building):
+        building_name = None
         if building.ifc is not None:
             if building.ifc.Name is not None:
-                if len(building.ifc.Name) > 0:
+                if len(building.ifc.Name) > 0 and building.ifc.Name is not "":
                     building_name = building.ifc.Name
-        else:
+        if not building_name:
             building_name = "Building1"
         return building_name
 

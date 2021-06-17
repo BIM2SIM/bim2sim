@@ -27,7 +27,8 @@ class EnrichNonValid(ITask):
     def run(self, workflow, invalid_layers, instances):
         self.logger.info("setting verifications")
         if workflow.layers is not LOD.low:
-            construction_type = EnrichBuildingByTemplates.get_construction_type()
+            construction_type = yield from \
+                EnrichBuildingByTemplates.get_construction_type()
             for instance in invalid_layers.values():
                 yield from self.layers_creation(
                     instance, construction_type, instances)
@@ -42,7 +43,8 @@ class EnrichNonValid(ITask):
 
     def layers_creation(self, instance, construction_type, instances):
         if len(instance.layers) == 0:
-            EnrichBuildingByTemplates.template_layers_creation(instance, construction_type, instances)
+            yield from EnrichBuildingByTemplates.template_layers_creation(
+                instance, construction_type, instances)
         else:
             yield from self.manual_layers_creation(instance)
 
