@@ -8,11 +8,11 @@ from bim2sim.task import bps
 
 class TEASERManager(Plugin):
     name = 'TEASER'
-    # default_workflow = BPSMultiZoneSeparatedLayersLow
+    default_workflow = BPSMultiZoneSeparatedLayersLow
     # default_workflow = BPSMultiZoneSeparatedLayersFull
     # default_workflow = BPSMultiZoneCombinedLayersLow
     # default_workflow = BPSOneZoneAggregatedLayersLow
-    default_workflow = BPSMultiZoneCombinedLayersFull
+    # default_workflow = BPSMultiZoneCombinedLayersFull
     elements = {*bps_elements.items}
 
     def run(self, playground):

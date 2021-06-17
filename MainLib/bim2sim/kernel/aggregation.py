@@ -133,7 +133,7 @@ class HVACAggregationMixin(AggregationMixin):
         super().__init__(list(element_graph.nodes), *args, **kwargs)
 
     @verify_edge_ports
-    def get_ports(self, graph):
+    def get_ports(self, graph) -> List[HVACPort]:
         # TBD: use of outer_connections
         if not self.outer_connections:
             edge_ports = self.get_edge_ports(graph)
@@ -233,12 +233,6 @@ class PipeStrand(HVACAggregationMixin, hvac.Pipe):
                              hvac.Valve}
     multi = ('length', 'diameter')
 
-    def __init__(self, element_graph, *args, **kwargs):
-        super().__init__(element_graph, *args, **kwargs)
-        # edge_ports = self.get_edge_ports(element_graph)
-        # for port in edge_ports:
-        #     self.ports.append(HVACAggregationPort(port, parent=self))
-
     @classmethod
     def get_edge_ports(cls, graph):
         return cls.get_edge_ports_of_strait(graph)
@@ -270,15 +264,6 @@ class PipeStrand(HVACAggregationMixin, hvac.Pipe):
         )
         return result
 
-    # def get_replacement_mapping(self):
-    #     """Returns dict with original ports as values and their aggregated replacement as keys."""
-    #     mapping = {port: None for element in self.elements
-    #                for port in element.ports}
-    #     for port in self.ports:
-    #         for original in port.originals:
-    #             mapping[original] = port
-    #     return mapping
-
     @classmethod
     def find_matches(cls, graph):
         element_graph = graph.element_graph
@@ -303,12 +288,6 @@ class PipeStrand(HVACAggregationMixin, hvac.Pipe):
 class UnderfloorHeating(PipeStrand):
     """Aggregates UnderfloorHeating, normal pitch (spacing) between
     pipes is between 0.1m and 0.2m"""
-
-    def __init__(self, element_graph, *args, **kwargs):
-        super().__init__(element_graph, *args, **kwargs)
-        # edge_ports = self.get_edge_ports(element_graph)
-        # for port in edge_ports:
-        #     self.ports.append(AggregationPort(port, parent=self))
 
     @classmethod
     def find_matches(cls, graph):
@@ -535,14 +514,9 @@ class UnderfloorHeating(PipeStrand):
 
 class ParallelPump(HVACAggregationMixin, hvac.Pump):
     """Aggregates pumps in parallel"""
-    # aggregatable_elements = ['IfcPump', 'PipeStrand', 'IfcPipeSegment',
-    #                          'IfcPipeFitting']
     aggregatable_elements = {
         hvac.Pump, hvac.Pipe, hvac.PipeFitting, PipeStrand}
     multi = ('rated_power', 'rated_height', 'rated_volume_flow', 'diameter', 'diameter_strand', 'length')
-
-    def __init__(self, element_graph, *args, **kwargs):
-        super().__init__(element_graph, *args, **kwargs)
 
     def get_ports(self, graph):
         ports = []
@@ -758,14 +732,12 @@ class AggregatedPipeFitting(HVACAggregationMixin, hvac.PipeFitting):
         - Use a single PipeFitting and create a aggregated PipeFitting where
         some ports are aggregated (aggr_ports argument)
     """
-    # aggregatable_elements = ['PipeStand', 'IfcPipeSegment', 'IfcPipeFitting']
     aggregatable_elements = {hvac.Pipe, hvac.PipeFitting, PipeStrand}
     threshold = None
 
     def __init__(self, element_graph, aggr_ports=None, *args, **kwargs):
         self.get_ports = partial(self.get_ports, aggr_ports)
         super().__init__(element_graph, *args, **kwargs)
-        # self.get_ports(aggr_ports, element_graph)
 
     def get_ports(self, aggr_ports, graph):  # TBD
         ports = []
@@ -811,36 +783,12 @@ class AggregatedPipeFitting(HVACAggregationMixin, hvac.PipeFitting):
         metas = [{} for x in connected_fittings]  # no metadata calculated
         return connected_fittings, metas
 
-    # def get_replacement_mapping(self):
-    #     """Returns dict with original ports as values and their aggregated
-    #     replacement as keys."""
-    #     mapping = {port: None for element in self.elements
-    #                for port in element.ports}
-    #     for port in self.ports:
-    #         for original in port.originals:
-    #             mapping[original] = port
-    #     return mapping
-
 
 class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
     """Aggregates Space heater in parallel"""
 
     aggregatable_elements = {hvac.SpaceHeater, hvac.Pipe,
                              hvac.PipeFitting, PipeStrand}
-    # aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting']
-
-    def __init__(self, element_graph, *args, **kwargs):
-        super().__init__(element_graph, *args, **kwargs)
-        # edge_ports = self._get_start_and_end_ports()
-        # self.ports.append(HVACAggregationPort(edge_ports[0], parent=self))
-        # self.ports.append(HVACAggregationPort(edge_ports[1], parent=self))
-        # self._total_rated_power = None
-        # self._avg_rated_height = None
-        # self._total_rated_volume_flow = None
-        # self._total_diameter = None
-        # self._total_length = None
-        # self._avg_diameter_strand = None
-        # self._elements = None
 
     def get_ports(self, graph):
         return self._get_start_and_end_ports()
@@ -954,15 +902,6 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
         )
         return result
 
-    # def get_replacement_mapping(self):
-    #     """Returns dict with original ports as values and their aggregated replacement as keys."""
-    #     mapping = {port: None for element in self.elements
-    #                for port in element.ports}
-    #     for port in self.ports:
-    #         for original in port.originals:
-    #             mapping[original] = port
-    #     return mapping
-
     rated_power = attribute.Attribute(
         description="rated power",
         functions=[_calc_avg]
@@ -1060,36 +999,6 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
     blacklist = [hvac.Chiller, hvac.Boiler,
                  hvac.CoolingTower]
 
-    def __init__(self, element_graph, *args, **kwargs):
-        super().__init__(element_graph, *args, **kwargs)
-        # edge_ports = self._get_start_and_end_ports()
-        # self.ports.append(HVACAggregationPort(edge_ports[0], parent=self))
-        # self.ports.append(HVACAggregationPort(edge_ports[1], parent=self))
-        # self._total_rated_power = None
-        # self._avg_rated_height = None
-        # self._total_rated_volume_flow = None
-        # self._total_diameter = None
-        # self._total_length = None
-        # self._avg_diameter_strand = None
-        # self._elements = None
-
-    def get_ports(self, graph):
-        return [HVACAggregationPort(port, parent=self)
-                for port in self._get_start_and_end_ports()]
-
-    @verify_edge_ports
-    def _get_start_and_end_ports(self):
-        """
-        Finds external ports of aggregated group
-        :return ports:
-        """
-        agg_ports = []
-
-        for ports in self.outer_connections:
-            agg_ports.append(ports[1])  # TBD: only one port?
-
-        return agg_ports
-
     @classmethod
     def get_edge_ports(cls, graph) -> List[HVACPort]:
         pass  # TODO
@@ -1143,7 +1052,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
                 consumer_cycle = {node for node in sub if node.__class__ in cls.whitelist}
                 if consumer_cycle:
                     subgraph = _element_graph.subgraph(sub)
-                    outer_con = [outer_connections[ele] for ele in sub if ele in outer_connections]
+                    outer_con = [outer_connections[ele][1] for ele in sub if ele in outer_connections]
                     consumer_cycles.append(subgraph)
                     metas.append({'outer_connections': outer_con})
 
@@ -1282,15 +1191,6 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
             has_pump=has_pump)
         return result
 
-    # def get_replacement_mapping(self):
-    #     """Returns dict with original ports as values and their aggregated replacement as keys."""
-    #     mapping = {port: None for element in self.elements
-    #                for port in element.ports}
-    #     for port in self.ports:
-    #         for original in port.originals:
-    #             mapping[original] = port
-    #     return mapping
-
     rated_power = attribute.Attribute(
         description="rated power",
         unit=ureg.kilowatt,
@@ -1352,11 +1252,10 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
         'medium', 'use_hydraulic_separator', 'hydraulic_separator_volume', 'temperature_inlet', 'temperature_outlet')
     # ToDo: Abused to not just sum attributes from elements
 
-    # aggregatable_elements = ['IfcSpaceHeater', 'PipeStand', 'IfcPipeSegment', 'IfcPipeFitting', 'ParallelSpaceHeater']
     aggregatable_elements = {
         hvac.SpaceHeater, hvac.Pipe,
-        hvac.PipeFitting,
-        PipeStrand, ParallelSpaceHeater}
+        hvac.PipeFitting, hvac.Distributor,
+        PipeStrand, ParallelSpaceHeater, Consumer}
     whitelist = [hvac.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating,
                  Consumer]
     blacklist = [hvac.Chiller, hvac.Boiler,
@@ -1365,45 +1264,20 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
     def __init__(self, element_graph, *args, **kwargs):
         self.undefined_consumer_ports = kwargs.pop('undefined_consumer_ports', None)  # TODO: Richtig sO? WORKAROUND
         self._consumer_cycles = kwargs.pop('consumer_cycles', None)
-        super().__init__(element_graph, *args, **kwargs)
-        edge_ports = self._get_start_and_end_ports()
-        for port in edge_ports:
-            self.ports.append(HVACAggregationPort(port, parent=self))
-
         self.consumers = []
-
         for consumer in self._consumer_cycles:
             for con in consumer:  # ToDo: darf nur ein Consumer sein
                 self.consumers.append(con)
-
         self.open_consumer_pairs = self._register_open_consumerports()
-        for ports in self.open_consumer_pairs:
-            a = HVACAggregationPort(ports[0], parent=self)
-            b = HVACAggregationPort(ports[1], parent=self)
-            self.ports.append(a)
-            self.ports.append(b)
 
-        self._total_rated_power = None
-        self._avg_rated_height = None
-        self._total_rated_volume_flow = None
-        self._total_diameter = None
-        self._total_length = None
-        self._avg_diameter_strand = None
-        self._elements = None
+        super().__init__(element_graph, *args, **kwargs)
 
-    @verify_edge_ports
-    def _get_start_and_end_ports(self):
-        """
-        Finds external ports of aggregated group
-        :return ports:
-        """
-        agg_ports = []
-
-        #  ToDo: outer_connection immer die anschlussports für erzeugerkreis?
-        for ports in self.outer_connections:
-            agg_ports.append(ports[0])
-
-        return agg_ports
+    def get_ports(self, graph) -> List[HVACPort]:
+        ports = super().get_ports(graph)
+        for con_ports in self.open_consumer_pairs:
+            ports.append(HVACAggregationPort(con_ports[0], parent=self))
+            ports.append(HVACAggregationPort(con_ports[1], parent=self))
+        return ports
 
     @classmethod
     def get_edge_ports(cls, graph) -> List[HVACPort]:
@@ -1424,11 +1298,11 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
     def find_matches(cls, graph):
         """Find all matches for Aggregation in element graph
         :returns: matches, meta"""
-        boarder_class = {hvac.Distributor.ifc_type}
-        boarder_class = set(boarder_class)
+        boarder_class = {hvac.Distributor}
         element_graph = graph.element_graph
         results = []
-        remove = {node for node in element_graph.nodes if node.ifc_type in boarder_class}
+        remove = {node for node in element_graph.nodes
+                  if type(node) in boarder_class}
         metas = []
         for dist in remove:
             _element_graph = element_graph.copy()
@@ -1458,7 +1332,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
                         # ToDO: Consumer separieren
                         pass
                     else:
-                        outer_con = [outer_connections[ele] for ele in sub if ele in outer_connections]
+                        outer_con = [outer_connections[ele][1] for ele in sub if ele in outer_connections]
                         if outer_con:
                             metas[-1]['outer_connections'].extend(outer_con)
                         # pure generator subgraph
@@ -1481,15 +1355,6 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
             results.append(result)
 
         return results, metas
-
-    # def get_replacement_mapping(self):
-    #     """Returns dict with original ports as values and their aggregated replacement as keys."""
-    #     mapping = {port: None for element in self.elements
-    #                for port in element.ports}
-    #     for port in self.ports:
-    #         for original in port.originals:
-    #             mapping[original] = port
-    #     return mapping
 
     @attribute.multi_calc
     def _calc_avg(self):

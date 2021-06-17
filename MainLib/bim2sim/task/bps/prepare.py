@@ -120,6 +120,7 @@ class Prepare(ITask):
         """do a recheck of selected classes if necessary, and changes it to a new class
         based on criteria and information of the space boundaries"""
         if len(instance.space_boundaries) > 0:
+            # TODO Is Floor the most correct here? We might create a new class for such elements
             new_class = Floor
             if instance.is_external is True:
                 new_class = Roof
@@ -159,5 +160,6 @@ class Prepare(ITask):
         """set attributes of decomposes instance, if attribute of decomposed instance not available or invalid"""
         # when decomposed,decomposes instance has attributes of the decomposed instance
         for attr, (value, available) in instance.attributes.items():
-            if not value and getattr(d_instance, attr):
-                setattr(instance, attr, getattr(d_instance, attr))
+            if not value and hasattr(d_instance, attr):
+                if getattr(d_instance, attr):
+                    setattr(instance, attr, getattr(d_instance, attr))

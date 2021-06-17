@@ -1,4 +1,4 @@
-﻿"""Module for loading ifc files
+"""Module for loading ifc files
 
 Holds logic for target simulation independent file parsing, checking, and data enrichment
 """
@@ -113,6 +113,7 @@ def get_layers_ifc(element):
                 layer_list = association.ForLayerSet.MaterialLayers
             elif hasattr(association, 'Materials'):
                 layer_list = association.Materials
+            # TODO is this ifc4 conform? or just a workaround
             elif hasattr(association, 'MaterialLayers'):
                 layer_list = association.MaterialLayers
             if isinstance(layer_list, Iterable):
