@@ -94,7 +94,7 @@ class DisaggregationCreation(ITask):
             inst.position = self.get_new_position_vertical_instance(parent, new_pos)
         if type_parent in self.horizontal_instances:
             inst.position = tz.position
-            if tz.area > inst.area:
+            if tz.area and abs(1 - inst.area / tz.area) < threshold:
                 if abs(1 - inst.area / tz.area) < threshold:
                     inst.area = tz.area
 
