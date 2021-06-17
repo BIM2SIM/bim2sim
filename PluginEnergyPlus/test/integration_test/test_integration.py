@@ -214,7 +214,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         with Decision.debug_answer(answers, multi=True):
             return_code = project.run()
         self.assertEqual(0, return_code)
-        #todo: fix windows (in idf Fenestration with Wall Attributes)
 
     @unittest.skip("Skipped due to performance for CI")
     def test_base_14_EDC_SB_full_run(self):
