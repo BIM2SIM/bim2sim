@@ -1,8 +1,6 @@
 import unittest
-import bim2sim
 from bim2sim import workflow
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.decision.console import ConsoleDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 
 

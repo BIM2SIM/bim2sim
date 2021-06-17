@@ -7,7 +7,6 @@ from pathlib import Path
 import os
 
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.decision.console import ConsoleDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.project import Project
 
@@ -71,9 +70,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         handler = DebugDecisionHandler(answers)
-        for decision, answer in handler.decision_answer_mapping(project.run()):
-            decision.value = answer
-        self.assertEqual(0, handler.return_value)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
         #todo: fix virtual bounds (assigned to be outdoors for some reason)
 
     @unittest.skip("")
@@ -169,13 +167,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', *(None,)*150, True, True,  'Single office', 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
-        # handler = ConsoleDecisionHandler()
-        # handler.handle(project.run())
         handler = DebugDecisionHandler(answers)
-        for decision, answer in handler.decision_answer_mapping(project.run()):
-            decision.value = answer
-        self.assertEqual(0, handler.return_value,
-                         "Project did not finish successfully.")
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
 
     @unittest.skip("Skipped due to performance for CI")
     def test_base_10_DH_full_run(self):
@@ -219,10 +213,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         answers = ('ARCHICAD-64', 'ARCHICAD-64', True, True, 'Single office', 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         handler = DebugDecisionHandler(answers)
-        for decision, answer in handler.decision_answer_mapping(project.run()):
-            decision.value = answer
-        self.assertEqual(0, handler.return_value,
-                         "Project did not finish successfully.")
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
 
     @unittest.skip("Skipped due to performance for CI")
     def test_base_14_EDC_SB_full_run(self):
