@@ -70,8 +70,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         handler = DebugDecisionHandler(answers)
-        return_code = handler.handle(project.run())
-        self.assertEqual(0, return_code)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value)
         #todo: fix virtual bounds (assigned to be outdoors for some reason)
 
     @unittest.skip("")

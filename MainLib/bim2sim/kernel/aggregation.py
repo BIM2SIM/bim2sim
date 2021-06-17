@@ -206,19 +206,27 @@ class HVACAggregationMixin(AggregationMixin):
         if len(edge_elements) != 2:
             raise AttributeError("Graph elements are not connected strait")
 
-        edge_ports = []
-        for port in (p for e in edge_elements for p in e.ports):
+        edge_ports = set()
+        ports = [p for e in edge_elements for p in e.ports]
+        # first check for connections to outside
+        for port in ports:
+            if port.connection and port.connection.parent not in graph.nodes:
+                edge_ports.add(port)
+        # then check for unconnected edge ports
+        for port in ports:
             if not port.connection:
-                edge_ports.append(port)
-                continue
-            #     continue  # end node
-            if port.connection.parent not in graph.nodes:
-                edge_ports.append(port)
+                if not set(port.parent.ports) & edge_ports:
+                    # no port of parent is an edge port
+                    # take first ignore others
+                    # TODO: see #169 this is a dirty workaround
+                    edge_ports.add(port)
+                else:
+                    logger.warning("Ignoring superfluous unconnected ports in "
+                                   "edge port detection of %s", cls)
 
         if len(edge_ports) > 2:
             raise AttributeError("Graph elements are not only (2 port) pipes")
-
-        return edge_ports
+        return list(edge_ports)
 
     @classmethod
     def find_matches(cls, graph: HvacGraph)\

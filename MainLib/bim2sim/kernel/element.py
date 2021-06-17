@@ -1,6 +1,6 @@
 """Definition for basic representations of IFC elements"""
 # from __future__ import annotations
-
+import json
 import logging
 from json import JSONEncoder
 import re
@@ -9,6 +9,7 @@ from typing import Union, Set, Iterable, Dict, List, Tuple, Type, Generator
 
 import numpy as np
 
+import bim2sim
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import ifc2python, attribute
 from bim2sim.decision import Decision, DecisionBunch
