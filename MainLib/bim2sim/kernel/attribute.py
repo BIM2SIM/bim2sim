@@ -185,10 +185,6 @@ class Attribute:
                     break
         return value
 
-    @staticmethod
-    # todo only used for HVAC. Move to own task similar to BPS
-
-
     def create_decision(self, bind):
         """Created Decision for this Attribute"""
         # TODO: set state in output dict -> attributemanager

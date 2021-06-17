@@ -178,7 +178,9 @@ class EnrichNonValid(ITask):
             value = getattr(window, attr)
             if value is None:
                 if attr not in self.window_enrichment:
-                    new_value = yield from self.manual_attribute_enrichment(window, attr).m
+                    new_value = yield from self.manual_attribute_enrichment(
+                        window, attr)
+                    new_value = new_value.m
                     self.window_enrichment[attr] = new_value
                 setattr(window, attr, self.window_enrichment[attr])
 
@@ -188,8 +190,6 @@ class EnrichNonValid(ITask):
             "Enter value for %s of instance %s" %
             (attribute, type(instance).__name__),
             global_key='%s_%s' % (type(instance).__name__, attribute),
-            allow_skip=False, allow_load=True, allow_save=True,
-            collect=False, quick_decide=False,
-            validate_func=cls.validate_positive)
+            allow_skip=False, validate_func=cls.validate_positive)
         yield DecisionBunch([new_attribute])
         return new_attribute.value

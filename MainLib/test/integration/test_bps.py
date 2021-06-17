@@ -2,6 +2,7 @@ import unittest
 import bim2sim
 from bim2sim import workflow
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
+from bim2sim.decision.console import ConsoleDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 
 
@@ -12,7 +13,7 @@ class IntegrationBaseTEASER(IntegrationBase):
 
 class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
 
-    # @unittest.skip("Not fully implemented yet")
+    @unittest.skip("Not fully implemented yet")
     def test_ERC_Full(self):
         """Test ERC Main Building"""
         ifc = 'ERC_Mainbuilding_Arch.ifc'
@@ -24,13 +25,16 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
                    "MultiUseComputerRoom",
                    "Laboratory",
                    "Stock, technical equipment, archives",
-                   True, "air_layer", "perlite", True, "heavy", 1, "beton",
-                   "Concrete_DK", "EnEv", 1, 0.3, "beton", 1, "beton", 1, "beton",
+                   True, "air_layer", "perlite", True, 1, "beton",
+                   "Concrete_DK", 1, 0.3, "beton", 1, "beton", 1, "beton",
                    *(1,) * 8)
-        with bim2sim.decision.Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
-        self.assertEqual(0, return_code)
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value,
+                         "Project did not finish successfully.")
 
+    @unittest.skip("Not fully implemented yet")
     def test_ERC_Low(self):
         """Test ERC Main Building"""
         ifc = 'ERC_Mainbuilding_Arch.ifc'
@@ -44,9 +48,11 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
                    "Stock, technical equipment, archives",
                    'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
-        with bim2sim.decision.Decision.debug_answer(answers, multi=True):
-            return_code = project.run()
-        self.assertEqual(0, return_code)
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value,
+                         "Project did not finish successfully.")
 
     def test_run_kitfzkhaus_spaces_low_layers_low(self):
         """Run project with AC20-FZK-Haus.ifc"""
@@ -105,8 +111,8 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'Kitchen - preparations, storage', True,
                    'solid_brick_h', True, 'hardwood', True,
-                   'Concrete_DK', True, 'Light_Concrete_DK', 'heavy', 1,
-                   'Door', 1, 'Brick', 'brick_H', 'EnEv',
+                   'Concrete_DK', True, 'Light_Concrete_DK', 1,
+                   'Door', 1, 'Brick', 'brick_H',
                    *(1,) * 8, 'by_all_criteria', False)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -121,7 +127,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'Glas', True, 'glas_generic', 500, 1.5, 0.2,
                    True, 'air_layer', 'sandstone', True, 'belgian_brick',
-                   0.1, True, 'Concrete_DK', 2015, 'heavy', 1, 'Beton',
+                   0.1, True, 'Concrete_DK', 2015, 1, 'Beton',
                    'Light_Concrete_DK', 1, 'Beton', 1, 'Door',
                    1, 'Beton', 1, 'Beton', *(1,) * 8, 'by_all_criteria', False)
         handler = DebugDecisionHandler(answers)
@@ -137,9 +143,8 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'Kitchen - preparations, storage', True,
                    'solid_brick_a', True, 'hardwood', True,
-                   'Light_Concrete_DK', True, 'Concrete_DK', 'heavy', 1, 'Door',
-                   1, 'Brick', 'brick_H', 'EnEv',
-                   *(1,) * 8)
+                   'Light_Concrete_DK', True, 'Concrete_DK', 1, 'Door',
+                   1, 'Brick', 'brick_H', *(1,) * 8)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -151,8 +156,10 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-Institute-Var-2.ifc'
         used_workflow = workflow.BPSMultiZoneSeparatedLayersFull()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'Glas', True, 'glas_generic', 500, 1.5, 0.2, True, 'air_layer', 'sandstone', True, 'belgian_brick',
-                   0.1, True, 'Concrete_DK', 2015, 'heavy', 1, 'Beton', 'Light_Concrete_DK', 1, 'Beton', 1, 'Door', 1,
+        answers = (True, True, 'Glas', True, 'glas_generic', 500, 1.5, 0.2,
+                   True, 'air_layer', 'sandstone', True, 'belgian_brick',
+                   0.1, True, 'Concrete_DK', 2015, 1, 'Beton',
+                   'Light_Concrete_DK', 1, 'Beton', 1, 'Door', 1,
                    'Beton', 1, 'Beton', *(1,) * 8)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):

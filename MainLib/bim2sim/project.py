@@ -13,6 +13,7 @@ import pkg_resources
 import configparser
 
 from bim2sim.decision import Decision, ListDecision, DecisionBunch, save, load
+from bim2sim.kernel.units import ifcunits
 from bim2sim.task.base import Playground
 from bim2sim.plugin import Plugin
 from bim2sim.kernel.element import Element

@@ -19,8 +19,8 @@ class Prepare(ITask):
         pass
 
     def run(self, workflow: Workflow, instances: dict, space_boundaries: dict):
-        self.reduced_instances = dict(instances)
-        self.prepare_thermal_zones(instances)
+        self.reduced_instances = instances
+        yield from self.prepare_thermal_zones(instances)
         self.prepare_instances(instances)
 
         return self.tz_instances, self.reduced_instances
@@ -103,7 +103,7 @@ class Prepare(ITask):
 
     def prepare_instances(self, instances):
         """prepare instances based on recheck, can change classes"""
-        for inst in instances.values():
+        for inst in instances.copy().values():
             self.prepare_instance_class(inst, instances)
 
     def prepare_instance_class(self, instance, instances):
@@ -131,6 +131,7 @@ class Prepare(ITask):
             if new_class != type(instance):
                 instance.__class__ = new_class
                 # ToDo: More clean way to do this?
+                # ToDo: Maybe remove ald element and add new element
 
     def recognize_decomposed_roofs(self, instance, instances):
         """recognize the roofs that are decomposed on another slabs, and after that:

@@ -189,6 +189,7 @@ class Instance:
         for name, args in self.validate.items():
             check, export_name = args
             value = self.element.find(name)
+            # ToDo: Yield according to #126
             if check(value):
                 self.params[export_name] = value
             else:
