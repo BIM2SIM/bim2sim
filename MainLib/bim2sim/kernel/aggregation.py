@@ -3,25 +3,20 @@ import logging
 import math
 from functools import partial
 from typing import Sequence, List, Union, Iterable, Tuple, Set, Dict
-import inspect
-import operator
 import re
 
-import ast
 import numpy as np
 import networkx as nx
 
-from bim2sim.decision import DecisionBunch
 from bim2sim.kernel.element import ProductBased, Port
-from bim2sim.kernel.elements.hvac import HVACPort
+from bim2sim.kernel.elements.hvac import HVACPort, HVACProduct
 from bim2sim.kernel.elements import hvac, bps
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.decision import ListDecision, BoolDecision
-from bim2sim.kernel.elements.hvac import HeatPump
-from bim2sim.utilities.common_functions import get_usage_dict
+
 
 
 logger = logging.getLogger(__name__)
@@ -238,6 +233,18 @@ class HVACAggregationMixin(AggregationMixin):
         :returns: matches, metas"""
         raise NotImplementedError(
             "Method %s.find_matches not implemented" % cls.__name__)
+
+    @attribute.multi_calc
+    def _calc_has_pump(self):
+        has_pump = False
+        for ele in self.elements:
+            if hvac.Pump is ele.__class__:
+                has_pump = True
+                break
+
+        result = dict(
+            has_pump=has_pump)
+        return result
 
 
 class PipeStrand(HVACAggregationMixin, hvac.Pipe):
@@ -1192,18 +1199,6 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
     def _calc_TControl(self, name):
         return True  # ToDo: Look at Boiler Aggregation - David
 
-    @attribute.multi_calc
-    def _calc_has_pump(self):
-        has_pump = False
-        for ele in self.elements:
-            if hvac.Pump is ele.__class__:
-                has_pump = True
-                break;
-
-        result = dict(
-            has_pump=has_pump)
-        return result
-
     rated_power = attribute.Attribute(
         description="rated power",
         unit=ureg.kilowatt,
@@ -1212,7 +1207,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
     has_pump = attribute.Attribute(
         description="Cycle has a pumpsystem",
-        functions=[HVACAggregationMixin.calc_has_pump]
+        functions=[HVACAggregationMixin._calc_has_pump]
     )
 
     rated_pump_power = attribute.Attribute(
@@ -1664,7 +1659,8 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         functions=[_intensive_list_calc]
     )
 
-class GeneratorOneFluid(Aggregation):
+
+class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
     """Aggregates generator modules with only one fluid cycle (CHPs, Boilers,
     ...) Not for Chillers or Heatpumps!"""
     aggregatable_elements = ['IfcPump', 'PipeStrand', 'IfcPipeSegment',
@@ -1687,7 +1683,7 @@ class GeneratorOneFluid(Aggregation):
             raise NotImplementedError
         else:
             for port in edge_ports:
-                self.ports.append(AggregationPort(port, parent=self))
+                self.ports.append(HVACAggregationPort(port, parent=self))
 
     @classmethod
     def get_edge_ports(cls, graph):
@@ -1994,7 +1990,7 @@ class GeneratorOneFluid(Aggregation):
     # pump related attributes
     has_pump = attribute.Attribute(
         description="Cycle has a pumpsystem",
-        functions=[Aggregation.calc_has_pump]
+        functions=[HVACAggregationMixin._calc_has_pump]
     )
     rated_pump_power = attribute.Attribute(
         description="rated pump power",

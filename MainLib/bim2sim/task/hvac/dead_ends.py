@@ -37,7 +37,7 @@ class DeadEnds(ITask):
 
     @staticmethod
     def decide_deadends(graph: hvac_graph.HvacGraph, pot_dead_ends,
-                        force=False)-> [{hvac_graph.HvacGraph}, int]:
+                        force=False) -> [{hvac_graph.HvacGraph}, int]:
         """Make Decisions for all dead ends, if they are consumer or dead end."""
         n_removed = 0
         remove_ports = {}

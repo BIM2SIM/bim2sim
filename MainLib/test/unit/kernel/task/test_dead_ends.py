@@ -98,6 +98,13 @@ class TestOnlyDeadEnds(unittest.TestCase):
             flags['ps6'][0].ports[1],
         ]
         self.assertCountEqual(pot_dead_ends_compare, pot_dead_ends)
+        job = dead_ends.DeadEnds.decide_deadends(
+            graph, pot_dead_ends, True)
+        try:
+            while True:
+                dummy = next(job)
+        except StopIteration as result:
+            graph, n_removed = result.value
         graph, n_removed = dead_ends.DeadEnds.decide_deadends(
                 graph, pot_dead_ends, True)
         self.assertEqual(10, n_removed,
