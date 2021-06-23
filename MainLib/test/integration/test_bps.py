@@ -24,8 +24,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
                    "Stock, technical equipment, archives",
                    True, "air_layer", "perlite", True, "heavy", 1, "beton",
                    "Concrete_DK", "EnEv", 1, 0.3, "beton", 1, "beton", 1,
-                   "beton",
-                   *(1,) * 8)
+                   "beton", *(1,) * 8)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -108,9 +107,9 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'Kitchen - preparations, storage', True,
                    'solid_brick_h', True, 'hardwood', True,
-                   'Concrete_DK', True, 'Light_Concrete_DK', "heavy", 1,
-                   'Door', 1, 'Brick', 'brick_H', "EnEv",
-                   *(1,) * 8, 'by_all_criteria', False)
+                   'Concrete_DK', True, 'Light_Concrete_DK', 'heavy', 1,
+                   'Door', 1, 'Brick', 'brick_H', 'EnEv', *(1,) * 8,
+                   'by_all_criteria', False)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -124,9 +123,10 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'Glas', True, 'glas_generic', 500, 1.5, 0.2,
                    True, 'air_layer', 'sandstone', True, 'lime_sandstone_1',
-                   0.1, True, 'Concrete_DK', 2015, "heavy", 1, 'Beton',
-                   'Light_Concrete_DK', 1, 'Beton', 1, 'Door',
-                   1, 'Beton', 1, 'Beton', *(1,) * 8, 'by_all_criteria', False)
+                   True, 'aluminium', 0.1, True, 'Concrete_DK', 2015, "heavy",
+                   1, 'Beton', 'Light_Concrete_DK', 1, 'Beton', 1, 'Beton',
+                   1, 'Door',  1, 'Beton', 1, 'Beton', *(1,) * 8,
+                   'by_all_criteria', False)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -155,9 +155,9 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'Glas', True, 'glas_generic', 500, 1.5, 0.2,
                    True, 'air_layer', 'sandstone', True, 'lime_sandstone_1',
-                   0.1, True, 'Concrete_DK', 2015, "heavy", 1, 'Beton',
-                   'Light_Concrete_DK', 1, 'Beton', 1, 'Door', 1,
-                   'Beton', 1, 'Beton', *(1,) * 8)
+                   True, 'aluminium', 0.1, True, 'Concrete_DK', 2015, "heavy",
+                   1, 'Beton', 'Light_Concrete_DK', 1, 'Beton', 1, 'Beton',
+                   1, 'Door', 1, 'Beton', 1, 'Beton', *(1,) * 8)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer

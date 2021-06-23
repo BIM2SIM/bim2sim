@@ -1,4 +1,4 @@
-"""Module contains the different classes for all HVAC elements"""
+﻿"""Module contains the different classes for all HVAC elements"""
 import inspect
 import logging
 import math
@@ -15,7 +15,8 @@ from OCC.Core.BRepBuilderAPI import \
     BRepBuilderAPI_MakeFace, \
     BRepBuilderAPI_MakeEdge, \
     BRepBuilderAPI_MakeWire, BRepBuilderAPI_Transform, BRepBuilderAPI_MakeVertex
-from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, brepgprop_VolumeProperties
+from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, \
+    brepgprop_VolumeProperties
 from OCC.Core.GProp import GProp_GProps
 from OCC.Core.GeomAPI import GeomAPI_ProjectPointOnCurve
 from OCC.Core.ShapeAnalysis import ShapeAnalysis_ShapeContents
@@ -262,26 +263,21 @@ class ThermalZone(BPSProduct):
     )
     net_volume = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "NetVolume"),
-        default=0
     )
     volume = attribute.Attribute(
         functions=[_get_volume],
         unit=ureg.meter ** 3,
-        default=0
     )
     height = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "Height"),
         unit=ureg.meter,
-        default=0
     )
     length = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "Length"),
         unit=ureg.meter,
-        default=0
     )
     width = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "Width"),
-        default=0,
         unit=ureg.m
     )
     AreaPerOccupant = attribute.Attribute(
@@ -1032,12 +1028,10 @@ class Wall(BPSProduct):
     )
     area = attribute.Attribute(
         default_ps=("QTo_WallBaseQuantities", "NetSideArea"),
-        default=0,
         unit=ureg.meter ** 2
     )
     gross_area = attribute.Attribute(
         default_ps=("Qto_WallBaseQuantities", "GrossSideArea"),
-        default=0,
         unit=ureg.meter ** 2
     )
     is_external = attribute.Attribute(
@@ -1066,6 +1060,7 @@ class Layer(element.RelationBased):
         """layer __init__ function"""
         super().__init__(*args, **kwargs)
         self.material: str = material
+        self.parent = None
 
     def __repr__(self):
         return "<%s (material: %s>" \
@@ -1109,7 +1104,6 @@ class Layer(element.RelationBased):
     )
     thickness = attribute.Attribute(
         functions=[get_ifc_thickness],
-        default=0,
         unit=ureg.m
     )
     solar_absorp = attribute.Attribute(
@@ -1155,12 +1149,10 @@ class Window(BPSProduct):
     )
     area = attribute.Attribute(
         default_ps=("Qto_WindowBaseQuantities", "Area"),
-        default=0,
         unit=ureg.meter ** 2
     )
     width = attribute.Attribute(
         default_ps=("Qto_WindowBaseQuantities", "Depth"),
-        default=0,
         unit=ureg.m
     )
     u_value = attribute.Attribute(
@@ -1235,13 +1227,11 @@ class Door(BPSProduct):
 
     area = attribute.Attribute(
         default_ps=("Qto_DoorBaseQuantities", "Area"),
-        default=0,
         unit=ureg.meter ** 2
     )
 
     width = attribute.Attribute(
         default_ps=("Qto_DoorBaseQuantities", "Depth"),
-        default=0,
         unit=ureg.m
     )
     u_value = attribute.Attribute(
@@ -1296,24 +1286,20 @@ class Slab(BPSProduct):
     )
     area = attribute.Attribute(
         default_ps=("Qto_SlabBaseQuantities", "NetArea"),
-        default=0,
         unit=ureg.meter ** 2
     )
     gross_area = attribute.Attribute(
         default_ps=("Qto_SlabBaseQuantities", "GrossArea"),
-        default=0,
         unit=ureg.meter ** 2
     )
 
     width = attribute.Attribute(
         default_ps=("Qto_SlabBaseQuantities", "Width"),
-        default=0,
         unit=ureg.m
     )
 
     u_value = attribute.Attribute(
         default_ps=("Pset_SlabCommon", "ThermalTransmittance"),
-        default=0,
         unit=ureg.W / ureg.K / ureg.meter ** 2
     )
 

@@ -3,7 +3,6 @@ from bim2sim.utilities.common_functions import get_usage_dict, get_pattern_usage
 from bim2sim.decision import ListDecision, DecisionBunch
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.elements.bps import ThermalZone
-from bim2sim.kernel.units import ureg
 
 UseConditions = get_usage_dict()
 
@@ -43,7 +42,7 @@ class EnrichUseConditions(ITask):
                     matches = []
                     list_org = tz.usage.replace(' (', ' ').replace(')', ' '). \
                         replace(' -', ' ').replace(', ', ' ').split()
-                    for usage, patterns in pattern_usage.items():  # optimize this
+                    for usage, patterns in pattern_usage.items():
                         for i in patterns:
                             for i_name in list_org:
                                 if i.match(i_name):
@@ -61,14 +60,16 @@ class EnrichUseConditions(ITask):
                     elif len(matches) == 0:
                         matches = list(pattern_usage.keys())
                     if len(matches) > 1:
-                        tz.usage = yield from self.list_decision_usage(tz, matches)
+                        tz.usage = yield from self.list_decision_usage(
+                            tz, matches)
                     selected_usage[previous_usage] = tz.usage
             self.load_usage(tz)
             self.enriched_tz.append(tz)
 
     # def one_zone_usage(self, thermal_zones: dict):
     #     """defines an usage to all the building - since its a singular zone"""
-    #     usage_decision = ListDecision("Which usage does the one_zone_building %s have?",
+    #     usage_decision = ListDecision("Which usage does the one_zone_building"
+    #                                   " %s have?",
     #                                   choices=list(UseConditions.keys()),
     #                                   global_key="one_zone_usage",
     #                                   allow_skip=False,
@@ -81,10 +82,13 @@ class EnrichUseConditions(ITask):
     #         self.enriched_tz.append(tz)
 
     def office_usage(self, tz: ThermalZone):
-        """function to determine which office corresponds based on the area of the thermal zone and the table on:
-        https://skepp.com/en/blog/office-tips/this-is-how-many-square-meters-of-office-space-you-need-per-person"""
+        """function to determine which office corresponds based on the area of
+        the thermal zone and the table on:
+        https://skepp.com/en/blog/office-tips/this-is-how-many-square-meters-of
+        -office-space-you-need-per-person"""
 
-        default_matches = ["Single office", "Group Office (between 2 and 6 employees)",
+        default_matches = ["Single office",
+                           "Group Office (between 2 and 6 employees)",
                            "Open-plan Office (7 or more employees)"]
         area = tz.area.m
         # case area its available

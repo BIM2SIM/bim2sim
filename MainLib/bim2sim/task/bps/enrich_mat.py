@@ -5,7 +5,8 @@ from bim2sim.decision import BoolDecision, ListDecision, RealDecision, \
     StringDecision, DecisionBunch
 from bim2sim.workflow import LOD
 from functools import partial
-from bim2sim.utilities.common_functions import get_material_templates, translate_deep
+from bim2sim.utilities.common_functions import get_material_templates, \
+    translate_deep
 from bim2sim.kernel.units import ureg
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.element import ProductBased
@@ -32,15 +33,10 @@ class EnrichMaterial(ITask):
                 for layer in layers:
                     yield from self.set_material_properties(layer)
                     self.enriched_materials.append(layer)
-            self.logger.info("enriched %d invalid materials", len(self.enriched_materials))
+            self.logger.info("enriched %d invalid materials",
+                             len(self.enriched_materials))
 
         return self.enriched_materials,
-
-    def get_layer_properties(self, instance: ProductBased):
-        """gets all layers of instance to after treatment"""
-        if hasattr(instance, 'layers'):
-            for layer in instance.layers:
-                yield from self.set_material_properties(layer)
 
     def set_material_properties(self, layer: Layer):
         """enrich layer properties that are invalid"""
@@ -51,13 +47,17 @@ class EnrichMaterial(ITask):
                 # case all other properties
                 if attr != 'thickness':
                     if not self.validate_manual_attribute(new_attributes[attr]):
-                        yield from self.manual_attribute_value(attr, units[attr], layer)
+                        yield from self.manual_attribute_value(attr,
+                                                               units[attr],
+                                                               layer)
                     # todo check with christian if this is clean
                     setattr(layer, attr, new_attributes[attr])
                 # case thickness
                 else:
                     if not self.validate_thickness(layer, new_attributes[attr]):
-                        yield from self.manual_thickness_value(attr, units[attr], layer)
+                        yield from self.manual_thickness_value(attr,
+                                                               units[attr],
+                                                               layer)
                     # todo check with christian if this is clean
                     setattr(layer, attr, new_attributes[attr])
 
@@ -72,11 +72,12 @@ class EnrichMaterial(ITask):
                 material_options, new_material = yield from \
                     self.material_options_decision(resumed, layer, material)
                 first_decision = BoolDecision(
-                    question="Do you want to enrich the layers with the material \'%s\' "
-                             "by using available templates? \n"
+                    question="Do you want to enrich the layers with the "
+                             "material \'%s\' by using available templates? \n"
                              "Belonging Item: %s | GUID: %s \n"
                              "Enter 'n' for manual input"
-                             % (new_material, layer.parent.key, layer.parent.guid),
+                             % (new_material, layer.parent.key,
+                                layer.parent.guid),
                     global_key='%s_layer_enriched' % layer.material,
                     context=layer.parent.key, related=layer.parent.guid)
                 yield DecisionBunch([first_decision])
@@ -86,14 +87,17 @@ class EnrichMaterial(ITask):
                             new_material, layer.parent, material_options)
                     if material is None:
                         layer.material = selected_material
-                    self.material_selected[material] = resumed[selected_material]
+                    self.material_selected[material] = \
+                        resumed[selected_material]
                 else:
                     self.material_selected[material] = {}
                     for attr in attributes:
                         if attr != 'thickness':
-                            yield from self.manual_attribute_value(attr, attributes[attr], layer)
+                            yield from self.manual_attribute_value(
+                                attr, attributes[attr], layer)
                         else:
-                            yield from self.manual_thickness_value(attr, attributes[attr], layer)
+                            yield from self.manual_thickness_value(
+                                attr, attributes[attr], layer)
             else:
                 self.material_selected[material] = selected_properties
         return self.material_selected[material]
@@ -126,27 +130,32 @@ class EnrichMaterial(ITask):
 
     @staticmethod
     def validate_manual_attribute(value):
-        """validation function of manual enrichment and attribute setting - not thickness"""
+        """validation function of manual enrichment and attribute setting - not
+        thickness"""
         if value <= 0.0:
             return False
         return True
 
     @classmethod
     def validate_new_material(cls, resumed_keys: list, value: str):
-        """validation function of str new material, if it matches with templates"""
+        """validation function of str new material, if it matches with
+        templates"""
         if len(cls.get_matches_list(value, resumed_keys)) == 0:
             return False
         return True
 
     def validate_thickness(self, layer: Layer, value):
-        """validation function of manual enrichment and attribute setting - thickness"""
+        """validation function of manual enrichment and attribute setting -
+        thickness"""
         material = re.sub(r'[^\w]*?[0-9]', '', layer.material)
-        instance_width = layer.parent.width
+        instance_width = layer.parent.width.m if type(layer.parent.width.m)\
+            is float else 0
         layers_list = layer.parent.layers
         layer_index = layers_list.index(layer)
-        thickness_sum = ureg.Quantity(
-            sum(layer.thickness.m for layer in layers_list[:layer_index] if type(layer.thickness.m) is float), ureg.m)
-        available_width = instance_width.m - thickness_sum.m
+        thickness_sum = sum(layer.thickness.m for layer in
+                            layers_list[:layer_index] if
+                            type(layer.thickness.m) is float)
+        available_width = instance_width - thickness_sum
         if layer_index + 1 == len(layers_list):
             self.material_selected[material]['thickness'] = available_width
             return True
@@ -182,36 +191,44 @@ class EnrichMaterial(ITask):
             if attrs is not None:
                 for attr in attrs:
                     if attr == 'thickness':
-                        resumed[material_templates[k]['name']][attr] = material_templates[k]['thickness_default']
+                        resumed[material_templates[k]['name']][attr] = \
+                            material_templates[k]['thickness_default']
                     else:
-                        resumed[material_templates[k]['name']][attr] = material_templates[k][attr]
+                        resumed[material_templates[k]['name']][attr] = \
+                            material_templates[k][attr]
             else:
                 for attr in material_templates[k]:
                     if attr == 'thickness_default':
-                        resumed[material_templates[k]['name']]['thickness'] = material_templates[k][attr]
+                        resumed[material_templates[k]['name']]['thickness'] = \
+                            material_templates[k][attr]
                     elif attr == 'name':
-                        resumed[material_templates[k]['name']]['material'] = material_templates[k][attr]
+                        resumed[material_templates[k]['name']]['material'] = \
+                            material_templates[k][attr]
                     elif attr == 'thickness_list':
                         continue
                     else:
-                        resumed[material_templates[k]['name']][attr] = material_templates[k][attr]
+                        resumed[material_templates[k]['name']][attr] = \
+                            material_templates[k][attr]
         return resumed
 
     @staticmethod
-    def get_matches_list(search_words: str, search_list: list, transl: bool = True) -> list:
-        """get patterns for a material name in both english and original language,
-        and get afterwards the related elements from list"""
+    def get_matches_list(search_words: str, search_list: list,
+                         transl: bool = True) -> list:
+        """get patterns for a material name in both english and original
+        language, and get afterwards the related elements from list"""
 
         material_ref = []
 
         if type(search_words) is str:
             pattern_material = search_words.split()
             if transl:
-                # use of yandex, bing--- https://pypi.org/project/translators/#features
+                # use of yandex, bing--- https://pypi.org/project/translators/
+                # #features
                 pattern_material.extend(translate_deep(search_words).split())
 
             for i in pattern_material:
-                material_ref.append(re.compile('(.*?)%s' % i, flags=re.IGNORECASE))
+                material_ref.append(re.compile('(.*?)%s' % i,
+                                               flags=re.IGNORECASE))
 
         material_options = []
         for ref in material_ref:
@@ -223,28 +240,34 @@ class EnrichMaterial(ITask):
         return material_options
 
     @classmethod
-    def material_options_decision(cls, resumed: dict, layer: Layer, material: str) -> [list, str]:
+    def material_options_decision(cls, resumed: dict, layer: Layer,
+                                  material: str) -> [list, str]:
         """get list of matching materials
         if material has no matches, more common name necessary"""
         material_options = cls.get_matches_list(material, list(resumed.keys()))
         if len(material_options) == 0:
             material_decision = StringDecision(
-                "Material not found, enter  more common name for the material %s:\n"
+                "Material not found, enter  more common name for the material "
+                "%s:\n"
                 "Belonging Item: %s | GUID: %s \n"
                 "Enter 'n' for manual input"
                 # ToDO: what happened to name?
                 % (layer.material, layer.parent.key, layer.parent.guid),
                 global_key='Layer_Material_%s' % layer.guid,
                 allow_skip=True,
-                validate_func=partial(cls.validate_new_material, list(resumed.keys())),
+                validate_func=partial(cls.validate_new_material,
+                                      list(resumed.keys())),
                 context=layer.parent.key, related=layer.parent.guid)
             yield DecisionBunch([material_decision])
-            material_options = cls.get_matches_list(material_decision.value, list(resumed.keys()))
+            material_options = cls.get_matches_list(material_decision.value,
+                                                    list(resumed.keys()))
             material = material_decision.value
         return material_options, material
 
     @classmethod
-    def material_selection_decision(cls, material_input: str, parent: ProductBased, material_options: list):
+    def material_selection_decision(cls, material_input: str,
+                                    parent: ProductBased,
+                                    material_options: list):
         """select one of the material of given matches list"""
         if len(list(material_options)) > 1:
             material_selection = ListDecision(
@@ -252,7 +275,8 @@ class EnrichMaterial(ITask):
                 "Belonging Item: %s | GUID: %s \n"
                 "Enter 'n' for manual input"
                 % (material_input, parent.key, parent.guid),
-                choices=list(material_options), global_key='%s_material_enrichment' % material_input,
+                choices=list(material_options),
+                global_key='%s_material_enrichment' % material_input,
                 allow_skip=True, context=parent.key, related=parent.guid)
             yield DecisionBunch([material_selection])
             return material_selection.value

@@ -8,7 +8,8 @@ from bim2sim.utilities.common_functions import filter_instances
 
 class DisaggregationCreation(ITask):
     """Prepares bim2sim instances to later export"""
-    # for 1Zone Building - workflow.spaces: LOD.low - Disaggregations not necessary
+    # for 1Zone Building - workflow.spaces: LOD.low - Disaggregations
+    # not necessary
     reads = ('instances', 'finder')
     touches = ('disaggregations',)
 
@@ -22,9 +23,11 @@ class DisaggregationCreation(ITask):
         thermal_zones = filter_instances(instances, 'ThermalZone')
         if workflow.spaces is not LOD.low:
             for tz in thermal_zones:
-                new_bound_elements = self.get_thermal_zone_disaggregations(tz, finder)
+                new_bound_elements = self.get_thermal_zone_disaggregations(
+                    tz, finder)
                 tz.bound_elements = new_bound_elements
-            self.logger.info("disaggregated %d instances", len(self.disaggregations))
+            self.logger.info("disaggregated %d instances",
+                             len(self.disaggregations))
 
         return self.disaggregations,
 
@@ -37,10 +40,12 @@ class DisaggregationCreation(ITask):
                     if sb.guid in self.disaggregations:
                         inst = self.disaggregations[sb.guid]
                     else:
-                        inst = self.create_disaggregation(finder, bound_instance, sb, tz)
+                        inst = self.create_disaggregation(
+                            finder, bound_instance, sb, tz)
                         self.disaggregations[sb.related_bound.guid] = inst
                 else:
-                    inst = self.create_disaggregation(finder, bound_instance, sb, tz)
+                    inst = self.create_disaggregation(
+                        finder, bound_instance, sb, tz)
                 tz_disaggregations.append(inst)
 
                 if sb not in inst.space_boundaries:
@@ -60,11 +65,10 @@ class DisaggregationCreation(ITask):
 
     @staticmethod
     def check_disaggregation(parent, sb, threshold=0.1):
-        if hasattr(parent, 'gross_area'):
-            parent_area = parent.gross_area
+        if parent.bound_area:
+            parent_area = parent.bound_area
         else:
             parent_area = parent.area
-
         if len(parent.space_boundaries) == 1:
             return False
         elif sb.bound_area == 0:
@@ -74,7 +78,8 @@ class DisaggregationCreation(ITask):
         else:
             return True
 
-    def overwrite_attributes(self, inst, parent, sb, tz, subclass, threshold=0.1):
+    def overwrite_attributes(self, inst, parent, sb, tz, subclass,
+                             threshold=0.1):
         type_parent = subclass.__name__
 
         inst.parent = parent
@@ -85,26 +90,30 @@ class DisaggregationCreation(ITask):
         inst.orientation = parent.orientation
         for prop in inst.attributes:
             dis_value = getattr(inst, prop)
-            if not dis_value or dis_value == 0:
+            if not dis_value:
                 parent_value = getattr(inst.parent, prop)
-                setattr(inst, prop, parent_value)
+                if parent_value:
+                    setattr(inst, prop, parent_value)
 
         new_pos = np.array(sb.position)
         if type_parent in self.vertical_instances:
-            inst.position = self.get_new_position_vertical_instance(parent, new_pos)
+            inst.position = self.get_new_position_vertical_instance(parent,
+                                                                    new_pos)
         if type_parent in self.horizontal_instances:
             inst.position = tz.position
             if tz.area and abs(1 - inst.area / tz.area) < threshold:
-                if abs(1 - inst.area / tz.area) < threshold:
-                    inst.area = tz.area
+                inst.area = tz.area
 
     @staticmethod
     def get_new_position_vertical_instance(parent, sub_position):
-        """get new position based on parent position, orientation and relative disaggregation position"""
-        rel_orientation_wall = math.floor(parent.orientation + parent.get_true_north())
+        """get new position based on parent position, orientation and relative
+        disaggregation position"""
+        rel_orientation_wall = math.floor(parent.orientation +
+                                          parent.get_true_north())
         x1, y1, z1 = sub_position
         x, y, z = parent.position
-        if 45 <= rel_orientation_wall < 135 or 225 <= rel_orientation_wall < 315:
+        if 45 <= rel_orientation_wall < 135 or 225 <= rel_orientation_wall \
+                < 315:
             y1, z1, z1 = sub_position
 
         x = x - x1 * math.cos(math.radians(rel_orientation_wall))

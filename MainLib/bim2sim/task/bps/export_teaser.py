@@ -1,5 +1,3 @@
-import os
-
 from teaser.project import Project
 from teaser.logic.buildingobjects.building import Building
 from teaser.logic.buildingobjects.thermalzone import ThermalZone
@@ -18,11 +16,10 @@ from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import filter_instances
 
 
-
 class ExportTEASER(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
-    reads = ('ifc', 'bounded_tz', 'instances')
+    reads = ('ifc', 'instances')
     final = True
 
     materials = {}
@@ -39,13 +36,14 @@ class ExportTEASER(ITask):
                          'InnerDoor': InnerWall
                          }
 
-    def run(self, workflow, ifc, bounded_tz, instances):
+    def run(self, workflow, ifc, instances):
         self.logger.info("Export to TEASER")
         prj = self._create_project(ifc.by_type('IfcProject')[0])
         bldg_instances = filter_instances(instances, 'Building')
+        thermal_zones = filter_instances(instances, 'ThermalZone')
         for bldg_instance in bldg_instances:
             bldg = self._create_building(bldg_instance, prj)
-            for tz_instance in bounded_tz:
+            for tz_instance in thermal_zones:
                 tz = self._create_thermal_zone(tz_instance, bldg)
                 self._bind_instances_to_zone(tz, tz_instance, bldg)
                 tz.calc_zone_parameters()
@@ -84,7 +82,8 @@ class ExportTEASER(ITask):
 
     @classmethod
     def _teaser_property_getter(cls, teaser_instance, instance, templates):
-        """get and set all properties necessary to create a Teaser Instance from a BIM2Sim Instance,
+        """get and set all properties necessary to create a Teaser Instance from
+        a BIM2Sim Instance,
         based on the information on the base.json exporter"""
         sw = type(teaser_instance).__name__
         if sw == 'Rooftop':
@@ -106,10 +105,12 @@ class ExportTEASER(ITask):
 
     @classmethod
     def _invalid_property_filter(cls, teaser_instance, key, aux):
-        """Filter the invalid property values and fills it with a template or an user given value,
+        """Filter the invalid property values and fills it with a template or an
+        user given value,
         if value is valid, returns the value
         invalid value: ZeroDivisionError on thermal zone calculations"""
-        error_properties = ['thickness', 'thermal_conduc']  # properties that are vital to thermal zone calculations
+        error_properties = ['thickness', 'thermal_conduc']  # properties that
+        # are vital to thermal zone calculations
         if (aux is None or aux == 0) and key in error_properties:
             raise ZeroDivisionError
         # set attr on teaser instance
@@ -121,21 +122,16 @@ class ExportTEASER(ITask):
         Parent: Building"""
         tz = ThermalZone(parent=parent)
         tz.use_conditions = UseConditions(parent=tz)
-        cls._teaser_property_getter(tz.use_conditions, instance, instance.finder.templates)
+        cls._teaser_property_getter(tz.use_conditions, instance,
+                                    instance.finder.templates)
         cls._teaser_property_getter(tz, instance, instance.finder.templates)
-        # hardcode for paper:
-        # todo dja
-        # if PROJECT.PAPER:
-        #     tz.use_conditions.cooling_profile = [conversion(25, '°C', 'K').magnitude] * 25
-        #     tz.use_conditions.with_cooling = instance.with_cooling
-        #     tz.use_conditions.use_constant_infiltration = True
-        #     tz.use_conditions.infiltration_rate = 0.2
 
         return tz
 
     @classmethod
     def _bind_instances_to_zone(cls, tz, tz_instance, bldg):
-        """create and bind the instances of a given thermal zone to a teaser instance thermal zone"""
+        """create and bind the instances of a given thermal zone to a teaser
+        instance thermal zone"""
         for bound_element in tz_instance.bound_elements:
             cls._create_teaser_instance(bound_element, tz)
         cls.min_admissible_elements(tz, bldg)
@@ -157,7 +153,8 @@ class ExportTEASER(ITask):
         """creates a teaser instances with a given parent and BIM2SIM instance
         get exporter necessary properties, from a given instance
         Parent: ThermalZone"""
-        # determine if is instance or subinstance (disaggregation) get templates from instance
+        # determine if is instance or subinstance (disaggregation) get templates
+        # from instance
         if hasattr(instance, 'parent'):
             sw = type(instance.parent).__name__
             templates = instance.parent.finder.templates
@@ -179,12 +176,15 @@ class ExportTEASER(ITask):
         if isinstance(instance.layers, list) and len(instance.layers) > 0:
             for layer_instance in instance.layers:
                 layer = Layer(parent=teaser_instance)
-                cls._invalid_property_filter(layer, 'thickness', layer_instance.thickness.m)
+                cls._invalid_property_filter(layer, 'thickness',
+                                             layer_instance.thickness.m)
                 cls._material_related(layer, layer_instance)
 
     @classmethod
     def _material_related(cls, layer, layer_instance):
-        """material instance specific functions, get properties of material and creates Material in teaser,
-        if material or properties not given, loads material template"""
+        """material instance specific functions, get properties of material and
+        creates Material in teaser, if material or properties not given,
+        loads material template"""
         material = Material(parent=layer)
-        cls._teaser_property_getter(material, layer_instance, layer_instance.finder.templates)
+        cls._teaser_property_getter(material, layer_instance,
+                                    layer_instance.finder.templates)
