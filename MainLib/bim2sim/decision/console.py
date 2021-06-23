@@ -1,9 +1,10 @@
-from ..decision import Decision, BoolDecision, RealDecision, ListDecision
-from ..decision import DecisionCancle, DecisionSkip, DecisionSkipAll, PendingDecisionError, DecisionException
-from .frontend import FrontEnd
+from ..decision import Decision, BoolDecision, RealDecision, ListDecision, \
+    DecisionBunch
+from ..decision import DecisionCancel, DecisionSkip, DecisionSkipAll, PendingDecisionError, DecisionException
+from .decisionhandler import DecisionHandler
 
 
-class ConsoleFrontEnd(FrontEnd):
+class ConsoleDecisionHandler(DecisionHandler):
 
     @staticmethod
     def get_input_txt(decision):
@@ -42,42 +43,37 @@ class ConsoleFrontEnd(FrontEnd):
         for i, decision in enumerate(collection):
             yield decision, "[Decision {}/{}]".format(i + 1, total)
 
-    def solve(self, decision):
-        try:
-            decision.value = self.user_input(decision)
-        except DecisionSkip:
-            decision.skip()
-        except DecisionCancle as ex:
-            self.logger.info("Canceling decisions")
-            raise
-        return
-
-    def solve_collection(self, collection):
-
-        if not collection:
-            return
+    def get_answers_for_bunch(self, bunch: DecisionBunch) -> list:
+        answers = []
+        if not bunch:
+            return answers
 
         skip_all = False
         extra_options = []
-        if all([d.allow_skip for d in collection]):
+        if all([d.allow_skip for d in bunch]):
             extra_options.append(Decision.SKIPALL)
 
-        for decision, progress in self.collection_progress(collection):
+        for decision, progress in self.collection_progress(bunch):
+            answer = None
             if skip_all and decision.allow_skip:
-                decision.skip()
+                # decision.skip()
+                pass
             else:
                 if skip_all:
                     self.logger.info("Decision can not be skipped")
                 try:
-                    decision.value = self.user_input(decision, extra_options=extra_options, progress=progress)
+                    answer = self.user_input(decision, extra_options=extra_options, progress=progress)
                 except DecisionSkip:
-                    decision.skip()
+                    # decision.skip()
+                    pass
                 except DecisionSkipAll:
                     skip_all = True
                     self.logger.info("Skipping remaining decisions")
-                except DecisionCancle as ex:
+                except DecisionCancel as ex:
                     self.logger.info("Canceling decisions")
                     raise
+            answers.append(answer)
+        return answers
 
     # TODO: based on decision type
     # TODO: merge from element_filter_by_text
@@ -109,10 +105,10 @@ class ConsoleFrontEnd(FrontEnd):
                 # decision.skip()
                 # return None
             if raw_value.lower() == Decision.SKIPALL.lower() and Decision.SKIPALL in options:
-                decision.skip()
+                # decision.skip()
                 raise DecisionSkipAll
             if raw_value.lower() == Decision.CANCEL.lower() and Decision.CANCEL in options:
-                raise DecisionCancle
+                raise DecisionCancel
 
             if not raw_value and decision.default is not None:
                 return decision.default
@@ -126,7 +122,7 @@ class ConsoleFrontEnd(FrontEnd):
                         print("Last try before auto Cancel!")
                     print(f"'{raw_value}' (interpreted as {value}) is no valid input! Try again.")
                 else:
-                    raise DecisionCancle("Too many invalid attempts. Canceling input.")
+                    raise DecisionCancel("Too many invalid attempts. Canceling input.")
             attempt += 1
 
         return value

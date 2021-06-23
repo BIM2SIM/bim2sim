@@ -2,27 +2,25 @@
 
 import itertools
 import json
-import os
 import logging
+from typing import Generator, Iterable
 
 import numpy as np
 import networkx as nx
 
-from bim2sim.task.base import Task, ITask
-from bim2sim.workflow import LOD
-from bim2sim.filter import TypeFilter, TextFilter
-from bim2sim.kernel.aggregation import Aggregation, PipeStrand, UnderfloorHeating,\
-    ParallelPump, ParallelSpaceHeater
+from bim2sim.kernel.elements.hvac import HVACProduct
+from bim2sim.task.base import ITask
+from bim2sim.filter import TypeFilter
+from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating,\
+    ParallelPump
 from bim2sim.kernel.aggregation import Consumer, ConsumerHeatingDistributorModule
-from bim2sim.kernel.element import Element, ElementEncoder, BasePort
+from bim2sim.kernel.element import ProductBased, ElementEncoder, Port
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
-from bim2sim.decision import Decision, ListDecision
-from bim2sim.kernel import finder
-from bim2sim.enrichment_data.data_class import DataClass
+from bim2sim.decision import Decision, DecisionBunch
 from bim2sim.enrichment_data import element_input_json
-from bim2sim.decision import ListDecision, RealDecision, BoolDecision
-from bim2sim.task.common.common_functions import get_type_building_elements_hvac
+from bim2sim.decision import RealDecision, BoolDecision
+from bim2sim.utilities.common_functions import get_type_building_elements_hvac
 
 
 # todo remove because obsolete
@@ -74,12 +72,12 @@ class SetIFCTypesHVAC(ITask):
         return IFC_TYPES,
 
 
-class Inspect(ITask):
+class ConnectElements(ITask):
     """Analyses IFC, creates Element instances and connects them.
 
     elements are stored in .instances dict with guid as key"""
 
-    reads = ('ifc', 'filters')
+    reads = ('instances',)
     touches = ('instances', )
 
     def __init__(self):
@@ -106,7 +104,7 @@ class Inspect(ITask):
         for port1, port2 in itertools.combinations(ports, 2):
             if port1.parent == port2.parent:
                 continue
-            delta = Inspect.port_distance(port1, port2)
+            delta = ConnectElements.port_distance(port1, port2)
             if delta is None:
                 continue
             abs_delta = max(abs(delta))
@@ -142,7 +140,10 @@ class Inspect(ITask):
         """Inspects IFC relations of ports"""
         logger = logging.getLogger('IFCQualityReport')
         connections = []
+        port_mapping = {port.guid: port for port in ports}
         for port in ports:
+            if not port.ifc:
+                continue
             connected_ports = \
                 [conn.RelatingPort for conn in port.ifc.ConnectedFrom] \
                 + [conn.RelatedPort for conn in port.ifc.ConnectedTo]
@@ -153,7 +154,7 @@ class Inspect(ITask):
                     logger.warning("%s has multiple connections", port.ifc)
                     possibilities = []
                     for connected_port in connected_ports:
-                        possible_port = port.get_object(connected_port.GlobalId)
+                        possible_port = port_mapping.get(connected_port.GlobalId)
 
                         if possible_port.parent is not None:
                             possibilities.append(possible_port)
@@ -171,7 +172,7 @@ class Inspect(ITask):
                                          "Continue without connecting %s", port.ifc)
                 else:
                     # explicit
-                    other_port = port.get_object(
+                    other_port = port_mapping.get(
                         connected_ports[0].GlobalId)
                 if other_port:
                     if port.parent and other_port.parent:
@@ -192,7 +193,7 @@ class Inspect(ITask):
         unconfirmed = []
         rejected = []
         for port1, port2 in connections:
-            delta = Inspect.port_distance(port1, port2)
+            delta = ConnectElements.port_distance(port1, port2)
             if delta is None:
                 unconfirmed.append((port1, port2))
             elif max(abs(delta)) < eps:
@@ -214,7 +215,7 @@ class Inspect(ITask):
                                    ele.ifc, port_a.guid, port_b.guid,
                                    port_a.position)
 
-                    conns = Inspect.connections_by_relation(
+                    conns = ConnectElements.connections_by_relation(
                         [port_a, port_b], include_conflicts=True)
                     all_ports = [port for conn in conns for port in conn]
                     other_ports = [port for port in all_ports
@@ -240,154 +241,19 @@ class Inspect(ITask):
         connections = []
         return connections
 
-    @Task.log
-    def accept_valids(self, entities_dict, warn=True, force=False):
-        """Instantiate ifc_entities using given element class.
-        Resulting instances are validated (if not force) ans added to self.instances on success."""
-        valid, invalid = [], []
-        result_dict = {}
-        for ifc_type, entities in entities_dict.items():
-            remaining = []
-            result_dict[ifc_type] = remaining
-            for entity in entities:
-                element = Element.factory(entity, ifc_type)
-                if element.validate() or force:
-                    valid.append(entity)
-                    self.instances[element.guid] = element
-                elif force:
-                    valid.append(entity)
-                    self.instances[element.guid] = element
-                    if warn:
-                        self.logger.warning("Validation failed for %s %s but instantiated anyway", ifc_type, element)
-                else:
-                    if warn:
-                        self.logger.warning("Validation failed for %s %s", ifc_type, element)
-                    invalid.append(entity)
-                    remaining.append(entity)
-                    element.discard()
-
-        return valid, invalid
-
-    def filter_by_text(self, text_filter, ifc_entities):
-        """Filter ifc elements using given TextFilter. Ambiguous results are solved by decisions"""
-        entities_dict, unknown_entities = text_filter.run(ifc_entities)
-        answers = {}
-        for k, v in entities_dict.items():
-            if len(v) > 0:  # TODO: Define in Configfile
-                ListDecision(
-                    "Found following Matches:",
-                    # TODO: filter_for_text_fracments() already called in text_filter.run()
-                    choices=[[cls.ifc_type, "Match: '" + ",".join(cls.filter_for_text_fracments(k)) + "' in " + " or ".join(
-                        ["'%s'" % txt for txt in [k.Name, k.Description] if txt])] for cls in v],
-                    output=answers,
-                    output_key=k,
-                    global_key="%s.%s" % (k.is_a(), k.GlobalId),
-                    allow_skip=True, allow_load=True, allow_save=True,
-                    collect=True, quick_decide=not True)
-            elif len(v) == 1:
-                answers[k] = v[0]
-
-        Decision.decide_collected()
-
-        result_entity_dict = {}
-        for ifc_entity, element_classes in entities_dict.items():
-            ifc_type = answers.get(ifc_entity)
-            if ifc_type:
-                lst = result_entity_dict.setdefault(ifc_type, [])
-                lst.append(ifc_entity)
-            else:
-                unknown_entities.append(ifc_entity)
-
-        return result_entity_dict, unknown_entities
-
-    def set_class_by_user(self, unknown_entities):
-        """Ask user for every given ifc_entity to specify matching element class"""
-        answers = {}
-        checksum = Decision.build_checksum(list(Element._ifc_classes.keys()))  # assert same list of ifc_classes
-        for ifc_entity in unknown_entities:
-            ListDecision(
-                "Found unidentified Element of %s (Name: %s, Description: %s):" % (
-                ifc_entity.is_a(), ifc_entity.Name, ifc_entity.Description),
-                choices=[ifc_type for ifc_type in Element._ifc_classes.keys()],
-                output=answers,
-                output_key=ifc_entity,
-                global_key="%s.%s" % (ifc_entity.is_a(), ifc_entity.GlobalId),
-                allow_skip=True, allow_load=True, allow_save=True,
-                collect=True, quick_decide=not True,
-                validate_checksum=checksum)
-        Decision.decide_collected()
-
-        result_entity_dict = {}
-        ignore = []
-        for ifc_entity, ifc_type in answers.items():
-
-            if ifc_type is None:
-                ignore.append(ifc_entity)
-            else:
-                lst = result_entity_dict.setdefault(ifc_type, [])
-                lst.append(ifc_entity)
-
-        return result_entity_dict, ignore
-
-    @Task.log
-    def run(self, workflow, ifc, filters):
-        self.logger.info("Creates python representation of relevant ifc types")
-
-        # filter by type
-        initial_filter = filters[0]  #ToDo: TypeFilter must be first if the following Filter should also search in this types!
-        initial_entities_dict, unknown_entities = initial_filter.run(ifc)
-        valids, invalids = self.accept_valids(initial_entities_dict)
-        unknown_entities.extend(invalids)
-
-        for f in filters[1:]:
-
-            if isinstance(f, TextFilter):
-                # filter by text fragments
-                class_dict, unknown_entities = self.filter_by_text(f, unknown_entities)
-                valids, invalids = self.accept_valids(class_dict, force=True)   #  ToDo: Validation skipped....
-                unknown_entities.extend(invalids)
-            else:
-                raise NotImplementedError()
-
-        self.logger.info("Found %d relevant elements", len(self.instances))
-        self.logger.info("Found %d ifc_entities that could not be identified and transformed into a python element.",
-                         len(unknown_entities))
-
-        #Identification of remaining Elements through the user
-        class_dict, unknown_entities = self.set_class_by_user(unknown_entities)
-        valids, invalids = self.accept_valids(class_dict, force=True)
-        if invalids:
-            self.logger.info("Removed %d entities with no class set", len(invalids))
-
-        # answers = {}
-        # for ifc_entity in unknown_entities:
-        #     for ifc_element in v:
-        #         ListDecision(
-        #             "Found unidentified Element of %s (Name: %s, Description: %s):" % (ifc_entity, ifc_element.Name, ifc_element.Description),
-        #             choices=[[ifc_type, element] for ifc_type, element in Element._ifc_classes.items()],
-        #             output=answers,
-        #             output_key=ifc_element,
-        #             global_key="%s.%s" % (ifc_element.is_a(), ifc_element.GlobalId),
-        #             allow_skip=True, allow_load=True, allow_save=True, allow_overwrite=True,
-        #             collect=True, quick_decide=not True)
-        #         Decision.decide_collected()
-        #
-        # for a, v in answers.items():
-        #     representation = Element.factory(a, v[0]) if v else None
-        #     if representation:
-        #         self.instances[representation.guid] = representation
-        #         entities_dict[a.is_a()].remove(a)
-
-        self.logger.info("Created %d elements", len(self.instances))
+    def run(self, workflow, instances):
+        self.logger.info("Connect elements")
+        self.instances = instances  # TODO: remove self.instances
 
         # connections
         self.logger.info("Checking ports of elements ...")
         self.check_element_ports(self.instances.values())
         self.logger.info("Connecting the relevant elements")
         self.logger.info(" - Connecting by relations ...")
-        test = BasePort.objects
+
+        all_ports = [port for item in self.instances.values() for port in item.ports]
         rel_connections = self.connections_by_relation(
-            BasePort.objects.values())
+            all_ports)
         self.logger.info(" - Found %d potential connections.",
                          len(rel_connections))
 
@@ -401,7 +267,7 @@ class Inspect(ITask):
             # unconfirmed have no position data and cant be connected by position
             port1.connect(port2)
 
-        unconnected_ports = (port for port in BasePort.objects.values()
+        unconnected_ports = (port for port in all_ports
                              if not port.is_connected())
         self.logger.info(" - Connecting remaining ports by position ...")
         pos_connections = self.connections_by_position(unconnected_ports)
@@ -410,8 +276,8 @@ class Inspect(ITask):
         for port1, port2 in pos_connections:
             port1.connect(port2)
 
-        nr_total = len(BasePort.objects)
-        unconnected = [port for port in BasePort.objects.values()
+        nr_total = len(all_ports)
+        unconnected = [port for port in all_ports
                        if not port.is_connected()]
         nr_unconnected = len(unconnected)
         nr_connected = nr_total - nr_unconnected
@@ -426,11 +292,24 @@ class Inspect(ITask):
             bb_connections = self.connections_by_boundingbox(unconnected, unconnected_elements)
             self.logger.warning("Connecting by bounding box is not implemented.")
 
+        # inner connections
+        yield from self.check_inner_connections(instances.values())
+
         # TODO: manualy add / modify connections
         return self.instances,
 
+    def check_inner_connections(self, instances: Iterable[ProductBased])\
+            -> Generator[DecisionBunch, None, None]:
+        """Check inner connections of HVACProducts."""
+        # If a lot of decisions occur, it would help to merge DecisionBunches
+        # before yielding them
+        for instance in instances:
+            if isinstance(instance, HVACProduct) \
+                    and not instance.inner_connections:
+                yield from instance.decide_inner_connections()
 
-class Enrich(Task):
+
+class Enrich(ITask):
     def __init__(self):
         super().__init__()
         self.enrich_data = {}
@@ -442,7 +321,6 @@ class Enrich(Task):
 
         return attrs_enrich
 
-    @Task.log
     def run(self, instances):
         json_data = get_type_building_elements_hvac()
 
@@ -452,9 +330,8 @@ class Enrich(Task):
         decision = RealDecision("Enter value for the construction year",
                                 validate_func=lambda x: isinstance(x, float),  # TODO
                                 global_key="Construction year",
-                                allow_skip=False, allow_load=True, allow_save=True,
-                                collect=False, quick_decide=False)
-        decision.decide()
+                                allow_skip=False)
+        yield DecisionBunch([decision])
         delta = float("inf")
         year_selected = None
         for year in json_data.element_bind["statistical_years"]:
@@ -474,20 +351,82 @@ class Enrich(Task):
         # runs all enrich methods
 
 
-class Prepare(ITask):
+class Prepare(ITask):  # Todo: obsolete
     """Configurate"""  # TODO: based on task
 
     reads = ('relevant_ifc_types', )
     touches = ('filters', )
 
-    @Task.log
     def run(self, workflow, relevant_ifc_types):
         self.logger.info("Setting Filters")
-        Element.finder.load(self.paths.finder)
         # filters = [TypeFilter(relevant_ifc_types), TextFilter(relevant_ifc_types, ['Description'])]
         filters = [TypeFilter(relevant_ifc_types)]
         # self.filters.append(TextFilter(['IfcBuildingElementProxy', 'IfcUnitaryEquipment']))
         return filters,
+
+
+class Enrich(ITask):
+
+    reads = ('instances',)
+    touches = ('instances', )
+
+    def run(self, workflow, instances):
+        #     def get_from_enrichment(bind, name):
+        #         # TODO convert this former enrichment method from
+        #         #  attribute.py to working enrichment for attributes of HVAC
+        #         #  similar to the approach of "enrich_bldg_templ.py"
+        #         value = None
+        #         if hasattr(bind, 'enrichment') and bind.enrichment:
+        #             attrs_enrich = bind.enrichment["enrichment_data"]
+        #             if "enrich_decision" not in bind.enrichment:
+        #                 # check if want to enrich instance
+        #                 enrichment_decision = BoolDecision(
+        #                     question="Do you want for %s_%s to be enriched" % (type(bind).__name__, bind.guid),
+        #                     collect=False, global_key='%s_%s.Enrichment_Decision' % (type(bind).__name__, bind.guid),
+        #                     allow_load=True, allow_save=True)
+        #                 enrichment_decision.decide()
+        #                 enrichment_decision.stored_decisions.clear()
+        #                 bind.enrichment["enrich_decision"] = enrichment_decision.value
+        #
+        #             if bind.enrichment["enrich_decision"]:
+        #                 # enrichment via incomplete data (has enrich parameter value)
+        #                 if name in attrs_enrich:
+        #                     value = attrs_enrich[name]
+        #                     if value is not None:
+        #                         return value
+        #                 if "selected_enrichment_data" not in bind.enrichment:
+        #                     options_enrich_parameter = list(attrs_enrich.keys())
+        #                     decision1 = ListDecision("Select an Enrich Parameter to continue",
+        #                                              choices=options_enrich_parameter,
+        #                                              global_key="%s_%s.Enrich_Parameter" % (type(bind).__name__, bind.guid),
+        #                                              allow_skip=True, allow_load=True, allow_save=True,
+        #                                              collect=False, quick_decide=not True)
+        #                     decision1.decide()
+        #                     decision1.stored_decisions.clear()
+        #
+        #                     if decision1.value == 'statistical_year':
+        #                         # 3. check if general enrichment - construction year
+        #                         bind.enrichment["selected_enrichment_data"] = bind.enrichment["year_enrichment"]
+        #                     else:
+        #                         # specific enrichment (enrichment parameter and values)
+        #                         decision2 = RealDecision("Enter value for the parameter %s" % decision1.value,
+        #                                                  validate_func=lambda x: isinstance(x, float),  # TODO
+        #                                                  global_key="%s_%s.%s_Enrichment" % (type(bind).__name__, bind.guid, name),
+        #                                                  allow_skip=False, allow_load=True, allow_save=True,
+        #                                                  collect=False, quick_decide=False)
+        #                         decision2.decide()
+        #                         delta = float("inf")
+        #                         decision2_selected = None
+        #                         for ele in attrs_enrich[decision1.value]:
+        #                             if abs(int(ele) - decision2.value) < delta:
+        #                                 delta = abs(int(ele) - decision2.value)
+        #                                 decision2_selected = int(ele)
+        #
+        #                         bind.enrichment["selected_enrichment_data"] = attrs_enrich[str(decision1.value)][
+        #                             str(decision2_selected)]
+        #                 value = bind.enrichment["selected_enrichment_data"][name]
+        #         return value
+        return instances
 
 
 class MakeGraph(ITask):
@@ -496,9 +435,9 @@ class MakeGraph(ITask):
     reads = ('instances', )
     touches = ('graph', )
 
-    @Task.log
     def run(self, workflow, instances):
         self.logger.info("Creating graph from IFC elements")
+
         graph = hvac_graph.HvacGraph(instances.values())
         return graph,
 
@@ -517,7 +456,6 @@ class Reduce(ITask):
     reads = ('graph', )
     touches = ('reduced_instances', 'connections')
 
-    @Task.log
     def run(self, workflow, graph: hvac_graph.HvacGraph):
         self.logger.info("Reducing elements by applying aggregations")
         number_of_nodes_old = len(graph.element_graph.nodes)
@@ -548,14 +486,16 @@ class Reduce(ITask):
             matches, metas = agg_class.find_matches(graph)
             i = 0
             for match, meta in zip(matches, metas):
+                # TODO: See #167
+                # outer_connections = agg_class.get_edge_ports2(graph, match)
                 try:
-                    agg = agg_class(name_builder.format(name, i+1), match, **meta)
+                    agg = agg_class(match, **meta)
                 except Exception as ex:
                     self.logger.exception("Instantiation of '%s' failed", name)
                 else:
                     graph.merge(
                         mapping=agg.get_replacement_mapping(),
-                        inner_connections=agg.get_inner_connections()
+                        inner_connections=agg.inner_connections
                     )
                     i += 1
             statistics[name] = i
@@ -606,7 +546,8 @@ class Reduce(ITask):
                     # ask user to fix conflicts (and retry in next while loop)
                     for port in masters:
                         decision = BoolDecision("Use %r as VL (y) or RL (n)?" % port)
-                        use = decision.decide()
+                        yield DecisionBunch([decision])
+                        use = decision.value
                         if use:
                             port.flow_side = 1
                         else:
@@ -629,7 +570,6 @@ class DetectCycles(ITask):
 
     # TODO: sth usefull like grouping or medium assignment
 
-    @Task.log
     def run(self, workflow, graph: hvac_graph.HvacGraph):
         self.logger.info("Detecting cycles")
         cycles = graph.get_cycles()
@@ -648,11 +588,11 @@ class Export(ITask):
         modelica.Instance.init_factory(libraries)
         export_instances = {inst: modelica.Instance.factory(inst) for inst in reduced_instances}
 
-        Element.solve_requested_decisions()
+        yield ProductBased.get_pending_attribute_decisions(reduced_instances)
 
-        self.logger.info(Decision.summary())
-        Decision.decide_collected()
-        Decision.save(self.paths.decisions)
+        # self.logger.info(Decision.summary())
+        # Decision.decide_collected()
+        # save(self.paths.decisions)
 
         connection_port_names = []
         for connection in connections:

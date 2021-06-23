@@ -321,7 +321,7 @@ def _reconstruct_cut_polygon(out_edges: List[Edge], cut_edges: List[Edge], plane
 
 
 def remove_inner_loops(shape: TopoDS_Shape) -> TopoDS_Shape:
-    from bim2sim.kernel.elements import SpaceBoundary
+    from bim2sim.kernel.elements.bps import SpaceBoundary
 
     # Build all necessary data structures.
     triangulation = _get_triangulation(shape)

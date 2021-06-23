@@ -1,31 +1,34 @@
 from bim2sim.plugin import Plugin
 from bim2sim.task import common
-from bim2sim.workflow import BPSMultiZoneSeparated, BPSMultiZoneAggregated, BPSOneZoneAggregated
+from bim2sim.workflow import BPSMultiZoneSeparatedLayersLow, BPSMultiZoneSeparatedLayersFull, \
+    BPSMultiZoneCombinedLayersFull, BPSMultiZoneCombinedLayersLow, BPSOneZoneAggregatedLayersLow
+from bim2sim.kernel.elements import bps as bps_elements
 from bim2sim.task import bps
 
 
 class TEASERManager(Plugin):
     name = 'TEASER'
-    default_workflow = BPSOneZoneAggregated
-    # default_workflow = BPSMultiZoneAggregated
-    # default_workflow = BPSMultiZoneSeparated
+    default_workflow = BPSMultiZoneSeparatedLayersLow
+    # default_workflow = BPSMultiZoneSeparatedLayersFull
+    # default_workflow = BPSMultiZoneCombinedLayersLow
+    # default_workflow = BPSOneZoneAggregatedLayersLow
+    # default_workflow = BPSMultiZoneCombinedLayersFull
+    elements = {*bps_elements.items}
 
-    def run(self, playground):
-        playground.run_task(bps.SetIFCTypes())
-        playground.run_task(common.LoadIFC())
-        playground.run_task(bps.Inspect())
-        playground.run_task(bps.TZInspect())
-        playground.run_task(bps.EnrichUseConditions())
-        # playground.run_task(bps.OrientationGetter())
-
-        playground.run_task(bps.MaterialVerification())  # LOD.full
-        playground.run_task(bps.EnrichMaterial())  # LOD.full
-        playground.run_task(bps.BuildingVerification())  # all LODs
-
-        playground.run_task(bps.EnrichNonValid())  # LOD.full
-        playground.run_task(bps.EnrichBuildingByTemplates())  # LOD.low
-
-        playground.run_task(bps.Disaggregation_creation())
-        playground.run_task(bps.BindThermalZones())
-        playground.run_task(bps.ExportTEASER())
-        pass
+    default_tasks = [
+        bps.SetIFCTypes,
+        common.LoadIFC,
+        common.CreateElements,
+        bps.CreateSpaceBoundaries,
+        bps.Prepare,
+        bps.EnrichUseConditions,
+        bps.OrientationGetter,
+        bps.MaterialVerification,  # layers -> LOD.full
+        bps.EnrichMaterial,  # layers -> LOD.full
+        bps.BuildingVerification,  # all layers LODs
+        bps.EnrichNonValid,  # spaces -> LOD.full
+        bps.EnrichBuildingByTemplates,  # spaces -> LOD.low
+        bps.DisaggregationCreation,
+        bps.BindThermalZones,
+        bps.ExportTEASER,
+    ]

@@ -1,5 +1,5 @@
 ﻿from bim2sim.task.base import ITask
-from bim2sim.decision import ListDecision
+from bim2sim.decision import ListDecision, DecisionBunch
 from bim2sim.plugin import Plugin
 from bim2sim.task.common import LoadIFC
 import os
@@ -31,7 +31,8 @@ class Exe(ITask):
                                  choices=options,
                                  allow_skip=False, allow_load=False, allow_save=False,
                                  collect=False, quick_decide=False)
-        args = decision1.decide()
+        yield DecisionBunch([decision1])
+        args = decision1.value
 
         reader = LoadIFC()
         input_file = reader.get_ifc(self.paths.ifc)

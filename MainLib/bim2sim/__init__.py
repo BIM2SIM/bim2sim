@@ -10,25 +10,17 @@ import importlib
 import pkgutil
 import tempfile
 from os.path import expanduser
-from pathlib import Path
-import site
 
-import pkg_resources
-
+from bim2sim.decision.console import ConsoleDecisionHandler
+from bim2sim.decision.decisionhandler import DecisionHandler
 from bim2sim.kernel import ifc2python
-from bim2sim.plugin import Plugin
 from bim2sim.project import Project, FolderStructure
-from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparated, BPSMultiZoneSeparatedEP
-from bim2sim.decision import Decision
+from bim2sim.plugin import Plugin
 from bim2sim.plugins import DummyPlugin
+from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparatedLayersLow,\
+    BPSMultiZoneSeparatedEP
 
 VERSION = '0.1-dev'
-
-# TODO: setup: copy backends to bim2sim/backends
-workflow_getter = {'aixlib': PlantSimulation,
-                   'teaser': BPSMultiZoneSeparated,
-                   'hkesim': PlantSimulation,
-                   'energyplus': BPSMultiZoneSeparatedEP}
 
 
 def load_plugins(names: typing.Iterable[str] = None) -> typing.Dict[str, Plugin]:
@@ -89,16 +81,10 @@ def setup_default():
     # if not plugins:
     #     raise AssertionError("No plugins found!")
 
-    from bim2sim.decision.console import ConsoleFrontEnd
-    Decision.set_frontend(ConsoleFrontEnd())
 
-
-def setup(frontend_name='default'):
-    if frontend_name == 'ExternalFrontEnd':
-        from bim2sim.decision.external import ExternalFrontEnd as Frontend
-    else:
-        from bim2sim.decision.console import ConsoleFrontEnd as Frontend
-    Decision.set_frontend(Frontend())
+def run_project(project: Project, handler: DecisionHandler):
+    """Run project using decision handler."""
+    return handler.handle(project.run(), project.loaded_decisions)
 
 
 def _debug_run_hvac():
@@ -114,7 +100,8 @@ def _debug_run_hvac():
         project = Project.create(path_example, path_ifc, 'hkesim', )
 
     # setup_defualt(project.config['Frontend']['use'])
-    project.run()
+    run_project(project, ConsoleDecisionHandler())
+
 
 def _get_debug_project_path():
     path_file = "debug_dir.user"
@@ -158,7 +145,7 @@ def _debug_run_bps():
     else:
         project = Project.create(path_example, path_ifc, 'teaser', )
 
-    project.run()
+    run_project(project, ConsoleDecisionHandler())
 
 
 def _debug_run_bps_ep():
@@ -181,7 +168,7 @@ def _debug_run_bps_ep():
     else:
         project = Project.create(path_example, path_ifc, 'energyplus', )
 
-    project.run()
+    run_project(project, ConsoleDecisionHandler())
 
 
 def _test_run_bps_ep(rel_path, temp_project=False):
@@ -212,7 +199,7 @@ def _test_run_bps_ep(rel_path, temp_project=False):
             project = Project.create(path_example, path_ifc, 'energyplus', )
 
         #HACK: We have to remember stderr because eppy resets it currently.
-        success = project.run()
+        success = run_project(project, ConsoleDecisionHandler())
     finally:
         os.chdir(working_dir)
         sys.stderr = old_stderr
@@ -253,7 +240,7 @@ setup_default()
 
 if __name__ == '__main__':
     # _debug_run_cfd()
-    _debug_run_bps()
+    # _debug_run_bps()
     # _debug_run_bps_ep()
-    # _debug_run_hvac()
+    _debug_run_hvac()
 

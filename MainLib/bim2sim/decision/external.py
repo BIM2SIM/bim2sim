@@ -1,3 +1,4 @@
+# TODO this is obsolete. import bim2sim directly in django handler
 import logging
 import time
 import json
@@ -8,7 +9,7 @@ import rpyc
 from rpyc.utils.server import OneShotServer, ThreadedServer
 
 from ..decision import DecisionException, BoolDecision, RealDecision, ListDecision, StringDecision
-from .frontend import FrontEnd
+from .decisionhandler import DecisionHandler
 
 
 logger = logging.getLogger('bim2sim.communication')
@@ -134,16 +135,16 @@ class CommunicationThread(Thread):
         self.server = ThreadedServer(service, port=port, protocol_config=config)
 
     def run(self) -> None:
-        logger.info("Start frontend CommunicationThread")
+        logger.info("Start handler CommunicationThread")
         self.server.start()
 
     def join(self, *args, **kwargs):
-        logger.warning("Shutting down frontend CommunicationThread.")
+        logger.warning("Shutting down handler CommunicationThread.")
         self.server.close()
         super().join(*args, **kwargs)
 
 
-class ExternalFrontEnd(FrontEnd):
+class ExternalDecisionHandler(DecisionHandler):
 
     def __init__(self, port=18861):
         super().__init__()

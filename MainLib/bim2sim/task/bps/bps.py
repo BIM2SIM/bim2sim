@@ -48,42 +48,17 @@ from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
 from stl import stl
 from stl import mesh
 
-from bim2sim.task.base import Task, ITask
-# from bim2sim.filter import TypeFilter
-from bim2sim.kernel.element import Element, ElementEncoder, BasePort, SubElement
+from bim2sim.kernel.elements import bps
+from bim2sim.task.base import ITask
+from bim2sim.decision import BoolDecision, DecisionBunch
+from bim2sim.kernel.element import Element, ElementEncoder
 # from bim2sim.kernel.elements import SpaceBoundary2B, SpaceBoundary
-from bim2sim.kernel.elements import SpaceBoundary
+from bim2sim.kernel.elements.bps import SpaceBoundary
 # from bim2sim.kernel.bps import ...
-from bim2sim.export import modelica
-from bim2sim.decision import Decision
-from bim2sim.kernel import finder
-from bim2sim.kernel.aggregation import Aggregated_ThermalZone
-from bim2sim.kernel import elements, disaggregation
-from bim2sim.kernel.finder import TemplateFinder
-from bim2sim.enrichment_data import element_input_json
-from bim2sim.decision import ListDecision, BoolDecision, RealDecision
-from teaser.project import Project
-from teaser.logic.buildingobjects.building import Building
-from teaser.logic.buildingobjects.thermalzone import ThermalZone
-from teaser.logic.buildingobjects.useconditions import UseConditions
-from teaser.logic.buildingobjects.buildingphysics.outerwall import OuterWall
-from teaser.logic.buildingobjects.buildingphysics.floor import Floor
-from teaser.logic.buildingobjects.buildingphysics.rooftop import Rooftop
-from teaser.logic.buildingobjects.buildingphysics.groundfloor import GroundFloor
-from teaser.logic.buildingobjects.buildingphysics.ceiling import Ceiling
-from teaser.logic.buildingobjects.buildingphysics.window import Window
-from teaser.logic.buildingobjects.buildingphysics.innerwall import InnerWall
-from teaser.logic.buildingobjects.buildingphysics.layer import Layer
-from teaser.logic.buildingobjects.buildingphysics.material import Material
-from teaser.logic.buildingobjects.buildingphysics.door import Door
-from bim2sim.kernel.units import conversion
-from bim2sim.kernel.element import SubElement
+from bim2sim.kernel.aggregation import AggregatedThermalZone
 # todo new name :)
-from bim2sim.enrichment_data.data_class import DataClass
-from bim2sim.task.common.common_functions import angle_equivalent
-from bim2sim.kernel import elements
 import bim2sim
-
+from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 # class SetIFCTypesBPS(ITask):
 #     """Set list of relevant IFC types"""
@@ -106,7 +81,6 @@ import bim2sim
 #         self.instances = {}
 #         pass
 #
-#     @Task.log
 #     def run(self, workflow, ifc):
 #         self.logger.info("Creates python representation of relevant ifc types")
 #
@@ -146,7 +120,6 @@ import bim2sim
 #     # property_error = {}
 #     instance_template = {}
 #
-#     @Task.log
 #     def run(self, workflow, instances, ifc):
 #         self.logger.info("setting verifications")
 #         building = SubElement.get_class_instances('Building')[0]
@@ -174,7 +147,7 @@ import bim2sim
 #         supported_classes = {'Window', 'OuterWall', 'OuterDoor', 'Wall', 'Door'}
 #         if instance.__class__.__name__ in supported_classes:
 #             new_angles = list(set([space_boundary.orientation for space_boundary in instance.space_boundaries]))
-#             # new_angles = list(set([space_boundary.orientation - space_boundary.thermal_zones[0].orientation for space_boundary in instance.space_boundaries]))
+#             # new_angles = list(set([space_boundary.orientation - space_boundary.bound_thermal_zone.orientation for space_boundary in instance.space_boundaries]))
 #             if len(new_angles) > 1:
 #                 return None
 #             # no true north necessary
@@ -647,7 +620,6 @@ import bim2sim
 #             return default, year_group
 #         return template_options, year_group
 #
-#     @Task.log
 #     def run(self, workflow, instances, ifc):
 #         self.logger.info("Export to TEASER")
 #         prj = self._create_project(ifc.by_type('IfcProject')[0])
@@ -688,7 +660,6 @@ import bim2sim
 #         prj.export_aixlib(path=PROJECT.root / 'export' / 'TEASEROutput')
 #         print()
 #
-from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 
 class ExportEP(ITask):
@@ -699,11 +670,10 @@ class ExportEP(ITask):
     reads = ('instances', 'ifc')
     final = True
 
-    @Task.log
     def run(self, workflow, instances, ifc):
         self.logger.info("Creates python representation of relevant ifc types")
         for inst in list(instances):
-            if instances[inst].ifc_type == "IfcSpace":
+            if instances[inst].ifc.is_a("IfcSpace"):
                 for bound in instances[inst].space_boundaries:
                     instances[bound.guid] = bound
         # geometric preprocessing before export
@@ -754,19 +724,21 @@ class ExportEP(ITask):
         self._set_output_variables(idf)
         self._idf_validity_check(idf)
         idf.save()
-        subprocess.run(['energyplus', '-x', '-c', '--convert-only', '-d', self.paths.export, idf.idfname])
+        # subprocess.run(['energyplus', '-x', '-c', '--convert-only', '-d', self.paths.export, idf.idfname])
         self._export_surface_areas(instances, idf) # todo: fix
         self._export_space_info(instances, idf)
         self._export_boundary_report(instances, idf, ifc)
         self.logger.info("IDF generation finished!")
 
-        Element.finder.load(self.paths.finder)
         # idf.view_model()
         # self._export_to_stl_for_cfd(instances, idf)
         # self._display_shape_of_space_boundaries(instances)
-        run_decision = BoolDecision(question="Do you want to run the full energyplus simulation (annual, readvars)?",
-                                    global_key='EnergyPlus.FullRun', allow_load=True, allow_save=True, collect=False)
-        ep_full = run_decision.decide()
+        run_decision = BoolDecision(
+            question="Do you want to run the full energyplus simulation"
+                     " (annual, readvars)?",
+                     global_key='EnergyPlus.FullRun')
+        yield DecisionBunch([run_decision])
+        ep_full = run_decision.value
         design_day = False
         if not ep_full:
             design_day = True
@@ -891,7 +863,7 @@ class ExportEP(ITask):
 
     def _export_geom_to_idf(self, instances, idf):
         for inst in instances:
-            if instances[inst].ifc_type != "IfcRelSpaceBoundary":
+            if not instances[inst].ifc.is_a("IfcRelSpaceBoundary"):
                 continue
             inst_obj = instances[inst]
             idfp = IdfObject(inst_obj, idf)
@@ -901,7 +873,7 @@ class ExportEP(ITask):
                                     idfp.name, idfp.surface_type)
                 continue
         for inst in instances:
-            if instances[inst].ifc_type != "IfcSpace":
+            if not instances[inst].ifc.is_a("IfcSpace"):
                 continue
             bound_obj = instances[inst]
             if not hasattr(bound_obj, "space_boundaries_2B"):
@@ -930,7 +902,7 @@ class ExportEP(ITask):
         stl_dir = str(paths.export)
         space_bound_df = pd.DataFrame(columns=["space_id", "bound_ids"])
         for inst in instances:
-            if instances[inst].ifc_type != "IfcSpace":
+            if not instances[inst].ifc.is_a("IfcSpace"):
                 continue
             space = instances[inst]
             bound_names = []
@@ -950,7 +922,7 @@ class ExportEP(ITask):
                     mesh_name = i.split("_", 1)[-1]
                     mesh_name = mesh_name.replace(".stl", "")
                     mesh_name = mesh_name.replace("$", "___")
-                    sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
+                    save(mesh_name, output_file, mode=stl.Mode.ASCII)
 
     @staticmethod
     def combine_space_stl_files(stl_name, space_name, paths):
@@ -964,7 +936,7 @@ class ExportEP(ITask):
                     mesh_name = i.split("_", 1)[-1]
                     mesh_name = mesh_name.replace(".stl", "")
                     mesh_name = mesh_name.replace("$", "___")
-                    sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
+                    save(mesh_name, output_file, mode=stl.Mode.ASCII)
 
     @staticmethod
     def _init_idf(paths):
@@ -976,6 +948,7 @@ class ExportEP(ITask):
         # path = '/usr/local/EnergyPlus-9-3-0/'
         path = f'/usr/local/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
         # path = f'D:/04_Programme/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
+        # path = r'C:/Program Files (x86)/EnergyPlusV9-4-0/'
         plugin_ep_path = str(Path(__file__).parent.parent.parent.parent.parent / 'PluginEnergyPlus')
         IDF.setiddname(path + 'Energy+.idd')
         idf = IDF(plugin_ep_path + '/data/Minimal.idf')
@@ -999,9 +972,9 @@ class ExportEP(ITask):
         """
         unpacked_instances = []
         for instance in instances.values():
-            if isinstance(instance, Aggregated_ThermalZone):
+            if isinstance(instance, AggregatedThermalZone):
                 unpacked_instances.extend(instance.elements)
-            elif instance.ifc_type == "IfcSpace":
+            elif instance.ifc.is_a("IfcSpace"):
                 unpacked_instances.append(instance)
         return unpacked_instances
 
@@ -1017,7 +990,7 @@ class ExportEP(ITask):
         stat_default = self._set_hvac_template(idf, name=stat_name, heating_sp=20, cooling_sp=25)
         for instance in self._get_ifc_spaces(instances):
             space = instance
-            space.storey = elements.Storey(space.get_storey())
+            space.storey = bps.Storey(space.get_storey())
             room, room_key = self._get_room_from_zone_dict(key=space.ifc.LongName)
             stat_name = "STATS " + room_key[0].replace(",", "")
             if idf.getobject("HVACTEMPLATE:THERMOSTAT", stat_name) is None:
@@ -1084,11 +1057,11 @@ class ExportEP(ITask):
         """
         storeys = []
         for inst in instances:
-            if instances[inst].ifc_type == "IfcBuildingStorey":
+            if instances[inst].ifc.is_a("IfcBuildingStorey"):
                 storeys.append(instances[inst])
                 instances[inst].spaces = []
         for inst in instances:
-            if instances[inst].ifc_type != "IfcSpace":
+            if not instances[inst].ifc.is_a("IfcSpace"):
                 continue
             space = instances[inst]
             for st in storeys:
@@ -1098,7 +1071,7 @@ class ExportEP(ITask):
             space_ids = []
             for space in st.spaces:
                 space_ids.append(space.guid)
-            self._init_zonelist(idf, name=st.name, zones_in_list=space_ids)
+            self._init_zonelist(idf, name=st.ifc.Name, zones_in_list=space_ids)
             # print(st.name, space_ids)
         zonelists = [zlist for zlist in idf.idfobjects["ZONELIST"] if zlist.Name != "All_Zones"]
 
@@ -1459,7 +1432,7 @@ class ExportEP(ITask):
     def _add_shadings(self, instances, idf):
         spatials = []
         for inst in instances:
-            if instances[inst].ifc_type == None:
+            if instances[inst].ifc.is_a() == None:
                 spatials.append(instances[inst])
 
         pure_spatials = []
@@ -1762,7 +1735,6 @@ class ExportEP(ITask):
                 idf.removeidfobject(sf)
         self.logger.info('IDF Validity Checker done')
 
-
     def _export_surface_areas(self, instances, idf):
         """ combines sets of area sums and exports to csv """
         area_df = pd.DataFrame(
@@ -1833,7 +1805,7 @@ class ExportEP(ITask):
         space_df = pd.DataFrame(
             columns=["ID", "long_name", "space_center", "space_volume"])
         for inst in instances:
-            if instances[inst].ifc_type != "IfcSpace":
+            if not instances[inst].ifc.is_a("IfcSpace"):
                 continue
             space = instances[inst]
             space_df = space_df.append([
@@ -1891,7 +1863,7 @@ class ExportEP(ITask):
     def _get_neighbor_bounds(instances):
         for inst in instances:
             this_obj = instances[inst]
-            if this_obj.ifc_type != 'IfcRelSpaceBoundary':
+            if not this_obj.ifc.is_a('IfcRelSpaceBoundary'):
                 continue
             neighbors = this_obj.bound_neighbors
 
@@ -1951,10 +1923,9 @@ class ExportEP(ITask):
         drop_list = {} # HACK: dictionary for bounds which have to be removed from instances (due to duplications)
         for inst in instances:
             inst_obj = instances[inst]
-            inst_type = inst_obj.ifc_type
-            if inst_type != 'IfcRelSpaceBoundary':
+            if not inst_obj.ifc.is_a('IfcRelSpaceBoundary'):
                 continue
-            if inst_obj.level_description != "2a":
+            if inst_obj.level_description == "2b":
                 continue
             inst_obj_space = inst_obj.ifc.RelatingSpace
             b_inst = inst_obj.bound_instance
@@ -1968,7 +1939,7 @@ class ExportEP(ITask):
             for opening in b_inst.ifc.HasOpenings:
                 if hasattr(opening.RelatedOpeningElement, 'HasFillings'):
                     for fill in opening.RelatedOpeningElement.HasFillings:
-                        opening_obj = b_inst.objects[fill.RelatedBuildingElement.GlobalId]
+                        opening_obj = instances[fill.RelatedBuildingElement.GlobalId]
                         if not hasattr(b_inst, 'related_openings'):
                             setattr(b_inst, 'related_openings', [])
                         if opening_obj in b_inst.related_openings:
@@ -2016,7 +1987,7 @@ class ExportEP(ITask):
                             drop_list[inst] = inst_obj
                             ib = [b for b in b_inst.space_boundaries if
                                   b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries if
-                                  b.thermal_zones[0] == op_bound.thermal_zones[0]]
+                                  b.bound_thermal_zone == op_bound.bound_thermal_zone]
                             if len(ib) == 1:
                                 rel_bound = ib[0]
                             elif len(ib) > 1:
@@ -2035,7 +2006,7 @@ class ExportEP(ITask):
                                     else:
                                         rel_bound = b
                             elif not rel_bound:
-                                tzb = [b for b in op_bound.thermal_zones[0].space_boundaries if
+                                tzb = [b for b in op_bound.bound_thermal_zone.space_boundaries if
                                        b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries]
                                 for b in tzb:
                                     # check if orientation of possibly related bound is the same as opening
@@ -2082,12 +2053,12 @@ class ExportEP(ITask):
         colors = ['blue', 'red', 'magenta', 'yellow', 'green', 'white', 'cyan']
         col = 0
         for inst in instances:
-            if instances[inst].ifc_type == 'IfcRelSpaceBoundary':
+            if instances[inst].ifc.is_a('IfcRelSpaceBoundary'):
                 col += 1
                 bound = instances[inst]
                 if bound.bound_instance is None:
                     continue
-                if bound.bound_instance.ifc_type != "IfcWallStandardCase":
+                if not bound.bound_instance.ifc.is_a("IfcWall"):
                     pass
                 try:
                     display.DisplayShape(bound.bound_shape, color=colors[(col - 1) % len(colors)])
@@ -2101,7 +2072,7 @@ class ExportEP(ITask):
         display, start_display, add_menu, add_function_to_menu = init_display()
         col = 0
         for inst in instances:
-            if instances[inst].ifc_type != 'IfcSpace':
+            if not instances[inst].ifc.is_a('IfcSpace'):
                 continue
             space = instances[inst]
             for bound in space.space_boundaries:
@@ -2124,7 +2095,7 @@ class ExportEP(ITask):
         :return:
         """
         for inst in instances:
-            if instances[inst].ifc_type != "IfcRelSpaceBoundary":
+            if not instances[inst].ifc.is_a("IfcRelSpaceBoundary"):
                 continue
             inst_obj = instances[inst]
             if inst_obj.physical:
@@ -2152,7 +2123,7 @@ class ExportEP(ITask):
         :return:
         """
         for inst in instances:
-            if instances[inst].ifc_type != "IfcSpace":
+            if not instances[inst].ifc.is_a("IfcSpace"):
                 continue
             space_obj = instances[inst]
             space_name = space_obj.ifc.GlobalId
@@ -2178,7 +2149,7 @@ class ExportEP(ITask):
         self.logger.info("Generate space boundaries of type 2B")
         inst_2b = dict()
         for inst in instances:
-            if instances[inst].ifc_type != "IfcSpace":
+            if not instances[inst].ifc.is_a("IfcSpace"):
                 continue
             space_obj = instances[inst]
             space_obj.b_bound_shape = space_obj.space_shape
@@ -2209,7 +2180,7 @@ class ExportEP(ITask):
         Fix orientation of openings afterwards according to orientation of parent bounds.
         """
         for inst in instances:
-            if instances[inst].ifc_type != 'IfcSpace':
+            if not instances[inst].ifc.is_a('IfcSpace'):
                 continue
             space = instances[inst]
             face_list = []
@@ -2226,6 +2197,8 @@ class ExportEP(ITask):
                     wire = exp1.Current()
                     face = BRepBuilderAPI_MakeFace(wire).Face()
                     face_list.append(face)
+            if not face_list:
+                continue
             if hasattr(space, 'space_boundaries_2B'):
                 for bound in space.space_boundaries_2B:
                     exp = TopExp_Explorer(bound.bound_shape, TopAbs_FACE)
@@ -2292,7 +2265,7 @@ class ExportEP(ITask):
 
     def export_2B_bounds_to_stl(self, instances, stl_name):
         for inst in instances:
-            if instances[inst].ifc_type != "IfcSpace":
+            if instances[inst].ifc.is_a("IfcSpace"):
                 continue
             space_obj = instances[inst]
             if not hasattr(space_obj, "b_bound_shape"):
@@ -2378,10 +2351,10 @@ class IdfObject():
         self.related_bound = inst_obj.related_bound
         self.skip_bound = False
         self.bound_shape = inst_obj.bound_shape
-        if not hasattr(inst_obj.thermal_zones[0], 'guid'):
+        if not hasattr(inst_obj.bound_thermal_zone, 'guid'):
             self.skip_bound = True
             return
-        self.zone_name = inst_obj.thermal_zones[0].guid
+        self.zone_name = inst_obj.bound_thermal_zone.guid
         if hasattr(inst_obj, 'related_parent_bound'):
             self.key = "FENESTRATIONSURFACE:DETAILED"
         else:
@@ -2417,7 +2390,7 @@ class IdfObject():
                                  Simple_Mixing_Air_Changes_per_Hour=0.5,
                                  )
             self.construction_name = 'Air Wall'
-        # if inst_obj.bound_instance.ifc_type is ("IfcWindow" or "IfcDoor"):
+        # if inst_obj.bound_instance.ifc.is_a() is ("IfcWindow" or "IfcDoor"):
         #     return
         if hasattr(inst_obj.bound_instance, 'layers'):
             if inst_obj.bound_instance.layers == None or len(inst_obj.bound_instance.layers) == 0:
@@ -2430,7 +2403,7 @@ class IdfObject():
                 if layer.guid == None:
                     return
                 construction_name = construction_name + layer.guid[-4:]
-                if inst_obj.bound_instance.ifc_type.upper() not in ("IFCWINDOW"):
+                if not inst_obj.bound_instance.ifc.is_a('IfcWindow'):
                     idf_materials = idf.idfobjects['Material'.upper()]
                     included = False
                     for mat in idf_materials:
@@ -2520,7 +2493,7 @@ class IdfObject():
                                      Name=construction_name,
                                      Outside_Layer=inst_obj.bound_instance.layers[0].guid)
                 if len(inst_obj.bound_instance.layers) > 1:
-                    if inst_obj.bound_instance.ifc_type.upper() in ("IFCWINDOW", "IFCDOOR"):
+                    if inst_obj.bound_instance.ifc.is_a('IfcWindow') or inst_obj.bound_instance.ifc.is_a('IfcDoor'):
                         # todo: Add construction implementation for openings with >1 layer
                         # todo: required construction: gas needs to be bounded by solid surfaces
                         self.construction_name = None
@@ -2672,15 +2645,15 @@ class IdfObject():
         elem = inst_obj.bound_instance
         surface_type = None
         if elem != None:
-            if elem.ifc_type == "IfcWallStandardCase" or elem.ifc_type == "IfcWall":
+            if elem.ifc.is_a("IfcWall"):
                 surface_type = 'Wall'
-            elif elem.ifc_type == "IfcDoor":
+            elif elem.ifc.is_a("IfcDoor"):
                 surface_type = "Door"
-            elif elem.ifc_type == "IfcWindow":
+            elif elem.ifc.is_a("IfcWindow"):
                 surface_type = "Window"
-            elif elem.ifc_type == "IfcRoof":
+            elif elem.ifc.is_a("IfcRoof"):
                 surface_type = "Roof"
-            elif elem.ifc_type == "IfcSlab":
+            elif elem.ifc.is_a("IfcSlab"):
                 if elem.predefined_type.lower() == 'baseslab':
                     surface_type = 'Floor'
                 elif elem.predefined_type.lower() == 'roof':
@@ -2694,13 +2667,13 @@ class IdfObject():
                         surface_type = "Wall"
                     else:
                         surface_type = "Floor"
-            elif elem.ifc_type == "IfcBeam":
+            elif elem.ifc.is_a("IfcBeam"):
                 if not PyOCCTools._compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
                     surface_type = 'Wall'
                 else:
                     surface_type = 'Ceiling'
-            elif elem.ifc_type == 'IfcColumn':
-                surface_type == 'Wall'
+            elif elem.ifc.is_a('IfcColumn'):
+                surface_type = 'Wall'
             elif inst_obj.top_bottom == "BOTTOM":
                 surface_type = "Floor"
             elif inst_obj.top_bottom == "TOP":
@@ -2760,7 +2733,7 @@ class IdfObject():
             self.out_bound_cond_obj = inst_obj.related_bound.ifc.GlobalId
             self.sun_exposed = 'NoSun'
             self.wind_exposed = 'NoWind'
-        # elif inst_obj.bound_instance is not None and inst_obj.bound_instance.ifc_type == "IfcWindow":
+        # elif inst_obj.bound_instance is not None and inst_obj.bound_instance.ifc.is_a() == "IfcWindow":
         elif self.key == "FENESTRATIONSURFACE:DETAILED":
             # if elem.rel_elem.type == "IfcWindow":
             self.out_bound_cond = 'Outdoors'

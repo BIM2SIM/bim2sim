@@ -1,2 +1,4 @@
-from .hvac import SetIFCTypesHVAC, Inspect, Enrich, Prepare, MakeGraph, Reduce, DetectCycles, Export
+from .hvac import SetIFCTypesHVAC, ConnectElements, Enrich, \
+    MakeGraph, Reduce, DetectCycles, Export
 from .dead_ends import DeadEnds
+from .fixports import FixPorts

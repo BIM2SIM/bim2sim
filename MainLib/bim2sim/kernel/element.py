@@ -1,16 +1,19 @@
 """Definition for basic representations of IFC elements"""
-
+# from __future__ import annotations
+import json
 import logging
 from json import JSONEncoder
-import itertools
 import re
+from pathlib import Path
+from typing import Union, Set, Iterable, Dict, List, Tuple, Type, Generator
 
 import numpy as np
 
+import bim2sim
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import ifc2python, attribute
-from bim2sim.decision import Decision, StringDecision
-from bim2sim.task.common.common_functions import angle_equivalent, vector_angle
+from bim2sim.decision import Decision, DecisionBunch
+from bim2sim.utilities.common_functions import angle_equivalent, vector_angle
 from bim2sim.kernel.finder import TemplateFinder
 
 logger = logging.getLogger(__name__)
@@ -33,41 +36,49 @@ class ElementEncoder(JSONEncoder):
 
     def default(self, o):
         if isinstance(o, Element):
-            return "<Element(%s)>" % (o.guid)
+            return "<Element(%s)>" % o.guid
         return JSONEncoder.default()
 
 
-class Root(metaclass=attribute.AutoAttributeNameMeta):
-    """Most basic class
-
-    keeps track of created instances and guids"""
-    objects = {}
+class Element(metaclass=attribute.AutoAttributeNameMeta):
+    """Most basic class"""
+    guid_prefix = ''
     _id_counter = 0
 
-    def __init__(self, guid=None):
-        self.guid = guid or self.get_id()
-        Root.objects[self.guid] = self
-        self.related_decisions = []
+    def __init__(self, guid=None, **kwargs):
+        self.guid = guid or self.get_id(self.guid_prefix)
+        # self.related_decisions: List[Decision] = []
         self.attributes = attribute.AttributeManager(bind=self)
+
+        # set attributes based on kwargs
+        for kw, arg in kwargs.items():
+            if kw in self.attributes:  # allow only attributes
+                setattr(self, kw, arg)
+            else:
+                raise AttributeError(f"Unused argument in kwargs: {kw}: {arg}")
 
     def __hash__(self):
         return hash(self.guid)
 
-    def calc_position(self):
+    def validate(self) -> bool:
+        """Check if current instance is valid"""
+        raise NotImplementedError
+
+    def calc_position(self) -> np.array:
         """Returns position (calculation may be expensive)"""
         return None
 
-    def calc_orientation(self):
+    def calc_orientation(self) -> np.array:
         """Returns position (calculation may be expensive)"""
         return None
 
     @cached_property
-    def position(self):
+    def position(self) -> np.array:
         """Position calculated only once by calling calc_position"""
         return self.calc_position()
 
     @cached_property
-    def orientation(self):
+    def orientation(self) -> np.array:
         return self.calc_orientation()
 
     @staticmethod
@@ -75,78 +86,118 @@ class Root(metaclass=attribute.AutoAttributeNameMeta):
         prefix_length = len(prefix)
         if prefix_length > 8:
             raise AttributeError("Max prefix length is 8!")
-        Root._id_counter += 1
-        return "{0:0<8s}{1:0>14d}".format(prefix, Root._id_counter)
+        Element._id_counter += 1
+        return "{0:0<8s}{1:0>14d}".format(prefix, Element._id_counter)
 
     @staticmethod
     def get_object(guid):
-        """Get Root object instance with given guid
+        """Get Element object instance with given guid
 
         :returns: None if object with guid was not instanciated"""
-        return Root.objects.get(guid)
+        raise AssertionError("Obsolete method. "
+                             "Don't rely on global Element.objects. "
+                             "Use e.g. instances from task/playground.")
 
-    def request(self, name):
-        self.attributes.request(name)
+    def request(self, name, external_decision: Decision = None) \
+            -> Union[None, Decision]:
+        """Request attribute
+        :param name: Name of attribute
+        :param external_decision: Decision to use instead of default decision
+        """
+        return self.attributes.request(name, external_decision)
 
-    def solve_requested_decisions(self=None):
-        """Solve all requested decisions.
-        If called by instance, all instance related decisions are solved
-        else all decisions of all instances are solved."""
-        if not self:
-            # called from class
-            related_decisions = []
-            for obj in Root.objects.values():
-                related_decisions.extend(obj.related_decisions)
-            Decision.decide_collected(collection=set(related_decisions))
-        else:
-            # called from instance
-            Decision.decide_collected(collection=self.related_decisions)
+    @classmethod
+    def get_pending_attribute_decisions(
+            cls, instances: Iterable['Element'] = None) -> DecisionBunch:
+        """Get all requested decisions of attributes.
 
-    def discard(self):
-        """Remove from tracked objects. Related decisions are also discarded."""
-        del Root.objects[self.guid]
-        for d in self.related_decisions:
-            d.discard()
+        all decisions related to given instances are returned"""
+        # if not self or not isinstance(self, Element):
+        # called from class
+        decisions = DecisionBunch()
+        for inst in instances:
+            for bunch in inst.attributes.get_decisions():
+                decisions.extend(bunch)
+        # else:
+        #     # called from instance
+        #     if instances:
+        #         raise AssertionError(
+        #             "Only use instances argument on call from class")
+        #     decisions = self.attributes.get_decisions()
+        return decisions
 
     @classmethod
     def full_reset(cls):
-        # TODO: remove other side effects
-        for r in Root.objects.copy().values():
-            r.discard()
+        raise AssertionError("Obsolete method. not required any more.")
 
 
-class IFCBased(Root):
-    """Mixin for all IFC representating classes"""
-    ifc_type = None
-    predefined_type = None
-    _ifc_classes = {}
+class IFCBased(Element):
+    """Element with instantiation from ifc and related methods.
+
+        Attributes:
+        ifc: IfcOpenShell element instance
+        ifc_types: Dict with ifc_type as key and list of predifined types that
+        fit to the class as values.
+        Special values for predifined types:
+            '*' all which are not overwritten in other classes predfined types.
+            '-Something'  start with minus to exclude
+
+        For example:
+        {'IfcSlab': ['*', '-SomethingSpecialWeDontWant', 'BASESLAB']}
+        {'IfcRoof': ['FLAT_ROOF', 'SHED_ROOF',...],
+         'IfcSlab': ['ROOF']}"""
+
+    ifc_types: Dict[str, List[str]] = None
     pattern_ifc_type = []
-    finder = TemplateFinder()
 
-    def __init__(self, ifc, *args, **kwargs):
-        if hasattr(ifc, 'GlobalId'):
-            super().__init__(*args, guid=ifc.GlobalId, **kwargs)
-        # subelement can be an ifc instance that doesnt have a GlobalId
-        else:
-            super().__init__(*args, guid=self.get_id(type(self).__name__), **kwargs)
+    def __init__(self, *args,
+                 ifc=None,
+                 finder: TemplateFinder = None,
+                 **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.ifc = ifc
-        # todo to reduce decision querys we should only do this for needed names like Building or projectname
-        if ifc is not None:
-            if ifc.Name is not None:
-                if len(ifc.Name) > 0:
-                    self.name = ifc.Name
-                else:
-                    name_dec = StringDecision(question="Please enter name for the instance %s" % type(self).__name__,
-                                              default="unnamed", global_key=f'IfcName-Decision-{self.guid}',
-                                              allow_load=True, allow_save=True)
-                    self.name = name_dec.decide()
         self.predefined_type = ifc2python.get_predefined_type(ifc)
-        self.enrichment = {}
+        self.finder = finder
+        self._source_tool: str = None
+
+        # TBD
+        self.enrichment = {}  # TODO: DJA
         self._propertysets = None
         self._type_propertysets = None
-
         self._decision_results = {}
+
+    @classmethod
+    def ifc2args(cls, ifc) -> Tuple[tuple, dict]:
+        """Extract init args and kwargs from ifc"""
+        guid = getattr(ifc, 'GlobalId', None)
+        kwargs = {'guid': guid, 'ifc': ifc}
+        return (), kwargs
+
+    @classmethod
+    def from_ifc(cls, ifc, *args, **kwargs):
+        """Factory method to create instance from ifc"""
+        ifc_args, ifc_kwargs = cls.ifc2args(ifc)
+        kwargs.update(ifc_kwargs)
+        return cls(*(args + ifc_args), **kwargs)
+
+    @property
+    def ifc_type(self):
+        if self.ifc:
+            return self.ifc.is_a()
+
+    @property
+    def source_tool(self):  # TBD: this incl. Finder could live in Factory
+        """Name of tool the ifc has been created with"""
+        if not self._source_tool and self.ifc:
+            self._source_tool = self.get_project().OwnerHistory.\
+                OwningApplication.ApplicationFullName
+        return self._source_tool
+
+    @classmethod
+    def pre_validate(cls, ifc) -> bool:
+        """Check if ifc meets conditions to create element from it"""
+        raise NotImplementedError
 
     def calc_position(self):
         """returns absolute position"""
@@ -161,70 +212,29 @@ class IFCBased(Root):
 
         return absolute
 
-    def calc_orientation(self):
+    def calc_orientation(self) -> np.array:
         # ToDO: true north angle
-        switcher = {'Slab': -1,
-                    'Roof': -1,
-                    'Floor': -2,
-                    'GroundFloor': -2}
-        value = switcher.get(self.__class__.__name__, 'continue')
-        if value != 'continue':
-            return value
-
-        list_angles = {}
+        # ToDO: we want a consistent return which is a absolute vector.
+        ang_sum = 0
         placementrel = self.ifc.ObjectPlacement
         while placementrel is not None:
             if placementrel.RelativePlacement.RefDirection is not None:
-                o2 = placementrel.RelativePlacement.RefDirection.DirectionRatios
-                list_angles[placementrel.PlacesObject[0].GlobalId] = vector_angle(o2)
-            else:
-                list_angles[placementrel.PlacesObject[0].GlobalId] = None
+                vector = placementrel.RelativePlacement.RefDirection.DirectionRatios
+                ang_sum += vector_angle(vector)
             placementrel = placementrel.PlacementRelTo
 
         # relative vector + absolute vector
-        if len(list_angles) == 1:
-            if list_angles[next(iter(list_angles))] is None:
-                return -90
-                # return 0
+        # if len(list_angles) == 1:
+        #     if list_angles[next(iter(list_angles))] is None:
+        #         return -90
+        #         # return 0
 
-        ang_sum = 0
-
-        self_class = type(self).__name__
-
-        if all(value is None for value in list_angles.values()) and self_class in ['Wall', 'OuterWall', 'InnerWall']:
-            return 0
-
-        for key in list_angles:
-            guid = key
-            ang = list_angles[key]
-            relative_element = self.get_object(guid)
-            if relative_element is None:
-                if ang is not None:
-                    ang_sum += ang
-                continue
-            else:
-                if relative_element is self:
-                    if ang is not None:
-                        ang_sum += ang
-                    continue
-                else:
-                    relative_class = type(relative_element).__name__
-                    if self_class in ['Window', 'Door'] and relative_class in ['Wall', 'OuterWall', 'InnerWall']:
-                        return relative_element.orientation
-
-                    new_ang = relative_element.orientation
-                    if new_ang is not None:
-                        ang_sum += new_ang
-                        break
-
-        if ang_sum is None:
-            return None
         # specific case windows
         if self.ifc_type == 'IfcWindow':
             ang_sum += 180
 
         # angle between 0 and 360
-        return angle_equivalent(ang_sum)
+        return ang_sum
 
     def get_ifc_attribute(self, attribute):
         """
@@ -321,8 +331,8 @@ class IFCBased(Root):
         return matches
 
     @classmethod
-    def filter_for_text_fracments(cls, ifc_element, optional_locations: list = None):
-        """Filter for text fracments in the ifc_element to identify the ifc_element."""
+    def filter_for_text_fragments(cls, ifc_element, optional_locations: list = None):
+        """Filter for text fragments in the ifc_element to identify the ifc_element."""
         results = []
         hits = [p.search(ifc_element.Name) for p in cls.pattern_ifc_type]
         # hits.extend([p.search(ifc_element.Description or '') for p in cls.pattern_ifc_type])
@@ -343,7 +353,7 @@ class IFCBased(Root):
                     results.append(hits[0][0])
         return results if results else ''
 
-    def get_exact_property(self, propertyset_name, property_name):
+    def get_exact_property(self, propertyset_name: str, property_name: str):
         """Returns value of property specified by propertyset name and property name
 
         :Raises: AttributeError if property does not exist"""
@@ -391,7 +401,7 @@ class IFCBased(Root):
                 # multiple sources but common value
                 return distinct_values.pop()
             else:
-                self.logger.warning('Found multiple values for attributes %s of instance %s' % (
+                logger.warning('Found multiple values for attributes %s of instance %s' % (
                     ', '.join((str((m[0], m[1])) for m in matches)), self))
                 return distinct_values
 
@@ -400,7 +410,7 @@ class IFCBased(Root):
         #     decision = DictDecision("Multiple possibilities found",
         #                             choices=dict(zip(choices, values)),
         #                             output=self.attributes,
-        #                             output_key=name,
+        #                             key=name,
         #                             global_key="%s_%s.%s" % (self.ifc_type,
         #                             self.guid, name),
         #                             allow_skip=True, allow_load=True,
@@ -414,49 +424,51 @@ class IFCBased(Root):
         #     return decision.value
         # raise NoValueError("No matching property for %s" % (patterns))
 
+
+class RelationBased(IFCBased):
+
     def __repr__(self):
-        return "<%s (%s)>" % (self.__class__.__name__, self.name)
+        return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)
+
+    def __str__(self):
+        return "%s" % self.__class__.__name__
 
 
-class BaseElement(Root):
-    """Base class for all elements with ports"""
-    objects = {}
-    default_materials = {}
-    # todo this is a hotfix
-    finder = TemplateFinder()
+class ProductBased(IFCBased):
+    """Elements based on IFC products."""
+    domain = 'GENERAL'
+    key: str = ''
+    key_map: Dict[str, 'Type[ProductBased]'] = {}
+    conditions = []
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        BaseElement.objects[self.guid] = self
-        self.logger = logging.getLogger(__name__)
         self.aggregation = None
-        self.attributes = attribute.AttributeManager(bind=self)
-        self.thermal_zones = []
-        self.ports = []
-        self.space_boundaries = []
-        self.storeys = []
+        self.ports = self.get_ports()
 
-    def get_inner_connections(self):
-        """Returns inner connections of Element
+    def __init_subclass__(cls, **kwargs):
+        # set key for each class
+        cls.key = f'{cls.domain}-{cls.__name__}'
+        cls.key_map[cls.key] = cls
 
-        by default each port is connected to each other port.
-        Overwrite for other connections"""
+    def get_ports(self):
+        return []
 
-        connections = []
-        for port0, port1 in itertools.combinations(self.ports, 2):
-            connections.append((port0, port1))
-        return connections
+    def get_better_subclass(self) -> Union[None, Type['ProductBased']]:
+        """Returns alternative subclass of current object.
 
-    @staticmethod
-    def get_element(guid):
-        """Get element instance with given guid
+        CAUTION: only use this if you can't know the result before instantiation
+         of base class
+        :returns: subclass of ProductBased or None"""
+        return None
 
-        :returns: None if element with guid was not instanciated"""
-        return BaseElement.objects.get(guid)
-
-    def discard(self):
-        super().discard()
-        del self.objects[self.guid]
+    @property
+    def neighbors(self):
+        """Directly connected elements"""
+        neighbors = []
+        for port in self.ports:
+            neighbors.append(port.connection.parent)
+        return neighbors
 
     def is_generator(self):
         return False
@@ -464,35 +476,36 @@ class BaseElement(Root):
     def is_consumer(self):
         return False
 
+    def validate(self):
+        """"Check if standard parameter are in valid range"""
+        for cond in self.conditions:
+            if not cond.check(self):
+                logger.warning("%s validation (%s) failed for %s",
+                               self.ifc_type, cond.name, self.guid)
+                return False
+        return True
+
     def __repr__(self):
         return "<%s (ports: %d)>" % (self.__class__.__name__, len(self.ports))
 
 
-class BasePort(Root):
+class Port(RelationBased):
     """Basic port"""
-    objects = {}
 
     def __init__(self, parent, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.parent = parent
+        self.parent: ProductBased = parent
         self.connection = None
-        BasePort.objects[self.guid] = self
 
-        self._flow_master = False
-        self._flow_direction = None
-        self._flow_side = None
-
-    @staticmethod
-    def get_port(guid):
-        """Get port instance with given guid
-
-        :returns: None if port with guid was not instanciated"""
-        return BasePort.objects.get(guid)
+    @property
+    def source_tool(self):  # TBD: this incl. Finder could live in Factory
+        """Name of tool that the parent has been created with"""
+        return getattr(self.parent, 'source_tool')
 
     def connect(self, other):
         """Connect this interface bidirectional to another interface"""
-        assert isinstance(other, BasePort), "Can't connect interfaces" \
-                                            " of different classes."
+        assert isinstance(other, Port), \
+            "Can't connect interfaces of different classes."
         # if self.flow_direction == 'SOURCE' or \
         #         self.flow_direction == 'SOURCEANDSINK':
         if self.connection and self.connection is not other:
@@ -513,78 +526,6 @@ class BasePort(Root):
         """Returns truth value of port's connection"""
         return bool(self.connection)
 
-    @property
-    def flow_master(self):
-        """Lock flow direction for port"""
-        return self._flow_master
-
-    @flow_master.setter
-    def flow_master(self, value: bool):
-        self._flow_master = value
-
-    @property
-    def flow_direction(self):
-        """Flow direction of port
-
-        -1 = medium flows into port
-        1 = medium flows out of port
-        0 = medium flow undirected
-        None = flow direction unknown"""
-        return self._flow_direction
-
-    @flow_direction.setter
-    def flow_direction(self, value):
-        if self._flow_master:
-            raise AttributeError("Can't set flow direction for flow master.")
-        if value not in (-1, 0, 1, None):
-            raise AttributeError("Invalid value. Use one of (-1, 0, 1, None).")
-        self._flow_direction = value
-
-    @property
-    def verbose_flow_direction(self):
-        """Flow direction of port"""
-        if self.flow_direction == -1:
-            return 'SINK'
-        if self.flow_direction == 0:
-            return 'SINKANDSOURCE'
-        if self.flow_direction == 1:
-            return 'SOURCE'
-        return 'UNKNOWN'
-
-    @property
-    def flow_side(self):
-        """VL(1), RL(-1), UNKNOWN(0)"""
-        if self._flow_side is None:
-            self._flow_side = self.determine_flow_side()
-        return self._flow_side
-
-    @flow_side.setter
-    def flow_side(self, value):
-        if value not in (-1, 0, 1):
-            raise ValueError("allowed values for flow_side are 1, 0, -1")
-        previous = self._flow_side
-        self._flow_side = value
-        if previous:
-            if previous != value:
-                logger.info("Overwriting flow_side for %r with %s" % (self, self.verbose_flow_side))
-        else:
-            logger.debug("Set flow_side for %r to %s" % (self, self.verbose_flow_side))
-
-    @property
-    def verbose_flow_side(self):
-        if self.flow_side == 1:
-            return "VL"
-        if self.flow_side == -1:
-            return "RL"
-        return "UNKNOWN"
-
-    def determine_flow_side(self):
-        return 0
-
-    def discard(self):
-        super().discard()
-        del BasePort.objects[self.guid]
-
     def __repr__(self):
         if self.parent:
             try:
@@ -594,302 +535,154 @@ class BasePort(Root):
             except ValueError:
                 return "<%s (broken parent: %s)>" % (
                     self.__class__.__name__, self.parent)
-        return "<%s (*abandoned*)>" % (self.__class__.__name__)
+        return "<%s (*abandoned*)>" % self.__class__.__name__
 
     def __str__(self):
         return self.__repr__()[1:-2]
 
 
-class Port(BasePort, IFCBased):
-    """Port of Element"""
-    vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
-    rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.groups = {assg.RelatingGroup.ObjectType
-                       for assg in self.ifc.HasAssignments}
-
-        if self.ifc.FlowDirection == 'SOURCE':
-            self.flow_direction = 1
-        elif self.ifc.FlowDirection == 'SINK':
-            self.flow_direction = -1
-        elif self.ifc.FlowDirection == 'SINKANDSOURCE':
-            self.flow_direction = 0
-
-    def calc_position(self):
-        """returns absolute position as np.array"""
-        try:
-            relative_placement = \
-                self.parent.ifc.ObjectPlacement.RelativePlacement
-            x_direction = np.array(relative_placement.RefDirection.DirectionRatios)
-            z_direction = np.array(relative_placement.Axis.DirectionRatios)
-        except AttributeError:
-            x_direction = np.array([1, 0, 0])
-            z_direction = np.array([0, 0, 1])
-        y_direction = np.cross(z_direction, x_direction)
-        directions = np.array((x_direction, y_direction, z_direction)).T
-        port_coordinates_relative = \
-            np.array(self.ifc.ObjectPlacement.RelativePlacement.Location.Coordinates)
-        coordinates = self.parent.position + np.matmul(directions, port_coordinates_relative)
-
-        if all(coordinates == np.array([0, 0, 0])):
-            logger = logging.getLogger('IFCQualityReport')
-            logger.info("Suspect position [0, 0, 0] for %s", self)
-        return coordinates
-
-    def determine_flow_side(self):
-        """Check groups for hints of flow_side and returns flow_side if hints are definitely"""
-        vl = None
-        rl = None
-        if self.parent.is_generator():
-            if self.flow_direction == 1:
-                vl = True
-            elif self.flow_direction == -1:
-                rl = True
-        elif self.parent.is_consumer():
-            if self.flow_direction == 1:
-                rl = True
-            elif self.flow_direction == -1:
-                vl = True
-        if not vl:
-            vl = any(filter(self.vl_pattern.match, self.groups))
-        if not rl:
-            rl = any(filter(self.rl_pattern.match, self.groups))
-
-        if vl and not rl:
-            return 1
-        if rl and not vl:
-            return -1
-        return 0
-
-
-class SubElement(BaseElement, IFCBased):
-    _ifc_classes = {}
-    # _source_tool = None
-
-    dummy = None
-    conditions = []
-    # todo move this to upper class?
-    instances = {}
-
-    def __init__(self, *args, tool=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._tool = tool
-        self.parent = None
-
-    @classmethod
-    def _init_factory(cls):
-        """initialize lookup for factory"""
-        logger = logging.getLogger(__name__)
-        conflict = False
-        all_subclasses = cls.get_all_subclasses(cls)
-        if Element in all_subclasses:
-            all_subclasses.pop(all_subclasses.index(Element))
-        for cls_selected in all_subclasses:
-            if not isinstance(cls_selected.ifc_type, list):
-                ifc_types = [cls_selected.ifc_type]
-            else:
-                ifc_types = cls_selected.ifc_type
-            for ifc_type in ifc_types:
-                if ifc_type is None:
-                    conflict = True
-                    logger.error("Invalid ifc_type (%s) in '%s'", ifc_type,
-                                 cls_selected.__name__)
-                elif ifc_type in cls._ifc_classes:
-                    conflicting_cls = cls._ifc_classes[ifc_type]
-                    if not issubclass(cls_selected, conflicting_cls):
-                        conflict = True
-                        logger.error(
-                            "Conflicting ifc_types (%s) in '%s' and '%s'",
-                            ifc_type, cls_selected.__name__,
-                            cls._ifc_classes[ifc_type])
-                elif cls_selected.__name__ == "Dummy":
-                    cls.dummy = cls_selected
-                elif not ifc_type.lower().startswith("ifc"):
-                    conflict = True
-                    logger.error("Invalid ifc_type (%s) in '%s'", ifc_type,
-                                 cls_selected.__name__)
-                else:
-                    cls._ifc_classes[ifc_type] = cls_selected
-
-        if conflict:
-            raise AssertionError(
-                "Conflict(s) in Models. (See log for details).")
-
-        # Model.dummy = Model.ifc_classes['any']
-        if not cls._ifc_classes:
-            raise ElementError(
-                "Failed to initialize Element factory. No elements found!")
-
-        model_txt = "\n".join(
-            " - %s" % (model) for model in cls._ifc_classes)
-        logger.debug("IFC model factory initialized with %d ifc classes:\n%s",
-                     len(cls._ifc_classes), model_txt)
-
-    @classmethod
-    def factory(cls, ifc_element, alternate_ifc_type=None, tool=None):
-        """Create model depending on ifc_element"""
-        # TODO: pass ifc classes and storage for element objects in project context.
-        #  see #120. do in #109
-        if not cls._ifc_classes:
-            cls._init_factory()
-
-        ifc_type = ifc_element.is_a() \
-            if not alternate_ifc_type or alternate_ifc_type == ifc_element.is_a() \
-            else alternate_ifc_type
-        cls_selected = cls._ifc_classes.get(ifc_type, cls.dummy)
-
-        prefac = cls_selected(ifc=ifc_element, tool=tool)
-        if cls_selected is cls.dummy:
-            logger = logging.getLogger(__name__)
-            logger.warning("Did not found matching class for %s", ifc_type)
-            return prefac
-
-        for sub_cls in cls.get_all_subclasses(cls_selected):
-            requirements = cls.get_class_requirements(sub_cls)
-            match = True
-            for req, value in requirements.items():
-                on_ifc = getattr(prefac, req)
-                if on_ifc != value:
-                    match = False
-                    break
-            if match is True:
-                prefac = sub_cls(ifc=ifc_element, tool=tool)
-                break
-        if type(prefac).__name__ not in SubElement.instances:
-            SubElement.instances[type(prefac).__name__] = {prefac.guid: prefac}
-        else:
-            if prefac.guid not in SubElement.instances[type(prefac).__name__]:
-                SubElement.instances[type(prefac).__name__][prefac.guid] = prefac
-        return prefac
-
-    @staticmethod
-    def get_all_subclasses(cls):
-        all_subclasses = []
-
-        for subclass in cls.__subclasses__():
-            if subclass not in all_subclasses:
-                all_subclasses.append(subclass)
-                all_subclasses.extend(cls.get_all_subclasses(subclass))
-
-        return all_subclasses
-
-    @staticmethod
-    def get_dict_subclasses(cls):
-        all_subclasses = {}
-
-        for subclass in cls.__subclasses__():
-            if subclass.__name__ not in all_subclasses:
-                all_subclasses[subclass.__name__] = subclass
-                all_subclasses.update(cls.get_dict_subclasses(subclass))
-
-        return all_subclasses
-
-
-    @staticmethod
-    def get_class_requirements(cls):
-        requirements = {}
-        if cls.predefined_type is not None:
-            requirements['predefined_type'] = cls.predefined_type
-        if hasattr(cls, 'special_argument'):
-            requirements.update(cls.special_argument)
-
-        return requirements
-
-    @staticmethod
-    def get_class_instances(instance_class):
-
-        if isinstance(instance_class, str):
-            return list(SubElement.instances[instance_class].values())
-        else:
-            return list(SubElement.instances[instance_class.__name__].values())
-
-    def validate(self):
-        """"Check if standard parameter are in valid range"""
-        for cond in self.conditions:
-            if not cond.check(self):
-                self.logger.warning("%s validation (%s) failed for %s", self.ifc_type, cond.name, self.guid)
-                return False
-        return True
-
-    @property
-    def source_tool(self):
-        """Name of tool that the parent has been created with"""
-        if not self._tool:
-            self._tool = self.get_project().OwnerHistory.OwningApplication.ApplicationFullName
-        return self._tool
-
-    def __repr__(self):
-        return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)
-
-    def __str__(self):
-        return "%s" % self.__class__.__name__
-
-
-class Element(SubElement):
-    """Base class for IFC model representation
-
-    WARNING: getting an not defined attribute from instances of Element will
-    return None (from finder) instead of rasing an AttributeError"""
-    _ifc_classes = {}
-
-    dummy = None
-    conditions = []
-
-    def __init__(self, *args, tool=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._tool = tool
-        self._add_ports()
-        del self.parent
-        # TODO: set flow_side based on ifc (no official property, but revit (HLS) and tricad (TRICAS-MS) provide it)
-
-    def _add_ports(self):
-        # has no ports option
-        try:
-            for nested in self.ifc.IsNestedBy:
-                # valid for IFC for Revit v19.2.0.0
-                for element_port_connection in nested.RelatedObjects:
-                    if element_port_connection.is_a() == 'IfcDistributionPort':
-                        self.ports.append(Port(parent=self, ifc=element_port_connection))
-                    else:
-                        self.logger.warning("Not included %s as Port in %s", element_port_connection.is_a(), self)
-        except AttributeError:
-            pass
-        # valid for IFC for Revit v19.1.0.0
-        element_port_connections = getattr(self.ifc, 'HasPorts', [])
-        for element_port_connection in element_port_connections:
-            self.ports.append(Port(parent=self, ifc=element_port_connection.RelatingPort))
-
-    @property
-    def neighbors(self):
-        """Directly connected elements"""
-        neighbors = []
-        for port in self.ports:
-            neighbors.append(port.connection.parent)
-        return neighbors
-
-    def __repr__(self):
-        return "<%s (ports: %d, guid=%s)>" % (
-            self.__class__.__name__, len(self.ports), self.guid)
-
-    def __str__(self):
-        return "%s" % self.__class__.__name__
-
-
-class Dummy(Element):
+class Dummy(ProductBased):
     """Dummy for all unknown elements"""
 
-    # ifc_type = 'any'
+    ifc_types = {
+        "IfcElementProxy": ['*']
+    }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self._ifc_type = self.ifc.get_info()['type']
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #
+    #     self._ifc_type = self.ifc.get_info()['type']
 
     @property
     def ifc_type(self):
         return self._ifc_type
 
     def __str__(self):
-        return "Dummy '%s'" % self.name
+        return "Dummy '%s'" % self.ifc_type
+
+
+class Factory:
+    """Element Factory for :class: `ProductBased`
+
+    Example:
+        factory = Factory([Pipe, Boiler], dummy)
+        ele = factory(some_ifc_element)
+        """
+
+    def __init__(
+            self, relevant_elements: List[ProductBased],
+            finder_path: Union[str, Path, None] = None, dummy=Dummy):
+        self.mapping, self.blacklist, self.defaults = \
+            self.create_ifc_mapping(relevant_elements)
+        self.dummy_cls = dummy
+        self.finder = TemplateFinder()
+        if finder_path:
+            self.finder.load(finder_path)
+
+    def __call__(self, ifc_entity, *args, ifc_type: str = None, use_dummy=True,
+                 **kwargs) -> ProductBased:
+        """Run factory to create element instance.
+
+        :param ifc_entity: IfcOpenShell entity
+        :param args: additional args passed to element
+        :param ifc_type: ify type to create element for.
+            defaults to ifc_entity.is_a()
+        :param use_dummy: use dummy class if nothing is found
+        :param kwargs: additional kwargs passed to element
+
+        :raises LookupError: if no element found an use_dummy = False
+        """
+        _ifc_type = ifc_type or ifc_entity.is_a()
+        predefined_type = ifc2python.get_predefined_type(ifc_entity)
+        element_cls = self.get_element(_ifc_type, predefined_type)
+        if not element_cls:
+            if use_dummy:
+                element_cls = self.dummy_cls
+            else:
+                raise LookupError(f"No element found for {ifc_entity}")
+
+        element = self.create(element_cls, ifc_entity, *args, **kwargs)
+        return element
+
+    def create(self, element_cls, ifc_entity, *args, **kwargs):
+        """Create Element from class and ifc"""
+        # instantiate element
+        element = element_cls.from_ifc(
+            ifc_entity, finder=self.finder, *args, **kwargs)
+        # check if it prefers to be sth else
+        better_cls = element.get_better_subclass()
+        if better_cls:
+            logger.info("Creating %s instead of %s", better_cls, element_cls)
+            element = better_cls.from_ifc(ifc_entity, finder=self.finder, *args, **kwargs)
+        return element
+
+    def get_element(self, ifc_type: str, predefined_type: Union[str, None]) -> \
+            Union[ProductBased, None]:
+        """Get element class by ifc type and predefined type"""
+        if predefined_type:
+            key = (ifc_type.lower(), predefined_type.upper())
+            # 1. go over normal list, if found match --> return
+            element = self.mapping.get(key)
+            if element:
+                return element
+            # 2. go over negative list, if found match --> not existing
+            if key in self.blacklist:
+                return None
+        # 3. go over default list, if found match --> return
+        return self.defaults.get(ifc_type.lower())
+
+    # def _get_by_guid(self, guid: str) -> Union[ProductBased, None]:
+    #     """Get item from given guid created by this factory."""
+    #     return self._objects.get(guid)
+    #
+    # def _get_by_cls(self, item_cls: Type[ProductBased]) -> List[ProductBased]:
+    #     """Get list of child items from given class created by this factory."""
+    #     return [item for item in self._objects.values()
+    #             if isinstance(item, item_cls)]
+
+    @staticmethod
+    def create_ifc_mapping(elements: Iterable) -> Tuple[
+        Dict[Tuple[str, str], ProductBased],
+        List[Tuple[str, ProductBased]],
+        Dict[str, ProductBased]
+    ]:
+        """Create mapping dict, blacklist and default dict from elements
+
+        WARNING: ifc_type is always converted to lowe case
+        and predefined types to upper case
+        """
+        # TODO: cover virtual elements e.g. Space Boundaries (not products)
+
+        mapping = {}
+        blacklist = []
+        default = {}
+        _all_ifc_types = set()
+
+        for ele in elements:
+            for ifc_type, tokens in ele.ifc_types.items():
+                _all_ifc_types.add(ifc_type.lower())
+                for token in tokens:
+                    # create default dict where all stars are taken into account
+                    # items 'IfcSlab': Slab
+                    if token == '*':
+                        if ifc_type in default:
+                            raise NameError(f"Conflicting default ifc_types for {ifc_type}")  # TBD
+                        default[ifc_type.lower()] = ele
+                        # create blacklist where all - are taken into account
+                        # items: ('IfcRoof', 'WeiredStuff')
+                    elif token.startswith('-'):
+                        blacklist.append((ifc_type.lower(), token[1:].upper()))
+                        # create mapping dict
+                        # items ('IfcSlab', 'Roof'): Roof
+                    else:
+                        mapping[(ifc_type.lower(), token.upper())] = ele
+
+        # check ifc types without default
+        no_default = _all_ifc_types - set(default)
+        if no_default:
+            logger.warning("The following ifc types have no default "
+                           "representing Elemet class. There will be no match "
+                           "if predefined type is not provided.\n%s",
+                           no_default)
+
+        return mapping, blacklist, default

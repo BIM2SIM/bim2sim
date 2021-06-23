@@ -1,6 +1,9 @@
 ﻿"""Managing related"""
 import logging
 from abc import ABCMeta
+from typing import Type, List, Set
+
+from bim2sim.task.base import ITask
 
 logger = logging.getLogger(__name__)
 
@@ -13,8 +16,9 @@ class Plugin:
 
     name: str = None
     default_workflow = None
-    tasks: set = None
-    elements: set = None
+    tasks: Set[Type[ITask]] = set()
+    default_tasks: List[Type[ITask]] = []
+    elements: set = set()
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
@@ -27,7 +31,7 @@ class Plugin:
             logger.info("Plugin '%s' registered", cls.name)
 
     @classmethod
-    def get_plugin(cls, name: str):
+    def get_plugin(cls, name: str) -> Type['Plugin']:
         """Get plugin by name
         :rtype: Plugin
         :raise: NameError if name is not available or invalid
