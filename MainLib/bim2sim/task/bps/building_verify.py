@@ -83,7 +83,8 @@ class BuildingVerification(ITask):
             layers_width, layers_u = self.get_layers_properties(instance)
             if not self.width_comparison(workflow, instance, layers_width):
                 return False
-            u_value_comparison = yield from self.u_value_comparison(instance, layers_u)
+            u_value_comparison = yield from self.u_value_comparison(instance,
+                                                                    layers_u)
             if not u_value_comparison:
                 return False
             elif u_value_comparison == 'valid':
@@ -99,9 +100,9 @@ class BuildingVerification(ITask):
         layers_r = 0
         layers_u = 0
         for layer in instance.layers:
-            layers_width += layer.thickness
-            if layer.thermal_conduc is not None:
-                if layer.thermal_conduc > 0:
+            if layer.thickness:
+                layers_width += layer.thickness
+                if layer.thermal_conduc and layer.thermal_conduc > 0:
                     layers_r += layer.thickness / layer.thermal_conduc
 
         if layers_r > 0:
@@ -118,17 +119,19 @@ class BuildingVerification(ITask):
         if workflow.layers is not LOD.low:
             return True
         else:
-            width_discrepancy = abs(instance.width - layers_width) / instance.width \
-                if (instance.width is not None and instance.width > 0) else None
+            width_discrepancy = abs(instance.width - layers_width) / \
+                                instance.width \
+                                if (instance.width is not None
+                                    and instance.width > 0) else None
             if not width_discrepancy or width_discrepancy > threshold:
                 return False
             return True
 
     def u_value_comparison(self, instance, layers_u):
         # critical failure
-        if instance.u_value == 0 and layers_u == 0:
+        if not instance.u_value and layers_u == 0:
             return False
-        elif instance.u_value == 0 and layers_u > 0:
+        elif not instance.u_value and layers_u > 0:
             instance.u_value = layers_u
         elif instance.u_value > 0 and layers_u > 0:
             if self.compare_with_template(instance, instance.u_value) and \
@@ -143,8 +146,8 @@ class BuildingVerification(ITask):
                     context=instance.name, related=instance.guid)
                 yield DecisionBunch([u_selection])
                 instance.u_value = u_selection.value * instance.u_value.u
-            elif not self.compare_with_template(instance, instance.u_value) and \
-                    self.compare_with_template(instance, layers_u):
+            elif not self.compare_with_template(instance, instance.u_value) \
+                    and self.compare_with_template(instance, layers_u):
                 instance.u_value = layers_u
             elif self.compare_with_template(instance, instance.u_value) and \
                     not self.compare_with_template(instance, layers_u):
@@ -172,9 +175,10 @@ class BuildingVerification(ITask):
                 years = ast.literal_eval(i)
                 if years[0] <= year_of_construction <= years[1]:
                     for type_e in instance_templates[i_type][i]:
-                        # todo how is ifc u-value structured? (specific or absolut,
-                        # convection integrated?)
-                        # relev_info = instance_templates[instance_type][i][type_e]
+                        # todo how is ifc u-value structured? (specific or
+                        #  absolut, convection integrated?)
+                        # relev_info = \
+                        #     instance_templates[instance_type][i][type_e]
                         # if instance_type == 'InnerWall':
                         #     layers_r = 2 / relev_info['inner_convection']
                         # else:
@@ -184,7 +188,9 @@ class BuildingVerification(ITask):
                         for layer, data_layer in \
                                 instance_templates[
                                     i_type][i][type_e]['layer'].items():
-                            material_tc = material_templates[data_layer['material']['material_id']]['thermal_conduc']
+                            material_tc = material_templates[
+                                data_layer['material']['material_id']][
+                                'thermal_conduc']
                             layers_r += data_layer['thickness'] / material_tc
                         template_options.append(1 / layers_r)  # area?
                     break

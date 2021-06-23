@@ -6,7 +6,8 @@ from bim2sim.kernel.elements.bps import Slab, GroundFloor, Floor, Roof
 
 
 class Prepare(ITask):
-    """Analyses IFC, creates Element instances corresponding to thermal zones and connects them.
+    """Analyses IFC, creates Element instances corresponding to thermal zones
+    and connects them.
     elements are stored in .tz_instances dict with guid as key"""
 
     reads = ('instances', 'space_boundaries',)
@@ -33,7 +34,8 @@ class Prepare(ITask):
         thermal_zones = filter_instances(instances, 'ThermalZone')
         self.tz_instances = {inst.guid: inst for inst in thermal_zones}
 
-        if len(self.tz_instances) == 0:  # ToDo: Geometric Method before SB creation
+        if len(self.tz_instances) == 0:
+            # ToDo: Geometric Method before SB creation
             self.logger.warning("Found no spaces by semantic detection")
             decision = BoolDecision("Try to detect zones by geometrical?")
             yield DecisionBunch([decision])
@@ -51,7 +53,8 @@ class Prepare(ITask):
 
     @staticmethod
     def bind_elements_to_storey(instances):
-        """Bind thermal_zones and instances to each floor/storey and vice versa"""
+        """Bind thermal_zones and instances to each floor/storey and vice
+        versa"""
         storeys = filter_instances(instances, 'Storey')
         for storey in storeys:
             storey_instances = []
@@ -75,7 +78,8 @@ class Prepare(ITask):
             storey.thermal_zones = storey_spaces
 
     def set_space_properties(self):
-        """set cooling and heating values based on general question for all building"""
+        """set cooling and heating values based on general question for all
+        building"""
 
         cooling_decision = yield from self.tz_property_decision('cool')
         heating_decision = yield from self.tz_property_decision('heat')
@@ -88,7 +92,8 @@ class Prepare(ITask):
 
     @staticmethod
     def tz_property_decision(property_name: str):
-        """thermal zone property decision corresponding cooling and heating for building"""
+        """thermal zone property decision corresponding cooling and heating for
+        building"""
         decision = BoolDecision(
             question="Do you want for all the thermal zones to be %sed? - "
                      "with %sing" % (property_name, property_name),
@@ -117,10 +122,12 @@ class Prepare(ITask):
 
     @staticmethod
     def better_slab_class(instance):
-        """do a recheck of selected classes if necessary, and changes it to a new class
+        """do a recheck of selected classes if necessary, and changes it to a
+        new class
         based on criteria and information of the space boundaries"""
         if len(instance.space_boundaries) > 0:
-            # TODO Is Floor the most correct here? We might create a new class for such elements
+            # TODO Is Floor the most correct here? We might create a new class
+            #  for such elements
             new_class = Floor
             if instance.is_external is True:
                 new_class = Roof
@@ -134,7 +141,8 @@ class Prepare(ITask):
                 # ToDo: Maybe remove ald element and add new element
 
     def recognize_decomposed_roofs(self, instance, instances):
-        """recognize the roofs that are decomposed on another slabs, and after that:
+        """recognize the roofs that are decomposed on another slabs, and after
+        that:
         * set decompositions on decomposed instance
         * set decomposition properties on decomposed instance"""
         if instance.ifc.IsDecomposedBy:
@@ -148,7 +156,8 @@ class Prepare(ITask):
 
     @staticmethod
     def set_decompositions(instance, d_instance):
-        """set decompositions of a decomposed slab and vice versa as list in the instance"""
+        """set decompositions of a decomposed slab and vice versa as list in the
+        instance"""
         if not hasattr(instance, 'decomposed_by'):
             instance.decomposed_by = []
         instance.decomposed_by.append(d_instance)
@@ -158,8 +167,10 @@ class Prepare(ITask):
 
     @staticmethod
     def set_decomposition_properties(instance, d_instance):
-        """set attributes of decomposes instance, if attribute of decomposed instance not available or invalid"""
-        # when decomposed,decomposes instance has attributes of the decomposed instance
+        """set attributes of decomposes instance, if attribute of decomposed
+        instance not available or invalid"""
+        # when decomposed,decomposes instance has attributes of the decomposed
+        # instance
         for attr, (value, available) in instance.attributes.items():
             if not value and hasattr(d_instance, attr):
                 if getattr(d_instance, attr):

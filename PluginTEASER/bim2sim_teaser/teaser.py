@@ -23,13 +23,12 @@ class TEASERManager(Plugin):
         bps.Prepare,
         bps.EnrichUseConditions,
         bps.OrientationGetter,
-        bps.MaterialVerification,  # LOD.full
-        bps.EnrichMaterial,  # LOD.full
-        bps.BuildingVerification,  # all LODs
-        bps.EnrichNonValid,  # LOD.full
-        bps.EnrichBuildingByTemplates,  # LOD.low
+        bps.MaterialVerification,  # layers -> LOD.full
+        bps.EnrichMaterial,  # layers -> LOD.full
+        bps.BuildingVerification,  # all layers LODs
+        bps.EnrichNonValid,  # spaces -> LOD.full
+        bps.EnrichBuildingByTemplates,  # spaces -> LOD.low
         bps.DisaggregationCreation,
         bps.BindThermalZones,
         bps.ExportTEASER,
     ]
-

@@ -109,7 +109,9 @@ def get_layers_ifc(element):
         association = getIfcAttribute(assoc, relation)
         if association is not None:
             layer_list = None
-            if hasattr(association, 'ForLayerSet'):
+            if association.is_a('IfcMaterial'):
+                layer_list = [association]
+            elif hasattr(association, 'ForLayerSet'):
                 layer_list = association.ForLayerSet.MaterialLayers
             elif hasattr(association, 'Materials'):
                 layer_list = association.Materials

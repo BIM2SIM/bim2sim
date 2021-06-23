@@ -37,7 +37,8 @@ class EnrichNonValid(ITask):
             for window in windows:
                 yield from self.window_manual_enrichment(window)
 
-        self.logger.info("enriched %d invalid layers", len(self.enriched_layers))
+        self.logger.info("enriched %d invalid layers",
+                         len(self.enriched_layers))
 
         return self.enriched_layers,
 
@@ -60,7 +61,7 @@ class EnrichNonValid(ITask):
             layers_r = 0
             layers_number = yield from self.layers_numbers_decision(instance)
             layer_number = 1
-            if instance.width is None or instance.width <= 0:
+            if not instance.width or instance.width < 0:
                 instance.width = yield from self.instance_width_decision(
                     instance)
             while layer_number <= layers_number:
@@ -73,7 +74,8 @@ class EnrichNonValid(ITask):
                     instance, layer_number)
                 if material_input not in self.material_selected:
                     yield from self.store_new_material(instance, material_input)
-                new_layer = bps.Layer(finder=TemplateFinder(), **self.material_selected[material_input],
+                new_layer = bps.Layer(finder=TemplateFinder(),
+                                      **self.material_selected[material_input],
                                       thickness=thickness_value)
                 new_layer.parent = instance
                 instance.layers.append(new_layer)
@@ -82,10 +84,7 @@ class EnrichNonValid(ITask):
                 if layers_width >= instance.width:
                     break
                 layer_number += 1
-            try:
-                instance.u_value = 1 / layers_r
-            except:
-                print()
+            instance.u_value = 1 / layers_r
             self.enriched_class[instance_class] = {}
             self.enriched_class[instance_class]['width'] = instance.width
             self.enriched_class[instance_class]['layers'] = instance.layers
@@ -134,29 +133,29 @@ class EnrichNonValid(ITask):
     def material_input_decision(cls, instance, layer_number):
         resumed = EnrichMaterial.get_resumed_material_templates()
         material_input = StringDecision(
-            "Enter material for the layer %d (it will be searched or manual input)\n"
+            "Enter material for the layer %d "
+            "(it will be searched or manual input)\n"
             "Belonging Item: %s | GUID: %s \n"
             "Enter 'n' for manual input"
             % (layer_number, instance.key, instance.guid),
             global_key='Layer_Material%d_%s' % (layer_number, instance.guid),
             allow_skip=True,
-            validate_func=partial(EnrichMaterial.validate_new_material, list(resumed.keys())),
+            validate_func=partial(EnrichMaterial.validate_new_material,
+                                  list(resumed.keys())),
             context=instance.key, related=instance.guid)
         yield DecisionBunch([material_input])
         return material_input.value
 
     def store_new_material(self, instance, material_input):
         resumed = EnrichMaterial.get_resumed_material_templates()
-        material_options = EnrichMaterial.get_matches_list(material_input, list(resumed.keys()))
+        material_options = EnrichMaterial.get_matches_list(material_input,
+                                                           list(resumed.keys()))
         if len(material_options) > 1:
             material_selected = yield from \
                 EnrichMaterial.material_selection_decision(
                     material_input, instance, material_options)
         else:
-            try:
-                material_selected = material_options[0]
-            except:
-                print()
+            material_selected = material_options[0]
         material_dict = dict(resumed[material_selected])
         del material_dict['thickness']
         self.material_selected[material_input] = material_dict
@@ -174,8 +173,10 @@ class EnrichNonValid(ITask):
         return True
 
     def window_manual_enrichment(self, window):
-        enriched_attrs = ['g_value', 'a_conv', 'shading_g_total', 'shading_max_irr', 'inner_convection',
-                          'inner_radiation', 'outer_radiation', 'outer_convection']
+        enriched_attrs = ['g_value', 'a_conv', 'shading_g_total',
+                          'shading_max_irr', 'inner_convection',
+                          'inner_radiation', 'outer_radiation',
+                          'outer_convection']
         for attr in enriched_attrs:
             value = getattr(window, attr)
             if value is None:

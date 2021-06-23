@@ -37,6 +37,7 @@ class BindThermalZones(ITask):
         return self.bounded_tz,
 
     def bind_tz_one_zone(self, thermal_zones, instances, finder):
+        """groups together all the thermal zones as one building"""
         tz_group = {'one_zone_building': thermal_zones}
         new_aggregations = AggregatedThermalZone.find_matches(
             tz_group, instances, finder)
@@ -165,7 +166,7 @@ class BindThermalZones(ITask):
 
     def group_by_external_orientation(self, thermal_zones: list) -> dict:
         """groups together the thermal zones based on external_orientation
-         criterion"""
+        criterion"""
         grouped_tz = {}
         for tz in thermal_zones:
             value = self.external_orientation_group(
