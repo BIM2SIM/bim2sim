@@ -105,8 +105,6 @@ class TestOnlyDeadEnds(unittest.TestCase):
                 dummy = next(job)
         except StopIteration as result:
             graph, n_removed = result.value
-        graph, n_removed = dead_ends.DeadEnds.decide_deadends(
-                graph, pot_dead_ends, True)
         self.assertEqual(10, n_removed,
                          msg='Number of removed elements doesnt equal %s'
                              % n_removed)
