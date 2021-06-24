@@ -2346,7 +2346,7 @@ class IdfObject():
         self.sun_exposed = ''
         self.wind_exposed = ''
         self.surface_type = None
-        self.virtual_physical = None
+        self.physical = inst_obj.physical
         self.construction_name = None
         self.related_bound = inst_obj.related_bound
         self.skip_bound = False
@@ -2544,9 +2544,7 @@ class IdfObject():
             self.construction_name = "BS Door"
         elif self.surface_type == "Window":
             self.construction_name = "BS Exterior Window"
-        if not hasattr(self.related_bound, 'bound_instance'):
-            return
-        if self.related_bound.bound_instance is None:
+        if not self.physical:
             if self.out_bound_cond == "Surface":
                 self.construction_name = "Air Wall"
 

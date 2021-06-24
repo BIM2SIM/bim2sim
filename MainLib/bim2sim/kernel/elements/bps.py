@@ -523,51 +523,33 @@ class SpaceBoundary(element.RelationBased):
                     if nb_vert_this == nb_vert_other:
                         return corr_bound
         if self.bound_instance is None:
-            return None
-            # check for visual bounds
-            # if bind.level_description != "2a":
-            #     return None
-            # if not bind.physical:
-            #     corr_bound = None
-            #     bounds = []
-            #     min_dist = 1000
-            #     for obj in bind.thermal_zones[0].objects:
-            #         if bind.thermal_zones[0].objects[obj].ifc_type == 'IfcRelSpaceBoundary':
-            #             bounds.append(bind.thermal_zones[0].objects[obj])
-            #     for bound in bounds:
-            #         if bound.physical:
-            #             continue
-            #         if bound.thermal_zones[0].ifc.GlobalId == bind.thermal_zones[0].ifc.GlobalId:
-            #             continue
-            #         if (bound.bound_area-bind.bound_area)**2 > 1:
-            #             continue
-            #         if bound.ifc.GlobalId == bind.ifc.GlobalId:
-            #             continue
-            #         if bound.bound_normal.Dot(bind.bound_normal) != -1:
-            #             continue
-            #         distance = BRepExtrema_DistShapeShape(
-            #             bound.bound_shape,
-            #             bind.bound_shape,
-            #             Extrema_ExtFlag_MIN
-            #         ).Value()
-            #         if distance > min_dist or distance > 0.4:
-            #             continue
-            #         bind.check_for_vertex_duplicates(bound)
-            #         nb_vert_this = bind.get_number_of_vertices(bind.bound_shape)
-            #         nb_vert_other = bind.get_number_of_vertices(bound.bound_shape)
-            #         center_dist = gp_Pnt(bind.bound_center).Distance(gp_Pnt(bound.bound_center)) ** 2
-            #         if (center_dist) > 0.5:
-            #             continue
-            #         if nb_vert_other != nb_vert_this:
-            #             # replace bound shape by corresponding bound shape
-            #             rel_dist = BRepExtrema_DistShapeShape(bind.bound_shape, bound.bound_shape, Extrema_ExtFlag_MIN).Value()
-            #             bind.bound_shape = copy.copy(bound.bound_shape.Reversed())
-            #             bind.bound_shape = bind.move_bound_in_direction_of_normal(bind.bound_shape, bind.bound_normal,
-            #                                                                       rel_dist, reversed=True)
-            #         corr_bound = bound
-            #     return corr_bound
-            #     # for bound in self.objects.
             # return None
+            # check for virtual bounds
+            if not self.physical:
+                corr_bound = None
+                # cover virtual space boundaries without related IfcVirtualElement
+                if not self.ifc.RelatedBuildingElement:
+                    vbs = [b for b in self._instances.values() if b.ifc.is_a('IfcRelSpaceBoundary') and not b.ifc.RelatedBuildingElement]
+                    for b in vbs:
+                        if b is self:
+                            continue
+                        if b.ifc.RelatingSpace == self.ifc.RelatingSpace:
+                            continue
+                        if not (b.bound_area.m-self.bound_area.m)**2 < 1e-2:
+                            continue
+                        center_dist = gp_Pnt(self.bound_center).Distance(gp_Pnt(b.bound_center)) ** 2
+                        if (center_dist) > 0.5:
+                            continue
+                        corr_bound = b
+                        return corr_bound
+                    return None
+                # cover virtual space boundaries related to an IfcVirtualElement
+                if self.ifc.RelatedBuildingElement.is_a('IfcVirtualElement'):
+                    if len(self.ifc.RelatedBuildingElement.ProvidesBoundaries) == 2:
+                        for bound in self.ifc.RelatedBuildingElement.ProvidesBoundaries:
+                            if bound.GlobalId != self.ifc.GlobalId:
+                                corr_bound = self._instances[bound.GlobalId]
+                                return corr_bound
         elif len(self.bound_instance.space_boundaries) == 1:
             return None
         elif len(self.bound_instance.space_boundaries) >= 2:
