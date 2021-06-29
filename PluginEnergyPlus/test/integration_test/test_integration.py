@@ -245,11 +245,12 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         # ifc = RESULT_PATH / 'Office_Building_Architectural_IFC_export_with_SB.ifc'
         ifc = RESULT_PATH / 'Linear_V01.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('Linear-Building', 'Autodesk Revit 2020 (DEU)', True, True, *('Single office',)*72, 2015, 'heavy',
+        answers = ('Autodesk Revit 2020 (DEU)', 'Autodesk Revit 2020 (DEU)', True, True, *('Single office',)*71, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
         handler = DebugDecisionHandler(answers)
-        return_code = handler.handle(project.run())
-        self.assertEqual(0, return_code)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value)
 
     @unittest.skip("Not fully implemented yet")
     def test_base_20_olabarri_design_day(self):

@@ -53,7 +53,7 @@ from bim2sim.task.base import ITask
 from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.kernel.element import Element, ElementEncoder
 # from bim2sim.kernel.elements import SpaceBoundary2B, SpaceBoundary
-from bim2sim.kernel.elements.bps import SpaceBoundary
+from bim2sim.kernel.elements.bps import SpaceBoundary, ExternalSpatialElement
 # from bim2sim.kernel.bps import ...
 from bim2sim.kernel.aggregation import AggregatedThermalZone
 # todo new name :)
@@ -1432,8 +1432,9 @@ class ExportEP(ITask):
     def _add_shadings(self, instances, idf):
         spatials = []
         for inst in instances:
-            if instances[inst].ifc.is_a() == None:
-                spatials.append(instances[inst])
+            if isinstance(instances[inst], ExternalSpatialElement):
+                for sb in instances[inst].space_boundaries:
+                    spatials.append(sb)
 
         pure_spatials = []
         for s in spatials:
