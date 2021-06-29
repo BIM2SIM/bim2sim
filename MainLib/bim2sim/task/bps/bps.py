@@ -1442,37 +1442,25 @@ class ExportEP(ITask):
 
         pure_spatials = []
         for s in spatials:
-            if hasattr(s, 'ifc'):
-                if not hasattr(s.ifc, 'CorrespondingBoundary'):
+            # only consider almost horizontal 2b shapes (roof-like SBs)
+            if s.level_description == '2b':
+                angle = math.degrees(gp_Dir(s.bound_normal).Angle(gp_Dir(gp_XYZ(0, 0, 1))))
+                if not ((-45 < angle < 45) or (135 < angle < 225)):
                     continue
-                if s.ifc.CorrespondingBoundary == None:
-                    continue
-                if s.ifc.CorrespondingBoundary.RelatingSpace.is_a('IfcSpace'):
-                    continue
-                pure_spatials.append(s)
+            if s.related_bound and s.related_bound.bound_thermal_zone.ifc.is_a('IfcSpace'):
+                continue
+            pure_spatials.append(s)
 
-        settings = ifcopenshell.geom.main.settings()
-        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
-        settings.set(settings.USE_WORLD_COORDS, True)
-        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-        settings.set(settings.INCLUDE_CURVES, True)
         for s in pure_spatials:
             obj = idf.newidfobject('SHADING:BUILDING:DETAILED',
                                    Name=s.ifc.GlobalId,
                                    )
-            shape = ifcopenshell.geom.create_shape(settings, s.ifc.ConnectionGeometry.SurfaceOnRelatingElement)
-            space_shape = ifcopenshell.geom.create_shape(settings, s.ifc.RelatingSpace).geometry
-            shape_val = TopoDS_Iterator(space_shape).Value()
-            loc = shape_val.Location()
-            shape.Move(loc)
-            obj_pnts = PyOCCTools.get_points_of_face(shape)
+            obj_pnts = PyOCCTools.get_points_of_face(s.bound_shape)
             obj_coords = []
             for pnt in obj_pnts:
                 co = tuple(round(p, 3) for p in pnt.Coord())
                 obj_coords.append(co)
             obj.setcoords(obj_coords)
-            # print("HOLD")
-        # print("HOLD")
 
     @staticmethod
     def _set_simulation_control(idf):
