@@ -36,13 +36,15 @@ class CreateSpaceBoundaries(ITask):
 
         instance_lst = {}
         for entity in entities_dict:
+            element = None
             if entity.RelatingSpace.is_a('IfcSpace'):
                 element = SpaceBoundary.from_ifc(entity, instances=instance_lst,
                                                finder=finder)
-            if create_external_elements:
-                if entity.RelatingSpace.is_a('IfcExternalSpatialElement'):
-                    element = ExtSpatialSpaceBoundary.from_ifc(entity, instances=instance_lst,
-                                                   finder=finder)
+            elif create_external_elements and entity.RelatingSpace.is_a('IfcExternalSpatialElement'):
+                element = ExtSpatialSpaceBoundary.from_ifc(entity, instances=instance_lst,
+                                               finder=finder)
+            if not element:
+                continue
             # for RelatingSpaces both IfcSpace and IfcExternalSpatialElement are considered
             self.connect_space_boundaries(element, instances)
             instance_lst[element.guid] = element
