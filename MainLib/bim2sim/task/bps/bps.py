@@ -707,7 +707,9 @@ class ExportEP(ITask):
         self._init_zone(instances, idf)
         self._init_zonelist(idf)
         self._init_zonegroups(instances, idf)
+        self.logger.info("Get predefined materials and construction ...")
         self._get_bs2021_materials_and_constructions(idf)
+        self.logger.info("Init internal loads ...")
         for zone in idf.idfobjects["ZONE"]:
             if zone.Name == "All_Zones":
                 continue
@@ -716,7 +718,9 @@ class ExportEP(ITask):
             self._set_people(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
             self._set_equipment(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
             self._set_lights(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
+        self.logger.info("Add Shadings ...")
         self._add_shadings(instances, idf)
+        self.logger.info("Set Simulation Control ...")
         self._set_simulation_control(idf)
         idf.set_default_constructions()
         self.logger.info("Export IDF geometry")
