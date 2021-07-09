@@ -9,5 +9,5 @@ SHELL ["/bin/sh", "--login", "-c"]
 COPY . .
 
 # The code to run when container is started:
-RUN /bin/sh -c "source activate base"
+# RUN /bin/sh -c "source activate base"
 CMD ["/bin/sh"]
