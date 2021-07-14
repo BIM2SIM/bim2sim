@@ -13,7 +13,8 @@ from bim2sim.task.base import ITask
 from bim2sim.filter import TypeFilter
 from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating,\
     ParallelPump
-from bim2sim.kernel.aggregation import Consumer, ConsumerHeatingDistributorModule
+from bim2sim.kernel.aggregation import Consumer,\
+    ConsumerHeatingDistributorModule, GeneratorOneFluid
 from bim2sim.kernel.element import ProductBased, ElementEncoder, Port
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
@@ -470,7 +471,8 @@ class Reduce(ITask):
             Consumer,
             PipeStrand,
             ParallelPump,
-            ConsumerHeatingDistributorModule
+            ConsumerHeatingDistributorModule,
+            GeneratorOneFluid
             # ParallelSpaceHeater,
         ]
 

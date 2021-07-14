@@ -1660,14 +1660,14 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
     )
 
 
-class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
+class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
     """Aggregates generator modules with only one fluid cycle (CHPs, Boilers,
     ...) Not for Chillers or Heatpumps!"""
     aggregatable_elements = {
         hvac.Pump, PipeStrand, hvac.Pipe, hvac.PipeFitting, hvac.Distributor,
         hvac.Boiler, ParallelPump, hvac.Valve, hvac.Storage}
-    wanted_elements = ['IfcBoiler', 'IfcElectricGenerator']
-    boarder_elements = ['IfcTank', 'IfcDistributionChamberElement']
+    wanted_elements = [hvac.Boiler, hvac.CHP]
+    boarder_elements = [hvac.Storage, hvac.Distributor]
     multi = ('rated_power', 'has_bypass', 'rated_height', 'volume',
              'rated_volume_flow', 'rated_pump_power', 'has_pump')
 
