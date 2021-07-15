@@ -13,7 +13,8 @@ class DeadEnds(ITask):
         self.logger.info("Inspecting for dead ends")
         pot_dead_ends = self.identify_deadends(graph)
         self.logger.info("Found %s possible dead ends in network." % len(pot_dead_ends))
-        graph, n_removed = yield from self.decide_deadends(graph, pot_dead_ends, False)
+        graph, n_removed = yield from self.decide_deadends(
+            graph, pot_dead_ends, False)
         self.logger.info("Removed %s ports due to found dead ends." % n_removed)
         if __debug__:
             self.logger.info("Plotting graph ...")
@@ -84,11 +85,10 @@ class DeadEnds(ITask):
                     n_removed += len(set(remove))
                     graph.remove_nodes_from([n for n in graph if n in set(remove)])
                 else:
+                    raise NotImplementedError()
                     # todo handle consumers
                     # dead end identification with guid decision (see issue97 add_gui_decision)
                     # build clusters with position for the rest of open ports
                     # decision to to group thiese open ports to consumers
                     # delete the rest of open ports afterwards
-                    pass
-
         return graph, n_removed

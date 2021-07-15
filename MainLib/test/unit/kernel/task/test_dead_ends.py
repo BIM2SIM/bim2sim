@@ -62,7 +62,7 @@ class TestOnlyDeadEnds(unittest.TestCase):
 
     def test_dead_end_identification_decision(self):
         """Test performs search and remove of the dead ends by decision"""
-        
+
         graph, flags = self.helper.get_simple_circuit()
         pot_dead_ends = dead_ends.DeadEnds.identify_deadends(graph)
         pot_dead_ends_compare = [
@@ -99,7 +99,7 @@ class TestOnlyDeadEnds(unittest.TestCase):
         ]
         self.assertCountEqual(pot_dead_ends_compare, pot_dead_ends)
         job = dead_ends.DeadEnds.decide_deadends(
-            graph, pot_dead_ends, True)
+            graph, pot_dead_ends, force=True)
         try:
             while True:
                 dummy = next(job)
