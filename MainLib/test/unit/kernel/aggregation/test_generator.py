@@ -402,7 +402,7 @@ class TestGeneratorAggregation(unittest.TestCase):
             while True:
                 dummy = next(job)
         except StopIteration as result:
-            graph, n_removed = result.value
+            graph, n_removed_tanks = result.value
         pot_dead_ends = dead_ends.DeadEnds.identify_deadends(graph)
         job = dead_ends.DeadEnds.decide_deadends(
             graph, pot_dead_ends, force=True)
@@ -410,7 +410,7 @@ class TestGeneratorAggregation(unittest.TestCase):
             while True:
                 dummy = next(job)
         except StopIteration as result:
-            graph, n_removed = result.value
+            graph, n_removed_deadends = result.value
         matches, metas = aggregation.GeneratorOneFluid.find_matches(graph)
         self.assertEqual(
             len(matches), 1,
