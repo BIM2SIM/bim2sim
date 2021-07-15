@@ -417,16 +417,22 @@ class TestGeneratorAggregation(unittest.TestCase):
             "There is 1 case for generation cycles but 'find_matches' "
             "returned %d" % len(matches)
         )
-        agg_generator = aggregation.GeneratorOneFluid(
-            "Test", matches[0], **metas[0])
+        agg_generator = aggregation.GeneratorOneFluid(matches[0], **metas[0])
         self.assertEqual(agg_generator.rated_power, 200 * ureg.kilowatt)
         self.assertTrue(agg_generator.has_pump,
                         "No pump was found in generator cycle but there should"
                         " be one existing")
-        with decision.Decision.debug_answer(True):
-            self.assertTrue(agg_generator.has_bypass,
-                            "No bypass was found in generator cycle but there "
-                            "should be one existing")
+        job = agg_generator.calc_has_bypass()
+        try:
+            while True:
+                decisions = next(job)
+                for dec in decisions:
+                    dec.value = True
+        except StopIteration as result:
+            has_bypass = result.value
+        self.assertTrue(agg_generator.has_bypass,
+                        "No bypass was found in generator cycle but there "
+                        "should be one existing")
         graph.merge(
             mapping=agg_generator.get_replacement_mapping(),
             inner_connections=agg_generator.get_inner_connections(),

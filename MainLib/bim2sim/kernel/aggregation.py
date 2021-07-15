@@ -15,9 +15,8 @@ from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg, ifcunits
 from bim2sim.utilities.common_functions import filter_instances
-from bim2sim.decision import ListDecision, BoolDecision
-
-
+from bim2sim.decision import ListDecision, BoolDecision, DecisionBunch
+from bim2sim.decorators import cached_property
 
 logger = logging.getLogger(__name__)
 
@@ -871,7 +870,7 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
         diameter_times_length = 0
 
         for pump in self.elements:
-            if "Pump" in pump.ifc_type:
+            if type(pump) == hvac.Pump:
                 rated_power = getattr(pump, "rated_power")
                 rated_height = getattr(pump, "rated_height")
                 rated_volume_flow = getattr(pump, "rated_volume_flow")
@@ -1091,11 +1090,11 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
         if name == 'rated_power':
             for ele in self.elements:
-                if ele.ifc_type in Consumer.whitelist:
+                if type(ele) in Consumer.whitelist:
                     ele.request(name)
         if name in lst_pump:
             for ele in self.elements:
-                if ele.ifc_type == hvac.Pump.ifc_type:
+                if type(ele) == hvac.Pump:
                     for n in lst_pump:
                         ele.request(n)
         if name == 'volume':
@@ -1671,11 +1670,12 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
     multi = ('rated_power', 'has_bypass', 'rated_height', 'volume',
              'rated_volume_flow', 'rated_pump_power', 'has_pump')
 
-    def __init__(self, name, element_graph, *args, **kwargs):
+    def __init__(self, element_graph, *args, **kwargs):
         self.non_relevant = kwargs.pop('non_relevant', set())  # todo workaround
         self.has_parallel = kwargs.pop('has_parallel', False)
         self.bypass_elements = kwargs.pop('bypass_elements', set())
-        super().__init__(name, element_graph, *args, **kwargs)
+        self.has_bypass = False
+        super().__init__(element_graph, *args, **kwargs)
         edge_ports, element_graph = self.get_edge_ports(element_graph)
         self.elements = set(element_graph.nodes) | self.non_relevant
         if len(edge_ports) > 2:
@@ -1693,7 +1693,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         # (not the case if parallel generators where found)
 
         boarder_elements = [node for node in _graph.nodes if
-                  node.ifc_type in cls.boarder_elements]
+                  type(node) in cls.boarder_elements]
         if len(boarder_elements) > 1:
             raise NotImplementedError
         if boarder_elements:
@@ -1777,7 +1777,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         generator_cycles = []
         for cycles_list in list_all_cycles_wanted:
             generators = list(nx.subgraph(_graph, cycle) for cycle in cycles_list
-                              if any(node.ifc_type == block for block in
+                              if any(type(node) == block for block in
                                      boarders for node in cycle))
             generator_cycles.extend(generators)
             generator_flat.update(generators[0].nodes)
@@ -1825,9 +1825,10 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         total_length = 0
         diameter_times_length = 0
         total_rated_power = 0
+        #todo check doubled calc with _calc_generator_attributes
 
         for item in self.elements:
-            if "Boiler" in item.ifc_type:
+            if type(item) in self.wanted_elements:
 
                 total_rated_volume_flow += item.rated_volume_flow
                 total_rated_power += item.rated_power
@@ -1868,24 +1869,29 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         )
         return result
 
-    @attribute.multi_calc
-    def _calc_has_bypass(self):
-        decision = BoolDecision(
-            "Does the generator %s has a bypass?" % self.name,
+    def calc_has_bypass(self):
+        """calculate if the Generator has a bypass. Currently only decision"""
+        # todo more elegant way? Problem is that cant yield from attributes
+        #  or cached propertys @earnsdev
+        decisions = DecisionBunch()
+        cur_decision = BoolDecision(
+            "Does the generator %s has a bypass?" % self.guid,
+            key=self,
             global_key=self.guid+'.bypass',
-            allow_save=True,
-            allow_load=True,
             related=[element.guid for element in self.elements],)
-        has_bypass = decision.decide()
-        print(has_bypass)
-        return dict(has_bypass=has_bypass)
+        decisions.append(cur_decision)
+        yield decisions
+        answers = decisions.to_answer_dict()
+        has_bypass = list(answers.values())[0]
+        self.has_bypass = has_bypass
+        return has_bypass
 
     @attribute.multi_calc
     def _calc_generator_attributes(self):
         """Calculates all directly generator related attributes"""
         total_rated_power = 0
         for ele in self.elements:
-            if ele.ifc_type in self.wanted_elements:
+            if type(ele) in self.wanted_elements:
                 total_rated_power += getattr(ele, "rated_power")
         result = dict(
             rated_power=total_rated_power
@@ -2009,9 +2015,4 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
     rated_height = attribute.Attribute(
         description="rated volume flow",
         functions=[_calc_avg_pump]
-    )
-    # bypass
-    has_bypass = attribute.Attribute(
-        description="Cycle has bypass",
-        functions=[_calc_has_bypass]
     )

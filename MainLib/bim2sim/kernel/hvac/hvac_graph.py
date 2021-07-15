@@ -289,7 +289,7 @@ class HvacGraph(nx.Graph):
         simple_cycles = list(nx.simple_cycles(directed))
         # filter cycles:
         cycles = [cycle for cycle in simple_cycles for node in cycle if
-                  node.ifc_type in wanted and len(cycle) > 2]
+                  type(node) in wanted and len(cycle) > 2]
 
         # remove duplicate cycles with only different orientation
         cycles_sorted = cycles.copy()
@@ -301,7 +301,7 @@ class HvacGraph(nx.Graph):
         unique_cycles = [list(x) for x in set(tuple(x) for x in cycles_sorted)]
 
         # group cycles by wanted elements
-        wanted_elements = [node for node in graph.nodes if node.ifc_type in wanted]
+        wanted_elements = [node for node in graph.nodes if type(node) in wanted]
         cycles_dict = {}
         for wanted_element in wanted_elements:
             cycles_dict[wanted_element] = []
@@ -327,7 +327,7 @@ class HvacGraph(nx.Graph):
 
         # get cycle with blocker (can't hold bypass if has wanted and blocker)
         blocker_cycles = [cycle for cycle in cycles
-                          if any(node.ifc_type == block for block in
+                          if any(type(node) == block for block in
                                  blockers for node in cycle)]
         for blocker_cycle in blocker_cycles:
             cycles.remove(blocker_cycle)
@@ -337,13 +337,13 @@ class HvacGraph(nx.Graph):
             # get edge_elements
             edge_elements = [node for node in cycle if
                              len(list(nx.all_neighbors(graph, node))) > 2 and
-                             node.ifc_type in pot_edge_elements]
+                             type(node) in pot_edge_elements]
             # get direct connections between edge_elements
             dir_connections = HvacGraph.get_dir_paths_between(
                 graph, edge_elements)
             # filter connections, that has no wanted nodes
             for dir_connection in dir_connections:
-                if not any(node.ifc_type == want for want in wanted for node in
+                if not any(type(node) == want for want in wanted for node in
                            dir_connection):
                     pot_bypass_nodes.extend(dir_connection)
         # filter the potential bypass nodes for the once not in blocker cycles
