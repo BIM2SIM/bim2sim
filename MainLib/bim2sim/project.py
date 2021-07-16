@@ -413,8 +413,6 @@ class Project:
             else:
                 save(self._made_decisions, self.paths.decisions)
             # TODO: fix #172
-            # clean enrich building templates
-            EnrichBuildingByTemplates.instance_template = {}
             # reset ifc file specific unit declarations
             ifcunits.clear()
             # release project
