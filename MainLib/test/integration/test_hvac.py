@@ -42,15 +42,22 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
         project = self.create_project(ifc, 'hkesim')
         # handler = ConsoleDecisionHandler()
         # handler.handle(project.run())
-        answers = ('Other', None, None, 'HVAC-Distributor', 'HVAC-Boiler',
-                   None, *('HVAC-Valve',)*14,
+
+        answers = ('Other', *('HVAC-Valve',)*2, 'HVAC-Distributor',
+                   'HVAC-Boiler', 'HVAC-Storage', *('HVAC-Valve',)*14,
                    '2PFOreSeyfWqxUJNMz5nFO', '2YKblmYbhnh4RrfqKcCxPJ',
-                   *(True,)*29)
+                   *(True,) * 15)
+
+        # answers = ('Other', None, None, 'HVAC-Distributor', 'HVAC-Boiler',
+        #            None, *('HVAC-Valve',)*14,
+        #            '2PFOreSeyfWqxUJNMz5nFO', '2YKblmYbhnh4RrfqKcCxPJ',
+        #            *(True,)*29)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
 
         graph = project.playground.state['graph']
+        graph.plot('D:/10_ProgramTesting')
         aggregated = Counter((type(item) for item in graph.element_graph.nodes))
         self.assertIn(ConsumerHeatingDistributorModule, aggregated)
         self.assertEqual(0, handler.return_value,

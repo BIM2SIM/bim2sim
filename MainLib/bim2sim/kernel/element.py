@@ -467,7 +467,8 @@ class ProductBased(IFCBased):
         """Directly connected elements"""
         neighbors = []
         for port in self.ports:
-            neighbors.append(port.connection.parent)
+            if port.connection:
+                neighbors.append(port.connection.parent)
         return neighbors
 
     def is_generator(self):

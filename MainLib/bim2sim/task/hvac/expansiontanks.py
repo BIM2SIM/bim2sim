@@ -11,7 +11,7 @@ class ExpansionTanks(ITask):
     touches = ('graph',)
 
     def run(self, workflow, graph):
-        self.logger.info("Inspecting for dead ends")
+        self.logger.info("Inspecting for expansion tanks")
         pot_tanks = self.identify_expansion_tanks(graph)
         self.logger.info(f"Found {pot_tanks} potential expansion tanks  in "
                          "network.")
@@ -19,7 +19,7 @@ class ExpansionTanks(ITask):
             graph, pot_tanks, False)
         self.logger.info(f"Removed {n_removed} elements because they were "
                          "expansion tanks.")
-        return graph
+        return graph,
 
     @staticmethod
     def identify_expansion_tanks(graph: {hvac_graph.HvacGraph}) -> set:
@@ -36,7 +36,6 @@ class ExpansionTanks(ITask):
                                force=False) -> [{hvac_graph.HvacGraph}, int]:
         """Delete the found expansions tanks, if force is false a decision will
         be called"""
-        n_removed = 0
         if force:
             n_removed = len(pot_tanks)
             remove_ports = \

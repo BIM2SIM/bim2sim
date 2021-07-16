@@ -20,7 +20,7 @@ class DeadEnds(ITask):
             self.logger.info("Plotting graph ...")
             graph.plot(self.paths.export)
             graph.plot(self.paths.export, ports=True)
-        return (graph, )
+        return graph,
 
     @staticmethod
     def identify_deadends(graph: hvac_graph.HvacGraph):

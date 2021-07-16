@@ -455,7 +455,7 @@ class Reduce(ITask):
     """Reduce number of elements by aggregation"""
 
     reads = ('graph', )
-    touches = ('reduced_instances', 'connections')
+    touches = ('graph', )
 
     def run(self, workflow, graph: hvac_graph.HvacGraph):
         self.logger.info("Reducing elements by applying aggregations")
@@ -472,7 +472,7 @@ class Reduce(ITask):
             PipeStrand,
             ParallelPump,
             ConsumerHeatingDistributorModule,
-            GeneratorOneFluid
+            GeneratorOneFluid,
             # ParallelSpaceHeater,
         ]
 
@@ -510,10 +510,6 @@ class Reduce(ITask):
             log_str += "\n  - %s: %d" % (aggregation, count)
         self.logger.info(log_str)
 
-
-        reduced_instances = graph.elements
-        connections = graph.get_connections()
-
         #Element.solve_requests()
 
         if __debug__:
@@ -521,7 +517,7 @@ class Reduce(ITask):
             graph.plot(self.paths.export)
             graph.plot(self.paths.export, ports=True)
 
-        return reduced_instances, connections
+        return graph,
 
     @staticmethod
     def set_flow_sides(graph):
@@ -581,11 +577,13 @@ class DetectCycles(ITask):
 class Export(ITask):
     """Export to Dymola/Modelica"""
 
-    reads = ('libraries', 'reduced_instances', 'connections')
+    reads = ('libraries', 'graph')
     final = True
 
-    def run(self, workflow, libraries, reduced_instances, connections):
+    def run(self, workflow, libraries, graph):
         self.logger.info("Export to Modelica code")
+        reduced_instances = graph.elements
+        connections = graph.get_connections()
 
         modelica.Instance.init_factory(libraries)
         export_instances = {inst: modelica.Instance.factory(inst) for inst in reduced_instances}

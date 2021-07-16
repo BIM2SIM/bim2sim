@@ -442,11 +442,21 @@ class TestGeneratorAggregation(unittest.TestCase):
         graph, flags = self.helper.get_setup_two_seperate_boilers()
         pot_tanks = \
             expansiontanks.ExpansionTanks.identify_expansion_tanks(graph)
-        graph, n_removed_tanks = expansiontanks.ExpansionTanks.\
-            decide_expansion_tanks(graph, pot_tanks, force=True)
-        dead_ends_found = dead_ends.DeadEnds.identify_deadends(graph)
-        graph, n_removed_dead_ends = dead_ends.DeadEnds.decide_deadends(
-            graph, dead_ends_found, True)
+        job = expansiontanks.ExpansionTanks.decide_expansion_tanks(
+            graph, pot_tanks, force=True)
+        try:
+            while True:
+                dummy = next(job)
+        except StopIteration as result:
+            graph, n_removed_tanks = result.value
+        pot_dead_ends = dead_ends.DeadEnds.identify_deadends(graph)
+        job = dead_ends.DeadEnds.decide_deadends(
+            graph, pot_dead_ends, force=True)
+        try:
+            while True:
+                dummy = next(job)
+        except StopIteration as result:
+            graph, n_removed_deadends = result.value
         matches, metas = aggregation.GeneratorOneFluid.find_matches(graph)
         agg_generators = []
         self.assertEqual(
@@ -455,12 +465,8 @@ class TestGeneratorAggregation(unittest.TestCase):
             "returned %d" % len(matches)
         )
 
-        name_builder = '{} {}'
-        i = 0
         for match, meta in zip(matches, metas):
-            agg_generator = aggregation.GeneratorOneFluid(
-                name_builder.format('generator', i + 1), match, **meta)
-            i += 1
+            agg_generator = aggregation.GeneratorOneFluid(match, **meta)
             agg_generators.append(agg_generator)
             self.assertEqual(agg_generator.rated_power, 200 * ureg.kilowatt)
             self.assertTrue(agg_generator.has_pump,
@@ -487,15 +493,11 @@ class TestGeneratorAggregation(unittest.TestCase):
             "There are 2 generation cycles but 'find_matches' "
             "returned %d" % len(matches)
         )
-        name_builder = '{} {}'
-        i = 0
         agg_generators = []
         boiler200kw_guid = [b.guid for b in flags['boiler200kW']]
         boiler400kw_guid = [b.guid for b in flags['boiler400kW']]
         for match, meta in zip(matches, metas):
-            agg_generator = aggregation.GeneratorOneFluid(
-                name_builder.format('generator', i+1), match, **meta)
-            i += 1
+            agg_generator = aggregation.GeneratorOneFluid(match, **meta)
             agg_generators.append(agg_generator)
             boiler_element = [element for element in agg_generator.elements
                               if isinstance(element, hvac.Boiler)][0]

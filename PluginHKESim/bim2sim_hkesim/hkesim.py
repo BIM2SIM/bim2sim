@@ -27,6 +27,7 @@ class PluginHKESim(Plugin):
         common.CreateElements,
         hvac.ConnectElements,
         hvac.MakeGraph,
+        hvac.ExpansionTanks,
         hvac.Reduce,
         hvac.DeadEnds,
         LoadLibrariesHKESim,
