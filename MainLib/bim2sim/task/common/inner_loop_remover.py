@@ -19,6 +19,8 @@ from OCC.Core.TopLoc import TopLoc_Location
 from OCC.Core.TopoDS import TopoDS_Iterator, TopoDS_Shape, topods_Face
 from OCC.Core.gp import gp_Pnt
 
+from utilities.pyocc_tools import PyOCCTools
+
 Vertex = Vector = Tuple[float, float, float]
 Edge = Tuple[Vertex, Vertex]
 Triangulation = List[List[Vertex]]
@@ -321,7 +323,7 @@ def _reconstruct_cut_polygon(out_edges: List[Edge], cut_edges: List[Edge], plane
 
 
 def remove_inner_loops(shape: TopoDS_Shape) -> TopoDS_Shape:
-    from bim2sim.kernel.elements.bps import SpaceBoundary
+    from PluginIFCparser.Ifc.Ifc_All import SpaceBoundary
 
     # Build all necessary data structures.
     triangulation = _get_triangulation(shape)
@@ -350,7 +352,6 @@ def remove_inner_loops(shape: TopoDS_Shape) -> TopoDS_Shape:
             partition.union(edge[0], edge[1])
 
     cut_polygon = _reconstruct_cut_polygon(out_edges, cut_edges, plane)
-
     new_shape = SpaceBoundary._make_faces_from_pnts(cut_polygon)
 
     # Copy over shape location
@@ -358,3 +359,100 @@ def remove_inner_loops(shape: TopoDS_Shape) -> TopoDS_Shape:
     new_shape.Move(shape_loc)
 
     return new_shape
+
+
+def _cross(a: Vertex, b: Vertex) -> Vertex:
+    return \
+        a[1] * b[2] - a[2] * b[1], \
+        a[2] * b[0] - a[0] * b[2], \
+        a[0] * b[1] - a[1] * b[0]
+
+
+def _dot(a: Vertex, b: Vertex) -> float:
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+
+
+def _minus(a: Vertex, b: Vertex) -> Vertex:
+    return \
+        a[0] - b[0], \
+        a[1] - b[1], \
+        a[2] - b[2]
+
+
+def _is_convex_angle(p1: Vertex, p2: Vertex, p3: Vertex, normal: Vertex) -> bool:
+    cross = _cross(_minus(p2, p1), _minus(p3, p1))
+    return _dot(cross, normal) >= -1e-6
+
+
+def convex_decomposition_base(shape: TopoDS_Shape) -> List[List[Vertex]]:
+    pieces = _get_triangulation(shape)
+    normal, _, _ = _calculate_plane_vectors(pieces[0])
+
+    i1 = 0
+    while i1 < len(pieces) - 1:
+        piece_a = pieces[i1]
+        i1 += 1
+        for piece_a_idx in range(0, len(piece_a)):
+            a1 = piece_a[piece_a_idx]
+            a2 = piece_a[(piece_a_idx + 1) % len(piece_a)]
+
+            is_inner_edge = False
+            piece_b = None
+            piece_b_idx = None
+            for i2 in range(i1, len(pieces)):
+                piece_b = pieces[i2]
+                for triangle_b_check_idx in range(0, len(piece_b)):
+                    if a2 != piece_b[triangle_b_check_idx]:
+                        continue
+                    if a1 != piece_b[(triangle_b_check_idx + 1) % len(piece_b)]:
+                        continue
+                    piece_b_idx = triangle_b_check_idx
+                    is_inner_edge = True
+                    break
+                if is_inner_edge:
+                    break
+            if not is_inner_edge:
+                continue
+
+            p1 = piece_a[(piece_a_idx - 1) % len(piece_a)]
+            p2 = a1
+            p3 = piece_b[(piece_b_idx + 2) % len(piece_b)]
+
+            if not _is_convex_angle(p1, p2, p3, normal):
+                continue
+
+            p1 = piece_b[(piece_b_idx - 1) % len(piece_b)]
+            p2 = a2
+            p3 = piece_a[(piece_a_idx + 2) % len(piece_a)]
+
+            if not _is_convex_angle(p1, p2, p3, normal):
+                continue
+
+            fused_piece = []
+            i = (piece_a_idx + 1) % len(piece_a)
+            while i != piece_a_idx:
+                fused_piece.append(piece_a[i])
+                i = (i + 1) % len(piece_a)
+            i = (piece_b_idx + 1) % len(piece_b)
+            while i != piece_b_idx:
+                fused_piece.append(piece_b[i])
+                i = (i + 1) % len(piece_b)
+
+            i1 -= 1
+            pieces.remove(piece_a)
+            pieces.remove(piece_b)
+            pieces.insert(i1, fused_piece)
+            piece_a = fused_piece
+            break
+    return pieces
+
+
+def convex_decomposition(shape: TopoDS_Shape) -> List[TopoDS_Shape]:
+    pieces = convex_decomposition_base(shape)
+
+    new_shapes = list(map(lambda p: PyOCCTools.make_faces_from_pnts(p), pieces))
+    for new_shape in new_shapes:
+        shape_loc = TopoDS_Iterator(shape).Value().Location()
+        new_shape.Move(shape_loc)
+
+    return new_shapes
