@@ -71,6 +71,17 @@ build_tool:release:
   only:
     - master
 
+build_tool:development:
+  image: docker:latest
+  stage: build
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+  script:
+    - docker build -t $CI_REGISTRY/tool:development .
+    - docker push $CI_REGISTRY/tool:development
+  only:
+    - development
+
 build_tool:webdevelop:
   image: docker:latest
   stage: build
