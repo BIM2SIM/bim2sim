@@ -703,21 +703,13 @@ class ExportEP(ITask):
         # self._compute_2b_bound_gaps(instances) # todo: fix
         self.logger.info("Geometric preprocessing for EnergyPlus Export finished!")
         self.logger.info("IDF generation started ...")
+        self.logger.info("Init thermal zones ...")
         idf = self._init_idf(self.paths)
         self._init_zone(instances, idf)
         self._init_zonelist(idf)
         self._init_zonegroups(instances, idf)
         self.logger.info("Get predefined materials and construction ...")
         self._get_bs2021_materials_and_constructions(idf)
-        self.logger.info("Init internal loads ...")
-        for zone in idf.idfobjects["ZONE"]:
-            if zone.Name == "All_Zones":
-                continue
-            room, room_key = self._get_room_from_zone_dict(key=ifc.by_id(zone.Name).LongName)
-            self._set_infiltration(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
-            self._set_people(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
-            self._set_equipment(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
-            self._set_lights(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
         self.logger.info("Add Shadings ...")
         self._add_shadings(instances, idf)
         self.logger.info("Set Simulation Control ...")
@@ -990,25 +982,14 @@ class ExportEP(ITask):
         :param space: Space (created from IfcSpace)
         :return: idf file object, idf zone object
         """
-        stat_name = "default"
-        stat_default = self._set_hvac_template(idf, name=stat_name, heating_sp=20, cooling_sp=25)
         for instance in self._get_ifc_spaces(instances):
             space = instance
             space.storey = bps.Storey(space.get_storey())
-            room, room_key = self._get_room_from_zone_dict(key=space.ifc.LongName)
-            stat_name = "STATS " + room_key[0].replace(",", "")
+            stat_name = "STATS " + space.usage.replace(',', '')
             if idf.getobject("HVACTEMPLATE:THERMOSTAT", stat_name) is None:
-                stat = self._set_day_hvac_template(idf, stat_name, room, room_key)
+                stat = self._set_day_hvac_template(idf, space, stat_name)
             else:
                 stat = idf.getobject("HVACTEMPLATE:THERMOSTAT", stat_name)
-                # stat_name = "Heat_" + str(space.t_set_heat) + "_Cool_" + str(space.t_set_cool)
-                # if idf.getobject("HVACTEMPLATE:THERMOSTAT", "STAT_"+stat_name) is None:
-                #     stat = self._set_hvac_template(idf, name=stat_name, heating_sp=space.t_set_heat, cooling_sp=space.t_set_cool)
-                # else:
-                #     stat = idf.getobject("HVACTEMPLATE:THERMOSTAT", "STAT_"+stat_name)
-                # else:
-                #     stat = stat_default
-
             zone = idf.newidfobject(
                 'ZONE',
                 Name=space.ifc.GlobalId,
@@ -1033,6 +1014,11 @@ class ExportEP(ITask):
                 Heating_Availability_Schedule_Name=heating_availability,
                 Cooling_Availability_Schedule_Name=cooling_availability
             )
+            self._set_infiltration(idf, name=zone.Name, zone_name=zone.Name, space=space)
+            self._set_people(idf, name=zone.Name, zone_name=zone.Name, space=space)
+            self._set_equipment(idf, name=zone.Name, zone_name=zone.Name, space=space)
+            self._set_lights(idf, name=zone.Name, zone_name=zone.Name, space=space)
+
 
     @staticmethod
     def _init_zonelist(idf, name=None, zones_in_list=None):
@@ -1216,14 +1202,14 @@ class ExportEP(ITask):
         room = dict([k for k in uc_file.items() if type(k[1]) == dict])[room_key[0]]
         return room, room_key
 
-    def _set_people(self, idf, name, zone_name, room, room_key, method='area'):
-        schedule_name = "Schedule " + "People " + room_key[0].replace(',', '')
+    def _set_people(self, idf, name, zone_name, space, method='area'):
+        schedule_name = "Schedule " + "People " + space.usage.replace(',', '')
         profile_name = 'persons_profile'
-        self._set_day_week_year_schedule(idf, room, profile_name, schedule_name)
+        self._set_day_week_year_schedule(idf, space.persons_profile[:24], profile_name, schedule_name)
         # set default activity schedule
         if idf.getobject("SCHEDULETYPELIMITS", "Any Number") is None:
             idf.newidfobject("SCHEDULETYPELIMITS", Name="Any Number")
-        activity_schedule_name = "Schedule Activity " + str(room['fixed_heat_flow_rate_persons'])
+        activity_schedule_name = "Schedule Activity " + str(space.fixed_heat_flow_rate_persons)
         if idf.getobject("SCHEDULE:COMPACT", activity_schedule_name) is None:
             idf.newidfobject("SCHEDULE:COMPACT",
                              Name=activity_schedule_name,
@@ -1231,38 +1217,34 @@ class ExportEP(ITask):
                              Field_1="Through: 12/31",
                              Field_2="For: Alldays",
                              Field_3="Until: 24:00",
-                             Field_4=room['fixed_heat_flow_rate_persons']  # in W/Person
+                             Field_4=space.fixed_heat_flow_rate_persons  # in W/Person
                              )  # other method for Field_4 (not used here) ="persons_profile"*"activity_degree_persons"*58,1*1,8 (58.1 W/(m2*met), 1.8m2/Person)
 
-        if type(room['persons']) == dict:
-            num_people = room['persons']['/'][0] / room['persons']['/'][1]
-        else:
-            num_people = room['persons']
         people = idf.newidfobject(
             "PEOPLE",
             Name=name,
             Zone_or_ZoneList_Name=zone_name,
             Number_of_People_Calculation_Method="People/Area",
-            People_per_Zone_Floor_Area=num_people,
+            People_per_Zone_Floor_Area=space.persons,
             Activity_Level_Schedule_Name=activity_schedule_name,
             Number_of_People_Schedule_Name=schedule_name,
-            Fraction_Radiant=room['ratio_conv_rad_persons']
+            Fraction_Radiant=space.ratio_conv_rad_persons
         )
 
-    def _set_day_week_year_schedule(self, idf, room, profile_name, schedule_name):
+    def _set_day_week_year_schedule(self, idf, schedule, profile_name, schedule_name):
         if idf.getobject("SCHEDULE:DAY:HOURLY", name=schedule_name) == None:
             limits_name = 'Fraction'
             hours = {}
             if profile_name in {'heating_profile', 'cooling_profile'}:
                 limits_name = 'Temperature'
-            for i, l in enumerate(room[profile_name][:24]):
+            for i, l in enumerate(schedule[:24]):
                 if profile_name in {'heating_profile', 'cooling_profile'}:
-                    if room[profile_name][i] > 270:
-                        room[profile_name][i] = room[profile_name][i] - 273.15
+                    if schedule[i] > 270:
+                        schedule[i] = schedule[i] - 273.15
                     # set cooling profile manually to 25°C, #bs2021
                     if profile_name == 'cooling_profile':
-                        room[profile_name][i] = 25
-                hours.update({'Hour_' + str(i + 1): room[profile_name][i]})
+                        schedule[i] = 25
+                hours.update({'Hour_' + str(i + 1): schedule[i]})
             idf.newidfobject("SCHEDULE:DAY:HOURLY", Name=schedule_name, Schedule_Type_Limits_Name=limits_name, **hours)
         if idf.getobject("SCHEDULE:WEEK:COMPACT", name=schedule_name) == None:
             idf.newidfobject("SCHEDULE:WEEK:COMPACT", Name=schedule_name, DayType_List_1="AllDays",
@@ -1276,27 +1258,27 @@ class ExportEP(ITask):
                              End_Month_1=12,
                              End_Day_1=31)
 
-    def _set_equipment(self, idf, name, zone_name, room, room_key, method='area'):
-        schedule_name = "Schedule " + "Equipment " + room_key[0].replace(',', '')
+    def _set_equipment(self, idf, name, zone_name, space, method='area'):
+        schedule_name = "Schedule " + "Equipment " + space.usage.replace(',', '')
         profile_name = 'machines_profile'
-        self._set_day_week_year_schedule(idf, room, profile_name, schedule_name)
+        self._set_day_week_year_schedule(idf, space.machines_profile[:24], profile_name, schedule_name)
         idf.newidfobject(
             "ELECTRICEQUIPMENT",
             Name=name,
             Zone_or_ZoneList_Name=zone_name,
             Schedule_Name=schedule_name,  # Max: Define new Schedule:Compact based on "machines_profile"
             Design_Level_Calculation_Method="Watts/Area",
-            Watts_per_Zone_Floor_Area=room['machines']  # Max: "machines"
+            Watts_per_Zone_Floor_Area=space.machines  # Max: "machines"
             # Max: add "Fraction_Radiant" = "ratio_conv_rad_machines"
         )
 
-    def _set_lights(self, idf, name, zone_name, room, room_key, method='area'):
+    def _set_lights(self, idf, name, zone_name, space, method='area'):
         # TODO: Define lighting parameters based on IFC (and User-Input otherwise)
-        schedule_name = "Schedule " + "Lighting " + room_key[0].replace(',', '')
+        schedule_name = "Schedule " + "Lighting " + space.usage.replace(',', '')
         profile_name = 'lighting_profile'
-        self._set_day_week_year_schedule(idf, room, profile_name, schedule_name)
+        self._set_day_week_year_schedule(idf, space.lighting_profile[:24], profile_name, schedule_name)
         mode = "Watts/Area"
-        watts_per_zone_floor_area = room['lighting_power']  # Max: "lighting_power"
+        watts_per_zone_floor_area = space.lighting_power  # Max: "lighting_power"
         return_air_fraction = 0.0
         fraction_radiant = 0.42  # cf. Table 1.28 in InputOutputReference EnergyPlus (Version 9.4.0), p. 506
         fraction_visible = 0.18  # Max: fractions do not match with .json Data. Maybe set by user-input later
@@ -1314,7 +1296,7 @@ class ExportEP(ITask):
         )
 
     @staticmethod
-    def _set_infiltration(idf, name, zone_name, room, room_key):
+    def _set_infiltration(idf, name, zone_name, space):
         idf.newidfobject(
             "ZONEINFILTRATION:DESIGNFLOWRATE",
             Name=name,
@@ -1322,17 +1304,17 @@ class ExportEP(ITask):
             Schedule_Name="Continuous",
             # Max: if "use_constant_infiltration"==True (this default continuous schedule seems to be constant anyways")
             Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-            Air_Changes_per_Hour=room['infiltration_rate']  # Max: infiltration_rate
+            Air_Changes_per_Hour=space.infiltration_rate  # Max: infiltration_rate
         )
 
-    def _set_day_hvac_template(self, idf, name, room, room_key):
+    def _set_day_hvac_template(self, idf, space, name):
         clg_schedule_name = ''
-        htg_schedule_name = "Schedule " + "Heating " + room_key[0].replace(',', '')
-        self._set_day_week_year_schedule(idf, room, 'heating_profile', htg_schedule_name)
+        htg_schedule_name = "Schedule " + "Heating " + space.usage.replace(',', '')
+        self._set_day_week_year_schedule(idf, space.heating_profile[:24], 'heating_profile', htg_schedule_name)
 
         # if room['with_cooling']:
-        clg_schedule_name = "Schedule " + "Cooling " + room_key[0].replace(',', '')
-        self._set_day_week_year_schedule(idf, room, 'cooling_profile', clg_schedule_name)
+        clg_schedule_name = "Schedule " + "Cooling " + space.usage.replace(',', '')
+        self._set_day_week_year_schedule(idf, space.cooling_profile[:24], 'cooling_profile', clg_schedule_name)
         stat = idf.newidfobject(
             "HVACTEMPLATE:THERMOSTAT",
             Name=name,
