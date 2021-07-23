@@ -24,6 +24,7 @@ class Workflow:
                  hvac: LOD,
                  spaces: LOD,
                  layers: LOD,
+                 create_external_elements=False,
                  filters: list = None):
 
         self.ductwork = ductwork
@@ -33,6 +34,7 @@ class Workflow:
         self.hvac = hvac
         self.spaces = spaces
         self.layers = layers
+        self.create_external_elements = create_external_elements
 
         self.filters = filters if filters else []
 
@@ -265,4 +267,5 @@ class BPSMultiZoneSeparatedEP(Workflow):
             hvac=LOD.low,
             spaces=LOD.full,
             layers=LOD.low,
+            create_external_elements=True,  # consider IfcExternalSpatialElements
         )

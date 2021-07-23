@@ -53,7 +53,7 @@ from bim2sim.task.base import ITask
 from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.kernel.element import Element, ElementEncoder
 # from bim2sim.kernel.elements import SpaceBoundary2B, SpaceBoundary
-from bim2sim.kernel.elements.bps import SpaceBoundary
+from bim2sim.kernel.elements.bps import SpaceBoundary, ExternalSpatialElement
 # from bim2sim.kernel.bps import ...
 from bim2sim.kernel.aggregation import AggregatedThermalZone
 # todo new name :)
@@ -707,7 +707,9 @@ class ExportEP(ITask):
         self._init_zone(instances, idf)
         self._init_zonelist(idf)
         self._init_zonegroups(instances, idf)
+        self.logger.info("Get predefined materials and construction ...")
         self._get_bs2021_materials_and_constructions(idf)
+        self.logger.info("Init internal loads ...")
         for zone in idf.idfobjects["ZONE"]:
             if zone.Name == "All_Zones":
                 continue
@@ -716,7 +718,9 @@ class ExportEP(ITask):
             self._set_people(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
             self._set_equipment(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
             self._set_lights(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
+        self.logger.info("Add Shadings ...")
         self._add_shadings(instances, idf)
+        self.logger.info("Set Simulation Control ...")
         self._set_simulation_control(idf)
         idf.set_default_constructions()
         self.logger.info("Export IDF geometry")
@@ -1432,42 +1436,31 @@ class ExportEP(ITask):
     def _add_shadings(self, instances, idf):
         spatials = []
         for inst in instances:
-            if instances[inst].ifc.is_a() == None:
-                spatials.append(instances[inst])
+            if isinstance(instances[inst], ExternalSpatialElement):
+                for sb in instances[inst].space_boundaries:
+                    spatials.append(sb)
 
         pure_spatials = []
         for s in spatials:
-            if hasattr(s, 'ifc'):
-                if not hasattr(s.ifc, 'CorrespondingBoundary'):
+            # only consider almost horizontal 2b shapes (roof-like SBs)
+            if s.level_description == '2b':
+                angle = math.degrees(gp_Dir(s.bound_normal).Angle(gp_Dir(gp_XYZ(0, 0, 1))))
+                if not ((-45 < angle < 45) or (135 < angle < 225)):
                     continue
-                if s.ifc.CorrespondingBoundary == None:
-                    continue
-                if s.ifc.CorrespondingBoundary.RelatingSpace.is_a('IfcSpace'):
-                    continue
-                pure_spatials.append(s)
+            if s.related_bound and s.related_bound.bound_thermal_zone.ifc.is_a('IfcSpace'):
+                continue
+            pure_spatials.append(s)
 
-        settings = ifcopenshell.geom.main.settings()
-        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
-        settings.set(settings.USE_WORLD_COORDS, True)
-        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-        settings.set(settings.INCLUDE_CURVES, True)
         for s in pure_spatials:
             obj = idf.newidfobject('SHADING:BUILDING:DETAILED',
                                    Name=s.ifc.GlobalId,
                                    )
-            shape = ifcopenshell.geom.create_shape(settings, s.ifc.ConnectionGeometry.SurfaceOnRelatingElement)
-            space_shape = ifcopenshell.geom.create_shape(settings, s.ifc.RelatingSpace).geometry
-            shape_val = TopoDS_Iterator(space_shape).Value()
-            loc = shape_val.Location()
-            shape.Move(loc)
-            obj_pnts = PyOCCTools.get_points_of_face(shape)
+            obj_pnts = PyOCCTools.get_points_of_face(s.bound_shape)
             obj_coords = []
             for pnt in obj_pnts:
                 co = tuple(round(p, 3) for p in pnt.Coord())
                 obj_coords.append(co)
             obj.setcoords(obj_coords)
-            # print("HOLD")
-        # print("HOLD")
 
     @staticmethod
     def _set_simulation_control(idf):
