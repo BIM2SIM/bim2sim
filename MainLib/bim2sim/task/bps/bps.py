@@ -58,6 +58,7 @@ from bim2sim.kernel.elements.bps import SpaceBoundary, ExternalSpatialElement
 from bim2sim.kernel.aggregation import AggregatedThermalZone
 # todo new name :)
 import bim2sim
+from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 
@@ -710,7 +711,8 @@ class ExportEP(ITask):
         self._init_zonelist(idf)
         self._init_zonegroups(instances, idf)
         self.logger.info("Get predefined materials and construction ...")
-        self._get_bs2021_materials_and_constructions(idf)
+        self._get_preprocessed_materials_and_constructions(instances, idf)
+        # self._get_bs2021_materials_and_constructions(idf)
         self.logger.info("Add Shadings ...")
         self._add_shadings(instances, idf)
         self.logger.info("Set Simulation Control ...")
@@ -1072,7 +1074,30 @@ class ExportEP(ITask):
                              Zone_List_Multiplier=1
                              )
 
-    def _get_bs2021_materials_and_constructions(self, idf, year=2008, ctype="heavy", wtype=["Alu", "Waermeschutz", "zwei"]):
+    def _get_preprocessed_materials_and_constructions(self, instances, idf):
+        bounds = filter_instances(instances, 'SpaceBoundary')
+        for bound in bounds:
+            rel_elem = bound.bound_instance
+            if not rel_elem:
+                continue
+            self._set_preprocessed_construction_elem(rel_elem, rel_elem.layers, idf)
+            if rel_elem.ifc.is_a('IfcWindow'):
+                self._set_preprocessed_window_material_elem(rel_elem, idf)
+            # elif rel_elem.ifc.is_a('IfcDoor'):
+            else:
+                for layer in rel_elem.layers:
+                    self._set_preprocessed_material_elem(layer, idf)
+
+        idf.newidfobject("CONSTRUCTION:AIRBOUNDARY",
+                         Name='Air Wall',
+                         Solar_and_Daylighting_Method='GroupedZones',
+                         Radiant_Exchange_Method='GroupedZones',
+                         Air_Exchange_Method='SimpleMixing',
+                         Simple_Mixing_Air_Changes_per_Hour=0.5,
+                         )
+
+    def _get_bs2021_materials_and_constructions(self, idf, year=2008, ctype="heavy",
+                                                wtype=["Alu", "Waermeschutz", "zwei"]):
         materials = []
         mt_path = self.paths.root / 'MaterialTemplates/MaterialTemplates.json'
         be_path = self.paths.root / 'MaterialTemplates/TypeBuildingElements.json'
@@ -1131,6 +1156,26 @@ class ExportEP(ITask):
                          Divider_Conductance=3
                          )
 
+    def _set_preprocessed_construction_elem(self, rel_elem, layers, idf):
+        """use preprocessed data to define idf construction elements and return a list of used materials"""
+        construction_name = rel_elem.key + '_' + str(len(layers)) + '_' + '_'.join(
+            [str(l.thickness.m) for l in layers])  # todo: find a unique key for construction name
+        if idf.getobject("CONSTRUCTION", construction_name) is None:
+            outer_layer = layers[-1]
+            other_layer_list = layers[:-1]
+            other_layer_list.reverse()
+            other_layers = {}
+            for i, l in enumerate(other_layer_list):
+                other_layers.update({'Layer_' + str(i + 2): l.material + "_" + str(l.thickness.m)})
+
+            idf.newidfobject("CONSTRUCTION",
+                             Name=construction_name,
+                             Outside_Layer=outer_layer.material + "_" + str(outer_layer.thickness.m),
+                             **other_layers
+                             )
+        # materials = pd.unique([(lay.material, lay.thickness.m) for lay in layers]).tolist()
+        # return materials
+
     def _set_construction_elem(self, elem, name, idf):
         layer = elem.get('layer')
         outer_layer = layer.get(list(layer)[-1])
@@ -1164,6 +1209,22 @@ class ExportEP(ITask):
                          Specific_Heat=specific_heat
                          )
 
+    def _set_preprocessed_material_elem(self, layer, idf):
+        material_name = layer.material + "_" + str(layer.thickness.m)
+        if idf.getobject("MATERIAL", material_name):
+            return
+        specific_heat = layer.heat_capac.m * 1000  # *mat_dict['density']*thickness
+        if specific_heat < 100:
+            specific_heat = 100
+        idf.newidfobject("MATERIAL",
+                         Name=material_name,
+                         Roughness="MediumRough",
+                         Thickness=layer.thickness.m,
+                         Conductivity=layer.thermal_conduc.m,
+                         Density=layer.density.m,
+                         Specific_Heat=specific_heat
+                         )
+
     def _set_window_material_elem(self, mat_dict, thickness, g_value, idf):
         if idf.getobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM", mat_dict['name'] + "_" + str(thickness)) != None:
             return
@@ -1171,6 +1232,21 @@ class ExportEP(ITask):
                          Name=mat_dict['name'] + "_" + str(thickness),
                          UFactor=1 / (0.04 + thickness / mat_dict['thermal_conduc'] + 0.13),
                          Solar_Heat_Gain_Coefficient=g_value,
+                         # Visible_Transmittance=0.8    # optional
+                         )
+
+    def _set_preprocessed_window_material_elem(self, rel_elem, idf):
+        material_name = rel_elem.layers[0].material + '_' + str(rel_elem.layers[0].thickness.m)
+        if idf.getobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM", material_name):
+            return
+        if rel_elem.u_value.m > 0:
+            ufactor = 1 / (0.04 + 1 / rel_elem.u_value.m + 0.13)
+        else:
+            ufactor = 1 / (0.04 + rel_elem.layers[0].thickness.m / rel_elem.layers[0].thermal_conduc.m + 0.13)
+        idf.newidfobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM",
+                         Name=material_name,
+                         UFactor=ufactor,
+                         Solar_Heat_Gain_Coefficient=rel_elem.g_value,
                          # Visible_Transmittance=0.8    # optional
                          )
 
@@ -2323,6 +2399,7 @@ class IdfObject():
         self.physical = inst_obj.physical
         self.construction_name = None
         self.related_bound = inst_obj.related_bound
+        self.this_bound = inst_obj
         self.skip_bound = False
         self.bound_shape = inst_obj.bound_shape
         if not hasattr(inst_obj.bound_thermal_zone, 'guid'):
@@ -2338,8 +2415,8 @@ class IdfObject():
         self._map_surface_types(inst_obj)
         self._map_boundary_conditions(inst_obj)
         # todo: fix material definitions!
-        # self._define_materials(inst_obj, idf)
-        self._set_bs2021_construction_name()
+        # self._set_bs2021_construction_name()
+        self.set_preprocessed_construction_name()
         if self.construction_name == None:
             self._set_construction_name()
         obj = self._set_idfobject_attributes(idf)
@@ -2387,6 +2464,21 @@ class IdfObject():
         if not self.physical:
             if self.out_bound_cond == "Surface":
                 self.construction_name = "Air Wall"
+
+    def set_preprocessed_construction_name(self):
+        """ set constructions of idf surfaces to preprocessed constructions.
+            Virtual space boundaries are set to be an air wall (not defined in preprocessing)
+        """
+        if not self.physical:
+            if self.out_bound_cond == "Surface":
+                self.construction_name = "Air Wall"
+        else:
+            rel_elem = self.this_bound.bound_instance
+            if not rel_elem:
+                return
+            self.construction_name = rel_elem.key + '_' + str(len(rel_elem.layers)) + '_' \
+                                     + '_'.join([str(l.thickness.m) for l in rel_elem.layers])
+
 
     def _set_idfobject_coordinates(self, obj, idf, inst_obj):
         # validate bound_shape
