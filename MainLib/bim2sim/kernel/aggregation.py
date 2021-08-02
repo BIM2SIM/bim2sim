@@ -1668,8 +1668,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         hvac.Boiler, ParallelPump, hvac.Valve, hvac.Storage,
         ConsumerHeatingDistributorModule}
     wanted_elements = [hvac.Boiler, hvac.CHP]
-    boarder_elements = [hvac.Distributor, hvac.Storage,
-                        ConsumerHeatingDistributorModule ]
+    boarder_elements = [hvac.Distributor, ConsumerHeatingDistributorModule]
     multi = ('rated_power', 'has_bypass', 'rated_height', 'volume',
              'rated_volume_flow', 'rated_pump_power', 'has_pump')
 
