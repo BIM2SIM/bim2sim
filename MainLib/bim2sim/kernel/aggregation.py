@@ -1678,96 +1678,9 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         self.has_parallel = kwargs.pop('has_parallel', False)
         self.bypass_elements = kwargs.pop('bypass_elements', set())
         self.has_bypass = False
+        if self.bypass_elements:
+            self.has_bypass = True
         super().__init__(element_graph, *args, **kwargs)
-        # edge_ports, element_graph = self.get_edge_ports_2(element_graph)
-        # self.elements = set(element_graph.nodes) | self.non_relevant
-        # if len(edge_ports) > 2:
-        #     raise NotImplementedError
-        # else:
-        #     for port in edge_ports:
-        #         self.ports.append(HVACAggregationPort(port, parent=self))
-
-
-    # @classmethod
-    # def remove_boarder_elements(cls, graph):
-    #     pass
-
-    # @classmethod
-    # def get_edge_ports(cls, graph):
-    #     # make graph unfrozen
-    #     _graph = graph.copy()
-    #     edge_ports = []
-    #     # find and remove boarder elements from graph if existing
-    #     # (not the case if parallel generators were found)
-    #
-    #     boarder_elements = [node for node in _graph.nodes if
-    #               type(node) in cls.boarder_elements]
-    #     if len(boarder_elements) > 1:
-    #         raise NotImplementedError
-    #     import networkx as nx
-    #     import matplotlib.pyplot as plt
-    #     nx.draw(graph, node_size=6, font_size=5, with_labels=True)
-    #     plt.draw()
-    #     plt.show()
-    #     if boarder_elements:
-    #         boarder_element = boarder_elements[0]
-    #         # todo: tbd this is wrong, why should we add all connections which are
-    #         # for port in boarder_element.ports:
-    #         #     if port.connection:
-    #         #         if port.connection.parent in _graph.nodes:
-    #         #             edge_ports.append(port.connection)
-    #         _graph.remove_node(boarder_element)
-    #
-    #     # find edge ports
-    #     outer_elements = [v for v, d in _graph.degree() if d == 1]
-    #     for outer_element in outer_elements:
-    #         for port in outer_element.ports:
-    #             if port.connection:
-    #                 if port.connection.parent not in _graph.nodes \
-    #                         and port not in edge_ports:
-    #                     edge_ports.append(port)
-    #
-    #     return edge_ports
-    #
-    # @classmethod
-    # def get_edge_ports_2(cls, graph):
-    #     # make graph unfrozen
-    #     _graph = graph.copy()
-    #     edge_ports = []
-    #     # find and remove boarder elements from graph if existing
-    #     # (not the case if parallel generators were found)
-    #
-    #     boarder_elements = [node for node in _graph.nodes if
-    #               type(node) in cls.boarder_elements]
-    #     if len(boarder_elements) > 1:
-    #         raise NotImplementedError
-    #     if boarder_elements:
-    #         boarder_element = boarder_elements[0]
-    #         for port in boarder_element.ports:
-    #             if port.connection:
-    #                 if port.connection.parent in _graph.nodes:
-    #                     edge_ports.append(port.connection)
-    #         _graph.remove_node(boarder_element)
-    #
-    #     # find edge ports
-    #     outer_elements = [v for v, d in _graph.degree() if d == 1]
-    #     for outer_element in outer_elements:
-    #         for port in outer_element.ports:
-    #             if port.connection:
-    #                 if port.connection.parent not in _graph.nodes \
-    #                         and port not in edge_ports:
-    #                     edge_ports.append(port)
-    #
-    #     return edge_ports, _graph
-
-    @classmethod
-    def find_bypasses(cls, graph):
-        wanted = set(cls.wanted_elements)
-        boarders = set(cls.boarder_elements)
-        inerts = set(cls.aggregatable_elements) - wanted
-        bypass_nodes = HvacGraph.detect_bypasses_to_wanted(
-            graph, wanted, inerts, boarders)
-        return bypass_nodes
 
     @classmethod
     def find_matches(cls, graph: {HvacGraph.element_graph}) -> \
@@ -1814,72 +1727,66 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
             generator_cycle = list(nx.subgraph(_graph, cycle) for cycle in cycles_list
                               if any(type(node) == block for block in
                                      boarders for node in cycle))
-            generator_cycles.extend(generator_cycle)
-            generator_flat.update(generator_cycle[0].nodes)
-            wanted_flat.update([item for sublist in cycles_list for item in sublist])
+            if generator_cycle:
+                generator_cycles.extend(generator_cycle)
+                generator_flat.update(generator_cycle[0].nodes)
+                wanted_flat.update([item for sublist in cycles_list for item in sublist])
 
-        non_relevant = wanted_flat - generator_flat
-
-        # Remove overlapping Elements in GeneratorCycles
         cleaned_generator_cycles = []
-        for gen_cycle in generator_cycles:
-            pseudo_lst = gen_cycle.copy()
-            for gen_cycle_two in generator_cycles:
-                if gen_cycle == gen_cycle_two:
-                    continue
-                pseudo_lst.remove_nodes_from(gen_cycle_two)
-            cleaned_generator_cycles.append(pseudo_lst)
-
-        _graph = graph.copy()
         metas = []
-        # get outer_connections
-        for i, cycle in enumerate(cleaned_generator_cycles):
-            metas.append(dict())
-            metas[i]['outer_connections'] = []
-            boarder_nodes = []
-            for node in cycle:
-                for block in boarders:
-                    if type(node) == block:
-                        boarder_nodes.append(node)
-            if len(boarder_nodes) > 1:
-                raise NotImplementedError(
-                    "Generator cycles should only have one boarder")
-            HvacGraph.remove_nodes_from(cycle, boarder_nodes)
-            # outer_elements = [v for v, d in cycle.degree() if d == 1]
-            # for outer_element in outer_elements:
-            #     for port in outer_element.ports:
-            #         neighbor_ports = [neighbor_port for neighbor_port in
-            #                           graph.neighbors(port) if
-            #                           neighbor_port.parent not in list(
-            #                               cycle.nodes)]
-            #         if neighbor_ports:
+        if generator_flat:
+            non_relevant = wanted_flat - generator_flat
 
-            outer_elements = [v for v, d in cycle.degree() if d == 1]
-            for outer_element in outer_elements:
-                for port in outer_element.ports:
-                    if port in graph:
-                        neighbor_ports = [neighbor_port for neighbor_port in
-                                          graph.neighbors(port)]
-                        for neighbor_port in neighbor_ports:
-                            if neighbor_port.parent not in list(cycle.nodes):
-                                print(neighbor_port.parent)
+            # Remove overlapping Elements in GeneratorCycles
+            for gen_cycle in generator_cycles:
+                pseudo_lst = gen_cycle.copy()
+                for gen_cycle_two in generator_cycles:
+                    if gen_cycle == gen_cycle_two:
+                        continue
+                    pseudo_lst.remove_nodes_from(gen_cycle_two)
+                cleaned_generator_cycles.append(pseudo_lst)
+            _graph = graph.copy()
 
-                                metas[i]['outer_connections'].append(port)
+            # get outer_connections
+            for i, cycle in enumerate(cleaned_generator_cycles):
+                metas.append(dict())
+                metas[i]['outer_connections'] = []
+                boarder_nodes = []
+                for node in cycle:
+                    for block in boarders:
+                        if type(node) == block:
+                            boarder_nodes.append(node)
+                if len(boarder_nodes) > 1:
+                    raise NotImplementedError(
+                        "Generator cycles should only have one boarder")
+                HvacGraph.remove_nodes_from(cycle, boarder_nodes)
 
-        # match bypass elements from non relevant elements
-        for i in range(len(cleaned_generator_cycles)):
-            metas[i]['bypass_elements'] = []
-            for cycle in list_all_cycles_wanted[i]:
-                if len(cycle - cleaned_generator_cycles[i].nodes - non_relevant) > 0:
-                    continue
-                bypass_elements = cycle - cleaned_generator_cycles[i].nodes
-                cleaned_generator_cycles[i].add_nodes_from(bypass_elements)
-                non_relevant.difference_update(bypass_elements)
-                metas[i]['bypass_elements'].append(bypass_elements)
+                outer_elements = [v for v, d in cycle.degree() if d == 1]
+                for outer_element in outer_elements:
+                    for port in outer_element.ports:
+                        if port in graph:
+                            neighbor_ports = [neighbor_port for neighbor_port in
+                                              graph.neighbors(port)]
+                            for neighbor_port in neighbor_ports:
+                                if neighbor_port.parent not in list(cycle.nodes):
+                                    print(neighbor_port.parent)
 
-        #metas = [{}] * (len(cleaned_generator_cycles)-1)
-        if len(metas) > 0:
-            metas[0]['non_relevant'] = non_relevant
+                                    metas[i]['outer_connections'].append(port)
+
+            # match bypass elements from non relevant elements
+            for i in range(len(cleaned_generator_cycles)):
+                metas[i]['bypass_elements'] = []
+                for cycle in list_all_cycles_wanted[i]:
+                    if len(cycle - cleaned_generator_cycles[i].nodes - non_relevant) > 0:
+                        continue
+                    bypass_elements = cycle - cleaned_generator_cycles[i].nodes
+                    cleaned_generator_cycles[i].add_nodes_from(bypass_elements)
+                    non_relevant.difference_update(bypass_elements)
+                    metas[i]['bypass_elements'].append(bypass_elements)
+
+
+            if len(metas) > 0:
+                metas[0]['non_relevant'] = non_relevant
         return cleaned_generator_cycles, metas
 
     @attribute.multi_calc
@@ -1936,23 +1843,6 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         )
         return result
 
-    def calc_has_bypass(self):
-        """calculate if the Generator has a bypass. Currently only decision"""
-        # todo more elegant way? Problem is that cant yield from attributes
-        #  or cached propertys @earnsdev
-        decisions = DecisionBunch()
-        cur_decision = BoolDecision(
-            "Does the generator %s has a bypass?" % self.guid,
-            key=self,
-            global_key=self.guid+'.bypass',
-            related=[element.guid for element in self.elements],)
-        decisions.append(cur_decision)
-        yield decisions
-        answers = decisions.to_answer_dict()
-        has_bypass = list(answers.values())[0]
-        self.has_bypass = has_bypass
-        return has_bypass
-
     @attribute.multi_calc
     def _calc_generator_attributes(self):
         """Calculates all directly generator related attributes"""
@@ -1983,7 +1873,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
 
         for ele in self.elements:
             # Pumps
-            if elements.Pump is ele.__class__:
+            if hvac.Pump is ele.__class__:
                 # Pumpenleistung herausziehen
                 total_rated_pump_power = getattr(ele, "rated_power")
                 # Pumpenhöhe herausziehen
@@ -2035,6 +1925,38 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
             volume=volume
         )
         return result
+
+    @classmethod
+    def find_bypasses(cls, graph):
+        """Finds bypasses based on the graphical network.
+        Currently not used, might be removed in the future."""
+        # todo remove if discussed
+        wanted = set(cls.wanted_elements)
+        boarders = set(cls.boarder_elements)
+        inerts = set(cls.aggregatable_elements) - wanted
+        bypass_nodes = HvacGraph.detect_bypasses_to_wanted(
+            graph, wanted, inerts, boarders)
+        return bypass_nodes
+
+    def _calc_has_bypass_decision(self):
+        """Checks if bypass exists based on decision. Currently not used as
+        only possible with workaround. See todo documentation"""
+        # todo remove if discussed
+        # todo more elegant way? Problem is that cant yield from attributes
+        #  or cached propertys @earnsdev. Maybe using
+        #  get_pending_attribute_decisions() in combination with request?
+        decisions = DecisionBunch()
+        cur_decision = BoolDecision(
+            "Does the generator %s has a bypass?" % self.guid,
+            key=self,
+            global_key=self.guid+'.bypass',
+            related=[element.guid for element in self.elements],)
+        decisions.append(cur_decision)
+        yield decisions
+        answers = decisions.to_answer_dict()
+        has_bypass = list(answers.values())[0]
+        self.has_bypass = has_bypass
+        return has_bypass
 
     # generator related attributes
     rated_power = attribute.Attribute(

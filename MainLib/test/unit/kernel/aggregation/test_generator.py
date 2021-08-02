@@ -420,14 +420,6 @@ class TestGeneratorAggregation(unittest.TestCase):
         self.assertTrue(agg_generator.has_pump,
                         "No pump was found in generator cycle but there should"
                         " be one existing")
-        job = agg_generator.calc_has_bypass()
-        try:
-            while True:
-                decisions = next(job)
-                for dec in decisions:
-                    dec.value = True
-        except StopIteration as result:
-            has_bypass = result.value
         self.assertTrue(agg_generator.has_bypass,
                         "No bypass was found in generator cycle but there "
                         "should be one existing")
@@ -435,6 +427,8 @@ class TestGeneratorAggregation(unittest.TestCase):
             mapping=agg_generator.get_replacement_mapping(),
             inner_connections=agg_generator.get_inner_connections(),
         )
+
+
 
     def test_two_simple_boiler_with_bypass(self):
         graph, flags = self.helper.get_setup_two_seperate_boilers()
