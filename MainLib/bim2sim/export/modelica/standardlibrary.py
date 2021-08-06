@@ -4,11 +4,11 @@ from bim2sim.export import modelica
 from bim2sim.kernel import elements, aggregation
 from bim2sim.kernel.units import ureg
 
-from bim2sim.decision import RealDecision
 
 class StandardLibrary(modelica.Instance):
     """Base class for Modelica Standard Library"""
     library = "Modelica Standard Library"
+
 
 class StaticPipe(StandardLibrary):
     path = "Modelica.Fluid.Pipes.StaticPipe"

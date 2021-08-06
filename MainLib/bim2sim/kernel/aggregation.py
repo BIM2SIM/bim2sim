@@ -1940,7 +1940,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
     def _calc_has_bypass_decision(self):
         """Checks if bypass exists based on decision. Currently not used as
         only possible with workaround. See todo documentation"""
-        # todo remove if discussed
+        # todo remove if discussed, see #184
         # todo more elegant way? Problem is that cant yield from attributes
         #  or cached propertys @earnsdev. Maybe using
         #  get_pending_attribute_decisions() in combination with request?

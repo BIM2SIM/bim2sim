@@ -1,11 +1,8 @@
 ﻿"""Package for Python representations of HKESim models"""
 
-import pint
-
 from bim2sim.kernel.elements import hvac
 from bim2sim.export import modelica
-from bim2sim.kernel import elements
-from bim2sim.kernel.units import  ureg
+from bim2sim.kernel.units import ureg
 import bim2sim.kernel.aggregation as aggregation
 
 
@@ -80,7 +77,7 @@ class ConsumerHeatingDistributorModule(HKESim):
         # self.register_param("Tconsumer", self.check_temp_tupel, "Tconsumer")
         if self.element.temperature_inlet or self.element.temperature_outlet:
             self.params["Tconsumer"] = (self.element.temperature_inlet, self.element.temperature_outlet)
-        self.params["Medium_heating"] = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
+        self.params["Medium_heating"] = 'redeclare package Modelica.Media.Water.ConstantPropertyLiquidWater'
         self.register_param("use_hydraulic_separator", lambda value: True, "useHydraulicSeparator")
         self.register_param("hydraulic_separator_volume", self.check_volume, "V")
 
@@ -130,3 +127,31 @@ class ConsumerHeatingDistributorModule(HKESim):
             return super().get_port_name(port)
 
 
+class GeneratorOneFluid(HKESim):
+    """Modelica HKESim representation of the GeneratorOneFluid aggregation."""
+    path = "SystemModules.HeatingSystemModules.BoilerModule"
+    represents = [aggregation.GeneratorOneFluid]
+
+    def __init__(self, element):
+        super().__init__(element)
+
+    def get_params(self):
+
+        # todo integrate redeclare package in a more common way?
+        self.params["Medium_heating"] = 'redeclare package Modelica.Media.Water.ConstantPropertyLiquidWater'
+        self.register_param("rated_power", self.check_numeric(min_value=0 * ureg.kilowatt), "Qflow_nom")
+        self.params["returnTempControl"] = self.element.has_bypass
+        self.params["boilerPump"] = self.element.has_pump
+
+    def get_port_name(self, port):
+        try:
+            index = self.element.ports.index(port)
+        except ValueError:
+            # unknown port
+            index = -1
+        if index == 0:
+            return "port_a"
+        elif index == 1:
+            return "port_b"
+        else:
+            return super().get_port_name(port)

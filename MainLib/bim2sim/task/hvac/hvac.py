@@ -1,4 +1,4 @@
-﻿"""This module holds tasks related to hvac"""
+"""This module holds tasks related to hvac"""
 
 import itertools
 import json
@@ -469,10 +469,10 @@ class Reduce(ITask):
         aggregations = [
             UnderfloorHeating,
             Consumer,
-            PipeStrand,
             ParallelPump,
             ConsumerHeatingDistributorModule,
             GeneratorOneFluid,
+            PipeStrand,
             # ParallelSpaceHeater,
         ]
 
