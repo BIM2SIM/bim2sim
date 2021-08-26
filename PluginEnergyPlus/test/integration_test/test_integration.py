@@ -9,6 +9,8 @@ import os
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.project import Project
+from bim2sim import workflow
+
 
 # raise unittest.SkipTest("Integration tests not reliable for automated use")
 
@@ -41,7 +43,7 @@ class IntegrationBaseEP(IntegrationBase):
         sys.stderr = self.old_stderr
         super().tearDown()
 
-    def create_project(self, ifc_path: str, plugin: str):
+    def create_project(self, ifc_path: str, plugin: str, workflow: workflow.Workflow = None):
         """create project in temporary directory which is cleaned automatically after test.
 
         :param plugin: Project plugin e.g. 'hkesim', 'aixlib', ...
@@ -52,7 +54,7 @@ class IntegrationBaseEP(IntegrationBase):
         self.project = Project.create(
             tempfile.TemporaryDirectory(prefix='bim2sim_').name,
             ifc_path=ifc_path,
-            default_plugin=plugin)
+            default_plugin=plugin, workflow=workflow)
         return self.project
 
 
@@ -76,6 +78,21 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         #todo: fix virtual bounds (assigned to be outdoors for some reason)
 
     @unittest.skip("")
+    def test_base_01full_FZK_design_day(self):
+        """Test Original IFC File from FZK-Haus (KIT)"""
+        ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
+        used_workflow = workflow.BPSMultiZoneSeparatedEPfull()
+        project = self.create_project(ifc, 'energyplus', used_workflow)
+        answers = (True, True, 'Kitchen - preparations, storage', True,
+                   'solid_brick_a', True, 'hardwood', True,
+                   'Light_Concrete_DK', True, 'Concrete_DK', "heavy", 1, 'Door',
+                   1, 'Brick', 'brick_H', "EnEv", *(1,) * 8, False)
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value)
+
+    @unittest.skip("")
     def test_base_02_FZK_full_run(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
@@ -85,6 +102,21 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
+
+    @unittest.skip("")
+    def test_base_02full_FZK_full_run(self):
+        """Test Original IFC File from FZK-Haus (KIT)"""
+        ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
+        used_workflow = workflow.BPSMultiZoneSeparatedEPfull()
+        project = self.create_project(ifc, 'energyplus', used_workflow)
+        answers = (True, True, 'Kitchen - preparations, storage', True,
+                   'solid_brick_a', True, 'hardwood', True,
+                   'Light_Concrete_DK', True, 'Concrete_DK', "heavy", 1, 'Door',
+                   1, 'Brick', 'brick_H', "EnEv", *(1,) * 8, True)
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value)
 
     # @unittest.skip("")
     def test_base_03_FZK_SB_design_day(self):
@@ -104,7 +136,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         # ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB44.ifc'
         ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True, 'Single office', 'heavy',
+        answers = ('ARCHICAD-64', True, True, 'Single office', 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -118,6 +150,23 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True,  2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    @unittest.skip("")
+    def test_base_05full_KIT_Inst_design_day(self):
+        """Test Original IFC File from Institute (KIT)"""
+
+        ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
+        used_workflow = workflow.BPSMultiZoneSeparatedEPfull()
+        project = self.create_project(ifc, 'energyplus', used_workflow)
+        answers = (True, True, 'Glas', True, 'glas_generic', 500, 1.5, 0.2,
+                   True, 'air_layer', 'sandstone', True, 'lime_sandstone_1',
+                   True, 'aluminium', 0.1, True, 'Concrete_DK', 2015, "heavy",
+                   1, 'Beton', 'Light_Concrete_DK', 1, 'Beton', 1, 'Beton',
+                   1, 'Door', 1, 'Beton', 1, 'Beton', *(1,) * 8,
+                   False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -152,13 +201,11 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
 
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True,  'Single office', 2015, 'heavy',
+        answers = ('ARCHICAD-64', True, True,  'Single office', 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
-
-
 
     # @unittest.skip("Skipped due to performance for CI")
     def test_base_09_DH_design_day(self):
@@ -172,13 +219,65 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
+    @unittest.skip("Debug Answers need to be fixed")
+    def test_base_09a_DH_design_day(self): # todo: fix
+        """Test DigitalHub IFC"""
+        ifc = str(RESULT_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc')
+        project = self.create_project(ifc, 'energyplus')
+        answers = (*(None,)*143, True, True,
+                   *('Stock, technical equipment, archives',)*8,
+                   'Kitchen in non-residential buildings',
+                   'Foyer (theater and event venues)',
+                   *('Stock, technical equipment, archives',)*4, 'Foyer (theater and event venues)',
+                   *('Stock, technical equipment, archives',)*6,
+                   2015,
+                   'light', 'Holzfenster, zweifach', False)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    @unittest.skip("Debug Answers need to be fixed")
+    def test_base_09b_DH_design_day(self): # todo: fix
+        """Test DigitalHub IFC"""
+        ifc = str(RESULT_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc')
+        used_workflow = workflow.BPSMultiZoneSeparatedEPfull()
+        project = self.create_project(ifc, 'energyplus', used_workflow)
+        answers = (*(None,)*143, True, True,
+                   *('Stock, technical equipment, archives',) * 8,
+                   'Kitchen in non-residential buildings',
+                   'Foyer (theater and event venues)',
+                   *('Stock, technical equipment, archives',) * 4, 'Foyer (theater and event venues)',
+                   *('Stock, technical equipment, archives',) * 6,
+                   'synthetic_resin_plaster', True, True, 'cellulose_insulation', True,
+                    'air_layer', True, 'Insulation_060_DK', True,
+                   'perlite_with_bitumen_280', True, 'Roofing_DK', True, True,
+                   'Light_Concrete_DK', True,
+                   'lightweight_concrete_Vermiculit_1100', True,
+                   'natural_sand_mixed_1660', 'wool', True, 'rock_wool_100',
+                   True, 'plasterboard', True, 'Insulation_036_DK', True,
+                   'Concrete_DK', 'perlite', True, 'concrete', True,
+                   'slag_and_GGBFS_concrete_1400', 2015, 0.8133875106928999,
+                   *(0.6151880307319045,) * 4, 0.8133875106928999,
+                   *(0.6634801569995639,) * 8, 0.8133875106928999,
+                   0.6634801569995639, *(0.6634801569995639,) * 3,
+                   *(0.6151880307319045,) * 2, 0.8133875106928999,
+                   *(0.6634801569995639,) * 4, *(0.6151880307319045,) * 2,
+                   'light', 'Holzfenster, zweifach', 1, 'concrete',
+                   'Light_Concrete_DK',  *(1, 'concrete',)*3, *(1,)*8, False)
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        # return_code = handler.handle(project.run())
+        # self.assertEqual(0, return_code)
+        self.assertEqual(0, handler.return_value)
+
     @unittest.skip("Skipped due to performance for CI")
     def test_base_10_DH_full_run(self):
         """Test DigitalHub IFC"""
         # ifc = EXAMPLE_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB88.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('default', True, True,  *('Single office',)*59, 2015, 'heavy',
+        answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True,  'Single office', 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())

@@ -1080,13 +1080,12 @@ class ExportEP(ITask):
             rel_elem = bound.bound_instance
             if not rel_elem:
                 continue
-            self._set_preprocessed_construction_elem(rel_elem, rel_elem.layers, idf)
-            if rel_elem.ifc.is_a('IfcWindow'):
-                self._set_preprocessed_window_material_elem(rel_elem, idf)
-            # elif rel_elem.ifc.is_a('IfcDoor'):
-            else:
+            if not rel_elem.ifc.is_a('IfcWindow'):
+                self._set_preprocessed_construction_elem(rel_elem, rel_elem.layers, idf)
                 for layer in rel_elem.layers:
                     self._set_preprocessed_material_elem(layer, idf)
+            else:
+                self._set_preprocessed_window_material_elem(rel_elem, idf)
 
         idf.newidfobject("CONSTRUCTION:AIRBOUNDARY",
                          Name='Air Wall',
@@ -1228,6 +1227,10 @@ class ExportEP(ITask):
     def _set_window_material_elem(self, mat_dict, thickness, g_value, idf):
         if idf.getobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM", mat_dict['name'] + "_" + str(thickness)) != None:
             return
+        if g_value >=1:
+            old_g_value = g_value
+            g_value = 0.999
+            self.logger.warning("G-Value was set to %f, but has to be smaller than 1, so overwritten by %f", old_g_value, g_value)
         idf.newidfobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM",
                          Name=mat_dict['name'] + "_" + str(thickness),
                          UFactor=1 / (0.04 + thickness / mat_dict['thermal_conduc'] + 0.13),
@@ -1236,19 +1239,36 @@ class ExportEP(ITask):
                          )
 
     def _set_preprocessed_window_material_elem(self, rel_elem, idf):
-        material_name = rel_elem.layers[0].material + '_' + str(rel_elem.layers[0].thickness.m)
+        """ constructs windows with a Windowmaterial:SimpleGlazingSystem consisting of
+        the outermost layer of the providing related element.
+        This is a simplification, needs to be extended to hold multilayer window constructions."""
+        material_name = 'WM_'+ rel_elem.layers[0].material \
+                        + '_' + str(rel_elem.layers[0].thickness.m)
         if idf.getobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM", material_name):
             return
         if rel_elem.u_value.m > 0:
             ufactor = 1 / (0.04 + 1 / rel_elem.u_value.m + 0.13)
         else:
             ufactor = 1 / (0.04 + rel_elem.layers[0].thickness.m / rel_elem.layers[0].thermal_conduc.m + 0.13)
+        if rel_elem.g_value >=1:
+            old_g_value = rel_elem.g_value
+            rel_elem.g_value = 0.999
+            self.logger.warning("G-Value was set to %f, but has to be smaller than 1, so overwritten by %f",
+                                old_g_value, rel_elem.g_value)
+
         idf.newidfobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM",
                          Name=material_name,
                          UFactor=ufactor,
                          Solar_Heat_Gain_Coefficient=rel_elem.g_value,
                          # Visible_Transmittance=0.8    # optional
                          )
+        #todo: enable use of multilayer windows
+        construction_name = 'Window_'+ material_name
+        if idf.getobject("CONSTRUCTION", construction_name) is None:
+            idf.newidfobject("CONSTRUCTION",
+                             Name=construction_name,
+                             Outside_Layer=material_name
+                             )
 
     def _get_room_from_zone_dict(self, key):
         zone_dict = {
@@ -2476,8 +2496,12 @@ class IdfObject():
             rel_elem = self.this_bound.bound_instance
             if not rel_elem:
                 return
-            self.construction_name = rel_elem.key + '_' + str(len(rel_elem.layers)) + '_' \
-                                     + '_'.join([str(l.thickness.m) for l in rel_elem.layers])
+            if rel_elem.ifc.is_a('IfcWindow'):
+                self.construction_name = 'Window_WM_' + rel_elem.layers[0].material \
+                                         + '_' + str(rel_elem.layers[0].thickness.m)
+            else:
+                self.construction_name = rel_elem.key + '_' + str(len(rel_elem.layers)) + '_'\
+                                         + '_'.join([str(l.thickness.m) for l in rel_elem.layers])
 
 
     def _set_idfobject_coordinates(self, obj, idf, inst_obj):
