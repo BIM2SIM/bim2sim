@@ -201,7 +201,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
 
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True,  'Single office', 2015, 'heavy',
+        answers = ('ARCHICAD-64', True, True,  'Single office', 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -277,7 +277,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         # ifc = EXAMPLE_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB88.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('default', True, True,  *('Single office',)*59, 2015, 'heavy',
+        answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True,  'Single office', 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
