@@ -1080,13 +1080,12 @@ class ExportEP(ITask):
             rel_elem = bound.bound_instance
             if not rel_elem:
                 continue
-            self._set_preprocessed_construction_elem(rel_elem, rel_elem.layers, idf)
-            if rel_elem.ifc.is_a('IfcWindow'):
-                self._set_preprocessed_window_material_elem(rel_elem, idf)
-            # elif rel_elem.ifc.is_a('IfcDoor'):
-            else:
+            if not rel_elem.ifc.is_a('IfcWindow'):
+                self._set_preprocessed_construction_elem(rel_elem, rel_elem.layers, idf)
                 for layer in rel_elem.layers:
                     self._set_preprocessed_material_elem(layer, idf)
+            else:
+                self._set_preprocessed_window_material_elem(rel_elem, idf)
 
         idf.newidfobject("CONSTRUCTION:AIRBOUNDARY",
                          Name='Air Wall',
@@ -1240,7 +1239,11 @@ class ExportEP(ITask):
                          )
 
     def _set_preprocessed_window_material_elem(self, rel_elem, idf):
-        material_name = rel_elem.layers[0].material + '_' + str(rel_elem.layers[0].thickness.m)
+        """ constructs windows with a Windowmaterial:SimpleGlazingSystem consisting of
+        the outermost layer of the providing related element.
+        This is a simplification, needs to be extended to hold multilayer window constructions."""
+        material_name = 'WM_'+ rel_elem.layers[0].material \
+                        + '_' + str(rel_elem.layers[0].thickness.m)
         if idf.getobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM", material_name):
             return
         if rel_elem.u_value.m > 0:
@@ -1259,6 +1262,13 @@ class ExportEP(ITask):
                          Solar_Heat_Gain_Coefficient=rel_elem.g_value,
                          # Visible_Transmittance=0.8    # optional
                          )
+        #todo: enable use of multilayer windows
+        construction_name = 'Window_'+ material_name
+        if idf.getobject("CONSTRUCTION", construction_name) is None:
+            idf.newidfobject("CONSTRUCTION",
+                             Name=construction_name,
+                             Outside_Layer=material_name
+                             )
 
     def _get_room_from_zone_dict(self, key):
         zone_dict = {
@@ -2486,8 +2496,12 @@ class IdfObject():
             rel_elem = self.this_bound.bound_instance
             if not rel_elem:
                 return
-            self.construction_name = rel_elem.key + '_' + str(len(rel_elem.layers)) + '_' \
-                                     + '_'.join([str(l.thickness.m) for l in rel_elem.layers])
+            if rel_elem.ifc.is_a('IfcWindow'):
+                self.construction_name = 'Window_WM_' + rel_elem.layers[0].material \
+                                         + '_' + str(rel_elem.layers[0].thickness.m)
+            else:
+                self.construction_name = rel_elem.key + '_' + str(len(rel_elem.layers)) + '_'\
+                                         + '_'.join([str(l.thickness.m) for l in rel_elem.layers])
 
 
     def _set_idfobject_coordinates(self, obj, idf, inst_obj):
