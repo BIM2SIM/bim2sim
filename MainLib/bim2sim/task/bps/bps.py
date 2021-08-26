@@ -1228,6 +1228,10 @@ class ExportEP(ITask):
     def _set_window_material_elem(self, mat_dict, thickness, g_value, idf):
         if idf.getobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM", mat_dict['name'] + "_" + str(thickness)) != None:
             return
+        if g_value >=1:
+            old_g_value = g_value
+            g_value = 0.999
+            self.logger.warning("G-Value was set to %f, but has to be smaller than 1, so overwritten by %f", old_g_value, g_value)
         idf.newidfobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM",
                          Name=mat_dict['name'] + "_" + str(thickness),
                          UFactor=1 / (0.04 + thickness / mat_dict['thermal_conduc'] + 0.13),
@@ -1243,6 +1247,12 @@ class ExportEP(ITask):
             ufactor = 1 / (0.04 + 1 / rel_elem.u_value.m + 0.13)
         else:
             ufactor = 1 / (0.04 + rel_elem.layers[0].thickness.m / rel_elem.layers[0].thermal_conduc.m + 0.13)
+        if rel_elem.g_value >=1:
+            old_g_value = rel_elem.g_value
+            rel_elem.g_value = 0.999
+            self.logger.warning("G-Value was set to %f, but has to be smaller than 1, so overwritten by %f",
+                                old_g_value, rel_elem.g_value)
+
         idf.newidfobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM",
                          Name=material_name,
                          UFactor=ufactor,
