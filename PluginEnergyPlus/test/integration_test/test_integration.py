@@ -9,6 +9,8 @@ import os
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.project import Project
+from bim2sim import workflow
+
 
 # raise unittest.SkipTest("Integration tests not reliable for automated use")
 
@@ -41,7 +43,7 @@ class IntegrationBaseEP(IntegrationBase):
         sys.stderr = self.old_stderr
         super().tearDown()
 
-    def create_project(self, ifc_path: str, plugin: str):
+    def create_project(self, ifc_path: str, plugin: str, workflow: workflow.Workflow = None):
         """create project in temporary directory which is cleaned automatically after test.
 
         :param plugin: Project plugin e.g. 'hkesim', 'aixlib', ...
@@ -52,7 +54,7 @@ class IntegrationBaseEP(IntegrationBase):
         self.project = Project.create(
             tempfile.TemporaryDirectory(prefix='bim2sim_').name,
             ifc_path=ifc_path,
-            default_plugin=plugin)
+            default_plugin=plugin, workflow=workflow)
         return self.project
 
 
@@ -157,8 +159,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
-
-
 
     # @unittest.skip("Skipped due to performance for CI")
     def test_base_09_DH_design_day(self):

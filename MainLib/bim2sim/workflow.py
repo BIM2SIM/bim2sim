@@ -269,3 +269,21 @@ class BPSMultiZoneSeparatedEP(Workflow):
             layers=LOD.low,
             create_external_elements=True,  # consider IfcExternalSpatialElements
         )
+
+
+class BPSMultiZoneSeparatedEPfull(Workflow):
+    """Building performance simulation with every space as single zone
+    separated from each other - no aggregation,
+    used within the EnergyPlus Workflow"""
+
+    def __init__(self):
+        super().__init__(
+            ductwork=LOD.low,
+            hull=LOD.medium,
+            consumer=LOD.low,
+            generator=LOD.ignore,
+            hvac=LOD.low,
+            spaces=LOD.full,
+            layers=LOD.full,
+            create_external_elements=True,  # consider IfcExternalSpatialElements
+        )
