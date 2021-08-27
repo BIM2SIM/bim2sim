@@ -1333,6 +1333,8 @@ class ExportEP(ITask):
             hours = {}
             if profile_name in {'heating_profile', 'cooling_profile'}:
                 limits_name = 'Temperature'
+                if idf.getobject("SCHEDULETYPELIMITS", "Temperature") is None:
+                    idf.newidfobject("SCHEDULETYPELIMITS", Name="Temperature")
             for i, l in enumerate(schedule[:24]):
                 if profile_name in {'heating_profile', 'cooling_profile'}:
                     if schedule[i] > 270:
