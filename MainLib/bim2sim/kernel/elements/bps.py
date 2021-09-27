@@ -291,7 +291,8 @@ class ThermalZone(BPSProduct):
         functions=[get_space_shape]
     )
     space_volume = attribute.Attribute(
-        functions=[get_space_volume]
+        functions=[get_space_volume],
+        unit=ureg.meter ** 3,
     )
     glass_percentage = attribute.Attribute(
         functions=[get_glass_area]

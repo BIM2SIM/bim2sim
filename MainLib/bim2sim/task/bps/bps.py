@@ -996,7 +996,7 @@ class ExportEP(ITask):
             zone = idf.newidfobject(
                 'ZONE',
                 Name=space.ifc.GlobalId,
-                Volume=space.space_volume
+                Volume=space.space_volume.m
             )
             cooling_availability = "On"
             heating_availability = "On"
@@ -1884,7 +1884,7 @@ class ExportEP(ITask):
                     "ID": space.guid,
                     "long_name": space.ifc.LongName,
                     "space_center": space.space_center.XYZ().Coord(),
-                    "space_volume": space.space_volume
+                    "space_volume": space.space_volume.m
                 }],
                 ignore_index=True
             )
