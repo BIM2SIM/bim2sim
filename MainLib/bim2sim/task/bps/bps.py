@@ -53,12 +53,14 @@ from bim2sim.task.base import ITask
 from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.kernel.element import Element, ElementEncoder
 # from bim2sim.kernel.elements import SpaceBoundary2B, SpaceBoundary
-from bim2sim.kernel.elements.bps import SpaceBoundary
+from bim2sim.kernel.elements.bps import SpaceBoundary, ExternalSpatialElement
 # from bim2sim.kernel.bps import ...
 from bim2sim.kernel.aggregation import AggregatedThermalZone
 # todo new name :)
 import bim2sim
+from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.utilities.pyocc_tools import PyOCCTools
+
 
 # class SetIFCTypesBPS(ITask):
 #     """Set list of relevant IFC types"""
@@ -697,26 +699,23 @@ class ExportEP(ITask):
         self.logger.info("Move openings to base surface, if needed")
         self._move_children_to_parents(instances)
         self.logger.info("Fix surface orientation")
-        self._fix_surface_orientation(instances) # todo: Check if working properly
+        self._fix_surface_orientation(instances)  # todo: Check if working properly
         self.logger.info("Get neighboring space boundaries")
         # self._get_neighbor_bounds(instances)
         # self._compute_2b_bound_gaps(instances) # todo: fix
         self.logger.info("Geometric preprocessing for EnergyPlus Export finished!")
         self.logger.info("IDF generation started ...")
+        self.logger.info("Init thermal zones ...")
         idf = self._init_idf(self.paths)
         self._init_zone(instances, idf)
         self._init_zonelist(idf)
         self._init_zonegroups(instances, idf)
-        self._get_bs2021_materials_and_constructions(idf)
-        for zone in idf.idfobjects["ZONE"]:
-            if zone.Name == "All_Zones":
-                continue
-            room, room_key = self._get_room_from_zone_dict(key=ifc.by_id(zone.Name).LongName)
-            self._set_infiltration(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
-            self._set_people(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
-            self._set_equipment(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
-            self._set_lights(idf, name=zone.Name, zone_name=zone.Name, room=room, room_key=room_key)
+        self.logger.info("Get predefined materials and construction ...")
+        self._get_preprocessed_materials_and_constructions(instances, idf)
+        # self._get_bs2021_materials_and_constructions(idf)
+        self.logger.info("Add Shadings ...")
         self._add_shadings(instances, idf)
+        self.logger.info("Set Simulation Control ...")
         self._set_simulation_control(idf)
         idf.set_default_constructions()
         self.logger.info("Export IDF geometry")
@@ -725,7 +724,7 @@ class ExportEP(ITask):
         self._idf_validity_check(idf)
         idf.save()
         # subprocess.run(['energyplus', '-x', '-c', '--convert-only', '-d', self.paths.export, idf.idfname])
-        self._export_surface_areas(instances, idf) # todo: fix
+        self._export_surface_areas(instances, idf)  # todo: fix
         self._export_space_info(instances, idf)
         self._export_boundary_report(instances, idf, ifc)
         self.logger.info("IDF generation finished!")
@@ -736,7 +735,7 @@ class ExportEP(ITask):
         run_decision = BoolDecision(
             question="Do you want to run the full energyplus simulation"
                      " (annual, readvars)?",
-                     global_key='EnergyPlus.FullRun')
+            global_key='EnergyPlus.FullRun')
         yield DecisionBunch([run_decision])
         ep_full = run_decision.value
         design_day = False
@@ -986,25 +985,14 @@ class ExportEP(ITask):
         :param space: Space (created from IfcSpace)
         :return: idf file object, idf zone object
         """
-        stat_name = "default"
-        stat_default = self._set_hvac_template(idf, name=stat_name, heating_sp=20, cooling_sp=25)
         for instance in self._get_ifc_spaces(instances):
             space = instance
             space.storey = bps.Storey(space.get_storey())
-            room, room_key = self._get_room_from_zone_dict(key=space.ifc.LongName)
-            stat_name = "STATS " + room_key[0].replace(",", "")
+            stat_name = "STATS " + space.usage.replace(',', '')
             if idf.getobject("HVACTEMPLATE:THERMOSTAT", stat_name) is None:
-                stat = self._set_day_hvac_template(idf, stat_name, room, room_key)
+                stat = self._set_day_hvac_template(idf, space, stat_name)
             else:
                 stat = idf.getobject("HVACTEMPLATE:THERMOSTAT", stat_name)
-                # stat_name = "Heat_" + str(space.t_set_heat) + "_Cool_" + str(space.t_set_cool)
-                # if idf.getobject("HVACTEMPLATE:THERMOSTAT", "STAT_"+stat_name) is None:
-                #     stat = self._set_hvac_template(idf, name=stat_name, heating_sp=space.t_set_heat, cooling_sp=space.t_set_cool)
-                # else:
-                #     stat = idf.getobject("HVACTEMPLATE:THERMOSTAT", "STAT_"+stat_name)
-                # else:
-                #     stat = stat_default
-
             zone = idf.newidfobject(
                 'ZONE',
                 Name=space.ifc.GlobalId,
@@ -1029,6 +1017,10 @@ class ExportEP(ITask):
                 Heating_Availability_Schedule_Name=heating_availability,
                 Cooling_Availability_Schedule_Name=cooling_availability
             )
+            self._set_infiltration(idf, name=zone.Name, zone_name=zone.Name, space=space)
+            self._set_people(idf, name=zone.Name, zone_name=zone.Name, space=space)
+            self._set_equipment(idf, name=zone.Name, zone_name=zone.Name, space=space)
+            self._set_lights(idf, name=zone.Name, zone_name=zone.Name, space=space)
 
     @staticmethod
     def _init_zonelist(idf, name=None, zones_in_list=None):
@@ -1082,7 +1074,29 @@ class ExportEP(ITask):
                              Zone_List_Multiplier=1
                              )
 
-    def _get_bs2021_materials_and_constructions(self, idf, year=2008, ctype="heavy", wtype=["Alu", "Waermeschutz", "zwei"]):
+    def _get_preprocessed_materials_and_constructions(self, instances, idf):
+        bounds = filter_instances(instances, 'SpaceBoundary')
+        for bound in bounds:
+            rel_elem = bound.bound_instance
+            if not rel_elem:
+                continue
+            if not rel_elem.ifc.is_a('IfcWindow'):
+                self._set_preprocessed_construction_elem(rel_elem, rel_elem.layers, idf)
+                for layer in rel_elem.layers:
+                    self._set_preprocessed_material_elem(layer, idf)
+            else:
+                self._set_preprocessed_window_material_elem(rel_elem, idf)
+
+        idf.newidfobject("CONSTRUCTION:AIRBOUNDARY",
+                         Name='Air Wall',
+                         Solar_and_Daylighting_Method='GroupedZones',
+                         Radiant_Exchange_Method='GroupedZones',
+                         Air_Exchange_Method='SimpleMixing',
+                         Simple_Mixing_Air_Changes_per_Hour=0.5,
+                         )
+
+    def _get_bs2021_materials_and_constructions(self, idf, year=2008, ctype="heavy",
+                                                wtype=["Alu", "Waermeschutz", "zwei"]):
         materials = []
         mt_path = self.paths.root / 'MaterialTemplates/MaterialTemplates.json'
         be_path = self.paths.root / 'MaterialTemplates/TypeBuildingElements.json'
@@ -1104,7 +1118,7 @@ class ExportEP(ITask):
             0]
         idf.newidfobject("CONSTRUCTION",
                          Name="BS Door",
-                         Outside_Layer=mt_file[door]['name']+"_"+str(0.04)
+                         Outside_Layer=mt_file[door]['name'] + "_" + str(0.04)
                          )
         materials.extend([(door, 0.04)])
         outer_wall = applicable_dict.get([k for k in applicable_dict.keys() if "OuterWall" in k][0])
@@ -1141,6 +1155,26 @@ class ExportEP(ITask):
                          Divider_Conductance=3
                          )
 
+    def _set_preprocessed_construction_elem(self, rel_elem, layers, idf):
+        """use preprocessed data to define idf construction elements and return a list of used materials"""
+        construction_name = rel_elem.key + '_' + str(len(layers)) + '_' + '_'.join(
+            [str(l.thickness.m) for l in layers])  # todo: find a unique key for construction name
+        if idf.getobject("CONSTRUCTION", construction_name) is None:
+            outer_layer = layers[-1]
+            other_layer_list = layers[:-1]
+            other_layer_list.reverse()
+            other_layers = {}
+            for i, l in enumerate(other_layer_list):
+                other_layers.update({'Layer_' + str(i + 2): l.material + "_" + str(l.thickness.m)})
+
+            idf.newidfobject("CONSTRUCTION",
+                             Name=construction_name,
+                             Outside_Layer=outer_layer.material + "_" + str(outer_layer.thickness.m),
+                             **other_layers
+                             )
+        # materials = pd.unique([(lay.material, lay.thickness.m) for lay in layers]).tolist()
+        # return materials
+
     def _set_construction_elem(self, elem, name, idf):
         layer = elem.get('layer')
         outer_layer = layer.get(list(layer)[-1])
@@ -1149,24 +1183,24 @@ class ExportEP(ITask):
         other_layers = {}
         for i, l in enumerate(other_layer_list):
             lay = layer.get(l)
-            other_layers.update({'Layer_' + str(i + 2): lay['material']['name']+"_"+str(lay['thickness'])})
+            other_layers.update({'Layer_' + str(i + 2): lay['material']['name'] + "_" + str(lay['thickness'])})
 
         idf.newidfobject("CONSTRUCTION",
                          Name=name,
-                         Outside_Layer=outer_layer['material']['name']+"_"+str(outer_layer['thickness']),
+                         Outside_Layer=outer_layer['material']['name'] + "_" + str(outer_layer['thickness']),
                          **other_layers
                          )
         materials = [(layer.get(k)['material']['material_id'], layer.get(k)['thickness']) for k in layer.keys()]
         return materials
 
     def _set_material_elem(self, mat_dict, thickness, idf):
-        if idf.getobject("MATERIAL", mat_dict['name']+"_"+str(thickness)) != None:
+        if idf.getobject("MATERIAL", mat_dict['name'] + "_" + str(thickness)) != None:
             return
         specific_heat = mat_dict['heat_capac'] * 1000  # *mat_dict['density']*thickness
         if specific_heat < 100:
             specific_heat = 100
         idf.newidfobject("MATERIAL",
-                         Name=mat_dict['name']+"_"+str(thickness),
+                         Name=mat_dict['name'] + "_" + str(thickness),
                          Roughness="MediumRough",
                          Thickness=thickness,
                          Conductivity=mat_dict['thermal_conduc'],
@@ -1174,15 +1208,67 @@ class ExportEP(ITask):
                          Specific_Heat=specific_heat
                          )
 
-    def _set_window_material_elem(self, mat_dict, thickness, g_value, idf):
-        if idf.getobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM", mat_dict['name']+"_"+str(thickness)) != None:
+    def _set_preprocessed_material_elem(self, layer, idf):
+        material_name = layer.material + "_" + str(layer.thickness.m)
+        if idf.getobject("MATERIAL", material_name):
             return
+        specific_heat = layer.heat_capac.m * 1000  # *mat_dict['density']*thickness
+        if specific_heat < 100:
+            specific_heat = 100
+        idf.newidfobject("MATERIAL",
+                         Name=material_name,
+                         Roughness="MediumRough",
+                         Thickness=layer.thickness.m,
+                         Conductivity=layer.thermal_conduc.m,
+                         Density=layer.density.m,
+                         Specific_Heat=specific_heat
+                         )
+
+    def _set_window_material_elem(self, mat_dict, thickness, g_value, idf):
+        if idf.getobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM", mat_dict['name'] + "_" + str(thickness)) != None:
+            return
+        if g_value >=1:
+            old_g_value = g_value
+            g_value = 0.999
+            self.logger.warning("G-Value was set to %f, but has to be smaller than 1, so overwritten by %f", old_g_value, g_value)
         idf.newidfobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM",
-                         Name=mat_dict['name']+"_"+str(thickness),
+                         Name=mat_dict['name'] + "_" + str(thickness),
                          UFactor=1 / (0.04 + thickness / mat_dict['thermal_conduc'] + 0.13),
                          Solar_Heat_Gain_Coefficient=g_value,
                          # Visible_Transmittance=0.8    # optional
                          )
+
+    def _set_preprocessed_window_material_elem(self, rel_elem, idf):
+        """ constructs windows with a Windowmaterial:SimpleGlazingSystem consisting of
+        the outermost layer of the providing related element.
+        This is a simplification, needs to be extended to hold multilayer window constructions."""
+        material_name = 'WM_'+ rel_elem.layers[0].material \
+                        + '_' + str(rel_elem.layers[0].thickness.m)
+        if idf.getobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM", material_name):
+            return
+        if rel_elem.u_value.m > 0:
+            ufactor = 1 / (0.04 + 1 / rel_elem.u_value.m + 0.13)
+        else:
+            ufactor = 1 / (0.04 + rel_elem.layers[0].thickness.m / rel_elem.layers[0].thermal_conduc.m + 0.13)
+        if rel_elem.g_value >=1:
+            old_g_value = rel_elem.g_value
+            rel_elem.g_value = 0.999
+            self.logger.warning("G-Value was set to %f, but has to be smaller than 1, so overwritten by %f",
+                                old_g_value, rel_elem.g_value)
+
+        idf.newidfobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM",
+                         Name=material_name,
+                         UFactor=ufactor,
+                         Solar_Heat_Gain_Coefficient=rel_elem.g_value,
+                         # Visible_Transmittance=0.8    # optional
+                         )
+        #todo: enable use of multilayer windows
+        construction_name = 'Window_'+ material_name
+        if idf.getobject("CONSTRUCTION", construction_name) is None:
+            idf.newidfobject("CONSTRUCTION",
+                             Name=construction_name,
+                             Outside_Layer=material_name
+                             )
 
     def _get_room_from_zone_dict(self, key):
         zone_dict = {
@@ -1212,14 +1298,14 @@ class ExportEP(ITask):
         room = dict([k for k in uc_file.items() if type(k[1]) == dict])[room_key[0]]
         return room, room_key
 
-    def _set_people(self, idf, name, zone_name, room, room_key, method='area'):
-        schedule_name = "Schedule " + "People " + room_key[0].replace(',', '')
+    def _set_people(self, idf, name, zone_name, space, method='area'):
+        schedule_name = "Schedule " + "People " + space.usage.replace(',', '')
         profile_name = 'persons_profile'
-        self._set_day_week_year_schedule(idf, room, profile_name, schedule_name)
+        self._set_day_week_year_schedule(idf, space.persons_profile[:24], profile_name, schedule_name)
         # set default activity schedule
         if idf.getobject("SCHEDULETYPELIMITS", "Any Number") is None:
             idf.newidfobject("SCHEDULETYPELIMITS", Name="Any Number")
-        activity_schedule_name = "Schedule Activity " + str(room['fixed_heat_flow_rate_persons'])
+        activity_schedule_name = "Schedule Activity " + str(space.fixed_heat_flow_rate_persons)
         if idf.getobject("SCHEDULE:COMPACT", activity_schedule_name) is None:
             idf.newidfobject("SCHEDULE:COMPACT",
                              Name=activity_schedule_name,
@@ -1227,38 +1313,36 @@ class ExportEP(ITask):
                              Field_1="Through: 12/31",
                              Field_2="For: Alldays",
                              Field_3="Until: 24:00",
-                             Field_4=room['fixed_heat_flow_rate_persons']  # in W/Person
+                             Field_4=space.fixed_heat_flow_rate_persons  # in W/Person
                              )  # other method for Field_4 (not used here) ="persons_profile"*"activity_degree_persons"*58,1*1,8 (58.1 W/(m2*met), 1.8m2/Person)
 
-        if type(room['persons']) == dict:
-            num_people = room['persons']['/'][0] / room['persons']['/'][1]
-        else:
-            num_people = room['persons']
         people = idf.newidfobject(
             "PEOPLE",
             Name=name,
             Zone_or_ZoneList_Name=zone_name,
             Number_of_People_Calculation_Method="People/Area",
-            People_per_Zone_Floor_Area=num_people,
+            People_per_Zone_Floor_Area=space.persons,
             Activity_Level_Schedule_Name=activity_schedule_name,
             Number_of_People_Schedule_Name=schedule_name,
-            Fraction_Radiant=room['ratio_conv_rad_persons']
+            Fraction_Radiant=space.ratio_conv_rad_persons
         )
 
-    def _set_day_week_year_schedule(self, idf, room, profile_name, schedule_name):
+    def _set_day_week_year_schedule(self, idf, schedule, profile_name, schedule_name):
         if idf.getobject("SCHEDULE:DAY:HOURLY", name=schedule_name) == None:
             limits_name = 'Fraction'
             hours = {}
             if profile_name in {'heating_profile', 'cooling_profile'}:
                 limits_name = 'Temperature'
-            for i, l in enumerate(room[profile_name][:24]):
+                if idf.getobject("SCHEDULETYPELIMITS", "Temperature") is None:
+                    idf.newidfobject("SCHEDULETYPELIMITS", Name="Temperature")
+            for i, l in enumerate(schedule[:24]):
                 if profile_name in {'heating_profile', 'cooling_profile'}:
-                    if room[profile_name][i] > 270:
-                        room[profile_name][i] = room[profile_name][i] - 273.15
+                    if schedule[i] > 270:
+                        schedule[i] = schedule[i] - 273.15
                     # set cooling profile manually to 25°C, #bs2021
                     if profile_name == 'cooling_profile':
-                        room[profile_name][i] = 25
-                hours.update({'Hour_' + str(i + 1): room[profile_name][i]})
+                        schedule[i] = 25
+                hours.update({'Hour_' + str(i + 1): schedule[i]})
             idf.newidfobject("SCHEDULE:DAY:HOURLY", Name=schedule_name, Schedule_Type_Limits_Name=limits_name, **hours)
         if idf.getobject("SCHEDULE:WEEK:COMPACT", name=schedule_name) == None:
             idf.newidfobject("SCHEDULE:WEEK:COMPACT", Name=schedule_name, DayType_List_1="AllDays",
@@ -1272,30 +1356,29 @@ class ExportEP(ITask):
                              End_Month_1=12,
                              End_Day_1=31)
 
-    def _set_equipment(self, idf, name, zone_name, room, room_key, method='area'):
-        schedule_name = "Schedule " + "Equipment " + room_key[0].replace(',', '')
+    def _set_equipment(self, idf, name, zone_name, space, method='area'):
+        schedule_name = "Schedule " + "Equipment " + space.usage.replace(',', '')
         profile_name = 'machines_profile'
-        self._set_day_week_year_schedule(idf, room, profile_name, schedule_name)
+        self._set_day_week_year_schedule(idf, space.machines_profile[:24], profile_name, schedule_name)
         idf.newidfobject(
             "ELECTRICEQUIPMENT",
             Name=name,
             Zone_or_ZoneList_Name=zone_name,
-            Schedule_Name=schedule_name,  # Max: Define new Schedule:Compact based on "machines_profile"
+            Schedule_Name=schedule_name,
             Design_Level_Calculation_Method="Watts/Area",
-            Watts_per_Zone_Floor_Area=room['machines']  # Max: "machines"
-            # Max: add "Fraction_Radiant" = "ratio_conv_rad_machines"
+            Watts_per_Zone_Floor_Area=space.machines
         )
 
-    def _set_lights(self, idf, name, zone_name, room, room_key, method='area'):
+    def _set_lights(self, idf, name, zone_name, space, method='area'):
         # TODO: Define lighting parameters based on IFC (and User-Input otherwise)
-        schedule_name = "Schedule " + "Lighting " + room_key[0].replace(',', '')
+        schedule_name = "Schedule " + "Lighting " + space.usage.replace(',', '')
         profile_name = 'lighting_profile'
-        self._set_day_week_year_schedule(idf, room, profile_name, schedule_name)
+        self._set_day_week_year_schedule(idf, space.lighting_profile[:24], profile_name, schedule_name)
         mode = "Watts/Area"
-        watts_per_zone_floor_area = room['lighting_power']  # Max: "lighting_power"
+        watts_per_zone_floor_area = space.lighting_power
         return_air_fraction = 0.0
         fraction_radiant = 0.42  # cf. Table 1.28 in InputOutputReference EnergyPlus (Version 9.4.0), p. 506
-        fraction_visible = 0.18  # Max: fractions do not match with .json Data. Maybe set by user-input later
+        fraction_visible = 0.18  # Todo: fractions do not match with .json Data. Maybe set by user-input later
 
         idf.newidfobject(
             "LIGHTS",
@@ -1310,30 +1393,29 @@ class ExportEP(ITask):
         )
 
     @staticmethod
-    def _set_infiltration(idf, name, zone_name, room, room_key):
+    def _set_infiltration(idf, name, zone_name, space):
         idf.newidfobject(
             "ZONEINFILTRATION:DESIGNFLOWRATE",
             Name=name,
             Zone_or_ZoneList_Name=zone_name,
             Schedule_Name="Continuous",
-            # Max: if "use_constant_infiltration"==True (this default continuous schedule seems to be constant anyways")
             Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-            Air_Changes_per_Hour=room['infiltration_rate']  # Max: infiltration_rate
+            Air_Changes_per_Hour=space.infiltration_rate
         )
 
-    def _set_day_hvac_template(self, idf, name, room, room_key):
+    def _set_day_hvac_template(self, idf, space, name):
         clg_schedule_name = ''
-        htg_schedule_name = "Schedule " + "Heating " + room_key[0].replace(',', '')
-        self._set_day_week_year_schedule(idf, room, 'heating_profile', htg_schedule_name)
+        htg_schedule_name = "Schedule " + "Heating " + space.usage.replace(',', '')
+        self._set_day_week_year_schedule(idf, space.heating_profile[:24], 'heating_profile', htg_schedule_name)
 
         # if room['with_cooling']:
-        clg_schedule_name = "Schedule " + "Cooling " + room_key[0].replace(',', '')
-        self._set_day_week_year_schedule(idf, room, 'cooling_profile', clg_schedule_name)
+        clg_schedule_name = "Schedule " + "Cooling " + space.usage.replace(',', '')
+        self._set_day_week_year_schedule(idf, space.cooling_profile[:24], 'cooling_profile', clg_schedule_name)
         stat = idf.newidfobject(
             "HVACTEMPLATE:THERMOSTAT",
             Name=name,
             Heating_Setpoint_Schedule_Name=htg_schedule_name,
-            Cooling_Setpoint_Schedule_Name=clg_schedule_name  # Max: only if "with_cooling"==True
+            Cooling_Setpoint_Schedule_Name=clg_schedule_name
         )
         return stat
 
@@ -1348,8 +1430,8 @@ class ExportEP(ITask):
         elif cooling_sp < 24:
             cooling_sp = 23
 
-        setback_htg = 18  # Max: "T_threshold_heating"
-        setback_clg = 26  # Max: "T_threshold_cooling"
+        setback_htg = 18  # "T_threshold_heating"
+        setback_clg = 26  # "T_threshold_cooling"
 
         # ensure setback temperature actually performs a setback on temperature
         if setback_htg > heating_sp:
@@ -1368,7 +1450,7 @@ class ExportEP(ITask):
                 htg_sched = self._write_schedule(idf, htg_name, [htg_alldays, ])
             else:
                 htg_sched = idf.getobject("SCHEDULE:COMPACT", htg_name)
-            if idf.getobject("SCHEDULE:COMPACT", clg_name) is None:  # Max: only if "with_cooling"==True
+            if idf.getobject("SCHEDULE:COMPACT", clg_name) is None:
                 clg_sched = self._write_schedule(idf, clg_name, [clg_alldays, ])
             else:
                 clg_sched = idf.getobject("SCHEDULE:COMPACT", clg_name)
@@ -1376,7 +1458,7 @@ class ExportEP(ITask):
                 "HVACTEMPLATE:THERMOSTAT",
                 Name="STAT_" + name,
                 Heating_Setpoint_Schedule_Name=htg_name,
-                Cooling_Setpoint_Schedule_Name=clg_name,  # Max: only if "with_cooling"==True
+                Cooling_Setpoint_Schedule_Name=clg_name,
             )
 
         if mode == "constant":
@@ -1432,42 +1514,31 @@ class ExportEP(ITask):
     def _add_shadings(self, instances, idf):
         spatials = []
         for inst in instances:
-            if instances[inst].ifc.is_a() == None:
-                spatials.append(instances[inst])
+            if isinstance(instances[inst], ExternalSpatialElement):
+                for sb in instances[inst].space_boundaries:
+                    spatials.append(sb)
 
         pure_spatials = []
         for s in spatials:
-            if hasattr(s, 'ifc'):
-                if not hasattr(s.ifc, 'CorrespondingBoundary'):
+            # only consider almost horizontal 2b shapes (roof-like SBs)
+            if s.level_description == '2b':
+                angle = math.degrees(gp_Dir(s.bound_normal).Angle(gp_Dir(gp_XYZ(0, 0, 1))))
+                if not ((-45 < angle < 45) or (135 < angle < 225)):
                     continue
-                if s.ifc.CorrespondingBoundary == None:
-                    continue
-                if s.ifc.CorrespondingBoundary.RelatingSpace.is_a('IfcSpace'):
-                    continue
-                pure_spatials.append(s)
+            if s.related_bound and s.related_bound.bound_thermal_zone.ifc.is_a('IfcSpace'):
+                continue
+            pure_spatials.append(s)
 
-        settings = ifcopenshell.geom.main.settings()
-        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
-        settings.set(settings.USE_WORLD_COORDS, True)
-        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-        settings.set(settings.INCLUDE_CURVES, True)
         for s in pure_spatials:
             obj = idf.newidfobject('SHADING:BUILDING:DETAILED',
                                    Name=s.ifc.GlobalId,
                                    )
-            shape = ifcopenshell.geom.create_shape(settings, s.ifc.ConnectionGeometry.SurfaceOnRelatingElement)
-            space_shape = ifcopenshell.geom.create_shape(settings, s.ifc.RelatingSpace).geometry
-            shape_val = TopoDS_Iterator(space_shape).Value()
-            loc = shape_val.Location()
-            shape.Move(loc)
-            obj_pnts = PyOCCTools.get_points_of_face(shape)
+            obj_pnts = PyOCCTools.get_points_of_face(s.bound_shape)
             obj_coords = []
             for pnt in obj_pnts:
                 co = tuple(round(p, 3) for p in pnt.Coord())
                 obj_coords.append(co)
             obj.setcoords(obj_coords)
-            # print("HOLD")
-        # print("HOLD")
 
     @staticmethod
     def _set_simulation_control(idf):
@@ -1920,7 +1991,7 @@ class ExportEP(ITask):
     def _get_parents_and_children(instances):
         """get parent-children relationships between IfcElements (e.g. Windows, Walls)
         and the corresponding relationships of their space boundaries"""
-        drop_list = {} # HACK: dictionary for bounds which have to be removed from instances (due to duplications)
+        drop_list = {}  # HACK: dictionary for bounds which have to be removed from instances (due to duplications)
         for inst in instances:
             inst_obj = instances[inst]
             if not inst_obj.ifc.is_a('IfcRelSpaceBoundary'):
@@ -2011,7 +2082,8 @@ class ExportEP(ITask):
                                 for b in tzb:
                                     # check if orientation of possibly related bound is the same as opening
                                     try:
-                                        angle = math.degrees(gp_Dir(b.bound_normal).Angle(gp_Dir(op_bound.bound_normal)))
+                                        angle = math.degrees(
+                                            gp_Dir(b.bound_normal).Angle(gp_Dir(op_bound.bound_normal)))
                                     except:
                                         pass
                                     if not (angle < 0.1 or angle > 179.9):
@@ -2349,6 +2421,7 @@ class IdfObject():
         self.physical = inst_obj.physical
         self.construction_name = None
         self.related_bound = inst_obj.related_bound
+        self.this_bound = inst_obj
         self.skip_bound = False
         self.bound_shape = inst_obj.bound_shape
         if not hasattr(inst_obj.bound_thermal_zone, 'guid'):
@@ -2364,148 +2437,14 @@ class IdfObject():
         self._map_surface_types(inst_obj)
         self._map_boundary_conditions(inst_obj)
         # todo: fix material definitions!
-        # self._define_materials(inst_obj, idf)
-        self._set_bs2021_construction_name()
+        # self._set_bs2021_construction_name()
+        self.set_preprocessed_construction_name()
         if self.construction_name == None:
             self._set_construction_name()
         obj = self._set_idfobject_attributes(idf)
         if obj is not None:
             self._set_idfobject_coordinates(obj, idf, inst_obj)
 
-    def _define_materials(self, inst_obj, idf):
-        # todo: define default property_sets
-        # todo: request missing values from user-inputs
-        if inst_obj.bound_instance is None and self.out_bound_cond == "Surface":
-            idf_constr = idf.idfobjects['CONSTRUCTION:AIRBOUNDARY'.upper()]
-            included = False
-            for cons in idf_constr:
-                if 'Air Wall' in cons.Name:
-                    included = True
-            if included == False:
-                idf.newidfobject("CONSTRUCTION:AIRBOUNDARY",
-                                 Name='Air Wall',
-                                 Solar_and_Daylighting_Method='GroupedZones',
-                                 Radiant_Exchange_Method='GroupedZones',
-                                 Air_Exchange_Method='SimpleMixing',
-                                 Simple_Mixing_Air_Changes_per_Hour=0.5,
-                                 )
-            self.construction_name = 'Air Wall'
-        # if inst_obj.bound_instance.ifc.is_a() is ("IfcWindow" or "IfcDoor"):
-        #     return
-        if hasattr(inst_obj.bound_instance, 'layers'):
-            if inst_obj.bound_instance.layers == None or len(inst_obj.bound_instance.layers) == 0:
-                return
-            if self.surface_type != None:
-                construction_name = self.surface_type
-            else:
-                construction_name = 'Undefined'
-            for layer in inst_obj.bound_instance.layers:
-                if layer.guid == None:
-                    return
-                construction_name = construction_name + layer.guid[-4:]
-                if not inst_obj.bound_instance.ifc.is_a('IfcWindow'):
-                    idf_materials = idf.idfobjects['Material'.upper()]
-                    included = False
-                    for mat in idf_materials:
-                        if layer.guid in mat.Name:
-                            included = True
-                    if included:
-                        continue
-                    else:
-                        # todo: use thermal transmittance if available (--> finder)
-                        if layer.thickness is None:
-                            thickness = 0.1
-                        else:
-                            thickness = layer.thickness
-                        if layer.density in {None, 0}:
-                            density = 1000
-                        else:
-                            density = layer.density
-                        if layer.thermal_conduc is None:
-                            conductivity = 0.1
-                        else:
-                            conductivity = layer.thermal_conduc
-                        if layer.heat_capac is None:
-                            heat_capacity = 1000
-                        else:
-                            heat_capacity = layer.heat_capac
-
-                        idf.newidfobject("MATERIAL",
-                                         Name=layer.guid,
-                                         Roughness="Rough",
-                                         Thickness=thickness,
-                                         Conductivity=conductivity,
-                                         Density=density,
-                                         Specific_Heat=heat_capacity
-                                         )
-                else:
-                    idf_op_materials = idf.idfobjects['WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM'.upper()]
-                    included = False
-                    for mat in idf_op_materials:
-                        if layer.guid in mat.Name:
-                            included = True
-                    if included:
-                        continue
-                    else:
-                        if layer.thickness is None:
-                            thickness = 0.1
-                        else:
-                            thickness = layer.thickness
-                        if layer.thermal_conduc is None:
-                            conductivity = 0.1
-                        else:
-                            conductivity = layer.thermal_conduc
-
-                        if layer.thermal_transmittance is not None:
-                            ufactor = layer.thermal_transmittance
-                        else:
-                            try:
-                                # todo: use finder to get transmittance
-                                # todo: ensure thermal_transmittance is not applied to multiple layers
-                                psw = inst_obj.bound_instance.get_propertyset('Pset_WindowCommon')
-                                ufactor = psw['ThermalTransmittance']
-                            except:
-                                ufactor = 1 / (0.13 + thickness / conductivity + 0.04)
-                        # if layer.solar_heat_gain_coefficient is None:
-                        #     solar_heat_gain_coefficient = 0.763
-                        # else:
-                        #     solar_heat_gain_coefficient = layer.solar_heat_gain_coefficient
-                        # if layer.visible_transmittance is None:
-                        #     visible_transmittance = 0.8
-                        # else:
-                        #     visible_transmittance = layer.visible_transmittance
-
-                        idf.newidfobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM",
-                                         Name=layer.guid,
-                                         UFactor=ufactor,
-                                         Solar_Heat_Gain_Coefficient=0.763,
-                                         Visible_Transmittance=0.8
-                                         )
-            idf_constr = idf.idfobjects['Construction'.upper()]
-            included = False
-            self.construction_name = construction_name
-            for cons in idf_constr:
-                if construction_name in cons.Name:
-                    included = True
-            if not included:
-                if len(inst_obj.bound_instance.layers) == 1:
-                    idf.newidfobject("CONSTRUCTION",
-                                     Name=construction_name,
-                                     Outside_Layer=inst_obj.bound_instance.layers[0].guid)
-                if len(inst_obj.bound_instance.layers) > 1:
-                    if inst_obj.bound_instance.ifc.is_a('IfcWindow') or inst_obj.bound_instance.ifc.is_a('IfcDoor'):
-                        # todo: Add construction implementation for openings with >1 layer
-                        # todo: required construction: gas needs to be bounded by solid surfaces
-                        self.construction_name = None
-                        return
-                    other_layers = {}
-                    for i, layer in enumerate(inst_obj.bound_instance.layers[1:]):
-                        other_layers.update({'Layer_' + str(i + 2): layer.guid})
-                    idf.newidfobject("CONSTRUCTION",
-                                     Name=construction_name,
-                                     Outside_Layer=inst_obj.bound_instance.layers[0].guid,
-                                     **other_layers
-                                     )
 
     def _set_construction_name(self):
         if self.surface_type == "Wall":
@@ -2547,6 +2486,25 @@ class IdfObject():
         if not self.physical:
             if self.out_bound_cond == "Surface":
                 self.construction_name = "Air Wall"
+
+    def set_preprocessed_construction_name(self):
+        """ set constructions of idf surfaces to preprocessed constructions.
+            Virtual space boundaries are set to be an air wall (not defined in preprocessing)
+        """
+        if not self.physical:
+            if self.out_bound_cond == "Surface":
+                self.construction_name = "Air Wall"
+        else:
+            rel_elem = self.this_bound.bound_instance
+            if not rel_elem:
+                return
+            if rel_elem.ifc.is_a('IfcWindow'):
+                self.construction_name = 'Window_WM_' + rel_elem.layers[0].material \
+                                         + '_' + str(rel_elem.layers[0].thickness.m)
+            else:
+                self.construction_name = rel_elem.key + '_' + str(len(rel_elem.layers)) + '_'\
+                                         + '_'.join([str(l.thickness.m) for l in rel_elem.layers])
+
 
     def _set_idfobject_coordinates(self, obj, idf, inst_obj):
         # validate bound_shape

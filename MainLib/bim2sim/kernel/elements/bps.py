@@ -380,6 +380,13 @@ class ThermalZone(BPSProduct):
         raise NotImplementedError
 
 
+class ExternalSpatialElement(ThermalZone):
+    ifc_types = {
+        "IfcExternalSpatialElement":
+            ['*']
+    }
+
+
 class SpaceBoundary(element.RelationBased):
     ifc_types = {'IfcRelSpaceBoundary': ['*']}
 
@@ -427,7 +434,7 @@ class SpaceBoundary(element.RelationBased):
         if len(self.bound_thermal_zone.space_boundaries) == 0:
             for obj in self.bound_thermal_zone.objects:
                 this_obj = self.bound_thermal_zone.objects[obj]
-                if this_obj.ifc_type != 'IfcRelSpaceBoundary':
+                if not isinstance(this_obj, SpaceBoundary):
                     continue
                 if this_obj.bound_thermal_zone.ifc.GlobalId != self.bound_thermal_zone.ifc.GlobalId:
                     continue
@@ -514,14 +521,13 @@ class SpaceBoundary(element.RelationBased):
         """
         if hasattr(self.ifc, 'CorrespondingBoundary') and self.ifc.CorrespondingBoundary is not None:
             corr_bound = self._instances.get(self.ifc.CorrespondingBoundary.GlobalId)
-            if corr_bound and corr_bound.ifc.RelatingSpace.is_a('IfcSpace'):
-                if not corr_bound.ifc.RelatingSpace.is_a('IfcExternalSpatialStructure'):
-                    nb_vert_this = PyOCCTools.get_number_of_vertices(self.bound_shape)
-                    nb_vert_other = PyOCCTools.get_number_of_vertices(corr_bound.bound_shape)
-                    # if not nb_vert_this == nb_vert_other:
-                    #     print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
-                    if nb_vert_this == nb_vert_other:
-                        return corr_bound
+            if corr_bound:
+                nb_vert_this = PyOCCTools.get_number_of_vertices(self.bound_shape)
+                nb_vert_other = PyOCCTools.get_number_of_vertices(corr_bound.bound_shape)
+                # if not nb_vert_this == nb_vert_other:
+                #     print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
+                if nb_vert_this == nb_vert_other:
+                    return corr_bound
         if self.bound_instance is None:
             # return None
             # check for virtual bounds
@@ -529,7 +535,7 @@ class SpaceBoundary(element.RelationBased):
                 corr_bound = None
                 # cover virtual space boundaries without related IfcVirtualElement
                 if not self.ifc.RelatedBuildingElement:
-                    vbs = [b for b in self._instances.values() if b.ifc.is_a('IfcRelSpaceBoundary') and not b.ifc.RelatedBuildingElement]
+                    vbs = [b for b in self._instances.values() if isinstance(b, SpaceBoundary) and not b.ifc.RelatedBuildingElement]
                     for b in vbs:
                         if b is self:
                             continue
@@ -563,26 +569,27 @@ class SpaceBoundary(element.RelationBased):
                     continue
                 # if bound.bound_normal.Dot(self.bound_normal) != -1:
                 #     continue
+                other_area = bound.bound_area
+                if (other_area.m - self.bound_area.m)**2 > 1e-1:
+                    continue
+                center_dist = gp_Pnt(self.bound_center).Distance(gp_Pnt(bound.bound_center)) ** 2
+                if abs(center_dist) > 0.5:
+                    continue
                 distance = BRepExtrema_DistShapeShape(
                     bound.bound_shape,
                     self.bound_shape,
                     Extrema_ExtFlag_MIN
                 ).Value()
-                center_dist = gp_Pnt(self.bound_center).Distance(gp_Pnt(bound.bound_center))**2
-                if abs(center_dist) > 0.5:
-                    continue
                 if distance > min_dist:
                     continue
                 min_dist = abs(center_dist)
-                other_area = bound.bound_area
-                if (other_area.m - self.bound_area.m)**2 < 1e-1:
-                    # self.check_for_vertex_duplicates(bound)
-                    nb_vert_this = PyOCCTools.get_number_of_vertices(self.bound_shape)
-                    nb_vert_other = PyOCCTools.get_number_of_vertices(bound.bound_shape)
-                    # if not nb_vert_this == nb_vert_other:
-                    #     print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
-                    if nb_vert_this == nb_vert_other:
-                        corr_bound = bound
+                # self.check_for_vertex_duplicates(bound)
+                nb_vert_this = PyOCCTools.get_number_of_vertices(self.bound_shape)
+                nb_vert_other = PyOCCTools.get_number_of_vertices(bound.bound_shape)
+                # if not nb_vert_this == nb_vert_other:
+                #     print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
+                if nb_vert_this == nb_vert_other:
+                    corr_bound = bound
             return corr_bound
         else:
             return None
@@ -928,12 +935,9 @@ class SpaceBoundary(element.RelationBased):
 #         return SpaceBoundary.get_floor_and_ceilings(self)
 #
 #
-# class ExtSpatialSpaceBoundary(element.SubElement):
-#     # ifc_type = 'IfcRelSpaceBoundary'
-#     # def __init__(self):
-#     #     """External Spatial Element spaceboundary __init__ function"""
-#         # super().__init__(*args, **kwargs)
-#     pass
+class ExtSpatialSpaceBoundary(SpaceBoundary):
+    """describes all space boundaries related to an IfcExternalSpatialElement instead of an IfcSpace"""
+    pass
 
 
 class Wall(BPSProduct):
