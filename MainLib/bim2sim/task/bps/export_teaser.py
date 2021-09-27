@@ -48,15 +48,11 @@ class ExportTEASER(ITask):
                 self._bind_instances_to_zone(tz, tz_instance, bldg)
                 tz.calc_zone_parameters()
             bldg.calc_building_parameter()
+        # todo add task to add weatherfile
         # prj.weather_file_path = \
         #         assets / 'weatherfiles' / 'DEU_NW_Aachen.105010_TMYx.mos'
-        prj.export_aixlib()
-        # prj.export_aixlib(path=self.paths.export)
-        # todo remove the following lines after
-        #  https://github.com/RWTH-EBC/TEASER/pull/687 is corrected in TEASER
-        # import os
-        # os.chdir(self.paths.root)
-        # os.chdir('..')
+        prj.export_aixlib(path=self.paths.export)
+
 
     @staticmethod
     def _create_project(element):
