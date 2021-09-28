@@ -2,6 +2,7 @@ import unittest
 from bim2sim import workflow
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
+from bim2sim.decision.console import ConsoleDecisionHandler
 
 
 class IntegrationBaseTEASER(IntegrationBase):
@@ -24,7 +25,28 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
                    "Stock, technical equipment, archives",
                    True, "air_layer", "perlite", True, "heavy", 1, "beton",
                    "Concrete_DK", "EnEv", 1, 0.3, "beton", 1, "beton", 1,
-                   "beton", *(1,) * 8)
+                   "beton",
+                   *(1,) * 8)
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value,
+                         "Project did not finish successfully.")
+
+    def test_ERC_Medium(self):
+        """Test ERC Main Building"""
+        ifc = 'ERC_Mainbuilding_Arch.ifc'
+        used_workflow = workflow.BPSMultiZoneAggregatedLayersLow()
+        project = self.create_project(ifc, 'TEASER', used_workflow)
+        answers = ('Autodesk Revit 2020 (DEU)', True, True,
+                   "Kitchen in non-residential buildings",
+                   "Library - reading room",
+                   "Library - reading room",
+                   "Laboratory",
+                   "Stock, technical equipment, archives",
+                   'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
+                   'by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -157,7 +179,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
                    True, 'air_layer', 'sandstone', True, 'lime_sandstone_1',
                    True, 'aluminium', 0.1, True, 'Concrete_DK', 2015, "heavy",
                    1, 'Beton', 'Light_Concrete_DK', 1, 'Beton', 1, 'Beton',
-                   1, 'Door', 1, 'Beton', 1, 'Beton', *(1,) * 8)
+                   1, 'Door', 1, 'Beton', 1, "Beton", *(1,) * 8)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer

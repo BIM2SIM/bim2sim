@@ -77,7 +77,8 @@ class BindThermalZones(ITask):
             for inst in new_aggregations:
                 self.bounded_tz.append(inst)
 
-    def group_thermal_zones_by_all_criteria(self, instances):
+    @classmethod
+    def group_thermal_zones_by_all_criteria(cls, instances):
         """groups together the thermal zones based on mixed criteria:
         * is_external
         * usage
@@ -88,47 +89,51 @@ class BindThermalZones(ITask):
 
         thermal_zones = filter_instances(instances, 'ThermalZone')
 
-        grouped_instances = self.group_by_is_external(
+        grouped_instances = cls.group_by_is_external(
             thermal_zones)
-        grouped_instances = self.group_grouped_tz(
-            grouped_instances, self.group_by_usage)
-        grouped_instances = self.group_grouped_tz(
-            grouped_instances, self.group_by_external_orientation)
-        grouped_instances = self.group_grouped_tz(
-            grouped_instances, self.group_by_glass_percentage)
+        grouped_instances = cls.group_grouped_tz(
+            grouped_instances, cls.group_by_usage)
+        grouped_instances = cls.group_grouped_tz(
+            grouped_instances, cls.group_by_external_orientation)
+        grouped_instances = cls.group_grouped_tz(
+            grouped_instances, cls.group_by_glass_percentage)
         # neighbors - filter criterion
-        grouped_instances = self.group_grouped_tz(
-            grouped_instances, self.group_by_is_neighbor)
-        grouped_instances = self.group_not_grouped_tz(
+        grouped_instances = cls.group_grouped_tz(
+            grouped_instances, cls.group_by_is_neighbor)
+        grouped_instances = cls.group_not_grouped_tz(
             grouped_instances, thermal_zones)
 
         return grouped_instances
 
-    def group_thermal_zones_by_is_external(self, instances):
+    @classmethod
+    def group_thermal_zones_by_is_external(cls, instances):
         """groups together the thermal zones based on mixed criteria:
         * is_external"""
 
         thermal_zones = filter_instances(instances, 'ThermalZone')
-        return self.group_by_is_external(thermal_zones)
+        return cls.group_by_is_external(thermal_zones)
 
-    def group_thermal_zones_by_is_external_and_orientation(self, instances):
+    @classmethod
+    def group_thermal_zones_by_is_external_and_orientation(cls, instances):
         """groups together the thermal zones based on mixed criteria
         * is_external
         * orientation criteria"""
 
         thermal_zones = filter_instances(instances, 'ThermalZone')
-        grouped_instances = self.group_by_is_external(thermal_zones)
-        return self.group_grouped_tz(grouped_instances,
-                                     self.group_by_external_orientation)
+        grouped_instances = cls.group_by_is_external(thermal_zones)
+        return cls.group_grouped_tz(grouped_instances,
+                                    cls.group_by_external_orientation)
 
-    def group_thermal_zones_by_usage(self, instances):
+    @classmethod
+    def group_thermal_zones_by_usage(cls, instances):
         """groups together the thermal zones based on mixed criteria
         * usage"""
 
         thermal_zones = filter_instances(instances, 'ThermalZone')
-        return self.group_by_usage(thermal_zones)
+        return cls.group_by_usage(thermal_zones)
 
-    def group_thermal_zones_by_is_external_orientation_and_usage(self,
+    @classmethod
+    def group_thermal_zones_by_is_external_orientation_and_usage(cls,
                                                                  instances):
         """groups together the thermal zones based on mixed criteria:
         * is_external
@@ -136,13 +141,14 @@ class BindThermalZones(ITask):
         * orientation criteria"""
 
         thermal_zones = filter_instances(instances, 'ThermalZone')
-        grouped_instances = self.group_by_is_external(thermal_zones)
-        grouped_instances = self.group_grouped_tz(grouped_instances,
-                                                  self.group_by_usage)
-        return self.group_grouped_tz(grouped_instances,
-                                     self.group_by_external_orientation)
+        grouped_instances = cls.group_by_is_external(thermal_zones)
+        grouped_instances = cls.group_grouped_tz(grouped_instances,
+                                                 cls.group_by_usage)
+        return cls.group_grouped_tz(grouped_instances,
+                                    cls.group_by_external_orientation)
 
-    def group_by_is_external(self, thermal_zones: list) -> dict:
+    @classmethod
+    def group_by_is_external(cls, thermal_zones: list) -> dict:
         """groups together the thermal zones based on is_external criterion"""
         grouped_tz = {'external': [], 'internal': []}
         for tz in thermal_zones:
@@ -150,10 +156,11 @@ class BindThermalZones(ITask):
                 grouped_tz['external'].append(tz)
             else:
                 grouped_tz['internal'].append(tz)
-        self.discard_1_element_groups(grouped_tz)
+        cls.discard_1_element_groups(grouped_tz)
         return grouped_tz
 
-    def group_by_usage(self, thermal_zones: list) -> dict:
+    @classmethod
+    def group_by_usage(cls, thermal_zones: list) -> dict:
         """groups together the thermal zones based on usage criterion"""
         grouped_tz = {}
         for tz in thermal_zones:
@@ -161,35 +168,38 @@ class BindThermalZones(ITask):
             if value not in grouped_tz:
                 grouped_tz[value] = []
             grouped_tz[value].append(tz)
-        self.discard_1_element_groups(grouped_tz)
+        cls.discard_1_element_groups(grouped_tz)
         return grouped_tz
 
-    def group_by_external_orientation(self, thermal_zones: list) -> dict:
+    @classmethod
+    def group_by_external_orientation(cls, thermal_zones: list) -> dict:
         """groups together the thermal zones based on external_orientation
         criterion"""
         grouped_tz = {}
         for tz in thermal_zones:
-            value = self.external_orientation_group(
+            value = cls.external_orientation_group(
                 getattr(tz, 'external_orientation'))
             if value not in grouped_tz:
                 grouped_tz[value] = []
             grouped_tz[value].append(tz)
-        self.discard_1_element_groups(grouped_tz)
+        cls.discard_1_element_groups(grouped_tz)
         return grouped_tz
 
-    def group_by_glass_percentage(self, thermal_zones: list) -> dict:
+    @classmethod
+    def group_by_glass_percentage(cls, thermal_zones: list) -> dict:
         """groups together the thermal zones based on glass percentage
         criterion"""
         grouped_tz = {}
         for tz in thermal_zones:
-            value = self.glass_percentage_group(getattr(tz, 'glass_percentage'))
+            value = cls.glass_percentage_group(getattr(tz, 'glass_percentage'))
             if value not in grouped_tz:
                 grouped_tz[value] = []
             grouped_tz[value].append(tz)
-        self.discard_1_element_groups(grouped_tz)
+        cls.discard_1_element_groups(grouped_tz)
         return grouped_tz
 
-    def group_by_is_neighbor(self, thermal_zones: list) -> dict:
+    @classmethod
+    def group_by_is_neighbor(cls, thermal_zones: list) -> dict:
         """groups together the thermal zones based on is_neighbor criterion"""
         grouped_tz = {'': list(thermal_zones)}
         for tz in thermal_zones:
@@ -200,7 +210,7 @@ class BindThermalZones(ITask):
                     break
             if not neighbor_statement:
                 grouped_tz[''].remove(tz)
-        self.discard_1_element_groups(grouped_tz)
+        cls.discard_1_element_groups(grouped_tz)
         return grouped_tz
 
     @staticmethod
@@ -211,16 +221,22 @@ class BindThermalZones(ITask):
             if len(grouped[k]) <= 1:
                 del grouped[k]
 
-    @staticmethod
-    def group_grouped_tz(grouped_thermal_zones: dict, group_function) -> dict:
+    @classmethod
+    def group_grouped_tz(cls, grouped_thermal_zones: dict, group_function) -> \
+            dict:
         """groups together thermal zones, that were already grouped in previous
          steps"""
         grouped_tz = {}
+        external_functions = [cls.group_by_external_orientation,
+                              cls.group_by_glass_percentage]
         for group, items in grouped_thermal_zones.items():
-            sub_grouped = group_function(items)
-            for sub_group, sub_items in sub_grouped.items():
-                grouped_name = '%s_%s' % (group, sub_group)
-                grouped_tz[grouped_name] = sub_items
+            if group_function in external_functions and 'internal' in group:
+                grouped_tz[group] = items
+            else:
+                sub_grouped = group_function(items)
+                for sub_group, sub_items in sub_grouped.items():
+                    grouped_name = '%s_%s' % (group, sub_group)
+                    grouped_tz[grouped_name] = sub_items
         return grouped_tz
 
     @staticmethod
