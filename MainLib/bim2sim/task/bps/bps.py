@@ -650,7 +650,6 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 #         #         'D:/09_OfflineArbeiten/Bim2Sim/Validierung_EP_TEASER/TEASERPickles/teaser_pickled_Inst'), 'rb') as f:
 #         #     prj = pickle.load(f)
 #         #
-#         # print('test')
 #         # self.logger.info(Decision.summary())
 #         # Decision.decide_collected()
 #         # Decision.save(PROJECT.decisions)
@@ -660,7 +659,6 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 #         # prj.calc_all_buildings()
 #
 #         prj.export_aixlib(path=PROJECT.root / 'export' / 'TEASEROutput')
-#         print()
 #
 
 

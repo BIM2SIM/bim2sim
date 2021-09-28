@@ -7,11 +7,6 @@ from pathlib import Path
 
 
 def angle_equivalent(angle):
-    # if angle == -180.0:
-    #     angle = 0
-    # elif angle == -360:
-    #     angle = 180
-    # else:
     while angle >= 360 or angle < 0:
         if angle >= 360:
             angle -= 360

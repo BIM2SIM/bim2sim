@@ -234,7 +234,7 @@ class IFCBased(Element):
             ang_sum += 180
 
         # angle between 0 and 360
-        return ang_sum
+        return angle_equivalent(ang_sum)
 
     def get_ifc_attribute(self, attribute):
         """
