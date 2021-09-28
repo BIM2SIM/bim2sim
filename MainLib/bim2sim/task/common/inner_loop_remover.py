@@ -456,3 +456,7 @@ def convex_decomposition(shape: TopoDS_Shape) -> List[TopoDS_Shape]:
         new_shape.Move(shape_loc)
 
     return new_shapes
+
+
+def is_convex(shape: TopoDS_Shape) -> bool:
+    return len(convex_decomposition_base(shape)) == 1
