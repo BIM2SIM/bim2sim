@@ -27,11 +27,12 @@ class EnrichNonValid(ITask):
     def run(self, workflow, invalid_layers, instances):
         self.logger.info("setting verifications")
         if workflow.layers is not LOD.low:
+            resumed = EnrichMaterial.get_resumed_material_templates()
             construction_type = yield from \
                 EnrichBuildingByTemplates.get_construction_type()
             for instance in invalid_layers.values():
                 yield from self.layers_creation(
-                    instance, construction_type, instances)
+                    instance, construction_type, instances, resumed)
                 self.enriched_layers.append(instance)
             windows = filter_instances(instances, 'Window')
             for window in windows:
@@ -42,14 +43,14 @@ class EnrichNonValid(ITask):
 
         return self.enriched_layers,
 
-    def layers_creation(self, instance, construction_type, instances):
+    def layers_creation(self, instance, construction_type, instances, resumed):
         if len(instance.layers) == 0:
             yield from EnrichBuildingByTemplates.template_layers_creation(
-                instance, construction_type, instances)
+                instance, construction_type, instances, resumed)
         else:
-            yield from self.manual_layers_creation(instance)
+            yield from self.manual_layers_creation(instance, resumed)
 
-    def manual_layers_creation(self, instance):
+    def manual_layers_creation(self, instance, resumed):
         instance_class = type(instance).__name__
         if instance_class in self.enriched_class:
             instance.width = self.enriched_class[instance_class]['width']
@@ -70,14 +71,24 @@ class EnrichNonValid(ITask):
                 else:
                     thickness_value = yield from self.layers_thickness_decision(
                         instance, layer_number, layers_width)
-                material_input = yield from self.material_input_decision(
-                    instance, layer_number)
-                if material_input not in self.material_selected:
-                    yield from self.store_new_material(instance, material_input)
+
                 new_layer = bps.Layer(finder=TemplateFinder(),
-                                      **self.material_selected[material_input],
                                       thickness=thickness_value)
                 new_layer.parent = instance
+
+                material_input = yield from self.material_input_decision(
+                    instance, layer_number, resumed)
+                if material_input not in self.material_selected:
+                    material_options, new_material = yield from \
+                        EnrichMaterial.material_options_decision(
+                            resumed, new_layer, material_input)
+                    selected_material = yield from \
+                        EnrichMaterial.asynchronous_material_search(
+                            material_options, new_material, new_layer, resumed)
+                    self.store_new_material(selected_material, material_input,
+                                            resumed)
+                self.set_layer_attributes(
+                    new_layer, self.material_selected[material_input])
                 instance.layers.append(new_layer)
                 layers_width += new_layer.thickness
                 layers_r += new_layer.thickness / new_layer.thermal_conduc
@@ -89,6 +100,12 @@ class EnrichNonValid(ITask):
             self.enriched_class[instance_class]['width'] = instance.width
             self.enriched_class[instance_class]['layers'] = instance.layers
             self.enriched_class[instance_class]['u_value'] = instance.u_value
+
+    @staticmethod
+    def set_layer_attributes(layer: bps.Layer, attributes):
+        for attr in layer.attributes:
+            if attr != 'thickness':
+                setattr(layer, attr, attributes[attr])
 
     @classmethod
     def layers_numbers_decision(cls, instance):
@@ -130,8 +147,7 @@ class EnrichNonValid(ITask):
         return layer_thickness.value
 
     @classmethod
-    def material_input_decision(cls, instance, layer_number):
-        resumed = EnrichMaterial.get_resumed_material_templates()
+    def material_input_decision(cls, instance, layer_number, resumed):
         material_input = StringDecision(
             "Enter material for the layer %d "
             "(it will be searched or manual input)\n"
@@ -140,23 +156,22 @@ class EnrichNonValid(ITask):
             % (layer_number, instance.key, instance.guid),
             global_key='Layer_Material%d_%s' % (layer_number, instance.guid),
             allow_skip=True,
-            validate_func=partial(EnrichMaterial.validate_new_material,
+            validate_func=partial(cls.validate_new_material,
                                   list(resumed.keys())),
             context=instance.key, related=instance.guid)
         yield DecisionBunch([material_input])
         return material_input.value
 
-    def store_new_material(self, instance, material_input):
-        resumed = EnrichMaterial.get_resumed_material_templates()
-        material_options = EnrichMaterial.get_matches_list(material_input,
-                                                           list(resumed.keys()))
-        if len(material_options) > 1:
-            material_selected = yield from \
-                EnrichMaterial.material_selection_decision(
-                    material_input, instance, material_options)
-        else:
-            material_selected = material_options[0]
-        material_dict = dict(resumed[material_selected])
+    @classmethod
+    def validate_new_material(cls, resumed_keys: list, value: str):
+        """validation function of str new material, if it matches with
+        templates"""
+        if len(EnrichMaterial.get_matches_list(value, resumed_keys)) == 0:
+            return False
+        return True
+
+    def store_new_material(self, selected_material, material_input, resumed):
+        material_dict = dict(resumed[selected_material])
         del material_dict['thickness']
         self.material_selected[material_input] = material_dict
 
