@@ -340,7 +340,7 @@ class ListDecision(Decision):
       - values, str(value) is used for label
       - tuples of (value, label)"""
 
-    def __init__(self, *args, choices, **kwargs):
+    def __init__(self, *args, choices, live_search=False, **kwargs):
         if not choices:
             raise AttributeError("choices must hold at least one item")
         if hasattr(choices[0], '__len__') and len(choices[0]) == 2:
@@ -350,6 +350,7 @@ class ListDecision(Decision):
             self.items = choices
             # self.labels = [str(choice) for choice in self.items]
 
+        self.live_search = live_search
         super().__init__(*args, validate_func=None, **kwargs)
 
         if len(self.items) == 1:
