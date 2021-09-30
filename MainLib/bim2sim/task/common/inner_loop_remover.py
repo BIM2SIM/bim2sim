@@ -19,7 +19,7 @@ from OCC.Core.TopLoc import TopLoc_Location
 from OCC.Core.TopoDS import TopoDS_Iterator, TopoDS_Shape, topods_Face
 from OCC.Core.gp import gp_Pnt
 
-from utilities.pyocc_tools import PyOCCTools
+from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 Vertex = Vector = Tuple[float, float, float]
 Edge = Tuple[Vertex, Vertex]
@@ -461,8 +461,24 @@ def is_convex_slow(shape: TopoDS_Shape) -> bool:
 
 
 def is_convex_no_holes(shape: TopoDS_Shape) -> bool:
+    """check if TopoDS_Shape is convex. Returns False if shape is non-convex"""
     gp_pnts = PyOCCTools.get_points_of_face(shape)
     pnts = list(map(lambda p: _gp_pnt_to_coord_tuple(p), gp_pnts))
+    z = 0
+    for i in range(0, len(pnts)):
+        p0 = pnts[i]
+        p1 = pnts[(i + 1) % len(pnts)]
+        p2 = pnts[(i + 2) % len(pnts)]
+        cross = _cross(_minus(p1, p0), _minus(p2, p1))[2]
+        if z != 0 and abs(cross) >= 1e-6 and numpy.sign(cross) != numpy.sign(z):
+            return False
+        else:
+            z = cross
+    return True
+
+
+def is_polygon_convex_no_holes(pnts: List[Tuple[float, float, float]]) -> bool:
+    """check if polygon made from tuples of floats is convex. Returns False if shape is non-convex"""
     z = 0
     for i in range(0, len(pnts)):
         p0 = pnts[i]
