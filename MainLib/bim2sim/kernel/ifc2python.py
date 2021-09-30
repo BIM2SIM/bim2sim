@@ -376,7 +376,7 @@ def getProject(ifcElement):
 
 def getTrueNorth(ifcElement):
     """Find the true north in degree of this element, 0 °C means positive
-    X-axis. 45 °C Degree means middle between X- and Y-Axis"""
+    Y-axis. 45 °C Degree means middle between X- and Y-Axis"""
     project = getProject(ifcElement)
     try:
         true_north = project.RepresentationContexts[0].TrueNorth.DirectionRatios

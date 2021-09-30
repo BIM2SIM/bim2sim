@@ -6,15 +6,16 @@
     - branches
 
 stages:
-  - build
   - test
+  - build-env
+  - build-tool
   - doc
   - deploy
   - visualize
 
 build_env:development:
   image: docker:latest
-  stage: build
+  stage: build-env
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
@@ -30,7 +31,7 @@ build_env:development:
 
 build_env:energyplus:
   image: docker:latest
-  stage: build
+  stage: build-env
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
@@ -47,7 +48,7 @@ build_env:energyplus:
 
 build_env:master:
   image: docker:latest
-  stage: build
+  stage: build-env
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
@@ -62,7 +63,7 @@ build_env:master:
 
 build_tool:release:
   image: docker:latest
-  stage: build
+  stage: build-tool
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
@@ -73,7 +74,7 @@ build_tool:release:
 
 build_tool:development:
   image: docker:latest
-  stage: build
+  stage: build-tool
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
@@ -84,7 +85,7 @@ build_tool:development:
 
 build_tool:webdevelop:
   image: docker:latest
-  stage: build
+  stage: build-tool
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:

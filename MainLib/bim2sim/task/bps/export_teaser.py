@@ -48,15 +48,11 @@ class ExportTEASER(ITask):
                 self._bind_instances_to_zone(tz, tz_instance, bldg)
                 tz.calc_zone_parameters()
             bldg.calc_building_parameter()
+        # todo add task to add weatherfile
         # prj.weather_file_path = \
         #         assets / 'weatherfiles' / 'DEU_NW_Aachen.105010_TMYx.mos'
-        prj.export_aixlib()
-        # prj.export_aixlib(path=self.paths.export)
-        # todo remove the following lines after
-        #  https://github.com/RWTH-EBC/TEASER/pull/687 is corrected in TEASER
-        # import os
-        # os.chdir(self.paths.root)
-        # os.chdir('..')
+        prj.export_aixlib(path=self.paths.export)
+
 
     @staticmethod
     def _create_project(element):
@@ -125,7 +121,6 @@ class ExportTEASER(ITask):
         cls._teaser_property_getter(tz.use_conditions, instance,
                                     instance.finder.templates)
         cls._teaser_property_getter(tz, instance, instance.finder.templates)
-
         return tz
 
     @classmethod
@@ -138,6 +133,8 @@ class ExportTEASER(ITask):
 
     @staticmethod
     def min_admissible_elements(tz, bldg):
+        # WORKAROUND: Teaser doesn't allow thermal zones without
+        # outer elements or without windows, causes singularity problem
         if len(tz.outer_walls + tz.rooftops) == 0:
             ow_min = OuterWall(parent=tz)
             ow_min.area = 0.01
@@ -146,6 +143,14 @@ class ExportTEASER(ITask):
                 construction='heavy',
             )
             ow_min.tilt = 90
+            ow_min.orientation = 0
+        if len(tz.windows) == 0:
+            ow_min = Window(parent=tz)
+            ow_min.area = 0.01
+            ow_min.load_type_element(
+                year=bldg.year_of_construction,
+                construction='EnEv',
+            )
             ow_min.orientation = 0
 
     @classmethod
@@ -188,3 +193,10 @@ class ExportTEASER(ITask):
         material = Material(parent=layer)
         cls._teaser_property_getter(material, layer_instance,
                                     layer_instance.finder.templates)
+
+    @staticmethod
+    def rotate_teaser_building(bldg: Building, true_north: float):
+        """rotates entire building and its components for a given true north
+        value, only necessary if ifc file true north information its not
+        given, but want to rotate before exporting"""
+        bldg.rotate_building(true_north)

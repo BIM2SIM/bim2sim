@@ -1,5 +1,6 @@
 from bim2sim.task.base import ITask
-from bim2sim.utilities.common_functions import angle_equivalent, vector_angle
+from bim2sim.utilities.common_functions import angle_equivalent, \
+    vector_angle, filter_instances
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.element import ProductBased
 from bim2sim.kernel.elements import bps
@@ -14,6 +15,7 @@ class OrientationGetter(ITask):
     def __init__(self):
         super().__init__()
         self.corrected = []
+        self.corrected_with_sb = False
         pass
 
     def run(self, workflow: Workflow, instances: dict):
@@ -28,8 +30,7 @@ class OrientationGetter(ITask):
 
         return self.corrected,
 
-    @staticmethod
-    def orientation_verification(instance: ProductBased):
+    def orientation_verification(self, instance: ProductBased):
         """gets new angle based on space boundaries and compares it with the
         geometric value"""
         vertical_instances = [bps.Window, bps.OuterWall, bps.OuterDoor]
@@ -38,21 +39,28 @@ class OrientationGetter(ITask):
                     'Roof': -1,
                     'Floor': -2,
                     'GroundFloor': -2}
+
         if type(instance) in vertical_instances and \
                 hasattr(instance, 'space_boundaries'):
+            true_north = instance.get_true_north()
             if len(instance.space_boundaries) > 0:
                 new_angles = list(set([vector_angle(
                     space_boundary.bound_normal.Coord())
                     for space_boundary in instance.space_boundaries]))
                 if len(new_angles) > 1 or len(new_angles) == 0:
                     return None
-                # no true north necessary
-                new_angle = angle_equivalent(new_angles[0])
-                # new_angle = angle_equivalent(new_angles[0] + 180)  # no sb55.
-                # eg: FZK Buildings
-                # new angle return
-                if new_angle - instance.orientation > 0.1:
-                    return new_angle
+                # no sb55
+                # return angle_equivalent(new_angles[0] + 180 + true_north)
+                self.corrected_with_sb = True
+                return angle_equivalent(new_angles[0] + true_north)
+            else:
+                if self.corrected_with_sb:
+                    self.logger.warning('Instance %s possible orientation '
+                                        'error: some instances orientation '
+                                        'were calculated using space '
+                                        'boundaries whereas this instances '
+                                        'has no space boundaries')
+                return angle_equivalent(instance.orientation + true_north)
 
         elif type(instance) in horizontal_instances:
             return switcher[type(instance).__name__]

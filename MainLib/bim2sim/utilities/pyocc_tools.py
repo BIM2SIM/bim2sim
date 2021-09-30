@@ -264,3 +264,29 @@ class PyOCCTools:
         if 1 - 1e-2 < dotp ** 2 < 1 + 1e-2:
             check = True
         return check
+
+    @staticmethod
+    def a2p(o, z, x):
+        """Compute Axis of Local Placement of an IfcProducts Objectplacement"""
+        y = np.cross(z, x)
+        r = np.eye(4)
+        r[:-1, :-1] = x, y, z
+        r[-1, :-1] = o
+        return r.T
+
+    @staticmethod
+    def axis2placement(plc):
+        """Get Axis of Local Placement of an IfcProducts Objectplacement"""
+        z = np.array(plc.Axis.DirectionRatios if plc.Axis else (0, 0, 1))
+        x = np.array(plc.RefDirection.DirectionRatios if plc.RefDirection else (1, 0, 0))
+        o = plc.Location.Coordinates
+        return PyOCCTools.a2p(o, z, x)
+
+    @staticmethod
+    def local_placement(plc):
+        """Get Local Placement of an IfcProducts Objectplacement"""
+        if plc.PlacementRelTo is None:
+            parent = np.eye(4)
+        else:
+            parent = PyOCCTools.local_placement(plc.PlacementRelTo)
+        return np.dot(PyOCCTools.axis2placement(plc.RelativePlacement), parent)

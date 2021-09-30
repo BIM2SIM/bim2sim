@@ -1,10 +1,9 @@
-
 FROM continuumio/miniconda3
 
 
 WORKDIR /bim2sim
 
-RUN apt-get update
+RUN apt-get --allow-releaseinfo-change update
 RUN apt-get -y install unzip
 RUN apt-get -y install libgl-dev 
 
