@@ -22,7 +22,7 @@ from OCC.Core.GeomAPI import GeomAPI_ProjectPointOnCurve
 from OCC.Core.ShapeAnalysis import ShapeAnalysis_ShapeContents
 from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
-from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt
+from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt, gp_Mat, gp_Quaternion
 from OCC.Core.TopoDS import topods_Wire, topods_Face, TopoDS_Iterator
 from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_WIRE
 from OCC.Core.TopExp import TopExp_Explorer
@@ -749,9 +749,13 @@ class SpaceBoundary(element.RelationBased):
                 shape = PyOCCTools.make_faces_from_pnts(pnts)
         shape = BRepLib_FuseEdges(shape).Shape()
 
-        shape_val = TopoDS_Iterator(self.bound_thermal_zone.space_shape).Value()
-        loc = shape_val.Location()
-        shape.Move(loc)
+        lp = PyOCCTools.local_placement(self.ifc.RelatingSpace.ObjectPlacement).tolist()
+        mat = gp_Mat(lp[0][0], lp[0][1], lp[0][2], lp[1][0], lp[1][1], lp[1][2], lp[2][0], lp[2][1], lp[2][2])
+        vec = gp_Vec(lp[0][3], lp[1][3], lp[2][3])
+        trsf = gp_Trsf()
+        trsf.SetTransformation(gp_Quaternion(mat), vec)
+        shape = BRepBuilderAPI_Transform(shape, trsf).Shape()
+
         # shape = shape.Reversed()
         unify = ShapeUpgrade_UnifySameDomain()
         unify.Initialize(shape)
