@@ -458,5 +458,21 @@ def convex_decomposition(shape: TopoDS_Shape) -> List[TopoDS_Shape]:
     return new_shapes
 
 
-def is_convex(shape: TopoDS_Shape) -> bool:
+def is_convex_slow(shape: TopoDS_Shape) -> bool:
     return len(convex_decomposition_base(shape)) == 1
+
+
+def is_convex_no_holes(shape: TopoDS_Shape) -> bool:
+    gp_pnts = PyOCCTools.get_points_of_face(shape)
+    pnts = list(map(lambda p: _gp_pnt_to_coord_tuple(p), gp_pnts))
+    z = 0
+    for i in range(0, len(pnts)):
+        p0 = pnts[i]
+        p1 = pnts[(i + 1) % len(pnts)]
+        p2 = pnts[(i + 2) % len(pnts)]
+        cross = _cross(_minus(p1, p0), _minus(p2, p1))[2]
+        if z != 0 and abs(cross) >= 1e-6 and numpy.sign(cross) != numpy.sign(z):
+            return False
+        else:
+            z = cross
+    return True

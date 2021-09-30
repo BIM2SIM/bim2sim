@@ -173,7 +173,6 @@ class PyOCCTools:
             an_exp.Next()
         return pnt_list
 
-
     @staticmethod
     def get_center_of_face(face):
         """
