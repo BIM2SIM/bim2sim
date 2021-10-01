@@ -88,15 +88,19 @@ def _get_triangulation(face: TopoDS_Shape) -> Triangulation:
     bt = BRep_Tool()
     result = []
     while ex.More():
-        triangulation = bt.Triangulation(topods_Face(ex.Current()), TopLoc_Location())
+        L = TopLoc_Location()
+        triangulation = bt.Triangulation(topods_Face(ex.Current()), L)
         triangles = triangulation.Triangles()
         vertices = triangulation.Nodes()
         for i in range(1, triangulation.NbTriangles() + 1):
             idx1, idx2, idx3 = triangles.Value(i).Get()
+            P1 = vertices.Value(idx1).Transformed(L.Transformation())
+            P2 = vertices.Value(idx2).Transformed(L.Transformation())
+            P3 = vertices.Value(idx3).Transformed(L.Transformation())
             result.append([
-                _gp_pnt_to_coord_tuple(vertices.Value(idx1)),
-                _gp_pnt_to_coord_tuple(vertices.Value(idx2)),
-                _gp_pnt_to_coord_tuple(vertices.Value(idx3))
+                _gp_pnt_to_coord_tuple(P1),
+                _gp_pnt_to_coord_tuple(P2),
+                _gp_pnt_to_coord_tuple(P3)
             ])
         ex.Next()
     return result
@@ -383,6 +387,11 @@ def _is_convex_angle(p1: Vertex, p2: Vertex, p3: Vertex, normal: Vertex) -> bool
 
 
 def convex_decomposition_base(shape: TopoDS_Shape) -> List[List[Vertex]]:
+    """Convex decomposition base: removes common edges of triangles unless a non-convex shape is created.
+    In case of openings: In a first round, remove all cutting triangle edges with the opening polygons
+    regardless of non-convex shapes. Then, check for resulting angles. This may lead to non-convex shapes,
+    but should work in most cases.
+    """
     pieces = _get_triangulation(shape)
     normal, _, _ = _calculate_plane_vectors(pieces[0])
 
@@ -412,6 +421,8 @@ def convex_decomposition_base(shape: TopoDS_Shape) -> List[List[Vertex]]:
             if not is_inner_edge:
                 continue
 
+            # piece_a and piece_b are two triangles with a common edge (piece_a and piece_b)
+            # common edge is spanned between a1 and a2
             p1 = piece_a[(piece_a_idx - 1) % len(piece_a)]
             p2 = a1
             p3 = piece_b[(piece_b_idx + 2) % len(piece_b)]
@@ -426,6 +437,7 @@ def convex_decomposition_base(shape: TopoDS_Shape) -> List[List[Vertex]]:
             if not _is_convex_angle(p1, p2, p3, normal):
                 continue
 
+            # fuse triangles (if angle is convex or opening-polygon is cut by this edge
             fused_piece = []
             i = (piece_a_idx + 1) % len(piece_a)
             while i != piece_a_idx:
@@ -447,11 +459,7 @@ def convex_decomposition_base(shape: TopoDS_Shape) -> List[List[Vertex]]:
 
 def convex_decomposition(shape: TopoDS_Shape) -> List[TopoDS_Shape]:
     pieces = convex_decomposition_base(shape)
-
     new_shapes = list(map(lambda p: PyOCCTools.make_faces_from_pnts(p), pieces))
-    for new_shape in new_shapes:
-        shape_loc = TopoDS_Iterator(shape).Value().Location()
-        new_shape.Move(shape_loc)
 
     return new_shapes
 
