@@ -12,7 +12,6 @@ class EnergyPlus(Plugin):
     default_workflow = BPSMultiZoneSeparatedEP
     elements = {*bps_elements.items}
     default_tasks = [
-        bps.SetIFCTypes,
         common.LoadIFC,
         common.CreateElements,
         bps.CreateSpaceBoundaries,

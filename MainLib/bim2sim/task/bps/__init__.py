@@ -1,5 +1,4 @@
 # todo uncomment for TEASER
-from .set_ifc_types import SetIFCTypes
 from .sb_creation import CreateSpaceBoundaries
 from .prepare import Prepare
 from .building_verify import BuildingVerification
