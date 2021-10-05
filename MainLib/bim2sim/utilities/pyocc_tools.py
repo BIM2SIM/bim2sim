@@ -309,10 +309,10 @@ class PyOCCTools:
 
     @staticmethod
     def flip_orientation_of_face(face: TopoDS_Face) -> TopoDS_Face:
-        # face = face.Reversed()
-        pnt_list = PyOCCTools.get_points_of_face(face)
-        pnt_list.reverse()
-        face = PyOCCTools.make_faces_from_pnts(pnt_list)
+        face = face.Reversed()
+        # pnt_list = PyOCCTools.get_points_of_face(face)
+        #pnt_list.reverse()
+        #face = PyOCCTools.make_faces_from_pnts(pnt_list)
         return face
 
     @staticmethod
