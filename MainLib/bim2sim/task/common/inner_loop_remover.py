@@ -13,6 +13,7 @@ import logging
 
 # Type aliases that are used throughout this module
 from OCC.Core.BRep import BRep_Tool
+from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
 from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
 from OCC.Core.TopAbs import TopAbs_FACE
 from OCC.Core.TopExp import TopExp_Explorer
@@ -483,6 +484,31 @@ def convex_decomposition(shape: TopoDS_Shape) -> List[TopoDS_Shape]:
             else:
                 logger = logging.getLogger(__name__)
                 logger.error("Convex decomposition produces a gap in new space boundary")
+    # check if decomposed shape has same area as original shape
+    oriented_area = 0
+    org_area = PyOCCTools.get_shape_area(shape)
+    for face in oriented_shapes:
+        oriented_area += PyOCCTools.get_shape_area(face)
+    if not abs(org_area-oriented_area) < 1e-3:
+        cut_shape = shape
+        for bound in oriented_shapes:
+            cut_shape = BRepAlgoAPI_Cut(cut_shape, bound).Shape()
+        list_cut_shapes = PyOCCTools.get_faces_from_shape(cut_shape)
+        add_cut_shapes = []
+        for cs in list_cut_shapes:
+            new_normal = PyOCCTools.simple_face_normal(cs)
+            if not all([abs(i) < 1e-3 for i in ((new_normal - org_normal).Coord())]):
+                cs = PyOCCTools.flip_orientation_of_face(cs)
+            cut_area = PyOCCTools.get_shape_area(cs)
+            if cut_area < 1e-3:
+                continue
+            oriented_area += cut_area
+            add_cut_shapes.append(cs)
+        if not abs(org_area - oriented_area) < 1e-3:
+            logger = logging.getLogger(__name__)
+            logger.error("Convex decomposition produces a gap in new space boundary")
+        else:
+            oriented_shapes.extend(add_cut_shapes)
     return oriented_shapes
 
 
