@@ -1802,6 +1802,13 @@ class ExportEP(ITask):
             self.logger.info('Removed small area: %s' % obj.Name)
             idf.removeidfobject(obj)
 
+        shadings = idf.getshadingsurfaces()
+        small_area_obj = [sf for sf in shadings if sf.area < 0.01]
+
+        for obj in small_area_obj:
+            self.logger.info('Removed small area: %s' % obj.Name)
+            idf.removeidfobject(obj)
+
         bsd = idf.idfobjects['BUILDINGSURFACE:DETAILED']
         for sf in bsd:
             if sf.Construction_Name == 'BS Exterior Window':
