@@ -2169,7 +2169,7 @@ class ExportEP(ITask):
                 continue
             inst_obj = instances[inst]
             if inst_obj.physical:
-                name = inst_obj.ifc.GlobalId
+                name = inst_obj.guid
                 stl_dir = str(self.paths.root) + "/export/STL/"
                 this_name = stl_dir + str(stl_name) + "_cfd_" + str(name) + ".stl"
                 os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
@@ -2196,13 +2196,13 @@ class ExportEP(ITask):
             if not instances[inst].ifc.is_a("IfcSpace"):
                 continue
             space_obj = instances[inst]
-            space_name = space_obj.ifc.GlobalId
+            space_name = space_obj.guid
             stl_dir = str(self.paths.root) + "/export/STL/" + space_name + "/"
             os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
             for inst_obj in space_obj.space_boundaries:
                 if not inst_obj.physical:
                     continue
-                bound_name = inst_obj.ifc.GlobalId
+                bound_name = inst_obj.guid
                 this_name = stl_dir + str(stl_name) + "_cfd_" + str(bound_name) + ".stl"
                 inst_obj.cfd_face = inst_obj.bound_shape
                 if hasattr(inst_obj, 'related_opening_bounds'):
@@ -2344,7 +2344,7 @@ class ExportEP(ITask):
             brepgprop_SurfaceProperties(space_obj.b_bound_shape, bound_prop)
             area = bound_prop.Mass()
             if area > 0:
-                name = space_obj.ifc.GlobalId + "_2B"
+                name = space_obj.guid + "_2B"
                 stl_dir = str(self.paths.root) + "/export/STL/"
                 this_name = stl_dir + str(stl_name) + "_cfd_" + str(name) + ".stl"
                 os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
@@ -2373,7 +2373,7 @@ class ExportEP(ITask):
             b_bound.bound_shape = face
             if b_bound.bound_area.m < 1e-6:
                 continue
-            b_bound.guid = space_obj.ifc.GlobalId + "_2B_" + str("%003.f" % (i + 1))
+            b_bound.guid = space_obj.guid + "_2B_" + str("%003.f" % (i + 1))
             b_bound.thermal_zones.append(space_obj)
             for instance in bound_obj:
                 if hasattr(instance, 'related_parent'):
@@ -2431,7 +2431,7 @@ class IdfObject():
         else:
             self.key = "BUILDINGSURFACE:DETAILED"
         if hasattr(inst_obj, 'related_parent_bound'):
-            self.building_surface_name = inst_obj.related_parent_bound.ifc.GlobalId
+            self.building_surface_name = inst_obj.related_parent_bound.guid
         self._map_surface_types(inst_obj)
         self._map_boundary_conditions(inst_obj)
         # todo: fix material definitions!
@@ -2684,7 +2684,7 @@ class IdfObject():
             self.wind_exposed = 'NoWind'
         elif inst_obj.related_bound is not None:  # or elem.virtual_physical == "VIRTUAL": # elem.internal_external == "INTERNAL"
             self.out_bound_cond = 'Surface'
-            self.out_bound_cond_obj = inst_obj.related_bound.ifc.GlobalId
+            self.out_bound_cond_obj = inst_obj.related_bound.guid
             self.sun_exposed = 'NoSun'
             self.wind_exposed = 'NoWind'
         # elif inst_obj.bound_instance is not None and inst_obj.bound_instance.ifc.is_a() == "IfcWindow":
