@@ -2338,7 +2338,7 @@ class ExportEP(ITask):
                 if distance > 1e-6:
                     continue
                 space_obj.b_bound_shape = BRepAlgoAPI_Cut(space_obj.b_bound_shape, bound.bound_shape).Shape()
-            faces = self.get_faces_from_shape(space_obj.b_bound_shape)
+            faces = PyOCCTools.get_faces_from_shape(space_obj.b_bound_shape)
             inst_2b.update(self.create_2B_space_boundaries(faces, space_obj))
         instances.update(inst_2b)
 
@@ -2494,16 +2494,6 @@ class ExportEP(ITask):
                         bound.bound_neighbors_2b = []
                     bound.bound_neighbors_2b.append(b_bound)
         return inst_2b
-
-    @staticmethod
-    def get_faces_from_shape(b_bound_shape):
-        faces = []
-        an_exp = TopExp_Explorer(b_bound_shape, TopAbs_FACE)
-        while an_exp.More():
-            face = topods_Face(an_exp.Current())
-            faces.append(face)
-            an_exp.Next()
-        return faces
 
 
 class IdfObject():

@@ -326,3 +326,21 @@ class PyOCCTools:
             wire = exp1.Current()
             face = BRepBuilderAPI_MakeFace(wire).Face()
         return face
+
+    @staticmethod
+    def get_faces_from_shape(shape: TopoDS_Shape) -> List[TopoDS_Face]:
+        faces = []
+        an_exp = TopExp_Explorer(shape, TopAbs_FACE)
+        while an_exp.More():
+            face = topods_Face(an_exp.Current())
+            faces.append(face)
+            an_exp.Next()
+        return faces
+
+    @staticmethod
+    def get_shape_area(shape: TopoDS_Shape) -> float:
+        """compute area of a space boundary"""
+        bound_prop = GProp_GProps()
+        brepgprop_SurfaceProperties(shape, bound_prop)
+        area = bound_prop.Mass()
+        return area
