@@ -9,6 +9,7 @@ from typing import Tuple, List, Mapping, TypeVar, Generic, Optional
 from collections import defaultdict
 import numpy
 import math
+import logging
 
 # Type aliases that are used throughout this module
 from OCC.Core.BRep import BRep_Tool
@@ -460,8 +461,21 @@ def convex_decomposition_base(shape: TopoDS_Shape) -> List[List[Vertex]]:
 def convex_decomposition(shape: TopoDS_Shape) -> List[TopoDS_Shape]:
     pieces = convex_decomposition_base(shape)
     new_shapes = list(map(lambda p: PyOCCTools.make_faces_from_pnts(p), pieces))
-
-    return new_shapes
+    oriented_shapes = []
+    org_normal = PyOCCTools.simple_face_normal(shape)
+    for new_shape in new_shapes:
+        new_normal = PyOCCTools.simple_face_normal(new_shape)
+        if all([abs(i) < 1e-3 for i in ((new_normal - org_normal).Coord())]):
+            oriented_shapes.append(new_shape)
+        else:
+            new_shape = PyOCCTools.flip_orientation_of_face(new_shape)
+            new_normal = PyOCCTools.simple_face_normal(new_shape)
+            if all([abs(i) < 1e-3 for i in ((new_normal - org_normal).Coord())]):
+                oriented_shapes.append(new_shape)
+            else:
+                logger = logging.getLogger(__name__)
+                logger.error("Convex decomposition produces a gap in new space boundary")
+    return oriented_shapes
 
 
 def is_convex_slow(shape: TopoDS_Shape) -> bool:
