@@ -1518,7 +1518,7 @@ class ExportEP(ITask):
             if isinstance(instances[inst], ExternalSpatialElement):
                 for sb in instances[inst].space_boundaries:
                     spatials.append(sb)
-
+        self._split_non_convex_shadings(instances, spatials)
         pure_spatials = []
         for s in spatials:
             # only consider almost horizontal 2b shapes (roof-like SBs)
@@ -1532,7 +1532,7 @@ class ExportEP(ITask):
 
         for s in pure_spatials:
             obj = idf.newidfobject('SHADING:BUILDING:DETAILED',
-                                   Name=s.ifc.GlobalId,
+                                   Name=s.guid,
                                    )
             obj_pnts = PyOCCTools.get_points_of_face(s.bound_shape)
             obj_coords = []
@@ -2153,6 +2153,20 @@ class ExportEP(ITask):
                     pass
         pass
 
+    def _split_non_convex_shadings(self, instances, spatial_bounds):
+        spatial_elem = instances[[inst for inst in instances if isinstance(instances[inst], ExternalSpatialElement)][
+            0]]
+        for spatial in spatial_bounds:
+            if is_convex_no_holes(spatial.bound_shape):
+                continue
+            convex_shapes = convex_decomposition(spatial.bound_shape)
+            new_space_boundaries = self._create_new_convex_bounds(convex_shapes, spatial)
+            spatial_bounds.remove(spatial)
+            spatial_elem.space_boundaries.remove(spatial)
+            for new_bound in new_space_boundaries:
+                spatial_bounds.append(new_bound)
+                spatial_elem.space_boundaries.append(new_bound)
+
     def _create_copy_of_space_boundary(self, bound):
         new_bound = copy.copy(bound)
         new_bound.guid = 'new_'+ ifcopenshell.guid.new()
@@ -2171,7 +2185,8 @@ class ExportEP(ITask):
             if not all([abs(i) < 1e-3 for i in ((new_bound.bound_normal - bound.bound_normal).Coord())]):
                 new_bound.bound_shape = PyOCCTools.flip_orientation_of_face(new_bound.bound_shape)
                 new_bound.bound_normal = PyOCCTools.simple_face_normal(new_bound.bound_shape)
-            if related_bound and bound.related_bound.ifc.RelatingSpace.is_a('IfcSpace'):
+            if related_bound and bound.related_bound.ifc.RelatingSpace.is_a('IfcSpace') \
+                    and not bound.ifc.RelatingSpace.is_a('IfcExtSpatialStructure'):
                 distance = BRepExtrema_DistShapeShape(
                     bound.bound_shape,
                     related_bound.bound_shape,
