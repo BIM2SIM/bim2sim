@@ -792,7 +792,7 @@ class SpaceBoundary(element.RelationBased):
             #             vert_list1 = self.remove_collinear_vertices(vert_list1)
             #             vert_list1.reverse()
             #             shape = self.make_face_from_vertex_list(vert_list1)
-
+        shape = PyOCCTools.get_face_from_shape(shape)
         return shape
 
     def get_transformed_shape(self, shape):
