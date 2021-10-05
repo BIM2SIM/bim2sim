@@ -18,7 +18,7 @@ from OCC.Core.TopAbs import TopAbs_FACE
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopLoc import TopLoc_Location
 from OCC.Core.TopoDS import TopoDS_Iterator, TopoDS_Shape, topods_Face
-from OCC.Core.gp import gp_Pnt
+from OCC.Core.gp import gp_Pnt, gp_XYZ
 
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
@@ -460,7 +460,15 @@ def convex_decomposition_base(shape: TopoDS_Shape) -> List[List[Vertex]]:
 
 def convex_decomposition(shape: TopoDS_Shape) -> List[TopoDS_Shape]:
     pieces = convex_decomposition_base(shape)
-    new_shapes = list(map(lambda p: PyOCCTools.make_faces_from_pnts(p), pieces))
+    new_pieces = []
+    for p in pieces:
+        pnt_list_new = PyOCCTools.remove_coincident_vertices([gp_XYZ(pnt[0], pnt[1], pnt[2]) for pnt in p])
+        pnt_list_new = PyOCCTools.remove_collinear_vertices2(pnt_list_new)
+        if pnt_list_new != p and len(pnt_list_new) > 3:
+            pnt_list_new = [n.Coord() for n in pnt_list_new]
+            p = pnt_list_new
+        new_pieces.append(p)
+    new_shapes = list(map(lambda p: PyOCCTools.make_faces_from_pnts(p), new_pieces))
     oriented_shapes = []
     org_normal = PyOCCTools.simple_face_normal(shape)
     for new_shape in new_shapes:
