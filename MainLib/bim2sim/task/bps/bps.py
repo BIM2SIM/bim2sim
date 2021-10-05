@@ -1518,6 +1518,8 @@ class ExportEP(ITask):
             if isinstance(instances[inst], ExternalSpatialElement):
                 for sb in instances[inst].space_boundaries:
                     spatials.append(sb)
+        if not spatials:
+            return
         self._split_non_convex_shadings(instances, spatials)
         pure_spatials = []
         for s in spatials:
@@ -2185,7 +2187,7 @@ class ExportEP(ITask):
             if not all([abs(i) < 1e-3 for i in ((new_bound.bound_normal - bound.bound_normal).Coord())]):
                 new_bound.bound_shape = PyOCCTools.flip_orientation_of_face(new_bound.bound_shape)
                 new_bound.bound_normal = PyOCCTools.simple_face_normal(new_bound.bound_shape)
-            if related_bound and bound.related_bound.ifc.RelatingSpace.is_a('IfcSpace') \
+            if (related_bound and bound.related_bound.ifc.RelatingSpace.is_a('IfcSpace')) \
                     and not bound.ifc.RelatingSpace.is_a('IfcExtSpatialStructure'):
                 distance = BRepExtrema_DistShapeShape(
                     bound.bound_shape,
