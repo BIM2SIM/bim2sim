@@ -1,6 +1,6 @@
 # todo delete this after seperating energyplus tasks into single tasks
 """This module holds tasks related to bps"""
-
+import copy
 import itertools
 import json
 import ast
@@ -58,6 +58,7 @@ from bim2sim.kernel.elements.bps import SpaceBoundary, ExternalSpatialElement
 from bim2sim.kernel.aggregation import AggregatedThermalZone
 # todo new name :)
 import bim2sim
+from bim2sim.task.common.inner_loop_remover import is_convex_no_holes, convex_decomposition
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
@@ -698,6 +699,8 @@ class ExportEP(ITask):
         self._move_children_to_parents(instances)
         self.logger.info("Fix surface orientation")
         self._fix_surface_orientation(instances)  # todo: Check if working properly
+        self.logger.info("Split non-convex surfaces")
+        self._split_non_convex_bounds(instances)
         self.logger.info("Get neighboring space boundaries")
         # self._get_neighbor_bounds(instances)
         # self._compute_2b_bound_gaps(instances) # todo: fix
@@ -1523,7 +1526,7 @@ class ExportEP(ITask):
                 angle = math.degrees(gp_Dir(s.bound_normal).Angle(gp_Dir(gp_XYZ(0, 0, 1))))
                 if not ((-45 < angle < 45) or (135 < angle < 225)):
                     continue
-            if s.related_bound and s.related_bound.bound_thermal_zone.ifc.is_a('IfcSpace'):
+            if s.related_bound and s.related_bound.ifc.RelatingSpace.is_a('IfcSpace'):
                 continue
             pure_spatials.append(s)
 
@@ -2115,6 +2118,79 @@ class ExportEP(ITask):
         # remove boundaries from instances if they are false duplicates of windows in shape of walls
         instances = {k: v for k, v in instances.items() if k not in drop_list}
         return instances
+
+    def _split_non_convex_bounds(self, instances):
+        bounds = [instances[i] for i in instances if instances[i].ifc.is_a('IfcRelSpaceBoundary')]
+        bounds_except_openings = [b for b in bounds if not hasattr(b, 'related_parent_bound')]
+        nconv = []
+        others = []
+        processed_id = []
+        for bound in bounds_except_openings[:]:
+            if not bound.opening_bounds: # check all space boundaries that are not parent to an opening bound
+                if hasattr(bound, 'convex_processed'):
+                    continue
+                if is_convex_no_holes(bound.bound_shape):
+                    continue
+                nconv.append(bound)
+                convex_shapes = convex_decomposition(bound.bound_shape)
+                if hasattr(bound, 'bound_normal'):
+                    del bound.__dict__['bound_normal']
+                new_space_boundaries = self._create_new_convex_bounds(convex_shapes, bound, bound.related_bound)
+                bound.convex_processed = True
+                if bound.related_bound and bound.related_bound.guid in instances:
+                    nconv.append(bound.related_bound)
+                    del instances[bound.related_bound.guid]
+                    bounds_except_openings.remove(bound.related_bound)
+                    bound.related_bound.convex_processed = True
+                del instances[bound.guid]
+                for new_bound in new_space_boundaries:
+                    instances[new_bound.guid] = new_bound
+                #conv.append(convex_shapes)
+            else:
+                if not is_convex_no_holes(bound.bound_shape):
+                # handle shapes that contain opening bounds
+                    others.append(bound)
+                    pass
+        pass
+
+    def _create_copy_of_space_boundary(self, bound):
+        new_bound = copy.copy(bound)
+        new_bound.guid = 'new_'+ ifcopenshell.guid.new()
+        if hasattr(new_bound, 'bound_center'):
+            del new_bound.__dict__['bound_center']
+        if hasattr(new_bound, 'bound_normal'):
+            del new_bound.__dict__['bound_normal']
+        return new_bound
+
+    def _create_new_convex_bounds(self, convex_shapes, bound, related_bound=None):
+        bound.non_convex_guid = bound.guid
+        new_space_boundaries = []
+        for shape in convex_shapes:
+            new_bound = self._create_copy_of_space_boundary(bound)
+            new_bound.bound_shape = shape
+            if not all([abs(i) < 1e-3 for i in ((new_bound.bound_normal - bound.bound_normal).Coord())]):
+                new_bound.bound_shape = PyOCCTools.flip_orientation_of_face(new_bound.bound_shape)
+                new_bound.bound_normal = PyOCCTools.simple_face_normal(new_bound.bound_shape)
+            if related_bound and bound.related_bound.ifc.RelatingSpace.is_a('IfcSpace'):
+                distance = BRepExtrema_DistShapeShape(
+                    bound.bound_shape,
+                    related_bound.bound_shape,
+                    Extrema_ExtFlag_MIN
+                ).Value()
+                if distance < 0.001:
+                    continue
+                new_rel_bound = self._create_copy_of_space_boundary(related_bound)
+                related_bound.non_convex_guid = related_bound.guid
+                new_rel_shape = PyOCCTools._move_bound_in_direction_of_normal(new_bound, distance, reversed=False)
+                new_rel_bound.bound_shape = new_rel_shape
+                new_rel_bound.bound_shape = PyOCCTools.flip_orientation_of_face(new_rel_bound.bound_shape)
+                new_rel_bound.bound_normal = PyOCCTools.simple_face_normal(new_rel_bound.bound_shape)
+                new_bound.related_bound = new_rel_bound
+                new_rel_bound.related_bound = new_bound
+                new_space_boundaries.append(new_rel_bound)
+            new_space_boundaries.append(new_bound)
+        return new_space_boundaries
+
 
     @staticmethod
     def _display_shape_of_space_boundaries(instances):
