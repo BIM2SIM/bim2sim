@@ -884,7 +884,7 @@ class SpaceBoundary(element.RelationBased):
 
     @cached_property
     def bound_normal(self):
-        return self.compute_surface_normals_in_space('')
+        return PyOCCTools.simple_face_normal(self.bound_shape)
 
     @cached_property
     def related_bound(self):
