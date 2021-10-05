@@ -247,8 +247,8 @@ class PyOCCTools:
         coord = gp_XYZ(*prod_vec)
         vec = gp_Vec(coord)
         trsf.SetTranslation(vec)
-        bound.bound_shape_cl = BRepBuilderAPI_Transform(bound.bound_shape, trsf).Shape()
-        return trsf
+        new_shape = BRepBuilderAPI_Transform(bound.bound_shape, trsf).Shape()
+        return new_shape
 
     @staticmethod
     def _compare_direction_of_normals(normal1, normal2):
