@@ -155,7 +155,7 @@ def get_Property_Set(PropertySetName, element):
     property_set = next((item for item in AllPropertySetsList if
                          item.RelatingPropertyDefinition.Name == PropertySetName), None)
     if hasattr(property_set, 'RelatingPropertyDefinition'):
-        return propertyset2dict(property_set.RelatingPropertyDefinition)
+        return propertyset2dict(property_set.RelatingPropertyDefinition, ifc_units)
 
 
 def get_property_sets(element, ifc_units):
@@ -201,7 +201,7 @@ def get_type_property_sets(element, ifc_units):
     return property_sets
 
 
-def get_quantity_sets(element):
+def get_quantity_sets(element, ifc_units):
     """Returns all QuantitySets of element"""
 
     quantity_sets = {}
