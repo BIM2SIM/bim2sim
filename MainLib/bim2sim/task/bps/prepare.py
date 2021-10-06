@@ -81,8 +81,9 @@ class Prepare(ITask):
         """set cooling and heating values based on general question for all
         building"""
 
-        cooling_decision = yield from self.tz_property_decision('cool')
-        heating_decision = yield from self.tz_property_decision('heat')
+        cooling_decision = self.tz_property_decision('cool')
+        heating_decision = self.tz_property_decision('heat')
+        yield DecisionBunch([cooling_decision, heating_decision])
 
         for k, tz in self.tz_instances.items():
             if cooling_decision is True:
@@ -99,8 +100,8 @@ class Prepare(ITask):
                      "with %sing" % (property_name, property_name),
                      global_key='Thermal_Zones.%sing' % property_name,
                      allow_skip=True)
-        yield DecisionBunch([decision])
-        return decision.value
+
+        return decision
 
     def recognize_zone_geometrical(self):
         """Recognizes zones/spaces by geometric detection"""

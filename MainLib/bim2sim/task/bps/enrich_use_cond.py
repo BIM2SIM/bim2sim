@@ -111,7 +111,8 @@ class EnrichUseConditions(ITask):
                                       choices=matches,
                                       global_key="%s_%s.BpsUsage" %
                                                  (type(tz).__name__, tz.guid),
-                                      allow_skip=False)
+                                      allow_skip=False,
+                                      live_search=True)
         yield DecisionBunch([usage_decision])
         return usage_decision.value
 

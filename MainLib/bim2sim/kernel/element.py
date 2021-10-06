@@ -153,12 +153,14 @@ class IFCBased(Element):
     def __init__(self, *args,
                  ifc=None,
                  finder: TemplateFinder = None,
+                 ifc_units: dict = None,
                  **kwargs):
         super().__init__(*args, **kwargs)
 
         self.ifc = ifc
         self.predefined_type = ifc2python.get_predefined_type(ifc)
         self.finder = finder
+        self.ifc_units = ifc_units
         self._source_tool: str = None
 
         # TBD
@@ -234,7 +236,7 @@ class IFCBased(Element):
             ang_sum += 180
 
         # angle between 0 and 360
-        return ang_sum
+        return angle_equivalent(ang_sum)
 
     def get_ifc_attribute(self, attribute):
         """
@@ -247,7 +249,8 @@ class IFCBased(Element):
 
     def get_propertysets(self):
         if self._propertysets is None:
-            self._propertysets = ifc2python.get_property_sets(self.ifc)
+            self._propertysets = ifc2python.get_property_sets(
+                self.ifc, self.ifc_units)
         return self._propertysets
 
     def get_type_propertysets(self):
@@ -570,12 +573,16 @@ class Factory:
         """
 
     def __init__(
-            self, relevant_elements: List[ProductBased],
-            finder_path: Union[str, Path, None] = None, dummy=Dummy):
+            self,
+            relevant_elements: List[ProductBased],
+            ifc_units: dict,
+            finder_path: Union[str, Path, None] = None,
+            dummy=Dummy):
         self.mapping, self.blacklist, self.defaults = \
             self.create_ifc_mapping(relevant_elements)
         self.dummy_cls = dummy
         self.finder = TemplateFinder()
+        self.ifc_units = ifc_units
         if finder_path:
             self.finder.load(finder_path)
 
@@ -608,7 +615,8 @@ class Factory:
         """Create Element from class and ifc"""
         # instantiate element
         element = element_cls.from_ifc(
-            ifc_entity, finder=self.finder, *args, **kwargs)
+            ifc_entity, finder=self.finder, ifc_units=self.ifc_units,
+            *args, **kwargs)
         # check if it prefers to be sth else
         better_cls = element.get_better_subclass()
         if better_cls:

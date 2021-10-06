@@ -25,9 +25,10 @@ class EnrichBuildingByTemplates(ITask):
         self.logger.info("setting verifications")
         if workflow.layers is LOD.low:
             construction_type = yield from self.get_construction_type()
+            resumed = EnrichMaterial.get_resumed_material_templates()
             for instance in invalid_layers.values():
                 yield from self.template_layers_creation(
-                    instance, construction_type, instances,
+                    instance, construction_type, instances, resumed,
                     self.instance_template)
                 self.enriched_layers.append(instance)
             windows = filter_instances(instances, 'Window')
@@ -53,14 +54,13 @@ class EnrichBuildingByTemplates(ITask):
 
     @classmethod
     def template_layers_creation(cls, instance, construction_type, instances,
-                                 class_instance_template):
+                                 resumed, class_instance_template):
         instance.layers = []
         layers_width = 0
         layers_r = 0
         data = yield from cls.get_instance_template(
             instance, construction_type, instances, class_instance_template)
         template = dict(data)
-        resumed = EnrichMaterial.get_resumed_material_templates()
         if template is not None:
             for i_layer, layer_props in template['layer'].items():
                 material_properties = cls.get_material_properties(

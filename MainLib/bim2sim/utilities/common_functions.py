@@ -1,17 +1,11 @@
 import math
 import re
 import json
-
 import bim2sim
+
 from pathlib import Path
 
-
 def angle_equivalent(angle):
-    # if angle == -180.0:
-    #     angle = 0
-    # elif angle == -360:
-    #     angle = 180
-    # else:
     while angle >= 360 or angle < 0:
         if angle >= 360:
             angle -= 360
@@ -61,7 +55,7 @@ def get_usage_dict() -> dict:
     return usage_dict
 
 
-def get_pattern_usage(translate=False):
+def get_pattern_usage():
     """get usage patterns to use it on the thermal zones get_usage"""
     use_conditions_path = assets/'MaterialTemplates/UseConditions.json'
     with open(use_conditions_path, 'r+') as f:
@@ -69,25 +63,80 @@ def get_pattern_usage(translate=False):
         use_conditions.remove('version')
 
     common_translations = {
-        "Bed room": ['Schlafzimmer'],
-        "Living": ["Galerie", "Wohnen"],
-        "Laboratory": ["Labor"],
-        'office_function': ['Office', 'Buero', 'Büro', 'Pool'],
-        "Meeting, Conference, seminar": ['Besprechungsraum', 'Seminarraum', 'Besprechung', 'Konferenz', 'Meeting',
+        'office_function': ['Office', 'Buero', 'Büro', 'Pool', 'Einzelbüro',
+                            'Großraumbüro'],
+        'Meeting, Conference, seminar': ['Tagung', 'Konferenz', 'Seminar',
+                                         'Besprechungsraum', 'Seminarraum',
+                                         'Besprechung', 'Meeting',
                                          'Mehrzweckraum'],
-
-        'Kitchen in non-residential buildings': ['Kitchen', 'Küche'],
-        'Kitchen - preparations, storage': ['Kitchen', 'Küche'],
-        'Traffic area': ['Hall', 'Flur', 'Dachboden', 'TH', 'Treppenhaus', 'Korridor', 'Übergang'],
-        'WC and sanitary rooms in non-residential buildings': ['bath', 'bathroom', 'WC', 'Toilet', 'Bad', 'Toiletten'],
-        'Stock, technical equipment, archives': ['Technical room', 'Technikraum', 'Technik', 'Heizung', 'Server',
-                                                 'Archiv', 'Elektro/HLS', 'Lager'],
-        'Storehouse, logistics building': ['Abstell'],
-        'Exhibition room and museum conservational demands': ['Ausstellung'],
-        'Parking garages (office and private usage)': ['Parkbereich', 'Parkhaus'],
-        'Further common rooms': ['Umkleideraum'],
-        'Library - reading room': ['Bibliothek'],
-        'MultiUseComputerRoom': ['Bibliothek', 'Audiovisuell']
+        'Main Hall, Reception': ['Hauptsaal', 'Empfang'],
+        'Retail, department store': ['Einzelhandel', 'Kaufhaus'],
+        'Retail with cooling': ['Einzelhandel', 'Kühlung'],
+        'Class room (school), group room (kindergarden)': ['Klassenzimmer',
+                                                           'Schule',
+                                                           'Gruppenraum',
+                                                           'Kindergarten'],
+        'Lecture hall, auditorium': ['Hörsaal, Auditorium'],
+        'Bed room': ['Schlafzimmer'],
+        'Hotel room': ['Hotelzimmer'],
+        'Canteen': ['Kantine'],
+        'Restaurant': ['Restaurant'],
+        'Kitchen in non-residential buildings': ['Küche', 'Kitchen'],
+        'Kitchen - preparations, storage': ['Küche', 'Vorbereitungen',
+                                            'Lagerung', 'Kitchen'],
+        'WC and sanitary rooms in non-residential buildings': ['WC',
+                                                               'Sanitär',
+                                                               'bath',
+                                                               'bathroom',
+                                                               'Toilet', 'Bad',
+                                                               'Toiletten'],
+        'Further common rooms': ['Gemeinschaft', 'Umkleideraum'],
+        'Auxiliary areas (without common rooms)': ['Nebenrau'],
+        'Traffic area': ['Verkehrsfläche', 'Hall', 'Flur', 'Dachboden', 'TH',
+                         'Treppenhaus', 'Korridor', 'Übergang'],
+        'Stock, technical equipment, archives': ['Lager', 'Ausstattung',
+                                                 'Archive', 'Technical room',
+                                                 'Technikraum', 'Technik',
+                                                 'Heizung', 'Server', 'Archiv',
+                                                 'Elektro/HLS'],
+        'Data center': ['Rechenzentrum'],
+        'Commercial and industrial Halls - heavy work, standing activity': [
+            'Gewerbe', 'Industriehalle'],
+        'Commercial and industrial Halls - medium work, standing activity': [
+            'Gewerbe', 'Industriehalle'],
+        'Commercial and industrial Halls - light work, standing activity': [
+            'Gewerbe', 'Industriehalle'],
+        'Spectator area (theater and event venues)': ['Zuschauerbereich',
+                                                      'Theater',
+                                                      'Veranstaltung'],
+        'Foyer (theater and event venues)': ['Foyer', 'Theater',
+                                                      'Veranstaltung'],
+        'Stage (theater and event venues)': ['Bühne', 'Theater',
+                                             'Veranstaltung'],
+        'Exhibition, congress': ['Ausstellung', 'Kongress'],
+        'Exhibition room and museum conservational demands': [
+            'Ausstellungsraum', 'Museum', 'Ausstellung'],
+        'Library - reading room': ['Bibliothek', 'Lesesaal'],
+        'Library - open stacks': ['Bibliothek'],
+        'Library - magazine and depot': ['Bibliothek', 'Depot', 'Magazin'],
+        'Gym (without spectator area)': ['Fitness'],
+        'Parking garages (office and private usage)': ['Parkbereich',
+                                                       'Parkhaus',
+                                                       'Parkgaragen'],
+        'Parking garages (public usage)': ['Parkbereich',
+                                                       'Parkhaus',
+                                                       'Parkgaragen'],
+        'Sauna area': ['Saunabereich'],
+        'Exercise room': ['Übungsraum'],
+        'Laboratory': ['Labor'],
+        'Examination- or treatment room': ['Untersuchung', 'Behandlung'],
+        'Special care area': ['Pflege'],
+        'Corridors in the general care area': ['Pflege'],
+        'Medical and therapeutic practices': ['Arzt', 'Therapeut', 'Praxis'],
+        'Storehouse, logistics building': ['Lager, Logistikgebäude', 'Abstell'],
+        'Living': ['Leben', "Galerie", "Wohnen"],
+        'Classroom': ['Klassenzimmer'],
+        'MultiUseComputerRoom': ['Computer', 'Bibliothek', 'Audiovisuell']
     }
 
     pattern_usage_teaser = {}
@@ -101,14 +150,6 @@ def get_pattern_usage(translate=False):
             if i in common_translations:
                 for c_trans in common_translations[i]:
                     pattern_usage_teaser[i].append(re.compile('(.*?)%s' % c_trans, flags=re.IGNORECASE))
-        if translate:
-            trans = translate_deep(i, source='en', target='de')
-
-            list_de = re.sub(r'\((.*?)\)', '', trans).replace(' - ', ', ').replace(' and ', ', ').replace(' in ', ', ') \
-                .replace(' with ', ', ').replace(' or ', ', ').replace(' the ', ' ').split(', ')
-            for i_de in list_de:
-                new_i_de = i_de.replace(' ', '(.*?)')
-                pattern_usage_teaser[i].append(re.compile('(.*?)%s' % new_i_de, flags=re.IGNORECASE))
 
     pattern_usage_teaser['office_function'] = [re.compile('(.*?)%s' % c_trans, re.IGNORECASE) for c_trans in
                                                common_translations['office_function']]
@@ -166,12 +207,15 @@ def filter_instances(instances, type_name):
 def translate_deep(text, source='auto', target='en'):
     """ translate function that uses deep_translator package with
     Google Translator"""
-    from deep_translator import GoogleTranslator
-
+    # return False  # test no internet
+    try:
+        from deep_translator import GoogleTranslator
+        translated = GoogleTranslator(
+            source=source, target=target).translate(text=text)
+        return translated
+    except:
+        return False
     # proxies_example = {
     #     "https": "34.195.196.27:8080",
     #     "http": "34.195.196.27:8080"
     # }
-    translated = GoogleTranslator(
-        source=source, target=target).translate(text=text)
-    return translated

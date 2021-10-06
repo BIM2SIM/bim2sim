@@ -24,6 +24,7 @@ class Workflow:
                  hvac: LOD,
                  spaces: LOD,
                  layers: LOD,
+                 create_external_elements=False,
                  filters: list = None):
 
         self.ductwork = ductwork
@@ -33,8 +34,10 @@ class Workflow:
         self.hvac = hvac
         self.spaces = spaces
         self.layers = layers
+        self.create_external_elements = create_external_elements
 
         self.filters = filters if filters else []
+        self.ifc_units = {}  # dict to store project related units
 
         self.relevant_ifc_types = None  # TODO: obsolete
         self.relevant_elements = []
@@ -265,4 +268,23 @@ class BPSMultiZoneSeparatedEP(Workflow):
             hvac=LOD.low,
             spaces=LOD.full,
             layers=LOD.low,
+            create_external_elements=True,  # consider IfcExternalSpatialElements
+        )
+
+
+class BPSMultiZoneSeparatedEPfull(Workflow):
+    """Building performance simulation with every space as single zone
+    separated from each other - no aggregation,
+    used within the EnergyPlus Workflow"""
+
+    def __init__(self):
+        super().__init__(
+            ductwork=LOD.low,
+            hull=LOD.medium,
+            consumer=LOD.low,
+            generator=LOD.ignore,
+            hvac=LOD.low,
+            spaces=LOD.full,
+            layers=LOD.full,
+            create_external_elements=True,  # consider IfcExternalSpatialElements
         )

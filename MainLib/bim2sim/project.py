@@ -13,7 +13,6 @@ import pkg_resources
 import configparser
 
 from bim2sim.decision import Decision, ListDecision, DecisionBunch, save, load
-from bim2sim.kernel.units import ifcunits
 from bim2sim.task.base import Playground
 from bim2sim.plugin import Plugin
 from bim2sim.kernel.element import Element
@@ -275,7 +274,6 @@ class Project:
     def __init__(self, path=None, workflow=None):
         """Load existing project"""
         self.storage = {}  # project related items
-
         self.paths = FolderStructure(path)
         if not self.paths.is_project_folder():
             raise AssertionError("Project path is no valid project directory. "
@@ -412,10 +410,9 @@ class Project:
                 logger.warning("Decisions are saved in '%s'. Rename file to 'decisions.json' to reuse them.", pth)
             else:
                 save(self._made_decisions, self.paths.decisions)
-            # TODO: fix #172
             # reset ifc file specific unit declarations
-            ifcunits.clear()
             # release project
+            # todo
             Project._release(self)
 
         # clean up init relics

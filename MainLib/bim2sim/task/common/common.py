@@ -7,7 +7,7 @@ from bim2sim.filter import TypeFilter, TextFilter
 from bim2sim.kernel import ifc2python
 from bim2sim.kernel.element import Factory, ProductBased
 from bim2sim.task.base import ITask
-from bim2sim.kernel.units import ifcunits, ureg, ifc_pint_unitmap, parse_ifc
+from bim2sim.kernel.units import parse_ifc
 from ifcopenshell.file import file
 
 
@@ -48,8 +48,7 @@ class LoadIFC(ITask):
         else:
             raise AssertionError("No ifc found. Check '%s'" % path)
         ifc = ifc2python.load_ifc(os.path.abspath(ifc_path))
-
-        ifcunits.update(**self.get_ifcunits(ifc))
+        workflow.ifc_units.update(**self.get_ifcunits(ifc))
 
         # Schema2Python.get_ifc_structure(ifc)
 
@@ -124,9 +123,13 @@ class CreateElements(ITask):
         relevant_ifc_types = self.get_ifc_types(workflow.relevant_elements)
         relevant_ifc_types.update(default_ifc_types)
 
-        self.factory = Factory(workflow.relevant_elements, self.paths.finder)
+        self.factory = Factory(
+            workflow.relevant_elements,
+            workflow.ifc_units,
+            self.paths.finder)
         for app in ifc.by_type('IfcApplication'):
-            for decision in self.factory.finder.check_tool_template(app.ApplicationFullName):
+            for decision in self.factory.finder.check_tool_template(
+                    app.ApplicationFullName):
                 yield DecisionBunch([decision])
         # Filtering:
         #  filter returns dict of entities: suggested class and list of unknown
