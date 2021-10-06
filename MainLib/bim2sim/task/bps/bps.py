@@ -699,8 +699,13 @@ class ExportEP(ITask):
         self._move_children_to_parents(instances)
         self.logger.info("Fix surface orientation")
         self._fix_surface_orientation(instances)  # todo: Check if working properly
-        self.logger.info("Split non-convex surfaces")
-        self._split_non_convex_bounds(instances)
+        split_bounds = BoolDecision(
+            question="Do you want to decompose non-convex space boundaries into convex boundaries?",
+            global_key='EnergyPlus.SplitConvexBounds')
+        yield DecisionBunch([split_bounds])
+        if split_bounds.value:
+            self.logger.info("Split non-convex surfaces")
+            self._split_non_convex_bounds(instances)
         self.logger.info("Get neighboring space boundaries")
         # self._get_neighbor_bounds(instances)
         # self._compute_2b_bound_gaps(instances) # todo: fix
