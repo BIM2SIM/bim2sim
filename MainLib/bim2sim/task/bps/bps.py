@@ -719,8 +719,17 @@ class ExportEP(ITask):
         self.logger.info("Get predefined materials and construction ...")
         self._get_preprocessed_materials_and_constructions(instances, idf)
         # self._get_bs2021_materials_and_constructions(idf)
-        self.logger.info("Add Shadings ...")
-        self._add_shadings(instances, idf)
+        add_shadings = BoolDecision(
+            question="Do you want to add shadings if available?",
+            global_key='EnergyPlus.AddShadings')
+        yield DecisionBunch([add_shadings])
+        split_shadings = BoolDecision(
+            question="Do you want to decompose non-convex shadings into convex shadings?",
+            global_key='EnergyPlus.SplitConvexShadings')
+        yield DecisionBunch([split_shadings])
+        if add_shadings.value:
+            self.logger.info("Add Shadings ...")
+            self._add_shadings(instances, split_shadings.value, idf)
         self.logger.info("Set Simulation Control ...")
         self._set_simulation_control(idf)
         idf.set_default_constructions()
@@ -1517,7 +1526,7 @@ class ExportEP(ITask):
         """
         return [days, til_time_temp]
 
-    def _add_shadings(self, instances, idf):
+    def _add_shadings(self, instances, split_shadings, idf):
         spatials = []
         for inst in instances:
             if isinstance(instances[inst], ExternalSpatialElement):
@@ -1525,7 +1534,8 @@ class ExportEP(ITask):
                     spatials.append(sb)
         if not spatials:
             return
-        self._split_non_convex_shadings(instances, spatials)
+        if split_shadings:
+            self._split_non_convex_shadings(instances, spatials)
         pure_spatials = []
         for s in spatials:
             # only consider almost horizontal 2b shapes (roof-like SBs)
