@@ -116,7 +116,6 @@ class FolderStructure:
     EXPORT = "export"
     RESOURCES = "resources"
     PAPER = True
-    _src_path = Path(__file__).parent
 
     _src_path = Path(__file__).parent  # base path to bim2sim assets
 
@@ -309,13 +308,6 @@ class Project:
         return FolderStructure(path).is_project_folder()
 
     @classmethod
-    def _lock(cls, project):
-        if cls._active_project is None:
-            cls._active_project = project
-        else:
-            raise AssertionError("Cant lock Project while other project is active")
-
-    @classmethod
     def _release(cls, project):
         if cls._active_project is project:
             cls._active_project = None
@@ -351,9 +343,6 @@ class Project:
         """Run project"""
         if not self.paths.is_project_folder():
             raise AssertionError("Project ist not set correctly!")
-
-        # lock current project
-        Project._lock(self)
 
         success = False
         if interactive:
@@ -410,10 +399,6 @@ class Project:
                 logger.warning("Decisions are saved in '%s'. Rename file to 'decisions.json' to reuse them.", pth)
             else:
                 save(self._made_decisions, self.paths.decisions)
-            # reset ifc file specific unit declarations
-            # release project
-            # todo
-            Project._release(self)
 
         # clean up init relics
         #  clean logger
