@@ -37,6 +37,8 @@ class CreateSpaceBoundaries(ITask):
         instance_lst = {}
         for entity in entities_dict:
             element = None
+            if entity.is_a() == 'IfcRelSpaceBoundary1stLevel' or entity.Name == '1stLevel':
+                continue
             if entity.RelatingSpace.is_a('IfcSpace'):
                 element = SpaceBoundary.from_ifc(entity, instances=instance_lst,
                                                finder=finder)
