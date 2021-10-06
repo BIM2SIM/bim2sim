@@ -245,7 +245,8 @@ class IFCBased(Element):
         return getattr(self.ifc, attribute, None)
 
     def get_propertyset(self, propertysetname):
-        return ifc2python.get_Property_Set(propertysetname, self.ifc)
+        return ifc2python.get_Property_Set(
+            propertysetname, self.ifc, self.ifc_units)
 
     def get_propertysets(self):
         if self._propertysets is None:
