@@ -255,7 +255,8 @@ class IFCBased(Element):
 
     def get_type_propertysets(self):
         if self._type_propertysets is None:
-            self._type_propertysets = ifc2python.get_type_property_sets(self.ifc)
+            self._type_propertysets = ifc2python.get_type_property_sets(
+                self.ifc, self.ifc_units)
         return self._type_propertysets
 
     def get_hierarchical_parent(self):
