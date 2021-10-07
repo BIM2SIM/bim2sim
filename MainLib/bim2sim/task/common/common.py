@@ -148,7 +148,10 @@ class CreateElements(ITask):
         unknown_entities.extend(invalids)
 
         # filter by text
-        text_filter = TextFilter(workflow.relevant_elements, ['Description'])
+        text_filter = TextFilter(
+            workflow.relevant_elements,
+            workflow.ifc_units,
+            ['Description'])
         entity_class_dict, unknown_entities = yield from self.filter_by_text(
             text_filter, unknown_entities)
         entity_best_guess_dict.update(entity_class_dict)
