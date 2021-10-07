@@ -707,7 +707,7 @@ class SpaceBoundary(element.RelationBased):
             shape = ifcopenshell.geom.create_shape(settings, sore)
 
             if sore.InnerBoundaries:
-                shape = remove_inner_loops(shape)  # todo: return None if not horizontal shape
+                # shape = remove_inner_loops(shape)  # todo: return None if not horizontal shape
                 # if not shape:
                 if self.bound_instance.ifc.is_a('IfcWall'): # todo: remove this hotfix (generalize)
                     ifc_new = ifcopenshell.file()

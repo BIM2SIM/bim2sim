@@ -2193,6 +2193,7 @@ class ExportEP(ITask):
             for new_bound in new_space_boundaries:
                 spatial_bounds.append(new_bound)
                 spatial_elem.space_boundaries.append(new_bound)
+        pass
 
     def _create_copy_of_space_boundary(self, bound):
         new_bound = copy.copy(bound)
