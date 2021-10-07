@@ -502,6 +502,7 @@ def convex_decomposition(shape: TopoDS_Shape) -> List[TopoDS_Shape]:
             cut_area = PyOCCTools.get_shape_area(cs)
             if cut_area < 1e-3:
                 continue
+            cs = PyOCCTools.remove_coincident_and_collinear_points_from_face(cs)
             oriented_area += cut_area
             add_cut_shapes.append(cs)
         if not abs(org_area - oriented_area) < 1e-3:
