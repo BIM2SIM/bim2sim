@@ -245,7 +245,8 @@ class IFCBased(Element):
         return getattr(self.ifc, attribute, None)
 
     def get_propertyset(self, propertysetname):
-        return ifc2python.get_Property_Set(propertysetname, self.ifc)
+        return ifc2python.get_Property_Set(
+            propertysetname, self.ifc, self.ifc_units)
 
     def get_propertysets(self):
         if self._propertysets is None:
@@ -255,7 +256,8 @@ class IFCBased(Element):
 
     def get_type_propertysets(self):
         if self._type_propertysets is None:
-            self._type_propertysets = ifc2python.get_type_property_sets(self.ifc)
+            self._type_propertysets = ifc2python.get_type_property_sets(
+                self.ifc, self.ifc_units)
         return self._type_propertysets
 
     def get_hierarchical_parent(self):
@@ -334,7 +336,8 @@ class IFCBased(Element):
         return matches
 
     @classmethod
-    def filter_for_text_fragments(cls, ifc_element, optional_locations: list = None):
+    def filter_for_text_fragments(
+            cls, ifc_element, ifc_units: dict, optional_locations: list = None):
         """Filter for text fragments in the ifc_element to identify the ifc_element."""
         results = []
         hits = [p.search(ifc_element.Name) for p in cls.pattern_ifc_type]
@@ -347,8 +350,11 @@ class IFCBased(Element):
             # return hits[0][0]
         if optional_locations:
             for loc in optional_locations:
-                hits = [p.search(ifc2python.get_Property_Set(loc, ifc_element) or '') for p in cls.pattern_ifc_type
-                        if ifc2python.get_Property_Set(loc, ifc_element)]
+                hits = [p.search(ifc2python.get_Property_Set(
+                    loc, ifc_element, ifc_units) or '')
+                        for p in cls.pattern_ifc_type
+                        if ifc2python.get_Property_Set(
+                        loc, ifc_element, ifc_units)]
                 hits = [x for x in hits if x is not None]
                 if any(hits):
                     logger = logging.getLogger('IFCModelCreation')

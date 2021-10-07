@@ -6,6 +6,7 @@ import os
 import logging
 import typing
 
+from typing import Optional
 import ifcopenshell
 from bim2sim.kernel.units import parse_ifc
 import math
@@ -21,7 +22,7 @@ def load_ifc(path):
     return ifc_file
 
 
-def propertyset2dict(propertyset, ifc_units: dict):
+def propertyset2dict(propertyset, ifc_units: Optional[dict]):
     """Converts IfcPropertySet to python dict"""
     propertydict = {}
     if hasattr(propertyset, 'HasProperties'):
@@ -139,7 +140,7 @@ def getIfcAttribute(ifcElement, attribute):
         pass
 
 
-def get_Property_Set(PropertySetName, element):
+def get_Property_Set(PropertySetName, element, ifc_units):
     """
     This function searches an elements PropertySets for the defined
     PropertySetName. If the PropertySet is found the function will return a
@@ -148,6 +149,7 @@ def get_Property_Set(PropertySetName, element):
 
     :param element: The element in which you want to search for the PropertySet
     :param PropertySetName: Name of the PropertySet you are looking for
+    :param ifc_units: dict holding all unit definitions from ifc_units
     :return:
     """
     # TODO: Unit conversion
@@ -155,13 +157,15 @@ def get_Property_Set(PropertySetName, element):
     property_set = next((item for item in AllPropertySetsList if
                          item.RelatingPropertyDefinition.Name == PropertySetName), None)
     if hasattr(property_set, 'RelatingPropertyDefinition'):
-        return propertyset2dict(property_set.RelatingPropertyDefinition)
+        return propertyset2dict(
+            property_set.RelatingPropertyDefinition, ifc_units)
 
 
 def get_property_sets(element, ifc_units):
     """Returns all PropertySets of element
 
     :param element: The element in which you want to search for the PropertySets
+    :param ifc_units: dict holding all unit definitions from ifc_units
     :return: dict(of dicts)
     """
     # TODO: Unit conversion
@@ -185,7 +189,7 @@ def get_property_sets(element, ifc_units):
     return property_sets
 
 
-def get_type_property_sets(element):
+def get_type_property_sets(element, ifc_units):
     """Returns all PropertySets of element's types
 
     :param element: The element in which you want to search for the PropertySets
@@ -195,18 +199,20 @@ def get_type_property_sets(element):
     if hasattr(element, 'IsTypedBy'):
         for defined_type in element.IsTypedBy:
             for propertyset in defined_type.RelatingType.HasPropertySets:
-                property_sets[propertyset.Name] = propertyset2dict(propertyset)
+                property_sets[propertyset.Name] = propertyset2dict(
+                    propertyset, ifc_units)
 
     return property_sets
 
 
-def get_quantity_sets(element):
+def get_quantity_sets(element, ifc_units):
     """Returns all QuantitySets of element"""
 
     quantity_sets = {}
     for defined_type in element.IsTypedBy:
         for quantityset in defined_type.RelatingType.Quantities:
-            quantity_sets[quantityset.Name] = propertyset2dict(quantityset)
+            quantity_sets[quantityset.Name] = propertyset2dict(
+                quantityset, ifc_units)
 
     return quantity_sets
 

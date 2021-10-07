@@ -148,9 +148,12 @@ class CreateElements(ITask):
         unknown_entities.extend(invalids)
 
         # filter by text
-        text_filter = TextFilter(workflow.relevant_elements, ['Description'])
+        text_filter = TextFilter(
+            workflow.relevant_elements,
+            workflow.ifc_units,
+            ['Description'])
         entity_class_dict, unknown_entities = yield from self.filter_by_text(
-            text_filter, unknown_entities)
+            text_filter, unknown_entities, workflow.ifc_units)
         entity_best_guess_dict.update(entity_class_dict)
         valids, invalids = self.accept_valids(entity_class_dict, force=True)
         instance_lst.extend(valids)
@@ -213,7 +216,7 @@ class CreateElements(ITask):
 
         return valid, invalid
 
-    def filter_by_text(self, text_filter, ifc_entities) \
+    def filter_by_text(self, text_filter, ifc_entities, ifc_units: dict) \
             -> Generator[DecisionBunch, None,
                          Tuple[Dict[Any, Type[ProductBased]], List]]:
         """Generator method filtering ifc elements by given TextFilter.
@@ -230,7 +233,8 @@ class CreateElements(ITask):
                 for element_cls in sorted_classes:
                     # TODO: filter_for_text_fragments() already called in text_filter.run()
                     hints = f"Matches: '" + "', '".join(
-                        element_cls.filter_for_text_fragments(entity)) + "'"
+                        element_cls.filter_for_text_fragments(
+                            entity, ifc_units)) + "'"
                     choices.append([element_cls.key, hints])
                 choices.append(["Other", "Other"])
                 decisions.append(ListDecision(
