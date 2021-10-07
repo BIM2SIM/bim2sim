@@ -19,6 +19,7 @@ class LoadLibrariesHKESim(base.ITask):
 class PluginHKESim(Plugin):
     name = 'HKESim'
     default_workflow = PlantSimulation
+    allowed_workflows = [PlantSimulation]
     tasks = {LoadLibrariesHKESim}
     elements = {*hvac_elements.items}
     default_tasks = [
