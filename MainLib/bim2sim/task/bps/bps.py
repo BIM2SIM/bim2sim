@@ -2146,35 +2146,38 @@ class ExportEP(ITask):
     def _split_non_convex_bounds(self, instances):
         bounds = [instances[i] for i in instances if instances[i].ifc.is_a('IfcRelSpaceBoundary')]
         bounds_except_openings = [b for b in bounds if not hasattr(b, 'related_parent_bound')]
+        conv = []
         nconv = []
         others = []
         processed_id = []
-        for bound in bounds_except_openings[:]:
-            if not bound.opening_bounds: # check all space boundaries that are not parent to an opening bound
-                if hasattr(bound, 'convex_processed'):
-                    continue
-                if is_convex_no_holes(bound.bound_shape):
-                    continue
-                nconv.append(bound)
-                convex_shapes = convex_decomposition(bound.bound_shape)
-                if hasattr(bound, 'bound_normal'):
-                    del bound.__dict__['bound_normal']
-                new_space_boundaries = self._create_new_convex_bounds(convex_shapes, bound, bound.related_bound)
-                bound.convex_processed = True
-                if bound.related_bound and bound.related_bound.guid in instances:
-                    nconv.append(bound.related_bound)
-                    del instances[bound.related_bound.guid]
-                    bounds_except_openings.remove(bound.related_bound)
-                    bound.related_bound.convex_processed = True
-                del instances[bound.guid]
-                for new_bound in new_space_boundaries:
-                    instances[new_bound.guid] = new_bound
-                #conv.append(convex_shapes)
+        for bound in bounds_except_openings:
+            if bound.opening_bounds: # check all space boundaries that are not parent to an opening bound
+                continue
             else:
                 if not is_convex_no_holes(bound.bound_shape):
-                # handle shapes that contain opening bounds
+                    # handle shapes that contain opening bounds
                     others.append(bound)
-                    pass
+            if hasattr(bound, 'convex_processed'):
+                continue
+            if is_convex_no_holes(bound.bound_shape):
+                continue
+            nconv.append(bound)
+            convex_shapes = convex_decomposition(bound.bound_shape)
+            if hasattr(bound, 'bound_normal'):
+                del bound.__dict__['bound_normal']
+            new_space_boundaries = self._create_new_convex_bounds(convex_shapes, bound, bound.related_bound)
+            bound.convex_processed = True
+            if (bound.related_bound and bound.related_bound.ifc.RelatingSpace.is_a('IfcSpace')) \
+                    and not bound.ifc.RelatingSpace.is_a('IfcExternalSpatialStructure')\
+                    and not bound.ifc.Description == '2b':
+                nconv.append(bound.related_bound)
+                del instances[bound.related_bound.guid]
+                bounds_except_openings.remove(bound.related_bound)
+                bound.related_bound.convex_processed = True
+            del instances[bound.guid]
+            for new_bound in new_space_boundaries:
+                instances[new_bound.guid] = new_bound
+                conv.append(new_bound)
         pass
 
     def _split_non_convex_shadings(self, instances, spatial_bounds):
@@ -2206,11 +2209,13 @@ class ExportEP(ITask):
         for shape in convex_shapes:
             new_bound = self._create_copy_of_space_boundary(bound)
             new_bound.bound_shape = shape
+            new_bound.bound_area = SpaceBoundary.get_bound_area(new_bound, 'name')
             if not all([abs(i) < 1e-3 for i in ((new_bound.bound_normal - bound.bound_normal).Coord())]):
                 new_bound.bound_shape = PyOCCTools.flip_orientation_of_face(new_bound.bound_shape)
                 new_bound.bound_normal = PyOCCTools.simple_face_normal(new_bound.bound_shape)
             if (related_bound and bound.related_bound.ifc.RelatingSpace.is_a('IfcSpace')) \
-                    and not bound.ifc.RelatingSpace.is_a('IfcExtSpatialStructure'):
+                    and not bound.ifc.RelatingSpace.is_a('IfcExternalSpatialStructure')\
+                    and not bound.ifc.Description == '2b':
                 distance = BRepExtrema_DistShapeShape(
                     bound.bound_shape,
                     related_bound.bound_shape,
@@ -2225,6 +2230,7 @@ class ExportEP(ITask):
                 new_rel_bound.bound_shape = new_rel_shape
                 new_rel_bound.bound_shape = PyOCCTools.flip_orientation_of_face(new_rel_bound.bound_shape)
                 new_rel_bound.bound_normal = PyOCCTools.simple_face_normal(new_rel_bound.bound_shape)
+                new_rel_bound.bound_area = SpaceBoundary.get_bound_area(new_rel_bound, 'name')
                 new_bound.related_bound = new_rel_bound
                 new_rel_bound.related_bound = new_bound
                 new_space_boundaries.append(new_rel_bound)
