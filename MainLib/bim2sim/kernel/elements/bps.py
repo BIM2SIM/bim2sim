@@ -638,12 +638,15 @@ class SpaceBoundary(element.RelationBased):
         if self.related_bound:
             if self.bound_thermal_zone == self.related_bound.bound_thermal_zone:
                 adb_bound = self.related_bound
+            return adb_bound
         for bound in self.bound_instance.space_boundaries:
             if bound == self:
                 continue
             if not bound.bound_thermal_zone == self.bound_thermal_zone:
                 continue
-            if (bound.bound_area.m - self.bound_area.m) ** 2 > 0.01:
+            if abs(bound.bound_area.m - self.bound_area.m) > 1e-3:
+                continue
+            if all([abs(i) < 1e-3 for i in ((self.bound_normal - bound.bound_normal).Coord())]):
                 continue
             if gp_Pnt(bound.bound_center).Distance(gp_Pnt(self.bound_center)) < 0.4:
                 adb_bound = bound
