@@ -747,12 +747,13 @@ class SpaceBoundary(element.RelationBased):
                 shape = PyOCCTools.make_faces_from_pnts(pnts)
         shape = BRepLib_FuseEdges(shape).Shape()
 
-        lp = PyOCCTools.local_placement(self.ifc.RelatingSpace.ObjectPlacement).tolist()
-        mat = gp_Mat(lp[0][0], lp[0][1], lp[0][2], lp[1][0], lp[1][1], lp[1][2], lp[2][0], lp[2][1], lp[2][2])
-        vec = gp_Vec(lp[0][3], lp[1][3], lp[2][3])
-        trsf = gp_Trsf()
-        trsf.SetTransformation(gp_Quaternion(mat), vec)
-        shape = BRepBuilderAPI_Transform(shape, trsf).Shape()
+        if self.ifc.RelatingSpace.ObjectPlacement:
+            lp = PyOCCTools.local_placement(self.ifc.RelatingSpace.ObjectPlacement).tolist()
+            mat = gp_Mat(lp[0][0], lp[0][1], lp[0][2], lp[1][0], lp[1][1], lp[1][2], lp[2][0], lp[2][1], lp[2][2])
+            vec = gp_Vec(lp[0][3], lp[1][3], lp[2][3])
+            trsf = gp_Trsf()
+            trsf.SetTransformation(gp_Quaternion(mat), vec)
+            shape = BRepBuilderAPI_Transform(shape, trsf).Shape()
 
         # shape = shape.Reversed()
         unify = ShapeUpgrade_UnifySameDomain()
