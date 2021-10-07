@@ -12,6 +12,7 @@ class IntegrationBaseTEASER(IntegrationBase):
 
 class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
 
+    @unittest.skip('skip layers_full test until new answers are created')
     def test_ERC_Full(self):
         """Test ERC Main Building"""
         ifc = 'ERC_Mainbuilding_Arch.ifc'
