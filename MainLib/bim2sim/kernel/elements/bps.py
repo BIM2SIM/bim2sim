@@ -706,16 +706,6 @@ class SpaceBoundary(element.RelationBased):
             # if sore.get_info()["InnerBoundaries"] is None:
             shape = ifcopenshell.geom.create_shape(settings, sore)
 
-            pnt_list = PyOCCTools.get_points_of_face(shape)
-            pnt_list_new = PyOCCTools.remove_coincident_vertices(pnt_list)
-            pnt_list_new = PyOCCTools.remove_collinear_vertices2(pnt_list_new)
-            # pnt_list_new = self._remove_collinear_vertices2(pnt_list)
-            if pnt_list_new != pnt_list:
-                # print("vert new vs old", len(pnt_list_new), len(pnt_list))
-                if len(pnt_list_new) < 3:
-                    pnt_list_new = pnt_list
-                shape = PyOCCTools.make_faces_from_pnts(pnt_list_new)
-
             if sore.InnerBoundaries:
                 shape = remove_inner_loops(shape)  # todo: return None if not horizontal shape
                 # if not shape:
@@ -725,15 +715,20 @@ class SpaceBoundary(element.RelationBased):
                                                       BasisSurface=sore.BasisSurface)
                     temp_sore.InnerBoundaries = ()
                     shape = ifcopenshell.geom.create_shape(settings, temp_sore)
-                    pnt_list = PyOCCTools.get_points_of_face(shape)
-                    pnt_list_new = PyOCCTools.remove_coincident_vertices(pnt_list)
-                    pnt_list_new = PyOCCTools.remove_collinear_vertices2(pnt_list_new)
-                    # pnt_list_new = self._remove_collinear_vertices2(pnt_list)
-                    if pnt_list_new != pnt_list:
-                        # print("vert new vs old", len(pnt_list_new), len(pnt_list))
-                        if len(pnt_list_new) < 3:
-                            pnt_list_new = pnt_list
-                        shape = PyOCCTools.make_faces_from_pnts(pnt_list_new)
+            if not (sore.InnerBoundaries and not self.bound_instance.ifc.is_a('IfcWall')):
+                faces = PyOCCTools.get_faces_from_shape(shape)
+                if len(faces) > 1:
+                    unify = ShapeUpgrade_UnifySameDomain()
+                    unify.Initialize(shape)
+                    unify.Build()
+                    shape = unify.Shape()
+                    faces = PyOCCTools.get_faces_from_shape(shape)
+                    if len(faces) > 1:
+                        print('hold')
+                face = faces[0]
+                face = PyOCCTools.remove_coincident_and_collinear_points_from_face(face)
+                shape = face
+
 
         except:
             try:

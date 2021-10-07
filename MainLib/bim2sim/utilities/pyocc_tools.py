@@ -344,3 +344,17 @@ class PyOCCTools:
         brepgprop_SurfaceProperties(shape, bound_prop)
         area = bound_prop.Mass()
         return area
+
+    @staticmethod
+    def remove_coincident_and_collinear_points_from_face(face: TopoDS_Face) -> TopoDS_Face:
+        """
+        removes collinear and coincident vertices iff resulting number of vertices is > 3, so a valid face can be build.
+        """
+        pnt_list = PyOCCTools.get_points_of_face(face)
+        pnt_list_new = PyOCCTools.remove_coincident_vertices(pnt_list)
+        pnt_list_new = PyOCCTools.remove_collinear_vertices2(pnt_list_new)
+        if pnt_list_new != pnt_list:
+            if len(pnt_list_new) < 3:
+                pnt_list_new = pnt_list
+            face = PyOCCTools.make_faces_from_pnts(pnt_list_new)
+        return face
