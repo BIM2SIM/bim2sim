@@ -350,11 +350,15 @@ class PyOCCTools:
         """
         removes collinear and coincident vertices iff resulting number of vertices is > 3, so a valid face can be build.
         """
+        org_area = PyOCCTools.get_shape_area(face)
         pnt_list = PyOCCTools.get_points_of_face(face)
         pnt_list_new = PyOCCTools.remove_coincident_vertices(pnt_list)
         pnt_list_new = PyOCCTools.remove_collinear_vertices2(pnt_list_new)
         if pnt_list_new != pnt_list:
             if len(pnt_list_new) < 3:
                 pnt_list_new = pnt_list
-            face = PyOCCTools.make_faces_from_pnts(pnt_list_new)
+            new_face = PyOCCTools.make_faces_from_pnts(pnt_list_new)
+            new_area = (PyOCCTools.get_shape_area(new_face))
+            if abs(new_area - org_area) < 5e-3:
+                face = new_face
         return face
