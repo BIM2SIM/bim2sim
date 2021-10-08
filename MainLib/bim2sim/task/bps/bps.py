@@ -2168,7 +2168,6 @@ class ExportEP(ITask):
             new_space_boundaries = self._create_new_convex_bounds(convex_shapes, bound, bound.related_bound)
             bound.convex_processed = True
             if (bound.related_bound and bound.related_bound.ifc.RelatingSpace.is_a('IfcSpace')) \
-                    and not bound.ifc.RelatingSpace.is_a('IfcExternalSpatialStructure')\
                     and not bound.ifc.Description == '2b':
                 nconv.append(bound.related_bound)
                 del instances[bound.related_bound.guid]
@@ -2189,7 +2188,8 @@ class ExportEP(ITask):
             convex_shapes = convex_decomposition(spatial.bound_shape)
             new_space_boundaries = self._create_new_convex_bounds(convex_shapes, spatial)
             spatial_bounds.remove(spatial)
-            spatial_elem.space_boundaries.remove(spatial)
+            if spatial in spatial_elem.space_boundaries:
+                spatial_elem.space_boundaries.remove(spatial)
             for new_bound in new_space_boundaries:
                 spatial_bounds.append(new_bound)
                 spatial_elem.space_boundaries.append(new_bound)
@@ -2215,7 +2215,6 @@ class ExportEP(ITask):
                 new_bound.bound_shape = PyOCCTools.flip_orientation_of_face(new_bound.bound_shape)
                 new_bound.bound_normal = PyOCCTools.simple_face_normal(new_bound.bound_shape)
             if (related_bound and bound.related_bound.ifc.RelatingSpace.is_a('IfcSpace')) \
-                    and not bound.ifc.RelatingSpace.is_a('IfcExternalSpatialStructure')\
                     and not bound.ifc.Description == '2b':
                 distance = BRepExtrema_DistShapeShape(
                     bound.bound_shape,
@@ -2791,11 +2790,14 @@ class IdfObject():
             self.sun_exposed = 'SunExposed'
             self.wind_exposed = 'WindExposed'
             self.out_bound_cond_obj = ''
-        elif self.surface_type == "Floor" and inst_obj.related_bound is None:
+        elif self.surface_type == "Floor" and \
+                (inst_obj.related_bound is None
+                 or inst_obj.related_bound.ifc.RelatingSpace.is_a('IfcExternalSpatialElement')):
             self.out_bound_cond = "Ground"
             self.sun_exposed = 'NoSun'
             self.wind_exposed = 'NoWind'
-        elif inst_obj.related_bound is not None:  # or elem.virtual_physical == "VIRTUAL": # elem.internal_external == "INTERNAL"
+        elif inst_obj.related_bound is not None \
+                and not inst_obj.related_bound.ifc.RelatingSpace.is_a('IfcExternalSpatialElement'):  # or elem.virtual_physical == "VIRTUAL": # elem.internal_external == "INTERNAL"
             self.out_bound_cond = 'Surface'
             self.out_bound_cond_obj = inst_obj.related_bound.guid
             self.sun_exposed = 'NoSun'
