@@ -1811,14 +1811,16 @@ class ExportEP(ITask):
                 idf.removeidfobject(f)
 
         sfs = idf.getsurfaces()
-        small_area_obj = [sf for sf in sfs if sf.area < 0.01]
+        small_area_obj = [s for s in sfs
+                          if PyOCCTools.get_shape_area(PyOCCTools.make_faces_from_pnts(s.coords)) < 1e-2]
 
         for obj in small_area_obj:
             self.logger.info('Removed small area: %s' % obj.Name)
             idf.removeidfobject(obj)
 
         shadings = idf.getshadingsurfaces()
-        small_area_obj = [sf for sf in shadings if sf.area < 0.01]
+        small_area_obj = [s for s in shadings
+                          if PyOCCTools.get_shape_area(PyOCCTools.make_faces_from_pnts(s.coords)) < 1e-2]
 
         for obj in small_area_obj:
             self.logger.info('Removed small area: %s' % obj.Name)
