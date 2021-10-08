@@ -461,14 +461,20 @@ def convex_decomposition_base(shape: TopoDS_Shape) -> List[List[Vertex]]:
 
 def convex_decomposition(shape: TopoDS_Shape) -> List[TopoDS_Shape]:
     pieces = convex_decomposition_base(shape)
+    pieces_area = 0
+    new_area = 0
     new_pieces = []
     for p in pieces:
+        pieces_area += PyOCCTools.get_shape_area(PyOCCTools.make_faces_from_pnts(p))
         pnt_list_new = PyOCCTools.remove_coincident_vertices([gp_XYZ(pnt[0], pnt[1], pnt[2]) for pnt in p])
         pnt_list_new = PyOCCTools.remove_collinear_vertices2(pnt_list_new)
         if pnt_list_new != p and len(pnt_list_new) > 3:
             pnt_list_new = [n.Coord() for n in pnt_list_new]
             p = pnt_list_new
         new_pieces.append(p)
+        new_area += PyOCCTools.get_shape_area(PyOCCTools.make_faces_from_pnts(p))
+    if abs(pieces_area - new_area) > 1e-3:
+        new_pieces = pieces
     new_shapes = list(map(lambda p: PyOCCTools.make_faces_from_pnts(p), new_pieces))
     oriented_shapes = []
     org_normal = PyOCCTools.simple_face_normal(shape)
@@ -489,7 +495,9 @@ def convex_decomposition(shape: TopoDS_Shape) -> List[TopoDS_Shape]:
     org_area = PyOCCTools.get_shape_area(shape)
     for face in oriented_shapes:
         oriented_area += PyOCCTools.get_shape_area(face)
-    if not abs(org_area-oriented_area) < 1e-3:
+    cut_count = 0
+    while abs(org_area-oriented_area) > 5e-3:
+        cut_count +=1
         cut_shape = shape
         for bound in oriented_shapes:
             cut_shape = BRepAlgoAPI_Cut(cut_shape, bound).Shape()
@@ -500,14 +508,15 @@ def convex_decomposition(shape: TopoDS_Shape) -> List[TopoDS_Shape]:
             if not all([abs(i) < 1e-3 for i in ((new_normal - org_normal).Coord())]):
                 cs = PyOCCTools.flip_orientation_of_face(cs)
             cut_area = PyOCCTools.get_shape_area(cs)
-            if cut_area < 1e-3:
+            if cut_area < 5e-4:
                 continue
             cs = PyOCCTools.remove_coincident_and_collinear_points_from_face(cs)
             oriented_area += cut_area
             add_cut_shapes.append(cs)
-        if not abs(org_area - oriented_area) < 1e-3:
+        if cut_count > 3:
             logger = logging.getLogger(__name__)
             logger.error("Convex decomposition produces a gap in new space boundary")
+            break
         else:
             oriented_shapes.extend(add_cut_shapes)
     return oriented_shapes
