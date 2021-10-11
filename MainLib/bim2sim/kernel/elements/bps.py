@@ -1338,6 +1338,10 @@ class Storey(BPSProduct):
     )
 
 
+class SpaceBoundaryRepresentation(BPSProduct):
+    ifc_types = {'IfcBuildingElementProxy': ['PROVISIONFORSPACE']}
+
+
 # collect all domain classes
 items: Set[BPSProduct] = set()
 for name, cls in inspect.getmembers(
