@@ -14,11 +14,11 @@ from os.path import expanduser
 from bim2sim.decision.console import ConsoleDecisionHandler
 from bim2sim.decision.decisionhandler import DecisionHandler
 from bim2sim.kernel import ifc2python
-from bim2sim.project import Project, FolderStructure
+from bim2sim.project import Project
+from bim2sim.project import FolderStructure
 from bim2sim.plugin import Plugin
 from bim2sim.plugins import DummyPlugin
-from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparatedLayersLow,\
-    BPSMultiZoneSeparatedEP
+
 
 VERSION = '0.1-dev'
 
@@ -236,7 +236,7 @@ def _debug_run_cfd():
     project.run()
 
 
-setup_default()
+# setup_default()
 
 # if __name__ == '__main__':
     # _debug_run_cfd()
