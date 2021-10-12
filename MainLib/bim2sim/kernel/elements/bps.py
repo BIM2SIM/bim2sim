@@ -1339,9 +1339,11 @@ class Storey(BPSProduct):
 
 
 class SpaceBoundaryRepresentation(BPSProduct):
-    ifc_types = {'IfcBuildingElementProxy': ['PROVISIONFORSPACE']}
+    # ifc_types = {'IfcBuildingElementProxy': ['PROVISIONFORSPACE']} 
 
-
+    pattern_ifc_type = [
+        re.compile('ProxyBound', flags=re.IGNORECASE)
+    ]
 # collect all domain classes
 items: Set[BPSProduct] = set()
 for name, cls in inspect.getmembers(
