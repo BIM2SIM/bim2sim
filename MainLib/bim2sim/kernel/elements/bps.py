@@ -1339,7 +1339,7 @@ class Storey(BPSProduct):
 
 
 class SpaceBoundaryRepresentation(BPSProduct):
-    # ifc_types = {'IfcBuildingElementProxy': ['PROVISIONFORSPACE']} 
+    ifc_types = {}
 
     pattern_ifc_type = [
         re.compile('ProxyBound', flags=re.IGNORECASE)

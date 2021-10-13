@@ -2,8 +2,6 @@
 
 from enum import Enum
 
-from bim2sim.kernel import elements
-
 
 class LOD(Enum):
     """Level of detail"""
