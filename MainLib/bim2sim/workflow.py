@@ -39,7 +39,6 @@ class Workflow:
         self.filters = filters if filters else []
         self.ifc_units = {}  # dict to store project related units
 
-        self.relevant_ifc_types = None  # TODO: obsolete
         self.relevant_elements = []
 
         # default values
@@ -65,44 +64,6 @@ class PlantSimulation(Workflow):
             spaces=LOD.ignore,
             layers=LOD.full,
         )
-        # todo this can be deleted?
-        self.relevant_ifc_types = (
-            'IfcAirTerminal',
-            'IfcAirTerminalBox',
-            'IfcAirToAirHeatRecovery',
-            'IfcBoiler',
-            'IfcBurner',
-            'IfcChiller',
-            'IfcCoil',
-            'IfcCompressor',
-            'IfcCondenser',
-            'IfcCooledBeam',
-            'IfcCoolingTower',
-            'IfcDamper',
-            'IfcDistributionChamberElement',
-            'IfcDuctFitting',
-            'IfcDuctSegment',
-            'IfcDuctSilencer',
-            'IfcEngine',
-            'IfcEvaporativeCooler',
-            'IfcEvaporator',
-            'IfcFan',
-            'IfcFilter',
-            'IfcFlowMeter',
-            'IfcHeatExchanger',
-            'IfcHumidifier',
-            'IfcMedicalDevice',
-            'IfcPipeFitting',
-            'IfcPipeSegment',
-            'IfcPump',
-            'IfcSpaceHeater',
-            'IfcTank',
-            'IfcTubeBundle',
-            'IfcUnitaryEquipment',
-            'IfcValve',
-            'IfcVibrationIsolator',
-            #'IfcHeatPump'
-        )
 
 
 class BPSMultiZoneSeparatedLayersFull(Workflow):
@@ -121,21 +82,6 @@ class BPSMultiZoneSeparatedLayersFull(Workflow):
             # layers=LOD.low,
             layers=LOD.full,
         )
-        # self.relevant_ifc_types = (
-        #     'IfcSite',
-        #     'IfcBuilding',
-        #     'IfcBuildingStorey',
-        #     # 'IfcWallElementedCase',
-        #     # 'IfcWallStandardCase',
-        #     'IfcWall',
-        #     'IfcWindow',
-        #     'IfcDoor',
-        #     'IfcSlab',
-        #     'IfcRoof',
-        #     'IfcSpaceHeater',
-        #     'IfcAirTerminal',
-        #     'IfcAirTerminalBox',
-        # )
 
 
 class BPSMultiZoneSeparatedLayersLow(Workflow):
