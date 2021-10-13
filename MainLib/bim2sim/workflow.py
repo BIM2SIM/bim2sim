@@ -37,6 +37,7 @@ class Workflow:
         self.create_external_elements = create_external_elements
 
         self.filters = filters if filters else []
+        self.ifc_units = {}  # dict to store project related units
 
         self.relevant_ifc_types = None  # TODO: obsolete
         self.relevant_elements = []

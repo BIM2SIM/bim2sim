@@ -7,7 +7,7 @@ from bim2sim.filter import TypeFilter, TextFilter
 from bim2sim.kernel import ifc2python
 from bim2sim.kernel.element import Factory, ProductBased
 from bim2sim.task.base import ITask
-from bim2sim.kernel.units import ifcunits, ureg, ifc_pint_unitmap, parse_ifc
+from bim2sim.kernel.units import parse_ifc
 from ifcopenshell.file import file
 
 
@@ -48,8 +48,7 @@ class LoadIFC(ITask):
         else:
             raise AssertionError("No ifc found. Check '%s'" % path)
         ifc = ifc2python.load_ifc(os.path.abspath(ifc_path))
-
-        ifcunits.update(**self.get_ifcunits(ifc))
+        workflow.ifc_units.update(**self.get_ifcunits(ifc))
 
         # Schema2Python.get_ifc_structure(ifc)
 
@@ -124,9 +123,13 @@ class CreateElements(ITask):
         relevant_ifc_types = self.get_ifc_types(workflow.relevant_elements)
         relevant_ifc_types.update(default_ifc_types)
 
-        self.factory = Factory(workflow.relevant_elements, self.paths.finder)
+        self.factory = Factory(
+            workflow.relevant_elements,
+            workflow.ifc_units,
+            self.paths.finder)
         for app in ifc.by_type('IfcApplication'):
-            for decision in self.factory.finder.check_tool_template(app.ApplicationFullName):
+            for decision in self.factory.finder.check_tool_template(
+                    app.ApplicationFullName):
                 yield DecisionBunch([decision])
         # Filtering:
         #  filter returns dict of entities: suggested class and list of unknown
@@ -145,9 +148,12 @@ class CreateElements(ITask):
         unknown_entities.extend(invalids)
 
         # filter by text
-        text_filter = TextFilter(workflow.relevant_elements, ['Description'])
+        text_filter = TextFilter(
+            workflow.relevant_elements,
+            workflow.ifc_units,
+            ['Description'])
         entity_class_dict, unknown_entities = yield from self.filter_by_text(
-            text_filter, unknown_entities)
+            text_filter, unknown_entities, workflow.ifc_units)
         entity_best_guess_dict.update(entity_class_dict)
         valids, invalids = self.accept_valids(entity_class_dict, force=True)
         instance_lst.extend(valids)
@@ -210,7 +216,7 @@ class CreateElements(ITask):
 
         return valid, invalid
 
-    def filter_by_text(self, text_filter, ifc_entities) \
+    def filter_by_text(self, text_filter, ifc_entities, ifc_units: dict) \
             -> Generator[DecisionBunch, None,
                          Tuple[Dict[Any, Type[ProductBased]], List]]:
         """Generator method filtering ifc elements by given TextFilter.
@@ -227,7 +233,8 @@ class CreateElements(ITask):
                 for element_cls in sorted_classes:
                     # TODO: filter_for_text_fragments() already called in text_filter.run()
                     hints = f"Matches: '" + "', '".join(
-                        element_cls.filter_for_text_fragments(entity)) + "'"
+                        element_cls.filter_for_text_fragments(
+                            entity, ifc_units)) + "'"
                     choices.append([element_cls.key, hints])
                 choices.append(["Other", "Other"])
                 decisions.append(ListDecision(

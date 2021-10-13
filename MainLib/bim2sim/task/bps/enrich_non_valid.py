@@ -22,6 +22,7 @@ class EnrichNonValid(ITask):
         self.enriched_layers = []
         self.enriched_class = {}
         self.window_enrichment = {}
+        self.instance_template = {}
         pass
 
     def run(self, workflow, invalid_layers, instances):
@@ -46,7 +47,8 @@ class EnrichNonValid(ITask):
     def layers_creation(self, instance, construction_type, instances, resumed):
         if len(instance.layers) == 0:
             yield from EnrichBuildingByTemplates.template_layers_creation(
-                instance, construction_type, instances, resumed)
+                instance, construction_type, instances, resumed,
+                self.instance_template)
         else:
             yield from self.manual_layers_creation(instance, resumed)
 

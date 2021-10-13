@@ -61,7 +61,10 @@ class TypeFilter(Filter):
 class TextFilter(Filter):
     """Filter for unknown properties by text fracments"""
 
-    def __init__(self, elements_classes: Iterable[ProductBased], optional_locations: list = None, mode: int = 0):
+    def __init__(self, elements_classes: Iterable[ProductBased],
+                 ifc_units: dict,
+                 optional_locations: list = None,
+                 mode: int = 0):
         """"
         :param mode:    0 - include search in all ifc_types of previous filter
                         1 - only search ifc_types of this filter
@@ -69,6 +72,7 @@ class TextFilter(Filter):
         """
         super().__init__()
         self.elements_classes = elements_classes
+        self.ifc_units = ifc_units
         self.optional_locations = optional_locations
         self.mode = mode
         if self.mode not in [0, 1]:
@@ -95,7 +99,8 @@ class TextFilter(Filter):
         # check matches for all entities on all classes
         for entity in ifc_entities:
             matches = [cls for cls in self.elements_classes
-                       if cls.filter_for_text_fragments(entity, self.optional_locations)]
+                       if cls.filter_for_text_fragments(
+                    entity, self.ifc_units, self.optional_locations)]
             if matches:
                 filter_results[entity] = matches
             else:

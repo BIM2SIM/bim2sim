@@ -22,10 +22,6 @@ class ExportTEASER(ITask):
     reads = ('ifc', 'instances')
     final = True
 
-    materials = {}
-    property_error = {}
-    instance_template = {}
-
     instance_switcher = {'OuterWall': OuterWall,
                          'InnerWall': InnerWall,
                          'Floor': Floor,
@@ -73,7 +69,6 @@ class ExportTEASER(ITask):
         bldg = Building(parent=parent)
         # name is important here
         cls._teaser_property_getter(bldg, instance, instance.finder.templates)
-        cls.instance_template[bldg.name] = {}  # create instance template dict
         return bldg
 
     @classmethod

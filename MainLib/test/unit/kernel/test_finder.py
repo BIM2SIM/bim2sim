@@ -28,10 +28,10 @@ class TestTemplateFinder(unittest.TestCase):
         pipefittings = TestTemplateFinder.ifc.by_type("IfcPipeFitting")
         pipes = TestTemplateFinder.ifc.by_type("IfcPipeSegment")
 
-        cls.pipe1 = hvac.Pipe(ifc=pipes[0])
-        cls.pipe2 = hvac.Pipe(ifc=pipes[1])
-        cls.pipefitting1 = hvac.PipeFitting(ifc=pipefittings[0])
-        cls.pipefitting2 = hvac.PipeFitting(ifc=pipefittings[1])
+        cls.pipe1 = hvac.Pipe(ifc=pipes[0], ifc_units={})
+        cls.pipe2 = hvac.Pipe(ifc=pipes[1], ifc_units={})
+        cls.pipefitting1 = hvac.PipeFitting(ifc=pipefittings[0], ifc_units={})
+        cls.pipefitting2 = hvac.PipeFitting(ifc=pipefittings[1], ifc_units={})
 
     @classmethod
     def tearDownClass(cls):
