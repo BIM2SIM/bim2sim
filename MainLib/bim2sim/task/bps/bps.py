@@ -2200,7 +2200,7 @@ class ExportEP(ITask):
 
     def _create_copy_of_space_boundary(self, bound):
         new_bound = copy.copy(bound)
-        new_bound.guid = 'new_'+ ifcopenshell.guid.new()
+        new_bound.guid = ifcopenshell.guid.new()
         if hasattr(new_bound, 'bound_center'):
             del new_bound.__dict__['bound_center']
         if hasattr(new_bound, 'bound_normal'):
