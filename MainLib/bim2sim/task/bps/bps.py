@@ -2153,18 +2153,19 @@ class ExportEP(ITask):
         others = []
         processed_id = []
         for bound in bounds_except_openings:
-            if bound.opening_bounds: # check all space boundaries that are not parent to an opening bound
-                continue
-            else:
-                if not is_convex_no_holes(bound.bound_shape):
-                    # handle shapes that contain opening bounds
-                    others.append(bound)
             if hasattr(bound, 'convex_processed'):
                 continue
-            if is_convex_no_holes(bound.bound_shape):
-                continue
+            if hasattr(bound, 'related_opening_bounds'): # check all space boundaries that are not parent to an opening bound
+                if bim2sim.task.common.inner_loop_remover.is_convex_slow(bound.bound_shape):
+                    continue
+                # handle shapes that contain opening bounds
+                convex_shapes = convex_decomposition(bound.bound_shape,
+                                                     [op.bound_shape for op in bound.related_opening_bounds])
+            else:
+                if is_convex_no_holes(bound.bound_shape):
+                    continue
+                convex_shapes = convex_decomposition(bound.bound_shape)
             nconv.append(bound)
-            convex_shapes = convex_decomposition(bound.bound_shape)
             if hasattr(bound, 'bound_normal'):
                 del bound.__dict__['bound_normal']
             new_space_boundaries = self._create_new_convex_bounds(convex_shapes, bound, bound.related_bound)
@@ -2209,10 +2210,26 @@ class ExportEP(ITask):
     def _create_new_convex_bounds(self, convex_shapes, bound, related_bound=None):
         bound.non_convex_guid = bound.guid
         new_space_boundaries = []
+        openings = []
+        if hasattr(bound, 'related_opening_bounds'):
+            openings.extend(bound.related_opening_bounds)
         for shape in convex_shapes:
             new_bound = self._create_copy_of_space_boundary(bound)
             new_bound.bound_shape = shape
             new_bound.bound_area = SpaceBoundary.get_bound_area(new_bound, 'name')
+            if openings:
+                delattr(new_bound, 'related_opening_bounds')
+                for opening in openings:
+                    distance = BRepExtrema_DistShapeShape(
+                        new_bound.bound_shape,
+                        opening.bound_shape,
+                        Extrema_ExtFlag_MIN
+                    ).Value()
+                    if distance < 1e-3:
+                        if not hasattr(new_bound, 'related_opening_bounds'):
+                            setattr(new_bound, 'related_opening_bounds', [])
+                        new_bound.related_opening_bounds.append(opening)
+                        opening.related_parent_bound = new_bound
             if not all([abs(i) < 1e-3 for i in ((new_bound.bound_normal - bound.bound_normal).Coord())]):
                 new_bound.bound_shape = PyOCCTools.flip_orientation_of_face(new_bound.bound_shape)
                 new_bound.bound_normal = PyOCCTools.simple_face_normal(new_bound.bound_shape)
@@ -2233,6 +2250,12 @@ class ExportEP(ITask):
                 new_rel_bound.bound_shape = PyOCCTools.flip_orientation_of_face(new_rel_bound.bound_shape)
                 new_rel_bound.bound_normal = PyOCCTools.simple_face_normal(new_rel_bound.bound_shape)
                 new_rel_bound.bound_area = SpaceBoundary.get_bound_area(new_rel_bound, 'name')
+                if hasattr(new_bound, 'related_opening_bounds'):
+                    for op in new_bound.related_opening_bounds:
+                        if not op.related_bound:
+                            continue
+                        new_rel_bound.related_opening_bounds.append(op.related_bound)
+                        op.related_bound.related_parent_bound = new_rel_bound
                 new_bound.related_bound = new_rel_bound
                 new_rel_bound.related_bound = new_bound
                 new_space_boundaries.append(new_rel_bound)
