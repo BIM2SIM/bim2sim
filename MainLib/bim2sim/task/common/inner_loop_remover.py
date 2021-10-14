@@ -14,7 +14,10 @@ import logging
 # Type aliases that are used throughout this module
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
+from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeEdge
+from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
+from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.TopAbs import TopAbs_FACE
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopLoc import TopLoc_Location
@@ -388,14 +391,18 @@ def _is_convex_angle(p1: Vertex, p2: Vertex, p3: Vertex, normal: Vertex) -> bool
     return _dot(cross, normal) >= -1e-6
 
 
-def convex_decomposition_base(shape: TopoDS_Shape) -> List[List[Vertex]]:
-    """Convex decomposition base: removes common edges of triangles unless a non-convex shape is created.
-    In case of openings: In a first round, remove all cutting triangle edges with the opening polygons
-    regardless of non-convex shapes. Then, check for resulting angles. This may lead to non-convex shapes,
-    but should work in most cases.
-    """
-    pieces = _get_triangulation(shape)
+def fuse_pieces(pieces: List[List[Vertex]], shapes_to_consider: List[TopoDS_Shape] = []) -> List[List[Vertex]]:
     normal, _, _ = _calculate_plane_vectors(pieces[0])
+    consider_polygons = False
+
+    if len(shapes_to_consider) > 0:
+        consider_polygons = True
+        edges = []
+        for shape in shapes_to_consider:
+            list_pnts = PyOCCTools.get_points_of_face(shape)
+            for i, p in enumerate(list_pnts[:-1]):
+                edges.append(BRepBuilderAPI_MakeEdge(list_pnts[i], list_pnts[i + 1]).Shape())
+            edges.append(BRepBuilderAPI_MakeEdge(list_pnts[-1], list_pnts[0]).Shape())
 
     i1 = 0
     while i1 < len(pieces) - 1:
@@ -429,16 +436,44 @@ def convex_decomposition_base(shape: TopoDS_Shape) -> List[List[Vertex]]:
             p2 = a1
             p3 = piece_b[(piece_b_idx + 2) % len(piece_b)]
 
-            if not _is_convex_angle(p1, p2, p3, normal):
-                continue
+            if not consider_polygons:
+                # if no polygons need to be considered, shapes are fused
+                # unless resulting shape is non-convex
+                if not _is_convex_angle(p1, p2, p3, normal):
+                    continue
+            else:
+                # if an edge from triangulation cuts the edge of a polygon
+                # which needs to be considered (e.g. from an opening boundary within
+                # a boundary of a wall), then those shapes have to be fused
+                # regardless of the resulting angle
+                # this may lead to non-convex shapes in some cases
+                a1_edge = BRepBuilderAPI_MakeEdge(gp_Pnt(*a1), gp_Pnt(*a2)).Shape()
+                continue_flag = True
+                for edge in edges:
+                    if BRepExtrema_DistShapeShape(edge, a1_edge, Extrema_ExtFlag_MIN).Value() < 1e-3:
+                        continue_flag = False
+                    else:
+                        pass
+                if continue_flag:
+                    continue
 
+            # procedure is repeated for common edge of neighboring shape
             p1 = piece_b[(piece_b_idx - 1) % len(piece_b)]
             p2 = a2
             p3 = piece_a[(piece_a_idx + 2) % len(piece_a)]
-
-            if not _is_convex_angle(p1, p2, p3, normal):
-                continue
-
+            if not consider_polygons:
+                if not _is_convex_angle(p1, p2, p3, normal):
+                    continue
+            else:
+                a2_edge = BRepBuilderAPI_MakeEdge(gp_Pnt(*a2), gp_Pnt(*a1)).Shape()
+                continue_flag = True
+                for edge in edges:
+                    if BRepExtrema_DistShapeShape(edge, a2_edge, Extrema_ExtFlag_MIN).Value() < 1e-3:
+                        continue_flag = False
+                    else:
+                        pass
+                if continue_flag:
+                    continue
             # fuse triangles (if angle is convex or opening-polygon is cut by this edge
             fused_piece = []
             i = (piece_a_idx + 1) % len(piece_a)
@@ -459,8 +494,22 @@ def convex_decomposition_base(shape: TopoDS_Shape) -> List[List[Vertex]]:
     return pieces
 
 
-def convex_decomposition(shape: TopoDS_Shape) -> List[TopoDS_Shape]:
-    pieces = convex_decomposition_base(shape)
+def convex_decomposition_base(shape: TopoDS_Shape, opening_shapes: List[TopoDS_Shape] = []) -> List[List[Vertex]]:
+    """Convex decomposition base: removes common edges of triangles unless a non-convex shape is created.
+    In case of openings: In a first round, remove all cutting triangle edges with the opening polygons
+    regardless of non-convex shapes. Then, check for resulting angles. This may lead to non-convex shapes,
+    but should work in most cases.
+    """
+    pieces = _get_triangulation(shape)
+    if len(opening_shapes) > 0:
+        pieces = fuse_pieces(pieces, opening_shapes)
+    pieces = fuse_pieces(pieces)
+
+    return pieces
+
+
+def convex_decomposition(shape: TopoDS_Shape, opening_shapes: List[TopoDS_Shape] = []) -> List[TopoDS_Shape]:
+    pieces = convex_decomposition_base(shape, opening_shapes)
     pieces_area = 0
     new_area = 0
     new_pieces = []
