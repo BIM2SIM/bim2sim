@@ -722,11 +722,10 @@ class ExportEP(ITask):
         add_shadings = BoolDecision(
             question="Do you want to add shadings if available?",
             global_key='EnergyPlus.AddShadings')
-        yield DecisionBunch([add_shadings])
         split_shadings = BoolDecision(
             question="Do you want to decompose non-convex shadings into convex shadings?",
             global_key='EnergyPlus.SplitConvexShadings')
-        yield DecisionBunch([split_shadings])
+        yield DecisionBunch([add_shadings, split_shadings])
         if add_shadings.value:
             self.logger.info("Add Shadings ...")
             self._add_shadings(instances, split_shadings.value, idf)
