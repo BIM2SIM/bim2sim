@@ -70,7 +70,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -86,7 +86,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         answers = (True, True, 'Kitchen - preparations, storage', True,
                    'solid_brick_a', True, 'hardwood', True,
                    'Light_Concrete_DK', True, 'Concrete_DK', "heavy", 1, 'Door',
-                   1, 'Brick', 'brick_H', "EnEv", *(1,) * 8, False)
+                   1, 'Brick', 'brick_H', "EnEv", *(1,) * 8, True, True, True, False)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -98,7 +98,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -112,7 +112,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         answers = (True, True, 'Kitchen - preparations, storage', True,
                    'solid_brick_a', True, 'hardwood', True,
                    'Light_Concrete_DK', True, 'Concrete_DK', "heavy", 1, 'Door',
-                   1, 'Brick', 'brick_H', "EnEv", *(1,) * 8, True)
+                   1, 'Brick', 'brick_H', "EnEv", *(1,) * 8, True, True, True, True)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -125,7 +125,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, 'Single office', 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -137,7 +137,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, 'Single office', 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -149,7 +149,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True,  2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -165,7 +165,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
                    True, 'air_layer', 'sandstone', True, 'lime_sandstone_1',
                    True, 'aluminium', 0.1, True, 'Concrete_DK', 2015, "heavy",
                    1, 'Beton', 'Light_Concrete_DK', 1, 'Beton', 1, 'Beton',
-                   1, 'Door', 1, 'Beton', 1, 'Beton', *(1,) * 8,
+                   1, 'Door', 1, 'Beton', 1, 'Beton', *(1,) * 8, True, True, True,
                    False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -178,7 +178,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True,  2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -190,7 +190,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, 'Single office', 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -202,7 +202,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True,  'Single office', 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -210,11 +210,10 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     # @unittest.skip("Skipped due to performance for CI")
     def test_base_09_DH_design_day(self):
         """Test DigitalHub IFC"""
-        # ifc = EXAMPLE_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB88.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', *(None,)*150, True, True,  'Single office', 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -231,7 +230,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
                    *('Stock, technical equipment, archives',)*4, 'Foyer (theater and event venues)',
                    *('Stock, technical equipment, archives',)*6,
                    2015,
-                   'light', 'Holzfenster, zweifach', False)
+                   'light', 'Holzfenster, zweifach', True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -263,7 +262,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
                    *(0.6151880307319045,) * 2, 0.8133875106928999,
                    *(0.6634801569995639,) * 4, *(0.6151880307319045,) * 2,
                    'light', 'Holzfenster, zweifach', 1, 'concrete',
-                   'Light_Concrete_DK',  *(1, 'concrete',)*3, *(1,)*8, False)
+                   'Light_Concrete_DK',  *(1, 'concrete',)*3, *(1,)*8, True, True, True, False)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -272,13 +271,45 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         self.assertEqual(0, handler.return_value)
 
     @unittest.skip("Skipped due to performance for CI")
-    def test_base_10_DH_full_run(self):
+    def test_base_10a_DH_low_full_run(self):
         """Test DigitalHub IFC"""
-        # ifc = EXAMPLE_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc'
-        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB88.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True,  'Single office', 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
+        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB.ifc'
+        used_workflow = workflow.BPSMultiZoneSeparatedEP()
+        project = self.create_project(ifc, 'energyplus', used_workflow)
+        answers = ('ARCHICAD-64', *(None,) * 150, True, True, 'Single office',
+                   2015, 'light', 'Holzfenster, zweifach', True, True, True, True)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    @unittest.skip("Skipped due to performance for CI")
+    def test_base_10b_DH_full_full_run(self):
+        """Test DigitalHub IFC"""
+        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB.ifc'
+        used_workflow = workflow.BPSMultiZoneSeparatedEPfull()
+        project = self.create_project(ifc, 'energyplus', used_workflow)
+        answers = ('ARCHICAD-64', *(None,) * 150, True, True,
+                   *('Stock, technical equipment, archives',) * 2,
+                   'Single office',
+                   *('Stock, technical equipment, archives',) * 2,
+                   'Kitchen in non-residential buildings',
+                   'Foyer (theater and event venues)',
+                   *('Stock, technical equipment, archives',) * 3,
+                   True, 'synthetic_resin_plaster', True,
+                   'cellulose_insulation', True, 'air_layer',
+                   True, 'Insulation_036_DK', 0.5,
+                   True, 'perlite_with_bitumen_280', True, 'Roofing_DK', True,
+                   True, 'lightweight_concrete_Vermiculit_1100', True,
+                   'Light_Concrete_DK', True,
+                   'natural_pumice', 0.93, 'rock_wool_100', True,
+                   True, 'plasterboard', True,
+                   'Insulation_060_DK',
+                   'Concrete_DK', True, 'Concrete_DK', 'Trittschall', True, 2015,
+                   *(0.689655172413793,) * 8, 'light', 'Holzfenster, zweifach', 1,
+                   'concrete', 'Light_Concrete_DK', 1, 0.5,
+                   'concrete', 1, 'concrete', 1, 'concrete',
+                   *(0.7,) * 4,
+                   0.13, 0.1, 0.1, 0.04, True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -289,7 +320,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, *('Single office',)*12, 2015,'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -300,7 +331,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, *('Single office',)*12, 2015,'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -311,7 +342,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', 'ARCHICAD-64', True, True, 'Single office', 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -322,7 +353,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, 'Single office', 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -333,7 +364,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = EXAMPLE_PATH / '26.05space_modified.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('Autodesk Revit 2020 (DEU)', True, True, *('Single office',)*5, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True)
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -345,7 +376,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = RESULT_PATH / 'Linear_V01.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('Autodesk Revit 2020 (DEU)', 'Autodesk Revit 2020 (DEU)', True, True, *('Single office',)*71, 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', False)
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -357,29 +388,29 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = EXAMPLE_PATH / 'Olabarri_49.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('Other', True, True, *("Single office",) * 7, 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Isolierverglasung', False)
+                   'Alu- oder Stahlfenster, Isolierverglasung', True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    # @unittest.skip('')
+    @unittest.skip('')
     def test_base_21_graz_einschichtig_full(self):
         """Test Testobjekt_einschichtig.ifc from Graz"""
         ifc = EXAMPLE_PATH / 'Testobjekt_einschichtig.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('Autodesk Revit 2020 (DEU)', True, True, 'Single office', 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Isolierverglasung', True)
+                   'Alu- oder Stahlfenster, Isolierverglasung', True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    # @unittest.skip('')
+    @unittest.skip('')
     def test_base_22_graz_mehrschichtig_full(self):
         """Test Testobjekt_mehrschichtig.ifc from Graz"""
         ifc = EXAMPLE_PATH / 'Testobjekt_mehrschichtig.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('Autodesk Revit 2020 (DEU)', True, True, 'Single office', 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Isolierverglasung', True)
+                   'Alu- oder Stahlfenster, Isolierverglasung', True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)

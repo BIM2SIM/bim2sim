@@ -1,3 +1,4 @@
+from typing import List
 
 import numpy as np
 
@@ -12,12 +13,13 @@ from OCC.Core.BRepTools import BRepTools_WireExplorer
 from OCC.Core.Bnd import Bnd_Box
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.GProp import GProp_GProps
+from OCC.Core.Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.GeomAPI import GeomAPI_ProjectPointOnCurve
 from OCC.Core.ShapeAnalysis import ShapeAnalysis_ShapeContents
 from OCC.Core.ShapeFix import ShapeFix_Face, ShapeFix_Shape
-from OCC.Core.TopAbs import TopAbs_WIRE
+from OCC.Core.TopAbs import TopAbs_WIRE, TopAbs_FACE
 from OCC.Core.TopExp import TopExp_Explorer
-from OCC.Core.TopoDS import topods_Wire
+from OCC.Core.TopoDS import topods_Wire, TopoDS_Face, TopoDS_Shape, topods_Face
 from OCC.Core.gp import gp_XYZ, gp_Pnt, gp_Trsf, gp_Vec
 
 
@@ -155,7 +157,7 @@ class PyOCCTools:
         return nb_vertex
 
     @staticmethod
-    def get_points_of_face(shape):
+    def get_points_of_face(shape: TopoDS_Shape) -> List[gp_Pnt]:
         """
         This function returns a list of gp_Pnt of a Surface
         :param face: TopoDS_Shape (Surface)
@@ -172,7 +174,6 @@ class PyOCCTools:
                 w_exp.Next()
             an_exp.Next()
         return pnt_list
-
 
     @staticmethod
     def get_center_of_face(face):
@@ -248,8 +249,8 @@ class PyOCCTools:
         coord = gp_XYZ(*prod_vec)
         vec = gp_Vec(coord)
         trsf.SetTranslation(vec)
-        bound.bound_shape_cl = BRepBuilderAPI_Transform(bound.bound_shape, trsf).Shape()
-        return trsf
+        new_shape = BRepBuilderAPI_Transform(bound.bound_shape, trsf).Shape()
+        return new_shape
 
     @staticmethod
     def _compare_direction_of_normals(normal1, normal2):
@@ -291,3 +292,73 @@ class PyOCCTools:
         else:
             parent = PyOCCTools.local_placement(plc.PlacementRelTo)
         return np.dot(PyOCCTools.axis2placement(plc.RelativePlacement), parent)
+
+    @staticmethod
+    def simple_face_normal(face: TopoDS_Face) -> gp_XYZ:
+        face = PyOCCTools.get_face_from_shape(face)
+        surf = BRep_Tool.Surface(face)
+        obj = surf
+        assert obj.DynamicType().Name() == "Geom_Plane"
+        plane = Handle_Geom_Plane_DownCast(surf)
+        face_prop = GProp_GProps()
+        brepgprop_SurfaceProperties(face, face_prop)
+        face_normal = plane.Axis().Direction().XYZ()
+        if face.Orientation() == 1:
+            face_normal = face_normal.Reversed()
+        return face_normal
+
+    @staticmethod
+    def flip_orientation_of_face(face: TopoDS_Face) -> TopoDS_Face:
+        face = face.Reversed()
+        # pnt_list = PyOCCTools.get_points_of_face(face)
+        #pnt_list.reverse()
+        #face = PyOCCTools.make_faces_from_pnts(pnt_list)
+        return face
+
+    @staticmethod
+    def get_face_from_shape(shape: TopoDS_Shape) -> TopoDS_Face:
+        exp = TopExp_Explorer(shape, TopAbs_FACE)
+        face = exp.Current()
+        try:
+            face = topods_Face(face)
+        except:
+            exp1 = TopExp_Explorer(shape, TopAbs_WIRE)
+            wire = exp1.Current()
+            face = BRepBuilderAPI_MakeFace(wire).Face()
+        return face
+
+    @staticmethod
+    def get_faces_from_shape(shape: TopoDS_Shape) -> List[TopoDS_Face]:
+        faces = []
+        an_exp = TopExp_Explorer(shape, TopAbs_FACE)
+        while an_exp.More():
+            face = topods_Face(an_exp.Current())
+            faces.append(face)
+            an_exp.Next()
+        return faces
+
+    @staticmethod
+    def get_shape_area(shape: TopoDS_Shape) -> float:
+        """compute area of a space boundary"""
+        bound_prop = GProp_GProps()
+        brepgprop_SurfaceProperties(shape, bound_prop)
+        area = bound_prop.Mass()
+        return area
+
+    @staticmethod
+    def remove_coincident_and_collinear_points_from_face(face: TopoDS_Face) -> TopoDS_Face:
+        """
+        removes collinear and coincident vertices iff resulting number of vertices is > 3, so a valid face can be build.
+        """
+        org_area = PyOCCTools.get_shape_area(face)
+        pnt_list = PyOCCTools.get_points_of_face(face)
+        pnt_list_new = PyOCCTools.remove_coincident_vertices(pnt_list)
+        pnt_list_new = PyOCCTools.remove_collinear_vertices2(pnt_list_new)
+        if pnt_list_new != pnt_list:
+            if len(pnt_list_new) < 3:
+                pnt_list_new = pnt_list
+            new_face = PyOCCTools.make_faces_from_pnts(pnt_list_new)
+            new_area = (PyOCCTools.get_shape_area(new_face))
+            if abs(new_area - org_area) < 5e-3:
+                face = new_face
+        return face

@@ -1,6 +1,6 @@
 # todo delete this after seperating energyplus tasks into single tasks
 """This module holds tasks related to bps"""
-
+import copy
 import itertools
 import json
 import ast
@@ -58,6 +58,7 @@ from bim2sim.kernel.elements.bps import SpaceBoundary, ExternalSpatialElement
 from bim2sim.kernel.aggregation import AggregatedThermalZone
 # todo new name :)
 import bim2sim
+from bim2sim.task.common.inner_loop_remover import is_convex_no_holes, convex_decomposition
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
@@ -698,6 +699,13 @@ class ExportEP(ITask):
         self._move_children_to_parents(instances)
         self.logger.info("Fix surface orientation")
         self._fix_surface_orientation(instances)  # todo: Check if working properly
+        split_bounds = BoolDecision(
+            question="Do you want to decompose non-convex space boundaries into convex boundaries?",
+            global_key='EnergyPlus.SplitConvexBounds')
+        yield DecisionBunch([split_bounds])
+        if split_bounds.value:
+            self.logger.info("Split non-convex surfaces")
+            self._split_non_convex_bounds(instances)
         self.logger.info("Get neighboring space boundaries")
         # self._get_neighbor_bounds(instances)
         # self._compute_2b_bound_gaps(instances) # todo: fix
@@ -711,8 +719,16 @@ class ExportEP(ITask):
         self.logger.info("Get predefined materials and construction ...")
         self._get_preprocessed_materials_and_constructions(instances, idf)
         # self._get_bs2021_materials_and_constructions(idf)
-        self.logger.info("Add Shadings ...")
-        self._add_shadings(instances, idf)
+        add_shadings = BoolDecision(
+            question="Do you want to add shadings if available?",
+            global_key='EnergyPlus.AddShadings')
+        split_shadings = BoolDecision(
+            question="Do you want to decompose non-convex shadings into convex shadings?",
+            global_key='EnergyPlus.SplitConvexShadings')
+        yield DecisionBunch([add_shadings, split_shadings])
+        if add_shadings.value:
+            self.logger.info("Add Shadings ...")
+            self._add_shadings(instances, split_shadings.value, idf)
         self.logger.info("Set Simulation Control ...")
         self._set_simulation_control(idf)
         idf.set_default_constructions()
@@ -1509,13 +1525,16 @@ class ExportEP(ITask):
         """
         return [days, til_time_temp]
 
-    def _add_shadings(self, instances, idf):
+    def _add_shadings(self, instances, split_shadings, idf):
         spatials = []
         for inst in instances:
             if isinstance(instances[inst], ExternalSpatialElement):
                 for sb in instances[inst].space_boundaries:
                     spatials.append(sb)
-
+        if not spatials:
+            return
+        if split_shadings:
+            self._split_non_convex_shadings(instances, spatials)
         pure_spatials = []
         for s in spatials:
             # only consider almost horizontal 2b shapes (roof-like SBs)
@@ -1523,13 +1542,13 @@ class ExportEP(ITask):
                 angle = math.degrees(gp_Dir(s.bound_normal).Angle(gp_Dir(gp_XYZ(0, 0, 1))))
                 if not ((-45 < angle < 45) or (135 < angle < 225)):
                     continue
-            if s.related_bound and s.related_bound.bound_thermal_zone.ifc.is_a('IfcSpace'):
+            if s.related_bound and s.related_bound.ifc.RelatingSpace.is_a('IfcSpace'):
                 continue
             pure_spatials.append(s)
 
         for s in pure_spatials:
             obj = idf.newidfobject('SHADING:BUILDING:DETAILED',
-                                   Name=s.ifc.GlobalId,
+                                   Name=s.guid,
                                    )
             obj_pnts = PyOCCTools.get_points_of_face(s.bound_shape)
             obj_coords = []
@@ -1791,7 +1810,16 @@ class ExportEP(ITask):
                 idf.removeidfobject(f)
 
         sfs = idf.getsurfaces()
-        small_area_obj = [sf for sf in sfs if sf.area < 0.01]
+        small_area_obj = [s for s in sfs
+                          if PyOCCTools.get_shape_area(PyOCCTools.make_faces_from_pnts(s.coords)) < 1e-2]
+
+        for obj in small_area_obj:
+            self.logger.info('Removed small area: %s' % obj.Name)
+            idf.removeidfobject(obj)
+
+        shadings = idf.getshadingsurfaces()
+        small_area_obj = [s for s in shadings
+                          if PyOCCTools.get_shape_area(PyOCCTools.make_faces_from_pnts(s.coords)) < 1e-2]
 
         for obj in small_area_obj:
             self.logger.info('Removed small area: %s' % obj.Name)
@@ -2116,6 +2144,124 @@ class ExportEP(ITask):
         instances = {k: v for k, v in instances.items() if k not in drop_list}
         return instances
 
+    def _split_non_convex_bounds(self, instances):
+        bounds = [instances[i] for i in instances if instances[i].ifc.is_a('IfcRelSpaceBoundary')]
+        bounds_except_openings = [b for b in bounds if not hasattr(b, 'related_parent_bound')]
+        conv = []
+        nconv = []
+        others = []
+        processed_id = []
+        for bound in bounds_except_openings:
+            if hasattr(bound, 'convex_processed'):
+                continue
+            if hasattr(bound, 'related_opening_bounds'): # check all space boundaries that are not parent to an opening bound
+                if bim2sim.task.common.inner_loop_remover.is_convex_slow(bound.bound_shape):
+                    continue
+                # handle shapes that contain opening bounds
+                convex_shapes = convex_decomposition(bound.bound_shape,
+                                                     [op.bound_shape for op in bound.related_opening_bounds])
+            else:
+                if is_convex_no_holes(bound.bound_shape):
+                    continue
+                convex_shapes = convex_decomposition(bound.bound_shape)
+            nconv.append(bound)
+            if hasattr(bound, 'bound_normal'):
+                del bound.__dict__['bound_normal']
+            new_space_boundaries = self._create_new_convex_bounds(convex_shapes, bound, bound.related_bound)
+            bound.convex_processed = True
+            if (bound.related_bound and bound.related_bound.ifc.RelatingSpace.is_a('IfcSpace')) \
+                    and not bound.ifc.Description == '2b':
+                nconv.append(bound.related_bound)
+                del instances[bound.related_bound.guid]
+                bounds_except_openings.remove(bound.related_bound)
+                bound.related_bound.convex_processed = True
+            del instances[bound.guid]
+            for new_bound in new_space_boundaries:
+                instances[new_bound.guid] = new_bound
+                conv.append(new_bound)
+        pass
+
+    def _split_non_convex_shadings(self, instances, spatial_bounds):
+        spatial_elem = instances[[inst for inst in instances if isinstance(instances[inst], ExternalSpatialElement)][
+            0]]
+        for spatial in spatial_bounds:
+            if is_convex_no_holes(spatial.bound_shape):
+                continue
+            convex_shapes = convex_decomposition(spatial.bound_shape)
+            new_space_boundaries = self._create_new_convex_bounds(convex_shapes, spatial)
+            spatial_bounds.remove(spatial)
+            if spatial in spatial_elem.space_boundaries:
+                spatial_elem.space_boundaries.remove(spatial)
+            for new_bound in new_space_boundaries:
+                spatial_bounds.append(new_bound)
+                spatial_elem.space_boundaries.append(new_bound)
+        pass
+
+    def _create_copy_of_space_boundary(self, bound):
+        new_bound = copy.copy(bound)
+        new_bound.guid = ifcopenshell.guid.new()
+        if hasattr(new_bound, 'bound_center'):
+            del new_bound.__dict__['bound_center']
+        if hasattr(new_bound, 'bound_normal'):
+            del new_bound.__dict__['bound_normal']
+        return new_bound
+
+    def _create_new_convex_bounds(self, convex_shapes, bound, related_bound=None):
+        bound.non_convex_guid = bound.guid
+        new_space_boundaries = []
+        openings = []
+        if hasattr(bound, 'related_opening_bounds'):
+            openings.extend(bound.related_opening_bounds)
+        for shape in convex_shapes:
+            new_bound = self._create_copy_of_space_boundary(bound)
+            new_bound.bound_shape = shape
+            new_bound.bound_area = SpaceBoundary.get_bound_area(new_bound, 'name')
+            if openings:
+                delattr(new_bound, 'related_opening_bounds')
+                for opening in openings:
+                    distance = BRepExtrema_DistShapeShape(
+                        new_bound.bound_shape,
+                        opening.bound_shape,
+                        Extrema_ExtFlag_MIN
+                    ).Value()
+                    if distance < 1e-3:
+                        if not hasattr(new_bound, 'related_opening_bounds'):
+                            setattr(new_bound, 'related_opening_bounds', [])
+                        new_bound.related_opening_bounds.append(opening)
+                        opening.related_parent_bound = new_bound
+            if not all([abs(i) < 1e-3 for i in ((new_bound.bound_normal - bound.bound_normal).Coord())]):
+                new_bound.bound_shape = PyOCCTools.flip_orientation_of_face(new_bound.bound_shape)
+                new_bound.bound_normal = PyOCCTools.simple_face_normal(new_bound.bound_shape)
+            if (related_bound and bound.related_bound.ifc.RelatingSpace.is_a('IfcSpace')) \
+                    and not bound.ifc.Description == '2b':
+                distance = BRepExtrema_DistShapeShape(
+                    bound.bound_shape,
+                    related_bound.bound_shape,
+                    Extrema_ExtFlag_MIN
+                ).Value()
+                new_rel_bound = self._create_copy_of_space_boundary(related_bound)
+                related_bound.non_convex_guid = related_bound.guid
+                if distance > 1e-3:
+                    new_rel_shape = PyOCCTools._move_bound_in_direction_of_normal(new_bound, distance, reversed=False)
+                else:
+                    new_rel_shape = new_bound.bound_shape
+                new_rel_bound.bound_shape = new_rel_shape
+                new_rel_bound.bound_shape = PyOCCTools.flip_orientation_of_face(new_rel_bound.bound_shape)
+                new_rel_bound.bound_normal = PyOCCTools.simple_face_normal(new_rel_bound.bound_shape)
+                new_rel_bound.bound_area = SpaceBoundary.get_bound_area(new_rel_bound, 'name')
+                if hasattr(new_bound, 'related_opening_bounds'):
+                    for op in new_bound.related_opening_bounds:
+                        if not op.related_bound:
+                            continue
+                        new_rel_bound.related_opening_bounds.append(op.related_bound)
+                        op.related_bound.related_parent_bound = new_rel_bound
+                new_bound.related_bound = new_rel_bound
+                new_rel_bound.related_bound = new_bound
+                new_space_boundaries.append(new_rel_bound)
+            new_space_boundaries.append(new_bound)
+        return new_space_boundaries
+
+
     @staticmethod
     def _display_shape_of_space_boundaries(instances):
         """Display topoDS_shapes of space boundaries"""
@@ -2169,7 +2315,7 @@ class ExportEP(ITask):
                 continue
             inst_obj = instances[inst]
             if inst_obj.physical:
-                name = inst_obj.ifc.GlobalId
+                name = inst_obj.guid
                 stl_dir = str(self.paths.root) + "/export/STL/"
                 this_name = stl_dir + str(stl_name) + "_cfd_" + str(name) + ".stl"
                 os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
@@ -2196,13 +2342,13 @@ class ExportEP(ITask):
             if not instances[inst].ifc.is_a("IfcSpace"):
                 continue
             space_obj = instances[inst]
-            space_name = space_obj.ifc.GlobalId
+            space_name = space_obj.guid
             stl_dir = str(self.paths.root) + "/export/STL/" + space_name + "/"
             os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
             for inst_obj in space_obj.space_boundaries:
                 if not inst_obj.physical:
                     continue
-                bound_name = inst_obj.ifc.GlobalId
+                bound_name = inst_obj.guid
                 this_name = stl_dir + str(stl_name) + "_cfd_" + str(bound_name) + ".stl"
                 inst_obj.cfd_face = inst_obj.bound_shape
                 if hasattr(inst_obj, 'related_opening_bounds'):
@@ -2238,7 +2384,7 @@ class ExportEP(ITask):
                 if distance > 1e-6:
                     continue
                 space_obj.b_bound_shape = BRepAlgoAPI_Cut(space_obj.b_bound_shape, bound.bound_shape).Shape()
-            faces = self.get_faces_from_shape(space_obj.b_bound_shape)
+            faces = PyOCCTools.get_faces_from_shape(space_obj.b_bound_shape)
             inst_2b.update(self.create_2B_space_boundaries(faces, space_obj))
         instances.update(inst_2b)
 
@@ -2344,7 +2490,7 @@ class ExportEP(ITask):
             brepgprop_SurfaceProperties(space_obj.b_bound_shape, bound_prop)
             area = bound_prop.Mass()
             if area > 0:
-                name = space_obj.ifc.GlobalId + "_2B"
+                name = space_obj.guid + "_2B"
                 stl_dir = str(self.paths.root) + "/export/STL/"
                 this_name = stl_dir + str(stl_name) + "_cfd_" + str(name) + ".stl"
                 os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
@@ -2373,7 +2519,7 @@ class ExportEP(ITask):
             b_bound.bound_shape = face
             if b_bound.bound_area.m < 1e-6:
                 continue
-            b_bound.guid = space_obj.ifc.GlobalId + "_2B_" + str("%003.f" % (i + 1))
+            b_bound.guid = space_obj.guid + "_2B_" + str("%003.f" % (i + 1))
             b_bound.thermal_zones.append(space_obj)
             for instance in bound_obj:
                 if hasattr(instance, 'related_parent'):
@@ -2394,16 +2540,6 @@ class ExportEP(ITask):
                         bound.bound_neighbors_2b = []
                     bound.bound_neighbors_2b.append(b_bound)
         return inst_2b
-
-    @staticmethod
-    def get_faces_from_shape(b_bound_shape):
-        faces = []
-        an_exp = TopExp_Explorer(b_bound_shape, TopAbs_FACE)
-        while an_exp.More():
-            face = topods_Face(an_exp.Current())
-            faces.append(face)
-            an_exp.Next()
-        return faces
 
 
 class IdfObject():
@@ -2431,7 +2567,7 @@ class IdfObject():
         else:
             self.key = "BUILDINGSURFACE:DETAILED"
         if hasattr(inst_obj, 'related_parent_bound'):
-            self.building_surface_name = inst_obj.related_parent_bound.ifc.GlobalId
+            self.building_surface_name = inst_obj.related_parent_bound.guid
         self._map_surface_types(inst_obj)
         self._map_boundary_conditions(inst_obj)
         # todo: fix material definitions!
@@ -2678,13 +2814,16 @@ class IdfObject():
             self.sun_exposed = 'SunExposed'
             self.wind_exposed = 'WindExposed'
             self.out_bound_cond_obj = ''
-        elif self.surface_type == "Floor" and inst_obj.related_bound is None:
+        elif self.surface_type == "Floor" and \
+                (inst_obj.related_bound is None
+                 or inst_obj.related_bound.ifc.RelatingSpace.is_a('IfcExternalSpatialElement')):
             self.out_bound_cond = "Ground"
             self.sun_exposed = 'NoSun'
             self.wind_exposed = 'NoWind'
-        elif inst_obj.related_bound is not None:  # or elem.virtual_physical == "VIRTUAL": # elem.internal_external == "INTERNAL"
+        elif inst_obj.related_bound is not None \
+                and not inst_obj.related_bound.ifc.RelatingSpace.is_a('IfcExternalSpatialElement'):  # or elem.virtual_physical == "VIRTUAL": # elem.internal_external == "INTERNAL"
             self.out_bound_cond = 'Surface'
-            self.out_bound_cond_obj = inst_obj.related_bound.ifc.GlobalId
+            self.out_bound_cond_obj = inst_obj.related_bound.guid
             self.sun_exposed = 'NoSun'
             self.wind_exposed = 'NoWind'
         # elif inst_obj.bound_instance is not None and inst_obj.bound_instance.ifc.is_a() == "IfcWindow":
