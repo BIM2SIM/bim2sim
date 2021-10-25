@@ -234,3 +234,18 @@ class BPSMultiZoneSeparatedEPfull(Workflow):
             layers=LOD.full,
             create_external_elements=True,  # consider IfcExternalSpatialElements
         )
+
+
+class CFDWorkflowDummy(Workflow):
+    # todo make something useful
+    def __init__(self):
+        super().__init__(
+            ductwork=LOD.low,
+            hull=LOD.medium,
+            consumer=LOD.low,
+            generator=LOD.ignore,
+            hvac=LOD.low,
+            spaces=LOD.full,
+            layers=LOD.full,
+            create_external_elements=True,  # consider IfcExternalSpatialElements
+        )
