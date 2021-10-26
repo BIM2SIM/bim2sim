@@ -54,6 +54,7 @@ build_env:cfd:
   script:
     - docker build -t $CI_REGISTRY/environment:cfd -f Environment/Dockerfile_CFD .
     - docker push $CI_REGISTRY/environment:cfd
+  timeout: 6 hours
   only:
     refs:
        - development
