@@ -52,14 +52,14 @@ build_env:cfd:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/environment:cfd -f Environment/Dockerfile .
+    - docker build -t $CI_REGISTRY/environment:cfd -f Environment/Dockerfile_CFD .
     - docker push $CI_REGISTRY/environment:cfd
   only:
     refs:
        - development
        - 55_integrateCFD_Image
     changes:
-       - Environment/Dockerfile
+       - Environment/Dockerfile_CFD
        - MainLib/requirements.txt
        - .gitlab-ci.yml
        
