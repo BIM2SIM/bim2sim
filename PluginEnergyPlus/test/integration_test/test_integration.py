@@ -35,8 +35,16 @@ class IntegrationBaseEP(IntegrationBase):
             debug_dir = Path.home() / 'idf' / Path(ifc_name + '_EP-results/')
             if os.path.exists(debug_dir):
                 rmtree(debug_dir)
-            copytree(temp_dir,
-                     debug_dir)
+            copytree(temp_dir, debug_dir)
+            try:
+                copyfile(Path(self.project.paths.export)
+                         / Path(ifc_name + "_combined_STL.stl"),
+                         str(debug_dir) + '/' + str(ifc_name) + "_combined_STL.stl")
+                copyfile(Path(self.project.paths.export)
+                         / Path(ifc_name + "_space_combined_STL.stl"),
+                         str(debug_dir) + '/' + str(ifc_name) + "_space_combined_STL.stl")
+            except:
+                print('No STL for CFD found. ')
             copyfile(str(debug_dir) + "/eplusout.expidf",
                      str(debug_dir) + "/eplusout.idf")
         os.chdir(self.working_dir)

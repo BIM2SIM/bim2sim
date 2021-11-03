@@ -739,6 +739,8 @@ class SpaceBoundary(element.RelationBased):
                                                       BasisSurface=sore.BasisSurface)
                     temp_sore.InnerBoundaries = ()
                     shape = ifcopenshell.geom.create_shape(settings, temp_sore)
+                else:
+                    shape = remove_inner_loops(shape)
             if not (sore.InnerBoundaries and not self.bound_instance.ifc.is_a('IfcWall')):
                 faces = PyOCCTools.get_faces_from_shape(shape)
                 if len(faces) > 1:
