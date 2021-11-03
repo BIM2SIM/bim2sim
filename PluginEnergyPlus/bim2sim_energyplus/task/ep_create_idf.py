@@ -55,6 +55,7 @@ class CreateIdf(ITask):
         idf.set_default_constructions()
         self.logger.info("Export IDF geometry")
         self._export_geom_to_idf(instances, idf)
+        self._set_ground_temperature(idf, t_ground=self._get_ifc_spaces(instances)[0].t_ground.m)
         self._set_output_variables(idf, workflow)
         self._idf_validity_check(idf)
         idf.save()
@@ -666,6 +667,17 @@ class CreateIdf(ITask):
             sim_control.Run_Simulation_for_Sizing_Periods = "No"
             sim_control.Run_Simulation_for_Weather_File_Run_Periods = "Yes"
         # return idf
+
+    @staticmethod
+    def _set_ground_temperature(idf, t_ground):
+        string = '_Ground_Temperature'
+        month_list = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
+                      'November', 'December']
+        temp_dict = {}
+        for month in month_list:
+            temp_dict.update({month + string: t_ground})
+        idf.newidfobject("SITE:GROUNDTEMPERATURE:BUILDINGSURFACE", **temp_dict)
+        return idf
 
     @staticmethod
     def _set_output_variables(idf, workflow):

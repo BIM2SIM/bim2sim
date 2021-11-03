@@ -16,7 +16,7 @@ from bim2sim import workflow
 
 EXAMPLE_PATH = Path(os.path.abspath(os.path.dirname(__file__))).parent.parent.parent / 'ExampleFiles'
 RESULT_PATH = Path(os.path.abspath(os.path.dirname(__file__))).parent.parent.parent / 'ResultFiles'
-DEBUG_ENERGYPLUS = False
+DEBUG_ENERGYPLUS = True
 
 
 class IntegrationBaseEP(IntegrationBase):

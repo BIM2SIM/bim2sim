@@ -16,7 +16,7 @@ DEBUG_ENERGYPLUS = True
 class AP7EPCases(IntegrationBaseEP, unittest.TestCase):
     """
     AP7 tests for multiple IFC example files.
-    Tested are IFC files from Eric Fichter's Space Boundary Generation tool.
+    Tested are IFC files from Eric Fichter's Space Boundary Generation tool .
     """
 
     def test_ap7_DH88_heavy(self):
