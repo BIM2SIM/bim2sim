@@ -56,7 +56,7 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
             decision.value = answer
 
         graph = project.playground.state['graph']
-        graph.plot('D:/10_ProgramTesting')
+        graph.plot('D:/01_Kurzablage/b03-heating-test')
         aggregated = Counter((type(item) for item in graph.element_graph.nodes))
         self.assertIn(ConsumerHeatingDistributorModule, aggregated)
         self.assertEqual(0, handler.return_value,

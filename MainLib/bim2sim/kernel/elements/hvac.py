@@ -596,7 +596,11 @@ class SpaceHeater(HVACProduct):
     rated_power = attribute.Attribute(
         description="Rated power of SpaceHeater",
         unit=ureg.kilowatt,
-        default=42,
+    )
+
+    flow_temperature = attribute.Attribute(
+        description="Flow temperature",
+        unit=ureg.celsius,
     )
 
 

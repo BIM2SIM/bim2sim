@@ -1178,11 +1178,15 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         con_types = {}
         for ele in self.elements:
             if ele.__class__ in Consumer.whitelist:
-                # Dict for description consumer
-                con_types[ele.__class__] = con_types.get(ele.__class__, 0) + 1
-            elif ele.__class__ is hvac.SpaceHeater:
-                rated_consumer_power = getattr(ele, "rated_power")
-                total_rated_consumer_power += rated_consumer_power
+                if ele.__class__ is UnderfloorHeating:
+                    # ToDo add rated power calculation for underfloorheating
+                    pass
+                else:
+                    # Dict for description consumer
+                    con_types[ele.__class__] = con_types.get(
+                        ele.__class__,0) + 1
+                    rated_consumer_power = getattr(ele, "rated_power")
+                    total_rated_consumer_power += rated_consumer_power
 
         # ToDO: Aus Medium ziehen
         temperaure_inlet = None
@@ -1366,6 +1370,21 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
 
     @attribute.multi_calc
     def _calc_avg(self):
+        total_rated_consumer_power = 0
+        # con_types = {}
+        for ele in self.elements:
+            if ele.__class__ in self.whitelist:
+                if ele.__class__ is UnderfloorHeating:
+                    # ToDo add rated power calculation for underfloorheating
+                    pass
+                else:
+                    # Dict for description consumer
+                    # con_types[ele.__class__] = con_types.get(
+                    #     ele.__class__, 0) + 1
+                    rated_consumer_power = getattr(ele, "rated_power")
+                    total_rated_consumer_power += rated_consumer_power
+
+
 
         result = dict(
             medium=None,
@@ -1373,6 +1392,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
             temperature_outlet=None,
             use_hydraulic_separator=False,
             hydraulic_separator_volume=1,
+            rated_power_consumers=total_rated_consumer_power
         )
         return result
 
@@ -1400,6 +1420,12 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
 
     hydraulic_separator_volume = attribute.Attribute(
         description="Volume of the hdydraulic seperator",
+        functions=[_calc_avg]
+    )
+
+    rated_power_consumers = attribute.Attribute(
+        description="Rated heating power of all consumers",
+        unit=ureg.kilowatt,
         functions=[_calc_avg]
     )
 
