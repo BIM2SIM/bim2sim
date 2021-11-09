@@ -2,6 +2,7 @@
 """This module holds tasks related to bps"""
 import copy
 import json
+import logging
 import math
 import os
 from pathlib import Path
@@ -2252,6 +2253,7 @@ class IdfObject():
 
 class IfcValidation:
     def __init__(self, ifc, paths):
+        self.logger = logging.getLogger('EnergyPlusIfcValidation')
         self.error_summary = {}
         self.bounds = ifc.by_type('IfcRelSpaceBoundary')
         self.id_list = [e.GlobalId for e in ifc.by_type("IfcRoot")]
@@ -2260,7 +2262,7 @@ class IfcValidation:
         self._check_space_boundaries()
         self._write_errors_to_json()
         self.logger.info("All tests done!")
-        self._evaluate_checks(ifc)
+        self._evaluate_checks()
 
     def _check_space_boundaries(self):
         for bound in self.bounds:
