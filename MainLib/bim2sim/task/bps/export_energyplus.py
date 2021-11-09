@@ -303,7 +303,7 @@ class ExportEP(ITask):
                     mesh_name = i.split("_", 1)[-1]
                     mesh_name = mesh_name.replace(".stl", "")
                     mesh_name = mesh_name.replace("$", "___")
-                    save(mesh_name, output_file, mode=stl.Mode.ASCII)
+                    sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
 
     @staticmethod
     def combine_space_stl_files(stl_name, space_name, paths):
@@ -317,7 +317,7 @@ class ExportEP(ITask):
                     mesh_name = i.split("_", 1)[-1]
                     mesh_name = mesh_name.replace(".stl", "")
                     mesh_name = mesh_name.replace("$", "___")
-                    save(mesh_name, output_file, mode=stl.Mode.ASCII)
+                    sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
 
     @staticmethod
     def _init_idf(paths):
