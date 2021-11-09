@@ -14,5 +14,5 @@ from .disaggr_creation import DisaggregationCreation
 
 # todo uncomment for EP
 # from .bps import SetIFCTypesBPS, Inspect, Prepare, ExportTEASER, tz_detection,
-from .bps import ExportEP
+from .export_energyplus import ExportEP
 

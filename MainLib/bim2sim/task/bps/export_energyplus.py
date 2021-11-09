@@ -44,6 +44,22 @@ from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 
+def _string_to_datetime(date_str):
+    """
+    Converts a date string in the format MM:DD hh:mm:ss into a datetime object.
+    :param date_str: A date string in the specified format.
+    :return: The converted datetime object.
+    """
+    date_str = date_str.strip()
+
+    if date_str[7:9] != '24':
+        return pd.to_datetime(date_str, format=' %m/%d  %H:%M:%S')
+
+    # If the time is 24, set it to 0 and increment day by 1
+    date_str = date_str[0:7] + '00' + date_str[9:]
+    return pd.to_datetime(date_str, format=' %m/%d  %H:%M:%S') + pd.Timedelta(days=1)
+
+
 class ExportEP(ITask):
     """Exports an EnergyPlus model based on IFC information"""
 
@@ -53,32 +69,11 @@ class ExportEP(ITask):
     final = True
 
     def run(self, workflow, instances, ifc):
-        self.logger.info("Creates python representation of relevant ifc types")
-        for inst in list(instances):
-            if instances[inst].ifc.is_a("IfcSpace"):
-                for bound in instances[inst].space_boundaries:
-                    instances[bound.guid] = bound
-        # geometric preprocessing before export
-        self.logger.info("Check syntax of IfcRelSpaceBoundary")
-        sb_checker = Checker(ifc, self.paths)
-        self.logger.info("All tests done!")
-        if len(sb_checker.error_summary) == 0:
-            self.logger.info(
-                "All %d IfcRelSpaceBoundary entities PASSED the syntax validation process." % len(sb_checker.bounds))
-        else:
-            self.logger.warning("%d out of %d IfcRelSpaceBoundary entities FAILED the syntax validation process. \n"
-                                "Occuring sets of errors: %s \n"
-                                "See ifc_SB_error_summary.json for further information on the errors."
-                                % (len(sb_checker.error_summary),
-                                   len(sb_checker.bounds),
-                                   set(tuple(s) for s in [vals for key, vals in sb_checker.error_summary.items()])))
+        self._add_bounds_to_instances(instances)
+        IfcValidation(ifc, self.paths)
         self.logger.info("Geometric preprocessing for EnergyPlus Export started ...")
-        self.logger.info("Compute relationships between space boundaries")
-        self.logger.info("Compute relationships between openings and their base surfaces")
-        instances = self._get_parents_and_children(instances)
-        self.logger.info("Move openings to base surface, if needed")
+        self._get_parents_and_children(instances)
         self._move_children_to_parents(instances)
-        self.logger.info("Fix surface orientation")
         self._fix_surface_orientation(instances)  # todo: Check if working properly
         split_bounds = BoolDecision(
             question="Do you want to decompose non-convex space boundaries into convex boundaries?",
@@ -140,20 +135,12 @@ class ExportEP(ITask):
         idf.run(output_directory=output_string, readvars=ep_full, annual=ep_full, design_day=design_day)
         # self._visualize_results(csv_name=paths.export / 'EP-results/eplusout.csv')
 
-    def _string_to_datetime(self, date_str):
-        """
-        Converts a date string in the format MM:DD hh:mm:ss into a datetime object.
-        :param date_str: A date string in the specified format.
-        :return: The converted datetime object.
-        """
-        date_str = date_str.strip()
-
-        if date_str[7:9] != '24':
-            return pd.to_datetime(date_str, format=' %m/%d  %H:%M:%S')
-
-        # If the time is 24, set it to 0 and increment day by 1
-        date_str = date_str[0:7] + '00' + date_str[9:]
-        return pd.to_datetime(date_str, format=' %m/%d  %H:%M:%S') + pd.Timedelta(days=1)
+    def _add_bounds_to_instances(self, instances):
+        self.logger.info("Creates python representation of relevant ifc types")
+        for inst in list(instances):
+            if instances[inst].ifc.is_a("IfcSpace"):
+                for bound in instances[inst].space_boundaries:
+                    instances[bound.guid] = bound
 
     @staticmethod
     def _extract_cols_from_df(df, col_name_part):
@@ -174,7 +161,7 @@ class ExportEP(ITask):
         :return:
         """
         res_df = pd.read_csv(csv_name)
-        res_df["Date/Time"] = res_df["Date/Time"].apply(self._string_to_datetime)
+        res_df["Date/Time"] = res_df["Date/Time"].apply(_string_to_datetime)
         # df = res_df.loc[:, ~res_df.columns.str.contains('Surface Inside Face Temperature']
         zone_mean_air = self._extract_cols_from_df(res_df, "Zone Mean Air Temperature")
         ideal_loads = self._extract_cols_from_df(res_df, "IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Sensible")
@@ -1345,9 +1332,9 @@ class ExportEP(ITask):
                 continue
             neighbors = this_obj.bound_neighbors
 
-    @staticmethod
-    def _move_children_to_parents(instances):
+    def _move_children_to_parents(self, instances):
         """move external opening boundaries to related parent boundary (e.g. wall)"""
+        self.logger.info("Move openings to base surface, if needed")
         for inst in instances:
             if hasattr(instances[inst], 'related_parent_bound'):
                 opening_obj = instances[inst]
@@ -1394,10 +1381,11 @@ class ExportEP(ITask):
                     # update bound center attribute for new shape location
                     opening_obj.bound_center = SpaceBoundary.get_bound_center(opening_obj, 'bound_center')
 
-    @staticmethod
-    def _get_parents_and_children(instances):
+    def _get_parents_and_children(self, instances):
         """get parent-children relationships between IfcElements (e.g. Windows, Walls)
         and the corresponding relationships of their space boundaries"""
+        self.logger.info("Compute relationships between space boundaries")
+        self.logger.info("Compute relationships between openings and their base surfaces")
         drop_list = {}  # HACK: dictionary for bounds which have to be removed from instances (due to duplications)
         for inst in instances:
             inst_obj = instances[inst]
@@ -1523,7 +1511,6 @@ class ExportEP(ITask):
                             op_bound.related_parent_bound = inst_obj
         # remove boundaries from instances if they are false duplicates of windows in shape of walls
         instances = {k: v for k, v in instances.items() if k not in drop_list}
-        return instances
 
     def _split_non_convex_bounds(self, instances):
         bounds = [instances[i] for i in instances if instances[i].ifc.is_a('IfcRelSpaceBoundary')]
@@ -1769,13 +1756,13 @@ class ExportEP(ITask):
             inst_2b.update(self.create_2B_space_boundaries(faces, space_obj))
         instances.update(inst_2b)
 
-    @staticmethod
-    def _fix_surface_orientation(instances):
+    def _fix_surface_orientation(self, instances):
         """
         Fix orientation of space boundaries.
         Fix orientation of all surfaces but openings by sewing followed by disaggregation.
         Fix orientation of openings afterwards according to orientation of parent bounds.
         """
+        self.logger.info("Fix surface orientation")
         for inst in instances:
             if not instances[inst].ifc.is_a('IfcSpace'):
                 continue
@@ -2379,14 +2366,17 @@ class IdfObject():
     #
 
 
-class Checker:
+class IfcValidation:
     def __init__(self, ifc, paths):
         self.error_summary = {}
         self.bounds = ifc.by_type('IfcRelSpaceBoundary')
         self.id_list = [e.GlobalId for e in ifc.by_type("IfcRoot")]
         self.paths = paths
+        self.logger.info("Check syntax of IfcRelSpaceBoundary")
         self._check_space_boundaries()
         self._write_errors_to_json()
+        self.logger.info("All tests done!")
+        self._evaluate_checks(ifc)
 
     def _check_space_boundaries(self):
         for bound in self.bounds:
@@ -2398,8 +2388,20 @@ class Checker:
         with open(str(self.paths.root) + "/export/" + 'ifc_SB_error_summary.json', 'w+') as fp:
             json.dump(self.error_summary, fp, indent="\t")
 
+    def _evaluate_checks(self):
+        if len(self.error_summary) == 0:
+            self.logger.info(
+                "All %d IfcRelSpaceBoundary entities PASSED the syntax validation process." % len(self.bounds))
+        else:
+            self.logger.warning("%d out of %d IfcRelSpaceBoundary entities FAILED the syntax validation process. \n"
+                                "Occuring sets of errors: %s \n"
+                                "See ifc_SB_error_summary.json for further information on the errors."
+                                % (len(self.error_summary),
+                                   len(self.bounds),
+                                   set(tuple(s) for s in [vals for key, vals in self.error_summary.items()])))
 
-class SpaceBoundaryValidation(Checker):
+
+class SpaceBoundaryValidation(IfcValidation):
     def __init__(self, bound, id_list):
         self.error = []
         self.bound = bound
