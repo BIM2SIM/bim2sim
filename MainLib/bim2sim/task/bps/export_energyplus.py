@@ -2252,29 +2252,37 @@ class IdfObject():
 
 
 class IfcValidation:
+    """
+    Validate IFC file, focussing on energy modeling (use of space boundaries).
+    """
     def __init__(self, ifc, paths):
-        self.logger = logging.getLogger('EnergyPlusIfcValidation')
+        self.name = self.__class__.__name__
+        self.logger = logging.getLogger("%s.%s" % (__name__, self.name))
         self.error_summary = {}
+        self.paths = paths
         self.bounds = ifc.by_type('IfcRelSpaceBoundary')
         self.id_list = [e.GlobalId for e in ifc.by_type("IfcRoot")]
-        self.paths = paths
-        self.logger.info("Check syntax of IfcRelSpaceBoundary")
+
         self._check_space_boundaries()
         self._write_errors_to_json()
-        self.logger.info("All tests done!")
         self._evaluate_checks()
 
     def _check_space_boundaries(self):
+        """ Perform space boundary validation and add errors to error summary."""
+        self.logger.info("Check syntax of IfcRelSpaceBoundary")
         for bound in self.bounds:
             sbv = SpaceBoundaryValidation(bound, self.id_list)
             if len(sbv.error) > 0:
                 self.error_summary.update({bound.GlobalId: sbv.error})
 
     def _write_errors_to_json(self):
+        """write error summary to json file for export."""
         with open(str(self.paths.root) + "/export/" + 'ifc_SB_error_summary.json', 'w+') as fp:
             json.dump(self.error_summary, fp, indent="\t")
+        self.logger.info("All tests done!")
 
     def _evaluate_checks(self):
+        """Add error summary to logging."""
         if len(self.error_summary) == 0:
             self.logger.info(
                 "All %d IfcRelSpaceBoundary entities PASSED the syntax validation process." % len(self.bounds))
@@ -2287,7 +2295,10 @@ class IfcValidation:
                                    set(tuple(s) for s in [vals for key, vals in self.error_summary.items()])))
 
 
-class SpaceBoundaryValidation(IfcValidation):
+class SpaceBoundaryValidation:
+    """
+    Validate IFC Space Boundaries for use in EnergyPlus
+    """
     def __init__(self, bound, id_list):
         self.error = []
         self.bound = bound
