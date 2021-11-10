@@ -1,4 +1,5 @@
 ﻿import bim2sim_energyplus.task as ep_tasks
+import bim2sim_energyplus.task.ep_create_idf
 from bim2sim.task import bps
 from bim2sim.task import common
 from bim2sim.plugin import Plugin
@@ -29,7 +30,7 @@ class EnergyPlus(Plugin):
         Weather,
         ep_tasks.ep_ifc_validation.IfcValidation,
         ep_tasks.ep_geom_preprocessing.EPGeomPreprocessing,
-        bps.CreateIdf,
+        bim2sim_energyplus.task.ep_create_idf.CreateIdf,
         bps.ExportEP,
     ]
 
