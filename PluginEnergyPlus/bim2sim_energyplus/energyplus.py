@@ -1,4 +1,5 @@
-﻿from bim2sim.task import bps
+﻿import bim2sim_energyplus.task.ep_geom_preprocessing
+from bim2sim.task import bps
 from bim2sim.task import common
 from bim2sim.plugin import Plugin
 from bim2sim.workflow import BPSMultiZoneSeparatedEP
@@ -26,7 +27,7 @@ class EnergyPlus(Plugin):
         bps.DisaggregationCreation,
         bps.BindThermalZones,
         Weather,
-        bps.EPGeomPreprocessing,
+        bim2sim_energyplus.task.ep_geom_preprocessing.EPGeomPreprocessing,
         bps.ExportEP,
     ]
 
