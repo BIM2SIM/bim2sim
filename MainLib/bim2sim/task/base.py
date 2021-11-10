@@ -21,6 +21,7 @@ class ITask:
         self.name = self.__class__.__name__
         self.logger = logging.getLogger("%s.%s" % (__name__, self.name))
         self.paths = None
+        self.made_decisions = DecisionBunch()
 
     def run(self, workflow, **kwargs):
         """Run task."""
@@ -48,6 +49,7 @@ class Playground:
         self.workflow = workflow
         self.history = []
         self.logger = logging.getLogger("Playground")
+        self.made_decisions = DecisionBunch()
 
     @staticmethod
     def all_tasks():
@@ -67,6 +69,7 @@ class Playground:
         read_state = {k: self.state[k] for k in task.reads}
         try:
             task.paths = self.paths
+            task.made_decisions = self.made_decisions
             if inspect.isgeneratorfunction(task.run):
                 result = yield from task.run(self.workflow, **read_state)
             else:
