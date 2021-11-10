@@ -42,15 +42,11 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
         # handler = ConsoleDecisionHandler()
         # handler.handle(project.run())
 
-        answers = ('Other', *('HVAC-Valve',)*2, 'HVAC-Distributor',
+        answers = (*('HVAC-Valve',)*2, 'HVAC-Distributor',
                    'HVAC-Boiler', 'HVAC-Storage', *('HVAC-Valve',)*14,
                    '2PFOreSeyfWqxUJNMz5nFO', '2YKblmYbhnh4RrfqKcCxPJ',
                    *(True,) * 15)
 
-        # answers = ('Other', None, None, 'HVAC-Distributor', 'HVAC-Boiler',
-        #            None, *('HVAC-Valve',)*14,
-        #            '2PFOreSeyfWqxUJNMz5nFO', '2YKblmYbhnh4RrfqKcCxPJ',
-        #            *(True,)*29)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer

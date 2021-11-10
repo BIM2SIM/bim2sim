@@ -603,6 +603,11 @@ class SpaceHeater(HVACProduct):
         unit=ureg.celsius,
     )
 
+    return_temperature = attribute.Attribute(
+        description="Return temperature",
+        unit=ureg.celsius,
+    )
+
 
 # class ExpansionTank(HVACProduct):
 #     ifc_type = "IfcTank"   #ToDo: IfcTank, IfcTankType=Expansion

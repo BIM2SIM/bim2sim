@@ -698,7 +698,8 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
         return graph
 
     rated_power = attribute.Attribute(
-        unit=ureg.kilowatt, description="rated power",
+        unit=ureg.kilowatt,
+        description="rated power",
         functions=[_calc_avg],
     )
 
@@ -924,6 +925,7 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
 
     rated_power = attribute.Attribute(
         description="rated power",
+        unit=ureg.kilowatt,
         functions=[_calc_avg]
     )
     rated_height = attribute.Attribute(
@@ -1185,7 +1187,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
                     # Dict for description consumer
                     con_types[ele.__class__] = con_types.get(
                         ele.__class__,0) + 1
-                    rated_consumer_power = getattr(ele, "rated_power")
+                    rated_consumer_power = ele.rated_power
                     total_rated_consumer_power += rated_consumer_power
 
         # ToDO: Aus Medium ziehen
@@ -1381,6 +1383,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
                     # Dict for description consumer
                     # con_types[ele.__class__] = con_types.get(
                     #     ele.__class__, 0) + 1
+                    test = ele.rated_power
                     rated_consumer_power = getattr(ele, "rated_power")
                     total_rated_consumer_power += rated_consumer_power
 
@@ -1985,7 +1988,8 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
 
     # generator related attributes
     rated_power = attribute.Attribute(
-        unit=ureg.kilowatt, description="rated power",
+        unit=ureg.kilowatt,
+        description="rated power",
         functions=[_calc_generator_attributes],
     )
     # Not implemented

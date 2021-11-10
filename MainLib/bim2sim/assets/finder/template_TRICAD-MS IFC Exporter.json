@@ -3,7 +3,8 @@
 	"default_ps": {
       "rated_power" : ["TRICAD-MS", "eff.Leistung"],
       "flow_temperature" : ["TRICAD-MS", "Vorlauftemp"],
-# todo
+      "return_temperature" : ["TRICAD-MS", "Ruecklauftemp"],
+      "nom_room_temp": ["TRICAD-MS", "Raumtemp"]
     }
   }
 }
