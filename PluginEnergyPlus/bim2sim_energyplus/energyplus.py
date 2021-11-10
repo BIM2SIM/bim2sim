@@ -26,6 +26,7 @@ class EnergyPlus(Plugin):
         bps.DisaggregationCreation,
         bps.BindThermalZones,
         Weather,
+        bps.EPGeomPreprocessing,
         bps.ExportEP,
     ]
 
