@@ -49,7 +49,6 @@ class ExportEP(ITask):
     final = True
 
     def run(self, workflow, instances, ifc):
-        IfcValidation(ifc, self.paths)
         # self._get_neighbor_bounds(instances)
         # self._compute_2b_bound_gaps(instances) # todo: fix
         self.logger.info("Geometric preprocessing for EnergyPlus Export finished!")
@@ -1840,15 +1839,20 @@ class IdfObject():
     #
 
 
-class IfcValidation:
+class IfcValidation(ITask):
     """
     Validate IFC file, focussing on energy modeling (use of space boundaries).
     """
-    def __init__(self, ifc, paths):
-        self.name = self.__class__.__name__
-        self.logger = logging.getLogger("%s.%s" % (__name__, self.name))
+
+    reads = ('ifc', )
+
+    def __init__(self):
+        super().__init__()
         self.error_summary = {}
-        self.paths = paths
+        self.bounds = []
+        self.id_list = []
+
+    def run(self, workflow, ifc):
         self.bounds = ifc.by_type('IfcRelSpaceBoundary')
         self.id_list = [e.GlobalId for e in ifc.by_type("IfcRoot")]
 
@@ -1892,7 +1896,6 @@ class SpaceBoundaryValidation:
         self.error = []
         self.bound = bound
         self.id_list = id_list
-
         self._validate_space_boundaries()
 
     def _validate_space_boundaries(self):
