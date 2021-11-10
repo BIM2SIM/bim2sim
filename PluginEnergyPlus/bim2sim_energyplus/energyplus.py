@@ -29,6 +29,7 @@ class EnergyPlus(Plugin):
         Weather,
         ep_tasks.ep_ifc_validation.IfcValidation,
         ep_tasks.ep_geom_preprocessing.EPGeomPreprocessing,
+        bps.CreateIdf,
         bps.ExportEP,
     ]
 
