@@ -204,6 +204,8 @@ class Attribute:
     def ifc_post_processing(value):
         """Function for post processing of ifc property values (e.g. diameter list -> diameter)
         by default this function does nothing"""
+        if isinstance(value,str) and value.isnumeric():
+            value = float(value)
         return value
 
     def request(self, bind, external_decision=None):
