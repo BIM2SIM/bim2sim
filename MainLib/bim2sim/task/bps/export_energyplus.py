@@ -67,16 +67,20 @@ class ExportEP(ITask):
         self.logger.info("Get predefined materials and construction ...")
         self._get_preprocessed_materials_and_constructions(instances, idf)
         # self._get_bs2021_materials_and_constructions(idf)
-        add_shadings = BoolDecision(
-            question="Do you want to add shadings if available?",
-            global_key='EnergyPlus.AddShadings')
-        split_shadings = BoolDecision(
-            question="Do you want to decompose non-convex shadings into convex shadings?",
-            global_key='EnergyPlus.SplitConvexShadings')
-        yield DecisionBunch([add_shadings, split_shadings])
+        ep_decisions = {d.global_key: d for d in self.made_decisions if d.global_key.startswith('EnergyPlus')}
+        add_shadings_key = 'EnergyPlus.AddShadings'
+        decisions_to_make = []
+        if add_shadings_key in ep_decisions:
+            add_shadings = ep_decisions[add_shadings_key]
+        else:
+            add_shadings = BoolDecision(
+                question="Do you want to add shadings if available?",
+                global_key=add_shadings_key)
+            decisions_to_make.append(add_shadings)
+        yield DecisionBunch(decisions_to_make)
         if add_shadings.value:
             self.logger.info("Add Shadings ...")
-            self._add_shadings(instances, split_shadings.value, idf)
+            self._add_shadings(instances, idf)
         self.logger.info("Set Simulation Control ...")
         self._set_simulation_control(idf)
         idf.set_default_constructions()
@@ -759,7 +763,7 @@ class ExportEP(ITask):
         """
         return [days, til_time_temp]
 
-    def _add_shadings(self, instances, split_shadings, idf):
+    def _add_shadings(self, instances, idf):
         spatials = []
         for inst in instances:
             if isinstance(instances[inst], ExternalSpatialElement):
@@ -767,8 +771,6 @@ class ExportEP(ITask):
                     spatials.append(sb)
         if not spatials:
             return
-        if split_shadings:
-            self._split_non_convex_shadings(instances, spatials)
         pure_spatials = []
         for s in spatials:
             # only consider almost horizontal 2b shapes (roof-like SBs)
