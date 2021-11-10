@@ -1514,27 +1514,6 @@ class IdfObject():
         except:
             print("Element", self.name, "NOT EXPORTED")
 
-    # def _check_for_vertex_duplicates(self):
-    #     if self.related_bound is not None:
-    #         nb_vert_this = self.get_number_of_vertices(self.bound_shape)
-    #         nb_vert_other = self.get_number_of_vertices(self.related_bound.bound_shape)
-    #         # if nb_vert_this != nb_vert_other:
-    #         setattr(self, 'bound_shape_org', self.bound_shape)
-    #         vert_list1 = self.get_vertex_list_from_face(self.bound_shape)
-    #         vert_list1 = self.remove_vertex_duplicates(vert_list1)
-    #         vert_list1.reverse()
-    #         vert_list1 = self.remove_vertex_duplicates(vert_list1)
-    #
-    #         setattr(self.related_bound, 'bound_shape_org', self.related_bound.bound_shape)
-    #         vert_list2 = self.get_vertex_list_from_face(self.related_bound.bound_shape)
-    #         vert_list2 = self.remove_vertex_duplicates(vert_list2)
-    #         vert_list2.reverse()
-    #         vert_list2 = self.remove_vertex_duplicates(vert_list2)
-    #
-    #         if len(vert_list1) == len(vert_list2):
-    #             self.bound_shape = self.make_face_from_vertex_list(vert_list1)
-    #             self.related_bound.bound_shape = self.make_face_from_vertex_list(vert_list2)
-
     def _set_idfobject_attributes(self, idf):
         if self.surface_type is not None:
             if self.key == "BUILDINGSURFACE:DETAILED":
@@ -1778,63 +1757,3 @@ class IdfObject():
         for pnt in obj_pnts:
             obj_coords.append(pnt.Coord())
         obj.setcoords(obj_coords)
-
-    # @staticmethod
-    # def remove_vertex_duplicates(vert_list):
-    #     for i, vert in enumerate(vert_list):
-    #         edge_pp_p = BRepBuilderAPI_MakeEdge(vert_list[(i) % (len(vert_list) - 1)],
-    #                                             vert_list[(i + 1) % (len(vert_list) - 1)]).Shape()
-    #         distance = BRepExtrema_DistShapeShape(vert_list[(i + 2) % (len(vert_list) - 1)], edge_pp_p,
-    #                                               Extrema_ExtFlag_MIN)
-    #         if 0 < distance.Value() < 0.001:
-    #             # first: project close vertex to edge
-    #             edge = BRepBuilderAPI_MakeEdge(vert_list[(i) % (len(vert_list) - 1)],
-    #                                                 vert_list[(i + 1) % (len(vert_list) - 1)]).Edge()
-    #             projector = GeomAPI_ProjectPointOnCurve(BRep_Tool.Pnt(vert_list[(i + 2) % (len(vert_list) - 1)]),
-    #                                                     BRep_Tool.Curve(edge)[0])
-    #             np = projector.NearestPoint()
-    #             vert_list[(i + 2) % (len(vert_list) - 1)] = BRepBuilderAPI_MakeVertex(np).Vertex()
-    #             # delete additional vertex
-    #             vert_list.pop((i + 1) % (len(vert_list) - 1))
-    #     return vert_list
-    #
-    # @staticmethod
-    # def make_face_from_vertex_list(vert_list):
-    #     an_edge = []
-    #     for i in range(len(vert_list[:-1])):
-    #         edge = BRepBuilderAPI_MakeEdge(vert_list[i], vert_list[i + 1]).Edge()
-    #         an_edge.append(edge)
-    #     a_wire = BRepBuilderAPI_MakeWire()
-    #     for edge in an_edge:
-    #         a_wire.Add(edge)
-    #     a_wire = a_wire.Wire()
-    #     a_face = BRepBuilderAPI_MakeFace(a_wire).Face()
-    #
-    #     return a_face.Reversed()
-    #
-    # @staticmethod
-    # def get_vertex_list_from_face(face):
-    #     an_exp = TopExp_Explorer(face, TopAbs_WIRE)
-    #     vert_list = []
-    #     while an_exp.More():
-    #         wire = topods_Wire(an_exp.Current())
-    #         w_exp = BRepTools_WireExplorer(wire)
-    #         while w_exp.More():
-    #             vert1 = w_exp.CurrentVertex()
-    #             vert_list.append(vert1)
-    #             w_exp.Next()
-    #         an_exp.Next()
-    #     vert_list.append(vert_list[0])
-    #
-    #     return vert_list
-    #
-    # @staticmethod
-    # def get_number_of_vertices(shape):
-    #     shape_analysis = ShapeAnalysis_ShapeContents()
-    #     shape_analysis.Perform(shape)
-    #     nb_vertex = shape_analysis.NbVertices()
-    #
-    #     return nb_vertex
-    #
-
-
