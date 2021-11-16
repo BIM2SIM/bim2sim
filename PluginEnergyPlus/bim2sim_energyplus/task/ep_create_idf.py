@@ -20,12 +20,14 @@ from bim2sim.kernel.aggregation import AggregatedThermalZone
 from bim2sim.kernel.elements import bps
 from bim2sim.kernel.elements.bps import ExternalSpatialElement
 from bim2sim.task.base import ITask
-from bim2sim.task.bps import ExportEP
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 
 class CreateIdf(ITask):
+
+    ENERGYPLUS_VERSION = "9-4-0"
+
     reads = ('instances',)
     touches = ('idf',)
 
@@ -77,7 +79,7 @@ class CreateIdf(ITask):
         """
         # path = '/usr/local/EnergyPlus-9-2-0/'
         # path = '/usr/local/EnergyPlus-9-3-0/'
-        path = f'/usr/local/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
+        path = f'/usr/local/EnergyPlus-{CreateIdf.ENERGYPLUS_VERSION}/'
         # path = f'D:/04_Programme/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
         # path = r'C:/Program Files (x86)/EnergyPlusV9-4-0/'
         plugin_ep_path = str(Path(__file__).parent.parent.parent)

@@ -26,8 +26,6 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 class ExportEP(ITask):
     """Exports an EnergyPlus model based on IFC information"""
 
-    ENERGYPLUS_VERSION = "9-4-0"
-
     reads = ('instances', 'ifc', 'idf',)
     final = True
 
