@@ -17,7 +17,7 @@ from bim2sim.task.base import ITask
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 
-class ExportEP(ITask):
+class AddSpaceBoundaries2B(ITask):
     """Exports an EnergyPlus model based on IFC information"""
 
     reads = ('instances', 'ifc',)
@@ -25,7 +25,7 @@ class ExportEP(ITask):
 
     def run(self, workflow, instances, ifc):
         # self._get_neighbor_bounds(instances)
-        self._compute_2b_bound_gaps(instances) # todo: fix
+        self._compute_2b_bound_gaps(instances)
         pass
 
     @staticmethod
