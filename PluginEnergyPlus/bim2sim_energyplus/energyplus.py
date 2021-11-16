@@ -1,4 +1,4 @@
-﻿import bim2sim_energyplus.task as ep_tasks
+﻿from bim2sim_energyplus import task as ep_tasks
 from bim2sim.task import bps
 from bim2sim.task import common
 from bim2sim.plugin import Plugin
@@ -27,10 +27,11 @@ class EnergyPlus(Plugin):
         bps.DisaggregationCreation,
         bps.BindThermalZones,
         Weather,
-        ep_tasks.ep_ifc_validation.IfcValidation,
-        ep_tasks.ep_geom_preprocessing.EPGeomPreprocessing,
-        ep_tasks.ep_create_idf.CreateIdf,
-        bps.IdfPostprocessing,
+        ep_tasks.IfcValidation,
+        ep_tasks.EPGeomPreprocessing,
+        ep_tasks.CreateIdf,
+        ep_tasks.IdfPostprocessing,
+        ep_tasks.ExportIdfForCfd,
         bps.ExportEP,
     ]
 
