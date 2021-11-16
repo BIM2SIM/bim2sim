@@ -1,3 +1,6 @@
+from typing import List
+
+from OCC.Core.TopoDS import TopoDS_Shape
 from OCC.Display.SimpleGui import init_display
 
 
@@ -40,5 +43,17 @@ class VisualizationUtils:
                     display.DisplayShape(bound.bound_shape, color="red")
                 else:
                     display.DisplayShape(bound.bound_shape, color="green")
+        display.FitAll()
+        start_display()
+
+    @staticmethod
+    def display_occ_shapes(shapes: List[TopoDS_Shape]):
+        """Display topoDS_shapes of space boundaries"""
+        display, start_display, add_menu, add_function_to_menu = init_display()
+        for shape in shapes:
+            try:
+                display.DisplayShape(shape)
+            except:
+                continue
         display.FitAll()
         start_display()
