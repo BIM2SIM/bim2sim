@@ -30,6 +30,7 @@ class EnergyPlus(Plugin):
         ep_tasks.ep_ifc_validation.IfcValidation,
         ep_tasks.ep_geom_preprocessing.EPGeomPreprocessing,
         ep_tasks.ep_create_idf.CreateIdf,
+        bps.IdfPostprocessing,
         bps.ExportEP,
     ]
 

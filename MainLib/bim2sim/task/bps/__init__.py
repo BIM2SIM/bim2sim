@@ -15,7 +15,5 @@ from .disaggr_creation import DisaggregationCreation
 # todo uncomment for EP
 # from .bps import SetIFCTypesBPS, Inspect, Prepare, ExportTEASER, tz_detection,
 from .export_energyplus import ExportEP
-from bim2sim_energyplus.task.ep_create_idf import CreateIdf
-from bim2sim_energyplus.task.ep_ifc_validation import IfcValidation
-from bim2sim_energyplus.task.ep_geom_preprocessing import EPGeomPreprocessing
+from .export_energyplus import IdfPostprocessing
 
