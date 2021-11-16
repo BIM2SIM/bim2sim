@@ -14,11 +14,11 @@ class PostprocessingUtils:
         date_str = date_str.strip()
 
         if date_str[7:9] != '24':
-            return pd.to_datetime(date_str, format=' %m/%d  %H:%M:%S')
+            return pd.to_datetime(date_str, format='%m/%d  %H:%M:%S')
 
         # If the time is 24, set it to 0 and increment day by 1
         date_str = date_str[0:7] + '00' + date_str[9:]
-        return pd.to_datetime(date_str, format=' %m/%d  %H:%M:%S') + pd.Timedelta(days=1)
+        return pd.to_datetime(date_str, format='%m/%d  %H:%M:%S') + pd.Timedelta(days=1)
 
     @staticmethod
     def _extract_cols_from_df(df, col_name_part):
@@ -31,7 +31,8 @@ class PostprocessingUtils:
         return_df = return_df.set_index("Date/Time", drop=True).dropna()
         return return_df
 
-    def _visualize_results(self, csv_name, period="week",
+    @staticmethod
+    def _visualize_results(csv_name, period="week",
                            number=28, date=False):
         """
         Plot Zone Mean Air Temperature (Hourly) vs Outdoor Temperature per zone and as an overview on all zones.
@@ -42,15 +43,15 @@ class PostprocessingUtils:
         :return:
         """
         res_df = pd.read_csv(csv_name)
-        res_df["Date/Time"] = res_df["Date/Time"].apply(self._string_to_datetime)
+        res_df["Date/Time"] = res_df["Date/Time"].apply(PostprocessingUtils._string_to_datetime)
         # df = res_df.loc[:, ~res_df.columns.str.contains('Surface Inside Face Temperature']
-        zone_mean_air = self._extract_cols_from_df(res_df, "Zone Mean Air Temperature")
-        ideal_loads = self._extract_cols_from_df(res_df, "IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Sensible")
-        equip_rate = self._extract_cols_from_df(res_df, "Zone Electric Equipment Convective Heating Rate")
-        people_rate = self._extract_cols_from_df(res_df, "Zone People Convective Heating Rate")
-        rad_dir = self._extract_cols_from_df(res_df, "Site Direct Solar Radiation Rate per Area")
+        zone_mean_air = PostprocessingUtils._extract_cols_from_df(res_df, "Zone Mean Air Temperature")
+        ideal_loads = PostprocessingUtils._extract_cols_from_df(res_df, "IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Sensible")
+        equip_rate = PostprocessingUtils._extract_cols_from_df(res_df, "Zone Electric Equipment Convective Heating Rate")
+        people_rate = PostprocessingUtils._extract_cols_from_df(res_df, "Zone People Convective Heating Rate")
+        rad_dir = PostprocessingUtils._extract_cols_from_df(res_df, "Site Direct Solar Radiation Rate per Area")
         # rad_dir_h = rad_dir.resample('1h').mean()
-        temp = self._extract_cols_from_df(res_df, "Outdoor Air Drybulb Temperature [C](Hourly)")
+        temp = PostprocessingUtils._extract_cols_from_df(res_df, "Outdoor Air Drybulb Temperature [C](Hourly)")
         t_mean = temp.resample('24h').mean()
         zone_id_list = []
         for col in zone_mean_air.columns:

@@ -16,6 +16,7 @@ from bim2sim.task.base import ITask
 from bim2sim.decision import BoolDecision, DecisionBunch
 # todo new name :)
 from bim2sim.utilities.pyocc_tools import PyOCCTools
+from bim2sim_energyplus.utils import PostprocessingUtils
 
 
 class ExportEP(ITask):
@@ -122,4 +123,5 @@ class RunEnergyPlusSimulation(ITask):
             design_day = True
         output_string = str(self.paths.export / 'EP-results/')
         idf.run(output_directory=output_string, readvars=ep_full, annual=ep_full, design_day=design_day)
-        # self._visualize_results(csv_name=self.paths.export / 'EP-results/eplusout.csv')
+        # if ep_full:
+        #     PostprocessingUtils._visualize_results(csv_name=self.paths.export / 'EP-results/eplusout.csv')
