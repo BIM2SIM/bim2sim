@@ -50,7 +50,6 @@ class EPGeomPreprocessing(ITask):
         if split_bounds.value:
             self.logger.info("Split non-convex surfaces")
             self._split_non_convex_bounds(instances)
-        self.logger.info("Get neighboring space boundaries")
 
         if add_shadings.value:
             spatials = []

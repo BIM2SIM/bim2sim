@@ -18,7 +18,7 @@ import bim2sim
 from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.kernel.aggregation import AggregatedThermalZone
 from bim2sim.kernel.elements import bps
-from bim2sim.kernel.elements.bps import ExternalSpatialElement
+from bim2sim.kernel.elements.bps import ExternalSpatialElement, SpaceBoundary2B
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.utilities.pyocc_tools import PyOCCTools
@@ -894,6 +894,8 @@ class CreateIdf(ITask):
         for inst in instances:
             if not instances[inst].ifc.is_a("IfcRelSpaceBoundary"):
                 continue
+            if isinstance(instances[inst], SpaceBoundary2B):
+                continue
             inst_obj = instances[inst]
             idfp = IdfObject(inst_obj, idf)
             if idfp.skip_bound:
@@ -972,7 +974,7 @@ class CreateIdf(ITask):
         for instance in instances.values():
             if isinstance(instance, AggregatedThermalZone):
                 unpacked_instances.extend(instance.elements)
-            elif instance.ifc.is_a("IfcSpace"):
+            elif instance.ifc and instance.ifc.is_a("IfcSpace"):
                 unpacked_instances.append(instance)
         return unpacked_instances
 

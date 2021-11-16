@@ -911,46 +911,26 @@ class SpaceBoundary(element.RelationBased):
     )
 
 
-# class SpaceBoundary2B:
-#     """Generated 2nd Level Space boundaries of type 2b
-#     (generated if not included in IFC)
-#     """
-#     def __init__(self):
-#         self.ifc_type = None
-#         self.guid = None
-#         self.bound_shape = None
-#         self.bound_neighbors = []
-#         self.thermal_zones = []
-#         self.bound_instance = None
-#         self.physical = True
-#         self.is_external = False
-#         self.related_bound = None
-#         self.related_adb_bound = None
-#         self.level_description = '2b'
-#
-#     def __str__(self):
-#         return "%s" % self.__class__.__name__
-#
-#     @cached_property
-#     def bound_center(self):
-#         return SpaceBoundary.get_bound_center(self)
-#
-#     @cached_property
-#     def bound_normal(self):
-#         return SpaceBoundary.compute_surface_normals_in_space(self)
-#
-#     @cached_property
-#     def bound_area(self):
-#         return SpaceBoundary.get_bound_area(self.bound_shape)
-#
-#     @cached_property
-#     def top_bottom(self):
-#         return SpaceBoundary.get_floor_and_ceilings(self)
-#
-#
 class ExtSpatialSpaceBoundary(SpaceBoundary):
     """describes all space boundaries related to an IfcExternalSpatialElement instead of an IfcSpace"""
     pass
+
+
+class SpaceBoundary2B(SpaceBoundary):
+    """describes all newly created space boundaries of type 2b to fill gaps within spaces"""
+    def __init__(self, *args, instances=None, **kwargs):
+        super(SpaceBoundary2B, self).__init__(*args, instances=None, **kwargs)
+        self.ifc = ifcopenshell.create_entity('IfcRelSpaceBoundary')
+        self.guid = None
+        self.bound_shape = None
+        self.bound_neighbors = []
+        self.thermal_zones = []
+        self.bound_instance = None
+        self.physical = True
+        self.is_external = False
+        self.related_bound = None
+        self.related_adb_bound = None
+        self.level_description = '2b'
 
 
 class Wall(BPSProduct):

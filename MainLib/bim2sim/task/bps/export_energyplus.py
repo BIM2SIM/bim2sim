@@ -11,6 +11,7 @@ from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
 from OCC.Core.BRepGProp import brepgprop_SurfaceProperties
 from OCC.Core.GProp import GProp_GProps
 
+from bim2sim.kernel.elements.bps import SpaceBoundary2B
 from bim2sim.task.base import ITask
 # todo new name :)
 from bim2sim.utilities.pyocc_tools import PyOCCTools
@@ -19,12 +20,12 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 class ExportEP(ITask):
     """Exports an EnergyPlus model based on IFC information"""
 
-    reads = ('instances', 'ifc', 'idf',)
-    final = True
+    reads = ('instances', 'ifc',)
+    # final = True
 
-    def run(self, workflow, instances, ifc, idf):
+    def run(self, workflow, instances, ifc):
         # self._get_neighbor_bounds(instances)
-        # self._compute_2b_bound_gaps(instances) # todo: fix
+        self._compute_2b_bound_gaps(instances) # todo: fix
         pass
 
     @staticmethod
@@ -82,7 +83,7 @@ class ExportEP(ITask):
             if b_bound.bound_area.m < 1e-6:
                 continue
             b_bound.guid = space_obj.guid + "_2B_" + str("%003.f" % (i + 1))
-            b_bound.thermal_zones.append(space_obj)
+            b_bound.bound_thermal_zone = space_obj
             for instance in bound_obj:
                 if hasattr(instance, 'related_parent'):
                     continue
