@@ -1,5 +1,6 @@
 # todo delete this after seperating energyplus tasks into single tasks
 """This module holds tasks related to bps"""
+import subprocess
 
 import ifcopenshell
 
@@ -26,23 +27,7 @@ class ExportEP(ITask):
     def run(self, workflow, instances, ifc, idf):
         # self._get_neighbor_bounds(instances)
         # self._compute_2b_bound_gaps(instances) # todo: fix
-        # subprocess.run(['energyplus', '-x', '-c', '--convert-only', '-d', self.paths.export, idf.idfname])
-
-
-        # idf.view_model()
-        # self._display_shape_of_space_boundaries(instances)
-        run_decision = BoolDecision(
-            question="Do you want to run the full energyplus simulation"
-                     " (annual, readvars)?",
-            global_key='EnergyPlus.FullRun')
-        yield DecisionBunch([run_decision])
-        ep_full = run_decision.value
-        design_day = False
-        if not ep_full:
-            design_day = True
-        output_string = str(self.paths.export / 'EP-results/')
-        idf.run(output_directory=output_string, readvars=ep_full, annual=ep_full, design_day=design_day)
-        # self._visualize_results(csv_name=paths.export / 'EP-results/eplusout.csv')
+        pass
 
     @staticmethod
     def _get_neighbor_bounds(instances):
@@ -120,3 +105,21 @@ class ExportEP(ITask):
                     bound.bound_neighbors_2b.append(b_bound)
         return inst_2b
 
+
+class RunEnergyPlusSimulation(ITask):
+    reads = ('idf', )
+
+    def run(self, workflow, idf):
+        subprocess.run(['energyplus', '-x', '-c', '--convert-only', '-d', self.paths.export, idf.idfname])
+        run_decision = BoolDecision(
+            question="Do you want to run the full energyplus simulation"
+                     " (annual, readvars)?",
+            global_key='EnergyPlus.FullRun')
+        yield DecisionBunch([run_decision])
+        ep_full = run_decision.value
+        design_day = False
+        if not ep_full:
+            design_day = True
+        output_string = str(self.paths.export / 'EP-results/')
+        idf.run(output_directory=output_string, readvars=ep_full, annual=ep_full, design_day=design_day)
+        # self._visualize_results(csv_name=self.paths.export / 'EP-results/eplusout.csv')
