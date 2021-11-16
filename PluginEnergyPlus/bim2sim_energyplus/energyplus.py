@@ -32,7 +32,7 @@ class EnergyPlus(Plugin):
         ep_tasks.CreateIdf,
         ep_tasks.IdfPostprocessing,
         ep_tasks.ExportIdfForCfd,
-        bps.RunEnergyPlusSimulation,
+        ep_tasks.RunEnergyPlusSimulation,
         bps.ExportEP,
     ]
 

@@ -1,6 +1,5 @@
 # todo delete this after seperating energyplus tasks into single tasks
 """This module holds tasks related to bps"""
-import subprocess
 
 import ifcopenshell
 
@@ -13,10 +12,8 @@ from OCC.Core.BRepGProp import brepgprop_SurfaceProperties
 from OCC.Core.GProp import GProp_GProps
 
 from bim2sim.task.base import ITask
-from bim2sim.decision import BoolDecision, DecisionBunch
 # todo new name :)
 from bim2sim.utilities.pyocc_tools import PyOCCTools
-from bim2sim_energyplus.utils import PostprocessingUtils
 
 
 class ExportEP(ITask):
@@ -107,21 +104,3 @@ class ExportEP(ITask):
         return inst_2b
 
 
-class RunEnergyPlusSimulation(ITask):
-    reads = ('idf', )
-
-    def run(self, workflow, idf):
-        subprocess.run(['energyplus', '-x', '-c', '--convert-only', '-d', self.paths.export, idf.idfname])
-        run_decision = BoolDecision(
-            question="Do you want to run the full energyplus simulation"
-                     " (annual, readvars)?",
-            global_key='EnergyPlus.FullRun')
-        yield DecisionBunch([run_decision])
-        ep_full = run_decision.value
-        design_day = False
-        if not ep_full:
-            design_day = True
-        output_string = str(self.paths.export / 'EP-results/')
-        idf.run(output_directory=output_string, readvars=ep_full, annual=ep_full, design_day=design_day)
-        # if ep_full:
-        #     PostprocessingUtils._visualize_results(csv_name=self.paths.export / 'EP-results/eplusout.csv')
