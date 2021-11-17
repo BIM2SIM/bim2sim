@@ -38,6 +38,14 @@ class AddSpaceBoundaries2B(ITask):
             if not instances[inst].ifc.is_a("IfcSpace"):
                 continue
             space_obj = instances[inst]
+            space_surf_area = PyOCCTools.get_shape_area(space_obj.space_shape)
+            sb_area = 0
+            for bound in space_obj.space_boundaries:
+                if hasattr(bound, 'related_parent_bound'):
+                    continue
+                sb_area += PyOCCTools.get_shape_area(bound.bound_shape)
+            if (space_surf_area - sb_area) < 1e-3:
+                continue
             space_obj.b_bound_shape = space_obj.space_shape
             for bound in space_obj.space_boundaries:
                 if bound.bound_area.m == 0:
@@ -55,7 +63,8 @@ class AddSpaceBoundaries2B(ITask):
                     continue
                 space_obj.b_bound_shape = BRepAlgoAPI_Cut(space_obj.b_bound_shape, bound.bound_shape).Shape()
             faces = PyOCCTools.get_faces_from_shape(space_obj.b_bound_shape)
-            inst_2b.update(self.create_2B_space_boundaries(faces, space_obj))
+            if faces:
+                inst_2b.update(self.create_2B_space_boundaries(faces, space_obj))
         instances.update(inst_2b)
 
     def create_2B_space_boundaries(self, faces, space_obj):
@@ -68,7 +77,7 @@ class AddSpaceBoundaries2B(ITask):
         space_obj.space_boundaries_2B = []
         bound_obj = []
         for bound in space_obj.space_boundaries:
-            if bound.bound_instance is not None:
+            if bound.bound_instance and bound.bound_instance.ifc.Representation:
                 bi = bound.bound_instance.ifc
                 bound.bound_instance.shape = ifcopenshell.geom.create_shape(settings, bi).geometry
                 bound_obj.append(bound.bound_instance)
