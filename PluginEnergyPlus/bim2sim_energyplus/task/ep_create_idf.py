@@ -894,22 +894,16 @@ class CreateIdf(ITask):
         for inst in instances:
             if not instances[inst].ifc.is_a("IfcRelSpaceBoundary"):
                 continue
-            if isinstance(instances[inst], SpaceBoundary2B):
-                continue
-            inst_obj = instances[inst]
-            idfp = IdfObject(inst_obj, idf)
-            if idfp.skip_bound:
-                idf.popidfobject(idfp.key, -1)
-                self.logger.warning("Boundary with the GUID %s (%s) is skipped (due to missing boundary conditions)!",
-                                    idfp.name, idfp.surface_type)
-                continue
-        for inst in instances:
-            if not instances[inst].ifc.is_a("IfcSpace"):
-                continue
-            bound_obj = instances[inst]
-            if not hasattr(bound_obj, "space_boundaries_2B"):
-                continue
-            for b_bound in bound_obj.space_boundaries_2B:
+            if not isinstance(instances[inst], SpaceBoundary2B):
+                inst_obj = instances[inst]
+                idfp = IdfObject(inst_obj, idf)
+                if idfp.skip_bound:
+                    idf.popidfobject(idfp.key, -1)
+                    self.logger.warning("Boundary with the GUID %s (%s) is skipped (due to missing boundary conditions)!",
+                                        idfp.name, idfp.surface_type)
+                    continue
+            else:
+                b_bound = instances[inst]
                 idfp = IdfObject(b_bound, idf)
                 if idfp.skip_bound:
                     # idf.popidfobject(idfp.key, -1)

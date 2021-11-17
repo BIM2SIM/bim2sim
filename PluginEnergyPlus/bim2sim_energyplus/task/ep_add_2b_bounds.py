@@ -7,9 +7,11 @@ from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.GProp import GProp_GProps
 from OCC.Core.gp import gp_Pnt
 
+from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.kernel.elements.bps import SpaceBoundary2B
 from bim2sim.task.base import ITask
 from bim2sim.utilities.pyocc_tools import PyOCCTools
+from bim2sim_energyplus.task import EPGeomPreprocessing
 
 
 class AddSpaceBoundaries2B(ITask):
@@ -19,8 +21,25 @@ class AddSpaceBoundaries2B(ITask):
     # final = True
 
     def run(self, workflow, instances, ifc):
+
+        ep_decisions = {d.global_key: d for d in self.made_decisions if d.global_key.startswith('EnergyPlus')}
+        split_bounds_key = 'EnergyPlus.SplitConvexBounds'
+        decisions_to_make = []
+        if split_bounds_key in ep_decisions:
+            split_bounds = ep_decisions[split_bounds_key]
+        else:
+            split_bounds = BoolDecision(
+                question="Do you want to decompose non-convex space boundaries into convex boundaries?",
+                global_key='EnergyPlus.SplitConvexBounds')
+            decisions_to_make.append(split_bounds)
+        yield DecisionBunch(decisions_to_make)
+
         # self._get_neighbor_bounds(instances)
-        self._compute_2b_bound_gaps(instances)
+        inst_2b = self._compute_2b_bound_gaps(instances)
+        if split_bounds.value:
+            EPGeomPreprocessing._split_non_convex_bounds(EPGeomPreprocessing(), inst_2b)
+        instances.update(inst_2b)
+
         pass
 
     @staticmethod
@@ -65,7 +84,7 @@ class AddSpaceBoundaries2B(ITask):
             faces = PyOCCTools.get_faces_from_shape(space_obj.b_bound_shape)
             if faces:
                 inst_2b.update(self.create_2B_space_boundaries(faces, space_obj))
-        instances.update(inst_2b)
+        return inst_2b
 
     def create_2B_space_boundaries(self, faces, space_obj):
         settings = ifcopenshell.geom.main.settings()
@@ -86,7 +105,7 @@ class AddSpaceBoundaries2B(ITask):
             b_bound.bound_shape = face
             if b_bound.bound_area.m < 1e-6:
                 continue
-            b_bound.guid = space_obj.guid + "_2B_" + str("%003.f" % (i + 1))
+            b_bound.guid = ifcopenshell.guid.new()
             b_bound.bound_thermal_zone = space_obj
             for instance in bound_obj:
                 if hasattr(instance, 'related_parent'):
