@@ -24,9 +24,7 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 
 class EPGeomPreprocessing(ITask):
-
     reads = ('instances',)
-    # touches = ('ep_decisions',)
 
     def __init__(self):
         super().__init__()
@@ -348,7 +346,8 @@ class EPGeomPreprocessing(ITask):
         for bound in bounds_except_openings:
             if hasattr(bound, 'convex_processed'):
                 continue
-            if hasattr(bound, 'related_opening_bounds'): # check all space boundaries that are not parent to an opening bound
+            if hasattr(bound,
+                       'related_opening_bounds'):  # check all space boundaries that are not parent to an opening bound
                 if bim2sim.task.common.inner_loop_remover.is_convex_slow(bound.bound_shape):
                     continue
                 # handle shapes that contain opening bounds
@@ -375,7 +374,8 @@ class EPGeomPreprocessing(ITask):
                 conv.append(new_bound)
         pass
 
-    def _create_copy_of_space_boundary(self, bound):
+    @staticmethod
+    def _create_copy_of_space_boundary(bound):
         new_bound = copy.copy(bound)
         new_bound.guid = ifcopenshell.guid.new()
         if hasattr(new_bound, 'bound_center'):
@@ -420,7 +420,7 @@ class EPGeomPreprocessing(ITask):
                 new_rel_bound = self._create_copy_of_space_boundary(related_bound)
                 related_bound.non_convex_guid = related_bound.guid
                 if distance > 1e-3:
-                    new_rel_shape = PyOCCTools._move_bound_in_direction_of_normal(new_bound, distance, reversed=False)
+                    new_rel_shape = PyOCCTools.move_bound_in_direction_of_normal(new_bound, distance, reversed=False)
                 else:
                     new_rel_shape = new_bound.bound_shape
                 new_rel_bound.bound_shape = new_rel_shape
@@ -453,4 +453,3 @@ class EPGeomPreprocessing(ITask):
             for new_bound in new_space_boundaries:
                 spatial_bounds.append(new_bound)
                 spatial_elem.space_boundaries.append(new_bound)
-        pass

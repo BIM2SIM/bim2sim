@@ -516,7 +516,7 @@ class SpaceBoundary(element.RelationBased):
                 top_bottom = "TOP"
         else:
             # direct = self.bound_center.Z() - self.thermal_zones[0].space_center.Z()
-            # if direct < 0 and SpaceBoundary._compare_direction_of_normals(self.bound_normal, vertical):
+            # if direct < 0 and SpaceBoundary.compare_direction_of_normals(self.bound_normal, vertical):
             if vertical.Dot(self.bound_normal) < -0.8:
                 top_bottom = "BOTTOM"
             elif vertical.Dot(self.bound_normal) > 0.8:
@@ -524,7 +524,7 @@ class SpaceBoundary(element.RelationBased):
         return top_bottom
 
     # @staticmethod
-    # def _compare_direction_of_normals(normal1, normal2):
+    # def compare_direction_of_normals(normal1, normal2):
     #     """
     #     Compare the direction of two surface normals (vectors).
     #     True, if direction is same or reversed

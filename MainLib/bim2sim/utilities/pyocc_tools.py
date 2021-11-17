@@ -237,7 +237,7 @@ class PyOCCTools:
         return fix.Shape()
 
     @staticmethod
-    def _move_bound_in_direction_of_normal(bound, move_dist, reversed=False):
+    def move_bound_in_direction_of_normal(bound, move_dist, reversed=False):
         prod_vec = []
         move_dir = bound.bound_normal.Coord()
         if reversed:
@@ -253,7 +253,7 @@ class PyOCCTools:
         return new_shape
 
     @staticmethod
-    def _compare_direction_of_normals(normal1, normal2):
+    def compare_direction_of_normals(normal1, normal2):
         """
         Compare the direction of two surface normals (vectors).
         True, if direction is same or reversed

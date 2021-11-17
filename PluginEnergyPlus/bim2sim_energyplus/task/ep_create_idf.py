@@ -1168,7 +1168,7 @@ class IdfObject:
                     else:
                         surface_type = "Floor"
             elif elem.ifc.is_a("IfcBeam"):
-                if not PyOCCTools._compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
+                if not PyOCCTools.compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
                     surface_type = 'Wall'
                 else:
                     surface_type = 'Ceiling'
@@ -1183,7 +1183,7 @@ class IdfObject:
             elif inst_obj.top_bottom == "VERTICAL":
                 surface_type = "Wall"
             else:
-                if not PyOCCTools._compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
+                if not PyOCCTools.compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
                     surface_type = 'Wall'
                 elif inst_obj.top_bottom == "BOTTOM":
                     surface_type = "Floor"
@@ -1192,7 +1192,7 @@ class IdfObject:
                     if inst_obj.related_bound is None or inst_obj.is_external:
                         surface_type = "Roof"
         elif inst_obj.physical == False:
-            if not PyOCCTools._compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
+            if not PyOCCTools.compare_direction_of_normals(inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
                 surface_type = 'Wall'
             else:
                 if inst_obj.top_bottom == "BOTTOM":
