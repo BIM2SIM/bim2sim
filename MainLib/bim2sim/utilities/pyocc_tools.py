@@ -6,83 +6,24 @@ from typing import List, Tuple, Union
 import numpy as np
 
 from OCC.Core.BRep import BRep_Tool
-from OCC.Core.BRepBndLib import brepbndlib_Add
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace, \
-    BRepBuilderAPI_MakeWire, BRepBuilderAPI_MakeEdge, \
-    BRepBuilderAPI_MakeVertex, BRepBuilderAPI_Transform, \
-    BRepBuilderAPI_MakePolygon
-from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
+    BRepBuilderAPI_Transform, BRepBuilderAPI_MakePolygon
 from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, \
     brepgprop_LinearProperties
-from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
 from OCC.Core.BRepTools import BRepTools_WireExplorer
-from OCC.Core.Bnd import Bnd_Box
-from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.GProp import GProp_GProps
 from OCC.Core.Geom import Handle_Geom_Plane_DownCast
-from OCC.Core.GeomAPI import GeomAPI_ProjectPointOnCurve
 from OCC.Core.ShapeAnalysis import ShapeAnalysis_ShapeContents
 from OCC.Core.ShapeFix import ShapeFix_Face, ShapeFix_Shape
 from OCC.Core.TopAbs import TopAbs_WIRE, TopAbs_FACE
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopoDS import topods_Wire, TopoDS_Face, TopoDS_Shape, \
-    topods_Face, TopoDS_Edge, TopoDS_Solid
+    topods_Face, TopoDS_Edge
 from OCC.Core.gp import gp_XYZ, gp_Pnt, gp_Trsf, gp_Vec
 
 
 class PyOCCTools:
     """Class for Tools handling and modifying Python OCC Shapes"""
-
-    @staticmethod
-    def remove_vertex_duplicates(vert_list):
-        """ remove vertex duplicates from a list of points"""
-        for i in enumerate(vert_list):
-            edge_pp_p = BRepBuilderAPI_MakeEdge(
-                vert_list[(i) % (len(vert_list) - 1)], vert_list[(i + 1) % (
-                        len(vert_list) - 1)]).Shape()
-            distance = BRepExtrema_DistShapeShape(
-                vert_list[(i + 2) % (len(vert_list) - 1)], edge_pp_p,
-                Extrema_ExtFlag_MIN)
-            if 0 < distance.Value() < 0.001:
-                # first: project close vertex to edge
-                edge = BRepBuilderAPI_MakeEdge(
-                    vert_list[(i) % (len(vert_list) - 1)],
-                    vert_list[(i + 1) % (len(vert_list) - 1)]).Edge()
-                projector = GeomAPI_ProjectPointOnCurve(
-                    BRep_Tool.Pnt(vert_list[(i + 2) % (len(vert_list) - 1)]),
-                    BRep_Tool.Curve(edge)[0])
-                nrp = projector.NearestPoint()
-                vert_list[
-                    (i + 2) % (len(vert_list) - 1)] = BRepBuilderAPI_MakeVertex(
-                    nrp).Vertex()
-                # delete additional vertex
-                vert_list.pop((i + 1) % (len(vert_list) - 1))
-        return vert_list
-
-    @staticmethod
-    def remove_collinear_vertices(vert_list):
-        """ remove collinear vertices from a list of points"""
-        vert_list = vert_list[:-1]
-        if len(vert_list) < 5:
-            return vert_list
-        for i in enumerate(vert_list):
-            vert_dist = BRepExtrema_DistShapeShape(
-                vert_list[(i) % (len(vert_list))],
-                vert_list[(i + 2) % (len(vert_list))],
-                Extrema_ExtFlag_MIN).Value()
-            if vert_dist < 1e-3:
-                return vert_list
-            edge_pp_p = BRepBuilderAPI_MakeEdge(
-                vert_list[(i) % (len(vert_list))],
-                vert_list[(i + 2) % (len(vert_list))]).Shape()
-            distance = BRepExtrema_DistShapeShape(
-                vert_list[(i + 1) % (len(vert_list))], edge_pp_p,
-                Extrema_ExtFlag_MIN).Value()
-            if distance < 1e-3:
-                vert_list.pop((i + 1) % (len(vert_list)))
-
-        vert_list.append(vert_list[0])
-        return vert_list
 
     @staticmethod
     def remove_coincident_vertices(vert_list: List[gp_Pnt]) -> List[gp_Pnt]:
@@ -139,39 +80,6 @@ class PyOCCTools:
         return a_face
 
     @staticmethod
-    def make_face_from_vertex_list(vert_list) -> TopoDS_Face:
-        """ Make a TopoDS_Face from a list of points."""
-        an_edge = []
-        for i in range(len(vert_list[:-1])):
-            edge = BRepBuilderAPI_MakeEdge(vert_list[i],
-                                           vert_list[i + 1]).Edge()
-            an_edge.append(edge)
-        a_wire = BRepBuilderAPI_MakeWire()
-        for edge in an_edge:
-            a_wire.Add(edge)
-        a_wire = a_wire.Wire()
-        a_face = BRepBuilderAPI_MakeFace(a_wire).Face()
-
-        return a_face  # .Reversed()
-
-    @staticmethod
-    def get_vertex_list_from_face(face: TopoDS_Face):
-        """ Get list of TopoDS_Vertex from a Face."""
-        an_exp = TopExp_Explorer(face, TopAbs_WIRE)
-        vert_list = []
-        while an_exp.More():
-            wire = topods_Wire(an_exp.Current())
-            w_exp = BRepTools_WireExplorer(wire)
-            while w_exp.More():
-                vert1 = w_exp.CurrentVertex()
-                vert_list.append(vert1)
-                w_exp.Next()
-            an_exp.Next()
-        vert_list.append(vert_list[0])
-
-        return vert_list
-
-    @staticmethod
     def get_number_of_vertices(shape: TopoDS_Shape) -> int:
         """ get number of vertices of a shape"""
         shape_analysis = ShapeAnalysis_ShapeContents()
@@ -220,7 +128,7 @@ class PyOCCTools:
         return prop.CentreOfMass()
 
     @staticmethod
-    def scale_face(face: TopoDS_Face, factor: float) -> TopoDS_Face:
+    def scale_face(face: TopoDS_Face, factor: float) -> TopoDS_Shape:
         """
         Scales the given face by the given factor, using the center of mass of
         the face as origin of the transformation.
@@ -231,7 +139,7 @@ class PyOCCTools:
         return BRepBuilderAPI_Transform(face, trsf).Shape()
 
     @staticmethod
-    def scale_edge(edge: TopoDS_Edge, factor: float) -> TopoDS_Edge:
+    def scale_edge(edge: TopoDS_Edge, factor: float) -> TopoDS_Shape:
         """
         Scales the given edge by the given factor, using the center of mass of
         the edge as origin of the transformation.
@@ -240,15 +148,6 @@ class PyOCCTools:
         trsf = gp_Trsf()
         trsf.SetScale(center, factor)
         return BRepBuilderAPI_Transform(edge, trsf).Shape()
-
-    @staticmethod
-    def make_solid_box_shape(shape: TopoDS_Shape) -> TopoDS_Solid:
-        """Creates a solid box around a TopoDS_Shape."""
-        box = Bnd_Box()
-        brepbndlib_Add(shape, box)
-        solid_box = BRepPrimAPI_MakeBox(box.CornerMin(),
-                                        box.CornerMax()).Solid()
-        return solid_box
 
     @staticmethod
     def fix_face(face: TopoDS_Face, tolerance=1e-3) -> TopoDS_Face:

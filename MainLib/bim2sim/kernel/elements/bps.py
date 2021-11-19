@@ -11,34 +11,26 @@ import ifcopenshell.geom
 from OCC.Core.Bnd import Bnd_Box
 from OCC.Core.BRepBndLib import brepbndlib_Add
 from OCC.Core.BRepLib import BRepLib_FuseEdges
-from OCC.Core.BRepBuilderAPI import \
-    BRepBuilderAPI_MakeFace, \
-    BRepBuilderAPI_MakeEdge, \
-    BRepBuilderAPI_MakeWire, BRepBuilderAPI_Transform, BRepBuilderAPI_MakeVertex
+from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
 from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, \
     brepgprop_VolumeProperties
 from OCC.Core.GProp import GProp_GProps
-from OCC.Core.GeomAPI import GeomAPI_ProjectPointOnCurve
-from OCC.Core.ShapeAnalysis import ShapeAnalysis_ShapeContents
 from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt, gp_Mat, gp_Quaternion
-from OCC.Core.TopoDS import topods_Wire, topods_Face, TopoDS_Iterator
-from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_WIRE
+from OCC.Core.TopoDS import topods_Face
+from OCC.Core.TopAbs import TopAbs_FACE
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.BRep import BRep_Tool
-from OCC.Core.BRepTools import BRepTools_WireExplorer
 from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, attribute
-from bim2sim.decision import BoolDecision, RealDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.utilities.common_functions import vector_angle, filter_instances
 from bim2sim.task.common.inner_loop_remover import remove_inner_loops
-from bim2sim.decision import StringDecision
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 logger = logging.getLogger(__name__)
@@ -669,30 +661,6 @@ class SpaceBoundary(element.RelationBased):
         moved_shape = BRepBuilderAPI_Transform(shape, trsf).Shape()
 
         return moved_shape
-
-    def check_for_vertex_duplicates(self, rel_bound):
-        return  # todo: Bugfix, disabled for now
-        nb_vert_this = PyOCCTools.get_number_of_vertices(self.bound_shape)
-        nb_vert_other = PyOCCTools.get_number_of_vertices(rel_bound.bound_shape)
-        # if nb_vert_this != nb_vert_other:
-        setattr(self, 'bound_shape_org', self.bound_shape)
-        vert_list1 = PyOCCTools.get_vertex_list_from_face(self.bound_shape)
-        vert_list1 = PyOCCTools.remove_vertex_duplicates(vert_list1)
-        vert_list1.reverse()
-        vert_list1 = PyOCCTools.remove_vertex_duplicates(vert_list1)
-
-        setattr(rel_bound, 'bound_shape_org', rel_bound.bound_shape)
-        vert_list2 = PyOCCTools.get_vertex_list_from_face(rel_bound.bound_shape)
-        vert_list2 = PyOCCTools.remove_vertex_duplicates(vert_list2)
-        vert_list2.reverse()
-        vert_list2 = PyOCCTools.remove_vertex_duplicates(vert_list2)
-        if len(vert_list1) == len(vert_list2):
-            if len(vert_list1) < 5:
-                return
-            vert_list1.reverse()
-            vert_list2.reverse()
-            self.bound_shape = PyOCCTools.make_face_from_vertex_list(vert_list1)
-            rel_bound.bound_shape = PyOCCTools.make_face_from_vertex_list(vert_list2)
 
     def calc_bound_shape(self, name):
         settings = ifcopenshell.geom.settings()
