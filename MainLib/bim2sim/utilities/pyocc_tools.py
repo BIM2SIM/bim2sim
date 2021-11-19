@@ -203,7 +203,7 @@ class PyOCCTools:
         return pnt_list
 
     @staticmethod
-    def get_center_of_face(face: TopoDS_Face) -> gp_Pnt:
+    def _get_center_of_face(face: TopoDS_Face) -> gp_Pnt:
         """
         Calculates the center of the given face. The center point is the center
         of mass.
@@ -213,7 +213,7 @@ class PyOCCTools:
         return prop.CentreOfMass()
 
     @staticmethod
-    def get_center_of_edge(edge):
+    def _get_center_of_edge(edge):
         """
         Calculates the center of the given edge. The center point is the center
         of mass.
@@ -228,7 +228,7 @@ class PyOCCTools:
         Scales the given face by the given factor, using the center of mass of
         the face as origin of the transformation.
         """
-        center = PyOCCTools.get_center_of_face(face)
+        center = PyOCCTools._get_center_of_face(face)
         trsf = gp_Trsf()
         trsf.SetScale(center, factor)
         return BRepBuilderAPI_Transform(face, trsf).Shape()
@@ -239,7 +239,7 @@ class PyOCCTools:
         Scales the given edge by the given factor, using the center of mass of
         the edge as origin of the transformation.
         """
-        center = PyOCCTools.get_center_of_edge(edge)
+        center = PyOCCTools._get_center_of_edge(edge)
         trsf = gp_Trsf()
         trsf.SetScale(center, factor)
         return BRepBuilderAPI_Transform(edge, trsf).Shape()
@@ -305,7 +305,7 @@ class PyOCCTools:
         return check
 
     @staticmethod
-    def a2p(o, z, x):
+    def _a2p(o, z, x):
         """Compute Axis of Local Placement of an IfcProducts Objectplacement"""
         y = np.cross(z, x)
         r = np.eye(4)
@@ -314,13 +314,13 @@ class PyOCCTools:
         return r.T
 
     @staticmethod
-    def axis2placement(plc):
+    def _axis2placement(plc):
         """Get Axis of Local Placement of an IfcProducts Objectplacement"""
         z = np.array(plc.Axis.DirectionRatios if plc.Axis else (0, 0, 1))
         x = np.array(
             plc.RefDirection.DirectionRatios if plc.RefDirection else (1, 0, 0))
         o = plc.Location.Coordinates
-        return PyOCCTools.a2p(o, z, x)
+        return PyOCCTools._a2p(o, z, x)
 
     @staticmethod
     def local_placement(plc):
@@ -329,7 +329,7 @@ class PyOCCTools:
             parent = np.eye(4)
         else:
             parent = PyOCCTools.local_placement(plc.PlacementRelTo)
-        return np.dot(PyOCCTools.axis2placement(plc.RelativePlacement), parent)
+        return np.dot(PyOCCTools._axis2placement(plc.RelativePlacement), parent)
 
     @staticmethod
     def simple_face_normal(face: TopoDS_Face) -> gp_XYZ:
