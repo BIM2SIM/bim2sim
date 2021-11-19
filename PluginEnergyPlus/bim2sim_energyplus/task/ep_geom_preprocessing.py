@@ -420,7 +420,7 @@ class EPGeomPreprocessing(ITask):
                 new_rel_bound = self._create_copy_of_space_boundary(related_bound)
                 related_bound.non_convex_guid = related_bound.guid
                 if distance > 1e-3:
-                    new_rel_shape = PyOCCTools.move_bound_in_direction_of_normal(new_bound, distance, reversed=False)
+                    new_rel_shape = PyOCCTools.move_bound_in_direction_of_normal(new_bound, distance, reverse=False)
                 else:
                     new_rel_shape = new_bound.bound_shape
                 new_rel_bound.bound_shape = new_rel_shape
