@@ -9,7 +9,8 @@ from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBndLib import brepbndlib_Add
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace, \
     BRepBuilderAPI_MakeWire, BRepBuilderAPI_MakeEdge, \
-    BRepBuilderAPI_MakeVertex, BRepBuilderAPI_Transform
+    BRepBuilderAPI_MakeVertex, BRepBuilderAPI_Transform, \
+    BRepBuilderAPI_MakePolygon
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, \
     brepgprop_LinearProperties
@@ -124,20 +125,16 @@ class PyOCCTools:
         :param pnt_list: list of gp_Pnt or Coordinate-Tuples
         :return: TopoDS_Face
         """
-        an_edge = []
         if isinstance(pnt_list[0], tuple):
             new_list = []
             for pnt in pnt_list:
                 new_list.append(gp_Pnt(gp_XYZ(pnt[0], pnt[1], pnt[2])))
             pnt_list = new_list
-        for i, pnt in enumerate(pnt_list):
-            edge = BRepBuilderAPI_MakeEdge(pnt_list[i], pnt_list[
-                (i + 1) % len(pnt_list)]).Edge()
-            an_edge.append(edge)
-        a_wire = BRepBuilderAPI_MakeWire()
-        for edge in an_edge:
-            a_wire.Add(edge)
-        a_wire = a_wire.Wire()
+        poly = BRepBuilderAPI_MakePolygon()
+        for coord in pnt_list:
+            poly.Add(coord)
+        poly.Close()
+        a_wire = poly.Wire()
         a_face = BRepBuilderAPI_MakeFace(a_wire).Face()
         return a_face
 
