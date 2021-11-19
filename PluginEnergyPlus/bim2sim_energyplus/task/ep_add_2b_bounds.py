@@ -63,7 +63,7 @@ class AddSpaceBoundaries2B(ITask):
                 if hasattr(bound, 'related_parent_bound'):
                     continue
                 sb_area += PyOCCTools.get_shape_area(bound.bound_shape)
-            if (space_surf_area - sb_area) < 1e-3:
+            if (space_surf_area - sb_area) < 1e-2:
                 continue
             space_obj.b_bound_shape = space_obj.space_shape
             for bound in space_obj.space_boundaries:
@@ -103,7 +103,7 @@ class AddSpaceBoundaries2B(ITask):
         for i, face in enumerate(faces):
             b_bound = SpaceBoundary2B()
             b_bound.bound_shape = face
-            if b_bound.bound_area.m < 1e-6:
+            if b_bound.bound_area.m < 1e-3:
                 continue
             b_bound.guid = ifcopenshell.guid.new()
             b_bound.bound_thermal_zone = space_obj
