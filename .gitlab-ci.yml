@@ -139,6 +139,27 @@ build_tool:cfd:
   only:
     - 55_integrateCFD_Image
 
+coverage_UbuntuBase:
+  <<: *only-default
+  image: $CI_REGISTRY/environment:ubuntu_base
+  stage: test
+  before_script:
+    - pip install coverage
+    - pip install coverage-badge
+  script:
+    - mv ./* /bim2sim/
+    - coverage run -m unittest discover /bim2sim/MainLib/
+    - coverage report -i
+    - mkdir -p $CI_COMMIT_REF_NAME/coverage
+    - coverage html -i 
+    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+    # skip this for now as its only cosmetic and leads to problems
+    # - coverage-badge -o coverage.svg
+    # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/coverage
+
 # coverage_Base:
 #   <<: *only-default
 #   image: $CI_REGISTRY/environment:development
