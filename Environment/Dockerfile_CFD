@@ -1,7 +1,7 @@
 FROM registry.git-ce.rwth-aachen.de/ebc/projects/ebc0438_bmwi_bim2sim_ges/bim2sim-coding/environment:ubuntu_base
 
 ## CFD part
-RUN apt-get install -y git cmake gcc g++ tcllib tklib tcl-dev tk-dev libfreetype6-dev libxt-dev libxmu-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libfreeimage-dev libtbb-dev qt5-default libboost-all-dev libxml2-dev
+RUN apt-get install -y git cmake gcc g++ tcllib tklib tcl-dev tk-dev libfreetype6-dev libxt-dev libxmu-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libfreeimage-dev libtbb-dev qt5-default libboost-all-dev libxml2-dev libomp-dev
 
 
 # RUN cd /tmp && git clone https://github.com/Open-Cascade-SAS/OCCT && cd OCCT && mkdir build
@@ -18,7 +18,18 @@ RUN cmake ../cmake -Wno-dev -DOCC_INCLUDE_DIR=/usr/local/include/opencascade -DB
 RUN make -j8
 RUN make install
 
+
+################################################################################
+# Clipper Library
 RUN apt-get -y install libpolyclipping-dev
+################################################################################
+
+
+################################################################################
+# CGAL Library
+RUN apt-get -y install libcgal-dev
+################################################################################
+
 
 ################################################################################
 WORKDIR /tmp
@@ -27,15 +38,3 @@ WORKDIR /tmp/ifc2sb
 RUN chmod +x IFC2SB
 RUN ./IFC2SB -h
 ################################################################################
-
-#WORKDIR /tmp
-#RUN git clone -b master https://github.com/bimworld/bim.git ifc2sb
-#WORKDIR /tmp/ifc2sb
-#RUN chmod +x IFC2SB
-
-# Analyse
-#RUN qmake --version
-#RUN whereis qt5
-#RUN ldd IFC2SB
-
-#RUN ./IFC2SB -h
