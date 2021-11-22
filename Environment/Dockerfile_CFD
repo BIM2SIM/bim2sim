@@ -9,7 +9,7 @@ RUN apt-get install -y git cmake gcc g++ tcllib tklib tcl-dev tk-dev libfreetype
 RUN cd /tmp && git clone https://github.com/bimworld/occ.git && cd occ && unzip opencascade-7.5.3.zip && cd opencascade-7.5.3
 
 WORKDIR /tmp/occ/opencascade-7.5.3/build
-RUN cmake .. && make -j8 && make install
+RUN cmake .. -Wno-dev -DBUILD_DOC_Overview=OFF -DBUILD_Inspector=OFF -DBUILD_LIBRARY_TYPE=Shared -DBUILD_RESOURCES=OFF -DBUILD_SAMPLES_QT=OFF -DBUILD_USE_PCH=OFF -DBUILD_YACCLEX=OFF -DCMAKE_BUILD_TYPE=Release -DUSE_TBB=ON -DUSE_FREEIMAGE=ON && make -j8 && make install
 
 RUN cd /tmp && git clone --branch v0.6.0 https://github.com/IfcOpenShell/IfcOpenShell.git  && cd IfcOpenShell && mkdir build
 WORKDIR /tmp/IfcOpenShell/build
