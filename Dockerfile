@@ -16,4 +16,4 @@ RUN chmod +x IFC2SB
 
 # The code to run when container is started:
 # RUN /bin/sh -c "source activate base"
-# CMD ["/bin/sh"]
+# CMD ["/bin/sh"] 
