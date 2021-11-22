@@ -19,3 +19,9 @@ RUN make -j8
 RUN make install
 
 RUN apt-get -y install libpolyclipping-dev
+
+WORKDIR /tmp
+RUN git clone -b master https://github.com/bimworld/bim.git ifc2sb
+WORKDIR /tmp/ifc2sb
+RUN chmod +x IFC2SB
+RUN ./IFC2SB -h
