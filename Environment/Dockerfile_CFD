@@ -13,6 +13,7 @@ RUN cmake .. -Wno-dev -DBUILD_DOC_Overview=OFF -DBUILD_Inspector=OFF -DBUILD_LIB
 
 RUN cd /tmp && git clone --branch v0.6.0 https://github.com/IfcOpenShell/IfcOpenShell.git  && cd IfcOpenShell && mkdir build
 WORKDIR /tmp/IfcOpenShell/build
-RUN cmake ../cmake -DOCC_INCLUDE_DIR=/usr/local/include/opencascade -DCOLLADA_SUPPORT=OFF -DBUILD_IFCPYTHON=OFF
+RUN cmake ../cmake -DOCC_INCLUDE_DIR=/usr/local/include/opencascade -DBUILD_CONVERT=OFF -DBUILD_DOCUMENTATION=OFF -DBUILD_EXAMPLES=OFF -DBUILD_GEOMSERVER=OFF -DBUILD_CONVERT=OFF -DBUILD_PACKAGE=OFF -DCOLLADA_SUPPORT=OFF -DGLTF_SUPPORT=OFF -DBUILD_IFCPYTHON=OFF -DCMAKE_BUILD_TYPE=Release -DENABLE_BUILD_OPTIMIZATIONS=ON -DIFCXML_SUPPORT=OFF -DUSE_MMAP=OFF -DUSE_VLD=OFF -DBUILD_SHARED_LIBS=ON
+# RUN cmake ../cmake -DOCC_INCLUDE_DIR=/usr/local/include/opencascade -DCOLLADA_SUPPORT=OFF -DBUILD_IFCPYTHON=OFF
 RUN make -j8
 RUN make install
