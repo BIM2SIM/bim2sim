@@ -134,7 +134,7 @@ build_tool:cfd:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/tool:cfd .
+    - docker build -t $CI_REGISTRY/tool:cfd -f Dockerfile_CFD .
     - docker push $CI_REGISTRY/tool:cfd
   only:
     - 55_integrateCFD_Image
