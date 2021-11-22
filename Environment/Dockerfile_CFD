@@ -17,3 +17,5 @@ RUN cmake ../cmake -Wno-dev -DOCC_INCLUDE_DIR=/usr/local/include/opencascade -DB
 # RUN cmake ../cmake -DOCC_INCLUDE_DIR=/usr/local/include/opencascade -DCOLLADA_SUPPORT=OFF -DBUILD_IFCPYTHON=OFF
 RUN make -j8
 RUN make install
+
+RUN apt-get -y install libpolyclipping-dev
