@@ -6,7 +6,7 @@
     - branches
 
 stages:
-#  - test
+  - test
   - build-env
   - build-tool
   - doc
