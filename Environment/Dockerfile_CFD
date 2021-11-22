@@ -26,6 +26,7 @@ WORKDIR /tmp/ifc2sb
 RUN chmod +x IFC2SB
 
 # Analyse
+RUN qmake --version
 RUN whereis qt5
 RUN ldd IFC2SB
 
