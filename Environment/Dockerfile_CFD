@@ -20,14 +20,22 @@ RUN make install
 
 RUN apt-get -y install libpolyclipping-dev
 
+################################################################################
 WORKDIR /tmp
 RUN git clone -b master https://github.com/bimworld/bim.git ifc2sb
 WORKDIR /tmp/ifc2sb
 RUN chmod +x IFC2SB
+RUN ./IFC2SB -h
+################################################################################
+
+#WORKDIR /tmp
+#RUN git clone -b master https://github.com/bimworld/bim.git ifc2sb
+#WORKDIR /tmp/ifc2sb
+#RUN chmod +x IFC2SB
 
 # Analyse
-RUN qmake --version
-RUN whereis qt5
-RUN ldd IFC2SB
+#RUN qmake --version
+#RUN whereis qt5
+#RUN ldd IFC2SB
 
-RUN ./IFC2SB -h
+#RUN ./IFC2SB -h
