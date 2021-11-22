@@ -6,7 +6,7 @@ RUN apt-get install -y git cmake gcc g++ tcllib tklib tcl-dev tk-dev libfreetype
 
 # RUN cd /tmp && git clone https://github.com/Open-Cascade-SAS/OCCT && cd OCCT && mkdir build
 
-RUN cd /tmp && git clone https://github.com/bimworld/occ.git && cd occ && unzip opencascade-7.5.3.zip && cd opencascade-7.5.3
+RUN cd /tmp && git clone -b master https://github.com/bimworld/occ.git && cd occ && unzip opencascade-7.5.3.zip && cd opencascade-7.5.3
 
 WORKDIR /tmp/occ/opencascade-7.5.3/build
 RUN cmake .. -Wno-dev -DBUILD_DOC_Overview=OFF -DBUILD_Inspector=OFF -DBUILD_LIBRARY_TYPE=Shared -DBUILD_RESOURCES=OFF -DBUILD_SAMPLES_QT=OFF -DBUILD_USE_PCH=OFF -DBUILD_YACCLEX=OFF -DCMAKE_BUILD_TYPE=Release -DUSE_TBB=ON -DUSE_FREEIMAGE=ON && make -j8 && make install
