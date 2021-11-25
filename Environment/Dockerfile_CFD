@@ -61,6 +61,7 @@ RUN pwd
 # Clean
 WORKDIR /tmp
 RUN rm -r /tmp/IfcOpenShell
+RUN rm -r /tmp/opencascade-7.5.3
 RUN ls
 #RUN rm -r /tmp/OCCT
 ################################################################################
