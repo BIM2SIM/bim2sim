@@ -19,13 +19,13 @@ build_env:ubuntu_base:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/environment:ubuntu_base -f Environment/Dockerfile_Base_Ubuntu .
+    - docker build -t $CI_REGISTRY/environment:ubuntu_base -f Environment/envBase.Dockerfile .
     - docker push $CI_REGISTRY/environment:ubuntu_base
   only:
     refs:
        - 55_integrateCFD_Image
     changes:
-       - Environment/Dockerfile_Base_Ubuntu
+       - Environment/envBase.Dockerfile
        - MainLib/requirements.txt
        - .gitlab-ci.yml
 
@@ -35,13 +35,13 @@ build_env:development:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/environment:development -f Environment/Dockerfile_Base .
+    - docker build -t $CI_REGISTRY/environment:development -f Environment/oldBase.Dockerfile .
     - docker push $CI_REGISTRY/environment:development
   only:
     refs:
        - development
     changes:
-       - Environment/Dockerfile_Base
+       - Environment/oldBase.Dockerfile
        - MainLib/requirements.txt
        - .gitlab-ci.yml
 
@@ -51,14 +51,14 @@ build_env:energyplus:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/environment:energyplus -f Environment/Dockerfile_EP .
+    - docker build -t $CI_REGISTRY/environment:energyplus -f Environment/envEP.Dockerfile .
     - docker push $CI_REGISTRY/environment:energyplus
   only:
     refs:
        - development
        - 128_energyPlusDocker
     changes:
-       - Environment/Dockerfile_EP
+       - Environment/envEP.Dockerfile
        - MainLib/requirements.txt
        - .gitlab-ci.yml
 
@@ -68,7 +68,7 @@ build_env:cfd:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/environment:cfd -f Environment/Dockerfile_CFD .
+    - docker build -t $CI_REGISTRY/environment:cfd -f Environment/cfd.Dockerfile .
     - docker push $CI_REGISTRY/environment:cfd
   timeout: 6 hours
   only:
@@ -76,7 +76,7 @@ build_env:cfd:
        - development
        - 55_integrateCFD_Image
     changes:
-       - Environment/Dockerfile_CFD
+       - Environment/cfd.Dockerfile
        - MainLib/requirements.txt
        - .gitlab-ci.yml
        
@@ -86,13 +86,13 @@ build_env:master:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/environment:master -f Environment/Dockerfile_Base .
+    - docker build -t $CI_REGISTRY/environment:master -f Environment/oldBase.Dockerfile .
     - docker push $CI_REGISTRY/environment:master
   only:
     refs:
        - master
     changes:
-       - Environment/Dockerfile_Base
+       - Environment/oldBase.Dockerfile
        - MainLib/requirements.txt      
 
 build_tool:release:
@@ -134,7 +134,7 @@ build_tool:cfd:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/tool:cfd -f Dockerfile_CFD .
+    - docker build -t $CI_REGISTRY/tool:cfd -f cfd.Dockerfile .
     - docker push $CI_REGISTRY/tool:cfd
   only:
     - 55_integrateCFD_Image

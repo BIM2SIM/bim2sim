@@ -3,8 +3,10 @@
 Prepares ifc files for CFD simulation
 '''
 
+
 def get_cfd():
     from .cfd import PluginCFD
     return PluginCFD
 
-CONTEND = {'cfd':get_cfd}
+
+CONTEND = {'cfd': get_cfd}

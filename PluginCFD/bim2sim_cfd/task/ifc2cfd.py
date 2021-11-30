@@ -1,34 +1,78 @@
 import os
 
-from bim2sim.decision import ListDecision, DecisionBunch
+from bim2sim.decision import ListDecision, DecisionBunch, RealDecision
+from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
 from bim2sim.task.common import LoadIFC
 
 
 class RunIFC2CFD(ITask):
     '''
-    coole exe
+    # todo @ eric infos hier ausfüllen
     '''
     final = True
 
-    def run(self, workflow):  #todo eigtl geht hier workflow rein
+    def run(self, workflow):
+        # if os.name != 'Linux':
+        #     raise OSError("CFD task is only available for Linux systems ")
         self.logger.info("Running IFC2CFD")
 
+        process_options = [
+            ("--cfd", "STL processing"),
+            ("", "IFC processing")
+        ]
+        process_decision = ListDecision("Which process do you want to use?",
+                                        choices=process_options,
+                                        key='process_decision',
+                                        global_key='process_decision',
+                                        allow_skip=False)
 
-        options = [" ", "Arg2"]  # TODO dict anlegen
-        decision1 = ListDecision("Multiple possibilities found",
-                                 choices=options,
-                                 allow_skip=False, allow_load=False, allow_save=False,
-                                 collect=False, quick_decide=False)
-        yield DecisionBunch([decision1])
-        args = decision1.value
+        def is_int(val):
+            try:
+                val = int(val)
+            except:
+                pass
+            if isinstance(val, int):
+                return True
+            else:
+                try:
+                    return val.is_integer()
+                except AttributeError:
+                    return False
+
+        core_decision = RealDecision(
+            "How many cores do you want to use?",
+            global_key="core_decision",
+            allow_skip=True,
+            validate_func=is_int
+        )
+
+        yield DecisionBunch([process_decision, core_decision])
+
+        args = " --graph " + str(process_decision.value) + " -j" \
+                   + str(int(core_decision.value.m))
+
+        if process_decision.value == "":
+            translen_decision = RealDecision(
+                "What is the maximum transmission length (2a vs. 2b)?",
+                global_key="translen_decision",
+                unit=ureg.meter,
+                allow_skip=False)
+
+            yield DecisionBunch([translen_decision])
+
+            args += " -e" + str(translen_decision.value.m)
 
         reader = LoadIFC()
         input_file = reader.get_ifc(self.paths.ifc)
 
         output_file = str(self.paths.export / "result.obj")
-        cmd = "/bim2sim/PluginCFD/bim2sim_cfd/assets/IFC2SB" "-j9 --graph --cfd " + input_file
-        # cmd += " " + args
-        print(cmd)
+        ifc2sb_callable = str(
+            self.paths.b2sroot / "PluginCFD/bim2sim_cfd/ifc2sb/IFC2SB")
+
+        cmd = ifc2sb_callable + " " + args + " --graph " + input_file
         os.system(cmd)
-        print("Task finished")
+        self.logger.info("Finished IFC2CFD")
+
+
+
