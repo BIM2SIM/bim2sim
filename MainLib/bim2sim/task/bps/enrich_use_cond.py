@@ -1,6 +1,6 @@
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import get_usage_dict, get_pattern_usage
-from bim2sim.decision import ListDecision, DecisionBunch
+from bim2sim.decision import ListDecision, DecisionBunch, BoolDecision
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.elements.bps import ThermalZone
 
@@ -32,6 +32,12 @@ class EnrichUseConditions(ITask):
     def multi_zone_usage(self, thermal_zones: dict):
         """defines an usage to a determined thermal zone"""
         selected_usage = {}
+        # custom_usage_dec = BoolDecision(
+        #     question="Do you want to use your own customUsages.json?",
+        #              global_key='custom_usages_dec',
+        #              allow_skip=True)
+        # yield DecisionBunch([custom_usage_dec])
+        # use_custom_usages = custom_usage_dec.value
         pattern_usage = get_pattern_usage()
         for tz in list(thermal_zones.values()):
             if tz.usage in selected_usage:

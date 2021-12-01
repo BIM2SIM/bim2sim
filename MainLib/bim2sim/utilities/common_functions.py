@@ -1,3 +1,4 @@
+import collections
 import math
 import re
 import json
@@ -55,11 +56,21 @@ def get_usage_dict() -> dict:
     return usage_dict
 
 
+def get_common_pattern_usage() -> dict:
+    custom_pattern_path = assets/'enrichment'/'commonUsages.json'
+    with open(custom_pattern_path, 'r+') as f:
+        common_usages = json.load(f)
+    return common_usages
+
+
 def get_custom_pattern_usage() -> dict:
+    custom_usages = {}
     custom_pattern_path = assets/'enrichment'/'customUsages.json'
     with open(custom_pattern_path, 'r+') as f:
-        custom_usages_dict = json.load(f)
-    return custom_usages_dict
+        custom_usages_json = json.load(f)
+    if custom_usages_json["settings"]["use"]:
+        custom_usages = custom_usages_json["usage_definitions"]
+    return custom_usages
 
 
 def get_pattern_usage():
@@ -69,86 +80,10 @@ def get_pattern_usage():
         use_conditions = list(json.load(f).keys())
         use_conditions.remove('version')
 
-    common_translations_buildin = {
-        'office_function': ['Office', 'Buero', 'Büro', 'Pool', 'Einzelbüro',
-                            'Großraumbüro', 'Workspace'],
-        'Meeting, Conference, seminar': ['Tagung', 'Konferenz', 'Seminar',
-                                         'Besprechungsraum', 'Seminarraum',
-                                         'Besprechung', 'Meeting',
-                                         'Mehrzweckraum'],
-        'Main Hall, Reception': ['Hauptsaal', 'Empfang', 'lounge'],
-        'Retail, department store': ['Einzelhandel', 'Kaufhaus'],
-        'Retail with cooling': ['Einzelhandel', 'Kühlung'],
-        'Class room (school), group room (kindergarden)': ['Klassenzimmer',
-                                                           'Schule',
-                                                           'Gruppenraum',
-                                                           'Kindergarten'],
-        'Lecture hall, auditorium': ['Hörsaal, Auditorium'],
-        'Bed room': ['Schlafzimmer'],
-        'Hotel room': ['Hotelzimmer'],
-        'Canteen': ['Kantine', 'Cafeteria'],
-        'Restaurant': ['Restaurant'],
-        'Kitchen in non-residential buildings': ['Küche', 'Kitchen'],
-        'Kitchen - preparations, storage': ['Küche', 'Vorbereitungen',
-                                            'Lagerung', 'Kitchen'],
-        'WC and sanitary rooms in non-residential buildings': ['WC',
-                                                               'Sanitär',
-                                                               'bath',
-                                                               'bathroom',
-                                                               'Toilet', 'Bad',
-                                                               'Toiletten'],
-        'Further common rooms': ['Gemeinschaft', 'Umkleideraum'],
-        'Auxiliary areas (without common rooms)': ['Nebenrau'],
-        'Traffic area': ['Verkehrsfläche', 'Hall', 'Flur', 'Dachboden', 'TH',
-                         'Treppenhaus', 'Korridor', 'Übergang'],
-        'Stock, technical equipment, archives': ['Lager', 'Ausstattung',
-                                                 'Archive', 'Technical room',
-                                                 'Technikraum', 'Technik',
-                                                 'Heizung', 'Server', 'Archiv',
-                                                 'Elektro/HLS'],
-        'Data center': ['Rechenzentrum'],
-        'Commercial and industrial Halls - heavy work, standing activity': [
-            'Gewerbe', 'Industriehalle'],
-        'Commercial and industrial Halls - medium work, standing activity': [
-            'Gewerbe', 'Industriehalle'],
-        'Commercial and industrial Halls - light work, standing activity': [
-            'Gewerbe', 'Industriehalle'],
-        'Spectator area (theater and event venues)': ['Zuschauerbereich',
-                                                      'Theater',
-                                                      'Veranstaltung'],
-        'Foyer (theater and event venues)': ['Foyer', 'Theater',
-                                                      'Veranstaltung'],
-        'Stage (theater and event venues)': ['Bühne', 'Theater',
-                                             'Veranstaltung'],
-        'Exhibition, congress': ['Ausstellung', 'Kongress'],
-        'Exhibition room and museum conservational demands': [
-            'Ausstellungsraum', 'Museum', 'Ausstellung'],
-        'Library - reading room': ['Bibliothek', 'Lesesaal'],
-        'Library - open stacks': ['Bibliothek'],
-        'Library - magazine and depot': ['Bibliothek', 'Depot', 'Magazin'],
-        'Gym (without spectator area)': ['Fitness'],
-        'Parking garages (office and private usage)': ['Parkbereich',
-                                                       'Parkhaus',
-                                                       'Parkgaragen'],
-        'Parking garages (public usage)': ['Parkbereich',
-                                                       'Parkhaus',
-                                                       'Parkgaragen'],
-        'Sauna area': ['Saunabereich'],
-        'Exercise room': ['Übungsraum'],
-        'Laboratory': ['Labor', 'Lab'],
-        'Examination- or treatment room': ['Untersuchung', 'Behandlung'],
-        'Special care area': ['Pflege'],
-        'Corridors in the general care area': ['Pflege'],
-        'Medical and therapeutic practices': ['Arzt', 'Therapeut', 'Praxis'],
-        'Storehouse, logistics building': ['Lager, Logistikgebäude',
-                                           'Abstell', 'Aufzug'],
-        'Living': ['Leben', "Galerie", "Wohnen"],
-        'Classroom': ['Klassenzimmer'],
-        'MultiUseComputerRoom': ['Computer', 'Bibliothek', 'Audiovisuell']
-    }
-    # custom_usages = get_custom_pattern_usage()
-    common_translations = common_translations_buildin
-    # common_translations = {key: common_translations_buildin[key] + custom_usages[key] for key in common_translations_buildin}
+    common_usages = get_common_pattern_usage()
+
+    custom_usages = get_custom_pattern_usage()
+    usages = combine_usages(common_usages, custom_usages)
 
     pattern_usage_teaser = {}
     for i in use_conditions:
@@ -158,14 +93,34 @@ def get_pattern_usage():
         for i_eng in list_engl:
             new_i_eng = i_eng.replace(' ', '(.*?)')
             pattern_usage_teaser[i].append(re.compile('(.*?)%s' % new_i_eng, flags=re.IGNORECASE))
-            if i in common_translations:
-                for c_trans in common_translations[i]:
-                    pattern_usage_teaser[i].append(re.compile('(.*?)%s' % c_trans, flags=re.IGNORECASE))
+            if i in usages:
+                for c_trans in usages[i]["common"]:
+                    pattern_usage_teaser[i]["common"].append(re.compile('(.*?)%s' % c_trans, flags=re.IGNORECASE))
+                for c_trans in usages[i]["custom"]:
+                    pattern_usage_teaser[i]["custom"].append(re.compile('(.*?)%s' % c_trans, flags=re.IGNORECASE))
 
     pattern_usage_teaser['office_function'] = [re.compile('(.*?)%s' % c_trans, re.IGNORECASE) for c_trans in
                                                common_translations['office_function']]
 
     return pattern_usage_teaser
+
+
+def combine_usages(common_usages, custom_usages) -> dict:
+    """combines the custom and common usages to one dictionary"""
+    usages = collections.defaultdict(dict)
+    # combine common and custom usages
+    for key, value in common_usages.items():
+        usages[key]["common"] = value
+    if custom_usages:
+        for key, value in custom_usages.items():
+            if not isinstance(value, list):
+                try:
+                    value = list(value)
+                except TypeError:
+                    raise TypeError("custom usages must be a list")
+            if key in usages.keys():
+                usages[key]["custom"] = value
+    return usages
 
 
 def get_type_building_elements():

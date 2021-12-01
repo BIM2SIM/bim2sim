@@ -1,0 +1,81 @@
+{
+   "Group Office (between 2 and 6 employees)":[
+      "0",
+      "1",
+      "3",
+      "4",
+      "10",
+      "14",
+      "23",
+      "25",
+      "27",
+      "28",
+      "30",
+      "31",
+      "33",
+      "37",
+      "38",
+      "39"
+   ],
+   "Open-plan Office (7 or more employees)":[
+      "2",
+      "29"
+   ],
+   "Meeting, Conference, seminar":[
+      "7",
+      "24",
+      "26",
+      "32",
+      "34",
+      "35",
+      "36"
+   ],
+   "Main Hall, Reception":[
+      "6"
+   ],
+   "Traffic area":[
+      "8",
+      "9",
+      "41",
+      "44",
+      "58",
+      "11",
+      "17",
+      "13",
+      "18",
+      "40",
+      "45",
+      "59",
+      "60"
+   ],
+   "Stock, technical equipment, archives":[
+      "22",
+      "50",
+      "51",
+      "52",
+      "53",
+      "54",
+      "55",
+      "56",
+      "57"
+   ],
+   "Canteen":[
+      "5"
+   ],
+   "Laboratory":[
+      "12"
+   ],
+   "WC and sanitary rooms in non-residential buildings":[
+      "15",
+      "16",
+      "20",
+      "21",
+      "42",
+      "43",
+      "46",
+      "47"
+   ],
+   "Kitchen - preparations, storage":[
+      "19"
+   ]
+}
