@@ -32,28 +32,32 @@ class EnrichUseConditions(ITask):
     def multi_zone_usage(self, thermal_zones: dict):
         """defines an usage to a determined thermal zone"""
         selected_usage = {}
-        # custom_usage_dec = BoolDecision(
-        #     question="Do you want to use your own customUsages.json?",
-        #              global_key='custom_usages_dec',
-        #              allow_skip=True)
-        # yield DecisionBunch([custom_usage_dec])
-        # use_custom_usages = custom_usage_dec.value
+
         pattern_usage = get_pattern_usage()
         for tz in list(thermal_zones.values()):
             if tz.usage in selected_usage:
                 tz.usage = selected_usage[tz.usage]
             else:
-                previous_usage = str(tz.usage)
-                if previous_usage not in pattern_usage:
+                orig_usage = str(tz.usage)
+                if orig_usage not in pattern_usage:
                     matches = []
                     list_org = tz.usage.replace(' (', ' ').replace(')', ' '). \
                         replace(' -', ' ').replace(', ', ' ').split()
-                    for usage, patterns in pattern_usage.items():
-                        for i in patterns:
-                            for i_name in list_org:
-                                if i.match(i_name):
-                                    if usage not in matches:
-                                        matches.append(usage)
+                    for usage in pattern_usage.keys():
+                        # check custom first
+                        if "custom" in pattern_usage[usage]:
+                            for i in pattern_usage[usage]["custom"]:
+                                for i_name in list_org:
+                                    if i.match(i_name):
+                                        if usage not in matches:
+                                            matches.append(usage)
+                        # if not found in custom, continue with common
+                        if len(matches) == 0:
+                            for i in pattern_usage[usage]["common"]:
+                                for i_name in list_org:
+                                    if i.match(i_name):
+                                        if usage not in matches:
+                                            matches.append(usage)
                     # if just a match given
                     if len(matches) == 1:
                         # case its an office
@@ -62,13 +66,13 @@ class EnrichUseConditions(ITask):
                         # other zone usage
                         else:
                             tz.usage = matches[0]
-                    # if no matches given
+                    # if no matches given forward all (for decision)
                     elif len(matches) == 0:
                         matches = list(pattern_usage.keys())
                     if len(matches) > 1:
                         tz.usage = yield from self.list_decision_usage(
                             tz, matches)
-                    selected_usage[previous_usage] = tz.usage
+                    selected_usage[orig_usage] = tz.usage
             self.load_usage(tz)
             self.enriched_tz.append(tz)
 

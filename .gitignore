@@ -1,3 +1,8 @@
+## Code specific
+MainLib/bim2sim/assets/enrichment/usage/customUsages.json
+MainLib/bim2sim/assets/enrichment/usage/customUsages.json
+
+
 ## Python
 # Byte-compiled / optimized / DLL files
 __pycache__/
