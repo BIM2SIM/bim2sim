@@ -62,14 +62,14 @@ def get_pattern_usage():
         use_conditions = list(json.load(f).keys())
         use_conditions.remove('version')
 
-    common_translations = {
+    common_translations_buildin = {
         'office_function': ['Office', 'Buero', 'Büro', 'Pool', 'Einzelbüro',
-                            'Großraumbüro'],
+                            'Großraumbüro', 'Workspace'],
         'Meeting, Conference, seminar': ['Tagung', 'Konferenz', 'Seminar',
                                          'Besprechungsraum', 'Seminarraum',
                                          'Besprechung', 'Meeting',
                                          'Mehrzweckraum'],
-        'Main Hall, Reception': ['Hauptsaal', 'Empfang'],
+        'Main Hall, Reception': ['Hauptsaal', 'Empfang', 'lounge'],
         'Retail, department store': ['Einzelhandel', 'Kaufhaus'],
         'Retail with cooling': ['Einzelhandel', 'Kühlung'],
         'Class room (school), group room (kindergarden)': ['Klassenzimmer',
@@ -79,7 +79,7 @@ def get_pattern_usage():
         'Lecture hall, auditorium': ['Hörsaal, Auditorium'],
         'Bed room': ['Schlafzimmer'],
         'Hotel room': ['Hotelzimmer'],
-        'Canteen': ['Kantine'],
+        'Canteen': ['Kantine', 'Cafeteria'],
         'Restaurant': ['Restaurant'],
         'Kitchen in non-residential buildings': ['Küche', 'Kitchen'],
         'Kitchen - preparations, storage': ['Küche', 'Vorbereitungen',
@@ -128,16 +128,20 @@ def get_pattern_usage():
                                                        'Parkgaragen'],
         'Sauna area': ['Saunabereich'],
         'Exercise room': ['Übungsraum'],
-        'Laboratory': ['Labor'],
+        'Laboratory': ['Labor', 'Lab'],
         'Examination- or treatment room': ['Untersuchung', 'Behandlung'],
         'Special care area': ['Pflege'],
         'Corridors in the general care area': ['Pflege'],
         'Medical and therapeutic practices': ['Arzt', 'Therapeut', 'Praxis'],
-        'Storehouse, logistics building': ['Lager, Logistikgebäude', 'Abstell'],
+        'Storehouse, logistics building': ['Lager, Logistikgebäude',
+                                           'Abstell', 'Aufzug'],
         'Living': ['Leben', "Galerie", "Wohnen"],
         'Classroom': ['Klassenzimmer'],
         'MultiUseComputerRoom': ['Computer', 'Bibliothek', 'Audiovisuell']
     }
+    # custom_usages = get_custom_pattern_usage()
+    common_translations = common_translations_buildin
+    # common_translations = {key: common_translations_buildin[key] + custom_usages[key] for key in common_translations_buildin}
 
     pattern_usage_teaser = {}
     for i in use_conditions:
