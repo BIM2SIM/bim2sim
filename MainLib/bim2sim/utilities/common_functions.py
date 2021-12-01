@@ -55,6 +55,13 @@ def get_usage_dict() -> dict:
     return usage_dict
 
 
+def get_custom_pattern_usage() -> dict:
+    custom_pattern_path = assets/'enrichment'/'customUsages.json'
+    with open(custom_pattern_path, 'r+') as f:
+        custom_usages_dict = json.load(f)
+    return custom_usages_dict
+
+
 def get_pattern_usage():
     """get usage patterns to use it on the thermal zones get_usage"""
     use_conditions_path = assets/'MaterialTemplates/UseConditions.json'
