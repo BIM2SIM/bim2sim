@@ -1,6 +1,6 @@
 ## Code specific
-MainLib/bim2sim/assets/enrichment/usage/customUsages.json
-MainLib/bim2sim/assets/enrichment/usage/customUsages.json
+MainLib/bim2sim/assets/enrichment/usage/customUsages*.json
+MainLib/bim2sim/assets/enrichment/usage/UseConditions*.json
 
 
 ## Python
