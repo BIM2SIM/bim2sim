@@ -17,26 +17,15 @@ from bim2sim_energyplus.task import EPGeomPreprocessing
 class AddSpaceBoundaries2B(ITask):
     """Exports an EnergyPlus model based on IFC information"""
 
-    reads = ('instances', 'ifc',)
+    reads = ('instances', 'ifc', 'ep_decisions',)
     # final = True
 
-    def run(self, workflow, instances, ifc):
+    def run(self, workflow, instances, ifc, ep_decisions):
 
-        ep_decisions = {d.global_key: d for d in self.made_decisions if d.global_key.startswith('EnergyPlus')}
-        split_bounds_key = 'EnergyPlus.SplitConvexBounds'
-        decisions_to_make = []
-        if split_bounds_key in ep_decisions:
-            split_bounds = ep_decisions[split_bounds_key]
-        else:
-            split_bounds = BoolDecision(
-                question="Do you want to decompose non-convex space boundaries into convex boundaries?",
-                global_key='EnergyPlus.SplitConvexBounds')
-            decisions_to_make.append(split_bounds)
-        yield DecisionBunch(decisions_to_make)
-
+        split_bounds = ep_decisions['EnergyPlus.SplitConvexBounds']
         # self._get_neighbor_bounds(instances)
         inst_2b = self._compute_2b_bound_gaps(instances)
-        if split_bounds.value:
+        if split_bounds:
             EPGeomPreprocessing._split_non_convex_bounds(EPGeomPreprocessing(), inst_2b)
         instances.update(inst_2b)
 

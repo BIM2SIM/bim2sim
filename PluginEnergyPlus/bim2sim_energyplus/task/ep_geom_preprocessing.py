@@ -25,22 +25,28 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 class EPGeomPreprocessing(ITask):
     reads = ('instances',)
+    touches = ('ep_decisions',)
 
     def __init__(self):
         super().__init__()
 
     def run(self, workflow, instances):
         self.logger.info("Geometric preprocessing for EnergyPlus Export started ...")
+        decisions = []
         split_bounds = BoolDecision(
             question="Do you want to decompose non-convex space boundaries into convex boundaries?",
             global_key='EnergyPlus.SplitConvexBounds')
+        decisions.append(split_bounds)
         add_shadings = BoolDecision(
             question="Do you want to add shadings if available?",
             global_key='EnergyPlus.AddShadings')
+        decisions.append(add_shadings)
         split_shadings = BoolDecision(
             question="Do you want to decompose non-convex shadings into convex shadings?",
             global_key='EnergyPlus.SplitConvexShadings')
-        yield DecisionBunch([split_bounds, add_shadings, split_shadings])
+        decisions.append(split_shadings)
+        yield DecisionBunch(decisions)
+        ep_decisions = {item.global_key: item.value for item in decisions}
         self._add_bounds_to_instances(instances)
         self._get_parents_and_children(instances)
         self._move_children_to_parents(instances)
@@ -57,6 +63,7 @@ class EPGeomPreprocessing(ITask):
                         spatials.append(sb)
             if spatials and split_shadings.value:
                 self._split_non_convex_shadings(instances, spatials)
+        return ep_decisions,
 
     def _add_bounds_to_instances(self, instances):
         self.logger.info("Creates python representation of relevant ifc types")

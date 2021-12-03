@@ -357,7 +357,6 @@ class Project:
                 for decision in decision_bunch:
                     decision.freeze()
                 self._made_decisions.extend(decision_bunch)
-                self.playground.made_decisions.extend(decision_bunch)
                 self._made_decisions.validate_global_keys()
             success = True
         except Exception as ex:
