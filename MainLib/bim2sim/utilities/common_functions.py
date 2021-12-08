@@ -58,7 +58,7 @@ def get_usage_dict() -> dict:
 
 def get_common_pattern_usage() -> dict:
     custom_pattern_path = assets/'enrichment/usage/commonUsages.json'
-    with open(custom_pattern_path, 'r+') as f:
+    with open(custom_pattern_path, 'r+', encoding='utf-8') as f:
         common_usages = json.load(f)
     return common_usages
 

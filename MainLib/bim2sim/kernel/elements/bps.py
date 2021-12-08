@@ -268,15 +268,15 @@ class ThermalZone(BPSProduct):
     )
     t_set_heat = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMin"),
-        unit=ureg.degC,
-        default=21
+        unit=ureg.degC
     )
     t_set_cool = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMax"),
         unit=ureg.degC
     )
     t_ground = attribute.Attribute(
-        unit=ureg.degC
+        unit=ureg.degC,
+        default=13,
     )
     area = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),

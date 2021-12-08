@@ -173,7 +173,8 @@
       "Heizung",
       "Server",
       "Archiv",
-      "Elektro/HLS"
+      "Elektro/HLS",
+      "MEP"
    ],
    "Storehouse, logistics building":[
       "Lager, Logistikgebäude",
@@ -185,7 +186,6 @@
       "Hall",
       "Flur",
       "Dachboden",
-      "TH",
       "Treppenhaus",
       "Korridor",
       "Übergang"
