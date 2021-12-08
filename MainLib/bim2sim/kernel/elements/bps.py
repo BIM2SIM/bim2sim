@@ -231,7 +231,9 @@ class ThermalZone(BPSProduct):
     def _get_usage(self, name):
         if self.zone_name is not None:
             usage = self.zone_name
-        elif self.ifc.LongName is not None:
+        elif self.ifc.LongName is not None and \
+                 "oldSpaceGuids_" not in self.ifc.LongName:
+            # todo oldSpaceGuids_ is hardcode for erics tool
             usage = self.ifc.LongName
         else:
             usage = self.name

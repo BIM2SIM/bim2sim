@@ -103,9 +103,8 @@ def get_pattern_usage():
                     pattern_usage_teaser[i]["common"].append(re.compile(
                         '(.*?)%s' % c_trans, flags=re.IGNORECASE))
                 if "custom" in usages[i]:
-                    for c_trans in usages[i]["custom"]:
-                        pattern_usage_teaser[i]["custom"].append(re.compile(
-                            '(.*?)%s' % c_trans, flags=re.IGNORECASE))
+                    for clear_usage in usages[i]["custom"]:
+                        pattern_usage_teaser[i]["custom"].append(clear_usage)
 
     pattern_usage_teaser['office_function']["common"] = [re.compile(
         '(.*?)%s' % c_trans, re.IGNORECASE)

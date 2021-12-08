@@ -46,11 +46,10 @@ class EnrichUseConditions(ITask):
                     for usage in pattern_usage.keys():
                         # check custom first
                         if "custom" in pattern_usage[usage]:
-                            for i in pattern_usage[usage]["custom"]:
-                                for i_name in list_org:
-                                    if i.match(i_name):
-                                        if usage not in matches:
-                                            matches.append(usage)
+                            for cus_usage in pattern_usage[usage]["custom"]:
+                                if cus_usage == tz.usage:
+                                    if usage not in matches:
+                                        matches.append(usage)
                         # if not found in custom, continue with common
                         if len(matches) == 0:
                             for i in pattern_usage[usage]["common"]:

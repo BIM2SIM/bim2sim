@@ -199,6 +199,15 @@
       "Bad",
       "Toiletten"
    ],
+   "Group Office (between 2 and 6 employees)": [
+      "Gruppen Buero"
+   ],
+   "Open-plan Office (7 or more employees)": [
+      "Offenes Buero"
+   ],
+   "Single office": [
+      "Einzelbüro"
+   ],
    "office_function":[
       "Office",
       "Buero",
