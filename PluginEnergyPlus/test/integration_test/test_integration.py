@@ -69,7 +69,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
+        answers = (True, True, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -83,7 +83,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BPSMultiZoneSeparatedEPfull()
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = (True, True, 'Kitchen - preparations, storage', True,
+        answers = (True, True, True,
                    'solid_brick_a', True, 'hardwood', True,
                    'Light_Concrete_DK', True, 'Concrete_DK', "heavy", 1, 'Door',
                    1, 'Brick', 'brick_H', "EnEv", *(1,) * 8, True, True, True, False)
