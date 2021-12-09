@@ -4,8 +4,6 @@ from bim2sim.decision import ListDecision, DecisionBunch, BoolDecision
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.elements.bps import ThermalZone
 
-UseConditions = get_usage_dict()
-
 
 class EnrichUseConditions(ITask):
     """Enriches Use Conditions of thermal zones
@@ -20,6 +18,7 @@ class EnrichUseConditions(ITask):
 
     def run(self, workflow: Workflow, tz_instances: dict):
         self.logger.info("enriches thermal zones usage")
+        self.UseConditions = get_usage_dict()
         # case no thermal zones found
         if len(tz_instances) == 0:
             self.logger.warning("Found no spaces to enrich")
@@ -126,7 +125,7 @@ class EnrichUseConditions(ITask):
         return usage_decision.value
 
     def load_usage(self, tz: ThermalZone):
-        use_condition = UseConditions[tz.usage]
+        use_condition = self.UseConditions[tz.usage]
         for attr, value in use_condition.items():
             # avoid to overwrite attrs present on the instance
             if getattr(tz, attr) is None:
