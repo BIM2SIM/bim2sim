@@ -114,7 +114,7 @@ def get_layers_ifc(element):
                 layer_list = [association]
             elif hasattr(association, 'ForLayerSet'):
                 layer_list = association.ForLayerSet.MaterialLayers
-            elif hasattr(association, 'material'):
+            elif hasattr(association, 'Materials'):
                 layer_list = association.Materials
             # TODO is this ifc4 conform? or just a workaround
             elif hasattr(association, 'MaterialLayers'):
