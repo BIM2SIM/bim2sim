@@ -249,6 +249,17 @@ class ThermalZone(BPSProduct):
     def _get_name(self, name):
         return self.ifc.Name
 
+    def _get_area(self, name):
+        """function to get a general area for later usage"""
+        if self.net_area:
+            area = self.net_area
+        elif self.gross_area:
+            area = self.gross_area
+        else:
+            # todo implement area_by_sb # issue 199
+            area = None
+        return area
+
     name = attribute.Attribute(
         functions=[_get_name]
     )
@@ -270,8 +281,16 @@ class ThermalZone(BPSProduct):
         unit=ureg.degC,
         default=13,
     )
-    area = attribute.Attribute(
+    gross_area = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
+        unit=ureg.meter ** 2
+    )
+    net_area = attribute.Attribute(
+        default_ps=("Qto_SpaceBaseQuantities", "NetFloorArea"),
+        unit=ureg.meter ** 2
+    )
+    area = attribute.Attribute(
+        functions=[_get_area],
         unit=ureg.meter ** 2
     )
     net_volume = attribute.Attribute(

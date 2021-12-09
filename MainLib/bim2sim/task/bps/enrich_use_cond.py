@@ -100,16 +100,15 @@ class EnrichUseConditions(ITask):
         default_matches = ["Single office",
                            "Group Office (between 2 and 6 employees)",
                            "Open-plan Office (7 or more employees)"]
-        area = tz.area.m
-        # case area its available
-        if area is not None:
+        if tz.area:
+            area = tz.area.m
             if area <= 7:
                 return default_matches[0]
             elif 7 < area <= 42:
                 return default_matches[1]
             else:
                 return default_matches[2]
-        # case area not available
+            # case area not available
         else:
             yield from self.list_decision_usage(tz, default_matches)
 
