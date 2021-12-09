@@ -274,8 +274,11 @@ class Project:
         """Load existing project"""
         self.storage = {}  # project related items
         self.paths = FolderStructure(path)
-        self.name = list(
-            filter(Path.is_file, self.paths.ifc.glob('**/*')))[0].stem
+        try:
+            self.name = list(
+                    filter(Path.is_file, self.paths.ifc.glob('**/*')))[0].stem
+        except:
+            self.name = "Project"
 
         if not self.paths.is_project_folder():
             raise AssertionError("Project path is no valid project directory. "
