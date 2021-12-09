@@ -223,7 +223,9 @@ class ThermalZone(BPSProduct):
     def _get_usage(self, name):
         if self.zone_name is not None:
             usage = self.zone_name
-        elif self.ifc.LongName is not None:
+        elif self.ifc.LongName is not None and \
+                 "oldSpaceGuids_" not in self.ifc.LongName:
+            # todo oldSpaceGuids_ is hardcode for erics tool
             usage = self.ifc.LongName
         else:
             usage = self.name
@@ -258,17 +260,15 @@ class ThermalZone(BPSProduct):
     )
     t_set_heat = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMin"),
-        unit=ureg.degC,
-        default=21
+        unit=ureg.degC
     )
     t_set_cool = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMax"),
-        unit=ureg.degC,
-        default=25
+        unit=ureg.degC
     )
     t_ground = attribute.Attribute(
         unit=ureg.degC,
-        default=13
+        default=13,
     )
     area = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
