@@ -1,7 +1,3 @@
-## Code specific
-MainLib/bim2sim/assets/enrichment/usage/*
-
-
 ## Python
 # Byte-compiled / optimized / DLL files
 __pycache__/
