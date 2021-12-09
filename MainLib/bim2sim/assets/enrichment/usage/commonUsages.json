@@ -119,7 +119,9 @@
       "Seminarraum",
       "Besprechung",
       "Meeting",
-      "Mehrzweckraum"
+      "Mehrzweckraum",
+      "Versammlung",
+      "Veranstaltung"
    ],
    "MultiUseComputerRoom":[
       "Computer",

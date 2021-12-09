@@ -213,8 +213,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test DigitalHub IFC"""
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB_neu.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', *(None,)*150, True, True, 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
+        answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True, 2015, 'heavy',
+                   'Waermeschutzverglasung, dreifach',
                    True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
