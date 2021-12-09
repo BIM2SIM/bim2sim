@@ -6,6 +6,7 @@ import bim2sim
 
 from pathlib import Path
 
+
 def angle_equivalent(angle):
     while angle >= 360 or angle < 0:
         if angle >= 360:
@@ -48,8 +49,13 @@ def vector_angle(vector):
 assets = Path(bim2sim.__file__).parent/'assets'
 
 
-def get_usage_dict() -> dict:
-    usage_path = assets/'enrichment/usage/UseConditions.json'
+def get_usage_dict(prj_name) -> dict:
+    custom_usage_path = assets/'enrichment/usage' /\
+                        ('UseConditions'+prj_name+'.json')
+    if custom_usage_path.is_file():
+        usage_path = custom_usage_path
+    else:
+        usage_path = assets/'enrichment/usage/UseConditions.json'
     with open(usage_path, 'r+') as f:
         usage_dict = json.load(f)
         del usage_dict['version']
@@ -63,9 +69,15 @@ def get_common_pattern_usage() -> dict:
     return common_usages
 
 
-def get_custom_pattern_usage() -> dict:
+def get_custom_pattern_usage(prj_name) -> dict:
+    """gets custom usages based on specific project or general defined file."""
     custom_usages = {}
-    custom_pattern_path = assets/'enrichment/usage/customUsages.json'
+    custom_pattern_path_prj = assets/'enrichment/usage' /\
+                        ('customUsages'+prj_name+'.json')
+    if custom_pattern_path_prj.is_file():
+        custom_pattern_path = custom_pattern_path_prj
+    else:
+        custom_pattern_path = assets/'enrichment/usage/customUsages.json'
     with open(custom_pattern_path, 'r+', encoding='utf-8') as f:
         custom_usages_json = json.load(f)
     if custom_usages_json["settings"]["use"]:
@@ -73,12 +85,12 @@ def get_custom_pattern_usage() -> dict:
     return custom_usages
 
 
-def get_pattern_usage():
+def get_pattern_usage(prj_name):
     """get usage patterns to use it on the thermal zones get_usage"""
-    use_conditions = get_usage_dict()
+    use_conditions = get_usage_dict(prj_name)
     common_usages = get_common_pattern_usage()
 
-    custom_usages = get_custom_pattern_usage()
+    custom_usages = get_custom_pattern_usage(prj_name)
     usages = combine_usages(common_usages, custom_usages)
 
     pattern_usage_teaser = collections.defaultdict(dict)

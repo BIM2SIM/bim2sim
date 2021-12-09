@@ -21,6 +21,7 @@ class ITask:
         self.name = self.__class__.__name__
         self.logger = logging.getLogger("%s.%s" % (__name__, self.name))
         self.paths = None
+        self.prj_name = None
 
     def run(self, workflow, **kwargs):
         """Run task."""
