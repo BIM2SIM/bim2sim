@@ -42,8 +42,9 @@ class ITask:
 class Playground:
     """Playground for executing ITasks"""
 
-    def __init__(self, workflow, paths):
+    def __init__(self, workflow, paths, prj_name):
         self.paths = paths
+        self.prj_name = prj_name
         self.state = {}
         self.workflow = workflow
         self.history = []
@@ -67,6 +68,7 @@ class Playground:
         read_state = {k: self.state[k] for k in task.reads}
         try:
             task.paths = self.paths
+            task.prj_name = self.prj_name
             if inspect.isgeneratorfunction(task.run):
                 result = yield from task.run(self.workflow, **read_state)
             else:
