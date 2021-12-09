@@ -174,7 +174,12 @@
       "Server",
       "Archiv",
       "Elektro/HLS",
-      "MEP"
+      "MEP",
+      "Verteilung",
+      "RLT",
+      "Putzmittel",
+      "Hausanschluss",
+      "Heizzentrale"
    ],
    "Storehouse, logistics building":[
       "Lager, Logistikgebäude",
