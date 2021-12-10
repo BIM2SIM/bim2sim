@@ -34,7 +34,7 @@ build_env:ubuntu_base:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/environment:ubuntu_base -f Environment/envBase.Dockerfile .
+    - docker build -t $CI_REGISTRY/environment:ubuntu_base -f MainLib/envBase.Dockerfile .
     - docker push $CI_REGISTRY/environment:ubuntu_base
   only:
     refs:
