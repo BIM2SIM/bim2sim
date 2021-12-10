@@ -13,7 +13,7 @@ from bim2sim.kernel.elements.hvac import HVACPort, HVACProduct
 from bim2sim.kernel.elements import hvac, bps
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
-from bim2sim.kernel.units import ureg, ifcunits
+from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.decision import ListDecision, BoolDecision, DecisionBunch
 from bim2sim.decorators import cached_property
@@ -388,9 +388,9 @@ class UnderfloorHeating(PipeStrand):
                 if abs(element.ports[0].position[1] - element.ports[1].position[1]) < 1:
                     x_orientation.append(element)
 
-        length_unit = ifcunits.get('IfcLengthMeasure')
+        length_unit = element.ifc_units.get('IfcLengthMeasure')
         heating_area = (max_x - min_x) * (max_y - min_y) * length_unit ** 2
-        if heating_area < 1e6 * ifcunits.get('IfcLengthMeasure') ** 2:
+        if heating_area < 1e6 * length_unit ** 2:
             return  # heating area criteria failed
 
         # TODO: this is not correct for some layouts

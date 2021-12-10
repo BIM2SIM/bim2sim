@@ -6,7 +6,7 @@ mako
 networkx>=2.2
 pint
 rpyc
-teaser
+teaser==0.7.6
 translators
 geomeppy
 shapely

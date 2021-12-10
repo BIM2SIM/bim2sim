@@ -21,7 +21,6 @@ class DummyPlugin(Plugin):
     default_workflow = PlantSimulation
     elements = {Pipe, PipeFitting, HeatExchanger}
     default_tasks = [
-        hvac.SetIFCTypesHVAC,
         common.LoadIFC,
         common.CreateElements,
         hvac.ConnectElements

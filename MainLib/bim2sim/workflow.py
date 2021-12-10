@@ -24,6 +24,7 @@ class Workflow:
                  hvac: LOD,
                  spaces: LOD,
                  layers: LOD,
+                 create_external_elements=False,
                  filters: list = None):
 
         self.ductwork = ductwork
@@ -33,10 +34,11 @@ class Workflow:
         self.hvac = hvac
         self.spaces = spaces
         self.layers = layers
+        self.create_external_elements = create_external_elements
 
         self.filters = filters if filters else []
+        self.ifc_units = {}  # dict to store project related units
 
-        self.relevant_ifc_types = None  # TODO: obsolete
         self.relevant_elements = []
 
         # default values
@@ -62,44 +64,6 @@ class PlantSimulation(Workflow):
             spaces=LOD.ignore,
             layers=LOD.full,
         )
-        # todo this can be deleted?
-        self.relevant_ifc_types = (
-            'IfcAirTerminal',
-            'IfcAirTerminalBox',
-            'IfcAirToAirHeatRecovery',
-            'IfcBoiler',
-            'IfcBurner',
-            'IfcChiller',
-            'IfcCoil',
-            'IfcCompressor',
-            'IfcCondenser',
-            'IfcCooledBeam',
-            'IfcCoolingTower',
-            'IfcDamper',
-            'IfcDistributionChamberElement',
-            'IfcDuctFitting',
-            'IfcDuctSegment',
-            'IfcDuctSilencer',
-            'IfcEngine',
-            'IfcEvaporativeCooler',
-            'IfcEvaporator',
-            'IfcFan',
-            'IfcFilter',
-            'IfcFlowMeter',
-            'IfcHeatExchanger',
-            'IfcHumidifier',
-            'IfcMedicalDevice',
-            'IfcPipeFitting',
-            'IfcPipeSegment',
-            'IfcPump',
-            'IfcSpaceHeater',
-            'IfcTank',
-            'IfcTubeBundle',
-            'IfcUnitaryEquipment',
-            'IfcValve',
-            'IfcVibrationIsolator',
-            #'IfcHeatPump'
-        )
 
 
 class BPSMultiZoneSeparatedLayersFull(Workflow):
@@ -118,21 +82,6 @@ class BPSMultiZoneSeparatedLayersFull(Workflow):
             # layers=LOD.low,
             layers=LOD.full,
         )
-        # self.relevant_ifc_types = (
-        #     'IfcSite',
-        #     'IfcBuilding',
-        #     'IfcBuildingStorey',
-        #     # 'IfcWallElementedCase',
-        #     # 'IfcWallStandardCase',
-        #     'IfcWall',
-        #     'IfcWindow',
-        #     'IfcDoor',
-        #     'IfcSlab',
-        #     'IfcRoof',
-        #     'IfcSpaceHeater',
-        #     'IfcAirTerminal',
-        #     'IfcAirTerminalBox',
-        # )
 
 
 class BPSMultiZoneSeparatedLayersLow(Workflow):
@@ -265,4 +214,23 @@ class BPSMultiZoneSeparatedEP(Workflow):
             hvac=LOD.low,
             spaces=LOD.full,
             layers=LOD.low,
+            create_external_elements=True,  # consider IfcExternalSpatialElements
+        )
+
+
+class BPSMultiZoneSeparatedEPfull(Workflow):
+    """Building performance simulation with every space as single zone
+    separated from each other - no aggregation,
+    used within the EnergyPlus Workflow"""
+
+    def __init__(self):
+        super().__init__(
+            ductwork=LOD.low,
+            hull=LOD.medium,
+            consumer=LOD.low,
+            generator=LOD.ignore,
+            hvac=LOD.low,
+            spaces=LOD.full,
+            layers=LOD.full,
+            create_external_elements=True,  # consider IfcExternalSpatialElements
         )

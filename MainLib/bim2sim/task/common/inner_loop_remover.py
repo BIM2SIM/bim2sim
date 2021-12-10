@@ -9,15 +9,22 @@ from typing import Tuple, List, Mapping, TypeVar, Generic, Optional
 from collections import defaultdict
 import numpy
 import math
+import logging
 
 # Type aliases that are used throughout this module
 from OCC.Core.BRep import BRep_Tool
+from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
+from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeEdge
+from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
+from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.TopAbs import TopAbs_FACE
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopLoc import TopLoc_Location
 from OCC.Core.TopoDS import TopoDS_Iterator, TopoDS_Shape, topods_Face
-from OCC.Core.gp import gp_Pnt
+from OCC.Core.gp import gp_Pnt, gp_XYZ
+
+from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 Vertex = Vector = Tuple[float, float, float]
 Edge = Tuple[Vertex, Vertex]
@@ -86,15 +93,19 @@ def _get_triangulation(face: TopoDS_Shape) -> Triangulation:
     bt = BRep_Tool()
     result = []
     while ex.More():
-        triangulation = bt.Triangulation(topods_Face(ex.Current()), TopLoc_Location())
+        L = TopLoc_Location()
+        triangulation = bt.Triangulation(topods_Face(ex.Current()), L)
         triangles = triangulation.Triangles()
         vertices = triangulation.Nodes()
         for i in range(1, triangulation.NbTriangles() + 1):
             idx1, idx2, idx3 = triangles.Value(i).Get()
+            P1 = vertices.Value(idx1).Transformed(L.Transformation())
+            P2 = vertices.Value(idx2).Transformed(L.Transformation())
+            P3 = vertices.Value(idx3).Transformed(L.Transformation())
             result.append([
-                _gp_pnt_to_coord_tuple(vertices.Value(idx1)),
-                _gp_pnt_to_coord_tuple(vertices.Value(idx2)),
-                _gp_pnt_to_coord_tuple(vertices.Value(idx3))
+                _gp_pnt_to_coord_tuple(P1),
+                _gp_pnt_to_coord_tuple(P2),
+                _gp_pnt_to_coord_tuple(P3)
             ])
         ex.Next()
     return result
@@ -321,8 +332,6 @@ def _reconstruct_cut_polygon(out_edges: List[Edge], cut_edges: List[Edge], plane
 
 
 def remove_inner_loops(shape: TopoDS_Shape) -> TopoDS_Shape:
-    from bim2sim.kernel.elements.bps import SpaceBoundary
-
     # Build all necessary data structures.
     triangulation = _get_triangulation(shape)
     in_edges, out_edges = _get_inside_outside_edges(triangulation)
@@ -350,11 +359,249 @@ def remove_inner_loops(shape: TopoDS_Shape) -> TopoDS_Shape:
             partition.union(edge[0], edge[1])
 
     cut_polygon = _reconstruct_cut_polygon(out_edges, cut_edges, plane)
-
-    new_shape = SpaceBoundary._make_faces_from_pnts(cut_polygon)
+    new_shape = PyOCCTools.make_faces_from_pnts(cut_polygon)
 
     # Copy over shape location
-    shape_loc = TopoDS_Iterator(shape).Value().Location()
-    new_shape.Move(shape_loc)
+    # shape_loc = TopoDS_Iterator(shape).Value().Location()
+    # new_shape.Move(shape_loc)
 
     return new_shape
+
+
+def _cross(a: Vertex, b: Vertex) -> Vertex:
+    return \
+        a[1] * b[2] - a[2] * b[1], \
+        a[2] * b[0] - a[0] * b[2], \
+        a[0] * b[1] - a[1] * b[0]
+
+
+def _dot(a: Vertex, b: Vertex) -> float:
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+
+
+def _minus(a: Vertex, b: Vertex) -> Vertex:
+    return \
+        a[0] - b[0], \
+        a[1] - b[1], \
+        a[2] - b[2]
+
+
+def _is_convex_angle(p1: Vertex, p2: Vertex, p3: Vertex, normal: Vertex) -> bool:
+    cross = _cross(_minus(p2, p1), _minus(p3, p1))
+    return _dot(cross, normal) >= -1e-6
+
+
+def fuse_pieces(pieces: List[List[Vertex]], shapes_to_consider: List[TopoDS_Shape] = []) -> List[List[Vertex]]:
+    normal, _, _ = _calculate_plane_vectors(pieces[0])
+    consider_polygons = False
+
+    if len(shapes_to_consider) > 0:
+        consider_polygons = True
+        edges = []
+        for shape in shapes_to_consider:
+            list_pnts = PyOCCTools.get_points_of_face(shape)
+            for i, p in enumerate(list_pnts[:-1]):
+                edges.append(BRepBuilderAPI_MakeEdge(list_pnts[i], list_pnts[i + 1]).Shape())
+            edges.append(BRepBuilderAPI_MakeEdge(list_pnts[-1], list_pnts[0]).Shape())
+
+    i1 = 0
+    while i1 < len(pieces) - 1:
+        piece_a = pieces[i1]
+        i1 += 1
+        for piece_a_idx in range(0, len(piece_a)):
+            a1 = piece_a[piece_a_idx]
+            a2 = piece_a[(piece_a_idx + 1) % len(piece_a)]
+
+            is_inner_edge = False
+            piece_b = None
+            piece_b_idx = None
+            for i2 in range(i1, len(pieces)):
+                piece_b = pieces[i2]
+                for triangle_b_check_idx in range(0, len(piece_b)):
+                    if a2 != piece_b[triangle_b_check_idx]:
+                        continue
+                    if a1 != piece_b[(triangle_b_check_idx + 1) % len(piece_b)]:
+                        continue
+                    piece_b_idx = triangle_b_check_idx
+                    is_inner_edge = True
+                    break
+                if is_inner_edge:
+                    break
+            if not is_inner_edge:
+                continue
+
+            # piece_a and piece_b are two triangles with a common edge (piece_a and piece_b)
+            # common edge is spanned between a1 and a2
+            p1 = piece_a[(piece_a_idx - 1) % len(piece_a)]
+            p2 = a1
+            p3 = piece_b[(piece_b_idx + 2) % len(piece_b)]
+
+            if not consider_polygons:
+                # if no polygons need to be considered, shapes are fused
+                # unless resulting shape is non-convex
+                if not _is_convex_angle(p1, p2, p3, normal):
+                    continue
+            else:
+                # if an edge from triangulation cuts the edge of a polygon
+                # which needs to be considered (e.g. from an opening boundary within
+                # a boundary of a wall), then those shapes have to be fused
+                # regardless of the resulting angle
+                # this may lead to non-convex shapes in some cases
+                a1_edge = BRepBuilderAPI_MakeEdge(gp_Pnt(*a1), gp_Pnt(*a2)).Shape()
+                continue_flag = True
+                for edge in edges:
+                    if BRepExtrema_DistShapeShape(edge, a1_edge, Extrema_ExtFlag_MIN).Value() < 1e-3:
+                        continue_flag = False
+                    else:
+                        pass
+                if continue_flag:
+                    continue
+
+            # procedure is repeated for common edge of neighboring shape
+            p1 = piece_b[(piece_b_idx - 1) % len(piece_b)]
+            p2 = a2
+            p3 = piece_a[(piece_a_idx + 2) % len(piece_a)]
+            if not consider_polygons:
+                if not _is_convex_angle(p1, p2, p3, normal):
+                    continue
+            else:
+                a2_edge = BRepBuilderAPI_MakeEdge(gp_Pnt(*a2), gp_Pnt(*a1)).Shape()
+                continue_flag = True
+                for edge in edges:
+                    if BRepExtrema_DistShapeShape(edge, a2_edge, Extrema_ExtFlag_MIN).Value() < 1e-3:
+                        continue_flag = False
+                    else:
+                        pass
+                if continue_flag:
+                    continue
+            # fuse triangles (if angle is convex or opening-polygon is cut by this edge
+            fused_piece = []
+            i = (piece_a_idx + 1) % len(piece_a)
+            while i != piece_a_idx:
+                fused_piece.append(piece_a[i])
+                i = (i + 1) % len(piece_a)
+            i = (piece_b_idx + 1) % len(piece_b)
+            while i != piece_b_idx:
+                fused_piece.append(piece_b[i])
+                i = (i + 1) % len(piece_b)
+
+            i1 -= 1
+            pieces.remove(piece_a)
+            pieces.remove(piece_b)
+            pieces.insert(i1, fused_piece)
+            piece_a = fused_piece
+            break
+    return pieces
+
+
+def convex_decomposition_base(shape: TopoDS_Shape, opening_shapes: List[TopoDS_Shape] = []) -> List[List[Vertex]]:
+    """Convex decomposition base: removes common edges of triangles unless a non-convex shape is created.
+    In case of openings: In a first round, remove all cutting triangle edges with the opening polygons
+    regardless of non-convex shapes. Then, check for resulting angles. This may lead to non-convex shapes,
+    but should work in most cases.
+    """
+    pieces = _get_triangulation(shape)
+    if len(opening_shapes) > 0:
+        pieces = fuse_pieces(pieces, opening_shapes)
+    pieces = fuse_pieces(pieces)
+
+    return pieces
+
+
+def convex_decomposition(shape: TopoDS_Shape, opening_shapes: List[TopoDS_Shape] = []) -> List[TopoDS_Shape]:
+    pieces = convex_decomposition_base(shape, opening_shapes)
+    pieces_area = 0
+    new_area = 0
+    new_pieces = []
+    for p in pieces:
+        pieces_area += PyOCCTools.get_shape_area(PyOCCTools.make_faces_from_pnts(p))
+        pnt_list_new = PyOCCTools.remove_coincident_vertices([gp_XYZ(pnt[0], pnt[1], pnt[2]) for pnt in p])
+        pnt_list_new = PyOCCTools.remove_collinear_vertices2(pnt_list_new)
+        if pnt_list_new != p and len(pnt_list_new) > 3:
+            pnt_list_new = [n.Coord() for n in pnt_list_new]
+            p = pnt_list_new
+        new_pieces.append(p)
+        new_area += PyOCCTools.get_shape_area(PyOCCTools.make_faces_from_pnts(p))
+    if abs(pieces_area - new_area) > 1e-3:
+        new_pieces = pieces
+    new_shapes = list(map(lambda p: PyOCCTools.make_faces_from_pnts(p), new_pieces))
+    oriented_shapes = []
+    org_normal = PyOCCTools.simple_face_normal(shape)
+    for new_shape in new_shapes:
+        new_normal = PyOCCTools.simple_face_normal(new_shape)
+        if all([abs(i) < 1e-3 for i in ((new_normal - org_normal).Coord())]):
+            oriented_shapes.append(new_shape)
+        else:
+            new_shape = PyOCCTools.flip_orientation_of_face(new_shape)
+            new_normal = PyOCCTools.simple_face_normal(new_shape)
+            if all([abs(i) < 1e-3 for i in ((new_normal - org_normal).Coord())]):
+                oriented_shapes.append(new_shape)
+            else:
+                logger = logging.getLogger(__name__)
+                logger.error("Convex decomposition produces a gap in new space boundary")
+    # check if decomposed shape has same area as original shape
+    oriented_area = 0
+    org_area = PyOCCTools.get_shape_area(shape)
+    for face in oriented_shapes:
+        oriented_area += PyOCCTools.get_shape_area(face)
+    cut_count = 0
+    while abs(org_area-oriented_area) > 5e-3:
+        cut_count +=1
+        cut_shape = shape
+        for bound in oriented_shapes:
+            cut_shape = BRepAlgoAPI_Cut(cut_shape, bound).Shape()
+        list_cut_shapes = PyOCCTools.get_faces_from_shape(cut_shape)
+        add_cut_shapes = []
+        for cs in list_cut_shapes:
+            new_normal = PyOCCTools.simple_face_normal(cs)
+            if not all([abs(i) < 1e-3 for i in ((new_normal - org_normal).Coord())]):
+                cs = PyOCCTools.flip_orientation_of_face(cs)
+            cut_area = PyOCCTools.get_shape_area(cs)
+            if cut_area < 5e-4:
+                continue
+            cs = PyOCCTools.remove_coincident_and_collinear_points_from_face(cs)
+            oriented_area += cut_area
+            add_cut_shapes.append(cs)
+        if cut_count > 3:
+            logger = logging.getLogger(__name__)
+            logger.error("Convex decomposition produces a gap in new space boundary")
+            break
+        else:
+            oriented_shapes.extend(add_cut_shapes)
+    return oriented_shapes
+
+
+def is_convex_slow(shape: TopoDS_Shape) -> bool:
+    return len(convex_decomposition_base(shape)) == 1
+
+
+def is_convex_no_holes(shape: TopoDS_Shape) -> bool:
+    """check if TopoDS_Shape is convex. Returns False if shape is non-convex"""
+    gp_pnts = PyOCCTools.get_points_of_face(shape)
+    pnts = list(map(lambda p: _gp_pnt_to_coord_tuple(p), gp_pnts))
+    z = 0
+    for i in range(0, len(pnts)):
+        p0 = pnts[i]
+        p1 = pnts[(i + 1) % len(pnts)]
+        p2 = pnts[(i + 2) % len(pnts)]
+        cross = _cross(_minus(p1, p0), _minus(p2, p1))[2]
+        if z != 0 and abs(cross) >= 1e-6 and numpy.sign(cross) != numpy.sign(z):
+            return False
+        else:
+            z = cross
+    return True
+
+
+def is_polygon_convex_no_holes(pnts: List[Tuple[float, float, float]]) -> bool:
+    """check if polygon made from tuples of floats is convex. Returns False if shape is non-convex"""
+    z = 0
+    for i in range(0, len(pnts)):
+        p0 = pnts[i]
+        p1 = pnts[(i + 1) % len(pnts)]
+        p2 = pnts[(i + 2) % len(pnts)]
+        cross = _cross(_minus(p1, p0), _minus(p2, p1))[2]
+        if z != 0 and abs(cross) >= 1e-6 and numpy.sign(cross) != numpy.sign(z):
+            return False
+        else:
+            z = cross
+    return True

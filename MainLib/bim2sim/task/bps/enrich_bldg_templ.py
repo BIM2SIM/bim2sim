@@ -15,25 +15,27 @@ class EnrichBuildingByTemplates(ITask):
     reads = ('invalid_layers', 'instances')
     touches = ('enriched_layers',)
 
-    instance_template = {}
-
     def __init__(self):
         super().__init__()
         self.enriched_layers = []
+        self.instance_template = {}
         pass
 
     def run(self, workflow, invalid_layers, instances):
         self.logger.info("setting verifications")
         if workflow.layers is LOD.low:
             construction_type = yield from self.get_construction_type()
+            resumed = EnrichMaterial.get_resumed_material_templates()
             for instance in invalid_layers.values():
                 yield from self.template_layers_creation(
-                    instance, construction_type, instances)
+                    instance, construction_type, instances, resumed,
+                    self.instance_template)
                 self.enriched_layers.append(instance)
             windows = filter_instances(instances, 'Window')
             for window in windows:
                 yield from self.window_template_enrichment(
-                    window, construction_type, instances)
+                    window, construction_type, instances,
+                    self.instance_template)
 
         self.logger.info("enriched %d invalid layers",
                          len(self.enriched_layers))
@@ -51,14 +53,14 @@ class EnrichBuildingByTemplates(ITask):
         return decision_template.value
 
     @classmethod
-    def template_layers_creation(cls, instance, construction_type, instances):
+    def template_layers_creation(cls, instance, construction_type, instances,
+                                 resumed, class_instance_template):
         instance.layers = []
         layers_width = 0
         layers_r = 0
         data = yield from cls.get_instance_template(
-            instance, construction_type, instances)
+            instance, construction_type, instances, class_instance_template)
         template = dict(data)
-        resumed = EnrichMaterial.get_resumed_material_templates()
         if template is not None:
             for i_layer, layer_props in template['layer'].items():
                 material_properties = cls.get_material_properties(
@@ -82,14 +84,15 @@ class EnrichBuildingByTemplates(ITask):
         return material_properties
 
     @classmethod
-    def get_instance_template(cls, instance, construction_type, instances):
+    def get_instance_template(cls, instance, construction_type, instances,
+                              class_instance_template):
         # TODO multiple buildings #165
         building = filter_instances(instances, 'Building')[0]
 
         instance_type = type(instance).__name__
         instance_templates = get_type_building_elements()
-        if instance_type in cls.instance_template:
-            return cls.instance_template[instance_type]
+        if instance_type in class_instance_template:
+            return class_instance_template[instance_type]
 
         year_of_construction = int(building.year_of_construction.m)
         template_options = []
@@ -100,19 +103,19 @@ class EnrichBuildingByTemplates(ITask):
                 break
         try:
             template_value = template_options[construction_type]
-            cls.instance_template[instance_type] = template_value
+            class_instance_template[instance_type] = template_value
             return template_value
         except KeyError:
             if len(template_options.keys()) > 0:
                 yield from cls.get_alternative_construction_type(
                     year_of_construction, instance_type, template_options,
-                    instance)
-                return cls.instance_template[instance_type]
+                    instance, class_instance_template)
+                return class_instance_template[instance_type]
 
-    @classmethod
-    def get_alternative_construction_type(cls, year_of_construction,
+    @staticmethod
+    def get_alternative_construction_type(year_of_construction,
                                           instance_type, template_options,
-                                          instance):
+                                          instance, class_instance_template):
         if len(template_options) > 1:
             decision_template = ListDecision(
                 "the following construction types were "
@@ -123,19 +126,20 @@ class EnrichBuildingByTemplates(ITask):
                                                   instance.guid),
                 allow_skip=True)
             yield DecisionBunch([decision_template])
-            cls.instance_template[instance_type] = \
+            class_instance_template[instance_type] = \
                 template_options[decision_template.value]
         else:
-            cls.instance_template[instance_type] = \
+            class_instance_template[instance_type] = \
                 template_options[next(iter(template_options))]
 
-    def window_template_enrichment(self, window, construction_type, instances):
+    def window_template_enrichment(self, window, construction_type,
+                                   instances, class_instance_template):
         enriched_attrs = ['g_value', 'a_conv', 'shading_g_total',
                           'shading_max_irr', 'inner_convection',
                           'inner_radiation', 'outer_radiation',
                           'outer_convection']
         template = yield from self.get_instance_template(
-            window, construction_type, instances)
+            window, construction_type, instances, class_instance_template)
         for attr in enriched_attrs:
             value = getattr(window, attr)
             if value is None:

@@ -77,7 +77,7 @@ class TestFactory(unittest.TestCase):
             Element1,
             Element2
         ]
-        factory = element.Factory(relevant_elements, dummy=None)
+        factory = element.Factory(relevant_elements, ifc_units={}, dummy=None)
         self.assertIsInstance(factory, element.Factory)
 
     def test_factory_create(self):
@@ -87,7 +87,7 @@ class TestFactory(unittest.TestCase):
             Element1,
             Element2
         ]
-        factory = element.Factory(relevant_elements, dummy=None)
+        factory = element.Factory(relevant_elements, ifc_units={}, dummy=None)
         item = factory(entities[0])
 
         self.assertIsInstance(item, element.ProductBased)
@@ -98,7 +98,8 @@ class TestFactory(unittest.TestCase):
 
     def test_create_mapping(self):
         """Test if Factory uses ifc_types correctly"""
-        factory = element.Factory([TestRoof, TestSlap], None)
+        factory = element.Factory(
+            [TestRoof, TestSlap], ifc_units={}, finder_path=None)
 
         self.assertIs(factory.get_element('IfcSlab', 'BASESLAB'), TestSlap)
         self.assertIs(factory.get_element('IfcSlab', 'OTHER'), TestSlap)

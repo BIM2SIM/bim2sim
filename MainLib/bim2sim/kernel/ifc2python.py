@@ -6,8 +6,9 @@ import os
 import logging
 import typing
 
+from typing import Optional
 import ifcopenshell
-from bim2sim.kernel.units import ifcunits, ureg, parse_ifc
+from bim2sim.kernel.units import parse_ifc
 import math
 from collections.abc import Iterable
 
@@ -21,7 +22,7 @@ def load_ifc(path):
     return ifc_file
 
 
-def propertyset2dict(propertyset):
+def propertyset2dict(propertyset, ifc_units: Optional[dict]):
     """Converts IfcPropertySet to python dict"""
     propertydict = {}
     if hasattr(propertyset, 'HasProperties'):
@@ -32,7 +33,7 @@ def propertyset2dict(propertyset):
                 unit = None
             if prop.is_a() == 'IfcPropertySingleValue':
                 if prop.NominalValue is not None:
-                    unit = ifcunits.get(prop.NominalValue.is_a()) if not unit else unit
+                    unit = ifc_units.get(prop.NominalValue.is_a()) if not unit else unit
                     if unit:
                         propertydict[prop.Name] = prop.NominalValue.wrappedValue * unit
                     else:
@@ -41,7 +42,7 @@ def propertyset2dict(propertyset):
                 # TODO: Unit conversion
                 values = []
                 for value in prop.ListValues:
-                    unit = ifcunits.get(value.is_a()) if not unit else unit
+                    unit = ifc_units.get(value.is_a()) if not unit else unit
                     if unit:
                         values.append(value.wrappedValue * unit)
                     else:
@@ -55,7 +56,7 @@ def propertyset2dict(propertyset):
                 # TODO: Unit conversion
                 values = []
                 for value in prop.EnumerationValues:
-                    unit = ifcunits.get(value.is_a()) if not unit else unit
+                    unit = ifc_units.get(value.is_a()) if not unit else unit
                     if unit:
                         values.append(value.wrappedValue * unit)
                     else:
@@ -79,7 +80,7 @@ def propertyset2dict(propertyset):
             unit = parse_ifc(prop.Unit) if prop.Unit else None
             if prop.is_a() == 'IfcPropertySingleValue':
                 if prop.NominalValue is not None:
-                    unit = ifcunits.get(prop.NominalValue.is_a()) if not unit else unit
+                    unit = ifc_units.get(prop.NominalValue.is_a()) if not unit else unit
                     if unit:
                         propertydict[prop.Name] = prop.NominalValue.wrappedValue * unit
                     else:
@@ -88,7 +89,7 @@ def propertyset2dict(propertyset):
                 # TODO: Unit conversion
                 values = []
                 for value in prop.ListValues:
-                    unit = ifcunits.get(value.is_a()) if not unit else unit
+                    unit = ifc_units.get(value.is_a()) if not unit else unit
                     values.append(value.wrappedValue * unit)
                 propertydict[prop.Name] = values
             elif prop.is_a() == 'IfcPropertyBoundedValue':
@@ -139,7 +140,7 @@ def getIfcAttribute(ifcElement, attribute):
         pass
 
 
-def get_Property_Set(PropertySetName, element):
+def get_Property_Set(PropertySetName, element, ifc_units):
     """
     This function searches an elements PropertySets for the defined
     PropertySetName. If the PropertySet is found the function will return a
@@ -148,6 +149,7 @@ def get_Property_Set(PropertySetName, element):
 
     :param element: The element in which you want to search for the PropertySet
     :param PropertySetName: Name of the PropertySet you are looking for
+    :param ifc_units: dict holding all unit definitions from ifc_units
     :return:
     """
     # TODO: Unit conversion
@@ -155,13 +157,15 @@ def get_Property_Set(PropertySetName, element):
     property_set = next((item for item in AllPropertySetsList if
                          item.RelatingPropertyDefinition.Name == PropertySetName), None)
     if hasattr(property_set, 'RelatingPropertyDefinition'):
-        return propertyset2dict(property_set.RelatingPropertyDefinition)
+        return propertyset2dict(
+            property_set.RelatingPropertyDefinition, ifc_units)
 
 
-def get_property_sets(element):
+def get_property_sets(element, ifc_units):
     """Returns all PropertySets of element
 
     :param element: The element in which you want to search for the PropertySets
+    :param ifc_units: dict holding all unit definitions from ifc_units
     :return: dict(of dicts)
     """
     # TODO: Unit conversion
@@ -169,19 +173,23 @@ def get_property_sets(element):
     if hasattr(element, 'IsDefinedBy'):
         for defined in element.IsDefinedBy:
             property_set_name = defined.RelatingPropertyDefinition.Name
-            property_sets[property_set_name] = propertyset2dict(defined.RelatingPropertyDefinition)
+            property_sets[property_set_name] = propertyset2dict(
+                defined.RelatingPropertyDefinition, ifc_units)
     elif hasattr(element, 'Material'):
         for defined in element.Material.HasProperties:
             property_set_name = defined.Name
-            property_sets[property_set_name] = propertyset2dict(defined)
+            property_sets[property_set_name] = propertyset2dict(
+                defined, ifc_units)
     elif element.is_a('IfcMaterial'):
         for defined in element.HasProperties:
             property_set_name = defined.Name
-            property_sets[property_set_name] = propertyset2dict(defined)
+            property_sets[property_set_name] = propertyset2dict(
+                defined, ifc_units)
 
     return property_sets
 
-def get_type_property_sets(element):
+
+def get_type_property_sets(element, ifc_units):
     """Returns all PropertySets of element's types
 
     :param element: The element in which you want to search for the PropertySets
@@ -191,18 +199,20 @@ def get_type_property_sets(element):
     if hasattr(element, 'IsTypedBy'):
         for defined_type in element.IsTypedBy:
             for propertyset in defined_type.RelatingType.HasPropertySets:
-                property_sets[propertyset.Name] = propertyset2dict(propertyset)
+                property_sets[propertyset.Name] = propertyset2dict(
+                    propertyset, ifc_units)
 
     return property_sets
 
 
-def get_quantity_sets(element):
+def get_quantity_sets(element, ifc_units):
     """Returns all QuantitySets of element"""
 
     quantity_sets = {}
     for defined_type in element.IsTypedBy:
         for quantityset in defined_type.RelatingType.Quantities:
-            quantity_sets[quantityset.Name] = propertyset2dict(quantityset)
+            quantity_sets[quantityset.Name] = propertyset2dict(
+                quantityset, ifc_units)
 
     return quantity_sets
 
@@ -376,7 +386,7 @@ def getProject(ifcElement):
 
 def getTrueNorth(ifcElement):
     """Find the true north in degree of this element, 0 °C means positive
-    X-axis. 45 °C Degree means middle between X- and Y-Axis"""
+    Y-axis. 45 °C Degree means middle between X- and Y-Axis"""
     project = getProject(ifcElement)
     try:
         true_north = project.RepresentationContexts[0].TrueNorth.DirectionRatios

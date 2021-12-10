@@ -13,7 +13,6 @@ import pkg_resources
 import configparser
 
 from bim2sim.decision import Decision, ListDecision, DecisionBunch, save, load
-from bim2sim.kernel.units import ifcunits
 from bim2sim.task.base import Playground
 from bim2sim.plugin import Plugin
 from bim2sim.kernel.element import Element
@@ -117,7 +116,6 @@ class FolderStructure:
     EXPORT = "export"
     RESOURCES = "resources"
     PAPER = True
-    _src_path = Path(__file__).parent
 
     _src_path = Path(__file__).parent  # base path to bim2sim assets
 
@@ -275,8 +273,13 @@ class Project:
     def __init__(self, path=None, workflow=None):
         """Load existing project"""
         self.storage = {}  # project related items
-
         self.paths = FolderStructure(path)
+        try:
+            self.name = list(
+                    filter(Path.is_file, self.paths.ifc.glob('**/*')))[0].stem
+        except:
+            self.name = "Project"
+
         if not self.paths.is_project_folder():
             raise AssertionError("Project path is no valid project directory. "
                                  "Use Project.create() to create a new Project")
@@ -291,7 +294,7 @@ class Project:
             workflow = self.default_plugin.default_workflow()
         workflow.relevant_elements = self.default_plugin.elements
         workflow.update_from_config(self.config)
-        self.playground = Playground(workflow, self.paths)
+        self.playground = Playground(workflow, self.paths, self.name)
 
         self._log_handler = self._setup_logger()  # setup project specific handlers
 
@@ -309,13 +312,6 @@ class Project:
     @staticmethod
     def is_project_folder(path: str):
         return FolderStructure(path).is_project_folder()
-
-    @classmethod
-    def _lock(cls, project):
-        if cls._active_project is None:
-            cls._active_project = project
-        else:
-            raise AssertionError("Cant lock Project while other project is active")
 
     @classmethod
     def _release(cls, project):
@@ -353,9 +349,6 @@ class Project:
         """Run project"""
         if not self.paths.is_project_folder():
             raise AssertionError("Project ist not set correctly!")
-
-        # lock current project
-        Project._lock(self)
 
         success = False
         if interactive:
@@ -412,13 +405,6 @@ class Project:
                 logger.warning("Decisions are saved in '%s'. Rename file to 'decisions.json' to reuse them.", pth)
             else:
                 save(self._made_decisions, self.paths.decisions)
-            # TODO: fix #172
-            # clean enrich building templates
-            EnrichBuildingByTemplates.instance_template = {}
-            # reset ifc file specific unit declarations
-            ifcunits.clear()
-            # release project
-            Project._release(self)
 
         # clean up init relics
         #  clean logger

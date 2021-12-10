@@ -1,17 +1,13 @@
+import collections
 import math
 import re
 import json
-
 import bim2sim
+
 from pathlib import Path
 
 
 def angle_equivalent(angle):
-    # if angle == -180.0:
-    #     angle = 0
-    # elif angle == -360:
-    #     angle = 180
-    # else:
     while angle >= 360 or angle < 0:
         if angle >= 360:
             angle -= 360
@@ -53,72 +49,103 @@ def vector_angle(vector):
 assets = Path(bim2sim.__file__).parent/'assets'
 
 
-def get_usage_dict() -> dict:
-    usage_path = assets/'MaterialTemplates'/'UseConditions.json'
+def get_usage_dict(prj_name) -> dict:
+    custom_usage_path = assets/'enrichment/usage' /\
+                        ('UseConditions'+prj_name+'.json')
+    if custom_usage_path.is_file():
+        usage_path = custom_usage_path
+    else:
+        usage_path = assets/'enrichment/usage/UseConditions.json'
     with open(usage_path, 'r+') as f:
         usage_dict = json.load(f)
         del usage_dict['version']
     return usage_dict
 
 
-def get_pattern_usage(translate=False):
+def get_common_pattern_usage() -> dict:
+    custom_pattern_path = assets/'enrichment/usage/commonUsages.json'
+    with open(custom_pattern_path, 'r+', encoding='utf-8') as f:
+        common_usages = json.load(f)
+    return common_usages
+
+
+def get_custom_pattern_usage(prj_name) -> dict:
+    """gets custom usages based on specific project or general defined file."""
+    custom_usages = {}
+    custom_pattern_path_prj = assets/'enrichment/usage' /\
+                        ('customUsages'+prj_name+'.json')
+    if custom_pattern_path_prj.is_file():
+        custom_pattern_path = custom_pattern_path_prj
+    else:
+        custom_pattern_path = assets/'enrichment/usage/customUsages.json'
+    with open(custom_pattern_path, 'r+', encoding='utf-8') as f:
+        custom_usages_json = json.load(f)
+    if custom_usages_json["settings"]["use"]:
+        custom_usages = custom_usages_json["usage_definitions"]
+    return custom_usages
+
+
+def get_pattern_usage(prj_name):
     """get usage patterns to use it on the thermal zones get_usage"""
-    use_conditions_path = assets/'MaterialTemplates/UseConditions.json'
-    with open(use_conditions_path, 'r+') as f:
-        use_conditions = list(json.load(f).keys())
-        use_conditions.remove('version')
+    use_conditions = get_usage_dict(prj_name)
+    common_usages = get_common_pattern_usage()
 
-    common_translations = {
-        "Bed room": ['Schlafzimmer'],
-        "Living": ["Galerie", "Wohnen"],
-        "Laboratory": ["Labor"],
-        'office_function': ['Office', 'Buero', 'Büro', 'Pool'],
-        "Meeting, Conference, seminar": ['Besprechungsraum', 'Seminarraum', 'Besprechung', 'Konferenz', 'Meeting',
-                                         'Mehrzweckraum'],
+    custom_usages = get_custom_pattern_usage(prj_name)
+    usages = combine_usages(common_usages, custom_usages)
 
-        'Kitchen in non-residential buildings': ['Kitchen', 'Küche'],
-        'Kitchen - preparations, storage': ['Kitchen', 'Küche'],
-        'Traffic area': ['Hall', 'Flur', 'Dachboden', 'TH', 'Treppenhaus', 'Korridor', 'Übergang'],
-        'WC and sanitary rooms in non-residential buildings': ['bath', 'bathroom', 'WC', 'Toilet', 'Bad', 'Toiletten'],
-        'Stock, technical equipment, archives': ['Technical room', 'Technikraum', 'Technik', 'Heizung', 'Server',
-                                                 'Archiv', 'Elektro/HLS', 'Lager'],
-        'Storehouse, logistics building': ['Abstell'],
-        'Exhibition room and museum conservational demands': ['Ausstellung'],
-        'Parking garages (office and private usage)': ['Parkbereich', 'Parkhaus'],
-        'Further common rooms': ['Umkleideraum'],
-        'Library - reading room': ['Bibliothek'],
-        'MultiUseComputerRoom': ['Bibliothek', 'Audiovisuell']
-    }
+    pattern_usage_teaser = collections.defaultdict(dict)
 
-    pattern_usage_teaser = {}
     for i in use_conditions:
-        pattern_usage_teaser[i] = []
-        list_engl = re.sub(r'\((.*?)\)', '', i).replace(' - ', ', ').replace(' and ', ', ').replace(' in ', ', ') \
-            .replace(' with ', ', ').replace(' or ', ', ').replace(' the ', ' ').split(', ')
+        pattern_usage_teaser[i]["common"] = []
+        pattern_usage_teaser[i]["custom"] = []
+        list_engl = re.sub(r'\((.*?)\)', '', i)\
+            .replace(' - ', ', ')\
+            .replace(' and ', ', ')\
+            .replace(' in ', ', ')\
+            .replace(' with ', ', ')\
+            .replace(' or ', ', ')\
+            .replace(' the ', ' ')\
+            .split(', ')
         for i_eng in list_engl:
             new_i_eng = i_eng.replace(' ', '(.*?)')
-            pattern_usage_teaser[i].append(re.compile('(.*?)%s' % new_i_eng, flags=re.IGNORECASE))
-            if i in common_translations:
-                for c_trans in common_translations[i]:
-                    pattern_usage_teaser[i].append(re.compile('(.*?)%s' % c_trans, flags=re.IGNORECASE))
-        if translate:
-            trans = translate_deep(i, source='en', target='de')
+            pattern_usage_teaser[i]["common"].append(re.compile(
+                '(.*?)%s' % new_i_eng, flags=re.IGNORECASE))
+            if i in usages:
+                for c_trans in usages[i]["common"]:
+                    pattern_usage_teaser[i]["common"].append(re.compile(
+                        '(.*?)%s' % c_trans, flags=re.IGNORECASE))
+                if "custom" in usages[i]:
+                    for clear_usage in usages[i]["custom"]:
+                        pattern_usage_teaser[i]["custom"].append(clear_usage)
 
-            list_de = re.sub(r'\((.*?)\)', '', trans).replace(' - ', ', ').replace(' and ', ', ').replace(' in ', ', ') \
-                .replace(' with ', ', ').replace(' or ', ', ').replace(' the ', ' ').split(', ')
-            for i_de in list_de:
-                new_i_de = i_de.replace(' ', '(.*?)')
-                pattern_usage_teaser[i].append(re.compile('(.*?)%s' % new_i_de, flags=re.IGNORECASE))
-
-    pattern_usage_teaser['office_function'] = [re.compile('(.*?)%s' % c_trans, re.IGNORECASE) for c_trans in
-                                               common_translations['office_function']]
+    pattern_usage_teaser['office_function']["common"] = [re.compile(
+        '(.*?)%s' % c_trans, re.IGNORECASE)
+        for c_trans in usages['office_function']["common"]]
 
     return pattern_usage_teaser
 
 
+def combine_usages(common_usages, custom_usages) -> dict:
+    """combines the custom and common usages to one dictionary"""
+    usages = collections.defaultdict(dict)
+    # combine common and custom usages
+    for key, value in common_usages.items():
+        usages[key]["common"] = value
+    if custom_usages:
+        for key, value in custom_usages.items():
+            if not isinstance(value, list):
+                try:
+                    value = list(value)
+                except TypeError:
+                    raise TypeError("custom usages must be a list")
+            if key in usages.keys():
+                usages[key]["custom"] = value
+    return usages
+
+
 def get_type_building_elements():
     type_building_elements_path = \
-        assets/'MaterialTemplates/TypeBuildingElements.json'
+        assets/'enrichment/material/TypeBuildingElements.json'
     with open(type_building_elements_path, 'r+') as f:
         type_building_elements = json.load(f)
         del type_building_elements['version']
@@ -134,7 +161,8 @@ def get_type_building_elements():
 
 
 def get_material_templates():
-    material_templates_path = assets/'MaterialTemplates/MaterialTemplates.json'
+    material_templates_path = \
+        assets/'enrichment/material/MaterialTemplates.json'
     with open(material_templates_path, 'r+') as f:
         material_templates = json.load(f)
         del material_templates['version']
@@ -142,7 +170,8 @@ def get_material_templates():
 
 
 def get_type_building_elements_hvac():
-    type_building_elements_path = assets/'enrichment/TypeBuildingElements.json'
+    type_building_elements_path = \
+        assets/'enrichment/hvac/TypeHVACElements.json'
     with open(type_building_elements_path, 'r+') as f:
         type_building_elements = json.load(f)
         del type_building_elements['version']
@@ -166,12 +195,15 @@ def filter_instances(instances, type_name):
 def translate_deep(text, source='auto', target='en'):
     """ translate function that uses deep_translator package with
     Google Translator"""
-    from deep_translator import GoogleTranslator
-
+    # return False  # test no internet
+    try:
+        from deep_translator import GoogleTranslator
+        translated = GoogleTranslator(
+            source=source, target=target).translate(text=text)
+        return translated
+    except:
+        return False
     # proxies_example = {
     #     "https": "34.195.196.27:8080",
     #     "http": "34.195.196.27:8080"
     # }
-    translated = GoogleTranslator(
-        source=source, target=target).translate(text=text)
-    return translated

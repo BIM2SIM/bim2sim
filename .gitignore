@@ -462,4 +462,4 @@ workspace/
 *.rvi
 
 # Energy plus input files
-*.idf
+*.idf 

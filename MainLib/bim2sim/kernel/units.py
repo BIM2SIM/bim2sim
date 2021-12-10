@@ -5,9 +5,6 @@ from pint import UnitRegistry
 ureg = UnitRegistry(autoconvert_offset_to_baseunit=True)  # to avoid temperature problems
 ureg.define('percent = 0.01*count = %')
 
-# Dictionary of the units from IfcUnitAssignment
-ifcunits = {}
-
 # TODO:multiple ifc files
 
 ifc_pint_unitmap = {

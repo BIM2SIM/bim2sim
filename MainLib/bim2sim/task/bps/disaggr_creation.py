@@ -108,8 +108,7 @@ class DisaggregationCreation(ITask):
     def get_new_position_vertical_instance(parent, sub_position):
         """get new position based on parent position, orientation and relative
         disaggregation position"""
-        rel_orientation_wall = math.floor(parent.orientation +
-                                          parent.get_true_north())
+        rel_orientation_wall = math.floor(parent.orientation)
         x1, y1, z1 = sub_position
         x, y, z = parent.position
         if 45 <= rel_orientation_wall < 135 or 225 <= rel_orientation_wall \

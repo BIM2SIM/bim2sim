@@ -22,7 +22,6 @@ class PluginHKESim(Plugin):
     tasks = {LoadLibrariesHKESim}
     elements = {*hvac_elements.items}
     default_tasks = [
-        hvac.SetIFCTypesHVAC,
         common.LoadIFC,
         common.CreateElements,
         hvac.ConnectElements,

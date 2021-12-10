@@ -92,7 +92,7 @@ def _debug_run_hvac():
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
     rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
-    path_example = r"C:\temp\bim2sim\testproject"
+    path_example = _get_debug_project_path('hvac')
 
     if Project.is_project_folder(path_example):
         project = Project(path_example)
@@ -103,7 +103,7 @@ def _debug_run_hvac():
     run_project(project, ConsoleDecisionHandler())
 
 
-def _get_debug_project_path():
+def _get_debug_project_path(aux):
     path_file = "debug_dir.user"
     try:
         f = open(path_file)
@@ -123,11 +123,11 @@ def _get_debug_project_path():
 
     max_number = 0
     for item in os.listdir(path_example):
-        m = re.search('testproject_bps_ep([0-9]+)', item)
+        m = re.search('testproject_%s([0-9]+)' % aux, item)
         if m:
             max_number = max(int(m.group(1)), max_number)
 
-    return path_example + "testproject_bps_ep" + str(max_number + 1)
+    return path_example + "testproject_%s" % aux + str(max_number + 1)
 
 
 def _debug_run_bps():
@@ -138,7 +138,7 @@ def _debug_run_bps():
     # rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
     rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
-    path_example = r"C:\temp\bim2sim\testproject_bps7"
+    path_example = _get_debug_project_path('bps')
 
     if Project.is_project_folder(path_example):
         project = Project(path_example)
@@ -152,16 +152,16 @@ def _debug_run_bps_ep():
     """Create example project and copy ifc if necessary"""
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 
-    # rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
+    rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
     # rel_example = 'ResultFiles/AC20-FZK-Haus_with_SB44.ifc' # aktuell
     # rel_example = 'ResultFiles/Proposal_1_Storey_SpaceBoundaries_with_SB.ifc'
     # rel_example = 'ResultFiles/2020-10-15-KHH-Test_with_SB.ifc'
-    rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
+    # rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
     # rel_example = 'ExampleFiles/DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc' # ok
     # rel_example = 'ExampleFiles/AC-20-Smiley-West-10-Bldg.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
 
-    path_example = _get_debug_project_path()
+    path_example = _get_debug_project_path('bps_ep')
 
     if Project.is_project_folder(path_example):
         project = Project(path_example)
@@ -178,7 +178,7 @@ def _test_run_bps_ep(rel_path, temp_project=False):
     path_ifc = os.path.normpath(os.path.join(path_base, rel_path))
 
     if not temp_project:
-        path_example = _get_debug_project_path()
+        path_example = _get_debug_project_path('bps_ep')
     else:
         path_example = tempfile.mkdtemp()
 
@@ -211,7 +211,7 @@ def _debug_run_hvac_aixlib():
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
     rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
-    path_example = r"C:\temp\bim2sim\testproject_aix"
+    path_example = _get_debug_project_path('aix')
 
     if Project.is_project_folder(path_example):
         project = Project(path_example)
@@ -241,6 +241,6 @@ setup_default()
 if __name__ == '__main__':
     # _debug_run_cfd()
     # _debug_run_bps()
-    # _debug_run_bps_ep()
-    _debug_run_hvac()
+    _debug_run_bps_ep()
+    # _debug_run_hvac()
 

@@ -24,55 +24,6 @@ from bim2sim.decision import RealDecision, BoolDecision
 from bim2sim.utilities.common_functions import get_type_building_elements_hvac
 
 
-# todo remove because obsolete
-IFC_TYPES = (
-    'IfcAirTerminal',
-    'IfcAirTerminalBox',
-    'IfcAirToAirHeatRecovery',
-    'IfcBoiler',
-    'IfcBurner',
-    'IfcChiller',
-    'IfcCoil',
-    'IfcCompressor',
-    'IfcCondenser',
-    'IfcCooledBeam',
-    'IfcCoolingTower',
-    'IfcDamper',
-    'IfcDistributionChamberElement',
-    'IfcDuctFitting',
-    'IfcDuctSegment',
-    'IfcDuctSilencer',
-    'IfcEngine',
-    'IfcEvaporativeCooler',
-    'IfcEvaporator',
-    'IfcFan',
-    'IfcFilter',
-    'IfcFlowMeter',
-    'IfcHeatExchanger',
-    'IfcHumidifier',
-    'IfcMedicalDevice',
-    'IfcPipeFitting',
-    'IfcPipeSegment',
-    'IfcPump',
-    'IfcSpaceHeater',
-    'IfcTank',
-    'IfcTubeBundle',
-    #'IfcUnitaryEquipment',
-    'IfcValve',
-    'IfcVibrationIsolator',
-    #'IfcHeatPump'
-)
-
-
-class SetIFCTypesHVAC(ITask):
-    """Set list of relevant IFC types"""
-    touches = ('relevant_ifc_types', )
-
-    def run(self, workflow):
-        IFC_TYPES = workflow.relevant_ifc_types
-        return IFC_TYPES,
-
-
 class ConnectElements(ITask):
     """Analyses IFC, creates Element instances and connects them.
 
