@@ -3,6 +3,7 @@ FROM registry.git-ce.rwth-aachen.de/ebc/projects/ebc0438_bmwi_bim2sim_ges/bim2si
 ### CFD part ###
 
 ###############################################################################
+RUN apt-get update
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
 RUN apt-get install -y git cmake gcc g++ tcllib tklib tcl-dev tk-dev libfreetype6-dev 
 RUN apt-get install -y libxt-dev libxmu-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev 
