@@ -48,10 +48,19 @@ RUN apt-get -y install libcgal-dev
 
 
 ################################################################################
+# WORKDIR /tmp
+# RUN git clone -b master https://github.com/bimworld/bim.git ifc2sb
+# WORKDIR /tmp/ifc2sb
+# RUN chmod +x IFC2SB
+# RUN ./IFC2SB -h
+# RUN pwd
+################################################################################
+
+
+################################################################################
+# Clean
 WORKDIR /tmp
-RUN git clone -b master https://github.com/bimworld/bim.git ifc2sb
-WORKDIR /tmp/ifc2sb
-RUN chmod +x IFC2SB
-RUN ./IFC2SB -h
-RUN pwd
+RUN rm -r /tmp/IfcOpenShell
+RUN rm -r /tmp/occ
+RUN rm -r /tmp/opencascade-7.5.3
 ################################################################################
