@@ -223,7 +223,9 @@ class ThermalZone(BPSProduct):
     def _get_usage(self, name):
         if self.zone_name is not None:
             usage = self.zone_name
-        elif self.ifc.LongName is not None:
+        elif self.ifc.LongName is not None and \
+                 "oldSpaceGuids_" not in self.ifc.LongName:
+            # todo oldSpaceGuids_ is hardcode for erics tool
             usage = self.ifc.LongName
         else:
             usage = self.name
@@ -247,6 +249,17 @@ class ThermalZone(BPSProduct):
     def _get_name(self, name):
         return self.ifc.Name
 
+    def _get_area(self, name):
+        """function to get a general area for later usage"""
+        if self.net_area:
+            area = self.net_area
+        elif self.gross_area:
+            area = self.gross_area
+        else:
+            # todo implement area_by_sb # issue 199
+            area = None
+        return area
+
     name = attribute.Attribute(
         functions=[_get_name]
     )
@@ -258,20 +271,26 @@ class ThermalZone(BPSProduct):
     )
     t_set_heat = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMin"),
-        unit=ureg.degC,
-        default=21
+        unit=ureg.degC
     )
     t_set_cool = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMax"),
-        unit=ureg.degC,
-        default=25
+        unit=ureg.degC
     )
     t_ground = attribute.Attribute(
         unit=ureg.degC,
-        default=13
+        default=13,
+    )
+    gross_area = attribute.Attribute(
+        default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
+        unit=ureg.meter ** 2
+    )
+    net_area = attribute.Attribute(
+        default_ps=("Qto_SpaceBaseQuantities", "NetFloorArea"),
+        unit=ureg.meter ** 2
     )
     area = attribute.Attribute(
-        default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
+        functions=[_get_area],
         unit=ureg.meter ** 2
     )
     net_volume = attribute.Attribute(
