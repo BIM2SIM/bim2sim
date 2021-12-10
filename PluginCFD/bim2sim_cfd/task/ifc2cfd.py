@@ -13,8 +13,8 @@ class RunIFC2CFD(ITask):
     final = True
 
     def run(self, workflow):
-        # if os.name != 'Linux':
-        #     raise OSError("CFD task is only available for Linux systems ")
+        if os.name != 'Linux':
+            raise OSError("CFD task is only available for Linux systems")
         self.logger.info("Running IFC2CFD")
 
         process_options = [
@@ -66,13 +66,16 @@ class RunIFC2CFD(ITask):
         reader = LoadIFC()
         input_file = reader.get_ifc(self.paths.ifc)
 
-        output_file = str(self.paths.export / "result.obj")
+        if process_decision.value == '--cfd':
+            file_ending = '.stl'
+        else:
+            file_ending = '.ifc'
+
+        output_file = str(self.paths.export / "result") + str(file_ending)
         ifc2sb_callable = str(
             self.paths.b2sroot / "PluginCFD/bim2sim_cfd/ifc2sb/IFC2SB")
 
-        cmd = ifc2sb_callable + " " + args + " --graph " + input_file
+        cmd = ifc2sb_callable + " " + args + ' ' + input_file + ' ' \
+              + output_file
         os.system(cmd)
         self.logger.info("Finished IFC2CFD")
-
-
-
