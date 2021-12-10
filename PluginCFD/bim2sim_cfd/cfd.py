@@ -1,6 +1,6 @@
 ﻿from bim2sim.plugin import Plugin
 from bim2sim.workflow import CFDWorkflowDummy
-from PluginCFD.bim2sim_cfd import task
+from bim2sim_cfd import task
 
 
 class PluginCFD(Plugin):
