@@ -13,6 +13,21 @@ stages:
   - deploy
   - visualize
 
+build_env:master:
+  image: docker:latest
+  stage: build-env
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+  script:
+    - docker build -t $CI_REGISTRY/environment:master -f MainLib/envBase.Dockerfile .
+    - docker push $CI_REGISTRY/environment:master
+  only:
+    refs:
+       - master
+    changes:
+       - MainLib/envBase.Dockerfile
+       - MainLib/requirements.txt
+
 build_env:ubuntu_base:
   image: docker:latest
   stage: build-env
@@ -35,13 +50,13 @@ build_env:development:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/environment:development -f Environment/oldBase.Dockerfile .
+    - docker build -t $CI_REGISTRY/environment:development -f MainLib/envBase.Dockerfile .
     - docker push $CI_REGISTRY/environment:development
   only:
     refs:
        - development
     changes:
-       - Environment/oldBase.Dockerfile
+       - MainLib/envBase.Dockerfile
        - MainLib/requirements.txt
        - .gitlab-ci.yml
 
@@ -51,14 +66,14 @@ build_env:energyplus:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/environment:energyplus -f Environment/envEP.Dockerfile .
+    - docker build -t $CI_REGISTRY/environment:energyplus -f PluginEnergyPlus/envEP.Dockerfile .
     - docker push $CI_REGISTRY/environment:energyplus
   only:
     refs:
        - development
        - 128_energyPlusDocker
     changes:
-       - Environment/envEP.Dockerfile
+       - PluginEnergyPlus/envEP.Dockerfile
        - MainLib/requirements.txt
        - .gitlab-ci.yml
 
@@ -68,7 +83,7 @@ build_env:cfd:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/environment:cfd -f Environment/cfd.Dockerfile .
+    - docker build -t $CI_REGISTRY/environment:cfd -f PluginCFD/envCFD.Dockerfile .
     - docker push $CI_REGISTRY/environment:cfd
   timeout: 6 hours
   only:
@@ -76,24 +91,9 @@ build_env:cfd:
        - development
        - 55_integrateCFD_Image
     changes:
-       - Environment/cfd.Dockerfile
+       - PluginCFD/envCFD.Dockerfile
        - MainLib/requirements.txt
        - .gitlab-ci.yml
-       
-build_env:master:
-  image: docker:latest
-  stage: build-env
-  before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-  script:
-    - docker build -t $CI_REGISTRY/environment:master -f Environment/oldBase.Dockerfile .
-    - docker push $CI_REGISTRY/environment:master
-  only:
-    refs:
-       - master
-    changes:
-       - Environment/oldBase.Dockerfile
-       - MainLib/requirements.txt      
 
 build_tool:release:
   image: docker:latest
@@ -134,107 +134,75 @@ build_tool:cfd:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/tool:cfd -f cfd.Dockerfile .
+    - docker build -t $CI_REGISTRY/tool:cfd -f PluginCFD/cfd.Dockerfile .
     - docker push $CI_REGISTRY/tool:cfd
   only:
-    - 55_integrateCFD_Image
-
-test_CFDSB:
-  <<: *only-default
-  image: $CI_REGISTRY/tool:cfd
-  stage: test
-  script:
-    - cd /bim2sim/PluginCFD/bim2sim_cfd/assets/ifc2sb && ./IFC2SB -h
-  # artifacts:
-  #   paths:
-  #   - $CI_COMMIT_REF_NAME/test
-
-# coverage_UbuntuBase:
-#   <<: *only-default
-#   image: $CI_REGISTRY/environment:ubuntu_base
-#   stage: test
-#   before_script:
-#     - pip install coverage
-#     - pip install coverage-badge
-#   script:
-#     - mv ./* /bim2sim/
-#     - coverage run -m unittest discover /bim2sim/MainLib/
-#     - coverage report -i
-#     - mkdir -p $CI_COMMIT_REF_NAME/coverage
-#     - coverage html -i 
-#     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-#     # skip this for now as its only cosmetic and leads to problems
-#     # - coverage-badge -o coverage.svg
-#     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
-#   artifacts:
-#     paths:
-#     - $CI_COMMIT_REF_NAME/coverage
+    changes:
+       - PluginCFD/*
 
 
-# coverage_EPUbuntu:
-#   <<: *only-default
-#   image: $CI_REGISTRY/environment:energyplus
-#   stage: test
-#   before_script:
-#     - pip install coverage
-#     - pip install coverage-badge
-#   script:
-#     - mv ./* /bim2sim/
-#     - coverage run -m unittest discover /bim2sim/PluginEnergyPlus/test/integration_test
-#     - coverage report -i
-#     - mkdir -p $CI_COMMIT_REF_NAME/coverage
-#     - coverage html -i 
-#     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-#     # skip this for now as its only cosmetic and leads to problems
-#     # - coverage-badge -o coverage.svg
-#     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
-#   artifacts:
-#     paths:
-#     - $CI_COMMIT_REF_NAME/coverage
+coverage_Base:
+   <<: *only-default
+   image: $CI_REGISTRY/environment:development
+   stage: test
+   before_script:
+     - pip install coverage
+     - pip install coverage-badge
+   script:
+     - mv ./* /bim2sim/
+     - coverage run -m unittest discover /bim2sim/MainLib/
+     - coverage report -i
+     - mkdir -p $CI_COMMIT_REF_NAME/coverage
+     - coverage html -i
+     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+     # skip this for now as its only cosmetic and leads to problems
+     # - coverage-badge -o coverage.svg
+     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
+   artifacts:
+     paths:
+     - $CI_COMMIT_REF_NAME/coverage
 
-# coverage_Base:
-#   <<: *only-default
-#   image: $CI_REGISTRY/environment:development
-#   stage: test
-#   before_script:
-#     - pip install coverage
-#     - pip install coverage-badge
-#   script:
-#     - mv ./* /bim2sim/
-#     - coverage run -m unittest discover /bim2sim/MainLib/
-#     - coverage report -i
-#     - mkdir -p $CI_COMMIT_REF_NAME/coverage
-#     - coverage html -i 
-#     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-#     # skip this for now as its only cosmetic and leads to problems
-#     # - coverage-badge -o coverage.svg
-#     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
-#   artifacts:
-#     paths:
-#     - $CI_COMMIT_REF_NAME/coverage
+coverage_EP:
+   <<: *only-default
+   image: $CI_REGISTRY/environment:energyplus
+   stage: test
+   before_script:
+     - pip install coverage
+     - pip install coverage-badge
+   script:
+     - mv ./* /bim2sim/
+     - coverage run -m unittest discover /bim2sim/PluginEnergyPlus/test/integration_test
+     - coverage report -i
+     - mkdir -p $CI_COMMIT_REF_NAME/coverage
+     - coverage html -i
+     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+     # skip this for now as its only cosmetic and leads to problems
+     # - coverage-badge -o coverage.svg
+     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
+   artifacts:
+     paths:
+     - $CI_COMMIT_REF_NAME/coverage
 
-
-# coverage_EP:
-#   <<: *only-default
-#   image: $CI_REGISTRY/environment:energyplus
-#   stage: test
-#   before_script:
-#     - pip install coverage
-#     - pip install coverage-badge
-#   script:
-#     - mv ./* /bim2sim/
-#     - coverage run -m unittest discover /bim2sim/PluginEnergyPlus/test/integration_test
-#     - coverage report -i
-#     - mkdir -p $CI_COMMIT_REF_NAME/coverage
-#     - coverage html -i 
-#     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-#     # skip this for now as its only cosmetic and leads to problems
-#     # - coverage-badge -o coverage.svg
-#     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
-#   artifacts:
-#     paths:
-#     - $CI_COMMIT_REF_NAME/coverage
-    
+coverage_CFD:
+   <<: *only-default
+   image: $CI_REGISTRY/environment:development
+   stage: test
+   before_script:
+     - pip install coverage
+     - pip install coverage-badge
+   script:
+     - mv ./* /bim2sim/
+     - coverage run -m unittest discover /bim2sim/PluginCFD/
+     - coverage report -i
+     - mkdir -p $CI_COMMIT_REF_NAME/coverage
+     - coverage html -i
+     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+     # skip this for now as its only cosmetic and leads to problems
+     # - coverage-badge -o coverage.svg
+     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
+   artifacts:
+     paths:
+     - $CI_COMMIT_REF_NAME/coverage
 
 #todo check if this is still needed or if master branch results are also available under $CI_COMMIT_REF_NAME/...
 # pylint:
@@ -256,24 +224,26 @@ test_CFDSB:
 #   only:
 #     - master
 
-# pylint:
-#   stage: test
-#   image: python:3.6
-#   script:
-#     - pip install pylint pylint-json2html pylint-exit anybadge --quiet
-#     - mkdir -p $CI_COMMIT_REF_NAME/pylint
-#     - shopt -s globstar
-#     - pylint --output-format=text **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.txt || pylint-exit $?
-#     - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' $CI_COMMIT_REF_NAME/pylint/pylint.txt)
-#     - echo "Pylint score was $score"
-#     - anybadge --value=$score --file=$CI_COMMIT_REF_NAME/pylint/pylint.svg pylint
-#     - pylint --output-format=jsonextended --disable=import-error --load-plugins=pylint_json2html **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.json || pylint-exit $?
-#     - pylint-json2html -f jsonextended -o $CI_COMMIT_REF_NAME/pylint/pylint.html < $CI_COMMIT_REF_NAME/pylint/pylint.json
-#     # todo integrate, that batch in readme.md is changed automaticly for branches
-#     # - sed -i 's/pylint](.*)/pylint]( test )/g' README.md
-#   artifacts:
-#     paths:
-#     - $CI_COMMIT_REF_NAME/pylint
+pylint:
+  stage: test
+  image: python:3.6
+  script:
+    - pip install pylint==2.11.1 pylint-json2html pylint-exit anybadge --quiet
+    - mkdir -p $CI_COMMIT_REF_NAME/pylint
+    - shopt -s globstar
+    - pylint --output-format=text **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.txt || pylint-exit $?
+    - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' $CI_COMMIT_REF_NAME/pylint/pylint.txt)
+    - echo "Pylint score was $score"
+    - anybadge --value=$score --file=$CI_COMMIT_REF_NAME/pylint/pylint.svg pylint
+    - pylint --output-format=jsonextended --disable=import-error --load-plugins=pylint_json2html **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.json || pylint-exit $?
+    - pylint-json2html -f jsonextended -o $CI_COMMIT_REF_NAME/pylint/pylint.html < $CI_COMMIT_REF_NAME/pylint/pylint.json
+    # todo integrate, that batch in readme.md is changed automaticly for branches
+    # - sed -i 's/pylint](.*)/pylint]( test )/g' README.md
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/pylint
+
+
 
 sphinxdoc:
   image: $CI_REGISTRY/environment:development
@@ -342,4 +312,3 @@ pages:
 #     - curl -d "body=$msg" --request PUT --header "PRIVATE-TOKEN:$GL_TOKEN" https://git.rwth-aachen.de/api/v4/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes/$id/?body=note
 #   only:
 #     - merge_requests
-

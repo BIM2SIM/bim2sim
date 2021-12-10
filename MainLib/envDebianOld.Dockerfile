@@ -1,5 +1,5 @@
 FROM continuumio/miniconda3
-
+# to be deleted
 
 WORKDIR /bim2sim
 
