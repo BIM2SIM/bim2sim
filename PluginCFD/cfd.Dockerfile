@@ -5,7 +5,6 @@ WORKDIR /bim2sim
 # Copy files
 COPY . .
 
-
 #WORKDIR /bim2sim/PluginCFD/bim2sim_cfd/assets/
 #RUN git clone -b master https://github.com/bimworld/bim.git ifc2sb
 #WORKDIR /bim2sim/PluginCFD/bim2sim_cfd/assets/ifc2sb
