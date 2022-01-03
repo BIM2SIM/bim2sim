@@ -129,7 +129,7 @@ build_tool:webdevelop:
     - handler
 
 build_tool:cfd:
-  image: $CI_REGISTRY/environment:cfd
+  image: docker:latest
   stage: build-tool
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
