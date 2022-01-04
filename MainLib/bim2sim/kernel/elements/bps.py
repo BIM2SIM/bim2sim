@@ -920,6 +920,16 @@ class SpaceBoundary2B(SpaceBoundary):
         self.level_description = '2b'
 
 
+class SpaceBoundaryRepresentation(BPSProduct):
+    """describes the geometric representation of space boundaries which are
+    created by the webtool to allow the """
+    ifc_types = {
+        "IFCBUILDINGELEMENTPROXY":
+            ['USERDEFINED']
+    }
+    # todo look at #201
+
+
 class Wall(BPSProduct):
     ifc_types = {
         "IfcWall":
