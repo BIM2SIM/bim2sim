@@ -1,4 +1,5 @@
-﻿from bim2sim.task import bps
+﻿from bim2sim_energyplus import task as ep_tasks
+from bim2sim.task import bps
 from bim2sim.task import common
 from bim2sim.plugin import Plugin
 from bim2sim.workflow import BPSMultiZoneSeparatedEP
@@ -13,7 +14,6 @@ class PluginEnergyPlus(Plugin):
     allowed_workflows = [BPSMultiZoneSeparatedEP]
     elements = {*bps_elements.items}
     default_tasks = [
-        bps.SetIFCTypes,
         common.LoadIFC,
         common.CreateElements,
         bps.CreateSpaceBoundaries,
@@ -28,6 +28,12 @@ class PluginEnergyPlus(Plugin):
         bps.DisaggregationCreation,
         bps.BindThermalZones,
         Weather,
-        bps.ExportEP,
+        ep_tasks.IfcValidation,
+        ep_tasks.EPGeomPreprocessing,
+        ep_tasks.AddSpaceBoundaries2B,
+        ep_tasks.CreateIdf,
+        ep_tasks.IdfPostprocessing,
+        ep_tasks.ExportIdfForCfd,
+        ep_tasks.RunEnergyPlusSimulation,
     ]
 

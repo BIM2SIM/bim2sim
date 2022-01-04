@@ -1,0 +1,13 @@
+{
+   "settings": {
+      "use": true
+},
+   "usage_definitions": {
+      "Living":[
+      "0",
+      "1",
+      "2",
+      "3"
+         ]
+   }
+}

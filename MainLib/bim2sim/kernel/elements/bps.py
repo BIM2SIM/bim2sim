@@ -11,34 +11,26 @@ import ifcopenshell.geom
 from OCC.Core.Bnd import Bnd_Box
 from OCC.Core.BRepBndLib import brepbndlib_Add
 from OCC.Core.BRepLib import BRepLib_FuseEdges
-from OCC.Core.BRepBuilderAPI import \
-    BRepBuilderAPI_MakeFace, \
-    BRepBuilderAPI_MakeEdge, \
-    BRepBuilderAPI_MakeWire, BRepBuilderAPI_Transform, BRepBuilderAPI_MakeVertex
+from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
 from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, \
     brepgprop_VolumeProperties
 from OCC.Core.GProp import GProp_GProps
-from OCC.Core.GeomAPI import GeomAPI_ProjectPointOnCurve
-from OCC.Core.ShapeAnalysis import ShapeAnalysis_ShapeContents
 from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt, gp_Mat, gp_Quaternion
-from OCC.Core.TopoDS import topods_Wire, topods_Face, TopoDS_Iterator
-from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_WIRE
+from OCC.Core.TopoDS import topods_Face
+from OCC.Core.TopAbs import TopAbs_FACE
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.BRep import BRep_Tool
-from OCC.Core.BRepTools import BRepTools_WireExplorer
 from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, attribute
-from bim2sim.decision import BoolDecision, RealDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.utilities.common_functions import vector_angle, filter_instances
 from bim2sim.task.common.inner_loop_remover import remove_inner_loops
-from bim2sim.decision import StringDecision
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 logger = logging.getLogger(__name__)
@@ -231,7 +223,9 @@ class ThermalZone(BPSProduct):
     def _get_usage(self, name):
         if self.zone_name is not None:
             usage = self.zone_name
-        elif self.ifc.LongName is not None:
+        elif self.ifc.LongName is not None and \
+                 "oldSpaceGuids_" not in self.ifc.LongName:
+            # todo oldSpaceGuids_ is hardcode for erics tool
             usage = self.ifc.LongName
         else:
             usage = self.name
@@ -255,6 +249,17 @@ class ThermalZone(BPSProduct):
     def _get_name(self, name):
         return self.ifc.Name
 
+    def _get_area(self, name):
+        """function to get a general area for later usage"""
+        if self.net_area:
+            area = self.net_area
+        elif self.gross_area:
+            area = self.gross_area
+        else:
+            # todo implement area_by_sb # issue 199
+            area = None
+        return area
+
     name = attribute.Attribute(
         functions=[_get_name]
     )
@@ -266,20 +271,26 @@ class ThermalZone(BPSProduct):
     )
     t_set_heat = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMin"),
-        unit=ureg.degC,
-        default=21
+        unit=ureg.degC
     )
     t_set_cool = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMax"),
-        unit=ureg.degC,
-        default=25
+        unit=ureg.degC
     )
     t_ground = attribute.Attribute(
         unit=ureg.degC,
-        default=13
+        default=13,
+    )
+    gross_area = attribute.Attribute(
+        default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
+        unit=ureg.meter ** 2
+    )
+    net_area = attribute.Attribute(
+        default_ps=("Qto_SpaceBaseQuantities", "NetFloorArea"),
+        unit=ureg.meter ** 2
     )
     area = attribute.Attribute(
-        default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
+        functions=[_get_area],
         unit=ureg.meter ** 2
     )
     net_volume = attribute.Attribute(
@@ -516,7 +527,7 @@ class SpaceBoundary(element.RelationBased):
                 top_bottom = "TOP"
         else:
             # direct = self.bound_center.Z() - self.thermal_zones[0].space_center.Z()
-            # if direct < 0 and SpaceBoundary._compare_direction_of_normals(self.bound_normal, vertical):
+            # if direct < 0 and SpaceBoundary.compare_direction_of_normals(self.bound_normal, vertical):
             if vertical.Dot(self.bound_normal) < -0.8:
                 top_bottom = "BOTTOM"
             elif vertical.Dot(self.bound_normal) > 0.8:
@@ -524,7 +535,7 @@ class SpaceBoundary(element.RelationBased):
         return top_bottom
 
     # @staticmethod
-    # def _compare_direction_of_normals(normal1, normal2):
+    # def compare_direction_of_normals(normal1, normal2):
     #     """
     #     Compare the direction of two surface normals (vectors).
     #     True, if direction is same or reversed
@@ -638,12 +649,15 @@ class SpaceBoundary(element.RelationBased):
         if self.related_bound:
             if self.bound_thermal_zone == self.related_bound.bound_thermal_zone:
                 adb_bound = self.related_bound
+            return adb_bound
         for bound in self.bound_instance.space_boundaries:
             if bound == self:
                 continue
             if not bound.bound_thermal_zone == self.bound_thermal_zone:
                 continue
-            if (bound.bound_area.m - self.bound_area.m) ** 2 > 0.01:
+            if abs(bound.bound_area.m - self.bound_area.m) > 1e-3:
+                continue
+            if all([abs(i) < 1e-3 for i in ((self.bound_normal - bound.bound_normal).Coord())]):
                 continue
             if gp_Pnt(bound.bound_center).Distance(gp_Pnt(self.bound_center)) < 0.4:
                 adb_bound = bound
@@ -667,30 +681,6 @@ class SpaceBoundary(element.RelationBased):
 
         return moved_shape
 
-    def check_for_vertex_duplicates(self, rel_bound):
-        return  # todo: Bugfix, disabled for now
-        nb_vert_this = PyOCCTools.get_number_of_vertices(self.bound_shape)
-        nb_vert_other = PyOCCTools.get_number_of_vertices(rel_bound.bound_shape)
-        # if nb_vert_this != nb_vert_other:
-        setattr(self, 'bound_shape_org', self.bound_shape)
-        vert_list1 = PyOCCTools.get_vertex_list_from_face(self.bound_shape)
-        vert_list1 = PyOCCTools.remove_vertex_duplicates(vert_list1)
-        vert_list1.reverse()
-        vert_list1 = PyOCCTools.remove_vertex_duplicates(vert_list1)
-
-        setattr(rel_bound, 'bound_shape_org', rel_bound.bound_shape)
-        vert_list2 = PyOCCTools.get_vertex_list_from_face(rel_bound.bound_shape)
-        vert_list2 = PyOCCTools.remove_vertex_duplicates(vert_list2)
-        vert_list2.reverse()
-        vert_list2 = PyOCCTools.remove_vertex_duplicates(vert_list2)
-        if len(vert_list1) == len(vert_list2):
-            if len(vert_list1) < 5:
-                return
-            vert_list1.reverse()
-            vert_list2.reverse()
-            self.bound_shape = PyOCCTools.make_face_from_vertex_list(vert_list1)
-            rel_bound.bound_shape = PyOCCTools.make_face_from_vertex_list(vert_list2)
-
     def calc_bound_shape(self, name):
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
@@ -703,18 +693,8 @@ class SpaceBoundary(element.RelationBased):
             # if sore.get_info()["InnerBoundaries"] is None:
             shape = ifcopenshell.geom.create_shape(settings, sore)
 
-            pnt_list = PyOCCTools.get_points_of_face(shape)
-            pnt_list_new = PyOCCTools.remove_coincident_vertices(pnt_list)
-            pnt_list_new = PyOCCTools.remove_collinear_vertices2(pnt_list_new)
-            # pnt_list_new = self._remove_collinear_vertices2(pnt_list)
-            if pnt_list_new != pnt_list:
-                # print("vert new vs old", len(pnt_list_new), len(pnt_list))
-                if len(pnt_list_new) < 3:
-                    pnt_list_new = pnt_list
-                shape = PyOCCTools.make_faces_from_pnts(pnt_list_new)
-
             if sore.InnerBoundaries:
-                shape = remove_inner_loops(shape)  # todo: return None if not horizontal shape
+                # shape = remove_inner_loops(shape)  # todo: return None if not horizontal shape
                 # if not shape:
                 if self.bound_instance.ifc.is_a('IfcWall'): # todo: remove this hotfix (generalize)
                     ifc_new = ifcopenshell.file()
@@ -722,15 +702,20 @@ class SpaceBoundary(element.RelationBased):
                                                       BasisSurface=sore.BasisSurface)
                     temp_sore.InnerBoundaries = ()
                     shape = ifcopenshell.geom.create_shape(settings, temp_sore)
-                    pnt_list = PyOCCTools.get_points_of_face(shape)
-                    pnt_list_new = PyOCCTools.remove_coincident_vertices(pnt_list)
-                    pnt_list_new = PyOCCTools.remove_collinear_vertices2(pnt_list_new)
-                    # pnt_list_new = self._remove_collinear_vertices2(pnt_list)
-                    if pnt_list_new != pnt_list:
-                        # print("vert new vs old", len(pnt_list_new), len(pnt_list))
-                        if len(pnt_list_new) < 3:
-                            pnt_list_new = pnt_list
-                        shape = PyOCCTools.make_faces_from_pnts(pnt_list_new)
+            if not (sore.InnerBoundaries and not self.bound_instance.ifc.is_a('IfcWall')):
+                faces = PyOCCTools.get_faces_from_shape(shape)
+                if len(faces) > 1:
+                    unify = ShapeUpgrade_UnifySameDomain()
+                    unify.Initialize(shape)
+                    unify.Build()
+                    shape = unify.Shape()
+                    faces = PyOCCTools.get_faces_from_shape(shape)
+                    if len(faces) > 1:
+                        print('hold')
+                face = faces[0]
+                face = PyOCCTools.remove_coincident_and_collinear_points_from_face(face)
+                shape = face
+
 
         except:
             try:
@@ -749,12 +734,13 @@ class SpaceBoundary(element.RelationBased):
                 shape = PyOCCTools.make_faces_from_pnts(pnts)
         shape = BRepLib_FuseEdges(shape).Shape()
 
-        lp = PyOCCTools.local_placement(self.ifc.RelatingSpace.ObjectPlacement).tolist()
-        mat = gp_Mat(lp[0][0], lp[0][1], lp[0][2], lp[1][0], lp[1][1], lp[1][2], lp[2][0], lp[2][1], lp[2][2])
-        vec = gp_Vec(lp[0][3], lp[1][3], lp[2][3])
-        trsf = gp_Trsf()
-        trsf.SetTransformation(gp_Quaternion(mat), vec)
-        shape = BRepBuilderAPI_Transform(shape, trsf).Shape()
+        if self.ifc.RelatingSpace.ObjectPlacement:
+            lp = PyOCCTools.local_placement(self.ifc.RelatingSpace.ObjectPlacement).tolist()
+            mat = gp_Mat(lp[0][0], lp[0][1], lp[0][2], lp[1][0], lp[1][1], lp[1][2], lp[2][0], lp[2][1], lp[2][2])
+            vec = gp_Vec(lp[0][3], lp[1][3], lp[2][3])
+            trsf = gp_Trsf()
+            trsf.SetTransformation(gp_Quaternion(mat), vec)
+            shape = BRepBuilderAPI_Transform(shape, trsf).Shape()
 
         # shape = shape.Reversed()
         unify = ShapeUpgrade_UnifySameDomain()
@@ -768,31 +754,7 @@ class SpaceBoundary(element.RelationBased):
                 return shape
             if len(bi.related_openings) == 0:
                 return shape
-            # for op in bi.related_openings:
-            #     if op.ifc_type != "IfcDoor":
-            #         continue
-            #     # bbox = Bnd_Box()
-            #     # brepbndlib_Add(shape, bbox)
-            #     # shape = BRepPrimAPI_MakeBox(bbox.CornerMin(), bbox.CornerMax()).Shape()
-            #     # shape = bps.ExportEP.fix_shape(shape)
-            #     opd_shp = None
-            #     for opb in op.space_boundaries:
-            #         distance = BRepExtrema_DistShapeShape(opb.bound_shape, shape, Extrema_ExtFlag_MIN).Value()
-            #         if distance < 1e-3:
-            #             opd_shp = opb.bound_shape
-            #             fused_shp = BRepAlgoAPI_Fuse(shape, opd_shp).Shape()
-            #             unify = ShapeUpgrade_UnifySameDomain()
-            #             unify.Initialize(fused_shp)
-            #             unify.Build()
-            #             shape = unify.Shape()
-            #             shape = bps.ExportEP.fix_shape(shape)
-            #             vert_list1 = self.get_vertex_list_from_face(shape)
-            #             vert_list1 = self.remove_collinear_vertices(vert_list1)
-            #             vert_list1.reverse()
-            #             vert_list1 = self.remove_collinear_vertices(vert_list1)
-            #             vert_list1.reverse()
-            #             shape = self.make_face_from_vertex_list(vert_list1)
-
+        shape = PyOCCTools.get_face_from_shape(shape)
         return shape
 
     def get_transformed_shape(self, shape):
@@ -884,7 +846,7 @@ class SpaceBoundary(element.RelationBased):
 
     @cached_property
     def bound_normal(self):
-        return self.compute_surface_normals_in_space('')
+        return PyOCCTools.simple_face_normal(self.bound_shape)
 
     @cached_property
     def related_bound(self):
@@ -936,46 +898,36 @@ class SpaceBoundary(element.RelationBased):
     )
 
 
-# class SpaceBoundary2B:
-#     """Generated 2nd Level Space boundaries of type 2b
-#     (generated if not included in IFC)
-#     """
-#     def __init__(self):
-#         self.ifc_type = None
-#         self.guid = None
-#         self.bound_shape = None
-#         self.bound_neighbors = []
-#         self.thermal_zones = []
-#         self.bound_instance = None
-#         self.physical = True
-#         self.is_external = False
-#         self.related_bound = None
-#         self.related_adb_bound = None
-#         self.level_description = '2b'
-#
-#     def __str__(self):
-#         return "%s" % self.__class__.__name__
-#
-#     @cached_property
-#     def bound_center(self):
-#         return SpaceBoundary.get_bound_center(self)
-#
-#     @cached_property
-#     def bound_normal(self):
-#         return SpaceBoundary.compute_surface_normals_in_space(self)
-#
-#     @cached_property
-#     def bound_area(self):
-#         return SpaceBoundary.get_bound_area(self.bound_shape)
-#
-#     @cached_property
-#     def top_bottom(self):
-#         return SpaceBoundary.get_floor_and_ceilings(self)
-#
-#
 class ExtSpatialSpaceBoundary(SpaceBoundary):
     """describes all space boundaries related to an IfcExternalSpatialElement instead of an IfcSpace"""
     pass
+
+
+class SpaceBoundary2B(SpaceBoundary):
+    """describes all newly created space boundaries of type 2b to fill gaps within spaces"""
+    def __init__(self, *args, instances=None, **kwargs):
+        super(SpaceBoundary2B, self).__init__(*args, instances=None, **kwargs)
+        self.ifc = ifcopenshell.create_entity('IfcRelSpaceBoundary')
+        self.guid = None
+        self.bound_shape = None
+        self.bound_neighbors = []
+        self.thermal_zones = []
+        self.bound_instance = None
+        self.physical = True
+        self.is_external = False
+        self.related_bound = None
+        self.related_adb_bound = None
+        self.level_description = '2b'
+
+
+class SpaceBoundaryRepresentation(BPSProduct):
+    """describes the geometric representation of space boundaries which are
+    created by the webtool to allow the """
+    ifc_types = {
+        "IFCBUILDINGELEMENTPROXY":
+            ['USERDEFINED']
+    }
+    # todo look at #201
 
 
 class Wall(BPSProduct):

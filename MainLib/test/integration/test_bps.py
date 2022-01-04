@@ -40,12 +40,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         used_workflow = workflow.BPSMultiZoneAggregatedLayersLow()
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = ('Autodesk Revit 2020 (DEU)', True, True,
-                   "Kitchen in non-residential buildings",
-                   "Library - reading room",
-                   "Library - reading room",
-                   "Laboratory",
-                   "Parking garages (office and private usage)",
-                   "Stock, technical equipment, archives",
                    'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
                    'by_all_criteria')
@@ -61,12 +55,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         used_workflow = workflow.BPSOneZoneAggregatedLayersLow()
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = ('Autodesk Revit 2020 (DEU)', True, True,
-                   "Kitchen in non-residential buildings",
-                   "Library - reading room",
-                   "Library - reading room",
-                   "Laboratory",
-                   "Parking garages (office and private usage)",
-                   "Stock, technical equipment, archives",
                    'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
         handler = DebugDecisionHandler(answers)
@@ -80,7 +68,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BPSOneZoneAggregatedLayersLow()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
+        answers = (True, True, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -105,8 +93,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BPSMultiZoneCombinedLayersLow()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'Kitchen - preparations, storage',
-                   'heavy', 'EnEv', 'by_all_criteria', False)
+        answers = (True, True, 'heavy', 'EnEv', 'by_all_criteria', False)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -131,8 +118,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BPSMultiZoneCombinedLayersFull()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'Kitchen - preparations, storage', True,
-                   'solid_brick_h', True, 'hardwood', True,
+        answers = (True, True, True, 'solid_brick_h', True, 'hardwood', True,
                    'Concrete_DK', True, 'Light_Concrete_DK',
                    'heavy', 1, 'Door', 1, 'Brick', 'solid_brick_h', *(1,) * 8,
                    'EnEv', 'by_all_criteria')
@@ -167,7 +153,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BPSMultiZoneSeparatedLayersFull()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'Kitchen - preparations, storage', True,
+        answers = (True, True, True,
                    'solid_brick_h', True, 'hardwood', True,
                    'Concrete_DK', True, 'Light_Concrete_DK',
                    'heavy', 1, 'Door', 1, 'Brick', 'solid_brick_h', 'EnEv',

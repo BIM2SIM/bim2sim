@@ -112,7 +112,8 @@
   "ThermalZone": {
     "default_ps": {
       "zone_name" : ["ArchiCADProperties", "Raumname"],
-      "area": ["BaseQuantities", "GrossFloorArea"],
+      "net_area": ["BaseQuantities", "NetFloorArea"],
+      "gross_area": ["BaseQuantities", "GrossFloorArea"],
       "height" : ["BaseQuantities", "Height"],
       "length" : ["BaseQuantities", "Length"],
       "net_volume" : ["BaseQuantities", "NetVolume"],
@@ -122,7 +123,6 @@
       "t_set_cool" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMax"],
       "with_ahu": ["Pset_SpaceThermalRequirements", "AirConditioning"],
       "AreaPerOccupant": ["Pset_SpaceOccupancyRequirements", "AreaPerOccupant"]
-
     }
   },
   "Building": {

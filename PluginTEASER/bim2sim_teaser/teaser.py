@@ -22,7 +22,6 @@ class PluginTEASER(Plugin):
     elements = {*bps_elements.items}
 
     default_tasks = [
-        bps.SetIFCTypes,
         common.LoadIFC,
         common.CreateElements,
         bps.CreateSpaceBoundaries,

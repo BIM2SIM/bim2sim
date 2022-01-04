@@ -20,7 +20,6 @@ class PluginAixLib(Plugin):
 
     def run(self):
 
-        self.playground.run_task(hvac.SetIFCTypesHVAC())
         self.playground.run_task(common.LoadIFC())
         self.playground.run_task(common.CreateElements())
         self.playground.run_task(hvac.ConnectElements())
