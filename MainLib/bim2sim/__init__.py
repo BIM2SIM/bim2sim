@@ -76,10 +76,6 @@ def setup_default():
     logging_setup()
     logger = logging.getLogger(__name__)
 
-    plugins = load_plugins()
-    # if not plugins:
-    #     raise AssertionError("No plugins found!")
-
 
 def run_project(project: Project, handler: DecisionHandler):
     """Run project using decision handler."""
@@ -237,10 +233,10 @@ def _debug_run_cfd():
 
 
 setup_default()
+PLUGINS = load_plugins()
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
     # _debug_run_cfd()
-    _debug_run_bps()
+    # _debug_run_bps()
     # _debug_run_bps_ep()
     # _debug_run_hvac()
-
