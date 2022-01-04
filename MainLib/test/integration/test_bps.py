@@ -225,19 +225,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
 
-    def test_proxy_kitfzkhaus_spaces_low_layers_low(self):
-        """Run project with AC20-FZK-Haus.ifc"""
-        ifc = 'proxy_test6_PSet_Colors.ifc'
-        used_workflow = workflow.BPSOneZoneAggregatedLayersLow()
-        project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
-        handler = DebugDecisionHandler(answers)
-        for decision, answer in handler.decision_answer_mapping(project.run()):
-            decision.value = answer
-        self.assertEqual(0, handler.return_value,
-                         "Project did not finish successfully.")
-
 
 class TestIntegrationAixLib(unittest.TestCase):
     pass
