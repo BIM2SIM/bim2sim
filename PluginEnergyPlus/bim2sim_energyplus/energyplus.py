@@ -8,9 +8,10 @@ from bim2sim.kernel.elements import bps as bps_elements
 from bim2sim_energyplus.weather import Weather
 
 
-class EnergyPlus(Plugin):
+class PluginEnergyPlus(Plugin):
     name = 'EnergyPlus'
     default_workflow = BPSMultiZoneSeparatedEP
+    allowed_workflows = [BPSMultiZoneSeparatedEP]
     elements = {*bps_elements.items}
     default_tasks = [
         common.LoadIFC,

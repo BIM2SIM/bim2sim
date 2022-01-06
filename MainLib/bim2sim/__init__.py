@@ -1,24 +1,20 @@
 """BIM2SIM library"""
 
-import os
-import re
-import sys
-
 import logging
 import typing
 import importlib
 import pkgutil
-import tempfile
-from os.path import expanduser
+
 
 from bim2sim.decision.console import ConsoleDecisionHandler
 from bim2sim.decision.decisionhandler import DecisionHandler
 from bim2sim.kernel import ifc2python
-from bim2sim.project import Project, FolderStructure
+from bim2sim.project import Project
+from bim2sim.project import FolderStructure
 from bim2sim.plugin import Plugin
 from bim2sim.plugins import DummyPlugin
-from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparatedLayersLow,\
-    BPSMultiZoneSeparatedEP
+from bim2sim import workflow
+
 
 VERSION = '0.1-dev'
 
@@ -77,10 +73,6 @@ def setup_default():
     logging_setup()
     logger = logging.getLogger(__name__)
 
-    plugins = load_plugins()
-    # if not plugins:
-    #     raise AssertionError("No plugins found!")
-
 
 def run_project(project: Project, handler: DecisionHandler):
     """Run project using decision handler."""
@@ -136,14 +128,15 @@ def _debug_run_bps():
 
     # rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
     # rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
-    rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
+    rel_example = 'ExampleFiles/AC20-FZK-Haus_sbproxy.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
     path_example = _get_debug_project_path('bps')
-
+    used_workflow = workflow.BPSOneZoneAggregatedLayersLow()
     if Project.is_project_folder(path_example):
-        project = Project(path_example)
+        project = Project(path_example, used_workflow)
     else:
-        project = Project.create(path_example, path_ifc, 'teaser', )
+        project = Project.create(path_example, path_ifc, 'teaser',
+                                 workflow=used_workflow )
 
     run_project(project, ConsoleDecisionHandler())
 
@@ -237,10 +230,10 @@ def _debug_run_cfd():
 
 
 setup_default()
+PLUGINS = load_plugins()
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
     # _debug_run_cfd()
     # _debug_run_bps()
-    _debug_run_bps_ep()
+    # _debug_run_bps_ep()
     # _debug_run_hvac()
-
