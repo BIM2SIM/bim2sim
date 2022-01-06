@@ -6,13 +6,18 @@ import subprocess
 import shutil
 from distutils.dir_util import copy_tree
 from pathlib import Path
-
+import importlib
+import pkgutil
+import pkg_resources
 
 import configparser
 
-from bim2sim.decision import ListDecision, DecisionBunch, save, load
+from bim2sim.decision import Decision, ListDecision, DecisionBunch, save, load
 from bim2sim.task.base import Playground
 from bim2sim.plugin import Plugin
+from bim2sim.kernel.element import Element
+
+from bim2sim.task.bps.enrich_bldg_templ import EnrichBuildingByTemplates
 
 
 logger = logging.getLogger(__name__)

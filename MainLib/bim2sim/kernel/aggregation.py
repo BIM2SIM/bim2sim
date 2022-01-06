@@ -8,14 +8,15 @@ import re
 import numpy as np
 import networkx as nx
 
-from bim2sim.kernel.element import ProductBased
+from bim2sim.kernel.element import ProductBased, Port
 from bim2sim.kernel.elements.hvac import HVACPort, HVACProduct
 from bim2sim.kernel.elements import hvac, bps
 from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import filter_instances
-from bim2sim.decision import BoolDecision
+from bim2sim.decision import ListDecision, BoolDecision
+
 
 
 logger = logging.getLogger(__name__)

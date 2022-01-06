@@ -3,9 +3,8 @@
 Holds logic to run a simulation based on prepared ifc data
 '''
 
-
 def get_energyplus():
-    from .energyplus import PluginEnergyPlus
-    return PluginEnergyPlus
+    from .energyplus import EnergyPlus
+    return EnergyPlus
 
 CONTEND = {'energyplus':get_energyplus}

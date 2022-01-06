@@ -92,7 +92,7 @@ build_tool:webdevelop:
     - docker build -t $CI_REGISTRY/tool:web_develop .
     - docker push $CI_REGISTRY/tool:web_develop
   only:
-    - development_web
+    - handler
 
 coverage_Base:
   <<: *only-default

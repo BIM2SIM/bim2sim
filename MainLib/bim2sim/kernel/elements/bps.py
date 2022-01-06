@@ -920,16 +920,6 @@ class SpaceBoundary2B(SpaceBoundary):
         self.level_description = '2b'
 
 
-class SpaceBoundaryRepresentation(BPSProduct):
-    """describes the geometric representation of space boundaries which are
-    created by the webtool to allow the """
-    ifc_types = {
-        "IFCBUILDINGELEMENTPROXY":
-            ['USERDEFINED']
-    }
-    # todo look at #201
-
-
 class Wall(BPSProduct):
     ifc_types = {
         "IfcWall":
@@ -1290,12 +1280,6 @@ class Storey(BPSProduct):
     )
 
 
-class SpaceBoundaryRepresentation(BPSProduct):
-    ifc_types = {}
-
-    pattern_ifc_type = [
-        re.compile('ProxyBound', flags=re.IGNORECASE)
-    ]
 # collect all domain classes
 items: Set[BPSProduct] = set()
 for name, cls in inspect.getmembers(
