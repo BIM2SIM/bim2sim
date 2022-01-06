@@ -44,7 +44,7 @@ class ExportTEASER(ITask):
                 self._bind_instances_to_zone(tz, tz_instance, bldg)
                 tz.calc_zone_parameters()
             bldg.calc_building_parameter()
-        # todo add task to add weatherfile
+
         prj.weather_file_path = weather_file
         prj.export_aixlib(path=self.paths.export)
 

@@ -29,7 +29,7 @@ class EnergyPlus(Plugin):
         ep_tasks.IfcValidation,
         ep_tasks.EPGeomPreprocessing,
         ep_tasks.AddSpaceBoundaries2B,
-        common.Weather,
+        ep_tasks.WeatherEnergyPlus,
         ep_tasks.CreateIdf,
         ep_tasks.IdfPostprocessing,
         ep_tasks.ExportIdfForCfd,

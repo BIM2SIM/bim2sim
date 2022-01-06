@@ -70,7 +70,7 @@ class CreateIdf(ITask):
         # path = '/usr/local/EnergyPlus-9-2-0/'
         # path = '/usr/local/EnergyPlus-9-3-0/'
         path = f'/usr/local/EnergyPlus-{CreateIdf.ENERGYPLUS_VERSION}/'
-        # path = f'D:/04_Programme/EnergyPlus-{ExportEP.ENERGYPLUS_VERSION}/'
+        # path = f'D:/04_Programme/EnergyPlus-{CreateIdf.ENERGYPLUS_VERSION}/'
         # path = r'C:/Program Files (x86)/EnergyPlusV9-4-0/'
         plugin_ep_path = str(Path(__file__).parent.parent.parent)
         IDF.setiddname(path + 'Energy+.idd')

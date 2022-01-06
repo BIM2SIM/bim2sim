@@ -30,6 +30,6 @@ class TEASERManager(Plugin):
         bps.EnrichBuildingByTemplates,  # spaces -> LOD.low
         bps.DisaggregationCreation,
         bps.BindThermalZones,
-        common.Weather,
+        teaser.WeatherTEASER,
         bps.ExportTEASER,
     ]
