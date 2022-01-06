@@ -28,18 +28,18 @@ class CreateIdf(ITask):
 
     ENERGYPLUS_VERSION = "9-4-0"
 
-    reads = ('instances', 'ep_decisions',)
+    reads = ('instances', 'ep_decisions', 'weather_file', )
     touches = ('idf',)
 
     def __init__(self):
         super().__init__()
         self.idf = None
 
-    def run(self, workflow, instances, ep_decisions):
+    def run(self, workflow, instances, ep_decisions, weather_file):
         self.logger.info("Geometric preprocessing for EnergyPlus Export finished!")
         self.logger.info("IDF generation started ...")
         self.logger.info("Init thermal zones ...")
-        idf = self._init_idf(self.paths)
+        idf = self._init_idf(self.paths, weather_file)
         self._init_zone(instances, idf)
         self._init_zonelist(idf)
         self._init_zonegroups(instances, idf)
@@ -62,7 +62,7 @@ class CreateIdf(ITask):
         return idf,
 
     @staticmethod
-    def _init_idf(paths):
+    def _init_idf(paths, weather_file):
         """
         Initialize the idf with general idf settings and set default weather data.
         :return:
@@ -84,7 +84,7 @@ class CreateIdf(ITask):
             idf.copyidfobject(s)
         for t in sch_typelim:
             idf.copyidfobject(t)
-        idf.epw = str(paths.root / 'resources/DEU_NW_Aachen.105010_TMYx.epw')
+        idf.epw = str(weather_file)
         return idf
 
     def _init_zone(self, instances, idf):
