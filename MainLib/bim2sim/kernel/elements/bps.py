@@ -46,64 +46,52 @@ class BPSProduct(element.ProductBased):
         self.storeys = []
 
     def get_bound_area(self, name):
-        if type(self) != ThermalZone:
-            bound_area = 0
-            for sb in self.non_duplicated_sb:
-                bound_area += sb.bound_area
-            return bound_area
-        else:
-            return None
+        """ get gross bound area (including opening areas)"""
+        bound_area = 0
+        for sb in self.non_duplicated_sb:
+            bound_area += sb.bound_area
+        return bound_area
 
     def get_net_bound_area(self, name):
-        if type(self) != ThermalZone:
-            net_bound_area = 0
-            for sb in self.non_duplicated_sb:
-                net_bound_area += sb.net_bound_area
-            return net_bound_area
-        else:
-            return None
+        """get net area (including opening areas)"""
+        net_bound_area = 0
+        for sb in self.non_duplicated_sb:
+            net_bound_area += sb.net_bound_area
+        return net_bound_area
 
-    def get_non_duplicated_sb(self, name):
-        if type(self) != ThermalZone:
-            valid_sb = list(self.space_boundaries)
-            for sb in self.space_boundaries:
-                if sb in valid_sb:
-                    if sb.related_bound and sb.related_bound in valid_sb:
-                        valid_sb.remove(sb.related_bound)
-            return valid_sb
-        else:
-            return None
+
+    def get_non_duplicated_sb(self, name) -> list:
+        """get a list with only not duplicated space boundaries"""
+        valid_sb = list(self.space_boundaries)
+        for sb in self.space_boundaries:
+            if sb in valid_sb:
+                if sb.related_bound and sb.related_bound in valid_sb:
+                    valid_sb.remove(sb.related_bound)
+        return valid_sb
 
     def get_top_bottom(self, name):
-        if type(self) != ThermalZone:
-            tbs = []
-            for sb in self.non_duplicated_sb:
-                tbs.append(sb.top_bottom)
-            tbs_new = list(set(tbs))
-            return tbs_new
-        else:
-            return None
+        """get the top_bottom function # todo further explanation"""
+        tbs = []
+        for sb in self.non_duplicated_sb:
+            tbs.append(sb.top_bottom)
+        tbs_new = list(set(tbs))
+        return tbs_new
 
-    def get_is_external(self, name):
-        if type(self) != ThermalZone:
-            if hasattr(self, 'parent'):
-                return self.parent.is_external
-            else:
-                if len(self.ifc.ProvidesBoundaries) > 0:
-                    ext_int = list(set([boundary.InternalOrExternalBoundary for boundary in self.ifc.ProvidesBoundaries]))
-                    if len(ext_int) == 1:
-                        if ext_int[0].lower() == 'external':
-                            return True
-                        if ext_int[0].lower() == 'internal':
-                            return False
-                    else:
-                        return ext_int
+    def get_is_external(self, name) -> boolean:
+        """Checks if the corresponding element has contact with external
+        environment"""
+        if hasattr(self, 'parent'):
+            return self.parent.is_external
         else:
-            outer_walls = filter_instances(self.bound_elements, 'OuterWall')
-            if len(outer_walls) > 0:
-                return True
-            else:
-                return False
+            if len(self.ifc.ProvidesBoundaries) > 0:
+                ext_int = list(set([boundary.InternalOrExternalBoundary for boundary in self.ifc.ProvidesBoundaries]))
+                if len(ext_int) == 1:
+                    if ext_int[0].lower() == 'external':
+                        return True
+                    if ext_int[0].lower() == 'internal':
+                        return False
+                else:
+                    return ext_int
 
     bound_area = attribute.Attribute(
         functions=[get_bound_area],
@@ -259,6 +247,25 @@ class ThermalZone(BPSProduct):
             # todo implement area_by_sb # issue 199
             area = None
         return area
+
+    def get_bound_area(self, name):
+        return None
+
+    def get_net_bound_area(self, name):
+        return None
+
+    def get_non_duplicated_sb(self, name):
+        return None
+
+    def get_top_bottom(self, name):
+        return None
+
+    def get_is_external(self, name) -> boolean:
+        outer_walls = filter_instances(self.bound_elements, 'OuterWall')
+        if len(outer_walls) > 0:
+            return True
+        else:
+            return False
 
     name = attribute.Attribute(
         functions=[_get_name]
