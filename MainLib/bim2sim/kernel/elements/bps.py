@@ -35,6 +35,8 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 logger = logging.getLogger(__name__)
 
+# todo @ veronika: convert all attributes regarding SB
+#  which can't come from ifc to cached_property
 
 class BPSProduct(element.ProductBased):
     domain = 'BPS'
@@ -54,11 +56,15 @@ class BPSProduct(element.ProductBased):
 
     def get_net_bound_area(self, name):
         """get net area (including opening areas)"""
-        net_bound_area = 0
-        for sb in self.non_duplicated_sb:
-            net_bound_area += sb.net_bound_area
+        net_bound_area = self.bound_area - self.opening_area
         return net_bound_area
 
+    def get_opening_area(self):
+        """get sum of opening areas"""
+        opening_area = 0
+        for sb in self.non_duplicated_sb:
+            opening_area += sb.opening_area
+        return opening_area
 
     def get_non_duplicated_sb(self, name) -> list:
         """get a list with only not duplicated space boundaries"""
@@ -77,7 +83,7 @@ class BPSProduct(element.ProductBased):
         tbs_new = list(set(tbs))
         return tbs_new
 
-    def get_is_external(self, name) -> boolean:
+    def get_is_external(self, name) -> bool:
         """Checks if the corresponding element has contact with external
         environment"""
         if hasattr(self, 'parent'):
@@ -93,6 +99,16 @@ class BPSProduct(element.ProductBased):
                 else:
                     return ext_int
 
+    gross_area = attribute.Attribute(
+        functions=[get_bound_area],
+        unit=ureg.meter ** 2
+    )
+    net_area = attribute.Attribute(
+        functions=[get_net_bound_area],
+        unit=ureg.meter ** 2
+    )
+    # todo @veronika: can we refactor the prior bound_area completly to gross_area?
+    #  same for net_bound_area -> net_area?
     bound_area = attribute.Attribute(
         functions=[get_bound_area],
         unit=ureg.meter ** 2
@@ -111,6 +127,9 @@ class BPSProduct(element.ProductBased):
         functions=[get_is_external],
         default=False
     )
+    @cached_property
+    def opening_area(self):
+        return self.get_opening_area()
 
 
 class ThermalZone(BPSProduct):
@@ -206,14 +225,14 @@ class ThermalZone(BPSProduct):
         return volume
 
     def _get_volume(self, name):
-        return self.area * self.height
+        return self.gross_area * self.height
 
     def _get_usage(self, name):
         if self.zone_name is not None:
             usage = self.zone_name
         elif self.ifc.LongName is not None and \
                  "oldSpaceGuids_" not in self.ifc.LongName:
-            # todo oldSpaceGuids_ is hardcode for erics tool
+            #todo oldSpaceGuids_ is hardcode for erics tool
             usage = self.ifc.LongName
         else:
             usage = self.name
@@ -237,22 +256,53 @@ class ThermalZone(BPSProduct):
     def _get_name(self, name):
         return self.ifc.Name
 
-    def _get_area(self, name):
-        """function to get a general area for later usage"""
-        if self.net_area:
-            area = self.net_area
-        elif self.gross_area:
-            area = self.gross_area
-        else:
-            # todo implement area_by_sb # issue 199
-            area = None
-        return area
+    # def _get_area(self, name):
+    #     """function to get a general area for later usage"""
+    #     area = self.bound_area
+    #     if self.net_area:
+    #         area = self.net_area
+    #     elif self.gross_area:
+    #         area = self.gross_area
+    #     else:
+    #         pass
+    #         # todo implement area_by_sb # issue 199
+    #     return area
 
-    def get_bound_area(self, name):
-        return None
+    def get_bound_area(self):
+        """Get bound area of zone. For Thermalzones this is always set to
+         the max horizonal area of a room."""
+        leveled_areas = {}
+        for height, sb in self.horizontal_sbs.items():
+            if height not in leveled_areas:
+                leveled_areas[height] = 0
+            leveled_areas[height] += sb.bound_area
+
+        return max(leveled_areas.values())
 
     def get_net_bound_area(self, name):
-        return None
+        """Get net bound bound area of zone. For Thermalzones this is always
+        set to the max horizonal area of a room reduced by its opening areas."""
+        leveled_areas = {}
+        for height, sb in self.horizontal_sbs.items():
+            if height not in leveled_areas:
+                leveled_areas[height] = 0
+            leveled_areas[height] += sb.net_bound_area
+
+        return max(leveled_areas.values())
+
+    def get_horizontal_sbs(self):
+        """get all horizonal SBs in a zone and convert them into a dict with
+         key z-height in room and the SB as value."""
+        valid = ['TOP', 'BOTTOM']
+        leveled_sbs = {}
+        for sb in self.non_duplicated_sb:
+            if sb.top_bottom in valid:
+                key = round(sb.position[2], 1)
+                if key not in leveled_sbs:
+                    leveled_sbs[key] = []
+                leveled_sbs[key] = sb
+
+        return leveled_sbs
 
     def get_non_duplicated_sb(self, name):
         return None
@@ -260,7 +310,7 @@ class ThermalZone(BPSProduct):
     def get_top_bottom(self, name):
         return None
 
-    def get_is_external(self, name) -> boolean:
+    def get_is_external(self, name) -> bool:
         outer_walls = filter_instances(self.bound_elements, 'OuterWall')
         if len(outer_walls) > 0:
             return True
@@ -290,16 +340,32 @@ class ThermalZone(BPSProduct):
     )
     gross_area = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
+        functions=[get_bound_area],
         unit=ureg.meter ** 2
     )
     net_area = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "NetFloorArea"),
+        functions=[get_net_bound_area],
         unit=ureg.meter ** 2
     )
-    area = attribute.Attribute(
-        functions=[_get_area],
-        unit=ureg.meter ** 2
-    )
+    # area = attribute.Attribute(
+    #     functions=[_get_area],
+    #     unit=ureg.meter ** 2
+    # )
+    # todo remove bound_area and net_bound_area as they shouldn't be called
+    #  directly
+    @cached_property
+    def bound_area(self):
+        return self.get_bound_area()
+
+    @cached_property
+    def net_bound_area(self):
+        return self.get_net_bound_area('')
+
+    @cached_property
+    def horizontal_sbs(self):
+        return self.get_horizontal_sbs()
+
     net_volume = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "NetVolume"),
     )
@@ -839,12 +905,15 @@ class SpaceBoundary(element.RelationBased):
     def get_physical(self, name):
         return self.ifc.PhysicalOrVirtualBoundary.lower() == 'physical'
 
-    def get_net_bound_area(self, name):
+    def get_opening_area(self):
         opening_area = 0
         if self.opening_bounds:
             for opening_boundary in self.opening_bounds:
-                opening_area += opening_boundary.bound_area.m
-        area = self.bound_area.m - opening_area
+                opening_area += opening_boundary.bound_area
+        return opening_area
+
+    def get_net_bound_area(self):
+        area = self.bound_area - self.opening_area
         return area
 
     @cached_property
@@ -871,12 +940,12 @@ class SpaceBoundary(element.RelationBased):
     def top_bottom(self):
         return self.get_floor_and_ceilings('')
 
+    @cached_property
+    def opening_area(self):
+        return self.get_opening_area()
+
     bound_area = attribute.Attribute(
         functions=[get_bound_area],
-        unit=ureg.meter ** 2
-    )
-    net_bound_area = attribute.Attribute(
-        functions=[get_net_bound_area],
         unit=ureg.meter ** 2
     )
     bound_neighbors = attribute.Attribute(
@@ -901,9 +970,15 @@ class SpaceBoundary(element.RelationBased):
     physical = attribute.Attribute(
         functions=[get_physical]
     )
-    opening_bounds = attribute.Attribute(
-    )
+    @cached_property
+    def opening_bounds(self):
+        return None
+    # opening_bounds = attribute.Attribute(
+    # )
 
+    @cached_property
+    def net_bound_area(self):
+        return self.get_net_bound_area()
 
 class ExtSpatialSpaceBoundary(SpaceBoundary):
     """describes all space boundaries related to an IfcExternalSpatialElement instead of an IfcSpace"""
@@ -964,15 +1039,29 @@ class Wall(BPSProduct):
         else:
             return InnerWall
 
+    def get_net_bound_area(self, name):
+        """get net area (including opening areas)"""
+        net_bound_area = self.bound_area - self.opening_area
+        return net_bound_area
+
+    def get_bound_area(self, name):
+        """ get gross bound area (including opening areas)"""
+        bound_area = 0
+        for sb in self.non_duplicated_sb:
+            bound_area += sb.bound_area
+        return bound_area
+
     layers = attribute.Attribute(
         functions=[_get_layers]
     )
-    area = attribute.Attribute(
+    net_area = attribute.Attribute(
         default_ps=("QTo_WallBaseQuantities", "NetSideArea"),
+        functions=[get_net_bound_area],
         unit=ureg.meter ** 2
     )
     gross_area = attribute.Attribute(
         default_ps=("Qto_WallBaseQuantities", "GrossSideArea"),
+        functions=[get_bound_area],
         unit=ureg.meter ** 2
     )
     tilt = attribute.Attribute(
@@ -1076,12 +1165,40 @@ class Window(BPSProduct):
             layers.append(new_layer)
         return layers
 
+    def get_net_bound_area(self, name):
+        """get net area (including opening areas)"""
+        net_bound_area = self.bound_area - self.opening_area
+        return net_bound_area
+
+    def get_bound_area(self, name):
+        """ get gross bound area (including opening areas)"""
+        bound_area = 0
+        for sb in self.non_duplicated_sb:
+            bound_area += sb.bound_area
+        return bound_area
+
+    def get_glazing_area(self, name):
+        """returns only the glazing area of the windows"""
+        if self.glazing_ratio:
+            glazing_area = self.gross_area * self.glazing_ratio
+        else:
+            glazing_area = self.opening_area
+        return glazing_area
+
     layers = attribute.Attribute(
         functions=[_get_layers]
     )
-    area = attribute.Attribute(
-        default_ps=("Qto_WindowBaseQuantities", "Area"),
+    net_area = attribute.Attribute(
+        functions=[get_glazing_area],
         unit=ureg.meter ** 2
+    )
+    gross_area = attribute.Attribute(
+        default_ps=("Qto_WindowBaseQuantities", "Area"),
+        functions=[get_bound_area],
+        unit=ureg.meter ** 2
+    )
+    glazing_ratio = attribute.Attribute(
+        default_ps=("Pset_WindowCommon", "GlazingAreaFraction"),
     )
     width = attribute.Attribute(
         default_ps=("Qto_WindowBaseQuantities", "Depth"),
@@ -1137,12 +1254,39 @@ class Door(BPSProduct):
         else:
             return InnerDoor
 
+    def get_net_area(self):
+        if self.glazing_ratio:
+            net_area = self.gross_area * (1 - self.glazing_ratio)
+        else:
+            net_area = self.net_bound_area
+        return net_area
+
+    def get_net_bound_area(self, name):
+        """get net area (including opening areas)"""
+        net_bound_area = self.bound_area - self.opening_area
+        return net_bound_area
+
+    def get_bound_area(self, name):
+        """ get gross bound area (including opening areas)"""
+        bound_area = 0
+        for sb in self.non_duplicated_sb:
+            bound_area += sb.bound_area
+        return bound_area
+
     layers = attribute.Attribute(
         functions=[_get_layers]
     )
-    area = attribute.Attribute(
+    @cached_property
+    def net_area(self):
+        return self.get_net_area()
+
+    gross_area = attribute.Attribute(
         default_ps=("Qto_DoorBaseQuantities", "Area"),
+        functions=[get_bound_area],
         unit=ureg.meter ** 2
+    )
+    glazing_ratio = attribute.Attribute(
+        default_ps=("Pset_WindowCommon", "GlazingAreaFraction"),
     )
 
     width = attribute.Attribute(
@@ -1185,15 +1329,29 @@ class Slab(BPSProduct):
             layers.append(new_layer)
         return layers
 
+    def get_net_bound_area(self, name):
+        """get net area (including opening areas)"""
+        net_bound_area = self.bound_area - self.opening_area
+        return net_bound_area
+
+    def get_bound_area(self, name):
+        """ get gross bound area (including opening areas)"""
+        bound_area = 0
+        for sb in self.non_duplicated_sb:
+            bound_area += sb.bound_area
+        return bound_area
+
     layers = attribute.Attribute(
         functions=[_get_layers]
     )
-    area = attribute.Attribute(
+    net_area = attribute.Attribute(
         default_ps=("Qto_SlabBaseQuantities", "NetArea"),
+        functions=[get_net_bound_area],
         unit=ureg.meter ** 2
     )
     gross_area = attribute.Attribute(
         default_ps=("Qto_SlabBaseQuantities", "GrossArea"),
+        functions=[get_bound_area],
         unit=ureg.meter ** 2
     )
     width = attribute.Attribute(

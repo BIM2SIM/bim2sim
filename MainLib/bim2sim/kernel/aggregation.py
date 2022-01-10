@@ -1432,7 +1432,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
          based on a previous filtering"""
         new_aggregations = []
         thermal_zones = filter_instances(instances, 'ThermalZone')
-        total_area = sum(i.area for i in thermal_zones)
+        total_area = sum(i.gross_area for i in thermal_zones)
         for group in groups:
             if group == 'one_zone_building':
                 name = "Aggregated_%s" % group
@@ -1448,7 +1448,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                 instances[instance.guid] = instance
             elif group == 'not_bind':
                 # last criterion no similarities
-                area = sum(i.area for i in groups[group])
+                area = sum(i.gross_area for i in groups[group])
                 if area / total_area <= 0.05:
                     # Todo: usage and conditions criterion
                     name = "Aggregated_not_neighbors"
@@ -1509,7 +1509,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
 
     def _extensive_calc(self, name):
         """extensive properties getter
-        intensive_attributes = ['area', 'volume']"""
+        intensive_attributes = ['gross_area', 'net_area', 'volume']"""
         prop_sum = sum(getattr(tz, name) for tz in self.elements if getattr(tz, name) is not None)
         return prop_sum
 
@@ -1547,7 +1547,11 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         functions=[_intensive_calc],
         unit=ureg.degC,
     )
-    area = attribute.Attribute(
+    net_area = attribute.Attribute(
+        functions=[_extensive_calc],
+        unit=ureg.meter ** 2
+    )
+    gross_area = attribute.Attribute(
         functions=[_extensive_calc],
         unit=ureg.meter ** 2
     )
