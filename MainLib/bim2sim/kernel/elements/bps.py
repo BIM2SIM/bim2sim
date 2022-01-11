@@ -268,14 +268,14 @@ class ThermalZone(BPSProduct):
     #         # todo implement area_by_sb # issue 199
     #     return area
 
-    def get_bound_area(self):
+    def get_bound_area(self, name):
         """Get bound area of zone. For Thermalzones this is always set to
          the max horizonal area of a room."""
         leveled_areas = {}
-        for height, sb in self.horizontal_sbs.items():
+        for height, sbs in self.horizontal_sbs.items():
             if height not in leveled_areas:
                 leveled_areas[height] = 0
-            leveled_areas[height] += sb.bound_area
+            leveled_areas[height] += sum([sb.net_bound_area for sb in sbs])
 
         return max(leveled_areas.values())
 
@@ -283,10 +283,10 @@ class ThermalZone(BPSProduct):
         """Get net bound bound area of zone. For Thermalzones this is always
         set to the max horizonal area of a room reduced by its opening areas."""
         leveled_areas = {}
-        for height, sb in self.horizontal_sbs.items():
+        for height, sbs in self.horizontal_sbs.items():
             if height not in leveled_areas:
                 leveled_areas[height] = 0
-            leveled_areas[height] += sb.net_bound_area
+            leveled_areas[height] += sum([sb.net_bound_area for sb in sbs])
 
         return max(leveled_areas.values())
 
@@ -297,10 +297,10 @@ class ThermalZone(BPSProduct):
         leveled_sbs = {}
         for sb in self.non_duplicated_sb:
             if sb.top_bottom in valid:
-                key = round(sb.position[2], 1)
-                if key not in leveled_sbs:
-                    leveled_sbs[key] = []
-                leveled_sbs[key] = sb
+                pos = round(sb.position[2], 1)
+                if pos not in leveled_sbs:
+                    leveled_sbs[pos] = []
+                leveled_sbs[pos].append(sb)
 
         return leveled_sbs
 
@@ -321,6 +321,7 @@ class ThermalZone(BPSProduct):
         functions=[_get_name]
     )
     zone_name = attribute.Attribute(
+        default_ps=("Pset_SpaceCommon","Reference")
     )
     usage = attribute.Attribute(
         default_ps=("Pset_SpaceOccupancyRequirements", "OccupancyType"),
