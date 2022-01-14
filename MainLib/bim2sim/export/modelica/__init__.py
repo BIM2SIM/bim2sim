@@ -3,25 +3,30 @@
 import os
 import logging
 from pathlib import Path
-
+from typing import Union, Type, Dict, Container
 import codecs
+
 from mako.template import Template
 import numpy as np
 import pint
 
 import bim2sim
 from bim2sim.kernel import element as elem
-from bim2sim.decision import RealDecision
+from bim2sim.kernel.element import Element
 
 TEMPLATEPATH = Path(bim2sim.__file__).parent / 'assets/tmplModel.txt'
 # prevent mako newline bug by reading file seperatly
 with open(TEMPLATEPATH) as f:
     templateStr = f.read()
-templ = Template(templateStr)
+template = Template(templateStr)
+
+logger = logging.getLogger(__name__)
 
 
 class ModelError(Exception):
-    """Error occuring in model"""
+    """Error occurring in model"""
+
+
 class FactoryError(Exception):
     """Error in Model factory"""
 
@@ -30,9 +35,6 @@ class Model:
     """Modelica model"""
 
     def __init__(self, name, comment, instances: list, connections: list):
-
-        self.logger = logging.getLogger(__name__)
-
         self.name = name
         self.comment = comment
         self.instances = instances
@@ -40,7 +42,7 @@ class Model:
         self.size_x = (-100, 100)
         self.size_y = (-100, 100)
 
-        self.connections, self.connections = self.set_positions(instances, connections)
+        self.connections = self.set_positions(instances, connections)
 
     def set_positions(self, instances, connections):
         """Sets position of instances
@@ -75,11 +77,11 @@ class Model:
             connections_positions.append(
                 (inst0, inst1, instance_dict[name0], instance_dict[name1])
             )
-        return list(instances), connections_positions
+        return connections_positions
 
     def code(self):
         """returns Modelica code"""
-        return templ.render(model=self)
+        return template.render(model=self)
 
     def save(self, path: str):
         """Save model as Modelica file"""
@@ -92,7 +94,7 @@ class Model:
 
         data = self.code()
 
-        self.logger.info("Saving '%s' to '%s'", self.name, _path)
+        logger.info("Saving '%s' to '%s'", self.name, _path)
         with codecs.open(_path, "w", "utf-8") as file:
             file.write(data)
 
@@ -100,33 +102,40 @@ class Model:
 class Instance:
     """Modelica model instance"""
 
-    library = None
+    library: str = None
     version = None
-    path = None
-    represents = None
-    lookup = {}
-    dummy = None
+    path: str = None
+    represents: Union[Element, Container[Element]] = None
+    lookup: Dict[Type[Element], Type['Instance']] = {}
+    dummy: Type['Instance'] = None
     _initialized = False
 
     def __init__(self, element):
-
         self.element = element
         self.position = (80, 80)
 
-        self.name = element.__class__.__name__.lower()
-        self.guid = getattr(element, "guid", "").replace("$", "_")
-        if self.guid:
-            self.name = self.name + "_" + self.guid
         self.params = {}
         self.validate = {}
-        self.get_params()
-        self.comment = self.get_comment()
         self.connections = []
+
+        self.guid = self._get_clean_guid()
+        self.name = self._get_name()
+        self.comment = self.get_comment()
+
+        self.request_params()
+
+    def _get_clean_guid(self) -> str:
+        return getattr(self.element, "guid", "").replace("$", "_")
+
+    def _get_name(self) -> str:
+        name = self.element.__class__.__name__.lower()
+        if self.guid:
+            name = name + "_" + self.guid
+        return name
 
     @staticmethod
     def _lookup_add(key, value):
         """Adds key and value to Instance.lookup. Returns conflict"""
-        logger = logging.getLogger(__name__)
         if key in Instance.lookup and value is not Instance.lookup[key]:
             logger.error("Conflicting representations (%s) in '%s' and '%s'",
                          key, value.__name__, Instance.lookup[key].__name__)
@@ -137,7 +146,6 @@ class Instance:
     @staticmethod
     def init_factory(libraries):
         """initialize lookup for factory"""
-        logger = logging.getLogger(__name__)
         conflict = False
 
         Instance.dummy = Dummy
@@ -155,7 +163,7 @@ class Instance:
                     logger.warning("'%s' represents no model and can't be used", cls.__name__)
                     continue
 
-                if isinstance(cls.represents, (list, set)):
+                if isinstance(cls.represents, Container):
                     for rep in cls.represents:
                         confl = Instance._lookup_add(rep, cls)
                         if confl:
@@ -206,10 +214,10 @@ class Instance:
                     allow_skip=True,
                 )
 
-    def register_param(self, name: str, check, export_name: str=None):
-        """Parameter gests marked as requiered and will be checked.
+    def request_param(self, name: str, check, export_name: str=None):
+        """Parameter gets marked as required and will be checked.
 
-        run Element.solve_request() after all parameters are registrated."""
+        run Element.solve_request() after all parameters are registered."""
         self.element.request(name)
         self.validate[name] = (check, export_name or name)
 
@@ -219,9 +227,10 @@ class Instance:
         mp = {k: self.to_modelica(v) for k, v in self.params.items()}
         return mp
 
-    def get_params(self):
-        """Returns dictionary of parameters and values"""
-        return {}
+    def request_params(self):
+        """Request all required parameters."""
+        # overwrite this in child classes
+        pass
 
     def get_comment(self):
         """Returns comment string"""
@@ -248,13 +257,12 @@ class Instance:
             return parameter
         if isinstance(parameter, bool):
             return 'true' if parameter else 'false'
-        if isinstance(parameter, (str, int, float)):
+        if isinstance(parameter, (int, float)):
             return str(parameter)
         if isinstance(parameter, str):
             return '"%s"'%parameter
         if isinstance(parameter, (list, tuple, set)):
             return "{%s}"%(",".join((Instance.to_modelica(par) for par in parameter)))
-        logger = logging.getLogger(__name__)
         logger.warning("Unknown class (%s) for conversion", parameter.__class__)
         return str(parameter)
 

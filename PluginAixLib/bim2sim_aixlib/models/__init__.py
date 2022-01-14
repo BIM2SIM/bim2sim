@@ -22,8 +22,8 @@ class Boiler(AixLib):
         self.check_power = self.check_numeric(min_value=0 * ureg.kilowatt) #TODO: Checking System
         super().__init__(element)
 
-    def get_params(self):
-        self.register_param("rated_power", self.check_power, "nominal_power")
+    def request_params(self):
+        self.request_param("rated_power", self.check_power, "nominal_power")
 
 
 class BoilerModule(AixLib):
@@ -34,13 +34,13 @@ class BoilerModule(AixLib):
         self.check_temp_tupel = True #TODO: Checking System
         super().__init__(element)
 
-    def get_params(self):
+    def request_params(self):
         # self.register_param("Tconsumer", self.check_temp_tupel, "Tconsumer")
         # self.params["Q_nom"] =
         self.params["Tconsumer"] = (self.element.temperature_inlet, self.element.temperature_outlet)
         self.params["Medium_heating"] = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.register_param("useHydraulicSeparator", self.check_temp_tupel, "useHydraulicSeparator")
-        self.register_param("hydraulicSeparatorVolume", self.check_temp_tupel, "V")
+        self.request_param("useHydraulicSeparator", self.check_temp_tupel, "useHydraulicSeparator")
+        self.request_param("hydraulicSeparatorVolume", self.check_temp_tupel, "V")
 
         index = 0
 
