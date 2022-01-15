@@ -110,12 +110,12 @@ class Instance:
     dummy: Type['Instance'] = None
     _initialized = False
 
-    def __init__(self, element):
+    def __init__(self, element: Element):
         self.element = element
         self.position = (80, 80)
 
         self.params = {}
-        self.validate = {}
+        self.requested = {}
         self.connections = []
 
         self.guid = self._get_clean_guid()
@@ -192,45 +192,33 @@ class Instance:
         cls = Instance.lookup.get(element.__class__, Instance.dummy)
         return cls(element)
 
-    def manage_params(self):
-        """Collect parameters from element and checks them"""
-        for name, args in self.validate.items():
-            check, export_name = args
-            value = self.element.find(name)
-            # ToDo: Yield according to #126
-            if check(value):
-                self.params[export_name] = value
-            else:
-                RealDecision(
-                    question="Please enter parameter for %s"%(self.name + "." + export_name),
-                    unit=self.element.attributes.get_unit(name),
-                    validate_func=check,
-                    output=self.params,
-                    key=export_name,
-                    global_key=self.name + "." + name,
-                    collect=True,
-                    allow_load=True,
-                    allow_save=True,
-                    allow_skip=True,
-                )
-
     def request_param(self, name: str, check, export_name: str=None):
         """Parameter gets marked as required and will be checked.
 
-        run Element.solve_request() after all parameters are registered."""
+        Hint: run collect_params() to collect actual values after requests."""
         self.element.request(name)
-        self.validate[name] = (check, export_name or name)
+        self.requested[name] = (check, export_name or name)
+
+    def request_params(self):
+        """Request all required parameters."""
+        # overwrite this in child classes
+        pass
+
+    def collect_params(self):
+        """Collect all requested parameters."""
+        for name, (check, export_name) in self.requested.items():
+            param = getattr(self.element, name)
+            if check(param):
+                self.params[export_name] = param
+            else:
+                self.params[export_name] = None
+                logger.warning("Parameter check failed for '%s' with value: %s", name, param)
 
     @property
     def modelica_params(self):
         """Returns param dict converted with to_modelica"""
         mp = {k: self.to_modelica(v) for k, v in self.params.items()}
         return mp
-
-    def request_params(self):
-        """Request all required parameters."""
-        # overwrite this in child classes
-        pass
 
     def get_comment(self):
         """Returns comment string"""
@@ -258,6 +246,8 @@ class Instance:
         if isinstance(parameter, bool):
             return 'true' if parameter else 'false'
         if isinstance(parameter, (int, float)):
+            # TODO: quantity to modelica SI unit.
+            #  Import related SI units in Model template
             return str(parameter)
         if isinstance(parameter, str):
             return '"%s"'%parameter

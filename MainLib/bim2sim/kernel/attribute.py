@@ -359,7 +359,7 @@ class AttributeManager(dict):
     def get_decisions(self) -> DecisionBunch:
         """Return all decision of attributes with status REQUESTED."""
         decisions = DecisionBunch()
-        for dec, status in self.items():
+        for dec, status in self.values():
             if status == Attribute.STATUS_REQUESTED:
                 decisions.append(dec)
         return decisions

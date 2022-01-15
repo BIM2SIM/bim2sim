@@ -106,24 +106,17 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         """
         return self.attributes.request(name, external_decision)
 
-    @classmethod
+    @staticmethod
     def get_pending_attribute_decisions(
-            cls, instances: Iterable['Element'] = None) -> DecisionBunch:
+            instances: Iterable['Element']) -> DecisionBunch:
         """Get all requested decisions of attributes.
 
         all decisions related to given instances are returned"""
-        # if not self or not isinstance(self, Element):
-        # called from class
+
         decisions = DecisionBunch()
         for inst in instances:
-            for bunch in inst.attributes.get_decisions():
-                decisions.extend(bunch)
-        # else:
-        #     # called from instance
-        #     if instances:
-        #         raise AssertionError(
-        #             "Only use instances argument on call from class")
-        #     decisions = self.attributes.get_decisions()
+            bunch = inst.attributes.get_decisions()
+            decisions.extend(bunch)
         return decisions
 
     @classmethod
