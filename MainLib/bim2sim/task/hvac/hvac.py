@@ -544,17 +544,8 @@ class Export(ITask):
         for instance in export_instances.values():
             instance.collect_params()
 
-        # self.logger.info(Decision.summary())
-        # Decision.decide_collected()
-        # save(self.paths.decisions)
-
-        connection_port_names = []
-        for connection in connections:
-            instance0 = export_instances[connection[0].parent]
-            port_name0 = instance0.get_full_port_name(connection[0])
-            instance1 = export_instances[connection[1].parent]
-            port_name1 = instance1.get_full_port_name(connection[1])
-            connection_port_names.append((port_name0, port_name1))
+        connection_port_names = self.create_connections(
+            connections, export_instances)
 
         self.logger.info(
             "Creating Modelica model with %d model instances and %d connections.",
@@ -570,3 +561,13 @@ class Export(ITask):
         # print(modelica_model.code())
         # print("-"*80)
         modelica_model.save(self.paths.export)
+
+    def create_connections(self, connections, export_instances):
+        connection_port_names = []
+        for connection in connections:
+            instance0 = export_instances[connection[0].parent]
+            port_name0 = instance0.get_full_port_name(connection[0])
+            instance1 = export_instances[connection[1].parent]
+            port_name1 = instance1.get_full_port_name(connection[1])
+            connection_port_names.append((port_name0, port_name1))
+        return connection_port_names
