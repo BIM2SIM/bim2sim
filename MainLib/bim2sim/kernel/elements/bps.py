@@ -275,7 +275,7 @@ class ThermalZone(BPSProduct):
         for height, sbs in self.horizontal_sbs.items():
             if height not in leveled_areas:
                 leveled_areas[height] = 0
-            leveled_areas[height] += sum([sb.net_bound_area for sb in sbs])
+            leveled_areas[height] += sum([sb.bound_area for sb in sbs])
 
         return max(leveled_areas.values())
 
