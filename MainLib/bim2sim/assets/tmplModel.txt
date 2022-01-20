@@ -1,5 +1,6 @@
 model ${model.name} "${model.comment}"
   extends Modelica.Icons.Example;
+  import SI = Modelica.SIunits;
 
 % for instance in model.instances:
   ${inst(instance)}
