@@ -52,7 +52,9 @@ class Pump(HKESim):
     represents = [hvac.Pump]
 
     def request_params(self):
-        pass
+        self.request_param("rated_height", self.check_numeric(min_value=0 * ureg.meter), "head_set")
+        self.request_param("rated_volume_flow", self.check_numeric(min_value=0 * ureg['m3/h']), "Vflow_set", 'm3/h')
+        self.request_param("rated_power", self.check_numeric(min_value=0 * ureg.watt), "P_norm")
 
     def get_port_name(self, port):
         try:

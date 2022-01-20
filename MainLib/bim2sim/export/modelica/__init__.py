@@ -3,7 +3,7 @@
 import os
 import logging
 from pathlib import Path
-from typing import Union, Type, Dict, Container
+from typing import Union, Type, Dict, Container, Tuple, Callable
 import codecs
 
 from mako.template import Template
@@ -115,7 +115,7 @@ class Instance:
         self.position = (80, 80)
 
         self.params = {}
-        self.requested = {}
+        self.requested: Dict[str, Tuple[Callable, str, str]] = {}
         self.connections = []
 
         self.guid = self._get_clean_guid()
@@ -192,12 +192,17 @@ class Instance:
         cls = Instance.lookup.get(element.__class__, Instance.dummy)
         return cls(element)
 
-    def request_param(self, name: str, check, export_name: str=None):
+    def request_param(self, name: str, check, export_name: str = None, export_unit: str = ''):
         """Parameter gets marked as required and will be checked.
 
-        Hint: run collect_params() to collect actual values after requests."""
+        Hint: run collect_params() to collect actual values after requests.
+        
+        :param name: name of parameter to request
+        :param check: validation function for parameter
+        :param export_name: name of parameter in export. Defaults to name
+        :param export_unit: unit of parameter in export. Converts to SI units if not specified otherwise"""
         self.element.request(name)
-        self.requested[name] = (check, export_name or name)
+        self.requested[name] = (check, export_name or name, export_unit)
 
     def request_params(self):
         """Request all required parameters."""
@@ -206,19 +211,48 @@ class Instance:
 
     def collect_params(self):
         """Collect all requested parameters."""
-        for name, (check, export_name) in self.requested.items():
+        for name, (check, export_name, special_units) in self.requested.items():
             param = getattr(self.element, name)
             if check(param):
-                self.params[export_name] = param
+                converted_param = self._convert_param(param, special_units)
+                self.params[export_name] = converted_param
             else:
                 self.params[export_name] = None
                 logger.warning("Parameter check failed for '%s' with value: %s", name, param)
+
+    @staticmethod
+    def _convert_param(param: pint.Quantity, special_units) -> pint.Quantity:
+        """Convert to SI units or special units."""
+        if special_units:
+            converted = param.m_as(special_units)
+        else:
+            converted = param.to_base_units()
+        return converted
 
     @property
     def modelica_params(self):
         """Returns param dict converted with to_modelica"""
         mp = {k: self.to_modelica(v) for k, v in self.params.items()}
         return mp
+
+    @staticmethod
+    def to_modelica(parameter):
+        """converts parameter to modelica readable string"""
+        if parameter is None:
+            return parameter
+        if isinstance(parameter, bool):
+            return 'true' if parameter else 'false'
+        if isinstance(parameter, pint.Quantity):
+            # assumes correct unit is set
+            return Instance.to_modelica(parameter.magnitude)
+        if isinstance(parameter, (int, float)):
+            return str(parameter)
+        if isinstance(parameter, str):
+            return '"%s"'%parameter
+        if isinstance(parameter, (list, tuple, set)):
+            return "{%s}"%(",".join((Instance.to_modelica(par) for par in parameter)))
+        logger.warning("Unknown class (%s) for conversion", parameter.__class__)
+        return str(parameter)
 
     def get_comment(self):
         """Returns comment string"""
@@ -237,24 +271,6 @@ class Instance:
     def get_full_port_name(self, port):
         """Returns name of port including model name"""
         return "%s.%s"%(self.name, self.get_port_name(port))
-
-    @staticmethod
-    def to_modelica(parameter):
-        """converts parameter to modelica readable string"""
-        if parameter is None:
-            return parameter
-        if isinstance(parameter, bool):
-            return 'true' if parameter else 'false'
-        if isinstance(parameter, (int, float)):
-            # TODO: quantity to modelica SI unit.
-            #  Import related SI units in Model template
-            return str(parameter)
-        if isinstance(parameter, str):
-            return '"%s"'%parameter
-        if isinstance(parameter, (list, tuple, set)):
-            return "{%s}"%(",".join((Instance.to_modelica(par) for par in parameter)))
-        logger.warning("Unknown class (%s) for conversion", parameter.__class__)
-        return str(parameter)
 
     @staticmethod
     def check_numeric(min_value=None, max_value=None):
