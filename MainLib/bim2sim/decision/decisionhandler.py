@@ -144,7 +144,19 @@ class DebugDecisionHandler(DecisionHandler):
         super().__init__()
         # turn answers into a generator
         self.answers = (ans for ans in answers)
+        self.unused_answers = tuple()
 
     def get_answers_for_bunch(self, bunch: DecisionBunch) -> list:
-        answers = [next(self.answers) for decision in bunch]
+        answers = []
+        try:
+            for decision in bunch:
+                answers.append(next(self.answers))
+        except StopIteration:
+            raise AssertionError(f"Not enough answers provided. First decision with no answer: {decision}")
         return answers
+
+    def decision_answer_mapping(self, *args, **kwargs):
+        yield from super().decision_answer_mapping(*args, **kwargs)
+        self.unused_answers = tuple(self.answers)
+        if self.unused_answers:
+            self.logger.warning(f"Following answers were not used: {', '.join(self.unused_answers)}")
