@@ -214,8 +214,9 @@ class Instance:
         for name, (check, export_name, special_units) in self.requested.items():
             param = getattr(self.element, name)
             if check(param):
-                converted_param = self._convert_param(param, special_units)
-                self.params[export_name] = converted_param
+                if special_units or isinstance(param, pint.Quantity):
+                    param = self._convert_param(param, special_units)
+                self.params[export_name] = param
             else:
                 self.params[export_name] = None
                 logger.warning("Parameter check failed for '%s' with value: %s", name, param)
