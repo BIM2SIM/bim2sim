@@ -117,6 +117,8 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         for inst in instances:
             bunch = inst.attributes.get_decisions()
             decisions.extend(bunch)
+        # sort decisions to preserve order
+        decisions.sort(key=lambda d: d.global_key)
         return decisions
 
     @classmethod
