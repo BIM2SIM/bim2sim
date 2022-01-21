@@ -159,4 +159,5 @@ class DebugDecisionHandler(DecisionHandler):
         yield from super().decision_answer_mapping(*args, **kwargs)
         self.unused_answers = tuple(self.answers)
         if self.unused_answers:
-            self.logger.warning(f"Following answers were not used: {', '.join(self.unused_answers)}")
+            self.logger.warning(f"Following answers were not used: "
+                                f"{', '.join(map(str, self.unused_answers))}")
