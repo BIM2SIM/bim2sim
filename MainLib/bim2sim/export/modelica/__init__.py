@@ -81,7 +81,16 @@ class Model:
 
     def code(self):
         """returns Modelica code"""
-        return template.render(model=self)
+        return template.render(model=self, unknowns=self.unknown_params())
+
+    def unknown_params(self):
+        unknown = []
+        for instance in self.instances:
+            un = [f'{instance.name}.{param}'
+                  for param, value in instance.modelica_params.items()
+                  if value is None]
+            unknown.extend(un)
+        return unknown
 
     def save(self, path: str):
         """Save model as Modelica file"""
