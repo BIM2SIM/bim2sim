@@ -453,7 +453,10 @@ class EPGeomPreprocessing(ITask):
         for spatial in spatial_bounds:
             if is_convex_no_holes(spatial.bound_shape):
                 continue
-            convex_shapes = convex_decomposition(spatial.bound_shape)
+            try:
+                convex_shapes = convex_decomposition(spatial.bound_shape)
+            except:
+                continue
             new_space_boundaries = self._create_new_convex_bounds(convex_shapes, spatial)
             spatial_bounds.remove(spatial)
             if spatial in spatial_elem.space_boundaries:
