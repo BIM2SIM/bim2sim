@@ -316,12 +316,12 @@ class ThermalZone(BPSProduct):
         default=13,
     )
     gross_area = attribute.Attribute(
-        # default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
+        default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
         functions=[get_bound_floor_area],
         unit=ureg.meter ** 2
     )
     net_area = attribute.Attribute(
-        # default_ps=("Qto_SpaceBaseQuantities", "NetFloorArea"),
+        default_ps=("Qto_SpaceBaseQuantities", "NetFloorArea"),
         functions=[get_net_bound_floor_area],
         unit=ureg.meter ** 2
     )
