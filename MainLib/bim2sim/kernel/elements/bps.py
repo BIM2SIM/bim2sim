@@ -248,43 +248,33 @@ class ThermalZone(BPSProduct):
     def _get_name(self, name):
         return self.ifc.Name
 
-    # def _get_area(self, name):
-    #     """function to get a general area for later usage"""
-    #     area = self.bound_area
-    #     if self.net_area:
-    #         area = self.net_area
-    #     elif self.gross_area:
-    #         area = self.gross_area
-    #     else:
-    #         pass
-    #         # todo implement area_by_sb # issue 199
-    #     return area
-
     def get_bound_floor_area(self, name):
-        """Get bound floor area of zone. For Thermalzones this is always set to
-         the max horizonal area of a room."""
+        """Get bound floor area of zone. This is currently set by sum of all
+        horizonal gross area and take half of it due to issues with
+        TOP BOTTOM"""
         leveled_areas = {}
         for height, sbs in self.horizontal_sbs.items():
             if height not in leveled_areas:
                 leveled_areas[height] = 0
             leveled_areas[height] += sum([sb.bound_area for sb in sbs])
 
-        return max(leveled_areas.values())
+        return sum(leveled_areas.values())/2
 
     def get_net_bound_floor_area(self, name):
-        """Get net bound floor area of zone. This is always set to the max
-        horizonal area of a room reduced by its opening areas."""
+        """Get net bound floor area of zone. This is currently set by sum of all
+        horizonal net area and take half of it due to issues with TOP BOTTOM."""
         leveled_areas = {}
         for height, sbs in self.horizontal_sbs.items():
             if height not in leveled_areas:
                 leveled_areas[height] = 0
             leveled_areas[height] += sum([sb.net_bound_area for sb in sbs])
 
-        return max(leveled_areas.values())
+        return sum(leveled_areas.values()/2)
 
     def get_horizontal_sbs(self):
         """get all horizonal SBs in a zone and convert them into a dict with
          key z-height in room and the SB as value."""
+        # todo: use only bottom when TOP bottom is working correctly
         valid = ['TOP', 'BOTTOM']
         leveled_sbs = {}
         for sb in self.sbs_without_corresponding:
@@ -326,12 +316,12 @@ class ThermalZone(BPSProduct):
         default=13,
     )
     gross_area = attribute.Attribute(
-        default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
+        # default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
         functions=[get_bound_floor_area],
         unit=ureg.meter ** 2
     )
     net_area = attribute.Attribute(
-        default_ps=("Qto_SpaceBaseQuantities", "NetFloorArea"),
+        # default_ps=("Qto_SpaceBaseQuantities", "NetFloorArea"),
         functions=[get_net_bound_floor_area],
         unit=ureg.meter ** 2
     )
