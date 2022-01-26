@@ -258,8 +258,8 @@ class ThermalZone(BPSProduct):
     #         # todo implement area_by_sb # issue 199
     #     return area
 
-    def get_bound_area(self, name):
-        """Get bound area of zone. For Thermalzones this is always set to
+    def get_bound_floor_area(self, name):
+        """Get bound floor area of zone. For Thermalzones this is always set to
          the max horizonal area of a room."""
         leveled_areas = {}
         for height, sbs in self.horizontal_sbs.items():
@@ -269,9 +269,9 @@ class ThermalZone(BPSProduct):
 
         return max(leveled_areas.values())
 
-    def get_net_bound_area(self, name):
-        """Get net bound bound area of zone. For Thermalzones this is always
-        set to the max horizonal area of a room reduced by its opening areas."""
+    def get_net_bound_floor_area(self, name):
+        """Get net bound floor area of zone. This is always set to the max
+        horizonal area of a room reduced by its opening areas."""
         leveled_areas = {}
         for height, sbs in self.horizontal_sbs.items():
             if height not in leveled_areas:
@@ -331,12 +331,12 @@ class ThermalZone(BPSProduct):
     )
     gross_area = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
-        functions=[get_bound_area],
+        functions=[get_bound_floor_area],
         unit=ureg.meter ** 2
     )
     net_area = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "NetFloorArea"),
-        functions=[get_net_bound_area],
+        functions=[get_net_bound_floor_area],
         unit=ureg.meter ** 2
     )
     # area = attribute.Attribute(
@@ -351,7 +351,7 @@ class ThermalZone(BPSProduct):
 
     @cached_property
     def net_bound_area(self):
-        return self.get_net_bound_area('')
+        return self.get_net_bound_floor_area('')
 
     @cached_property
     def horizontal_sbs(self):
