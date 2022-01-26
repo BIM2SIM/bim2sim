@@ -294,12 +294,6 @@ class ThermalZone(BPSProduct):
 
         return leveled_sbs
 
-    def get_non_duplicated_sb(self, name):
-        return None
-
-    def get_top_bottom(self, name):
-        return None
-
     def get_is_external(self, name) -> bool:
         outer_walls = filter_instances(self.bound_elements, 'OuterWall')
         if len(outer_walls) > 0:
@@ -339,7 +333,7 @@ class ThermalZone(BPSProduct):
         functions=[get_net_bound_floor_area],
         unit=ureg.meter ** 2
     )
-    
+
     @cached_property
     def horizontal_sbs(self):
         return self.get_horizontal_sbs()
