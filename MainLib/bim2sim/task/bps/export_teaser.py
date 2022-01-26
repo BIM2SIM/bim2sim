@@ -19,7 +19,7 @@ from bim2sim.utilities.common_functions import filter_instances
 class ExportTEASER(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
-    reads = ('ifc', 'instances')
+    reads = ('ifc', 'instances', 'weather_file')
     final = True
 
     instance_switcher = {'OuterWall': OuterWall,
@@ -32,7 +32,7 @@ class ExportTEASER(ITask):
                          'InnerDoor': InnerWall
                          }
 
-    def run(self, workflow, ifc, instances):
+    def run(self, workflow, ifc, instances, weather_file):
         self.logger.info("Export to TEASER")
         prj = self._create_project(ifc.by_type('IfcProject')[0])
         bldg_instances = filter_instances(instances, 'Building')
@@ -44,9 +44,8 @@ class ExportTEASER(ITask):
                 self._bind_instances_to_zone(tz, tz_instance, bldg)
                 tz.calc_zone_parameters()
             bldg.calc_building_parameter()
-        # todo add task to add weatherfile
-        # prj.weather_file_path = \
-        #         assets / 'weatherfiles' / 'DEU_NW_Aachen.105010_TMYx.mos'
+
+        prj.weather_file_path = weather_file
         prj.export_aixlib(path=self.paths.export)
 
 
