@@ -339,20 +339,7 @@ class ThermalZone(BPSProduct):
         functions=[get_net_bound_floor_area],
         unit=ureg.meter ** 2
     )
-    # area = attribute.Attribute(
-    #     functions=[_get_area],
-    #     unit=ureg.meter ** 2
-    # )
-    # todo remove bound_area and net_bound_area as they shouldn't be called
-    #  directly
-    @cached_property
-    def bound_area(self):
-        return self.get_bound_area()
-
-    @cached_property
-    def net_bound_area(self):
-        return self.get_net_bound_floor_area('')
-
+    
     @cached_property
     def horizontal_sbs(self):
         return self.get_horizontal_sbs()
