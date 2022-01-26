@@ -50,7 +50,7 @@ class BPSProduct(element.ProductBased):
     def get_bound_area(self, name):
         """ get gross bound area (including opening areas)"""
         bound_area = 0
-        for sb in self.non_duplicated_sb:
+        for sb in self.sbs_without_corresponding:
             bound_area += sb.bound_area
         return bound_area
 
@@ -62,23 +62,24 @@ class BPSProduct(element.ProductBased):
     def get_opening_area(self):
         """get sum of opening areas"""
         opening_area = 0
-        for sb in self.non_duplicated_sb:
+        for sb in self.sbs_without_corresponding:
             opening_area += sb.opening_area
         return opening_area
 
-    def get_non_duplicated_sb(self, name) -> list:
+    def get_sbs_without_corresponding(self) -> list:
         """get a list with only not duplicated space boundaries"""
-        valid_sb = list(self.space_boundaries)
+        sbs_without_corresponding = list(self.space_boundaries)
         for sb in self.space_boundaries:
-            if sb in valid_sb:
-                if sb.related_bound and sb.related_bound in valid_sb:
-                    valid_sb.remove(sb.related_bound)
-        return valid_sb
+            if sb in sbs_without_corresponding:
+                if sb.related_bound and sb.related_bound in \
+                        sbs_without_corresponding:
+                    sbs_without_corresponding.remove(sb.related_bound)
+        return sbs_without_corresponding
 
     def get_top_bottom(self, name):
         """get the top_bottom function # todo further explanation"""
         tbs = []
-        for sb in self.non_duplicated_sb:
+        for sb in self.sbs_without_corresponding:
             tbs.append(sb.top_bottom)
         tbs_new = list(set(tbs))
         return tbs_new
@@ -107,9 +108,10 @@ class BPSProduct(element.ProductBased):
         functions=[get_net_bound_area],
         unit=ureg.meter ** 2
     )
-    non_duplicated_sb = attribute.Attribute(
-        functions=[get_non_duplicated_sb],
-    )
+    @cached_property
+    def sbs_without_corresponding(self):
+        return self.get_sbs_without_corresponding()
+
     top_bottom = attribute.Attribute(
         functions=[get_top_bottom],
     )
@@ -285,7 +287,7 @@ class ThermalZone(BPSProduct):
          key z-height in room and the SB as value."""
         valid = ['TOP', 'BOTTOM']
         leveled_sbs = {}
-        for sb in self.non_duplicated_sb:
+        for sb in self.sbs_without_corresponding:
             if sb.top_bottom in valid:
                 pos = round(sb.position[2], 1)
                 if pos not in leveled_sbs:
@@ -1019,7 +1021,7 @@ class Wall(BPSProduct):
     def get_bound_area(self, name):
         """ get gross bound area (including opening areas)"""
         bound_area = 0
-        for sb in self.non_duplicated_sb:
+        for sb in self.sbs_without_corresponding:
             bound_area += sb.bound_area
         return bound_area
 
@@ -1145,7 +1147,7 @@ class Window(BPSProduct):
     def get_bound_area(self, name):
         """ get gross bound area (including opening areas)"""
         bound_area = 0
-        for sb in self.non_duplicated_sb:
+        for sb in self.sbs_without_corresponding:
             bound_area += sb.bound_area
         return bound_area
 
@@ -1241,7 +1243,7 @@ class Door(BPSProduct):
     def get_bound_area(self, name):
         """ get gross bound area (including opening areas)"""
         bound_area = 0
-        for sb in self.non_duplicated_sb:
+        for sb in self.sbs_without_corresponding:
             bound_area += sb.bound_area
         return bound_area
 
@@ -1309,7 +1311,7 @@ class Slab(BPSProduct):
     def get_bound_area(self, name):
         """ get gross bound area (including opening areas)"""
         bound_area = 0
-        for sb in self.non_duplicated_sb:
+        for sb in self.sbs_without_corresponding:
             bound_area += sb.bound_area
         return bound_area
 
