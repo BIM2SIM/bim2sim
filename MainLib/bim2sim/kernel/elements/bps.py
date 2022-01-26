@@ -107,16 +107,6 @@ class BPSProduct(element.ProductBased):
         functions=[get_net_bound_area],
         unit=ureg.meter ** 2
     )
-    # todo @veronika: can we refactor the prior bound_area completly to gross_area?
-    #  same for net_bound_area -> net_area?
-    bound_area = attribute.Attribute(
-        functions=[get_bound_area],
-        unit=ureg.meter ** 2
-    )
-    net_bound_area = attribute.Attribute(
-        functions=[get_net_bound_area],
-        unit=ureg.meter ** 2
-    )
     non_duplicated_sb = attribute.Attribute(
         functions=[get_non_duplicated_sb],
     )
