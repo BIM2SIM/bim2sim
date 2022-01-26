@@ -56,7 +56,7 @@ class BPSProduct(element.ProductBased):
 
     def get_net_bound_area(self, name):
         """get net area (including opening areas)"""
-        net_bound_area = self.bound_area - self.opening_area
+        net_bound_area = self.gross_area - self.opening_area
         return net_bound_area
 
     def get_opening_area(self):
@@ -1032,7 +1032,7 @@ class Wall(BPSProduct):
 
     def get_net_bound_area(self, name):
         """get net area (including opening areas)"""
-        net_bound_area = self.bound_area - self.opening_area
+        net_bound_area = self.gross_area - self.opening_area
         return net_bound_area
 
     def get_bound_area(self, name):
@@ -1249,12 +1249,12 @@ class Door(BPSProduct):
         if self.glazing_ratio:
             net_area = self.gross_area * (1 - self.glazing_ratio)
         else:
-            net_area = self.net_bound_area
+            net_area = self.gross_area - self.opening_area
         return net_area
 
     def get_net_bound_area(self, name):
         """get net area (including opening areas)"""
-        net_bound_area = self.bound_area - self.opening_area
+        net_bound_area = self.gross_area - self.opening_area
         return net_bound_area
 
     def get_bound_area(self, name):
@@ -1322,7 +1322,7 @@ class Slab(BPSProduct):
 
     def get_net_bound_area(self, name):
         """get net area (including opening areas)"""
-        net_bound_area = self.bound_area - self.opening_area
+        net_bound_area = self.gross_area - self.opening_area
         return net_bound_area
 
     def get_bound_area(self, name):
