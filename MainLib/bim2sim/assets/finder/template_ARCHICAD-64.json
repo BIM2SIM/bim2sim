@@ -49,7 +49,7 @@
       "net_area": ["BaseQuantities", "NetArea"],
       "gross_area": ["BaseQuantities", "GrossArea"],
       "width" : ["BaseQuantities", "Width"],
-      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"]
     }
   },
   "Floor": {
@@ -57,7 +57,7 @@
       "net_area": ["BaseQuantities", "NetArea"],
       "gross_area": ["BaseQuantities", "GrossArea"],
       "width" : ["BaseQuantities", "Width"],
-      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"]
     }
   },
   "GroundFloor": {
@@ -65,7 +65,7 @@
       "net_area": ["BaseQuantities", "NetArea"],
       "gross_area": ["BaseQuantities", "GrossArea"],
       "width" : ["BaseQuantities", "Width"],
-      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"]
     }
   },
   "Window": {
