@@ -55,7 +55,8 @@ class CreateIdf(ITask):
         idf.set_default_constructions()
         self.logger.info("Export IDF geometry")
         self._export_geom_to_idf(instances, idf)
-        self._set_output_variables(idf)
+        self._set_ground_temperature(idf, t_ground=self._get_ifc_spaces(instances)[0].t_ground.m)
+        self._set_output_variables(idf, workflow)
         self._idf_validity_check(idf)
         idf.save()
 
@@ -450,8 +451,8 @@ class CreateIdf(ITask):
                     if schedule[i] > 270:
                         schedule[i] = schedule[i] - 273.15
                     # set cooling profile manually to 25°C, #bs2021
-                    if profile_name == 'cooling_profile':
-                        schedule[i] = 25
+                    # if profile_name == 'cooling_profile':
+                    #     schedule[i] = 25
                 hours.update({'Hour_' + str(i + 1): schedule[i]})
             idf.newidfobject("SCHEDULE:DAY:HOURLY", Name=schedule_name, Schedule_Type_Limits_Name=limits_name, **hours)
         if idf.getobject("SCHEDULE:WEEK:COMPACT", name=schedule_name) == None:
@@ -668,7 +669,18 @@ class CreateIdf(ITask):
         # return idf
 
     @staticmethod
-    def _set_output_variables(idf):
+    def _set_ground_temperature(idf, t_ground):
+        string = '_Ground_Temperature'
+        month_list = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
+                      'November', 'December']
+        temp_dict = {}
+        for month in month_list:
+            temp_dict.update({month + string: t_ground})
+        idf.newidfobject("SITE:GROUNDTEMPERATURE:BUILDINGSURFACE", **temp_dict)
+        return idf
+
+    @staticmethod
+    def _set_output_variables(idf, workflow):
         """
         Adds userdefined output variables to the idf file
         :param idf: idf file object
@@ -676,6 +688,7 @@ class CreateIdf(ITask):
         """
         out_control = idf.idfobjects['OUTPUTCONTROL:TABLE:STYLE']
         out_control[0].Column_Separator = 'CommaAndHTML'
+        out_control[0].Unit_Conversion = 'JtoKWH'
 
         # remove all existing output variables with reporting frequency "Timestep"
         out_var = [v for v in idf.idfobjects['OUTPUT:VARIABLE']
@@ -683,16 +696,16 @@ class CreateIdf(ITask):
         for var in out_var:
             idf.removeidfobject(var)
 
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Zone Ideal Loads Supply Air Total Heating Energy",
-            Reporting_Frequency="Hourly",
-        )
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Zone Ideal Loads Supply Air Total Cooling Energy",
-            Reporting_Frequency="Hourly",
-        )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Zone Ideal Loads Supply Air Total Heating Energy",
+        #     Reporting_Frequency="Hourly",
+        # )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Zone Ideal Loads Supply Air Total Cooling Energy",
+        #     Reporting_Frequency="Hourly",
+        # )
         idf.newidfobject(
             "OUTPUT:VARIABLE",
             Variable_Name="Site Outdoor Air Drybulb Temperature",
@@ -708,31 +721,31 @@ class CreateIdf(ITask):
             Variable_Name="Zone Operative Temperature",
             Reporting_Frequency="Hourly",
         )
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Zone Infiltration Mass Flow Rate",
-            Reporting_Frequency="Hourly",
-        )
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Zone People Occupant Count",
-            Reporting_Frequency="Hourly",
-        )
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Zone People Convective Heating Rate",
-            Reporting_Frequency="Hourly",
-        )
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Zone Electric Equipment Convective Heating Rate",
-            Reporting_Frequency="Hourly",
-        )
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Zone Lights Convective Heating Rate",
-            Reporting_Frequency="Hourly",
-        )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Zone Infiltration Mass Flow Rate",
+        #     Reporting_Frequency="Hourly",
+        # )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Zone People Occupant Count",
+        #     Reporting_Frequency="Hourly",
+        # )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Zone People Convective Heating Rate",
+        #     Reporting_Frequency="Hourly",
+        # )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Zone Electric Equipment Convective Heating Rate",
+        #     Reporting_Frequency="Hourly",
+        # )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Zone Lights Convective Heating Rate",
+        #     Reporting_Frequency="Hourly",
+        # )
         idf.newidfobject(
             "OUTPUT:VARIABLE",
             Variable_Name="Zone Ideal Loads Zone Sensible Cooling Rate",
@@ -741,6 +754,11 @@ class CreateIdf(ITask):
         idf.newidfobject(
             "OUTPUT:VARIABLE",
             Variable_Name="Zone Ideal Loads Zone Sensible Heating Rate",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Total Internal Total Heating Energy",
             Reporting_Frequency="Hourly",
         )
         idf.newidfobject(
@@ -768,11 +786,11 @@ class CreateIdf(ITask):
             Variable_Name="Zone Air Heat Balance Outdoor Air Transfer Rate",
             Reporting_Frequency="Hourly",
         )
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Zone Air Heat Balance Air Energy Storage Rate",
-            Reporting_Frequency="Hourly",
-        )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Zone Air Heat Balance Air Energy Storage Rate",
+        #     Reporting_Frequency="Hourly",
+        # )
         idf.newidfobject(
             "OUTPUT:VARIABLE",
             Variable_Name="Site Outdoor Air Humidity Ratio",
@@ -783,26 +801,26 @@ class CreateIdf(ITask):
             Variable_Name="Site Outdoor Air Relative Humidity",
             Reporting_Frequency="Hourly",
         )
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Site Outdoor Air Barometric Pressure",
-            Reporting_Frequency="Hourly",
-        )
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Zone Mixing Current Density Volume Flow Rate",
-            Reporting_Frequency="Hourly",
-        )
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Zone Mixing Sensible Heat Gain Rate",
-            Reporting_Frequency="Hourly",
-        )
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Zone Air Relative Humidity",
-            Reporting_Frequency="Hourly",
-        )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Site Outdoor Air Barometric Pressure",
+        #     Reporting_Frequency="Hourly",
+        # )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Zone Mixing Current Density Volume Flow Rate",
+        #     Reporting_Frequency="Hourly",
+        # )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Zone Mixing Sensible Heat Gain Rate",
+        #     Reporting_Frequency="Hourly",
+        # )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Zone Air Relative Humidity",
+        #     Reporting_Frequency="Hourly",
+        # )
         idf.newidfobject(
             "OUTPUT:VARIABLE",
             Variable_Name="Zone Air System Sensible Heating Energy",
@@ -813,31 +831,31 @@ class CreateIdf(ITask):
             Variable_Name="Zone Air System Sensible Cooling Energy",
             Reporting_Frequency="Hourly",
         )
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Zone Windows Total Transmitted Solar Radiation Energy",
-            Reporting_Frequency="Hourly",
-        )
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Surface Window Heat Gain Energy",
-            Reporting_Frequency="Hourly",
-        )
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Surface Inside Face Convection Heat Gain Energy",
-            Reporting_Frequency="Hourly",
-        )
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Surface Outside Face Convection Heat Gain Energy",
-            Reporting_Frequency="Hourly",
-        )
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Zone Opaque Surface Outside Face Conduction",
-            Reporting_Frequency="Hourly",
-        )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Zone Windows Total Transmitted Solar Radiation Energy",
+        #     Reporting_Frequency="Hourly",
+        # )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Surface Window Heat Gain Energy",
+        #     Reporting_Frequency="Hourly",
+        # )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Surface Inside Face Convection Heat Gain Energy",
+        #     Reporting_Frequency="Hourly",
+        # )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Surface Outside Face Convection Heat Gain Energy",
+        #     Reporting_Frequency="Hourly",
+        # )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Zone Opaque Surface Outside Face Conduction",
+        #     Reporting_Frequency="Hourly",
+        # )
         idf.newidfobject(
             "OUTPUT:VARIABLE",
             Variable_Name="Zone Infiltration Sensible Heat Gain Energy",
@@ -848,21 +866,22 @@ class CreateIdf(ITask):
             Variable_Name="Zone Infiltration Sensible Heat Loss Energy",
             Reporting_Frequency="Hourly",
         )
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Zone Infiltration Standard Density Volume Flow Rate",
-            Reporting_Frequency="Hourly",
-        )
-        idf.newidfobject(
-            "OUTPUT:VARIABLE",
-            Variable_Name="Zone Air Relative Humidity",
-            Reporting_Frequency="Hourly",
-        )
         # idf.newidfobject(
         #     "OUTPUT:VARIABLE",
-        #     Variable_Name="Surface Inside Face Temperature",
+        #     Variable_Name="Zone Infiltration Standard Density Volume Flow Rate",
         #     Reporting_Frequency="Hourly",
         # )
+        # idf.newidfobject(
+        #     "OUTPUT:VARIABLE",
+        #     Variable_Name="Zone Air Relative Humidity",
+        #     Reporting_Frequency="Hourly",
+        # )
+        if workflow.cfd_export:
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Surface Inside Face Temperature",
+                Reporting_Frequency="Hourly",
+            )
         idf.newidfobject(
             "OUTPUT:METER",
             Key_Name="Heating:EnergyTransfer",

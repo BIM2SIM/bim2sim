@@ -1,0 +1,21 @@
+{
+   "settings": {
+      "use": true
+},
+   "usage_definitions": {
+      "Group Office (between 2 and 6 employees)":[
+         "Space_13",
+         "Space_18",
+         "Space_40",
+         "Space_45",
+         "NSHV 0-6",
+         "BMZ 0-9",
+         "Space_59",
+         "Space_60"
+         ],
+      "Stock, technical equipment, archives": [
+         "Aufzug West 300",
+         "Aufzug Ost 400"
+      ]
+   }
+}

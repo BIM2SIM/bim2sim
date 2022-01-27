@@ -25,7 +25,7 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 class EPGeomPreprocessing(ITask):
     reads = ('instances',)
-    touches = ('ep_decisions',)
+    touches = ('ep_decisions', 'instances',)
 
     def __init__(self):
         super().__init__()
@@ -48,7 +48,7 @@ class EPGeomPreprocessing(ITask):
         yield DecisionBunch(decisions)
         ep_decisions = {item.global_key: item.value for item in decisions}
         self._add_bounds_to_instances(instances)
-        self._get_parents_and_children(instances)
+        instances = self._get_parents_and_children(instances)
         self._move_children_to_parents(instances)
         self._fix_surface_orientation(instances)
         if split_bounds.value:
@@ -63,7 +63,7 @@ class EPGeomPreprocessing(ITask):
                         spatials.append(sb)
             if spatials and split_shadings.value:
                 self._split_non_convex_shadings(instances, spatials)
-        return ep_decisions,
+        return ep_decisions, instances
 
     def _add_bounds_to_instances(self, instances):
         self.logger.info("Creates python representation of relevant ifc types")
@@ -202,6 +202,7 @@ class EPGeomPreprocessing(ITask):
                             op_bound.related_parent_bound = inst_obj
         # remove boundaries from instances if they are false duplicates of windows in shape of walls
         instances = {k: v for k, v in instances.items() if k not in drop_list}
+        return instances
 
     def _move_children_to_parents(self, instances):
         """move external opening boundaries to related parent boundary (e.g. wall)"""
@@ -452,7 +453,10 @@ class EPGeomPreprocessing(ITask):
         for spatial in spatial_bounds:
             if is_convex_no_holes(spatial.bound_shape):
                 continue
-            convex_shapes = convex_decomposition(spatial.bound_shape)
+            try:
+                convex_shapes = convex_decomposition(spatial.bound_shape)
+            except:
+                continue
             new_space_boundaries = self._create_new_convex_bounds(convex_shapes, spatial)
             spatial_bounds.remove(spatial)
             if spatial in spatial_elem.space_boundaries:
@@ -460,3 +464,4 @@ class EPGeomPreprocessing(ITask):
             for new_bound in new_space_boundaries:
                 spatial_bounds.append(new_bound)
                 spatial_elem.space_boundaries.append(new_bound)
+

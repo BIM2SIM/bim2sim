@@ -1,3 +1,4 @@
+import ast
 import os
 
 import pandas as pd
@@ -15,8 +16,10 @@ class ExportIdfForCfd(ITask):
     reads = ('instances', 'idf', 'ifc',)
 
     def run(self, workflow, instances, idf, ifc):
-        self.logger.info("IDF Postprocessing for CFD started...")
+        if not workflow.cfd_export:
+            return
 
+        self.logger.info("IDF Postprocessing for CFD started...")
         self._export_to_stl_for_cfd(instances, idf)
         self.logger.info("IDF Postprocessing for CFD finished!")
 
@@ -103,12 +106,34 @@ class ExportIdfForCfd(ITask):
     def _export_to_stl_for_cfd(self, instances, idf):
         self.logger.info("Export STL for CFD")
         stl_name = idf.idfname.replace('.idf', '')
-        stl_name = stl_name.replace(str(self.paths.export), '')
+        stl_name = stl_name.replace(str(self.paths.export)+'/', '')
         self.export_bounds_to_stl(instances, stl_name)
         self.export_bounds_per_space_to_stl(instances, stl_name)
         self.export_2B_bounds_to_stl(instances, stl_name)
         self.combine_stl_files(stl_name, self.paths)
         self.export_space_bound_list(instances, self.paths)
+        self.combined_space_stl(stl_name, self.paths)
+
+    @staticmethod
+    def combined_space_stl(stl_name, paths):
+        sb_dict = pd.read_csv(paths.export / 'space_bound_list.csv').drop(
+            'Unnamed: 0', axis=1)
+        with open(paths.export / str(
+                stl_name + "_combined_STL.stl")) as output_file:
+            output_data = output_file.read()
+            for index, row in sb_dict.iterrows():
+                space_id = row['space_id']
+                new_space_id = space_id.replace('$', '___')
+                bound_ids = ast.literal_eval(row['bound_ids'])
+                for id in bound_ids:
+                    id_new = id.replace('$', '___')
+                    new_string = 'space_' + new_space_id + '_bound_' + id_new
+                    new_string = new_string.upper()
+                    output_data = output_data.replace(id_new, new_string)
+        with open(paths.export / str(stl_name + "_space_combined_STL.stl"),
+                  'w+') as new_file:
+            new_file.write(output_data)
+
 
     @staticmethod
     def export_space_bound_list(instances, paths):
@@ -132,7 +157,7 @@ class ExportIdfForCfd(ITask):
             for i in os.listdir(stl_dir + 'STL/'):
                 if os.path.isfile(os.path.join(stl_dir + 'STL/', i)) and (stl_name + "_cfd_") in i:
                     sb_mesh = mesh.Mesh.from_file(stl_dir + 'STL/' + i)
-                    mesh_name = i.split("_", 1)[-1]
+                    mesh_name = "cfd_" +i.split("_cfd_", 1)[-1]
                     mesh_name = mesh_name.replace(".stl", "")
                     mesh_name = mesh_name.replace("$", "___")
                     sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
@@ -145,8 +170,8 @@ class ExportIdfForCfd(ITask):
         with open(stl_dir + "space_stl/" + "space_" + space_name + ".stl", 'wb+') as output_file:
             for i in os.listdir(stl_dir + 'STL/' + space_name + "/"):
                 if os.path.isfile(os.path.join(stl_dir + 'STL/' + space_name + "/", i)) and (stl_name + "_cfd_") in i:
-                    sb_mesh = mesh.Mesh.from_file(stl_dir + 'STL/' + i)
-                    mesh_name = i.split("_", 1)[-1]
+                    sb_mesh = mesh.Mesh.from_file(stl_dir + 'STL/' + space_name + "/" + i)
+                    mesh_name = "cfd_" + i.split("_cfd_", 1)[-1]
                     mesh_name = mesh_name.replace(".stl", "")
                     mesh_name = mesh_name.replace("$", "___")
                     sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
