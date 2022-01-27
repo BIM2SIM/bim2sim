@@ -336,11 +336,13 @@ class ThermalZone(BPSProduct):
 
     net_volume = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "NetVolume"),
-        functions=[get_space_shape_volume, get_volume_geometric]
+        functions=[get_space_shape_volume, get_volume_geometric],
+        unit=ureg.meter ** 3,
     )
     gross_volume = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "GrossVolume"),
-        functions=[get_volume_geometric]
+        functions=[get_volume_geometric],
+        unit=ureg.meter ** 3,
     )
     volume = attribute.Attribute(
         functions=[_get_volume],
