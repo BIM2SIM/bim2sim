@@ -20,7 +20,7 @@ class ExportTEASER(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
     reads = ('ifc', 'instances', 'weather_file')
-    final = True
+
 
     instance_switcher = {'OuterWall': OuterWall,
                          'InnerWall': InnerWall,
@@ -34,6 +34,10 @@ class ExportTEASER(ITask):
 
     def run(self, workflow, ifc, instances, weather_file):
         self.logger.info("Export to TEASER")
+        if workflow.dymola_simulation:
+            self.final = False
+        else:
+            self.final = True
         prj = self._create_project(ifc.by_type('IfcProject')[0])
         bldg_instances = filter_instances(instances, 'Building')
         thermal_zones = filter_instances(instances, 'ThermalZone')
@@ -44,6 +48,10 @@ class ExportTEASER(ITask):
                 self._bind_instances_to_zone(tz, tz_instance, bldg)
                 tz.calc_zone_parameters()
             bldg.calc_building_parameter()
+        # hardcode to prevent too low heat/cooling loads
+        for tz in bldg.thermal_zones:
+            tz.model_attr.heat_load = 100000
+            tz.model_attr.cool_load = -100000
 
         prj.weather_file_path = weather_file
         prj.export_aixlib(path=self.paths.export)

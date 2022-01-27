@@ -32,4 +32,5 @@ class TEASERManager(Plugin):
         bps.BindThermalZones,
         teaser.WeatherTEASER,
         bps.ExportTEASER,
+        teaser.SimulateModel,
     ]
