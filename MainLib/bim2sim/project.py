@@ -8,6 +8,8 @@ from distutils.dir_util import copy_tree
 from pathlib import Path
 import importlib
 import pkgutil
+import re
+
 import pkg_resources
 
 import configparser
@@ -275,9 +277,13 @@ class Project:
         self.storage = {}  # project related items
         self.paths = FolderStructure(path)
         try:
-            self.name = list(
+            name = list(
                     filter(Path.is_file, self.paths.ifc.glob('**/*')))[0].stem
-        except:
+            regex = re.compile("[^a-zA-z0-9]")
+            self.name = regex.sub("", name)
+        except Exception as ex:
+            logger.exception(
+                "Could not set correct project name, using Project!")
             self.name = "Project"
 
         if not self.paths.is_project_folder():

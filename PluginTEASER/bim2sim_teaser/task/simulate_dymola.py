@@ -3,29 +3,68 @@ import sys
 import os
 
 from pathlib import Path
-import PluginTEASER
+from PluginTEASER import bim2sim_teaser
 
 from bim2sim.task.base import ITask
 
 
 class SimulateModel(ITask):
+    reads = ('bldg_names',)
     final = True
 
-    def run(self, workflow):
+    def run(self, workflow, bldg_names):
         path = self.get_dymola_path()
-        self.load_dymola(path)
+        if not path:
+            raise Exception('No Dymola Installation found. Program Terminated.')
 
+        self.load_dymola(path)
         from dymola.dymola_interface import DymolaInterface
         dymola = DymolaInterface()
+
         plugin_path = Path(bim2sim_teaser.__file__).parent
 
         dir_aixlib = Path(plugin_path/ 'AixLib' / 'AixLib' / 'package.mo')
-        dir_model = Path(self.paths.export)
-        dymola.openModel(dir_aixlib)
-        dymola.openModel()
+        dir_model = Path(
+            self.paths.export / 'TEASER' / 'Model' / self.prj_name /
+            'package.mo')
+        dir_result = Path(
+            self.paths.export / 'TEASER' / 'SimResults' / self.prj_name)
 
+        dymola.openModel(str(dir_aixlib))
+        dymola.openModel(str(dir_model))
 
-    def get_dymola_path(self) -> Path:
+        n_success = 0
+        for n_sim, bldg_name in enumerate(bldg_names):
+            self.logger.info(f"Simulating model {bldg_name}. "
+                             f"Simulation {n_sim}/{len(bldg_names)}")
+            sim_model = self.prj_name + '.' + bldg_name + '.' + bldg_name
+            translate_status = dymola.translateModel(sim_model)
+            if translate_status:
+                bldg_result_dir = dir_result / bldg_name
+                bldg_result_dir.mkdir(parents=True, exist_ok=True)
+                output = dymola.simulateExtendedModel(
+                    problem=sim_model,
+                    startTime=0.0,
+                    stopTime=3.1536e+07,
+                    outputInterval=3600,
+                    method="Dassl",
+                    tolerance=0.0001,
+                    resultFile=str(bldg_result_dir / bldg_name),
+                    # finalNames=['thermalZone.TAir'],
+                )
+                if not output[0]:
+                    self.logger(f"Simulation of {bldg_name} was not successful")
+                else:
+                    n_success += 1
+            else:
+                self.logger(f"Translation of {bldg_name} was not successful")
+        dymola.close()
+        self.logger.info(f"Successfully simulated {n_success}/{len(bldg_names)}"
+                         f" Simulations.")
+        self.logger.info(f"You can find the results under {str(dir_result)}")
+
+    @staticmethod
+    def get_dymola_path() -> Path:
         """Function to find local dymola installation path."""
         dymola_versions = [
             'Dymola 2019',
@@ -33,9 +72,10 @@ class SimulateModel(ITask):
             'Dymola 2020',
             'Dymola 2020x',
             'Dymola 2021',
-            'Dymola 2021x',
-            'Dymola 2022',
-            'Dymola 2022x'
+            # 'Dymola 2021x',
+            # 'Dymola 2022',
+            # 'Dymola 2022x'
+            # todo fix newer dymola versions (msl 4.0 error)
         ]
 
         if os.name == 'nt':  # windows
@@ -60,5 +100,6 @@ class SimulateModel(ITask):
                 dymola_path = None
         return dymola_path
 
-    def load_dymola(self, path: Path):
+    @staticmethod
+    def load_dymola(path: Path):
         sys.path.insert(0, str(path))

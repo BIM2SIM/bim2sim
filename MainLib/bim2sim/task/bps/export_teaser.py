@@ -20,7 +20,7 @@ class ExportTEASER(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
     reads = ('ifc', 'instances', 'weather_file')
-
+    touches = ('bldg_names',)
 
     instance_switcher = {'OuterWall': OuterWall,
                          'InnerWall': InnerWall,
@@ -38,11 +38,13 @@ class ExportTEASER(ITask):
             self.final = False
         else:
             self.final = True
+        bldg_names = []
         prj = self._create_project(ifc.by_type('IfcProject')[0])
         bldg_instances = filter_instances(instances, 'Building')
         thermal_zones = filter_instances(instances, 'ThermalZone')
         for bldg_instance in bldg_instances:
             bldg = self._create_building(bldg_instance, prj)
+            bldg_names.append(bldg.name)
             for tz_instance in thermal_zones:
                 tz = self._create_thermal_zone(tz_instance, bldg)
                 self._bind_instances_to_zone(tz, tz_instance, bldg)
@@ -54,18 +56,14 @@ class ExportTEASER(ITask):
             tz.model_attr.cool_load = -100000
 
         prj.weather_file_path = weather_file
-        prj.export_aixlib(path=self.paths.export)
+        prj.export_aixlib(path=self.paths.export / 'TEASER' / 'Model')
+        return bldg_names,
 
-
-    @staticmethod
-    def _create_project(element):
+    def _create_project(self, element):
         """Creates a project in TEASER by a given BIM2SIM instance
         Parent: None"""
         prj = Project(load_data=True)
-        if len(element.Name) != 0:
-            prj.name = element.Name
-        else:
-            prj.name = element.LongName
+        prj.name = self.prj_name
         prj.data.load_uc_binding()
         return prj
 
