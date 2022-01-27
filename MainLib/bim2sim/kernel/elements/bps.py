@@ -344,10 +344,6 @@ class ThermalZone(BPSProduct):
         functions=[get_volume_geometric],
         unit=ureg.meter ** 3,
     )
-    volume = attribute.Attribute(
-        functions=[_get_volume],
-        unit=ureg.meter ** 3,
-    )
     height = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "Height"),
         unit=ureg.meter,
