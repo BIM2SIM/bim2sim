@@ -100,12 +100,12 @@
     "exporter": {
       "teaser": {
         "name": ["instance","name"],
-        "area": ["instance", "gross_area"],
+        "area": ["instance", "net_area"],
         "number_of_elements": 2,
         "set_temp_heat": ["instance", "t_set_heat"],
         "set_temp_cool": ["instance", "t_set_cool"],
         "t_ground":  ["instance", "t_ground"],
-        "volume": ["instance", "volume"]
+        "volume": ["instance", "net_volume"]
       }
     }
   },
