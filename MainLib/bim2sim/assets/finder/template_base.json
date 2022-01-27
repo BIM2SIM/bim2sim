@@ -105,7 +105,7 @@
         "set_temp_heat": ["instance", "t_set_heat"],
         "set_temp_cool": ["instance", "t_set_cool"],
         "t_ground":  ["instance", "t_ground"],
-        "volume": ["instance", "volume"]
+        "volume": ["instance", "net_volume"]
       }
     }
   },

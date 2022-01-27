@@ -210,13 +210,13 @@ class ThermalZone(BPSProduct):
         bbox_center = ifcopenshell.geom.utils.get_bounding_box_center(bbox)
         return bbox_center
 
-    def get_space_volume(self, name):
+    def get_space_shape_volume(self, name):
         props = GProp_GProps()
         brepgprop_VolumeProperties(self.space_shape, props)
         volume = props.Mass()
         return volume
 
-    def _get_volume(self, name):
+    def get_volume_geometric(self, name):
         return self.gross_area * self.height
 
     def _get_usage(self, name):
@@ -246,7 +246,11 @@ class ThermalZone(BPSProduct):
         return 1 / self.AreaPerOccupant
 
     def _get_name(self, name):
-        return self.ifc.Name
+        if self.zone_name:
+            name = self.zone_name
+        else:
+            name = self.ifc.Name
+        return name
 
     def get_bound_floor_area(self, name):
         """Get bound floor area of zone. This is currently set by sum of all
@@ -332,6 +336,11 @@ class ThermalZone(BPSProduct):
 
     net_volume = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "NetVolume"),
+        functions=[get_space_shape_volume, get_volume_geometric]
+    )
+    gross_volume = attribute.Attribute(
+        default_ps=("Qto_SpaceBaseQuantities", "GrossVolume"),
+        functions=[get_volume_geometric]
     )
     volume = attribute.Attribute(
         functions=[_get_volume],
@@ -359,8 +368,8 @@ class ThermalZone(BPSProduct):
     space_shape = attribute.Attribute(
         functions=[get_space_shape]
     )
-    space_volume = attribute.Attribute(
-        functions=[get_space_volume],
+    space_shape_volume = attribute.Attribute(
+        functions=[get_space_shape_volume],
         unit=ureg.meter ** 3,
     )
     glass_percentage = attribute.Attribute(

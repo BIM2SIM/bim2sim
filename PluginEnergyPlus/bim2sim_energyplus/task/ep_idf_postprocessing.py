@@ -93,7 +93,7 @@ class IdfPostprocessing(ITask):
                     "ID": space.guid,
                     "long_name": space.ifc.LongName,
                     "space_center": space.space_center.XYZ().Coord(),
-                    "space_volume": space.space_volume.m
+                    "space_volume": space.space_shape_volume.m
                 }],
                 ignore_index=True
             )
