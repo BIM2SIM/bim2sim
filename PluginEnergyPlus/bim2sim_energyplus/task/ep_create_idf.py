@@ -107,7 +107,7 @@ class CreateIdf(ITask):
             zone = idf.newidfobject(
                 'ZONE',
                 Name=space.ifc.GlobalId,
-                Volume=space.space_volume.m
+                Volume=space.space_shape_volume.m
             )
             cooling_availability = "On"
             heating_availability = "On"
