@@ -13,55 +13,56 @@ class SimulateModel(ITask):
     final = True
 
     def run(self, workflow, bldg_names):
-        path = self.get_dymola_path()
-        if not path:
-            raise Exception('No Dymola Installation found. Program Terminated.')
+        if workflow.dymola_simulation:
+            path = self.get_dymola_path()
+            if not path:
+                raise Exception('No Dymola Installation found. Program Terminated.')
 
-        self.load_dymola(path)
-        from dymola.dymola_interface import DymolaInterface
-        dymola = DymolaInterface()
+            self.load_dymola(path)
+            from dymola.dymola_interface import DymolaInterface
+            dymola = DymolaInterface()
 
-        plugin_path = Path(bim2sim_teaser.__file__).parent
+            plugin_path = Path(bim2sim_teaser.__file__).parent
 
-        dir_aixlib = Path(plugin_path/ 'AixLib' / 'AixLib' / 'package.mo')
-        dir_model = Path(
-            self.paths.export / 'TEASER' / 'Model' / self.prj_name /
-            'package.mo')
-        dir_result = Path(
-            self.paths.export / 'TEASER' / 'SimResults' / self.prj_name)
+            dir_aixlib = Path(plugin_path/ 'AixLib' / 'AixLib' / 'package.mo')
+            dir_model = Path(
+                self.paths.export / 'TEASER' / 'Model' / self.prj_name /
+                'package.mo')
+            dir_result = Path(
+                self.paths.export / 'TEASER' / 'SimResults' / self.prj_name)
 
-        dymola.openModel(str(dir_aixlib))
-        dymola.openModel(str(dir_model))
+            dymola.openModel(str(dir_aixlib))
+            dymola.openModel(str(dir_model))
 
-        n_success = 0
-        for n_sim, bldg_name in enumerate(bldg_names):
-            self.logger.info(f"Simulating model {bldg_name}. "
-                             f"Simulation {n_sim}/{len(bldg_names)}")
-            sim_model = self.prj_name + '.' + bldg_name + '.' + bldg_name
-            translate_status = dymola.translateModel(sim_model)
-            if translate_status:
-                bldg_result_dir = dir_result / bldg_name
-                bldg_result_dir.mkdir(parents=True, exist_ok=True)
-                output = dymola.simulateExtendedModel(
-                    problem=sim_model,
-                    startTime=0.0,
-                    stopTime=3.1536e+07,
-                    outputInterval=3600,
-                    method="Dassl",
-                    tolerance=0.0001,
-                    resultFile=str(bldg_result_dir / bldg_name),
-                    # finalNames=['thermalZone.TAir'],
-                )
-                if not output[0]:
-                    self.logger(f"Simulation of {bldg_name} was not successful")
+            n_success = 0
+            for n_sim, bldg_name in enumerate(bldg_names):
+                self.logger.info(f"Simulating model {bldg_name}. "
+                                 f"Simulation {n_sim}/{len(bldg_names)}")
+                sim_model = self.prj_name + '.' + bldg_name + '.' + bldg_name
+                translate_status = dymola.translateModel(sim_model)
+                if translate_status:
+                    bldg_result_dir = dir_result / bldg_name
+                    bldg_result_dir.mkdir(parents=True, exist_ok=True)
+                    output = dymola.simulateExtendedModel(
+                        problem=sim_model,
+                        startTime=0.0,
+                        stopTime=3.1536e+07,
+                        outputInterval=3600,
+                        method="Dassl",
+                        tolerance=0.0001,
+                        resultFile=str(bldg_result_dir / bldg_name),
+                        # finalNames=['thermalZone.TAir'],
+                    )
+                    if not output[0]:
+                        self.logger(f"Simulation of {bldg_name} was not successful")
+                    else:
+                        n_success += 1
                 else:
-                    n_success += 1
-            else:
-                self.logger(f"Translation of {bldg_name} was not successful")
-        dymola.close()
-        self.logger.info(f"Successfully simulated {n_success}/{len(bldg_names)}"
-                         f" Simulations.")
-        self.logger.info(f"You can find the results under {str(dir_result)}")
+                    self.logger(f"Translation of {bldg_name} was not successful")
+            dymola.close()
+            self.logger.info(f"Successfully simulated {n_success}/{len(bldg_names)}"
+                             f" Simulations.")
+            self.logger.info(f"You can find the results under {str(dir_result)}")
 
     @staticmethod
     def get_dymola_path() -> Path:
