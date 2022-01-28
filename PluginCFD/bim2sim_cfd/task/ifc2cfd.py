@@ -13,7 +13,7 @@ class RunIFC2CFD(ITask):
     final = True
 
     def run(self, workflow):
-        if os.name != 'Linux':
+        if os.name != 'posix':
             raise OSError("CFD task is only available for Linux systems")
         self.logger.info("Running IFC2CFD")
 
@@ -51,7 +51,7 @@ class RunIFC2CFD(ITask):
 
         args = " --graph " + str(process_decision.value) + " -j" \
                    + str(int(core_decision.value.m))
-
+        workflow.params[sim_time]
         if process_decision.value == "":
             translen_decision = RealDecision(
                 "What is the maximum transmission length (2a vs. 2b)?",
