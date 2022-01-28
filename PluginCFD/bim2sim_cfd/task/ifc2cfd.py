@@ -51,7 +51,7 @@ class RunIFC2CFD(ITask):
 
         args = " --graph " + str(process_decision.value) + " -j" \
                    + str(int(core_decision.value.m))
-        workflow.params[sim_time]
+
         if process_decision.value == "":
             translen_decision = RealDecision(
                 "What is the maximum transmission length (2a vs. 2b)?",
