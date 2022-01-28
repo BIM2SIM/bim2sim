@@ -8,6 +8,8 @@ from distutils.dir_util import copy_tree
 from pathlib import Path
 import importlib
 import pkgutil
+import re
+
 import pkg_resources
 
 import configparser
@@ -282,6 +284,8 @@ class Project:
             self.name = list(
                     filter(Path.is_file, self.paths.ifc.glob('**/*')))[0].stem
         except:
+            logger.warning(
+                "Could not set correct project name, using Project!")
             self.name = "Project"
 
         if not self.paths.is_project_folder():

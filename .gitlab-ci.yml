@@ -13,6 +13,9 @@ stages:
   - deploy
   - visualize
 
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
 build_env:master:
   image: docker:latest
   stage: build-env
@@ -43,6 +46,7 @@ build_env:ubuntu_base:
        - Environment/envBase.Dockerfile
        - MainLib/requirements.txt
        - .gitlab-ci.yml
+
 
 build_env:development:
   image: docker:latest
@@ -95,6 +99,23 @@ build_env:cfd:
        - MainLib/requirements.txt
        - .gitlab-ci.yml
 
+build_env:teaser:
+  image: docker:latest
+  stage: build-env
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+  script:
+    - docker build -t $CI_REGISTRY/environment:teaser -f PluginTEASER/envTEASER.Dockerfile .
+    - docker push $CI_REGISTRY/environment:teaser
+  only:
+    refs:
+      - development
+      - 205_dymola_simulation
+    changes:
+      - PluginTEASER/envTEASER.Dockerfile
+      - MainLib/requirements.txt
+      - .gitlab-ci.yml
+
 build_tool:release:
   image: docker:latest
   stage: build-tool
@@ -140,6 +161,17 @@ build_tool:cfd:
     changes:
        - PluginCFD/*
 
+build_tool:teaser:
+  image: docker:latest
+  stage: build-tool
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+  script:
+    - docker build -t $CI_REGISTRY/tool:teaser -f PluginCFD/teaser.Dockerfile .
+    - docker push $CI_REGISTRY/tool:teaser
+  only:
+    changes:
+       - PluginTEASER/*
 
 coverage_Base:
    <<: *only-default
@@ -182,6 +214,28 @@ coverage_EP:
    artifacts:
      paths:
      - $CI_COMMIT_REF_NAME/coverage
+
+coverage_TEASER:
+   <<: *only-default
+   image: $CI_REGISTRY/environment:teaser
+   stage: test
+   before_script:
+     - pip install coverage
+     - pip install coverage-badge
+   script:
+     - mv ./* /bim2sim/
+     - coverage run -m unittest discover /bim2sim/PluginTEASER/bim2sim_teaser/test/integration_test
+     - coverage report -i
+     - mkdir -p $CI_COMMIT_REF_NAME/coverage
+     - coverage html -i
+     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+     # skip this for now as its only cosmetic and leads to problems
+     # - coverage-badge -o coverage.svg
+     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
+   artifacts:
+     paths:
+     - $CI_COMMIT_REF_NAME/coverage
+
 
 coverage_CFD:
    <<: *only-default
