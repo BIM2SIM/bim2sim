@@ -31,6 +31,6 @@ class TEASERManager(Plugin):
         bps.DisaggregationCreation,
         bps.BindThermalZones,
         teaser.WeatherTEASER,
-        bps.ExportTEASER,
+        teaser.ExportTEASER,
         teaser.SimulateModel,
     ]

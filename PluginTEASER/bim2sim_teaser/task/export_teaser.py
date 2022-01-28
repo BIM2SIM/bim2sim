@@ -34,10 +34,6 @@ class ExportTEASER(ITask):
 
     def run(self, workflow, ifc, instances, weather_file):
         self.logger.info("Export to TEASER")
-        if workflow.dymola_simulation:
-            self.final = False
-        else:
-            self.final = True
         bldg_names = []
         prj = self._create_project(ifc.by_type('IfcProject')[0])
         bldg_instances = filter_instances(instances, 'Building')
@@ -56,7 +52,9 @@ class ExportTEASER(ITask):
             tz.model_attr.cool_load = -100000
 
         prj.weather_file_path = weather_file
-        prj.export_aixlib(path=self.paths.export / 'TEASER' / 'Model')
+        prj.export_aixlib(
+            path=self.paths.export / 'TEASER' / 'Model',
+            use_postprocessing_calc=True)
         return bldg_names,
 
     def _create_project(self, element):
