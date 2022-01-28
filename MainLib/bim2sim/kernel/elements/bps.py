@@ -11,38 +11,32 @@ import ifcopenshell.geom
 from OCC.Core.Bnd import Bnd_Box
 from OCC.Core.BRepBndLib import brepbndlib_Add
 from OCC.Core.BRepLib import BRepLib_FuseEdges
-from OCC.Core.BRepBuilderAPI import \
-    BRepBuilderAPI_MakeFace, \
-    BRepBuilderAPI_MakeEdge, \
-    BRepBuilderAPI_MakeWire, BRepBuilderAPI_Transform, BRepBuilderAPI_MakeVertex
+from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
 from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, \
     brepgprop_VolumeProperties
 from OCC.Core.GProp import GProp_GProps
-from OCC.Core.GeomAPI import GeomAPI_ProjectPointOnCurve
-from OCC.Core.ShapeAnalysis import ShapeAnalysis_ShapeContents
 from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt, gp_Mat, gp_Quaternion
-from OCC.Core.TopoDS import topods_Wire, topods_Face, TopoDS_Iterator
-from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_WIRE
+from OCC.Core.TopoDS import topods_Face
+from OCC.Core.TopAbs import TopAbs_FACE
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.BRep import BRep_Tool
-from OCC.Core.BRepTools import BRepTools_WireExplorer
 from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, attribute
-from bim2sim.decision import BoolDecision, RealDecision
 from bim2sim.kernel.units import ureg
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.utilities.common_functions import vector_angle, filter_instances
 from bim2sim.task.common.inner_loop_remover import remove_inner_loops
-from bim2sim.decision import StringDecision
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 logger = logging.getLogger(__name__)
 
+# todo @ veronika: convert all attributes regarding SB
+#  which can't come from ifc to cached_property
 
 class BPSProduct(element.ProductBased):
     domain = 'BPS'
@@ -54,76 +48,70 @@ class BPSProduct(element.ProductBased):
         self.storeys = []
 
     def get_bound_area(self, name):
-        if type(self) != ThermalZone:
-            bound_area = 0
-            for sb in self.non_duplicated_sb:
-                bound_area += sb.bound_area
-            return bound_area
-        else:
-            return None
+        """ get gross bound area (including opening areas)"""
+        bound_area = 0
+        for sb in self.sbs_without_corresponding:
+            bound_area += sb.bound_area
+        return bound_area
 
     def get_net_bound_area(self, name):
-        if type(self) != ThermalZone:
-            net_bound_area = 0
-            for sb in self.non_duplicated_sb:
-                net_bound_area += sb.net_bound_area
-            return net_bound_area
-        else:
-            return None
+        """get net area (including opening areas)"""
+        net_bound_area = self.gross_area - self.opening_area
+        return net_bound_area
 
-    def get_non_duplicated_sb(self, name):
-        if type(self) != ThermalZone:
-            valid_sb = list(self.space_boundaries)
-            for sb in self.space_boundaries:
-                if sb in valid_sb:
-                    if sb.related_bound and sb.related_bound in valid_sb:
-                        valid_sb.remove(sb.related_bound)
-            return valid_sb
-        else:
-            return None
+    def get_opening_area(self):
+        """get sum of opening areas"""
+        opening_area = 0
+        for sb in self.sbs_without_corresponding:
+            opening_area += sb.opening_area
+        return opening_area
+
+    def get_sbs_without_corresponding(self) -> list:
+        """get a list with only not duplicated space boundaries"""
+        sbs_without_corresponding = list(self.space_boundaries)
+        for sb in self.space_boundaries:
+            if sb in sbs_without_corresponding:
+                if sb.related_bound and sb.related_bound in \
+                        sbs_without_corresponding:
+                    sbs_without_corresponding.remove(sb.related_bound)
+        return sbs_without_corresponding
 
     def get_top_bottom(self, name):
-        if type(self) != ThermalZone:
-            tbs = []
-            for sb in self.non_duplicated_sb:
-                tbs.append(sb.top_bottom)
-            tbs_new = list(set(tbs))
-            return tbs_new
-        else:
-            return None
+        """get the top_bottom function # todo further explanation"""
+        tbs = []
+        for sb in self.sbs_without_corresponding:
+            tbs.append(sb.top_bottom)
+        tbs_new = list(set(tbs))
+        return tbs_new
 
-    def get_is_external(self, name):
-        if type(self) != ThermalZone:
-            if hasattr(self, 'parent'):
-                return self.parent.is_external
-            else:
-                if len(self.ifc.ProvidesBoundaries) > 0:
-                    ext_int = list(set([boundary.InternalOrExternalBoundary for boundary in self.ifc.ProvidesBoundaries]))
-                    if len(ext_int) == 1:
-                        if ext_int[0].lower() == 'external':
-                            return True
-                        if ext_int[0].lower() == 'internal':
-                            return False
-                    else:
-                        return ext_int
+    def get_is_external(self, name) -> bool:
+        """Checks if the corresponding element has contact with external
+        environment"""
+        if hasattr(self, 'parent'):
+            return self.parent.is_external
         else:
-            outer_walls = filter_instances(self.bound_elements, 'OuterWall')
-            if len(outer_walls) > 0:
-                return True
-            else:
-                return False
+            if len(self.ifc.ProvidesBoundaries) > 0:
+                ext_int = list(set([boundary.InternalOrExternalBoundary for boundary in self.ifc.ProvidesBoundaries]))
+                if len(ext_int) == 1:
+                    if ext_int[0].lower() == 'external':
+                        return True
+                    if ext_int[0].lower() == 'internal':
+                        return False
+                else:
+                    return ext_int
 
-    bound_area = attribute.Attribute(
+    gross_area = attribute.Attribute(
         functions=[get_bound_area],
         unit=ureg.meter ** 2
     )
-    net_bound_area = attribute.Attribute(
+    net_area = attribute.Attribute(
         functions=[get_net_bound_area],
         unit=ureg.meter ** 2
     )
-    non_duplicated_sb = attribute.Attribute(
-        functions=[get_non_duplicated_sb],
-    )
+    @cached_property
+    def sbs_without_corresponding(self):
+        return self.get_sbs_without_corresponding()
+
     top_bottom = attribute.Attribute(
         functions=[get_top_bottom],
     )
@@ -131,6 +119,9 @@ class BPSProduct(element.ProductBased):
         functions=[get_is_external],
         default=False
     )
+    @cached_property
+    def opening_area(self):
+        return self.get_opening_area()
 
 
 class ThermalZone(BPSProduct):
@@ -219,19 +210,21 @@ class ThermalZone(BPSProduct):
         bbox_center = ifcopenshell.geom.utils.get_bounding_box_center(bbox)
         return bbox_center
 
-    def get_space_volume(self, name):
+    def get_space_shape_volume(self, name):
         props = GProp_GProps()
         brepgprop_VolumeProperties(self.space_shape, props)
         volume = props.Mass()
         return volume
 
-    def _get_volume(self, name):
-        return self.area * self.height
+    def get_volume_geometric(self, name):
+        return self.gross_area * self.height
 
     def _get_usage(self, name):
         if self.zone_name is not None:
             usage = self.zone_name
-        elif self.ifc.LongName is not None:
+        elif self.ifc.LongName is not None and \
+                 "oldSpaceGuids_" not in self.ifc.LongName:
+            #todo oldSpaceGuids_ is hardcode for erics tool
             usage = self.ifc.LongName
         else:
             usage = self.name
@@ -253,12 +246,62 @@ class ThermalZone(BPSProduct):
         return 1 / self.AreaPerOccupant
 
     def _get_name(self, name):
-        return self.ifc.Name
+        if self.zone_name:
+            name = self.zone_name
+        else:
+            name = self.ifc.Name
+        return name
+
+    def get_bound_floor_area(self, name):
+        """Get bound floor area of zone. This is currently set by sum of all
+        horizonal gross area and take half of it due to issues with
+        TOP BOTTOM"""
+        leveled_areas = {}
+        for height, sbs in self.horizontal_sbs.items():
+            if height not in leveled_areas:
+                leveled_areas[height] = 0
+            leveled_areas[height] += sum([sb.bound_area for sb in sbs])
+
+        return sum(leveled_areas.values())/2
+
+    def get_net_bound_floor_area(self, name):
+        """Get net bound floor area of zone. This is currently set by sum of all
+        horizonal net area and take half of it due to issues with TOP BOTTOM."""
+        leveled_areas = {}
+        for height, sbs in self.horizontal_sbs.items():
+            if height not in leveled_areas:
+                leveled_areas[height] = 0
+            leveled_areas[height] += sum([sb.net_bound_area for sb in sbs])
+
+        return sum(leveled_areas.values()/2)
+
+    def get_horizontal_sbs(self):
+        """get all horizonal SBs in a zone and convert them into a dict with
+         key z-height in room and the SB as value."""
+        # todo: use only bottom when TOP bottom is working correctly
+        valid = ['TOP', 'BOTTOM']
+        leveled_sbs = {}
+        for sb in self.sbs_without_corresponding:
+            if sb.top_bottom in valid:
+                pos = round(sb.position[2], 1)
+                if pos not in leveled_sbs:
+                    leveled_sbs[pos] = []
+                leveled_sbs[pos].append(sb)
+
+        return leveled_sbs
+
+    def get_is_external(self, name) -> bool:
+        outer_walls = filter_instances(self.bound_elements, 'OuterWall')
+        if len(outer_walls) > 0:
+            return True
+        else:
+            return False
 
     name = attribute.Attribute(
         functions=[_get_name]
     )
     zone_name = attribute.Attribute(
+        default_ps=("Pset_SpaceCommon","Reference")
     )
     usage = attribute.Attribute(
         default_ps=("Pset_SpaceOccupancyRequirements", "OccupancyType"),
@@ -266,27 +309,39 @@ class ThermalZone(BPSProduct):
     )
     t_set_heat = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMin"),
-        unit=ureg.degC,
-        default=21
+        unit=ureg.degC
     )
     t_set_cool = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMax"),
-        unit=ureg.degC,
-        default=25
+        unit=ureg.degC
     )
     t_ground = attribute.Attribute(
         unit=ureg.degC,
-        default=13
+        default=13,
     )
-    area = attribute.Attribute(
+    gross_area = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
+        functions=[get_bound_floor_area],
         unit=ureg.meter ** 2
     )
+    net_area = attribute.Attribute(
+        default_ps=("Qto_SpaceBaseQuantities", "NetFloorArea"),
+        functions=[get_net_bound_floor_area],
+        unit=ureg.meter ** 2
+    )
+
+    @cached_property
+    def horizontal_sbs(self):
+        return self.get_horizontal_sbs()
+
     net_volume = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "NetVolume"),
+        functions=[get_space_shape_volume, get_volume_geometric],
+        unit=ureg.meter ** 3,
     )
-    volume = attribute.Attribute(
-        functions=[_get_volume],
+    gross_volume = attribute.Attribute(
+        default_ps=("Qto_SpaceBaseQuantities", "GrossVolume"),
+        functions=[get_volume_geometric],
         unit=ureg.meter ** 3,
     )
     height = attribute.Attribute(
@@ -311,8 +366,8 @@ class ThermalZone(BPSProduct):
     space_shape = attribute.Attribute(
         functions=[get_space_shape]
     )
-    space_volume = attribute.Attribute(
-        functions=[get_space_volume],
+    space_shape_volume = attribute.Attribute(
+        functions=[get_space_shape_volume],
         unit=ureg.meter ** 3,
     )
     glass_percentage = attribute.Attribute(
@@ -516,7 +571,7 @@ class SpaceBoundary(element.RelationBased):
                 top_bottom = "TOP"
         else:
             # direct = self.bound_center.Z() - self.thermal_zones[0].space_center.Z()
-            # if direct < 0 and SpaceBoundary._compare_direction_of_normals(self.bound_normal, vertical):
+            # if direct < 0 and SpaceBoundary.compare_direction_of_normals(self.bound_normal, vertical):
             if vertical.Dot(self.bound_normal) < -0.8:
                 top_bottom = "BOTTOM"
             elif vertical.Dot(self.bound_normal) > 0.8:
@@ -524,7 +579,7 @@ class SpaceBoundary(element.RelationBased):
         return top_bottom
 
     # @staticmethod
-    # def _compare_direction_of_normals(normal1, normal2):
+    # def compare_direction_of_normals(normal1, normal2):
     #     """
     #     Compare the direction of two surface normals (vectors).
     #     True, if direction is same or reversed
@@ -670,30 +725,6 @@ class SpaceBoundary(element.RelationBased):
 
         return moved_shape
 
-    def check_for_vertex_duplicates(self, rel_bound):
-        return  # todo: Bugfix, disabled for now
-        nb_vert_this = PyOCCTools.get_number_of_vertices(self.bound_shape)
-        nb_vert_other = PyOCCTools.get_number_of_vertices(rel_bound.bound_shape)
-        # if nb_vert_this != nb_vert_other:
-        setattr(self, 'bound_shape_org', self.bound_shape)
-        vert_list1 = PyOCCTools.get_vertex_list_from_face(self.bound_shape)
-        vert_list1 = PyOCCTools.remove_vertex_duplicates(vert_list1)
-        vert_list1.reverse()
-        vert_list1 = PyOCCTools.remove_vertex_duplicates(vert_list1)
-
-        setattr(rel_bound, 'bound_shape_org', rel_bound.bound_shape)
-        vert_list2 = PyOCCTools.get_vertex_list_from_face(rel_bound.bound_shape)
-        vert_list2 = PyOCCTools.remove_vertex_duplicates(vert_list2)
-        vert_list2.reverse()
-        vert_list2 = PyOCCTools.remove_vertex_duplicates(vert_list2)
-        if len(vert_list1) == len(vert_list2):
-            if len(vert_list1) < 5:
-                return
-            vert_list1.reverse()
-            vert_list2.reverse()
-            self.bound_shape = PyOCCTools.make_face_from_vertex_list(vert_list1)
-            rel_bound.bound_shape = PyOCCTools.make_face_from_vertex_list(vert_list2)
-
     def calc_bound_shape(self, name):
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
@@ -715,6 +746,8 @@ class SpaceBoundary(element.RelationBased):
                                                       BasisSurface=sore.BasisSurface)
                     temp_sore.InnerBoundaries = ()
                     shape = ifcopenshell.geom.create_shape(settings, temp_sore)
+                else:
+                    shape = remove_inner_loops(shape)
             if not (sore.InnerBoundaries and not self.bound_instance.ifc.is_a('IfcWall')):
                 faces = PyOCCTools.get_faces_from_shape(shape)
                 if len(faces) > 1:
@@ -845,12 +878,15 @@ class SpaceBoundary(element.RelationBased):
     def get_physical(self, name):
         return self.ifc.PhysicalOrVirtualBoundary.lower() == 'physical'
 
-    def get_net_bound_area(self, name):
+    def get_opening_area(self):
         opening_area = 0
         if self.opening_bounds:
             for opening_boundary in self.opening_bounds:
-                opening_area += opening_boundary.bound_area.m
-        area = self.bound_area.m - opening_area
+                opening_area += opening_boundary.bound_area
+        return opening_area
+
+    def get_net_bound_area(self):
+        area = self.bound_area - self.opening_area
         return area
 
     @cached_property
@@ -877,12 +913,12 @@ class SpaceBoundary(element.RelationBased):
     def top_bottom(self):
         return self.get_floor_and_ceilings('')
 
+    @cached_property
+    def opening_area(self):
+        return self.get_opening_area()
+
     bound_area = attribute.Attribute(
         functions=[get_bound_area],
-        unit=ureg.meter ** 2
-    )
-    net_bound_area = attribute.Attribute(
-        functions=[get_net_bound_area],
         unit=ureg.meter ** 2
     )
     bound_neighbors = attribute.Attribute(
@@ -907,50 +943,36 @@ class SpaceBoundary(element.RelationBased):
     physical = attribute.Attribute(
         functions=[get_physical]
     )
-    opening_bounds = attribute.Attribute(
-    )
+    @cached_property
+    def opening_bounds(self):
+        return None
+    # opening_bounds = attribute.Attribute(
+    # )
 
+    @cached_property
+    def net_bound_area(self):
+        return self.get_net_bound_area()
 
-# class SpaceBoundary2B:
-#     """Generated 2nd Level Space boundaries of type 2b
-#     (generated if not included in IFC)
-#     """
-#     def __init__(self):
-#         self.ifc_type = None
-#         self.guid = None
-#         self.bound_shape = None
-#         self.bound_neighbors = []
-#         self.thermal_zones = []
-#         self.bound_instance = None
-#         self.physical = True
-#         self.is_external = False
-#         self.related_bound = None
-#         self.related_adb_bound = None
-#         self.level_description = '2b'
-#
-#     def __str__(self):
-#         return "%s" % self.__class__.__name__
-#
-#     @cached_property
-#     def bound_center(self):
-#         return SpaceBoundary.get_bound_center(self)
-#
-#     @cached_property
-#     def bound_normal(self):
-#         return SpaceBoundary.compute_surface_normals_in_space(self)
-#
-#     @cached_property
-#     def bound_area(self):
-#         return SpaceBoundary.get_bound_area(self.bound_shape)
-#
-#     @cached_property
-#     def top_bottom(self):
-#         return SpaceBoundary.get_floor_and_ceilings(self)
-#
-#
 class ExtSpatialSpaceBoundary(SpaceBoundary):
     """describes all space boundaries related to an IfcExternalSpatialElement instead of an IfcSpace"""
     pass
+
+
+class SpaceBoundary2B(SpaceBoundary):
+    """describes all newly created space boundaries of type 2b to fill gaps within spaces"""
+    def __init__(self, *args, instances=None, **kwargs):
+        super(SpaceBoundary2B, self).__init__(*args, instances=None, **kwargs)
+        self.ifc = ifcopenshell.create_entity('IfcRelSpaceBoundary')
+        self.guid = None
+        self.bound_shape = None
+        self.bound_neighbors = []
+        self.thermal_zones = []
+        self.bound_instance = None
+        self.physical = True
+        self.is_external = False
+        self.related_bound = None
+        self.related_adb_bound = None
+        self.level_description = '2b'
 
 
 class Wall(BPSProduct):
@@ -990,15 +1012,29 @@ class Wall(BPSProduct):
         else:
             return InnerWall
 
+    def get_net_bound_area(self, name):
+        """get net area (including opening areas)"""
+        net_bound_area = self.gross_area - self.opening_area
+        return net_bound_area
+
+    def get_bound_area(self, name):
+        """ get gross bound area (including opening areas)"""
+        bound_area = 0
+        for sb in self.sbs_without_corresponding:
+            bound_area += sb.bound_area
+        return bound_area
+
     layers = attribute.Attribute(
         functions=[_get_layers]
     )
-    area = attribute.Attribute(
+    net_area = attribute.Attribute(
         default_ps=("QTo_WallBaseQuantities", "NetSideArea"),
+        functions=[get_net_bound_area],
         unit=ureg.meter ** 2
     )
     gross_area = attribute.Attribute(
         default_ps=("Qto_WallBaseQuantities", "GrossSideArea"),
+        functions=[get_bound_area],
         unit=ureg.meter ** 2
     )
     tilt = attribute.Attribute(
@@ -1102,12 +1138,40 @@ class Window(BPSProduct):
             layers.append(new_layer)
         return layers
 
+    def get_net_bound_area(self, name):
+        """get net area (including opening areas)"""
+        net_bound_area = self.bound_area - self.opening_area
+        return net_bound_area
+
+    def get_bound_area(self, name):
+        """ get gross bound area (including opening areas)"""
+        bound_area = 0
+        for sb in self.sbs_without_corresponding:
+            bound_area += sb.bound_area
+        return bound_area
+
+    def get_glazing_area(self, name):
+        """returns only the glazing area of the windows"""
+        if self.glazing_ratio:
+            glazing_area = self.gross_area * self.glazing_ratio
+        else:
+            glazing_area = self.opening_area
+        return glazing_area
+
     layers = attribute.Attribute(
         functions=[_get_layers]
     )
-    area = attribute.Attribute(
-        default_ps=("Qto_WindowBaseQuantities", "Area"),
+    net_area = attribute.Attribute(
+        functions=[get_glazing_area],
         unit=ureg.meter ** 2
+    )
+    gross_area = attribute.Attribute(
+        default_ps=("Qto_WindowBaseQuantities", "Area"),
+        functions=[get_bound_area],
+        unit=ureg.meter ** 2
+    )
+    glazing_ratio = attribute.Attribute(
+        default_ps=("Pset_WindowCommon", "GlazingAreaFraction"),
     )
     width = attribute.Attribute(
         default_ps=("Qto_WindowBaseQuantities", "Depth"),
@@ -1163,12 +1227,39 @@ class Door(BPSProduct):
         else:
             return InnerDoor
 
+    def get_net_area(self):
+        if self.glazing_ratio:
+            net_area = self.gross_area * (1 - self.glazing_ratio)
+        else:
+            net_area = self.gross_area - self.opening_area
+        return net_area
+
+    def get_net_bound_area(self, name):
+        """get net area (including opening areas)"""
+        net_bound_area = self.gross_area - self.opening_area
+        return net_bound_area
+
+    def get_bound_area(self, name):
+        """ get gross bound area (including opening areas)"""
+        bound_area = 0
+        for sb in self.sbs_without_corresponding:
+            bound_area += sb.bound_area
+        return bound_area
+
     layers = attribute.Attribute(
         functions=[_get_layers]
     )
-    area = attribute.Attribute(
+    @cached_property
+    def net_area(self):
+        return self.get_net_area()
+
+    gross_area = attribute.Attribute(
         default_ps=("Qto_DoorBaseQuantities", "Area"),
+        functions=[get_bound_area],
         unit=ureg.meter ** 2
+    )
+    glazing_ratio = attribute.Attribute(
+        default_ps=("Pset_WindowCommon", "GlazingAreaFraction"),
     )
 
     width = attribute.Attribute(
@@ -1211,15 +1302,29 @@ class Slab(BPSProduct):
             layers.append(new_layer)
         return layers
 
+    def get_net_bound_area(self, name):
+        """get net area (including opening areas)"""
+        net_bound_area = self.gross_area - self.opening_area
+        return net_bound_area
+
+    def get_bound_area(self, name):
+        """ get gross bound area (including opening areas)"""
+        bound_area = 0
+        for sb in self.sbs_without_corresponding:
+            bound_area += sb.bound_area
+        return bound_area
+
     layers = attribute.Attribute(
         functions=[_get_layers]
     )
-    area = attribute.Attribute(
+    net_area = attribute.Attribute(
         default_ps=("Qto_SlabBaseQuantities", "NetArea"),
+        functions=[get_net_bound_area],
         unit=ureg.meter ** 2
     )
     gross_area = attribute.Attribute(
         default_ps=("Qto_SlabBaseQuantities", "GrossArea"),
+        functions=[get_bound_area],
         unit=ureg.meter ** 2
     )
     width = attribute.Attribute(

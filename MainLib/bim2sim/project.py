@@ -278,6 +278,12 @@ class Project:
         """Load existing project"""
         self.storage = {}  # project related items
         self.paths = FolderStructure(path)
+        try:
+            self.name = list(
+                    filter(Path.is_file, self.paths.ifc.glob('**/*')))[0].stem
+        except:
+            self.name = "Project"
+
         if not self.paths.is_project_folder():
             raise AssertionError("Project path is no valid project directory. "
                                  "Use Project.create() to create a new Project")
@@ -292,7 +298,7 @@ class Project:
             workflow = self.default_plugin.default_workflow()
         workflow.relevant_elements = self.default_plugin.elements
         workflow.update_from_config(self.config)
-        self.playground = Playground(workflow, self.paths)
+        self.playground = Playground(workflow, self.paths, self.name)
 
         self._log_handler = self._setup_logger()  # setup project specific handlers
 

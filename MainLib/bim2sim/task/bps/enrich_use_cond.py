@@ -1,10 +1,8 @@
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import get_usage_dict, get_pattern_usage
-from bim2sim.decision import ListDecision, DecisionBunch
+from bim2sim.decision import ListDecision, DecisionBunch, BoolDecision
 from bim2sim.workflow import Workflow
 from bim2sim.kernel.elements.bps import ThermalZone
-
-UseConditions = get_usage_dict()
 
 
 class EnrichUseConditions(ITask):
@@ -17,9 +15,12 @@ class EnrichUseConditions(ITask):
     def __init__(self):
         super().__init__()
         self.enriched_tz = []
+        self.use_conditions = {}
 
     def run(self, workflow: Workflow, tz_instances: dict):
         self.logger.info("enriches thermal zones usage")
+        self.use_conditions = get_usage_dict(self.prj_name)
+
         # case no thermal zones found
         if len(tz_instances) == 0:
             self.logger.warning("Found no spaces to enrich")
@@ -32,22 +33,31 @@ class EnrichUseConditions(ITask):
     def multi_zone_usage(self, thermal_zones: dict):
         """defines an usage to a determined thermal zone"""
         selected_usage = {}
-        pattern_usage = get_pattern_usage()
+
+        pattern_usage = get_pattern_usage(self.prj_name)
         for tz in list(thermal_zones.values()):
             if tz.usage in selected_usage:
                 tz.usage = selected_usage[tz.usage]
             else:
-                previous_usage = str(tz.usage)
-                if previous_usage not in pattern_usage:
+                orig_usage = str(tz.usage)
+                if orig_usage not in pattern_usage:
                     matches = []
                     list_org = tz.usage.replace(' (', ' ').replace(')', ' '). \
                         replace(' -', ' ').replace(', ', ' ').split()
-                    for usage, patterns in pattern_usage.items():
-                        for i in patterns:
-                            for i_name in list_org:
-                                if i.match(i_name):
+                    for usage in pattern_usage.keys():
+                        # check custom first
+                        if "custom" in pattern_usage[usage]:
+                            for cus_usage in pattern_usage[usage]["custom"]:
+                                if cus_usage == tz.usage:
                                     if usage not in matches:
                                         matches.append(usage)
+                        # if not found in custom, continue with common
+                        if len(matches) == 0:
+                            for i in pattern_usage[usage]["common"]:
+                                for i_name in list_org:
+                                    if i.match(i_name):
+                                        if usage not in matches:
+                                            matches.append(usage)
                     # if just a match given
                     if len(matches) == 1:
                         # case its an office
@@ -56,13 +66,13 @@ class EnrichUseConditions(ITask):
                         # other zone usage
                         else:
                             tz.usage = matches[0]
-                    # if no matches given
+                    # if no matches given forward all (for decision)
                     elif len(matches) == 0:
                         matches = list(pattern_usage.keys())
                     if len(matches) > 1:
                         tz.usage = yield from self.list_decision_usage(
                             tz, matches)
-                    selected_usage[previous_usage] = tz.usage
+                    selected_usage[orig_usage] = tz.usage
             self.load_usage(tz)
             self.enriched_tz.append(tz)
 
@@ -90,16 +100,15 @@ class EnrichUseConditions(ITask):
         default_matches = ["Single office",
                            "Group Office (between 2 and 6 employees)",
                            "Open-plan Office (7 or more employees)"]
-        area = tz.area.m
-        # case area its available
-        if area is not None:
+        if tz.gross_area:
+            area = tz.gross_area.m
             if area <= 7:
                 return default_matches[0]
             elif 7 < area <= 42:
                 return default_matches[1]
             else:
                 return default_matches[2]
-        # case area not available
+            # case area not available
         else:
             yield from self.list_decision_usage(tz, default_matches)
 
@@ -117,7 +126,7 @@ class EnrichUseConditions(ITask):
         return usage_decision.value
 
     def load_usage(self, tz: ThermalZone):
-        use_condition = UseConditions[tz.usage]
+        use_condition = self.use_conditions[tz.usage]
         for attr, value in use_condition.items():
             # avoid to overwrite attrs present on the instance
             if getattr(tz, attr) is None:

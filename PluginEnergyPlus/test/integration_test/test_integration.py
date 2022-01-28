@@ -16,7 +16,7 @@ from bim2sim import workflow
 
 EXAMPLE_PATH = Path(os.path.abspath(os.path.dirname(__file__))).parent.parent.parent / 'ExampleFiles'
 RESULT_PATH = Path(os.path.abspath(os.path.dirname(__file__))).parent.parent.parent / 'ResultFiles'
-DEBUG_ENERGYPLUS = False
+DEBUG_ENERGYPLUS = True
 
 
 class IntegrationBaseEP(IntegrationBase):
@@ -35,8 +35,16 @@ class IntegrationBaseEP(IntegrationBase):
             debug_dir = Path.home() / 'idf' / Path(ifc_name + '_EP-results/')
             if os.path.exists(debug_dir):
                 rmtree(debug_dir)
-            copytree(temp_dir,
-                     debug_dir)
+            copytree(temp_dir, debug_dir)
+            try:
+                copyfile(Path(self.project.paths.export)
+                         / Path(ifc_name + "_combined_STL.stl"),
+                         str(debug_dir) + '/' + str(ifc_name) + "_combined_STL.stl")
+                copyfile(Path(self.project.paths.export)
+                         / Path(ifc_name + "_space_combined_STL.stl"),
+                         str(debug_dir) + '/' + str(ifc_name) + "_space_combined_STL.stl")
+            except:
+                print('No STL for CFD found. ')
             copyfile(str(debug_dir) + "/eplusout.expidf",
                      str(debug_dir) + "/eplusout.idf")
         os.chdir(self.working_dir)
@@ -69,7 +77,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
+        answers = (True, True, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -83,7 +91,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BPSMultiZoneSeparatedEPfull()
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = (True, True, 'Kitchen - preparations, storage', True,
+        answers = (True, True, True,
                    'solid_brick_a', True, 'hardwood', True,
                    'Light_Concrete_DK', True, 'Concrete_DK', "heavy", 1, 'Door',
                    1, 'Brick', 'brick_H', "EnEv", *(1,) * 8, True, True, True, False)
@@ -124,8 +132,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         # ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB44.ifc'
         ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, 'Single office', 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
+        answers = ('ARCHICAD-64', True, True, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
+                   True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -189,7 +198,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
 
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, 'Single office', 2015, 'heavy',
+        answers = ('ARCHICAD-64', True, True, 2015, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -210,10 +219,11 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     # @unittest.skip("Skipped due to performance for CI")
     def test_base_09_DH_design_day(self):
         """Test DigitalHub IFC"""
-        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB88.ifc'
+        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB_neu.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', *(None,)*150, True, True,  'Single office', 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
+        answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True, 2015, 'heavy',
+                   'Waermeschutzverglasung, dreifach',
+                   True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -341,8 +351,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', 'ARCHICAD-64', True, True, 'Single office', 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
+        answers = ('ARCHICAD-64', 'ARCHICAD-64', True, True, 2015, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
+                   True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
