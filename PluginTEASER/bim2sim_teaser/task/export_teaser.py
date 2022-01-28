@@ -15,6 +15,8 @@ from bim2sim.task.base import ITask
 from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import filter_instances
 
+# todo get teaser from submodule
+
 
 class ExportTEASER(ITask):
     """Exports a Modelica model with TEASER by using the found information

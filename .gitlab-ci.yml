@@ -13,6 +13,9 @@ stages:
   - deploy
   - visualize
 
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
 build_env:development:
   image: docker:latest
   stage: build-env
