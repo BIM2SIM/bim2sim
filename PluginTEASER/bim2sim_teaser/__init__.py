@@ -9,4 +9,4 @@ def get_teaser():
     return TEASERManager
 
 
-CONTEND = {'teaser':get_teaser}
+CONTEND = {'teaser': get_teaser}
