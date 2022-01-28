@@ -1,4 +1,5 @@
 import itertools
+import re
 import sys
 import os
 
@@ -25,11 +26,17 @@ class SimulateModel(ITask):
             plugin_path = Path(bim2sim_teaser.__file__).parent
 
             dir_aixlib = Path(plugin_path/ 'AixLib' / 'AixLib' / 'package.mo')
+
+            # needed because teaser removes special characters
+
+            regex = re.compile("[^a-zA-z0-9]")
+            model_export_name = regex.sub("", self.prj_name)
+
             dir_model = Path(
-                self.paths.export / 'TEASER' / 'Model' / self.prj_name /
+                self.paths.export / 'TEASER' / 'Model' / model_export_name /
                 'package.mo')
             dir_result = Path(
-                self.paths.export / 'TEASER' / 'SimResults' / self.prj_name)
+                self.paths.export / 'TEASER' / 'SimResults' / model_export_name)
 
             dymola.openModel(str(dir_aixlib))
             dymola.openModel(str(dir_model))
@@ -38,7 +45,8 @@ class SimulateModel(ITask):
             for n_sim, bldg_name in enumerate(bldg_names):
                 self.logger.info(f"Simulating model {bldg_name}. "
                                  f"Simulation {n_sim}/{len(bldg_names)}")
-                sim_model = self.prj_name + '.' + bldg_name + '.' + bldg_name
+                sim_model = \
+                    model_export_name + '.' + bldg_name + '.' + bldg_name
                 translate_status = dymola.translateModel(sim_model)
                 if translate_status:
                     bldg_result_dir = dir_result / bldg_name
@@ -54,15 +62,19 @@ class SimulateModel(ITask):
                         # finalNames=['thermalZone.TAir'],
                     )
                     if not output[0]:
-                        self.logger(f"Simulation of {bldg_name} was not successful")
+                        self.logger.error(
+                            f"Simulation of {bldg_name} was not successful")
                     else:
                         n_success += 1
                 else:
-                    self.logger(f"Translation of {bldg_name} was not successful")
+                    self.logger.error(
+                        f"Translation of {bldg_name} was not successful")
             dymola.close()
-            self.logger.info(f"Successfully simulated {n_success}/{len(bldg_names)}"
+            self.logger.info(f"Successfully simulated "
+                             f"{n_success}/{len(bldg_names)}"
                              f" Simulations.")
-            self.logger.info(f"You can find the results under {str(dir_result)}")
+            self.logger.info(f"You can find the results under "
+                             f"{str(dir_result)}")
 
     @staticmethod
     def get_dymola_path() -> Path:

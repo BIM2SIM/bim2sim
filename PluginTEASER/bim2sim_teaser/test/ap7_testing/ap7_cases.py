@@ -6,8 +6,8 @@ from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim_teaser.test.integration_test_setup import \
     IntegrationBaseTeaserInteractive
 
-EXAMPLE_PATH = Path(__file__).parent.parent.parent.parent / 'ExampleFiles'
-RESULT_PATH = Path(__file__).parent.parent.parent.parent / 'ResultFiles'
+EXAMPLE_PATH = Path(__file__).parent.parent.parent.parent.parent / 'ExampleFiles'
+RESULT_PATH = Path(__file__).parent.parent.parent.parent.parent / 'ResultFiles'
 
 
 class IntegrationBaseTEASER(IntegrationBaseTeaserInteractive, unittest.TestCase):

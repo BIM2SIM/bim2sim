@@ -277,10 +277,8 @@ class Project:
         self.storage = {}  # project related items
         self.paths = FolderStructure(path)
         try:
-            name = list(
+            self.name = list(
                     filter(Path.is_file, self.paths.ifc.glob('**/*')))[0].stem
-            regex = re.compile("[^a-zA-z0-9]")
-            self.name = regex.sub("", name)
         except:
             logger.warning(
                 "Could not set correct project name, using Project!")
