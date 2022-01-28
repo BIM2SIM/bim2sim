@@ -117,7 +117,6 @@ class FolderStructure:
     LOG = "log"
     EXPORT = "export"
     RESOURCES = "resources"
-    PAPER = True
 
     _src_path = Path(__file__).parent  # base path to bim2sim assets
 
@@ -181,6 +180,11 @@ class FolderStructure:
     def export(self):
         """absolute path to export folder"""
         return self._root_path / self.EXPORT
+
+    @property
+    def b2sroot(self):
+        """absolute path of bim2sim root folder"""
+        return self._src_path.parent.parent
 
     @property
     def sub_dirs(self):

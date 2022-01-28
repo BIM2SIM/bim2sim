@@ -1,4 +1,4 @@
-﻿"""Module for defining workflows"""
+"""Module for defining workflows"""
 
 from enum import Enum
 
@@ -257,6 +257,7 @@ class BPSMultiZoneSeparatedEPfull(Workflow):
             cfd_export=False,
         )
 
+
 class BPSMultiZoneSeparatedEPforCFD(Workflow):
     """Building performance simulation with every space as single zone
     separated from each other - no aggregation,
@@ -274,4 +275,19 @@ class BPSMultiZoneSeparatedEPforCFD(Workflow):
             layers=LOD.low,
             create_external_elements=True,  # consider IfcExternalSpatialElements
             cfd_export=True,
+        )
+
+
+class CFDWorkflowDummy(Workflow):
+    # todo make something useful
+    def __init__(self):
+        super().__init__(
+            ductwork=LOD.low,
+            hull=LOD.medium,
+            consumer=LOD.low,
+            generator=LOD.ignore,
+            hvac=LOD.low,
+            spaces=LOD.full,
+            layers=LOD.full,
+            create_external_elements=True,  # consider IfcExternalSpatialElements
         )
