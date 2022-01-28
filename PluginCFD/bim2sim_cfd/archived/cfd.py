@@ -86,7 +86,7 @@ class Facade(Workflow):
         if (max_depth > 10):
             max_depth = 10
         # max_depth = 10
-        path_cpp = "."
+        path_cpp = "../../../MainLib/bim2sim/workflow"
         octree = os.system(path_cpp + "/VisGeomLinux " + filename + filetype + " " + str(max_depth) + " " + str(int(write_vtk)))
         if octree == 0:
             print("Octree done.")
