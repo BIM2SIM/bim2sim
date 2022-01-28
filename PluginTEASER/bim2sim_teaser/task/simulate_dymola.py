@@ -3,7 +3,7 @@ import sys
 import os
 
 from pathlib import Path
-from PluginTEASER import bim2sim_teaser
+import bim2sim_teaser
 
 from bim2sim.task.base import ITask
 
