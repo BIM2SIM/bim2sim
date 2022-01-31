@@ -13,3 +13,4 @@ numpy-stl
 dill
 jinja2
 deep_translator
+pandas
