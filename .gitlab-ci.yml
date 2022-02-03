@@ -297,8 +297,6 @@ build_tool:teaser:
 #    paths:
 #    - $CI_COMMIT_REF_NAME/pylint
 
-
-
 sphinxdoc:
   image: $CI_REGISTRY/environment:development
   stage: doc
