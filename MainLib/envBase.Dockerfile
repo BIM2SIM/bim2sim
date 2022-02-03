@@ -81,4 +81,6 @@ ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginCFD"
 ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginAixLib"
 ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginHKESim"
 ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginTEASER"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginTEASER/bim2sim_teaser/TEASER/"
+
 ########################################################
