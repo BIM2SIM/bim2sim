@@ -1461,7 +1461,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
          based on a previous filtering"""
         new_aggregations = []
         thermal_zones = filter_instances(instances, 'ThermalZone')
-        total_area = sum(i.area for i in thermal_zones)
+        total_area = sum(i.gross_area for i in thermal_zones)
         for group in groups:
             if group == 'one_zone_building':
                 name = "Aggregated_%s" % group
@@ -1477,7 +1477,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                 instances[instance.guid] = instance
             elif group == 'not_bind':
                 # last criterion no similarities
-                area = sum(i.area for i in groups[group])
+                area = sum(i.gross_area for i in groups[group])
                 if area / total_area <= 0.05:
                     # Todo: usage and conditions criterion
                     name = "Aggregated_not_neighbors"
@@ -1514,9 +1514,9 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         'internal_gains_moisture_no_people', 'T_threshold_cooling', 'ratio_conv_rad_persons', 'machines',
         'ratio_conv_rad_machines', 'lighting_power', 'ratio_conv_rad_lighting', 'infiltration_rate',
         'max_user_infiltration', 'min_ahu', 'max_ahu', 'persons']"""
-        prop_sum = sum(getattr(tz, name) * tz.volume for tz in self.elements if getattr(tz, name) is not None
-                       and tz.volume is not None)
-        vol_total = sum(tz.volume for tz in self.elements if tz.volume is not None)
+        prop_sum = sum(getattr(tz, name) * tz.net_volume for tz in self.elements if getattr(tz, name) is not None
+                       and tz.net_volume is not None)
+        vol_total = sum(tz.net_volume for tz in self.elements if tz.net_volume is not None)
         return prop_sum / vol_total
 
     def _intensive_list_calc(self, name):
@@ -1529,16 +1529,16 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                       'max_summer_infiltration': 3,
                       'winter_reduction_infiltration': 3}
         length = list_attrs[name]
-        vol_total = sum(tz.volume for tz in self.elements if tz.volume is not None).m
+        vol_total = sum(tz.net_volume for tz in self.elements if tz.net_volume is not None).m
         aux = []
         for x in range(0, length):
-            aux.append(sum(getattr(tz, name)[x] * tz.volume.m for tz in self.elements if getattr(tz, name) is not None
-                           and tz.volume is not None) / vol_total)
+            aux.append(sum(getattr(tz, name)[x] * tz.net_volume.m for tz in self.elements if getattr(tz, name) is not None
+                           and tz.net_volume is not None) / vol_total)
         return aux
 
     def _extensive_calc(self, name):
         """extensive properties getter
-        intensive_attributes = ['area', 'volume']"""
+        intensive_attributes = ['gross_area', 'net_area', 'volume']"""
         prop_sum = sum(getattr(tz, name) for tz in self.elements if getattr(tz, name) is not None)
         return prop_sum
 
@@ -1576,7 +1576,11 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         functions=[_intensive_calc],
         unit=ureg.degC,
     )
-    area = attribute.Attribute(
+    net_area = attribute.Attribute(
+        functions=[_extensive_calc],
+        unit=ureg.meter ** 2
+    )
+    gross_area = attribute.Attribute(
         functions=[_extensive_calc],
         unit=ureg.meter ** 2
     )
@@ -1584,7 +1588,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         functions=[_extensive_calc],
         unit=ureg.meter ** 3
     )
-    volume = attribute.Attribute(
+    gross_volume = attribute.Attribute(
         functions=[_extensive_calc],
         unit=ureg.meter ** 3
     )

@@ -100,8 +100,8 @@ class EnrichUseConditions(ITask):
         default_matches = ["Single office",
                            "Group Office (between 2 and 6 employees)",
                            "Open-plan Office (7 or more employees)"]
-        if tz.area:
-            area = tz.area.m
+        if tz.gross_area:
+            area = tz.gross_area.m
             if area <= 7:
                 return default_matches[0]
             elif 7 < area <= 42:

@@ -1,4 +1,4 @@
-FROM registry.git-ce.rwth-aachen.de/ebc/projects/ebc0438_bmwi_bim2sim_ges/bim2sim-coding/environment:development
+FROM registry.git-ce.rwth-aachen.de/ebc/projects/ebc0438_bmwi_bim2sim_ges/bim2sim-coding/environment:ubuntu_base
 
 WORKDIR /bim2sim
 
@@ -10,4 +10,4 @@ COPY . .
 
 # The code to run when container is started:
 # RUN /bin/sh -c "source activate base"
-# CMD ["/bin/sh"]
+# CMD ["/bin/sh"] 

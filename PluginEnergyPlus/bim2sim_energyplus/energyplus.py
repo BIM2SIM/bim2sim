@@ -5,7 +5,7 @@ from bim2sim.plugin import Plugin
 from bim2sim.workflow import BPSMultiZoneSeparatedEP
 from bim2sim.kernel.elements import bps as bps_elements
 
-from bim2sim_energyplus.weather import Weather
+import bim2sim.task.common
 
 
 class EnergyPlus(Plugin):
@@ -26,10 +26,10 @@ class EnergyPlus(Plugin):
         bps.EnrichBuildingByTemplates,  # LOD.low
         bps.DisaggregationCreation,
         bps.BindThermalZones,
-        Weather,
         ep_tasks.IfcValidation,
         ep_tasks.EPGeomPreprocessing,
         ep_tasks.AddSpaceBoundaries2B,
+        ep_tasks.WeatherEnergyPlus,
         ep_tasks.CreateIdf,
         ep_tasks.IdfPostprocessing,
         ep_tasks.ExportIdfForCfd,

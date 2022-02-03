@@ -55,6 +55,7 @@ class DisaggregationCreation(ITask):
         return tz_disaggregations
 
     def create_disaggregation(self, finder, bound_instance, sb, tz):
+        """# todo write documentation"""
         sub_class = type(bound_instance)
         if self.check_disaggregation(bound_instance, sb):
             inst = sub_class(finder=finder)
@@ -65,27 +66,25 @@ class DisaggregationCreation(ITask):
 
     @staticmethod
     def check_disaggregation(parent, sb, threshold=0.1):
-        if parent.bound_area:
-            parent_area = parent.bound_area
-        else:
-            parent_area = parent.area
+        """# todo write documentation"""
         if len(parent.space_boundaries) == 1:
             return False
         elif sb.bound_area == 0:
             return False
-        elif abs(parent_area - sb.bound_area) / sb.bound_area < threshold:
+        elif abs(parent.gross_area - sb.bound_area) / sb.bound_area < threshold:
             return False
         else:
             return True
 
     def overwrite_attributes(self, inst, parent, sb, tz, subclass,
                              threshold=0.1):
+        """# todo write documentation"""
         type_parent = subclass.__name__
 
         inst.parent = parent
         inst.space_boundaries.append(sb)
         inst.thermal_zones.append(tz)
-        inst.area = sb.net_bound_area
+        inst.net_area = sb.net_bound_area
         inst.gross_area = sb.bound_area
         inst.orientation = parent.orientation
         for prop in inst.attributes:
@@ -101,8 +100,8 @@ class DisaggregationCreation(ITask):
                                                                     new_pos)
         if type_parent in self.horizontal_instances:
             inst.position = tz.position
-            if tz.area and abs(1 - inst.area / tz.area) < threshold:
-                inst.area = tz.area
+            if tz.net_area and abs(1 - inst.net_area / tz.net_area) < threshold:
+                inst.net_area = tz.net_area
 
     @staticmethod
     def get_new_position_vertical_instance(parent, sub_position):

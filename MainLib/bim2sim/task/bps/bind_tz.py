@@ -61,16 +61,7 @@ class BindThermalZones(ITask):
                 global_key='Thermal_Zones.Bind_Method')
             yield DecisionBunch([criteria_decision])
             criteria_function = criteria_functions.get(criteria_decision.value)
-            # TODO #170: this fails because some criteria functions are
-            #  generator methods and some are normal methods. Refactor this
-            #  to have only normal methods and bring the decision
-            #  one level up (preferred)
-            #  or turn all methods into generator methods by adding yield
-            #  below the last return statement (not preferred)
-            #  maybe best option is to be explicit over implicit about
-            #  inspect.getmembers and then do a classic
-            #  'if this then that method' and use yield from
-            #  where needed without modifying the criteria methods at all
+
             tz_groups = criteria_function(instances)
             new_aggregations = AggregatedThermalZone.find_matches(
                 tz_groups, instances, finder=finder)
