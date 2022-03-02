@@ -324,6 +324,73 @@ class UnderfloorHeating(PipeStrand):
                 element_graphs.remove(g)
         return element_graphs, metas
 
+    @staticmethod
+    def check_number_of_elements(uh_elements, tolerance: int = 20):
+        """Check if the targeted pipe strand has more than 20 elements"""
+        if len(uh_elements) >= tolerance:
+            return True
+
+    @staticmethod
+    def check_pipe_strand_horizontality(ports_coors, tolerance: float = 0.8):
+        """Check if the pipe strand is located horizontally -- parallel to
+        the floor and most elements are in the same z plane"""
+        counts = np.unique(ports_coors[:, 2], return_counts=True)
+        # TODO: cluster z coordinates
+        idx_max = np.argmax(counts[1])
+        if counts[1][idx_max] / ports_coors.shape[0] >= tolerance:
+            return True
+            # return counts[0][idx_max]
+
+    @staticmethod
+    def get_pipe_strand_attributes(ports_coors):
+        """Get pipe strand """
+        # TODO: what if e.g. 45° orientation??
+        x_coord, y_coord = ports_coors[:, 0], ports_coors[:, 1]
+        min_x = ports_coors[np.argmin(x_coord)]
+        max_x = ports_coors[np.argmax(x_coord)]
+        min_y = ports_coors[np.argmin(y_coord)]
+        max_y = ports_coors[np.argmax(y_coord)]
+        if min_x[1] == max_x[1] or min_y[0] == max_y[0]:
+            dist_x = max_x[0]-min_x[0]
+            dist_y = max_y[1]-min_y[1]
+            heating_area = dist_x * dist_y
+        else:
+            dist_x = np.linalg.norm(min_y-max_x)
+            dist_y = np.linalg.norm(min_y-min_x)
+            heating_area = dist_x * dist_y
+
+        return heating_area, dist_x, dist_y
+
+    @staticmethod
+    def get_number_of_elements(uh_elements):
+        """"""
+        orientations = {}
+        for element in uh_elements:
+            if type(element) is hvac.Pipe:
+                a = abs(element.ports[0].position[1] -
+                        element.ports[1].position[1])
+                b = abs(element.ports[0].position[0] -
+                        element.ports[1].position[0])
+                theta = int(math.degrees(math.atan(a/b)))
+                if theta not in orientations:
+                    orientations[theta] = []
+                orientations[theta].append(element)
+        for orient in orientations.copy():
+            if len(orientations[orient]) < 10:
+                del orientations[orient]
+        return sorted(orientations.items())
+
+    @staticmethod
+    def check_heating_area(heating_area):
+        if heating_area >= 1e6:
+            return True
+
+    @staticmethod
+    def check_spacing(x_spacing, y_spacing):
+        if not ((90 < x_spacing < 210) or (90 < y_spacing < 210)):
+            return
+        return True
+
     @classmethod
     def check_conditions(cls, uh_elements):
         """checks ps_elements and returns instance of UnderfloorHeating if all following criteria are fulfilled:
@@ -338,69 +405,25 @@ class UnderfloorHeating(PipeStrand):
             :returns None if check failed else
             :returns meta dict with calculated values"""
         # TODO: use only floor heating pipes and not connecting pipes
+        if not cls.check_number_of_elements(uh_elements):
+            return
+        ports_coors = np.array(
+            [p.position for e in uh_elements for p in e.ports])
+        if not cls.check_pipe_strand_horizontality(ports_coors):
+            return
+        heating_area, dist_x, dist_y = \
+            cls.get_pipe_strand_attributes(ports_coors)
+        orientations = cls.get_number_of_elements(uh_elements)
+        if not cls.check_heating_area(heating_area):
+            return
 
-        if len(uh_elements) < 20:
-            return  # number criteria failed
+        # length_unit = element.ifc_units.get('IfcLengthMeasure')
 
-        # z_coordinates = defaultdict(list)
-        # for element in uh_elements:
-        #     z_coordinates[element.position[2]].append(element)
-        # z_coordinate = []
-        # for coordinate in z_coordinates:
-        #     n_pipe = 0
-        #     for element in z_coordinates[coordinate]:
-        #         if isinstance(element, elements.PipeFitting):
-        #             n_pipe += 1
-        #     if n_pipe == 0 and (len(z_coordinates[coordinate]) > len(z_coordinate)):
-        #         z_coordinate = z_coordinates[coordinate]
-        # z_coordinate = z_coordinate[0].position[2]
+        x_spacing = dist_x / (len(orientations[0][1]) - 1)
+        y_spacing = dist_y / (len(orientations[1][1]) - 1)
 
-        ports_coors = np.array([p.position for e in uh_elements for p in e.ports])
-        counts = np.unique(ports_coors[:, 2], return_counts=True)
-        # TODO: cluster z coordinates
-        idx_max = np.argmax(counts[1])
-        if counts[1][idx_max] / ports_coors.shape[0] < 0.8:
-            return  # most elements in same z plane criteria failed
-
-        z_coordinate2 = counts[0][idx_max]
-
-        min_x = float("inf")
-        max_x = -float("inf")
-        min_y = float("inf")
-        max_y = -float("inf")
-        x_orientation = []
-        y_orientation = []
-        for element in uh_elements:
-            if np.abs(element.ports[0].position[2] - z_coordinate2) < 1 \
-                    and np.abs(element.ports[1].position[2] - z_coordinate2) < 1:
-                if element.position[0] < min_x:
-                    min_x = element.position[0]
-                if element.position[0] > max_x:
-                    max_x = element.position[0]
-                if element.position[1] < min_y:
-                    min_y = element.position[1]
-                if element.position[1] > max_y:
-                    max_y = element.position[1]
-
-                # TODO: what if e.g. 45° orientation??
-                if abs(element.ports[0].position[0] - element.ports[1].position[0]) < 1:
-                    y_orientation.append(element)
-                if abs(element.ports[0].position[1] - element.ports[1].position[1]) < 1:
-                    x_orientation.append(element)
-
-        length_unit = element.ifc_units.get('IfcLengthMeasure')
-        heating_area = (max_x - min_x) * (max_y - min_y) * length_unit ** 2
-        if heating_area < 1e6 * length_unit ** 2:
-            return  # heating area criteria failed
-
-        # TODO: this is not correct for some layouts
-        if len(y_orientation) - 1 != 0:
-            x_spacing = (max_x - min_x) / (len(y_orientation) - 1) * length_unit
-        if len(x_orientation) - 1 != 0:
-            y_spacing = (max_y - min_y) / (len(x_orientation) - 1) * length_unit
-        if not ((90 * length_unit < x_spacing < 210 * length_unit) or
-                (90 * length_unit < y_spacing < 210 * length_unit)):
-            return  # spacing criteria failed
+        if not cls.check_spacing(x_spacing, y_spacing):
+            return
 
         # check final kpi criteria
         total_length = sum(segment.length for segment in uh_elements if segment.length is not None)
@@ -445,91 +468,6 @@ class UnderfloorHeating(PipeStrand):
         description='Spacing in y',
         functions=[_calc_avg]
     )
-
-    @classmethod
-    def create_on_match(cls, name, uh_elements):  # TODO: obsolete and equal? to check_conditions
-        """checks ps_elements and returns instance of UnderfloorHeating if all following criteria are fulfilled:
-            0. minimum of 20 elements
-            1. the pipe strand is located horizontally -- parallel to the floor
-            2. the pipe strand has most of the elements located in an specific z-coordinate (> 80%)
-            3. the spacing between adjacent elements with the same orientation is between 90mm and 210 mm
-            4. the total area of the underfloor heating is more than 1m² - just as safety factor
-            5. the quotient between the cross sectional area of the pipe strand (x-y plane) and the total heating area
-                is between 0.09 and 0.01 - area density for underfloor heating"""
-        # TODO: use only floor heating pipes and not connecting pipes
-
-        if len(uh_elements) < 20:
-            return  # number criteria failed
-
-        # z_coordinates = defaultdict(list)
-        # for element in uh_elements:
-        #     z_coordinates[element.position[2]].append(element)
-        # z_coordinate = []
-        # for coordinate in z_coordinates:
-        #     n_pipe = 0
-        #     for element in z_coordinates[coordinate]:
-        #         if isinstance(element, elements.PipeFitting):
-        #             n_pipe += 1
-        #     if n_pipe == 0 and (len(z_coordinates[coordinate]) > len(z_coordinate)):
-        #         z_coordinate = z_coordinates[coordinate]
-        # z_coordinate = z_coordinate[0].position[2]
-
-        ports_coors = np.array([p.position for e in uh_elements for p in e.ports])
-        counts = np.unique(ports_coors[:, 2], return_counts=True)
-        # TODO: cluster z coordinates
-        idx_max = np.argmax(counts[1])
-        if counts[1][idx_max] / ports_coors.shape[0] < 0.8:
-            return  # most elements in same z plane criteria failed
-
-        z_coordinate2 = counts[0][idx_max]
-
-        min_x = float("inf")
-        max_x = -float("inf")
-        min_y = float("inf")
-        max_y = -float("inf")
-        x_orientation = []
-        y_orientation = []
-        for element in uh_elements:
-            if np.abs(element.ports[0].position[2] - z_coordinate2) < 1 \
-                    and np.abs(element.ports[1].position[2] - z_coordinate2) < 1:
-                if element.position[0] < min_x:
-                    min_x = element.position[0]
-                if element.position[0] > max_x:
-                    max_x = element.position[0]
-                if element.position[1] < min_y:
-                    min_y = element.position[1]
-                if element.position[1] > max_y:
-                    max_y = element.position[1]
-
-                # TODO: what if e.g. 45° orientation??
-                if abs(element.ports[0].position[0] - element.ports[1].position[0]) < 1:
-                    y_orientation.append(element)
-                if abs(element.ports[0].position[1] - element.ports[1].position[1]) < 1:
-                    x_orientation.append(element)
-        heating_area = (max_x - min_x) * (max_y - min_y) * ureg.meter ** 2
-        if heating_area < 1e6 * ureg.meter ** 2:
-            return  # heating area criteria failed
-
-        # TODO: this is not correct for some layouts
-        if len(y_orientation) - 1 != 0:
-            x_spacing = (max_x - min_x) / (len(y_orientation) - 1)
-        if len(x_orientation) - 1 != 0:
-            y_spacing = (max_y - min_y) / (len(x_orientation) - 1)
-        if not ((90 < x_spacing < 210) or (90 < y_spacing < 210)):
-            return  # spacing criteria failed
-
-        # create instance to check final kpi criteria
-        underfloor_heating = cls(uh_elements)
-        # pre set _calc_avg results
-        underfloor_heating._heating_area = heating_area
-        underfloor_heating._x_spacing = x_spacing
-        underfloor_heating._y_spacing = y_spacing
-
-        kpi_criteria = (underfloor_heating.length * underfloor_heating.diameter) / heating_area
-
-        if 0.09 * ureg.dimensionless > kpi_criteria > 0.01 * ureg.dimensionless:
-            return underfloor_heating
-        # else kpi criteria failed
 
 
 class ParallelPump(HVACAggregationMixin, hvac.Pump):
@@ -871,7 +809,7 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
         diameter_times_length = 0
 
         for pump in self.elements:
-            if "Pump" in pump.ifc_type:
+            if type(pump) == hvac.Pump:
                 rated_power = getattr(pump, "rated_power")
                 rated_height = getattr(pump, "rated_height")
                 rated_volume_flow = getattr(pump, "rated_volume_flow")
@@ -924,6 +862,7 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
 
     rated_power = attribute.Attribute(
         description="rated power",
+        unit=ureg.kilowatt,
         functions=[_calc_avg]
     )
     rated_height = attribute.Attribute(
@@ -1091,11 +1030,11 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
         if name == 'rated_power':
             for ele in self.elements:
-                if ele.ifc_type in Consumer.whitelist:
+                if type(ele) in Consumer.whitelist:
                     ele.request(name)
         if name in lst_pump:
             for ele in self.elements:
-                if ele.ifc_type == hvac.Pump.ifc_type:
+                if type(ele) == hvac.Pump:
                     for n in lst_pump:
                         ele.request(n)
         if name == 'volume':
