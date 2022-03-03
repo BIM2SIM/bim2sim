@@ -499,6 +499,10 @@ class UnderfloorHeating(PipeStrand):
         unit=ureg.meter,
         description='Spacing in y',
     )
+    rated_power = attribute.Attribute(
+        unit=ureg.kilowatt,
+        description="rated power"
+    )
 
 
 class ParallelPump(HVACAggregationMixin, hvac.Pump):
