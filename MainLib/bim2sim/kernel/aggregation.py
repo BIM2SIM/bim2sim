@@ -17,8 +17,6 @@ from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.decision import ListDecision, BoolDecision
 
-
-
 logger = logging.getLogger(__name__)
 
 
@@ -27,12 +25,14 @@ def verify_edge_ports(func):
 
     def wrapper(agg_instance, *args, **kwargs):
         ports = func(agg_instance, *args, **kwargs)
-        # inner_ports = [port for ele in agg_instance.elements for port in ele.ports]
+        # inner_ports =
+        # [port for ele in agg_instance.elements for port in ele.ports]
         for port in ports:
             if not port.connection:
                 continue
             if port.connection.parent in agg_instance.elements:
-                raise AssertionError("%s (%s) is not an edge port of %s" % (port, port.guid, agg_instance))
+                raise AssertionError("%s (%s) is not an edge port of %s" % (
+                port, port.guid, agg_instance))
         return ports
 
     return wrapper
@@ -181,7 +181,8 @@ class HVACAggregationMixin(AggregationMixin):
 
     # TODO: get edge ports based on graph. See #167
     @classmethod
-    def get_edge_ports2(cls, graph: HvacGraph, match: HvacGraph) -> List[HVACPort]:
+    def get_edge_ports2(cls, graph: HvacGraph, match: HvacGraph) -> List[
+        HVACPort]:
         """Get edge ports based on graph."""
         # edges of g excluding all relations to s
         e1 = graph.subgraph(graph.nodes - match.nodes).edges
@@ -227,7 +228,7 @@ class HVACAggregationMixin(AggregationMixin):
         return list(edge_ports)
 
     @classmethod
-    def find_matches(cls, graph: HvacGraph)\
+    def find_matches(cls, graph: HvacGraph) \
             -> Tuple[List[nx.Graph], List[dict]]:
         """Find all matches for Aggregation in element graph
         :returns: matches, metas"""
@@ -486,24 +487,17 @@ class UnderfloorHeating(PipeStrand):
     def is_consumer(self):
         return True
 
-    @attribute.multi_calc
-    def _calc_avg(self):
-        pass
-
     heating_area = attribute.Attribute(
         unit=ureg.meter ** 2,
         description='Heating area',
-        functions=[_calc_avg]
     )
     x_spacing = attribute.Attribute(
         unit=ureg.meter,
         description='Spacing in x',
-        functions=[_calc_avg]
     )
     y_spacing = attribute.Attribute(
         unit=ureg.meter,
         description='Spacing in y',
-        functions=[_calc_avg]
     )
 
 
@@ -853,7 +847,8 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
                 rated_volume_flow = getattr(pump, "rated_volume_flow")
                 diameter = getattr(pump, "diameter")
                 if not (
-                        rated_power and rated_height and rated_volume_flow and diameter):
+                        rated_power and rated_height and rated_volume_flow
+                        and diameter):
                     logger.warning("Ignored '%s' in aggregation", pump)
                     continue
 
@@ -886,7 +881,8 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
         total_diameter = math.sqrt(total_diameter)
         g = 9.81
         rho = 1000
-        # TODO: two pumps with rated power of 3 each give a total rated power of 674928
+        # TODO: two pumps with rated power of 3 each give a total rated
+        #  power of 674928
         total_rated_power = total_rated_volume_flow * avg_rated_height * g * rho
 
         result = dict(
@@ -906,6 +902,7 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
     )
     rated_height = attribute.Attribute(
         description="rated height",
+        unit=ureg.meter,
         functions=[_calc_avg]
     )
     rated_volume_flow = attribute.Attribute(
@@ -915,30 +912,35 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
     )
     diameter = attribute.Attribute(
         description="diameter",
+        unit=ureg.millimeter,
         functions=[_calc_avg]
     )
     length = attribute.Attribute(
         description="length of aggregated pipe elements",
+        unit=ureg.meter,
         functions=[_calc_avg]
     )
     diameter_strand = attribute.Attribute(
         description="average diameter of aggregated pipe elements",
+        unit=ureg.millimeter,
         functions=[_calc_avg]
     )
 
     @classmethod
     def create_on_match(cls, cycle):  # TODO: obsolete, use find_matches
-        """reduce the found cycles, to just the cycles that fulfill the next criteria:
-            1. it's a parallel cycle (the two strands have the same flow direction)
-            2. it has one or more pumps in each strand
-            finally it creates a list with the founded cycles with the next lists:
-            'elements', 'up_strand', 'low_strand', 'ports'
-            """
+        """reduce the found cycles, to just the cycles that fulfill the next
+        criteria:
+        1. it's a parallel cycle (the two strands have the same flow direction)
+        2. it has one or more pumps in each strand
+        finally it creates a list with the founded cycles with the next lists:
+        'elements', 'up_strand', 'low_strand', 'ports'
+        """
         p_instance = "SpaceHeater"
         n_element = 0
         total_ports = {}
         new_cycle = {}
-        # all possible beginning and end of the cycle (always pipe fittings), pumps counting
+        # all possible beginning and end of the cycle (always pipe fittings),
+        # pumps counting
         for port in cycle:
             if isinstance(port.parent, getattr(elements, p_instance)):
                 n_element += 1
@@ -1071,7 +1073,8 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         super().__doc__
 
         # broadcast request to all nested elements
-        # if one attribute included in multi_calc is requested, all multi_calc attributes are needed
+        # if one attribute included in multi_calc is requested, all multi_calc
+        # attributes are needed
 
         # 'temperature_inlet'
         # 'temperature_outlet'
@@ -1103,8 +1106,10 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         volume = None
 
         # Spaceheater und andere Consumer
-        # Leistung zusammenzählen - Unnötig da zb. für fußbodenheizung da nichts gegeben
-        # Aus Medium das Temperaturniveau ziehen! Wo steht das Medium? IFCDestributionSystems!?!?!?!
+        # Leistung zusammenzählen - Unnötig da zb. für fußbodenheizung da
+        # nichts gegeben
+        # Aus Medium das Temperaturniveau ziehen! Wo steht das Medium?
+        # IFCDestributionSystems!?!?!?!
 
         for ele in self.elements:
             # Pumps
@@ -1119,7 +1124,9 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
                 # Volumen
                 # volume_ = getattr(ele, "volume")
                 # if volume_:
-                #    volume += volume_ #ToDo: Sobald ein Volumen nicht vorhanden, Angabe: Nicht vorhanden???
+                #    volume += volume_
+                # ToDo: Sobald ein Volumen nicht vorhanden,
+                #  Angabe: Nicht vorhanden???
 
                 # this is not avg but max
                 if avg_rated_height != 0:
@@ -1145,10 +1152,12 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
                 else:
                     logger.warning("Ignored '%s' in aggregation", ele)
 
-        if not total_rated_pump_power and total_rated_volume_flow and avg_rated_height:
+        if not total_rated_pump_power and total_rated_volume_flow \
+                and avg_rated_height:
             g = 9.81 * ureg.meter / (ureg.second ** 2)
             rho = 1000 * ureg.kilogram / (ureg.meter ** 3)
-            total_rated_pump_power = total_rated_volume_flow * avg_rated_height * g * rho
+            total_rated_pump_power = \
+                total_rated_volume_flow * avg_rated_height * g * rho
 
         #  Volumen zusammenrechnen
         volume = 1
@@ -1214,11 +1223,13 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
     temperature_inlet = attribute.Attribute(
         description="temperature inlet",
+        unit=ureg.degC,
         functions=[_calc_avg_consumer]
     )
 
     temperature_outlet = attribute.Attribute(
         description="temperature outlet",
+        unit=ureg.degC,
         functions=[_calc_avg_consumer]
     )
 
@@ -1230,6 +1241,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
     rated_height = attribute.Attribute(
         description="rated volume flow",
+        unit=ureg.meter,
         functions=[_calc_avg_pump]
     )
 
@@ -1245,7 +1257,8 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
 
 class ConsumerHeatingDistributorModule(HVACAggregationMixin,
-                                       hvac.HVACProduct):  # ToDo: Export Aggregation HKESim
+                                       hvac.HVACProduct):
+    # ToDo: Export Aggregation HKESim
     """Aggregates Consumer system boarder"""
     multi = (
         'medium', 'use_hydraulic_separator', 'hydraulic_separator_volume',
@@ -1263,7 +1276,8 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin,
 
     def __init__(self, element_graph, *args, **kwargs):
         self.undefined_consumer_ports = kwargs.pop('undefined_consumer_ports',
-                                                   None)  # TODO: Richtig sO? WORKAROUND
+                                                   None)
+        # TODO: Richtig sO? WORKAROUND
         self._consumer_cycles = kwargs.pop('consumer_cycles', None)
         self.consumers = []
         for consumer in self._consumer_cycles:
@@ -1381,17 +1395,19 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin,
         return result
 
     medium = attribute.Attribute(
-        description="Medium of the DestributerCycle",
+        description="Medium of the DistributerCycle",
         functions=[_calc_avg]
     )
 
     temperature_inlet = attribute.Attribute(
         description="temperature inlet",
+        unit=ureg.degC,
         functions=[_calc_avg]
     )
 
     temperature_outlet = attribute.Attribute(
         description="temperature outlet",
+        unit=ureg.degC,
         functions=[_calc_avg]
     )
 
@@ -1402,6 +1418,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin,
 
     hydraulic_separator_volume = attribute.Attribute(
         description="Volume of the hdydraulic seperator",
+        unit=ureg.meter ** 3,
         functions=[_calc_avg]
     )
 
@@ -1482,11 +1499,14 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
 
     def _intensive_calc(self, name):
         """intensive properties getter - volumetric mean
-        intensive_attributes = ['t_set_heat', 't_set_cool', 'height',  'AreaPerOccupant', 'typical_length',
-        'typical_width', 'T_threshold_heating', 'activity_degree_persons', 'fixed_heat_flow_rate_persons',
-        'internal_gains_moisture_no_people', 'T_threshold_cooling', 'ratio_conv_rad_persons', 'machines',
-        'ratio_conv_rad_machines', 'lighting_power', 'ratio_conv_rad_lighting', 'infiltration_rate',
-        'max_user_infiltration', 'min_ahu', 'max_ahu', 'persons']"""
+        intensive_attributes = ['t_set_heat', 't_set_cool', 'height',
+        'AreaPerOccupant', 'typical_length', 'typical_width',
+        'T_threshold_heating', 'activity_degree_persons',
+        'fixed_heat_flow_rate_persons', 'internal_gains_moisture_no_people',
+        'T_threshold_cooling', 'ratio_conv_rad_persons', 'machines',
+        'ratio_conv_rad_machines', 'lighting_power', 'ratio_conv_rad_lighting',
+        'infiltration_rate', 'max_user_infiltration', 'min_ahu', 'max_ahu',
+        'persons']"""
         prop_sum = sum(
             getattr(tz, name) * tz.net_volume for tz in self.elements if
             getattr(tz, name) is not None
@@ -1497,8 +1517,9 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
 
     def _intensive_list_calc(self, name):
         """intensive list properties getter - volumetric mean
-        intensive_list_attributes = ['heating_profile', 'cooling_profile', 'persons_profile', 'machines_profile',
-         'lighting_profile', 'max_overheating_infiltration', 'max_summer_infiltration',
+        intensive_list_attributes = ['heating_profile', 'cooling_profile',
+        'persons_profile', 'machines_profile', 'lighting_profile',
+        'max_overheating_infiltration', 'max_summer_infiltration',
          'winter_reduction_infiltration']"""
         list_attrs = {'heating_profile': 25, 'cooling_profile': 25,
                       'persons_profile': 24,
@@ -1768,7 +1789,8 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
             metas:
                 List of dict with metas information. One element for each
                 element_graph. In this case it holds non_relevant nodes, which
-                have to be deleted later but are not contained in the **resulting graph?** #todo
+                have to be deleted later but are not contained in the
+                **resulting graph?** #todo
                 element_graph. Because we are currently not able to distinguish
                 to which graph these non_relevant nodes belong, we just output
                 the complete list of non relevant nodes for every element_graph.
@@ -1924,8 +1946,10 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
         volume = None
 
         # Spaceheater und andere Consumer
-        # Leistung zusammenzählen - Unnötig da zb. für fußbodenheizung da nichts gegeben
-        # Aus Medium das Temperaturniveau ziehen! Wo steht das Medium? IFCDestributionSystems!?!?!?!
+        # Leistung zusammenzählen - Unnötig da zb. für fußbodenheizung da
+        # nichts gegeben
+        # Aus Medium das Temperaturniveau ziehen! Wo steht das Medium?
+        # IFCDestributionSystems!?!?!?!
 
         for ele in self.elements:
             # Pumps
@@ -1940,7 +1964,9 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
                 # Volumen
                 # volume_ = getattr(ele, "volume")
                 # if volume_:
-                #    volume += volume_ #ToDo: Sobald ein Volumen nicht vorhanden, Angabe: Nicht vorhanden???
+                #    volume += volume_
+                # ToDo: Sobald ein Volumen nicht vorhanden, Angabe: Nicht
+                #  vorhanden???
 
                 # this is not avg but max
                 if avg_rated_height != 0:
@@ -1949,7 +1975,8 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
                 else:
                     avg_rated_height = rated_height
 
-                if not rated_volume_flow:  # Falls eine Pumpe kein volumenstrom hat unvollständig
+                if not rated_volume_flow:
+                    # Falls eine Pumpe kein volumenstrom hat unvollständig
                     total_rated_volume_flow = None
                     continue
                 else:
@@ -1966,10 +1993,12 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
                 else:
                     self.logger.warning("Ignored '%s' in aggregation", ele)
 
-        if not total_rated_pump_power and total_rated_volume_flow and avg_rated_height:
+        if not total_rated_pump_power and total_rated_volume_flow \
+                and avg_rated_height:
             g = 9.81 * ureg.meter / (ureg.second ** 2)
             rho = 1000 * ureg.kilogram / (ureg.meter ** 3)
-            total_rated_pump_power = total_rated_volume_flow * avg_rated_height * g * rho
+            total_rated_pump_power = \
+                total_rated_volume_flow * avg_rated_height * g * rho
 
         #  Volumen zusammenrechnen
         volume = 1
@@ -1984,7 +2013,8 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
 
     # generator related attributes
     rated_power = attribute.Attribute(
-        unit=ureg.kilowatt, description="rated power",
+        unit=ureg.kilowatt,
+        description="rated power",
         functions=[_calc_generator_attributes],
     )
     # Not implemented
@@ -2012,21 +2042,25 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
     )
     rated_pump_power = attribute.Attribute(
         description="rated pump power",
+        unit=ureg.kilowatt,
         functions=[_calc_avg_pump]
     )
 
     rated_volume_flow = attribute.Attribute(
         description="rated volume flow",
+        unit=ureg.meter ** 3 / ureg.hour,
         functions=[_calc_avg_pump]
     )
 
     volume = attribute.Attribute(
         description="volume",
+        unit=ureg.meter ** 3,
         functions=[_calc_avg_pump]
     )
 
     rated_height = attribute.Attribute(
         description="rated volume flow",
+        unit=ureg.meter,
         functions=[_calc_avg_pump]
     )
     # bypass
