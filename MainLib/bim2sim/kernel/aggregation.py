@@ -672,7 +672,8 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
         return graph
 
     rated_power = attribute.Attribute(
-        unit=ureg.kilowatt, description="rated power",
+        unit=ureg.kilowatt,
+        description="rated power",
         functions=[_calc_avg],
     )
 
@@ -1423,6 +1424,12 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin,
     hydraulic_separator_volume = attribute.Attribute(
         description="Volume of the hdydraulic seperator",
         unit=ureg.meter ** 3,
+        functions=[_calc_avg]
+    )
+
+    rated_power_consumers = attribute.Attribute(
+        description="Rated heating power of all consumers",
+        unit=ureg.kilowatt,
         functions=[_calc_avg]
     )
 
