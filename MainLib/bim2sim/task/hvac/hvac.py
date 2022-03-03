@@ -431,8 +431,6 @@ class Reduce(ITask):
         # TODO: LOD
 
         for agg_class in aggregations:
-            if agg_class is UnderfloorHeating:
-                print()
             name = agg_class.__name__
             self.logger.info("Aggregating '%s' ...", name)
             name_builder = '{} {}'
@@ -466,8 +464,6 @@ class Reduce(ITask):
         connections = graph.get_connections()
 
         #Element.solve_requests()
-        graph.plot(self.paths.export)
-        graph.plot(self.paths.export, ports=True)
 
         if __debug__:
             self.logger.info("Plotting graph ...")

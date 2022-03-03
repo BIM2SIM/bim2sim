@@ -17,6 +17,8 @@ from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.decision import ListDecision, BoolDecision
 
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -30,8 +32,7 @@ def verify_edge_ports(func):
             if not port.connection:
                 continue
             if port.connection.parent in agg_instance.elements:
-                raise AssertionError("%s (%s) is not an edge port of %s" % (
-                port, port.guid, agg_instance))
+                raise AssertionError("%s (%s) is not an edge port of %s" % (port, port.guid, agg_instance))
         return ports
 
     return wrapper
@@ -180,8 +181,7 @@ class HVACAggregationMixin(AggregationMixin):
 
     # TODO: get edge ports based on graph. See #167
     @classmethod
-    def get_edge_ports2(cls, graph: HvacGraph, match: HvacGraph) -> List[
-        HVACPort]:
+    def get_edge_ports2(cls, graph: HvacGraph, match: HvacGraph) -> List[HVACPort]:
         """Get edge ports based on graph."""
         # edges of g excluding all relations to s
         e1 = graph.subgraph(graph.nodes - match.nodes).edges
@@ -227,7 +227,7 @@ class HVACAggregationMixin(AggregationMixin):
         return list(edge_ports)
 
     @classmethod
-    def find_matches(cls, graph: HvacGraph) \
+    def find_matches(cls, graph: HvacGraph)\
             -> Tuple[List[nx.Graph], List[dict]]:
         """Find all matches for Aggregation in element graph
         :returns: matches, metas"""
