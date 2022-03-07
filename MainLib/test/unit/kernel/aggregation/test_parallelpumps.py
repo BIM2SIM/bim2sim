@@ -332,7 +332,7 @@ class ParallelPumpHelper(SetupHelper):
             con_rl_a = [self.element_generator(
                 hvac.Pipe, length=100, diameter=30) for i in range(6)]
             bypass = [self.element_generator(
-                hvac.Pipe, flags=['bypass'], length=60, diameter=30) for
+                hvac.Pipe, flags=['bypass'], length=34, diameter=30) for
                 i in range(3)]
         # connect
         # parallel pumps connections VL
@@ -536,12 +536,13 @@ class TestParallelPumps(unittest.TestCase):
         self.assertAlmostEqual(agg_pump.rated_height, expected_height)
         self.assertAlmostEqual(agg_pump.rated_power, expected_power)
         self.assertAlmostEqual(agg_pump.diameter, expected_diamter)
-
+        graph.plot('D:/10_ProgramTesting/bim2sim/Aggregations/before', dynamic=True)
         mapping = agg_pump.get_replacement_mapping()
         graph.merge(
             mapping=agg_pump.get_replacement_mapping(),
             inner_connections=agg_pump.inner_connections,
         )
+        graph.plot('D:/10_ProgramTesting/bim2sim/Aggregations/before', dynamic=True)
         self.assertCountEqual([agg_pump.ports[0], agg_pump.ports[1]],
                               [mapping[models[0].ports[0]], mapping[models[
                                   -1].ports[1]]])
@@ -566,6 +567,7 @@ class TestParallelPumps(unittest.TestCase):
         self.assertAlmostEqual(agg_pump.rated_height, expected_height)
         self.assertAlmostEqual(agg_pump.rated_power, expected_power)
         self.assertAlmostEqual(agg_pump.diameter, expected_diameter)
+        graph.plot('D:/10_ProgramTesting/bim2sim/Aggregations/before', dynamic=True)
 
         graph.merge(
             mapping=agg_pump.get_replacement_mapping(),
@@ -579,6 +581,7 @@ class TestParallelPumps(unittest.TestCase):
         small_pumps = [item for item in small if item.__class__.__name__ ==
                        'Pump']
         unconnected_nodes = list(nx.isolates(graph))
+        graph.plot('D:/10_ProgramTesting/bim2sim/Aggregations/after', dynamic=True)
 
         # check if aggregated pipe fittings are done correctly
         self.assertEqual(len(aggr_pipe_fittings), 2)
@@ -607,11 +610,13 @@ class TestParallelPumps(unittest.TestCase):
         self.assertAlmostEqual(agg_pump.rated_height, expected_height)
         self.assertAlmostEqual(agg_pump.rated_power, expected_power)
         self.assertAlmostEqual(agg_pump.diameter, expected_diameter)
+        graph.plot('D:/10_ProgramTesting/bim2sim/Aggregations/before', dynamic=True)
 
         graph.merge(
             mapping=agg_pump.get_replacement_mapping(),
             inner_connections=agg_pump.inner_connections,
         )
+        graph.plot('D:/10_ProgramTesting/bim2sim/Aggregations/after', dynamic=True)
         aggr_pipe_fittings = [node for node in graph.element_graph.nodes if
                               node.__class__.__name__ == 'AggregatedPipeFitting'
                               ]
@@ -651,12 +656,12 @@ class TestParallelPumps(unittest.TestCase):
         self.assertAlmostEqual(agg_pump.rated_power, expected_power)
         self.assertAlmostEqual(agg_pump.diameter, expected_diamter)
         self.assertCountEqual(pumps_in_aggr, pumps)
-
+        graph.plot('D:/10_ProgramTesting/bim2sim/Aggregations/before', dynamic=True)
         graph.merge(
             mapping=agg_pump.get_replacement_mapping(),
             inner_connections=agg_pump.inner_connections,
         )
-
+        graph.plot('D:/10_ProgramTesting/bim2sim/Aggregations/after', dynamic=True)
         aggr_pipe_fittings = [node for node in graph.element_graph.nodes if
                               node.__class__.__name__ == 'AggregatedPipeFitting'
                               ]

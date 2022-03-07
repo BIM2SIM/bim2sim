@@ -281,13 +281,14 @@ class TestConsumerAggregation(unittest.TestCase):
             if hvac.SpaceHeater in {type(ele) for ele in consumer.elements}:
                 # we only want consumer with SpaceHeater
                 break
+        graph.plot('D:/10_ProgramTesting/bim2sim/Aggregations/before', dynamic=True)
 
         graph.merge(
             mapping=consumer.get_replacement_mapping(),
             inner_connections=consumer.inner_connections
         )
         # graph.plot(r'c:\temp')
-
+        graph.plot('D:/10_ProgramTesting/bim2sim/Aggregations/after', dynamic=True)
         self.assertAlmostEqual(consumer.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)
         self.assert_(consumer.has_pump)
         #self.assertAlmostEqual(consumer.temperaure_inlet, 1000) Not Implemented
@@ -339,11 +340,12 @@ class TestConsumerAggregation(unittest.TestCase):
         # meta = {'outer_connections': flags['connect']}
 
         consumer = aggregation.Consumer(matches[idx], **metas[idx])
-
+        graph.plot('D:/10_ProgramTesting/bim2sim/Aggregations/before', dynamic=True)
         graph.merge(
             mapping=consumer.get_replacement_mapping(),
             inner_connections=consumer.inner_connections
         )
+        graph.plot('D:/10_ProgramTesting/bim2sim/Aggregations/after', dynamic=True)
 
         #graph.plot(r'c:\temp')
 

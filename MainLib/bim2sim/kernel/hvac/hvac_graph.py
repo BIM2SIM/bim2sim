@@ -2,13 +2,15 @@
 network
 where each node represents a hvac-component
 """
-
+import json
 import os
 import logging
 import itertools
+from pathlib import Path
 from typing import Set, Iterable, Type
 
 import networkx as nx
+from pyvis.network import Network
 from networkx.readwrite import json_graph
 
 from bim2sim.kernel.element import ProductBased
@@ -171,7 +173,7 @@ class HvacGraph(nx.Graph):
     #     """Returns list of nodes represented by graph"""
     #     return list(self.nodes)
 
-    def plot(self, path=None, ports=False):
+    def plot(self, path=None, ports=False, dynamic=False):
         """Plot graph
 
         if path is provided plot is saved as pdf else it gets displayed"""
@@ -207,17 +209,97 @@ class HvacGraph(nx.Graph):
                     side = sides1.pop()
                 edge_color_map.append(colors[side])
             kwargs['edge_color'] = edge_color_map
+        if dynamic:
+            # convert all edges to strings to use dynamic ploting via pyvis
+            nodes = graph.nodes()
+            from collections import defaultdict
 
-        nx.draw(graph, node_size=6, font_size=5, with_labels=True, **kwargs)
-        plt.draw()
+            data_dict = defaultdict(list)
+            replace = {}
+            for node in nodes.keys():
+                # use guid because str must be unique to prevent overrides
+                replace[node] = str(node) + ' ' + str(node.guid)
+
+            # Todo Remove temp code. This is for Abschlussbericht Plotting only!
+            # start of temp plotting code
+            bypass_nodes_guids = []
+            small_pump_guids = []
+            parallel_pump_guids = []
+            for node in nodes:
+                try:
+                    if node.length.m == 34:
+                        bypass_nodes_guids.append(node.guid)
+                except AttributeError:
+                    pass
+                try:
+                    if node.rated_power.m == 0.6:
+                        small_pump_guids.append(node.guid)
+                except AttributeError:
+                    pass
+                try:
+                    if node.rated_power.m == 1:
+                        parallel_pump_guids.append(node.guid)
+                except AttributeError:
+                    pass
+            # end of temp plotting code
+
+            nx.relabel_nodes(graph, replace, copy=False)
+            net = Network(height='1000', width='1000', notebook=False,
+                          bgcolor='white', font_color='black', layout=False)
+            net.barnes_hut(gravity=-17000, spring_length=55)
+            net.show_buttons()
+            pyvis_json = Path(__file__).parent / \
+                         'assets/plotting/pyvis_options.json'
+            f = open(pyvis_json)
+            net.options = json.load(f)
+
+            net.from_nx(graph, default_node_size=50)
+            for node in net.nodes:
+                try:
+                    node['label'] = node['label'].split('<')[1]
+                except:
+                    pass
+                node['label'] = node['label'].split('(ports')[0]
+                if 'agg' in node['label'].lower():
+                    node['label'] = node['label'].split('Agg0')[0]
+                if 'storage' in node['label'].lower():
+                    node['color'] = 'purple'
+                if 'distributor' in node['label'].lower():
+                    node['color'] = 'gray'
+                if 'pump' in node['label'].lower():
+                    node['color'] = 'blue'
+                if any([red_str in node['label'].lower() for red_str in [
+                    'parallelpump',
+                    'boiler',
+                    'generatoronefluid'
+                ]]):
+                    node['color'] = 'red'
+                # bypass color for parallelpump test
+                if node['id'].split('> ')[-1] in bypass_nodes_guids:
+                    node['color'] = 'green'
+                if node['id'].split('> ')[-1] in small_pump_guids:
+                    node['color'] = 'purple'
+                if node['id'].split('> ')[-1] in parallel_pump_guids:
+                    node['color'] = 'red'
+
+        else:
+            nx.draw(graph, node_size=6, font_size=5, with_labels=True, **kwargs)
+            plt.draw()
         if path:
-            name = "%sgraph.pdf"%("port" if ports else "element")
-            try:
-                plt.savefig(
-                    os.path.join(path, name),
-                    bbox_inches='tight')
-            except IOError as ex:
-                logger.error("Unable to save plot of graph (%s)", ex)
+            if dynamic:
+                name = "%sgraph.html" % ("port" if ports else "element")
+                try:
+                    net.show(str(path) + '/' + name)
+                except IOError as ex:
+                    logger.error("Unable to save plot of graph (%s)", ex)
+            else:
+                name = "%sgraph.pdf" % ("port" if ports else "element")
+                try:
+                    plt.savefig(
+                        os.path.join(path, name),
+                        bbox_inches='tight')
+                except IOError as ex:
+                    logger.error("Unable to save plot of graph (%s)", ex)
         else:
             plt.show()
         plt.clf()

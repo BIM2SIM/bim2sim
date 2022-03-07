@@ -57,11 +57,11 @@ class GeneratorHelper(SetupHelper):
             tank = self.element_generator(hvac.Storage, n_ports=1)
             bypass = [
                 self.element_generator(
-                    hvac.Pipe, flags=['bypass'], length=60, diameter=30),
+                    hvac.Pipe, flags=['bypass'], length=34, diameter=30),
                 self.element_generator(
-                    hvac.Valve, flags=['bypass'], length=10, diameter=30),
+                    hvac.Valve, flags=['bypass'], length=34, diameter=30),
                 self.element_generator(
-                    hvac.Pipe, flags=['bypass'], length=60, diameter=30)]
+                    hvac.Pipe, flags=['bypass'], length=34, diameter=30)]
             pipe_outer_vl_distr = [
                 self.element_generator(
                     hvac.Pipe, flags=['outer_vl'], length=100, diameter=40)
@@ -392,6 +392,8 @@ class TestGeneratorAggregation(unittest.TestCase):
 
     def test_simple_boiler_with_bypass(self):
         graph, flags = self.helper.get_setup_boiler_with_bypass()
+        graph.plot('D:/10_ProgramTesting/bim2sim/Aggregations/before', dynamic=True)
+
         pot_tanks = \
             expansiontanks.ExpansionTanks.identify_expansion_tanks(graph)
         job = expansiontanks.ExpansionTanks.decide_expansion_tanks(
@@ -423,10 +425,12 @@ class TestGeneratorAggregation(unittest.TestCase):
         self.assertTrue(agg_generator.has_bypass,
                         "No bypass was found in generator cycle but there "
                         "should be one existing")
+
         graph.merge(
             mapping=agg_generator.get_replacement_mapping(),
             inner_connections=agg_generator.get_inner_connections(),
         )
+        graph.plot('D:/10_ProgramTesting/bim2sim/Aggregations/after', dynamic=True)
 
 
 
@@ -469,6 +473,8 @@ class TestGeneratorAggregation(unittest.TestCase):
                                           f"only {len(matches)} where created ")
 
         mappings = []
+        graph.plot('D:/10_ProgramTesting/bim2sim/Aggregations/before', dynamic=True)
+
         for agg_generator in agg_generators[::-1]:
             mapping = agg_generator.get_replacement_mapping()
             mappings.append(mapping)
@@ -476,6 +482,7 @@ class TestGeneratorAggregation(unittest.TestCase):
                 mapping=agg_generator.get_replacement_mapping(),
                 inner_connections=agg_generator.get_inner_connections(),
             )
+        graph.plot('D:/10_ProgramTesting/bim2sim/Aggregations/after', dynamic=True)
 
     def test_two_parallel_boilers_with_bypass(self):
         graph, flags = self.helper.setup_get_two_parallel_boilers()
@@ -503,6 +510,8 @@ class TestGeneratorAggregation(unittest.TestCase):
         self.assertEqual(len(matches), 2, f"2 Generator should be created but "
                                           f"only {len(matches)} where created ")
         mappings = []
+        graph.plot('D:/10_ProgramTesting/bim2sim/Aggregations/before', dynamic=True)
+
         for agg_generator in agg_generators[::-1]:
             mapping = agg_generator.get_replacement_mapping()
             mappings.append(mapping)
@@ -510,3 +519,4 @@ class TestGeneratorAggregation(unittest.TestCase):
                 mapping=agg_generator.get_replacement_mapping(),
                 inner_connections=agg_generator.get_inner_connections(),
             )
+        graph.plot('D:/10_ProgramTesting/bim2sim/Aggregations/after', dynamic=True)
