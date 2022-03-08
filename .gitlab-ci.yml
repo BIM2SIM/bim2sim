@@ -15,10 +15,12 @@ stages:
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
-
+  DOCKER_HOST: tcp://localhost:2375
 build_env:master:
   image: docker:latest
   stage: build-env
+  services:
+  - docker:18.09.7-dind
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
@@ -34,6 +36,8 @@ build_env:master:
 build_env:ubuntu_base:
   image: docker:latest
   stage: build-env
+  services:
+  - docker:18.09.7-dind
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
@@ -51,6 +55,8 @@ build_env:ubuntu_base:
 build_env:development:
   image: docker:latest
   stage: build-env
+  services:
+  - docker:18.09.7-dind
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
@@ -67,6 +73,8 @@ build_env:development:
 build_env:energyplus:
   image: docker:latest
   stage: build-env
+  services:
+  - docker:18.09.7-dind
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
@@ -84,6 +92,8 @@ build_env:energyplus:
 build_env:cfd:
   image: docker:latest
   stage: build-env
+  services:
+  - docker:18.09.7-dind
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
@@ -102,6 +112,8 @@ build_env:cfd:
 build_env:teaser:
   image: docker:latest
   stage: build-env
+  services:
+  - docker:18.09.7-dind
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
@@ -119,6 +131,8 @@ build_env:teaser:
 build_tool:release:
   image: docker:latest
   stage: build-tool
+  services:
+  - docker:18.09.7-dind
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
@@ -130,6 +144,8 @@ build_tool:release:
 build_tool:development:
   image: docker:latest
   stage: build-tool
+  services:
+  - docker:18.09.7-dind
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
@@ -141,6 +157,8 @@ build_tool:development:
 build_tool:webdevelop:
   image: docker:latest
   stage: build-tool
+  services:
+  - docker:18.09.7-dind
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
@@ -152,6 +170,8 @@ build_tool:webdevelop:
 build_tool:cfd:
   image: docker:latest
   stage: build-tool
+  services:
+  - docker:18.09.7-dind
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
@@ -164,6 +184,8 @@ build_tool:cfd:
 build_tool:teaser:
   image: docker:latest
   stage: build-tool
+  services:
+  - docker:18.09.7-dind
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
