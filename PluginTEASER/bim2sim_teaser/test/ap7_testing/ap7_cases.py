@@ -12,7 +12,7 @@ RESULT_PATH = Path(__file__).parent.parent.parent.parent.parent / 'ResultFiles'
 
 class IntegrationBaseTEASER(IntegrationBaseTeaserInteractive, unittest.TestCase):
 
-    def test_ap7_run_kitfzkhaus_spaces_low_layers_low(self):
+    def test_ap7_run_kitfzkhaus_spaces_medium_layers_low(self):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BPSMultiZoneAggregatedLayersLowSimulation()

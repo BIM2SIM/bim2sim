@@ -4,6 +4,7 @@ from bim2sim.task.base import ITask
 from bim2sim.decision import BoolDecision, ListDecision, DecisionBunch
 from bim2sim.kernel.element import RelationBased
 from bim2sim.kernel.aggregation import AggregatedThermalZone
+from bim2sim.utilities.visualize_spaces import visualize_zones
 from bim2sim.workflow import LOD
 from bim2sim.utilities.common_functions import filter_instances
 
@@ -63,6 +64,7 @@ class BindThermalZones(ITask):
             criteria_function = criteria_functions.get(criteria_decision.value)
 
             tz_groups = criteria_function(instances)
+            visualize_zones(tz_groups, self.paths.export)
             new_aggregations = AggregatedThermalZone.find_matches(
                 tz_groups, instances, finder=finder)
             for inst in new_aggregations:
