@@ -1,3 +1,4 @@
+from random import randrange
 from pathlib import Path
 
 import ifcopenshell.geom
@@ -21,17 +22,23 @@ def visualize_zones(zone_dict, export_path):
     display, start_display, add_menu, add_function_to_menu = init_display(
         display_triedron=False, background_gradient_color1=3 * [255],
         background_gradient_color2=3 * [255])
-    # todo more colors
+
     # color numbers coming from to OCC.Core.Quantity.py
-    colors = [78, 422, 106, 318, 250, 489 , 469, 314, 417, 444, 473, 102]
+    predefined_col = [78, 422, 106, 318, 250, 489, 469, 314, 417, 444, 473, 102]
+    if len(zone_dict.items()) > len(predefined_col):
+        # create random color list
+        col = []
+        for x in range(0, len(zone_dict.items())):
+            col.append(randrange(0, 516))
+    else:
+        # use predifined colors
+        col = predefined_col
     for i, (name, zones) in enumerate(zone_dict.items()):
         for tz in zones:
-            display.DisplayShape(tz.space_shape, update=True, color=colors[i],
+            display.DisplayShape(tz.space_shape, update=True, color=col[i],
                                  transparency=0.5)
     nr_zones = len(zone_dict)
     filename = 'zonemodel_'+ str(nr_zones) +'.png'
 
     save_path = Path(export_path / filename)
-    display.View.Dump(save_path)
-    display.FitAll()
-    start_display()
+    display.View.Dump(str(save_path))
