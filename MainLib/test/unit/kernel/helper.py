@@ -1,3 +1,5 @@
+import numpy as np
+
 from unittest import mock
 from contextlib import contextmanager
 
@@ -46,6 +48,25 @@ class SetupHelper:
             if last:
                 last.ports[1].connect(item.ports[0])
             last = item
+
+    @classmethod
+    def connect_ufh(cls, x_pipes, y_pipes, x_dimension, y_dimension, spacing):
+        position = np.array([0.0, 0.0, 0.0])
+        for item in x_pipes:
+            item.position = position.copy()
+            position[0] += spacing.m
+        position = np.array([spacing.m/2, x_dimension.m/2, 0.0])
+        n = 0
+        for item in y_pipes:
+            item.position = position.copy()
+            position[0] += spacing.m
+            position[1] += spacing.m
+
+        ufh_strand = [None]*(len(x_pipes) + len(y_pipes))
+        ufh_strand[::2] = x_pipes
+        ufh_strand[1::2] = y_pipes
+        cls.connect_strait(ufh_strand)
+        return ufh_strand
 
     def element_generator(self, element_cls, n_ports=2, flags=None, **kwargs):
         # instantiate
