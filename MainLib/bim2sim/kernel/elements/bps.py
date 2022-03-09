@@ -38,6 +38,7 @@ logger = logging.getLogger(__name__)
 # todo @ veronika: convert all attributes regarding SB
 #  which can't come from ifc to cached_property
 
+
 class BPSProduct(element.ProductBased):
     domain = 'BPS'
 
@@ -452,6 +453,10 @@ class ThermalZone(BPSProduct):
 
     def get__elements_by_type(self, type):
         raise NotImplementedError
+
+    def __repr__(self):
+        return "<%s (guid: %s, Name: %s)>" % (
+            self.__class__.__name__, self.guid, self.name)
 
 
 class ExternalSpatialElement(ThermalZone):

@@ -433,14 +433,16 @@ class IFCBased(Element):
         #     return decision.value
         # raise NoValueError("No matching property for %s" % (patterns))
 
-
-class RelationBased(IFCBased):
-
     def __repr__(self):
-        return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)
+        return "<%s (guid: %s)>" % (self.__class__.__name__, self.guid)
 
     def __str__(self):
         return "%s" % self.__class__.__name__
+
+
+class RelationBased(IFCBased):
+
+    pass
 
 
 class ProductBased(IFCBased):
@@ -494,8 +496,8 @@ class ProductBased(IFCBased):
                 return False
         return True
 
-    def __repr__(self):
-        return "<%s (ports: %d)>" % (self.__class__.__name__, len(self.ports))
+    def __str__(self):
+        return "<%s>" % (self.__class__.__name__)
 
 
 class Port(RelationBased):

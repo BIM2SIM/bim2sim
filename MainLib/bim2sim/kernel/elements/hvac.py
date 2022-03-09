@@ -289,6 +289,10 @@ class HVACProduct(ProductBased):
         rl.flow_side = -1
         self.inner_connections.append((vl, rl))
 
+    def __repr__(self):
+        return "<%s (guid: %s, ports: %d)>" % (
+        self.__class__.__name__, self.guid, len(self.ports))
+
 
 class HeatPump(HVACProduct):
     """"HeatPump"""
