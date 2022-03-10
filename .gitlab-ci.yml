@@ -124,6 +124,7 @@ build_env:teaser:
       - development
       - 205_dymola_simulation
     changes:
+      - PluginTEASER/requirements.txt
       - PluginTEASER/envTEASER.Dockerfile
       - MainLib/requirements.txt
       - .gitlab-ci.yml
