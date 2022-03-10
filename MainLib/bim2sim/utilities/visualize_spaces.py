@@ -7,9 +7,15 @@ from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
 from PIL import Image, ImageFont, ImageDraw
 
 
-def rgb_color(rgb):
+def rgb_color(rgb) -> Quantity_Color:
     """Returns a OCC viewer compatible color quantity based on r,g,b values.
-    r,g,b must be a tuple with 3 values [0,1]. e.g. (0, 0.5, 0.7)"""
+
+    Args:
+         rgb: must be a tuple with 3 values [0,1]. e.g. (0, 0.5, 0.7)
+
+    Returns:
+        Quantity_Color object which is compatible with with the OCC viewer.
+    """
     return Quantity_Color(rgb[0], rgb[1], rgb[2], Quantity_TOC_RGB)
 
 
