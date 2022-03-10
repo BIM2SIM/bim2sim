@@ -65,7 +65,7 @@ class BindThermalZones(ITask):
 
             tz_groups = criteria_function(instances)
 
-            visualize_zones(tz_groups, self.paths.export)
+            visualize_zones(tz_groups, self.paths)
             new_aggregations = AggregatedThermalZone.find_matches(
                 tz_groups, instances, finder=finder)
             for inst in new_aggregations:
