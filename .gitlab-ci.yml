@@ -15,7 +15,7 @@ stages:
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
-  DOCKER_HOST: tcp://localhost:2375
+  # DOCKER_HOST: tcp://localhost:2375
 build_env:master:
   image: docker:latest
   stage: build-env
@@ -124,6 +124,7 @@ build_env:teaser:
       - development
       - 205_dymola_simulation
     changes:
+      - PluginTEASER/requirements.txt
       - PluginTEASER/envTEASER.Dockerfile
       - MainLib/requirements.txt
       - .gitlab-ci.yml

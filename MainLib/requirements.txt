@@ -14,5 +14,3 @@ dill
 jinja2
 deep_translator
 pandas
-pyqt5
-pillow
