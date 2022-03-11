@@ -1,6 +1,11 @@
+"""Module containing the ITask base class an Playground to execute ITasks.
+
+All Tasks should inherit from ITask
+"""
+
 import inspect
 import logging
-from typing import Generator, Tuple
+from typing import Generator, Tuple, List, Type
 
 from bim2sim.decision import DecisionBunch
 
@@ -10,7 +15,14 @@ class TaskFailed(Exception):
 
 
 class ITask:
-    """Interactive Task"""
+    """Baseclass for interactive Tasks.
+
+    Attributes:
+        reads: names of the arguments the run() method requires. The arguments are outputs from previous tasks
+        touches: names that are assigned to the return value tuple of method run()
+        final: flag that indicates termination of project run after this task
+        single_user: flag that indicates if this task can be run multiple times in same Playground
+    """
 
     reads: Tuple[str] = tuple()
     touches: Tuple[str] = tuple()
@@ -28,7 +40,13 @@ class ITask:
         raise NotImplementedError
 
     @classmethod
-    def requirements_met(cls, state, history):
+    def requirements_met(cls, state, history) -> bool:
+        """Check if all requirements for this task are met.
+
+        Args:
+            state: state of playground
+            history: history of playground
+        """
         if cls.single_use:
             for task in history:
                 if task.__class__ is cls:
@@ -52,11 +70,11 @@ class Playground:
         self.logger = logging.getLogger("Playground")
 
     @staticmethod
-    def all_tasks():
+    def all_tasks() -> List[Type[ITask]]:
         """Returns list of all tasks"""
         return [task for task in ITask.__subclasses__()]  # TODO: from workflow?
 
-    def available_tasks(self):
+    def available_tasks(self) -> List[Type[ITask]]:
         """Returns list of available tasks"""
         return [task for task in self.all_tasks() if task.requirements_met(self.state, self.history)]
 
