@@ -36,10 +36,12 @@ extensions = [
     # 'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
     'sphinx.ext.mathjax',
+    'sphinx.ext.doctest',
     # 'sphinx.ext.coverage',
     'sphinx_autodoc_typehints',
 ]
 # autosummary_generate = True
+doctest_path = [os.path.abspath('../../Mainlib/')]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
