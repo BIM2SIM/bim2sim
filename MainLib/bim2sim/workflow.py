@@ -1,4 +1,4 @@
-﻿"""Module for defining workflows"""
+"""Module for defining workflows"""
 
 from enum import Enum
 
@@ -26,6 +26,7 @@ class Workflow:
                  layers: LOD,
                  create_external_elements=False,
                  cfd_export=False,
+                 dymola_simulation=False,
                  filters: list = None):
 
         self.ductwork = ductwork
@@ -37,6 +38,7 @@ class Workflow:
         self.layers = layers
         self.create_external_elements = create_external_elements
         self.cfd_export = cfd_export
+        self.dymola_simulation = dymola_simulation
 
         self.filters = filters if filters else []
         self.ifc_units = {}  # dict to store project related units
@@ -152,6 +154,22 @@ class BPSMultiZoneAggregatedLayersLow(Workflow):
             layers=LOD.low,
         )
 
+class BPSMultiZoneAggregatedLayersLowSimulation(Workflow):
+    """Building performance simulation with spaces aggregated.
+     Not existing layer information is enriched by templates."""
+
+    def __init__(self):
+        super().__init__(
+            ductwork=LOD.low,
+            hull=LOD.medium,
+            consumer=LOD.low,
+            generator=LOD.ignore,
+            hvac=LOD.low,
+            spaces=LOD.medium,
+            layers=LOD.low,
+            dymola_simulation=True
+        )
+
 
 class BPSMultiZoneAggregatedLayersFull(Workflow):
     """Building performance simulation with spaces aggregated.
@@ -239,6 +257,7 @@ class BPSMultiZoneSeparatedEPfull(Workflow):
             cfd_export=False,
         )
 
+
 class BPSMultiZoneSeparatedEPforCFD(Workflow):
     """Building performance simulation with every space as single zone
     separated from each other - no aggregation,
@@ -256,4 +275,19 @@ class BPSMultiZoneSeparatedEPforCFD(Workflow):
             layers=LOD.low,
             create_external_elements=True,  # consider IfcExternalSpatialElements
             cfd_export=True,
+        )
+
+
+class CFDWorkflowDummy(Workflow):
+    # todo make something useful
+    def __init__(self):
+        super().__init__(
+            ductwork=LOD.low,
+            hull=LOD.medium,
+            consumer=LOD.low,
+            generator=LOD.ignore,
+            hvac=LOD.low,
+            spaces=LOD.full,
+            layers=LOD.full,
+            create_external_elements=True,  # consider IfcExternalSpatialElements
         )

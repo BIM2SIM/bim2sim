@@ -21,7 +21,6 @@
       "width": ["BaseQuantities", "Width"],
       "height": ["BaseQuantities", "Height"],
       "tilt": ["ArchiCADProperties", "\u00c4u\u00dferer Neigungswinkel"],
-      "is_external": ["Pset_WallCommon", "IsExternal"],
       "u_value": ["Pset_WallCommon", "ThermalTransmittance"]
     }
   },
@@ -32,7 +31,6 @@
       "width": ["BaseQuantities", "Width"],
       "height": ["BaseQuantities", "Height"],
       "tilt": ["ArchiCADProperties", "\u00c4u\u00dferer Neigungswinkel"],
-      "is_external": ["Pset_WallCommon", "IsExternal"],
       "u_value": ["Pset_WallCommon", "ThermalTransmittance"]
     }
   },
@@ -42,7 +40,6 @@
       "width": ["BaseQuantities", "Width"],
       "height": ["BaseQuantities", "Height"],
       "tilt": ["ArchiCADProperties", "\u00c4u\u00dferer Neigungswinkel"],
-      "is_external": ["Pset_WallCommon", "IsExternal"],
       "u_value": ["Pset_WallCommon", "ThermalTransmittance"]
     }
   },
@@ -51,8 +48,7 @@
       "net_area": ["Abmessungen", "Fl\u00e4che"],
       "gross_area": ["BaseQuantities", "GrossArea"],
       "width" : ["Abmessungen", "Dicke"],
-      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"],
-      "is_external" : ["Pset_SlabCommon", "IsExternal"]
+      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"]
     }
   },
   "Floor": {
@@ -60,8 +56,7 @@
       "net_area": ["Abmessungen", "Fl\u00e4che"],
       "gross_area": ["BaseQuantities", "GrossArea"],
       "width" : ["Abmessungen", "Dicke"],
-      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"],
-      "is_external" : ["Pset_SlabCommon", "IsExternal"]
+      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"]
     }
   },
   "GroundFloor": {
@@ -69,8 +64,7 @@
       "area": ["Abmessungen", "Fl\u00e4che"],
       "gross_area": ["BaseQuantities", "GrossArea"],
       "width" : ["Abmessungen", "Dicke"],
-      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"],
-      "is_external" : ["Pset_SlabCommon", "IsExternal"]
+      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"]
 
     }
   },
@@ -78,7 +72,6 @@
     "default_ps": {
       "gross_area" : ["BaseQuantities", "Area"],
       "width" : ["BaseQuantities", "Width"],
-      "is_external": ["Pset_WindowCommon", "IsExternal"],
       "glass_area": ["Konstruktion", "Glasflaeche"],
       "g_value": ["Analytische Eigenschaften (type)", "Gesamtenergiedurchlassgrad"],
       "glass_thickness": ["Konstruktion(type)", "Glasst\u00e4rke"],
@@ -89,7 +82,6 @@
     "default_ps": {
       "gross_area" : ["BaseQuantities", "Area"],
       "width" : ["BaseQuantities", "Width"],
-     "is_external": ["Pset_DoorCommon", "IsExternal"],
       "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"]
     }
   },
@@ -97,7 +89,6 @@
     "default_ps": {
       "gross_area" : ["BaseQuantities", "Area"],
       "width" : ["BaseQuantities", "Width"],
-      "is_external": ["Pset_DoorCommon", "IsExternal"],
       "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"]
     }
   },
@@ -105,7 +96,6 @@
     "default_ps": {
       "gross_area" : ["BaseQuantities", "Area"],
       "width" : ["BaseQuantities", "Width"],
-      "is_external": ["Pset_DoorCommon", "IsExternal"],
       "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"]
     }
   },

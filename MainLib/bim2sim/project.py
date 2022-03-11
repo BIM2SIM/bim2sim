@@ -8,6 +8,8 @@ from distutils.dir_util import copy_tree
 from pathlib import Path
 import importlib
 import pkgutil
+import re
+
 import pkg_resources
 
 import configparser
@@ -115,7 +117,6 @@ class FolderStructure:
     LOG = "log"
     EXPORT = "export"
     RESOURCES = "resources"
-    PAPER = True
 
     _src_path = Path(__file__).parent  # base path to bim2sim assets
 
@@ -179,6 +180,11 @@ class FolderStructure:
     def export(self):
         """absolute path to export folder"""
         return self._root_path / self.EXPORT
+
+    @property
+    def b2sroot(self):
+        """absolute path of bim2sim root folder"""
+        return self._src_path.parent.parent
 
     @property
     def sub_dirs(self):
@@ -278,6 +284,8 @@ class Project:
             self.name = list(
                     filter(Path.is_file, self.paths.ifc.glob('**/*')))[0].stem
         except:
+            logger.warning(
+                "Could not set correct project name, using Project!")
             self.name = "Project"
 
         if not self.paths.is_project_folder():
