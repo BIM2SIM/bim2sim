@@ -31,8 +31,15 @@ release = '01.01.2022'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'myst_parser',
     'sphinx.ext.autodoc',
+    # 'sphinx.ext.autosummary',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.mathjax',
+    # 'sphinx.ext.coverage',
+    'sphinx_autodoc_typehints',
 ]
+# autosummary_generate = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

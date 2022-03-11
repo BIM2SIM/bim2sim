@@ -9,7 +9,9 @@ Welcome to BIM2SIM's documentation!
 .. toctree::
    :maxdepth: 2
 
-   modules
+   installation
+   quick-start
+   code/modules
    
    
 
