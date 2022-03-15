@@ -52,15 +52,32 @@ class SetupHelper:
     @classmethod
     def connect_ufh(cls, x_pipes, y_pipes, x_dimension, y_dimension, spacing):
         position = np.array([0.0, 0.0, 0.0])
+        n = 0
         for item in x_pipes:
             item.position = position.copy()
             position[0] += spacing.m
+            port_position = position.copy()
+            if n % 2:
+                port_position[1] -= x_dimension.m
+                item.ports[0].position = port_position.copy()
+                port_position[1] += x_dimension.m
+                item.ports[1].position = port_position.copy()
+            else:
+                port_position[1] -= x_dimension.m
+                item.ports[0].position = port_position.copy()
+                port_position[1] += x_dimension.m
+                item.ports[1].position = port_position.copy()
+            n += 1
         position = np.array([spacing.m/2, x_dimension.m/2, 0.0])
         n = 0
         for item in y_pipes:
             item.position = position.copy()
             position[0] += spacing.m
-            position[1] += spacing.m
+            if n % 2:
+                position[1] += x_dimension.m
+            else:
+                position[1] -= x_dimension.m
+            n += 1
 
         ufh_strand = [None]*(len(x_pipes) + len(y_pipes))
         ufh_strand[::2] = x_pipes
