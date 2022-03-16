@@ -325,8 +325,8 @@ sphinxdoc:
   stage: doc
 
   before_script:
-    - pip install sphinx anybadge sphinx-rtd-theme
-    - pip install m2r2
+    - pip install -r /docs/requirements.txt
+    - pip install anybadge
     
   script:
     - mv ./* /bim2sim/
