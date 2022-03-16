@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import re
 import numpy as np
 import ifcopenshell.geom
 from OCC.Display.SimpleGui import init_display
@@ -49,15 +50,16 @@ def visualize_zones(zone_dict, folder_structure):
     #  next to each other
 
     legend = {}
+    num = 1
     for i, (name, zones) in enumerate(zone_dict.items()):
-        # todo dja clarify where 'internal_' comes from and if its robust
+        # TODO dja clarify where 'internal_' comes from and if its robust
         if "internal_" in name:
             rgb_tuple = tuple((np.random.choice(range(256), size=3)))
-            rgb_tuple_norm = tuple([x/256 for x in rgb_tuple])
-            usage = name.split('internal_')[-1]
+            rgb_tuple_norm = tuple([x / 256 for x in rgb_tuple])
+            usage = name.split('internal_')[-1].split(' (')[0].split('_')[0]
             if usage.endswith('_'):
                 usage = usage[0:-1]
-            legend[usage+'*'] = rgb_tuple
+            legend[usage + '*'] = rgb_tuple
             for zone in zones:
                 display.DisplayShape(zone.space_shape, update=True,
                                      color=rgb_color(rgb_tuple_norm),
@@ -66,7 +68,17 @@ def visualize_zones(zone_dict, folder_structure):
             for zone in zones:
                 rgb_tuple = tuple((np.random.choice(range(256), size=3)))
                 rgb_tuple_norm = tuple([x / 256 for x in rgb_tuple])
-                legend[zone.usage] = rgb_tuple
+                name = zone.name
+                name = re.findall(
+                    r'[ A-Z a-z / \u00fc \u00dc \u00d6 \u00f6 \u00c4 \u00e4 \u00df]+|\d+',
+                    name)[0]
+                if name.isdigit:
+                    name = \
+                        zone.usage.split(' (')[0].split('_')[0]
+                if name in list(legend.keys()):
+                    name = name + ' ' + str(num)
+                    num += 1
+                legend[name] = rgb_tuple
                 display.DisplayShape(zone.space_shape, update=True,
                                      color=rgb_color(rgb_tuple_norm),
                                      transparency=0.5)
@@ -91,7 +103,7 @@ def visualize_zones(zone_dict, folder_structure):
     space = 30
     buffer = 10
 
-    legend_height = len(zone_dict) * (text_size + space) + buffer
+    legend_height = len(sorted_legend) * (text_size + space/3) + buffer
     x0 = 0
     rec_to_text_spacing = 10
     y0 = zone_image_size_y - legend_height
