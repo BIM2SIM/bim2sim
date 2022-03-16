@@ -321,7 +321,7 @@ pylint:
     - $CI_COMMIT_REF_NAME/pylint
 
 sphinxdoc:
-  image: $CI_REGISTRY/environment:development
+  image: $CI_REGISTRY/environment:tool
   stage: doc
 
   before_script:
@@ -329,7 +329,6 @@ sphinxdoc:
     - pip install anybadge
     
   script:
-    - mv ./* /bim2sim/
 #    - source activate base
     - mkdir -p $CI_COMMIT_REF_NAME/docs
     - sphinx-apidoc -M -o /bim2sim/docs/source/code /bim2sim  # create rst files for all python files
