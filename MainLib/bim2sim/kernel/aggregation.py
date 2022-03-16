@@ -424,6 +424,12 @@ class UnderfloorHeating(PipeStrand):
 
         return heating_area, total_length, avg_diameter, dist_x, dist_y
 
+    @staticmethod
+    def get_ufh_type():
+        # ToDo: function to obtain the underfloor heating form based on issue
+        #  #211
+        raise NotImplementedError
+
     @classmethod
     def get_pipe_strand_spacing(cls,
                                 uh_elements: nx.classes.reportviews.NodeView,
@@ -444,7 +450,8 @@ class UnderfloorHeating(PipeStrand):
             x_spacing: Underfloor heating pitch in x,
             y_spacing: Underfloor heating pitch in y
         """
-        # ToDo: what if multiple pipe elements on the same line?
+        # ToDo: what if multiple pipe elements on the same line? Collinear
+        #  algorthm, issue #211
         orientations = {}
         for element in uh_elements:
             if type(element) is hvac.Pipe:
