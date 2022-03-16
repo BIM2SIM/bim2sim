@@ -19,16 +19,18 @@ class UFHHelper(SetupHelper):
 
         x_dimension = 5 * ureg.meter
         y_dimension = 4 * ureg.meter
-        spacing = 0.035 * ureg.meter
+        spacing = 0.19 * ureg.meter
         with self.flag_manager(flags):
             # elements generator
             ny_pipes = math.floor(y_dimension / spacing)
             y_pipes = [self.element_generator(
-                hvac.Pipe, length=y_dimension/ny_pipes, diameter=30) for i in range(ny_pipes)]
+                hvac.Pipe, length=y_dimension/ny_pipes, diameter=15) for
+                i in range(ny_pipes)]
             x_pipes = [self.element_generator(
-                hvac.Pipe, length=x_dimension, diameter=30) for i in range(ny_pipes + 1)]
+                hvac.Pipe, length=x_dimension, diameter=15) for
+                i in range(ny_pipes + 1)]
         # connect
-        ufh_strand = self.connect_ufh(x_pipes, y_pipes, x_dimension, y_dimension, spacing)
+        ufh_strand = self.connect_ufh(x_pipes, y_pipes, x_dimension, spacing)
 
         # full system
         gen_circuit = [
@@ -36,7 +38,7 @@ class UFHHelper(SetupHelper):
         ]
         flags['connect'] = [ufh_strand[0], ufh_strand[-1]]
         graph = HvacGraph(gen_circuit)
-        # graph.plot(r'c:\temp')
+        graph.plot(r'c:\temp')
         return graph, flags
 
 
@@ -62,8 +64,9 @@ class TestUnderfloorHeating(unittest.TestCase):
         exp_length = sum([e.length for e in ele])
         self.assertAlmostEqual(exp_length, agg.length)
 
-        self.assertAlmostEqual(20 * ureg.meter ** 2, agg.heating_area)
-        self.assertAlmostEqual(30 * ureg.millimeter, agg.x_spacing)
-        self.assertAlmostEqual(30 * ureg.millimeter, agg.y_spacing)
+        self.assertAlmostEqual(19.95 * ureg.meter ** 2, agg.heating_area)
+        self.assertAlmostEqual(15 * ureg.millimeter, agg.diameter)
+        self.assertAlmostEqual(.19949999 * ureg.meter, agg.y_spacing)
+        self.assertAlmostEqual(.23809523 * ureg.meter, agg.x_spacing)
 
         pass

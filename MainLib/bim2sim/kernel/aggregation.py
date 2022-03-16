@@ -32,7 +32,7 @@ def verify_edge_ports(func):
                 continue
             if port.connection.parent in agg_instance.elements:
                 raise AssertionError("%s (%s) is not an edge port of %s" % (
-                port, port.guid, agg_instance))
+                    port, port.guid, agg_instance))
         return ports
 
     return wrapper
@@ -310,11 +310,28 @@ class PipeStrand(HVACAggregationMixin, hvac.Pipe):
 
 
 class UnderfloorHeating(PipeStrand):
-    """Aggregates UnderfloorHeating, normal pitch (spacing) between
+    """Aggregates Underfloor heating, normal pitch (spacing) between
     pipes is between 0.1m and 0.2m"""
 
     @classmethod
-    def find_matches(cls, graph):
+    def find_matches(cls, graph: {HvacGraph.element_graph}) -> \
+            [list, list]:
+        """
+        Find matches of Underfloor heating.
+
+        Args:
+            graph: element_graph that should be checked for Underfloor heating
+
+        Returns:
+            element_graphs:
+                List of element_graphs that hold a Underfloor heating
+            metas:
+                List of dict with metas information. One element for each
+                element_graph.
+
+        Raises:
+            None
+        """
         element_graph = graph.element_graph
         chains = HvacGraph.get_type_chains(element_graph,
                                            cls.aggregatable_elements,
@@ -331,19 +348,36 @@ class UnderfloorHeating(PipeStrand):
         return element_graphs, metas
 
     @staticmethod
-    def check_number_of_elements(uh_elements, tolerance: int = 20):
-        """Check if the targeted pipe strand has more than 20 elements
-        :returns None if check failed else
-        :returns True"""
+    def check_number_of_elements(uh_elements: nx.classes.reportviews.NodeView,
+                                 tolerance: int = 20) -> bool:
+        """
+        Check if the targeted pipe strand has more than 20 elements.
+
+        Args:
+            uh_elements: possible pipe strand to be an Underfloor heating
+            tolerance: integer tolerance value to check pipe strand
+
+        Returns:
+            None: if check fails
+            True: if check succeeds
+        """
         if len(uh_elements) >= tolerance:
             return True
 
     @staticmethod
-    def check_pipe_strand_horizontality(ports_coors, tolerance: float = 0.8):
-        """Check if the pipe strand is located horizontally -- parallel to
+    def check_pipe_strand_horizontality(ports_coors: np.ndarray,
+                                        tolerance: float = 0.8) -> bool:
+        """
+        Check if the pipe strand is located horizontally -- parallel to
         the floor and most elements are in the same z plane
-        :returns None if check failed else
-        :returns True"""
+        Args:
+            ports_coors: array with pipe strand port coordinates
+            tolerance: float tolerance to check pipe strand horizontality
+
+        Returns:
+            None: if check fails
+            True: if check succeeds
+        """
         counts = np.unique(ports_coors[:, 2], return_counts=True)
         # TODO: cluster z coordinates
         idx_max = np.argmax(counts[1])
@@ -351,11 +385,23 @@ class UnderfloorHeating(PipeStrand):
             return True
 
     @staticmethod
-    def get_pipe_strand_attributes(ports_coors, uh_elements):
-        """Get pipe strand attributes in order to proceed with the following
+    def get_pipe_strand_attributes(ports_coors: np.ndarray,
+                                   uh_elements: nx.classes.reportviews.NodeView
+                                   ) -> [*(ureg.Quantity,)*5]:
+        """
+        Get pipe strand attributes in order to proceed with the following
         checkpoints
-        : returns list: heating_area, total_length, avg_diameter, dist_x,
-        dist_y"""
+        Args:
+            ports_coors: array with pipe strand port coordinates
+            uh_elements: possible pipe strand to be an Underfloor heating
+
+        Returns:
+            heating_area: Underfloor heating area,
+            total_length: Underfloor heating total pipe length,
+            avg_diameter: Average Underfloor heating diameter,
+            dist_x: Underfloor heating dimension in x,
+            dist_y:Underfloor heating dimension in y
+        """
         total_length = sum(segment.length for segment in uh_elements if
                            segment.length is not None)
         avg_diameter = (sum(segment.diameter ** 2 * segment.length for segment
@@ -378,14 +424,26 @@ class UnderfloorHeating(PipeStrand):
 
         return heating_area, total_length, avg_diameter, dist_x, dist_y
 
-    @staticmethod
-    def get_pipe_strand_spacing(uh_elements, dist_x, dist_y,
-                                tolerance: int = 10):
-        """Sorts the pipe elements according to their angle in the horizontal
+    @classmethod
+    def get_pipe_strand_spacing(cls,
+                                uh_elements: nx.classes.reportviews.NodeView,
+                                dist_x: ureg.Quantity,
+                                dist_y: ureg.Quantity,
+                                tolerance: int = 10) -> [*(ureg.Quantity,)*2]:
+        """
+        Sorts the pipe elements according to their angle in the horizontal
         plane. Necessary to calculate subsequently the underfloor heating
         spacing
-        : returns x_spacing
-        : returns y_spacing"""
+        Args:
+            uh_elements: possible pipe strand to be an Underfloor heating
+            dist_x: Underfloor heating dimension in x
+            dist_y: Underfloor heating dimension in y
+            tolerance: integer tolerance to get pipe strand spacing
+
+        Returns:
+            x_spacing: Underfloor heating pitch in x,
+            y_spacing: Underfloor heating pitch in y
+        """
         # ToDo: what if multiple pipe elements on the same line?
         orientations = {}
         for element in uh_elements:
@@ -410,42 +468,75 @@ class UnderfloorHeating(PipeStrand):
         return x_spacing, y_spacing
 
     @staticmethod
-    def check_heating_area(heating_area, tolerance=1e6 * ureg.millimeter ** 2):
-        """Check if the total area of the underfloor heating is greater than
+    def check_heating_area(heating_area: ureg.Quantity,
+                           tolerance: ureg.Quantity =
+                           1e6 * ureg.millimeter ** 2) -> bool:
+        """
+        Check if the total area of the underfloor heating is greater than
         the tolerance value - just as safety factor
-        :returns None if check failed else
-        :returns True"""
+
+        Args:
+            heating_area: Underfloor heating area,
+            tolerance: Quantity tolerance to check heating area
+
+        Returns:
+            None: if check fails
+            True: if check succeeds
+        """
         if heating_area >= tolerance:
             return True
 
     @staticmethod
-    def check_spacing(x_spacing, y_spacing,
+    def check_spacing(x_spacing: ureg.Quantity,
+                      y_spacing: ureg.Quantity,
                       tolerance: tuple = (90 * ureg.millimeter,
-                                          210 * ureg.millimeter)):
-        """Check if the spacing between adjacent elements with the same
+                                          210 * ureg.millimeter)) -> bool:
+        """
+        Check if the spacing between adjacent elements with the same
         orientation is between the tolerance values
-        :returns None if check failed else
-        :returns True"""
+        Args:
+            x_spacing: Underfloor heating pitch in x
+            y_spacing: Underfloor heating pitch in y
+            tolerance: tuple tolerance to check underfloor heating spacing
+
+        Returns:
+            None: if check fails
+            True: if check succeeds
+        """
         if not ((tolerance[0] < x_spacing < tolerance[1])
                 or (tolerance[0] < y_spacing < tolerance[1])):
             return
         return True
 
     @staticmethod
-    def check_kpi(total_length, avg_diameter, heating_area,
-                  tolerance: tuple = (0.09, 0.01)):
-        """Check if the quotient between the cross sectional area of the pipe
+    def check_kpi(total_length: ureg.Quantity,
+                  avg_diameter: ureg.Quantity,
+                  heating_area: ureg.Quantity,
+                  tolerance: tuple = (0.09, 0.01)) -> bool:
+        """
+        Check if the quotient between the cross sectional area of the pipe
         strand (x-y plane) and the total heating area is between the
         tolerance values - area density for underfloor heating
-        :returns None if check failed else
-        :returns True"""
+
+        Args:
+            total_length: Underfloor heating total pipe length,
+            avg_diameter: Average Underfloor heating diameter,
+            heating_area: Underfloor heating area,
+            tolerance: tuple tolerance to check underfloor heating kpi
+
+        Returns:
+            None: if check fails
+            True: if check succeeds
+        """
         kpi_criteria = (total_length * avg_diameter) / heating_area
         if tolerance[0] > kpi_criteria > tolerance[1]:
             return True
 
     @classmethod
-    def check_conditions(cls, uh_elements):
-        """checks ps_elements and returns instance of UnderfloorHeating if all
+    def check_conditions(cls,
+                         uh_elements: nx.classes.reportviews.NodeView) -> dict:
+        """
+        Checks ps_elements and returns instance of UnderfloorHeating if all
         following criteria are fulfilled:
             0. minimum of 20 elements
             1. the pipe strand is located horizontally
@@ -453,8 +544,14 @@ class UnderfloorHeating(PipeStrand):
             3. the spacing tolerance
             4. underfloor heating area tolerance
             5. kpi criteria
-            :returns None if check failed else
-            :returns meta dict with calculated values"""
+
+        Args:
+            uh_elements: possible pipe strand to be an Underfloor heating
+
+        Returns:
+            None: if check fails
+            meta: dict with calculated values if check succeeds
+        """
         # TODO: use only floor heating pipes and not connecting pipes
         if not cls.check_number_of_elements(uh_elements):
             return

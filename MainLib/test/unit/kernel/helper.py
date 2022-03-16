@@ -10,11 +10,11 @@ from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 
 
 class SetupHelper:
-
     ifc = mock.Mock()
     ifc.Name = 'Test'
     ifc.HasAssignments = []
-    type(ifc).GlobalId = mock.PropertyMock(side_effect=range(100000), name='GlobalId')
+    type(ifc).GlobalId = mock.PropertyMock(side_effect=range(100000),
+                                           name='GlobalId')
 
     def __init__(self):
         self._flags = None
@@ -50,36 +50,40 @@ class SetupHelper:
             last = item
 
     @classmethod
-    def connect_ufh(cls, x_pipes, y_pipes, x_dimension, y_dimension, spacing):
+    def connect_ufh(cls, x_pipes, y_pipes, x_dimension, spacing):
         position = np.array([0.0, 0.0, 0.0])
         n = 0
         for item in x_pipes:
             item.position = position.copy()
-            position[0] += spacing.m
             port_position = position.copy()
             if n % 2:
-                port_position[1] -= x_dimension.m
+                port_position[0] += x_dimension.m / 2
                 item.ports[0].position = port_position.copy()
-                port_position[1] += x_dimension.m
+                port_position[0] -= x_dimension.m
                 item.ports[1].position = port_position.copy()
             else:
-                port_position[1] -= x_dimension.m
+                port_position[0] -= x_dimension.m / 2
                 item.ports[0].position = port_position.copy()
-                port_position[1] += x_dimension.m
+                port_position[0] += x_dimension.m
                 item.ports[1].position = port_position.copy()
+            position[1] += spacing.m
             n += 1
-        position = np.array([spacing.m/2, x_dimension.m/2, 0.0])
+        position = np.array([x_dimension.m / 2, spacing.m / 2, 0.0])
         n = 0
         for item in y_pipes:
+            port_position = position.copy()
             item.position = position.copy()
-            position[0] += spacing.m
+            port_position[1] -= spacing.m / 2
+            item.ports[0].position = port_position.copy()
+            port_position[1] += spacing.m
+            item.ports[1].position = port_position.copy()
+            position[1] += spacing.m
             if n % 2:
-                position[1] += x_dimension.m
+                position[0] += x_dimension.m
             else:
-                position[1] -= x_dimension.m
+                position[0] -= x_dimension.m
             n += 1
-
-        ufh_strand = [None]*(len(x_pipes) + len(y_pipes))
+        ufh_strand = [None] * (len(x_pipes) + len(y_pipes))
         ufh_strand[::2] = x_pipes
         ufh_strand[1::2] = y_pipes
         cls.connect_strait(ufh_strand)
@@ -103,7 +107,8 @@ class SetupHelper:
         # assign flags
         if flags:
             if self._flags is None:
-                raise AssertionError("Use contextmanager .flag_manager when setting flags")
+                raise AssertionError(
+                    "Use contextmanager .flag_manager when setting flags")
             for flag in flags:
                 self._flags.setdefault(flag, []).append(element)
 
@@ -115,15 +120,28 @@ class SetupHelper:
         with self.flag_manager(flags):
             # generator circuit
             boiler = self.element_generator(hvac.Boiler, rated_power=200)
-            gen_vl_a = [self.element_generator(hvac.Pipe, length=100, diameter=40) for i in range(3)]
-            h_pump = self.element_generator(hvac.Pump, rated_power=2.2, rated_height=12, rated_volume_flow=8)
-            gen_vl_b = [self.element_generator(hvac.Pipe, flags=['strand1'], length=100, diameter=40) for i in range(5)]
-            distributor = self.element_generator(hvac.Distributor, flags=['distributor'])  # , volume=80
-            gen_rl_a = [self.element_generator(hvac.Pipe, length=100, diameter=40) for i in range(4)]
-            fitting = self.element_generator(hvac.PipeFitting, n_ports=3, diameter=40, length=60)
-            gen_rl_b = [self.element_generator(hvac.Pipe, length=100, diameter=40) for i in range(4)]
+            gen_vl_a = [
+                self.element_generator(hvac.Pipe, length=100, diameter=40) for i
+                in range(3)]
+            h_pump = self.element_generator(hvac.Pump, rated_power=2.2,
+                                            rated_height=12,
+                                            rated_volume_flow=8)
+            gen_vl_b = [
+                self.element_generator(hvac.Pipe, flags=['strand1'], length=100,
+                                       diameter=40) for i in range(5)]
+            distributor = self.element_generator(hvac.Distributor, flags=[
+                'distributor'])  # , volume=80
+            gen_rl_a = [
+                self.element_generator(hvac.Pipe, length=100, diameter=40) for i
+                in range(4)]
+            fitting = self.element_generator(hvac.PipeFitting, n_ports=3,
+                                             diameter=40, length=60)
+            gen_rl_b = [
+                self.element_generator(hvac.Pipe, length=100, diameter=40) for i
+                in range(4)]
             gen_rl_c = [
-                self.element_generator(hvac.Pipe, flags=['strand2'], length=(1 + i) * 40, diameter=15)
+                self.element_generator(hvac.Pipe, flags=['strand2'],
+                                       length=(1 + i) * 40, diameter=15)
                 for i in range(3)
             ]
             tank = self.element_generator(hvac.Storage, n_ports=1)
