@@ -325,7 +325,7 @@ sphinxdoc:
   stage: doc
 
   before_script:
-    - pip install -r /docs/requirements.txt
+    - pip install -r /bim2sim/docs/requirements.txt
     - pip install anybadge
     
   script:
