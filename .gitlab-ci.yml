@@ -321,7 +321,7 @@ pylint:
     - $CI_COMMIT_REF_NAME/pylint
 
 sphinxdoc:
-  image: $CI_REGISTRY/environment:tool
+  image: $CI_REGISTRY/development:tool
   stage: doc
 
   before_script:
