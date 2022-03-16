@@ -14,7 +14,9 @@ from test.unit.kernel.helper import SetupHelper
 class UFHHelper(SetupHelper):
 
     def get_setup_ufh1(self):
-        """Simple underfloorheating"""
+        """
+        Simple underfloorheating
+        """
         flags = {}
 
         x_dimension = 5 * ureg.meter
@@ -54,6 +56,9 @@ class TestUnderfloorHeating(unittest.TestCase):
         self.helper.reset()
 
     def test_simple_ufh(self):
+        """
+        Test aggregation of underfloor heating no 1 - SimpleUFH
+        """
         graph, flags = self.helper.get_setup_ufh1()
         ele = graph.elements
 
@@ -68,5 +73,3 @@ class TestUnderfloorHeating(unittest.TestCase):
         self.assertAlmostEqual(15 * ureg.millimeter, agg.diameter)
         self.assertAlmostEqual(.19949999 * ureg.meter, agg.y_spacing)
         self.assertAlmostEqual(.23809523 * ureg.meter, agg.x_spacing)
-
-        pass
