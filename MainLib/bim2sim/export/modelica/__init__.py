@@ -3,6 +3,7 @@
 import os
 import logging
 from pathlib import Path
+from threading import Lock
 from typing import Union, Type, Dict, Container, Tuple, Callable
 import codecs
 
@@ -19,6 +20,7 @@ TEMPLATEPATH = Path(bim2sim.__file__).parent / 'assets/tmplModel.txt'
 with open(TEMPLATEPATH) as f:
     templateStr = f.read()
 template = Template(templateStr)
+lock = Lock()
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +83,8 @@ class Model:
 
     def code(self):
         """returns Modelica code"""
-        return template.render(model=self, unknowns=self.unknown_params())
+        with lock:
+            return template.render(model=self, unknowns=self.unknown_params())
 
     def unknown_params(self):
         unknown = []
