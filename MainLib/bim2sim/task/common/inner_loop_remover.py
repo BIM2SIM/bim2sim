@@ -339,10 +339,6 @@ def remove_inner_loops(shape: TopoDS_Shape) -> TopoDS_Shape:
 
     plane = _calculate_plane_vectors(triangulation[0])
 
-    # HACK: Check if shape is a floor/ceiling.
-    if abs(plane[0][2]) < 0.5:
-        return None
-
     # Build initial partition state. After that, every loop (either the main polygon or a hole)
     # is in its own disjoint set.
     for edge in out_edges:

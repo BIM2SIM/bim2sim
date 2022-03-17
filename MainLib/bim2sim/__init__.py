@@ -17,6 +17,7 @@ from bim2sim.kernel import ifc2python
 from bim2sim.project import Project, FolderStructure
 from bim2sim.plugin import Plugin
 from bim2sim.plugins import DummyPlugin
+from bim2sim import workflow
 from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparatedLayersLow,\
     BPSMultiZoneSeparatedEP
 
@@ -223,17 +224,18 @@ def _debug_run_hvac_aixlib():
 
 def _debug_run_cfd():
     """Create example project and copy ifc if necessary"""
+    path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 
-    sys.path.append("/home/fluid/Schreibtisch/B/bim2sim-coding/PluginCFD")
-    path_example = r"/home/fluid/Schreibtisch/B/temp"
-    # unter ifc muss datei liegen
+    rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
+    path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
+    path_example = _get_debug_project_path('cfd')
 
     if Project.is_project_folder(path_example):
         project = Project(path_example)
     else:
-        project = Project.create(path_example, target='cfd', )
+        project = Project.create(path_example, path_ifc, 'cfd')
 
-    project.run()
+    run_project(project, ConsoleDecisionHandler())
 
 
 setup_default()

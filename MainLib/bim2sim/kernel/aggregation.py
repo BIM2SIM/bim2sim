@@ -17,8 +17,6 @@ from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.decision import ListDecision, BoolDecision
 
-
-
 logger = logging.getLogger(__name__)
 
 
@@ -27,12 +25,14 @@ def verify_edge_ports(func):
 
     def wrapper(agg_instance, *args, **kwargs):
         ports = func(agg_instance, *args, **kwargs)
-        # inner_ports = [port for ele in agg_instance.elements for port in ele.ports]
+        # inner_ports =
+        # [port for ele in agg_instance.elements for port in ele.ports]
         for port in ports:
             if not port.connection:
                 continue
             if port.connection.parent in agg_instance.elements:
-                raise AssertionError("%s (%s) is not an edge port of %s" % (port, port.guid, agg_instance))
+                raise AssertionError("%s (%s) is not an edge port of %s" % (
+                port, port.guid, agg_instance))
         return ports
 
     return wrapper
@@ -181,7 +181,8 @@ class HVACAggregationMixin(AggregationMixin):
 
     # TODO: get edge ports based on graph. See #167
     @classmethod
-    def get_edge_ports2(cls, graph: HvacGraph, match: HvacGraph) -> List[HVACPort]:
+    def get_edge_ports2(cls, graph: HvacGraph, match: HvacGraph) -> List[
+        HVACPort]:
         """Get edge ports based on graph."""
         # edges of g excluding all relations to s
         e1 = graph.subgraph(graph.nodes - match.nodes).edges
@@ -227,7 +228,7 @@ class HVACAggregationMixin(AggregationMixin):
         return list(edge_ports)
 
     @classmethod
-    def find_matches(cls, graph: HvacGraph)\
+    def find_matches(cls, graph: HvacGraph) \
             -> Tuple[List[nx.Graph], List[dict]]:
         """Find all matches for Aggregation in element graph
         :returns: matches, metas"""
@@ -287,8 +288,11 @@ class PipeStrand(HVACAggregationMixin, hvac.Pipe):
     @classmethod
     def find_matches(cls, graph):
         element_graph = graph.element_graph
-        chains = HvacGraph.get_type_chains(element_graph, cls.aggregatable_elements, include_singles=True)
-        element_graphs = [element_graph.subgraph(chain) for chain in chains if len(chain) > 1]
+        chains = HvacGraph.get_type_chains(element_graph,
+                                           cls.aggregatable_elements,
+                                           include_singles=True)
+        element_graphs = [element_graph.subgraph(chain) for chain in chains if
+                          len(chain) > 1]
         metas = [{} for x in element_graphs]  # no metadata calculated
         return element_graphs, metas
 
@@ -312,7 +316,9 @@ class UnderfloorHeating(PipeStrand):
     @classmethod
     def find_matches(cls, graph):
         element_graph = graph.element_graph
-        chains = HvacGraph.get_type_chains(element_graph, cls.aggregatable_elements, include_singles=True)
+        chains = HvacGraph.get_type_chains(element_graph,
+                                           cls.aggregatable_elements,
+                                           include_singles=True)
         element_graphs = [element_graph.subgraph(chain) for chain in chains]
         metas = []
         for g in element_graphs.copy():
@@ -324,219 +330,187 @@ class UnderfloorHeating(PipeStrand):
                 element_graphs.remove(g)
         return element_graphs, metas
 
-    @classmethod
-    def check_conditions(cls, uh_elements):
-        """checks ps_elements and returns instance of UnderfloorHeating if all following criteria are fulfilled:
-            0. minimum of 20 elements
-            1. the pipe strand is located horizontally -- parallel to the floor
-            2. the pipe strand has most of the elements located in an specific z-coordinate (> 80%)
-            3. the spacing between adjacent elements with the same orientation is between 90mm and 210 mm
-            4. the total area of the underfloor heating is more than 1m² - just as safety factor
-            5. the quotient between the cross sectional area of the pipe strand (x-y plane) and the total heating area
-                is between 0.09 and 0.01 - area density for underfloor heating
+    @staticmethod
+    def check_number_of_elements(uh_elements, tolerance: int = 20):
+        """Check if the targeted pipe strand has more than 20 elements
+        :returns None if check failed else
+        :returns True"""
+        if len(uh_elements) >= tolerance:
+            return True
 
-            :returns None if check failed else
-            :returns meta dict with calculated values"""
-        # TODO: use only floor heating pipes and not connecting pipes
-
-        if len(uh_elements) < 20:
-            return  # number criteria failed
-
-        # z_coordinates = defaultdict(list)
-        # for element in uh_elements:
-        #     z_coordinates[element.position[2]].append(element)
-        # z_coordinate = []
-        # for coordinate in z_coordinates:
-        #     n_pipe = 0
-        #     for element in z_coordinates[coordinate]:
-        #         if isinstance(element, elements.PipeFitting):
-        #             n_pipe += 1
-        #     if n_pipe == 0 and (len(z_coordinates[coordinate]) > len(z_coordinate)):
-        #         z_coordinate = z_coordinates[coordinate]
-        # z_coordinate = z_coordinate[0].position[2]
-
-        ports_coors = np.array([p.position for e in uh_elements for p in e.ports])
+    @staticmethod
+    def check_pipe_strand_horizontality(ports_coors, tolerance: float = 0.8):
+        """Check if the pipe strand is located horizontally -- parallel to
+        the floor and most elements are in the same z plane
+        :returns None if check failed else
+        :returns True"""
         counts = np.unique(ports_coors[:, 2], return_counts=True)
         # TODO: cluster z coordinates
         idx_max = np.argmax(counts[1])
-        if counts[1][idx_max] / ports_coors.shape[0] < 0.8:
-            return  # most elements in same z plane criteria failed
+        if counts[1][idx_max] / ports_coors.shape[0] >= tolerance:
+            return True
 
-        z_coordinate2 = counts[0][idx_max]
-
-        min_x = float("inf")
-        max_x = -float("inf")
-        min_y = float("inf")
-        max_y = -float("inf")
-        x_orientation = []
-        y_orientation = []
-        for element in uh_elements:
-            if np.abs(element.ports[0].position[2] - z_coordinate2) < 1 \
-                    and np.abs(element.ports[1].position[2] - z_coordinate2) < 1:
-                if element.position[0] < min_x:
-                    min_x = element.position[0]
-                if element.position[0] > max_x:
-                    max_x = element.position[0]
-                if element.position[1] < min_y:
-                    min_y = element.position[1]
-                if element.position[1] > max_y:
-                    max_y = element.position[1]
-
-                # TODO: what if e.g. 45° orientation??
-                if abs(element.ports[0].position[0] - element.ports[1].position[0]) < 1:
-                    y_orientation.append(element)
-                if abs(element.ports[0].position[1] - element.ports[1].position[1]) < 1:
-                    x_orientation.append(element)
-
-        length_unit = element.ifc_units.get('IfcLengthMeasure')
-        heating_area = (max_x - min_x) * (max_y - min_y) * length_unit ** 2
-        if heating_area < 1e6 * length_unit ** 2:
-            return  # heating area criteria failed
-
-        # TODO: this is not correct for some layouts
-        if len(y_orientation) - 1 != 0:
-            x_spacing = (max_x - min_x) / (len(y_orientation) - 1) * length_unit
-        if len(x_orientation) - 1 != 0:
-            y_spacing = (max_y - min_y) / (len(x_orientation) - 1) * length_unit
-        if not ((90 * length_unit < x_spacing < 210 * length_unit) or
-                (90 * length_unit < y_spacing < 210 * length_unit)):
-            return  # spacing criteria failed
-
-        # check final kpi criteria
-        total_length = sum(segment.length for segment in uh_elements if segment.length is not None)
-        avg_diameter = (sum(segment.diameter ** 2 * segment.length for segment in uh_elements if segment.length is not
+    @staticmethod
+    def get_pipe_strand_attributes(ports_coors, uh_elements):
+        """Get pipe strand attributes in order to proceed with the following
+        checkpoints
+        : returns list: heating_area, total_length, avg_diameter, dist_x,
+        dist_y"""
+        total_length = sum(segment.length for segment in uh_elements if
+                           segment.length is not None)
+        avg_diameter = (sum(segment.diameter ** 2 * segment.length for segment
+                            in uh_elements if segment.length is not
                             None) / total_length) ** 0.5
-
-        kpi_criteria = (total_length * avg_diameter) / heating_area
-
-        if 0.09 > kpi_criteria > 0.01:
-            # check passed
-            meta = dict(
-                length=total_length,
-                diameter=avg_diameter,
-                heating_area=heating_area,
-                x_spacing=x_spacing,
-                y_spacing=y_spacing
-            )
-            return meta
+        length_unit = total_length.u
+        x_coord, y_coord = ports_coors[:, 0], ports_coors[:, 1]
+        min_x = ports_coors[np.argmin(x_coord)][:2]
+        max_x = ports_coors[np.argmax(x_coord)][:2]
+        min_y = ports_coors[np.argmin(y_coord)][:2]
+        max_y = ports_coors[np.argmax(y_coord)][:2]
+        if min_x[1] == max_x[1] or min_y[0] == max_y[0]:
+            dist_x = (max_x[0] - min_x[0]) * length_unit
+            dist_y = (max_y[1] - min_y[1]) * length_unit
+            heating_area = (dist_x * dist_y)
         else:
-            # else kpi criteria failed
-            return None
+            dist_x = (np.linalg.norm(min_y - max_x)) * length_unit
+            dist_y = (np.linalg.norm(min_y - min_x)) * length_unit
+            heating_area = (dist_x * dist_y)
+
+        return heating_area, total_length, avg_diameter, dist_x, dist_y
+
+    @staticmethod
+    def get_pipe_strand_spacing(uh_elements, dist_x, dist_y,
+                                tolerance: int = 10):
+        """Sorts the pipe elements according to their angle in the horizontal
+        plane. Necessary to calculate subsequently the underfloor heating
+        spacing
+        : returns x_spacing
+        : returns y_spacing"""
+        # ToDo: what if multiple pipe elements on the same line?
+        orientations = {}
+        for element in uh_elements:
+            if type(element) is hvac.Pipe:
+                a = abs(element.ports[0].position[1] -
+                        element.ports[1].position[1])
+                b = abs(element.ports[0].position[0] -
+                        element.ports[1].position[0])
+                if b != 0:
+                    theta = int(math.degrees(math.atan(a / b)))
+                else:
+                    theta = 90
+                if theta not in orientations:
+                    orientations[theta] = []
+                orientations[theta].append(element)
+        for orient in orientations.copy():
+            if len(orientations[orient]) < tolerance:
+                del orientations[orient]
+        orientations = list(sorted(orientations.items()))
+        x_spacing = dist_x / (len(orientations[0][1]) - 1)
+        y_spacing = dist_y / (len(orientations[1][1]) - 1)
+        return x_spacing, y_spacing
+
+    @staticmethod
+    def check_heating_area(heating_area, tolerance=1e6 * ureg.millimeter ** 2):
+        """Check if the total area of the underfloor heating is greater than
+        the tolerance value - just as safety factor
+        :returns None if check failed else
+        :returns True"""
+        if heating_area >= tolerance:
+            return True
+
+    @staticmethod
+    def check_spacing(x_spacing, y_spacing,
+                      tolerance: tuple = (90 * ureg.millimeter,
+                                          210 * ureg.millimeter)):
+        """Check if the spacing between adjacent elements with the same
+        orientation is between the tolerance values
+        :returns None if check failed else
+        :returns True"""
+        if not ((tolerance[0] < x_spacing < tolerance[1])
+                or (tolerance[0] < y_spacing < tolerance[1])):
+            return
+        return True
+
+    @staticmethod
+    def check_kpi(total_length, avg_diameter, heating_area,
+                  tolerance: tuple = (0.09, 0.01)):
+        """Check if the quotient between the cross sectional area of the pipe
+        strand (x-y plane) and the total heating area is between the
+        tolerance values - area density for underfloor heating
+        :returns None if check failed else
+        :returns True"""
+        kpi_criteria = (total_length * avg_diameter) / heating_area
+        if tolerance[0] > kpi_criteria > tolerance[1]:
+            return True
+
+    @classmethod
+    def check_conditions(cls, uh_elements):
+        """checks ps_elements and returns instance of UnderfloorHeating if all
+        following criteria are fulfilled:
+            0. minimum of 20 elements
+            1. the pipe strand is located horizontally
+            2. the pipe strand elements located in an specific z-coordinate
+            3. the spacing tolerance
+            4. underfloor heating area tolerance
+            5. kpi criteria
+            :returns None if check failed else
+            :returns meta dict with calculated values"""
+        # TODO: use only floor heating pipes and not connecting pipes
+        if not cls.check_number_of_elements(uh_elements):
+            return
+        ports_coors = np.array(
+            [p.position for e in uh_elements for p in e.ports])
+        if not cls.check_pipe_strand_horizontality(ports_coors):
+            return
+
+        heating_area, total_length, avg_diameter, dist_x, dist_y = \
+            cls.get_pipe_strand_attributes(ports_coors, uh_elements)
+        x_spacing, y_spacing = cls.get_pipe_strand_spacing(uh_elements, dist_x,
+                                                           dist_y)
+
+        if not cls.check_heating_area(heating_area):
+            return
+        if not cls.check_spacing(x_spacing, y_spacing):
+            return
+        if not cls.check_kpi(total_length, avg_diameter, heating_area):
+            return
+
+        meta = dict(
+            length=total_length,
+            diameter=avg_diameter,
+            heating_area=heating_area,
+            x_spacing=x_spacing,
+            y_spacing=y_spacing
+        )
+        return meta
 
     def is_consumer(self):
         return True
 
-    @attribute.multi_calc
-    def _calc_avg(self):
-        pass
-
     heating_area = attribute.Attribute(
         unit=ureg.meter ** 2,
         description='Heating area',
-        functions=[_calc_avg]
     )
     x_spacing = attribute.Attribute(
         unit=ureg.meter,
         description='Spacing in x',
-        functions=[_calc_avg]
     )
     y_spacing = attribute.Attribute(
         unit=ureg.meter,
         description='Spacing in y',
-        functions=[_calc_avg]
     )
-
-    @classmethod
-    def create_on_match(cls, name, uh_elements):  # TODO: obsolete and equal? to check_conditions
-        """checks ps_elements and returns instance of UnderfloorHeating if all following criteria are fulfilled:
-            0. minimum of 20 elements
-            1. the pipe strand is located horizontally -- parallel to the floor
-            2. the pipe strand has most of the elements located in an specific z-coordinate (> 80%)
-            3. the spacing between adjacent elements with the same orientation is between 90mm and 210 mm
-            4. the total area of the underfloor heating is more than 1m² - just as safety factor
-            5. the quotient between the cross sectional area of the pipe strand (x-y plane) and the total heating area
-                is between 0.09 and 0.01 - area density for underfloor heating"""
-        # TODO: use only floor heating pipes and not connecting pipes
-
-        if len(uh_elements) < 20:
-            return  # number criteria failed
-
-        # z_coordinates = defaultdict(list)
-        # for element in uh_elements:
-        #     z_coordinates[element.position[2]].append(element)
-        # z_coordinate = []
-        # for coordinate in z_coordinates:
-        #     n_pipe = 0
-        #     for element in z_coordinates[coordinate]:
-        #         if isinstance(element, elements.PipeFitting):
-        #             n_pipe += 1
-        #     if n_pipe == 0 and (len(z_coordinates[coordinate]) > len(z_coordinate)):
-        #         z_coordinate = z_coordinates[coordinate]
-        # z_coordinate = z_coordinate[0].position[2]
-
-        ports_coors = np.array([p.position for e in uh_elements for p in e.ports])
-        counts = np.unique(ports_coors[:, 2], return_counts=True)
-        # TODO: cluster z coordinates
-        idx_max = np.argmax(counts[1])
-        if counts[1][idx_max] / ports_coors.shape[0] < 0.8:
-            return  # most elements in same z plane criteria failed
-
-        z_coordinate2 = counts[0][idx_max]
-
-        min_x = float("inf")
-        max_x = -float("inf")
-        min_y = float("inf")
-        max_y = -float("inf")
-        x_orientation = []
-        y_orientation = []
-        for element in uh_elements:
-            if np.abs(element.ports[0].position[2] - z_coordinate2) < 1 \
-                    and np.abs(element.ports[1].position[2] - z_coordinate2) < 1:
-                if element.position[0] < min_x:
-                    min_x = element.position[0]
-                if element.position[0] > max_x:
-                    max_x = element.position[0]
-                if element.position[1] < min_y:
-                    min_y = element.position[1]
-                if element.position[1] > max_y:
-                    max_y = element.position[1]
-
-                # TODO: what if e.g. 45° orientation??
-                if abs(element.ports[0].position[0] - element.ports[1].position[0]) < 1:
-                    y_orientation.append(element)
-                if abs(element.ports[0].position[1] - element.ports[1].position[1]) < 1:
-                    x_orientation.append(element)
-        heating_area = (max_x - min_x) * (max_y - min_y) * ureg.meter ** 2
-        if heating_area < 1e6 * ureg.meter ** 2:
-            return  # heating area criteria failed
-
-        # TODO: this is not correct for some layouts
-        if len(y_orientation) - 1 != 0:
-            x_spacing = (max_x - min_x) / (len(y_orientation) - 1)
-        if len(x_orientation) - 1 != 0:
-            y_spacing = (max_y - min_y) / (len(x_orientation) - 1)
-        if not ((90 < x_spacing < 210) or (90 < y_spacing < 210)):
-            return  # spacing criteria failed
-
-        # create instance to check final kpi criteria
-        underfloor_heating = cls(uh_elements)
-        # pre set _calc_avg results
-        underfloor_heating._heating_area = heating_area
-        underfloor_heating._x_spacing = x_spacing
-        underfloor_heating._y_spacing = y_spacing
-
-        kpi_criteria = (underfloor_heating.length * underfloor_heating.diameter) / heating_area
-
-        if 0.09 * ureg.dimensionless > kpi_criteria > 0.01 * ureg.dimensionless:
-            return underfloor_heating
-        # else kpi criteria failed
+    rated_power = attribute.Attribute(
+        unit=ureg.kilowatt,
+        description="rated power"
+    )
 
 
 class ParallelPump(HVACAggregationMixin, hvac.Pump):
     """Aggregates pumps in parallel"""
     aggregatable_elements = {
         hvac.Pump, hvac.Pipe, hvac.PipeFitting, PipeStrand}
-    multi = ('rated_power', 'rated_height', 'rated_volume_flow', 'diameter', 'diameter_strand', 'length')
+    multi = ('rated_power', 'rated_height', 'rated_volume_flow', 'diameter',
+             'diameter_strand', 'length')
 
     def get_ports(self, graph):
         ports = []
@@ -698,7 +672,8 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
         return graph
 
     rated_power = attribute.Attribute(
-        unit=ureg.kilowatt, description="rated power",
+        unit=ureg.kilowatt,
+        description="rated power",
         functions=[_calc_avg],
     )
 
@@ -871,12 +846,14 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
         diameter_times_length = 0
 
         for pump in self.elements:
-            if "Pump" in pump.ifc_type:
+            if type(pump) == hvac.Pump:
                 rated_power = getattr(pump, "rated_power")
                 rated_height = getattr(pump, "rated_height")
                 rated_volume_flow = getattr(pump, "rated_volume_flow")
                 diameter = getattr(pump, "diameter")
-                if not (rated_power and rated_height and rated_volume_flow and diameter):
+                if not (
+                        rated_power and rated_height and rated_volume_flow
+                        and diameter):
                     logger.warning("Ignored '%s' in aggregation", pump)
                     continue
 
@@ -909,7 +886,8 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
         total_diameter = math.sqrt(total_diameter)
         g = 9.81
         rho = 1000
-        # TODO: two pumps with rated power of 3 each give a total rated power of 674928
+        # TODO: two pumps with rated power of 3 each give a total rated
+        #  power of 674928
         total_rated_power = total_rated_volume_flow * avg_rated_height * g * rho
 
         result = dict(
@@ -924,10 +902,12 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
 
     rated_power = attribute.Attribute(
         description="rated power",
+        unit=ureg.kilowatt,
         functions=[_calc_avg]
     )
     rated_height = attribute.Attribute(
         description="rated height",
+        unit=ureg.meter,
         functions=[_calc_avg]
     )
     rated_volume_flow = attribute.Attribute(
@@ -937,30 +917,35 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
     )
     diameter = attribute.Attribute(
         description="diameter",
+        unit=ureg.millimeter,
         functions=[_calc_avg]
     )
     length = attribute.Attribute(
         description="length of aggregated pipe elements",
+        unit=ureg.meter,
         functions=[_calc_avg]
     )
     diameter_strand = attribute.Attribute(
         description="average diameter of aggregated pipe elements",
+        unit=ureg.millimeter,
         functions=[_calc_avg]
     )
 
     @classmethod
     def create_on_match(cls, cycle):  # TODO: obsolete, use find_matches
-        """reduce the found cycles, to just the cycles that fulfill the next criteria:
-            1. it's a parallel cycle (the two strands have the same flow direction)
-            2. it has one or more pumps in each strand
-            finally it creates a list with the founded cycles with the next lists:
-            'elements', 'up_strand', 'low_strand', 'ports'
-            """
+        """reduce the found cycles, to just the cycles that fulfill the next
+        criteria:
+        1. it's a parallel cycle (the two strands have the same flow direction)
+        2. it has one or more pumps in each strand
+        finally it creates a list with the founded cycles with the next lists:
+        'elements', 'up_strand', 'low_strand', 'ports'
+        """
         p_instance = "SpaceHeater"
         n_element = 0
         total_ports = {}
         new_cycle = {}
-        # all possible beginning and end of the cycle (always pipe fittings), pumps counting
+        # all possible beginning and end of the cycle (always pipe fittings),
+        # pumps counting
         for port in cycle:
             if isinstance(port.parent, getattr(elements, p_instance)):
                 n_element += 1
@@ -972,7 +957,8 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
                     total_ports[port.parent.guid].append(port)
         # 1st filter, cycle has more than 2 pump-ports, 1 pump
         if n_element >= 4:
-            new_cycle["elements"] = list(dict.fromkeys([v.parent for v in cycle]))
+            new_cycle["elements"] = list(
+                dict.fromkeys([v.parent for v in cycle]))
         else:
             return
         # 2nd filter, beginning and end of the cycle (parallel check)
@@ -988,7 +974,8 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
         lower = []
         for elem in new_cycle["elements"]:
             if new_cycle["elements"].index(final_ports[1].parent) \
-                    < new_cycle["elements"].index(elem) < new_cycle["elements"].index(final_ports[2].parent):
+                    < new_cycle["elements"].index(elem) < new_cycle[
+                "elements"].index(final_ports[2].parent):
                 upper.append(elem)
             else:
                 lower.append(elem)
@@ -1007,7 +994,8 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
 
 class Consumer(HVACAggregationMixin, hvac.HVACProduct):
     """Aggregates Consumer system boarder"""
-    multi = ('has_pump', 'rated_power', 'rated_pump_power', 'rated_height', 'rated_volume_flow', 'temperature_inlet',
+    multi = ('has_pump', 'rated_power', 'rated_pump_power', 'rated_height',
+             'rated_volume_flow', 'temperature_inlet',
              'temperature_outlet', 'volume', 'description')
 
     aggregatable_elements = {
@@ -1037,17 +1025,21 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         _element_graph = element_graph.copy()
 
         # remove blocking nodes
-        remove = {node for node in _element_graph.nodes if node.__class__ in boarder_class}
+        remove = {node for node in _element_graph.nodes if
+                  node.__class__ in boarder_class}
         _element_graph.remove_nodes_from(remove)
 
         # identify outer connections
         remove_ports = [port for ele in remove for port in ele.ports]
         outer_connections = {}
         for port in remove_ports:
-            outer_connections.update({neighbor.parent: (port, neighbor) for neighbor in graph.neighbors(port) if
-                                      neighbor not in remove_ports})
+            outer_connections.update(
+                {neighbor.parent: (port, neighbor) for neighbor in
+                 graph.neighbors(port) if
+                 neighbor not in remove_ports})
 
-        sub_graphs = nx.connected_components(_element_graph)  # get_parallels(graph, wanted, innerts)
+        sub_graphs = nx.connected_components(
+            _element_graph)  # get_parallels(graph, wanted, innerts)
 
         consumer_cycles = []
         metas = []
@@ -1055,10 +1047,12 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
         for sub in sub_graphs:
             # check for generator in sub_graphs
-            generator = {node for node in sub if node.__class__ in cls.blacklist}
+            generator = {node for node in sub if
+                         node.__class__ in cls.blacklist}
             if generator:
                 # check for consumer in generator subgraph
-                gen_con = {node for node in sub if node.__class__ in cls.whitelist}
+                gen_con = {node for node in sub if
+                           node.__class__ in cls.whitelist}
                 if gen_con:
                     # ToDO: Consumer separieren
                     a = 1
@@ -1069,10 +1063,12 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
                     # subgraph = graph.subgraph(sub)
                     # generator_cycles.append(subgraph)
             else:
-                consumer_cycle = {node for node in sub if node.__class__ in cls.whitelist}
+                consumer_cycle = {node for node in sub if
+                                  node.__class__ in cls.whitelist}
                 if consumer_cycle:
                     subgraph = _element_graph.subgraph(sub)
-                    outer_con = [outer_connections[ele][1] for ele in sub if ele in outer_connections]
+                    outer_con = [outer_connections[ele][1] for ele in sub if
+                                 ele in outer_connections]
                     consumer_cycles.append(subgraph)
                     metas.append({'outer_connections': outer_con})
 
@@ -1082,7 +1078,8 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         super().__doc__
 
         # broadcast request to all nested elements
-        # if one attribute included in multi_calc is requested, all multi_calc attributes are needed
+        # if one attribute included in multi_calc is requested, all multi_calc
+        # attributes are needed
 
         # 'temperature_inlet'
         # 'temperature_outlet'
@@ -1091,11 +1088,11 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
         if name == 'rated_power':
             for ele in self.elements:
-                if ele.ifc_type in Consumer.whitelist:
+                if type(ele) in Consumer.whitelist:
                     ele.request(name)
         if name in lst_pump:
             for ele in self.elements:
-                if ele.ifc_type == hvac.Pump.ifc_type:
+                if type(ele) == hvac.Pump:
                     for n in lst_pump:
                         ele.request(n)
         if name == 'volume':
@@ -1114,8 +1111,10 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         volume = None
 
         # Spaceheater und andere Consumer
-        # Leistung zusammenzählen - Unnötig da zb. für fußbodenheizung da nichts gegeben
-        # Aus Medium das Temperaturniveau ziehen! Wo steht das Medium? IFCDestributionSystems!?!?!?!
+        # Leistung zusammenzählen - Unnötig da zb. für fußbodenheizung da
+        # nichts gegeben
+        # Aus Medium das Temperaturniveau ziehen! Wo steht das Medium?
+        # IFCDestributionSystems!?!?!?!
 
         for ele in self.elements:
             # Pumps
@@ -1130,7 +1129,9 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
                 # Volumen
                 # volume_ = getattr(ele, "volume")
                 # if volume_:
-                #    volume += volume_ #ToDo: Sobald ein Volumen nicht vorhanden, Angabe: Nicht vorhanden???
+                #    volume += volume_
+                # ToDo: Sobald ein Volumen nicht vorhanden,
+                #  Angabe: Nicht vorhanden???
 
                 # this is not avg but max
                 if avg_rated_height != 0:
@@ -1156,10 +1157,12 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
                 else:
                     logger.warning("Ignored '%s' in aggregation", ele)
 
-        if not total_rated_pump_power and total_rated_volume_flow and avg_rated_height:
+        if not total_rated_pump_power and total_rated_volume_flow \
+                and avg_rated_height:
             g = 9.81 * ureg.meter / (ureg.second ** 2)
             rho = 1000 * ureg.kilogram / (ureg.meter ** 3)
-            total_rated_pump_power = total_rated_volume_flow * avg_rated_height * g * rho
+            total_rated_pump_power = \
+                total_rated_volume_flow * avg_rated_height * g * rho
 
         #  Volumen zusammenrechnen
         volume = 1
@@ -1192,7 +1195,8 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
             rated_power=total_rated_consumer_power,
             temperature_inlet=temperaure_inlet,
             temperature_outlet=temperature_outlet,
-            description=', '.join(['{1} x {0}'.format(k.__name__, v) for k, v in con_types.items()])
+            description=', '.join(['{1} x {0}'.format(k.__name__, v) for k, v in
+                                   con_types.items()])
         )
         return result
 
@@ -1224,11 +1228,13 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
     temperature_inlet = attribute.Attribute(
         description="temperature inlet",
+        unit=ureg.degC,
         functions=[_calc_avg_consumer]
     )
 
     temperature_outlet = attribute.Attribute(
         description="temperature outlet",
+        unit=ureg.degC,
         functions=[_calc_avg_consumer]
     )
 
@@ -1240,6 +1246,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
     rated_height = attribute.Attribute(
         description="rated volume flow",
+        unit=ureg.meter,
         functions=[_calc_avg_pump]
     )
 
@@ -1254,10 +1261,13 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
     )
 
 
-class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): #ToDo: Export Aggregation HKESim
+class ConsumerHeatingDistributorModule(HVACAggregationMixin,
+                                       hvac.HVACProduct):
+    # ToDo: Export Aggregation HKESim
     """Aggregates Consumer system boarder"""
     multi = (
-        'medium', 'use_hydraulic_separator', 'hydraulic_separator_volume', 'temperature_inlet', 'temperature_outlet')
+        'medium', 'use_hydraulic_separator', 'hydraulic_separator_volume',
+        'temperature_inlet', 'temperature_outlet')
     # ToDo: Abused to not just sum attributes from elements
 
     aggregatable_elements = {
@@ -1270,7 +1280,9 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
                  hvac.CoolingTower]
 
     def __init__(self, element_graph, *args, **kwargs):
-        self.undefined_consumer_ports = kwargs.pop('undefined_consumer_ports', None)  # TODO: Richtig sO? WORKAROUND
+        self.undefined_consumer_ports = kwargs.pop('undefined_consumer_ports',
+                                                   None)
+        # TODO: Richtig sO? WORKAROUND
         self._consumer_cycles = kwargs.pop('consumer_cycles', None)
         self.consumers = []
         for consumer in self._consumer_cycles:
@@ -1297,9 +1309,11 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
         if (len(self.undefined_consumer_ports) % 2) == 0:
             for i in range(0, int(len(self.undefined_consumer_ports) / 2)):
                 consumer_ports.append(
-                    (self.undefined_consumer_ports[2 * i][0], self.undefined_consumer_ports[2 * i + 1][0]))
+                    (self.undefined_consumer_ports[2 * i][0],
+                     self.undefined_consumer_ports[2 * i + 1][0]))
         else:
-            raise NotImplementedError("Odd Number of loose ends at the distributor.")
+            raise NotImplementedError(
+                "Odd Number of loose ends at the distributor.")
         return consumer_ports
 
     @classmethod
@@ -1325,37 +1339,46 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
                           'consumer_cycles': []})
 
             for port in remove_ports:
-                outer_connections.update({neighbor.parent: (port, neighbor) for neighbor in graph.neighbors(port) if
-                                          neighbor not in remove_ports})
+                outer_connections.update(
+                    {neighbor.parent: (port, neighbor) for neighbor in
+                     graph.neighbors(port) if
+                     neighbor not in remove_ports})
 
-            sub_graphs = nx.connected_components(_element_graph)  # get_parallels(graph, wanted, innerts)
+            sub_graphs = nx.connected_components(
+                _element_graph)  # get_parallels(graph, wanted, innerts)
 
             for sub in sub_graphs:
                 # check for generator in sub_graphs
-                generator = {node for node in sub if node.__class__ in cls.blacklist}
+                generator = {node for node in sub if
+                             node.__class__ in cls.blacklist}
                 if generator:
                     # check for consumer in generator subgraph
-                    gen_con = {node for node in sub if node.__class__ in cls.whitelist}
+                    gen_con = {node for node in sub if
+                               node.__class__ in cls.whitelist}
                     if gen_con:
                         # ToDO: Consumer separieren
                         pass
                     else:
-                        outer_con = [outer_connections[ele][1] for ele in sub if ele in outer_connections]
+                        outer_con = [outer_connections[ele][1] for ele in sub if
+                                     ele in outer_connections]
                         if outer_con:
                             metas[-1]['outer_connections'].extend(outer_con)
                         # pure generator subgraph
                         # subgraph = graph.subgraph(sub)
                         # generator_cycles.append(subgraph)
                 else:
-                    consumer_cycle = {node for node in sub if node.__class__ in cls.whitelist}
+                    consumer_cycle = {node for node in sub if
+                                      node.__class__ in cls.whitelist}
                     if consumer_cycle:
                         subgraph = _element_graph.subgraph(sub)
                         consumer_cycles.extend(subgraph.nodes)
                         metas[-1]['consumer_cycles'].append(subgraph.nodes)
                     else:
-                        outer_con = [outer_connections[ele] for ele in sub if ele in outer_connections]
+                        outer_con = [outer_connections[ele] for ele in sub if
+                                     ele in outer_connections]
                         if outer_con:
-                            metas[-1]['undefined_consumer_ports'].extend(outer_con)
+                            metas[-1]['undefined_consumer_ports'].extend(
+                                outer_con)
 
             subnodes = [dist, *consumer_cycles]
 
@@ -1376,20 +1399,20 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
         )
         return result
 
-
-
     medium = attribute.Attribute(
-        description="Medium of the DestributerCycle",
+        description="Medium of the DistributerCycle",
         functions=[_calc_avg]
     )
 
     temperature_inlet = attribute.Attribute(
         description="temperature inlet",
+        unit=ureg.degC,
         functions=[_calc_avg]
     )
 
     temperature_outlet = attribute.Attribute(
         description="temperature outlet",
+        unit=ureg.degC,
         functions=[_calc_avg]
     )
 
@@ -1400,6 +1423,13 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
 
     hydraulic_separator_volume = attribute.Attribute(
         description="Volume of the hdydraulic seperator",
+        unit=ureg.meter ** 3,
+        functions=[_calc_avg]
+    )
+
+    rated_power_consumers = attribute.Attribute(
+        description="Rated heating power of all consumers",
+        unit=ureg.kilowatt,
         functions=[_calc_avg]
     )
 
@@ -1432,7 +1462,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
          based on a previous filtering"""
         new_aggregations = []
         thermal_zones = filter_instances(instances, 'ThermalZone')
-        total_area = sum(i.area for i in thermal_zones)
+        total_area = sum(i.gross_area for i in thermal_zones)
         for group in groups:
             if group == 'one_zone_building':
                 name = "Aggregated_%s" % group
@@ -1448,7 +1478,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                 instances[instance.guid] = instance
             elif group == 'not_bind':
                 # last criterion no similarities
-                area = sum(i.area for i in groups[group])
+                area = sum(i.gross_area for i in groups[group])
                 if area / total_area <= 0.05:
                     # Todo: usage and conditions criterion
                     name = "Aggregated_not_neighbors"
@@ -1480,37 +1510,50 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
 
     def _intensive_calc(self, name):
         """intensive properties getter - volumetric mean
-        intensive_attributes = ['t_set_heat', 't_set_cool', 'height',  'AreaPerOccupant', 'typical_length',
-        'typical_width', 'T_threshold_heating', 'activity_degree_persons', 'fixed_heat_flow_rate_persons',
-        'internal_gains_moisture_no_people', 'T_threshold_cooling', 'ratio_conv_rad_persons', 'machines',
-        'ratio_conv_rad_machines', 'lighting_power', 'ratio_conv_rad_lighting', 'infiltration_rate',
-        'max_user_infiltration', 'min_ahu', 'max_ahu', 'persons']"""
-        prop_sum = sum(getattr(tz, name) * tz.volume for tz in self.elements if getattr(tz, name) is not None
-                       and tz.volume is not None)
-        vol_total = sum(tz.volume for tz in self.elements if tz.volume is not None)
+        intensive_attributes = ['t_set_heat', 't_set_cool', 'height',
+        'AreaPerOccupant', 'typical_length', 'typical_width',
+        'T_threshold_heating', 'activity_degree_persons',
+        'fixed_heat_flow_rate_persons', 'internal_gains_moisture_no_people',
+        'T_threshold_cooling', 'ratio_conv_rad_persons', 'machines',
+        'ratio_conv_rad_machines', 'lighting_power', 'ratio_conv_rad_lighting',
+        'infiltration_rate', 'max_user_infiltration', 'min_ahu', 'max_ahu',
+        'persons']"""
+        prop_sum = sum(
+            getattr(tz, name) * tz.net_volume for tz in self.elements if
+            getattr(tz, name) is not None
+            and tz.net_volume is not None)
+        vol_total = sum(
+            tz.net_volume for tz in self.elements if tz.net_volume is not None)
         return prop_sum / vol_total
 
     def _intensive_list_calc(self, name):
         """intensive list properties getter - volumetric mean
-        intensive_list_attributes = ['heating_profile', 'cooling_profile', 'persons_profile', 'machines_profile',
-         'lighting_profile', 'max_overheating_infiltration', 'max_summer_infiltration',
+        intensive_list_attributes = ['heating_profile', 'cooling_profile',
+        'persons_profile', 'machines_profile', 'lighting_profile',
+        'max_overheating_infiltration', 'max_summer_infiltration',
          'winter_reduction_infiltration']"""
-        list_attrs = {'heating_profile': 25, 'cooling_profile': 25, 'persons_profile': 24,
-                      'machines_profile': 24, 'lighting_profile': 24, 'max_overheating_infiltration': 2,
+        list_attrs = {'heating_profile': 25, 'cooling_profile': 25,
+                      'persons_profile': 24,
+                      'machines_profile': 24, 'lighting_profile': 24,
+                      'max_overheating_infiltration': 2,
                       'max_summer_infiltration': 3,
                       'winter_reduction_infiltration': 3}
         length = list_attrs[name]
-        vol_total = sum(tz.volume for tz in self.elements if tz.volume is not None).m
+        vol_total = sum(tz.net_volume for tz in self.elements if
+                        tz.net_volume is not None).m
         aux = []
         for x in range(0, length):
-            aux.append(sum(getattr(tz, name)[x] * tz.volume.m for tz in self.elements if getattr(tz, name) is not None
-                           and tz.volume is not None) / vol_total)
+            aux.append(sum(
+                getattr(tz, name)[x] * tz.net_volume.m for tz in self.elements
+                if getattr(tz, name) is not None
+                and tz.net_volume is not None) / vol_total)
         return aux
 
     def _extensive_calc(self, name):
         """extensive properties getter
-        intensive_attributes = ['area', 'volume']"""
-        prop_sum = sum(getattr(tz, name) for tz in self.elements if getattr(tz, name) is not None)
+        intensive_attributes = ['gross_area', 'net_area', 'volume']"""
+        prop_sum = sum(getattr(tz, name) for tz in self.elements if
+                       getattr(tz, name) is not None)
         return prop_sum
 
     def _bool_calc(self, name) -> bool:
@@ -1547,7 +1590,11 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         functions=[_intensive_calc],
         unit=ureg.degC,
     )
-    area = attribute.Attribute(
+    net_area = attribute.Attribute(
+        functions=[_extensive_calc],
+        unit=ureg.meter ** 2
+    )
+    gross_area = attribute.Attribute(
         functions=[_extensive_calc],
         unit=ureg.meter ** 2
     )
@@ -1555,7 +1602,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         functions=[_extensive_calc],
         unit=ureg.meter ** 3
     )
-    volume = attribute.Attribute(
+    gross_volume = attribute.Attribute(
         functions=[_extensive_calc],
         unit=ureg.meter ** 3
     )
@@ -1693,7 +1740,7 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
         # (not the case if parallel generators where found)
 
         boarder_elements = [node for node in _graph.nodes if
-                  node.ifc_type in cls.boarder_elements]
+                            node.ifc_type in cls.boarder_elements]
         if len(boarder_elements) > 1:
             raise NotImplementedError
         if boarder_elements:
@@ -1753,7 +1800,8 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
             metas:
                 List of dict with metas information. One element for each
                 element_graph. In this case it holds non_relevant nodes, which
-                have to be deleted later but are not contained in the **resulting graph?** #todo
+                have to be deleted later but are not contained in the
+                **resulting graph?** #todo
                 element_graph. Because we are currently not able to distinguish
                 to which graph these non_relevant nodes belong, we just output
                 the complete list of non relevant nodes for every element_graph.
@@ -1765,8 +1813,10 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
         wanted = set(cls.wanted_elements)
         boarders = set(cls.boarder_elements)
         inerts = set(cls.aggregatable_elements) - wanted
-        _graph = HvacGraph.remove_not_wanted_nodes(element_graph, wanted, inerts)
-        dict_all_cycles_wanted = HvacGraph.get_all_cycles_with_wanted(_graph, wanted)
+        _graph = HvacGraph.remove_not_wanted_nodes(element_graph, wanted,
+                                                   inerts)
+        dict_all_cycles_wanted = HvacGraph.get_all_cycles_with_wanted(_graph,
+                                                                      wanted)
         list_all_cycles_wanted = [*dict_all_cycles_wanted.values()]
 
         # create flat lists to substract for non relevant
@@ -1776,12 +1826,14 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
         # check for generation cycles
         generator_cycles = []
         for cycles_list in list_all_cycles_wanted:
-            generators = list(nx.subgraph(_graph, cycle) for cycle in cycles_list
-                              if any(node.ifc_type == block for block in
-                                     boarders for node in cycle))
+            generators = list(
+                nx.subgraph(_graph, cycle) for cycle in cycles_list
+                if any(node.ifc_type == block for block in
+                       boarders for node in cycle))
             generator_cycles.extend(generators)
             generator_flat.update(generators[0].nodes)
-            wanted_flat.update([item for sublist in cycles_list for item in sublist])
+            wanted_flat.update(
+                [item for sublist in cycles_list for item in sublist])
 
         non_relevant = wanted_flat - generator_flat
 
@@ -1802,15 +1854,15 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
             metas.append(dict())
             metas[i]['bypass_elements'] = []
             for cycle in list_all_cycles_wanted[i]:
-                if len(cycle - cleaned_generator_cycles[i].nodes - non_relevant) > 0:
+                if len(cycle - cleaned_generator_cycles[
+                    i].nodes - non_relevant) > 0:
                     continue
                 bypass_elements = cycle - cleaned_generator_cycles[i].nodes
                 cleaned_generator_cycles[i].add_nodes_from(bypass_elements)
                 non_relevant.difference_update(bypass_elements)
                 metas[i]['bypass_elements'].append(bypass_elements)
 
-
-        #metas = [{}] * (len(cleaned_generator_cycles)-1)
+        # metas = [{}] * (len(cleaned_generator_cycles)-1)
         if len(metas) > 0:
             metas[0]['non_relevant'] = non_relevant
         return cleaned_generator_cycles, metas
@@ -1872,10 +1924,10 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
     def _calc_has_bypass(self):
         decision = BoolDecision(
             "Does the generator %s has a bypass?" % self.name,
-            global_key=self.guid+'.bypass',
+            global_key=self.guid + '.bypass',
             allow_save=True,
             allow_load=True,
-            related=[element.guid for element in self.elements],)
+            related=[element.guid for element in self.elements], )
         has_bypass = decision.decide()
         print(has_bypass)
         return dict(has_bypass=has_bypass)
@@ -1905,8 +1957,10 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
         volume = None
 
         # Spaceheater und andere Consumer
-        # Leistung zusammenzählen - Unnötig da zb. für fußbodenheizung da nichts gegeben
-        # Aus Medium das Temperaturniveau ziehen! Wo steht das Medium? IFCDestributionSystems!?!?!?!
+        # Leistung zusammenzählen - Unnötig da zb. für fußbodenheizung da
+        # nichts gegeben
+        # Aus Medium das Temperaturniveau ziehen! Wo steht das Medium?
+        # IFCDestributionSystems!?!?!?!
 
         for ele in self.elements:
             # Pumps
@@ -1921,7 +1975,9 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
                 # Volumen
                 # volume_ = getattr(ele, "volume")
                 # if volume_:
-                #    volume += volume_ #ToDo: Sobald ein Volumen nicht vorhanden, Angabe: Nicht vorhanden???
+                #    volume += volume_
+                # ToDo: Sobald ein Volumen nicht vorhanden, Angabe: Nicht
+                #  vorhanden???
 
                 # this is not avg but max
                 if avg_rated_height != 0:
@@ -1930,7 +1986,8 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
                 else:
                     avg_rated_height = rated_height
 
-                if not rated_volume_flow:  # Falls eine Pumpe kein volumenstrom hat unvollständig
+                if not rated_volume_flow:
+                    # Falls eine Pumpe kein volumenstrom hat unvollständig
                     total_rated_volume_flow = None
                     continue
                 else:
@@ -1947,10 +2004,12 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
                 else:
                     self.logger.warning("Ignored '%s' in aggregation", ele)
 
-        if not total_rated_pump_power and total_rated_volume_flow and avg_rated_height:
+        if not total_rated_pump_power and total_rated_volume_flow \
+                and avg_rated_height:
             g = 9.81 * ureg.meter / (ureg.second ** 2)
             rho = 1000 * ureg.kilogram / (ureg.meter ** 3)
-            total_rated_pump_power = total_rated_volume_flow * avg_rated_height * g * rho
+            total_rated_pump_power = \
+                total_rated_volume_flow * avg_rated_height * g * rho
 
         #  Volumen zusammenrechnen
         volume = 1
@@ -1965,7 +2024,8 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
 
     # generator related attributes
     rated_power = attribute.Attribute(
-        unit=ureg.kilowatt, description="rated power",
+        unit=ureg.kilowatt,
+        description="rated power",
         functions=[_calc_generator_attributes],
     )
     # Not implemented
@@ -1993,21 +2053,25 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
     )
     rated_pump_power = attribute.Attribute(
         description="rated pump power",
+        unit=ureg.kilowatt,
         functions=[_calc_avg_pump]
     )
 
     rated_volume_flow = attribute.Attribute(
         description="rated volume flow",
+        unit=ureg.meter ** 3 / ureg.hour,
         functions=[_calc_avg_pump]
     )
 
     volume = attribute.Attribute(
         description="volume",
+        unit=ureg.meter ** 3,
         functions=[_calc_avg_pump]
     )
 
     rated_height = attribute.Attribute(
         description="rated volume flow",
+        unit=ureg.meter,
         functions=[_calc_avg_pump]
     )
     # bypass

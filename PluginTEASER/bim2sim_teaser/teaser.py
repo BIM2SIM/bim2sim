@@ -4,6 +4,7 @@ from bim2sim.workflow import BPSMultiZoneSeparatedLayersLow, BPSMultiZoneSeparat
     BPSMultiZoneCombinedLayersFull, BPSMultiZoneCombinedLayersLow, BPSOneZoneAggregatedLayersLow
 from bim2sim.kernel.elements import bps as bps_elements
 from bim2sim.task import bps
+import bim2sim_teaser.task as teaser
 
 
 class TEASERManager(Plugin):
@@ -29,5 +30,7 @@ class TEASERManager(Plugin):
         bps.EnrichBuildingByTemplates,  # spaces -> LOD.low
         bps.DisaggregationCreation,
         bps.BindThermalZones,
-        bps.ExportTEASER,
+        teaser.WeatherTEASER,
+        teaser.ExportTEASER,
+        teaser.SimulateModel,
     ]

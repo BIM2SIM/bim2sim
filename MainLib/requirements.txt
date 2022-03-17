@@ -6,7 +6,6 @@ mako
 networkx>=2.2
 pint
 rpyc
-teaser==0.7.6
 translators
 geomeppy
 shapely
@@ -14,3 +13,4 @@ numpy-stl
 dill
 jinja2
 deep_translator
+pandas
