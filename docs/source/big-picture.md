@@ -1,8 +1,9 @@
-# Advanced
+# Big Picture
 
 ```{eval-rst}
 .. toctree::
    :maxdepth: 2
 
-   writing-your-own-plugin
 ```
+
+How bim2sim works ...
