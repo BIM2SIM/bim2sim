@@ -462,4 +462,9 @@ workspace/
 *.rvi
 
 # Energy plus input files
-*.idf 
+*.idf
+
+# Sphinx
+/docs/build/
+/docs/source/code/
+

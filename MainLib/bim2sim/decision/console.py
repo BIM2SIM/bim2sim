@@ -1,13 +1,15 @@
+"""Decision handling via console."""
+
 import re
 
-from ..decision import Decision, BoolDecision, RealDecision, ListDecision, \
+from bim2sim.decision import Decision, BoolDecision, RealDecision, ListDecision, \
     DecisionBunch
-from ..decision import DecisionCancel, DecisionSkip, DecisionSkipAll, \
-    PendingDecisionError, DecisionException
-from .decisionhandler import DecisionHandler
+from bim2sim.decision import DecisionCancel, DecisionSkip, DecisionSkipAll
+from bim2sim.decision.decisionhandler import DecisionHandler
 
 
 class ConsoleDecisionHandler(DecisionHandler):
+    """DecisionHandler to user with an interactive console."""
 
     @staticmethod
     def get_input_txt(decision):

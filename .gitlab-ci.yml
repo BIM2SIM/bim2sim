@@ -321,18 +321,17 @@ pylint:
     - $CI_COMMIT_REF_NAME/pylint
 
 sphinxdoc:
-  image: $CI_REGISTRY/environment:development
+  image: $CI_REGISTRY/tool:development
   stage: doc
 
   before_script:
-    - pip install sphinx anybadge sphinx-rtd-theme
-    - pip install m2r2
+    - pip install -r /bim2sim/docs/requirements.txt
+    - pip install anybadge
     
   script:
-    - mv ./* /bim2sim/
 #    - source activate base
     - mkdir -p $CI_COMMIT_REF_NAME/docs
-    - sphinx-apidoc -o /bim2sim/docs/source /bim2sim  # create rst files for all python files 
+    - sphinx-apidoc -M -o /bim2sim/docs/source/code /bim2sim  # create rst files for all python files
     - sphinx-build -b html /bim2sim/docs/source $CI_COMMIT_REF_NAME/docs
     - anybadge --value="passing" --file=$CI_COMMIT_REF_NAME/docs/doc.svg --label documentation
 

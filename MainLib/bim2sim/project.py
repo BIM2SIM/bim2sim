@@ -107,7 +107,7 @@ def config_base_setup(path, backend=None):
 
 
 class FolderStructure:
-    """Project related file and folder handling"""
+    """Project related file and folder handling."""
 
     CONFIG = "config.ini"
     DECISIONS = "decisions.json"
@@ -225,9 +225,18 @@ class FolderStructure:
         self.copy_assets(self.root)
 
     @classmethod
-    def create(cls, rootpath, ifc_path=None, target=None, open_conf=False):
-        """Create instance, set source path, create project folder
-        copy ifc, base config setup and open config if needed"""
+    def create(cls, rootpath: str, ifc_path: str = None, target: str = None, open_conf=False):
+        """Create ProjectFolder and set it up.
+
+        Create instance, set source path, create project folder
+        copy ifc, base config setup and open config if needed.
+
+        Args:
+            rootpath: path of root folder
+            ifc_path: path to copy ifc file from
+            target: the target simulation tool
+            open_conf: flag to open the config file in default application
+        """
 
         # set rootpath
         self = cls(rootpath)
@@ -249,9 +258,11 @@ class FolderStructure:
         return self
 
     def delete(self, confirm=True):
-        """Delete project folder and all files in it
+        """Delete project folder and all files in it.
 
-        :raises: AssertionError"""
+        Raises:
+            AssertionError: if not existing on file system
+        """
         # TODO: decision system
         if confirm:
             ans = input("Delete project folder and all included files? [y/n]")
@@ -272,11 +283,19 @@ class FolderStructure:
 
 
 class Project:
-    """Project resource handling"""
+    """Project resource handling.
+
+    Args:
+        path: path to load project from
+        workflow: Workflow to use with this project
+
+    Raises:
+        AssertionError: on invalid path. E.g. if not existing
+    """
     formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
     _active_project = None  # lock to prevent multiple interfering projects
 
-    def __init__(self, path=None, workflow=None):
+    def __init__(self, path: str = None, workflow=None):
         """Load existing project"""
         self.storage = {}  # project related items
         self.paths = FolderStructure(path)
@@ -318,7 +337,7 @@ class Project:
         return project
 
     @staticmethod
-    def is_project_folder(path: str):
+    def is_project_folder(path: str) -> bool:
         return FolderStructure(path).is_project_folder()
 
     @classmethod
@@ -354,7 +373,15 @@ class Project:
         return config
 
     def run(self, interactive=False, cleanup=True):
-        """Run project"""
+        """Run project.
+
+        Args:
+            interactive: if True the Task execution order is determined by Decisions else its derived by plugin
+            cleanup: execute cleanup logic. Not doing this is only relevant for debugging
+
+        Raises:
+            AssertionError: if project setup is broken or on invalid Decisions
+        """
         if not self.paths.is_project_folder():
             raise AssertionError("Project ist not set correctly!")
 
@@ -420,6 +447,7 @@ class Project:
         self._teardown_logger()
 
     def delete(self):
+        """Delete the project."""
         self.finalize(True)  # success True to prevent unnecessary decision saving
         self.paths.delete(False)
         logger.info("Project deleted")
