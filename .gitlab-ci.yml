@@ -15,7 +15,6 @@ stages:
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
-  # DOCKER_HOST: tcp://localhost:2375
 build_env:master:
   image: docker:latest
   stage: build-env
@@ -50,7 +49,6 @@ build_env:ubuntu_base:
        - Environment/envBase.Dockerfile
        - MainLib/requirements.txt
        - .gitlab-ci.yml
-
 
 build_env:development:
   image: docker:latest
@@ -196,7 +194,7 @@ build_tool:teaser:
     changes:
        - PluginTEASER/*
 
-coverage_Base:
+test_Base:
    <<: *only-default
    image: $CI_REGISTRY/environment:development
    stage: test
@@ -217,7 +215,7 @@ coverage_Base:
      paths:
      - $CI_COMMIT_REF_NAME/coverage
 
-coverage_EP:
+test_EP:
    <<: *only-default
    image: $CI_REGISTRY/environment:energyplus
    stage: test
@@ -238,7 +236,7 @@ coverage_EP:
      paths:
      - $CI_COMMIT_REF_NAME/coverage
 
-coverage_TEASER:
+test_TEASER:
    <<: *only-default
    image: $CI_REGISTRY/environment:teaser
    stage: test
@@ -260,7 +258,7 @@ coverage_TEASER:
      - $CI_COMMIT_REF_NAME/coverage
 
 
-coverage_CFD:
+test_CFD:
    <<: *only-default
    image: $CI_REGISTRY/environment:cfd
    stage: test
@@ -281,26 +279,6 @@ coverage_CFD:
      paths:
      - $CI_COMMIT_REF_NAME/coverage
 
-#todo check if this is still needed or if master branch results are also available under $CI_COMMIT_REF_NAME/...
-# pylint:
-#   stage: test
-#   image: python:3.6
-#   script:
-#     - pip install pylint pylint-json2html pylint-exit anybadge --quiet
-#     - mkdir public
-#     - shopt -s globstar
-#     - pylint --output-format=text **/*.py | tee public/pylint.txt || pylint-exit $?
-#     - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' public/pylint.txt)
-#     - echo "Pylint score was $score"
-#     - anybadge --value=$score --file=public/pylint.svg pylint
-#     - pylint --output-format=jsonextended --disable=import-error --load-plugins=pylint_json2html **/*.py | tee public/pylint.json || pylint-exit $?
-#     - pylint-json2html -f jsonextended -o public/index.html < public/pylint.json
-#   artifacts:
-#     paths:
-#     - public
-#   only:
-#     - master
-
 pylint:
   stage: test
   image: python:3.6
@@ -319,6 +297,7 @@ pylint:
   artifacts:
     paths:
     - $CI_COMMIT_REF_NAME/pylint
+    expire_in: 2 hrs
 
 sphinxdoc:
   image: $CI_REGISTRY/tool:development
@@ -329,7 +308,6 @@ sphinxdoc:
     - pip install anybadge
     
   script:
-#    - source activate base
     - mkdir -p $CI_COMMIT_REF_NAME/docs
     - sphinx-apidoc -M -o /bim2sim/docs/source/code /bim2sim  # create rst files for all python files
     - sphinx-build -b html /bim2sim/docs/source $CI_COMMIT_REF_NAME/docs
@@ -347,11 +325,11 @@ pages:
   before_script:
     - apt-get update -y
     - apt-get install zip unzip -y
+    - apt-get install curl -y
   script:
-    - set +e
+    - set -e
     - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
     - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
-    - set -e
     # Add/update content
     # TODO: mv $CI_COMMIT_REF_NAME/* to public/$CI_COMMIT_REF_NAME/*
     - mkdir -p public/$CI_COMMIT_REF_NAME
@@ -362,27 +340,3 @@ pages:
   artifacts:
     paths:
       - public
-
-# mrpost:
-#   stage: visualize
-#   dependencies:
-#     - pages
-#   before_script:
-#     - apt-get update -y
-#     - apt-get install jq -y
-#   script:
-#     - newline=$' \n '
-#     - msg1=$'## This is a CI-Post \n '
-#     - msg2="**Pyint score** on your branch $CI_MERGE_REQUEST_TARGET_BRANCH_NAME [![pylint]( $CI_PAGES_URL/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME/pylint.svg )]( $CI_PAGES_URL/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME/pylint.html )  "
-#     - msg3="**Pyint score** on branch $CI_COMMIT_REF_NAME [![pylint]( $CI_PAGES_URL/$CI_COMMIT_REF_NAME/pylint.svg )]( $CI_PAGES_URL/$CI_COMMIT_REF_NAME/pylint.html ) .  "
-#     - msg4="You can view the **Pylint Log** by clicking on the badges  "
-#     - msg=$msg1$msg2$newline$msg3$newline$msg4
-#     - curl --request GET --header "PRIVATE-TOKEN:$GL_TOKEN" https://git.rwth-aachen.de/api/v4/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes | tee notes.json
-#     - mapfile -t ids < <(jq '.[].id' notes.json)
-#     - mapfile -t bodys < <(jq '.[].body' notes.json)
-#     - len=${#ids[@]}
-#     - for i in $(seq 0 $len); do if [[ ${bodys[i]} == *"This is a CI-Post"* ]]; then id=${ids[i]}; break; fi; done
-#     - if [ -z ${id+x} ]; then curl -d "body=$msg" --request POST --header "PRIVATE-TOKEN:$GL_TOKEN" https://git.rwth-aachen.de/api/v4/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes?body=note; else curl -d "body=$msg" --request PUT --header "PRIVATE-TOKEN:$GL_TOKEN" https://git.rwth-aachen.de/api/v4/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes/$id/?body=note; fi
-#     - curl -d "body=$msg" --request PUT --header "PRIVATE-TOKEN:$GL_TOKEN" https://git.rwth-aachen.de/api/v4/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes/$id/?body=note
-#   only:
-#     - merge_requests
