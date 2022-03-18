@@ -1,0 +1,3 @@
+# Writing your own bim2sim plugin
+
+...

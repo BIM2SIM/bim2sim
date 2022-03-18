@@ -1,19 +1,18 @@
-"""
-Decision system.
+"""Decision system.
 
 This package contains:
     - class Decision (and child classes) for representing decisions
     - class DecisionBunch for handling collections of Decision instances
     - class DecisionHandler to handle decisions
     - functions save() and load() to save to file system
-    """
+"""
 
 import logging
 import enum
 import json
 import hashlib
 from collections import Counter
-from typing import Iterable, Callable, List, Dict, Any
+from typing import Iterable, Callable, List, Dict, Any, Tuple, Union
 
 import pint
 
@@ -70,15 +69,37 @@ def convert(from_version, to_version, data):
 class Decision:
     """A question and a value which should be set to answer the question.
 
+    Args:
+        question: The question asked to the user
+        validate_func: callable to validate the users input
+        key: key is used by DecisionBunch to create answer dict
+        global_key: unique key to identify decision. Required for saving
+        allow_skip: set to True to allow skipping the decision and user None as value
+        validate_checksum: if provided, loaded decisions are only valid if checksum matches
+        related: iterable of GUIDs this decision is related to (frontend)
+        context: iterable of GUIDs for additional context to this decision (frontend)
+        default: default answer
+        group: group of decisions this decision belongs to
+
     Example:
-        decision = Decision("How much is the fish?", allow_skip=True)
-        decision.value  # will raise ValueError
-        decision.value = 10  # ok
-        decision.freeze()  # decision cant be changed afterwards
-        decision.value = 12  # value cant be changed, will raise AssertionError
-        decision.freeze(False)  # unfreeze decision
-        decision.reset()  # reset to initial state
-        decision.skip()  # set value to None, only works if allow_skip flag set
+        >>> decision = Decision("How much is the fish?", allow_skip=True)
+
+        # the following is usually done by child classes. Here it's a hack to make plain Decisions work
+        >>> decision._validate = lambda value: True
+
+        >>> decision.value  # will raise ValueError
+        Traceback (most recent call last):
+        ValueError: Can't get value from invalid decision.
+        >>> decision.value = 10  # ok
+        >>> decision.value
+        10
+        >>> decision.freeze()  # decision cant be changed afterwards
+        >>> decision.value = 12  # value cant be changed, will raise AssertionError
+        Traceback (most recent call last):
+        AssertionError: Can't change value of frozen decision
+        >>> decision.freeze(False)  # unfreeze decision
+        >>> decision.reset()  # reset to initial state
+        >>> decision.skip()  # set value to None, only works if allow_skip flag set
     """
 
     SKIP = "skip"
@@ -92,19 +113,6 @@ class Decision:
                  related: List[str] = None, context: List[str] = None,
                  default=None, group: str = None):
 
-        """
-        :param question: The question asked to the user
-        :param validate_func: callable to validate the users input
-        :param key: key is used by DecisionBunch to create answer dict
-        :param global_key: unique key to identify decision. Required for saving
-        :param allow_skip: set to True to allow skipping the decision and user None as value
-        :param validate_checksum: if provided, loaded decisions are only valid if checksum matches
-        :param related: iterable of GUIDs this decision is related to (frontend)
-        :param context: iterable of GUIDs for additional context to this decision (frontend)
-        :param default: default answer
-        :param group: group of decisions this decision belongs to
-        :raises: :class:'AttributeError'::
-        """
         self.status = Status.pending
         self._frozen = False
         self._value = None
@@ -136,7 +144,10 @@ class Decision:
     def value(self):
         """Answer value of decision.
 
-        Getting the value will raise a ValueError until set with valid value."""
+        Raises:
+            ValueError: On accessing the value before it is set or by setting an invalid value
+            AssertionError: By changing a frozen Decision
+        """
         if self.valid():
             return self._value
         else:
@@ -158,12 +169,25 @@ class Decision:
             raise ValueError("Invalid value: %r for %s" % (value, self.question))
 
     def reset(self):
+        """Reset the Decision to it's initial state.
+
+        Raises:
+            AssertionError: if Decision is frozen
+        """
         if self._frozen:
             raise AssertionError("Can't change frozen decision")
         self.status = Status.pending
         self._value = None
 
     def freeze(self, freeze=True):
+        """Freeze this Decision to prevent further manipulation.
+
+        Args:
+            freeze: the freeze state
+
+        Raises:
+            AssertionError: If the Decision is currently pending
+        """
         if self.status == Status.pending and freeze:
             raise AssertionError(
                 "Can't freeze pending decision. Set valid value first.")
@@ -188,14 +212,14 @@ class Decision:
                            .encode('utf-8')).hexdigest()
 
     def convert(self, value):
-        """Convert value to inner type"""
+        """Convert value to inner type."""
         return value
 
     def _validate(self, value):
         raise NotImplementedError("Implement method _validate!")
 
-    def validate(self, value):
-        """Checks value with validate_func and returns truth value"""
+    def validate(self, value) -> bool:
+        """Checks value with validate_func and returns truth value."""
         _value = self.convert(value)
         basic_valid = self._validate(_value)
 
@@ -209,7 +233,8 @@ class Decision:
 
         return basic_valid and external_valid
 
-    def valid(self):
+    def valid(self) -> bool:
+        """Check if Decision is valid."""
         return self.status == Status.ok \
                or (self.status == Status.skipped and self.allow_skip)
 
@@ -246,13 +271,15 @@ class Decision:
         return kwargs
 
     def get_options(self):
+        """Get all available options."""
         options = [Decision.CANCEL]
         if self.allow_skip:
             options.append(Decision.SKIP)
 
         return options
 
-    def get_question(self):
+    def get_question(self) -> str:
+        """Get the question."""
         return self.question
 
     def get_body(self):
@@ -266,10 +293,13 @@ class Decision:
 
 
 class RealDecision(Decision):
-    """Accepts input of type real"""
+    """Accepts input of type real.
 
-    def __init__(self, *args, unit=None, **kwargs):
-        """"""
+    Args:
+        unit: the unit of the Decisions value
+    """
+
+    def __init__(self, *args, unit: pint.Quantity = None, **kwargs):
         self.unit = unit if unit else ureg.dimensionless
         default = kwargs.get('default')
         if default is not None and not isinstance(default, pint.Quantity):
@@ -336,11 +366,13 @@ class BoolDecision(Decision):
 class ListDecision(Decision):
     """Accepts index of list element as input.
 
-    Choices is a list of either
-      - values, str(value) is used for label
-      - tuples of (value, label)"""
+    Args:
+        choices: a list of values where str(value) is used for labels or a list of (value, label) tuples
+        live_search:
 
-    def __init__(self, *args, choices, live_search=False, **kwargs):
+    """
+
+    def __init__(self, *args, choices:List[Union[Any, Tuple[Any, str]]], live_search=False, **kwargs):
         if not choices:
             raise AttributeError("choices must hold at least one item")
         if hasattr(choices[0], '__len__') and len(choices[0]) == 2:
@@ -361,6 +393,7 @@ class ListDecision(Decision):
 
     @property
     def choices(self):
+        """Available choices for the Decision."""
         if hasattr(self, 'labels'):
             return zip(self.items, self.labels)
         else:

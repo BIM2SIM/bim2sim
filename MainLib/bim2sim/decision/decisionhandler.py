@@ -1,29 +1,30 @@
-"""
-DecisionHandlers prepare decisions to allow easy answering.
+"""DecisionHandlers prepare decisions to allow easy answering.
 
 DecisionHandlers are designed to handle DecisionBunch yielding generators.
 
 Example:
-    def degen():
-        decision = StringDecision("Whats your name?")
-        yield DecisionBunch([decision])
-        print(decision.value)
+    >>> def de_gen():
+    ...     decision = StringDecision("Whats your name?")
+    ...     yield DecisionBunch([decision])
+    ...     print(decision.value)
 
-    handler = DebugDecisionHandler(["R2D2"])
+    >>> handler = DebugDecisionHandler(["R2D2"])
 
-    # version 1: no further interaction needed
-    handler.handle(degen())
+    >>> # version 1: no further interaction needed
+    >>> handler.handle(de_gen())
+    "R2D2"
 
-    # version 2: iterate over decisions and answers and apply them on your own
-    for decision, answer in handler.decision_answer_mapping(degen()):
-        decision.value = answer
+    >>> # version 2: iterate over decisions and answers and apply them on your own
+    >>> for decision, answer in handler.decision_answer_mapping(de_gen()):
+    ...     decision.value = answer
+    "R2D2"
 
 """
 import logging
 from abc import ABCMeta
 from typing import Iterable, Generator, Any
 
-from ..decision import BoolDecision, RealDecision, ListDecision, StringDecision, \
+from bim2sim.decision import BoolDecision, RealDecision, ListDecision, StringDecision, \
     GuidDecision, DecisionBunch
 
 
