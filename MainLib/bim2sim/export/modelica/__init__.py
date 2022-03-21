@@ -261,7 +261,7 @@ class Instance:
         if isinstance(parameter, (int, float)):
             return str(parameter)
         if isinstance(parameter, str):
-            return '"%s"'%parameter
+            return '%s'%parameter
         if isinstance(parameter, (list, tuple, set)):
             return "{%s}"%(",".join((Instance.to_modelica(par) for par in parameter)))
         logger.warning("Unknown class (%s) for conversion", parameter.__class__)
