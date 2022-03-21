@@ -106,6 +106,10 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         """
         return self.attributes.request(name, external_decision)
 
+    def source_info(self) -> str:
+        """Get informative string about source of Element."""
+        return ''
+
     @staticmethod
     def get_pending_attribute_decisions(
             instances: Iterable['Element']) -> DecisionBunch:
@@ -427,6 +431,9 @@ class IFCBased(Element):
         #
         #     return decision.value
         # raise NoValueError("No matching property for %s" % (patterns))
+
+    def source_info(self) -> str:
+        return f'{self.ifc_type}:{self.guid}'
 
 
 class RelationBased(IFCBased):

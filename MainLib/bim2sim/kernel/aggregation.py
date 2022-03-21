@@ -116,6 +116,9 @@ class AggregationMixin:
     #         decisions.append(super().request(n))
     #     return decisions
 
+    def source_info(self) -> str:
+        return f'[{", ".join(e.source_info() for e in self.elements)}]'
+
     def __repr__(self):
         return "<%s (aggregation of %d elements)>" % (
             self.__class__.__name__, len(self.elements))
