@@ -405,7 +405,7 @@ class Reduce(ITask):
     """Reduce number of elements by aggregation"""
 
     reads = ('graph', )
-    touches = ('reduced_instances', 'connections')
+    touches = ('graph',)
 
     def run(self, workflow, graph: hvac_graph.HvacGraph):
         self.logger.info("Reducing elements by applying aggregations")
@@ -459,18 +459,12 @@ class Reduce(ITask):
             log_str += "\n  - %s: %d" % (aggregation, count)
         self.logger.info(log_str)
 
-
-        reduced_instances = graph.elements
-        connections = graph.get_connections()
-
-        #Element.solve_requests()
-
         if __debug__:
             self.logger.info("Plotting graph ...")
             graph.plot(self.paths.export)
             graph.plot(self.paths.export, ports=True)
 
-        return reduced_instances, connections
+        return graph,
 
     @staticmethod
     def set_flow_sides(graph):
@@ -530,22 +524,21 @@ class DetectCycles(ITask):
 class Export(ITask):
     """Export to Dymola/Modelica"""
 
-    reads = ('libraries', 'reduced_instances', 'connections')
+    reads = ('libraries', 'graph')
     final = True
 
-    def run(self, workflow, libraries, reduced_instances, connections):
+    def run(self, workflow, libraries, graph: hvac_graph.HvacGraph):
         self.logger.info("Export to Modelica code")
 
         modelica.Instance.init_factory(libraries)
-        export_instances = {inst: modelica.Instance.factory(inst) for inst in reduced_instances}
+        export_instances = {inst: modelica.Instance.factory(inst) for inst in graph.elements}
 
         yield ProductBased.get_pending_attribute_decisions(export_instances)
 
         for instance in export_instances.values():
             instance.collect_params()
 
-        connection_port_names = self.create_connections(
-            connections, export_instances)
+        connection_port_names = self.create_connections(graph, export_instances)
 
         self.logger.info(
             "Creating Modelica model with %d model instances and %d connections.",
@@ -562,12 +555,15 @@ class Export(ITask):
         # print("-"*80)
         modelica_model.save(self.paths.export)
 
-    def create_connections(self, connections, export_instances):
+    def create_connections(self, graph, export_instances):
         connection_port_names = []
-        for connection in connections:
-            instance0 = export_instances[connection[0].parent]
-            port_name0 = instance0.get_full_port_name(connection[0])
-            instance1 = export_instances[connection[1].parent]
-            port_name1 = instance1.get_full_port_name(connection[1])
-            connection_port_names.append((port_name0, port_name1))
+        for port_a, port_b in graph.edges:
+            if port_a.parent is port_b.parent:
+                # ignore inner connections
+                continue
+            instance_a = export_instances[port_a.parent]
+            port_a_name = instance_a.get_full_port_name(port_a)
+            instance_b = export_instances[port_b.parent]
+            port_b_name = instance_b.get_full_port_name(port_b)
+            connection_port_names.append((port_a_name, port_b_name))
         return connection_port_names
