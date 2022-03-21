@@ -486,8 +486,6 @@ class DecisionBunch(list):
 def save(bunch: DecisionBunch, path):
     """Save solved Decisions to file system"""
 
-    logger = logging.getLogger(__name__)
-
     decisions = bunch.to_serializable()
     data = {
         'version': __VERSION__,
@@ -502,7 +500,6 @@ def save(bunch: DecisionBunch, path):
 def load(path) -> Dict[str, Any]:
     """Load previously solved Decisions from file system."""
 
-    logger = logging.getLogger(__name__)
     try:
         with open(path, "r") as file:
             data = json.load(file)

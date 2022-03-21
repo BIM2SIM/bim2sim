@@ -16,7 +16,8 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
         project = self.create_project(ifc, 'hkesim')
         answers = ('HVAC-HeatPump', 'HVAC-Storage', 'HVAC-Storage',
                    '2lU4kSSzH16v7KPrwcL7KZ', '0t2j$jKmf74PQpOI0ZmPCc',
-                   True, True, *(True,)*14, 50)
+                   *(True,)*11,
+                   200, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -29,7 +30,8 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
         project = self.create_project(ifc, 'hkesim')
         answers = ('HVAC-HeatPump', 'HVAC-Storage', 'HVAC-Storage',
                    '0k0IjzL0z6aOYAX23H_dA5', '1U379nXO902R21a41MGQRw',
-                   *(True,)*16, 200)
+                   *(True,)*13,
+                   200, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -45,7 +47,8 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
         answers = ('Other', None, None, 'HVAC-Distributor', 'HVAC-Boiler',
                    None, *('HVAC-Valve',)*14,
                    '2PFOreSeyfWqxUJNMz5nFO', '2YKblmYbhnh4RrfqKcCxPJ',
-                   *(True,)*29)
+                   *(True,)*11,
+                   200, 20, 5, 8, 20, 5, 8, 20, 5, 8, .2,)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer

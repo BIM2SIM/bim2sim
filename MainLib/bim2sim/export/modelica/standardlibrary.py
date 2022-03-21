@@ -6,9 +6,11 @@ from bim2sim.kernel.units import ureg
 
 from bim2sim.decision import RealDecision
 
+
 class StandardLibrary(modelica.Instance):
     """Base class for Modelica Standard Library"""
     library = "Modelica Standard Library"
+
 
 class StaticPipe(StandardLibrary):
     path = "Modelica.Fluid.Pipes.StaticPipe"
@@ -19,9 +21,9 @@ class StaticPipe(StandardLibrary):
         self.check_diameter = self.check_numeric(min_value=0 * ureg.meter)
         super().__init__(element)
 
-    def get_params(self):
-        self.register_param("length", self.check_length)
-        self.register_param("diameter", self.check_diameter)
+    def request_params(self):
+        self.request_param("length", self.check_length)
+        self.request_param("diameter", self.check_diameter)
 
     def get_port_name(self, port):
         try:
@@ -46,9 +48,9 @@ class Valve(StandardLibrary):
         self.check_diameter = self.check_numeric(min_value=0 * ureg.meter)
         super().__init__(element)
 
-    def get_params(self):
-        self.register_param("length", self.check_length)
-        self.register_param("diameter", self.check_diameter)
+    def request_params(self):
+        self.request_param("length", self.check_length)
+        self.request_param("diameter", self.check_diameter)
 
     def get_port_name(self, port):
         try:
@@ -73,7 +75,7 @@ class ClosedVolume(StandardLibrary):
         super().__init__(element)
 
     def volume(self):
-        self.register_param("volume", self.check_volume)
+        self.request_param("volume", self.check_volume)
 
     def get_port_name(self, port):
         try:

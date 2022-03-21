@@ -3,36 +3,45 @@
 import os
 import logging
 from pathlib import Path
-
+from threading import Lock
+from typing import Union, Type, Dict, Container, Tuple, Callable
 import codecs
+
 from mako.template import Template
 import numpy as np
 import pint
 
 import bim2sim
 from bim2sim.kernel import element as elem
-from bim2sim.decision import RealDecision
+from bim2sim.kernel.element import Element
 
 TEMPLATEPATH = Path(bim2sim.__file__).parent / 'assets/tmplModel.txt'
 # prevent mako newline bug by reading file seperatly
 with open(TEMPLATEPATH) as f:
     templateStr = f.read()
-templ = Template(templateStr)
+template = Template(templateStr)
+lock = Lock()
+
+logger = logging.getLogger(__name__)
 
 
 class ModelError(Exception):
-    """Error occuring in model"""
+    """Error occurring in model"""
+
+
 class FactoryError(Exception):
     """Error in Model factory"""
+
+
+def clean_string(string: str) -> str:
+    """Replace modelica invalid chars by underscore."""
+    return string.replace('$', '_')
 
 
 class Model:
     """Modelica model"""
 
     def __init__(self, name, comment, instances: list, connections: list):
-
-        self.logger = logging.getLogger(__name__)
-
         self.name = name
         self.comment = comment
         self.instances = instances
@@ -40,7 +49,7 @@ class Model:
         self.size_x = (-100, 100)
         self.size_y = (-100, 100)
 
-        self.connections, self.connections = self.set_positions(instances, connections)
+        self.connections = self.set_positions(instances, connections)
 
     def set_positions(self, instances, connections):
         """Sets position of instances
@@ -75,11 +84,21 @@ class Model:
             connections_positions.append(
                 (inst0, inst1, instance_dict[name0], instance_dict[name1])
             )
-        return list(instances), connections_positions
+        return connections_positions
 
     def code(self):
         """returns Modelica code"""
-        return templ.render(model=self)
+        with lock:
+            return template.render(model=self, unknowns=self.unknown_params())
+
+    def unknown_params(self):
+        unknown = []
+        for instance in self.instances:
+            un = [f'{instance.name}.{param}'
+                  for param, value in instance.modelica_params.items()
+                  if value is None]
+            unknown.extend(un)
+        return unknown
 
     def save(self, path: str):
         """Save model as Modelica file"""
@@ -92,7 +111,7 @@ class Model:
 
         data = self.code()
 
-        self.logger.info("Saving '%s' to '%s'", self.name, _path)
+        logger.info("Saving '%s' to '%s'", self.name, _path)
         with codecs.open(_path, "w", "utf-8") as file:
             file.write(data)
 
@@ -100,33 +119,40 @@ class Model:
 class Instance:
     """Modelica model instance"""
 
-    library = None
+    library: str = None
     version = None
-    path = None
-    represents = None
-    lookup = {}
-    dummy = None
+    path: str = None
+    represents: Union[Element, Container[Element]] = None
+    lookup: Dict[Type[Element], Type['Instance']] = {}
+    dummy: Type['Instance'] = None
     _initialized = False
 
-    def __init__(self, element):
-
+    def __init__(self, element: Element):
         self.element = element
         self.position = (80, 80)
 
-        self.name = element.__class__.__name__.lower()
-        self.guid = getattr(element, "guid", "").replace("$", "_")
-        if self.guid:
-            self.name = self.name + "_" + self.guid
         self.params = {}
-        self.validate = {}
-        self.get_params()
-        self.comment = self.get_comment()
+        self.requested: Dict[str, Tuple[Callable, str, str]] = {}
         self.connections = []
+
+        self.guid = self._get_clean_guid()
+        self.name = self._get_name()
+        self.comment = self.get_comment()
+
+        self.request_params()
+
+    def _get_clean_guid(self) -> str:
+        return clean_string(getattr(self.element, "guid", ""))
+
+    def _get_name(self) -> str:
+        name = self.element.__class__.__name__.lower()
+        if self.guid:
+            name = name + "_" + self.guid
+        return name
 
     @staticmethod
     def _lookup_add(key, value):
         """Adds key and value to Instance.lookup. Returns conflict"""
-        logger = logging.getLogger(__name__)
         if key in Instance.lookup and value is not Instance.lookup[key]:
             logger.error("Conflicting representations (%s) in '%s' and '%s'",
                          key, value.__name__, Instance.lookup[key].__name__)
@@ -137,7 +163,6 @@ class Instance:
     @staticmethod
     def init_factory(libraries):
         """initialize lookup for factory"""
-        logger = logging.getLogger(__name__)
         conflict = False
 
         Instance.dummy = Dummy
@@ -155,7 +180,7 @@ class Instance:
                     logger.warning("'%s' represents no model and can't be used", cls.__name__)
                     continue
 
-                if isinstance(cls.represents, (list, set)):
+                if isinstance(cls.represents, Container):
                     for rep in cls.represents:
                         confl = Instance._lookup_add(rep, cls)
                         if confl:
@@ -184,34 +209,43 @@ class Instance:
         cls = Instance.lookup.get(element.__class__, Instance.dummy)
         return cls(element)
 
-    def manage_params(self):
-        """Collect parameters from element and checks them"""
-        for name, args in self.validate.items():
-            check, export_name = args
-            value = self.element.find(name)
-            # ToDo: Yield according to #126
-            if check(value):
-                self.params[export_name] = value
-            else:
-                RealDecision(
-                    question="Please enter parameter for %s"%(self.name + "." + export_name),
-                    unit=self.element.attributes.get_unit(name),
-                    validate_func=check,
-                    output=self.params,
-                    key=export_name,
-                    global_key=self.name + "." + name,
-                    collect=True,
-                    allow_load=True,
-                    allow_save=True,
-                    allow_skip=True,
-                )
+    def request_param(self, name: str, check, export_name: str = None, export_unit: str = ''):
+        """Parameter gets marked as required and will be checked.
 
-    def register_param(self, name: str, check, export_name: str=None):
-        """Parameter gests marked as requiered and will be checked.
-
-        run Element.solve_request() after all parameters are registrated."""
+        Hint: run collect_params() to collect actual values after requests.
+        
+        :param name: name of parameter to request
+        :param check: validation function for parameter
+        :param export_name: name of parameter in export. Defaults to name
+        :param export_unit: unit of parameter in export. Converts to SI units if not specified otherwise"""
         self.element.request(name)
-        self.validate[name] = (check, export_name or name)
+        self.requested[name] = (check, export_name or name, export_unit)
+
+    def request_params(self):
+        """Request all required parameters."""
+        # overwrite this in child classes
+        pass
+
+    def collect_params(self):
+        """Collect all requested parameters."""
+        for name, (check, export_name, special_units) in self.requested.items():
+            param = getattr(self.element, name)
+            if check(param):
+                if special_units or isinstance(param, pint.Quantity):
+                    param = self._convert_param(param, special_units)
+                self.params[export_name] = param
+            else:
+                self.params[export_name] = None
+                logger.warning("Parameter check failed for '%s' with value: %s", name, param)
+
+    @staticmethod
+    def _convert_param(param: pint.Quantity, special_units) -> pint.Quantity:
+        """Convert to SI units or special units."""
+        if special_units:
+            converted = param.m_as(special_units)
+        else:
+            converted = param.to_base_units()
+        return converted
 
     @property
     def modelica_params(self):
@@ -219,14 +253,28 @@ class Instance:
         mp = {k: self.to_modelica(v) for k, v in self.params.items()}
         return mp
 
-    def get_params(self):
-        """Returns dictionary of parameters and values"""
-        return {}
+    @staticmethod
+    def to_modelica(parameter):
+        """converts parameter to modelica readable string"""
+        if parameter is None:
+            return parameter
+        if isinstance(parameter, bool):
+            return 'true' if parameter else 'false'
+        if isinstance(parameter, pint.Quantity):
+            # assumes correct unit is set
+            return Instance.to_modelica(parameter.magnitude)
+        if isinstance(parameter, (int, float)):
+            return str(parameter)
+        if isinstance(parameter, str):
+            return '%s'%parameter
+        if isinstance(parameter, (list, tuple, set)):
+            return "{%s}"%(",".join((Instance.to_modelica(par) for par in parameter)))
+        logger.warning("Unknown class (%s) for conversion", parameter.__class__)
+        return str(parameter)
 
     def get_comment(self):
         """Returns comment string"""
-        # return self.element.name
-        return "Autogenerated by BIM2SIM"
+        return self.element.source_info()
 
     @property
     def path(self):
@@ -240,23 +288,6 @@ class Instance:
     def get_full_port_name(self, port):
         """Returns name of port including model name"""
         return "%s.%s"%(self.name, self.get_port_name(port))
-
-    @staticmethod
-    def to_modelica(parameter):
-        """converts parameter to modelica readable string"""
-        if parameter is None:
-            return parameter
-        if isinstance(parameter, bool):
-            return 'true' if parameter else 'false'
-        if isinstance(parameter, (str, int, float)):
-            return str(parameter)
-        if isinstance(parameter, str):
-            return '"%s"'%parameter
-        if isinstance(parameter, (list, tuple, set)):
-            return "{%s}"%(",".join((Instance.to_modelica(par) for par in parameter)))
-        logger = logging.getLogger(__name__)
-        logger.warning("Unknown class (%s) for conversion", parameter.__class__)
-        return str(parameter)
 
     @staticmethod
     def check_numeric(min_value=None, max_value=None):

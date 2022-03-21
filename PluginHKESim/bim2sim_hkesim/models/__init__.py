@@ -21,8 +21,8 @@ class Boiler(HKESim):
         self.check_power = self.check_numeric(min_value=0 * ureg.kilowatt) #TODO: Checking System
         super().__init__(element)
 
-    def get_params(self):
-        self.register_param("rated_power", self.check_power, "nominal_power")
+    def request_params(self):
+        self.request_param("rated_power", self.check_power, "nominal_power")
 
     def get_port_name(self, port):
         try:
@@ -42,8 +42,8 @@ class Radiator(HKESim):
     path = "HKESim.Heating.Consumers.Radiators.Radiator"
     represents = [hvac.SpaceHeater, aggregation.Consumer]
 
-    def get_params(self):
-        self.register_param("rated_power", self.check_numeric(min_value=0 * ureg.kilowatt), "Q_flow_nominal")
+    def request_params(self):
+        self.request_param("rated_power", self.check_numeric(min_value=0 * ureg.kilowatt), "Q_flow_nominal")
         # self.params["T_nominal"] = (80, 60, 20)
 
 
@@ -51,8 +51,10 @@ class Pump(HKESim):
     path = "HKESim.Heating.Pumps.Pump"
     represents = [hvac.Pump]
 
-    def get_params(self):
-        pass
+    def request_params(self):
+        self.request_param("rated_height", self.check_numeric(min_value=0 * ureg.meter), "head_set")
+        self.request_param("rated_volume_flow", self.check_numeric(min_value=0 * ureg['m**3/hour']), "Vflow_set", 'm**3/hour')
+        self.request_param("rated_power", self.check_numeric(min_value=0 * ureg.watt), "P_norm")
 
     def get_port_name(self, port):
         try:
@@ -76,13 +78,13 @@ class ConsumerHeatingDistributorModule(HKESim):
         self.check_volume = self.check_numeric(min_value=0 * ureg.meter ** 3)
         super().__init__(element)
 
-    def get_params(self):
+    def request_params(self):
         # self.register_param("Tconsumer", self.check_temp_tupel, "Tconsumer")
         if self.element.temperature_inlet or self.element.temperature_outlet:
             self.params["Tconsumer"] = (self.element.temperature_inlet, self.element.temperature_outlet)
         self.params["Medium_heating"] = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.register_param("use_hydraulic_separator", lambda value: True, "useHydraulicSeparator")
-        self.register_param("hydraulic_separator_volume", self.check_volume, "V")
+        self.request_param("use_hydraulic_separator", lambda value: True, "useHydraulicSeparator")
+        self.request_param("hydraulic_separator_volume", self.check_volume, "V")
 
         index = 0
 

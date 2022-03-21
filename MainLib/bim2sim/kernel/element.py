@@ -106,24 +106,23 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         """
         return self.attributes.request(name, external_decision)
 
-    @classmethod
+    def source_info(self) -> str:
+        """Get informative string about source of Element."""
+        return ''
+
+    @staticmethod
     def get_pending_attribute_decisions(
-            cls, instances: Iterable['Element'] = None) -> DecisionBunch:
+            instances: Iterable['Element']) -> DecisionBunch:
         """Get all requested decisions of attributes.
 
         all decisions related to given instances are returned"""
-        # if not self or not isinstance(self, Element):
-        # called from class
+
         decisions = DecisionBunch()
         for inst in instances:
-            for bunch in inst.attributes.get_decisions():
-                decisions.extend(bunch)
-        # else:
-        #     # called from instance
-        #     if instances:
-        #         raise AssertionError(
-        #             "Only use instances argument on call from class")
-        #     decisions = self.attributes.get_decisions()
+            bunch = inst.attributes.get_decisions()
+            decisions.extend(bunch)
+        # sort decisions to preserve order
+        decisions.sort(key=lambda d: d.global_key)
         return decisions
 
     @classmethod
@@ -432,6 +431,9 @@ class IFCBased(Element):
         #
         #     return decision.value
         # raise NoValueError("No matching property for %s" % (patterns))
+
+    def source_info(self) -> str:
+        return f'{self.ifc_type}:{self.guid}'
 
 
 class RelationBased(IFCBased):
