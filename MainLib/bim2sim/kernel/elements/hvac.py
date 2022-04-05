@@ -58,7 +58,7 @@ class HVACPort(Port):
             flow_direction = 1
         elif ifc.FlowDirection == 'SINK':
             flow_direction = -1
-        elif ifc.FlowDirection == 'SINKANDSOURCE':
+        elif ifc.FlowDirection in ['SINKANDSOURCE', 'SOURCEANDSINK']:
             flow_direction = 0
 
         kwargs['groups'] = groups
@@ -813,7 +813,7 @@ class AirTerminal(HVACProduct):
 
 class Medium(HVACProduct):
     # is deprecated?
-    ifc_types = {"IfcDistributionSystems": ['*']}
+    ifc_types = {"IfcDistributionSystem": ['*']}
     pattern_ifc_type = [
         re.compile('Medium', flags=re.IGNORECASE)
     ]

@@ -103,9 +103,20 @@ def propertyset2dict(propertyset, ifc_units: Optional[dict]):
 
 
 def get_layers_ifc(element):
-    dict = []
+    """
+    Returns layers information of an element as list. It can be applied to
+    an IFCProduct directly or a Bim2Sim Instance.
+    Args:
+        element: IFCProduct or Bim2Sim Instance
+
+    Returns:
+        layers_list: list of all organized layers with all material information
+    """
+    layers_list = []
     relation = 'RelatingMaterial'
-    assoc_list = getIfcAttribute(element.ifc, "HasAssociations")
+    ifc_instance = element.ifc if hasattr(element, 'ifc') else element
+    assoc_list = getIfcAttribute(ifc_instance, "HasAssociations") if \
+        hasattr(element, 'HasAssociations') else []
     for assoc in assoc_list:
         association = getIfcAttribute(assoc, relation)
         if association is not None:
@@ -121,8 +132,8 @@ def get_layers_ifc(element):
                 layer_list = association.MaterialLayers
             if isinstance(layer_list, Iterable):
                 for layer in layer_list:
-                    dict.append(layer)
-    return dict
+                    layers_list.append(layer)
+    return layers_list
 
 
 def getElementByGUID(ifcfile, guid):

@@ -9,3 +9,6 @@ from .enrich_mat import EnrichMaterial
 from .mat_verify import MaterialVerification
 from .enrich_use_cond import EnrichUseConditions
 from .disaggr_creation import DisaggregationCreation
+from .check_ifc import CheckIfcBPS
+
+

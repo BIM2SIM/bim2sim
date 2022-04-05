@@ -18,6 +18,7 @@ class TEASERManager(Plugin):
 
     default_tasks = [
         common.LoadIFC,
+        bps.CheckIfcBPS,
         common.CreateElements,
         bps.CreateSpaceBoundaries,
         bps.Prepare,

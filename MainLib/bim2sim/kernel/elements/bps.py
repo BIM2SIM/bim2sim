@@ -1028,7 +1028,7 @@ class Wall(BPSProduct):
         functions=[_get_layers]
     )
     net_area = attribute.Attribute(
-        default_ps=("QTo_WallBaseQuantities", "NetSideArea"),
+        default_ps=("Qto_WallBaseQuantities", "NetSideArea"),
         functions=[get_net_bound_area],
         unit=ureg.meter ** 2
     )
