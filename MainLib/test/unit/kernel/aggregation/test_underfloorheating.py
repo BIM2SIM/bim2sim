@@ -1,10 +1,9 @@
 import unittest
 import math
+import numpy as np
 
 from bim2sim.kernel.elements import hvac
 from bim2sim.kernel import aggregation
-from bim2sim.kernel.elements.hvac import HVACPort
-from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg
 
@@ -43,6 +42,59 @@ class UFHHelper(SetupHelper):
         graph.plot(r'c:\temp')
         return graph, flags
 
+    @classmethod
+    def connect_ufh(cls, x_pipes, y_pipes, x_dimension, spacing):
+        """
+        Function to connect an UFH taking into account the number of pipes
+        laid in x and y, the pipes spacing and the room dimension in x
+        Args:
+            x_pipes: UFH Pipes laid parallel to x-axis
+            y_pipes: UFH Pipes laid parallel to y-axis
+            x_dimension: Dimension of the room parallel to x-axis
+            spacing: spacing of the UFH parallel to y-axis
+
+        Returns:
+            ufh_strand: resultant connected ufh strand
+
+        """
+        position = np.array([0.0, 0.0, 0.0])
+        n = 0
+        for item in x_pipes:
+            item.position = position.copy()
+            port_position = position.copy()
+            if n % 2:
+                port_position[0] += x_dimension.m / 2
+                item.ports[0].position = port_position.copy()
+                port_position[0] -= x_dimension.m
+                item.ports[1].position = port_position.copy()
+            else:
+                port_position[0] -= x_dimension.m / 2
+                item.ports[0].position = port_position.copy()
+                port_position[0] += x_dimension.m
+                item.ports[1].position = port_position.copy()
+            position[1] += spacing.m
+            n += 1
+        position = np.array([x_dimension.m / 2, spacing.m / 2, 0.0])
+        n = 0
+        for item in y_pipes:
+            port_position = position.copy()
+            item.position = position.copy()
+            port_position[1] -= spacing.m / 2
+            item.ports[0].position = port_position.copy()
+            port_position[1] += spacing.m
+            item.ports[1].position = port_position.copy()
+            position[1] += spacing.m
+            if n % 2:
+                position[0] += x_dimension.m
+            else:
+                position[0] -= x_dimension.m
+            n += 1
+        ufh_strand = [None] * (len(x_pipes) + len(y_pipes))
+        ufh_strand[::2] = x_pipes
+        ufh_strand[1::2] = y_pipes
+        cls.connect_strait(ufh_strand)
+        return ufh_strand
+
 
 class TestUnderfloorHeating(unittest.TestCase):
 
@@ -68,8 +120,7 @@ class TestUnderfloorHeating(unittest.TestCase):
 
         exp_length = sum([e.length for e in ele])
         self.assertAlmostEqual(exp_length, agg.length)
-
-        self.assertAlmostEqual(19.95 * ureg.meter ** 2, agg.heating_area)
-        self.assertAlmostEqual(15 * ureg.millimeter, agg.diameter)
-        self.assertAlmostEqual(.19949999 * ureg.meter, agg.y_spacing)
-        self.assertAlmostEqual(.23809523 * ureg.meter, agg.x_spacing)
+        self.assertAlmostEqual(20 * ureg.meter ** 2, agg.heating_area, 0)
+        self.assertAlmostEqual(15 * ureg.millimeter, agg.diameter, 0)
+        self.assertAlmostEqual(.2 * ureg.meter, agg.y_spacing, 1)
+        self.assertAlmostEqual(.24 * ureg.meter, agg.x_spacing, 2)

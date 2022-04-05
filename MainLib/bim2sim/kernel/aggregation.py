@@ -451,7 +451,7 @@ class UnderfloorHeating(PipeStrand):
             y_spacing: Underfloor heating pitch in y
         """
         # ToDo: what if multiple pipe elements on the same line? Collinear
-        #  algorthm, issue #211
+        #  algorithm, issue #211
         orientations = {}
         for element in uh_elements:
             if type(element) is hvac.Pipe:
