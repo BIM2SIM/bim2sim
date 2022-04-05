@@ -1,14 +1,20 @@
 import os
-from typing import Tuple, List, Any, Type, Set, Dict, Generator
+import json
+import inspect
 
+from typing import Tuple, List, Any, Type, Set, Dict, Generator
 from bim2sim.decision import Decision, ListDecision, DecisionBunch
 from bim2sim.filter import TypeFilter, TextFilter
-
 from bim2sim.kernel import ifc2python
 from bim2sim.kernel.element import Factory, ProductBased
-from bim2sim.task.base import ITask
 from bim2sim.kernel.units import parse_ifc
 from ifcopenshell.file import file
+from bim2sim.task.base import ITask
+from bim2sim.kernel.ifc2python import get_property_sets
+from bim2sim.kernel import attribute
+from mako.template import Template
+from mako.lookup import TemplateLookup
+from bim2sim.workflow import Workflow
 
 
 class Reset(ITask):
@@ -301,3 +307,338 @@ class CreateElements(ITask):
         for ele in relevant_elements:
             relevant_ifc_types.extend(ele.ifc_types.keys())
         return set(relevant_ifc_types)
+
+
+class CheckIfc(ITask):
+    """
+    Check an IFC file, for a number of conditions (missing information,
+    incorrect information, etc) that could lead on future tasks to fatal errors.
+    """
+    reads = ('ifc',)
+    touches = ('errors',)
+
+    def __init__(self):
+        super().__init__()
+        self.error_summary_sub_inst = {}
+        self.error_summary_inst = {}
+        self.error_summary_prop = {}
+        self.sub_inst = []
+        self.id_list = []
+        self.instances = []
+        self.ps_summary = {}
+        self.ifc_units = {}
+        self.sub_inst_cls = None
+        self.plugin = None
+
+    def run(self, workflow: Workflow, ifc) -> [dict, dict]:
+        """
+        Analyzes sub_instances and instances of an IFC file for the validation
+        functions and export the errors found as .json and .html files.
+
+        Args:
+            workflow: Workflow used on task
+            ifc: IFC file translated with ifcopenshell
+
+        Returns:
+            error_summary_sub_inst: summary of errors related to sub_instances
+            error_summary_inst: summary of errors related to instances
+        """
+        self.ps_summary = self._get_class_property_sets(self.plugin)
+        self.ifc_units = workflow.ifc_units
+        self.sub_inst = ifc.by_type(self.sub_inst_cls)
+        self.instances = self.get_relevant_instances(ifc)
+        self.id_list = [e.GlobalId for e in ifc.by_type("IfcRoot")]
+        self.error_summary_sub_inst = self.check_inst(
+            self.validate_sub_inst, self.sub_inst)
+        self.error_summary_inst = self.check_inst(
+            self.validate_instances, self.instances)
+        instance_errors = sum(len(errors) for errors in
+                              self.error_summary_inst.values())
+        self.logger.warning('%d errors were found on %d instances' %
+                            (instance_errors, len(self.error_summary_inst)))
+        sub_inst_errors = sum(len(errors) for errors in list(
+            self.error_summary_sub_inst.values()))
+        self.logger.warning('%d errors were found on %d sub_instances' %
+                            (sub_inst_errors, len(self.error_summary_sub_inst)))
+        self._write_errors_to_json(self.plugin)
+        self._write_errors_to_html_table(self.plugin)
+        return [self.error_summary_sub_inst, self.error_summary_inst],
+
+    @staticmethod
+    def _get_ifc_type_classes(plugin):
+        """
+        Gets all the classes of a plugin, that represent an IFCProduct,
+        and organize them on a dictionary for each ifc_type
+        Args:
+            plugin: plugin used in the check task (bps or hvac)
+
+        Returns:
+            cls_summary: dictionary containing all the ifc_types on the
+            plugin with the corresponding class
+        """
+        plugin_classes = [plugin_class[1] for plugin_class in
+                          inspect.getmembers(plugin, inspect.isclass) if
+                          inspect.getmro(plugin_class[1])[1].__name__.endswith(
+                              'Product')]
+        cls_summary = {}
+        for plugin_class in plugin_classes:
+            if plugin_class.ifc_types:
+                for ifc_type in plugin_class.ifc_types.keys():
+                    cls_summary[ifc_type] = plugin_class
+        return cls_summary
+
+    @classmethod
+    def _get_class_property_sets(cls, plugin):
+        """
+        Gets all property sets and properties required for bim2sim for all
+        classes of a plugin, that represent an IFCProduct, and organize them on
+        a dictionary for each ifc_type
+        Args:
+            plugin: plugin used in the check task (bps or hvac)
+
+        Returns:
+            ps_summary: dictionary containing all the ifc_types on the
+            plugin with the corresponding property sets
+        """
+        ps_summary = {}
+        cls_summary = cls._get_ifc_type_classes(plugin)
+        for ifc_type, plugin_class in cls_summary.items():
+            attributes = inspect.getmembers(
+                plugin_class, lambda a: isinstance(a, attribute.Attribute))
+            ps_summary[ifc_type] = {}
+            for attr in attributes:
+                if attr[1].default_ps:
+                    ps_summary[ifc_type][attr[0]] = attr[1].default_ps
+        return ps_summary
+
+    def get_relevant_instances(self, ifc):
+        """
+        Gets all relevant ifc instances based on the plugin's classes that
+        represent an IFCProduct
+
+        Args:
+            ifc: IFC file translated with ifcopenshell
+
+        Returns:
+            ifc_instances: list of IFC instance (Products)
+
+        """
+        relevant_ifc_types = list(self.ps_summary.keys())
+        ifc_instances = []
+        for ifc_type in relevant_ifc_types:
+            ifc_instances.extend(ifc.by_type(ifc_type))
+        return ifc_instances
+
+    @staticmethod
+    def check_inst(validation_function, instances: list):
+        """
+        Uses sb_validation/ports/instances functions in order to check each
+        one and adds error to dictionary if object has errors.
+        Args:
+            validation_function: function that compiles all the validations
+                to be performed on the object (sb/port/instance)
+            instances: list containing all objects to be evaluates
+
+        Returns:
+            summary: summarized dictionary of errors, where the key is the
+                GUID + the ifc_type
+
+        """
+        summary = {}
+        for inst in instances:
+            error = validation_function(inst)
+            if len(error) > 0:
+                key = inst.GlobalId + ' ' + inst.is_a()
+                summary.update({key: error})
+        return summary
+
+    def validate_sub_inst(self, sub_inst) -> list:
+        raise NotImplementedError
+
+    def validate_instances(self, inst) -> list:
+        raise NotImplementedError
+
+    @staticmethod
+    def apply_validation_function(fct, err_name: str, error: list):
+        """
+        Function to apply a validation to an instance, space boundary or
+        port, it stores the error to the list of errors.
+
+        Args:
+            fct: validation function to be applied
+            err_name: string that define the error
+            error: list of errors
+
+        """
+        if not fct:
+            error.append(err_name)
+
+    def _write_errors_to_json(self, plugin):
+        """
+        Function to write the resulting list of errors to a .json file as a
+        summary.
+
+        Args:
+            plugin: plugin used in the check task (bps or hvac)
+
+        """
+        plugin_name = plugin.__name__.split('.')[-1].upper()
+        with open(str(self.paths.log) +
+                  '\ifc_%s_sub_inst_error_summary.json' % plugin_name,
+                  'w+') as fp:
+            json.dump(self.error_summary_sub_inst, fp, indent="\t")
+        with open(str(self.paths.log) +
+                  '\ifc_%s_inst_error_summary.json' % plugin_name,
+                  'w+') as fp:
+            json.dump(self.error_summary_inst, fp, indent="\t")
+
+    @staticmethod
+    def _categorize_errors(error_dict):
+        """
+        categorizes the resulting errors in a dictionary containing two groups:
+            'per_error' where the key is the error name and the value is the
+                number of errors with this name
+            'per type' where the key is the ifc_type and the values are the
+                each element with its respective errors
+        Args:
+            error_dict: dictionary containing all errors without categorization
+
+        Returns:
+            categorized_dict: dictionary containing all errors categorized
+
+        """
+        categorized_dict = {'per_error': {}, 'per_type': {}}
+        for instance, errors in error_dict.items():
+            guid, ifc_type = instance.split(' ')
+            if ifc_type not in categorized_dict['per_type']:
+                categorized_dict['per_type'][ifc_type] = {}
+            categorized_dict['per_type'][ifc_type][guid] = errors
+            for error in errors:
+                error_com = error.split(' - ')
+                if error_com[0] not in categorized_dict['per_error']:
+                    categorized_dict['per_error'][error_com[0]] = 0
+                categorized_dict['per_error'][error_com[0]] += 1
+        return categorized_dict
+
+    # general check functions
+    @staticmethod
+    def _check_unique(inst, id_list):
+        """
+        Check that the global id (GUID) is unique for the analyzed instance
+
+        Args:
+            inst: IFC instance
+            id_list: list of all GUID's in IFC File
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return id_list.count(inst.GlobalId) == 1
+
+    def _check_inst_properties(self, inst):
+        """
+        Check that an instance has the property sets and properties
+        necessaries to the plugin.
+
+        Args:
+            inst: IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        inst_prop2check = self.ps_summary.get(inst.is_a(), [])
+        inst_prop = get_property_sets(inst, self.ifc_units)
+        inst_prop_errors = []
+        for prop2check, ps2check in inst_prop2check.items():
+            ps = inst_prop.get(ps2check[0], None)
+            if ps:
+                if not ps.get(ps2check[1], None):
+                    inst_prop_errors.append(
+                        prop2check+' - '+', '.join(ps2check))
+            else:
+                inst_prop_errors.append(prop2check+' - '+', '.join(ps2check))
+        if inst_prop_errors:
+            key = inst.GlobalId + ' ' + inst.is_a()
+            self.error_summary_prop.update({key: inst_prop_errors})
+            return False
+        return True
+
+    @staticmethod
+    def _check_inst_representation(inst):
+        """
+        Check that an instance has a correct geometric representation.
+
+        Args:
+            inst: IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return inst.Representation is not None
+
+    def get_html_templates(self):
+        """
+        Gets all stored html templates that will be used to export the errors
+        summaries
+
+        Returns:
+            templates: dictionary containing all error html templates
+        """
+        templates = {}
+        path_templates = os.path.join(
+            self.paths.assets, "templates", "check_ifc")
+        lookup = TemplateLookup(directories=[path_templates])
+        templates["inst_template"] = Template(
+            filename=os.path.join(path_templates, "inst_template"),
+            lookup=lookup)
+        templates["prop_template"] = Template(
+            filename=os.path.join(path_templates, "prop_template"),
+            lookup=lookup)
+        templates["summary_template"] = Template(
+            filename=os.path.join(path_templates, "summary_template"),
+            lookup=lookup)
+        return templates
+
+    def _write_errors_to_html_table(self, plugin):
+        """
+        Writes all errors in the html templates in a summarized way
+
+        Args:
+            plugin: plugin used in the check task (bps or hvac)
+
+        """
+        templates = self.get_html_templates()
+        plugin_name = plugin.__name__.split('.')[-1].upper()
+        summary_inst = self._categorize_errors(self.error_summary_inst)
+        summary_sbs = self._categorize_errors(self.error_summary_sub_inst)
+        summary_props = self._categorize_errors(self.error_summary_prop)
+        all_errors = {**summary_inst['per_type'], **summary_sbs['per_type']}
+
+        with open(str(self.paths.log) +
+                  '\%s_error_summary_inst.html' % plugin_name, 'w+') as \
+                out_file:
+            out_file.write(templates["inst_template"].render_unicode(
+                task=self,
+                summary_inst=summary_inst,
+                summary_sbs=summary_sbs,
+                all_errors=all_errors))
+            out_file.close()
+        with open(str(self.paths.log) +
+                  '\%s_error_summary_prop.html' % plugin_name, 'w+') as \
+                out_file:
+            out_file.write(templates["prop_template"].render_unicode(
+                task=self,
+                summary_props=summary_props))
+            out_file.close()
+        with open(str(self.paths.log) +
+                  '\%s_error_summary.html' % plugin_name, 'w+') as out_file:
+            out_file.write(templates["summary_template"].render_unicode(
+                task=self,
+                plugin_name=plugin_name,
+                summary_inst=summary_inst,
+                summary_sbs=summary_sbs,
+                summary_props=summary_props))
+            out_file.close()
