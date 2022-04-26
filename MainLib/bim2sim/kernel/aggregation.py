@@ -339,15 +339,13 @@ class UnderfloorHeating(PipeStrand):
         chains = HvacGraph.get_type_chains(element_graph,
                                            cls.aggregatable_elements,
                                            include_singles=True)
-        element_graphs = [element_graph.subgraph(chain) for chain in chains]
+        element_graphs = []
         metas = []
-        for g in element_graphs.copy():
-            meta = cls.check_conditions(g.nodes)
+        for chain in chains:
+            meta = cls.check_conditions(chain)
             if meta:
                 metas.append(meta)
-            else:
-                # remove failed checks
-                element_graphs.remove(g)
+                element_graphs.append(element_graph.subgraph(chain))
         return element_graphs, metas
 
     @staticmethod
