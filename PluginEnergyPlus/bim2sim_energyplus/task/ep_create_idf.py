@@ -477,7 +477,7 @@ class CreateIdf(ITask):
             Zone_or_ZoneList_Name=zone_name,
             Schedule_Name=schedule_name,
             Design_Level_Calculation_Method="Watts/Area",
-            Watts_per_Zone_Floor_Area=space.machines
+            Watts_per_Zone_Floor_Area=space.machines.m
         )
 
     def _set_lights(self, idf, name, zone_name, space, method='area'):
@@ -486,7 +486,7 @@ class CreateIdf(ITask):
         profile_name = 'lighting_profile'
         self._set_day_week_year_schedule(idf, space.lighting_profile[:24], profile_name, schedule_name)
         mode = "Watts/Area"
-        watts_per_zone_floor_area = space.lighting_power
+        watts_per_zone_floor_area = space.lighting_power.m
         return_air_fraction = 0.0
         fraction_radiant = 0.42  # cf. Table 1.28 in InputOutputReference EnergyPlus (Version 9.4.0), p. 506
         fraction_visible = 0.18  # Todo: fractions do not match with .json Data. Maybe set by user-input later

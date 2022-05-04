@@ -8,6 +8,7 @@ from bim2sim.task.bps.enrich_mat import EnrichMaterial
 from bim2sim.utilities.common_functions import get_type_building_elements
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.kernel.finder import TemplateFinder
+from bim2sim.kernel.units import ureg
 
 
 class EnrichBuildingByTemplates(ITask):
@@ -64,10 +65,10 @@ class EnrichBuildingByTemplates(ITask):
         if template is not None:
             for i_layer, layer_props in template['layer'].items():
                 material_properties = cls.get_material_properties(
-                    layer_props['material']['name'], resumed,
-                    layer_props['thickness'])
+                    layer_props['material']['name'], resumed)
                 new_layer = bps.Layer(finder=TemplateFinder(),
                                       **material_properties)
+                new_layer.thickness = layer_props['thickness'] * ureg.m
                 new_layer.parent = instance
                 instance.layers.append(new_layer)
                 layers_width += new_layer.thickness
@@ -78,9 +79,10 @@ class EnrichBuildingByTemplates(ITask):
         pass
 
     @staticmethod
-    def get_material_properties(material, resumed, thickness):
+    def get_material_properties(material, resumed):
         material_properties = resumed[material]
-        material_properties['thickness'] = thickness
+        if 'thickness' in material_properties:
+            del material_properties['thickness']
         return material_properties
 
     @classmethod
