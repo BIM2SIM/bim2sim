@@ -251,7 +251,7 @@ class EPGeomPreprocessing(ITask):
                         trsf.SetTranslation(vec)
                         opening_obj.bound_shape = BRepBuilderAPI_Transform(opening_obj.bound_shape, trsf).Shape()
                     # update bound center attribute for new shape location
-                    opening_obj.bound_center = SpaceBoundary.get_bound_center(opening_obj, 'bound_center')
+                    opening_obj.bound_center = SpaceBoundary.get_bound_center(opening_obj)
 
     def _fix_surface_orientation(self, instances):
         """
@@ -401,7 +401,7 @@ class EPGeomPreprocessing(ITask):
         for shape in convex_shapes:
             new_bound = self._create_copy_of_space_boundary(bound)
             new_bound.bound_shape = shape
-            new_bound.bound_area = SpaceBoundary.get_bound_area(new_bound, 'name')
+            new_bound.bound_area = SpaceBoundary.get_bound_area(new_bound)
             if openings:
                 delattr(new_bound, 'related_opening_bounds')
                 for opening in openings:
@@ -434,7 +434,7 @@ class EPGeomPreprocessing(ITask):
                 new_rel_bound.bound_shape = new_rel_shape
                 new_rel_bound.bound_shape = PyOCCTools.flip_orientation_of_face(new_rel_bound.bound_shape)
                 new_rel_bound.bound_normal = PyOCCTools.simple_face_normal(new_rel_bound.bound_shape)
-                new_rel_bound.bound_area = SpaceBoundary.get_bound_area(new_rel_bound, 'name')
+                new_rel_bound.bound_area = SpaceBoundary.get_bound_area(new_rel_bound)
                 if hasattr(new_bound, 'related_opening_bounds'):
                     for op in new_bound.related_opening_bounds:
                         if not op.related_bound:

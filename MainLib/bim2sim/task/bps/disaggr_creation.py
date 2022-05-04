@@ -1,9 +1,12 @@
 import math
 import numpy as np
+import inspect
 
 from bim2sim.task.base import ITask
 from bim2sim.workflow import LOD
 from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.kernel import attribute
+from bim2sim.decorators import cached_property
 
 
 class DisaggregationCreation(ITask):
@@ -18,6 +21,7 @@ class DisaggregationCreation(ITask):
         self.disaggregations = {}
         self.vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
         self.horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
+        self.attributes_dict = {}
 
     def run(self, workflow, finder, instances):
         thermal_zones = filter_instances(instances, 'ThermalZone')
@@ -80,20 +84,18 @@ class DisaggregationCreation(ITask):
                              threshold=0.1):
         """# todo write documentation"""
         type_parent = subclass.__name__
-
         inst.parent = parent
+        if type_parent not in self.attributes_dict:
+            attributes = inspect.getmembers(
+                type(parent), lambda a: (type(a) in [attribute.Attribute,
+                                                     cached_property]))
+            self.attributes_dict[type_parent] = [attr[0] for attr in attributes]
+
         inst.space_boundaries.append(sb)
         inst.thermal_zones.append(tz)
         inst.net_area = sb.net_bound_area
         inst.gross_area = sb.bound_area
         inst.orientation = parent.orientation
-        for prop in inst.attributes:
-            dis_value = getattr(inst, prop)
-            if not dis_value:
-                parent_value = getattr(inst.parent, prop)
-                if parent_value:
-                    setattr(inst, prop, parent_value)
-
         new_pos = np.array(sb.position)
         if type_parent in self.vertical_instances:
             inst.position = self.get_new_position_vertical_instance(parent,
@@ -102,6 +104,14 @@ class DisaggregationCreation(ITask):
             inst.position = tz.position
             if tz.net_area and abs(1 - inst.net_area / tz.net_area) < threshold:
                 inst.net_area = tz.net_area
+        blacklist = ['position', 'net_area', 'gross_area', 'opening_area']
+        for prop in self.attributes_dict[type_parent]:
+            if prop not in blacklist:
+                dis_value = getattr(inst, prop)
+                if not dis_value:
+                    parent_value = getattr(inst.parent, prop)
+                    if parent_value:
+                        setattr(inst, prop, parent_value)
 
     @staticmethod
     def get_new_position_vertical_instance(parent, sub_position):

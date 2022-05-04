@@ -2,7 +2,6 @@
 import inspect
 import itertools
 import sys
-from functools import lru_cache
 import logging
 import math
 import re
@@ -11,10 +10,9 @@ from typing import Set, List, Tuple, Generator
 import numpy as np
 
 from bim2sim.kernel import condition, attribute
-from bim2sim.decision import BoolDecision, ListDecision, DecisionBunch
+from bim2sim.decision import ListDecision, DecisionBunch
 from bim2sim.kernel.element import Port, ProductBased
 from bim2sim.kernel.units import ureg
-
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +31,8 @@ def length_post_processing(value):
 
 class HVACPort(Port):
     """Port of HVACProduct."""
-    vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
+    vl_pattern = re.compile('.*vorlauf.*',
+                            re.IGNORECASE)  # TODO: extend pattern
     rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
 
     def __init__(
@@ -70,7 +69,8 @@ class HVACPort(Port):
         try:
             relative_placement = \
                 self.parent.ifc.ObjectPlacement.RelativePlacement
-            x_direction = np.array(relative_placement.RefDirection.DirectionRatios)
+            x_direction = np.array(
+                relative_placement.RefDirection.DirectionRatios)
             z_direction = np.array(relative_placement.Axis.DirectionRatios)
         except AttributeError:
             x_direction = np.array([1, 0, 0])
@@ -78,8 +78,10 @@ class HVACPort(Port):
         y_direction = np.cross(z_direction, x_direction)
         directions = np.array((x_direction, y_direction, z_direction)).T
         port_coordinates_relative = \
-            np.array(self.ifc.ObjectPlacement.RelativePlacement.Location.Coordinates)
-        coordinates = self.parent.position + np.matmul(directions, port_coordinates_relative)
+            np.array(
+                self.ifc.ObjectPlacement.RelativePlacement.Location.Coordinates)
+        coordinates = self.parent.position + np.matmul(directions,
+                                                       port_coordinates_relative)
 
         if all(coordinates == np.array([0, 0, 0])):
             logger = logging.getLogger('IFCQualityReport')
@@ -146,9 +148,11 @@ class HVACPort(Port):
         self._flow_side = value
         if previous:
             if previous != value:
-                logger.info("Overwriting flow_side for %r with %s" % (self, self.verbose_flow_side))
+                logger.info("Overwriting flow_side for %r with %s" % (
+                self, self.verbose_flow_side))
         else:
-            logger.debug("Set flow_side for %r to %s" % (self, self.verbose_flow_side))
+            logger.debug(
+                "Set flow_side for %r to %s" % (self, self.verbose_flow_side))
 
     @property
     def verbose_flow_side(self):
@@ -310,31 +314,72 @@ class HeatPump(HVACProduct):
     )
     efficiency = attribute.Attribute(
         description='Efficiency of HeatPump provided as list with pairs of [percentage_of_rated_power,efficiency]',
-        unit=ureg.dimensionless,
+        unit=ureg.dimensionless
     )
 
 
 class Chiller(HVACProduct):
     """"Chiller"""
 
-    ifc_types = {'IfcChiller': ['*', 'AIRCOOLED', 'WATERCOOLED', 'HEATRECOVERY']}
+    ifc_types = {
+        'IfcChiller': ['*', 'AIRCOOLED', 'WATERCOOLED', 'HEATRECOVERY']}
 
     pattern_ifc_type = [
         re.compile('Chiller', flags=re.IGNORECASE),
         re.compile('K(ä|ae)lte.?maschine', flags=re.IGNORECASE),
     ]
 
-    min_power = attribute.Attribute(
-        description='Minimum power that Chiller operates at.',
-        unit=ureg.kilowatt,
-    )
     rated_power = attribute.Attribute(
         description='Rated power of Chiller.',
+        default_ps=('Pset_ChillerTypeCommon', 'NominalCapacity'),
         unit=ureg.kilowatt,
     )
-    efficiency = attribute.Attribute(
-        description='Efficiency of Chiller provided as list with pairs of [percentage_of_rated_power,efficiency]',
-        unit=ureg.dimensionless,
+
+    nominal_power_consumption = attribute.Attribute(
+        description="nominal power consumption of chiller",
+        default_ps=('Pset_ChillerTypeCommon', 'NominalPowerConsumption'),
+        unit=ureg.kilowatt,
+    )
+
+    nominal_COP = attribute.Attribute(
+        description="Chiller efficiency at nominal load",
+        default_ps=('Pset_ChillerTypeCommon', 'NominalEfficiency'),
+    )
+
+    capacity_curve = attribute.Attribute(
+        # (Capacity[W], CondensingTemperature[K], EvaporatingTemperature[K])
+        description="Chiller's thermal power as function of fluid temperature",
+        default_ps=('Pset_ChillerTypeCommon', 'CapacityCurve'),
+    )
+
+    COP = attribute.Attribute(
+        # (COP, CondensingTemperature[K], EvaporatingTemperature[K])
+        description="Chiller's COP as function of fluid temperature",
+        default_ps=('Pset_ChillerTypeCommon', 'CoefficientOfPerformanceCurve'),
+    )
+
+    full_load_ratio = attribute.Attribute(
+        # (FracFullLoadPower, PartLoadRatio)
+        description="Chiller's thermal partial load power as function of fluid "
+                    "temperature",
+        default_ps=('Pset_ChillerTypeCommon', 'FullLoadRatioCurve'),
+    )
+
+    nominal_condensing_temperature = attribute.Attribute(
+        description='Nominal condenser temperature',
+        default_ps=('Pset_ChillerTypeCommon', 'NominalCondensingTemperature'),
+        unit=ureg.celsius,
+    )
+
+    nominal_evaporating_temperature = attribute.Attribute(
+        description='Nominal condenser temperature',
+        default_ps=('Pset_ChillerTypeCommon', 'NominalEvaporatingTemperature'),
+        unit=ureg.celsius,
+    )
+
+    min_power = attribute.Attribute(
+        description='Minimum power at which Chiller operates at.',
+        unit=ureg.kilowatt,
     )
 
 
@@ -361,6 +406,7 @@ class CoolingTower(HVACProduct):
     )
     rated_power = attribute.Attribute(
         description='Rated power of CoolingTower.',
+        default_ps=('Pset_CoolingTowerTypeCommon', 'NominalCapacity'),
         unit=ureg.kilowatt,
     )
     efficiency = attribute.Attribute(
@@ -459,22 +505,96 @@ class Boiler(HVACProduct):
 
     water_volume = attribute.Attribute(
         description="Water volume of boiler",
+        default_ps=('Pset_BoilerTypeCommon', 'WaterStorageCapacity'),
         unit=ureg.meter ** 3,
     )
 
-    min_power = attribute.Attribute(
-        description="Minimum power that boiler operates at",
-        unit=ureg.kilowatt,
-    )
-
-    rated_power = attribute.Attribute(
-        description="Rated power of boiler",
+    nominal_power_consumption = attribute.Attribute(
+        description="nominal energy consumption of boiler",
+        default_ps=('Pset_BoilerTypeCommon', 'NominalEnergyConsumption'),
         unit=ureg.kilowatt,
     )
 
     efficiency = attribute.Attribute(
-        description="Efficiency of boiler provided as list with pairs of [percentage_of_rated_power,efficiency]",
+        # (Efficiency, PartialLoadFactor)
+        description="Efficiency of boiler provided as list with pairs of "
+                    "percentage_of_rated_power and efficiency",
+        default_ps=('Pset_BoilerTypeCommon', 'PartialLoadEfficiencyCurves'),
         unit=ureg.dimensionless,
+    )
+
+    energy_source = attribute.Attribute(
+        description="Final energy source of boiler",
+        default_ps=('Pset_BoilerTypeCommon', 'EnergySource'),
+    )
+
+    operating_mode = attribute.Attribute(
+        # [fixed, twostep, modulating, other, unknown, unset]
+        description="Boiler's operating mode",
+        default_ps=('Pset_BoilerTypeCommon', 'OperatingMode'),
+        unit=ureg.dimensionless,
+    )
+
+    nominal_partial_ratio = attribute.Attribute(
+        description="Nominal partial ratio of the boiler",
+        default_ps=('Pset_BoilerTypeCommon', 'NominalPartLoadRatio'),
+    )
+
+    @staticmethod
+    def _calc_nominal_efficiency(bind, name):
+        efficiency_curve = {y: x for x, y in bind.efficiency}
+        nominal_eff = efficiency_curve.get(1, None)
+        if nominal_eff:
+            return nominal_eff
+        else:
+            # ToDo: linear regression
+            raise NotImplementedError
+
+    nominal_efficiency = attribute.Attribute(
+        description="""Boiler efficiency at nominal load""",
+        functions=[_calc_nominal_efficiency],
+        unit = ureg.dimensionless
+    )
+
+    @staticmethod
+    def _calc_rated_power(bind, name):
+        """Rated power of boiler"""
+        if bind.nominal_efficiency and bind.nominal_power_consumption:
+            return bind.nominal_efficiency * bind.nominal_power_consumption
+        return None
+
+    rated_power = attribute.Attribute(
+        description="Rated power of boiler",
+        unit=ureg.kilowatt,
+        functions=[_calc_rated_power]
+    )
+
+    @staticmethod
+    def _calc_partial_load_efficiency(bind):
+        """Boiler efficiency at partial load"""
+        efficiency_curve = {x: y for x, y in bind.efficiency}
+        nominal_eff = efficiency_curve.get(bind.nominal_partial_ratio, None)
+        if nominal_eff:
+            return nominal_eff
+        else:
+            # ToDo: linear regression
+            raise NotImplementedError
+
+    partial_load_efficiency = attribute.Attribute(
+        description="Boiler efficiency at partial load",
+        functions=[_calc_partial_load_efficiency],
+        unit = ureg.dimensionless,
+    )
+
+    @staticmethod
+    def _calc_min_power(bind, name):
+        """Minimum power that boiler operates at"""
+        return bind.partial_load_efficiency * bind.nominal_power_consumption
+
+    min_power = attribute.Attribute(
+        description="Minimum power that boiler operates at",
+        unit=ureg.kilowatt,
+        functions=[_calc_min_power]
     )
 
 
@@ -486,7 +606,8 @@ class Pipe(HVACProduct):
     }
 
     conditions = [
-        condition.RangeCondition("diameter", 5.0 * ureg.millimeter, 300.00 * ureg.millimeter)  # ToDo: unit?!
+        condition.RangeCondition("diameter", 5.0 * ureg.millimeter,
+                                 300.00 * ureg.millimeter)  # ToDo: unit?!
     ]
 
     diameter = attribute.Attribute(
@@ -497,6 +618,18 @@ class Pipe(HVACProduct):
             re.compile('.*Diameter.*', flags=re.IGNORECASE),
         ],
         ifc_postprocessing=diameter_post_processing,
+    )
+
+    outer_diameter = attribute.Attribute(
+        description="Outer diameter of pipe",
+        default_ps=('Pset_PipeSegmentTypeCommon', 'OuterDiameter'),
+        unit=ureg.millimeter,
+    )
+
+    inner_diameter = attribute.Attribute(
+        description="Inner diameter of pipe",
+        default_ps=('Pset_PipeSegmentTypeCommon', 'InnerDiameter'),
+        unit=ureg.millimeter,
     )
 
     @staticmethod
@@ -517,6 +650,13 @@ class Pipe(HVACProduct):
         functions=[_length_from_geometry],
     )
 
+    roughness_coefficient = attribute.Attribute(
+        description="Interior roughness coefficient of pipe",
+        default_ps=('Pset_PipeSegmentOccurrence',
+                    'InteriorRoughnessCoefficient'),
+        unit=ureg.millimeter,
+    )
+
     @staticmethod
     def get_lenght_from_shape(ifc_representation):
         """Serach for extruded depth in representations
@@ -534,7 +674,8 @@ class Pipe(HVACProduct):
         if not candidates:
             raise AttributeError("No representation to determine length.")
         if len(candidates) > 1:
-            raise AttributeError("Too many representations to dertermine length %s." % candidates)
+            raise AttributeError(
+                "Too many representations to dertermine length %s." % candidates)
 
         return candidates[0]
 
@@ -542,12 +683,14 @@ class Pipe(HVACProduct):
 class PipeFitting(HVACProduct):
     ifc_types = {
         "IfcPipeFitting":
-            ['*', 'BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION', 'OBSTRUCTION',
+            ['*', 'BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION',
+             'OBSTRUCTION',
              'TRANSITION']
     }
 
     conditions = [
-        condition.RangeCondition("diameter", 5.0 * ureg.millimeter, 300.00 * ureg.millimeter)
+        condition.RangeCondition("diameter", 5.0 * ureg.millimeter,
+                                 300.00 * ureg.millimeter)
     ]
 
     diameter = attribute.Attribute(
@@ -576,6 +719,20 @@ class PipeFitting(HVACProduct):
         default_ps=('Pset_PipeFittingTypeCommon', 'PressureClass')
     )
 
+    pressure_loss_coefficient = attribute.Attribute(
+        description="Pressure loss coefficient of pipe fitting",
+        default_ps=('Pset_PipeFittingTypeCommon', 'FittingLossFactor'),
+        unit=ureg.pascal,
+    )
+
+    roughness_coefficient = attribute.Attribute(
+        description="Roughness coefficient of pipe fitting",
+        default_ps=('Pset_PipeFittingOccurrence',
+                    'InteriorRoughnessCoefficient'),
+        unit=ureg.millimeter,
+    )
+
+
     @staticmethod
     def _diameter_post_processing(value):
         if isinstance(value, list):
@@ -593,9 +750,50 @@ class SpaceHeater(HVACProduct):
     def is_consumer(self):
         return True
 
+    number_of_panels = attribute.Attribute(
+        description="Number of panels of heater",
+        default_ps=('Pset_SpaceHeaterTypeCommon', 'NumberOfPanels'),
+    )
+
+    number_of_sections = attribute.Attribute(
+        description="Number of sections of heater",
+        default_ps=('Pset_SpaceHeaterTypeCommon', 'NumberOfSections'),
+    )
+
+    thermal_efficiency = attribute.Attribute(
+        description="Thermal efficiency of heater",
+        default_ps=('Pset_SpaceHeaterTypeCommon', 'ThermalEfficiency'),
+        unit=ureg.dimensionless,
+    )
+
+    body_mass = attribute.Attribute(
+        description="Body mass of heater",
+        default_ps=('Pset_SpaceHeaterTypeCommon', 'BodyMass'),
+        unit=ureg.kg,
+    )
+
+    length = attribute.Attribute(
+        description="Lenght of heater",
+        default_ps=('Qto_SpaceHeaterBaseQuantities', 'Length'),
+        unit=ureg.meter,
+    )
+
+    temperature_classification = attribute.Attribute(
+        # [HighTemperature, LowTemperature, Other, NotKnown, Unset]
+        description="Temperature classification of heater",
+        default_ps=('Pset_SpaceHeaterTypeCommon', 'TemperatureClassification'),
+    )
+
     rated_power = attribute.Attribute(
         description="Rated power of SpaceHeater",
+        default_ps=('Pset_SpaceHeaterTypeCommon', 'OutputCapacity'),
         unit=ureg.kilowatt,
+    )
+
+    medium = attribute.Attribute(
+        # [Steam, Water, Other, NotKnown, Unset]
+        description="Medium of SpaceHeater",
+        default_ps=('Pset_SpaceHeaterTypeCommon', 'HeatTransferMedium'),
     )
 
 
@@ -625,7 +823,8 @@ class Storage(HVACProduct):
     }
 
     conditions = [
-        condition.RangeCondition('volume', 50 * ureg.liter, math.inf * ureg.liter)
+        condition.RangeCondition('volume', 50 * ureg.liter,
+                                 math.inf * ureg.liter)
     ]
 
     pattern_ifc_type = [
@@ -635,28 +834,45 @@ class Storage(HVACProduct):
         re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
     ]
 
-    @property
-    def storage_type(self):
-        return None
+    def calc_volume(self, name):
+        return self.height * self.diameter ** 2 / 4 * math.pi
+
+    storage_type = attribute.Attribute(
+        # [Ice, Water, RainWater, WasteWater, PotableWater, Fuel, Oil, Other,
+        # NotKnown, Unset]
+        description="Tanks's storage type (fluid type)",
+        default_ps=('Pset_TankTypeCommon', 'StorageType'),
+    )
 
     height = attribute.Attribute(
-        unit=ureg.meter,
+        description="Height of the tank",
+        default_ps=('Pset_TankTypeCommon', 'NominalDepth'),
+        unit=ureg.meter
     )
 
     diameter = attribute.Attribute(
+        description="Diameter of the tank",
+        default_ps=('Pset_TankTypeCommon', 'NominalLengthOrDiameter'),
         unit=ureg.millimeter,
+    )
+
+    volume = attribute.Attribute(
+        description="Volume of the tank",
+        default_ps=('Pset_TankTypeCommon', 'NominalCapacity'),
+        unit=ureg.meter ** 3,
+        functions=[calc_volume]
+    )
+
+    number_of_sections = attribute.Attribute(
+        description="Number of sections of the tank",
+        default_ps=('Pset_TankTypeCommon', 'NumberOfSections'),
+        unit=ureg.dimensionless,
     )
 
     @property
     def port_positions(self):
+        # ToDo: implement geometric method
         return (0, 0.5, 1)
-
-    def _calc_volume(self):
-        return self.height * self.diameter ** 2 / 4 * math.pi
-
-    volume = attribute.Attribute(
-        unit=ureg.meter ** 3,
-    )
 
 
 class Distributor(HVACProduct):
@@ -696,16 +912,51 @@ class Pump(HVACProduct):
         re.compile('Pump', flags=re.IGNORECASE)
     ]
 
-    rated_power = attribute.Attribute(
-        unit=ureg.kilowatt,
+    rated_current = attribute.Attribute(
+        description="Rated current of pump",
+        default_ps=('Pset_ElectricalDeviceCommon', 'RatedCurrent'),
+        unit=ureg.volt,
+    )
+    rated_voltage = attribute.Attribute(
+        description="Rated current of pump",
+        default_ps=('Pset_ElectricalDeviceCommon', 'RatedVoltage'),
+        unit=ureg.ampere,
     )
 
-    rated_height = attribute.Attribute(
-        unit=ureg.meter,
+    @staticmethod
+    def _calc_rated_power(bind, name):
+        if bind.rated_current and bind.rated_voltage:
+            return bind.rated_current * bind.rated_voltage
+        return None
+
+    rated_power = attribute.Attribute(
+        description="Rated power of pump",
+        unit=ureg.kilowatt,
+        functions=[_calc_rated_power]
+    )
+
+    rated_mass_flow = attribute.Attribute(
+        description="Rated mass flow of pump",
+        default_ps=('Pset_PumpTypeCommon', 'FlowRateRange'),
+        unit=ureg.kg / ureg.s,
     )
 
     rated_volume_flow = attribute.Attribute(
-        unit=ureg.meter ** 3 / ureg.hour,
+        description="Rated volume flow of pump",
+        unit=ureg.m**3 / ureg.hour,
+    )
+
+
+    rated_height = attribute.Attribute(
+        description="Rated height or rated pressure difference of pump",
+        default_ps=('Pset_PumpTypeCommon', 'FlowResistanceRange'),
+        unit=ureg.meter,
+    )
+
+    nominal_rotation_speed = attribute.Attribute(
+        description="nominal rotation speed of pump",
+        default_ps=('Pset_PumpTypeCommon', 'NominalRotationSpeed'),
+        unit=1 / ureg.s,
     )
 
     diameter = attribute.Attribute(
@@ -731,8 +982,27 @@ class Valve(HVACProduct):
     ]
 
     conditions = [
-        condition.RangeCondition("diameter", 5.0 * ureg.millimeter, 500.00 * ureg.millimeter)  # ToDo: unit?!
+        condition.RangeCondition("diameter", 5.0 * ureg.millimeter,
+                                 500.00 * ureg.millimeter)  # ToDo: unit?!
     ]
+
+    nominal_pressure_difference = attribute.Attribute(
+        description="Nominal pressure difference of valve",
+        default_ps=('Pset_ValveTypeCommon', 'CloseOffRating'),
+        unit=ureg.pascal,
+    )
+
+    kv_value = attribute.Attribute(
+        description="kv_value of valve",
+        default_ps=('Pset_ValveTypeCommon', 'FlowCoefficient'),
+    )
+
+    valve_pattern = attribute.Attribute(
+        # [SinglePort, Angled2Port, Straight2Port, Straight3Port,
+        # Crossover2Port, Other, NotKnown, Unset]
+        description="Nominal pressure difference of valve",
+        default_ps=('Pset_ValveTypeCommon', 'ValvePattern'),
+    )
 
     diameter = attribute.Attribute(
         description='Valve diameter',
@@ -743,13 +1013,6 @@ class Valve(HVACProduct):
             re.compile('.*DN.*', flags=re.IGNORECASE),
         ],
     )
-    # @cached_property
-    # def diameter(self):
-    #     result = self.find('diameter')
-    #
-    #     if isinstance(result, list):
-    #         return np.average(result).item()
-    #     return result
 
     length = attribute.Attribute(
         description='Length of Valve',
@@ -826,14 +1089,15 @@ class CHP(HVACProduct):
         default_ps=('Pset_ElectricGeneratorTypeCommon', 'MaximumPowerOutput'),
         description="Rated power of CHP",
         patterns=[
-          re.compile('.*Nennleistung', flags=re.IGNORECASE),
-          re.compile('.*capacity', flags=re.IGNORECASE),
+            re.compile('.*Nennleistung', flags=re.IGNORECASE),
+            re.compile('.*capacity', flags=re.IGNORECASE),
         ],
         unit=ureg.kilowatt,
     )
 
     efficiency = attribute.Attribute(
-        default_ps=('Pset_ElectricGeneratorTypeCommon', 'ElectricGeneratorEfficiency'),
+        default_ps=(
+            'Pset_ElectricGeneratorTypeCommon', 'ElectricGeneratorEfficiency'),
         description="Electric efficiency of CHP",
         patterns=[
             re.compile('.*electric.*efficiency', flags=re.IGNORECASE),

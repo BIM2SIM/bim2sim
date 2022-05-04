@@ -61,5 +61,4 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
 
 
 class TestIntegrationAixLib(unittest.TestCase):
-
     pass

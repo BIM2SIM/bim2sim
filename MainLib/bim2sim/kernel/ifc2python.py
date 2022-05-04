@@ -116,7 +116,7 @@ def get_layers_ifc(element):
     relation = 'RelatingMaterial'
     ifc_instance = element.ifc if hasattr(element, 'ifc') else element
     assoc_list = getIfcAttribute(ifc_instance, "HasAssociations") if \
-        hasattr(element, 'HasAssociations') else []
+        hasattr(ifc_instance, 'HasAssociations') else []
     for assoc in assoc_list:
         association = getIfcAttribute(assoc, relation)
         if association is not None:
@@ -130,6 +130,13 @@ def get_layers_ifc(element):
             # TODO is this ifc4 conform? or just a workaround
             elif hasattr(association, 'MaterialLayers'):
                 layer_list = association.MaterialLayers
+            elif hasattr(association, 'MaterialConstituents'):
+                layer_list = [Constituent.Material for Constituent in
+                              association.MaterialConstituents]
+            elif hasattr(association, 'MaterialProfiles'):
+                layer_list = [profile.Material for profile in
+                              association.MaterialProfiles]
+
             if isinstance(layer_list, Iterable):
                 for layer in layer_list:
                     layers_list.append(layer)
