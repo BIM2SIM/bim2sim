@@ -1,8 +1,8 @@
-[submodule "PluginTEASER/bim2sim_teaser/AixLib"]
-	path = PluginTEASER/bim2sim_teaser/AixLib
+[submodule "AixLib"]
+	path = MainLib/bim2sim/plugins/PluginTEASER/bim2sim_teaser/AixLib
 	url = https://github.com/RWTH-EBC/AixLib.git
 	branch = development
-[submodule "PluginTEASER/bim2sim_teaser/TEASER"]
-	path = PluginTEASER/bim2sim_teaser/TEASER
+[submodule "TEASER"]
+	path = MainLib/bim2sim/plugins/PluginTEASER/bim2sim_teaser/TEASER
 	url = https://github.com/RWTH-EBC/TEASER.git
 	branch = issue694_simulationPostProcessing
