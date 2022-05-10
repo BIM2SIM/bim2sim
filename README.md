@@ -1,30 +1,68 @@
+# BIM2SIM
 bim2sim ist eine Bibliothek um BIM Modelle aus dem .ifc Format für unterschiedliche Simulationstools aufzubereiten.
 Die grundlegende Struktur des Projekts ist hier dargestellt:
 ![Toolchain](https://git.rwth-aachen.de/Bim2Sim/Bim2Sim-documentation/raw/master/01_Grafiken/Toolchain.jpg)
 
-#### Entwicklung
-Zur Entwicklung sollten die Hauptbibliothek bim2sim sowie alle Plugins über den PYTHONPATH gefunden werden können.
-Außerdem sollten folgende Konventionen beachtet werden:
-* Als Einzug vier Leerzeichen verwenden
-* Dateien als utf-8 formatieren
-* vor Commit Code mit PyLint prüfen und Warnungen auf ein Minimum reduzieren.
+## Install
 
-### Struktur
-Zum leichteren Einstieg in die Entwicklung hier ein kurzer Überblick über die Strukut des Projekts:
-- **assets**: Additional data inputs, e.g. for enrichment 
-- **export**: Export related 
-- **kernel**: Logic for element detectionand description, generel ifc2python methods, aggregation ...
-- **task**: Tasks are small parts of a workflow, they can be used in different workflows and different domains. Example: Detection of thermal zones
-- **workflow**: Workflow builds context for Tasks and holds cross-task settings like intentional LoD. Example: Create BPS-model for modelica -> high wall LoD, low pipe LoD
-- **management classes**: manages the project, is bound to a workflow
+tbd.
 
-## MainLib
-In diesem Ordner befindet sich die eigentliche bim2sim Bibliothek. Sie enthält allgemeine Methoden und Funktionen zum Einlesen, Verarbeiten und Aufbereiten von .ifc Dateien.
-Für mehr Informationen:
-```sh
-$ python bim2sim --help
-```
+During development make sure your PYTHONPATH knows 
+where to find bim2sim and plugin folders.
 
-## Plugins
-Über bim2sim Plugins lässt sich die Funktionalität der bim2sim Bibliothek auf konkrete Simulationstools spezialisieren.
-Die Plugins werden vom der bim2sim Bibliothek über die Namenskonvention bim2sim_\<name\> automatisch als potenzielle Plugins erkannt. Zur Entwicklung ist es dazu erforderlich, dass die Plugins über den PYTHONPATH gefunden werden können.
+## Quick start
+
+Bim2sim consists of three main objects:
+- `Project`s, which wrap inputs like IFC files, intermediate states nd results
+- `Task`s, which define a specific task and are executed from within a project
+- `Decision`s, which occur during Task execution 
+  if additional information is required from the user
+
+### Command line
+
+CAUTION: Until bim2sim is properly installed as python package, 
+you have to be specific with paths. In the following our working directory is 
+considered to be parent folder of `/bim2sim`.
+
+show help
+
+    python bim2sim -h
+
+create new project
+
+    python bim2sim project create path\to\project -o
+
+then set backend in `path\to\project\config.ini` and copy an IFC file to `path\to\project\ifc` manually.
+Or create new project with specific simulation tool and ifc
+
+    python bim2sim project create path\to\project -s hkesim -i path\to\some.ifc
+
+When your project setup is done, type
+
+    python bim2sim project load path\to\project
+
+to start/load the project. 
+During the project execution you will be prompt to answer several `Decision`s.
+After the project has completed, you can find the results in `path\to\project\export`.
+
+### Import code
+
+You can use `bim2sim` like this:
+
+```python
+from bim2sim import Project
+
+PROJECT_PATH = "path/to/project"
+IFC_PATH = "Path/to/some.ifc"
+
+project = Project.create(PROJECT_PATH, IFC_PATH, 'hkesim')
+
+def get_answer():
+  return 42
+
+for decisions in project.run():
+  for decision in decisions:
+    # replace this with your logic to get answers
+    print(decision.question)
+    decision.value = get_answer()
+````

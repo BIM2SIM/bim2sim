@@ -1,0 +1,6 @@
+teaser>=0.7.5
+geomeppy>=0.11.8
+stl>=0.0.3
+geomeppy
+shapely
+numpy-stl
