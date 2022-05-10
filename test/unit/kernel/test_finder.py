@@ -14,7 +14,7 @@ from bim2sim.decision import Decision
 
 
 IFC_PATH = os.path.abspath(os.path.join(
-    os.path.dirname(bim2sim.__file__), '../..', 
+    os.path.dirname(bim2sim.__file__), '..',
     r'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc'))
 
 
