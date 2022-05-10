@@ -16,12 +16,19 @@ from bim2sim.decision.decisionhandler import DecisionHandler
 from bim2sim.kernel import ifc2python
 from bim2sim.project import Project, FolderStructure
 from bim2sim.plugin import Plugin
-from bim2sim.plugins import DummyPlugin
 from bim2sim import workflow
 from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparatedLayersLow,\
     BPSMultiZoneSeparatedEP
 
 VERSION = '0.1-dev'
+
+
+class DummyPlugin(Plugin):
+    name = 'dummy'
+    default_workflow = PlantSimulation
+
+    def run(self, playground):
+        pass
 
 
 def load_plugins(names: typing.Iterable[str] = None) -> typing.Dict[str, Plugin]:
