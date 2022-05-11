@@ -1,12 +1,18 @@
-﻿'''CFD plugin for bim2sim
+﻿"""CFD plugin for bim2sim
 
 Prepares ifc files for CFD simulation
-'''
+"""
+from bim2sim.plugins import Plugin
+from bim2sim.workflow import CFDWorkflowDummy
+
+from task.ifc2cfd import RunIFC2CFD
 
 
-def get_cfd():
-    from .cfd import PluginCFD
-    return PluginCFD
+class PluginCFD(Plugin):
+    name = 'CFD'
 
-
-CONTEND = {'cfd': get_cfd}
+    default_workflow = CFDWorkflowDummy
+    elements = {}
+    default_tasks = [
+        RunIFC2CFD,
+    ]
