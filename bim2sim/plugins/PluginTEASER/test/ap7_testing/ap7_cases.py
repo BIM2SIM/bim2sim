@@ -3,7 +3,7 @@ from pathlib import Path
 
 from bim2sim import workflow
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
-from bim2sim_teaser.test.integration_test_setup import \
+from integration_test_setup import \
     IntegrationBaseTeaserInteractive
 
 EXAMPLE_PATH = Path(__file__).parent.parent.parent.parent.parent / 'ExampleFiles'
