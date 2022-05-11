@@ -76,7 +76,14 @@ def load_plugin(name: str) -> Plugin:
     """
     if not name.startswith('bim2sim_'):
         name = 'bim2sim_' + name
-    module = importlib.import_module(name)
+    try:
+        # module names are usually lower case
+        module = importlib.import_module(name.lower())
+    except ImportError:
+        if name.lower() != name:
+            module = importlib.import_module(name)
+        else:
+            raise
     plugin = get_plugin(module)
     logger.info("Loaded Plugin %s", plugin.name)
     return plugin
