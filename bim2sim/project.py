@@ -16,11 +16,10 @@ import configparser
 
 from bim2sim.decision import Decision, ListDecision, DecisionBunch, save, load
 from bim2sim.task.base import Playground
-from bim2sim.plugin import Plugin
 from bim2sim.kernel.element import Element
 
 from bim2sim.task.bps.enrich_bldg_templ import EnrichBuildingByTemplates
-
+from plugins import load_plugin
 
 logger = logging.getLogger(__name__)
 
@@ -316,7 +315,7 @@ class Project:
         # TODO: Plugins provide Tasks and Elements. there are 'builtin' Plugins
         #  which should be loaded anyway. In config additional Plugins can be specified.
         #  'external' Plugins ca specify a meaningful workflow, builtins cant. How to get a generic workflow?
-        self.default_plugin = Plugin.get_plugin(self.config['Backend']['use'])
+        self.default_plugin = load_plugin(self.config['Backend']['use'])
         if not workflow:
             workflow = self.default_plugin.default_workflow()
         workflow.relevant_elements = self.default_plugin.elements

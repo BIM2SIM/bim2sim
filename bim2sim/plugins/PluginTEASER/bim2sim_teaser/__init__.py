@@ -2,11 +2,38 @@
 
 Holds logic to run a simulation based on prepared ifc data
 """
+from bim2sim_teaser import task as teaser
+from kernel.elements import bps as bps_elements
+from plugins import Plugin
+from task import common, bps
+from workflow import BPSMultiZoneCombinedLayersFull
 
 
-def get_teaser():
-    from .teaser import TEASERManager
-    return TEASERManager
+class TEASERManager(Plugin):
+    name = 'TEASER'
+    # default_workflow = BPSMultiZoneSeparatedLayersLow
+    # default_workflow = BPSMultiZoneSeparatedLayersFull
+    # default_workflow = BPSMultiZoneCombinedLayersLow
+    # default_workflow = BPSOneZoneAggregatedLayersLow
+    default_workflow = BPSMultiZoneCombinedLayersFull
+    elements = {*bps_elements.items}
 
-
-CONTEND = {'teaser': get_teaser}
+    default_tasks = [
+        common.LoadIFC,
+        bps.CheckIfcBPS,
+        common.CreateElements,
+        bps.CreateSpaceBoundaries,
+        bps.Prepare,
+        bps.EnrichUseConditions,
+        bps.OrientationGetter,
+        bps.MaterialVerification,  # layers -> LOD.full
+        bps.EnrichMaterial,  # layers -> LOD.full
+        bps.BuildingVerification,  # all layers LODs
+        bps.EnrichNonValid,  # spaces -> LOD.full
+        bps.EnrichBuildingByTemplates,  # spaces -> LOD.low
+        bps.DisaggregationCreation,
+        bps.BindThermalZones,
+        teaser.WeatherTEASER,
+        teaser.ExportTEASER,
+        teaser.SimulateModel,
+    ]

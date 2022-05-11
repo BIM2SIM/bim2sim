@@ -1,7 +1,7 @@
 ﻿import re
 from ast import literal_eval
 
-from bim2sim.plugin import Plugin
+from bim2sim import Plugin
 from bim2sim.task import base, common, hvac
 from bim2sim.export.modelica import standardlibrary
 from bim2sim_aixlib.models import AixLib

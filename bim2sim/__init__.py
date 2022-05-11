@@ -5,55 +5,14 @@ import re
 import sys
 
 import logging
-import typing
-import importlib
-import pkgutil
 import tempfile
 from os.path import expanduser
 
 from bim2sim.decision.console import ConsoleDecisionHandler
 from bim2sim.decision.decisionhandler import DecisionHandler
-from bim2sim.kernel import ifc2python
-from bim2sim.project import Project, FolderStructure
-from bim2sim.plugin import Plugin
-from bim2sim import workflow
-from bim2sim.workflow import PlantSimulation, BPSMultiZoneSeparatedLayersLow,\
-    BPSMultiZoneSeparatedEP
+from bim2sim.project import Project
 
 VERSION = '0.1-dev'
-
-
-class DummyPlugin(Plugin):
-    name = 'dummy'
-    default_workflow = PlantSimulation
-
-    def run(self, playground):
-        pass
-
-
-def load_plugins(names: typing.Iterable[str] = None) -> typing.Dict[str, Plugin]:
-    """Load bim2sim plugins filtered by names if argument names is specified"""
-    # TODO: load by names
-    # _names = [name for name in names if name.startswith('bim2sim_')]
-    logger = logging.getLogger(__name__)
-    plugins = {}
-    # internal plugins
-    plugins[DummyPlugin.name] = DummyPlugin
-
-    # load all
-    for finder, name, ispkg in pkgutil.iter_modules():
-        if name.startswith('bim2sim_'):
-            print(name)
-            module = importlib.import_module(name)
-            contend = getattr(module, 'CONTEND', None)
-            if not contend:
-                logger.warning("Found potential plugin '%s', but CONTEND is missing", name)
-                continue
-
-            for key, getter in contend.items():
-                plugins[key] = getter()
-                logger.debug("Found plugin '%s'", name)
-    return plugins
 
 
 def logging_setup():
@@ -85,7 +44,7 @@ def setup_default():
     logging_setup()
     logger = logging.getLogger(__name__)
 
-    plugins = load_plugins()
+    # plugins = load_plugins()
     # if not plugins:
     #     raise AssertionError("No plugins found!")
 
@@ -140,7 +99,7 @@ def _get_debug_project_path(aux):
 
 def _debug_run_bps():
     """Create example project and copy ifc if necessary"""
-    path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+    path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
     # rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
     # rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Architektur_spaces.ifc'
@@ -249,7 +208,7 @@ setup_default()
 
 if __name__ == '__main__':
     # _debug_run_cfd()
-    # _debug_run_bps()
+    _debug_run_bps()
     # _debug_run_bps_ep()
-    _debug_run_hvac()
+    # _debug_run_hvac()
 

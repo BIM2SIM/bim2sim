@@ -1,4 +1,4 @@
-﻿from bim2sim.plugin import Plugin
+﻿from bim2sim import Plugin
 from bim2sim.workflow import PlantSimulation
 from bim2sim.kernel.elements import hvac as hvac_elements
 from bim2sim.task import base

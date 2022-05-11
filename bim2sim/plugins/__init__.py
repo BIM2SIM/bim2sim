@@ -1,11 +1,27 @@
-﻿"""Managing related"""
+"""BIM2SIM Plugins"""
+import importlib
 import logging
+import sys
 from abc import ABCMeta
-from typing import Type, List, Set
+from inspect import isclass
+from pathlib import Path
+from typing import Set, Type, List
 
-from bim2sim.task.base import ITask
+from task.base import ITask
+
 
 logger = logging.getLogger(__name__)
+
+
+def add_plugins_to_path(root: Path):
+    """Add all directories under root to path."""
+    for folder in root.glob('*/'):
+        if folder.is_dir():
+            sys.path.append(folder)
+            logger.info("Added %s to path", folder)
+
+
+add_plugins_to_path(Path(__file__).parent)
 
 
 class Plugin:
@@ -50,3 +66,30 @@ class Plugin:
 
     def run(self, playground):
         raise NotImplementedError(f"No default run for {self.name} implemented.")
+
+
+def load_plugin(name: str) -> Plugin:
+    """Load Plugin from module.
+
+    Args:
+        name: name of plugin module. Prefix 'bim2sim_' may be omitted.
+    """
+    if not name.startswith('bim2sim_'):
+        name = 'bim2sim_' + name
+    module = importlib.import_module(name)
+    plugin = get_plugin(module)
+    logger.info("Loaded Plugin %s", plugin.name)
+    return plugin
+
+
+def get_plugin(module) -> Plugin:
+    """Get Plugin class from module."""
+    for name, value in module.__dict__.items():
+        if isclass(value) and issubclass(value, Plugin) and value is not Plugin:
+            return value
+    raise KeyError(f"Found no Plugin in {module.__file__}")
+
+
+if __name__ == '__main__':
+    plugin = load_plugin('teaser')
+    print(plugin.name)
