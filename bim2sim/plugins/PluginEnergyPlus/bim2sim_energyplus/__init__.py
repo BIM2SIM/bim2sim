@@ -7,7 +7,7 @@ from bim2sim.plugins import Plugin
 from bim2sim.task import common, bps
 from bim2sim.workflow import BPSMultiZoneSeparatedEP
 
-import task as ep_tasks
+from . import task as ep_tasks
 
 
 class EnergyPlus(Plugin):

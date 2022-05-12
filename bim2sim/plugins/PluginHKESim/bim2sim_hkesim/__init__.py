@@ -7,7 +7,7 @@ from bim2sim.kernel.elements import hvac as hvac_elements
 from bim2sim.workflow import PlantSimulation
 from bim2sim.plugins import Plugin
 
-from models import HKESim
+from .models import HKESim
 from task import base, common, hvac
 
 
