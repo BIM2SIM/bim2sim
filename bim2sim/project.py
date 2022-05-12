@@ -6,7 +6,7 @@ import subprocess
 import shutil
 from distutils.dir_util import copy_tree
 from pathlib import Path
-from typing import Union
+from typing import Union, Type
 import configparser
 
 from bim2sim.decision import Decision, ListDecision, DecisionBunch, save, load
@@ -287,7 +287,7 @@ class Project:
     formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
     _active_project = None  # lock to prevent multiple interfering projects
 
-    def __init__(self, path: str = None, plugin: Plugin = None, workflow=None):
+    def __init__(self, path: str = None, plugin: Type[Plugin] = None, workflow=None):
         """Load existing project"""
         self.storage = {}  # project related items
         self.paths = FolderStructure(path)
@@ -326,7 +326,7 @@ class Project:
             return load_plugin(plugin_name)
 
     @classmethod
-    def create(cls, project_folder, ifc_path=None, plugin: Union[str, Plugin] = None,
+    def create(cls, project_folder, ifc_path=None, plugin: Union[str, Type[Plugin]] = None,
                open_conf=False, workflow=None):
         """Create new project
 
