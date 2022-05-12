@@ -40,7 +40,7 @@ RUN apt-get -y install unzip
 RUN apt-get -y install libgl-dev 
 
 # Copy files
-COPY ./MainLib/requirements.txt .
+COPY ./requirements.txt .
 
 RUN 	conda create -n env python=3.7
 RUN		conda update -n base -c defaults conda
@@ -75,12 +75,12 @@ RUN wget -O /tmp/occ-utils.zip https://github.com/tpaviot/pythonocc-utils/archiv
 
 
 # Set Pythonpath
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/MainLib"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginEnergyPlus"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginCFD"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginAixLib"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginHKESim"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginTEASER"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/PluginTEASER/bim2sim_teaser/TEASER/"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/plugins/PluginEnergyPlus"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/plugins/PluginCFD"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/plugins/PluginAixLib"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/plugins/PluginHKESim"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/plugins/PluginTEASER"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/plugins/PluginTEASER/bim2sim_teaser/TEASER/"
 
 ########################################################
