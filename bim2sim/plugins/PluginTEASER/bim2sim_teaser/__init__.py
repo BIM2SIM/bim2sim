@@ -4,7 +4,7 @@ Holds logic to run a simulation based on prepared ifc data
 """
 from bim2sim_teaser import task as teaser
 from kernel.elements import bps as bps_elements
-from plugins import Plugin
+from bim2sim.plugins import Plugin
 from task import common, bps
 from workflow import BPSMultiZoneCombinedLayersFull
 
