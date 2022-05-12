@@ -6,7 +6,7 @@ import tempfile
 import bim2sim
 from bim2sim.project import Project
 from bim2sim.plugins import Plugin
-from workflow import PlantSimulation
+from bim2sim.workflow import PlantSimulation
 
 IFC_PATH = os.path.abspath(os.path.join(
     os.path.dirname(bim2sim.__file__), '..',
