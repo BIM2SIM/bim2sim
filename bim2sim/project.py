@@ -6,20 +6,12 @@ import subprocess
 import shutil
 from distutils.dir_util import copy_tree
 from pathlib import Path
-import importlib
-import pkgutil
-import re
-
-import pkg_resources
-
+from typing import Union
 import configparser
 
 from bim2sim.decision import Decision, ListDecision, DecisionBunch, save, load
 from bim2sim.task.base import Playground
-from bim2sim.kernel.element import Element
-
-from bim2sim.task.bps.enrich_bldg_templ import EnrichBuildingByTemplates
-from plugins import load_plugin
+from bim2sim.plugins import load_plugin, Plugin
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +22,7 @@ def open_config(path):
         subprocess.call(('open', path))
     elif os.name == 'nt':  # For Windows
         os.startfile(path)
-        #os.system("start " + conf_path)
+        # os.system("start " + conf_path)
     elif os.name == 'posix':  # For Linux, Mac, etc.
         subprocess.call(('xdg-open', path))
 
@@ -286,6 +278,7 @@ class Project:
 
     Args:
         path: path to load project from
+        plugin: Plugin to use. This overwrites plugin from config.
         workflow: Workflow to use with this project
 
     Raises:
@@ -294,13 +287,13 @@ class Project:
     formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
     _active_project = None  # lock to prevent multiple interfering projects
 
-    def __init__(self, path: str = None, workflow=None):
+    def __init__(self, path: str = None, plugin: Plugin = None, workflow=None):
         """Load existing project"""
         self.storage = {}  # project related items
         self.paths = FolderStructure(path)
         try:
             self.name = list(
-                    filter(Path.is_file, self.paths.ifc.glob('**/*')))[0].stem
+                filter(Path.is_file, self.paths.ifc.glob('**/*')))[0].stem
         except:
             logger.warning(
                 "Could not set correct project name, using Project!")
@@ -315,7 +308,7 @@ class Project:
         # TODO: Plugins provide Tasks and Elements. there are 'builtin' Plugins
         #  which should be loaded anyway. In config additional Plugins can be specified.
         #  'external' Plugins ca specify a meaningful workflow, builtins cant. How to get a generic workflow?
-        self.default_plugin = load_plugin(self.config['Backend']['use'])
+        self.default_plugin = self._get_plugin(plugin)
         if not workflow:
             workflow = self.default_plugin.default_workflow()
         workflow.relevant_elements = self.default_plugin.elements
@@ -324,14 +317,35 @@ class Project:
 
         self._log_handler = self._setup_logger()  # setup project specific handlers
 
+    def _get_plugin(self, plugin):
+        if plugin:
+            return plugin
+        else:
+            plugin_name = self.config['Backend']['use']
+            assert plugin_name, "Either an explicit passed plugin or equivalent entry in config is required."
+            return load_plugin(plugin_name)
+
     @classmethod
-    def create(cls, project_folder, ifc_path=None, default_plugin: str = None,
+    def create(cls, project_folder, ifc_path=None, plugin: Union[str, Plugin] = None,
                open_conf=False, workflow=None):
-        """Create new project"""
+        """Create new project
+
+        Args:
+            project_folder: directory of project
+            ifc_path: path to in ifc which gets copied into project folder
+            plugin: Plugin to use with this project.
+                If passed as string, make sure it is importable (see plugins.load_plugin)
+            open_conf: open config file in default editor to manually edit it
+            workflow: Workflow to use with this project
+        """
         # create folder first
-        FolderStructure.create(
-            project_folder, ifc_path, default_plugin, open_conf)
-        project = cls(project_folder, workflow)
+        if isinstance(plugin, str):
+            FolderStructure.create(project_folder, ifc_path, plugin, open_conf)
+            project = cls(project_folder, workflow=workflow)
+        else:
+            # an explicit plugin can't be recreated from config. Thou we don't save it
+            FolderStructure.create(project_folder, ifc_path, open_conf=open_conf)
+            project = cls(project_folder, plugin=plugin, workflow=workflow)
 
         return project
 
@@ -453,6 +467,3 @@ class Project:
 
     def __repr__(self):
         return "<Project(%s)>" % self.paths.root
-
-
-

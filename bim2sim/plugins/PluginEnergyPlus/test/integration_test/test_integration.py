@@ -59,10 +59,8 @@ class IntegrationBaseEP(IntegrationBase):
 
         # path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
         # ifc_path = os.path.normpath(os.path.join(path_base, rel_ifc_path))
-        self.project = Project.create(
-            tempfile.TemporaryDirectory(prefix='bim2sim_').name,
-            ifc_path=ifc_path,
-            default_plugin=plugin, workflow=workflow)
+        self.project = Project.create(tempfile.TemporaryDirectory(prefix='bim2sim_').name, ifc_path=ifc_path,
+                                      plugin=plugin, workflow=workflow)
         return self.project
 
 

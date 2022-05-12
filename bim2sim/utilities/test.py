@@ -23,10 +23,8 @@ class IntegrationBase:
 
         :param plugin: Project plugin e.g. 'hkesim', 'aixlib', ...
         :param ifc: name of ifc file located in dir TestModels"""
-        self.project = Project.create(
-            tempfile.TemporaryDirectory(prefix='bim2sim_').name,
-            ifc_path=sample_root / ifc,
-            default_plugin=plugin, workflow=workflow)
+        self.project = Project.create(tempfile.TemporaryDirectory(prefix='bim2sim_').name,
+                                      ifc_path=sample_root / ifc, plugin=plugin, workflow=workflow)
         return self.project
 
     # def run_project(self, ifc_file: str, backend: str):
