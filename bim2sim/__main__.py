@@ -21,7 +21,8 @@ import sys
 
 import docopt
 
-from bim2sim import Project, VERSION, run_project, FolderStructure
+from bim2sim import VERSION, run_project
+from bim2sim.project import Project, FolderStructure
 from bim2sim.decision.console import ConsoleDecisionHandler
 
 
