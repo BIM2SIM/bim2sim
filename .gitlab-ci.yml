@@ -245,7 +245,7 @@ test_TEASER:
      - pip install coverage-badge
    script:
      - mv ./* /bim2sim/
-     - coverage run -m unittest discover /bim2sim/bim2sim/plugins/PluginTEASER/bim2sim_teaser/test/integration_test
+     - coverage run -m unittest discover /bim2sim/bim2sim/plugins/PluginTEASER/test/integration_test
      - coverage report -i
      - mkdir -p $CI_COMMIT_REF_NAME/coverage
      - coverage html -i
