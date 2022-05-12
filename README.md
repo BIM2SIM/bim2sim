@@ -58,11 +58,11 @@ IFC_PATH = "Path/to/some.ifc"
 project = Project.create(PROJECT_PATH, IFC_PATH, 'hkesim')
 
 def get_answer():
-  return 42
+    return 42
 
 for decisions in project.run():
-  for decision in decisions:
-    # replace this with your logic to get answers
-    print(decision.question)
-    decision.value = get_answer()
+    for decision in decisions:
+        # replace this with your logic to get answers
+        print(decision.question)
+        decision.value = get_answer()
 ````
