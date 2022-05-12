@@ -13,7 +13,7 @@ from bim2sim.task import common
 from bim2sim.task.hvac import ConnectElements
 from bim2sim.workflow import PlantSimulation
 from bim2sim.project import Project, FolderStructure
-from bim2sim import Plugin
+from bim2sim.plugins import Plugin
 
 
 class DummyPlugin(Plugin):
@@ -45,7 +45,7 @@ class TestInspect(unittest.TestCase):
         print(cls.test_dir.name)
 
         # create initial folder structure
-        project = Project.create(cls.test_dir.name, default_plugin='test')
+        project = Project.create(cls.test_dir.name, plugin=DummyPlugin)
         # deactivate created project
         project.finalize(True)
 
@@ -54,7 +54,7 @@ class TestInspect(unittest.TestCase):
         cls.test_dir.cleanup()
 
     def setUp(self) -> None:
-        self.project = Project(self.test_dir.name)
+        self.project = Project(self.test_dir.name, plugin=DummyPlugin)
 
     def tearDown(self):
         self.project.finalize()

@@ -20,11 +20,11 @@ class TestUsage(unittest.TestCase):
     def test_import_plugin(self):
         """Test importing bim2sim_energyplus in python script"""
         try:
-            import bim2sim_energyplus
+            from bim2sim.plugins import load_plugin, Plugin
+            plugin = load_plugin('bim2sim_energyplus')
+            assert issubclass(plugin, Plugin)
         except ImportError as err:
             self.fail("Unable to import plugin\nreason: %s"%(err))
-        except Exception as err:
-            self.skipTest("Plugin available but errors occured on import\ndetails: %s"%(err))
 
     def test_call_console(self):
         """Test calling bim2sim --version from console"""
