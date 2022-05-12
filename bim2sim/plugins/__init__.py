@@ -1,14 +1,15 @@
 """BIM2SIM Plugins"""
 import importlib
 import logging
+import pkgutil
 import sys
 from abc import ABCMeta
 from inspect import isclass
 from pathlib import Path
 from typing import Set, Type, List
 
-from task.base import ITask
-
+from bim2sim.task.base import ITask
+from bim2sim.workflow import Workflow
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ def add_plugins_to_path(root: Path):
     """Add all directories under root to path."""
     for folder in root.glob('*/'):
         if folder.is_dir():
-            sys.path.append(folder)
+            sys.path.append(str(folder))
             logger.info("Added %s to path", folder)
 
 
@@ -25,50 +26,40 @@ add_plugins_to_path(Path(__file__).parent)
 
 
 class Plugin:
-    """Base class of overall bim2sim managing instance"""
+    """Base class for bim2sim Plugins.
+
+    Notes:
+        This class is used as a namespace. Instantiation is not necessary.
+
+    Attributes:
+        name: Name of the Plugin
+        default_workflow: default workflow to use in Projects using this Plugin
+        tasks: Set of tasks made available by this Plugin
+        default_tasks: List of tasks, which should be executed
+        elements: Additional Elements made available by this Plugin
+    """
     __metaclass__ = ABCMeta
 
-    available_plugins = {}
-
     name: str = None
-    default_workflow = None
+    default_workflow: Type[Workflow] = None
     tasks: Set[Type[ITask]] = set()
     default_tasks: List[Type[ITask]] = []
     elements: set = set()
 
-    @classmethod
-    def __init_subclass__(cls, **kwargs):
-        if not cls.name:
-            raise NameError(str(cls))
-        if cls.name in cls.available_plugins:
-            logger.warning("Plugin with name '%s' already registered. Skipping.", cls.name)
-        else:
-            cls.available_plugins[str(cls.name).lower()] = cls
-            logger.info("Plugin '%s' registered", cls.name)
-
-    @classmethod
-    def get_plugin(cls, name: str) -> Type['Plugin']:
-        """Get plugin by name
-        :rtype: Plugin
-        :raise: NameError if name is not available or invalid
-        """
-        if not name:
-            raise NameError(f"Invalid plugin name: {name}")
-        plugin = cls.available_plugins.get(name.lower())
-        if not plugin:
-            msg = f"No Plugin found with name '{name}'. Available plugins:\n - "
-            msg += '\n - '.join(cls.available_plugins.keys() or ['None'])
-            raise NameError(msg)
-        return plugin
-
     def __repr__(self):
         return "<%s>" % self.__class__.__name__
 
-    def run(self, playground):
-        raise NotImplementedError(f"No default run for {self.name} implemented.")
+
+def available_plugins() -> List[str]:
+    """List all available plugins."""
+    plugins = []
+    for finder, name, is_pkg in pkgutil.iter_modules():
+        if is_pkg and name.startswith('bim2sim_'):
+            plugins.append(name)
+    return plugins
 
 
-def load_plugin(name: str) -> Plugin:
+def load_plugin(name: str) -> Type[Plugin]:
     """Load Plugin from module.
 
     Args:
@@ -79,7 +70,7 @@ def load_plugin(name: str) -> Plugin:
     try:
         # module names are usually lower case
         module = importlib.import_module(name.lower())
-    except ImportError:
+    except ModuleNotFoundError:
         if name.lower() != name:
             module = importlib.import_module(name)
         else:
@@ -89,7 +80,7 @@ def load_plugin(name: str) -> Plugin:
     return plugin
 
 
-def get_plugin(module) -> Plugin:
+def get_plugin(module) -> Type[Plugin]:
     """Get Plugin class from module."""
     for name, value in module.__dict__.items():
         if isclass(value) and issubclass(value, Plugin) and value is not Plugin:
@@ -98,5 +89,4 @@ def get_plugin(module) -> Plugin:
 
 
 if __name__ == '__main__':
-    plugin = load_plugin('teaser')
-    print(plugin.name)
+    print(available_plugins())
