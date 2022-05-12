@@ -1,7 +1,8 @@
-from bim2sim.kernel.elements import Storage
-from bim2sim.task.base import Task, ITask
+from bim2sim.kernel.elements.hvac import Storage
+from bim2sim.task.base import ITask
 from bim2sim.task.hvac.hvac import hvac_graph
 from bim2sim.decision import Decision, BoolDecision
+
 
 class ExpansionTanks(ITask):
     """Analyses graph network for expansion tanks and removes them"""
@@ -9,7 +10,6 @@ class ExpansionTanks(ITask):
     reads = ('graph',)
     touches = ('graph',)
 
-    @Task.log
     def run(self, workflow, graph, force=True):
         self.logger.info("Inspecting for dead ends")
         pot_tanks = self.identify_expansion_tanks(graph)

@@ -1,11 +1,9 @@
 import unittest
 
-from test.kernel.helper import SetupHelper
-from bim2sim.kernel import elements
+from test.unit.kernel.helper import SetupHelper
+from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.task.hvac import expansiontanks
-from bim2sim import decision
-from bim2sim.decision.console import ConsoleFrontEnd as FrontEnd
 
 
 class GeneratorHelper(SetupHelper):
@@ -15,14 +13,14 @@ class GeneratorHelper(SetupHelper):
         flags = {}
         with self.flag_manager(flags):
             strand_main = [
-                self.element_generator(elements.Pipe, length=100, diameter=40)
+                self.element_generator(hvac.Pipe, length=100, diameter=40)
                 for i in range(5)]
-            fitting = self.element_generator(elements.PipeFitting, n_ports=3,
+            fitting = self.element_generator(hvac.PipeFitting, n_ports=3,
                                              diameter=40, length=60)
             strand_tank = [
-                self.element_generator(elements.Pipe, length=100, diameter=40)
+                self.element_generator(hvac.Pipe, length=100, diameter=40)
                 for i in range(2)]
-            tank = self.element_generator(elements.Storage, n_ports=1)
+            tank = self.element_generator(hvac.Storage, n_ports=1)
 
         self.connect_strait([*strand_main])
         self.connect_strait([*strand_tank])
@@ -39,23 +37,17 @@ class GeneratorHelper(SetupHelper):
 
 
 class TestExpansionTank(unittest.TestCase):
-    frontend = FrontEnd()
-    helper = None
-    _backup = None
+    helper: GeneratorHelper = None
 
     @classmethod
     def setUpClass(cls):
-        cls._backup = decision.Decision.frontend
-        decision.Decision.set_frontend(cls.frontend)
         cls.helper = GeneratorHelper()
 
     @classmethod
     def tearDownClass(cls):
-        decision.Decision.set_frontend(cls._backup)
+        cls.helper.reset()
 
     def tearDown(self):
-        decision.Decision.all.clear()
-        decision.Decision.stored_decisions.clear()
         self.helper.reset()
 
     def test_expansion_tank_circuit_forced(self):
@@ -79,8 +71,8 @@ class TestExpansionTank(unittest.TestCase):
             1, len(pot_tanks),
             f"There is 1 expansion tank but ony {len(pot_tanks)} was identified."
         )
-        with decision.Decision.debug_answer(True):
-            graph, n_removed = \
-                expansiontanks.ExpansionTanks.decide_expansion_tanks(
-                    graph, pot_tanks, force=False)
+
+        graph, n_removed = \
+            expansiontanks.ExpansionTanks.decide_expansion_tanks(
+                graph, pot_tanks, force=False)
         self.assertEqual(n_removed, 1)
