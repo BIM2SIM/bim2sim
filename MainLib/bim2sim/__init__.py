@@ -14,6 +14,7 @@ from os.path import expanduser
 from bim2sim.decision.console import ConsoleDecisionHandler
 from bim2sim.decision.decisionhandler import DecisionHandler
 from bim2sim.kernel import ifc2python
+from bim2sim.log import logging_setup
 from bim2sim.project import Project, FolderStructure
 from bim2sim.plugin import Plugin
 from bim2sim.plugins import DummyPlugin
@@ -47,30 +48,6 @@ def load_plugins(names: typing.Iterable[str] = None) -> typing.Dict[str, Plugin]
                 plugins[key] = getter()
                 logger.debug("Found plugin '%s'", name)
     return plugins
-
-
-def logging_setup():
-    """Setup for logging module"""
-
-    formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
-    root_logger = logging.getLogger(__name__)
-
-    # Stream
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(formatter)
-    root_logger.addHandler(stream_handler)
-    # File
-    # file_handler = logging.FileHandler(os.path.join(PROJECT.log, "bim2sim.log"))
-    # file_handler.setFormatter(formatter)
-    # root_logger.addHandler(file_handler)
-
-    root_logger.setLevel(logging.DEBUG)
-
-    # silence matplotlib
-    # matlog = logging.getLogger('matplotlib')
-    # matlog.level = logging.INFO
-
-    root_logger.debug("Logging setup done.")
 
 
 def setup_default():
