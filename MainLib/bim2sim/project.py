@@ -4,17 +4,20 @@ import os
 import sys
 import subprocess
 import shutil
+import threading
 from distutils.dir_util import copy_tree
 from pathlib import Path
 import importlib
 import pkgutil
 import re
+from typing import Dict, List
 
 import pkg_resources
 
 import configparser
 
 from bim2sim.decision import Decision, ListDecision, DecisionBunch, save, load
+from bim2sim import log
 from bim2sim.task.base import Playground
 from bim2sim.plugin import Plugin
 from bim2sim.kernel.element import Element
@@ -23,6 +26,7 @@ from bim2sim.task.bps.enrich_bldg_templ import EnrichBuildingByTemplates
 
 
 logger = logging.getLogger(__name__)
+user_logger = log.get_user_logger(__name__)
 
 
 def open_config(path):
@@ -323,7 +327,7 @@ class Project:
         workflow.update_from_config(self.config)
         self.playground = Playground(workflow, self.paths, self.name)
 
-        self._log_handler = self._setup_logger()  # setup project specific handlers
+        self._log_handlers = self._setup_logger()  # setup project specific handlers
 
     @classmethod
     def create(cls, project_folder, ifc_path=None, default_plugin: str = None,
@@ -353,15 +357,47 @@ class Project:
         """Return True if current project is active, False otherwise."""
         return Project._active_project is self
 
-    def _setup_logger(self):
-        file_handler = logging.FileHandler(os.path.join(self.paths.log, "bim2sim.log"))
-        file_handler.setFormatter(self.formatter)
-        logger.addHandler(file_handler)
-        return file_handler
+    def _setup_logger(self) -> Dict[str, List]:
+        # we assume only one project per thread and time is active.
+        # Thou we can use the thread name to filter project specific log messages.
+        # BUT! this assumption is not enforced and multiple active projects
+        # per thread will result in a mess of log messages.
+        log_handlers = {}
+        thread_name = threading.Thread.getName(threading.current_thread())
+
+        # quality logger
+        quality_logger = logging.getLogger('bim2sim.QualityReport')
+        quality_handler = logging.FileHandler(os.path.join(self.paths.log, "bim2sim.QualityReport.log"))
+        quality_handler.addFilter(log.ThreadLogFilter(thread_name))
+        quality_handler.setFormatter(log.quality_formatter)
+        log_handlers.setdefault('bim2sim.QualityReport', []).append(quality_handler)
+        quality_logger.addHandler(quality_handler)
+
+        general_logger = logging.getLogger('bim2sim')
+        # user feedback logger
+        user_handler = logging.StreamHandler()
+        user_handler.addFilter(log.ThreadLogFilter(thread_name))
+        user_handler.addFilter(log.AudienceFilter(log.USER))
+        user_handler.setFormatter(log.user_formatter)
+        log_handlers.setdefault('bim2sim', []).append(user_handler)
+        general_logger.addHandler(user_handler)
+
+        # dev logger
+        dev_handler = logging.StreamHandler()
+        dev_handler.addFilter(log.ThreadLogFilter(thread_name))
+        dev_handler.addFilter(log.AudienceFilter(None))
+        dev_handler.setFormatter(log.dev_formatter)
+        log_handlers.setdefault('bim2sim', []).append(dev_handler)
+        general_logger.addHandler(dev_handler)
+
+        return log_handlers
 
     def _teardown_logger(self):
-        logger.removeHandler(self._log_handler)
-        self._log_handler.close()
+        for name, handlers in self._log_handlers.items():
+            _logger = logging.getLogger(name)
+            for handler in handlers:
+                _logger.removeHandler(handler)
+                handler.close()
 
     @property
     def config(self):
@@ -437,20 +473,20 @@ class Project:
             if not success:
                 pth = self.paths.root / 'decisions_backup.json'
                 save(self._made_decisions, pth)
-                logger.warning("Decisions are saved in '%s'. Rename file to 'decisions.json' to reuse them.", pth)
+                user_logger.warning("Decisions are saved in '%s'. Rename file to 'decisions.json' to reuse them.", pth)
             else:
                 save(self._made_decisions, self.paths.decisions)
 
         # clean up init relics
         #  clean logger
-        logger.info('finished')
+        user_logger.info('Project finished')
         self._teardown_logger()
 
     def delete(self):
         """Delete the project."""
         self.finalize(True)  # success True to prevent unnecessary decision saving
         self.paths.delete(False)
-        logger.info("Project deleted")
+        user_logger.info("Project deleted")
 
     def __repr__(self):
         return "<Project(%s)>" % self.paths.root
