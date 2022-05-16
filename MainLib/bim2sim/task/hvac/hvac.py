@@ -24,6 +24,9 @@ from bim2sim.decision import RealDecision, BoolDecision
 from bim2sim.utilities.common_functions import get_type_building_elements_hvac
 
 
+quality_logger = logging.getLogger('bim2sim.QualityReport')
+
+
 class ConnectElements(ITask):
     """Analyses IFC, creates Element instances and connects them.
 
@@ -51,7 +54,6 @@ class ConnectElements(ITask):
     @staticmethod
     def connections_by_position(ports, eps=10):
         """Connect ports of instances by computing geometric distance"""
-        logger = logging.getLogger('IFCQualityReport')
         graph = nx.Graph()
         for port1, port2 in itertools.combinations(ports, 2):
             if port1.parent == port2.parent:
@@ -71,17 +73,17 @@ class ConnectElements(ITask):
             if len(candidates) <= 1:
                 # no action required
                 continue
-            logger.warning("Found %d geometrically close ports around %s. Details: %s",
+            quality_logger.warning("Found %d geometrically close ports around %s. Details: %s",
                            len(candidates), port, candidates)
             if candidates[0][2]['delta'] < candidates[1][2]['delta']:
                 # keep first
                 first = 1
-                logger.info("Accept closest ports with delta as connection (%s - %s)",
+                quality_logger.info("Accept closest ports with delta as connection (%s - %s)",
                             candidates[0][2]['delta'], candidates[0][0], candidates[0][1])
             else:
                 # remove all
                 first = 0
-                logger.warning("No connection determined, because there are no two closest ports.")
+                quality_logger.warning("No connection determined, because there are no two closest ports.")
             for cand in candidates[first:]:
                 graph.remove_edge(cand[0], cand[1])
 
@@ -90,7 +92,6 @@ class ConnectElements(ITask):
     @staticmethod
     def connections_by_relation(ports, include_conflicts=False):
         """Inspects IFC relations of ports"""
-        logger = logging.getLogger('IFCQualityReport')
         connections = []
         port_mapping = {port.guid: port for port in ports}
         for port in ports:
@@ -103,7 +104,7 @@ class ConnectElements(ITask):
                 other_port = None
                 if len(connected_ports) > 1:
                     # conflicts
-                    logger.warning("%s has multiple connections", port.ifc)
+                    quality_logger.warning("%s has multiple connections", port.ifc)
                     possibilities = []
                     for connected_port in connected_ports:
                         possible_port = port_mapping.get(connected_port.GlobalId)
@@ -118,10 +119,10 @@ class ConnectElements(ITask):
                     else:
                         if len(possibilities) == 1:
                             other_port = possibilities[0]
-                            logger.info("Solved by ignoring deleted connection.")
+                            quality_logger.info("Solved by ignoring deleted connection.")
                         else:
-                            logger.error("Unable to solve conflicting connections. "
-                                         "Continue without connecting %s", port.ifc)
+                            quality_logger.error("Unable to solve conflicting connections. "
+                                                 "Continue without connecting %s", port.ifc)
                 else:
                     # explicit
                     other_port = port_mapping.get(
@@ -130,7 +131,7 @@ class ConnectElements(ITask):
                     if port.parent and other_port.parent:
                         connections.append((port, other_port))
                     else:
-                        logger.debug(
+                        quality_logger.debug(
                             "Not connecting ports without parent (%s, %s)",
                             port, other_port)
         return connections
@@ -157,15 +158,14 @@ class ConnectElements(ITask):
     @staticmethod
     def check_element_ports(elements):
         """Checks position of all ports for each element"""
-        logger = logging.getLogger('IFCQualityReport')
         for ele in elements:
             for port_a, port_b in itertools.combinations(ele.ports, 2):
                 if np.allclose(port_a.position, port_b.position,
                                rtol=1e-7, atol=1):
-                    logger.warning("Poor quality of elements %s: "
-                                   "Overlapping ports (%s and %s @%s)",
-                                   ele.ifc, port_a.guid, port_b.guid,
-                                   port_a.position)
+                    quality_logger.warning("Poor quality of elements %s: "
+                                           "Overlapping ports (%s and %s @%s)",
+                                           ele.ifc, port_a.guid, port_b.guid,
+                                           port_a.position)
 
                     conns = ConnectElements.connections_by_relation(
                         [port_a, port_b], include_conflicts=True)
@@ -175,7 +175,7 @@ class ConnectElements(ITask):
                     if port_a in all_ports and port_b in all_ports \
                         and len(set(other_ports)) == 1:
                         # both ports connected to same other port -> merge ports
-                        logger.info("Removing %s and set %s as SINKANDSOURCE.",
+                        quality_logger.info("Removing %s and set %s as SINKANDSOURCE.",
                                     port_b.ifc, port_a.ifc)
                         ele.ports.remove(port_b)
                         port_b.parent = None

@@ -17,6 +17,7 @@ from bim2sim.utilities.common_functions import angle_equivalent, vector_angle
 from bim2sim.kernel.finder import TemplateFinder
 
 logger = logging.getLogger(__name__)
+quality_logger = logging.getLogger('bim2sim.QualityReport')
 
 
 class ElementError(Exception):
@@ -343,8 +344,7 @@ class IFCBased(Element):
         # hits.extend([p.search(ifc_element.Description or '') for p in cls.pattern_ifc_type])
         hits = [x for x in hits if x is not None]
         if any(hits):
-            logger = logging.getLogger('IFCModelCreation')
-            logger.info("Identified %s through text fracments in name. Criteria: %s", cls.ifc_type, hits)
+            quality_logger.info("Identified %s through text fracments in name. Criteria: %s", cls.ifc_type, hits)
             results.append(hits[0][0])
             # return hits[0][0]
         if optional_locations:
@@ -356,8 +356,7 @@ class IFCBased(Element):
                         loc, ifc_element, ifc_units)]
                 hits = [x for x in hits if x is not None]
                 if any(hits):
-                    logger = logging.getLogger('IFCModelCreation')
-                    logger.info("Identified %s through text fracments in %s. Criteria: %s", cls.ifc_type, loc, hits)
+                    quality_logger.info("Identified %s through text fracments in %s. Criteria: %s", cls.ifc_type, loc, hits)
                     results.append(hits[0][0])
         return results if results else ''
 
@@ -409,7 +408,7 @@ class IFCBased(Element):
                 # multiple sources but common value
                 return distinct_values.pop()
             else:
-                logger.warning('Found multiple values for attributes %s of instance %s' % (
+                quality_logger.warning('Found multiple values for attributes %s of instance %s' % (
                     ', '.join((str((m[0], m[1])) for m in matches)), self))
                 return distinct_values
 
