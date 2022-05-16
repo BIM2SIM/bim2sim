@@ -68,7 +68,7 @@ class Playground:
         self.state = {}
         self.workflow = workflow
         self.history = []
-        self.logger = logging.getLogger("Playground")
+        self.logger = logging.getLogger("bim2sim.Playground")
 
     @staticmethod
     def all_tasks() -> List[Type[ITask]]:
