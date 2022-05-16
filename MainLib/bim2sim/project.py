@@ -327,7 +327,10 @@ class Project:
         workflow.update_from_config(self.config)
         self.playground = Playground(workflow, self.paths, self.name)
 
-        self._log_handlers = self._setup_logger()  # setup project specific handlers
+        self._user_logger_set = False
+        self._log_thread_filters: List[log.ThreadLogFilter] = []
+        self._log_handlers = {}
+        self._setup_logger()  # setup project specific handlers
 
     @classmethod
     def create(cls, project_folder, ifc_path=None, default_plugin: str = None,
@@ -357,40 +360,65 @@ class Project:
         """Return True if current project is active, False otherwise."""
         return Project._active_project is self
 
-    def _setup_logger(self) -> Dict[str, List]:
+    def _setup_logger(self):
         # we assume only one project per thread and time is active.
         # Thou we can use the thread name to filter project specific log messages.
         # BUT! this assumption is not enforced and multiple active projects
         # per thread will result in a mess of log messages.
-        log_handlers = {}
+
+        # tear down existing handlers (just in case)
+        self._teardown_logger()
+
         thread_name = threading.Thread.getName(threading.current_thread())
 
         # quality logger
         quality_logger = logging.getLogger('bim2sim.QualityReport')
-        quality_handler = logging.FileHandler(os.path.join(self.paths.log, "bim2sim.QualityReport.log"))
+        quality_handler = logging.FileHandler(os.path.join(self.paths.log, "IFCQualityReport.log"))
         quality_handler.addFilter(log.ThreadLogFilter(thread_name))
         quality_handler.setFormatter(log.quality_formatter)
-        log_handlers.setdefault('bim2sim.QualityReport', []).append(quality_handler)
         quality_logger.addHandler(quality_handler)
 
         general_logger = logging.getLogger('bim2sim')
-        # user feedback logger
-        user_handler = logging.StreamHandler()
-        user_handler.addFilter(log.ThreadLogFilter(thread_name))
-        user_handler.addFilter(log.AudienceFilter(log.USER))
-        user_handler.setFormatter(log.user_formatter)
-        log_handlers.setdefault('bim2sim', []).append(user_handler)
-        general_logger.addHandler(user_handler)
 
         # dev logger
         dev_handler = logging.StreamHandler()
-        dev_handler.addFilter(log.ThreadLogFilter(thread_name))
+        dev_thread_filter = log.ThreadLogFilter(thread_name)
+        dev_handler.addFilter(dev_thread_filter)
         dev_handler.addFilter(log.AudienceFilter(None))
         dev_handler.setFormatter(log.dev_formatter)
-        log_handlers.setdefault('bim2sim', []).append(dev_handler)
         general_logger.addHandler(dev_handler)
 
-        return log_handlers
+        self._log_handlers['bim2sim.QualityReport'] = [quality_handler]
+        self._log_handlers['bim2sim'] = [dev_handler]
+        self._log_thread_filters.append(dev_thread_filter)
+
+    def _update_logging_thread_filters(self):
+        """Update thread filters to current thread."""
+        thread_name = threading.Thread.getName(threading.current_thread())
+        for thread_filter in self._log_thread_filters:
+            thread_filter.thread_name = thread_name
+
+    def set_user_logging_handler(self, user_handler: logging.Handler, set_formatter=True):
+        """Set a project specific logging Handler for user loggers.
+
+        Args:
+            user_handler: the handler instance to use for this project
+            set_formatter: if True, the user_handlers formatter is set
+        """
+        general_logger = logging.getLogger('bim2sim')
+        thread_name = threading.Thread.getName(threading.current_thread())
+
+        if self._user_logger_set:
+            self._setup_logger()
+        user_thread_filter = log.ThreadLogFilter(thread_name)
+        user_handler.addFilter(user_thread_filter)
+        user_handler.addFilter(log.AudienceFilter(log.USER))
+        if set_formatter:
+            user_handler.setFormatter(log.user_formatter)
+        general_logger.addHandler(user_handler)
+
+        self._log_handlers.setdefault('bim2sim', []).append(user_handler)
+        self._log_thread_filters.append(user_thread_filter)
 
     def _teardown_logger(self):
         for name, handlers in self._log_handlers.items():
@@ -398,6 +426,7 @@ class Project:
             for handler in handlers:
                 _logger.removeHandler(handler)
                 handler.close()
+        self._log_thread_filters.clear()
 
     @property
     def config(self):
@@ -421,14 +450,25 @@ class Project:
         if not self.paths.is_project_folder():
             raise AssertionError("Project ist not set correctly!")
 
+        if not self._user_logger_set:
+            logger.info("Set user logger to default Stream. "
+                        "Call project.set_user_logger_stream() prior to project.run() to change this.")
+            self.set_user_logging_handler(logging.StreamHandler())
+
         success = False
         if interactive:
             run = self._run_interactive
         else:
             run = self._run_default
         try:
+            # First update log filters in case Project was created from different tread.
+            # Then update log filters for each iteration, which might get called by a different thread.
+            # deeper down multithreading is currently not supported for logging
+            # and will result in a mess of log messages.
+            self._update_logging_thread_filters()
             for decision_bunch in run():
                 yield decision_bunch
+                self._update_logging_thread_filters()
                 if not decision_bunch.valid():
                     raise AssertionError("Cant continue with invalid decisions")
                 for decision in decision_bunch:

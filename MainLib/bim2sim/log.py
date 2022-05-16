@@ -6,15 +6,11 @@ USER = 'user'
 ifc_quality = {'audience': IFC_QUALITY}
 user = {'audience': USER}
 
-quality_formatter = logging.Formatter('QS|[%(levelname)s] %(name)s: %(message)s')
-user_formatter = logging.Formatter('user|[%(levelname)s] %(name)s: %(message)s')
-dev_formatter = logging.Formatter('dev|[%(levelname)s] %(name)s: %(message)s')
+quality_formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
+user_formatter = logging.Formatter('user>%(levelname)s: %(message)s')
+dev_formatter = logging.Formatter('dev>%(asctime)s [%(levelname)s] %(name)s.%(funcName)s: %(message)s')
 
-# TODO: docu how to log bim2sim. eg. logging in django -> rotatingFileHandler for dev
-# TODO: no general file logging outside projects (docu how)
-# TODO: User feedback stream
 # TODO: check log calls
-# TODO: formatter: dev: time etc.
 # TODO: fix errors exposed by log messages
 
 
@@ -47,22 +43,10 @@ def get_user_logger(name):
     return logging.LoggerAdapter(logging.getLogger(name), user)
 
 
-def logging_setup(verbose=False):
+def default_logging_setup(verbose=False):
     """Setup for logging module"""
     logger = logging.getLogger('bim2sim')
-    default_logger_setup(logger, verbose)
-    quality_logger_setup()
 
-    logger.setLevel(logging.DEBUG if verbose else logging.INFO)
-
-    # silence matplotlib
-    # matlog = logging.getLogger('matplotlib')
-    # matlog.level = logging.INFO
-
-    logger.debug("Logging setup done.")
-
-
-def default_logger_setup(logger, verbose):
     log_filter = AudienceFilter(audience=None)
 
     if verbose:
@@ -76,14 +60,20 @@ def default_logger_setup(logger, verbose):
     file_handler.addFilter(log_filter)
     logger.addHandler(file_handler)
 
-
-def quality_logger_setup():
     quality_logger = logging.getLogger('bim2sim.QualityReport')
     quality_logger.propagate = False
 
+    logger.setLevel(logging.DEBUG if verbose else logging.INFO)
+
+    # silence matplotlib
+    # matlog = logging.getLogger('matplotlib')
+    # matlog.level = logging.INFO
+
+    logger.debug("Default logging setup done.")
+
 
 if __name__ == '__main__':
-    logging_setup()
+    default_logging_setup()
 
     logger = logging.getLogger(__name__)
     qs_logger = get_quality_logger('bim2sim.QualityReport')

@@ -14,7 +14,7 @@ from os.path import expanduser
 from bim2sim.decision.console import ConsoleDecisionHandler
 from bim2sim.decision.decisionhandler import DecisionHandler
 from bim2sim.kernel import ifc2python
-from bim2sim.log import logging_setup
+from bim2sim.log import default_logging_setup
 from bim2sim.project import Project, FolderStructure
 from bim2sim.plugin import Plugin
 from bim2sim.plugins import DummyPlugin
@@ -52,9 +52,6 @@ def load_plugins(names: typing.Iterable[str] = None) -> typing.Dict[str, Plugin]
 
 def setup_default():
     """Main entry point"""
-    logging_setup()
-    logger = logging.getLogger(__name__)
-
     plugins = load_plugins()
     # if not plugins:
     #     raise AssertionError("No plugins found!")
@@ -218,6 +215,7 @@ def _debug_run_cfd():
 setup_default()
 
 if __name__ == '__main__':
+    default_logging_setup(verbose=True)
     # _debug_run_cfd()
     # _debug_run_bps()
     # _debug_run_bps_ep()
