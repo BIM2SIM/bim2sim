@@ -344,7 +344,7 @@ class IFCBased(Element):
         # hits.extend([p.search(ifc_element.Description or '') for p in cls.pattern_ifc_type])
         hits = [x for x in hits if x is not None]
         if any(hits):
-            logger.info("Identified %s through text fracments in name. Criteria: %s", cls.ifc_type, hits)
+            quality_logger.info("Identified %s through text fracments in name. Criteria: %s", cls.ifc_type, hits)
             results.append(hits[0][0])
             # return hits[0][0]
         if optional_locations:
@@ -356,7 +356,7 @@ class IFCBased(Element):
                         loc, ifc_element, ifc_units)]
                 hits = [x for x in hits if x is not None]
                 if any(hits):
-                    logger.info("Identified %s through text fracments in %s. Criteria: %s", cls.ifc_type, loc, hits)
+                    quality_logger.info("Identified %s through text fracments in %s. Criteria: %s", cls.ifc_type, loc, hits)
                     results.append(hits[0][0])
         return results if results else ''
 
