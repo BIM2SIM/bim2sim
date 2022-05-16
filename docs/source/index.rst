@@ -12,6 +12,7 @@ Welcome to BIM2SIM's documentation!
    big-picture
    installation
    first-steps
+   logging
    plugins
    code/modules
    
