@@ -1,9 +1,7 @@
 import logging
 
-IFC_QUALITY = 'qs'
 USER = 'user'
 
-ifc_quality = {'audience': IFC_QUALITY}
 user = {'audience': USER}
 
 quality_formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
@@ -33,10 +31,6 @@ class ThreadLogFilter(logging.Filter):
 
     def filter(self, record):
         return record.threadName == self.thread_name
-
-
-def get_quality_logger(name):
-    return logging.LoggerAdapter(logging.getLogger(name), ifc_quality)
 
 
 def get_user_logger(name):
@@ -76,7 +70,7 @@ if __name__ == '__main__':
     default_logging_setup()
 
     logger = logging.getLogger(__name__)
-    qs_logger = get_quality_logger('bim2sim.QualityReport')
+    qs_logger = logging.getLogger('bim2sim.QualityReport')
 
     logger.debug('bla')
     qs_logger.debug('qs bla')
