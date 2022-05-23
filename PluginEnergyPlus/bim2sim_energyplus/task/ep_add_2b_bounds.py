@@ -1,3 +1,5 @@
+import logging
+
 import ifcopenshell
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex
@@ -13,6 +15,7 @@ from bim2sim.task.base import ITask
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 from bim2sim_energyplus.task import EPGeomPreprocessing
 
+logger = logging.getLogger(__name__)
 
 class AddSpaceBoundaries2B(ITask):
     """Exports an EnergyPlus model based on IFC information"""
@@ -24,9 +27,13 @@ class AddSpaceBoundaries2B(ITask):
 
         split_bounds = ep_decisions['EnergyPlus.SplitConvexBounds']
         # self._get_neighbor_bounds(instances)
-        inst_2b = self._compute_2b_bound_gaps(instances)
-        if split_bounds:
-            EPGeomPreprocessing._split_non_convex_bounds(EPGeomPreprocessing(), inst_2b)
+        try:
+            inst_2b = self._compute_2b_bound_gaps(instances)
+            if split_bounds:
+                EPGeomPreprocessing._split_non_convex_bounds(EPGeomPreprocessing(), inst_2b)
+        except Exception as ex:
+            logger.exception("Something went wrong!")
+            return
         instances.update(inst_2b)
 
         pass
