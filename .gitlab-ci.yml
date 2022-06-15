@@ -1,7 +1,6 @@
 .only-default: &only-default
   only:
     - master
-    - merge_requests
     - tags
     - branches
 
