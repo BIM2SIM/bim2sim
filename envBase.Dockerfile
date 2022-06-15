@@ -1,6 +1,6 @@
 ########################################################
 # OS
-FROM ubuntu:latest
+FROM ubuntu:20.04
 
 #  $ docker build . -t continuumio/miniconda3:latest -t continuumio/miniconda3:4.5.11
 #  $ docker run --rm -it continuumio/miniconda3:latest /bin/bash
