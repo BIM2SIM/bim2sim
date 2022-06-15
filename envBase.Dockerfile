@@ -33,7 +33,7 @@ CMD [ "/bin/bash" ]
 
 
 ########################################################
-WORKDIR /bim2sim
+WORKDIR /bim2sim-coding
 
 RUN apt-get --allow-releaseinfo-change update
 RUN apt-get -y install unzip
