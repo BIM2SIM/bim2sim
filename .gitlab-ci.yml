@@ -283,25 +283,25 @@ build_tool:teaser:
 #      paths:
 #      - $CI_COMMIT_REF_NAME/coverage
 
-pylint:
-  stage: test
-  image: python:3.6
-  script:
-    - pip install pylint==2.11.1 pylint-json2html pylint-exit anybadge --quiet
-    - mkdir -p $CI_COMMIT_REF_NAME/pylint
-    - shopt -s globstar
-    - pylint --output-format=text **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.txt || pylint-exit $?
-    - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' $CI_COMMIT_REF_NAME/pylint/pylint.txt)
-    - echo "Pylint score was $score"
-    - anybadge --value=$score --file=$CI_COMMIT_REF_NAME/pylint/pylint.svg pylint
-    - pylint --output-format=jsonextended --disable=import-error --load-plugins=pylint_json2html **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.json || pylint-exit $?
-    - pylint-json2html -f jsonextended -o $CI_COMMIT_REF_NAME/pylint/pylint.html < $CI_COMMIT_REF_NAME/pylint/pylint.json
-    # todo integrate, that batch in readme.md is changed automaticly for branches
-    # - sed -i 's/pylint](.*)/pylint]( test )/g' README.md
-  artifacts:
-    paths:
-    - $CI_COMMIT_REF_NAME/pylint
-    expire_in: 2 hrs
+# pylint:
+#   stage: test
+#   image: python:3.6
+#   script:
+#     - pip install pylint==2.11.1 pylint-json2html pylint-exit anybadge --quiet
+#     - mkdir -p $CI_COMMIT_REF_NAME/pylint
+#     - shopt -s globstar
+#     - pylint --output-format=text **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.txt || pylint-exit $?
+#     - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' $CI_COMMIT_REF_NAME/pylint/pylint.txt)
+#     - echo "Pylint score was $score"
+#     - anybadge --value=$score --file=$CI_COMMIT_REF_NAME/pylint/pylint.svg pylint
+#     - pylint --output-format=jsonextended --disable=import-error --load-plugins=pylint_json2html **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.json || pylint-exit $?
+#     - pylint-json2html -f jsonextended -o $CI_COMMIT_REF_NAME/pylint/pylint.html < $CI_COMMIT_REF_NAME/pylint/pylint.json
+#     # todo integrate, that batch in readme.md is changed automaticly for branches
+#     # - sed -i 's/pylint](.*)/pylint]( test )/g' README.md
+#   artifacts:
+#     paths:
+#     - $CI_COMMIT_REF_NAME/pylint
+#     expire_in: 2 hrs
 
 sphinxdoc:
   image: $CI_REGISTRY/tool:development
