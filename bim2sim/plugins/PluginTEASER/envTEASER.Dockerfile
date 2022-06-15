@@ -1,4 +1,4 @@
-FROM registry.git-ce.rwth-aachen.de/ebc/projects/ebc0438_bmwi_bim2sim_ges/bim2sim-coding/environment:ubuntu_base
+FROM registry.git-ce.rwth-aachen.de/ebc/projects/ebc0438_bmwi_bim2sim_ges/bim2sim-coding/environment:development
 
 COPY ./bim2sim/plugins/PluginTEASER/requirements.txt ./requirements_teaser.txt
 
