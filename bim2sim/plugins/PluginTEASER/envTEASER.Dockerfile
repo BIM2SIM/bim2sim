@@ -4,4 +4,4 @@ COPY ./bim2sim/plugins/PluginTEASER/requirements.txt ./requirements_teaser.txt
 
 RUN pip install -r ./requirements_teaser.txt
 
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/plugins/PluginTEASER/bim2sim_teaser/TEASER/"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/bim2sim/plugins/PluginTEASER/bim2sim_teaser/TEASER/"

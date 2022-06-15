@@ -75,12 +75,12 @@ RUN wget -O /tmp/occ-utils.zip https://github.com/tpaviot/pythonocc-utils/archiv
 
 
 # Set Pythonpath
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/plugins/PluginEnergyPlus"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/plugins/PluginCFD"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/plugins/PluginAixLib"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/plugins/PluginHKESim"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/plugins/PluginTEASER"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/plugins/PluginTEASER/bim2sim_teaser/TEASER/"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/bim2sim"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/bim2sim/plugins/PluginEnergyPlus"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/bim2sim/plugins/PluginCFD"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/bim2sim/plugins/PluginAixLib"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/bim2sim/plugins/PluginHKESim"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/bim2sim/plugins/PluginTEASER"
+ENV PYTHONPATH "${PYTHONPATH}:/bim2sim/bim2sim/plugins/PluginTEASER/bim2sim_teaser/TEASER/"
 
 ########################################################
