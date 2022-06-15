@@ -1,4 +1,3 @@
-ifcopenshell>=v0.6.0
 docopt
 numpy
 pandas
