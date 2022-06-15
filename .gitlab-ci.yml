@@ -8,6 +8,7 @@
 stages:
   - test
   - build-env
+  - build-env-plugins
   - build-tool
   - doc
   - deploy
@@ -53,7 +54,7 @@ build_env:development:
 
 build_env:energyplus:
   image: docker:latest
-  stage: build-env
+  stage: build-env-plugins
   services:
   - docker:18.09.7-dind
   before_script:
@@ -73,7 +74,7 @@ build_env:energyplus:
 
 build_env:cfd:
   image: docker:latest
-  stage: build-env
+  stage: build-env-plugins
   services:
   - docker:18.09.7-dind
   before_script:
@@ -94,7 +95,7 @@ build_env:cfd:
 
 build_env:teaser:
   image: docker:latest
-  stage: build-env
+  stage: build-env-plugins
   services:
   - docker:18.09.7-dind
   before_script:
