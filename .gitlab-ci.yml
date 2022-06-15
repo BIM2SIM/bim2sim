@@ -50,135 +50,135 @@ build_env:development:
        - envBase.Dockerfile
        - requirements.txt
        - .gitlab-ci.yml
-#
-#build_env:energyplus:
-#  image: docker:latest
-#  stage: build-env-plugins
-#  services:
-#  - docker:18.09.7-dind
-#  before_script:
-#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-#  script:
-#    - docker build -t $CI_REGISTRY/environment:energyplus -f bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile .
-#    - docker push $CI_REGISTRY/environment:energyplus
-#  only:
-#    refs:
-#       - development
-#       - 128_energyPlusDocker
-#       - 83-split-plugins-from-kernel
-#    changes:
-#       - bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile
-#       - requirements.txt
-#       - .gitlab-ci.yml
-#
-#build_env:cfd:
-#  image: docker:latest
-#  stage: build-env-plugins
-#  services:
-#  - docker:18.09.7-dind
-#  before_script:
-#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-#  script:
-#    - docker build -t $CI_REGISTRY/environment:cfd -f bim2sim/plugins/PluginCFD/envCFD.Dockerfile .
-#    - docker push $CI_REGISTRY/environment:cfd
-#  timeout: 6 hours
-#  only:
-#    refs:
-#       - development
-#       - 55_integrateCFD_Image
-#       - 83-split-plugins-from-kernel
-#    changes:
-#       - bim2sim/plugins/PluginCFD/envCFD.Dockerfile
-#       - requirements.txt
-#       - .gitlab-ci.yml
-#
-#build_env:teaser:
-#  image: docker:latest
-#  stage: build-env-plugins
-#  services:
-#  - docker:18.09.7-dind
-#  before_script:
-#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-#  script:
-#    - docker build -t $CI_REGISTRY/environment:teaser -f bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile .
-#    - docker push $CI_REGISTRY/environment:teaser
-#  only:
-#    refs:
-#      - development
-#      - 83-split-plugins-from-kernel
-#      - 205_dymola_simulation
-#    changes:
-#      - bim2sim/plugins/PluginTEASER/requirements.txt
-#      - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
-#      - requirements.txt
-#      - .gitlab-ci.yml
-#
-#build_tool:release:
-#  image: docker:latest
-#  stage: build-tool
-#  services:
-#  - docker:18.09.7-dind
-#  before_script:
-#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-#  script:
-#    - docker build -t $CI_REGISTRY/tool:latest .
-#    - docker push $CI_REGISTRY/tool:latest
-#  only:
-#    - master
-#
-#build_tool:development:
-#  image: docker:latest
-#  stage: build-tool
-#  services:
-#  - docker:18.09.7-dind
-#  before_script:
-#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-#  script:
-#    - docker build -t $CI_REGISTRY/tool:development .
-#    - docker push $CI_REGISTRY/tool:development
-#  only:
-#    - development
-#
-#build_tool:webdevelop:
-#  image: docker:latest
-#  stage: build-tool
-#  services:
-#  - docker:18.09.7-dind
-#  before_script:
-#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-#  script:
-#    - docker build -t $CI_REGISTRY/tool:web_develop .
-#    - docker push $CI_REGISTRY/tool:web_develop
-#  only:
-#    - handler
-#
-#build_tool:cfd:
-#  image: docker:latest
-#  stage: build-tool
-#  services:
-#  - docker:18.09.7-dind
-#  before_script:
-#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-#  script:
-#    - docker build -t $CI_REGISTRY/tool:cfd -f bim2sim/plugins/PluginCFD/cfd.Dockerfile .
-#    - docker push $CI_REGISTRY/tool:cfd
-#  only:
-#    changes:
-#       - bim2sim/plugins/PluginCFD/*
-#
-#build_tool:teaser:
-#  image: docker:latest
-#  stage: build-tool
-#  services:
-#  - docker:18.09.7-dind
-#  before_script:
-#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-#  script:
-#    - docker build -t $CI_REGISTRY/tool:teaser -f bim2sim/plugins/PluginTEASER/teaser.Dockerfile .
-#    - docker push $CI_REGISTRY/tool:teaser
-#  only:
-#    changes:
-#       - bim2sim/plugins/PluginTEASER/*
+
+build_env:energyplus:
+  image: docker:latest
+  stage: build-env-plugins
+  services:
+  - docker:18.09.7-dind
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+  script:
+    - docker build -t $CI_REGISTRY/environment:energyplus -f bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile .
+    - docker push $CI_REGISTRY/environment:energyplus
+  only:
+    refs:
+       - development
+       - 128_energyPlusDocker
+       - 83-split-plugins-from-kernel
+    changes:
+       - bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile
+       - requirements.txt
+       - .gitlab-ci.yml
+
+build_env:cfd:
+  image: docker:latest
+  stage: build-env-plugins
+  services:
+  - docker:18.09.7-dind
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+  script:
+    - docker build -t $CI_REGISTRY/environment:cfd -f bim2sim/plugins/PluginCFD/envCFD.Dockerfile .
+    - docker push $CI_REGISTRY/environment:cfd
+  timeout: 6 hours
+  only:
+    refs:
+       - development
+       - 55_integrateCFD_Image
+       - 83-split-plugins-from-kernel
+    changes:
+       - bim2sim/plugins/PluginCFD/envCFD.Dockerfile
+       - requirements.txt
+       - .gitlab-ci.yml
+
+build_env:teaser:
+  image: docker:latest
+  stage: build-env-plugins
+  services:
+  - docker:18.09.7-dind
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+  script:
+    - docker build -t $CI_REGISTRY/environment:teaser -f bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile .
+    - docker push $CI_REGISTRY/environment:teaser
+  only:
+    refs:
+      - development
+      - 83-split-plugins-from-kernel
+      - 205_dymola_simulation
+    changes:
+      - bim2sim/plugins/PluginTEASER/requirements.txt
+      - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
+      - requirements.txt
+      - .gitlab-ci.yml
+
+build_tool:release:
+  image: docker:latest
+  stage: build-tool
+  services:
+  - docker:18.09.7-dind
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+  script:
+    - docker build -t $CI_REGISTRY/tool:latest .
+    - docker push $CI_REGISTRY/tool:latest
+  only:
+    - master
+
+build_tool:development:
+  image: docker:latest
+  stage: build-tool
+  services:
+  - docker:18.09.7-dind
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+  script:
+    - docker build -t $CI_REGISTRY/tool:development .
+    - docker push $CI_REGISTRY/tool:development
+  only:
+    - development
+
+build_tool:webdevelop:
+  image: docker:latest
+  stage: build-tool
+  services:
+  - docker:18.09.7-dind
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+  script:
+    - docker build -t $CI_REGISTRY/tool:web_develop .
+    - docker push $CI_REGISTRY/tool:web_develop
+  only:
+    - handler
+
+build_tool:cfd:
+  image: docker:latest
+  stage: build-tool
+  services:
+  - docker:18.09.7-dind
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+  script:
+    - docker build -t $CI_REGISTRY/tool:cfd -f bim2sim/plugins/PluginCFD/cfd.Dockerfile .
+    - docker push $CI_REGISTRY/tool:cfd
+  only:
+    changes:
+       - bim2sim/plugins/PluginCFD/*
+
+build_tool:teaser:
+  image: docker:latest
+  stage: build-tool
+  services:
+  - docker:18.09.7-dind
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+  script:
+    - docker build -t $CI_REGISTRY/tool:teaser -f bim2sim/plugins/PluginTEASER/teaser.Dockerfile .
+    - docker push $CI_REGISTRY/tool:teaser
+  only:
+    changes:
+       - bim2sim/plugins/PluginTEASER/*
 #
 #test_Base:
 #   <<: *only-default
@@ -284,45 +284,45 @@ build_env:development:
 #    paths:
 #    - $CI_COMMIT_REF_NAME/pylint
 #    expire_in: 2 hrs
-#
-#sphinxdoc:
-#  image: $CI_REGISTRY/tool:development
-#  stage: doc
-#
-#  before_script:
-#    - pip install -r /bim2sim/docs/requirements.txt
-#    - pip install anybadge
-#
-#  script:
-#    - mkdir -p $CI_COMMIT_REF_NAME/docs
-#    - sphinx-apidoc -M -o /bim2sim/docs/source/code /bim2sim  # create rst files for all python files
-#    - sphinx-build -b html /bim2sim/docs/source $CI_COMMIT_REF_NAME/docs
-#    - anybadge --value="passing" --file=$CI_COMMIT_REF_NAME/docs/doc.svg --label documentation
-#
-#  artifacts:
-#    paths:
-#    - $CI_COMMIT_REF_NAME/docs
-#    expire_in: 2 hrs
-#
-#pages:
-## Page to generate content to be downloaded in the artifact-section.
-#  image: ubuntu:latest
-#  stage: deploy
-#  before_script:
-#    - apt-get update -y
-#    - apt-get install zip unzip -y
-#    - apt-get install curl -y
-#  script:
-#    - set -e
-#    - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
-#    - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
-#    # Add/update content
-#    # TODO: mv $CI_COMMIT_REF_NAME/* to public/$CI_COMMIT_REF_NAME/*
-#    - mkdir -p public/$CI_COMMIT_REF_NAME
-#    - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
-#    # Zip the content and publish the zip again
-#    - zip -r "content.zip" "public"
-#    - mv "content.zip" "public/"
-#  artifacts:
-#    paths:
-#      - public
+
+sphinxdoc:
+  image: $CI_REGISTRY/tool:development
+  stage: doc
+
+  before_script:
+    - pip install -r /bim2sim/docs/requirements.txt
+    - pip install anybadge
+
+  script:
+    - mkdir -p $CI_COMMIT_REF_NAME/docs
+    - sphinx-apidoc -M -o /bim2sim/docs/source/code /bim2sim  # create rst files for all python files
+    - sphinx-build -b html /bim2sim/docs/source $CI_COMMIT_REF_NAME/docs
+    - anybadge --value="passing" --file=$CI_COMMIT_REF_NAME/docs/doc.svg --label documentation
+
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/docs
+    expire_in: 2 hrs
+
+pages:
+# Page to generate content to be downloaded in the artifact-section.
+  image: ubuntu:latest
+  stage: deploy
+  before_script:
+    - apt-get update -y
+    - apt-get install zip unzip -y
+    - apt-get install curl -y
+  script:
+    - set -e
+    - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
+    - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
+    # Add/update content
+    # TODO: mv $CI_COMMIT_REF_NAME/* to public/$CI_COMMIT_REF_NAME/*
+    - mkdir -p public/$CI_COMMIT_REF_NAME
+    - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
+    # Zip the content and publish the zip again
+    - zip -r "content.zip" "public"
+    - mv "content.zip" "public/"
+  artifacts:
+    paths:
+      - public
