@@ -396,11 +396,14 @@ class TestGeneratorAggregation(unittest.TestCase):
         graph, flags = self.helper.get_setup_boiler_with_bypass()
         pot_tanks = \
             expansiontanks.ExpansionTanks.identify_expansion_tanks(graph)
-        graph, n_removed_tanks = expansiontanks.ExpansionTanks.\
-            decide_expansion_tanks(graph, pot_tanks, force=True)
+        handler = DebugDecisionHandler(answers=[])
+        handler.handle(expansiontanks.ExpansionTanks.decide_expansion_tanks(
+            graph, pot_tanks, force=True))
+        graph, n_removed_tanks = handler.return_value
         dead_ends_found = dead_ends.DeadEnds.identify_deadends(graph)
-        graph, n_removed_dead_ends = dead_ends.DeadEnds.decide_deadends(
-            graph, dead_ends_found, True)
+        handler = DebugDecisionHandler(answers=[])
+        handler.handle(dead_ends.DeadEnds.decide_deadends(graph, dead_ends_found, True))
+        graph, n_removed_dead_ends = handler.return_value
         matches, metas = aggregation.GeneratorOneFluid.find_matches(graph)
         self.assertEqual(
             len(matches), 1,
@@ -425,8 +428,10 @@ class TestGeneratorAggregation(unittest.TestCase):
         graph, flags = self.helper.get_setup_two_seperate_boilers()
         pot_tanks = \
             expansiontanks.ExpansionTanks.identify_expansion_tanks(graph)
-        graph, n_removed_tanks = expansiontanks.ExpansionTanks.\
-            decide_expansion_tanks(graph, pot_tanks, force=True)
+        handler = DebugDecisionHandler(answers=[])
+        handler.handle(expansiontanks.ExpansionTanks.decide_expansion_tanks(
+            graph, pot_tanks, force=True))
+        graph, n_removed_tanks = handler.return_value
         dead_ends_found = dead_ends.DeadEnds.identify_deadends(graph)
         handler = DebugDecisionHandler(answers=[])
         handler.handle(dead_ends.DeadEnds.decide_deadends(graph, dead_ends_found, True))

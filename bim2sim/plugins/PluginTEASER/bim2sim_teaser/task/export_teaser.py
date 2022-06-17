@@ -87,7 +87,10 @@ class ExportTEASER(ITask):
             if isinstance(value, list):
                 # get property from instance (instance dependant on instance)
                 if value[0] == 'instance':
-                    aux = getattr(instance, value[1])
+                    try:
+                        aux = getattr(instance, value[1])
+                    except Exception as Ex:
+                        print()
                     if type(aux) is ureg.Quantity:
                         if aux.u == ureg.degC:
                             aux = aux.to('kelvin').magnitude

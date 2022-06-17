@@ -289,7 +289,7 @@ class HvacGraph(nx.Graph):
         simple_cycles = list(nx.simple_cycles(directed))
         # filter cycles:
         cycles = [cycle for cycle in simple_cycles for node in cycle if
-                  node.ifc_type in wanted and len(cycle) > 2]
+                  type(node) in wanted and len(cycle) > 2]
 
         # remove duplicate cycles with only different orientation
         cycles_sorted = cycles.copy()
@@ -301,7 +301,7 @@ class HvacGraph(nx.Graph):
         unique_cycles = [list(x) for x in set(tuple(x) for x in cycles_sorted)]
 
         # group cycles by wanted elements
-        wanted_elements = [node for node in graph.nodes if node.ifc_type in wanted]
+        wanted_elements = [node for node in graph.nodes if type(node) in wanted]
         cycles_dict = {}
         for wanted_element in wanted_elements:
             cycles_dict[wanted_element] = []

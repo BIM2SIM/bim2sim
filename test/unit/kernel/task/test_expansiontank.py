@@ -4,6 +4,7 @@ from test.unit.kernel.helper import SetupHelper
 from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.task.hvac import expansiontanks
+from bim2sim.decision.decisionhandler import DebugDecisionHandler
 
 
 class GeneratorHelper(SetupHelper):
@@ -58,9 +59,11 @@ class TestExpansionTank(unittest.TestCase):
             1, len(pot_tanks),
             f"There is 1 expansion tank but ony {len(pot_tanks)} was identified."
         )
-        graph, n_removed = expansiontanks.ExpansionTanks.decide_expansion_tanks(
-                graph, pot_tanks, force=True)
-
+        handler = DebugDecisionHandler(answers=[])
+        handler.handle(
+            expansiontanks.ExpansionTanks.decide_expansion_tanks(
+                graph, pot_tanks, force=True))
+        graph, n_removed = handler.return_value
         self.assertEqual(n_removed, 1)
 
     def test_expansion_tank_circuit_decision(self):
@@ -71,8 +74,9 @@ class TestExpansionTank(unittest.TestCase):
             1, len(pot_tanks),
             f"There is 1 expansion tank but ony {len(pot_tanks)} was identified."
         )
-
-        graph, n_removed = \
+        handler = DebugDecisionHandler(answers=[True])
+        handler.handle(
             expansiontanks.ExpansionTanks.decide_expansion_tanks(
-                graph, pot_tanks, force=False)
+                graph, pot_tanks, force=False))
+        graph, n_removed = handler.return_value
         self.assertEqual(n_removed, 1)

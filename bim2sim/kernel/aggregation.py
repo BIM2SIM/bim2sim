@@ -32,7 +32,7 @@ def verify_edge_ports(func):
                 continue
             if port.connection.parent in agg_instance.elements:
                 raise AssertionError("%s (%s) is not an edge port of %s" % (
-                port, port.guid, agg_instance))
+                    port, port.guid, agg_instance))
         return ports
 
     return wrapper
@@ -388,7 +388,7 @@ class UnderfloorHeating(PipeStrand):
     @staticmethod
     def get_pipe_strand_attributes(ports_coors: np.ndarray,
                                    uh_elements: nx.classes.reportviews.NodeView
-                                   ) -> [*(ureg.Quantity,)*5]:
+                                   ) -> [*(ureg.Quantity,) * 5]:
         """
         Get pipe strand attributes in order to proceed with the following
         checkpoints
@@ -436,7 +436,7 @@ class UnderfloorHeating(PipeStrand):
                                 uh_elements: nx.classes.reportviews.NodeView,
                                 dist_x: ureg.Quantity,
                                 dist_y: ureg.Quantity,
-                                tolerance: int = 10) -> [*(ureg.Quantity,)*2]:
+                                tolerance: int = 10) -> [*(ureg.Quantity,) * 2]:
         """
         Sorts the pipe elements according to their angle in the horizontal
         plane. Necessary to calculate subsequently the underfloor heating
@@ -955,7 +955,8 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
                 rated_height = getattr(pump, "rated_height")
                 rated_volume_flow = getattr(pump, "rated_volume_flow")
                 diameter = getattr(pump, "diameter")
-                if not (rated_power and rated_height and rated_volume_flow and diameter):
+                if not (
+                        rated_power and rated_height and rated_volume_flow and diameter):
                     logger.warning("Ignored '%s' in aggregation", pump)
                     continue
 
@@ -1051,7 +1052,8 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
                     total_ports[port.parent.guid].append(port)
         # 1st filter, cycle has more than 2 pump-ports, 1 pump
         if n_element >= 4:
-            new_cycle["elements"] = list(dict.fromkeys([v.parent for v in cycle]))
+            new_cycle["elements"] = list(
+                dict.fromkeys([v.parent for v in cycle]))
         else:
             return
         # 2nd filter, beginning and end of the cycle (parallel check)
@@ -1067,7 +1069,8 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
         lower = []
         for elem in new_cycle["elements"]:
             if new_cycle["elements"].index(final_ports[1].parent) \
-                    < new_cycle["elements"].index(elem) < new_cycle["elements"].index(final_ports[2].parent):
+                    < new_cycle["elements"].index(elem) < new_cycle[
+                "elements"].index(final_ports[2].parent):
                 upper.append(elem)
             else:
                 lower.append(elem)
@@ -1086,7 +1089,8 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
 
 class Consumer(HVACAggregationMixin, hvac.HVACProduct):
     """Aggregates Consumer system boarder"""
-    multi = ('has_pump', 'rated_power', 'rated_pump_power', 'rated_height', 'rated_volume_flow', 'temperature_inlet',
+    multi = ('has_pump', 'rated_power', 'rated_pump_power', 'rated_height',
+             'rated_volume_flow', 'temperature_inlet',
              'temperature_outlet', 'volume', 'description')
 
     aggregatable_elements = {
@@ -1116,17 +1120,21 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         _element_graph = element_graph.copy()
 
         # remove blocking nodes
-        remove = {node for node in _element_graph.nodes if node.__class__ in boarder_class}
+        remove = {node for node in _element_graph.nodes if
+                  node.__class__ in boarder_class}
         _element_graph.remove_nodes_from(remove)
 
         # identify outer connections
         remove_ports = [port for ele in remove for port in ele.ports]
         outer_connections = {}
         for port in remove_ports:
-            outer_connections.update({neighbor.parent: (port, neighbor) for neighbor in graph.neighbors(port) if
-                                      neighbor not in remove_ports})
+            outer_connections.update(
+                {neighbor.parent: (port, neighbor) for neighbor in
+                 graph.neighbors(port) if
+                 neighbor not in remove_ports})
 
-        sub_graphs = nx.connected_components(_element_graph)  # get_parallels(graph, wanted, innerts)
+        sub_graphs = nx.connected_components(
+            _element_graph)  # get_parallels(graph, wanted, innerts)
 
         consumer_cycles = []
         metas = []
@@ -1134,10 +1142,12 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
         for sub in sub_graphs:
             # check for generator in sub_graphs
-            generator = {node for node in sub if node.__class__ in cls.blacklist}
+            generator = {node for node in sub if
+                         node.__class__ in cls.blacklist}
             if generator:
                 # check for consumer in generator subgraph
-                gen_con = {node for node in sub if node.__class__ in cls.whitelist}
+                gen_con = {node for node in sub if
+                           node.__class__ in cls.whitelist}
                 if gen_con:
                     # ToDO: Consumer separieren
                     a = 1
@@ -1148,10 +1158,12 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
                     # subgraph = graph.subgraph(sub)
                     # generator_cycles.append(subgraph)
             else:
-                consumer_cycle = {node for node in sub if node.__class__ in cls.whitelist}
+                consumer_cycle = {node for node in sub if
+                                  node.__class__ in cls.whitelist}
                 if consumer_cycle:
                     subgraph = _element_graph.subgraph(sub)
-                    outer_con = [outer_connections[ele][1] for ele in sub if ele in outer_connections]
+                    outer_con = [outer_connections[ele][1] for ele in sub if
+                                 ele in outer_connections]
                     consumer_cycles.append(subgraph)
                     metas.append({'outer_connections': outer_con})
 
@@ -1271,7 +1283,8 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
             rated_power=total_rated_consumer_power,
             temperature_inlet=temperaure_inlet,
             temperature_outlet=temperature_outlet,
-            description=', '.join(['{1} x {0}'.format(k.__name__, v) for k, v in con_types.items()])
+            description=', '.join(['{1} x {0}'.format(k.__name__, v) for k, v in
+                                   con_types.items()])
         )
         return result
 
@@ -1333,10 +1346,12 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
     )
 
 
-class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): #ToDo: Export Aggregation HKESim
+class ConsumerHeatingDistributorModule(HVACAggregationMixin,
+                                       hvac.HVACProduct):  # ToDo: Export Aggregation HKESim
     """Aggregates Consumer system boarder"""
     multi = (
-        'medium', 'use_hydraulic_separator', 'hydraulic_separator_volume', 'temperature_inlet', 'temperature_outlet')
+        'medium', 'use_hydraulic_separator', 'hydraulic_separator_volume',
+        'temperature_inlet', 'temperature_outlet')
     # ToDo: Abused to not just sum attributes from elements
 
     aggregatable_elements = {
@@ -1349,7 +1364,8 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
                  hvac.CoolingTower]
 
     def __init__(self, element_graph, *args, **kwargs):
-        self.undefined_consumer_ports = kwargs.pop('undefined_consumer_ports', None)  # TODO: Richtig sO? WORKAROUND
+        self.undefined_consumer_ports = kwargs.pop('undefined_consumer_ports',
+                                                   None)  # TODO: Richtig sO? WORKAROUND
         self._consumer_cycles = kwargs.pop('consumer_cycles', None)
         self.consumers = []
         for consumer in self._consumer_cycles:
@@ -1376,9 +1392,11 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
         if (len(self.undefined_consumer_ports) % 2) == 0:
             for i in range(0, int(len(self.undefined_consumer_ports) / 2)):
                 consumer_ports.append(
-                    (self.undefined_consumer_ports[2 * i][0], self.undefined_consumer_ports[2 * i + 1][0]))
+                    (self.undefined_consumer_ports[2 * i][0],
+                     self.undefined_consumer_ports[2 * i + 1][0]))
         else:
-            raise NotImplementedError("Odd Number of loose ends at the distributor.")
+            raise NotImplementedError(
+                "Odd Number of loose ends at the distributor.")
         return consumer_ports
 
     @classmethod
@@ -1404,37 +1422,46 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
                           'consumer_cycles': []})
 
             for port in remove_ports:
-                outer_connections.update({neighbor.parent: (port, neighbor) for neighbor in graph.neighbors(port) if
-                                          neighbor not in remove_ports})
+                outer_connections.update(
+                    {neighbor.parent: (port, neighbor) for neighbor in
+                     graph.neighbors(port) if
+                     neighbor not in remove_ports})
 
-            sub_graphs = nx.connected_components(_element_graph)  # get_parallels(graph, wanted, innerts)
+            sub_graphs = nx.connected_components(
+                _element_graph)  # get_parallels(graph, wanted, innerts)
 
             for sub in sub_graphs:
                 # check for generator in sub_graphs
-                generator = {node for node in sub if node.__class__ in cls.blacklist}
+                generator = {node for node in sub if
+                             node.__class__ in cls.blacklist}
                 if generator:
                     # check for consumer in generator subgraph
-                    gen_con = {node for node in sub if node.__class__ in cls.whitelist}
+                    gen_con = {node for node in sub if
+                               node.__class__ in cls.whitelist}
                     if gen_con:
                         # ToDO: Consumer separieren
                         pass
                     else:
-                        outer_con = [outer_connections[ele][1] for ele in sub if ele in outer_connections]
+                        outer_con = [outer_connections[ele][1] for ele in sub if
+                                     ele in outer_connections]
                         if outer_con:
                             metas[-1]['outer_connections'].extend(outer_con)
                         # pure generator subgraph
                         # subgraph = graph.subgraph(sub)
                         # generator_cycles.append(subgraph)
                 else:
-                    consumer_cycle = {node for node in sub if node.__class__ in cls.whitelist}
+                    consumer_cycle = {node for node in sub if
+                                      node.__class__ in cls.whitelist}
                     if consumer_cycle:
                         subgraph = _element_graph.subgraph(sub)
                         consumer_cycles.extend(subgraph.nodes)
                         metas[-1]['consumer_cycles'].append(subgraph.nodes)
                     else:
-                        outer_con = [outer_connections[ele] for ele in sub if ele in outer_connections]
+                        outer_con = [outer_connections[ele] for ele in sub if
+                                     ele in outer_connections]
                         if outer_con:
-                            metas[-1]['undefined_consumer_ports'].extend(outer_con)
+                            metas[-1]['undefined_consumer_ports'].extend(
+                                outer_con)
 
             subnodes = [dist, *consumer_cycles]
 
@@ -1445,7 +1472,6 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
 
     @attribute.multi_calc
     def _calc_avg(self):
-
         result = dict(
             medium=None,
             temperature_inlet=None,
@@ -1454,8 +1480,6 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
             hydraulic_separator_volume=1,
         )
         return result
-
-
 
     medium = attribute.Attribute(
         description="Medium of the DestributerCycle",
@@ -1564,9 +1588,12 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         'internal_gains_moisture_no_people', 'T_threshold_cooling', 'ratio_conv_rad_persons', 'machines',
         'ratio_conv_rad_machines', 'lighting_power', 'ratio_conv_rad_lighting', 'infiltration_rate',
         'max_user_infiltration', 'min_ahu', 'max_ahu', 'persons']"""
-        prop_sum = sum(getattr(tz, name) * tz.net_volume for tz in self.elements if getattr(tz, name) is not None
-                       and tz.net_volume is not None)
-        vol_total = sum(tz.net_volume for tz in self.elements if tz.net_volume is not None)
+        prop_sum = sum(
+            getattr(tz, name) * tz.net_volume for tz in self.elements if
+            getattr(tz, name) is not None
+            and tz.net_volume is not None)
+        vol_total = sum(
+            tz.net_volume for tz in self.elements if tz.net_volume is not None)
         return prop_sum / vol_total
 
     def _intensive_list_calc(self, name):
@@ -1574,22 +1601,28 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         intensive_list_attributes = ['heating_profile', 'cooling_profile', 'persons_profile', 'machines_profile',
          'lighting_profile', 'max_overheating_infiltration', 'max_summer_infiltration',
          'winter_reduction_infiltration']"""
-        list_attrs = {'heating_profile': 25, 'cooling_profile': 25, 'persons_profile': 24,
-                      'machines_profile': 24, 'lighting_profile': 24, 'max_overheating_infiltration': 2,
+        list_attrs = {'heating_profile': 25, 'cooling_profile': 25,
+                      'persons_profile': 24,
+                      'machines_profile': 24, 'lighting_profile': 24,
+                      'max_overheating_infiltration': 2,
                       'max_summer_infiltration': 3,
                       'winter_reduction_infiltration': 3}
         length = list_attrs[name]
-        vol_total = sum(tz.net_volume for tz in self.elements if tz.net_volume is not None).m
+        vol_total = sum(tz.net_volume for tz in self.elements if
+                        tz.net_volume is not None).m
         aux = []
         for x in range(0, length):
-            aux.append(sum(getattr(tz, name)[x] * tz.net_volume.m for tz in self.elements if getattr(tz, name) is not None
-                           and tz.net_volume is not None) / vol_total)
+            aux.append(sum(
+                getattr(tz, name)[x] * tz.net_volume.m for tz in self.elements
+                if getattr(tz, name) is not None
+                and tz.net_volume is not None) / vol_total)
         return aux
 
     def _extensive_calc(self, name):
         """extensive properties getter
         intensive_attributes = ['gross_area', 'net_area', 'volume']"""
-        prop_sum = sum(getattr(tz, name) for tz in self.elements if getattr(tz, name) is not None)
+        prop_sum = sum(getattr(tz, name) for tz in self.elements if
+                       getattr(tz, name) is not None)
         return prop_sum
 
     def _bool_calc(self, name) -> bool:
@@ -1749,8 +1782,8 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
     aggregatable_elements = {
         hvac.Pump, PipeStrand, hvac.Pipe, hvac.PipeFitting, hvac.Distributor,
         hvac.Boiler, ParallelPump, hvac.Valve, hvac.Storage}
-    wanted_elements = ['IfcBoiler', 'IfcElectricGenerator']
-    boarder_elements = ['IfcTank', 'IfcDistributionChamberElement']
+    wanted_elements = [hvac.Boiler, hvac.CHP]
+    boarder_elements = [hvac.Distributor, ConsumerHeatingDistributorModule]
     multi = ('rated_power', 'has_bypass', 'rated_height', 'volume',
              'rated_volume_flow', 'rated_pump_power', 'has_pump')
 
@@ -1758,7 +1791,10 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
         self.non_relevant = kwargs.pop('non_relevant', set())  # todo workaround
         self.has_parallel = kwargs.pop('has_parallel', False)
         self.bypass_elements = kwargs.pop('bypass_elements', set())
-        super().__init__(name, element_graph, *args, **kwargs)
+        self.has_bypass = False
+        if self.bypass_elements:
+            self.has_bypass = True
+        super().__init__(element_graph, *args, **kwargs)
         edge_ports, element_graph = self.get_edge_ports(element_graph)
         self.elements = set(element_graph.nodes) | self.non_relevant
         if len(edge_ports) > 2:
@@ -1776,7 +1812,7 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
         # (not the case if parallel generators where found)
 
         boarder_elements = [node for node in _graph.nodes if
-                  node.ifc_type in cls.boarder_elements]
+                            node.ifc_type in cls.boarder_elements]
         if len(boarder_elements) > 1:
             raise NotImplementedError
         if boarder_elements:
@@ -1848,8 +1884,10 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
         wanted = set(cls.wanted_elements)
         boarders = set(cls.boarder_elements)
         inerts = set(cls.aggregatable_elements) - wanted
-        _graph = HvacGraph.remove_not_wanted_nodes(element_graph, wanted, inerts)
-        dict_all_cycles_wanted = HvacGraph.get_all_cycles_with_wanted(_graph, wanted)
+        _graph = HvacGraph.remove_not_wanted_nodes(element_graph, wanted,
+                                                   inerts)
+        dict_all_cycles_wanted = HvacGraph.get_all_cycles_with_wanted(_graph,
+                                                                      wanted)
         list_all_cycles_wanted = [*dict_all_cycles_wanted.values()]
 
         # create flat lists to substract for non relevant
@@ -1859,43 +1897,46 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
         # check for generation cycles
         generator_cycles = []
         for cycles_list in list_all_cycles_wanted:
-            generators = list(nx.subgraph(_graph, cycle) for cycle in cycles_list
-                              if any(node.ifc_type == block for block in
-                                     boarders for node in cycle))
-            generator_cycles.extend(generators)
-            generator_flat.update(generators[0].nodes)
-            wanted_flat.update([item for sublist in cycles_list for item in sublist])
+            generator_cycle = list(
+                nx.subgraph(_graph, cycle) for cycle in cycles_list
+                if any(type(node) == block for block in
+                       boarders for node in cycle))
+            if generator_cycle:
+                generator_cycles.extend(generator_cycle)
+                generator_flat.update(generator_cycle[0].nodes)
+                wanted_flat.update(
+                    [item for sublist in cycles_list for item in sublist])
 
-        non_relevant = wanted_flat - generator_flat
-
-        # Remove overlapping Elements in GeneratorCycles
         cleaned_generator_cycles = []
-        for gen_cycle in generator_cycles:
-            pseudo_lst = gen_cycle.copy()
-            for gen_cycle_two in generator_cycles:
-                if gen_cycle == gen_cycle_two:
-                    continue
-                pseudo_lst.remove_nodes_from(gen_cycle_two)
-            cleaned_generator_cycles.append(pseudo_lst)
-
         metas = []
+        if generator_flat:
+            non_relevant = wanted_flat - generator_flat
 
-        # match bypass elements from non relevant elements
-        for i in range(len(cleaned_generator_cycles)):
-            metas.append(dict())
-            metas[i]['bypass_elements'] = []
-            for cycle in list_all_cycles_wanted[i]:
-                if len(cycle - cleaned_generator_cycles[i].nodes - non_relevant) > 0:
-                    continue
-                bypass_elements = cycle - cleaned_generator_cycles[i].nodes
-                cleaned_generator_cycles[i].add_nodes_from(bypass_elements)
-                non_relevant.difference_update(bypass_elements)
-                metas[i]['bypass_elements'].append(bypass_elements)
+            # Remove overlapping Elements in GeneratorCycles
+            for gen_cycle in generator_cycles:
+                pseudo_lst = gen_cycle.copy()
+                for gen_cycle_two in generator_cycles:
+                    if gen_cycle == gen_cycle_two:
+                        continue
+                    pseudo_lst.remove_nodes_from(gen_cycle_two)
+                cleaned_generator_cycles.append(pseudo_lst)
+            _graph = graph.copy()
 
+            # match bypass elements from non relevant elements
+            for i in range(len(cleaned_generator_cycles)):
+                metas.append(dict())
+                metas[i]['bypass_elements'] = []
+                for cycle in list_all_cycles_wanted[i]:
+                    if len(cycle - cleaned_generator_cycles[
+                        i].nodes - non_relevant) > 0:
+                        continue
+                    bypass_elements = cycle - cleaned_generator_cycles[i].nodes
+                    cleaned_generator_cycles[i].add_nodes_from(bypass_elements)
+                    non_relevant.difference_update(bypass_elements)
+                    metas[i]['bypass_elements'].append(bypass_elements)
 
-        #metas = [{}] * (len(cleaned_generator_cycles)-1)
-        if len(metas) > 0:
-            metas[0]['non_relevant'] = non_relevant
+            if len(metas) > 0:
+                metas[0]['non_relevant'] = non_relevant
         return cleaned_generator_cycles, metas
 
     @attribute.multi_calc
@@ -1955,10 +1996,10 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
     def _calc_has_bypass(self):
         decision = BoolDecision(
             "Does the generator %s has a bypass?" % self.name,
-            global_key=self.guid+'.bypass',
+            global_key=self.guid + '.bypass',
             allow_save=True,
             allow_load=True,
-            related=[element.guid for element in self.elements],)
+            related=[element.guid for element in self.elements], )
         has_bypass = decision.decide()
         print(has_bypass)
         return dict(has_bypass=has_bypass)
@@ -1968,7 +2009,7 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
         """Calculates all directly generator related attributes"""
         total_rated_power = 0
         for ele in self.elements:
-            if ele.ifc_type in self.wanted_elements:
+            if type(ele) in self.wanted_elements:
                 total_rated_power += getattr(ele, "rated_power")
         result = dict(
             rated_power=total_rated_power
@@ -2092,9 +2133,4 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
     rated_height = attribute.Attribute(
         description="rated volume flow",
         functions=[_calc_avg_pump]
-    )
-    # bypass
-    has_bypass = attribute.Attribute(
-        description="Cycle has bypass",
-        functions=[_calc_has_bypass]
     )
