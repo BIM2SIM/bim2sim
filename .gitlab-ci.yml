@@ -68,7 +68,7 @@ build_env:energyplus:
        - 83-split-plugins-from-kernel
     changes:
        - bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile
-       - requirements.txt
+       - bim2sim/plugins/PluginEnergyPlus/requirements.txt
        - .gitlab-ci.yml
 #
 #build_env:cfd:
