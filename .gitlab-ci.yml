@@ -189,7 +189,7 @@ test_Base:
      - pip install coverage-badge
    script:
      - mv ./* /bim2sim-coding/
-     - coverage run -m unittest discover /bim2sim/
+     - coverage run -m unittest discover /bim2sim-coding/test
      - coverage report -i
      - mkdir -p $CI_COMMIT_REF_NAME/coverage
      - coverage html -i
@@ -210,7 +210,7 @@ test_EP:
      - pip install coverage-badge
    script:
      - mv ./* /bim2sim-coding/
-     - coverage run -m unittest discover /bim2sim/bim2sim/plugins/PluginEnergyPlus/test/integration_test
+     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration_test
      - coverage report -i
      - mkdir -p $CI_COMMIT_REF_NAME/coverage
      - coverage html -i
@@ -231,7 +231,7 @@ test_TEASER:
      - pip install coverage-badge
    script:
      - mv ./* /bim2sim-coding/
-     - coverage run -m unittest discover /bim2sim/bim2sim/plugins/PluginTEASER/test/integration_test
+     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration_test
      - coverage report -i
      - mkdir -p $CI_COMMIT_REF_NAME/coverage
      - coverage html -i
