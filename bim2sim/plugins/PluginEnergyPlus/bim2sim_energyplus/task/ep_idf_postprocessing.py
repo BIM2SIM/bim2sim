@@ -9,7 +9,7 @@ class IdfPostprocessing(ITask):
     def run(self, workflow, instances, idf, ifc):
         self.logger.info("IDF Postprocessing started...")
 
-        self._export_surface_areas(instances, idf)  # todo: fix
+        # self._export_surface_areas(instances, idf)  # todo: fix
         self._export_space_info(instances, idf)
         self._export_boundary_report(instances, idf, ifc)
         self.logger.info("IDF Postprocessing finished!")
