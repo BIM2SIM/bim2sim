@@ -1,5 +1,9 @@
 FROM registry.git-ce.rwth-aachen.de/ebc/projects/ebc0438_bmwi_bim2sim_ges/bim2sim-coding/environment:development
 
+# install EnergyPlus specific requirements
+COPY ./bim2sim/plugins/PluginEnergyPlus/requirements.txt ./requirements_ep.txt
+
+RUN pip install -r ./requirements_ep.txt
 
 ## EnergyPlus part
 
