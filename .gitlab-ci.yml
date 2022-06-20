@@ -15,41 +15,41 @@ stages:
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
-build_env:master:
-  image: docker:latest
-  stage: build-env
-  services:
-  - docker:18.09.7-dind
-  before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-  script:
-    - docker build -t $CI_REGISTRY/environment:master -f envBase.Dockerfile .
-    - docker push $CI_REGISTRY/environment:master
-  only:
-    refs:
-       - master
-    changes:
-       - envBase.Dockerfile
-       - requirements.txt
+#build_env:master:
+#  image: docker:latest
+#  stage: build-env
+#  services:
+#  - docker:18.09.7-dind
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/environment:master -f envBase.Dockerfile .
+#    - docker push $CI_REGISTRY/environment:master
+#  only:
+#    refs:
+#       - master
+#    changes:
+#       - envBase.Dockerfile
+#       - requirements.txt
 
-build_env:development:
-  image: docker:latest
-  stage: build-env
-  services:
-  - docker:18.09.7-dind
-  before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-  script:
-    - docker build -t $CI_REGISTRY/environment:development -f envBase.Dockerfile .
-    - docker push $CI_REGISTRY/environment:development
-  only:
-    refs:
-       - development
-       - 83-split-plugins-from-kernel
-    changes:
-       - envBase.Dockerfile
-       - requirements.txt
-       - .gitlab-ci.yml
+#build_env:development:
+#  image: docker:latest
+#  stage: build-env
+#  services:
+#  - docker:18.09.7-dind
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/environment:development -f envBase.Dockerfile .
+#    - docker push $CI_REGISTRY/environment:development
+#  only:
+#    refs:
+#       - development
+#       - 83-split-plugins-from-kernel
+#    changes:
+#       - envBase.Dockerfile
+#       - requirements.txt
+#       - .gitlab-ci.yml
 
 build_env:energyplus:
   image: docker:latest
@@ -71,262 +71,262 @@ build_env:energyplus:
        - bim2sim/plugins/PluginEnergyPlus/requirements.txt
        - requirements.txt
        - .gitlab-ci.yml
+#
+#build_env:cfd:
+#  image: docker:latest
+#  stage: build-env-plugins
+#  services:
+#  - docker:18.09.7-dind
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/environment:cfd -f bim2sim/plugins/PluginCFD/envCFD.Dockerfile .
+#    - docker push $CI_REGISTRY/environment:cfd
+#  timeout: 6 hours
+#  only:
+#    refs:
+#       - development
+#       - 55_integrateCFD_Image
+#       - 83-split-plugins-from-kernel
+#    changes:
+#       - bim2sim/plugins/PluginCFD/envCFD.Dockerfile
+#       - requirements.txt
+#       - .gitlab-ci.yml
+#
+#build_env:teaser:
+#  image: docker:latest
+#  stage: build-env-plugins
+#  services:
+#  - docker:18.09.7-dind
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/environment:teaser -f bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile .
+#    - docker push $CI_REGISTRY/environment:teaser
+#  only:
+#    refs:
+#      - development
+#      - 83-split-plugins-from-kernel
+#      - 205_dymola_simulation
+#    changes:
+#      - bim2sim/plugins/PluginTEASER/requirements.txt
+#      - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
+#      - requirements.txt
+#      - .gitlab-ci.yml
+#
+#build_tool:release:
+#  image: docker:latest
+#  stage: build-tool
+#  services:
+#  - docker:18.09.7-dind
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/tool:latest .
+#    - docker push $CI_REGISTRY/tool:latest
+#  only:
+#    - master
+#
+#build_tool:development:
+#  image: docker:latest
+#  stage: build-tool
+#  services:
+#  - docker:18.09.7-dind
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/tool:development .
+#    - docker push $CI_REGISTRY/tool:development
+#  only:
+#    - development
+#
+#build_tool:webdevelop:
+#  image: docker:latest
+#  stage: build-tool
+#  services:
+#  - docker:18.09.7-dind
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/tool:web_develop .
+#    - docker push $CI_REGISTRY/tool:web_develop
+#  only:
+#    - handler
+#
+#build_tool:cfd:
+#  image: docker:latest
+#  stage: build-tool
+#  services:
+#  - docker:18.09.7-dind
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/tool:cfd -f bim2sim/plugins/PluginCFD/cfd.Dockerfile .
+#    - docker push $CI_REGISTRY/tool:cfd
+#  only:
+#    changes:
+#       - bim2sim/plugins/PluginCFD/*
+#
+#build_tool:teaser:
+#  image: docker:latest
+#  stage: build-tool
+#  services:
+#  - docker:18.09.7-dind
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/tool:teaser -f bim2sim/plugins/PluginTEASER/teaser.Dockerfile .
+#    - docker push $CI_REGISTRY/tool:teaser
+#  only:
+#    changes:
+#       - bim2sim/plugins/PluginTEASER/*
 
-build_env:cfd:
-  image: docker:latest
-  stage: build-env-plugins
-  services:
-  - docker:18.09.7-dind
-  before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-  script:
-    - docker build -t $CI_REGISTRY/environment:cfd -f bim2sim/plugins/PluginCFD/envCFD.Dockerfile .
-    - docker push $CI_REGISTRY/environment:cfd
-  timeout: 6 hours
-  only:
-    refs:
-       - development
-       - 55_integrateCFD_Image
-       - 83-split-plugins-from-kernel
-    changes:
-       - bim2sim/plugins/PluginCFD/envCFD.Dockerfile
-       - requirements.txt
-       - .gitlab-ci.yml
-
-build_env:teaser:
-  image: docker:latest
-  stage: build-env-plugins
-  services:
-  - docker:18.09.7-dind
-  before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-  script:
-    - docker build -t $CI_REGISTRY/environment:teaser -f bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile .
-    - docker push $CI_REGISTRY/environment:teaser
-  only:
-    refs:
-      - development
-      - 83-split-plugins-from-kernel
-      - 205_dymola_simulation
-    changes:
-      - bim2sim/plugins/PluginTEASER/requirements.txt
-      - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
-      - requirements.txt
-      - .gitlab-ci.yml
-
-build_tool:release:
-  image: docker:latest
-  stage: build-tool
-  services:
-  - docker:18.09.7-dind
-  before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-  script:
-    - docker build -t $CI_REGISTRY/tool:latest .
-    - docker push $CI_REGISTRY/tool:latest
-  only:
-    - master
-
-build_tool:development:
-  image: docker:latest
-  stage: build-tool
-  services:
-  - docker:18.09.7-dind
-  before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-  script:
-    - docker build -t $CI_REGISTRY/tool:development .
-    - docker push $CI_REGISTRY/tool:development
-  only:
-    - development
-
-build_tool:webdevelop:
-  image: docker:latest
-  stage: build-tool
-  services:
-  - docker:18.09.7-dind
-  before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-  script:
-    - docker build -t $CI_REGISTRY/tool:web_develop .
-    - docker push $CI_REGISTRY/tool:web_develop
-  only:
-    - handler
-
-build_tool:cfd:
-  image: docker:latest
-  stage: build-tool
-  services:
-  - docker:18.09.7-dind
-  before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-  script:
-    - docker build -t $CI_REGISTRY/tool:cfd -f bim2sim/plugins/PluginCFD/cfd.Dockerfile .
-    - docker push $CI_REGISTRY/tool:cfd
-  only:
-    changes:
-       - bim2sim/plugins/PluginCFD/*
-
-build_tool:teaser:
-  image: docker:latest
-  stage: build-tool
-  services:
-  - docker:18.09.7-dind
-  before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-  script:
-    - docker build -t $CI_REGISTRY/tool:teaser -f bim2sim/plugins/PluginTEASER/teaser.Dockerfile .
-    - docker push $CI_REGISTRY/tool:teaser
-  only:
-    changes:
-       - bim2sim/plugins/PluginTEASER/*
-
-test_Base:
-   <<: *only-default
-   image: $CI_REGISTRY/environment:development
-   stage: test
-   before_script:
-     - pip install coverage
-     - pip install coverage-badge
-   script:
-     - mv ./* /bim2sim-coding/
-     - cd /bim2sim-coding
-     - coverage run -m unittest discover /bim2sim-coding/test
-     - coverage report -i
-     - mkdir -p $CI_COMMIT_REF_NAME/coverage
-     - coverage html -i
-     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-     # skip this for now as its only cosmetic and leads to problems
-     # - coverage-badge -o coverage.svg
-     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
-   artifacts:
-     paths:
-     - $CI_COMMIT_REF_NAME/coverage
-
-test_EP:
-   <<: *only-default
-   image: $CI_REGISTRY/environment:energyplus
-   stage: test
-   before_script:
-     - pip install coverage
-     - pip install coverage-badge
-   script:
-     - mv ./* /bim2sim-coding/
-     - cd /bim2sim-coding
-     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration_test
-     - coverage report -i
-     - mkdir -p $CI_COMMIT_REF_NAME/coverage
-     - coverage html -i
-     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-     # skip this for now as its only cosmetic and leads to problems
-     # - coverage-badge -o coverage.svg
-     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
-   artifacts:
-     paths:
-     - $CI_COMMIT_REF_NAME/coverage
-
-test_TEASER:
-   <<: *only-default
-   image: $CI_REGISTRY/environment:teaser
-   stage: test
-   before_script:
-     - pip install coverage
-     - pip install coverage-badge
-   script:
-     - mv ./* /bim2sim-coding/
-     - cd /bim2sim-coding
-     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration_test
-     - coverage report -i
-     - mkdir -p $CI_COMMIT_REF_NAME/coverage
-     - coverage html -i
-     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-     # skip this for now as its only cosmetic and leads to problems
-     # - coverage-badge -o coverage.svg
-     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
-   artifacts:
-     paths:
-     - $CI_COMMIT_REF_NAME/coverage
-
-test_CFD:
-   <<: *only-default
-   image: $CI_REGISTRY/environment:cfd
-   stage: test
-   before_script:
-     - pip install coverage
-     - pip install coverage-badge
-   script:
-     - mv ./* /bim2sim-coding/
-     - cd /bim2sim-coding
-     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginCFD/test/integration_test
-     - coverage report -i
-     - mkdir -p $CI_COMMIT_REF_NAME/coverage
-     - coverage html -i
-     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-     # skip this for now as its only cosmetic and leads to problems
-     # - coverage-badge -o coverage.svg
-     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
-   artifacts:
-     paths:
-     - $CI_COMMIT_REF_NAME/coverage
-
-pylint:
-  stage: test
-  image: python:3.6
-  script:
-    - pip install pylint==2.11.1 pylint-json2html pylint-exit anybadge --quiet
-    - mkdir -p $CI_COMMIT_REF_NAME/pylint
-    - shopt -s globstar
-    - pylint --output-format=text **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.txt || pylint-exit $?
-    - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' $CI_COMMIT_REF_NAME/pylint/pylint.txt)
-    - echo "Pylint score was $score"
-    - anybadge --value=$score --file=$CI_COMMIT_REF_NAME/pylint/pylint.svg pylint
-    - pylint --output-format=jsonextended --disable=import-error --load-plugins=pylint_json2html **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.json || pylint-exit $?
-    - pylint-json2html -f jsonextended -o $CI_COMMIT_REF_NAME/pylint/pylint.html < $CI_COMMIT_REF_NAME/pylint/pylint.json
-    # todo integrate, that batch in readme.md is changed automaticly for branches
-    # - sed -i 's/pylint](.*)/pylint]( test )/g' README.md
-  artifacts:
-    paths:
-    - $CI_COMMIT_REF_NAME/pylint
-    expire_in: 2 hrs
-
-sphinxdoc:
-  image: $CI_REGISTRY/tool:development
-  stage: doc
-
-  before_script:
-    - pip install -r /bim2sim/docs/requirements.txt
-    - pip install anybadge
-
-  script:
-    - mkdir -p $CI_COMMIT_REF_NAME/docs
-    - sphinx-apidoc -M -o /bim2sim/docs/source/code /bim2sim  # create rst files for all python files
-    - sphinx-build -b html /bim2sim/docs/source $CI_COMMIT_REF_NAME/docs
-    - anybadge --value="passing" --file=$CI_COMMIT_REF_NAME/docs/doc.svg --label documentation
-
-  artifacts:
-    paths:
-    - $CI_COMMIT_REF_NAME/docs
-    expire_in: 2 hrs
-
-pages:
-# Page to generate content to be downloaded in the artifact-section.
-  image: ubuntu:latest
-  stage: deploy
-  before_script:
-    - apt-get update -y
-    - apt-get install zip unzip -y
-    - apt-get install curl -y
-  script:
-    - set -e
-    - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
-    - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
-    # Add/update content
-    # TODO: mv $CI_COMMIT_REF_NAME/* to public/$CI_COMMIT_REF_NAME/*
-    - mkdir -p public/$CI_COMMIT_REF_NAME
-    - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
-    # Zip the content and publish the zip again
-    - zip -r "content.zip" "public"
-    - mv "content.zip" "public/"
-  artifacts:
-    paths:
-      - public
+#test_Base:
+#   <<: *only-default
+#   image: $CI_REGISTRY/environment:development
+#   stage: test
+#   before_script:
+#     - pip install coverage
+#     - pip install coverage-badge
+#   script:
+#     - mv ./* /bim2sim-coding/
+#     - cd /bim2sim-coding
+#     - coverage run -m unittest discover /bim2sim-coding/test
+#     - coverage report -i
+#     - mkdir -p $CI_COMMIT_REF_NAME/coverage
+#     - coverage html -i
+#     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+#     # skip this for now as its only cosmetic and leads to problems
+#     # - coverage-badge -o coverage.svg
+#     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
+#   artifacts:
+#     paths:
+#     - $CI_COMMIT_REF_NAME/coverage
+#
+#test_EP:
+#   <<: *only-default
+#   image: $CI_REGISTRY/environment:energyplus
+#   stage: test
+#   before_script:
+#     - pip install coverage
+#     - pip install coverage-badge
+#   script:
+#     - mv ./* /bim2sim-coding/
+#     - cd /bim2sim-coding
+#     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration_test
+#     - coverage report -i
+#     - mkdir -p $CI_COMMIT_REF_NAME/coverage
+#     - coverage html -i
+#     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+#     # skip this for now as its only cosmetic and leads to problems
+#     # - coverage-badge -o coverage.svg
+#     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
+#   artifacts:
+#     paths:
+#     - $CI_COMMIT_REF_NAME/coverage
+#
+#test_TEASER:
+#   <<: *only-default
+#   image: $CI_REGISTRY/environment:teaser
+#   stage: test
+#   before_script:
+#     - pip install coverage
+#     - pip install coverage-badge
+#   script:
+#     - mv ./* /bim2sim-coding/
+#     - cd /bim2sim-coding
+#     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration_test
+#     - coverage report -i
+#     - mkdir -p $CI_COMMIT_REF_NAME/coverage
+#     - coverage html -i
+#     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+#     # skip this for now as its only cosmetic and leads to problems
+#     # - coverage-badge -o coverage.svg
+#     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
+#   artifacts:
+#     paths:
+#     - $CI_COMMIT_REF_NAME/coverage
+#
+#test_CFD:
+#   <<: *only-default
+#   image: $CI_REGISTRY/environment:cfd
+#   stage: test
+#   before_script:
+#     - pip install coverage
+#     - pip install coverage-badge
+#   script:
+#     - mv ./* /bim2sim-coding/
+#     - cd /bim2sim-coding
+#     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginCFD/test/integration_test
+#     - coverage report -i
+#     - mkdir -p $CI_COMMIT_REF_NAME/coverage
+#     - coverage html -i
+#     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+#     # skip this for now as its only cosmetic and leads to problems
+#     # - coverage-badge -o coverage.svg
+#     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
+#   artifacts:
+#     paths:
+#     - $CI_COMMIT_REF_NAME/coverage
+#
+#pylint:
+#  stage: test
+#  image: python:3.6
+#  script:
+#    - pip install pylint==2.11.1 pylint-json2html pylint-exit anybadge --quiet
+#    - mkdir -p $CI_COMMIT_REF_NAME/pylint
+#    - shopt -s globstar
+#    - pylint --output-format=text **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.txt || pylint-exit $?
+#    - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' $CI_COMMIT_REF_NAME/pylint/pylint.txt)
+#    - echo "Pylint score was $score"
+#    - anybadge --value=$score --file=$CI_COMMIT_REF_NAME/pylint/pylint.svg pylint
+#    - pylint --output-format=jsonextended --disable=import-error --load-plugins=pylint_json2html **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.json || pylint-exit $?
+#    - pylint-json2html -f jsonextended -o $CI_COMMIT_REF_NAME/pylint/pylint.html < $CI_COMMIT_REF_NAME/pylint/pylint.json
+#    # todo integrate, that batch in readme.md is changed automaticly for branches
+#    # - sed -i 's/pylint](.*)/pylint]( test )/g' README.md
+#  artifacts:
+#    paths:
+#    - $CI_COMMIT_REF_NAME/pylint
+#    expire_in: 2 hrs
+#
+#sphinxdoc:
+#  image: $CI_REGISTRY/tool:development
+#  stage: doc
+#
+#  before_script:
+#    - pip install -r /bim2sim/docs/requirements.txt
+#    - pip install anybadge
+#
+#  script:
+#    - mkdir -p $CI_COMMIT_REF_NAME/docs
+#    - sphinx-apidoc -M -o /bim2sim/docs/source/code /bim2sim  # create rst files for all python files
+#    - sphinx-build -b html /bim2sim/docs/source $CI_COMMIT_REF_NAME/docs
+#    - anybadge --value="passing" --file=$CI_COMMIT_REF_NAME/docs/doc.svg --label documentation
+#
+#  artifacts:
+#    paths:
+#    - $CI_COMMIT_REF_NAME/docs
+#    expire_in: 2 hrs
+#
+#pages:
+## Page to generate content to be downloaded in the artifact-section.
+#  image: ubuntu:latest
+#  stage: deploy
+#  before_script:
+#    - apt-get update -y
+#    - apt-get install zip unzip -y
+#    - apt-get install curl -y
+#  script:
+#    - set -e
+#    - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
+#    - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
+#    # Add/update content
+#    # TODO: mv $CI_COMMIT_REF_NAME/* to public/$CI_COMMIT_REF_NAME/*
+#    - mkdir -p public/$CI_COMMIT_REF_NAME
+#    - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
+#    # Zip the content and publish the zip again
+#    - zip -r "content.zip" "public"
+#    - mv "content.zip" "public/"
+#  artifacts:
+#    paths:
+#      - public
