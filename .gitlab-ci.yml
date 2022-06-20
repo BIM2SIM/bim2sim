@@ -189,6 +189,7 @@ test_Base:
      - pip install coverage-badge
    script:
      - mv ./* /bim2sim-coding/
+     - ls -la
      - coverage run -m unittest discover /bim2sim-coding/test
      - coverage report -i
      - mkdir -p $CI_COMMIT_REF_NAME/coverage
@@ -200,70 +201,70 @@ test_Base:
    artifacts:
      paths:
      - $CI_COMMIT_REF_NAME/coverage
-
-test_EP:
-   <<: *only-default
-   image: $CI_REGISTRY/environment:energyplus
-   stage: test
-   before_script:
-     - pip install coverage
-     - pip install coverage-badge
-   script:
-     - mv ./* /bim2sim-coding/
-     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration_test
-     - coverage report -i
-     - mkdir -p $CI_COMMIT_REF_NAME/coverage
-     - coverage html -i
-     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-     # skip this for now as its only cosmetic and leads to problems
-     # - coverage-badge -o coverage.svg
-     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
-   artifacts:
-     paths:
-     - $CI_COMMIT_REF_NAME/coverage
-
-test_TEASER:
-   <<: *only-default
-   image: $CI_REGISTRY/environment:teaser
-   stage: test
-   before_script:
-     - pip install coverage
-     - pip install coverage-badge
-   script:
-     - mv ./* /bim2sim-coding/
-     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration_test
-     - coverage report -i
-     - mkdir -p $CI_COMMIT_REF_NAME/coverage
-     - coverage html -i
-     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-     # skip this for now as its only cosmetic and leads to problems
-     # - coverage-badge -o coverage.svg
-     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
-   artifacts:
-     paths:
-     - $CI_COMMIT_REF_NAME/coverage
-
-
-test_CFD:
-   <<: *only-default
-   image: $CI_REGISTRY/environment:cfd
-   stage: test
-   before_script:
-     - pip install coverage
-     - pip install coverage-badge
-   script:
-     - mv ./* /bim2sim-coding/
-     - coverage run -m unittest discover /bim2sim/bim2sim/plugins/PluginCFD/test_cfd
-     - coverage report -i
-     - mkdir -p $CI_COMMIT_REF_NAME/coverage
-     - coverage html -i
-     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-     # skip this for now as its only cosmetic and leads to problems
-     # - coverage-badge -o coverage.svg
-     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
-   artifacts:
-     paths:
-     - $CI_COMMIT_REF_NAME/coverage
+#
+#test_EP:
+#   <<: *only-default
+#   image: $CI_REGISTRY/environment:energyplus
+#   stage: test
+#   before_script:
+#     - pip install coverage
+#     - pip install coverage-badge
+#   script:
+#     - mv ./* /bim2sim-coding/
+#     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration_test
+#     - coverage report -i
+#     - mkdir -p $CI_COMMIT_REF_NAME/coverage
+#     - coverage html -i
+#     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+#     # skip this for now as its only cosmetic and leads to problems
+#     # - coverage-badge -o coverage.svg
+#     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
+#   artifacts:
+#     paths:
+#     - $CI_COMMIT_REF_NAME/coverage
+#
+#test_TEASER:
+#   <<: *only-default
+#   image: $CI_REGISTRY/environment:teaser
+#   stage: test
+#   before_script:
+#     - pip install coverage
+#     - pip install coverage-badge
+#   script:
+#     - mv ./* /bim2sim-coding/
+#     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration_test
+#     - coverage report -i
+#     - mkdir -p $CI_COMMIT_REF_NAME/coverage
+#     - coverage html -i
+#     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+#     # skip this for now as its only cosmetic and leads to problems
+#     # - coverage-badge -o coverage.svg
+#     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
+#   artifacts:
+#     paths:
+#     - $CI_COMMIT_REF_NAME/coverage
+#
+#
+#test_CFD:
+#   <<: *only-default
+#   image: $CI_REGISTRY/environment:cfd
+#   stage: test
+#   before_script:
+#     - pip install coverage
+#     - pip install coverage-badge
+#   script:
+#     - mv ./* /bim2sim-coding/
+#     - coverage run -m unittest discover /bim2sim/bim2sim/plugins/PluginCFD/test_cfd
+#     - coverage report -i
+#     - mkdir -p $CI_COMMIT_REF_NAME/coverage
+#     - coverage html -i
+#     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+#     # skip this for now as its only cosmetic and leads to problems
+#     # - coverage-badge -o coverage.svg
+#     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
+#   artifacts:
+#     paths:
+#     - $CI_COMMIT_REF_NAME/coverage
 
 #pylint:
 #  stage: test
