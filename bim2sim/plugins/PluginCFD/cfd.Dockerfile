@@ -1,6 +1,6 @@
 FROM registry.git-ce.rwth-aachen.de/ebc/projects/ebc0438_bmwi_bim2sim_ges/bim2sim-coding/environment:cfd
 
-WORKDIR /bim2sim
+WORKDIR /bim2sim-coding
 
 # Copy files
 COPY . .

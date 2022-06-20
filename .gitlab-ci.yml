@@ -188,12 +188,7 @@ test_Base:
      - pip install coverage
      - pip install coverage-badge
    script:
-     - ls -la
-     - mv ./* /bim2sim-coding/
-     - cd /
-     - ls -la
      - cd /bim2sim-coding
-     - ls -la
      - coverage run -m unittest discover /bim2sim-coding/test
      - coverage report -i
      - mkdir -p $CI_COMMIT_REF_NAME/coverage
