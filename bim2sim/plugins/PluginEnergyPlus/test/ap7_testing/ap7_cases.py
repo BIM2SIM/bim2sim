@@ -6,10 +6,11 @@ import os
 
 from bim2sim import workflow
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
-from test.integration_test.test_integration import IntegrationBaseEP
+from bim2sim.plugins.PluginEnergyPlus.test.integration_test.test_integration import \
+    IntegrationBaseEP
 
-EXAMPLE_PATH = Path(os.path.abspath(os.path.dirname(__file__))).parent.parent.parent / 'ExampleFiles'
-RESULT_PATH = Path(os.path.abspath(os.path.dirname(__file__))).parent.parent.parent / 'ResultFiles'
+EXAMPLE_PATH = Path(os.path.abspath(os.path.dirname(__file__))).parent.parent.parent.parent.parent / 'ExampleFiles'
+RESULT_PATH = Path(os.path.abspath(os.path.dirname(__file__))).parent.parent.parent.parent.parent / 'ResultFiles'
 DEBUG_ENERGYPLUS = True
 
 
