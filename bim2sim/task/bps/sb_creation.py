@@ -18,7 +18,7 @@ class CreateSpaceBoundaries(ITask):
         self.non_sb_elements = []
 
     def run(self, workflow, ifc, instances, finder):
-        self.logger.info("Creates elements of relevant ifc types")
+        self.logger.info("Creates elements for IfcRelSpaceBoundarys")
         type_filter = TypeFilter(('IfcRelSpaceBoundary',))
         entity_type_dict, unknown_entities = type_filter.run(ifc)
         instance_lst = self.instantiate_space_boundaries(entity_type_dict,
