@@ -76,7 +76,6 @@ class CreateIdf(ITask):
         plugin_ep_path = str(Path(__file__).parent.parent.parent)
         IDF.setiddname(path + 'Energy+.idd')
         idf = IDF(plugin_ep_path + '/data/Minimal.idf')
-        print(f"total idf objects of Minimal.idf: {len(idf.idfobjects)}, should be 85")
         ifc_name = os.listdir(paths.ifc)[0].strip('.ifc')
         idf.idfname = str(paths.export) + '/' + ifc_name + '.idf'
         schedules_idf = IDF(plugin_ep_path + '/data/Schedules.idf')
