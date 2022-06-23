@@ -8,7 +8,7 @@ class RunEnergyPlusSimulation(ITask):
     reads = ('idf', )
 
     def run(self, workflow, idf):
-        subprocess.run(['energyplus', '-x', '-c', '--convert-only', '-d', self.paths.export, idf.idfname])
+        # subprocess.run(['energyplus', '-x', '-c', '--convert-only', '-d', self.paths.export, idf.idfname])
         run_decision = BoolDecision(
             question="Do you want to run the full energyplus simulation"
                      " (annual, readvars)?",
