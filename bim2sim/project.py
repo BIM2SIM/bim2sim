@@ -175,7 +175,7 @@ class FolderStructure:
     @property
     def b2sroot(self):
         """absolute path of bim2sim root folder"""
-        return self._src_path.parent.parent
+        return self._src_path.parent
 
     @property
     def sub_dirs(self):
