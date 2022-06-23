@@ -73,7 +73,7 @@ class RunIFC2CFD(ITask):
 
         output_file = str(self.paths.export / "result") + str(file_ending)
         ifc2sb_callable = str(
-            self.paths.b2sroot / "PluginCFD/bim2sim_cfd/ifc2sb/IFC2SB")
+            self.paths.b2sroot / "bim2sim/plugins/PluginCFD/bim2sim_cfd/ifc2sb/IFC2SB")
 
         cmd = ifc2sb_callable + " " + args + ' ' + input_file + ' ' \
               + output_file

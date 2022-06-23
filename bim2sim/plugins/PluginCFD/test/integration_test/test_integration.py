@@ -16,8 +16,8 @@ class TestIntegrationCFD(IntegrationBaseCFD, unittest.TestCase):
 
     # @unittest.skip("")
     def test_run_kitfzkhaus_spaces_low_layers_low(self):
+        """Run project with AC20-FZK-Haus.ifc"""
         if os.name == 'posix':  # only linux
-            """Run project with AC20-FZK-Haus.ifc"""
             ifc = 'AC20-FZK-Haus.ifc'
             used_workflow = workflow.CFDWorkflowDummy()
             project = self.create_project(ifc, 'CFD', used_workflow)
