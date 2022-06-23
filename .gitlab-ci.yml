@@ -213,6 +213,7 @@ test_EP:
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
+    - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration_test
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
