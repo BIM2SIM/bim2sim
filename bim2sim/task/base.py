@@ -7,6 +7,7 @@ import inspect
 import logging
 from typing import Generator, Tuple, List, Type
 
+from bim2sim import log
 from bim2sim.decision import DecisionBunch
 
 
@@ -31,7 +32,7 @@ class ITask:
 
     def __init__(self):
         self.name = self.__class__.__name__
-        self.logger = logging.getLogger("%s.%s" % (__name__, self.name))
+        self.logger = log.get_user_logger("%s.%s" % (__name__, self.name))
         self.paths = None
         self.prj_name = None
 
@@ -67,7 +68,7 @@ class Playground:
         self.state = {}
         self.workflow = workflow
         self.history = []
-        self.logger = logging.getLogger("Playground")
+        self.logger = logging.getLogger("bim2sim.Playground")
 
     @staticmethod
     def all_tasks() -> List[Type[ITask]]:

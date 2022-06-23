@@ -12,6 +12,7 @@ import numpy as np
 import pint
 
 import bim2sim
+from bim2sim import log
 from bim2sim.kernel import element as elem
 from bim2sim.kernel.element import Element
 
@@ -24,6 +25,7 @@ template = Template(templateStr)
 lock = Lock()
 
 logger = logging.getLogger(__name__)
+user_logger = log.get_user_logger(__name__)
 
 
 class ModelError(Exception):
@@ -112,7 +114,7 @@ class Model:
 
         data = self.code()
 
-        logger.info("Saving '%s' to '%s'", self.name, _path)
+        user_logger.info("Saving '%s' to '%s'", self.name, _path)
         with codecs.open(_path, "w", "utf-8") as file:
             file.write(data)
 

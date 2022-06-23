@@ -1,3 +1,4 @@
+import logging
 import os
 import json
 import inspect
@@ -354,11 +355,12 @@ class CheckIfc(ITask):
             self.validate_instances, self.instances)
         instance_errors = sum(len(errors) for errors in
                               self.error_summary_inst.values())
-        self.logger.warning('%d errors were found on %d instances' %
+        quality_logger = logging.getLogger('bim2sim.QualityReport')
+        quality_logger.warning('%d errors were found on %d instances' %
                             (instance_errors, len(self.error_summary_inst)))
         sub_inst_errors = sum(len(errors) for errors in list(
             self.error_summary_sub_inst.values()))
-        self.logger.warning('%d errors were found on %d sub_instances' %
+        quality_logger.warning('%d errors were found on %d sub_instances' %
                             (sub_inst_errors, len(self.error_summary_sub_inst)))
         self._write_errors_to_json(self.plugin)
         self._write_errors_to_html_table(self.plugin)

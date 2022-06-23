@@ -13,6 +13,7 @@ Welcome to BIM2SIM's documentation!
    installation
    first-steps
    tasks
+   logging
    plugins
    code/modules
    

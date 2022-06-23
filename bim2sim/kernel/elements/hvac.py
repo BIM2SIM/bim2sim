@@ -15,6 +15,7 @@ from bim2sim.kernel.element import Port, ProductBased
 from bim2sim.kernel.units import ureg
 
 logger = logging.getLogger(__name__)
+quality_logger = logging.getLogger('bim2sim.QualityReport')
 
 
 def diameter_post_processing(value):
@@ -84,8 +85,7 @@ class HVACPort(Port):
                                                        port_coordinates_relative)
 
         if all(coordinates == np.array([0, 0, 0])):
-            logger = logging.getLogger('IFCQualityReport')
-            logger.info("Suspect position [0, 0, 0] for %s", self)
+            quality_logger.info("Suspect position [0, 0, 0] for %s", self)
         return coordinates
 
     @classmethod
