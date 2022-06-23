@@ -58,7 +58,7 @@ class CreateIdf(ITask):
         self._set_ground_temperature(idf, t_ground=self._get_ifc_spaces(instances)[0].t_ground.m)
         self._set_output_variables(idf, workflow)
         self._idf_validity_check(idf)
-        idf.save()
+        idf.save(idf.idfname)
 
         return idf,
 
