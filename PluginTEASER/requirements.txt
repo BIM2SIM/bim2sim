@@ -1,3 +1,0 @@
-# bim2sim add after release of bim2sim on pypi
-pyqt5
-pillow
