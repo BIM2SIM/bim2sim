@@ -21,8 +21,9 @@ class CreateSpaceBoundaries(ITask):
         self.logger.info("Creates elements for IfcRelSpaceBoundarys")
         type_filter = TypeFilter(('IfcRelSpaceBoundary',))
         entity_type_dict, unknown_entities = type_filter.run(ifc)
-        instance_lst = self.instantiate_space_boundaries(entity_type_dict,
-                                                         instances, finder, workflow.create_external_elements)
+        instance_lst = self.instantiate_space_boundaries(
+            entity_type_dict, instances, finder,
+            workflow.create_external_elements)
         self.find_instances_openings(instances, instance_lst)
         self.logger.info("Created %d elements", len(instance_lst))
 
@@ -126,8 +127,12 @@ class CreateSpaceBoundaries(ITask):
         have a related instance"""
         corresponding = {}
         for sb_opening in selected_sb.values():
+            if isinstance(sb_opening, ExtSpatialSpaceBoundary):
+                continue
             distances = {}
             for sb in space_boundaries:
+                if isinstance(sb, ExtSpatialSpaceBoundary):
+                    continue
                 if sb != sb_opening:
                     if (sb.bound_thermal_zone ==
                         sb_opening.bound_thermal_zone) and \
@@ -152,6 +157,8 @@ class CreateSpaceBoundaries(ITask):
         selected_sb = {}
         for sb in space_boundaries:
             if not sb.bound_instance:
+                if isinstance(sb, ExtSpatialSpaceBoundary):
+                    continue
                 selected_sb[sb.guid] = sb
         return selected_sb
 

@@ -19,6 +19,16 @@ class AP7EPCases(IntegrationBaseEP, unittest.TestCase):
     AP7 tests for multiple IFC example files.
     Tested are IFC files from Eric Fichter's Space Boundary Generation tool .
     """
+    def test_ap7_DH89_heavy(self):
+        """Test DigitalHub IFC"""
+        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB89.ifc'
+        project = self.create_project(ifc, 'energyplus')
+        answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True, 2015, 'heavy',
+                   'Waermeschutzverglasung, dreifach', True, True, False,
+                   True)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
 
     def test_ap7_DH88_heavy(self):
         """Test DigitalHub IFC"""
@@ -62,6 +72,17 @@ class AP7EPCases(IntegrationBaseEP, unittest.TestCase):
         answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True,
                    2015, 'heavy', 'Waermeschutzverglasung, dreifach', True,
                    False, False, True)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    def test_ap7_ERC_building(self):
+        ifc = RESULT_PATH / 'IFC_bef_material_enrichment.ifc'
+        project = self.create_project(ifc, 'energyplus')
+        answers = ('Autodesk Revit 2020 (DEU)', True, True,
+                   'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
+                   False, False, False, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)

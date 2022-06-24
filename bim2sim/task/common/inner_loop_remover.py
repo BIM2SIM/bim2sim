@@ -95,6 +95,12 @@ def _get_triangulation(face: TopoDS_Shape) -> Triangulation:
     while ex.More():
         L = TopLoc_Location()
         triangulation = bt.Triangulation(topods_Face(ex.Current()), L)
+        if not triangulation:
+            triangulation = bt.Triangulation(PyOCCTools.make_faces_from_pnts(
+                PyOCCTools.get_points_of_face(
+                topods_Face(ex.Current()))), L)
+            if not triangulation:
+                ex.Next()
         triangles = triangulation.Triangles()
         vertices = triangulation.Nodes()
         for i in range(1, triangulation.NbTriangles() + 1):
