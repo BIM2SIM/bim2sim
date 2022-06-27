@@ -75,7 +75,7 @@ class BPSProduct(element.ProductBased):
         if hasattr(self, 'parent'):
             return self.parent.is_external
         elif hasattr(self, 'ifc'):
-            if hasattr(self, 'ProvidesBoundaries'):
+            if hasattr(self.ifc, 'ProvidesBoundaries'):
                 if len(self.ifc.ProvidesBoundaries) > 0:
                     ext_int = list(
                         set([boundary.InternalOrExternalBoundary for boundary
