@@ -631,15 +631,24 @@ class CreateIdf(ITask):
         if not spatials:
             return
         pure_spatials = []
-        for s in spatials:
-            # only consider almost horizontal 2b shapes (roof-like SBs)
-            if s.level_description == '2b':
-                angle = math.degrees(gp_Dir(s.bound_normal).Angle(gp_Dir(gp_XYZ(0, 0, 1))))
-                if not ((-45 < angle < 45) or (135 < angle < 225)):
+        description_list = [s.ifc.Description for s in spatials]
+        descriptions = list(dict.fromkeys(description_list))
+        shades_included = ("Shading:Building" or "Shading:Site") in descriptions
+
+        if shades_included:
+            for s in spatials:
+                if s.ifc.Description in ["Shading:Building", "Shading:Site"]:
+                    pure_spatials.append(s)
+        else:
+            for s in spatials:
+                # only consider almost horizontal 2b shapes (roof-like SBs)
+                if s.level_description == '2b':
+                    angle = math.degrees(gp_Dir(s.bound_normal).Angle(gp_Dir(gp_XYZ(0, 0, 1))))
+                    if not ((-45 < angle < 45) or (135 < angle < 225)):
+                        continue
+                if s.related_bound and s.related_bound.ifc.RelatingSpace.is_a('IfcSpace'):
                     continue
-            if s.related_bound and s.related_bound.ifc.RelatingSpace.is_a('IfcSpace'):
-                continue
-            pure_spatials.append(s)
+                pure_spatials.append(s)
 
         for s in pure_spatials:
             obj = idf.newidfobject('SHADING:BUILDING:DETAILED',

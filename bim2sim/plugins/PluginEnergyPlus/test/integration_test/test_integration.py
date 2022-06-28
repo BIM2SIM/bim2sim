@@ -103,8 +103,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True, 'Kitchen - preparations, storage', 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, True)
+        answers = (True, True, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
+                   True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -143,8 +144,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         # ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB44.ifc'
         ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, 'Single office', 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, True)
+        answers = ('ARCHICAD-64', True, True, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
+                   True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)

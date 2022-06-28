@@ -1,4 +1,5 @@
 import copy
+import logging
 import math
 
 import ifcopenshell
@@ -21,6 +22,8 @@ from bim2sim.kernel.elements.bps import ExternalSpatialElement, SpaceBoundary
 from bim2sim.task.base import ITask
 from bim2sim.task.common.inner_loop_remover import convex_decomposition, is_convex_no_holes
 from bim2sim.utilities.pyocc_tools import PyOCCTools
+
+logger = logging.getLogger(__name__)
 
 
 class EPGeomPreprocessing(ITask):
@@ -352,34 +355,37 @@ class EPGeomPreprocessing(ITask):
         others = []
         processed_id = []
         for bound in bounds_except_openings:
-            if hasattr(bound, 'convex_processed'):
-                continue
-            if hasattr(bound,
-                       'related_opening_bounds'):  # check all space boundaries that are not parent to an opening bound
-                if bim2sim.task.common.inner_loop_remover.is_convex_slow(bound.bound_shape):
+            try:
+                if hasattr(bound, 'convex_processed'):
                     continue
-                # handle shapes that contain opening bounds
-                convex_shapes = convex_decomposition(bound.bound_shape,
-                                                     [op.bound_shape for op in bound.related_opening_bounds])
-            else:
-                if is_convex_no_holes(bound.bound_shape):
-                    continue
-                convex_shapes = convex_decomposition(bound.bound_shape)
-            nconv.append(bound)
-            if hasattr(bound, 'bound_normal'):
-                del bound.__dict__['bound_normal']
-            new_space_boundaries = self._create_new_convex_bounds(convex_shapes, bound, bound.related_bound)
-            bound.convex_processed = True
-            if (bound.related_bound and bound.related_bound.ifc.RelatingSpace.is_a('IfcSpace')) \
-                    and not bound.ifc.Description == '2b':
-                nconv.append(bound.related_bound)
-                del instances[bound.related_bound.guid]
-                bounds_except_openings.remove(bound.related_bound)
-                bound.related_bound.convex_processed = True
-            del instances[bound.guid]
-            for new_bound in new_space_boundaries:
-                instances[new_bound.guid] = new_bound
-                conv.append(new_bound)
+                if hasattr(bound,
+                           'related_opening_bounds'):  # check all space boundaries that are not parent to an opening bound
+                    if bim2sim.task.common.inner_loop_remover.is_convex_slow(bound.bound_shape):
+                        continue
+                    # handle shapes that contain opening bounds
+                    convex_shapes = convex_decomposition(bound.bound_shape,
+                                                         [op.bound_shape for op in bound.related_opening_bounds])
+                else:
+                    if is_convex_no_holes(bound.bound_shape):
+                        continue
+                    convex_shapes = convex_decomposition(bound.bound_shape)
+                nconv.append(bound)
+                if hasattr(bound, 'bound_normal'):
+                    del bound.__dict__['bound_normal']
+                new_space_boundaries = self._create_new_convex_bounds(convex_shapes, bound, bound.related_bound)
+                bound.convex_processed = True
+                if (bound.related_bound and bound.related_bound.ifc.RelatingSpace.is_a('IfcSpace')) \
+                        and not bound.ifc.Description == '2b':
+                    nconv.append(bound.related_bound)
+                    del instances[bound.related_bound.guid]
+                    bounds_except_openings.remove(bound.related_bound)
+                    bound.related_bound.convex_processed = True
+                del instances[bound.guid]
+                for new_bound in new_space_boundaries:
+                    instances[new_bound.guid] = new_bound
+                    conv.append(new_bound)
+            except Exception as ex:
+                logger.exception("Something went wrong!")
         pass
 
     @staticmethod
