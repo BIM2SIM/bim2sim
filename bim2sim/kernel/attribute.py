@@ -50,7 +50,9 @@ class Attribute:
                  patterns: Iterable = None,
                  ifc_postprocessing: Callable[[Any], Any] = None,
                  functions: Iterable[Callable[[object, str], Any]] = None,
-                 default=None):
+                 default=None,
+                 dependant_attributes: Iterable[str] = None,
+                 dependant_instances: str = None):
         """
 
         Args:
@@ -59,9 +61,16 @@ class Attribute:
             default_ps: tuple of propertyset name and property name
             default_association: tuple of association name and property name
             patterns: iterable of (compiled) re patterns
-            ifc_postprocessing: callable to apply on initial value, returns final value
-            functions: iterable of callable with signature func(bind, name) -> value. First return with no error is used as value.
-            default: default value which is used if no other source is successful
+            ifc_postprocessing: callable to apply on initial value, returns
+                                final value
+            functions: iterable of callable with signature func(bind, name) ->
+                       value. First return with no error is used as value.
+            default: default value which is used if no other source is
+                     successful
+            dependant_attributes: list of additional attributes necessary to
+                                  calculate the attribute
+            dependant_instances: list of additional instances necessary to
+                                 calculate the attribute
         """
         self.name = None  # auto set by AutoAttributeNameMeta
         self.description = description
@@ -72,6 +81,8 @@ class Attribute:
         self.patterns = patterns
         self.functions = functions
         self.default_value = default
+        self.dependant_attributes = dependant_attributes
+        self.dependant_instances = dependant_instances
 
         if ifc_postprocessing is not None:
             self.ifc_post_processing = ifc_postprocessing
@@ -94,11 +105,13 @@ class Attribute:
         if bind.ifc:  # don't bother if there is no ifc
             # default property set
             if value is None and self.default_ps:
-                raw_value = self.get_from_default_propertyset(bind, self.default_ps)
+                raw_value = self.get_from_default_propertyset(bind,
+                                                              self.default_ps)
                 value = self.ifc_post_processing(raw_value)
 
             if value is None and (self.default_association):
-                raw_value = self.get_from_default_assocation(bind, self.default_association)
+                raw_value = self.get_from_default_assocation(
+                    bind, self.default_association)
                 value = self.ifc_post_processing(raw_value)
 
             # tool specific properties (finder)
@@ -108,7 +121,8 @@ class Attribute:
 
             # custom properties by patterns
             if value is None and self.patterns:
-                raw_value = self.get_from_patterns(bind, self.patterns, self.name)
+                raw_value = self.get_from_patterns(bind, self.patterns,
+                                                   self.name)
                 value = self.ifc_post_processing(raw_value)
 
         # custom functions
@@ -117,9 +131,10 @@ class Attribute:
 
         # logger value none
         if value is None:
-            quality_logger.warning("Attribute '%s' of %s %s was not found in default PropertySet, default  Association,"
-                                   " finder, patterns or functions",
-                                   self.name, bind.ifc_type, bind.guid)
+            quality_logger.warning(
+                "Attribute '%s' of %s %s was not found in default PropertySet, "
+                "default  Association, finder, patterns or functions",
+                self.name, bind.ifc_type, bind.guid)
 
         # default value
         if value is None and self.default_value is not None:
@@ -128,9 +143,20 @@ class Attribute:
                 value = value * self.unit
 
         # check unit
-        if self.unit is not None and value is not None and not isinstance(value, ureg.Quantity):
-            logger.warning("Unit not set!")
-            value = value * self.unit
+        if isinstance(value, list):
+            # case to calculate values that are list of quantities
+            new_value = []
+            for item in value:
+                if self.unit is not None and item is not None and not \
+                        isinstance(item, ureg.Quantity):
+                    logger.warning("Unit not set!")
+                    new_value.append(item * self.unit)
+            value = new_value if len(new_value) == len(value) else value
+        else:
+            if self.unit is not None and value is not None and not isinstance(
+                    value, ureg.Quantity):
+                logger.warning("Unit not set!")
+                value = value * self.unit
 
         return value
 
@@ -178,7 +204,8 @@ class Attribute:
             try:
                 value = func(bind, name)
             except Exception as ex:
-                logger.error("Function %d of %s.%s raised %s", i, bind, name, ex)
+                logger.error("Function %d of %s.%s raised %s", i, bind, name,
+                             ex)
                 pass
             else:
                 if value is not None:
@@ -202,8 +229,10 @@ class Attribute:
 
     @staticmethod
     def ifc_post_processing(value):
-        """Function for post processing of ifc property values (e.g. diameter list -> diameter)
-        by default this function does nothing"""
+        """Function for post processing of ifc property values (e.g. diameter
+        list -> diameter)by default this function does nothing"""
+        if isinstance(value, str) and value.isnumeric():
+            value = float(value)
         return value
 
     def request(self, bind, external_decision=None):
@@ -217,18 +246,104 @@ class Attribute:
 
         if value is None:
             if status == Attribute.STATUS_NOT_AVAILABLE:
-                # actual request
-                _decision = external_decision or self.create_decision(bind)
-                # bind.related_decisions.append(decision)
+                if self.functions is not None:
+                    self.get_attribute_dependency(bind)
+                    if self.dependant_attributes:
+                        # case for attributes that depend on others attributes
+                        # in the same instance
+                        _decision = {
+                            self.name: (
+                                self.dependant_attributes, self.functions)}
+                        for d_attr in self.dependant_attributes:
+                            bind.request(d_attr)
+                    elif self.dependant_instances:
+                        # case for attributes that depend on the same attribute
+                        # in other instances
+                        _decision = self.dependant_instances_decision(bind)
+                    else:
+                        _decision = external_decision or self.create_decision(
+                            bind)
+                else:
+                    # actual request
+                    _decision = external_decision or self.create_decision(bind)
+                    # bind.related_decisions.append(decision)
                 status = Attribute.STATUS_REQUESTED
                 self._inner_set(bind, _decision, status)
                 return _decision
+        elif isinstance(value, list):
+            if not all(value):
+                if self.functions is not None:
+                    # case for attributes that depend on the same attribute in
+                    # other instances
+                    self.get_attribute_dependency(bind)
+                    _decision = self.dependant_instances_decision(bind)
+                else:
+                    # actual request
+                    _decision = external_decision or self.create_decision(bind)
+                status = Attribute.STATUS_REQUESTED
+                self._inner_set(bind, _decision, status)
+                return _decision
+            return
         elif isinstance(value, Decision):
             # already a decision stored in value
             return value
         else:
             # already requested or available
             return
+
+    def get_attribute_dependency(self, instance):
+        """
+        Get attribute dependency.
+        When an attribute depends on other attributes in the same instance or
+        the same attribute in other instances, this function gets the
+        dependencies when they are not stored on the respective dictionaries.
+        """
+        if not self.dependant_attributes and not self.dependant_instances:
+            dependant = []
+            for func in self.functions:
+                for attr in func.__code__.co_names:
+                    if hasattr(instance, attr):
+                        dependant.append(attr)
+            # case for attributes that depend on the same attribute in
+            # other instances -> dependant_instances
+            if len(dependant) == 1 and 'elements' in dependant[0]:
+                self.dependant_instances = dependant[0]
+            # case for attributes that depend on the other attributes in
+            # the same instance -> dependant_attributes
+            elif len(dependant) > 0:
+                self.dependant_attributes = dependant
+
+    def dependant_instances_decision(self, bind) -> dict:
+        """Function to request attributes in other instances different to bind,
+        that are later on necessary to calculate an attribute in bind (case of
+        aggregation)
+
+        Returns:
+        _decision: key: is the instance, value: is another dict composed of the
+                   attr name and the corresponding decision or function to
+                   calculate said attribute
+        """
+        _decision = {}
+        for inst in getattr(bind, self.dependant_instances):
+            # request instance attribute
+            pre_decisions = inst.attributes.get_decisions()
+            inst.request(self.name)
+            additional_decisions = inst.attributes.get_decisions()
+            inst_decisions = [dec for dec in additional_decisions
+                              if dec not in pre_decisions]
+            for decision in inst_decisions:
+                if decision is not None:
+                    if inst not in _decision:
+                        _decision[inst] = {}
+                    if isinstance(decision, dict):
+                        _decision[inst].update(decision)
+                    else:
+                        if decision.key in _decision[inst]:
+                            print()
+                        _decision[inst][decision.key] = decision
+        _decision.update({bind: {
+            self.name: (self.dependant_attributes, self.functions)}})
+        return _decision
 
     def initialize(self, manager):
         if not self.name:
@@ -279,7 +394,16 @@ class Attribute:
     def __set__(self, bind, value):
         if self.unit:
             if isinstance(value, ureg.Quantity):
+                # case for quantity
                 _value = value.to(self.unit)
+            elif isinstance(value, list):
+                # case for list of quantities
+                _value = []
+                for item in value:
+                    if isinstance(item, ureg.Quantity):
+                        _value.append(item.to(self.unit))
+                    else:
+                        _value.append(item * self.unit)
             else:
                 _value = value * self.unit
         else:
@@ -303,7 +427,8 @@ class AttributeManager(dict):
 
     def __setitem__(self, name, value):
         if name not in self.names:
-            raise AttributeError("Invalid Attribute '%s'. Choices are %s" % (name, list(self.names)))
+            raise AttributeError("Invalid Attribute '%s'. Choices are %s" % (
+                name, list(self.names)))
 
         if isinstance(value, tuple) and len(value) == 2:
             super().__setitem__(name, value)
@@ -335,7 +460,12 @@ class AttributeManager(dict):
             if status == Attribute.STATUS_NOT_AVAILABLE:
                 decision = attr.request(self.bind, external_decision)
                 return decision
-        if isinstance(value, Decision):
+        if isinstance(value, list):
+            # case for list of quantities
+            if not all(value):
+                decision = attr.request(self.bind, external_decision)
+                return decision
+        elif isinstance(value, Decision):
             if external_decision and value is not external_decision:
                 raise AttributeError("Can't set external decision for an "
                                      "already requested attribute.")

@@ -14,7 +14,8 @@ from bim2sim.task.base import ITask
 from bim2sim.filter import TypeFilter
 from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating,\
     ParallelPump
-from bim2sim.kernel.aggregation import Consumer, ConsumerHeatingDistributorModule
+from bim2sim.kernel.aggregation import Consumer, \
+    ConsumerHeatingDistributorModule
 from bim2sim.kernel.element import ProductBased, ElementEncoder, Port
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
@@ -73,17 +74,22 @@ class ConnectElements(ITask):
             if len(candidates) <= 1:
                 # no action required
                 continue
-            quality_logger.warning("Found %d geometrically close ports around %s. Details: %s",
-                           len(candidates), port, candidates)
+            quality_logger.warning(
+                "Found %d geometrically close ports around %s. Details: %s",
+                len(candidates), port, candidates)
             if candidates[0][2]['delta'] < candidates[1][2]['delta']:
                 # keep first
                 first = 1
-                quality_logger.info("Accept closest ports with delta as connection (%s - %s)",
-                            candidates[0][2]['delta'], candidates[0][0], candidates[0][1])
+                quality_logger.info(
+                    "Accept closest ports with delta as connection (%s - %s)",
+                    candidates[0][2]['delta'], candidates[0][0],
+                    candidates[0][1])
             else:
                 # remove all
                 first = 0
-                quality_logger.warning("No connection determined, because there are no two closest ports.")
+                quality_logger.warning(
+                    "No connection determined, because there are no two "
+                    "closest ports.")
             for cand in candidates[first:]:
                 graph.remove_edge(cand[0], cand[1])
 
@@ -104,10 +110,12 @@ class ConnectElements(ITask):
                 other_port = None
                 if len(connected_ports) > 1:
                     # conflicts
-                    quality_logger.warning("%s has multiple connections", port.ifc)
+                    quality_logger.warning("%s has multiple connections",
+                                           port.ifc)
                     possibilities = []
                     for connected_port in connected_ports:
-                        possible_port = port_mapping.get(connected_port.GlobalId)
+                        possible_port = port_mapping.get(
+                            connected_port.GlobalId)
 
                         if possible_port.parent is not None:
                             possibilities.append(possible_port)
@@ -119,10 +127,12 @@ class ConnectElements(ITask):
                     else:
                         if len(possibilities) == 1:
                             other_port = possibilities[0]
-                            quality_logger.info("Solved by ignoring deleted connection.")
+                            quality_logger.info(
+                                "Solved by ignoring deleted connection.")
                         else:
-                            quality_logger.error("Unable to solve conflicting connections. "
-                                                 "Continue without connecting %s", port.ifc)
+                            quality_logger.error(
+                                "Unable to solve conflicting connections. "
+                                "Continue without connecting %s", port.ifc)
                 else:
                     # explicit
                     other_port = port_mapping.get(
@@ -173,10 +183,11 @@ class ConnectElements(ITask):
                     other_ports = [port for port in all_ports
                                    if port not in [port_a, port_b]]
                     if port_a in all_ports and port_b in all_ports \
-                        and len(set(other_ports)) == 1:
+                            and len(set(other_ports)) == 1:
                         # both ports connected to same other port -> merge ports
-                        quality_logger.info("Removing %s and set %s as SINKANDSOURCE.",
-                                    port_b.ifc, port_a.ifc)
+                        quality_logger.info(
+                            "Removing %s and set %s as SINKANDSOURCE.",
+                            port_b.ifc, port_a.ifc)
                         ele.ports.remove(port_b)
                         port_b.parent = None
                         port_a.flow_direction = 0
@@ -203,7 +214,8 @@ class ConnectElements(ITask):
         self.logger.info("Connecting the relevant elements")
         self.logger.info(" - Connecting by relations ...")
 
-        all_ports = [port for item in self.instances.values() for port in item.ports]
+        all_ports = [port for item in self.instances.values() for port in
+                     item.ports]
         rel_connections = self.connections_by_relation(
             all_ports)
         self.logger.info(" - Found %d potential connections.",
@@ -241,7 +253,8 @@ class ConnectElements(ITask):
         unconnected_elements = {uc.parent for uc in unconnected}
         if unconnected_elements:
             # TODO:
-            bb_connections = self.connections_by_boundingbox(unconnected, unconnected_elements)
+            bb_connections = self.connections_by_boundingbox(
+                unconnected, unconnected_elements)
             self.logger.warning("Connecting by bounding box is not implemented.")
 
         # inner connections
@@ -269,7 +282,8 @@ class Enrich(ITask):
 
     def enrich_instance(self, instance, json_data):
 
-        attrs_enrich = element_input_json.load_element_class(instance, json_data)
+        attrs_enrich = element_input_json.load_element_class(instance,
+                                                             json_data)
 
         return attrs_enrich
 
@@ -280,7 +294,8 @@ class Enrich(ITask):
         self.logger.info("Enrichment of the elements...")
         # general question -> year of construction, all elements
         decision = RealDecision("Enter value for the construction year",
-                                validate_func=lambda x: isinstance(x, float),  # TODO
+                                validate_func=lambda x: isinstance(x, float),
+                                # TODO
                                 global_key="Construction year",
                                 allow_skip=False)
         yield DecisionBunch([decision])
@@ -293,13 +308,18 @@ class Enrich(ITask):
         enrich_parameter = year_selected
         # specific question -> each instance
         for instance in instances:
-            enrichment_data = self.enrich_instance(instances[instance], json_data)
+            enrichment_data = self.enrich_instance(instances[instance],
+                                                   json_data)
             if bool(enrichment_data):
-                instances[instance].enrichment["enrichment_data"] = enrichment_data
-                instances[instance].enrichment["enrich_parameter"] = enrich_parameter
-                instances[instance].enrichment["year_enrichment"] = enrichment_data["statistical_year"][str(enrich_parameter)]
+                instances[instance].enrichment["enrichment_data"] = \
+                    enrichment_data
+                instances[instance].enrichment["enrich_parameter"] = \
+                    enrich_parameter
+                instances[instance].enrichment["year_enrichment"] = \
+                    enrichment_data["statistical_year"][str(enrich_parameter)]
 
-        self.logger.info("Applied successfully attributes enrichment on elements")
+        self.logger.info(
+            "Applied successfully attributes enrichment on elements")
         # runs all enrich methods
 
 
@@ -319,7 +339,7 @@ class Prepare(ITask):  # Todo: obsolete
 
 class Enrich(ITask):
 
-    reads = ('instances',)
+    reads = ('instances', )
     touches = ('instances', )
 
     def run(self, workflow, instances):
@@ -476,11 +496,13 @@ class Reduce(ITask):
         while True:
             unset_port = None
             for port in graph.get_nodes():
-                if port.flow_side == 0 and graph.graph[port] and port not in accepted:
+                if port.flow_side == 0 and graph.graph[
+                    port] and port not in accepted:
                     unset_port = port
                     break
             if unset_port:
-                side, visited, masters = graph.recurse_set_unknown_sides(unset_port)
+                side, visited, masters = graph.recurse_set_unknown_sides(
+                    unset_port)
                 if side in (-1, 1):
                     # apply suggestions
                     for port in visited:
@@ -491,7 +513,8 @@ class Reduce(ITask):
                 elif masters:
                     # ask user to fix conflicts (and retry in next while loop)
                     for port in masters:
-                        decision = BoolDecision("Use %r as VL (y) or RL (n)?" % port)
+                        decision = BoolDecision(
+                            "Use %r as VL (y) or RL (n)?" % port)
                         yield DecisionBunch([decision])
                         use = decision.value
                         if use:
@@ -534,7 +557,8 @@ class Export(ITask):
         modelica.Instance.init_factory(libraries)
         export_instances = {inst: modelica.Instance.factory(inst) for inst in graph.elements}
 
-        yield ProductBased.get_pending_attribute_decisions(export_instances)
+        yield from ProductBased.get_pending_attribute_decisions(
+            export_instances)
 
         for instance in export_instances.values():
             instance.collect_params()
@@ -542,12 +566,14 @@ class Export(ITask):
         connection_port_names = self.create_connections(graph, export_instances)
 
         self.logger.info(
-            "Creating Modelica model with %d model instances and %d connections.",
+            "Creating Modelica model with %d model instances and %d "
+            "connections.",
             len(export_instances), len(connection_port_names))
 
         modelica_model = modelica.Model(
             name="BIM2SIM",
-            comment=f"Autogenerated by BIM2SIM on {datetime.now():%Y-%m-%d %H:%M:%S%z}",
+            comment=f"Autogenerated by BIM2SIM on "
+                    f"{datetime.now():%Y-%m-%d %H:%M:%S%z}",
             instances=export_instances.values(),
             connections=connection_port_names,
         )
