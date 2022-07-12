@@ -168,7 +168,7 @@ class ThermalZone(BPSProduct):
         glass_area = sum(wi.gross_area for wi in self.windows)
         facade_area = sum(wa.gross_area for wa in self.outer_walls)
         if facade_area > 0:
-            return 100 * (glass_area / (facade_area + glass_area))
+            return 100 * (glass_area / (facade_area + glass_area)).m
         else:
             return 'Internal'
 
