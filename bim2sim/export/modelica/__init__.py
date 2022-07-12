@@ -167,20 +167,21 @@ class Instance:
     def init_factory(libraries):
         """initialize lookup for factory"""
         conflict = False
-
         Instance.dummy = Dummy
-
         for library in libraries:
             if Instance not in library.__bases__:
-                logger.warning("Got Library not directly inheriting from Instance.")
+                logger.warning(
+                    "Got Library not directly inheriting from Instance.")
             if library.library:
                 logger.info("Got library '%s'", library.library)
             else:
-                logger.error("Attribute library not set for '%s'", library.__name__)
+                logger.error("Attribute library not set for '%s'",
+                             library.__name__)
                 raise AssertionError("Library not defined")
             for cls in library.__subclasses__():
                 if cls.represents is None:
-                    logger.warning("'%s' represents no model and can't be used", cls.__name__)
+                    logger.warning("'%s' represents no model and can't be used",
+                                   cls.__name__)
                     continue
 
                 if isinstance(cls.represents, Container):
@@ -194,13 +195,16 @@ class Instance:
                         conflict = True
 
         if conflict:
-            raise AssertionError("Conflict(s) in Models. (See log for details).")
+            raise AssertionError(
+                "Conflict(s) in Models. (See log for details).")
 
         Instance._initialized = True
 
         models = set(Instance.lookup.values())
-        models_txt = "\n".join(sorted([" - %s"%(inst.path) for inst in models]))
-        logger.debug("Modelica libraries initialized with %d models:\n%s", len(models), models_txt)
+        models_txt = "\n".join(
+            sorted([" - %s" % (inst.path) for inst in models]))
+        logger.debug("Modelica libraries initialized with %d models:\n%s",
+                     len(models), models_txt)
 
     @staticmethod
     def factory(element):
@@ -212,7 +216,8 @@ class Instance:
         cls = Instance.lookup.get(element.__class__, Instance.dummy)
         return cls(element)
 
-    def request_param(self, name: str, check, export_name: str = None, export_unit: str = ''):
+    def request_param(self, name: str, check, export_name: str = None,
+                      export_unit: str = ''):
         """Parameter gets marked as required and will be checked.
 
         Hint: run collect_params() to collect actual values after requests.
@@ -230,16 +235,40 @@ class Instance:
         pass
 
     def collect_params(self):
-        """Collect all requested parameters."""
+        """Collect all requested parameters.
+
+        First checks if the parameter is a list or a quantity, next uses the
+        check function provided by the request_param function to check every
+        value of the parameter, afterwards converts the parameter values to the
+        special units provided by the request_param function, finally stores the
+        parameter on the model instance."""
+
         for name, (check, export_name, special_units) in self.requested.items():
             param = getattr(self.element, name)
-            if check(param):
-                if special_units or isinstance(param, pint.Quantity):
-                    param = self._convert_param(param, special_units)
-                self.params[export_name] = param
+            # check if parameter is a list, to check every value
+            if isinstance(param, list):
+                new_param = []
+                for item in param:
+                    if check(item):
+                        if special_units or isinstance(item, pint.Quantity):
+                            item = self._convert_param(item, special_units)
+                        new_param.append(item)
+                    else:
+                        new_param = None
+                        logger.warning("Parameter check failed for '%s' with "
+                                       "value: %s", name, param)
+                        break
+                self.params[export_name] = new_param
             else:
-                self.params[export_name] = None
-                logger.warning("Parameter check failed for '%s' with value: %s", name, param)
+                if check(param):
+                    if special_units or isinstance(param, pint.Quantity):
+                        param = self._convert_param(param, special_units)
+                    self.params[export_name] = param
+                else:
+                    self.params[export_name] = None
+                    logger.warning(
+                        "Parameter check failed for '%s' with value: %s",
+                        name, param)
 
     @staticmethod
     def _convert_param(param: pint.Quantity, special_units) -> pint.Quantity:
@@ -269,9 +298,10 @@ class Instance:
         if isinstance(parameter, (int, float)):
             return str(parameter)
         if isinstance(parameter, str):
-            return '%s'%parameter
+            return '%s' % parameter
         if isinstance(parameter, (list, tuple, set)):
-            return "{%s}"%(",".join((Instance.to_modelica(par) for par in parameter)))
+            return "{%s}" % (
+                ",".join((Instance.to_modelica(par) for par in parameter)))
         logger.warning("Unknown class (%s) for conversion", parameter.__class__)
         return str(parameter)
 
@@ -290,7 +320,7 @@ class Instance:
 
     def get_full_port_name(self, port):
         """Returns name of port including model name"""
-        return "%s.%s"%(self.name, self.get_port_name(port))
+        return "%s.%s" % (self.name, self.get_port_name(port))
 
     @staticmethod
     def check_numeric(min_value=None, max_value=None):
@@ -315,7 +345,7 @@ class Instance:
         return inner_check
 
     def __repr__(self):
-        return "<%s %s>"%(self.path, self.name)
+        return "<%s %s>" % (self.path, self.name)
 
 
 class Dummy(Instance):
@@ -324,16 +354,16 @@ class Dummy(Instance):
 
 
 if __name__ == "__main__":
-
     class Radiator(Instance):
         path = "Heating.Consumers.Radiators.Radiator"
 
+
     par = {
-        "redeclare package Medium" : "Modelica.Media.Water.ConstantPropertyLiquidWater",
-        "Q_flow_nominal" : 4e3,
-        "n" : 1.3,
-        "Type" : "HKESim.Heating.Consumers.Radiators.BaseClasses.ThermostaticRadiatorValves.Types.radiatorCalculationTypes.proportional",
-        "k" : 1.5
+        "redeclare package Medium": "Modelica.Media.Water.ConstantPropertyLiquidWater",
+        "Q_flow_nominal": 4e3,
+        "n": 1.3,
+        "Type": "HKESim.Heating.Consumers.Radiators.BaseClasses.ThermostaticRadiatorValves.Types.radiatorCalculationTypes.proportional",
+        "k": 1.5
     }
 
     conns = {"radiator1.port_a": "radiator2.port_b"}
@@ -344,4 +374,4 @@ if __name__ == "__main__":
     model = Model("System", "Test", [inst1, inst2], conns)
 
     print(model.code())
-    #model.save(r"C:\Entwicklung\temp")
+    # model.save(r"C:\Entwicklung\temp")

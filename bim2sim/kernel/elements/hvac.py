@@ -65,7 +65,7 @@ class HVACPort(Port):
         kwargs['flow_direction'] = flow_direction
         return args, kwargs
 
-    def calc_position(self):
+    def calc_position(self) -> np.array:
         """returns absolute position as np.array"""
         try:
             relative_placement = \
@@ -149,7 +149,7 @@ class HVACPort(Port):
         if previous:
             if previous != value:
                 logger.info("Overwriting flow_side for %r with %s" % (
-                self, self.verbose_flow_side))
+                    self, self.verbose_flow_side))
         else:
             logger.debug(
                 "Set flow_side for %r to %s" % (self, self.verbose_flow_side))
@@ -197,7 +197,10 @@ class HVACProduct(ProductBased):
         self.inner_connections: List[Tuple[HVACPort, HVACPort]] \
             = self.get_inner_connections()
 
-    def get_ports(self):
+    def get_ports(self) -> list:
+        """
+        Returns a list of ports of this product.
+        """
         ports = []
         try:
             for nested in self.ifc.IsNestedBy:
@@ -313,7 +316,8 @@ class HeatPump(HVACProduct):
         unit=ureg.kilowatt,
     )
     efficiency = attribute.Attribute(
-        description='Efficiency of HeatPump provided as list with pairs of [percentage_of_rated_power,efficiency]',
+        description='Efficiency of HeatPump provided as list with pairs of '
+                    '[percentage_of_rated_power,efficiency]',
         unit=ureg.dimensionless
     )
 
@@ -410,7 +414,8 @@ class CoolingTower(HVACProduct):
         unit=ureg.kilowatt,
     )
     efficiency = attribute.Attribute(
-        description='Efficiency of CoolingTower provided as list with pairs of [percentage_of_rated_power,efficiency]',
+        description='Efficiency of CoolingTower provided as list with pairs of '
+                    '[percentage_of_rated_power,efficiency]',
         unit=ureg.dimensionless,
     )
 
@@ -435,7 +440,8 @@ class HeatExchanger(HVACProduct):
         unit=ureg.kilowatt,
     )
     efficiency = attribute.Attribute(
-        description='Efficiency of HeatExchange provided as list with pairs of [percentage_of_rated_power,efficiency]',
+        description='Efficiency of HeatExchange provided as list with pairs of '
+                    '[percentage_of_rated_power,efficiency]',
         unit=ureg.dimensionless,
     )
 
@@ -540,61 +546,73 @@ class Boiler(HVACProduct):
         default_ps=('Pset_BoilerTypeCommon', 'NominalPartLoadRatio'),
     )
 
-    @staticmethod
-    def _calc_nominal_efficiency(bind, name):
-        efficiency_curve = {y: x for x, y in bind.efficiency}
-        nominal_eff = efficiency_curve.get(1, None)
-        if nominal_eff:
-            return nominal_eff
+    def _calc_nominal_efficiency(self, name):
+        """function to calculate the boiler nominal efficiency using the
+        efficiency curve"""
+        if isinstance(self.efficiency, list):
+            efficiency_curve = {y: x for x, y in self.efficiency}
+            nominal_eff = efficiency_curve.get(1, None)
+            if nominal_eff:
+                return nominal_eff
+            else:
+                # ToDo: linear regression
+                raise NotImplementedError
         else:
-            # ToDo: linear regression
-            raise NotImplementedError
+            # WORKAROUND: input of lists is not yet implemented
+            return self.efficiency
 
     nominal_efficiency = attribute.Attribute(
         description="""Boiler efficiency at nominal load""",
         functions=[_calc_nominal_efficiency],
-        unit = ureg.dimensionless
+        unit=ureg.dimensionless,
     )
 
-    @staticmethod
-    def _calc_rated_power(bind, name):
-        """Rated power of boiler"""
-        if bind.nominal_efficiency and bind.nominal_power_consumption:
-            return bind.nominal_efficiency * bind.nominal_power_consumption
-        return None
+    def _calc_rated_power(bind, name) -> ureg.Quantity:
+        """Function to calculate the rated power of the boiler using the nominal
+        efficiency and the nominal power consumption"""
+        return bind.nominal_efficiency * bind.nominal_power_consumption
 
     rated_power = attribute.Attribute(
         description="Rated power of boiler",
         unit=ureg.kilowatt,
-        functions=[_calc_rated_power]
+        functions=[_calc_rated_power],
+        dependant_attributes=['nominal_efficiency',
+                              'nominal_power_consumption']
     )
 
-    @staticmethod
-    def _calc_partial_load_efficiency(bind):
-        """Boiler efficiency at partial load"""
-        efficiency_curve = {x: y for x, y in bind.efficiency}
-        nominal_eff = efficiency_curve.get(bind.nominal_partial_ratio, None)
-        if nominal_eff:
-            return nominal_eff
+    def _calc_partial_load_efficiency(self, name):
+        """Function to calculate the boiler efficiency at partial load using the
+        nominal partial ratio and the efficiency curve"""
+        if isinstance(self.efficiency, list):
+            efficiency_curve = {y: x for x, y in self.efficiency}
+            partial_eff = efficiency_curve.get(self.nominal_partial_ratio, None)
+            if partial_eff:
+                return partial_eff
+            else:
+                # ToDo: linear regression
+                raise NotImplementedError
         else:
-            # ToDo: linear regression
-            raise NotImplementedError
+            # WORKAROUND: input of lists is not yet implemented
+            return self.efficiency
 
     partial_load_efficiency = attribute.Attribute(
         description="Boiler efficiency at partial load",
         functions=[_calc_partial_load_efficiency],
-        unit = ureg.dimensionless,
+        unit=ureg.dimensionless,
+        dependant_attributes=['nominal_partial_ratio']
     )
 
-    @staticmethod
-    def _calc_min_power(bind, name):
-        """Minimum power that boiler operates at"""
-        return bind.partial_load_efficiency * bind.nominal_power_consumption
+    def _calc_min_power(self, name) -> ureg.Quantity:
+        """Function to calculate the minimum power that boiler operates at,
+        using the partial load efficiency and the nominal power consumption"""
+        return self.partial_load_efficiency * self.nominal_power_consumption
 
     min_power = attribute.Attribute(
         description="Minimum power that boiler operates at",
         unit=ureg.kilowatt,
-        functions=[_calc_min_power]
+        functions=[_calc_min_power],
+        dependant_attributes=['partial_load_efficiency',
+                              'nominal_power_consumption']
     )
 
 
@@ -634,6 +652,9 @@ class Pipe(HVACProduct):
 
     @staticmethod
     def _length_from_geometry(bind, name):
+        """
+        Function to calculate the length of the pipe from the geometry
+        """
         try:
             return Pipe.get_lenght_from_shape(bind.ifc.Representation)
         except AttributeError:
@@ -659,7 +680,7 @@ class Pipe(HVACProduct):
 
     @staticmethod
     def get_lenght_from_shape(ifc_representation):
-        """Serach for extruded depth in representations
+        """Search for extruded depth in representations
 
         Warning: Found extrusion may net be the required length!
         :raises: AttributeError if not exactly one extrusion is found"""
@@ -684,8 +705,7 @@ class PipeFitting(HVACProduct):
     ifc_types = {
         "IfcPipeFitting":
             ['*', 'BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION',
-             'OBSTRUCTION',
-             'TRANSITION']
+             'OBSTRUCTION', 'TRANSITION']
     }
 
     conditions = [
@@ -731,7 +751,6 @@ class PipeFitting(HVACProduct):
                     'InteriorRoughnessCoefficient'),
         unit=ureg.millimeter,
     )
-
 
     @staticmethod
     def _diameter_post_processing(value):
@@ -834,7 +853,10 @@ class Storage(HVACProduct):
         re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
     ]
 
-    def calc_volume(self, name):
+    def calc_volume(self, name) -> ureg.Quantity:
+        """
+        Calculate volume of storage device
+        """
         return self.height * self.diameter ** 2 / 4 * math.pi
 
     storage_type = attribute.Attribute(
@@ -923,16 +945,16 @@ class Pump(HVACProduct):
         unit=ureg.ampere,
     )
 
-    @staticmethod
-    def _calc_rated_power(bind, name):
-        if bind.rated_current and bind.rated_voltage:
-            return bind.rated_current * bind.rated_voltage
-        return None
+    def _calc_rated_power(self, name) -> ureg.Quantity:
+        """Function to calculate the pump rated power using the rated current
+        and rated voltage"""
+        return self.rated_current * self.rated_voltage
 
     rated_power = attribute.Attribute(
         description="Rated power of pump",
         unit=ureg.kilowatt,
-        functions=[_calc_rated_power]
+        functions=[_calc_rated_power],
+        dependant_attributes=['rated_current', 'rated_voltage']
     )
 
     rated_mass_flow = attribute.Attribute(
@@ -943,9 +965,8 @@ class Pump(HVACProduct):
 
     rated_volume_flow = attribute.Attribute(
         description="Rated volume flow of pump",
-        unit=ureg.m**3 / ureg.hour,
+        unit=ureg.m ** 3 / ureg.hour,
     )
-
 
     rated_height = attribute.Attribute(
         description="Rated height or rated pressure difference of pump",
