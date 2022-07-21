@@ -40,22 +40,32 @@ class DisaggregationCreation(ITask):
         for sb in tz.space_boundaries:
             bound_instance = sb.bound_instance
             if bound_instance is not None:
-                if sb.related_bound is not None:
-                    if sb.guid in self.disaggregations:
-                        inst = self.disaggregations[sb.guid]
-                    else:
-                        inst = self.create_disaggregation(
-                            finder, bound_instance, sb, tz)
-                        self.disaggregations[sb.related_bound.guid] = inst
+                if sb.guid in self.disaggregations:
+                    inst = self.disaggregations[sb.guid]
                 else:
-                    inst = self.create_disaggregation(
-                        finder, bound_instance, sb, tz)
-                tz_disaggregations.append(inst)
+                    if len(bound_instance.thermal_zones) == 1:
+                        inst = bound_instance
+                        for sb_ins in bound_instance.space_boundaries:
+                            self.disaggregations[sb_ins.guid] = inst
+                    else:
+                        if not sb.net_bound_area:
+                            inst = None
+                            self.disaggregations[sb.guid] = inst
+                        else:
+                            inst = self.create_disaggregation(
+                                finder, bound_instance, sb, tz)
+                            self.disaggregations[sb.guid] = inst
+                            if sb.related_bound is not None:
+                                self.disaggregations[sb.related_bound.guid] = \
+                                    inst
+                if inst:
+                    if inst not in tz_disaggregations:
+                        tz_disaggregations.append(inst)
+                    if sb not in inst.space_boundaries:
+                        inst.space_boundaries.append(sb)
+                    if tz not in inst.thermal_zones:
+                        inst.thermal_zones.append(tz)
 
-                if sb not in inst.space_boundaries:
-                    inst.space_boundaries.append(sb)
-                if tz not in inst.thermal_zones:
-                    inst.thermal_zones.append(tz)
         return tz_disaggregations
 
     def create_disaggregation(self, finder, bound_instance, sb, tz):
@@ -108,7 +118,7 @@ class DisaggregationCreation(ITask):
         for prop in self.attributes_dict[type_parent]:
             if prop not in blacklist:
                 dis_value = getattr(inst, prop)
-                if not dis_value:
+                if dis_value is None or dis_value == []:
                     parent_value = getattr(inst.parent, prop)
                     if parent_value:
                         setattr(inst, prop, parent_value)

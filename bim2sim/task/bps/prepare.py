@@ -23,6 +23,8 @@ class Prepare(ITask):
         self.reduced_instances = instances
         yield from self.prepare_thermal_zones(instances)
         self.prepare_instances(instances)
+        self.tz_instances = dict(sorted(self.tz_instances.items()))
+        self.reduced_instances = dict(sorted(self.reduced_instances.items()))
 
         return self.tz_instances, self.reduced_instances
 
@@ -98,8 +100,8 @@ class Prepare(ITask):
         decision = BoolDecision(
             question="Do you want for all the thermal zones to be %sed? - "
                      "with %sing" % (property_name, property_name),
-                     global_key='Thermal_Zones.%sing' % property_name,
-                     allow_skip=True)
+            global_key='Thermal_Zones.%sing' % property_name,
+            allow_skip=True)
 
         return decision
 
@@ -118,8 +120,8 @@ class Prepare(ITask):
         * recognize decomposed roofs"""
 
         if type(instance).__bases__[0] is Slab or type(instance) is Slab:
-            self.better_slab_class(instance)
             self.recognize_decomposed_roofs(instance, instances)
+            self.better_slab_class(instance)
 
     @staticmethod
     def better_slab_class(instance):
@@ -134,7 +136,7 @@ class Prepare(ITask):
                 new_class = Roof
                 if instance.top_bottom:
                     if len(instance.top_bottom) == 1:
-                        if instance.top_bottom[0] == 'TOP':
+                        if instance.top_bottom[0] == 'BOTTOM':
                             new_class = GroundFloor
             if new_class != type(instance):
                 instance.__class__ = new_class
@@ -172,6 +174,19 @@ class Prepare(ITask):
         instance not available or invalid"""
         # when decomposed,decomposes instance has attributes of the decomposed
         # instance
+        if len(d_instance.space_boundaries):
+            for sb in d_instance.space_boundaries:
+                if sb not in instance.space_boundaries:
+                    instance.space_boundaries.append(sb)
+
+        for tz in d_instance.thermal_zones:
+            if tz not in instance.thermal_zones:
+                instance.thermal_zones.append(tz)
+            if instance not in tz.bound_elements:
+                tz.bound_elements.append(instance)
+            d_instance_index = tz.bound_elements.index(d_instance)
+            del tz.bound_elements[d_instance_index]
+
         for attr, (value, available) in instance.attributes.items():
             if not value and hasattr(d_instance, attr):
                 if getattr(d_instance, attr):
