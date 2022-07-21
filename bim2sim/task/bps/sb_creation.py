@@ -99,6 +99,8 @@ class CreateSpaceBoundaries(ITask):
         An opening can have a related instance (windows, doors for example) or
         not (staircase for example)"""
         if hasattr(instance.ifc, 'HasOpenings'):
+            matched_list = []
+            has_no_element_openings = False
             for opening in instance.ifc.HasOpenings:
                 related_building_element = opening.RelatedOpeningElement. \
                     HasFillings[0].RelatedBuildingElement if \
@@ -110,15 +112,18 @@ class CreateSpaceBoundaries(ITask):
                     matched_sb = self.find_opening_bound(instance,
                                                          opening_instance)
                     if matched_sb:
-                        return [matched_sb]
+                        matched_list.append(matched_sb)
                     else:
                         self.non_sb_elements.append(opening_instance)
                 else:
-                    # opening with no element (stairs for example)
-                    matched_sb = self.find_no_element_opening_bound(
-                        no_element_openings, instance, no_element_sbs)
-                    if matched_sb:
-                        return matched_sb
+                    has_no_element_openings = True
+            if has_no_element_openings:
+                # ToDo: Check this
+                matched_sbs = self.find_no_element_opening_bound(
+                    no_element_openings, instance, no_element_sbs)
+                if matched_sbs:
+                    matched_list.extend(matched_sbs)
+            return matched_list
         return None
 
     @staticmethod
@@ -200,10 +205,18 @@ class CreateSpaceBoundaries(ITask):
         """adds opening corresponding space boundary to the instance
         space boundary where the opening locates"""
         for normal_sb, opening_sb in matched_sb:
+            opening_sb.is_opening = True
             if not normal_sb.opening_bounds:
                 normal_sb.opening_bounds = []
-            normal_sb.opening_bounds.append(opening_sb)
+            if opening_sb not in normal_sb.opening_bounds:
+                normal_sb.opening_bounds.append(opening_sb)
             if normal_sb.related_bound:
                 if not normal_sb.related_bound.opening_bounds:
                     normal_sb.related_bound.opening_bounds = []
-                normal_sb.related_bound.opening_bounds.append(opening_sb)
+                if opening_sb.related_bound:
+                    if opening_sb.related_bound not in \
+                            normal_sb.related_bound.opening_bounds:
+                        normal_sb.related_bound.opening_bounds.append(
+                            opening_sb.related_bound)
+                else:
+                    normal_sb.related_bound.opening_bounds.append(opening_sb)
