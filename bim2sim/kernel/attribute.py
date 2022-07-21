@@ -246,42 +246,12 @@ class Attribute:
 
         if value is None:
             if status == Attribute.STATUS_NOT_AVAILABLE:
-                if self.functions is not None:
-                    self.get_attribute_dependency(bind)
-                    if self.dependant_attributes:
-                        # case for attributes that depend on others attributes
-                        # in the same instance
-                        _decision = {
-                            self.name: (
-                                self.dependant_attributes, self.functions)}
-                        for d_attr in self.dependant_attributes:
-                            bind.request(d_attr)
-                    elif self.dependant_instances:
-                        # case for attributes that depend on the same attribute
-                        # in other instances
-                        _decision = self.dependant_instances_decision(bind)
-                    else:
-                        _decision = external_decision or self.create_decision(
-                            bind)
-                else:
-                    # actual request
-                    _decision = external_decision or self.create_decision(bind)
-                    # bind.related_decisions.append(decision)
-                status = Attribute.STATUS_REQUESTED
-                self._inner_set(bind, _decision, status)
+                _decision = self.get_dependency_decisions(bind, external_decision)
                 return _decision
         elif isinstance(value, list):
             if not all(value):
-                if self.functions is not None:
-                    # case for attributes that depend on the same attribute in
-                    # other instances
-                    self.get_attribute_dependency(bind)
-                    _decision = self.dependant_instances_decision(bind)
-                else:
-                    # actual request
-                    _decision = external_decision or self.create_decision(bind)
-                status = Attribute.STATUS_REQUESTED
-                self._inner_set(bind, _decision, status)
+                _decision = self.get_dependency_decisions(bind,
+                                                          external_decision)
                 return _decision
             return
         elif isinstance(value, Decision):
@@ -290,6 +260,42 @@ class Attribute:
         else:
             # already requested or available
             return
+
+    def get_dependency_decisions(self, bind, external_decision=None):
+        """Get dependency decisions"""
+        if self.functions is not None:
+            self.get_attribute_dependency(bind)
+            if self.dependant_attributes or self.dependant_instances:
+                _decision = {}
+                if self.dependant_instances:
+                    # case for attributes that depend on the same
+                    # attribute in other instances
+                    _decision_inst = self.dependant_instances_decision(
+                        bind)
+                    for inst in _decision_inst:
+                        if inst not in _decision:
+                            _decision[inst] = _decision_inst[inst]
+                        else:
+                            _decision[inst].update(_decision_inst[inst])
+                        if inst is self:
+                            print()
+                elif self.dependant_attributes:
+                    # case for attributes that depend on others
+                    # attributes in the same instance
+                    for d_attr in self.dependant_attributes:
+                        bind.request(d_attr)
+                _decision.update(
+                    {self.name: (self.dependant_attributes, self.functions)})
+            else:
+                _decision = external_decision or self.create_decision(
+                    bind)
+        else:
+            # actual request
+            _decision = external_decision or self.create_decision(bind)
+        status = Attribute.STATUS_REQUESTED
+        self._inner_set(bind, _decision, status)
+
+        return _decision
 
     def get_attribute_dependency(self, instance):
         """
@@ -304,14 +310,24 @@ class Attribute:
                 for attr in func.__code__.co_names:
                     if hasattr(instance, attr):
                         dependant.append(attr)
-            # case for attributes that depend on the same attribute in
-            # other instances -> dependant_instances
-            if len(dependant) == 1 and 'elements' in dependant[0]:
-                self.dependant_instances = dependant[0]
-            # case for attributes that depend on the other attributes in
-            # the same instance -> dependant_attributes
-            elif len(dependant) > 0:
-                self.dependant_attributes = dependant
+
+            for dependant_item in dependant:
+                # case for attributes that depend on the same attribute in
+                # other instances -> dependant_instances
+                logger.warning("Attribute \"%s\" from class \"%s\" has no: "
+                               % (self.name, type(instance).__name__))
+                if 'elements' in dependant_item:
+                    self.dependant_instances = dependant_item
+                    logger.warning("- dependant instances: \"%s\"" %
+                                   dependant_item)
+                # case for attributes that depend on the other attributes in
+                # the same instance -> dependant_attributes
+                else:
+                    if self.dependant_attributes is None:
+                        self.dependant_attributes = []
+                    self.dependant_attributes.append(dependant_item)
+                    logger.warning("- dependant attributes: \"%s\"" %
+                                   dependant_item)
 
     def dependant_instances_decision(self, bind) -> dict:
         """Function to request attributes in other instances different to bind,
@@ -338,11 +354,16 @@ class Attribute:
                     if isinstance(decision, dict):
                         _decision[inst].update(decision)
                     else:
-                        if decision.key in _decision[inst]:
-                            print()
                         _decision[inst][decision.key] = decision
-        _decision.update({bind: {
-            self.name: (self.dependant_attributes, self.functions)}})
+        if self.dependant_attributes:
+            for d_attr in self.dependant_attributes:
+                requested_decisions = bind.request(d_attr)
+                if requested_decisions is not None:
+                    for inst, attr in requested_decisions.items():
+                        if not isinstance(inst, str):
+                            if inst not in _decision:
+                                _decision[inst] = {}
+                            _decision[inst].update(attr)
         return _decision
 
     def initialize(self, manager):

@@ -85,11 +85,10 @@ class DeadEnds(ITask):
                     n_removed += len(set(remove))
                     graph.remove_nodes_from([n for n in graph if n in set(remove)])
                 else:
+                    raise NotImplementedError()
                     # todo handle consumers
                     # dead end identification with guid decision (see issue97 add_gui_decision)
                     # build clusters with position for the rest of open ports
                     # decision to to group thiese open ports to consumers
                     # delete the rest of open ports afterwards
-                    pass
-
         return graph, n_removed

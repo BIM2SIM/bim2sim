@@ -15,7 +15,7 @@ from bim2sim.kernel import elements, attribute
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import filter_instances
-from bim2sim.decision import ListDecision, BoolDecision
+from bim2sim.decision import ListDecision, BoolDecision, DecisionBunch
 from bim2sim.decorators import cached_property
 
 logger = logging.getLogger(__name__)
@@ -47,9 +47,10 @@ class HVACAggregationPort(HVACPort):
         super().__init__(*args, **kwargs)
         # TODO / TBD: DJA: can one Port replace multiple? what about position?
         if not type(originals) == list:
-            self.originals = [originals]
-        else:
-            self.originals = originals
+            originals = [originals]
+        if not all(isinstance(n, hvac.HVACPort) for n in originals):
+            raise TypeError("originals must by HVACPorts")
+        self.originals = originals
 
     # def determine_flow_side(self):
     # return self.original.determine_flow_side()
@@ -620,6 +621,10 @@ class UnderfloorHeating(PipeStrand):
         unit=ureg.kilowatt,
         description="rated power"
     )
+    rated_mass_flow = attribute.Attribute(
+        description="Rated mass flow of pump",
+        unit=ureg.kg / ureg.s,
+    )
 
 
 class ParallelPump(HVACAggregationMixin, hvac.Pump):
@@ -710,7 +715,8 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
 
     @attribute.multi_calc
     def _calc_avg(self) -> dict:
-        """Calculates the parameters of all pump-like elements."""
+        """Calculates the total length and average diameter of all pump-like
+         elements."""
         avg_diameter_strand = 0
         total_length = 0
         diameter_times_length = 0
@@ -782,7 +788,7 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
     )
 
     def _calc_rated_height(self, name) -> ureg.Quantity:
-        """Calculate the rated height power, using the maximal rated height of
+        """Calculate the rated height, using the maximal rated height of
         the pump-like elements"""
         return max([ele.rated_height for ele in self.pump_elements])
 
@@ -997,7 +1003,8 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
 
     @attribute.multi_calc
     def _calc_avg(self):
-        """Calculates the parameters of all pump-like elements."""
+        """Calculates the total length and average diameter of all not-pump-like
+         elements."""
         avg_diameter_strand = 0
         total_length = 0
         diameter_times_length = 0
@@ -1068,6 +1075,18 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
         description="rated volume flow",
         unit=ureg.meter ** 3 / ureg.hour,
         functions=[_calc_volume_flow],
+        dependant_instances='pump_elements'
+    )
+
+    def _calc_mass_flow(self, name) -> ureg.Quantity:
+        """Calculate the mass flow, adding the mass flow of the pump-like
+        elements"""
+        return sum([ele.rated_mass_flow for ele in self.pump_elements])
+
+    rated_mass_flow = attribute.Attribute(
+        description="Rated mass flow of pump",
+        unit=ureg.kg / ureg.s,
+        functions=[_calc_mass_flow],
         dependant_instances='pump_elements'
     )
 
@@ -1359,6 +1378,48 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         dependant_instances='whitelist_elements'
     )
 
+    def _calc_dT_water(self, name):
+        """water dt of consumer"""
+        return self.flow_temperature - self.return_temperature
+
+    dT_water = attribute.Attribute(
+        description="Nominal temperature difference",
+        unit=ureg.kelvin,
+        functions=[_calc_dT_water],
+        dependant_attributes=['return_temperature', 'flow_temperature']
+    )
+
+    def _calc_body_mass(self, name):
+        """heat capacity of consumer"""
+        return sum(ele.body_mass for ele in self.whitelist_elements)
+
+    body_mass = attribute.Attribute(
+        description="Body mass of Consumer",
+        functions=[_calc_body_mass],
+        unit=ureg.kg,
+    )
+
+    def _calc_heat_capacity(self, name):
+        """heat capacity of consumer"""
+        return sum(ele.heat_capacity * ele.body_mass for ele in
+                   self.whitelist_elements) / self.body_mass
+
+    heat_capacity = attribute.Attribute(
+        description="Heat capacity of Consumer",
+        functions=[_calc_heat_capacity],
+        unit=ureg.joule / ureg.kelvin,
+    )
+
+    def _calc_demand_type(self, name):
+        """demand type of consumer"""
+        return 1 if self.dT_water > 0 else -1
+
+    demand_type = attribute.Attribute(
+        description="Type of demand if 1 - heating, if -1 - cooling",
+        functions=[_calc_demand_type],
+        dependant_attributes=['dT_water']
+    )
+
     volume = attribute.Attribute(
         description="volume",
         unit=ureg.meter ** 3,
@@ -1585,6 +1646,60 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin,
         dependant_instances='whitelist_elements'
     )
 
+    def _calc_dT_water(self, name):
+        """water dt of consumer"""
+        return [ele.dT_water.to_base_units() for ele
+                in self.whitelist_elements]
+
+    dT_water = attribute.Attribute(
+        description="Nominal temperature difference",
+        unit=ureg.kelvin,
+        functions=[_calc_dT_water],
+        dependant_instances='whitelist_elements'
+    )
+
+    def _calc_body_mass(self, name):
+        """heat capacity of consumer"""
+        return [ele.body_mass for ele in self.whitelist_elements]
+
+    body_mass = attribute.Attribute(
+        description="Body mass of Consumer",
+        functions=[_calc_body_mass],
+        unit=ureg.kg,
+    )
+
+    def _calc_heat_capacity(self, name):
+        """heat capacity of consumer"""
+        return [ele.heat_capacity for ele in self.whitelist_elements]
+
+    heat_capacity = attribute.Attribute(
+        description="Heat capacity of Consumer",
+        functions=[_calc_heat_capacity],
+        unit=ureg.joule / ureg.kelvin,
+    )
+
+    def _calc_demand_type(self, name):
+        """demand type of consumer"""
+        return [ele.demand_type for ele in self.whitelist_elements]
+
+    demand_type = attribute.Attribute(
+        description="Type of demand if 1 - heating, if -1 - cooling",
+        functions=[_calc_demand_type],
+        dependant_instances='whitelist_elements'
+    )
+
+    def calc_mass_flow(self, name):
+        """Returns the mass flow, in the form of a list with the mass flow of
+        the whitelist-like elements"""
+        return [ele.rated_mass_flow for ele in self.whitelist_elements]
+
+    rated_mass_flow = attribute.Attribute(
+        description="rated mass flow",
+        functions=[calc_mass_flow],
+        unit=ureg.kg / ureg.s,
+        dependant_instances='whitelist_elements'
+    )
+
     use_hydraulic_separator = attribute.Attribute(
         description="boolean if there is a hdydraulic seperator",
         functions=[_calc_avg]
@@ -1592,7 +1707,20 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin,
 
     hydraulic_separator_volume = attribute.Attribute(
         description="Volume of the hdydraulic seperator",
-        functions=[_calc_avg]
+        functions=[_calc_avg],
+        unit=ureg.m ** 3,
+    )
+
+    def _calc_rated_power(self, name):
+        """Returns the rated power, as a list of the rated power of the
+        whitelist_elements elements"""
+        return [ele.rated_power for ele in self.whitelist_elements]
+
+    rated_power = attribute.Attribute(
+        description="Rated heating power of all consumers",
+        unit=ureg.kilowatt,
+        functions=[_calc_rated_power],
+        dependant_instances='whitelist_elements'
     )
 
 
@@ -1902,18 +2030,19 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
     )
 
 
-class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
+class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
     """Aggregates generator modules with only one fluid cycle (CHPs, Boilers,
     ...) Not for Chillers or Heatpumps!"""
     aggregatable_elements = {
         hvac.Pump, PipeStrand, hvac.Pipe, hvac.PipeFitting, hvac.Distributor,
-        hvac.Boiler, ParallelPump, hvac.Valve, hvac.Storage}
+        hvac.Boiler, ParallelPump, hvac.Valve, hvac.Storage,
+        ConsumerHeatingDistributorModule, Consumer}
     wanted_elements = [hvac.Boiler, hvac.CHP]
     boarder_elements = [hvac.Distributor, ConsumerHeatingDistributorModule]
     multi = ('rated_power', 'has_bypass', 'rated_height', 'volume',
              'rated_volume_flow', 'rated_pump_power', 'has_pump')
 
-    def __init__(self, name, element_graph, *args, **kwargs):
+    def __init__(self, element_graph, *args, **kwargs):
         self.non_relevant = kwargs.pop('non_relevant', set())  # todo workaround
         self.has_parallel = kwargs.pop('has_parallel', False)
         self.bypass_elements = kwargs.pop('bypass_elements', set())
@@ -1921,63 +2050,6 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
         if self.bypass_elements:
             self.has_bypass = True
         super().__init__(element_graph, *args, **kwargs)
-        edge_ports, element_graph = self.get_edge_ports(element_graph)
-        self.elements = set(element_graph.nodes) | self.non_relevant
-        if len(edge_ports) > 2:
-            raise NotImplementedError
-        else:
-            for port in edge_ports:
-                self.ports.append(HVACAggregationPort(port, parent=self))
-
-    @classmethod
-    def get_edge_ports(cls, graph):
-        # make graph unfrozen
-        _graph = graph.copy()
-        edge_ports = []
-        # find and remove boarder elements from graph if existing
-        # (not the case if parallel generators where found)
-
-        boarder_elements = [node for node in _graph.nodes if
-                            type(node) in cls.boarder_elements]
-        if len(boarder_elements) > 1:
-            raise NotImplementedError
-        if boarder_elements:
-            boarder_element = boarder_elements[0]
-            for port in boarder_element.ports:
-                if port.connection:
-                    if port.connection.parent in _graph.nodes:
-                        edge_ports.append(port.connection)
-            _graph.remove_node(boarder_element)
-
-        # find edge ports
-        outer_elements = [v for v, d in _graph.degree() if d == 1]
-        for outer_element in outer_elements:
-            for port in outer_element.ports:
-                if port.connection:
-                    if port.connection.parent not in _graph.nodes \
-                            and port not in edge_ports:
-                        edge_ports.append(port)
-
-        return edge_ports, _graph
-
-    @classmethod
-    def find_bypasses(cls, graph):
-        wanted = set(cls.wanted_elements)
-        boarders = set(cls.boarder_elements)
-        inerts = set(cls.aggregatable_elements) - wanted
-        bypass_nodes = HvacGraph.detect_bypasses_to_wanted(
-            graph, wanted, inerts, boarders)
-        return bypass_nodes
-
-    def get_replacement_mapping(self):
-        """Returns dict with original ports as values and their aggregated
-        replacement as keys."""
-        mapping = {port: None for element in self.elements
-                   for port in element.ports}
-        for port in self.ports:
-            for original in port.originals:
-                mapping[original] = port
-        return mapping
 
     @classmethod
     def find_matches(cls, graph: {HvacGraph.element_graph}) -> \
@@ -2048,9 +2120,35 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
                 cleaned_generator_cycles.append(pseudo_lst)
             _graph = graph.copy()
 
+            # get outer_connections
+            for i, cycle in enumerate(cleaned_generator_cycles):
+                metas.append(dict())
+                metas[i]['outer_connections'] = []
+                boarder_nodes = []
+                for node in cycle:
+                    for block in boarders:
+                        if type(node) == block:
+                            boarder_nodes.append(node)
+                if len(boarder_nodes) > 1:
+                    raise NotImplementedError(
+                        "Generator cycles should only have one boarder")
+                HvacGraph.remove_nodes_from(cycle, boarder_nodes)
+
+                outer_elements = [v for v, d in cycle.degree() if d == 1]
+                for outer_element in outer_elements:
+                    for port in outer_element.ports:
+                        if port in graph:
+                            neighbor_ports = [neighbor_port for neighbor_port in
+                                              graph.neighbors(port)]
+                            for neighbor_port in neighbor_ports:
+                                if neighbor_port.parent not in list(
+                                        cycle.nodes):
+                                    print(neighbor_port.parent)
+
+                                    metas[i]['outer_connections'].append(port)
+
             # match bypass elements from non relevant elements
             for i in range(len(cleaned_generator_cycles)):
-                metas.append(dict())
                 metas[i]['bypass_elements'] = []
                 for cycle in list_all_cycles_wanted[i]:
                     if len(cycle - cleaned_generator_cycles[
@@ -2107,6 +2205,38 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
         print(has_bypass)
         return dict(has_bypass=has_bypass)
 
+    @classmethod
+    def find_bypasses(cls, graph):
+        """Finds bypasses based on the graphical network.
+        Currently not used, might be removed in the future."""
+        # todo remove if discussed
+        wanted = set(cls.wanted_elements)
+        boarders = set(cls.boarder_elements)
+        inerts = set(cls.aggregatable_elements) - wanted
+        bypass_nodes = HvacGraph.detect_bypasses_to_wanted(
+            graph, wanted, inerts, boarders)
+        return bypass_nodes
+
+    def _calc_has_bypass_decision(self):
+        """Checks if bypass exists based on decision. Currently not used as
+        only possible with workaround. See todo documentation"""
+        # todo remove if discussed, see #184
+        # todo more elegant way? Problem is that cant yield from attributes
+        #  or cached propertys @earnsdev. Maybe using
+        #  get_pending_attribute_decisions() in combination with request?
+        decisions = DecisionBunch()
+        cur_decision = BoolDecision(
+            "Does the generator %s has a bypass?" % self.guid,
+            key=self,
+            global_key=self.guid + '.bypass',
+            related=[element.guid for element in self.elements], )
+        decisions.append(cur_decision)
+        yield decisions
+        answers = decisions.to_answer_dict()
+        has_bypass = list(answers.values())[0]
+        self.has_bypass = has_bypass
+        return has_bypass
+
     @cached_property
     def whitelist_elements(self) -> list:
         """list of whitelist elements present on the aggregation"""
@@ -2129,6 +2259,66 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
         description="rated power",
         functions=[_calc_rated_power],
         dependant_instances='whitelist_elements'
+    )
+
+    def _calc_min_power(self, name):
+        """Calculates the min power, adding the min power of
+        the whitelist_elements"""
+        return sum([ele.min_power for ele in self.whitelist_elements])
+
+    min_power = attribute.Attribute(
+        unit=ureg.kilowatt,
+        description="min power",
+        functions=[_calc_min_power],
+        dependant_instances='whitelist_elements'
+    )
+
+    def _calc_min_PLR(self, name):
+        """Calculates the min PLR, using the min power and rated power"""
+        return self.min_power/self.rated_power
+
+    min_PLR = attribute.Attribute(
+        description="Minimum part load ratio",
+        unit=ureg.dimensionless,
+        functions=[_calc_min_PLR],
+        dependant_attributes=['min_power', 'rated_power']
+    )
+
+    def _calc_flow_temperature(self, name) -> ureg.Quantity:
+        """Calculate the flow temperature, using the flow temperature of the
+        whitelist elements"""
+        return sum(ele.flow_temperature.to_base_units() for ele
+                   in self.whitelist_elements)/len(self.whitelist_elements)
+
+    flow_temperature = attribute.Attribute(
+        description="Nominal inlet temperature",
+        unit=ureg.kelvin,
+        functions=[_calc_flow_temperature],
+        dependant_instances='whitelist_elements'
+    )
+
+    def _calc_return_temperature(self, name) -> ureg.Quantity:
+        """Calculate the return temperature, using the return temperature of the
+        whitelist elements"""
+        return sum(ele.return_temperature.to_base_units() for ele
+                   in self.whitelist_elements)/len(self.whitelist_elements)
+
+    return_temperature = attribute.Attribute(
+        description="Nominal outlet temperature",
+        unit=ureg.kelvin,
+        functions=[_calc_return_temperature],
+        dependant_instances='whitelist_elements'
+    )
+
+    def _calc_dT_water(self, name):
+        """Rated power of boiler"""
+        return self.return_temperature - self.flow_temperature
+
+    dT_water = attribute.Attribute(
+        description="Nominal temperature difference",
+        unit=ureg.kelvin,
+        functions=[_calc_dT_water],
+        dependant_attributes=['return_temperature', 'flow_temperature']
     )
 
     def _calc_diameter(self, name) -> ureg.Quantity:
@@ -2154,7 +2344,7 @@ class GeneratorOneFluid(HVACAggregationMixin, HVACProduct):
         functions=[_calc_avg],
         unit=ureg.millimeter,
     )
-    # pump related attributes
+
     has_pump = attribute.Attribute(
         description="Cycle has a pumpsystem",
         functions=[HVACAggregationMixin._calc_has_pump]

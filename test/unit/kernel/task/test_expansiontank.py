@@ -51,7 +51,9 @@ class TestExpansionTank(unittest.TestCase):
     def tearDown(self):
         self.helper.reset()
 
-    def test_expansion_tank_circuit_forced(self):
+    def test_expansion_tank_circuit_decision(self):
+        """Test performs search and remove of the expansion tanks by decision"""
+
         graph, flags = self.helper.get_setup_circuit_with_expansion_tank()
         pot_tanks = \
             expansiontanks.ExpansionTanks.identify_expansion_tanks(graph)
@@ -66,7 +68,11 @@ class TestExpansionTank(unittest.TestCase):
         graph, n_removed = handler.return_value
         self.assertEqual(n_removed, 1)
 
-    def test_expansion_tank_circuit_decision(self):
+    def test_expansion_tank_circuit_forced(self):
+        """Test performs search and remove of the expansion tanks with forced
+         deletion
+        """
+
         graph, flags = self.helper.get_setup_circuit_with_expansion_tank()
         pot_tanks = \
             expansiontanks.ExpansionTanks.identify_expansion_tanks(graph)

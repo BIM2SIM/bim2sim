@@ -193,7 +193,6 @@ class HVACProduct(ProductBased):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.inner_connections: List[Tuple[HVACPort, HVACPort]] \
             = self.get_inner_connections()
 
@@ -515,6 +514,12 @@ class Boiler(HVACProduct):
         unit=ureg.meter ** 3,
     )
 
+    dry_mass = attribute.Attribute(
+        description="Weight of the element, not including contained fluid.",
+        default_ps=('Qto_BoilerBaseQuantities', 'GrossWeight'),
+        unit=ureg.kg,
+    )
+
     nominal_power_consumption = attribute.Attribute(
         description="nominal energy consumption of boiler",
         default_ps=('Pset_BoilerTypeCommon', 'NominalEnergyConsumption'),
@@ -567,10 +572,10 @@ class Boiler(HVACProduct):
         unit=ureg.dimensionless,
     )
 
-    def _calc_rated_power(bind, name) -> ureg.Quantity:
+    def _calc_rated_power(self, name) -> ureg.Quantity:
         """Function to calculate the rated power of the boiler using the nominal
         efficiency and the nominal power consumption"""
-        return bind.nominal_efficiency * bind.nominal_power_consumption
+        return self.nominal_efficiency * self.nominal_power_consumption
 
     rated_power = attribute.Attribute(
         description="Rated power of boiler",
@@ -599,7 +604,7 @@ class Boiler(HVACProduct):
         description="Boiler efficiency at partial load",
         functions=[_calc_partial_load_efficiency],
         unit=ureg.dimensionless,
-        dependant_attributes=['nominal_partial_ratio']
+        default=0.15
     )
 
     def _calc_min_power(self, name) -> ureg.Quantity:
@@ -611,8 +616,42 @@ class Boiler(HVACProduct):
         description="Minimum power that boiler operates at",
         unit=ureg.kilowatt,
         functions=[_calc_min_power],
-        dependant_attributes=['partial_load_efficiency',
-                              'nominal_power_consumption']
+        # dependant_attributes=['partial_load_efficiency',
+        #                       'nominal_power_consumption']
+    )
+
+    def _calc_min_PLR(self, name) -> ureg.Quantity:
+        """Function to calculate the minimal PLR of the boiler using the minimal
+        power and the rated power"""
+        return self.min_power / self.rated_power
+
+    min_PLR = attribute.Attribute(
+        description="Minimum Part load ratio",
+        unit=ureg.dimensionless,
+        functions=[_calc_min_PLR],
+        dependant_attributes=['min_power', 'rated_power']
+    )
+    flow_temperature = attribute.Attribute(
+        description="Nominal inlet temperature",
+        default_ps=('Pset_BoilerTypeCommon', 'WaterInletTemperatureRange'),
+        unit=ureg.celsius,
+    )
+    return_temperature = attribute.Attribute(
+        description="Nominal outlet temperature",
+        default_ps=('Pset_BoilerTypeCommon', 'OutletTemperatureRange'),
+        unit=ureg.celsius,
+    )
+
+    def _calc_dT_water(self, name) -> ureg.Quantity:
+        """Function to calculate the delta temperature of the boiler using the
+        return and flow temperature"""
+        return self.return_temperature - self.flow_temperature
+
+    dT_water = attribute.Attribute(
+        description="Nominal temperature difference",
+        unit=ureg.kelvin,
+        functions=[_calc_dT_water],
+        dependant_attributes=['return_temperature', 'flow_temperature']
     )
 
 
@@ -809,10 +848,37 @@ class SpaceHeater(HVACProduct):
         unit=ureg.kilowatt,
     )
 
+    flow_temperature = attribute.Attribute(
+        description="Flow temperature",
+        unit=ureg.celsius,
+    )
+
+    return_temperature = attribute.Attribute(
+        description="Return temperature",
+        unit=ureg.celsius,
+    )
+
     medium = attribute.Attribute(
         # [Steam, Water, Other, NotKnown, Unset]
         description="Medium of SpaceHeater",
         default_ps=('Pset_SpaceHeaterTypeCommon', 'HeatTransferMedium'),
+    )
+    heat_capacity = attribute.Attribute(
+        description="Heat capacity of heater",
+        default_ps=('Pset_SpaceHeaterTypeCommon', 'ThermalMassHeatCapacity'),
+        unit=ureg.joule / ureg.kelvin,
+    )
+
+    def _calc_dT_water(self, name) -> ureg.Quantity:
+        """Function to calculate the delta temperature of the boiler using the
+        return and flow temperature"""
+        return self.flow_temperature - self.return_temperature
+
+    dT_water = attribute.Attribute(
+        description="Nominal temperature difference",
+        unit=ureg.kelvin,
+        functions=[_calc_dT_water],
+        dependant_attributes=['return_temperature', 'flow_temperature']
     )
 
 
@@ -918,6 +984,10 @@ class Distributor(HVACProduct):
     nominal_power = attribute.Attribute(
         description="Nominal power of Distributor",
         unit=ureg.kilowatt
+    )
+    rated_mass_flow = attribute.Attribute(
+        description="Rated mass flow of Distributor",
+        unit=ureg.kg / ureg.s,
     )
 
 
