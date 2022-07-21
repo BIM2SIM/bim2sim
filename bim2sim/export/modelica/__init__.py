@@ -344,6 +344,13 @@ class Instance:
 
         return inner_check
 
+    @staticmethod
+    def check_none():
+        """Check if value is not None"""
+        def inner_check(value):
+            return not isinstance(value, type(None))
+        return inner_check
+
     def __repr__(self):
         return "<%s %s>" % (self.path, self.name)
 

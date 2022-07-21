@@ -410,8 +410,7 @@ class TestGeneratorAggregation(unittest.TestCase):
             "There is 1 case for generation cycles but 'find_matches' "
             "returned %d" % len(matches)
         )
-        agg_generator = aggregation.GeneratorOneFluid(
-            "Test", matches[0], **metas[0])
+        agg_generator = aggregation.GeneratorOneFluid(matches[0], **metas[0])
         self.assertEqual(agg_generator.rated_power, 200 * ureg.kilowatt)
         self.assertTrue(agg_generator.has_pump,
                         "No pump was found in generator cycle but there should"
@@ -447,8 +446,7 @@ class TestGeneratorAggregation(unittest.TestCase):
         name_builder = '{} {}'
         i = 0
         for match, meta in zip(matches, metas):
-            agg_generator = aggregation.GeneratorOneFluid(
-                name_builder.format('generator', i + 1), match, **meta)
+            agg_generator = aggregation.GeneratorOneFluid(match, **meta)
             i += 1
             agg_generators.append(agg_generator)
             self.assertEqual(agg_generator.rated_power, 200 * ureg.kilowatt)
@@ -482,8 +480,7 @@ class TestGeneratorAggregation(unittest.TestCase):
         boiler200kw_guid = [b.guid for b in flags['boiler200kW']]
         boiler400kw_guid = [b.guid for b in flags['boiler400kW']]
         for match, meta in zip(matches, metas):
-            agg_generator = aggregation.GeneratorOneFluid(
-                name_builder.format('generator', i+1), match, **meta)
+            agg_generator = aggregation.GeneratorOneFluid(match, **meta)
             i += 1
             agg_generators.append(agg_generator)
             boiler_element = [element for element in agg_generator.elements

@@ -99,7 +99,7 @@ class TestOnlyDeadEnds(unittest.TestCase):
         ]
         self.assertCountEqual(pot_dead_ends_compare, pot_dead_ends)
         job = dead_ends.DeadEnds.decide_deadends(
-            graph, pot_dead_ends, True)
+            graph, pot_dead_ends, force=True)
         try:
             while True:
                 dummy = next(job)

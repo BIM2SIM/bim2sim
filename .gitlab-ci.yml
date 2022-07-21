@@ -114,6 +114,28 @@ build_env:teaser:
      - requirements.txt
      - .gitlab-ci.yml
 
+build_env:aixlib:
+ image: docker:latest
+ stage: build-env-plugins
+ services:
+ - docker:18.09.7-dind
+ before_script:
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+ script:
+   - docker build -t $CI_REGISTRY/environment:aixlib -f bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile .
+   - docker push $CI_REGISTRY/environment:aixlib
+ only:
+   refs:
+     - development
+     - 83-split-plugins-from-kernel
+     - 205_dymola_simulation
+     - aixlib_export_update
+   changes:
+     - bim2sim/plugins/PluginAixLib/requirements.txt
+     - bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile
+     - requirements.txt
+     - .gitlab-ci.yml
+
 build_tool:release:
  image: docker:latest
  stage: build-tool
@@ -180,6 +202,20 @@ build_tool:teaser:
  only:
    changes:
       - bim2sim/plugins/PluginTEASER/*
+
+build_tool:aixlib:
+ image: docker:latest
+ stage: build-tool
+ services:
+ - docker:18.09.7-dind
+ before_script:
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+ script:
+   - docker build -t $CI_REGISTRY/tool:teaser -f bim2sim/plugins/PluginAixLib/aixlib.Dockerfile .
+   - docker push $CI_REGISTRY/tool:aixlib
+ only:
+   changes:
+      - bim2sim/plugins/PluginAixLib/*
 
 test_Base:
   <<: *only-default
@@ -259,6 +295,28 @@ test_CFD:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginCFD/test/integration_test
+    - coverage report -i
+    - mkdir -p $CI_COMMIT_REF_NAME/coverage
+    - coverage html -i
+    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+    # skip this for now as its only cosmetic and leads to problems
+    # - coverage-badge -o coverage.svg
+    # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/coverage
+
+test_AixLib:
+  <<: *only-default
+  image: $CI_REGISTRY/environment:aixlib
+  stage: test
+  before_script:
+    - pip install coverage
+    - pip install coverage-badge
+  script:
+    - mv ./* /bim2sim-coding/
+    - cd /bim2sim-coding
+    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration_test
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
     - coverage html -i

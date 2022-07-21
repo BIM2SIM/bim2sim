@@ -327,7 +327,7 @@ class HvacGraph(nx.Graph):
 
         # get cycle with blocker (can't hold bypass if has wanted and blocker)
         blocker_cycles = [cycle for cycle in cycles
-                          if any(node.ifc_type == block for block in
+                          if any(type(node) == block for block in
                                  blockers for node in cycle)]
         for blocker_cycle in blocker_cycles:
             cycles.remove(blocker_cycle)
@@ -337,13 +337,13 @@ class HvacGraph(nx.Graph):
             # get edge_elements
             edge_elements = [node for node in cycle if
                              len(list(nx.all_neighbors(graph, node))) > 2 and
-                             node.ifc_type in pot_edge_elements]
+                             type(node) in pot_edge_elements]
             # get direct connections between edge_elements
             dir_connections = HvacGraph.get_dir_paths_between(
                 graph, edge_elements)
             # filter connections, that has no wanted nodes
             for dir_connection in dir_connections:
-                if not any(node.ifc_type == want for want in wanted for node in
+                if not any(type(node) == want for want in wanted for node in
                            dir_connection):
                     pot_bypass_nodes.extend(dir_connection)
         # filter the potential bypass nodes for the once not in blocker cycles

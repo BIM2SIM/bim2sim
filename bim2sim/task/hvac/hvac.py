@@ -9,13 +9,13 @@ from typing import Generator, Iterable
 import numpy as np
 import networkx as nx
 
-from bim2sim.kernel.elements.hvac import HVACProduct
+from bim2sim.kernel.elements import hvac
 from bim2sim.task.base import ITask
 from bim2sim.filter import TypeFilter
 from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating,\
     ParallelPump
 from bim2sim.kernel.aggregation import Consumer, \
-    ConsumerHeatingDistributorModule
+    ConsumerHeatingDistributorModule, GeneratorOneFluid
 from bim2sim.kernel.element import ProductBased, ElementEncoder, Port
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
@@ -81,7 +81,7 @@ class ConnectElements(ITask):
                 # keep first
                 first = 1
                 quality_logger.info(
-                    "Accept closest ports with delta as connection (%s - %s)",
+                    "Accept closest ports with delta %d as connection (%s - %s)",
                     candidates[0][2]['delta'], candidates[0][0],
                     candidates[0][1])
             else:
@@ -269,7 +269,7 @@ class ConnectElements(ITask):
         # If a lot of decisions occur, it would help to merge DecisionBunches
         # before yielding them
         for instance in instances:
-            if isinstance(instance, HVACProduct) \
+            if isinstance(instance, hvac.HVACProduct) \
                     and not instance.inner_connections:
                 yield from instance.decide_inner_connections()
 
@@ -430,6 +430,7 @@ class Reduce(ITask):
 
     def run(self, workflow, graph: hvac_graph.HvacGraph):
         self.logger.info("Reducing elements by applying aggregations")
+
         number_of_nodes_old = len(graph.element_graph.nodes)
         number_ps = 0
         number_fh = 0
@@ -442,7 +443,8 @@ class Reduce(ITask):
             Consumer,
             PipeStrand,
             ParallelPump,
-            ConsumerHeatingDistributorModule
+            ConsumerHeatingDistributorModule,
+            GeneratorOneFluid,
             # ParallelSpaceHeater,
         ]
 
@@ -553,12 +555,16 @@ class Export(ITask):
 
     def run(self, workflow, libraries, graph: hvac_graph.HvacGraph):
         self.logger.info("Export to Modelica code")
+        reduced_instances = graph.elements
+
+        connections = graph.get_connections()
 
         modelica.Instance.init_factory(libraries)
-        export_instances = {inst: modelica.Instance.factory(inst) for inst in graph.elements}
+        export_instances = {inst: modelica.Instance.factory(inst) for
+                            inst in reduced_instances}
 
         yield from ProductBased.get_pending_attribute_decisions(
-            export_instances)
+            reduced_instances)
 
         for instance in export_instances.values():
             instance.collect_params()
@@ -584,13 +590,33 @@ class Export(ITask):
 
     def create_connections(self, graph, export_instances):
         connection_port_names = []
+        distributors_n = {}
+        distributors_ports = {}
         for port_a, port_b in graph.edges:
             if port_a.parent is port_b.parent:
                 # ignore inner connections
                 continue
-            instance_a = export_instances[port_a.parent]
-            port_a_name = instance_a.get_full_port_name(port_a)
-            instance_b = export_instances[port_b.parent]
-            port_b_name = instance_b.get_full_port_name(port_b)
-            connection_port_names.append((port_a_name, port_b_name))
+            instances = {'a': export_instances[port_a.parent],
+                         'b': export_instances[port_b.parent]}
+            ports_name = {'a': instances['a'].get_full_port_name(port_a),
+                          'b': instances['b'].get_full_port_name(port_b)}
+            if any(isinstance(e.element, hvac.Distributor) for
+                   e in instances.values()):
+                for key, inst in instances.items():
+                    if type(inst.element) is hvac.Distributor:
+                        distributor = (key, inst)
+                        distributor_port = ports_name[key]
+                    else:
+                        other_inst = inst
+                        other_port = ports_name[key]
+
+                ports_name[distributor[0]] = distributor[1].get_new_port_name(
+                    distributor[1], other_inst, distributor_port, other_port,
+                    distributors_n, distributors_ports)
+
+            connection_port_names.append((ports_name['a'], ports_name['b']))
+
+        for distributor in distributors_n:
+            distributor.params['n'] = int(distributors_n[distributor] / 2 - 1)
+
         return connection_port_names
