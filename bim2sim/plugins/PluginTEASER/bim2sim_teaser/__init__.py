@@ -6,18 +6,27 @@ from bim2sim_teaser import task as teaser
 from bim2sim.kernel.elements import bps as bps_elements
 from bim2sim.plugins import Plugin
 from bim2sim.task import common, bps
-from bim2sim.workflow import BPSMultiZoneCombinedLayersFull
+from bim2sim.workflow import (
+    BPSMultiZoneCombinedLayersFull,
+    BPSOneZoneAggregatedLayersLow,
+    BPSMultiZoneCombinedLayersLow,
+    BPSMultiZoneSeparatedLayersLow,
+    BPSMultiZoneSeparatedLayersFull
+)
 
 
 class TEASERManager(Plugin):
     name = 'TEASER'
-    # default_workflow = BPSMultiZoneSeparatedLayersLow
-    # default_workflow = BPSMultiZoneSeparatedLayersFull
-    # default_workflow = BPSMultiZoneCombinedLayersLow
-    # default_workflow = BPSOneZoneAggregatedLayersLow
-    default_workflow = BPSMultiZoneCombinedLayersFull
-    elements = {*bps_elements.items}
 
+    default_workflow = BPSMultiZoneCombinedLayersFull
+    allowed_workflows = [
+        BPSOneZoneAggregatedLayersLow,
+        BPSMultiZoneCombinedLayersLow,
+        BPSMultiZoneCombinedLayersFull,
+        BPSMultiZoneSeparatedLayersLow,
+        BPSMultiZoneSeparatedLayersFull,
+    ]
+    elements = {*bps_elements.items}
     default_tasks = [
         common.LoadIFC,
         bps.CheckIfcBPS,

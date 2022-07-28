@@ -5,7 +5,8 @@ Holds logic to run a simulation based on prepared ifc data
 from bim2sim.kernel.elements import bps as bps_elements
 from bim2sim.plugins import Plugin
 from bim2sim.task import common, bps
-from bim2sim.workflow import BPSMultiZoneSeparatedEP
+from bim2sim.workflow import \
+    BPSMultiZoneSeparatedEP, BPSMultiZoneSeparatedEPfull
 
 from . import task as ep_tasks
 
@@ -13,6 +14,7 @@ from . import task as ep_tasks
 class EnergyPlus(Plugin):
     name = 'EnergyPlus'
     default_workflow = BPSMultiZoneSeparatedEP
+    allowed_workflows = [BPSMultiZoneSeparatedEP, BPSMultiZoneSeparatedEPfull]
     elements = {*bps_elements.items}
     default_tasks = [
         common.LoadIFC,
