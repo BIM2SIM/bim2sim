@@ -1,7 +1,7 @@
 # BIM2SIM
 bim2sim ist eine Bibliothek um BIM Modelle aus dem .ifc Format für unterschiedliche Simulationstools aufzubereiten.
 Die grundlegende Struktur des Projekts ist hier dargestellt:
-![Toolchain](https://git.rwth-aachen.de/Bim2Sim/Bim2Sim-documentation/raw/master/01_Grafiken/Toolchain.jpg)
+![Toolchain](docs/img/bim2sim_project_workflow_eng.png)
 
 ## Install
 
