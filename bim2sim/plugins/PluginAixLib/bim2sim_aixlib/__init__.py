@@ -20,6 +20,7 @@ class LoadLibrariesAixLib(base.ITask):
 class PluginAixLib(Plugin):
     name = 'AixLib'
     default_workflow = PlantSimulation
+    allowed_workflows = [PlantSimulation]
     tasks = {LoadLibrariesAixLib}
     elements = {*hvac_elements.items}
     default_tasks = [

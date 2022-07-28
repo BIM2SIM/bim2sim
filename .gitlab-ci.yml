@@ -211,7 +211,7 @@ build_tool:aixlib:
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/tool:teaser -f bim2sim/plugins/PluginAixLib/aixlib.Dockerfile .
+   - docker build -t $CI_REGISTRY/tool:aixlib -f bim2sim/plugins/PluginAixLib/aixlib.Dockerfile .
    - docker push $CI_REGISTRY/tool:aixlib
  only:
    changes:
@@ -377,10 +377,12 @@ pages:
    - apt-get install curl -y
  script:
    - set -e
+   # get existing content with branch artifacts
    - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
    - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
+   # delete all branch folders older than 30 days which are not master or development
+   - find public/* -type d -not -name "development" -not -name "master" -ctime +30 -exec rm -rf {} \;
    # Add/update content
-   # TODO: mv $CI_COMMIT_REF_NAME/* to public/$CI_COMMIT_REF_NAME/*
    - mkdir -p public/$CI_COMMIT_REF_NAME
    - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
    # Zip the content and publish the zip again

@@ -42,6 +42,7 @@ class Plugin:
 
     name: str = None
     default_workflow: Type[Workflow] = None
+    allowed_workflows = []
     tasks: Set[Type[ITask]] = set()
     default_tasks: List[Type[ITask]] = []
     elements: set = set()
