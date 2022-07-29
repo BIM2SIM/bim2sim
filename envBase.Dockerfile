@@ -64,7 +64,7 @@ RUN /opt/conda/bin/conda install --yes --freeze-installed \
 	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
 
 ## install ifcopenshell via existing file
-RUN wget -O /tmp/ifcopenshell.zip https://s3.amazonaws.com/ifcopenshell-builds/ifcopenshell-python-`python3 -c 'import sys;print("".join(map(str, sys.version_info[0:2])) \
+RUN wget -O /tmp/ifcopenshell.zip https://s3.amazonaws.com/ifcopenshell-builds/ifcopenshell-python-38-v0.7.0-b5133c6-linux64.zip \
 && unzip '/tmp/ifcopenshell.zip' -d /opt/conda/envs/env/lib/python3.7/site-packages/ && rm /tmp/ifcopenshell.zip || true ;
 
 
