@@ -15,6 +15,7 @@ stages:
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
+
 build_env:master:
  image: docker:latest
  stage: build-env
@@ -64,9 +65,8 @@ build_env:energyplus:
   only:
     refs:
        - development
-       - 128_energyPlusDocker
-       - 83-split-plugins-from-kernel
     changes:
+       - envBase.Dockerfile
        - bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile
        - bim2sim/plugins/PluginEnergyPlus/requirements.txt
        - requirements.txt
@@ -86,9 +86,8 @@ build_env:cfd:
  only:
    refs:
       - development
-      - 55_integrateCFD_Image
-      - 83-split-plugins-from-kernel
    changes:
+      - envBase.Dockerfile
       - bim2sim/plugins/PluginCFD/envCFD.Dockerfile
       - requirements.txt
       - .gitlab-ci.yml
@@ -106,9 +105,8 @@ build_env:teaser:
  only:
    refs:
      - development
-     - 83-split-plugins-from-kernel
-     - 205_dymola_simulation
    changes:
+     - envBase.Dockerfile
      - bim2sim/plugins/PluginTEASER/requirements.txt
      - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
      - requirements.txt
@@ -127,10 +125,8 @@ build_env:aixlib:
  only:
    refs:
      - development
-     - 83-split-plugins-from-kernel
-     - 205_dymola_simulation
-     - aixlib_export_update
    changes:
+     - envBase.Dockerfile
      - bim2sim/plugins/PluginAixLib/requirements.txt
      - bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile
      - requirements.txt
