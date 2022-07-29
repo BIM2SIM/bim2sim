@@ -169,7 +169,7 @@ build_tool:webdevelop:
    - docker build -t $CI_REGISTRY/tool:web_develop .
    - docker push $CI_REGISTRY/tool:web_develop
  only:
-   - handler
+   - development
 
 build_tool:cfd:
  image: docker:latest
