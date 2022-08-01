@@ -15,9 +15,9 @@ COPY --from=teaser /opt/conda/envs/env/ /tmp/teaser_env
 COPY --from=energyplus /opt/conda/envs/env/ /tmp/energyplus_env
 COPY --from=aixlib /opt/conda/envs/env/ /tmp/aixlib_env
 
-RUN cp -n /tmp/energyplus_env/ /opt/conda/envs/env/
-RUN cp -n /tmp/teaser_env/ /opt/conda/envs/env/
-RUN cp -n /tmp/aixlib_env/ /opt/conda/envs/env/
+RUN cp -n -r /tmp/energyplus_env/ /opt/conda/envs/env/
+RUN cp -n -r /tmp/teaser_env/ /opt/conda/envs/env/
+RUN cp -n -r /tmp/aixlib_env/ /opt/conda/envs/env/
 
 # delete temp folders
 RUN rm -rf /tmp/teaser_env /tmp/energyplus_env /tmp/aixlib_env
