@@ -20,7 +20,7 @@ RUN cp -n -r /tmp/teaser_env/ /opt/conda/envs/env/
 RUN cp -n -r /tmp/aixlib_env/ /opt/conda/envs/env/
 
 # delete temp folders
-RUN rm -rf /tmp/teaser_env /tmp/energyplus_env /tmp/aixlib_env
+# RUN rm -rf /tmp/teaser_env /tmp/energyplus_env /tmp/aixlib_env
 
 # copy energyplus install
 COPY --from=energyplus /usr/local/EnergyPlus* /usr/local/EnergyPlus
