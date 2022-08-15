@@ -6,6 +6,7 @@
 
 stages:
   - test
+  - code_quality
   - build-env
   - build-env-plugins
   - build-tool
@@ -325,20 +326,26 @@ test_AixLib:
     - $CI_COMMIT_REF_NAME/coverage
 
 pylint:
- stage: test
+ stage: code_quality
  image: python:3.6
+ before_script:
+   - pip install pylint pylint-json2html anybadge --quiet
  script:
-   - pip install pylint==2.11.1 pylint-json2html pylint-exit anybadge --quiet
-   - mkdir -p $CI_COMMIT_REF_NAME/pylint
-   - shopt -s globstar
-   - pylint --output-format=text **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.txt || pylint-exit $?
-   - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' $CI_COMMIT_REF_NAME/pylint/pylint.txt)
-   - echo "Pylint score was $score"
-   - anybadge --value=$score --file=$CI_COMMIT_REF_NAME/pylint/pylint.svg pylint
-   - pylint --output-format=jsonextended --disable=import-error --load-plugins=pylint_json2html **/*.py | tee $CI_COMMIT_REF_NAME/pylint/pylint.json || pylint-exit $?
-   - pylint-json2html -f jsonextended -o $CI_COMMIT_REF_NAME/pylint/pylint.html < $CI_COMMIT_REF_NAME/pylint/pylint.json
-   # todo integrate, that batch in readme.md is changed automaticly for branches
-   # - sed -i 's/pylint](.*)/pylint]( test )/g' README.md
+    - mkdir -p $CI_COMMIT_REF_NAME/pylint
+    # Determine code to check: in a user-defined directory, or module with the project name, or all python files
+    # (In case of using the project name, make project-name pep8 lowercase to be detected by pylint)
+    - if [ ! -z "$PYLINT_INPUT" ]; 
+      then echo "Using user-defined source dir"; 
+      elif [ -d "$CI_PROJECT_NAME" ]; 
+      then echo "Using repo name as module name" && PYLINT_INPUT=`echo "$CI_PROJECT_NAME" | tr '[:upper:]' '[:lower:]'`; 
+      else echo "Checking all python files" && PYLINT_INPUT="**/*.py"; 
+      fi
+    # Run pylint on the python-project
+    - pylint --output-format=text $PYLINT_INPUT --exit-zero | tee $CI_COMMIT_REF_NAME/pylint/pylint.txt
+    - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' $CI_COMMIT_REF_NAME/pylint/pylint.txt)
+    - anybadge --value=$score --file=$CI_COMMIT_REF_NAME/pylint/pylint.svg pylint
+    - pylint --output-format=jsonextended --load-plugins=pylint_json2html --exit-zero $PYLINT_INPUT | tee $CI_COMMIT_REF_NAME/pylint/pylint.json
+    - pylint-json2html -f jsonextended -o $CI_COMMIT_REF_NAME/pylint/pylint.html < $CI_COMMIT_REF_NAME/pylint/pylint.json
  artifacts:
    paths:
    - $CI_COMMIT_REF_NAME/pylint
