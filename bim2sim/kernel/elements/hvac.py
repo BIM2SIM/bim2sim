@@ -92,7 +92,7 @@ class HVACPort(Port):
     def pre_validate(cls, ifc) -> bool:
         return True
 
-    def validate(self) -> bool:
+    def validate_creation(self) -> bool:
         return True
 
     @property
@@ -294,6 +294,9 @@ class HVACProduct(ProductBased):
         vl.flow_side = 1
         rl.flow_side = -1
         self.inner_connections.append((vl, rl))
+
+    def __repr__(self):
+        return "<%s (ports: %d)>" % (self.__class__.__name__, len(self.ports))
 
 
 class HeatPump(HVACProduct):

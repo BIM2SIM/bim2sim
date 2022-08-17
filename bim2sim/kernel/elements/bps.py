@@ -4,7 +4,7 @@ import logging
 import math
 import re
 import sys
-from typing import Set, Tuple
+from typing import Set, List
 
 import ifcopenshell
 import ifcopenshell.geom
@@ -25,12 +25,13 @@ from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
+from datetime import date
 
 from bim2sim.decorators import cached_property
-from bim2sim.kernel import element, attribute
+from bim2sim.kernel import element, attribute, condition
 from bim2sim.kernel.units import ureg
-from bim2sim.kernel.ifc2python import get_layers_ifc
-from bim2sim.utilities.common_functions import vector_angle, filter_instances
+from bim2sim.utilities.common_functions import vector_angle, filter_instances, \
+    angle_equivalent
 from bim2sim.task.common.inner_loop_remover import remove_inner_loops
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
@@ -113,6 +114,30 @@ class BPSProduct(element.ProductBased):
     def opening_area(self):
         """get sum of opening areas of the element"""
         return sum(sb.opening_area for sb in self.sbs_without_corresponding)
+
+    def calc_orientation(self) -> float:
+        """Calculate the orientation of the bps product"""
+        true_north = self.get_true_north()
+        if len(self.space_boundaries):
+            new_orientation = self.group_orientation(
+                [vector_angle(space_boundary.bound_normal.Coord())
+                 for space_boundary in self.space_boundaries])
+            if new_orientation is not None:
+                return int(angle_equivalent(new_orientation + true_north))
+        # return int(angle_equivalent(super().calc_orientation() + true_north))
+        return None
+
+    @staticmethod
+    def group_orientation(orientations: list):
+        dict_orientations = {}
+        for orientation in orientations:
+            rounded_orientation = round(orientation)
+            if rounded_orientation not in dict_orientations:
+                dict_orientations[rounded_orientation] = 0
+            dict_orientations[rounded_orientation] += 1
+        if len(dict_orientations):
+            return max(dict_orientations, key=dict_orientations.get)
+        return None
 
 
 class ThermalZone(BPSProduct):
@@ -302,12 +327,12 @@ class ThermalZone(BPSProduct):
 
     t_set_heat = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMin"),
-        unit=ureg.degC
+        unit=ureg.degC,
     )
 
     t_set_cool = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "SpaceTemperatureMax"),
-        unit=ureg.degC
+        unit=ureg.degC,
     )
 
     t_ground = attribute.Attribute(
@@ -403,10 +428,12 @@ class ThermalZone(BPSProduct):
 
     def _get_heating_profile(self, name) -> list:
         """returns a heating profile using the heat temperature in the IFC"""
+        # todo make this "dynamic" with a night set back
         return [self.t_set_heat.to(ureg.kelvin).m] * 25
 
     def _get_cooling_profile(self, name) -> list:
         """returns a cooling profile using the cool temperature in the IFC"""
+        # todo make this "dynamic" with a night set back
         return [self.t_set_cool.to(ureg.kelvin).m] * 25
 
     heating_profile = attribute.Attribute(
@@ -553,7 +580,7 @@ class SpaceBoundary(element.RelationBased):
     def pre_validate(cls, ifc) -> bool:
         return True
 
-    def validate(self) -> bool:
+    def validate_creation(self) -> bool:
         if self.bound_area and self.bound_area < 1e-2 * ureg.meter ** 2:
             return True
         return False
@@ -1048,7 +1075,29 @@ class SpaceBoundary2B(SpaceBoundary):
         self.level_description = '2b'
 
 
-class Wall(BPSProduct):
+class BPSProductWithLayers(BPSProduct):
+    ifc_types = {}
+
+    def __init__(self, *args, **kwargs):
+        """BPSProductWithLayers __init__ function"""
+        super().__init__(*args, **kwargs)
+        self.layerset = None
+
+    def get_u_value(self, name):
+        """wall get_u_value function"""
+        layers_r = 0
+        for layer in self.layerset.layers:
+            if layer.thickness:
+                if layer.material.thermal_conduc and \
+                        layer.material.thermal_conduc > 0:
+                    layers_r += layer.thickness / layer.material.thermal_conduc
+
+        if layers_r > 0:
+            return 1 / layers_r
+        return None
+
+
+class Wall(BPSProductWithLayers):
     ifc_types = {
         "IfcWall":
             ['*', 'MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL',
@@ -1059,26 +1108,24 @@ class Wall(BPSProduct):
         # "IfcElementedCase": "?"  # TODO
     }
 
+    conditions = [
+        condition.RangeCondition('u_value',
+                                 0 * ureg.W / ureg.K / ureg.meter ** 2,
+                                 5 * ureg.W / ureg.K / ureg.meter ** 2,
+                                 critical_for_creation=False),
+        condition.UValueCondition('u_value',
+                                  threshold=0.2,
+                                  critical_for_creation=False),
+    ]
+
     pattern_ifc_type = [
         re.compile('Wall', flags=re.IGNORECASE),
         re.compile('Wand', flags=re.IGNORECASE)
     ]
-    material_selected = {}
 
     def __init__(self, *args, **kwargs):
         """wall __init__ function"""
         super().__init__(*args, **kwargs)
-
-    @cached_property
-    def layers(self):
-        """wall _get_layers function"""
-        layers = []
-        material_layers_dict = get_layers_ifc(self)
-        for layer in material_layers_dict:
-            new_layer = Layer.from_ifc(layer, finder=self.finder)
-            new_layer.parent = self
-            layers.append(new_layer)
-        return layers
 
     def get_better_subclass(self):
         return OuterWall if self.is_external else InnerWall
@@ -1096,75 +1143,128 @@ class Wall(BPSProduct):
     tilt = attribute.Attribute(
         default=90
     )
+
     u_value = attribute.Attribute(
         default_ps=("Pset_WallCommon", "ThermalTransmittance"),
-        unit=ureg.W / ureg.K / ureg.meter ** 2
+        unit=ureg.W / ureg.K / ureg.meter ** 2,
+        functions=[BPSProductWithLayers.get_u_value],
     )
     width = attribute.Attribute(
         default_ps=("Qto_WallBaseQuantities", "Width"),
         unit=ureg.m
     )
+    inner_convection = attribute.Attribute(
+        unit=ureg.W / ureg.K / ureg.meter ** 2,
+        default=0.6
+    )
 
 
-class Layer(element.RelationBased):
-    ifc_types = {'IfcMaterialLayer': ['*'], 'IfcMaterial': ['*']}
-    material_selected = {}
-    default_materials = {}
+class Layer(BPSProduct):
+    """Represents the IfcMaterialLayer class."""
+    ifc_types = {
+        "IfcMaterialLayer": ["*"],
+    }
 
-    def __init__(self, *args, material='', **kwargs):
+    conditions = [
+        condition.RangeCondition('thickness',
+                                 0 * ureg.m,
+                                 1 * ureg.m,
+                                 critical_for_creation=False),
+    ]
+
+    def __init__(self,  *args, **kwargs):
         """layer __init__ function"""
         super().__init__(*args, **kwargs)
-        self.material: str = material
+        self.to_layerset: List[LayerSet] = []
         self.parent = None
-
-    def __repr__(self):
-        return "<%s (material: %s>" \
-               % (self.__class__.__name__, self.material)
-
-    @classmethod
-    def ifc2args(cls, ifc) -> Tuple[tuple, dict]:
-        args, kwargs = super().ifc2args(ifc)
-        if hasattr(ifc, 'Material'):
-            material = ifc.Material
-        else:
-            material = ifc
-        if material is not None:
-            kwargs['material'] = material.Name
-        return args, kwargs
+        self.material = None
 
     @classmethod
     def pre_validate(cls, ifc) -> bool:
         return True
 
-    def validate(self) -> bool:
+    def validate_creation(self) -> bool:
         return True
 
-    @cached_property
-    def thickness(self):
+    def get_thickness(self, name):
         """layer thickness function"""
         if hasattr(self.ifc, 'LayerThickness'):
             return self.ifc.LayerThickness * ureg.m
 
-    heat_capac = attribute.Attribute(
-        default_ps=("Pset_MaterialThermal", "SpecificHeatCapacity"),
-        unit=ureg.J / ureg.K
+    thickness = attribute.Attribute(
+        unit=ureg.m,
+        functions=[get_thickness]
     )
 
-    density = attribute.Attribute(
-        default_ps=("Pset_MaterialCommon", "MassDensity"),
-        unit=ureg.kg / ureg.m ** 3
+    @cached_property
+    def is_ventilated(self):
+        if hasattr(self.ifc, 'IsVentilated'):
+            return self.ifc.IsVentilated
+
+    @cached_property
+    def name(self):
+        if hasattr(self.ifc, 'Name'):
+            return self.ifc.Name
+
+    @cached_property
+    def description(self):
+        if hasattr(self.ifc, 'Description'):
+            return self.ifc.Description
+
+    @cached_property
+    def category(self):
+        """needs usage. This can be one of [LoadBearing, Insulation,
+        Inner finish, Outer finish] due to IFC4_1 schema."""
+        if hasattr(self.ifc, 'Category'):
+            return self.ifc.Category
+
+    def __repr__(self):
+        return "<%s (material: %s>" \
+               % (self.__class__.__name__, self.material)
+
+
+class LayerSet(BPSProduct):
+
+    ifc_types = {
+        "IfcMaterialLayerSet": ["*"],
+    }
+
+    conditions = [
+        condition.ListCondition('layers',
+                                critical_for_creation=False),
+        condition.ThicknessCondition('total_thickness',
+                                     threshold=0.2,
+                                     critical_for_creation=False),
+    ]
+
+    def __init__(self, *args, **kwargs):
+        """layerset __init__ function"""
+        super().__init__(*args, **kwargs)
+        self.parents: List[BPSProductWithLayers] = []
+        self.layers: List[Layer] = []
+
+    def get_total_thickness(self, name):
+        if hasattr(self.ifc, 'TotalThickness'):
+            if self.ifc.TotalThickness:
+                return self.ifc.TotalThickness * ureg.m
+        return sum(layer.thickness for layer in self.layers)
+
+    total_thickness = attribute.Attribute(
+        unit=ureg.m,
+        functions=[get_total_thickness],
     )
 
-    thermal_conduc = attribute.Attribute(
-        default_ps=("Pset_MaterialThermal", "ThermalConductivity"),
-        unit=ureg.W / (ureg.m * ureg.K)
-    )
+    @cached_property
+    def name(self):
+        if hasattr(self.ifc, 'LayerSetName'):
+            return self.ifc.LayerSetName
 
-    solar_absorp = attribute.Attribute(
-        # default_ps=('Pset_MaterialOptical', 'SolarTransmittance'),
-        default=0.7,
-        unit=ureg.percent
-    )
+    def __repr__(self):
+        if self.name:
+            return "<%s (name: %s, layers: %d)>" \
+                   % (self.__class__.__name__, self.name, len(self.layers))
+        else:
+            return "<%s (layers: %d)>" % (self.__class__.__name__, len(self.layers))
 
 
 class OuterWall(Wall):
@@ -1175,24 +1275,13 @@ class InnerWall(Wall):
     ifc_types = {}
 
 
-class Window(BPSProduct):
+class Window(BPSProductWithLayers):
     ifc_types = {"IfcWindow": ['*', 'WINDOW', 'SKYLIGHT', 'LIGHTDOME']}
 
     pattern_ifc_type = [
         re.compile('Window', flags=re.IGNORECASE),
         re.compile('Fenster', flags=re.IGNORECASE)
     ]
-
-    @cached_property
-    def layers(self):
-        """window _get_layers function"""
-        layers = []
-        material_layers_dict = get_layers_ifc(self)
-        for layer in material_layers_dict:
-            new_layer = Layer.from_ifc(layer, finder=self.finder)
-            new_layer.parent = self
-            layers.append(new_layer)
-        return layers
 
     def get_glazing_area(self, name):
         """returns only the glazing area of the windows"""
@@ -1219,7 +1308,8 @@ class Window(BPSProduct):
     )
     u_value = attribute.Attribute(
         default_ps=("Pset_WallCommon", "ThermalTransmittance"),
-        unit=ureg.W / ureg.K / ureg.meter ** 2
+        unit=ureg.W / ureg.K / ureg.meter ** 2,
+        functions=[BPSProductWithLayers.get_u_value],
     )
     g_value = attribute.Attribute(  # material
     )
@@ -1243,7 +1333,7 @@ class Window(BPSProduct):
     )
 
 
-class Door(BPSProduct):
+class Door(BPSProductWithLayers):
     ifc_types = {"IfcDoor": ['*', 'DOOR', 'GATE', 'TRAPDOOR']}
 
     pattern_ifc_type = [
@@ -1251,37 +1341,32 @@ class Door(BPSProduct):
         re.compile('Tuer', flags=re.IGNORECASE)
     ]
 
-    @cached_property
-    def layers(self):
-        """door _get_layers function"""
-        layers = []
-        material_layers_dict = get_layers_ifc(self)
-        for layer in material_layers_dict:
-            new_layer = Layer.from_ifc(layer, finder=self.finder)
-            new_layer.parent = self
-            layers.append(new_layer)
-        return layers
+    conditions = [
+        condition.RangeCondition('glazing_ratio',
+                                 0 * ureg.dimensionless,
+                                 1 * ureg.dimensionless, True,
+                                 critical_for_creation=False),
+    ]
 
     def get_better_subclass(self):
         return OuterDoor if self.is_external else InnerDoor
 
-    @cached_property
-    def net_area(self):
+    def get_net_area(self, name):
         if self.glazing_ratio:
             return self.gross_area * (1 - self.glazing_ratio)
         return self.gross_area - self.opening_area
 
-    def get_net_bound_area(self, name):
-        """get net area (including opening areas)"""
-        return self.gross_area - self.opening_area
-
+    net_area = attribute.Attribute(
+        functions=[get_net_area, ],
+        unit=ureg.meter ** 2,
+    )
     gross_area = attribute.Attribute(
         default_ps=("Qto_DoorBaseQuantities", "Area"),
         functions=[BPSProduct.get_bound_area],
         unit=ureg.meter ** 2
     )
     glazing_ratio = attribute.Attribute(
-        default_ps=("Pset_WindowCommon", "GlazingAreaFraction"),
+        default_ps=("Pset_DoorCommon", "GlazingAreaFraction"),
     )
 
     width = attribute.Attribute(
@@ -1289,7 +1374,21 @@ class Door(BPSProduct):
         unit=ureg.m
     )
     u_value = attribute.Attribute(
-        unit=ureg.W / ureg.K / ureg.meter ** 2
+        unit=ureg.W / ureg.K / ureg.meter ** 2,
+        functions=[BPSProductWithLayers.get_u_value],
+    )
+    inner_convection = attribute.Attribute(
+        unit=ureg.W / ureg.K / ureg.meter ** 2,
+        default=0.6
+    )
+    inner_radiation = attribute.Attribute(
+        unit=ureg.W / ureg.K / ureg.meter ** 2,
+    )
+    outer_radiation = attribute.Attribute(
+        unit=ureg.W / ureg.K / ureg.meter ** 2,
+    )
+    outer_convection = attribute.Attribute(
+        unit=ureg.W / ureg.K / ureg.meter ** 2,
     )
 
 
@@ -1305,7 +1404,7 @@ class Plate(BPSProduct):
     ifc_types = {"IfcPlate": ['*', 'CURTAIN_PANEL', 'SHEET']}
 
 
-class Slab(BPSProduct):
+class Slab(BPSProductWithLayers):
     ifc_types = {
         "IfcSlab": ['*', 'LANDING']
     }
@@ -1315,15 +1414,9 @@ class Slab(BPSProduct):
         super().__init__(*args, **kwargs)
 
     @cached_property
-    def layers(self):
-        """slab _get_layers function"""
-        layers = []
-        material_layers_dict = get_layers_ifc(self)
-        for layer in material_layers_dict:
-            new_layer = Layer.from_ifc(layer, finder=self.finder)
-            new_layer.parent = self
-            layers.append(new_layer)
-        return layers
+    def orientation(self) -> float:
+        """Returns the orientation of the slab"""
+        return -1
 
     net_area = attribute.Attribute(
         default_ps=("Qto_SlabBaseQuantities", "NetArea"),
@@ -1341,11 +1434,14 @@ class Slab(BPSProduct):
     )
     u_value = attribute.Attribute(
         default_ps=("Pset_SlabCommon", "ThermalTransmittance"),
-        unit=ureg.W / ureg.K / ureg.meter ** 2
+        unit=ureg.W / ureg.K / ureg.meter ** 2,
+        functions=[BPSProductWithLayers.get_u_value],
     )
 
 
 class Roof(Slab):
+    # todo decomposed roofs dont have materials, layers etc. because these
+    #  information are stored in the slab itself and not the decomposition
     is_external = True
     ifc_types = {
         "IfcRoof":
@@ -1356,11 +1452,21 @@ class Roof(Slab):
         "IfcSlab": ['ROOF']
     }
 
+    @cached_property
+    def orientation(self) -> float:
+        """Returns the orientation of the roof"""
+        return -1
+
 
 class Floor(Slab):
     ifc_types = {
         "IfcSlab": ['FLOOR']
     }
+
+    @cached_property
+    def orientation(self) -> float:
+        """Returns the orientation of the floor"""
+        return -2
 
 
 class GroundFloor(Slab):
@@ -1372,6 +1478,11 @@ class GroundFloor(Slab):
     #     re.compile('Bodenplatte', flags=re.IGNORECASE),
     #     re.compile('')
     # ]
+
+    @cached_property
+    def orientation(self) -> float:
+        """Returns the orientation of the ground-floor"""
+        return -2
 
 
 class Site(BPSProduct):
@@ -1386,7 +1497,25 @@ class Site(BPSProduct):
 class Building(BPSProduct):
     ifc_types = {"IfcBuilding": ['*']}
 
-    name = attribute.Attribute(
+    conditions = [
+        condition.RangeCondition('year_of_construction',
+                                 1900 * ureg.year,
+                                 date.today().year * ureg.year,
+                                 critical_for_creation=False),
+    ]
+
+    def _get_building_name(self, name):
+        """get building name"""
+        bldg_name = getattr(self.ifc, 'Name')
+        if bldg_name:
+            return bldg_name
+        else:
+            # todo needs to be adjusted for multiple buildings #165
+            bldg_name = 'Building'
+        return bldg_name
+
+    bldg_name = attribute.Attribute(
+        functions=[_get_building_name],
     )
     year_of_construction = attribute.Attribute(
         default_ps=("Pset_BuildingCommon", "YearOfConstruction"),
@@ -1400,8 +1529,13 @@ class Building(BPSProduct):
         default_ps=("Qto_BuildingBaseQuantities", "NetFloorArea"),
         unit=ureg.meter ** 2
     )
+
+    def _get_number_of_storeys(self, name):
+        return len(self.storeys)
+
     number_of_storeys = attribute.Attribute(
-        default_ps=("Pset_BuildingCommon", "NumberOfStoreys"),
+        unit=ureg.dimensionless,
+        functions=[_get_number_of_storeys]
     )
     occupancy_type = attribute.Attribute(
         default_ps=("Pset_BuildingCommon", "OccupancyType"),

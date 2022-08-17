@@ -136,7 +136,7 @@
   "Layer": {
     "default_ps": {
       "thermal_conduc" : ["Pset_MaterialThermal", "ThermalConductivity"],
-      "heat_capac" : ["Pset_MaterialThermal", "SpecificHeatCapacity"],
+      "spec_heat_capacity" : ["Pset_MaterialThermal", "SpecificHeatCapacity"],
       "density" :  ["Pset_MaterialCommon", "MassDensity"]
     }
   }

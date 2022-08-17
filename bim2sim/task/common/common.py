@@ -125,7 +125,6 @@ class CreateElements(ITask):
 
     def run(self, workflow, ifc):
         self.logger.info("Creates elements of relevant ifc types")
-
         default_ifc_types = {'IfcBuildingElementProxy', 'IfcUnitaryEquipment'}
         relevant_ifc_types = self.get_ifc_types(workflow.relevant_elements)
         relevant_ifc_types.update(default_ifc_types)
@@ -134,6 +133,7 @@ class CreateElements(ITask):
             workflow.relevant_elements,
             workflow.ifc_units,
             self.paths.finder)
+        # use finder to get correct export tool
         for app in ifc.by_type('IfcApplication'):
             for decision in self.factory.finder.check_tool_template(
                     app.ApplicationFullName):
@@ -147,9 +147,8 @@ class CreateElements(ITask):
         # filter by type
         type_filter = TypeFilter(relevant_ifc_types)
         entity_type_dict, unknown_entities = type_filter.run(ifc)
-        # entity_class_dict = {entity: self.factory.get_element(ifc_type)
-        #                      for entity, ifc_type in entity_type_dict.items()}
-        # entity_best_guess_dict.update(entity_type_dict)
+
+        # create valid elements
         valids, invalids = self.accept_valids(entity_type_dict)
         instance_lst.extend(valids)
         unknown_entities.extend(invalids)
@@ -186,10 +185,12 @@ class CreateElements(ITask):
         if invalids:
             self.logger.info("Removed %d entities with no class set",
                              len(invalids))
+
         self.logger.info("Created %d elements", len(instance_lst))
         instances = {inst.guid: inst for inst in instance_lst}
         return instances, self.factory.finder
 
+    # todo rename to "create_valids"
     def accept_valids(self, entities_dict, warn=True, force=False) -> \
             Tuple[List[ProductBased], List[Any]]:
         """Instantiate ifc_entities using given element class.
@@ -197,18 +198,133 @@ class CreateElements(ITask):
         Results are two lists, one with valid elements and one with
         remaining entities."""
         valid, invalid = [], []
+        layersets_all = []
+        constituents_all = []
+        materials_all = []
+        layers_all = []
+        blacklist = [
+            'IfcMaterialLayerSet',
+            'IfcMaterialLayer',
+            'IfcMaterial',
+            'IfcMaterialConstituentSet',
+            'IfcMaterialConstituent',
+            'IfcMaterialProfile',
+            'IfcMaterialProfileSet',
+        ]
+
         for entity, ifc_type_or_element_cls in entities_dict.items():
             try:
                 if isinstance(ifc_type_or_element_cls, str):
+                    if ifc_type_or_element_cls in blacklist:
+                        continue
                     element = self.factory(
-                        entity, ifc_type=ifc_type_or_element_cls, use_dummy=False)
+                        entity, ifc_type=ifc_type_or_element_cls,
+                        use_dummy=False)
                 else:
-                    element = self.factory.create(ifc_type_or_element_cls, entity)
+                    # todo if class is implemented instead of string we need to
+                    #  check against blacklist of classes
+                    element = self.factory.create(
+                        ifc_type_or_element_cls, entity)
             except LookupError:
                 invalid.append(entity)
                 continue
 
-            if element.validate():
+            if hasattr(element.ifc, 'HasAssociations'):
+                for association in element.ifc.HasAssociations:
+                    if association.is_a("IfcRelAssociatesMaterial"):
+                        ifc_mat_rel_object = association.RelatingMaterial
+                        # Layers
+                        ifc_layerset_entity = None
+                        if ifc_mat_rel_object.is_a('IfcMaterialLayerSetUsage'):
+                            ifc_layerset_entity = ifc_mat_rel_object.ForLayerSet
+                        elif ifc_mat_rel_object.is_a('IfcMaterialLayerSet'):
+                            ifc_layerset_entity = ifc_mat_rel_object
+                        if ifc_layerset_entity:
+                            # check if layerset already exists
+                            is_existing = False
+                            for layerset in layersets_all:
+                                if ifc_layerset_entity == layerset.ifc:
+                                    is_existing = True
+                                    break
+                            if not is_existing:
+                                # create otherwise
+                                layerset = self.factory(
+                                    ifc_layerset_entity,
+                                    ifc_type='IfcMaterialLayerSet',
+                                    use_dummy=False)
+                                layersets_all.append(layerset)
+                                valid.append(layerset)
+                            layerset.parents.append(element)
+                            element.layerset = layerset
+                            for ifc_layer_entity in ifc_layerset_entity.MaterialLayers:
+                                is_existing = False
+                                for layer in layers_all:
+                                    if ifc_layer_entity == layer.ifc:
+                                        is_existing = True
+                                        break
+                                if not is_existing:
+                                    layer = self.factory(
+                                        ifc_layer_entity,
+                                        ifc_type='IfcMaterialLayer',
+                                        use_dummy=False)
+                                    layers_all.append(layer)
+                                    valid.append(layer)
+                                layer.to_layerset.append(layerset)
+                                layerset.layers.append(layer)
+                                ifc_material_entity = ifc_layer_entity.Material
+                                # check if material already exists
+                                is_existing = False
+                                for material in materials_all:
+                                    if ifc_material_entity == material.ifc:
+                                        is_existing = True
+                                        break
+                                if not is_existing:
+                                    material = self.factory(
+                                        ifc_material_entity,
+                                        ifc_type='IfcMaterial',
+                                        use_dummy=False)
+                                    materials_all.append(material)
+                                    valid.append(material)
+                                material.parents.append(layer)
+                                layer.material = material
+
+                        # Constituent sets
+                        if ifc_mat_rel_object.is_a(
+                                'IfcMaterialConstituentSet'):
+                            for ifc_constituent in ifc_mat_rel_object.MaterialConstituents:
+                                ifc_material_entity = ifc_constituent.Material
+                                # check if material already exists
+
+                                is_existing = False
+                                for material in materials_all:
+                                    if ifc_material_entity == material.ifc:
+                                        is_existing = True
+                                        break
+                                if not is_existing:
+                                    # create new material
+                                    material = self.factory(
+                                        ifc_material_entity,
+                                        ifc_type='IfcMaterial',
+                                        use_dummy=False)
+                                    constituents_all.append(ifc_constituent)
+                                fraction = ifc_constituent.Fraction
+                                material.parents.append(element)
+                                element.material_set[fraction] = material
+                                materials_all.append(material)
+
+                        # Profiles
+                        # TODO maybe use in future
+                        if ifc_mat_rel_object.is_a(
+                                'IfcMaterialProfileSetUsage'):
+                            pass
+                        elif ifc_mat_rel_object.is_a(
+                            'IfcMaterialProfileSet'):
+                            pass
+                        elif ifc_mat_rel_object.is_a(
+                            'IfcMaterialProfile'):
+                            pass
+
+            if element.validate_creation():
                 valid.append(element)
             elif force:
                 valid.append(element)
@@ -308,6 +424,45 @@ class CreateElements(ITask):
         for ele in relevant_elements:
             relevant_ifc_types.extend(ele.ifc_types.keys())
         return set(relevant_ifc_types)
+
+    def create_valid_material_related(self, entities_dict, ifc, warn=True,
+                                      force=False):
+        """
+
+        Args:
+            entities_dict:
+
+        Returns:
+
+        """
+        valid, invalid = [], []
+        for entity, ifc_type_or_element_cls in entities_dict.items():
+            try:
+                if isinstance(ifc_type_or_element_cls, str):
+                    element = self.factory(
+                        entity, ifc_type=ifc_type_or_element_cls,
+                        use_dummy=False)
+                else:
+                    element = self.factory.create(
+                        ifc_type_or_element_cls, entity)
+            except LookupError:
+                invalid.append(entity)
+                continue
+
+
+            if element.validate_creation():
+                valid.append(element)
+            elif force:
+                valid.append(element)
+                if warn:
+                    self.logger.warning("Force accept invalid element %s %s",
+                                        ifc_type_or_element_cls, element)
+            else:
+                if warn:
+                    self.logger.warning("Validation failed for %s %s",
+                                        ifc_type_or_element_cls, element)
+                invalid.append(entity)
+        return valid, invalid
 
 
 class CheckIfc(ITask):
@@ -450,7 +605,10 @@ class CheckIfc(ITask):
         for inst in instances:
             error = validation_function(inst)
             if len(error) > 0:
-                key = inst.GlobalId + ' ' + inst.is_a()
+                if hasattr(inst, 'GlobalId'):
+                    key = inst.GlobalId + ' ' + inst.is_a()
+                else:
+                    key = inst.is_a()
                 summary.update({key: error})
         return summary
 
@@ -511,7 +669,11 @@ class CheckIfc(ITask):
         """
         categorized_dict = {'per_error': {}, 'per_type': {}}
         for instance, errors in error_dict.items():
-            guid, ifc_type = instance.split(' ')
+            if ' ' in instance:
+                guid, ifc_type = instance.split(' ')
+            else:
+                guid = '-'
+                ifc_type = instance
             if ifc_type not in categorized_dict['per_type']:
                 categorized_dict['per_type'][ifc_type] = {}
             categorized_dict['per_type'][ifc_type][guid] = errors
@@ -536,6 +698,12 @@ class CheckIfc(ITask):
             True: if check succeeds
             False: if check fails
         """
+        # Materials have no GlobalId
+        blacklist = [
+            'IfcMaterialLayer', 'IfcMaterialLayer', 'IfcMaterialLayerSet'
+        ]
+        if inst.is_a() in blacklist:
+            return True
         return id_list.count(inst.GlobalId) == 1
 
     def _check_inst_properties(self, inst):
@@ -550,7 +718,7 @@ class CheckIfc(ITask):
             True: if check succeeds
             False: if check fails
         """
-        inst_prop2check = self.ps_summary.get(inst.is_a(), [])
+        inst_prop2check = self.ps_summary.get(inst.is_a(), {})
         inst_prop = get_property_sets(inst, self.ifc_units)
         inst_prop_errors = []
         for prop2check, ps2check in inst_prop2check.items():

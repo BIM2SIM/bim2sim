@@ -103,6 +103,7 @@ def propertyset2dict(propertyset, ifc_units: Optional[dict]):
 
 
 def get_layers_ifc(element):
+    # todo del after #221 is finished
     """
     Returns layers information of an element as list. It can be applied to
     an IFCProduct directly or a Bim2Sim Instance.
@@ -187,12 +188,14 @@ def get_property_sets(element, ifc_units):
     :return: dict(of dicts)
     """
     # TODO: Unit conversion
+
     property_sets = {}
     if hasattr(element, 'IsDefinedBy'):
         for defined in element.IsDefinedBy:
             property_set_name = defined.RelatingPropertyDefinition.Name
             property_sets[property_set_name] = propertyset2dict(
                 defined.RelatingPropertyDefinition, ifc_units)
+    # todo delete after #221 is finished (check first if it is still needed)
     elif hasattr(element, 'Material'):
         for defined in element.Material.HasProperties:
             property_set_name = defined.Name

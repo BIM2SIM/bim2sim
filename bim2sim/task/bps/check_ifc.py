@@ -644,7 +644,8 @@ class CheckIfcBPS(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        blacklist = ['IfcBuilding', 'IfcSite', 'IfcBuildingStorey']
+        blacklist = ['IfcBuilding', 'IfcSite', 'IfcBuildingStorey',
+                     'IfcMaterial', 'IfcMaterialLayer', 'IfcMaterialLayerSet']
         if inst.is_a() in blacklist:
             return True
         elif inst.is_a('IfcSpace'):
@@ -678,6 +679,7 @@ class CheckIfcBPS(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
+        # todo refactor for #221
         blacklist = ['IfcBuilding', 'IfcSite', 'IfcBuildingStorey', 'IfcSpace']
         if not (inst.is_a() in blacklist):
             return len(get_layers_ifc(inst)) > 0
@@ -695,10 +697,16 @@ class CheckIfcBPS(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        blacklist = ['IfcBuilding', 'IfcSite', 'IfcBuildingStorey', 'IfcSpace']
+        blacklist = [
+            'IfcBuilding', 'IfcSite', 'IfcBuildingStorey', 'IfcSpace',
+            'IfcMaterial', 'IfcMaterialLayer', 'IfcMaterialLayerSet'
+        ]
         if not (inst.is_a() in blacklist):
             return len(inst.ContainedInStructure) > 0
-        return len(inst.Decomposes) > 0
+        if hasattr(inst, 'Decomposes'):
+            return len(inst.Decomposes) > 0
+        else:
+            return True
 
     @staticmethod
     def _check_inst_representation(inst):
@@ -712,7 +720,10 @@ class CheckIfcBPS(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        blacklist = ['IfcBuilding', 'IfcBuildingStorey']
+        blacklist = [
+            'IfcBuilding', 'IfcBuildingStorey', 'IfcMaterial',
+            'IfcMaterialLayer', 'IfcMaterialLayerSet'
+        ]
         if not (inst.is_a() in blacklist):
             return inst.Representation is not None
         return True

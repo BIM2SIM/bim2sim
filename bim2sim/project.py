@@ -22,9 +22,6 @@ from bim2sim.task.base import Playground
 from bim2sim.plugins import Plugin, load_plugin
 from bim2sim.kernel.element import Element
 
-from bim2sim.task.bps.enrich_bldg_templ import EnrichBuildingByTemplates
-
-
 logger = logging.getLogger(__name__)
 user_logger = log.get_user_logger(__name__)
 
@@ -48,6 +45,8 @@ def config_base_setup(path, backend=None):
         config.add_section("Basics")
         config.add_section("Task")
         config.add_section("Aggregation")
+        config.add_section("LayersAndMaterials")
+        config.add_section("ConstructionClass")
         config.add_section("Backend")
         config["Backend"]["use"] = backend
         config.add_section("Frontend")

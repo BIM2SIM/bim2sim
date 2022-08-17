@@ -83,7 +83,7 @@ class DisaggregationCreation(ITask):
         """# todo write documentation"""
         if len(parent.space_boundaries) == 1:
             return False
-        elif sb.bound_area == 0:
+        elif sb.bound_area <= 0 or sb.net_bound_area <= 0:
             return False
         elif abs(parent.gross_area - sb.bound_area) / sb.bound_area < threshold:
             return False
@@ -106,6 +106,7 @@ class DisaggregationCreation(ITask):
         inst.net_area = sb.net_bound_area
         inst.gross_area = sb.bound_area
         inst.orientation = parent.orientation
+        inst.layerset = parent.layerset
         new_pos = np.array(sb.position)
         if type_parent in self.vertical_instances:
             inst.position = self.get_new_position_vertical_instance(parent,

@@ -23,8 +23,8 @@ class AP7EPCases(IntegrationBaseEP, unittest.TestCase):
         """Test DigitalHub IFC"""
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB89.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True, 2015, 'heavy',
-                   'Waermeschutzverglasung, dreifach', True, True, False,
+        answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True, 'heavy',
+                   'Waermeschutzverglasung, dreifach', 2015, True, True, False,
                    True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -34,8 +34,8 @@ class AP7EPCases(IntegrationBaseEP, unittest.TestCase):
         """Test DigitalHub IFC"""
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_fixed002.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True, 2015, 'heavy',
-                   'Waermeschutzverglasung, dreifach', True, False, False,
+        answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True, 'heavy',
+                   'Waermeschutzverglasung, dreifach', 2015, True, False, False,
                    True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -45,8 +45,8 @@ class AP7EPCases(IntegrationBaseEP, unittest.TestCase):
         """Test DigitalHub IFC"""
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_fixed002.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True, 2015, 'light',
-                   'Waermeschutzverglasung, dreifach', True, False, False, True)
+        answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True, 'light',
+                   'Waermeschutzverglasung, dreifach', 2015, True, False, False, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -58,7 +58,7 @@ class AP7EPCases(IntegrationBaseEP, unittest.TestCase):
                                       workflow.BPSMultiZoneSeparatedEPforCFD())
         answers = (True, True, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, '
-                   'zweifach', True, True, True, False)
+                   'zweifach', True, True, True, True)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(
                 project.run()):
@@ -70,7 +70,7 @@ class AP7EPCases(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus',
                                       workflow.BPSMultiZoneSeparatedEPforCFD())
         answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True,
-                   2015, 'heavy', 'Waermeschutzverglasung, dreifach', True,
+                   'heavy', 'Waermeschutzverglasung, dreifach', 2015,  True,
                    False, False, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())

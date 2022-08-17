@@ -7,27 +7,24 @@ from bim2sim.plugins import Plugin
 from bim2sim.task import common, bps
 from bim2sim.workflow import \
     BPSMultiZoneSeparatedEP, BPSMultiZoneSeparatedEPfull
+from bim2sim.kernel.element import Material
 
-from . import task as ep_tasks
+from bim2sim_energyplus import task as ep_tasks
 
 
 class EnergyPlus(Plugin):
     name = 'EnergyPlus'
     default_workflow = BPSMultiZoneSeparatedEP
     allowed_workflows = [BPSMultiZoneSeparatedEP, BPSMultiZoneSeparatedEPfull]
-    elements = {*bps_elements.items}
+    elements = {*bps_elements.items, Material}
     default_tasks = [
         common.LoadIFC,
         common.CreateElements,
         bps.CreateSpaceBoundaries,
         bps.Prepare,
         bps.EnrichUseConditions,
-        bps.OrientationGetter,
-        bps.MaterialVerification,  # LOD.full
+        bps.Verification,  # LOD.full
         bps.EnrichMaterial,  # LOD.full
-        bps.BuildingVerification,  # all LODs
-        bps.EnrichNonValid,  # LOD.full
-        bps.EnrichBuildingByTemplates,  # LOD.low
         bps.DisaggregationCreation,
         bps.BindThermalZones,
         ep_tasks.IfcValidation,

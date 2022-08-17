@@ -182,14 +182,44 @@ def filter_instances(instances, type_name):
     """Filters the inspected instances by type name (e.g. Wall) and
     returns them as list"""
     instances_filtered = []
-    if type(instances) is dict:
-        list_instances = instances.values()
+    list_instances = instances.values() if type(instances) is dict \
+        else instances
+    if isinstance(type_name, str):
+        for instance in list_instances:
+            if type_name in type(instance).__name__:
+                instances_filtered.append(instance)
     else:
-        list_instances = instances
-    for instance in list_instances:
-        if type_name in type(instance).__name__:
-            instances_filtered.append(instance)
+        for instance in list_instances:
+            if type_name is type(instance):
+                instances_filtered.append(instance)
     return instances_filtered
+
+
+def remove_umlaut(string):
+    """
+    Removes umlauts from strings and replaces them with the letter+e convention
+    :param string: string to remove umlauts from
+    :return: unumlauted string
+    """
+    u = 'ü'.encode()
+    U = 'Ü'.encode()
+    a = 'ä'.encode()
+    A = 'Ä'.encode()
+    o = 'ö'.encode()
+    O = 'Ö'.encode()
+    ss = 'ß'.encode()
+
+    string = string.encode()
+    string = string.replace(u, b'ue')
+    string = string.replace(U, b'Ue')
+    string = string.replace(a, b'ae')
+    string = string.replace(A, b'Ae')
+    string = string.replace(o, b'oe')
+    string = string.replace(O, b'Oe')
+    string = string.replace(ss, b'ss')
+
+    string = string.decode('utf-8')
+    return string
 
 
 def translate_deep(text, source='auto', target='en'):
@@ -207,3 +237,8 @@ def translate_deep(text, source='auto', target='en'):
     #     "https": "34.195.196.27:8080",
     #     "http": "34.195.196.27:8080"
     # }
+
+
+def all_subclasses(cls):
+    return set(cls.__subclasses__()).union(
+        [s for c in cls.__subclasses__() for s in all_subclasses(c)])

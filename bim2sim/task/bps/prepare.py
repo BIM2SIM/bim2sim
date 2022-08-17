@@ -2,7 +2,7 @@ from bim2sim.task.base import ITask
 from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.workflow import Workflow
 from bim2sim.utilities.common_functions import filter_instances
-from bim2sim.kernel.elements.bps import Slab, GroundFloor, Floor, Roof
+from bim2sim.kernel.elements.bps import Slab, GroundFloor, Floor, Roof, InnerDoor
 
 
 class Prepare(ITask):
@@ -191,3 +191,7 @@ class Prepare(ITask):
             if not value and hasattr(d_instance, attr):
                 if getattr(d_instance, attr):
                     setattr(instance, attr, getattr(d_instance, attr))
+        if hasattr(instance, 'layerset') and hasattr(d_instance, 'layerset'):
+            instance.layerset = d_instance.layerset
+            instance.layerset.parents.append(instance)
+

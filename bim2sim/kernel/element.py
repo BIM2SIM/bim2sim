@@ -12,8 +12,11 @@ import numpy as np
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import ifc2python, attribute
 from bim2sim.decision import Decision, DecisionBunch
-from bim2sim.utilities.common_functions import angle_equivalent, vector_angle
+from bim2sim.utilities.common_functions import angle_equivalent, vector_angle, \
+    remove_umlaut
 from bim2sim.kernel.finder import TemplateFinder
+from bim2sim.kernel.units import ureg
+from bim2sim.kernel import condition
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -60,9 +63,13 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
     def __hash__(self):
         return hash(self.guid)
 
-    def validate(self) -> bool:
+    def validate_creation(self) -> bool:
         """Check if current instance is valid"""
         raise NotImplementedError
+
+    def validate_attributes(self) -> dict:
+        """Check if attributes are valid"""
+        return {}
 
     def calc_position(self) -> np.array:
         """Returns position (calculation may be expensive)"""
@@ -514,6 +521,7 @@ class IFCBased(Element):
                 return distinct_values
 
         return None
+
         #     # TODO: Decision with id, key, value
         #     decision = DictDecision("Multiple possibilities found",
         #                             choices=dict(zip(choices, values)),
@@ -537,6 +545,7 @@ class IFCBased(Element):
 
 
 class RelationBased(IFCBased):
+    conditions = []
 
     def __repr__(self):
         return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)
@@ -546,7 +555,14 @@ class RelationBased(IFCBased):
 
 
 class ProductBased(IFCBased):
-    """Elements based on IFC products."""
+    """Elements based on IFC products.
+
+    Args:
+        material:
+            material of the element
+        material_set:
+            dict of material and fraction [0, 1] if multiple materials
+    """
     domain = 'GENERAL'
     key: str = ''
     key_map: Dict[str, 'Type[ProductBased]'] = {}
@@ -556,6 +572,8 @@ class ProductBased(IFCBased):
         super().__init__(*args, **kwargs)
         self.aggregation = None
         self.ports = self.get_ports()
+        self.material = None
+        self.material_set = {}
 
     def __init_subclass__(cls, **kwargs):
         # set key for each class
@@ -565,7 +583,7 @@ class ProductBased(IFCBased):
     def get_ports(self):
         return []
 
-    def get_better_subclass(self) -> Union[None, Type['ProductBased']]:
+    def get_better_subclass(self) -> Union[None, Type['IFCBased']]:
         """Returns alternative subclass of current object.
 
         CAUTION: only use this if you can't know the result before instantiation
@@ -583,22 +601,41 @@ class ProductBased(IFCBased):
         return neighbors
 
     def is_generator(self):
+        # todo move this to hvacproduct
         return False
 
     def is_consumer(self):
+        # todo move this to hvacproduct
         return False
 
-    def validate(self):
+    def validate_creation(self):
         """"Check if standard parameter are in valid range"""
         for cond in self.conditions:
-            if not cond.check(self):
-                logger.warning("%s validation (%s) failed for %s",
-                               self.ifc_type, cond.name, self.guid)
-                return False
+            if cond.critical_for_creation:
+                value = getattr(self, cond.key)
+                if not cond.check(self, value):
+                    logger.warning("%s validation (%s) failed for %s",
+                                   self.ifc_type, cond.name, self.guid)
+                    return False
         return True
 
+    def validate_attributes(self) -> dict:
+        """Check if all attributes are valid, returns dict with key = attribute
+        and value = True or False"""
+        results = {}
+        for cond in self.conditions:
+            if not cond.critical_for_creation:
+                # todo
+                pass
+        #         if not cond.check(self):
+        #             logger.warning("%s validation (%s) failed for %s",
+        #                            self.ifc_type, cond.name, self.guid)
+        #             return False
+        # return True
+        return results
+
     def __repr__(self):
-        return "<%s (ports: %d)>" % (self.__class__.__name__, len(self.ports))
+        return "<%s>" % self.__class__.__name__
 
 
 class Port(RelationBased):
@@ -651,6 +688,80 @@ class Port(RelationBased):
 
     def __str__(self):
         return self.__repr__()[1:-2]
+
+
+class Material(ProductBased):
+    guid_prefix = 'Material'
+    key: str = 'Material'
+    ifc_types = {
+        'IfcMaterial': ["*"]
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.parents: List[ProductBased] = []
+
+    conditions = [
+        condition.RangeCondition('spec_heat_capacity',
+                                 0 * ureg.J / ureg.K,
+                                 5 * ureg.J / ureg.K,
+                                 critical_for_creation=False),
+        condition.RangeCondition('density',
+                                 0 * ureg.kg / ureg.m ** 3,
+                                 5000 * ureg.kg / ureg.m ** 3,
+                                 critical_for_creation=False),
+        condition.RangeCondition('thermal_conduct',
+                                 0 * ureg.W / ureg.m / ureg.K,
+                                 100 * ureg.W / ureg.m / ureg.K,
+                                 critical_for_creation=False),
+        condition.RangeCondition('porosity',
+                                 0 * ureg.dimensionless,
+                                 1 * ureg.dimensionless, True,
+                                 critical_for_creation=False),
+        condition.RangeCondition('solar_absorp',
+                                 0 * ureg.percent,
+                                 1 * ureg.percent, True,
+                                 critical_for_creation=False),
+                 ]
+
+    @cached_property
+    def name(self):
+        if hasattr(self.ifc, 'Name'):
+            return remove_umlaut(self.ifc.Name)
+
+    spec_heat_capacity = attribute.Attribute(
+        default_ps=("Pset_MaterialThermal", "SpecificHeatCapacity"),
+        # functions=[get_from_template],
+        unit=ureg.J / (ureg.kg * ureg.K)
+    )
+
+    density = attribute.Attribute(
+        default_ps=("Pset_MaterialCommon", "MassDensity"),
+        unit=ureg.kg / ureg.m ** 3
+    )
+
+    thermal_conduc = attribute.Attribute(
+        default_ps=("Pset_MaterialThermal", "ThermalConductivity"),
+        unit=ureg.W / (ureg.m * ureg.K)
+    )
+
+    porosity = attribute.Attribute(
+        default_ps=("Pset_MaterialCommon", "Porosity"),
+        unit=ureg.dimensionless
+    )
+
+    # todo is percent the correct unit? (0-1)
+    solar_absorp = attribute.Attribute(
+        # default_ps=('Pset_MaterialOptical', 'SolarTransmittance'),
+        default=0.7,
+        unit=ureg.percent
+    )
+
+    def __repr__(self):
+        if self.name:
+            return "<%s %s>" % (self.__class__.__name__, self.name)
+        else:
+            return "<%s>" % self.__class__.__name__
 
 
 class Dummy(ProductBased):
@@ -730,7 +841,11 @@ class Factory:
         better_cls = element.get_better_subclass()
         if better_cls:
             logger.info("Creating %s instead of %s", better_cls, element_cls)
-            element = better_cls.from_ifc(ifc_entity, finder=self.finder, *args, **kwargs)
+            element = better_cls.from_ifc(
+                ifc_entity,
+                finder=self.finder,
+                ifc_units=self.ifc_units,
+                *args, **kwargs)
         return element
 
     def get_element(self, ifc_type: str, predefined_type: Union[str, None]) -> \
@@ -765,8 +880,13 @@ class Factory:
     ]:
         """Create mapping dict, blacklist and default dict from elements
 
-        WARNING: ifc_type is always converted to lowe case
+        WARNING: ifc_type is always converted to lower case
         and predefined types to upper case
+
+        Returns:
+            mapping: dict of ifc_type and predefined_type to element class
+            blacklist: list of ifc_type which will not be taken into account
+            default: dict of ifc_type to element class
         """
         # TODO: cover virtual elements e.g. Space Boundaries (not products)
 
