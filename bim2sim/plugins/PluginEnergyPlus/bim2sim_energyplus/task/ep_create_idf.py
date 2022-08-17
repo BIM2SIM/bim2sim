@@ -71,7 +71,7 @@ class CreateIdf(ITask):
         # path = '/usr/local/EnergyPlus-9-2-0/'
         # path = '/usr/local/EnergyPlus-9-3-0/'
         path = f'/usr/local/EnergyPlus-{CreateIdf.ENERGYPLUS_VERSION}/'
-        # path = f'D:/04_Programme/EnergyPlus-{CreateIdf.ENERGYPLUS_VERSION}/'
+        # path = f'C:/Program Files/EnergyPlusV{CreateIdf.ENERGYPLUS_VERSION}/'
         # path = r'C:/Program Files (x86)/EnergyPlusV9-4-0/'
         plugin_ep_path = str(Path(__file__).parent.parent.parent)
         IDF.setiddname(path + 'Energy+.idd')
@@ -197,14 +197,20 @@ class CreateIdf(ITask):
                     self._set_preprocessed_material_elem(layer, idf)
             else:
                 self._set_preprocessed_window_material_elem(rel_elem, idf)
-
-        idf.newidfobject("CONSTRUCTION:AIRBOUNDARY",
-                         Name='Air Wall',
-                         Solar_and_Daylighting_Method='GroupedZones',
-                         Radiant_Exchange_Method='GroupedZones',
-                         Air_Exchange_Method='SimpleMixing',
-                         Simple_Mixing_Air_Changes_per_Hour=0.5,
-                         )
+        if CreateIdf.ENERGYPLUS_VERSION in ["9-2-0", "9-4-0"]:
+            idf.newidfobject("CONSTRUCTION:AIRBOUNDARY",
+                             Name='Air Wall',
+                             Solar_and_Daylighting_Method='GroupedZones',
+                             Radiant_Exchange_Method='GroupedZones',
+                             Air_Exchange_Method='SimpleMixing',
+                             Simple_Mixing_Air_Changes_per_Hour=0.5,
+                             )
+        else:
+            idf.newidfobject("CONSTRUCTION:AIRBOUNDARY",
+                             Name='Air Wall',
+                             Air_Exchange_Method='SimpleMixing',
+                             Simple_Mixing_Air_Changes_per_Hour=0.5,
+                             )
 
     def _get_bs2021_materials_and_constructions(self, idf, year=2008, ctype="heavy",
                                                 wtype=["Alu", "Waermeschutz", "zwei"]):
@@ -426,17 +432,28 @@ class CreateIdf(ITask):
                              Field_3="Until: 24:00",
                              Field_4=space.fixed_heat_flow_rate_persons  # in W/Person
                              )  # other method for Field_4 (not used here) ="persons_profile"*"activity_degree_persons"*58,1*1,8 (58.1 W/(m2*met), 1.8m2/Person)
-
-        people = idf.newidfobject(
-            "PEOPLE",
-            Name=name,
-            Zone_or_ZoneList_Name=zone_name,
-            Number_of_People_Calculation_Method="People/Area",
-            People_per_Zone_Floor_Area=space.persons,
-            Activity_Level_Schedule_Name=activity_schedule_name,
-            Number_of_People_Schedule_Name=schedule_name,
-            Fraction_Radiant=space.ratio_conv_rad_persons
-        )
+        if CreateIdf.ENERGYPLUS_VERSION in ["9-2-0", "9-4-0"]:
+            people = idf.newidfobject(
+                "PEOPLE",
+                Name=name,
+                Zone_or_ZoneList_Name=zone_name,
+                Number_of_People_Calculation_Method="People/Area",
+                People_per_Zone_Floor_Area=space.persons,
+                Activity_Level_Schedule_Name=activity_schedule_name,
+                Number_of_People_Schedule_Name=schedule_name,
+                Fraction_Radiant=space.ratio_conv_rad_persons
+            )
+        else:
+            people = idf.newidfobject(
+                "PEOPLE",
+                Name=name,
+                Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
+                Number_of_People_Calculation_Method="People/Area",
+                People_per_Floor_Area=space.persons,
+                Activity_Level_Schedule_Name=activity_schedule_name,
+                Number_of_People_Schedule_Name=schedule_name,
+                Fraction_Radiant=space.ratio_conv_rad_persons
+            )
 
     def _set_day_week_year_schedule(self, idf, schedule, profile_name, schedule_name):
         if idf.getobject("SCHEDULE:DAY:HOURLY", name=schedule_name) == None:
@@ -471,14 +488,25 @@ class CreateIdf(ITask):
         schedule_name = "Schedule " + "Equipment " + space.usage.replace(',', '')
         profile_name = 'machines_profile'
         self._set_day_week_year_schedule(idf, space.machines_profile[:24], profile_name, schedule_name)
-        idf.newidfobject(
-            "ELECTRICEQUIPMENT",
-            Name=name,
-            Zone_or_ZoneList_Name=zone_name,
-            Schedule_Name=schedule_name,
-            Design_Level_Calculation_Method="Watts/Area",
-            Watts_per_Zone_Floor_Area=space.machines.m
-        )
+        if CreateIdf.ENERGYPLUS_VERSION in ["9-2-0", "9-4-0"]:
+            idf.newidfobject(
+                "ELECTRICEQUIPMENT",
+                Name=name,
+                Zone_or_ZoneList_Name=zone_name,
+                Schedule_Name=schedule_name,
+                Design_Level_Calculation_Method="Watts/Area",
+                Watts_per_Zone_Floor_Area=space.machines.m
+            )
+        else:
+            idf.newidfobject(
+                "ELECTRICEQUIPMENT",
+                Name=name,
+                Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
+                Schedule_Name=schedule_name,
+                Design_Level_Calculation_Method="Watts/Area",
+                Watts_per_Zone_Floor_Area=space.machines.m
+            )
+
 
     def _set_lights(self, idf, name, zone_name, space, method='area'):
         # TODO: Define lighting parameters based on IFC (and User-Input otherwise)
@@ -490,18 +518,30 @@ class CreateIdf(ITask):
         return_air_fraction = 0.0
         fraction_radiant = 0.42  # cf. Table 1.28 in InputOutputReference EnergyPlus (Version 9.4.0), p. 506
         fraction_visible = 0.18  # Todo: fractions do not match with .json Data. Maybe set by user-input later
-
-        idf.newidfobject(
-            "LIGHTS",
-            Name=name,
-            Zone_or_ZoneList_Name=zone_name,
-            Schedule_Name=schedule_name,
-            Design_Level_Calculation_Method=mode,
-            Watts_per_Zone_Floor_Area=watts_per_zone_floor_area,
-            Return_Air_Fraction=return_air_fraction,
-            Fraction_Radiant=fraction_radiant,
-            Fraction_Visible=fraction_visible
-        )
+        if CreateIdf.ENERGYPLUS_VERSION in ["9-2-0", "9-4-0"]:
+            idf.newidfobject(
+                "LIGHTS",
+                Name=name,
+                Zone_or_ZoneList_Name=zone_name,
+                Schedule_Name=schedule_name,
+                Design_Level_Calculation_Method=mode,
+                Watts_per_Zone_Floor_Area=watts_per_zone_floor_area,
+                Return_Air_Fraction=return_air_fraction,
+                Fraction_Radiant=fraction_radiant,
+                Fraction_Visible=fraction_visible
+            )
+        else:
+            idf.newidfobject(
+                "LIGHTS",
+                Name=name,
+                Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
+                Schedule_Name=schedule_name,
+                Design_Level_Calculation_Method=mode,
+                Watts_per_Zone_Floor_Area=watts_per_zone_floor_area,
+                Return_Air_Fraction=return_air_fraction,
+                Fraction_Radiant=fraction_radiant,
+                Fraction_Visible=fraction_visible
+            )
 
     @staticmethod
     def _set_infiltration(idf, name, zone_name, space):
