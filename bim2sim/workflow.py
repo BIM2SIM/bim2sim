@@ -14,7 +14,29 @@ class LOD(Enum):
 
 
 class Workflow:
-    """Specification of Workflow"""
+    """Specification of Workflow
+
+    Args:
+        ductwork: LOD for ductwork
+            low: ...
+            medium: ...
+            full: ...
+        ...
+        spaces:
+            low: All IfcSpaces of the building will be merged into one
+                thermalzone.
+            medium: IfcSpaces of the building will be merged together based
+                on different criteria. See documentation of
+                group_thermal_zones_by_all_criteria() in
+                bim2sim.task.bps.bind_tz for more details.
+            full: Every IfcSpace will be a separate thermalzone.
+
+        layers_and_materials: LOD for layers and materials
+            low: Layer structure and materials will be overwritten by templates.
+            full: layer structure and materials will be taken from ifc. If
+                material data is missing or not complete, decisions will be
+                triggered to fill in the missing data.
+    """
 
     def __init__(self,
                  ductwork: LOD,
@@ -23,7 +45,8 @@ class Workflow:
                  generator: LOD,
                  hvac: LOD,
                  spaces: LOD,
-                 layers: LOD,
+                 layers_and_materials=None,
+                 construction_class=None,
                  create_external_elements=False,
                  cfd_export=False,
                  dymola_simulation=False,
@@ -35,7 +58,8 @@ class Workflow:
         self.generator = generator
         self.hvac = hvac
         self.spaces = spaces
-        self.layers = layers
+        self.layers_and_materials = layers_and_materials
+        self.construction_class = construction_class
         self.create_external_elements = create_external_elements
         self.cfd_export = cfd_export
         self.dymola_simulation = dymola_simulation
@@ -51,9 +75,17 @@ class Workflow:
         self.pumps = LOD.medium
 
     def update_from_config(self, config):
+        """Updates the workflow specification from the config file"""
         self.pipes = LOD(config['Aggregation'].getint('Pipes', 2))
-        self.underfloorheatings = LOD(config['Aggregation'].getint('UnderfloorHeating', 2))
+        self.underfloorheatings = LOD(config['Aggregation'].getint(
+            'UnderfloorHeating', 2))
         self.pumps = LOD(config['Aggregation'].getint('Pumps', 2))
+        if not self.layers_and_materials:
+            self.layers_and_materials = LOD(config['LayersAndMaterials'].getint(
+                'LayersAndMaterials', 2))
+        if not self.construction_class:
+            self.construction_class = LOD(config['ConstructionClass'].getint(
+                'ConstructionClass', 2))
 
 
 class PlantSimulation(Workflow):
@@ -66,7 +98,7 @@ class PlantSimulation(Workflow):
             generator=LOD.full,
             hvac=LOD.low,
             spaces=LOD.ignore,
-            layers=LOD.full,
+            layers_and_materials=LOD.full,
         )
 
 
@@ -84,7 +116,7 @@ class BPSMultiZoneSeparatedLayersFull(Workflow):
             hvac=LOD.low,
             spaces=LOD.full,
             # layers=LOD.low,
-            layers=LOD.full,
+            layers_and_materials=LOD.full,
         )
 
 
@@ -101,7 +133,7 @@ class BPSMultiZoneSeparatedLayersLow(Workflow):
             generator=LOD.ignore,
             hvac=LOD.low,
             spaces=LOD.full,
-            layers=LOD.low,
+            layers_and_materials=LOD.low,
         )
 
 
@@ -118,8 +150,9 @@ class BPSMultiZoneCombinedLayersFull(Workflow):
             generator=LOD.ignore,
             hvac=LOD.low,
             spaces=LOD.medium,
-            layers=LOD.full,
+            layers_and_materials=LOD.full,
         )
+        self.materials = None
 
 
 class BPSMultiZoneCombinedLayersLow(Workflow):
@@ -135,7 +168,7 @@ class BPSMultiZoneCombinedLayersLow(Workflow):
             generator=LOD.ignore,
             hvac=LOD.low,
             spaces=LOD.medium,
-            layers=LOD.low,
+            layers_and_materials=LOD.low,
         )
 
 
@@ -151,7 +184,7 @@ class BPSMultiZoneAggregatedLayersLow(Workflow):
             generator=LOD.ignore,
             hvac=LOD.low,
             spaces=LOD.medium,
-            layers=LOD.low,
+            layers_and_materials=LOD.low,
         )
 
 class BPSMultiZoneAggregatedLayersLowSimulation(Workflow):
@@ -166,7 +199,7 @@ class BPSMultiZoneAggregatedLayersLowSimulation(Workflow):
             generator=LOD.ignore,
             hvac=LOD.low,
             spaces=LOD.medium,
-            layers=LOD.low,
+            layers_and_materials=LOD.low,
             dymola_simulation=True
         )
 
@@ -183,7 +216,7 @@ class BPSMultiZoneAggregatedLayersFull(Workflow):
             generator=LOD.ignore,
             hvac=LOD.low,
             spaces=LOD.medium,
-            layers=LOD.full,
+            layers_and_materials=LOD.full,
         )
 
 
@@ -199,7 +232,7 @@ class BPSOneZoneAggregatedLayersLow(Workflow):
             generator=LOD.ignore,
             hvac=LOD.low,
             spaces=LOD.low,
-            layers=LOD.low,
+            layers_and_materials=LOD.low,
             # layers=LOD.full,
         )
 
@@ -216,7 +249,7 @@ class BPSOneZoneAggregatedLayersFull(Workflow):
             generator=LOD.ignore,
             hvac=LOD.low,
             spaces=LOD.low,
-            layers=LOD.full,
+            layers_and_materials=LOD.full,
         )
 
 
@@ -233,7 +266,7 @@ class BPSMultiZoneSeparatedEP(Workflow):
             generator=LOD.ignore,
             hvac=LOD.low,
             spaces=LOD.full,
-            layers=LOD.low,
+            layers_and_materials=LOD.low,
             create_external_elements=True,  # consider IfcExternalSpatialElements
             cfd_export=False,
         )
@@ -252,7 +285,7 @@ class BPSMultiZoneSeparatedEPfull(Workflow):
             generator=LOD.ignore,
             hvac=LOD.low,
             spaces=LOD.full,
-            layers=LOD.full,
+            layers_and_materials=LOD.full,
             create_external_elements=True,  # consider IfcExternalSpatialElements
             cfd_export=False,
         )
@@ -272,7 +305,7 @@ class BPSMultiZoneSeparatedEPforCFD(Workflow):
             generator=LOD.ignore,
             hvac=LOD.low,
             spaces=LOD.full,
-            layers=LOD.low,
+            layers_and_materials=LOD.low,
             create_external_elements=True,  # consider IfcExternalSpatialElements
             cfd_export=True,
         )
@@ -288,6 +321,6 @@ class CFDWorkflowDummy(Workflow):
             generator=LOD.ignore,
             hvac=LOD.low,
             spaces=LOD.full,
-            layers=LOD.full,
+            layers_and_materials=LOD.full,
             create_external_elements=True,  # consider IfcExternalSpatialElements
         )

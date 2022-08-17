@@ -346,7 +346,7 @@ class Enrich(ITask):
         #     def get_from_enrichment(bind, name):
         #         # TODO convert this former enrichment method from
         #         #  attribute.py to working enrichment for attributes of HVAC
-        #         #  similar to the approach of "enrich_bldg_templ.py"
+        #         #  similar to the approach of "enrich.py"
         #         value = None
         #         if hasattr(bind, 'enrichment') and bind.enrichment:
         #             attrs_enrich = bind.enrichment["enrichment_data"]

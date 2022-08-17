@@ -3,6 +3,7 @@ from bim2sim import workflow
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.decision.console import ConsoleDecisionHandler
+from bim2sim.workflow import LOD
 
 
 class IntegrationBaseTEASER(IntegrationBase):
@@ -11,6 +12,20 @@ class IntegrationBaseTEASER(IntegrationBase):
 
 
 class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
+
+    def test_DH_spaces_medium_material_low(self):
+        """Test DigitalHub IFC"""
+        ifc = 'FM_ARC_DigitalHub_with_SB_neu.ifc'
+        used_workflow = workflow.BPSMultiZoneAggregatedLayersLow()
+        project = self.create_project(ifc, 'TEASER', used_workflow)
+        answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True,
+                   'heavy', 'Waermeschutzverglasung, dreifach', 2015,
+                   'by_all_criteria')
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value,
+                         "Project did not finish successfully.")
 
     @unittest.skip('skip layers_full test until new answers are created')
     def test_ERC_Full(self):
@@ -42,7 +57,8 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         answers = ('Autodesk Revit 2020 (DEU)', True, True,
                    'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
-                   'by_all_criteria')
+                   'by_all_criteria',
+                   120)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -56,7 +72,8 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = ('Autodesk Revit 2020 (DEU)', True, True,
                    'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
+                   120)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -81,10 +98,12 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-Institute-Var-2.ifc'
         used_workflow = workflow.BPSOneZoneAggregatedLayersLow()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+        answers = (True, True, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
+                   2015, 120)
         handler = DebugDecisionHandler(answers)
-        handler.handle(project.run())
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
 
@@ -93,7 +112,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BPSMultiZoneCombinedLayersLow()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'heavy', 'EnEv', 'by_all_criteria', False)
+        answers = (True, True, 'heavy', 'EnEv', 'by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -105,7 +124,8 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-Institute-Var-2.ifc'
         used_workflow = workflow.BPSMultiZoneCombinedLayersLow()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 2015, 'heavy', 'EnEv', 'by_all_criteria', False)
+        answers = (True, True, 'heavy', 'EnEv', 2015, 'by_all_criteria',
+                   120)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -117,11 +137,10 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BPSMultiZoneCombinedLayersFull()
+        used_workflow.layers_and_materials = LOD.full
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, True, 'solid_brick_h', True, 'hardwood', True,
-                   'Concrete_DK', True, 'Light_Concrete_DK',
-                   'heavy', 1, 'Door', 1, 'Brick', 'solid_brick_h', *(1,) * 8,
-                   'EnEv', 'by_all_criteria')
+        answers = (True, True, 'heavy', 'EnEv', 'vertical_core_brick_700',
+                   'solid_brick_h', 'by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -134,13 +153,9 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-Institute-Var-2.ifc'
         used_workflow = workflow.BPSMultiZoneCombinedLayersFull()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'Glas', True, 'glas_generic', 500, 1.5, 0.2,
-                   True, 'air_layer', 'sandstone', True, 'lime_sandstone_1',
-                   True, 'aluminium', 0.1, True, 'Concrete_DK', 2015,
-                   "heavy", 1, 'Beton', 'Light_Concrete_DK', 1, 'Door', 1,
-                   'Beton', 1, 'Beton', 1, 'fenster', 'Glas1995_2015Aluoder'
-                   'StahlfensterWaermeschutzverglasungzweifach', 1, 'Door',
-                   1, 'Beton', 1, 'Beton', *(1,) * 8, 'by_all_criteria')
+        answers = (True, True, 'heavy', 'EnEv', 2015,
+                   'concrete_CEM_II_BS325R_wz05', 'clay_brick', 'Concrete_DK',
+                   'by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer

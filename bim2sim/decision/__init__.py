@@ -224,10 +224,15 @@ class Decision:
         basic_valid = self._validate(_value)
 
         if self.validate_func:
-            try:
-                external_valid = bool(self.validate_func(_value))
-            except:
-                external_valid = False
+            if type(self.validate_func) is not list:
+                self.validate_func = [self.validate_func]
+            check_list = []
+            for fnc in self.validate_func:
+                try:
+                    check_list.append(bool(fnc(_value)))
+                except:
+                    check_list.append(False)
+            external_valid = all(check_list)
         else:
             external_valid = True
 
@@ -244,7 +249,15 @@ class Decision:
         checksum = kwargs.get('checksum')
         if value is None:
             return
-        if (not self.validate_func) or self.validate_func(value):
+        valid = False
+        if self.validate_func:
+            if type(self.validate_func) is not list:
+                self.validate_func = [self.validate_func]
+            check_list = []
+            for fnc in self.validate_func:
+                check_list.append(bool(fnc(value)))
+            valid = all(check_list)
+        if (not self.validate_func) or valid:
             if checksum == self.validate_checksum:
                 self.value = self.deserialize_value(value)
                 self.status = Status.ok

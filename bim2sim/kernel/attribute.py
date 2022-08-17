@@ -1,6 +1,7 @@
 import logging
 from contextlib import contextmanager
 from typing import Tuple, Iterable, Callable, Any, Union
+from functools import partial
 
 import pint
 import re
@@ -109,7 +110,7 @@ class Attribute:
                                                               self.default_ps)
                 value = self.ifc_post_processing(raw_value)
 
-            if value is None and (self.default_association):
+            if value is None and self.default_association:
                 raw_value = self.get_from_default_assocation(
                     bind, self.default_association)
                 value = self.ifc_post_processing(raw_value)
@@ -157,6 +158,10 @@ class Attribute:
                     value, ureg.Quantity):
                 logger.warning("Unit not set!")
                 value = value * self.unit
+
+        if value is not None and bind.conditions:
+            if not self.check_conditions(bind, value, self.name):
+                value = None
 
         return value
 
@@ -212,17 +217,36 @@ class Attribute:
                     break
         return value
 
+    @staticmethod
+    def get_conditions(bind, name):
+        """Get conditions for attribute"""
+        conditions = []
+        for condition in bind.conditions:
+            if condition.key == name:
+                conditions.append(partial(condition.check, bind))
+        return conditions
+
+    @staticmethod
+    def check_conditions(bind, value, name):
+        """Check conditions"""
+        conditions = Attribute.get_conditions(bind, name)
+        for condition_check in conditions:
+            if not condition_check(value):
+                return False
+        return True
+
     def create_decision(self, bind):
         """Created Decision for this Attribute"""
         # TODO: set state in output dict -> attributemanager
+        conditions = [lambda x: True] if not bind.conditions else \
+            Attribute.get_conditions(bind, self.name)
         decision = RealDecision(
             "Enter value for %s of %s" % (self.name, bind),
-            # validate_func=lambda x: isinstance(x, float),
             # output=bind.attributes,
             key=self.name,
             global_key="%s_%s.%s" % (bind.ifc_type, bind.guid, self.name),
             allow_skip=False,
-            validate_func=lambda x: True,  # TODO meaningful validation
+            validate_func=conditions,
             unit=self.unit,
         )
         return decision
@@ -246,7 +270,8 @@ class Attribute:
 
         if value is None:
             if status == Attribute.STATUS_NOT_AVAILABLE:
-                _decision = self.get_dependency_decisions(bind, external_decision)
+                _decision = self.get_dependency_decisions(
+                    bind, external_decision)
                 return _decision
         elif isinstance(value, list):
             if not all(value):
@@ -403,7 +428,8 @@ class Attribute:
 
         if value is None and status == self.STATUS_UNKNOWN:
             value = self._get_value(bind)
-            status = self.STATUS_AVAILABLE if value is not None else self.STATUS_NOT_AVAILABLE  # change for temperature
+            status = self.STATUS_AVAILABLE if value is not None \
+                else self.STATUS_NOT_AVAILABLE  # change for temperature
             changed = True
 
         if changed:
@@ -471,7 +497,6 @@ class AttributeManager(dict):
             attr = self.get_attribute(name)
         except KeyError:
             raise KeyError("%s has no Attribute '%s'" % (self.bind, name))
-
         value, status = self[name]
         if status == Attribute.STATUS_UNKNOWN:
             # make sure default methods are tried
@@ -483,7 +508,7 @@ class AttributeManager(dict):
                 return decision
         if isinstance(value, list):
             # case for list of quantities
-            if not all(value):
+            if not all(v is not None for v in value):
                 decision = attr.request(self.bind, external_decision)
                 return decision
         elif isinstance(value, Decision):

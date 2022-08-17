@@ -33,6 +33,7 @@ class BindThermalZones(ITask):
             else:
                 self.bounded_tz = list(tz_instances.values())
             self.logger.info("obtained %d thermal zones", len(self.bounded_tz))
+        self.add_storeys_to_buildings(instances)
 
         return self.bounded_tz,
 
@@ -275,3 +276,23 @@ class BindThermalZones(ITask):
         else:
             value = 'N-E'
         return value
+
+    @classmethod
+    def add_storeys_to_buildings(cls, instances):
+        """adds storeys to building"""
+        bldg_instances = filter_instances(instances, 'Building')
+        for bldg in bldg_instances:
+            for decomposed in bldg.ifc.IsDecomposedBy:
+                for storey_ifc in decomposed.RelatedObjects:
+                    storey = instances.get(storey_ifc.GlobalId, None)
+                    if storey and storey not in bldg.storeys:
+                        bldg.storeys.append(storey)
+            cls.add_thermal_zones_to_building(bldg)
+
+    @staticmethod
+    def add_thermal_zones_to_building(bldg):
+        """adds thermal zones to building"""
+        for storey in bldg.storeys:
+            for tz in storey.thermal_zones:
+                if tz not in bldg.thermal_zones:
+                    bldg.thermal_zones.append(tz)

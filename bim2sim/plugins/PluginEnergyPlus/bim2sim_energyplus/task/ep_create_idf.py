@@ -73,6 +73,7 @@ class CreateIdf(ITask):
         path = f'/usr/local/EnergyPlus-{CreateIdf.ENERGYPLUS_VERSION}/'
         # path = f'C:/Program Files/EnergyPlusV{CreateIdf.ENERGYPLUS_VERSION}/'
         # path = r'C:/Program Files (x86)/EnergyPlusV9-4-0/'
+        # path = f'C:/EnergyPlus/EnergyPlusV{CreateIdf.ENERGYPLUS_VERSION}/'
         plugin_ep_path = str(Path(__file__).parent.parent.parent)
         IDF.setiddname(path + 'Energy+.idd')
         idf = IDF(plugin_ep_path + '/data/Minimal.idf')
@@ -192,8 +193,9 @@ class CreateIdf(ITask):
             if not rel_elem:
                 continue
             if not rel_elem.ifc.is_a('IfcWindow'):
-                self._set_preprocessed_construction_elem(rel_elem, rel_elem.layers, idf)
-                for layer in rel_elem.layers:
+                self._set_preprocessed_construction_elem(
+                    rel_elem, rel_elem.layerset.layers, idf)
+                for layer in rel_elem.layerset.layers:
                     self._set_preprocessed_material_elem(layer, idf)
             else:
                 self._set_preprocessed_window_material_elem(rel_elem, idf)
@@ -282,11 +284,14 @@ class CreateIdf(ITask):
             other_layer_list.reverse()
             other_layers = {}
             for i, l in enumerate(other_layer_list):
-                other_layers.update({'Layer_' + str(i + 2): l.material + "_" + str(l.thickness.m)})
+                other_layers.update(
+                    {'Layer_' + str(i + 2):
+                         l.material.name + "_" + str(l.thickness.m)})
 
             idf.newidfobject("CONSTRUCTION",
                              Name=construction_name,
-                             Outside_Layer=outer_layer.material + "_" + str(outer_layer.thickness.m),
+                             Outside_Layer=outer_layer.material.name +
+                                           "_" + str(outer_layer.thickness.m),
                              **other_layers
                              )
         # materials = pd.unique([(lay.material, lay.thickness.m) for lay in layers]).tolist()
@@ -313,7 +318,7 @@ class CreateIdf(ITask):
     def _set_material_elem(self, mat_dict, thickness, idf):
         if idf.getobject("MATERIAL", mat_dict['name'] + "_" + str(thickness)) != None:
             return
-        specific_heat = mat_dict['heat_capac'] * 1000  # *mat_dict['density']*thickness
+        specific_heat = mat_dict['spec_heat_capacity'] * 1000  # *mat_dict['density']*thickness
         if specific_heat < 100:
             specific_heat = 100
         idf.newidfobject("MATERIAL",
@@ -326,18 +331,18 @@ class CreateIdf(ITask):
                          )
 
     def _set_preprocessed_material_elem(self, layer, idf):
-        material_name = layer.material + "_" + str(layer.thickness.m)
+        material_name = layer.material.name + "_" + str(layer.thickness.m)
         if idf.getobject("MATERIAL", material_name):
             return
-        specific_heat = layer.heat_capac.m * 1000  # *mat_dict['density']*thickness
+        specific_heat = layer.material.spec_heat_capacity.m * 1000  # *mat_dict['density']*thickness
         if specific_heat < 100:
             specific_heat = 100
         idf.newidfobject("MATERIAL",
                          Name=material_name,
                          Roughness="MediumRough",
                          Thickness=layer.thickness.m,
-                         Conductivity=layer.thermal_conduc.m,
-                         Density=layer.density.m,
+                         Conductivity=layer.material.thermal_conduc.m,
+                         Density=layer.material.density.m,
                          Specific_Heat=specific_heat
                          )
 
@@ -359,14 +364,14 @@ class CreateIdf(ITask):
         """ constructs windows with a Windowmaterial:SimpleGlazingSystem consisting of
         the outermost layer of the providing related element.
         This is a simplification, needs to be extended to hold multilayer window constructions."""
-        material_name = 'WM_'+ rel_elem.layers[0].material \
-                        + '_' + str(rel_elem.layers[0].thickness.m)
+        material_name = 'WM_'+ rel_elem.layerset.layers[0].material.name \
+                        + '_' + str(rel_elem.layerset.layers[0].thickness.m)
         if idf.getobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM", material_name):
             return
         if rel_elem.u_value.m > 0:
             ufactor = 1 / (0.04 + 1 / rel_elem.u_value.m + 0.13)
         else:
-            ufactor = 1 / (0.04 + rel_elem.layers[0].thickness.m / rel_elem.layers[0].thermal_conduc.m + 0.13)
+            ufactor = 1 / (0.04 + rel_elem.layerset.layers[0].thickness.m / rel_elem.layerset.layers[0].thermal_conduc.m + 0.13)
         if rel_elem.g_value >=1:
             old_g_value = rel_elem.g_value
             rel_elem.g_value = 0.999
@@ -1122,12 +1127,11 @@ class IdfObject:
             if not rel_elem:
                 return
             if rel_elem.ifc.is_a('IfcWindow'):
-                self.construction_name = 'Window_WM_' + rel_elem.layers[0].material \
-                                         + '_' + str(rel_elem.layers[0].thickness.m)
+                self.construction_name = 'Window_WM_' + rel_elem.layerset.layers[0].material.name \
+                                         + '_' + str(rel_elem.layerset.layers[0].thickness.m)
             else:
-                self.construction_name = rel_elem.key + '_' + str(len(rel_elem.layers)) + '_'\
-                                         + '_'.join([str(l.thickness.m) for l in rel_elem.layers])
-
+                self.construction_name = rel_elem.key + '_' + str(len(rel_elem.layerset.layers)) + '_' \
+                                         + '_'.join([str(l.thickness.m) for l in rel_elem.layerset.layers])
 
     def _set_idfobject_coordinates(self, obj, idf, inst_obj):
         # validate bound_shape

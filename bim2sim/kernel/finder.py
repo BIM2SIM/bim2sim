@@ -30,8 +30,8 @@ class TemplateFinder(Finder):
     """TemplateFinder works like a multi key dictionary.
 
     Use it for tool dependent property usage. 
-    E.g. Revit stores length of IfcPipeSegment in PropertySet 'Abmessungen' with name 'Länge'
-    """
+    E.g. Revit stores length of IfcPipeSegment in PropertySet 'Abmessungen'
+    with name 'Länge'."""
     prefix = "template_"
 
     def __init__(self):

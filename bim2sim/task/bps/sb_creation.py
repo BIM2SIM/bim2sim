@@ -5,6 +5,7 @@ from bim2sim.task.base import ITask
 from bim2sim.kernel.elements.bps import SpaceBoundary, ExtSpatialSpaceBoundary
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
+from bim2sim.utilities.common_functions import filter_instances
 
 
 class CreateSpaceBoundaries(ITask):
@@ -18,47 +19,54 @@ class CreateSpaceBoundaries(ITask):
         self.non_sb_elements = []
 
     def run(self, workflow, ifc, instances, finder):
+        bldg_instances = filter_instances(instances, 'Building')
         self.logger.info("Creates elements for IfcRelSpaceBoundarys")
         type_filter = TypeFilter(('IfcRelSpaceBoundary',))
         entity_type_dict, unknown_entities = type_filter.run(ifc)
         instance_lst = self.instantiate_space_boundaries(
             entity_type_dict, instances, finder,
-            workflow.create_external_elements)
+            workflow.create_external_elements, workflow.ifc_units)
         self.find_instances_openings(instances, instance_lst)
         self.logger.info("Created %d elements", len(instance_lst))
 
         space_boundaries = {inst.guid: inst for inst in instance_lst}
         return space_boundaries,
 
-    def instantiate_space_boundaries(self, entities_dict, instances,
-                                     finder, create_external_elements) -> List[RelationBased]:
+    def instantiate_space_boundaries(
+            self, entities_dict, instances, finder,
+            create_external_elements, ifc_units) -> List[RelationBased]:
         """Instantiate space boundary ifc_entities using given element class.
         Result is a list with the resulting valid elements"""
-
         instance_lst = {}
         for entity in entities_dict:
-            element = None
-            if entity.is_a() == 'IfcRelSpaceBoundary1stLevel' or entity.Name == '1stLevel':
+            if entity.is_a() == 'IfcRelSpaceBoundary1stLevel' or \
+                    entity.Name == '1stLevel':
                 continue
             if entity.RelatingSpace.is_a('IfcSpace'):
-                element = SpaceBoundary.from_ifc(entity, instances=instance_lst,
-                                               finder=finder)
-            elif create_external_elements and entity.RelatingSpace.is_a('IfcExternalSpatialElement'):
-                element = ExtSpatialSpaceBoundary.from_ifc(entity, instances=instance_lst,
-                                               finder=finder)
-            if not element:
+                element = SpaceBoundary.from_ifc(
+                    entity, instances=instance_lst, finder=finder,
+                    ifc_units=ifc_units)
+            elif create_external_elements and entity.RelatingSpace.is_a(
+                    'IfcExternalSpatialElement'):
+                element = ExtSpatialSpaceBoundary.from_ifc(
+                    entity, instances=instance_lst, finder=finder,
+                    ifc_units=ifc_units)
+            else:
                 continue
-            # for RelatingSpaces both IfcSpace and IfcExternalSpatialElement are considered
-            self.connect_space_boundaries(element, instances)
-            instance_lst[element.guid] = element
+            # for RelatingSpaces both IfcSpace and IfcExternalSpatialElement are
+            # considered
+            relating_space = instances.get(
+                element.ifc.RelatingSpace.GlobalId, None)
+            if relating_space is not None:
+                self.connect_space_boundaries(element, relating_space, instances)
+                instance_lst[element.guid] = element
 
         return list(instance_lst.values())
 
-    def connect_space_boundaries(self, space_boundary, instances):
+    def connect_space_boundaries(
+            self, space_boundary, relating_space, instances):
         """Connects resultant space boundary with the corresponding relating
         space and related building element (if given)"""
-        relating_space = instances.get(
-            space_boundary.ifc.RelatingSpace.GlobalId, None)  # todo: @Diego: what if None?
         relating_space.space_boundaries.append(space_boundary)
         space_boundary.bound_thermal_zone = relating_space
 
@@ -118,7 +126,6 @@ class CreateSpaceBoundaries(ITask):
                 else:
                     has_no_element_openings = True
             if has_no_element_openings:
-                # ToDo: Check this
                 matched_sbs = self.find_no_element_opening_bound(
                     no_element_openings, instance, no_element_sbs)
                 if matched_sbs:

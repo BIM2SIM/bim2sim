@@ -6,6 +6,7 @@ from bim2sim.workflow import PlantSimulation
 from bim2sim.kernel.elements import hvac as hvac_elements
 from bim2sim.task import base, common, hvac
 from bim2sim.export.modelica import standardlibrary
+from bim2sim.kernel.element import Material
 from bim2sim_aixlib.models import AixLib
 
 
@@ -22,7 +23,7 @@ class PluginAixLib(Plugin):
     default_workflow = PlantSimulation
     allowed_workflows = [PlantSimulation]
     tasks = {LoadLibrariesAixLib}
-    elements = {*hvac_elements.items}
+    elements = {*hvac_elements.items, Material}
     default_tasks = [
         common.LoadIFC,
         hvac.CheckIfcHVAC,
