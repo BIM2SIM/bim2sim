@@ -5,6 +5,9 @@ import json
 import bim2sim
 
 from pathlib import Path
+from typing import Union
+
+assets = Path(bim2sim.__file__).parent / 'assets'
 
 
 def angle_equivalent(angle):
@@ -46,43 +49,62 @@ def vector_angle(vector):
     return angle
 
 
-assets = Path(bim2sim.__file__).parent/'assets'
+
+
+def validateJSON(json_data: Union[str, Path, ]):
+    if not isinstance(json_data, Path):
+        json_data = Path(str(json_data))
+    try:
+        with open(json_data, 'rb') as file:
+            json.load(file)
+    except ValueError:
+        return False
+    return True
 
 
 def get_usage_dict(prj_name) -> dict:
-    custom_usage_path = assets/'enrichment/usage' /\
-                        ('UseConditions'+prj_name+'.json')
+    custom_usage_path = assets / 'enrichment/usage' / \
+                        ('UseConditions' + prj_name + '.json')
     if custom_usage_path.is_file():
         usage_path = custom_usage_path
     else:
-        usage_path = assets/'enrichment/usage/UseConditions.json'
-    with open(usage_path, 'r+') as f:
-        usage_dict = json.load(f)
-        del usage_dict['version']
-    return usage_dict
+        usage_path = assets / 'enrichment/usage/UseConditions.json'
+    if validateJSON(usage_path):
+        with open(usage_path, 'r+', encoding='utf-8') as file:
+            usage_dict = json.load(file)
+            del usage_dict['version']
+            return usage_dict
+    else:
+        raise ValueError(f"Invalid JSON file  {usage_path}")
 
 
 def get_common_pattern_usage() -> dict:
-    custom_pattern_path = assets/'enrichment/usage/commonUsages.json'
-    with open(custom_pattern_path, 'r+', encoding='utf-8') as f:
-        common_usages = json.load(f)
-    return common_usages
+    common_pattern_path = assets / 'enrichment/usage/commonUsages.json'
+    if validateJSON(common_pattern_path):
+        with open(common_pattern_path, 'r+', encoding='utf-8') as file:
+            common_usages = json.load(file)
+            return common_usages
+    else:
+        raise ValueError(f"Invalid JSON file  {common_pattern_path}")
 
 
 def get_custom_pattern_usage(prj_name) -> dict:
     """gets custom usages based on specific project or general defined file."""
     custom_usages = {}
-    custom_pattern_path_prj = assets/'enrichment/usage' /\
-                        ('customUsages'+prj_name+'.json')
+    custom_pattern_path_prj = assets / 'enrichment/usage' \
+        / ('customUsages' + prj_name + '.json')
     if custom_pattern_path_prj.is_file():
         custom_pattern_path = custom_pattern_path_prj
     else:
-        custom_pattern_path = assets/'enrichment/usage/customUsages.json'
-    with open(custom_pattern_path, 'r+', encoding='utf-8') as f:
-        custom_usages_json = json.load(f)
-    if custom_usages_json["settings"]["use"]:
-        custom_usages = custom_usages_json["usage_definitions"]
-    return custom_usages
+        custom_pattern_path = assets / 'enrichment/usage/customUsages.json'
+    if validateJSON(custom_pattern_path):
+        with open(custom_pattern_path, 'r+', encoding='utf-8') as file:
+            custom_usages_json = json.load(file)
+            if custom_usages_json["settings"]["use"]:
+                custom_usages = custom_usages_json["usage_definitions"]
+            return custom_usages
+    else:
+        raise ValueError(f"Invalid JSON file  {custom_pattern_path}")
 
 
 def get_pattern_usage(prj_name):
@@ -98,13 +120,13 @@ def get_pattern_usage(prj_name):
     for i in use_conditions:
         pattern_usage_teaser[i]["common"] = []
         pattern_usage_teaser[i]["custom"] = []
-        list_engl = re.sub(r'\((.*?)\)', '', i)\
-            .replace(' - ', ', ')\
-            .replace(' and ', ', ')\
-            .replace(' in ', ', ')\
-            .replace(' with ', ', ')\
-            .replace(' or ', ', ')\
-            .replace(' the ', ' ')\
+        list_engl = re.sub(r'\((.*?)\)', '', i) \
+            .replace(' - ', ', ') \
+            .replace(' and ', ', ') \
+            .replace(' in ', ', ') \
+            .replace(' with ', ', ') \
+            .replace(' or ', ', ') \
+            .replace(' the ', ' ') \
             .split(', ')
         for i_eng in list_engl:
             new_i_eng = i_eng.replace(' ', '(.*?)')
@@ -145,10 +167,13 @@ def combine_usages(common_usages, custom_usages) -> dict:
 
 def get_type_building_elements():
     type_building_elements_path = \
-        assets/'enrichment/material/TypeBuildingElements.json'
-    with open(type_building_elements_path, 'r+') as f:
-        type_building_elements = json.load(f)
-        del type_building_elements['version']
+        assets / 'enrichment/material/TypeBuildingElements.json'
+    if validateJSON(type_building_elements_path):
+        with open(type_building_elements_path, 'r+') as file:
+            type_building_elements = json.load(file)
+            del type_building_elements['version']
+    else:
+        raise ValueError(f"Invalid JSON file  {type_building_elements_path}")
     template_options = {}
     for i in type_building_elements:
         i_name, i_years, i_template = i.split('_')
@@ -156,25 +181,32 @@ def get_type_building_elements():
             template_options[i_name] = {}
         if i_years not in template_options[i_name]:
             template_options[i_name][i_years] = {}
-        template_options[i_name][i_years][i_template] = type_building_elements[i]
+        template_options[i_name][i_years][i_template] = type_building_elements[
+            i]
     return template_options
 
 
 def get_material_templates():
     material_templates_path = \
-        assets/'enrichment/material/MaterialTemplates.json'
-    with open(material_templates_path, 'r+') as f:
-        material_templates = json.load(f)
-        del material_templates['version']
+        assets / 'enrichment/material/MaterialTemplates.json'
+    if validateJSON(material_templates_path):
+        with open(material_templates_path, 'r+') as f:
+            material_templates = json.load(f)
+            del material_templates['version']
+    else:
+        raise ValueError(f"Invalid JSON file  {material_templates_path}")
     return material_templates
 
 
 def get_type_building_elements_hvac():
     type_building_elements_path = \
-        assets/'enrichment/hvac/TypeHVACElements.json'
-    with open(type_building_elements_path, 'r+') as f:
-        type_building_elements = json.load(f)
-        del type_building_elements['version']
+        assets / 'enrichment/hvac/TypeHVACElements.json'
+    if validateJSON(type_building_elements_path):
+        with open(type_building_elements_path, 'r+') as file:
+            type_building_elements = json.load(file)
+            del type_building_elements['version']
+    else:
+        raise ValueError(f"Invalid JSON file  {type_building_elements_path}")
     return type_building_elements
 
 
