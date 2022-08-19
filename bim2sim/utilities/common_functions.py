@@ -20,6 +20,7 @@ def angle_equivalent(angle):
 
 
 def vector_angle(vector):
+    """returns the angle between y-axis and vector"""
     x = vector[0]
     y = vector[1]
     try:
@@ -199,6 +200,7 @@ def get_material_templates():
 
 
 def get_type_building_elements_hvac():
+    # todo: still needed?
     type_building_elements_path = \
         assets / 'enrichment/hvac/TypeHVACElements.json'
     if validateJSON(type_building_elements_path):
