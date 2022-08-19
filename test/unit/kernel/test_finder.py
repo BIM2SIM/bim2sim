@@ -8,9 +8,7 @@ import tempfile
 import bim2sim
 from bim2sim.kernel.elements import hvac
 from bim2sim.kernel import ifc2python
-from bim2sim.kernel import element, elements
 from bim2sim.kernel.finder import TemplateFinder
-from bim2sim.decision import Decision
 
 
 IFC_PATH = os.path.abspath(os.path.join(
