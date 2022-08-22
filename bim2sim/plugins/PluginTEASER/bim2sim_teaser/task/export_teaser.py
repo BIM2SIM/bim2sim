@@ -57,7 +57,11 @@ class ExportTEASER(ITask):
         prj.export_aixlib(
             path=self.paths.export / 'TEASER' / 'Model',
             use_postprocessing_calc=True)
-        return e_instances,
+        bldg_names = []
+        for bldg in exported_buildings:
+            bldg_names.append(bldg.name)
+
+        return bldg_names,
 
     def _create_project(self):
         """Creates a project in TEASER by a given BIM2SIM instance

@@ -78,7 +78,7 @@ class ThermalZone(TEASER, ThermalZone_Teaser):
         self.request_param("net_area",
                            self.check_numeric(
                                min_value=0 * ureg.meter ** 2),
-                           "net_leased_area")
+                           "area")
         self.request_param("t_ground", None)
         self.request_param("net_volume",
                            None,

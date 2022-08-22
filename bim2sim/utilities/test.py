@@ -29,6 +29,10 @@ class IntegrationBase:
             plugin=plugin, workflow=workflow)
         return self.project
 
+    def regression_test(self, workflow):
+        raise NotImplementedError
+
+
     # def run_project(self, ifc_file: str, backend: str):
     #     """Create example project and copy ifc if necessary
     #     :param backend: Project backend e.g. 'hkesim', 'aixlib', ...

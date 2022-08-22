@@ -20,5 +20,7 @@ class RunEnergyPlusSimulation(ITask):
             design_day = True
         output_string = str(self.paths.export / 'EP-results/')
         idf.run(output_directory=output_string, readvars=ep_full, annual=ep_full, design_day=design_day)
+        workflow.simulated = True
+        self.logger.info(f"Simulation successfully finished.")
         # if ep_full:
         #     PostprocessingUtils._visualize_results(csv_name=self.paths.export / 'EP-results/eplusout.csv')

@@ -1,4 +1,7 @@
 import unittest
+
+# import buildingspy.development.regressiontest as u
+
 from bim2sim import workflow
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
@@ -10,8 +13,40 @@ class IntegrationBaseTEASER(IntegrationBase):
     def tearDown(self):
         super().tearDown()
 
+    def regression_test(self, workflow):
+        """Run regression test comparison for TEASER.
+
+        Requires that simulation was run and not only model was created.
+
+        """
+        if not workflow.simulated:
+            raise AssertionError("Simulation was not run, no regression test "
+                                 "possible")
+        else:
+            ref_results_path = \
+                self.project.paths.assets / 'regression_results' / 'bps' \
+                / self.project.name + '.mos'
+
+            # self.tester = u.Tester(tool='dymola')  # todo
+
+
+
 
 class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
+    def test_run_kitfzkhaus_spaces_low_layers_low(self):
+        """Run project with AC20-FZK-Haus.ifc"""
+        ifc = 'AC20-FZK-Haus.ifc'
+        used_workflow = workflow.BPSOneZoneAggregatedLayersLow()
+        used_workflow.dymola_simulation = True
+        project = self.create_project(ifc, 'TEASER', used_workflow)
+        answers = (True, True, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.regression_test(used_workflow)
+        self.assertEqual(0, handler.return_value,
+                         "Project did not finish successfully.")
 
     def test_DH_spaces_medium_material_low(self):
         """Test DigitalHub IFC"""
@@ -74,19 +109,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
                    'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
                    120)
-        handler = DebugDecisionHandler(answers)
-        for decision, answer in handler.decision_answer_mapping(project.run()):
-            decision.value = answer
-        self.assertEqual(0, handler.return_value,
-                         "Project did not finish successfully.")
-
-    def test_run_kitfzkhaus_spaces_low_layers_low(self):
-        """Run project with AC20-FZK-Haus.ifc"""
-        ifc = 'AC20-FZK-Haus.ifc'
-        used_workflow = workflow.BPSOneZoneAggregatedLayersLow()
-        project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer

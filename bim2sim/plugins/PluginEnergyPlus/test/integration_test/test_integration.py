@@ -63,6 +63,23 @@ class IntegrationBaseEP(IntegrationBase):
                                       plugin=plugin, workflow=workflow)
         return self.project
 
+    def regression_test(self):
+        """Run regression test comparison for EnergyPlus.
+
+        Requires that simulation was run and not only model was created.
+
+        """
+        if not workflow.simulated:
+            raise AssertionError("Simulation was not run, no regression test "
+                                 "possible")
+        else:
+            ref_results_path = \
+                self.project.paths.assets / 'regression_results' / 'bps' \
+                / self.project.name + '.csv'
+
+            # self.tester = ... # todo add tester
+            # todo @veronika: https://github.com/NREL/EnergyPlusRegressionTool
+
 
 class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     """
@@ -74,12 +91,14 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     def test_base_01_FZK_design_day(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
-        project = self.create_project(ifc, 'energyplus')
+        used_workflow = workflow.BPSMultiZoneSeparatedEP()
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = (True, True, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
+        self.regression_test(used_workflow)
         self.assertEqual(0, handler.return_value)
         #todo: fix virtual bounds (assigned to be outdoors for some reason)
 
