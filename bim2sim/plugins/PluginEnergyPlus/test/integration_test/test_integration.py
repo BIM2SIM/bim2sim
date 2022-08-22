@@ -63,7 +63,7 @@ class IntegrationBaseEP(IntegrationBase):
                                       plugin=plugin, workflow=workflow)
         return self.project
 
-    def regression_test(self):
+    def regression_test(self, workflow):
         """Run regression test comparison for EnergyPlus.
 
         Requires that simulation was run and not only model was created.
