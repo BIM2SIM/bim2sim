@@ -25,7 +25,7 @@ class IntegrationBaseTEASER(IntegrationBase):
         else:
             ref_results_path = \
                 self.project.paths.assets / 'regression_results' / 'bps' \
-                / self.project.name + '.mos'
+                / str(self.project.name + '.mos')
 
             # self.tester = u.Tester(tool='dymola')  # todo
 

@@ -74,8 +74,11 @@ class IntegrationBaseEP(IntegrationBase):
                                  "possible")
         else:
             ref_results_path = \
-                self.project.paths.assets / 'regression_results' / 'bps' \
-                / self.project.name + '.csv'
+                self.project.paths.assets / 'regression_results' / 'bps'
+            ref_csv = ref_results_path / str(self.project.name +
+                                             '_eplusout.csv')
+            ref_htm = ref_results_path / str(self.project.name +
+                                             '_eplustbl.htm')
 
             # self.tester = ... # todo add tester
             # todo @veronika: https://github.com/NREL/EnergyPlusRegressionTool
