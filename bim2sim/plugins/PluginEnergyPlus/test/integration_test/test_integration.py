@@ -3,8 +3,12 @@ import unittest
 import tempfile
 from shutil import copyfile, copytree, rmtree
 from pathlib import Path
+import epregressions
 
 import os
+
+from epregressions.diffs import math_diff, table_diff
+from epregressions.diffs.thresh_dict import ThreshDict
 
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
@@ -73,12 +77,40 @@ class IntegrationBaseEP(IntegrationBase):
             raise AssertionError("Simulation was not run, no regression test "
                                  "possible")
         else:
+            # set reference paths for energyplus regression test
             ref_results_path = \
                 self.project.paths.assets / 'regression_results' / 'bps'
             ref_csv = ref_results_path / str(self.project.name +
                                              '_eplusout.csv')
             ref_htm = ref_results_path / str(self.project.name +
                                              '_eplustbl.htm')
+            diff_config = ThreshDict(ref_results_path / 'ep_diff.config')
+
+            # set path to current simulation results
+            sim_csv = self.project.paths.export / 'EP-results' / 'eplusout.csv'
+            sim_htm = self.project.paths.export / 'EP-results' / 'eplustbl.htm'
+            # set directory for regression test results
+            regression_results_dir = self.project.paths.root / \
+                                     'regression_results' / 'bps'
+
+            csv_regression = math_diff.math_diff(
+                diff_config,
+                ref_csv.as_posix(),
+                sim_csv.as_posix(),
+                os.path.join(regression_results_dir, 'abs_diff_math.csv'),
+                os.path.join(regression_results_dir, 'rel_diff_math.csv'),
+                os.path.join(regression_results_dir, 'math_diff_math.log'),
+                os.path.join(regression_results_dir, 'summary_math.csv'),
+            )
+            htm_regression = table_diff.table_diff(
+                diff_config,
+                ref_htm.as_posix(),
+                sim_htm.as_posix(),
+                os.path.join(regression_results_dir, 'abs_diff_table.htm'),
+                os.path.join(regression_results_dir, 'rel_diff_table.htm'),
+                os.path.join(regression_results_dir, 'math_diff_table.log'),
+                os.path.join(regression_results_dir, 'summary_table.htm'),
+            )
 
             # self.tester = ... # todo add tester
             # todo @veronika: https://github.com/NREL/EnergyPlusRegressionTool
@@ -95,9 +127,11 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BPSMultiZoneSeparatedEP()
+        run_full_simulation = True
         project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = (True, True, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, '
+                   'zweifach', True, True, True, run_full_simulation)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
