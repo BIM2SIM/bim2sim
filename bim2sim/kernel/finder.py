@@ -1,4 +1,6 @@
-﻿"""Finders are used to get properties from ifc which do not use the default PropertySets"""
+﻿"""Finders are used to get properties from ifc which do not use the default
+ PropertySets
+ """
 
 import os
 import json
@@ -10,7 +12,7 @@ from typing import Generator
 import bim2sim
 from bim2sim.kernel import ifc2python
 from bim2sim.decision import ListDecision, Decision
-
+from bim2sim.utilities.common_functions import validateJSON
 
 logger = logging.getLogger(__name__)
 DEFAULT_PATH = Path(bim2sim.__file__).parent / 'assets/finder'
@@ -44,25 +46,29 @@ class TemplateFinder(Finder):
         self.enabled = True
 
     def load(self, path):
-        """loads templates from given path. Each *.json file is interpretet as tool with name *
-        also searches default templates"""
+        """loads templates from given path. Each *.json file is interpreted as
+         tool with name *, also searches default templates"""
+        if not isinstance(path, Path):
+            path = Path(path)
         self.path = path
 
         # search in path
-        for filename in os.listdir(path):
-            if filename.lower().startswith(TemplateFinder.prefix) and filename.lower().endswith(".json"):
-                tool = filename[len(TemplateFinder.prefix):-5]
-                try:
-                    with open(os.path.join(path, filename)) as file:
-                        self.templates[tool] = json.load(file)
-                except (IOError, json.JSONDecodeError) as ex:
-                    continue
+        json_gen = self.path.rglob('*.json')
+        for json_file_path in json_gen:
+            if json_file_path.name.lower().startswith(TemplateFinder.prefix):
+                tool_name = json_file_path.name[len(TemplateFinder.prefix):-5]
+                if validateJSON(json_file_path):
+                    with open(json_file_path, 'rb') as file:
+                        self.templates[tool_name] = json.load(file)
+                else:
+                    raise ValueError(f"Invalid JSON in {json_file_path}")
 
     def save(self, path):
         """Save templates to path. One file for each tool in templates"""
 
         for tool, element_dict in self.templates.items():
-            full_path = os.path.join(path, TemplateFinder.prefix + tool + '.json')
+            full_path = os.path.join(
+                path, TemplateFinder.prefix + tool + '.json')
             with open(full_path, 'w') as file:
                 json.dump(element_dict, file, indent=2)
 
