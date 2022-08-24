@@ -73,6 +73,7 @@ class IntegrationBaseEP(IntegrationBase):
         Requires that simulation was run and not only model was created.
 
         """
+        passed_regression_test = True
         if not workflow.simulated:
             raise AssertionError("Simulation was not run, no regression test "
                                  "possible")
@@ -94,6 +95,10 @@ class IntegrationBaseEP(IntegrationBase):
                                      'regression_results' / 'bps'
 
             csv_regression = math_diff.math_diff(
+                # csv_regression returns diff_type ('All Equal', 'Big Diffs',
+                # 'Small Diffs'), num_records (length of validated csv file
+                # (#timesteps)), num_big (#big errors),
+                # num_small (#small errors)
                 diff_config,
                 ref_csv.as_posix(),
                 sim_csv.as_posix(),
@@ -102,18 +107,25 @@ class IntegrationBaseEP(IntegrationBase):
                 os.path.join(regression_results_dir, 'math_diff_math.log'),
                 os.path.join(regression_results_dir, 'summary_math.csv'),
             )
+            if csv_regression[0] == 'Big Diffs':
+                passed_regression_test = False  # only passes with small diffs
+
             htm_regression = table_diff.table_diff(
+                # htm_regression returns message, #tables, #big_diff,
+                # #small_diff, #equals, #string_diff,
+                # #size_diff, #not_in_file1, #not_in_file2
                 diff_config,
                 ref_htm.as_posix(),
                 sim_htm.as_posix(),
                 os.path.join(regression_results_dir, 'abs_diff_table.htm'),
                 os.path.join(regression_results_dir, 'rel_diff_table.htm'),
                 os.path.join(regression_results_dir, 'math_diff_table.log'),
-                os.path.join(regression_results_dir, 'summary_table.htm'),
+                os.path.join(regression_results_dir, 'summary_table.csv'),
             )
+            if htm_regression[2] != 0:
+                passed_regression_test = False  # only passes without big diffs
 
-            # self.tester = ... # todo add tester
-            # todo @veronika: https://github.com/NREL/EnergyPlusRegressionTool
+            return passed_regression_test
 
 
 class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
@@ -135,8 +147,10 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
-        self.regression_test(used_workflow)
+        passed_regression = self.regression_test(used_workflow)
         self.assertEqual(0, handler.return_value)
+        self.assertEqual(True, passed_regression, 'Failed EnergyPlus '
+                                                  'Regression Test')
         #todo: fix virtual bounds (assigned to be outdoors for some reason)
 
     @unittest.skip("")
