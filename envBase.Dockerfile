@@ -50,7 +50,7 @@ SHELL 	["conda", "run", "-n", "env", "/bin/bash", "-c"]
 
 # install needed packages
 
-RUN pip install -r ./requirements.txt
+RUN pip install --default-timeout=100 -r ./requirements.txt
 
 # install needed packages
 
