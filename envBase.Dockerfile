@@ -65,13 +65,13 @@ RUN /opt/conda/bin/conda install --yes --freeze-installed \
 
 ## install ifcopenshell via existing file
 RUN wget -O /tmp/ifcopenshell.zip https://s3.amazonaws.com/ifcopenshell-builds/ifcopenshell-python-39-v0.7.0-b5133c6-linux64.zip \
-&& unzip '/tmp/ifcopenshell.zip' -d /opt/conda/envs/env/lib/python3.7/site-packages/ && rm /tmp/ifcopenshell.zip || true ;
+&& unzip '/tmp/ifcopenshell.zip' -d /opt/conda/envs/env/lib/python3.9/site-packages/ && rm /tmp/ifcopenshell.zip || true ;
 
 
 ## install occ utils via existing file 
 RUN wget -O /tmp/occ-utils.zip https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip \
 && unzip '/tmp/occ-utils.zip' -d /tmp/occ-utils || true \
-&& mv /tmp/occ-utils/pythonocc-utils-master/OCCUtils /opt/conda/envs/env/lib/python3.7/site-packages/ ;
+&& mv /tmp/occ-utils/pythonocc-utils-master/OCCUtils /opt/conda/envs/env/lib/python3.9/site-packages/ ;
 
 
 # Set Pythonpath
