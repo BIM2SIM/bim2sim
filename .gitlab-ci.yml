@@ -332,10 +332,10 @@ test_AixLib:
   <<: *only-default
   image: $CI_REGISTRY/environment:aixlib
   stage: test
-  before_script:
   services:
    - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
+  before_script:
     - pip install coverage
     - pip install coverage-badge
   script:
