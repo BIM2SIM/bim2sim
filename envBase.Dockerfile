@@ -42,7 +42,7 @@ RUN apt-get -y install libgl-dev
 # Copy files
 COPY ./requirements.txt .
 
-RUN 	conda create -n env python=3.7
+RUN 	conda create -n env python=3.9
 RUN		conda update -n base -c defaults conda
 RUN 	echo "source activate env" > ~/.bashrc
 ENV 	PATH /opt/conda/envs/env/bin:$PATH
@@ -64,7 +64,7 @@ RUN /opt/conda/bin/conda install --yes --freeze-installed \
 	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
 
 ## install ifcopenshell via existing file
-RUN wget -O /tmp/ifcopenshell.zip https://s3.amazonaws.com/ifcopenshell-builds/ifcopenshell-python-38-v0.7.0-b5133c6-linux64.zip \
+RUN wget -O /tmp/ifcopenshell.zip https://s3.amazonaws.com/ifcopenshell-builds/ifcopenshell-python-39-v0.7.0-b5133c6-linux64.zip \
 && unzip '/tmp/ifcopenshell.zip' -d /opt/conda/envs/env/lib/python3.7/site-packages/ && rm /tmp/ifcopenshell.zip || true ;
 
 
