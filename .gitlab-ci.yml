@@ -38,7 +38,9 @@ build_env:development:
  image: docker:latest
  stage: build-env
  services:
- - docker:18.09.7-dind
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
+ #- docker:18.09.7-dind
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
