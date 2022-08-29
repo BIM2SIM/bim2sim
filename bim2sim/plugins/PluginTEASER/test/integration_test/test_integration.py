@@ -1,6 +1,8 @@
 import unittest
+import re
 
-# import buildingspy.development.regressiontest as u
+import buildingspy.development.regressiontest as u
+from pathlib import Path
 
 from bim2sim import workflow
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
@@ -13,21 +15,32 @@ class IntegrationBaseTEASER(IntegrationBase):
     def tearDown(self):
         super().tearDown()
 
-    def regression_test(self, workflow):
+    def regression_test(self, workflow, tolerance=1E-3):
         """Run regression test comparison for TEASER.
 
         Requires that simulation was run and not only model was created.
 
         """
-        if not workflow.simulated:
-            raise AssertionError("Simulation was not run, no regression test "
-                                 "possible")
-        else:
-            ref_results_path = \
-                self.project.paths.assets / 'regression_results' / 'bps' \
-                / self.project.name + '.mos'
+        # if not workflow.simulated:
+        #     raise AssertionError("Simulation was not run, no regression test "
+        #                          "possible")
+        # else:
+        ref_results_path = \
+            self.project.paths.assets / 'regression_results' / 'bps' \
+            / str(self.project.name + '.mos')
+        regex = re.compile("[^a-zA-z0-9]")
+        model_export_name = regex.sub("", self.project.name)
 
-            # self.tester = u.Tester(tool='dymola')  # todo
+        tester = u.Tester(tool='dymola', tol=tolerance)  # todo
+        tester.pedanticModelica(False)
+        tester.showGUI(False)
+        tester.batchMode(True)
+        tester.setLibraryRoot(self.project.paths.export / 'TEASER' / 'Model' / model_export_name)
+        tester.setAdditionalLibResource(
+            'D:/02_Git/AixLib/AixLib/package.mo')
+
+        test_return_val = tester.run()
+        print('test')
 
 
 
@@ -37,7 +50,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BPSOneZoneAggregatedLayersLow()
-        used_workflow.dymola_simulation = True
+        used_workflow.dymola_simulation = False
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
@@ -53,6 +66,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'FM_ARC_DigitalHub_with_SB_neu.ifc'
         used_workflow = workflow.BPSMultiZoneAggregatedLayersLow()
         project = self.create_project(ifc, 'TEASER', used_workflow)
+        # Tool,
         answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True,
                    'heavy', 'Waermeschutzverglasung, dreifach', 2015,
                    'by_all_criteria')
