@@ -466,6 +466,8 @@ class ThermalZone(BPSProduct):
     activity_degree_persons = attribute.Attribute(
     )
     fixed_heat_flow_rate_persons = attribute.Attribute(
+        default_ps=("Pset_SpaceThermalLoad", "People"),
+        unit=ureg.W,
     )
     internal_gains_moisture_no_people = attribute.Attribute(
     )
@@ -482,15 +484,11 @@ class ThermalZone(BPSProduct):
     )
     machines = attribute.Attribute(
         default_ps=("Pset_SpaceThermalLoad", "EquipmentSensible"),
-        unit=ureg.kilowatt,
+        unit=ureg.watt,
     )
     lighting_power = attribute.Attribute(
         default_ps=("Pset_SpaceThermalLoad", "Lighting"),
-        unit=ureg.kilowatt,
-    )
-    persons_internal_gains = attribute.Attribute(
-        default_ps=("Pset_SpaceThermalLoad", "People"),
-        unit=ureg.kilowatt,
+        unit=ureg.W,
     )
     use_constant_infiltration = attribute.Attribute(
     )
