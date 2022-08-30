@@ -36,11 +36,17 @@ class IntegrationBaseTEASER(IntegrationBase):
         tester.showGUI(False)
         tester.batchMode(True)
         tester.setLibraryRoot(self.project.paths.export / 'TEASER' / 'Model' / model_export_name)
+        # todo this is only available in local copy of buildingspy currently.
+        #  I need to fork the buildingspy, create a branch and link this in
+        #  requirements + maybe good documentation and better functionality
+        #  -> merge into buldingspy master
         tester.setAdditionalLibResource(
             'D:/02_Git/AixLib/AixLib/package.mo')
-
+        # todo currently the simulation is only run, reference
+        #  results still needed
         test_return_val = tester.run()
-        print('test')
+
+        return test_return_val
 
 
 
@@ -57,9 +63,13 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
-        self.regression_test(used_workflow)
         self.assertEqual(0, handler.return_value,
-                         "Project did not finish successfully.")
+                         "Project export did not finish successfully.")
+        reg_test_res = self.regression_test(used_workflow)
+        # todo: not only check zero, also other returns, see
+        self.assertEqual(0, reg_test_res,
+                         "Regression test with simulation did not finish"
+                         " successfully or created deviations.")
 
     def test_DH_spaces_medium_material_low(self):
         """Test DigitalHub IFC"""
