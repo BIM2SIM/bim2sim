@@ -1,20 +1,20 @@
 from bim2sim.task.base import ITask
-from bim2sim.decision import Decision, BoolDecision, DecisionBunch
+from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.task.hvac.hvac import hvac_graph
+from bim2sim.workflow import Workflow
 
 
 class DeadEnds(ITask):
-    """Analyses graph network for dead ends"""
+    """Analyses graph network for dead ends and removes ports due to dead ends."""
 
     reads = ('graph', )
     touches = ('graph', )
 
-    def run(self, workflow, graph):
+    def run(self, workflow: Workflow, graph: hvac_graph) -> hvac_graph:
         self.logger.info("Inspecting for dead ends")
-        pot_dead_ends = self.identify_deadends(graph)
+        pot_dead_ends = self.identify_dead_ends(graph)
         self.logger.info("Found %s possible dead ends in network." % len(pot_dead_ends))
-        graph, n_removed = yield from self.decide_deadends(
-            graph, pot_dead_ends, False)
+        graph, n_removed = yield from self.decide_dead_ends(graph, pot_dead_ends, False)
         self.logger.info("Removed %s ports due to found dead ends." % n_removed)
         if __debug__:
             self.logger.info("Plotting graph ...")
@@ -23,9 +23,16 @@ class DeadEnds(ITask):
         return graph,
 
     @staticmethod
-    def identify_deadends(graph: hvac_graph.HvacGraph):
-        """Identify deadenhds in graph. Dead ends are all ports of elements which
-         are not connected with another port."""
+    def identify_dead_ends(graph: hvac_graph.HvacGraph) -> list:
+        """Identify dead ends in graph. Dead ends are all ports of elements which
+         are not connected with another port.
+
+        Args:
+            graph (hvac_graph.HvacGraph): HVAC graph being analysed
+
+        Returns:
+            pot_dead_ends (list): List of potential dead ends
+        """
 
         uncoupled_graph = graph.copy()
         element_graph = uncoupled_graph.element_graph
@@ -37,9 +44,19 @@ class DeadEnds(ITask):
         return pot_dead_ends
 
     @staticmethod
-    def decide_deadends(graph: hvac_graph.HvacGraph, pot_dead_ends,
-                        force=False) -> [{hvac_graph.HvacGraph}, int]:
-        """Make Decisions for all dead ends, if they are consumer or dead end."""
+    def decide_dead_ends(graph: hvac_graph.HvacGraph, pot_dead_ends: list,
+                         force=False) -> [{hvac_graph.HvacGraph}, int]:
+        """Decides for all dead ends whether they are consumers or dead ends.
+
+        Args:
+            graph (hvac_graph.HvacGraph): HVAC graph being analysed
+            pot_dead_ends (list): List of potential dead ends
+            force (bool): If True, then all potential dead ends are removed
+
+        Returns:
+            graph (hvac_graph.HvacGraph): HVAC graph where dead ends are removed
+            n_removed (int): Number of removed ports due to dead ends
+        """
         n_removed = 0
         remove_ports = {}
         for dead_end in pot_dead_ends:
@@ -48,7 +65,7 @@ class DeadEnds(ITask):
                 remove_ports[dead_end] = ([dead_end], [dead_end.parent])
                 continue
             else:
-                # todo: how to handle devices where we might want to connect dead ends istead delete
+                # TODO: how to handle devices where we might want to connect dead ends instead delete
                 remove_ports_strand = []
                 remove_elements_strand = []
                 # find if there are more elements in strand to be removed
@@ -86,9 +103,9 @@ class DeadEnds(ITask):
                     graph.remove_nodes_from([n for n in graph if n in set(remove)])
                 else:
                     raise NotImplementedError()
-                    # todo handle consumers
+                    # TODO: handle consumers
                     # dead end identification with guid decision (see issue97 add_gui_decision)
                     # build clusters with position for the rest of open ports
-                    # decision to to group thiese open ports to consumers
+                    # decision to to group these open ports to consumers
                     # delete the rest of open ports afterwards
         return graph, n_removed
