@@ -1,16 +1,16 @@
 from bim2sim.task.base import ITask
 from bim2sim.decision import BoolDecision, DecisionBunch
-from bim2sim.task.hvac.hvac import hvac_graph
+from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.workflow import Workflow
 
 
 class DeadEnds(ITask):
     """Analyses graph network for dead ends and removes ports due to dead ends."""
 
-    reads = ('graph', )
-    touches = ('graph', )
+    reads = ('graph',)
+    touches = ('graph',)
 
-    def run(self, workflow: Workflow, graph: hvac_graph) -> hvac_graph:
+    def run(self, workflow: Workflow, graph: HvacGraph) -> HvacGraph:
         self.logger.info("Inspecting for dead ends")
         pot_dead_ends = self.identify_dead_ends(graph)
         self.logger.info("Found %s possible dead ends in network." % len(pot_dead_ends))
@@ -23,7 +23,7 @@ class DeadEnds(ITask):
         return graph,
 
     @staticmethod
-    def identify_dead_ends(graph: hvac_graph.HvacGraph) -> list:
+    def identify_dead_ends(graph: HvacGraph) -> list:
         """Identify dead ends in graph. Dead ends are all ports of elements which
          are not connected with another port.
 
@@ -44,8 +44,7 @@ class DeadEnds(ITask):
         return pot_dead_ends
 
     @staticmethod
-    def decide_dead_ends(graph: hvac_graph.HvacGraph, pot_dead_ends: list,
-                         force=False) -> [{hvac_graph.HvacGraph}, int]:
+    def decide_dead_ends(graph: HvacGraph, pot_dead_ends: list, force: bool = False) -> [{HvacGraph}, int]:
         """Decides for all dead ends whether they are consumers or dead ends.
 
         Args:
@@ -69,7 +68,7 @@ class DeadEnds(ITask):
                 remove_ports_strand = []
                 remove_elements_strand = []
                 # find if there are more elements in strand to be removed
-                strand_ports = hvac_graph.HvacGraph.get_path_without_junctions(graph, dead_end, include_edges=True)
+                strand_ports = HvacGraph.get_path_without_junctions(graph, dead_end, include_edges=True)
                 strand = graph.subgraph(strand_ports).element_graph
                 for port in strand_ports:
                     remove_ports_strand.append(port)
