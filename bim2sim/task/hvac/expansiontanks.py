@@ -14,8 +14,7 @@ class ExpansionTanks(ITask):
     def run(self, workflow: Workflow, graph: HvacGraph, force: bool = False) -> HvacGraph:
         self.logger.info("Inspecting for expansion tanks")
         potential_expansion_tanks = self.identify_expansion_tanks(graph)
-        self.logger.info(f"Found {potential_expansion_tanks} potential expansion tanks  in "
-                         "network.")
+        self.logger.info(f"Found {potential_expansion_tanks} potential expansion tanks in network.")
         graph, n_removed = yield from self.decide_expansion_tanks(graph, potential_expansion_tanks, force)
         self.logger.info(f"Removed {n_removed} elements because they were expansion tanks.")
         return graph,

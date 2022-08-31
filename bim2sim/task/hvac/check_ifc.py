@@ -87,7 +87,7 @@ class CheckIfcHVAC(CheckIfc):
         Check that the port has a defined flow direction.
 
         Args:
-            port: port ICF entity
+            port: port IFC entity
 
         Returns:
             True if check succeeds, False otherwise
