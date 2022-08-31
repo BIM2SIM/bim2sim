@@ -12,7 +12,7 @@ import networkx as nx
 from bim2sim.kernel.elements import hvac
 from bim2sim.task.base import ITask
 from bim2sim.filter import TypeFilter
-from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating,\
+from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating, \
     ParallelPump
 from bim2sim.kernel.aggregation import Consumer, \
     ConsumerHeatingDistributorModule, GeneratorOneFluid
@@ -23,29 +23,193 @@ from bim2sim.decision import Decision, DecisionBunch
 from bim2sim.enrichment_data import element_input_json
 from bim2sim.decision import RealDecision, BoolDecision
 from bim2sim.utilities.common_functions import get_type_building_elements_hvac
-
+from workflow import Workflow
 
 quality_logger = logging.getLogger('bim2sim.QualityReport')
 
 
 class ConnectElements(ITask):
     """Analyses IFC, creates Element instances and connects them.
-
-    elements are stored in .instances dict with guid as key"""
+    Elements are stored in instances dict with guid as key"""
 
     reads = ('instances',)
-    touches = ('instances', )
+    touches = ('instances',)
 
     def __init__(self):
         super().__init__()
         self.instances = {}
         pass
 
-    @staticmethod
-    def port_distance(port1, port2):
-        """Returns distance (x,y,z delta) of ports
+    def run(self, workflow: Workflow, instances: dict) -> dict:
+        """
 
-        :returns: None if port position ist not available"""
+        Args:
+            workflow:
+            instances:
+
+        Returns:
+
+        """
+        self.logger.info("Connect elements")
+        self.instances = instances  # TODO: remove self.instances
+
+        # connections
+        self.logger.info("Checking ports of elements ...")
+        self.check_element_ports(self.instances)
+        self.logger.info("Connecting the relevant elements")
+        self.logger.info(" - Connecting by relations ...")
+
+        all_ports = [port for item in self.instances.values() for port in item.ports]
+        rel_connections = self.connections_by_relation(all_ports)
+        self.logger.info(" - Found %d potential connections.", len(rel_connections))
+
+        self.logger.info(" - Checking positions of connections ...")
+        confirmed, unconfirmed, rejected = self.confirm_connections_position(rel_connections)
+        self.logger.info(" - %d connections are confirmed and %d rejected. %d can't be confirmed.",
+                         len(confirmed), len(rejected), len(unconfirmed))
+        for port1, port2 in confirmed + unconfirmed:
+            # unconfirmed ports have no position data and can't be connected by position
+            port1.connect(port2)
+
+        unconnected_ports = (port for port in all_ports if not port.is_connected())
+        self.logger.info(" - Connecting remaining ports by position ...")
+        pos_connections = self.connections_by_position(unconnected_ports)
+        self.logger.info(" - Found %d additional connections.", len(pos_connections))
+        for port1, port2 in pos_connections:
+            port1.connect(port2)
+
+        nr_total = len(all_ports)
+        unconnected = [port for port in all_ports if not port.is_connected()]
+        nr_unconnected = len(unconnected)
+        nr_connected = nr_total - nr_unconnected
+        self.logger.info("In total %d of %d ports are connected.", nr_connected, nr_total)
+        if nr_total > nr_connected:
+            self.logger.warning("%d ports are not connected!", nr_unconnected)
+
+        unconnected_elements = {uc.parent for uc in unconnected}
+        if unconnected_elements:
+            # TODO: Implement connections by bounding box
+            bb_connections = self.connections_by_boundingbox(unconnected, unconnected_elements)
+            self.logger.warning("Connecting by bounding box is not implemented.")
+
+        # inner connections
+        yield from self.check_inner_connections(instances.values())
+
+        # TODO: manually add / modify connections
+        return self.instances,
+
+    @staticmethod
+    def check_element_ports(elements: dict):
+        """Checks position of all ports for each element.
+
+        Args:
+            elements: dictionary of elements to be checked
+        """
+        for ele in elements.values():
+            for port_a, port_b in itertools.combinations(ele.ports, 2):
+                if np.allclose(port_a.position, port_b.position, rtol=1e-7, atol=1):
+                    quality_logger.warning("Poor quality of elements %s: "
+                                           "Overlapping ports (%s and %s @%s)",
+                                           ele.ifc, port_a.guid, port_b.guid, port_a.position)
+                    conns = ConnectElements.connections_by_relation([port_a, port_b], include_conflicts=True)
+                    all_ports = [port for conn in conns for port in conn]
+                    other_ports = [port for port in all_ports if port not in [port_a, port_b]]
+                    if port_a in all_ports and port_b in all_ports and len(set(other_ports)) == 1:
+                        # both ports connected to same other port -> merge ports
+                        quality_logger.info("Removing %s and set %s as SINKANDSOURCE.", port_b.ifc, port_a.ifc)
+                        ele.ports.remove(port_b)
+                        port_b.parent = None
+                        port_a.flow_direction = 0
+                        port_a.flow_master = True
+
+    @staticmethod
+    def connections_by_relation(ports: list, include_conflicts: bool = False) -> list:
+        """Connect ports of instances by IFC relations.
+
+        Args:
+            ports: list of ports to be connected
+            include_conflicts:
+
+        Returns:
+            connections: list of tuples of ports that are connected
+        """
+        connections = []
+        port_mapping = {port.guid: port for port in ports}
+        for port in ports:
+            if not port.ifc:
+                continue
+            connected_ports = [conn.RelatingPort for conn in port.ifc.ConnectedFrom] + [conn.RelatedPort for conn in
+                                                                                        port.ifc.ConnectedTo]
+            if connected_ports:
+                other_port = None
+                if len(connected_ports) > 1:
+                    # conflicts
+                    quality_logger.warning("%s has multiple connections", port.ifc)
+                    possibilities = []
+                    for connected_port in connected_ports:
+                        possible_port = port_mapping.get(
+                            connected_port.GlobalId)
+
+                        if possible_port.parent is not None:
+                            possibilities.append(possible_port)
+
+                    # solving conflicts
+                    if include_conflicts:
+                        for poss in possibilities:
+                            connections.append((port, poss))
+                    else:
+                        if len(possibilities) == 1:
+                            other_port = possibilities[0]
+                            quality_logger.info("Solved by ignoring deleted connection.")
+                        else:
+                            quality_logger.error("Unable to solve conflicting connections. "
+                                                 "Continue without connecting %s", port.ifc)
+                else:
+                    # explicit
+                    other_port = port_mapping.get(connected_ports[0].GlobalId)
+                if other_port:
+                    if port.parent and other_port.parent:
+                        connections.append((port, other_port))
+                    else:
+                        quality_logger.debug("Not connecting ports without parent (%s, %s)", port, other_port)
+        return connections
+
+    @staticmethod
+    def confirm_connections_position(connections: list, eps: float = 1) -> tuple[list, list, list]:
+        """Checks distance between port positions.
+        If distance < eps, the connection is confirmed otherwise rejected.
+
+        Args:
+            connections: list of connections to be checked
+            eps: distance tolerance for which connections are either confirmed or rejected
+
+        Returns:
+            tuple of lists of connections (confirmed, unconfirmed, rejected)
+        """
+        confirmed = []
+        unconfirmed = []
+        rejected = []
+        for port1, port2 in connections:
+            delta = ConnectElements.port_distance(port1, port2)
+            if delta is None:
+                unconfirmed.append((port1, port2))
+            elif max(abs(delta)) < eps:
+                confirmed.append((port1, port2))
+            else:
+                rejected.append((port1, port2))
+        return confirmed, unconfirmed, rejected
+
+    @staticmethod
+    def port_distance(port1: Port, port2: Port) -> np.array:
+        """Calculates distance (delta in x, y, z) of ports.
+
+        Args:
+            port1: the first port
+            port2: the seconds port
+
+        Returns:
+            delta: distance between port1 and port2 in x, y, z coordinates
+        """
         try:
             delta = port1.position - port2.position
         except AttributeError:
@@ -53,8 +217,16 @@ class ConnectElements(ITask):
         return delta
 
     @staticmethod
-    def connections_by_position(ports, eps=10):
-        """Connect ports of instances by computing geometric distance"""
+    def connections_by_position(ports: Generator, eps: float = 10) -> list:
+        """Connect ports of instances by computing geometric distance
+
+        Args:
+            ports:
+            eps: distance tolerance for which ports are connected
+
+        Returns: list of tuples of ports that are connected
+
+        """
         graph = nx.Graph()
         for port1, port2 in itertools.combinations(ports, 2):
             if port1.parent == port2.parent:
@@ -82,8 +254,7 @@ class ConnectElements(ITask):
                 first = 1
                 quality_logger.info(
                     "Accept closest ports with delta %d as connection (%s - %s)",
-                    candidates[0][2]['delta'], candidates[0][0],
-                    candidates[0][1])
+                    candidates[0][2]['delta'], candidates[0][0], candidates[0][1])
             else:
                 # remove all
                 first = 0
@@ -96,175 +267,7 @@ class ConnectElements(ITask):
         return list(graph.edges())
 
     @staticmethod
-    def connections_by_relation(ports, include_conflicts=False):
-        """Inspects IFC relations of ports"""
-        connections = []
-        port_mapping = {port.guid: port for port in ports}
-        for port in ports:
-            if not port.ifc:
-                continue
-            connected_ports = \
-                [conn.RelatingPort for conn in port.ifc.ConnectedFrom] \
-                + [conn.RelatedPort for conn in port.ifc.ConnectedTo]
-            if connected_ports:
-                other_port = None
-                if len(connected_ports) > 1:
-                    # conflicts
-                    quality_logger.warning("%s has multiple connections",
-                                           port.ifc)
-                    possibilities = []
-                    for connected_port in connected_ports:
-                        possible_port = port_mapping.get(
-                            connected_port.GlobalId)
-
-                        if possible_port.parent is not None:
-                            possibilities.append(possible_port)
-
-                    # solving conflics
-                    if include_conflicts:
-                        for poss in possibilities:
-                            connections.append((port, poss))
-                    else:
-                        if len(possibilities) == 1:
-                            other_port = possibilities[0]
-                            quality_logger.info(
-                                "Solved by ignoring deleted connection.")
-                        else:
-                            quality_logger.error(
-                                "Unable to solve conflicting connections. "
-                                "Continue without connecting %s", port.ifc)
-                else:
-                    # explicit
-                    other_port = port_mapping.get(
-                        connected_ports[0].GlobalId)
-                if other_port:
-                    if port.parent and other_port.parent:
-                        connections.append((port, other_port))
-                    else:
-                        quality_logger.debug(
-                            "Not connecting ports without parent (%s, %s)",
-                            port, other_port)
-        return connections
-
-    @staticmethod
-    def confirm_connections_position(connections, eps=1):
-        """Checks distance between port positions
-
-        :return: tuple of lists of connections
-        (confirmed, unconfirmed, rejected)"""
-        confirmed = []
-        unconfirmed = []
-        rejected = []
-        for port1, port2 in connections:
-            delta = ConnectElements.port_distance(port1, port2)
-            if delta is None:
-                unconfirmed.append((port1, port2))
-            elif max(abs(delta)) < eps:
-                confirmed.append((port1, port2))
-            else:
-                rejected.append((port1, port2))
-        return confirmed, unconfirmed, rejected
-
-    @staticmethod
-    def check_element_ports(elements):
-        """Checks position of all ports for each element"""
-        for ele in elements:
-            for port_a, port_b in itertools.combinations(ele.ports, 2):
-                if np.allclose(port_a.position, port_b.position,
-                               rtol=1e-7, atol=1):
-                    quality_logger.warning("Poor quality of elements %s: "
-                                           "Overlapping ports (%s and %s @%s)",
-                                           ele.ifc, port_a.guid, port_b.guid,
-                                           port_a.position)
-
-                    conns = ConnectElements.connections_by_relation(
-                        [port_a, port_b], include_conflicts=True)
-                    all_ports = [port for conn in conns for port in conn]
-                    other_ports = [port for port in all_ports
-                                   if port not in [port_a, port_b]]
-                    if port_a in all_ports and port_b in all_ports \
-                            and len(set(other_ports)) == 1:
-                        # both ports connected to same other port -> merge ports
-                        quality_logger.info(
-                            "Removing %s and set %s as SINKANDSOURCE.",
-                            port_b.ifc, port_a.ifc)
-                        ele.ports.remove(port_b)
-                        port_b.parent = None
-                        port_a.flow_direction = 0
-                        port_a.flow_master = True
-
-    @staticmethod
-    def connections_by_boundingbox(open_ports, elements):
-        """Search for open ports in elements bounding boxes
-
-        This is especialy usefull for vessel like elements with variable
-        number of ports (and bad ifc export) or proxy elements.
-        Missing ports on element side are created on demand."""
-        # ToDo:
-        connections = []
-        return connections
-
-    def run(self, workflow, instances):
-        self.logger.info("Connect elements")
-        self.instances = instances  # TODO: remove self.instances
-
-        # connections
-        self.logger.info("Checking ports of elements ...")
-        self.check_element_ports(self.instances.values())
-        self.logger.info("Connecting the relevant elements")
-        self.logger.info(" - Connecting by relations ...")
-
-        all_ports = [port for item in self.instances.values() for port in
-                     item.ports]
-        rel_connections = self.connections_by_relation(
-            all_ports)
-        self.logger.info(" - Found %d potential connections.",
-                         len(rel_connections))
-
-        self.logger.info(" - Checking positions of connections ...")
-        confirmed, unconfirmed, rejected = \
-            self.confirm_connections_position(rel_connections)
-        self.logger.info(" - %d connections are confirmed and %d rejected. " \
-                         + "%d can't be confirmed.",
-                         len(confirmed), len(rejected), len(unconfirmed))
-        for port1, port2 in confirmed + unconfirmed:
-            # unconfirmed have no position data and cant be connected by position
-            port1.connect(port2)
-
-        unconnected_ports = (port for port in all_ports
-                             if not port.is_connected())
-        self.logger.info(" - Connecting remaining ports by position ...")
-        pos_connections = self.connections_by_position(unconnected_ports)
-        self.logger.info(" - Found %d additional connections.",
-                         len(pos_connections))
-        for port1, port2 in pos_connections:
-            port1.connect(port2)
-
-        nr_total = len(all_ports)
-        unconnected = [port for port in all_ports
-                       if not port.is_connected()]
-        nr_unconnected = len(unconnected)
-        nr_connected = nr_total - nr_unconnected
-        self.logger.info("In total %d of %d ports are connected.",
-                         nr_connected, nr_total)
-        if nr_total > nr_connected:
-            self.logger.warning("%d ports are not connected!", nr_unconnected)
-
-        unconnected_elements = {uc.parent for uc in unconnected}
-        if unconnected_elements:
-            # TODO:
-            bb_connections = self.connections_by_boundingbox(
-                unconnected, unconnected_elements)
-            self.logger.warning("Connecting by bounding box is not implemented.")
-
-        # inner connections
-        yield from self.check_inner_connections(instances.values())
-
-        # TODO: manualy add / modify connections
-        return self.instances,
-
-    def check_inner_connections(self, instances: Iterable[ProductBased])\
-            -> Generator[DecisionBunch, None, None]:
+    def check_inner_connections(instances: Iterable[ProductBased]) -> Generator[DecisionBunch, None, None]:
         """Check inner connections of HVACProducts."""
         # If a lot of decisions occur, it would help to merge DecisionBunches
         # before yielding them
@@ -272,6 +275,17 @@ class ConnectElements(ITask):
             if isinstance(instance, hvac.HVACProduct) \
                     and not instance.inner_connections:
                 yield from instance.decide_inner_connections()
+
+    @staticmethod
+    def connections_by_boundingbox(open_ports, elements):
+        """Search for open ports in elements bounding boxes.
+
+        This is especially useful for vessel like elements with variable
+        number of ports (and bad ifc export) or proxy elements.
+        Missing ports on element side are created on demand."""
+        # TODO:
+        connections = []
+        return connections
 
 
 class Enrich(ITask):
@@ -295,7 +309,6 @@ class Enrich(ITask):
         # general question -> year of construction, all elements
         decision = RealDecision("Enter value for the construction year",
                                 validate_func=lambda x: isinstance(x, float),
-                                # TODO
                                 global_key="Construction year",
                                 allow_skip=False)
         yield DecisionBunch([decision])
@@ -308,8 +321,7 @@ class Enrich(ITask):
         enrich_parameter = year_selected
         # specific question -> each instance
         for instance in instances:
-            enrichment_data = self.enrich_instance(instances[instance],
-                                                   json_data)
+            enrichment_data = self.enrich_instance(instances[instance], json_data)
             if bool(enrichment_data):
                 instances[instance].enrichment["enrichment_data"] = \
                     enrichment_data
@@ -326,8 +338,8 @@ class Enrich(ITask):
 class Prepare(ITask):  # Todo: obsolete
     """Configurate"""  # TODO: based on task
 
-    reads = ('relevant_ifc_types', )
-    touches = ('filters', )
+    reads = ('relevant_ifc_types',)
+    touches = ('filters',)
 
     def run(self, workflow, relevant_ifc_types):
         self.logger.info("Setting Filters")
@@ -338,9 +350,8 @@ class Prepare(ITask):  # Todo: obsolete
 
 
 class Enrich(ITask):
-
-    reads = ('instances', )
-    touches = ('instances', )
+    reads = ('instances',)
+    touches = ('instances',)
 
     def run(self, workflow, instances):
         #     def get_from_enrichment(bind, name):
@@ -402,12 +413,12 @@ class Enrich(ITask):
 
 
 class MakeGraph(ITask):
-    """Instantiate HvacGraph"""
+    """Instantiate HVACGraph"""
 
     reads = ('instances', )
     touches = ('graph', )
 
-    def run(self, workflow, instances):
+    def run(self, workflow: Workflow, instances: dict):
         self.logger.info("Creating graph from IFC elements")
 
         graph = hvac_graph.HvacGraph(instances.values())
@@ -425,7 +436,7 @@ class MakeGraph(ITask):
 class Reduce(ITask):
     """Reduce number of elements by aggregation"""
 
-    reads = ('graph', )
+    reads = ('graph',)
     touches = ('graph',)
 
     def run(self, workflow, graph: hvac_graph.HvacGraph):
@@ -536,8 +547,8 @@ class Reduce(ITask):
 class DetectCycles(ITask):
     """Detect cycles in graph"""
 
-    reads = ('graph', )
-    touches = ('cycles', )
+    reads = ('graph',)
+    touches = ('cycles',)
 
     # TODO: sth usefull like grouping or medium assignment
 

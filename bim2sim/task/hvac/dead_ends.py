@@ -28,10 +28,10 @@ class DeadEnds(ITask):
          are not connected with another port.
 
         Args:
-            graph (hvac_graph.HvacGraph): HVAC graph being analysed
+            graph: HVAC graph being analysed
 
         Returns:
-            pot_dead_ends (list): List of potential dead ends
+            pot_dead_ends: List of potential dead ends
         """
 
         uncoupled_graph = graph.copy()
@@ -48,13 +48,13 @@ class DeadEnds(ITask):
         """Decides for all dead ends whether they are consumers or dead ends.
 
         Args:
-            graph (hvac_graph.HvacGraph): HVAC graph being analysed
-            pot_dead_ends (list): List of potential dead ends
-            force (bool): If True, then all potential dead ends are removed
+            graph: HVAC graph being analysed
+            pot_dead_ends: List of potential dead ends
+            force: If True, then all potential dead ends are removed
 
         Returns:
-            graph (hvac_graph.HvacGraph): HVAC graph where dead ends are removed
-            n_removed (int): Number of removed ports due to dead ends
+            graph: HVAC graph where dead ends are removed
+            n_removed: Number of removed ports due to dead ends
         """
         n_removed = 0
         remove_ports = {}

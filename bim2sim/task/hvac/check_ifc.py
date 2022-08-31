@@ -5,8 +5,8 @@ from ifcopenshell.entity_instance import entity_instance
 
 class CheckIfcHVAC(CheckIfc):
     """
-    Check an IFC file, for a number of conditions (missing information,
-    incorrect information, etc) that could lead on future tasks to fatal errors.
+    Check an IFC file for a number of conditions (missing information, incorrect information, etc) that could lead on
+    future tasks to fatal errors.
     """
 
     def __init__(self):
@@ -15,32 +15,27 @@ class CheckIfcHVAC(CheckIfc):
         self.plugin = hvac
 
     def validate_sub_inst(self, port: entity_instance) -> list:
-        # TODO: rename method
         """
-        Validation function for a port that compiles all validation.
-        functions.
+        Validation function for a port that compiles all validation functions.
 
         Args:
-            port: ifc port entity
+            port: IFC port entity
 
         Returns:
-            error: list of errors found in the ifc port
+            error: list of errors found in the IFC port
 
         """
         error = []
         self.apply_validation_function(self._check_unique(port, self.id_list),
                                        'GlobalId - '
                                        'The space boundary GlobalID is not '
-                                       'unique',
-                                       error)
+                                       'unique', error)
         self.apply_validation_function(self._check_flow_direction(port),
                                        'FlowDirection - '
-                                       'The port flow direction is missing',
-                                       error)
+                                       'The port flow direction is missing', error)
         self.apply_validation_function(self._check_assignments(port),
                                        'Assignments - '
-                                       'The port assignments are missing',
-                                       error)
+                                       'The port assignments are missing', error)
         self.apply_validation_function(self._check_connection(port),
                                        'Connections - '
                                        'The port has no connections', error)
@@ -52,21 +47,19 @@ class CheckIfcHVAC(CheckIfc):
 
     def validate_instances(self, inst: entity_instance) -> list:
         """
-        Validation function for an instance that compiles all instance
-        validation functions.
+        Validation function for an instance that compiles all instance validation functions.
 
         Args:
             inst: IFC instance being checked
 
         Returns:
-            error: List of instances error
+            error: list of instances error
 
         """
         error = []
         self.apply_validation_function(self._check_unique(inst, self.id_list),
                                        'GlobalId - '
-                                       'The instance GlobalID is not unique',
-                                       error)
+                                       'The instance GlobalID is not unique', error)
         self.apply_validation_function(self._check_inst_ports(inst),
                                        'Ports - '
                                        'The instance ports are missing', error)
@@ -83,9 +76,8 @@ class CheckIfcHVAC(CheckIfc):
                                        'The instance has no geometric '
                                        'representation', error)
         self.apply_validation_function(self._check_assignments(inst),
-                                       'Assignments - '
-                                       'The instance assignments are missing',
-                                       error)
+                                       'Assignments - ' 
+                                       'The instance assignments are missing', error)
 
         return error
 
@@ -95,11 +87,10 @@ class CheckIfcHVAC(CheckIfc):
         Check that the port has a defined flow direction.
 
         Args:
-            port: port ifc entity
+            port: port ICF entity
 
         Returns:
-            True: if check succeeds
-            False: if check fails
+            True if check succeeds, False otherwise
         """
         return port.FlowDirection in ['SOURCE', 'SINK', 'SINKANDSOURCE',
                                       'SOURCEANDSINK']

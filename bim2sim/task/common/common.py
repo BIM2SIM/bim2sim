@@ -118,7 +118,7 @@ class LoadIFC(ITask):
 
 
 class CreateElements(ITask):
-    """Create internal elements from ifc."""
+    """Create internal elements from IFC."""
 
     reads = ('ifc',)
     touches = ('instances', 'finder')
