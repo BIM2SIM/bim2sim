@@ -21,7 +21,8 @@ build_env:master:
  image: docker:latest
  stage: build-env
  services:
- - docker:18.09.7-dind
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
@@ -38,7 +39,9 @@ build_env:development:
  image: docker:latest
  stage: build-env
  services:
- - docker:18.09.7-dind
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
+ #- docker:18.09.7-dind
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
@@ -57,7 +60,8 @@ build_env:energyplus:
   image: docker:latest
   stage: build-env-plugins
   services:
-  - docker:18.09.7-dind
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
@@ -77,7 +81,8 @@ build_env:cfd:
  image: docker:latest
  stage: build-env-plugins
  services:
- - docker:18.09.7-dind
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
@@ -97,7 +102,8 @@ build_env:teaser:
  image: docker:latest
  stage: build-env-plugins
  services:
- - docker:18.09.7-dind
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
@@ -117,7 +123,8 @@ build_env:aixlib:
  image: docker:latest
  stage: build-env-plugins
  services:
- - docker:18.09.7-dind
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
@@ -137,7 +144,8 @@ build_tool:release:
  image: docker:latest
  stage: build-tool
  services:
- - docker:18.09.7-dind
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
@@ -150,7 +158,8 @@ build_tool:development:
  image: docker:latest
  stage: build-tool
  services:
- - docker:18.09.7-dind
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
@@ -163,7 +172,8 @@ build_tool:webdevelop:
  image: docker:latest
  stage: build-tool
  services:
- - docker:18.09.7-dind
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
@@ -176,7 +186,8 @@ build_tool:cfd:
  image: docker:latest
  stage: build-tool
  services:
- - docker:18.09.7-dind
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
@@ -190,7 +201,8 @@ build_tool:teaser:
  image: docker:latest
  stage: build-tool
  services:
- - docker:18.09.7-dind
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
@@ -204,7 +216,8 @@ build_tool:aixlib:
  image: docker:latest
  stage: build-tool
  services:
- - docker:18.09.7-dind
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
@@ -218,6 +231,9 @@ test_Base:
   <<: *only-default
   image: $CI_REGISTRY/environment:development
   stage: test
+  services:
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
   before_script:
     - pip install coverage
     - pip install coverage-badge
@@ -240,6 +256,9 @@ test_EP:
   <<: *only-default
   image: $CI_REGISTRY/environment:energyplus
   stage: test
+  services:
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
   before_script:
     - pip install coverage
     - pip install coverage-badge
@@ -263,6 +282,9 @@ test_TEASER:
   <<: *only-default
   image: $CI_REGISTRY/environment:teaser
   stage: test
+  services:
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
   before_script:
     - pip install coverage
     - pip install coverage-badge
@@ -285,6 +307,9 @@ test_CFD:
   <<: *only-default
   image: $CI_REGISTRY/environment:cfd
   stage: test
+  services:
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
   before_script:
     - pip install coverage
     - pip install coverage-badge
@@ -307,6 +332,9 @@ test_AixLib:
   <<: *only-default
   image: $CI_REGISTRY/environment:aixlib
   stage: test
+  services:
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
   before_script:
     - pip install coverage
     - pip install coverage-badge
@@ -328,6 +356,9 @@ test_AixLib:
 pylint:
  stage: code_quality
  image: python:3.6
+ services:
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
  before_script:
    - pip install pylint pylint-json2html anybadge --quiet
  script:
@@ -354,7 +385,9 @@ pylint:
 sphinxdoc:
  image: $CI_REGISTRY/tool:development
  stage: doc
-
+ services:
+  - name: docker:18.09.7-dind
+    command: ["--mtu=1440"]
  before_script:
    - pip install -r /bim2sim-coding/docs/requirements.txt
    - pip install anybadge
@@ -394,4 +427,3 @@ pages:
  artifacts:
    paths:
      - public
-
