@@ -7,15 +7,17 @@ import numpy as np
 
 import bim2sim
 from bim2sim.task.base import ITask
+from bim2sim.workflow import Workflow
+from ifcopenshell import file as ifc_file
 
 
 class FixPorts(ITask):
     """Remove invalid ports from ifc."""
 
-    reads = ('ifc', )
-    touches = ('ifc', )
+    reads = ('ifc',)
+    touches = ('ifc',)
 
-    def run(self, workflow, ifc):
+    def run(self, workflow: Workflow, ifc: ifc_file) -> tuple:
         self.logger.info("Removing invalid ports from ifc")
 
         to_remove = set()
@@ -34,9 +36,9 @@ class FixPorts(ITask):
             ifc.remove(entity)
         path = './cleaned.ifc'
         ifc.write(path)
-        return (ifc, )
+        return ifc,
 
-    def unconnected_ports_on_same_position(self, ifc) -> set:
+    def unconnected_ports_on_same_position(self, ifc: ifc_file) -> set:
         positions = {}
         for port in ifc.by_type('IfcDistributionPort'):
             position = self._get_position(port)
@@ -51,7 +53,7 @@ class FixPorts(ITask):
                         to_remove.append(port)
         return set(to_remove)
 
-    def ports_with_same_parent_and_same_position(self, ifc) -> set:
+    def ports_with_same_parent_and_same_position(self, ifc: ifc_file) -> set:
         parents = {}
         for port in self.get_unconnected_ports(ifc):
             parents.setdefault(port.ContainedIn[0].RelatedElement, []).append(port)

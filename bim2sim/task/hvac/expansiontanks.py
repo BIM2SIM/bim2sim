@@ -2,7 +2,7 @@ from bim2sim.kernel.elements.hvac import Storage
 from bim2sim.task.base import ITask
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.decision import BoolDecision, DecisionBunch
-from workflow import Workflow
+from bim2sim.workflow import Workflow
 
 
 class ExpansionTanks(ITask):
@@ -56,8 +56,7 @@ class ExpansionTanks(ITask):
             decisions = DecisionBunch()
             for tank in potential_expansion_tanks:
                 cur_decision = BoolDecision(
-                    f"Found {tank} which is a possible expansion tank and"
-                    f" therefore should be deleted",
+                    f"Found {tank} which is a possible expansion tank and therefore should be deleted",
                     key=tank,
                     global_key="expansionTank.%s" % tank.guid,
                     allow_skip=True,

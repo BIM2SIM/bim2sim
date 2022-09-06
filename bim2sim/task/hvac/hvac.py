@@ -11,7 +11,6 @@ import networkx as nx
 
 from bim2sim.kernel.elements import hvac
 from bim2sim.task.base import ITask
-from bim2sim.filter import TypeFilter
 from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating, \
     ParallelPump
 from bim2sim.kernel.aggregation import Consumer, \
@@ -19,11 +18,12 @@ from bim2sim.kernel.aggregation import Consumer, \
 from bim2sim.kernel.element import ProductBased, ElementEncoder, Port
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
-from bim2sim.decision import Decision, DecisionBunch
+from bim2sim.decision import DecisionBunch
 from bim2sim.enrichment_data import element_input_json
 from bim2sim.decision import RealDecision, BoolDecision
 from bim2sim.utilities.common_functions import get_type_building_elements_hvac
-from workflow import Workflow
+from bim2sim.kernel.hvac.hvac_graph import HvacGraph
+from bim2sim.workflow import Workflow
 
 quality_logger = logging.getLogger('bim2sim.QualityReport')
 
@@ -268,7 +268,13 @@ class ConnectElements(ITask):
 
     @staticmethod
     def check_inner_connections(instances: Iterable[ProductBased]) -> Generator[DecisionBunch, None, None]:
-        """Check inner connections of HVACProducts."""
+        """Check inner connections of HVACProducts.
+
+        Args:
+            instances:
+        Returns:
+
+        """
         # If a lot of decisions occur, it would help to merge DecisionBunches
         # before yielding them
         for instance in instances:
@@ -294,11 +300,9 @@ class Enrich(ITask):
         self.enrich_data = {}
         self.enriched_instances = {}
 
-    def enrich_instance(self, instance, json_data):
-
-        attrs_enrich = element_input_json.load_element_class(instance,
-                                                             json_data)
-
+    @staticmethod
+    def enrich_instance(instance, json_data):
+        attrs_enrich = element_input_json.load_element_class(instance, json_data)
         return attrs_enrich
 
     def run(self, instances):
@@ -330,86 +334,7 @@ class Enrich(ITask):
                 instances[instance].enrichment["year_enrichment"] = \
                     enrichment_data["statistical_year"][str(enrich_parameter)]
 
-        self.logger.info(
-            "Applied successfully attributes enrichment on elements")
-        # runs all enrich methods
-
-
-class Prepare(ITask):  # Todo: obsolete
-    """Configurate"""  # TODO: based on task
-
-    reads = ('relevant_ifc_types',)
-    touches = ('filters',)
-
-    def run(self, workflow, relevant_ifc_types):
-        self.logger.info("Setting Filters")
-        # filters = [TypeFilter(relevant_ifc_types), TextFilter(relevant_ifc_types, ['Description'])]
-        filters = [TypeFilter(relevant_ifc_types)]
-        # self.filters.append(TextFilter(['IfcBuildingElementProxy', 'IfcUnitaryEquipment']))
-        return filters,
-
-
-class Enrich(ITask):
-    reads = ('instances',)
-    touches = ('instances',)
-
-    def run(self, workflow, instances):
-        #     def get_from_enrichment(bind, name):
-        #         # TODO convert this former enrichment method from
-        #         #  attribute.py to working enrichment for attributes of HVAC
-        #         #  similar to the approach of "enrich.py"
-        #         value = None
-        #         if hasattr(bind, 'enrichment') and bind.enrichment:
-        #             attrs_enrich = bind.enrichment["enrichment_data"]
-        #             if "enrich_decision" not in bind.enrichment:
-        #                 # check if want to enrich instance
-        #                 enrichment_decision = BoolDecision(
-        #                     question="Do you want for %s_%s to be enriched" % (type(bind).__name__, bind.guid),
-        #                     collect=False, global_key='%s_%s.Enrichment_Decision' % (type(bind).__name__, bind.guid),
-        #                     allow_load=True, allow_save=True)
-        #                 enrichment_decision.decide()
-        #                 enrichment_decision.stored_decisions.clear()
-        #                 bind.enrichment["enrich_decision"] = enrichment_decision.value
-        #
-        #             if bind.enrichment["enrich_decision"]:
-        #                 # enrichment via incomplete data (has enrich parameter value)
-        #                 if name in attrs_enrich:
-        #                     value = attrs_enrich[name]
-        #                     if value is not None:
-        #                         return value
-        #                 if "selected_enrichment_data" not in bind.enrichment:
-        #                     options_enrich_parameter = list(attrs_enrich.keys())
-        #                     decision1 = ListDecision("Select an Enrich Parameter to continue",
-        #                                              choices=options_enrich_parameter,
-        #                                              global_key="%s_%s.Enrich_Parameter" % (type(bind).__name__, bind.guid),
-        #                                              allow_skip=True, allow_load=True, allow_save=True,
-        #                                              collect=False, quick_decide=not True)
-        #                     decision1.decide()
-        #                     decision1.stored_decisions.clear()
-        #
-        #                     if decision1.value == 'statistical_year':
-        #                         # 3. check if general enrichment - construction year
-        #                         bind.enrichment["selected_enrichment_data"] = bind.enrichment["year_enrichment"]
-        #                     else:
-        #                         # specific enrichment (enrichment parameter and values)
-        #                         decision2 = RealDecision("Enter value for the parameter %s" % decision1.value,
-        #                                                  validate_func=lambda x: isinstance(x, float),  # TODO
-        #                                                  global_key="%s_%s.%s_Enrichment" % (type(bind).__name__, bind.guid, name),
-        #                                                  allow_skip=False, allow_load=True, allow_save=True,
-        #                                                  collect=False, quick_decide=False)
-        #                         decision2.decide()
-        #                         delta = float("inf")
-        #                         decision2_selected = None
-        #                         for ele in attrs_enrich[decision1.value]:
-        #                             if abs(int(ele) - decision2.value) < delta:
-        #                                 delta = abs(int(ele) - decision2.value)
-        #                                 decision2_selected = int(ele)
-        #
-        #                         bind.enrichment["selected_enrichment_data"] = attrs_enrich[str(decision1.value)][
-        #                             str(decision2_selected)]
-        #                 value = bind.enrichment["selected_enrichment_data"][name]
-        #         return value
-        return instances
+        self.logger.info("Applied successfully attributes enrichment on elements")
 
 
 class MakeGraph(ITask):
@@ -420,7 +345,6 @@ class MakeGraph(ITask):
 
     def run(self, workflow: Workflow, instances: dict):
         self.logger.info("Creating graph from IFC elements")
-
         graph = hvac_graph.HvacGraph(instances.values())
         return graph,
 
@@ -434,20 +358,13 @@ class MakeGraph(ITask):
 
 
 class Reduce(ITask):
-    """Reduce number of elements by aggregation"""
+    """Reduce number of elements by aggregation."""
 
     reads = ('graph',)
     touches = ('graph',)
 
-    def run(self, workflow, graph: hvac_graph.HvacGraph):
+    def run(self, workflow: Workflow, graph: HvacGraph) -> (HvacGraph, ):
         self.logger.info("Reducing elements by applying aggregations")
-
-        number_of_nodes_old = len(graph.element_graph.nodes)
-        number_ps = 0
-        number_fh = 0
-        number_pipes = 0
-        number_pp = 0
-        number_psh = 0
 
         aggregations = [
             UnderfloorHeating,
@@ -460,14 +377,13 @@ class Reduce(ITask):
         ]
 
         statistics = {}
-        n_elements_before = len(graph.elements)
+        number_of_elements_before = len(graph.elements)
 
         # TODO: LOD
 
         for agg_class in aggregations:
             name = agg_class.__name__
             self.logger.info("Aggregating '%s' ...", name)
-            name_builder = '{} {}'
             matches, metas = agg_class.find_matches(graph)
             i = 0
             for match, meta in zip(matches, metas):
@@ -484,11 +400,10 @@ class Reduce(ITask):
                     )
                     i += 1
             statistics[name] = i
-        n_elements_after = len(graph.elements)
+        number_of_elements_after = len(graph.elements)
 
-        # Log output
         log_str = "Aggregations reduced number of elements from %d to %d:" % \
-                  (n_elements_before, n_elements_after)
+                  (number_of_elements_before, number_of_elements_after)
         for aggregation, count in statistics.items():
             log_str += "\n  - %s: %d" % (aggregation, count)
         self.logger.info(log_str)
@@ -501,7 +416,7 @@ class Reduce(ITask):
         return graph,
 
     @staticmethod
-    def set_flow_sides(graph):
+    def set_flow_sides(graph: HvacGraph):
         """Set flow_side for ports in graph based on known flow_sides"""
         # TODO: needs testing!
         # TODO: at least one master element required
@@ -509,8 +424,7 @@ class Reduce(ITask):
         while True:
             unset_port = None
             for port in graph.get_nodes():
-                if port.flow_side == 0 and graph.graph[
-                    port] and port not in accepted:
+                if port.flow_side == 0 and graph.graph[port] and port not in accepted:
                     unset_port = port
                     break
             if unset_port:
@@ -552,7 +466,7 @@ class DetectCycles(ITask):
 
     # TODO: sth usefull like grouping or medium assignment
 
-    def run(self, workflow, graph: hvac_graph.HvacGraph):
+    def run(self, workflow: Workflow, graph: HvacGraph) -> tuple:
         self.logger.info("Detecting cycles")
         cycles = graph.get_cycles()
         return cycles,
@@ -564,18 +478,16 @@ class Export(ITask):
     reads = ('libraries', 'graph')
     final = True
 
-    def run(self, workflow, libraries, graph: hvac_graph.HvacGraph):
+    def run(self, workflow: Workflow, libraries: tuple, graph: HvacGraph):
         self.logger.info("Export to Modelica code")
         reduced_instances = graph.elements
 
         connections = graph.get_connections()
 
         modelica.Instance.init_factory(libraries)
-        export_instances = {inst: modelica.Instance.factory(inst) for
-                            inst in reduced_instances}
+        export_instances = {inst: modelica.Instance.factory(inst) for inst in reduced_instances}
 
-        yield from ProductBased.get_pending_attribute_decisions(
-            reduced_instances)
+        yield from ProductBased.get_pending_attribute_decisions(reduced_instances)
 
         for instance in export_instances.values():
             instance.collect_params()
@@ -583,23 +495,19 @@ class Export(ITask):
         connection_port_names = self.create_connections(graph, export_instances)
 
         self.logger.info(
-            "Creating Modelica model with %d model instances and %d "
-            "connections.",
+            "Creating Modelica model with %d model instances and %d connections.",
             len(export_instances), len(connection_port_names))
 
         modelica_model = modelica.Model(
             name="BIM2SIM",
-            comment=f"Autogenerated by BIM2SIM on "
-                    f"{datetime.now():%Y-%m-%d %H:%M:%S%z}",
-            instances=export_instances.values(),
+            comment=f"Autogenerated by BIM2SIM on {datetime.now():%Y-%m-%d %H:%M:%S%z}",
+            instances=list(export_instances.values()),
             connections=connection_port_names,
         )
-        # print("-"*80)
-        # print(modelica_model.code())
-        # print("-"*80)
         modelica_model.save(self.paths.export)
 
-    def create_connections(self, graph, export_instances):
+    @staticmethod
+    def create_connections(graph: HvacGraph, export_instances: dict) -> list:
         connection_port_names = []
         distributors_n = {}
         distributors_ports = {}
@@ -611,8 +519,7 @@ class Export(ITask):
                          'b': export_instances[port_b.parent]}
             ports_name = {'a': instances['a'].get_full_port_name(port_a),
                           'b': instances['b'].get_full_port_name(port_b)}
-            if any(isinstance(e.element, hvac.Distributor) for
-                   e in instances.values()):
+            if any(isinstance(e.element, hvac.Distributor) for e in instances.values()):
                 for key, inst in instances.items():
                     if type(inst.element) is hvac.Distributor:
                         distributor = (key, inst)
