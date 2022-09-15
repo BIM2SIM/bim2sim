@@ -11,10 +11,8 @@ import networkx as nx
 
 from bim2sim.kernel.elements import hvac
 from bim2sim.task.base import ITask
-from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating, \
-    ParallelPump
-from bim2sim.kernel.aggregation import Consumer, \
-    ConsumerHeatingDistributorModule, GeneratorOneFluid
+from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating, ParallelPump
+from bim2sim.kernel.aggregation import Consumer, ConsumerHeatingDistributorModule, GeneratorOneFluid
 from bim2sim.kernel.element import ProductBased, ElementEncoder, Port
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
@@ -29,7 +27,7 @@ quality_logger = logging.getLogger('bim2sim.QualityReport')
 
 
 class ConnectElements(ITask):
-    """Analyses IFC, creates Element instances and connects them.
+    """Analyses IFC, creates element instances and connects them.
     Elements are stored in instances dict with guid as key"""
 
     reads = ('instances',)
@@ -44,40 +42,39 @@ class ConnectElements(ITask):
         """
 
         Args:
-            workflow:
-            instances:
+            workflow: the used workflow
+            instances: dictionary of elements with guid as key
 
         Returns:
-
+            instances: dictionary of elements with guid as key
         """
         self.logger.info("Connect elements")
-        self.instances = instances  # TODO: remove self.instances
 
-        # connections
+        # Check ports
         self.logger.info("Checking ports of elements ...")
-        self.check_element_ports(self.instances)
+        self.check_element_ports(instances)
+        # Make connections by relation
         self.logger.info("Connecting the relevant elements")
         self.logger.info(" - Connecting by relations ...")
-
-        all_ports = [port for item in self.instances.values() for port in item.ports]
+        all_ports = [port for item in instances.values() for port in item.ports]
         rel_connections = self.connections_by_relation(all_ports)
         self.logger.info(" - Found %d potential connections.", len(rel_connections))
-
+        # Check connections
         self.logger.info(" - Checking positions of connections ...")
         confirmed, unconfirmed, rejected = self.confirm_connections_position(rel_connections)
         self.logger.info(" - %d connections are confirmed and %d rejected. %d can't be confirmed.",
                          len(confirmed), len(rejected), len(unconfirmed))
         for port1, port2 in confirmed + unconfirmed:
-            # unconfirmed ports have no position data and can't be connected by position
+            # Unconfirmed ports have no position data and can not be connected by position
             port1.connect(port2)
-
+        # Connect unconnected ports by position
         unconnected_ports = (port for port in all_ports if not port.is_connected())
         self.logger.info(" - Connecting remaining ports by position ...")
         pos_connections = self.connections_by_position(unconnected_ports)
         self.logger.info(" - Found %d additional connections.", len(pos_connections))
         for port1, port2 in pos_connections:
             port1.connect(port2)
-
+        # Get number of connected and unconnected ports
         nr_total = len(all_ports)
         unconnected = [port for port in all_ports if not port.is_connected()]
         nr_unconnected = len(unconnected)
@@ -85,18 +82,16 @@ class ConnectElements(ITask):
         self.logger.info("In total %d of %d ports are connected.", nr_connected, nr_total)
         if nr_total > nr_connected:
             self.logger.warning("%d ports are not connected!", nr_unconnected)
-
+        # Connect by bounding box TODO: implement
         unconnected_elements = {uc.parent for uc in unconnected}
         if unconnected_elements:
-            # TODO: Implement connections by bounding box
             bb_connections = self.connections_by_boundingbox(unconnected, unconnected_elements)
             self.logger.warning("Connecting by bounding box is not implemented.")
-
-        # inner connections
+        # Check inner connections
         yield from self.check_inner_connections(instances.values())
 
         # TODO: manually add / modify connections
-        return self.instances,
+        return instances,
 
     @staticmethod
     def check_element_ports(elements: dict):
@@ -111,11 +106,11 @@ class ConnectElements(ITask):
                     quality_logger.warning("Poor quality of elements %s: "
                                            "Overlapping ports (%s and %s @%s)",
                                            ele.ifc, port_a.guid, port_b.guid, port_a.position)
-                    conns = ConnectElements.connections_by_relation([port_a, port_b], include_conflicts=True)
-                    all_ports = [port for conn in conns for port in conn]
+                    connections = ConnectElements.connections_by_relation([port_a, port_b], include_conflicts=True)
+                    all_ports = [port for connection in connections for port in connection]
                     other_ports = [port for port in all_ports if port not in [port_a, port_b]]
                     if port_a in all_ports and port_b in all_ports and len(set(other_ports)) == 1:
-                        # both ports connected to same other port -> merge ports
+                        # Both ports connected to same other port -> merge ports
                         quality_logger.info("Removing %s and set %s as SINKANDSOURCE.", port_b.ifc, port_a.ifc)
                         ele.ports.remove(port_b)
                         port_b.parent = None
@@ -128,7 +123,7 @@ class ConnectElements(ITask):
 
         Args:
             ports: list of ports to be connected
-            include_conflicts:
+            include_conflicts: if true, conflicts are tried to solve
 
         Returns:
             connections: list of tuples of ports that are connected
@@ -275,8 +270,7 @@ class ConnectElements(ITask):
         Returns:
 
         """
-        # If a lot of decisions occur, it would help to merge DecisionBunches
-        # before yielding them
+        # TODO: if a lot of decisions occur, it would help to merge DecisionBunches before yielding them
         for instance in instances:
             if isinstance(instance, hvac.HVACProduct) \
                     and not instance.inner_connections:
@@ -289,7 +283,8 @@ class ConnectElements(ITask):
         This is especially useful for vessel like elements with variable
         number of ports (and bad ifc export) or proxy elements.
         Missing ports on element side are created on demand."""
-        # TODO:
+
+        # TODO: implement
         connections = []
         return connections
 
@@ -464,7 +459,7 @@ class DetectCycles(ITask):
     reads = ('graph',)
     touches = ('cycles',)
 
-    # TODO: sth usefull like grouping or medium assignment
+    # TODO: sth useful like grouping or medium assignment
 
     def run(self, workflow: Workflow, graph: HvacGraph) -> tuple:
         self.logger.info("Detecting cycles")
@@ -508,6 +503,16 @@ class Export(ITask):
 
     @staticmethod
     def create_connections(graph: HvacGraph, export_instances: dict) -> list:
+        """
+        Creates a list of connections for the corresponding modelica model.
+
+        Args:
+            graph: the HVAC graph
+            export_instances: the modelica instances
+
+        Returns:
+           connection_port_names: list of tuple of port names that are connected
+        """
         connection_port_names = []
         distributors_n = {}
         distributors_ports = {}
