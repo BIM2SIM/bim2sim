@@ -117,7 +117,7 @@ def _debug_run_bps():
 
 def _debug_run_bps_ep():
     """Create example project and copy ifc if necessary"""
-    path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+    path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
     rel_example = 'ExampleFiles/AC20-FZK-Haus.ifc'
     # rel_example = 'ResultFiles/AC20-FZK-Haus_with_SB44.ifc' # aktuell
