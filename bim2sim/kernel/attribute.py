@@ -36,8 +36,16 @@ class AutoAttributeNameMeta(type):
 class Attribute:
     """Descriptor of element attribute to get its value from various sources.
 
-    value and status of attribute are stored in __dict__ of bound instance"""
-    # https://rszalski.github.io/magicmethods/
+    value and status of attribute are stored in __dict__ of bound instance.
+    Possible statuses are:
+        UNKNOWN: default status at the beginning.
+        REQUESTED: Attribute was already requested via a decision??.
+        AVAILABLE: Attribute exists and is available.
+        NOT_AVAILABLE: No way was found to obtain the attributes value.
+
+    To find more about Descriptor objects follow the explanations on
+    https://rszalski.github.io/magicmethods/#descriptor
+    """
     STATUS_UNKNOWN = 'UNKNOWN'
     STATUS_REQUESTED = 'REQUESTED'
     STATUS_AVAILABLE = 'AVAILABLE'
@@ -58,20 +66,26 @@ class Attribute:
 
         Args:
             description: Description of attribute
-            unit: pint unit of attribute, defaults to dimensionless
-            default_ps: tuple of propertyset name and property name
-            default_association: tuple of association name and property name
-            patterns: iterable of (compiled) re patterns
+            unit: pint unit of attribute, defaults to dimensionless. Use SI
+                units whenever possible.
+            default_ps: tuple of propertyset name and property name. These
+                follow the IFC schema specifications.
+            default_association: tuple of association name and property name.
+                These follow the IFC schema specifications.
+            patterns: iterable of (compiled) re patterns to find not schema
+                conform stored information
             ifc_postprocessing: callable to apply on initial value, returns
-                                final value
+                final value
             functions: iterable of callable with signature func(bind, name) ->
-                       value. First return with no error is used as value.
+                value. First return with no error is used as value.
             default: default value which is used if no other source is
-                     successful
+                successful. Use only for attributes which have valid
+                defaults.
             dependant_attributes: list of additional attributes necessary to
-                                  calculate the attribute
+                calculate the attribute. Will be calculated automatically if
+                not provided.
             dependant_instances: list of additional instances necessary to
-                                 calculate the attribute
+                calculate the attribute
         """
         self.name = None  # auto set by AutoAttributeNameMeta
         self.description = description
@@ -102,6 +116,7 @@ class Attribute:
         return Attribute(**options)
 
     def _get_value(self, bind):
+        """"""
         value = None
         if bind.ifc:  # don't bother if there is no ifc
             # default property set
@@ -260,9 +275,11 @@ class Attribute:
         return value
 
     def request(self, bind, external_decision=None):
-        """Request attribute
-        :param bind: bound instance of attribute
-        :param external_decision: Decision to use instead of default decision
+        """Request attribute via decision.
+
+        Args:
+            bind: bound instance of attribute
+            external_decision: Decision to use instead of default decision
         """
 
         # read current value and status
@@ -323,8 +340,8 @@ class Attribute:
         return _decision
 
     def get_attribute_dependency(self, instance):
-        """
-        Get attribute dependency.
+        """Get attribute dependency.
+
         When an attribute depends on other attributes in the same instance or
         the same attribute in other instances, this function gets the
         dependencies when they are not stored on the respective dictionaries.
@@ -406,7 +423,10 @@ class Attribute:
         bind.attributes[self.name] = (value, status)
 
     def __get__(self, bind, owner):
-        # this gets called if attribute is accessed
+        """This gets called if attribute is accessed via element.attribute.
+
+        The descriptors get function handles the different underlying ways to
+        get an attributes value"""
         if bind is None:
             return self
 
@@ -462,7 +482,13 @@ class Attribute:
 
 
 class AttributeManager(dict):
-    """Attribute Manager class"""
+    """Manages the attributes.
+
+    Every bim2sim element owns an instance of the AttributeManager class which
+    manages the corresponding attributes of this element. It as an dict with
+        key: name of attribute as string
+        value: tuple with (value of attribute, Status of attribute).
+    """
 
     def __init__(self, bind):
         super().__init__()
@@ -491,8 +517,15 @@ class AttributeManager(dict):
             -> Union[None, Decision]:
         """Request attribute by name.
 
-        :param name: name of requested attribute
-        :param external_decision: custom decision to get attribute from"""
+        Checks the status of the requested attribute and returns
+
+        Args:
+            name: name of requested attribute
+            external_decision: custom decision to get attribute from
+
+        Returns:
+            A Decision to get the requested attributes value.
+            """
         try:
             attr = self.get_attribute(name)
         except KeyError:
@@ -529,6 +562,8 @@ class AttributeManager(dict):
 
     @property
     def names(self):
+        """Returns a generator object with all attributes that the corresponding
+        bind owns."""
         return (name for name in dir(type(self.bind))
                 if isinstance(getattr(type(self.bind), name), Attribute))
 
