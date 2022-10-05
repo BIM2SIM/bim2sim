@@ -1,8 +1,8 @@
 import unittest
 import re
+import shutil
 
 import buildingspy.development.regressiontest as u
-from pathlib import Path
 
 from bim2sim import workflow
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
@@ -21,29 +21,28 @@ class IntegrationBaseTEASER(IntegrationBase):
         Requires that simulation was run and not only model was created.
 
         """
-        # if not workflow.simulated:
-        #     raise AssertionError("Simulation was not run, no regression test "
-        #                          "possible")
-        # else:
-        ref_results_path = \
+        # todo check areas, u-values etc. (this should be part of teaser export)
+        ref_results_src_path = \
             self.project.paths.assets / 'regression_results' / 'bps' \
-            / str(self.project.name + '.mos')
+            / self.project.name / 'TEASER'
         regex = re.compile("[^a-zA-z0-9]")
         model_export_name = regex.sub("", self.project.name)
-
-        tester = u.Tester(tool='dymola', tol=tolerance)  # todo
+        ref_results_dst_path =\
+            self.project.paths.export / 'TEASER' / 'Model' / \
+            model_export_name / 'Resources' / 'ReferenceResults' / \
+            'Dymola'
+        shutil.copytree(ref_results_src_path, ref_results_dst_path)
+        tester = u.Tester(tool='dymola', tol=tolerance, cleanup=False)  # todo
         tester.pedanticModelica(False)
         tester.showGUI(False)
         tester.batchMode(True)
-        tester.setLibraryRoot(self.project.paths.export / 'TEASER' / 'Model' / model_export_name)
-        # todo this is only available in local copy of buildingspy currently.
-        #  I need to fork the buildingspy, create a branch and link this in
-        #  requirements + maybe good documentation and better functionality
-        #  -> merge into buldingspy master
+        tester.setLibraryRoot(
+            self.project.paths.export / 'TEASER' / 'Model' / model_export_name)
+        # todo use submodule of aixlib here instead local coppy if everything else works
         tester.setAdditionalLibResource(
             'D:/02_Git/AixLib/AixLib/package.mo')
-        # todo currently the simulation is only run, reference
-        #  results still needed
+        # todo how to add procedure to easily add new reference results?
+        # implement script that run the project in batchmode and allows to overwrite, if overwrite is chosen the result will automatically be moved after creation to the regression results folder
         test_return_val = tester.run()
 
         return test_return_val
@@ -66,7 +65,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         self.assertEqual(0, handler.return_value,
                          "Project export did not finish successfully.")
         reg_test_res = self.regression_test(used_workflow)
-        # todo: not only check zero, also other returns, see
         self.assertEqual(0, reg_test_res,
                          "Regression test with simulation did not finish"
                          " successfully or created deviations.")
