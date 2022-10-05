@@ -107,9 +107,11 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
 
     def request(self, name, external_decision: Decision = None) \
             -> Union[None, Decision]:
-        """Request attribute
-        :param name: Name of attribute
-        :param external_decision: Decision to use instead of default decision
+        """Request the elements attribute.
+
+        Args:
+            name: Name of attribute
+            external_decision: Decision to use instead of default decision
         """
         return self.attributes.request(name, external_decision)
 

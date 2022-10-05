@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to BIM2SIM's documentation!
+Welcome to bim2sim's documentation!
 ===================================
 
 .. toctree::
@@ -15,6 +15,7 @@ Welcome to BIM2SIM's documentation!
    tasks
    logging
    plugins
+   attribute
    code/modules
    
    
