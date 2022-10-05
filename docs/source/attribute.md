@@ -14,5 +14,6 @@ information can either be obtained from:
 To resolve this problem of multiple available sources and even parameters which
 will be not included in the model at all the `Attribute` system provides a solution.
 
-## How does it work?
-
+## Concept /How does it work?
+Every bim2sim [element](element) instance owns an instance of the
+[AttributeManager](AttributeManager) which is stored under 'element.attributes'
