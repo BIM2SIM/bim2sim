@@ -19,6 +19,7 @@ from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.kernel.aggregation import AggregatedThermalZone
 from bim2sim.kernel.elements import bps
 from bim2sim.kernel.elements.bps import ExternalSpatialElement, SpaceBoundary2B
+from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.utilities.pyocc_tools import PyOCCTools
@@ -435,7 +436,7 @@ class CreateIdf(ITask):
                              Field_1="Through: 12/31",
                              Field_2="For: Alldays",
                              Field_3="Until: 24:00",
-                             Field_4=space.fixed_heat_flow_rate_persons  # in W/Person
+                             Field_4=space.fixed_heat_flow_rate_persons.to(ureg.watt).m  # in W/Person
                              )  # other method for Field_4 (not used here) ="persons_profile"*"activity_degree_persons"*58,1*1,8 (58.1 W/(m2*met), 1.8m2/Person)
         if CreateIdf.ENERGYPLUS_VERSION in ["9-2-0", "9-4-0"]:
             people = idf.newidfobject(
