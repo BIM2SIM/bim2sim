@@ -38,9 +38,9 @@ class IntegrationBaseTEASER(IntegrationBase):
         tester.batchMode(True)
         tester.setLibraryRoot(
             self.project.paths.export / 'TEASER' / 'Model' / model_export_name)
-        # todo use submodule of aixlib here instead local coppy if everything else works
-        tester.setAdditionalLibResource(
-            'D:/02_Git/AixLib/AixLib/package.mo')
+        path_aixlib = self.project.paths.b2sroot / 'bim2sim' / 'plugins' /\
+            'AixLib' / 'AixLib' / 'package.mo'
+        tester.setAdditionalLibResource(str(path_aixlib))
         # todo how to add procedure to easily add new reference results?
         # implement script that run the project in batchmode and allows to overwrite, if overwrite is chosen the result will automatically be moved after creation to the regression results folder
         test_return_val = tester.run()
