@@ -307,7 +307,7 @@ test_EP:
 
 test_TEASER:
   <<: *only-default
-  image: $CI_REGISTRY/environment:teaser
+  image: $CI_REGISTRY/environment:teaser-dymola
   stage: test
   before_script:
     - pip install coverage
