@@ -79,13 +79,15 @@ class IntegrationBaseEP(IntegrationBase):
                                  "possible")
         else:
             # set reference paths for energyplus regression test
-            ref_results_path = \
+            regression_base_path = \
                 self.project.paths.assets / 'regression_results' / 'bps'
+            ref_results_path = \
+                regression_base_path / self.project.name / 'EnergyPlus'
             ref_csv = ref_results_path / str(self.project.name +
                                              '_eplusout.csv')
             ref_htm = ref_results_path / str(self.project.name +
                                              '_eplustbl.htm')
-            diff_config = ThreshDict(ref_results_path / 'ep_diff.config')
+            diff_config = ThreshDict(regression_base_path / 'ep_diff.config')
 
             # set path to current simulation results
             sim_csv = self.project.paths.export / 'EP-results' / 'eplusout.csv'
