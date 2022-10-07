@@ -139,11 +139,23 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BPSMultiZoneSeparatedEP()
-        run_full_simulation = True
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = (True, True, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, '
-                   'zweifach', True, True, True, run_full_simulation)
+        cooling = True
+        heating = True
+        construction_type = 'heavy'
+        window_type = 'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
+        split_non_convex_bounds = True
+        add_shadings = True
+        split_non_convex_shadings = True
+        run_full_simulation = True
+        answers = (cooling,
+                   heating,
+                   construction_type,
+                   window_type,
+                   split_non_convex_bounds,
+                   add_shadings,
+                   split_non_convex_shadings,
+                   run_full_simulation)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -151,7 +163,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         self.assertEqual(0, handler.return_value)
         self.assertEqual(True, passed_regression, 'Failed EnergyPlus '
                                                   'Regression Test')
-        #todo: fix virtual bounds (assigned to be outdoors for some reason)
 
     @unittest.skip("")
     def test_base_01full_FZK_design_day(self):
