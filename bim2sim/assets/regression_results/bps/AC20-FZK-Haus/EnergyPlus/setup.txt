@@ -1,0 +1,30 @@
+Regression-test for AC20-FZK-Haus
+
+## decisions:
+        cooling = True
+        heating = True
+        construction_type = 'heavy'
+        window_type = 'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
+        split_non_convex_bounds = True
+        add_shadings = True
+        split_non_convex_shadings = True
+        run_full_simulation = True
+        answers = (cooling,
+                   heating,
+                   construction_type,
+                   window_type,
+                   split_non_convex_bounds,
+                   add_shadings,
+                   split_non_convex_shadings,
+                   run_full_simulation)
+
+## used_workflow = workflow.BPSMultiZoneSeparatedEP()
+        ductwork=LOD.low,
+        hull=LOD.medium,
+        consumer=LOD.low,
+        generator=LOD.ignore,
+        hvac=LOD.low,
+        spaces=LOD.full,
+        layers_and_materials=LOD.low,
+        create_external_elements=True,  # consider IfcExternalSpatialElements
+        cfd_export=False,
