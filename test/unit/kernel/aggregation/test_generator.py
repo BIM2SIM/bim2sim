@@ -400,9 +400,9 @@ class TestGeneratorAggregation(unittest.TestCase):
         handler.handle(expansiontanks.ExpansionTanks.decide_expansion_tanks(
             graph, pot_tanks, force=True))
         graph, n_removed_tanks = handler.return_value
-        dead_ends_found = dead_ends.DeadEnds.identify_deadends(graph)
+        dead_ends_found = dead_ends.DeadEnds.identify_dead_ends(graph)
         handler = DebugDecisionHandler(answers=[])
-        handler.handle(dead_ends.DeadEnds.decide_deadends(graph, dead_ends_found, True))
+        handler.handle(dead_ends.DeadEnds.decide_dead_ends(graph, dead_ends_found, True))
         graph, n_removed_dead_ends = handler.return_value
         matches, metas = aggregation.GeneratorOneFluid.find_matches(graph)
         self.assertEqual(
@@ -431,9 +431,9 @@ class TestGeneratorAggregation(unittest.TestCase):
         handler.handle(expansiontanks.ExpansionTanks.decide_expansion_tanks(
             graph, pot_tanks, force=True))
         graph, n_removed_tanks = handler.return_value
-        dead_ends_found = dead_ends.DeadEnds.identify_deadends(graph)
+        dead_ends_found = dead_ends.DeadEnds.identify_dead_ends(graph)
         handler = DebugDecisionHandler(answers=[])
-        handler.handle(dead_ends.DeadEnds.decide_deadends(graph, dead_ends_found, True))
+        handler.handle(dead_ends.DeadEnds.decide_dead_ends(graph, dead_ends_found, True))
         graph, n_removed_dead_ends = handler.return_value
         matches, metas = aggregation.GeneratorOneFluid.find_matches(graph)
         agg_generators = []
