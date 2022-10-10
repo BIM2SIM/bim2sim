@@ -94,7 +94,8 @@ class IntegrationBaseEP(IntegrationBase):
             sim_htm = self.project.paths.export / 'EP-results' / 'eplustbl.htm'
             # set directory for regression test results
             regression_results_dir = self.project.paths.root / \
-                                     'regression_results' / 'bps'
+                                     'regression_results' / 'bps' / \
+                                     self.project.name / 'EnergyPlus'
 
             csv_regression = math_diff.math_diff(
                 # csv_regression returns diff_type ('All Equal', 'Big Diffs',
