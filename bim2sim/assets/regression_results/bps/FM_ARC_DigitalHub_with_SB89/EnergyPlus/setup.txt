@@ -1,20 +1,26 @@
-Regression-test for AC20-FZK-Haus
+Regression-test for FM_ARC_DigitalHub_with_SB89
 
 ## weather file: DEU_NW_Aachen.105010_TMYx.epw
 
 ## decisions:
+        space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
+        handle_proxies = (*(None,)*150,)
         cooling = True
         heating = True
         construction_type = 'heavy'
-        window_type = 'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
-        split_non_convex_bounds = True
+        window_type = 'Waermeschutzverglasung, dreifach'
+        construction_year = 2015
+        split_non_convex_bounds = False
         add_shadings = True
-        split_non_convex_shadings = True
+        split_non_convex_shadings = False
         run_full_simulation = True
-        answers = (cooling,
+        answers = (space_boundary_genenerator,
+                   *handle_proxies,
+                   cooling,
                    heating,
                    construction_type,
                    window_type,
+                   construction_year,
                    split_non_convex_bounds,
                    add_shadings,
                    split_non_convex_shadings,
