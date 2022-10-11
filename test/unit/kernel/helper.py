@@ -1,8 +1,7 @@
 from unittest import mock
 from contextlib import contextmanager
 
-from bim2sim.kernel.elements import hvac
-from bim2sim.kernel.element import Element
+from bim2sim.kernel.elements import hvac, bps
 from bim2sim.kernel.elements.hvac import HVACPort
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 
@@ -29,6 +28,9 @@ class SetupHelper:
         self._flags = flags
         yield
         self._flags = None
+
+    def element_generator(self):
+        raise NotImplementedError
 
 class SetupHelperHVAC(SetupHelper):
 
@@ -143,5 +145,20 @@ class SetupHelperHVAC(SetupHelper):
                 return False
         return True
 
+
 class SetupHelperBPS(SetupHelper):
-    pass
+    def element_generator(self, element_cls, flags=None, **kwargs):
+        # with mock.patch.object(bps.BPSProduct, 'get_ports', return_value=[]):
+        element = element_cls(**kwargs)
+        return element
+
+    def get_setup_simple_house(self):
+        out_wall_1 = self.element_generator(
+            bps.OuterWall, net_area=20, gross_area=21, width=0.2)
+        tz_1 = self.element_generator(
+            bps.ThermalZone,
+            net_area=100,
+            usage='Wohnen',
+            bound_elements=[out_wall_1])
+            # bps.ThermalZone, bound_elements=[out_wall_1])
+        return tz_1

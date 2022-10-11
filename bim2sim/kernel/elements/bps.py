@@ -521,8 +521,8 @@ class ThermalZone(BPSProduct):
 
     def __init__(self, *args, **kwargs):
         """thermalzone __init__ function"""
+        self.bound_elements = kwargs.pop('bound_elements', [])  # todo workaround
         super().__init__(*args, **kwargs)
-        self.bound_elements = []
 
     def get__elements_by_type(self, type):
         raise NotImplementedError
