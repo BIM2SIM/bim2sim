@@ -18,10 +18,13 @@ class EnrichUseConditions(ITask):
         super().__init__()
         self.enriched_tz = []
         self.use_conditions = {}
+        self.doubled_decisions = {}
 
     def run(self, workflow: Workflow, tz_instances: dict):
         self.logger.info("enriches thermal zones usage")
         self.use_conditions = get_usage_dict(self.prj_name)
+
+
 
         # case no thermal zones found
         if len(tz_instances) == 0:
@@ -47,13 +50,13 @@ class EnrichUseConditions(ITask):
             thermal_zones: dict with tz instances guid as key and the instance
             itself as value
         """
-        selected_usage = {}
+        # selected_usage = {}
         final_usages = {}
         pattern_usage = get_pattern_usage(self.prj_name)
         for tz in list(thermal_zones.values()):
-            if tz.usage in selected_usage:
-                tz.usage = selected_usage[tz.usage]
-            else:
+            # if tz.usage in selected_usage:
+            #     final_usages[tz] = selected_usage[tz.usage]
+            # else:
                 orig_usage = str(tz.usage)
                 if orig_usage not in pattern_usage:
                     matches = []
@@ -92,17 +95,22 @@ class EnrichUseConditions(ITask):
                     if len(matches) > 1:
                         final_usages[tz] = self.list_decision_usage(
                             tz, matches)
-                    selected_usage[orig_usage] = tz.usage
-        # answers decisions
+                    # selected_usage[orig_usage] = tz.usage
+        # collect decisions
         usage_dec_bunch = DecisionBunch()
         for tz, use_or_dec in final_usages.items():
             if isinstance(use_or_dec, ListDecision):
                 usage_dec_bunch.append(use_or_dec)
-        yield usage_dec_bunch
-        answers = usage_dec_bunch.to_answer_dict()
-        # update usages
-        for tz, dec_answer in answers.items():
-            final_usages[tz] = dec_answer
+        # remove duplicate decisions
+        unique_decisions, doubled_decisions = usage_dec_bunch.get_reduced_bunch(
+            criteria='key')
+        yield unique_decisions
+        answers = unique_decisions.to_answer_dict()
+        # combine answers and not answered decision
+        for dec in doubled_decisions:
+            final_usages[dec.related] = answers[dec.key]
+        for dec in unique_decisions:
+            final_usages[dec.related] = dec.value
         # set usages
         for tz, usage in final_usages.items():
             tz.usage = usage
@@ -165,7 +173,8 @@ class EnrichUseConditions(ITask):
         usage_decision = ListDecision("Which usage does the Space %s have?" %
                                       (str(tz.usage)),
                                       choices=choices,
-                                      key=tz,
+                                      key='usage_'+str(tz.usage),
+                                      related=tz,
                                       global_key="%s_%s.BpsUsage" %
                                                  (type(tz).__name__, tz.guid),
                                       allow_skip=False,
