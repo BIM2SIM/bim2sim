@@ -11,7 +11,7 @@ class RunEnergyPlusSimulation(ITask):
         # subprocess.run(['energyplus', '-x', '-c', '--convert-only', '-d', self.paths.export, idf.idfname])
         run_decision = BoolDecision(
             question="Do you want to run the full energyplus simulation"
-                     " (annual, readvars)?",
+                     " (annual)?",
             global_key='EnergyPlus.FullRun')
         yield DecisionBunch([run_decision])
         ep_full = run_decision.value
@@ -19,8 +19,9 @@ class RunEnergyPlusSimulation(ITask):
         if not ep_full:
             design_day = True
         output_string = str(self.paths.export / 'EP-results/')
-        idf.run(output_directory=output_string, readvars=ep_full, annual=ep_full, design_day=design_day)
-        workflow.simulated = ep_full
+        idf.run(output_directory=output_string, readvars=True, annual=ep_full,
+                design_day=design_day)
+        workflow.simulated = True
         self.logger.info(f"Simulation successfully finished.")
         # if ep_full:
         #     PostprocessingUtils._visualize_results(csv_name=self.paths.export / 'EP-results/eplusout.csv')

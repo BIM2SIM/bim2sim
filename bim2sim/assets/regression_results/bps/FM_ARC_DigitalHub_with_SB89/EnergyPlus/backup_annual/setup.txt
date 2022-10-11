@@ -1,4 +1,4 @@
-Regression-test for FM_ARC_DigitalHub_fixed002
+Regression-test for FM_ARC_DigitalHub_with_SB89
 
 ## weather file: DEU_NW_Aachen.105010_TMYx.epw
 
@@ -10,9 +10,9 @@ Regression-test for FM_ARC_DigitalHub_fixed002
         construction_type = 'heavy'
         window_type = 'Waermeschutzverglasung, dreifach'
         construction_year = 2015
-        split_non_convex_bounds = True
+        split_non_convex_bounds = False
         add_shadings = True
-        split_non_convex_shadings = True
+        split_non_convex_shadings = False
         run_full_simulation = True
         answers = (space_boundary_genenerator,
                    *handle_proxies,
@@ -25,7 +25,6 @@ Regression-test for FM_ARC_DigitalHub_fixed002
                    add_shadings,
                    split_non_convex_shadings,
                    run_full_simulation)
-
 
 ## used_workflow = workflow.BPSMultiZoneSeparatedEP()
         ductwork=LOD.low,

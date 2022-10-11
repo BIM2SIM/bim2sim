@@ -631,7 +631,7 @@
       "value": false
     },
     "EnergyPlus.FullRun": {
-      "value": true
+      "value": false
     }
   }
 }

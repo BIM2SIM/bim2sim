@@ -319,7 +319,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         split_non_convex_bounds = False
         add_shadings = True
         split_non_convex_shadings = False
-        run_full_simulation = True
+        run_full_simulation = False
         answers = (space_boundary_genenerator,
                    *handle_proxies,
                    cooling,

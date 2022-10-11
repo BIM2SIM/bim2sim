@@ -730,12 +730,15 @@ class CreateIdf(ITask):
         :return: idf file object
         """
         for sim_control in idf.idfobjects["SIMULATIONCONTROL"]:
-            print("")
             # sim_control.Do_Zone_Sizing_Calculation = "Yes"
             sim_control.Do_System_Sizing_Calculation = "Yes"
             # sim_control.Do_Plant_Sizing_Calculation = "Yes"
             sim_control.Run_Simulation_for_Sizing_Periods = "No"
             sim_control.Run_Simulation_for_Weather_File_Run_Periods = "Yes"
+
+        for building in idf.idfobjects['BUILDING']:
+            building.Solar_Distribution = 'FullExterior'
+            # pass
         # return idf
 
     @staticmethod

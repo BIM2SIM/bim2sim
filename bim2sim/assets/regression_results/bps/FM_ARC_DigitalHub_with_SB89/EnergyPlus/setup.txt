@@ -1,6 +1,7 @@
 Regression-test for FM_ARC_DigitalHub_with_SB89
 
 ## weather file: DEU_NW_Aachen.105010_TMYx.epw
+                 DesignDay uses weather of DENVER!
 
 ## decisions:
         space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
@@ -13,7 +14,7 @@ Regression-test for FM_ARC_DigitalHub_with_SB89
         split_non_convex_bounds = False
         add_shadings = True
         split_non_convex_shadings = False
-        run_full_simulation = True
+        run_full_simulation = False
         answers = (space_boundary_genenerator,
                    *handle_proxies,
                    cooling,

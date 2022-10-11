@@ -622,13 +622,13 @@
       "unit": "year"
     },
     "EnergyPlus.SplitConvexBounds": {
-      "value": true
+      "value": false
     },
     "EnergyPlus.AddShadings": {
       "value": true
     },
     "EnergyPlus.SplitConvexShadings": {
-      "value": true
+      "value": false
     },
     "EnergyPlus.FullRun": {
       "value": true
