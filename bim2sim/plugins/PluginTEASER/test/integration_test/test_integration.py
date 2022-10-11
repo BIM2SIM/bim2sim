@@ -124,8 +124,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-Institute-Var-2.ifc'
         used_workflow = workflow.BPSMultiZoneCombinedLayersLow()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'heavy', 'EnEv', 2015, 'by_all_criteria',
-                   120)
+        answers = (True, True, 'heavy', 'EnEv', 2015, 'by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
