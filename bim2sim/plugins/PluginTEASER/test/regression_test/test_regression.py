@@ -31,7 +31,7 @@ class RegressionTestTEASER(RegressionTestBase):
         ]
         for log_file in log_files:
             file = reg_dir / log_file
-            file.unlink()
+            file.unlink(missing_ok=True)
 
         super().tearDown()
 
