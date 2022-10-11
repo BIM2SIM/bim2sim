@@ -303,14 +303,69 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    # @unittest.skip("Skipped due to performance for CI")
+    def test_DigitalHub_SB89_regression(self):
+        """Test DigitalHub IFC, includes regression test"""
+        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB89.ifc'
+        used_workflow = workflow.BPSMultiZoneSeparatedEP()
+        project = self.create_project(ifc, 'energyplus', used_workflow)
+        space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
+        handle_proxies = (*(None,)*150,)
+        cooling = True
+        heating = True
+        construction_type = 'heavy'
+        window_type = 'Waermeschutzverglasung, dreifach'
+        construction_year = 2015
+        split_non_convex_bounds = False
+        add_shadings = True
+        split_non_convex_shadings = False
+        run_full_simulation = True
+        answers = (space_boundary_genenerator,
+                   *handle_proxies,
+                   cooling,
+                   heating,
+                   construction_type,
+                   window_type,
+                   construction_year,
+                   split_non_convex_bounds,
+                   add_shadings,
+                   split_non_convex_shadings,
+                   run_full_simulation)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+        passed_regression = self.regression_test(used_workflow)
+        self.assertEqual(True, passed_regression, 'Failed EnergyPlus '
+                                                  'Regression Test')
+
+
+    @unittest.skip("Skipped due to performance for CI")
     def test_base_09_DH_design_day(self):
         """Test DigitalHub IFC"""
-        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB_neu.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True,
-                   'heavy', 'Waermeschutzverglasung, dreifach', 2015,
-                   True, True, True, False)
+        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_fixed002.ifc'
+        used_workflow = workflow.BPSMultiZoneSeparatedEP()
+        project = self.create_project(ifc, 'energyplus', used_workflow)
+        space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
+        handle_proxies = (*(None,)*150,)
+        cooling = True
+        heating = True
+        construction_type = 'heavy'
+        window_type = 'Waermeschutzverglasung, dreifach'
+        construction_year = 2015
+        split_non_convex_bounds = True
+        add_shadings = True
+        split_non_convex_shadings = True
+        run_full_simulation = True
+        answers = (space_boundary_genenerator,
+                   *handle_proxies,
+                   cooling,
+                   heating,
+                   construction_type,
+                   window_type,
+                   construction_year,
+                   split_non_convex_bounds,
+                   add_shadings,
+                   split_non_convex_shadings,
+                   run_full_simulation)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)

@@ -125,6 +125,8 @@ def _debug_run_bps_ep():
     # rel_example = 'ResultFiles/2020-10-15-KHH-Test_with_SB.ifc'
     # rel_example = 'ExampleFiles/AC20-Institute-Var-2.ifc'
     # rel_example = 'ExampleFiles/DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc' # ok
+    rel_example = 'ResultFiles/FM_ARC_DigitalHub_with_SB89.ifc'
+    # ok
     # rel_example = 'ExampleFiles/AC-20-Smiley-West-10-Bldg.ifc'
     path_ifc = os.path.normpath(os.path.join(path_base, rel_example))
 
