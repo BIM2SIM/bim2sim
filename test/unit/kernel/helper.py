@@ -30,6 +30,8 @@ class SetupHelper:
         yield
         self._flags = None
 
+class SetupHelperHVAC(SetupHelper):
+
     @classmethod
     def fake_add_ports(cls, parent, n=2):
         new_ports = [HVACPort(parent=parent) for i in range(n)]
@@ -140,3 +142,6 @@ class SetupHelper:
             if not isinstance(ele, hvac.HVACProduct):
                 return False
         return True
+
+class SetupHelperBPS(SetupHelper):
+    pass
