@@ -72,8 +72,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         answers = ('Autodesk Revit 2020 (DEU)', True, True,
                    'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
-                   'by_all_criteria',
-                   120)
+                   'by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -87,8 +86,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = ('Autodesk Revit 2020 (DEU)', True, True,
                    'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
-                   120)
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -102,7 +100,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
-                   2015, 120)
+                   2015)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -126,8 +124,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-Institute-Var-2.ifc'
         used_workflow = workflow.BPSMultiZoneCombinedLayersLow()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'heavy', 'EnEv', 2015, 'by_all_criteria',
-                   120)
+        answers = (True, True, 'heavy', 'EnEv', 2015, 'by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
