@@ -22,7 +22,7 @@ class RegressionTestTEASER(RegressionTestBase):
         # clean up buildingspy logs
         reg_dir = self.project.paths.b2sroot / 'bim2sim' / 'plugins' \
                   / 'PluginTEASER' / 'test' / 'regression_test'
-        shutil.rmtree(reg_dir / 'funnel_comp')
+        shutil.rmtree(reg_dir / 'funnel_comp', ignore_errors=True)
         log_files = [
             'comparison-dymola.log',
             'failed-simulator-dymola.log',
