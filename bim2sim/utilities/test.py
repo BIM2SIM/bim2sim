@@ -18,11 +18,19 @@ class IntegrationBase:
             self.assertFalse(self.project.paths.root.exists())
             self.project = None
 
-    def create_project(self, ifc: str, plugin: str, workflow: Workflow = None):
-        """create project in temporary directory which is cleaned automatically after test.
+    def create_project(
+            self, ifc: str, plugin: str, workflow: Workflow = None) -> Project:
+        """create project in temporary directory which is cleaned automatically
+         after test.
 
-        :param plugin: Project plugin e.g. 'hkesim', 'aixlib', ...
-        :param ifc: name of ifc file located in dir TestModels"""
+        Args:
+            ifc: name of ifc file located in dir TestModels
+            plugin: e.g. 'hkesim', 'aixlib', ...
+            workflow: bim2sim workflow
+
+        Returns:
+            project: bim2sim project
+        """
         self.project = Project.create(
             tempfile.TemporaryDirectory(prefix='bim2sim_').name,
             ifc_path=sample_root / ifc,
@@ -30,20 +38,22 @@ class IntegrationBase:
         return self.project
 
     def regression_test(self, workflow):
+        # TODO @Veronika remove this after EP integration tests moved to own
+        #  class based on RegressionTestBase class (for example
+        #  see RegressionTestTEASER class)
         raise NotImplementedError
 
 
-    # def run_project(self, ifc_file: str, backend: str):
-    #     """Create example project and copy ifc if necessary
-    #     :param backend: Project backend e.g. 'hkesim', 'aixlib', ...
-    #     :param ifc_file: name of ifc file located in dir TestModels
-    #     :return: return code of main()
-    #     """
-    #
-    #     project_path = Path(self.temp_dir.name)
-    #     path_ifc = Path(__file__).parent.parent / 'TestModels' / ifc_file
-    #
-    #     if not bim2sim.PROJECT.is_project_folder(project_path):
-    #         bim2sim.PROJECT.create(project_path, path_ifc, target=backend)
-    #     return_code = bim2sim.main(project_path)
-    #     return return_code
+class RegressionTestBase(IntegrationBase):
+    """Base class for regression tests."""
+    def setUp(self):
+        self.results_src_dir = None
+        self.results_dst_dir = None
+        self.tester = None
+        super().setUp()
+
+    def create_regression_setup(self, tolerance):
+        raise NotImplementedError
+
+    def run_regression_test(self):
+        raise NotImplementedError
