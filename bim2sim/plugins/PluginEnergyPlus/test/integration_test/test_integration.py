@@ -3,8 +3,12 @@ import unittest
 import tempfile
 from shutil import copyfile, copytree, rmtree
 from pathlib import Path
+import epregressions
 
 import os
+
+from epregressions.diffs import math_diff, table_diff
+from epregressions.diffs.thresh_dict import ThreshDict
 
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
@@ -63,6 +67,69 @@ class IntegrationBaseEP(IntegrationBase):
                                       plugin=plugin, workflow=workflow)
         return self.project
 
+    def regression_test(self, workflow):
+        """Run regression test comparison for EnergyPlus.
+
+        Requires that simulation was run and not only model was created.
+
+        """
+        passed_regression_test = True
+        if not workflow.simulated:
+            raise AssertionError("Simulation was not run, no regression test "
+                                 "possible")
+        else:
+            # set reference paths for energyplus regression test
+            regression_base_path = \
+                self.project.paths.assets / 'regression_results' / 'bps'
+            ref_results_path = \
+                regression_base_path / self.project.name / 'EnergyPlus'
+            ref_csv = ref_results_path / str(self.project.name +
+                                             '_eplusout.csv')
+            ref_htm = ref_results_path / str(self.project.name +
+                                             '_eplustbl.htm')
+            diff_config = ThreshDict(regression_base_path / 'ep_diff.config')
+
+            # set path to current simulation results
+            sim_csv = self.project.paths.export / 'EP-results' / 'eplusout.csv'
+            sim_htm = self.project.paths.export / 'EP-results' / 'eplustbl.htm'
+            # set directory for regression test results
+            regression_results_dir = self.project.paths.root / \
+                                     'regression_results' / 'bps' / \
+                                     self.project.name / 'EnergyPlus'
+
+            csv_regression = math_diff.math_diff(
+                # csv_regression returns diff_type ('All Equal', 'Big Diffs',
+                # 'Small Diffs'), num_records (length of validated csv file
+                # (#timesteps)), num_big (#big errors),
+                # num_small (#small errors)
+                diff_config,
+                ref_csv.as_posix(),
+                sim_csv.as_posix(),
+                os.path.join(regression_results_dir, 'abs_diff_math.csv'),
+                os.path.join(regression_results_dir, 'rel_diff_math.csv'),
+                os.path.join(regression_results_dir, 'math_diff_math.log'),
+                os.path.join(regression_results_dir, 'summary_math.csv'),
+            )
+            if csv_regression[0] == 'Big Diffs':
+                passed_regression_test = False  # only passes with small diffs
+
+            htm_regression = table_diff.table_diff(
+                # htm_regression returns message, #tables, #big_diff,
+                # #small_diff, #equals, #string_diff,
+                # #size_diff, #not_in_file1, #not_in_file2
+                diff_config,
+                ref_htm.as_posix(),
+                sim_htm.as_posix(),
+                os.path.join(regression_results_dir, 'abs_diff_table.htm'),
+                os.path.join(regression_results_dir, 'rel_diff_table.htm'),
+                os.path.join(regression_results_dir, 'math_diff_table.log'),
+                os.path.join(regression_results_dir, 'summary_table.csv'),
+            )
+            if htm_regression[2] != 0:
+                passed_regression_test = False  # only passes without big diffs
+
+            return passed_regression_test
+
 
 class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     """
@@ -70,18 +137,35 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     Tested are both original IFC files and files from Eric Fichter's Space Boundary Generation tool.
     """
 
-    # @unittest.skip("")
+    @unittest.skip("")
     def test_base_01_FZK_design_day(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        answers = (True, True, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
+        used_workflow = workflow.BPSMultiZoneSeparatedEP()
+        project = self.create_project(ifc, 'energyplus', used_workflow)
+        cooling = True
+        heating = True
+        construction_type = 'heavy'
+        window_type = 'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
+        split_non_convex_bounds = True
+        add_shadings = True
+        split_non_convex_shadings = True
+        run_full_simulation = True
+        answers = (cooling,
+                   heating,
+                   construction_type,
+                   window_type,
+                   split_non_convex_bounds,
+                   add_shadings,
+                   split_non_convex_shadings,
+                   run_full_simulation)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
+        passed_regression = self.regression_test(used_workflow)
         self.assertEqual(0, handler.return_value)
-        #todo: fix virtual bounds (assigned to be outdoors for some reason)
+        self.assertEqual(True, passed_regression, 'Failed EnergyPlus '
+                                                  'Regression Test')
 
     @unittest.skip("")
     def test_base_01full_FZK_design_day(self):
@@ -220,14 +304,70 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    # @unittest.skip("Skipped due to performance for CI")
+    @unittest.skip("")
+    def test_DigitalHub_SB89_regression(self):
+        """Test DigitalHub IFC, includes regression test"""
+        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB89.ifc'
+        used_workflow = workflow.BPSMultiZoneSeparatedEP()
+        project = self.create_project(ifc, 'energyplus', used_workflow)
+        space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
+        handle_proxies = (*(None,)*150,)
+        cooling = True
+        heating = True
+        construction_type = 'heavy'
+        window_type = 'Waermeschutzverglasung, dreifach'
+        construction_year = 2015
+        split_non_convex_bounds = False
+        add_shadings = True
+        split_non_convex_shadings = False
+        run_full_simulation = False
+        answers = (space_boundary_genenerator,
+                   *handle_proxies,
+                   cooling,
+                   heating,
+                   construction_type,
+                   window_type,
+                   construction_year,
+                   split_non_convex_bounds,
+                   add_shadings,
+                   split_non_convex_shadings,
+                   run_full_simulation)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+        passed_regression = self.regression_test(used_workflow)
+        self.assertEqual(True, passed_regression, 'Failed EnergyPlus '
+                                                  'Regression Test')
+
+
+    @unittest.skip("Skipped due to performance for CI")
     def test_base_09_DH_design_day(self):
         """Test DigitalHub IFC"""
-        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB_neu.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True,
-                   'heavy', 'Waermeschutzverglasung, dreifach', 2015,
-                   True, True, True, False)
+        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_fixed002.ifc'
+        used_workflow = workflow.BPSMultiZoneSeparatedEP()
+        project = self.create_project(ifc, 'energyplus', used_workflow)
+        space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
+        handle_proxies = (*(None,)*150,)
+        cooling = True
+        heating = True
+        construction_type = 'heavy'
+        window_type = 'Waermeschutzverglasung, dreifach'
+        construction_year = 2015
+        split_non_convex_bounds = True
+        add_shadings = True
+        split_non_convex_shadings = True
+        run_full_simulation = True
+        answers = (space_boundary_genenerator,
+                   *handle_proxies,
+                   cooling,
+                   heating,
+                   construction_type,
+                   window_type,
+                   construction_year,
+                   split_non_convex_bounds,
+                   add_shadings,
+                   split_non_convex_shadings,
+                   run_full_simulation)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)

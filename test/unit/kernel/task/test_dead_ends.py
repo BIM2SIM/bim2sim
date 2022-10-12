@@ -64,7 +64,7 @@ class TestOnlyDeadEnds(unittest.TestCase):
         """Test performs search and remove of the dead ends by decision"""
         
         graph, flags = self.helper.get_simple_circuit()
-        pot_dead_ends = dead_ends.DeadEnds.identify_deadends(graph)
+        pot_dead_ends = dead_ends.DeadEnds.identify_dead_ends(graph)
         pot_dead_ends_compare = [
             flags['ps1'][0].ports[1],
             flags['ps3'][0].ports[1],
@@ -72,7 +72,7 @@ class TestOnlyDeadEnds(unittest.TestCase):
             flags['ps6'][0].ports[1],
         ]
         self.assertCountEqual(pot_dead_ends_compare, pot_dead_ends)
-        job = dead_ends.DeadEnds.decide_deadends(graph, pot_dead_ends)
+        job = dead_ends.DeadEnds.decide_dead_ends(graph, pot_dead_ends)
         try:
             while True:
                 decisions = next(job)
@@ -90,7 +90,7 @@ class TestOnlyDeadEnds(unittest.TestCase):
         """
 
         graph, flags = self.helper.get_simple_circuit()
-        pot_dead_ends = dead_ends.DeadEnds.identify_deadends(graph)
+        pot_dead_ends = dead_ends.DeadEnds.identify_dead_ends(graph)
         pot_dead_ends_compare = [
             flags['ps1'][0].ports[1],
             flags['ps3'][0].ports[1],
@@ -98,7 +98,7 @@ class TestOnlyDeadEnds(unittest.TestCase):
             flags['ps6'][0].ports[1],
         ]
         self.assertCountEqual(pot_dead_ends_compare, pot_dead_ends)
-        job = dead_ends.DeadEnds.decide_deadends(
+        job = dead_ends.DeadEnds.decide_dead_ends(
             graph, pot_dead_ends, force=True)
         try:
             while True:

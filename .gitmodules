@@ -1,5 +1,4 @@
-[submodule "AixLib"]
-	path = bim2sim/plugins/PluginTEASER/bim2sim_teaser/AixLib
+[submodule "bim2sim/plugins/AixLib"]
+	path = bim2sim/plugins/AixLib
 	url = https://github.com/RWTH-EBC/AixLib.git
 	branch = development
-

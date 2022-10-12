@@ -3,19 +3,21 @@ from itertools import permutations
 from pathlib import Path
 
 import ifcopenshell
+from ifcopenshell.entity_instance import entity_instance
 import numpy as np
 
 import bim2sim
 from bim2sim.task.base import ITask
+from bim2sim.workflow import Workflow
 
 
 class FixPorts(ITask):
     """Remove invalid ports from ifc."""
 
-    reads = ('ifc', )
-    touches = ('ifc', )
+    reads = ('ifc',)
+    touches = ('ifc',)
 
-    def run(self, workflow, ifc):
+    def run(self, workflow: Workflow, ifc: ifcopenshell.file) -> tuple:
         self.logger.info("Removing invalid ports from ifc")
 
         to_remove = set()
@@ -34,9 +36,17 @@ class FixPorts(ITask):
             ifc.remove(entity)
         path = './cleaned.ifc'
         ifc.write(path)
-        return (ifc, )
+        return ifc,
 
-    def unconnected_ports_on_same_position(self, ifc) -> set:
+    def unconnected_ports_on_same_position(self, ifc: ifcopenshell.file) -> set:
+        """Analyse IFC file for unconnected ports on the same position.
+
+        Args:
+            ifc: the IFC file that is inspected
+
+        Returns:
+            to_remove: set of ports to be removed
+        """
         positions = {}
         for port in ifc.by_type('IfcDistributionPort'):
             position = self._get_position(port)
@@ -51,14 +61,14 @@ class FixPorts(ITask):
                         to_remove.append(port)
         return set(to_remove)
 
-    def ports_with_same_parent_and_same_position(self, ifc) -> set:
+    def ports_with_same_parent_and_same_position(self, ifc: ifcopenshell.file) -> set:
         parents = {}
         for port in self.get_unconnected_ports(ifc):
             parents.setdefault(port.ContainedIn[0].RelatedElement, []).append(port)
 
         to_remove = set()
         for parent in parents:
-            ports = [rel.RelatingPort for rel in parent.HasPorts]  # other options?
+            ports = [rel.RelatingPort for rel in parent.HasPorts]
             for port1, port2 in permutations(ports, 2):
                 unconnected_ports = []
                 if np.allclose(
@@ -73,7 +83,7 @@ class FixPorts(ITask):
                         to_remove.add(unconnected_ports[0])
         return to_remove
 
-    def entities_with_unusual_number_of_ports(self, ifc) -> set:
+    def entities_with_unusual_number_of_ports(self, ifc: ifcopenshell.file) -> set:
         to_remove = []
         two_port_elements = {'IfcPipeSegment', }
         for item in two_port_elements:
@@ -84,7 +94,7 @@ class FixPorts(ITask):
                             to_remove.append(port)
         return set(to_remove)
 
-    def get_unconnected_ports(self, ifc) -> list:
+    def get_unconnected_ports(self, ifc: ifcopenshell.file) -> list:
         return [port for port in ifc.by_type('IfcDistributionPort')
                 if not self._is_connected(port)]
 
@@ -99,9 +109,8 @@ class FixPorts(ITask):
         return True
 
     @staticmethod
-    def _get_position(entity) -> np.array:
-        port_coordinates_relative = \
-            np.array(entity.ObjectPlacement.RelativePlacement.Location.Coordinates)
+    def _get_position(entity: entity_instance) -> np.array:
+        port_coordinates_relative = np.array(entity.ObjectPlacement.RelativePlacement.Location.Coordinates)
 
         parent = entity.ContainedIn[0].RelatedElement
         try:
@@ -114,15 +123,14 @@ class FixPorts(ITask):
         y_direction = np.cross(z_direction, x_direction)
         directions = np.array((x_direction, y_direction, z_direction)).T
 
-        coordinates = FixPorts.get_product_position(parent) \
-                      + np.matmul(directions, port_coordinates_relative)
+        coordinates = FixPorts.get_product_position(parent) + np.matmul(directions, port_coordinates_relative)
         return coordinates
 
     @staticmethod
-    def get_product_position(product):
-        if hasattr(product, 'ObjectPlacement'):
-            absolute = np.array(product.ObjectPlacement.RelativePlacement.Location.Coordinates)
-            placement_rel = product.ObjectPlacement.PlacementRelTo
+    def get_product_position(entity: entity_instance):
+        if hasattr(entity, 'ObjectPlacement'):
+            absolute = np.array(entity.ObjectPlacement.RelativePlacement.Location.Coordinates)
+            placement_rel = entity.ObjectPlacement.PlacementRelTo
             while placement_rel is not None:
                 absolute += np.array(placement_rel.RelativePlacement.Location.Coordinates)
                 placement_rel = placement_rel.PlacementRelTo

@@ -56,6 +56,29 @@ build_env:development:
       - requirements.txt
       - .gitlab-ci.yml
 
+build_env:dymola:
+ image: docker:latest
+ stage: build-env
+ services:
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
+ #- docker:18.09.7-dind
+ before_script:
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA   # login bim2sim
+ script:
+   - docker build -t $CI_REGISTRY/environment:dymola -f envBaseDymola.Dockerfile .
+   - docker push $CI_REGISTRY/environment:dymola
+ only:
+   refs:
+      - development
+      - 230_regression_tests
+   changes:
+      - envBaseDymola.Dockerfile
+      - requirements.txt
+      - .gitlab-ci.yml
+
+
 build_env:energyplus:
   image: docker:latest
   stage: build-env-plugins
@@ -118,6 +141,29 @@ build_env:teaser:
      - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
      - requirements.txt
      - .gitlab-ci.yml
+
+
+build_env:teaser-dymola:
+ image: docker:latest
+ stage: build-env-plugins
+ services:
+ - docker:18.09.7-dind
+ before_script:
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+ script:
+   - docker build -t $CI_REGISTRY/environment:teaser-dymola -f bim2sim/plugins/PluginTEASER/envTEASER-dymola.Dockerfile .
+   - docker push $CI_REGISTRY/environment:teaser-dymola
+ only:
+   refs:
+     - development
+     - 230_regression_tests
+   changes:
+     - envBase.Dockerfile
+     - bim2sim/plugins/PluginTEASER/requirements.txt
+     - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
+     - requirements.txt
+     - .gitlab-ci.yml
+
 
 build_env:aixlib:
  image: docker:latest
@@ -278,6 +324,29 @@ test_EP:
     paths:
     - $CI_COMMIT_REF_NAME/coverage
 
+test_EP_regression:
+  <<: *only-default
+  image: $CI_REGISTRY/environment:energyplus
+  stage: test
+  before_script:
+    - pip install coverage
+    - pip install coverage-badge
+  script:
+    - mv ./* /bim2sim-coding/
+    - cd /bim2sim-coding
+    - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
+    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/regression_test
+    - coverage report -i
+    - mkdir -p $CI_COMMIT_REF_NAME/coverage
+    - coverage html -i
+    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+    # skip this for now as its only cosmetic and leads to problems
+    # - coverage-badge -o coverage.svg
+    # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/coverage
+
 test_TEASER:
   <<: *only-default
   image: $CI_REGISTRY/environment:teaser
@@ -292,6 +361,28 @@ test_TEASER:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration_test
+    - coverage report -i
+    - mkdir -p $CI_COMMIT_REF_NAME/coverage
+    - coverage html -i
+    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+    # skip this for now as its only cosmetic and leads to problems
+    # - coverage-badge -o coverage.svg
+    # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/coverage
+
+test_TEASER_regression:
+  <<: *only-default
+  image: $CI_REGISTRY/environment:teaser-dymola
+  stage: test
+  before_script:
+    - pip install coverage
+    - pip install coverage-badge
+  script:
+    - mv ./* /bim2sim-coding/
+    - cd /bim2sim-coding
+    - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression_test
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
     - coverage html -i
