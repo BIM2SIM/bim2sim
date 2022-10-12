@@ -39,12 +39,11 @@ class Workflow:
     """
 
     def __init__(self,
-                 ductwork: LOD,
-                 hull: LOD,
-                 consumer: LOD,
-                 generator: LOD,
-                 hvac: LOD,
-                 spaces: LOD,
+                 # hull: LOD,
+                 # consumer: LOD,
+                 # generator: LOD,
+                 # hvac: LOD,
+                 # spaces: LOD,
                  layers_and_materials=None,
                  construction_class=None,
                  create_external_elements=False,
@@ -52,17 +51,29 @@ class Workflow:
                  dymola_simulation=False,
                  filters: list = None):
 
-        self.ductwork = ductwork
-        self.hull = hull
-        self.consumer = consumer
-        self.generator = generator
-        self.hvac = hvac
-        self.spaces = spaces
+        # self.hull = hull
+        # self.consumer = consumer
+        # self.generator = generator
+        # self.hvac = hvac
+        # self.spaces = spaces
         self.layers_and_materials = layers_and_materials
         self.construction_class = construction_class
         self.create_external_elements = create_external_elements
         self.cfd_export = cfd_export
         self.dymola_simulation = dymola_simulation
+
+        #
+        # self.infiltration_rate = 0.5
+        # self.building_heated = True
+        # self.building_cooled = False
+        #
+        # self.input_params = {
+        #     'boolean': [, ],
+        #     'floats': [self.infiltration_rate ],
+        # }
+        # for type, value in self.input_params:
+        #     type('boolean')
+        # self.boolean_input_params = []
 
         self.filters = filters if filters else []
         self.ifc_units = {}  # dict to store project related units
@@ -91,18 +102,26 @@ class Workflow:
 
 
 class PlantSimulation(Workflow):
-
-    def __init__(self):
+    # todo split parameters into building and plant simulation
+    # todo make parameters selectable and settable from backend
+    # todo add new parameters for heating, cooling, zone aggregation, hvac aggregation
+    # todo: do we still need lods?
+    def __init__(self,
+                 ductwork=LOD.low):
         super().__init__(
-            ductwork=LOD.low,
-            hull=LOD.ignore,
-            consumer=LOD.low,
-            generator=LOD.full,
-            hvac=LOD.low,
-            spaces=LOD.ignore,
+            # hull=LOD.ignore,
+            # consumer=LOD.low,
+            # generator=LOD.full,
+            # hvac=LOD.low,
+            # spaces=LOD.ignore,
             layers_and_materials=LOD.full,
         )
+        self.ductwork=ductwork
 
+class BuildingSimulation(Workflow):
+
+    def __init__(self, building_parameters):
+        super().__init__()
 
 class BPSMultiZoneSeparatedLayersFull(Workflow):
     """Building performance simulation with every space as single zone
@@ -111,15 +130,15 @@ class BPSMultiZoneSeparatedLayersFull(Workflow):
 
     def __init__(self):
         super().__init__(
-            ductwork=LOD.low,
-            hull=LOD.medium,
-            consumer=LOD.low,
-            generator=LOD.ignore,
-            hvac=LOD.low,
-            spaces=LOD.full,
+            # hull=LOD.medium,
+            # consumer=LOD.low,
+            # generator=LOD.ignore,
+            # hvac=LOD.low,
+            # spaces=LOD.full,
             # layers=LOD.low,
             layers_and_materials=LOD.full,
         )
+
 
 
 class BPSMultiZoneSeparatedLayersLow(Workflow):
@@ -129,12 +148,11 @@ class BPSMultiZoneSeparatedLayersLow(Workflow):
 
     def __init__(self):
         super().__init__(
-            ductwork=LOD.low,
-            hull=LOD.medium,
-            consumer=LOD.low,
-            generator=LOD.ignore,
-            hvac=LOD.low,
-            spaces=LOD.full,
+            # hull=LOD.medium,
+            # consumer=LOD.low,
+            # generator=LOD.ignore,
+            # hvac=LOD.low,
+            # spaces=LOD.full,
             layers_and_materials=LOD.low,
         )
 
@@ -146,12 +164,11 @@ class BPSMultiZoneCombinedLayersFull(Workflow):
 
     def __init__(self):
         super().__init__(
-            ductwork=LOD.low,
-            hull=LOD.medium,
-            consumer=LOD.low,
-            generator=LOD.ignore,
-            hvac=LOD.low,
-            spaces=LOD.medium,
+            # hull=LOD.medium,
+            # consumer=LOD.low,
+            # generator=LOD.ignore,
+            # hvac=LOD.low,
+            # spaces=LOD.medium,
             layers_and_materials=LOD.full,
         )
         self.materials = None
@@ -164,12 +181,11 @@ class BPSMultiZoneCombinedLayersLow(Workflow):
 
     def __init__(self):
         super().__init__(
-            ductwork=LOD.low,
-            hull=LOD.medium,
-            consumer=LOD.low,
-            generator=LOD.ignore,
-            hvac=LOD.low,
-            spaces=LOD.medium,
+            # hull=LOD.medium,
+            # consumer=LOD.low,
+            # generator=LOD.ignore,
+            # hvac=LOD.low,
+            # spaces=LOD.medium,
             layers_and_materials=LOD.low,
         )
 
@@ -180,12 +196,11 @@ class BPSMultiZoneAggregatedLayersLow(Workflow):
 
     def __init__(self):
         super().__init__(
-            ductwork=LOD.low,
-            hull=LOD.medium,
-            consumer=LOD.low,
-            generator=LOD.ignore,
-            hvac=LOD.low,
-            spaces=LOD.medium,
+            # hull=LOD.medium,
+            # consumer=LOD.low,
+            # generator=LOD.ignore,
+            # hvac=LOD.low,
+            # spaces=LOD.medium,
             layers_and_materials=LOD.low,
         )
 
@@ -195,12 +210,11 @@ class BPSMultiZoneAggregatedLayersLowSimulation(Workflow):
 
     def __init__(self):
         super().__init__(
-            ductwork=LOD.low,
-            hull=LOD.medium,
-            consumer=LOD.low,
-            generator=LOD.ignore,
-            hvac=LOD.low,
-            spaces=LOD.medium,
+            # hull=LOD.medium,
+            # consumer=LOD.low,
+            # generator=LOD.ignore,
+            # hvac=LOD.low,
+            # spaces=LOD.medium,
             layers_and_materials=LOD.low,
             dymola_simulation=True
         )
@@ -212,12 +226,11 @@ class BPSMultiZoneAggregatedLayersFull(Workflow):
 
     def __init__(self):
         super().__init__(
-            ductwork=LOD.low,
-            hull=LOD.medium,
-            consumer=LOD.low,
-            generator=LOD.ignore,
-            hvac=LOD.low,
-            spaces=LOD.medium,
+            # hull=LOD.medium,
+            # consumer=LOD.low,
+            # generator=LOD.ignore,
+            # hvac=LOD.low,
+            # spaces=LOD.medium,
             layers_and_materials=LOD.full,
         )
 
@@ -228,12 +241,11 @@ class BPSOneZoneAggregatedLayersLow(Workflow):
 
     def __init__(self):
         super().__init__(
-            ductwork=LOD.low,
-            hull=LOD.medium,
-            consumer=LOD.low,
-            generator=LOD.ignore,
-            hvac=LOD.low,
-            spaces=LOD.low,
+            # hull=LOD.medium,
+            # consumer=LOD.low,
+            # generator=LOD.ignore,
+            # hvac=LOD.low,
+            # spaces=LOD.low,
             layers_and_materials=LOD.low,
             # layers=LOD.full,
         )
@@ -245,12 +257,11 @@ class BPSOneZoneAggregatedLayersFull(Workflow):
 
     def __init__(self):
         super().__init__(
-            ductwork=LOD.low,
-            hull=LOD.medium,
-            consumer=LOD.low,
-            generator=LOD.ignore,
-            hvac=LOD.low,
-            spaces=LOD.low,
+            # hull=LOD.medium,
+            # consumer=LOD.low,
+            # generator=LOD.ignore,
+            # hvac=LOD.low,
+            # spaces=LOD.low,
             layers_and_materials=LOD.full,
         )
 
@@ -262,12 +273,11 @@ class BPSMultiZoneSeparatedEP(Workflow):
 
     def __init__(self):
         super().__init__(
-            ductwork=LOD.low,
-            hull=LOD.medium,
-            consumer=LOD.low,
-            generator=LOD.ignore,
-            hvac=LOD.low,
-            spaces=LOD.full,
+            # hull=LOD.medium,
+            # consumer=LOD.low,
+            # generator=LOD.ignore,
+            # hvac=LOD.low,
+            # spaces=LOD.full,
             layers_and_materials=LOD.low,
             create_external_elements=True,  # consider IfcExternalSpatialElements
             cfd_export=False,
@@ -281,12 +291,11 @@ class BPSMultiZoneSeparatedEPfull(Workflow):
 
     def __init__(self):
         super().__init__(
-            ductwork=LOD.low,
-            hull=LOD.medium,
-            consumer=LOD.low,
-            generator=LOD.ignore,
-            hvac=LOD.low,
-            spaces=LOD.full,
+            # hull=LOD.medium,
+            # consumer=LOD.low,
+            # generator=LOD.ignore,
+            # hvac=LOD.low,
+            # spaces=LOD.full,
             layers_and_materials=LOD.full,
             create_external_elements=True,  # consider IfcExternalSpatialElements
             cfd_export=False,
@@ -301,12 +310,11 @@ class BPSMultiZoneSeparatedEPforCFD(Workflow):
 
     def __init__(self):
         super().__init__(
-            ductwork=LOD.low,
-            hull=LOD.medium,
-            consumer=LOD.low,
-            generator=LOD.ignore,
-            hvac=LOD.low,
-            spaces=LOD.full,
+            # hull=LOD.medium,
+            # consumer=LOD.low,
+            # generator=LOD.ignore,
+            # hvac=LOD.low,
+            # spaces=LOD.full,
             layers_and_materials=LOD.low,
             create_external_elements=True,  # consider IfcExternalSpatialElements
             cfd_export=True,
@@ -317,12 +325,11 @@ class CFDWorkflowDummy(Workflow):
     # todo make something useful
     def __init__(self):
         super().__init__(
-            ductwork=LOD.low,
-            hull=LOD.medium,
-            consumer=LOD.low,
-            generator=LOD.ignore,
-            hvac=LOD.low,
-            spaces=LOD.full,
+            # hull=LOD.medium,
+            # consumer=LOD.low,
+            # generator=LOD.ignore,
+            # hvac=LOD.low,
+            # spaces=LOD.full,
             layers_and_materials=LOD.full,
             create_external_elements=True,  # consider IfcExternalSpatialElements
         )
