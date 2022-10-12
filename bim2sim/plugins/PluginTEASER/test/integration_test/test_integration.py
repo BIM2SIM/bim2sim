@@ -1,4 +1,5 @@
 import unittest
+
 from bim2sim import workflow
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
@@ -12,12 +13,26 @@ class IntegrationBaseTEASER(IntegrationBase):
 
 
 class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
+    def test_run_kitfzkhaus_spaces_low_layers_low(self):
+        """Run project with AC20-FZK-Haus.ifc"""
+        ifc = 'AC20-FZK-Haus.ifc'
+        used_workflow = workflow.BPSOneZoneAggregatedLayersLow()
+        used_workflow.dymola_simulation = False
+        project = self.create_project(ifc, 'TEASER', used_workflow)
+        answers = (True, True, 'heavy',
+                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value,
+                         "Project export did not finish successfully.")
 
     def test_DH_spaces_medium_material_low(self):
         """Test DigitalHub IFC"""
         ifc = 'FM_ARC_DigitalHub_with_SB_neu.ifc'
         used_workflow = workflow.BPSMultiZoneAggregatedLayersLow()
         project = self.create_project(ifc, 'TEASER', used_workflow)
+        # Tool,
         answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True,
                    'heavy', 'Waermeschutzverglasung, dreifach', 2015,
                    'by_all_criteria')
@@ -57,8 +72,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         answers = ('Autodesk Revit 2020 (DEU)', True, True,
                    'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
-                   'by_all_criteria',
-                   120)
+                   'by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -72,20 +86,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = ('Autodesk Revit 2020 (DEU)', True, True,
                    'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
-                   120)
-        handler = DebugDecisionHandler(answers)
-        for decision, answer in handler.decision_answer_mapping(project.run()):
-            decision.value = answer
-        self.assertEqual(0, handler.return_value,
-                         "Project did not finish successfully.")
-
-    def test_run_kitfzkhaus_spaces_low_layers_low(self):
-        """Run project with AC20-FZK-Haus.ifc"""
-        ifc = 'AC20-FZK-Haus.ifc'
-        used_workflow = workflow.BPSOneZoneAggregatedLayersLow()
-        project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -100,7 +100,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
-                   2015, 120)
+                   2015)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
