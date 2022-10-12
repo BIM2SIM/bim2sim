@@ -116,7 +116,16 @@ class BPSProduct(element.ProductBased):
         return sum(sb.opening_area for sb in self.sbs_without_corresponding)
 
     def calc_orientation(self) -> float:
-        """Calculate the orientation of the bps product"""
+        """Calculate the orientation of the bps product based on SB direction.
+
+        For buildings elements we can use the more reliable space boundaries
+        normal vector to calculate the orientation if the space boundaries
+        exists. Otherwise the base calc_orientation of IFCBased will be used.
+
+        Returns:
+            Orientation angle between 0 and 360.
+            (0 : north, 90: east, 180: south, 270: west)
+        """
         true_north = self.get_true_north()
         if len(self.space_boundaries):
             new_orientation = self.group_orientation(
