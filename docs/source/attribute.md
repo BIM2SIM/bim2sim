@@ -1,12 +1,12 @@
-(attribute)=
-# Attribute
+(attributes)=
+# Attributes
 ## Which problem is addressed by attributes?
-To parametrize simulation models different types of parameters are needed. A 
+To parametrize simulation models, different types of parameters are needed. A 
 BIM model and specifically an IFC model offers multiple sources for the 
 requested information. Let's assume that we need the `net_area` of a wall. This 
 information can either be obtained from:
-* the official IFC specified `QuantitySet` 'Qto_WallBaseQuantities/NetSideArea'
-* the unofficial, but typical in ArchiCAD used 'BaseQuantities'/NetSideArea'
+* the official IFC specified `QuantitySet` `Qto_WallBaseQuantities/NetSideArea`
+* the unofficial, but typical in ArchiCAD used `BaseQuantities'/NetSideArea`
 * any other PropertySet where the BIM modeller might have stored the information
 * the calculation of the Space Boundary area of the wall
 * nowhere, because the information simply does not exist in the model (might not be the case for this example)
@@ -30,25 +30,31 @@ net_area = attribute.Attribute(
 )
 ```
 This way bim2sim knows where to look for in the IFC file and which function to 
-use if no information exists in the IFC file. Also so unit in which the value 
-should be stored is provided as m².  See [Attributes](Attribute) documentation 
-for more detailed description which other ways are implemented to obtain a value.
+use if no information exists in the IFC file. Also the unit in which the value 
+should be stored is provided as m².  See
+[_get_value function of attribute](_get_value) documentation for more detailed 
+description which other ways are implemented to obtain a value.
 
 ## How are the attributes managed? 
 To manage the different attributes every bim2sim [element](element) instance 
-owns an instance of the [AttributeManager](AttributeManager) which is stored under `element.attributes`, 
-which manages the values and current status of the [Attributes](Attribute). As
-not all needed attribute information might be present inside the IFC we 
-implemented the concept of [Decisions](Decision) which is basically a structured
-way to obtain information from the user. For more information regarding Decisions
-please read the corresponding information. The [AttributeManager](AttributeManager) 
-uses the status of each attribute to store if an attribute was already requested. 
-To trigger all decisions for the already requested attributes to finally obtain 
-the corresponding values the final tasks before exporting to a simulation model
-should always trigger the [](get_pending_attribute_decisions) function of
-[element](element). 
-This implementation was made to bundle the decisions at the end of the process 
-if possible. 
+owns an instance of the [AttributeManager](AttributeManager) which is stored under `element.attributes`.
+This manager manages the values and current status of the [Attributes](Attribute). 
 
+If an information can't be obtained by the implemented ways in
+[_get_value function of attribute](_get_value) of attribute its status will be
+changed to `NOT_AVAILABLE`. As some information are mandatory to parametrize a
+simulation model, we implemented the concept of [Decisions](Decision)
+which is basically a structured way to obtain information from the user. To make 
+sure that all relevant information exists, a parameter can be 
+[requested](request). This way a [Decisions](Decision) will be created if the 
+status of the corresponding attribute is `NOT_AVAILABLE`.
 
+# todo: flow chart with mermaid. To use mermaid: https://github.com/mgaitan/sphinxcontrib-mermaid#markdown-support
 
+The [AttributeManager](AttributeManager) uses the status of each attribute to
+store if an attribute was already requested. To trigger all decisions for the 
+already requested attributes to finally obtain the corresponding values the 
+final tasks before exporting to a simulation model should always trigger the
+[](get_pending_attribute_decisions) function of [element](element). This
+implementation was made to bundle the decisions at the end of the process if 
+possible. 
