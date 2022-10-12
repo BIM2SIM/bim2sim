@@ -74,6 +74,8 @@ class Workflow:
         self.underfloorheatings = LOD.medium
         self.pumps = LOD.medium
 
+        self.simulated = False
+
     def update_from_config(self, config):
         """Updates the workflow specification from the config file"""
         self.pipes = LOD(config['Aggregation'].getint('Pipes', 2))

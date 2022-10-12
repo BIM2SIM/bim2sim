@@ -70,6 +70,7 @@ class SimulateModel(ITask):
                     self.logger.error(
                         f"Translation of {bldg_name} was not successful")
             dymola.close()
+            workflow.simulated = True
             self.logger.info(f"Successfully simulated "
                              f"{n_success}/{len(bldg_names)}"
                              f" Simulations.")
@@ -85,9 +86,9 @@ class SimulateModel(ITask):
             'Dymola 2020',
             'Dymola 2020x',
             'Dymola 2021',
-            # 'Dymola 2021x',
-            # 'Dymola 2022',
-            # 'Dymola 2022x'
+            'Dymola 2021x',
+            'Dymola 2022',
+            'Dymola 2022x'
             # todo fix newer dymola versions (msl 4.0 error)
         ]
 

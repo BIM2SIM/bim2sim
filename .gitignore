@@ -468,3 +468,5 @@ workspace/
 /docs/build/
 /docs/source/code/
 
+# BuildingsPy Regression test folders
+funnel_comp/

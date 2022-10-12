@@ -19,6 +19,7 @@ from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.kernel.aggregation import AggregatedThermalZone
 from bim2sim.kernel.elements import bps
 from bim2sim.kernel.elements.bps import ExternalSpatialElement, SpaceBoundary2B
+from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.utilities.pyocc_tools import PyOCCTools
@@ -55,7 +56,8 @@ class CreateIdf(ITask):
         idf.set_default_constructions()
         self.logger.info("Export IDF geometry")
         self._export_geom_to_idf(instances, idf)
-        self._set_ground_temperature(idf, t_ground=self._get_ifc_spaces(instances)[0].t_ground.m)
+        self._set_ground_temperature(idf, t_ground=self._get_ifc_spaces(
+            instances)[0].t_ground)
         self._set_output_variables(idf, workflow)
         self._idf_validity_check(idf)
         idf.save(idf.idfname)
@@ -108,7 +110,7 @@ class CreateIdf(ITask):
             zone = idf.newidfobject(
                 'ZONE',
                 Name=space.ifc.GlobalId,
-                Volume=space.space_shape_volume.m
+                Volume=space.space_shape_volume.to(ureg.meter ** 3).m
             )
             cooling_availability = "On"
             heating_availability = "On"
@@ -277,7 +279,9 @@ class CreateIdf(ITask):
     def _set_preprocessed_construction_elem(self, rel_elem, layers, idf):
         """use preprocessed data to define idf construction elements and return a list of used materials"""
         construction_name = rel_elem.key + '_' + str(len(layers)) + '_' + '_'.join(
-            [str(l.thickness.m) for l in layers])  # todo: find a unique key for construction name
+            [str(l.thickness.to(ureg.metre).m) for l in layers])  # todo:
+        # find a unique
+        # key for construction name
         if idf.getobject("CONSTRUCTION", construction_name) is None:
             outer_layer = layers[-1]
             other_layer_list = layers[:-1]
@@ -286,12 +290,12 @@ class CreateIdf(ITask):
             for i, l in enumerate(other_layer_list):
                 other_layers.update(
                     {'Layer_' + str(i + 2):
-                         l.material.name + "_" + str(l.thickness.m)})
+                         l.material.name + "_" + str(l.thickness.to(ureg.metre).m)})
 
             idf.newidfobject("CONSTRUCTION",
                              Name=construction_name,
                              Outside_Layer=outer_layer.material.name +
-                                           "_" + str(outer_layer.thickness.m),
+                                           "_" + str(outer_layer.thickness.to(ureg.metre).m),
                              **other_layers
                              )
         # materials = pd.unique([(lay.material, lay.thickness.m) for lay in layers]).tolist()
@@ -331,18 +335,22 @@ class CreateIdf(ITask):
                          )
 
     def _set_preprocessed_material_elem(self, layer, idf):
-        material_name = layer.material.name + "_" + str(layer.thickness.m)
+        material_name = layer.material.name + "_" + str(layer.thickness.to(ureg.metre).m)
         if idf.getobject("MATERIAL", material_name):
             return
-        specific_heat = layer.material.spec_heat_capacity.m * 1000  # *mat_dict['density']*thickness
+        specific_heat = \
+            layer.material.spec_heat_capacity.to(ureg.joule / ureg.kelvin /
+                                                 ureg.kilogram).m  # *mat_dict['density']*thickness
         if specific_heat < 100:
             specific_heat = 100
         idf.newidfobject("MATERIAL",
                          Name=material_name,
                          Roughness="MediumRough",
-                         Thickness=layer.thickness.m,
-                         Conductivity=layer.material.thermal_conduc.m,
-                         Density=layer.material.density.m,
+                         Thickness=layer.thickness.to(ureg.metre).m,
+                         Conductivity=layer.material.thermal_conduc.to(
+                             ureg.W / (ureg.m * ureg.K)).m,
+                         Density=layer.material.density.to(
+                             ureg.kg / ureg.m ** 3).m,
                          Specific_Heat=specific_heat
                          )
 
@@ -364,14 +372,22 @@ class CreateIdf(ITask):
         """ constructs windows with a Windowmaterial:SimpleGlazingSystem consisting of
         the outermost layer of the providing related element.
         This is a simplification, needs to be extended to hold multilayer window constructions."""
-        material_name = 'WM_'+ rel_elem.layerset.layers[0].material.name \
-                        + '_' + str(rel_elem.layerset.layers[0].thickness.m)
+        material_name = 'WM_'\
+                        + rel_elem.layerset.layers[0].material.name \
+                        + '_' \
+                        + str(rel_elem.layerset.layers[0].thickness.to(ureg.m).m)
         if idf.getobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM", material_name):
             return
-        if rel_elem.u_value.m > 0:
-            ufactor = 1 / (0.04 + 1 / rel_elem.u_value.m + 0.13)
+        if rel_elem.u_value.to(ureg.W / ureg.K / ureg.meter ** 2).m > 0:
+            ufactor = 1 / (0.04 + 1 / rel_elem.u_value.to(ureg.W / ureg.K /
+                                                          ureg.meter ** 2).m
+                           + 0.13)
         else:
-            ufactor = 1 / (0.04 + rel_elem.layerset.layers[0].thickness.m / rel_elem.layerset.layers[0].thermal_conduc.m + 0.13)
+            ufactor = 1 / (0.04 + rel_elem.layerset.layers[0].thickness.to(
+                ureg.metre).m /
+                           rel_elem.layerset.layers[0].thermal_conduc.to(
+                             ureg.W / (ureg.m * ureg.K)).m +
+                           0.13)
         if rel_elem.g_value >=1:
             old_g_value = rel_elem.g_value
             rel_elem.g_value = 0.999
@@ -435,7 +451,7 @@ class CreateIdf(ITask):
                              Field_1="Through: 12/31",
                              Field_2="For: Alldays",
                              Field_3="Until: 24:00",
-                             Field_4=space.fixed_heat_flow_rate_persons  # in W/Person
+                             Field_4=space.fixed_heat_flow_rate_persons.to(ureg.watt).m  # in W/Person
                              )  # other method for Field_4 (not used here) ="persons_profile"*"activity_degree_persons"*58,1*1,8 (58.1 W/(m2*met), 1.8m2/Person)
         if CreateIdf.ENERGYPLUS_VERSION in ["9-2-0", "9-4-0"]:
             people = idf.newidfobject(
@@ -500,7 +516,7 @@ class CreateIdf(ITask):
                 Zone_or_ZoneList_Name=zone_name,
                 Schedule_Name=schedule_name,
                 Design_Level_Calculation_Method="Watts/Area",
-                Watts_per_Zone_Floor_Area=space.machines.m
+                Watts_per_Zone_Floor_Area=space.machines.to(ureg.watt).m
             )
         else:
             idf.newidfobject(
@@ -509,7 +525,7 @@ class CreateIdf(ITask):
                 Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
                 Schedule_Name=schedule_name,
                 Design_Level_Calculation_Method="Watts/Area",
-                Watts_per_Zone_Floor_Area=space.machines.m
+                Watts_per_Zone_Floor_Area=space.machines.to(ureg.watt).m
             )
 
 
@@ -519,7 +535,7 @@ class CreateIdf(ITask):
         profile_name = 'lighting_profile'
         self._set_day_week_year_schedule(idf, space.lighting_profile[:24], profile_name, schedule_name)
         mode = "Watts/Area"
-        watts_per_zone_floor_area = space.lighting_power.m
+        watts_per_zone_floor_area = space.lighting_power.to(ureg.watt).m
         return_air_fraction = 0.0
         fraction_radiant = 0.42  # cf. Table 1.28 in InputOutputReference EnergyPlus (Version 9.4.0), p. 506
         fraction_visible = 0.18  # Todo: fractions do not match with .json Data. Maybe set by user-input later
@@ -714,12 +730,15 @@ class CreateIdf(ITask):
         :return: idf file object
         """
         for sim_control in idf.idfobjects["SIMULATIONCONTROL"]:
-            print("")
             # sim_control.Do_Zone_Sizing_Calculation = "Yes"
             sim_control.Do_System_Sizing_Calculation = "Yes"
             # sim_control.Do_Plant_Sizing_Calculation = "Yes"
             sim_control.Run_Simulation_for_Sizing_Periods = "No"
             sim_control.Run_Simulation_for_Weather_File_Run_Periods = "Yes"
+
+        for building in idf.idfobjects['BUILDING']:
+            building.Solar_Distribution = 'FullExterior'
+            # pass
         # return idf
 
     @staticmethod
@@ -729,7 +748,7 @@ class CreateIdf(ITask):
                       'November', 'December']
         temp_dict = {}
         for month in month_list:
-            temp_dict.update({month + string: t_ground})
+            temp_dict.update({month + string: t_ground.to(ureg.degC).m})
         idf.newidfobject("SITE:GROUNDTEMPERATURE:BUILDINGSURFACE", **temp_dict)
         return idf
 
@@ -1128,10 +1147,11 @@ class IdfObject:
                 return
             if rel_elem.ifc.is_a('IfcWindow'):
                 self.construction_name = 'Window_WM_' + rel_elem.layerset.layers[0].material.name \
-                                         + '_' + str(rel_elem.layerset.layers[0].thickness.m)
+                                         + '_' + str(
+                    rel_elem.layerset.layers[0].thickness.to(ureg.metre).m)
             else:
                 self.construction_name = rel_elem.key + '_' + str(len(rel_elem.layerset.layers)) + '_' \
-                                         + '_'.join([str(l.thickness.m) for l in rel_elem.layerset.layers])
+                                         + '_'.join([str(l.thickness.to(ureg.metre).m) for l in rel_elem.layerset.layers])
 
     def _set_idfobject_coordinates(self, obj, idf, inst_obj):
         # validate bound_shape

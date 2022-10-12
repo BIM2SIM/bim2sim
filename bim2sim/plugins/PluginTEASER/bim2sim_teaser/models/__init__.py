@@ -78,7 +78,7 @@ class ThermalZone(TEASER, ThermalZone_Teaser):
         self.request_param("net_area",
                            self.check_numeric(
                                min_value=0 * ureg.meter ** 2),
-                           "net_leased_area")
+                           "area")
         self.request_param("t_ground", None)
         self.request_param("net_volume",
                            None,
@@ -104,13 +104,14 @@ class UseConditions(TEASER, UseConditions_Teaser):
         self.request_param("typical_width", None)
         self.request_param("T_threshold_heating", None)
         self.request_param("activity_degree_persons", None)
-        self.request_param("fixed_heat_flow_rate_persons", None)
+        self.request_param("fixed_heat_flow_rate_persons", None,
+                           export_unit=ureg.W)
         self.request_param("internal_gains_moisture_no_people", None)
         self.request_param("T_threshold_cooling", None)
         self.request_param("ratio_conv_rad_persons", None)
-        self.request_param("machines", None)
+        self.request_param("machines", None, export_unit=ureg.W)
         self.request_param("ratio_conv_rad_machines", None)
-        self.request_param("lighting_power", None)
+        self.request_param("lighting_power", None, export_unit=ureg.W)
         self.request_param("ratio_conv_rad_lighting", None)
         self.request_param("use_constant_infiltration", None)
         self.request_param("infiltration_rate", None)
@@ -279,5 +280,7 @@ class Material(TEASER, Material_Teaser):
     def request_params(self):
         self.name = self.element.material
         self.request_param("density", None)
-        self.request_param("spec_heat_capacity", None)
+        self.request_param(
+            "spec_heat_capacity", None, "heat_capac",
+            export_unit=ureg.kilojoule / (ureg.kg * ureg.K))
         self.request_param("thermal_conduc", None)
