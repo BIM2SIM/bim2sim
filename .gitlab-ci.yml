@@ -330,7 +330,7 @@ test_EP_regression:
 
 test_TEASER:
   <<: *only-default
-  image: $CI_REGISTRY/environment:teaser-dymola
+  image: $CI_REGISTRY/environment:teaser
   stage: test
   before_script:
     - pip install coverage
