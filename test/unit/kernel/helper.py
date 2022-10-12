@@ -152,13 +152,39 @@ class SetupHelperBPS(SetupHelper):
         element = element_cls(**kwargs)
         return element
 
+    def get_thermalzone(self, usage='Living'):
+        tz = self.element_generator(
+            bps.ThermalZone,
+            net_area=100,
+            gross_area=110,
+            usage=usage)
+        return tz
+
+    def get_thermalzones_diff_usage(self, usages: list):
+        """Returns a number of ThermalZones with different usage.
+
+        The first ThermalZone has a usage that can be identified by regular
+        expressions ('Living'). The second and third ThermalZone can't be
+        identified due to random names, but the third one is similar to the
+        first). The fourth ThermalZone can again be identified.
+
+        Returns:
+            list of the three ThermalZone instances
+        """
+        tz_instances = []
+        for usage in usages:
+            tz_instances.append(self.get_thermalzone(usage=usage))
+
+        return tz_instances
+
     def get_setup_simple_house(self):
         out_wall_1 = self.element_generator(
             bps.OuterWall, net_area=20, gross_area=21, width=0.2)
-        tz_1 = self.element_generator(
-            bps.ThermalZone,
-            net_area=100,
-            usage='Wohnen',
-            bound_elements=[out_wall_1])
+        window_1 = self.element_generator(bps.Window, net_area=2, width=0.1)
+        tz_1 = self.get_thermalzone()
+        tz_1.bound_elements = [out_wall_1, window_1]
+        build_1 = self.element_generator(bps.Building,
+            bldg_name='simpleTestBuilding', year_of_construction=2010)
             # bps.ThermalZone, bound_elements=[out_wall_1])
-        return tz_1
+        instances = [out_wall_1, window_1, tz_1, build_1]
+        return instances

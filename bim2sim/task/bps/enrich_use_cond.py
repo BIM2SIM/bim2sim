@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Dict
 
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import get_usage_dict, get_pattern_usage
@@ -18,7 +18,6 @@ class EnrichUseConditions(ITask):
         super().__init__()
         self.enriched_tz = []
         self.use_conditions = {}
-        self.doubled_decisions = {}
 
     def run(self, workflow: Workflow, tz_instances: dict):
         self.logger.info("enriches thermal zones usage")
@@ -30,109 +29,39 @@ class EnrichUseConditions(ITask):
         if len(tz_instances) == 0:
             self.logger.warning("Found no spaces to enrich")
         else:
-            yield from self.enrich_usages(tz_instances)
+            final_usages = yield from self.enrich_usages(
+                self.prj_name, tz_instances)
+            for tz, usage in final_usages.items():
+                tz.usage = usage
+                self.load_usage(tz)
+                self.enriched_tz.append(tz)
             self.logger.info("obtained %d thermal zones", len(self.enriched_tz))
 
         return self.enriched_tz,
 
-    def enrich_usages(self, thermal_zones: dict):
-        """Sets the usage of the given thermal_zones and enriches them.
-
-        Looks for fitting usages in assets/enrichment/usage based on the given
-        usage of a zone in the IFC. The way the usage is obtained is described
-        in the ThermalZone classes attribute "usage".
-        The following data is taken into account:
-            commonUsages.json: typical translations for the existing usage data
-            customUsages<prj_name>.json: project specific translations that can
-                be stored for easier simulation.
+    @staticmethod
+    def list_decision_usage(tz: ThermalZone, choices: list) -> ListDecision:
+        """decision to select an usage that matches the zone name
 
         Args:
-            thermal_zones: dict with tz instances guid as key and the instance
-            itself as value
-        """
-        # selected_usage = {}
-        final_usages = {}
-        pattern_usage = get_pattern_usage(self.prj_name)
-        for tz in list(thermal_zones.values()):
-            # if tz.usage in selected_usage:
-            #     final_usages[tz] = selected_usage[tz.usage]
-            # else:
-                orig_usage = str(tz.usage)
-                if orig_usage not in pattern_usage:
-                    matches = []
-                    list_org = tz.usage.replace(' (', ' ').replace(')', ' '). \
-                        replace(' -', ' ').replace(', ', ' ').split()
-                    for usage in pattern_usage.keys():
-                        # check custom first
-                        if "custom" in pattern_usage[usage]:
-                            for cus_usage in pattern_usage[usage]["custom"]:
-                                if cus_usage == tz.usage:
-                                    if usage not in matches:
-                                        matches.append(usage)
-                        # if not found in custom, continue with common
-                        if len(matches) == 0:
-                            for i in pattern_usage[usage]["common"]:
-                                for i_name in list_org:
-                                    if i.match(i_name):
-                                        if usage not in matches:
-                                            matches.append(usage)
-                    # if just a match given
-                    if len(matches) == 1:
-                        # case its an office
-                        if 'office_function' == matches[0]:
-                            office_use = self.office_usage(tz)
-                            if isinstance(office_use, list):
-                                final_usages[tz] = self.list_decision_usage(
-                                    tz, office_use)
-                            else:
-                                final_usages[tz] = office_use
-                        # other zone usage
-                        else:
-                            final_usages[tz] = matches[0]
-                    # if no matches given forward all (for decision)
-                    elif len(matches) == 0:
-                        matches = list(pattern_usage.keys())
-                    if len(matches) > 1:
-                        final_usages[tz] = self.list_decision_usage(
-                            tz, matches)
-                    # selected_usage[orig_usage] = tz.usage
-        # collect decisions
-        usage_dec_bunch = DecisionBunch()
-        for tz, use_or_dec in final_usages.items():
-            if isinstance(use_or_dec, ListDecision):
-                usage_dec_bunch.append(use_or_dec)
-        # remove duplicate decisions
-        unique_decisions, doubled_decisions = usage_dec_bunch.get_reduced_bunch(
-            criteria='key')
-        yield unique_decisions
-        answers = unique_decisions.to_answer_dict()
-        # combine answers and not answered decision
-        for dec in doubled_decisions:
-            final_usages[dec.related] = answers[dec.key]
-        for dec in unique_decisions:
-            final_usages[dec.related] = dec.value
-        # set usages
-        for tz, usage in final_usages.items():
-            tz.usage = usage
-            self.load_usage(tz)
-            self.enriched_tz.append(tz)
+            tz: bim2sim ThermalZone instance
+            choices: list of possible answers
+        Returns:
+            usage_decision: ListDecision to find the correct usage
+            """
+        usage_decision = ListDecision("Which usage does the Space %s have?" %
+                                      (str(tz.usage)),
+                                      choices=choices,
+                                      key='usage_'+str(tz.usage),
+                                      related=tz,
+                                      global_key="%s_%s.BpsUsage" %
+                                                 (type(tz).__name__, tz.guid),
+                                      allow_skip=False,
+                                      live_search=True)
+        return usage_decision
 
-    # def one_zone_usage(self, thermal_zones: dict):
-    #     """defines an usage to all the building - since its a singular zone"""
-    #     usage_decision = ListDecision("Which usage does the one_zone_building"
-    #                                   " %s have?",
-    #                                   choices=list(UseConditions.keys()),
-    #                                   global_key="one_zone_usage",
-    #                                   allow_skip=False,
-    #                                   allow_load=True,
-    #                                   allow_save=True,
-    #                                   quick_decide=not True)
-    #     usage_decision.decide()
-    #     for tz in list(thermal_zones.values()):
-    #         tz.usage = usage_decision.value
-    #         self.enriched_tz.append(tz)
-
-    def office_usage(self, tz: ThermalZone) -> Union[str, list]:
+    @staticmethod
+    def office_usage(tz: ThermalZone) -> Union[str, list]:
         """function to determine which office corresponds based on the area of
         the thermal zone and the table on:
         https://skepp.com/en/blog/office-tips/this-is-how-many-square-meters-of
@@ -160,26 +89,107 @@ class EnrichUseConditions(ITask):
         else:
             return default_matches
 
-    @staticmethod
-    def list_decision_usage(tz: ThermalZone, choices: list) -> ListDecision:
-        """decision to select an usage that matches the zone name
+    @classmethod
+    def enrich_usages(
+            cls,
+            prj_name: str,
+            thermal_zones: Dict[str, ThermalZone]) -> Dict[str, ThermalZone]:
+        """Sets the usage of the given thermal_zones and enriches them.
+
+        Looks for fitting usages in assets/enrichment/usage based on the given
+        usage of a zone in the IFC. The way the usage is obtained is described
+        in the ThermalZone classes attribute "usage".
+        The following data is taken into account:
+            commonUsages.json: typical translations for the existing usage data
+            customUsages<prj_name>.json: project specific translations that can
+                be stored for easier simulation.
 
         Args:
-            tz: bim2sim ThermalZone instance
-            choices: list of possible answers
+            prj_name: Name of the project
+            thermal_zones: dict with tz instances guid as key and the instance
+            itself as value
         Returns:
-            usage_decision: ListDecision to find the correct usage
-            """
-        usage_decision = ListDecision("Which usage does the Space %s have?" %
-                                      (str(tz.usage)),
-                                      choices=choices,
-                                      key='usage_'+str(tz.usage),
-                                      related=tz,
-                                      global_key="%s_%s.BpsUsage" %
-                                                 (type(tz).__name__, tz.guid),
-                                      allow_skip=False,
-                                      live_search=True)
-        return usage_decision
+            final_usages: key: str of usage type, value: ThermalZone instance
+
+        """
+        # selected_usage = {}
+        final_usages = {}
+        pattern_usage = get_pattern_usage(prj_name)
+        for tz in list(thermal_zones.values()):
+            orig_usage = str(tz.usage)
+            if orig_usage in pattern_usage:
+                final_usages[tz] = orig_usage
+            else:
+                matches = []
+                list_org = tz.usage.replace(' (', ' ').replace(')', ' '). \
+                    replace(' -', ' ').replace(', ', ' ').split()
+                for usage in pattern_usage.keys():
+                    # check custom first
+                    if "custom" in pattern_usage[usage]:
+                        for cus_usage in pattern_usage[usage]["custom"]:
+                            if cus_usage == tz.usage:
+                                if usage not in matches:
+                                    matches.append(usage)
+                    # if not found in custom, continue with common
+                    if len(matches) == 0:
+                        for i in pattern_usage[usage]["common"]:
+                            for i_name in list_org:
+                                if i.match(i_name):
+                                    if usage not in matches:
+                                        matches.append(usage)
+                # if just a match given
+                if len(matches) == 1:
+                    # case its an office
+                    if 'office_function' == matches[0]:
+                        office_use = cls.office_usage(tz)
+                        if isinstance(office_use, list):
+                            final_usages[tz] = cls.list_decision_usage(
+                                tz, office_use)
+                        else:
+                            final_usages[tz] = office_use
+                    # other zone usage
+                    else:
+                        final_usages[tz] = matches[0]
+                # if no matches given forward all (for decision)
+                elif len(matches) == 0:
+                    matches = list(pattern_usage.keys())
+                if len(matches) > 1:
+                    final_usages[tz] = cls.list_decision_usage(
+                        tz, matches)
+                # selected_usage[orig_usage] = tz.usage
+        # collect decisions
+        usage_dec_bunch = DecisionBunch()
+        for tz, use_or_dec in final_usages.items():
+            if isinstance(use_or_dec, ListDecision):
+                usage_dec_bunch.append(use_or_dec)
+        # remove duplicate decisions
+        unique_decisions, doubled_decisions = usage_dec_bunch.get_reduced_bunch(
+            criteria='key')
+        yield unique_decisions
+        answers = unique_decisions.to_answer_dict()
+        # combine answers and not answered decision
+        for dec in doubled_decisions:
+            final_usages[dec.related] = answers[dec.key]
+        for dec in unique_decisions:
+            final_usages[dec.related] = dec.value
+        # set usages
+        return final_usages
+
+    # def one_zone_usage(self, thermal_zones: dict):
+    #     """defines an usage to all the building - since its a singular zone"""
+    #     usage_decision = ListDecision("Which usage does the one_zone_building"
+    #                                   " %s have?",
+    #                                   choices=list(UseConditions.keys()),
+    #                                   global_key="one_zone_usage",
+    #                                   allow_skip=False,
+    #                                   allow_load=True,
+    #                                   allow_save=True,
+    #                                   quick_decide=not True)
+    #     usage_decision.decide()
+    #     for tz in list(thermal_zones.values()):
+    #         tz.usage = usage_decision.value
+    #         self.enriched_tz.append(tz)
+
 
     def load_usage(self, tz: ThermalZone):
         """loads the usage of the corresponding ThermalZone.
