@@ -37,12 +37,6 @@ class IntegrationBase:
             plugin=plugin, workflow=workflow)
         return self.project
 
-    def regression_test(self, workflow):
-        # TODO @Veronika remove this after EP integration tests moved to own
-        #  class based on RegressionTestBase class (for example
-        #  see RegressionTestTEASER class)
-        raise NotImplementedError
-
 
 class RegressionTestBase(IntegrationBase):
     """Base class for regression tests."""

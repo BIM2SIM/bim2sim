@@ -137,7 +137,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     Tested are both original IFC files and files from Eric Fichter's Space Boundary Generation tool.
     """
 
-    # @unittest.skip("")
+    @unittest.skip("")
     def test_base_01_FZK_design_day(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
@@ -304,6 +304,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
+    @unittest.skip("")
     def test_DigitalHub_SB89_regression(self):
         """Test DigitalHub IFC, includes regression test"""
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB89.ifc'
