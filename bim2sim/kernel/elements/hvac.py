@@ -32,19 +32,15 @@ def length_post_processing(value):
 
 class HVACPort(Port):
     """Port of HVACProduct."""
-    vl_pattern = re.compile('.*vorlauf.*',
-                            re.IGNORECASE)  # TODO: extend pattern
+    vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
     rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
 
-    def __init__(
-            self, *args, groups: Set = None,
-            flow_direction: int = 0, **kwargs):
+    def __init__(self, *args, groups: Set = None, flow_direction: int = 0, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._flow_master = False
         self._flow_direction = None
         self._flow_side = None
-
         self.groups = groups or set()
         self.flow_direction = flow_direction
 
@@ -193,8 +189,7 @@ class HVACProduct(ProductBased):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.inner_connections: List[Tuple[HVACPort, HVACPort]] \
-            = self.get_inner_connections()
+        self.inner_connections: List[Tuple[HVACPort, HVACPort]] = self.get_inner_connections()
 
     def get_ports(self) -> list:
         """
@@ -206,27 +201,30 @@ class HVACProduct(ProductBased):
                 # valid for IFC for Revit v19.2.0.0
                 for element_port_connection in nested.RelatedObjects:
                     if element_port_connection.is_a() == 'IfcDistributionPort':
-                        ports.append(HVACPort.from_ifc(
-                            ifc=element_port_connection, parent=self))
+                        ports.append(HVACPort.from_ifc(ifc=element_port_connection, parent=self))
                     else:
-                        logger.warning(
-                            "Not included %s as Port in %s",
-                            element_port_connection.is_a(), self)
+                        logger.warning("Not included %s as Port in %s", element_port_connection.is_a(), self)
         except AttributeError as ae:
             logger.warning("Failed to create Port")
             pass
         # valid for IFC for Revit v19.1.0.0
         element_port_connections = getattr(self.ifc, 'HasPorts', [])
+        # if len(element_port_connections) > self.expected_hvac_ports:
+        #     logger.info("The number of HVACPorts (%d) of %s exceeds number the expected HVACPorts (%d)"
+        #                 % (len(element_port_connections), self.ifc, self.expected_hvac_ports))
+        #     if self.key == 'HVAC-Valve':
+        #         selected_cls = ProductBased.key_map['HVAC-ThreeWayValve']
+        #         self = selected_cls.from_ifc(self.ifc)
+        #     # yield from self.decide_subclass()
         for element_port_connection in element_port_connections:
-            ports.append(HVACPort.from_ifc(
-                ifc=element_port_connection.RelatingPort, parent=self))
+            ports.append(HVACPort.from_ifc(ifc=element_port_connection.RelatingPort, parent=self))
         return ports
 
     def get_inner_connections(self) -> List[Tuple[HVACPort, HVACPort]]:
-        """Returns inner connections of Element
+        """Returns inner connections of Element.
 
-        by default each port is connected to each other port.
-        Overwrite for other connections"""
+        By default each port is connected to each other port.
+        Overwrite for other connections."""
 
         connections = []
         for port0, port1 in itertools.combinations(self.ports, 2):
@@ -235,8 +233,9 @@ class HVACProduct(ProductBased):
 
     def decide_inner_connections(self) -> Generator[DecisionBunch, None, None]:
         """Generator method yielding decisions to set inner connections."""
+
         if len(self.ports) < 2:
-            # no chance to connect anything
+            # not possible to connect anything
             return
 
         # TODO: extend pattern
@@ -269,11 +268,9 @@ class HVACProduct(ProductBased):
 
         # created sorted choices
         choices_vl = [port.guid for port, score in
-                      sorted(score_vl.items(), key=lambda item: item[1],
-                             reverse=True)]
+                      sorted(score_vl.items(), key=lambda item: item[1], reverse=True)]
         choices_rl = [port.guid for port, score in
-                      sorted(score_rl.items(), key=lambda item: item[1],
-                             reverse=True)]
+                      sorted(score_rl.items(), key=lambda item: item[1], reverse=True)]
         decision_vl = ListDecision(f"Please select VL Port for {self}.",
                                    choices=choices_vl,
                                    default=choices_vl[0],  # best guess
@@ -294,6 +291,42 @@ class HVACProduct(ProductBased):
         vl.flow_side = 1
         rl.flow_side = -1
         self.inner_connections.append((vl, rl))
+
+    def sort_ports_by_flow_side(self):
+        """
+        Sorts the ports by flow side (VL, RL, other)
+        """
+        port_order = {1: 0, -1: 1, 0: 2}
+        self.ports = sorted(self.ports, key=lambda port: port_order[port.flow_side])
+
+    # def decide_hvac_ports(self) -> Generator[DecisionBunch, None, None]:
+    #     choices = [port.guid for port in self.ports]
+    #     decision = ListDecision(f"Please select port which is not an HVACPort {self}.",
+    #                             choices=choices,
+    #                             default=choices[0],  # best guess
+    #                             key='Non_hvac',
+    #                             global_key='None_hvac_port_of_' + self.guid)
+    #     decisions = DecisionBunch((decision,))
+    #     yield decisions
+    #
+    # def decide_subclass(self) -> Generator[DecisionBunch, None, None]:
+    #     decision = ListDecision(
+    #         "Please specify the Type of Element of %s (Name: %s, Description: %s):" % (
+    #             self.ifc.is_a(), self.ifc.Name, self.ifc.Description),
+    #         choices=[ele.key for ele in self.__class__.__subclasses__()],
+    #         key=self.guid,
+    #         global_key="SetClass:%s.%s" % (self.ifc.is_a(), self.ifc.GlobalId))
+    #     yield decision
+    #     answers = decision.to_answer_dict()
+    #     selected_cls = ProductBased.key_map[answers.value]
+    #     self = selected_cls.from_ifc(self.ifc)
+    #     return self
+
+    def is_generator(self):
+        return False
+
+    def is_consumer(self):
+        return False
 
     def __repr__(self):
         return "<%s (ports: %d)>" % (self.__class__.__name__, len(self.ports))
@@ -458,58 +491,14 @@ class Boiler(HVACProduct):
         re.compile('Boiler', flags=re.IGNORECASE),
     ]
 
-    # def _add_ports(self):
-    #    super()._add_ports()
-    #    for port in self.ports:
-    #        if port.flow_direction == 1:
-    #            port.flow_master = True
-    #        elif port.flow_direction == -1:
-    #            port.flow_master = True
+    expected_hvac_ports = 2
 
     def is_generator(self):
-        """boiler is generator function"""
+        """Boiler is a generator function."""
         return True
 
-    # @lru_cache()
     def get_inner_connections(self):
-        return []  #
-        # connections = []
-        # vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
-        # rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
-        # VL = []
-        # RL = []
-        # for port in self.ports:
-        #     if any(filter(vl_pattern.match, port.groups)):
-        #         if port.flow_direction == 1:
-        #             VL.append(port)
-        #         else:
-        #             logger.warning("Flow direction (%s) of %s does not match %s",
-        #                                 port.verbose_flow_direction, port, port.groups)
-        #             decision = BoolDecision(
-        #                 "Use %s as VL?" % (port),
-        #                 global_key=port.guid)
-        #             use = decision.decide()
-        #             if use:
-        #                 VL.append(port)
-        #     elif any(filter(rl_pattern.match, port.groups)):
-        #         if port.flow_direction == -1:
-        #             RL.append(port)
-        #         else:
-        #             logger.warning("Flow direction (%s) of %s does not match %s",
-        #                                 port.verbose_flow_direction, port, port.groups)
-        #             decision = BoolDecision(
-        #                 "Use %s as RL?" % (port),
-        #                 global_key=port.guid)
-        #             use = decision.decide()
-        #             if use:
-        #                 RL.append(port)
-        # if len(VL) == 1 and len(RL) == 1:
-        #     VL[0].flow_side = 1
-        #     RL[0].flow_side = -1
-        #     connections.append((RL[0], VL[0]))
-        # else:
-        #     logger.warning("Unable to solve inner connections for %s", self)
-        # return connections
+        return []
 
     water_volume = attribute.Attribute(
         description="Water volume of boiler",
@@ -555,8 +544,8 @@ class Boiler(HVACProduct):
     )
 
     def _calc_nominal_efficiency(self, name):
-        """function to calculate the boiler nominal efficiency using the
-        efficiency curve"""
+        """Function to calculate the boiler nominal efficiency using the efficiency curve"""
+
         if isinstance(self.efficiency, list):
             efficiency_curve = {y: x for x, y in self.efficiency}
             nominal_eff = efficiency_curve.get(1, None)
@@ -664,6 +653,8 @@ class Pipe(HVACProduct):
             ['*', 'CULVERT', 'FLEXIBLESEGMENT', 'RIGIDSEGMENT', 'GUTTER',
              'SPOOL']
     }
+
+    expected_hvac_ports = 2
 
     conditions = [
         condition.RangeCondition("diameter", 5.0 * ureg.millimeter,
@@ -800,6 +791,19 @@ class PipeFitting(HVACProduct):
             return np.average(value).item()
         return value
 
+    expected_hvac_ports = 2
+
+    # def get_better_subclass(self) -> Union[None, Type['IFCBased']]:
+    #     return Junction if len(self.ports) > 2 else PipeFitting
+
+
+class Junction(PipeFitting):
+    ifc_types = {
+        "IfcPipeFitting": ['JUNCTION']
+    }
+
+    expected_hvac_ports = 3
+
 
 class SpaceHeater(HVACProduct):
     ifc_types = {'IfcSpaceHeater': ['*', 'CONVECTOR', 'RADIATOR']}
@@ -807,6 +811,8 @@ class SpaceHeater(HVACProduct):
     pattern_ifc_type = [
         re.compile('Space.?heater', flags=re.IGNORECASE)
     ]
+
+    expected_hvac_ports = 2
 
     def is_consumer(self):
         return True
@@ -915,6 +921,8 @@ class Storage(HVACProduct):
                                  math.inf * ureg.liter)
     ]
 
+    expected_hvac_ports = float('inf')
+
     pattern_ifc_type = [
         re.compile('Tank', flags=re.IGNORECASE),
         re.compile('Speicher', flags=re.IGNORECASE),
@@ -973,6 +981,8 @@ class Distributor(HVACProduct):
              'MANHOLE', 'METERCHAMBER', 'SUMP', 'TRENCH', 'VALVECHAMBER']
     }
 
+    expected_hvac_ports = float('inf')
+
     pattern_ifc_type = [
         re.compile('Distribution.?chamber', flags=re.IGNORECASE),
         re.compile('Distributor', flags=re.IGNORECASE),
@@ -1001,6 +1011,8 @@ class Pump(HVACProduct):
              'SUBMERSIBLEPUMP', 'SUMPPUMP', 'VERTICALINLINE',
              'VERTICALTURBINE']
     }
+
+    expected_hvac_ports = 2
 
     pattern_ifc_type = [
         re.compile('Pumpe', flags=re.IGNORECASE),
@@ -1061,13 +1073,15 @@ class Pump(HVACProduct):
 class Valve(HVACProduct):
     ifc_types = {
         "IfcValve":
-            ['*', 'AIRRELEASE', 'ANTIVACUUM', 'CHANGEOVER', 'CHECK',
+             ['*', 'AIRRELEASE', 'ANTIVACUUM', 'CHANGEOVER', 'CHECK',
              'COMMISSIONING', 'DIVERTING', 'DRAWOFFCOCK', 'DOUBLECHECK',
              'DOUBLEREGULATING', 'FAUCET', 'FLUSHING', 'GASCOCK',
              'GASTAP', 'ISOLATING', 'MIXING', 'PRESSUREREDUCING',
              'PRESSURERELIEF', 'REGULATING', 'SAFETYCUTOFF', 'STEAMTRAP',
              'STOPCOCK']
     }
+
+    expected_hvac_ports = 2
 
     pattern_ifc_type = [
         re.compile('Valve', flags=re.IGNORECASE),
@@ -1077,7 +1091,7 @@ class Valve(HVACProduct):
 
     conditions = [
         condition.RangeCondition("diameter", 5.0 * ureg.millimeter,
-                                 500.00 * ureg.millimeter)  # ToDo: unit?!
+                                 500.00 * ureg.millimeter),  # ToDo: unit?!
     ]
 
     nominal_pressure_difference = attribute.Attribute(
@@ -1112,6 +1126,20 @@ class Valve(HVACProduct):
         description='Length of Valve',
         unit=ureg.meter,
     )
+
+
+
+    # def get_better_subclass(self) -> Union[None, Type['IFCBased']]:
+    #     return ThreeWayValve if len(self.ports) > 2 else None
+
+
+class ThreeWayValve(Valve):
+    ifc_types = {
+        "IfcValve":
+            ['MIXING']
+    }
+
+    expected_hvac_ports = 3
 
 
 class Duct(HVACProduct):

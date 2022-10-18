@@ -560,10 +560,8 @@ class ProductBased(IFCBased):
     """Elements based on IFC products.
 
     Args:
-        material:
-            material of the element
-        material_set:
-            dict of material and fraction [0, 1] if multiple materials
+        material: material of the element
+        material_set: dict of material and fraction [0, 1] if multiple materials
     """
     domain = 'GENERAL'
     key: str = ''
@@ -587,10 +585,10 @@ class ProductBased(IFCBased):
 
     def get_better_subclass(self) -> Union[None, Type['IFCBased']]:
         """Returns alternative subclass of current object.
+        CAUTION: only use this if you can't know the result before instantiation of base class
 
-        CAUTION: only use this if you can't know the result before instantiation
-         of base class
-        :returns: subclass of ProductBased or None"""
+        Returns:
+            object: subclass of ProductBased or None"""
         return None
 
     @property
@@ -601,14 +599,6 @@ class ProductBased(IFCBased):
             if port.connection:
                 neighbors.append(port.connection.parent)
         return neighbors
-
-    def is_generator(self):
-        # todo move this to hvacproduct
-        return False
-
-    def is_consumer(self):
-        # todo move this to hvacproduct
-        return False
 
     def validate_creation(self):
         """"Check if standard parameter are in valid range"""

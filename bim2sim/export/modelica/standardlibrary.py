@@ -5,7 +5,6 @@ from bim2sim.kernel import elements, aggregation
 from bim2sim.kernel.units import ureg
 
 
-
 class StandardLibrary(modelica.Instance):
     """Base class for Modelica Standard Library"""
     library = "Modelica Standard Library"
@@ -83,3 +82,24 @@ class ClosedVolume(StandardLibrary):
             return super().get_port_name(port)
         else:
             return "ports[%d]"%index
+
+
+class TeeJunctionVolume(StandardLibrary):
+    path = "Modelica.Fluid.Fittings.TeeJunctionVolume"
+    represents = [hvac.Junction]
+
+    def __init__(self, element):
+        self.check_volume = self.check_numeric(min_value=0 * ureg.meter ** 3)
+        super().__init__(element)
+
+    def volume(self):
+        self.request_param("volume", self.check_volume)
+
+    def get_port_name(self, port):
+        try:
+            index = self.element.ports.index(port)
+        except ValueError:
+            return super().get_port_name(port)
+        else:
+            return "port_%d" % index
+

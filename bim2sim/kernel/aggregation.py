@@ -70,7 +70,7 @@ class AggregationMixin:
             received = {type(ele) for ele in elements}
             mismatch = received - self.aggregatable_elements
             if mismatch:
-                raise AssertionError("Can't aggregate %s form elements: %s" %
+                raise AssertionError("Can't aggregate %s from elements: %s" %
                                      (self.__class__.__name__, mismatch))
         # TODO: make guid reproduceable unique for same aggregation elements
         #  e.g. hash of all (ordered?) element guids?
@@ -252,8 +252,7 @@ class HVACAggregationMixin(AggregationMixin):
 
 class PipeStrand(HVACAggregationMixin, hvac.Pipe):
     """Aggregates pipe strands"""
-    aggregatable_elements = {hvac.Pipe, hvac.PipeFitting,
-                             hvac.Valve}
+    aggregatable_elements = {hvac.Pipe, hvac.PipeFitting, hvac.Valve}
     multi = ('length', 'diameter')
 
     @classmethod
@@ -634,7 +633,7 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
     multi = ('rated_power', 'rated_height', 'rated_volume_flow', 'diameter',
              'diameter_strand', 'length')
 
-    def get_ports(self, graph):
+    def create_ports(self, graph):
         ports = []
         edge_ports = self.get_edge_ports(graph)
         # simple case with two edge ports
@@ -883,7 +882,7 @@ class AggregatedPipeFitting(HVACAggregationMixin, hvac.PipeFitting):
         self.get_ports = partial(self.get_ports, aggr_ports)
         super().__init__(element_graph, *args, **kwargs)
 
-    def get_ports(self, aggr_ports, graph):  # TBD
+    def create_ports(self, aggr_ports, graph):  # TBD
         ports = []
         edge_ports = self.get_edge_ports(graph)
         # create aggregation ports for all edge ports
@@ -951,7 +950,7 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
     aggregatable_elements = {hvac.SpaceHeater, hvac.Pipe,
                              hvac.PipeFitting, PipeStrand}
 
-    def get_ports(self, graph):
+    def create_ports(self, graph):
         return self._get_start_and_end_ports()
 
     @verify_edge_ports
@@ -1182,7 +1181,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
     aggregatable_elements = {
         hvac.SpaceHeater, hvac.Pipe,
         hvac.PipeFitting,
-        hvac.Pump, hvac.Valve,
+        hvac.Pump, hvac.Valve, hvac.ThreeWayValve,
         PipeStrand, ParallelSpaceHeater, UnderfloorHeating}
     whitelist = [hvac.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating]
     blacklist = [hvac.Chiller, hvac.Boiler,
@@ -1469,14 +1468,10 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin,
         'temperature_inlet', 'temperature_outlet')
     # ToDo: Abused to not just sum attributes from elements
 
-    aggregatable_elements = {
-        hvac.SpaceHeater, hvac.Pipe,
-        hvac.PipeFitting, hvac.Distributor,
-        PipeStrand, ParallelSpaceHeater, Consumer}
-    whitelist = [hvac.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating,
-                 Consumer]
-    blacklist = [hvac.Chiller, hvac.Boiler,
-                 hvac.CoolingTower]
+    aggregatable_elements = {hvac.SpaceHeater, hvac.Pipe, hvac.PipeFitting, hvac.Distributor, PipeStrand,
+                             ParallelSpaceHeater, Consumer}
+    whitelist = [hvac.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating, Consumer]
+    blacklist = [hvac.Chiller, hvac.Boiler, hvac.CoolingTower]
 
     def __init__(self, element_graph, *args, **kwargs):
         self.undefined_consumer_ports = kwargs.pop('undefined_consumer_ports',
@@ -1490,8 +1485,8 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin,
 
         super().__init__(element_graph, *args, **kwargs)
 
-    def get_ports(self, graph) -> List[HVACPort]:
-        ports = super().get_ports(graph)
+    def create_ports(self, graph) -> List[HVACPort]:
+        ports = super().create_ports(graph)
         for con_ports in self.open_consumer_pairs:
             ports.append(HVACAggregationPort(con_ports[0], parent=self))
             ports.append(HVACAggregationPort(con_ports[1], parent=self))

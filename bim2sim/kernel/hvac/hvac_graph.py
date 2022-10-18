@@ -29,10 +29,8 @@ class HvacGraph(nx.Graph):
         Update graph based on ports of elements.
         """
 
-        nodes = [port for instance in instances for port in instance.ports
-                 if port.connection]
-        inner_edges = [connection for instance in instances
-                       for connection in instance.inner_connections]
+        nodes = [port for instance in instances for port in instance.ports if port.connection]
+        inner_edges = [connection for instance in instances for connection in instance.inner_connections]
         edges = [(port, port.connection) for port in nodes if port.connection]
 
         self.update(nodes=nodes, edges=edges + inner_edges)
@@ -164,8 +162,7 @@ class HvacGraph(nx.Graph):
 
     def get_connections(self):
         """Returns connections between different parent elements"""
-        return [edge for edge in self.edges
-                if not edge[0].parent is edge[1].parent]
+        return [edge for edge in self.edges if not edge[0].parent is edge[1].parent]
 
     # def get_nodes(self):
     #     """Returns list of nodes represented by graph"""

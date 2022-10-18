@@ -129,19 +129,16 @@ class CreateElements(ITask):
         relevant_ifc_types = self.get_ifc_types(workflow.relevant_elements)
         relevant_ifc_types.update(default_ifc_types)
 
-        self.factory = Factory(
-            workflow.relevant_elements,
-            workflow.ifc_units,
-            self.paths.finder)
+        self.factory = Factory(workflow.relevant_elements, workflow.ifc_units, self.paths.finder)
+
         # use finder to get correct export tool
         for app in ifc.by_type('IfcApplication'):
-            for decision in self.factory.finder.check_tool_template(
-                    app.ApplicationFullName):
+            for decision in self.factory.finder.check_tool_template(app.ApplicationFullName):
                 yield DecisionBunch([decision])
-        # Filtering:
-        #  filter returns dict of entities: suggested class and list of unknown
-        #  accept_valids returns created elements and lst of invalids
 
+        # filtering:
+        # filter returns dict of entities: suggested class and list of unknown
+        # accept_valids returns created elements and lst of invalids
         instance_lst = []
         entity_best_guess_dict = {}
         # filter by type
@@ -149,7 +146,7 @@ class CreateElements(ITask):
         entity_type_dict, unknown_entities = type_filter.run(ifc)
 
         # create valid elements
-        valids, invalids = self.accept_valids(entity_type_dict)
+        valids, invalids = self.create_valids(entity_type_dict)
         instance_lst.extend(valids)
         unknown_entities.extend(invalids)
 
@@ -161,7 +158,7 @@ class CreateElements(ITask):
         entity_class_dict, unknown_entities = yield from self.filter_by_text(
             text_filter, unknown_entities, workflow.ifc_units)
         entity_best_guess_dict.update(entity_class_dict)
-        valids, invalids = self.accept_valids(entity_class_dict, force=True)
+        valids, invalids = self.create_valids(entity_class_dict, force=True)
         instance_lst.extend(valids)
         unknown_entities.extend(invalids)
 
@@ -170,7 +167,7 @@ class CreateElements(ITask):
                          "identified and transformed into a python element.",
                          len(unknown_entities))
 
-        # Identification of remaining entities by user
+        # identification of remaining entities by user
         entity_class_dict, unknown_entities = yield from self.set_class_by_user(
             unknown_entities, workflow.relevant_elements, entity_best_guess_dict)
         entity_best_guess_dict.update(entity_class_dict)
@@ -190,9 +187,7 @@ class CreateElements(ITask):
         instances = {inst.guid: inst for inst in instance_lst}
         return instances, self.factory.finder
 
-    # todo rename to "create_valids"
-    def accept_valids(self, entities_dict, warn=True, force=False) -> \
-            Tuple[List[ProductBased], List[Any]]:
+    def create_valids(self, entities_dict, warn=True, force=False) -> Tuple[List[ProductBased], List[Any]]:
         """Instantiate ifc_entities using given element class.
         Resulting instances are validated (if not force).
         Results are two lists, one with valid elements and one with
@@ -217,14 +212,10 @@ class CreateElements(ITask):
                 if isinstance(ifc_type_or_element_cls, str):
                     if ifc_type_or_element_cls in blacklist:
                         continue
-                    element = self.factory(
-                        entity, ifc_type=ifc_type_or_element_cls,
-                        use_dummy=False)
+                    element = self.factory(entity, ifc_type=ifc_type_or_element_cls, use_dummy=False)
                 else:
-                    # todo if class is implemented instead of string we need to
-                    #  check against blacklist of classes
-                    element = self.factory.create(
-                        ifc_type_or_element_cls, entity)
+                    # TODO: if class is implemented instead of string we need to check against blacklist of classes
+                    element = self.factory.create(ifc_type_or_element_cls, entity)
             except LookupError:
                 invalid.append(entity)
                 continue
@@ -329,12 +320,10 @@ class CreateElements(ITask):
             elif force:
                 valid.append(element)
                 if warn:
-                    self.logger.warning("Force accept invalid element %s %s",
-                                        ifc_type_or_element_cls, element)
+                    self.logger.warning("Force accept invalid element %s %s", ifc_type_or_element_cls, element)
             else:
                 if warn:
-                    self.logger.warning("Validation failed for %s %s",
-                                        ifc_type_or_element_cls, element)
+                    self.logger.warning("Validation failed for %s %s", ifc_type_or_element_cls, element)
                 invalid.append(entity)
 
         return valid, invalid
