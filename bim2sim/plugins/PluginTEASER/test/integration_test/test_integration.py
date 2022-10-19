@@ -16,8 +16,8 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
     def test_run_kitfzkhaus_spaces_low_layers_low(self):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
-        used_workflow = workflow.BPSOneZoneAggregatedLayersLow()
-        used_workflow.dymola_simulation = False
+        used_workflow = workflow.BuildingSimulation()
+        used_workflow.load_default_settings()
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
@@ -30,7 +30,9 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
     def test_DH_spaces_medium_material_low(self):
         """Test DigitalHub IFC"""
         ifc = 'FM_ARC_DigitalHub_with_SB_neu.ifc'
-        used_workflow = workflow.BPSMultiZoneAggregatedLayersLow()
+        used_workflow = workflow.BuildingSimulation()
+        used_workflow.load_default_settings()
+        used_workflow.zoning_setup = LOD.medium
         project = self.create_project(ifc, 'TEASER', used_workflow)
         # Tool,
         answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True,
@@ -46,7 +48,10 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
     def test_ERC_Full(self):
         """Test ERC Main Building"""
         ifc = 'ERC_Mainbuilding_Arch.ifc'
-        used_workflow = workflow.BPSMultiZoneSeparatedLayersFull()
+        used_workflow = workflow.BuildingSimulation()
+        used_workflow.load_default_settings()
+        used_workflow.layers_and_materials = LOD.full
+        used_workflow.zoning_setup = LOD.full
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = ('Autodesk Revit 2020 (DEU)', True, True,
                    "Kitchen in non-residential buildings",
@@ -67,7 +72,9 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
     def test_ERC_Medium(self):
         """Test ERC Main Building"""
         ifc = 'ERC_Mainbuilding_Arch.ifc'
-        used_workflow = workflow.BPSMultiZoneAggregatedLayersLow()
+        used_workflow = workflow.BuildingSimulation()
+        used_workflow.load_default_settings()
+        used_workflow.zoning_setup = LOD.medium
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = ('Autodesk Revit 2020 (DEU)', True, True,
                    'heavy',
@@ -82,7 +89,8 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
     def test_ERC_Low(self):
         """Test ERC Main Building"""
         ifc = 'ERC_Mainbuilding_Arch.ifc'
-        used_workflow = workflow.BPSOneZoneAggregatedLayersLow()
+        used_workflow = workflow.BuildingSimulation()
+        used_workflow.load_default_settings()
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = ('Autodesk Revit 2020 (DEU)', True, True,
                    'heavy',
@@ -96,7 +104,8 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
     def test_run_kitoffice_spaces_low_layers_low(self):
         """Run project with AC20-Institute-Var-2.ifc"""
         ifc = 'AC20-Institute-Var-2.ifc'
-        used_workflow = workflow.BPSOneZoneAggregatedLayersLow()
+        used_workflow = workflow.BuildingSimulation()
+        used_workflow.load_default_settings()
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
@@ -110,7 +119,9 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
     def test_run_kitfzkhaus_spaces_medium_layers_low(self):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
-        used_workflow = workflow.BPSMultiZoneCombinedLayersLow()
+        used_workflow = workflow.BuildingSimulation()
+        used_workflow.load_default_settings()
+        used_workflow.zoning_setup = LOD.medium
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'heavy', 'EnEv', 'by_all_criteria')
         handler = DebugDecisionHandler(answers)
@@ -122,7 +133,9 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
     def test_run_kitoffice_spaces_medium_layers_low(self):
         """Run project with AC20-Institute-Var-2.ifc"""
         ifc = 'AC20-Institute-Var-2.ifc'
-        used_workflow = workflow.BPSMultiZoneCombinedLayersLow()
+        used_workflow = workflow.BuildingSimulation()
+        used_workflow.load_default_settings()
+        used_workflow.zoning_setup = LOD.medium
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'heavy', 'EnEv', 2015, 'by_all_criteria')
         handler = DebugDecisionHandler(answers)
@@ -135,8 +148,10 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
     def test_run_kitfzkhaus_spaces_medium_layers_full(self):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
-        used_workflow = workflow.BPSMultiZoneCombinedLayersFull()
+        used_workflow = workflow.BuildingSimulation()
+        used_workflow.load_default_settings()
         used_workflow.layers_and_materials = LOD.full
+        used_workflow.zoning_setup = LOD.medium
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'heavy', 'EnEv', 'vertical_core_brick_700',
                    'solid_brick_h', 'by_all_criteria')
@@ -150,7 +165,10 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
     def test_run_kitoffice_spaces_medium_layers_full(self):
         """Run project with AC20-Institute-Var-2.ifc"""
         ifc = 'AC20-Institute-Var-2.ifc'
-        used_workflow = workflow.BPSMultiZoneCombinedLayersFull()
+        used_workflow = workflow.BuildingSimulation()
+        used_workflow.load_default_settings()
+        used_workflow.zoning_setup = LOD.medium
+        used_workflow.layers_and_materials = LOD.full
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'heavy', 'EnEv', 2015,
                    'concrete_CEM_II_BS325R_wz05', 'clay_brick', 'Concrete_DK',
@@ -165,7 +183,10 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
     def test_run_kitfzkhaus_spaces_full_layers_full(self):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
-        used_workflow = workflow.BPSMultiZoneSeparatedLayersFull()
+        used_workflow = workflow.BuildingSimulation()
+        used_workflow.load_default_settings()
+        used_workflow.zoning_setup = LOD.full
+        used_workflow.layers_and_materials = LOD.full
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, True,
                    'solid_brick_h', True, 'hardwood', True,
@@ -182,7 +203,10 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
     def test_run_kitoffice_spaces_full_layers_full(self):
         """Run project with AC20-Institute-Var-2.ifc"""
         ifc = 'AC20-Institute-Var-2.ifc'
-        used_workflow = workflow.BPSMultiZoneSeparatedLayersFull()
+        used_workflow = workflow.BuildingSimulation()
+        used_workflow.load_default_settings()
+        used_workflow.zoning_setup = LOD.full
+        used_workflow.layers_and_materials = LOD.full
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'Glas', True, 'glas_generic', 500, 1.5, 0.2,
                    True, 'air_layer', 'sandstone', True, 'lime_sandstone_1',
@@ -201,7 +225,9 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
     def test_live_decisions(self):
         ifc = 'AC20-FZK-Haus.ifc'
         # ifc = 'AC20-Institute-Var-2.ifc'
-        used_workflow = workflow.BPSMultiZoneSeparatedLayersFull()
+        used_workflow = workflow.BuildingSimulation()
+        used_workflow.load_default_settings()
+        used_workflow.zoning_setup = LOD.full
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'Glas', True, 'generic', 500, 1.5, 0.2,
                    True, 'air_layer_DK', 'sandstone', True, 'lime',
@@ -224,7 +250,10 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
     def test_run_kitfzkhaus_spaces_medium_layers_full_no_translator(self):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
-        used_workflow = workflow.BPSMultiZoneCombinedLayersFull()
+        used_workflow = workflow.BuildingSimulation()
+        used_workflow.load_default_settings()
+        used_workflow.layers_and_materials = LOD.full
+        used_workflow.zoning_setup = LOD.medium
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'Kitchen - preparations, storage', True,
                    'solid_brick_h', True, None, 'wood', 'hardwood', 'concrete',

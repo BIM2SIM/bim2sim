@@ -41,12 +41,14 @@ def config_base_setup(path, backend=None):
     """Initial setup for config file"""
     config = configparser.ConfigParser(allow_no_value=True)
     config.read(path)
+    # todo #191 refactor
     if not config.sections():
         config.add_section("Basics")
         config.add_section("Task")
         config.add_section("Aggregation")
         config.add_section("LayersAndMaterials")
-        config.add_section("ConstructionClass")
+        config.add_section("ConstructionClassWalls")
+        config.add_section("ConstructionClassWindows")
         config.add_section("Backend")
         config["Backend"]["use"] = backend
         config.add_section("Frontend")
