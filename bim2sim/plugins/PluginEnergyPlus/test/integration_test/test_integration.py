@@ -147,16 +147,12 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus', used_workflow)
         cooling = True
         heating = True
-        construction_type = 'heavy'
-        window_type = 'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
         split_non_convex_bounds = True
         add_shadings = True
         split_non_convex_shadings = True
         run_full_simulation = True
         answers = (cooling,
                    heating,
-                   construction_type,
-                   window_type,
                    split_non_convex_bounds,
                    add_shadings,
                    split_non_convex_shadings,
@@ -192,9 +188,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
-                   True, True, True, True)
+        answers = (True, True, True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -223,9 +217,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         # ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB44.ifc'
         ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
-                   True, True, True, False)
+        answers = ('ARCHICAD-64', True, True, True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -239,9 +231,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
-                   True, True, True, True)
+        answers = ('ARCHICAD-64', True, True, True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -254,9 +244,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True,  'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
-                   2015, True, True, True, False)
+        answers = (True, True, 2015, True, True, True, False)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -292,8 +280,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = (True, True,  2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, True)
+        answers = (True, True,  2015, True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -306,9 +293,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
-                   2015, True, True, True, False)
+        answers = ('ARCHICAD-64', True, True, 2015, True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -321,8 +306,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True,  'Single office', 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, True)
+        answers = ('ARCHICAD-64', True, True,  'Single office', 2015,
+                   True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -333,13 +318,12 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB89.ifc'
         used_workflow = workflow.BuildingSimulation
         used_workflow.create_external_elements = True
-        used_workflow.zoning_setup = LOD.full        project = self.create_project(ifc, 'energyplus', used_workflow)
+        used_workflow.zoning_setup = LOD.full
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
         handle_proxies = (*(None,)*150,)
         cooling = True
         heating = True
-        construction_type = 'heavy'
-        window_type = 'Waermeschutzverglasung, dreifach'
         construction_year = 2015
         split_non_convex_bounds = False
         add_shadings = True
@@ -349,8 +333,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
                    *handle_proxies,
                    cooling,
                    heating,
-                   construction_type,
-                   window_type,
                    construction_year,
                    split_non_convex_bounds,
                    add_shadings,
@@ -376,8 +358,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         handle_proxies = (*(None,)*150,)
         cooling = True
         heating = True
-        construction_type = 'heavy'
-        window_type = 'Waermeschutzverglasung, dreifach'
         construction_year = 2015
         split_non_convex_bounds = True
         add_shadings = True
@@ -387,8 +367,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
                    *handle_proxies,
                    cooling,
                    heating,
-                   construction_type,
-                   window_type,
                    construction_year,
                    split_non_convex_bounds,
                    add_shadings,
@@ -457,7 +435,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB.ifc'
         used_workflow = workflow.BuildingSimulation
         used_workflow.create_external_elements = True
-        used_workflow.zoning_setup = LOD.full        project = self.create_project(ifc, 'energyplus', used_workflow)
+        used_workflow.zoning_setup = LOD.full
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = ('ARCHICAD-64', *(None,) * 150, True, True, 'Single office',
                    'light', 'Holzfenster, zweifach', 2015,  True, True, True,
                    True)
@@ -508,8 +487,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, *('Single office',)*12, 2015,'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
+        answers = ('ARCHICAD-64', True, True, *('Single office',)*12, 2015,
+                   True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -522,8 +501,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, *('Single office',)*12, 2015,'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, True)
+        answers = ('ARCHICAD-64', True, True, *('Single office',)*12, 2015,
+                   True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -536,8 +515,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', 'ARCHICAD-64', True, True, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
+        answers = ('ARCHICAD-64', 'ARCHICAD-64', True, True,
                    2015, True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -551,8 +529,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('ARCHICAD-64', True, True, 'Single office', 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, True)
+        answers = ('ARCHICAD-64', True, True, 'Single office', 2015,
+                   True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -565,8 +543,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / '26.05space_modified.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('Autodesk Revit 2020 (DEU)', True, True, *('Single office',)*5, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, True)
+        answers = ('Autodesk Revit 2020 (DEU)', True, True,
+                   *('Single office',)*5,  True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -580,8 +558,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         # ifc = RESULT_PATH / 'Office_Building_Architectural_IFC_export_with_SB.ifc'
         ifc = RESULT_PATH / 'Linear_V01.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('Autodesk Revit 2020 (DEU)', 'Autodesk Revit 2020 (DEU)', True, True, *('Single office',)*71, 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach', True, True, True, False)
+        answers = ('Autodesk Revit 2020 (DEU)', 'Autodesk Revit 2020 (DEU)',
+                   True, True, *('Single office',)*71, 2015,True, True, True,
+                   False)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -595,8 +574,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'Olabarri_49.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('Other', True, True, *("Single office",) * 7, 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Isolierverglasung', True, True, True, False)
+        answers = ('Other', True, True, *("Single office",) * 7, 2015,
+                   True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -609,8 +588,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'Testobjekt_einschichtig.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('Autodesk Revit 2020 (DEU)', True, True, 'Single office', 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Isolierverglasung', True, True, True, False)
+        answers = ('Autodesk Revit 2020 (DEU)', True, True, 'Single office',
+                   2015, True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -623,8 +602,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'Testobjekt_mehrschichtig.ifc'
         project = self.create_project(ifc, 'energyplus')
-        answers = ('Autodesk Revit 2020 (DEU)', True, True, 'Single office', 2015, 'heavy',
-                   'Alu- oder Stahlfenster, Isolierverglasung', True, True, True, False)
+        answers = ('Autodesk Revit 2020 (DEU)', True, True, 'Single office',
+                   2015, True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)

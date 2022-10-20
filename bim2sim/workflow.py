@@ -154,53 +154,17 @@ class WorkflowSetting:
         else:
             _value = value
         self._inner_set(bound_workflow, _value)
-    #
-    # def __get__(self, bound_workflow, owner):
-    #     """This is the get function that provides the value of the
-    #     workflow setting when calling workflow.<setting_name>"""
-    #     if bound_workflow is None:
-    #         return self
-    #
-    #     return self._inner_get()
-    #
-    # def _inner_get(self):
-    #     """Gets the value for the setting from the manager."""
-    #     return self.manager[self.name].value
-    #
-    # def _inner_set(self, value):
-    #     """Sets the value for the setting inside the manager."""
-    #     self.manager[self.name].value = value
-    #
-    # def __set__(self, value):
-    #     """This is the set function that sets the value in the workflow setting
-    #     when calling workflow.<setting_name> = <value>"""
-    #     choices = self.manager[self.name].choices
-    #     if value not in choices:
-    #         raise ValueError(f'No valid value for {self.name}, '
-    #                          f'select one of {choices} .')
-    #     else:
-    #         _value = value
-    #     self._inner_set(_value)
 
 
 class Workflow(metaclass=AutoSettingNameMeta):
     """Specification of a bim2sim Workflow that is defined by settings."""
 
     def __init__(self,
-                 filters: list = None, **kwargs):
+                 filters: list = None):
         self.manager = SettingsManager(bound_workflow=self)
-
-        # todo check copy paste from attribute
-        # set attributes based on kwargs
-        for kw, arg in kwargs.items():
-            if kw in self.manager:  # allow only attributes
-                setattr(self, kw, arg)
-            else:
-                raise AttributeError(f"Unused argument in kwargs: {kw}: {arg}")
 
         self.filters = filters if filters else []
         self.ifc_units = {}  # dict to store project related units
-
         self.relevant_elements = []
         self.simulated = False
 
@@ -254,7 +218,6 @@ class Workflow(metaclass=AutoSettingNameMeta):
 
 class PlantSimulation(Workflow):
     # todo add new parameters for heating, cooling, zone aggregation, hvac aggregation
-    # todo: do we still need lods?
     def __init__(self,
                  ductwork=LOD.low):
         super().__init__(
@@ -305,7 +268,7 @@ class BuildingSimulation(Workflow):
 
     # todo not used in code yet (enrich_material.py)
     construction_class_windows = WorkflowSetting(
-        default='heavy',
+        default='Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
         choices={
             'Holzfenster, zweifach':
                 'Zeifachverglasung mit Holzfenstern',

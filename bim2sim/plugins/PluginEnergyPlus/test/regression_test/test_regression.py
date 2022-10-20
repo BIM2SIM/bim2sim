@@ -10,6 +10,7 @@ from epregressions.diffs import math_diff, table_diff
 from epregressions.diffs.thresh_dict import ThreshDict
 
 from bim2sim import workflow
+from bim2sim.workflow import LOD
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import RegressionTestBase
 
@@ -145,20 +146,19 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
     def test_regression_AC20_FZK_Haus(self):
         """Run EnergyPlus export with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
-        used_workflow = workflow.BPSMultiZoneSeparatedEP()
+        used_workflow = workflow.BuildingSimulation()
+        used_workflow.load_default_settings()
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
         cooling = True
         heating = True
-        construction_type = 'heavy'
-        window_type = 'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
         split_non_convex_bounds = True
         add_shadings = True
         split_non_convex_shadings = True
         run_full_simulation = True
         answers = (cooling,
                    heating,
-                   construction_type,
-                   window_type,
                    split_non_convex_bounds,
                    add_shadings,
                    split_non_convex_shadings,
@@ -178,14 +178,15 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
     def test_DigitalHub_SB89_regression(self):
         """Test DigitalHub IFC, includes regression test"""
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB89.ifc'
-        used_workflow = workflow.BPSMultiZoneSeparatedEP()
+        used_workflow = workflow.BuildingSimulation()
+        used_workflow.load_default_settings()
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
         space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
         handle_proxies = (*(None,) * 150,)
         cooling = True
         heating = True
-        construction_type = 'heavy'
-        window_type = 'Waermeschutzverglasung, dreifach'
         construction_year = 2015
         split_non_convex_bounds = False
         add_shadings = True
@@ -195,8 +196,6 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
                    *handle_proxies,
                    cooling,
                    heating,
-                   construction_type,
-                   window_type,
                    construction_year,
                    split_non_convex_bounds,
                    add_shadings,

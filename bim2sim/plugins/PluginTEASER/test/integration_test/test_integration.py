@@ -19,8 +19,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         used_workflow = workflow.BuildingSimulation()
         used_workflow.load_default_settings()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+        answers = (True, True)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -36,8 +35,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc, 'TEASER', used_workflow)
         # Tool,
         answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, True, True,
-                   'heavy', 'Waermeschutzverglasung, dreifach', 2015,
-                   'by_all_criteria')
+                   2015, 'by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -76,10 +74,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         used_workflow.load_default_settings()
         used_workflow.zoning_setup = LOD.medium
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = ('Autodesk Revit 2020 (DEU)', True, True,
-                   'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
-                   'by_all_criteria')
+        answers = ('Autodesk Revit 2020 (DEU)', True, True, 'by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -92,9 +87,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         used_workflow = workflow.BuildingSimulation()
         used_workflow.load_default_settings()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = ('Autodesk Revit 2020 (DEU)', True, True,
-                   'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+        answers = ('Autodesk Revit 2020 (DEU)', True, True)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -107,9 +100,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         used_workflow = workflow.BuildingSimulation()
         used_workflow.load_default_settings()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
-                   2015)
+        answers = (True, True, 2015)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -123,7 +114,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         used_workflow.load_default_settings()
         used_workflow.zoning_setup = LOD.medium
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'heavy', 'EnEv', 'by_all_criteria')
+        answers = (True, True, 'by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -137,7 +128,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         used_workflow.load_default_settings()
         used_workflow.zoning_setup = LOD.medium
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'heavy', 'EnEv', 2015, 'by_all_criteria')
+        answers = (True, True, 2015, 'by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -153,7 +144,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         used_workflow.layers_and_materials = LOD.full
         used_workflow.zoning_setup = LOD.medium
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'heavy', 'EnEv', 'vertical_core_brick_700',
+        answers = (True, True, 'vertical_core_brick_700',
                    'solid_brick_h', 'by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -170,7 +161,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         used_workflow.zoning_setup = LOD.medium
         used_workflow.layers_and_materials = LOD.full
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'heavy', 'EnEv', 2015,
+        answers = (True, True, 2015,
                    'concrete_CEM_II_BS325R_wz05', 'clay_brick', 'Concrete_DK',
                    'by_all_criteria')
         handler = DebugDecisionHandler(answers)
