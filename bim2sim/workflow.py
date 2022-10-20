@@ -122,6 +122,7 @@ class WorkflowSetting:
             raise AttributeError("Attribute.name not set!")
         self.manager = manager
         self.manager[self.name] = self
+        self.manager[self.name].value = None
 
     def load_default(self):
         if not self.value:
