@@ -14,6 +14,7 @@ from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.project import Project
 from bim2sim import workflow
+from bim2sim.workflow import LOD
 
 
 # raise unittest.SkipTest("Integration tests not reliable for automated use")
@@ -136,12 +137,13 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     Integration tests for multiple IFC example files.
     Tested are both original IFC files and files from Eric Fichter's Space Boundary Generation tool.
     """
-    # todo #191 refactor EP workflows
     @unittest.skip("")
     def test_base_01_FZK_design_day(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
-        used_workflow = workflow.BPSMultiZoneSeparatedEP()
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
         cooling = True
         heating = True
@@ -171,7 +173,10 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     def test_base_01full_FZK_design_day(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
-        used_workflow = workflow.BPSMultiZoneSeparatedEPfull()
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
+        used_workflow.layers_and_materials = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = (True, True, True,
                    'solid_brick_a', True, 'hardwood', True,
@@ -198,7 +203,10 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     def test_base_02full_FZK_full_run(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
-        used_workflow = workflow.BPSMultiZoneSeparatedEPfull()
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
+        used_workflow.layers_and_materials = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = (True, True, 'Kitchen - preparations, storage', True,
                    'solid_brick_a', True, 'hardwood', True,
@@ -226,6 +234,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     def test_base_04_FZK_SB_full_run(self):
         """Test IFC File from FZK-Haus (KIT) with generated Space Boundaries"""
         # ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB44.ifc'
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, 'heavy',
@@ -238,7 +249,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     # @unittest.skip("")
     def test_base_05_KIT_Inst_design_day(self):
         """Test Original IFC File from Institute (KIT)"""
-
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True,  'heavy',
@@ -253,9 +266,13 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("")
     def test_base_05full_KIT_Inst_design_day(self):
         """Test Original IFC File from Institute (KIT)"""
-
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
-        used_workflow = workflow.BPSMultiZoneSeparatedEPfull()
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
+        used_workflow.layers_and_materials = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = (True, True, 'Glas', True, 'glas_generic', 500, 1.5, 0.2,
                    True, 'air_layer', 'sandstone', True, 'lime_sandstone_1',
@@ -270,7 +287,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("")
     def test_base_06_KIT_Inst_full_run(self):
         """Test Original IFC File from Institute (KIT)"""
-
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = (True, True,  2015, 'heavy',
@@ -282,7 +301,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     # @unittest.skip("Skipped due to performance for CI")
     def test_base_07_KIT_Inst_SB_design_day(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
-
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, 'heavy',
@@ -295,7 +316,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Skipped due to performance for CI")
     def test_base_08_KIT_Inst_SB_full_run(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
-
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True,  'Single office', 2015, 'heavy',
@@ -308,8 +331,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     def test_DigitalHub_SB89_regression(self):
         """Test DigitalHub IFC, includes regression test"""
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB89.ifc'
-        used_workflow = workflow.BPSMultiZoneSeparatedEP()
-        project = self.create_project(ifc, 'energyplus', used_workflow)
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full        project = self.create_project(ifc, 'energyplus', used_workflow)
         space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
         handle_proxies = (*(None,)*150,)
         cooling = True
@@ -344,7 +368,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     def test_base_09_DH_design_day(self):
         """Test DigitalHub IFC"""
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_fixed002.ifc'
-        used_workflow = workflow.BPSMultiZoneSeparatedEP()
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
         space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
         handle_proxies = (*(None,)*150,)
@@ -375,6 +401,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Debug Answers need to be fixed")
     def test_base_09a_DH_design_day(self): # todo: fix
         """Test DigitalHub IFC"""
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         ifc = str(RESULT_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc')
         project = self.create_project(ifc, 'energyplus')
         answers = (*(None,)*143, True, True,
@@ -393,7 +422,10 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     def test_base_09b_DH_design_day(self): # todo: fix
         """Test DigitalHub IFC"""
         ifc = str(RESULT_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc')
-        used_workflow = workflow.BPSMultiZoneSeparatedEPfull()
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
+        used_workflow.layers_and_materials = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = (*(None,)*143, True, True,
                    *('Stock, technical equipment, archives',) * 8,
@@ -423,8 +455,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     def test_base_10a_DH_low_full_run(self):
         """Test DigitalHub IFC"""
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB.ifc'
-        used_workflow = workflow.BPSMultiZoneSeparatedEP()
-        project = self.create_project(ifc, 'energyplus', used_workflow)
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = ('ARCHICAD-64', *(None,) * 150, True, True, 'Single office',
                    'light', 'Holzfenster, zweifach', 2015,  True, True, True,
                    True)
@@ -436,7 +469,10 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     def test_base_10b_DH_full_full_run(self):
         """Test DigitalHub IFC"""
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB.ifc'
-        used_workflow = workflow.BPSMultiZoneSeparatedEPfull()
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
+        used_workflow.layers_and_materials = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = ('ARCHICAD-64', *(None,) * 150, True, True,
                    *('Stock, technical equipment, archives',) * 2,
@@ -467,6 +503,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Skipped, issue with inner loop algorithm") # todo: find bug related to inner_loop_remover
     def test_base_11_KHH_design_day(self):
         """Test KIT KHH 3 storey IFC"""
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, *('Single office',)*12, 2015,'heavy',
@@ -478,6 +517,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Skipped due to performance for CI")
     def test_base_12_KHH_full_run(self):
         """Test KIT KHH 3 storey IFC"""
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, *('Single office',)*12, 2015,'heavy',
@@ -489,6 +531,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     # @unittest.skip("Skipped due to performance for CI")
     def test_base_13_EDC_SB_design_day(self):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', 'ARCHICAD-64', True, True, 'heavy',
@@ -501,6 +546,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Skipped due to performance for CI")
     def test_base_14_EDC_SB_full_run(self):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('ARCHICAD-64', True, True, 'Single office', 2015, 'heavy',
@@ -512,6 +560,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Not fully implemented yet")
     def test_base_17_ERC_design_day(self):
         """Test ERC Main Building"""
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / '26.05space_modified.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('Autodesk Revit 2020 (DEU)', True, True, *('Single office',)*5, 'heavy',
@@ -523,6 +574,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Not fully implemented yet")
     def test_base_19_linear_SB_design_day(self):
         """Test Linear Building with generated Space Boundaries"""
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         # ifc = RESULT_PATH / 'Office_Building_Architectural_IFC_export_with_SB.ifc'
         ifc = RESULT_PATH / 'Linear_V01.ifc'
         project = self.create_project(ifc, 'energyplus')
@@ -536,6 +590,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Not fully implemented yet")
     def test_base_20_olabarri_design_day(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'Olabarri_49.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('Other', True, True, *("Single office",) * 7, 2015, 'heavy',
@@ -547,6 +604,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip('')
     def test_base_21_graz_einschichtig_full(self):
         """Test Testobjekt_einschichtig.ifc from Graz"""
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'Testobjekt_einschichtig.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('Autodesk Revit 2020 (DEU)', True, True, 'Single office', 2015, 'heavy',
@@ -558,6 +618,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip('')
     def test_base_22_graz_mehrschichtig_full(self):
         """Test Testobjekt_mehrschichtig.ifc from Graz"""
+        used_workflow = workflow.BuildingSimulation
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'Testobjekt_mehrschichtig.ifc'
         project = self.create_project(ifc, 'energyplus')
         answers = ('Autodesk Revit 2020 (DEU)', True, True, 'Single office', 2015, 'heavy',
