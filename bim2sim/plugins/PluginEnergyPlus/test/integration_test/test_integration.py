@@ -142,6 +142,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BuildingSimulation
+        used_workflow.load_default_settings()
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
@@ -170,6 +171,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BuildingSimulation
+        used_workflow.load_default_settings()
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         used_workflow.layers_and_materials = LOD.full
@@ -198,6 +200,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BuildingSimulation
+        used_workflow.load_default_settings()
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         used_workflow.layers_and_materials = LOD.full
