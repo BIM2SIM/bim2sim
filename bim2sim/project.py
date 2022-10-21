@@ -325,6 +325,7 @@ class Project:
         self.default_plugin = self._get_plugin(plugin)
         if not workflow:
             workflow = self.default_plugin.default_workflow()
+            workflow.load_default_settings()
         workflow.relevant_elements = self.default_plugin.elements
         workflow.update_from_config(self.config)
         self.playground = Playground(workflow, self.paths, self.name)
