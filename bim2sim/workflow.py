@@ -305,6 +305,11 @@ class BuildingSimulation(Workflow):
 #     # manager=self.settings,
 
 
+class CFDWorkflowDummy(Workflow):
+    # todo make something useful
+    def __init__(self):
+        super().__init__(
+        )
 
 # class BPSMultiZoneSeparatedLayersFull(Workflow):
 #     """Building performance simulation with every space as single zone
