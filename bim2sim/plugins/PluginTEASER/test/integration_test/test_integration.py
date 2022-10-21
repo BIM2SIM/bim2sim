@@ -82,7 +82,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'ERC_Mainbuilding_Arch.ifc'
         used_workflow = workflow.BuildingSimulation()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = ('Autodesk Revit 2020 (DEU)')
+        answers = ('Autodesk Revit 2020 (DEU)', )
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -94,7 +94,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-Institute-Var-2.ifc'
         used_workflow = workflow.BuildingSimulation()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (2015)
+        answers = (2015, )
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -107,7 +107,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         used_workflow = workflow.BuildingSimulation()
         used_workflow.zoning_setup = LOD.medium
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = ('by_all_criteria')
+        answers = ('by_all_criteria', )
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
