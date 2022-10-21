@@ -83,8 +83,8 @@ class Prepare(ITask):
         """set cooling and heating values based on workflow settings"""
 
         for tz in self.tz_instances.values():
-            tz.with_cooling = workflow.heating
-            tz.with_heating = workflow.cooling
+            tz.with_cooling = workflow.cooling
+            tz.with_heating = workflow.heating
 
     def recognize_zone_geometrical(self):
         """Recognizes zones/spaces by geometric detection"""
