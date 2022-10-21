@@ -530,15 +530,15 @@ class Project:
     def finalize(self, success=False):
         """cleanup method"""
 
-        if self.is_active():
-            # clean up run relics
-            #  backup decisions
-            if not success:
-                pth = self.paths.root / 'decisions_backup.json'
-                save(self._made_decisions, pth)
-                user_logger.warning("Decisions are saved in '%s'. Rename file to 'decisions.json' to reuse them.", pth)
-            else:
-                save(self._made_decisions, self.paths.decisions)
+        # clean up run relics
+        #  backup decisions
+        if not success:
+            pth = self.paths.root / 'decisions_backup.json'
+            save(self._made_decisions, pth)
+            user_logger.warning("Decisions are saved in '%s'. Rename file to "
+                                "'decisions.json' to reuse them.", pth)
+        else:
+            save(self._made_decisions, self.paths.decisions)
 
         # clean up init relics
         #  clean logger

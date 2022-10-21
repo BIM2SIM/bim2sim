@@ -695,8 +695,8 @@ class Material(ProductBased):
 
     conditions = [
         condition.RangeCondition('spec_heat_capacity',
-                                 0 * ureg.J / ureg.K,
-                                 5 * ureg.J / ureg.K,
+                                 0 * ureg.kilojoule / (ureg.kg * ureg.K),
+                                 5 * ureg.kilojoule / (ureg.kg * ureg.K),
                                  critical_for_creation=False),
         condition.RangeCondition('density',
                                  0 * ureg.kg / ureg.m ** 3,
@@ -724,7 +724,7 @@ class Material(ProductBased):
     spec_heat_capacity = attribute.Attribute(
         default_ps=("Pset_MaterialThermal", "SpecificHeatCapacity"),
         # functions=[get_from_template],
-        unit=ureg.J / (ureg.kg * ureg.K)
+        unit=ureg.kilojoule / (ureg.kg * ureg.K)
     )
 
     density = attribute.Attribute(
