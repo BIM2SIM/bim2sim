@@ -296,7 +296,7 @@ class Project:
     Raises:
         AssertionError: on invalid path. E.g. if not existing
     """
-    formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
+    formatter = log.CustomFormatter('[%(levelname)s] %(name)s: %(message)s')
     _active_project = None  # lock to prevent multiple interfering projects
 
     def __init__(self, path: str = None, plugin: Type[Plugin] = None, workflow=None):

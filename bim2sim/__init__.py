@@ -11,19 +11,21 @@ from os.path import expanduser
 from bim2sim.decision.console import ConsoleDecisionHandler
 from bim2sim.decision.decisionhandler import DecisionHandler
 from bim2sim.project import Project
+from bim2sim.log import CustomFormatter
 
 VERSION = '0.1-dev'
 
 
 def logging_setup():
     """Setup for logging module"""
-
-    formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
+    format = "[%(levelname)s] %(name)s: %(message)s"
+    # formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
     root_logger = logging.getLogger(__name__)
 
     # Stream
     stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(formatter)
+    # stream_handler.setFormatter(formatter)
+    stream_handler.setFormatter(CustomFormatter(format))
     root_logger.addHandler(stream_handler)
     # File
     # file_handler = logging.FileHandler(os.path.join(PROJECT.log, "bim2sim.log"))

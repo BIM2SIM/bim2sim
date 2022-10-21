@@ -4,9 +4,6 @@ USER = 'user'
 
 user = {'audience': USER}
 
-quality_formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
-user_formatter = logging.Formatter('user>%(levelname)s: %(message)s')
-dev_formatter = logging.Formatter('dev>%(asctime)s [%(levelname)s] %(name)s.%(funcName)s: %(message)s')
 
 # TODO: check log calls
 # TODO: fix errors exposed by log messages
@@ -65,6 +62,42 @@ def default_logging_setup(verbose=False):
 
     logger.debug("Default logging setup done.")
 
+
+class CustomFormatter(logging.Formatter):
+    """Custom loggin design based on
+    https://stackoverflow.com/questions/
+    384076/how-can-i-color-python-logging-output """
+    def __init__(self, fmt):
+        super().__init__()
+        self._fmt = fmt
+
+    def format(self, record):
+        grey = "\x1b[38;20m"
+        yellow = "\x1b[33;20m"
+        red = "\x1b[31;20m"
+        bold_red = "\x1b[31;1m"
+        reset = "\x1b[0m"
+        format = "[%(levelname)s] %(name)s: %(message)s"
+
+        FORMATS = {
+            logging.DEBUG: grey + self._fmt + reset,
+            logging.INFO: grey + self._fmt + reset,
+            logging.WARNING: yellow + self._fmt + reset,
+            logging.ERROR: red + self._fmt + reset,
+            logging.CRITICAL: bold_red + self._fmt + reset
+        }
+        log_fmt = FORMATS.get(record.levelno)
+        formatter = logging.Formatter(log_fmt)
+        return formatter.format(record)
+
+
+quality_formatter = CustomFormatter('[%(levelname)s] %(name)s: %(message)s')
+user_formatter = CustomFormatter('user>%(levelname)s: %(message)s')
+dev_formatter = CustomFormatter('dev>%(asctime)s [%(levelname)s] %(name)s.%(funcName)s: %(message)s')
+#
+# quality_formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
+# user_formatter = logging.Formatter('user>%(levelname)s: %(message)s')
+# dev_formatter = logging.Formatter('dev>%(asctime)s [%(levelname)s] %(name)s.%(funcName)s: %(message)s')
 
 if __name__ == '__main__':
     default_logging_setup()
