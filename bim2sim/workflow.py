@@ -167,6 +167,7 @@ class Workflow(metaclass=AutoSettingNameMeta):
         self.ifc_units = {}  # dict to store project related units
         self.relevant_elements = []
         self.simulated = False
+        self.load_default_settings()
 
     def load_default_settings(self):
         """loads default values for all settings"""
@@ -218,11 +219,9 @@ class Workflow(metaclass=AutoSettingNameMeta):
 
 class PlantSimulation(Workflow):
     # todo add new parameters for heating, cooling, zone aggregation, hvac aggregation
-    def __init__(self,
-                 ductwork=LOD.low):
+    def __init__(self):
         super().__init__(
         )
-        self.ductwork = ductwork
 
 
 class BuildingSimulation(Workflow):

@@ -125,7 +125,6 @@ class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
         and one zone model export"""
         ifc = 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BuildingSimulation()
-        used_workflow.load_default_settings()
         used_workflow.dymola_simulation = False
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True)

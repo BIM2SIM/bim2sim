@@ -147,7 +147,6 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         """Run EnergyPlus export with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BuildingSimulation()
-        used_workflow.load_default_settings()
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
@@ -179,7 +178,6 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         """Test DigitalHub IFC, includes regression test"""
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB89.ifc'
         used_workflow = workflow.BuildingSimulation()
-        used_workflow.load_default_settings()
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)

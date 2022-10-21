@@ -17,7 +17,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BuildingSimulation()
-        used_workflow.load_default_settings()
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True)
         handler = DebugDecisionHandler(answers)
@@ -30,7 +29,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Test DigitalHub IFC"""
         ifc = 'FM_ARC_DigitalHub_with_SB_neu.ifc'
         used_workflow = workflow.BuildingSimulation()
-        used_workflow.load_default_settings()
         used_workflow.zoning_setup = LOD.medium
         project = self.create_project(ifc, 'TEASER', used_workflow)
         # Tool,
@@ -47,7 +45,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Test ERC Main Building"""
         ifc = 'ERC_Mainbuilding_Arch.ifc'
         used_workflow = workflow.BuildingSimulation()
-        used_workflow.load_default_settings()
         used_workflow.layers_and_materials = LOD.full
         used_workflow.zoning_setup = LOD.full
         project = self.create_project(ifc, 'TEASER', used_workflow)
@@ -71,7 +68,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Test ERC Main Building"""
         ifc = 'ERC_Mainbuilding_Arch.ifc'
         used_workflow = workflow.BuildingSimulation()
-        used_workflow.load_default_settings()
         used_workflow.zoning_setup = LOD.medium
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = ('Autodesk Revit 2020 (DEU)', True, True, 'by_all_criteria')
@@ -85,7 +81,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Test ERC Main Building"""
         ifc = 'ERC_Mainbuilding_Arch.ifc'
         used_workflow = workflow.BuildingSimulation()
-        used_workflow.load_default_settings()
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = ('Autodesk Revit 2020 (DEU)', True, True)
         handler = DebugDecisionHandler(answers)
@@ -98,7 +93,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-Institute-Var-2.ifc"""
         ifc = 'AC20-Institute-Var-2.ifc'
         used_workflow = workflow.BuildingSimulation()
-        used_workflow.load_default_settings()
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 2015)
         handler = DebugDecisionHandler(answers)
@@ -111,7 +105,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BuildingSimulation()
-        used_workflow.load_default_settings()
         used_workflow.zoning_setup = LOD.medium
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'by_all_criteria')
@@ -125,7 +118,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-Institute-Var-2.ifc"""
         ifc = 'AC20-Institute-Var-2.ifc'
         used_workflow = workflow.BuildingSimulation()
-        used_workflow.load_default_settings()
         used_workflow.zoning_setup = LOD.medium
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 2015, 'by_all_criteria')
@@ -140,7 +132,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BuildingSimulation()
-        used_workflow.load_default_settings()
         used_workflow.layers_and_materials = LOD.full
         used_workflow.zoning_setup = LOD.medium
         project = self.create_project(ifc, 'TEASER', used_workflow)
@@ -157,7 +148,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-Institute-Var-2.ifc"""
         ifc = 'AC20-Institute-Var-2.ifc'
         used_workflow = workflow.BuildingSimulation()
-        used_workflow.load_default_settings()
         used_workflow.zoning_setup = LOD.medium
         used_workflow.layers_and_materials = LOD.full
         project = self.create_project(ifc, 'TEASER', used_workflow)
@@ -175,7 +165,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BuildingSimulation()
-        used_workflow.load_default_settings()
         used_workflow.zoning_setup = LOD.full
         used_workflow.layers_and_materials = LOD.full
         project = self.create_project(ifc, 'TEASER', used_workflow)
@@ -195,7 +184,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-Institute-Var-2.ifc"""
         ifc = 'AC20-Institute-Var-2.ifc'
         used_workflow = workflow.BuildingSimulation()
-        used_workflow.load_default_settings()
         used_workflow.zoning_setup = LOD.full
         used_workflow.layers_and_materials = LOD.full
         project = self.create_project(ifc, 'TEASER', used_workflow)
@@ -217,7 +205,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-FZK-Haus.ifc'
         # ifc = 'AC20-Institute-Var-2.ifc'
         used_workflow = workflow.BuildingSimulation()
-        used_workflow.load_default_settings()
         used_workflow.zoning_setup = LOD.full
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'Glas', True, 'generic', 500, 1.5, 0.2,
@@ -242,7 +229,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BuildingSimulation()
-        used_workflow.load_default_settings()
         used_workflow.layers_and_materials = LOD.full
         used_workflow.zoning_setup = LOD.medium
         project = self.create_project(ifc, 'TEASER', used_workflow)
