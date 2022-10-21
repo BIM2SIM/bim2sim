@@ -189,7 +189,11 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     def test_base_02_FZK_full_run(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
-        project = self.create_project(ifc, 'energyplus')
+        used_workflow = workflow.BuildingSimulation()
+        used_workflow.load_default_settings()
+        used_workflow.create_external_elements = True
+        used_workflow.zoning_setup = LOD.full
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = (True, True, True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -238,7 +242,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
-        project = self.create_project(ifc, 'energyplus')
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = ('ARCHICAD-64', True, True, True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -252,7 +256,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
-        project = self.create_project(ifc, 'energyplus')
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = (True, True, 2015, True, True, True, False)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -290,7 +294,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
-        project = self.create_project(ifc, 'energyplus')
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = (True, True,  2015, True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -304,7 +308,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
-        project = self.create_project(ifc, 'energyplus')
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = ('ARCHICAD-64', True, True, 2015, True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -318,7 +322,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
-        project = self.create_project(ifc, 'energyplus')
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = ('ARCHICAD-64', True, True,  'Single office', 2015,
                    True, True, True, True)
         handler = DebugDecisionHandler(answers)
@@ -399,7 +403,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         ifc = str(RESULT_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc')
-        project = self.create_project(ifc, 'energyplus')
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = (*(None,)*143, True, True,
                    *('Stock, technical equipment, archives',)*8,
                    'Kitchen in non-residential buildings',
@@ -506,7 +510,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
-        project = self.create_project(ifc, 'energyplus')
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = ('ARCHICAD-64', True, True, *('Single office',)*12, 2015,
                    True, True, True, False)
         handler = DebugDecisionHandler(answers)
@@ -521,7 +525,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
-        project = self.create_project(ifc, 'energyplus')
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = ('ARCHICAD-64', True, True, *('Single office',)*12, 2015,
                    True, True, True, True)
         handler = DebugDecisionHandler(answers)
@@ -536,7 +540,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
-        project = self.create_project(ifc, 'energyplus')
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = ('ARCHICAD-64', 'ARCHICAD-64', True, True,
                    2015, True, True, True, False)
         handler = DebugDecisionHandler(answers)
@@ -551,7 +555,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
-        project = self.create_project(ifc, 'energyplus')
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = ('ARCHICAD-64', True, True, 'Single office', 2015,
                    True, True, True, True)
         handler = DebugDecisionHandler(answers)
@@ -566,7 +570,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / '26.05space_modified.ifc'
-        project = self.create_project(ifc, 'energyplus')
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = ('Autodesk Revit 2020 (DEU)', True, True,
                    *('Single office',)*5,  True, True, True, True)
         handler = DebugDecisionHandler(answers)
@@ -582,7 +586,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         # ifc = RESULT_PATH / 'Office_Building_Architectural_IFC_export_with_SB.ifc'
         ifc = RESULT_PATH / 'Linear_V01.ifc'
-        project = self.create_project(ifc, 'energyplus')
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = ('Autodesk Revit 2020 (DEU)', 'Autodesk Revit 2020 (DEU)',
                    True, True, *('Single office',)*71, 2015,True, True, True,
                    False)
@@ -599,7 +603,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'Olabarri_49.ifc'
-        project = self.create_project(ifc, 'energyplus')
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = ('Other', True, True, *("Single office",) * 7, 2015,
                    True, True, True, False)
         handler = DebugDecisionHandler(answers)
@@ -614,7 +618,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'Testobjekt_einschichtig.ifc'
-        project = self.create_project(ifc, 'energyplus')
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = ('Autodesk Revit 2020 (DEU)', True, True, 'Single office',
                    2015, True, True, True, False)
         handler = DebugDecisionHandler(answers)
@@ -629,7 +633,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'Testobjekt_mehrschichtig.ifc'
-        project = self.create_project(ifc, 'energyplus')
+        project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = ('Autodesk Revit 2020 (DEU)', True, True, 'Single office',
                    2015, True, True, True, False)
         handler = DebugDecisionHandler(answers)
