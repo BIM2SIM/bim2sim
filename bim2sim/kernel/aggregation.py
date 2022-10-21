@@ -1780,7 +1780,9 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                                              instances)
             else:
                 # first criterion based on similarities
-                group_name = re.sub('[\'\[\]]', '', group)
+                # todo reuse this if needed but currently it doesn't seem so
+                # group_name = re.sub('[\'\[\]]', '', group)
+                group_name = group
                 name = "Aggregated_%s" % group_name.replace(', ', '_')
                 cls.create_aggregated_tz(name, group, group_elements, finder,
                                          new_aggregations, instances)
