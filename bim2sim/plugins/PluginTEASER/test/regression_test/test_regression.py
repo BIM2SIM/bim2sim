@@ -127,7 +127,7 @@ class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
         used_workflow = workflow.BuildingSimulation()
         used_workflow.dymola_simulation = False
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True)
+        answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer

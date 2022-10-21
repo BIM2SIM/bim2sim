@@ -644,11 +644,11 @@ class CheckIfc(ITask):
         """
         plugin_name = plugin.__name__.split('.')[-1].upper()
         with open(str(self.paths.log) +
-                  '\ifc_%s_sub_inst_error_summary.json' % plugin_name,
+                  '/ifc_%s_sub_inst_error_summary.json' % plugin_name,
                   'w+') as fp:
             json.dump(self.error_summary_sub_inst, fp, indent="\t")
         with open(str(self.paths.log) +
-                  '\ifc_%s_inst_error_summary.json' % plugin_name,
+                  '/ifc_%s_inst_error_summary.json' % plugin_name,
                   'w+') as fp:
             json.dump(self.error_summary_inst, fp, indent="\t")
 
@@ -788,7 +788,7 @@ class CheckIfc(ITask):
         all_errors = {**summary_inst['per_type'], **summary_sbs['per_type']}
 
         with open(str(self.paths.log) +
-                  '\%s_error_summary_inst.html' % plugin_name, 'w+') as \
+                  '/%s_error_summary_inst.html' % plugin_name, 'w+') as \
                 out_file:
             out_file.write(templates["inst_template"].render_unicode(
                 task=self,
@@ -797,14 +797,14 @@ class CheckIfc(ITask):
                 all_errors=all_errors))
             out_file.close()
         with open(str(self.paths.log) +
-                  '\%s_error_summary_prop.html' % plugin_name, 'w+') as \
+                  '/%s_error_summary_prop.html' % plugin_name, 'w+') as \
                 out_file:
             out_file.write(templates["prop_template"].render_unicode(
                 task=self,
                 summary_props=summary_props))
             out_file.close()
         with open(str(self.paths.log) +
-                  '\%s_error_summary.html' % plugin_name, 'w+') as out_file:
+                  '/%s_error_summary.html' % plugin_name, 'w+') as out_file:
             out_file.write(templates["summary_template"].render_unicode(
                 task=self,
                 plugin_name=plugin_name,

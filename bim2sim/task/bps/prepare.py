@@ -45,8 +45,8 @@ class Prepare(ITask):
             if use:
                 self.recognize_zone_geometrical()
             else:
-                # todo abort program, because of missing zones/spaces
-                raise NotImplementedError
+                raise NotImplementedError("No Spaces found in IFC. No "
+                                          "Simulation model can be generated.")
 
         self.bind_elements_to_storey(instances)
         self.set_space_properties(workflow)
