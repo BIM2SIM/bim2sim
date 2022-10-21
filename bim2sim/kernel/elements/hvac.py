@@ -13,6 +13,7 @@ from bim2sim.kernel import condition, attribute
 from bim2sim.decision import ListDecision, DecisionBunch
 from bim2sim.kernel.element import Port, ProductBased
 from bim2sim.kernel.units import ureg
+from decorators import cached_property
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -209,13 +210,6 @@ class HVACProduct(ProductBased):
             pass
         # valid for IFC for Revit v19.1.0.0
         element_port_connections = getattr(self.ifc, 'HasPorts', [])
-        # if len(element_port_connections) > self.expected_hvac_ports:
-        #     logger.info("The number of HVACPorts (%d) of %s exceeds number the expected HVACPorts (%d)"
-        #                 % (len(element_port_connections), self.ifc, self.expected_hvac_ports))
-        #     if self.key == 'HVAC-Valve':
-        #         selected_cls = ProductBased.key_map['HVAC-ThreeWayValve']
-        #         self = selected_cls.from_ifc(self.ifc)
-        #     # yield from self.decide_subclass()
         for element_port_connection in element_port_connections:
             ports.append(HVACPort.from_ifc(ifc=element_port_connection.RelatingPort, parent=self))
         return ports
@@ -292,35 +286,14 @@ class HVACProduct(ProductBased):
         rl.flow_side = -1
         self.inner_connections.append((vl, rl))
 
-    def sort_ports_by_flow_side(self):
-        """
-        Sorts the ports by flow side (VL, RL, other)
-        """
-        port_order = {1: 0, -1: 1, 0: 2}
-        self.ports = sorted(self.ports, key=lambda port: port_order[port.flow_side])
+    @cached_property
+    def expected_hvac_ports(self):
+        return []
 
-    # def decide_hvac_ports(self) -> Generator[DecisionBunch, None, None]:
-    #     choices = [port.guid for port in self.ports]
-    #     decision = ListDecision(f"Please select port which is not an HVACPort {self}.",
-    #                             choices=choices,
-    #                             default=choices[0],  # best guess
-    #                             key='Non_hvac',
-    #                             global_key='None_hvac_port_of_' + self.guid)
-    #     decisions = DecisionBunch((decision,))
-    #     yield decisions
-    #
-    # def decide_subclass(self) -> Generator[DecisionBunch, None, None]:
-    #     decision = ListDecision(
-    #         "Please specify the Type of Element of %s (Name: %s, Description: %s):" % (
-    #             self.ifc.is_a(), self.ifc.Name, self.ifc.Description),
-    #         choices=[ele.key for ele in self.__class__.__subclasses__()],
-    #         key=self.guid,
-    #         global_key="SetClass:%s.%s" % (self.ifc.is_a(), self.ifc.GlobalId))
-    #     yield decision
-    #     answers = decision.to_answer_dict()
-    #     selected_cls = ProductBased.key_map[answers.value]
-    #     self = selected_cls.from_ifc(self.ifc)
-    #     return self
+    def validate_ports(self):
+        if len(self.ports) != self.expected_hvac_ports:
+            return False
+        return True
 
     def is_generator(self):
         return False
@@ -491,7 +464,9 @@ class Boiler(HVACProduct):
         re.compile('Boiler', flags=re.IGNORECASE),
     ]
 
-    expected_hvac_ports = 2
+    @cached_property
+    def expected_hvac_ports(self):
+        return 2
 
     def is_generator(self):
         """Boiler is a generator function."""
@@ -654,7 +629,10 @@ class Pipe(HVACProduct):
              'SPOOL']
     }
 
-    expected_hvac_ports = 2
+    @cached_property
+    def expected_hvac_ports(self):
+        return 2
+    # expected_hvac_ports = 2
 
     conditions = [
         condition.RangeCondition("diameter", 5.0 * ureg.millimeter,
@@ -740,6 +718,15 @@ class PipeFitting(HVACProduct):
             ['*', 'BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION',
              'OBSTRUCTION', 'TRANSITION']
     }
+    pattern_ifc_type = [
+        re.compile('Bogen', flags=re.IGNORECASE),
+        re.compile('Bend', flags=re.IGNORECASE),
+    ]
+
+    @cached_property
+    def expected_hvac_ports(self):
+        return 2
+    # expected_hvac_ports = 2
 
     conditions = [
         condition.RangeCondition("diameter", 5.0 * ureg.millimeter,
@@ -791,28 +778,36 @@ class PipeFitting(HVACProduct):
             return np.average(value).item()
         return value
 
-    expected_hvac_ports = 2
-
-    # def get_better_subclass(self) -> Union[None, Type['IFCBased']]:
-    #     return Junction if len(self.ports) > 2 else PipeFitting
-
 
 class Junction(PipeFitting):
     ifc_types = {
         "IfcPipeFitting": ['JUNCTION']
     }
 
-    expected_hvac_ports = 3
+    pattern_ifc_type = [
+        re.compile('T-St(ü|ue)ck', flags=re.IGNORECASE),
+        re.compile('T-Piece', flags=re.IGNORECASE)
+    ]
+
+    @cached_property
+    def expected_hvac_ports(self):
+        return 3
+
+    # expected_hvac_ports = 3
 
 
 class SpaceHeater(HVACProduct):
     ifc_types = {'IfcSpaceHeater': ['*', 'CONVECTOR', 'RADIATOR']}
 
     pattern_ifc_type = [
+        re.compile('Heizk(ö|oe)rper', flags=re.IGNORECASE),
         re.compile('Space.?heater', flags=re.IGNORECASE)
     ]
 
-    expected_hvac_ports = 2
+    @cached_property
+    def expected_hvac_ports(self):
+        return 2
+    # expected_hvac_ports = 2
 
     def is_consumer(self):
         return True
@@ -921,7 +916,7 @@ class Storage(HVACProduct):
                                  math.inf * ureg.liter)
     ]
 
-    expected_hvac_ports = float('inf')
+    # expected_hvac_ports = float('inf')
 
     pattern_ifc_type = [
         re.compile('Tank', flags=re.IGNORECASE),
@@ -981,7 +976,7 @@ class Distributor(HVACProduct):
              'MANHOLE', 'METERCHAMBER', 'SUMP', 'TRENCH', 'VALVECHAMBER']
     }
 
-    expected_hvac_ports = float('inf')
+    # expected_hvac_ports = float('inf')
 
     pattern_ifc_type = [
         re.compile('Distribution.?chamber', flags=re.IGNORECASE),
@@ -1012,7 +1007,11 @@ class Pump(HVACProduct):
              'VERTICALTURBINE']
     }
 
-    expected_hvac_ports = 2
+    @cached_property
+    def expected_hvac_ports(self):
+        return 2
+
+    # expected_hvac_ports = 2
 
     pattern_ifc_type = [
         re.compile('Pumpe', flags=re.IGNORECASE),
@@ -1081,7 +1080,11 @@ class Valve(HVACProduct):
              'STOPCOCK']
     }
 
-    expected_hvac_ports = 2
+    @cached_property
+    def expected_hvac_ports(self):
+        return 2
+
+    # expected_hvac_ports = 2
 
     pattern_ifc_type = [
         re.compile('Valve', flags=re.IGNORECASE),
@@ -1128,18 +1131,20 @@ class Valve(HVACProduct):
     )
 
 
-
-    # def get_better_subclass(self) -> Union[None, Type['IFCBased']]:
-    #     return ThreeWayValve if len(self.ports) > 2 else None
-
-
 class ThreeWayValve(Valve):
     ifc_types = {
         "IfcValve":
             ['MIXING']
     }
 
-    expected_hvac_ports = 3
+    pattern_ifc_type = [
+        re.compile('3-Wege.*?ventil', flags=re.IGNORECASE)
+    ]
+
+    @cached_property
+    def expected_hvac_ports(self):
+        return 3
+    # expected_hvac_ports = 3
 
 
 class Duct(HVACProduct):

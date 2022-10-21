@@ -90,41 +90,8 @@ class ConnectElements(ITask):
         # Check inner connections
         yield from self.check_inner_connections(instances.values())
 
-        for instance in instances.values():
-            instance.sort_ports_by_flow_side()
-
         # TODO: manually add / modify connections
         return instances,
-
-    # @staticmethod
-    # def check_expected_neighbors(instances):
-    #     instances_with_more_ports = [instance for instance in instances.values()
-    #                                  if len(instance.neighbors) > instance.expected_hvac_ports]
-    #     decisions = DecisionBunch()
-    #     for inst in instances_with_more_ports:
-    #         decisions.append(ListDecision(
-    #             "Found unidentified Element of %s (Name: %s, Description: %s):" % (
-    #                 inst.ifc.is_a(), inst.ifc.Name, inst.ifc.Description),
-    #             choices=[ele.key for ele in {*hvac_elements.items}],
-    #             key=inst,
-    #             global_key="SetClass:%s.%s" % (inst.ifc.is_a(), inst.ifc.GlobalId)))
-    #     yield decisions
-    #     answers = decisions.to_answer_dict()
-    #     for inst, element_key in answers.items():
-    #         better_cls = ProductBased.key_map[element_key]
-    #         element = better_cls.from_ifc(inst.ifc)
-    #         element.__dict__ = inst.__dict__.copy()
-    #         instances[inst.guid] = element
-    #     return instances
-
-    # @staticmethod
-    # def check_expected_quantity_of_ports(elements: dict):
-    #     for ele in elements.values():
-    #         if isinstance(ele, ):
-    #             connected_hvac_ports = [port for port in ele.ports if isinstance(port, HVACPort)
-    #                                     if port.connection is not None]
-    #             if len(connected_hvac_ports) > ele.expected_hvac_ports:
-    #                 yield from ele.decide_hvac_ports()
 
     @staticmethod
     def check_element_ports(elements: dict):

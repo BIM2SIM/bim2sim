@@ -633,7 +633,7 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
     multi = ('rated_power', 'rated_height', 'rated_volume_flow', 'diameter',
              'diameter_strand', 'length')
 
-    def create_ports(self, graph):
+    def get_ports(self, graph):
         ports = []
         edge_ports = self.get_edge_ports(graph)
         # simple case with two edge ports
@@ -882,7 +882,7 @@ class AggregatedPipeFitting(HVACAggregationMixin, hvac.PipeFitting):
         self.get_ports = partial(self.get_ports, aggr_ports)
         super().__init__(element_graph, *args, **kwargs)
 
-    def create_ports(self, aggr_ports, graph):  # TBD
+    def get_ports(self, aggr_ports, graph):  # TBD
         ports = []
         edge_ports = self.get_edge_ports(graph)
         # create aggregation ports for all edge ports
@@ -950,7 +950,7 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
     aggregatable_elements = {hvac.SpaceHeater, hvac.Pipe,
                              hvac.PipeFitting, PipeStrand}
 
-    def create_ports(self, graph):
+    def get_ports(self, graph):
         return self._get_start_and_end_ports()
 
     @verify_edge_ports
@@ -1180,7 +1180,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
     aggregatable_elements = {
         hvac.SpaceHeater, hvac.Pipe,
-        hvac.PipeFitting,
+        hvac.PipeFitting, hvac.Junction,
         hvac.Pump, hvac.Valve, hvac.ThreeWayValve,
         PipeStrand, ParallelSpaceHeater, UnderfloorHeating}
     whitelist = [hvac.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating]
@@ -1485,8 +1485,8 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin,
 
         super().__init__(element_graph, *args, **kwargs)
 
-    def create_ports(self, graph) -> List[HVACPort]:
-        ports = super().create_ports(graph)
+    def get_ports(self, graph) -> List[HVACPort]:
+        ports = super().get_ports(graph)
         for con_ports in self.open_consumer_pairs:
             ports.append(HVACAggregationPort(con_ports[0], parent=self))
             ports.append(HVACAggregationPort(con_ports[1], parent=self))

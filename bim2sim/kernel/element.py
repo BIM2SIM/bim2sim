@@ -446,8 +446,7 @@ class IFCBased(Element):
         return matches
 
     @classmethod
-    def filter_for_text_fragments(
-            cls, ifc_element, ifc_units: dict, optional_locations: list = None):
+    def filter_for_text_fragments(cls, ifc_element, ifc_units: dict, optional_locations: list = None):
         """Filter for text fragments in the ifc_element to identify the ifc_element."""
         results = []
         hits = [p.search(ifc_element.Name) for p in cls.pattern_ifc_type]
@@ -606,8 +605,7 @@ class ProductBased(IFCBased):
             if cond.critical_for_creation:
                 value = getattr(self, cond.key)
                 if not cond.check(self, value):
-                    logger.warning("%s validation (%s) failed for %s",
-                                   self.ifc_type, cond.name, self.guid)
+                    logger.warning("%s validation (%s) failed for %s", self.ifc_type, cond.name, self.guid)
                     return False
         return True
 
@@ -625,6 +623,9 @@ class ProductBased(IFCBased):
         #             return False
         # return True
         return results
+
+    def validate_ports(self):
+        return True
 
     def __repr__(self):
         return "<%s>" % self.__class__.__name__
@@ -790,8 +791,7 @@ class Factory:
             ifc_units: dict,
             finder_path: Union[str, Path, None] = None,
             dummy=Dummy):
-        self.mapping, self.blacklist, self.defaults = \
-            self.create_ifc_mapping(relevant_elements)
+        self.mapping, self.blacklist, self.defaults = self.create_ifc_mapping(relevant_elements)
         self.dummy_cls = dummy
         self.finder = TemplateFinder()
         self.ifc_units = ifc_units
@@ -809,7 +809,7 @@ class Factory:
         :param use_dummy: use dummy class if nothing is found
         :param kwargs: additional kwargs passed to element
 
-        :raises LookupError: if no element found an use_dummy = False
+        :raises LookupError: if no element found and use_dummy = False
         """
         _ifc_type = ifc_type or ifc_entity.is_a()
         predefined_type = ifc2python.get_predefined_type(ifc_entity)

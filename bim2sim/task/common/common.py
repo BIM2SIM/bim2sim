@@ -151,10 +151,7 @@ class CreateElements(ITask):
         unknown_entities.extend(invalids)
 
         # filter by text
-        text_filter = TextFilter(
-            workflow.relevant_elements,
-            workflow.ifc_units,
-            ['Description'])
+        text_filter = TextFilter(workflow.relevant_elements, workflow.ifc_units, ['Description'])
         entity_class_dict, unknown_entities = yield from self.filter_by_text(
             text_filter, unknown_entities, workflow.ifc_units)
         entity_best_guess_dict.update(entity_class_dict)
@@ -180,8 +177,7 @@ class CreateElements(ITask):
                 except Exception as ex:
                     invalids.append(ifc_entity)
         if invalids:
-            self.logger.info("Removed %d entities with no class set",
-                             len(invalids))
+            self.logger.info("Removed %d entities with no class set", len(invalids))
 
         self.logger.info("Created %d elements", len(instance_lst))
         instances = {inst.guid: inst for inst in instance_lst}
@@ -305,14 +301,11 @@ class CreateElements(ITask):
 
                         # Profiles
                         # TODO maybe use in future
-                        if ifc_mat_rel_object.is_a(
-                                'IfcMaterialProfileSetUsage'):
+                        if ifc_mat_rel_object.is_a('IfcMaterialProfileSetUsage'):
                             pass
-                        elif ifc_mat_rel_object.is_a(
-                            'IfcMaterialProfileSet'):
+                        elif ifc_mat_rel_object.is_a('IfcMaterialProfileSet'):
                             pass
-                        elif ifc_mat_rel_object.is_a(
-                            'IfcMaterialProfile'):
+                        elif ifc_mat_rel_object.is_a('IfcMaterialProfile'):
                             pass
 
             if element.validate_creation():
@@ -326,7 +319,14 @@ class CreateElements(ITask):
                     self.logger.warning("Validation failed for %s %s", ifc_type_or_element_cls, element)
                 invalid.append(entity)
 
-        return valid, invalid
+            if element.validate_ports():
+                valid.append(element)
+            elif force:
+                valid.append(element)
+            else:
+                invalid.append(entity)
+
+        return list(set(valid)), list(set(invalid))
 
     def filter_by_text(self, text_filter, ifc_entities, ifc_units: dict) \
             -> Generator[DecisionBunch, None,
