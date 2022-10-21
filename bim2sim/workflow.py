@@ -218,7 +218,7 @@ class Workflow(metaclass=AutoSettingNameMeta):
 
 
 class PlantSimulation(Workflow):
-    # todo add new parameters for heating, cooling, zone aggregation, hvac aggregation
+    # todo add new parameters for zone aggregation, hvac aggregation
     def __init__(self):
         super().__init__(
         )
@@ -293,6 +293,25 @@ class BuildingSimulation(Workflow):
         description='Whether to use CFD export for this simulation or not.',
         for_frontend=True
     )
+    heating = WorkflowSetting(
+        default=True,
+        choices={
+            False: 'Do not supply building with heating',
+            True: 'Supply building with heating'
+        },
+        description='Whether the building should be supplied with heating.',
+        for_frontend=True
+    )
+    cooling = WorkflowSetting(
+        default=True,
+        choices={
+            False: 'Do not supply building with cooling',
+            True: 'Supply building with cooling'
+        },
+        description='Whether the building should be supplied with cooling.',
+        for_frontend=True
+    )
+
 # todo move chosen criteria function from bind_tz decision to here
 # WorkflowSetting(
 #     name='zoning_criteria',
