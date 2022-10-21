@@ -146,15 +146,11 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        cooling = True
-        heating = True
         split_non_convex_bounds = True
         add_shadings = True
         split_non_convex_shadings = True
         run_full_simulation = True
-        answers = (cooling,
-                   heating,
-                   split_non_convex_bounds,
+        answers = (split_non_convex_bounds,
                    add_shadings,
                    split_non_convex_shadings,
                    run_full_simulation)
@@ -175,7 +171,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         used_workflow.layers_and_materials = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = (True, True, True,
+        answers = (True,
                    'solid_brick_a', True, 'hardwood', True,
                    'Light_Concrete_DK', True, 'Concrete_DK', "heavy", 1, 'Door',
                    1, 'Brick', 'brick_H', "EnEv", *(1,) * 8, True, True, True, False)
@@ -192,7 +188,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = (True, True, True, True, True, True)
+        answers = (True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -206,7 +202,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         used_workflow.layers_and_materials = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = (True, True, 'Kitchen - preparations, storage', True,
+        answers = ('Kitchen - preparations, storage', True,
                    'solid_brick_a', True, 'hardwood', True,
                    'Light_Concrete_DK', True, 'Concrete_DK', "heavy", 1, 'Door',
                    1, 'Brick', 'brick_H', "EnEv", *(1,) * 8, True, True, True, True)
@@ -224,7 +220,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = ('ARCHICAD-64', True, True, True, True, True, False)
+        answers = ('ARCHICAD-64', True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -238,7 +234,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = ('ARCHICAD-64', True, True, True, True, True, True)
+        answers = ('ARCHICAD-64', True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -251,7 +247,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = (True, True, 2015, True, True, True, False)
+        answers = (2015, True, False)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -269,7 +265,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         used_workflow.layers_and_materials = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = (True, True, 'Glas', True, 'glas_generic', 500, 1.5, 0.2,
+        answers = ('Glas', True, 'glas_generic', 500, 1.5, 0.2,
                    True, 'air_layer', 'sandstone', True, 'lime_sandstone_1',
                    True, 'aluminium', 0.1, True, 'Concrete_DK', 2015, "heavy",
                    1, 'Beton', 'Light_Concrete_DK', 1, 'Beton', 1, 'Beton',
@@ -287,7 +283,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = (True, True,  2015, True, True, True, True)
+        answers = (2015, True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -300,7 +296,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = ('ARCHICAD-64', True, True, 2015, True, True, True, False)
+        answers = ('ARCHICAD-64', 2015, True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -313,7 +309,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = ('ARCHICAD-64', True, True,  'Single office', 2015,
+        answers = ('ARCHICAD-64', 'Single office', 2015,
                    True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -329,8 +325,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus', used_workflow)
         space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
         handle_proxies = (*(None,)*150,)
-        cooling = True
-        heating = True
         construction_year = 2015
         split_non_convex_bounds = False
         add_shadings = True
@@ -338,8 +332,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         run_full_simulation = False
         answers = (space_boundary_genenerator,
                    *handle_proxies,
-                   cooling,
-                   heating,
                    construction_year,
                    split_non_convex_bounds,
                    add_shadings,
@@ -363,8 +355,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus', used_workflow)
         space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
         handle_proxies = (*(None,)*150,)
-        cooling = True
-        heating = True
         construction_year = 2015
         split_non_convex_bounds = True
         add_shadings = True
@@ -372,8 +362,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         run_full_simulation = True
         answers = (space_boundary_genenerator,
                    *handle_proxies,
-                   cooling,
-                   heating,
                    construction_year,
                    split_non_convex_bounds,
                    add_shadings,
@@ -391,8 +379,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = str(RESULT_PATH / 'DigitalHub_Architektur2_2020_Achse_tragend_V2.ifc')
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = (*(None,)*143, True, True,
-                   *('Stock, technical equipment, archives',)*8,
+        answers = (*(None,)*143, *('Stock, technical equipment, archives',)*8,
                    'Kitchen in non-residential buildings',
                    'Foyer (theater and event venues)',
                    *('Stock, technical equipment, archives',)*4, 'Foyer (theater and event venues)',
@@ -412,8 +399,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         used_workflow.layers_and_materials = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = (*(None,)*143, True, True,
-                   *('Stock, technical equipment, archives',) * 8,
+        answers = (*(None,)*143, *('Stock, technical equipment, archives',) * 8,
                    'Kitchen in non-residential buildings',
                    'Foyer (theater and event venues)',
                    *('Stock, technical equipment, archives',) * 4, 'Foyer (theater and event venues)',
@@ -444,7 +430,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.create_external_elements = True
         used_workflow.zoning_setup = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = ('ARCHICAD-64', *(None,) * 150, True, True, 'Single office',
+        answers = ('ARCHICAD-64', *(None,) * 150, 'Single office',
                    'light', 'Holzfenster, zweifach', 2015,  True, True, True,
                    True)
         handler = DebugDecisionHandler(answers)
@@ -460,7 +446,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         used_workflow.layers_and_materials = LOD.full
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = ('ARCHICAD-64', *(None,) * 150, True, True,
+        answers = ('ARCHICAD-64', *(None,) * 150,
                    *('Stock, technical equipment, archives',) * 2,
                    'Single office',
                    *('Stock, technical equipment, archives',) * 2,
@@ -494,7 +480,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = ('ARCHICAD-64', True, True, *('Single office',)*12, 2015,
+        answers = ('ARCHICAD-64', *('Single office',)*12, 2015,
                    True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -508,7 +494,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = ('ARCHICAD-64', True, True, *('Single office',)*12, 2015,
+        answers = ('ARCHICAD-64', *('Single office',)*12, 2015,
                    True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -522,8 +508,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = ('ARCHICAD-64', 'ARCHICAD-64', True, True,
-                   2015, True, True, True, False)
+        answers = ('ARCHICAD-64', 'ARCHICAD-64', 2015, True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -536,7 +521,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = ('ARCHICAD-64', True, True, 'Single office', 2015,
+        answers = ('ARCHICAD-64', 'Single office', 2015,
                    True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -550,7 +535,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / '26.05space_modified.ifc'
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = ('Autodesk Revit 2020 (DEU)', True, True,
+        answers = ('Autodesk Revit 2020 (DEU)',
                    *('Single office',)*5,  True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -566,7 +551,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc = RESULT_PATH / 'Linear_V01.ifc'
         project = self.create_project(ifc, 'energyplus', used_workflow)
         answers = ('Autodesk Revit 2020 (DEU)', 'Autodesk Revit 2020 (DEU)',
-                   True, True, *('Single office',)*71, 2015,True, True, True,
+                   *('Single office',)*71, 2015,True, True, True,
                    False)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -581,7 +566,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'Olabarri_49.ifc'
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = ('Other', True, True, *("Single office",) * 7, 2015,
+        answers = ('Other', *("Single office",) * 7, 2015,
                    True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -595,7 +580,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'Testobjekt_einschichtig.ifc'
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = ('Autodesk Revit 2020 (DEU)', True, True, 'Single office',
+        answers = ('Autodesk Revit 2020 (DEU)', 'Single office',
                    2015, True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -609,7 +594,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'Testobjekt_mehrschichtig.ifc'
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = ('Autodesk Revit 2020 (DEU)', True, True, 'Single office',
+        answers = ('Autodesk Revit 2020 (DEU)', 'Single office',
                    2015, True, True, True, False)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())

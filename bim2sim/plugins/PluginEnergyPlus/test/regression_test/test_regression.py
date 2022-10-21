@@ -183,8 +183,6 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus', used_workflow)
         space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
         handle_proxies = (*(None,) * 150,)
-        cooling = True
-        heating = True
         construction_year = 2015
         split_non_convex_bounds = False
         add_shadings = True
@@ -192,8 +190,6 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         run_full_simulation = False
         answers = (space_boundary_genenerator,
                    *handle_proxies,
-                   cooling,
-                   heating,
                    construction_year,
                    split_non_convex_bounds,
                    add_shadings,
