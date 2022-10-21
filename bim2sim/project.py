@@ -544,7 +544,7 @@ class Project:
 
         # clean up init relics
         #  clean logger
-        user_logger.info('Project finished')
+        user_logger.info(f'Project "{self.name}" finished')
         self._teardown_logger()
 
     def delete(self):
