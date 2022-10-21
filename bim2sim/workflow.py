@@ -204,7 +204,6 @@ class Workflow(metaclass=AutoSettingNameMeta):
         description='Run a Simulation after model export?',
         for_frontend=True
     )
-
     create_external_elements = WorkflowSetting(
         default=False,
         choices={
@@ -238,7 +237,6 @@ class BuildingSimulation(Workflow):
                     'be treated.',
         for_frontend=True
     )
-
     zoning_setup = WorkflowSetting(
         default=LOD.low,
         choices={
@@ -252,8 +250,6 @@ class BuildingSimulation(Workflow):
                     'be aggreated.',
         for_frontend=True
     )
-
-    # todo not used in code yet (enrich_material.py)
     construction_class_walls = WorkflowSetting(
         default='heavy',
         choices={
@@ -264,8 +260,6 @@ class BuildingSimulation(Workflow):
                     " the walls of the selected building.",
         for_frontend=True
     )
-
-    # todo not used in code yet (enrich_material.py)
     construction_class_windows = WorkflowSetting(
         default='Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
         choices={
