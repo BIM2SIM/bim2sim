@@ -38,36 +38,11 @@ class EnrichMaterial(ITask):
 
         return instances,
 
-    # todo #191 remove this
-    # @staticmethod
-    # def get_construction_type(for_windows=False):
-    #     """get construction type"""
-    #     # ToDo: implement in Workflow
-    #     choices = ['Holzfenster, zweifach',
-    #                'Kunststofffenster, Isolierverglasung',
-    #                'Alu- oder Stahlfenster, Isolierverglasung',
-    #                'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
-    #                'Waermeschutzverglasung, dreifach',
-    #                'EnEv'] if for_windows else ['heavy', 'light']
-    #     global_key = 'windows' if for_windows else 'general'
-    #
-    #     decision_template = ListDecision(
-    #         "Choose one of the following construction types to proceed (%s)"
-    #         % global_key,
-    #         choices=choices,
-    #         global_key="%s_construction_type.bpsTemplate" % global_key,
-    #         allow_skip=True)
-    #     yield DecisionBunch([decision_template])
-    #     return decision_template.value
-
     def get_templates_for_buildings(self, instances, workflow):
         """get templates for building"""
         templates = {}
         construction_type = workflow.construction_class_walls
         windows_construction_type = workflow.construction_class_windows
-        # todo #191 remove this
-        # construction_type = yield from self.get_construction_type()
-        # windows_construction_type = yield from self.get_construction_type(True)
         buildings = filter_instances(instances, Building)
         for building in buildings:
             if not building.year_of_construction:

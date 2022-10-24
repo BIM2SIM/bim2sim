@@ -41,7 +41,6 @@ def config_base_setup(path, backend=None):
     """Initial setup for config file"""
     config = configparser.ConfigParser(allow_no_value=True)
     config.read(path)
-    # todo #191 refactor
     if not config.sections():
         config.add_section("Basics")
         config.add_section("Task")
@@ -60,8 +59,14 @@ def config_base_setup(path, backend=None):
         config["BuildingSimulation"]["cooling"] = str(True)
         config["BuildingSimulation"]["cfd_export"] = str(False)
         config.add_section("PlantSimulation")
-        config["PlantSimulation"]["pipe_aggregation"] = str(True)
-
+        config["PlantSimulation"]["aggregations"] = str([
+            'UnderfloorHeating',
+            'Consumer',
+            'PipeStrand',
+            'ParallelPump',
+            'ConsumerHeatingDistributorModule',
+            'GeneratorOneFluid',
+        ])
         config.add_section("Backend")
         config["Backend"]["use"] = backend
         config.add_section("Frontend")

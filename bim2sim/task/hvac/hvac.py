@@ -362,15 +362,16 @@ class Reduce(ITask):
     def run(self, workflow: Workflow, graph: HvacGraph) -> (HvacGraph, ):
         self.logger.info("Reducing elements by applying aggregations")
 
-        aggregations = [
-            UnderfloorHeating,
-            Consumer,
-            PipeStrand,
-            ParallelPump,
-            ConsumerHeatingDistributorModule,
-            GeneratorOneFluid,
-            # ParallelSpaceHeater,
-        ]
+        aggregations_cls = {
+            'UnderfloorHeating': UnderfloorHeating,
+            'Consumer': Consumer,
+            'PipeStrand': PipeStrand,
+            'ParallelPump': ParallelPump,
+            'ConsumerHeatingDistributorModule': ConsumerHeatingDistributorModule,
+            'GeneratorOneFluid': GeneratorOneFluid,
+            # 'ParallelSpaceHeater': ParallelSpaceHeater,
+        }
+        aggregations = [aggregations_cls[agg] for agg in workflow.aggregations]
 
         statistics = {}
         number_of_elements_before = len(graph.elements)
@@ -379,7 +380,7 @@ class Reduce(ITask):
 
         for agg_class in aggregations:
             name = agg_class.__name__
-            self.logger.info("Aggregating '%s' ...", name)
+            self.logger.info(f"Aggregating {name} ...")
             matches, metas = agg_class.find_matches(graph)
             i = 0
             for match, meta in zip(matches, metas):

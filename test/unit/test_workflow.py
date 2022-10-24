@@ -38,6 +38,18 @@ class WorkflowHelper(SetupHelper):
                 description='A new workflow str setting to be created.',
                 for_frontend=True
             )
+            new_wf_setting_list = workflow.WorkflowSetting(
+                default=[
+                    'a', 'b', 'c'],
+                choices={
+                    'a': 'option a',
+                    'b': 'option b',
+                    'c': 'option c'
+                },
+                description='A new workflow list setting to be created.',
+                multiple_choice=True,
+                for_frontend=True
+            )
 
         # instantiate the new wf
         new_wf = NewWF()
@@ -68,10 +80,12 @@ class TestWorkflow(unittest.TestCase):
         config['NewWF']['new_wf_setting_lod'] = '3'
         config['NewWF']['new_wf_setting_bool'] = 'True'
         config['NewWF']['new_wf_setting_str'] = 'Awesome'
+        config['NewWF']['new_wf_setting_list'] = '["a","b","c"]'
         new_wf.update_from_config(config)
         self.assertEqual(new_wf.new_wf_setting_lod, workflow.LOD.full)
         self.assertTrue(new_wf.new_wf_setting_bool)
         self.assertEqual(new_wf.new_wf_setting_str, 'Awesome')
+        self.assertEqual(new_wf.new_wf_setting_list, ['a', 'b', 'c'])
 
     def test_LOD(self):
         """Test setting and getting the different LODs"""

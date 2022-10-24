@@ -1,9 +1,8 @@
 """Module for defining workflows"""
 import logging
+import ast
 from enum import Enum
 from typing import Union
-
-from bim2sim.utilities.common_functions import all_subclasses
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +111,8 @@ class WorkflowSetting:
             default=None,
             choices: dict = None,
             description: Union[str, None] = None,
-            for_frontend: bool = False
+            for_frontend: bool = False,
+            multiple_choice: bool = False
     ):
         self.name = None  # set by AutoSettingNameMeta
         self.default = default
@@ -120,6 +120,7 @@ class WorkflowSetting:
         self.choices = choices
         self.description = description
         self.for_webapp = for_frontend
+        self.multiple_choice = multiple_choice
         self.manager = None
 
     def initialize(self, manager):
@@ -154,12 +155,23 @@ class WorkflowSetting:
         """This is the set function that sets the value in the workflow setting
         when calling workflow.<setting_name> = <value>"""
         choices = bound_workflow.manager[self.name].choices
-        if value not in choices:
-            raise ValueError(f'No valid value for {self.name}, '
-                             f'select one of {choices} .')
+        if isinstance(value, list):
+            if not self.multiple_choice:
+                raise ValueError(f'Only one choice is allowed for setting'
+                                 f' {self.name}, but {len(value)} choices '
+                                 f'are given.')
+            for val in value:
+                if val not in choices:
+                    raise ValueError(f'{val} is no valid value for setting '
+                                     f'{self.name}, select one of {choices}.')
+                else:
+                    self._inner_set(bound_workflow, value)
         else:
-            _value = value
-        self._inner_set(bound_workflow, _value)
+            if value not in choices:
+                raise ValueError(f'{value} is no valid value for setting '
+                                 f'{self.name}, select one of {choices}.')
+            else:
+                self._inner_set(bound_workflow, value)
 
 
 class Workflow(metaclass=AutoSettingNameMeta):
@@ -201,15 +213,18 @@ class Workflow(metaclass=AutoSettingNameMeta):
                     if from_cfg_set is None:
                         continue
                     elif isinstance(from_cfg_set, str):
-                        # check if setting is LOD in numeric form
-                        if from_cfg_set.isdigit():
-                            from_cfg_set = LOD(int(from_cfg_set))
-                        # check if setting is Boolean
-                        elif from_cfg_set.lower() == 'true':
-                            from_cfg_set = True
-                        elif from_cfg_set.lower() == 'false':
-                            from_cfg_set = False
-                        setattr(self, setting, from_cfg_set)
+                        # convert to readable python object
+                        try:
+                            from_cfg_set = ast.literal_eval(from_cfg_set)
+                        except ValueError:
+                            pass
+                        # int must be converted to LOD (int is type of bool)
+                        if isinstance(from_cfg_set, int) and\
+                                not isinstance(from_cfg_set, bool):
+                            val = LOD(int(from_cfg_set))
+                        else:
+                            val = from_cfg_set
+                        setattr(self, setting, val)
                         n_loaded_settings += 1
                     else:
                         raise TypeError(
@@ -238,13 +253,36 @@ class Workflow(metaclass=AutoSettingNameMeta):
 
 
 class PlantSimulation(Workflow):
-    # todo add new parameters for zone aggregation, hvac aggregation
     def __init__(self):
         super().__init__(
         )
-    # aggregations = WorkflowSetting(
-    #     default=
-    # )
+    # Todo maybe make every aggregation its own setting with LOD in the future,
+    #  but currently we have no usage for this afaik.
+    aggregations = WorkflowSetting(
+        default=[
+            'UnderfloorHeating',
+            'Consumer',
+            'PipeStrand',
+            'ParallelPump',
+            'ConsumerHeatingDistributorModule',
+            'GeneratorOneFluid',
+        ],
+        choices={
+            'UnderfloorHeating': 'Aggregate underfloor heating circuits',
+            'Consumer': 'Aggregate consumers',
+            'PipeStrand': 'Aggregate strands of pipes',
+            'ParallelPump': 'Aggregate parallel pumps',
+            # 'ParallelSpaceHeater': 'Aggregate parallel space heaters',
+            'ConsumerHeatingDistributorModule': 'Aggregate consumer and '
+                                                'distributor to one module',
+            'GeneratorOneFluid': 'Aggregate the generator and its circuit to '
+                                 'one module',
+        },
+        description="Which aggregations should be applied on the hydraulic "
+                    "network",
+        multiple_choice=True,
+        for_frontend=True
+    )
 
 
 class BuildingSimulation(Workflow):
