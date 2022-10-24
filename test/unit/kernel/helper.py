@@ -149,7 +149,9 @@ class SetupHelperHVAC(SetupHelper):
 class SetupHelperBPS(SetupHelper):
     def element_generator(self, element_cls, flags=None, **kwargs):
         # with mock.patch.object(bps.BPSProduct, 'get_ports', return_value=[]):
+        orient = kwargs.pop('orientation', None)  # TODO WORKAROUND,
         element = element_cls(**kwargs)
+        element.orientation = orient
         return element
 
     def get_thermalzone(self, usage='Living'):
@@ -179,7 +181,12 @@ class SetupHelperBPS(SetupHelper):
 
     def get_setup_simple_house(self):
         out_wall_1 = self.element_generator(
-            bps.OuterWall, net_area=20, gross_area=21, width=0.2)
+            bps.OuterWall,
+            net_area=20,
+            gross_area=21,
+            width=0.2,
+            orientation=90
+        )
         window_1 = self.element_generator(bps.Window, net_area=2, width=0.1)
         tz_1 = self.get_thermalzone()
         tz_1.bound_elements = [out_wall_1, window_1]
