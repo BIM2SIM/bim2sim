@@ -247,7 +247,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         used_workflow.zoning_setup = LOD.full
         ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc, 'energyplus', used_workflow)
-        answers = (2015, True, False)
+        answers = (2015, True, True, True, False)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
