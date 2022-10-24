@@ -1,7 +1,11 @@
 """Module for defining workflows"""
-
+import logging
 from enum import Enum
 from typing import Union
+
+from bim2sim.utilities.common_functions import all_subclasses
+
+logger = logging.getLogger(__name__)
 
 
 class AutoSettingNameMeta(type):
@@ -68,6 +72,7 @@ class SettingsManager(dict):
     directly while under workflow.manager.<setting_name> you can still find all
     information.
     """
+
     def __init__(self, bound_workflow):
         super().__init__()
         self.bound_workflow = bound_workflow
@@ -100,6 +105,7 @@ class WorkflowSetting:
         description: description of what the settings does as Str
         for_frontend: should this setting be shown in the frontend
     """
+
     def __init__(
 
             self,
@@ -176,24 +182,40 @@ class Workflow(metaclass=AutoSettingNameMeta):
 
     def update_from_config(self, config):
         """Updates the workflow specification from the config file"""
-        # todo #191 refactor
-        # todo iteratve over all settings and get them from conifg. maybe move
-        #  to other type of file (toml?)
-        # self.pipes = LOD(config['Aggregation'].getint('Pipes', 2))
-        # self.underfloorheatings = LOD(config['Aggregation'].getint(
-        #     'UnderfloorHeating', 2))
-        # self.pumps = LOD(config['Aggregation'].getint('Pumps', 2))
-        pass
-        # todo
-        # if not self.layers_and_materials:
-        #     self.layers_and_materials = LOD(config['LayersAndMaterials'].getint(
-        #         'LayersAndMaterials', 2))
-        # if not self.construction_class_walls:
-        #     self.construction_class_walls = LOD(config['ConstructionClassWalls'].getint(
-        #         'ConstructionClass', 2))
-        # if not self.construction_class_windows:
-        #     self.construction_class_windows = LOD(config['ConstructionClassWindows'].getint(
-        #         'ConstructionClass', 2))
+        n_loaded_settings = 0
+        for cat, settings in config.items():
+            # dont load settings which are not workflow relevant
+            if cat.lower() not in [
+                self.__class__.__name__.lower(),
+                'generic_workflow_settings'
+            ]:
+                continue
+            from_cfg_cat = config[cat]
+            for setting in settings:
+                if not hasattr(self, setting):
+                    raise AttributeError(
+                        f'{setting} is no allowed setting for '
+                        f'workflow {self.__class__.__name__} ')
+                else:
+                    from_cfg_set = from_cfg_cat.get(setting)
+                    if from_cfg_set is None:
+                        continue
+                    elif isinstance(from_cfg_set, str):
+                        # check if setting is LOD in numeric form
+                        if from_cfg_set.isdigit():
+                            from_cfg_set = LOD(int(from_cfg_set))
+                        # check if setting is Boolean
+                        elif from_cfg_set.lower() == 'true':
+                            from_cfg_set = True
+                        elif from_cfg_set.lower() == 'false':
+                            from_cfg_set = False
+                        setattr(self, setting, from_cfg_set)
+                        n_loaded_settings += 1
+                    else:
+                        raise TypeError(
+                            f'Config entry for {setting} is no string. '
+                            f'Please use strings only in config.')
+        logger.info(f'Loaded {n_loaded_settings} settings from config file.')
 
     dymola_simulation = WorkflowSetting(
         default=False,
@@ -215,18 +237,21 @@ class Workflow(metaclass=AutoSettingNameMeta):
     )
 
 
-
 class PlantSimulation(Workflow):
     # todo add new parameters for zone aggregation, hvac aggregation
     def __init__(self):
         super().__init__(
         )
+    # aggregations = WorkflowSetting(
+    #     default=
+    # )
 
 
 class BuildingSimulation(Workflow):
 
     def __init__(self):
         super().__init__()
+
     layers_and_materials = WorkflowSetting(
         default=LOD.low,
         choices={
@@ -305,6 +330,7 @@ class BuildingSimulation(Workflow):
         description='Whether the building should be supplied with cooling.',
         for_frontend=True
     )
+
 
 # todo move chosen criteria function from bind_tz decision to here
 # WorkflowSetting(

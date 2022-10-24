@@ -1,8 +1,8 @@
+import configparser
 import unittest
-from test.unit.kernel.helper import SetupHelper
 
+from test.unit.kernel.helper import SetupHelper
 from bim2sim import workflow
-# todo #191
 
 
 class WorkflowHelper(SetupHelper):
@@ -11,13 +11,31 @@ class WorkflowHelper(SetupHelper):
             def __init__(self):
                 super().__init__(
                 )
-            new_wf_setting = workflow.WorkflowSetting(
+            new_wf_setting_lod = workflow.WorkflowSetting(
                 default=workflow.LOD.low,
                 choices={
                     workflow.LOD.low: 'not so detailed setting',
                     workflow.LOD.full: 'awesome detailed setting'
                 },
-                description='A new workflow setting to be created.',
+                description='A new workflow lod setting to be created.',
+                for_frontend=True
+            )
+            new_wf_setting_bool = workflow.WorkflowSetting(
+                default=False,
+                choices={
+                    False: 'Nope',
+                    True: 'Yes'
+                },
+                description='A new workflow bool setting to be created.',
+                for_frontend=True
+            )
+            new_wf_setting_str = workflow.WorkflowSetting(
+                default='Perfect',
+                choices={
+                    'Perfect': 'A perfect setting',
+                    'Awesome': 'An awesome setting'
+                },
+                description='A new workflow str setting to be created.',
                 for_frontend=True
             )
 
@@ -32,27 +50,28 @@ class TestWorkflow(unittest.TestCase):
     def tearDown(self):
         self.helper.reset()
 
-    def test_building_simulation_settings(self):
-        """Test creation of workflow"""
-        # todo
-        bs_workflow = workflow.BuildingSimulation()
-        self.assertTrue(
-            isinstance(bs_workflow.layers_and_materials, workflow.LOD))
-        self.assertTrue(
-            isinstance(bs_workflow.zoning_setup, workflow.LOD))
-        self.assertTrue(
-            isinstance(bs_workflow.construction_class_walls, workflow.LOD))
-        pass
-
-    def test_additional_settings(self):
-        pass
-
     def test_default_settings(self):
         """Test loading of default settings"""
-        pass
+        standard_wf = workflow.Workflow()
+        self.assertFalse(standard_wf.dymola_simulation)
+        self.assertFalse(standard_wf.create_external_elements)
 
     def test_update_from_config(self):
-        pass
+        """Test loading workflow settings from config"""
+        new_wf = self.helper.create_new_wf()
+        self.assertEqual(new_wf.new_wf_setting_lod, workflow.LOD.low)
+        self.assertFalse(new_wf.new_wf_setting_bool)
+        self.assertEqual(new_wf.new_wf_setting_str, 'Perfect')
+        config = configparser.ConfigParser(allow_no_value=True)
+        config.add_section('NewWF')
+        # set full LOD (3) for new setting in config
+        config['NewWF']['new_wf_setting_lod'] = '3'
+        config['NewWF']['new_wf_setting_bool'] = 'True'
+        config['NewWF']['new_wf_setting_str'] = 'Awesome'
+        new_wf.update_from_config(config)
+        self.assertEqual(new_wf.new_wf_setting_lod, workflow.LOD.full)
+        self.assertTrue(new_wf.new_wf_setting_bool)
+        self.assertEqual(new_wf.new_wf_setting_str, 'Awesome')
 
     def test_LOD(self):
         """Test setting and getting the different LODs"""
@@ -73,20 +92,18 @@ class TestWorkflow(unittest.TestCase):
         """Test if name is correctly set by meta class AutoSettingNameMeta"""
         new_wf = self.helper.create_new_wf()
         # get attribute by name
-        new_wf_setting = getattr(new_wf, 'new_wf_setting')
+        new_wf_setting = getattr(new_wf, 'new_wf_setting_lod')
         self.assertEqual(new_wf_setting, workflow.LOD.low)
 
-    def test_settings_manager(self):
-        pass
-
     def test_new_workflow_creation(self):
+        """Test if the creation of new workflow and settings work"""
         new_wf = self.helper.create_new_wf()
         # test default
-        self.assertEqual(new_wf.new_wf_setting, workflow.LOD.low)
+        self.assertEqual(new_wf.new_wf_setting_lod, workflow.LOD.low)
         # test description
         self.assertEqual(
-            new_wf.manager['new_wf_setting'].description,
+            new_wf.manager['new_wf_setting_lod'].description,
             'A new workflow setting to be created.')
         # test set new value
-        new_wf.new_wf_setting = workflow.LOD.full
-        self.assertEqual(new_wf.new_wf_setting, workflow.LOD.full)
+        new_wf.new_wf_setting_lod = workflow.LOD.full
+        self.assertEqual(new_wf.new_wf_setting_lod, workflow.LOD.full)

@@ -45,10 +45,23 @@ def config_base_setup(path, backend=None):
     if not config.sections():
         config.add_section("Basics")
         config.add_section("Task")
-        config.add_section("Aggregation")
-        config.add_section("LayersAndMaterials")
-        config.add_section("ConstructionClassWalls")
-        config.add_section("ConstructionClassWindows")
+        config.add_section("generic_workflow_settings")
+        config["generic_workflow_settings"]["dymola_simulation"] = \
+            str(False)
+        config["generic_workflow_settings"]["create_external_elements"] \
+            = str(False)
+        config.add_section("BuildingSimulation")
+        config["BuildingSimulation"]["layers_and_materials"] = '1'
+        config["BuildingSimulation"]["zoning_setup"] = '1'
+        config["BuildingSimulation"]["construction_class_walls"] = 'heavy'
+        config["BuildingSimulation"]["construction_class_windows"] = \
+            'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
+        config["BuildingSimulation"]["heating"] = str(True)
+        config["BuildingSimulation"]["cooling"] = str(True)
+        config["BuildingSimulation"]["cfd_export"] = str(False)
+        config.add_section("PlantSimulation")
+        config["PlantSimulation"]["pipe_aggregation"] = str(True)
+
         config.add_section("Backend")
         config["Backend"]["use"] = backend
         config.add_section("Frontend")
@@ -463,7 +476,7 @@ class Project:
         """returns configparser instance. Basic config is done if file is not present"""
         config = configparser.ConfigParser(allow_no_value=True)
         if not config.read(self.paths.config):
-            self.config_base_setup(self.paths.root)
+            config_base_setup(self.paths.root)
             config.read(self.paths.config)
         return config
 
