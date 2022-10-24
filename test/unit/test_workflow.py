@@ -117,7 +117,7 @@ class TestWorkflow(unittest.TestCase):
         # test description
         self.assertEqual(
             new_wf.manager['new_wf_setting_lod'].description,
-            'A new workflow setting to be created.')
+            'A new workflow lod setting to be created.')
         # test set new value
         new_wf.new_wf_setting_lod = workflow.LOD.full
         self.assertEqual(new_wf.new_wf_setting_lod, workflow.LOD.full)
