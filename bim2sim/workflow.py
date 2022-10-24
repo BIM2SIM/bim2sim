@@ -215,6 +215,7 @@ class Workflow(metaclass=AutoSettingNameMeta):
                     elif isinstance(from_cfg_set, str):
                         # convert to readable python object
                         try:
+                            # todo ast.literal_eval is safer but not safe.
                             from_cfg_set = ast.literal_eval(from_cfg_set)
                         except (ValueError, SyntaxError):
                             pass
