@@ -1,4 +1,4 @@
-﻿"""Project handling"""
+"""Project handling"""
 import logging
 import os
 import sys
@@ -20,7 +20,7 @@ from bim2sim.decision import Decision, ListDecision, DecisionBunch, save, load
 from bim2sim import log
 from bim2sim.task.base import Playground
 from bim2sim.plugins import Plugin, load_plugin
-from bim2sim.kernel.element import Element
+from bim2sim.workflow import LOD, AutoSettingNameMeta
 
 logger = logging.getLogger(__name__)
 user_logger = log.get_user_logger(__name__)
@@ -323,6 +323,11 @@ class Project:
         #  which should be loaded anyway. In config additional Plugins can be specified.
         #  'external' Plugins ca specify a meaningful workflow, builtins cant. How to get a generic workflow?
         self.default_plugin = self._get_plugin(plugin)
+        # check if an instance of workflow is given or just the class
+        if isinstance(workflow, AutoSettingNameMeta):
+            logger.warning("No instance of workflow was provided but the class,"
+                           "creating an instance of the workflow now.")
+            workflow = workflow()
         if not workflow:
             workflow = self.default_plugin.default_workflow()
         workflow.relevant_elements = self.default_plugin.elements
