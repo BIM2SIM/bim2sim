@@ -13,7 +13,7 @@ from bim2sim import workflow
 class CreateRegressionResultsTEASER(RegressionTestTEASER):
     def create_regression_results_FZKHaus(self):
         """Create fresh regression results for the AC20-FZK-Haus.ifc"""
-        ifc = 'AC20-FZK-Haus_2.ifc'
+        ifc = 'AC20-FZK-Haus.ifc'
         used_workflow = workflow.BPSOneZoneAggregatedLayersLow()
         used_workflow.dymola_simulation = False
         project = self.create_project(ifc, 'TEASER', used_workflow)

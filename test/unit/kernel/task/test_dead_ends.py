@@ -1,13 +1,13 @@
 import unittest
 
 from bim2sim.kernel.elements import hvac
-from test.unit.kernel.helper import SetupHelper
+from test.unit.kernel.helper import SetupHelperHVAC
 from bim2sim.kernel import elements
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.task.hvac import dead_ends
 
 
-class DeadEndHelper(SetupHelper):
+class DeadEndHelper(SetupHelperHVAC):
     def get_simple_circuit(self):
         """get a simple circuit with a 4 port pipefitting with open ports,
          some connected pipes and dead ends"""
