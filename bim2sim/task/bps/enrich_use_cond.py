@@ -62,10 +62,20 @@ class EnrichUseConditions(ITask):
 
     @staticmethod
     def office_usage(tz: ThermalZone) -> Union[str, list]:
-        """function to determine which office corresponds based on the area of
-        the thermal zone and the table on:
-        https://skepp.com/en/blog/office-tips/this-is-how-many-square-meters-of
-        -office-space-you-need-per-person
+        """function to determine which office usage is best fitting"
+
+        The used enrichment for usage conditions come from DIN 18599-10. This
+        standard offers 3 types of office usages:
+        * Single office (1 workplace)
+        * Group office (2 - 6 workplaces)
+        * Open open offices (> 6 workplaces)
+
+        Based on the standards given medium occupancy density the following area
+        sections are defined.
+        * Single office < 14 m2
+        * Group office [14m2; 70 m2]
+            (70 m² is lower bound from open plan office)
+        * Open plan office > 70 m²
 
         Args:
             tz: bim2sim thermalzone instance
@@ -79,9 +89,9 @@ class EnrichUseConditions(ITask):
                            "Open-plan Office (7 or more employees)"]
         if tz.gross_area:
             area = tz.gross_area.m
-            if area <= 7:
+            if area < 14:
                 return default_matches[0]
-            elif 7 < area <= 42:
+            elif 14 <= area <= 70:
                 return default_matches[1]
             else:
                 return default_matches[2]
