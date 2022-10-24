@@ -495,6 +495,37 @@ class DecisionBunch(list):
             raise AssertionError("Following global keys are not unique: %s",
                                  duplicates)
 
+    def get_reduced_bunch(self, criteria: str = 'key'):
+        """Reduces the decisions to one decision per unique key.
+
+        To reduce the number of decisions in some cases the same answer can be
+        used for multiple decisions. This method allows to reduce the number
+        of decisions based on a given criteria.
+
+        Args:
+            criteria: criteria based on which the decisions should be reduced.
+                Possible are 'key' and 'question'.
+        Returns:
+            unique_decisions: A DecisionBunch with only unique decisions based
+                on criteria
+        """
+        pos_criteria = ['key', 'question']
+        if criteria not in pos_criteria:
+            raise NotImplementedError(f'Pick one of these valid options:'
+                                      f' {pos_criteria}')
+        unique_decisions = DecisionBunch()
+        doubled_decisions = DecisionBunch()
+        existing_criteria = []
+        for decision in self:
+            cur_key = getattr(decision, criteria)
+            if cur_key not in existing_criteria:
+                unique_decisions.append(decision)
+                existing_criteria.append(cur_key)
+            else:
+                doubled_decisions.append(decision)
+
+        return unique_decisions, doubled_decisions
+
 
 def save(bunch: DecisionBunch, path):
     """Save solved Decisions to file system"""

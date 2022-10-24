@@ -13,7 +13,7 @@ from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 
 from bim2sim.kernel.units import ureg
 
-from test.unit.kernel.helper import SetupHelper
+from test.unit.kernel.helper import SetupHelperHVAC
 
 
 class SampleElement(ProductBased):
@@ -92,7 +92,7 @@ class SampleHVACElementAggregation(
     attr3 = SampleHVACElement.attr3.to_aggregation(_calc_multi)
 
 
-class AggregationHelper(SetupHelper):
+class AggregationHelper(SetupHelperHVAC):
 
     def get_setup_sample1(self):
         """get consumer circuit made of 2 parallel pumps (equal size),

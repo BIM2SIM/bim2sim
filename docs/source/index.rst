@@ -15,7 +15,7 @@ Welcome to bim2sim's documentation!
    tasks
    logging
    plugins
-   attribute
+   attributes
    code/modules
    
    

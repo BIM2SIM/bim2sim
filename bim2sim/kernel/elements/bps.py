@@ -116,7 +116,16 @@ class BPSProduct(element.ProductBased):
         return sum(sb.opening_area for sb in self.sbs_without_corresponding)
 
     def calc_orientation(self) -> float:
-        """Calculate the orientation of the bps product"""
+        """Calculate the orientation of the bps product based on SB direction.
+
+        For buildings elements we can use the more reliable space boundaries
+        normal vector to calculate the orientation if the space boundaries
+        exists. Otherwise the base calc_orientation of IFCBased will be used.
+
+        Returns:
+            Orientation angle between 0 and 360.
+            (0 : north, 90: east, 180: south, 270: west)
+        """
         true_north = self.get_true_north()
         if len(self.space_boundaries):
             new_orientation = self.group_orientation(
@@ -519,8 +528,8 @@ class ThermalZone(BPSProduct):
 
     def __init__(self, *args, **kwargs):
         """thermalzone __init__ function"""
+        self.bound_elements = kwargs.pop('bound_elements', [])  # todo workaround
         super().__init__(*args, **kwargs)
-        self.bound_elements = []
 
     def get__elements_by_type(self, type):
         raise NotImplementedError

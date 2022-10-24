@@ -109,7 +109,7 @@ class RegressionTestTEASER(RegressionTestBase):
         # user decided to simulate
         elif sim_sucessful and not all(comp_sucessful):
             # copy updated ref results to assets
-            shutil.rmtree(self.ref_results_src_path.parent,
+            shutil.rmtree(self.ref_results_src_path,
                           ignore_errors=True)
             shutil.copytree(self.ref_results_dst_path,
                             self.ref_results_src_path)
