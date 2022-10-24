@@ -216,7 +216,7 @@ class Workflow(metaclass=AutoSettingNameMeta):
                         # convert to readable python object
                         try:
                             from_cfg_set = ast.literal_eval(from_cfg_set)
-                        except ValueError:
+                        except (ValueError, SyntaxError):
                             pass
                         # int must be converted to LOD (int is type of bool)
                         if isinstance(from_cfg_set, int) and\
