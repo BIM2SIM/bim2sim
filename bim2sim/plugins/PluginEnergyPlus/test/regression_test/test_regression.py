@@ -146,10 +146,9 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
     def test_regression_AC20_FZK_Haus(self):
         """Run EnergyPlus export with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
-        used_workflow = workflow.BuildingSimulation()
-        used_workflow.create_external_elements = True
-        used_workflow.zoning_setup = LOD.full
-        project = self.create_project(ifc, 'energyplus', used_workflow)
+        project = self.create_project(ifc, 'energyplus')
+        project.create_external_elements = True
+        project.zoning_setup = LOD.full
         cooling = True
         heating = True
         split_non_convex_bounds = True
