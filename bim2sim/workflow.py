@@ -361,7 +361,7 @@ class BuildingSimulation(Workflow):
         for_frontend=True
     )
     cooling = WorkflowSetting(
-        default=True,
+        default=False,
         choices={
             False: 'Do not supply building with cooling',
             True: 'Supply building with cooling'

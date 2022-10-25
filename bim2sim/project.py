@@ -56,7 +56,7 @@ def config_base_setup(path, backend=None):
         config["BuildingSimulation"]["construction_class_windows"] = \
             'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
         config["BuildingSimulation"]["heating"] = str(True)
-        config["BuildingSimulation"]["cooling"] = str(True)
+        config["BuildingSimulation"]["cooling"] = str(False)
         config["BuildingSimulation"]["cfd_export"] = str(False)
         config.add_section("PlantSimulation")
         config["PlantSimulation"]["aggregations"] = str([
