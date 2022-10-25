@@ -1,4 +1,3 @@
-(attributes_main)=
 # Attributes
 ## Which problem is addressed by attributes?
 To parametrize simulation models, different types of parameters are needed. A 

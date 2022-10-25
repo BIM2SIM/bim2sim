@@ -4,23 +4,29 @@ from pathlib import Path
 from bim2sim import Project, ConsoleDecisionHandler
 from bim2sim.log import default_logging_setup
 
-# first three commands are the same as in e1
-default_logging_setup()
 
-project_path = Path(tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
+def run_example_2():
+    # first three commands are the same as in e1
+    default_logging_setup()
 
-ifc_path = Path(__file__).parent.parent / 'test/TestModels/AC20-FZK-Haus.ifc'
+    project_path = Path(tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
 
-# With open_conf the default created config file will be opened and can be
-# adjusted by the user and saved afterwards.
-project = Project.create(project_path, ifc_path, 'teaser', open_conf=True)
+    ifc_path = Path(__file__).parent.parent / 'test/TestModels/AC20-FZK-Haus.ifc'
 
-# create a handler (use interactive console handler)
-handler = ConsoleDecisionHandler()
+    # With open_conf the default created config file will be opened and can be
+    # adjusted by the user and saved afterwards.
+    project = Project.create(project_path, ifc_path, 'teaser', open_conf=True)
 
-# pass the project to the handler and run it in interactive mode
-ConsoleDecisionHandler().handle(project.run(interactive=True))
+    # create a handler (use interactive console handler)
+    handler = ConsoleDecisionHandler()
 
-# From this point the console will guide you through the process.
-# You have to select which tasks you want to perform and might have to answer
-# decisions about how to deal with unclear information in the IFC.
+    # pass the project to the handler and run it in interactive mode
+    ConsoleDecisionHandler().handle(project.run(interactive=True))
+
+    # From this point the console will guide you through the process.
+    # You have to select which tasks you want to perform and might have to answer
+    # decisions about how to deal with unclear information in the IFC.
+
+
+if __name__ == '__main__':
+    run_example_2()

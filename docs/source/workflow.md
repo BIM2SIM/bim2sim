@@ -1,4 +1,3 @@
-(workflow_main)=
 # Workflow
 ## What is a workflow?
 In `bim2sim` a workflow describes how a specific simulation should be handled. 

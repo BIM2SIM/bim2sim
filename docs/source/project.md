@@ -1,4 +1,3 @@
-(project_main)=
 # Project
 ## Functionality
 The project class and its instance are the main starting point of every bim2sim

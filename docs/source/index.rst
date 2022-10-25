@@ -12,16 +12,15 @@ Welcome to bim2sim's documentation!
    big-picture
    installation
    first-steps
-   project_main
-   workflow_main
+   project
+   workflow
+   plugins
    tasks
+   decisions
+   attributes
    logging
-   plugin_main
-   attributes_main
+   docker-structure
    code/modules
-   
-   
-
 
 Indices and tables
 ==================

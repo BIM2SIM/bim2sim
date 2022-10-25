@@ -482,7 +482,7 @@ sphinxdoc:
  before_script:
    - pip install -r /bim2sim-coding/docs/requirements.txt
    - pip install anybadge
-
+   - pip install sphinxcontrib-mermaid
  script:
    - mkdir -p $CI_COMMIT_REF_NAME/docs
    - sphinx-apidoc -M -o /bim2sim-coding/docs/source/code /bim2sim-coding  # create rst files for all python files
