@@ -54,11 +54,12 @@ User
   Inputs --> Playground
   
 ```
-Let's define what each of these elements is and how they work together:
+Let's define what each of these elements is and how they work together
 
 **Project:**
 A project is the main object in `bim2sim` and brings workflow and plugin 
 together and allows to run the process of simulation model creation.
+
 **Inputs:**
 * A [workflow](workflow) holds the relevant settings for each type of 
 simulation.
@@ -73,6 +74,7 @@ tasks that will be executed during the project run.
 different tasks.
 * A [Task](Tasks) is used to fulfill one specific part of the whole process. One
 task is for example the loading process of the IFC into the tool.
+
 **User:**
 To overcome the already mentioned challenges regarding the mixed quality of 
 IFC-files the process might need feedback and additional information from the 
@@ -80,4 +82,3 @@ user. This feedback is given through [Decisions](decisions)
 
 You find detailed information about each of the concepts in the corresponding 
 documentation.
-
