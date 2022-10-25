@@ -176,10 +176,9 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
     def test_DigitalHub_SB89_regression(self):
         """Test DigitalHub IFC, includes regression test"""
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB89.ifc'
-        used_workflow = workflow.BuildingSimulation()
-        used_workflow.create_external_elements = True
-        used_workflow.zoning_setup = LOD.full
-        project = self.create_project(ifc, 'energyplus', used_workflow)
+        project = self.create_project(ifc, 'energyplus')
+        project.workflow.zoning_setup = LOD.full
+        project.workflow.create_external_elements = True
         space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
         handle_proxies = (*(None,) * 150,)
         construction_year = 2015
