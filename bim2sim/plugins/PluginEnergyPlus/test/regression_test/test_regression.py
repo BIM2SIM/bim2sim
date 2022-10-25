@@ -147,8 +147,8 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         """Run EnergyPlus export with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'energyplus')
-        project.create_external_elements = True
-        project.zoning_setup = LOD.full
+        project.workflow.create_external_elements = True
+        project.workflow.zoning_setup = LOD.full
         cooling = True
         heating = True
         split_non_convex_bounds = True
