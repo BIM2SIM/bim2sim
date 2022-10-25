@@ -81,7 +81,7 @@ class TestWorkflow(unittest.TestCase):
         config['NewWF']['new_wf_setting_bool'] = 'True'
         config['NewWF']['new_wf_setting_str'] = 'Awesome'
         config['NewWF']['new_wf_setting_list'] = '["a","b","c"]'
-        new_wf.update_from_config(config)
+        new_wf.update_from_conf(config)
         self.assertEqual(new_wf.new_wf_setting_lod, workflow.LOD.full)
         self.assertTrue(new_wf.new_wf_setting_bool)
         self.assertEqual(new_wf.new_wf_setting_str, 'Awesome')

@@ -192,14 +192,14 @@ class Workflow(metaclass=AutoSettingNameMeta):
         for setting in self.manager.values():
             setting.load_default()
 
-    def update_from_config(self, config):
+    def update_from_conf(self, config):
         """Updates the workflow specification from the config file"""
         n_loaded_settings = 0
         for cat, settings in config.items():
             # dont load settings which are not workflow relevant
             if cat.lower() not in [
                 self.__class__.__name__.lower(),
-                'generic_workflow_settings'
+                'Generic Workflow Settings'
             ]:
                 continue
             from_cfg_cat = config[cat]
@@ -222,7 +222,7 @@ class Workflow(metaclass=AutoSettingNameMeta):
                         # int must be converted to LOD (int is type of bool)
                         if isinstance(from_cfg_set, int) and\
                                 not isinstance(from_cfg_set, bool):
-                            val = LOD(int(from_cfg_set))
+                            val = LOD(from_cfg_set)
                         else:
                             val = from_cfg_set
                         setattr(self, setting, val)
@@ -382,223 +382,8 @@ class BuildingSimulation(Workflow):
 #     # manager=self.settings,
 
 
-class CFDWorkflowDummy(Workflow):
+class CFDWorkflow(Workflow):
     # todo make something useful
     def __init__(self):
         super().__init__(
         )
-
-# class BPSMultiZoneSeparatedLayersFull(Workflow):
-#     """Building performance simulation with every space as single zone
-#     separated from each other - no aggregation.
-#     Detailed layer information required."""
-#
-#     def __init__(self):
-#         super().__init__(
-#             # hull=LOD.medium,
-#             # consumer=LOD.low,
-#             # generator=LOD.ignore,
-#             # hvac=LOD.low,
-#             # spaces=LOD.full,
-#             # layers=LOD.low,
-#             layers_and_materials=LOD.full,
-#         )
-#
-#
-# class BPSMultiZoneSeparatedLayersLow(Workflow):
-#     """Building performance simulation with every space as single zone
-#     separated from each other - no aggregation.
-#     Not existing layer information is enriched by templates."""
-#
-#     def __init__(self):
-#         super().__init__(
-#             # hull=LOD.medium,
-#             # consumer=LOD.low,
-#             # generator=LOD.ignore,
-#             # hvac=LOD.low,
-#             # spaces=LOD.full,
-#             layers_and_materials=LOD.low,
-#         )
-#
-#
-# class BPSMultiZoneCombinedLayersFull(Workflow):
-#     """Building performance simulation with aggregation based on zone
-#     aggregation algorithms.
-#     Detailed layer information required."""
-#
-#     def __init__(self):
-#         super().__init__(
-#             # hull=LOD.medium,
-#             # consumer=LOD.low,
-#             # generator=LOD.ignore,
-#             # hvac=LOD.low,
-#             # spaces=LOD.medium,
-#             layers_and_materials=LOD.full,
-#         )
-#         self.materials = None
-#
-#
-# class BPSMultiZoneCombinedLayersLow(Workflow):
-#     """Building performance simulation with aggregation based on zone
-#     aggregation algorithms.
-#     Not existing layer information is enriched by templates."""
-#
-#     def __init__(self):
-#         super().__init__(
-#             # hull=LOD.medium,
-#             # consumer=LOD.low,
-#             # generator=LOD.ignore,
-#             # hvac=LOD.low,
-#             # spaces=LOD.medium,
-#             layers_and_materials=LOD.low,
-#         )
-#
-#
-# class BPSMultiZoneAggregatedLayersLow(Workflow):
-#     """Building performance simulation with spaces aggregated.
-#      Not existing layer information is enriched by templates."""
-#
-#     def __init__(self):
-#         super().__init__(
-#             # hull=LOD.medium,
-#             # consumer=LOD.low,
-#             # generator=LOD.ignore,
-#             # hvac=LOD.low,
-#             # spaces=LOD.medium,
-#             layers_and_materials=LOD.low,
-#         )
-#
-#
-# class BPSMultiZoneAggregatedLayersLowSimulation(Workflow):
-#     """Building performance simulation with spaces aggregated.
-#      Not existing layer information is enriched by templates."""
-#
-#     def __init__(self):
-#         super().__init__(
-#             # hull=LOD.medium,
-#             # consumer=LOD.low,
-#             # generator=LOD.ignore,
-#             # hvac=LOD.low,
-#             # spaces=LOD.medium,
-#             layers_and_materials=LOD.low,
-#             dymola_simulation=True
-#         )
-#
-#
-# class BPSMultiZoneAggregatedLayersFull(Workflow):
-#     """Building performance simulation with spaces aggregated.
-#     Detailed layer information required."""
-#
-#     def __init__(self):
-#         super().__init__(
-#             # hull=LOD.medium,
-#             # consumer=LOD.low,
-#             # generator=LOD.ignore,
-#             # hvac=LOD.low,
-#             # spaces=LOD.medium,
-#             layers_and_materials=LOD.full,
-#         )
-#
-#
-# class BPSOneZoneAggregatedLayersLow(Workflow):
-#     """Building performance simulation with all rooms aggregated to one thermal
-#     zone. Not existing layer information is enriched by templates."""
-#
-#     def __init__(self):
-#         super().__init__(
-#             # hull=LOD.medium,
-#             # consumer=LOD.low,
-#             # generator=LOD.ignore,
-#             # hvac=LOD.low,
-#             # spaces=LOD.low,
-#             layers_and_materials=LOD.low,
-#             # layers=LOD.full,
-#         )
-#
-#
-# class BPSOneZoneAggregatedLayersFull(Workflow):
-#     """Building performance simulation with all rooms aggregated to one thermal
-#     zone. Detailed layer information required."""
-#
-#     def __init__(self):
-#         super().__init__(
-#             # hull=LOD.medium,
-#             # consumer=LOD.low,
-#             # generator=LOD.ignore,
-#             # hvac=LOD.low,
-#             # spaces=LOD.low,
-#             layers_and_materials=LOD.full,
-#         )
-#
-#
-# class BPSMultiZoneSeparatedEP(Workflow):
-#     """Building performance simulation with every space as single zone
-#     separated from each other - no aggregation,
-#     used within the EnergyPlus Workflow"""
-#
-#     def __init__(self):
-#         super().__init__(
-#             # hull=LOD.medium,
-#             # consumer=LOD.low,
-#             # generator=LOD.ignore,
-#             # hvac=LOD.low,
-#             # spaces=LOD.full,
-#             layers_and_materials=LOD.low,
-#             create_external_elements=True,
-#             # consider IfcExternalSpatialElements
-#             cfd_export=False,
-#         )
-#
-#
-# class BPSMultiZoneSeparatedEPfull(Workflow):
-#     """Building performance simulation with every space as single zone
-#     separated from each other - no aggregation,
-#     used within the EnergyPlus Workflow"""
-#
-#     def __init__(self):
-#         super().__init__(
-#             # hull=LOD.medium,
-#             # consumer=LOD.low,
-#             # generator=LOD.ignore,
-#             # hvac=LOD.low,
-#             # spaces=LOD.full,
-#             layers_and_materials=LOD.full,
-#             create_external_elements=True,
-#             # consider IfcExternalSpatialElements
-#             cfd_export=False,
-#         )
-#
-#
-# class BPSMultiZoneSeparatedEPforCFD(Workflow):
-#     """Building performance simulation with every space as single zone
-#     separated from each other - no aggregation,
-#     used within the EnergyPlus Workflow for CFD export (exports STL and
-#     surface inside face temperatures)"""
-#
-#     def __init__(self):
-#         super().__init__(
-#             # hull=LOD.medium,
-#             # consumer=LOD.low,
-#             # generator=LOD.ignore,
-#             # hvac=LOD.low,
-#             # spaces=LOD.full,
-#             layers_and_materials=LOD.low,
-#             create_external_elements=True,
-#             # consider IfcExternalSpatialElements
-#             cfd_export=True,
-#         )
-#
-#
-# class CFDWorkflowDummy(Workflow):
-#     # todo make something useful
-#     def __init__(self):
-#         super().__init__(
-#             # hull=LOD.medium,
-#             # consumer=LOD.low,
-#             # generator=LOD.ignore,
-#             # hvac=LOD.low,
-#             # spaces=LOD.full,
-#             layers_and_materials=LOD.full,
-#             create_external_elements=True,
-#             # consider IfcExternalSpatialElements
-#         )

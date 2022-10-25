@@ -12,10 +12,12 @@ Welcome to bim2sim's documentation!
    big-picture
    installation
    first-steps
+   project_main
+   workflow_main
    tasks
    logging
-   plugins
-   attributes
+   plugin_main
+   attributes_main
    code/modules
    
    
