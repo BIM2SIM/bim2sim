@@ -474,7 +474,7 @@ pylint:
    expire_in: 2 hrs
 
 sphinxdoc:
- image: $CI_REGISTRY/tool:development
+ image: $CI_REGISTRY/environment:development
  stage: doc
  services:
   - name: docker:18.09.7-dind
@@ -484,6 +484,7 @@ sphinxdoc:
    - pip install anybadge
    - pip install sphinxcontrib-mermaid
  script:
+   - mv ./* /bim2sim-coding/
    - mkdir -p $CI_COMMIT_REF_NAME/docs
    - sphinx-apidoc -M -o /bim2sim-coding/docs/source/code /bim2sim-coding  # create rst files for all python files
    - sphinx-build -b html /bim2sim-coding/docs/source $CI_COMMIT_REF_NAME/docs
