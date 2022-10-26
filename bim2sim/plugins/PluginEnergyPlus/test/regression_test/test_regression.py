@@ -169,7 +169,6 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
                          "EnergyPlus Regression test did not finish "
                          "successfully or created deviations.")
 
-
     def test_DigitalHub_SB89_regression(self):
         """Test DigitalHub IFC, includes regression test"""
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB89.ifc'
@@ -177,6 +176,8 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
         project.workflow.cooling = True
+        project.workflow.construction_class_windows = \
+            'Waermeschutzverglasung, dreifach'
         space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
         handle_proxies = (*(None,) * 150,)
         construction_year = 2015
