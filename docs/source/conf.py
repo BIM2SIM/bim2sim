@@ -42,7 +42,7 @@ extensions = [
     'sphinxcontrib.mermaid'
 ]
 # autosummary_generate = True
-doctest_path = [os.path.abspath('../../Mainlib/')]
+doctest_path = [os.path.abspath('../../bim2sim/')]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
