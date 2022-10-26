@@ -5,7 +5,7 @@
    :maxdepth: 2
 
 ```
-# What is `bim2sim` about?
+## What is bim2sim about?
 `bim2sim` is a Python tool that allows to use BIM models (in the form of 
 IFC files) as source to generate simulation models in a semi-automated process.
 The existing version supports the following domains, where the focus of the 
