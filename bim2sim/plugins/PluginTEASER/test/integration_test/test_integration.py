@@ -13,16 +13,28 @@ class IntegrationBaseTEASER(IntegrationBase):
 
 
 class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
-    def test_run_kitfzkhaus_spaces_low_layers_low(self):
-        """Run project with AC20-FZK-Haus.ifc"""
-        ifc = 'AC20-FZK-Haus.ifc'
+    def test_run_kitoffice_spaces_medium_layers_low(self):
+        """Run project with AC20-Institute-Var-2.ifc"""
+        ifc = 'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc, 'TEASER')
-        answers = ()
+        project.workflow.zoning_setup = LOD.medium
+        answers = (2015, 'by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
-                         "Project export did not finish successfully.")
+                         "Project did not finish successfully.")
+
+    def test_run_kitoffice_spaces_low_layers_low(self):
+        """Run project with AC20-Institute-Var-2.ifc"""
+        ifc = 'AC20-Institute-Var-2.ifc'
+        project = self.create_project(ifc, 'TEASER')
+        answers = (2015, )
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value,
+                         "Project did not finish successfully.")
 
     def test_DH_spaces_medium_material_low(self):
         """Test DigitalHub IFC"""
@@ -37,6 +49,18 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
+
+    @unittest.skip('Done in regression tests')
+    def test_run_kitfzkhaus_spaces_low_layers_low(self):
+        """Run project with AC20-FZK-Haus.ifc"""
+        ifc = 'AC20-FZK-Haus.ifc'
+        project = self.create_project(ifc, 'TEASER')
+        answers = ()
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value,
+                         "Project export did not finish successfully.")
 
     @unittest.skip('skip layers_full test until new answers are created')
     def test_ERC_Full(self):
@@ -61,6 +85,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
 
+    @unittest.skip('Skip because takes to long in CI')
     def test_ERC_Medium(self):
         """Test ERC Main Building"""
         ifc = 'ERC_Mainbuilding_Arch.ifc'
@@ -73,6 +98,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
 
+    @unittest.skip('Skip because takes to long in CI')
     def test_ERC_Low(self):
         """Test ERC Main Building"""
         ifc = 'ERC_Mainbuilding_Arch.ifc'
@@ -84,35 +110,13 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
 
-    def test_run_kitoffice_spaces_low_layers_low(self):
-        """Run project with AC20-Institute-Var-2.ifc"""
-        ifc = 'AC20-Institute-Var-2.ifc'
-        project = self.create_project(ifc, 'TEASER')
-        answers = (2015, )
-        handler = DebugDecisionHandler(answers)
-        for decision, answer in handler.decision_answer_mapping(project.run()):
-            decision.value = answer
-        self.assertEqual(0, handler.return_value,
-                         "Project did not finish successfully.")
-
+    @unittest.skip('Skip because is covered in Regression tests')
     def test_run_kitfzkhaus_spaces_medium_layers_low(self):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'TEASER')
         project.workflow.zoning_setup = LOD.medium
         answers = ('by_all_criteria', )
-        handler = DebugDecisionHandler(answers)
-        for decision, answer in handler.decision_answer_mapping(project.run()):
-            decision.value = answer
-        self.assertEqual(0, handler.return_value,
-                         "Project did not finish successfully.")
-
-    def test_run_kitoffice_spaces_medium_layers_low(self):
-        """Run project with AC20-Institute-Var-2.ifc"""
-        ifc = 'AC20-Institute-Var-2.ifc'
-        project = self.create_project(ifc, 'TEASER')
-        project.workflow.zoning_setup = LOD.medium
-        answers = (2015, 'by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
