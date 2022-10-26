@@ -16,31 +16,32 @@ class AutoSettingNameMeta(type):
 
 
     Example:
-    >>> # create new Workflow for your awesome simulation
-    >>> class MyAwesomeSimulationWorfklow(Workflow):
-    ...
-    ...     def __init__(self):
-    ...         super().__init__()
-    >>> # create a new WorkflowSetting, name will be taken automatic from
-    ... #  instance name
-    ... make_simulation_extra_fast = WorkflowSetting(
-    ...     default=True,
-    ...     choices={
-    ...         True: 'This simulation will be incredible fast.',
-    ...         False: 'This simulation will be increbdile slow.'
-    ...     },
-    ...     description='Run the simulation in extra fast mode?',
-    ...     for_frontend=True
-    ... )
-        # create a workflow instance and get the value
-    >>> my_awesome_workflow = MyAwesomeSimulationWorfklow()
-    ... # get initial value which is always none
-    ... print(my_awesome_workflow.make_simulation_extra_fast)
-    None
-    ... # set default values and get the value
-    ... my_awesome_workflow.load_default_settings()
-    ... print(my_awesome_workflow.make_simulation_extra_fast)
-    True
+        >>> # create new Workflow for your awesome simulation
+        >>> class MyAwesomeSimulationWorfklow(Workflow):
+        ...     def __init__(self):
+        ...         super().__init__()
+
+        >>> # create a new WorkflowSetting, name will be taken automatic from
+        >>> # instance name
+        >>> make_simulation_extra_fast = WorkflowSetting(
+        ...     default=True,
+        ...     choices={
+            ...         True: 'This simulation will be incredible fast.',
+            ...         False: 'This simulation will be increbdile slow.'
+            ...     },
+            ...     description='Run the simulation in extra fast mode?',
+            ...     for_frontend=True
+            ... )
+
+        >>> # create a workflow instance and get the value
+        >>> my_awesome_workflow = MyAwesomeSimulationWorfklow()
+        >>> # get initial value which is always none
+        >>> print(my_awesome_workflow.make_simulation_extra_fast)
+        None
+        >>> # set default values and get the value
+        >>> my_awesome_workflow.load_default_settings()
+        >>> print(my_awesome_workflow.make_simulation_extra_fast)
+        True
 """
 
     def __init__(cls, name, bases, namespace):
