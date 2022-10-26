@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath('../../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'BIM2SIM'
+project = 'bim2sim '
 copyright = '2022, RWTH Aachen University, EBC & E3D; ROM Technik GmbH'
 # author = 'David Jansen (todo)'
 
