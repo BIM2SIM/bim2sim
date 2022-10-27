@@ -9,7 +9,8 @@ def run_example_2():
     # first three commands are the same as in e1
     default_logging_setup()
 
-    project_path = Path(tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
+    project_path = Path(tempfile.TemporaryDirectory(
+        prefix='bim2sim_example2').name)
 
     ifc_path = Path(__file__).parent.parent / 'test/TestModels/AC20-FZK-Haus.ifc'
 
