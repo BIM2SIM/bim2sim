@@ -360,7 +360,7 @@ class Project:
             workflow = self.default_plugin.default_workflow()
         self.workflow = workflow
         workflow.relevant_elements = self.default_plugin.elements
-        workflow.update_from_conf(self.config)
+        workflow.update_from_config(self.config)
         self.playground = Playground(workflow, self.paths, self.name)
 
         self._user_logger_set = False

@@ -193,7 +193,7 @@ class Workflow(metaclass=AutoSettingNameMeta):
         for setting in self.manager.values():
             setting.load_default()
 
-    def update_from_conf(self, config):
+    def update_from_config(self, config):
         """Updates the workflow specification from the config file"""
         n_loaded_settings = 0
         for cat, settings in config.items():
