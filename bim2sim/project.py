@@ -30,14 +30,16 @@ def open_config(path):
     """Open config for user in default program and wait for closing before
     continue"""
     if sys.platform.startswith('darwin'):  # For MAC OS X
-        subprocess.Popen(['open', path])
+        open_file = subprocess.Popen(['open', path])
     elif os.name == 'nt':  # For Windows
         open_file = subprocess.Popen(["notepad.exe", path])
-        open_file.wait()
         # os.system("start " + conf_path)
     elif os.name == 'posix':  # For Linux, Mac, etc.
-        subprocess.Popen(['xdg-open', path])
-
+        open_file = subprocess.Popen(['xdg-open', path])
+    else:
+        raise NotImplementedError('Only unix, mac os and windows are '
+                                  'supported.')
+    open_file.wait()
 
 def config_base_setup(path, backend=None):
     """Initial setup for config file"""

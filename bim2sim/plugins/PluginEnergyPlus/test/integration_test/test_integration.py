@@ -295,7 +295,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
-        answers = ('ARCHICAD-64', 'Single office', 2015,
+        answers = ('ARCHICAD-64', 2015,
                    True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -308,6 +308,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
+        project.workflow.cooling = True
+        project.workflow.construction_class_windows = \
+            'Waermeschutzverglasung, dreifach'
         space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
         handle_proxies = (*(None,)*150,)
         construction_year = 2015
@@ -405,20 +408,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         self.assertEqual(0, handler.return_value)
 
     @unittest.skip("Skipped due to performance for CI")
-    def test_base_10a_DH_low_full_run(self):
-        """Test DigitalHub IFC"""
-        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.zoning_setup = LOD.full
-        project.workflow.create_external_elements = True
-        answers = ('ARCHICAD-64', *(None,) * 150, 'Single office',
-                   'light', 'Holzfenster, zweifach', 2015,  True, True, True,
-                   True)
-        handler = DebugDecisionHandler(answers)
-        return_code = handler.handle(project.run())
-        self.assertEqual(0, return_code)
-
-    @unittest.skip("Skipped due to performance for CI")
     def test_base_10b_DH_full_full_run(self):
         """Test DigitalHub IFC"""
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB.ifc'
@@ -455,33 +444,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    @unittest.skip("Skipped, issue with inner loop algorithm") # todo: find bug related to inner_loop_remover
-    def test_base_11_KHH_design_day(self):
-        """Test KIT KHH 3 storey IFC"""
-        ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.create_external_elements = True
-        project.workflow.zoning_setup = LOD.full
-        answers = ('ARCHICAD-64', *('Single office',)*12, 2015,
-                   True, True, True, False)
-        handler = DebugDecisionHandler(answers)
-        return_code = handler.handle(project.run())
-        self.assertEqual(0, return_code)
-
-    @unittest.skip("Skipped due to performance for CI")
-    def test_base_12_KHH_full_run(self):
-        """Test KIT KHH 3 storey IFC"""
-        ifc = EXAMPLE_PATH / 'KIT-EDC.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.create_external_elements = True
-        project.workflow.zoning_setup = LOD.full
-        answers = ('ARCHICAD-64', *('Single office',)*12, 2015,
-                   True, True, True, True)
-        handler = DebugDecisionHandler(answers)
-        return_code = handler.handle(project.run())
-        self.assertEqual(0, return_code)
-
     # @unittest.skip("Skipped due to performance for CI")
     def test_base_13_EDC_SB_design_day(self):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
@@ -501,7 +463,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         project.workflow.create_external_elements = True
         project.workflow.zoning_setup = LOD.full
-        answers = ('ARCHICAD-64', 'Single office', 2015,
+        answers = ('ARCHICAD-64', 'ARCHICAD-64', 2015,
                    True, True, True, True)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
