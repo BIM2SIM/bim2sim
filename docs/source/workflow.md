@@ -22,7 +22,7 @@ number of choices from which one or multiple can be chosen.
 
 ## How to set workflow settings?
 There are two different ways to set a workflow setting:
-* Define the settings inside the `config.ini` file that is part of every 
+* Define the settings inside the `config.toml` file that is part of every 
 [FolderStructure](FolderStructure) of every [Project](Project).
 * Define the settings after the project creation by overwriting the existing ones
 ```python 
