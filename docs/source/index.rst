@@ -17,7 +17,7 @@ Welcome to bim2sim's documentation!
    plugins
    tasks
    decisions
-   attributes
+   attribute
    logging
    docker-structure
    code/modules
