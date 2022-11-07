@@ -1,8 +1,10 @@
 # Installation
 
-(not yet on PyPi)
+## Anaconda
+As some requirements for inbuilt plugins of bim2sim are not available via PyPi 
+but only via Anaconda, the best way to install bim2sim is using conda.
 
-`pip install bim2sim`
+`conda install bim2sim -c # todo`
 
 if all worked well you should be able to start using bim2sim. Try
 

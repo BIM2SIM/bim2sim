@@ -39,7 +39,9 @@ def open_config(path):
     else:
         raise NotImplementedError('Only unix, mac os and windows are '
                                   'supported.')
+    # todo for any reason wait() seems not to work on linux
     open_file.wait()
+
 
 def config_base_setup(path, backend=None):
     """Initial setup for config file"""
