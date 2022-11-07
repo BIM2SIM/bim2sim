@@ -7,6 +7,7 @@ from bim2sim.workflow import LOD
 
 
 def run_example_1():
+    # todo docstring
     # Create the default logging to for quality log and bim2sim main log (
     # see logging documentation for more information
     default_logging_setup()

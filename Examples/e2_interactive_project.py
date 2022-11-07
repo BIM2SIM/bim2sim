@@ -25,6 +25,7 @@ def run_example_2():
 
     # With open_conf the default created config file will be opened and can be
     # adjusted by the user and saved afterwards.
+    # todo open_conf is currently only tested under windows
     project = Project.create(project_path, ifc_path, 'teaser', open_conf=True)
 
     # create a handler (use interactive console handler)

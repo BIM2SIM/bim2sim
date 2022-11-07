@@ -34,12 +34,12 @@ def open_config(path):
     elif os.name == 'nt':  # For Windows
         open_file = subprocess.Popen(["notepad.exe", path])
         # os.system("start " + conf_path)
-    elif os.name == 'posix':  # For Linux, Mac, etc.
-        open_file = subprocess.Popen(['xdg-open', path])
-    else:
-        raise NotImplementedError('Only unix, mac os and windows are '
-                                  'supported.')
     # todo for any reason wait() seems not to work on linux
+    # elif os.name == 'posix':  # For Linux, Mac, etc.
+        # open_file = subprocess.Popen(['xdg-open', path])
+    else:
+        raise NotImplementedError('Only mac os and windows are '
+                                  'supported currently.')
     open_file.wait()
 
 
