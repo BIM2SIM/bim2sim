@@ -10,7 +10,7 @@ from bim2sim.utilities.common_functions import filter_instances
 
 class BindThermalZones(ITask):
     """Prepares bim2sim instances to later export"""
-    # for 1Zone Building - workflow.spaces: LOD.low -
+    # for 1Zone Building - workflow.zoning_setup: LOD.low -
     # Disaggregations not necessary
     reads = ('tz_instances', 'instances', 'finder')
     touches = ('bounded_tz',)
@@ -25,10 +25,10 @@ class BindThermalZones(ITask):
         if len(tz_instances) == 0:
             self.logger.warning("Found no spaces to bind")
         else:
-            if workflow.spaces is LOD.low:
+            if workflow.zoning_setup is LOD.low:
                 self.bind_tz_one_zone(
                     list(tz_instances.values()), instances, finder)
-            elif workflow.spaces is LOD.medium:
+            elif workflow.zoning_setup is LOD.medium:
                 yield from self.bind_tz_criteria(instances, finder)
             else:
                 self.bounded_tz = list(tz_instances.values())

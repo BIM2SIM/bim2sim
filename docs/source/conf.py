@@ -17,12 +17,12 @@ sys.path.insert(0, os.path.abspath('../../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'BIM2SIM'
-copyright = '2021, David Jansen (todo)'
-author = 'David Jansen (todo)'
+project = 'bim2sim '
+copyright = '2022, RWTH Aachen University, EBC & E3D; ROM Technik GmbH'
+# author = 'David Jansen (todo)'
 
 # The full version, including alpha/beta/rc tags
-release = '01.01.2022'
+release = '0.1.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -39,9 +39,10 @@ extensions = [
     'sphinx.ext.doctest',
     # 'sphinx.ext.coverage',
     'sphinx_autodoc_typehints',
+    'sphinxcontrib.mermaid'
 ]
 # autosummary_generate = True
-doctest_path = [os.path.abspath('../../Mainlib/')]
+doctest_path = [os.path.abspath('../../bim2sim/')]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

@@ -1,4 +1,4 @@
-﻿"""Project handling"""
+"""Project handling"""
 import logging
 import os
 import sys
@@ -20,21 +20,27 @@ from bim2sim.decision import Decision, ListDecision, DecisionBunch, save, load
 from bim2sim import log
 from bim2sim.task.base import Playground
 from bim2sim.plugins import Plugin, load_plugin
-from bim2sim.kernel.element import Element
+from bim2sim.workflow import LOD, AutoSettingNameMeta, Workflow
 
 logger = logging.getLogger(__name__)
 user_logger = log.get_user_logger(__name__)
 
 
 def open_config(path):
-    """Open config for user in default program"""
+    """Open config for user in default program and wait for closing before
+    continue"""
     if sys.platform.startswith('darwin'):  # For MAC OS X
-        subprocess.call(('open', path))
+        open_file = subprocess.Popen(['open', path])
     elif os.name == 'nt':  # For Windows
-        os.startfile(path)
+        open_file = subprocess.Popen(["notepad.exe", path])
         # os.system("start " + conf_path)
-    elif os.name == 'posix':  # For Linux, Mac, etc.
-        subprocess.call(('xdg-open', path))
+    # todo for any reason wait() seems not to work on linux
+    # elif os.name == 'posix':  # For Linux, Mac, etc.
+        # open_file = subprocess.Popen(['xdg-open', path])
+    else:
+        raise NotImplementedError('Only mac os and windows are '
+                                  'supported currently.')
+    open_file.wait()
 
 
 def config_base_setup(path, backend=None):
@@ -42,11 +48,29 @@ def config_base_setup(path, backend=None):
     config = configparser.ConfigParser(allow_no_value=True)
     config.read(path)
     if not config.sections():
-        config.add_section("Basics")
-        config.add_section("Task")
-        config.add_section("Aggregation")
-        config.add_section("LayersAndMaterials")
-        config.add_section("ConstructionClass")
+        config.add_section("Generic Workflow Settings")
+        config["Generic Workflow Settings"]["dymola_simulation"] = \
+            str(False)
+        config["Generic Workflow Settings"]["create_external_elements"] \
+            = str(False)
+        config.add_section("BuildingSimulation")
+        config["BuildingSimulation"]["layers_and_materials"] = '1'
+        config["BuildingSimulation"]["zoning_setup"] = '1'
+        config["BuildingSimulation"]["construction_class_walls"] = 'heavy'
+        config["BuildingSimulation"]["construction_class_windows"] = \
+            'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
+        config["BuildingSimulation"]["heating"] = str(True)
+        config["BuildingSimulation"]["cooling"] = str(False)
+        config["BuildingSimulation"]["cfd_export"] = str(False)
+        config.add_section("PlantSimulation")
+        config["PlantSimulation"]["aggregations"] = str([
+            'UnderfloorHeating',
+            'Consumer',
+            'PipeStrand',
+            'ParallelPump',
+            'ConsumerHeatingDistributorModule',
+            'GeneratorOneFluid',
+        ])
         config.add_section("Backend")
         config["Backend"]["use"] = backend
         config.add_section("Frontend")
@@ -112,7 +136,7 @@ def config_base_setup(path, backend=None):
 class FolderStructure:
     """Project related file and folder handling."""
 
-    CONFIG = "config.ini"
+    CONFIG = "config.toml"
     DECISIONS = "decisions.json"
     WORKFLOW = "task"
     FINDER = "finder"
@@ -228,7 +252,8 @@ class FolderStructure:
         self.copy_assets(self.root)
 
     @classmethod
-    def create(cls, rootpath: str, ifc_path: str = None, target: str = None, open_conf=False):
+    def create(cls, rootpath: str, ifc_path: str = None, target: str = None,
+               open_conf: bool = False):
         """Create ProjectFolder and set it up.
 
         Create instance, set source path, create project folder
@@ -245,7 +270,8 @@ class FolderStructure:
         self = cls(rootpath)
 
         if self.is_project_folder():
-            print("Given path is already a project folder ('%s')" % self.root)
+            logger.info(
+                "Given path is already a project folder ('%s')" % self.root)
         else:
             self.create_project_folder()
             config_base_setup(self.config, target)
@@ -257,7 +283,7 @@ class FolderStructure:
         if open_conf:
             # open config for user interaction
             open_config(self.config)
-        print("Project folder created.")
+        logger.info("Project folder created.")
         return self
 
     def delete(self, confirm=True):
@@ -276,7 +302,8 @@ class FolderStructure:
             shutil.rmtree(self.root, ignore_errors=True)
             print("Project folder deleted.")
         else:
-            raise AssertionError("Can't delete project folder (reason: does not exist)")
+            raise AssertionError(
+                "Can't delete project folder (reason: does not exist)")
 
     def __str__(self):
         return str(self.root)
@@ -299,16 +326,23 @@ class Project:
     formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
     _active_project = None  # lock to prevent multiple interfering projects
 
-    def __init__(self, path: str = None, plugin: Type[Plugin] = None, workflow=None):
+    def __init__(
+            self,
+            path: str = None,
+            plugin: Type[Plugin] = None,
+            workflow: Workflow = None,
+    ):
         """Load existing project"""
+        # TODO storage is never used. Delete?
         self.storage = {}  # project related items
         self.paths = FolderStructure(path)
+        # try to get name of project from ifc name
         try:
             self.name = list(
                 filter(Path.is_file, self.paths.ifc.glob('**/*')))[0].stem
         except:
             logger.warning(
-                "Could not set correct project name, using Project!")
+                'Could not set correct project name, using "Project"!')
             self.name = "Project"
 
         if not self.paths.is_project_folder():
@@ -321,8 +355,14 @@ class Project:
         #  which should be loaded anyway. In config additional Plugins can be specified.
         #  'external' Plugins ca specify a meaningful workflow, builtins cant. How to get a generic workflow?
         self.default_plugin = self._get_plugin(plugin)
+        # check if an instance of workflow is given or just the class
+        if isinstance(workflow, AutoSettingNameMeta):
+            logger.warning("No instance of workflow was provided but the class,"
+                           "creating an instance of the workflow now.")
+            workflow = workflow()
         if not workflow:
             workflow = self.default_plugin.default_workflow()
+        self.workflow = workflow
         workflow.relevant_elements = self.default_plugin.elements
         workflow.update_from_config(self.config)
         self.playground = Playground(workflow, self.paths, self.name)
@@ -339,29 +379,34 @@ class Project:
             return plugin
         else:
             plugin_name = self.config['Backend']['use']
-            assert plugin_name, "Either an explicit passed plugin or equivalent entry in config is required."
+            assert plugin_name, "Either an explicit passed plugin or" \
+                                " equivalent entry in config is required."
             return load_plugin(plugin_name)
 
     @classmethod
     def create(cls, project_folder, ifc_path=None, plugin: Union[
-            str, Type[Plugin]] = None, open_conf=False, workflow=None):
+            str, Type[Plugin]] = None, open_conf: bool = False,
+               workflow: Workflow = None):
         """Create new project
 
         Args:
             project_folder: directory of project
             ifc_path: path to in ifc which gets copied into project folder
-            plugin: Plugin to use with this project.
-                If passed as string, make sure it is importable (see plugins.load_plugin)
-            open_conf: open config file in default editor to manually edit it
+            plugin: Plugin to use with this project. If passed as string,
+             make sure it is importable (see plugins.load_plugin)
+            open_conf: flag to open the config file in default application
             workflow: Workflow to use with this project
+            updated from config
         """
         # create folder first
         if isinstance(plugin, str):
             FolderStructure.create(project_folder, ifc_path, plugin, open_conf)
             project = cls(project_folder, workflow=workflow)
         else:
-            # an explicit plugin can't be recreated from config. Thou we don't save it
-            FolderStructure.create(project_folder, ifc_path, open_conf=open_conf)
+            # an explicit plugin can't be recreated from config.
+            # Thou we don't save it
+            FolderStructure.create(
+                project_folder, ifc_path, open_conf=open_conf)
             project = cls(project_folder, plugin=plugin, workflow=workflow)
 
         return project
@@ -385,7 +430,8 @@ class Project:
 
     def _setup_logger(self):
         # we assume only one project per thread and time is active.
-        # Thou we can use the thread name to filter project specific log messages.
+        # Thou we can use the thread name to filter project specific log
+        # messages.
         # BUT! this assumption is not enforced and multiple active projects
         # per thread will result in a mess of log messages.
 
@@ -396,7 +442,8 @@ class Project:
 
         # quality logger
         quality_logger = logging.getLogger('bim2sim.QualityReport')
-        quality_handler = logging.FileHandler(os.path.join(self.paths.log, "IFCQualityReport.log"))
+        quality_handler = logging.FileHandler(
+            os.path.join(self.paths.log, "IFCQualityReport.log"))
         quality_handler.addFilter(log.ThreadLogFilter(thread_name))
         quality_handler.setFormatter(log.quality_formatter)
         quality_logger.addHandler(quality_handler)
@@ -453,10 +500,11 @@ class Project:
 
     @property
     def config(self):
-        """returns configparser instance. Basic config is done if file is not present"""
+        """returns configparser instance. Basic config is done if file is not
+        present"""
         config = configparser.ConfigParser(allow_no_value=True)
         if not config.read(self.paths.config):
-            self.config_base_setup(self.paths.root)
+            config_base_setup(self.paths.root)
             config.read(self.paths.config)
         return config
 
@@ -507,7 +555,7 @@ class Project:
         return 0 if success else -1
 
     def _run_default(self, plugin=None):
-        """Execution of plugins default run"""
+        """Execution of plugins default tasks"""
         # run plugin default
         plugin_cls = plugin or self.default_plugin
         _plugin = plugin_cls()
@@ -517,8 +565,10 @@ class Project:
     def _run_interactive(self):
         """Interactive execution of available ITasks"""
         while True:
-            tasks_classes = {task.__name__: task for task in self.playground.available_tasks()}
-            choices = [(name, task.__doc__) for name, task in tasks_classes.items()]
+            tasks_classes = {task.__name__: task for task in
+                             self.playground.available_tasks()}
+            choices = [(name, task.__doc__) for name, task in
+                       tasks_classes.items()]
             task_decision = ListDecision("What shall we do?", choices=choices)
             yield DecisionBunch([task_decision])
             task_name = task_decision.value
@@ -542,12 +592,14 @@ class Project:
 
         # clean up init relics
         #  clean logger
-        user_logger.info('Project finished')
+        user_logger.info(f'Project Exports can be found under '
+                         f'{self.paths.export}')
+        user_logger.info(f'Project "{self.name}" finished')
         self._teardown_logger()
 
     def delete(self):
         """Delete the project."""
-        self.finalize(True)  # success True to prevent unnecessary decision saving
+        self.finalize(True)
         self.paths.delete(False)
         user_logger.info("Project deleted")
 

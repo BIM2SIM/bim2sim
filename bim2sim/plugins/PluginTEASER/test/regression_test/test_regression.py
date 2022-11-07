@@ -121,14 +121,11 @@ class RegressionTestTEASER(RegressionTestBase):
 
 class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
     def test_run_kitfzkhaus(self):
-        """Run TEASER export with AC20-FZK-Haus.ifc and predifined materials
+        """Run TEASER export with AC20-FZK-Haus.ifc and predefined materials
         and one zone model export"""
         ifc = 'AC20-FZK-Haus.ifc'
-        used_workflow = workflow.BPSOneZoneAggregatedLayersLow()
-        used_workflow.dymola_simulation = False
-        project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+        project = self.create_project(ifc, 'TEASER')
+        answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer

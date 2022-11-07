@@ -273,6 +273,14 @@ def translate_deep(text, source='auto', target='en'):
     # }
 
 
-def all_subclasses(cls):
-    return set(cls.__subclasses__()).union(
-        [s for c in cls.__subclasses__() for s in all_subclasses(c)])
+def all_subclasses(cls, as_names: bool = False):
+    """Get all subclasses of the given subclass, even subsubclasses and so on
+
+    Args:
+        as_names: boolean, if True the subclasses are returned as names
+        """
+    all_cls = set(cls.__subclasses__()).union(
+            [s for c in cls.__subclasses__() for s in all_subclasses(c)])
+    if as_names:
+        all_cls = [cls.__name__ for cls in all_cls]
+    return all_cls
