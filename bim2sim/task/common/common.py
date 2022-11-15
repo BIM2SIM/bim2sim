@@ -89,11 +89,22 @@ class LoadIFC(ITask):
 
         for unit_entity in unit_assignment[0].Units:
             try:
-                key = 'Ifc{}'.format(unit_entity.UnitType.capitalize().replace('unit', 'Measure'))
-                pos_key = 'IfcPositive{}'.format(unit_entity.UnitType.capitalize().replace('unit', 'Measure'))
+                if hasattr(unit_entity, 'UnitType'):
+                    key = 'Ifc{}'.format(
+                        unit_entity.UnitType.capitalize().replace('unit',
+                                                                  'Measure'))
+                    pos_key = 'IfcPositive{}'.format(
+                        unit_entity.UnitType.capitalize().replace('unit',
+                                                                  'Measure'))
+                elif hasattr(unit_entity, 'Currency'):
+                    key = 'IfcMonetaryMeasure'
+                        # 'Ifc{}'.format(
+                        # unit_entity.Currency.capitalize().replace('unit',
+                        #                                           'Measure'))
                 unit = parse_ifc(unit_entity)
                 results[key] = unit
-                results[pos_key] = unit
+                if pos_key:
+                    results[pos_key] = unit
 
                 # unit_type = unit_entity.is_a()
                 # if unit_type == 'IfcDerivedUnit':

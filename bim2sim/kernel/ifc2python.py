@@ -1,7 +1,4 @@
-"""Module for loading ifc files
-
-Holds logic for target simulation independent file parsing, checking, and data enrichment
-"""
+"""Module to convert ifc data from to python data"""
 import os
 import logging
 import typing
@@ -13,7 +10,16 @@ import math
 from collections.abc import Iterable
 
 
-def load_ifc(path):
+def load_ifc(path: str) -> ifcopenshell.file:
+    """loads the ifc file using IfcOpenShell and returns the IfcOpenShell
+    instance
+
+    Args:
+        path: str with path where ifc file is stored
+
+    Returns:
+        ifc_file: ifcopenshell file object
+    """
     logger = logging.getLogger('bim2sim')
     logger.info("Loading IFC '%s'", path)
     if not os.path.exists(path):
@@ -39,7 +45,6 @@ def propertyset2dict(propertyset, ifc_units: Optional[dict]):
                     else:
                         propertydict[prop.Name] = prop.NominalValue.wrappedValue
             elif prop.is_a() == 'IfcPropertyListValue':
-                # TODO: Unit conversion
                 values = []
                 for value in prop.ListValues:
                     unit = ifc_units.get(value.is_a()) if not unit else unit
@@ -49,11 +54,15 @@ def propertyset2dict(propertyset, ifc_units: Optional[dict]):
                         values.append(value.wrappedValue)
                 propertydict[prop.Name] = values
             elif prop.is_a() == 'IfcPropertyBoundedValue':
-                # TODO: Unit conversion
-                propertydict[prop.Name] = (prop, prop)
-                raise NotImplementedError("Property of type '%s'"%prop.is_a())
+                # TODO: value.UpperBoundValue and value.LowerBoundValue not used
+                value = prop.SetPointValue
+                if value:
+                    unit = ifc_units.get(value.is_a()) if not unit else unit
+                    if unit:
+                        propertydict[prop.Name] = value * unit
+                    else:
+                        propertydict[prop.Name] = value
             elif prop.is_a() == 'IfcPropertyEnumeratedValue':
-                # TODO: Unit conversion
                 values = []
                 for value in prop.EnumerationValues:
                     unit = ifc_units.get(value.is_a()) if not unit else unit
@@ -86,19 +95,20 @@ def propertyset2dict(propertyset, ifc_units: Optional[dict]):
                     else:
                         propertydict[prop.Name] = prop.NominalValue.wrappedValue
             elif prop.is_a() == 'IfcPropertyListValue':
-                # TODO: Unit conversion
                 values = []
                 for value in prop.ListValues:
                     unit = ifc_units.get(value.is_a()) if not unit else unit
                     values.append(value.wrappedValue * unit)
                 propertydict[prop.Name] = values
             elif prop.is_a() == 'IfcPropertyBoundedValue':
-                # TODO: Unit conversion
-                propertydict[prop.Name] = (prop, prop)
-                raise NotImplementedError("Property of type '%s'"%prop.is_a())
-            else:
-                raise NotImplementedError("Property of type '%s'"%prop.is_a())
-
+                # TODO: value.UpperBoundValue and value.LowerBoundValue not used
+                value = prop.SetPointValue
+                if value:
+                    unit = ifc_units.get(value.is_a()) if not unit else unit
+                    if unit:
+                        propertydict[prop.Name] = value * unit
+                    else:
+                        propertydict[prop.Name] = value
     return propertydict
 
 
