@@ -77,11 +77,13 @@ class EPGeomPreprocessing(ITask):
                     instances[bound.guid] = bound
 
     def _get_parents_and_children(self, instances):
-        """get parent-children relationships between IfcElements (e.g. Windows, Walls)
-        and the corresponding relationships of their space boundaries"""
+        """get parent-children relationships between IfcElements (e.g. Windows,
+        Walls) and the corresponding relationships of their space boundaries"""
         self.logger.info("Compute relationships between space boundaries")
-        self.logger.info("Compute relationships between openings and their base surfaces")
-        drop_list = {}  # HACK: dictionary for bounds which have to be removed from instances (due to duplications)
+        self.logger.info("Compute relationships between openings and their base "
+                         "surfaces")
+        drop_list = {}  # HACK: dictionary for bounds which have to be removed
+        # from instances (due to duplications)
         boundaries = filter_instances(instances, SpaceBoundary)
         for inst_obj in boundaries:
             if inst_obj.level_description == "2b":
@@ -96,67 +98,19 @@ class EPGeomPreprocessing(ITask):
             if not related_opening_elems:
                 continue
             # assign space boundaries of opening elems (Windows, Doors) to parents and vice versa
-
             for opening in related_opening_elems:
                 op_bound = self._get_opening_boundary(inst_obj, inst_obj_space,
                                                       opening)
                 if not op_bound:
                     continue
                 # HACK:
-                # some space boundaries have inner loops which are removed for vertical bounds in
-                # calc_bound_shape (elements.py). Those inner loops contain an additional vertical bound (wall)
-                # which is "parent" of an opening. EnergyPlus does not accept openings having a parent surface
-                # of same size as the opening. Thus, since inner loops are removed from shapes beforehand,
-                # those boundaries are removed from "instances" and the openings are assigned to have the larger
-                # boundary as a parent.
-                #
-                # find cases where opening area matches area of corresponding wall (within inner loop)
+                # find cases where opening area matches area of corresponding
+                # wall (within inner loop) and reassign the current opening
+                # boundary to the surrounding boundary (which is the true
+                # parent boundary)
                 if (inst_obj.bound_area - op_bound.bound_area).m < 0.01:
-                    rel_bound = None
-                    drop_list[inst_obj.guid] = inst_obj
-                    ib = [b for b in b_inst.space_boundaries if
-                          b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries if
-                          b.bound_thermal_zone == op_bound.bound_thermal_zone]
-                    if len(ib) == 1:
-                        rel_bound = ib[0]
-                    elif len(ib) > 1:
-                        for b in ib:
-                            # check if orientation of possibly related bound is the same as opening
-                            angle = math.degrees(gp_Dir(b.bound_normal).Angle(gp_Dir(op_bound.bound_normal)))
-                            if not (angle < 0.1 or angle > 179.9):
-                                continue
-                            distance = BRepExtrema_DistShapeShape(
-                                b.bound_shape,
-                                op_bound.bound_shape,
-                                Extrema_ExtFlag_MIN
-                            ).Value()
-                            if distance > 0.4:
-                                continue
-                            else:
-                                rel_bound = b
-                    else:
-                        tzb = [b for b in op_bound.bound_thermal_zone.space_boundaries if
-                               b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries]
-                        for b in tzb:
-                            # check if orientation of possibly related bound is the same as opening
-                            try:
-                                angle = math.degrees(
-                                    gp_Dir(b.bound_normal).Angle(gp_Dir(op_bound.bound_normal)))
-                            except:
-                                pass
-                            if not (angle < 0.1 or angle > 179.9):
-                                continue
-                            distance = BRepExtrema_DistShapeShape(
-                                b.bound_shape,
-                                op_bound.bound_shape,
-                                Extrema_ExtFlag_MIN
-                            ).Value()
-                            if distance > 0.4:
-                                continue
-                            else:
-                                rel_bound = b
-                        if not rel_bound:
-                            continue
+                    rel_bound, drop_list = self._reassign_opening_bounds(
+                        inst_obj, op_bound, b_inst, drop_list)
                     if not rel_bound:
                         continue
                     rel_bound.opening_bounds.append(op_bound)
@@ -167,6 +121,7 @@ class EPGeomPreprocessing(ITask):
         # remove boundaries from instances if they are false duplicates of windows in shape of walls
         instances = {k: v for k, v in instances.items() if k not in drop_list}
         return instances
+
     @staticmethod
     def _get_related_of_opening_elems(bound_instance, instances):
         """This function returns all opening elements of the current related
@@ -210,6 +165,73 @@ class EPGeomPreprocessing(ITask):
         if sorted_distances:
             opening_boundary = next(iter(sorted_distances.values()))
         return opening_boundary
+
+    @staticmethod
+    def _reassign_opening_bounds(this_boundary, opening_boundary,
+                                 bound_instance,
+                                 drop_list):
+        """
+        This function reassigns the current opening bound as an opening
+        boundary of its surrounding boundary. This function only applies if
+        the opening boundary has the same surface area as the assigned parent
+        surface.
+        HACK:
+        some space boundaries have inner loops which are removed for vertical
+        bounds in calc_bound_shape (elements.py). Those inner loops contain
+        an additional vertical bound (wall) which is "parent" of an
+        opening. EnergyPlus does not accept openings having a parent
+        surface of same size as the opening. Thus, since inner loops are
+        removed from shapes beforehand, those boundaries are removed from
+        "instances" and the openings are assigned to have the larger
+        boundary as a parent.
+        """
+        rel_bound = None
+        drop_list[this_boundary.guid] = this_boundary
+        ib = [b for b in bound_instance.space_boundaries if
+              b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries
+              if
+              b.bound_thermal_zone == opening_boundary.bound_thermal_zone]
+        if len(ib) == 1:
+            rel_bound = ib[0]
+        elif len(ib) > 1:
+            for b in ib:
+                # check if orientation of possibly related bound is the same as opening
+                angle = math.degrees(
+                    gp_Dir(b.bound_normal).Angle(gp_Dir(opening_boundary.bound_normal)))
+                if not (angle < 0.1 or angle > 179.9):
+                    continue
+                distance = BRepExtrema_DistShapeShape(
+                    b.bound_shape,
+                    opening_boundary.bound_shape,
+                    Extrema_ExtFlag_MIN
+                ).Value()
+                if distance > 0.4:
+                    continue
+                else:
+                    rel_bound = b
+        else:
+            tzb = [b for b in opening_boundary.bound_thermal_zone.space_boundaries if
+                   b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries]
+            for b in tzb:
+                # check if orientation of possibly related bound is the same as opening
+                try:
+                    angle = math.degrees(
+                        gp_Dir(b.bound_normal).Angle(
+                            gp_Dir(opening_boundary.bound_normal)))
+                except:
+                    pass
+                if not (angle < 0.1 or angle > 179.9):
+                    continue
+                distance = BRepExtrema_DistShapeShape(
+                    b.bound_shape,
+                    opening_boundary.bound_shape,
+                    Extrema_ExtFlag_MIN
+                ).Value()
+                if distance > 0.4:
+                    continue
+                else:
+                    rel_bound = b
+        return rel_bound, drop_list
 
     def _move_children_to_parents(self, instances):
         """move external opening boundaries to related parent boundary (e.g. wall)"""
