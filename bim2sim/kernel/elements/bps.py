@@ -1046,8 +1046,6 @@ class SpaceBoundary(element.RelationBased):
         This function returns the opening bounds of the spaceboundary
         """
         return list()
-    # opening_bounds = attribute.Attribute(
-    # )
 
     @cached_property
     def parent_bound(self):
