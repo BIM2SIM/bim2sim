@@ -1045,9 +1045,19 @@ class SpaceBoundary(element.RelationBased):
         """
         This function returns the opening bounds of the spaceboundary
         """
-        return None
+        return list()
     # opening_bounds = attribute.Attribute(
     # )
+
+    @cached_property
+    def parent_bound(self):
+        """
+        This function returns the parent bound of the space boundary. Only
+        available for space boundary of openings. The parent boundary of an
+        opening boundary is the boundary of the wall which surrounds the
+        opening.
+        """
+        return None
 
 
 class ExtSpatialSpaceBoundary(SpaceBoundary):

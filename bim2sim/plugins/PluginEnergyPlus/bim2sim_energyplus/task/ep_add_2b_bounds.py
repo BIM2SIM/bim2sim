@@ -56,7 +56,7 @@ class AddSpaceBoundaries2B(ITask):
             space_surf_area = PyOCCTools.get_shape_area(space_obj.space_shape)
             sb_area = 0
             for bound in space_obj.space_boundaries:
-                if hasattr(bound, 'related_parent_bound'):
+                if bound.parent_bound:
                     continue
                 sb_area += PyOCCTools.get_shape_area(bound.bound_shape)
             if (space_surf_area - sb_area) < 1e-2:

@@ -1075,12 +1075,12 @@ class IdfObject:
             self.skip_bound = True
             return
         self.zone_name = inst_obj.bound_thermal_zone.guid
-        if hasattr(inst_obj, 'related_parent_bound'):
+        if inst_obj.parent_bound:
             self.key = "FENESTRATIONSURFACE:DETAILED"
         else:
             self.key = "BUILDINGSURFACE:DETAILED"
-        if hasattr(inst_obj, 'related_parent_bound'):
-            self.building_surface_name = inst_obj.related_parent_bound.guid
+        if inst_obj.parent_bound:
+            self.building_surface_name = inst_obj.parent_bound.guid
         self._map_surface_types(inst_obj)
         self._map_boundary_conditions(inst_obj)
         # todo: fix material definitions!
@@ -1091,6 +1091,8 @@ class IdfObject:
         obj = self._set_idfobject_attributes(idf)
         if obj is not None:
             self._set_idfobject_coordinates(obj, idf, inst_obj)
+        else:
+            pass
 
 
     def _set_construction_name(self):
@@ -1297,7 +1299,7 @@ class IdfObject:
               and ((inst_obj.ifc.CorrespondingBoundary is not None)
                    and (inst_obj.ifc.CorrespondingBoundary.InternalOrExternalBoundary.upper() == 'EXTERNAL_EARTH'))
               and (self.key == "BUILDINGSURFACE:DETAILED")
-              and not (hasattr(inst_obj, 'related_opening_bounds') and (len(inst_obj.related_opening_bounds) > 0))):
+              and not (len(inst_obj.opening_bounds) > 0)):
             self.out_bound_cond = "Ground"
             self.sun_exposed = 'NoSun'
             self.wind_exposed = 'NoWind'
