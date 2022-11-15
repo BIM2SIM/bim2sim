@@ -1,4 +1,8 @@
 from typing import List
+
+from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex
+from OCC.Core.gp import gp_Pnt
+
 from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import RelationBased
 from bim2sim.task.base import ITask
@@ -26,7 +30,7 @@ class CreateSpaceBoundaries(ITask):
         instance_lst = self.instantiate_space_boundaries(
             entity_type_dict, instances, finder,
             workflow.create_external_elements, workflow.ifc_units)
-        self.find_instances_openings(instances, instance_lst)
+        #self.find_instances_openings(instances, instance_lst)
         self.logger.info("Created %d elements", len(instance_lst))
 
         space_boundaries = {inst.guid: inst for inst in instance_lst}
@@ -90,9 +94,18 @@ class CreateSpaceBoundaries(ITask):
     def find_instances_openings(self, instances, space_boundaries):
         """find instances openings and corresponding space boundaries to that
         opening (if given)"""
-        no_element_sbs = self.get_no_element_space_boundaries(space_boundaries)
+        no_element_sbs = self.get_no_element_space_boundaries(
+            space_boundaries)
+        # todo: supposed to return all possibly virtual
+        #  boundaries (due to missing bound_instances), but in fact contains
+        #  all sbs of elements that are not implemented yet, such as beams,
+        #  columns, curtain walls (in addition to virtual bounds)
         no_element_openings = self.get_corresponding_opening(space_boundaries,
                                                              no_element_sbs)
+        # todo: no_element_sbs are supposed to be possibly virtual boundaries,
+        #  why should virtual boundaries contain openings (
+        #  no_element_openings)?
+        # todo: add general ifcProduct class for not implemented bound_instances
         for inst in instances.values():
             matched_sb = self.get_instance_openings(inst, instances,
                                                     no_element_sbs,
@@ -137,6 +150,9 @@ class CreateSpaceBoundaries(ITask):
     def get_corresponding_opening(space_boundaries, selected_sb):
         """get corresponding opening space boundary for openings that doesn't
         have a related instance"""
+        # todo: remove this very inefficient loop. Applied for boundaries
+        #  that are supposed to be virtual boundaries, which are not supposed
+        #  to have openings.
         corresponding = {}
         for sb_opening in selected_sb.values():
             if isinstance(sb_opening, ExtSpatialSpaceBoundary):
@@ -150,11 +166,13 @@ class CreateSpaceBoundaries(ITask):
                         sb_opening.bound_thermal_zone) and \
                             (sb.top_bottom == sb_opening.top_bottom):
                         shape_dist = BRepExtrema_DistShapeShape(
-                            sb_opening.bound_shape,
+                            BRepBuilderAPI_MakeVertex(
+                                gp_Pnt(sb_opening.bound_center)).Shape(),
                             sb.bound_shape,
                             Extrema_ExtFlag_MIN
                         ).Value()
                         distances[shape_dist] = sb
+                        #todo: exclude neighboring boundaries (e.g. from beams)
             sorted_distances = dict(sorted(distances.items()))
             if len(sorted_distances) > 0:
                 corresponding[sb_opening.guid] = next(
@@ -195,6 +213,8 @@ class CreateSpaceBoundaries(ITask):
             for sb_opening in opening_instance.space_boundaries:
                 if (sb.bound_thermal_zone == sb_opening.bound_thermal_zone) \
                         and (sb.top_bottom == sb_opening.top_bottom):
+                    if sb.bound_area < sb_opening.bound_area:
+                        continue
                     shape_dist = BRepExtrema_DistShapeShape(
                         sb_opening.bound_shape,
                         sb.bound_shape,
