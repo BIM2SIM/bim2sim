@@ -18,7 +18,7 @@ def load_ifc(path: str) -> ifcopenshell.file:
         path: str with path where ifc file is stored
 
     Returns:
-        ifc_file: ifcopenshell file object
+        ifc_file: IfcOpenShell file object
     """
     logger = logging.getLogger('bim2sim')
     logger.info("Loading IFC '%s'", path)
@@ -28,9 +28,22 @@ def load_ifc(path: str) -> ifcopenshell.file:
     return ifc_file
 
 
-def propertyset2dict(propertyset, ifc_units: Optional[dict]):
-    """Converts IfcPropertySet to python dict"""
-    propertydict = {}
+def propertyset2dict(propertyset, ifc_units: Optional[dict]) -> dict:
+    """Converts IfcPropertySet and IfcQuantitySet to python dict
+
+    Takes all IfcPropertySet and IfcQuantitySet properties and quantities of the
+     given IfcPropertySet or IfcQuantitySet and converts them into a dictionary.
+    Also takes care of setting the correct unit to every property/quantity by
+    using the units defined in the IFC.
+
+    Args:
+        propertyset: IfcPropertySet entity from ifcopenshell
+        ifc_units: dict with key ifc unit definition and value pint unit
+    Returns:
+        property_dict: dict with key name of the property/quantity and value
+            the property/quantity value as pint quantity if available
+    """
+    property_dict = {}
     if hasattr(propertyset, 'HasProperties'):
         for prop in propertyset.HasProperties:
             if hasattr(prop, 'Unit'):
@@ -41,9 +54,9 @@ def propertyset2dict(propertyset, ifc_units: Optional[dict]):
                 if prop.NominalValue is not None:
                     unit = ifc_units.get(prop.NominalValue.is_a()) if not unit else unit
                     if unit:
-                        propertydict[prop.Name] = prop.NominalValue.wrappedValue * unit
+                        property_dict[prop.Name] = prop.NominalValue.wrappedValue * unit
                     else:
-                        propertydict[prop.Name] = prop.NominalValue.wrappedValue
+                        property_dict[prop.Name] = prop.NominalValue.wrappedValue
             elif prop.is_a() == 'IfcPropertyListValue':
                 values = []
                 for value in prop.ListValues:
@@ -52,16 +65,16 @@ def propertyset2dict(propertyset, ifc_units: Optional[dict]):
                         values.append(value.wrappedValue * unit)
                     else:
                         values.append(value.wrappedValue)
-                propertydict[prop.Name] = values
+                property_dict[prop.Name] = values
             elif prop.is_a() == 'IfcPropertyBoundedValue':
                 # TODO: value.UpperBoundValue and value.LowerBoundValue not used
                 value = prop.SetPointValue
                 if value:
                     unit = ifc_units.get(value.is_a()) if not unit else unit
                     if unit:
-                        propertydict[prop.Name] = value * unit
+                        property_dict[prop.Name] = value * unit
                     else:
-                        propertydict[prop.Name] = value
+                        property_dict[prop.Name] = value
             elif prop.is_a() == 'IfcPropertyEnumeratedValue':
                 values = []
                 for value in prop.EnumerationValues:
@@ -70,7 +83,7 @@ def propertyset2dict(propertyset, ifc_units: Optional[dict]):
                         values.append(value.wrappedValue * unit)
                     else:
                         values.append(value.wrappedValue)
-                propertydict[prop.Name] = values
+                property_dict[prop.Name] = values
             else:
                 raise NotImplementedError("Property of type '%s'"%prop.is_a())
     elif hasattr(propertyset, 'Quantities'):
@@ -80,9 +93,9 @@ def propertyset2dict(propertyset, ifc_units: Optional[dict]):
                 if attr.endswith('Value'):
                     if p_value is not None:
                         if unit:
-                            propertydict[prop.Name] = p_value * unit
+                            property_dict[prop.Name] = p_value * unit
                         else:
-                            propertydict[prop.Name] = p_value
+                            property_dict[prop.Name] = p_value
                         break
     elif hasattr(propertyset, 'Properties'):
         for prop in propertyset.Properties:
@@ -91,25 +104,25 @@ def propertyset2dict(propertyset, ifc_units: Optional[dict]):
                 if prop.NominalValue is not None:
                     unit = ifc_units.get(prop.NominalValue.is_a()) if not unit else unit
                     if unit:
-                        propertydict[prop.Name] = prop.NominalValue.wrappedValue * unit
+                        property_dict[prop.Name] = prop.NominalValue.wrappedValue * unit
                     else:
-                        propertydict[prop.Name] = prop.NominalValue.wrappedValue
+                        property_dict[prop.Name] = prop.NominalValue.wrappedValue
             elif prop.is_a() == 'IfcPropertyListValue':
                 values = []
                 for value in prop.ListValues:
                     unit = ifc_units.get(value.is_a()) if not unit else unit
                     values.append(value.wrappedValue * unit)
-                propertydict[prop.Name] = values
+                property_dict[prop.Name] = values
             elif prop.is_a() == 'IfcPropertyBoundedValue':
                 # TODO: value.UpperBoundValue and value.LowerBoundValue not used
                 value = prop.SetPointValue
                 if value:
                     unit = ifc_units.get(value.is_a()) if not unit else unit
                     if unit:
-                        propertydict[prop.Name] = value * unit
+                        property_dict[prop.Name] = value * unit
                     else:
-                        propertydict[prop.Name] = value
-    return propertydict
+                        property_dict[prop.Name] = value
+    return property_dict
 
 
 def get_layers_ifc(element):
@@ -169,7 +182,7 @@ def getIfcAttribute(ifcElement, attribute):
         pass
 
 
-def get_Property_Set(PropertySetName, element, ifc_units):
+def get_propertyset(propertyset_name, element, ifc_units):
     """
     This function searches an elements PropertySets for the defined
     PropertySetName. If the PropertySet is found the function will return a
@@ -177,14 +190,14 @@ def get_Property_Set(PropertySetName, element, ifc_units):
     found the function will return None
 
     :param element: The element in which you want to search for the PropertySet
-    :param PropertySetName: Name of the PropertySet you are looking for
+    :param propertyset_name: Name of the PropertySet you are looking for
     :param ifc_units: dict holding all unit definitions from ifc_units
     :return:
     """
     # TODO: Unit conversion
     AllPropertySetsList = element.IsDefinedBy
     property_set = next((item for item in AllPropertySetsList if
-                         item.RelatingPropertyDefinition.Name == PropertySetName), None)
+                         item.RelatingPropertyDefinition.Name == propertyset_name), None)
     if hasattr(property_set, 'RelatingPropertyDefinition'):
         return propertyset2dict(
             property_set.RelatingPropertyDefinition, ifc_units)
