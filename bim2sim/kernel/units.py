@@ -1,4 +1,10 @@
-"""Module contains the unit registry for all params"""
+"""Module contains the unit registry for all params
+
+To handle different unit definitions in IFC files and get accurate values when
+exporting later to simulation models, we use pint to maintain and check correct
+unit definitions throughout the whole bim2sim chain. To get the correct units
+when loading the IFC we convert IFC units to pint units.
+"""
 
 from pint import UnitRegistry
 
