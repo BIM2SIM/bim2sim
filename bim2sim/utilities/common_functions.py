@@ -212,7 +212,7 @@ def get_type_building_elements_hvac():
     return type_building_elements
 
 
-def filter_instances(instances, type_name):
+def filter_instances(instances: dict, type_name) -> list:
     """Filters the inspected instances by type name (e.g. Wall) and
     returns them as list"""
     instances_filtered = []
