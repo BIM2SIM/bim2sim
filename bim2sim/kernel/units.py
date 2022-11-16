@@ -46,6 +46,7 @@ ifc_pint_unitmap = {
 
 
 def parse_ifc(unit_entity):
+    """"""
     unit_type = unit_entity.is_a()
     if unit_type == 'IfcDerivedUnit':
         unit = ureg.dimensionless
@@ -108,12 +109,3 @@ def parse_ifc(unit_entity):
         raise NotImplementedError(f"Found {unit_type} and can't convert it to"
                                   f"Pint unit in Python.")
     # TODO: IfcDimensionalExponents,IfcContextDependentUnit
-
-
-def conversion(unit, ufrom, uto):
-    if unit is None:
-        unit = 0
-    if not isinstance(unit, ureg.Quantity):
-        unit = ureg.Quantity(unit, getattr(ureg, ufrom))
-    unit = unit.to(uto)
-    return unit.to(uto)
