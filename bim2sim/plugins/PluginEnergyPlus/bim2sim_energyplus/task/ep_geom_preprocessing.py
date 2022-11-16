@@ -191,26 +191,15 @@ class EPGeomPreprocessing(ITask):
                 if bound.parent_bound:
                     continue
                 # append all faces within the space to face_list
-                exp = TopExp_Explorer(bound.bound_shape, TopAbs_FACE)
-                face = exp.Current()
-                try:
-                    face = topods_Face(face)
-                    face_list.append(face)
-                except Exception as ex:
-                    logger.warning(f"Unexpected {ex=}, {type(ex)=}")
-                    exp1 = TopExp_Explorer(bound.bound_shape, TopAbs_WIRE)
-                    wire = exp1.Current()
-                    face = BRepBuilderAPI_MakeFace(wire).Face()
-                    face_list.append(face)
+                face = PyOCCTools.get_face_from_shape(bound.bound_shape)
+                face_list.append(face)
             if not face_list:
                 continue
             # if the space has generated 2B space boundaries, add them to
             # face_list
             if hasattr(space, 'space_boundaries_2B'):
                 for bound in space.space_boundaries_2B:
-                    exp = TopExp_Explorer(bound.bound_shape, TopAbs_FACE)
-                    face = exp.Current()
-                    face = topods_Face(face)
+                    face = PyOCCTools.get_face_from_shape(bound.bound_shape)
                     face_list.append(face)
             # sew all faces within the face_list together
             sew = BRepBuilderAPI_Sewing(0.0001)
@@ -234,17 +223,11 @@ class EPGeomPreprocessing(ITask):
                 f_exp.Next()
             for fc in fixed_faces:
                 # compute the surface normal for each face
-                an_exp = TopExp_Explorer(fc, TopAbs_FACE)
-                a_face = an_exp.Current()
-                face = topods_Face(a_face)
-                surf = BRep_Tool.Surface(face)
-                obj = surf
-                assert obj.DynamicType().Name() == "Geom_Plane"
-                plane = Handle_Geom_Plane_DownCast(surf)
-                face_normal = plane.Axis().Direction().XYZ()
+                face_normal = PyOCCTools.simple_face_normal(
+                   fc, check_orientation=False)
                 # compute the center of mass for the current face
                 p = GProp_GProps()
-                brepgprop_SurfaceProperties(face, p)
+                brepgprop_SurfaceProperties(fc, p)
                 face_center = p.CentreOfMass().XYZ()
                 complemented = False
                 for bound in space.space_boundaries:
@@ -279,7 +262,7 @@ class EPGeomPreprocessing(ITask):
                 for bound in space.space_boundaries_2B:
                     if gp_Pnt(bound.bound_center).Distance(gp_Pnt(face_center))\
                             < 1e-6:
-                        bound.bound_shape = face
+                        bound.bound_shape = fc
                         if hasattr(bound, 'bound_normal'):
                             del bound.__dict__['bound_normal']
                         break
