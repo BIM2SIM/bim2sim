@@ -17,6 +17,7 @@ from bim2sim_energyplus.task import EPGeomPreprocessing
 
 logger = logging.getLogger(__name__)
 
+
 class AddSpaceBoundaries2B(ITask):
     """Exports an EnergyPlus model based on IFC information"""
 
@@ -26,25 +27,15 @@ class AddSpaceBoundaries2B(ITask):
     def run(self, workflow, instances, ifc, ep_decisions):
 
         split_bounds = ep_decisions['EnergyPlus.SplitConvexBounds']
-        # self._get_neighbor_bounds(instances)
         try:
             inst_2b = self._compute_2b_bound_gaps(instances)
-            EPGeomPreprocessing._split_non_convex_bounds(EPGeomPreprocessing(),
-                                                         inst_2b, split_bounds)
+            EPGeomPreprocessing.split_non_convex_bounds(EPGeomPreprocessing(),
+                                                        inst_2b, split_bounds)
         except Exception as ex:
-            logger.exception("Something went wrong!")
+            logger.warning(f"Unexpected {ex=}. No 2b Space Boundaries added."
+                           f" {type(ex)=}")
             return
         instances.update(inst_2b)
-
-        pass
-
-    @staticmethod
-    def _get_neighbor_bounds(instances):
-        for inst in instances:
-            this_obj = instances[inst]
-            if not this_obj.ifc.is_a('IfcRelSpaceBoundary'):
-                continue
-            neighbors = this_obj.bound_neighbors
 
     def _compute_2b_bound_gaps(self, instances):
         self.logger.info("Generate space boundaries of type 2B")
