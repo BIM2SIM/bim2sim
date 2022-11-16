@@ -188,9 +188,9 @@ class EPGeomPreprocessing(ITask):
             face_list = []
             for bound in space.space_boundaries:
                 # get all bounds within a space except openings
-                #
                 if bound.parent_bound:
                     continue
+                # append all faces within the space to face_list
                 exp = TopExp_Explorer(bound.bound_shape, TopAbs_FACE)
                 face = exp.Current()
                 try:
@@ -204,28 +204,36 @@ class EPGeomPreprocessing(ITask):
                     face_list.append(face)
             if not face_list:
                 continue
+            # if the space has generated 2B space boundaries, add them to
+            # face_list
             if hasattr(space, 'space_boundaries_2B'):
                 for bound in space.space_boundaries_2B:
                     exp = TopExp_Explorer(bound.bound_shape, TopAbs_FACE)
                     face = exp.Current()
                     face = topods_Face(face)
                     face_list.append(face)
+            # sew all faces within the face_list together
             sew = BRepBuilderAPI_Sewing(0.0001)
             for fc in face_list:
                 sew.Add(fc)
             sew.Perform()
             sewed_shape = sew.SewedShape()
             fixed_shape = sewed_shape
+            # check volume of the sewed shape. If negative, not all the
+            # surfaces have the same orientation
             p = GProp_GProps()
             brepgprop_VolumeProperties(fixed_shape, p)
             if p.Mass() < 0:
+                # complements the surface orientation within the fixed shape
                 fixed_shape.Complement()
+            # disaggregate the fixed_shape to a list of fixed_faces
             f_exp = TopExp_Explorer(fixed_shape, TopAbs_FACE)
             fixed_faces = []
             while f_exp.More():
                 fixed_faces.append(topods_Face(f_exp.Current()))
                 f_exp.Next()
             for fc in fixed_faces:
+                # compute the surface normal for each face
                 an_exp = TopExp_Explorer(fc, TopAbs_FACE)
                 a_face = an_exp.Current()
                 face = topods_Face(a_face)
@@ -234,15 +242,21 @@ class EPGeomPreprocessing(ITask):
                 assert obj.DynamicType().Name() == "Geom_Plane"
                 plane = Handle_Geom_Plane_DownCast(surf)
                 face_normal = plane.Axis().Direction().XYZ()
+                # compute the center of mass for the current face
                 p = GProp_GProps()
                 brepgprop_SurfaceProperties(face, p)
                 face_center = p.CentreOfMass().XYZ()
                 complemented = False
                 for bound in space.space_boundaries:
+                    # find the original bound by evaluating the distance of
+                    # the face centers. Continue if the distance is greater
+                    # than the tolerance.
                     if (gp_Pnt(bound.bound_center).Distance(gp_Pnt(face_center))
                             > 1e-3):
                         continue
+                    # check if the surfaces have the same surface area
                     if (bound.bound_area.m - p.Mass()) ** 2 < 0.01:
+                        # complement the surfaces if needed
                         if fc.Orientation() == 1:
                             bound.bound_shape.Complement()
                             complemented = True
@@ -251,6 +265,7 @@ class EPGeomPreprocessing(ITask):
                             complemented = True
                         if not complemented:
                             continue
+                        # complement openings if parent holds openings
                         if bound.opening_bounds:
                             op_bounds = bound.opening_bounds
                             for op in op_bounds:
@@ -258,6 +273,9 @@ class EPGeomPreprocessing(ITask):
                         break
                 if not hasattr(space, 'space_boundaries_2B'):
                     continue
+                # if the current face is a generated 2b bound, just keep the
+                # current face and delete the bound normal property, so it is
+                # recomputed the next time it is accessed.
                 for bound in space.space_boundaries_2B:
                     if gp_Pnt(bound.bound_center).Distance(gp_Pnt(face_center))\
                             < 1e-6:
