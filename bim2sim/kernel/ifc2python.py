@@ -1,34 +1,39 @@
 """Module to convert ifc data from to python data"""
+from __future__ import annotations
+
 import os
 import logging
-import typing
-
-from typing import Optional
-import ifcopenshell
-from bim2sim.kernel.units import parse_ifc
 import math
+
+from typing import Optional, Union, TYPE_CHECKING
+from ifcopenshell import entity_instance, file, open as ifc_open
 from collections.abc import Iterable
 
+from bim2sim.kernel.units import parse_ifc
+if TYPE_CHECKING:
+    from bim2sim.kernel.element import ProductBased
 
-def load_ifc(path: str) -> ifcopenshell.file:
-    """loads the ifc file using IfcOpenShell and returns the IfcOpenShell
+
+def load_ifc(path: str) -> file:
+    """loads the ifc file using ifcopenshell and returns the ifcopenshell
     instance
 
     Args:
         path: str with path where ifc file is stored
 
     Returns:
-        ifc_file: IfcOpenShell file object
+        ifc_file: ifcopenshell file object
     """
     logger = logging.getLogger('bim2sim')
     logger.info("Loading IFC '%s'", path)
     if not os.path.exists(path):
         raise IOError("Path '%s' does not exist"%(path))
-    ifc_file = ifcopenshell.open(path)
+    ifc_file = ifc_open(path)
     return ifc_file
 
 
-def propertyset2dict(propertyset, ifc_units: Optional[dict]) -> dict:
+def propertyset2dict(propertyset: entity_instance,
+                     ifc_units: Optional[dict]) -> dict:
     """Converts IfcPropertySet and IfcQuantitySet to python dict
 
     Takes all IfcPropertySet and IfcQuantitySet properties and quantities of the
@@ -125,13 +130,13 @@ def propertyset2dict(propertyset, ifc_units: Optional[dict]) -> dict:
     return property_dict
 
 
-def get_layers_ifc(element):
-    # todo del after #221 is finished
+def get_layers_ifc(element: Union[entity_instance, ProductBased]):
+    # TODO only used for check, maybe we can use functions of common.py instead
     """
     Returns layers information of an element as list. It can be applied to
     an IFCProduct directly or a Bim2Sim Instance.
     Args:
-        element: IFCProduct or Bim2Sim Instance
+        element: ifcopenshell instance or bim2sim Instance
 
     Returns:
         layers_list: list of all organized layers with all material information
@@ -151,7 +156,6 @@ def get_layers_ifc(element):
                 layer_list = association.ForLayerSet.MaterialLayers
             elif hasattr(association, 'Materials'):
                 layer_list = association.Materials
-            # TODO is this ifc4 conform? or just a workaround
             elif hasattr(association, 'MaterialLayers'):
                 layer_list = association.MaterialLayers
             elif hasattr(association, 'MaterialConstituents'):
@@ -182,43 +186,53 @@ def getIfcAttribute(ifcElement, attribute):
         pass
 
 
-def get_propertyset(propertyset_name, element, ifc_units):
-    """
+def get_propertyset_by_name(propertyset_name: str, element: entity_instance,
+                            ifc_units: dict) -> dict:
+    """Try to find a IfcPropertySet for a given ifc instance by it's name.
+
     This function searches an elements PropertySets for the defined
     PropertySetName. If the PropertySet is found the function will return a
     dict with the properties and their values. If the PropertySet is not
     found the function will return None
 
-    :param element: The element in which you want to search for the PropertySet
-    :param propertyset_name: Name of the PropertySet you are looking for
-    :param ifc_units: dict holding all unit definitions from ifc_units
-    :return:
+    Args:
+        propertyset_name: Name of the PropertySet you are looking for
+        element: ifcopenshell element to search for PropertySet
+        ifc_units: dict with key ifc unit definition and value pint unit
+    Returns:
+        property_set: dict with key name of the property/quantity and value
+            the property/quantity value as pint quantity if available if found
     """
-    # TODO: Unit conversion
-    AllPropertySetsList = element.IsDefinedBy
-    property_set = next((item for item in AllPropertySetsList if
-                         item.RelatingPropertyDefinition.Name == propertyset_name), None)
+    property_dict = None
+    all_property_sets_list = element.IsDefinedBy
+    property_set = next(
+        (item for item in all_property_sets_list if
+         item.RelatingPropertyDefinition.Name == propertyset_name), None)
     if hasattr(property_set, 'RelatingPropertyDefinition'):
-        return propertyset2dict(
+        property_dict = propertyset2dict(
             property_set.RelatingPropertyDefinition, ifc_units)
+    return property_dict
 
 
-def get_property_sets(element, ifc_units):
+def get_property_sets(element: entity_instance, ifc_units: dict) -> dict:
     """Returns all PropertySets of element
 
-    :param element: The element in which you want to search for the PropertySets
-    :param ifc_units: dict holding all unit definitions from ifc_units
-    :return: dict(of dicts)
-    """
-    # TODO: Unit conversion
 
+    Args:
+        element: The element in which you want to search for the PropertySets
+        ifc_units: dict holding all unit definitions from ifc_units
+
+    Returns:
+         dict of dicts for each PropertySet. Each dict with key property name
+          and value its value
+
+    """
     property_sets = {}
     if hasattr(element, 'IsDefinedBy'):
         for defined in element.IsDefinedBy:
             property_set_name = defined.RelatingPropertyDefinition.Name
             property_sets[property_set_name] = propertyset2dict(
                 defined.RelatingPropertyDefinition, ifc_units)
-    # todo delete after #221 is finished (check first if it is still needed)
     elif hasattr(element, 'Material'):
         for defined in element.Material.HasProperties:
             property_set_name = defined.Name
@@ -260,7 +274,8 @@ def get_quantity_sets(element, ifc_units):
 
     return quantity_sets
 
-def getGUID(ifcElement):
+
+def get_guid(ifcElement):
     """
     Returns the global id of the IFC element
     """
@@ -270,7 +285,7 @@ def getGUID(ifcElement):
         pass
 
 
-def get_predefined_type(ifcElement) -> typing.Union[str, None]:
+def get_predefined_type(ifcElement) -> Union[str, None]:
     """Returns the predifined type of the IFC element"""
     try:
         predefined_type = getattr(ifcElement, 'PredefinedType')
@@ -428,7 +443,7 @@ def getProject(ifcElement):
         # ... or the parent of an IfcSpatialZone, which is non-hierarchical.
 
 
-def getTrueNorth(ifcElement):
+def get_true_north(ifcElement: entity_instance):
     """Find the true north in degree of this element, 0 °C means positive
     Y-axis. 45 °C Degree means middle between X- and Y-Axis"""
     project = getProject(ifcElement)
@@ -441,6 +456,7 @@ def getTrueNorth(ifcElement):
 
 
 def convertToSI(ifcUnit, value):
+    # TODO not used anywhere. Remove?
     """Return the value in basic SI units, conversion according to ifcUnit."""
     # IfcSIPrefix values
     ifcSIPrefix = {
@@ -472,6 +488,7 @@ def convertToSI(ifcUnit, value):
     elif checkIfcElementType(ifcUnit, 'IfcConversionBasedUnit'):
         factor = ifcUnit.ConversionFactor.ValueComponent.wrappedValue
         return value * factor
+
 
 def summary(ifcelement):
     txt = "** Summary **\n"
@@ -519,4 +536,3 @@ def used_properties(ifc_file):
     for tup in tuples:
         type_dict[tup[0]].append(tup[1])
     return type_dict
-
