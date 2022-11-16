@@ -394,7 +394,9 @@ class EPGeomPreprocessing(ITask):
         return new_space_boundaries
 
     def _split_non_convex_shadings(self, instances, spatial_bounds):
-        spatial_elem = filter_instances(instances, ExternalSpatialElement)
+        # only considers the first spatial element for now. Extend this if
+        # needed.
+        spatial_elem = filter_instances(instances, ExternalSpatialElement)[0]
         for spatial in spatial_bounds:
             if is_convex_no_holes(spatial.bound_shape):
                 continue
