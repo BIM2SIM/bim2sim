@@ -228,18 +228,20 @@ class PyOCCTools:
         return np.dot(PyOCCTools._axis2placement(plc.RelativePlacement), parent)
 
     @staticmethod
-    def simple_face_normal(face: TopoDS_Face) -> gp_XYZ:
+    def simple_face_normal(face: TopoDS_Face, check_orientation: bool = True) \
+            -> gp_XYZ:
         """Compute the normal of a TopoDS_Face."""
         face = PyOCCTools.get_face_from_shape(face)
         surf = BRep_Tool.Surface(face)
         obj = surf
         assert obj.DynamicType().Name() == "Geom_Plane"
         plane = Handle_Geom_Plane_DownCast(surf)
-        face_prop = GProp_GProps()
-        brepgprop_SurfaceProperties(face, face_prop)
+        # face_prop = GProp_GProps()
+        # brepgprop_SurfaceProperties(face, face_prop)
         face_normal = plane.Axis().Direction().XYZ()
-        if face.Orientation() == 1:
-            face_normal = face_normal.Reversed()
+        if check_orientation:
+            if face.Orientation() == 1:
+                face_normal = face_normal.Reversed()
         return face_normal
 
     @staticmethod
