@@ -29,6 +29,10 @@ logger = logging.getLogger(__name__)
 
 
 class EPGeomPreprocessing(ITask):
+    """
+    This class includes all functions for advanced geometric preprocessing
+    required for EnergyPlus export.
+    """
     reads = ('instances', 'space_boundaries')
     touches = ('ep_decisions', 'instances')
 
@@ -58,18 +62,10 @@ class EPGeomPreprocessing(ITask):
         self._add_bounds_to_instances(instances, space_boundaries)
         self._move_children_to_parents(instances)
         self._fix_surface_orientation(instances)
-        if split_bounds.value:
-            self.logger.info("Split non-convex surfaces")
-            self._split_non_convex_bounds(instances)
+        self._split_non_convex_bounds(instances, split_bounds.value)
+        self._add_and_split_bounds_for_shadings(instances, add_shadings.value,
+                                                split_shadings.value)
 
-        if add_shadings.value:
-            spatials = []
-            for inst in instances:
-                if isinstance(instances[inst], ExternalSpatialElement):
-                    for sb in instances[inst].space_boundaries:
-                        spatials.append(sb)
-            if spatials and split_shadings.value:
-                self._split_non_convex_shadings(instances, spatials)
         return ep_decisions, instances
 
     def _add_bounds_to_instances(self, instances, space_boundaries):
@@ -83,6 +79,20 @@ class EPGeomPreprocessing(ITask):
                     instance_dict[bound.guid] = bound
         instances.update(instance_dict)
         return
+
+    def _add_and_split_bounds_for_shadings(self, instances, add_shadings,
+                                           split_shadings):
+        if add_shadings:
+            # enrich instances by space boundaries related to an
+            # ExternalSpatialElement if shadings are to be added in the
+            # energyplus workflow
+            spatials = []
+            for inst in instances:
+                if isinstance(instances[inst], ExternalSpatialElement):
+                    for sb in instances[inst].space_boundaries:
+                        spatials.append(sb)
+            if spatials and split_shadings:
+                self._split_non_convex_shadings(instances, spatials)
 
     def _move_children_to_parents(self, instances):
         """
@@ -230,7 +240,10 @@ class EPGeomPreprocessing(ITask):
                             del bound.__dict__['bound_normal']
                         break
 
-    def _split_non_convex_bounds(self, instances: dict):
+    def _split_non_convex_bounds(self, instances: dict, split_bounds):
+        if not split_bounds:
+            return
+        self.logger.info("Split non-convex surfaces")
         bounds = [instances[i] for i in instances
                   if instances[i].ifc.is_a('IfcRelSpaceBoundary')]
         bounds_except_openings = [b for b in bounds if not b.parent_bound]

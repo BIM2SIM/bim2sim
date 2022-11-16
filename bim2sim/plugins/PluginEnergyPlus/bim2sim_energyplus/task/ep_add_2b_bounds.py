@@ -29,8 +29,8 @@ class AddSpaceBoundaries2B(ITask):
         # self._get_neighbor_bounds(instances)
         try:
             inst_2b = self._compute_2b_bound_gaps(instances)
-            if split_bounds:
-                EPGeomPreprocessing._split_non_convex_bounds(EPGeomPreprocessing(), inst_2b)
+            EPGeomPreprocessing._split_non_convex_bounds(EPGeomPreprocessing(),
+                                                         inst_2b, split_bounds)
         except Exception as ex:
             logger.exception("Something went wrong!")
             return
