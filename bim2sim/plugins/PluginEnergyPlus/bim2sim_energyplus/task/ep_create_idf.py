@@ -1,4 +1,12 @@
+"""
+This module includes all functions for exporting EnergyPlus Input files (idf)
+based on the previously preprocessed SpaceBoundary geometry from the
+ep_geom_preprocessing module. Geometric preprocessing (includes EnergyPlus
+specific space boundary enrichment) must be executed before this module.
+"""
+
 import json
+import logging
 import math
 import os
 from pathlib import Path
@@ -15,7 +23,6 @@ from OCC.Core.gp import gp_Dir, gp_XYZ, gp_Pln
 from geomeppy import IDF
 
 import bim2sim
-from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.kernel.aggregation import AggregatedThermalZone
 from bim2sim.kernel.elements import bps
 from bim2sim.kernel.elements.bps import ExternalSpatialElement, SpaceBoundary2B
@@ -24,9 +31,14 @@ from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
+logger = logging.getLogger(__name__)
+
 
 class CreateIdf(ITask):
-
+    """
+    Task to create an EnergyPlus Input file based on the for EnergyPlus
+    preprocessed space boundary geometries.
+    """
     ENERGYPLUS_VERSION = "9-4-0"
 
     reads = ('instances', 'ep_decisions', 'weather_file', )
@@ -37,7 +49,6 @@ class CreateIdf(ITask):
         self.idf = None
 
     def run(self, workflow, instances, ep_decisions, weather_file):
-        self.logger.info("Geometric preprocessing for EnergyPlus Export finished!")
         self.logger.info("IDF generation started ...")
         self.logger.info("Init thermal zones ...")
         idf = self._init_idf(self.paths, weather_file)
@@ -67,8 +78,8 @@ class CreateIdf(ITask):
     @staticmethod
     def _init_idf(paths, weather_file):
         """
-        Initialize the idf with general idf settings and set default weather data.
-        :return:
+        Initialize the idf with general idf settings and set default weather
+        data.
         """
         # path = '/usr/local/EnergyPlus-9-2-0/'
         # path = '/usr/local/EnergyPlus-9-3-0/'
@@ -93,11 +104,10 @@ class CreateIdf(ITask):
 
     def _init_zone(self, instances, idf):
         """
-        Creates one idf zone per space and initializes with default HVAC Template
-        :param idf: idf file object
-        :param stat: HVAC Template
-        :param space: Space (created from IfcSpace)
-        :return: idf file object, idf zone object
+        Creates one idf zone per space and initializes with default HVAC
+        Template.
+        Args:
+            idf: idf file object
         """
         for instance in self._get_ifc_spaces(instances):
             space = instance
@@ -115,15 +125,6 @@ class CreateIdf(ITask):
             cooling_availability = "On"
             heating_availability = "On"
 
-            # if room['with_heating']:
-            #     heating_availability = "On"
-            # else:
-            #     heating_availability = "Off"
-            # if room['with_cooling']:
-            #     cooling_availability = "On"
-            # else:
-            #     cooling_availability = "Off"
-
             idf.newidfobject(
                 "HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM",
                 Zone_Name=zone.Name,
@@ -131,10 +132,14 @@ class CreateIdf(ITask):
                 Heating_Availability_Schedule_Name=heating_availability,
                 Cooling_Availability_Schedule_Name=cooling_availability
             )
-            self._set_infiltration(idf, name=zone.Name, zone_name=zone.Name, space=space)
-            self._set_people(idf, name=zone.Name, zone_name=zone.Name, space=space)
-            self._set_equipment(idf, name=zone.Name, zone_name=zone.Name, space=space)
-            self._set_lights(idf, name=zone.Name, zone_name=zone.Name, space=space)
+            self._set_infiltration(idf, name=zone.Name, zone_name=zone.Name,
+                                   space=space)
+            self._set_people(idf, name=zone.Name, zone_name=zone.Name,
+                             space=space)
+            self._set_equipment(idf, name=zone.Name, zone_name=zone.Name,
+                                space=space)
+            self._set_lights(idf, name=zone.Name, zone_name=zone.Name,
+                             space=space)
 
     @staticmethod
     def _init_zonelist(idf, name=None, zones_in_list=None):
