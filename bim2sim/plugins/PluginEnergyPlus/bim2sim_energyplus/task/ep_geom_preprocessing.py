@@ -1,6 +1,7 @@
 import copy
 import logging
 import math
+from typing import Union
 
 import ifcopenshell
 from OCC.Core.BRep import BRep_Tool
@@ -13,13 +14,13 @@ from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.GProp import GProp_GProps
 from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_WIRE
 from OCC.Core.TopExp import TopExp_Explorer
-from OCC.Core.TopoDS import topods_Face
+from OCC.Core.TopoDS import topods_Face, TopoDS_Shape
 from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.gp import gp_Pnt, gp_Dir, gp_Trsf, gp_XYZ, gp_Vec
 
 from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.kernel.elements.bps import ExternalSpatialElement, SpaceBoundary, \
-    ThermalZone
+    ThermalZone, SpaceBoundary2B
 from bim2sim.task.base import ITask
 from bim2sim.task.common.inner_loop_remover import convex_decomposition, \
     is_convex_no_holes, is_convex_slow
@@ -104,7 +105,7 @@ class EPGeomPreprocessing(ITask):
             instances: dict[guid: element]
             add_shadings: True if shadings shall be added
             split_shadings: True if shading boundaries should be split in
-            non-convex boundaries
+                non-convex boundaries
         """
         if add_shadings:
             spatials = []
@@ -121,6 +122,8 @@ class EPGeomPreprocessing(ITask):
         In some IFC, the opening boundaries of external wall
         boundaries are not coplanar. This function moves external opening
         boundaries to related parent boundary (e.g. wall).
+        Args:
+             instances: dict[guid: element]
         """
         self.logger.info("Move openings to base surface, if needed")
         boundaries = filter_instances(instances, SpaceBoundary)
@@ -224,7 +227,7 @@ class EPGeomPreprocessing(ITask):
             for fc in fixed_faces:
                 # compute the surface normal for each face
                 face_normal = PyOCCTools.simple_face_normal(
-                   fc, check_orientation=False)
+                    fc, check_orientation=False)
                 # compute the center of mass for the current face
                 p = GProp_GProps()
                 brepgprop_SurfaceProperties(fc, p)
@@ -260,58 +263,96 @@ class EPGeomPreprocessing(ITask):
                 # current face and delete the bound normal property, so it is
                 # recomputed the next time it is accessed.
                 for bound in space.space_boundaries_2B:
-                    if gp_Pnt(bound.bound_center).Distance(gp_Pnt(face_center))\
+                    if gp_Pnt(bound.bound_center).Distance(gp_Pnt(face_center)) \
                             < 1e-6:
                         bound.bound_shape = fc
                         if hasattr(bound, 'bound_normal'):
                             del bound.__dict__['bound_normal']
                         break
 
-    def split_non_convex_bounds(self, instances: dict, split_bounds):
+    def split_non_convex_bounds(self, instances: dict, split_bounds: bool):
+        """
+        This function splits non-convex shapes of space boundaries into
+        convex shapes. Convex shapes may be required for shading calculations
+        in Energyplus.
+        Args:
+            instances: dict[guid: element]
+            split_bounds: True if non-convex space boundaries should be split up
+            into convex shapes.
+        """
         if not split_bounds:
             return
         self.logger.info("Split non-convex surfaces")
-        bounds = [instances[i] for i in instances
-                  if instances[i].ifc.is_a('IfcRelSpaceBoundary')]
+        # filter instances for type SpaceBoundary
+        bounds = filter_instances(instances, SpaceBoundary)
+        if not bounds:
+            # if no instances of type SpaceBoundary are found, this function
+            # is applied on SpaceBoundary2B
+            bounds = filter_instances(instances, SpaceBoundary2B)
+        # filter for boundaries, that are not opening boundaries
         bounds_except_openings = [b for b in bounds if not b.parent_bound]
-        conv = []
-        nconv = []
+        conv = []  # list of new convex shapes (for debugging)
+        non_conv = []  # list of old non-convex shapes (for debugging
         for bound in bounds_except_openings:
             try:
+                # check if bound has already been processed
                 if hasattr(bound, 'convex_processed'):
                     continue
-                if bound.opening_bounds:  # check all space boundaries that
-                    # are not parent to an opening bound
+                # check if bound is convex
+                if is_convex_no_holes(bound.bound_shape):
+                    continue
+                # check all space boundaries that
+                # are not parent to an opening bound
+                if bound.opening_bounds:
                     if is_convex_slow(bound.bound_shape):
                         continue
                     # handle shapes that contain opening bounds
+                    # the surface area of an opening should not be split up
+                    # in the parent face, so for splitting up parent faces,
+                    # the opening boundary must be considered as a non-split
+                    # area
                     convex_shapes = convex_decomposition(
                         bound.bound_shape,
                         [op.bound_shape for op in bound.opening_bounds]
                     )
                 else:
-                    if is_convex_no_holes(bound.bound_shape):
-                        continue
+                    # if bound does not have openings, simply compute its
+                    # convex decomposition and returns a list of convex_shapes
                     convex_shapes = convex_decomposition(bound.bound_shape)
-                nconv.append(bound)
+                non_conv.append(bound)
                 if hasattr(bound, 'bound_normal'):
                     del bound.__dict__['bound_normal']
+                # create new space boundaries from list of convex shapes,
+                # for both the bound itself and its corresponding bound (if it
+                # has
+                # one)
                 new_space_boundaries = self._create_new_convex_bounds(
                     convex_shapes, bound, bound.related_bound)
                 bound.convex_processed = True
+                # process related bounds of the processed bounds. For heat
+                # transfer the corresponding boundaries need to have same
+                # surface area and same number of vertices, so corresponding
+                # boundaries must be split up the same way. The split up has
+                # been taking care of when creating new convex bounds,
+                # so they only need to be removed here.
                 if (bound.related_bound and
-                    bound.related_bound.ifc.RelatingSpace.is_a('IfcSpace'))\
+                    bound.related_bound.ifc.RelatingSpace.is_a('IfcSpace')) \
                         and not bound.ifc.Description == '2b':
-                    nconv.append(bound.related_bound)
+                    non_conv.append(bound.related_bound)
+                    # delete the related bound from instances
                     del instances[bound.related_bound.guid]
                     bounds_except_openings.remove(bound.related_bound)
                     bound.related_bound.convex_processed = True
+                # delete the current bound from instances
                 del instances[bound.guid]
+                # add all new created convex bounds to instances
                 for new_bound in new_space_boundaries:
                     instances[new_bound.guid] = new_bound
                     conv.append(new_bound)
             except Exception as ex:
-                logger.exception("Something went wrong!")
+                logger.warning(f"Unexpected {ex=}. Converting bound "
+                               f"{bound.guid} to convex shape failed. "
+                               f"{type(ex)=}")
 
     @staticmethod
     def _create_copy_of_space_boundary(bound: SpaceBoundary) -> SpaceBoundary:
@@ -320,6 +361,9 @@ class EPGeomPreprocessing(ITask):
         cached properties bound_center and bound_normal. These properties are
         recomputed at the next usage of this attribute. This function can be
         used when the original geometry of the space boundary is modified.
+        The new SpaceBoundary has its own unique guid.
+        Args:
+            bound: SpaceBoundary
         """
         new_bound = copy.copy(bound)
         new_bound.guid = ifcopenshell.guid.new()
@@ -329,20 +373,41 @@ class EPGeomPreprocessing(ITask):
             del new_bound.__dict__['bound_normal']
         return new_bound
 
-    def _create_new_convex_bounds(self, convex_shapes, bound,
-                                  related_bound=None):
+    def _create_new_convex_bounds(self, convex_shapes: list[TopoDS_Shape],
+                                  bound: Union[SpaceBoundary,
+                                               SpaceBoundary2B],
+                                  related_bound: SpaceBoundary = None):
+        """
+        This function creates new convex space boundaries from non-convex
+        space boundary shapes. As for heat transfer the corresponding boundaries
+        need to have same surface area and same number of vertices,
+        corresponding boundaries must be split up the same way. Thus,
+        the bound itself and the corresponding boundary (related_bound) are
+        treated equally here.
+        Args:
+            convex_shapes: List[convex TopoDS_Shape]
+            bound: either SpaceBoundary or SpaceBoundary2B
+            related_bound: None or SpaceBoundary (as SpaceBoundary2B do not
+            have a related_bound)
+        """
+        # keep the original guid as non_convex_guid
         bound.non_convex_guid = bound.guid
         new_space_boundaries = []
         openings = []
         if bound.opening_bounds:
             openings.extend(bound.opening_bounds)
         for shape in convex_shapes:
+            # loop through all new created convex shapes (which are subshapes
+            # of the original bound) and copy the original boundary to keep
+            # their properties. This new_bound has its own unique guid.
+            # bound_shape and bound_area are modified to the new_convex shape.
             new_bound = self._create_copy_of_space_boundary(bound)
             new_bound.bound_shape = shape
             new_bound.bound_area = SpaceBoundary.get_bound_area(new_bound)
             if openings:
                 new_bound.opening_bounds = []
                 for opening in openings:
+                    # map the openings to the new parent surface
                     distance = BRepExtrema_DistShapeShape(
                         new_bound.bound_shape,
                         opening.bound_shape,
@@ -351,6 +416,7 @@ class EPGeomPreprocessing(ITask):
                     if distance < 1e-3:
                         new_bound.opening_bounds.append(opening)
                         opening.parent_bound = new_bound
+            # check and fix surface normal if needed
             if not all([abs(i) < 1e-3
                         for i in ((new_bound.bound_normal
                                    - bound.bound_normal).Coord())]):
@@ -358,6 +424,7 @@ class EPGeomPreprocessing(ITask):
                     PyOCCTools.flip_orientation_of_face(new_bound.bound_shape)
                 new_bound.bound_normal = \
                     PyOCCTools.simple_face_normal(new_bound.bound_shape)
+            # handle corresponding boundary (related_bound)
             if (related_bound
                 and bound.related_bound.ifc.RelatingSpace.is_a('IfcSpace')) \
                     and not bound.ifc.Description == '2b':
@@ -366,15 +433,21 @@ class EPGeomPreprocessing(ITask):
                     related_bound.bound_shape,
                     Extrema_ExtFlag_MIN
                 ).Value()
+                # make copy of related bound
                 new_rel_bound = self._create_copy_of_space_boundary(
                     related_bound)
                 related_bound.non_convex_guid = related_bound.guid
+                # move shape of the current bound to the position of the
+                # related bound if they have not been at the same position
+                # before.
                 if distance > 1e-3:
                     new_rel_shape = \
                         PyOCCTools.move_bound_in_direction_of_normal(
                             new_bound, distance, reverse=False)
                 else:
                     new_rel_shape = new_bound.bound_shape
+                # assign bound_shape to related_bound, flip surface
+                # orientation and recompute bound_normal and bound_area.
                 new_rel_bound.bound_shape = new_rel_shape
                 new_rel_bound.bound_shape = PyOCCTools.flip_orientation_of_face(
                     new_rel_bound.bound_shape)
@@ -382,6 +455,7 @@ class EPGeomPreprocessing(ITask):
                     new_rel_bound.bound_shape)
                 new_rel_bound.bound_area = SpaceBoundary.get_bound_area(
                     new_rel_bound)
+                # handle opening bounds of related bound
                 if new_bound.opening_bounds:
                     for op in new_bound.opening_bounds:
                         if not op.related_bound:
@@ -394,7 +468,15 @@ class EPGeomPreprocessing(ITask):
             new_space_boundaries.append(new_bound)
         return new_space_boundaries
 
-    def _split_non_convex_shadings(self, instances, spatial_bounds):
+    def _split_non_convex_shadings(self, instances: dict,
+                                   spatial_bounds: list[SpaceBoundary]):
+        """
+        Split non_convex shadings to convex shapes.
+        Args:
+            instances: dict[guid: element]
+            spatial_bounds: list of SpaceBoundary, that are connected to an
+                ExternalSpatialElement
+        """
         # only considers the first spatial element for now. Extend this if
         # needed.
         spatial_elem = filter_instances(instances, ExternalSpatialElement)[0]
@@ -403,8 +485,10 @@ class EPGeomPreprocessing(ITask):
                 continue
             try:
                 convex_shapes = convex_decomposition(spatial.bound_shape)
-            except:
-                continue
+            except Exception as ex:
+                logger.warning(f"Unexpected {ex=}. Converting shading bound "
+                               f"{spatial.guid} to convex shape failed. "
+                               f"{type(ex)=}")
             new_space_boundaries = self._create_new_convex_bounds(convex_shapes,
                                                                   spatial)
             spatial_bounds.remove(spatial)
@@ -413,4 +497,3 @@ class EPGeomPreprocessing(ITask):
             for new_bound in new_space_boundaries:
                 spatial_bounds.append(new_bound)
                 spatial_elem.space_boundaries.append(new_bound)
-
