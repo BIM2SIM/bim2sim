@@ -25,7 +25,8 @@ from geomeppy import IDF
 import bim2sim
 from bim2sim.kernel.aggregation import AggregatedThermalZone
 from bim2sim.kernel.elements import bps
-from bim2sim.kernel.elements.bps import ExternalSpatialElement, SpaceBoundary2B
+from bim2sim.kernel.elements.bps import ExternalSpatialElement, SpaceBoundary2B, \
+    ThermalZone, Storey
 from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
@@ -78,20 +79,31 @@ class CreateIdf(ITask):
     @staticmethod
     def _init_idf(paths, weather_file):
         """
-        Initialize the idf with general idf settings and set default weather
+        Initialize the EnergyPlus input file (idf) with general idf settings
+        and set default weather
         data.
         """
-        # path = '/usr/local/EnergyPlus-9-2-0/'
-        # path = '/usr/local/EnergyPlus-9-3-0/'
-        path = f'/usr/local/EnergyPlus-{CreateIdf.ENERGYPLUS_VERSION}/'
-        # path = f'C:/Program Files/EnergyPlusV{CreateIdf.ENERGYPLUS_VERSION}/'
-        # path = r'C:/Program Files (x86)/EnergyPlusV9-4-0/'
-        # path = f'C:/EnergyPlus/EnergyPlusV{CreateIdf.ENERGYPLUS_VERSION}/'
+        # set the installation path for the EnergyPlus installation
+        # ep_install_path = '/usr/local/EnergyPlus-9-2-0/'
+        # ep_install_path = '/usr/local/EnergyPlus-9-3-0/'
+        ep_install_path = f'/usr/local/EnergyPlus' \
+                          f'-{CreateIdf.ENERGYPLUS_VERSION}/'
+        # ep_install_path = f'C:/Program Files/EnergyPlus' \
+        #                   f'V{CreateIdf.ENERGYPLUS_VERSION}/'
+        # ep_install_path = r'C:/Program Files (x86)/EnergyPlusV9-4-0/'
+        # ep_install_path = f'C:/EnergyPlus/EnergyPlus' \
+        #                   f'V{CreateIdf.ENERGYPLUS_VERSION}/'
+
+        # set the plugin path of the PluginEnergyPlus within the BIM2SIM Tool
         plugin_ep_path = str(Path(__file__).parent.parent.parent)
-        IDF.setiddname(path + 'Energy+.idd')
+        # set Energy+.idd as base for new idf
+        IDF.setiddname(ep_install_path + 'Energy+.idd')
+        # initialize the idf with a minimal idf setup
         idf = IDF(plugin_ep_path + '/data/Minimal.idf')
+        # rename the idf to the ifc name
         ifc_name = os.listdir(paths.ifc)[0].strip('.ifc')
         idf.idfname = str(paths.export) + '/' + ifc_name + '.idf'
+        # load and set basic compact schedules and ScheduleTypeLimits
         schedules_idf = IDF(plugin_ep_path + '/data/Schedules.idf')
         schedules = schedules_idf.idfobjects["Schedule:Compact".upper()]
         sch_typelim = schedules_idf.idfobjects["ScheduleTypeLimits".upper()]
@@ -99,6 +111,7 @@ class CreateIdf(ITask):
             idf.copyidfobject(s)
         for t in sch_typelim:
             idf.copyidfobject(t)
+        # set weather file
         idf.epw = str(weather_file)
         return idf
 
@@ -109,9 +122,8 @@ class CreateIdf(ITask):
         Args:
             idf: idf file object
         """
-        for instance in self._get_ifc_spaces(instances):
-            space = instance
-            space.storey = bps.Storey(space.get_storey())
+        spaces = filter_instances(instances, ThermalZone)
+        for space in spaces:
             stat_name = "STATS " + space.usage.replace(',', '')
             if idf.getobject("HVACTEMPLATE:THERMOSTAT", stat_name) is None:
                 stat = self._set_day_hvac_template(idf, space, stat_name)
@@ -143,13 +155,26 @@ class CreateIdf(ITask):
 
     @staticmethod
     def _init_zonelist(idf, name=None, zones_in_list=None):
+        """
+        Inits a list of zones in the idf. If the zones_in_list is not set,
+        all zones are assigned to a general zone, unless the number of total
+        zones is greater than 20 (max. allowed number of zones in a zonelist
+        in an idf).
+        """
         if zones_in_list is None:
+            # assign all zones to one list unless the total number of zones
+            # is larger than 20.
             idf_zones = idf.idfobjects["ZONE"]
             if len(idf_zones) > 20:
                 return
         else:
+            # assign all zones with the zone names that are included in
+            # zones_in_list to the zonelist.
             all_idf_zones = idf.idfobjects["ZONE"]
-            idf_zones = [zone for zone in all_idf_zones if zone.Name in zones_in_list]
+            idf_zones = [zone for zone in all_idf_zones if zone.Name
+                         in zones_in_list]
+            if len(idf_zones) > 20:
+                return
             if len(idf_zones) == 0:
                 return
         if name is None:
@@ -161,32 +186,29 @@ class CreateIdf(ITask):
 
     def _init_zonegroups(self, instances, idf):
         """
-        Assign a zonegroup per storey
-        :param instances:
-        :param idf:
-        :return:
+        Assign one zonegroup per storey.
         """
-        storeys = []
-        for inst in instances:
-            if instances[inst].ifc.is_a("IfcBuildingStorey"):
-                storeys.append(instances[inst])
-                instances[inst].spaces = []
-        for inst in instances:
-            if not instances[inst].ifc.is_a("IfcSpace"):
-                continue
-            space = instances[inst]
-            for st in storeys:
-                if st.guid == space.storey.guid:
-                    st.spaces.append(space)
+        spaces = filter_instances(instances, ThermalZone)
+        #assign storeys to spaces (ThermalZone)
+        for space in spaces:
+            if space.storeys:
+                space.storey = space.storeys[0]  # Zone can only have one storey
+            else:
+                space.storey = None
+        # add zonelist per storey
+        storeys = filter_instances(instances, Storey)
         for st in storeys:
             space_ids = []
-            for space in st.spaces:
+            for space in st.thermal_zones:
                 space_ids.append(space.guid)
             self._init_zonelist(idf, name=st.ifc.Name, zones_in_list=space_ids)
-            # print(st.name, space_ids)
-        zonelists = [zlist for zlist in idf.idfobjects["ZONELIST"] if zlist.Name != "All_Zones"]
 
-        for zlist in zonelists:
+        # add zonelist for All_Zones
+        zone_lists = [zlist for zlist in idf.idfobjects["ZONELIST"]
+                     if zlist.Name != "All_Zones"]
+
+        # add zonegroup for each zonegroup in zone_lists.
+        for zlist in zone_lists:
             idf.newidfobject("ZONEGROUP",
                              Name=zlist.Name,
                              Zone_List_Name=zlist.Name,
