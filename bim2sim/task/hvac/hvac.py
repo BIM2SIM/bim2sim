@@ -170,7 +170,8 @@ class ConnectElements(ITask):
         return connections
 
     @staticmethod
-    def confirm_connections_position(connections: list, eps: float = 1):
+    def confirm_connections_position(connections: list, eps: float = 1)\
+            -> tuple[list, list, list]:
         """Checks distance between port positions.
         If distance < eps, the connection is confirmed otherwise rejected.
 
