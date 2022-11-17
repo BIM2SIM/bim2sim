@@ -236,8 +236,6 @@ class PyOCCTools:
         obj = surf
         assert obj.DynamicType().Name() == "Geom_Plane"
         plane = Handle_Geom_Plane_DownCast(surf)
-        # face_prop = GProp_GProps()
-        # brepgprop_SurfaceProperties(face, face_prop)
         face_normal = plane.Axis().Direction().XYZ()
         if check_orientation:
             if face.Orientation() == 1:
