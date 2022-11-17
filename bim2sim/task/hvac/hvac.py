@@ -4,7 +4,7 @@ import itertools
 import json
 import logging
 from datetime import datetime
-from typing import Generator, Iterable
+from typing import Generator, Iterable, Tuple
 
 import numpy as np
 import networkx as nx
@@ -169,7 +169,8 @@ class ConnectElements(ITask):
         return connections
 
     @staticmethod
-    def confirm_connections_position(connections: list, eps: float = 1) -> tuple[list, list, list]:
+    def confirm_connections_position(connections: list, eps: float = 1)\
+            -> tuple[list, list, list]:
         """Checks distance between port positions.
         If distance < eps, the connection is confirmed otherwise rejected.
 
@@ -371,8 +372,6 @@ class Reduce(ITask):
 
         statistics = {}
         number_of_elements_before = len(graph.elements)
-
-        # TODO: LOD
 
         for agg_class in aggregations:
             name = agg_class.__name__

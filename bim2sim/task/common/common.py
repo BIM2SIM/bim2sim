@@ -383,8 +383,10 @@ class CreateElements(ITask):
             best_guess_cls = best_guess_dict.get(ifc_entity)
             best_guess = best_guess_cls.key if best_guess_cls else None
             decisions.append(ListDecision(
-                "Found unidentified Element of %s (Name: %s, Description: %s):" % (
-                    ifc_entity.is_a(), ifc_entity.Name, ifc_entity.Description),
+                "Found unidentified Element of %s (Name: %s, Description: %s,"
+                " GUID: %s):" % (
+                    ifc_entity.is_a(), ifc_entity.Name, ifc_entity.Description,
+                    ifc_entity.GlobalId),
                 choices=[ele.key for ele in sorted_elements],
                 default=best_guess,
                 key=ifc_entity,
@@ -736,7 +738,10 @@ class CheckIfc(ITask):
             True: if check succeeds
             False: if check fails
         """
-        return inst.Representation is not None
+        if hasattr(inst, 'Representation'):
+            return inst.Representation is not None
+        else:
+            return False
 
     def get_html_templates(self):
         """

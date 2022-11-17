@@ -1117,6 +1117,7 @@ class Valve(HVACProduct):
 
     diameter = attribute.Attribute(
         description='Valve diameter',
+        default_ps=('Pset_ValveTypeCommon', 'Size'),
         unit=ureg.millimeter,
         patterns=[
             re.compile('.*Durchmesser.*', flags=re.IGNORECASE),

@@ -7,12 +7,12 @@ from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 
 from bim2sim.kernel.units import ureg
 
-from test.unit.kernel.helper import SetupHelper
+from test.unit.kernel.helper import SetupHelperHVAC
 
 import networkx as nx
 
 
-class ConsumerHelper(SetupHelper):
+class ConsumerHelper(SetupHelperHVAC):
 
     def get_setup_consumer1(self):
         """get consumer circuit made of 2 parallel pumps , space heater and pipes"""

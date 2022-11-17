@@ -8,10 +8,10 @@ from bim2sim.kernel import element, elements
 from bim2sim.kernel.elements.hvac import HVACPort
 from bim2sim.kernel.hvac import hvac_graph
 
-from test.unit.kernel.helper import SetupHelper
+from test.unit.kernel.helper import SetupHelperHVAC
 
 
-class GraphHelper(SetupHelper):
+class GraphHelper(SetupHelperHVAC):
 
     def get_system_elements(self):
         """Simple generator system made of boiler, pump, expansion tank, distributor and pipes"""

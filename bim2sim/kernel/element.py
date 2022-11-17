@@ -325,8 +325,20 @@ class IFCBased(Element):
         return absolute
 
     def calc_orientation(self) -> np.array:
-        # ToDO: true north angle
-        # ToDO: we want a consistent return which is a absolute vector.
+        """Calculate the orientation of the bps product based on DirectionRatio.
+
+        The generic orientation calculation uses the DirectionRatios which in
+        most cases return the correct orientation of the element. But this
+        depends on the modeller and the BIM author software.
+        Orientation is mostly important for BPS part where we can use
+        Space Boundaries.
+
+        Returns:
+            Orientation angle between 0 and 360.
+            (0 : north, 90: east, 180: south, 270: west)
+        """
+        # ToDO: check if true north angle is taken into account
+        #  (should be with while loop)
         ang_sum = 0
         placementrel = self.ifc.ObjectPlacement
         while placementrel is not None:
@@ -341,7 +353,7 @@ class IFCBased(Element):
         #         return -90
         #         # return 0
 
-        # specific case windows
+        # windows DirectionRatios are mostly facing inwards the building
         if self.ifc_type == 'IfcWindow':
             ang_sum += 180
 

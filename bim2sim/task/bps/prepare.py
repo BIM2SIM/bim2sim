@@ -87,7 +87,7 @@ class Prepare(ITask):
         heating_decision = self.tz_property_decision('heat')
         yield DecisionBunch([cooling_decision, heating_decision])
 
-        for k, tz in self.tz_instances.items():
+        for tz in self.tz_instances.values():
             if cooling_decision is True:
                 tz.with_cooling = True
             if heating_decision is True:
