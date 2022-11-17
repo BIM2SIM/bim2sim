@@ -40,10 +40,10 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
 
     def test_run_b03_heating(self):
         """Run project with B03_Heating.ifc"""
-        ifc = 'B03_Heating_ownCells.ifc'
+        ifc = 'B03_Heating.ifc'
         project = self.create_project(ifc, 'hkesim')
-        handler = ConsoleDecisionHandler()
-        handler.handle(project.run())
+        # handler = ConsoleDecisionHandler()
+        # handler.handle(project.run())
         # answers = (*('HVAC-Valve',) * 2, 'HVAC-Distributor',
         #            'HVAC-Boiler', 'HVAC-Storage', *('HVAC-Valve',) * 14,
         #            '2PFOreSeyfWqxUJNMz5nFO', '2YKblmYbhnh4RrfqKcCxPJ',

@@ -612,13 +612,19 @@ class ProductBased(IFCBased):
         return neighbors
 
     def validate_creation(self):
-        """"Check if standard parameter are in valid range"""
+        """"Validate the element creation in two steps.
+        1. Check if standard parameter are in valid range.
+        2. Check if number of ports are equal to number of expected ports (only for HVAC)."""
         for cond in self.conditions:
             if cond.critical_for_creation:
                 value = getattr(self, cond.key)
                 if not cond.check(self, value):
                     logger.warning("%s validation (%s) failed for %s", self.ifc_type, cond.name, self.guid)
                     return False
+        if not self.validate_ports():
+            logger.warning("%s has more ports (%d) than expected (%d) for %s", self.ifc_type, len(self.ports),
+                           self.expected_hvac_ports, self.guid)
+            return False
         return True
 
     def validate_attributes(self) -> dict:

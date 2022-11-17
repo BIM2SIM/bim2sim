@@ -1207,6 +1207,10 @@ class Medium(HVACProduct):
         re.compile('Medium', flags=re.IGNORECASE)
     ]
 
+    @cached_property
+    def expected_hvac_ports(self):
+        return 0
+
 
 class CHP(HVACProduct):
     ifc_types = {'IfcElectricGenerator': ['CHP']}

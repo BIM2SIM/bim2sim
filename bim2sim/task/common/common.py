@@ -319,13 +319,6 @@ class CreateElements(ITask):
                     self.logger.warning("Validation failed for %s %s", ifc_type_or_element_cls, element)
                 invalid.append(entity)
 
-            if element.validate_ports():
-                valid.append(element)
-            elif force:
-                valid.append(element)
-            else:
-                invalid.append(entity)
-
         return list(set(valid)), list(set(invalid))
 
     def filter_by_text(self, text_filter, ifc_entities, ifc_units: dict) \
@@ -439,7 +432,6 @@ class CreateElements(ITask):
             except LookupError:
                 invalid.append(entity)
                 continue
-
 
             if element.validate_creation():
                 valid.append(element)
