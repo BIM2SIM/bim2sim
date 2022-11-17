@@ -726,7 +726,6 @@ class PipeFitting(HVACProduct):
     @cached_property
     def expected_hvac_ports(self):
         return 2
-    # expected_hvac_ports = 2
 
     conditions = [
         condition.RangeCondition("diameter", 5.0 * ureg.millimeter,
