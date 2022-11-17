@@ -1144,7 +1144,6 @@ class ThreeWayValve(Valve):
     @cached_property
     def expected_hvac_ports(self):
         return 3
-    # expected_hvac_ports = 3
 
 
 class Duct(HVACProduct):

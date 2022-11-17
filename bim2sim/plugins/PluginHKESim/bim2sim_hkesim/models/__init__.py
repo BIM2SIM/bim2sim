@@ -70,6 +70,26 @@ class Pump(HKESim):
             return super().get_port_name(port)
 
 
+class ThreeWayValve(HKESim):
+    path = "HKESim.Heating.Hydraulics.Valves.ThreeWayValveControlled"
+    represents = [hvac.ThreeWayValve]
+
+    def get_port_name(self, port):
+        try:
+            index = self.element.ports.index(port)
+        except ValueError:
+            # unknown port
+            index = -1
+        if index == 0:
+            return "port_a"
+        elif index == 1:
+            return "port_b"
+        elif index == 2:
+            return "port_c"
+        else:
+            return super().get_port_name(port)
+
+
 class ConsumerHeatingDistributorModule(HKESim):
     path = "SystemModules.HeatingSystemModules.ConsumerHeatingDistributorModule"
     represents = [aggregation.ConsumerHeatingDistributorModule]
