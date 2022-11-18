@@ -45,7 +45,7 @@ class LoadIFC(ITask):
 
     def run(self, workflow):
         # TODO: use multiple ifs files
-
+        self.logger.info("Loading IFC file")
         path = self.paths.ifc
 
         if os.path.isdir(path):
@@ -79,40 +79,41 @@ class LoadIFC(ITask):
         self.logger.error("No ifc found in project folder.")
         return None
 
-    @staticmethod
-    def get_ifcunits(ifc: file):
-        """Returns dict with units available on ifc file"""
+    def get_ifcunits(self, ifc: file) -> dict:
+        """Returns dict to translate IFC units to pint units
 
+        To use units from IFC we get all unit definitions from the ifc and their
+        corresponding measurement instances and map them to pint units.
+
+        Args:
+            ifc: IfcOpenShell file instance
+
+        Returns:
+             dict where key is the IfcMeasurement and value the pint unit
+             definition. e.g. 'IfcLengthMeasure': meter
+        """
+        self.logger.info("Getting unit definitions from IFC")
         unit_assignment = ifc.by_type('IfcUnitAssignment')
 
         results = {}
 
         for unit_entity in unit_assignment[0].Units:
             try:
-                key = 'Ifc{}'.format(unit_entity.UnitType.capitalize().replace('unit', 'Measure'))
-                pos_key = 'IfcPositive{}'.format(unit_entity.UnitType.capitalize().replace('unit', 'Measure'))
+                if hasattr(unit_entity, 'UnitType'):
+                    key = 'Ifc{}'.format(
+                        unit_entity.UnitType.capitalize().replace('unit',
+                                                                  'Measure'))
+                    pos_key = 'IfcPositive{}'.format(
+                        unit_entity.UnitType.capitalize().replace('unit',
+                                                                  'Measure'))
+                elif hasattr(unit_entity, 'Currency'):
+                    key = 'IfcMonetaryMeasure'
                 unit = parse_ifc(unit_entity)
                 results[key] = unit
-                results[pos_key] = unit
-
-                # unit_type = unit_entity.is_a()
-                # if unit_type == 'IfcDerivedUnit':
-                #     pass  # TODO: Implement
-                # elif unit_type == 'IfcSIUnit':
-                #     key = 'Ifc{}'.format(unit_entity.UnitType.capitalize().replace('unit', 'Measure'))
-                #     prefix_string = unit_entity.Prefix.lower() if unit_entity.Prefix else ''
-                #     unit = ureg.parse_units('{}{}'.format(prefix_string, ifc_pint_unitmap[unit_entity.Name]))
-                #     if unit_entity.Dimensions:
-                #         unit = unit**unit_entity.Dimensions
-                #     results[key] = unit
-                # elif unit_type == 'IfcConversionBasedUnit':
-                #     pass  # TODO: Implement
-                # elif unit_type == 'IfcMonetaryUnit':
-                #     pass  # TODO: Implement
-                # else:
-                #     pass  # TODO: Implement
+                if pos_key:
+                    results[pos_key] = unit
             except:
-                print("Failed to parse %s" % unit_entity)
+                self.logger.warning(f"Failed to parse {unit_entity}")
 
         return results
 
