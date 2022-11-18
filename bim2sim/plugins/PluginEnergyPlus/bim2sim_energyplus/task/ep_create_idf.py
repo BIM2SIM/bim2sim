@@ -28,11 +28,12 @@ from bim2sim.kernel.aggregation import AggregatedThermalZone
 from bim2sim.kernel.element import IFCBased
 from bim2sim.kernel.elements import bps
 from bim2sim.kernel.elements.bps import ExternalSpatialElement, SpaceBoundary2B, \
-    ThermalZone, Storey, Layer, Window
+    ThermalZone, Storey, Layer, Window, SpaceBoundary
 from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.utilities.pyocc_tools import PyOCCTools
+from bim2sim.workflow import Workflow
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +72,7 @@ class CreateIdf(ITask):
         self.logger.info("Export IDF geometry")
         self._export_geom_to_idf(instances, idf)
         self._set_ground_temperature(idf, t_ground=self._get_ifc_spaces(
-            instances)[0].t_ground)
+            instances)[0].t_ground)  # assuming all zones have same ground
         self._set_output_variables(idf, workflow)
         self._idf_validity_check(idf)
         idf.save(idf.idfname)
@@ -695,12 +696,15 @@ class CreateIdf(ITask):
         return stat
 
     @staticmethod
-    def _write_schedule(idf, sched_name, sched_part_list):
+    def _write_schedule(idf: IDF, sched_name: str, sched_part_list: list):
         """
-        Write schedule from list of schedule parts
-        :param name: Name of the schedule
-        :param sched_part_list: List of schedule parts
-        :return:
+        This function writes a schedule to the idf. Only used for manual
+        setup of schedules (combined with _set_hvac_template).
+        Args:
+            idf: idf file object
+            sched_name: str with name of the schedule
+            sched_part_list: list of schedule parts (cf. function
+                _define_schedule_part)
         """
         sched_list = {}
         field_count = 1
@@ -727,21 +731,34 @@ class CreateIdf(ITask):
         return sched
 
     @staticmethod
-    def _define_schedule_part(days, til_time_temp):
+    def _define_schedule_part(
+            days: str, til_time_temp: list[tuple[str, Union[int, float]]]):
         """
-        Define part of a schedule
-        :param days: string: Weekdays, Weekends, Alldays, AllOtherDays, Saturdays, Sundays, ...
-        :param til_time_temp: List of tuples (until-time format 'h:mm' (24h) as str), temperature until this time in Celsius), e.g. (05:00, 18)
+        Defines a part of a schedule
+        Args:
+            days: string: Weekdays, Weekends, Alldays, AllOtherDays, Saturdays,
+                Sundays, ...
+            til_time_temp: List of tuples
+                (until-time format 'hh:mm' (24h) as str),
+                temperature until this time in Celsius),
+                e.g. (05:00, 18)
         :return:
         """
         return [days, til_time_temp]
 
-    def _add_shadings(self, instances, idf):
+    @staticmethod
+    def _add_shadings(instances: dict, idf: IDF):
+        """
+        This function adds shading boundaries to idf.
+        Args:
+            instances: dict[guid: element]
+            idf: idf file object
+        """
         spatials = []
-        for inst in instances:
-            if isinstance(instances[inst], ExternalSpatialElement):
-                for sb in instances[inst].space_boundaries:
-                    spatials.append(sb)
+        ext_spatial_elem = filter_instances(instances, ExternalSpatialElement)
+        for elem in ext_spatial_elem:
+            for sb in elem.space_boundaries:
+                spatials.append(sb)
         if not spatials:
             return
         pure_spatials = []
@@ -749,10 +766,15 @@ class CreateIdf(ITask):
         descriptions = list(dict.fromkeys(description_list))
         shades_included = ("Shading:Building" or "Shading:Site") in descriptions
 
+        # check if ifc has dedicated shading space boundaries included and
+        # append them to pure_spatials for further processing
         if shades_included:
             for s in spatials:
                 if s.ifc.Description in ["Shading:Building", "Shading:Site"]:
                     pure_spatials.append(s)
+        # if no shading boundaries are included in ifc, derive these from the
+        # set of given space boundaries and append them to pure_spatials for
+        # further processing
         else:
             for s in spatials:
                 # only consider almost horizontal 2b shapes (roof-like SBs)
@@ -766,6 +788,7 @@ class CreateIdf(ITask):
                     continue
                 pure_spatials.append(s)
 
+        # create idf shadings from set of pure_spatials
         for s in pure_spatials:
             obj = idf.newidfobject('SHADING:BUILDING:DETAILED',
                                    Name=s.guid,
@@ -780,10 +803,12 @@ class CreateIdf(ITask):
     @staticmethod
     def _set_simulation_control(idf):
         """
-        Set simulation control parameters.
-        :param idf: idf file object
-        :return: idf file object
+        This function sets general simulation control parameters. These can
+        be easily overwritten in the exported idf.
+        Args:
+            idf: idf file object
         """
+        # todo: set these in general settings
         for sim_control in idf.idfobjects["SIMULATIONCONTROL"]:
             # sim_control.Do_Zone_Sizing_Calculation = "Yes"
             sim_control.Do_System_Sizing_Calculation = "Yes"
@@ -793,11 +818,15 @@ class CreateIdf(ITask):
 
         for building in idf.idfobjects['BUILDING']:
             building.Solar_Distribution = 'FullExterior'
-            # pass
-        # return idf
 
     @staticmethod
-    def _set_ground_temperature(idf, t_ground):
+    def _set_ground_temperature(idf: IDF, t_ground: ureg.Quantity):
+        """
+        This function sets the round temperature within the idf.
+        Args:
+            idf: idf file object
+            t_ground: ground temperature as ureg.Quantity
+        """
         string = '_Ground_Temperature'
         month_list = ['January', 'February', 'March', 'April', 'May', 'June',
                       'July', 'August', 'September', 'October',
@@ -806,20 +835,22 @@ class CreateIdf(ITask):
         for month in month_list:
             temp_dict.update({month + string: t_ground.to(ureg.degC).m})
         idf.newidfobject("SITE:GROUNDTEMPERATURE:BUILDINGSURFACE", **temp_dict)
-        return idf
 
     @staticmethod
-    def _set_output_variables(idf, workflow):
+    def _set_output_variables(idf: IDF, workflow: Workflow):
         """
-        Adds userdefined output variables to the idf file
-        :param idf: idf file object
-        :return: idf file object
+        This function adds user defined output variables to the idf file
+        Args:
+            idf: idf file object
+            workflow: BIM2SIM Workflow
         """
+        # general output settings. May be moved to general settings
         out_control = idf.idfobjects['OUTPUTCONTROL:TABLE:STYLE']
         out_control[0].Column_Separator = 'CommaAndHTML'
         out_control[0].Unit_Conversion = 'JtoKWH'
 
-        # remove all existing output variables with reporting frequency "Timestep"
+        # remove all existing output variables with reporting frequency
+        # "Timestep"
         out_var = [v for v in idf.idfobjects['OUTPUT:VARIABLE']
                    if v.Reporting_Frequency.upper() == "TIMESTEP"]
         for var in out_var:
@@ -902,7 +933,8 @@ class CreateIdf(ITask):
         )
         idf.newidfobject(
             "OUTPUT:VARIABLE",
-            Variable_Name="Zone Air Heat Balance Internal Convective Heat Gain Rate",
+            Variable_Name="Zone Air Heat Balance Internal Convective Heat "
+                          "Gain Rate",
             Reporting_Frequency="Hourly",
         )
         idf.newidfobject(
@@ -962,7 +994,8 @@ class CreateIdf(ITask):
         )
         # idf.newidfobject(
         #     "OUTPUT:VARIABLE",
-        #     Variable_Name="Zone Windows Total Transmitted Solar Radiation Energy",
+        #     Variable_Name="Zone Windows Total Transmitted Solar Radiation
+        #     Energy",
         #     Reporting_Frequency="Hourly",
         # )
         # idf.newidfobject(
@@ -997,7 +1030,8 @@ class CreateIdf(ITask):
         )
         # idf.newidfobject(
         #     "OUTPUT:VARIABLE",
-        #     Variable_Name="Zone Infiltration Standard Density Volume Flow Rate",
+        #     Variable_Name="Zone Infiltration Standard Density Volume Flow
+        #     Rate",
         #     Reporting_Frequency="Hourly",
         # )
         # idf.newidfobject(
@@ -1028,51 +1062,59 @@ class CreateIdf(ITask):
                          Key_2="DisplayExtraWarnings")
         return idf
 
-    def _export_geom_to_idf(self, instances, idf):
-        for inst in instances:
-            if not instances[inst].ifc.is_a("IfcRelSpaceBoundary"):
-                continue
-            if not isinstance(instances[inst], SpaceBoundary2B):
-                inst_obj = instances[inst]
-                idfp = IdfObject(inst_obj, idf)
-                if idfp.skip_bound:
-                    idf.popidfobject(idfp.key, -1)
-                    self.logger.warning(
-                        "Boundary with the GUID %s (%s) is skipped (due to missing boundary conditions)!",
-                        idfp.name, idfp.surface_type)
-                    continue
-            else:
-                b_bound = instances[inst]
-                idfp = IdfObject(b_bound, idf)
-                if idfp.skip_bound:
-                    # idf.popidfobject(idfp.key, -1)
-                    self.logger.warning(
-                        "Boundary with the GUID %s (%s) is skipped (due to missing boundary conditions)!",
-                        idfp.name,
-                        idfp.surface_type)
-                    continue
-
-    def _idf_validity_check(self, idf):
-        """basic validity check of idf.
-        Remove openings from adiabatic surfaces
+    def _export_geom_to_idf(self, instances: dict, idf: IDF):
         """
-        self.logger.info('Start IDF Validity Checker')
+        This function converts the space boundary bound_shape from
+        OpenCascade to idf geometry.
+        Args:
+            instances: dict[guid: element]
+            idf: idf file object
+        """
+        bounds = filter_instances(instances, SpaceBoundary)
+        for bound in bounds:
+            idfp = IdfObject(bound, idf)
+            if idfp.skip_bound:
+                idf.popidfobject(idfp.key, -1)
+                logger.warning(
+                    "Boundary with the GUID %s (%s) is skipped (due to "
+                    "missing boundary conditions)!",
+                    idfp.name, idfp.surface_type)
+                continue
+        bounds_2b = filter_instances(instances, SpaceBoundary2B)
+        for b_bound in bounds_2b:
+            idfp = IdfObject(b_bound, idf)
+            if idfp.skip_bound:
+                logger.warning(
+                    "Boundary with the GUID %s (%s) is skipped (due to "
+                    "missing boundary conditions)!",
+                    idfp.name, idfp.surface_type)
+                continue
+
+    @staticmethod
+    def _idf_validity_check(idf):
+        """
+        This function performs a basic validity check of the resulting idf.
+        It removes openings from adiabatic surfaces and very small surfaces.
+        Args:
+            idf: idf file object
+        """
+        logger.info('Start IDF Validity Checker')
 
         fenestration = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
         for f in fenestration:
             if not f.Building_Surface_Name:
-                self.logger.info('Removed Fenestration: %s' % f.Name)
+                logger.info('Removed Fenestration: %s' % f.Name)
                 idf.removeidfobject(f)
             fbco = f.Building_Surface_Name
             bs = idf.getobject('BUILDINGSURFACE:DETAILED', fbco)
             if bs.Outside_Boundary_Condition == 'Adiabatic':
-                self.logger.info('Removed Fenestration: %s' % f.Name)
+                logger.info('Removed Fenestration: %s' % f.Name)
                 idf.removeidfobject(f)
         for f in fenestration:
             fbco = f.Building_Surface_Name
             bs = idf.getobject('BUILDINGSURFACE:DETAILED', fbco)
             if bs.Outside_Boundary_Condition == 'Adiabatic':
-                self.logger.info(
+                logger.info(
                     'Removed Fenestration in second try: %s' % f.Name)
                 idf.removeidfobject(f)
 
@@ -1082,42 +1124,44 @@ class CreateIdf(ITask):
                 PyOCCTools.make_faces_from_pnts(s.coords)) < 1e-2]
 
         for obj in small_area_obj:
-            self.logger.info('Removed small area: %s' % obj.Name)
+            logger.info('Removed small area: %s' % obj.Name)
             idf.removeidfobject(obj)
 
         shadings = idf.getshadingsurfaces()
-        small_area_obj = [s for s in shadings
-                          if PyOCCTools.get_shape_area(
-                PyOCCTools.make_faces_from_pnts(s.coords)) < 1e-2]
+        small_area_obj = [s for s in shadings if PyOCCTools.get_shape_area(
+            PyOCCTools.make_faces_from_pnts(s.coords)) < 1e-2]
 
         for obj in small_area_obj:
-            self.logger.info('Removed small area: %s' % obj.Name)
+            logger.info('Removed small area: %s' % obj.Name)
             idf.removeidfobject(obj)
 
         bsd = idf.idfobjects['BUILDINGSURFACE:DETAILED']
         for sf in bsd:
             if sf.Construction_Name == 'BS Exterior Window':
-                self.logger.info(
+                logger.info(
                     'Surface due to invalid material: %s' % sf.Name)
                 idf.removeidfobject(sf)
-        self.logger.info('IDF Validity Checker done')
+        logger.info('IDF Validity Checker done')
 
-    def _get_ifc_spaces(self, instances):
+    @staticmethod
+    def _get_ifc_spaces(instances):
         """
-        Extracts ifc spaces from an instance dictionary while also unpacking spaces from aggregated thermal zones.
+        This function extracts ifc spaces from an instance dictionary while
+        also unpacking spaces from aggregated thermal zones.
         :param instances: The instance dictionary
         :return: A list of ifc spaces
         """
-        unpacked_instances = []
-        for instance in instances.values():
-            if isinstance(instance, AggregatedThermalZone):
-                unpacked_instances.extend(instance.elements)
-            elif instance.ifc and instance.ifc.is_a("IfcSpace"):
-                unpacked_instances.append(instance)
-        return unpacked_instances
+        return filter_instances(instances, ThermalZone)
 
 
 class IdfObject:
+    """
+    This class holds all data required for the idf setup of
+    BUILDINGSURFACE:DETAILED and FENESTRATIONSURFACE:DETAILED.
+    This includes further methods for processing the preprocessed information
+    from the BIM2SIM process for the use in idf (e.g., surface type mapping).
+    """
+
     def __init__(self, inst_obj, idf):
         self.name = inst_obj.guid
         self.building_surface_name = None
@@ -1145,10 +1189,8 @@ class IdfObject:
             self.building_surface_name = inst_obj.parent_bound.guid
         self._map_surface_types(inst_obj)
         self._map_boundary_conditions(inst_obj)
-        # todo: fix material definitions!
-        # self._set_bs2021_construction_name()
         self.set_preprocessed_construction_name()
-        if self.construction_name == None:
+        if self.construction_name is None:
             self._set_construction_name()
         obj = self._set_idfobject_attributes(idf)
         if obj is not None:
@@ -1159,9 +1201,7 @@ class IdfObject:
     def _set_construction_name(self):
         if self.surface_type == "Wall":
             self.construction_name = "Project Wall"
-            # construction_name = "FZK Exterior Wall"
         if self.surface_type == "Roof":
-            # construction_name = "Project Flat Roof"
             self.construction_name = "Project Flat Roof"
         if self.surface_type == "Ceiling":
             self.construction_name = "Project Ceiling"
@@ -1172,34 +1212,10 @@ class IdfObject:
         if self.surface_type == "Window":
             self.construction_name = "Project External Window"
 
-    def _set_bs2021_construction_name(self):
-        if self.surface_type == "Wall":
-            if self.out_bound_cond == "Outdoors":
-                self.construction_name = "BS Exterior Wall"
-            elif self.out_bound_cond in {"Surface", "Adiabatic"}:
-                self.construction_name = "BS Interior Wall"
-            elif self.out_bound_cond == "Ground":
-                self.construction_name = "BS Exterior Wall"
-        elif self.surface_type == "Roof":
-            self.construction_name = "BS Flat Roof"
-        elif self.surface_type == "Ceiling":
-            self.construction_name = "BS Ceiling"
-        elif self.surface_type == "Floor":
-            if self.out_bound_cond in {"Surface", "Adiabatic"}:
-                self.construction_name = "BS Interior Floor"
-            elif self.out_bound_cond == "Ground":
-                self.construction_name = "BS Ground Floor"
-        elif self.surface_type == "Door":
-            self.construction_name = "BS Door"
-        elif self.surface_type == "Window":
-            self.construction_name = "BS Exterior Window"
-        if not self.physical:
-            if self.out_bound_cond == "Surface":
-                self.construction_name = "Air Wall"
-
     def set_preprocessed_construction_name(self):
         """ set constructions of idf surfaces to preprocessed constructions.
-            Virtual space boundaries are set to be an air wall (not defined in preprocessing)
+            Virtual space boundaries are set to be an air wall (not defined in
+            preprocessing)
         """
         if not self.physical:
             if self.out_bound_cond == "Surface":
