@@ -32,8 +32,8 @@ def load_ifc(path: str) -> file:
     return ifc_file
 
 
-def propertyset2dict(propertyset: entity_instance,
-                     ifc_units: Optional[dict]) -> dict:
+def property_set2dict(property_set: entity_instance,
+                      ifc_units: Optional[dict]) -> dict:
     """Converts IfcPropertySet and IfcQuantitySet to python dict
 
     Takes all IfcPropertySet and IfcQuantitySet properties and quantities of the
@@ -42,15 +42,15 @@ def propertyset2dict(propertyset: entity_instance,
     using the units defined in the IFC.
 
     Args:
-        propertyset: IfcPropertySet entity from ifcopenshell
+        property_set: IfcPropertySet entity from ifcopenshell
         ifc_units: dict with key ifc unit definition and value pint unit
     Returns:
         property_dict: dict with key name of the property/quantity and value
             the property/quantity value as pint quantity if available
     """
     property_dict = {}
-    if hasattr(propertyset, 'HasProperties'):
-        for prop in propertyset.HasProperties:
+    if hasattr(property_set, 'HasProperties'):
+        for prop in property_set.HasProperties:
             if hasattr(prop, 'Unit'):
                 unit = parse_ifc(prop.Unit) if prop.Unit else None
             else:
@@ -91,8 +91,8 @@ def propertyset2dict(propertyset: entity_instance,
                 property_dict[prop.Name] = values
             else:
                 raise NotImplementedError("Property of type '%s'"%prop.is_a())
-    elif hasattr(propertyset, 'Quantities'):
-        for prop in propertyset.Quantities:
+    elif hasattr(property_set, 'Quantities'):
+        for prop in property_set.Quantities:
             unit = parse_ifc(prop.Unit) if prop.Unit else None
             for attr, p_value in vars(prop).items():
                 if attr.endswith('Value'):
@@ -102,8 +102,8 @@ def propertyset2dict(propertyset: entity_instance,
                         else:
                             property_dict[prop.Name] = p_value
                         break
-    elif hasattr(propertyset, 'Properties'):
-        for prop in propertyset.Properties:
+    elif hasattr(property_set, 'Properties'):
+        for prop in property_set.Properties:
             unit = parse_ifc(prop.Unit) if prop.Unit else None
             if prop.is_a() == 'IfcPropertySingleValue':
                 if prop.NominalValue is not None:
@@ -186,8 +186,8 @@ def getIfcAttribute(ifcElement, attribute):
         pass
 
 
-def get_propertyset_by_name(propertyset_name: str, element: entity_instance,
-                            ifc_units: dict) -> dict:
+def get_property_set_by_name(property_set_name: str, element: entity_instance,
+                             ifc_units: dict) -> dict:
     """Try to find a IfcPropertySet for a given ifc instance by it's name.
 
     This function searches an elements PropertySets for the defined
@@ -196,7 +196,7 @@ def get_propertyset_by_name(propertyset_name: str, element: entity_instance,
     found the function will return None
 
     Args:
-        propertyset_name: Name of the PropertySet you are looking for
+        property_set_name: Name of the PropertySet you are looking for
         element: ifcopenshell element to search for PropertySet
         ifc_units: dict with key ifc unit definition and value pint unit
     Returns:
@@ -207,9 +207,9 @@ def get_propertyset_by_name(propertyset_name: str, element: entity_instance,
     all_property_sets_list = element.IsDefinedBy
     property_set = next(
         (item for item in all_property_sets_list if
-         item.RelatingPropertyDefinition.Name == propertyset_name), None)
+         item.RelatingPropertyDefinition.Name == property_set_name), None)
     if hasattr(property_set, 'RelatingPropertyDefinition'):
-        property_dict = propertyset2dict(
+        property_dict = property_set2dict(
             property_set.RelatingPropertyDefinition, ifc_units)
     return property_dict
 
@@ -231,17 +231,17 @@ def get_property_sets(element: entity_instance, ifc_units: dict) -> dict:
     if hasattr(element, 'IsDefinedBy'):
         for defined in element.IsDefinedBy:
             property_set_name = defined.RelatingPropertyDefinition.Name
-            property_sets[property_set_name] = propertyset2dict(
+            property_sets[property_set_name] = property_set2dict(
                 defined.RelatingPropertyDefinition, ifc_units)
     elif hasattr(element, 'Material'):
         for defined in element.Material.HasProperties:
             property_set_name = defined.Name
-            property_sets[property_set_name] = propertyset2dict(
+            property_sets[property_set_name] = property_set2dict(
                 defined, ifc_units)
     elif element.is_a('IfcMaterial'):
         for defined in element.HasProperties:
             property_set_name = defined.Name
-            property_sets[property_set_name] = propertyset2dict(
+            property_sets[property_set_name] = property_set2dict(
                 defined, ifc_units)
 
     return property_sets
@@ -252,13 +252,13 @@ def get_type_property_sets(element, ifc_units):
 
     :param element: The element in which you want to search for the PropertySets
     :return: dict(of dicts)"""
-    # TODO: use guids to get type propertysets (they are userd by many entitys)
+    # TODO: use guids to get type property_sets (they are userd by many entitys)
     property_sets = {}
     if hasattr(element, 'IsTypedBy'):
         for defined_type in element.IsTypedBy:
-            for propertyset in defined_type.RelatingType.HasPropertySets:
-                property_sets[propertyset.Name] = propertyset2dict(
-                    propertyset, ifc_units)
+            for property_set in defined_type.RelatingType.HasPropertySets:
+                property_sets[property_set.Name] = property_set2dict(
+                    property_set, ifc_units)
 
     return property_sets
 
@@ -269,7 +269,7 @@ def get_quantity_sets(element, ifc_units):
     quantity_sets = {}
     for defined_type in element.IsTypedBy:
         for quantityset in defined_type.RelatingType.Quantities:
-            quantity_sets[quantityset.Name] = propertyset2dict(
+            quantity_sets[quantityset.Name] = property_set2dict(
                 quantityset, ifc_units)
 
     return quantity_sets
@@ -522,8 +522,10 @@ def summary(ifcelement):
 
 
 def used_properties(ifc_file):
-    """Filters given IFC for propertysets
-   returns a dictonary with related ifctypes as keys and lists of usered propertysets as values"""
+    """Filters given IFC for property_sets.
+
+    Returns a dictionary with related ifc types as keys and lists of used
+    propertysets as values"""
     props = ifc_file.by_type("IFCPROPERTYSET")
     tuples = []
     for prop in props:

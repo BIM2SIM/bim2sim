@@ -98,7 +98,7 @@ class TemplateFinder(Finder):
                 self.__class__.__name__, (key1, key2, key3, key4)))
 
         try:
-            pset = ifc2python.get_propertyset_by_name(
+            pset = ifc2python.get_property_set_by_name(
                 res[0], element.ifc, element.ifc_units)
         except AttributeError:
             raise AttributeError("Can't find property as defined by template.")

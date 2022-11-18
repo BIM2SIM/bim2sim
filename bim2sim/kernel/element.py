@@ -367,7 +367,7 @@ class IFCBased(Element):
         return getattr(self.ifc, attribute, None)
 
     def get_propertyset(self, propertysetname):
-        return ifc2python.get_propertyset_by_name(
+        return ifc2python.get_property_set_by_name(
             propertysetname, self.ifc, self.ifc_units)
 
     def get_propertysets(self):
@@ -471,10 +471,10 @@ class IFCBased(Element):
             # return hits[0][0]
         if optional_locations:
             for loc in optional_locations:
-                hits = [p.search(ifc2python.get_propertyset_by_name(
+                hits = [p.search(ifc2python.get_property_set_by_name(
                     loc, ifc_element, ifc_units) or '')
                         for p in cls.pattern_ifc_type
-                        if ifc2python.get_propertyset_by_name(
+                        if ifc2python.get_property_set_by_name(
                         loc, ifc_element, ifc_units)]
                 hits = [x for x in hits if x is not None]
                 if any(hits):
