@@ -1144,12 +1144,12 @@ class CreateIdf(ITask):
         logger.info('IDF Validity Checker done')
 
     @staticmethod
-    def _get_ifc_spaces(instances):
+    def _get_ifc_spaces(instances: dict):
         """
         This function extracts ifc spaces from an instance dictionary while
         also unpacking spaces from aggregated thermal zones.
-        :param instances: The instance dictionary
-        :return: A list of ifc spaces
+        Args:
+            instances: dict[guid: element]
         """
         return filter_instances(instances, ThermalZone)
 
@@ -1199,24 +1199,31 @@ class IdfObject:
             pass
 
     def _set_construction_name(self):
+        """
+        This function sets default constructions for all idf surface types.
+        Should only be used if no construction is available for the current
+        object.
+        """
         if self.surface_type == "Wall":
             self.construction_name = "Project Wall"
-        if self.surface_type == "Roof":
+        elif self.surface_type == "Roof":
             self.construction_name = "Project Flat Roof"
-        if self.surface_type == "Ceiling":
+        elif self.surface_type == "Ceiling":
             self.construction_name = "Project Ceiling"
-        if self.surface_type == "Floor":
+        elif self.surface_type == "Floor":
             self.construction_name = "Project Floor"
-        if self.surface_type == "Door":
+        elif self.surface_type == "Door":
             self.construction_name = "Project Door"
-        if self.surface_type == "Window":
+        elif self.surface_type == "Window":
             self.construction_name = "Project External Window"
 
     def set_preprocessed_construction_name(self):
-        """ set constructions of idf surfaces to preprocessed constructions.
-            Virtual space boundaries are set to be an air wall (not defined in
-            preprocessing)
         """
+        This function sets constructions of idf surfaces to preprocessed
+        constructions. Virtual space boundaries are set to be an air wall
+        (not defined in preprocessing).
+        """
+        # set air wall for virtual bounds
         if not self.physical:
             if self.out_bound_cond == "Surface":
                 self.construction_name = "Air Wall"
@@ -1237,41 +1244,51 @@ class IdfObject:
                     [str(l.thickness.to(ureg.metre).m) for l in
                      rel_elem.layerset.layers])
 
-    def _set_idfobject_coordinates(self, obj, idf, inst_obj):
-        # validate bound_shape
-        # self._check_for_vertex_duplicates()
-        # write validated bound_shape to obj
+    def _set_idfobject_coordinates(self, obj, idf: IDF,
+                                   inst_obj: Union[SpaceBoundary,
+                                                   SpaceBoundary2B]):
+        """
+        This function exports the surface coordinates from the BIM2SIM Space
+        Boundary instance to idf.
+        Circular shapes and shapes with more than 120 vertices
+        (BuildingSurfaces) or more than 4 vertices (fenestration) are
+        simplified.
+        Args:
+            obj: idf-surface object (buildingSurface:Detailed or fenestration)
+            idf: idf file object
+            inst_obj: SpaceBoundary instance
+        """
+        # write bound_shape to obj
         obj_pnts = PyOCCTools.get_points_of_face(self.bound_shape)
         obj_coords = []
-        # obj_pnts_new = PyOCCTools.remove_coincident_vertices(obj_pnts)
-        # obj_pnts_new = PyOCCTools.remove_collinear_vertices2(obj_pnts_new)
-        # #todo: check if corresponding boundaries still have matching partner
-        # if len(obj_pnts_new) < 3:
-        #     self.skip_bound = True
-        #     return
-        # else:
-        #     obj_pnts = obj_pnts_new
         for pnt in obj_pnts:
             co = tuple(round(p, 3) for p in pnt.Coord())
             obj_coords.append(co)
         try:
             obj.setcoords(obj_coords)
-        except:
+        except Exception as ex:
+            logger.warning(f"Unexpected {ex=}. Setting coordinates for "
+                           f"{inst_obj.guid} failed. This element is not "
+                           f"exported."
+                           f"{type(ex)=}")
             self.skip_bound = True
             return
         circular_shape = self.get_circular_shape(obj_pnts)
         try:
-            if (3 <= len(
-                    obj_coords) <= 120 and self.key == "BUILDINGSURFACE:DETAILED") \
-                    or (3 <= len(
-                obj_coords) <= 4 and self.key == "FENESTRATIONSURFACE:DETAILED"):
+            if (3 <= len(obj_coords) <= 120
+                and self.key == "BUILDINGSURFACE:DETAILED") \
+                    or (3 <= len(obj_coords) <= 4
+                        and self.key == "FENESTRATIONSURFACE:DETAILED"):
                 obj.setcoords(obj_coords)
             elif circular_shape is True and self.surface_type != 'Door':
                 self._process_circular_shapes(idf, obj_coords, obj, inst_obj)
             else:
                 self._process_other_shapes(inst_obj, obj)
-        except:
-            print("Element", self.name, "NOT EXPORTED")
+        except Exception as ex:
+            logger.warning(f"Unexpected {ex=}. Setting coordinates for "
+                           f"{inst_obj.guid} failed. This element is not "
+                           f"exported."
+                           f"{type(ex)=}")
 
     def _set_idfobject_attributes(self, idf):
         if self.surface_type is not None:
@@ -1290,9 +1307,6 @@ class IdfObject:
                     Sun_Exposure=self.sun_exposed,
                     Wind_Exposure=self.wind_exposed,
                 )
-            # elif self.building_surface_name is None or self.out_bound_cond_obj is None:
-            #     self.skip_bound = True
-            #     return
             else:
                 obj = idf.newidfobject(
                     self.key,
@@ -1301,7 +1315,6 @@ class IdfObject:
                     Construction_Name=self.construction_name,
                     Building_Surface_Name=self.building_surface_name,
                     Outside_Boundary_Condition_Object=self.out_bound_cond_obj,
-                    # Frame_and_Divider_Name="Default"
                 )
             return obj
 
