@@ -9,7 +9,8 @@ import json
 import logging
 import math
 import os
-from pathlib import Path
+from pathlib import Path, PosixPath
+from typing import Union
 
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace
@@ -24,9 +25,10 @@ from geomeppy import IDF
 
 import bim2sim
 from bim2sim.kernel.aggregation import AggregatedThermalZone
+from bim2sim.kernel.element import IFCBased
 from bim2sim.kernel.elements import bps
 from bim2sim.kernel.elements.bps import ExternalSpatialElement, SpaceBoundary2B, \
-    ThermalZone, Storey
+    ThermalZone, Storey, Layer, Window
 from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
@@ -77,11 +79,14 @@ class CreateIdf(ITask):
         return idf,
 
     @staticmethod
-    def _init_idf(paths, weather_file):
+    def _init_idf(paths, weather_file: PosixPath):
         """
         Initialize the EnergyPlus input file (idf) with general idf settings
         and set default weather
         data.
+        Args:
+            paths: BIM2SIM FolderStructure
+            weather_file: PosixPath to *.epw weather file
         """
         # set the installation path for the EnergyPlus installation
         # ep_install_path = '/usr/local/EnergyPlus-9-2-0/'
@@ -115,12 +120,13 @@ class CreateIdf(ITask):
         idf.epw = str(weather_file)
         return idf
 
-    def _init_zone(self, instances, idf):
+    def _init_zone(self, instances: dict, idf: IDF):
         """
         Creates one idf zone per space and sets heating and cooling
         templates, infiltration and internal loads (occupancy (people),
         equipment, lighting).
         Args:
+            instances: dict[guid: element]
             idf: idf file object
         """
         spaces = filter_instances(instances, ThermalZone)
@@ -141,12 +147,20 @@ class CreateIdf(ITask):
                              space=space)
 
     @staticmethod
-    def _init_zonelist(idf, name=None, zones_in_list=None):
+    def _init_zonelist(
+            idf: IDF,
+            name: str = None,
+            zones_in_list: list[str] = None):
         """
         Inits a list of zones in the idf. If the zones_in_list is not set,
         all zones are assigned to a general zone, unless the number of total
         zones is greater than 20 (max. allowed number of zones in a zonelist
         in an idf).
+        Args:
+            idf: idf file object
+            name: str with name of zone list
+            zones_in_list: list with the guids of the zones to be included in
+                the list
         """
         if zones_in_list is None:
             # assign all zones to one list unless the total number of zones
@@ -171,9 +185,12 @@ class CreateIdf(ITask):
             zs.update({"Zone_" + str(i + 1) + "_Name": z.Name})
         idf.newidfobject("ZONELIST", Name=name, **zs)
 
-    def _init_zonegroups(self, instances, idf):
+    def _init_zonegroups(self, instances: dict, idf: IDF):
         """
         Assign one zonegroup per storey.
+        Args:
+            instances: dict[guid: element]
+            idf: idf file object
         """
         spaces = filter_instances(instances, ThermalZone)
         # assign storeys to spaces (ThermalZone)
@@ -202,11 +219,15 @@ class CreateIdf(ITask):
                              Zone_List_Multiplier=1
                              )
 
-    def _get_preprocessed_materials_and_constructions(self, instances, idf):
+    def _get_preprocessed_materials_and_constructions(self, instances: dict,
+                                                      idf: IDF):
         """
         This function sets preprocessed construction and material for
         building surfaces and fenestration. For virtual bounds, an air
         boundary construction is set.
+        Args:
+            instances: dict[guid: element]
+            idf: idf file object
         """
         bounds = filter_instances(instances, 'SpaceBoundary')
         for bound in bounds:
@@ -240,9 +261,18 @@ class CreateIdf(ITask):
                              )
 
     @staticmethod
-    def _set_preprocessed_construction_elem(rel_elem, layers, idf):
-        """use preprocessed data to define idf construction elements and return
-        a list of used materials"""
+    def _set_preprocessed_construction_elem(
+            rel_elem: IFCBased,
+            layers: list[Layer],
+            idf: IDF):
+        """
+        This function uses preprocessed data to define idf construction
+        elements.
+        Args:
+            rel_elem: any subclass of IFCBased (e.g., Wall)
+            layers: list of Layer
+            idf: idf file object
+        """
         construction_name = rel_elem.key + '_' + str(len(layers)) + '_' + '_' \
             .join([str(l.thickness.to(ureg.metre).m) for l in layers])
         # todo: find a unique key for construction name
@@ -264,49 +294,13 @@ class CreateIdf(ITask):
                              )
 
     @staticmethod
-    def _set_construction_elem(elem, name, idf):
-        layer = elem.get('layer')
-        outer_layer = layer.get(list(layer)[-1])
-        other_layer_list = list(layer)[:-1]
-        other_layer_list.reverse()
-        other_layers = {}
-        for i, l in enumerate(other_layer_list):
-            lay = layer.get(l)
-            other_layers.update({'Layer_' + str(i + 2):
-                                     lay['material']['name']
-                                     + "_" + str(lay['thickness'])})
-
-        idf.newidfobject("CONSTRUCTION",
-                         Name=name,
-                         Outside_Layer=outer_layer['material'][
-                                           'name'] + "_" + str(
-                             outer_layer['thickness']),
-                         **other_layers
-                         )
-        materials = [
-            (layer.get(k)['material']['material_id'], layer.get(k)['thickness'])
-            for k in layer.keys()]
-        return materials
-
-    @staticmethod
-    def _set_material_elem(mat_dict, thickness, idf):
-        if idf.getobject("MATERIAL", mat_dict['name'] + "_" + str(thickness))\
-                != None:
-            return
-        specific_heat = mat_dict['spec_heat_capacity'] * 1000
-        if specific_heat < 100:
-            specific_heat = 100
-        idf.newidfobject("MATERIAL",
-                         Name=mat_dict['name'] + "_" + str(thickness),
-                         Roughness="MediumRough",
-                         Thickness=thickness,
-                         Conductivity=mat_dict['thermal_conduc'],
-                         Density=mat_dict['density'],
-                         Specific_Heat=specific_heat
-                         )
-
-    @staticmethod
-    def _set_preprocessed_material_elem(layer, idf):
+    def _set_preprocessed_material_elem(layer: Layer, idf: IDF):
+        """
+        This function sets a preprocessed material element.
+        Args:
+            layer: Layer Instance
+            idf: idf file object
+        """
         material_name = layer.material.name + "_" + str(
             layer.thickness.to(ureg.metre).m)
         if idf.getobject("MATERIAL", material_name):
@@ -327,34 +321,21 @@ class CreateIdf(ITask):
                          Specific_Heat=specific_heat
                          )
 
-    def _set_window_material_elem(self, mat_dict, thickness, g_value, idf):
-        if idf.getobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM",
-                         mat_dict['name'] + "_" + str(thickness)) is not None:
-            return
-        if g_value >= 1:
-            old_g_value = g_value
-            g_value = 0.999
-            self.logger.warning(
-                "G-Value was set to %f, but has to be smaller than 1, "
-                "so overwritten by %f",
-                old_g_value, g_value)
-        idf.newidfobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM",
-                         Name=mat_dict['name'] + "_" + str(thickness),
-                         UFactor=1 / (0.04 + thickness / mat_dict[
-                             'thermal_conduc'] + 0.13),
-                         Solar_Heat_Gain_Coefficient=g_value,
-                         # Visible_Transmittance=0.8    # optional
-                         )
-
-    def _set_preprocessed_window_material_elem(self, rel_elem, idf):
-        """ constructs windows with a Windowmaterial:SimpleGlazingSystem consisting of
-        the outermost layer of the providing related element.
-        This is a simplification, needs to be extended to hold multilayer window constructions."""
-        material_name = 'WM_' \
-                        + rel_elem.layerset.layers[0].material.name \
-                        + '_' \
-                        + str(
-            rel_elem.layerset.layers[0].thickness.to(ureg.m).m)
+    @staticmethod
+    def _set_preprocessed_window_material_elem(rel_elem: Window,
+                                               idf: IDF):
+        """
+        This function constructs windows with a
+        WindowMaterial:SimpleGlazingSystem consisting of the outermost layer
+        of the providing related element. This is a simplification, needs to
+        be extended to hold multilayer window constructions.
+        Args:
+            rel_elem: Window instance
+            idf: idf file object
+        """
+        material_name = \
+            'WM_' + rel_elem.layerset.layers[0].material.name + '_' \
+            + str(rel_elem.layerset.layers[0].thickness.to(ureg.m).m)
         if idf.getobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM", material_name):
             return
         if rel_elem.u_value.to(ureg.W / ureg.K / ureg.meter ** 2).m > 0:
@@ -370,9 +351,9 @@ class CreateIdf(ITask):
         if rel_elem.g_value >= 1:
             old_g_value = rel_elem.g_value
             rel_elem.g_value = 0.999
-            self.logger.warning(
-                "G-Value was set to %f, but has to be smaller than 1, so overwritten by %f",
-                old_g_value, rel_elem.g_value)
+            logger.warning("G-Value was set to %f, "
+                           "but has to be smaller than 1, so overwritten by %f",
+                           old_g_value, rel_elem.g_value)
 
         idf.newidfobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM",
                          Name=material_name,
@@ -388,38 +369,17 @@ class CreateIdf(ITask):
                              Outside_Layer=material_name
                              )
 
-    def _get_room_from_zone_dict(self, key):
-        zone_dict = {
-            "Schlafzimmer": "Bed room",
-            "Wohnen": "Living",
-            "Galerie": "Living",
-            "Küche": "Living",
-            "Flur": "Traffic area",
-            "Buero": "Single office",
-            "Besprechungsraum": 'Meeting, Conference, seminar',
-            "Seminarraum": 'Meeting, Conference, seminar',
-            "Technikraum": "Stock, technical equipment, archives",
-            "Dachboden": "Traffic area",
-            "WC": "WC and sanitary rooms in non-residential buildings",
-            "Bad": "WC and sanitary rooms in non-residential buildings",
-            "Labor": "Laboratory"
-        }
-        uc_path = Path(
-            bim2sim.__file__).parent.parent.parent / 'PluginEnergyPlus' / 'data' / 'UseConditions.json'
-        # uc_path = self.paths.root / 'MaterialTemplates/UseConditions.json' #todo: use this file (error in people?)
-        with open(uc_path) as json_file:
-            uc_file = json.load(json_file)
-        room_key = []
-        if key is not None:
-            room_key = [v for k, v in zone_dict.items() if k in key]
-        if not room_key:
-            room_key = ['Single office']
-        room = dict([k for k in uc_file.items() if type(k[1]) == dict])[
-            room_key[0]]
-        return room, room_key
-
-    def _set_heating_and_cooling(self, idf, zone_name, space):
-
+    def _set_heating_and_cooling(self, idf: IDF, zone_name: str,
+                                 space: ThermalZone):
+        """
+        This function sets heating and cooling parameters based on the data
+        available from BIM2SIM Preprocessing (either IFC-based or
+        Template-based).
+        Args:
+            idf: idf file object
+            zone_name: str
+            space: ThermalZone instance
+        """
         stat_name = "STATS " + space.usage.replace(',', '')
         if idf.getobject("HVACTEMPLATE:THERMOSTAT", stat_name) is None:
             stat = self._set_day_hvac_template(idf, space, stat_name)
@@ -437,7 +397,18 @@ class CreateIdf(ITask):
             Cooling_Availability_Schedule_Name=cooling_availability
         )
 
-    def _set_people(self, idf, name, zone_name, space, method='area'):
+    def _set_people(self, idf: IDF, name: str, zone_name: str,
+                    space: ThermalZone):
+        """
+        This function sets schedules and internal loads from people (occupancy)
+        based on the BIM2SIM Preprocessing, i.e. based on IFC data if
+        available or on templates.
+        Args:
+            idf: idf file object
+            name: name of the new people idf object
+            zone_name: name of zone or zone_list
+            space: ThermalZone instance
+        """
         schedule_name = "Schedule " + "People " + space.usage.replace(',', '')
         profile_name = 'persons_profile'
         self._set_day_week_year_schedule(idf, space.persons_profile[:24],
@@ -456,9 +427,11 @@ class CreateIdf(ITask):
                              Field_3="Until: 24:00",
                              Field_4=space.fixed_heat_flow_rate_persons.to(
                                  ureg.watt).m  # in W/Person
-                             )  # other method for Field_4 (not used here) ="persons_profile"*"activity_degree_persons"*58,1*1,8 (58.1 W/(m2*met), 1.8m2/Person)
+                             )  # other method for Field_4 (not used here)
+            # ="persons_profile"*"activity_degree_persons"*58,1*1,8
+            # (58.1 W/(m2*met), 1.8m2/Person)
         if CreateIdf.ENERGYPLUS_VERSION in ["9-2-0", "9-4-0"]:
-            people = idf.newidfobject(
+            idf.newidfobject(
                 "PEOPLE",
                 Name=name,
                 Zone_or_ZoneList_Name=zone_name,
@@ -469,7 +442,7 @@ class CreateIdf(ITask):
                 Fraction_Radiant=space.ratio_conv_rad_persons
             )
         else:
-            people = idf.newidfobject(
+            idf.newidfobject(
                 "PEOPLE",
                 Name=name,
                 Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
@@ -480,9 +453,20 @@ class CreateIdf(ITask):
                 Fraction_Radiant=space.ratio_conv_rad_persons
             )
 
-    def _set_day_week_year_schedule(self, idf, schedule, profile_name,
-                                    schedule_name):
-        if idf.getobject("SCHEDULE:DAY:HOURLY", name=schedule_name) == None:
+    @staticmethod
+    def _set_day_week_year_schedule(idf: IDF, schedule: list[float],
+                                    profile_name: str,
+                                    schedule_name: str):
+        """
+        This function sets an hourly day, week and year schedule.
+        Args:
+            idf: idf file object
+            schedule: list of float values for the schedule (e.g.,
+                temperatures, loads)
+            profile_name: string
+            schedule_name: str
+        """
+        if idf.getobject("SCHEDULE:DAY:HOURLY", name=schedule_name) is None:
             limits_name = 'Fraction'
             hours = {}
             if profile_name in {'heating_profile', 'cooling_profile'}:
@@ -491,19 +475,17 @@ class CreateIdf(ITask):
                     idf.newidfobject("SCHEDULETYPELIMITS", Name="Temperature")
             for i, l in enumerate(schedule[:24]):
                 if profile_name in {'heating_profile', 'cooling_profile'}:
+                    # convert Kelvin to Celsius for EnergyPlus Export
                     if schedule[i] > 270:
                         schedule[i] = schedule[i] - 273.15
-                    # set cooling profile manually to 25°C, #bs2021
-                    # if profile_name == 'cooling_profile':
-                    #     schedule[i] = 25
                 hours.update({'Hour_' + str(i + 1): schedule[i]})
             idf.newidfobject("SCHEDULE:DAY:HOURLY", Name=schedule_name,
                              Schedule_Type_Limits_Name=limits_name, **hours)
-        if idf.getobject("SCHEDULE:WEEK:COMPACT", name=schedule_name) == None:
+        if idf.getobject("SCHEDULE:WEEK:COMPACT", name=schedule_name) is None:
             idf.newidfobject("SCHEDULE:WEEK:COMPACT", Name=schedule_name,
                              DayType_List_1="AllDays",
                              ScheduleDay_Name_1=schedule_name)
-        if idf.getobject("SCHEDULE:YEAR", name=schedule_name) == None:
+        if idf.getobject("SCHEDULE:YEAR", name=schedule_name) is None:
             idf.newidfobject("SCHEDULE:YEAR", Name=schedule_name,
                              Schedule_Type_Limits_Name=limits_name,
                              ScheduleWeek_Name_1=schedule_name,
@@ -512,7 +494,18 @@ class CreateIdf(ITask):
                              End_Month_1=12,
                              End_Day_1=31)
 
-    def _set_equipment(self, idf, name, zone_name, space, method='area'):
+    def _set_equipment(self, idf: IDF, name: str, zone_name: str,
+                       space: ThermalZone):
+        """
+        This function sets schedules and internal loads from equipment based
+        on the BIM2SIM Preprocessing, i.e. based on IFC data if available or on
+        templates.
+        Args:
+            idf: idf file object
+            name: name of the new people idf object
+            zone_name: name of zone or zone_list
+            space: ThermalZone instance
+        """
         schedule_name = "Schedule " + "Equipment " + space.usage.replace(',',
                                                                          '')
         profile_name = 'machines_profile'
@@ -537,8 +530,18 @@ class CreateIdf(ITask):
                 Watts_per_Zone_Floor_Area=space.machines.to(ureg.watt).m
             )
 
-    def _set_lights(self, idf, name, zone_name, space, method='area'):
-        # TODO: Define lighting parameters based on IFC (and User-Input otherwise)
+    def _set_lights(self, idf: IDF, name: str, zone_name: str,
+                    space: ThermalZone):
+        """
+        This function sets schedules and lighting based on the
+        BIM2SIM Preprocessing, i.e. based on IFC data if available or on
+        templates.
+        Args:
+            idf: idf file object
+            name: name of the new people idf object
+            zone_name: name of zone or zone_list
+            space: ThermalZone instance
+        """
         schedule_name = "Schedule " + "Lighting " + space.usage.replace(',', '')
         profile_name = 'lighting_profile'
         self._set_day_week_year_schedule(idf, space.lighting_profile[:24],
@@ -546,8 +549,10 @@ class CreateIdf(ITask):
         mode = "Watts/Area"
         watts_per_zone_floor_area = space.lighting_power.to(ureg.watt).m
         return_air_fraction = 0.0
-        fraction_radiant = 0.42  # cf. Table 1.28 in InputOutputReference EnergyPlus (Version 9.4.0), p. 506
-        fraction_visible = 0.18  # Todo: fractions do not match with .json Data. Maybe set by user-input later
+        fraction_radiant = 0.42  # fraction radiant: cf. Table 1.28 in
+        # InputOutputReference EnergyPlus (Version 9.4.0), p. 506
+        fraction_visible = 0.18  # Todo: fractions do not match with .json
+        # Data. Maybe set by user-input later
         if CreateIdf.ENERGYPLUS_VERSION in ["9-2-0", "9-4-0"]:
             idf.newidfobject(
                 "LIGHTS",
@@ -574,7 +579,18 @@ class CreateIdf(ITask):
             )
 
     @staticmethod
-    def _set_infiltration(idf, name, zone_name, space):
+    def _set_infiltration(idf: IDF, name: str, zone_name: str,
+                          space: ThermalZone):
+        """
+        This function sets the infiltration rate per space based on the
+        BIM2SIM preprocessing values (IFC-based if available or
+        template-based).
+        Args:
+            idf: idf file object
+            name: name of the new people idf object
+            zone_name: name of zone or zone_list
+            space: ThermalZone instance
+        """
         idf.newidfobject(
             "ZONEINFILTRATION:DESIGNFLOWRATE",
             Name=name,
@@ -584,18 +600,30 @@ class CreateIdf(ITask):
             Air_Changes_per_Hour=space.infiltration_rate
         )
 
-    def _set_day_hvac_template(self, idf, space, name):
+    def _set_day_hvac_template(self, idf: IDF, space: ThermalZone, name: str):
+        """
+        This function sets idf schedules with 24hour schedules for heating and
+        cooling.
+        Args:
+            idf: idf file object
+            space: ThermalZone
+            name: IDF Thermostat Name
+        """
         clg_schedule_name = ''
-        htg_schedule_name = "Schedule " + "Heating " + space.usage.replace(',',
-                                                                           '')
-        self._set_day_week_year_schedule(idf, space.heating_profile[:24],
-                                         'heating_profile', htg_schedule_name)
+        htg_schedule_name = ''
+        if space.with_heating:
+            htg_schedule_name = "Schedule " + "Heating " + space.usage.replace(
+                ',', '')
+            self._set_day_week_year_schedule(idf, space.heating_profile[:24],
+                                             'heating_profile',
+                                             htg_schedule_name)
 
-        # if room['with_cooling']:
-        clg_schedule_name = "Schedule " + "Cooling " + space.usage.replace(',',
-                                                                           '')
-        self._set_day_week_year_schedule(idf, space.cooling_profile[:24],
-                                         'cooling_profile', clg_schedule_name)
+        if space.with_cooling:
+            clg_schedule_name = "Schedule " + "Cooling " + space.usage.replace(
+                ',', '')
+            self._set_day_week_year_schedule(idf, space.cooling_profile[:24],
+                                             'cooling_profile',
+                                             clg_schedule_name)
         stat = idf.newidfobject(
             "HVACTEMPLATE:THERMOSTAT",
             Name=name,
@@ -604,12 +632,17 @@ class CreateIdf(ITask):
         )
         return stat
 
-    def _set_hvac_template(self, idf, name, heating_sp, cooling_sp,
+    def _set_hvac_template(self, idf: IDF, name: str,
+                           heating_sp: Union[int, float],
+                           cooling_sp: Union[int, float],
                            mode='setback'):
         """
-        Set default HVAC Template
-        :param idf: idf file object
-        :return: stat (HVAC Template)
+        This function manually sets heating and cooling templates.
+        Args:
+            idf: idf file object
+            heating_sp: float or int for heating set point
+            cooling_sp: float or int for cooling set point
+            name: IDF Thermostat Name
         """
         if cooling_sp < 20:
             cooling_sp = 26
@@ -637,13 +670,13 @@ class CreateIdf(ITask):
             htg_name = "H_SetBack_" + str(heating_sp)
             clg_name = "C_SetBack_" + str(cooling_sp)
             if idf.getobject("SCHEDULE:COMPACT", htg_name) is None:
-                htg_sched = self._write_schedule(idf, htg_name, [htg_alldays, ])
+                self._write_schedule(idf, htg_name, [htg_alldays, ])
             else:
-                htg_sched = idf.getobject("SCHEDULE:COMPACT", htg_name)
+                idf.getobject("SCHEDULE:COMPACT", htg_name)
             if idf.getobject("SCHEDULE:COMPACT", clg_name) is None:
-                clg_sched = self._write_schedule(idf, clg_name, [clg_alldays, ])
+                self._write_schedule(idf, clg_name, [clg_alldays, ])
             else:
-                clg_sched = idf.getobject("SCHEDULE:COMPACT", clg_name)
+                idf.getobject("SCHEDULE:COMPACT", clg_name)
             stat = idf.newidfobject(
                 "HVACTEMPLATE:THERMOSTAT",
                 Name="STAT_" + name,
