@@ -386,8 +386,13 @@ class CreateIdf(ITask):
         else:
             stat = idf.getobject("HVACTEMPLATE:THERMOSTAT", stat_name)
 
-        cooling_availability = "On"
-        heating_availability = "On"
+        cooling_availability = "Off"
+        heating_availability = "Off"
+
+        if space.with_cooling:
+            cooling_availability = "On"
+        if space.with_heating:
+            heating_availability = "On"
 
         idf.newidfobject(
             "HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM",
@@ -609,21 +614,17 @@ class CreateIdf(ITask):
             space: ThermalZone
             name: IDF Thermostat Name
         """
-        clg_schedule_name = ''
-        htg_schedule_name = ''
-        if space.with_heating:
-            htg_schedule_name = "Schedule " + "Heating " + space.usage.replace(
-                ',', '')
-            self._set_day_week_year_schedule(idf, space.heating_profile[:24],
-                                             'heating_profile',
-                                             htg_schedule_name)
+        htg_schedule_name = "Schedule " + "Heating " + space.usage.replace(
+            ',', '')
+        self._set_day_week_year_schedule(idf, space.heating_profile[:24],
+                                         'heating_profile',
+                                         htg_schedule_name)
 
-        if space.with_cooling:
-            clg_schedule_name = "Schedule " + "Cooling " + space.usage.replace(
-                ',', '')
-            self._set_day_week_year_schedule(idf, space.cooling_profile[:24],
-                                             'cooling_profile',
-                                             clg_schedule_name)
+        clg_schedule_name = "Schedule " + "Cooling " + space.usage.replace(
+            ',', '')
+        self._set_day_week_year_schedule(idf, space.cooling_profile[:24],
+                                         'cooling_profile',
+                                         clg_schedule_name)
         stat = idf.newidfobject(
             "HVACTEMPLATE:THERMOSTAT",
             Name=name,
