@@ -1290,7 +1290,12 @@ class IdfObject:
                            f"exported."
                            f"{type(ex)=}")
 
-    def _set_idfobject_attributes(self, idf):
+    def _set_idfobject_attributes(self, idf: IDF):
+        """
+        This function writes the precomputed surface attributes to idf.
+        Args:
+            idf: the idf file
+        """
         if self.surface_type is not None:
             if self.key == "BUILDINGSURFACE:DETAILED":
                 if self.surface_type.lower() in {"DOOR".lower(),
@@ -1318,15 +1323,17 @@ class IdfObject:
                 )
             return obj
 
-    def _map_surface_types(self, inst_obj):
+    def _map_surface_types(self, inst_obj: Union[SpaceBoundary,
+                                                 SpaceBoundary2B]):
         """
-        This function maps the attributes of a SpaceBoundary instance to idf surface type
-        :param elem: SpaceBoundary instance
-        :return: idf surface_type
+        This function maps the attributes of a SpaceBoundary instance to idf
+        surface type.
+        Args:
+            inst_obj: SpaceBoundary instance
         """
         elem = inst_obj.bound_instance
         surface_type = None
-        if elem != None:
+        if elem is not None:
             if elem.ifc.is_a("IfcWall"):
                 surface_type = 'Wall'
             elif elem.ifc.is_a("IfcDoor"):
@@ -1386,13 +1393,16 @@ class IdfObject:
                     surface_type = "Ceiling"
         self.surface_type = surface_type
 
-    def _map_boundary_conditions(self, inst_obj):
+    def _map_boundary_conditions(self, inst_obj: Union[SpaceBoundary,
+                                                       SpaceBoundary2B]):
         """
         This function maps the boundary conditions of a SpaceBoundary instance
-        to the idf space boundary conditions
-        :return:
+        to the idf space boundary conditions.
+        Args:
+            inst_obj: SpaceBoundary instance
         """
-        if inst_obj.level_description == '2b' or inst_obj.related_adb_bound is not None:
+        if inst_obj.level_description == '2b' \
+                or inst_obj.related_adb_bound is not None:
             self.out_bound_cond = 'Adiabatic'
             self.sun_exposed = 'NoSun'
             self.wind_exposed = 'NoWind'
@@ -1405,7 +1415,8 @@ class IdfObject:
             self.out_bound_cond = "Ground"
             self.sun_exposed = 'NoSun'
             self.wind_exposed = 'NoWind'
-        elif inst_obj.is_external and inst_obj.physical and not self.surface_type == 'Floor':
+        elif inst_obj.is_external and inst_obj.physical \
+                and not self.surface_type == 'Floor':
             self.out_bound_cond = 'Outdoors'
             self.sun_exposed = 'SunExposed'
             self.wind_exposed = 'WindExposed'
@@ -1419,14 +1430,12 @@ class IdfObject:
             self.wind_exposed = 'NoWind'
         elif inst_obj.related_bound is not None \
                 and not inst_obj.related_bound.ifc.RelatingSpace.is_a(
-            'IfcExternalSpatialElement'):  # or elem.virtual_physical == "VIRTUAL": # elem.internal_external == "INTERNAL"
+            'IfcExternalSpatialElement'):
             self.out_bound_cond = 'Surface'
             self.out_bound_cond_obj = inst_obj.related_bound.guid
             self.sun_exposed = 'NoSun'
             self.wind_exposed = 'NoWind'
-        # elif inst_obj.bound_instance is not None and inst_obj.bound_instance.ifc.is_a() == "IfcWindow":
         elif self.key == "FENESTRATIONSURFACE:DETAILED":
-            # if elem.rel_elem.type == "IfcWindow":
             self.out_bound_cond = 'Outdoors'
             self.sun_exposed = 'SunExposed'
             self.wind_exposed = 'WindExposed'
@@ -1440,11 +1449,13 @@ class IdfObject:
             self.skip_bound = True
 
     @staticmethod
-    def get_circular_shape(obj_pnts):
+    def get_circular_shape(obj_pnts: list[tuple]) -> bool:
         """
         This function checks if a SpaceBoundary has a circular shape.
-        :param obj_pnts: SpaceBoundary vertices (list of coordinate tuples)
-        :return: True if shape is circular
+        Args:
+            obj_pnts: SpaceBoundary vertices (list of coordinate tuples)
+        Returns:
+            True if shape is circular
         """
         circular_shape = False
         # compute if shape is circular:
@@ -1463,15 +1474,18 @@ class IdfObject:
                     continue
         return circular_shape
 
-    def _process_circular_shapes(self, idf, obj_coords, obj, inst_obj):
+    @staticmethod
+    def _process_circular_shapes(idf: IDF, obj_coords: list[tuple], obj,
+                                 inst_obj: Union[SpaceBoundary, SpaceBoundary2B]
+                                 ):
         """
-        This function processes circular boundary shapes. It converts circular shapes
-        to triangular shapes.
-        :param idf: idf file object
-        :param obj_coords: coordinates of an idf object
-        :param obj: idf object
-        :param elem: SpaceBoundary instance
-        :return:
+        This function processes circular boundary shapes. It converts circular
+        shapes to triangular shapes.
+        Args:
+            idf: idf file object
+            obj_coords: coordinates of an idf object
+            obj: idf object
+            elem: SpaceBoundary instance
         """
         drop_count = int(len(obj_coords) / 8)
         drop_list = obj_coords[0::drop_count]
@@ -1504,15 +1518,16 @@ class IdfObject:
         idf.removeidfobject(obj)
 
     @staticmethod
-    def _process_other_shapes(inst_obj, obj):
+    def _process_other_shapes(inst_obj: Union[SpaceBoundary, SpaceBoundary2B],
+                              obj):
         """
         This function processes non-circular shapes with too many vertices
         by approximation of the shape utilizing the UV-Bounds from OCC
         (more than 120 vertices for BUILDINGSURFACE:DETAILED
         and more than 4 vertices for FENESTRATIONSURFACE:DETAILED)
-        :param elem: SpaceBoundary Instance
-        :param obj: idf object
-        :return:
+        Args:
+            inst_obj: SpaceBoundary Instance
+            obj: idf object
         """
         # print("TOO MANY EDGES")
         obj_pnts = []
