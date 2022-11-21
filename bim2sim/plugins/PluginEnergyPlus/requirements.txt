@@ -1,5 +1,4 @@
 geomeppy>=0.11.8
-opencascade>=7.4.0
 shapely
 numpy-stl
 energyplusregressiontool
