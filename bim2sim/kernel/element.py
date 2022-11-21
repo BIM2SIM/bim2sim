@@ -5,7 +5,8 @@ import logging
 from json import JSONEncoder
 import re
 from pathlib import Path
-from typing import Union, Set, Iterable, Dict, List, Tuple, Type, Generator
+from typing import Union, Set, Iterable, Dict, List, Tuple, Type, Generator, \
+    Optional
 
 import numpy as np
 
@@ -360,6 +361,12 @@ class IFCBased(Element):
         # angle between 0 and 360
         return angle_equivalent(ang_sum)
 
+    @cached_property
+    def name(self):
+        ifc_name = self.get_ifc_attribute('Name')
+        if ifc_name:
+            return remove_umlaut(ifc_name)
+
     def get_ifc_attribute(self, attribute):
         """
         Fetches non-empty attributes (if they exist).
@@ -367,7 +374,7 @@ class IFCBased(Element):
         return getattr(self.ifc, attribute, None)
 
     def get_propertyset(self, propertysetname):
-        return ifc2python.get_Property_Set(
+        return ifc2python.get_property_set_by_name(
             propertysetname, self.ifc, self.ifc_units)
 
     def get_propertysets(self):
@@ -410,7 +417,7 @@ class IFCBased(Element):
         return ifc2python.getProject(self.ifc)
 
     def get_true_north(self):
-        return ifc2python.getTrueNorth(self.ifc)
+        return ifc2python.get_true_north(self.ifc)
 
     def summary(self):
         return ifc2python.summary(self.ifc)
@@ -471,10 +478,10 @@ class IFCBased(Element):
             # return hits[0][0]
         if optional_locations:
             for loc in optional_locations:
-                hits = [p.search(ifc2python.get_Property_Set(
+                hits = [p.search(ifc2python.get_property_set_by_name(
                     loc, ifc_element, ifc_units) or '')
                         for p in cls.pattern_ifc_type
-                        if ifc2python.get_Property_Set(
+                        if ifc2python.get_property_set_by_name(
                         loc, ifc_element, ifc_units)]
                 hits = [x for x in hits if x is not None]
                 if any(hits):
@@ -651,6 +658,14 @@ class ProductBased(IFCBased):
     def __repr__(self):
         return "<%s>" % self.__class__.__name__
 
+    def calc_cost_group(self) -> Optional[int]:
+        """Calculate the cost group according to DIN276"""
+        return None
+
+    @cached_property
+    def cost_group(self) -> int:
+        return self.calc_cost_group()
+
 
 class Port(RelationBased):
     """Basic port"""
@@ -722,9 +737,9 @@ class Material(ProductBased):
                                  critical_for_creation=False),
         condition.RangeCondition('density',
                                  0 * ureg.kg / ureg.m ** 3,
-                                 5000 * ureg.kg / ureg.m ** 3,
+                                 50000 * ureg.kg / ureg.m ** 3,
                                  critical_for_creation=False),
-        condition.RangeCondition('thermal_conduct',
+        condition.RangeCondition('thermal_conduc',
                                  0 * ureg.W / ureg.m / ureg.K,
                                  100 * ureg.W / ureg.m / ureg.K,
                                  critical_for_creation=False),
@@ -737,11 +752,6 @@ class Material(ProductBased):
                                  1 * ureg.percent, True,
                                  critical_for_creation=False),
                  ]
-
-    @cached_property
-    def name(self):
-        if hasattr(self.ifc, 'Name'):
-            return remove_umlaut(self.ifc.Name)
 
     spec_heat_capacity = attribute.Attribute(
         default_ps=("Pset_MaterialThermal", "SpecificHeatCapacity"),

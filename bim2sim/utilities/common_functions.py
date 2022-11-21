@@ -212,9 +212,16 @@ def get_type_building_elements_hvac():
     return type_building_elements
 
 
-def filter_instances(instances: dict, type_name) -> list:
+def filter_instances(instances: Union[dict, list], type_name) -> list:
     """Filters the inspected instances by type name (e.g. Wall) and
-    returns them as list"""
+    returns them as list
+
+    Args:
+        instances: dict or list with all bim2sim instances
+        type_name: str or element type to filter for
+    Returns:
+        instances_filtered: list of all bim2sim instances of type type_name
+    """
     instances_filtered = []
     list_instances = instances.values() if type(instances) is dict \
         else instances
