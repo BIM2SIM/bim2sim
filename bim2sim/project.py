@@ -363,6 +363,7 @@ class Project:
         if not workflow:
             workflow = self.default_plugin.default_workflow()
         self.workflow = workflow
+        # todo maybe move this to workflow directly and not get from plugin
         workflow.relevant_elements = self.default_plugin.elements
         workflow.update_from_config(self.config)
         self.playground = Playground(workflow, self.paths, self.name)

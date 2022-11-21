@@ -15,12 +15,13 @@ class EnergyPlus(Plugin):
     name = 'EnergyPlus'
     default_workflow = BuildingSimulation
     allowed_workflows = [BuildingSimulation]
-    elements = {*bps_elements.items, Material}
+    elements = {*bps_elements.items, Material} - {bps_elements.Plate}
     default_tasks = [
         common.LoadIFC,
         common.CreateElements,
         bps.CreateSpaceBoundaries,
         bps.Prepare,
+        common.BindStoreys,
         bps.EnrichUseConditions,
         bps.Verification,  # LOD.full
         bps.EnrichMaterial,  # LOD.full

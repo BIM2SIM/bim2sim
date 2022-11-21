@@ -6,6 +6,7 @@ from bim2sim.kernel.elements.bps import Slab, GroundFloor, Floor, Roof, InnerDoo
 
 
 class Prepare(ITask):
+    # TODO this docstring is not up2date
     """Analyses IFC, creates Element instances corresponding to thermal zones
     and connects them.
     elements are stored in .tz_instances dict with guid as key"""
@@ -29,9 +30,8 @@ class Prepare(ITask):
         return self.tz_instances, self.reduced_instances
 
     def prepare_thermal_zones(self, instances, workflow):
-        """prepare the thermal zones by:
-        * binding the elements to a storey, and storeys to the elements
-        * setting space properties, with cooling and heating"""
+        """prepare the thermal zones by setting space properties, with
+        cooling and heating"""
 
         thermal_zones = filter_instances(instances, 'ThermalZone')
         self.tz_instances = {inst.guid: inst for inst in thermal_zones}
@@ -48,36 +48,9 @@ class Prepare(ITask):
                 raise NotImplementedError("No Spaces found in IFC. No "
                                           "Simulation model can be generated.")
 
-        self.bind_elements_to_storey(instances)
         self.set_space_properties(workflow)
 
         self.logger.info("Found %d space entities", len(self.tz_instances))
-
-    @staticmethod
-    def bind_elements_to_storey(instances):
-        """Bind thermal_zones and instances to each floor/storey and vice
-        versa"""
-        storeys = filter_instances(instances, 'Storey')
-        for storey in storeys:
-            storey_instances = []
-            for ifc_structure in storey.ifc.ContainsElements:
-                for ifc_element in ifc_structure.RelatedElements:
-                    instance = instances.get(ifc_element.GlobalId, None)
-                    if instance is not None:
-                        storey_instances.append(instance)
-                        if storey not in instance.storeys:
-                            instance.storeys.append(storey)
-            storey_spaces = []
-            for ifc_aggregates in storey.ifc.IsDecomposedBy:
-                for ifc_element in ifc_aggregates.RelatedObjects:
-                    instance = instances.get(ifc_element.GlobalId, None)
-                    if instance is not None:
-                        storey_spaces.append(instance)
-                        if storey not in instance.storeys:
-                            instance.storeys.append(storey)
-
-            storey.storey_instances = storey_instances
-            storey.thermal_zones = storey_spaces
 
     def set_space_properties(self, workflow):
         """set cooling and heating values based on workflow settings"""
@@ -173,6 +146,6 @@ class Prepare(ITask):
                 if getattr(d_instance, attr):
                     setattr(instance, attr, getattr(d_instance, attr))
         if hasattr(instance, 'layerset') and hasattr(d_instance, 'layerset'):
-            instance.layerset = d_instance.layerset
-            instance.layerset.parents.append(instance)
-
+            if instance.layerset and d_instance.layerset:
+                instance.layerset = d_instance.layerset
+                instance.layerset.parents.append(instance)

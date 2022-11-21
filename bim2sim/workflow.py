@@ -385,6 +385,10 @@ class BuildingSimulation(Workflow):
 
 class CFDWorkflow(Workflow):
     # todo make something useful
-    def __init__(self):
-        super().__init__(
-        )
+    pass
+
+
+class LCAExport(Workflow):
+    """Life Cycle Assessment analysis with CSV Export of the selected BIM Model
+     """
+    pass

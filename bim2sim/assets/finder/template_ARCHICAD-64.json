@@ -21,7 +21,9 @@
       "width": ["BaseQuantities", "Width"],
       "height": ["BaseQuantities", "Height"],
       "tilt": ["ArchiCADProperties", "\u00c4u\u00dferer Neigungswinkel"],
-      "u_value": ["Pset_WallCommon", "ThermalTransmittance"]
+      "u_value": ["Pset_WallCommon", "ThermalTransmittance"],
+      "net_volume": ["BaseQuantities", "NetVolume"],
+      "gross_volume": ["BaseQuantities", "GrossVolume"]
     }
   },
   "InnerWall": {
@@ -31,7 +33,9 @@
       "width": ["BaseQuantities", "Width"],
       "height": ["BaseQuantities", "Height"],
       "tilt": ["ArchiCADProperties", "\u00c4u\u00dferer Neigungswinkel"],
-      "u_value": ["Pset_WallCommon", "ThermalTransmittance"]
+      "u_value": ["Pset_WallCommon", "ThermalTransmittance"],
+      "net_volume": ["BaseQuantities", "NetVolume"],
+      "gross_volume": ["BaseQuantities", "GrossVolume"]
     }
   },
   "Wall": {
@@ -41,7 +45,9 @@
       "width": ["BaseQuantities", "Width"],
       "height": ["BaseQuantities", "Height"],
       "tilt": ["ArchiCADProperties", "\u00c4u\u00dferer Neigungswinkel"],
-      "u_value": ["Pset_WallCommon", "ThermalTransmittance"]
+      "u_value": ["Pset_WallCommon", "ThermalTransmittance"],
+      "net_volume": ["BaseQuantities", "NetVolume"],
+      "gross_volume": ["BaseQuantities", "GrossVolume"]
     }
   },
   "Roof": {
@@ -49,7 +55,10 @@
       "net_area": ["BaseQuantities", "NetArea"],
       "gross_area": ["BaseQuantities", "GrossArea"],
       "width" : ["BaseQuantities", "Width"],
-      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"]
+      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "is_external" : ["Pset_SlabCommon", "IsExternal"],
+      "net_volume": ["BaseQuantities", "NetVolume"],
+      "gross_volume": ["BaseQuantities", "GrossVolume"]
     }
   },
   "Floor": {
@@ -57,7 +66,10 @@
       "net_area": ["BaseQuantities", "NetArea"],
       "gross_area": ["BaseQuantities", "GrossArea"],
       "width" : ["BaseQuantities", "Width"],
-      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"]
+      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "is_external" : ["Pset_SlabCommon", "IsExternal"],
+      "net_volume": ["BaseQuantities", "NetVolume"],
+      "gross_volume": ["BaseQuantities", "GrossVolume"]
     }
   },
   "GroundFloor": {
@@ -65,7 +77,10 @@
       "net_area": ["BaseQuantities", "NetArea"],
       "gross_area": ["BaseQuantities", "GrossArea"],
       "width" : ["BaseQuantities", "Width"],
-      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"]
+      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "is_external" : ["Pset_SlabCommon", "IsExternal"],
+      "net_volume": ["BaseQuantities", "NetVolume"],
+      "gross_volume": ["BaseQuantities", "GrossVolume"]
     }
   },
   "Window": {
@@ -75,28 +90,35 @@
       "glass_area": ["Konstruktion", "Glasflaeche"],
       "g_value": ["Analytische Eigenschaften (type)", "Gesamtenergiedurchlassgrad"],
       "glass_thickness": ["Konstruktion(type)", "Glasst\u00e4rke"],
-      "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"]
+      "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"],
+      "net_volume": ["BaseQuantities", "Volume"]
     }
   },
   "Door": {
     "default_ps": {
       "gross_area" : ["BaseQuantities", "Area"],
       "width" : ["BaseQuantities", "Depth"],
-      "u_value" : ["Pset_DoorCommon", "ThermalTransmittance"]
+      "u_value" : ["Pset_DoorCommon", "ThermalTransmittance"],
+      "is_external": ["Pset_DoorCommon", "IsExternal"],
+      "net_volume": ["BaseQuantities", "Volume"]
     }
   },
   "InnerDoor": {
     "default_ps": {
       "gross_area" : ["BaseQuantities", "Area"],
       "width" : ["BaseQuantities", "Depth"],
-      "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"]
+      "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"],
+      "is_external": ["Pset_DoorCommon", "IsExternal"],
+      "net_volume": ["BaseQuantities", "Volume"]
     }
   },
   "OuterDoor": {
     "default_ps": {
       "gross_area" : ["BaseQuantities", "Area"],
       "width" : ["BaseQuantities", "Depth"],
-      "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"]
+      "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"],
+      "is_external": ["Pset_DoorCommon", "IsExternal"],
+      "net_volume": ["BaseQuantities", "Volume"]
     }
   },
   "ThermalZone": {
