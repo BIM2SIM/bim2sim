@@ -42,16 +42,24 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
         """Run project with B03_Heating.ifc"""
         ifc = '2022_11_21_B03_Heating_ownCells.ifc'
         project = self.create_project(ifc, 'hkesim')
+        project.workflow.aggregations = [
+            'UnderfloorHeating',
+            'Consumer',
+            'PipeStrand',
+            'ParallelPump',
+            # 'ParallelSpaceHeater',
+            # 'ConsumerHeatingDistributorModule',
+            # 'GeneratorOneFluid'
+        ]
         # handler = ConsoleDecisionHandler()
         # handler.handle(project.run())
         # answers = (*('HVAC-Valve',) * 2, 'HVAC-Distributor',
         #            'HVAC-Boiler', 'HVAC-Storage', *('HVAC-Valve',) * 14,
         #            '2PFOreSeyfWqxUJNMz5nFO', '2YKblmYbhnh4RrfqKcCxPJ',
         #            *(True,) * 13, 0.75, 50, 150, 70, *(1, 500,) * 7)
-        answers = (*('HVAC-Valve',) * 2, 'HVAC-Distributor', *('HVAC-ThreeWayValve',) * 2, 'HVAC-Boiler',
-                   'HVAC-Storage', *('HVAC-Valve',) * 14, *('HVAC-SpaceHeater',) * 7, 'HVAC-PipeFitting',
-                   '2PFOreSeyfWqxUJNMz5nFO', '2YKblmYbhnh4RrfqKcCxPJ',
-                   *(True,) * 11, 0.75, 50, 150, 70, *(1, 500,) * 7)
+        answers = ('HVAC-Distributor', *('HVAC-ThreeWayValve',) * 2,  *('HVAC-Valve',) * 14, *(None,) * 2,
+                   '1gCa_YEgd8WK0YER$738Ii', '184XXDHbkqkqSUK7orFEGw',
+                   *(True,) * 5, 0.75, 50, 150, 70, *(1, 500,) * 7)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer

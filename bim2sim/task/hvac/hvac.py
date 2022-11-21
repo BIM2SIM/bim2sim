@@ -11,7 +11,7 @@ import networkx as nx
 
 from bim2sim.kernel.elements import hvac
 from bim2sim.task.base import ITask
-from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating, ParallelPump
+from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating, ParallelPump, ParallelSpaceHeater
 from bim2sim.kernel.aggregation import Consumer, ConsumerHeatingDistributorModule, GeneratorOneFluid
 from bim2sim.kernel.element import ProductBased, ElementEncoder, Port
 from bim2sim.kernel.hvac import hvac_graph
@@ -366,8 +366,8 @@ class Reduce(ITask):
             'PipeStrand': PipeStrand,
             'ParallelPump': ParallelPump,
             'ConsumerHeatingDistributorModule': ConsumerHeatingDistributorModule,
-            # 'GeneratorOneFluid': GeneratorOneFluid,
-            # 'ParallelSpaceHeater': ParallelSpaceHeater,
+            'GeneratorOneFluid': GeneratorOneFluid,
+            'ParallelSpaceHeater': ParallelSpaceHeater,
         }
         aggregations = [aggregations_cls[agg] for agg in workflow.aggregations]
 
