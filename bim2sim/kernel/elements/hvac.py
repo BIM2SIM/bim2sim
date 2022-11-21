@@ -12,6 +12,7 @@ import numpy as np
 from bim2sim.kernel import condition, attribute
 from bim2sim.decision import ListDecision, DecisionBunch
 from bim2sim.kernel.element import Port, ProductBased
+from bim2sim.kernel.ifc2python import get_predefined_type
 from bim2sim.kernel.units import ureg
 from bim2sim.decorators import cached_property
 
@@ -200,18 +201,26 @@ class HVACProduct(ProductBased):
         try:
             for nested in self.ifc.IsNestedBy:
                 # valid for IFC for Revit v19.2.0.0
-                for element_port_connection in nested.RelatedObjects:
-                    if element_port_connection.is_a() == 'IfcDistributionPort':
-                        ports.append(HVACPort.from_ifc(ifc=element_port_connection, parent=self))
+                for port_connection in nested.RelatedObjects:
+                    port_valid = True
+                    if port_connection.is_a() != 'IfcDistributionPort':
+                        port_valid = False
                     else:
-                        logger.warning("Not included %s as Port in %s", element_port_connection.is_a(), self)
+                        predefined_type = get_predefined_type(port_connection)
+                        if predefined_type != 'PIPE':
+                            port_valid = False
+                    if port_valid:
+                        ports.append(HVACPort.from_ifc(
+                            ifc=port_connection, parent=self))
+                    else:
+                        logger.warning("Not included %s as Port in %s", port_connection.is_a(), self)
         except AttributeError as ae:
             logger.warning("Failed to create Port")
             pass
         # valid for IFC for Revit v19.1.0.0
         element_port_connections = getattr(self.ifc, 'HasPorts', [])
-        for element_port_connection in element_port_connections:
-            ports.append(HVACPort.from_ifc(ifc=element_port_connection.RelatingPort, parent=self))
+        for port_connection in element_port_connections:
+            ports.append(HVACPort.from_ifc(ifc=port_connection.RelatingPort, parent=self))
         return ports
 
     def get_inner_connections(self) -> List[Tuple[HVACPort, HVACPort]]:
@@ -325,6 +334,10 @@ class HeatPump(HVACProduct):
         unit=ureg.dimensionless
     )
 
+    @cached_property
+    def expected_hvac_ports(self):
+        return 4
+
 
 class Chiller(HVACProduct):
     """"Chiller"""
@@ -389,6 +402,10 @@ class Chiller(HVACProduct):
         description='Minimum power at which Chiller operates at.',
         unit=ureg.kilowatt,
     )
+    
+    @cached_property
+    def expected_hvac_ports(self):
+        return 4
 
 
 class CoolingTower(HVACProduct):

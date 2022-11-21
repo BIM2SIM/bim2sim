@@ -593,7 +593,8 @@ class ProductBased(IFCBased):
 
     @cached_property
     def expected_hvac_ports(self):
-        return None
+        raise NotImplementedError(f"Please define the expected number of ports "
+                                  f"for the class {self.__class__.__name__} ")
 
     def get_ports(self):
         return []
@@ -626,7 +627,7 @@ class ProductBased(IFCBased):
                     logger.warning("%s validation (%s) failed for %s", self.ifc_type, cond.name, self.guid)
                     return False
         if not self.validate_ports():
-            logger.warning("%s has more ports (%d) than expected (%d) for %s", self.ifc_type, len(self.ports),
+            logger.warning("%s has %d ports, but %d expected for %s", self.ifc_type, len(self.ports),
                            self.expected_hvac_ports, self.guid)
             return False
         return True

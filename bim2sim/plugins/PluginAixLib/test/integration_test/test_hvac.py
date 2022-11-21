@@ -63,3 +63,39 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
         self.assertIn(ConsumerHeatingDistributorModule, aggregated)
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
+
+    def test_run_b03_heating_new(self):
+        """Run project with B03_Heating.ifc"""
+        ifc = '2022_11_21_B03_Heating_ownCells.ifc'
+        project = self.create_project(ifc, 'aixlib')
+        project.workflow.aggregations = [
+            'UnderfloorHeating',
+            'Consumer',
+            'PipeStrand',
+            'ParallelPump',
+            # 'ParallelSpaceHeater',
+            'ConsumerHeatingDistributorModule',
+            # 'GeneratorOneFluid'
+        ]
+        # handler = ConsoleDecisionHandler()
+        # handler.handle(project.run())
+        # answers = (*('HVAC-Valve',) * 2, 'HVAC-Distributor',
+        #            'HVAC-Boiler', 'HVAC-Storage', *('HVAC-Valve',) * 14,
+        #            '2PFOreSeyfWqxUJNMz5nFO', '2YKblmYbhnh4RrfqKcCxPJ',
+        #            *(True,) * 13, 0.75, 50, 150, 70, *(1, 500,) * 7)
+        answers = ('HVAC-Distributor', *('HVAC-ThreeWayValve',) * 2,  *('HVAC-Valve',) * 14, *(None,) * 2,
+                   '1gCa_YEgd8WK0YER$738Ii', '184XXDHbkqkqSUK7orFEGw',
+                   *(True,) * 5, 0.75, 50,
+                   # rated current, rated height, rated_voltage, rated_volume_floow
+                    150, 70, 50, 50,
+                   # body mass and heat capacity for all space heaters
+                   *(1, 500,) * 7)
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+
+        graph = project.playground.state['graph']
+        aggregated = Counter((type(item) for item in graph.element_graph.nodes))
+        self.assertIn(ConsumerHeatingDistributorModule, aggregated)
+        self.assertEqual(0, handler.return_value,
+                         "Project did not finish successfully.")
