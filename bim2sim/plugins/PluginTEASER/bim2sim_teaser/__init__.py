@@ -22,7 +22,7 @@ class LoadLibrariesTEASER(base.ITask):
 class TEASERManager(Plugin):
     name = 'TEASER'
     default_workflow = BuildingSimulation
-    elements = {*bps_elements.items, Material}
+    elements = {*bps_elements.items, Material} - {bps_elements.Plate}
     allowed_workflows = [
         BuildingSimulation,
     ]
@@ -32,6 +32,7 @@ class TEASERManager(Plugin):
         common.CreateElements,
         bps.CreateSpaceBoundaries,
         bps.Prepare,
+        common.BindStoreys,
         bps.EnrichUseConditions,
         bps.Verification,
         bps.EnrichMaterial,

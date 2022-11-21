@@ -295,6 +295,10 @@ class HVACProduct(ProductBased):
         rl.flow_side = -1
         self.inner_connections.append((vl, rl))
 
+    def calc_cost_group(self) -> [int]:
+        """Default cost group for HVAC elements is 400"""
+        return 400
+
     def __repr__(self):
         return "<%s (ports: %d)>" % (self.__class__.__name__, len(self.ports))
 

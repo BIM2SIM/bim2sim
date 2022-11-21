@@ -4,9 +4,6 @@ from decision.decisionhandler import DebugDecisionHandler
 from test.unit.kernel.helper import SetupHelperBPS
 from bim2sim.task.bps import enrich_use_cond
 
-# todo: create a few zones with tz.usage which are existing in common usages
-#  and test if the attributes are all correctly set after enrichment
-
 
 class TestEnrichUseCond(unittest.TestCase):
     helper: SetupHelperBPS = None
