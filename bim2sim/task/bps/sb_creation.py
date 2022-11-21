@@ -16,18 +16,14 @@ from bim2sim.utilities.common_functions import filter_instances
 
 logger = logging.getLogger(__name__)
 
+
 class CreateSpaceBoundaries(ITask):
     """Create space boundary elements from ifc."""
 
     reads = ('ifc', 'instances', 'finder')
     touches = ('space_boundaries',)
 
-    def __init__(self):
-        super().__init__()
-        self.non_sb_elements = []
-
     def run(self, workflow, ifc, instances, finder):
-        bldg_instances = filter_instances(instances, 'Building')
         logger.info("Creates elements for IfcRelSpaceBoundarys")
         type_filter = TypeFilter(('IfcRelSpaceBoundary',))
         entity_type_dict, unknown_entities = type_filter.run(ifc)
@@ -43,7 +39,8 @@ class CreateSpaceBoundaries(ITask):
         return space_boundaries,
 
     def _get_parents_and_children(self, boundaries: list[SpaceBoundary],
-                                  instances: dict) -> dict[str, SpaceBoundary]:
+                                  instances: dict, opening_area_tolerance=0.01) \
+            -> dict[str, SpaceBoundary]:
         """Get parent-children relationships between space boundaries.
 
         This function computes the parent-children relationships between
@@ -58,7 +55,7 @@ class CreateSpaceBoundaries(ITask):
         """
         logger.info("Compute relationships between space boundaries")
         logger.info("Compute relationships between openings and their "
-                         "base surfaces")
+                    "base surfaces")
         drop_list = {}  # HACK: dictionary for bounds which have to be removed
         bound_dict = {bound.guid: bound for bound in boundaries}
         temp_instances = instances.copy()
@@ -88,7 +85,8 @@ class CreateSpaceBoundaries(ITask):
                 # wall (within inner loop) and reassign the current opening
                 # boundary to the surrounding boundary (which is the true
                 # parent boundary)
-                if (inst_obj.bound_area - op_bound.bound_area).m < 0.01:
+                if (inst_obj.bound_area - op_bound.bound_area).m \
+                        < opening_area_tolerance:
                     rel_bound, drop_list = self._reassign_opening_bounds(
                         inst_obj, op_bound, b_inst, drop_list)
                     if not rel_bound:
@@ -134,7 +132,8 @@ class CreateSpaceBoundaries(ITask):
     @staticmethod
     def _get_opening_boundary(this_boundary: SpaceBoundary,
                               this_space: ThermalZone,
-                              opening_elem: Union[Window, Door])\
+                              opening_elem: Union[Window, Door],
+                              max_wall_thickness=0.3) \
             -> Union[SpaceBoundary, None]:
         """Get related opening boundary of another space boundary.
 
@@ -145,6 +144,8 @@ class CreateSpaceBoundaries(ITask):
             this_boundary: current instance of SpaceBoundary
             this_space: ThermalZone instance
             opening_elem: BIM2SIM instance of Window or Door.
+            max_wall_thickness: maximum expected wall thickness in the building.
+                Space boundaries of openings may be displaced by this distance.
         Returns:
             opening_boundary: Union[SpaceBoundary, None]
         """
@@ -162,7 +163,7 @@ class CreateSpaceBoundaries(ITask):
                 center_shape,
                 Extrema_ExtFlag_MIN
             ).Value()
-            if center_dist > 0.3:
+            if center_dist > max_wall_thickness:
                 continue
             distances[center_dist] = op_bound
         sorted_distances = dict(sorted(distances.items()))
@@ -174,7 +175,9 @@ class CreateSpaceBoundaries(ITask):
     def _reassign_opening_bounds(this_boundary: SpaceBoundary,
                                  opening_boundary: SpaceBoundary,
                                  bound_instance: Element,
-                                 drop_list: dict[str, SpaceBoundary]) -> \
+                                 drop_list: dict[str, SpaceBoundary],
+                                 max_wall_thickness=0.3,
+                                 angle_tolerance=0.1) -> \
             tuple[SpaceBoundary, dict[str, SpaceBoundary]]:
         """Fix assignment of parent and child space boundaries.
 
@@ -200,6 +203,9 @@ class CreateSpaceBoundaries(ITask):
             drop_list: dict[str, SpaceBoundary] with SpaceBoundary instances
                 that have same size as opening space boundaries and therefore
                 should be dropped
+            max_wall_thickness: maximum expected wall thickness in the building.
+                Space boundaries of openings may be displaced by this distance.
+            angle_tolerance: tolerance for comparison of surface normal angles.
         Returns:
             rel_bound: New parent boundary for the opening that had the same
                 geometry as its previous parent boundary
@@ -222,14 +228,15 @@ class CreateSpaceBoundaries(ITask):
                 angle = math.degrees(
                     gp_Dir(b.bound_normal).Angle(gp_Dir(
                         opening_boundary.bound_normal)))
-                if not (angle < 0.1 or angle > 179.9):
+                if not (angle < 0 + angle_tolerance
+                        or angle > 180 - angle_tolerance):
                     continue
                 distance = BRepExtrema_DistShapeShape(
                     b.bound_shape,
                     opening_boundary.bound_shape,
                     Extrema_ExtFlag_MIN
                 ).Value()
-                if distance > 0.4:
+                if distance > max_wall_thickness:
                     continue
                 else:
                     rel_bound = b
@@ -251,14 +258,15 @@ class CreateSpaceBoundaries(ITask):
                                    f"normals failed for  "
                                    f"{b.guid} and {opening_boundary.guid}. "
                                    f"{type(ex)=}")
-                if not (angle < 0.1 or angle > 179.9):
+                if not (angle < 0 + angle_tolerance
+                        or angle > 180 - angle_tolerance):
                     continue
                 distance = BRepExtrema_DistShapeShape(
                     b.bound_shape,
                     opening_boundary.bound_shape,
                     Extrema_ExtFlag_MIN
                 ).Value()
-                if distance > 0.4:
+                if distance > max_wall_thickness:
                     continue
                 else:
                     rel_bound = b
@@ -290,7 +298,8 @@ class CreateSpaceBoundaries(ITask):
             relating_space = instances.get(
                 element.ifc.RelatingSpace.GlobalId, None)
             if relating_space is not None:
-                self.connect_space_boundaries(element, relating_space, instances)
+                self.connect_space_boundaries(element, relating_space,
+                                              instances)
                 instance_lst[element.guid] = element
 
         return list(instance_lst.values())
@@ -318,4 +327,3 @@ class CreateSpaceBoundaries(ITask):
             thermal_zone.bound_elements.append(bound_instance)
         if thermal_zone not in bound_instance.thermal_zones:
             bound_instance.thermal_zones.append(thermal_zone)
-
