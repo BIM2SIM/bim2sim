@@ -343,15 +343,6 @@ class BuildingSimulation(Workflow):
         description="Select the most fitting type of construction class for"
                     " the windows of the selected building.",
     )
-    cfd_export = WorkflowSetting(
-        default=False,
-        choices={
-            False: 'Do not use CFD export',
-            True: 'Use CFD export'
-        },
-        description='Whether to use CFD export for this simulation or not.',
-        for_frontend=True
-    )
     heating = WorkflowSetting(
         default=True,
         choices={
@@ -381,6 +372,44 @@ class BuildingSimulation(Workflow):
 #     },
 #     for_webapp=True
 #     # manager=self.settings,
+
+class EnergyPlusWorkflow(BuildingSimulation):
+    """Defines workflow settings for EnergyPlus Plugin.
+
+    This class defines the workflow settings for the EnergyPlus Plugin. It
+    inherits all choices from the BuildingSimulation workflow. EnergyPlus
+    specific settings are added here, such as simulation control parameters
+    and export settings.
+    """
+    cfd_export = WorkflowSetting(
+        default=False,
+        choices={
+            False: 'Do not use CFD export',
+            True: 'Use CFD export'
+        },
+        description='Whether to use CFD export for this simulation or not.',
+        for_frontend=True
+    )
+    ep_version = WorkflowSetting(
+        default='9-4-0',
+        choices={
+            '9-2-0': 'EnergyPlus Version 9-2-0',
+            '9-4-0': 'EnergyPlus Version 9-4-0', 
+            '22-2-0': 'EnergyPlus Version 22-2-0'  # todo: Test latest version
+        },
+        description='Choose EnergyPlus Version',
+        for_frontend=True
+    )
+    
+    ep_install_path = WorkflowSetting(
+        default=f'/usr/local/EnergyPlus-{ep_version.default}/',
+        choices={
+            'ubuntu-path': f'/usr/local/EnergyPlus-{ep_version.default}/',
+            'windows-default': f'C:/EnergyPlus/EnergyPlusV{ep_version.default}/'
+        },
+        description='Choose EnergyPlus Installation Path',
+        for_frontend=True
+    )
 
 
 class CFDWorkflow(Workflow):
