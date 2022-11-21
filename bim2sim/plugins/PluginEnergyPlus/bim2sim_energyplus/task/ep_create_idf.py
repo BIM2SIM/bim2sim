@@ -33,7 +33,7 @@ from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.utilities.pyocc_tools import PyOCCTools
-from bim2sim.workflow import Workflow
+from bim2sim.workflow import Workflow, EnergyPlusWorkflow
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,6 @@ class CreateIdf(ITask):
     Task to create an EnergyPlus Input file based on the for EnergyPlus
     preprocessed space boundary geometries.
     """
-    ENERGYPLUS_VERSION = "9-4-0"
 
     reads = ('instances', 'ep_decisions', 'weather_file',)
     touches = ('idf',)
@@ -55,13 +54,13 @@ class CreateIdf(ITask):
     def run(self, workflow, instances, ep_decisions, weather_file):
         self.logger.info("IDF generation started ...")
         self.logger.info("Init thermal zones ...")
-        idf = self._init_idf(self.paths, weather_file)
-        self._init_zone(instances, idf)
+        idf = self._init_idf(workflow, self.paths, weather_file)
+        self._init_zone(workflow, instances, idf)
         self._init_zonelist(idf)
         self._init_zonegroups(instances, idf)
         self.logger.info("Get predefined materials and construction ...")
-        self._get_preprocessed_materials_and_constructions(instances, idf)
-        # self._get_bs2021_materials_and_constructions(idf)
+        self._get_preprocessed_materials_and_constructions(workflow, instances,
+                                                           idf)
         add_shadings = ep_decisions['EnergyPlus.AddShadings']
         if add_shadings:
             self.logger.info("Add Shadings ...")
@@ -80,7 +79,7 @@ class CreateIdf(ITask):
         return idf,
 
     @staticmethod
-    def _init_idf(paths, weather_file: PosixPath):
+    def _init_idf(workflow, paths, weather_file: PosixPath):
         """
         Initialize the EnergyPlus input file (idf) with general idf settings
         and set default weather
@@ -92,13 +91,14 @@ class CreateIdf(ITask):
         # set the installation path for the EnergyPlus installation
         # ep_install_path = '/usr/local/EnergyPlus-9-2-0/'
         # ep_install_path = '/usr/local/EnergyPlus-9-3-0/'
-        ep_install_path = f'/usr/local/EnergyPlus' \
-                          f'-{CreateIdf.ENERGYPLUS_VERSION}/'
+        # ep_install_path = f'/usr/local/EnergyPlus' \
+        #                   f'-{workflow.ep_version}/'
         # ep_install_path = f'C:/Program Files/EnergyPlus' \
-        #                   f'V{CreateIdf.ENERGYPLUS_VERSION}/'
+        #                   f'V{workflow.ep_version}/'
         # ep_install_path = r'C:/Program Files (x86)/EnergyPlusV9-4-0/'
         # ep_install_path = f'C:/EnergyPlus/EnergyPlus' \
-        #                   f'V{CreateIdf.ENERGYPLUS_VERSION}/'
+        #                   f'V{workflow.ep_version}/'
+        ep_install_path = workflow.ep_install_path
 
         # set the plugin path of the PluginEnergyPlus within the BIM2SIM Tool
         plugin_ep_path = str(Path(__file__).parent.parent.parent)
@@ -121,12 +121,14 @@ class CreateIdf(ITask):
         idf.epw = str(weather_file)
         return idf
 
-    def _init_zone(self, instances: dict, idf: IDF):
+    def _init_zone(self, workflow: EnergyPlusWorkflow, instances: dict,
+                   idf: IDF):
         """
         Creates one idf zone per space and sets heating and cooling
         templates, infiltration and internal loads (occupancy (people),
         equipment, lighting).
         Args:
+            workflow: BIM2SIM Workflow
             instances: dict[guid: element]
             idf: idf file object
         """
@@ -140,11 +142,11 @@ class CreateIdf(ITask):
             self._set_heating_and_cooling(idf, zone_name=zone.Name, space=space)
             self._set_infiltration(idf, name=zone.Name, zone_name=zone.Name,
                                    space=space)
-            self._set_people(idf, name=zone.Name, zone_name=zone.Name,
+            self._set_people(workflow, idf, name=zone.Name, zone_name=zone.Name,
                              space=space)
-            self._set_equipment(idf, name=zone.Name, zone_name=zone.Name,
+            self._set_equipment(workflow, idf, name=zone.Name, zone_name=zone.Name,
                                 space=space)
-            self._set_lights(idf, name=zone.Name, zone_name=zone.Name,
+            self._set_lights(workflow, idf, name=zone.Name, zone_name=zone.Name,
                              space=space)
 
     @staticmethod
@@ -220,13 +222,14 @@ class CreateIdf(ITask):
                              Zone_List_Multiplier=1
                              )
 
-    def _get_preprocessed_materials_and_constructions(self, instances: dict,
-                                                      idf: IDF):
+    def _get_preprocessed_materials_and_constructions(
+            self, workflow: EnergyPlusWorkflow, instances: dict, idf: IDF):
         """
         This function sets preprocessed construction and material for
         building surfaces and fenestration. For virtual bounds, an air
         boundary construction is set.
         Args:
+            workflow: BIM2SIM Workflow
             instances: dict[guid: element]
             idf: idf file object
         """
@@ -246,7 +249,7 @@ class CreateIdf(ITask):
                 self._set_preprocessed_window_material_elem(rel_elem, idf)
 
         # Add air boundaries as construction as a material for virtual bounds
-        if CreateIdf.ENERGYPLUS_VERSION in ["9-2-0", "9-4-0"]:
+        if workflow.ep_version in ["9-2-0", "9-4-0"]:
             idf.newidfobject("CONSTRUCTION:AIRBOUNDARY",
                              Name='Air Wall',
                              Solar_and_Daylighting_Method='GroupedZones',
@@ -403,13 +406,14 @@ class CreateIdf(ITask):
             Cooling_Availability_Schedule_Name=cooling_availability
         )
 
-    def _set_people(self, idf: IDF, name: str, zone_name: str,
-                    space: ThermalZone):
+    def _set_people(self, workflow: EnergyPlusWorkflow, idf: IDF, name: str,
+                    zone_name: str, space: ThermalZone):
         """
         This function sets schedules and internal loads from people (occupancy)
         based on the BIM2SIM Preprocessing, i.e. based on IFC data if
         available or on templates.
         Args:
+            workflow: BIM2SIM Workflow
             idf: idf file object
             name: name of the new people idf object
             zone_name: name of zone or zone_list
@@ -436,7 +440,7 @@ class CreateIdf(ITask):
                              )  # other method for Field_4 (not used here)
             # ="persons_profile"*"activity_degree_persons"*58,1*1,8
             # (58.1 W/(m2*met), 1.8m2/Person)
-        if CreateIdf.ENERGYPLUS_VERSION in ["9-2-0", "9-4-0"]:
+        if workflow.ep_version in ["9-2-0", "9-4-0"]:
             idf.newidfobject(
                 "PEOPLE",
                 Name=name,
@@ -500,13 +504,15 @@ class CreateIdf(ITask):
                              End_Month_1=12,
                              End_Day_1=31)
 
-    def _set_equipment(self, idf: IDF, name: str, zone_name: str,
+    def _set_equipment(self, workflow: EnergyPlusWorkflow, idf: IDF,
+                       name: str, zone_name: str,
                        space: ThermalZone):
         """
         This function sets schedules and internal loads from equipment based
         on the BIM2SIM Preprocessing, i.e. based on IFC data if available or on
         templates.
         Args:
+            workflow: BIM2SIM Workflow
             idf: idf file object
             name: name of the new people idf object
             zone_name: name of zone or zone_list
@@ -517,7 +523,7 @@ class CreateIdf(ITask):
         profile_name = 'machines_profile'
         self._set_day_week_year_schedule(idf, space.machines_profile[:24],
                                          profile_name, schedule_name)
-        if CreateIdf.ENERGYPLUS_VERSION in ["9-2-0", "9-4-0"]:
+        if workflow.ep_version in ["9-2-0", "9-4-0"]:
             idf.newidfobject(
                 "ELECTRICEQUIPMENT",
                 Name=name,
@@ -536,8 +542,8 @@ class CreateIdf(ITask):
                 Watts_per_Zone_Floor_Area=space.machines.to(ureg.watt).m
             )
 
-    def _set_lights(self, idf: IDF, name: str, zone_name: str,
-                    space: ThermalZone):
+    def _set_lights(self, workflow: EnergyPlusWorkflow, idf: IDF, name: str,
+                    zone_name: str, space: ThermalZone):
         """
         This function sets schedules and lighting based on the
         BIM2SIM Preprocessing, i.e. based on IFC data if available or on
@@ -559,7 +565,7 @@ class CreateIdf(ITask):
         # InputOutputReference EnergyPlus (Version 9.4.0), p. 506
         fraction_visible = 0.18  # Todo: fractions do not match with .json
         # Data. Maybe set by user-input later
-        if CreateIdf.ENERGYPLUS_VERSION in ["9-2-0", "9-4-0"]:
+        if workflow.ep_version in ["9-2-0", "9-4-0"]:
             idf.newidfobject(
                 "LIGHTS",
                 Name=name,
