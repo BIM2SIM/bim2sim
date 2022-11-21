@@ -17,7 +17,7 @@ class CreateSpaceBoundaries(ITask):
     """Create space boundary elements from ifc."""
 
     reads = ('ifc', 'instances', 'finder')
-    touches = ('space_boundaries', 'instances')
+    touches = ('space_boundaries',)
 
     def __init__(self):
         super().__init__()
@@ -37,7 +37,7 @@ class CreateSpaceBoundaries(ITask):
         self.logger.info("Created %d elements", len(bound_instances))
 
         space_boundaries = {inst.guid: inst for inst in instance_lst}
-        return space_boundaries, instances,
+        return space_boundaries,
 
     def _get_parents_and_children(self, boundaries, instances):
         """get parent-children relationships between IfcElements (e.g. Windows,
