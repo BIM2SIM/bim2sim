@@ -1,17 +1,20 @@
+import logging
 import math
-from typing import List
+from typing import List, Union
 
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex
 from OCC.Core.gp import gp_Pnt, gp_Dir
 
 from bim2sim.filter import TypeFilter
-from bim2sim.kernel.element import RelationBased
+from bim2sim.kernel.element import RelationBased, Element, IFCBased
 from bim2sim.task.base import ITask
-from bim2sim.kernel.elements.bps import SpaceBoundary, ExtSpatialSpaceBoundary
+from bim2sim.kernel.elements.bps import SpaceBoundary, ExtSpatialSpaceBoundary, \
+    ThermalZone, Window, Door
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from bim2sim.utilities.common_functions import filter_instances
 
+logger = logging.getLogger(__name__)
 
 class CreateSpaceBoundaries(ITask):
     """Create space boundary elements from ifc."""
@@ -25,7 +28,7 @@ class CreateSpaceBoundaries(ITask):
 
     def run(self, workflow, ifc, instances, finder):
         bldg_instances = filter_instances(instances, 'Building')
-        self.logger.info("Creates elements for IfcRelSpaceBoundarys")
+        logger.info("Creates elements for IfcRelSpaceBoundarys")
         type_filter = TypeFilter(('IfcRelSpaceBoundary',))
         entity_type_dict, unknown_entities = type_filter.run(ifc)
         instance_lst = self.instantiate_space_boundaries(
@@ -34,16 +37,27 @@ class CreateSpaceBoundaries(ITask):
         bound_instances = self._get_parents_and_children(instance_lst,
                                                          instances)
         instance_lst = list(bound_instances.values())
-        self.logger.info("Created %d elements", len(bound_instances))
+        logger.info("Created %d elements", len(bound_instances))
 
         space_boundaries = {inst.guid: inst for inst in instance_lst}
         return space_boundaries,
 
-    def _get_parents_and_children(self, boundaries, instances):
-        """get parent-children relationships between IfcElements (e.g. Windows,
-        Walls) and the corresponding relationships of their space boundaries"""
-        self.logger.info("Compute relationships between space boundaries")
-        self.logger.info("Compute relationships between openings and their "
+    def _get_parents_and_children(self, boundaries: list[SpaceBoundary],
+                                  instances: dict) -> dict[str, SpaceBoundary]:
+        """Get parent-children relationships between space boundaries.
+
+        This function computes the parent-children relationships between
+        IfcElements (e.g. Windows, Walls) to obtain the corresponding
+        relationships of their space boundaries.
+
+        Args:
+            boundaries: list of SpaceBoundary instances
+            instances: dict[guid: element]
+        Returns:
+            bound_dict: dict[guid: element]
+        """
+        logger.info("Compute relationships between space boundaries")
+        logger.info("Compute relationships between openings and their "
                          "base surfaces")
         drop_list = {}  # HACK: dictionary for bounds which have to be removed
         bound_dict = {bound.guid: bound for bound in boundaries}
@@ -59,7 +73,7 @@ class CreateSpaceBoundaries(ITask):
                 continue
             # assign opening elems (Windows, Doors) to parents and vice versa
             related_opening_elems = \
-                self._get_related_of_opening_elems(b_inst, temp_instances)
+                self._get_related_opening_elems(b_inst, temp_instances)
             if not related_opening_elems:
                 continue
             # assign space boundaries of opening elems (Windows, Doors)
@@ -90,9 +104,19 @@ class CreateSpaceBoundaries(ITask):
         return bound_dict
 
     @staticmethod
-    def _get_related_of_opening_elems(bound_instance, instances):
-        """This function returns all opening elements of the current related
-        building element which is related to the current space boundary."""
+    def _get_related_opening_elems(bound_instance: Element, instances: dict) \
+            -> list[Union[Window, Door]]:
+        """Get related opening elements of current building element.
+
+        This function returns all opening elements of the current related
+        building element which is related to the current space boundary.
+
+        Args:
+            bound_instance: BIM2SIM building element (e.g., Wall, Floor, ...)
+            instances: dict[guid: element]
+        Returns:
+            related_opening_elems: list of Window and Door instances
+        """
         related_opening_elems = []
         if not hasattr(bound_instance.ifc, 'HasOpenings'):
             return related_opening_elems
@@ -108,9 +132,22 @@ class CreateSpaceBoundaries(ITask):
         return related_opening_elems
 
     @staticmethod
-    def _get_opening_boundary(this_boundary, this_space, opening_elem):
-        """ This function returns the related opening boundary of another
-        space boundary."""
+    def _get_opening_boundary(this_boundary: SpaceBoundary,
+                              this_space: ThermalZone,
+                              opening_elem: Union[Window, Door])\
+            -> Union[SpaceBoundary, None]:
+        """Get related opening boundary of another space boundary.
+
+        This function returns the related opening boundary of another
+        space boundary.
+
+        Args:
+            this_boundary: current instance of SpaceBoundary
+            this_space: ThermalZone instance
+            opening_elem: BIM2SIM instance of Window or Door.
+        Returns:
+            opening_boundary: Union[SpaceBoundary, None]
+        """
         opening_boundary = None
         distances = {}
         for op_bound in opening_elem.space_boundaries:
@@ -134,16 +171,19 @@ class CreateSpaceBoundaries(ITask):
         return opening_boundary
 
     @staticmethod
-    def _reassign_opening_bounds(this_boundary, opening_boundary,
-                                 bound_instance,
-                                 drop_list):
-        """
+    def _reassign_opening_bounds(this_boundary: SpaceBoundary,
+                                 opening_boundary: SpaceBoundary,
+                                 bound_instance: Element,
+                                 drop_list: dict[str, SpaceBoundary]) -> \
+            tuple[SpaceBoundary, dict[str, SpaceBoundary]]:
+        """Fix assignment of parent and child space boundaries.
+
         This function reassigns the current opening bound as an opening
         boundary of its surrounding boundary. This function only applies if
         the opening boundary has the same surface area as the assigned parent
         surface.
         HACK:
-        some space boundaries have inner loops which are removed for vertical
+        Some space boundaries have inner loops which are removed for vertical
         bounds in calc_bound_shape (elements.py). Those inner loops contain
         an additional vertical bound (wall) which is "parent" of an
         opening. EnergyPlus does not accept openings having a parent
@@ -151,6 +191,21 @@ class CreateSpaceBoundaries(ITask):
         removed from shapes beforehand, those boundaries are removed from
         "instances" and the openings are assigned to have the larger
         boundary as a parent.
+
+        Args:
+            this_boundary: current instance of SpaceBoundary
+            opening_boundary: current instance of opening SpaceBoundary (
+                related to BIM2SIM Window or Door)
+            bound_instance: BIM2SIM building element (e.g., Wall, Floor, ...)
+            drop_list: dict[str, SpaceBoundary] with SpaceBoundary instances
+                that have same size as opening space boundaries and therefore
+                should be dropped
+        Returns:
+            rel_bound: New parent boundary for the opening that had the same
+                geometry as its previous parent boundary
+            drop_list: Updated dict[str, SpaceBoundary] with SpaceBoundary
+                instances that have same size as opening space boundaries and
+                therefore should be dropped
         """
         rel_bound = None
         drop_list[this_boundary.guid] = this_boundary
@@ -165,7 +220,8 @@ class CreateSpaceBoundaries(ITask):
                 # check if orientation of possibly related bound is the same
                 # as opening
                 angle = math.degrees(
-                    gp_Dir(b.bound_normal).Angle(gp_Dir(opening_boundary.bound_normal)))
+                    gp_Dir(b.bound_normal).Angle(gp_Dir(
+                        opening_boundary.bound_normal)))
                 if not (angle < 0.1 or angle > 179.9):
                     continue
                 distance = BRepExtrema_DistShapeShape(
@@ -178,18 +234,23 @@ class CreateSpaceBoundaries(ITask):
                 else:
                     rel_bound = b
         else:
-            tzb = [b for b in
-                   opening_boundary.bound_thermal_zone.space_boundaries if
-                   b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries]
+            tzb = \
+                [b for b in
+                 opening_boundary.bound_thermal_zone.space_boundaries if
+                 b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries]
             for b in tzb:
                 # check if orientation of possibly related bound is the same
                 # as opening
+                angle = None
                 try:
                     angle = math.degrees(
                         gp_Dir(b.bound_normal).Angle(
                             gp_Dir(opening_boundary.bound_normal)))
-                except:
-                    pass
+                except Exception as ex:
+                    logger.warning(f"Unexpected {ex=}. Comparison of bound "
+                                   f"normals failed for  "
+                                   f"{b.guid} and {opening_boundary.guid}. "
+                                   f"{type(ex)=}")
                 if not (angle < 0.1 or angle > 179.9):
                     continue
                 distance = BRepExtrema_DistShapeShape(
