@@ -278,10 +278,7 @@ class ThermalZone(BPSProduct):
         """
         This function returns the volume of a space shape
         """
-        props = GProp_GProps()
-        brepgprop_VolumeProperties(self.space_shape, props)
-        volume = props.Mass()
-        return volume
+        return PyOCCTools.get_shape_volume(self.space_shape)
 
     def get_volume_geometric(self, name):
         """
@@ -1085,9 +1082,17 @@ class SpaceBoundary(element.RelationBased):
         """
         This function returns the opening bounds of the spaceboundary
         """
+        return list()
+
+    @cached_property
+    def parent_bound(self):
+        """
+        This function returns the parent bound of the space boundary. Only
+        available for space boundary of openings. The parent boundary of an
+        opening boundary is the boundary of the wall which surrounds the
+        opening.
+        """
         return None
-    # opening_bounds = attribute.Attribute(
-    # )
 
 
 class ExtSpatialSpaceBoundary(SpaceBoundary):

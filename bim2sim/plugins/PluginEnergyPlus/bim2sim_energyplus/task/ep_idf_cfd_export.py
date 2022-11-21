@@ -63,8 +63,8 @@ class ExportIdfForCfd(ITask):
                 os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
 
                 inst_obj.cfd_face = inst_obj.bound_shape
-                if hasattr(inst_obj, 'related_opening_bounds'):
-                    for opening in inst_obj.related_opening_bounds:
+                if inst_obj.opening_bounds:
+                    for opening in inst_obj.opening_bounds:
                         inst_obj.cfd_face = BRepAlgoAPI_Cut(inst_obj.cfd_face, opening.bound_shape).Shape()
                 triang_face = BRepMesh_IncrementalMesh(inst_obj.cfd_face, 1)
                 # Export to STL
@@ -93,8 +93,8 @@ class ExportIdfForCfd(ITask):
                 bound_name = inst_obj.guid
                 this_name = stl_dir + str(stl_name) + "_cfd_" + str(bound_name) + ".stl"
                 inst_obj.cfd_face = inst_obj.bound_shape
-                if hasattr(inst_obj, 'related_opening_bounds'):
-                    for opening in inst_obj.related_opening_bounds:
+                if inst_obj.opening_bounds:
+                    for opening in inst_obj.opening_bounds:
                         inst_obj.cfd_face = BRepAlgoAPI_Cut(inst_obj.cfd_face, opening.bound_shape).Shape()
                 triang_face = BRepMesh_IncrementalMesh(inst_obj.cfd_face, 1)
                 # Export to STL
