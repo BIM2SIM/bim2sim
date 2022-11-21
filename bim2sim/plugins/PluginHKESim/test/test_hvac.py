@@ -40,7 +40,7 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
 
     def test_run_b03_heating(self):
         """Run project with B03_Heating.ifc"""
-        ifc = 'B03_Heating.ifc'
+        ifc = '2022_11_21_B03_Heating_ownCells.ifc'
         project = self.create_project(ifc, 'hkesim')
         # handler = ConsoleDecisionHandler()
         # handler.handle(project.run())
