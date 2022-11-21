@@ -593,7 +593,7 @@ class ProductBased(IFCBased):
 
     @cached_property
     def expected_hvac_ports(self):
-        return []
+        return None
 
     def get_ports(self):
         return []

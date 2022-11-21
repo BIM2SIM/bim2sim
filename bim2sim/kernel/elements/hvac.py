@@ -13,7 +13,7 @@ from bim2sim.kernel import condition, attribute
 from bim2sim.decision import ListDecision, DecisionBunch
 from bim2sim.kernel.element import Port, ProductBased
 from bim2sim.kernel.units import ureg
-from decorators import cached_property
+from bim2sim.decorators import cached_property
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')

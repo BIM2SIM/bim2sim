@@ -48,7 +48,7 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
             'PipeStrand',
             'ParallelPump',
             # 'ParallelSpaceHeater',
-            # 'ConsumerHeatingDistributorModule',
+            'ConsumerHeatingDistributorModule',
             # 'GeneratorOneFluid'
         ]
         # handler = ConsoleDecisionHandler()
