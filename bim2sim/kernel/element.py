@@ -591,6 +591,10 @@ class ProductBased(IFCBased):
         cls.key = f'{cls.domain}-{cls.__name__}'
         cls.key_map[cls.key] = cls
 
+    @cached_property
+    def expected_hvac_ports(self):
+        return []
+
     def get_ports(self):
         return []
 

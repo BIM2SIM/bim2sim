@@ -286,10 +286,6 @@ class HVACProduct(ProductBased):
         rl.flow_side = -1
         self.inner_connections.append((vl, rl))
 
-    @cached_property
-    def expected_hvac_ports(self):
-        return []
-
     def validate_ports(self):
         if len(self.ports) != self.expected_hvac_ports:
             return False
@@ -625,18 +621,15 @@ class Boiler(HVACProduct):
 class Pipe(HVACProduct):
     ifc_types = {
         "IfcPipeSegment":
-            ['*', 'CULVERT', 'FLEXIBLESEGMENT', 'RIGIDSEGMENT', 'GUTTER',
-             'SPOOL']
+            ['*', 'CULVERT', 'FLEXIBLESEGMENT', 'RIGIDSEGMENT', 'GUTTER', 'SPOOL']
     }
 
     @cached_property
     def expected_hvac_ports(self):
         return 2
-    # expected_hvac_ports = 2
 
     conditions = [
-        condition.RangeCondition("diameter", 5.0 * ureg.millimeter,
-                                 300.00 * ureg.millimeter)  # ToDo: unit?!
+        condition.RangeCondition("diameter", 5.0 * ureg.millimeter, 300.00 * ureg.millimeter)  # ToDo: unit?!
     ]
 
     diameter = attribute.Attribute(
