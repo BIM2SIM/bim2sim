@@ -247,10 +247,7 @@ class ThermalZone(BPSProduct):
         """
         This function returns the volume of a space shape
         """
-        props = GProp_GProps()
-        brepgprop_VolumeProperties(self.space_shape, props)
-        volume = props.Mass()
-        return volume
+        return PyOCCTools.get_shape_volume(self.space_shape)
 
     def get_volume_geometric(self, name):
         """

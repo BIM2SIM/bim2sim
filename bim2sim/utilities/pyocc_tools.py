@@ -9,7 +9,7 @@ from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace, \
     BRepBuilderAPI_Transform, BRepBuilderAPI_MakePolygon
 from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, \
-    brepgprop_LinearProperties
+    brepgprop_LinearProperties, brepgprop_VolumeProperties
 from OCC.Core.BRepTools import BRepTools_WireExplorer
 from OCC.Core.GProp import GProp_GProps
 from OCC.Core.Geom import Handle_Geom_Plane_DownCast
@@ -299,3 +299,18 @@ class PyOCCTools:
             if abs(new_area - org_area) < 5e-3:
                 face = new_face
         return face
+
+    @staticmethod
+    def get_shape_volume(shape: TopoDS_Shape) -> float:
+        """
+        This function computes the volume of a shape and returns the value as a
+        float.
+        Args:
+            shape: TopoDS_Shape
+        Returns:
+            volume: float
+        """
+        props = GProp_GProps()
+        brepgprop_VolumeProperties(shape, props)
+        volume = props.Mass()
+        return volume
