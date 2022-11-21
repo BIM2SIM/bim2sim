@@ -6,7 +6,7 @@ from bim2sim.log import default_logging_setup
 from bim2sim.workflow import LOD
 
 
-def run_example_1():
+def run_example_4():
     # Create the default logging to for quality log and bim2sim main log (
     # see logging documentation for more information
     default_logging_setup()
@@ -15,7 +15,7 @@ def run_example_1():
     project_path = Path(tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
 
     # Get path of the IFC Building model that is used for this example
-    ifc_path = Path(__file__).parent.parent / 'test/TestModels/B03_Heating_ownCells.ifc'
+    ifc_path = Path(__file__).parent.parent / 'test/TestModels/2022_11_21_B03_Heating_ownCells.ifc'
 
     # Create a project including the folder structure for the project with teaser as
     # backend and no specified workflow (default workflow is taken)
@@ -52,4 +52,4 @@ def run_example_1():
 # return_temperature = 50
 
 if __name__ == '__main__':
-    run_example_1()
+    run_example_4()
