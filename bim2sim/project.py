@@ -61,7 +61,6 @@ def config_base_setup(path, backend=None):
             'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
         config["BuildingSimulation"]["heating"] = str(True)
         config["BuildingSimulation"]["cooling"] = str(False)
-        config["BuildingSimulation"]["cfd_export"] = str(False)
         config.add_section("PlantSimulation")
         config["PlantSimulation"]["aggregations"] = str([
             'UnderfloorHeating',
