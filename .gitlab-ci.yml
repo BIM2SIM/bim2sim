@@ -1,8 +1,11 @@
-.only-default: &only-default
+.test-default: &test-default
   only:
-    - master
-    - tags
-    - branches
+    refs:
+      - master
+      - tags
+      - branches
+    changes:
+      - bim2sim/**/*.py
 
 stages:
   - test
@@ -274,7 +277,7 @@ build_tool:aixlib:
       - bim2sim/plugins/PluginAixLib/*
 
 test_Base:
-  <<: *only-default
+  <<: *test-default
   image: $CI_REGISTRY/environment:development
   stage: test
   services:
@@ -299,7 +302,7 @@ test_Base:
     - $CI_COMMIT_REF_NAME/coverage
 
 test_EP:
-  <<: *only-default
+  <<: *test-default
   image: $CI_REGISTRY/environment:energyplus
   stage: test
   services:
@@ -325,7 +328,7 @@ test_EP:
     - $CI_COMMIT_REF_NAME/coverage
 
 test_EP_regression:
-  <<: *only-default
+  <<: *test-default
   image: $CI_REGISTRY/environment:energyplus
   stage: test
   before_script:
@@ -348,7 +351,7 @@ test_EP_regression:
     - $CI_COMMIT_REF_NAME/coverage
 
 test_TEASER:
-  <<: *only-default
+  <<: *test-default
   image: $CI_REGISTRY/environment:teaser
   stage: test
   services:
@@ -373,7 +376,7 @@ test_TEASER:
     - $CI_COMMIT_REF_NAME/coverage
 
 test_TEASER_regression:
-  <<: *only-default
+  <<: *test-default
   image: $CI_REGISTRY/environment:teaser-dymola
   stage: test
   before_script:
@@ -395,7 +398,7 @@ test_TEASER_regression:
     - $CI_COMMIT_REF_NAME/coverage
 
 test_CFD:
-  <<: *only-default
+  <<: *test-default
   image: $CI_REGISTRY/environment:cfd
   stage: test
   services:
@@ -420,7 +423,7 @@ test_CFD:
     - $CI_COMMIT_REF_NAME/coverage
 
 test_AixLib:
-  <<: *only-default
+  <<: *test-default
   image: $CI_REGISTRY/environment:aixlib
   stage: test
   services:
@@ -474,15 +477,14 @@ pylint:
    expire_in: 2 hrs
 
 sphinxdoc:
- image: $CI_REGISTRY/tool:development
+ image: $CI_REGISTRY/environment:development
  stage: doc
  services:
   - name: docker:18.09.7-dind
     command: ["--mtu=1440"]
  before_script:
+   - mv ./* /bim2sim-coding/
    - pip install -r /bim2sim-coding/docs/requirements.txt
-   - pip install anybadge
-
  script:
    - mkdir -p $CI_COMMIT_REF_NAME/docs
    - sphinx-apidoc -M -o /bim2sim-coding/docs/source/code /bim2sim-coding  # create rst files for all python files

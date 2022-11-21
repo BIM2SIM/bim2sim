@@ -548,7 +548,8 @@ def load(path) -> Dict[str, Any]:
         with open(path, "r") as file:
             data = json.load(file)
     except IOError as ex:
-        logger.info("Unable to load decisions. (%s)", ex)
+        logger.info(f"Unable to load decisions. "
+                    f"No Existing decisions found at {ex.filename}")
         return {}
     version = data.get('version', '0')
     if version != __VERSION__:

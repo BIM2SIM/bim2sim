@@ -1,4 +1,4 @@
-(plugins)=
+(plugin_main)=
 # Plugins
 
 ```{eval-rst}

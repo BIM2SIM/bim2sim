@@ -14,11 +14,8 @@ class CreateRegressionResultsTEASER(RegressionTestTEASER):
     def create_regression_results_FZKHaus(self):
         """Create fresh regression results for the AC20-FZK-Haus.ifc"""
         ifc = 'AC20-FZK-Haus.ifc'
-        used_workflow = workflow.BPSOneZoneAggregatedLayersLow()
-        used_workflow.dymola_simulation = False
-        project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+        project = self.create_project(ifc, 'TEASER')
+        answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer

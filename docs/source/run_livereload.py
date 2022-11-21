@@ -10,7 +10,7 @@ if __name__ == '__main__':
     server.watch('*.rst', shell(rebuild_cmd), delay=1)
     server.watch('*.md', shell(rebuild_cmd), delay=1)
     server.watch('*.py', shell(rebuild_cmd), delay=1)
-    server.watch('../../MainLib/bim2sim/*.py', shell(rebuild_cmd), delay=1)
+    server.watch('../../bim2sim/*.py', shell(rebuild_cmd), delay=1)
     server.watch('_static/*', shell(rebuild_cmd), delay=1)
     server.watch('_templates/*', shell(rebuild_cmd), delay=1)
     server.serve(root='../build/html')

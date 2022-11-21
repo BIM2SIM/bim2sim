@@ -155,6 +155,7 @@ class GeometricFilter(Filter):
         __doc__ = super().matches.__doc__
         raise NotImplementedError("ToDo")  #TODO
 
+
 class ZoneFilter(GeometricFilter):
     """Filter elements within given zone"""
 

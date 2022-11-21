@@ -11,7 +11,7 @@ from bim2sim.decorators import cached_property
 
 class DisaggregationCreation(ITask):
     """Prepares bim2sim instances to later export"""
-    # for 1Zone Building - workflow.spaces: LOD.low - Disaggregations
+    # for 1Zone Building - workflow.zoning_setup: LOD.low - Disaggregations
     # not necessary
     reads = ('instances', 'finder')
     touches = ('disaggregations',)
@@ -25,7 +25,7 @@ class DisaggregationCreation(ITask):
 
     def run(self, workflow, finder, instances):
         thermal_zones = filter_instances(instances, 'ThermalZone')
-        if workflow.spaces is not LOD.low:
+        if workflow.zoning_setup is not LOD.low:
             for tz in thermal_zones:
                 new_bound_elements = self.get_thermal_zone_disaggregations(
                     tz, finder)

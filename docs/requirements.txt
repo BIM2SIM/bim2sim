@@ -3,3 +3,5 @@ sphinx-rtd-theme
 livereload
 myst-parser
 sphinx-autodoc-typehints
+anybadge
+sphinxcontrib-mermaid
