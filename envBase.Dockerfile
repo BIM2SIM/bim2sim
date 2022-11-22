@@ -73,14 +73,6 @@ RUN /opt/conda/bin/conda install --yes --freeze-installed \
 	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
 
 
-## install occ utils via existing file 
-RUN pip install https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
-
-## TODO Remove temporary install energyplusregression via release as pip is deleted, see https://github.com/NREL/EnergyPlusRegressionTool/issues/97 
-RUN pip install https://github.com/NREL/EnergyPlusRegressionTool/archive/refs/tags/v1.9.7.tar.gz
-
-
-
 # Set Pythonpath
 ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim"
 ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginEnergyPlus"

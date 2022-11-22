@@ -7,3 +7,4 @@ python-dateutil
 mako
 pint
 deep_translator
+https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
