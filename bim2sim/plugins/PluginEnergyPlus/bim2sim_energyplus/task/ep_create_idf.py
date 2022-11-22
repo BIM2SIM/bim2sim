@@ -1228,8 +1228,8 @@ class IdfObject:
             self.key = "BUILDINGSURFACE:DETAILED"
         if inst_obj.parent_bound:
             self.building_surface_name = inst_obj.parent_bound.guid
-        self._map_surface_types(inst_obj)
-        self._map_boundary_conditions(inst_obj)
+        self.map_surface_types(inst_obj)
+        self.map_boundary_conditions(inst_obj)
         self.set_preprocessed_construction_name()
         if self.construction_name is None:
             self.set_construction_name()
@@ -1368,8 +1368,8 @@ class IdfObject:
                 )
             return obj
 
-    def _map_surface_types(self, inst_obj: Union[SpaceBoundary,
-                                                 SpaceBoundary2B]):
+    def map_surface_types(self, inst_obj: Union[SpaceBoundary,
+                                                SpaceBoundary2B]):
         """Map surface types.
 
         This function maps the attributes of a SpaceBoundary instance to idf
@@ -1429,7 +1429,7 @@ class IdfObject:
                     surface_type = "Ceiling"
                     if inst_obj.related_bound is None or inst_obj.is_external:
                         surface_type = "Roof"
-        elif inst_obj.physical == False:
+        elif not inst_obj.physical:
             if not PyOCCTools.compare_direction_of_normals(
                     inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
                 surface_type = 'Wall'
@@ -1440,8 +1440,8 @@ class IdfObject:
                     surface_type = "Ceiling"
         self.surface_type = surface_type
 
-    def _map_boundary_conditions(self, inst_obj: Union[SpaceBoundary,
-                                                       SpaceBoundary2B]):
+    def map_boundary_conditions(self, inst_obj: Union[SpaceBoundary,
+                                                      SpaceBoundary2B]):
         """Map boundary conditions.
 
         This function maps the boundary conditions of a SpaceBoundary instance
