@@ -8,10 +8,10 @@ from bim2sim.task import common, bps
 from bim2sim.workflow import EnergyPlusWorkflow
 from bim2sim.kernel.element import Material
 
-from bim2sim_energyplus import task as ep_tasks
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import task as ep_tasks
 
 
-class EnergyPlus(Plugin):
+class PluginEnergyPlus(Plugin):
     name = 'EnergyPlus'
     default_workflow = EnergyPlusWorkflow
     allowed_workflows = [EnergyPlusWorkflow]

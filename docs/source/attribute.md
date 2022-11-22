@@ -48,7 +48,7 @@ sure that all relevant information exists, a parameter can be
 [requested](request). This way a [Decisions](Decision) will be created if the 
 status of the corresponding attribute is `NOT_AVAILABLE`.
 
-# todo: flow chart with mermaid. To use mermaid: https://github.com/mgaitan/sphinxcontrib-mermaid#markdown-support
+// todo: flow chart with mermaid. To use mermaid: https://github.com/mgaitan/sphinxcontrib-mermaid#markdown-support
 
 The [AttributeManager](AttributeManager) uses the status of each attribute to
 store if an attribute was already requested. To trigger all decisions for the 

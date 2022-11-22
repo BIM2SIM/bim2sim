@@ -16,7 +16,7 @@ from bim2sim.project import Project, FolderStructure
 from bim2sim.plugins import Plugin
 
 
-class DummyPlugin(Plugin):
+class PluginDummy(Plugin):
     name = 'test'
     default_workflow = PlantSimulation
     elements = {Pipe, PipeFitting, HeatExchanger}
@@ -45,7 +45,7 @@ class TestInspect(unittest.TestCase):
         print(cls.test_dir.name)
 
         # create initial folder structure
-        project = Project.create(cls.test_dir.name, plugin=DummyPlugin)
+        project = Project.create(cls.test_dir.name, plugin=PluginDummy)
         # deactivate created project
         project.finalize(True)
 
@@ -54,7 +54,7 @@ class TestInspect(unittest.TestCase):
         cls.test_dir.cleanup()
 
     def setUp(self) -> None:
-        self.project = Project(self.test_dir.name, plugin=DummyPlugin)
+        self.project = Project(self.test_dir.name, plugin=PluginDummy)
 
     def tearDown(self):
         self.project.finalize()
