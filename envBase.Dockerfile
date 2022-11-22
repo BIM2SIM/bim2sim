@@ -76,8 +76,6 @@ RUN /opt/conda/bin/conda install --yes --freeze-installed \
 ## install occ utils via existing file 
 RUN pip install https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
 
-## TODO Remove temporary install energyplusregression via release as pip is deleted, see https://github.com/NREL/EnergyPlusRegressionTool/issues/97 
-RUN pip install https://github.com/NREL/EnergyPlusRegressionTool/archive/refs/tags/v1.9.7.tar.gz
 
 
 
