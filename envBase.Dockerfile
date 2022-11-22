@@ -42,7 +42,7 @@ RUN apt-get -y install libgl-dev
 # Copy files
 COPY ./requirements.txt .
 
-RUN 	conda create -n env python=3.10
+RUN 	conda create -n env python=3.9
 RUN		conda update -n base -c defaults conda
 RUN 	echo "source activate env" > ~/.bashrc
 ENV 	PATH /opt/conda/envs/env/bin:$PATH
