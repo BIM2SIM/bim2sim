@@ -13,6 +13,7 @@ from bim2sim.kernel.elements.bps import SpaceBoundary, ExtSpatialSpaceBoundary, 
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.workflow import EnergyPlusWorkflow
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ class CreateSpaceBoundaries(ITask):
         instance_lst = self.instantiate_space_boundaries(
             entity_type_dict, instances, finder,
             workflow.create_external_elements, workflow.ifc_units)
-        bound_instances = self.get_parents_and_children(instance_lst,
+        bound_instances = self.get_parents_and_children(workflow, instance_lst,
                                                         instances)
         instance_lst = list(bound_instances.values())
         logger.info("Created %d elements", len(bound_instances))
@@ -38,7 +39,8 @@ class CreateSpaceBoundaries(ITask):
         space_boundaries = {inst.guid: inst for inst in instance_lst}
         return space_boundaries,
 
-    def get_parents_and_children(self, boundaries: list[SpaceBoundary],
+    def get_parents_and_children(self, workflow: EnergyPlusWorkflow,
+                                 boundaries: list[SpaceBoundary],
                                  instances: dict, opening_area_tolerance=0.01) \
             -> dict[str, SpaceBoundary]:
         """Get parent-children relationships between space boundaries.
@@ -48,8 +50,10 @@ class CreateSpaceBoundaries(ITask):
         relationships of their space boundaries.
 
         Args:
+            workflow: BIM2SIM EnergyPlusWorkflow
             boundaries: list of SpaceBoundary instances
             instances: dict[guid: element]
+            opening_area_tolerance: Tolerance for comparison of opening areas.
         Returns:
             bound_dict: dict[guid: element]
         """
@@ -76,8 +80,9 @@ class CreateSpaceBoundaries(ITask):
             # assign space boundaries of opening elems (Windows, Doors)
             # to parents and vice versa
             for opening in related_opening_elems:
-                op_bound = self.get_opening_boundary(inst_obj, inst_obj_space,
-                                                     opening)
+                op_bound = self.get_opening_boundary(
+                    inst_obj, inst_obj_space, opening,
+                    workflow.max_wall_thickness)
                 if not op_bound:
                     continue
                 # HACK:
@@ -88,7 +93,8 @@ class CreateSpaceBoundaries(ITask):
                 if (inst_obj.bound_area - op_bound.bound_area).m \
                         < opening_area_tolerance:
                     rel_bound, drop_list = self.reassign_opening_bounds(
-                        inst_obj, op_bound, b_inst, drop_list)
+                        inst_obj, op_bound, b_inst, drop_list,
+                        workflow.max_wall_thickness)
                     if not rel_bound:
                         continue
                     rel_bound.opening_bounds.append(op_bound)

@@ -361,6 +361,19 @@ class BuildingSimulation(Workflow):
         description='Whether the building should be supplied with cooling.',
         for_frontend=True
     )
+    max_wall_thickness = WorkflowSetting(
+        default=0.3,
+        choices={
+            1e-3: 'Tolerance only for opening displacement',
+            0.30: 'Maximum Wall Thickness of 0.3m',
+            0.35: 'Maximum Wall Thickness of 0.35m',
+            0.40: 'Maximum Wall Thickness of 0.4m'
+        },
+        description='Choose maximum wall thickness as a tolerance for mapping '
+                    'opening boundaries to their base surface (Wall). '
+                    'Choose 0.3m as a default value.',
+        for_frontend=True
+    )
 
 
 # todo move chosen criteria function from bind_tz decision to here
@@ -400,12 +413,13 @@ class EnergyPlusWorkflow(BuildingSimulation):
         description='Choose EnergyPlus Version',
         for_frontend=True
     )
-    
     ep_install_path = WorkflowSetting(
-        default=f'/usr/local/EnergyPlus-{ep_version.default}/',
+        default=f'/usr/local/EnergyPlus-9-4-0/',
         choices={
-            'ubuntu-path': f'/usr/local/EnergyPlus-{ep_version.default}/',
-            'windows-default': f'C:/EnergyPlus/EnergyPlusV{ep_version.default}/'
+            f'/usr/local/EnergyPlus-9-4-0/': 'ubuntu-default',
+            f'/usr/local/EnergyPlus-{ep_version.default}/':
+                'ubuntu-path-choice',
+            f'C:/EnergyPlus/EnergyPlusV{ep_version.default}/': 'windows-default'
         },
         description='Choose EnergyPlus Installation Path',
         for_frontend=False

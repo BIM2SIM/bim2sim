@@ -61,6 +61,7 @@ def config_base_setup(path, backend=None):
             'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
         config["BuildingSimulation"]["heating"] = str(True)
         config["BuildingSimulation"]["cooling"] = str(False)
+        config["BuildingSimulation"]["max_wall_thickness"] = '0.3'
         config.add_section("EnergyPlusWorkflow")
         config["EnergyPlusWorkflow"]["cfd_export"] = str(False)
         config["EnergyPlusWorkflow"]["ep_version"] = '9-4-0'
