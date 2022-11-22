@@ -408,7 +408,7 @@ class EnergyPlusWorkflow(BuildingSimulation):
             'windows-default': f'C:/EnergyPlus/EnergyPlusV{ep_version.default}/'
         },
         description='Choose EnergyPlus Installation Path',
-        for_frontend=True
+        for_frontend=False
     )
 
 

@@ -61,6 +61,11 @@ def config_base_setup(path, backend=None):
             'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
         config["BuildingSimulation"]["heating"] = str(True)
         config["BuildingSimulation"]["cooling"] = str(False)
+        config.add_section("EnergyPlusWorkflow")
+        config["EnergyPlusWorkflow"]["cfd_export"] = str(False)
+        config["EnergyPlusWorkflow"]["ep_version"] = '9-4-0'
+        config["EnergyPlusWorkflow"]["ep_install_path"] = \
+            f'/usr/local/EnergyPlus-9-4-0/'
         config.add_section("PlantSimulation")
         config["PlantSimulation"]["aggregations"] = str([
             'UnderfloorHeating',
