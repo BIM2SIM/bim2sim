@@ -252,6 +252,19 @@ class Workflow(metaclass=AutoSettingNameMeta):
         description='Create external elements?',
         for_frontend=True
     )
+    max_wall_thickness = WorkflowSetting(
+        default=0.3,
+        choices={
+            1e-3: 'Tolerance only for opening displacement',
+            0.30: 'Maximum Wall Thickness of 0.3m',
+            0.35: 'Maximum Wall Thickness of 0.35m',
+            0.40: 'Maximum Wall Thickness of 0.4m'
+        },
+        description='Choose maximum wall thickness as a tolerance for mapping '
+                    'opening boundaries to their base surface (Wall). '
+                    'Choose 0.3m as a default value.',
+        for_frontend=True
+    )
 
 
 class PlantSimulation(Workflow):
@@ -359,19 +372,6 @@ class BuildingSimulation(Workflow):
             True: 'Supply building with cooling'
         },
         description='Whether the building should be supplied with cooling.',
-        for_frontend=True
-    )
-    max_wall_thickness = WorkflowSetting(
-        default=0.3,
-        choices={
-            1e-3: 'Tolerance only for opening displacement',
-            0.30: 'Maximum Wall Thickness of 0.3m',
-            0.35: 'Maximum Wall Thickness of 0.35m',
-            0.40: 'Maximum Wall Thickness of 0.4m'
-        },
-        description='Choose maximum wall thickness as a tolerance for mapping '
-                    'opening boundaries to their base surface (Wall). '
-                    'Choose 0.3m as a default value.',
         for_frontend=True
     )
 
