@@ -6,7 +6,8 @@ from bim2sim.plugins import Plugin
 from bim2sim.workflow import LCAExport
 from bim2sim.kernel.element import Material
 from bim2sim.kernel.elements import hvac as hvac_elements, bps as bps_elements
-from bim2sim.task import common, lca, bps
+from bim2sim.task import common, bps
+from bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca import ExportLCA
 
 
 class PluginLCA(Plugin):
@@ -18,5 +19,5 @@ class PluginLCA(Plugin):
         common.CreateElements,
         common.BindStoreys,
         bps.CreateSpaceBoundaries,
-        lca.ExportLCA,
+        ExportLCA,
     ]

@@ -11,7 +11,7 @@ from bim2sim.workflow import PlantSimulation
 sample_root = Path(__file__).parent.parent.parent / 'test/TestModels'
 
 
-class DummyPlugin(Plugin):
+class PluginDummy(Plugin):
     name = "Dummy"
     default_workflow = PlantSimulation
     tasks = []
@@ -39,7 +39,7 @@ class TestProject(BaseTestProject):
             self.path,
             sample_root /
             'KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc',
-            DummyPlugin
+            PluginDummy
         )
 
         self.assertTrue(os.path.samefile(self.path, project.paths.root))
@@ -57,7 +57,7 @@ class TestProject(BaseTestProject):
             self.path,
             sample_root /
             'KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc',
-            DummyPlugin
+            PluginDummy
         )
         self.assertTrue(os.path.exists(project.paths.ifc))
         project.finalize(True)
@@ -68,7 +68,7 @@ class TestProject(BaseTestProject):
             self.path,
             sample_root /
             'KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc',
-            DummyPlugin
+            PluginDummy
         )
         self.assertTrue(os.path.exists(project2.paths.ifc))
         project2.finalize(True)

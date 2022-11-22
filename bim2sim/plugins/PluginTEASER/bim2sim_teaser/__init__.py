@@ -7,8 +7,8 @@ from bim2sim.kernel.element import Material
 from bim2sim.plugins import Plugin
 from bim2sim.workflow import BuildingSimulation
 from bim2sim.task import common, bps, base
-from bim2sim_teaser import task as teaser_task
-from bim2sim_teaser.models import TEASER
+import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
+from bim2sim.plugins.PluginTEASER.bim2sim_teaser.models import TEASER
 
 
 class LoadLibrariesTEASER(base.ITask):
@@ -19,7 +19,7 @@ class LoadLibrariesTEASER(base.ITask):
         return (TEASER,),
 
 
-class TEASERManager(Plugin):
+class PluginTEASER(Plugin):
     name = 'TEASER'
     default_workflow = BuildingSimulation
     elements = {*bps_elements.items, Material} - {bps_elements.Plate}

@@ -353,9 +353,9 @@ class EPGeomPreprocessing(ITask):
                     instances[new_bound.guid] = new_bound
                     conv.append(new_bound)
             except Exception as ex:
-                logger.warning(f"Unexpected {ex=}. Converting bound "
+                logger.warning(f"Unexpected {ex}. Converting bound "
                                f"{bound.guid} to convex shape failed. "
-                               f"{type(ex)=}")
+                               f"{type(ex)}")
 
     @staticmethod
     def _create_copy_of_space_boundary(bound: SpaceBoundary) -> SpaceBoundary:
@@ -481,9 +481,9 @@ class EPGeomPreprocessing(ITask):
             try:
                 convex_shapes = convex_decomposition(spatial.bound_shape)
             except Exception as ex:
-                logger.warning(f"Unexpected {ex=}. Converting shading bound "
+                logger.warning(f"Unexpected {ex}. Converting shading bound "
                                f"{spatial.guid} to convex shape failed. "
-                               f"{type(ex)=}")
+                               f"{type(ex)}")
             new_space_boundaries = self._create_new_convex_bounds(convex_shapes,
                                                                   spatial)
             spatial_bounds.remove(spatial)
