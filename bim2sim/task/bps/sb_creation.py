@@ -30,16 +30,16 @@ class CreateSpaceBoundaries(ITask):
         instance_lst = self.instantiate_space_boundaries(
             entity_type_dict, instances, finder,
             workflow.create_external_elements, workflow.ifc_units)
-        bound_instances = self._get_parents_and_children(instance_lst,
-                                                         instances)
+        bound_instances = self.get_parents_and_children(instance_lst,
+                                                        instances)
         instance_lst = list(bound_instances.values())
         logger.info("Created %d elements", len(bound_instances))
 
         space_boundaries = {inst.guid: inst for inst in instance_lst}
         return space_boundaries,
 
-    def _get_parents_and_children(self, boundaries: list[SpaceBoundary],
-                                  instances: dict, opening_area_tolerance=0.01) \
+    def get_parents_and_children(self, boundaries: list[SpaceBoundary],
+                                 instances: dict, opening_area_tolerance=0.01) \
             -> dict[str, SpaceBoundary]:
         """Get parent-children relationships between space boundaries.
 
@@ -70,14 +70,14 @@ class CreateSpaceBoundaries(ITask):
                 continue
             # assign opening elems (Windows, Doors) to parents and vice versa
             related_opening_elems = \
-                self._get_related_opening_elems(b_inst, temp_instances)
+                self.get_related_opening_elems(b_inst, temp_instances)
             if not related_opening_elems:
                 continue
             # assign space boundaries of opening elems (Windows, Doors)
             # to parents and vice versa
             for opening in related_opening_elems:
-                op_bound = self._get_opening_boundary(inst_obj, inst_obj_space,
-                                                      opening)
+                op_bound = self.get_opening_boundary(inst_obj, inst_obj_space,
+                                                     opening)
                 if not op_bound:
                     continue
                 # HACK:
@@ -87,7 +87,7 @@ class CreateSpaceBoundaries(ITask):
                 # parent boundary)
                 if (inst_obj.bound_area - op_bound.bound_area).m \
                         < opening_area_tolerance:
-                    rel_bound, drop_list = self._reassign_opening_bounds(
+                    rel_bound, drop_list = self.reassign_opening_bounds(
                         inst_obj, op_bound, b_inst, drop_list)
                     if not rel_bound:
                         continue
@@ -102,7 +102,7 @@ class CreateSpaceBoundaries(ITask):
         return bound_dict
 
     @staticmethod
-    def _get_related_opening_elems(bound_instance: Element, instances: dict) \
+    def get_related_opening_elems(bound_instance: Element, instances: dict) \
             -> list[Union[Window, Door]]:
         """Get related opening elements of current building element.
 
@@ -130,10 +130,10 @@ class CreateSpaceBoundaries(ITask):
         return related_opening_elems
 
     @staticmethod
-    def _get_opening_boundary(this_boundary: SpaceBoundary,
-                              this_space: ThermalZone,
-                              opening_elem: Union[Window, Door],
-                              max_wall_thickness=0.3) \
+    def get_opening_boundary(this_boundary: SpaceBoundary,
+                             this_space: ThermalZone,
+                             opening_elem: Union[Window, Door],
+                             max_wall_thickness=0.3) \
             -> Union[SpaceBoundary, None]:
         """Get related opening boundary of another space boundary.
 
@@ -172,12 +172,12 @@ class CreateSpaceBoundaries(ITask):
         return opening_boundary
 
     @staticmethod
-    def _reassign_opening_bounds(this_boundary: SpaceBoundary,
-                                 opening_boundary: SpaceBoundary,
-                                 bound_instance: Element,
-                                 drop_list: dict[str, SpaceBoundary],
-                                 max_wall_thickness=0.3,
-                                 angle_tolerance=0.1) -> \
+    def reassign_opening_bounds(this_boundary: SpaceBoundary,
+                                opening_boundary: SpaceBoundary,
+                                bound_instance: Element,
+                                drop_list: dict[str, SpaceBoundary],
+                                max_wall_thickness=0.3,
+                                angle_tolerance=0.1) -> \
             tuple[SpaceBoundary, dict[str, SpaceBoundary]]:
         """Fix assignment of parent and child space boundaries.
 
