@@ -7,6 +7,8 @@ from OCC.Core.gp import gp_Pnt, gp_Dir
 
 from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import RelationBased, Element, IFCBased
+from bim2sim.kernel.finder import TemplateFinder
+from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
 from bim2sim.kernel.elements.bps import SpaceBoundary, ExtSpatialSpaceBoundary, \
     ThermalZone, Window, Door
@@ -279,10 +281,25 @@ class CreateSpaceBoundaries(ITask):
         return rel_bound, drop_list
 
     def instantiate_space_boundaries(
-            self, entities_dict, instances, finder,
-            create_external_elements, ifc_units) -> List[RelationBased]:
-        """Instantiate space boundary ifc_entities using given element class.
-        Result is a list with the resulting valid elements"""
+            self, entities_dict: dict[str], instances: dict, finder:
+            TemplateFinder,
+            create_external_elements: bool, ifc_units: dict[str, ureg]) \
+            -> List[RelationBased]:
+        """Instantiate space boundary ifc_entities.
+
+        This function instantiates space boundaries using given element class.
+        Result is a list with the resulting valid elements.
+
+        Args:
+            entities_dict: dict of Ifc Entities (as str)
+            instances: dict[guid: element]
+            finder: BIM2SIM TemplateFinder
+            create_external_elements: bool, True if external spatial elements 
+                should be considered for space boundary setup
+            ifc_units: dict of IfcMeasures and Unit (ureg)
+        Returns:
+            list of dict[guid: SpaceBoundary]
+        """
         instance_lst = {}
         for entity in entities_dict:
             if entity.is_a() == 'IfcRelSpaceBoundary1stLevel' or \
@@ -311,9 +328,18 @@ class CreateSpaceBoundaries(ITask):
         return list(instance_lst.values())
 
     def connect_space_boundaries(
-            self, space_boundary, relating_space, instances):
-        """Connects resultant space boundary with the corresponding relating
-        space and related building element (if given)"""
+            self, space_boundary: SpaceBoundary, relating_space: ThermalZone,
+            instances: dict[str, IFCBased]):
+        """Connect space boundary with relating space.
+
+        Connects resulting space boundary with the corresponding relating
+        space (i.e., ThermalZone) and related building element (if given).
+
+        Args:
+            space_boundary: SpaceBoundary
+            relating_space: ThermalZone (relating space)
+            instances: dict[guid: element]
+            """
         relating_space.space_boundaries.append(space_boundary)
         space_boundary.bound_thermal_zone = relating_space
 
@@ -327,8 +353,17 @@ class CreateSpaceBoundaries(ITask):
                                               related_building_element)
 
     @staticmethod
-    def connect_instance_to_zone(thermal_zone, bound_instance):
-        """Connects related building element and corresponding thermal zone"""
+    def connect_instance_to_zone(thermal_zone: ThermalZone,
+                                 bound_instance: IFCBased):
+        """Connects related building element and corresponding thermal zone.
+
+        This function connects a thermal zone and its IFCBased related
+        building elements.
+
+        Args:
+            thermal_zone: ThermalZone
+            bound_instance: BIM2SIM IFCBased instance
+        """
         if bound_instance not in thermal_zone.bound_elements:
             thermal_zone.bound_elements.append(bound_instance)
         if thermal_zone not in bound_instance.thermal_zones:
