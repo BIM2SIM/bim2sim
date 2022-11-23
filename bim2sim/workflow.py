@@ -221,7 +221,7 @@ class Workflow(metaclass=AutoSettingNameMeta):
                         except (ValueError, SyntaxError):
                             pass
                         # int must be converted to LOD (int is type of bool)
-                        if isinstance(from_cfg_set, int) and\
+                        if isinstance(from_cfg_set, int) and \
                                 not isinstance(from_cfg_set, bool):
                             val = LOD(from_cfg_set)
                         else:
@@ -271,6 +271,7 @@ class PlantSimulation(Workflow):
     def __init__(self):
         super().__init__(
         )
+
     # Todo maybe make every aggregation its own setting with LOD in the future,
     #  but currently we have no usage for this afaik.
     aggregations = WorkflowSetting(
@@ -407,7 +408,7 @@ class EnergyPlusWorkflow(BuildingSimulation):
         default='9-4-0',
         choices={
             '9-2-0': 'EnergyPlus Version 9-2-0',
-            '9-4-0': 'EnergyPlus Version 9-4-0', 
+            '9-4-0': 'EnergyPlus Version 9-4-0',
             '22-2-0': 'EnergyPlus Version 22-2-0'  # todo: Test latest version
         },
         description='Choose EnergyPlus Version',
@@ -464,7 +465,53 @@ class EnergyPlusWorkflow(BuildingSimulation):
         description='Choose solar distribution.',
         for_frontend=True
     )
-
+    output_format = WorkflowSetting(
+        default='CommaAndHTML',
+        choices={
+            'Comma': 'Output format Comma (.csv)',
+            'Tab': 'Output format Tab (.tab)',
+            'Fixed': 'Output format Fixed (.txt)',
+            'HTML': 'Output format HTML (.htm)',
+            'XML': 'Output format XML (.xml)',
+            'CommaAndHTML': 'Output format CommaAndHTML',
+            'TabAndHTML': 'Output format TabAndHTML',
+            'XMLAndHTML': 'Output format TabAndHTML',
+            'All': 'All output formats.',
+        },
+        description='Choose output format for result files.',
+        for_frontend=True
+    )
+    unit_conversion = WorkflowSetting(
+        default='JtoKWH',
+        choices={
+            'None': 'No unit conversions',
+            'JtoKWH': 'Convert Joule into kWh (1/3600000)',
+            'JtoMJ': 'Joule converted into Megajoule (1/1000000)',
+            'JtoGJ': 'Joule converted into Gigajoule',
+            'InchPound': 'Convert all tabular values to common Inch-Pound ' \
+                         'equivalent.'
+        },
+        description='Choose unit conversion for result files.',
+        for_frontend=True
+    )
+    output_keys = WorkflowSetting(
+        default=['output_outdoor_conditions', 'output_zone_temperature',
+                 'output_zone', 'output_infiltration', 'output_meters'],
+        choices={
+            'output_outdoor_conditions': 'Add outputs for outdoor conditions.',
+            'output_internal_gains': 'Add output for internal gains.',
+            'output_zone_temperature': 'Add output for zone mean and '
+                                       'operative temperature.',
+            'output_zone': 'Add heating and cooling rates and energy on zone '
+                           'level.',
+            'output_infiltration': 'Add output for zone infiltration.',
+            'output_meters': 'Add heating and cooling meters.',
+            'output_dxf': 'Output a dxf of the building geometry.',
+        },
+        description='Choose groups of output variables (multiple choice).',
+        multiple_choice=True,
+        for_frontend=True
+    )
 
 
 class CFDWorkflow(Workflow):
