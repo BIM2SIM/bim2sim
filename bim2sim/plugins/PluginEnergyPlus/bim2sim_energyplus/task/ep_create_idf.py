@@ -56,29 +56,25 @@ class CreateIdf(ITask):
 
     def run(self, workflow, instances, ep_decisions, weather_file):
         """Execute all methods to export an IDF from BIM2SIM."""
-        self.logger.info("IDF generation started ...")
-        self.logger.info("Init thermal zones ...")
+        logger.info("IDF generation started ...")
         idf = self.init_idf(workflow, self.paths, weather_file)
         self.init_zone(workflow, instances, idf)
         self.init_zonelist(idf)
         self.init_zonegroups(instances, idf)
-        self.logger.info("Get predefined materials and construction ...")
         self.get_preprocessed_materials_and_constructions(workflow, instances,
                                                           idf)
-        add_shadings = ep_decisions['EnergyPlus.AddShadings']
-        if add_shadings:
-            self.logger.info("Add Shadings ...")
+        if ep_decisions['EnergyPlus.AddShadings']:
             self.add_shadings(instances, idf)
-        self.logger.info("Set Simulation Control ...")
         self.set_simulation_control(workflow, idf)
         idf.set_default_constructions()
-        self.logger.info("Export IDF geometry")
         self.export_geom_to_idf(instances, idf)
         self.set_ground_temperature(idf, t_ground=self.get_ifc_spaces(
             instances)[0].t_ground)  # assuming all zones have same ground
         self.set_output_variables(idf, workflow)
         self.idf_validity_check(idf)
+        logger.info("Save idf ...")
         idf.save(idf.idfname)
+        logger.info("Idf file successfully saved.")
 
         return idf,
 
@@ -98,6 +94,7 @@ class CreateIdf(ITask):
         Returns:
             idf file of type IDF
         """
+        logger.info("Initialize the idf ...")
         # set the installation path for the EnergyPlus installation
         ep_install_path = workflow.ep_install_path
         # set the plugin path of the PluginEnergyPlus within the BIM2SIM Tool
@@ -134,6 +131,7 @@ class CreateIdf(ITask):
             instances: dict[guid: element]
             idf: idf file object
         """
+        logger.info("Init thermal zones ...")
         spaces = filter_instances(instances, ThermalZone)
         for space in spaces:
             zone = idf.newidfobject(
@@ -239,6 +237,7 @@ class CreateIdf(ITask):
             instances: dict[guid: element]
             idf: idf file object
         """
+        logger.info("Get predefined materials and construction ...")
         bounds = filter_instances(instances, 'SpaceBoundary')
         for bound in bounds:
             rel_elem = bound.bound_instance
@@ -787,6 +786,7 @@ class CreateIdf(ITask):
             instances: dict[guid: element]
             idf: idf file object
         """
+        logger.info("Add Shadings ...")
         spatials = []
         ext_spatial_elem = filter_instances(instances, ExternalSpatialElement)
         for elem in ext_spatial_elem:
@@ -843,7 +843,7 @@ class CreateIdf(ITask):
             workflow: EnergyPlusWorkflow
             idf: idf file object
         """
-        # todo: set these in general settings
+        logger.info("Set Simulation Control ...")
         for sim_control in idf.idfobjects["SIMULATIONCONTROL"]:
             sim_control.Do_System_Sizing_Calculation = workflow.system_sizing
             sim_control.Run_Simulation_for_Sizing_Periods \
@@ -862,6 +862,8 @@ class CreateIdf(ITask):
             idf: idf file object
             t_ground: ground temperature as ureg.Quantity
         """
+        logger.info("Set ground temperature...")
+
         string = '_Ground_Temperature'
         month_list = ['January', 'February', 'March', 'April', 'May', 'June',
                       'July', 'August', 'September', 'October',
@@ -879,6 +881,8 @@ class CreateIdf(ITask):
             idf: idf file object
             workflow: BIM2SIM Workflow
         """
+        logger.info("Set output variables ...")
+
         # general output settings. May be moved to general settings
         out_control = idf.idfobjects['OUTPUTCONTROL:TABLE:STYLE']
         out_control[0].Column_Separator = workflow.output_format
@@ -1043,6 +1047,7 @@ class CreateIdf(ITask):
             instances: dict[guid: element]
             idf: idf file object
         """
+        logger.info("Export IDF geometry")
         bounds = filter_instances(instances, SpaceBoundary)
         for bound in bounds:
             idfp = IdfObject(bound, idf)
