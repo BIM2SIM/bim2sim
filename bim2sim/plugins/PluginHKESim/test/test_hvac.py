@@ -40,16 +40,14 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
 
     def test_run_b03_heating(self):
         """Run project with B03_Heating.ifc"""
-        ifc = '2022_11_21_B03_Heating_ownCells.ifc'
+        ifc = '2022_11_21_update_B03_Heating_ownCells.ifc'
         project = self.create_project(ifc, 'hkesim')
         project.workflow.aggregations = [
             'UnderfloorHeating',
             'Consumer',
             'PipeStrand',
             'ParallelPump',
-            # 'ParallelSpaceHeater',
             'ConsumerHeatingDistributorModule',
-            # 'GeneratorOneFluid'
         ]
         # handler = ConsoleDecisionHandler()
         # handler.handle(project.run())
@@ -58,7 +56,7 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
         #            '2PFOreSeyfWqxUJNMz5nFO', '2YKblmYbhnh4RrfqKcCxPJ',
         #            *(True,) * 13, 0.75, 50, 150, 70, *(1, 500,) * 7)
         answers = ('HVAC-Distributor', *('HVAC-ThreeWayValve',) * 2,  *('HVAC-Valve',) * 14, *(None,) * 2,
-                   '1gCa_YEgd8WK0YER$738Ii', '184XXDHbkqkqSUK7orFEGw',
+                   '1nTN1WkvqqdqsTPy3B3DQu', '0IIRBsYaHcWKXJRDmvr4uu',
                    *(True,) * 5, 0.75, 50, 150, 70, *(1, 500,) * 7)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):

@@ -24,15 +24,19 @@ class StaticPipe(StandardLibrary):
         self.request_param("diameter", self.check_diameter)
 
     def get_port_name(self, port):
-        try:
-            index = self.element.ports.index(port)
-        except ValueError:
-            # unknown port
-            index = -1
-        if index == 0:
-            return "port_a"
-        elif index == 1:
-            return "port_b"
+        # try:
+        #     index = self.element.ports.index(port)
+        # except ValueError:
+        #     # unknown port
+        #     index = -1
+        # if index == 0:
+        #     return "port_a"
+        # elif index == 1:
+        #     return "port_b"
+        if port.verbose_flow_direction == 'SINK':
+            return 'port_a'
+        if port.verbose_flow_direction == 'SOURCE':
+            return 'port_b'
         else:
             return super().get_port_name(port)
 
@@ -81,7 +85,7 @@ class ClosedVolume(StandardLibrary):
         except ValueError:
             return super().get_port_name(port)
         else:
-            return "ports[%d]"%index
+            return "ports[%d]" % index
 
 
 class TeeJunctionVolume(StandardLibrary):
@@ -101,5 +105,5 @@ class TeeJunctionVolume(StandardLibrary):
         except ValueError:
             return super().get_port_name(port)
         else:
-            return "port_%d" % index
+            return "port_%d" % (index + 1)  # TODO: name ports by flow direction?
 
