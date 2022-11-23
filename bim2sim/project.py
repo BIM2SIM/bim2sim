@@ -59,7 +59,10 @@ def add_config_section(config: configparser.ConfigParser, workflow: Workflow,
                   if not callable(getattr(workflow, attr)) and not
                   attr.startswith('__')]
     for attr in attributes:
-        config[name][attr] = str(getattr(workflow, attr).default)
+        default_value = getattr(workflow, attr).default
+        if isinstance(default_value, LOD):
+            default_value = default_value.value
+        config[name][attr] = str(default_value)
     return config
 
 
