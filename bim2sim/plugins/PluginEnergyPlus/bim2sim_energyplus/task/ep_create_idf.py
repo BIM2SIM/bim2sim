@@ -6,7 +6,6 @@ ep_geom_preprocessing module. Geometric preprocessing (includes EnergyPlus
 specific space boundary enrichment) must be executed before this module.
 """
 
-import json
 import logging
 import math
 import os
@@ -24,10 +23,7 @@ from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.gp import gp_Dir, gp_XYZ, gp_Pln
 from geomeppy import IDF
 
-import bim2sim
-from bim2sim.kernel.aggregation import AggregatedThermalZone
 from bim2sim.kernel.element import IFCBased
-from bim2sim.kernel.elements import bps
 from bim2sim.kernel.elements.bps import ExternalSpatialElement, SpaceBoundary2B, \
     ThermalZone, Storey, Layer, Window, SpaceBoundary
 from bim2sim.kernel.units import ureg
@@ -35,7 +31,7 @@ from bim2sim.project import FolderStructure
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.utilities.pyocc_tools import PyOCCTools
-from bim2sim.workflow import Workflow, EnergyPlusWorkflow
+from bim2sim.workflow import EnergyPlusWorkflow
 
 logger = logging.getLogger(__name__)
 
