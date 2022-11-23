@@ -70,7 +70,7 @@ class CreateIdf(ITask):
             self.logger.info("Add Shadings ...")
             self.add_shadings(instances, idf)
         self.logger.info("Set Simulation Control ...")
-        self.set_simulation_control(idf)
+        self.set_simulation_control(workflow, idf)
         idf.set_default_constructions()
         self.logger.info("Export IDF geometry")
         self.export_geom_to_idf(instances, idf)
@@ -834,24 +834,25 @@ class CreateIdf(ITask):
             obj.setcoords(obj_coords)
 
     @staticmethod
-    def set_simulation_control(idf):
+    def set_simulation_control(workflow: EnergyPlusWorkflow, idf):
         """Set simulation control parameters.
 
         This function sets general simulation control parameters. These can
         be easily overwritten in the exported idf.
         Args:
+            workflow: EnergyPlusWorkflow
             idf: idf file object
         """
         # todo: set these in general settings
         for sim_control in idf.idfobjects["SIMULATIONCONTROL"]:
-            # sim_control.Do_Zone_Sizing_Calculation = "Yes"
-            sim_control.Do_System_Sizing_Calculation = "Yes"
-            # sim_control.Do_Plant_Sizing_Calculation = "Yes"
-            sim_control.Run_Simulation_for_Sizing_Periods = "No"
-            sim_control.Run_Simulation_for_Weather_File_Run_Periods = "Yes"
+            sim_control.Do_System_Sizing_Calculation = workflow.system_sizing
+            sim_control.Run_Simulation_for_Sizing_Periods \
+                = workflow.run_for_sizing_periods
+            sim_control.Run_Simulation_for_Weather_File_Run_Periods \
+                = workflow.run_for_weather_period
 
         for building in idf.idfobjects['BUILDING']:
-            building.Solar_Distribution = 'FullExterior'
+            building.Solar_Distribution = workflow.solar_distribution
 
     @staticmethod
     def set_ground_temperature(idf: IDF, t_ground: ureg.Quantity):

@@ -424,6 +424,47 @@ class EnergyPlusWorkflow(BuildingSimulation):
         description='Choose EnergyPlus Installation Path',
         for_frontend=False
     )
+    system_sizing = WorkflowSetting(
+        default='Yes',
+        choices={
+            'Yes': 'Do system sizing calculation',
+            'No': 'Not do system sizing calculation'
+        },
+        description='Whether to do system sizing calculations in EnergyPlus '
+                    'or not.',
+        for_frontend=True
+    )
+    run_for_sizing_periods = WorkflowSetting(
+        default='No',
+        choices={
+            'Yes': 'Run simulation for system sizing periods',
+            'No': 'Do not run simulation for system sizing periods'
+        },
+        description='Whether to run the EnergyPlus simulation for sizing '
+                    'periods or not.',
+        for_frontend=True
+    )
+    run_for_weather_period = WorkflowSetting(
+        default='Yes',
+        choices={
+            'Yes': 'Run simulation for weather file period',
+            'No': 'Do not run simulation for weather file period'
+        },
+        description='Whether to run the EnergyPlus simulation for weather '
+                    'file period or not.',
+        for_frontend=True
+    )
+    solar_distribution = WorkflowSetting(
+        default='FullExterior',
+        choices={
+            'FullExterior': 'Full exterior solar distribution',
+            'FullInteriorAndExterior': 'Full interior and exterior solar '
+                                       'distribution'
+        },
+        description='Choose solar distribution.',
+        for_frontend=True
+    )
+
 
 
 class CFDWorkflow(Workflow):
