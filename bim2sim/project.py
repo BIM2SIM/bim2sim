@@ -27,8 +27,7 @@ user_logger = log.get_user_logger(__name__)
 
 
 def open_config(path):
-    """Open config for user in default program and wait for closing before
-    continue"""
+    """Open config for user and wait for closing before continue."""
     if sys.platform.startswith('darwin'):  # For MAC OS X
         open_file = subprocess.Popen(['open', path])
     elif os.name == 'nt':  # For Windows
@@ -36,11 +35,32 @@ def open_config(path):
         # os.system("start " + conf_path)
     # todo for any reason wait() seems not to work on linux
     # elif os.name == 'posix':  # For Linux, Mac, etc.
-        # open_file = subprocess.Popen(['xdg-open', path])
+    # open_file = subprocess.Popen(['xdg-open', path])
     else:
         raise NotImplementedError('Only mac os and windows are '
                                   'supported currently.')
     open_file.wait()
+
+
+def get_subclasses(cls):
+    """Get all subclasses and subsubclasses of a given class."""
+    all_subclasses = []
+    for subclass in cls.__subclasses__():
+        all_subclasses.append(subclass)
+        all_subclasses.extend(get_subclasses(subclass))
+    return all_subclasses
+
+
+def add_config_section(config: configparser.ConfigParser, workflow: Workflow,
+                       name: str) -> configparser.ConfigParser:
+    """Add a section to config with all attributes and default values."""
+    config.add_section(name)
+    attributes = [attr for attr in list(workflow.__dict__.keys())
+                  if not callable(getattr(workflow, attr)) and not
+                  attr.startswith('__')]
+    for attr in attributes:
+        config[name][attr] = str(getattr(workflow, attr).default)
+    return config
 
 
 def config_base_setup(path, backend=None):
@@ -48,34 +68,15 @@ def config_base_setup(path, backend=None):
     config = configparser.ConfigParser(allow_no_value=True)
     config.read(path)
     if not config.sections():
-        config.add_section("Generic Workflow Settings")
-        config["Generic Workflow Settings"]["dymola_simulation"] = \
-            str(False)
-        config["Generic Workflow Settings"]["create_external_elements"] \
-            = str(False)
-        config["Generic Workflow Settings"]["max_wall_thickness"] = '0.3'
-        config.add_section("BuildingSimulation")
-        config["BuildingSimulation"]["layers_and_materials"] = '1'
-        config["BuildingSimulation"]["zoning_setup"] = '1'
-        config["BuildingSimulation"]["construction_class_walls"] = 'heavy'
-        config["BuildingSimulation"]["construction_class_windows"] = \
-            'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
-        config["BuildingSimulation"]["heating"] = str(True)
-        config["BuildingSimulation"]["cooling"] = str(False)
-        config.add_section("EnergyPlusWorkflow")
-        config["EnergyPlusWorkflow"]["cfd_export"] = str(False)
-        config["EnergyPlusWorkflow"]["ep_version"] = '9-4-0'
-        config["EnergyPlusWorkflow"]["ep_install_path"] = \
-            f'/usr/local/EnergyPlus-9-4-0/'
-        config.add_section("PlantSimulation")
-        config["PlantSimulation"]["aggregations"] = str([
-            'UnderfloorHeating',
-            'Consumer',
-            'PipeStrand',
-            'ParallelPump',
-            'ConsumerHeatingDistributorModule',
-            'GeneratorOneFluid',
-        ])
+        # add all default attributes from base workflow
+        config = add_config_section(config, Workflow, "Generic Workflow "
+                                                     "Settings")
+        # add all default attributes from sub workflows
+        sub_workflows = get_subclasses(Workflow)
+        for flow in sub_workflows:
+            config = add_config_section(config, flow, flow.__name__)
+
+        # add general settings
         config.add_section("Backend")
         config["Backend"]["use"] = backend
         config.add_section("Frontend")
@@ -340,7 +341,7 @@ class Project:
 
     @classmethod
     def create(cls, project_folder, ifc_path=None, plugin: Union[
-            str, Type[Plugin]] = None, open_conf: bool = False,
+        str, Type[Plugin]] = None, open_conf: bool = False,
                workflow: Workflow = None):
         """Create new project
 
@@ -423,7 +424,8 @@ class Project:
         for thread_filter in self._log_thread_filters:
             thread_filter.thread_name = thread_name
 
-    def set_user_logging_handler(self, user_handler: logging.Handler, set_formatter=True):
+    def set_user_logging_handler(self, user_handler: logging.Handler,
+                                 set_formatter=True):
         """Set a project specific logging Handler for user loggers.
 
         Args:
