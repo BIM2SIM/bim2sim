@@ -132,7 +132,12 @@ class HVACPort(Port):
 
     @property
     def flow_side(self):
-        """VL(1), RL(-1), UNKNOWN(0)"""
+        """
+        Flow side of port
+
+        1 = supply flow (Vorlauf)
+        -1 = return flow (Rücklauf)
+        0 = unknown"""
         if self._flow_side is None:
             self._flow_side = self.determine_flow_side()
         return self._flow_side
@@ -145,11 +150,9 @@ class HVACPort(Port):
         self._flow_side = value
         if previous:
             if previous != value:
-                logger.info("Overwriting flow_side for %r with %s" % (
-                    self, self.verbose_flow_side))
+                logger.info("Overwriting flow_side for %r with %s" % (self, self.verbose_flow_side))
         else:
-            logger.debug(
-                "Set flow_side for %r to %s" % (self, self.verbose_flow_side))
+            logger.debug("Set flow_side for %r to %s" % (self, self.verbose_flow_side))
 
     @property
     def verbose_flow_side(self):

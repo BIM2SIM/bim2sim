@@ -51,9 +51,18 @@ class HVACAggregationPort(HVACPort):
         if not all(isinstance(n, hvac.HVACPort) for n in originals):
             raise TypeError("originals must by HVACPorts")
         self.originals = originals
+        self.flow_direction = self.flow_direction_from_original()
 
-    # def determine_flow_side(self):
-    # return self.original.determine_flow_side()
+    def flow_direction_from_original(self):
+        if len(self.originals) > 1:
+            raise NotImplementedError('Aggregation with more than one original is not implemented.')
+        else:
+            originals = self.originals[0]
+            while originals:
+                if hasattr(originals, 'originals'):
+                    originals = originals.originals[0]
+                else:
+                    return originals.flow_direction
 
     def calc_position(self):
         """Position of original port"""
@@ -1460,8 +1469,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
     )
 
 
-class ConsumerHeatingDistributorModule(HVACAggregationMixin,
-                                       hvac.HVACProduct):  # ToDo: Export Aggregation HKESim
+class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):  # ToDo: Export Aggregation HKESim
     """Aggregates Consumer system boarder"""
     multi = (
         'medium', 'use_hydraulic_separator', 'hydraulic_separator_volume',
@@ -1474,8 +1482,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin,
     blacklist = [hvac.Chiller, hvac.Boiler, hvac.CoolingTower]
 
     def __init__(self, element_graph, *args, **kwargs):
-        self.undefined_consumer_ports = kwargs.pop('undefined_consumer_ports',
-                                                   None)  # TODO: Richtig sO? WORKAROUND
+        self.undefined_consumer_ports = kwargs.pop('undefined_consumer_ports', None)  # TODO: Richtig sO? WORKAROUND
         self._consumer_cycles = kwargs.pop('consumer_cycles', None)
         self.consumers = []
         for consumer in self._consumer_cycles:
@@ -1505,8 +1512,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin,
                     (self.undefined_consumer_ports[2 * i][0],
                      self.undefined_consumer_ports[2 * i + 1][0]))
         else:
-            raise NotImplementedError(
-                "Odd Number of loose ends at the distributor.")
+            raise NotImplementedError("Odd Number of loose ends at the distributor.")
         return consumer_ports
 
     @classmethod

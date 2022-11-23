@@ -30,10 +30,14 @@ class Boiler(HKESim):
         except ValueError:
             # unknown port
             index = -1
-        if index == 0:
-            return "port_a"
-        elif index == 1:
-            return "port_b"
+        if port.verbose_flow_direction == 'SINK':
+            return 'port_a'
+        if port.verbose_flow_direction == 'SOURCE':
+            return 'port_b'
+        # if index == 0:
+        #     return "port_a"
+        # elif index == 1:
+        #     return "port_b"
         else:
             return super().get_port_name(port)  # ToDo: Gas connection
 
@@ -62,10 +66,14 @@ class Pump(HKESim):
         except ValueError:
             # unknown port
             index = -1
-        if index == 0:
-            return "port_a"
-        elif index == 1:
-            return "port_b"
+        if port.verbose_flow_direction == 'SINK':
+            return 'port_a'
+        if port.verbose_flow_direction == 'SOURCE':
+            return 'port_b'
+        # if index == 0:
+        #     return "port_a"
+        # elif index == 1:
+        #     return "port_b"
         else:
             return super().get_port_name(port)
 
@@ -99,7 +107,6 @@ class ConsumerHeatingDistributorModule(HKESim):
         super().__init__(element)
 
     def request_params(self):
-        # self.register_param("Tconsumer", self.check_temp_tupel, "Tconsumer")
         if self.element.flow_temperature or self.element.return_temperature:
             self.params["Tconsumer"] = (self.element.flow_temperature, self.element.return_temperature)
         self.params["Medium_heating"] = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
