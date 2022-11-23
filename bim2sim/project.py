@@ -87,57 +87,6 @@ def config_base_setup(path, backend=None):
         config.write(file)
 
 
-# def get_default_backends():
-#     path = Path(__file__).parent / 'backends'
-#     backends = []
-#     for pkg in [item for item in path.glob('**/*') if item.is_dir()]:
-#         if pkg.name.startswith('bim2sim_'):
-#             backends.append(pkg)
-#     return backends
-#
-#
-# def get_dev_backends():
-#     path = Path(__file__).parent.parent.parent
-#     backends = []
-#     for plugin in [item for item in path.glob('**/*') if item.is_dir()]:
-#         if plugin.name.startswith('Plugin'):
-#             for pkg in [item for item in plugin.glob('**/*') if item.is_dir()]:
-#                 if pkg.name.startswith('bim2sim_'):
-#                     backends.append(pkg)
-#     return backends
-#
-#
-# def get_plugins(by_entrypoint=False):
-#     """load all possible plugins"""
-#     logger = logging.getLogger(__name__)
-#
-#     default = get_default_backends()
-#     dev = get_dev_backends()
-#
-#     # add all plugins to PATH
-#     sys.path.extend([str(path.parent) for path in default + dev])
-#
-#     if by_entrypoint:
-#         sim = {}
-#         for entry_point in pkg_resources.iter_entry_points('bim2sim'):
-#             sim[entry_point.name] = entry_point.load()
-#     else:
-#         sim = {}
-#         for finder, name, ispkg in pkgutil.iter_modules():
-#             if name.startswith('bim2sim_'):
-#                 module = importlib.import_module(name)
-#                 contend = getattr(module, 'CONTEND', None)
-#                 if not contend:
-#                     logger.warning("Found potential plugin '%s', but CONTEND is missing", name)
-#                     continue
-#
-#                 for key, getter in contend.items():
-#                     sim[key] = getter
-#                     logger.debug("Found plugin '%s'", name)
-#
-#     return sim
-
-
 class FolderStructure:
     """Project related file and folder handling."""
 
