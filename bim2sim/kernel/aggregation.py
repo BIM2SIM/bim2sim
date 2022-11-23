@@ -60,6 +60,9 @@ class HVACAggregationPort(HVACPort):
             originals = self.originals[0]
             while originals:
                 if hasattr(originals, 'originals'):
+                    if len(originals.originals) > 1:
+                        raise NotImplementedError(
+                            'Aggregation with more than one original is not implemented.')
                     originals = originals.originals[0]
                 else:
                     return originals.flow_direction
@@ -1520,6 +1523,14 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
         """
         Find matches of consumer heating distributor module.
 
+        Assumptions:
+        Currently outer_connections only involve cycles with at least one
+        generator
+
+        # TODO solve mixup between get_edge_ports, get_ports and outer_connections
+        # TODO all seems to be the same but its very confusing currently
+        outer_connections
+
         Args:
             graph: element_graph that should be checked for consumer heating
             distributor module.
@@ -1552,7 +1563,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
             metas.append({'outer_connections': [],
                           'undefined_consumer_ports': [],
                           'consumer_cycles': []})
-
+            # get all neighbor elements and their ports (just unique elements)
             for port in remove_ports:
                 outer_connections.update(
                     {neighbor.parent: (port, neighbor) for neighbor in
@@ -1563,7 +1574,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
                 _element_graph)  # get_parallels(graph, wanted, innerts)
 
             for sub in sub_graphs:
-                # check for generator in sub_graphs
+                # check for energy generator in sub_graphs
                 generator = {node for node in sub if
                              node.__class__ in cls.blacklist}
                 if generator:
@@ -1571,10 +1582,10 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
                     gen_con = {node for node in sub if
                                node.__class__ in cls.whitelist}
                     if gen_con:
-                        # ToDO: Consumer separieren
+                        # ToDO: seperate consumer (maybe recursive function?)
                         pass
                     else:
-                        outer_con = [outer_connections[ele][1] for ele in sub if
+                        outer_con = [outer_connections[ele][0] for ele in sub if
                                      ele in outer_connections]
                         if outer_con:
                             metas[-1]['outer_connections'].extend(outer_con)
