@@ -1,4 +1,7 @@
+"""Module to export space boundaries as .stl for use in CFD."""
+
 import ast
+import logging
 import os
 
 import pandas as pd
@@ -11,19 +14,31 @@ from stl import mesh, stl
 
 from bim2sim.task.base import ITask
 
+logger = logging.getLogger(__name__)
+
 
 class ExportIdfForCfd(ITask):
+    """Export Idf shapes as .stl for use in CFD applications."""
+
     reads = ('instances', 'idf', 'ifc',)
 
     def run(self, workflow, instances, idf, ifc):
         if not workflow.cfd_export:
             return
 
-        self.logger.info("IDF Postprocessing for CFD started...")
-        self._export_to_stl_for_cfd(instances, idf)
-        self.logger.info("IDF Postprocessing for CFD finished!")
+        logger.info("IDF Postprocessing for CFD started...")
+        logger.info("Export STL for CFD")
+        stl_name = idf.idfname.replace('.idf', '')
+        stl_name = stl_name.replace(str(self.paths.export)+'/', '')
+        self.export_bounds_to_stl(instances, stl_name)
+        self.export_bounds_per_space_to_stl(instances, stl_name)
+        self.export_2b_bounds_to_stl(instances, stl_name)
+        self.combine_stl_files(stl_name, self.paths)
+        self.export_space_bound_list(instances, self.paths)
+        self.combined_space_stl(stl_name, self.paths)
+        logger.info("IDF Postprocessing for CFD finished!")
 
-    def export_2B_bounds_to_stl(self, instances, stl_name):
+    def export_2b_bounds_to_stl(self, instances, stl_name):
         for inst in instances:
             if instances[inst].ifc.is_a("IfcSpace"):
                 continue
@@ -102,17 +117,6 @@ class ExportIdfForCfd(ITask):
                 stl_writer.SetASCIIMode(True)
                 stl_writer.Write(triang_face.Shape(), this_name)
             self.combine_space_stl_files(stl_name, space_name, self.paths)
-
-    def _export_to_stl_for_cfd(self, instances, idf):
-        self.logger.info("Export STL for CFD")
-        stl_name = idf.idfname.replace('.idf', '')
-        stl_name = stl_name.replace(str(self.paths.export)+'/', '')
-        self.export_bounds_to_stl(instances, stl_name)
-        self.export_bounds_per_space_to_stl(instances, stl_name)
-        self.export_2B_bounds_to_stl(instances, stl_name)
-        self.combine_stl_files(stl_name, self.paths)
-        self.export_space_bound_list(instances, self.paths)
-        self.combined_space_stl(stl_name, self.paths)
 
     @staticmethod
     def combined_space_stl(stl_name, paths):
