@@ -139,13 +139,13 @@ class TemplateFinder(Finder):
         try:
             if all([isinstance(res[0], list), isinstance(res[1], list)]):
                 for res_ele in res:
-                    pset = ifc2python.get_Property_Set(
+                    pset = ifc2python.get_property_set_by_name(
                         res_ele[0], element.ifc, element.ifc_units)
                     if pset:
                         res = res_ele
                         break
             else:
-                pset = ifc2python.get_Property_Set(
+                pset = ifc2python.get_property_set_by_name(
                     res[0], element.ifc, element.ifc_units)
         except AttributeError:
             raise AttributeError("Can't find property as defined by template.")
