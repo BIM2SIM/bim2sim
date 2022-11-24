@@ -12,7 +12,10 @@ from OCC.Core.GProp import GProp_GProps
 from OCC.Core.StlAPI import StlAPI_Writer
 from stl import mesh, stl
 
+from bim2sim.kernel.elements.bps import ThermalZone, SpaceBoundary
 from bim2sim.task.base import ITask
+from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +26,7 @@ class ExportIdfForCfd(ITask):
     reads = ('instances', 'idf', 'ifc',)
 
     def run(self, workflow, instances, idf, ifc):
+        """Run CFD export depending on settings."""
         if not workflow.cfd_export:
             return
 
@@ -30,36 +34,87 @@ class ExportIdfForCfd(ITask):
         logger.info("Export STL for CFD")
         stl_name = idf.idfname.replace('.idf', '')
         stl_name = stl_name.replace(str(self.paths.export)+'/', '')
-        self.export_bounds_to_stl(instances, stl_name)
-        self.export_bounds_per_space_to_stl(instances, stl_name)
-        self.export_2b_bounds_to_stl(instances, stl_name)
+        base_stl_dir = str(self.paths.root) + "/export/STL/"
+        os.makedirs(os.path.dirname(base_stl_dir), exist_ok=True)
+
+        self.export_bounds_to_stl(instances, stl_name, base_stl_dir)
+        self.export_bounds_per_space_to_stl(instances, stl_name, base_stl_dir)
+        self.export_2b_bounds_to_stl(instances, stl_name, base_stl_dir)
         self.combine_stl_files(stl_name, self.paths)
         self.export_space_bound_list(instances, self.paths)
         self.combined_space_stl(stl_name, self.paths)
         logger.info("IDF Postprocessing for CFD finished!")
 
-    def export_2b_bounds_to_stl(self, instances, stl_name):
-        for inst in instances:
-            if instances[inst].ifc.is_a("IfcSpace"):
-                continue
-            space_obj = instances[inst]
+    def export_2b_bounds_to_stl(self, instances: dict, stl_name: str,
+                                stl_dir: str):
+        """Export generated 2b space boundaries to stl for CFD purposes.
+
+        Args:
+            stl_dir:
+            instances: dict[guid: element]
+            stl_name: name of the stl file.
+        """
+        spaces = filter_instances(instances, ThermalZone)
+        for space_obj in spaces:
             if not hasattr(space_obj, "b_bound_shape"):
                 continue
-            bound_prop = GProp_GProps()
-            brepgprop_SurfaceProperties(space_obj.b_bound_shape, bound_prop)
-            area = bound_prop.Mass()
-            if area > 0:
+            if PyOCCTools.get_shape_area(space_obj.b_bound_shape) > 0:
                 name = space_obj.guid + "_2B"
-                stl_dir = str(self.paths.root) + "/export/STL/"
-                this_name = stl_dir + str(stl_name) + "_cfd_" + str(name) + ".stl"
-                os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
-                triang_face = BRepMesh_IncrementalMesh(space_obj.b_bound_shape, 1)
+                this_name = \
+                    stl_dir + str(stl_name) + "_cfd_" + str(name) + ".stl"
+                triang_face = PyOCCTools.triangulate_bound_shape(
+                    space_obj.b_bound_shape)
                 # Export to STL
-                stl_writer = StlAPI_Writer()
-                stl_writer.SetASCIIMode(True)
-                stl_writer.Write(triang_face.Shape(), this_name)
+                self.write_triang_face(triang_face.Shape(), this_name)
 
-    def export_bounds_to_stl(self, instances, stl_name):
+    def export_bounds_to_stl(self, instances: dict, stl_name: str,
+                             stl_dir: str):
+        """Export space boundaries to stl file.
+
+        This function exports space boundary geometry to an stl file as
+        triangulated surfaces. Only physical (i.e., non-virtual) space
+        boundaries are considered here.
+        The geometry of opening space boundaries is removed from their
+        underlying parent surfaces (e.g., Wall) before exporting to stl,
+        so boundaries do not overlap.
+
+        Args:
+            stl_dir:
+            instances: dict[guid: element]
+            stl_name: name of the stl file.
+        """
+
+        bounds = filter_instances(instances, SpaceBoundary)
+        for bound in bounds:
+            if not bound.physical:
+                continue
+            self.export_single_bound_to_stl(bound, stl_dir, stl_name)
+
+    def export_single_bound_to_stl(self, bound, stl_dir, stl_name):
+        """Export a single bound to stl.
+
+        Args:
+            bound:
+            stl_dir:
+            stl_name:
+        """
+        name = bound.guid
+        this_name = stl_dir + str(stl_name) + "_cfd_" + str(name) + ".stl"
+        bound.cfd_face = bound.bound_shape
+        opening_shapes = []
+        if bound.opening_bounds:
+            opening_shapes = [s.bound_shape for s in bound.opening_bounds]
+        triang_face = PyOCCTools.triangulate_bound_shape(bound.cfd_face,
+                                                         opening_shapes)
+        # Export to STL
+        self.write_triang_face(triang_face.Shape(), this_name)
+    @staticmethod
+    def write_triang_face(shape, name):
+        stl_writer = StlAPI_Writer()
+        stl_writer.SetASCIIMode(True)
+        stl_writer.Write(shape, name)
+
+    def export_bounds_per_space_to_stl(self, instances, stl_name, base_stl_dir):
         """
         This function exports a space to an idf file.
         :param idf: idf file object
@@ -67,55 +122,15 @@ class ExportIdfForCfd(ITask):
         :param zone: idf zone object
         :return:
         """
-        for inst in instances:
-            if not instances[inst].ifc.is_a("IfcRelSpaceBoundary"):
-                continue
-            inst_obj = instances[inst]
-            if inst_obj.physical:
-                name = inst_obj.guid
-                stl_dir = str(self.paths.root) + "/export/STL/"
-                this_name = stl_dir + str(stl_name) + "_cfd_" + str(name) + ".stl"
-                os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
-
-                inst_obj.cfd_face = inst_obj.bound_shape
-                if inst_obj.opening_bounds:
-                    for opening in inst_obj.opening_bounds:
-                        inst_obj.cfd_face = BRepAlgoAPI_Cut(inst_obj.cfd_face, opening.bound_shape).Shape()
-                triang_face = BRepMesh_IncrementalMesh(inst_obj.cfd_face, 1)
-                # Export to STL
-                stl_writer = StlAPI_Writer()
-                stl_writer.SetASCIIMode(True)
-                stl_writer.Write(triang_face.Shape(), this_name)
-
-    def export_bounds_per_space_to_stl(self, instances, stl_name):
-        """
-        This function exports a space to an idf file.
-        :param idf: idf file object
-        :param space: Space instance
-        :param zone: idf zone object
-        :return:
-        """
-        for inst in instances:
-            if not instances[inst].ifc.is_a("IfcSpace"):
-                continue
-            space_obj = instances[inst]
+        spaces = filter_instances(instances, ThermalZone)
+        for space_obj in spaces:
             space_name = space_obj.guid
-            stl_dir = str(self.paths.root) + "/export/STL/" + space_name + "/"
+            stl_dir = base_stl_dir + space_name + "/"
             os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
-            for inst_obj in space_obj.space_boundaries:
-                if not inst_obj.physical:
+            for bound in space_obj.space_boundaries:
+                if not bound.physical:
                     continue
-                bound_name = inst_obj.guid
-                this_name = stl_dir + str(stl_name) + "_cfd_" + str(bound_name) + ".stl"
-                inst_obj.cfd_face = inst_obj.bound_shape
-                if inst_obj.opening_bounds:
-                    for opening in inst_obj.opening_bounds:
-                        inst_obj.cfd_face = BRepAlgoAPI_Cut(inst_obj.cfd_face, opening.bound_shape).Shape()
-                triang_face = BRepMesh_IncrementalMesh(inst_obj.cfd_face, 1)
-                # Export to STL
-                stl_writer = StlAPI_Writer()
-                stl_writer.SetASCIIMode(True)
-                stl_writer.Write(triang_face.Shape(), this_name)
+                self.export_single_bound_to_stl(bound, stl_dir, stl_name)
             self.combine_space_stl_files(stl_name, space_name, self.paths)
 
     @staticmethod
@@ -150,7 +165,8 @@ class ExportIdfForCfd(ITask):
             bound_names = []
             for bound in space.space_boundaries:
                 bound_names.append(bound.guid)
-            space_bound_df = space_bound_df.append({'space_id': space.guid, 'bound_ids': bound_names},
+            space_bound_df = space_bound_df.append({'space_id': space.guid,
+                                                    'bound_ids': bound_names},
                                                    ignore_index=True)
         space_bound_df.to_csv(stl_dir + "space_bound_list.csv")
 

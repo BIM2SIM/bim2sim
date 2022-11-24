@@ -6,10 +6,12 @@ from typing import List, Tuple, Union
 import numpy as np
 
 from OCC.Core.BRep import BRep_Tool
+from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace, \
     BRepBuilderAPI_Transform, BRepBuilderAPI_MakePolygon
 from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, \
     brepgprop_LinearProperties, brepgprop_VolumeProperties
+from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
 from OCC.Core.BRepTools import BRepTools_WireExplorer
 from OCC.Core.GProp import GProp_GProps
 from OCC.Core.Geom import Handle_Geom_Plane_DownCast
@@ -314,3 +316,14 @@ class PyOCCTools:
         brepgprop_VolumeProperties(shape, props)
         volume = props.Mass()
         return volume
+
+    @staticmethod
+    def triangulate_bound_shape(shape: TopoDS_Shape,
+                                cut_shapes: list[TopoDS_Shape]=[]):
+        """Triangulate bound shape."""
+        if cut_shapes:
+            for cut_shape in cut_shapes:
+                shape = BRepAlgoAPI_Cut(
+                    shape, cut_shape).Shape()
+        triang_face = BRepMesh_IncrementalMesh(shape, 1)
+        return triang_face
