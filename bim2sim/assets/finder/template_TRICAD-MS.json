@@ -1,4 +1,7 @@
 {
+  "Identification": {
+    "tool_names": ["TRICAD-MS", "TRICAD", "TRICAD-MS IFC Exporter"]
+  },
   "SpaceHeater": {
 	"default_ps": {
       "rated_power" : ["TRICAD-MS", "eff.Leistung"],
