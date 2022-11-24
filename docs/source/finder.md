@@ -52,4 +52,4 @@ They are added as [attributes](attribute).
 
 
 All templates will be validated against the correct json format on startup, so 
-please stick the .json guidelines. You can use a JSOn validator like [this one](https://jsonformatter.curiousconcept.com/).
+please stick to the .json guidelines. You can use a JSOn validator like [this one](https://jsonformatter.curiousconcept.com/).
