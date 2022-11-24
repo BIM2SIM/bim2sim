@@ -63,7 +63,7 @@ together and allows to run the process of simulation model creation.
 **Inputs:**
 * A [workflow](workflow) holds the relevant settings for each type of 
 simulation.
-* A [Plugin](plugins) is for a specific simulation environment/tool.
+* A [Plugin](../plugins) is for a specific simulation environment/tool.
 * IFC is the IFC file that you want to use as a source.
 E.g. [TEASER](TEASERManager) plugin and [EnergyPlus](EnergyPlus) plugin use the 
 same workflow [BuildingSimulation](BuildingSimulation). It defines the default
