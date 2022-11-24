@@ -246,32 +246,34 @@ class TemplateFinder(Finder):
             self.source_tools.append(source_tool)
             for decision in self._set_templates_by_tools(source_tool):
                 yield DecisionBunch([decision])
-        if len(self.source_tools) == 1:
+        # Only take source tools with existing template into account
+        tools = [tool.templ_name for tool in self.source_tools if
+                 tool.templ_name]
+        if len(tools) == 1:
             self.default_source_tool = self.source_tools[0]
-        else:
-            # Only take source tools with existing template into account
-            tools = [tool.templ_name for tool in self.source_tools if
-                     tool.templ_name]
-            if len(tools) > 1:
-                choice_checksum = ListDecision.build_checksum(tools)
-                decision_source_tool = ListDecision(
-                    "Multiple source tools found, please decide which one to "
-                    "use as fallback for template based searches if no"
-                    " IfcOwnerHistory exists.",
-                    choices=tools,
-                    global_key=f'tool_{choice_checksum}',
-                    allow_skip=True)
-                yield DecisionBunch([decision_source_tool])
-                if decision_source_tool.value:
-                    self.default_source_tool = \
-                        decision_source_tool.value
-                else:
-                    logger.info(f"No decision for default source tool, taking "
-                                f"last source tool found: "
-                                f"{self.source_tools[-1]}")
-                    self.default_source_tool = self.source_tools[-1]
+        elif len(tools) > 1:
+            choice_checksum = ListDecision.build_checksum(tools)
+            decision_source_tool = ListDecision(
+                "Multiple source tools found, please decide which one to "
+                "use as fallback for template based searches if no"
+                " IfcOwnerHistory exists.",
+                choices=tools,
+                global_key=f'tool_{choice_checksum}',
+                allow_skip=True)
+            yield DecisionBunch([decision_source_tool])
+            if decision_source_tool.value:
+                self.default_source_tool = \
+                    decision_source_tool.value
             else:
-                self.default_source_tool = tools[0]
+                logger.info(f"No decision for default source tool, taking "
+                            f"last source tool found: "
+                            f"{self.source_tools[-1]}")
+                self.default_source_tool = self.source_tools[-1]
+        else:
+            logger.info(f"No template could be found for one of the following "
+                        f"tools: "
+                        f"{[tool.full_name for tool in self.source_tools]}")
+            self.default_source_tool = None
 
     def _get_elements_source_tool(self, element: IFCBased):
         """Get source_tool for specific element
