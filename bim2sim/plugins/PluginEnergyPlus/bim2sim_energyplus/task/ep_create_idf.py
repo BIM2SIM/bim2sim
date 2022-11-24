@@ -851,7 +851,6 @@ class CreateIdf(ITask):
                 sim_control.Run_Simulation_for_Sizing_Periods = 'No'
             if workflow.run_for_weather_period:
                 sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'Yes'
-
             else:
                 sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'No'
 
