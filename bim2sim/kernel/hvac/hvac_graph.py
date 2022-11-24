@@ -6,6 +6,7 @@ where each node represents a hvac-component
 import os
 import logging
 import itertools
+from pathlib import Path
 from typing import Set, Iterable, Type
 
 import networkx as nx
@@ -168,28 +169,41 @@ class HvacGraph(nx.Graph):
     #     """Returns list of nodes represented by graph"""
     #     return list(self.nodes)
 
-    def plot(self, path=None, ports=False):
-        """Plot graph
+    def plot(self, path: Path = None, ports: bool = False):
+        """Plot graph and either display or save as pdf file.
 
-        if path is provided plot is saved as pdf else it gets displayed"""
+        Args:
+            path: If provided, the graph is saved there as pdf file.
+            ports: If True, the port graph is plotted.
+        """
         # importing matplotlib is slow and plotting is optional
         import matplotlib.pyplot as plt
 
         # https://plot.ly/python/network-graphs/
-        colors = {
-            1: 'green',
-            0: 'blue',
-            -1: 'red',
-            None: 'yellow',
+        edge_colors_flow_side = {
+            1: dict(edge_color='red'),
+            -1: dict(edge_color='blue'),
+            0: dict(edge_color='grey'),
+            None: dict(edge_color='grey'),
+        }
+        node_colors_flow_direction = {
+            1: dict(node_color='white', edgecolors='blue'),
+            -1: dict(node_color='blue', edgecolors='black'),
+            0: dict(node_color='grey', edgecolors='black'),
+            None: dict(node_color='grey', edgecolors='black'),
         }
 
         kwargs = {}
         if ports:
+            # set port (nodes) colors based on flow direction
             graph = self
-            node_color_map = [colors[port.flow_side] for port in self]
-            kwargs['node_color'] = node_color_map
+            kwargs['node_color'] = [node_colors_flow_direction[port.flow_direction]['node_color'] for port in self]
+            kwargs['edgecolors'] = [node_colors_flow_direction[port.flow_direction]['edgecolors'] for port in self]
+            kwargs['edge_color'] = 'grey'
         else:
-            # set connection colors based on flow_side
+            kwargs['node_color'] = 'blue'
+            kwargs['edgecolors'] = 'black'
+            # set connection colors (edges) based on flow side
             graph = self.element_graph
             edge_color_map = []
             for edge in graph.edges:
@@ -202,17 +216,15 @@ class HvacGraph(nx.Graph):
                     side = sides0.pop()
                 elif len(sides1) == 1:
                     side = sides1.pop()
-                edge_color_map.append(colors[side])
+                edge_color_map.append(edge_colors_flow_side[side]['edge_color'])
             kwargs['edge_color'] = edge_color_map
 
-        nx.draw(graph, node_size=6, font_size=5, with_labels=True, **kwargs)
+        nx.draw(graph, node_size=10, font_size=5, linewidths=0.7, with_labels=True, **kwargs)
         plt.draw()
         if path:
-            name = "%sgraph.pdf"%("port" if ports else "element")
+            name = "%sgraph.pdf" % ("port" if ports else "element")
             try:
-                plt.savefig(
-                    os.path.join(path, name),
-                    bbox_inches='tight')
+                plt.savefig(os.path.join(path, name), bbox_inches='tight')
             except IOError as ex:
                 logger.error("Unable to save plot of graph (%s)", ex)
         else:
