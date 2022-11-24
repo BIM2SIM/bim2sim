@@ -20,6 +20,7 @@ from bim2sim.decision import Decision, ListDecision, DecisionBunch, save, load
 from bim2sim import log
 from bim2sim.task.base import Playground
 from bim2sim.plugins import Plugin, load_plugin
+from bim2sim.utilities.common_functions import all_subclasses
 from bim2sim.workflow import LOD, AutoSettingNameMeta, Workflow
 
 logger = logging.getLogger(__name__)
@@ -40,15 +41,6 @@ def open_config(path):
         raise NotImplementedError('Only mac os and windows are '
                                   'supported currently.')
     open_file.wait()
-
-
-def get_subclasses(cls):
-    """Get all subclasses and subsubclasses of a given class."""
-    all_subclasses = []
-    for subclass in cls.__subclasses__():
-        all_subclasses.append(subclass)
-        all_subclasses.extend(get_subclasses(subclass))
-    return all_subclasses
 
 
 def add_config_section(config: configparser.ConfigParser, workflow: Workflow,
@@ -75,7 +67,7 @@ def config_base_setup(path, backend=None):
         config = add_config_section(config, Workflow, "Generic Workflow "
                                                      "Settings")
         # add all default attributes from sub workflows
-        sub_workflows = get_subclasses(Workflow)
+        sub_workflows = all_subclasses(Workflow)
         for flow in sub_workflows:
             config = add_config_section(config, flow, flow.__name__)
 
