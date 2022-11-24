@@ -180,7 +180,7 @@ class FolderStructure:
 
     @property
     def finder(self):
-        """absolute path to decisions"""
+        """absolute path to finder"""
         return self._root_path / self.FINDER
 
     @property
