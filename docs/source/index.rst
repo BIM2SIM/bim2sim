@@ -7,7 +7,7 @@ Welcome to bim2sim's documentation!
 ===================================
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 5
 
    big-picture
    installation

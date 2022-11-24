@@ -9,12 +9,7 @@ class RunEnergyPlusSimulation(ITask):
 
     def run(self, workflow, idf):
         # subprocess.run(['energyplus', '-x', '-c', '--convert-only', '-d', self.paths.export, idf.idfname])
-        run_decision = BoolDecision(
-            question="Do you want to run the full energyplus simulation"
-                     " (annual)?",
-            global_key='EnergyPlus.FullRun')
-        yield DecisionBunch([run_decision])
-        ep_full = run_decision.value
+        ep_full = workflow.run_full_simulation
         design_day = False
         if not ep_full:
             design_day = True

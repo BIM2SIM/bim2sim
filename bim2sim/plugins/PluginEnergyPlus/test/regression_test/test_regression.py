@@ -20,6 +20,7 @@ RESULT_PATH = Path(os.path.abspath(os.path.dirname(__file__))).parent.parent.par
 
 
 class RegressionTestEnergyPlus(RegressionTestBase):
+    """Class to set up and run EnergyPlus regression tests."""
     def setUp(self):
         self.old_stderr = sys.stderr
         self.working_dir = os.getcwd()
@@ -36,8 +37,7 @@ class RegressionTestEnergyPlus(RegressionTestBase):
 
     def create_regression_setup(self):
         """
-        Create a regression test setup for EnergyPlus based on epregressions
-        regression tests.
+        Create a regression test setup for EnergyPlus.
 
         This method uses the epregressions library to create a regression test
         for the passed project EnergyPlus simulation model export.
@@ -98,6 +98,7 @@ class RegressionTestEnergyPlus(RegressionTestBase):
         return passed_regression_test
 
     def run_regression_test(self):
+        """Run the EnergyPlus regression test."""
         self.regression_base_path = \
             self.project.paths.assets / 'regression_results' / 'bps'
         self.ref_results_src_path = \
@@ -143,22 +144,19 @@ class RegressionTestEnergyPlus(RegressionTestBase):
 
 
 class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
+    """Regression tests for EnergyPlus."""
     def test_regression_AC20_FZK_Haus(self):
-        """Run EnergyPlus export with AC20-FZK-Haus.ifc"""
+        """Run EnergyPlus regression test with AC20-FZK-Haus.ifc."""
         ifc = 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.create_external_elements = True
         project.workflow.zoning_setup = LOD.full
         project.workflow.cooling = True
-        split_non_convex_bounds = True
-        add_shadings = True
-        split_non_convex_shadings = True
-        run_full_simulation = True
-        answers = (split_non_convex_bounds,
-                   add_shadings,
-                   split_non_convex_shadings,
-                   run_full_simulation)
-        handler = DebugDecisionHandler(answers)
+        project.workflow.split_bounds = True
+        project.workflow.add_shadings = True
+        project.workflow.split_shadings = True
+        project.workflow.run_full_simulation = True
+        handler = DebugDecisionHandler(())
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
@@ -170,7 +168,7 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
                          "successfully or created deviations.")
 
     def test_DigitalHub_SB89_regression(self):
-        """Test DigitalHub IFC, includes regression test"""
+        """Test DigitalHub IFC, includes regression test."""
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB89.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.zoning_setup = LOD.full
@@ -181,17 +179,13 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         space_boundary_genenerator = 'Other'
         handle_proxies = (*(None,) * 150,)
         construction_year = 2015
-        split_non_convex_bounds = False
-        add_shadings = True
-        split_non_convex_shadings = False
-        run_full_simulation = False
+        project.workflow.split_bounds = False
+        project.workflow.add_shadings = True
+        project.workflow.split_shadings = False
+        project.workflow.run_full_simulation = False
         answers = (space_boundary_genenerator,
                    *handle_proxies,
-                   construction_year,
-                   split_non_convex_bounds,
-                   add_shadings,
-                   split_non_convex_shadings,
-                   run_full_simulation)
+                   construction_year)
         handler = DebugDecisionHandler(answers)
         handler.handle(project.run())
         self.assertEqual(0, handler.return_value,

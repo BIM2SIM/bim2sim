@@ -1108,7 +1108,6 @@ class SpaceBoundary2B(SpaceBoundary):
         self.ifc = ifcopenshell.create_entity('IfcRelSpaceBoundary')
         self.guid = None
         self.bound_shape = None
-        self.bound_neighbors = []
         self.thermal_zones = []
         self.bound_instance = None
         self.physical = True
