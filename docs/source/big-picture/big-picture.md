@@ -54,7 +54,7 @@ User
   Inputs --> Playground
   
 ```
-Let's define what each of these elements is and how they work together
+Let's define what each of these elements is and how they work together.
 
 **Project:**
 A project is the main object in `bim2sim` and brings workflow and plugin 
