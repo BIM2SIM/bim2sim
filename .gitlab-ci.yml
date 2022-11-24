@@ -471,6 +471,7 @@ test_LCA:
 
 
 pylint:
+ <<: *test-default
  stage: code_quality
  image: python:3.6
  services:
