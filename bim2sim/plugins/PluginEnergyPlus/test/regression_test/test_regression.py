@@ -176,7 +176,7 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         project.workflow.cooling = True
         project.workflow.construction_class_windows = \
             'Waermeschutzverglasung, dreifach'
-        space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
+        space_boundary_genenerator = 'Other'
         handle_proxies = (*(None,) * 150,)
         construction_year = 2015
         project.workflow.split_bounds = False

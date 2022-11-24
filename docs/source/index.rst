@@ -18,6 +18,7 @@ Welcome to bim2sim's documentation!
    tasks
    decisions
    attribute
+   finder
    logging
    docker-structure
    code/modules

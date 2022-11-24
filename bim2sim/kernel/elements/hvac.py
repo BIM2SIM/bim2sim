@@ -770,7 +770,7 @@ class PipeFitting(HVACProduct):
     )
 
     length = attribute.Attribute(
-        default_ps=("Qto_PipeSegmentBaseQuantities", "Length"),
+        default_ps=("Qto_PipeFittingBaseQuantities", "Length"),
         unit=ureg.meter,
         patterns=[
             re.compile('.*Länge.*', flags=re.IGNORECASE),

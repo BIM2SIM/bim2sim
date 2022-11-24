@@ -12,6 +12,7 @@ from bim2sim.decision import Decision, ListDecision, DecisionBunch
 from bim2sim.filter import TypeFilter, TextFilter
 from bim2sim.kernel import ifc2python
 from bim2sim.kernel.element import Factory, ProductBased
+from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.kernel.units import parse_ifc
 from bim2sim.task.base import ITask
 from bim2sim.kernel.ifc2python import get_property_sets
@@ -127,24 +128,29 @@ class CreateElements(ITask):
     reads = ('ifc',)
     touches = ('instances', 'finder')
 
+    def __init__(self):
+        super().__init__()
+        self.factory = None
+        self.source_tools = []
+        self.layersets_all = []
+        self.materials_all = []
+        self.layers_all = []
+
     def run(self, workflow, ifc):
         self.logger.info("Creates elements of relevant ifc types")
         default_ifc_types = {'IfcBuildingElementProxy', 'IfcUnitaryEquipment'}
         relevant_ifc_types = self.get_ifc_types(workflow.relevant_elements)
         relevant_ifc_types.update(default_ifc_types)
 
+        finder = TemplateFinder()
+        yield from finder.initialize(ifc)
+        if self.paths.finder:
+            finder.load(self.paths.finder)
         self.factory = Factory(
             workflow.relevant_elements,
             workflow.ifc_units,
-            self.paths.finder)
-        self.layersets_all = []
-        self.materials_all = []
-        self.layers_all = []
-        # use finder to get correct export tool
-        for app in ifc.by_type('IfcApplication'):
-            for decision in self.factory.finder.check_tool_template(
-                    app.ApplicationFullName):
-                yield DecisionBunch([decision])
+            finder)
+
         # Filtering:
         #  filter returns dict of entities: suggested class and list of unknown
         #  accept_valids returns created elements and lst of invalids

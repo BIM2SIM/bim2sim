@@ -181,7 +181,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
-        answers = ('ARCHICAD-64',)
+        answers = ('Other',)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -195,7 +195,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
         project.workflow.run_full_simulation = True
-        answers = ('ARCHICAD-64',)
+        answers = ('Other',)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -234,7 +234,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
-        answers = ('ARCHICAD-64', 2015)
+        answers = ('Other', 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -247,7 +247,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
         project.workflow.run_full_simulation = True
-        answers = ('ARCHICAD-64', 2015)
+        answers = ('Other', 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -262,7 +262,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.workflow.cooling = True
         project.workflow.construction_class_windows = \
             'Waermeschutzverglasung, dreifach'
-        space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
+        space_boundary_genenerator = 'Other'
         handle_proxies = (*(None,)*150,)
         construction_year = 2015
         project.workflow.split_bounds = False
@@ -291,7 +291,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc, 'energyplus')
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
-        space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
+        space_boundary_genenerator = 'Other'
         handle_proxies = (*(None,)*150,)
         construction_year = 2015
         project.workflow.split_bounds = True
@@ -320,7 +320,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.workflow.add_shadings = True
         project.workflow.split_shadings = True
         project.workflow.run_full_simulation = False
-        answers = ('ARCHICAD-64', 'ARCHICAD-64', 2015)
+        answers = ('Other', 'Other', 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -336,7 +336,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.workflow.add_shadings = True
         project.workflow.split_shadings = True
         project.workflow.run_full_simulation = True
-        answers = ('ARCHICAD-64', 'ARCHICAD-64', 2015)
+        answers = ('Other', 'Other', 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -352,7 +352,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.workflow.add_shadings = True
         project.workflow.split_shadings = True
         project.workflow.run_full_simulation = False
-        answers = ('Autodesk Revit 2020 (DEU)',
+        answers = ('Autodesk Revit',
                    *('Single office',)*5)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -370,8 +370,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.workflow.add_shadings = True
         project.workflow.split_shadings = True
         project.workflow.run_full_simulation = False
-        answers = ('Autodesk Revit 2020 (DEU)', 'Autodesk Revit 2020 (DEU)',
-                   *('Single office',)*71, 2015)
+        answers = ('Other', *('Single office',)*71, 2015)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -404,8 +403,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.workflow.add_shadings = True
         project.workflow.split_shadings = True
         project.workflow.run_full_simulation = False
-        answers = ('Autodesk Revit 2020 (DEU)', 'Single office',
-                   2015)
+        answers = ('Single office', 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -421,8 +419,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.workflow.add_shadings = True
         project.workflow.split_shadings = True
         project.workflow.run_full_simulation = False
-        answers = ('Autodesk Revit 2020 (DEU)', 'Single office',
-                   2015)
+        answers = ('Single office', 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)

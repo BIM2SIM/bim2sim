@@ -31,7 +31,7 @@ class IntegrationBaseTEASER(IntegrationBaseTeaserInteractive, unittest.TestCase)
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_fixed002.ifc'
         used_workflow = workflow.BPSMultiZoneAggregatedLayersLowSimulation()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = ('ARCHICAD-64', *(None,) * 150, True, True,
+        answers = ('Other', *(None,) * 150, True, True,
                    2015, 'light', 'Waermeschutzverglasung, dreifach')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -44,7 +44,7 @@ class IntegrationBaseTEASER(IntegrationBaseTeaserInteractive, unittest.TestCase)
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_fixed002.ifc'
         used_workflow = workflow.BPSMultiZoneAggregatedLayersLowSimulation()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = ('ARCHICAD-64', *(None,) * 150, True, True,
+        answers = ('Other', *(None,) * 150, True, True,
                    2015, 'heavy', 'Waermeschutzverglasung, dreifach', 'by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -57,7 +57,7 @@ class IntegrationBaseTEASER(IntegrationBaseTeaserInteractive, unittest.TestCase)
         ifc = RESULT_PATH / 'FM_ARC_DigitalHub_fixed002.ifc'
         used_workflow = workflow.BPSMultiZoneAggregatedLayersLowSimulation()
         project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = ('ARCHICAD-64', *(None,) * 150, True, True,
+        answers = ('Other', *(None,) * 150, True, True,
                    2015, 'light', 'Waermeschutzverglasung, dreifach')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
