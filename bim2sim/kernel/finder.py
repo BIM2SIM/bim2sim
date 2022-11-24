@@ -314,8 +314,8 @@ class SourceTool:
     def __init__(self, app_ifc: entity_instance):
         """Represents the author software that created the IFC file.
 
-        Gets the basic information about the tool needed to identify which template
-        should be searched. One IFC might have multiple SourceTools.
+        Gets the basic information about the tool needed to identify which
+        template should be searched. One IFC might have multiple SourceTools.
 
         Args:
             app_ifc: entity_instance of IfcApplication

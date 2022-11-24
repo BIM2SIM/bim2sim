@@ -1,6 +1,6 @@
 # Finder
 ## What does the finder?
-The abstract `finder` class has currently only one implementation. The 
+The abstract `finder` class has currently only one implementation, the 
 [TemplateFinder](TemplateFinder). The TemplateFinder is used to find attributes
 in the IFC which are not placed in an IFC schema specified way, but in a known 
 way (Custom `IfcPropertySets`). E.g. it is known that ArchiCAD creates an
