@@ -319,11 +319,20 @@ class PyOCCTools:
 
     @staticmethod
     def triangulate_bound_shape(shape: TopoDS_Shape,
-                                cut_shapes: list[TopoDS_Shape]=[]):
-        """Triangulate bound shape."""
+                                cut_shapes: list[TopoDS_Shape] = [])\
+            -> TopoDS_Shape:
+        """Triangulate bound shape.
+
+        Args:
+            shape: TopoDS_Shape
+            cut_shapes: list of TopoDS_Shape
+        Returns:
+            Triangulated TopoDS_Shape
+
+        """
         if cut_shapes:
             for cut_shape in cut_shapes:
                 shape = BRepAlgoAPI_Cut(
                     shape, cut_shape).Shape()
         triang_face = BRepMesh_IncrementalMesh(shape, 1)
-        return triang_face
+        return triang_face.Shape()

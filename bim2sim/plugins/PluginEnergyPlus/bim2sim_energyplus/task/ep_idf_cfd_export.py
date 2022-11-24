@@ -10,6 +10,7 @@ from OCC.Core.BRepGProp import brepgprop_SurfaceProperties
 from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
 from OCC.Core.GProp import GProp_GProps
 from OCC.Core.StlAPI import StlAPI_Writer
+from OCC.Core.TopoDS import TopoDS_Face, TopoDS_Shape
 from stl import mesh, stl
 
 from bim2sim.kernel.elements.bps import ThermalZone, SpaceBoundary
@@ -50,7 +51,7 @@ class ExportIdfForCfd(ITask):
         """Export generated 2b space boundaries to stl for CFD purposes.
 
         Args:
-            stl_dir:
+            stl_dir: directory of exported stl files
             instances: dict[guid: element]
             stl_name: name of the stl file.
         """
@@ -65,7 +66,7 @@ class ExportIdfForCfd(ITask):
                 triang_face = PyOCCTools.triangulate_bound_shape(
                     space_obj.b_bound_shape)
                 # Export to STL
-                self.write_triang_face(triang_face.Shape(), this_name)
+                self.write_triang_face(triang_face, this_name)
 
     def export_bounds_to_stl(self, instances: dict, stl_name: str,
                              stl_dir: str):
@@ -79,7 +80,7 @@ class ExportIdfForCfd(ITask):
         so boundaries do not overlap.
 
         Args:
-            stl_dir:
+            stl_dir: directory of exported stl files
             instances: dict[guid: element]
             stl_name: name of the stl file.
         """
@@ -90,13 +91,14 @@ class ExportIdfForCfd(ITask):
                 continue
             self.export_single_bound_to_stl(bound, stl_dir, stl_name)
 
-    def export_single_bound_to_stl(self, bound, stl_dir, stl_name):
+    def export_single_bound_to_stl(self, bound: SpaceBoundary, stl_dir: str,
+                                   stl_name: str):
         """Export a single bound to stl.
 
         Args:
-            bound:
-            stl_dir:
-            stl_name:
+            bound: SpaceBoundary instance
+            stl_dir: directory of exported stl files
+            stl_name: name of the stl file.
         """
         name = bound.guid
         this_name = stl_dir + str(stl_name) + "_cfd_" + str(name) + ".stl"
@@ -107,20 +109,28 @@ class ExportIdfForCfd(ITask):
         triang_face = PyOCCTools.triangulate_bound_shape(bound.cfd_face,
                                                          opening_shapes)
         # Export to STL
-        self.write_triang_face(triang_face.Shape(), this_name)
+        self.write_triang_face(triang_face, this_name)
+
     @staticmethod
-    def write_triang_face(shape, name):
+    def write_triang_face(shape: TopoDS_Shape, name):
+        """Write triangulated face to stl file.
+
+        Args:
+            shape: TopoDS_Shape
+            name: path and name of the stl
+        """
         stl_writer = StlAPI_Writer()
         stl_writer.SetASCIIMode(True)
         stl_writer.Write(shape, name)
 
-    def export_bounds_per_space_to_stl(self, instances, stl_name, base_stl_dir):
-        """
-        This function exports a space to an idf file.
-        :param idf: idf file object
-        :param space: Space instance
-        :param zone: idf zone object
-        :return:
+    def export_bounds_per_space_to_stl(self, instances: dict, stl_name: str,
+                                       base_stl_dir: str):
+        """Export stl bounds per space in individual directories.
+
+        Args:
+            instances: dict[guid: element]
+            stl_name: name of the stl file.
+            base_stl_dir: directory of exported stl files
         """
         spaces = filter_instances(instances, ThermalZone)
         for space_obj in spaces:
@@ -134,7 +144,13 @@ class ExportIdfForCfd(ITask):
             self.combine_space_stl_files(stl_name, space_name, self.paths)
 
     @staticmethod
-    def combined_space_stl(stl_name, paths):
+    def combined_space_stl(stl_name: str, paths):
+        """Combine the stl files per space in stl files.
+
+        Args:
+            stl_name: name of the stl file.
+            paths: BIM2SIM paths
+        """
         sb_dict = pd.read_csv(paths.export / 'space_bound_list.csv').drop(
             'Unnamed: 0', axis=1)
         with open(paths.export / str(
@@ -153,15 +169,18 @@ class ExportIdfForCfd(ITask):
                   'w+') as new_file:
             new_file.write(output_data)
 
-
     @staticmethod
-    def export_space_bound_list(instances, paths):
+    def export_space_bound_list(instances: dict, paths: str):
+        """Exports a list of spaces and space boundaries.
+
+        Args:
+            instances: dict[guid: element]
+            paths: BIM2SIM paths
+        """
         stl_dir = str(paths.export) + '/'
         space_bound_df = pd.DataFrame(columns=["space_id", "bound_ids"])
-        for inst in instances:
-            if not instances[inst].ifc.is_a("IfcSpace"):
-                continue
-            space = instances[inst]
+        spaces = filter_instances(instances, ThermalZone)
+        for space in spaces:
             bound_names = []
             for bound in space.space_boundaries:
                 bound_names.append(bound.guid)
@@ -171,11 +190,19 @@ class ExportIdfForCfd(ITask):
         space_bound_df.to_csv(stl_dir + "space_bound_list.csv")
 
     @staticmethod
-    def combine_stl_files(stl_name, paths):
+    def combine_stl_files(stl_name: str, paths: str):
+        """Combine stl files.
+
+        Args:
+            stl_name: name of the stl file
+            paths: BIM2SIM paths
+        """
         stl_dir = str(paths.export) + '/'
-        with open(stl_dir + stl_name + "_combined_STL.stl", 'wb+') as output_file:
+        with open(stl_dir + stl_name + "_combined_STL.stl", 'wb+') \
+                as output_file:
             for i in os.listdir(stl_dir + 'STL/'):
-                if os.path.isfile(os.path.join(stl_dir + 'STL/', i)) and (stl_name + "_cfd_") in i:
+                if os.path.isfile(os.path.join(stl_dir + 'STL/', i)) \
+                        and (stl_name + "_cfd_") in i:
                     sb_mesh = mesh.Mesh.from_file(stl_dir + 'STL/' + i)
                     mesh_name = "cfd_" +i.split("_cfd_", 1)[-1]
                     mesh_name = mesh_name.replace(".stl", "")
@@ -183,14 +210,25 @@ class ExportIdfForCfd(ITask):
                     sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
 
     @staticmethod
-    def combine_space_stl_files(stl_name, space_name, paths):
+    def combine_space_stl_files(stl_name: str, space_name: str, paths: str):
+        """Combine the stl file of spaces.
+
+        Args:
+            stl_name: name of the stl file
+            space_name: name of the space
+            paths: BIM2SIM paths
+        """
         stl_dir = str(paths.export) + '/'
         os.makedirs(os.path.dirname(stl_dir + "space_stl/"), exist_ok=True)
 
-        with open(stl_dir + "space_stl/" + "space_" + space_name + ".stl", 'wb+') as output_file:
+        with open(stl_dir + "space_stl/" + "space_" + space_name + ".stl",
+                  'wb+') as output_file:
             for i in os.listdir(stl_dir + 'STL/' + space_name + "/"):
-                if os.path.isfile(os.path.join(stl_dir + 'STL/' + space_name + "/", i)) and (stl_name + "_cfd_") in i:
-                    sb_mesh = mesh.Mesh.from_file(stl_dir + 'STL/' + space_name + "/" + i)
+                if os.path.isfile(os.path.join(stl_dir + 'STL/'
+                                               + space_name + "/", i)) \
+                        and (stl_name + "_cfd_") in i:
+                    sb_mesh = mesh.Mesh.from_file(stl_dir + 'STL/'
+                                                  + space_name + "/" + i)
                     mesh_name = "cfd_" + i.split("_cfd_", 1)[-1]
                     mesh_name = mesh_name.replace(".stl", "")
                     mesh_name = mesh_name.replace("$", "___")
