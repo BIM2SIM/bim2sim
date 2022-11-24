@@ -125,7 +125,8 @@ class TemplateFinder(Finder):
             raise AttributeError("Finder is disabled")
 
         self._get_elements_source_tool(element)
-
+        if not element.source_tool:
+            return None
         key1 = element.source_tool.templ_name
         key2 = type(element).__name__
         key3 = 'default_ps'
@@ -147,9 +148,9 @@ class TemplateFinder(Finder):
             else:
                 pset = ifc2python.get_property_set_by_name(
                     res[0], element.ifc, element.ifc_units)
+            return pset.get(res[1])
         except AttributeError:
             raise AttributeError("Can't find property as defined by template.")
-        return pset.get(res[1])
 
     def _set_templates_by_tools(self, source_tool: SourceTool) \
             -> Generator[Decision, None, None]:
