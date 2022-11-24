@@ -29,15 +29,15 @@ logger = logging.getLogger(__name__)
 class AddSpaceBoundaries2B(ITask):
     """Exports an EnergyPlus model based on IFC information"""
 
-    reads = ('instances', 'ifc', 'ep_decisions',)
+    reads = ('instances', 'ifc')
 
-    def run(self, workflow, instances, ifc, ep_decisions):
+    def run(self, workflow, instances, ifc):
         """Run the generation of 2b space boundaries. """
-        split_bounds = ep_decisions['EnergyPlus.SplitConvexBounds']
         try:
             inst_2b = self._compute_2b_bound_gaps(instances)
             EPGeomPreprocessing.split_non_convex_bounds(EPGeomPreprocessing(),
-                                                        inst_2b, split_bounds)
+                                                        inst_2b,
+                                                        workflow.split_bounds)
         except Exception as ex:
             logger.warning(f"Unexpected {ex=}. No 2b Space Boundaries added."
                            f" {type(ex)=}")

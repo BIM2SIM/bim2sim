@@ -152,15 +152,11 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         project.workflow.create_external_elements = True
         project.workflow.zoning_setup = LOD.full
         project.workflow.cooling = True
-        split_non_convex_bounds = True
-        add_shadings = True
-        split_non_convex_shadings = True
-        run_full_simulation = True
-        answers = (split_non_convex_bounds,
-                   add_shadings,
-                   split_non_convex_shadings,
-                   run_full_simulation)
-        handler = DebugDecisionHandler(answers)
+        project.workflow.split_bounds = True
+        project.workflow.add_shadings = True
+        project.workflow.split_shadings = True
+        project.workflow.run_full_simulation = True
+        handler = DebugDecisionHandler(())
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
@@ -183,17 +179,13 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         space_boundary_genenerator = 'Autodesk Revit 2020 (DEU)'
         handle_proxies = (*(None,) * 150,)
         construction_year = 2015
-        split_non_convex_bounds = False
-        add_shadings = True
-        split_non_convex_shadings = False
-        run_full_simulation = False
+        project.workflow.split_bounds = False
+        project.workflow.add_shadings = True
+        project.workflow.split_shadings = False
+        project.workflow.run_full_simulation = False
         answers = (space_boundary_genenerator,
                    *handle_proxies,
-                   construction_year,
-                   split_non_convex_bounds,
-                   add_shadings,
-                   split_non_convex_shadings,
-                   run_full_simulation)
+                   construction_year)
         handler = DebugDecisionHandler(answers)
         handler.handle(project.run())
         self.assertEqual(0, handler.return_value,

@@ -43,14 +43,14 @@ class CreateIdf(ITask):
     preprocessed space boundary geometries.
     """
 
-    reads = ('instances', 'ep_decisions', 'weather_file',)
+    reads = ('instances', 'weather_file',)
     touches = ('idf',)
 
     def __init__(self):
         super().__init__()
         self.idf = None
 
-    def run(self, workflow, instances, ep_decisions, weather_file):
+    def run(self, workflow, instances, weather_file):
         """Execute all methods to export an IDF from BIM2SIM."""
         logger.info("IDF generation started ...")
         idf = self.init_idf(workflow, self.paths, weather_file)
@@ -59,7 +59,7 @@ class CreateIdf(ITask):
         self.init_zonegroups(instances, idf)
         self.get_preprocessed_materials_and_constructions(workflow, instances,
                                                           idf)
-        if ep_decisions['EnergyPlus.AddShadings']:
+        if workflow.add_shadings:
             self.add_shadings(instances, idf)
         self.set_simulation_control(workflow, idf)
         idf.set_default_constructions()

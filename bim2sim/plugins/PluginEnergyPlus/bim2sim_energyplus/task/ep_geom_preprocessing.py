@@ -43,7 +43,7 @@ class EPGeomPreprocessing(ITask):
     required for EnergyPlus export.
     """
     reads = ('instances', 'space_boundaries')
-    touches = ('ep_decisions', 'instances')
+    # touches = ('instances',)
 
     def __init__(self):
         super().__init__()
@@ -52,31 +52,30 @@ class EPGeomPreprocessing(ITask):
         logger.info("Geometric preprocessing for EnergyPlus Export started"
                     "...")
         decisions = []
-        split_bounds = BoolDecision(
-            question="Do you want to decompose non-convex space boundaries into"
-                     " convex boundaries?",
-            global_key='EnergyPlus.SplitConvexBounds')
-        decisions.append(split_bounds)
-        add_shadings = BoolDecision(
-            question="Do you want to add shadings if available?",
-            global_key='EnergyPlus.AddShadings')
-        decisions.append(add_shadings)
-        split_shadings = BoolDecision(
-            question="Do you want to decompose non-convex shadings into convex "
-                     "shadings?", global_key='EnergyPlus.SplitConvexShadings')
-        decisions.append(split_shadings)
-        yield DecisionBunch(decisions)
-        ep_decisions = {item.global_key: item.value for item in decisions}
+        # split_bounds = BoolDecision(
+        #     question="Do you want to decompose non-convex space boundaries into"
+        #              " convex boundaries?",
+        #     global_key='EnergyPlus.SplitConvexBounds')
+        # decisions.append(split_bounds)
+        # add_shadings = BoolDecision(
+        #     question="Do you want to add shadings if available?",
+        #     global_key='EnergyPlus.AddShadings')
+        # decisions.append(add_shadings)
+        # split_shadings = BoolDecision(
+        #     question="Do you want to decompose non-convex shadings into convex "
+        #              "shadings?", global_key='EnergyPlus.SplitConvexShadings')
+        # decisions.append(split_shadings)
+        # yield DecisionBunch(decisions)
         self.add_bounds_to_instances(instances, space_boundaries)
         self.move_children_to_parents(instances)
         self.fix_surface_orientation(instances)
-        self.split_non_convex_bounds(instances, split_bounds.value)
-        self.add_and_split_bounds_for_shadings(instances, add_shadings.value,
-                                               split_shadings.value)
+        self.split_non_convex_bounds(instances, workflow.split_bounds)
+        self.add_and_split_bounds_for_shadings(instances, workflow.add_shadings,
+                                               workflow.split_shadings)
         logger.info("Geometric preprocessing for EnergyPlus Export "
                     "finished!")
 
-        return ep_decisions, instances
+        # return instances,
 
     @staticmethod
     def add_bounds_to_instances(instances: dict,

@@ -404,6 +404,44 @@ class EnergyPlusWorkflow(BuildingSimulation):
         description='Whether to use CFD export for this simulation or not.',
         for_frontend=True
     )
+    split_bounds = WorkflowSetting(
+        default=False,
+        choices={
+            False: 'Keep non-convex space boundaries as they are',
+            True: 'Split up non-convex boundaries in convex shapes'
+        },
+        description='Whether to convert up non-convex space boundaries or '
+                    'not.',
+        for_frontend=True
+    )
+    add_shadings = WorkflowSetting(
+        default=True,
+        choices={
+            True: 'Add shading surfaces if available',
+            False: 'Do not add shading surfaces even if available'
+        },
+        description='Whether to add shading surfaces if available or not.',
+        for_frontend=True
+    )
+    split_shadings = WorkflowSetting(
+        default=False,
+        choices={
+            False: 'Keep non-convex shading boundaries as they are',
+            True: 'Split up non-convex shading boundaries in convex shapes'
+        },
+        description='Whether to convert up non-convex shading boundaries or '
+                    'not.',
+        for_frontend=True
+    )
+    run_full_simulation = WorkflowSetting(
+        default=False,
+        choices={
+            True: 'Run annual simulation',
+            False: 'Run design day simulation'
+        },
+        description='Choose simulation period.',
+        for_frontend=True
+    )
     ep_version = WorkflowSetting(
         default='9-4-0',
         choices={
