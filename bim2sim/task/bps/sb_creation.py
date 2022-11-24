@@ -15,7 +15,7 @@ from bim2sim.kernel.elements.bps import SpaceBoundary, ExtSpatialSpaceBoundary, 
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from bim2sim.utilities.common_functions import filter_instances
-from bim2sim.workflow import EnergyPlusWorkflow
+from bim2sim.workflow import Workflow
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class CreateSpaceBoundaries(ITask):
         space_boundaries = {inst.guid: inst for inst in instance_lst}
         return space_boundaries,
 
-    def get_parents_and_children(self, workflow: EnergyPlusWorkflow,
+    def get_parents_and_children(self, workflow: Workflow,
                                  boundaries: list[SpaceBoundary],
                                  instances: dict, opening_area_tolerance=0.01) \
             -> dict[str, SpaceBoundary]:
