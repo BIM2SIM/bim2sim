@@ -841,11 +841,19 @@ class CreateIdf(ITask):
         """
         logger.info("Set Simulation Control ...")
         for sim_control in idf.idfobjects["SIMULATIONCONTROL"]:
-            sim_control.Do_System_Sizing_Calculation = workflow.system_sizing
-            sim_control.Run_Simulation_for_Sizing_Periods \
-                = workflow.run_for_sizing_periods
-            sim_control.Run_Simulation_for_Weather_File_Run_Periods \
-                = workflow.run_for_weather_period
+            if workflow.system_sizing:
+                sim_control.Do_System_Sizing_Calculation = 'Yes'
+            else:
+                sim_control.Do_System_Sizing_Calculation = 'No'
+            if workflow.run_for_sizing_periods:
+                sim_control.Run_Simulation_for_Sizing_Periods = 'Yes'
+            else:
+                sim_control.Run_Simulation_for_Sizing_Periods = 'No'
+            if workflow.run_for_weather_period:
+                sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'Yes'
+
+            else:
+                sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'No'
 
         for building in idf.idfobjects['BUILDING']:
             building.Solar_Distribution = workflow.solar_distribution
