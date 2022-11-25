@@ -1,5 +1,3 @@
-(Overview)=
-
 # Overview
 ## What is bim2sim about?
 `bim2sim` is a Python tool that allows to use BIM models (in the form of 

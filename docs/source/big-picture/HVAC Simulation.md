@@ -1,5 +1,3 @@
-(hvac simulation)=
-
 # Heating Ventilation and Air Conditioning (HVAC) Simulation
 HVAC simulations are used to simulate the behaviour of different system 
 components in the energy system. For now `bim2sim` focuses on the heating and 
