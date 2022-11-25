@@ -1,15 +1,22 @@
 # Aggregations
 
 ## What are aggregations used for?
+...
 
 ## How are they implemented?
+...
 
 ### Find Matches
+...
+
+### Get Edge Ports
+...
 
 ### Replace
+...
 
 ### Merge graph
-
+...
 
 ## What aggregations exist currently:
 Currently, we implemented the following aggregations, please have a look at the
