@@ -70,3 +70,11 @@ for decisions in project.run():
         print(decision.question)
         decision.value = get_answer()
 ````
+
+
+### Upcoming Features:
+* [ ] interactive visualization of hydraulic networks for HVAC part 
+* [ ] implementation of curtain walls for BPS part
+* [ ] support of AHU and ventilation simulations with Modelica
+* [ ] automated integration of weather files based of location of building
+

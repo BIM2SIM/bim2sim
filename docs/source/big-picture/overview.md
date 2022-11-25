@@ -1,5 +1,6 @@
 (Overview)=
-# Big Picture
+
+# Overview
 
 ```{eval-rst}
 .. toctree::
@@ -67,8 +68,8 @@ simulation.
 * A [Plugin](../plugins) is for a specific simulation environment/tool.
 * IFC is the IFC file that you want to use as a source.
 E.g. [TEASER](TEASERManager) plugin and [EnergyPlus](EnergyPlus) plugin use the 
-same workflow [BuildingSimulation](BuildingSimulation). It defines the default
-tasks that will be executed during the project run.
+same base workflow [BuildingSimulation](BuildingSimulation). It defines the 
+default tasks that will be executed during the project run.
  
 **Playground:**
 * The [Playground](Playground) itself deals as a manager which coordinates the 
@@ -79,7 +80,7 @@ task is for example the loading process of the IFC into the tool.
 **User:**
 To overcome the already mentioned challenges regarding the mixed quality of 
 IFC-files the process might need feedback and additional information from the 
-user. This feedback is given through [Decisions](decisions)
+user. This feedback is given through [Decisions](decisions).
 
 You find detailed information about each of the concepts in the corresponding 
 documentation.

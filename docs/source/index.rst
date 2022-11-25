@@ -16,6 +16,7 @@ Welcome to bim2sim's documentation!
    workflow
    plugins
    tasks
+   aggregations
    decisions
    attribute
    finder
