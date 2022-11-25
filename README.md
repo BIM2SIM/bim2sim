@@ -5,7 +5,7 @@ bim2sim is a library to create simulation models for different purposes based on
 * Computational Fluid Dynamics (CFD)
 * Life Cycle Assessment (LCA) 
 are included. The basic structure is shown below: 
-![Toolchain](docs/img/bim2sim_project_workflow_eng.png)
+![Toolchain](docs/source/img/static/bim2sim_project_workflow_eng.png)
 
 ## Install
 
