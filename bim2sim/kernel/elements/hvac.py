@@ -196,6 +196,11 @@ class HVACProduct(ProductBased):
         super().__init__(*args, **kwargs)
         self.inner_connections: List[Tuple[HVACPort, HVACPort]] = self.get_inner_connections()
 
+    @cached_property
+    def expected_hvac_ports(self):
+        raise NotImplementedError(f"Please define the expected number of ports "
+                                  f"for the class {self.__class__.__name__} ")
+
     def get_ports(self) -> list:
         """
         Returns a list of ports of this product.
