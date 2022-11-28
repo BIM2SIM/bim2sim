@@ -434,7 +434,7 @@ class Reduce(ITask):
             i = 0
             for match, meta in zip(matches, metas):
                 # TODO: See #167
-                # outer_connections = agg_class.get_edge_ports2(graph, match)
+                # edge_ports = agg_class.get_edge_ports2(graph, match)
                 try:
                     agg = agg_class(match, **meta)
 
