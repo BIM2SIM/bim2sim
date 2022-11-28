@@ -215,13 +215,18 @@ class HVACProduct(ProductBased):
                         port_valid = False
                     else:
                         predefined_type = get_predefined_type(port_connection)
-                        if predefined_type != 'PIPE':
+                        if predefined_type in [
+                            'CABLE', 'CABLECARRIER', 'WIRELESS']:
                             port_valid = False
                     if port_valid:
                         ports.append(HVACPort.from_ifc(
                             ifc=port_connection, parent=self))
                     else:
-                        logger.warning("Not included %s as Port in %s", port_connection.is_a(), self)
+                        logger.warning(
+                            "Not included %s as Port in %s with GUID %s",
+                            port_connection.is_a(),
+                            self.__class__.__name__,
+                            self.guid)
         except AttributeError as ae:
             logger.warning("Failed to create Port")
             pass

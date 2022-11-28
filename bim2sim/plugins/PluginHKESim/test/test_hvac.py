@@ -56,7 +56,6 @@ class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
         #            '2PFOreSeyfWqxUJNMz5nFO', '2YKblmYbhnh4RrfqKcCxPJ',
         #            *(True,) * 13, 0.75, 50, 150, 70, *(1, 500,) * 7)
         answers = ('HVAC-Distributor', *('HVAC-ThreeWayValve',) * 2,  *('HVAC-Valve',) * 14, *(None,) * 2,
-                   '1nTN1WkvqqdqsTPy3B3DQu', '0IIRBsYaHcWKXJRDmvr4uu',
                    *(True,) * 5, 0.75, 50, 150, 70, *(1, 500,) * 7)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
