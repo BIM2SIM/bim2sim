@@ -151,7 +151,10 @@ class CheckIfcHVAC(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        return len(inst.HasPorts) > 0
+        if hasattr(inst, 'HasPorts'):
+            return len(inst.HasPorts) > 0
+        else:
+            return False
 
     @staticmethod
     def _check_contained_in_structure(inst: entity_instance) -> bool:
@@ -165,4 +168,7 @@ class CheckIfcHVAC(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        return len(inst.ContainedInStructure) > 0
+        if hasattr(inst, 'ContainedInStructure'):
+            return len(inst.ContainedInStructure) > 0
+        else:
+            return False

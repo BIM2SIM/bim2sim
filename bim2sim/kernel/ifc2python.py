@@ -289,7 +289,7 @@ def get_guid(ifcElement):
 
 
 def get_predefined_type(ifcElement) -> Union[str, None]:
-    """Returns the predifined type of the IFC element"""
+    """Returns the predefined type of the IFC element"""
     try:
         predefined_type = getattr(ifcElement, 'PredefinedType')
         # todo cache "USERDEFINED" and check where information is stored

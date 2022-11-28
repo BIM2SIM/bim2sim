@@ -571,10 +571,8 @@ class ProductBased(IFCBased):
     """Elements based on IFC products.
 
     Args:
-        material:
-            material of the element
-        material_set:
-            dict of material and fraction [0, 1] if multiple materials
+        material: material of the element
+        material_set: dict of material and fraction [0, 1] if multiple materials
     """
     domain = 'GENERAL'
     key: str = ''
@@ -598,10 +596,11 @@ class ProductBased(IFCBased):
 
     def get_better_subclass(self) -> Union[None, Type['IFCBased']]:
         """Returns alternative subclass of current object.
-
         CAUTION: only use this if you can't know the result before instantiation
          of base class
-        :returns: subclass of ProductBased or None"""
+
+        Returns:
+            object: subclass of ProductBased or None"""
         return None
 
     @property
@@ -613,23 +612,22 @@ class ProductBased(IFCBased):
                 neighbors.append(port.connection.parent)
         return neighbors
 
-    def is_generator(self):
-        # todo move this to hvacproduct
-        return False
-
-    def is_consumer(self):
-        # todo move this to hvacproduct
-        return False
-
     def validate_creation(self):
-        """"Check if standard parameter are in valid range"""
+        """"Validate the element creation in two steps.
+        1. Check if standard parameter are in valid range.
+        2. Check if number of ports are equal to number of expected ports
+        (only for HVAC).
+        """
         for cond in self.conditions:
             if cond.critical_for_creation:
                 value = getattr(self, cond.key)
                 if not cond.check(self, value):
-                    logger.warning("%s validation (%s) failed for %s",
-                                   self.ifc_type, cond.name, self.guid)
+                    logger.warning("%s validation (%s) failed for %s", self.ifc_type, cond.name, self.guid)
                     return False
+        if not self.validate_ports():
+            logger.warning("%s has %d ports, but %d expected for %s", self.ifc_type, len(self.ports),
+                           self.expected_hvac_ports, self.guid)
+            return False
         return True
 
     def validate_attributes(self) -> dict:
@@ -646,6 +644,9 @@ class ProductBased(IFCBased):
         #             return False
         # return True
         return results
+
+    def validate_ports(self):
+        return True
 
     def __repr__(self):
         return "<%s>" % self.__class__.__name__
@@ -809,8 +810,7 @@ class Factory:
             ifc_units: dict,
             finder: Union[TemplateFinder, None] = None,
             dummy=Dummy):
-        self.mapping, self.blacklist, self.defaults = \
-            self.create_ifc_mapping(relevant_elements)
+        self.mapping, self.blacklist, self.defaults = self.create_ifc_mapping(relevant_elements)
         self.dummy_cls = dummy
         self.finder = finder
         self.ifc_units = ifc_units
@@ -826,7 +826,7 @@ class Factory:
         :param use_dummy: use dummy class if nothing is found
         :param kwargs: additional kwargs passed to element
 
-        :raises LookupError: if no element found an use_dummy = False
+        :raises LookupError: if no element found and use_dummy = False
         """
         _ifc_type = ifc_type or ifc_entity.is_a()
         predefined_type = ifc2python.get_predefined_type(ifc_entity)

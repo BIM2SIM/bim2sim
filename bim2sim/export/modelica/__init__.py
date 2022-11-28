@@ -164,8 +164,8 @@ class Instance:
         return False
 
     @staticmethod
-    def init_factory(libraries):
-        """initialize lookup for factory"""
+    def init_factory(libraries: tuple):
+        """Initialize lookup for factory"""
         conflict = False
         Instance.dummy = Dummy
         for library in libraries:

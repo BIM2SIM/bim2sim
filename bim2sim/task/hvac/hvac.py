@@ -11,7 +11,7 @@ import networkx as nx
 
 from bim2sim.kernel.elements import hvac
 from bim2sim.task.base import ITask
-from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating, ParallelPump
+from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating, ParallelPump, ParallelSpaceHeater
 from bim2sim.kernel.aggregation import Consumer, ConsumerHeatingDistributorModule, GeneratorOneFluid
 from bim2sim.kernel.element import ProductBased, ElementEncoder, Port, Material
 from bim2sim.kernel.hvac import hvac_graph
@@ -53,7 +53,7 @@ class ConnectElements(ITask):
         # Check ports
         self.logger.info("Checking ports of elements ...")
         self.check_element_ports(instances)
-        # Make connections by relation
+        # Make connections by relations
         self.logger.info("Connecting the relevant elements")
         self.logger.info(" - Connecting by relations ...")
         all_ports = [port for item in instances.values() for port in item.ports]
@@ -98,7 +98,7 @@ class ConnectElements(ITask):
         """Checks position of all ports for each element.
 
         Args:
-            elements: dictionary of elements to be checked
+            elements: dictionary of elements to be checked with guid as key
         """
         for ele in elements.values():
             for port_a, port_b in itertools.combinations(ele.ports, 2):
@@ -119,7 +119,7 @@ class ConnectElements(ITask):
 
     @staticmethod
     def connections_by_relation(ports: list, include_conflicts: bool = False) -> list:
-        """Connect ports of instances by IFC relations.
+        """Connect ports of elements by IFC relations.
 
         Args:
             ports: list of ports to be connected
@@ -133,8 +133,10 @@ class ConnectElements(ITask):
         for port in ports:
             if not port.ifc:
                 continue
-            connected_ports = [conn.RelatingPort for conn in port.ifc.ConnectedFrom] + [conn.RelatedPort for conn in
-                                                                                        port.ifc.ConnectedTo]
+            connected_ports = [conn.RelatingPort for conn in
+                               port.ifc.ConnectedFrom] + [conn.RelatedPort for
+                                                          conn in
+                                                          port.ifc.ConnectedTo]
             if connected_ports:
                 other_port = None
                 if len(connected_ports) > 1:
@@ -271,7 +273,8 @@ class ConnectElements(ITask):
         Returns:
 
         """
-        # TODO: if a lot of decisions occur, it would help to merge DecisionBunches before yielding them
+        # TODO: if a lot of decisions occur, it would help to merge
+        #  DecisionBunches before yielding them
         for instance in instances:
             if isinstance(instance, hvac.HVACProduct) \
                     and not instance.inner_connections:
@@ -371,14 +374,12 @@ class Reduce(ITask):
             'ParallelPump': ParallelPump,
             'ConsumerHeatingDistributorModule': ConsumerHeatingDistributorModule,
             'GeneratorOneFluid': GeneratorOneFluid,
-            # 'ParallelSpaceHeater': ParallelSpaceHeater,
+            'ParallelSpaceHeater': ParallelSpaceHeater,
         }
         aggregations = [aggregations_cls[agg] for agg in workflow.aggregations]
 
         statistics = {}
         number_of_elements_before = len(graph.elements)
-
-        # TODO: LOD
 
         for agg_class in aggregations:
             name = agg_class.__name__
@@ -387,9 +388,10 @@ class Reduce(ITask):
             i = 0
             for match, meta in zip(matches, metas):
                 # TODO: See #167
-                # outer_connections = agg_class.get_edge_ports2(graph, match)
+                # edge_ports = agg_class.get_edge_ports2(graph, match)
                 try:
                     agg = agg_class(match, **meta)
+
                 except Exception as ex:
                     self.logger.exception("Instantiation of '%s' failed", name)
                 else:

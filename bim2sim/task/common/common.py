@@ -184,7 +184,7 @@ class CreateElements(ITask):
                          "identified and transformed into a python element.",
                          len(unknown_entities))
 
-        # Identification of remaining entities by user
+        # identification of remaining entities by user
         entity_class_dict, unknown_entities = yield from self.set_class_by_user(
             unknown_entities,
             workflow.relevant_elements,
@@ -274,7 +274,7 @@ class CreateElements(ITask):
                                         ifc_type_or_element_cls, element)
                 invalid.append(entity)
 
-        return valid, invalid
+        return list(set(valid)), list(set(invalid))
 
     def create_layers_and_materials(self, element):
         """Create all layers and materials associated with the given element.
@@ -480,8 +480,10 @@ class CreateElements(ITask):
             best_guess_cls = best_guess_dict.get(ifc_entity)
             best_guess = best_guess_cls.key if best_guess_cls else None
             decisions.append(ListDecision(
-                "Found unidentified Element of %s (Name: %s, Description: %s):"
-                % (ifc_entity.is_a(), ifc_entity.Name, ifc_entity.Description),
+                "Found unidentified Element of %s (Name: %s, Description: %s,"
+                " GUID: %s):" % (
+                    ifc_entity.is_a(), ifc_entity.Name, ifc_entity.Description,
+                    ifc_entity.GlobalId),
                 choices=[ele.key for ele in sorted_elements],
                 default=best_guess,
                 key=ifc_entity,
@@ -797,7 +799,10 @@ class CheckIfc(ITask):
             True: if check succeeds
             False: if check fails
         """
-        return inst.Representation is not None
+        if hasattr(inst, 'Representation'):
+            return inst.Representation is not None
+        else:
+            return False
 
     def get_html_templates(self):
         """

@@ -173,10 +173,12 @@ class Attribute:
                     value, ureg.Quantity):
                 logger.warning("Unit not set!")
                 value = value * self.unit
-
-        if value is not None and bind.conditions:
-            if not self.check_conditions(bind, value, self.name):
-                value = None
+        # todo validation of attributes on creation time makes accept_valids
+        #  function in common.py unusable as not valid attributes are never
+        #  created
+        # if value is not None and bind.conditions:
+        #     if not self.check_conditions(bind, value, self.name):
+        #         value = None
 
         return value
 
