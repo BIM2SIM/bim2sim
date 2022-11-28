@@ -30,8 +30,10 @@ class HvacGraph(nx.Graph):
         Update graph based on ports of elements.
         """
 
-        nodes = [port for instance in instances for port in instance.ports if port.connection]
-        inner_edges = [connection for instance in instances for connection in instance.inner_connections]
+        nodes = [port for instance in instances for port in instance.ports
+                 if port.connection]
+        inner_edges = [connection for instance in instances
+                       for connection in instance.inner_connections]
         edges = [(port, port.connection) for port in nodes if port.connection]
 
         self.update(nodes=nodes, edges=edges + inner_edges)
@@ -100,7 +102,8 @@ class HvacGraph(nx.Graph):
         base_cycles = nx.cycle_basis(self)
         # for cycle in base_cycles:
         #     x = {port.parent for port in cycle}
-        cycles = [cycle for cycle in base_cycles if len({port.parent for port in cycle}) > 1]
+        cycles = [cycle for cycle in base_cycles if len(
+            {port.parent for port in cycle}) > 1]
         logger.info("Found %d cycles", len(cycles))
         return cycles
 
@@ -137,7 +140,8 @@ class HvacGraph(nx.Graph):
                 if include_singles:
                     chain_lists.append(list(subgraph.nodes))
                 continue
-            elements = nx.shortest_path(subgraph, *end_nodes)  # TODO more efficient
+            # TODO more efficient
+            elements = nx.shortest_path(subgraph, *end_nodes)
             chain_lists.append(elements)
 
         return chain_lists
@@ -169,7 +173,8 @@ class HvacGraph(nx.Graph):
 
     def get_connections(self):
         """Returns connections between different parent elements"""
-        return [edge for edge in self.edges if not edge[0].parent is edge[1].parent]
+        return [edge for edge in self.edges
+                if not edge[0].parent is edge[1].parent]
 
     # def get_nodes(self):
     #     """Returns list of nodes represented by graph"""
@@ -203,8 +208,12 @@ class HvacGraph(nx.Graph):
         if ports:
             # set port (nodes) colors based on flow direction
             graph = self
-            kwargs['node_color'] = [node_colors_flow_direction[port.flow_direction]['node_color'] for port in self]
-            kwargs['edgecolors'] = [node_colors_flow_direction[port.flow_direction]['edgecolors'] for port in self]
+            kwargs['node_color'] = [
+                node_colors_flow_direction[
+                    port.flow_direction]['node_color'] for port in self]
+            kwargs['edgecolors'] = [
+                node_colors_flow_direction[
+                    port.flow_direction]['edgecolors'] for port in self]
             kwargs['edge_color'] = 'grey'
         else:
             kwargs['node_color'] = 'blue'
@@ -226,7 +235,8 @@ class HvacGraph(nx.Graph):
                 edge_color_map.append(edge_colors_flow_side[side]['edge_color'])
             kwargs['edge_color'] = edge_color_map
 
-        nx.draw(graph, node_size=10, font_size=5, linewidths=0.7, with_labels=True, **kwargs)
+        nx.draw(graph, node_size=10, font_size=5, linewidths=0.7,
+                with_labels=True, **kwargs)
         plt.draw()
         if path:
             name = "%sgraph.pdf" % ("port" if ports else "element")
@@ -255,7 +265,8 @@ class HvacGraph(nx.Graph):
         """ removes not wanted and not inert nodes from the given graph."""
         if inert is None:
             inert = set()
-        if not all(map(lambda item: issubclass(item, ProductBased), wanted | inert)):
+        if not all(map(
+                lambda item: issubclass(item, ProductBased), wanted | inert)):
             raise AssertionError("Invalid type")
         _graph = graph.copy()
         # remove blocking nodes
@@ -409,13 +420,16 @@ class HvacGraph(nx.Graph):
             # update graph after removing bypasses
             basis_cycles = nx.cycle_basis(_graph)
 
-        basis_cycle_sets = [frozenset((node.guid for node in basis_cycle)) for basis_cycle in basis_cycles]  # hashable
-        wanted_guids = {node.guid for node in _graph.nodes if type(node) in wanted}
+        basis_cycle_sets = [frozenset((node.guid for node in basis_cycle))
+                            for basis_cycle in basis_cycles]  # hashable
+        wanted_guids = {node.guid
+                        for node in _graph.nodes if type(node) in wanted}
 
         occurrence_cycles = {}
         cycle_occurrences = {}
         for cycle in basis_cycle_sets:
-            wanteds = frozenset(guid_node for guid_node in cycle if guid_node in wanted_guids)
+            wanteds = frozenset(
+                guid_node for guid_node in cycle if guid_node in wanted_guids)
             if len(wanteds) > 1:
                 cycle_occurrences[cycle] = wanteds
                 for item in wanteds:
@@ -438,7 +452,8 @@ class HvacGraph(nx.Graph):
                 known = []
                 related_cycles(item, known)
                 cycle_sets.append(known)
-                known_items = known_items | {oc for k in known for oc in cycle_occurrences[k]}
+                known_items = known_items | {
+                    oc for k in known for oc in cycle_occurrences[k]}
 
         def group_parallels(graph, group_attr, cond, threshold=None):
             """ group a graph of parallel items by conditions. Currently only
@@ -498,7 +513,8 @@ class HvacGraph(nx.Graph):
                 graphs.append(_graph)
         return graphs
 
-    def recurse_set_side(self, port, side, known: dict = None, raise_error=True):
+    def recurse_set_side(self, port, side, known: dict = None,
+                         raise_error=True):
         """Recursive set flow_side to connected ports"""
         if known is None:
             known = {}
@@ -521,7 +537,8 @@ class HvacGraph(nx.Graph):
 
         # call neighbours
         for neigh in self.neighbors(port):
-            if (neigh.parent.is_consumer() or neigh.parent.is_generator()) and port.parent is neigh.parent:
+            if (neigh.parent.is_consumer() or neigh.parent.is_generator()) \
+                    and port.parent is neigh.parent:
                 # switch flag over consumers / generators
                 self.recurse_set_side(neigh, -side, known, raise_error)
             else:
@@ -529,7 +546,8 @@ class HvacGraph(nx.Graph):
 
         return known
 
-    def recurse_set_unknown_sides(self, port, visited: list = None, masters: list = None):
+    def recurse_set_unknown_sides(self, port, visited: list = None,
+                                  masters: list = None):
         """Recursive checks neighbours flow_side.
         :returns tuple of
             common flow_side (None if conflict)
@@ -553,12 +571,15 @@ class HvacGraph(nx.Graph):
         neighbour_sides = {}
         for neigh in self.neighbors(port):
             if neigh not in visited:
-                if (neigh.parent.is_consumer() or neigh.parent.is_generator()) and port.parent is neigh.parent:
+                if (neigh.parent.is_consumer() or neigh.parent.is_generator()) \
+                        and port.parent is neigh.parent:
                     # switch flag over consumers / generators
-                    side, _, _ = self.recurse_set_unknown_sides(neigh, visited, masters)
+                    side, _, _ = self.recurse_set_unknown_sides(
+                        neigh, visited, masters)
                     side = -side
                 else:
-                    side, _, _ = self.recurse_set_unknown_sides(neigh, visited, masters)
+                    side, _, _ = self.recurse_set_unknown_sides(
+                        neigh, visited, masters)
                 neighbour_sides[neigh] = side
             # else:
             #     print(neigh, neigh.flow_side)
@@ -648,7 +669,8 @@ class HvacGraph(nx.Graph):
         All graph nodes not in inert or wanted are counted as blocking
         :returns: list of none overlapping subgraphs
         """
-        if not all(map(lambda item: issubclass(item, ProductBased), wanted | inert)):
+        if not all(map(lambda item: issubclass(
+                item, ProductBased), wanted | inert)):
             raise AssertionError("Invalid type")
         _graph = HvacGraph.remove_not_wanted_nodes(graph, wanted, inert)
 

@@ -167,7 +167,10 @@ class CreateElements(ITask):
         unknown_entities.extend(invalids)
 
         # filter by text
-        text_filter = TextFilter(workflow.relevant_elements, workflow.ifc_units, ['Description'])
+        text_filter = TextFilter(
+            workflow.relevant_elements,
+            workflow.ifc_units,
+            ['Description'])
         entity_class_dict, unknown_entities = yield from self.filter_by_text(
             text_filter, unknown_entities, workflow.ifc_units)
         entity_best_guess_dict.update(entity_class_dict)
@@ -196,7 +199,8 @@ class CreateElements(ITask):
                 except Exception as ex:
                     invalids.append(ifc_entity)
         if invalids:
-            self.logger.info("Removed %d entities with no class set", len(invalids))
+            self.logger.info("Removed %d entities with no class set",
+                             len(invalids))
 
         self.logger.info("Created %d elements", len(instance_lst))
         instances = {inst.guid: inst for inst in instance_lst}
@@ -242,7 +246,9 @@ class CreateElements(ITask):
                 if isinstance(ifc_type_or_element_cls, str):
                     if ifc_type_or_element_cls in blacklist:
                         continue
-                    element = self.factory(entity, ifc_type=ifc_type_or_element_cls, use_dummy=False)
+                    element = self.factory(
+                        entity, ifc_type=ifc_type_or_element_cls,
+                        use_dummy=False)
                 else:
                     if ifc_type_or_element_cls in blacklist_classes:
                         continue

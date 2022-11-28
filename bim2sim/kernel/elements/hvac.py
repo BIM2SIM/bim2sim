@@ -34,10 +34,13 @@ def length_post_processing(value):
 
 class HVACPort(Port):
     """Port of HVACProduct."""
-    vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
+    vl_pattern = re.compile('.*vorlauf.*',
+                            re.IGNORECASE)  # TODO: extend pattern
     rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
 
-    def __init__(self, *args, groups: Set = None, flow_direction: int = 0, **kwargs):
+    def __init__(
+            self, *args, groups: Set = None,
+            flow_direction: int = 0, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._flow_master = False
@@ -134,11 +137,12 @@ class HVACPort(Port):
     @property
     def flow_side(self):
         """
-        Flow side of port
+        Flow side of port.
 
         1 = supply flow (Vorlauf)
         -1 = return flow (Rücklauf)
-        0 = unknown"""
+        0 = unknown
+        """
         if self._flow_side is None:
             self._flow_side = self.determine_flow_side()
         return self._flow_side
@@ -151,9 +155,11 @@ class HVACPort(Port):
         self._flow_side = value
         if previous:
             if previous != value:
-                logger.info("Overwriting flow_side for %r with %s" % (self, self.verbose_flow_side))
+                logger.info("Overwriting flow_side for %r with %s" % (
+                    self, self.verbose_flow_side))
         else:
-            logger.debug("Set flow_side for %r to %s" % (self, self.verbose_flow_side))
+            logger.debug(
+                "Set flow_side for %r to %s" % (self, self.verbose_flow_side))
 
     @property
     def verbose_flow_side(self):
@@ -194,7 +200,8 @@ class HVACProduct(ProductBased):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.inner_connections: List[Tuple[HVACPort, HVACPort]] = self.get_inner_connections()
+        self.inner_connections: List[Tuple[HVACPort, HVACPort]] \
+            = self.get_inner_connections()
 
     @cached_property
     def expected_hvac_ports(self):
@@ -233,7 +240,8 @@ class HVACProduct(ProductBased):
         # valid for IFC for Revit v19.1.0.0
         element_port_connections = getattr(self.ifc, 'HasPorts', [])
         for port_connection in element_port_connections:
-            ports.append(HVACPort.from_ifc(ifc=port_connection.RelatingPort, parent=self))
+            ports.append(HVACPort.from_ifc(
+                ifc=port_connection.RelatingPort, parent=self))
         return ports
 
     def get_inner_connections(self) -> List[Tuple[HVACPort, HVACPort]]:
@@ -556,7 +564,8 @@ class Boiler(HVACProduct):
     )
 
     def _calc_nominal_efficiency(self, name):
-        """Function to calculate the boiler nominal efficiency using the efficiency curve"""
+        """function to calculate the boiler nominal efficiency using the
+        efficiency curve"""
 
         if isinstance(self.efficiency, list):
             efficiency_curve = {y: x for x, y in self.efficiency}
@@ -662,7 +671,8 @@ class Boiler(HVACProduct):
 class Pipe(HVACProduct):
     ifc_types = {
         "IfcPipeSegment":
-            ['*', 'CULVERT', 'FLEXIBLESEGMENT', 'RIGIDSEGMENT', 'GUTTER', 'SPOOL']
+            ['*', 'CULVERT', 'FLEXIBLESEGMENT', 'RIGIDSEGMENT', 'GUTTER',
+             'SPOOL']
     }
 
     @cached_property
@@ -670,7 +680,8 @@ class Pipe(HVACProduct):
         return 2
 
     conditions = [
-        condition.RangeCondition("diameter", 5.0 * ureg.millimeter, 300.00 * ureg.millimeter)  # ToDo: unit?!
+        condition.RangeCondition("diameter", 5.0 * ureg.millimeter,
+                                 300.00 * ureg.millimeter)  # ToDo: unit?!
     ]
 
     diameter = attribute.Attribute(
@@ -1127,7 +1138,7 @@ class Valve(HVACProduct):
 
     conditions = [
         condition.RangeCondition("diameter", 5.0 * ureg.millimeter,
-                                 500.00 * ureg.millimeter),  # ToDo: unit?!
+                                 500.00 * ureg.millimeter)
     ]
 
     nominal_pressure_difference = attribute.Attribute(

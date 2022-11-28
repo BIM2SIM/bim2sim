@@ -170,15 +170,18 @@ class Instance:
         Instance.dummy = Dummy
         for library in libraries:
             if Instance not in library.__bases__:
-                logger.warning("Got Library not directly inheriting from Instance.")
+                logger.warning(
+                    "Got Library not directly inheriting from Instance.")
             if library.library:
                 logger.info("Got library '%s'", library.library)
             else:
-                logger.error("Attribute library not set for '%s'", library.__name__)
+                logger.error("Attribute library not set for '%s'",
+                             library.__name__)
                 raise AssertionError("Library not defined")
             for cls in library.__subclasses__():
                 if cls.represents is None:
-                    logger.warning("'%s' represents no model and can't be used", cls.__name__)
+                    logger.warning("'%s' represents no model and can't be used",
+                                   cls.__name__)
                     continue
 
                 if isinstance(cls.represents, Container):

@@ -133,8 +133,10 @@ class ConnectElements(ITask):
         for port in ports:
             if not port.ifc:
                 continue
-            connected_ports = [conn.RelatingPort for conn in port.ifc.ConnectedFrom] + [conn.RelatedPort for conn in
-                                                                                        port.ifc.ConnectedTo]
+            connected_ports = [conn.RelatingPort for conn in
+                               port.ifc.ConnectedFrom] + [conn.RelatedPort for
+                                                          conn in
+                                                          port.ifc.ConnectedTo]
             if connected_ports:
                 other_port = None
                 if len(connected_ports) > 1:
@@ -142,7 +144,8 @@ class ConnectElements(ITask):
                     quality_logger.warning("%s has multiple connections", port.ifc)
                     possibilities = []
                     for connected_port in connected_ports:
-                        possible_port = port_mapping.get(connected_port.GlobalId)
+                        possible_port = port_mapping.get(
+                            connected_port.GlobalId)
 
                         if possible_port.parent is not None:
                             possibilities.append(possible_port)
@@ -270,9 +273,11 @@ class ConnectElements(ITask):
         Returns:
 
         """
-        # TODO: if a lot of decisions occur, it would help to merge DecisionBunches before yielding them
+        # TODO: if a lot of decisions occur, it would help to merge
+        #  DecisionBunches before yielding them
         for instance in instances:
-            if isinstance(instance, hvac.HVACProduct) and not instance.inner_connections:
+            if isinstance(instance, hvac.HVACProduct) \
+                    and not instance.inner_connections:
                 yield from instance.decide_inner_connections()
 
     @staticmethod

@@ -457,7 +457,8 @@ class IFCBased(Element):
         return matches
 
     @classmethod
-    def filter_for_text_fragments(cls, ifc_element, ifc_units: dict, optional_locations: list = None):
+    def filter_for_text_fragments(
+            cls, ifc_element, ifc_units: dict, optional_locations: list = None):
         """Filter for text fragments in the ifc_element to identify the ifc_element."""
         results = []
         hits = [p.search(ifc_element.Name) for p in cls.pattern_ifc_type]
@@ -595,7 +596,8 @@ class ProductBased(IFCBased):
 
     def get_better_subclass(self) -> Union[None, Type['IFCBased']]:
         """Returns alternative subclass of current object.
-        CAUTION: only use this if you can't know the result before instantiation of base class
+        CAUTION: only use this if you can't know the result before instantiation
+         of base class
 
         Returns:
             object: subclass of ProductBased or None"""
@@ -613,7 +615,9 @@ class ProductBased(IFCBased):
     def validate_creation(self):
         """"Validate the element creation in two steps.
         1. Check if standard parameter are in valid range.
-        2. Check if number of ports are equal to number of expected ports (only for HVAC)."""
+        2. Check if number of ports are equal to number of expected ports
+        (only for HVAC).
+        """
         for cond in self.conditions:
             if cond.critical_for_creation:
                 value = getattr(self, cond.key)

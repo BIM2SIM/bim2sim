@@ -1,4 +1,7 @@
 {
+  "Identification": {
+    "tool_names": ["LuArtX Ifc Exporter", "LuArtX", "Carf"]
+  },
   "SpaceHeater": {
 	"default_ps": {
       "rated_power" : ["CarF", "eff.Leistung"],
