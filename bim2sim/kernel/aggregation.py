@@ -1,4 +1,4 @@
-"""Module for aggregation and simplifying elements"""
+﻿"""Module for aggregation and simplifying elements"""
 import logging
 import math
 from functools import partial
@@ -1489,6 +1489,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
                              ParallelSpaceHeater, Consumer}
     whitelist = [hvac.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating, Consumer]
     blacklist = [hvac.Chiller, hvac.Boiler, hvac.CoolingTower]
+    boarder_class = {hvac.Distributor}
 
     def __init__(self, element_graph, *args, **kwargs):
         self.undefined_consumer_ports = kwargs.pop('undefined_consumer_ports', None)  # TODO: Richtig sO? WORKAROUND
@@ -1552,12 +1553,15 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
         Raises:
             None
         """
-        boarder_class = {hvac.Distributor}
+        boarder_class = cls.boarder_class
         element_graph = graph.element_graph
         results = []
         remove = {node for node in element_graph.nodes
                   if type(node) in boarder_class}
         metas = []
+
+
+
         for dist in remove:
             _element_graph = element_graph.copy()
             consumer_cycles = []
@@ -1618,6 +1622,108 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct): 
             results.append(result)
 
         return results, metas
+
+    @classmethod
+    def find_matches2(cls, graph) -> [list, list]:
+        """
+        Find matches of consumer heating distributor module.
+        Assumptions:
+        Currently outer_connections only involve cycles with at least one
+        generator
+        # TODO solve mixup between get_edge_ports, get_ports and outer_connections    # TODO all seems to be the same but its very confusing currently    outer_connections
+        Args:
+            graph: element_graph that should be checked for consumer heating
+            distributor module.
+        Returns:
+            element_graphs:
+                List of element_graphs that hold a consumer heating distributor
+                module
+            metas:
+                List of dict with metas information. One element for each
+                element_graph.
+        Raises:
+            None
+        """
+        boarder_class = {hvac.Distributor}
+        element_graph = graph.element_graph
+        results = []
+        _results = []
+        remove = {node for node in element_graph.nodes
+                  if type(node) in boarder_class}
+        metas = []
+        for dist in remove:
+            _element_graph = element_graph.copy()
+            _graph = graph.copy()
+            consumer_cycles = []
+            # remove nodes from boarder_class
+            _element_graph.remove_nodes_from({dist})
+            _graph.remove_nodes_from(dist.ports)
+            # identify outer connections
+            remove_ports = dist.ports
+            outer_connections = {}
+            metas.append({'outer_connections': [],
+                          'undefined_consumer_ports': [],
+                          'consumer_cycles': []})
+            # get all neighbor elements and their ports (just unique elements)
+            for port in remove_ports:
+                outer_connections.update(
+                    {neighbor.parent: (port, neighbor) for neighbor in
+                     graph.neighbors(port) if
+                     neighbor not in remove_ports})
+
+            sub_graphs = nx.connected_components(_element_graph)
+            _sub_graphs = nx.connected_components(_graph)
+
+            # for sub in sub_graphs:
+            for sub in _sub_graphs:
+                # check for energy generator in sub_graphs
+                # generator = {node for node in sub if
+                #              node.__class__ in cls.blacklist}
+                generator = {node.parent for node in sub if
+                             node.parent.__class__ in cls.blacklist}
+                if generator:
+                    # check for consumer in generator subgraph
+                    # gen_con = {node for node in sub if
+                    #            node.__class__ in cls.whitelist}
+                    gen_con = {node.parent for node in sub if
+                               node.parent.__class__ in cls.whitelist}
+                    if gen_con:
+                        # TODO: seperate consumer (maybe recursive function?)
+                        pass
+                    else:
+                        outer_con = [outer_connections[ele][0] for ele in sub
+                                     if ele in outer_connections]
+                        if outer_con:
+                            metas[-1]['outer_connections'].extend(outer_con)
+                        # pure generator subgraph
+                        # subgraph = graph.subgraph(sub)
+                        # generator_cycles.append(subgraph)
+                else:
+                    # consumer_cycle = {node for node in sub if
+                    #                   node.__class__ in cls.whitelist}
+                    consumer_cycle = {node.parent for node in sub if
+                                      node.parent.__class__ in cls.whitelist}
+                    if consumer_cycle:
+                        subgraph = _element_graph.subgraph(sub)
+                        _subgraph = _graph.subgraph(sub)
+                        consumer_cycles.extend(_subgraph.nodes)
+                        metas[-1]['consumer_cycles'].append(subgraph.nodes)
+                    else:
+                        outer_con = [outer_connections[ele] for ele in sub if
+                                     ele in outer_connections]
+                        if outer_con:
+                            metas[-1]['undefined_consumer_ports'].extend(
+                                outer_con)
+
+            subnodes = [dist, *consumer_cycles]
+            _subnodes = [*dist.ports, *consumer_cycles]
+
+            _result = graph.subgraph(_subnodes)
+            result = element_graph.subgraph(subnodes)
+            results.append(result)
+            _results.append(_result)
+
+        return _results, metas
 
     @attribute.multi_calc
     def _calc_avg(self):
