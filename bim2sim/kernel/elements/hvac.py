@@ -274,9 +274,11 @@ class HVACProduct(ProductBased):
 
         # created sorted choices
         choices_vl = [port.guid for port, score in
-                      sorted(score_vl.items(), key=lambda item: item[1], reverse=True)]
+                      sorted(score_vl.items(), key=lambda item: item[1],
+                             reverse=True)]
         choices_rl = [port.guid for port, score in
-                      sorted(score_rl.items(), key=lambda item: item[1], reverse=True)]
+                      sorted(score_rl.items(), key=lambda item: item[1],
+                             reverse=True)]
         decision_vl = ListDecision(f"Please select VL Port for {self}.",
                                    choices=choices_vl,
                                    default=choices_vl[0],  # best guess

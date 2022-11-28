@@ -55,15 +55,23 @@ class HVACAggregationPort(HVACPort):
 
     def flow_direction_from_original(self):
         if len(self.originals) > 1:
-            raise NotImplementedError(
-                'Aggregation with more than one original is not implemented.')
+            flow_directions = set(
+                [original.flow_direction for original in self.originals])
+            if len(flow_directions) > 1:
+                # TODO: see #167
+                raise NotImplementedError(
+                    'Aggregation of HVACPorts with different flow directions'
+                    'is not implemented.')
+            else:
+                return list(flow_directions)[0]
         else:
             originals = self.originals[0]
             while originals:
                 if hasattr(originals, 'originals'):
                     if len(originals.originals) > 1:
                         raise NotImplementedError(
-                            'Aggregation with more than one original is not implemented.')
+                            'Aggregation with more than one original is not '
+                            'implemented.')
                     originals = originals.originals[0]
                 else:
                     return originals.flow_direction
