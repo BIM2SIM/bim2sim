@@ -1054,12 +1054,12 @@ class Pump(HVACProduct):
     rated_current = attribute.Attribute(
         description="Rated current of pump",
         default_ps=('Pset_ElectricalDeviceCommon', 'RatedCurrent'),
-        unit=ureg.volt,
+        unit=ureg.ampere,
     )
     rated_voltage = attribute.Attribute(
         description="Rated current of pump",
         default_ps=('Pset_ElectricalDeviceCommon', 'RatedVoltage'),
-        unit=ureg.ampere,
+        unit=ureg.volt,
     )
 
     def _calc_rated_power(self, name) -> ureg.Quantity:
