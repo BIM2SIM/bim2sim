@@ -99,7 +99,7 @@ class TestFactory(unittest.TestCase):
     def test_create_mapping(self):
         """Test if Factory uses ifc_types correctly"""
         factory = element.Factory(
-            [TestRoof, TestSlap], ifc_units={}, finder_path=None)
+            [TestRoof, TestSlap], ifc_units={})
 
         self.assertIs(factory.get_element('IfcSlab', 'BASESLAB'), TestSlap)
         self.assertIs(factory.get_element('IfcSlab', 'OTHER'), TestSlap)

@@ -42,7 +42,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc, 'TEASER')
         project.workflow.zoning_setup = LOD.medium
         # Tool,
-        answers = ('Autodesk Revit 2020 (DEU)', *(None,)*150, 2015,
+        answers = ('Other', *(None,)*150, 2015,
                    'by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -69,8 +69,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc, 'TEASER')
         project.workflow.zoning_setup = LOD.full
         project.workflow.layers_and_materials = LOD.full
-        answers = ('Autodesk Revit 2020 (DEU)',
-                   "Kitchen in non-residential buildings",
+        answers = ("Kitchen in non-residential buildings",
                    "Library - reading room",
                    "MultiUseComputerRoom",
                    "Laboratory",
@@ -91,19 +90,19 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'ERC_Mainbuilding_Arch.ifc'
         project = self.create_project(ifc, 'TEASER')
         project.workflow.zoning_setup = LOD.medium
-        answers = ('Autodesk Revit 2020 (DEU)', 'by_all_criteria')
+        answers = ('by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
 
-    @unittest.skip('Skip because takes to long in CI')
+    # @unittest.skip('Skip because takes to long in CI')
     def test_ERC_Low(self):
         """Test ERC Main Building"""
         ifc = 'ERC_Mainbuilding_Arch.ifc'
         project = self.create_project(ifc, 'TEASER')
-        answers = ('Autodesk Revit 2020 (DEU)', )
+        answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer

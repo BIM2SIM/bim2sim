@@ -1794,7 +1794,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         return storeys
 
     @classmethod
-    def find_matches(cls, groups, instances, finder):
+    def find_matches(cls, groups, instances):
         """creates a new thermal zone aggregation instance
          based on a previous filtering"""
         new_aggregations = []
@@ -1803,7 +1803,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         for group, group_elements in groups.items():
             if group == 'one_zone_building':
                 name = "Aggregated_%s" % group
-                cls.create_aggregated_tz(name, group, group_elements, finder,
+                cls.create_aggregated_tz(name, group, group_elements,
                                          new_aggregations, instances)
             elif group == 'not_bind':
                 # last criterion no similarities
@@ -1812,22 +1812,21 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                     # Todo: usage and conditions criterion
                     name = "Aggregated_not_neighbors"
                     cls.create_aggregated_tz(name, group, group_elements,
-                                             finder, new_aggregations,
-                                             instances)
+                                             new_aggregations, instances)
             else:
                 # first criterion based on similarities
                 # todo reuse this if needed but currently it doesn't seem so
                 # group_name = re.sub('[\'\[\]]', '', group)
                 group_name = group
                 name = "Aggregated_%s" % group_name.replace(', ', '_')
-                cls.create_aggregated_tz(name, group, group_elements, finder,
+                cls.create_aggregated_tz(name, group, group_elements,
                                          new_aggregations, instances)
         return new_aggregations
 
     @classmethod
-    def create_aggregated_tz(cls, name, group, group_elements, finder,
-                             new_aggregations, instances):
-        instance = cls(group_elements, finder=finder)
+    def create_aggregated_tz(cls, name, group, group_elements, new_aggregations,
+                             instances):
+        instance = cls(group_elements)
         instance.name = name
         instance.description = group
         new_aggregations.append(instance)
@@ -2111,7 +2110,8 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
             metas:
                 List of dict with metas information. One element for each
                 element_graph. In this case it holds non_relevant nodes, which
-                have to be deleted later but are not contained in the **resulting graph?** #todo
+                have to be deleted later but are not contained in the
+                **resulting graph?** #todo
                 element_graph. Because we are currently not able to distinguish
                 to which graph these non_relevant nodes belong, we just output
                 the complete list of non relevant nodes for every element_graph.

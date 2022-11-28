@@ -5,7 +5,8 @@ import logging
 from json import JSONEncoder
 import re
 from pathlib import Path
-from typing import Union, Set, Iterable, Dict, List, Tuple, Type, Generator
+from typing import Union, Set, Iterable, Dict, List, Tuple, Type, Generator, \
+    Optional
 
 import numpy as np
 
@@ -14,7 +15,7 @@ from bim2sim.kernel import ifc2python, attribute
 from bim2sim.decision import Decision, DecisionBunch
 from bim2sim.utilities.common_functions import angle_equivalent, vector_angle, \
     remove_umlaut
-from bim2sim.kernel.finder import TemplateFinder
+from bim2sim.kernel.finder import TemplateFinder, SourceTool
 from bim2sim.kernel.units import ureg
 from bim2sim.kernel import condition
 
@@ -271,7 +272,7 @@ class IFCBased(Element):
         self.predefined_type = ifc2python.get_predefined_type(ifc)
         self.finder = finder
         self.ifc_units = ifc_units
-        self._source_tool: str = None
+        self.source_tool: SourceTool = None
 
         # TBD
         self.enrichment = {}  # TODO: DJA
@@ -298,14 +299,6 @@ class IFCBased(Element):
         if self.ifc:
             return self.ifc.is_a()
 
-    @property
-    def source_tool(self):  # TBD: this incl. Finder could live in Factory
-        """Name of tool the ifc has been created with"""
-        if not self._source_tool and self.ifc:
-            self._source_tool = self.get_project().OwnerHistory.\
-                OwningApplication.ApplicationFullName
-        return self._source_tool
-
     @classmethod
     def pre_validate(cls, ifc) -> bool:
         """Check if ifc meets conditions to create element from it"""
@@ -325,13 +318,13 @@ class IFCBased(Element):
         return absolute
 
     def calc_orientation(self) -> np.array:
-        """Calculate the orientation of the bps product based on DirectionRatio.
+        """Tries to calculate the orientation of based on DirectionRatio.
 
-        The generic orientation calculation uses the DirectionRatios which in
+        This generic orientation calculation uses the DirectionRatios which in
         most cases return the correct orientation of the element. But this
-        depends on the modeller and the BIM author software.
-        Orientation is mostly important for BPS part where we can use
-        Space Boundaries.
+        depends on the modeller and the BIM author software and is not failsafe.
+        Orientation is mostly important for BPSProducts where we can use
+        Space Boundaries for failsafe orientation calculation.
 
         Returns:
             Orientation angle between 0 and 360.
@@ -359,6 +352,12 @@ class IFCBased(Element):
 
         # angle between 0 and 360
         return angle_equivalent(ang_sum)
+
+    @cached_property
+    def name(self):
+        ifc_name = self.get_ifc_attribute('Name')
+        if ifc_name:
+            return remove_umlaut(ifc_name)
 
     def get_ifc_attribute(self, attribute):
         """
@@ -653,6 +652,14 @@ class ProductBased(IFCBased):
     def __repr__(self):
         return "<%s>" % self.__class__.__name__
 
+    def calc_cost_group(self) -> Optional[int]:
+        """Calculate the cost group according to DIN276"""
+        return None
+
+    @cached_property
+    def cost_group(self) -> int:
+        return self.calc_cost_group()
+
 
 class Port(RelationBased):
     """Basic port"""
@@ -661,11 +668,6 @@ class Port(RelationBased):
         super().__init__(*args, **kwargs)
         self.parent: ProductBased = parent
         self.connection = None
-
-    @property
-    def source_tool(self):  # TBD: this incl. Finder could live in Factory
-        """Name of tool that the parent has been created with"""
-        return getattr(self.parent, 'source_tool')
 
     def connect(self, other):
         """Connect this interface bidirectional to another interface"""
@@ -724,9 +726,9 @@ class Material(ProductBased):
                                  critical_for_creation=False),
         condition.RangeCondition('density',
                                  0 * ureg.kg / ureg.m ** 3,
-                                 5000 * ureg.kg / ureg.m ** 3,
+                                 50000 * ureg.kg / ureg.m ** 3,
                                  critical_for_creation=False),
-        condition.RangeCondition('thermal_conduct',
+        condition.RangeCondition('thermal_conduc',
                                  0 * ureg.W / ureg.m / ureg.K,
                                  100 * ureg.W / ureg.m / ureg.K,
                                  critical_for_creation=False),
@@ -739,11 +741,6 @@ class Material(ProductBased):
                                  1 * ureg.percent, True,
                                  critical_for_creation=False),
                  ]
-
-    @cached_property
-    def name(self):
-        if hasattr(self.ifc, 'Name'):
-            return remove_umlaut(self.ifc.Name)
 
     spec_heat_capacity = attribute.Attribute(
         default_ps=("Pset_MaterialThermal", "SpecificHeatCapacity"),
@@ -812,14 +809,12 @@ class Factory:
             self,
             relevant_elements: List[ProductBased],
             ifc_units: dict,
-            finder_path: Union[str, Path, None] = None,
+            finder: Union[TemplateFinder, None] = None,
             dummy=Dummy):
         self.mapping, self.blacklist, self.defaults = self.create_ifc_mapping(relevant_elements)
         self.dummy_cls = dummy
-        self.finder = TemplateFinder()
+        self.finder = finder
         self.ifc_units = ifc_units
-        if finder_path:
-            self.finder.load(finder_path)
 
     def __call__(self, ifc_entity, *args, ifc_type: str = None, use_dummy=True,
                  **kwargs) -> ProductBased:

@@ -1,17 +1,16 @@
 {
+  "Identification": {
+    "tool_names": ["ArchiCAD-64", "ArchiCAD"]
+  },
   "PipeFitting": {
 	"default_ps": {
       "diameter" : ["Pset_PipeFittingTypeCommon", "NominalDiameter"],
-      "pressure_class" : ["Pset_PipeFittingTypeCommon", "PressureClass"],
-      "length" : ["Qto_PipeFittingTypeCommon", "Length"],
       "radius": ["Abmessungen", "Bogenradius"],
       "angle": ["Abmessungen", "Winkel"]
     }
   },
   "Pipe": {
 	"default_ps": {
-      "diameter" : ["Pset_PipeSegmentTypeCommon", "NominalDiameter"],
-      "length" : ["Qto_PipeSegmentBaseQuantities", "Length"]
     }
   },
   "OuterWall": {
@@ -21,7 +20,8 @@
       "width": ["BaseQuantities", "Width"],
       "height": ["BaseQuantities", "Height"],
       "tilt": ["ArchiCADProperties", "\u00c4u\u00dferer Neigungswinkel"],
-      "u_value": ["Pset_WallCommon", "ThermalTransmittance"]
+      "net_volume": ["BaseQuantities", "NetVolume"],
+      "gross_volume": ["BaseQuantities", "GrossVolume"]
     }
   },
   "InnerWall": {
@@ -31,7 +31,8 @@
       "width": ["BaseQuantities", "Width"],
       "height": ["BaseQuantities", "Height"],
       "tilt": ["ArchiCADProperties", "\u00c4u\u00dferer Neigungswinkel"],
-      "u_value": ["Pset_WallCommon", "ThermalTransmittance"]
+      "net_volume": ["BaseQuantities", "NetVolume"],
+      "gross_volume": ["BaseQuantities", "GrossVolume"]
     }
   },
   "Wall": {
@@ -41,7 +42,8 @@
       "width": ["BaseQuantities", "Width"],
       "height": ["BaseQuantities", "Height"],
       "tilt": ["ArchiCADProperties", "\u00c4u\u00dferer Neigungswinkel"],
-      "u_value": ["Pset_WallCommon", "ThermalTransmittance"]
+      "net_volume": ["BaseQuantities", "NetVolume"],
+      "gross_volume": ["BaseQuantities", "GrossVolume"]
     }
   },
   "Roof": {
@@ -49,7 +51,9 @@
       "net_area": ["BaseQuantities", "NetArea"],
       "gross_area": ["BaseQuantities", "GrossArea"],
       "width" : ["BaseQuantities", "Width"],
-      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"]
+      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"],
+      "net_volume": ["BaseQuantities", "NetVolume"],
+      "gross_volume": ["BaseQuantities", "GrossVolume"]
     }
   },
   "Floor": {
@@ -57,7 +61,8 @@
       "net_area": ["BaseQuantities", "NetArea"],
       "gross_area": ["BaseQuantities", "GrossArea"],
       "width" : ["BaseQuantities", "Width"],
-      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"]
+      "net_volume": ["BaseQuantities", "NetVolume"],
+      "gross_volume": ["BaseQuantities", "GrossVolume"]
     }
   },
   "GroundFloor": {
@@ -65,7 +70,8 @@
       "net_area": ["BaseQuantities", "NetArea"],
       "gross_area": ["BaseQuantities", "GrossArea"],
       "width" : ["BaseQuantities", "Width"],
-      "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"]
+      "net_volume": ["BaseQuantities", "NetVolume"],
+      "gross_volume": ["BaseQuantities", "GrossVolume"]
     }
   },
   "Window": {
@@ -75,28 +81,31 @@
       "glass_area": ["Konstruktion", "Glasflaeche"],
       "g_value": ["Analytische Eigenschaften (type)", "Gesamtenergiedurchlassgrad"],
       "glass_thickness": ["Konstruktion(type)", "Glasst\u00e4rke"],
-      "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"]
+      "net_volume": ["BaseQuantities", "Volume"]
     }
   },
   "Door": {
     "default_ps": {
       "gross_area" : ["BaseQuantities", "Area"],
       "width" : ["BaseQuantities", "Depth"],
-      "u_value" : ["Pset_DoorCommon", "ThermalTransmittance"]
+      "u_value" : ["Pset_DoorCommon", "ThermalTransmittance"],
+      "net_volume": ["BaseQuantities", "Volume"]
     }
   },
   "InnerDoor": {
     "default_ps": {
       "gross_area" : ["BaseQuantities", "Area"],
       "width" : ["BaseQuantities", "Depth"],
-      "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"]
+      "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"],
+      "net_volume": ["BaseQuantities", "Volume"]
     }
   },
   "OuterDoor": {
     "default_ps": {
       "gross_area" : ["BaseQuantities", "Area"],
       "width" : ["BaseQuantities", "Depth"],
-      "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"]
+      "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"],
+      "net_volume": ["BaseQuantities", "Volume"]
     }
   },
   "ThermalZone": {
@@ -108,19 +117,12 @@
       "length" : ["BaseQuantities", "Length"],
       "net_volume" : ["BaseQuantities", "NetVolume"],
       "gross_side_area" : ["BaseQuantities", "GrossArea"],
-      "width" : ["BaseQuantities", "Width"],
-      "t_set_heat" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMin"],
-      "t_set_cool" : ["Pset_SpaceThermalRequirements", "SpaceTemperatureMax"],
-      "with_ahu": ["Pset_SpaceThermalRequirements", "AirConditioning"],
-      "AreaPerOccupant": ["Pset_SpaceOccupancyRequirements", "AreaPerOccupant"]
+      "width" : ["BaseQuantities", "Width"]
     }
   },
   "Building": {
     "default_ps": {
-      "year_of_construction" : ["Pset_BuildingCommon", "YearOfConstruction"],
-      "gross_area" : ["Pset_BuildingCommon", "GrossPlannedArea"],
       "net_area" : ["Pset_BuildingCommon", "NetAreaPlanned"],
-      "number_of_storeys" : ["Pset_BuildingCommon", "NumberOfStoreys"],
       "occupancy_type" : ["Pset_BuildingCommon", "OccupancyType"]
 
     }
@@ -135,9 +137,6 @@
   },
   "Layer": {
     "default_ps": {
-      "thermal_conduc" : ["Pset_MaterialThermal", "ThermalConductivity"],
-      "spec_heat_capacity" : ["Pset_MaterialThermal", "SpecificHeatCapacity"],
-      "density" :  ["Pset_MaterialCommon", "MassDensity"]
     }
   }
 }

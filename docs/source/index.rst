@@ -7,7 +7,7 @@ Welcome to bim2sim's documentation!
 ===================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 5
 
    big-picture
    installation
@@ -18,6 +18,7 @@ Welcome to bim2sim's documentation!
    tasks
    decisions
    attribute
+   finder
    logging
    docker-structure
    code/modules

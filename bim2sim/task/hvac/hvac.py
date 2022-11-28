@@ -13,7 +13,7 @@ from bim2sim.kernel.elements import hvac
 from bim2sim.task.base import ITask
 from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating, ParallelPump, ParallelSpaceHeater
 from bim2sim.kernel.aggregation import Consumer, ConsumerHeatingDistributorModule, GeneratorOneFluid
-from bim2sim.kernel.element import ProductBased, ElementEncoder, Port
+from bim2sim.kernel.element import ProductBased, ElementEncoder, Port, Material
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.export import modelica
 from bim2sim.decision import DecisionBunch
@@ -170,7 +170,7 @@ class ConnectElements(ITask):
 
     @staticmethod
     def confirm_connections_position(connections: list, eps: float = 1)\
-            -> tuple[list, list, list]:
+            -> Tuple[list, list, list]:
         """Checks distance between port positions.
         If distance < eps, the connection is confirmed otherwise rejected.
 
@@ -339,7 +339,9 @@ class MakeGraph(ITask):
 
     def run(self, workflow: Workflow, instances: dict):
         self.logger.info("Creating graph from IFC elements")
-        graph = hvac_graph.HvacGraph(instances.values())
+        not_mat_instances = \
+            {k: v for k, v in instances.items() if not isinstance(v, Material)}
+        graph = hvac_graph.HvacGraph(not_mat_instances.values())
         return graph,
 
     def serialize(self):

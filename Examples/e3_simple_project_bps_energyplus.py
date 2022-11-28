@@ -18,8 +18,9 @@ def run_example_3():
     # Get path of the IFC Building model that is used for this example
     ifc_path = Path(__file__).parent.parent / 'test/TestModels/AC20-FZK-Haus.ifc'
 
-    # Create a project including the folder structure for the project with teaser as
-    # backend and no specified workflow (default workflow is taken)
+    # Create a project including the folder structure for the project with
+    # energyplus as backend and no specified workflow
+    # (default workflow is taken)
     project = Project.create(project_path, ifc_path, 'energyplus')
 
     # specified settings for workflows can be changed later as well

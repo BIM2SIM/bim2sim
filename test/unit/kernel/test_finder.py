@@ -25,7 +25,6 @@ class TestTemplateFinder(unittest.TestCase):
         cls.ifc = ifc2python.load_ifc(IFC_PATH)
         pipefittings = TestTemplateFinder.ifc.by_type("IfcPipeFitting")
         pipes = TestTemplateFinder.ifc.by_type("IfcPipeSegment")
-
         cls.pipe1 = hvac.Pipe(ifc=pipes[0], ifc_units={})
         cls.pipe2 = hvac.Pipe(ifc=pipes[1], ifc_units={})
         cls.pipefitting1 = hvac.PipeFitting(ifc=pipefittings[0], ifc_units={})
@@ -38,18 +37,21 @@ class TestTemplateFinder(unittest.TestCase):
 
     def setUp(self):
         self.finder = TemplateFinder()
+        for decision in self.finder.initialize(self.ifc):
+            decision.value = 'Other'
 
     def tearDown(self):
         del self.finder
 
     def test_set_find(self):
-        tool = self.pipe1.source_tool
-        for decision in self.finder.check_tool_template(tool):
-            decision.value = 'Other'
+        tool = self.finder.default_source_tool.templ_name
 
-        self.finder.set(tool, 'IfcPipeSegment', 'length', 'Abmessungen', 'Länge')
-        self.finder.set(tool, 'IfcPipeSegment', 'diameter', 'Abmessungen', 'Innendurchmesser')
-        self.finder.set(tool, 'IfcPipeFitting', 'diameter', 'Abmessungen', 'Nenndurchmesser')
+        self.finder.set(tool, 'Pipe', 'length', 'Abmessungen',
+                        'Länge')
+        self.finder.set(tool, 'Pipe', 'diameter', 'Abmessungen',
+                        'Innendurchmesser')
+        self.finder.set(tool, 'PipeFitting', 'diameter', 'Abmessungen',
+                        'Nenndurchmesser')
 
         l1 = self.finder.find(self.pipe1, 'length')
         d1 = self.finder.find(self.pipe1, 'diameter')
@@ -59,10 +61,13 @@ class TestTemplateFinder(unittest.TestCase):
         d3 = self.finder.find(self.pipefitting1, 'diameter')
 
     def test_save_load(self):
-        tool = self.pipe1.source_tool
-        self.finder.set(tool, 'IfcPipeSegment', 'length', 'Abmessungen', 'Länge')
-        self.finder.set(tool, 'IfcPipeSegment', 'diameter', 'Abmessungen', 'Innendurchmesser')
-        self.finder.set(tool, 'IfcPipeFitting', 'diameter', 'Abmessungen', 'Nenndurchmesser')
+        tool = self.finder.default_source_tool.templ_name
+        self.finder.set(tool, 'Pipe', 'length', 'Abmessungen',
+                        'Länge')
+        self.finder.set(tool, 'Pipe', 'diameter', 'Abmessungen',
+                        'Innendurchmesser')
+        self.finder.set(tool, 'PipeFitting', 'diameter', 'Abmessungen',
+                        'Nenndurchmesser')
 
         data = self.finder.templates.copy()
 

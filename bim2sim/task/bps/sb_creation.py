@@ -1,11 +1,23 @@
-from typing import List
+import logging
+import math
+from typing import List, Union
+
+from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex
+from OCC.Core.gp import gp_Pnt, gp_Dir
+
 from bim2sim.filter import TypeFilter
-from bim2sim.kernel.element import RelationBased
+from bim2sim.kernel.element import RelationBased, Element, IFCBased
+from bim2sim.kernel.finder import TemplateFinder
+from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
-from bim2sim.kernel.elements.bps import SpaceBoundary, ExtSpatialSpaceBoundary
+from bim2sim.kernel.elements.bps import SpaceBoundary, ExtSpatialSpaceBoundary, \
+    ThermalZone, Window, Door
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.workflow import Workflow
+
+logger = logging.getLogger(__name__)
 
 
 class CreateSpaceBoundaries(ITask):
@@ -14,29 +26,280 @@ class CreateSpaceBoundaries(ITask):
     reads = ('ifc', 'instances', 'finder')
     touches = ('space_boundaries',)
 
-    def __init__(self):
-        super().__init__()
-        self.non_sb_elements = []
-
     def run(self, workflow, ifc, instances, finder):
-        bldg_instances = filter_instances(instances, 'Building')
-        self.logger.info("Creates elements for IfcRelSpaceBoundarys")
+        logger.info("Creates elements for IfcRelSpaceBoundarys")
         type_filter = TypeFilter(('IfcRelSpaceBoundary',))
         entity_type_dict, unknown_entities = type_filter.run(ifc)
         instance_lst = self.instantiate_space_boundaries(
             entity_type_dict, instances, finder,
             workflow.create_external_elements, workflow.ifc_units)
-        self.find_instances_openings(instances, instance_lst)
-        self.logger.info("Created %d elements", len(instance_lst))
+        bound_instances = self.get_parents_and_children(workflow, instance_lst,
+                                                        instances)
+        instance_lst = list(bound_instances.values())
+        logger.info("Created %d elements", len(bound_instances))
 
         space_boundaries = {inst.guid: inst for inst in instance_lst}
         return space_boundaries,
 
+    def get_parents_and_children(self, workflow: Workflow,
+                                 boundaries: list[SpaceBoundary],
+                                 instances: dict, opening_area_tolerance=0.01) \
+            -> dict[str, SpaceBoundary]:
+        """Get parent-children relationships between space boundaries.
+
+        This function computes the parent-children relationships between
+        IfcElements (e.g. Windows, Walls) to obtain the corresponding
+        relationships of their space boundaries.
+
+        Args:
+            workflow: BIM2SIM EnergyPlusWorkflow
+            boundaries: list of SpaceBoundary instances
+            instances: dict[guid: element]
+            opening_area_tolerance: Tolerance for comparison of opening areas.
+        Returns:
+            bound_dict: dict[guid: element]
+        """
+        logger.info("Compute relationships between space boundaries")
+        logger.info("Compute relationships between openings and their "
+                    "base surfaces")
+        drop_list = {}  # HACK: dictionary for bounds which have to be removed
+        bound_dict = {bound.guid: bound for bound in boundaries}
+        temp_instances = instances.copy()
+        temp_instances.update(bound_dict)
+        # from instances (due to duplications)
+        for inst_obj in boundaries:
+            if inst_obj.level_description == "2b":
+                continue
+            inst_obj_space = inst_obj.ifc.RelatingSpace
+            b_inst = inst_obj.bound_instance
+            if b_inst is None:
+                continue
+            # assign opening elems (Windows, Doors) to parents and vice versa
+            related_opening_elems = \
+                self.get_related_opening_elems(b_inst, temp_instances)
+            if not related_opening_elems:
+                continue
+            # assign space boundaries of opening elems (Windows, Doors)
+            # to parents and vice versa
+            for opening in related_opening_elems:
+                op_bound = self.get_opening_boundary(
+                    inst_obj, inst_obj_space, opening,
+                    workflow.max_wall_thickness)
+                if not op_bound:
+                    continue
+                # HACK:
+                # find cases where opening area matches area of corresponding
+                # wall (within inner loop) and reassign the current opening
+                # boundary to the surrounding boundary (which is the true
+                # parent boundary)
+                if (inst_obj.bound_area - op_bound.bound_area).m \
+                        < opening_area_tolerance:
+                    rel_bound, drop_list = self.reassign_opening_bounds(
+                        inst_obj, op_bound, b_inst, drop_list,
+                        workflow.max_wall_thickness)
+                    if not rel_bound:
+                        continue
+                    rel_bound.opening_bounds.append(op_bound)
+                    op_bound.parent_bound = rel_bound
+                else:
+                    inst_obj.opening_bounds.append(op_bound)
+                    op_bound.parent_bound = inst_obj
+        # remove boundaries from dictionary if they are false duplicates of
+        # windows in shape of walls
+        bound_dict = {k: v for k, v in bound_dict.items() if k not in drop_list}
+        return bound_dict
+
+    @staticmethod
+    def get_related_opening_elems(bound_instance: Element, instances: dict) \
+            -> list[Union[Window, Door]]:
+        """Get related opening elements of current building element.
+
+        This function returns all opening elements of the current related
+        building element which is related to the current space boundary.
+
+        Args:
+            bound_instance: BIM2SIM building element (e.g., Wall, Floor, ...)
+            instances: dict[guid: element]
+        Returns:
+            related_opening_elems: list of Window and Door instances
+        """
+        related_opening_elems = []
+        if not hasattr(bound_instance.ifc, 'HasOpenings'):
+            return related_opening_elems
+        if len(bound_instance.ifc.HasOpenings) == 0:
+            return related_opening_elems
+
+        for opening in bound_instance.ifc.HasOpenings:
+            if hasattr(opening.RelatedOpeningElement, 'HasFillings'):
+                for fill in opening.RelatedOpeningElement.HasFillings:
+                    opening_obj = instances[
+                        fill.RelatedBuildingElement.GlobalId]
+                    related_opening_elems.append(opening_obj)
+        return related_opening_elems
+
+    @staticmethod
+    def get_opening_boundary(this_boundary: SpaceBoundary,
+                             this_space: ThermalZone,
+                             opening_elem: Union[Window, Door],
+                             max_wall_thickness=0.3) \
+            -> Union[SpaceBoundary, None]:
+        """Get related opening boundary of another space boundary.
+
+        This function returns the related opening boundary of another
+        space boundary.
+
+        Args:
+            this_boundary: current instance of SpaceBoundary
+            this_space: ThermalZone instance
+            opening_elem: BIM2SIM instance of Window or Door.
+            max_wall_thickness: maximum expected wall thickness in the building.
+                Space boundaries of openings may be displaced by this distance.
+        Returns:
+            opening_boundary: Union[SpaceBoundary, None]
+        """
+        opening_boundary = None
+        distances = {}
+        for op_bound in opening_elem.space_boundaries:
+            if not op_bound.ifc.RelatingSpace == this_space:
+                continue
+            if op_bound in this_boundary.opening_bounds:
+                continue
+            center_shape = BRepBuilderAPI_MakeVertex(
+                gp_Pnt(op_bound.bound_center)).Shape()
+            center_dist = BRepExtrema_DistShapeShape(
+                this_boundary.bound_shape,
+                center_shape,
+                Extrema_ExtFlag_MIN
+            ).Value()
+            if center_dist > max_wall_thickness:
+                continue
+            distances[center_dist] = op_bound
+        sorted_distances = dict(sorted(distances.items()))
+        if sorted_distances:
+            opening_boundary = next(iter(sorted_distances.values()))
+        return opening_boundary
+
+    @staticmethod
+    def reassign_opening_bounds(this_boundary: SpaceBoundary,
+                                opening_boundary: SpaceBoundary,
+                                bound_instance: Element,
+                                drop_list: dict[str, SpaceBoundary],
+                                max_wall_thickness=0.3,
+                                angle_tolerance=0.1) -> \
+            tuple[SpaceBoundary, dict[str, SpaceBoundary]]:
+        """Fix assignment of parent and child space boundaries.
+
+        This function reassigns the current opening bound as an opening
+        boundary of its surrounding boundary. This function only applies if
+        the opening boundary has the same surface area as the assigned parent
+        surface.
+        HACK:
+        Some space boundaries have inner loops which are removed for vertical
+        bounds in calc_bound_shape (elements.py). Those inner loops contain
+        an additional vertical bound (wall) which is "parent" of an
+        opening. EnergyPlus does not accept openings having a parent
+        surface of same size as the opening. Thus, since inner loops are
+        removed from shapes beforehand, those boundaries are removed from
+        "instances" and the openings are assigned to have the larger
+        boundary as a parent.
+
+        Args:
+            this_boundary: current instance of SpaceBoundary
+            opening_boundary: current instance of opening SpaceBoundary (
+                related to BIM2SIM Window or Door)
+            bound_instance: BIM2SIM building element (e.g., Wall, Floor, ...)
+            drop_list: dict[str, SpaceBoundary] with SpaceBoundary instances
+                that have same size as opening space boundaries and therefore
+                should be dropped
+            max_wall_thickness: maximum expected wall thickness in the building.
+                Space boundaries of openings may be displaced by this distance.
+            angle_tolerance: tolerance for comparison of surface normal angles.
+        Returns:
+            rel_bound: New parent boundary for the opening that had the same
+                geometry as its previous parent boundary
+            drop_list: Updated dict[str, SpaceBoundary] with SpaceBoundary
+                instances that have same size as opening space boundaries and
+                therefore should be dropped
+        """
+        rel_bound = None
+        drop_list[this_boundary.guid] = this_boundary
+        ib = [b for b in bound_instance.space_boundaries if
+              b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries
+              if
+              b.bound_thermal_zone == opening_boundary.bound_thermal_zone]
+        if len(ib) == 1:
+            rel_bound = ib[0]
+        elif len(ib) > 1:
+            for b in ib:
+                # check if orientation of possibly related bound is the same
+                # as opening
+                angle = math.degrees(
+                    gp_Dir(b.bound_normal).Angle(gp_Dir(
+                        opening_boundary.bound_normal)))
+                if not (angle < 0 + angle_tolerance
+                        or angle > 180 - angle_tolerance):
+                    continue
+                distance = BRepExtrema_DistShapeShape(
+                    b.bound_shape,
+                    opening_boundary.bound_shape,
+                    Extrema_ExtFlag_MIN
+                ).Value()
+                if distance > max_wall_thickness:
+                    continue
+                else:
+                    rel_bound = b
+        else:
+            tzb = \
+                [b for b in
+                 opening_boundary.bound_thermal_zone.space_boundaries if
+                 b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries]
+            for b in tzb:
+                # check if orientation of possibly related bound is the same
+                # as opening
+                angle = None
+                try:
+                    angle = math.degrees(
+                        gp_Dir(b.bound_normal).Angle(
+                            gp_Dir(opening_boundary.bound_normal)))
+                except Exception as ex:
+                    logger.warning(f"Unexpected {ex=}. Comparison of bound "
+                                   f"normals failed for  "
+                                   f"{b.guid} and {opening_boundary.guid}. "
+                                   f"{type(ex)=}")
+                if not (angle < 0 + angle_tolerance
+                        or angle > 180 - angle_tolerance):
+                    continue
+                distance = BRepExtrema_DistShapeShape(
+                    b.bound_shape,
+                    opening_boundary.bound_shape,
+                    Extrema_ExtFlag_MIN
+                ).Value()
+                if distance > max_wall_thickness:
+                    continue
+                else:
+                    rel_bound = b
+        return rel_bound, drop_list
+
     def instantiate_space_boundaries(
-            self, entities_dict, instances, finder,
-            create_external_elements, ifc_units) -> List[RelationBased]:
-        """Instantiate space boundary ifc_entities using given element class.
-        Result is a list with the resulting valid elements"""
+            self, entities_dict: dict[str], instances: dict, finder:
+            TemplateFinder,
+            create_external_elements: bool, ifc_units: dict[str, ureg]) \
+            -> List[RelationBased]:
+        """Instantiate space boundary ifc_entities.
+
+        This function instantiates space boundaries using given element class.
+        Result is a list with the resulting valid elements.
+
+        Args:
+            entities_dict: dict of Ifc Entities (as str)
+            instances: dict[guid: element]
+            finder: BIM2SIM TemplateFinder
+            create_external_elements: bool, True if external spatial elements 
+                should be considered for space boundary setup
+            ifc_units: dict of IfcMeasures and Unit (ureg)
+        Returns:
+            list of dict[guid: SpaceBoundary]
+        """
         instance_lst = {}
         for entity in entities_dict:
             if entity.is_a() == 'IfcRelSpaceBoundary1stLevel' or \
@@ -58,15 +321,25 @@ class CreateSpaceBoundaries(ITask):
             relating_space = instances.get(
                 element.ifc.RelatingSpace.GlobalId, None)
             if relating_space is not None:
-                self.connect_space_boundaries(element, relating_space, instances)
+                self.connect_space_boundaries(element, relating_space,
+                                              instances)
                 instance_lst[element.guid] = element
 
         return list(instance_lst.values())
 
     def connect_space_boundaries(
-            self, space_boundary, relating_space, instances):
-        """Connects resultant space boundary with the corresponding relating
-        space and related building element (if given)"""
+            self, space_boundary: SpaceBoundary, relating_space: ThermalZone,
+            instances: dict[str, IFCBased]):
+        """Connect space boundary with relating space.
+
+        Connects resulting space boundary with the corresponding relating
+        space (i.e., ThermalZone) and related building element (if given).
+
+        Args:
+            space_boundary: SpaceBoundary
+            relating_space: ThermalZone (relating space)
+            instances: dict[guid: element]
+            """
         relating_space.space_boundaries.append(space_boundary)
         space_boundary.bound_thermal_zone = relating_space
 
@@ -80,150 +353,18 @@ class CreateSpaceBoundaries(ITask):
                                               related_building_element)
 
     @staticmethod
-    def connect_instance_to_zone(thermal_zone, bound_instance):
-        """Connects related building element and corresponding thermal zone"""
+    def connect_instance_to_zone(thermal_zone: ThermalZone,
+                                 bound_instance: IFCBased):
+        """Connects related building element and corresponding thermal zone.
+
+        This function connects a thermal zone and its IFCBased related
+        building elements.
+
+        Args:
+            thermal_zone: ThermalZone
+            bound_instance: BIM2SIM IFCBased instance
+        """
         if bound_instance not in thermal_zone.bound_elements:
             thermal_zone.bound_elements.append(bound_instance)
         if thermal_zone not in bound_instance.thermal_zones:
             bound_instance.thermal_zones.append(thermal_zone)
-
-    def find_instances_openings(self, instances, space_boundaries):
-        """find instances openings and corresponding space boundaries to that
-        opening (if given)"""
-        no_element_sbs = self.get_no_element_space_boundaries(space_boundaries)
-        no_element_openings = self.get_corresponding_opening(space_boundaries,
-                                                             no_element_sbs)
-        for inst in instances.values():
-            matched_sb = self.get_instance_openings(inst, instances,
-                                                    no_element_sbs,
-                                                    no_element_openings)
-            if matched_sb:
-                self.add_opening_bound(matched_sb)
-
-    def get_instance_openings(self, instance, instances, no_element_sbs,
-                              no_element_openings):
-        """get openings for a given instance as space boundary and opening
-        instance (if given).
-        An opening can have a related instance (windows, doors for example) or
-        not (staircase for example)"""
-        if hasattr(instance.ifc, 'HasOpenings'):
-            matched_list = []
-            has_no_element_openings = False
-            for opening in instance.ifc.HasOpenings:
-                related_building_element = opening.RelatedOpeningElement. \
-                    HasFillings[0].RelatedBuildingElement if \
-                    len(opening.RelatedOpeningElement.HasFillings) > 0 else None
-                if related_building_element:
-                    # opening with element (windows for example)
-                    opening_instance = instances.get(
-                        related_building_element.GlobalId, None)
-                    matched_sb = self.find_opening_bound(instance,
-                                                         opening_instance)
-                    if matched_sb:
-                        matched_list.append(matched_sb)
-                    else:
-                        self.non_sb_elements.append(opening_instance)
-                else:
-                    has_no_element_openings = True
-            if has_no_element_openings:
-                matched_sbs = self.find_no_element_opening_bound(
-                    no_element_openings, instance, no_element_sbs)
-                if matched_sbs:
-                    matched_list.extend(matched_sbs)
-            return matched_list
-        return None
-
-    @staticmethod
-    def get_corresponding_opening(space_boundaries, selected_sb):
-        """get corresponding opening space boundary for openings that doesn't
-        have a related instance"""
-        corresponding = {}
-        for sb_opening in selected_sb.values():
-            if isinstance(sb_opening, ExtSpatialSpaceBoundary):
-                continue
-            distances = {}
-            for sb in space_boundaries:
-                if isinstance(sb, ExtSpatialSpaceBoundary):
-                    continue
-                if sb != sb_opening:
-                    if (sb.bound_thermal_zone ==
-                        sb_opening.bound_thermal_zone) and \
-                            (sb.top_bottom == sb_opening.top_bottom):
-                        shape_dist = BRepExtrema_DistShapeShape(
-                            sb_opening.bound_shape,
-                            sb.bound_shape,
-                            Extrema_ExtFlag_MIN
-                        ).Value()
-                        distances[shape_dist] = sb
-            sorted_distances = dict(sorted(distances.items()))
-            if len(sorted_distances) > 0:
-                corresponding[sb_opening.guid] = next(
-                    iter(sorted_distances.values()))
-        return corresponding
-
-    @staticmethod
-    def get_no_element_space_boundaries(space_boundaries):
-        """get a dictionary with all space boundaries that doesn't have a
-        related building element, represents all space boundaries that could
-        be a virtual opening"""
-        selected_sb = {}
-        for sb in space_boundaries:
-            if not sb.bound_instance:
-                if isinstance(sb, ExtSpatialSpaceBoundary):
-                    continue
-                selected_sb[sb.guid] = sb
-        return selected_sb
-
-    @staticmethod
-    def find_no_element_opening_bound(no_element_openings, instance,
-                                      no_element_sb):
-        """for a given instance finds corresponding no element opening bounds"""
-        matched = []
-        for guid, sb in no_element_openings.items():
-            if sb.bound_instance == instance:
-                sb_opening = no_element_sb[guid]
-                matched.append([sb, sb_opening])
-        return matched
-
-    @staticmethod
-    def find_opening_bound(instance, opening_instance):
-        """for a given instance get corresponding opening space boundary,
-         applies openings that do have a related instance, physical space
-         boundary"""
-        distances = {}
-        for sb in instance.space_boundaries:
-            for sb_opening in opening_instance.space_boundaries:
-                if (sb.bound_thermal_zone == sb_opening.bound_thermal_zone) \
-                        and (sb.top_bottom == sb_opening.top_bottom):
-                    shape_dist = BRepExtrema_DistShapeShape(
-                        sb_opening.bound_shape,
-                        sb.bound_shape,
-                        Extrema_ExtFlag_MIN
-                    ).Value()
-                    distances[shape_dist] = (sb, sb_opening)
-        sorted_distances = dict(sorted(distances.items()))
-        if len(sorted_distances) > 0:
-            return next(iter(sorted_distances.values()))
-        else:
-            return None
-
-    @staticmethod
-    def add_opening_bound(matched_sb):
-        """adds opening corresponding space boundary to the instance
-        space boundary where the opening locates"""
-        for normal_sb, opening_sb in matched_sb:
-            opening_sb.is_opening = True
-            if not normal_sb.opening_bounds:
-                normal_sb.opening_bounds = []
-            if opening_sb not in normal_sb.opening_bounds:
-                normal_sb.opening_bounds.append(opening_sb)
-            if normal_sb.related_bound:
-                if not normal_sb.related_bound.opening_bounds:
-                    normal_sb.related_bound.opening_bounds = []
-                if opening_sb.related_bound:
-                    if opening_sb.related_bound not in \
-                            normal_sb.related_bound.opening_bounds:
-                        normal_sb.related_bound.opening_bounds.append(
-                            opening_sb.related_bound)
-                else:
-                    normal_sb.related_bound.opening_bounds.append(opening_sb)

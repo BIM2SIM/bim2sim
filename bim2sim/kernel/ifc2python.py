@@ -134,7 +134,8 @@ def get_layers_ifc(element: Union[entity_instance, ProductBased]):
     # TODO only used for check, maybe we can use functions of common.py instead
     """
     Returns layers information of an element as list. It can be applied to
-    an IFCProduct directly or a Bim2Sim Instance.
+    an IFCProduct directly or a Bim2Sim Instance. This only used to pre instance
+    creation check of IFC file now.
     Args:
         element: ifcopenshell instance or bim2sim Instance
 
@@ -152,8 +153,10 @@ def get_layers_ifc(element: Union[entity_instance, ProductBased]):
             layer_list = None
             if association.is_a('IfcMaterial'):
                 layer_list = [association]
+            # IfcMaterialLayerSetUsage
             elif hasattr(association, 'ForLayerSet'):
                 layer_list = association.ForLayerSet.MaterialLayers
+            # single IfcMaterial
             elif hasattr(association, 'Materials'):
                 layer_list = association.Materials
             elif hasattr(association, 'MaterialLayers'):

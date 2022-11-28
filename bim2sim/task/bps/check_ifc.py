@@ -679,7 +679,6 @@ class CheckIfcBPS(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        # todo refactor for #221
         blacklist = ['IfcBuilding', 'IfcSite', 'IfcBuildingStorey', 'IfcSpace']
         if not (inst.is_a() in blacklist):
             return len(get_layers_ifc(inst)) > 0

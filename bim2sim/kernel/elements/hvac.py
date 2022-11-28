@@ -311,6 +311,10 @@ class HVACProduct(ProductBased):
     def is_consumer(self):
         return False
 
+    def calc_cost_group(self) -> [int]:
+        """Default cost group for HVAC elements is 400"""
+        return 400
+
     def __repr__(self):
         return "<%s (ports: %d)>" % (self.__class__.__name__, len(self.ports))
 
@@ -407,7 +411,7 @@ class Chiller(HVACProduct):
         description='Minimum power at which Chiller operates at.',
         unit=ureg.kilowatt,
     )
-    
+
     @cached_property
     def expected_hvac_ports(self):
         return 4
@@ -763,7 +767,7 @@ class PipeFitting(HVACProduct):
     )
 
     length = attribute.Attribute(
-        default_ps=("Qto_PipeSegmentBaseQuantities", "Length"),
+        default_ps=("Qto_PipeFittingBaseQuantities", "Length"),
         unit=ureg.meter,
         patterns=[
             re.compile('.*Länge.*', flags=re.IGNORECASE),
