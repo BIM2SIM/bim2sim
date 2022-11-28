@@ -23,9 +23,11 @@ class ConsumerDistributorHelper(SetupHelperHVAC):
         with self.flag_manager(flags):
             # generator circuit
             con_vl = [self.element_generator(
-                hvac.Pipe, length=100, diameter=30) for i in range(1)]
+                hvac.Pipe, length=100, diameter=30, flags=['PipeCon'])
+                for i in range(1)]
             con_rl = [self.element_generator(
-                hvac.Pipe, length=100, diameter=30) for i in range(1)]
+                hvac.Pipe, length=100, diameter=30, flags=['PipeCon'])
+                for i in range(1)]
             consumer = self.element_generator(
                 hvac.SpaceHeater, flags=['spaceheater'])
             boil_vl = [self.element_generator(
@@ -65,18 +67,19 @@ class TestConsumerDistributorModule(unittest.TestCase):
         self.helper.reset()
 
     def test_find_matches(self):
-        """TODO"""
-        # graph, flags = self.helper.get_setup_con_dist()
-        graph2, flags2 = self.helper.get_setup_con_dist()
-        # matches1, metas1 = \
-        #     aggregation.ConsumerHeatingDistributorModule.find_matches(graph)
-        matches2, metas2 = \
-            aggregation.ConsumerHeatingDistributorModule.find_matches2(graph2)
+        """Test the old find matches method, new one in #167 (below)"""
+        graph, flags = self.helper.get_setup_con_dist()
+        matches, metas = \
+            aggregation.ConsumerHeatingDistributorModule.find_matches(graph)
+        self.assertEqual(
+            len(matches), 1,
+            "There is 1 case for ConsumerDistrubtorModule Cycles but "
+            "'find_matches' returned %d" % len(matches)
+        )
 
-        # edge_ports = aggregation.ConsumerHeatingDistributorModule.get_edge_ports2(graph2, matches2[0])
         module = aggregation.ConsumerHeatingDistributorModule(
-            matches2[0].element_graph, **metas2[0])
-        print('test')
-
-
-
+            matches[0], **metas[0])
+        module_elements = \
+            [item for item in
+             flags['spaceheater']+flags['distributor']+flags['PipeCon']]
+        self.assertCountEqual(module.elements, module_elements)
