@@ -145,13 +145,16 @@ class CreateElements(ITask):
         finder = TemplateFinder()
         yield from finder.initialize(ifc)
         if self.paths.finder:
-            finder.load(self.paths.finder)self.factory = Factory(workflow.relevant_elements, workflow.ifc_units, finder)
+            finder.load(self.paths.finder)
+        self.factory = Factory(
+            workflow.relevant_elements,
+            workflow.ifc_units,
+            finder)
 
+        # Filtering:
+        #  filter returns dict of entities: suggested class and list of unknown
+        #  accept_valids returns created elements and lst of invalids
 
-
-        # filtering:
-        # filter returns dict of entities: suggested class and list of unknown
-        # accept_valids returns created elements and lst of invalids
         instance_lst = []
         entity_best_guess_dict = {}
         # filter by type
