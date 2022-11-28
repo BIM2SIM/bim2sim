@@ -1,4 +1,4 @@
-﻿"""Module for aggregation and simplifying elements"""
+"""Module for aggregation and simplifying elements"""
 import logging
 import math
 from functools import partial
@@ -207,7 +207,13 @@ class HVACAggregationMixin(AggregationMixin):
         e2 = graph.edges - e1
         # related to s but not s exclusive
         e3 = e2 - match.edges
-        return e3
+        # get only inner edge_ports (edge ports belonging to the boarder class)
+        edge_ports = [
+            port for port in [
+                e for x in list(e3) for e in x]
+            if port.parent.__class__ in cls.boarder_class]
+
+        return edge_ports
 
     @classmethod
     def get_edge_ports_of_strait(cls, graph) -> List[HVACPort]:
