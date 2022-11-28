@@ -377,59 +377,6 @@ class Reduce(ITask):
         for agg_class in aggregations:
             name = agg_class.__name__
             self.logger.info(f"Aggregating {name} ...")
-
-            #########
-            # TODO Remove debugging code
-            if agg_class == ConsumerHeatingDistributorModule:
-                import os
-                from bim2sim.kernel.elements.hvac import Distributor
-                import matplotlib.pyplot as plt
-                sg = None
-                distr_node = \
-                    [node for node in graph.copy().element_graph.nodes if
-                     isinstance(node, Distributor)][0]
-                distr_ports = [port for port in distr_node.ports]
-                neighbors = list(
-                    graph.copy().element_graph.copy().neighbors(
-                        distr_node))
-                neighbor_ports = [port for neighbor in neighbors for
-                                  port in neighbor.ports]
-                sg = graph.copy().subgraph(neighbor_ports + distr_ports)
-                # TODO move colored port graphs to general plot function before
-                #  deleting debug code
-                colors = {
-                    1: 'green',
-                    0: 'blue',
-                    -1: 'red',
-                    None: 'yellow',
-                }
-
-                colors_flow_direction = {
-                    -1: 'pink',
-                    0: 'gray',
-                    1: 'purple'
-                }
-                kwargs = {}
-                node_color_map = []
-                for port in sg:
-                    if port.flow_side != 0:
-                        node_color_map.append(colors[port.flow_side])
-                    elif port.flow_direction != 0:
-                        node_color_map.append(
-                            colors_flow_direction[port.flow_direction])
-                    else:
-                        node_color_map.append('blue')
-                kwargs['node_color'] = node_color_map
-
-                nx.draw(sg, node_size=6, font_size=5, with_labels=True,
-                        **kwargs)
-                plt.draw()
-                # TODO @Svenne change path to get plot
-                plt.savefig(os.path.join(
-                    "D:/01_Kurzablage/graph_plots/test.pdf"))
-                plt.clf()
-                # TODO Debugging uncode until here
-                #####################
             matches, metas = agg_class.find_matches(graph)
             i = 0
             for match, meta in zip(matches, metas):
