@@ -108,12 +108,18 @@ class HvacGraph(nx.Graph):
     def get_type_chains(
             element_graph: nx.Graph,
             types: Iterable[Type[ProductBased]],
-            include_singles=False):
-        """Returns lists of consecutive elements of the given types ordered as connected.
+            include_singles: bool = False):
+        """Get lists of consecutive elements of the given types. Elements are
+        ordered in the same way as the are connected.
 
-        :param include_singles:
-        :param element_graph: graph object with elements as nodes
-        :param types: items the chains are built of"""
+        Args:
+            element_graph: Graph object with elements as nodes.
+            types: Items the chains are built of.
+            include_singles:
+
+        Returns:
+            chain_lists: Lists of consecutive elements.
+        """
 
         undirected_graph = element_graph
         nodes_degree2 = [v for v, d in undirected_graph.degree() if 1 <= d <= 2
@@ -210,8 +216,9 @@ class HvacGraph(nx.Graph):
                 sides0 = {port.flow_side for port in edge[0].ports}
                 sides1 = {port.flow_side for port in edge[1].ports}
                 side = None
-                # element with multiple sides is usually a consumer / generator (or result of conflicts)
-                # hence side of definite element is used
+                # element with multiple sides is usually a consumer / generator
+                # (or result of conflicts) hence side of definite element is
+                # used
                 if len(sides0) == 1:
                     side = sides0.pop()
                 elif len(sides1) == 1:
