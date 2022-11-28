@@ -7,6 +7,7 @@ from bim2sim.kernel.elements import hvac as hvac_elements
 from bim2sim.workflow import PlantSimulation
 from bim2sim.plugins import Plugin
 from bim2sim.task import base, common, hvac
+from bim2sim.kernel.element import Material
 
 from .models import HKESim
 
@@ -23,7 +24,7 @@ class PluginHKESim(Plugin):
     name = 'HKESim'
     default_workflow = PlantSimulation
     tasks = {LoadLibrariesHKESim}
-    elements = {*hvac_elements.items}
+    elements = {*hvac_elements.items, Material}
     default_tasks = [
         common.LoadIFC,
         hvac.CheckIfcHVAC,
