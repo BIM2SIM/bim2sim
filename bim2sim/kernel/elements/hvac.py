@@ -489,7 +489,12 @@ class Boiler(HVACProduct):
         return True
 
     def get_inner_connections(self):
-        return []
+        # TODO see #167
+        if len(self.ports) > 2:
+            return []
+        else:
+            connections = super().get_inner_connections()
+            return connections
 
     water_volume = attribute.Attribute(
         description="Water volume of boiler",
