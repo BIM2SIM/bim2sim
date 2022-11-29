@@ -21,14 +21,15 @@ setup(
     author='BIM2SIM',
     author_email='???',
     url="???",
-    packages=find_packages() + ['bim2sim.assets', 'bim2sim.backends'],
+    packages=find_packages() + ['bim2sim.assets'],
     include_package_data=True,
     data_files=data_files,
     # package_data={'': ['assets/*.*']},
     python_requires='>=3.6.0',
     install_requires=[
         'docopt', 'numpy', 'python-dateutil',
-        'mako', 'networkx>=2.2', 'pint'
+        'mako', 'networkx>=2.2', 'pint', 'pandas',
+        'deep_translator', 'matplotlib'
     ],  # external packages as dependencies
     extras_require={
         'manual_install': ['ifcopenshell>=0.6'],
