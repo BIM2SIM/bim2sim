@@ -447,6 +447,7 @@ class CreateElements(ITask):
                     f"Please select best match.",
                     choices=choices,
                     key=entity,
+                    related=[entity.GlobalId],
                     global_key="TextFilter:%s.%s" % (
                         entity.is_a(), entity.GlobalId),
                     allow_skip=True,
@@ -485,6 +486,7 @@ class CreateElements(ITask):
                     ifc_entity.is_a(), ifc_entity.Name, ifc_entity.Description,
                     ifc_entity.GlobalId),
                 choices=[ele.key for ele in sorted_elements],
+                related=[ifc_entity.GlobalId],
                 default=best_guess,
                 key=ifc_entity,
                 global_key="SetClass:%s.%s" % (
