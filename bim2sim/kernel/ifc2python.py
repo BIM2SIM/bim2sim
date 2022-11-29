@@ -459,7 +459,13 @@ def get_true_north(ifcElement: entity_instance):
 
 
 def get_ports(element: entity_instance) -> list[Any]:
-    """Get all ports for new and old IFC definition of ports."""
+    """Get all ports for new and old IFC definition of ports.
+
+    Args:
+        element: ifcopenshell element to check for ports
+    Returns:
+        ports: list of all ports connected to the element
+    """
     ports = []
     # new IfcStandard with IfcRelNests
     ports_nested = list(getattr(element, 'IsNestedBy', []))
@@ -477,7 +483,13 @@ def get_ports(element: entity_instance) -> list[Any]:
 
 
 def get_ports_connections(element_port: entity_instance) -> list[Any]:
-    """Get all connected ports to a given port."""
+    """Get all connected ports to a given port.
+
+    Args:
+        element_port: ifcopenshell port element to check for connections
+    Returns:
+        connected_ports: list of all ports connected to given element_port
+    """
     connected_ports = \
         [conn.RelatingPort for conn in element_port.ConnectedFrom] + \
         [conn.RelatedPort for conn in element_port.ConnectedTo]
@@ -485,7 +497,13 @@ def get_ports_connections(element_port: entity_instance) -> list[Any]:
 
 
 def get_ports_parent(element: entity_instance) -> list[Any]:
-    """Get the parent of given port for new and old Ifc definitions of ports."""
+    """Get the parent of given port for new and old Ifc definitions of ports.
+
+    Args:
+        element: ifcopenshell port element which parents are searched
+    Returns:
+        parents: list of ifcopenshell elements that are parent of the port
+    """
     parents = []
     parent_nested = list(getattr(element, 'Nests', []))
     for nest in parent_nested:
