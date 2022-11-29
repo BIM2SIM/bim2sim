@@ -480,6 +480,17 @@ class CreateElements(ITask):
                                  key=lambda it: it.Name + it.GlobalId):
             best_guess_cls = best_guess_dict.get(ifc_entity)
             best_guess = best_guess_cls.key if best_guess_cls else None
+            context = []
+            for port in ifc2python.get_ports(ifc_entity):
+                connected_ports = ifc2python.get_ports_connections(port)
+                con_ports_guid = [con.GlobalId for con in connected_ports]
+                parents = []
+                for con_port in connected_ports:
+                    parents.extend(ifc2python.get_ports_parent(con_port))
+                parents_guid = [par.GlobalId for par in parents]
+                context.append(port.GlobalId)
+                context.extend(con_ports_guid + parents_guid)
+
             decisions.append(ListDecision(
                 "Found unidentified Element of %s (Name: %s, Description: %s,"
                 " GUID: %s):" % (
@@ -487,6 +498,7 @@ class CreateElements(ITask):
                     ifc_entity.GlobalId),
                 choices=[ele.key for ele in sorted_elements],
                 related=[ifc_entity.GlobalId],
+                context=context,
                 default=best_guess,
                 key=ifc_entity,
                 global_key="SetClass:%s.%s" % (

@@ -472,6 +472,23 @@ def get_ports(element: entity_instance) -> list[Any]:
     return ports
 
 
+def get_ports_connections(element_port: entity_instance) -> list[Any]:
+    """Get all connected ports to a given port."""
+    connected_ports = \
+        [conn.RelatingPort for conn in element_port.ConnectedFrom] + \
+        [conn.RelatedPort for conn in element_port.ConnectedTo]
+    return connected_ports
+
+
+def get_ports_parent(element: entity_instance) -> list[Any]:
+    """Get the parent of given port for new and old Ifc definitions of ports."""
+    parents = []
+    parent_nested = list(getattr(element, 'Nests', []))
+    for nest in parent_nested:
+        parents.append(nest.RelatingObject)
+    return parents
+
+
 def convertToSI(ifcUnit, value):
     # TODO not used anywhere. Remove?
     """Return the value in basic SI units, conversion according to ifcUnit."""
