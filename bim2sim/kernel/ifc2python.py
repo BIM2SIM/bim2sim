@@ -5,7 +5,7 @@ import os
 import logging
 import math
 
-from typing import Optional, Union, TYPE_CHECKING
+from typing import Optional, Union, TYPE_CHECKING, List, Any
 from ifcopenshell import entity_instance, file, open as ifc_open
 from collections.abc import Iterable
 
@@ -456,6 +456,20 @@ def get_true_north(ifcElement: entity_instance):
         true_north = [0, 1]
     angle_true_north = math.degrees(math.atan(true_north[0] / true_north[1]))
     return angle_true_north
+
+
+def get_ports(element: entity_instance) -> list[Any]:
+    """Get all ports for new and old IFC definition of ports."""
+    ports = []
+    # new IfcStandard with IfcRelNests
+    ports_nested = list(getattr(element, 'IsNestedBy', []))
+    # old IFC standard with IfcRelConnectsPortToElement
+    ports_connects = list(getattr(element, 'HasPorts', []))
+
+    for nested in ports_nested+ports_connects:
+        for port_connection in nested.RelatedObjects:
+            ports.append(port_connection)
+    return ports
 
 
 def convertToSI(ifcUnit, value):
