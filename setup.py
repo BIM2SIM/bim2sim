@@ -25,7 +25,7 @@ setup(
     include_package_data=True,
     data_files=data_files,
     # package_data={'': ['assets/*.*']},
-    python_requires='>=3.6.0',
+    python_requires='>=3.9.0',
     install_requires=[
         'docopt', 'numpy', 'python-dateutil',
         'mako', 'networkx>=2.2', 'pint', 'pandas',
