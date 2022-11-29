@@ -466,9 +466,13 @@ def get_ports(element: entity_instance) -> list[Any]:
     # old IFC standard with IfcRelConnectsPortToElement
     ports_connects = list(getattr(element, 'HasPorts', []))
 
-    for nested in ports_nested+ports_connects:
+    for nested in ports_nested:
         for port_connection in nested.RelatedObjects:
             ports.append(port_connection)
+
+    for connected in ports_connects:
+        ports.append(connected.RelatingPort)
+
     return ports
 
 
