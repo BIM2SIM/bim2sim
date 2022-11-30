@@ -532,8 +532,8 @@ pages:
    # get existing content with branch artifacts
    - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
    - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
-   # delete all branch folders older than 10 days which are not master or development
-   - find public/* -type d -not -name "development" -not -name "master" -mtime +10 -exec rm -rf {} \;
+   # delete all branch folders older than 14 days which are not master or development
+   - find public/* -maxdepth 0 -type d -not -name "development" -not -name "master" -mtime +14 -exec rm -rf {} \;
    # Add/update content
    - mkdir -p public/$CI_COMMIT_REF_NAME
    - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
