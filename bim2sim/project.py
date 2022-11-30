@@ -460,6 +460,16 @@ class Project:
             config.read(self.paths.config)
         return config
 
+    def rewrite_config(self):
+        config = self.config
+        workflow_manager = self.workflow.manager
+        for setting in workflow_manager:
+            s = workflow_manager.get(setting)
+            config[type(self.workflow).__name__][s.name] = str(s.value)
+
+        with open(self.paths.config, "w") as file:
+            config.write(file)
+
     def run(self, interactive=False, cleanup=True):
         """Run project.
 
