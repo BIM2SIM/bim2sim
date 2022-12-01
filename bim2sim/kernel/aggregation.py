@@ -7,6 +7,7 @@ import re
 
 import numpy as np
 import networkx as nx
+from networkx import Graph
 
 from bim2sim.kernel.element import ProductBased, Port
 from bim2sim.kernel.elements.hvac import HVACPort, HVACProduct
@@ -40,7 +41,8 @@ def verify_edge_ports(func):
 
 
 class HVACAggregationPort(HVACPort):
-    """Port for Aggregation"""
+    """Port for aggregation of HVACPorts."""
+
     guid_prefix = 'AggPort'
 
     def __init__(self, originals, *args, **kwargs):
@@ -49,11 +51,18 @@ class HVACAggregationPort(HVACPort):
         if not type(originals) == list:
             originals = [originals]
         if not all(isinstance(n, hvac.HVACPort) for n in originals):
-            raise TypeError("originals must by HVACPorts")
+            raise TypeError("originals must be HVACPorts")
         self.originals = originals
         self.flow_direction = self.flow_direction_from_original()
 
-    def flow_direction_from_original(self):
+    def flow_direction_from_original(self) -> int:
+        """Determines the flow direction of the aggregation port. If the
+        aggregation port consists of multiple original ports and the flow
+        directions of these are not equal, a decision is triggered.
+
+        Returns: The flow direction of the aggregation port
+
+        """
         if len(self.originals) > 1:
             flow_directions = set(
                 [original.flow_direction for original in self.originals])
@@ -68,16 +77,12 @@ class HVACAggregationPort(HVACPort):
             originals = self.originals[0]
             while originals:
                 if hasattr(originals, 'originals'):
-                    if len(originals.originals) > 1:
-                        raise NotImplementedError(
-                            'Aggregation with more than one original is not '
-                            'implemented.')
                     originals = originals.originals[0]
                 else:
                     return originals.flow_direction
 
     def calc_position(self):
-        """Position of original port"""
+        """Calculate position of original ports"""
         return self.originals.position
 
 
@@ -151,14 +156,12 @@ class AggregationMixin:
 
 
 class HVACAggregationMixin(AggregationMixin):
-    """
-
-    Args:
-        element_graph:
-        outer_connections:
-    """
-
     def __init__(self, element_graph, *args, outer_connections=None, **kwargs):
+        """
+        Args:
+            element_graph:
+            outer_connections:
+        """
         # TODO: handle outer_connections from meta,
         self.outer_connections = outer_connections  # WORKAROUND
         # make get_ports signature match ProductBased.get_ports
@@ -166,7 +169,20 @@ class HVACAggregationMixin(AggregationMixin):
         super().__init__(list(element_graph.nodes), *args, **kwargs)
 
     @verify_edge_ports
-    def get_ports(self, graph) -> List[HVACPort]:
+    def get_ports(self, graph: Graph) -> List[HVACPort]:
+        """Determines the edge ports of the aggregation element.
+
+        The edge ports are the "most outer ports" which are connected from the
+        outside to the rest of the network.
+        TODO: Solve name confusion with outer_connections/get_ports see #243
+
+    Args:
+        graph: The graph representation of the aggregation element.
+
+    Returns:
+        ports: A list of edge ports of the aggregation element.
+
+    """
         # TBD: use of outer_connections
         if not self.outer_connections:
             edge_ports = self.get_edge_ports(graph)
@@ -178,11 +194,18 @@ class HVACAggregationMixin(AggregationMixin):
         return ports
 
     @classmethod
-    def get_empty_mapping(cls, elements: Iterable[ProductBased]):
-        """Get information to remove elements
-        :returns tuple of
-            mapping dict with original ports as values and None as keys
-            connection list of outer connections"""
+    def get_empty_mapping(cls, elements: Iterable[ProductBased]) \
+            -> Tuple[dict, list]:
+        """Get information to remove elements.
+        TODO: this method is not used anywhere.
+
+        Args:
+            elements: An iterable of elements.
+
+        Returns:
+            A tuple containing mapping (dict with original ports as values and
+            None as keys) and connections (list of outer connections).
+        """
         ports = [port for element in elements for port in element.ports]
         mapping = {port: None for port in ports}
         # TODO: len > 1, optimize
@@ -199,7 +222,14 @@ class HVACAggregationMixin(AggregationMixin):
 
     def get_replacement_mapping(self) \
             -> Dict[HVACPort, Union[HVACAggregationPort, None]]:
-        """Get replacement dict for existing ports."""
+        """Get replacement dict for original ports which are replaced by
+        aggregation ports.
+
+        Returns:
+            mapping: A dict with ports of the originals as keys and the
+            corresponding aggregation port as value.
+
+        """
         mapping = {port: None for element in self.elements
                    for port in element.ports}
         for port in self.ports:
@@ -207,16 +237,24 @@ class HVACAggregationMixin(AggregationMixin):
                 mapping[original] = port
         return mapping
 
+    # TODO: get edge ports based on graph and solve name confusion, see #243
     @classmethod
-    def get_edge_ports(cls, graph) -> List[HVACPort]:
+    def get_edge_ports(cls, graph: Graph) -> List[HVACPort]:
         """Finds and returns the original edge ports of element graph."""
         raise NotImplementedError()
 
-    # TODO: get edge ports based on graph. See #167
     @classmethod
     def get_edge_ports2(cls, graph: HvacGraph, match: HvacGraph) \
             -> List[HVACPort]:
-        """Get edge ports based on graph."""
+        """Get edge ports based on graph.
+
+        Args:
+            graph: the HvacGraph of the current network
+            match: the HvacGraph of the aggregation element
+
+        Returns:
+            e3:
+        """
         # edges of g excluding all relations to s
         e1 = graph.subgraph(graph.nodes - match.nodes).edges
         # all edges related to s
@@ -226,12 +264,19 @@ class HVACAggregationMixin(AggregationMixin):
         return e3
 
     @classmethod
-    def get_edge_ports_of_strait(cls, graph) -> List[HVACPort]:
-        """
-        Finds and returns the edge ports of element graph
-        with exactly one strait chain of connected elements.
+    def get_edge_ports_of_strait(cls, graph: Graph) -> List[HVACPort]:
+        """Finds and returns the edge ports of element graph with exactly one
+        strait chain of connected elements.
 
-        :return list of ports:
+        Args:
+            graph: The graph representation of the aggregation element.
+
+        Returns:
+            edge_ports: A list of edge ports of the the aggregation element.
+
+        Raises:
+            AttributeError: If the number of edge elements is not 2 or if the
+                number of edge ports is great than 2.
         """
 
         edge_elements = [v for v, d in graph.degree() if d == 1]
@@ -263,13 +308,20 @@ class HVACAggregationMixin(AggregationMixin):
     @classmethod
     def find_matches(cls, graph: HvacGraph) \
             -> Tuple[List[nx.Graph], List[dict]]:
-        """Find all matches for Aggregation in element graph
-        :returns: matches, metas"""
+        """Find all matches for aggregation in element graph.
+
+        Args:
+            graph: The element graph representation of the network.
+
+        Returns:
+            A tuple containing a list of element graphs of the found
+                aggregations and a list of dict with meta information.
+        """
         raise NotImplementedError(
             "Method %s.find_matches not implemented" % cls.__name__)
 
     def _calc_has_pump(self, name) -> bool:
-        """Calculate if aggregation has pumps"""
+        """Calculate if aggregation has pumps."""
         has_pump = False
         for ele in self.elements:
             if hvac.Pump is ele.__class__:
