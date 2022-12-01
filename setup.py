@@ -23,7 +23,7 @@ setup(
     python_requires='>=3.8.*,<3.10.*',
     install_requires=[required
     ],  # external packages as dependencies TODO 'occ-utils'
-# Inside of setup.cfg
+
     classifiers=[
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',

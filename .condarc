@@ -1,0 +1,1 @@
+conda config --add channels conda-forge
