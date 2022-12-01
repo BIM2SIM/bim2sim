@@ -12,9 +12,9 @@ are included. The basic structure is shown below:
 ````
 1) conda create -n bim2sim python=3.9
 2) conda activate bim2sim
-3) python setup.py install
-4) pip install ifcopenshell
-4) conda install -c conda-forge pythonocc-core=7.6.2
+3) python setup.py install/ pip install bim2sim==0.1.dev0
+4) conda install -c conda-forge ifcopenshell -y 
+4) conda install -c conda-forge pythonocc-core=7.6.2 -y
 5) pip install -r bim2sim\plugins\PluginTEASER\requirements.txt
 ````
 ### Conda install

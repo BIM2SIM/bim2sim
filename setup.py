@@ -23,11 +23,15 @@ setup(
     python_requires='>=3.8.*,<3.10.*',
     install_requires=[required
     ],  # external packages as dependencies TODO 'occ-utils'
+# Inside of setup.cfg
+    classifiers=[
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+    ],
     extras_require = {
                      'manual_install': ['ifcopenshell>=0.6', '', ],  # TODO occ-core
 
     },
-
     entry_points = {
         'console_scripts': [
             'bim2sim = bim2sim:main',
