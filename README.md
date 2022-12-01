@@ -8,6 +8,19 @@ are included. The basic structure is shown below:
 ![Toolchain](docs/img/bim2sim_project_workflow_eng.png)
 
 ## Install
+### Pip install
+````
+1) conda create -n bim2sim python=3.9
+2) conda activate bim2sim
+3) python setup.py install
+4) pip install ifcopenshell
+4) conda install -c conda-forge pythonocc-core=7.6.2
+5) pip install -r bim2sim\plugins\PluginTEASER\requirements.txt
+````
+### Conda install
+````
+conda build . 
+````
 
 tbd.
 
