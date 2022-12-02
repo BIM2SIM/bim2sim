@@ -9,13 +9,14 @@ Welcome to bim2sim's documentation!
 .. toctree::
    :maxdepth: 5
 
-   big-picture
+   overview
    installation
    first-steps
    project
    workflow
    plugins
    tasks
+   aggregations
    decisions
    attribute
    finder
