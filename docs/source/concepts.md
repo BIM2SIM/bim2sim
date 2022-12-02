@@ -5,13 +5,13 @@
 .. toctree::
    :maxdepth: 2
 
-   plugins/project
-   plugins/workflow
-   plugins/tasks
-   plugins/elements
-   plugins/aggregations
-   plugins/attribute
-   plugins/finder
-   plugins/decisions
-   plugins/logging
+   concepts/project
+   concepts/workflow
+   concepts/tasks
+   concepts/elements
+   concepts/aggregations
+   concepts/attribute
+   concepts/finder
+   concepts/decisions
+   concepts/logging
 ```
