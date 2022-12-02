@@ -976,7 +976,7 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
     """Aggregates Space heater in parallel"""
 
     aggregatable_elements = {hvac.SpaceHeater, hvac.Pipe, hvac.PipeFitting,
-                             PipeStrand}
+                             PipeStrand, hvac.ThreeWayValve, hvac.Junction}
 
     def get_ports(self, graph):
         return self._get_start_and_end_ports()
@@ -2074,8 +2074,8 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
     ...) Not for Chillers or Heatpumps!"""
     aggregatable_elements = {
         hvac.Pump, PipeStrand, hvac.Pipe, hvac.PipeFitting, hvac.Distributor,
-        hvac.Boiler, ParallelPump, hvac.Valve, hvac.Storage,
-        ConsumerHeatingDistributorModule, Consumer}
+        hvac.Boiler, ParallelPump, hvac.Valve, hvac.Storage, hvac.ThreeWayValve,
+        hvac.Junction, ConsumerHeatingDistributorModule, Consumer}
     wanted_elements = [hvac.Boiler, hvac.CHP]
     boarder_elements = [hvac.Distributor, ConsumerHeatingDistributorModule]
     multi = ('rated_power', 'has_bypass', 'rated_height', 'volume',
