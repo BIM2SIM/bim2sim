@@ -23,12 +23,12 @@ def run_example_4():
 
     # specified settings for workflows can be changed later as well
     project.workflow.aggregations = [
-            'UnderfloorHeating',
-            'Consumer',
-            'PipeStrand',
-            'ParallelPump',
-            'ConsumerHeatingDistributorModule',
-            'GeneratorOneFluid'
+        'UnderfloorHeating',
+        'Consumer',
+        'PipeStrand',
+        'ParallelPump',
+        'ConsumerHeatingDistributorModule',
+        'GeneratorOneFluid'
     ]
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive input
@@ -36,20 +36,18 @@ def run_example_4():
     run_project(project, ConsoleDecisionHandler())
 
 # 'HVAC-Distributor',
-# 'HVAC-Boiler'
+# 'HVAC-ThreeWayValve'*2,
 # 'HVAC-PipeFitting'*14',
-# ' 16dMYEqBD0ha5FH1ji7tae'
-# '3ApjErtphPlKeFnrwh0yL0'
+# None*2,
+# True *4,
 # True * 4
 # efficiency: 0.95
 # flow_temperature: 70
 # nominal_power_consumption: 200
-
+# return_temperature: 50
 # following multiple
 # return_temperature: 50
-# body_mass: 15
-# heat_capacity: 10
-# return_temperature = 50
+# (body_mass: 15, heat_capacity: 10) * 7
 
 if __name__ == '__main__':
     run_example_4()
