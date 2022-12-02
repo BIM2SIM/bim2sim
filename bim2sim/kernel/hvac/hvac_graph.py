@@ -262,10 +262,17 @@ class HvacGraph(nx.Graph):
 
     @staticmethod
     def remove_not_wanted_nodes(
-            graph,
+            graph: element_graph,
             wanted: Set[Type[ProductBased]],
             inert: Set[Type[ProductBased]] = None):
-        """ removes not wanted and not inert nodes from the given graph."""
+        """Removes not wanted and not inert nodes from the given graph.
+
+        Args:
+            graph: element_graph
+            wanted: set of all elements that are wanted and should persist in
+                graph
+            inert: set all inert elements. Are treated the same as wanted.
+        """
         if inert is None:
             inert = set()
         if not all(map(
