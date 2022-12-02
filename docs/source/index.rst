@@ -13,15 +13,8 @@ Welcome to bim2sim's documentation!
    installation
    first-steps
    project
-   workflow
    plugins
-   tasks
-   elements
-   attribute
-   finder
-   decisions
-   aggregations
-   logging
+   concepts
    docker-structure
    code/modules
 

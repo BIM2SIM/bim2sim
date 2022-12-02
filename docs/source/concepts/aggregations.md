@@ -7,11 +7,14 @@ modelica in a way that the exported elements fit the existing modelica models.
 For more information have a look at the docs for
 [Hydraulic Network](hydraulic_network).
 
-## How are they implemented?
-
+## How are aggregations implemented?
+Aggregations are created based the [HvacGraph](HvacGraph) of the hydraulic 
+network. The basic concept is that we are looking for elements which fit the 
+corresponding aggregation [Find Matches](find_matches)
 ...
 
 ### Find Matches
+(find_matches)=
 
 ...
 

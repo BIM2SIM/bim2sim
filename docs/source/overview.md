@@ -55,7 +55,7 @@ A project is the main object in `bim2sim` and brings workflow and plugin
 together and allows to run the process of simulation model creation.
 
 **Inputs:**
-* A [workflow](workflow) holds the relevant settings for each type of 
+* A [workflow](concepts/workflow.md) holds the relevant settings for each type of 
 simulation.
 * A [Plugin](plugins) is for a specific simulation environment/tool.
 * IFC is the IFC file that you want to use as a source.
@@ -72,15 +72,16 @@ task is for example the loading process of the IFC into the tool.
 **User:**
 To overcome the already mentioned challenges regarding the mixed quality of 
 IFC-files the process might need feedback and additional information from the 
-user. This feedback is given through [Decisions](decisions).
+user. This feedback is given through [Decisions](concepts/decisions.md).
 
 You find detailed information about each of the concepts in the corresponding 
 documentation.
 
-## Building Performance Simulation (BPS)
+## Simulation Types
+### Building Performance Simulation (BPS)
 ...
 
-## Heating Ventilation and Air Conditioning (HVAC) Simulation
+### Heating Ventilation and Air Conditioning (HVAC) Simulation
 HVAC simulations are used to simulate the behaviour of different system 
 components in the energy system. For now `bim2sim` focuses on the heating and 
 cooling generation, while ventilation and air conditioning is planned for the 
@@ -93,7 +94,7 @@ include:
 * consumers
 * control logic 
 
-### Hydraulic Network 
+#### Hydraulic Network 
 (hydraulic_network)=
 Since it is not convenient to model every pipe, pipe fitting and all components 
 of the hydraulic network, one part of the creation of simulation models for 
@@ -101,33 +102,33 @@ heating and cooling analysis is the abstraction of the hydraulic network.
 The abstraction can be quite time-consuming and error-prone, so one of the 
 strengths of `bim2sim` is offering automated tasks for analysis and aggregation 
 of the network. To do so we convert the imported meta structure 
-[elements](elements) and their connections into a [HvacGraph](HvacGraph) using 
-[networkx](https://networkx.org/) python package. 
+[elements](concepts/elements.md) and their connections into a [HvacGraph](HvacGraph) using 
+[networkx](https://networkx.org/) python package.  
 The possible aggregations start with quite simply aggregations like 
 [PipeStrand](PipeStrand) to aggregate multiple straight connected pipes, but
 also include more complex aggregations like [Underfloorheating](Underfloorheating)
 which tries to identify underfloor-heating or concrete core activation as there is
 no possibility in IFC to represent these directly. You can find an overview to
-all aggregations in it the [corresponding documentation](aggregations).
+all aggregations in it the [corresponding documentation](concepts/aggregations.md). 
 Generation devices and consumers are also simplified in aggregations which
 brings us to the next group.
 
 
-### Generation Devices & Consumers
+#### Generation Devices & Consumers
 Generation devices are e.g. boilers or chillers and consumers might be radiators 
 or the already mentioned underfloor-heating. 
 
 
 
 
-### Control Logic
+#### Control Logic
 Even if IFC offers the possibility to include controls, it is not very practical
 and rarely used. But for a running simulation the control logic is 
 indispensable. So we came up with a mix of two solutions:
 
 1. For elements where common standard control logics exist we include these 
-logics as default into the mapped Modelica models. We try to gather the 
-relevant parameters for the control from the IFC via the [attribute](attribute) 
+logics as default into the mapped Modelica models.  
+We try to gather the relevant parameters for the control from the IFC via the [attribute](concepts/attribute.md) 
 system. One example would be the flow set temperature of a boiler. If there is
 no information in IFC we can either request them during export or mark them as
 non-existing in the exported model, so the user can input them in Modelica.
