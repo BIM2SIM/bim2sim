@@ -16,10 +16,11 @@ Welcome to bim2sim's documentation!
    workflow
    plugins
    tasks
-   aggregations
-   decisions
+   elements
    attribute
    finder
+   decisions
+   aggregations
    logging
    docker-structure
    code/modules

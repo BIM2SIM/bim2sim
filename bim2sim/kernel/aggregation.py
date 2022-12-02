@@ -151,14 +151,18 @@ class AggregationMixin:
 
 
 class HVACAggregationMixin(AggregationMixin):
-    """
+    """Mixin class for all HVACAggregations.
+
+    Adds some HVAC specific functionality to the AggregationMixin.
 
     Args:
-        element_graph:
-        outer_connections:
+        element_graph: networkx graph of elements
+        outer_connections: list of ports that are the most outer connections
+            of an aggregation.
     """
 
-    def __init__(self, element_graph, *args, outer_connections=None, **kwargs):
+    def __init__(self, element_graph: nx.Graph,
+                 *args, outer_connections=None, **kwargs):
         # TODO: handle outer_connections from meta,
         self.outer_connections = outer_connections  # WORKAROUND
         # make get_ports signature match ProductBased.get_ports
@@ -279,7 +283,14 @@ class HVACAggregationMixin(AggregationMixin):
 
 
 class PipeStrand(HVACAggregationMixin, hvac.Pipe):
-    """Aggregates pipe strands"""
+    """Aggregates pipe strands
+
+    This aggregation reduces the number of elements by merging straight
+    connected elements with just two ports into one PipeStrand. The length and
+    a medium diameter are calculated based on the aggregated elements to
+    maintain meaningful parameters for pressure loss calculations.
+
+    """
     aggregatable_elements = {hvac.Pipe, hvac.PipeFitting, hvac.Valve}
     multi = ('length', 'diameter')
 
@@ -655,7 +666,7 @@ class UnderfloorHeating(PipeStrand):
 
 
 class ParallelPump(HVACAggregationMixin, hvac.Pump):
-    """Aggregates pumps in parallel"""
+    """Aggregates pumps in parallel."""
     aggregatable_elements = {
         hvac.Pump, hvac.Pipe, hvac.PipeFitting, PipeStrand}
     multi = ('rated_power', 'rated_height', 'rated_volume_flow', 'diameter',

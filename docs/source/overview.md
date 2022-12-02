@@ -84,7 +84,7 @@ documentation.
 HVAC simulations are used to simulate the behaviour of different system 
 components in the energy system. For now `bim2sim` focuses on the heating and 
 cooling generation, while ventilation and air conditioning is planned for the 
-future. 
+future (see issue 245 # TODO github deploy). 
 
 The corresponding simulation models for heating and cooling analysis typically 
 include:
@@ -94,19 +94,23 @@ include:
 * control logic 
 
 ### Hydraulic Network 
-Since it is not expedient to model every pipe, pipe fitting and all components 
+(hydraulic_network)=
+Since it is not convenient to model every pipe, pipe fitting and all components 
 of the hydraulic network, one part of the creation of simulation models for 
 heating and cooling analysis is the abstraction of the hydraulic network.
-
 The abstraction can be quite time-consuming and error-prone, so one of the 
-strengths of `bim2sim` is offering automated tasks for aggregation. This starts
-with quite simply aggregations like [PipeStrand](PipeStrand) to aggregate 
-multiple straight connected pipes, but also includes more complex aggregations 
-like [Underfloorheating](Underfloorheating) which tries to identify 
-underfloor-heating or concrete core activation as there is no possibility in IFC
-to represent these directly. You can find an overview to all aggregations in it
-the [corresponding documentation](aggregations). Generation devices and 
-consumers are also simplified in aggregations which brings us to the next group.
+strengths of `bim2sim` is offering automated tasks for analysis and aggregation 
+of the network. To do so we convert the imported meta structure 
+[elements](elements) and their connections into a [HvacGraph](HvacGraph) using 
+[networkx](https://networkx.org/) python package. 
+The possible aggregations start with quite simply aggregations like 
+[PipeStrand](PipeStrand) to aggregate multiple straight connected pipes, but
+also include more complex aggregations like [Underfloorheating](Underfloorheating)
+which tries to identify underfloor-heating or concrete core activation as there is
+no possibility in IFC to represent these directly. You can find an overview to
+all aggregations in it the [corresponding documentation](aggregations).
+Generation devices and consumers are also simplified in aggregations which
+brings us to the next group.
 
 
 ### Generation Devices & Consumers
@@ -117,3 +121,16 @@ or the already mentioned underfloor-heating.
 
 
 ### Control Logic
+Even if IFC offers the possibility to include controls, it is not very practical
+and rarely used. But for a running simulation the control logic is 
+indispensable. So we came up with a mix of two solutions:
+
+1. For elements where common standard control logics exist we include these 
+logics as default into the mapped Modelica models. We try to gather the 
+relevant parameters for the control from the IFC via the [attribute](attribute) 
+system. One example would be the flow set temperature of a boiler. If there is
+no information in IFC we can either request them during export or mark them as
+non-existing in the exported model, so the user can input them in Modelica.
+2. For custom controls and complex controls which highly depend on the system
+and the usage we offer the possibility to deactivate the internal controls inside
+the modelica models and allow the user to model their own controls.
