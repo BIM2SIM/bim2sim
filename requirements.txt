@@ -5,5 +5,7 @@ matplotlib
 networkx>=2.2
 python-dateutil
 mako
-pint
 deep_translator
+pint
+
+
