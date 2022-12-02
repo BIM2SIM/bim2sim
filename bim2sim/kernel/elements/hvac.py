@@ -15,6 +15,7 @@ from bim2sim.kernel.element import Port, ProductBased
 from bim2sim.kernel.ifc2python import get_predefined_type
 from bim2sim.kernel.units import ureg
 from bim2sim.decorators import cached_property
+from bim2sim.kernel.ifc2python import get_ports as ifc2py_get_ports
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -209,40 +210,28 @@ class HVACProduct(ProductBased):
                                   f"for the class {self.__class__.__name__} ")
 
     def get_ports(self) -> list:
-        """
-        Returns a list of ports of this product.
-        """
-        ports = []
-        try:
-            for nested in self.ifc.IsNestedBy:
-                # valid for IFC for Revit v19.2.0.0
-                for port_connection in nested.RelatedObjects:
-                    port_valid = True
-                    if port_connection.is_a() != 'IfcDistributionPort':
-                        port_valid = False
-                    else:
-                        predefined_type = get_predefined_type(port_connection)
-                        if predefined_type in [
-                            'CABLE', 'CABLECARRIER', 'WIRELESS']:
-                            port_valid = False
-                    if port_valid:
-                        ports.append(HVACPort.from_ifc(
-                            ifc=port_connection, parent=self))
-                    else:
-                        logger.warning(
-                            "Not included %s as Port in %s with GUID %s",
-                            port_connection.is_a(),
-                            self.__class__.__name__,
-                            self.guid)
-        except AttributeError as ae:
-            logger.warning("Failed to create Port")
-            pass
-        # valid for IFC for Revit v19.1.0.0
-        element_port_connections = getattr(self.ifc, 'HasPorts', [])
-        for port_connection in element_port_connections:
-            ports.append(HVACPort.from_ifc(
-                ifc=port_connection.RelatingPort, parent=self))
-        return ports
+        """Returns a list of ports of this product."""
+        ports = ifc2py_get_ports(self.ifc)
+        hvac_ports = []
+        for port in ports:
+            port_valid = True
+            if port.is_a() != 'IfcDistributionPort':
+                port_valid = False
+            else:
+                predefined_type = get_predefined_type(port)
+                if predefined_type in [
+                    'CABLE', 'CABLECARRIER', 'WIRELESS']:
+                    port_valid = False
+            if port_valid:
+                hvac_ports.append(HVACPort.from_ifc(
+                    ifc=port, parent=self))
+            else:
+                logger.warning(
+                    "Not included %s as Port in %s with GUID %s",
+                    port.is_a(),
+                    self.__class__.__name__,
+                    self.guid)
+        return hvac_ports
 
     def get_inner_connections(self) -> List[Tuple[HVACPort, HVACPort]]:
         """Returns inner connections of Element.

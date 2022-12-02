@@ -5,7 +5,7 @@ import os
 import logging
 import math
 
-from typing import Optional, Union, TYPE_CHECKING
+from typing import Optional, Union, TYPE_CHECKING, List, Any
 from ifcopenshell import entity_instance, file, open as ifc_open
 from collections.abc import Iterable
 
@@ -456,6 +456,59 @@ def get_true_north(ifcElement: entity_instance):
         true_north = [0, 1]
     angle_true_north = math.degrees(math.atan(true_north[0] / true_north[1]))
     return angle_true_north
+
+
+def get_ports(element: entity_instance) -> list[Any]:
+    """Get all ports for new and old IFC definition of ports.
+
+    Args:
+        element: ifcopenshell element to check for ports
+    Returns:
+        ports: list of all ports connected to the element
+    """
+    ports = []
+    # new IfcStandard with IfcRelNests
+    ports_nested = list(getattr(element, 'IsNestedBy', []))
+    # old IFC standard with IfcRelConnectsPortToElement
+    ports_connects = list(getattr(element, 'HasPorts', []))
+
+    for nested in ports_nested:
+        for port_connection in nested.RelatedObjects:
+            ports.append(port_connection)
+
+    for connected in ports_connects:
+        ports.append(connected.RelatingPort)
+
+    return ports
+
+
+def get_ports_connections(element_port: entity_instance) -> list[Any]:
+    """Get all connected ports to a given port.
+
+    Args:
+        element_port: ifcopenshell port element to check for connections
+    Returns:
+        connected_ports: list of all ports connected to given element_port
+    """
+    connected_ports = \
+        [conn.RelatingPort for conn in element_port.ConnectedFrom] + \
+        [conn.RelatedPort for conn in element_port.ConnectedTo]
+    return connected_ports
+
+
+def get_ports_parent(element: entity_instance) -> list[Any]:
+    """Get the parent of given port for new and old Ifc definitions of ports.
+
+    Args:
+        element: ifcopenshell port element which parents are searched
+    Returns:
+        parents: list of ifcopenshell elements that are parent of the port
+    """
+    parents = []
+    parent_nested = list(getattr(element, 'Nests', []))
+    for nest in parent_nested:
+        parents.append(nest.RelatingObject)
+    return parents
 
 
 def convertToSI(ifcUnit, value):

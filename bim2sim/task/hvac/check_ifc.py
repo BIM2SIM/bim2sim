@@ -1,6 +1,7 @@
 from bim2sim.kernel.elements import hvac
 from bim2sim.task.common.common import CheckIfc
 from ifcopenshell.entity_instance import entity_instance
+from bim2sim.kernel.ifc2python import get_ports
 
 
 class CheckIfcHVAC(CheckIfc):
@@ -151,8 +152,9 @@ class CheckIfcHVAC(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        if hasattr(inst, 'HasPorts'):
-            return len(inst.HasPorts) > 0
+        ports = get_ports(inst)
+        if ports:
+            return True
         else:
             return False
 
