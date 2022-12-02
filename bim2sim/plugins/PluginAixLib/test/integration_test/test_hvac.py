@@ -48,9 +48,7 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
             'Consumer',
             'PipeStrand',
             'ParallelPump',
-            # 'ParallelSpaceHeater',
             'ConsumerHeatingDistributorModule',
-            # 'GeneratorOneFluid'
         ]
         answers = ('HVAC-Distributor', *('HVAC-ThreeWayValve',) * 2,
                    *('HVAC-Valve',) * 14, *(None,) * 2,
@@ -63,7 +61,35 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
+        graph = project.playground.state['graph']
+        aggregated = Counter((type(item) for item in graph.element_graph.nodes))
+        self.assertIn(ConsumerHeatingDistributorModule, aggregated)
+        self.assertEqual(0, handler.return_value,
+                         "Project did not finish successfully.")
 
+    def test_run_b03_heating_all_aggregations(self):
+        """Run project with 2022_11_21_B03_Heating_ownCells"""
+        ifc = '2022_11_21_B03_Heating_ownCells.ifc'
+        project = self.create_project(ifc, 'aixlib')
+        project.workflow.aggregations = [
+            'UnderfloorHeating',
+            'Consumer',
+            'PipeStrand',
+            'ParallelPump',
+            'ConsumerHeatingDistributorModule',
+            'GeneratorOneFluid'
+        ]
+        answers = ('HVAC-Distributor', *('HVAC-ThreeWayValve',) * 2,
+                   *('HVAC-Valve',) * 14, *(None,) * 2,
+                   *(True,) * 4,
+                   # boiler efficiency, flow temp, power, return temp
+                   0.95, 70, 200, 50,
+                   # rated current, rated height, rated_voltage,
+                   # body mass and heat capacity for all space heaters
+                   *(1, 500,) * 7)
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
         graph = project.playground.state['graph']
         aggregated = Counter((type(item) for item in graph.element_graph.nodes))
         self.assertIn(ConsumerHeatingDistributorModule, aggregated)
