@@ -11,6 +11,7 @@ from bim2sim.utilities.test import RegressionTestBase
 
 logger = logging.getLogger(__name__)
 
+
 class RegressionTestTEASER(RegressionTestBase):
     def setUp(self):
         self.results_src_dir = None

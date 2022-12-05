@@ -58,3 +58,6 @@ class RegressionTestBase(IntegrationBase):
 
     def run_regression_test(self):
         raise NotImplementedError
+    
+    def model_domain_path(self) -> str:
+        return 'BPS'

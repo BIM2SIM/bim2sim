@@ -8,6 +8,11 @@ from bim2sim.kernel.aggregation import ConsumerHeatingDistributorModule
 from bim2sim.utilities.test import IntegrationBase
 
 
+class IntegrationBaseAixLib(IntegrationBase):
+    def model_domain_path(self) -> str:
+        return 'HVAC'
+
+
 class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
 
     def test_run_vereinshaus1(self):
