@@ -474,7 +474,7 @@ class EnergyPlusWorkflow(BuildingSimulation):
         for_frontend=True
     )
     run_for_sizing_periods = WorkflowSetting(
-        default=True,
+        default=False,
         choices={
             True: 'Run simulation for system sizing periods',
             False : 'Do not run simulation for system sizing periods'
