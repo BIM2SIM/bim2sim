@@ -18,9 +18,7 @@ from bim2sim.workflow import LOD
 
 
 # raise unittest.SkipTest("Integration tests not reliable for automated use")
-
-EXAMPLE_PATH = Path(os.path.abspath(os.path.dirname(__file__))).parent.parent.parent.parent.parent / 'ExampleFiles'
-RESULT_PATH = Path(os.path.abspath(os.path.dirname(__file__))).parent.parent.parent.parent.parent / 'ResultFiles'
+sample_root = Path(__file__).parent.parent.parent / 'test/TestModels/BPS'
 DEBUG_ENERGYPLUS = False
 
 
@@ -55,18 +53,6 @@ class IntegrationBaseEP(IntegrationBase):
         os.chdir(self.working_dir)
         sys.stderr = self.old_stderr
         super().tearDown()
-
-    def create_project(self, ifc_path: str, plugin: str, workflow: workflow.Workflow = None):
-        """create project in temporary directory which is cleaned automatically after test.
-
-        :param plugin: Project plugin e.g. 'hkesim', 'aixlib', ...
-        :param ifc: name of ifc file located in dir TestModels"""
-
-        # path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-        # ifc_path = os.path.normpath(os.path.join(path_base, rel_ifc_path))
-        self.project = Project.create(tempfile.TemporaryDirectory(prefix='bim2sim_').name, ifc_path=ifc_path,
-                                      plugin=plugin, workflow=workflow)
-        return self.project
 
     def regression_test(self, workflow):
         """Run regression test comparison for EnergyPlus.
@@ -131,6 +117,9 @@ class IntegrationBaseEP(IntegrationBase):
 
             return passed_regression_test
 
+    def model_path(self) -> Path:
+        return Path(__file__).parent.parent.parent / 'test/TestModels/BPS'
+
 
 class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     """
@@ -140,7 +129,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("")
     def test_base_01_FZK_design_day(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
-        ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
+        ifc = 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
@@ -163,7 +152,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("")
     def test_base_02_FZK_full_run(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
-        ifc = EXAMPLE_PATH / 'AC20-FZK-Haus.ifc'
+        ifc = 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
@@ -176,8 +165,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     # @unittest.skip("")
     def test_base_03_FZK_SB_design_day(self):
         """Test IFC File from FZK-Haus (KIT) with generated Space Boundaries"""
-        # ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB44.ifc'
-        ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
+        # ifc = 'AC20-FZK-Haus_with_SB44.ifc'
+        ifc = 'AC20-FZK-Haus_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
@@ -189,8 +178,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("")
     def test_base_04_FZK_SB_full_run(self):
         """Test IFC File from FZK-Haus (KIT) with generated Space Boundaries"""
-        # ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB44.ifc'
-        ifc = RESULT_PATH / 'AC20-FZK-Haus_with_SB55.ifc'
+        # ifc = 'AC20-FZK-Haus_with_SB44.ifc'
+        ifc = 'AC20-FZK-Haus_with_SB55.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
@@ -203,7 +192,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     # @unittest.skip("")
     def test_base_05_KIT_Inst_design_day(self):
         """Test Original IFC File from Institute (KIT)"""
-        ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
+        ifc = 'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
@@ -217,7 +206,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("")
     def test_base_06_KIT_Inst_full_run(self):
         """Test Original IFC File from Institute (KIT)"""
-        ifc = EXAMPLE_PATH / 'AC20-Institute-Var-2.ifc'
+        ifc = 'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
@@ -230,7 +219,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     # @unittest.skip("Skipped due to performance for CI")
     def test_base_07_KIT_Inst_SB_design_day(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
-        ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
+        ifc = 'AC20-Institute-Var-2_with_SB-1-0.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
@@ -242,7 +231,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Skipped due to performance for CI")
     def test_base_08_KIT_Inst_SB_full_run(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
-        ifc = RESULT_PATH / 'AC20-Institute-Var-2_with_SB-1-0.ifc'
+        ifc = 'AC20-Institute-Var-2_with_SB-1-0.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
@@ -255,7 +244,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("")
     def test_DigitalHub_SB89_regression(self):
         """Test DigitalHub IFC, includes regression test"""
-        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB89.ifc'
+        ifc = 'FM_ARC_DigitalHub_with_SB89.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
@@ -287,7 +276,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Skipped due to performance for CI")
     def test_base_09_DH_design_day(self):
         """Test DigitalHub IFC"""
-        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_fixed002.ifc'
+        ifc = 'FM_ARC_DigitalHub_fixed002.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
@@ -312,7 +301,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     # @unittest.skip("Skipped due to performance for CI")
     def test_base_13_EDC_SB_design_day(self):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
-        ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
+        ifc = 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.create_external_elements = True
         project.workflow.zoning_setup = LOD.full
@@ -328,7 +317,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Skipped due to performance for CI")
     def test_base_14_EDC_SB_full_run(self):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
-        ifc = RESULT_PATH / 'KIT-EDC_with_SB.ifc'
+        ifc = 'KIT-EDC_with_SB.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.create_external_elements = True
         project.workflow.zoning_setup = LOD.full
@@ -344,7 +333,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Not fully implemented yet")
     def test_base_17_ERC_design_day(self):
         """Test ERC Main Building"""
-        ifc = EXAMPLE_PATH / '26.05space_modified.ifc'
+        ifc = '26.05space_modified.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.create_external_elements = True
         project.workflow.zoning_setup = LOD.full
@@ -361,8 +350,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Not fully implemented yet")
     def test_base_19_linear_SB_design_day(self):
         """Test Linear Building with generated Space Boundaries"""
-        # ifc = RESULT_PATH / 'Office_Building_Architectural_IFC_export_with_SB.ifc'
-        ifc = RESULT_PATH / 'Linear_V01.ifc'
+        # ifc = 'Office_Building_Architectural_IFC_export_with_SB.ifc'
+        ifc = 'Linear_V01.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.create_external_elements = True
         project.workflow.zoning_setup = LOD.full
@@ -379,7 +368,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Not fully implemented yet")
     def test_base_20_olabarri_design_day(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
-        ifc = EXAMPLE_PATH / 'Olabarri_49.ifc'
+        ifc = 'Olabarri_49.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.create_external_elements = True
         project.workflow.zoning_setup = LOD.full
@@ -395,7 +384,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip('')
     def test_base_21_graz_einschichtig_full(self):
         """Test Testobjekt_einschichtig.ifc from Graz"""
-        ifc = EXAMPLE_PATH / 'Testobjekt_einschichtig.ifc'
+        ifc = 'Testobjekt_einschichtig.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.create_external_elements = True
         project.workflow.zoning_setup = LOD.full
@@ -411,7 +400,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip('')
     def test_base_22_graz_mehrschichtig_full(self):
         """Test Testobjekt_mehrschichtig.ifc from Graz"""
-        ifc = EXAMPLE_PATH / 'Testobjekt_mehrschichtig.ifc'
+        ifc = 'Testobjekt_mehrschichtig.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.create_external_elements = True
         project.workflow.zoning_setup = LOD.full

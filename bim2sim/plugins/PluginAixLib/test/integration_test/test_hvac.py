@@ -1,5 +1,6 @@
 import unittest
 from collections import Counter
+from pathlib import Path
 
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.decision.console import ConsoleDecisionHandler
@@ -12,6 +13,9 @@ class IntegrationBaseAixLib(IntegrationBase):
     def tearDown(self):
         Instance.lookup = {}
         super().tearDown()
+
+    def model_path(self) -> Path:
+        return Path(__file__).parent.parent.parent / 'test/TestModels/HVAC'
 
 
 class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):

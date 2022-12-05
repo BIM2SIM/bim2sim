@@ -2,6 +2,8 @@ import unittest
 import os
 import warnings
 
+from pathlib import Path
+
 from bim2sim import workflow
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
@@ -10,6 +12,9 @@ from bim2sim.utilities.test import IntegrationBase
 class IntegrationBaseCFD(IntegrationBase):
     def tearDown(self):
         super().tearDown()
+
+    def model_path(self) -> Path:
+        return Path(__file__).parent.parent.parent / 'test/TestModels/BPS'
 
 
 class TestIntegrationCFD(IntegrationBaseCFD, unittest.TestCase):

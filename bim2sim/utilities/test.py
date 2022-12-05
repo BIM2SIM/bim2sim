@@ -3,8 +3,6 @@ from pathlib import Path
 from bim2sim.project import Project
 from bim2sim.workflow import Workflow
 
-sample_root = Path(__file__).parent.parent.parent / 'test/TestModels'
-
 
 class IntegrationBase:
     """Base class mixin for Integration tests"""
@@ -33,10 +31,12 @@ class IntegrationBase:
         """
         self.project = Project.create(
             tempfile.TemporaryDirectory(prefix='bim2sim_').name,
-            ifc_path=sample_root / ifc,
+            ifc_path=self.model_path / ifc,
             plugin=plugin, workflow=workflow)
         return self.project
 
+    def model_path(self) -> Path:
+        return Path(__file__).parent.parent.parent / 'test/TestModels'
 
 class RegressionTestBase(IntegrationBase):
     """Base class for regression tests."""

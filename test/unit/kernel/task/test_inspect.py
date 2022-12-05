@@ -90,7 +90,7 @@ class TestInspect(unittest.TestCase):
     def test_case_3(self):
         """No connections but ports are less than 10 mm apart"""
         with patch.object(FolderStructure, 'ifc',
-                          sample_root / 'B01_4_HeatExchanger_noConnection.ifc'):
+                          sample_root / '/HVAC/B01_4_HeatExchanger_noConnection.ifc'):
             handler = DebugDecisionHandler([HeatExchanger.key])
             handler.handle(self.project.run(cleanup=False))
 
