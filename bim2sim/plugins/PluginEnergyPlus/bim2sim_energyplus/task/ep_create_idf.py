@@ -354,7 +354,8 @@ class CreateIdf(ITask):
         else:
             ufactor = 1 / (0.04 + rel_elem.layerset.layers[0].thickness.to(
                 ureg.metre).m /
-                           rel_elem.layerset.layers[0].thermal_conduc.to(
+                           rel_elem.layerset.layers[
+                               0].material.thermal_conduc.to(
                                ureg.W / (ureg.m * ureg.K)).m +
                            0.13)
         if rel_elem.g_value >= 1:
