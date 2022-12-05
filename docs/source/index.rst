@@ -15,6 +15,7 @@ Welcome to bim2sim's documentation!
    project
    plugins
    concepts
+   testing
    docker-structure
    code/modules
 
