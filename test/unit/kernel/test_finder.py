@@ -13,7 +13,7 @@ from bim2sim.kernel.finder import TemplateFinder
 
 IFC_PATH = os.path.abspath(os.path.join(
     os.path.dirname(bim2sim.__file__), '..',
-    r'test/TestModels/HVAC/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc'))
+    r'test/TestModels/HVAC/KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'))
 
 
 class TestTemplateFinder(unittest.TestCase):

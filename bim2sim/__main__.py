@@ -61,7 +61,7 @@ def debug_params():
 
     print("No parameters passed. Using debug parameters.")
     path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
-    rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc'
+    rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'
     path_ifc = os.path.normcase(os.path.join(path_base, rel_example))
 
     #sys.argv.append('project')

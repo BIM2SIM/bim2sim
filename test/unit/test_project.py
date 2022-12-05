@@ -38,7 +38,7 @@ class TestProject(BaseTestProject):
         project = Project.create(
             self.path,
             sample_root /
-            'KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc',
+            'KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc',
             PluginDummy
         )
 
@@ -56,7 +56,7 @@ class TestProject(BaseTestProject):
         project = Project.create(
             self.path,
             sample_root /
-            'KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc',
+            'KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc',
             PluginDummy
         )
         self.assertTrue(os.path.exists(project.paths.ifc))
@@ -67,7 +67,7 @@ class TestProject(BaseTestProject):
         project2 = Project.create(
             self.path,
             sample_root /
-            'KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc',
+            'KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc',
             PluginDummy
         )
         self.assertTrue(os.path.exists(project2.paths.ifc))
