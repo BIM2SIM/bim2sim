@@ -1,4 +1,10 @@
 ## Python
+# Test files
+# Regression Results
+/bim2sim/assets/regression_results/*
+/test/TestModels/*
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
