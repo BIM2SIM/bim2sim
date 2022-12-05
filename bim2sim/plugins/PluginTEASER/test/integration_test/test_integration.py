@@ -10,8 +10,8 @@ from bim2sim.workflow import LOD
 
 
 class IntegrationBaseTEASER(IntegrationBase):
-    def model_path(self) -> Path:
-        return Path(__file__).parent.parent.parent / 'test/TestModels/BPS'
+    def model_domain_path(self) -> str:
+        return 'BPS'
 
 
 class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):

@@ -6,8 +6,8 @@ from bim2sim.utilities.test import IntegrationBase
 
 
 class IntegrationBaseLCA(IntegrationBase):
-    def model_path(self) -> Path:
-        return Path(__file__).parent.parent.parent / 'test/TestModels/BPS'
+    def model_domain_path(self) -> str:
+        return 'BPS'
 
 
 class TestIntegrationLCA(IntegrationBaseLCA, unittest.TestCase):

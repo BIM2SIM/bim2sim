@@ -1,5 +1,7 @@
 import tempfile
 from pathlib import Path
+from typing import Union
+
 from bim2sim.project import Project
 from bim2sim.workflow import Workflow
 
@@ -31,12 +33,17 @@ class IntegrationBase:
         """
         self.project = Project.create(
             tempfile.TemporaryDirectory(prefix='bim2sim_').name,
-            ifc_path=self.model_path() / ifc,
+            ifc_path=self.model_path_base() / self.model_domain_path() / ifc,
             plugin=plugin, workflow=workflow)
         return self.project
 
-    def model_path(self) -> Path:
+    @staticmethod
+    def model_path_base() -> Path:
         return Path(__file__).parent.parent.parent / 'test/TestModels'
+
+    def model_domain_path(self) -> Union[str, None]:
+        return None
+
 
 class RegressionTestBase(IntegrationBase):
     """Base class for regression tests."""

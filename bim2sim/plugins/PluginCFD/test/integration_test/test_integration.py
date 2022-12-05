@@ -13,8 +13,8 @@ class IntegrationBaseCFD(IntegrationBase):
     def tearDown(self):
         super().tearDown()
 
-    def model_path(self) -> Path:
-        return Path(__file__).parent.parent.parent / 'test/TestModels/BPS'
+    def model_domain_path(self) -> str:
+        return 'BPS'
 
 
 class TestIntegrationCFD(IntegrationBaseCFD, unittest.TestCase):

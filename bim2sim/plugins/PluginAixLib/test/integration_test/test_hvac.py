@@ -14,8 +14,8 @@ class IntegrationBaseAixLib(IntegrationBase):
         Instance.lookup = {}
         super().tearDown()
 
-    def model_path(self) -> Path:
-        return Path(__file__).parent.parent.parent / 'test/TestModels/HVAC'
+    def model_domain_path(self) -> str:
+        return 'HVAC'
 
 
 class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):

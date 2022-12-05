@@ -117,8 +117,8 @@ class IntegrationBaseEP(IntegrationBase):
 
             return passed_regression_test
 
-    def model_path(self) -> Path:
-        return Path(__file__).parent.parent.parent / 'test/TestModels/BPS'
+    def model_domain_path(self) -> str:
+        return 'BPS'
 
 
 class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
