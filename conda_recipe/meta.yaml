@@ -1,4 +1,4 @@
-{% set version = "0.2.3" %}
+{% set version = "0.1.1" %}
 
 package:
   name: "bim2sim"
@@ -23,12 +23,24 @@ requirements:
     - setuptools
   RUN:
     - python
+    - docopt
+    - numpy
+    - pandas
+    - matplotlib
+    - networkx>=2.2
+    - python-dateutil
+    - mako
+    - deep_translator
+    - pint
 
 test:
   imports:
     - bim2sim
     - bim2sim.plugins.PluginAixLib
     - bim2sim.plugins.PluginTEASER
+    - bim2sim.plugins.PluginCFD
+    - bim2sim.plugins.PluginEnergyPlus
+    - bim2sim.plugins.PluginLCA
   requires:
     - python
     - pythonocc-core==7.6.2

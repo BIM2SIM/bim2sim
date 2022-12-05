@@ -25,13 +25,14 @@ where to find bim2sim and plugin folders.
 ````
 1) conda create -n bim2sim python=3.9
 2) conda activate bim2sim
-3) conda install bim2sim
+3) conda install -c bim2sim bim2sim
 ````
-###Plugins
-In anaconda environment.
+### Plugins
 ````
 pip install -r bim2sim\plugins\PluginTEASER\requirements.txt
 ````
+In anaconda environment.
+
 
 
 ## Quick start

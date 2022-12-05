@@ -1,0 +1,74 @@
+image: conda/miniconda3
+
+stages:
+  - build
+  - test
+  - release
+
+build_bim2sim:
+  stage: build
+  tags:
+    - linux
+
+  script:
+    - apt update
+    - apt install libgl1 -y
+    - conda install conda-build git conda-verify
+    - mkdir conda-bld
+    - conda build conda_recipe/meta.yaml -c conda-forge --output-folder conda-bld/
+
+  retry:
+    max: 2
+    when: runner_system_failure
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - conda-bld
+    only:
+      - develop
+      - master
+
+
+
+
+coverage:
+  stage: test
+  tags:
+    - linux
+  script:
+  - apt update
+  - apt install libgl1 -y
+  - conda env create -f conda/env.yaml
+  - source activate bvpy
+  - conda install conda-bld/linux-64/bvpy-*py37*
+  - pytest --cov=bvpy -v -x
+  retry:
+    max: 2
+    when: runner_system_failure
+  dependencies:
+    - conda_build
+  only:
+    - develop
+    - master
+
+
+release_bim2sim:
+  stage: release
+  tags:
+    - linux
+
+  script:
+    - conda update --all
+    - conda install conda-build anaconda-client
+    - conda convert -p osx-64 conda-bld/linux-64/bvpy-* --output-dir conda-bld/
+    - conda convert -p osx-arm64 conda-bld/linux-64/bvpy-* --output-dir conda-bld/
+    - anaconda --token=$ANACONDA_TOKEN upload conda-bld/linux-64/bvpy-* --force --user mosaic
+    - anaconda --token=$ANACONDA_TOKEN upload conda-bld/osx-64/bvpy-* --force --user mosaic
+    - anaconda --token=$ANACONDA_TOKEN upload conda-bld/osx-arm64/bvpy-* --force --user mosaic
+  retry:
+    max: 2
+    when: runner_system_failure
+  dependencies:
+    - conda_build
+  only:
+    - master
