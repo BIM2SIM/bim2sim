@@ -16,8 +16,6 @@ from bim2sim.utilities.test import RegressionTestBase
 
 logger = logging.getLogger(__name__)
 
-RESULT_PATH = Path(os.path.abspath(os.path.dirname(__file__))).parent.parent.parent.parent.parent / 'ResultFiles'
-
 
 class RegressionTestEnergyPlus(RegressionTestBase):
     """Class to set up and run EnergyPlus regression tests."""
@@ -169,7 +167,7 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
 
     def test_DigitalHub_SB89_regression(self):
         """Test DigitalHub IFC, includes regression test."""
-        ifc = RESULT_PATH / 'FM_ARC_DigitalHub_with_SB89.ifc'
+        ifc = 'FM_ARC_DigitalHub_with_SB89.ifc'
         project = self.create_project(ifc, 'energyplus')
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
