@@ -1,5 +1,6 @@
 import unittest
 from collections import Counter
+from pathlib import Path
 
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.decision.console import ConsoleDecisionHandler
@@ -12,6 +13,9 @@ class IntegrationBaseAixLib(IntegrationBase):
     def tearDown(self):
         Instance.lookup = {}
         super().tearDown()
+
+    def model_domain_path(self) -> str:
+        return 'HVAC'
 
 
 class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
@@ -41,7 +45,7 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
 
     def test_run_b03_heating(self):
         """Run project with 2022_11_21_B03_Heating_ownCells"""
-        ifc = '2022_11_21_B03_Heating_ownCells.ifc'
+        ifc = '2022_11_21_update_B03_Heating_ownCells.ifc'
         project = self.create_project(ifc, 'aixlib')
         project.workflow.aggregations = [
             'UnderfloorHeating',

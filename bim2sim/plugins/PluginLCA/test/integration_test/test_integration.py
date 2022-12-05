@@ -1,9 +1,16 @@
 import unittest
+from pathlib import Path
+
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 
 
-class TestIntegrationLCA(IntegrationBase, unittest.TestCase):
+class IntegrationBaseLCA(IntegrationBase):
+    def model_domain_path(self) -> str:
+        return 'BPS'
+
+
+class TestIntegrationLCA(IntegrationBaseLCA, unittest.TestCase):
     def test_run_kitinstitute_lca(self):
         """Run project with AC20-Institute-Var-2..ifc"""
         ifc = 'AC20-Institute-Var-2.ifc'

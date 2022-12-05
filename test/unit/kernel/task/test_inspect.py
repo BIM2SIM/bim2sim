@@ -34,7 +34,7 @@ class PluginDummy(Plugin):
     #     playground.run_task(hvac.ConnectElements())
 
 
-sample_root = Path(__file__).parent.parent.parent.parent / 'TestModels'
+sample_root = Path(__file__).parent.parent.parent.parent / 'TestModels' / 'HVAC'
 
 
 class TestInspect(unittest.TestCase):

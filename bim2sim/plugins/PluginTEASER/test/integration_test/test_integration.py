@@ -1,5 +1,7 @@
 import unittest
 
+from pathlib import Path
+
 from bim2sim import workflow
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
@@ -8,8 +10,8 @@ from bim2sim.workflow import LOD
 
 
 class IntegrationBaseTEASER(IntegrationBase):
-    def tearDown(self):
-        super().tearDown()
+    def model_domain_path(self) -> str:
+        return 'BPS'
 
 
 class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
