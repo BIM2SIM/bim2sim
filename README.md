@@ -1,11 +1,12 @@
 # BIM2SIM
+![header](docs/source/img/static/b2s_header.png)
 bim2sim is a library to create simulation models for different purposes based on BIM models in the .ifc format. The project is based on a base code that provides the possiblity to map the .ifc data into a uniform meta strucuture. This structure can then be used to create simulation models for different purposes which is done by plugins. Currently the four domains 
 * Building Performance Simulation (BPS)
 * Heating, Ventilation, Air Conditioning (HVAC)
 * Computational Fluid Dynamics (CFD)
 * Life Cycle Assessment (LCA) 
 are included. The basic structure is shown below: 
-![Toolchain](docs/img/bim2sim_project_workflow_eng.png)
+![Toolchain](docs/source/img/static/bim2sim_project_workflow_eng.png)
 
 ## Install
 
@@ -70,3 +71,11 @@ for decisions in project.run():
         print(decision.question)
         decision.value = get_answer()
 ````
+
+
+### Upcoming Features:
+* [ ] interactive visualization of hydraulic networks for HVAC part 
+* [ ] implementation of curtain walls for BPS part
+* [ ] support of AHU and ventilation simulations with Modelica
+* [ ] automated integration of weather files based of location of building
+

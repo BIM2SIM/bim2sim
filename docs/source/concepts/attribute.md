@@ -15,7 +15,7 @@ will be not included in the BIM model at all the `Attribute` system provides a s
 
 ## Concept / How does it work?
 Simulation required informations that are potentially available in the BIM model
-are stored in an [Attribute](Attribute) at the corresponding [element](element).
+are stored in an [Attribute](attribute.md) at the corresponding [element](element).
 
 E.g. the already mentioned `net_area` is  implemented by the following lines in 
 the the class `OuterWall`:
@@ -37,7 +37,7 @@ description which other ways are implemented to obtain a value.
 ## How are the attributes managed? 
 To manage the different attributes every bim2sim [element](element) instance 
 owns an instance of the [AttributeManager](AttributeManager) which is stored under `element.attributes`.
-This manager manages the values and current status of the [Attributes](Attribute). 
+This manager manages the values and current status of the [Attributes](attribute.md). 
 
 If an information can't be obtained by the implemented ways in
 [_get_value function of attribute](_get_value) of attribute its status will be

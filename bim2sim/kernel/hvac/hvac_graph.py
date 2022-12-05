@@ -180,12 +180,14 @@ class HvacGraph(nx.Graph):
     #     """Returns list of nodes represented by graph"""
     #     return list(self.nodes)
 
-    def plot(self, path: Path = None, ports: bool = False):
+    def plot(self, path: Path = None, ports: bool = False, dpi: int = 400):
         """Plot graph and either display or save as pdf file.
 
         Args:
             path: If provided, the graph is saved there as pdf file.
             ports: If True, the port graph is plotted.
+            dpi: dots per inch, increase for higher quality (takes longer to
+             render)
         """
         # importing matplotlib is slow and plotting is optional
         import matplotlib.pyplot as plt
@@ -235,6 +237,7 @@ class HvacGraph(nx.Graph):
                 edge_color_map.append(edge_colors_flow_side[side]['edge_color'])
             kwargs['edge_color'] = edge_color_map
 
+        plt.figure(dpi=dpi)
         nx.draw(graph, node_size=10, font_size=5, linewidths=0.7,
                 with_labels=True, **kwargs)
         plt.draw()
@@ -259,10 +262,17 @@ class HvacGraph(nx.Graph):
 
     @staticmethod
     def remove_not_wanted_nodes(
-            graph,
+            graph: element_graph,
             wanted: Set[Type[ProductBased]],
             inert: Set[Type[ProductBased]] = None):
-        """ removes not wanted and not inert nodes from the given graph."""
+        """Removes not wanted and not inert nodes from the given graph.
+
+        Args:
+            graph: element_graph
+            wanted: set of all elements that are wanted and should persist in
+                graph
+            inert: set all inert elements. Are treated the same as wanted.
+        """
         if inert is None:
             inert = set()
         if not all(map(

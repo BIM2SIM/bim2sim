@@ -1,17 +1,17 @@
 # Workflow
 ## What is a workflow?
 In `bim2sim` a workflow describes how a specific simulation should be handled. 
-Next to the basic [Workflow](Workflow) we have three workflows pre implemented:
+Next to the basic [Workflow](workflow.md) we have three workflows pre implemented:
 * [BuildingSimulation](BuildingSimulation)
 * [PlantSimulation](PlantSimulation)
 * [CFDWorkflow](CFDWorkflow)
  
-You might think now, why do we have [Plugins](Plugin) and [Workflows](Workflow)?
+You might think now, why do we have [Plugins](Plugin) and [Workflows](workflow.md)?
 A workflow is simulation type specific, while a Plugin is simulation 
 environment/tool specific. See also [big-picture](big-picture).
 
 ## What are workflow settings?
-Each instance of a [Workflow](Workflow) owns a 
+Each instance of a [Workflow](workflow.md) owns a 
 [SettingsManager](SettingsManager) to manage all workflow specific 
 [WorkflowSettings](WorkflowSetting). A setting can be used to concretize the way 
  how the [tasks](task) are executed. E.g. the level of detail ([LOD](LOD)) of the 
@@ -23,7 +23,7 @@ number of choices from which one or multiple can be chosen.
 ## How to set workflow settings?
 There are two different ways to set a workflow setting:
 * Define the settings inside the `config.toml` file that is part of every 
-[FolderStructure](FolderStructure) of every [Project](Project).
+[FolderStructure](FolderStructure) of every [Project](project.md).
 * Define the settings after the project creation by overwriting the existing ones
 ```python 
 project = Project.create(project_path, ifc_path, 'teaser', open_conf=True)
