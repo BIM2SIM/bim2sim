@@ -1,0 +1,8 @@
+C:\05_bim2sim-coding\release_tool_on_anaconda\bim2sim-coding\dymola-ci-tests\env\Lib\site-packages\bim2sim-0.1.dev0-py3.10.egg-info\dependency_links.txt
+C:\05_bim2sim-coding\release_tool_on_anaconda\bim2sim-coding\dymola-ci-tests\env\Lib\site-packages\bim2sim-0.1.dev0-py3.10.egg-info\entry_points.txt
+C:\05_bim2sim-coding\release_tool_on_anaconda\bim2sim-coding\dymola-ci-tests\env\Lib\site-packages\bim2sim-0.1.dev0-py3.10.egg-info\PKG-INFO
+C:\05_bim2sim-coding\release_tool_on_anaconda\bim2sim-coding\dymola-ci-tests\env\Lib\site-packages\bim2sim-0.1.dev0-py3.10.egg-info\requires.txt
+C:\05_bim2sim-coding\release_tool_on_anaconda\bim2sim-coding\dymola-ci-tests\env\Lib\site-packages\bim2sim-0.1.dev0-py3.10.egg-info\SOURCES.txt
+C:\05_bim2sim-coding\release_tool_on_anaconda\bim2sim-coding\dymola-ci-tests\env\Lib\site-packages\bim2sim-0.1.dev0-py3.10.egg-info\top_level.txt
+C:\05_bim2sim-coding\release_tool_on_anaconda\bim2sim-coding\dymola-ci-tests\env\Scripts\bim2sim-script.py
+C:\05_bim2sim-coding\release_tool_on_anaconda\bim2sim-coding\dymola-ci-tests\env\Scripts\bim2sim.exe

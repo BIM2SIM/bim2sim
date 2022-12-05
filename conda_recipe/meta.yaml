@@ -1,4 +1,4 @@
-{% set version = "0.1.7" %}
+{% set version = "0.2.3" %}
 
 package:
   name: "bim2sim"
@@ -7,22 +7,22 @@ package:
 source:
   path: ../
 
+
 build:
+  preserve_egg_dir: True
   number: 0
-  script: python setup.py install
   noarch: python
+  entry_points:
+    - bim2sim = bim2sim:main
+
 
 requirements:
   host:
     - python
     - pip
     - setuptools
-    - pythonocc-core==7.6.2
-
-
   RUN:
     - python
-    - pythonocc-core==7.6.2
 
 test:
   imports:
