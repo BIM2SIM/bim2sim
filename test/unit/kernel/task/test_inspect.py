@@ -63,7 +63,7 @@ class TestInspect(unittest.TestCase):
     def test_case_1(self):
         """HeatExchange with 4 (semantically) connected pipes"""
         with patch.object(FolderStructure, 'ifc',
-                          sample_root / 'B01_2_HeatExchanger_Pipes.ifc'):
+                          sample_root / 'HVAC/B01_2_HeatExchanger_Pipes.ifc'):
             handler = DebugDecisionHandler([HeatExchanger.key])
             handler.handle(self.project.run(cleanup=False))
 
