@@ -34,7 +34,7 @@ class PluginDummy(Plugin):
     #     playground.run_task(hvac.ConnectElements())
 
 
-sample_root = Path(__file__).parent.parent.parent.parent / 'TestModels'
+sample_root = Path(__file__).parent.parent.parent.parent / 'TestModels' / 'HVAC'
 
 
 class TestInspect(unittest.TestCase):
@@ -63,7 +63,7 @@ class TestInspect(unittest.TestCase):
     def test_case_1(self):
         """HeatExchange with 4 (semantically) connected pipes"""
         with patch.object(FolderStructure, 'ifc',
-                          sample_root / 'HVAC/B01_2_HeatExchanger_Pipes.ifc'):
+                          sample_root / 'B01_2_HeatExchanger_Pipes.ifc'):
             handler = DebugDecisionHandler([HeatExchanger.key])
             handler.handle(self.project.run(cleanup=False))
 
@@ -90,7 +90,7 @@ class TestInspect(unittest.TestCase):
     def test_case_3(self):
         """No connections but ports are less than 10 mm apart"""
         with patch.object(FolderStructure, 'ifc',
-                          sample_root / '/HVAC/B01_4_HeatExchanger_noConnection.ifc'):
+                          sample_root / 'B01_4_HeatExchanger_noConnection.ifc'):
             handler = DebugDecisionHandler([HeatExchanger.key])
             handler.handle(self.project.run(cleanup=False))
 
