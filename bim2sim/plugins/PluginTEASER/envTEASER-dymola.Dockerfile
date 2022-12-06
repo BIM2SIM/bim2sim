@@ -1,4 +1,4 @@
-FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/environment:development
+FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/environment:dymola
 
 COPY ./bim2sim/plugins/PluginTEASER/requirements.txt ./requirements_teaser.txt
 
