@@ -73,6 +73,7 @@ build_env:dymola:
  only:
    refs:
       - development
+      - build_image_to_new_reg
    changes:
       - envBaseDymola.Dockerfile
       - requirements.txt
@@ -93,6 +94,7 @@ build_env:energyplus:
   only:
     refs:
        - development
+       - build_image_to_new_reg
     changes:
        - envBase.Dockerfile
        - bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile
@@ -115,6 +117,7 @@ build_env:cfd:
  only:
    refs:
       - development
+      - build_image_to_new_reg
    changes:
       - envBase.Dockerfile
       - bim2sim/plugins/PluginCFD/envCFD.Dockerfile
@@ -135,6 +138,7 @@ build_env:teaser:
  only:
    refs:
      - development
+     - build_image_to_new_reg
    changes:
      - envBase.Dockerfile
      - bim2sim/plugins/PluginTEASER/requirements.txt
@@ -156,7 +160,7 @@ build_env:teaser-dymola:
  only:
    refs:
      - development
-     - 230_regression_tests
+     - build_image_to_new_reg
    changes:
      - envBase.Dockerfile
      - bim2sim/plugins/PluginTEASER/requirements.txt
@@ -179,6 +183,7 @@ build_env:aixlib:
  only:
    refs:
      - development
+     - build_image_to_new_reg
    changes:
      - envBase.Dockerfile
      - bim2sim/plugins/PluginAixLib/requirements.txt
@@ -548,10 +553,10 @@ pages:
  script:
    - set -e
    # get existing content with branch artifacts
-   #- curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
-   #- if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
+   - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
+   - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
    # delete all branch folders older than 14 days which are not master or development
-   # - find public/* -maxdepth 0 -type d -not -name "development" -not -name "master" -mtime +14 -exec rm -rf {} \;
+   - find public/* -maxdepth 0 -type d -not -name "development" -not -name "master" -mtime +14 -exec rm -rf {} \;
    # Add/update content
    - mkdir -p public/$CI_COMMIT_REF_NAME
    - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
