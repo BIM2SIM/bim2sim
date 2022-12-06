@@ -157,7 +157,6 @@ build_env:teaser-dymola:
  only:
    refs:
      - development
-     - build_image_to_new_reg
    changes:
      - envBase.Dockerfile
      - bim2sim/plugins/PluginTEASER/requirements.txt
