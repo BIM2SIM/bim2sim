@@ -9,14 +9,12 @@ build_bim2sim:
   stage: build
   tags:
     - linux
-
   script:
     - apt update
     - apt install libgl1 -y
     - conda install conda-build git conda-verify
     - mkdir conda-bld
     - conda build conda_recipe/meta.yaml -c conda-forge --output-folder conda-bld/
-
   retry:
     max: 2
     when: runner_system_failure
@@ -25,31 +23,7 @@ build_bim2sim:
     paths:
       - conda-bld
     only:
-      - develop
-      - master
-
-
-
-
-coverage:
-  stage: test
-  tags:
-    - linux
-  script:
-  - apt update
-  - apt install libgl1 -y
-  - conda env create -f conda/env.yaml
-  - source activate bvpy
-  - conda install conda-bld/linux-64/bvpy-*py37*
-  - pytest --cov=bvpy -v -x
-  retry:
-    max: 2
-    when: runner_system_failure
-  dependencies:
-    - conda_build
-  only:
-    - develop
-    - master
+      - releas_tool_on_anaconda
 
 
 release_bim2sim:
@@ -58,17 +32,21 @@ release_bim2sim:
     - linux
 
   script:
+    - anaconda login --username bim2sim --password "$CONDA_TOKEN"
     - conda update --all
     - conda install conda-build anaconda-client
     - conda convert -p osx-64 conda-bld/linux-64/bvpy-* --output-dir conda-bld/
     - conda convert -p osx-arm64 conda-bld/linux-64/bvpy-* --output-dir conda-bld/
-    - anaconda --token=$ANACONDA_TOKEN upload conda-bld/linux-64/bvpy-* --force --user mosaic
-    - anaconda --token=$ANACONDA_TOKEN upload conda-bld/osx-64/bvpy-* --force --user mosaic
-    - anaconda --token=$ANACONDA_TOKEN upload conda-bld/osx-arm64/bvpy-* --force --user mosaic
+    - anaconda --token=$CONDA_TOKEN upload conda-bld/linux-64/bvpy-*
+    - anaconda --token=$CONDA_TOKEN upload conda-bld/osx-64/bvpy-*
+    - anaconda --token=$CONDA_TOKEN upload conda-bld/osx-arm64/bvpy-*
+    - conda env export -n my-environment -f my-environment.yml
+    - anaconda upload my-environment.yml
   retry:
     max: 2
     when: runner_system_failure
   dependencies:
     - conda_build
   only:
-    - master
+    - releas_tool_on_anaconda
+
