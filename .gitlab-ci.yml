@@ -73,7 +73,6 @@ build_env:dymola:
  only:
    refs:
       - development
-      - build_image_to_new_reg
    changes:
       - envBaseDymola.Dockerfile
       - requirements.txt
