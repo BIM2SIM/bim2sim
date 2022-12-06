@@ -1,10 +1,11 @@
 .test-default: &test-default
-  rules:
-    - if: $SKIP_TEST == "true"
-      when: never
-    - if: $CI_COMMIT_BRANCH
-      changes:
-      - bim2sim/**/.py
+  only:
+    refs:
+      - master
+      - tags
+      - branches
+    changes:
+      - bim2sim/**/*.py
 
 stages:
   - test
