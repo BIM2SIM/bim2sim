@@ -6,6 +6,10 @@
       - branches
     changes:
       - bim2sim/**/*.py
+  except:
+    variables:
+      - $SKIP-TEST == "true"
+  
 
 stages:
   - test
@@ -53,7 +57,7 @@ build_env:development:
  only:
    refs:
       - development
-      - 83-split-plugins-from-kernel
+      - build_image_to_new_reg
    changes:
       - envBase.Dockerfile
       - requirements.txt
@@ -75,7 +79,6 @@ build_env:dymola:
  only:
    refs:
       - development
-      - 230_regression_tests
    changes:
       - envBaseDymola.Dockerfile
       - requirements.txt
