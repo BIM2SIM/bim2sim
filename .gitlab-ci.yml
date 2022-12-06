@@ -53,7 +53,6 @@ build_env:development:
  only:
    refs:
       - development
-      - 83-split-plugins-from-kernel
    changes:
       - envBase.Dockerfile
       - requirements.txt
@@ -67,15 +66,14 @@ build_env:dymola:
      command: ["--mtu=1440"]
  #- docker:18.09.7-dind
  before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA   # login bim2sim
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA   # login dymola docker reg
  script:
    - docker build -t $CI_REGISTRY/environment:dymola -f envBaseDymola.Dockerfile .
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
    - docker push $CI_REGISTRY/environment:dymola
  only:
    refs:
       - development
-      - 230_regression_tests
    changes:
       - envBaseDymola.Dockerfile
       - requirements.txt
@@ -159,7 +157,6 @@ build_env:teaser-dymola:
  only:
    refs:
      - development
-     - 230_regression_tests
    changes:
      - envBase.Dockerfile
      - bim2sim/plugins/PluginTEASER/requirements.txt
