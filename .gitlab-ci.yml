@@ -16,4 +16,4 @@ variables:
 
 include:
     - 'docker.gitlab-ci.yml'
-    - 'conda_receipe/conda.gitlab-ci.yml'
+    - 'conda_recipe/conda.gitlab-ci.yml'
