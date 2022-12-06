@@ -11,7 +11,7 @@ todo
 ## Run Tests Local
 
 To test mapping between IFC and our meta structure
-[elements](concepts/elements.md) as well as for Integration Testing
+[elements](elements_structure) as well as for Integration Testing
 we need to load IFC files into our tool. These IFC files can be quite big. To
 keep the size of this repository as slim as possible we only integrate very few
 examples into the repository itself. The majority of the IFC files is stored 

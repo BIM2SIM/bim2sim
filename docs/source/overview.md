@@ -102,7 +102,7 @@ heating and cooling analysis is the abstraction of the hydraulic network.
 The abstraction can be quite time-consuming and error-prone, so one of the 
 strengths of `bim2sim` is offering automated tasks for analysis and aggregation 
 of the network. To do so we convert the imported meta structure 
-[elements](concepts/elements.md) and their connections into a [HvacGraph](HvacGraph) using 
+[elements](elements_structure) and their connections into a [HvacGraph](HvacGraph) using 
 [networkx](https://networkx.org/) python package.  
 The possible aggregations start with quite simply aggregations like 
 [PipeStrand](PipeStrand) to aggregate multiple straight connected pipes, but

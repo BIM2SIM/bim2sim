@@ -9,9 +9,9 @@
    concepts/workflow
    concepts/tasks
    concepts/elements
-   concepts/aggregations
    concepts/attribute
    concepts/finder
+   concepts/aggregations
    concepts/decisions
    concepts/logging
 ```
