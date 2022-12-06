@@ -1,6 +1,6 @@
 .test-default: &test-default
   rules:
-    - if: $SKIP-TEST == "true"
+    - if: $SKIP_TEST == "true"
       when: never
     - if: $CI_COMMIT_BRANCH
       changes:
