@@ -286,7 +286,7 @@ test_Base:
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
-    - wget -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download
     - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
     - coverage run -m unittest discover /bim2sim-coding/test
     - coverage report -i
@@ -314,7 +314,7 @@ test_EP:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
     - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
-    - wget -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
     - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration_test
     - coverage report -i
@@ -339,9 +339,9 @@ test_EP_regression:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
     - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
-    - wget -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
     - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
-    - wget -O /bim2sim-coding/bim2sim/assets/download.zip https://rwth-aachen.sciebo.de/s/5EQqe5g8x0x4lae/download
+    - wget --quiet -O /bim2sim-coding/bim2sim/assets/download.zip https://rwth-aachen.sciebo.de/s/5EQqe5g8x0x4lae/download
     - unzip /bim2sim-coding/bim2sim/assets/download.zip -d /bim2sim-coding/bim2sim/assets/
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/regression_test
     - coverage report -i
@@ -368,7 +368,7 @@ test_TEASER:
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
-    - wget -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
     - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration_test
     - coverage report -i
@@ -389,13 +389,13 @@ test_TEASER_regression:
   before_script:
     - pip install coverage
     - pip install coverage-badge
-    - apt-get install xvfb
+    - apt-get install xvfb -y
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
-    - wget -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
     - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
-    - wget -O /bim2sim-coding/bim2sim/assets/download.zip https://rwth-aachen.sciebo.de/s/5EQqe5g8x0x4lae/download
+    - wget --quiet -O /bim2sim-coding/bim2sim/assets/download.zip https://rwth-aachen.sciebo.de/s/5EQqe5g8x0x4lae/download
     - unzip /bim2sim-coding/bim2sim/assets/download.zip -d /bim2sim-coding/bim2sim/assets/
     - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression_test
     - coverage report -i
@@ -422,7 +422,7 @@ test_CFD:
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
-    - wget -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
     - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginCFD/test/integration_test
     - coverage report -i
@@ -449,7 +449,7 @@ test_AixLib:
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
-    - wget -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download
     - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration_test
     - coverage report -i
@@ -473,7 +473,7 @@ test_LCA:
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
-    - wget -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
     - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginLCA/test/integration_test
     - coverage report -i
