@@ -8,7 +8,7 @@
       - bim2sim/**/*.py
   except:
     variables:
-      - $SKIP-TEST == "true"
+      - $SKIP-TEST =~ "true"
   
 
 stages:
