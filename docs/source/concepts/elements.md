@@ -10,8 +10,6 @@ Instead, we created a meta structure that allows us to gather relevant
 information from different sources in the IFC and store them in a structure that
 is created with the specific goal to parametrize simulation models.
 
-Translated with www.DeepL.com/Translator (free version)
-
 ## Mapping
 
 The general steps of mapping IFC entity to element class are divided as follows.
