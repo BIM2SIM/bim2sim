@@ -22,8 +22,8 @@ build_bim2sim:
     expire_in: 1 hour
     paths:
       - conda-bld
-    only:
-      - releas_tool_on_anaconda
+  only:
+    - releas_tool_on_anaconda
 
 
 release_bim2sim:
@@ -35,18 +35,18 @@ release_bim2sim:
     - anaconda login --username bim2sim --password "$CONDA_TOKEN"
     - conda update --all
     - conda install conda-build anaconda-client
-    - conda convert -p osx-64 conda-bld/linux-64/bvpy-* --output-dir conda-bld/
-    - conda convert -p osx-arm64 conda-bld/linux-64/bvpy-* --output-dir conda-bld/
-    - anaconda --token=$CONDA_TOKEN upload conda-bld/linux-64/bvpy-*
-    - anaconda --token=$CONDA_TOKEN upload conda-bld/osx-64/bvpy-*
-    - anaconda --token=$CONDA_TOKEN upload conda-bld/osx-arm64/bvpy-*
+    - conda convert -p osx-64 conda-bld/linux-64/bim2sim-* --output-dir conda-bld/
+    - conda convert -p osx-arm64 conda-bld/linux-64/bim2sim-* --output-dir conda-bld/
+    - anaconda --token=$CONDA_TOKEN upload conda-bld/linux-64/bim2sim-*
+    - anaconda --token=$CONDA_TOKEN upload conda-bld/osx-64/bim2sim-*
+    - anaconda --token=$CONDA_TOKEN upload conda-bld/osx-arm64/bim2sim-*
     - conda env export -n my-environment -f my-environment.yml
     - anaconda upload my-environment.yml
   retry:
     max: 2
     when: runner_system_failure
   dependencies:
-    - conda_build
+    - build_bim2sim
   only:
     - releas_tool_on_anaconda
 
