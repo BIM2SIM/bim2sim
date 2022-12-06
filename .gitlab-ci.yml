@@ -15,5 +15,5 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
 include:
-    - 'conda_build_config.yaml'
+    - 'docker.gitlab-ci.yml'
     - 'conda_receipe/conda.gitlab-ci.yml'
