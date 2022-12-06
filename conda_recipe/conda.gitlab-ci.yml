@@ -7,8 +7,6 @@ stages:
 
 build_bim2sim:
   stage: build
-  tags:
-    - linux
   script:
     - apt update
     - apt install libgl1 -y
@@ -23,13 +21,14 @@ build_bim2sim:
     paths:
       - conda-bld
   only:
-    - releas_tool_on_anaconda
+    refs:
+      - releas_tool_on_anaconda
+    variables:
+      - $CI_COMMIT_MESSAGE  =~ /ci_conda_build/
 
 
 release_bim2sim:
   stage: release
-  tags:
-    - linux
 
   script:
     - anaconda login --username bim2sim --password "$CONDA_TOKEN"
@@ -48,5 +47,8 @@ release_bim2sim:
   dependencies:
     - build_bim2sim
   only:
-    - releas_tool_on_anaconda
+    refs:
+      - releas_tool_on_anaconda
+    variables:
+      - $CI_COMMIT_MESSAGE  =~ /ci_conda_build/
 
