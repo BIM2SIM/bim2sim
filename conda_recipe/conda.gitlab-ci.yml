@@ -1,0 +1,54 @@
+image: conda/miniconda3
+
+stages:
+  - build
+  - test
+  - release
+
+build_bim2sim:
+  stage: build
+  script:
+    - apt update
+    - apt install libgl1 -y
+    - conda install conda-build git conda-verify
+    - mkdir conda-bld
+    - conda build conda_recipe/meta.yaml -c conda-forge --output-folder conda-bld/ --python 3.9
+  retry:
+    max: 2
+    when: runner_system_failure
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - conda-bld
+  only:
+    refs:
+      - 234_release_anaconda
+    variables:
+      - $CI_COMMIT_MESSAGE  =~ /ci_conda_build/
+
+
+release_bim2sim:
+  stage: release
+
+  script:
+    - anaconda login --username bim2sim --password "$CONDA_TOKEN"
+    - conda update --all
+    - conda install conda-build anaconda-client
+    - conda convert -p osx-64 conda-bld/linux-64/bim2sim-* --output-dir conda-bld/
+    - conda convert -p osx-arm64 conda-bld/linux-64/bim2sim-* --output-dir conda-bld/
+    - anaconda --token=$CONDA_TOKEN upload conda-bld/linux-64/bim2sim-*
+    - anaconda --token=$CONDA_TOKEN upload conda-bld/osx-64/bim2sim-*
+    - anaconda --token=$CONDA_TOKEN upload conda-bld/osx-arm64/bim2sim-*
+    - conda env export -n my-environment -f my-environment.yml
+    - anaconda upload my-environment.yml
+  retry:
+    max: 2
+    when: runner_system_failure
+  dependencies:
+    - build_bim2sim
+  only:
+    refs:
+      -  234_release_anaconda
+    variables:
+      - $CI_COMMIT_MESSAGE  =~ /ci_conda_build/
+
