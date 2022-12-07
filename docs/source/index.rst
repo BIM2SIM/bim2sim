@@ -18,6 +18,7 @@ Welcome to bim2sim's documentation!
    testing
    docker-structure
    code/modules
+   code/packages
 
 Indices and tables
 ==================
