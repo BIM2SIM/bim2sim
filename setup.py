@@ -17,7 +17,7 @@ setup(
     author='BIM2SIM',
     author_email='david.jansen@eonerc.rwth-aachen.de',
     url="https://github.com/BIM2SIM/bim2sim",
-    packages=find_packages(include=['bim2sim.*']),
+    packages=find_packages(include=['bim2sim*']),
     include_package_data=True,
     data_files = [('bim2sim\\assets\\enrichment\\hvac', ['bim2sim\\assets\\enrichment\\hvac\\TypeBuildingElements.json']),
                   ('bim2sim\\assets\\enrichment\\material', ['bim2sim\\assets\\enrichment\\material\\MaterialTemplates.json',
