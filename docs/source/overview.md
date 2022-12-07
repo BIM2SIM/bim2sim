@@ -116,7 +116,7 @@ The BPS part in `bim2sim` requires a sufficient representation of the building.
 This includes a description of:
 * building geometry
 * materials (the building's thermal mass)
-* HVAC systems
+* HVAC systems (only covered with ideal loads for now. Coupled simulations are in scope of future releases)
 * internal loads (occupancy, equipment, lighting, schedules)
 * external loads (weather)
 * building's location and surroundings (shadings)
