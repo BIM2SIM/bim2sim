@@ -1,9 +1,8 @@
 ﻿"""Package for Python representations of HKESim models"""
-from bim2sim.kernel.elements import hvac
-from bim2sim.export import modelica
-from bim2sim.kernel import elements
-from bim2sim.kernel.units import ureg
 import bim2sim.kernel.aggregation as aggregation
+from bim2sim.export import modelica
+from bim2sim.kernel.elements import hvac
+from bim2sim.kernel.units import ureg
 
 
 class AixLib(modelica.Instance):

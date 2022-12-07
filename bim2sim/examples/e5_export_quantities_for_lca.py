@@ -3,7 +3,6 @@ from pathlib import Path
 
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.log import default_logging_setup
-from bim2sim.workflow import LOD
 
 
 def run_example_5():

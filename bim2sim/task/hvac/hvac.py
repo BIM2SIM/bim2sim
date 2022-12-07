@@ -6,21 +6,23 @@ import logging
 from datetime import datetime
 from typing import Generator, Iterable, Tuple
 
-import numpy as np
 import networkx as nx
+import numpy as np
 
-from bim2sim.kernel.elements import hvac
-from bim2sim.task.base import ITask
-from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating, ParallelPump, ParallelSpaceHeater
-from bim2sim.kernel.aggregation import Consumer, ConsumerHeatingDistributorModule, GeneratorOneFluid
-from bim2sim.kernel.element import ProductBased, ElementEncoder, Port, Material
-from bim2sim.kernel.hvac import hvac_graph
-from bim2sim.export import modelica
 from bim2sim.decision import DecisionBunch
-from bim2sim.enrichment_data import element_input_json
 from bim2sim.decision import RealDecision, BoolDecision
-from bim2sim.utilities.common_functions import get_type_building_elements_hvac
+from bim2sim.enrichment_data import element_input_json
+from bim2sim.export import modelica
+from bim2sim.kernel.aggregation import Consumer, \
+    ConsumerHeatingDistributorModule, GeneratorOneFluid
+from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating, \
+    ParallelPump, ParallelSpaceHeater
+from bim2sim.kernel.element import ProductBased, ElementEncoder, Port, Material
+from bim2sim.kernel.elements import hvac
+from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
+from bim2sim.task.base import ITask
+from bim2sim.utilities.common_functions import get_type_building_elements_hvac
 from bim2sim.workflow import Workflow
 
 quality_logger = logging.getLogger('bim2sim.QualityReport')

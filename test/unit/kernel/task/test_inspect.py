@@ -1,20 +1,19 @@
-import unittest
-from unittest.mock import patch, MagicMock
-from pathlib import Path
 import tempfile
+import unittest
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 import numpy as np
 
-from bim2sim import ConsoleDecisionHandler
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.kernel.element import Element, Port, ProductBased
+from bim2sim.kernel.element import Port, ProductBased
 from bim2sim.kernel.elements.hvac import HeatExchanger, Pipe, PipeFitting
-from bim2sim.task import hvac
+from bim2sim.plugins import Plugin
+from bim2sim.project import Project, FolderStructure
 from bim2sim.task import common
+from bim2sim.task import hvac
 from bim2sim.task.hvac import ConnectElements
 from bim2sim.workflow import PlantSimulation
-from bim2sim.project import Project, FolderStructure
-from bim2sim.plugins import Plugin
 
 
 class PluginDummy(Plugin):

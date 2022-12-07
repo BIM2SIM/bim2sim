@@ -4,35 +4,33 @@ import logging
 import math
 import re
 import sys
+from datetime import date
 from typing import Set, List
 
 import ifcopenshell
 import ifcopenshell.geom
-from OCC.Core.Bnd import Bnd_Box
+from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBndLib import brepbndlib_Add
-from OCC.Core.BRepLib import BRepLib_FuseEdges
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
-from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, \
-    brepgprop_VolumeProperties
+from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
+from OCC.Core.BRepGProp import brepgprop_SurfaceProperties
+from OCC.Core.BRepLib import BRepLib_FuseEdges
+from OCC.Core.Bnd import Bnd_Box
+from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.GProp import GProp_GProps
 from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
-from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
-from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt,\
-    gp_Mat, gp_Quaternion
-from OCC.Core.TopoDS import topods_Face
 from OCC.Core.TopAbs import TopAbs_FACE
 from OCC.Core.TopExp import TopExp_Explorer
-from OCC.Core.BRep import BRep_Tool
+from OCC.Core.TopoDS import topods_Face
 from OCC.Core._Geom import Handle_Geom_Plane_DownCast
-from OCC.Core.Extrema import Extrema_ExtFlag_MIN
-from datetime import date
+from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt, \
+    gp_Mat, gp_Quaternion
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, attribute, condition
 from bim2sim.kernel.units import ureg
-from bim2sim.utilities.common_functions import vector_angle, filter_instances, \
-    angle_equivalent
 from bim2sim.task.common.inner_loop_remover import remove_inner_loops
+from bim2sim.utilities.common_functions import vector_angle, angle_equivalent
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 logger = logging.getLogger(__name__)

@@ -2,7 +2,7 @@
 
 import re
 
-from bim2sim.decision import Decision, BoolDecision, RealDecision, ListDecision, \
+from bim2sim.decision import Decision, BoolDecision, ListDecision, \
     DecisionBunch
 from bim2sim.decision import DecisionCancel, DecisionSkip, DecisionSkipAll
 from bim2sim.decision.decisionhandler import DecisionHandler

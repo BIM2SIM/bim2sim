@@ -1,7 +1,8 @@
-from bim2sim.kernel.elements import hvac
-from bim2sim.task.common.common import CheckIfc
 from ifcopenshell.entity_instance import entity_instance
+
+from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.ifc2python import get_ports
+from bim2sim.task.common.common import CheckIfc
 
 
 class CheckIfcHVAC(CheckIfc):
