@@ -7,7 +7,8 @@ build_bim2sim:
   image: continuumio/conda-ci-linux-64-python3.9
   stage: build
   script:
-    - apt install libgl1 -y
+    - sudo apt update
+    - sudo apt install libgl1 -y
     - conda install conda-build git conda-verify
     - mkdir conda-bld
     - conda build conda_recipe/meta.yaml -c conda-forge --output-folder conda-bld/ --python 3.9
