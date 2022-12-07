@@ -42,20 +42,20 @@ specific tasks.
   * [DisaggregationCreation](DisaggregationCreation)
   * [BindThermalZones](BindThermalZones)
 * EnergyPlus specific tasks:
-  * [IfcValidation](ep_ifc_validation)
-  * [EPGeomPreprocessing](ep_geom_preprocessing)
-  * [AddSpaceBoundaries2B](AddSpaceBoundaries2B)
-  * [WeatherEnergyPlus](WeatherEnergyPlus)
-  * [CreateIdf](CreateIdf)
-  * [IdfPostprocessing](IdfPostprocessing)
-  * [ExportIdfForCfd](ExportIdfForCfd)
-  * [RunEnergyPlusSimulation](RunEnergyPlusSimulation)
+  * [IfcValidation](ep_ifc_valid)
+  * [EPGeomPreprocessing](ep_geom_preproc)
+  * [AddSpaceBoundaries2B](ep_add_2b_sbs)
+  * [WeatherEnergyPlus](ep_set_weather)
+  * [CreateIdf](ep_create_idf_for_export)
+  * [IdfPostprocessing](ep_postprocess)
+  * [ExportIdfForCfd](ep_cfd_export)
+  * [RunEnergyPlusSimulation](ep_run_sim)
 
 
 ## EnergyPlus specific tasks
 
 ### Validation of the IFC file 
-(ep_ifc_validation)=
+(ep_ifc_valid)=
 [Go to IfcValidation](IfcValidation)
 
 The EnergyPlus specific tasks start with an EnergyPlus specific validation 
@@ -64,7 +64,7 @@ is included in the default workflow to give an insight in the quality of the
 provided IFC.
 
 ### Geometric Preprocessing for EnergyPlus Export
-(ep_geom_preprocessing)=
+(ep_geom_preproc)=
 [Go to EPGeomPreprocessing](EPGeomPreprocessing)
 
 The preprocessed geometry and material needs an additional preprocessing to 
@@ -83,4 +83,45 @@ improve shading calculations and remove inner loops from surfaces,
 Use the [settings](settings) to decide if boundaries should be split up and
 if shadings should be added.
 
+### Add 2b Space Boundaries
+(ep_add_2b_sbs)=
+[Go to AddSpaceBoundaries2B](AddSpaceBoundaries2B)
 
+Space Boundaries of type 2b can be added here if gaps are located in the 
+provided set of space boundaries. The resulting set of space boundaries
+then forms a watertight model that can be further used for other simulation
+purposes such as [CFD export](ExportIdfForCfd).
+
+### Set the Weather File
+(ep_set_weather)=
+[Go to WeatherEnergyPlus](WeatherEnergyPlus)
+
+Set the Weather File for the EnergyPlus Simulation. 
+
+### Initialize and Export the EnergyPlus IDF File 
+(ep_create_idf_for_export)=
+[Go to CreateIdf](CreateIdf)
+
+Write all preprocessed geometric data, materials, and boundary conditions
+to an EnergyPlus input file (IDF). 
+
+### IDF Postprocessing
+(ep_postprocess)=
+[Go to IdfPostprocessing](IdfPostprocessing)
+
+Export data to csv. Some modifications may be required to meet your 
+individual postprocessing needs here. 
+
+### Export IDF Geometry for CFD Processing
+(ep_cfd_export)=
+[Go to ExportIdfForCfd](ExportIdfForCfd)
+
+Use the [settings](settings) to specify, if the IDF geometry should be
+converted to .stl for further use in CFD applications. 
+
+### Run EnergyPlus Simulation
+(ep_run_sim)=
+[Go to RunEnergyPlusSimulation](RunEnergyPlusSimulation)
+
+Run the EnergyPlus simulation. Use the [settings](settings) for further
+runtime specifications. 
