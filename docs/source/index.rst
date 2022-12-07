@@ -19,7 +19,8 @@ Welcome to bim2sim's documentation!
    testing
    docker-structure
    code/modules
-   Plugin*
+   bim2sim_energyplus/task/*
+   bim2sim_energyplus/*
 
 Indices and tables
 ==================
