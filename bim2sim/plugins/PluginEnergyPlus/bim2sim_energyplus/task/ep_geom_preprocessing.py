@@ -43,7 +43,6 @@ class EPGeomPreprocessing(ITask):
     required for EnergyPlus export.
     """
     reads = ('instances', 'space_boundaries')
-    # touches = ('instances',)
 
     def __init__(self):
         super().__init__()
@@ -51,21 +50,6 @@ class EPGeomPreprocessing(ITask):
     def run(self, workflow, instances, space_boundaries):
         logger.info("Geometric preprocessing for EnergyPlus Export started"
                     "...")
-        decisions = []
-        # split_bounds = BoolDecision(
-        #     question="Do you want to decompose non-convex space boundaries into"
-        #              " convex boundaries?",
-        #     global_key='EnergyPlus.SplitConvexBounds')
-        # decisions.append(split_bounds)
-        # add_shadings = BoolDecision(
-        #     question="Do you want to add shadings if available?",
-        #     global_key='EnergyPlus.AddShadings')
-        # decisions.append(add_shadings)
-        # split_shadings = BoolDecision(
-        #     question="Do you want to decompose non-convex shadings into convex "
-        #              "shadings?", global_key='EnergyPlus.SplitConvexShadings')
-        # decisions.append(split_shadings)
-        # yield DecisionBunch(decisions)
         self.add_bounds_to_instances(instances, space_boundaries)
         self.move_children_to_parents(instances)
         self.fix_surface_orientation(instances)
@@ -74,8 +58,6 @@ class EPGeomPreprocessing(ITask):
                                                workflow.split_shadings)
         logger.info("Geometric preprocessing for EnergyPlus Export "
                     "finished!")
-
-        # return instances,
 
     @staticmethod
     def add_bounds_to_instances(instances: dict,
