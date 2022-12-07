@@ -1,3 +1,4 @@
+(workflow_concept)=
 # Workflow
 ## What is a workflow?
 In `bim2sim` a workflow describes how a specific simulation should be handled. 
@@ -11,6 +12,7 @@ A workflow is simulation type specific, while a Plugin is simulation
 environment/tool specific. See also [big-picture](big-picture).
 
 ## What are workflow settings?
+(workflow_settings_concept)=
 Each instance of a [Workflow](workflow.md) owns a 
 [SettingsManager](SettingsManager) to manage all workflow specific 
 [WorkflowSettings](WorkflowSetting). A setting can be used to concretize the way 
