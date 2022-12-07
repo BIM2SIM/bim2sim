@@ -19,7 +19,6 @@ from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_WIRE
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopoDS import topods_Face, topods_Wire
 from OCC.Core._Geom import Handle_Geom_Plane_DownCast
-
 from OCC.Core.gp import gp_Dir, gp_XYZ, gp_Pln
 from geomeppy import IDF
 
