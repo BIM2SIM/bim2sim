@@ -123,7 +123,24 @@ This includes a description of:
 
 This information is extracted from the IFC file. Missing data can be added 
 by using e.g. a template-based enrichment. 
-
+#### IFC Requirements
+The BPS Plugins ([PluginEnergyPlus](PluginEnergyPlus) and 
+[PluginTEASER](PluginTEASER)) should only be applied, 
+if minimum IFC requirements are fulfilled:
+* IFC-Version: IFC4
+* Validity: The IFC file must be valid (fulfill all rules of its schema)
+* Space Boundaries: IfcRelSpaceBoundary Instances should be included of type 
+  2ndLevel (either IfcRelSpaceBoundary2ndLevel (optimum) or 
+  IfcRelSpaceBoundary with Description 2ndLevel)
+* Quality of Space Boundaries: The provided space boundary data must be 
+  valid in terms of syntax, geometry and consistency (cf. Richter et al.: 
+  'Validation of IFC-based Geometric Input for Building Energy Performance 
+  Simulation', 2022 Building Performance Analysis Conference and SimBuild 
+  co-organized by ASHRAE and IBPSA-USA, https://doi.org/10.26868/25746308.2022.C033)
+  
+Other IFC requirements (optional, improve model accuracy):
+* Material definitions
+* Shading Space Boundaries (only applicable for [PluginEnergyPlus](PluginEnergyPlus))
 ### Heating Ventilation and Air Conditioning (HVAC) Simulation
 HVAC simulations are used to simulate the behaviour of different system 
 components in the energy system. For now `bim2sim` focuses on the heating and 
