@@ -1,5 +1,5 @@
 (EnergyPlus)=
-# PluginEnergyPlus
+# Plugin EnergyPlus
 
 The Plugin EnergyPlus exports the preprocessed IFC data to en EnergyPlus 
 Input file (idf). This Plugin contains EnergyPlus specific modifications of 
