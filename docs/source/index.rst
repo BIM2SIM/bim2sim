@@ -10,17 +10,16 @@ Welcome to bim2sim's documentation!
    :maxdepth: 8
    :glob:
 
-   # overview
-   # installation
-   # first-steps
-   # project
-   # plugins
-   # concepts
-   # testing
-   # docker-structure
-   # code/modules
-   # bim2sim_energyplus/task/*
-   code/modules/plugins/PluginEnergyPlus/bim2sim_energyplus/*
+   overview
+   installation
+   first-steps
+   project
+   plugins
+   concepts
+   testing
+   docker-structure
+   code/modules
+   *
 
 Indices and tables
 ==================
