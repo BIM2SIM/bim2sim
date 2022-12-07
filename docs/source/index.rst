@@ -7,7 +7,8 @@ Welcome to bim2sim's documentation!
 ===================================
 
 .. toctree::
-   :maxdepth: 5
+   :maxdepth: 8
+   :glob:
 
    overview
    installation
@@ -17,8 +18,7 @@ Welcome to bim2sim's documentation!
    concepts
    testing
    docker-structure
-   code/modules
-   code/packages
+   code/*
 
 Indices and tables
 ==================
