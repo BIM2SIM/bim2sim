@@ -7,9 +7,16 @@ from bim2sim.workflow import LOD
 
 
 def run_example_1():
-    # todo docstring
-    # Create the default logging to for quality log and bim2sim main log (
-    # see logging documentation for more information
+    """Run a building performance simulation with the TEASER backend.
+
+    This example runs a BPS with the TEASER backend. Specifies project
+    directory and location of the IFC file. Then, it creates a bim2sim
+    project with the TEASER backend. Workflow settings are specified (here,
+    the zoning setup is specified to be with a medium level of detail),
+    before the project is executed with the previously specified settings.
+    """
+    # Create the default logging to for quality log and bim2sim main log
+    # (see logging documentation for more information)
     default_logging_setup()
 
     # Create a temp directory for the project, feel free to use a "normal"
