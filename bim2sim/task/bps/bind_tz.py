@@ -1,11 +1,10 @@
 import inspect
 
-from bim2sim.task.base import ITask
-from bim2sim.decision import BoolDecision, ListDecision, DecisionBunch
-from bim2sim.kernel.element import RelationBased
+from bim2sim.decision import ListDecision, DecisionBunch
 from bim2sim.kernel.aggregation import AggregatedThermalZone
-from bim2sim.workflow import LOD
+from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.workflow import LOD
 
 
 class BindThermalZones(ITask):

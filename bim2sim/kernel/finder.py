@@ -4,17 +4,18 @@ Currently we implemented only one Finder, the TemplateFinder.
 """
 from __future__ import annotations
 
-import os
-import json
 import contextlib
-from pathlib import Path
+import json
 import logging
+import os
+from pathlib import Path
 from typing import Generator, TYPE_CHECKING, Union
+
 from ifcopenshell import file, entity_instance
 
 import bim2sim
-from bim2sim.kernel import ifc2python
 from bim2sim.decision import ListDecision, Decision, DecisionBunch
+from bim2sim.kernel import ifc2python
 from bim2sim.utilities.common_functions import validateJSON
 
 if TYPE_CHECKING:

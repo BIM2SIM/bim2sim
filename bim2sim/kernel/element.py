@@ -1,23 +1,20 @@
 """Definition for basic representations of IFC elements"""
 # from __future__ import annotations
-import json
 import logging
-from json import JSONEncoder
 import re
-from pathlib import Path
-from typing import Union, Set, Iterable, Dict, List, Tuple, Type, Generator, \
-    Optional
+from json import JSONEncoder
+from typing import Union, Iterable, Dict, List, Tuple, Type, Optional
 
 import numpy as np
 
-from bim2sim.decorators import cached_property
-from bim2sim.kernel import ifc2python, attribute
 from bim2sim.decision import Decision, DecisionBunch
-from bim2sim.utilities.common_functions import angle_equivalent, vector_angle, \
-    remove_umlaut
+from bim2sim.decorators import cached_property
+from bim2sim.kernel import condition
+from bim2sim.kernel import ifc2python, attribute
 from bim2sim.kernel.finder import TemplateFinder, SourceTool
 from bim2sim.kernel.units import ureg
-from bim2sim.kernel import condition
+from bim2sim.utilities.common_functions import angle_equivalent, vector_angle, \
+    remove_umlaut
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')

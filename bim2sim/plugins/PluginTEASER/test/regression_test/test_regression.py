@@ -1,11 +1,10 @@
+import logging
 import re
 import shutil
 import unittest
-import logging
 
 import buildingspy.development.regressiontest as u
 
-from bim2sim import workflow
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import RegressionTestBase
 

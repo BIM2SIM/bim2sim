@@ -3,18 +3,17 @@ import math
 from typing import List, Union
 
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex
+from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
+from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.gp import gp_Pnt, gp_Dir
 
 from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import RelationBased, Element, IFCBased
+from bim2sim.kernel.elements.bps import SpaceBoundary, ExtSpatialSpaceBoundary, \
+    ThermalZone, Window, Door
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
-from bim2sim.kernel.elements.bps import SpaceBoundary, ExtSpatialSpaceBoundary, \
-    ThermalZone, Window, Door
-from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
-from OCC.Core.Extrema import Extrema_ExtFlag_MIN
-from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.workflow import Workflow
 
 logger = logging.getLogger(__name__)

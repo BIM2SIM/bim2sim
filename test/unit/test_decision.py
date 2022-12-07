@@ -1,14 +1,14 @@
 ﻿"""Test for decision.py"""
 import json
+import os
+import tempfile
 import unittest
 from unittest.mock import patch
-import tempfile
-import os
 
 import pint
 
 from bim2sim import decision
-from bim2sim.decision import Decision, BoolDecision, save, load, RealDecision, \
+from bim2sim.decision import BoolDecision, save, load, RealDecision, \
     DecisionBunch, ListDecision, GuidDecision
 from bim2sim.decision.console import ConsoleDecisionHandler
 from bim2sim.kernel.units import ureg

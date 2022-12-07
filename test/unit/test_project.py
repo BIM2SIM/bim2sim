@@ -1,11 +1,11 @@
-﻿import unittest
-import os
+﻿import os
 import shutil
 import tempfile
+import unittest
 from pathlib import Path
 
-from bim2sim.project import Project
 from bim2sim.plugins import Plugin
+from bim2sim.project import Project
 from bim2sim.workflow import PlantSimulation
 
 sample_root = Path(__file__).parent.parent.parent / 'test/TestModels/HVAC'
