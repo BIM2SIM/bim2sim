@@ -82,9 +82,6 @@ wall ratio or glass percentage:
 * 30 - 50 %
 * 50 - 70 %
 * 70 - 100 %
-  This is useful as rooms with high glass percentage will have less thermal mass
-  and inertia and higher solar radiation input which makes their dynamic
-  different
-  from the ones with low glass percentage.
-
-...
+This is useful as rooms with high glass percentage will have less thermal mass
+and inertia and higher solar radiation input which makes their dynamic
+different from the ones with low glass percentage.
