@@ -122,7 +122,7 @@ This includes a description of:
 * building's location and surroundings (shadings)
 
 This information is extracted from the IFC file. Missing data can be added 
-by using a set of templates. 
+by using e.g. a template-based enrichment. 
 
 ### Heating Ventilation and Air Conditioning (HVAC) Simulation
 HVAC simulations are used to simulate the behaviour of different system 
