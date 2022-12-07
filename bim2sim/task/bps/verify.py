@@ -1,10 +1,10 @@
-from bim2sim.workflow import LOD
-from bim2sim.task.base import ITask
-from bim2sim.workflow import Workflow
-from bim2sim.kernel.element import ProductBased, Material
-from bim2sim.kernel.units import ureg
+from bim2sim.kernel.element import Material
 from bim2sim.kernel.elements.bps import BPSProductWithLayers, LayerSet, Layer
+from bim2sim.kernel.units import ureg
+from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import all_subclasses, filter_instances
+from bim2sim.workflow import LOD
+from bim2sim.workflow import Workflow
 
 
 class Verification(ITask):

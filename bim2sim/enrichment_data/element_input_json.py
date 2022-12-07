@@ -1,6 +1,3 @@
-from bim2sim.decision import BoolDecision, ListDecision
-
-
 def load_element_ifc(element, ele_ifc, enrich_parameter, parameter_value, dataclass):
     """
     this function fills a data class object, with the information found in the
