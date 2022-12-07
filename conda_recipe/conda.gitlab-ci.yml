@@ -1,11 +1,10 @@
-image: conda/miniconda3
-
 stages:
   - build
   - test
   - release
-
+docker pull continuumio/conda-ci-linux-64-python3.9
 build_bim2sim:
+  image: continuumio/conda-ci-linux-64-python3.9
   stage: build
   script:
     - apt update
@@ -26,8 +25,8 @@ build_bim2sim:
 
 
 release_bim2sim:
+  image: continuumio/conda-ci-linux-64-python3.9
   stage: release
-
   script:
     - anaconda login --username bim2sim --password "$CONDA_TOKEN"
     - conda update --all
