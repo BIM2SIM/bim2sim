@@ -42,14 +42,14 @@ specific tasks.
   * [DisaggregationCreation](DisaggregationCreation)
   * [BindThermalZones](BindThermalZones)
 * EnergyPlus specific tasks:
-  * IfcValidation
-  * EPGeomPreprocessing
-  * AddSpaceBoundaries2B
-  * WeatherEnergyPlus
-  * CreateIdf
-  * IdfPostprocessing
-  * ExportIdfForCfd
-  * RunEnergyPlusSimulation
+  * [IfcValidation](IfcValidation)
+  * [EPGeomPreprocessing](EPGeomPreprocessing)
+  * [AddSpaceBoundaries2B](AddSpaceBoundaries2B)
+  * [WeatherEnergyPlus](WeatherEnergyPlus)
+  * [CreateIdf](CreateIdf)
+  * [IdfPostprocessing](IdfPostprocessing)
+  * [ExportIdfForCfd](ExportIdfForCfd)
+  * [RunEnergyPlusSimulation](RunEnergyPlusSimulation)
 
 
 ## EnergyPlus specific tasks
