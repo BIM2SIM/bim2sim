@@ -2,7 +2,7 @@ stages:
   - build
   - test
   - release
-docker pull continuumio/conda-ci-linux-64-python3.9
+
 build_bim2sim:
   image: continuumio/conda-ci-linux-64-python3.9
   stage: build
