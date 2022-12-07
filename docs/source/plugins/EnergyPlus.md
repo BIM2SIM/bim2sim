@@ -31,16 +31,16 @@ are used for both BPS workflows (TEASER and EnergyPlus) and EnergyPlus
 specific tasks.
 
 * general tasks (common and BPS-specific):
-  * common.LoadIFC
-  * common.CreateElements
-  * bps.CreateSpaceBoundaries
-  * bps.Prepare
-  * common.BindStoreys
-  * bps.EnrichUseConditions
-  * bps.Verification
-  * bps.EnrichMaterial
-  * bps.DisaggregationCreation
-  * bps.BindThermalZones
+  * [LoadIFC](LoadIFC)
+  * [CreateElements](CreateElements)
+  * [CreateSpaceBoundaries](CreateSpaceBoundaries)
+  * [Prepare](Prepare)
+  * [BindStoreys](BindStoreys)
+  * [EnrichUseConditions](EnrichUseConditions)
+  * [Verification](Verification)
+  * [EnrichMaterial](EnrichMaterial)
+  * [DisaggregationCreation](DisaggregationCreation)
+  * [BindThermalZones](BindThermalZones)
 * EnergyPlus specific tasks:
   * IfcValidation
   * EPGeomPreprocessing
