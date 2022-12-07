@@ -1,17 +1,17 @@
-from teaser.project import Project
+from bim2sim_teaser import export, models
 from teaser.logic.buildingobjects.building import Building
-from teaser.logic.buildingobjects.buildingphysics.outerwall import OuterWall
-from teaser.logic.buildingobjects.buildingphysics.floor import Floor
-from teaser.logic.buildingobjects.buildingphysics.rooftop import Rooftop
-from teaser.logic.buildingobjects.buildingphysics.groundfloor import GroundFloor
-from teaser.logic.buildingobjects.buildingphysics.window import Window
-from teaser.logic.buildingobjects.buildingphysics.innerwall import InnerWall
 from teaser.logic.buildingobjects.buildingphysics.door import Door
+from teaser.logic.buildingobjects.buildingphysics.floor import Floor
+from teaser.logic.buildingobjects.buildingphysics.groundfloor import GroundFloor
+from teaser.logic.buildingobjects.buildingphysics.innerwall import InnerWall
+from teaser.logic.buildingobjects.buildingphysics.outerwall import OuterWall
+from teaser.logic.buildingobjects.buildingphysics.rooftop import Rooftop
+from teaser.logic.buildingobjects.buildingphysics.window import Window
+from teaser.project import Project
 
+from bim2sim.kernel.element import ProductBased
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
-from bim2sim.kernel.element import ProductBased
-from bim2sim_teaser import export, models
 
 
 class ExportTEASER(ITask):
@@ -64,7 +64,7 @@ class ExportTEASER(ITask):
         return bldg_names,
 
     def _create_project(self):
-        """Creates a project in TEASER by a given BIM2SIM instance
+        """Creates a project in TEASER by a given bim2sim instance
         Parent: None"""
         prj = Project(load_data=True)
         prj.name = self.prj_name

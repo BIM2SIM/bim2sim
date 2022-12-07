@@ -3,18 +3,17 @@ import math
 from typing import List, Union
 
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex
+from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
+from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.gp import gp_Pnt, gp_Dir
 
 from bim2sim.filter import TypeFilter
 from bim2sim.kernel.element import RelationBased, Element, IFCBased
+from bim2sim.kernel.elements.bps import SpaceBoundary, ExtSpatialSpaceBoundary, \
+    ThermalZone, Window, Door
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
-from bim2sim.kernel.elements.bps import SpaceBoundary, ExtSpatialSpaceBoundary, \
-    ThermalZone, Window, Door
-from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
-from OCC.Core.Extrema import Extrema_ExtFlag_MIN
-from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.workflow import Workflow
 
 logger = logging.getLogger(__name__)
@@ -52,7 +51,7 @@ class CreateSpaceBoundaries(ITask):
         relationships of their space boundaries.
 
         Args:
-            workflow: BIM2SIM EnergyPlusWorkflow
+            workflow: bim2sim EnergyPlusWorkflow
             boundaries: list of SpaceBoundary instances
             instances: dict[guid: element]
             opening_area_tolerance: Tolerance for comparison of opening areas.
@@ -151,7 +150,7 @@ class CreateSpaceBoundaries(ITask):
         Args:
             this_boundary: current instance of SpaceBoundary
             this_space: ThermalZone instance
-            opening_elem: BIM2SIM instance of Window or Door.
+            opening_elem: bim2sim instance of Window or Door.
             max_wall_thickness: maximum expected wall thickness in the building.
                 Space boundaries of openings may be displaced by this distance.
         Returns:
@@ -206,8 +205,8 @@ class CreateSpaceBoundaries(ITask):
         Args:
             this_boundary: current instance of SpaceBoundary
             opening_boundary: current instance of opening SpaceBoundary (
-                related to BIM2SIM Window or Door)
-            bound_instance: BIM2SIM building element (e.g., Wall, Floor, ...)
+                related to bim2sim Window or Door)
+            bound_instance: bim2sim building element (e.g., Wall, Floor, ...)
             drop_list: dict[str, SpaceBoundary] with SpaceBoundary instances
                 that have same size as opening space boundaries and therefore
                 should be dropped

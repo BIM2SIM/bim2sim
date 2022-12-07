@@ -1,6 +1,6 @@
 """Module for defining workflows"""
-import logging
 import ast
+import logging
 from enum import Enum
 from typing import Union
 

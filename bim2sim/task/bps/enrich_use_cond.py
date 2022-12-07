@@ -1,10 +1,10 @@
 from typing import Union, Dict
 
+from bim2sim.decision import ListDecision, DecisionBunch
+from bim2sim.kernel.elements.bps import ThermalZone
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import get_usage_dict, get_pattern_usage
-from bim2sim.decision import ListDecision, DecisionBunch, BoolDecision
 from bim2sim.workflow import Workflow
-from bim2sim.kernel.elements.bps import ThermalZone
 
 
 class EnrichUseConditions(ITask):

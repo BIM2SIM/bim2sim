@@ -1,21 +1,15 @@
+import os
 import sys
 import unittest
-import tempfile
-from shutil import copyfile, copytree, rmtree
 from pathlib import Path
-import epregressions
-
-import os
+from shutil import copyfile, copytree, rmtree
 
 from epregressions.diffs import math_diff, table_diff
 from epregressions.diffs.thresh_dict import ThreshDict
 
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
-from bim2sim.project import Project
-from bim2sim import workflow
 from bim2sim.workflow import LOD
-
 
 # raise unittest.SkipTest("Integration tests not reliable for automated use")
 sample_root = Path(__file__).parent.parent.parent / 'test/TestModels/BPS'

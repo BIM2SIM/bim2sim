@@ -5,8 +5,8 @@ from pathlib import Path
 
 from bim2sim.kernel import element
 from bim2sim.kernel.attribute import Attribute
-from bim2sim.kernel.ifc2python import load_ifc
 from bim2sim.kernel.elements import hvac
+from bim2sim.kernel.ifc2python import load_ifc
 from test.unit.kernel.helper import SetupHelperHVAC
 
 TEST_MODELS = Path(__file__).parent.parent.parent / 'TestModels'

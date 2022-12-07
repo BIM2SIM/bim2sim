@@ -17,11 +17,11 @@ from OCC.Core.gp import gp_Pnt
 
 from bim2sim.kernel.elements.bps import SpaceBoundary2B, ThermalZone, Door, \
     Window
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task \
+    import EPGeomPreprocessing
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.utilities.pyocc_tools import PyOCCTools
-from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task \
-    import EPGeomPreprocessing
 
 logger = logging.getLogger(__name__)
 

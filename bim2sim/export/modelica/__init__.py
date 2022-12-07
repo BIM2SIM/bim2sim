@@ -1,15 +1,15 @@
 ﻿"""Package for Modelica export"""
 
-import os
+import codecs
 import logging
+import os
 from pathlib import Path
 from threading import Lock
 from typing import Union, Type, Dict, Container, Tuple, Callable
-import codecs
 
-from mako.template import Template
 import numpy as np
 import pint
+from mako.template import Template
 
 import bim2sim
 from bim2sim import log

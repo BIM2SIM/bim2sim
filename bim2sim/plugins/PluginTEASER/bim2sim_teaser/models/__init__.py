@@ -1,34 +1,32 @@
 """Package for Python representations of HKESim models"""
-from bim2sim.kernel.elements import bps, hvac
 from bim2sim_teaser import export
-from bim2sim.kernel.units import ureg
-from bim2sim.kernel import element
-import bim2sim.kernel.aggregation as aggregation
-
 from teaser.logic.buildingobjects.building import Building as Building_Teaser
+from teaser.logic.buildingobjects.buildingphysics.door \
+    import Door as Door_Teaser
+from teaser.logic.buildingobjects.buildingphysics.floor \
+    import Floor as Floor_Teaser
+from teaser.logic.buildingobjects.buildingphysics.groundfloor \
+    import GroundFloor as GroundFloor_Teaser
+from teaser.logic.buildingobjects.buildingphysics.innerwall \
+    import InnerWall as InnerWall_Teaser
+from teaser.logic.buildingobjects.buildingphysics.layer \
+    import Layer as Layer_Teaser
+from teaser.logic.buildingobjects.buildingphysics.material \
+    import Material as Material_Teaser
+from teaser.logic.buildingobjects.buildingphysics.outerwall \
+    import OuterWall as OuterWall_Teaser
+from teaser.logic.buildingobjects.buildingphysics.rooftop \
+    import Rooftop as Rooftop_Teaser
+from teaser.logic.buildingobjects.buildingphysics.window \
+    import Window as Window_Teaser
 from teaser.logic.buildingobjects.thermalzone import \
     ThermalZone as ThermalZone_Teaser
 from teaser.logic.buildingobjects.useconditions import \
     UseConditions as UseConditions_Teaser
 
-from teaser.logic.buildingobjects.buildingphysics.innerwall \
-    import InnerWall as InnerWall_Teaser
-from teaser.logic.buildingobjects.buildingphysics.outerwall \
-    import OuterWall as OuterWall_Teaser
-from teaser.logic.buildingobjects.buildingphysics.floor \
-    import Floor as Floor_Teaser
-from teaser.logic.buildingobjects.buildingphysics.rooftop \
-    import Rooftop as Rooftop_Teaser
-from teaser.logic.buildingobjects.buildingphysics.groundfloor \
-    import GroundFloor as GroundFloor_Teaser
-from teaser.logic.buildingobjects.buildingphysics.window \
-    import Window as Window_Teaser
-from teaser.logic.buildingobjects.buildingphysics.layer \
-    import Layer as Layer_Teaser
-from teaser.logic.buildingobjects.buildingphysics.material \
-    import Material as Material_Teaser
-from teaser.logic.buildingobjects.buildingphysics.door \
-    import Door as Door_Teaser
+import bim2sim.kernel.aggregation as aggregation
+from bim2sim.kernel.elements import bps
+from bim2sim.kernel.units import ureg
 
 
 class TEASER(export.Instance):

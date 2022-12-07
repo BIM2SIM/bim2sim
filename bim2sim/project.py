@@ -1,25 +1,19 @@
 """Project handling"""
+import configparser
 import logging
 import os
-import sys
-import subprocess
 import shutil
+import subprocess
+import sys
 import threading
 from distutils.dir_util import copy_tree
 from pathlib import Path
-import importlib
-import pkgutil
-import re
-from typing import Dict, List, Type, Union
+from typing import List, Type, Union
 
-import pkg_resources
-
-import configparser
-
-from bim2sim.decision import Decision, ListDecision, DecisionBunch, save, load
 from bim2sim import log
-from bim2sim.task.base import Playground
+from bim2sim.decision import ListDecision, DecisionBunch, save, load
 from bim2sim.plugins import Plugin, load_plugin
+from bim2sim.task.base import Playground
 from bim2sim.utilities.common_functions import all_subclasses
 from bim2sim.workflow import LOD, AutoSettingNameMeta, Workflow
 

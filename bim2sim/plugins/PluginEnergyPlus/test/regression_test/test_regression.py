@@ -1,18 +1,16 @@
+import logging
 import os
 import re
 import shutil
 import sys
 import unittest
-import logging
-from pathlib import Path
 
 from epregressions.diffs import math_diff, table_diff
 from epregressions.diffs.thresh_dict import ThreshDict
 
-from bim2sim import workflow
-from bim2sim.workflow import LOD
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import RegressionTestBase
+from bim2sim.workflow import LOD
 
 logger = logging.getLogger(__name__)
 

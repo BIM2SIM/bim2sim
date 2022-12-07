@@ -2,11 +2,10 @@
 
 import unittest
 
+from bim2sim.decision import DecisionBunch, RealDecision
 from bim2sim.kernel import element
 from bim2sim.kernel.attribute import Attribute
-from bim2sim.decision import Decision, DecisionBunch, RealDecision
 from bim2sim.kernel.units import ureg
-
 from test.unit.kernel.helper import SetupHelperHVAC
 
 

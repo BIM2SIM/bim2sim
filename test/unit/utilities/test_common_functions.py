@@ -1,10 +1,9 @@
 """Test for common_functions.py"""
-import unittest
 import re
+import unittest
 
 import bim2sim.utilities.common_functions as cf
 from bim2sim.kernel.elements.bps import BPSProduct, Wall, Window, Door
-from bim2sim.kernel.aggregation import AggregatedThermalZone
 
 
 class TestCommonFunctions(unittest.TestCase):

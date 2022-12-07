@@ -1,9 +1,8 @@
 ﻿"""Module containing filters to identify IFC elements of interest"""
-from typing import Iterable, Tuple, Dict, Any, Type, List
 import logging
+from typing import Iterable, Tuple, Dict, Any, Type, List
 
 from bim2sim.kernel.element import ProductBased
-
 
 logger = logging.getLogger(__name__)
 
