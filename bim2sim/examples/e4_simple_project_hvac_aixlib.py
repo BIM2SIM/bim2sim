@@ -6,6 +6,13 @@ from bim2sim.log import default_logging_setup
 
 
 def run_example_4():
+    """Run an HVAC simulation with the aixlib backend.
+
+    This example runs an HVAC with the aixlib backend. Specifies project
+    directory and location of the HVAC IFC file. Then, it creates a bim2sim
+    project with the aixlib backend. Workflow settings are specified (here,
+    the aggregations are specified), before the project is executed with the
+    previously specified settings."""
     # Create the default logging to for quality log and bim2sim main log (
     # see logging documentation for more information
     default_logging_setup()
