@@ -24,7 +24,7 @@ you the links, and the path to put them.
 |--------------------------------------------------------------------------------|---------------------------------------------------|
 | [BPS IFC Files](https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download)      | /bim2sim-coding/test/TestModels/BPS               |
 | [HVAC IFC Files](https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download)     | /bim2sim-coding/test/TestModels/HVAC              |
-| [Regression Results](https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download) | /bim2sim-coding/bim2sim/assets/regression_results |
+| [Regression Results](https://rwth-aachen.sciebo.de/s/L7ENUpzSylXvuyb/download) | /bim2sim-coding/bim2sim/assets/regression_results |
 
 ## CI/CD
 
