@@ -29,7 +29,8 @@ When you are done, you can inspect the results from the `/results` folder of you
 
 To include bim2sim in your scripts start with something like this:
 ```python
-from bim2sim import Project, default_logging_setup
+from bim2sim import Project
+from bim2sim.log import default_logging_setup
 
 default_logging_setup()  # call this first or do a custom logging setup
 
