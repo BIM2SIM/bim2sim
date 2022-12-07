@@ -42,8 +42,8 @@ specific tasks.
   * [DisaggregationCreation](DisaggregationCreation)
   * [BindThermalZones](BindThermalZones)
 * EnergyPlus specific tasks:
-  * [IfcValidation](IfcValidation)
-  * [EPGeomPreprocessing](EPGeomPreprocessing)
+  * [IfcValidation](ep_ifc_validation)
+  * [EPGeomPreprocessing](ep_geom_preprocessing)
   * [AddSpaceBoundaries2B](AddSpaceBoundaries2B)
   * [WeatherEnergyPlus](WeatherEnergyPlus)
   * [CreateIdf](CreateIdf)
@@ -54,5 +54,33 @@ specific tasks.
 
 ## EnergyPlus specific tasks
 
+### Validation of the IFC file 
+(ep_ifc_validation)=
+[Go to IfcValidation](IfcValidation)
+
 The EnergyPlus specific tasks start with an EnergyPlus specific validation 
-of the space boundaries provided by the IFC file. 
+of the space boundaries provided by the IFC file. This validation algorihtm 
+is included in the default workflow to give an insight in the quality of the 
+provided IFC.
+
+### Geometric Preprocessing for EnergyPlus Export
+(ep_geom_preprocessing)=
+[Go to EPGeomPreprocessing](EPGeomPreprocessing)
+
+The preprocessed geometry and material needs an additional preprocessing to 
+cover all requirements for the EnergyPlus export. This is done in the 
+[EPGeomPreprocessing](EPGeomPreprocessing). The space boundaries which are 
+further used to model the building geometry are [added](add_bounds_to_instances) 
+to the instances. Minor geometric displacements are fixed by 
+[moving children to their parents](move_children_to_parents). This covers all 
+cases, where opening space boundaries are displaced by the thickness of the wall.
+The surface orientation is [fixed](fix_surface_orientation) if needed 
+(all surface normals are supposed to point outwards the relating space). To
+improve shading calculations and remove inner loops from surfaces, 
+[non-convex space boundaries can be split up](split_non_convex_bounds). Similarly,
+[shadings can be added and split if needed](add_and_split_bounds_for_shadings). 
+
+Use the [settings](settings) to decide if boundaries should be split up and
+if shadings should be added.
+
+
