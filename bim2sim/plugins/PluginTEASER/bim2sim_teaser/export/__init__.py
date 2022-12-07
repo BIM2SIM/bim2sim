@@ -1,10 +1,11 @@
 """Package for TEASER export"""
 
 import logging
-import pint
-
 from threading import Lock
 from typing import Union, Type, Dict, Container, Tuple, Callable, List
+
+import pint
+
 from bim2sim import log
 from bim2sim.kernel import element as elem
 from bim2sim.kernel.element import Element

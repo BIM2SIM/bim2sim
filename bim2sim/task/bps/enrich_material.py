@@ -1,14 +1,13 @@
-import re
 import ast
+import re
 
+from bim2sim.decision import ListDecision, DecisionBunch
+from bim2sim.kernel.element import Material
+from bim2sim.kernel.elements.bps import Layer, LayerSet, Building
 from bim2sim.task.base import ITask
-from bim2sim.decision import BoolDecision, ListDecision, DecisionBunch
-from bim2sim.workflow import LOD
 from bim2sim.utilities.common_functions import get_material_templates, \
     translate_deep, filter_instances, get_type_building_elements
 from bim2sim.workflow import Workflow
-from bim2sim.kernel.elements.bps import Layer, LayerSet, Building, Window
-from bim2sim.kernel.element import Material
 
 
 class EnrichMaterial(ITask):

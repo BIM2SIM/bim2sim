@@ -1,6 +1,6 @@
 from bim2sim.task.base import ITask
-from bim2sim.workflow import Workflow
 from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.workflow import Workflow
 
 
 class BindStoreys(ITask):
