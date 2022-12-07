@@ -50,7 +50,10 @@ setup(
                                                              'bim2sim\\assets\\templates\\check_ifc\\summary_template']),
                   ('bim2sim\\assets\\templates\\modelica', ['bim2sim\\assets\\templates\\modelica\\tmplModel.txt']),
                   ('bim2sim\\assets\\weatherfiles', ['bim2sim\\assets\\weatherfiles\\DEU_NW_Aachen.105010_TMYx.epw',
-                                                     'bim2sim\\assets\\weatherfiles\\DEU_NW_Aachen.105010_TMYx.mos'])
+                                                     'bim2sim\\assets\\weatherfiles\\DEU_NW_Aachen.105010_TMYx.mos']),
+                  ('bim2sim\\assets\\ifc_example_files', ['bim2sim\\assets\\ifc_example_files\\AC20-FZK-Haus.ifc',
+                                                          'bim2sim\\assets\\ifc_example_files\\ERC_EBC_mainbuilding.ifc',
+                                                          'bim2sim\\assets\\ifc_example_files\\hvac_heating.ifc'  ])
 
                   ],
 

@@ -21,8 +21,6 @@ build_bim2sim:
     paths:
       - conda-bld
   only:
-    refs:
-      - 234_release_anaconda
     variables:
       - $CI_COMMIT_MESSAGE  =~ /ci_conda_build/
 
@@ -47,8 +45,6 @@ release_bim2sim:
   dependencies:
     - build_bim2sim
   only:
-    refs:
-      -  234_release_anaconda
     variables:
       - $CI_COMMIT_MESSAGE  =~ /ci_conda_build/
 
