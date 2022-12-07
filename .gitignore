@@ -4,6 +4,9 @@
 /bim2sim/assets/regression_results/*
 /test/TestModels/*
 
+# Dont add IFC to repo
+*.ifc
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
