@@ -12,4 +12,4 @@ viewer.
 Made decisions can be stored between projects to make the usage more efficient.
 
 For more detailed information please have a look at the code documentation
-of [decisionhandler](decisionhandler) and [decision](decision)
+of [decisionhandler](decisionhandler) and [decision](decision).
