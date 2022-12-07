@@ -20,7 +20,7 @@ Welcome to bim2sim's documentation!
    # docker-structure
    # code/modules
    # bim2sim_energyplus/task/*
-   bim2sim_energyplus/*
+   code/modules/plugins/PluginEnergyPlus/bim2sim_energyplus/*
 
 Indices and tables
 ==================
