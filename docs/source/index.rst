@@ -18,7 +18,7 @@ Welcome to bim2sim's documentation!
    concepts
    testing
    docker-structure
-   code/modules
+   # code/modules
    bim2sim_energyplus/task/*
    bim2sim_energyplus/*
 
