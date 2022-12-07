@@ -7,11 +7,11 @@ build_bim2sim:
   image: conda/miniconda3
   stage: build
   script:
-    - sudo apt update
-    - sudo apt install libgl1 -y
-    - sudo conda install conda-build git conda-verify -y
+    - apt update
+    - apt install libgl1 -y
+    - conda install conda-build git conda-verify -y
     - mkdir conda-bld
-    - sudo conda build conda_recipe/meta.yaml -c conda-forge --output-folder conda-bld/ --python 3.9
+    - conda build conda_recipe/meta.yaml -c conda-forge --output-folder conda-bld/ --python 3.9
   retry:
     max: 2
     when: runner_system_failure
