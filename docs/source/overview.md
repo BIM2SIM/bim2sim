@@ -79,7 +79,50 @@ documentation.
 
 ## Simulation Types
 ### Building Performance Simulation (BPS)
-...
+BPS dynamically computes a building's heating and cooling loads for a chosen
+period. The simulation results are a base for the design of heating and cooling
+systems. Even advanced renewable energy systems that require demand management
+can be sized efficiently.
+A building's internal and external thermal loads vary throughout the day. The
+internal temperature changes are caused by the heat exchange with the
+surroundings and the building's thermal mass.
+
+To set up a BPS, one must balance the results' robustness and the workload. The
+selected level of detail of the simulation must fit the problem.
+
+#### Reasons to perform a BPS
+
+It is the current state of the art that a high manual modeling effort is
+required to create a dynamic simulation model of a building. Therefore, thermal
+simulation is often performed, if at all, only for a specific time in a later
+planning phase, when only a few changes to the cubature are expected.
+Alternatively, static calculation methods are used, which cannot represent the
+dynamic loads in the building in detail.
+
+The `bim2sim` tool aims to automate the IFC-based creation of thermal simulation
+models to make BPS accessible for all IFC-based design processes, as the
+designers can significantly influence the building's geometry in the early
+design phases.
+By linking the building simulation to the IFC model, cubature variants can be
+simulated and evaluated without modeling effort.
+The IFC-based setup of the building geometry lowers the barrier for the detailed
+dynamic thermal analysis.
+The considerable CO2 savings potential is to be expected through optimal
+building orientation and optimization of thermal loads in an early planning
+phase.
+
+#### Requirements for BPS in bim2sim
+The BPS part in `bim2sim` requires a sufficient representation of the building.
+This includes a description of:
+* building geometry
+* materials (the building's thermal mass)
+* HVAC systems
+* internal loads (occupancy, equipment, lighting, schedules)
+* external loads (weather)
+* building's location and surroundings (shadings)
+
+This information is extracted from the IFC file. Missing data can be added 
+by using a set of templates. 
 
 ### Heating Ventilation and Air Conditioning (HVAC) Simulation
 HVAC simulations are used to simulate the behaviour of different system 
