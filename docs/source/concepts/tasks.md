@@ -24,7 +24,7 @@ sequence. In interactive mode the user will be prompted will all possible
 tasks
 to execute and can choose one. After the task is done, the user gets again
 all
-possible tasks to execute next. To makes sure that only tasks are executed in
+possible tasks to execute next. To make sure that only tasks are executed in
 sequence which make sense and are implemented, every [ITask](ITask) has two
 tuples: `reads` and `touches`. `reads` defines which parameters this task needs 
 as input and `touches` defines what the task returns. Every task must also hold 
