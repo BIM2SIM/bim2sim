@@ -7,6 +7,15 @@ from bim2sim.workflow import LOD
 
 
 def run_example_3():
+    """Run a building performance simulation with the EnergyPlus backend.
+
+    This example runs a BPS with the EnergyPlus backend. Specifies project
+    directory and location of the IFC file. Then, it creates a bim2sim
+    project with the EnergyPlus backend. Workflow settings are specified (here,
+    the zoning setup is specified to be with a full level of detail: each
+    IfcSpace is represented by a single thermal Zone in EnergyPlus),
+    before the project is executed with the previously specified settings.
+    """
     # Create the default logging to for quality log and bim2sim main log (
     # see logging documentation for more information
     default_logging_setup()

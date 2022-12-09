@@ -1,5 +1,5 @@
-from unittest import mock
 from contextlib import contextmanager
+from unittest import mock
 
 from bim2sim.kernel.elements import hvac, bps
 from bim2sim.kernel.elements.hvac import HVACPort

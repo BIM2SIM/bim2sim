@@ -1,15 +1,16 @@
 """Module to convert ifc data from to python data"""
 from __future__ import annotations
 
-import os
 import logging
 import math
-
-from typing import Optional, Union, TYPE_CHECKING, List, Any
-from ifcopenshell import entity_instance, file, open as ifc_open
+import os
 from collections.abc import Iterable
+from typing import Optional, Union, TYPE_CHECKING, Any
+
+from ifcopenshell import entity_instance, file, open as ifc_open
 
 from bim2sim.kernel.units import parse_ifc
+
 if TYPE_CHECKING:
     from bim2sim.kernel.element import ProductBased
 

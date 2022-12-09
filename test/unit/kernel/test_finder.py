@@ -1,15 +1,14 @@
 ﻿"""Testing Finders
 """
 
-import unittest
 import os
 import tempfile
+import unittest
 
 import bim2sim
-from bim2sim.kernel.elements import hvac
 from bim2sim.kernel import ifc2python
+from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.finder import TemplateFinder
-
 
 IFC_PATH = os.path.abspath(os.path.join(
     os.path.dirname(bim2sim.__file__), '..',

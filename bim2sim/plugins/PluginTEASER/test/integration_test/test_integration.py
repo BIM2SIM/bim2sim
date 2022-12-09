@@ -1,11 +1,8 @@
 import unittest
 
-from pathlib import Path
-
-from bim2sim import workflow
+from bim2sim.decision.console import ConsoleDecisionHandler
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
-from bim2sim.decision.console import ConsoleDecisionHandler
 from bim2sim.workflow import LOD
 
 

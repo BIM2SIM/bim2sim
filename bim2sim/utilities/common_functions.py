@@ -1,11 +1,11 @@
 import collections
+import json
 import math
 import re
-import json
-import bim2sim
-
 from pathlib import Path
 from typing import Union
+
+import bim2sim
 
 assets = Path(bim2sim.__file__).parent / 'assets'
 

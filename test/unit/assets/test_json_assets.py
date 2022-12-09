@@ -1,10 +1,9 @@
 """Testing all json assets for integrity
 """
 
-import unittest
 import os
 import tempfile
-
+import unittest
 from pathlib import Path
 
 import bim2sim

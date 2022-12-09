@@ -18,11 +18,14 @@ class TaskFailed(Exception):
 class ITask:
     """Baseclass for interactive Tasks.
 
-    Attributes:
-        reads: names of the arguments the run() method requires. The arguments are outputs from previous tasks
-        touches: names that are assigned to the return value tuple of method run()
+    Args:
+        reads: names of the arguments the run() method requires. The arguments
+         are outputs from previous tasks
+        touches: names that are assigned to the return value tuple of method
+         run()
         final: flag that indicates termination of project run after this task
-        single_user: flag that indicates if this task can be run multiple times in same Playground
+        single_user: flag that indicates if this task can be run multiple times
+         in same Playground
     """
 
     reads: Tuple[str] = tuple()

@@ -1,3 +1,4 @@
+(docker_structure)=
 # Docker image structure
 As we implemented different plugins for each simulation we provide different
 docker images for. To simplify development we split images into `env.`

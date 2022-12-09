@@ -6,8 +6,7 @@ from bim2sim.log import default_logging_setup
 
 
 def run_example_2():
-    """This runs the building simulation with teaser as backend in interactive 
-    mode.
+    """Run the building simulation with teaser as backend in interactive mode.
     
     Interactive mode means that we use open_conf=True to open up the config.toml
     during the process to change settings and use an interactive PlayGround 

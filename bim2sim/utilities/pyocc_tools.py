@@ -4,7 +4,6 @@ Common tools for handling OCC Shapes within the bim2sim project.
 from typing import List, Tuple, Union
 
 import numpy as np
-
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace, \

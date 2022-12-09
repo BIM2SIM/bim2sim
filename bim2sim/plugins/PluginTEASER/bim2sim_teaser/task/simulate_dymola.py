@@ -1,9 +1,9 @@
 import itertools
+import os
 import re
 import sys
-import os
-
 from pathlib import Path
+
 import bim2sim_teaser
 
 from bim2sim.task.base import ITask

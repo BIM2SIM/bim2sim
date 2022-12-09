@@ -1,21 +1,21 @@
 ﻿"""Module contains the different classes for all HVAC elements"""
 import inspect
 import itertools
-import sys
 import logging
 import math
 import re
+import sys
 from typing import Set, List, Tuple, Generator
 
 import numpy as np
 
-from bim2sim.kernel import condition, attribute
 from bim2sim.decision import ListDecision, DecisionBunch
+from bim2sim.decorators import cached_property
+from bim2sim.kernel import condition, attribute
 from bim2sim.kernel.element import Port, ProductBased
+from bim2sim.kernel.ifc2python import get_ports as ifc2py_get_ports
 from bim2sim.kernel.ifc2python import get_predefined_type
 from bim2sim.kernel.units import ureg
-from bim2sim.decorators import cached_property
-from bim2sim.kernel.ifc2python import get_ports as ifc2py_get_ports
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')

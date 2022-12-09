@@ -7,17 +7,16 @@ This package contains:
     - functions save() and load() to save to file system
 """
 
-import logging
 import enum
-import json
 import hashlib
+import json
+import logging
 from collections import Counter
 from typing import Iterable, Callable, List, Dict, Any, Tuple, Union
 
 import pint
 
 from bim2sim.kernel.units import ureg
-
 
 __VERSION__ = '0.1'
 logger = logging.getLogger(__name__)
