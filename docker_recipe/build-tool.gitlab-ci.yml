@@ -1,0 +1,110 @@
+stages:
+  - build-tool
+
+build_tool:release:
+ image: docker:latest
+ stage: build-tool
+ services:
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
+ before_script:
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+ script:
+   - docker build -t $CI_REGISTRY/tool:latest .
+   - docker push $CI_REGISTRY/tool:latest
+ rules:
+   - if: $CI_COMMIT_BRANCH == "master"
+     when: always
+   - if: $CI_COMMIT_MESSAGE == "ci_build_tool"
+     when: manual
+
+build_tool:development:
+ image: docker:latest
+ stage: build-tool
+ services:
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
+ before_script:
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+ script:
+   - docker build -t $CI_REGISTRY/tool:development .
+   - docker push $CI_REGISTRY/tool:development
+ rules:
+   - if: $CI_COMMIT_BRANCH == "development"
+     when: always
+   - if: $CI_COMMIT_MESSAGE == "ci_build_tool"
+     when: manual
+
+build_tool:webdevelop:
+ image: docker:latest
+ stage: build-tool
+ services:
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
+ before_script:
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+ script:
+   - docker build -t $CI_REGISTRY/tool:web_develop -f total.Dockerfile .
+   - docker push $CI_REGISTRY/tool:web_develop
+ rules:
+   - if: $CI_COMMIT_BRANCH == "development"
+     when: always
+   - if: $CI_COMMIT_MESSAGE == "ci_build_tool"
+     when: manual
+
+build_tool:cfd:
+ image: docker:latest
+ stage: build-tool
+ services:
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
+ before_script:
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+ script:
+   - docker build -t $CI_REGISTRY/tool:cfd -f bim2sim/plugins/PluginCFD/cfd.Dockerfile .
+   - docker push $CI_REGISTRY/tool:cfd
+ rules:
+   - if: $CI_PIPELINE_SOURCE == "push"
+     changes:
+       - bim2sim/plugins/PluginCFD/*
+     when: always
+   - if: $CI_COMMIT_MESSAGE == "ci_build_tool"
+     when: manual
+
+build_tool:teaser:
+ image: docker:latest
+ stage: build-tool
+ services:
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
+ before_script:
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+ script:
+   - docker build -t $CI_REGISTRY/tool:teaser -f bim2sim/plugins/PluginTEASER/teaser.Dockerfile .
+   - docker push $CI_REGISTRY/tool:teaser
+ rules:
+   - if: $CI_PIPELINE_SOURCE == "push"
+     changes:
+       - bim2sim/plugins/PluginTEASER/*
+     when: always
+   - if: $CI_COMMIT_MESSAGE == "ci_build_tool"
+     when: manual
+
+build_tool:aixlib:
+ image: docker:latest
+ stage: build-tool
+ services:
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
+ before_script:
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+ script:
+   - docker build -t $CI_REGISTRY/tool:aixlib -f bim2sim/plugins/PluginAixLib/aixlib.Dockerfile .
+   - docker push $CI_REGISTRY/tool:aixlib
+ rules:
+   - if: $CI_PIPELINE_SOURCE == "push"
+     changes:
+       - bim2sim/plugins/PluginAixLib/*
+     when: always
+   - if: $CI_COMMIT_MESSAGE == "ci_build_tool"
+     when: manual

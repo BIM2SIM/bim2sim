@@ -1,0 +1,27 @@
+stages:
+  - deploy
+
+pages:
+# Page to generate content to be downloaded in the artifact-section.
+ image: ubuntu:latest
+ stage: deploy
+ before_script:
+   - apt-get update -y
+   - apt-get install zip unzip -y
+   - apt-get install curl -y
+ script:
+   - set -e
+   # get existing content with branch artifacts
+   - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
+   - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
+   # delete all branch folders older than 14 days which are not master or development
+   - find public/* -maxdepth 0 -type d -not -name "development" -not -name "master" -mtime +14 -exec rm -rf {} \;
+   # Add/update content
+   - mkdir -p public/$CI_COMMIT_REF_NAME
+   - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
+   # Zip the content and publish the zip again
+   - zip -r "content.zip" "public"
+   - mv "content.zip" "public/"
+ artifacts:
+   paths:
+     - public

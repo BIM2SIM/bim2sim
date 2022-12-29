@@ -1,0 +1,122 @@
+stages:
+  - build-env-plugins
+
+build_env:energyplus:
+  image: docker:latest
+  stage: build-env-plugins
+  services:
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+  script:
+    - docker build -t $CI_REGISTRY/environment:energyplus -f bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile .
+    - docker push $CI_REGISTRY/environment:energyplus
+  rules:
+    - if: $CI_COMMIT_BRANCH == "development"
+      changes:
+        - envBase.Dockerfile
+        - bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile
+        - bim2sim/plugins/PluginEnergyPlus/requirements.txt
+        - requirements.txt
+        - .gitlab-ci.yml
+      when: always
+    - if: $CI_COMMIT_MESSAGE == "ci_build_env_plugins"
+      when: manual
+
+
+build_env:cfd:
+ image: docker:latest
+ stage: build-env-plugins
+ services:
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
+ before_script:
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+ script:
+   - docker build -t $CI_REGISTRY/environment:cfd -f bim2sim/plugins/PluginCFD/envCFD.Dockerfile .
+   - docker push $CI_REGISTRY/environment:cfd
+ timeout: 6 hours
+ rules:
+   - if: $CI_COMMIT_BRANCH == "development"
+     changes:
+       - envBase.Dockerfile
+       - bim2sim/plugins/PluginCFD/envCFD.Dockerfile
+       - requirements.txt
+       - .gitlab-ci.yml
+     when: always
+   - if: $CI_COMMIT_MESSAGE == "ci_build_env_plugins"
+     when: manual
+
+build_env:teaser:
+ image: docker:latest
+ stage: build-env-plugins
+ services:
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
+ before_script:
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+ script:
+   - docker build -t $CI_REGISTRY/environment:teaser -f bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile .
+   - docker push $CI_REGISTRY/environment:teaser
+ rules:
+   - if: $CI_COMMIT_BRANCH == "development"
+     changes:
+       - envBase.Dockerfile
+       - bim2sim/plugins/PluginTEASER/requirements.txt
+       - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
+       - requirements.txt
+       - .gitlab-ci.yml
+     when: always
+   - if: $CI_COMMIT_MESSAGE == "ci_build_env_plugins"
+     when: manual
+
+
+
+
+build_env:teaser-dymola:
+ image: docker:latest
+ stage: build-env-plugins
+ services:
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
+ before_script:
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+ script:
+   - docker build -t $CI_REGISTRY/environment:teaser-dymola -f bim2sim/plugins/PluginTEASER/envTEASER-dymola.Dockerfile .
+   - docker push $CI_REGISTRY/environment:teaser-dymola
+ rules:
+   - if: $CI_COMMIT_BRANCH == "development"
+     changes:
+       - envBase.Dockerfile
+       - bim2sim/plugins/PluginTEASER/requirements.txt
+       - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
+       - requirements.txt
+       - .gitlab-ci.yml
+     when: always
+   - if: $CI_COMMIT_MESSAGE == "ci_build_env_plugins"
+     when: manual
+
+build_env:aixlib:
+ image: docker:latest
+ stage: build-env-plugins
+ services:
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
+ before_script:
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+ script:
+   - docker build -t $CI_REGISTRY/environment:aixlib -f bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile .
+   - docker push $CI_REGISTRY/environment:aixlib
+ rules:
+   - if: $CI_COMMIT_BRANCH == "development"
+     changes:
+       - envBase.Dockerfile
+       - bim2sim/plugins/PluginAixLib/requirements.txt
+       - bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile
+       - requirements.txt
+       - .gitlab-ci.yml
+     when: always
+   - if: $CI_COMMIT_MESSAGE == "ci_build_env_plugins"
+     when: manual
+

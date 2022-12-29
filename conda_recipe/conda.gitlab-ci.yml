@@ -1,11 +1,10 @@
 stages:
-  - build
-  - test
-  - release
+  - conda_build
+  - conda_release
 
 build_bim2sim:
   image: conda/miniconda3
-  stage: build
+  stage: conda_build
   script:
     - apt update
     - apt install libgl1 -y
@@ -26,7 +25,7 @@ build_bim2sim:
 
 release_bim2sim:
   image: conda/miniconda3
-  stage: release
+  stage: conda_release
   script:
     - anaconda login --username bim2sim --password "$CONDA_TOKEN"
     - conda update --all

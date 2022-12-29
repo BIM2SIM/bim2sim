@@ -7,12 +7,19 @@ stages:
   - doc
   - deploy
   - visualize
-  - build
-  - release
+  - conda_build
+  - conda_release
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
 include:
-    - 'docker.gitlab-ci.yml'
+    - 'docker_recipe/build-env.gitlab-ci.yml'
+    - 'docker_recipe/build-env-plugins.gitlab-ci.yml'
+    - 'docker_recipe/build-tool.gitlab-ci.yml'
+    - 'docker_recipe/code_quality.gitlab-ci.yml'
+    - 'docker_recipe/deploy.gitlab-ci.yml'
+    - 'docker_recipe/doc.gitlab-ci.yml'
+    - 'docker_recipe/test.gitlab-ci.yml'
+    - 'docker_recipe/visualize.gitlab-ci.yml'
     - 'conda_recipe/conda.gitlab-ci.yml'
