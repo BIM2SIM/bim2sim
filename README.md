@@ -42,7 +42,8 @@ The development was performed by the following three partners
 * [ROM Technik GmbH](https://www.rom-technik.de/home/)
 
 
-![image](https://user-images.githubusercontent.com/27726960/206203961-93246fde-04e4-49f6-be61-6ba5ca11d32c.png)
+![all_partners](https://user-images.githubusercontent.com/27726960/211298128-09799889-774a-49a5-a7c4-9c9163613990.png)
+
 
 
 ## Upcoming Features:
