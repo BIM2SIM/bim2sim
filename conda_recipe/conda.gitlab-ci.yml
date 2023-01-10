@@ -21,7 +21,7 @@ build_bim2sim:
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
       when: always
-    - if: $CI_COMMIT_MESSAGE == "ci_conda_build"
+    - if: $CI_COMMIT_MESSAGE =~ /ci_conda_build/
       when: always
 
 
@@ -44,7 +44,9 @@ release_bim2sim:
     when: runner_system_failure
   dependencies:
     - build_bim2sim
-  only:
-    variables:
-      - $CI_COMMIT_MESSAGE  =~ /ci_conda_build/
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      when: always
+    - if: $CI_COMMIT_MESSAGE =~ /ci_conda_build/
+      when: always
 
