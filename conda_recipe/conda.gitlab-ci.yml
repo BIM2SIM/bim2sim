@@ -3,7 +3,7 @@ stages:
   - conda_release
 
 build_bim2sim:
-  image: conda/miniconda3
+  image: continuumio/miniconda3
   stage: conda_build
   script:
     - apt update
@@ -18,13 +18,15 @@ build_bim2sim:
     expire_in: 1 hour
     paths:
       - conda-bld
-  only:
-    variables:
-      - $CI_COMMIT_MESSAGE  =~ /ci_conda_build/
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      when: always
+    - if: $CI_COMMIT_MESSAGE == "ci_conda_build"
+      when: always
 
 
 release_bim2sim:
-  image: conda/miniconda3
+  image: continuumio/miniconda3
   stage: conda_release
   script:
     - anaconda login --username bim2sim --password "$CONDA_TOKEN"
