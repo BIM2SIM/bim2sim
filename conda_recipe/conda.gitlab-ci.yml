@@ -6,7 +6,6 @@ build_bim2sim:
   image: continuumio/miniconda3
   stage: conda_build
   script:
-    - echo $CONDA_TOKEN
     - apt update
     - apt install libgl1 -y
     - conda install conda-build git conda-verify -y
@@ -34,7 +33,7 @@ release_bim2sim:
     - apt install libgl1 -y
     - conda install conda-build git conda-verify -y
     - conda install anaconda -y
-    - anaconda login --username bim2sim --password $CONDA_TOKEN
+    - anaconda login --username bim2sim --password "echo $CONDA_TOKEN"
     - conda update --all
     - conda install conda-build anaconda-client
     - conda convert -p osx-64 conda-bld/linux-64/bim2sim-* --output-dir conda-bld/
