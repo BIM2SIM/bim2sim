@@ -6,6 +6,7 @@ build_bim2sim:
   image: continuumio/miniconda3
   stage: conda_build
   script:
+    - echo $CONDA_TOKEN
     - apt update
     - apt install libgl1 -y
     - conda install conda-build git conda-verify -y
