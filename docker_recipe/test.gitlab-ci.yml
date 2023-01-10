@@ -7,7 +7,7 @@ stages:
       changes:
         - bim2sim/**/*.py
       when: always
-    - if: $CI_COMMIT_MESSAGE == "ci_test"
+    - if: $CI_COMMIT_MESSAGE =~ /ci_test/
       when: manual
 
 

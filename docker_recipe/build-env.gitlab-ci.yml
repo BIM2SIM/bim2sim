@@ -18,7 +18,7 @@ build_env:master:
         - envBase.Dockerfile
         - requirements.txt
      when: always
-   - if: $CI_COMMIT_MESSAGE == "ci_build_env"
+   - if: $CI_COMMIT_MESSAGE =~ /ci_build_env/
      when: manual
 
 
@@ -42,7 +42,7 @@ build_env:development:
         - requirements.txt
         - .gitlab-ci.yml
      when: always
-   - if: $CI_COMMIT_MESSAGE == "ci_build_env"
+   - if: $CI_COMMIT_MESSAGE =~ /ci_build_env/
      when: manual
 
 
@@ -66,6 +66,6 @@ build_env:dymola:
         - requirements.txt
         - .gitlab-ci.yml
      when: always
-   - if: $CI_COMMIT_MESSAGE == "ci_build_env"
+   - if: $CI_COMMIT_MESSAGE =~ /ci_build_env/
      when: manual
 

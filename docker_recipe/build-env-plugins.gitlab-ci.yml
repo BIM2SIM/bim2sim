@@ -21,7 +21,7 @@ build_env:energyplus:
         - requirements.txt
         - .gitlab-ci.yml
       when: always
-    - if: $CI_COMMIT_MESSAGE == "ci_build_env_plugins"
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_env_plugins/
       when: manual
 
 
@@ -45,7 +45,7 @@ build_env:cfd:
        - requirements.txt
        - .gitlab-ci.yml
      when: always
-   - if: $CI_COMMIT_MESSAGE == "ci_build_env_plugins"
+   - if: $CI_COMMIT_MESSAGE =~ /ci_build_env_plugins/
      when: manual
 
 build_env:teaser:
@@ -68,7 +68,7 @@ build_env:teaser:
        - requirements.txt
        - .gitlab-ci.yml
      when: always
-   - if: $CI_COMMIT_MESSAGE == "ci_build_env_plugins"
+   - if: $CI_COMMIT_MESSAGE =~ /ci_build_env_plugins/
      when: manual
 
 
@@ -94,7 +94,7 @@ build_env:teaser-dymola:
        - requirements.txt
        - .gitlab-ci.yml
      when: always
-   - if: $CI_COMMIT_MESSAGE == "ci_build_env_plugins"
+   - if: $CI_COMMIT_MESSAGE =~ /ci_build_env_plugins/
      when: manual
 
 build_env:aixlib:
@@ -117,6 +117,6 @@ build_env:aixlib:
        - requirements.txt
        - .gitlab-ci.yml
      when: always
-   - if: $CI_COMMIT_MESSAGE == "ci_build_env_plugins"
+   - if: $CI_COMMIT_MESSAGE =~ /ci_build_env_plugins/
      when: manual
 

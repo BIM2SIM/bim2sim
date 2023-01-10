@@ -15,7 +15,7 @@ build_tool:release:
  rules:
    - if: $CI_COMMIT_BRANCH == "master"
      when: always
-   - if: $CI_COMMIT_MESSAGE == "ci_build_tool"
+   - if: $CI_COMMIT_MESSAGE =~ /ci_build_tool/
      when: manual
 
 build_tool:development:
@@ -32,7 +32,7 @@ build_tool:development:
  rules:
    - if: $CI_COMMIT_BRANCH == "development"
      when: always
-   - if: $CI_COMMIT_MESSAGE == "ci_build_tool"
+   - if: $CI_COMMIT_MESSAGE =~ /ci_build_tool/
      when: manual
 
 build_tool:webdevelop:
@@ -49,7 +49,7 @@ build_tool:webdevelop:
  rules:
    - if: $CI_COMMIT_BRANCH == "development"
      when: always
-   - if: $CI_COMMIT_MESSAGE == "ci_build_tool"
+   - if: $CI_COMMIT_MESSAGE =~ /ci_build_tool/
      when: manual
 
 build_tool:cfd:
@@ -68,7 +68,7 @@ build_tool:cfd:
      changes:
        - bim2sim/plugins/PluginCFD/*
      when: always
-   - if: $CI_COMMIT_MESSAGE == "ci_build_tool"
+   - if: $CI_COMMIT_MESSAGE =~ /ci_build_tool/
      when: manual
 
 build_tool:teaser:
@@ -87,7 +87,7 @@ build_tool:teaser:
      changes:
        - bim2sim/plugins/PluginTEASER/*
      when: always
-   - if: $CI_COMMIT_MESSAGE == "ci_build_tool"
+   - if: $CI_COMMIT_MESSAGE =~ /ci_build_tool/
      when: manual
 
 build_tool:aixlib:
@@ -106,5 +106,5 @@ build_tool:aixlib:
      changes:
        - bim2sim/plugins/PluginAixLib/*
      when: always
-   - if: $CI_COMMIT_MESSAGE == "ci_build_tool"
+   - if: $CI_COMMIT_MESSAGE =~ /ci_build_tool/
      when: manual
