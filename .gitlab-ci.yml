@@ -21,5 +21,4 @@ include:
     - 'docker_recipe/deploy.gitlab-ci.yml'
     - 'docker_recipe/doc.gitlab-ci.yml'
     - 'docker_recipe/test.gitlab-ci.yml'
-    - 'docker_recipe/visualize.gitlab-ci.yml'
     - 'conda_recipe/conda.gitlab-ci.yml'
