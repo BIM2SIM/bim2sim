@@ -46,7 +46,8 @@ def open_config(path):
 def add_config_section(config: configparser.ConfigParser, workflow: Workflow,
                        name: str) -> configparser.ConfigParser:
     """Add a section to config with all attributes and default values."""
-    config.add_section(name)
+    if not name in config._sections:
+        config.add_section(name)
     attributes = [attr for attr in list(workflow.__dict__.keys())
                   if not callable(getattr(workflow, attr)) and not
                   attr.startswith('__')]
@@ -54,7 +55,8 @@ def add_config_section(config: configparser.ConfigParser, workflow: Workflow,
         default_value = getattr(workflow, attr).default
         if isinstance(default_value, LOD):
             default_value = default_value.value
-        config[name][attr] = str(default_value)
+        if not attr in config[name]:
+            config[name][attr] = str(default_value)
     return config
 
 
