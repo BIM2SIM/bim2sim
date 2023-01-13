@@ -6,7 +6,6 @@ stages:
   - build-tool
   - doc
   - deploy
-  - visualize
   - conda_build
   - conda_release
 

@@ -5,7 +5,7 @@ stages:
 .test-default: &test-default
 
   rules:
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master"
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"
       changes:
         - bim2sim/**/*.py
       when: always

@@ -1,7 +1,7 @@
 stages:
   - build-env
 
-build_env:master:
+build_env:main:
  image: docker:latest
  stage: build-env
  services:
@@ -13,7 +13,7 @@ build_env:master:
    - docker build -t $CI_REGISTRY/environment:master -f envBase.Dockerfile .
    - docker push $CI_REGISTRY/environment:master
  rules:
-   - if: $CI_COMMIT_BRANCH == "master"
+   - if: $CI_COMMIT_BRANCH == "main"
      changes:
         - envBase.Dockerfile
         - requirements.txt

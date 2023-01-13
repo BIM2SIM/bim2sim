@@ -13,7 +13,7 @@ build_tool:release:
    - docker build -t $CI_REGISTRY/tool:latest .
    - docker push $CI_REGISTRY/tool:latest
  rules:
-   - if: $CI_COMMIT_BRANCH == "master"
+   - if: $CI_COMMIT_BRANCH == "main"
      when: always
    - if: $CI_COMMIT_MESSAGE =~ /ci_build_tool/
      when: manual
