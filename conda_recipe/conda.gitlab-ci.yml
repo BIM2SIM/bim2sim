@@ -38,9 +38,10 @@ release_bim2sim:
     - conda install conda-build anaconda-client
     - conda convert -p osx-64 conda-bld/linux-64/bim2sim-* --output-dir conda-bld/ -f
     - conda convert -p osx-arm64 conda-bld/linux-64/bim2sim-* --output-dir conda-bld/ -f
+    - conda convert -p win-64 conda-bld/linux-64/bim2sim-* --output-dir conda-bld/ -f
     - anaconda upload conda-bld/linux-64/bim2sim-* --force
     - anaconda upload conda-bld/osx-64/bim2sim-* --force
-    - anaconda upload conda-bld/osx-arm64/bim2sim-* --force
+    - anaconda upload conda-bld/win-64/bim2sim-* --force
   retry:
     max: 2
     when: runner_system_failure
