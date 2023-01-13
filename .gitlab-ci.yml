@@ -390,7 +390,6 @@ test_TEASER_regression:
   before_script:
     - pip install coverage
     - pip install coverage-badge
-    - apt-get install xvfb -y
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
