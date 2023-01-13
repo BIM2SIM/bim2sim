@@ -36,7 +36,7 @@ release_bim2sim:
     - anaconda login --username bim2sim --password $CONDA_TOKEN
     - conda update --all
     - conda install conda-build anaconda-client
-    - anaconda --token=$CONDA_TOKEN upload conda-bld/noarch/bim2sim-*
+    - anaconda upload conda-bld/noarch/bim2sim-*
 
   retry:
     max: 2
