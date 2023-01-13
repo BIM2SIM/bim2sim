@@ -36,13 +36,8 @@ release_bim2sim:
     - anaconda login --username bim2sim --password $CONDA_TOKEN
     - conda update --all
     - conda install conda-build anaconda-client
-    - conda convert -p osx-64 conda-bld/linux-64/bim2sim-* --output-dir conda-bld/
-    - conda convert -p osx-arm64 conda-bld/linux-64/bim2sim-* --output-dir conda-bld/
-    - anaconda --token=$CONDA_TOKEN upload conda-bld/linux-64/bim2sim-*
-    - anaconda --token=$CONDA_TOKEN upload conda-bld/osx-64/bim2sim-*
-    - anaconda --token=$CONDA_TOKEN upload conda-bld/osx-arm64/bim2sim-*
-    - conda env export -n my-environment -f my-environment.yml
-    - anaconda upload my-environment.yml
+    - anaconda --token=$CONDA_TOKEN upload conda-bld/noarch/bim2sim-*
+
   retry:
     max: 2
     when: runner_system_failure
