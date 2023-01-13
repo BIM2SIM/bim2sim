@@ -1,9 +1,8 @@
 ﻿"""Package for Python representations of HKESim models"""
-from bim2sim.kernel.elements import hvac
-from bim2sim.export import modelica
-from bim2sim.kernel import elements
-from bim2sim.kernel.units import ureg
 import bim2sim.kernel.aggregation as aggregation
+from bim2sim.export import modelica
+from bim2sim.kernel.elements import hvac
+from bim2sim.kernel.units import ureg
 
 
 class AixLib(modelica.Instance):
@@ -11,15 +10,30 @@ class AixLib(modelica.Instance):
 
 
 class Boiler(AixLib):
-    path = "AixLib.FastHVAC.Components.HeatGenerators.Boiler.Boiler"
+    path = "AixLib.Systems.ModularEnergySystems.Modules.ModularBoiler." \
+           "ModularBoiler"
     represents = hvac.Boiler
 
     def __init__(self, element):
-        self.check_power = self.check_numeric(min_value=0 * ureg.kilowatt) #TODO: Checking System
         super().__init__(element)
 
     def request_params(self):
-        self.request_param("rated_power", self.check_power, "nominal_power")
+        self.request_param("rated_power",
+                           self.check_numeric(min_value=0 * ureg.kilowatt),
+                           "QNom")
+
+    def get_port_name(self, port):
+        try:
+            index = self.element.ports.index(port)
+        except ValueError:
+            # unknown port
+            index = -1
+        if port.verbose_flow_direction == 'SINK':
+            return 'port_a'
+        if port.verbose_flow_direction == 'SOURCE':
+            return 'port_b'
+        else:
+            return super().get_port_name(port)  # ToDo: Gas connection
 
 
 class Radiator(AixLib):
@@ -199,7 +213,7 @@ class GeneratorOneFluid(AixLib):
 
 
 class Distributor(AixLib):
-    path = "AixLib.Systems.ModularEnergySystems.Modules.Distributor.Distributor"
+    path = "AixLib.Fluid.HeatExchangers.ActiveWalls.Distributor"
     represents = [hvac.Distributor]
 
     def __init__(self, element):
@@ -251,3 +265,29 @@ class Distributor(AixLib):
                         ['flowPorts[%d]' % n if 'port_a' in other_port
                          else 'returnPorts[%d]' % n]
         return '.'.join(list_name)
+
+
+class ThreeWayValve(AixLib):
+    path = "AixLib.Fluid.Actuators.Valves.TwoWayEqualPercentage"
+    represents = [hvac.ThreeWayValve]
+
+    def __init__(self, element):
+        super().__init__(element)
+
+    def request_params(self):
+        self.params['redeclare package Medium'] = 'AixLib.Media.Water'
+
+    def get_port_name(self, port):
+        try:
+            index = self.element.ports.index(port)
+        except ValueError:
+            # unknown port
+            index = -1
+        if index == 0:
+            return "port_a"
+        elif index == 1:
+            return "port_b"
+        elif index == 2:
+            return "port_c"
+        else:
+            return super().get_port_name(port)

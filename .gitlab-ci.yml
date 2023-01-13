@@ -1,8 +1,11 @@
-.only-default: &only-default
+.test-default: &test-default
   only:
-    - master
-    - tags
-    - branches
+    refs:
+      - master
+      - tags
+      - branches
+    changes:
+      - bim2sim/**/*.py
 
 stages:
   - test
@@ -50,7 +53,6 @@ build_env:development:
  only:
    refs:
       - development
-      - 83-split-plugins-from-kernel
    changes:
       - envBase.Dockerfile
       - requirements.txt
@@ -64,15 +66,14 @@ build_env:dymola:
      command: ["--mtu=1440"]
  #- docker:18.09.7-dind
  before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA   # login bim2sim
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA   # login dymola docker reg
  script:
    - docker build -t $CI_REGISTRY/environment:dymola -f envBaseDymola.Dockerfile .
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
    - docker push $CI_REGISTRY/environment:dymola
  only:
    refs:
       - development
-      - 230_regression_tests
    changes:
       - envBaseDymola.Dockerfile
       - requirements.txt
@@ -147,7 +148,8 @@ build_env:teaser-dymola:
  image: docker:latest
  stage: build-env-plugins
  services:
- - docker:18.09.7-dind
+   - name: docker:18.09.7-dind
+     command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
@@ -156,7 +158,6 @@ build_env:teaser-dymola:
  only:
    refs:
      - development
-     - 230_regression_tests
    changes:
      - envBase.Dockerfile
      - bim2sim/plugins/PluginTEASER/requirements.txt
@@ -274,7 +275,7 @@ build_tool:aixlib:
       - bim2sim/plugins/PluginAixLib/*
 
 test_Base:
-  <<: *only-default
+  <<: *test-default
   image: $CI_REGISTRY/environment:development
   stage: test
   services:
@@ -286,6 +287,8 @@ test_Base:
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download
+    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
     - coverage run -m unittest discover /bim2sim-coding/test
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
@@ -299,7 +302,7 @@ test_Base:
     - $CI_COMMIT_REF_NAME/coverage
 
 test_EP:
-  <<: *only-default
+  <<: *test-default
   image: $CI_REGISTRY/environment:energyplus
   stage: test
   services:
@@ -312,6 +315,8 @@ test_EP:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
     - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
+    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration_test
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
@@ -325,7 +330,7 @@ test_EP:
     - $CI_COMMIT_REF_NAME/coverage
 
 test_EP_regression:
-  <<: *only-default
+  <<: *test-default
   image: $CI_REGISTRY/environment:energyplus
   stage: test
   before_script:
@@ -335,6 +340,10 @@ test_EP_regression:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
     - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
+    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
+    - wget --quiet -O /bim2sim-coding/bim2sim/assets/download.zip https://rwth-aachen.sciebo.de/s/5EQqe5g8x0x4lae/download
+    - unzip /bim2sim-coding/bim2sim/assets/download.zip -d /bim2sim-coding/bim2sim/assets/
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/regression_test
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
@@ -348,7 +357,7 @@ test_EP_regression:
     - $CI_COMMIT_REF_NAME/coverage
 
 test_TEASER:
-  <<: *only-default
+  <<: *test-default
   image: $CI_REGISTRY/environment:teaser
   stage: test
   services:
@@ -360,6 +369,8 @@ test_TEASER:
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
+    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration_test
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
@@ -373,7 +384,7 @@ test_TEASER:
     - $CI_COMMIT_REF_NAME/coverage
 
 test_TEASER_regression:
-  <<: *only-default
+  <<: *test-default
   image: $CI_REGISTRY/environment:teaser-dymola
   stage: test
   before_script:
@@ -382,6 +393,10 @@ test_TEASER_regression:
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
+    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
+    - wget --quiet -O /bim2sim-coding/bim2sim/assets/download.zip https://rwth-aachen.sciebo.de/s/5EQqe5g8x0x4lae/download
+    - unzip /bim2sim-coding/bim2sim/assets/download.zip -d /bim2sim-coding/bim2sim/assets/
     - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression_test
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
@@ -395,7 +410,7 @@ test_TEASER_regression:
     - $CI_COMMIT_REF_NAME/coverage
 
 test_CFD:
-  <<: *only-default
+  <<: *test-default
   image: $CI_REGISTRY/environment:cfd
   stage: test
   services:
@@ -407,6 +422,8 @@ test_CFD:
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
+    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginCFD/test/integration_test
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
@@ -420,7 +437,7 @@ test_CFD:
     - $CI_COMMIT_REF_NAME/coverage
 
 test_AixLib:
-  <<: *only-default
+  <<: *test-default
   image: $CI_REGISTRY/environment:aixlib
   stage: test
   services:
@@ -432,6 +449,8 @@ test_AixLib:
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download
+    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration_test
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
@@ -444,7 +463,33 @@ test_AixLib:
     paths:
     - $CI_COMMIT_REF_NAME/coverage
 
+test_LCA:
+  <<: *test-default
+  image: $CI_REGISTRY/environment:development
+  stage: test
+  before_script:
+    - pip install coverage
+    - pip install coverage-badge
+  script:
+    - mv ./* /bim2sim-coding/
+    - cd /bim2sim-coding
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
+    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
+    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginLCA/test/integration_test
+    - coverage report -i
+    - mkdir -p $CI_COMMIT_REF_NAME/coverage
+    - coverage html -i
+    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+    # skip this for now as its only cosmetic and leads to problems
+    # - coverage-badge -o coverage.svg
+    # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/coverage
+
+
 pylint:
+ <<: *test-default
  stage: code_quality
  image: python:3.6
  services:
@@ -474,15 +519,14 @@ pylint:
    expire_in: 2 hrs
 
 sphinxdoc:
- image: $CI_REGISTRY/tool:development
+ image: $CI_REGISTRY/environment:development
  stage: doc
  services:
   - name: docker:18.09.7-dind
     command: ["--mtu=1440"]
  before_script:
+   - mv ./* /bim2sim-coding/
    - pip install -r /bim2sim-coding/docs/requirements.txt
-   - pip install anybadge
-
  script:
    - mkdir -p $CI_COMMIT_REF_NAME/docs
    - sphinx-apidoc -M -o /bim2sim-coding/docs/source/code /bim2sim-coding  # create rst files for all python files
@@ -507,8 +551,8 @@ pages:
    # get existing content with branch artifacts
    - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
    - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
-   # delete all branch folders older than 30 days which are not master or development
-   - find public/* -type d -not -name "development" -not -name "master" -ctime +30 -exec rm -rf {} \;
+   # delete all branch folders older than 14 days which are not master or development
+   - find public/* -maxdepth 0 -type d -not -name "development" -not -name "master" -mtime +14 -exec rm -rf {} \;
    # Add/update content
    - mkdir -p public/$CI_COMMIT_REF_NAME
    - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME

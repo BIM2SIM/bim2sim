@@ -1,11 +1,11 @@
 import collections
+import json
 import math
 import re
-import json
-import bim2sim
-
 from pathlib import Path
 from typing import Union
+
+import bim2sim
 
 assets = Path(bim2sim.__file__).parent / 'assets'
 
@@ -212,9 +212,16 @@ def get_type_building_elements_hvac():
     return type_building_elements
 
 
-def filter_instances(instances, type_name):
+def filter_instances(instances: Union[dict, list], type_name) -> list:
     """Filters the inspected instances by type name (e.g. Wall) and
-    returns them as list"""
+    returns them as list
+
+    Args:
+        instances: dict or list with all bim2sim instances
+        type_name: str or element type to filter for
+    Returns:
+        instances_filtered: list of all bim2sim instances of type type_name
+    """
     instances_filtered = []
     list_instances = instances.values() if type(instances) is dict \
         else instances
@@ -273,6 +280,14 @@ def translate_deep(text, source='auto', target='en'):
     # }
 
 
-def all_subclasses(cls):
-    return set(cls.__subclasses__()).union(
-        [s for c in cls.__subclasses__() for s in all_subclasses(c)])
+def all_subclasses(cls, as_names: bool = False):
+    """Get all subclasses of the given subclass, even subsubclasses and so on
+
+    Args:
+        as_names: boolean, if True the subclasses are returned as names
+        """
+    all_cls = set(cls.__subclasses__()).union(
+            [s for c in cls.__subclasses__() for s in all_subclasses(c)])
+    if as_names:
+        all_cls = [cls.__name__ for cls in all_cls]
+    return all_cls

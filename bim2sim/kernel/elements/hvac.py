@@ -1,17 +1,20 @@
 ﻿"""Module contains the different classes for all HVAC elements"""
 import inspect
 import itertools
-import sys
 import logging
 import math
 import re
+import sys
 from typing import Set, List, Tuple, Generator
 
 import numpy as np
 
-from bim2sim.kernel import condition, attribute
 from bim2sim.decision import ListDecision, DecisionBunch
+from bim2sim.decorators import cached_property
+from bim2sim.kernel import condition, attribute
 from bim2sim.kernel.element import Port, ProductBased
+from bim2sim.kernel.ifc2python import get_ports as ifc2py_get_ports
+from bim2sim.kernel.ifc2python import get_predefined_type
 from bim2sim.kernel.units import ureg
 
 logger = logging.getLogger(__name__)
@@ -44,7 +47,6 @@ class HVACPort(Port):
         self._flow_master = False
         self._flow_direction = None
         self._flow_side = None
-
         self.groups = groups or set()
         self.flow_direction = flow_direction
 
@@ -135,7 +137,13 @@ class HVACPort(Port):
 
     @property
     def flow_side(self):
-        """VL(1), RL(-1), UNKNOWN(0)"""
+        """
+        Flow side of port.
+
+        1 = supply flow (Vorlauf)
+        -1 = return flow (Rücklauf)
+        0 = unknown
+        """
         if self._flow_side is None:
             self._flow_side = self.determine_flow_side()
         return self._flow_side
@@ -196,37 +204,40 @@ class HVACProduct(ProductBased):
         self.inner_connections: List[Tuple[HVACPort, HVACPort]] \
             = self.get_inner_connections()
 
+    @cached_property
+    def expected_hvac_ports(self):
+        raise NotImplementedError(f"Please define the expected number of ports "
+                                  f"for the class {self.__class__.__name__} ")
+
     def get_ports(self) -> list:
-        """
-        Returns a list of ports of this product.
-        """
-        ports = []
-        try:
-            for nested in self.ifc.IsNestedBy:
-                # valid for IFC for Revit v19.2.0.0
-                for element_port_connection in nested.RelatedObjects:
-                    if element_port_connection.is_a() == 'IfcDistributionPort':
-                        ports.append(HVACPort.from_ifc(
-                            ifc=element_port_connection, parent=self))
-                    else:
-                        logger.warning(
-                            "Not included %s as Port in %s",
-                            element_port_connection.is_a(), self)
-        except AttributeError as ae:
-            logger.warning("Failed to create Port")
-            pass
-        # valid for IFC for Revit v19.1.0.0
-        element_port_connections = getattr(self.ifc, 'HasPorts', [])
-        for element_port_connection in element_port_connections:
-            ports.append(HVACPort.from_ifc(
-                ifc=element_port_connection.RelatingPort, parent=self))
-        return ports
+        """Returns a list of ports of this product."""
+        ports = ifc2py_get_ports(self.ifc)
+        hvac_ports = []
+        for port in ports:
+            port_valid = True
+            if port.is_a() != 'IfcDistributionPort':
+                port_valid = False
+            else:
+                predefined_type = get_predefined_type(port)
+                if predefined_type in [
+                    'CABLE', 'CABLECARRIER', 'WIRELESS']:
+                    port_valid = False
+            if port_valid:
+                hvac_ports.append(HVACPort.from_ifc(
+                    ifc=port, parent=self))
+            else:
+                logger.warning(
+                    "Not included %s as Port in %s with GUID %s",
+                    port.is_a(),
+                    self.__class__.__name__,
+                    self.guid)
+        return hvac_ports
 
     def get_inner_connections(self) -> List[Tuple[HVACPort, HVACPort]]:
-        """Returns inner connections of Element
+        """Returns inner connections of Element.
 
-        by default each port is connected to each other port.
-        Overwrite for other connections"""
+        By default each port is connected to each other port.
+        Overwrite for other connections."""
 
         connections = []
         for port0, port1 in itertools.combinations(self.ports, 2):
@@ -235,8 +246,9 @@ class HVACProduct(ProductBased):
 
     def decide_inner_connections(self) -> Generator[DecisionBunch, None, None]:
         """Generator method yielding decisions to set inner connections."""
+
         if len(self.ports) < 2:
-            # no chance to connect anything
+            # not possible to connect anything
             return
 
         # TODO: extend pattern
@@ -295,6 +307,21 @@ class HVACProduct(ProductBased):
         rl.flow_side = -1
         self.inner_connections.append((vl, rl))
 
+    def validate_ports(self):
+        if len(self.ports) != self.expected_hvac_ports:
+            return False
+        return True
+
+    def is_generator(self):
+        return False
+
+    def is_consumer(self):
+        return False
+
+    def calc_cost_group(self) -> [int]:
+        """Default cost group for HVAC elements is 400"""
+        return 400
+
     def __repr__(self):
         return "<%s (ports: %d)>" % (self.__class__.__name__, len(self.ports))
 
@@ -322,6 +349,10 @@ class HeatPump(HVACProduct):
                     '[percentage_of_rated_power,efficiency]',
         unit=ureg.dimensionless
     )
+
+    @cached_property
+    def expected_hvac_ports(self):
+        return 4
 
 
 class Chiller(HVACProduct):
@@ -387,6 +418,10 @@ class Chiller(HVACProduct):
         description='Minimum power at which Chiller operates at.',
         unit=ureg.kilowatt,
     )
+
+    @cached_property
+    def expected_hvac_ports(self):
+        return 4
 
 
 class CoolingTower(HVACProduct):
@@ -458,58 +493,21 @@ class Boiler(HVACProduct):
         re.compile('Boiler', flags=re.IGNORECASE),
     ]
 
-    # def _add_ports(self):
-    #    super()._add_ports()
-    #    for port in self.ports:
-    #        if port.flow_direction == 1:
-    #            port.flow_master = True
-    #        elif port.flow_direction == -1:
-    #            port.flow_master = True
+    @cached_property
+    def expected_hvac_ports(self):
+        return 2
 
     def is_generator(self):
-        """boiler is generator function"""
+        """Boiler is a generator function."""
         return True
 
-    # @lru_cache()
     def get_inner_connections(self):
-        return []  #
-        # connections = []
-        # vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)  # TODO: extend pattern
-        # rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
-        # VL = []
-        # RL = []
-        # for port in self.ports:
-        #     if any(filter(vl_pattern.match, port.groups)):
-        #         if port.flow_direction == 1:
-        #             VL.append(port)
-        #         else:
-        #             logger.warning("Flow direction (%s) of %s does not match %s",
-        #                                 port.verbose_flow_direction, port, port.groups)
-        #             decision = BoolDecision(
-        #                 "Use %s as VL?" % (port),
-        #                 global_key=port.guid)
-        #             use = decision.decide()
-        #             if use:
-        #                 VL.append(port)
-        #     elif any(filter(rl_pattern.match, port.groups)):
-        #         if port.flow_direction == -1:
-        #             RL.append(port)
-        #         else:
-        #             logger.warning("Flow direction (%s) of %s does not match %s",
-        #                                 port.verbose_flow_direction, port, port.groups)
-        #             decision = BoolDecision(
-        #                 "Use %s as RL?" % (port),
-        #                 global_key=port.guid)
-        #             use = decision.decide()
-        #             if use:
-        #                 RL.append(port)
-        # if len(VL) == 1 and len(RL) == 1:
-        #     VL[0].flow_side = 1
-        #     RL[0].flow_side = -1
-        #     connections.append((RL[0], VL[0]))
-        # else:
-        #     logger.warning("Unable to solve inner connections for %s", self)
-        # return connections
+        # TODO see #167
+        if len(self.ports) > 2:
+            return []
+        else:
+            connections = super().get_inner_connections()
+            return connections
 
     water_volume = attribute.Attribute(
         description="Water volume of boiler",
@@ -557,6 +555,7 @@ class Boiler(HVACProduct):
     def _calc_nominal_efficiency(self, name):
         """function to calculate the boiler nominal efficiency using the
         efficiency curve"""
+
         if isinstance(self.efficiency, list):
             efficiency_curve = {y: x for x, y in self.efficiency}
             nominal_eff = efficiency_curve.get(1, None)
@@ -665,6 +664,10 @@ class Pipe(HVACProduct):
              'SPOOL']
     }
 
+    @cached_property
+    def expected_hvac_ports(self):
+        return 2
+
     conditions = [
         condition.RangeCondition("diameter", 5.0 * ureg.millimeter,
                                  300.00 * ureg.millimeter)  # ToDo: unit?!
@@ -749,6 +752,14 @@ class PipeFitting(HVACProduct):
             ['*', 'BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION',
              'OBSTRUCTION', 'TRANSITION']
     }
+    pattern_ifc_type = [
+        re.compile('Bogen', flags=re.IGNORECASE),
+        re.compile('Bend', flags=re.IGNORECASE),
+    ]
+
+    @cached_property
+    def expected_hvac_ports(self):
+        return 2
 
     conditions = [
         condition.RangeCondition("diameter", 5.0 * ureg.millimeter,
@@ -766,7 +777,7 @@ class PipeFitting(HVACProduct):
     )
 
     length = attribute.Attribute(
-        default_ps=("Qto_PipeSegmentBaseQuantities", "Length"),
+        default_ps=("Qto_PipeFittingBaseQuantities", "Length"),
         unit=ureg.meter,
         patterns=[
             re.compile('.*Länge.*', flags=re.IGNORECASE),
@@ -801,12 +812,35 @@ class PipeFitting(HVACProduct):
         return value
 
 
+class Junction(PipeFitting):
+    ifc_types = {
+        "IfcPipeFitting": ['JUNCTION']
+    }
+
+    pattern_ifc_type = [
+        re.compile('T-St(ü|ue)ck', flags=re.IGNORECASE),
+        re.compile('T-Piece', flags=re.IGNORECASE)
+    ]
+
+    @cached_property
+    def expected_hvac_ports(self):
+        return 3
+
+    # expected_hvac_ports = 3
+
+
 class SpaceHeater(HVACProduct):
     ifc_types = {'IfcSpaceHeater': ['*', 'CONVECTOR', 'RADIATOR']}
 
     pattern_ifc_type = [
+        re.compile('Heizk(ö|oe)rper', flags=re.IGNORECASE),
         re.compile('Space.?heater', flags=re.IGNORECASE)
     ]
+
+    @cached_property
+    def expected_hvac_ports(self):
+        return 2
+    # expected_hvac_ports = 2
 
     def is_consumer(self):
         return True
@@ -915,6 +949,8 @@ class Storage(HVACProduct):
                                  math.inf * ureg.liter)
     ]
 
+    # expected_hvac_ports = float('inf')
+
     pattern_ifc_type = [
         re.compile('Tank', flags=re.IGNORECASE),
         re.compile('Speicher', flags=re.IGNORECASE),
@@ -973,6 +1009,8 @@ class Distributor(HVACProduct):
              'MANHOLE', 'METERCHAMBER', 'SUMP', 'TRENCH', 'VALVECHAMBER']
     }
 
+    # expected_hvac_ports = float('inf')
+
     pattern_ifc_type = [
         re.compile('Distribution.?chamber', flags=re.IGNORECASE),
         re.compile('Distributor', flags=re.IGNORECASE),
@@ -1002,6 +1040,12 @@ class Pump(HVACProduct):
              'VERTICALTURBINE']
     }
 
+    @cached_property
+    def expected_hvac_ports(self):
+        return 2
+
+    # expected_hvac_ports = 2
+
     pattern_ifc_type = [
         re.compile('Pumpe', flags=re.IGNORECASE),
         re.compile('Pump', flags=re.IGNORECASE)
@@ -1010,12 +1054,12 @@ class Pump(HVACProduct):
     rated_current = attribute.Attribute(
         description="Rated current of pump",
         default_ps=('Pset_ElectricalDeviceCommon', 'RatedCurrent'),
-        unit=ureg.volt,
+        unit=ureg.ampere,
     )
     rated_voltage = attribute.Attribute(
         description="Rated current of pump",
         default_ps=('Pset_ElectricalDeviceCommon', 'RatedVoltage'),
-        unit=ureg.ampere,
+        unit=ureg.volt,
     )
 
     def _calc_rated_power(self, name) -> ureg.Quantity:
@@ -1061,13 +1105,19 @@ class Pump(HVACProduct):
 class Valve(HVACProduct):
     ifc_types = {
         "IfcValve":
-            ['*', 'AIRRELEASE', 'ANTIVACUUM', 'CHANGEOVER', 'CHECK',
+             ['*', 'AIRRELEASE', 'ANTIVACUUM', 'CHANGEOVER', 'CHECK',
              'COMMISSIONING', 'DIVERTING', 'DRAWOFFCOCK', 'DOUBLECHECK',
              'DOUBLEREGULATING', 'FAUCET', 'FLUSHING', 'GASCOCK',
              'GASTAP', 'ISOLATING', 'MIXING', 'PRESSUREREDUCING',
              'PRESSURERELIEF', 'REGULATING', 'SAFETYCUTOFF', 'STEAMTRAP',
              'STOPCOCK']
     }
+
+    @cached_property
+    def expected_hvac_ports(self):
+        return 2
+
+    # expected_hvac_ports = 2
 
     pattern_ifc_type = [
         re.compile('Valve', flags=re.IGNORECASE),
@@ -1077,7 +1127,7 @@ class Valve(HVACProduct):
 
     conditions = [
         condition.RangeCondition("diameter", 5.0 * ureg.millimeter,
-                                 500.00 * ureg.millimeter)  # ToDo: unit?!
+                                 500.00 * ureg.millimeter)
     ]
 
     nominal_pressure_difference = attribute.Attribute(
@@ -1100,6 +1150,7 @@ class Valve(HVACProduct):
 
     diameter = attribute.Attribute(
         description='Valve diameter',
+        default_ps=('Pset_ValveTypeCommon', 'Size'),
         unit=ureg.millimeter,
         patterns=[
             re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
@@ -1112,6 +1163,21 @@ class Valve(HVACProduct):
         description='Length of Valve',
         unit=ureg.meter,
     )
+
+
+class ThreeWayValve(Valve):
+    ifc_types = {
+        "IfcValve":
+            ['MIXING']
+    }
+
+    pattern_ifc_type = [
+        re.compile('3-Wege.*?ventil', flags=re.IGNORECASE)
+    ]
+
+    @cached_property
+    def expected_hvac_ports(self):
+        return 3
 
 
 class Duct(HVACProduct):
@@ -1174,6 +1240,10 @@ class Medium(HVACProduct):
     pattern_ifc_type = [
         re.compile('Medium', flags=re.IGNORECASE)
     ]
+
+    @cached_property
+    def expected_hvac_ports(self):
+        return 0
 
 
 class CHP(HVACProduct):

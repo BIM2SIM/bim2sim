@@ -1,15 +1,15 @@
 # stage 0: aixlib (use aixlib as base layer because it has least dependencies)
-FROM registry.git-ce.rwth-aachen.de/ebc/projects/ebc0438_bmwi_bim2sim_ges/bim2sim-coding/environment:aixlib AS aixlib
+FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/environment:aixlib AS aixlib
 
 # stage 1: teaser
-FROM registry.git-ce.rwth-aachen.de/ebc/projects/ebc0438_bmwi_bim2sim_ges/bim2sim-coding/environment:teaser AS teaser
+FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/environment:teaser AS teaser
 # copy python installs from aixlib stage
 
 # stage 2: cfd
-FROM registry.git-ce.rwth-aachen.de/ebc/projects/ebc0438_bmwi_bim2sim_ges/bim2sim-coding/environment:energyplus AS energyplus
+FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/environment:energyplus AS energyplus
 
 # stage 3: cfd plugin (use cfd as last image because it has most dependencies and already holds base image)
-FROM registry.git-ce.rwth-aachen.de/ebc/projects/ebc0438_bmwi_bim2sim_ges/bim2sim-coding/environment:cfd AS cfd
+FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/environment:cfd AS cfd
 
 # copy and merge python installs from previous stages
 COPY --from=teaser /opt/conda/envs/env/ /tmp/teaser_env

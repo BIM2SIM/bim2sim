@@ -1,4 +1,5 @@
 import unittest
+
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
 
 from bim2sim.task.common.inner_loop_remover import convex_decomposition_base

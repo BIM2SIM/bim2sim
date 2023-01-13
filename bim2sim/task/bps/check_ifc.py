@@ -1,5 +1,5 @@
-from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.kernel.elements import bps
+from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.task.common.common import CheckIfc
 
 
@@ -679,7 +679,6 @@ class CheckIfcBPS(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        # todo refactor for #221
         blacklist = ['IfcBuilding', 'IfcSite', 'IfcBuildingStorey', 'IfcSpace']
         if not (inst.is_a() in blacklist):
             return len(get_layers_ifc(inst)) > 0

@@ -1,15 +1,15 @@
 ﻿"""Package for Modelica export"""
 
-import os
+import codecs
 import logging
+import os
 from pathlib import Path
 from threading import Lock
 from typing import Union, Type, Dict, Container, Tuple, Callable
-import codecs
 
-from mako.template import Template
 import numpy as np
 import pint
+from mako.template import Template
 
 import bim2sim
 from bim2sim import log
@@ -164,8 +164,8 @@ class Instance:
         return False
 
     @staticmethod
-    def init_factory(libraries):
-        """initialize lookup for factory"""
+    def init_factory(libraries: tuple):
+        """Initialize lookup for factory"""
         conflict = False
         Instance.dummy = Dummy
         for library in libraries:

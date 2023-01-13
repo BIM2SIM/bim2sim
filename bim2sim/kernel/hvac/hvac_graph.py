@@ -3,9 +3,10 @@ network
 where each node represents a hvac-component
 """
 
-import os
-import logging
 import itertools
+import logging
+import os
+from pathlib import Path
 from typing import Set, Iterable, Type
 
 import networkx as nx
@@ -101,7 +102,8 @@ class HvacGraph(nx.Graph):
         base_cycles = nx.cycle_basis(self)
         # for cycle in base_cycles:
         #     x = {port.parent for port in cycle}
-        cycles = [cycle for cycle in base_cycles if len({port.parent for port in cycle}) > 1]
+        cycles = [cycle for cycle in base_cycles if len(
+            {port.parent for port in cycle}) > 1]
         logger.info("Found %d cycles", len(cycles))
         return cycles
 
@@ -109,12 +111,18 @@ class HvacGraph(nx.Graph):
     def get_type_chains(
             element_graph: nx.Graph,
             types: Iterable[Type[ProductBased]],
-            include_singles=False):
-        """Returns lists of consecutive elements of the given types ordered as connected.
+            include_singles: bool = False):
+        """Get lists of consecutive elements of the given types. Elements are
+        ordered in the same way as the are connected.
 
-        :param include_singles:
-        :param element_graph: graph object with elements as nodes
-        :param types: items the chains are built of"""
+        Args:
+            element_graph: Graph object with elements as nodes.
+            types: Items the chains are built of.
+            include_singles:
+
+        Returns:
+            chain_lists: Lists of consecutive elements.
+        """
 
         undirected_graph = element_graph
         nodes_degree2 = [v for v, d in undirected_graph.degree() if 1 <= d <= 2
@@ -132,7 +140,8 @@ class HvacGraph(nx.Graph):
                 if include_singles:
                     chain_lists.append(list(subgraph.nodes))
                 continue
-            elements = nx.shortest_path(subgraph, *end_nodes)  # TODO more efficient
+            # TODO more efficient
+            elements = nx.shortest_path(subgraph, *end_nodes)
             chain_lists.append(elements)
 
         return chain_lists
@@ -171,51 +180,71 @@ class HvacGraph(nx.Graph):
     #     """Returns list of nodes represented by graph"""
     #     return list(self.nodes)
 
-    def plot(self, path=None, ports=False):
-        """Plot graph
+    def plot(self, path: Path = None, ports: bool = False, dpi: int = 400):
+        """Plot graph and either display or save as pdf file.
 
-        if path is provided plot is saved as pdf else it gets displayed"""
+        Args:
+            path: If provided, the graph is saved there as pdf file.
+            ports: If True, the port graph is plotted.
+            dpi: dots per inch, increase for higher quality (takes longer to
+             render)
+        """
         # importing matplotlib is slow and plotting is optional
         import matplotlib.pyplot as plt
 
         # https://plot.ly/python/network-graphs/
-        colors = {
-            1: 'green',
-            0: 'blue',
-            -1: 'red',
-            None: 'yellow',
+        edge_colors_flow_side = {
+            1: dict(edge_color='red'),
+            -1: dict(edge_color='blue'),
+            0: dict(edge_color='grey'),
+            None: dict(edge_color='grey'),
+        }
+        node_colors_flow_direction = {
+            1: dict(node_color='white', edgecolors='blue'),
+            -1: dict(node_color='blue', edgecolors='black'),
+            0: dict(node_color='grey', edgecolors='black'),
+            None: dict(node_color='grey', edgecolors='black'),
         }
 
         kwargs = {}
         if ports:
+            # set port (nodes) colors based on flow direction
             graph = self
-            node_color_map = [colors[port.flow_side] for port in self]
-            kwargs['node_color'] = node_color_map
+            kwargs['node_color'] = [
+                node_colors_flow_direction[
+                    port.flow_direction]['node_color'] for port in self]
+            kwargs['edgecolors'] = [
+                node_colors_flow_direction[
+                    port.flow_direction]['edgecolors'] for port in self]
+            kwargs['edge_color'] = 'grey'
         else:
-            # set connection colors based on flow_side
+            kwargs['node_color'] = 'blue'
+            kwargs['edgecolors'] = 'black'
+            # set connection colors (edges) based on flow side
             graph = self.element_graph
             edge_color_map = []
             for edge in graph.edges:
                 sides0 = {port.flow_side for port in edge[0].ports}
                 sides1 = {port.flow_side for port in edge[1].ports}
                 side = None
-                # element with multiple sides is usually a consumer / generator (or result of conflicts)
-                # hence side of definite element is used
+                # element with multiple sides is usually a consumer / generator
+                # (or result of conflicts) hence side of definite element is
+                # used
                 if len(sides0) == 1:
                     side = sides0.pop()
                 elif len(sides1) == 1:
                     side = sides1.pop()
-                edge_color_map.append(colors[side])
+                edge_color_map.append(edge_colors_flow_side[side]['edge_color'])
             kwargs['edge_color'] = edge_color_map
 
-        nx.draw(graph, node_size=6, font_size=5, with_labels=True, **kwargs)
+        plt.figure(dpi=dpi)
+        nx.draw(graph, node_size=10, font_size=5, linewidths=0.7,
+                with_labels=True, **kwargs)
         plt.draw()
         if path:
-            name = "%sgraph.pdf"%("port" if ports else "element")
+            name = "%sgraph.pdf" % ("port" if ports else "element")
             try:
-                plt.savefig(
-                    os.path.join(path, name),
-                    bbox_inches='tight')
+                plt.savefig(os.path.join(path, name), bbox_inches='tight')
             except IOError as ex:
                 logger.error("Unable to save plot of graph (%s)", ex)
         else:
@@ -233,13 +262,21 @@ class HvacGraph(nx.Graph):
 
     @staticmethod
     def remove_not_wanted_nodes(
-            graph,
+            graph: element_graph,
             wanted: Set[Type[ProductBased]],
             inert: Set[Type[ProductBased]] = None):
-        """ removes not wanted and not inert nodes from the given graph."""
+        """Removes not wanted and not inert nodes from the given graph.
+
+        Args:
+            graph: element_graph
+            wanted: set of all elements that are wanted and should persist in
+                graph
+            inert: set all inert elements. Are treated the same as wanted.
+        """
         if inert is None:
             inert = set()
-        if not all(map(lambda item: issubclass(item, ProductBased), wanted | inert)):
+        if not all(map(
+                lambda item: issubclass(item, ProductBased), wanted | inert)):
             raise AssertionError("Invalid type")
         _graph = graph.copy()
         # remove blocking nodes
@@ -393,13 +430,16 @@ class HvacGraph(nx.Graph):
             # update graph after removing bypasses
             basis_cycles = nx.cycle_basis(_graph)
 
-        basis_cycle_sets = [frozenset((node.guid for node in basis_cycle)) for basis_cycle in basis_cycles]  # hashable
-        wanted_guids = {node.guid for node in _graph.nodes if type(node) in wanted}
+        basis_cycle_sets = [frozenset((node.guid for node in basis_cycle))
+                            for basis_cycle in basis_cycles]  # hashable
+        wanted_guids = {node.guid
+                        for node in _graph.nodes if type(node) in wanted}
 
         occurrence_cycles = {}
         cycle_occurrences = {}
         for cycle in basis_cycle_sets:
-            wanteds = frozenset(guid_node for guid_node in cycle if guid_node in wanted_guids)
+            wanteds = frozenset(
+                guid_node for guid_node in cycle if guid_node in wanted_guids)
             if len(wanteds) > 1:
                 cycle_occurrences[cycle] = wanteds
                 for item in wanteds:
@@ -422,7 +462,8 @@ class HvacGraph(nx.Graph):
                 known = []
                 related_cycles(item, known)
                 cycle_sets.append(known)
-                known_items = known_items | {oc for k in known for oc in cycle_occurrences[k]}
+                known_items = known_items | {
+                    oc for k in known for oc in cycle_occurrences[k]}
 
         def group_parallels(graph, group_attr, cond, threshold=None):
             """ group a graph of parallel items by conditions. Currently only
@@ -482,7 +523,8 @@ class HvacGraph(nx.Graph):
                 graphs.append(_graph)
         return graphs
 
-    def recurse_set_side(self, port, side, known: dict = None, raise_error=True):
+    def recurse_set_side(self, port, side, known: dict = None,
+                         raise_error=True):
         """Recursive set flow_side to connected ports"""
         if known is None:
             known = {}
@@ -505,7 +547,8 @@ class HvacGraph(nx.Graph):
 
         # call neighbours
         for neigh in self.neighbors(port):
-            if (neigh.parent.is_consumer() or neigh.parent.is_generator()) and port.parent is neigh.parent:
+            if (neigh.parent.is_consumer() or neigh.parent.is_generator()) \
+                    and port.parent is neigh.parent:
                 # switch flag over consumers / generators
                 self.recurse_set_side(neigh, -side, known, raise_error)
             else:
@@ -513,7 +556,8 @@ class HvacGraph(nx.Graph):
 
         return known
 
-    def recurse_set_unknown_sides(self, port, visited: list = None, masters: list = None):
+    def recurse_set_unknown_sides(self, port, visited: list = None,
+                                  masters: list = None):
         """Recursive checks neighbours flow_side.
         :returns tuple of
             common flow_side (None if conflict)
@@ -537,12 +581,15 @@ class HvacGraph(nx.Graph):
         neighbour_sides = {}
         for neigh in self.neighbors(port):
             if neigh not in visited:
-                if (neigh.parent.is_consumer() or neigh.parent.is_generator()) and port.parent is neigh.parent:
+                if (neigh.parent.is_consumer() or neigh.parent.is_generator()) \
+                        and port.parent is neigh.parent:
                     # switch flag over consumers / generators
-                    side, _, _ = self.recurse_set_unknown_sides(neigh, visited, masters)
+                    side, _, _ = self.recurse_set_unknown_sides(
+                        neigh, visited, masters)
                     side = -side
                 else:
-                    side, _, _ = self.recurse_set_unknown_sides(neigh, visited, masters)
+                    side, _, _ = self.recurse_set_unknown_sides(
+                        neigh, visited, masters)
                 neighbour_sides[neigh] = side
             # else:
             #     print(neigh, neigh.flow_side)
@@ -632,7 +679,8 @@ class HvacGraph(nx.Graph):
         All graph nodes not in inert or wanted are counted as blocking
         :returns: list of none overlapping subgraphs
         """
-        if not all(map(lambda item: issubclass(item, ProductBased), wanted | inert)):
+        if not all(map(lambda item: issubclass(
+                item, ProductBased), wanted | inert)):
             raise AssertionError("Invalid type")
         _graph = HvacGraph.remove_not_wanted_nodes(graph, wanted, inert)
 

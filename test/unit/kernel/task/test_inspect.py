@@ -1,22 +1,22 @@
-import unittest
-from unittest.mock import patch, MagicMock
-from pathlib import Path
 import tempfile
+import unittest
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 import numpy as np
 
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.kernel.element import Element, Port, ProductBased
+from bim2sim.kernel.element import Port, ProductBased
 from bim2sim.kernel.elements.hvac import HeatExchanger, Pipe, PipeFitting
-from bim2sim.task import hvac
+from bim2sim.plugins import Plugin
+from bim2sim.project import Project, FolderStructure
 from bim2sim.task import common
+from bim2sim.task import hvac
 from bim2sim.task.hvac import ConnectElements
 from bim2sim.workflow import PlantSimulation
-from bim2sim.project import Project, FolderStructure
-from bim2sim.plugins import Plugin
 
 
-class DummyPlugin(Plugin):
+class PluginDummy(Plugin):
     name = 'test'
     default_workflow = PlantSimulation
     elements = {Pipe, PipeFitting, HeatExchanger}
@@ -33,7 +33,7 @@ class DummyPlugin(Plugin):
     #     playground.run_task(hvac.ConnectElements())
 
 
-sample_root = Path(__file__).parent.parent.parent.parent / 'TestModels'
+sample_root = Path(__file__).parent.parent.parent.parent / 'TestModels' / 'HVAC'
 
 
 class TestInspect(unittest.TestCase):
@@ -45,7 +45,7 @@ class TestInspect(unittest.TestCase):
         print(cls.test_dir.name)
 
         # create initial folder structure
-        project = Project.create(cls.test_dir.name, plugin=DummyPlugin)
+        project = Project.create(cls.test_dir.name, plugin=PluginDummy)
         # deactivate created project
         project.finalize(True)
 
@@ -54,7 +54,7 @@ class TestInspect(unittest.TestCase):
         cls.test_dir.cleanup()
 
     def setUp(self) -> None:
-        self.project = Project(self.test_dir.name, plugin=DummyPlugin)
+        self.project = Project(self.test_dir.name, plugin=PluginDummy)
 
     def tearDown(self):
         self.project.finalize()
@@ -63,7 +63,7 @@ class TestInspect(unittest.TestCase):
         """HeatExchange with 4 (semantically) connected pipes"""
         with patch.object(FolderStructure, 'ifc',
                           sample_root / 'B01_2_HeatExchanger_Pipes.ifc'):
-            handler = DebugDecisionHandler(["Other", HeatExchanger.key])
+            handler = DebugDecisionHandler([HeatExchanger.key])
             handler.handle(self.project.run(cleanup=False))
 
         instances = self.project.playground.state['instances']
@@ -74,7 +74,10 @@ class TestInspect(unittest.TestCase):
         """HeatExchange and Pipes are exported without ports"""
         with patch.object(FolderStructure, 'ifc',
                           sample_root / 'B01_3_HeatExchanger_noPorts.ifc'):
-            handler = DebugDecisionHandler(["Other", HeatExchanger.key])
+            # handler = ConsoleDecisionHandler()
+            # handler.handle(self.project.run())
+            handler = DebugDecisionHandler([HeatExchanger.key,
+                                            *(Pipe.key,) * 4])
             handler.handle(self.project.run(cleanup=False))
         instances = self.project.playground.state['instances']
         heat_exchanger = instances.get('0qeZDHlQRzcKJYopY4$fEf')
@@ -87,7 +90,7 @@ class TestInspect(unittest.TestCase):
         """No connections but ports are less than 10 mm apart"""
         with patch.object(FolderStructure, 'ifc',
                           sample_root / 'B01_4_HeatExchanger_noConnection.ifc'):
-            handler = DebugDecisionHandler(["Other", HeatExchanger.key])
+            handler = DebugDecisionHandler([HeatExchanger.key])
             handler.handle(self.project.run(cleanup=False))
 
         instances = self.project.playground.state['instances']
@@ -99,7 +102,7 @@ class TestInspect(unittest.TestCase):
         """Mix of case 1 and 3"""
         file = 'B01_5_HeatExchanger_mixConnection.ifc'
         with patch.object(FolderStructure, 'ifc', sample_root / file):
-            handler = DebugDecisionHandler(["Other", HeatExchanger.key])
+            handler = DebugDecisionHandler([HeatExchanger.key])
             handler.handle(self.project.run(cleanup=False))
 
         instances = self.project.playground.state['instances']

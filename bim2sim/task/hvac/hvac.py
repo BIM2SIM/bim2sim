@@ -4,23 +4,25 @@ import itertools
 import json
 import logging
 from datetime import datetime
-from typing import Generator, Iterable
+from typing import Generator, Iterable, Tuple
 
-import numpy as np
 import networkx as nx
+import numpy as np
 
-from bim2sim.kernel.elements import hvac
-from bim2sim.task.base import ITask
-from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating, ParallelPump
-from bim2sim.kernel.aggregation import Consumer, ConsumerHeatingDistributorModule, GeneratorOneFluid
-from bim2sim.kernel.element import ProductBased, ElementEncoder, Port
-from bim2sim.kernel.hvac import hvac_graph
-from bim2sim.export import modelica
 from bim2sim.decision import DecisionBunch
-from bim2sim.enrichment_data import element_input_json
 from bim2sim.decision import RealDecision, BoolDecision
-from bim2sim.utilities.common_functions import get_type_building_elements_hvac
+from bim2sim.enrichment_data import element_input_json
+from bim2sim.export import modelica
+from bim2sim.kernel.aggregation import Consumer, \
+    ConsumerHeatingDistributorModule, GeneratorOneFluid
+from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating, \
+    ParallelPump, ParallelSpaceHeater
+from bim2sim.kernel.element import ProductBased, ElementEncoder, Port, Material
+from bim2sim.kernel.elements import hvac
+from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
+from bim2sim.task.base import ITask
+from bim2sim.utilities.common_functions import get_type_building_elements_hvac
 from bim2sim.workflow import Workflow
 
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -53,7 +55,7 @@ class ConnectElements(ITask):
         # Check ports
         self.logger.info("Checking ports of elements ...")
         self.check_element_ports(instances)
-        # Make connections by relation
+        # Make connections by relations
         self.logger.info("Connecting the relevant elements")
         self.logger.info(" - Connecting by relations ...")
         all_ports = [port for item in instances.values() for port in item.ports]
@@ -98,7 +100,7 @@ class ConnectElements(ITask):
         """Checks position of all ports for each element.
 
         Args:
-            elements: dictionary of elements to be checked
+            elements: dictionary of elements to be checked with guid as key
         """
         for ele in elements.values():
             for port_a, port_b in itertools.combinations(ele.ports, 2):
@@ -119,7 +121,7 @@ class ConnectElements(ITask):
 
     @staticmethod
     def connections_by_relation(ports: list, include_conflicts: bool = False) -> list:
-        """Connect ports of instances by IFC relations.
+        """Connect ports of elements by IFC relations.
 
         Args:
             ports: list of ports to be connected
@@ -133,8 +135,10 @@ class ConnectElements(ITask):
         for port in ports:
             if not port.ifc:
                 continue
-            connected_ports = [conn.RelatingPort for conn in port.ifc.ConnectedFrom] + [conn.RelatedPort for conn in
-                                                                                        port.ifc.ConnectedTo]
+            connected_ports = [conn.RelatingPort for conn in
+                               port.ifc.ConnectedFrom] + [conn.RelatedPort for
+                                                          conn in
+                                                          port.ifc.ConnectedTo]
             if connected_ports:
                 other_port = None
                 if len(connected_ports) > 1:
@@ -170,7 +174,8 @@ class ConnectElements(ITask):
         return connections
 
     @staticmethod
-    def confirm_connections_position(connections: list, eps: float = 1) -> tuple[list, list, list]:
+    def confirm_connections_position(connections: list, eps: float = 1)\
+            -> Tuple[list, list, list]:
         """Checks distance between port positions.
         If distance < eps, the connection is confirmed otherwise rejected.
 
@@ -270,7 +275,8 @@ class ConnectElements(ITask):
         Returns:
 
         """
-        # TODO: if a lot of decisions occur, it would help to merge DecisionBunches before yielding them
+        # TODO: if a lot of decisions occur, it would help to merge
+        #  DecisionBunches before yielding them
         for instance in instances:
             if isinstance(instance, hvac.HVACProduct) \
                     and not instance.inner_connections:
@@ -340,7 +346,9 @@ class MakeGraph(ITask):
 
     def run(self, workflow: Workflow, instances: dict):
         self.logger.info("Creating graph from IFC elements")
-        graph = hvac_graph.HvacGraph(instances.values())
+        not_mat_instances = \
+            {k: v for k, v in instances.items() if not isinstance(v, Material)}
+        graph = hvac_graph.HvacGraph(not_mat_instances.values())
         return graph,
 
     def serialize(self):
@@ -361,31 +369,31 @@ class Reduce(ITask):
     def run(self, workflow: Workflow, graph: HvacGraph) -> (HvacGraph, ):
         self.logger.info("Reducing elements by applying aggregations")
 
-        aggregations = [
-            UnderfloorHeating,
-            Consumer,
-            PipeStrand,
-            ParallelPump,
-            ConsumerHeatingDistributorModule,
-            GeneratorOneFluid,
-            # ParallelSpaceHeater,
-        ]
+        aggregations_cls = {
+            'UnderfloorHeating': UnderfloorHeating,
+            'Consumer': Consumer,
+            'PipeStrand': PipeStrand,
+            'ParallelPump': ParallelPump,
+            'ConsumerHeatingDistributorModule': ConsumerHeatingDistributorModule,
+            'GeneratorOneFluid': GeneratorOneFluid,
+            'ParallelSpaceHeater': ParallelSpaceHeater,
+        }
+        aggregations = [aggregations_cls[agg] for agg in workflow.aggregations]
 
         statistics = {}
         number_of_elements_before = len(graph.elements)
 
-        # TODO: LOD
-
         for agg_class in aggregations:
             name = agg_class.__name__
-            self.logger.info("Aggregating '%s' ...", name)
+            self.logger.info(f"Aggregating {name} ...")
             matches, metas = agg_class.find_matches(graph)
             i = 0
             for match, meta in zip(matches, metas):
                 # TODO: See #167
-                # outer_connections = agg_class.get_edge_ports2(graph, match)
+                # edge_ports = agg_class.get_edge_ports2(graph, match)
                 try:
                     agg = agg_class(match, **meta)
+
                 except Exception as ex:
                     self.logger.exception("Instantiation of '%s' failed", name)
                 else:
@@ -494,7 +502,7 @@ class Export(ITask):
             len(export_instances), len(connection_port_names))
 
         modelica_model = modelica.Model(
-            name="BIM2SIM",
+            name="bim2sim_"+self.prj_name,
             comment=f"Autogenerated by BIM2SIM on {datetime.now():%Y-%m-%d %H:%M:%S%z}",
             instances=list(export_instances.values()),
             connections=connection_port_names,

@@ -1,14 +1,13 @@
-import re
 import ast
+import re
 
+from bim2sim.decision import ListDecision, DecisionBunch
+from bim2sim.kernel.element import Material
+from bim2sim.kernel.elements.bps import Layer, LayerSet, Building
 from bim2sim.task.base import ITask
-from bim2sim.decision import BoolDecision, ListDecision, DecisionBunch
-from bim2sim.workflow import LOD
 from bim2sim.utilities.common_functions import get_material_templates, \
     translate_deep, filter_instances, get_type_building_elements
 from bim2sim.workflow import Workflow
-from bim2sim.kernel.elements.bps import Layer, LayerSet, Building, Window
-from bim2sim.kernel.element import Material
 
 
 class EnrichMaterial(ITask):
@@ -26,7 +25,8 @@ class EnrichMaterial(ITask):
         pass
 
     def run(self, workflow: Workflow, instances: dict, invalid: dict):
-        templates = yield from self.get_templates_for_buildings(instances)
+        templates = yield from self.get_templates_for_buildings(
+            instances, workflow)
         resumed = self.get_resumed_material_templates()
         for invalid_inst in invalid.values():
             yield from self.enrich_invalid_instance(invalid_inst, resumed,
@@ -37,32 +37,11 @@ class EnrichMaterial(ITask):
 
         return instances,
 
-    @staticmethod
-    def get_construction_type(for_windows=False):
-        """get construction type"""
-        # ToDo: implement in Workflow
-        choices = ['Holzfenster, zweifach',
-                   'Kunststofffenster, Isolierverglasung',
-                   'Alu- oder Stahlfenster, Isolierverglasung',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
-                   'Waermeschutzverglasung, dreifach',
-                   'EnEv'] if for_windows else ['heavy', 'light']
-        global_key = 'windows' if for_windows else 'general'
-
-        decision_template = ListDecision(
-            "Choose one of the following construction types to proceed (%s)"
-            % global_key,
-            choices=choices,
-            global_key="%s_construction_type.bpsTemplate" % global_key,
-            allow_skip=True)
-        yield DecisionBunch([decision_template])
-        return decision_template.value
-
-    def get_templates_for_buildings(self, instances):
+    def get_templates_for_buildings(self, instances, workflow):
         """get templates for building"""
         templates = {}
-        construction_type = yield from self.get_construction_type()
-        windows_construction_type = yield from self.get_construction_type(True)
+        construction_type = workflow.construction_class_walls
+        windows_construction_type = workflow.construction_class_windows
         buildings = filter_instances(instances, Building)
         for building in buildings:
             if not building.year_of_construction:

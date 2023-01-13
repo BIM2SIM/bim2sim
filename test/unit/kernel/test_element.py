@@ -2,12 +2,12 @@
 
 import unittest
 from pathlib import Path
-from unittest.mock import MagicMock
 
 from bim2sim.kernel import element
 from bim2sim.kernel.attribute import Attribute
+from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.ifc2python import load_ifc
-
+from test.unit.kernel.helper import SetupHelperHVAC
 
 TEST_MODELS = Path(__file__).parent.parent.parent / 'TestModels'
 
@@ -21,7 +21,7 @@ TEST_MODELS = Path(__file__).parent.parent.parent / 'TestModels'
 
 def get_ifc(file: str):
     """Get IfcOpenShell wrapper instance for file"""
-    ifc = load_ifc(TEST_MODELS / file)
+    ifc = load_ifc(TEST_MODELS /'HVAC' / file)
     return ifc
 
 
@@ -64,6 +64,23 @@ class TestProductBased(unittest.TestCase):
         self.assertIsInstance(item, element.ProductBased)
         self.assertEqual(guid, item.guid)
 
+    def test_validate_creation_two_port_pipe(self):
+        helper = SetupHelperHVAC()
+        two_port_pipe = helper.element_generator(hvac.Pipe,
+                                                 diameter=10,
+                                                 length=100)
+        valid = two_port_pipe.validate_creation()
+        self.assertTrue(valid)
+
+    def test_validate_creation_three_port_pipe(self):
+        helper = SetupHelperHVAC()
+        two_port_pipe = helper.element_generator(hvac.Pipe,
+                                                 n_ports=3,
+                                                 diameter=10,
+                                                 length=100)
+        valid = two_port_pipe.validate_creation()
+        self.assertFalse(valid)
+
 
 @unittest.skip("Not implemented")
 class TestRelationBased(unittest.TestCase):
@@ -99,7 +116,7 @@ class TestFactory(unittest.TestCase):
     def test_create_mapping(self):
         """Test if Factory uses ifc_types correctly"""
         factory = element.Factory(
-            [TestRoof, TestSlap], ifc_units={}, finder_path=None)
+            [TestRoof, TestSlap], ifc_units={})
 
         self.assertIs(factory.get_element('IfcSlab', 'BASESLAB'), TestSlap)
         self.assertIs(factory.get_element('IfcSlab', 'OTHER'), TestSlap)

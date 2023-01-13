@@ -1,14 +1,14 @@
 ﻿"""Test for decision.py"""
 import json
+import os
+import tempfile
 import unittest
 from unittest.mock import patch
-import tempfile
-import os
 
 import pint
 
 from bim2sim import decision
-from bim2sim.decision import Decision, BoolDecision, save, load, RealDecision, \
+from bim2sim.decision import BoolDecision, save, load, RealDecision, \
     DecisionBunch, ListDecision, GuidDecision
 from bim2sim.decision.console import ConsoleDecisionHandler
 from bim2sim.kernel.units import ureg
@@ -110,6 +110,31 @@ class TestDecision(DecisionTestBase):
         dec_bool.reset_from_deserialized(loaded_decisions[key_bool])
         self.assertEqual(dec_real.value, 5)
         self.assertFalse(dec_bool.value)
+
+    def test_decision_reduce_by_key(self):
+        """tests the get_reduced_bunch function with same keys."""
+        dec_1 = BoolDecision(key='key1', question="??")
+        dec_2 = BoolDecision(key='key1', question="??")
+        dec_3 = BoolDecision(key='key2', question="??")
+        dec_bunch_orig = DecisionBunch([dec_1, dec_2, dec_3])
+        dec_bunch_exp = DecisionBunch([dec_1, dec_3])
+        doubled_bunch_exp = DecisionBunch([dec_2])
+        red_bunch, doubled_dec = dec_bunch_orig.get_reduced_bunch(criteria='key')
+        self.assertListEqual(dec_bunch_exp, red_bunch)
+        self.assertListEqual(doubled_dec, doubled_bunch_exp)
+
+    def test_decision_reduce_by_question(self):
+        """tests the get_reduced_bunch function with same questions."""
+        dec_1 = BoolDecision(key='key1', question="question A ?")
+        dec_2 = BoolDecision(key='key2', question="question A ?")
+        dec_3 = BoolDecision(key='key3', question="question B ?")
+        dec_bunch_orig = DecisionBunch([dec_1, dec_2, dec_3])
+        dec_bunch_exp = DecisionBunch([dec_1, dec_3])
+        doubled_bunch_exp = DecisionBunch([dec_2])
+        red_bunch, doubled_dec = dec_bunch_orig.get_reduced_bunch(
+            criteria='question')
+        self.assertListEqual(dec_bunch_exp, red_bunch)
+        self.assertListEqual(doubled_dec, doubled_bunch_exp)
 
 
 class TestBoolDecision(DecisionTestBase):

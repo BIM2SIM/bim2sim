@@ -1,16 +1,14 @@
 ﻿import unittest
-import math
+
 import networkx as nx
 
-from bim2sim.kernel.elements import hvac
 from bim2sim.kernel import aggregation
-from bim2sim.kernel import elements
+from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
-from bim2sim.kernel.units import ureg
-from test.unit.kernel.helper import SetupHelper
+from test.unit.kernel.helper import SetupHelperHVAC
 
 
-class ParallelPumpHelper(SetupHelper):
+class ParallelPumpHelper(SetupHelperHVAC):
 
     def get_setup_pumps1(self):
         """get consumer circuit made of 2 parallel pumps (equal size),

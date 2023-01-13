@@ -3,17 +3,13 @@ from typing import List, Tuple
 
 import networkx as nx
 
-from bim2sim.kernel.elements import hvac
-from bim2sim.kernel.attribute import Attribute, multi_calc
 from bim2sim.kernel import aggregation
-from bim2sim.kernel import elements
+from bim2sim.kernel.attribute import Attribute, multi_calc
 from bim2sim.kernel.element import ProductBased
+from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.elements.hvac import HVACPort
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
-
-from bim2sim.kernel.units import ureg
-
-from test.unit.kernel.helper import SetupHelper
+from test.unit.kernel.helper import SetupHelperHVAC
 
 
 class SampleElement(ProductBased):
@@ -92,7 +88,7 @@ class SampleHVACElementAggregation(
     attr3 = SampleHVACElement.attr3.to_aggregation(_calc_multi)
 
 
-class AggregationHelper(SetupHelper):
+class AggregationHelper(SetupHelperHVAC):
 
     def get_setup_sample1(self):
         """get consumer circuit made of 2 parallel pumps (equal size),

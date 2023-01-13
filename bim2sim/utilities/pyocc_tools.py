@@ -4,12 +4,13 @@ Common tools for handling OCC Shapes within the bim2sim project.
 from typing import List, Tuple, Union
 
 import numpy as np
-
 from OCC.Core.BRep import BRep_Tool
+from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace, \
     BRepBuilderAPI_Transform, BRepBuilderAPI_MakePolygon
 from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, \
-    brepgprop_LinearProperties
+    brepgprop_LinearProperties, brepgprop_VolumeProperties
+from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
 from OCC.Core.BRepTools import BRepTools_WireExplorer
 from OCC.Core.GProp import GProp_GProps
 from OCC.Core.Geom import Handle_Geom_Plane_DownCast
@@ -228,18 +229,18 @@ class PyOCCTools:
         return np.dot(PyOCCTools._axis2placement(plc.RelativePlacement), parent)
 
     @staticmethod
-    def simple_face_normal(face: TopoDS_Face) -> gp_XYZ:
+    def simple_face_normal(face: TopoDS_Face, check_orientation: bool = True) \
+            -> gp_XYZ:
         """Compute the normal of a TopoDS_Face."""
         face = PyOCCTools.get_face_from_shape(face)
         surf = BRep_Tool.Surface(face)
         obj = surf
         assert obj.DynamicType().Name() == "Geom_Plane"
         plane = Handle_Geom_Plane_DownCast(surf)
-        face_prop = GProp_GProps()
-        brepgprop_SurfaceProperties(face, face_prop)
         face_normal = plane.Axis().Direction().XYZ()
-        if face.Orientation() == 1:
-            face_normal = face_normal.Reversed()
+        if check_orientation:
+            if face.Orientation() == 1:
+                face_normal = face_normal.Reversed()
         return face_normal
 
     @staticmethod
@@ -299,3 +300,38 @@ class PyOCCTools:
             if abs(new_area - org_area) < 5e-3:
                 face = new_face
         return face
+
+    @staticmethod
+    def get_shape_volume(shape: TopoDS_Shape) -> float:
+        """
+        This function computes the volume of a shape and returns the value as a
+        float.
+        Args:
+            shape: TopoDS_Shape
+        Returns:
+            volume: float
+        """
+        props = GProp_GProps()
+        brepgprop_VolumeProperties(shape, props)
+        volume = props.Mass()
+        return volume
+
+    @staticmethod
+    def triangulate_bound_shape(shape: TopoDS_Shape,
+                                cut_shapes: list[TopoDS_Shape] = [])\
+            -> TopoDS_Shape:
+        """Triangulate bound shape.
+
+        Args:
+            shape: TopoDS_Shape
+            cut_shapes: list of TopoDS_Shape
+        Returns:
+            Triangulated TopoDS_Shape
+
+        """
+        if cut_shapes:
+            for cut_shape in cut_shapes:
+                shape = BRepAlgoAPI_Cut(
+                    shape, cut_shape).Shape()
+        triang_face = BRepMesh_IncrementalMesh(shape, 1)
+        return triang_face.Shape()

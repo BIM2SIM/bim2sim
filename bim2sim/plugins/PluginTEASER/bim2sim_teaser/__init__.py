@@ -2,19 +2,13 @@
 
 Holds logic to run a simulation based on prepared ifc data
 """
-from bim2sim.kernel.elements import bps as bps_elements
+import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
 from bim2sim.kernel.element import Material
+from bim2sim.kernel.elements import bps as bps_elements
 from bim2sim.plugins import Plugin
-from bim2sim.workflow import (
-    BPSMultiZoneCombinedLayersFull,
-    BPSOneZoneAggregatedLayersLow,
-    BPSMultiZoneCombinedLayersLow,
-    BPSMultiZoneSeparatedLayersLow,
-    BPSMultiZoneSeparatedLayersFull
-)
+from bim2sim.plugins.PluginTEASER.bim2sim_teaser.models import TEASER
 from bim2sim.task import common, bps, base
-from bim2sim_teaser import task as teaser_task
-from bim2sim_teaser.models import TEASER
+from bim2sim.workflow import BuildingSimulation
 
 
 class LoadLibrariesTEASER(base.ITask):
@@ -25,16 +19,12 @@ class LoadLibrariesTEASER(base.ITask):
         return (TEASER,),
 
 
-class TEASERManager(Plugin):
+class PluginTEASER(Plugin):
     name = 'TEASER'
-    default_workflow = BPSMultiZoneCombinedLayersFull
-    elements = {*bps_elements.items, Material}
+    default_workflow = BuildingSimulation
+    elements = {*bps_elements.items, Material} - {bps_elements.Plate}
     allowed_workflows = [
-        BPSOneZoneAggregatedLayersLow,
-        BPSMultiZoneCombinedLayersLow,
-        BPSMultiZoneCombinedLayersFull,
-        BPSMultiZoneSeparatedLayersLow,
-        BPSMultiZoneSeparatedLayersFull,
+        BuildingSimulation,
     ]
     default_tasks = [
         common.LoadIFC,
@@ -42,6 +32,7 @@ class TEASERManager(Plugin):
         common.CreateElements,
         bps.CreateSpaceBoundaries,
         bps.Prepare,
+        common.BindStoreys,
         bps.EnrichUseConditions,
         bps.Verification,
         bps.EnrichMaterial,

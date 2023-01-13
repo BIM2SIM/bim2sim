@@ -7,17 +7,16 @@ This package contains:
     - functions save() and load() to save to file system
 """
 
-import logging
 import enum
-import json
 import hashlib
+import json
+import logging
 from collections import Counter
 from typing import Iterable, Callable, List, Dict, Any, Tuple, Union
 
 import pint
 
 from bim2sim.kernel.units import ureg
-
 
 __VERSION__ = '0.1'
 logger = logging.getLogger(__name__)
@@ -495,6 +494,37 @@ class DecisionBunch(list):
             raise AssertionError("Following global keys are not unique: %s",
                                  duplicates)
 
+    def get_reduced_bunch(self, criteria: str = 'key'):
+        """Reduces the decisions to one decision per unique key.
+
+        To reduce the number of decisions in some cases the same answer can be
+        used for multiple decisions. This method allows to reduce the number
+        of decisions based on a given criteria.
+
+        Args:
+            criteria: criteria based on which the decisions should be reduced.
+                Possible are 'key' and 'question'.
+        Returns:
+            unique_decisions: A DecisionBunch with only unique decisions based
+                on criteria
+        """
+        pos_criteria = ['key', 'question']
+        if criteria not in pos_criteria:
+            raise NotImplementedError(f'Pick one of these valid options:'
+                                      f' {pos_criteria}')
+        unique_decisions = DecisionBunch()
+        doubled_decisions = DecisionBunch()
+        existing_criteria = []
+        for decision in self:
+            cur_key = getattr(decision, criteria)
+            if cur_key not in existing_criteria:
+                unique_decisions.append(decision)
+                existing_criteria.append(cur_key)
+            else:
+                doubled_decisions.append(decision)
+
+        return unique_decisions, doubled_decisions
+
 
 def save(bunch: DecisionBunch, path):
     """Save solved Decisions to file system"""
@@ -517,7 +547,8 @@ def load(path) -> Dict[str, Any]:
         with open(path, "r") as file:
             data = json.load(file)
     except IOError as ex:
-        logger.info("Unable to load decisions. (%s)", ex)
+        logger.info(f"Unable to load decisions. "
+                    f"No Existing decisions found at {ex.filename}")
         return {}
     version = data.get('version', '0')
     if version != __VERSION__:

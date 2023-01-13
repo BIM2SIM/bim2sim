@@ -1,13 +1,13 @@
 import unittest
 
-from test.unit.kernel.helper import SetupHelper
+from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.task.hvac import expansiontanks
-from bim2sim.decision.decisionhandler import DebugDecisionHandler
+from test.unit.kernel.helper import SetupHelperHVAC
 
 
-class GeneratorHelper(SetupHelper):
+class GeneratorHelper(SetupHelperHVAC):
 
     def get_setup_circuit_with_expansion_tank(self):
         """Simple circuit with one expansion tank"""

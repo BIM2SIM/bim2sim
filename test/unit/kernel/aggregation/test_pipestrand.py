@@ -1,16 +1,13 @@
 import unittest
 
-from bim2sim.kernel.elements import hvac
 from bim2sim.kernel import aggregation
-from bim2sim.kernel.elements.hvac import HVACPort
-from bim2sim.kernel import elements
+from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg
+from test.unit.kernel.helper import SetupHelperHVAC
 
-from test.unit.kernel.helper import SetupHelper
 
-
-class StrandHelper(SetupHelper):
+class StrandHelper(SetupHelperHVAC):
 
     def get_setup_strand1(self):
         """simple strait strand"""

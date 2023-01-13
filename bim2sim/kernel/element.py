@@ -1,22 +1,20 @@
 """Definition for basic representations of IFC elements"""
 # from __future__ import annotations
-import json
 import logging
-from json import JSONEncoder
 import re
-from pathlib import Path
-from typing import Union, Set, Iterable, Dict, List, Tuple, Type, Generator
+from json import JSONEncoder
+from typing import Union, Iterable, Dict, List, Tuple, Type, Optional
 
 import numpy as np
 
-from bim2sim.decorators import cached_property
-from bim2sim.kernel import ifc2python, attribute
 from bim2sim.decision import Decision, DecisionBunch
+from bim2sim.decorators import cached_property
+from bim2sim.kernel import condition
+from bim2sim.kernel import ifc2python, attribute
+from bim2sim.kernel.finder import TemplateFinder, SourceTool
+from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import angle_equivalent, vector_angle, \
     remove_umlaut
-from bim2sim.kernel.finder import TemplateFinder
-from bim2sim.kernel.units import ureg
-from bim2sim.kernel import condition
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -271,7 +269,7 @@ class IFCBased(Element):
         self.predefined_type = ifc2python.get_predefined_type(ifc)
         self.finder = finder
         self.ifc_units = ifc_units
-        self._source_tool: str = None
+        self.source_tool: SourceTool = None
 
         # TBD
         self.enrichment = {}  # TODO: DJA
@@ -298,14 +296,6 @@ class IFCBased(Element):
         if self.ifc:
             return self.ifc.is_a()
 
-    @property
-    def source_tool(self):  # TBD: this incl. Finder could live in Factory
-        """Name of tool the ifc has been created with"""
-        if not self._source_tool and self.ifc:
-            self._source_tool = self.get_project().OwnerHistory.\
-                OwningApplication.ApplicationFullName
-        return self._source_tool
-
     @classmethod
     def pre_validate(cls, ifc) -> bool:
         """Check if ifc meets conditions to create element from it"""
@@ -325,8 +315,20 @@ class IFCBased(Element):
         return absolute
 
     def calc_orientation(self) -> np.array:
-        # ToDO: true north angle
-        # ToDO: we want a consistent return which is a absolute vector.
+        """Tries to calculate the orientation of based on DirectionRatio.
+
+        This generic orientation calculation uses the DirectionRatios which in
+        most cases return the correct orientation of the element. But this
+        depends on the modeller and the BIM author software and is not failsafe.
+        Orientation is mostly important for BPSProducts where we can use
+        Space Boundaries for failsafe orientation calculation.
+
+        Returns:
+            Orientation angle between 0 and 360.
+            (0 : north, 90: east, 180: south, 270: west)
+        """
+        # ToDO: check if true north angle is taken into account
+        #  (should be with while loop)
         ang_sum = 0
         placementrel = self.ifc.ObjectPlacement
         while placementrel is not None:
@@ -341,12 +343,18 @@ class IFCBased(Element):
         #         return -90
         #         # return 0
 
-        # specific case windows
+        # windows DirectionRatios are mostly facing inwards the building
         if self.ifc_type == 'IfcWindow':
             ang_sum += 180
 
         # angle between 0 and 360
         return angle_equivalent(ang_sum)
+
+    @cached_property
+    def name(self):
+        ifc_name = self.get_ifc_attribute('Name')
+        if ifc_name:
+            return remove_umlaut(ifc_name)
 
     def get_ifc_attribute(self, attribute):
         """
@@ -355,7 +363,7 @@ class IFCBased(Element):
         return getattr(self.ifc, attribute, None)
 
     def get_propertyset(self, propertysetname):
-        return ifc2python.get_Property_Set(
+        return ifc2python.get_property_set_by_name(
             propertysetname, self.ifc, self.ifc_units)
 
     def get_propertysets(self):
@@ -398,7 +406,7 @@ class IFCBased(Element):
         return ifc2python.getProject(self.ifc)
 
     def get_true_north(self):
-        return ifc2python.getTrueNorth(self.ifc)
+        return ifc2python.get_true_north(self.ifc)
 
     def summary(self):
         return ifc2python.summary(self.ifc)
@@ -459,10 +467,10 @@ class IFCBased(Element):
             # return hits[0][0]
         if optional_locations:
             for loc in optional_locations:
-                hits = [p.search(ifc2python.get_Property_Set(
+                hits = [p.search(ifc2python.get_property_set_by_name(
                     loc, ifc_element, ifc_units) or '')
                         for p in cls.pattern_ifc_type
-                        if ifc2python.get_Property_Set(
+                        if ifc2python.get_property_set_by_name(
                         loc, ifc_element, ifc_units)]
                 hits = [x for x in hits if x is not None]
                 if any(hits):
@@ -560,10 +568,8 @@ class ProductBased(IFCBased):
     """Elements based on IFC products.
 
     Args:
-        material:
-            material of the element
-        material_set:
-            dict of material and fraction [0, 1] if multiple materials
+        material: material of the element
+        material_set: dict of material and fraction [0, 1] if multiple materials
     """
     domain = 'GENERAL'
     key: str = ''
@@ -587,10 +593,11 @@ class ProductBased(IFCBased):
 
     def get_better_subclass(self) -> Union[None, Type['IFCBased']]:
         """Returns alternative subclass of current object.
-
         CAUTION: only use this if you can't know the result before instantiation
          of base class
-        :returns: subclass of ProductBased or None"""
+
+        Returns:
+            object: subclass of ProductBased or None"""
         return None
 
     @property
@@ -602,23 +609,22 @@ class ProductBased(IFCBased):
                 neighbors.append(port.connection.parent)
         return neighbors
 
-    def is_generator(self):
-        # todo move this to hvacproduct
-        return False
-
-    def is_consumer(self):
-        # todo move this to hvacproduct
-        return False
-
     def validate_creation(self):
-        """"Check if standard parameter are in valid range"""
+        """"Validate the element creation in two steps.
+        1. Check if standard parameter are in valid range.
+        2. Check if number of ports are equal to number of expected ports
+        (only for HVAC).
+        """
         for cond in self.conditions:
             if cond.critical_for_creation:
                 value = getattr(self, cond.key)
                 if not cond.check(self, value):
-                    logger.warning("%s validation (%s) failed for %s",
-                                   self.ifc_type, cond.name, self.guid)
+                    logger.warning("%s validation (%s) failed for %s", self.ifc_type, cond.name, self.guid)
                     return False
+        if not self.validate_ports():
+            logger.warning("%s has %d ports, but %d expected for %s", self.ifc_type, len(self.ports),
+                           self.expected_hvac_ports, self.guid)
+            return False
         return True
 
     def validate_attributes(self) -> dict:
@@ -636,8 +642,19 @@ class ProductBased(IFCBased):
         # return True
         return results
 
+    def validate_ports(self):
+        return True
+
     def __repr__(self):
         return "<%s>" % self.__class__.__name__
+
+    def calc_cost_group(self) -> Optional[int]:
+        """Calculate the cost group according to DIN276"""
+        return None
+
+    @cached_property
+    def cost_group(self) -> int:
+        return self.calc_cost_group()
 
 
 class Port(RelationBased):
@@ -647,11 +664,6 @@ class Port(RelationBased):
         super().__init__(*args, **kwargs)
         self.parent: ProductBased = parent
         self.connection = None
-
-    @property
-    def source_tool(self):  # TBD: this incl. Finder could live in Factory
-        """Name of tool that the parent has been created with"""
-        return getattr(self.parent, 'source_tool')
 
     def connect(self, other):
         """Connect this interface bidirectional to another interface"""
@@ -710,9 +722,9 @@ class Material(ProductBased):
                                  critical_for_creation=False),
         condition.RangeCondition('density',
                                  0 * ureg.kg / ureg.m ** 3,
-                                 5000 * ureg.kg / ureg.m ** 3,
+                                 50000 * ureg.kg / ureg.m ** 3,
                                  critical_for_creation=False),
-        condition.RangeCondition('thermal_conduct',
+        condition.RangeCondition('thermal_conduc',
                                  0 * ureg.W / ureg.m / ureg.K,
                                  100 * ureg.W / ureg.m / ureg.K,
                                  critical_for_creation=False),
@@ -725,11 +737,6 @@ class Material(ProductBased):
                                  1 * ureg.percent, True,
                                  critical_for_creation=False),
                  ]
-
-    @cached_property
-    def name(self):
-        if hasattr(self.ifc, 'Name'):
-            return remove_umlaut(self.ifc.Name)
 
     spec_heat_capacity = attribute.Attribute(
         default_ps=("Pset_MaterialThermal", "SpecificHeatCapacity"),
@@ -798,15 +805,12 @@ class Factory:
             self,
             relevant_elements: List[ProductBased],
             ifc_units: dict,
-            finder_path: Union[str, Path, None] = None,
+            finder: Union[TemplateFinder, None] = None,
             dummy=Dummy):
-        self.mapping, self.blacklist, self.defaults = \
-            self.create_ifc_mapping(relevant_elements)
+        self.mapping, self.blacklist, self.defaults = self.create_ifc_mapping(relevant_elements)
         self.dummy_cls = dummy
-        self.finder = TemplateFinder()
+        self.finder = finder
         self.ifc_units = ifc_units
-        if finder_path:
-            self.finder.load(finder_path)
 
     def __call__(self, ifc_entity, *args, ifc_type: str = None, use_dummy=True,
                  **kwargs) -> ProductBased:
@@ -819,7 +823,7 @@ class Factory:
         :param use_dummy: use dummy class if nothing is found
         :param kwargs: additional kwargs passed to element
 
-        :raises LookupError: if no element found an use_dummy = False
+        :raises LookupError: if no element found and use_dummy = False
         """
         _ifc_type = ifc_type or ifc_entity.is_a()
         predefined_type = ifc2python.get_predefined_type(ifc_entity)

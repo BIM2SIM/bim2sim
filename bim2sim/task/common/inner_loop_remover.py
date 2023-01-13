@@ -1,16 +1,17 @@
 """
-This module contains functions which, given a TopoDS shapes with holes ("inner loops"), calculate an
-equivalent shape without holes by adding cuts along triangulation edges. Using the triangulation as
-a graph, it finds a spanning tree between the main polygon and its holes using Kruskal's algorithm
+This module contains functions which, given a TopoDS shapes with holes ("inner
+loops"), calculate an equivalent shape without holes by adding cuts along
+triangulation edges. Using the triangulation as a graph, it finds a spanning
+tree between the main polygon and its holes using Kruskal's algorithm
 and places the cuts along the edges of this spanning tree.
 """
 
-from typing import Tuple, List, Mapping, TypeVar, Generic, Optional
-from collections import defaultdict
-import numpy
-import math
 import logging
+import math
+from collections import defaultdict
+from typing import Tuple, List, Mapping, TypeVar, Generic, Optional
 
+import numpy
 # Type aliases that are used throughout this module
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
@@ -35,7 +36,8 @@ T = TypeVar('T')
 
 class _UnionFind(Generic[T]):
     """
-    Implementation of a union-find data structure with union-by-size and path compression.
+    Implementation of a union-find data structure with union-by-size and path
+    compression.
     """
 
     def __init__(self):
@@ -45,13 +47,13 @@ class _UnionFind(Generic[T]):
     def union(self, element1: T, element2: T) -> T:
         key1 = self.find(element1)
         key2 = self.find(element2)
-        if key1 == key2: 
+        if key1 == key2:
             return
         if self._sizes[key1] < self._sizes[key2]:
             key1, key2 = key2, key1
         self._parents[key2] = key1
         self._sizes[key1] += self._sizes[key2]
-        
+
     def find(self, element: T) -> T:
         if element not in self._parents:
             self._parents[element] = None
@@ -68,8 +70,8 @@ class _UnionFind(Generic[T]):
 
 def _gp_pnt_to_coord_tuple(pnt: gp_Pnt) -> Vertex:
     """
-    Converts a gp_Pnt instance (3D point class of OCC) to a 3-tuple, because we need our vertex
-    type to be comparable and hashable, which gp_Pnt is not.
+    Converts a gp_Pnt instance (3D point class of OCC) to a 3-tuple, because
+    we need our vertex type to be comparable and hashable, which gp_Pnt is not.
     """
     return pnt.X(), pnt.Y(), pnt.Z()
 
@@ -85,7 +87,8 @@ def _subshapes(shape):
 
 def _get_triangulation(face: TopoDS_Shape) -> Triangulation:
     """
-    Calculates and extracts the triangulation of a TopoDS shape and returns it as a list of triangles.
+    Calculates and extracts the triangulation of a TopoDS shape and returns it
+    as a list of triangles.
     """
     mesh = BRepMesh_IncrementalMesh(face, 0.01)
     mesh.Perform()
@@ -97,8 +100,7 @@ def _get_triangulation(face: TopoDS_Shape) -> Triangulation:
         triangulation = bt.Triangulation(topods_Face(ex.Current()), L)
         if not triangulation:
             triangulation = bt.Triangulation(PyOCCTools.make_faces_from_pnts(
-                PyOCCTools.get_points_of_face(
-                topods_Face(ex.Current()))), L)
+                PyOCCTools.get_points_of_face(topods_Face(ex.Current()))), L)
             if not triangulation:
                 ex.Next()
         triangles = triangulation.Triangles()
@@ -108,11 +110,9 @@ def _get_triangulation(face: TopoDS_Shape) -> Triangulation:
             P1 = vertices.Value(idx1).Transformed(L.Transformation())
             P2 = vertices.Value(idx2).Transformed(L.Transformation())
             P3 = vertices.Value(idx3).Transformed(L.Transformation())
-            result.append([
-                _gp_pnt_to_coord_tuple(P1),
-                _gp_pnt_to_coord_tuple(P2),
-                _gp_pnt_to_coord_tuple(P3)
-            ])
+            result.append(
+                [_gp_pnt_to_coord_tuple(P1), _gp_pnt_to_coord_tuple(P2),
+                 _gp_pnt_to_coord_tuple(P3)])
         ex.Next()
     return result
 
@@ -126,8 +126,8 @@ def _normalize(edge: Edge) -> Edge:
 
 def _iterate_edges(polygon: List[Vertex], directed: bool = False):
     """
-    Constructs an iterator for iterating over all edge of the given polygon. If directed is set to false,
-    the returned edges are normalized.
+    Constructs an iterator for iterating over all edge of the given polygon. If
+    directed is set to false, the returned edges are normalized.
     """
     for i in range(len(polygon)):
         v1 = polygon[i]
@@ -135,20 +135,24 @@ def _iterate_edges(polygon: List[Vertex], directed: bool = False):
         yield (v1, v2) if directed else _normalize((v1, v2))
 
 
-def _get_inside_outside_edges(triangulation: Triangulation) -> Tuple[List[Edge], List[Edge]]:
+def _get_inside_outside_edges(triangulation: Triangulation) -> Tuple[
+    List[Edge], List[Edge]]:
     """
-    Partitions all edges of the triangulation into two lists, edges that lay "outside" and edges that 
-    lay "inside". Outside edges are part of the boundaries of either the main polygon or one of its 
-    holes, while inside edges were added by the triangulation step.
+    Partitions all edges of the triangulation into two lists, edges that lay
+    "outside" and edges that lay "inside". Outside edges are part of the
+    boundaries of either the main polygon or one of its holes, while inside
+    edges were added by the triangulation step.
 
-    Outside edges are returned in their "correct" direction, inside edges are not.
+    Outside edges are returned in their "correct" direction, inside edges are
+    not.
     """
     edge_count = defaultdict(int)
     orientation = dict()
     inside, outside = [], []
 
-    # We count how many times a particular edge is occuring in the triangulation, because every inside
-    # edge is part of two triangles, while edges laying on the polygon boundaries are only part of a
+    # We count how many times a particular edge is occuring in the
+    # triangulation, because every inside edge is part of two triangles,
+    # while edges laying on the polygon boundaries are only part of a
     # single triangulation.
     for triangle in triangulation:
         for edge in _iterate_edges(triangle, True):
@@ -165,15 +169,16 @@ def _get_inside_outside_edges(triangulation: Triangulation) -> Tuple[List[Edge],
 def _get_jump_map(cut_edges: List[Edge], out_edges: List[Edge], plane: Plane) \
         -> Mapping[Vertex, List[Vertex]]:
     """
-    Constructs a jump map based on a list on cut edges, so that for every edge (a,b), map[a] contains
-    b and map[b] contains a.
+    Constructs a jump map based on a list on cut edges, so that for every edge
+    (a,b), map[a] contains b and map[b] contains a.
     
-    Things get complicated when we have more than one entry for a vertex, which is the case when more
-    than one edge in the spanning tree are incident to a vertex. Then we have to order the entries in
-    clockwise order so that the polygon reconstruction builds a valid polygon that does not self-intersect.
-    This is ALSO complicated by the fact that we are in 3 dimensions (which we could ignore until now), but
-    at least we can assume that all input points lie in a common plane. Ordering the entries is done in
-    _order_points_cw.
+    Things get complicated when we have more than one entry for a vertex, which
+    is the case when more than one edge in the spanning tree are incident to a
+    vertex. Then we have to order the entries in clockwise order so that the
+    polygon reconstruction builds a valid polygon that does not self-intersect.
+    This is ALSO complicated by the fact that we are in 3 dimensions (which we
+    could ignore until now), but at least we can assume that all input points
+    lie in a common plane. Ordering the entries is done in _order_points_cw.
     """
     out_dest = dict()
     for edge in out_edges:
@@ -183,7 +188,7 @@ def _get_jump_map(cut_edges: List[Edge], out_edges: List[Edge], plane: Plane) \
     for edge in cut_edges:
         jump_map[edge[0]].append(edge[1])
         jump_map[edge[1]].append(edge[0])
-        
+
     for key, values in jump_map.items():
         if len(values) <= 1:
             continue
@@ -191,23 +196,27 @@ def _get_jump_map(cut_edges: List[Edge], out_edges: List[Edge], plane: Plane) \
     return jump_map
 
 
-def _order_points_cw(plane: Plane, mid: Vector, control: Vector, vertices: List[Vertex]) -> List[Vertex]:
+def _order_points_cw(plane: Plane, mid: Vector, control: Vector,
+                     vertices: List[Vertex]) -> List[Vertex]:
     """
-    Based on: https://stackoverflow.com/questions/47949485/sorting-a-list-of-3d-points-in-clockwise-order
+    Based on:
+    https://stackoverflow.com/questions/47949485/sorting-a-list-of-3d-points-in-clockwise-order
 
-    To sort points laying in a plane in 3D space in clockwise order around a given origin m, we have to
+    To sort points laying in a plane in 3D space in clockwise order around a
+    given origin m, we have to
 
         1. find the normal vector n of this plane
-        2. find vectors p, q in our plane such that n, p, q are perpendicular to each other and form a
-           right-handed system.
-        3. Calculate for every vertex v the triple products u = n * ((v-m) x p) and t = n * ((v-m) x q)
-           to obtain a sort key of atan2(u, t).
+        2. find vectors p, q in our plane such that n, p, q are perpendicular
+            to each other and form a right-handed system.
+        3. Calculate for every vertex v the triple products u = n * ((v-m) x p)
+            and t = n * ((v-m) x q) to obtain a sort key of atan2(u, t).
 
     We take n, p and q as arguments because we just have to calculate them once.
 
-    We also take a control vector, which is also sorted alongside the other vertices. The result is then
-    shifted so that the control vector is the first element in the result list. The control vector is not
-    included in the returned list.
+    We also take a control vector, which is also sorted alongside the other
+    vertices. The result is then shifted so that the control vector is the first
+    element in the result list. The control vector is not included in the
+    returned list.
     """
     n, p, q = plane
 
@@ -215,7 +224,7 @@ def _order_points_cw(plane: Plane, mid: Vector, control: Vector, vertices: List[
         t = numpy.dot(n, numpy.cross(numpy.subtract(v, mid), p))
         u = numpy.dot(n, numpy.cross(numpy.subtract(v, mid), q))
         return math.atan2(u, t)
-    
+
     s = sorted([control] + vertices, key=sort_key)
     roll = s.index(control)
     rolled = s[roll:] + s[:roll]
@@ -224,7 +233,8 @@ def _order_points_cw(plane: Plane, mid: Vector, control: Vector, vertices: List[
 
 def _calculate_plane_vectors(vertices: List[Vertex]) -> Plane:
     """
-    Calculates n, p and q describing the plane the input values lie in. More info see _order_points_cw.
+    Calculates n, p and q describing the plane the input values lie in. More
+    info see _order_points_cw.
     """
     a, b, c = vertices
     d = numpy.cross(numpy.subtract(b, a), numpy.subtract(c, a))
@@ -244,16 +254,17 @@ def _calculate_plane_vectors(vertices: List[Vertex]) -> Plane:
 
 def _reconstruct_polygons(edges: List[Edge]) -> List[List[Vertex]]:
     """
-    Takes a list of edges in any order and reconstructs the correctly ordered vertices of the polygons
-    formed by the given edges. It is assumed that the edges in the input are reconstructable to some
-    list of polygons.
+    Takes a list of edges in any order and reconstructs the correctly ordered
+    vertices of the polygons formed by the given edges. It is assumed that the
+    edges in the input are reconstructable to some list of polygons.
     """
     result = []
     chain = dict()
     for edge in edges:
         chain[edge[0]] = edge[1]
     while len(chain) > 0:
-        start = next(iter(chain))  # use any key in the chain, we don't care which.
+        start = next(
+            iter(chain))  # use any key in the chain, we don't care which.
         polygon = []
         key = start
         first = True
@@ -267,7 +278,8 @@ def _reconstruct_polygons(edges: List[Edge]) -> List[List[Vertex]]:
     return result
 
 
-def _index_polygon_vertices(polygons: List[List[Vertex]]) -> Mapping[Vertex, Tuple[int, int]]:
+def _index_polygon_vertices(polygons: List[List[Vertex]]) -> Mapping[
+    Vertex, Tuple[int, int]]:
     """
     Build a index map where  map[v] = (i,j)  <=>  polygons[i][j] = v.
     """
@@ -278,17 +290,20 @@ def _index_polygon_vertices(polygons: List[List[Vertex]]) -> Mapping[Vertex, Tup
     return index
 
 
-def _reconstruct_cut_polygon(out_edges: List[Edge], cut_edges: List[Edge], plane: Plane) -> List[Vertex]:
+def _reconstruct_cut_polygon(out_edges: List[Edge], cut_edges: List[Edge],
+                             plane: Plane) -> List[Vertex]:
     """
-    Takes a list of outside edges and a list of cut edges and reconstructs the single polygon they form.
+    Takes a list of outside edges and a list of cut edges and reconstructs the
+    single polygon they form.
     """
     polygons = _reconstruct_polygons(out_edges)
     jump = dict(_get_jump_map(cut_edges, out_edges, plane))
     poly_index = _index_polygon_vertices(polygons)
 
-    # Finds the index of the first vertex we can start on. We only start on vertices that don't have any
-    # jumps to make the exit condition of our main loop simpler. It is guaranteed that such a vertex
-    # exists (edges in a spanning tree over all polygons < 3 * vertices in all polygons).
+    # Finds the index of the first vertex we can start on. We only start on
+    # vertices that don't have any jumps to make the exit condition of our main
+    # loop simpler. It is guaranteed that such a vertex exists (edges in a
+    # spanning tree over all polygons < 3 * vertices in all polygons).
     def find_start_index():
         for i1, polygon in enumerate(polygons):
             for i2, vertex in enumerate(polygon):
@@ -303,19 +318,25 @@ def _reconstruct_cut_polygon(out_edges: List[Edge], cut_edges: List[Edge], plane
     while True:
         current = polygons[idx[0]][idx[1]]
         cut_polygon.append(current)
-        assert len(cut_polygon) <= len(out_edges) * 2, "Infinite loop detected. Arguments are not right."
+        assert len(cut_polygon) <= len(
+            out_edges) * 2, "Infinite loop detected. Arguments are not right."
 
-        # We find out if we have to jump to another polygon. If yes, this variable will be set to the index
-        # of the jump list of our current vertex to where we have to jump.
+        # We find out if we have to jump to another polygon. If yes, this
+        # variable will be set to the index of the jump list of our current
+        # vertex to where we have to jump.
         jump_list_index = None
         if current in jump:
-            # There are jumps for the current vertex. Check if we already jumped the last time.
+            # There are jumps for the current vertex. Check if we already jumped
+            # the last time.
             if last_jump_source is None:
-                # ... no, so just jump to the last (= first in ccw order) entry in the jump list.
+                # ... no, so just jump to the last (= first in ccw order) entry
+                # in the jump list.
                 jump_list_index = -1
             else:
-                # ... yes, so we have to jump to the first entry BEFORE the one (= first after in ccw order)
-                # we just came from. If we already came from the first entry, we instead start to traverse
+                # ... yes, so we have to jump to the first entry BEFORE the one
+                # (= first after in ccw order)
+                # we just came from. If we already came from the first entry, we
+                # instead start to traverse
                 # the current polygon.
                 last_jump_index = jump[current].index(last_jump_source)
                 if last_jump_index > 0:
@@ -329,8 +350,9 @@ def _reconstruct_cut_polygon(out_edges: List[Edge], cut_edges: List[Edge], plane
             last_jump_source = None
             idx = (idx[0], (idx[1] + 1) % len(polygons[idx[0]]))
 
-        # Because we started on a vertex that has no jumps, the start vertex can only be visited once during
-        # polygon reconstruction. Therefore, if we arrive at our start index a second time we are done.
+        # Because we started on a vertex that has no jumps, the start vertex can
+        # only be visited once during polygon reconstruction. Therefore, if we
+        # arrive at our start index a second time we are done.
         if idx == start_index:
             break
 
@@ -345,14 +367,16 @@ def remove_inner_loops(shape: TopoDS_Shape) -> TopoDS_Shape:
 
     plane = _calculate_plane_vectors(triangulation[0])
 
-    # Build initial partition state. After that, every loop (either the main polygon or a hole)
+    # Build initial partition state. After that, every loop (either the main
+    # polygon or a hole)
     # is in its own disjoint set.
     for edge in out_edges:
         partition.union(edge[0], edge[1])
-        
-    # We now find a spanning tree by applying Kruskal's algorithm to the triangulation graph. Note
-    # that in an unweighted graph, every spanning tree is a minimal spanning tree, so it doesn't
-    # actually matter which spanning tree we are calculating here. Edges that are part of the
+
+    # We now find a spanning tree by applying Kruskal's algorithm to the
+    # triangulation graph. Note that in an unweighted graph, every spanning
+    # tree is a minimal spanning tree, so it doesn't actually matter which
+    # spanning tree we are calculating here. Edges that are part of the
     # spanning tree are pushed into cut_edges.
     cut_edges = []
     for edge in in_edges:
@@ -371,10 +395,8 @@ def remove_inner_loops(shape: TopoDS_Shape) -> TopoDS_Shape:
 
 
 def _cross(a: Vertex, b: Vertex) -> Vertex:
-    return \
-        a[1] * b[2] - a[2] * b[1], \
-        a[2] * b[0] - a[0] * b[2], \
-        a[0] * b[1] - a[1] * b[0]
+    return a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - \
+           a[1] * b[0]
 
 
 def _dot(a: Vertex, b: Vertex) -> float:
@@ -382,18 +404,18 @@ def _dot(a: Vertex, b: Vertex) -> float:
 
 
 def _minus(a: Vertex, b: Vertex) -> Vertex:
-    return \
-        a[0] - b[0], \
-        a[1] - b[1], \
-        a[2] - b[2]
+    return a[0] - b[0], a[1] - b[1], a[2] - b[2]
 
 
-def _is_convex_angle(p1: Vertex, p2: Vertex, p3: Vertex, normal: Vertex) -> bool:
+def _is_convex_angle(p1: Vertex, p2: Vertex, p3: Vertex,
+                     normal: Vertex) -> bool:
     cross = _cross(_minus(p2, p1), _minus(p3, p1))
     return _dot(cross, normal) >= -1e-6
 
 
-def fuse_pieces(pieces: List[List[Vertex]], shapes_to_consider: List[TopoDS_Shape] = []) -> List[List[Vertex]]:
+def fuse_pieces(pieces: List[List[Vertex]],
+                shapes_to_consider: List[TopoDS_Shape] = []) -> List[
+    List[Vertex]]:
     normal, _, _ = _calculate_plane_vectors(pieces[0])
     consider_polygons = False
 
@@ -403,8 +425,10 @@ def fuse_pieces(pieces: List[List[Vertex]], shapes_to_consider: List[TopoDS_Shap
         for shape in shapes_to_consider:
             list_pnts = PyOCCTools.get_points_of_face(shape)
             for i, p in enumerate(list_pnts[:-1]):
-                edges.append(BRepBuilderAPI_MakeEdge(list_pnts[i], list_pnts[i + 1]).Shape())
-            edges.append(BRepBuilderAPI_MakeEdge(list_pnts[-1], list_pnts[0]).Shape())
+                edges.append(BRepBuilderAPI_MakeEdge(list_pnts[i],
+                                                     list_pnts[i + 1]).Shape())
+            edges.append(
+                BRepBuilderAPI_MakeEdge(list_pnts[-1], list_pnts[0]).Shape())
 
     i1 = 0
     while i1 < len(pieces) - 1:
@@ -432,7 +456,8 @@ def fuse_pieces(pieces: List[List[Vertex]], shapes_to_consider: List[TopoDS_Shap
             if not is_inner_edge:
                 continue
 
-            # piece_a and piece_b are two triangles with a common edge (piece_a and piece_b)
+            # piece_a and piece_b are two triangles with a common edge (piece_a
+            # and piece_b)
             # common edge is spanned between a1 and a2
             p1 = piece_a[(piece_a_idx - 1) % len(piece_a)]
             p2 = a1
@@ -445,14 +470,16 @@ def fuse_pieces(pieces: List[List[Vertex]], shapes_to_consider: List[TopoDS_Shap
                     continue
             else:
                 # if an edge from triangulation cuts the edge of a polygon
-                # which needs to be considered (e.g. from an opening boundary within
-                # a boundary of a wall), then those shapes have to be fused
-                # regardless of the resulting angle
+                # which needs to be considered (e.g. from an opening boundary
+                # within a boundary of a wall), then those shapes have to be
+                # fused regardless of the resulting angle
                 # this may lead to non-convex shapes in some cases
-                a1_edge = BRepBuilderAPI_MakeEdge(gp_Pnt(*a1), gp_Pnt(*a2)).Shape()
+                a1_edge = BRepBuilderAPI_MakeEdge(gp_Pnt(*a1),
+                                                  gp_Pnt(*a2)).Shape()
                 continue_flag = True
                 for edge in edges:
-                    if BRepExtrema_DistShapeShape(edge, a1_edge, Extrema_ExtFlag_MIN).Value() < 1e-3:
+                    if BRepExtrema_DistShapeShape(
+                            edge, a1_edge, Extrema_ExtFlag_MIN).Value() < 1e-3:
                         continue_flag = False
                     else:
                         pass
@@ -467,16 +494,19 @@ def fuse_pieces(pieces: List[List[Vertex]], shapes_to_consider: List[TopoDS_Shap
                 if not _is_convex_angle(p1, p2, p3, normal):
                     continue
             else:
-                a2_edge = BRepBuilderAPI_MakeEdge(gp_Pnt(*a2), gp_Pnt(*a1)).Shape()
+                a2_edge = BRepBuilderAPI_MakeEdge(gp_Pnt(*a2),
+                                                  gp_Pnt(*a1)).Shape()
                 continue_flag = True
                 for edge in edges:
-                    if BRepExtrema_DistShapeShape(edge, a2_edge, Extrema_ExtFlag_MIN).Value() < 1e-3:
+                    if BRepExtrema_DistShapeShape(
+                            edge, a2_edge, Extrema_ExtFlag_MIN).Value() < 1e-3:
                         continue_flag = False
                     else:
                         pass
                 if continue_flag:
                     continue
-            # fuse triangles (if angle is convex or opening-polygon is cut by this edge
+            # fuse triangles (if angle is convex or opening-polygon is cut by
+            # this edge
             fused_piece = []
             i = (piece_a_idx + 1) % len(piece_a)
             while i != piece_a_idx:
@@ -496,10 +526,14 @@ def fuse_pieces(pieces: List[List[Vertex]], shapes_to_consider: List[TopoDS_Shap
     return pieces
 
 
-def convex_decomposition_base(shape: TopoDS_Shape, opening_shapes: List[TopoDS_Shape] = []) -> List[List[Vertex]]:
-    """Convex decomposition base: removes common edges of triangles unless a non-convex shape is created.
-    In case of openings: In a first round, remove all cutting triangle edges with the opening polygons
-    regardless of non-convex shapes. Then, check for resulting angles. This may lead to non-convex shapes,
+def convex_decomposition_base(shape: TopoDS_Shape,
+                              opening_shapes: List[TopoDS_Shape] = []) -> List[
+    List[Vertex]]:
+    """Convex decomposition base: removes common edges of triangles unless a
+    non-convex shape is created.
+    In case of openings: In a first round, remove all cutting triangle edges
+    with the opening polygons regardless of non-convex shapes.
+    Then, check for resulting angles. This may lead to non-convex shapes,
     but should work in most cases.
     """
     pieces = _get_triangulation(shape)
@@ -510,23 +544,29 @@ def convex_decomposition_base(shape: TopoDS_Shape, opening_shapes: List[TopoDS_S
     return pieces
 
 
-def convex_decomposition(shape: TopoDS_Shape, opening_shapes: List[TopoDS_Shape] = []) -> List[TopoDS_Shape]:
+def convex_decomposition(shape: TopoDS_Shape,
+                         opening_shapes: List[TopoDS_Shape] = []) -> List[
+    TopoDS_Shape]:
     pieces = convex_decomposition_base(shape, opening_shapes)
     pieces_area = 0
     new_area = 0
     new_pieces = []
     for p in pieces:
-        pieces_area += PyOCCTools.get_shape_area(PyOCCTools.make_faces_from_pnts(p))
-        pnt_list_new = PyOCCTools.remove_coincident_vertices([gp_XYZ(pnt[0], pnt[1], pnt[2]) for pnt in p])
+        pieces_area += PyOCCTools.get_shape_area(
+            PyOCCTools.make_faces_from_pnts(p))
+        pnt_list_new = PyOCCTools.remove_coincident_vertices(
+            [gp_XYZ(pnt[0], pnt[1], pnt[2]) for pnt in p])
         pnt_list_new = PyOCCTools.remove_collinear_vertices2(pnt_list_new)
         if pnt_list_new != p and len(pnt_list_new) > 3:
             pnt_list_new = [n.Coord() for n in pnt_list_new]
             p = pnt_list_new
         new_pieces.append(p)
-        new_area += PyOCCTools.get_shape_area(PyOCCTools.make_faces_from_pnts(p))
+        new_area += PyOCCTools.get_shape_area(
+            PyOCCTools.make_faces_from_pnts(p))
     if abs(pieces_area - new_area) > 1e-3:
         new_pieces = pieces
-    new_shapes = list(map(lambda p: PyOCCTools.make_faces_from_pnts(p), new_pieces))
+    new_shapes = list(
+        map(lambda p: PyOCCTools.make_faces_from_pnts(p), new_pieces))
     oriented_shapes = []
     org_normal = PyOCCTools.simple_face_normal(shape)
     for new_shape in new_shapes:
@@ -536,19 +576,21 @@ def convex_decomposition(shape: TopoDS_Shape, opening_shapes: List[TopoDS_Shape]
         else:
             new_shape = PyOCCTools.flip_orientation_of_face(new_shape)
             new_normal = PyOCCTools.simple_face_normal(new_shape)
-            if all([abs(i) < 1e-3 for i in ((new_normal - org_normal).Coord())]):
+            if all([abs(i) < 1e-3 for i in
+                    ((new_normal - org_normal).Coord())]):
                 oriented_shapes.append(new_shape)
             else:
                 logger = logging.getLogger(__name__)
-                logger.error("Convex decomposition produces a gap in new space boundary")
+                logger.error(
+                    "Convex decomposition produces a gap in new space boundary")
     # check if decomposed shape has same area as original shape
     oriented_area = 0
     org_area = PyOCCTools.get_shape_area(shape)
     for face in oriented_shapes:
         oriented_area += PyOCCTools.get_shape_area(face)
     cut_count = 0
-    while abs(org_area-oriented_area) > 5e-3:
-        cut_count +=1
+    while abs(org_area - oriented_area) > 5e-3:
+        cut_count += 1
         cut_shape = shape
         for bound in oriented_shapes:
             cut_shape = BRepAlgoAPI_Cut(cut_shape, bound).Shape()
@@ -556,7 +598,8 @@ def convex_decomposition(shape: TopoDS_Shape, opening_shapes: List[TopoDS_Shape]
         add_cut_shapes = []
         for cs in list_cut_shapes:
             new_normal = PyOCCTools.simple_face_normal(cs)
-            if not all([abs(i) < 1e-3 for i in ((new_normal - org_normal).Coord())]):
+            if not all([abs(i) < 1e-3 for i in
+                        ((new_normal - org_normal).Coord())]):
                 cs = PyOCCTools.flip_orientation_of_face(cs)
             cut_area = PyOCCTools.get_shape_area(cs)
             if cut_area < 5e-4:
@@ -566,7 +609,8 @@ def convex_decomposition(shape: TopoDS_Shape, opening_shapes: List[TopoDS_Shape]
             add_cut_shapes.append(cs)
         if cut_count > 3:
             logger = logging.getLogger(__name__)
-            logger.error("Convex decomposition produces a gap in new space boundary")
+            logger.error(
+                "Convex decomposition produces a gap in new space boundary")
             break
         else:
             oriented_shapes.extend(add_cut_shapes)
@@ -574,6 +618,14 @@ def convex_decomposition(shape: TopoDS_Shape, opening_shapes: List[TopoDS_Shape]
 
 
 def is_convex_slow(shape: TopoDS_Shape) -> bool:
+    """
+    Computational expensive check if a TopoDS_Shape is convex.
+    Args:
+        shape: TopoDS_Shape
+
+    Returns:
+        bool, True if shape is convex.
+    """
     return len(convex_decomposition_base(shape)) == 1
 
 
@@ -595,7 +647,8 @@ def is_convex_no_holes(shape: TopoDS_Shape) -> bool:
 
 
 def is_polygon_convex_no_holes(pnts: List[Tuple[float, float, float]]) -> bool:
-    """check if polygon made from tuples of floats is convex. Returns False if shape is non-convex"""
+    """check if polygon made from tuples of floats is convex.
+    Returns False if shape is non-convex"""
     z = 0
     for i in range(0, len(pnts)):
         p0 = pnts[i]

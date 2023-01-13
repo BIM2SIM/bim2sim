@@ -35,7 +35,14 @@ def get_user_logger(name):
 
 
 def default_logging_setup(verbose=False):
-    """Setup for logging module"""
+    """Setup for logging module
+
+    This creates the following:
+    * logger with name bim2sim as default logger
+    * the file output file bim2sim.log where the logs are stored
+    * the logger quality_logger which stores all information about the quality
+    of existing information of the BIM model
+    """
     logger = logging.getLogger('bim2sim')
 
     log_filter = AudienceFilter(audience=None)

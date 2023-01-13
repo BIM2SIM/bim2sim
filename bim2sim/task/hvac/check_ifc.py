@@ -1,6 +1,8 @@
-from bim2sim.kernel.elements import hvac
-from bim2sim.task.common.common import CheckIfc
 from ifcopenshell.entity_instance import entity_instance
+
+from bim2sim.kernel.elements import hvac
+from bim2sim.kernel.ifc2python import get_ports
+from bim2sim.task.common.common import CheckIfc
 
 
 class CheckIfcHVAC(CheckIfc):
@@ -151,7 +153,11 @@ class CheckIfcHVAC(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        return len(inst.HasPorts) > 0
+        ports = get_ports(inst)
+        if ports:
+            return True
+        else:
+            return False
 
     @staticmethod
     def _check_contained_in_structure(inst: entity_instance) -> bool:
@@ -165,4 +171,7 @@ class CheckIfcHVAC(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        return len(inst.ContainedInStructure) > 0
+        if hasattr(inst, 'ContainedInStructure'):
+            return len(inst.ContainedInStructure) > 0
+        else:
+            return False

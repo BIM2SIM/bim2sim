@@ -1,19 +1,20 @@
-import math
-import numpy as np
 import inspect
+import math
 
-from bim2sim.task.base import ITask
-from bim2sim.workflow import LOD
-from bim2sim.utilities.common_functions import filter_instances
-from bim2sim.kernel import attribute
+import numpy as np
+
 from bim2sim.decorators import cached_property
+from bim2sim.kernel import attribute
+from bim2sim.task.base import ITask
+from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.workflow import LOD
 
 
 class DisaggregationCreation(ITask):
     """Prepares bim2sim instances to later export"""
-    # for 1Zone Building - workflow.spaces: LOD.low - Disaggregations
+    # for 1Zone Building - workflow.zoning_setup: LOD.low - Disaggregations
     # not necessary
-    reads = ('instances', 'finder')
+    reads = ('instances',)
     touches = ('disaggregations',)
 
     def __init__(self):
@@ -23,19 +24,19 @@ class DisaggregationCreation(ITask):
         self.horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
         self.attributes_dict = {}
 
-    def run(self, workflow, finder, instances):
+    def run(self, workflow, instances):
         thermal_zones = filter_instances(instances, 'ThermalZone')
-        if workflow.spaces is not LOD.low:
+        if workflow.zoning_setup is not LOD.low:
             for tz in thermal_zones:
                 new_bound_elements = self.get_thermal_zone_disaggregations(
-                    tz, finder)
+                    tz)
                 tz.bound_elements = new_bound_elements
             self.logger.info("disaggregated %d instances",
                              len(self.disaggregations))
 
         return self.disaggregations,
 
-    def get_thermal_zone_disaggregations(self, tz, finder):
+    def get_thermal_zone_disaggregations(self, tz):
         tz_disaggregations = []
         for sb in tz.space_boundaries:
             bound_instance = sb.bound_instance
@@ -53,7 +54,7 @@ class DisaggregationCreation(ITask):
                             self.disaggregations[sb.guid] = inst
                         else:
                             inst = self.create_disaggregation(
-                                finder, bound_instance, sb, tz)
+                                bound_instance, sb, tz)
                             self.disaggregations[sb.guid] = inst
                             if sb.related_bound is not None:
                                 self.disaggregations[sb.related_bound.guid] = \
@@ -68,11 +69,11 @@ class DisaggregationCreation(ITask):
 
         return tz_disaggregations
 
-    def create_disaggregation(self, finder, bound_instance, sb, tz):
+    def create_disaggregation(self, bound_instance, sb, tz):
         """# todo write documentation"""
         sub_class = type(bound_instance)
         if self.check_disaggregation(bound_instance, sb):
-            inst = sub_class(finder=finder)
+            inst = sub_class(finder=bound_instance.finder)
             self.overwrite_attributes(inst, bound_instance, sb, tz, sub_class)
         else:
             inst = bound_instance

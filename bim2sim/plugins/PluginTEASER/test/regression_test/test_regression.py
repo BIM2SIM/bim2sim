@@ -1,15 +1,15 @@
+import logging
 import re
 import shutil
 import unittest
-import logging
 
 import buildingspy.development.regressiontest as u
 
-from bim2sim import workflow
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import RegressionTestBase
 
 logger = logging.getLogger(__name__)
+
 
 class RegressionTestTEASER(RegressionTestBase):
     def setUp(self):
@@ -109,7 +109,7 @@ class RegressionTestTEASER(RegressionTestBase):
         # user decided to simulate
         elif sim_sucessful and not all(comp_sucessful):
             # copy updated ref results to assets
-            shutil.rmtree(self.ref_results_src_path.parent,
+            shutil.rmtree(self.ref_results_src_path,
                           ignore_errors=True)
             shutil.copytree(self.ref_results_dst_path,
                             self.ref_results_src_path)
@@ -121,14 +121,11 @@ class RegressionTestTEASER(RegressionTestBase):
 
 class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
     def test_run_kitfzkhaus(self):
-        """Run TEASER export with AC20-FZK-Haus.ifc and predifined materials
+        """Run TEASER export with AC20-FZK-Haus.ifc and predefined materials
         and one zone model export"""
         ifc = 'AC20-FZK-Haus.ifc'
-        used_workflow = workflow.BPSOneZoneAggregatedLayersLow()
-        used_workflow.dymola_simulation = False
-        project = self.create_project(ifc, 'TEASER', used_workflow)
-        answers = (True, True, 'heavy',
-                   'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach')
+        project = self.create_project(ifc, 'TEASER')
+        answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -136,6 +133,9 @@ class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
                          "Project export did not finish successfully.")
         self.create_regression_setup(tolerance=1E-3)
         reg_test_res = self.run_regression_test()
+        if reg_test_res == 3:
+            logger.error("Can't run dymola Simulation as no Dymola executable "
+                         "found")
         self.assertEqual(0, reg_test_res,
                          "Regression test with simulation did not finish"
                          " successfully or created deviations.")

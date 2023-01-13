@@ -4,38 +4,38 @@ import logging
 import math
 import re
 import sys
+from datetime import date
 from typing import Set, List
 
 import ifcopenshell
 import ifcopenshell.geom
-from OCC.Core.Bnd import Bnd_Box
+from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBndLib import brepbndlib_Add
-from OCC.Core.BRepLib import BRepLib_FuseEdges
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
-from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, \
-    brepgprop_VolumeProperties
+from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
+from OCC.Core.BRepGProp import brepgprop_SurfaceProperties
+from OCC.Core.BRepLib import BRepLib_FuseEdges
+from OCC.Core.Bnd import Bnd_Box
+from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.GProp import GProp_GProps
 from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
-from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
-from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt,\
-    gp_Mat, gp_Quaternion
-from OCC.Core.TopoDS import topods_Face
 from OCC.Core.TopAbs import TopAbs_FACE
 from OCC.Core.TopExp import TopExp_Explorer
-from OCC.Core.BRep import BRep_Tool
+from OCC.Core.TopoDS import topods_Face
 from OCC.Core._Geom import Handle_Geom_Plane_DownCast
-from OCC.Core.Extrema import Extrema_ExtFlag_MIN
-from datetime import date
+from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt, \
+    gp_Mat, gp_Quaternion
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import element, attribute, condition
 from bim2sim.kernel.units import ureg
-from bim2sim.utilities.common_functions import vector_angle, filter_instances, \
-    angle_equivalent
 from bim2sim.task.common.inner_loop_remover import remove_inner_loops
+from bim2sim.utilities.common_functions import vector_angle, angle_equivalent
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 logger = logging.getLogger(__name__)
+settings_products = ifcopenshell.geom.main.settings()
+settings_products.set(settings_products.USE_PYTHON_OPENCASCADE, True)
 
 
 # todo @ veronika: convert all attributes regarding SB
@@ -50,6 +50,7 @@ class BPSProduct(element.ProductBased):
         self.thermal_zones = []
         self.space_boundaries = []
         self.storeys = []
+        self.material = None
 
     def get_bound_area(self, name) -> ureg.Quantity:
         """ get gross bound area (including opening areas) of the element"""
@@ -86,6 +87,10 @@ class BPSProduct(element.ProductBased):
                         return ext_int
         return None
 
+    def calc_cost_group(self) -> int:
+        """Default cost group for building elements is 300"""
+        return 300
+
     gross_area = attribute.Attribute(
         functions=[get_bound_area],
         unit=ureg.meter ** 2
@@ -116,7 +121,16 @@ class BPSProduct(element.ProductBased):
         return sum(sb.opening_area for sb in self.sbs_without_corresponding)
 
     def calc_orientation(self) -> float:
-        """Calculate the orientation of the bps product"""
+        """Calculate the orientation of the bps product based on SB direction.
+
+        For buildings elements we can use the more reliable space boundaries
+        normal vector to calculate the orientation if the space boundaries
+        exists. Otherwise the base calc_orientation of IFCBased will be used.
+
+        Returns:
+            Orientation angle between 0 and 360.
+            (0 : north, 90: east, 180: south, 270: west)
+        """
         true_north = self.get_true_north()
         if len(self.space_boundaries):
             new_orientation = self.group_orientation(
@@ -138,6 +152,30 @@ class BPSProduct(element.ProductBased):
         if len(dict_orientations):
             return max(dict_orientations, key=dict_orientations.get)
         return None
+
+    @cached_property
+    def volume(self):
+        if hasattr(self, "net_volume"):
+            if self.net_volume:
+                vol = self.net_volume
+                return vol
+        vol = self.calc_volume_from_ifc_shape()
+        return vol
+
+    def calc_volume_from_ifc_shape(self):
+        # todo use more efficient iterator to calc all shapes at once
+        #  with multiple cores:
+        #  https://wiki.osarch.org/index.php?title=IfcOpenShell_code_examples
+        if hasattr(self.ifc, 'Representation'):
+            try:
+                shape = ifcopenshell.geom.create_shape(
+                            settings_products, self.ifc).geometry
+                vol = PyOCCTools.get_shape_volume(shape)
+                vol = vol * ureg.meter ** 3
+                return vol
+            except:
+                logger.warning(f"No calculation of geometric volume possible "
+                               f"for {self.ifc}.")
 
 
 class ThermalZone(BPSProduct):
@@ -238,10 +276,7 @@ class ThermalZone(BPSProduct):
         """
         This function returns the volume of a space shape
         """
-        props = GProp_GProps()
-        brepgprop_VolumeProperties(self.space_shape, props)
-        volume = props.Mass()
-        return volume
+        return PyOCCTools.get_shape_volume(self.space_shape)
 
     def get_volume_geometric(self, name):
         """
@@ -519,8 +554,8 @@ class ThermalZone(BPSProduct):
 
     def __init__(self, *args, **kwargs):
         """thermalzone __init__ function"""
+        self.bound_elements = kwargs.pop('bound_elements', [])  # todo workaround
         super().__init__(*args, **kwargs)
-        self.bound_elements = []
 
     def get__elements_by_type(self, type):
         raise NotImplementedError
@@ -1045,9 +1080,17 @@ class SpaceBoundary(element.RelationBased):
         """
         This function returns the opening bounds of the spaceboundary
         """
+        return list()
+
+    @cached_property
+    def parent_bound(self):
+        """
+        This function returns the parent bound of the space boundary. Only
+        available for space boundary of openings. The parent boundary of an
+        opening boundary is the boundary of the wall which surrounds the
+        opening.
+        """
         return None
-    # opening_bounds = attribute.Attribute(
-    # )
 
 
 class ExtSpatialSpaceBoundary(SpaceBoundary):
@@ -1063,7 +1106,6 @@ class SpaceBoundary2B(SpaceBoundary):
         self.ifc = ifcopenshell.create_entity('IfcRelSpaceBoundary')
         self.guid = None
         self.bound_shape = None
-        self.bound_neighbors = []
         self.thermal_zones = []
         self.bound_instance = None
         self.physical = True
@@ -1093,6 +1135,15 @@ class BPSProductWithLayers(BPSProduct):
         if layers_r > 0:
             return 1 / layers_r
         return None
+
+    def get_thickness_by_layers(self, name):
+        """calculate the total thickness of the product based on the thickness
+        of each layer."""
+        thickness = 0
+        for layer in self.layerset.layers:
+            if layer.thickness:
+                thickness += layer.thickness
+        return thickness
 
 
 class Wall(BPSProductWithLayers):
@@ -1149,11 +1200,24 @@ class Wall(BPSProductWithLayers):
     )
     width = attribute.Attribute(
         default_ps=("Qto_WallBaseQuantities", "Width"),
+        functions=[BPSProductWithLayers.get_thickness_by_layers],
         unit=ureg.m
     )
     inner_convection = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
         default=0.6
+    )
+
+    is_load_bearing = attribute.Attribute(
+        default_ps=("Pset_WallCommon", "LoadBearing"),
+    )
+    net_volume = attribute.Attribute(
+        default_ps=("Qto_WallBaseQuantities", "NetVolume"),
+        unit=ureg.meter ** 3
+    )
+
+    gross_volume = attribute.Attribute(
+        default_ps=("Qto_WallBaseQuantities", "GrossVolume")
     )
 
 
@@ -1166,8 +1230,8 @@ class Layer(BPSProduct):
     conditions = [
         condition.RangeCondition('thickness',
                                  0 * ureg.m,
-                                 1 * ureg.m,
-                                 critical_for_creation=False),
+                                 10 * ureg.m,
+                                 critical_for_creation=False, incl_edges=False)
     ]
 
     def __init__(self,  *args, **kwargs):
@@ -1187,7 +1251,9 @@ class Layer(BPSProduct):
     def get_thickness(self, name):
         """layer thickness function"""
         if hasattr(self.ifc, 'LayerThickness'):
-            return self.ifc.LayerThickness * ureg.m
+            return self.ifc.LayerThickness * ureg.meter
+        else:
+            return float('nan') * ureg.meter
 
     thickness = attribute.Attribute(
         unit=ureg.m,
@@ -1198,11 +1264,6 @@ class Layer(BPSProduct):
     def is_ventilated(self):
         if hasattr(self.ifc, 'IsVentilated'):
             return self.ifc.IsVentilated
-
-    @cached_property
-    def name(self):
-        if hasattr(self.ifc, 'Name'):
-            return self.ifc.Name
 
     @cached_property
     def description(self):
@@ -1247,7 +1308,7 @@ class LayerSet(BPSProduct):
                 return self.ifc.TotalThickness * ureg.m
         return sum(layer.thickness for layer in self.layers)
 
-    total_thickness = attribute.Attribute(
+    thickness = attribute.Attribute(
         unit=ureg.m,
         functions=[get_total_thickness],
     )
@@ -1256,6 +1317,25 @@ class LayerSet(BPSProduct):
     def name(self):
         if hasattr(self.ifc, 'LayerSetName'):
             return self.ifc.LayerSetName
+
+    @cached_property
+    def volume(self):
+        if hasattr(self, "net_volume"):
+            if self.net_volume:
+                vol = self.net_volume
+                return vol
+            # TODO This is not working currently, because with multiple parents
+            #  we dont know the area or width of the parent
+            # elif self.parent.width:
+            #     vol = self.parent.volume * self.parent.width / self.thickness
+            else:
+                vol = float('nan') * ureg.meter ** 3
+        # TODO see above
+        # elif self.parent.width:
+        #     vol = self.parent.volume * self.parent.width / self.thickness
+        else:
+            vol = float('nan') * ureg.meter ** 3
+        return vol
 
     def __repr__(self):
         if self.name:
@@ -1268,9 +1348,39 @@ class LayerSet(BPSProduct):
 class OuterWall(Wall):
     ifc_types = {}
 
+    def calc_cost_group(self) -> int:
+        """Calc cost group for OuterWall
+
+        Load bearing outer walls: 331
+        Not load bearing outer walls: 332
+        Rest: 330
+        """
+
+        if self.is_load_bearing:
+            return 331
+        elif not self.is_load_bearing:
+            return 332
+        else:
+            return 330
+
 
 class InnerWall(Wall):
     ifc_types = {}
+
+    def calc_cost_group(self) -> int:
+        """Calc cost group for InnerWall
+
+        Load bearing inner walls: 341
+        Not load bearing inner walls: 342
+        Rest: 340
+        """
+
+        if self.is_load_bearing:
+            return 341
+        elif not self.is_load_bearing:
+            return 342
+        else:
+            return 340
 
 
 class Window(BPSProductWithLayers):
@@ -1287,6 +1397,14 @@ class Window(BPSProductWithLayers):
             return self.gross_area * self.glazing_ratio
         return self.opening_area
 
+    def calc_cost_group(self) -> int:
+        """Calc cost group for Windows
+
+        Outer door: 334
+        """
+
+        return 334
+
     net_area = attribute.Attribute(
         functions=[get_glazing_area],
         unit=ureg.meter ** 2,
@@ -1302,6 +1420,7 @@ class Window(BPSProductWithLayers):
     )
     width = attribute.Attribute(
         default_ps=("Qto_WindowBaseQuantities", "Depth"),
+        functions=[BPSProductWithLayers.get_thickness_by_layers],
         unit=ureg.m
     )
     u_value = attribute.Attribute(
@@ -1369,6 +1488,7 @@ class Door(BPSProductWithLayers):
 
     width = attribute.Attribute(
         default_ps=("Qto_DoorBaseQuantities", "Width"),
+        functions=[BPSProductWithLayers.get_thickness_by_layers],
         unit=ureg.m
     )
     u_value = attribute.Attribute(
@@ -1393,13 +1513,86 @@ class Door(BPSProductWithLayers):
 class InnerDoor(Door):
     ifc_types = {}
 
+    def calc_cost_group(self) -> int:
+        """Calc cost group for Innerdoors
+
+        Inner door: 344
+        """
+
+        return 344
+
 
 class OuterDoor(Door):
     ifc_types = {}
 
+    def calc_cost_group(self) -> int:
+        """Calc cost group for Outerdoors
 
-class Plate(BPSProduct):
+        Outer door: 334
+        """
+
+        return 334
+
+
+class Plate(BPSProductWithLayers):
     ifc_types = {"IfcPlate": ['*', 'CURTAIN_PANEL', 'SHEET']}
+
+    def calc_cost_group(self) -> int:
+        """Calc cost group for Plates
+
+        External: 337
+        Internal: 346
+        """
+        if self.is_external:
+            return 337
+        elif not self.is_external:
+            return 346
+        else:
+            return 300
+
+    width = attribute.Attribute(
+        default_ps=("Qto_PlateBaseQuantities", "Width"),
+        functions=[BPSProductWithLayers.get_thickness_by_layers],
+        unit=ureg.m
+    )
+
+    net_volume = attribute.Attribute(
+        default_ps=("Qto_PlateBaseQuantities", "NetVolume"),
+        unit=ureg.m **3
+    )
+
+    gross_volume = attribute.Attribute(
+        default_ps=("Qto_PlateBaseQuantities", "GrossVolume"),
+        unit=ureg.m **3
+    )
+
+    net_area = attribute.Attribute(
+        default_ps=("Qto_PlateBaseQuantities", "NetArea"),
+        unit=ureg.m **3
+    )
+
+    gross_area = attribute.Attribute(
+        default_ps=("Qto_PlateBaseQuantities", "GrossArea"),
+        unit=ureg.m **3
+    )
+    net_weight = attribute.Attribute(
+        default_ps=("Qto_PlateBaseQuantities", "NetWeight"),
+        unit=ureg.m **3
+    )
+
+    gross_weight = attribute.Attribute(
+        default_ps=("Qto_PlateBaseQuantities", "GrossWeight"),
+        unit=ureg.m **3
+    )
+
+    is_load_bearing = attribute.Attribute(
+        default_ps=("Pset_PlateCommon", "LoadBearing"),
+    )
+    u_value = attribute.Attribute(
+        default_ps=("Pset_PlateCommon", "ThermalTransmittance"),
+        unit=ureg.W / ureg.K / ureg.meter ** 2,
+        functions=[BPSProductWithLayers.get_u_value],
+    )
 
 
 class Slab(BPSProductWithLayers):
@@ -1428,12 +1621,20 @@ class Slab(BPSProductWithLayers):
     )
     width = attribute.Attribute(
         default_ps=("Qto_SlabBaseQuantities", "Width"),
+        functions=[BPSProductWithLayers.get_thickness_by_layers],
         unit=ureg.m
     )
     u_value = attribute.Attribute(
         default_ps=("Pset_SlabCommon", "ThermalTransmittance"),
         unit=ureg.W / ureg.K / ureg.meter ** 2,
         functions=[BPSProductWithLayers.get_u_value],
+    )
+    net_volume = attribute.Attribute(
+        default_ps=("Qto_SlabBaseQuantities", "NetVolume"),
+        unit=ureg.meter ** 3
+    )
+    is_load_bearing = attribute.Attribute(
+        default_ps=("Pset_SlabCommon", "LoadBearing"),
     )
 
 
@@ -1454,6 +1655,19 @@ class Roof(Slab):
     def orientation(self) -> float:
         """Returns the orientation of the roof"""
         return -1
+    def calc_cost_group(self) -> int:
+        """Calc cost group for Roofs
+
+
+        Load bearing: 361
+        Not load bearing: 363
+        """
+        if self.is_load_bearing:
+            return 361
+        elif not self.is_load_bearing:
+            return 363
+        else:
+            return 300
 
 
 class Floor(Slab):
@@ -1466,12 +1680,28 @@ class Floor(Slab):
         """Returns the orientation of the floor"""
         return -2
 
+    def calc_cost_group(self) -> int:
+        """Calc cost group for Floors
+
+        Floor: 351
+        """
+        return 351
+
 
 class GroundFloor(Slab):
-    is_external = True
+    is_external = True  # todo to be removed
     ifc_types = {
         "IfcSlab": ['BASESLAB']
     }
+
+    def calc_cost_group(self) -> int:
+        """Calc cost group for groundfloors
+
+        groundfloors: 322
+        """
+
+        return 322
+
     # pattern_ifc_type = [
     #     re.compile('Bodenplatte', flags=re.IGNORECASE),
     #     re.compile('')
@@ -1504,7 +1734,7 @@ class Building(BPSProduct):
 
     def _get_building_name(self, name):
         """get building name"""
-        bldg_name = getattr(self.ifc, 'Name')
+        bldg_name = self.get_ifc_attribute('Name')
         if bldg_name:
             return bldg_name
         else:
@@ -1611,6 +1841,90 @@ class SpaceBoundaryRepresentation(BPSProduct):
     ]
 
     # todo look at #201
+
+
+class Covering(BPSProduct):
+    # todo connect covering with element via CoversElements and CoversSpaces
+    ifc_types = {'IfcCovering': [
+        'CEILING',
+        'FLOORING',
+        'CLADDING',
+        'ROOFING',
+        'MODLING',
+        'SKIRTINGBOARD'
+    ]
+    }
+
+    def __init__(self, *args, **kwargs):
+        """Covering __init__ function"""
+        super().__init__(*args, **kwargs)
+
+    def calc_cost_group(self) -> int:
+        """Calc cost group for Coverings
+        """
+
+        if self.predefined_type == "CEILING":
+            return 354
+        elif self.predefined_type == "ROOFING":
+            return 364
+        elif self.predefined_type == "FLOORING":
+            return 353
+        elif self.predefined_type == "CLADDING" and self.is_external:
+            return 335
+        elif self.predefined_type == "ROOFING" and not self.is_external:
+            return 336
+        elif self.predefined_type == "MOLDING" and self.is_external:
+            return 339
+        elif self.predefined_type == "MOLDING" and not self.is_external:
+            return 349
+        elif self.predefined_type == "SKIRTINGBOARD" and not self.is_external:
+            return 349
+        elif self.is_external:
+            return 330
+        elif not self.is_external:
+            return 340
+        else:
+            return 300
+
+    width = attribute.Attribute(
+        default_ps=("Qto_CoveringBaseQuantities", "Width"),
+        unit=ureg.m
+     )
+    gross_area = attribute.Attribute(
+        default_ps=("Qto_CoveringBaseQuantities", "GrossArea"),
+        unit=ureg.meter ** 2
+    )
+    net_area = attribute.Attribute(
+        default_ps=("Qto_CoveringBaseQuantities", "NetArea"),
+        unit=ureg.meter ** 2
+    )
+
+
+class Insulation(Covering):
+    ifc_types = {'IfcCovering': ['INSULATION']}
+    pattern_ifc_type = [
+        re.compile('Dämmung', flags=re.IGNORECASE),
+        re.compile('Isolierung', flags=re.IGNORECASE),
+        re.compile('Isolation', flags=re.IGNORECASE),
+        re.compile('Insulation', flags=re.IGNORECASE),
+    ]
+
+    def __init__(self, *args, **kwargs):
+        """Insulation __init__ function"""
+        super().__init__(*args, **kwargs)
+
+    def calc_cost_group(self) -> int:
+        """Calc cost group for Insulations
+
+        External: 330
+        Internal: 340
+        """
+        if self.is_external:
+            return 330
+        elif not self.is_external:
+            return 340
+        else:
+            return 300
 
 
 # collect all domain classes

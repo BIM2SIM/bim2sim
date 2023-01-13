@@ -1,10 +1,9 @@
 """Test for common_functions.py"""
-import unittest
 import re
+import unittest
 
 import bim2sim.utilities.common_functions as cf
 from bim2sim.kernel.elements.bps import BPSProduct, Wall, Window, Door
-from bim2sim.kernel.aggregation import AggregatedThermalZone
 
 
 class TestCommonFunctions(unittest.TestCase):
@@ -143,4 +142,4 @@ class TestCommonFunctions(unittest.TestCase):
         """test all_subclasses function"""
         all_subclasses = cf.all_subclasses(BPSProduct)
         self.assertIsInstance(all_subclasses, set)
-        self.assertEqual(len(all_subclasses), 22)
+        self.assertEqual(len(all_subclasses), 24)

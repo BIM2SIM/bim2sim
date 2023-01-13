@@ -1,17 +1,12 @@
 import logging
-from contextlib import contextmanager
-from typing import Tuple, Iterable, Callable, Any, Union
 from functools import partial
+from typing import Tuple, Iterable, Callable, Any, Union
 
 import pint
-import re
 
-from unicodedata import decimal
-
-from bim2sim.decision import RealDecision, BoolDecision, ListDecision, Decision, \
+from bim2sim.decision import RealDecision, Decision, \
     DecisionBunch
 from bim2sim.kernel.units import ureg
-import inspect
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -173,10 +168,12 @@ class Attribute:
                     value, ureg.Quantity):
                 logger.warning("Unit not set!")
                 value = value * self.unit
-
-        if value is not None and bind.conditions:
-            if not self.check_conditions(bind, value, self.name):
-                value = None
+        # todo validation of attributes on creation time makes accept_valids
+        #  function in common.py unusable as not valid attributes are never
+        #  created
+        # if value is not None and bind.conditions:
+        #     if not self.check_conditions(bind, value, self.name):
+        #         value = None
 
         return value
 
