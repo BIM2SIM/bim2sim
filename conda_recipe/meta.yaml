@@ -18,8 +18,6 @@ requirements:
     - python 3.9.15
     - pip
     - setuptools
-  RUN:
-    - python>=3.8,<3.9
     - docopt
     - numpy
     - pandas
@@ -29,6 +27,7 @@ requirements:
     - mako
     - deep_translator
     - pint
+
 
 test:
   imports:

@@ -2,7 +2,7 @@ stages:
   - conda_build
   - conda_release
 
-build_bim2sim:
+build_bim2sim:main:
   image: continuumio/miniconda3
   stage: conda_build
   script:
@@ -67,7 +67,7 @@ release_bim2sim:main:
     max: 2
     when: runner_system_failure
   dependencies:
-    - build_bim2sim
+    - build_bim2sim:main
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       when: always
@@ -95,7 +95,7 @@ release_bim2sim:development:
     max: 2
     when: runner_system_failure
   dependencies:
-    - build_bim2sim
+    - build_bim2sim:development
   rules:
     - if: $CI_COMMIT_BRANCH == "development"
       when: always
