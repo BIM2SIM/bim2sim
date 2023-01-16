@@ -7,7 +7,6 @@ package:
 source:
   path: ../
 
-
 build:
   number: '0'
   entry_points:
@@ -18,17 +17,16 @@ requirements:
     - python 3.9.15
     - pip 22.2.2
     - setuptools 65.5.0
-    - docopt
-    - numpy
-    - pandas
-    - matplotlib
+    - docopt 0.6.2
+    - numpy 1.21.5
+    - pandas 1.4.4
+    - matplotlib 3.5.2
     - networkx>=2.2
-    - python-dateutil
-    - mako
-    - pint
+    - python-dateutil 2.8.2
+    - mako 1.2.4
+    - pint 0.20.1
   run:
     - python >=3.8.*,<3.10.*
-
 test:
   imports:
     - bim2sim
