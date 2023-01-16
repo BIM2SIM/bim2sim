@@ -29,6 +29,8 @@ requirements:
     - mako 1.2.4
     - pint 0.20.1
     - certifi 2022.12.7
+    - pythonocc-core 7.6.2
+    - ifcopenshell
 
   run:
     - python >=3.8.*,<3.10.*
