@@ -25,11 +25,10 @@ requirements:
     - networkx>=2.2
     - python-dateutil
     - mako
-    - deep_translator
     - pint
   run:
     - python >=3.8,<3.9
-
+    - deep_translator
 
 test:
   imports:
