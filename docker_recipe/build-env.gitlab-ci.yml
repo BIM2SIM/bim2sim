@@ -38,7 +38,6 @@ build_env:development:
   expire_in: 1 hour
   paths:
     - $CI_REGISTRY/environment:development
-
  rules:
    - if: $CI_COMMIT_BRANCH == "development"
      changes:

@@ -38,6 +38,7 @@ test:
     - bim2sim.plugins.PluginLCA
   requires:
     - python
+    - pint==0.20.1
     - pythonocc-core==7.6.2
     - ifcopenshell
 
