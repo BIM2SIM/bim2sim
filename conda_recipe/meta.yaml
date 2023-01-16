@@ -15,9 +15,9 @@ build:
 
 requirements:
   host:
-    - python
-    - pip
-    - setuptools
+    - python 3.9.15
+    - pip 22.2.2
+    - setuptools 65.5.0
     - docopt
     - numpy
     - pandas
@@ -28,7 +28,6 @@ requirements:
     - pint
   run:
     - python >=3.8,<3.9
-    - deep_translator
 
 test:
   imports:
