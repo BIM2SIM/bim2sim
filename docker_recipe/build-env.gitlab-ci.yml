@@ -34,7 +34,11 @@ build_env:development:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
    - docker build -t $CI_REGISTRY/environment:development -f envBase.Dockerfile .
-   - docker push $CI_REGISTRY/environment:development
+ artifacts:
+  expire_in: 1 hour
+  paths:
+    - $CI_REGISTRY/environment:development
+
  rules:
    - if: $CI_COMMIT_BRANCH == "development"
      changes:

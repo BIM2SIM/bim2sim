@@ -8,6 +8,7 @@ source:
   path: ../
 
 build:
+  preserve_egg_dir: True
   number: '0'
   entry_points:
     - bim2sim = bim2sim:main
