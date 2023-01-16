@@ -2,7 +2,7 @@ stages:
   - conda_build
   - conda_release
 
-build_bim2sim:main:
+build_bim2sim:
   image: continuumio/miniconda3
   stage: conda_build
   script:
