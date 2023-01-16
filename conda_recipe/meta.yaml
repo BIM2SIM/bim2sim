@@ -9,19 +9,17 @@ source:
 
 
 build:
-  preserve_egg_dir: True
-  number: 0
+  number: '0'
   entry_points:
     - bim2sim = bim2sim:main
 
-
 requirements:
   host:
-    - python
+    - python 3.9.15
     - pip
     - setuptools
   RUN:
-    - python
+    - python>=3.8,<3.9
     - docopt
     - numpy
     - pandas

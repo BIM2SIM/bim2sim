@@ -2,7 +2,7 @@ stages:
   - conda_build
   - conda_release
 
-build_bim2sim:
+build_bim2sim:main:
   image: continuumio/miniconda3
   stage: conda_build
   script:
@@ -25,7 +25,28 @@ build_bim2sim:
       when: always
 
 
-release_bim2sim:
+build_bim2sim:development:
+  image: continuumio/miniconda3
+  stage: conda_build
+  script:
+    - apt update
+    - apt install libgl1 -y
+    - conda install conda-build git conda-verify -y
+    - mkdir conda-bld
+    - conda build conda_recipe/meta.yaml -c conda-forge --output-folder conda-bld/ --python 3.9
+  retry:
+    max: 2
+    when: runner_system_failure
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - conda-bld
+  rules:
+    - if: $CI_COMMIT_BRANCH == "development"
+      when: always
+
+
+release_bim2sim:main:
   image: continuumio/miniconda3
   stage: conda_release
   script:
@@ -53,3 +74,28 @@ release_bim2sim:
     - if: $CI_COMMIT_MESSAGE =~ /ci_conda_build/
       when: always
 
+release_bim2sim:development:
+  image: continuumio/miniconda3
+  stage: conda_release
+  script:
+    - apt update
+    - apt install libgl1 -y
+    - conda install conda-build git conda-verify -y
+    - conda install anaconda -y
+    - anaconda login --username bim2sim --password $CONDA_TOKEN
+    - conda update --all
+    - conda install conda-build anaconda-client
+    - conda convert -p osx-64 conda-bld/linux-64/bim2sim-* --output-dir conda-bld/ -f
+    - conda convert -p osx-arm64 conda-bld/linux-64/bim2sim-* --output-dir conda-bld/ -f
+    - conda convert -p win-64 conda-bld/linux-64/bim2sim-* --output-dir conda-bld/ -f
+    - anaconda upload conda-bld/linux-64/bim2sim-* --force
+    - anaconda upload conda-bld/osx-64/bim2sim-* --force
+    - anaconda upload conda-bld/win-64/bim2sim-* --force
+  retry:
+    max: 2
+    when: runner_system_failure
+  dependencies:
+    - build_bim2sim
+  rules:
+    - if: $CI_COMMIT_BRANCH == "development"
+      when: always
