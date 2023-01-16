@@ -31,13 +31,10 @@ requirements:
     - certifi 2022.12.7
     - pythonocc-core 7.6.2
     - ifcopenshell
-
   run:
     - python >=3.8.*,<3.10.*
   run_constrained:
     - beautifulsoup4 >=4.9.3
-    - bim2sim
-
 
 test:
   imports:
