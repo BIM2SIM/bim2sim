@@ -15,7 +15,7 @@ build:
 
 requirements:
   host:
-    - python 3.9.15
+    - python
     - pip
     - setuptools
     - docopt
