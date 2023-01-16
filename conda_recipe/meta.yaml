@@ -27,7 +27,7 @@ requirements:
     - mako
     - pint
   run:
-    - python >=3.8,<3.9
+    - python >=3.8.*,<3.10.*
 
 test:
   imports:
