@@ -123,7 +123,7 @@ class Consumer(AixLib):
 
 class ConsumerHeatingDistributorModule(AixLib):
     path = "AixLib.Systems.ModularEnergySystems.Modules.ModularConsumer." \
-           "ModularConsumer"
+           "ConsumerDistributorModule"
     represents = [aggregation.ConsumerHeatingDistributorModule]
 
     def __init__(self, element):
