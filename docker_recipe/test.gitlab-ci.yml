@@ -10,7 +10,6 @@ stages:
     - if: $CI_COMMIT_MESSAGE =~ /ci_test/
       when: manual
 
-
 test_Base:
   <<: *test-default
   image: $CI_REGISTRY/environment:development
