@@ -4,7 +4,8 @@
 /bim2sim/assets/regression_results/*
 /test/TestModels/*
 
-
+#AixLib for regression tests
+Aixlib/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

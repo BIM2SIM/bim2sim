@@ -3,9 +3,9 @@ import shutil
 import unittest
 import logging
 
+from pathlib import Path
 import buildingspy.development.regressiontest as u
 
-from bim2sim import workflow
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import RegressionTestBase
 
@@ -39,7 +39,8 @@ class RegressionTestTEASER(RegressionTestBase):
     def create_regression_setup(
             self,
             tolerance: float = 1E-3,
-            batch_mode: bool = False):
+            batch_mode: bool = False,
+            path_aixlib: Path = None):
         """
         Create a regression test setup based on BuildingsPy regression tests.
 
@@ -47,14 +48,16 @@ class RegressionTestTEASER(RegressionTestBase):
         the passed project TEASER modelica simulation model export.
 
         Args:
-            project: the TEASER project instance against which the regression test
-                should run
             tolerance: the tolerance in which the regression results will be
                 accepted as valid
             batch_mode: in batch mode no input is required and no new results
                 can be created
+            path_aixlib: path to local stored AixLib modelica package.mo
 
         """
+        if not path_aixlib:
+            path_aixlib = self.project.paths.b2sroot / 'AixLib' / 'AixLib' \
+                          / 'package.mo'
         regex = re.compile("[^a-zA-z0-9]")
         model_export_name = regex.sub("", self.project.name)
         self.ref_results_src_path = \
@@ -71,8 +74,6 @@ class RegressionTestTEASER(RegressionTestBase):
         self.tester.batchMode(batch_mode)
         self.tester.setLibraryRoot(
             self.project.paths.export / 'TEASER' / 'Model' / model_export_name)
-        path_aixlib = self.project.paths.b2sroot / 'bim2sim' / 'plugins' / \
-                      'AixLib' / 'AixLib' / 'package.mo'
         self.tester.setAdditionalLibResource(str(path_aixlib))
         if list(self.ref_results_src_path.rglob("*.txt")):
             shutil.copytree(self.ref_results_src_path,
