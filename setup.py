@@ -8,16 +8,19 @@ VERSION = "0.1.0"
 
 def copy_non_code_file(non_code_dir, not_include):
     path_file_dict = []
+    #path_file_dict = {}
     for subdir, dirs, files in os.walk(non_code_dir):
         file_list = []
         for file in files:
             filepath = subdir + os.sep + file
+            print(filepath)
             file_list.append(filepath)
             for end in not_include:
                 if filepath.endswith(end):
                     file_list.remove(filepath)
         if len(file_list) > 0:
             path_file_dict.append((subdir, file_list))
+            #path_file_dict[subdir] = file_list
         continue
     return path_file_dict
 
@@ -35,6 +38,8 @@ setup(
     include_package_data=True,
     data_files = copy_non_code_file(non_code_dir=f'bim2sim{os.sep}{os.sep}', not_include=[".py", ".Dockerfile"]),
     package_data={'': ['bim2sim/assets/*.*']},
+    #package_data=copy_non_code_file(non_code_dir=f'bim2sim{os.sep}{os.sep}', not_include=[".py", ".Dockerfile"]),
+    #package_data={'bim2sim//assets//enrichment//hvac': ['bim2sim//assets//enrichment//hvac//TypeBuildingElements.json']},
     python_requires='>=3.8.*,<3.10.*',
     install_requires=[required],
     classifiers=[
