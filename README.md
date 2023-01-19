@@ -20,7 +20,8 @@ But if you just want to install bim2sim and use trial and error technique go via
 ```
 conda install -c bim2sim bim2sim
 ```
-For questions like why we don't use pip and if we supprt docker please go the linked installation documentation.
+Currently bim2sim is supported for python 3.8 and python 3.9.
+For questions like why we don't use pip and if we supprt docker we refer to the linked documentation.
 
 
 ## Related Publications
