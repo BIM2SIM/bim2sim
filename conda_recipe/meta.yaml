@@ -52,6 +52,5 @@ test:
 about:
   home: https://github.com/BIM2SIM/bim2sim
   summary: "Create simulation models from IFC files"
-  description: |
-  Create simulation models from IFC files
+  description: "Create simulation models from IFC files"
   license: LICENSE
