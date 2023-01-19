@@ -51,6 +51,6 @@ test:
 
 about:
   home: https://github.com/BIM2SIM/bim2sim
-  summary: "Create simulation models from IFC files"
-  description: "Create simulation models from IFC files"
+  summary: "A python tool to create simulation models for different domains based on BIM IFC models."
+  description: "A python tool to create simulation models for different domains based on BIM IFC models. For documentation please visit https://ebc.pages.rwth-aachen.de/EBC_all/github_ci/bim2sim/development/docs/overview.html"
   license: LICENSE
