@@ -11,7 +11,7 @@ build:
   preserve_egg_dir: True
   number: '0'
   entry_points:
-    - bim2sim = bim2sim:main
+    - bim2sim = bim2sim.__main__:commandline_interface
   script: python -m pip install --no-deps --ignore-installed .
 
 requirements:
@@ -19,7 +19,6 @@ requirements:
     - python>=3.8.*,<3.10.*
     - pip 22.2.2
     - setuptools 65.5.0
-
   run:
     - python >=3.8.*,<3.10.*
     - docopt 0.6.2
@@ -53,4 +52,6 @@ test:
 about:
   home: https://github.com/BIM2SIM/bim2sim
   summary: "Create simulation models from IFC files"
+  description: |
+  Create simulation models from IFC files
   license: LICENSE
