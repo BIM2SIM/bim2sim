@@ -80,3 +80,36 @@ class TestConsumerDistributorModule(unittest.TestCase):
             [item for item in
              flags['spaceheater']+flags['distributor']+flags['PipeCon']]
         self.assertCountEqual(module.elements, module_elements)
+
+    @unittest.skip("This is WIP")
+    def test_find_matches_branch167(self):
+        """TODO"""
+        graph, flags = self.helper.get_setup_con_dist()
+        matches, metas = \
+            aggregation.ConsumerHeatingDistributorModule.find_matches2(graph)
+
+        module = aggregation.ConsumerHeatingDistributorModule(
+            matches[0].element_graph, **metas[0])
+        print('test')
+
+    # @unittest.skip("This is WIP")
+    def test_compare_original_vs_167(self):
+        graph, flags = self.helper.get_setup_con_dist()
+        matches, metas = \
+            aggregation.ConsumerHeatingDistributorModule.find_matches(graph)
+
+        module1 = aggregation.ConsumerHeatingDistributorModule(
+            matches[0], **metas[0])
+
+        graph, flags = self.helper.get_setup_con_dist()
+        matches2, metas2 = \
+            aggregation.ConsumerHeatingDistributorModule.find_matches2(graph)
+        for match2, meta2 in zip(matches2, metas2):
+            edge_ports = \
+                aggregation.ConsumerHeatingDistributorModule.get_edge_ports2(
+                    graph, match2)
+
+        # module2 = aggregation.ConsumerHeatingDistributorModule(
+        #     matches2[0].element_graph, edge_ports)
+        print('test')
+
