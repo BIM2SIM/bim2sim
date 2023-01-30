@@ -2,7 +2,7 @@
 
 package:
   name: "bim2sim"
-  version: {{ data.get('version') }}
+  version: {{ data.get('version') }}_{{BIM2SIM_VERSION}}
 
 source:
   path: ../../

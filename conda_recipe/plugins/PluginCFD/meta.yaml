@@ -2,7 +2,7 @@
 
 package:
   name: "bim2sim_cfd"
-  version: {{ version }}
+  version: {{ version }}_{{BIM2SIM_VERSION}}
 
 source:
   path: ../../../

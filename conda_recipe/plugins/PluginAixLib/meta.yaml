@@ -3,7 +3,7 @@
 
 package:
   name: "bim2sim_aixlib"
-  version: {{ data.get('version') }}{{BIM2SIM_VERSION}}
+  version: {{ data.get('version') }}_{{BIM2SIM_VERSION}}
 
 source:
   path: ../../../
