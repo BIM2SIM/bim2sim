@@ -19,7 +19,9 @@ logger = logging.getLogger(__name__)
 
 class HvacGraph(nx.Graph):
     """HVAC related graph manipulations based on ports."""
-
+    # TODO 246 HvacGraph init should only be called one based on IFC as it works
+    #  with port.connection and therefore is not reliable after changes are made
+    #  to the graph
     def __init__(self, elements=None, **attr):
         super().__init__(incoming_graph_data=None, **attr)
         if elements:
@@ -107,6 +109,7 @@ class HvacGraph(nx.Graph):
         logger.info("Found %d cycles", len(cycles))
         return cycles
 
+    # TODO #246 delete because not needed anymore
     @staticmethod
     def get_type_chains(
             element_graph: nx.Graph,

@@ -393,7 +393,7 @@ class Reduce(ITask):
                 # TODO: See #167
                 # edge_ports = agg_class.get_edge_ports2(graph, match)
                 try:
-                    agg = agg_class(match, **meta)
+                    agg = agg_class(graph, match, **meta)
                 except Exception as ex:
                     self.logger.exception("Instantiation of '%s' failed", name)
                 else:
