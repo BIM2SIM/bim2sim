@@ -105,7 +105,7 @@ class TestConsumerDistributorModule(unittest.TestCase):
         matches2, metas2 = \
             aggregation.ConsumerHeatingDistributorModule.find_matches2(graph)
         for match2, meta2 in zip(matches2, metas2):
-            edge_ports = \
+           edge_ports = \
                 aggregation.ConsumerHeatingDistributorModule.get_edge_ports2(
                     graph, match2)
 

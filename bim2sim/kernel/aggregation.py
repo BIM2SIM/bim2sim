@@ -155,7 +155,6 @@ class HVACAggregationMixin(AggregationMixin):
 
     Adds some HVAC specific functionality to the AggregationMixin.
     """
-
     def __init__(self, element_graph: nx.Graph, *args, outer_connections=None,
                  **kwargs):
         # TODO: handle outer_connections from meta,
@@ -178,10 +177,16 @@ class HVACAggregationMixin(AggregationMixin):
 
     @classmethod
     def get_empty_mapping(cls, elements: Iterable[ProductBased]):
-        """Get information to remove elements
-        :returns tuple of
-            mapping dict with original ports as values and None as keys
-            connection list of outer connections"""
+        """ Get information to remove elements.
+
+        Args:
+            elements:
+
+        Returns:
+            mapping: tuple of mapping dict with original ports as values and
+                None as keys.
+            connections: connection list of outer connections.
+        """
         ports = [port for element in elements for port in element.ports]
         mapping = {port: None for port in ports}
         # TODO: len > 1, optimize
@@ -215,7 +220,7 @@ class HVACAggregationMixin(AggregationMixin):
     @classmethod
     def get_edge_ports2(cls, graph: HvacGraph, match: HvacGraph) \
             -> List[HVACPort]:
-        """Get edge ports based on graph."""
+        """ Get edge ports based on graph and match."""
         # edges of g excluding all relations to s
         e1 = graph.subgraph(graph.nodes - match.nodes).edges
         # all edges related to s
@@ -300,7 +305,7 @@ class HVACAggregationMixin(AggregationMixin):
 
 
 class PipeStrand(HVACAggregationMixin, hvac.Pipe):
-    """Aggregates pipe strands.
+    """Aggregates pipe strands, i.e. pipes, pipe fittings and valves.
 
     This aggregation reduces the number of elements by merging straight
     connected elements with just two ports into one PipeStrand. The length and

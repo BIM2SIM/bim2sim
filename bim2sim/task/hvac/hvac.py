@@ -420,7 +420,7 @@ class Reduce(ITask):
 
     @staticmethod
     def set_flow_sides(graph: HvacGraph):
-        """Set flow_side for ports in graph based on known flow_sides"""
+        """ Set flow_side for ports in graph based on known flow_sides."""
         # TODO: needs testing!
         # TODO: at least one master element required
         accepted = []
@@ -488,9 +488,11 @@ class Export(ITask):
         connections = graph.get_connections()
 
         modelica.Instance.init_factory(libraries)
-        export_instances = {inst: modelica.Instance.factory(inst) for inst in reduced_instances}
+        export_instances = {inst: modelica.Instance.factory(inst)
+                            for inst in reduced_instances}
 
-        yield from ProductBased.get_pending_attribute_decisions(reduced_instances)
+        yield from ProductBased.get_pending_attribute_decisions(
+            reduced_instances)
 
         for instance in export_instances.values():
             instance.collect_params()

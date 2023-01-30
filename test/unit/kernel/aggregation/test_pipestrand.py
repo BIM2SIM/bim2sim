@@ -379,6 +379,16 @@ class TestPipeStrand(unittest.TestCase):
             "There are 5 cases for PipeStrand but 'find_matches' returned %d" % len(matches)
         )
 
+    def test_get_edge_ports_strait_strand(self):
+        """ Test the get_edge_ports method for a pipe strand."""
+        graph, flags = self.helper.get_setup_strand1()
+        ele = graph.elements
+
+        matches, meta = aggregation.PipeStrand.find_matches(graph)
+        match = HvacGraph(matches[0])
+        edge_ports = aggregation.PipeStrand.get_edge_ports2(graph, matches[0])
+        print('test')
+
 
 if __name__ == '__main__':
     unittest.main()
