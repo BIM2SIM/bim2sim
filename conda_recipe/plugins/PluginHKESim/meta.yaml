@@ -1,0 +1,43 @@
+{% set data = load_setup_py_data(setup_file='../../../setup.py', from_recipe_dir=True) %}
+
+package:
+  name: "bim2sim_hkesim"
+  version: {{ version }}
+
+source:
+  path: ../../../
+
+build:
+  preserve_egg_dir: True
+  number: '0'
+  entry_points:
+    - bim2sim = bim2sim.__main__:commandline_interface
+
+requirements:
+  host:
+    - python>=3.8.*,<3.10.*
+    - pip 22.2.2
+    - setuptools 65.5.0
+  run:
+    - python >=3.5.*,<3.10.*
+    - bim2sim
+
+test:
+  imports:
+    - bim2sim
+    - bim2sim.plugins.PluginAixLib
+    - bim2sim.plugins.PluginTEASER
+    - bim2sim.plugins.PluginCFD
+    - bim2sim.plugins.PluginEnergyPlus
+    - bim2sim.plugins.PluginLCA
+  requires:
+    - python  >=3.8.*,<3.10.*
+    - pint==0.20.1
+    - pythonocc-core==7.6.2
+    - ifcopenshell
+
+about:
+  home: https://github.com/BIM2SIM/bim2sim
+  summary: "Create simulation models from IFC files"
+  description: "Create simulation models from IFC files"
+  license: LICENSE

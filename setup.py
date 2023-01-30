@@ -47,7 +47,7 @@ setup(
     },
     entry_points = {
         'console_scripts': [
-            'bim2sim = bim2sim:main',
+            'bim2sim = bim2sim.__main__:commandline_interface',
         ],
     }
 )

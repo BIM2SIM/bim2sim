@@ -49,40 +49,9 @@ ENV 	PATH /opt/conda/envs/env/bin:$PATH
 SHELL 	["conda", "run", "-n", "env", "/bin/bash", "-c"]
 
 # install needed packages
-
-RUN pip install --default-timeout=100 -r ./requirements.txt
-
-# install needed packages
-
-## install pythonocc via conda
-RUN /opt/conda/bin/conda install --yes --freeze-installed \
-	    -c conda-forge pythonocc-core=7.5.1 \
-	    nomkl \
-	&& /opt/conda/bin/conda clean -afy \
-	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
-	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \
-	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
-
-# install ifcopenshell via conda
-RUN /opt/conda/bin/conda install --yes --freeze-installed \
-	    -c conda-forge ifcopenshell \
-	    nomkl \
-	&& /opt/conda/bin/conda clean -afy \
-	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
-	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \
-	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
-
-## install occ utils via existing file 
-RUN pip install https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
+RUN conda activate env
+RUN conda install -c bim2sim
 
 
-# Set Pythonpath
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginEnergyPlus"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginCFD"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginAixLib"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginHKESim"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginTEASER"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginLCA"
 
-########################################################
+
