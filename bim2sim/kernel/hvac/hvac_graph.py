@@ -252,7 +252,7 @@ class HvacGraph(nx.Graph):
                 logger.error("Unable to save plot of graph (%s)", ex)
         else:
             plt.show()
-        plt.clf()
+        # plt.clf()
 
     def to_serializable(self):
         """Returns a json serializable object"""
@@ -697,3 +697,6 @@ class HvacGraph(nx.Graph):
             subgraph = nx.subgraph(_graph, con)
             graphs.append(subgraph)
         return graphs
+
+    def subgraph_from_elements(self, elements: list):
+        return self.subgraph((port for ele in elements for port in ele.ports))
