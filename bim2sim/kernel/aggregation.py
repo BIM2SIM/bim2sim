@@ -223,17 +223,16 @@ class HVACAggregationMixin(AggregationMixin):
         """ Get edge ports based on graph and match."""
         # edges of g excluding all relations to s
         e1 = graph.subgraph(graph.nodes - match.nodes).edges
-        # all edges related to s
-        e2 = graph.edges - e1
-        # related to s but not s exclusive
-        e3 = e2 - match.edges
-        # TODO: What happens if match and graph are identical?
-        # if not e3:
-        #     edge_ports = [v for v, d in match.degree() if d == 1]
-        # else:
-        # get only edge_ports that belong to the match graph
-        edge_ports = [port for port in [e for x in list(e3) for e in x]
-                      if port in match]
+        if not e1:
+            edge_ports = [v for v, d in match.degree() if d == 1]
+        else:
+            # all edges related to s
+            e2 = graph.edges - e1
+            # related to s but not s exclusive
+            e3 = e2 - match.edges
+            # get only edge_ports that belong to the match graph
+            edge_ports = [port for port in [e for x in list(e3) for e in x]
+                          if port in match]
         return edge_ports
 
     @classmethod
@@ -336,8 +335,14 @@ class PipeStrand(HVACAggregationMixin, hvac.Pipe):
             element_graph, cls.aggregatable_elements, include_singles=True)
         element_graphs = [element_graph.subgraph(chain) for chain in chains if
                           len(chain) > 1]
-        metas = [{} for x in element_graphs]  # no metadata calculated
-        return element_graphs, metas
+        hvac_graphs = []
+        for el_graph in element_graphs:
+            hvac_graph = HvacGraph(el_graph)
+            end_nodes = [v for v, d in hvac_graph.degree() if d == 1]
+            hvac_graph.remove_nodes_from(end_nodes)
+            hvac_graphs.append(hvac_graph)
+        metas = [{} for x in hvac_graphs]  # no metadata calculated
+        return hvac_graphs, metas
 
     @classmethod
     def get_edge_ports(cls, graph):

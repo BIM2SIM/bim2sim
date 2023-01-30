@@ -349,9 +349,9 @@ class TestPipeStrand(unittest.TestCase):
 
         graph, flags = self.helper.get_setup_simple_boiler()
         elements = flags['strand2']
-        match_graph = graph.subgraph((port for ele in elements for port in ele.ports))
+        # match_graph = graph.subgraph((port for ele in elements for port in ele.ports))
 
-        matches, meta = aggregation.PipeStrand.find_matches(match_graph)
+        matches, meta = aggregation.PipeStrand.find_matches(graph)
         self.assertEqual(1, len(matches))
         agg = aggregation.PipeStrand(matches[0], **meta[0])
 
@@ -386,7 +386,7 @@ class TestPipeStrand(unittest.TestCase):
 
         matches, meta = aggregation.PipeStrand.find_matches(graph)
         match = HvacGraph(matches[0])
-        edge_ports = aggregation.PipeStrand.get_edge_ports2(graph, matches[0])
+        edge_ports = aggregation.PipeStrand.get_edge_ports2(graph, match)
         print('test')
 
 
