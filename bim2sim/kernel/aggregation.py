@@ -155,25 +155,61 @@ class HVACAggregationMixin(AggregationMixin):
 
     Adds some HVAC specific functionality to the AggregationMixin.
     """
-    def __init__(self, element_graph: nx.Graph, *args, outer_connections=None,
+    # todo we might want to specify HvacGraph and element_graph (maybe we
+    #  always use HvacGraph and don't allow element_graph)
+    def __init__(self, total_graph: nx.Graph, match:  nx.Graph, *args,
                  **kwargs):
+        # old:
+        # def __init__(self, element_graph: nx.Graph, *args,
+        #              outer_connections=None,
+        #              **kwargs):
         # TODO: handle outer_connections from meta,
-        self.outer_connections = outer_connections  # WORKAROUND
+        # self.outer_connections = outer_connections  # WORKAROUND
         # make get_ports signature match ProductBased.get_ports
-        self.get_ports = partial(self.get_ports, element_graph)
-        super().__init__(list(element_graph.nodes), *args, **kwargs)
+        self.get_ports = partial(self.get_ports, total_graph, match)
+        graph_elements = list(set([node.parent for node in match.nodes]))
+        super().__init__(graph_elements, *args, **kwargs)
 
-    @verify_edge_ports
-    def get_ports(self, graph) -> List[HVACPort]:
-        # TBD: use of outer_connections
-        if not self.outer_connections:
-            edge_ports = self.get_edge_ports(graph)
-            ports = [HVACAggregationPort(port, parent=self)
-                     for port in edge_ports]
+    # TODO: get edge ports based on graph. See #167
+    # @verify_edge_ports
+    def get_ports(self, graph: HvacGraph, match: HvacGraph) \
+            -> List[HVACPort]:
+        """ Get edge ports based on graph and match."""
+        # edges of g excluding all relations to s
+        # TODO This is a (at least partialy not working) workaround.
+        #  We need to refactor all find_matches to return port graph / HVACGraph
+        #  objects, because conversion from element_graph to HVACGraph looses information
+        #  of not all ports of the nodes in element_graph are in matches
+        if not isinstance(match, HvacGraph):
+            match = HvacGraph(match)
+
+        e1 = graph.subgraph(graph.nodes - match.nodes).edges
+
+        # if graph and match are identical
+        if not e1:
+            # ports with only one connection are edge ports in this case
+            edge_ports = [v for v, d in match.degree() if d == 1]
         else:
-            ports = [HVACAggregationPort(port, parent=self)
-                     for port in self.outer_connections]
-        return ports
+            # all edges related to s
+            e2 = graph.edges - e1
+            # related to s but not s exclusive
+            e3 = e2 - match.edges
+            # get only edge_ports that belong to the match graph
+            edge_ports = list(set([port for port in [e for x in list(e3) for e in x]
+                          if port in match]))
+        return edge_ports
+
+    # @verify_edge_ports
+    # def get_ports(self, graph, match) -> List[HVACPort]:
+    #     # TBD: use of outer_connections
+    #     if not self.outer_connections:
+    #         edge_ports = self.get_ports()
+    #         ports = [HVACAggregationPort(port, parent=self)
+    #                  for port in edge_ports]
+    #     else:
+    #         ports = [HVACAggregationPort(port, parent=self)
+    #                  for port in self.outer_connections]
+    #     return ports
 
     @classmethod
     def get_empty_mapping(cls, elements: Iterable[ProductBased]):
@@ -211,10 +247,11 @@ class HVACAggregationMixin(AggregationMixin):
                 mapping[original] = port
         return mapping
 
-    @classmethod
-    def get_edge_ports(cls, graph) -> List[HVACPort]:
-        """Finds and returns the original edge ports of element graph."""
-        raise NotImplementedError()
+    # @classmethod
+    # def get_edge_ports(cls, graph) -> List[HVACPort]:
+    #     """Finds and returns the original edge ports of element graph."""
+    #     raise NotImplementedError()
+
 
     # TODO: get edge ports based on graph. See #167
     @classmethod
@@ -270,6 +307,41 @@ class HVACAggregationMixin(AggregationMixin):
             raise AttributeError("Graph elements are not only (2 port) pipes")
         return list(edge_ports)
 
+    # @classmethod
+    # def get_edge_ports_of_strait(cls, graph) -> List[HVACPort]:
+    #     """
+    #     Finds and returns the edge ports of element graph
+    #     with exactly one strait chain of connected elements.
+    #
+    #     :return list of ports:
+    #     """
+    #
+    #     edge_elements = [v for v, d in graph.degree() if d == 1]
+    #     if len(edge_elements) != 2:
+    #         raise AttributeError("Graph elements are not connected strait")
+    #
+    #     edge_ports = set()
+    #     ports = [p for e in edge_elements for p in e.ports]
+    #     # first check for connections to outside
+    #     for port in ports:
+    #         if port.connection and port.connection.parent not in graph.nodes:
+    #             edge_ports.add(port)
+    #     # then check for unconnected edge ports
+    #     for port in ports:
+    #         if not port.connection:
+    #             if not set(port.parent.ports) & edge_ports:
+    #                 # no port of parent is an edge port
+    #                 # take first ignore others
+    #                 # TODO: see #169 this is a dirty workaround
+    #                 edge_ports.add(port)
+    #             else:
+    #                 logger.warning("Ignoring superfluous unconnected ports in "
+    #                                "edge port detection of %s", cls)
+    #
+    #     if len(edge_ports) > 2:
+    #         raise AttributeError("Graph elements are not only (2 port) pipes")
+    #     return list(edge_ports)
+
     @classmethod
     def find_matches(cls, graph: HvacGraph) -> Tuple[List[nx.Graph],
                                                      List[dict]]:
@@ -316,15 +388,15 @@ class PipeStrand(HVACAggregationMixin, hvac.Pipe):
     multi = ('length', 'diameter')
 
     @classmethod
-    def find_matches(cls, graph) -> [list, list]:
+    def find_matches(cls, graph: HvacGraph) -> [list, list]:
         """ Find all matches for PipeStrand in element graph.
 
         Args:
-            graph: element_graph that should be checked for PipeStrand.
+            graph: HvacGraph of ports
 
         Returns:
-            element_graphs:
-                List of element_graphs that hold a PipeStrand.
+            matches_graphs:
+                List of HvacGraphs that hold PipeStrands
             metas:
                 List of dict with meta information. One element for each
                 element_graph.
@@ -343,10 +415,19 @@ class PipeStrand(HVACAggregationMixin, hvac.Pipe):
             hvac_graphs.append(hvac_graph)
         metas = [{} for x in hvac_graphs]  # no metadata calculated
         return hvac_graphs, metas
+        # Get all nodes with 1 or 2 edges which are aggregatable
+        nodes_degree2 = [v for v, d in graph.degree() if 1 <= d <= 2
+                         and type(v.parent) in cls.aggregatable_elements]
+        subgraph = nx.subgraph(graph, nodes_degree2)
 
-    @classmethod
-    def get_edge_ports(cls, graph):
-        return cls.get_edge_ports_of_strait(graph)
+        # split the found strands into single networkx graphs
+        strongs = list(nx.strongly_connected_components(subgraph.to_directed()))
+        matches_graphs = [nx.subgraph(graph, strong) for strong in strongs]
+
+        # ToDo 246 check to remove metas if not needed any more
+        metas = [{} for x in strongs]  # no metadata calculated
+        return matches_graphs, metas
+
 
     @attribute.multi_calc
     def _calc_avg(self) -> dict:

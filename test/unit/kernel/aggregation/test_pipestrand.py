@@ -351,10 +351,20 @@ class TestPipeStrand(unittest.TestCase):
         elements = flags['strand2']
         # match_graph = graph.subgraph((port for ele in elements for port in ele.ports))
 
-        matches, meta = aggregation.PipeStrand.find_matches(graph)
-        self.assertEqual(1, len(matches))
-        agg = aggregation.PipeStrand(matches[0], **meta[0])
+        matches, metas = aggregation.PipeStrand.find_matches(graph)
+        # self.assertEqual(1, len(matches))
+        aggregations = []
+        for match, meta in zip(matches, metas):
+            agg = aggregation.PipeStrand(graph, match, **meta)
+            aggregations.append(agg)
+            # TODO #246 update get_replacement_mapping
+            graph.merge(
+                mapping=agg.get_replacement_mapping(),
+                inner_connections=agg.inner_connections
+            )
+            graph.plot(ports=True)
 
+        # TODO #246 update exptacted test results
         exp_length = sum([e.length for e in elements])
         self.assertAlmostEqual(exp_length, agg.length)
 
@@ -385,8 +395,8 @@ class TestPipeStrand(unittest.TestCase):
         ele = graph.elements
 
         matches, meta = aggregation.PipeStrand.find_matches(graph)
-        match = HvacGraph(matches[0])
-        edge_ports = aggregation.PipeStrand.get_edge_ports2(graph, match)
+        # match = HvacGraph(matches[0])
+        edge_ports = aggregation.PipeStrand(graph, matches[0], meta)
         print('test')
 
 
