@@ -28,7 +28,6 @@ class StrandHelper(SetupHelperHVAC):
         flags['connect'] = [strand[0], strand[-1]]
 
         graph = HvacGraph(gen_circuit)
-        # graph.plot(r'c:\temp')
         flags['edge_ports'] = [v for v, d in graph.degree() if d == 1]
 
         return graph, flags

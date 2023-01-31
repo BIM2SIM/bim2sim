@@ -707,5 +707,11 @@ class HvacGraph(nx.Graph):
         Returns:
             A subgraph consisting of the elements.
 
+        Raises:
+            AssertionError if the elements are not part of the graph.
+
         """
+        if not set(elements).issubset(set(self.elements)):
+            raise AssertionError('The elements %s are not part of this graph',
+                                 elements)
         return self.subgraph((port for ele in elements for port in ele.ports))

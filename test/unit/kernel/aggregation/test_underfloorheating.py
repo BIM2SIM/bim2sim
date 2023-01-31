@@ -116,7 +116,7 @@ class TestUnderfloorHeating(unittest.TestCase):
 
         matches, meta = aggregation.UnderfloorHeating.find_matches(graph)
         self.assertEqual(1, len(matches))
-        agg = aggregation.UnderfloorHeating(matches[0], **meta[0])
+        agg = aggregation.UnderfloorHeating(graph, matches[0], **meta[0])
 
         exp_length = sum([e.length for e in ele])
         self.assertAlmostEqual(exp_length, agg.length)

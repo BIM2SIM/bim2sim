@@ -158,8 +158,7 @@ class HVACAggregationMixin(AggregationMixin):
 
     # todo we might want to specify HvacGraph and element_graph (maybe we
     #  always use HvacGraph and don't allow element_graph)
-    def __init__(self, total_graph: nx.Graph, match: nx.Graph, *args,
-                 **kwargs):
+    def __init__(self, total_graph: nx.Graph, match: nx.Graph, *args, **kwargs):
         # old:
         # def __init__(self, element_graph: nx.Graph, *args,
         #              outer_connections=None,
@@ -369,9 +368,9 @@ class PipeStrand(HVACAggregationMixin, hvac.Pipe):
         # return matches_graphs, metas
 
         # Version 2
-        element_graph = graph.element_graph
         pipe_strands = HvacGraph.get_type_chains(
-            element_graph, cls.aggregatable_elements, include_singles=True)
+            graph.element_graph, cls.aggregatable_elements,
+            include_singles=True)
         matches_graphs = [graph.subgraph_from_elements(pipe_strand)
                           for pipe_strand in pipe_strands if
                           len(pipe_strand) > 1]
@@ -438,63 +437,71 @@ class PipeStrand(HVACAggregationMixin, hvac.Pipe):
 
 
 class UnderfloorHeating(PipeStrand):
-    """ Aggregates Underfloor heating, normal pitch (spacing) between
-    pipes is between 0.1m and 0.2m."""
+    """ Class for aggregating underfloor heating systems.
+
+    The normal pitch (spacing) between pipes is typically between 0.1m and 0.2m.
+    """
 
     @classmethod
-    def find_matches(cls, graph: {HvacGraph.element_graph}) -> [list, list]:
-        """ Find matches of Underfloor heating.
+    def find_matches(cls, graph: HvacGraph) -> [list, list]:
+        """ Finds matches of underfloor heating systems in a given graph.
 
         Args:
-            graph: element_graph that should be checked for Underfloor heating.
+            graph: An HvacGraph that should be checked for underfloor heating
+            systems.
 
         Returns:
-            element_graphs:
-                List of element_graphs that hold a Underfloor heating.
-            metas:
-                List of dict with meta information. One element for each
-                element_graph.
+            matches_graphs: A list of HvacGraphs that contain underfloor heating
+                systems.
+            metas: A list of dictionaries with meta information for each
+                underfloor heating system. One element for each matches_graphs.
         """
-        element_graph = graph.element_graph
-        chains = HvacGraph.get_type_chains(element_graph,
+        # element_graph = graph.element_graph
+        chains = HvacGraph.get_type_chains(graph.element_graph,
                                            cls.aggregatable_elements,
                                            include_singles=True)
-        element_graphs = []
+        matches_graphs = []
         metas = []
         for chain in chains:
             meta = cls.check_conditions(chain)
             if meta:
                 metas.append(meta)
-                element_graphs.append(element_graph.subgraph(chain))
-        return element_graphs, metas
+                # matches_graphs.append(element_graph.subgraph(chain))
+                matches_graphs.append(graph.subgraph_from_elements(chain))
+        return matches_graphs, metas
 
     @staticmethod
     def check_number_of_elements(chain: nx.classes.reportviews.NodeView,
                                  tolerance: int = 20) -> bool:
-        """
-        Check if the targeted chain has more than 20 elements.
+        """ Check if the targeted chain has more than 20 elements.
+
+        This method checks if a given chain has more than the specified number
+        of elements.
 
         Args:
-            chain:
-                Possible chain of consecutive elements to be an Underfloor
+            chain: Possible chain of consecutive elements to be an underfloor
                 heating.
-            tolerance:
-                Integer tolerance value to check pipe strand.
+            tolerance: Integer tolerance value to check the number of elements.
+                Default is 20.
 
         Returns:
-
+            True if the chain has more than the specified number of elements,
+            False otherwise.
         """
         return len(chain) >= tolerance
 
     @staticmethod
     def check_pipe_strand_horizontality(ports_coors: np.ndarray,
                                         tolerance: float = 0.8) -> bool:
-        """ Check if the pipe strand is located horizontally -- parallel to
-            the floor and most elements are in the same z plane
+        """ Checks the horizontality of a pipe strand.
+
+        This method checks if the pipe strand is located horizontally, meaning
+        it is parallel to the floor and most elements are in the same z plane.
 
         Args:
-            ports_coors: array with pipe strand port coordinates
-            tolerance: float tolerance to check pipe strand horizontality
+            ports_coors: An array with pipe strand port coordinates.
+            tolerance: Tolerance to check pipe strand horizontality.
+                Default is 0.8.
 
         Returns:
             True, if check succeeds and False if check fails.
@@ -508,19 +515,21 @@ class UnderfloorHeating(PipeStrand):
     def get_pipe_strand_attributes(ports_coors: np.ndarray,
                                    chain: nx.classes.reportviews.NodeView
                                    ) -> [*(ureg.Quantity,) * 5]:
-        """ Get pipe strand attributes in order to proceed with the following
-        checkpoints.
+        """ Gets the attributes of a pipe strand.
+
+        This method retrieves the attributes of a pipe strand in order to
+        perform further checks and calculations.
 
         Args:
-            ports_coors: array with pipe strand port coordinates
-            chain: possible chain of elements to be an Underfloor heating
+            ports_coors: An array with pipe strand port coordinates.
+            chain: A possible chain of elements to be an Underfloor heating.
 
         Returns:
-            heating_area: Underfloor heating area,
-            total_length: Underfloor heating total pipe length,
-            avg_diameter: Average Underfloor heating diameter,
-            dist_x: Underfloor heating dimension in x,
-            dist_y:Underfloor heating dimension in y
+            heating_area: Underfloor heating area.
+            total_length: Underfloor heating total pipe length.
+            avg_diameter: Average underfloor heating diameter.
+            dist_x: Underfloor heating dimension in x.
+            dist_y: Underfloor heating dimension in y.
         """
         total_length = sum(segment.length for segment in chain if
                            segment.length is not None)
@@ -546,7 +555,7 @@ class UnderfloorHeating(PipeStrand):
 
     @staticmethod
     def get_ufh_type():
-        # ToDo: function to obtain the underfloor heating form based on issue
+        # TODO: function to obtain the underfloor heating form based on issue
         #  #211
         raise NotImplementedError
 
@@ -557,10 +566,10 @@ class UnderfloorHeating(PipeStrand):
                                 dist_y: ureg.Quantity,
                                 tolerance: int = 10
                                 ) -> [*(ureg.Quantity,) * 2]:
-        """
-        Sorts the pipe elements according to their angle in the horizontal
-        plane. Necessary to calculate subsequently the underfloor heating
-        spacing
+        """ Sorts the pipe elements according to their angle in the horizontal
+            plane. Necessary to calculate subsequently the underfloor heating
+            spacing.
+
         Args:
             chain: possible chain of elements to be an Underfloor heating
             dist_x: Underfloor heating dimension in x
@@ -599,9 +608,8 @@ class UnderfloorHeating(PipeStrand):
     def check_heating_area(heating_area: ureg.Quantity,
                            tolerance: ureg.Quantity =
                            1e6 * ureg.millimeter ** 2) -> bool:
-        """
-        Check if the total area of the underfloor heating is greater than
-        the tolerance value - just as safety factor
+        """ Check if the total area of the underfloor heating is greater than
+            the tolerance value - just as safety factor.
 
         Args:
             heating_area: Underfloor heating area,
@@ -618,9 +626,8 @@ class UnderfloorHeating(PipeStrand):
                       y_spacing: ureg.Quantity,
                       tolerance: tuple = (90 * ureg.millimeter,
                                           210 * ureg.millimeter)) -> bool:
-        """
-        Check if the spacing between adjacent elements with the same
-        orientation is between the tolerance values
+        """ Check if the spacing between adjacent elements with the same
+            orientation is between the tolerance values.
         Args:
             x_spacing: Underfloor heating pitch in x
             y_spacing: Underfloor heating pitch in y
@@ -640,10 +647,9 @@ class UnderfloorHeating(PipeStrand):
                   avg_diameter: ureg.Quantity,
                   heating_area: ureg.Quantity,
                   tolerance: tuple = (0.09, 0.01)) -> bool:
-        """
-        Check if the quotient between the cross sectional area of the pipe
-        strand (x-y plane) and the total heating area is between the
-        tolerance values - area density for underfloor heating
+        """ Check if the quotient between the cross sectional area of the pipe
+            strand (x-y plane) and the total heating area is between the
+            tolerance values - area density for underfloor heating.
 
         Args:
             total_length: Underfloor heating total pipe length,
@@ -660,15 +666,14 @@ class UnderfloorHeating(PipeStrand):
 
     @classmethod
     def check_conditions(cls, chain: nx.classes.reportviews.NodeView) -> dict:
-        """
-        Checks ps_elements and returns instance of UnderfloorHeating if all
-        following criteria are fulfilled:
-            0. minimum of 20 elements
-            1. the pipe strand is located horizontally
-            2. the pipe strand elements located in an specific z-coordinate
-            3. the spacing tolerance
-            4. underfloor heating area tolerance
-            5. kpi criteria
+        """ Checks ps_elements and returns instance of UnderfloorHeating if all
+            following criteria are fulfilled:
+                0. minimum of 20 elements
+                1. the pipe strand is located horizontally
+                2. the pipe strand elements located in an specific z-coordinate
+                3. the spacing tolerance
+                4. underfloor heating area tolerance
+                5. kpi criteria
 
         Args:
             chain: possible chain of elements to be an Underfloor heating
@@ -732,26 +737,23 @@ class UnderfloorHeating(PipeStrand):
 
 
 class ParallelPump(HVACAggregationMixin, hvac.Pump):
-    """Aggregates pumps in parallel."""
-    aggregatable_elements = {hvac.Pump, hvac.Pipe, hvac.PipeFitting,
-                             PipeStrand}
+    """Aggregates pumps in parallel.
+    """
+    aggregatable_elements = {hvac.Pump, hvac.Pipe, hvac.PipeFitting, PipeStrand}
     multi = ('rated_power', 'rated_height', 'rated_volume_flow', 'diameter',
              'diameter_strand', 'length')
 
     @classmethod
-    def find_matches(cls, graph) -> \
-            [list, list]:
-        """ Find matches of Parallel pumps.
+    def find_matches(cls, graph: HvacGraph) -> [list, list]:
+        """ Find matches of parallel pumps in the given graph.
 
         Args:
-            graph: element_graph that should be checked for Parallel pumps
+            graph: HvacGraph that should be checked for parallel pumps.
 
         Returns:
-            element_graphs:
-                List of element_graphs that hold a Parallel pumps
-            metas:
-                List of dict with metas information. One element for each
-                element_graph.
+            element_graphs: List of element_graphs that hold a Parallel pumps.
+            metas: List of dict with metas information.
+                One element for each element_graph.
         """
         element_graph = graph.element_graph
         wanted = {hvac.Pump}
@@ -759,87 +761,89 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
         parallels = HvacGraph.get_parallels(
             element_graph, wanted, inerts, grouping={'rated_power': 'equal'},
             grp_threshold=1)
-        metas = [{} for x in parallels]  # no metadata calculated
-        return parallels, metas
+        matches_graph = [graph.subgraph_from_elements(parallel.nodes)
+                         for parallel in parallels]
+        metas = [{} for x in matches_graph]  # no metadata calculated
+        return matches_graph, metas
 
-    def get_ports(self, graph):
-        ports = []
-        edge_ports = self.get_edge_ports(graph)
-        # simple case with two edge ports
-        if len(edge_ports) == 2:
-            for port in edge_ports:
-                ports.append(HVACAggregationPort(port, parent=self))
-        # more than two edge ports
-        else:
-            # get list of ports to be merged to one aggregation port
-            parents = set((parent for parent in (port.connection.parent for
-                                                 port in edge_ports)))
-            originals_dict = {}
-            for parent in parents:
-                originals_dict[parent] = [port for port in edge_ports if
-                                          port.connection.parent == parent]
-            for originals in originals_dict.values():
-                ports.append(HVACAggregationPort(originals, parent=self))
-        return ports
+    # def get_ports(self, graph):
+    #     ports = []
+    #     edge_ports = self.get_edge_ports(graph)
+    #     # simple case with two edge ports
+    #     if len(edge_ports) == 2:
+    #         for port in edge_ports:
+    #             ports.append(HVACAggregationPort(port, parent=self))
+    #     # more than two edge ports
+    #     else:
+    #         # get list of ports to be merged to one aggregation port
+    #         parents = set((parent for parent in (port.connection.parent for
+    #                                              port in edge_ports)))
+    #         originals_dict = {}
+    #         for parent in parents:
+    #             originals_dict[parent] = [port for port in edge_ports if
+    #                                       port.connection.parent == parent]
+    #         for originals in originals_dict.values():
+    #             ports.append(HVACAggregationPort(originals, parent=self))
+    #     return ports
 
-    def get_edge_ports(self, graph):
-        """
-        Finds and returns all edge ports of element graph.
-
-        :return list of ports:
-        """
-        # detect elements with at least 3 ports
-        # todo detection via number of ports is not safe, because pumps and
-        #  other elements can  have additional signal ports and count as
-        #  edge_elements. current workaround: check for pumps seperatly
-        edge_elements = [
-            node for node in graph.nodes if (len(node.ports) > 2 and
-                                             node.__class__.__name__ != 'Pump')]
-
-        if len(edge_elements) > 2:
-            graph = self.merge_additional_junctions(graph)
-
-        edge_outer_ports = []
-        edge_inner_ports = []
-
-        # get all elements in graph, also if in aggregation
-        elements_in_graph = []
-        for node in graph.nodes:
-            elements_in_graph.append(node)
-            if hasattr(node, 'elements'):
-                for element in node.elements:
-                    elements_in_graph.append(element)
-
-        # get all ports that are connected to outer elements
-        for port in (p for e in edge_elements for p in e.ports):
-            if not port.connection:
-                continue  # end node
-            if port.connection.parent not in elements_in_graph:
-                edge_outer_ports.append(port)
-            elif port.connection.parent in elements_in_graph:
-                edge_inner_ports.append(port)
-
-        if len(edge_outer_ports) < 2:
-            raise AttributeError("Found less than two edge ports")
-        # simple case: no other elements connected to junction nodes
-        elif len(edge_outer_ports) == 2:
-            edge_ports = edge_outer_ports
-        # other elements, not in aggregation, connected to junction nodes
-        else:
-            edge_ports = [port.connection for port in edge_inner_ports]
-            parents = set(parent for parent in (port.connection.parent for
-                                                port in edge_ports))
-            for parent in parents:
-                aggr_ports = [port for port in edge_inner_ports if
-                              port.parent == parent]
-                if not isinstance(parent.aggregation, AggregatedPipeFitting):
-                    AggregatedPipeFitting(nx.subgraph(
-                        graph, parent), aggr_ports)
-                else:
-                    for port in aggr_ports:
-                        HVACAggregationPort(
-                            originals=port, parent=parent.aggregation)
-        return edge_ports
+    # def get_edge_ports(self, graph):
+    #     """
+    #     Finds and returns all edge ports of element graph.
+    #
+    #     :return list of ports:
+    #     """
+    #     # detect elements with at least 3 ports
+    #     # todo detection via number of ports is not safe, because pumps and
+    #     #  other elements can  have additional signal ports and count as
+    #     #  edge_elements. current workaround: check for pumps seperatly
+    #     edge_elements = [
+    #         node for node in graph.nodes if (len(node.ports) > 2 and
+    #                                          node.__class__.__name__ != 'Pump')]
+    #
+    #     if len(edge_elements) > 2:
+    #         graph = self.merge_additional_junctions(graph)
+    #
+    #     edge_outer_ports = []
+    #     edge_inner_ports = []
+    #
+    #     # get all elements in graph, also if in aggregation
+    #     elements_in_graph = []
+    #     for node in graph.nodes:
+    #         elements_in_graph.append(node)
+    #         if hasattr(node, 'elements'):
+    #             for element in node.elements:
+    #                 elements_in_graph.append(element)
+    #
+    #     # get all ports that are connected to outer elements
+    #     for port in (p for e in edge_elements for p in e.ports):
+    #         if not port.connection:
+    #             continue  # end node
+    #         if port.connection.parent not in elements_in_graph:
+    #             edge_outer_ports.append(port)
+    #         elif port.connection.parent in elements_in_graph:
+    #             edge_inner_ports.append(port)
+    #
+    #     if len(edge_outer_ports) < 2:
+    #         raise AttributeError("Found less than two edge ports")
+    #     # simple case: no other elements connected to junction nodes
+    #     elif len(edge_outer_ports) == 2:
+    #         edge_ports = edge_outer_ports
+    #     # other elements, not in aggregation, connected to junction nodes
+    #     else:
+    #         edge_ports = [port.connection for port in edge_inner_ports]
+    #         parents = set(parent for parent in (port.connection.parent for
+    #                                             port in edge_ports))
+    #         for parent in parents:
+    #             aggr_ports = [port for port in edge_inner_ports if
+    #                           port.parent == parent]
+    #             if not isinstance(parent.aggregation, AggregatedPipeFitting):
+    #                 AggregatedPipeFitting(nx.subgraph(
+    #                     graph, parent), aggr_ports)
+    #             else:
+    #                 for port in aggr_ports:
+    #                     HVACAggregationPort(
+    #                         originals=port, parent=parent.aggregation)
+    #     return edge_ports
 
     @attribute.multi_calc
     def _calc_avg(self) -> dict:

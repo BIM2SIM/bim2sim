@@ -523,7 +523,7 @@ class TestParallelPumps(unittest.TestCase):
         pumps = [item for item in models if isinstance(item, hvac.Pump)]
         matches, meta = aggregation.ParallelPump.find_matches(graph)
         self.assertEqual(len(matches), 1)
-        agg_pump = aggregation.ParallelPump(matches[0], **meta[0])
+        agg_pump = aggregation.ParallelPump(graph, matches[0], **meta[0])
 
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
@@ -553,7 +553,7 @@ class TestParallelPumps(unittest.TestCase):
         matches, meta = aggregation.ParallelPump.find_matches(graph)
 
         self.assertEqual(len(matches), 1)
-        agg_pump = aggregation.ParallelPump(matches[0], **meta[0])
+        agg_pump = aggregation.ParallelPump(graph, matches[0], **meta[0])
         # todo before merge check units
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
@@ -594,7 +594,7 @@ class TestParallelPumps(unittest.TestCase):
         matches, meta = aggregation.ParallelPump.find_matches(graph)
 
         self.assertEqual(len(matches), 1)
-        agg_pump = aggregation.ParallelPump(matches[0], **meta[0])
+        agg_pump = aggregation.ParallelPump(graph, matches[0], **meta[0])
         # todo before merge check units
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
