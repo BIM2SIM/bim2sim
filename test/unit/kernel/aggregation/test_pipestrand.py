@@ -27,12 +27,10 @@ class StrandHelper(SetupHelperHVAC):
 
         flags['connect'] = [strand[0], strand[-1]]
 
-        flags['edge_ports'] = [
-            [port for port in strand[0].ports if not port.is_connected()],
-            [port for port in strand[-1].ports if not port.is_connected()]]
-
         graph = HvacGraph(gen_circuit)
         # graph.plot(r'c:\temp')
+        flags['edge_ports'] = [v for v, d in graph.degree() if d == 1]
+
         return graph, flags
 
     def get_setup_strand2(self):
@@ -268,8 +266,6 @@ class TestPipeStrand(unittest.TestCase):
 
     def test_distributor_with_strands(self):
         """ Test calculation of aggregated length and diameter."""
-        # TODO 246: this test fails by now because the aggregation is called
-        #  without a match graph
         graph, flags = self.helper.get_setup_straits_with_distributor()
 
         matches, meta = aggregation.PipeStrand.find_matches(graph)
@@ -279,7 +275,7 @@ class TestPipeStrand(unittest.TestCase):
                                msg="Pipestrand aggregation over a distributor"
                                    " should fail"):
             # pass full graph
-            agg = aggregation.PipeStrand(graph, **{})
+            agg = aggregation.PipeStrand(graph, graph, **{})
 
     @unittest.skip(
         "PipeStrand aggregation with inert elements not implemented")
@@ -370,16 +366,14 @@ class TestPipeStrand(unittest.TestCase):
         match_graph = graph.subgraph_from_elements(elements)
 
         matches, metas = aggregation.PipeStrand.find_matches(match_graph)
-        # self.assertEqual(1, len(matches))
+        self.assertEqual(1, len(matches))
         aggregations = []
         for match, meta in zip(matches, metas):
             agg = aggregation.PipeStrand(graph, match, **meta)
             aggregations.append(agg)
             graph.merge(
                 mapping=agg.get_replacement_mapping(),
-                inner_connections=agg.inner_connections
-            )
-            graph.plot(ports=True)
+                inner_connections=agg.inner_connections)
         exp_length = sum([e.length for e in elements])
         self.assertAlmostEqual(exp_length, agg.length)
 
@@ -405,19 +399,15 @@ class TestPipeStrand(unittest.TestCase):
         self.assertEqual(
             len(matches), 5,
             "There are 5 cases for PipeStrand but 'find_matches' returned %d"
-            % len(matches)
-        )
+            % len(matches))
 
-    def test_get_edge_ports_strait_strand(self):
+    def test_get_edge_ports_pipe_strand(self):
         """ Test the get_edge_ports method for a pipe strand."""
         graph, flags = self.helper.get_setup_strand1()
-        ele = graph.elements
 
         matches, metas = aggregation.PipeStrand.find_matches(graph)
-        # match = HvacGraph(matches[0])
         agg = aggregation.PipeStrand(graph, matches[0], metas[0])
         edge_ports = agg.get_ports()
-        # TODO 246: why does this fail?
         self.assertNotEqual(flags['edge_ports'],
                             [edge_port.originals for edge_port in edge_ports])
 

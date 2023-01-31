@@ -326,13 +326,12 @@ class HVACAggregationMixin(AggregationMixin):
 
 
 class PipeStrand(HVACAggregationMixin, hvac.Pipe):
-    """Aggregates pipe strands, i.e. pipes, pipe fittings and valves.
+    """ Aggregates pipe strands, i.e. pipes, pipe fittings and valves.
 
     This aggregation reduces the number of elements by merging straight
     connected elements with just two ports into one PipeStrand. The length and
     a medium diameter are calculated based on the aggregated elements to
     maintain meaningful parameters for pressure loss calculations.
-
     """
     aggregatable_elements = {hvac.Pipe, hvac.PipeFitting, hvac.Valve}
     multi = ('length', 'diameter')
@@ -353,6 +352,10 @@ class PipeStrand(HVACAggregationMixin, hvac.Pipe):
 
         """
 
+        # TODO 246: Decide which version for finding matches is best
+        # TODO 246: Check to remove metas if not needed any more
+
+        # Version 1
         # Get all nodes with 1 or 2 edges which are aggregatable
         # nodes_degree2 = [v for v, d in graph.degree() if 1 <= d <= 2
         #                  and type(v.parent) in cls.aggregatable_elements]
@@ -362,30 +365,33 @@ class PipeStrand(HVACAggregationMixin, hvac.Pipe):
         # strongs = list(
         #     nx.strongly_connected_components(subgraph.to_directed()))
         # matches_graphs = [nx.subgraph(graph, strong) for strong in strongs]
-        # # ToDo 246 check to remove metas if not needed any more
         # metas = [{} for x in strongs]  # no metadata calculated
         # return matches_graphs, metas
 
+        # Version 2
         element_graph = graph.element_graph
         pipe_strands = HvacGraph.get_type_chains(
             element_graph, cls.aggregatable_elements, include_singles=True)
-        # match_graphs = [element_graph.subgraph(pipe_strand)
-        # for pipe_strand in pipe_strands if len(pipe_strand) > 1]
+        matches_graphs = [graph.subgraph_from_elements(pipe_strand)
+                          for pipe_strand in pipe_strands if
+                          len(pipe_strand) > 1]
 
-        # hvac_graphs = [nx.subgraph(
-        #     graph, [port for ele in pipe_strand for port in ele.ports])
-        #     for pipe_strand in pipe_strands if len(pipe_strand) > 1]
+        # Version 3:
+        # element_graph = graph.element_graph
+        # pipe_strands = HvacGraph.get_type_chains(
+        #     element_graph, cls.aggregatable_elements, include_singles=True)
+        # match_element_graphs = [element_graph.subgraph(pipe_strand)
+        #                         for pipe_strand in pipe_strands if
+        #                         len(pipe_strand) > 1]
+        # matches_graphs = [HvacGraph(match_element_graphs)
+        #                   for match_element_graph in match_element_graphs]
+        # end_nodes = [v for match_graph in matches_graphs for v, d in
+        #              matches_graphs.degree() if d == 1]
+        # for match_graph in matches_graphs:
+        #     match_graph.remove_nodes_from(end_nodes)
 
-        hvac_graphs = [graph.subgraph_from_elements(pipe_strand)
-                       for pipe_strand in pipe_strands if len(pipe_strand) > 1]
-
-        # hvac_graphs = [HvacGraph(match_graph) for match_graph in match_graphs]
-        # end_nodes = [v for hvac_graph in hvac_graphs for v, d in
-        #              hvac_graph.degree() if d == 1]
-        # for hvac_graph in hvac_graphs:
-        #     hvac_graph.remove_nodes_from(end_nodes)
-        metas = [{} for x in hvac_graphs]  # no metadata calculated
-        return hvac_graphs, metas
+        metas = [{} for x in matches_graphs]  # no metadata calculated
+        return matches_graphs, metas
 
     @attribute.multi_calc
     def _calc_avg(self) -> dict:
