@@ -699,4 +699,13 @@ class HvacGraph(nx.Graph):
         return graphs
 
     def subgraph_from_elements(self, elements: list):
+        """ Creates a subgraph from a given list of elements.
+
+        Args:
+            elements: list of elements create.
+
+        Returns:
+            A subgraph consisting of the elements.
+
+        """
         return self.subgraph((port for ele in elements for port in ele.ports))
