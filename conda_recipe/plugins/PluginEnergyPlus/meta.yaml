@@ -1,8 +1,8 @@
 {% set data = load_setup_py_data(setup_file='../../../setup.py', from_recipe_dir=True) %}
 
 package:
-  name: "bim2sim_eneryplus"
-  version: {{ version }}_{{BIM2SIM_VERSION}}
+  name: {{BIM2SIM_NAME}}
+  version: {{ version }}{{BIM2SIM_VERSION}}
 
 source:
   path: ../../../
@@ -11,7 +11,8 @@ build:
   preserve_egg_dir: True
   number: '0'
   entry_points:
-    - bim2sim = bim2sim.__main__:commandline_interface
+    - energyplus =  bim2sim_energyplus.__main__:commandline_interface
+  script: pip install https://github.com/NREL/EnergyPlusRegressionTool/archive/refs/tags/v1.9.6.zip
 
 requirements:
   host:
@@ -20,7 +21,7 @@ requirements:
     - setuptools 65.5.0
   run:
     - python >=3.8.*,<3.10.*
-    - bim2sim
+    - bim2sim=={{data.get('version')}}{{BIM2SIM_VERSION}}
     - geomeppy>=0.11.8
     - shapely
     - numpy-stl
@@ -28,11 +29,7 @@ requirements:
 test:
   imports:
     - bim2sim
-    - bim2sim.plugins.PluginAixLib
-    - bim2sim.plugins.PluginTEASER
-    - bim2sim.plugins.PluginCFD
     - bim2sim.plugins.PluginEnergyPlus
-    - bim2sim.plugins.PluginLCA
   requires:
     - python  >=3.8.*,<3.10.*
     - pint==0.20.1

@@ -1,122 +1,139 @@
 stages:
-  - build-env-plugins
+    - build_docker_plugins
+    - release_docker_plugins
 
-build_env:energyplus:
+.build_plugins:
+    image: docker:latest
+    stage: build_docker_plugins
+    services:
+      - name: docker:18.09.7-dind
+        command: [ "--mtu=1440" ]
+    before_script:
+      - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+    rules:
+      - if: $CI_COMMIT_BRANCH == $BRANCH
+        changes:
+          - docker_recipe/basic_build/envBase.Dockerfile
+          - $PLUGIN_PATH/**
+          - requirements.txt
+          - .gitlab-ci.yml
+        when: always
+      - if: $CI_COMMIT_MESSAGE =~ /ci_build_env_plugins/
+        when: manual
+    artifacts:
+      expire_in: 1 hour
+      paths:
+        - $CI_REGISTRY/environment:$BRANCH
+
+.release_plugins:
   image: docker:latest
-  stage: build-env-plugins
+  stage: release_docker_plugins
   services:
-   - name: docker:18.09.7-dind
-     command: ["--mtu=1440"]
-  before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+      - name: docker:18.09.7-dind
+        command: [ "--mtu=1440" ]
   script:
-    - docker build -t $CI_REGISTRY/environment:energyplus -f bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile .
-    - docker push $CI_REGISTRY/environment:energyplus
+    - docker push $CI_REGISTRY/environment:IMAGE_NAME
   rules:
-    - if: $CI_COMMIT_BRANCH == "development"
+    - if: $CI_COMMIT_BRANCH == $BRANCH
       changes:
-        - envBase.Dockerfile
-        - bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile
-        - bim2sim/plugins/PluginEnergyPlus/requirements.txt
+        - docker_recipe/basic_build/envBase.Dockerfile
+        - $PLUGIN_PATH/**
         - requirements.txt
         - .gitlab-ci.yml
       when: always
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_env_plugins/
       when: manual
 
+build_env:energyplus:
+  extends: .build_plugins
+  variables:
+    BRANCH: "development"
+    PLUGIN_PATH:  "bim2sim/plugins/PluginEnergyPlus"
+  script:
+    - docker build -t $CI_REGISTRY/environment:energyplus -f bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile .
 
 build_env:cfd:
- image: docker:latest
- stage: build-env-plugins
- services:
-   - name: docker:18.09.7-dind
-     command: ["--mtu=1440"]
- before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
- script:
-   - docker build -t $CI_REGISTRY/environment:cfd -f bim2sim/plugins/PluginCFD/envCFD.Dockerfile .
-   - docker push $CI_REGISTRY/environment:cfd
- timeout: 6 hours
- rules:
-   - if: $CI_COMMIT_BRANCH == "development"
-     changes:
-       - envBase.Dockerfile
-       - bim2sim/plugins/PluginCFD/envCFD.Dockerfile
-       - requirements.txt
-       - .gitlab-ci.yml
-     when: always
-   - if: $CI_COMMIT_MESSAGE =~ /ci_build_env_plugins/
-     when: manual
+  extends: .build_plugins
+  variables:
+    BRANCH: "development"
+    PLUGIN_PATH: "bim2sim/plugins/PluginCFD"
+  script:
+    - docker build -t $CI_REGISTRY/environment:cfd -f bim2sim/plugins/PluginCFD/envCFD.Dockerfile .
 
 build_env:teaser:
- image: docker:latest
- stage: build-env-plugins
- services:
-   - name: docker:18.09.7-dind
-     command: ["--mtu=1440"]
- before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
- script:
+  extends: .build_plugins
+  variables:
+    BRANCH: "development"
+    PLUGIN_PATH: "bim2sim/plugins/PluginTEASER"
+  script:
    - docker build -t $CI_REGISTRY/environment:teaser -f bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile .
    - docker push $CI_REGISTRY/environment:teaser
- rules:
-   - if: $CI_COMMIT_BRANCH == "development"
-     changes:
-       - envBase.Dockerfile
-       - bim2sim/plugins/PluginTEASER/requirements.txt
-       - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
-       - requirements.txt
-       - .gitlab-ci.yml
-     when: always
-   - if: $CI_COMMIT_MESSAGE =~ /ci_build_env_plugins/
-     when: manual
-
-
-
 
 build_env:teaser-dymola:
- image: docker:latest
- stage: build-env-plugins
- services:
-   - name: docker:18.09.7-dind
-     command: ["--mtu=1440"]
- before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
- script:
+  extends: .build_plugins
+  variables:
+    BRANCH: "development"
+    PLUGIN_PATH: "bim2sim/plugins/PluginTEASER"
+  script:
    - docker build -t $CI_REGISTRY/environment:teaser-dymola -f bim2sim/plugins/PluginTEASER/envTEASER-dymola.Dockerfile .
-   - docker push $CI_REGISTRY/environment:teaser-dymola
- rules:
-   - if: $CI_COMMIT_BRANCH == "development"
-     changes:
-       - envBase.Dockerfile
-       - bim2sim/plugins/PluginTEASER/requirements.txt
-       - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
-       - requirements.txt
-       - .gitlab-ci.yml
-     when: always
-   - if: $CI_COMMIT_MESSAGE =~ /ci_build_env_plugins/
-     when: manual
 
 build_env:aixlib:
- image: docker:latest
- stage: build-env-plugins
- services:
-   - name: docker:18.09.7-dind
-     command: ["--mtu=1440"]
- before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
- script:
+  extends: .build_plugins
+  variables:
+    BRANCH: "development"
+    PLUGIN_PATH: "bim2sim/plugins/PluginAixLib"
+  script:
    - docker build -t $CI_REGISTRY/environment:aixlib -f bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile .
    - docker push $CI_REGISTRY/environment:aixlib
- rules:
-   - if: $CI_COMMIT_BRANCH == "development"
-     changes:
-       - envBase.Dockerfile
-       - bim2sim/plugins/PluginAixLib/requirements.txt
-       - bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile
-       - requirements.txt
-       - .gitlab-ci.yml
-     when: always
-   - if: $CI_COMMIT_MESSAGE =~ /ci_build_env_plugins/
-     when: manual
+
+release_env:energyplus:
+  extends: .release_plugins
+  variables:
+    BRANCH: "development"
+    PLUGIN_PATH: "bim2sim/plugins/PluginEnergyPlus"
+    IMAGE_NAME: energyplus
+  dependencies:
+    - build_env:energyplus
+
+
+release_env:cfd:
+  extends: .release_plugins
+  variables:
+    BRANCH: "development"
+    PLUGIN_PATH: "bim2sim/plugins/PluginCFD"
+    IMAGE_NAME: cfd
+  dependencies:
+    - build_env:cfd
+
+
+release_env:teaser:
+  extends: .release_plugins
+  variables:
+    BRANCH: "development"
+    PLUGIN_PATH: "bim2sim/plugins/PluginTEASER"
+    IMAGE_NAME: teaser
+  dependencies:
+    - build_env:teaser
+
+
+release_env:teaser-dymola:
+  extends: .release_plugins
+  dependencies:
+    - build_env:teaser-dymola
+  variables:
+    BRANCH: "development"
+    PLUGIN_PATH: "bim2sim/plugins/PluginTEASER"
+    IMAGE_NAME: teaser-dymola
+  script:
+    - docker push $CI_REGISTRY/environment:teaser-dymola
+
+release_env:teaser-aixlib:
+  extends: .release_plugins
+  dependencies:
+    - build_env:aixlib
+  variables:
+    BRANCH: "development"
+    PLUGIN_PATH: "bim2sim/plugins/PluginEnergyPlus"
+    IMAGE_NAME: aixlib
+
 

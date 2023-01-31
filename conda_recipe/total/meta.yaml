@@ -21,23 +21,21 @@ requirements:
     - setuptools 65.5.0
   run:
     - python >=3.8.*,<3.10.*
-    - docopt==0.6.2
-    - numpy==1.21.5
-    - pandas==1.4.4
-    - matplotlib==3.5.2
-    - networkx>=2.2
-    - python-dateutil==2.8.2
-    - mako==1.2.4
-    - pint==0.20.1
-    - certifi==2022.12.7
-    - pythonocc-core==7.6.2
-    - ifcopenshell
-  run_constrained:
-    - beautifulsoup4 >=4.9.3
-
+    - bim2sim=={{data.get('version')}}{{BIM2SIM_VERSION}}
+    - bim2sim_aixlib=={{data.get('version')}}{{BIM2SIM_VERSION}}
+    - bim2sim_cfd=={{data.get('version')}}{{BIM2SIM_VERSION}}
+    - bim2sim_energyplus=={{data.get('version')}}{{BIM2SIM_VERSION}}
+    - bim2sim_hkesim=={{data.get('version')}}{{BIM2SIM_VERSION}}
+    - bim2sim_lca=={{data.get('version')}}{{BIM2SIM_VERSION}}
+    - bim2sim_teaser=={{data.get('version')}}{{BIM2SIM_VERSION}}
 test:
   imports:
     - bim2sim
+    - bim2sim.plugins.PluginAixLib
+    - bim2sim.plugins.PluginTEASER
+    - bim2sim.plugins.PluginCFD
+    - bim2sim.plugins.PluginEnergyPlus
+    - bim2sim.plugins.PluginLCA
   requires:
     - python  >=3.8.*,<3.10.*
     - pint==0.20.1

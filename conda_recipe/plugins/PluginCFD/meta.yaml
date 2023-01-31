@@ -1,8 +1,8 @@
 {% set data = load_setup_py_data(setup_file='../../../setup.py', from_recipe_dir=True) %}
 
 package:
-  name: "bim2sim_cfd"
-  version: {{ version }}_{{BIM2SIM_VERSION}}
+  name: {{BIM2SIM_NAME}}
+  version: {{ version }}{{BIM2SIM_VERSION}}
 
 source:
   path: ../../../
@@ -20,16 +20,12 @@ requirements:
     - setuptools 65.5.0
   run:
     - python >=3.6.*,<3.10.*
-    - bim2sim
+    - bim2sim=={{data.get('version')}}{{BIM2SIM_VERSION}}
 
 test:
   imports:
     - bim2sim
-    - bim2sim.plugins.PluginAixLib
-    - bim2sim.plugins.PluginTEASER
     - bim2sim.plugins.PluginCFD
-    - bim2sim.plugins.PluginEnergyPlus
-    - bim2sim.plugins.PluginLCA
   requires:
     - python  >=3.8.*,<3.10.*
     - pint==0.20.1

@@ -10,6 +10,8 @@ stages:
   - conda_build_tool
   - conda_release_base
   - conda_release_tool
+  - conda_build_total
+  - conda_release_total
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
@@ -22,5 +24,4 @@ include:
     - 'ci_templates/deploy.gitlab-ci.yml'
     - 'ci_templates/doc.gitlab-ci.yml'
     - 'ci_templates/test.gitlab-ci.yml'
-    - 'ci_templates/build_conda_base.gitlab-ci.yml'
-    - 'ci_templates/build_conda_tool.gitlab-ci.yml'
+    - 'ci_templates/build_conda.gitlab-ci.yml'
