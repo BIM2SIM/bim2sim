@@ -546,6 +546,10 @@ class TestParallelPumps(unittest.TestCase):
 
     def test_pump_setup2(self):
         """Five parallel pumps"""
+        # TODO: this does not work so far. The get_ports / get_edge_ports method
+        #  is overwritten in ParallelPump. The get_edge_ports methods creates
+        #  some aggregation of AggregatedPipeFitting. Not clear if this is still
+        #  needed.
         graph, flags = self.helper.get_setup_pumps2()
         models = flags['normal']
         small = flags['small']
@@ -554,7 +558,7 @@ class TestParallelPumps(unittest.TestCase):
 
         self.assertEqual(len(matches), 1)
         agg_pump = aggregation.ParallelPump(graph, matches[0], **meta[0])
-        # todo before merge check units
+        # TODO: before merge check units
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
         expected_volume_flow = sum([p.rated_volume_flow for p in pumps])
@@ -587,6 +591,7 @@ class TestParallelPumps(unittest.TestCase):
 
     def test_pump_setup4(self):
         """Four parallel pumps, one small with bypass."""
+        # TODO: Does not work, see TODO test_pump_setup2.
         graph, flags = self.helper.get_setup_pumps4()
         models = flags['normal']
         small = flags['small']
@@ -595,7 +600,7 @@ class TestParallelPumps(unittest.TestCase):
 
         self.assertEqual(len(matches), 1)
         agg_pump = aggregation.ParallelPump(graph, matches[0], **meta[0])
-        # todo before merge check units
+        # TODO: before merge check units
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
         expected_volume_flow = sum([p.rated_volume_flow for p in pumps])
@@ -628,6 +633,7 @@ class TestParallelPumps(unittest.TestCase):
 
     def test_pump_setup5(self):
         """Five parallel pumps, one smaller, additional connections."""
+        # TODO: Does not work, see TODO test_pump_setup2
         graph, flags = self.helper.get_setup_pumps5()
 
         models = flags['normal']
@@ -636,7 +642,7 @@ class TestParallelPumps(unittest.TestCase):
         matches, meta = aggregation.ParallelPump.find_matches(graph)
 
         self.assertEqual(len(matches), 1)
-        agg_pump = aggregation.ParallelPump(matches[0], **meta[0])
+        agg_pump = aggregation.ParallelPump(graph, matches[0], **meta[0])
         # todo before merge check units
         expected_power = sum([p.rated_power for p in pumps])
         expected_height = sum([p.rated_height for p in pumps]) / len(pumps)  # only for same size pumps
@@ -677,7 +683,7 @@ class TestParallelPumps(unittest.TestCase):
         matches, meta = aggregation.ParallelPump.find_matches(graph)
         self.assertEqual(len(matches), 1)
 
-        agg = aggregation.ParallelPump(matches[0], **meta[0])
+        agg = aggregation.ParallelPump(graph, matches[0], **meta[0])
 
         self.assertTrue(self.helper.elements_in_agg(agg))
 
