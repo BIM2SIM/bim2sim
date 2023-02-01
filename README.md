@@ -1,5 +1,12 @@
-# BIM2SIM
 ![header](docs/source/img/static/b2s_header.png)
+# bim2sim
+[![Anaconda Latest Release](https://anaconda.org/bim2sim/bim2sim/badges/version.svg)](https://anaconda.org/bim2sim/bim2sim)
+[![Anaconda Downloads](https://anaconda.org/bim2sim/bim2sim/badges/downloads.svg)](https://anaconda.org/bim2sim/bim2sim)
+<!-- [![pipeline status](https://git.rwth-aachen.de/EBC/EBC_all/github_ci/bim2sim/badges/main/pipeline.svg)](https://git.rwth-aachen.de/EBC/EBC_all/github_ci/bim2sim/-/commits/main) -->
+
+
+
+
 bim2sim is a library to create simulation models for different purposes based on BIM models in the IFC format. The project is based on a base code that provides the possiblity to map the IFC data into a uniform meta strucuture. This structure can then be used to create simulation models for different purposes which is done by plugins. The corresponding project BIM2SIM (see founding section below) adressed the following four domains:
 
 * Building Performance Simulation (BPS)
