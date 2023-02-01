@@ -1,5 +1,5 @@
 ![header](docs/source/img/static/b2s_header.png)
-# bim2sim
+# bim2sim - Automating Simulation for better Buildings
 [![Anaconda Latest Release](https://anaconda.org/bim2sim/bim2sim/badges/version.svg)](https://anaconda.org/bim2sim/bim2sim)
 [![Anaconda Downloads](https://anaconda.org/bim2sim/bim2sim/badges/downloads.svg)](https://anaconda.org/bim2sim/bim2sim)
 <!-- [![pipeline status](https://git.rwth-aachen.de/EBC/EBC_all/github_ci/bim2sim/badges/main/pipeline.svg)](https://git.rwth-aachen.de/EBC/EBC_all/github_ci/bim2sim/-/commits/main) -->
