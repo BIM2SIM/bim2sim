@@ -211,7 +211,6 @@ build_conda_bim2sim:total:dev:
     paths:
       - conda-bld
 
-
 .conda_release:main:
   extends: .conda_release
   rules:

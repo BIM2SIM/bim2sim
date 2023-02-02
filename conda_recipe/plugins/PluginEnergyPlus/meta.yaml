@@ -11,6 +11,7 @@ build:
   preserve_egg_dir: True
   number: '0'
   entry_points:
+    - bim2sim = bim2sim.__main__:commandline_interface
     - energyplus =  bim2sim_energyplus.__main__:commandline_interface
   script: pip install https://github.com/NREL/EnergyPlusRegressionTool/archive/refs/tags/v1.9.6.zip
 
@@ -21,7 +22,17 @@ requirements:
     - setuptools 65.5.0
   run:
     - python >=3.8.*,<3.10.*
-    - bim2sim=={{data.get('version')}}{{BIM2SIM_VERSION}}
+    - docopt==0.6.2
+    - numpy==1.21.5
+    - pandas==1.4.4
+    - matplotlib==3.5.2
+    - networkx>=2.2
+    - python-dateutil==2.8.2
+    - mako==1.2.4
+    - pint==0.20.1
+    - certifi==2022.12.7
+    - pythonocc-core==7.6.2
+    - ifcopenshell
     - geomeppy>=0.11.8
     - shapely
     - numpy-stl
