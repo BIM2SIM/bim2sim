@@ -1,9 +1,9 @@
 stages:
   - build_docker_base
-  - release_docker_base
   - build_docker_plugin
-  - release_docker_plugin
   - build_docker_total
+  - release_docker_base
+  - release_docker_plugin
   - release_docker_total
 
 .docker_build:
