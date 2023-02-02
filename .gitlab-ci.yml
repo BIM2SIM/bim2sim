@@ -18,6 +18,7 @@ stages:
   - release_docker_base
   - release_docker_plugin
   - release_docker_total
+
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 

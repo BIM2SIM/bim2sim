@@ -48,9 +48,7 @@ SHELL 	["conda", "run", "-n", "env", "/bin/bash", "-c"]
 
 # install needed packages
 RUN conda activate env
-RUN conda config --add channels bim2sim
-RUN conda config --add channels conda-forge
-RUN conda install -c bim2sim ${BIM2SIM_NAME}${BIM2SIM_VERSION}
+RUN conda install -
 
 
 
