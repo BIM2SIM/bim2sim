@@ -17,11 +17,11 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
 include:
-    - 'ci_templates/build-env.gitlab-ci.yml'
-    - 'ci_templates/build-env-plugins.gitlab-ci.yml'
+    - 'ci_templates/build_docker_image.gitlab-ci.yml'
+    - 'ci_templates/build_docker.gitlab-ci.yml'
     - 'ci_templates/build-tool.gitlab-ci.yml'
     - 'ci_templates/code_quality.gitlab-ci.yml'
     - 'ci_templates/deploy.gitlab-ci.yml'
     - 'ci_templates/doc.gitlab-ci.yml'
     - 'ci_templates/test.gitlab-ci.yml'
-    - 'ci_templates/build_conda.gitlab-ci.yml'
+    - 'ci_templates/build_conda_image.gitlab-ci.yml'

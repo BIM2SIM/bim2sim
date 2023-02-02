@@ -1,0 +1,468 @@
+stages:
+  - build_docker_base
+  - release_docker_base
+  - build_docker_plugin
+  - release_docker_plugin
+  - build_docker_total
+  - release_docker_total
+
+.docker_build:
+  image: docker:latest
+  services:
+    - name: docker:18.09.7-dind
+      command: [ "--mtu=1440" ]
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+  script:
+    - docker build -t --build-arg BIM2SIM_NAME=$BIM2SIM_NAME --build-arg BIM2SIM_VERSION=$BIM2SIM_VERSION $CI_REGISTRY/environment:$IMAGE_NAME -f $DOCKERPATH .
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - $CI_REGISTRY/environment:$IMAGE_NAME
+
+.docker_build:main:
+  extends: .docker_build
+  variables:
+    BIM2SIM_VERSION: ""
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - docker/*
+        - conda_recipe/*
+        - requirements.txt
+        - .gitlab-ci.yml
+        - bim2sim/*
+      when: always
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+      when: always
+
+.docker_build:dev:
+  extends: .docker_build
+  variables:
+    BIM2SIM_VERSION: "_dev"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "development"
+      changes:
+        - docker/*
+        - conda_recipe/*
+        - requirements.txt
+        - .gitlab-ci.yml
+        - bim2sim/*
+      when: always
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+      when: always
+
+
+
+docker_build_bim2sim:env_base:main:
+  extends: .docker_build:main
+  stage: build_docker_base
+  variables:
+    BIM2SIM_NAME: "bim2sim"
+    IMAGE_NAME: "master_env"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+
+docker_build_bim2sim:env_base:dev:
+  extends: .docker_build:dev
+  stage: build_docker_base
+  variables:
+    IMAGE_NAME: "dev_env"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+    BIM2SIM_NAME: "bim2sim"
+
+
+docker_build_plugin:aixlib:main:
+  extends: .docker_build:main
+  stage: build_docker_plugin
+  variables:
+    IMAGE_NAME: "plugin:aixlib"
+    DOCKERPATH: "docker/plugins/PluginAixLib/aixlib.Dockerfile"
+    BIM2SIM_NAME: "bim2sim_aixlib"
+
+docker_build_plugin:aixlib:dev:
+  extends: .docker_build:dev
+  stage: build_docker_plugin
+  variables:
+    IMAGE_NAME: "plugin:dev_aixlib"
+    DOCKERPATH: "docker/plugins/PluginAixLib/aixlib.Dockerfile"
+    BIM2SIM_NAME: "bim2sim_aixlib"
+
+docker_build_plugin:cfd:main:
+  extends: .docker_build:main
+  stage: build_docker_plugin
+  variables:
+    IMAGE_NAME: "plugin:cfd"
+    DOCKERPATH: "docker/plugins/PluginCFD/cfd.Dockerfile"
+    BIM2SIM_NAME: "bim2sim_cfd"
+
+docker_build_plugin:cfd:dev:
+  extends: .docker_build:dev
+  stage: build_docker_plugin
+  variables:
+    IMAGE_NAME: "plugin:dev_cfd"
+    DOCKERPATH: "docker/plugins/PluginCFD/cfd.Dockerfile"
+    BIM2SIM_NAME: "bim2sim_cfd"
+
+docker_build_plugin:energyplus:main:
+  extends: .docker_build:main
+  stage: build_docker_plugin
+  variables:
+    IMAGE_NAME: "plugin:energyplus"
+    DOCKERPATH: "docker/plugins/PluginEnergyPlus/energyplus.Dockerfile"
+    BIM2SIM_NAME: "bim2sim_energyplus"
+
+
+docker_build_plugin:energyplus:dev:
+  extends: .docker_build:dev
+  stage: build_docker_plugin
+  variables:
+    IMAGE_NAME: "plugin:dev_energyplus"
+    DOCKERPATH: "docker/plugins/PluginEnergyPlus/energyplus.Dockerfile"
+    BIM2SIM_NAME: "bim2sim_energyplus"
+
+
+docker_build_plugin:hkesim:main:
+  extends: .docker_build:main
+  stage: build_docker_plugin
+  variables:
+    IMAGE_NAME: "plugin:hkesim"
+    DOCKERPATH: "docker/plugins/PluginEnergyPlus/hkesim.Dockerfile"
+    BIM2SIM_NAME: "bim2sim_hkesim"
+
+docker_build_plugin:hkesim:dev:
+  extends: .docker_build:dev
+  stage: build_docker_plugin
+  variables:
+    IMAGE_NAME: "plugin:dev_hkesim"
+    DOCKERPATH: "docker/plugins/PluginEnergyPlus/hkesim.Dockerfile"
+    BIM2SIM_NAME: "bim2sim_hkesim"
+
+docker_build_plugin:lca:main:
+  extends: .docker_build:main
+  stage: build_docker_plugin
+  variables:
+    IMAGE_NAME: "plugin:lca"
+    DOCKERPATH: "docker/plugins/PluginLCA/lca.Dockerfile"
+    BIM2SIM_NAME: "bim2sim_lca"
+
+docker_build_plugin:lca:dev:
+  extends: .docker_build:dev
+  stage: build_docker_plugin
+  variables:
+    IMAGE_NAME: "plugin:dev_lca"
+    DOCKERPATH: "docker/plugins/PluginLCA/lca.Dockerfile"
+    BIM2SIM_NAME: "bim2sim_lca"
+
+docker_build_plugin:teaser:main:
+  extends: .docker_build:main
+  stage: build_docker_plugin
+  variables:
+    IMAGE_NAME: "plugin:teaser"
+    DOCKERPATH: "docker/plugins/PluginTEASER/teaser.Dockerfile"
+    BIM2SIM_NAME: "bim2sim_teaser"
+
+docker_build_plugin:teaser:dev:
+  extends: .docker_build:dev
+  stage: build_docker_plugin
+  variables:
+    IMAGE_NAME: "plugin:dev_teaser"
+    DOCKERPATH: "docker/plugins/PluginTEASER/teaser.Dockerfile"
+    BIM2SIM_NAME: "bim2sim_teaser"
+
+.docker_dymola_build:
+  image: docker:latest
+  services:
+      - name: docker:18.09.7-dind
+        command: [ "--mtu=1440" ]
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA
+  script:
+    - docker build -t --build-arg BIM2SIM_NAME=$BIM2SIM_NAME --build-arg BIM2SIM_VERSION=$BIM2SIM_VERSION $CI_REGISTRY/environment:$IMAGE_NAME -f $DOCKERPATH .
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - $CI_REGISTRY/environment:$IMAGE_NAME
+
+.docker_dymola_build:main:
+  extends: .docker_dymola_build
+  variables:
+    BIM2SIM_VERSION: ""
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - docker/*
+        - conda_recipe/*
+        - requirements.txt
+        - .gitlab-ci.yml
+        - bim2sim/*
+      when: always
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+      when: always
+
+
+.docker_dymola_build:dev:
+  extends: .docker_dymola_build
+  variables:
+    BIM2SIM_VERSION: "_dev"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "development"
+      changes:
+        - docker/*
+        - conda_recipe/*
+        - requirements.txt
+        - .gitlab-ci.yml
+        - bim2sim/*
+      when: always
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+      when: always
+
+
+docker_build_bim2sim:env_dymola_base:dev:
+  extends: .docker_dymola_build:dev
+  stage: build_docker_base
+  variables:
+    IMAGE_NAME: "dev_dymola"
+    DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
+    BIM2SIM_NAME: "bim2sim"
+
+docker_build_bim2sim:env_dymola_base:main:
+  extends: .docker_dymola_build:main
+  stage: build_docker_base
+  variables:
+    IMAGE_NAME: "master_dymola"
+    DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
+    BIM2SIM_NAME: "bim2sim"
+
+docker_build_plugin:dymola_teaser:main:
+  extends: .docker_dymola_build:main
+  stage: build_docker_plugin
+  variables:
+    IMAGE_NAME: "plugin:dymola_teaser"
+    DOCKERPATH: "docker/plugins/PluginTEASER/envTEASER-dymola.Dockerfile"
+    BIM2SIM_NAME: "bim2sim_teaser"
+
+docker_build_plugin:dymola_teaser:dev:
+  extends: .docker_dymola_build:dev
+  stage: build_docker_plugin
+  variables:
+    IMAGE_NAME: "plugin:dev_dymola_teaser"
+    DOCKERPATH: "docker/plugins/PluginTEASER/envTEASER-dymola.Dockerfile"
+    BIM2SIM_NAME: "bim2sim_teaser"
+
+docker_build_total:main:
+  extends: .docker_dymola_build:main
+  stage: build_docker_plugin
+  variables:
+    IMAGE_NAME: "latest"
+    DOCKERPATH: "docker/total.Dockerfile"
+    BIM2SIM_NAME: "bim2sim_total"
+
+docker_build_total:dev:
+  extends: .docker_dymola_build:dev
+  stage: build_docker_plugin
+  variables:
+    IMAGE_NAME: "development"
+    DOCKERPATH: "docker/total.Dockerfile"
+    BIM2SIM_NAME: "bim2sim_total"
+
+.docker_release:
+  image: docker:latest
+  services:
+      - name: docker:18.09.7-dind
+        command: [ "--mtu=1440" ]
+  script:
+    - docker push $CI_REGISTRY/environment:$DOCKER_IMAGE
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - $CI_REGISTRY/environment:$IMAGE_NAME
+
+.docker_release:main:
+  extends: .docker_release
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - docker/*
+        - conda_recipe/*
+        - requirements.txt
+        - .gitlab-ci.yml
+        - bim2sim/*
+      when: manual
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+      when: manual
+
+.docker_release:dev:
+  extends: .docker_release
+  rules:
+    - if: $CI_COMMIT_BRANCH == "development"
+      changes:
+        - docker/*
+        - conda_recipe/*
+        - requirements.txt
+        - .gitlab-ci.yml
+        - bim2sim/*
+      when: manual
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+      when: manual
+
+docker_release_bim2sim:env_base:main:
+  extends: .docker_release:main
+  stage: release_docker_base
+  dependencies:
+    - docker_build_bim2sim:env_base:main
+  variables:
+    DOCKER_IMAGE: "master_base"
+
+docker_release_bim2sim:env_base:dev:
+  extends: .docker_release:dev
+  stage: release_docker_base
+  dependencies:
+    - docker_build_bim2sim:env_base:dev
+  variables:
+    DOCKER_IMAGE: "dev_base"
+
+docker_release_plugin:aixlib:main:
+  extends: .docker_release:main
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:aixlib:main
+  variables:
+    DOCKER_IMAGE: "plugin:aixlib"
+
+docker_release_plugin:aixlib:dev:
+  extends: .docker_release:dev
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:aixlib:dev
+  variables:
+    DOCKER_IMAGE: "plugin:dev_aixlib"
+
+docker_release_plugin:cfd:main:
+  extends: .docker_release:main
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:cfd:main
+  variables:
+    DOCKER_IMAGE: "plugin:cfd"
+
+docker_release_plugin:cfd:dev:
+  extends: .docker_release:dev
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:cfd:dev
+  variables:
+    DOCKER_IMAGE: "plugin:dev_cfd"
+
+docker_release_plugin:energyplus:main:
+  extends: .docker_release:main
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:energyplus:main
+  variables:
+    DOCKER_IMAGE: "plugin:energyplus"
+
+docker_release_plugin:energyplus:dev:
+  extends: .docker_release:dev
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:energyplus:dev
+  variables:
+    DOCKER_IMAGE: "plugin:dev_energyplus"
+
+docker_release_plugin:hkesim:main:
+  extends: .docker_release:main
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:hkesim:main
+  variables:
+    DOCKER_IMAGE: "plugin:hkesim"
+
+docker_release_plugin:hkesim:dev:
+  extends: .docker_release:dev
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:hkesim:dev
+  variables:
+    DOCKER_IMAGE: "plugin:dev_hkesim"
+
+docker_release_plugin:lca:main:
+  extends: .docker_release:main
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:lca:main
+  variables:
+    DOCKER_IMAGE: "plugin:lca"
+
+docker_release_plugin:lca:dev:
+  extends: .docker_release:dev
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:lca:dev
+  variables:
+    DOCKER_IMAGE: "plugin:dev_lca"
+
+docker_release_plugin:teaser:main:
+  extends: .docker_release:main
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:teaser:main
+  variables:
+    DOCKER_IMAGE: "plugin:teaser"
+
+docker_release_plugin:teaser:dev:
+  extends: .docker_release:dev
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:teaser:dev
+  variables:
+    DOCKER_IMAGE: "plugin:dev_teaser"
+
+docker_release:env_dymola_base:main:
+  extends: .docker_release:main
+  stage: release_docker_base
+  dependencies:
+    - docker_build_bim2sim:env_dymola_base:main
+  variables:
+    DOCKER_IMAGE: "master_dymola"
+
+docker_release:env_dymola_base:dev:
+  extends: .docker_release:dev
+  stage: release_docker_base
+  dependencies:
+    - docker_build_bim2sim:env_dymola_base:dev
+  variables:
+    DOCKER_IMAGE: "dev_dymola"
+
+docker_release_plugin:dymola_teaser:main:
+  extends: .docker_release:main
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:dymola_teaser:main
+  variables:
+    DOCKER_IMAGE: "plugin:dymola_teaser"
+
+docker_release_plugin:dymola_teaser:dev:
+  extends: .docker_release:dev
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:dymola_teaser:dev
+  variables:
+    BRANCH:  "development"
+    DOCKER_IMAGE: "plugin:dev_dymola_teaser"
+
+docker_release_total:main:
+  extends: .docker_release:main
+  stage:  release_docker_total
+  dependencies:
+    - docker_build_total:main
+  variables:
+    DOCKER_IMAGE: "master"
+
+docker_release_total:dev:
+  extends: .docker_release
+  stage:  release_docker_total
+  dependencies:
+    - docker_build_total:dev
+  variables:
+    DOCKER_IMAGE: "dev"

@@ -1,4 +1,11 @@
-FROM registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola_2022
+########################################################
+# OS
+FROM ubuntu:20.04
+
+#  $ docker build . -t continuumio/miniconda3:latest -t continuumio/miniconda3:4.5.11
+#  $ docker run --rm -it continuumio/miniconda3:latest /bin/bash
+#  $ docker push continuumio/miniconda3:latest
+#  $ docker push continuumio/miniconda3:4.5.11
 
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 ENV PATH /opt/conda/bin:$PATH
@@ -30,10 +37,8 @@ WORKDIR /bim2sim-coding
 
 RUN apt-get --allow-releaseinfo-change update
 RUN apt-get -y install unzip
-RUN apt-get -y install libgl-dev
+RUN apt-get -y install libgl-dev 
 
-# Copy files
-COPY ./requirements.txt .
 
 RUN 	conda create -n env python=3.9
 RUN		conda update -n base -c defaults conda
@@ -42,11 +47,11 @@ ENV 	PATH /opt/conda/envs/env/bin:$PATH
 SHELL 	["conda", "run", "-n", "env", "/bin/bash", "-c"]
 
 # install needed packages
-
-# install needed packages
 RUN conda activate env
-RUN conda install -c bim2sim
+RUN conda config --add channels bim2sim
+RUN conda config --add channels conda-forge
+RUN conda install -c bim2sim ${BIM2SIM_NAME}${BIM2SIM_VERSION}
 
-########################################################
+
 
 
