@@ -32,8 +32,6 @@ RUN apt-get --allow-releaseinfo-change update
 RUN apt-get -y install unzip
 RUN apt-get -y install libgl-dev
 
-# Copy files
-COPY ./requirements.txt .
 
 RUN 	conda create -n env python=3.9
 RUN		conda update -n base -c defaults conda
@@ -45,8 +43,6 @@ SHELL 	["conda", "run", "-n", "env", "/bin/bash", "-c"]
 
 # install needed packages
 RUN conda activate env
-RUN conda config --add channels bim2sim
-RUN conda config --add channels conda-forge
 RUN conda install -c bim2sim ${BIM2SIM_NAME}${BIM2SIM_VERSION}
 
 

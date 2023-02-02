@@ -23,6 +23,9 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-x86
     echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
     echo "conda activate base" >> ~/.bashrc
 
+COPY ../conda-bld/$BIM2SIM_NAME
+
+
 ENV TINI_VERSION v0.16.1
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/bin/tini
 RUN chmod +x /usr/bin/tini
@@ -48,7 +51,7 @@ SHELL 	["conda", "run", "-n", "env", "/bin/bash", "-c"]
 
 # install needed packages
 RUN conda activate env
-RUN conda install -
+RUN conda install
 
 
 
