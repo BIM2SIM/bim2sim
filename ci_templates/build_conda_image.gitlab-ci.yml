@@ -211,6 +211,7 @@ build_conda_bim2sim:total:dev:
     - anaconda upload conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --force
     - anaconda upload conda-bld/$BIM2SIM_NAME/osx-64/$BIM2SIM_NAME-* --force
     - anaconda upload conda-bld/$BIM2SIM_NAME/win-64/$BIM2SIM_NAME-* --force
+    - anaconda logout
   retry:
     max: 2
     when: runner_system_failure
