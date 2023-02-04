@@ -46,6 +46,7 @@ test:
     - ifcopenshell
   commands:
     - bim2sim -h
+    - bim2sim --version
 
 about:
   home: https://github.com/BIM2SIM/bim2sim

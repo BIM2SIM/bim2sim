@@ -204,6 +204,7 @@ build_conda_bim2sim:total:dev:
     - conda install anaconda -y
     - conda update --all  -y
     - conda install conda-build anaconda-client -y
+    -  anaconda logout
     - anaconda login --username bim2sim --password $CONDA_TOKEN
     - conda convert -p osx-64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
     - conda convert -p osx-arm64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
