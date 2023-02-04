@@ -13,7 +13,6 @@ build:
   entry_points:
     - bim2sim = bim2sim.__main__:commandline_interface
     - energyplus =  bim2sim_energyplus.__main__:commandline_interface
-  script: pip install https://github.com/NREL/EnergyPlusRegressionTool/archive/refs/tags/v1.9.6.zip
 
 requirements:
   host:

@@ -48,6 +48,9 @@ variables:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
       when: always
 
+
+# [Build Conda Base]
+
 conda_build_bim2sim:base:main:
     stage: build_conda_base
     variables:
@@ -61,6 +64,9 @@ conda_build_bim2sim:base:dev:
         BIM2SIM_NAME: "bim2sim"
         CONDA_FILE:  "conda_recipe/basic_build/meta.yaml"
     extends: .conda_build:dev
+
+
+# [Build Conda Plugins]
 
 conda_build_plugin:aixlib:main:
     stage: build_conda_plugin
@@ -171,6 +177,7 @@ build_conda_plugin:teaser:dev:
         CONDA_FILE: "conda_recipe/plugins/PluginTeaser/meta.yaml"
     extends: .conda_build:dev
 
+# [Build Conda total]
 
 build_conda_bim2sim:total:main:
     stage: build_conda_total
@@ -235,7 +242,6 @@ release_conda_bim2sim:base:main:
     BIM2SIM_NAME: "bim2sim"
   dependencies:
     - conda_build_bim2sim:base:main
-
   extends: .conda_release:main
 
 release_conda_bim2sim:base:dev:
