@@ -7,10 +7,10 @@ stages:
   - doc
   - deploy
   - build_conda_base
-  - build_conda_plugin
-  - build_conda_total
   - release_conda_base
+  - build_conda_plugin
   - release_conda_plugin
+  - build_conda_total
   - release_conda_total
   - build_docker_base
   - build_docker_plugin
