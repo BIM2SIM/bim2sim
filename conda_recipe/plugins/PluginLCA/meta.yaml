@@ -20,6 +20,7 @@ requirements:
     - setuptools 65.5.0
   run:
     - python >=3.5.*,<3.10.*
+    - bim2sim=={{data.get('version')}}{{BIM2SIM_VERSION}}
 
 test:
   imports:

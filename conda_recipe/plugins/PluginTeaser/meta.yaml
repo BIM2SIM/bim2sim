@@ -19,6 +19,7 @@ requirements:
     - pip 22.2.2
     - setuptools 65.5.0
   run:
+    - bim2sim=={{data.get('version')}}{{BIM2SIM_VERSION}}
     - pillow
 
 test:
