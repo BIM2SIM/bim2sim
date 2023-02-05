@@ -27,6 +27,8 @@ test:
   imports:
     - bim2sim
     - bim2sim.plugins.PluginTEASER
+  script:
+    - run_test.sh
   requires:
     - python  >=3.8.*,<3.10.*
     - pint==0.20.1
