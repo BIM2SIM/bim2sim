@@ -34,6 +34,7 @@ test:
     - pint==0.20.1
     - pythonocc-core==7.6.2
     - ifcopenshell
+    - python >=3.8.*,<3.10.*
 
 about:
   home: https://github.com/BIM2SIM/bim2sim
