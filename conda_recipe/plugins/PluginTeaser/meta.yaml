@@ -1,7 +1,7 @@
-{% set data = load_setup_py_data(setup_file='../../../setup.py', from_recipe_dir=True) %}
+{% set data = load_setup_py_data(setup_file='../../../bim2sim/plugins/PluginTEASER/setup.py', from_recipe_dir=True) %}
 
 package:
-  name: {{BIM2SIM_NAME}}
+  name: {{data.get('name')}}
   version: {{data.get('version')}}{{BIM2SIM_VERSION}}
 
 source:
@@ -31,7 +31,7 @@ test:
     - bim2sim/assets/ifc_example_files/AC20-FZK-Haus.ifc
     - bim2sim/examples/e1_simple_project_bps_teaser.py
   script:
-    - run_test.sh
+    - python bim2sim/examples/e1_simple_project_bps_teaser.py
   requires:
     - python  >=3.8.*,<3.10.*
     - pint==0.20.1

@@ -12,7 +12,10 @@ from bim2sim.decision.console import ConsoleDecisionHandler
 from bim2sim.decision.decisionhandler import DecisionHandler
 from bim2sim.project import Project
 
+#with open(f'..{os.sep}VERSION', 'r') as f:
+#    version = f.read()
 VERSION = '0.1-dev'
+#VERSION = version
 
 
 def logging_setup():
