@@ -247,7 +247,7 @@ release_conda_bim2sim:base:main:
     BIM2SIM_NAME: "bim2sim"
   dependencies:
     - conda_build_bim2sim:base:main
-  extends: .conda_release:plugin:main
+  extends: .conda_release:main
 
 release_conda_bim2sim:base:dev:
   stage: release_conda_base
@@ -255,7 +255,7 @@ release_conda_bim2sim:base:dev:
     BIM2SIM_NAME: "bim2sim"
   dependencies:
     - conda_build_bim2sim:base:dev
-  extends: .conda_release:plugin:dev
+  extends: .conda_release:dev
 
 # [release plugin conda image]
 
