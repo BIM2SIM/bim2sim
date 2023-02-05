@@ -85,14 +85,14 @@ conda_build_bim2sim:base:dev:
 
 # [Build Conda Plugins]
 
-conda_build_plugin:aixlib:main:
+build_conda_plugin:aixlib:main:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_aixlib"
         CONDA_FILE: "conda_recipe/plugins/PluginAixLib/meta.yaml"
     extends: .conda_build:plugin:main
 
-conda_build_plugin:aixlib:dev:
+build_conda_plugin:aixlib:dev:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_aixlib"
