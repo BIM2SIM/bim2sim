@@ -19,7 +19,7 @@ requirements:
     - pip 22.2.2
     - setuptools 65.5.0
   run:
-    - python >=3.5.*,<3.10.*
+    - python >=3.8.*,<3.10.*
     - bim2sim=={{data.get('version')}}{{BIM2SIM_VERSION}}
 
 test:

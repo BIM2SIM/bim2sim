@@ -48,6 +48,17 @@ variables:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
       when: always
 
+.conda_build:plugin:dev:
+  extends: .conda_build:dev
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_plugin/
+      when: always
+
+.conda_build:plugin:main:
+  extends: .conda_build:main
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_plugin/
+      when: always
 
 # [Build Conda Base]
 
@@ -57,6 +68,9 @@ conda_build_bim2sim:base:main:
         BIM2SIM_NAME: "bim2sim"
         CONDA_FILE:  "conda_recipe/basic_build/meta.yaml"
     extends: .conda_build:main
+    rules:
+      - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_main/
+        when: always
 
 conda_build_bim2sim:base:dev:
     stage: build_conda_base
@@ -64,118 +78,96 @@ conda_build_bim2sim:base:dev:
         BIM2SIM_NAME: "bim2sim"
         CONDA_FILE:  "conda_recipe/basic_build/meta.yaml"
     extends: .conda_build:dev
-
+    rules:
+      - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_dev/
+        when: always
 
 # [Build Conda Plugins]
 
 conda_build_plugin:aixlib:main:
     stage: build_conda_plugin
-    dependencies:
-      - conda_build_bim2sim:base:main
     variables:
         BIM2SIM_NAME: "bim2sim_aixlib"
         CONDA_FILE: "conda_recipe/plugins/PluginAixLib/meta.yaml"
-    extends: .conda_build:main
+    extends: .conda_build:plugin:main
 
 conda_build_plugin:aixlib:dev:
     stage: build_conda_plugin
-    dependencies:
-      - conda_build_bim2sim:base:dev
     variables:
         BIM2SIM_NAME: "bim2sim_aixlib"
         CONDA_FILE: "conda_recipe/plugins/PluginAixLib/meta.yaml"
-    extends: .conda_build:dev
+    extends: .conda_build:plugin:dev
 
 build_conda_plugin:cfd:main:
     stage: build_conda_plugin
-    dependencies:
-      - conda_build_bim2sim:base:main
     variables:
         BIM2SIM_NAME: "bim2sim_cfd"
         CONDA_FILE: "conda_recipe/plugins/PluginCFD/meta.yaml"
-    extends: .conda_build:main
+    extends: .conda_build:plugin:main
 
 build_conda_plugin:cfd:dev:
     stage: build_conda_plugin
-    dependencies:
-      - conda_build_bim2sim:base:dev
     variables:
         BIM2SIM_NAME: "bim2sim_cfd"
         CONDA_FILE: "conda_recipe/plugins/PluginCFD/meta.yaml"
-    extends: .conda_build:dev
+    extends: .conda_build:plugin:dev
 
 build_conda_plugin:energyplus:main:
     stage: build_conda_plugin
-    dependencies:
-      - conda_build_bim2sim:base:main
     variables:
         BIM2SIM_NAME: "bim2sim_energyplus"
         CONDA_FILE: "conda_recipe/plugins/PluginEnergyPlus/meta.yaml"
-    extends: .conda_build:main
+    extends: .conda_build:plugin:main
 
 build_conda_plugin:energyplus:dev:
     stage: build_conda_plugin
-    dependencies:
-      - conda_build_bim2sim:base:dev
     variables:
         BIM2SIM_NAME: "bim2sim_energyplus"
         CONDA_FILE: "conda_recipe/plugins/PluginEnergyPlus/meta.yaml"
-    extends: .conda_build:dev
+    extends: .conda_build:plugin:dev
 
 build_conda_plugin:hkesim:main:
     stage: build_conda_plugin
-    dependencies:
-      - conda_build_bim2sim:base:main
     variables:
         BIM2SIM_NAME: "bim2sim_hkesim"
         CONDA_FILE: "conda_recipe/plugins/PluginHKESim/meta.yaml"
-    extends: .conda_build:main
+    extends: .conda_build:plugin:main
 
 build_conda_plugin:hkesim:dev:
     stage: build_conda_plugin
-    dependencies:
-      - conda_build_bim2sim:base:dev
     variables:
         BIM2SIM_NAME: "bim2sim_hkesim"
         CONDA_FILE: "conda_recipe/plugins/PluginHKESim/meta.yaml"
-    extends: .conda_build:dev
+    extends: .conda_build:plugin:dev
 
 
 build_conda_plugin:lca:main:
     stage: build_conda_plugin
-    dependencies:
-      - conda_build_bim2sim:base:main
     variables:
       BIM2SIM_NAME: "bim2sim_lca"
       CONDA_FILE: "conda_recipe/plugins/PluginLCA/meta.yaml"
-    extends: .conda_build:main
+    extends: .conda_build:plugin:main
 
 build_conda_plugin:lca:dev:
     stage: build_conda_plugin
-    dependencies:
-      - conda_build_bim2sim:base:dev
     variables:
       BIM2SIM_NAME: "bim2sim_lca"
       CONDA_FILE: "conda_recipe/plugins/PluginLCA/meta.yaml"
-    extends: .conda_build:dev
+    extends: .conda_build:plugin:dev
 
 build_conda_plugin:teaser:main:
     stage: build_conda_plugin
-    dependencies:
-      - conda_build_bim2sim:base:main
     variables:
         BIM2SIM_NAME: "bim2sim_teaser"
         CONDA_FILE: "conda_recipe/plugins/PluginTeaser/meta.yaml"
-    extends: .conda_build:main
+    extends: .conda_build:plugin:main
 
 build_conda_plugin:teaser:dev:
     stage: build_conda_plugin
-    dependencies:
-      - conda_build_bim2sim:base:dev
     variables:
         BIM2SIM_NAME: "bim2sim_teaser"
         CONDA_FILE: "conda_recipe/plugins/PluginTeaser/meta.yaml"
-    extends: .conda_build:dev
+    extends: .conda_build:plugin:dev
 
 # [Build Conda total]
 
@@ -237,6 +229,17 @@ build_conda_bim2sim:total:dev:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
       when: manual
 
+.conda_release:plugin:dev:
+  extends: .conda_release:dev
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_plugin/
+      when: manual
+
+.conda_release:plugin:main:
+  extends: .conda_release:main
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_plugin/
+      when: manual
 # [release base conda image]
 release_conda_bim2sim:base:main:
   stage: release_conda_base
@@ -244,7 +247,7 @@ release_conda_bim2sim:base:main:
     BIM2SIM_NAME: "bim2sim"
   dependencies:
     - conda_build_bim2sim:base:main
-  extends: .conda_release:main
+  extends: .conda_release:plugin:main
 
 release_conda_bim2sim:base:dev:
   stage: release_conda_base
@@ -252,7 +255,7 @@ release_conda_bim2sim:base:dev:
     BIM2SIM_NAME: "bim2sim"
   dependencies:
     - conda_build_bim2sim:base:dev
-  extends: .conda_release:dev
+  extends: .conda_release:plugin:dev
 
 # [release plugin conda image]
 
@@ -262,7 +265,7 @@ release_conda_plugin:aixlib:main:
     BIM2SIM_NAME: "bim2sim_aixlib"
   dependencies:
     - conda_build_plugin:aixlib:main
-  extends: .conda_release:main
+  extends: .conda_release:plugin:main
 
 release_conda_plugin:aixlib:dev:
   stage: release_conda_plugin
@@ -270,7 +273,7 @@ release_conda_plugin:aixlib:dev:
     BIM2SIM_NAME: "bim2sim_aixlib"
   dependencies:
     - conda_build_plugin:aixlib:dev
-  extends: .conda_release:dev
+  extends: .conda_release:plugin:dev
 
 
 release_conda_plugin:cfd:main:
@@ -279,7 +282,7 @@ release_conda_plugin:cfd:main:
     BIM2SIM_NAME: "bim2sim_cfd"
   dependencies:
     - build_conda_plugin:cfd:main
-  extends: .conda_release:main
+  extends: .conda_release:plugin:main
 
 release_conda_plugin:cfd:dev:
   stage: release_conda_plugin
@@ -287,7 +290,7 @@ release_conda_plugin:cfd:dev:
     BIM2SIM_NAME: "bim2sim_cfd"
   dependencies:
     - build_conda_plugin:cfd:dev
-  extends: .conda_release:dev
+  extends: .conda_release:plugin:dev
 
 release_conda_plugin:energyplus:main:
   stage: release_conda_plugin
@@ -295,7 +298,7 @@ release_conda_plugin:energyplus:main:
     BIM2SIM_NAME: "bim2sim_energyplus"
   dependencies:
     - build_conda_plugin:energyplus:main
-  extends: .conda_release:main
+  extends: .conda_release:plugin:main
 
 release_conda_plugin:energyplus:dev:
   stage: release_conda_plugin
@@ -303,7 +306,7 @@ release_conda_plugin:energyplus:dev:
     BIM2SIM_NAME: "bim2sim_energyplus"
   dependencies:
     - build_conda_plugin:energyplus:dev
-  extends: .conda_release:dev
+  extends: .conda_release:plugin:dev
 
 release_conda_plugin:hkesim:main:
   stage: release_conda_plugin
@@ -311,7 +314,7 @@ release_conda_plugin:hkesim:main:
     BIM2SIM_NAME: "bim2sim_hkesim"
   dependencies:
     - build_conda_plugin:hkesim:main
-  extends: .conda_release:main
+  extends: .conda_release:plugin:main
 
 
 release_conda_plugin:hkesim:dev:
@@ -320,7 +323,7 @@ release_conda_plugin:hkesim:dev:
     BIM2SIM_NAME: "bim2sim_hkesim"
   dependencies:
     - build_conda_plugin:hkesim:dev
-  extends: .conda_release:dev
+  extends: .conda_release:plugin:dev
 
 release_conda_plugin:lca:main:
   stage: release_conda_plugin
@@ -328,7 +331,7 @@ release_conda_plugin:lca:main:
     BIM2SIM_NAME: "bim2sim_lca"
   dependencies:
     - build_conda_plugin:lca:main
-  extends: .conda_release:main
+  extends: .conda_release:plugin:main
 
 release_conda_plugin:lca:dev:
   stage: release_conda_plugin
@@ -336,7 +339,7 @@ release_conda_plugin:lca:dev:
     BIM2SIM_NAME: "bim2sim_lca"
   dependencies:
     - build_conda_plugin:lca:dev
-  extends: .conda_release:dev
+  extends: .conda_release:plugin:dev
 
 
 release_conda_plugin:teaser:main:
@@ -345,7 +348,7 @@ release_conda_plugin:teaser:main:
     BIM2SIM_NAME: "bim2sim_teaser"
   dependencies:
     - build_conda_plugin:teaser:main
-  extends: .conda_release:main
+  extends: .conda_release:plugin:main
 
 release_conda_plugin:teaser:dev:
   stage: release_conda_plugin
@@ -353,7 +356,7 @@ release_conda_plugin:teaser:dev:
     BIM2SIM_NAME: "bim2sim_teaser"
   dependencies:
     - build_conda_plugin:teaser:dev
-  extends: .conda_release:dev
+  extends: .conda_release:plugin:dev
 
 release_conda_bim2sim:total:main:
   stage: release_conda_total
