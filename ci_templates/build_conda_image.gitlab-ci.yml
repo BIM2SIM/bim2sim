@@ -278,7 +278,7 @@ release_conda_plugin:aixlib:main:
   variables:
     BIM2SIM_NAME: "bim2sim_aixlib"
   dependencies:
-    - conda_build_plugin:aixlib:main
+    - build_conda_plugin:aixlib:main
   extends: .conda_release:plugin:main
 
 release_conda_plugin:aixlib:dev:
@@ -286,7 +286,7 @@ release_conda_plugin:aixlib:dev:
   variables:
     BIM2SIM_NAME: "bim2sim_aixlib"
   dependencies:
-    - conda_build_plugin:aixlib:dev
+    - build_conda_plugin:aixlib:dev
   extends: .conda_release:plugin:dev
 
 
