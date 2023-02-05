@@ -19,6 +19,7 @@ variables:
     - mkdir -p conda-bld
     - mkdir -p conda-bld/$BIM2SIM_NAME
     - conda config --add channels bim2sim
+    - conda config --add channels dsdale24
     - conda build $CONDA_FILE -c conda-forge --output-folder conda-bld/$BIM2SIM_NAME --python 3.9
   retry:
     max: 2
