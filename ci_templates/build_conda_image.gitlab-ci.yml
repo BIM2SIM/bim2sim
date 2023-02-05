@@ -177,6 +177,9 @@ build_conda_bim2sim:total:main:
         BIM2SIM_NAME: "bim2sim_total"
         CONDA_FILE: "conda_recipe/total/meta.yaml"
     extends: .conda_build:main
+    rules:
+      - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_total/
+        when: always
 
 
 build_conda_bim2sim:total:dev:
@@ -185,6 +188,9 @@ build_conda_bim2sim:total:dev:
         BIM2SIM_NAME: "bim2sim_total"
         CONDA_FILE: "conda_recipe/total/meta.yaml"
     extends: .conda_build:dev
+    rules:
+      - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_total/
+        when: always
 
 
 .conda_release:
@@ -372,6 +378,9 @@ release_conda_bim2sim:total:main:
   dependencies:
     - build_conda_bim2sim:total:main
   extends: .conda_release:main
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_total/
+      when: always
 
 # [conda total]
 
@@ -382,3 +391,6 @@ release_conda_bim2sim:total:dev:
   dependencies:
     - build_conda_bim2sim:total:dev
   extends: .conda_release:dev
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_total/
+      when: always
