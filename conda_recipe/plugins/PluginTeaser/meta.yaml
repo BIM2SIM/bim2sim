@@ -28,6 +28,7 @@ test:
     - bim2sim
     - bim2sim.plugins.PluginTEASER
   source_files:
+    - bim2sim/assets/ifc_example_files/AC20-FZK-Haus.ifc
     - bim2sim/examples/e1_simple_project_bps_teaser.py
   script:
     - run_test.sh
