@@ -346,13 +346,13 @@ docker_build_total:dev:
       when: manual
 
 .docker_release:plugin:main:
-  extends: . docker_release:main
+  extends: .docker_release:main
   rules:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_plugin/
       when: manual
 
 .docker_release:plugin:dev:
-  extends: . docker_release:dev
+  extends: .docker_release:dev
   rules:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_plugin/
       when: manual
