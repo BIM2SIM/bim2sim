@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 import os
-with open(f'..{os.sep}..{os.sep}..{os.sep}README.md', 'r') as f:
+with open(f'README.md', 'r') as f:
     long_description = f.read()
 with open(f'requirements.txt', 'r') as f:
     required = f.read().splitlines()
-with open(f'..{os.sep}..{os.sep}..{os.sep}VERSION', 'r') as f:
-    version = f.read()
+
+version = "1.0.0_dev"
 
 def copy_non_code_file(non_code_dir, not_include):
     path_file_dict = []
@@ -32,9 +32,10 @@ setup(
     author='BIM2SIM',
     author_email='david.jansen@eonerc.rwth-aachen.de',
     url="https://github.com/BIM2SIM/bim2sim",
-    packages=find_packages(include=['*']),
+    #packages=find_packages(include=['*']),
+    #package_data={'bim2sim_aixlib': ['*']},
     include_package_data=True,
-    data_files = copy_non_code_file(non_code_dir=f'{os.sep}{os.sep}', not_include=[".py", ".Dockerfile"]),
+    #data_files = copy_non_code_file(non_code_dir=f'bim2sim_aixlib{os.sep}{os.sep}', not_include=[".py", ".Dockerfile"]),
     python_requires='>=3.8.*,<3.10.*',
     install_requires=[required],
     classifiers=[

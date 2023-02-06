@@ -26,11 +26,13 @@ test:
   imports:
     - bim2sim
     - bim2sim.plugins.PluginAixLib
+
   requires:
     - python  >=3.8.*,<3.10.*
     - pint==0.20.1
     - pythonocc-core==7.6.2
     - ifcopenshell
+    - bim2sim=={{data.get('version')}}
 
 about:
   home: https://github.com/BIM2SIM/bim2sim

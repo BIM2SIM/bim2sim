@@ -25,7 +25,7 @@ requirements:
 test:
   imports:
     - bim2sim
-    - bim2sim.plugins.PluginAixLib
+    - bim2sim.plugins.PluginLCA
   requires:
     - python  >=3.8.*,<3.10.*
     - pint==0.20.1
