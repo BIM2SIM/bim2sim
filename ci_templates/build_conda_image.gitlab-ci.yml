@@ -45,19 +45,19 @@ variables:
   rules:
     - if: $CI_COMMIT_BRANCH == "development"
       when: on_success
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+    - if: $CI_COMMIT_MESSAGE =~ "ci_build_dev"
       when: on_success
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_plugin/
+    - if: $CI_COMMIT_MESSAGE =~ "ci_build_dev_plugin"
       when: on_success
 
 .conda_build:plugin:main:
   extends: .conda_build:main
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_plugin/
+    - if: $CI_COMMIT_MESSAGE =~ "ci_build_main_plugin"
       when: on_success
     - if: $CI_COMMIT_BRANCH == "main"
       when: on_success
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+    - if: $CI_COMMIT_MESSAGE =~ "ci_build_main"
       when: on_success
 
 # [Build Conda Base]
@@ -70,9 +70,9 @@ conda_build_bim2sim:base:main:
     rules:
       - if: $CI_COMMIT_BRANCH == "main"
         when: on_success
-      - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+      - if: $CI_COMMIT_MESSAGE =~ "ci_build_main"
         when: on_success
-      - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_base/
+      - if: $CI_COMMIT_MESSAGE =~ "ci_build_dev_base"
         when: on_success
 
 conda_build_bim2sim:base:dev:
@@ -82,11 +82,11 @@ conda_build_bim2sim:base:dev:
         CONDA_FILE:  "conda_recipe/basic_build/meta.yaml"
     extends: .conda_build:dev
     rules:
-      - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_base/
+      - if: $CI_COMMIT_MESSAGE =~ "ci_build_dev_base"
         when: on_success
       - if: $CI_COMMIT_BRANCH == "development"
         when: on_success
-      - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+      - if: $CI_COMMIT_MESSAGE =~ "ci_build_dev"
         when: on_success
 
 
@@ -186,11 +186,11 @@ build_conda_bim2sim:total:main:
         CONDA_FILE: "conda_recipe/total/meta.yaml"
     extends: .conda_build:main
     rules:
-      - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_total/
+      - if: $CI_COMMIT_MESSAGE =~ "ci_build_main_total"
         when: on_success
       - if: $CI_COMMIT_BRANCH == "main"
         when: on_success
-      - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+      - if: $CI_COMMIT_MESSAGE =~ "ci_build_main"
         when: on_success
 
 
@@ -201,11 +201,11 @@ build_conda_bim2sim:total:dev:
         CONDA_FILE: "conda_recipe/total/meta.yaml"
     extends: .conda_build:dev
     rules:
-      - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_total/
+      - if: $CI_COMMIT_MESSAGE =~ "ci_build_dev_total"
         when: on_success
       - if: $CI_COMMIT_BRANCH == "development"
         when: on_success
-      - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+      - if: $CI_COMMIT_MESSAGE =~ "ci_build_dev"
         when: on_success
 
 
@@ -242,11 +242,11 @@ build_conda_bim2sim:total:dev:
 .conda_release:plugin:dev:
   extends: .conda_release
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_plugin/
+    - if: $CI_COMMIT_MESSAGE =~ "ci_build_dev_plugin"
       when: manual
     - if: $CI_COMMIT_BRANCH == "development"
       when: on_success
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+    - if: $CI_COMMIT_MESSAGE =~ "ci_build_dev"
       when: manual
 
 .conda_release:plugin:main:
@@ -254,9 +254,9 @@ build_conda_bim2sim:total:dev:
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       when: on_success
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+    - if: $CI_COMMIT_MESSAGE =~ "ci_build_main"
       when: manual
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_plugin/
+    - if: $CI_COMMIT_MESSAGE =~ "ci_build_main_plugin"
       when: manual
 
 # [release base conda image]
@@ -268,11 +268,11 @@ release_conda_bim2sim:base:main:
     - conda_build_bim2sim:base:main
   extends: .conda_release
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_base/
+    - if: $CI_COMMIT_MESSAGE =~ "ci_build_main_base"
       when: manual
     - if: $CI_COMMIT_BRANCH == "main"
       when: on_success
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+    - if: $CI_COMMIT_MESSAGE =~ "ci_build_main"
       when: manual
 
 
@@ -284,11 +284,11 @@ release_conda_bim2sim:base:dev:
     - conda_build_bim2sim:base:dev
   extends: .conda_release
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_base/
+    - if: $CI_COMMIT_MESSAGE =~ "ci_build_dev_base"
       when: manual
     - if: $CI_COMMIT_BRANCH == "development"
       when: on_success
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+    - if: $CI_COMMIT_MESSAGE =~ "ci_build_dev"
       when: manual
 
 # [release plugin conda image]
@@ -400,11 +400,11 @@ release_conda_bim2sim:total:main:
     - build_conda_bim2sim:total:main
   extends: .conda_release
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_total/
+    - if: $CI_COMMIT_MESSAGE =~ "ci_build_main_total"
       when: manual
     - if: $CI_COMMIT_BRANCH == "main"
       when: on_success
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+    - if: $CI_COMMIT_MESSAGE =~ "ci_build_main"
       when: manual
 
 
@@ -418,9 +418,9 @@ release_conda_bim2sim:total:dev:
     - build_conda_bim2sim:total:dev
   extends: .conda_release
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_total/
+    - if: $CI_COMMIT_MESSAGE =~ "ci_build_dev_total"
       when: manual
     - if: $CI_COMMIT_BRANCH == "development"
       when: on_success
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+    - if: $CI_COMMIT_MESSAGE =~ "ci_build_dev"
       when: manual
