@@ -5,7 +5,7 @@ package:
   version: {{data.get('version')}}{{BIM2SIM_VERSION}}
 
 source:
-  path: ../../../
+  path: ../../../bim2sim/plugins/PluginEnergyPlus
 
 build:
   preserve_egg_dir: True

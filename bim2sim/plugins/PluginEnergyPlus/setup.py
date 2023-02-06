@@ -14,7 +14,6 @@ def copy_non_code_file(non_code_dir, not_include):
         file_list = []
         for file in files:
             filepath = subdir + os.sep + file
-            print(filepath)
             file_list.append(filepath)
             for end in not_include:
                 if filepath.endswith(end):
