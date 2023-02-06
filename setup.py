@@ -35,6 +35,7 @@ setup(
     author_email='david.jansen@eonerc.rwth-aachen.de',
     url="https://github.com/BIM2SIM/bim2sim",
     packages=find_packages(include=['bim2sim',
+                                    'bim2sim.plugins',
                                     'bim2sim.assets*',
                                     'bim2sim.decision*',
                                     'bim2sim.enrichment_data*',
