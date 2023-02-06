@@ -1,1 +1,0 @@
-{"build": "py39_0", "build_number": 0, "depends": ["bim2sim 1.0.0_dev", "python >=3.9,<3.10.0a0"], "license": "LICENSE", "name": "bim2sim_aixlib", "subdir": "win-64", "timestamp": 1675636196580, "version": "1.0.0_dev", "size": 10023724, "md5": "084193f43b783439f0021065121e0f33", "sha256": "5e5f641e06c3ba687f9b0f8e3e1df6f01de52696ff9af411cf67646549eb474c"}
