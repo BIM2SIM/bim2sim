@@ -51,7 +51,7 @@ SHELL 	["conda", "run", "-n", "env", "/bin/bash", "-c"]
 
 # install needed packages
 RUN conda activate env
-RUN conda install
+RUN conda install bim2sim==1.0.0_dev
 
 
 

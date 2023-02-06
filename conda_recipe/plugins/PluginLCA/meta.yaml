@@ -1,7 +1,7 @@
 {% set data = load_setup_py_data(setup_file='../../../bim2sim/plugins/PluginLCA/setup.py', from_recipe_dir=True) %}
 
 package:
-  name: {{data.get('name')}}
+  name:  {{data.get('name')}}
   version: {{data.get('version')}}{{BIM2SIM_VERSION}}
 
 source:
@@ -12,6 +12,7 @@ build:
   number: '0'
   entry_points:
     - bim2sim = bim2sim.__main__:commandline_interface
+  script:  python -m pip install --no-deps --ignore-installed .
 
 requirements:
   host:
@@ -21,11 +22,10 @@ requirements:
   run:
     - python >=3.8.*,<3.10.*
     - bim2sim=={{data.get('version')}}{{BIM2SIM_VERSION}}
-
 test:
   imports:
     - bim2sim
-    - bim2sim.plugins.PluginLCA
+    - bim2sim.plugins.PluginAixLib
   requires:
     - python  >=3.8.*,<3.10.*
     - pint==0.20.1

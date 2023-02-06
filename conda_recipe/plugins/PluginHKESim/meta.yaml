@@ -30,6 +30,7 @@ test:
     - pint==0.20.1
     - pythonocc-core==7.6.2
     - ifcopenshell
+    - bim2sim=={{data.get('version')}}{{BIM2SIM_VERSION}}
 
 about:
   home: https://github.com/BIM2SIM/bim2sim

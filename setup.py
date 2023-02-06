@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
 import os
+
 with open("README.md", 'r') as f:
     long_description = f.read()
 with open("requirements.txt", 'r') as f:
@@ -24,6 +25,7 @@ def copy_non_code_file(non_code_dir, not_include):
         continue
     return path_file_dict
 
+
 setup(
     name='bim2sim',
     version=version,
@@ -45,17 +47,18 @@ setup(
                                     'bim2sim.task*',
                                     'bim2sim.utilities*']),
     include_package_data=True,
-    data_files = copy_non_code_file(non_code_dir=f'bim2sim{os.sep}{os.sep}assets{os.sep}{os.sep}', not_include=[".py", ".Dockerfile"]),
+    data_files=copy_non_code_file(non_code_dir=f'bim2sim{os.sep}{os.sep}assets{os.sep}{os.sep}',
+                                  not_include=[".py", ".Dockerfile"]),
     python_requires='>=3.8.*,<3.10.*',
     install_requires=[required],
     classifiers=[
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
     ],
-    extras_require = {
-                     'manual_install': ['ifcopenshell>=0.6', 'pythonocc-core==7.6.2'],
+    extras_require={
+        'manual_install': ['ifcopenshell>=0.6', 'pythonocc-core==7.6.2'],
     },
-    entry_points = {
+    entry_points={
         'console_scripts': [
             'bim2sim = bim2sim.__main__:commandline_interface',
         ],

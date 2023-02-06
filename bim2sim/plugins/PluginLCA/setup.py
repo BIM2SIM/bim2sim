@@ -7,7 +7,6 @@ with open(f'requirements.txt', 'r') as f:
 with open(f'..{os.sep}..{os.sep}..{os.sep}VERSION', 'r') as f:
     version = f.read()
 
-
 def copy_non_code_file(non_code_dir, not_include):
     path_file_dict = []
     for subdir, dirs, files in os.walk(non_code_dir):
