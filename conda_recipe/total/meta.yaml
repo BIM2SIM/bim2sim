@@ -1,11 +1,11 @@
-{% set data = load_setup_py_data(setup_file='../../setup.py', from_recipe_dir=True) %}
+{% set data = load_setup_py_data(setup_file='../../bim2sim/plugins/setup.py', from_recipe_dir=True) %}
 
 package:
   name: {{BIM2SIM_NAME}}
   version: {{data.get('version')}}{{BIM2SIM_VERSION}}
 
 source:
-  path: ../../
+  path: ../../bim2sim/plugins
 
 build:
   preserve_egg_dir: True
