@@ -23,7 +23,7 @@ def copy_non_code_file(non_code_dir, not_include):
     return path_file_dict
 
 setup(
-    name='bim2sim_teaser',
+    name='bim2sim_total',
     version=version,
     description='Create simulation models from IFC files',
     license="LICENSE",
