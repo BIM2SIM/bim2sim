@@ -23,9 +23,6 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-x86
     echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
     echo "conda activate base" >> ~/.bashrc
 
-COPY ../conda-bld/$BIM2SIM_NAME
-
-
 ENV TINI_VERSION v0.16.1
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/bin/tini
 RUN chmod +x /usr/bin/tini
@@ -43,16 +40,20 @@ RUN apt-get -y install unzip
 RUN apt-get -y install libgl-dev 
 
 
-RUN 	conda create -n env python=3.9
+RUN 	conda create -n env python=3.9 -y
 RUN		conda update -n base -c defaults conda
 RUN 	echo "source activate env" > ~/.bashrc
 ENV 	PATH /opt/conda/envs/env/bin:$PATH
 SHELL 	["conda", "run", "-n", "env", "/bin/bash", "-c"]
 
 # install needed packages
-RUN conda activate env
-RUN conda install bim2sim==1.0.0_dev
+#RUN conda init bash
+#RUN conda activate env
+ENV BIM2SIM_NAME ${BIM2SIM_NAME}
+RUN echo $BIM2SIM_NAME
 
-
+#RUN conda install ${BIM2SIM_NAME}==*${BIM2SIM_VERSION}
+RUN ["/bin/bash", "-c", "source activate env "]
+RUN conda install ${BIM2SIM_NAME}==*${BIM2SIM_VERSION} -y
 
 

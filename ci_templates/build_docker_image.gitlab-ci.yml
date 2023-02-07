@@ -24,45 +24,33 @@ stages:
   extends: .docker_build
   variables:
     BIM2SIM_VERSION: ""
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-      changes:
-        - docker/*
-        - conda_recipe/*
-        - requirements.txt
-        - .gitlab-ci.yml
-        - bim2sim/*
-      when: always
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
-      when: always
-
+    
 .docker_build:dev:
   extends: .docker_build
   variables:
     BIM2SIM_VERSION: "_dev"
-  rules:
-    - if: $CI_COMMIT_BRANCH == "development"
-      changes:
-        - docker/*
-        - conda_recipe/*
-        - requirements.txt
-        - .gitlab-ci.yml
-        - bim2sim/*
-      when: always
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
-      when: always
-
+    
 .docker_build:plugin:main:
   extends: .docker_build:main
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_plugin/
-      when: always
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_main/
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+      when: on_success
+
 
 .docker_build:plugin:dev:
   extends: .docker_build:dev
   rules:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_plugin/
-      when: always
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == "development"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+      when: on_success
+
 
 docker_build_bim2sim:env_base:main:
   extends: .docker_build:main
@@ -72,9 +60,12 @@ docker_build_bim2sim:env_base:main:
     IMAGE_NAME: "master_env"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_base/
-      when: always
-
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+      when: on_success
 
 docker_build_bim2sim:env_base:dev:
   extends: .docker_build:dev
@@ -84,8 +75,13 @@ docker_build_bim2sim:env_base:dev:
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
     BIM2SIM_NAME: "bim2sim"
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_base/
-      when: always
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == "development"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+      when: on_success
+
 
 docker_build_plugin:aixlib:main:
   extends: .docker_build:plugin:main
@@ -204,34 +200,14 @@ docker_build_plugin:teaser:dev:
   extends: .docker_dymola_build
   variables:
     BIM2SIM_VERSION: ""
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-      changes:
-        - docker/*
-        - conda_recipe/*
-        - requirements.txt
-        - .gitlab-ci.yml
-        - bim2sim/*
-      when: always
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
-      when: always
+
 
 
 .docker_dymola_build:dev:
   extends: .docker_dymola_build
   variables:
     BIM2SIM_VERSION: "_dev"
-  rules:
-    - if: $CI_COMMIT_BRANCH == "development"
-      changes:
-        - docker/*
-        - conda_recipe/*
-        - requirements.txt
-        - .gitlab-ci.yml
-        - bim2sim/*
-      when: always
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
-      when: always
+
 
 
 docker_build_bim2sim:env_dymola_base:dev:
@@ -242,8 +218,12 @@ docker_build_bim2sim:env_dymola_base:dev:
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
     BIM2SIM_NAME: "bim2sim"
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_base/
-      when: always
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == "development"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+      when: on_success
 
 
 docker_build_bim2sim:env_dymola_base:main:
@@ -254,8 +234,13 @@ docker_build_bim2sim:env_dymola_base:main:
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
     BIM2SIM_NAME: "bim2sim"
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_base/
-      when: always
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+      when: on_success
+
 
 
 docker_build_plugin:dymola_teaser:main:
@@ -266,8 +251,13 @@ docker_build_plugin:dymola_teaser:main:
     DOCKERPATH: "docker/plugins/PluginTEASER/envTEASER-dymola.Dockerfile"
     BIM2SIM_NAME: "bim2sim_teaser"
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_plugin/
-      when: always
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_main/
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+      when: on_success
+
 
 
 docker_build_plugin:dymola_teaser:dev:
@@ -279,7 +269,11 @@ docker_build_plugin:dymola_teaser:dev:
     BIM2SIM_NAME: "bim2sim_teaser"
   rules:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_plugin/
-      when: always
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == "development"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+      when: on_success
 
 
 docker_build_total:main:
@@ -290,8 +284,13 @@ docker_build_total:main:
     DOCKERPATH: "docker/total.Dockerfile"
     BIM2SIM_NAME: "bim2sim_total"
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_total/
-      when: always
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+      when: on_success
+
 
 
 docker_build_total:dev:
@@ -302,8 +301,12 @@ docker_build_total:dev:
     DOCKERPATH: "docker/total.Dockerfile"
     BIM2SIM_NAME: "bim2sim_total"
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_total/
-      when: always
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == "development"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+      when: on_success
 
 .docker_release:
   image: docker:latest
@@ -317,70 +320,60 @@ docker_build_total:dev:
     paths:
       - $CI_REGISTRY/environment:$IMAGE_NAME
 
-.docker_release:main:
+
+
+
+.docker_release:plugin:main:
   extends: .docker_release
   rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-      changes:
-        - docker/*
-        - conda_recipe/*
-        - requirements.txt
-        - .gitlab-ci.yml
-        - bim2sim/*
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_main/
       when: manual
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
       when: manual
 
-.docker_release:dev:
+.docker_release:plugin:dev:
   extends: .docker_release
   rules:
-    - if: $CI_COMMIT_BRANCH == "development"
-      changes:
-        - docker/*
-        - conda_recipe/*
-        - requirements.txt
-        - .gitlab-ci.yml
-        - bim2sim/*
-      when: manual
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
-      when: manual
-
-.docker_release:plugin:main:
-  extends: .docker_release:main
-  rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_plugin/
-      when: manual
-
-.docker_release:plugin:dev:
-  extends: .docker_release:dev
-  rules:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_plugin/
+      when: manual
+    - if: $CI_COMMIT_BRANCH == "development"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
       when: manual
 
 
 
 docker_release_bim2sim:env_base:main:
-  extends: .docker_release:main
+  extends: .docker_release
   stage: release_docker_base
   dependencies:
     - docker_build_bim2sim:env_base:main
   variables:
     DOCKER_IMAGE: "master_base"
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_base/
-      when: always
-
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
+      when: manual
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+      when: manual
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
 
 docker_release_bim2sim:env_base:dev:
-  extends: .docker_release:dev
+  extends: .docker_release
   stage: release_docker_base
   dependencies:
     - docker_build_bim2sim:env_base:dev
   variables:
     DOCKER_IMAGE: "dev_base"
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_base/
-      when: always
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+      when: manual
+    - if: $CI_COMMIT_BRANCH == "development"
+      when: on_success
 
 
 docker_release_plugin:aixlib:main:
@@ -480,27 +473,36 @@ docker_release_plugin:teaser:dev:
     DOCKER_IMAGE: "plugin:dev_teaser"
 
 docker_release:env_dymola_base:main:
-  extends: .docker_release:main
+  extends: .docker_release
   stage: release_docker_base
   dependencies:
     - docker_build_bim2sim:env_dymola_base:main
   variables:
     DOCKER_IMAGE: "master_dymola"
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_base/
-      when: always
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
+      when: manual
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+      when: manual
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
 
 
 docker_release:env_dymola_base:dev:
-  extends: .docker_release:dev
+  extends: .docker_release
   stage: release_docker_base
   dependencies:
     - docker_build_bim2sim:env_dymola_base:dev
   variables:
     DOCKER_IMAGE: "dev_dymola"
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_base/
-      when: always
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
+      when: manual
+    - if: $CI_COMMIT_BRANCH == "development"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+      when: manual
+
 
 
 docker_release_plugin:dymola_teaser:main:
@@ -521,15 +523,19 @@ docker_release_plugin:dymola_teaser:dev:
     DOCKER_IMAGE: "plugin:dev_dymola_teaser"
 
 docker_release_total:main:
-  extends: .docker_release:main
+  extends: .docker_release
   stage:  release_docker_total
   dependencies:
     - docker_build_total:main
   variables:
     DOCKER_IMAGE: "master"
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main_total/
-      when: always
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+      when: manual
 
 
 docker_release_total:dev:
@@ -540,5 +546,9 @@ docker_release_total:dev:
   variables:
     DOCKER_IMAGE: "dev"
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev_total/
-      when: always
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+      when: manual
+    - if: $CI_COMMIT_BRANCH == "development"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+      when: manual
