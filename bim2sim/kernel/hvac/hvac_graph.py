@@ -7,7 +7,7 @@ import itertools
 import logging
 import os
 from pathlib import Path
-from typing import Set, Iterable, Type
+from typing import Set, Iterable, Type, List
 
 import networkx as nx
 from networkx.readwrite import json_graph
@@ -289,13 +289,23 @@ class HvacGraph(nx.Graph):
         return _graph
 
     @staticmethod
-    def find_bypasses_in_cycle(graph, cycle, wanted):
-        """
-        Detects bypasses in the given cycle of the given graph. Bypasses are any
-        direct connections between edge elements which don't hold wanted
-        elements.
-        :returns: nested list: list of bypasses with a list of
-        elements in the bypass.
+    def find_bypasses_in_cycle(graph: nx.Graph, cycle, wanted):
+        """ Detects bypasses in the given cycle of the given graph.
+
+        Bypasses are any direct connections between edge elements which don't
+        hold wanted elements.
+
+        Args:
+            graph: The graph in which the cycle belongs.
+            cycle: A list of nodes representing a cycle in the graph.
+            wanted: A list of classes of the desired node type.
+
+        Returns:
+            List: A list of bypasses, where each bypass is a list of elements in
+            the bypass.
+
+        Raises:
+            None
         """
         bypasses = []
         # get wanted guids in the cycle
@@ -715,3 +725,10 @@ class HvacGraph(nx.Graph):
             raise AssertionError('The elements %s are not part of this graph',
                                  elements)
         return self.subgraph((port for ele in elements for port in ele.ports))
+
+    def remove_elements(self, elements_to_remove: Set[Type[ProductBased]]):
+        graph = self.copy()
+        for element_to_remove in elements_to_remove:
+            graph.remove_nodes_from(element_to_remove.ports)
+        return graph
+

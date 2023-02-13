@@ -366,7 +366,7 @@ class Reduce(ITask):
     reads = ('graph',)
     touches = ('graph',)
 
-    def run(self, workflow: Workflow, graph: HvacGraph) -> (HvacGraph, ):
+    def run(self, workflow: Workflow, graph: HvacGraph) -> (HvacGraph,):
         self.logger.info("Reducing elements by applying aggregations")
 
         aggregations_cls = {
@@ -391,7 +391,7 @@ class Reduce(ITask):
             i = 0
             for match, meta in zip(matches, metas):
                 # TODO: See #167
-                # edge_ports = agg_class.get_edge_ports2(graph, match)
+                # edge_ports = agg_class.get_edge_ports2(graph, match_graph)
                 try:
                     agg = agg_class(graph, match, **meta)
                 except Exception as ex:

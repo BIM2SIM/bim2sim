@@ -21,7 +21,8 @@ class ConsumerHelper(SetupHelperHVAC):
             con_vl_a = [self.element_generator(
                 hvac.Pipe, length=100, diameter=30) for i in range(3)]
             fitting1 = self.element_generator(
-                hvac.PipeFitting, flags=['con1'], n_ports=3, diameter=30, length=60)
+                hvac.PipeFitting, flags=['con1'], n_ports=3, diameter=30,
+                length=60)
             p_pump1_p = [
                 self.element_generator(
                     hvac.Pipe, flags=['con1'], length=40, diameter=20),
@@ -41,7 +42,8 @@ class ConsumerHelper(SetupHelperHVAC):
                     hvac.Pipe, flags=['con1'], length=40, diameter=20),
             ]
             fitting2 = self.element_generator(
-                hvac.PipeFitting, flags=['con2'], n_ports=3, diameter=30, length=60)
+                hvac.PipeFitting, flags=['con2'], n_ports=3, diameter=30,
+                length=60)
             con_vl_b = [self.element_generator(
                 hvac.Pipe, length=100, diameter=30) for i in range(3)]
             consumer = self.element_generator(
@@ -69,7 +71,9 @@ class ConsumerHelper(SetupHelperHVAC):
         return graph, flags
 
     def get_setup_consumer2(self):
-        """get consumer circuit made of 2 parallel pumps , underfloorheating and pipes"""
+        """ Get consumer circuit made of 2 parallel pumps , underfloorheating
+            and pipes.
+        """
         flags = {}
         with self.flag_manager(flags):
             # generator circuit
@@ -96,7 +100,8 @@ class ConsumerHelper(SetupHelperHVAC):
                     hvac.Pipe, flags=['con2'], length=40, diameter=20),
             ]
             fitting2 = self.element_generator(
-                hvac.PipeFitting, flags=['con2'], n_ports=3, diameter=30, length=60)
+                hvac.PipeFitting, flags=['con2'], n_ports=3, diameter=30,
+                length=60)
             con_vl_b = [self.element_generator(
                 hvac.Pipe, length=100, diameter=30) for i in range(3)]
             underfloor_pipes = [self.element_generator(
@@ -250,7 +255,7 @@ class TestConsumerAggregation(unittest.TestCase):
     def tearDown(self) -> None:
         self.helper.reset()
 
-    def test_detection_system(self):
+    def test_find_matches(self):
         """test detection of Consumer Cycle in setup system"""
         graph, flags = self.helper.get_setup_system()
 
@@ -260,10 +265,10 @@ class TestConsumerAggregation(unittest.TestCase):
 
         self.assertEqual(
             len(matches), 2,
-            "There are 2 cases for Consumer Cycles but 'find_matches' returned %d" % len(matches)
-        )
+            f"There are 2 cases for Consumer Cycles but 'find_matches' "
+            f"returned {len(matches)}")
 
-        consumer = [item for item in flags['spaceheater']+flags['underfloor']]
+        consumer = [item for item in flags['spaceheater'] + flags['underfloor']]
         all_elements = sum((list(match.elements) for match in matches), [])
         for item in consumer:
             self.assertIn(item, all_elements)
@@ -272,37 +277,32 @@ class TestConsumerAggregation(unittest.TestCase):
         """ Test aggregation of consumer cycle no 1."""
         graph, flags = self.helper.get_setup_system()
 
-        # graph.plot(r'c:\temp')
-
         matches, metas = aggregation.Consumer.find_matches(graph)
 
         for match, meta in zip(matches, metas):
             consumer = aggregation.Consumer(graph, match, **meta)
             if hvac.SpaceHeater in {type(ele) for ele in consumer.elements}:
-                # we only want consumer with SpaceHeater
+                # We only want consumer with SpaceHeater
                 break
 
         graph.merge(
             mapping=consumer.get_replacement_mapping(),
             inner_connections=consumer.inner_connections
         )
-        # graph.plot(r'c:\temp')
 
         self.assertAlmostEqual(
             consumer.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)
-        # TODO: consumer.has_pump does not work
+        # TODO: consumer.has_pump does not work (30.01.2023, Svenne)
         self.assertTrue(consumer._calc_has_pump())
-        # self.assertAlmostEqual(consumer.temperaure_inlet, 1000) Not Implemented
-        # self.assertAlmostEqual(consumer.temperature_outlet, 1000) Not Implemented
-        # self.assertAlmostEqual(consumer.volume, 1000) Not Implemented
-        # self.assertAlmostEqual(consumer.height, 1000) Not Implemented
+        # self.assertAlmostEqual(consumer.temperature_inlet, 1000)
+        # self.assertAlmostEqual(consumer.temperature_outlet, 1000)
+        # self.assertAlmostEqual(consumer.volume, 1000)
+        # self.assertAlmostEqual(consumer.height, 1000)
         # list of all aggregated consumers description
         self.assertIn('SpaceHeater', consumer.description)
 
     def test_aggregation_consumer2(self):
         """ Test aggregation of consumer cycle no 2."""
-        # TODO: Does not work, but code seems very strange, i.e. consumer2 is
-        #  always None and the assertion is always raised.
         graph, flags = self.helper.get_setup_system()
 
         matches, metas = aggregation.Consumer.find_matches(graph)
@@ -311,7 +311,7 @@ class TestConsumerAggregation(unittest.TestCase):
 
         for match, meta in zip(matches, metas):
             for ele in flags['con2']:
-                if ele in match:
+                if ele in match.elements:
                     consumer2 = aggregation.Consumer(graph, match, **meta)
                     break
             if consumer2:
@@ -325,10 +325,10 @@ class TestConsumerAggregation(unittest.TestCase):
         )
 
         self.assertAlmostEqual(consumer2.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)
-        # TODO: consumer2.has_pump does not work
+        # TODO: consumer.has_pump does not work (30.01.2023, Svenne)
         self.assertTrue(consumer2._calc_has_pump())
-        # self.assertAlmostEqual(consumer.temperaure_inlet, 1000) Not Implemented
-        # self.assertAlmostEqual(consumer.temperature_outlet, 1000) Not Implemented
+        # self.assertAlmostEqual(consumer.temperature_inlet, 1000)
+        # self.assertAlmostEqual(consumer.temperature_outlet, 1000)
         # self.assertAlmostEqual(consumer.volume, 1000) Not Implemented
         # self.assertAlmostEqual(consumer.height, 1000) Not Implemented
         # list of all aggregated consumers description
@@ -353,11 +353,12 @@ class TestConsumerAggregation(unittest.TestCase):
 
         self.assertAlmostEqual(
             consumer.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)
+        # TODO: consumer.has_pump does not work (30.01.2023, Svenne)
         self.assert_(consumer._calc_has_pump())
-        # self.assertAlmostEqual(consumer.temperaure_inlet, 1000) Not Implemented
-        # self.assertAlmostEqual(consumer.temperature_outlet, 1000) Not Implemented
-        # self.assertAlmostEqual(consumer.volume, 1000) Not Implemented
-        # self.assertAlmostEqual(consumer.height, 1000) Not Implemented
+        # self.assertAlmostEqual(consumer.temperature_inlet, 1000)
+        # self.assertAlmostEqual(consumer.temperature_outlet, 1000)
+        # self.assertAlmostEqual(consumer.volume, 1000)
+        # self.assertAlmostEqual(consumer.height, 1000)
         # list of all aggregated consumers description
         self.assertIn('2 x SpaceHeater', consumer.description)
 

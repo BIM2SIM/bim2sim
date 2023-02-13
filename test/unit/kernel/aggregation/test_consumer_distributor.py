@@ -8,12 +8,13 @@ from test.unit.kernel.helper import SetupHelperHVAC
 
 class ConsumerDistributorHelper(SetupHelperHVAC):
 
-    def get_setup_con_dist(self):
-        """Get a simple setup to test ConsumerHeatingDistributorModule.
+    def get_setup_con_dist1(self):
+        """ Get a simple setup to test ConsumerHeatingDistributorModule.
 
-        Setup includes the following components:
+        The setup includes the following components:
         * 1 Distributor with 4 ports
-        * 1 Consumer connected with 3 pipe each (flow and return) to Distributor
+        * 1 Consumer connected with 3 pipe each (flow and return) to
+            Distributor
         * 1 Boiler connected with 3 pipe each (flow and return) to Distributor
         """
         flags = {}
@@ -39,12 +40,12 @@ class ConsumerDistributorHelper(SetupHelperHVAC):
         # connect elements
         self.connect_strait([*con_vl, consumer, *con_rl])
         self.connect_strait([*boil_rl, boiler, *boil_vl])
-        # boiler.ports[0].connect(boiler.ports[1])
-
         boil_vl[-1].ports[-1].connect(distributor.ports[0])
         distributor.ports[1].connect(boil_rl[0].ports[0])
         distributor.ports[2].connect(con_vl[0].ports[0])
         distributor.ports[3].connect(con_rl[-1].ports[-1])
+
+        flags['edge_ports'] = [distributor.ports[0], distributor.ports[1]]
 
         circuit = [
             *con_vl, *con_rl, consumer, *boil_vl, *boil_rl, boiler, distributor]
@@ -64,10 +65,10 @@ class TestConsumerDistributorModule(unittest.TestCase):
         self.helper.reset()
 
     def test_find_matches(self):
-        """Test the old find matches method, new one in #167 (below)"""
-        graph, flags = self.helper.get_setup_con_dist()
-        matches, metas = \
-            aggregation.ConsumerHeatingDistributorModule.find_matches(graph)
+        """ Test the find matches method."""
+        graph, flags = self.helper.get_setup_con_dist1()
+        con_heat_dist_mod = aggregation.ConsumerHeatingDistributorModule
+        matches, metas = con_heat_dist_mod.find_matches(graph)
         self.assertEqual(
             len(matches), 1,
             "There is 1 case for ConsumerDistrubtorModule Cycles but "
@@ -75,41 +76,32 @@ class TestConsumerDistributorModule(unittest.TestCase):
         )
 
         module = aggregation.ConsumerHeatingDistributorModule(
-            matches[0], **metas[0])
-        module_elements = \
-            [item for item in
-             flags['spaceheater']+flags['distributor']+flags['PipeCon']]
+            graph, matches[0], **metas[0])
+        module_elements = [item for item in flags['spaceheater']
+                           + flags['distributor'] + flags['PipeCon']]
+        edge_ports_originals = [
+            edge_port.originals for edge_port in module.get_ports()]
+        self.assertNotEqual(edge_ports_originals, flags['edge_ports'])
         self.assertCountEqual(module.elements, module_elements)
 
-    @unittest.skip("This is WIP")
-    def test_find_matches_branch167(self):
-        """TODO"""
-        graph, flags = self.helper.get_setup_con_dist()
-        matches, metas = \
-            aggregation.ConsumerHeatingDistributorModule.find_matches2(graph)
+    def test_aggregation(self):
+        """ Test the aggregation of consumer heating distribution module."""
+        graph, flags = self.helper.get_setup_con_dist1()
+        con_heat_dist_mod = aggregation.ConsumerHeatingDistributorModule
+        matches, metas = con_heat_dist_mod.find_matches(graph)
+        for match, meta in zip(matches, metas):
+            module = aggregation.ConsumerHeatingDistributorModule(
+                graph, match, **meta)
+            graph.merge(
+                mapping=module.get_replacement_mapping(),
+                inner_connections=module.inner_connections
+            )
 
-        module = aggregation.ConsumerHeatingDistributorModule(
-            matches[0].element_graph, **metas[0])
-        print('test')
+        aggregated_con_heat_dis_mod = [
+            ele for ele in graph.elements
+            if ele.__class__.__name__ == 'ConsumerHeatingDistributorModule']
+        self.assertEqual(len(aggregated_con_heat_dis_mod), 1)
 
-    # @unittest.skip("This is WIP")
-    def test_compare_original_vs_167(self):
-        graph, flags = self.helper.get_setup_con_dist()
-        matches, metas = \
-            aggregation.ConsumerHeatingDistributorModule.find_matches(graph)
 
-        module1 = aggregation.ConsumerHeatingDistributorModule(
-            matches[0], **metas[0])
-
-        graph, flags = self.helper.get_setup_con_dist()
-        matches2, metas2 = \
-            aggregation.ConsumerHeatingDistributorModule.find_matches2(graph)
-        for match2, meta2 in zip(matches2, metas2):
-           edge_ports = \
-                aggregation.ConsumerHeatingDistributorModule.get_edge_ports2(
-                    graph, match2)
-
-        # module2 = aggregation.ConsumerHeatingDistributorModule(
-        #     matches2[0].element_graph, edge_ports)
-        print('test')
-
+if __name__ == '__main__':
+    unittest.main()

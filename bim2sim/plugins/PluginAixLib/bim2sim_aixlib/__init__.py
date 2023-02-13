@@ -50,7 +50,7 @@ class PluginAixLib(Plugin):
             value = [value[0] - 5, value[1]] + value + [value[-2] + 5,
                                                         value[-1]]
             # transform to string and replace every second comma with a
-            # semicolon to match modelica syntax
+            # semicolon to match_graph modelica syntax
             value = str(value)
             value = re.sub('(,[^,]*),', r'\1;', value)
             setattr(self, key, value)

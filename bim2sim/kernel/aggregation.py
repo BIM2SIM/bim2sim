@@ -158,53 +158,56 @@ class HVACAggregationMixin(AggregationMixin):
 
     # todo we might want to specify HvacGraph and element_graph (maybe we
     #  always use HvacGraph and don't allow element_graph)
-    def __init__(self, total_graph: nx.Graph, match: nx.Graph, *args, **kwargs):
-        # old:
-        # def __init__(self, element_graph: nx.Graph, *args,
-        #              outer_connections=None,
-        #              **kwargs):
-        # TODO: handle outer_connections from meta,
-        # self.outer_connections = outer_connections  # WORKAROUND
-        # make get_ports signature match ProductBased.get_ports
-        self.get_ports = partial(self.get_ports, total_graph, match)
-        graph_elements = list(set([node.parent for node in match.nodes]))
+    def __init__(self, base_graph: nx.Graph, match_graph: nx.Graph, *args,
+                 **kwargs):
+        # make get_ports signature match_graph ProductBased.get_ports
+        self.get_ports = partial(self.get_ports, base_graph, match_graph)
+        graph_elements = list(set([node.parent for node in match_graph.nodes]))
         super().__init__(graph_elements, *args, **kwargs)
 
     # TODO: get edge ports based on graph. See #167
     # @verify_edge_ports
-    def get_ports(self, graph: HvacGraph, match: HvacGraph) \
-            -> List[HVACPort]:
-        """ Get edge ports based on graph and match."""
+    def get_ports(self, base_graph: HvacGraph, match_graph: HvacGraph
+                  ) -> List[HVACPort]:
+        """ Get edge ports based on graph and match_graph.
+
+        Args:
+            base_graph: The base graph.
+            match_graph: The matching graph.
+
+        Returns:
+            A list of HVACPort objects representing the edge ports.
+        """
 
         # TODO This is a (at least partialy not working) workaround.
         #  We need to refactor all find_matches to return port graph /
         #  HVACGraph objects, because conversion from element_graph to
         #  HVACGraph looses information of not all ports of the nodes in
         #  element_graph are in matches
-        # if not isinstance(match, HvacGraph):
-        #     match = HvacGraph(match)
+        # if not isinstance(match_graph, HvacGraph):
+        #     match_graph = HvacGraph(match_graph)
 
         # edges of g excluding all relations to s
-        e1 = graph.subgraph(graph.nodes - match.nodes).edges
+        e1 = base_graph.subgraph(base_graph.nodes - match_graph.nodes).edges
 
-        # if graph and match are identical
+        # if graph and match_graph are identical
         if not e1:
             # ports with only one connection are edge ports in this case
-            edge_ports = [v for v, d in match.degree() if d == 1]
+            edge_ports = [v for v, d in match_graph.degree() if d == 1]
         else:
             # all edges related to s
-            e2 = graph.edges - e1
+            e2 = base_graph.edges - e1
             # related to s but not s exclusive
-            e3 = e2 - match.edges
-            # get only edge_ports that belong to the match graph
+            e3 = e2 - match_graph.edges
+            # get only edge_ports that belong to the match_graph graph
             edge_ports = list(
                 set([port for port in [e for x in list(e3) for e in x]
-                     if port in match]))
+                     if port in match_graph]))
         ports = [HVACAggregationPort(port, parent=self) for port in edge_ports]
         return ports
 
     # @verify_edge_ports
-    # def get_ports(self, graph, match) -> List[HVACPort]:
+    # def get_ports(self, graph, match_graph) -> List[HVACPort]:
     #     # TBD: use of outer_connections
     #     if not self.outer_connections:
     #         edge_ports = self.get_ports()
@@ -292,17 +295,18 @@ class HVACAggregationMixin(AggregationMixin):
     #     return list(edge_ports)
 
     @classmethod
-    def find_matches(cls, graph: HvacGraph) -> Tuple[List[nx.Graph],
-                                                     List[dict]]:
+    def find_matches(cls, base_graph: HvacGraph
+                     ) -> Tuple[List[nx.Graph], List[dict]]:
         """ Find all matches for aggregation in HVAC graph.
 
         Args:
-            graph: The HVAC graph that is searched for potential matches.
+            base_graph: The HVAC graph that is searched for potential
+                matches.
 
         Returns:
-            matches: List of element graphs that matches the aggregation.
+            matches_graphs: List of HVAC graphs that matches the aggregation.
             metas: List of dict with metas information. One element for each
-            element graph.
+                matches_graphs.
 
         Raises:
             NotImplementedError: If method is not implemented.
@@ -336,44 +340,45 @@ class PipeStrand(HVACAggregationMixin, hvac.Pipe):
     multi = ('length', 'diameter')
 
     @classmethod
-    def find_matches(cls, graph: HvacGraph) -> [list, list]:
+    def find_matches(cls, base_graph: HvacGraph) -> [list, list]:
         """ Find all matches for PipeStrand in element graph.
 
         Args:
-            graph: HvacGraph of ports
+            base_graph:
 
         Returns:
             matches_graphs:
                 List of HvacGraphs that hold PipeStrands
             metas:
                 List of dict with meta information. One element for each
-                element_graph.
+                match_graph.
 
         """
 
         # TODO 246: Decide which version for finding matches is best
-        # TODO 246: Check to remove metas if not needed any more
 
         # Version 1
         # Get all nodes with 1 or 2 edges which are aggregatable
-        # nodes_degree2 = [v for v, d in graph.degree() if 1 <= d <= 2
+        # nodes_degree2 = [v for v, d in base_graph.degree() if 1 <= d <= 2
         #                  and type(v.parent) in cls.aggregatable_elements]
-        # subgraph = nx.subgraph(graph, nodes_degree2)
+        # subgraph = nx.subgraph(base_graph, nodes_degree2)
         #
         # # split the found strands into single networkx graphs
         # strongs = list(
         #     nx.strongly_connected_components(subgraph.to_directed()))
-        # matches_graphs = [nx.subgraph(graph, strong) for strong in strongs]
+        # matches_graphs = [nx.subgraph(base_graph, strong) for strong in strongs]
         # metas = [{} for x in strongs]  # no metadata calculated
         # return matches_graphs, metas
 
         # Version 2
         pipe_strands = HvacGraph.get_type_chains(
-            graph.element_graph, cls.aggregatable_elements,
+            base_graph.element_graph, cls.aggregatable_elements,
             include_singles=True)
-        matches_graphs = [graph.subgraph_from_elements(pipe_strand)
-                          for pipe_strand in pipe_strands if
-                          len(pipe_strand) > 1]
+        # matches_graphs = [base_graph.subgraph_from_elements(pipe_strand)
+        #                   for pipe_strand in pipe_strands if
+        #                   len(pipe_strand) > 1]
+        matches_graphs = [base_graph.subgraph_from_elements(pipe_strand)
+                          for pipe_strand in pipe_strands]
 
         # Version 3:
         # element_graph = graph.element_graph
@@ -443,11 +448,11 @@ class UnderfloorHeating(PipeStrand):
     """
 
     @classmethod
-    def find_matches(cls, graph: HvacGraph) -> [list, list]:
+    def find_matches(cls, base_graph: HvacGraph) -> [list, list]:
         """ Finds matches of underfloor heating systems in a given graph.
 
         Args:
-            graph: An HvacGraph that should be checked for underfloor heating
+            base_graph: An HvacGraph that should be checked for underfloor heating
             systems.
 
         Returns:
@@ -457,7 +462,7 @@ class UnderfloorHeating(PipeStrand):
                 underfloor heating system. One element for each matches_graphs.
         """
         # element_graph = graph.element_graph
-        chains = HvacGraph.get_type_chains(graph.element_graph,
+        chains = HvacGraph.get_type_chains(base_graph.element_graph,
                                            cls.aggregatable_elements,
                                            include_singles=True)
         matches_graphs = []
@@ -467,7 +472,7 @@ class UnderfloorHeating(PipeStrand):
             if meta:
                 metas.append(meta)
                 # matches_graphs.append(element_graph.subgraph(chain))
-                matches_graphs.append(graph.subgraph_from_elements(chain))
+                matches_graphs.append(base_graph.subgraph_from_elements(chain))
         return matches_graphs, metas
 
     @staticmethod
@@ -744,106 +749,106 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
              'diameter_strand', 'length')
 
     @classmethod
-    def find_matches(cls, graph: HvacGraph) -> [list, list]:
+    def find_matches(cls, base_graph: HvacGraph) -> [list, list]:
         """ Find matches of parallel pumps in the given graph.
 
         Args:
-            graph: HvacGraph that should be checked for parallel pumps.
+            base_graph: HvacGraph that should be checked for parallel pumps.
 
         Returns:
             element_graphs: List of element_graphs that hold a Parallel pumps.
             metas: List of dict with metas information.
                 One element for each element_graph.
         """
-        element_graph = graph.element_graph
+        element_graph = base_graph.element_graph
         wanted = {hvac.Pump}
         inerts = cls.aggregatable_elements - wanted
         parallels = HvacGraph.get_parallels(
             element_graph, wanted, inerts, grouping={'rated_power': 'equal'},
             grp_threshold=1)
-        matches_graph = [graph.subgraph_from_elements(parallel.nodes)
+        matches_graph = [base_graph.subgraph_from_elements(parallel.nodes)
                          for parallel in parallels]
         metas = [{} for x in matches_graph]  # no metadata calculated
         return matches_graph, metas
 
-    def get_ports(self, graph):
-        ports = []
-        edge_ports = self.get_edge_ports(graph)
-        # simple case with two edge ports
-        if len(edge_ports) == 2:
-            for port in edge_ports:
-                ports.append(HVACAggregationPort(port, parent=self))
-        # more than two edge ports
-        else:
-            # get list of ports to be merged to one aggregation port
-            parents = set((parent for parent in (port.connection.parent for
-                                                 port in edge_ports)))
-            originals_dict = {}
-            for parent in parents:
-                originals_dict[parent] = [port for port in edge_ports if
-                                          port.connection.parent == parent]
-            for originals in originals_dict.values():
-                ports.append(HVACAggregationPort(originals, parent=self))
-        return ports
+    # def get_ports(self, graph, match_graph):
+    #     ports = []
+    #     edge_ports = self.get_edge_ports(graph, match_graph)
+    #     # simple case with two edge ports
+    #     if len(edge_ports) == 2:
+    #         for port in edge_ports:
+    #             ports.append(HVACAggregationPort(port, parent=self))
+    #     # more than two edge ports
+    #     else:
+    #         # get list of ports to be merged to one aggregation port
+    #         parents = set((parent for parent in (port.connection.parent for
+    #                                              port in edge_ports)))
+    #         originals_dict = {}
+    #         for parent in parents:
+    #             originals_dict[parent] = [port for port in edge_ports if
+    #                                       port.connection.parent == parent]
+    #         for originals in originals_dict.values():
+    #             ports.append(HVACAggregationPort(originals, parent=self))
+    #     return ports
 
-    def get_edge_ports(self, graph):
-        """
-        Finds and returns all edge ports of element graph.
-
-        :return list of ports:
-        """
-        # detect elements with at least 3 ports
-        # todo detection via number of ports is not safe, because pumps and
-        #  other elements can  have additional signal ports and count as
-        #  edge_elements. current workaround: check for pumps seperatly
-        edge_elements = [
-            node for node in graph.nodes if (len(node.ports) > 2 and
-                                             node.__class__.__name__ != 'Pump')]
-
-        if len(edge_elements) > 2:
-            graph = self.merge_additional_junctions(graph)
-
-        edge_outer_ports = []
-        edge_inner_ports = []
-
-        # get all elements in graph, also if in aggregation
-        elements_in_graph = []
-        for node in graph.nodes:
-            elements_in_graph.append(node)
-            if hasattr(node, 'elements'):
-                for element in node.elements:
-                    elements_in_graph.append(element)
-
-        # get all ports that are connected to outer elements
-        for port in (p for e in edge_elements for p in e.ports):
-            if not port.connection:
-                continue  # end node
-            if port.connection.parent not in elements_in_graph:
-                edge_outer_ports.append(port)
-            elif port.connection.parent in elements_in_graph:
-                edge_inner_ports.append(port)
-
-        if len(edge_outer_ports) < 2:
-            raise AttributeError("Found less than two edge ports")
-        # simple case: no other elements connected to junction nodes
-        elif len(edge_outer_ports) == 2:
-            edge_ports = edge_outer_ports
-        # other elements, not in aggregation, connected to junction nodes
-        else:
-            edge_ports = [port.connection for port in edge_inner_ports]
-            parents = set(parent for parent in (port.connection.parent for
-                                                port in edge_ports))
-            for parent in parents:
-                aggr_ports = [port for port in edge_inner_ports if
-                              port.parent == parent]
-                if not isinstance(parent.aggregation, AggregatedPipeFitting):
-                    AggregatedPipeFitting(nx.subgraph(
-                        graph, parent), aggr_ports)
-                else:
-                    for port in aggr_ports:
-                        HVACAggregationPort(
-                            originals=port, parent=parent.aggregation)
-        return edge_ports
+    # def get_edge_ports(self, graph, match_graph):
+    #     """
+    #     Finds and returns all edge ports of element graph.
+    #
+    #     :return list of ports:
+    #     """
+    #     # detect elements with at least 3 ports
+    #     # todo detection via number of ports is not safe, because pumps and
+    #     #  other elements can  have additional signal ports and count as
+    #     #  edge_elements. current workaround: check for pumps seperatly
+    #     edge_elements = [
+    #         node for node in graph.nodes if (len(node.ports) > 2 and
+    #                                          node.__class__.__name__ != 'Pump')]
+    #
+    #     if len(edge_elements) > 2:
+    #         graph = self.merge_additional_junctions(graph)
+    #
+    #     edge_outer_ports = []
+    #     edge_inner_ports = []
+    #
+    #     # get all elements in graph, also if in aggregation
+    #     elements_in_graph = []
+    #     for node in graph.nodes:
+    #         elements_in_graph.append(node)
+    #         if hasattr(node, 'elements'):
+    #             for element in node.elements:
+    #                 elements_in_graph.append(element)
+    #
+    #     # get all ports that are connected to outer elements
+    #     for port in (p for e in edge_elements for p in e.ports):
+    #         if not port.connection:
+    #             continue  # end node
+    #         if port.connection.parent not in elements_in_graph:
+    #             edge_outer_ports.append(port)
+    #         elif port.connection.parent in elements_in_graph:
+    #             edge_inner_ports.append(port)
+    #
+    #     if len(edge_outer_ports) < 2:
+    #         raise AttributeError("Found less than two edge ports")
+    #     # simple case: no other elements connected to junction nodes
+    #     elif len(edge_outer_ports) == 2:
+    #         edge_ports = edge_outer_ports
+    #     # other elements, not in aggregation, connected to junction nodes
+    #     else:
+    #         edge_ports = [port.connection for port in edge_inner_ports]
+    #         parents = set(parent for parent in (port.connection.parent for
+    #                                             port in edge_ports))
+    #         for parent in parents:
+    #             aggr_ports = [port for port in edge_inner_ports if
+    #                           port.parent == parent]
+    #             if not isinstance(parent.aggregation, AggregatedPipeFitting):
+    #                 AggregatedPipeFitting(nx.subgraph(
+    #                     graph, parent), aggr_ports)
+    #             else:
+    #                 for port in aggr_ports:
+    #                     HVACAggregationPort(
+    #                         originals=port, parent=parent.aggregation)
+    #     return edge_ports
 
     @attribute.multi_calc
     def _calc_avg(self) -> dict:
@@ -987,9 +992,9 @@ class AggregatedPipeFitting(HVACAggregationMixin, hvac.PipeFitting):
         self.get_ports = partial(self.get_ports, aggr_ports)
         super().__init__(element_graph, *args, **kwargs)
 
-    def get_ports(self, aggr_ports, graph):  # TBD
+    def get_ports(self, aggr_ports, base_graph):  # TBD
         ports = []
-        edge_ports = self.get_edge_ports(graph)
+        edge_ports = self.get_edge_ports(base_graph)
         # create aggregation ports for all edge ports
         for edge_port in edge_ports:
             if aggr_ports:
@@ -1055,7 +1060,7 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
     aggregatable_elements = {hvac.SpaceHeater, hvac.Pipe, hvac.PipeFitting,
                              PipeStrand, hvac.ThreeWayValve, hvac.Junction}
 
-    def get_ports(self, graph):
+    def get_ports(self, base_graph):
         return self._get_start_and_end_ports()
 
     @verify_edge_ports
@@ -1292,43 +1297,29 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         ParallelSpaceHeater, UnderfloorHeating}
     whitelist = [hvac.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating]
     blacklist = [hvac.Chiller, hvac.Boiler, hvac.CoolingTower]
+    boarder_class = {hvac.Distributor, hvac.Junction}
 
     @classmethod
-    def find_matches(cls, graph: HvacGraph) \
-            -> Tuple[List[HvacGraph], List[dict]]:
+    def find_matches(cls, base_graph: HvacGraph
+                     ) -> Tuple[List[HvacGraph], List[dict]]:
         """ Find matches of consumer in the given HVAC graph.
 
         Args:
-            graph: The HVAC graph to search for consumers in.
+            base_graph: The HVAC graph to search for consumers in.
 
         Returns:
             A tuple with two lists. The first list contains the HVAC graphs that
                 contain consumers, and the second list contains meta information
                 about each consumer graph, such as outer connections.
         """
-        boarder_class = {hvac.Distributor}
-        # innerts = set(cls.aggregatable_elements) - wanted
-
-        boarder_class = set(boarder_class)
-
-        element_graph = graph.element_graph
+        element_graph = base_graph.element_graph
         _element_graph = element_graph.copy()
 
         # remove boarder_class nodes from _element_graph
         remove = {node for node in _element_graph.nodes if
-                  node.__class__ in boarder_class}
+                  node.__class__ in cls.boarder_class}
         _element_graph.remove_nodes_from(remove)
 
-        # # identify outer connections
-        # remove_ports = [port for ele in remove for port in ele.ports]
-        # outer_connections = {}
-        # for port in remove_ports:
-        #     outer_connections.update(
-        #         {neighbor.parent: (port, neighbor) for neighbor in
-        #          graph.neighbors(port) if
-        #          neighbor not in remove_ports})
-
-        # get_parallels(graph, wanted, innerts)
         sub_graphs = nx.connected_components(_element_graph)
 
         consumer_cycles = []
@@ -1344,7 +1335,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
                 gen_con = {node for node in sub if
                            node.__class__ in cls.whitelist}
                 if gen_con:
-                    # ToDO: Consumer separieren
+                    # TODO: Consumer separieren
                     pass
                 else:
                     pass
@@ -1356,16 +1347,12 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
                                   node.__class__ in cls.whitelist}
                 if consumer_cycle:
                     subgraph = _element_graph.subgraph(sub)
-                    # outer_con = [outer_connections[ele][1] for ele in sub if
-                    #              ele in outer_connections]
                     consumer_cycles.append(subgraph)
-                    # metas.append({'outer_connections': outer_con})
 
-        matches_graphs = [graph.subgraph_from_elements(consumer_cycle.nodes)
+        matches_graphs = [base_graph.subgraph_from_elements(consumer_cycle.nodes)
                           for consumer_cycle in consumer_cycles]
         metas = [{} for x in matches_graphs]
         return matches_graphs, metas
-        # return consumer_cycles, metas
 
     # @classmethod
     # def get_edge_ports(cls, graph) -> List[HVACPort]:
@@ -1377,7 +1364,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         volume = None
 
         for ele in self.not_pump_elements:
-            if hasattr(ele, "length"):  # ToDO: Parallel?
+            if hasattr(ele, "length"):  # TODO: Parallel?
                 length = ele.length
                 if not (length):
                     logger.warning("Ignored '%s' in aggregation", ele)
@@ -1386,7 +1373,8 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
             else:
                 logger.warning("Ignored '%s' in aggregation", ele)
 
-        #  Volumen zusammenrechnen
+        # Volumen zusammenrechnen
+        # TODO: this doesn't seem right (01.02.2023, Svenne)
         volume = 1
 
         result = dict(
@@ -1405,7 +1393,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         return [ele for ele in self.elements if not isinstance(ele, hvac.Pump)]
 
     def _calc_TControl(self, name):
-        return True  # ToDo: Look at Boiler Aggregation - David
+        return True  # TODO: Look at Boiler Aggregation - David
 
     @cached_property
     def whitelist_elements(self) -> list:
@@ -1563,53 +1551,63 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
 
 class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
-    # ToDo: Export Aggregation HKESim
-    """ Aggregates Consumer system boarder.
+    # TODO: Export Aggregation HKESim
+    """ Aggregates consumer systems.
 
-   Attributes:
-       multi:
-       aggregatable_elements:
-       whitelist:
-       blacklist:
+    Attributes:
+        multi: List of attributes to consider in aggregation.
+        aggregatable_elements: Dictionary of elements that can be aggregated.
+        whitelist: List of elements that are allowed to be aggregated.
+        blacklist: List of elements that are not allowed to be aggregated.
+        boarder_class: Dictionary of classes that are used as boarders.
    """
 
     multi = (
         'medium', 'use_hydraulic_separator', 'hydraulic_separator_volume',
         'temperature_inlet', 'temperature_outlet')
     # TODO: Abused to not just sum attributes from elements
-    aggregatable_elements = {hvac.SpaceHeater, hvac.Pipe, hvac.PipeFitting,
-                             hvac.Distributor, PipeStrand, ParallelSpaceHeater,
-                             Consumer}
-    whitelist = [hvac.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating,
-                 Consumer]
+    aggregatable_elements = {
+        hvac.SpaceHeater, hvac.Pipe, hvac.PipeFitting, hvac.Distributor,
+        PipeStrand, ParallelSpaceHeater, Consumer}
+    whitelist = [
+        hvac.SpaceHeater, ParallelSpaceHeater, UnderfloorHeating, Consumer]
     blacklist = [hvac.Chiller, hvac.Boiler, hvac.CoolingTower]
     boarder_class = {hvac.Distributor}
 
-    def __init__(self, element_graph, *args, **kwargs):
-        # TODO: Richtig so? WORKAROUND
-        self.undefined_consumer_ports = kwargs.pop('undefined_consumer_ports',
-                                                   None)
+    def __init__(self, base_graph, match_graph, *args, **kwargs):
+        # TODO: Check if this is still necessary (01.02.2023, Svenne)
+        self.undefined_consumer_ports = kwargs.pop(
+            'undefined_consumer_ports', None)
         self._consumer_cycles = kwargs.pop('consumer_cycles', None)
         self.consumers = []
         for consumer in self._consumer_cycles:
             for con in consumer:  # TODO: darf nur ein Consumer sein
                 self.consumers.append(con)
-        self.open_consumer_pairs = self._register_open_consumerports()
+        self.open_consumer_pairs = self._register_open_consumer_ports()
 
-        super().__init__(element_graph, *args, **kwargs)
+        super().__init__(base_graph, match_graph, *args, **kwargs)
 
-    def get_ports(self, graph) -> List[HVACPort]:
-        ports = super().get_ports(graph)
+    def get_ports(self, base_graph: HvacGraph, match_graph: HvacGraph
+                  ) -> List[HVACPort]:
+        # TODO: Check if this is still necessary (01.02.2023, Svenne)
+        ports = super().get_ports(base_graph, match_graph)
         for con_ports in self.open_consumer_pairs:
             ports.append(HVACAggregationPort(con_ports[0], parent=self))
             ports.append(HVACAggregationPort(con_ports[1], parent=self))
         return ports
 
-    @classmethod
-    def get_edge_ports(cls, graph) -> List[HVACPort]:
-        pass  # TODO
+    def _register_open_consumer_ports(self):
+        """ This function registers open consumer ports by pairing up loose
+            ends at the distributor. If there is an odd number of loose ends,
+            it raises a NotImplementedError.
 
-    def _register_open_consumerports(self):
+        Returns:
+            list: A list of pairs of open consumer ports.
+
+        Raises:
+            NotImplementedError: If there is an odd number of loose ends at
+                the distributor.
+        """
 
         consumer_ports = []
         if (len(self.undefined_consumer_ports) % 2) == 0:
@@ -1623,163 +1621,66 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
         return consumer_ports
 
     @classmethod
-    def find_matches(cls, graph) -> [list, list]:
-        """
-        Find matches of consumer heating distributor module.
-
-        Assumptions:
-        Currently outer_connections only involve cycles with at least one
-        generator
-
-        # TODO solve mixup between get_edge_ports, get_ports and outer_connections
-        # TODO all seems to be the same but its very confusing currently
-        outer_connections
+    def find_matches(cls, base_graph: HvacGraph
+                     ) -> Tuple[List[HvacGraph], List[dict]]:
+        """ Finds matches of consumer heating distributor modules in the given
+            graph.
 
         Args:
-            graph: element_graph that should be checked for consumer heating
-            distributor module.
+            base_graph: The graph to be checked for consumer heating distributor
+                modules.
 
         Returns:
-            element_graphs:
-                List of element_graphs that hold a consumer heating distributor
-                module
-            metas:
-                List of dict with metas information. One element for each
-                element_graph.
-
-        Raises:
-            None
+            A tuple containing two lists, the first list 'matches_graphs'
+            contains the subgraphs of the given graph that match_graph the consumer
+            heating distributor modules. The second list 'metas' contains
+            the meta information for each match_graph as a dictionary.
         """
-        boarder_class = cls.boarder_class
-        element_graph = graph.element_graph
-        results = []
-        remove = {node for node in element_graph.nodes
-                  if type(node) in boarder_class}
+        distributors = {ele for ele in base_graph.elements
+                        if type(ele) in cls.boarder_class}
+        matches_graphs = []
         metas = []
-
-        for dist in remove:
-            _element_graph = element_graph.copy()
+        for distributor in distributors:
+            _graph = base_graph.copy()
+            _graph.remove_nodes_from(distributor.ports)
             consumer_cycles = []
-            # remove nodes from boarder_class
-            _element_graph.remove_nodes_from({dist})
-            # identify outer connections
-            remove_ports = dist.ports
-            outer_connections = {}
-            metas.append({'outer_connections': [],
-                          'undefined_consumer_ports': [],
+            metas.append({'undefined_consumer_ports': [],
                           'consumer_cycles': []})
-            # get all neighbor elements and their ports (just unique elements)
-            for port in remove_ports:
-                outer_connections.update(
-                    {neighbor.parent: (port, neighbor) for neighbor in
-                     graph.neighbors(port) if
-                     neighbor not in remove_ports})
-
-            sub_graphs = nx.connected_components(_element_graph)
-
-            for sub in sub_graphs:
-                # check for energy generator in sub_graphs
-                generator = {node for node in sub if
-                             node.__class__ in cls.blacklist}
+            connected_nodes = nx.connected_components(_graph)
+            for connected_node in connected_nodes:
+                sub_graph = base_graph.subgraph(connected_node)
+                # check for blacklist (energy generators) classes in sub_graph
+                generator = {ele for ele in sub_graph.elements if
+                             ele.__class__ in cls.blacklist}
                 if generator:
-                    # check for consumer in generator subgraph
-                    gen_con = {node for node in sub if
-                               node.__class__ in cls.whitelist}
-                    if gen_con:
-                        # TODO: seperate consumer (maybe recursive function?)
-                        pass
-                    else:
-                        outer_con = [outer_connections[ele][0] for ele in sub
-                                     if ele in outer_connections]
-                        if outer_con:
-                            metas[-1]['outer_connections'].extend(outer_con)
-                        # pure generator subgraph
-                        # subgraph = graph.subgraph(sub)
-                        # generator_cycles.append(subgraph)
-                else:
-                    consumer_cycle = {node for node in sub if
-                                      node.__class__ in cls.whitelist}
-                    if consumer_cycle:
-                        subgraph = _element_graph.subgraph(sub)
-                        consumer_cycles.extend(subgraph.nodes)
-                        metas[-1]['consumer_cycles'].append(subgraph.nodes)
-                    else:
-                        outer_con = [outer_connections[ele] for ele in sub if
-                                     ele in outer_connections]
-                        if outer_con:
-                            metas[-1]['undefined_consumer_ports'].extend(
-                                outer_con)
-
-            subnodes = [dist, *consumer_cycles]
-
-            result = element_graph.subgraph(subnodes)
-            results.append(result)
-
-        return results, metas
-
-    @classmethod
-    def find_matches2(cls, graph: HvacGraph):
-        boarder_class = cls.boarder_class
-        element_graph = graph.element_graph
-        matches = []
-        # remove = {node for node in element_graph.nodes
-        #           if type(node) in boarder_class}
-        elements_to_remove = {ele for ele in graph.elements
-                              if type(ele) in boarder_class}
-        metas = []
-        for dist in elements_to_remove:
-            _graph = graph.copy()
-            # remove boarder_class nodes from graph
-            _graph.remove_nodes_from(dist.ports)
-
-            consumer_cycles = []
-            # identify outer connections
-            # remove_ports = dist.ports
-            outer_connections = {}
-            metas.append({'outer_connections': [],
-                          'undefined_consumer_ports': [],
-                          'consumer_cycles': []})
-            # get all neighbor elements and their ports (just unique elements)
-            # for port in remove_ports:
-            #     outer_connections.update(
-            #         {neighbor.parent: (port, neighbor) for neighbor in
-            #          graph.neighbors(port) if
-            #          neighbor not in remove_ports})
-
-            _sub_graphs = nx.connected_components(_graph)
-
-            # for sub in sub_graphs:
-            for sub in _sub_graphs:
-                # check for energy generator in sub_graphs
-                generator = {node.parent for node in sub if
-                             node.parent.__class__ in cls.blacklist}
-                if generator:
-                    # check for consumer in generator subgraph
-                    gen_con = {node.parent for node in sub if
-                               node.parent.__class__ in cls.whitelist}
+                    # check for whitelist classes in sub_graph that contains
+                    # a generator
+                    gen_con = {ele for ele in sub_graph.elements if
+                               ele.__class__ in cls.whitelist}
                     if gen_con:
                         # TODO: separate consumer (maybe recursive function?)
                         pass
                 else:
-                    consumer_cycle = {node.parent for node in sub if
-                                      node.parent.__class__ in cls.whitelist}
+                    consumer_cycle = {ele for ele in sub_graph.elements if
+                                      ele.__class__ in cls.whitelist}
                     if consumer_cycle:
-                        _subgraph = _graph.subgraph(sub)
-                        consumer_cycles.extend(_subgraph)
-                        metas[-1]['consumer_cycles'].append(_subgraph.elements)
+                        consumer_cycles.extend(sub_graph.elements)
+                        match_graph = base_graph.subgraph_from_elements(
+                            consumer_cycles + [distributor])
+                        # TODO: check if necessary (Svenne, 09.02.2023)
+                        metas[-1]['consumer_cycles'].append(consumer_cycles)
                     else:
                         # TODO #167 check against b03 heating example
-                        outer_con = [outer_connections[ele] for ele in sub if
-                                     ele in outer_connections]
-                        if outer_con:
-                            metas[-1]['undefined_consumer_ports'].extend(
-                                outer_con)
+                        pass
+                        # outer_con = [outer_connections[ele]
+                        # for ele in sub_graph if ele in outer_connections]
+                        # if outer_con:
+                        #     metas[-1]['undefined_consumer_ports'].extend(
+                        #         outer_con)
 
-            _subnodes = [*dist.ports, *consumer_cycles]
-            match = graph.subgraph(_subnodes)
-            matches.append(match)
+            matches_graphs.append(match_graph)
 
-        return matches, metas
+        return matches_graphs, metas
 
     @attribute.multi_calc
     def _calc_avg(self):
@@ -2226,19 +2127,16 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
     multi = ('rated_power', 'has_bypass', 'rated_height', 'volume',
              'rated_volume_flow', 'rated_pump_power', 'has_pump')
 
-    def __init__(self, element_graph, *args, **kwargs):
-        self.non_relevant = kwargs.pop('non_relevant',
-                                       set())  # todo workaround
+    def __init__(self, base_graph, match_graph, *args, **kwargs):
+        self.non_relevant = kwargs.pop('non_relevant', set())  # todo workaround
         self.has_parallel = kwargs.pop('has_parallel', False)
         self.bypass_elements = kwargs.pop('bypass_elements', set())
-        self.has_bypass = False
-        if self.bypass_elements:
-            self.has_bypass = True
-        super().__init__(element_graph, *args, **kwargs)
+        self.has_bypass = True if self.bypass_elements else False
+        super().__init__(base_graph, match_graph, *args, **kwargs)
 
     @classmethod
-    def find_matches(cls, graph: {HvacGraph.element_graph}) -> \
-            [HvacGraph.element_graph, list]:
+    def find_matches_new(cls, base_graph: {HvacGraph.element_graph}
+                         ) -> [HvacGraph.element_graph, list]:
         """
         Finds matches of generators with one fluid.
 
@@ -2246,7 +2144,110 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         delete later.
 
         Args:
-            graph: element_graph that should be checked for one fluid generators
+            base_graph: element_graph that should be checked for one fluid generators
+
+        Returns:
+            generator_cycles:
+                List of element_graphs that hold a generator cycle including the
+                distributor.
+            metas:
+                List of dict with metas information. One element for each
+                element_graph. In this case it holds non_relevant nodes, which
+                have to be deleted later but are not contained in the
+                **resulting graph?** #TODO
+                element_graph. Because we are currently not able to distinguish
+                to which graph these non_relevant nodes belong, we just output
+                the complete list of non relevant nodes for every element_graph.
+
+        Raises:
+            None
+        """
+        elements_to_aggregate = {ele for ele in base_graph.elements
+                                 if type(ele) in cls.aggregatable_elements}
+        # boarder_elements = {ele for ele in graph.elements
+        #                     if type(ele) in cls.boarder_elements}
+        _graph = base_graph.subgraph_from_elements(elements_to_aggregate)
+
+        # cycles_with_generator_dict = HvacGraph.get_all_cycles_with_wanted(
+        #     _graph.element_graph, cls.wanted_elements)
+        # for generator_cycles in cycles_with_generator_dict.values():
+        #     for generator_cycle in generator_cycles:
+        #         if boarder_elements in generator_cycle:
+        #             matches_elements = set([item for sublist in generator_cycle
+        #                                     for item in sublist])
+        #         else:
+        #             bypass_elements = set()
+
+        aggregation_graph = base_graph.subgraph_from_elements(elements_to_aggregate)
+        # connected = list(nx.connected_components(aggregation_graph))
+        generators_cycles = HvacGraph.get_all_cycles_with_wanted(
+            base_graph.element_graph, cls.wanted_elements)
+
+        matches_graphs = []
+        metas = []
+        for i, generator_cycles in enumerate(generators_cycles.values()):
+            metas.append(dict())
+            for generator_cycle in generator_cycles:
+                if any([ele for ele in generator_cycle
+                        if type(ele) in cls.boarder_elements]):
+                    continue
+                else:
+                    metas[i]['bypass_elements'] = []
+                    inner_cycle = base_graph.subgraph_from_elements(
+                        generator_cycle)
+                    bypass_elements = HvacGraph.find_bypasses_in_cycle(
+                        inner_cycle.element_graph,
+                        inner_cycle.element_graph,
+                        cls.wanted_elements)
+                    if bypass_elements:
+                        metas[i]['bypass_elements'].append(bypass_elements[0])
+                    else:
+                        metas[i]['has_parallel'] = []
+                        metas[i]['has_parallel'].append(True)
+            match_elements = [item for sublist in generator_cycles
+                              for item in sublist]
+            match_graph = base_graph.subgraph_from_elements(match_elements)
+            metas[i]['non_relevant'] = []
+            # metas[i]['has_parallel'] = []
+            matches_graphs.append(match_graph)
+
+        # matches_graphs = []
+        # metas = []
+        # for i, connected_node in enumerate(connected):
+        #     metas.append(dict())
+        #     if any([node.parent for node in connected_node
+        #             if type(node.parent) in cls.wanted_elements]):
+        #         match_graph = graph.subgraph(connected_node)
+        #         cycles_dict = HvacGraph.get_all_cycles_with_wanted(
+        #             match_graph.element_graph, cls.wanted_elements)
+        #         cycles_list = [*cycles_dict.values()][0]
+        #         if cycles_list:
+        #             metas[i]['bypass_elements'] = []
+        #             for cycle in cycles_list:
+        #                 cycle_graph = graph.subgraph_from_elements(cycle)
+        #                 bypass_elements = HvacGraph.find_bypasses_in_cycle(
+        #                     cycle_graph.element_graph,
+        #                     cycle_graph.element_graph,
+        #                     cls.wanted_elements)
+        #                 metas[i]['bypass_elements'].append(bypass_elements[0])
+        #
+        #         metas[i]['non_relevant'] = []
+        #         metas[i]['has_parallel'] = []
+        #         matches_graphs.append(match_graph)
+
+        return matches_graphs, metas
+
+    @classmethod
+    def find_matches(cls, base_graph: {HvacGraph.element_graph}
+                     ) -> [HvacGraph.element_graph, list]:
+        """
+        Finds matches of generators with one fluid.
+
+        Non relevant elements like bypasses are added to metas information to
+        delete later.
+
+        Args:
+            base_graph: element_graph that should be checked for one fluid generators
 
         Returns:
             generator_cycles:
@@ -2264,17 +2265,17 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         Raises:
             None
         """
-        element_graph = graph.element_graph
+        element_graph = base_graph.element_graph
         wanted = set(cls.wanted_elements)
         boarders = set(cls.boarder_elements)
         inerts = set(cls.aggregatable_elements) - wanted
-        _graph = HvacGraph.remove_not_wanted_nodes(element_graph, wanted,
-                                                   inerts)
-        dict_all_cycles_wanted = HvacGraph.get_all_cycles_with_wanted(_graph,
-                                                                      wanted)
+        _graph = HvacGraph.remove_not_wanted_nodes(
+            element_graph, wanted, inerts)
+        dict_all_cycles_wanted = HvacGraph.get_all_cycles_with_wanted(
+            _graph, wanted)
         list_all_cycles_wanted = [*dict_all_cycles_wanted.values()]
 
-        # create flat lists to substract for non relevant
+        # create flat lists to subtract for non-relevant
         generator_flat = set()
         wanted_flat = set()
 
@@ -2296,7 +2297,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         if generator_flat:
             non_relevant = wanted_flat - generator_flat
 
-            # Remove overlapping Elements in GeneratorCycles
+            # remove overlapping elements in GeneratorCycles
             for gen_cycle in generator_cycles:
                 pseudo_lst = gen_cycle.copy()
                 for gen_cycle_two in generator_cycles:
@@ -2304,42 +2305,43 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
                         continue
                     pseudo_lst.remove_nodes_from(gen_cycle_two)
                 cleaned_generator_cycles.append(pseudo_lst)
-            _graph = graph.copy()
+            _graph = base_graph.copy()
 
-            # get outer_connections
-            for i, cycle in enumerate(cleaned_generator_cycles):
-                metas.append(dict())
-                metas[i]['outer_connections'] = []
-                boarder_nodes = []
-                for node in cycle:
-                    for block in boarders:
-                        if type(node) == block:
-                            boarder_nodes.append(node)
-                if len(boarder_nodes) > 1:
-                    raise NotImplementedError(
-                        "Generator cycles should only have one boarder")
-                HvacGraph.remove_nodes_from(cycle, boarder_nodes)
+            # # get outer_connections
+            # for i, cycle in enumerate(cleaned_generator_cycles):
+            #     metas.append(dict())
+            #     metas[i]['outer_connections'] = []
+            #     boarder_nodes = []
+            #     for node in cycle:
+            #         for block in boarders:
+            #             if type(node) == block:
+            #                 boarder_nodes.append(node)
+            #     if len(boarder_nodes) > 1:
+            #         raise NotImplementedError(
+            #             "Generator cycles should only have one boarder")
+            #     HvacGraph.remove_nodes_from(cycle, boarder_nodes)
+            #
+            #     outer_elements = [v for v, d in cycle.degree() if d == 1]
+            #     for outer_element in outer_elements:
+            #         for port in outer_element.ports:
+            #             if port in graph:
+            #                 neighbor_ports = [neighbor_port for neighbor_port
+            #                                   in
+            #                                   graph.neighbors(port)]
+            #                 for neighbor_port in neighbor_ports:
+            #                     if neighbor_port.parent not in list(
+            #                             cycle.nodes):
+            #                         print(neighbor_port.parent)
+            #
+            #                         metas[i]['outer_connections'].append(port)
 
-                outer_elements = [v for v, d in cycle.degree() if d == 1]
-                for outer_element in outer_elements:
-                    for port in outer_element.ports:
-                        if port in graph:
-                            neighbor_ports = [neighbor_port for neighbor_port
-                                              in
-                                              graph.neighbors(port)]
-                            for neighbor_port in neighbor_ports:
-                                if neighbor_port.parent not in list(
-                                        cycle.nodes):
-                                    print(neighbor_port.parent)
-
-                                    metas[i]['outer_connections'].append(port)
-
-            # match bypass elements from non relevant elements
+            # match_graph bypass elements from non relevant elements
             for i in range(len(cleaned_generator_cycles)):
+                metas.append(dict())
                 metas[i]['bypass_elements'] = []
                 for cycle in list_all_cycles_wanted[i]:
-                    if len(cycle - cleaned_generator_cycles[
-                        i].nodes - non_relevant) > 0:
+                    if len(cycle - cleaned_generator_cycles[i].nodes
+                           - non_relevant) > 0:
                         continue
                     bypass_elements = cycle - cleaned_generator_cycles[i].nodes
                     cleaned_generator_cycles[i].add_nodes_from(bypass_elements)
@@ -2348,7 +2350,12 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
 
             if len(metas) > 0:
                 metas[0]['non_relevant'] = non_relevant
-        return cleaned_generator_cycles, metas
+
+        matches_graphs = []
+        for cycle in cleaned_generator_cycles:
+            match_graph = base_graph.subgraph_from_elements(list(cycle.nodes))
+            matches_graphs.append(match_graph)
+        return matches_graphs, metas
 
     @attribute.multi_calc
     def _calc_avg(self):
@@ -2362,14 +2369,14 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
                 length = element.length
                 diameter = element.diameter
                 if not (length and diameter):
-                    logger.info("Ignored '%s' in aggregation", item)
+                    logger.info("Ignored '%s' in aggregation", element)
                     continue
 
                 diameter_times_length += diameter * length
                 total_length += length
 
             else:
-                logger.info("Ignored '%s' in aggregation", item)
+                logger.info("Ignored '%s' in aggregation", element)
 
         if total_length != 0:
             avg_diameter_strand = diameter_times_length / total_length

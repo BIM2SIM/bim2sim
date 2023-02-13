@@ -381,8 +381,8 @@ class TestPipeStrand(unittest.TestCase):
     def test_basics(self):
         graph, flags = self.helper.get_setup_simple_boiler()
         elements = flags['strand1']
-        # match = graph.element_graph.subgraph(elements)
-        # match = graph.subgraph(
+        # match_graph = graph.element_graph.subgraph(elements)
+        # match_graph = graph.subgraph(
         #     (port for ele in elements for port in ele.ports))
         match = graph.subgraph_from_elements(elements)
 
@@ -406,9 +406,9 @@ class TestPipeStrand(unittest.TestCase):
 
         matches, metas = aggregation.PipeStrand.find_matches(graph)
         agg = aggregation.PipeStrand(graph, matches[0], metas[0])
-        edge_ports = agg.get_ports()
-        self.assertNotEqual(flags['edge_ports'],
-                            [edge_port.originals for edge_port in edge_ports])
+        self.assertNotEqual(
+            flags['edge_ports'],
+            [edge_port.originals for edge_port in agg.get_ports()])
 
 
 if __name__ == '__main__':

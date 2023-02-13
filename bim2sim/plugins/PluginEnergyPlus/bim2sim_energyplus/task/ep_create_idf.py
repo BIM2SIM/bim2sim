@@ -579,7 +579,7 @@ class CreateIdf(ITask):
         return_air_fraction = 0.0
         fraction_radiant = 0.42  # fraction radiant: cf. Table 1.28 in
         # InputOutputReference EnergyPlus (Version 9.4.0), p. 506
-        fraction_visible = 0.18  # Todo: fractions do not match with .json
+        fraction_visible = 0.18  # Todo: fractions do not match_graph with .json
         # Data. Maybe set by user-input later
         if workflow.ep_version in ["9-2-0", "9-4-0"]:
             idf.newidfobject(
