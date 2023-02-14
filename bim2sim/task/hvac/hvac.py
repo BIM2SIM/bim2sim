@@ -390,8 +390,6 @@ class Reduce(ITask):
             matches, metas = agg_class.find_matches(graph)
             i = 0
             for match, meta in zip(matches, metas):
-                # TODO: See #167
-                # edge_ports = agg_class.get_edge_ports2(graph, match_graph)
                 try:
                     agg = agg_class(graph, match, **meta)
                 except Exception as ex:

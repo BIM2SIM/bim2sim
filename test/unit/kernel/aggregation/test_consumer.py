@@ -144,7 +144,9 @@ class ConsumerHelper(SetupHelperHVAC):
         return graph, flags
 
     def get_setup_consumer3(self):
-        """get consumer circuit made of 2 parallel pumps , 2x space heater and pipes"""
+        """ Get consumer circuit made of 2 parallel pumps , 2x space heater and
+            pipes.
+        """
         flags = {}
         with self.flag_manager(flags):
             # generator circuit
@@ -256,10 +258,8 @@ class TestConsumerAggregation(unittest.TestCase):
         self.helper.reset()
 
     def test_find_matches(self):
-        """test detection of Consumer Cycle in setup system"""
+        """ Test detection of consumer cycle in setup system."""
         graph, flags = self.helper.get_setup_system()
-
-        # graph.plot(r'c:\temp')
 
         matches, meta = aggregation.Consumer.find_matches(graph)
 
@@ -282,7 +282,7 @@ class TestConsumerAggregation(unittest.TestCase):
         for match, meta in zip(matches, metas):
             consumer = aggregation.Consumer(graph, match, **meta)
             if hvac.SpaceHeater in {type(ele) for ele in consumer.elements}:
-                # We only want consumer with SpaceHeater
+                # we only want consumer with SpaceHeater
                 break
 
         graph.merge(
@@ -335,7 +335,7 @@ class TestConsumerAggregation(unittest.TestCase):
         self.assertIn('UnderfloorHeating', consumer2.description)
 
     def test_aggregation_consumer3(self):
-        """test aggregation of consumercycle no 2"""
+        """ Test aggregation of consumer cycle no 2."""
         graph, flags = self.helper.get_setup_system2()
 
         # graph.plot()
@@ -348,8 +348,6 @@ class TestConsumerAggregation(unittest.TestCase):
             mapping=consumer.get_replacement_mapping(),
             inner_connections=consumer.inner_connections
         )
-
-        # graph.plot()
 
         self.assertAlmostEqual(
             consumer.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)

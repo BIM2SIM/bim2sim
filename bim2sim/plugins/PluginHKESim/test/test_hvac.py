@@ -1,7 +1,6 @@
 import unittest
 from collections import Counter
 
-from bim2sim import ConsoleDecisionHandler, run_project
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.aggregation import ConsumerHeatingDistributorModule
 from bim2sim.log import default_logging_setup
@@ -65,7 +64,7 @@ class TestIntegrationHKESIM(IntegrationBaseHKESIM, unittest.TestCase):
         default_logging_setup()
         answers = ('HVAC-Distributor', *('HVAC-ThreeWayValve',) * 2,
                    *('HVAC-Valve',) * 14, *(None,) * 2,
-                   *(True,) * 5, 0.75, 50, 150, 70, *(1, 500,) * 7)
+                   *(True,) * 7, 0.75, 50, 150, 70, *(1, 500,) * 7)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer

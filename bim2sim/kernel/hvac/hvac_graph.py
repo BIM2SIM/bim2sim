@@ -241,7 +241,7 @@ class HvacGraph(nx.Graph):
             kwargs['edge_color'] = edge_color_map
 
         plt.figure(dpi=dpi)
-        nx.draw(graph, node_size=10, font_size=5, linewidths=0.7,
+        nx.draw(graph, node_size=10, font_size=3, linewidths=0.5, alpha=0.7,
                 with_labels=True, **kwargs)
         plt.draw()
         if path:
@@ -413,8 +413,8 @@ class HvacGraph(nx.Graph):
             inert: Set[Type[ProductBased]] = None,
             grouping=None, grp_threshold=None):
         """ Detect parallel occurrences of wanted items.
-        All graph nodes not in inert or wanted are counted as blocking.
-        Grouping can hold additional arguments like only same size.
+            All graph nodes not in inert or wanted are counted as blocking.
+            Grouping can hold additional arguments like only same size.
 
         :grouping: dict with parameter to be grouped and condition. e.g. (
         rated_power: equal)
@@ -721,14 +721,30 @@ class HvacGraph(nx.Graph):
             AssertionError if the elements are not part of the graph.
 
         """
+        if not isinstance(self, HvacGraph):
+            raise AssertionError('%s is not an HvacGraph.', self)
         if not set(elements).issubset(set(self.elements)):
-            raise AssertionError('The elements %s are not part of this graph',
+            raise AssertionError('The elements %s are not part of this graph.',
                                  elements)
         return self.subgraph((port for ele in elements for port in ele.ports))
 
-    def remove_elements(self, elements_to_remove: Set[Type[ProductBased]]):
-        graph = self.copy()
-        for element_to_remove in elements_to_remove:
-            graph.remove_nodes_from(element_to_remove.ports)
-        return graph
+    @staticmethod
+    def remove_classes_from(graph, classes_to_remove: set):
+        _graph = graph.copy()
+        if not isinstance(_graph, HvacGraph):
+            nodes_to_remove = {node for node in _graph.nodes if
+                               node.__class__ in classes_to_remove}
+        else:
+            elements_to_remove = {ele for ele in _graph.elements if
+                                  ele.__class__ in classes_to_remove}
+            nodes_to_remove = [port for ele in elements_to_remove
+                               for port in ele.ports]
+        _graph.remove_nodes_from(nodes_to_remove)
+        return _graph
+
+    # def remove_elements(self, elements_to_remove: Set[Type[ProductBased]]):
+    #     graph = self.copy()
+    #     for element_to_remove in elements_to_remove:
+    #         graph.remove_nodes_from(element_to_remove.ports)
+    #     return graph
 

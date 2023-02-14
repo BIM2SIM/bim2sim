@@ -108,9 +108,7 @@ class TestUnderfloorHeating(unittest.TestCase):
         self.helper.reset()
 
     def test_simple_ufh(self):
-        """
-        Test aggregation of underfloor heating no 1 - SimpleUFH
-        """
+        """ Test aggregation of underfloor heating no. 1."""
         graph, flags = self.helper.get_setup_ufh1()
         ele = graph.elements
 
@@ -124,3 +122,7 @@ class TestUnderfloorHeating(unittest.TestCase):
         self.assertAlmostEqual(15 * ureg.millimeter, agg.diameter, 0)
         self.assertAlmostEqual(.2 * ureg.meter, agg.y_spacing, 1)
         self.assertAlmostEqual(.24 * ureg.meter, agg.x_spacing, 2)
+
+
+if __name__ == '__main__':
+    unittest.main()

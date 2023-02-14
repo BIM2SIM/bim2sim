@@ -279,7 +279,7 @@ class TestPipeStrand(unittest.TestCase):
     @unittest.skip(
         "PipeStrand aggregation with inert elements not implemented")
     def test_strait_strand_valve(self):
-        """Test calculation of aggregated length and diameter"""
+        """ Test calculation of aggregated length and diameter."""
         graph, flags = self.helper.get_setup_strait_with_valve()
 
         matches, meta = aggregation.PipeStrand.find_matches(graph)
@@ -406,9 +406,8 @@ class TestPipeStrand(unittest.TestCase):
 
         matches, metas = aggregation.PipeStrand.find_matches(graph)
         agg = aggregation.PipeStrand(graph, matches[0], metas[0])
-        self.assertNotEqual(
-            flags['edge_ports'],
-            [edge_port.originals for edge_port in agg.get_ports()])
+        edge_ports = [edge_port.originals[0] for edge_port in agg.get_ports()]
+        self.assertEqual(set(flags['edge_ports']), set(edge_ports))
 
 
 if __name__ == '__main__':
