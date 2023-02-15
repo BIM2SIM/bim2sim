@@ -265,6 +265,34 @@ class Workflow(metaclass=AutoSettingNameMeta):
                     'Choose 0.3m as a default value.',
         for_frontend=True
     )
+    group_unidentified = WorkflowSetting(
+        default=True,
+        choices={
+            'fuzzy': 'Use fuzzy search to find name similarities',
+            'name': 'Only group elements with exact same name'
+        },
+        description='To reduce the number of decisions by user to identify '
+                    'elements which can not be identified automatically by the '
+                    'system, you can either use simple grouping by same name of '
+                    'IFC element or fuzzy search to group based on similarities '
+                    'in name.',
+        for_frontend=True
+    )
+    fuzzy_threshold = WorkflowSetting(
+        default=0.7,
+        choices={
+            0.5: 'Threshold of 0.5',
+            0.6: 'Threshold of 0.6',
+            0.7: 'Threshold of 0.7',
+            0.8: 'Threshold of 0.8',
+            0.9: 'Threshold of 0.9'
+        },
+        description='If you want to use fuzzy search in group_unidentified '
+                    'setting, you can set the threshold here. Lower value means'
+                    ' less similarity required for grouping. A too low value '
+                    'might result in grouping elements which do not represent '
+                    'same IFC type.'
+    )
 
 
 class PlantSimulation(Workflow):
