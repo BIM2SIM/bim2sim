@@ -104,6 +104,8 @@ class WorkflowSetting:
         description per choice as value
         description: description of what the settings does as Str
         for_frontend: should this setting be shown in the frontend
+        multiple_choice: allows multiple choice
+        any_string: any string is allowed instead of a given choice
     """
 
     def __init__(
@@ -113,7 +115,8 @@ class WorkflowSetting:
             choices: dict = None,
             description: Union[str, None] = None,
             for_frontend: bool = False,
-            multiple_choice: bool = False
+            multiple_choice: bool = False,
+            any_string: bool = False
     ):
         self.name = None  # set by AutoSettingNameMeta
         self.default = default
@@ -122,6 +125,7 @@ class WorkflowSetting:
         self.description = description
         self.for_webapp = for_frontend
         self.multiple_choice = multiple_choice
+        self.any_string = any_string
         self.manager = None
 
     def initialize(self, manager):
@@ -168,7 +172,10 @@ class WorkflowSetting:
                 else:
                     self._inner_set(bound_workflow, value)
         else:
-            if value not in choices:
+            if self.any_string and not isinstance(value, str):
+                raise ValueError(f'{value} is no valid value for setting '
+                                 f'{self.name}, please enter a string.')
+            elif value not in choices and not self.any_string:
                 raise ValueError(f'{value} is no valid value for setting '
                                  f'{self.name}, select one of {choices}.')
             else:
@@ -450,7 +457,8 @@ class EnergyPlusWorkflow(BuildingSimulation):
             '22-2-0': 'EnergyPlus Version 22-2-0'  # todo: Test latest version
         },
         description='Choose EnergyPlus Version',
-        for_frontend=True
+        for_frontend=True,
+        any_string=True
     )
     ep_install_path = WorkflowSetting(
         default=f'/usr/local/EnergyPlus-9-4-0/',
@@ -458,10 +466,12 @@ class EnergyPlusWorkflow(BuildingSimulation):
             f'/usr/local/EnergyPlus-9-4-0/': 'ubuntu-default',
             f'/usr/local/EnergyPlus-{ep_version.default}/':
                 'ubuntu-path-choice',
-            f'C:/EnergyPlus/EnergyPlusV{ep_version.default}/': 'windows-default'
+            f'C:/EnergyPlus/EnergyPlusV{ep_version.default}/':
+                'windows-default'
         },
         description='Choose EnergyPlus Installation Path',
-        for_frontend=False
+        for_frontend=False,
+        any_string=True
     )
     system_sizing = WorkflowSetting(
         default=True,
