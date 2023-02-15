@@ -7,3 +7,4 @@ python-dateutil
 mako
 pint
 deep_translator
+string_grouper
