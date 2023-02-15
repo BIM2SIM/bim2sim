@@ -709,16 +709,20 @@ class HvacGraph(nx.Graph):
         return graphs
 
     def subgraph_from_elements(self, elements: list):
-        """ Creates a subgraph from a given list of elements.
+        """ Returns a subgraph of the current graph containing only the ports
+            associated with the provided elements.
 
         Args:
-            elements: list of elements create.
+            elements: A list of elements to include in the subgraph.
 
         Returns:
-            A subgraph consisting of the elements.
+            A subgraph of the current graph that contains only the ports
+            associated with the provided elements.
 
         Raises:
-            AssertionError if the elements are not part of the graph.
+            AssertionError: If the current graph is not an instance of
+                HvacGraph.
+            AssertionError: If the provided elements are not part of the graph.
 
         """
         if not isinstance(self, HvacGraph):
@@ -729,7 +733,18 @@ class HvacGraph(nx.Graph):
         return self.subgraph((port for ele in elements for port in ele.ports))
 
     @staticmethod
-    def remove_classes_from(graph, classes_to_remove: set):
+    def remove_classes_from(graph: nx.Graph,
+                            classes_to_remove: Set[Type[ProductBased]]
+                            ) -> nx.Graph:
+        """ Removes nodes from a given graph based on their class.
+
+            Args:
+                graph: The graph to remove nodes from.
+                classes_to_remove: A set of classes to remove from the graph.
+
+            Returns:
+                The modified graph as a new instance.
+        """
         _graph = graph.copy()
         if not isinstance(_graph, HvacGraph):
             nodes_to_remove = {node for node in _graph.nodes if
@@ -741,10 +756,3 @@ class HvacGraph(nx.Graph):
                                for port in ele.ports]
         _graph.remove_nodes_from(nodes_to_remove)
         return _graph
-
-    # def remove_elements(self, elements_to_remove: Set[Type[ProductBased]]):
-    #     graph = self.copy()
-    #     for element_to_remove in elements_to_remove:
-    #         graph.remove_nodes_from(element_to_remove.ports)
-    #     return graph
-
