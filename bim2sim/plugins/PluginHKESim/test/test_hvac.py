@@ -2,12 +2,17 @@ import unittest
 from collections import Counter
 
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
+from bim2sim.export.modelica import Instance
 from bim2sim.kernel.aggregation import ConsumerHeatingDistributorModule
 from bim2sim.log import default_logging_setup
 from bim2sim.utilities.test import IntegrationBase
 
 
 class IntegrationBaseHKESIM(IntegrationBase):
+    def tearDown(self):
+        Instance.lookup = {}
+        super().tearDown()
+
     def model_domain_path(self) -> str:
         return 'HVAC'
 

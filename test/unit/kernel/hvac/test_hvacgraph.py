@@ -218,3 +218,38 @@ class TestHVACGraph(unittest.TestCase):
 
         ele_graph = port_graph.element_graph
         self.assertSetEqual(set(ele_graph.nodes), all_elements)
+
+    def test_subgraph_from_elements(self):
+        """ Test creating a subgraph of the port_graph with given elements."""
+        elements, flags = self.helper.get_system_elements()
+        port_graph = hvac_graph.HvacGraph(elements)
+
+        # test subgraph creation
+        sub_graph = port_graph.subgraph_from_elements(flags['strand1'])
+        self.assertEqual(set(sub_graph.elements), set(flags['strand1']))
+
+        # test if AssertionError is raised if elements are not in port_graph
+        classes_to_remove = {hvac.Pipe}
+        new_port_graph = hvac_graph.HvacGraph.remove_classes_from(
+            port_graph, classes_to_remove)
+        with self.assertRaises(AssertionError):
+            new_port_graph.subgraph_from_elements(flags['strand1'])
+
+    def test_remove_classes(self):
+        """ Test remove elements of given classes from port graph and
+            element graph."""
+        elements, flags = self.helper.get_system_elements()
+        port_graph = hvac_graph.HvacGraph(elements)
+        ele_graph = port_graph.element_graph
+
+        classes_to_remove = {hvac.Boiler, hvac.Distributor}
+        new_port_graph = hvac_graph.HvacGraph.remove_classes_from(
+            port_graph, classes_to_remove)
+        new_ele_graph = hvac_graph.HvacGraph.remove_classes_from(
+            ele_graph, classes_to_remove
+        )
+
+        self.assertFalse(hvac.Boiler and hvac.Distributor
+                         in {ele.__class__ for ele in new_port_graph.elements})
+        self.assertFalse(hvac.Boiler and hvac.Distributor
+                         in {node.__class__ for node in new_ele_graph.nodes})

@@ -1,6 +1,6 @@
 import unittest
 
-from decision.decisionhandler import DebugDecisionHandler
+from bim2sim.decision.decisionhandler import DebugDecisionHandler
 
 from bim2sim.task.bps import enrich_use_cond
 from test.unit.kernel.helper import SetupHelperBPS

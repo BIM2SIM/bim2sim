@@ -2031,10 +2031,10 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
     aggregatable_classes = {
         hvac.Pump, PipeStrand, hvac.Pipe, hvac.PipeFitting, hvac.Distributor,
         hvac.Boiler, ParallelPump, hvac.Valve, hvac.Storage,
-        hvac.ThreeWayValve,
-        hvac.Junction, ConsumerHeatingDistributorModule, Consumer}
-    whitelist_classes = [hvac.Boiler, hvac.CHP]
-    boarder_classes = [hvac.Distributor, ConsumerHeatingDistributorModule]
+        hvac.ThreeWayValve, hvac.Junction, ConsumerHeatingDistributorModule,
+        Consumer}
+    whitelist_classes = {hvac.Boiler, hvac.CHP}
+    boarder_classes = {hvac.Distributor, ConsumerHeatingDistributorModule}
     multi = ('rated_power', 'has_bypass', 'rated_height', 'volume',
              'rated_volume_flow', 'rated_pump_power', 'has_pump')
 
@@ -2044,67 +2044,6 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         self.bypass_elements = kwargs.pop('bypass_elements', set())
         self.has_bypass = True if self.bypass_elements else False
         super().__init__(base_graph, match_graph, *args, **kwargs)
-
-    # @classmethod
-    # def find_matches_new(cls, base_graph: HvacGraph
-    #                      ) -> Tuple[List[HvacGraph], List[dict]]:
-    #     """
-    #     Finds matches of generators with one fluid.
-    #
-    #     Non relevant elements like bypasses are added to metas information to
-    #     delete later.
-    #
-    #     Args:
-    #         base_graph: element_graph that should be checked for one fluid
-    #             generators
-    #
-    #     Returns:
-    #         generator_cycles:
-    #             List of element_graphs that hold a generator cycle including the
-    #             distributor.
-    #         metas:
-    #             List of dict with metas information. One element for each
-    #             element_graph. In this case it holds non_relevant nodes, which
-    #             have to be deleted later but are not contained in the
-    #             **resulting graph?** #TODO
-    #             element_graph. Because we are currently not able to distinguish
-    #             to which graph these non_relevant nodes belong, we just output
-    #             the complete list of non relevant nodes for every element_graph.
-    #     """
-    #     elements_to_aggregate = {ele for ele in base_graph.elements
-    #                              if type(ele) in cls.aggregatable_classes}
-    #     _graph = base_graph.subgraph_from_elements(elements_to_aggregate)
-    #     generators_cycles = HvacGraph.get_all_cycles_with_wanted(
-    #         base_graph.element_graph, cls.whitelist_classes)
-    #
-    #     matches_graphs = []
-    #     metas = []
-    #     for i, generator_cycles in enumerate(generators_cycles.values()):
-    #         metas.append(dict())
-    #         for generator_cycle in generator_cycles:
-    #             if any([ele for ele in generator_cycle
-    #                     if type(ele) in cls.boarder_classes]):
-    #                 continue
-    #             else:
-    #                 metas[i]['bypass_elements'] = []
-    #                 inner_cycle = base_graph.subgraph_from_elements(
-    #                     generator_cycle)
-    #                 bypass_elements = HvacGraph.find_bypasses_in_cycle(
-    #                     inner_cycle.element_graph,
-    #                     inner_cycle.element_graph,
-    #                     cls.whitelist_classes)
-    #                 if bypass_elements:
-    #                     metas[i]['bypass_elements'].append(bypass_elements[0])
-    #                 else:
-    #                     metas[i]['has_parallel'] = []
-    #                     metas[i]['has_parallel'].append(True)
-    #         match_elements = [item for sublist in generator_cycles
-    #                           for item in sublist]
-    #         match_graph = base_graph.subgraph_from_elements(match_elements)
-    #         metas[i]['non_relevant'] = []
-    #         matches_graphs.append(match_graph)
-    #
-    #     return matches_graphs, metas
 
     @classmethod
     def find_matches(cls, base_graph: HvacGraph
@@ -2131,13 +2070,11 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
                     non-relevant nodes for every element_graph.
         """
         element_graph = base_graph.element_graph
-        wanted = set(cls.whitelist_classes)
-        boarders = set(cls.boarder_classes)
-        inerts = set(cls.aggregatable_classes) - wanted
+        inerts = cls.aggregatable_classes - cls.whitelist_classes
         _graph = HvacGraph.remove_not_wanted_nodes(
-            element_graph, wanted, inerts)
+            element_graph, cls.whitelist_classes, inerts)
         dict_all_cycles_wanted = HvacGraph.get_all_cycles_with_wanted(
-            _graph, wanted)
+            _graph, cls.whitelist_classes)
         list_all_cycles_wanted = [*dict_all_cycles_wanted.values()]
 
         # create flat lists to subtract for non-relevant
@@ -2150,7 +2087,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
             generator_cycle = list(
                 nx.subgraph(_graph, cycle) for cycle in cycles_list
                 if any(type(node) == block for block in
-                       boarders for node in cycle))
+                       cls.boarder_classes for node in cycle))
             if generator_cycle:
                 generator_cycles.extend(generator_cycle)
                 generator_flat.update(generator_cycle[0].nodes)
@@ -2191,6 +2128,8 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         matches_graphs = []
         for cycle in cleaned_generator_cycles:
             match_graph = base_graph.subgraph_from_elements(list(cycle.nodes))
+            match_graph = HvacGraph.remove_classes_from(
+                match_graph, cls.boarder_classes)
             matches_graphs.append(match_graph)
         return matches_graphs, metas
 

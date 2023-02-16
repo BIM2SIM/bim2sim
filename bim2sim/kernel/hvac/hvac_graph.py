@@ -2,12 +2,13 @@
 network
 where each node represents a hvac-component
 """
+from __future__ import annotations
 
 import itertools
 import logging
 import os
 from pathlib import Path
-from typing import Set, Iterable, Type, List
+from typing import Set, Iterable, Type, List, Union
 
 import networkx as nx
 from networkx.readwrite import json_graph
@@ -720,13 +721,9 @@ class HvacGraph(nx.Graph):
             associated with the provided elements.
 
         Raises:
-            AssertionError: If the current graph is not an instance of
-                HvacGraph.
             AssertionError: If the provided elements are not part of the graph.
 
         """
-        if not isinstance(self, HvacGraph):
-            raise AssertionError('%s is not an HvacGraph.', self)
         if not set(elements).issubset(set(self.elements)):
             raise AssertionError('The elements %s are not part of this graph.',
                                  elements)
@@ -735,7 +732,7 @@ class HvacGraph(nx.Graph):
     @staticmethod
     def remove_classes_from(graph: nx.Graph,
                             classes_to_remove: Set[Type[ProductBased]]
-                            ) -> nx.Graph:
+                            ) -> Union[nx.Graph, HvacGraph]:
         """ Removes nodes from a given graph based on their class.
 
             Args:
