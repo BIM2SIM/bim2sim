@@ -1,32 +1,6 @@
-# Documentation
+<meta name="google-site-verification" content="LnngZLFZTeqnRyj6vdnAj7a2Cz5cE2dpbgwJ1VSvzpk" />
 
-## Setup
+# bim2sim
+Our repository is stored here: [https://github.com/BIM2SIM/bim2sim](https://github.com/BIM2SIM/bim2sim)
 
-Install requirements 
-```
-cd docs
-pip install -r requirements.txt
-```
-
-### Build
-To build the documentation, first update API documentation by:
-```
-sphinx-apidoc -o source/code/ ../bim2sim
-```
-THis is only required if something on the project structure changed.
-
-Then build the html files
-```
-make html
-```
-
-Or start the dev server to automatically rebuild documentation on changes
-```
-cd docs/source
-python run_livereload.py
-```
-The dev server also notifies your browser to reload on changes.
-
-## Writing documentation
-
-Both Markdown (.md) and reStructuredText (.rst) are supported. 
+You can find the full documentation  [here](https://ebc.pages.rwth-aachen.de/EBC_all/github_ci/bim2sim/main/docs/overview.html)
