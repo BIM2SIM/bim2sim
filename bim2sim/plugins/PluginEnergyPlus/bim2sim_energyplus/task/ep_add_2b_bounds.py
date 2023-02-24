@@ -18,7 +18,8 @@ from OCC.Core.gp import gp_Pnt
 from bim2sim.kernel.elements.bps import SpaceBoundary2B, ThermalZone, Door, \
     Window
 from bim2sim.task.base import ITask
-from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.utilities.common_functions import filter_instances, \
+    get_spaces_with_bounds
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task \
     import EPGeomPreprocessing
@@ -64,7 +65,7 @@ class AddSpaceBoundaries2B(ITask):
         """
         logger.info("Generate space boundaries of type 2B")
         inst_2b = dict()
-        spaces = filter_instances(instances, ThermalZone)
+        spaces = get_spaces_with_bounds(instances)
         for space_obj in spaces:
             # compare surface area of IfcSpace shape with sum of space
             # boundary shapes of this thermal zone.

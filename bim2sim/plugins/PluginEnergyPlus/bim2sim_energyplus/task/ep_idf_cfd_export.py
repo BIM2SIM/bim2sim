@@ -15,7 +15,8 @@ from stl import mesh, stl
 
 from bim2sim.kernel.elements.bps import ThermalZone, SpaceBoundary
 from bim2sim.task.base import ITask
-from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.utilities.common_functions import filter_instances, \
+    get_spaces_with_bounds
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 logger = logging.getLogger(__name__)
@@ -55,7 +56,7 @@ class ExportIdfForCfd(ITask):
             instances: dict[guid: element]
             stl_name: name of the stl file.
         """
-        spaces = filter_instances(instances, ThermalZone)
+        spaces = get_spaces_with_bounds(instances)
         for space_obj in spaces:
             if not hasattr(space_obj, "b_bound_shape"):
                 continue
@@ -132,7 +133,7 @@ class ExportIdfForCfd(ITask):
             stl_name: name of the stl file.
             base_stl_dir: directory of exported stl files
         """
-        spaces = filter_instances(instances, ThermalZone)
+        spaces = get_spaces_with_bounds(instances)
         for space_obj in spaces:
             space_name = space_obj.guid
             stl_dir = base_stl_dir + space_name + "/"
@@ -179,7 +180,7 @@ class ExportIdfForCfd(ITask):
         """
         stl_dir = str(paths.export) + '/'
         space_bound_df = pd.DataFrame(columns=["space_id", "bound_ids"])
-        spaces = filter_instances(instances, ThermalZone)
+        spaces = get_spaces_with_bounds(instances)
         for space in spaces:
             bound_names = []
             for bound in space.space_boundaries:
