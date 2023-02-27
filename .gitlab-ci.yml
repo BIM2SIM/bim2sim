@@ -29,7 +29,7 @@ build_env:master:
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/environment:master -f envBase.Dockerfile .
+   - docker build -t $CI_REGISTRY/environment:master -f envBase.Dockerfile --load . 
    - docker push $CI_REGISTRY/environment:master
  only:
    refs:
@@ -48,7 +48,7 @@ build_env:development:
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/environment:development -f envBase.Dockerfile .
+   - docker build -t $CI_REGISTRY/environment:development -f envBase.Dockerfile --load .
    - docker push $CI_REGISTRY/environment:development
  only:
    refs:
@@ -68,7 +68,7 @@ build_env:dymola:
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA   # login dymola docker reg
  script:
-   - docker build -t $CI_REGISTRY/environment:dymola -f envBaseDymola.Dockerfile .
+   - docker build -t $CI_REGISTRY/environment:dymola -f envBaseDymola.Dockerfile --load .
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
    - docker push $CI_REGISTRY/environment:dymola
  only:
@@ -89,7 +89,7 @@ build_env:energyplus:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/environment:energyplus -f bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile .
+    - docker build -t $CI_REGISTRY/environment:energyplus -f bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile --load .
     - docker push $CI_REGISTRY/environment:energyplus
   only:
     refs:
@@ -110,7 +110,7 @@ build_env:cfd:
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/environment:cfd -f bim2sim/plugins/PluginCFD/envCFD.Dockerfile .
+   - docker build -t $CI_REGISTRY/environment:cfd -f bim2sim/plugins/PluginCFD/envCFD.Dockerfile --load .
    - docker push $CI_REGISTRY/environment:cfd
  timeout: 6 hours
  only:
@@ -131,7 +131,7 @@ build_env:teaser:
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/environment:teaser -f bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile .
+   - docker build -t $CI_REGISTRY/environment:teaser -f bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile --load .
    - docker push $CI_REGISTRY/environment:teaser
  only:
    refs:
@@ -153,7 +153,7 @@ build_env:teaser-dymola:
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/environment:teaser-dymola -f bim2sim/plugins/PluginTEASER/envTEASER-dymola.Dockerfile .
+   - docker build -t $CI_REGISTRY/environment:teaser-dymola -f bim2sim/plugins/PluginTEASER/envTEASER-dymola.Dockerfile --load .
    - docker push $CI_REGISTRY/environment:teaser-dymola
  only:
    refs:
@@ -175,7 +175,7 @@ build_env:aixlib:
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/environment:aixlib -f bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile .
+   - docker build -t $CI_REGISTRY/environment:aixlib -f bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile --load .
    - docker push $CI_REGISTRY/environment:aixlib
  only:
    refs:
@@ -196,7 +196,7 @@ build_tool:release:
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/tool:latest .
+   - docker build -t $CI_REGISTRY/tool:latest --load .
    - docker push $CI_REGISTRY/tool:latest
  only:
    - master
@@ -210,7 +210,7 @@ build_tool:development:
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/tool:development .
+   - docker build -t $CI_REGISTRY/tool:development --load .
    - docker push $CI_REGISTRY/tool:development
  only:
    - development
@@ -224,7 +224,7 @@ build_tool:webdevelop:
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/tool:web_develop -f total.Dockerfile .
+   - docker build -t $CI_REGISTRY/tool:web_develop -f total.Dockerfile --load .
    - docker push $CI_REGISTRY/tool:web_develop
  only:
    - development
@@ -238,7 +238,7 @@ build_tool:cfd:
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/tool:cfd -f bim2sim/plugins/PluginCFD/cfd.Dockerfile .
+   - docker build -t $CI_REGISTRY/tool:cfd -f bim2sim/plugins/PluginCFD/cfd.Dockerfile --load .
    - docker push $CI_REGISTRY/tool:cfd
  only:
    changes:
@@ -253,7 +253,7 @@ build_tool:teaser:
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/tool:teaser -f bim2sim/plugins/PluginTEASER/teaser.Dockerfile .
+   - docker build -t $CI_REGISTRY/tool:teaser -f bim2sim/plugins/PluginTEASER/teaser.Dockerfile --load .
    - docker push $CI_REGISTRY/tool:teaser
  only:
    changes:
@@ -268,7 +268,7 @@ build_tool:aixlib:
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/tool:aixlib -f bim2sim/plugins/PluginAixLib/aixlib.Dockerfile .
+   - docker build -t $CI_REGISTRY/tool:aixlib -f bim2sim/plugins/PluginAixLib/aixlib.Dockerfile --load .
    - docker push $CI_REGISTRY/tool:aixlib
  only:
    changes:
