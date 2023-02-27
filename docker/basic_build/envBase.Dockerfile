@@ -1,12 +1,8 @@
 ########################################################
-# OS
 FROM ubuntu:20.04
-
-#  $ docker build . -t continuumio/miniconda3:latest -t continuumio/miniconda3:4.5.11
-#  $ docker run --rm -it continuumio/miniconda3:latest /bin/bash
-#  $ docker push continuumio/miniconda3:latest
-#  $ docker push continuumio/miniconda3:4.5.11
-
+ARG BIM2SIM_NAME=bim2sim
+ARG BIM2SIM_VERSION
+ARG BIM2SIM_FLAG
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 ENV PATH /opt/conda/bin:$PATH
 
@@ -37,23 +33,21 @@ WORKDIR /bim2sim-coding
 
 RUN apt-get --allow-releaseinfo-change update
 RUN apt-get -y install unzip
-RUN apt-get -y install libgl-dev 
+RUN apt-get -y install libgl-dev
 
 
-RUN 	conda create -n env python=3.9 -y
+RUN 	conda create -n env python=3.9
 RUN		conda update -n base -c defaults conda
 RUN 	echo "source activate env" > ~/.bashrc
 ENV 	PATH /opt/conda/envs/env/bin:$PATH
 SHELL 	["conda", "run", "-n", "env", "/bin/bash", "-c"]
 
-# install needed packages
-#RUN conda init bash
-#RUN conda activate env
-ENV BIM2SIM_NAME ${BIM2SIM_NAME}
-RUN echo $BIM2SIM_NAME
+RUN  conda config --add channels bim2sim
+RUN  conda config --add channels conda-forge
 
-#RUN conda install ${BIM2SIM_NAME}==*${BIM2SIM_VERSION}
-RUN ["/bin/bash", "-c", "source activate env "]
-RUN conda install ${BIM2SIM_NAME}==*${BIM2SIM_VERSION} -y
-
-
+RUN /opt/conda/bin/conda install --yes --freeze-installed \
+	    -c bim2sim ${BIM2SIM_NAME}==${BIM2SIM_VERSION}${BIM2SIM_FLAG} \
+	&& /opt/conda/bin/conda clean -afy \
+	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
+	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \
+	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete

@@ -33,6 +33,7 @@ requirements:
     - certifi==2022.12.7
     - pythonocc-core==7.6.2
     - ifcopenshell
+
   run_constrained:
     - beautifulsoup4 >=4.9.3
 
