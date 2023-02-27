@@ -24,7 +24,7 @@ build_env:master:
  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env
  services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
@@ -42,7 +42,7 @@ build_env:development:
  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env
  services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
@@ -61,7 +61,7 @@ build_env:dymola:
  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env
  services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA   # login dymola docker reg
@@ -82,7 +82,7 @@ build_env:energyplus:
   image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
   stage: build-env-plugins
   services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
@@ -103,7 +103,7 @@ build_env:cfd:
  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env-plugins
  services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
@@ -124,7 +124,7 @@ build_env:teaser:
  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env-plugins
  services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
@@ -146,7 +146,7 @@ build_env:teaser-dymola:
  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env-plugins
  services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
@@ -168,7 +168,7 @@ build_env:aixlib:
  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env-plugins
  services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
@@ -189,7 +189,7 @@ build_tool:release:
  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-tool
  services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
@@ -203,7 +203,7 @@ build_tool:development:
  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-tool
  services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
@@ -217,7 +217,7 @@ build_tool:webdevelop:
  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-tool
  services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
@@ -231,7 +231,7 @@ build_tool:cfd:
  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-tool
  services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
@@ -246,7 +246,7 @@ build_tool:teaser:
  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-tool
  services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
@@ -261,7 +261,7 @@ build_tool:aixlib:
  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-tool
  services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
@@ -277,7 +277,7 @@ test_Base:
   image: $CI_REGISTRY/environment:development
   stage: test
   services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
   before_script:
     - pip install coverage
