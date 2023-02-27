@@ -38,6 +38,7 @@ WORKDIR /bim2sim-coding
 RUN apt-get --allow-releaseinfo-change update
 RUN apt-get -y install unzip
 RUN apt-get -y install libgl-dev 
+RUN apt-get -y install gcc
 
 # Copy files
 COPY ./requirements.txt .
