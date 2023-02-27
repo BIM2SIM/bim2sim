@@ -563,7 +563,7 @@ class CreateElements(ITask):
 
         representatives = group_similar_entities()
 
-        for ifc_type, repr_entities in representatives.items():
+        for ifc_type, repr_entities in sorted(representatives.items()):
             decisions = DecisionBunch()
             for ifc_entity, represented in repr_entities.items():
                 # assert same list of ifc_classes
