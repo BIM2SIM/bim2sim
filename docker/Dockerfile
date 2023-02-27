@@ -46,12 +46,7 @@ RUN  conda config --add channels bim2sim
 RUN  conda config --add channels conda-forge
 
 RUN /opt/conda/bin/conda install --yes --freeze-installed \
-	    -c bim2sim bim2sim_teaser==${BIM2SIM_VERSION}${BIM2SIM_FLAG} \
-        -c bim2sim bim2sim_lca==${BIM2SIM_VERSION}${BIM2SIM_FLAG} \
-	    -c bim2sim bim2sim_hkesim==${BIM2SIM_VERSION}${BIM2SIM_FLAG} \
-        -c bim2sim bim2sim_energyplus==${BIM2SIM_VERSION}${BIM2SIM_FLAG} \
-        -c bim2sim bim2sim_aixlib==${BIM2SIM_VERSION}${BIM2SIM_FLAG} \
-        -c bim2sim bim2sim_cfd==${BIM2SIM_VERSION}${BIM2SIM_FLAG} \
+	    -c bim2sim bim2sim==${BIM2SIM_VERSION}${BIM2SIM_FLAG} \
 	&& /opt/conda/bin/conda clean -afy \
 	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
 	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \

@@ -1,15 +1,14 @@
 {% set data = load_setup_py_data(setup_file='../../setup.py', from_recipe_dir=True) %}
 
 package:
-  name:  {{data.get('name')}}
-  version: {{data.get('version')}}{{BIM2SIM_VERSION}}
+  name:  {{BIM2SIM_NAME}}
+  version: {{data.get('version')}}{{BIM2SIM_FLAG}}
 
 source:
   path: ../../
 
 build:
   preserve_egg_dir: True
-
   number: '0'
   entry_points:
     - bim2sim = bim2sim.__main__:commandline_interface

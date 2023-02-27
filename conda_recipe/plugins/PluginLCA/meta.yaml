@@ -1,8 +1,8 @@
 {% set data = load_setup_py_data(setup_file='../../../bim2sim/plugins/PluginLCA/setup.py', from_recipe_dir=True) %}
 
 package:
-  name:  {{data.get('name')}}
-  version: {{data.get('version')}}{{BIM2SIM_VERSION}}
+  name:  {{BIM2SIM_NAME}}
+  version: {{data.get('version')}}{{BIM2SIM_FLAG}}
 
 source:
   path: ../../../bim2sim/plugins/PluginLCA
@@ -20,7 +20,7 @@ requirements:
     - setuptools 65.5.0
   run:
     - python >=3.8.*,<3.10.*
-    - bim2sim=={{data.get('version')}}{{BIM2SIM_VERSION}}
+    - bim2sim_base=={{data.get('version')}}{{BIM2SIM_FLAG}}
 test:
   imports:
     - bim2sim

@@ -7,11 +7,11 @@ stages:
   - release_conda_total
 
 variables:
-  BIM2SIM_VERSION: ""
+  BIM2SIM_FLAG: ""
   BIM2SIM_NAME:  "bim2sim"
 
 
-.conda_rules:main:
+.conda_build_rules:main:
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       when: on_success
@@ -19,7 +19,7 @@ variables:
       when: on_success
 
 
-.conda_rules:dev:
+.conda_build_rules:dev:
   rules:
     - if: $CI_COMMIT_BRANCH == "development"
       when: on_success
@@ -50,10 +50,10 @@ conda_build_bim2sim:base:main:
     variables:
         BIM2SIM_NAME: "bim2sim_base"
         CONDA_FILE:  "conda_recipe/basic_build/meta.yaml"
-        BIM2SIM_VERSION: ""
+        BIM2SIM_FLAG: ""
     extends: .conda_build
     rules:
-      - !reference [.conda_rules:main, rules]
+      - !reference [.conda_build_rules:main, rules]
       - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
         when: on_success
 
@@ -62,23 +62,23 @@ conda_build_bim2sim:base:dev:
     variables:
         BIM2SIM_NAME: "bim2sim_base"
         CONDA_FILE:  "conda_recipe/basic_build/meta.yaml"
-        BIM2SIM_VERSION: "_dev"
+        BIM2SIM_FLAG: "_dev"
     extends: .conda_build
     rules:
-      - !reference [ .conda_rules:dev, rules]
+      - !reference [ .conda_build_rules:dev, rules]
       - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
         when: on_success
 
 # [Build Conda Plugins]
-.conda_rules:plugin:main:
+.conda_build_rules:plugin:main:
   rules:
-     - !reference [.conda_rules:main, rules]
+     - !reference [.conda_build_rules:main, rules]
      - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_main/
        when: on_success
 
-.conda_rules:plugin:dev:
+.conda_build_rules:plugin:dev:
   rules:
-     - !reference [.conda_rules:dev, rules]
+     - !reference [.conda_build_rules:dev, rules]
      - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_dev/
        when: on_success
 
@@ -87,80 +87,80 @@ build_conda_plugin:aixlib:main:
     variables:
         BIM2SIM_NAME: "bim2sim_aixlib"
         CONDA_FILE: "conda_recipe/plugins/PluginAixLib/meta.yaml"
-        BIM2SIM_VERSION: ""
+        BIM2SIM_FLAG: ""
     extends: .conda_build
     rules:
-      - !reference [.conda_rules:plugin:main, rules]
+      - !reference [.conda_build_rules:plugin:main, rules]
 
 build_conda_plugin:aixlib:dev:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_aixlib"
         CONDA_FILE: "conda_recipe/plugins/PluginAixLib/meta.yaml"
-        BIM2SIM_VERSION: "_dev"
+        BIM2SIM_FLAG: "_dev"
     extends: .conda_build
     rules:
-      - !reference [.conda_rules:plugin:dev, rules]
+      - !reference [.conda_build_rules:plugin:dev, rules]
 
 build_conda_plugin:cfd:main:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_cfd"
         CONDA_FILE: "conda_recipe/plugins/PluginCFD/meta.yaml"
-        BIM2SIM_VERSION: ""
+        BIM2SIM_FLAG: ""
     extends: .conda_build
     rules:
-      - !reference [ .conda_rules:plugin:main, rules ]
+      - !reference [ .conda_build_rules:plugin:main, rules ]
 
 build_conda_plugin:cfd:dev:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_cfd"
         CONDA_FILE: "conda_recipe/plugins/PluginCFD/meta.yaml"
-        BIM2SIM_VERSION: "_dev"
+        BIM2SIM_FLAG: "_dev"
     extends: .conda_build
     rules:
-      - !reference [.conda_rules:plugin:dev, rules]
+      - !reference [.conda_build_rules:plugin:dev, rules]
 
 build_conda_plugin:energyplus:main:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_energyplus"
         CONDA_FILE: "conda_recipe/plugins/PluginEnergyPlus/meta.yaml"
-        BIM2SIM_VERSION: ""
+        BIM2SIM_FLAG: ""
     extends: .conda_build
     rules:
-      - !reference [ .conda_rules:plugin:main, rules ]
+      - !reference [.conda_build_rules:plugin:main, rules ]
 
 build_conda_plugin:energyplus:dev:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_energyplus"
         CONDA_FILE: "conda_recipe/plugins/PluginEnergyPlus/meta.yaml"
-        BIM2SIM_VERSION: "_dev"
+        BIM2SIM_FLAG: "_dev"
     extends: .conda_build
     rules:
-      - !reference [.conda_rules:plugin:dev, rules]
+      - !reference [.conda_build_rules:plugin:dev, rules]
 
 build_conda_plugin:hkesim:main:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_hkesim"
         CONDA_FILE: "conda_recipe/plugins/PluginHKESim/meta.yaml"
-        BIM2SIM_VERSION: ""
+        BIM2SIM_FLAG: ""
     extends: .conda_build
     rules:
-      - !reference [ .conda_rules:plugin:main, rules ]
+      - !reference [ .conda_build_rules:plugin:main, rules ]
 
 build_conda_plugin:hkesim:dev:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_hkesim"
         CONDA_FILE: "conda_recipe/plugins/PluginHKESim/meta.yaml"
-        BIM2SIM_VERSION: "_dev"
+        BIM2SIM_FLAG: "_dev"
     extends: .conda_build
     rules:
-      - !reference [.conda_rules:plugin:dev, rules]
+      - !reference [.conda_build_rules:plugin:dev, rules]
 
 
 build_conda_plugin:lca:main:
@@ -168,40 +168,40 @@ build_conda_plugin:lca:main:
     variables:
       BIM2SIM_NAME: "bim2sim_lca"
       CONDA_FILE: "conda_recipe/plugins/PluginLCA/meta.yaml"
-      BIM2SIM_VERSION: ""
+      BIM2SIM_FLAG: ""
     extends: .conda_build
     rules:
-      - !reference [ .conda_rules:plugin:main, rules ]
+      - !reference [.conda_build_rules:plugin:main, rules ]
 
 build_conda_plugin:lca:dev:
     stage: build_conda_plugin
     variables:
       BIM2SIM_NAME: "bim2sim_lca"
       CONDA_FILE: "conda_recipe/plugins/PluginLCA/meta.yaml"
-      BIM2SIM_VERSION: "_dev"
+      BIM2SIM_FLAG: "_dev"
     extends: .conda_build
     rules:
-      - !reference [.conda_rules:plugin:dev, rules]
+      - !reference [.conda_build_rules:plugin:dev, rules]
 
 build_conda_plugin:teaser:main:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_teaser"
         CONDA_FILE: "conda_recipe/plugins/PluginTeaser/meta.yaml"
-        BIM2SIM_VERSION: ""
+        BIM2SIM_FLAG: ""
     extends: .conda_build
     rules:
-      - !reference [ .conda_rules:plugin:main, rules ]
+      - !reference [.conda_build_rules:plugin:main, rules ]
 
 build_conda_plugin:teaser:dev:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_teaser"
         CONDA_FILE: "conda_recipe/plugins/PluginTeaser/meta.yaml"
-        BIM2SIM_VERSION: "_dev"
+        BIM2SIM_FLAG: "_dev"
     extends: .conda_build
     rules:
-      - !reference [.conda_rules:plugin:dev, rules]
+      - !reference [.conda_build_rules:plugin:dev, rules]
 
 # [Build Conda total]
 
@@ -210,10 +210,10 @@ build_conda_bim2sim:total:main:
     variables:
         BIM2SIM_NAME: "bim2sim"
         CONDA_FILE: "conda_recipe/total/meta.yaml"
-        BIM2SIM_VERSION: ""
+        BIM2SIM_FLAG: ""
     extends: .conda_build
     rules:
-      - !reference [ .conda_rules:main, rules]
+      - !reference [.conda_build_rules:main, rules]
       - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
         when: on_success
 
@@ -222,10 +222,10 @@ build_conda_bim2sim:total:dev:
     variables:
         BIM2SIM_NAME: "bim2sim"
         CONDA_FILE: "conda_recipe/total/meta.yaml"
-        BIM2SIM_VERSION: "_dev"
+        BIM2SIM_FLAG: "_dev"
     extends: .conda_build
     rules:
-      - !reference [.conda_rules:dev, rules]
+      - !reference [.conda_build_rules:dev, rules]
       - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
         when: on_success
 
