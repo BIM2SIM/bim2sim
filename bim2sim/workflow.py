@@ -266,16 +266,16 @@ class Workflow(metaclass=AutoSettingNameMeta):
         for_frontend=True
     )
     group_unidentified = WorkflowSetting(
-        default=True,
+        default='fuzzy',
         choices={
             'fuzzy': 'Use fuzzy search to find name similarities',
             'name': 'Only group elements with exact same name'
         },
         description='To reduce the number of decisions by user to identify '
                     'elements which can not be identified automatically by the '
-                    'system, you can either use simple grouping by same name of '
-                    'IFC element or fuzzy search to group based on similarities '
-                    'in name.',
+                    'system, you can either use simple grouping by same name of'
+                    ' IFC element or fuzzy search to group based on'
+                    ' similarities in name.',
         for_frontend=True
     )
     fuzzy_threshold = WorkflowSetting(
