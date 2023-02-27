@@ -45,9 +45,8 @@ build_env:development:
    - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
  before_script:
-   - apk add build-base
- script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+ script:
    - docker build -t $CI_REGISTRY/environment:development -f envBase.Dockerfile .
    - docker push $CI_REGISTRY/environment:development
  only:
