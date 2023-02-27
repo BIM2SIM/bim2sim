@@ -4,7 +4,7 @@ with open(f'README.md', 'r') as f:
     long_description = f.read()
 with open(f'requirements.txt', 'r') as f:
     required = f.read().splitlines()
-version = "1.0.0"
+version = "0.1.0"
 
 def copy_non_code_file(non_code_dir, not_include):
     path_file_dict = []

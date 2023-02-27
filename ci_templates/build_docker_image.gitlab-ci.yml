@@ -26,14 +26,14 @@ variables:
     paths:
       - $CI_REGISTRY/environment:$IMAGE_NAME
 
-.docker_rules:main:
+.docker_build_rules:main:
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       when: on_success
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
       when: on_success
 
-.docker_rules:dev:
+.docker_build_rules:dev:
   rules:
     - if: $CI_COMMIT_BRANCH == "development"
       when: on_success
@@ -49,7 +49,7 @@ docker_build_bim2sim:base:main:
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
-    - !reference [.docker_rules:main, rules ]
+    - !reference [.docker_build_rules:main, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
       when: on_success
 
@@ -62,20 +62,20 @@ docker_build_bim2sim:base:dev:
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
-    - !reference [.docker_rules:dev, rules ]
+    - !reference [.docker_build_rules:dev, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
       when: on_success
 
 # [Build docker Plugins]
-.docker_rules:plugin:main:
+.docker_build_rules:plugin:main:
   rules:
-     - !reference [.docker_rules:main, rules]
+     - !reference [.docker_build_rules:main, rules]
      - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_main/
        when: on_success
 
-.docker_rules:plugin:dev:
+.docker_build_rules:plugin:dev:
   rules:
-     - !reference [.docker_rules:dev, rules]
+     - !reference [.docker_build_rules:dev, rules]
      - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_dev/
        when: on_success
 
@@ -89,7 +89,7 @@ docker_build_plugin:aixlib:main:
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
-    - !reference [.docker_rules:plugin:main, rules]
+    - !reference [.docker_build_rules:plugin:main, rules]
 
 docker_build_plugin:aixlib:dev:
   stage: build_docker_plugin
@@ -100,7 +100,7 @@ docker_build_plugin:aixlib:dev:
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
-    - !reference [.docker_rules:plugin:dev, rules]
+    - !reference [.docker_build_rules:plugin:dev, rules]
 
 
 docker_build_plugin:cfd:main:
@@ -112,7 +112,7 @@ docker_build_plugin:cfd:main:
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
-    - !reference [.docker_rules:plugin:main, rules]
+    - !reference [.docker_build_rules:plugin:main, rules]
 
 
 docker_build_plugin:cfd:dev:
@@ -124,7 +124,7 @@ docker_build_plugin:cfd:dev:
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
-    - !reference [.docker_rules:plugin:dev, rules]
+    - !reference [.docker_build_rules:plugin:dev, rules]
 
 
 docker_build_plugin:energyplus:main:
@@ -136,7 +136,7 @@ docker_build_plugin:energyplus:main:
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
-    - !reference [.docker_rules:plugin:main, rules]
+    - !reference [.docker_build_rules:plugin:main, rules]
 
 
 docker_build_plugin:energyplus:dev:
@@ -148,7 +148,7 @@ docker_build_plugin:energyplus:dev:
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
-    - !reference [.docker_rules:plugin:dev, rules]
+    - !reference [.docker_build_rules:plugin:dev, rules]
 
 
 docker_build_plugin:hkesim:main:
@@ -160,7 +160,7 @@ docker_build_plugin:hkesim:main:
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
-    - !reference [.docker_rules:plugin:main, rules]
+    - !reference [.docker_build_rules:plugin:main, rules]
 
 docker_build_plugin:hkesim:dev:
   stage: build_docker_plugin
@@ -171,7 +171,7 @@ docker_build_plugin:hkesim:dev:
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
-    - !reference [.docker_rules:plugin:dev, rules]
+    - !reference [.docker_build_rules:plugin:dev, rules]
 
 
 docker_build_plugin:lca:main:
@@ -183,7 +183,7 @@ docker_build_plugin:lca:main:
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
-    - !reference [.docker_rules:plugin:main, rules]
+    - !reference [.docker_build_rules:plugin:main, rules]
 
 
 docker_build_plugin:lca:dev:
@@ -195,7 +195,7 @@ docker_build_plugin:lca:dev:
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
-    - !reference [.docker_rules:plugin:dev, rules]
+    - !reference [.docker_build_rules:plugin:dev, rules]
 
 
 docker_build_plugin:teaser:main:
@@ -207,7 +207,7 @@ docker_build_plugin:teaser:main:
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
-    - !reference [.docker_rules:plugin:main, rules]
+    - !reference [.docker_build_rules:plugin:main, rules]
 
 
 docker_build_plugin:teaser:dev:
@@ -219,7 +219,7 @@ docker_build_plugin:teaser:dev:
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
-    - !reference [.docker_rules:plugin:dev, rules]
+    - !reference [.docker_build_rules:plugin:dev, rules]
 
 
 .docker_dymola_build:
@@ -246,7 +246,7 @@ docker_build_bim2sim:env_dymola_base:dev:
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
   extends: .docker_dymola_build
   rules:
-    - !reference [.docker_rules:dev, rules ]
+    - !reference [.docker_build_rules:dev, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
       when: on_success
 
@@ -260,7 +260,7 @@ docker_build_bim2sim:env_dymola_base:main:
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
   extends: .docker_dymola_build
   rules:
-    - !reference [.docker_rules:main, rules ]
+    - !reference [.docker_build_rules:main, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
       when: on_success
 
@@ -274,7 +274,7 @@ docker_build_plugin:dymola_teaser:main:
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
   extends: .docker_dymola_build
   rules:
-    - !reference [.docker_rules:plugin:main, rules ]
+    - !reference [.docker_build_rules:plugin:main, rules ]
 
 
 docker_build_plugin:dymola_teaser:dev:
@@ -286,7 +286,7 @@ docker_build_plugin:dymola_teaser:dev:
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
   extends: .docker_dymola_build
   rules:
-    - !reference [.docker_rules:plugin:dev, rules]
+    - !reference [.docker_build_rules:plugin:dev, rules]
 
 
 docker_build_total:main:
@@ -298,7 +298,7 @@ docker_build_total:main:
     DOCKERPATH: "docker/Dockerfile"
   extends: .docker_dymola_build
   rules:
-    - !reference [ .docker_rules:main, rules ]
+    - !reference [ .docker_build_rules:main, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
       when: on_success
 
@@ -311,11 +311,37 @@ docker_build_total:dev:
     DOCKERPATH: "docker/Dockerfile"
   extends: .docker_dymola_build
   rules:
-    - !reference [ .docker_rules:dev, rules ]
+    - !reference [ .docker_build_rules:dev, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
       when: on_success
 
 # [Release]
+
+.docker_release_rules:main:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+      when: manual
+
+.docker_release_rules:dev:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "development"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+      when: manual
+
+.docker_release_rules:plugin:main:
+  rules:
+     - !reference [.docker_release_rules:main, rules]
+     - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_main/
+       when: manual
+
+.docker_release_rules:plugin:dev:
+  rules:
+     - !reference [.docker_release_rules:dev, rules]
+     - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_dev/
+       when: manual
 
 .docker_release:
   image: docker:latest
@@ -337,9 +363,9 @@ docker_release_bim2sim:base:main:
     DOCKER_IMAGE: "master_base"
   extends: .docker_release
   rules:
-    - !reference [ .docker_rules:main, rules ]
+    - !reference [ .docker_release_rules:main, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
-      when: on_success
+      when: manual
 
 docker_release_bim2sim:env_base:dev:
   stage: release_docker_base
@@ -349,9 +375,9 @@ docker_release_bim2sim:env_base:dev:
     DOCKER_IMAGE: "dev_base"
   extends: .docker_release
   rules:
-    - !reference [ .docker_rules:dev, rules ]
+    - !reference [ .docker_release_rules:dev, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
-      when: on_success
+      when: manual
 
 
 docker_release_plugin:aixlib:main:
@@ -362,7 +388,7 @@ docker_release_plugin:aixlib:main:
     DOCKER_IMAGE: "plugin:aixlib"
   extends: .docker_release
   rules:
-    - !reference [ .docker_rules:plugin:main, rules ]
+    - !reference [ .docker_release_rules:plugin:main, rules ]
 
 docker_release_plugin:aixlib:dev:
   stage: release_docker_plugin
@@ -372,7 +398,7 @@ docker_release_plugin:aixlib:dev:
     DOCKER_IMAGE: "plugin:dev_aixlib"
   extends: .docker_release
   rules:
-    - !reference [ .docker_rules:plugin:dev, rules ]
+    - !reference [ .docker_release_rules:plugin:dev, rules ]
 
 docker_release_plugin:cfd:main:
   stage: release_docker_plugin
@@ -382,7 +408,7 @@ docker_release_plugin:cfd:main:
     DOCKER_IMAGE: "plugin:cfd"
   extends: .docker_release
   rules:
-    - !reference [ .docker_rules:plugin:main, rules ]
+    - !reference [ .docker_release_rules:plugin:main, rules ]
 
 docker_release_plugin:cfd:dev:
   stage: release_docker_plugin
@@ -392,7 +418,7 @@ docker_release_plugin:cfd:dev:
     DOCKER_IMAGE: "plugin:dev_cfd"
   extends: .docker_release
   rules:
-    - !reference [ .docker_rules:plugin:dev, rules ]
+    - !reference [ .docker_release_rules:plugin:dev, rules ]
 
 docker_release_plugin:energyplus:main:
   stage: release_docker_plugin
@@ -402,7 +428,7 @@ docker_release_plugin:energyplus:main:
     DOCKER_IMAGE: "plugin:energyplus"
   extends: .docker_release
   rules:
-    - !reference [ .docker_rules:plugin:main, rules ]
+    - !reference [ .docker_release_rules:plugin:main, rules ]
 
 docker_release_plugin:energyplus:dev:
   stage: release_docker_plugin
@@ -412,7 +438,7 @@ docker_release_plugin:energyplus:dev:
     DOCKER_IMAGE: "plugin:dev_energyplus"
   extends: .docker_release
   rules:
-    - !reference [ .docker_rules:plugin:dev, rules ]
+    - !reference [ .docker_release_rules:plugin:dev, rules ]
 
 docker_release_plugin:hkesim:main:
   stage: release_docker_plugin
@@ -422,7 +448,7 @@ docker_release_plugin:hkesim:main:
     DOCKER_IMAGE: "plugin:hkesim"
   extends: .docker_release
   rules:
-    - !reference [ .docker_rules:plugin:main, rules ]
+    - !reference [ .docker_release_rules:plugin:main, rules ]
 
 docker_release_plugin:hkesim:dev:
   stage: release_docker_plugin
@@ -432,7 +458,7 @@ docker_release_plugin:hkesim:dev:
     DOCKER_IMAGE: "plugin:dev_hkesim"
   extends: .docker_release
   rules:
-    - !reference [ .docker_rules:plugin:dev, rules ]
+    - !reference [ .docker_release_rules:plugin:dev, rules ]
 
 docker_release_plugin:lca:main:
   stage: release_docker_plugin
@@ -442,7 +468,7 @@ docker_release_plugin:lca:main:
     DOCKER_IMAGE: "plugin:lca"
   extends: .docker_release
   rules:
-    - !reference [ .docker_rules:plugin:main, rules ]
+    - !reference [ .docker_release_rules:plugin:main, rules ]
 
 docker_release_plugin:lca:dev:
   stage: release_docker_plugin
@@ -452,7 +478,7 @@ docker_release_plugin:lca:dev:
     DOCKER_IMAGE: "plugin:dev_lca"
   extends: .docker_release
   rules:
-    - !reference [ .docker_rules:plugin:dev, rules ]
+    - !reference [ .docker_release_rules:plugin:dev, rules ]
 
 docker_release_plugin:teaser:main:
   stage: release_docker_plugin
@@ -462,7 +488,7 @@ docker_release_plugin:teaser:main:
     DOCKER_IMAGE: "plugin:teaser"
   extends: .docker_release
   rules:
-    - !reference [ .docker_rules:plugin:main, rules ]
+    - !reference [ .docker_release_rules:plugin:main, rules ]
 
 docker_release_plugin:teaser:dev:
   stage: release_docker_plugin
@@ -472,7 +498,7 @@ docker_release_plugin:teaser:dev:
     DOCKER_IMAGE: "plugin:dev_teaser"
   extends: .docker_release
   rules:
-    - !reference [ .docker_rules:plugin:dev, rules ]
+    - !reference [ .docker_release_rules:plugin:dev, rules ]
 
 # [dymola docker release]
 
@@ -484,9 +510,9 @@ docker_release:env_dymola_base:main:
     DOCKER_IMAGE: "master_dymola"
   extends: .docker_release
   rules:
-    - !reference [ .docker_rules:main, rules ]
+    - !reference [ .docker_release_rules:main, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
-      when: on_success
+      when: manual
 
 
 docker_release:env_dymola_base:dev:
@@ -497,9 +523,9 @@ docker_release:env_dymola_base:dev:
   variables:
     DOCKER_IMAGE: "dev_dymola"
   rules:
-    - !reference [.docker_rules:dev, rules ]
+    - !reference [.docker_release_rules:dev, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
-      when: on_success
+      when: manual
 
 docker_release_plugin:dymola_teaser:main:
   stage: release_docker_plugin
@@ -509,7 +535,7 @@ docker_release_plugin:dymola_teaser:main:
     DOCKER_IMAGE: "plugin:dymola_teaser"
   extends: .docker_release
   rules:
-    - !reference [ .docker_rules:plugin:main, rules ]
+    - !reference [ .docker_release_rules:plugin:main, rules ]
 
 docker_release_plugin:dymola_teaser:dev:
   stage: release_docker_plugin
@@ -520,7 +546,7 @@ docker_release_plugin:dymola_teaser:dev:
     DOCKER_IMAGE: "plugin:dev_dymola_teaser"
   extends: .docker_release
   rules:
-    - !reference [ .docker_rules:plugin:dev, rules ]
+    - !reference [ .docker_release_rules:plugin:dev, rules ]
 
 docker_release_total:main:
   stage:  release_docker_total
@@ -530,9 +556,9 @@ docker_release_total:main:
     DOCKER_IMAGE: "latest"
   extends: .docker_release
   rules:
-    - !reference [ .docker_rules:main, rules ]
+    - !reference [ .docker_release_rules:main, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
-      when: on_success
+      when: manual
 
 docker_release_total:dev:
   stage:  release_docker_total
@@ -542,6 +568,6 @@ docker_release_total:dev:
     DOCKER_IMAGE: "development"
   extends: .docker_release
   rules:
-    - !reference [.docker_rules:dev, rules ]
+    - !reference [.docker_release_rules:dev, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
-      when: on_success
+      when: manual
