@@ -21,15 +21,15 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
 build_env:master:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env
  services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/environment:master -f envBase.Dockerfile --load . 
+   - docker build -t $CI_REGISTRY/environment:master -f envBase.Dockerfile . 
    - docker push $CI_REGISTRY/environment:master
  only:
    refs:
@@ -39,16 +39,15 @@ build_env:master:
       - requirements.txt
 
 build_env:development:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env
  services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
- #- docker:18.09.7-dind
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/environment:development -f envBase.Dockerfile --load .
+   - docker build -t $CI_REGISTRY/environment:development -f envBase.Dockerfile .
    - docker push $CI_REGISTRY/environment:development
  only:
    refs:
@@ -59,16 +58,15 @@ build_env:development:
       - .gitlab-ci.yml
 
 build_env:dymola:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env
  services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
- #- docker:18.09.7-dind
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA   # login dymola docker reg
  script:
-   - docker build -t $CI_REGISTRY/environment:dymola -f envBaseDymola.Dockerfile --load .
+   - docker build -t $CI_REGISTRY/environment:dymola -f envBaseDymola.Dockerfile .
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
    - docker push $CI_REGISTRY/environment:dymola
  only:
@@ -81,15 +79,15 @@ build_env:dymola:
 
 
 build_env:energyplus:
-  image: docker:latest
+  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
   stage: build-env-plugins
   services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/environment:energyplus -f bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile --load .
+    - docker build -t $CI_REGISTRY/environment:energyplus -f bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile .
     - docker push $CI_REGISTRY/environment:energyplus
   only:
     refs:
@@ -102,15 +100,15 @@ build_env:energyplus:
        - .gitlab-ci.yml
 
 build_env:cfd:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env-plugins
  services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/environment:cfd -f bim2sim/plugins/PluginCFD/envCFD.Dockerfile --load .
+   - docker build -t $CI_REGISTRY/environment:cfd -f bim2sim/plugins/PluginCFD/envCFD.Dockerfile .
    - docker push $CI_REGISTRY/environment:cfd
  timeout: 6 hours
  only:
@@ -123,15 +121,15 @@ build_env:cfd:
       - .gitlab-ci.yml
 
 build_env:teaser:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env-plugins
  services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/environment:teaser -f bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile --load .
+   - docker build -t $CI_REGISTRY/environment:teaser -f bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile .
    - docker push $CI_REGISTRY/environment:teaser
  only:
    refs:
@@ -145,15 +143,15 @@ build_env:teaser:
 
 
 build_env:teaser-dymola:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env-plugins
  services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/environment:teaser-dymola -f bim2sim/plugins/PluginTEASER/envTEASER-dymola.Dockerfile --load .
+   - docker build -t $CI_REGISTRY/environment:teaser-dymola -f bim2sim/plugins/PluginTEASER/envTEASER-dymola.Dockerfile .
    - docker push $CI_REGISTRY/environment:teaser-dymola
  only:
    refs:
@@ -167,15 +165,15 @@ build_env:teaser-dymola:
 
 
 build_env:aixlib:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env-plugins
  services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/environment:aixlib -f bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile --load .
+   - docker build -t $CI_REGISTRY/environment:aixlib -f bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile .
    - docker push $CI_REGISTRY/environment:aixlib
  only:
    refs:
@@ -188,87 +186,87 @@ build_env:aixlib:
      - .gitlab-ci.yml
 
 build_tool:release:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-tool
  services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/tool:latest --load .
+   - docker build -t $CI_REGISTRY/tool:latest .
    - docker push $CI_REGISTRY/tool:latest
  only:
    - master
 
 build_tool:development:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-tool
  services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/tool:development --load .
+   - docker build -t $CI_REGISTRY/tool:development .
    - docker push $CI_REGISTRY/tool:development
  only:
    - development
 
 build_tool:webdevelop:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-tool
  services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/tool:web_develop -f total.Dockerfile --load .
+   - docker build -t $CI_REGISTRY/tool:web_develop -f total.Dockerfile .
    - docker push $CI_REGISTRY/tool:web_develop
  only:
    - development
 
 build_tool:cfd:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-tool
  services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/tool:cfd -f bim2sim/plugins/PluginCFD/cfd.Dockerfile --load .
+   - docker build -t $CI_REGISTRY/tool:cfd -f bim2sim/plugins/PluginCFD/cfd.Dockerfile .
    - docker push $CI_REGISTRY/tool:cfd
  only:
    changes:
       - bim2sim/plugins/PluginCFD/*
 
 build_tool:teaser:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-tool
  services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/tool:teaser -f bim2sim/plugins/PluginTEASER/teaser.Dockerfile --load .
+   - docker build -t $CI_REGISTRY/tool:teaser -f bim2sim/plugins/PluginTEASER/teaser.Dockerfile .
    - docker push $CI_REGISTRY/tool:teaser
  only:
    changes:
       - bim2sim/plugins/PluginTEASER/*
 
 build_tool:aixlib:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-tool
  services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/tool:aixlib -f bim2sim/plugins/PluginAixLib/aixlib.Dockerfile --load .
+   - docker build -t $CI_REGISTRY/tool:aixlib -f bim2sim/plugins/PluginAixLib/aixlib.Dockerfile .
    - docker push $CI_REGISTRY/tool:aixlib
  only:
    changes:
@@ -279,7 +277,7 @@ test_Base:
   image: $CI_REGISTRY/environment:development
   stage: test
   services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
   before_script:
     - pip install coverage
@@ -306,7 +304,7 @@ test_EP:
   image: $CI_REGISTRY/environment:energyplus
   stage: test
   services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
   before_script:
     - pip install coverage
@@ -361,7 +359,7 @@ test_TEASER:
   image: $CI_REGISTRY/environment:teaser
   stage: test
   services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
   before_script:
     - pip install coverage
@@ -414,7 +412,7 @@ test_CFD:
   image: $CI_REGISTRY/environment:cfd
   stage: test
   services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
   before_script:
     - pip install coverage
@@ -441,7 +439,7 @@ test_AixLib:
   image: $CI_REGISTRY/environment:aixlib
   stage: test
   services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
   before_script:
     - pip install coverage
@@ -493,7 +491,7 @@ pylint:
  stage: code_quality
  image: python:3.6
  services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
  before_script:
    - pip install pylint pylint-json2html anybadge --quiet
@@ -522,7 +520,7 @@ sphinxdoc:
  image: $CI_REGISTRY/environment:development
  stage: doc
  services:
-  - name: docker:18.09.7-dind
+  - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
     command: ["--mtu=1440"]
  before_script:
    - mv ./* /bim2sim-coding/
