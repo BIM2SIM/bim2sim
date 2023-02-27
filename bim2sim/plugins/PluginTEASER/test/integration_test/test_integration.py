@@ -41,7 +41,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc, 'TEASER')
         project.workflow.zoning_setup = LOD.medium
         # Tool,
-        answers = ('Other', *(None,)*150, 2015,
+        answers = ('Other', *(None,)*52, 2015,
                    'by_all_criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
