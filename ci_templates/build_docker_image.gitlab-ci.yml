@@ -9,7 +9,7 @@ stages:
 variables:
   BIM2SIM_NAME:  "bim2sim"
   BIM2SIM_FLAG: ""
-  BIM2SIM_VERSION: 1.0.0
+  BIM2SIM_VERSION: 0.1.0
 
 
 .docker_build:
@@ -97,7 +97,7 @@ docker_build_plugin:aixlib:dev:
     BIM2SIM_NAME: "bim2sim_aixlib"
     BIM2SIM_FLAG: "_dev"
     IMAGE_NAME: "plugin:dev_aixlib"
-    DOCKERPATH: "docker/plugins/PluginAixLib/aixlib.Dockerfile"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
     - !reference [.docker_rules:plugin:dev, rules]
@@ -109,7 +109,7 @@ docker_build_plugin:cfd:main:
     BIM2SIM_NAME: "bim2sim_cfd"
     BIM2SIM_FLAG: ""
     IMAGE_NAME: "plugin:cfd"
-    DOCKERPATH: "docker/plugins/PluginCFD/cfd.Dockerfile"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
     - !reference [.docker_rules:plugin:main, rules]
@@ -121,7 +121,7 @@ docker_build_plugin:cfd:dev:
     BIM2SIM_NAME: "bim2sim_cfd"
     BIM2SIM_FLAG: "_dev"
     IMAGE_NAME: "plugin:dev_cfd"
-    DOCKERPATH: "docker/plugins/PluginCFD/cfd.Dockerfile"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
     - !reference [.docker_rules:plugin:dev, rules]
@@ -133,7 +133,7 @@ docker_build_plugin:energyplus:main:
     BIM2SIM_NAME: "bim2sim_energyplus"
     BIM2SIM_FLAG: ""
     IMAGE_NAME: "plugin:energyplus"
-    DOCKERPATH: "docker/plugins/PluginEnergyPlus/energyplus.Dockerfile"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
     - !reference [.docker_rules:plugin:main, rules]
@@ -145,7 +145,7 @@ docker_build_plugin:energyplus:dev:
     BIM2SIM_NAME: "bim2sim_energyplus"
     BIM2SIM_FLAG: "_dev"
     IMAGE_NAME: "plugin:dev_energyplus"
-    DOCKERPATH: "docker/plugins/PluginEnergyPlus/energyplus.Dockerfile"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
     - !reference [.docker_rules:plugin:dev, rules]
@@ -157,7 +157,7 @@ docker_build_plugin:hkesim:main:
     BIM2SIM_NAME: "bim2sim_hkesim"
     BIM2SIM_FLAG: ""
     IMAGE_NAME: "plugin:hkesim"
-    DOCKERPATH: "docker/plugins/PluginEnergyPlus/hkesim.Dockerfile"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
     - !reference [.docker_rules:plugin:main, rules]
@@ -168,7 +168,7 @@ docker_build_plugin:hkesim:dev:
     BIM2SIM_NAME: "bim2sim_hkesim"
     BIM2SIM_FLAG: "_dev"
     IMAGE_NAME: "plugin:dev_hkesim"
-    DOCKERPATH: "docker/plugins/PluginEnergyPlus/hkesim.Dockerfile"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
     - !reference [.docker_rules:plugin:dev, rules]
@@ -180,7 +180,7 @@ docker_build_plugin:lca:main:
     BIM2SIM_NAME: "bim2sim_lca"
     BIM2SIM_FLAG: ""
     IMAGE_NAME: "plugin:lca"
-    DOCKERPATH: "docker/plugins/PluginLCA/lca.Dockerfile"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
     - !reference [.docker_rules:plugin:main, rules]
@@ -192,7 +192,7 @@ docker_build_plugin:lca:dev:
     BIM2SIM_NAME: "bim2sim_lca"
     BIM2SIM_FLAG: "_dev"
     IMAGE_NAME: "plugin:dev_lca"
-    DOCKERPATH: "docker/plugins/PluginLCA/lca.Dockerfile"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
     - !reference [.docker_rules:plugin:dev, rules]
@@ -204,7 +204,7 @@ docker_build_plugin:teaser:main:
     BIM2SIM_NAME: "bim2sim_teaser"
     BIM2SIM_FLAG: ""
     IMAGE_NAME: "plugin:teaser"
-    DOCKERPATH: "docker/plugins/PluginTEASER/teaser.Dockerfile"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
     - !reference [.docker_rules:plugin:main, rules]
@@ -216,7 +216,7 @@ docker_build_plugin:teaser:dev:
     BIM2SIM_NAME: "bim2sim_teaser"
     BIM2SIM_FLAG: "_dev"
     IMAGE_NAME: "plugin:dev_teaser"
-    DOCKERPATH: "docker/plugins/PluginTEASER/teaser.Dockerfile"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
     - !reference [.docker_rules:plugin:dev, rules]
@@ -271,7 +271,7 @@ docker_build_plugin:dymola_teaser:main:
     BIM2SIM_NAME: "bim2sim_teaser"
     BIM2SIM_FLAG: ""
     IMAGE_NAME: "plugin:dymola_teaser"
-    DOCKERPATH: "docker/plugins/PluginTEASER/envTEASER-dymola.Dockerfile"
+    DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
   extends: .docker_dymola_build
   rules:
     - !reference [.docker_rules:plugin:main, rules ]
@@ -283,7 +283,7 @@ docker_build_plugin:dymola_teaser:dev:
     BIM2SIM_NAME: "bim2sim_teaser"
     BIM2SIM_FLAG: "_dev"
     IMAGE_NAME: "plugin:dev_dymola_teaser"
-    DOCKERPATH: "docker/plugins/PluginTEASER/envTEASER-dymola.Dockerfile"
+    DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
   extends: .docker_dymola_build
   rules:
     - !reference [.docker_rules:plugin:dev, rules]
@@ -295,7 +295,7 @@ docker_build_total:main:
     BIM2SIM_NAME: "bim2sim"
     BIM2SIM_FLAG: ""
     IMAGE_NAME: "latest"
-    DOCKERPATH: "docker/total.Dockerfile"
+    DOCKERPATH: "docker/Dockerfile"
   extends: .docker_dymola_build
   rules:
     - !reference [ .docker_rules:main, rules ]
@@ -308,7 +308,7 @@ docker_build_total:dev:
     BIM2SIM_NAME: "bim2sim"
     BIM2SIM_FLAG: "_dev"
     IMAGE_NAME: "development"
-    DOCKERPATH: "docker/total.Dockerfile"
+    DOCKERPATH: "docker/Dockerfile"
   extends: .docker_dymola_build
   rules:
     - !reference [ .docker_rules:dev, rules ]

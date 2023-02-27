@@ -82,8 +82,6 @@ conda_build_bim2sim:base:dev:
      - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_dev/
        when: on_success
 
-
-
 build_conda_plugin:aixlib:main:
     stage: build_conda_plugin
     variables:

@@ -5,7 +5,7 @@ with open("README.md", 'r') as f:
     long_description = f.read()
 with open("requirements.txt", 'r') as f:
     required = f.read().splitlines()
-version = "1.0.0"
+version = "0.1.0"
 
 
 def copy_non_code_file(non_code_dir, not_include):
@@ -35,7 +35,7 @@ setup(
     author_email='david.jansen@eonerc.rwth-aachen.de',
     url="https://github.com/BIM2SIM/bim2sim",
     packages=find_packages(include=['bim2sim',
-                                    'bim2sim.plugins*',
+                                    'bim2sim.plugins',
                                     'bim2sim.assets*',
                                     'bim2sim.decision*',
                                     'bim2sim.enrichment_data*',
@@ -45,7 +45,7 @@ setup(
                                     'bim2sim.task*',
                                     'bim2sim.utilities*']),
     include_package_data=True,
-    data_files=copy_non_code_file(non_code_dir=f'bim2sim{os.sep}{os.sep}',
+    data_files=copy_non_code_file(non_code_dir=f'bim2sim//assets//',
                                   not_include=[".py", ".Dockerfile"]),
     python_requires='>=3.8.*,<3.10.*',
     install_requires=[required],
