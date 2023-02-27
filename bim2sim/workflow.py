@@ -272,6 +272,19 @@ class Workflow(metaclass=AutoSettingNameMeta):
                     'Choose 0.3m as a default value.',
         for_frontend=True
     )
+    reset_guids = WorkflowSetting(
+        default=False,
+        choices={
+            True: 'Reset GlobalIDs from IFC ',
+            False: 'Keep GlobalIDs from IFC'
+        },
+        description='Reset GlobalIDs from imported IFC if duplicate '
+                    'GlobalIDs occur in the IFC. As EnergyPlus evaluates all'
+                    'GlobalIDs upper case only, this might also be '
+                    'applicable if duplicate non-case-sensitive GlobalIDs '
+                    'occur.',
+        for_frontend=True
+    )
 
 
 class PlantSimulation(Workflow):
