@@ -52,14 +52,17 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
             'ParallelPump',
             'ConsumerHeatingDistributorModule',
         ]
-        answers = ('HVAC-Distributor', *('HVAC-ThreeWayValve',) * 2,
-                   *('HVAC-Valve',) * 14, *(None,) * 2,
-                   *(True,) * 5, 0.75, 50,
+        answers = (None, 'HVAC-PipeFitting', 'HVAC-Distributor', 'HVAC-Valve',
+                   # 5 dead ends
+                   *(True,)*5,
+                   0.95, 50,
                    # rated current, rated height, rated_voltage,
                    # rated_volume_flow for pumps
                     150, 70, 50, 50,
                    # body mass and heat capacity for all space heaters
-                   *(1, 500,) * 7)
+                   *(1, 500,) * 7,
+                   # length of valve
+                   10)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -81,14 +84,14 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
             'ConsumerHeatingDistributorModule',
             'GeneratorOneFluid'
         ]
-        answers = ('HVAC-Distributor', *('HVAC-ThreeWayValve',) * 2,
-                   *('HVAC-Valve',) * 14, *(None,) * 2,
+        answers = (None, 'HVAC-PipeFitting', 'HVAC-Distributor', 'HVAC-Valve',
                    *(True,) * 4,
                    # boiler efficiency, flow temp, power, return temp
                    0.95, 70, 200, 50,
                    # rated current, rated height, rated_voltage,
                    # body mass and heat capacity for all space heaters
-                   *(1, 500,) * 7)
+                   *(1, 500,) * 7,
+                   )
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
