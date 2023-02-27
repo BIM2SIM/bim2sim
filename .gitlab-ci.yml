@@ -21,7 +21,7 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
 build_env:master:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env
  services:
    - name: docker:18.09.7-dind
@@ -29,7 +29,7 @@ build_env:master:
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/environment:master -f envBase.Dockerfile .
+   - docker build -t $CI_REGISTRY/environment:master -f envBase.Dockerfile . 
    - docker push $CI_REGISTRY/environment:master
  only:
    refs:
@@ -39,12 +39,11 @@ build_env:master:
       - requirements.txt
 
 build_env:development:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env
  services:
    - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
- #- docker:18.09.7-dind
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
@@ -59,12 +58,11 @@ build_env:development:
       - .gitlab-ci.yml
 
 build_env:dymola:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env
  services:
    - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
- #- docker:18.09.7-dind
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA   # login dymola docker reg
  script:
@@ -81,7 +79,7 @@ build_env:dymola:
 
 
 build_env:energyplus:
-  image: docker:latest
+  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
   stage: build-env-plugins
   services:
    - name: docker:18.09.7-dind
@@ -102,7 +100,7 @@ build_env:energyplus:
        - .gitlab-ci.yml
 
 build_env:cfd:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env-plugins
  services:
    - name: docker:18.09.7-dind
@@ -123,7 +121,7 @@ build_env:cfd:
       - .gitlab-ci.yml
 
 build_env:teaser:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env-plugins
  services:
    - name: docker:18.09.7-dind
@@ -145,7 +143,7 @@ build_env:teaser:
 
 
 build_env:teaser-dymola:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env-plugins
  services:
    - name: docker:18.09.7-dind
@@ -167,7 +165,7 @@ build_env:teaser-dymola:
 
 
 build_env:aixlib:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-env-plugins
  services:
    - name: docker:18.09.7-dind
@@ -188,7 +186,7 @@ build_env:aixlib:
      - .gitlab-ci.yml
 
 build_tool:release:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-tool
  services:
    - name: docker:18.09.7-dind
@@ -202,7 +200,7 @@ build_tool:release:
    - master
 
 build_tool:development:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-tool
  services:
    - name: docker:18.09.7-dind
@@ -216,7 +214,7 @@ build_tool:development:
    - development
 
 build_tool:webdevelop:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-tool
  services:
    - name: docker:18.09.7-dind
@@ -230,7 +228,7 @@ build_tool:webdevelop:
    - development
 
 build_tool:cfd:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-tool
  services:
    - name: docker:18.09.7-dind
@@ -245,7 +243,7 @@ build_tool:cfd:
       - bim2sim/plugins/PluginCFD/*
 
 build_tool:teaser:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-tool
  services:
    - name: docker:18.09.7-dind
@@ -260,7 +258,7 @@ build_tool:teaser:
       - bim2sim/plugins/PluginTEASER/*
 
 build_tool:aixlib:
- image: docker:latest
+ image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
  stage: build-tool
  services:
    - name: docker:18.09.7-dind
@@ -306,7 +304,7 @@ test_EP:
   image: $CI_REGISTRY/environment:energyplus
   stage: test
   services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
   before_script:
     - pip install coverage
@@ -361,7 +359,7 @@ test_TEASER:
   image: $CI_REGISTRY/environment:teaser
   stage: test
   services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
   before_script:
     - pip install coverage
@@ -414,7 +412,7 @@ test_CFD:
   image: $CI_REGISTRY/environment:cfd
   stage: test
   services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
   before_script:
     - pip install coverage
@@ -441,7 +439,7 @@ test_AixLib:
   image: $CI_REGISTRY/environment:aixlib
   stage: test
   services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
   before_script:
     - pip install coverage
@@ -493,7 +491,7 @@ pylint:
  stage: code_quality
  image: python:3.6
  services:
-   - name: docker:18.09.7-dind
+   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
      command: ["--mtu=1440"]
  before_script:
    - pip install pylint pylint-json2html anybadge --quiet
@@ -522,7 +520,7 @@ sphinxdoc:
  image: $CI_REGISTRY/environment:development
  stage: doc
  services:
-  - name: docker:18.09.7-dind
+  - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
     command: ["--mtu=1440"]
  before_script:
    - mv ./* /bim2sim-coding/
