@@ -256,6 +256,35 @@ build_conda_bim2sim:total:dev:
     paths:
       - conda-bld/$BIM2SIM_NAME
 
+.conda_release_rules:main:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+      when: manual
+
+
+.conda_release_rules:dev:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "development"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+      when: manual
+
+.conda_release_rules:plugin:main:
+  rules:
+     - !reference [.conda_release_rules:main, rules]
+     - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_main/
+       when: manual
+
+.conda_release_rules:plugin:dev:
+  rules:
+     - !reference [.conda_release_rules:dev, rules]
+     - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_dev/
+       when: manual
+
+
+
 # [release base conda image]
 release_conda_bim2sim:base:main:
   stage: release_conda_base
@@ -265,7 +294,7 @@ release_conda_bim2sim:base:main:
     - conda_build_bim2sim:base:main
   extends: .conda_release
   rules:
-    - !reference [.conda_rules:main, rules ]
+    - !reference [.conda_release_rules:main, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
       when: manual
 
@@ -277,7 +306,7 @@ release_conda_bim2sim:base:dev:
     - conda_build_bim2sim:base:dev
   extends: .conda_release
   rules:
-    - !reference [.conda_rules:dev, rules ]
+    - !reference [.conda_release_rules:dev, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
       when: manual
 
@@ -291,7 +320,7 @@ release_conda_plugin:aixlib:main:
     - build_conda_plugin:aixlib:main
   extends: .conda_release
   rules:
-    - !reference [.conda_rules:plugin:main, rules ]
+    - !reference [.conda_release_rules:plugin:main, rules ]
 
 
 release_conda_plugin:aixlib:dev:
@@ -302,7 +331,7 @@ release_conda_plugin:aixlib:dev:
     - build_conda_plugin:aixlib:dev
   extends: .conda_release
   rules:
-    - !reference [.conda_rules:plugin:dev, rules ]
+    - !reference [.conda_release_rules:plugin:dev, rules ]
 
 
 release_conda_plugin:cfd:main:
@@ -313,7 +342,7 @@ release_conda_plugin:cfd:main:
     - build_conda_plugin:cfd:main
   extends: .conda_release
   rules:
-    - !reference [.conda_rules:plugin:main, rules ]
+    - !reference [.conda_release_rules:plugin:main, rules ]
 
 release_conda_plugin:cfd:dev:
   stage: release_conda_plugin
@@ -323,7 +352,7 @@ release_conda_plugin:cfd:dev:
     - build_conda_plugin:cfd:dev
   extends: .conda_release
   rules:
-    - !reference [.conda_rules:plugin:dev, rules ]
+    - !reference [.conda_release_rules:plugin:dev, rules ]
 
 release_conda_plugin:energyplus:main:
   stage: release_conda_plugin
@@ -333,7 +362,7 @@ release_conda_plugin:energyplus:main:
     - build_conda_plugin:energyplus:main
   extends: .conda_release
   rules:
-    - !reference [.conda_rules:plugin:main, rules ]
+    - !reference [.conda_release_rules:plugin:main, rules ]
 
 release_conda_plugin:energyplus:dev:
   stage: release_conda_plugin
@@ -343,7 +372,7 @@ release_conda_plugin:energyplus:dev:
     - build_conda_plugin:energyplus:dev
   extends: .conda_release
   rules:
-    - !reference [.conda_rules:plugin:dev, rules ]
+    - !reference [.conda_release_rules:plugin:dev, rules ]
 
 release_conda_plugin:hkesim:main:
   stage: release_conda_plugin
@@ -353,7 +382,7 @@ release_conda_plugin:hkesim:main:
     - build_conda_plugin:hkesim:main
   extends: .conda_release
   rules:
-    - !reference [.conda_rules:plugin:main, rules ]
+    - !reference [.conda_release_rules:plugin:main, rules ]
 
 
 release_conda_plugin:hkesim:dev:
@@ -364,7 +393,7 @@ release_conda_plugin:hkesim:dev:
     - build_conda_plugin:hkesim:dev
   extends: .conda_release
   rules:
-    - !reference [.conda_rules:plugin:dev, rules ]
+    - !reference [.conda_release_rules:plugin:dev, rules ]
 
 release_conda_plugin:lca:main:
   stage: release_conda_plugin
@@ -374,7 +403,7 @@ release_conda_plugin:lca:main:
     - build_conda_plugin:lca:main
   extends: .conda_release
   rules:
-    - !reference [.conda_rules:plugin:main, rules ]
+    - !reference [.conda_release_rules:plugin:main, rules ]
 
 release_conda_plugin:lca:dev:
   stage: release_conda_plugin
@@ -384,7 +413,7 @@ release_conda_plugin:lca:dev:
     - build_conda_plugin:lca:dev
   extends: .conda_release
   rules:
-    - !reference [ .conda_rules:plugin:dev, rules ]
+    - !reference [ .conda_release_rules:plugin:dev, rules ]
 
 
 release_conda_plugin:teaser:main:
@@ -395,7 +424,7 @@ release_conda_plugin:teaser:main:
     - build_conda_plugin:teaser:main
   extends: .conda_release
   rules:
-    - !reference [.conda_rules:plugin:main, rules ]
+    - !reference [.conda_release_rules:plugin:main, rules ]
 
 
 release_conda_plugin:teaser:dev:
@@ -406,7 +435,7 @@ release_conda_plugin:teaser:dev:
     - build_conda_plugin:teaser:dev
   extends: .conda_release
   rules:
-    - !reference [.conda_rules:plugin:dev, rules ]
+    - !reference [.conda_release_rules:plugin:dev, rules ]
 
 release_conda_bim2sim:total:main:
   stage: release_conda_total
@@ -416,7 +445,7 @@ release_conda_bim2sim:total:main:
     - build_conda_bim2sim:total:main
   extends: .conda_release
   rules:
-    - !reference [ .conda_rules:main, rules ]
+    - !reference [ .conda_release_rules:main, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
       when: manual
 
@@ -429,6 +458,6 @@ release_conda_bim2sim:total:dev:
     - build_conda_bim2sim:total:dev
   extends: .conda_release
   rules:
-    - !reference [ .conda_rules:dev, rules ]
+    - !reference [ .conda_release_rules:dev, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
       when: manual
