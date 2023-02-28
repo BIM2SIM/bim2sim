@@ -245,6 +245,7 @@ build_conda_bim2sim:total:dev:
     - apt install libgl1 -y
     - conda install conda-build git conda-verify anaconda anaconda-client -y
     - conda update --all  -y
+    - pip install cryptography==38.0.4
     - anaconda logout
     - anaconda login --username bim2sim --password $CONDA_TOKEN --hostname $CI_JOB_ID
     - conda convert -p osx-64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
