@@ -31,10 +31,9 @@ setup(
     author='BIM2SIM',
     author_email='david.jansen@eonerc.rwth-aachen.de',
     url="https://github.com/BIM2SIM/bim2sim",
-    #packages=find_packages(include=['*']),
-    #package_data={'bim2sim_aixlib': ['*']},
+    packages=find_packages(include=['bim2sim_aixlib*']),
     include_package_data=True,
-    #data_files = copy_non_code_file(non_code_dir=f'bim2sim_aixlib{os.sep}{os.sep}', not_include=[".py", ".Dockerfile"]),
+    data_files = copy_non_code_file(non_code_dir=f'bim2sim_aixlib{os.sep}{os.sep}', not_include=[".py", ".Dockerfile"]),
     python_requires='>=3.8.*,<3.10.*',
     install_requires=[required],
     classifiers=[

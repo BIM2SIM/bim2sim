@@ -32,7 +32,7 @@ setup(
     author='BIM2SIM',
     author_email='david.jansen@eonerc.rwth-aachen.de',
     url="https://github.com/BIM2SIM/bim2sim",
-    #packages=find_packages(include=['*']),
+    packages=find_packages(include=['bim2sim_hkesim*']),
     include_package_data=True,
     #data_files = copy_non_code_file(non_code_dir=f'{os.sep}{os.sep}', not_include=[".py", ".Dockerfile"]),
     python_requires='>=3.8.*,<3.10.*',
