@@ -20,6 +20,7 @@ from bim2sim.kernel.ifc2python import get_property_sets
 from bim2sim.kernel.units import parse_ifc
 from bim2sim.task.base import ITask
 from bim2sim.workflow import Workflow
+from bim2sim.utilities.common_functions import all_subclasses
 
 
 class Reset(ITask):
@@ -625,10 +626,16 @@ class CheckIfc(ITask):
                           inspect.getmro(plugin_class[1])[1].__name__.endswith(
                               'Product')]
         cls_summary = {}
+
         for plugin_class in plugin_classes:
+            # class itself
             if plugin_class.ifc_types:
                 for ifc_type in plugin_class.ifc_types.keys():
                     cls_summary[ifc_type] = plugin_class
+            # sub classes
+            for subclass in all_subclasses(plugin_class):
+                for ifc_type in subclass.ifc_types.keys():
+                    cls_summary[ifc_type] = subclass
         return cls_summary
 
     @classmethod
