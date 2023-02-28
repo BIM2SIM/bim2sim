@@ -19,7 +19,7 @@ class IntegrationBaseTEASER(IntegrationBaseTeaserInteractive, unittest.TestCase)
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = (True, True, 'heavy',
                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
-                   'by_all_criteria')
+                   'all criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -45,7 +45,7 @@ class IntegrationBaseTEASER(IntegrationBaseTeaserInteractive, unittest.TestCase)
         used_workflow = workflow.BPSMultiZoneAggregatedLayersLowSimulation()
         project = self.create_project(ifc, 'TEASER', used_workflow)
         answers = ('Other', *(None,) * 150, True, True,
-                   2015, 'heavy', 'Waermeschutzverglasung, dreifach', 'by_all_criteria')
+                   2015, 'heavy', 'Waermeschutzverglasung, dreifach', 'all criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
