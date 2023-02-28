@@ -565,6 +565,7 @@ class CheckIfc(ITask):
             error_summary_sub_inst: summary of errors related to sub_instances
             error_summary_inst: summary of errors related to instances
         """
+        self.check_ifc_version(ifc)
         self.ps_summary = self._get_class_property_sets(self.plugin)
         self.ifc_units = workflow.ifc_units
         self.sub_inst = ifc.by_type(self.sub_inst_cls)
@@ -588,6 +589,24 @@ class CheckIfc(ITask):
         self._write_errors_to_json(self.plugin)
         self._write_errors_to_html_table(self.plugin)
         return [self.error_summary_sub_inst, self.error_summary_inst],
+
+    @staticmethod
+    def check_ifc_version(ifc: file):
+        """
+        Checks the IFC version.
+
+        Only IFC4 files are valid for bim2sim.
+
+        Args:
+            ifc: ifc file loaded with IfcOpenShell
+        Raises:
+            TypeError: if loaded IFC is not IFC4
+        """
+        schema = ifc.schema
+        if "IFC4" not in schema:
+            raise TypeError(f"Loaded IFC file is of type {schema} but only IFC4"
+                            f"is supported. Please ask the creator of the model"
+                            f" to provide a valid IFC4 file.")
 
     @staticmethod
     def _get_ifc_type_classes(plugin):
