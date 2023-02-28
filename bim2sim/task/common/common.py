@@ -138,7 +138,7 @@ class CreateElements(ITask):
         self.materials_all = []
         self.layers_all = []
 
-    def run(self, workflow, ifc):
+    def run(self, workflow: Workflow, ifc: file):
         self.logger.info("Creates elements of relevant ifc types")
         default_ifc_types = {'IfcBuildingElementProxy', 'IfcUnitaryEquipment'}
         relevant_ifc_types = self.get_ifc_types(workflow.relevant_elements)
@@ -552,7 +552,7 @@ class CheckIfc(ITask):
         self.sub_inst_cls = None
         self.plugin = None
 
-    def run(self, workflow: Workflow, ifc) -> [dict, dict]:
+    def run(self, workflow: Workflow, ifc: file) -> [dict, dict]:
         """
         Analyzes sub_instances and instances of an IFC file for the validation
         functions and export the errors found as .json and .html files.
