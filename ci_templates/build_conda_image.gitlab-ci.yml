@@ -17,6 +17,9 @@ variables:
       when: on_success
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
       when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_conda_main/
+      when: on_success
+
 
 
 .conda_build_rules:dev:
@@ -25,6 +28,9 @@ variables:
       when: on_success
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
       when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_conda_dev/
+      when: on_success
+
 
 .conda_build:
   image: continuumio/miniconda3
@@ -56,6 +62,7 @@ conda_build_bim2sim:base:main:
       - !reference [.conda_build_rules:main, rules]
       - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
         when: on_success
+
 
 conda_build_bim2sim:base:dev:
     stage: build_conda_base
@@ -262,6 +269,8 @@ build_conda_bim2sim:total:dev:
       when: on_success
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
       when: manual
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_conda_main/
+      when: on_success
 
 
 .conda_release_rules:dev:
@@ -270,6 +279,9 @@ build_conda_bim2sim:total:dev:
       when: on_success
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
       when: manual
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_conda_dev/
+      when: on_success
+
 
 .conda_release_rules:plugin:main:
   rules:

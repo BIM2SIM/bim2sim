@@ -32,12 +32,17 @@ variables:
       when: on_success
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
       when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_docker_main/
+      when: on_success
+
 
 .docker_build_rules:dev:
   rules:
     - if: $CI_COMMIT_BRANCH == "development"
       when: on_success
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_docker_dev/
       when: on_success
 
 docker_build_bim2sim:base:main:
@@ -323,6 +328,8 @@ docker_build_total:dev:
       when: on_success
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
       when: manual
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_docker_main/
+      when: on_success
 
 .docker_release_rules:dev:
   rules:
@@ -330,6 +337,8 @@ docker_build_total:dev:
       when: on_success
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
       when: manual
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_docker_dev/
+      when: on_success
 
 .docker_release_rules:plugin:main:
   rules:
