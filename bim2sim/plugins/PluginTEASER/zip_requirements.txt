@@ -1,3 +1,0 @@
-#git+https://github.com/RWTH-EBC/TEASER@issue694_simulationPostProcessing
-git+https://github.com/RWTH-EBC/TEASER@development
-git+https://github.com/DaJansenGit/BuildingsPy.git
