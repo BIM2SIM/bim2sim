@@ -43,7 +43,7 @@ def default_logging_setup(verbose=False):
     * the logger quality_logger which stores all information about the quality
     of existing information of the BIM model
     """
-    logger = logging.getLogger('bim2sim')
+    general_logger = logging.getLogger('bim2sim')
 
     log_filter = AudienceFilter(audience=None)
 
@@ -51,27 +51,23 @@ def default_logging_setup(verbose=False):
         stream_handler = logging.StreamHandler()
         stream_handler.setFormatter(dev_formatter)
         stream_handler.addFilter(log_filter)
-        logger.addHandler(stream_handler)
+        general_logger.addHandler(stream_handler)
 
     file_handler = logging.FileHandler("bim2sim.log")
     file_handler.setFormatter(dev_formatter)
     file_handler.addFilter(log_filter)
-    logger.addHandler(file_handler)
+    general_logger.addHandler(file_handler)
 
     quality_logger = logging.getLogger('bim2sim.QualityReport')
     quality_logger.propagate = False
 
-    logger.setLevel(logging.DEBUG if verbose else logging.INFO)
+    general_logger.setLevel(logging.DEBUG if verbose else logging.INFO)
 
-    # silence matplotlib
-    # matlog = logging.getLogger('matplotlib')
-    # matlog.level = logging.INFO
-
-    logger.debug("Default logging setup done.")
+    general_logger.debug("Default logging setup done.")
 
 
 class CustomFormatter(logging.Formatter):
-    """Custom loggin design based on
+    """Custom logging design based on
     https://stackoverflow.com/questions/
     384076/how-can-i-color-python-logging-output """
     def __init__(self, fmt):
@@ -79,7 +75,8 @@ class CustomFormatter(logging.Formatter):
         self._fmt = fmt
 
     def format(self, record):
-        grey = "\x1b[38;20m"
+        grey = "\x1b[37;20m"
+        green = "\x1b[32;20m"
         yellow = "\x1b[33;20m"
         red = "\x1b[31;20m"
         bold_red = "\x1b[31;1m"
@@ -88,7 +85,7 @@ class CustomFormatter(logging.Formatter):
 
         FORMATS = {
             logging.DEBUG: grey + self._fmt + reset,
-            logging.INFO: grey + self._fmt + reset,
+            logging.INFO: green + self._fmt + reset,
             logging.WARNING: yellow + self._fmt + reset,
             logging.ERROR: red + self._fmt + reset,
             logging.CRITICAL: bold_red + self._fmt + reset
@@ -98,13 +95,9 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-quality_formatter = CustomFormatter('[%(levelname)s] %(name)s: %(message)s')
-user_formatter = CustomFormatter('user>%(levelname)s: %(message)s')
-dev_formatter = CustomFormatter('dev>%(asctime)s [%(levelname)s] %(name)s.%(funcName)s: %(message)s')
-#
-# quality_formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
-# user_formatter = logging.Formatter('user>%(levelname)s: %(message)s')
-# dev_formatter = logging.Formatter('dev>%(asctime)s [%(levelname)s] %(name)s.%(funcName)s: %(message)s')
+quality_formatter = CustomFormatter('[QUALITY-%(levelname)s] %(name)s: %(message)s')
+user_formatter = CustomFormatter('[USER-%(levelname)s]: %(message)s')
+dev_formatter = CustomFormatter('[DEV-%(levelname)s] - %(asctime)s  %(name)s.%(funcName)s: %(message)s')
 
 if __name__ == '__main__':
     default_logging_setup()

@@ -34,7 +34,8 @@ class ExportTEASER(ITask):
         super().__init__()
 
     def run(self, workflow, libraries, ifc, instances, weather_file):
-        self.logger.info("Export to TEASER")
+        self.logger.info("Start creating the derived building to a Modelica"
+                         " model using TEASER")
 
         export.Instance.init_factory(libraries)
 

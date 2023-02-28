@@ -285,6 +285,8 @@ class Project:
             workflow: Workflow = None,
     ):
         """Load existing project"""
+
+
         # TODO storage is never used. Delete?
         self.storage = {}  # project related items
         self.paths = FolderStructure(path)
@@ -480,8 +482,10 @@ class Project:
         """Run project.
 
         Args:
-            interactive: if True the Task execution order is determined by Decisions else its derived by plugin
-            cleanup: execute cleanup logic. Not doing this is only relevant for debugging
+            interactive: if True the Task execution order is determined by
+                Decisions else its derived by plugin
+            cleanup: execute cleanup logic. Not doing this is only relevant for
+                debugging
 
         Raises:
             AssertionError: if project setup is broken or on invalid Decisions
@@ -491,7 +495,8 @@ class Project:
 
         if not self._user_logger_set:
             logger.info("Set user logger to default Stream. "
-                        "Call project.set_user_logger_stream() prior to project.run() to change this.")
+                        "Call project.set_user_logger_stream() prior to "
+                        "project.run() to change this.")
             self.set_user_logging_handler(logging.StreamHandler())
 
         success = False
@@ -500,9 +505,11 @@ class Project:
         else:
             run = self._run_default
         try:
-            # First update log filters in case Project was created from different tread.
-            # Then update log filters for each iteration, which might get called by a different thread.
-            # deeper down multithreading is currently not supported for logging
+            # First update log filters in case Project was created from
+            # different tread.
+            # Then update log filters for each iteration, which might get called
+            # by a different thread.
+            # Deeper down multithreading is currently not supported for logging
             # and will result in a mess of log messages.
             self._update_logging_thread_filters()
             for decision_bunch in run():
@@ -516,7 +523,7 @@ class Project:
                 self._made_decisions.validate_global_keys()
             success = True
         except Exception as ex:
-            logger.exception("Something went wrong!")
+            logger.exception(f"Something went wrong!: {ex}")
         finally:
             if cleanup:
                 self.finalize(success=success)
