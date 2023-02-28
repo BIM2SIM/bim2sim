@@ -55,12 +55,13 @@ class BindThermalZones(ITask):
                 inspect.getmembers(self, predicate=inspect.ismethod)).items():
             if k.startswith('group_thermal_zones_'):
                 criteria_functions[
-                    k.replace('group_thermal_zones_by', '')
+                    k.replace('group_thermal_zones_by_', '')
                     .replace('_', ' ')] = func
         # Choose criteria function to aggregate zones
         if len(criteria_functions) > 0:
             criteria_decision = ListDecision(
-                "The following methods were found to merge thermal zones:",
+                "The following methods were found to merge thermal zones, "
+                "please choose one:",
                 choices=list(criteria_functions.keys()),
                 global_key='Thermal_Zones.Bind_Method')
             yield DecisionBunch([criteria_decision])

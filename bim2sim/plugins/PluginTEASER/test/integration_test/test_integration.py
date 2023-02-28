@@ -89,7 +89,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'ERC_Mainbuilding_Arch.ifc'
         project = self.create_project(ifc, 'TEASER')
         project.workflow.zoning_setup = LOD.medium
-        answers = ('use all criteria')
+        answers = ('use all criteria', )
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
