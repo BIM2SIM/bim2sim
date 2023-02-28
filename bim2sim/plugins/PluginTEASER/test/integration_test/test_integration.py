@@ -17,7 +17,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc, 'TEASER')
         project.workflow.zoning_setup = LOD.medium
-        answers = (2015, 'all criteria')
+        answers = (2015, 'use all criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -42,7 +42,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project.workflow.zoning_setup = LOD.medium
         # Tool,
         answers = ('Other', *(None,)*150, 2015,
-                   'by all criteria')
+                   'by use all criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -89,7 +89,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'ERC_Mainbuilding_Arch.ifc'
         project = self.create_project(ifc, 'TEASER')
         project.workflow.zoning_setup = LOD.medium
-        answers = ('all criteria')
+        answers = ('use all criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -114,7 +114,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc = 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'TEASER')
         project.workflow.zoning_setup = LOD.medium
-        answers = ('all criteria', )
+        answers = ('use all criteria', )
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -129,7 +129,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project.workflow.zoning_setup = LOD.medium
         project.workflow.layers_and_materials = LOD.full
         answers = ('vertical_core_brick_700',
-                   'solid_brick_h', 'all criteria')
+                   'solid_brick_h', 'use all criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -144,7 +144,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project.workflow.zoning_setup = LOD.medium
         project.workflow.layers_and_materials = LOD.full
         answers = (2015, 'concrete_CEM_II_BS325R_wz05', 'clay_brick',
-                   'Concrete_DK', 'all criteria')
+                   'Concrete_DK', 'use all criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -221,7 +221,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
                    'solid_brick_h', True, None, 'wood', 'hardwood', 'concrete',
                    True, 'Concrete_DK', 'concrete', True, 'Light_Concrete_DK',
                    "heavy", 1, ' Door', 1, 'Brick', 'brick_H', "EnEv",
-                   *(1,) * 8, 'all criteria')
+                   *(1,) * 8, 'use all criteria')
         ConsoleDecisionHandler().handle(project.run(), project.loaded_decisions)
 
         handler = DebugDecisionHandler(answers)
