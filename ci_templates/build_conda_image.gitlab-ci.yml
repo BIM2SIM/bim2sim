@@ -270,7 +270,7 @@ build_conda_bim2sim:total:dev:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
       when: manual
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_conda_main/
-      when: on_success
+      when: manual
 
 
 .conda_release_rules:dev:
@@ -280,7 +280,7 @@ build_conda_bim2sim:total:dev:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
       when: manual
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_conda_dev/
-      when: on_success
+      when: manual
 
 
 .conda_release_rules:plugin:main:

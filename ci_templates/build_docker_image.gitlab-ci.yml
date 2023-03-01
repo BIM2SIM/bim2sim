@@ -21,11 +21,12 @@ variables:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
     - docker build --build-arg BIM2SIM_FLAG=$BIM2SIM_FLAG --build-arg BIM2SIM_NAME=$BIM2SIM_NAME --build-arg BIM2SIM_VERSION=$BIM2SIM_VERSION -t $CI_REGISTRY/environment:$IMAGE_NAME -f $DOCKERPATH .
-    - docker images
+    - mkdir -p output
+    - docker save -o output/${$IMAGE_NAME}.tar $CI_REGISTRY/environment:$IMAGE_NAME
   artifacts:
     expire_in: 1 hour
     paths:
-      - $CI_REGISTRY/environment:$IMAGE_NAME
+      - output
 
 .docker_build_rules:main:
   rules:
@@ -35,7 +36,6 @@ variables:
       when: on_success
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_docker_main/
       when: on_success
-
 
 .docker_build_rules:dev:
   rules:
@@ -237,11 +237,13 @@ docker_build_plugin:teaser:dev:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA
   script:
     - docker build  --build-arg BIM2SIM_FLAG=$BIM2SIM_FLAG --build-arg BIM2SIM_NAME=$BIM2SIM_NAME --build-arg BIM2SIM_VERSION=$BIM2SIM_VERSION -t $CI_REGISTRY/environment:$IMAGE_NAME -f $DOCKERPATH .
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
+    # docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
+    - mkdir -p output
+    - docker save -o output/${$IMAGE_NAME}.tar $CI_REGISTRY/environment:$IMAGE_NAME
   artifacts:
     expire_in: 1 hour
     paths:
-      - $CI_REGISTRY/environment:$IMAGE_NAME
+      - output
 
 docker_build_bim2sim:env_dymola_base:dev:
   stage: build_docker_base
@@ -303,7 +305,7 @@ docker_build_total:main:
     DOCKERPATH: "docker/Dockerfile"
   extends: .docker_dymola_build
   rules:
-    - !reference [ .docker_build_rules:main, rules ]
+    - !reference [.docker_build_rules:main, rules]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
       when: on_success
 
@@ -316,7 +318,7 @@ docker_build_total:dev:
     DOCKERPATH: "docker/Dockerfile"
   extends: .docker_dymola_build
   rules:
-    - !reference [ .docker_build_rules:dev, rules ]
+    - !reference [.docker_build_rules:dev, rules]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
       when: on_success
 
@@ -329,7 +331,7 @@ docker_build_total:dev:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
       when: manual
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_docker_main/
-      when: on_success
+      when: manual
 
 .docker_release_rules:dev:
   rules:
@@ -338,7 +340,7 @@ docker_build_total:dev:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
       when: manual
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_docker_dev/
-      when: on_success
+      when: manual
 
 .docker_release_rules:plugin:main:
   rules:
@@ -358,11 +360,12 @@ docker_build_total:dev:
       - name: docker:18.09.7-dind
         command: [ "--mtu=1440" ]
   script:
-    - docker push $CI_REGISTRY/environment:$DOCKER_IMAGE
+    - docker load -i output/${DOCKER_IMAGE}
+#    - docker push $CI_REGISTRY/environment:$DOCKER_IMAGE
   artifacts:
     expire_in: 1 hour
     paths:
-      - $CI_REGISTRY/environment:$IMAGE_NAME
+      - output
 
 docker_release_bim2sim:base:main:
   stage: release_docker_base
