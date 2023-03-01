@@ -14,9 +14,9 @@ WORKDIR /bim2sim-coding
 RUN conda config --add channels bim2sim
 RUN conda config --add channels conda-forge
 RUN	conda update -n base -c defaults conda
-RUN conda create -n env python=3.9
+RUN conda create -n bim2sim3.9 python=3.9
 
-RUN conda activate env \
+RUN conda activate bim2sim3.9 \
     && conda install -y  --freeze-installed\
     -c bim2sim ${BIM2SIM_NAME}==${BIM2SIM_VERSION}${BIM2SIM_FLAG}  \
     && /opt/conda/bin/conda clean -afy \
