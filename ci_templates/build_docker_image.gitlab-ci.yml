@@ -21,6 +21,7 @@ variables:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
     - docker build --build-arg BIM2SIM_FLAG=$BIM2SIM_FLAG --build-arg BIM2SIM_NAME=$BIM2SIM_NAME --build-arg BIM2SIM_VERSION=$BIM2SIM_VERSION -t $CI_REGISTRY/environment:$IMAGE_NAME -f $DOCKERPATH .
+    - docker images
   artifacts:
     expire_in: 1 hour
     paths:

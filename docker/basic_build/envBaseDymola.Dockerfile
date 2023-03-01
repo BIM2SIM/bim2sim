@@ -11,6 +11,8 @@ RUN apt-get update --fix-missing && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+SHELL [ "/bin/bash", "--login", "-c" ]
+
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /opt/conda && \
     rm ~/miniconda.sh && \
@@ -24,7 +26,6 @@ WORKDIR /bim2sim-coding
 
 RUN conda config --add channels bim2sim
 RUN conda config --add channels conda-forge
-#RUN conda init bash
 RUN conda create -n env -c conda-forge python=3.9
 RUN	conda update -n base -c defaults conda
 
