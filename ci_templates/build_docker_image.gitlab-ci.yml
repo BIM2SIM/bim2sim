@@ -22,7 +22,7 @@ variables:
   script:
     - docker build --build-arg BIM2SIM_FLAG=$BIM2SIM_FLAG --build-arg BIM2SIM_NAME=$BIM2SIM_NAME --build-arg BIM2SIM_VERSION=$BIM2SIM_VERSION -t $CI_REGISTRY/environment:$IMAGE_NAME -f $DOCKERPATH .
     - mkdir -p output
-    - docker save -o output/${$IMAGE_NAME}.tar $CI_REGISTRY/environment:$IMAGE_NAME
+    - docker save -o output/${IMAGE_NAME}.tar $CI_REGISTRY/environment:$IMAGE_NAME
   artifacts:
     expire_in: 1 hour
     paths:
@@ -239,7 +239,7 @@ docker_build_plugin:teaser:dev:
     - docker build  --build-arg BIM2SIM_FLAG=$BIM2SIM_FLAG --build-arg BIM2SIM_NAME=$BIM2SIM_NAME --build-arg BIM2SIM_VERSION=$BIM2SIM_VERSION -t $CI_REGISTRY/environment:$IMAGE_NAME -f $DOCKERPATH .
     # docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
     - mkdir -p output
-    - docker save -o output/${$IMAGE_NAME}.tar $CI_REGISTRY/environment:$IMAGE_NAME
+    - docker save -o output/${IMAGE_NAME}.tar $CI_REGISTRY/environment:$IMAGE_NAME
   artifacts:
     expire_in: 1 hour
     paths:
@@ -360,7 +360,7 @@ docker_build_total:dev:
       - name: docker:18.09.7-dind
         command: [ "--mtu=1440" ]
   script:
-    - docker load -i output/${DOCKER_IMAGE}
+    - docker load -i output/${DOCKER_IMAGE}.tar
 #    - docker push $CI_REGISTRY/environment:$DOCKER_IMAGE
   artifacts:
     expire_in: 1 hour

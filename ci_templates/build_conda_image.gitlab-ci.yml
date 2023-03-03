@@ -248,12 +248,22 @@ build_conda_bim2sim:total:dev:
     - pip install cryptography==38.0.4
     - anaconda logout
     - anaconda login --username bim2sim --password $CONDA_TOKEN --hostname $CI_JOB_ID
+
     - conda convert -p osx-64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
-    - conda convert -p osx-arm64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
-    - conda convert -p win-64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
-    - anaconda upload conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --force
     - anaconda upload conda-bld/$BIM2SIM_NAME/osx-64/$BIM2SIM_NAME-* --force
+
+    - conda convert -p osx-arm64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
+    - anaconda upload conda-bld/$BIM2SIM_NAME/osx-arm64/$BIM2SIM_NAME-* --force
+
+    - conda convert -p win-64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
     - anaconda upload conda-bld/$BIM2SIM_NAME/win-64/$BIM2SIM_NAME-* --force
+
+    - conda convert -p linux-64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
+    - anaconda upload conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --force
+
+    - conda convert -p linux-aarch64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
+    - anaconda upload conda-bld/$BIM2SIM_NAME/linux-aarch64/$BIM2SIM_NAME-* --force
+
     - anaconda logout
   retry:
     max: 2

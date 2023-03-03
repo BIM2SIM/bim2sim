@@ -1,0 +1,7 @@
+name: bim2sim3.9
+channels:
+  - conda-forge
+  - bim2sim
+dependencies:
+  - bim2sim=1.0.0_dev
+  - pip
