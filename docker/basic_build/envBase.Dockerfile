@@ -23,7 +23,8 @@ RUN find -name '*.a' -delete   && \
   conda-linux-64.lock
 #Distroless for execution
 
-FROM debian:buster AS runtime
+#FROM debian:buster AS runtime
+FROM gcr.io/distroless/base-debian10
 COPY --from=conda  /env /env
 RUN ln -s /env/bin/python /usr/bin/python && \
     ln -s /env/bin/bim2sim /usr/bin/bim2sim  && \

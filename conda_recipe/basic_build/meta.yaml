@@ -33,9 +33,6 @@ requirements:
     - pythonocc-core==7.6.2
     - ifcopenshell
 
-  run_constrained:
-    - beautifulsoup4 >=4.9.3
-
 test:
   imports:
     - bim2sim
