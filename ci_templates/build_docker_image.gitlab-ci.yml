@@ -20,8 +20,6 @@ variables:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - cd docker/basic_build && conda lock -p linux-64 -f environment.yml
-    - conda-lock render -p linux-64
     - docker build --build-arg BIM2SIM_FLAG=$BIM2SIM_FLAG --build-arg BIM2SIM_NAME=$BIM2SIM_NAME --build-arg BIM2SIM_VERSION=$BIM2SIM_VERSION -t $CI_REGISTRY/environment:$IMAGE_NAME -f $DOCKERPATH .
     - mkdir -p output
     - docker save -o output/${IMAGE_NAME}.tar $CI_REGISTRY/environment:$IMAGE_NAME

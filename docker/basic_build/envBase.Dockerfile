@@ -1,33 +1,55 @@
-FROM condaforge/mambaforge:4.9.2-5 as conda
-COPY docker/basic_build/conda-linux-64.lock .
-RUN --mount=type=cache,target=/opt/conda/pkgs mamba create --copy -p /env --file conda-linux-64.lock && echo 4
+# The build-stage image:
+FROM continuumio/miniconda3 AS build
+ARG BIM2SIM_NAME
+ARG BIM2SIM_VERSION
+ARG BIM2SIM_FLAG
+# Install the package as normal:
+#COPY docker/basic_build/environment.yml .
+RUN conda config --add channels bim2sim
+RUN conda config --add channels conda-forge
+#RUN conda env create -f environment.yml
+RUN conda create -n bim2sim3.9 bim2sim
+# Install conda-pack:
+RUN conda install -c conda-forge conda-pack
+
+# Use conda-pack to create a standalone enviornment
+# in /venv:
+RUN conda-pack -n bim2sim3.9 -o /tmp/env.tar && \
+  mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
+  rm /tmp/env.tar
+
+# We've put venv in same path it'll be in final image,
+# so now fix up paths:
+RUN /venv/bin/conda-unpack
 
 RUN find -name '*.a' -delete   && \
   find -name '*.pyc' -delete && \
   find -name '*.js.map' -delete && \
-  rm -rf /env/conda-meta && \
-  rm -rf /env/include && \
+  rm -rf /venv/conda-meta && \
+  rm -rf /venv/include && \
 # rm /env/lib/libpython3.9.so.1.0  && \
   find -name '__pycache__' -type d -exec rm -rf '{}' '+' && \
 #  rm -rf /env/lib/python3.9/site-packages/pip /env/lib/python3.9/idlelib /env/lib/python3.9/ensurepip \
   rm -rf  /env/lib/python3.9/idlelib /env/lib/python3.9/ensurepip \
-    /env/lib/libasan.so.5.0.0 \
-    /env/lib/libtsan.so.0.0.0 \
-    /env/lib/liblsan.so.0.0.0 \
-    /env/lib/libubsan.so.1.0.0 \
-    /env/bin/x86_64-conda-linux-gnu-ld \
-    /env/bin/sqlite3 \
-    /env/bin/openssl \
-    /env/share/terminfo \
-  rm -rf /env/lib/python3.9/site-packages/uvloop/loop.c \
-  conda-linux-64.lock
-#Distroless for execution
+    /venv/lib/libasan.so.5.0.0 \
+    /venv/lib/libtsan.so.0.0.0 \
+    /venv/lib/liblsan.so.0.0.0 \
+    /venv/lib/libubsan.so.1.0.0 \
+    /venv/bin/x86_64-conda-linux-gnu-ld \
+    /venv/bin/sqlite3 \
+    /venv/bin/openssl \
+    /venv/share/terminfo \
+  rm -rf /venv/lib/python3.9/site-packages/uvloop/loop.c
 
-#FROM debian:buster AS runtime
-FROM gcr.io/distroless/base-debian10
-COPY --from=conda  /env /env
-RUN ln -s /env/bin/python /usr/bin/python && \
-    ln -s /env/bin/bim2sim /usr/bin/bim2sim  && \
-    ln -s /env/bin/pip /usr/bin/pip
+#RUN conda clean --all
+# The runtime-stage image; we can use Debian as the
+# base image since the Conda env also includes Python
+# for us.
+FROM debian:buster AS runtime
 
-#ENTRYPOINT [ "bim2sim" ,"--version"]
+# Copy /venv from the previous stage:
+COPY --from=build /venv /venv
+RUN ln -s /venv/bin/python /usr/bin/python && \
+     ln -s /venv/bin/python3.9 /usr/bin/python3.9 && \
+    ln -s /venv/bin/bim2sim /usr/bin/bim2sim  && \
+    ln -s /venv/bin/pip /usr/bin/pip

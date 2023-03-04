@@ -1,15 +1,10 @@
-
-
-name: bim2sim3.9
+name: bim2sim_env
 channels:
   - conda-forge
   - bim2sim
 dependencies:
-  - $BIM2SIM_NAME==1.0.0_dev
-  - pip
-variables:
-  MY_VAR: something
-  OTHER_VAR: ohhhhya
+  - bim2sim==1.0.0_dev
+
 
 
 
