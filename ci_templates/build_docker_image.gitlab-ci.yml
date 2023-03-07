@@ -13,7 +13,7 @@ variables:
 
 
 .docker_build:
-  image: docker:latest
+  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
   services:
     - name: docker:18.09.7-dind
       command: [ "--mtu=1440" ]
@@ -233,7 +233,7 @@ docker_build_plugin:teaser:dev:
 
 
 .docker_dymola_build:
-  image: docker:latest
+  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
   services:
       - name: docker:18.09.7-dind
         command: [ "--mtu=1440" ]
