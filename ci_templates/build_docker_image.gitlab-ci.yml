@@ -22,7 +22,8 @@ variables:
   script:
     - docker build --build-arg BIM2SIM_FLAG=$BIM2SIM_FLAG --build-arg BIM2SIM_NAME=$BIM2SIM_NAME --build-arg BIM2SIM_VERSION=$BIM2SIM_VERSION -t $CI_REGISTRY/environment:$IMAGE_NAME -f $DOCKERPATH .
     - mkdir -p output
-    - docker save -o output/${IMAGE_NAME}.tar $CI_REGISTRY/environment:$IMAGE_NAME
+    - docker images
+    - docker save -o output/$IMAGE_NAME.tar $CI_REGISTRY/environment:$IMAGE_NAME
   artifacts:
     expire_in: 1 hour
     paths:

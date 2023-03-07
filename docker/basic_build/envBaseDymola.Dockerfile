@@ -1,38 +1,54 @@
-FROM registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola_2022
-
-ARG BIM2SIM_NAME=bim2sim
+# The build-stage image:
+FROM continuumio/miniconda3 AS build
+ARG BIM2SIM_NAME
 ARG BIM2SIM_VERSION
 ARG BIM2SIM_FLAG
-ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
-ENV PATH /opt/conda/bin:$PATH
-
-RUN apt-get update --fix-missing && \
-    apt-get install -y wget bzip2 ca-certificates curl git && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-SHELL [ "/bin/bash", "--login", "-c" ]
-
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-x86_64.sh -O ~/miniconda.sh && \
-    /bin/bash ~/miniconda.sh -b -p /opt/conda && \
-    rm ~/miniconda.sh && \
-    /opt/conda/bin/conda clean -tipsy && \
-    ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
-    echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
-    echo "conda activate base" >> ~/.bashrc
-
-
-WORKDIR /bim2sim-coding
-
+# Install the package as normal:
+#COPY docker/basic_build/environment.yml .
 RUN conda config --add channels bim2sim
 RUN conda config --add channels conda-forge
-RUN conda create -n bim2sim3.9 -c conda-forge python=3.9
-RUN	conda update -n base -c defaults conda
+#RUN conda env create -f environment.yml
+RUN conda create -n bim2sim3.9 bim2sim
+# Install conda-pack:
+RUN conda install -c conda-forge conda-pack
 
-RUN conda activate bim2sim3.9 \
-    && conda install -y --freeze-installed \
-    -c bim2sim ${BIM2SIM_NAME}==${BIM2SIM_VERSION}${BIM2SIM_FLAG}  \
-    && /opt/conda/bin/conda clean -afy \
-	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
-	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \
-	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete \
+# Use conda-pack to create a standalone enviornment
+# in /venv:
+RUN conda-pack -n bim2sim3.9 -o /tmp/env.tar && \
+  mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
+  rm /tmp/env.tar
+
+# We've put venv in same path it'll be in final image,
+# so now fix up paths:
+RUN /venv/bin/conda-unpack
+
+RUN find -name '*.a' -delete   && \
+  find -name '*.pyc' -delete && \
+  find -name '*.js.map' -delete && \
+  rm -rf /venv/conda-meta && \
+  rm -rf /venv/include && \
+# rm /env/lib/libpython3.9.so.1.0  && \
+  find -name '__pycache__' -type d -exec rm -rf '{}' '+' && \
+#  rm -rf /env/lib/python3.9/site-packages/pip /env/lib/python3.9/idlelib /env/lib/python3.9/ensurepip \
+  rm -rf  /env/lib/python3.9/idlelib /env/lib/python3.9/ensurepip \
+    /venv/lib/libasan.so.5.0.0 \
+    /venv/lib/libtsan.so.0.0.0 \
+    /venv/lib/liblsan.so.0.0.0 \
+    /venv/lib/libubsan.so.1.0.0 \
+    /venv/bin/x86_64-conda-linux-gnu-ld \
+    /venv/bin/sqlite3 \
+    /venv/bin/openssl \
+    /venv/share/terminfo \
+  rm -rf /venv/lib/python3.9/site-packages/uvloop/loop.c
+
+
+
+
+
+FROM registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola_2022 as runtime
+
+COPY --from=build /venv /venv
+RUN ln -s /venv/bin/python /usr/bin/python && \
+     ln -s /venv/bin/python3.9 /usr/bin/python3.9 && \
+    ln -s /venv/bin/bim2sim /usr/bin/bim2sim  && \
+    ln -s /venv/bin/pip /usr/bin/pip
