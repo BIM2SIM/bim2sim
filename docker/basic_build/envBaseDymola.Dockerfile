@@ -42,9 +42,6 @@ RUN find -name '*.a' -delete   && \
   rm -rf /venv/lib/python3.9/site-packages/uvloop/loop.c
 
 
-
-
-
 FROM registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola_2022 as runtime
 
 COPY --from=build /venv /venv

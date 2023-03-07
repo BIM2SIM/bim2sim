@@ -24,6 +24,7 @@ variables:
     - mkdir -p output
     - docker images
     - docker save -o output/$IMAGE_NAME.tar $CI_REGISTRY/environment:$IMAGE_NAME
+    - output/${IMAGE_NAME}.tar
   artifacts:
     expire_in: 1 hour
     paths:
@@ -241,6 +242,7 @@ docker_build_plugin:teaser:dev:
     # docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
     - mkdir -p output
     - docker save -o output/${IMAGE_NAME}.tar $CI_REGISTRY/environment:$IMAGE_NAME
+    - gzip output/${IMAGE_NAME}.tar
   artifacts:
     expire_in: 1 hour
     paths:
