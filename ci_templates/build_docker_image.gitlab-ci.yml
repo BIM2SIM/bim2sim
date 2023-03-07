@@ -20,8 +20,8 @@ variables:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - apk update
-    - apk add git
+    # apk update
+    # apk add git
     - docker build --build-arg BIM2SIM_FLAG=$BIM2SIM_FLAG --build-arg BIM2SIM_NAME=$BIM2SIM_NAME --build-arg BIM2SIM_VERSION=$BIM2SIM_VERSION -t $CI_REGISTRY/environment:$IMAGE_NAME -f $DOCKERPATH .
     - mkdir -p output
     - docker images
@@ -240,8 +240,8 @@ docker_build_plugin:teaser:dev:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA
   script:
-    - apk update
-    - apk add git
+    # apk update
+    # apk add git
     - docker build  --build-arg BIM2SIM_FLAG=$BIM2SIM_FLAG --build-arg BIM2SIM_NAME=$BIM2SIM_NAME --build-arg BIM2SIM_VERSION=$BIM2SIM_VERSION -t $CI_REGISTRY/environment:$IMAGE_NAME -f $DOCKERPATH .
     # docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
     - mkdir -p output
