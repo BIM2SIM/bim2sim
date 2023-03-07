@@ -32,11 +32,12 @@ def run_example_5():
     # In this case the mainbuilding of EBC at Aachen which has mostly correct
     # implemented materials in IFC
     ifc_path = Path(__file__).parent.parent \
-               / 'assets/ifc_example_files/ERC_EBC_mainbuilding.ifc'
+               / 'assets/ifc_example_files/AC20-FZK-Haus.ifc'
+    #           / 'assets/ifc_example_files/ERC_EBC_mainbuilding.ifc'
 
     # Create a project including the folder structure for the project with
     # LCA as backend and no specified workflow (default workflow is taken)
-    project = Project.create(project_path, ifc_path, 'lca')
+    project = Project.create(project_folder=project_path, ifc_path=ifc_path, plugin='lca')
 
     # Run the project with the ConsoleDecisionHandler. No questions for this
     # example will be prompted.
@@ -51,3 +52,12 @@ def run_example_5():
 
 if __name__ == '__main__':
     run_example_5()
+
+
+
+
+
+
+
+
+

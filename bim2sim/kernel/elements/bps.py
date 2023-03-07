@@ -344,7 +344,6 @@ class ThermalZone(BPSProduct):
                 if pos not in leveled_sbs:
                     leveled_sbs[pos] = []
                 leveled_sbs[pos].append(sb)
-
         return leveled_sbs
 
     zone_name = attribute.Attribute(

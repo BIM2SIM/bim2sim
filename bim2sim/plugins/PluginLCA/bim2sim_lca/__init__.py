@@ -20,4 +20,7 @@ class PluginLCA(Plugin):
         common.BindStoreys,
         bps.CreateSpaceBoundaries,
         ExportLCA,
-    ]
+        bps.VisualizeThermalZone
+
+        # my task
+        ]
