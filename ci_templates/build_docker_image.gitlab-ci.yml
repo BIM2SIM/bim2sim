@@ -15,7 +15,7 @@ variables:
 .docker_build:
   image: docker:latest
   services:
-    - name: docker:18.09.7-dind
+    - name: docker:dind
       command: [ "--mtu=1440" ]
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
