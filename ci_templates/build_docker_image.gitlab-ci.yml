@@ -74,13 +74,11 @@ docker_build_bim2sim:base:dev:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
       when: on_success
 
-test_Base:dev:
-  image: ${TEST_IMAGE}
-  stage: test_docker_base
-  dependencies:
-    - docker_build_bim2sim:base:dev
-  variables:
-    IMAGE_NAME: "base_dev"
+
+
+# [Test base bim2sim]
+
+.test_base:
   before_script:
     - pip install coverage
     - pip install coverage-badge
@@ -96,12 +94,33 @@ test_Base:dev:
     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
   artifacts:
     paths:
-    - $CI_COMMIT_REF_NAME/coverage
+      - $CI_COMMIT_REF_NAME/coverage
+
+test_Base:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_base
+  dependencies:
+    - docker_build_bim2sim:base:dev
+  variables:
+    IMAGE_NAME: "base_dev"
+  extends: .test_base
   rules:
     - !reference [ .docker_build_rules:dev, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
       when: on_success
 
+test_Base:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_base
+  dependencies:
+    - docker_build_bim2sim:base:main
+  variables:
+    IMAGE_NAME: "bim2sim_base"
+  extends: .test_base
+  rules:
+    - !reference [ .docker_build_rules:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
+      when: on_success
 
 # [Build docker Plugins]
 .docker_build_rules:plugin:main:
@@ -140,6 +159,47 @@ docker_build_plugin:aixlib:dev:
     - !reference [.docker_build_rules:plugin:dev, rules]
 
 
+# [Test plugin AixLib]
+.test_plugin:AixLib:
+  stage: test_docker_plugin
+  before_script:
+    - pip install coverage
+    - pip install coverage-badge
+  script:
+    - mv ./* /bim2sim-coding/
+    - cd /bim2sim-coding
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download
+    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
+    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration_test
+    - coverage report -i
+    - mkdir -p $CI_COMMIT_REF_NAME/coverage
+    - coverage html -i
+    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/coverage
+
+test_plugin:AixLib:main:
+  image: ${TEST_IMAGE}
+  dependencies:
+    - docker_build_plugin:aixlib:main
+  variables:
+    IMAGE_NAME: "plugin_aixlib_main"
+  extends: .test_plugin:AixLib
+  rules:
+    - !reference [ .docker_build_rules:plugin:main, rules ]
+
+test_plugin:AixLib:dev:
+  image: ${TEST_IMAGE}
+  dependencies:
+    - docker_build_plugin:aixlib:dev
+  variables:
+    IMAGE_NAME: "plugin_aixlib_dev"
+  extends: .test_plugin:AixLib
+  rules:
+    - !reference [ .docker_build_rules:plugin:dev, rules ]
+
+# [build plugin cfd]
 docker_build_plugin:cfd:main:
   stage: build_docker_plugin
   variables:
@@ -150,7 +210,6 @@ docker_build_plugin:cfd:main:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:main, rules]
-
 
 docker_build_plugin:cfd:dev:
   stage: build_docker_plugin
@@ -163,6 +222,48 @@ docker_build_plugin:cfd:dev:
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
 
+# [test plugin cfd]
+
+.test_plugin:cfd:
+  stage: test_docker_plugin
+  before_script:
+    - pip install coverage
+    - pip install coverage-badge
+  script:
+    - mv ./* /bim2sim-coding/
+    - cd /bim2sim-coding
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
+    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
+    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginCFD/test/integration_test
+    - coverage report -i
+    - mkdir -p $CI_COMMIT_REF_NAME/coverage
+    - coverage html -i
+    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/coverage
+
+test_plugin:cfd:main:
+  image: ${TEST_IMAGE}
+  dependencies:
+    - docker_build_plugin:cfd:main
+  variables:
+    IMAGE_NAME: "plugin_cfd_main"
+  extends: .test_plugin:cfd
+  rules:
+    - !reference [ .docker_build_rules:plugin:main, rules ]
+
+test_plugin:cfd:dev:
+  image: ${TEST_IMAGE}
+  dependencies:
+    - docker_build_plugin:cfd:dev
+  variables:
+    IMAGE_NAME: "plugin_cfd_dev"
+  extends: .test_plugin:cfd
+  rules:
+    - !reference [ .docker_build_rules:plugin:dev, rules ]
+
+# [Build plugin energyplus]
 
 docker_build_plugin:energyplus:main:
   stage: build_docker_plugin
@@ -175,7 +276,6 @@ docker_build_plugin:energyplus:main:
   rules:
     - !reference [.docker_build_rules:plugin:main, rules]
 
-
 docker_build_plugin:energyplus:dev:
   stage: build_docker_plugin
   variables:
@@ -187,6 +287,90 @@ docker_build_plugin:energyplus:dev:
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
 
+# [test plugin energyplus]
+.test_plugin:energyplus:
+  stage: test_docker_plugin
+  before_script:
+    - pip install coverage
+    - pip install coverage-badge
+  script:
+    - mv ./* /bim2sim-coding/
+    - cd /bim2sim-coding
+    - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
+    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
+    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration_test
+    - coverage report -i
+    - mkdir -p $CI_COMMIT_REF_NAME/coverage
+    - coverage html -i
+    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/coverage
+
+test_plugin:energyplus:main:
+  image: ${TEST_IMAGE}
+  dependencies:
+    - docker_build_plugin:energyplus:main
+  variables:
+    IMAGE_NAME: "plugin_energyplus_main"
+  extends: .test_plugin:energyplus
+  rules:
+    - !reference [ .docker_build_rules:plugin:main, rules ]
+
+test_plugin:energyplus:dev:
+  image: ${TEST_IMAGE}
+  dependencies:
+    - docker_build_plugin:energyplus:dev
+  variables:
+    IMAGE_NAME: "plugin_energyplus_dev"
+  extends: .test_plugin:energyplus
+  rules:
+    - !reference [ .docker_build_rules:plugin:dev, rules ]
+
+.test_plugin:energyplus_regression:
+  stage: test_docker_plugin
+  before_script:
+    - pip install coverage
+    - pip install coverage-badge
+  script:
+    - mv ./* /bim2sim-coding/
+    - cd /bim2sim-coding
+    - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
+    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
+    - wget --quiet -O /bim2sim-coding/bim2sim/assets/download.zip https://rwth-aachen.sciebo.de/s/5EQqe5g8x0x4lae/download
+    - unzip /bim2sim-coding/bim2sim/assets/download.zip -d /bim2sim-coding/bim2sim/assets/
+    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/regression_test
+    - coverage report -i
+    - mkdir -p $CI_COMMIT_REF_NAME/coverage
+    - coverage html -i
+    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/coverage
+
+test_plugin:energyplus_regression:main:
+  image: ${TEST_IMAGE}
+  dependencies:
+    - docker_build_plugin:energyplus:main
+  variables:
+    IMAGE_NAME: "plugin_energyplus_main"
+  extends: .test_plugin:energyplus_regression
+  rules:
+    - !reference [ .docker_build_rules:plugin:main, rules ]
+
+test_plugin:energyplus_regression:dev:
+  image: ${TEST_IMAGE}
+  dependencies:
+    - docker_build_plugin:energyplus:dev
+  variables:
+    IMAGE_NAME: "plugin_energyplus_dev"
+  extends: .test_plugin:energyplus_regression
+  rules:
+    - !reference [ .docker_build_rules:plugin:dev, rules ]
+
+# [build tool hkesim]
 
 docker_build_plugin:hkesim:main:
   stage: build_docker_plugin
@@ -210,6 +394,9 @@ docker_build_plugin:hkesim:dev:
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
 
+# [test tool hkesim]
+
+# [Build plugin lca]
 
 docker_build_plugin:lca:main:
   stage: build_docker_plugin
@@ -234,7 +421,47 @@ docker_build_plugin:lca:dev:
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
 
+# [test plugin lca]
+.test_plugin:lca:
+  stage: test_docker_plugin
+  before_script:
+    - pip install coverage
+    - pip install coverage-badge
+  script:
+    - mv ./* /bim2sim-coding/
+    - cd /bim2sim-coding
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
+    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
+    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginLCA/test/integration_test
+    - coverage report -i
+    - mkdir -p $CI_COMMIT_REF_NAME/coverage
+    - coverage html -i
+    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/coverage
 
+test_plugin:lca:main:
+  image: ${TEST_IMAGE}
+  dependencies:
+    - docker_build_plugin:lca:main
+  variables:
+    IMAGE_NAME: "plugin_lca_main"
+  extends: .test_plugin:lca
+  rules:
+    - !reference [ .docker_build_rules:plugin:main, rules ]
+
+test_plugin:lca:dev:
+  image: ${TEST_IMAGE}
+  dependencies:
+    - docker_build_plugin:lca:dev
+  variables:
+    IMAGE_NAME: "plugin_lca_dev"
+  extends: .test_plugin:lca
+  rules:
+    - !reference [ .docker_build_rules:plugin:dev, rules ]
+
+# [build plugin teaser]
 docker_build_plugin:teaser:main:
   stage: build_docker_plugin
   variables:
@@ -245,7 +472,6 @@ docker_build_plugin:teaser:main:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:main, rules]
-
 
 docker_build_plugin:teaser:dev:
   stage: build_docker_plugin
@@ -258,6 +484,50 @@ docker_build_plugin:teaser:dev:
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
 
+# [test plugin teaser
+.test_plugin:teaser:
+  stage: test_docker_plugin
+  before_script:
+    - pip install coverage
+    - pip install coverage-badge
+  script:
+    - mv ./* /bim2sim-coding/
+    - cd /bim2sim-coding
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
+    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
+    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration_test
+    - coverage report -i
+    - mkdir -p $CI_COMMIT_REF_NAME/coverage
+    - coverage html -i
+    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/coverage
+
+test_plugin:teaser:main:
+  image: ${TEST_IMAGE}
+  dependencies:
+    - docker_build_plugin:teaser:main
+  variables:
+    IMAGE_NAME: "plugin_teaser_main"
+  extends: .test_plugin:teaser
+  rules:
+    - !reference [ .docker_build_rules:plugin:main, rules ]
+
+test_plugin:teaser:dev:
+  image: ${TEST_IMAGE}
+  dependencies:
+    - docker_build_plugin:teaser:dev
+  variables:
+    IMAGE_NAME: "plugin_teaser_dev"
+  extends: .test_plugin:teaser
+  rules:
+    - !reference [ .docker_build_rules:plugin:dev, rules ]
+
+
+
+
+# [build docker dymola]
 
 .docker_dymola_build:
   image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
@@ -272,6 +542,7 @@ docker_build_plugin:teaser:dev:
     - docker images
     - docker push $TEST_IMAGE
 
+# [build docker dymola bim2sim base]
 docker_build_bim2sim:env_dymola_base:dev:
   stage: build_docker_base
   variables:
@@ -284,7 +555,6 @@ docker_build_bim2sim:env_dymola_base:dev:
     - !reference [.docker_build_rules:dev, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
       when: on_success
-
 
 docker_build_bim2sim:env_dymola_base:main:
   stage: build_docker_base
@@ -299,6 +569,9 @@ docker_build_bim2sim:env_dymola_base:main:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
       when: on_success
 
+# [test docker dymola bim2sim base]
+
+# [build docker dymola plugin teaser]
 
 docker_build_plugin:dymola_teaser:main:
   stage: build_docker_plugin
@@ -311,7 +584,6 @@ docker_build_plugin:dymola_teaser:main:
   rules:
     - !reference [.docker_build_rules:plugin:main, rules ]
 
-
 docker_build_plugin:dymola_teaser:dev:
   stage: build_docker_plugin
   variables:
@@ -322,6 +594,52 @@ docker_build_plugin:dymola_teaser:dev:
   extends: .docker_dymola_build
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
+
+# [test docker dymola plugin teaser]
+
+.test_plugin:TEASER_regression:
+  stage: test_docker_plugin
+  before_script:
+    - pip install coverage
+    - pip install coverage-badge
+  script:
+    - mv ./* /bim2sim-coding/
+    - cd /bim2sim-coding
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
+    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
+    - wget --quiet -O /bim2sim-coding/bim2sim/assets/download.zip https://rwth-aachen.sciebo.de/s/5EQqe5g8x0x4lae/download
+    - unzip /bim2sim-coding/bim2sim/assets/download.zip -d /bim2sim-coding/bim2sim/assets/
+    - git clone --branch development https://github.com/RWTH-EBC/AixLib.git /bim2sim-coding/AixLib
+    - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression_test
+    - coverage report -i
+    - mkdir -p $CI_COMMIT_REF_NAME/coverage
+    - coverage html -i
+    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/coverage
+
+test_plugin:dymola_teaser:main:
+  image: ${TEST_IMAGE}
+  dependencies:
+    - docker_build_plugin:dymola_teaser:main
+  variables:
+    IMAGE_NAME: "plugin_dymola_teaser_main"
+  extends: .test_plugin:TEASER_regression
+  rules:
+    - !reference [ .docker_build_rules:plugin:main, rules ]
+
+test_plugin:dymola_teaser:dev:
+  image: ${TEST_IMAGE}
+  dependencies:
+    - docker_build_plugin:dymola_teaser:dev
+  variables:
+    IMAGE_NAME: "plugin_dymola_teaser_dev"
+  extends: .test_plugin:TEASER_regression
+  rules:
+    - !reference [ .docker_build_rules:plugin:dev, rules ]
+
+
 
 docker_build_total:main:
   stage: build_docker_total

@@ -20,8 +20,6 @@ variables:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_conda_main/
       when: on_success
 
-
-
 .conda_build_rules:dev:
   rules:
     - if: $CI_COMMIT_BRANCH == "development"
@@ -30,7 +28,6 @@ variables:
       when: on_success
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_conda_dev/
       when: on_success
-
 
 .conda_build:
   image: continuumio/miniconda3

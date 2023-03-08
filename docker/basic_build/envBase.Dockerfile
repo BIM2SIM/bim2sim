@@ -10,6 +10,7 @@ RUN conda config --add channels conda-forge
 #RUN conda env create -f environment.yml
 RUN conda create -n bim2sim3.9 bim2sim
 # Install conda-pack:
+RUN conda install conda=23.1.0
 RUN conda install -c conda-forge conda-pack
 
 # Use conda-pack to create a standalone enviornment
@@ -46,7 +47,7 @@ RUN find -name '*.a' -delete   && \
 # base image since the Conda env also includes Python
 # for us.
 FROM debian:buster AS runtime
-
+WORKDIR /bim2sim-coding
 # Copy /venv from the previous stage:
 COPY --from=build /venv /venv
 RUN ln -s /venv/bin/python /usr/bin/python && \
