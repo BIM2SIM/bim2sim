@@ -10,6 +10,9 @@ variables:
   BIM2SIM_NAME:  "bim2sim"
   BIM2SIM_FLAG: ""
   BIM2SIM_VERSION: 0.1.0
+  # [Images]
+  TEST_IMAGE: ${CI_REGISTRY}/environment:${IMAGE_NAME}_test
+  RELEASE_IMAGE: ${CI_REGISTRY}/environment:${IMAGE_NAME}
 
 
 .docker_build:
@@ -20,17 +23,9 @@ variables:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    # apk update
-    # apk add git
-    - docker build --build-arg BIM2SIM_FLAG=$BIM2SIM_FLAG --build-arg BIM2SIM_NAME=$BIM2SIM_NAME --build-arg BIM2SIM_VERSION=$BIM2SIM_VERSION -t $CI_REGISTRY/environment:$IMAGE_NAME -f $DOCKERPATH .
-    - mkdir -p output
+    - docker build --pull --build-arg BIM2SIM_FLAG=${BIM2SIM_FLAG} --build-arg BIM2SIM_NAME=${BIM2SIM_NAME} --build-arg BIM2SIM_VERSION=${BIM2SIM_VERSION} -t ${TEST_IMAGE} -f ${DOCKERPATH} .
     - docker images
-    - docker save -o output/$IMAGE_NAME.tar $CI_REGISTRY/environment:$IMAGE_NAME
-    - gzip output/${IMAGE_NAME}.tar
-  artifacts:
-    expire_in: 1 hour
-    paths:
-      - output
+    - docker push ${TEST_IMAGE}
 
 .docker_build_rules:main:
   rules:
@@ -240,17 +235,10 @@ docker_build_plugin:teaser:dev:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA
   script:
-    # apk update
-    # apk add git
-    - docker build  --build-arg BIM2SIM_FLAG=$BIM2SIM_FLAG --build-arg BIM2SIM_NAME=$BIM2SIM_NAME --build-arg BIM2SIM_VERSION=$BIM2SIM_VERSION -t $CI_REGISTRY/environment:$IMAGE_NAME -f $DOCKERPATH .
+    - docker build --pull --build-arg BIM2SIM_FLAG=$BIM2SIM_FLAG --build-arg BIM2SIM_NAME=$BIM2SIM_NAME --build-arg BIM2SIM_VERSION=$BIM2SIM_VERSION -t $TEST_IMAGE -f $DOCKERPATH .
     # docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
-    - mkdir -p output
-    - docker save -o output/${IMAGE_NAME}.tar $CI_REGISTRY/environment:$IMAGE_NAME
-    - gzip output/${IMAGE_NAME}.tar
-  artifacts:
-    expire_in: 1 hour
-    paths:
-      - output
+    - docker images
+    - docker push $TEST_IMAGE
 
 docker_build_bim2sim:env_dymola_base:dev:
   stage: build_docker_base
@@ -309,7 +297,7 @@ docker_build_total:main:
     BIM2SIM_NAME: "bim2sim"
     BIM2SIM_FLAG: ""
     IMAGE_NAME: "latest"
-    DOCKERPATH: "docker/Dockerfile"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_dymola_build
   rules:
     - !reference [.docker_build_rules:main, rules]
@@ -322,7 +310,7 @@ docker_build_total:dev:
     BIM2SIM_NAME: "bim2sim"
     BIM2SIM_FLAG: "_dev"
     IMAGE_NAME: "development"
-    DOCKERPATH: "docker/Dockerfile"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_dymola_build
   rules:
     - !reference [.docker_build_rules:dev, rules]
@@ -367,19 +355,16 @@ docker_build_total:dev:
       - name: docker:18.09.7-dind
         command: [ "--mtu=1440" ]
   script:
-    - docker load -i output/${DOCKER_IMAGE}.tar
-#    - docker push $CI_REGISTRY/environment:$DOCKER_IMAGE
-  artifacts:
-    expire_in: 1 hour
-    paths:
-      - output
+    - docker pull $TEST_IMAGE
+    - docker tag $TEST_IMAGE $RELEASE_IMAGE
+    - docker push $RELEASE_IMAGE
 
 docker_release_bim2sim:base:main:
   stage: release_docker_base
   dependencies:
     - docker_build_bim2sim:base:main
   variables:
-    DOCKER_IMAGE: "base_master"
+    IMAGE_NAME: "base_master"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:main, rules ]
@@ -391,7 +376,7 @@ docker_release_bim2sim:env_base:dev:
   dependencies:
     - docker_build_bim2sim:base:dev
   variables:
-    DOCKER_IMAGE: "base_dev"
+    IMAGE_NAME: "base_dev"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:dev, rules ]
@@ -404,7 +389,7 @@ docker_release_plugin:aixlib:main:
   dependencies:
     - docker_build_plugin:aixlib:main
   variables:
-    DOCKER_IMAGE: "plugin_aixlib"
+    IMAGE_NAME: "plugin_aixlib"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
@@ -414,7 +399,7 @@ docker_release_plugin:aixlib:dev:
   dependencies:
     - docker_build_plugin:aixlib:dev
   variables:
-    DOCKER_IMAGE: "plugin_aixlib_dev"
+    IMAGE_NAME: "plugin_aixlib_dev"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
@@ -424,7 +409,7 @@ docker_release_plugin:cfd:main:
   dependencies:
     - docker_build_plugin:cfd:main
   variables:
-    DOCKER_IMAGE: "plugin_cfd"
+    IMAGE_NAME: "plugin_cfd"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
@@ -434,7 +419,7 @@ docker_release_plugin:cfd:dev:
   dependencies:
     - docker_build_plugin:cfd:dev
   variables:
-    DOCKER_IMAGE: "plugin_cfd_dev"
+    IMAGE_NAME: "plugin_cfd_dev"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
@@ -444,7 +429,7 @@ docker_release_plugin:energyplus:main:
   dependencies:
     - docker_build_plugin:energyplus:main
   variables:
-    DOCKER_IMAGE: "plugin_energyplus"
+    IMAGE_NAME: "plugin_energyplus"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
@@ -454,7 +439,7 @@ docker_release_plugin:energyplus:dev:
   dependencies:
     - docker_build_plugin:energyplus:dev
   variables:
-    DOCKER_IMAGE: "plugin_energyplus_dev"
+    IMAGE_NAME: "plugin_energyplus_dev"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
@@ -464,7 +449,7 @@ docker_release_plugin:hkesim:main:
   dependencies:
     - docker_build_plugin:hkesim:main
   variables:
-    DOCKER_IMAGE: "plugin_hkesim"
+    IMAGE_NAME: "plugin_hkesim"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
@@ -474,7 +459,7 @@ docker_release_plugin:hkesim:dev:
   dependencies:
     - docker_build_plugin:hkesim:dev
   variables:
-    DOCKER_IMAGE: "plugin_hkesim_dev"
+    IMAGE_NAME: "plugin_hkesim_dev"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
@@ -484,7 +469,7 @@ docker_release_plugin:lca:main:
   dependencies:
     - docker_build_plugin:lca:main
   variables:
-    DOCKER_IMAGE: "plugin_lca"
+    IMAGE_NAME: "plugin_lca"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
@@ -494,7 +479,7 @@ docker_release_plugin:lca:dev:
   dependencies:
     - docker_build_plugin:lca:dev
   variables:
-    DOCKER_IMAGE: "plugin_lca_dev"
+    IMAGE_NAME: "plugin_lca_dev"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
@@ -504,7 +489,7 @@ docker_release_plugin:teaser:main:
   dependencies:
     - docker_build_plugin:teaser:main
   variables:
-    DOCKER_IMAGE: "plugin_teaser"
+    IMAGE_NAME: "plugin_teaser"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
@@ -514,7 +499,7 @@ docker_release_plugin:teaser:dev:
   dependencies:
     - docker_build_plugin:teaser:dev
   variables:
-    DOCKER_IMAGE: "plugin_teaser_dev"
+    IMAGE_NAME: "plugin_teaser_dev"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
@@ -526,7 +511,7 @@ docker_release:env_dymola_base:main:
   dependencies:
     - docker_build_bim2sim:env_dymola_base:main
   variables:
-    DOCKER_IMAGE: "dymola_master"
+    IMAGE_NAME: "dymola_master"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:main, rules ]
@@ -540,7 +525,7 @@ docker_release:env_dymola_base:dev:
   dependencies:
     - docker_build_bim2sim:env_dymola_base:dev
   variables:
-    DOCKER_IMAGE: "dymola_dev"
+    IMAGE_NAME: "dymola_dev"
   rules:
     - !reference [.docker_release_rules:dev, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
@@ -551,7 +536,7 @@ docker_release_plugin:dymola_teaser:main:
   dependencies:
     - docker_build_plugin:dymola_teaser:main
   variables:
-    DOCKER_IMAGE: "plugin_dymola_teaser"
+    IMAGE_NAME: "plugin_dymola_teaser"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
@@ -561,8 +546,7 @@ docker_release_plugin:dymola_teaser:dev:
   dependencies:
     - docker_build_plugin:dymola_teaser:dev
   variables:
-    BRANCH:  "development"
-    DOCKER_IMAGE: "plugin_dymola_teaser_dev"
+    IMAGE_NAME: "plugin_dymola_teaser_dev"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
@@ -572,7 +556,7 @@ docker_release_total:main:
   dependencies:
     - docker_build_total:main
   variables:
-    DOCKER_IMAGE: "latest"
+    IMAGE_NAME: "latest"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:main, rules ]
@@ -584,7 +568,7 @@ docker_release_total:dev:
   dependencies:
     - docker_build_total:dev
   variables:
-    DOCKER_IMAGE: "development"
+    IMAGE_NAME: "development"
   extends: .docker_release
   rules:
     - !reference [.docker_release_rules:dev, rules ]
