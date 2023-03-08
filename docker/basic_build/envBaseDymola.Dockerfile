@@ -7,10 +7,9 @@ ARG BIM2SIM_FLAG
 #COPY docker/basic_build/environment.yml .
 RUN conda config --add channels bim2sim
 RUN conda config --add channels conda-forge
-#RUN conda env create -f environment.yml
+RUN conda install conda=23.1.0
 RUN conda create -n bim2sim3.9 bim2sim
 # Install conda-pack:
-RUN conda install conda=23.1.0
 RUN conda install -c conda-forge conda-pack
 
 # Use conda-pack to create a standalone enviornment
@@ -50,3 +49,6 @@ RUN ln -s /venv/bin/python /usr/bin/python && \
      ln -s /venv/bin/python3.9 /usr/bin/python3.9 && \
     ln -s /venv/bin/bim2sim /usr/bin/bim2sim  && \
     ln -s /venv/bin/pip /usr/bin/pip
+
+RUN apt-get update
+RUN apt-get install wget unzip
