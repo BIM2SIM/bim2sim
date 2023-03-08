@@ -13,10 +13,13 @@ stages:
   - build_conda_total
   - release_conda_total
   - build_docker_base
+  - test_docker_base
   - release_docker_base
   - build_docker_plugin
+  - test_docker_plugin
   - release_docker_plugin
   - build_docker_total
+  - test_docker_total
   - release_docker_total
 
 variables:
