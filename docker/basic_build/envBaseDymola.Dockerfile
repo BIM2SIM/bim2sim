@@ -52,3 +52,4 @@ RUN ln -s /venv/bin/python /usr/bin/python && \
 
 RUN apt-get update
 RUN apt-get install wget unzip -y
+ENV PATH /venv/bin:$PATH
