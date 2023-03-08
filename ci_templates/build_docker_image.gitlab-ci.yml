@@ -1,9 +1,12 @@
 stages:
   - build_docker_base
+  - test_docker_base
   - release_docker_base
   - build_docker_plugin
+  - test_docker_plugin
   - release_docker_plugin
   - build_docker_total
+  - test_docker_total
   - release_docker_total
 
 variables:
@@ -70,6 +73,35 @@ docker_build_bim2sim:base:dev:
     - !reference [.docker_build_rules:dev, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
       when: on_success
+
+test_Base:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_base
+  dependencies:
+    - docker_build_bim2sim:base:dev
+  variables:
+    IMAGE_NAME: "base_dev"
+  before_script:
+    - pip install coverage
+    - pip install coverage-badge
+  script:
+    - mv ./* /bim2sim-coding/
+    - cd /bim2sim-coding
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download
+    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
+    - coverage run -m unittest discover /bim2sim-coding/test
+    - coverage report -i
+    - mkdir -p $CI_COMMIT_REF_NAME/coverage
+    - coverage html -i
+    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+  artifacts:
+    paths:
+    - $CI_COMMIT_REF_NAME/coverage
+  rules:
+    - !reference [ .docker_build_rules:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
+      when: on_success
+
 
 # [Build docker Plugins]
 .docker_build_rules:plugin:main:
@@ -236,7 +268,7 @@ docker_build_plugin:teaser:dev:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA
   script:
     - docker build --pull --build-arg BIM2SIM_FLAG=$BIM2SIM_FLAG --build-arg BIM2SIM_NAME=$BIM2SIM_NAME --build-arg BIM2SIM_VERSION=$BIM2SIM_VERSION -t $TEST_IMAGE -f $DOCKERPATH .
-    # docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
     - docker images
     - docker push $TEST_IMAGE
 
