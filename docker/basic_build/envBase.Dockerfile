@@ -56,4 +56,4 @@ RUN ln -s /venv/bin/python /usr/bin/python && \
     ln -s /venv/bin/pip /usr/bin/pip
 
 RUN apt-get update
-RUN apt-get install wget unzip
+RUN apt-get install wget unzip -y
