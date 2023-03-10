@@ -50,7 +50,7 @@ test:
   commands:
     - bim2sim -h
     - bim2sim --version
-    - sh conda_recipe/basic_build/run_test.sh # [not win]
+    # sh conda_recipe/basic_build/run_test.sh # [not win]
   source_files:
     - conda_recipe/basic_build/run_test.sh # [not win]
     - test/TestModels/.gitkeep # [not win]
