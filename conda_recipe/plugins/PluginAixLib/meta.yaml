@@ -37,6 +37,7 @@ test:
     - sh conda_recipe/PluginAixLib/test_aixlib.sh # [not win]
   source_files:
     - conda_recipe/PluginAixLib/test_aixlib.sh # [not win]
+    - test/TestModels/.gitkeep # [not win]
 
 
 

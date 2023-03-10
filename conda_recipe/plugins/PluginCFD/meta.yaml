@@ -37,6 +37,7 @@ test:
     - sh conda_recipe/PluginCFD/test_cfd.sh # [not win]
   source_files:
     - conda_recipe/PluginCFD/test_cfd.sh # [not win]
+    - test/TestModels/.gitkeep # [not win]
 
 
 about:

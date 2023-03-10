@@ -40,6 +40,7 @@ test:
     - sh conda_recipe/PluginEnergyPlus/test_energyplus.sh # [not win]
   source_files:
     - conda_recipe/PluginEnergyPlus/test_energyplus.sh # [not win]
+    - test/TestModels/.gitkeep # [not win]
 
 about:
   home: https://github.com/BIM2SIM/bim2sim
