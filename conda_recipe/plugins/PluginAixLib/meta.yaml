@@ -35,12 +35,11 @@ test:
   commands:
     - bim2sim -h
     - bim2sim --version
-    - sh conda_recipe/PluginAixLib/plugn_aixlib_test.sh # [not win]
+    - sh conda_recipe/PluginAixLib/run_test.sh # [not win]
     - conda_recipe/PluginAixLib/run_test.bat # [win]
   source_files:
-    - conda_recipe/PluginAixLib/plugn_aixlib_test.sh # [not win]
+    - conda_recipe/PluginAixLib/run_test.sh # [not win]
     - conda_recipe/PluginAixLib/run_test.bat # [win]
-    - test/TestModels/.gitkeep
 
 
 

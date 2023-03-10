@@ -50,14 +50,14 @@ test:
   commands:
     - bim2sim -h
     - bim2sim --version
-    - sh conda_recipe/basic_build/plugn_aixlib_test.sh # [not win]
+    - sh conda_recipe/basic_build/test_aixlib.sh # [not win]
     - conda_recipe/basic_build/run_test.bat # [win]
   source_files:
-    - conda_recipe/basic_build/plugn_aixlib_test.sh # [not win]
+    - conda_recipe/basic_build/test_aixlib.sh # [not win]
     - conda_recipe/basic_build/run_test.bat # [win]
     - test/TestModels/.gitkeep
   #script:
-  #  - sh conda_recipe/basic_build/plugn_aixlib_test.sh
+  #  - sh conda_recipe/basic_build/test_aixlib.sh
 
 
 
