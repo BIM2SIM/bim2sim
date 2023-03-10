@@ -35,7 +35,7 @@ setup(
     author_email='david.jansen@eonerc.rwth-aachen.de',
     url="https://github.com/BIM2SIM/bim2sim",
     packages=find_packages(include=['bim2sim',
-                                    'bim2sim.plugins',
+                                    'bim2sim.plugins*',
                                     'bim2sim.assets*',
                                     'bim2sim.decision*',
                                     'bim2sim.enrichment_data*',
@@ -45,7 +45,7 @@ setup(
                                     'bim2sim.task*',
                                     'bim2sim.utilities*']),
     include_package_data=True,
-    data_files=copy_non_code_file(non_code_dir=f'bim2sim//assets//',
+    data_files=copy_non_code_file(non_code_dir=f'bim2sim//',
                                   not_include=[".py", ".Dockerfile"]),
     python_requires='>=3.8.*,<3.10.*',
     install_requires=[required],
@@ -56,7 +56,7 @@ setup(
     extras_require={
         'manual_install': ['ifcopenshell>=0.6', 'pythonocc-core==7.6.2'],
     },
-    entry_points = {
+    entry_points={
         'console_scripts': [
             'bim2sim = bim2sim.__main__:commandline_interface',
         ],
