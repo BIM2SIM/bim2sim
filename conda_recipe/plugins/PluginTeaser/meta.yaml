@@ -32,6 +32,12 @@ test:
     - pythonocc-core==7.6.2
     - ifcopenshell
     - bim2sim_base==*{{BIM2SIM_FLAG}}
+  commands:
+    - bim2sim -h
+    - bim2sim --version
+    - sh conda_recipe/PluginTeaser/test_teaser.sh # [not win]
+  source_files:
+    - conda_recipe/PluginTeaser/test_teaser.sh # [not win]
 
 about:
   home: https://github.com/BIM2SIM/bim2sim

@@ -265,10 +265,6 @@ build_conda_bim2sim:total:dev:
   retry:
     max: 2
     when: runner_system_failure
-  artifacts:
-    expire_in: 1 hour
-    paths:
-      - conda-bld/$BIM2SIM_NAME
 
 .conda_release_rules:main:
   rules:
@@ -402,7 +398,6 @@ release_conda_plugin:hkesim:main:
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:main, rules ]
-
 
 release_conda_plugin:hkesim:dev:
   stage: release_conda_plugin

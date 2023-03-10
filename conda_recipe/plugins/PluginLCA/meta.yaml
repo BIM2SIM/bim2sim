@@ -29,6 +29,12 @@ test:
     - pint==0.20.1
     - pythonocc-core==7.6.2
     - ifcopenshell
+  commands:
+    - bim2sim -h
+    - bim2sim --version
+    - sh conda_recipe/PluginLCA/test_lca.sh # [not win]
+  source_files:
+    - conda_recipe/PluginLCA/test_lca.sh # [not win]
 
 about:
   home: https://github.com/BIM2SIM/bim2sim
