@@ -1,8 +1,6 @@
-import unittest
 import os
+import unittest
 import warnings
-
-from pathlib import Path
 
 from bim2sim import workflow
 from bim2sim.decision.decisionhandler import DebugDecisionHandler

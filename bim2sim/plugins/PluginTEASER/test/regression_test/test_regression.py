@@ -1,7 +1,7 @@
+import logging
 import re
 import shutil
 import unittest
-import logging
 
 from pathlib import Path
 import buildingspy.development.regressiontest as u

@@ -58,7 +58,7 @@ simulation.
 We created different element types for different purposes. The most relevant
 base classes are:
 
-* [IfcBased](IfcBased)
+* [IFCBased](IFCBased)
 * [RelationBased](RelationBased)
 * [ProductBased](ProductBased)
 

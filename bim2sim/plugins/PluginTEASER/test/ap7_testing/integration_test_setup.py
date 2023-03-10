@@ -1,10 +1,10 @@
 import tempfile
-from shutil import copytree, rmtree
 from pathlib import Path
+from shutil import copytree, rmtree
 
 from bim2sim.project import Project
-from bim2sim.workflow import Workflow
 from bim2sim.utilities.test import IntegrationBase
+from bim2sim.workflow import Workflow
 
 
 class IntegrationBaseTeaserInteractive(IntegrationBase):

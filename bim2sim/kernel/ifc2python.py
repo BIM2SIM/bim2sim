@@ -1,15 +1,17 @@
 """Module to convert ifc data from to python data"""
 from __future__ import annotations
 
-import os
 import logging
 import math
-
-from typing import Optional, Union, TYPE_CHECKING, List, Any
-from ifcopenshell import entity_instance, file, open as ifc_open
+import os
 from collections.abc import Iterable
+from typing import Optional, Union, TYPE_CHECKING, Any
+
+import ifcopenshell
+from ifcopenshell import entity_instance, file, open as ifc_open
 
 from bim2sim.kernel.units import parse_ifc
+
 if TYPE_CHECKING:
     from bim2sim.kernel.element import ProductBased
 
@@ -32,6 +34,13 @@ def load_ifc(path: str) -> file:
     return ifc_file
 
 
+def reset_guids(ifc_file) -> file:
+    all_elements = ifc_file.by_type('IfcRoot')
+    for element in all_elements:
+        element.GlobalId = ifcopenshell.guid.new()
+    return ifc_file
+
+
 def property_set2dict(property_set: entity_instance,
                       ifc_units: Optional[dict]) -> dict:
     """Converts IfcPropertySet and IfcQuantitySet to python dict
@@ -48,60 +57,78 @@ def property_set2dict(property_set: entity_instance,
         property_dict: dict with key name of the property/quantity and value
             the property/quantity value as pint quantity if available
     """
+
+    def add_quantities_to_dict(quantity):
+        unit = parse_ifc(quantity.Unit) if quantity.Unit else None
+        for attr, p_value in vars(quantity).items():
+            if attr.endswith('Value'):
+                if p_value is not None:
+                    if unit:
+                        property_dict[quantity.Name] = p_value * unit
+                    else:
+                        property_dict[quantity.Name] = p_value
+                    break
+
+    def add_property_to_dict(prop):
+        if hasattr(prop, 'Unit'):
+            unit = parse_ifc(prop.Unit) if prop.Unit else None
+        else:
+            unit = None
+        if prop.is_a() == 'IfcPropertySingleValue':
+            if prop.NominalValue is not None:
+                unit = ifc_units.get(prop.NominalValue.is_a()) if not unit else unit
+                if unit:
+                    property_dict[prop.Name] = prop.NominalValue.wrappedValue * unit
+                else:
+                    property_dict[prop.Name] = prop.NominalValue.wrappedValue
+        elif prop.is_a() == 'IfcPropertyListValue':
+            values = []
+            for value in prop.ListValues:
+                unit = ifc_units.get(value.is_a()) if not unit else unit
+                if unit:
+                    values.append(value.wrappedValue * unit)
+                else:
+                    values.append(value.wrappedValue)
+            property_dict[prop.Name] = values
+        elif prop.is_a() == 'IfcPropertyBoundedValue':
+            # TODO: value.UpperBoundValue and value.LowerBoundValue not used
+            value = prop.SetPointValue
+            if value:
+                unit = ifc_units.get(value.is_a()) if not unit else unit
+                if unit:
+                    property_dict[prop.Name] = value * unit
+                else:
+                    property_dict[prop.Name] = value
+        elif prop.is_a() == 'IfcPropertyEnumeratedValue':
+            values = []
+            for value in prop.EnumerationValues:
+                unit = ifc_units.get(value.is_a()) if not unit else unit
+                if unit:
+                    values.append(value.wrappedValue * unit)
+                else:
+                    values.append(value.wrappedValue)
+            property_dict[prop.Name] = values
+        else:
+            raise NotImplementedError("Property of type '%s'"%prop.is_a())
+
     property_dict = {}
     if hasattr(property_set, 'HasProperties'):
         for prop in property_set.HasProperties:
-            if hasattr(prop, 'Unit'):
-                unit = parse_ifc(prop.Unit) if prop.Unit else None
+            # IfcComplexProperty
+            if hasattr(prop, 'HasProperties'):
+                for property in prop.HasProperties:
+                    add_property_to_dict(property)
             else:
-                unit = None
-            if prop.is_a() == 'IfcPropertySingleValue':
-                if prop.NominalValue is not None:
-                    unit = ifc_units.get(prop.NominalValue.is_a()) if not unit else unit
-                    if unit:
-                        property_dict[prop.Name] = prop.NominalValue.wrappedValue * unit
-                    else:
-                        property_dict[prop.Name] = prop.NominalValue.wrappedValue
-            elif prop.is_a() == 'IfcPropertyListValue':
-                values = []
-                for value in prop.ListValues:
-                    unit = ifc_units.get(value.is_a()) if not unit else unit
-                    if unit:
-                        values.append(value.wrappedValue * unit)
-                    else:
-                        values.append(value.wrappedValue)
-                property_dict[prop.Name] = values
-            elif prop.is_a() == 'IfcPropertyBoundedValue':
-                # TODO: value.UpperBoundValue and value.LowerBoundValue not used
-                value = prop.SetPointValue
-                if value:
-                    unit = ifc_units.get(value.is_a()) if not unit else unit
-                    if unit:
-                        property_dict[prop.Name] = value * unit
-                    else:
-                        property_dict[prop.Name] = value
-            elif prop.is_a() == 'IfcPropertyEnumeratedValue':
-                values = []
-                for value in prop.EnumerationValues:
-                    unit = ifc_units.get(value.is_a()) if not unit else unit
-                    if unit:
-                        values.append(value.wrappedValue * unit)
-                    else:
-                        values.append(value.wrappedValue)
-                property_dict[prop.Name] = values
-            else:
-                raise NotImplementedError("Property of type '%s'"%prop.is_a())
+                add_property_to_dict(prop)
+
     elif hasattr(property_set, 'Quantities'):
         for prop in property_set.Quantities:
-            unit = parse_ifc(prop.Unit) if prop.Unit else None
-            for attr, p_value in vars(prop).items():
-                if attr.endswith('Value'):
-                    if p_value is not None:
-                        if unit:
-                            property_dict[prop.Name] = p_value * unit
-                        else:
-                            property_dict[prop.Name] = p_value
-                        break
+            # IfcPhysicalComplexQuantity
+            if hasattr(prop, 'HasQuantities'):
+                for quantity in prop.HasQuantities:
+                    add_quantities_to_dict(quantity)
+            else:
+                add_quantities_to_dict(prop)
     elif hasattr(property_set, 'Properties'):
         for prop in property_set.Properties:
             unit = parse_ifc(prop.Unit) if prop.Unit else None

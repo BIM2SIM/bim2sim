@@ -30,7 +30,8 @@ from bim2sim.kernel.elements.bps import ExternalSpatialElement, SpaceBoundary, \
 from bim2sim.task.base import ITask
 from bim2sim.task.common.inner_loop_remover import convex_decomposition, \
     is_convex_no_holes, is_convex_slow
-from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.utilities.common_functions import filter_instances, \
+    get_spaces_with_bounds
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 logger = logging.getLogger(__name__)
@@ -43,7 +44,6 @@ class EPGeomPreprocessing(ITask):
     required for EnergyPlus export.
     """
     reads = ('instances', 'space_boundaries')
-    # touches = ('instances',)
 
     def __init__(self):
         super().__init__()
@@ -51,21 +51,6 @@ class EPGeomPreprocessing(ITask):
     def run(self, workflow, instances, space_boundaries):
         logger.info("Geometric preprocessing for EnergyPlus Export started"
                     "...")
-        decisions = []
-        # split_bounds = BoolDecision(
-        #     question="Do you want to decompose non-convex space boundaries into"
-        #              " convex boundaries?",
-        #     global_key='EnergyPlus.SplitConvexBounds')
-        # decisions.append(split_bounds)
-        # add_shadings = BoolDecision(
-        #     question="Do you want to add shadings if available?",
-        #     global_key='EnergyPlus.AddShadings')
-        # decisions.append(add_shadings)
-        # split_shadings = BoolDecision(
-        #     question="Do you want to decompose non-convex shadings into convex "
-        #              "shadings?", global_key='EnergyPlus.SplitConvexShadings')
-        # decisions.append(split_shadings)
-        # yield DecisionBunch(decisions)
         self.add_bounds_to_instances(instances, space_boundaries)
         self.move_children_to_parents(instances)
         self.fix_surface_orientation(instances)
@@ -74,8 +59,6 @@ class EPGeomPreprocessing(ITask):
                                                workflow.split_shadings)
         logger.info("Geometric preprocessing for EnergyPlus Export "
                     "finished!")
-
-        # return instances,
 
     @staticmethod
     def add_bounds_to_instances(instances: dict,
@@ -95,7 +78,7 @@ class EPGeomPreprocessing(ITask):
         """
         logger.info("Creates python representation of relevant ifc types")
         instance_dict = {}
-        spaces = filter_instances(instances, ThermalZone)
+        spaces = get_spaces_with_bounds(instances)
         for space in spaces:
             for bound in space.space_boundaries:
                 if not bound.guid in space_boundaries.keys():
@@ -200,7 +183,7 @@ class EPGeomPreprocessing(ITask):
             instances: dict[guid: element]
         """
         logger.info("Fix surface orientation")
-        spaces = filter_instances(instances, ThermalZone)
+        spaces = get_spaces_with_bounds(instances)
         for space in spaces:
             face_list = []
             for bound in space.space_boundaries:

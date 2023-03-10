@@ -1,25 +1,25 @@
+import inspect
+import json
 import logging
 import os
-import json
-import inspect
+from typing import Tuple, List, Any, Type, Set, Dict, Generator
 
 from ifcopenshell.file import file
-from typing import Tuple, List, Any, Type, Set, Dict, Generator
-from mako.template import Template
 from mako.lookup import TemplateLookup
+from mako.template import Template
 
+import bim2sim.kernel.elements.bps as bps
 from bim2sim.decision import Decision, ListDecision, DecisionBunch
 from bim2sim.filter import TypeFilter, TextFilter
+from bim2sim.kernel import attribute
 from bim2sim.kernel import ifc2python
 from bim2sim.kernel.element import Factory, ProductBased
+from bim2sim.kernel.element import Material
 from bim2sim.kernel.finder import TemplateFinder
+from bim2sim.kernel.ifc2python import get_property_sets
 from bim2sim.kernel.units import parse_ifc
 from bim2sim.task.base import ITask
-from bim2sim.kernel.ifc2python import get_property_sets
-from bim2sim.kernel import attribute
 from bim2sim.workflow import Workflow
-from bim2sim.kernel.element import Material
-import bim2sim.kernel.elements.bps  as bps
 
 
 class Reset(ITask):
@@ -59,6 +59,8 @@ class LoadIFC(ITask):
         else:
             raise AssertionError("No ifc found. Check '%s'" % path)
         ifc = ifc2python.load_ifc(os.path.abspath(ifc_path))
+        if workflow.reset_guids:
+            ifc = ifc2python.reset_guids(ifc)
         workflow.ifc_units.update(**self.get_ifcunits(ifc))
 
         # Schema2Python.get_ifc_structure(ifc)

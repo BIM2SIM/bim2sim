@@ -1,5 +1,5 @@
 # stage 0: aixlib (use aixlib as base layer because it has least dependencies)
-FROM FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/environment:aixlib AS aixlib
+FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/environment:aixlib AS aixlib
 
 # stage 1: teaser
 FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/environment:teaser AS teaser

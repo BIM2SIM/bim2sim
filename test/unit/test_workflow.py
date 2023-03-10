@@ -1,8 +1,8 @@
 import configparser
 import unittest
 
-from test.unit.kernel.helper import SetupHelper
 from bim2sim import workflow
+from test.unit.kernel.helper import SetupHelper
 
 
 class WorkflowHelper(SetupHelper):

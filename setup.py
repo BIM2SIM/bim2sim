@@ -56,7 +56,7 @@ setup(
     extras_require={
         'manual_install': ['ifcopenshell>=0.6', 'pythonocc-core==7.6.2'],
     },
-    entry_points={
+    entry_points = {
         'console_scripts': [
             'bim2sim = bim2sim.__main__:commandline_interface',
         ],

@@ -4,8 +4,10 @@
 /bim2sim/assets/regression_results/*
 /test/TestModels/*
 
-#AixLib for regression tests
-Aixlib/
+# Dont add IFC to repo
+*.ifc
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -3,9 +3,9 @@ network
 where each node represents a hvac-component
 """
 
-import os
-import logging
 import itertools
+import logging
+import os
 from pathlib import Path
 from typing import Set, Iterable, Type
 

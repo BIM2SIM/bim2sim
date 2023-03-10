@@ -3,8 +3,8 @@ from itertools import permutations
 from pathlib import Path
 
 import ifcopenshell
-from ifcopenshell.entity_instance import entity_instance
 import numpy as np
+from ifcopenshell.entity_instance import entity_instance
 
 import bim2sim
 from bim2sim.task.base import ITask

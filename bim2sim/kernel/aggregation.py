@@ -3,20 +3,19 @@ import logging
 import math
 from functools import partial
 from typing import Sequence, List, Union, Iterable, Tuple, Set, Dict
-import re
 
-import numpy as np
 import networkx as nx
+import numpy as np
 
-from bim2sim.kernel.element import ProductBased, Port
-from bim2sim.kernel.elements.hvac import HVACPort, HVACProduct
-from bim2sim.kernel.elements import hvac, bps
+from bim2sim.decision import BoolDecision, DecisionBunch
+from bim2sim.decorators import cached_property
 from bim2sim.kernel import elements, attribute
+from bim2sim.kernel.element import ProductBased
+from bim2sim.kernel.elements import hvac, bps
+from bim2sim.kernel.elements.hvac import HVACPort
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import filter_instances
-from bim2sim.decision import ListDecision, BoolDecision, DecisionBunch
-from bim2sim.decorators import cached_property
 
 logger = logging.getLogger(__name__)
 

@@ -2,18 +2,16 @@ import unittest
 from collections import Counter
 
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.decision.console import ConsoleDecisionHandler
 from bim2sim.kernel.aggregation import ConsumerHeatingDistributorModule
-
 from bim2sim.utilities.test import IntegrationBase
 
 
-class IntegrationBaseAixLib(IntegrationBase):
+class IntegrationBaseHKESIM(IntegrationBase):
     def model_domain_path(self) -> str:
         return 'HVAC'
 
 
-class TestIntegrationHKESIM(IntegrationBase, unittest.TestCase):
+class TestIntegrationHKESIM(IntegrationBaseHKESIM, unittest.TestCase):
 
     def test_run_vereinshaus1(self):
         """Run project with

@@ -1,12 +1,10 @@
 import unittest
 from collections import Counter
-from pathlib import Path
 
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.decision.console import ConsoleDecisionHandler
+from bim2sim.export.modelica import Instance
 from bim2sim.kernel.aggregation import ConsumerHeatingDistributorModule
 from bim2sim.utilities.test import IntegrationBase
-from bim2sim.export.modelica import Instance
 
 
 class IntegrationBaseAixLib(IntegrationBase):
