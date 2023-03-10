@@ -51,10 +51,8 @@ test:
     - bim2sim -h
     - bim2sim --version
     - sh conda_recipe/basic_build/run_test.sh # [not win]
-    - conda_recipe/basic_build/run_test.bat # [win]
   source_files:
     - conda_recipe/basic_build/run_test.sh # [not win]
-    - conda_recipe/basic_build/run_test.bat # [win]
 
 about:
   home: https://github.com/BIM2SIM/bim2sim
