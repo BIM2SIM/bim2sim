@@ -48,6 +48,8 @@ variables:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_docker_dev/
       when: on_success
 
+# [build base bim2sim]
+
 docker_build_bim2sim:base:main:
   stage: build_docker_base
   variables:
