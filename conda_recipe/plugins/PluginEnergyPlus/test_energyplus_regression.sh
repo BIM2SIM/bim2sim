@@ -1,6 +1,5 @@
 pip install coverage
 pip install coverage-badge
-
 cat bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
 wget --quiet -O test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
 unzip test/TestModels/download.zip -d test/TestModels/
