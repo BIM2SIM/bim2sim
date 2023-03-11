@@ -48,10 +48,14 @@ test:
     - pythonocc-core==7.6.2
     - ifcopenshell
   commands:
+    - bim2sim -h
+    - bim2sim --version
     - sh conda_recipe/basic_build/base_run_test.sh # [not win]
   source_files:
     - conda_recipe/basic_build/base_run_test.sh # [not win]
     - test/TestModels/.gitkeep # [not win]
+    - bim2sim
+    - test
 
 about:
   home: https://github.com/BIM2SIM/bim2sim
