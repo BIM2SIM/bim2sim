@@ -53,9 +53,9 @@ variables:
 docker_build_bim2sim:base:main:
   stage: build_docker_base
   variables:
-    BIM2SIM_NAME: "bim2sim"
+    BIM2SIM_NAME: "bim2sim_base"
     BIM2SIM_FLAG: ""
-    IMAGE_NAME: "base_master"
+    IMAGE_NAME: "base"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
@@ -66,7 +66,7 @@ docker_build_bim2sim:base:main:
 docker_build_bim2sim:base:dev:
   stage: build_docker_base
   variables:
-    BIM2SIM_NAME: "bim2sim"
+    BIM2SIM_NAME: "bim2sim_base"
     BIM2SIM_FLAG: "_dev"
     IMAGE_NAME: "base_dev"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
@@ -117,7 +117,7 @@ test_Base:main:
   dependencies:
     - docker_build_bim2sim:base:main
   variables:
-    IMAGE_NAME: "bim2sim_base"
+    IMAGE_NAME: "base"
   extends: .test_base
   rules:
     - !reference [ .docker_build_rules:main, rules ]
@@ -186,7 +186,7 @@ test_plugin:AixLib:main:
   dependencies:
     - docker_build_plugin:aixlib:main
   variables:
-    IMAGE_NAME: "plugin_aixlib_main"
+    IMAGE_NAME: "plugin_aixlib"
   extends: .test_plugin:AixLib
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
@@ -250,7 +250,7 @@ test_plugin:cfd:main:
   dependencies:
     - docker_build_plugin:cfd:main
   variables:
-    IMAGE_NAME: "plugin_cfd_main"
+    IMAGE_NAME: "plugin_cfd"
   extends: .test_plugin:cfd
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
@@ -315,7 +315,7 @@ test_plugin:energyplus:main:
   dependencies:
     - docker_build_plugin:energyplus:main
   variables:
-    IMAGE_NAME: "plugin_energyplus_main"
+    IMAGE_NAME: "plugin_energyplus"
   extends: .test_plugin:energyplus
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
@@ -357,7 +357,7 @@ test_plugin:energyplus_regression:main:
   dependencies:
     - docker_build_plugin:energyplus:main
   variables:
-    IMAGE_NAME: "plugin_energyplus_main"
+    IMAGE_NAME: "plugin_energyplus"
   extends: .test_plugin:energyplus_regression
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
@@ -448,7 +448,7 @@ test_plugin:lca:main:
   dependencies:
     - docker_build_plugin:lca:main
   variables:
-    IMAGE_NAME: "plugin_lca_main"
+    IMAGE_NAME: "plugin_lca"
   extends: .test_plugin:lca
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
@@ -511,7 +511,7 @@ test_plugin:teaser:main:
   dependencies:
     - docker_build_plugin:teaser:main
   variables:
-    IMAGE_NAME: "plugin_teaser_main"
+    IMAGE_NAME: "plugin_teaser"
   extends: .test_plugin:teaser
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
@@ -563,7 +563,7 @@ docker_build_bim2sim:env_dymola_base:main:
   variables:
     BIM2SIM_NAME: "bim2sim"
     BIM2SIM_FLAG: ""
-    IMAGE_NAME: "dymola_master"
+    IMAGE_NAME: "dymola"
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
   extends: .docker_dymola_build
   rules:
@@ -626,7 +626,7 @@ test_plugin:dymola_teaser:main:
   dependencies:
     - docker_build_plugin:dymola_teaser:main
   variables:
-    IMAGE_NAME: "plugin_dymola_teaser_main"
+    IMAGE_NAME: "plugin_dymola_teaser"
   extends: .test_plugin:TEASER_regression
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
@@ -668,6 +668,9 @@ docker_build_total:dev:
     - !reference [.docker_build_rules:dev, rules]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
       when: on_success
+
+
+
 
 # [Release]
 
@@ -716,7 +719,7 @@ docker_release_bim2sim:base:main:
   dependencies:
     - docker_build_bim2sim:base:main
   variables:
-    IMAGE_NAME: "base_master"
+    IMAGE_NAME: "base"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:main, rules ]
@@ -863,7 +866,7 @@ docker_release:env_dymola_base:main:
   dependencies:
     - docker_build_bim2sim:env_dymola_base:main
   variables:
-    IMAGE_NAME: "dymola_master"
+    IMAGE_NAME: "dymola"
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:main, rules ]
