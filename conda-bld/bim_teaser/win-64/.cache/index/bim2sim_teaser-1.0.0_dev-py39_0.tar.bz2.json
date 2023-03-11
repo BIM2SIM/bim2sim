@@ -1,0 +1,1 @@
+{"build": "py39_0", "build_number": 0, "depends": ["bim2sim_base *_dev", "pillow", "python >=3.9,<3.10.0a0"], "license": "LICENSE", "name": "bim2sim_teaser", "subdir": "win-64", "timestamp": 1678546028657, "version": "1.0.0_dev", "size": 7519045, "md5": "cec00643bdac03ae730b9ffa532272b3", "sha256": "b8635fe70441f59c59cf6a4fc74b85fbc2b0577025ee9d38001fdfc395ebe8eb"}

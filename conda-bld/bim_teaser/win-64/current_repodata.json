@@ -1,0 +1,27 @@
+{
+  "info": {
+    "subdir": "win-64"
+  },
+  "packages": {
+    "bim2sim_teaser-1.0.0_dev-py39_0.tar.bz2": {
+      "build": "py39_0",
+      "build_number": 0,
+      "depends": [
+        "bim2sim_base *_dev",
+        "pillow",
+        "python >=3.9,<3.10.0a0"
+      ],
+      "license": "LICENSE",
+      "md5": "cec00643bdac03ae730b9ffa532272b3",
+      "name": "bim2sim_teaser",
+      "sha256": "b8635fe70441f59c59cf6a4fc74b85fbc2b0577025ee9d38001fdfc395ebe8eb",
+      "size": 7519045,
+      "subdir": "win-64",
+      "timestamp": 1678546028657,
+      "version": "1.0.0_dev"
+    }
+  },
+  "packages.conda": {},
+  "removed": [],
+  "repodata_version": 1
+}
