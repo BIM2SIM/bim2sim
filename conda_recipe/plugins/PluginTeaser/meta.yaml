@@ -1,11 +1,12 @@
 {% set data = load_setup_py_data(setup_file='../../../bim2sim/plugins/PluginTEASER/setup.py', from_recipe_dir=True) %}
 
+
 package:
   name: {{BIM2SIM_NAME}}
   version: {{data.get('version')}}{{BIM2SIM_FLAG}}
 
 source:
-  path: ../../../bim2sim/plugins/PluginTEASER
+  path: ../../../
 
 build:
   preserve_egg_dir: True
@@ -22,6 +23,7 @@ requirements:
     - python >=3.8.*,<3.10.*
     - bim2sim_base==*{{BIM2SIM_FLAG}}
     - pillow
+    - pyqt5
 
 test:
   imports:
@@ -35,9 +37,9 @@ test:
   commands:
     - bim2sim -h
     - bim2sim --version
-    - sh conda_recipe/PluginTeaser/test_teaser.sh # [not win]
+    - sh conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
   source_files:
-    - conda_recipe/PluginTeaser/test_teaser.sh # [not win]
+    - conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
     - bim2sim
     - test
 

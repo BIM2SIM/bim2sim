@@ -5,7 +5,7 @@ package:
   version: {{data.get('version')}}{{BIM2SIM_FLAG}}
 
 source:
-  path: ../../../bim2sim/plugins/PluginEnergyPlus
+  path: ../../../
 
 build:
   preserve_egg_dir: True
@@ -37,9 +37,9 @@ test:
   commands:
     - bim2sim -h
     - bim2sim --version
-    - sh conda_recipe/PluginEnergyPlus/test_energyplus.sh # [not win]
+    - sh conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh # [not win]
   source_files:
-    - conda_recipe/PluginEnergyPlus/test_energyplus.sh # [not win]
+    - conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh # [not win]
     - bim2sim
     - test
 

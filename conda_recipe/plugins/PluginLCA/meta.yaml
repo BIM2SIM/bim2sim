@@ -5,13 +5,15 @@ package:
   version: {{data.get('version')}}{{BIM2SIM_FLAG}}
 
 source:
-  path: ../../../bim2sim/plugins/PluginLCA
+  path: ../../../
 
 build:
   preserve_egg_dir: True
   number: '0'
   entry_points:
     - bim2sim = bim2sim.__main__:commandline_interface
+  script: python -m pip install --no-deps --ignore-installed bim2sim/plugins/PluginLCA
+
 
 requirements:
   host:
@@ -32,7 +34,7 @@ test:
   commands:
     - bim2sim -h
     - bim2sim --version
-    - sh conda_recipe/PluginLCA/test_lca.sh # [not win]
+    - sh conda_recipe/plugins/PluginLCA/test_lca.sh # [not win]
   source_files:
     - conda_recipe/PluginLCA/test_lca.sh # [not win]
     - bim2sim

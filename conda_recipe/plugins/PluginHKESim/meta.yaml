@@ -5,13 +5,14 @@ package:
   version: {{data.get('version')}}{{BIM2SIM_FLAG}}
 
 source:
-  path: ../../../bim2sim/plugins/PluginHKESim
+  path: ../../../
 
 build:
   preserve_egg_dir: True
   number: '0'
   entry_points:
     - bim2sim = bim2sim.__main__:commandline_interface
+  script:  python -m pip install --no-deps --ignore-installed bim2sim/plugins/PluginHKESim
 
 requirements:
   host:

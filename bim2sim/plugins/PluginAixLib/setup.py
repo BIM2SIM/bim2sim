@@ -6,6 +6,7 @@ with open(f'requirements.txt', 'r') as f:
     required = f.read().splitlines()
 version = "0.1.0"
 
+
 def copy_non_code_file(non_code_dir, not_include):
     path_file_dict = []
     for subdir, dirs, files in os.walk(non_code_dir):

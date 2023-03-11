@@ -5,14 +5,14 @@ package:
   version: {{data.get('version')}}{{BIM2SIM_FLAG}}
 
 source:
-  path: ../../../bim2sim/plugins/PluginCFD
+  path: ../../../
 
 build:
   preserve_egg_dir: True
   number: '0'
   entry_points:
     - bim2sim = bim2sim.__main__:commandline_interface
-  script:  python -m pip install --no-deps --ignore-installed .
+  script:  python -m pip install --no-deps --ignore-installed bim2sim/plugins/PluginCFD
 
 requirements:
   host:
@@ -34,9 +34,9 @@ test:
   commands:
     - bim2sim -h
     - bim2sim --version
-    - sh conda_recipe/PluginCFD/test_cfd.sh # [not win]
+    - sh conda_recipe/plugins/PluginCFD/test_cfd.sh # [not win]
   source_files:
-    - conda_recipe/PluginCFD/test_cfd.sh # [not win]
+    - conda_recipe/plugins/PluginCFD/test_cfd.sh # [not win]
     - bim2sim
     - test
 
