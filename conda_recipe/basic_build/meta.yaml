@@ -12,7 +12,6 @@ build:
   number: '0'
   entry_points:
     - bim2sim = bim2sim.__main__:commandline_interface
-  script: python -m pip install --no-deps --ignore-installed .
 
 requirements:
   host:
@@ -51,6 +50,9 @@ test:
     - bim2sim -h
     - bim2sim --version
     - sh conda_recipe/basic_build/base_run_test.sh # [not win]
+    - coverage report -i
+    - coverage html -i
+
   source_files:
     - conda_recipe/basic_build/base_run_test.sh # [not win]
     - bim2sim
