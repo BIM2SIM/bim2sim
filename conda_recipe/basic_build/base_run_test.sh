@@ -1,3 +1,5 @@
+bim2sim -h
+bim2sim --version
 apt-get update -y
 apt-get upgrade -y
 apt-get install unzip wget -y
