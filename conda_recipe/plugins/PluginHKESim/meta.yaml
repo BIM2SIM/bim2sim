@@ -36,6 +36,7 @@ test:
     - bim2sim --version
 
 
+
 about:
   home: https://github.com/BIM2SIM/bim2sim
   summary: "Create simulation models from IFC files"

@@ -38,7 +38,8 @@ test:
     - sh conda_recipe/PluginTeaser/test_teaser.sh # [not win]
   source_files:
     - conda_recipe/PluginTeaser/test_teaser.sh # [not win]
-    - test/TestModels/.gitkeep # [not win]
+    - bim2sim
+    - test
 
 about:
   home: https://github.com/BIM2SIM/bim2sim

@@ -35,7 +35,8 @@ test:
     - sh conda_recipe/PluginLCA/test_lca.sh # [not win]
   source_files:
     - conda_recipe/PluginLCA/test_lca.sh # [not win]
-    - test/TestModels/.gitkeep # [not win]
+    - bim2sim
+    - test
 
 about:
   home: https://github.com/BIM2SIM/bim2sim

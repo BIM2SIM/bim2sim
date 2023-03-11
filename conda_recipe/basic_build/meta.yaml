@@ -53,7 +53,6 @@ test:
     - sh conda_recipe/basic_build/base_run_test.sh # [not win]
   source_files:
     - conda_recipe/basic_build/base_run_test.sh # [not win]
-    - test/TestModels/.gitkeep # [not win]
     - bim2sim
     - test
 

@@ -46,6 +46,7 @@ variables:
     expire_in: 1 hour
     paths:
       - conda-bld/$BIM2SIM_NAME
+      - $CI_COMMIT_REF_NAME/coverage
 
 # [Build Conda Base]
 conda_build_bim2sim:base:main:
