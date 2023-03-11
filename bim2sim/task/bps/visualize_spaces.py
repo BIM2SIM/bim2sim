@@ -45,6 +45,7 @@ class VisualizeThermalZone(ITask):
             if inst.__class__.__name__ is "ThermalZone":
                 print((inst.position))
                 print((inst.name))
+                print((inst.zone_name))
 
 
         """for l in instances:
