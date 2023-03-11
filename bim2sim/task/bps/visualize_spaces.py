@@ -13,15 +13,16 @@ settings.set(settings.INCLUDE_CURVES, True)
 
 class VisualizeThermalZone(ITask):
     ifc_type = 'IfcSpace'
-    reads = ('ifc',)
+    reads = ('ifc', 'instances')
 
-    def run(self, workflow, ifc):
+    def run(self, workflow, ifc, instances):
         self.logger.info("Display a geometry shape of ifc file")
         ifc_spaces = ifc.by_type('IfcSpace')
         thermal_zones = []
         for ifc_space in ifc_spaces:
             thermal_zones.append(ThermalZone(ifc_space))
-        self._visualize_thermal_zone(thermal_zones=thermal_zones)
+        #self._visualize_thermal_zone(thermal_zones=thermal_zones)
+        self._get_position(instances=instances, thermal_zones=thermal_zones)
 
     def _visualize_thermal_zone(self, thermal_zones):
         display, start_display, add_menu, add_function_to_menu = init_display()
@@ -38,6 +39,18 @@ class VisualizeThermalZone(ITask):
                                  transparency=0.7)
         display.FitAll()
         start_display()
+
+    def _get_position(self, instances, thermal_zones):
+        for inst in instances.values():
+            if inst.__class__.__name__ is "ThermalZone":
+                print((inst.position))
+                print((inst.name))
+
+
+        """for l in instances:
+            print(f'{l}:{instances[l]}')
+        print((instances.values()))"""
+        pass
 
 
 class ThermalZone:

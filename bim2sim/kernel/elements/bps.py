@@ -605,7 +605,6 @@ class SpaceBoundary(element.RelationBased):
         else:
             position = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
                 Position.Location.Coordinates
-
         return position
 
     @classmethod

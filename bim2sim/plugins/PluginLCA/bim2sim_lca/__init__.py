@@ -22,5 +22,6 @@ class PluginLCA(Plugin):
         ExportLCA,
         bps.VisualizeThermalZone
 
+
         # my task
         ]

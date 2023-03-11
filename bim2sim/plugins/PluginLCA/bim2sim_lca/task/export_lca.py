@@ -152,7 +152,6 @@ class ExportLCA(ITask):
 
     def run(self, workflow, ifc, instances):
         self.logger.info("Exporting LCA quantities to CSV")
-
         self.export_materials(instances)
         self.export_overview(instances)
 
