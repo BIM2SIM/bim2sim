@@ -1,0 +1,107 @@
+{
+  "paths": [
+    {
+      "_path": "Lib/site-packages/bim2sim_aixlib-0.1.0.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim_aixlib-0.1.0.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "f827cc506b8669d323da6377a95dc4b77fd9442a97e173d4475773d8d00c065d",
+      "size_in_bytes": 446
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim_aixlib-0.1.0.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "efef7149cad88c6fd67f4d2141358e7bd8f6062c6a7a05cf31bc33400f95535d",
+      "size_in_bytes": 1252
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim_aixlib-0.1.0.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim_aixlib-0.1.0.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "db07a93359e4e034b8785a58ad6d534ea3dca0635f1e184efe2e66e1c3a299ba",
+      "size_in_bytes": 92
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim_aixlib-0.1.0.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "a299e7cedc5fdec405634986adfc236d579c3f6f3213676e6e01c9f9069bf2c9",
+      "size_in_bytes": 125
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim_aixlib-0.1.0.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "34c6010443c4f6c5c9cb55e731b01733a8354c78178d13fc715298aff13f5f94",
+      "size_in_bytes": 15
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim_aixlib/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "f8b6e6c387d1a63e23af9e54c6a8725abed52b0f191d30457ee0f1b1d96df619",
+      "size_in_bytes": 1877
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim_aixlib/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "2510a357054fb356a8085ee1190f79d5d7e601e6815802e05c573fe31ea6d512",
+      "size_in_bytes": 1952
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim_aixlib/data/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim_aixlib/data/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "11f199ed976de354a7eca315ba3955dd3a198392a1e3f20240b992c5fd4ad564",
+      "size_in_bytes": 140
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim_aixlib/data/modelica_language",
+      "path_type": "hardlink",
+      "sha256": "11c88a6df3d201a09a86aa2ed7302e43f1befd6e29c0c89f046d96189d0764d9",
+      "size_in_bytes": 767
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim_aixlib/models/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "5a755f6bb27d51bcaa88fd14c883d58a2f573d497dac40240451e04439814de3",
+      "size_in_bytes": 10859
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim_aixlib/models/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "7948a4949f30ad444fa65d46d53c1d7688d39eca9f29ff54dd22c6ee067674ea",
+      "size_in_bytes": 9505
+    },
+    {
+      "_path": "Scripts/bim2sim-script.py",
+      "path_type": "hardlink",
+      "sha256": "09b1821dca705683d023d42764b0ececed47c979b759b7f8d66d23eeedd03952",
+      "size_in_bytes": 244
+    },
+    {
+      "_path": "Scripts/bim2sim.exe",
+      "path_type": "hardlink",
+      "sha256": "5ea569f2b5bc9c273351641a1a3c52821ce2a9370bc8202f0247c793ebd8a618",
+      "size_in_bytes": 41984
+    },
+    {
+      "_path": "bim2sim_aixlib/data/modelica_language",
+      "path_type": "hardlink",
+      "sha256": "11c88a6df3d201a09a86aa2ed7302e43f1befd6e29c0c89f046d96189d0764d9",
+      "size_in_bytes": 767
+    }
+  ],
+  "paths_version": 1
+}
