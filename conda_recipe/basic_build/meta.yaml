@@ -7,7 +7,6 @@ package:
 source:
   path: ../../
 
-
 build:
   preserve_egg_dir: True
   number: '0'
@@ -35,8 +34,7 @@ requirements:
     - pythonocc-core==7.6.2
     - ifcopenshell
     - decision
-    - poetry
-
+    - deep_translator
 
 test:
   imports:
@@ -52,6 +50,8 @@ test:
     - pint==0.20.1
     - pythonocc-core==7.6.2
     - ifcopenshell
+    - decision
+    - {{BIM2SIM_NAME}}=={{data.get('version')}}{{BIM2SIM_FLAG}}
   commands:
     - bim2sim -h
     - bim2sim --version

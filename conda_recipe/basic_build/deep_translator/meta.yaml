@@ -1,0 +1,50 @@
+{% set name = "deep_translator" %}
+{% set version = "1.10.1" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+source:
+  url: "https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
+  sha256: e99438dab70e3bebcda932e3f5e86fd3d32b43f87d66ed9f8b6816db146f1d9f
+
+build:
+  number: 0
+  entry_points:
+    - deep-translator = deep_translator.__main__:main
+    - dt = deep_translator.__main__:main
+  script: "{{ PYTHON }} -m pip install . -vv"
+
+requirements:
+  host:
+    - beautifulsoup4 >=4.9.1,<5.0.0
+    - pip
+    - python
+    - requests >=2.23.0,<3.0.0
+    - poetry
+  run:
+    - beautifulsoup4 >=4.9.1,<5.0.0
+    - python
+    - requests >=2.23.0,<3.0.0
+    - poetry
+
+test:
+  imports:
+    - deep_translator
+  commands:
+    - deep-translator --help
+    - dt --help
+
+about:
+  home: "https://github.com/nidhaloff/deep_translator"
+  license: MIT
+  license_family: MIT
+  license_file: 
+  summary: "A flexible free and unlimited python tool to translate between different languages in a simple way using multiple translators"
+  doc_url: 
+  dev_url: 
+
+extra:
+  recipe-maintainers:
+    - your-github-id-here
