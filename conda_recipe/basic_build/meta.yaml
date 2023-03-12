@@ -33,6 +33,8 @@ requirements:
     - certifi==2022.12.7
     - pythonocc-core==7.6.2
     - ifcopenshell
+    - decision
+    - deep_translator
 
 test:
   imports:
