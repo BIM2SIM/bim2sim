@@ -5,7 +5,7 @@ package:
   version: {{data.get('version')}}{{BIM2SIM_FLAG}}
 
 source:
-  path: ../../bim2sim/plugins
+  path: ../../
 
 build:
   preserve_egg_dir: True
@@ -41,6 +41,33 @@ test:
     - pint==0.20.1
     - pythonocc-core==7.6.2
     - ifcopenshell
+    - bim2sim_aixlib=={{data.get('version')}}{{BIM2SIM_FLAG}}
+    - bim2sim_cfd=={{data.get('version')}}{{BIM2SIM_FLAG}}
+    - bim2sim_energyplus=={{data.get('version')}}{{BIM2SIM_FLAG}}
+    - bim2sim_hkesim=={{data.get('version')}}{{BIM2SIM_FLAG}}
+    - bim2sim_lca=={{data.get('version')}}{{BIM2SIM_FLAG}}
+    - bim2sim_teaser=={{data.get('version')}}{{BIM2SIM_FLAG}}
+  commands:
+    - bim2sim -h
+    - bim2sim --version
+    - sh conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
+    - sh conda_recipe/plugins/PluginAixLib/test_aixlib.sh  # [not win]
+    - sh conda_recipe/plugins/PluginCFD/test_cfd.sh # [not win]
+    - sh conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh # [not win]
+    - sh conda_recipe/plugins/PluginLCA/test_lca.sh # [not win]
+    - sh conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
+    - coverage report -i  # [not win]
+    - coverage html -i # [not win]
+
+  source_files:
+    - conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
+    - conda_recipe/plugins/PluginAixLib/test_aixlib.sh  # [not win]
+    - conda_recipe/plugins/PluginCFD/test_cfd.sh # [not win]
+    - conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh # [not win]
+    - conda_recipe/plugins/PluginLCA/test_lca.sh # [not win]
+    - conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
+    - bim2sim
+    - test
 
 about:
   home: https://github.com/BIM2SIM/bim2sim

@@ -1,8 +1,11 @@
-pip install coverage
-pip install coverage-badge
+@echo on
 apt-get update -y
 apt-get upgrade -y
 apt-get install unzip wget -y
+pip install coverage
+pip install coverage-badge
+pip install deep_translator
+pip install decision
 cat bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
 wget --quiet -O test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
 unzip test/TestModels/download.zip -d test/TestModels/
