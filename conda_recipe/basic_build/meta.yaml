@@ -33,8 +33,7 @@ requirements:
     - certifi==2022.12.7
     - pythonocc-core==7.6.2
     - ifcopenshell
-    - decision
-    - deep_translator
+
 
 test:
   imports:
@@ -50,8 +49,6 @@ test:
     - pint==0.20.1
     - pythonocc-core==7.6.2
     - ifcopenshell
-    - decision
-    - {{BIM2SIM_NAME}}=={{data.get('version')}}{{BIM2SIM_FLAG}}
   commands:
     - bim2sim -h
     - bim2sim --version
