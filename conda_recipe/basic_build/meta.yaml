@@ -31,9 +31,9 @@ requirements:
     - mako==1.2.4
     - pint==0.20.1
     - certifi==2022.12.7
-    - pythonocc-core==7.6.2
+    - pythonocc-core==7.5.1
     - ifcopenshell
-
+    - pythonocc-utils  # [osx]
 
 test:
   imports:
@@ -47,9 +47,9 @@ test:
   requires:
     - python  >=3.8.*,<3.10.*
     - pint==0.20.1
-    - pythonocc-core==7.6.2
+    - pythonocc-core==7.5.1
     - ifcopenshell
-    - {{BIM2SIM_NAME}}=={{data.get('version')}}{{BIM2SIM_FLAG}}
+
   commands:
     - bim2sim -h
     - bim2sim --version
