@@ -13,6 +13,4 @@ wget --quiet -O bim2sim/assets/download.zip https://rwth-aachen.sciebo.de/s/5EQq
 unzip bim2sim/assets/download.zip -d bim2sim/assets/
 coverage run -m unittest discover bim2sim/plugins/PluginEnergyPlus/test/regression_test
 coverage report -i
-mkdir -p $CI_COMMIT_REF_NAME/coverage
 coverage html -i
-cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
