@@ -1,1 +1,0 @@
-{"build": "py39_0", "build_number": 0, "depends": ["python >=3.9,<3.10.0a0", "python_abi 3.9.* *_cp39"], "license": "MIT", "license_family": "MIT", "name": "decision", "subdir": "win-64", "timestamp": 1678577559853, "version": "0.3.1", "size": 13678, "md5": "9ad636995d0d0baba0e59527bca049f1", "sha256": "0126f6cad24eb7949344258d14f2fd20e81a1dfa74fcd29b88326f49300fa107"}
