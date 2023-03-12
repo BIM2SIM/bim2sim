@@ -6,6 +6,6 @@ networkx>=2.2
 python-dateutil
 mako==1.2.4
 pint==0.20.1
-deep_translator==1.9.2
+deep-translator==1.9.2
 string_grouper
 decision

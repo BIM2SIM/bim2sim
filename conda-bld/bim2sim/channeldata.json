@@ -1,0 +1,69 @@
+{
+  "channeldata_version": 1,
+  "packages": {
+    "bim2sim_base": {
+      "activate.d": false,
+      "binary_prefix": false,
+      "deactivate.d": false,
+      "description": "A python tool to create simulation models for different domains based on BIM IFC models. For documentation please visit https://ebc.pages.rwth-aachen.de/EBC_all/github_ci/bim2sim/development/docs/overview.html",
+      "dev_url": null,
+      "doc_source_url": null,
+      "doc_url": null,
+      "home": "https://github.com/BIM2SIM/bim2sim",
+      "icon_hash": null,
+      "icon_url": null,
+      "identifiers": null,
+      "keywords": null,
+      "license": "LICENSE",
+      "post_link": false,
+      "pre_link": false,
+      "pre_unlink": false,
+      "recipe_origin": null,
+      "run_exports": {},
+      "source_git_url": null,
+      "source_url": null,
+      "subdirs": [
+        "win-64"
+      ],
+      "summary": "A python tool to create simulation models for different domains based on BIM IFC models.",
+      "tags": null,
+      "text_prefix": false,
+      "timestamp": 1678576212,
+      "version": "0.1.0_dev"
+    },
+    "decision": {
+      "activate.d": false,
+      "binary_prefix": false,
+      "deactivate.d": false,
+      "description": null,
+      "dev_url": null,
+      "doc_source_url": null,
+      "doc_url": null,
+      "home": "https://github.com/lycantropos/decision/",
+      "icon_hash": null,
+      "icon_url": null,
+      "identifiers": null,
+      "keywords": null,
+      "license": "MIT",
+      "post_link": false,
+      "pre_link": false,
+      "pre_unlink": false,
+      "recipe_origin": null,
+      "run_exports": {},
+      "source_git_url": null,
+      "source_url": "https://pypi.io/packages/source/d/decision/decision-0.3.1.tar.gz",
+      "subdirs": [
+        "win-64"
+      ],
+      "summary": "Decision making problems.",
+      "tags": null,
+      "text_prefix": false,
+      "timestamp": 1678577559,
+      "version": "0.3.1"
+    }
+  },
+  "subdirs": [
+    "noarch",
+    "win-64"
+  ]
+}

@@ -1,0 +1,2783 @@
+{
+  "paths": [
+    {
+      "_path": "Lib/site-packages/bim2sim-0.1.0.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim-0.1.0.dist-info/LICENSE",
+      "path_type": "hardlink",
+      "sha256": "85636a2d2a8303f042828cbb99f9d1c54c61ab38835adacbbc27bb7a0954825e",
+      "size_in_bytes": 7797
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim-0.1.0.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "9cfcff168883d7384c5638f132e6741b870fcee792248ae752041f6c9bd26b8a",
+      "size_in_bytes": 6237
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim-0.1.0.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "bf5e2f9d596d1e5a3a5dbe11afeafe8aa99ce7c6ec163d0d7c2cd426c250af5d",
+      "size_in_bytes": 49732
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim-0.1.0.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim-0.1.0.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "db07a93359e4e034b8785a58ad6d534ea3dca0635f1e184efe2e66e1c3a299ba",
+      "size_in_bytes": 92
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim-0.1.0.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "3a53d3d3146203ce852d947b724a2c836269b6cd62d375c9d074b3932e949702",
+      "size_in_bytes": 101
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim-0.1.0.dist-info/entry_points.txt",
+      "path_type": "hardlink",
+      "sha256": "e6c759bdb6b5bc9aa95dbe84613e891084d4e9f63f44cb1a626db713deca5b4d",
+      "size_in_bytes": 67
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim-0.1.0.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "cf6edc7c9c7b66084f34988d467c1de94a129d53214eb7ef5cb3a3d63d7f8dbd",
+      "size_in_bytes": 8
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "5f428384a57fc55a20aa78584eeb3588fed2914a1cd59b40cad51fe7f2ddee52",
+      "size_in_bytes": 7445
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/__main__.py",
+      "path_type": "hardlink",
+      "sha256": "75e12de9b5ea1ee48096ed48e4454e7aab86823cde43f7ba2c738da216b88a30",
+      "size_in_bytes": 2428
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "95d00fab9096401a4a894aeaaf33f3372c6e7577e9fffa4bf901dc636f56406d",
+      "size_in_bytes": 4475
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/__pycache__/__main__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "818fd4b59f756bac49bb2a05daf471107f4f7a2cd1d81ad950d1e53d746710b4",
+      "size_in_bytes": 2174
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/__pycache__/decorators.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "63b959a5334cd499109488651082495cf8213c3a0514ae18e0b007a2f1dd8c6c",
+      "size_in_bytes": 2025
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/__pycache__/filter.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "1af2b29f0b2001588e08e3cb09a3773313f9c60a40cf14a560d666362bf007ec",
+      "size_in_bytes": 5973
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/__pycache__/log.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "cb43c890b0920914524ce1dd380a40bf97917bc1cc8680e5445a021594fcf965",
+      "size_in_bytes": 2896
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/__pycache__/project.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "b2d33dbce4c5870a3ca0ba06d872da80ad2d7df218466202de3a1389abff5af3",
+      "size_in_bytes": 17936
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/__pycache__/workflow.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "6af5702173a3097501f080bf10e9a77d8ecc66987f4d5712042c05d69c9b721b",
+      "size_in_bytes": 17026
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "286830356e4797fcfd1727cd66c9b656567cc3c78f8641096b6821328d295e88",
+      "size_in_bytes": 135
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "25c90d4088dacc35367fd51c57c27da9eafe82cbe03d28845f527878df62a5aa",
+      "size_in_bytes": 146
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/hvac/TypeBuildingElements.json",
+      "path_type": "hardlink",
+      "sha256": "c2b26e003dcd6e02af8d1084deb67a3331c7680d38b69ceb09008bcf566bbdb2",
+      "size_in_bytes": 2397
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/hvac/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/hvac/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "02720ab05016c23dbdebafcdebeaee47ea0b84e0b5e8ecfebc55fef7bec70355",
+      "size_in_bytes": 151
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/material/MaterialTemplates.json",
+      "path_type": "hardlink",
+      "sha256": "53b6d7747fcaec517f9c0174abd537729b539a1bcb8b9a677a93a50c8758b405",
+      "size_in_bytes": 197448
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/material/TypeBuildingElements.json",
+      "path_type": "hardlink",
+      "sha256": "009b3438d90c7b17f3ffebca5dffa3ed0ee68f9742ddd0a33b2fb66c44836295",
+      "size_in_bytes": 100515
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/material/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/material/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "43325eaa5cadbcac7c1e9ca38079b66cff49b6011f95454ac2a2835cdaec9ae9",
+      "size_in_bytes": 155
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/usage/UseConditions.json",
+      "path_type": "hardlink",
+      "sha256": "5d38b2ddf9d6923f1fae0f47e0d444022bb28c8d6df804dd11e565dffb326207",
+      "size_in_bytes": 165242
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/usage/UseConditionsFM_ARC_DigitalHub_fixed002.json",
+      "path_type": "hardlink",
+      "sha256": "0433f2dad52e75bc8ece638bb5212b074cd702c54300c658e5119b2d424f539f",
+      "size_in_bytes": 36754
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/usage/UseConditionsFM_ARC_DigitalHub_with_SB89.json",
+      "path_type": "hardlink",
+      "sha256": "0433f2dad52e75bc8ece638bb5212b074cd702c54300c658e5119b2d424f539f",
+      "size_in_bytes": 36754
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/usage/UseConditionsFM_ARC_DigitalHub_with_SB_neu.json",
+      "path_type": "hardlink",
+      "sha256": "0433f2dad52e75bc8ece638bb5212b074cd702c54300c658e5119b2d424f539f",
+      "size_in_bytes": 36754
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/usage/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/usage/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "0a3dff7b227bde27244a682cf2724ce2a5ad9b50362cdecd7dbeea2823c201a4",
+      "size_in_bytes": 152
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/usage/commonUsages.json",
+      "path_type": "hardlink",
+      "sha256": "8639f03b78d900d9a1ea03db78275321c800c2ef3aeeb995f2a6b352fd4d94df",
+      "size_in_bytes": 4650
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/usage/customUsages.json",
+      "path_type": "hardlink",
+      "sha256": "856d67c7be852e0791552d04ce3d4df42cb08018b92709b4b8ae15149c550bf1",
+      "size_in_bytes": 134
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/usage/customUsagesAC20-FZK-Haus_with_SB55.json",
+      "path_type": "hardlink",
+      "sha256": "cffb6695b744257ae17b64f6f271ae9725d1fb1ec0c93c46ee14008f0854a444",
+      "size_in_bytes": 155
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/usage/customUsagesAC20-Institute-Var-2_with_SB-1-0.json",
+      "path_type": "hardlink",
+      "sha256": "08bd336b74aaa4292324791cc90d8b199e55bdfa915d9ead4b4c33a4e84a5cc6",
+      "size_in_bytes": 1377
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/usage/customUsagesFM_ARC_DigitalHub_fixed002.json",
+      "path_type": "hardlink",
+      "sha256": "471b894e8f3c1122c4006cfd21c9f126cb020490fe5adfee7a396df34acb380c",
+      "size_in_bytes": 431
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/usage/customUsagesFM_ARC_DigitalHub_with_SB88.json",
+      "path_type": "hardlink",
+      "sha256": "08bd336b74aaa4292324791cc90d8b199e55bdfa915d9ead4b4c33a4e84a5cc6",
+      "size_in_bytes": 1377
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/usage/customUsagesFM_ARC_DigitalHub_with_SB89.json",
+      "path_type": "hardlink",
+      "sha256": "2a7dd8916ebc5f1a22701514deef5f702f8fb34b902a199a982fc82294675ebf",
+      "size_in_bytes": 453
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/usage/customUsagesFM_ARC_DigitalHub_with_SB_neu.json",
+      "path_type": "hardlink",
+      "sha256": "471b894e8f3c1122c4006cfd21c9f126cb020490fe5adfee7a396df34acb380c",
+      "size_in_bytes": 431
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/enrichment/usage/customUsagesKIT-EDC_with_SB.json",
+      "path_type": "hardlink",
+      "sha256": "72899051974080ccd8d7a7eddc581c0e51ad6fe816867ef7516454fefaaca27e",
+      "size_in_bytes": 1057
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/finder/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/finder/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "82ec57b3d0cab959b97279e7e85716d1cb24bbf171663825ec1c2d44c125c139",
+      "size_in_bytes": 142
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/finder/template_ArchiCAD.json",
+      "path_type": "hardlink",
+      "sha256": "24bec67427e4a054a630e5f629ec280743461d6114d17658cf11a13e84cbf9bc",
+      "size_in_bytes": 4824
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/finder/template_Autodesk Revit.json",
+      "path_type": "hardlink",
+      "sha256": "76916459687cf18655616c179a5663077f03918b3927b5bff6b89ec18b6846d2",
+      "size_in_bytes": 2184
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/finder/template_LuArtX_Carf.json",
+      "path_type": "hardlink",
+      "sha256": "cfd56c14807abfe587734c5127098813bef1508156353782f1a3346a05fb1f30",
+      "size_in_bytes": 348
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/finder/template_TRICAD-MS.json",
+      "path_type": "hardlink",
+      "sha256": "70a76feb64ce10dd5ce2872a8e37278d2532b15422c5460fd30b6e3709f91b7b",
+      "size_in_bytes": 376
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/ifc_example_files/AC20-FZK-Haus.ifc",
+      "path_type": "hardlink",
+      "sha256": "ec498a610e386974e6b342e37e177d690a2ab1985b51bb0112e26dc88abe521a",
+      "size_in_bytes": 2571839
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/ifc_example_files/ERC_EBC_mainbuilding.ifc",
+      "path_type": "hardlink",
+      "sha256": "cf91458dacf8c7fd2a12b17677516f3f2b2e0b31da8a1ad78d160bc0c261fee2",
+      "size_in_bytes": 23467679
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/ifc_example_files/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/ifc_example_files/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "a07d08400d7d341646137e6ca2817d48af56f55ae1baf17defd058f12e5133e7",
+      "size_in_bytes": 153
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/ifc_example_files/hvac_heating.ifc",
+      "path_type": "hardlink",
+      "sha256": "00d55387189de5e05475358c6cb61ceb9af440eba6e1b77164c89b6f05bd6e93",
+      "size_in_bytes": 2458340
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/templates/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/templates/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "cef6f50adfe1eaee4f7e8a5cc627156a17be2b56e14d225465794c91e1acc1ef",
+      "size_in_bytes": 145
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/templates/check_ifc/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/templates/check_ifc/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "885c6a79660bc73f8c53d330941030d9ad3661f21aef475121e2d625acbfabb6",
+      "size_in_bytes": 155
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/templates/check_ifc/inst_template",
+      "path_type": "hardlink",
+      "sha256": "d5a4d5828cbe25b7291e9f7b7305fe974e22d28efc2b6745d7d0fa980b1180b0",
+      "size_in_bytes": 4157
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/templates/check_ifc/prop_template",
+      "path_type": "hardlink",
+      "sha256": "a14adbfec8a1f652e6e92c1de62724984fa1407b4a5eadb0c92dc1e9e2cda6cf",
+      "size_in_bytes": 3514
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/templates/check_ifc/summary_template",
+      "path_type": "hardlink",
+      "sha256": "ffd5a2e52cfbfc0c4e5035a0898b8165b4e3c3adb740800f129988f631719e8e",
+      "size_in_bytes": 2788
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/templates/modelica/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/templates/modelica/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "ce151f0c2b31da704d090a5b61cf5d6e9ce6b08b4fafed5d1a262a20f9d9ed3b",
+      "size_in_bytes": 154
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/templates/modelica/tmplModel.txt",
+      "path_type": "hardlink",
+      "sha256": "f28ad3b217b32070c85d8762bfdcb2fdb75b016b2c4438e28b77c81ce2940689",
+      "size_in_bytes": 1302
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/weatherfiles/DEU_NW_Aachen.105010_TMYx.epw",
+      "path_type": "hardlink",
+      "sha256": "5854a73a69aa6e9ae1e7b958856b610dc8819956f161d7edf3e0aa75b87e1246",
+      "size_in_bytes": 1559369
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/weatherfiles/DEU_NW_Aachen.105010_TMYx.mos",
+      "path_type": "hardlink",
+      "sha256": "a7aad18bd64275dd1b19e248df92d1260e38e4091e27908590c7c3722326102b",
+      "size_in_bytes": 1121518
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/weatherfiles/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/assets/weatherfiles/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "50afa81a83717caa386e5df3c694752f607ea3efac1f85c390487824d93e4c8e",
+      "size_in_bytes": 148
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/decision/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "8263a7fb31af4c157c47d52fb51f5805c305ef33fc728f5da6cf85e4775947f8",
+      "size_in_bytes": 19257
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/decision/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "28d079076f1071e3ba4a80f18f91931d40e059610ac2b5514e0ff8dbf6454711",
+      "size_in_bytes": 20721
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/decision/__pycache__/console.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "764c9da9da9a387717cb5551b9b700195d50447914451b10bba5af074d1c5925",
+      "size_in_bytes": 7838
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/decision/__pycache__/decisionhandler.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "8ef119ea20de430d68d9fdb1a4fb3f2c5a6194bacc51fb8e717f17620f2e4948",
+      "size_in_bytes": 6375
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/decision/console.py",
+      "path_type": "hardlink",
+      "sha256": "b3bdd462f814e634de4691298854e7c93fbeee179fe8dc7ffa9ef9e81811ee40",
+      "size_in_bytes": 11008
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/decision/decisionhandler.py",
+      "path_type": "hardlink",
+      "sha256": "3cd4411868da8833af71b74b450fd76bff5e273e605cc8e3c53b048d3131f480",
+      "size_in_bytes": 5963
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/decorators.py",
+      "path_type": "hardlink",
+      "sha256": "e50505cd12ff2d28ba685e5bf67f2bc187f9c1e67423e98cd5838d2dc19bbb14",
+      "size_in_bytes": 1355
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/enrichment_data/.gitignore",
+      "path_type": "hardlink",
+      "sha256": "86c2791ed9a9830e22c0364cdaf4936833ea0329a958f258033b6c34dc3800ab",
+      "size_in_bytes": 24
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/enrichment_data/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/enrichment_data/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "6a2f22f845093c2787d6fa29d90b41249446354db0b1c4b4553957581f72d929",
+      "size_in_bytes": 144
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/enrichment_data/__pycache__/element_input_json.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "8e381edfa23091f7e9a7efa7e1a30115108d020e0e112883b55155ad2a54d88b",
+      "size_in_bytes": 1205
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/enrichment_data/element_input_json.py",
+      "path_type": "hardlink",
+      "sha256": "c401688c6860813fb53cfc054d5a741b1433835fc9a6d5f44be292e9219d9d27",
+      "size_in_bytes": 1530
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/examples/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/examples/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "36f858d52c41531bfccaac151e36dc6bf9f4de7361f1c826ce29462ed555799f",
+      "size_in_bytes": 137
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/examples/__pycache__/e1_simple_project_bps_teaser.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "d7d2a4698cfcd97137f344706af61d7d2fce03d698c6f5946e7c65de43b9fc3a",
+      "size_in_bytes": 1316
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/examples/__pycache__/e2_interactive_project.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "198b9cb4aef23dbd93d878df04ae02359efc96b99d2bd2aa2b2fe802a38b9e24",
+      "size_in_bytes": 1244
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/examples/__pycache__/e3_simple_project_bps_energyplus.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "5cfe6bc552ebb657f18ff62a719f4d479540b6bffcb3e8009dc553fc94c0bc54",
+      "size_in_bytes": 1405
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/examples/__pycache__/e4_simple_project_hvac_aixlib.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "3b547e415c5f9f4b71f04551ce78d663678cc071a5b36c5cf4ce6ffbecf2bd8c",
+      "size_in_bytes": 1323
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/examples/__pycache__/e5_export_quantities_for_lca.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "79d488d298fd745b5cf20d927384d00aaac42d5b317057eac2b71f76cc2a3acf",
+      "size_in_bytes": 1442
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/examples/bim2sim.log",
+      "path_type": "hardlink",
+      "sha256": "22d5127358616dc8893bddd8b456e514e26f56665af0b124fb6b99e148520b32",
+      "size_in_bytes": 494661
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/examples/e1_simple_project_bps_teaser.py",
+      "path_type": "hardlink",
+      "sha256": "85fb98037d65cbca94c027b609693de071a65e0ca6c6aad0f85c3540dbb641d7",
+      "size_in_bytes": 1793
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/examples/e2_interactive_project.py",
+      "path_type": "hardlink",
+      "sha256": "bd001376b1fc2a5af7b8143c55063426d167846fb499e7088aa288fbb35af594",
+      "size_in_bytes": 1681
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/examples/e3_simple_project_bps_energyplus.py",
+      "path_type": "hardlink",
+      "sha256": "da7a219f4b8ec0a85b99a66cd0df306ed1726e88c8711ef60188e5ea2f78a3bd",
+      "size_in_bytes": 1890
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/examples/e4_simple_project_hvac_aixlib.py",
+      "path_type": "hardlink",
+      "sha256": "1b0a284b74a643f1045df16cd885fa122d24014dcfa531be793b3ff24c3b8283",
+      "size_in_bytes": 2188
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/examples/e5_export_quantities_for_lca.py",
+      "path_type": "hardlink",
+      "sha256": "67390ad60487233889ca08588d315da49aed5a040f119a0e6a17304648a254c6",
+      "size_in_bytes": 2308
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/export/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/export/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "f128fe4d392eb230e43c06906926f232f7e4d3040f00eee846a7e47ba82cc1aa",
+      "size_in_bytes": 135
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/export/modelica/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "0f0f42becd6972151918cfa78b80da771ae8e34db0772067e1105d44235c149c",
+      "size_in_bytes": 13722
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/export/modelica/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "c2f1891dd5f494891e21c98aa27a59b28ae2365823033b52d55f7b780135342a",
+      "size_in_bytes": 12780
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/export/modelica/__pycache__/standardlibrary.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "282141c81023452a0ffa24b362878709953b1327c33e45a24a94f236e0ee29d6",
+      "size_in_bytes": 4063
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/export/modelica/standardlibrary.py",
+      "path_type": "hardlink",
+      "sha256": "b2dbc022f54ca08d757ac284e95dc87d2805dbf1c40ea8e8bfd05e9cdfd63266",
+      "size_in_bytes": 3539
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/filter.py",
+      "path_type": "hardlink",
+      "sha256": "4fd39eb858959c0fea3334877c6ef0c73fa5f161a1c99ffe4ff509e7798d0e47",
+      "size_in_bytes": 5846
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "db3d4953c52c1dd9a04b0ee79261532aef16cabdda60ccd0ecc23c2afb6ccbcc",
+      "size_in_bytes": 134
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "b2fce492d8abefac5e7a9f10647e4d7dbbb0d6859d00c3db9f3d9b1df37a220e",
+      "size_in_bytes": 267
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/__pycache__/aggregation.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "007084d21a0b202f12f3a4e20967f6cc67f1c1418a17518fcafd0996cee035a2",
+      "size_in_bytes": 75949
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/__pycache__/attribute.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "49d40cc4af2d216fba51f977f3e42237b3a7d2b1ab60a1fa562e4fc2209666e3",
+      "size_in_bytes": 16716
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/__pycache__/condition.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "af1b1c45cc1a326756fc0542668eaeaecbec7ae848addce4834c8c91144aa820",
+      "size_in_bytes": 5100
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/__pycache__/element.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "2044e87d9e894d085bed2ff6f6a97ae933c5f0c4b1a383116002fabe02c544c6",
+      "size_in_bytes": 29662
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/__pycache__/finder.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "058f8a429e13f162f245abc8b90a4019e337b288e660e635514d61cb986ae5f2",
+      "size_in_bytes": 11253
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/__pycache__/ifc2python.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "401d064f973ea5508b863e18cdf305d25d4ce5d22df714d9b02f94dea6b0e0ca",
+      "size_in_bytes": 16415
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/__pycache__/units.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "33177b204b72574ee45d15e41c459930de5b34aed0ee35ff0f7d755405f0ca82",
+      "size_in_bytes": 2560
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/aggregation.py",
+      "path_type": "hardlink",
+      "sha256": "77fd0e52fa959633b8962d06bbe67911c710c8e252687e3f527b4bb5a634e851",
+      "size_in_bytes": 94769
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/attribute.py",
+      "path_type": "hardlink",
+      "sha256": "2a4bbb6153f5b2269cdb2f66fad2b6b081d589826ed05b3e28f36c5efcb790f5",
+      "size_in_bytes": 23257
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/building/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/building/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "4ea5c9e78686fa28aa907d4d1a96fb2eec13a68e37aca986ff098f238f2a91f8",
+      "size_in_bytes": 144
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/cfd/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/cfd/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "5e7752c82fd7f5a7dc657119b5ccf19bed5ec38862bf628d3b039afc8500a9e8",
+      "size_in_bytes": 139
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/condition.py",
+      "path_type": "hardlink",
+      "sha256": "f64ab4b57626b19a8dcc9512e9e1af64c39a1b9b104005f0a8d6b593708d90b7",
+      "size_in_bytes": 5065
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/element.py",
+      "path_type": "hardlink",
+      "sha256": "d35d5e3c8b0aad47244b1ea2bf325f023852347354151af88f1d2d807e516685",
+      "size_in_bytes": 34725
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/elements/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "ee1ab6178727915caebad805266fad509ad8b0e0d85f03dd55311c3f105bf3d5",
+      "size_in_bytes": 17
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/elements/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "def1e1e6c42e7229f6afcc0a9392663d82666ccf9413d0e84190c9a0b90f30d2",
+      "size_in_bytes": 159
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/elements/__pycache__/bps.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "2b6fa5e00fed3dcac3a7046f3e725e406f6a36ee27083479f26628e45eea5940",
+      "size_in_bytes": 50191
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/elements/__pycache__/hvac.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "d40620fdf99c6a0aefffc9ccbc2d30d74a0a7e294b4f324a729cf0a7d45bc9cf",
+      "size_in_bytes": 31994
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/elements/bps.py",
+      "path_type": "hardlink",
+      "sha256": "f3c9067ebc5f7911dad95c5cd22d69547482f2b8388a349f7372067b3df464bf",
+      "size_in_bytes": 67848
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/elements/hvac.py",
+      "path_type": "hardlink",
+      "sha256": "84d6969eda0c73d0b4d1d8da7f21a3b034b2ffec3e91c0c340465a411b18e5cb",
+      "size_in_bytes": 42843
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/finder.py",
+      "path_type": "hardlink",
+      "sha256": "5ac7a5def94030465015017767898aeac2b2b251ed46580d69c3167af7d4df5d",
+      "size_in_bytes": 13252
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/hvac/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "f1945cd6c19e56b3c1c78943ef5ec18116907a4ca1efc40a57d48ab1db7adfc5",
+      "size_in_bytes": 3
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/hvac/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "239a73ce618d2b2c83e5a307799a36a7f531de819574ca7766ba1f9484be9c08",
+      "size_in_bytes": 140
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/hvac/__pycache__/hvac_graph.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "d58e3e032c9441b023592703881f7f031fabfee4787fa608562bfd186ee4028e",
+      "size_in_bytes": 23485
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/hvac/hvac_graph.py",
+      "path_type": "hardlink",
+      "sha256": "3162d8c14dbc2894050aa84ba2981dc2143b61907373d1279e9b4a4a94a5a4f5",
+      "size_in_bytes": 27507
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/ifc2python.py",
+      "path_type": "hardlink",
+      "sha256": "1fe6b78ae99cbfd5f7911893985343c9e6de2323960c4180fff14caf0504e716",
+      "size_in_bytes": 23276
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/kernel/units.py",
+      "path_type": "hardlink",
+      "sha256": "0ab17360b40dc3fd4006d9ce54b60922975c2c26f0b5c89b156b0685a0160605",
+      "size_in_bytes": 4438
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/log.py",
+      "path_type": "hardlink",
+      "sha256": "1c149c9e95e68ad7802d8dcb9764ba352cdf5d54d28028c82bc8b48113dcd04f",
+      "size_in_bytes": 2724
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginAixLib/README.md",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginAixLib/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginAixLib/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "dc4a4e8bb30de46916a64ad3449b8b7ce87412262c746a30204517a221242825",
+      "size_in_bytes": 149
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginAixLib/__pycache__/setup.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "8bf0e2ebacfb088eac0199a24a556c53cf26f9721b7b7ff99f09d970f6700146",
+      "size_in_bytes": 1473
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginAixLib/bim2sim_aixlib/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "f8b6e6c387d1a63e23af9e54c6a8725abed52b0f191d30457ee0f1b1d96df619",
+      "size_in_bytes": 1877
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginAixLib/bim2sim_aixlib/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "87a015aa8a6afd7d83515bea27837b5ef17c9dcf457e43f4fae4396ec15fe92f",
+      "size_in_bytes": 1981
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginAixLib/bim2sim_aixlib/data/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginAixLib/bim2sim_aixlib/data/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "c6ea959c3df09122ba0b40cdcfc4fc1b420a2cc1167d6d6ecdfa7abd632dd977",
+      "size_in_bytes": 169
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginAixLib/bim2sim_aixlib/data/modelica_language",
+      "path_type": "hardlink",
+      "sha256": "11c88a6df3d201a09a86aa2ed7302e43f1befd6e29c0c89f046d96189d0764d9",
+      "size_in_bytes": 767
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginAixLib/bim2sim_aixlib/models/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "5a755f6bb27d51bcaa88fd14c883d58a2f573d497dac40240451e04439814de3",
+      "size_in_bytes": 10859
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginAixLib/bim2sim_aixlib/models/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "50bd56cac6c6ce2d6161f295fe746cef568ba70bdf6b695b389db3bab5d37c05",
+      "size_in_bytes": 9534
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginAixLib/requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "d09b9169d82e713c134fff4f3bfbb834db4bf336fb7246ecb905144095d97d1f",
+      "size_in_bytes": 7
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginAixLib/setup.py",
+      "path_type": "hardlink",
+      "sha256": "1d6c95ef676adcefe7e9ebd0479588184781ec672bc7117769680cfac7e43d44",
+      "size_in_bytes": 1538
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginAixLib/test/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginAixLib/test/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "37d9dda03aabf9524131bd19e962e2427a8a65f2a8f1f43cb89c9c566ef2d83e",
+      "size_in_bytes": 154
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/README.md",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "b5253612ee807c7516cb955c3ce34a17111284c97613e74f72aa8532f883b731",
+      "size_in_bytes": 146
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/__pycache__/setup.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "a5d020428ac7cc5f8e33f5aead9d27f976e8b6c262e3ee42d1bafe059fa2c649",
+      "size_in_bytes": 1464
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/bim2sim_cfd/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "8e7e8a2aec948c086bc7866f9fc4f0f0005d0fc505fd5a7beece366dfb140d45",
+      "size_in_bytes": 385
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/bim2sim_cfd/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "6017e6888a7989569d78007e1fca39505945153db18b5bb7d323b466531c2c57",
+      "size_in_bytes": 668
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/bim2sim_cfd/ifc2sb/IFC2SB",
+      "path_type": "hardlink",
+      "sha256": "9d14daa98950c93af13871847af3970289f84e36fc763997f47cde2a49ed0ea7",
+      "size_in_bytes": 4360376
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/bim2sim_cfd/ifc2sb/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/bim2sim_cfd/ifc2sb/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "ae151da7d97e72735669f186c6e2d22396a0d5ba59d8e1092a6bea0982eaecce",
+      "size_in_bytes": 165
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/bim2sim_cfd/task/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/bim2sim_cfd/task/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "7e18c64681d84ff73df89df6d0994354878c4ee9a8928145ab995712d6df7509",
+      "size_in_bytes": 163
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/bim2sim_cfd/task/__pycache__/ifc2cfd.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "c5e538c36e645122e03c5835c9135fdc0146cac53f9bc8579f00a39e440fe4f9",
+      "size_in_bytes": 2182
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/bim2sim_cfd/task/ifc2cfd.py",
+      "path_type": "hardlink",
+      "sha256": "d25871b63488719635096908c32667a08ff4b8b3da10c102f2247701e8f2aeaa",
+      "size_in_bytes": 2685
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "cbf0d9c8c3bfe85ed76b794d0418e1b847b2f7d55307294bb0cfcc273a28f962",
+      "size_in_bytes": 22
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/setup.py",
+      "path_type": "hardlink",
+      "sha256": "5835f4eec4436e23fa85f848cb0fe6c7b375335c4b5cfe8f5391873586be264a",
+      "size_in_bytes": 1527
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/test/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/test/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "5b84022251d4d301b914ab25a844cf8ba037a28b6965175ac9219020ba2905ff",
+      "size_in_bytes": 151
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/test/integration_test/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/test/integration_test/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "9b1a13d8a3092bb3f2969bcd81581d9cfd3c7bec4d77834b1d33181ecab4b54f",
+      "size_in_bytes": 168
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/test/integration_test/__pycache__/test_integration.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "5fbdc8bd78cc6963593036ddc420c655903cb09008c0a9afce3202c128e82ac2",
+      "size_in_bytes": 1770
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/test/integration_test/__pycache__/test_useage.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "1db2d787bdaa49a1614fc3b1cac4b0d53fe8acf2968331b1d1f52db8bf831946",
+      "size_in_bytes": 893
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/test/integration_test/test_integration.py",
+      "path_type": "hardlink",
+      "sha256": "039bde9549ef3fbc135ac344b1e141987c64ef09345d26d9c20452b269eca12f",
+      "size_in_bytes": 1231
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginCFD/test/integration_test/test_useage.py",
+      "path_type": "hardlink",
+      "sha256": "721c1556b607b4981e48766423bb9e9b31bf235363e427e4448340a5e1cf26f4",
+      "size_in_bytes": 525
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/README.md",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "e234c29f60740aea740e0a967dbec699734acd983c45f1d995377415ffab1e2d",
+      "size_in_bytes": 153
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/__pycache__/setup.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "39797942e0a170e8d102552166ba52ab0ea484d397d2868c801c48f6b26b4b13",
+      "size_in_bytes": 1589
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "9c6bb38abce3c9d2e9267f8329468f457e49e61a1b71f031b5bc20d25b9b7769",
+      "size_in_bytes": 1284
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "2529ae1ac882e03763e9493fbcfc34b0c94374c1986ab4bf08406c94140d98dd",
+      "size_in_bytes": 1403
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "f2833f8fa779ede7f8417cddcffd9d04b56ce613084349471c7760a4b8903504",
+      "size_in_bytes": 390
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "5d4351a6b95ee0f696ece7933227a0a810d2764ec8d6cde5a06036f9262c0513",
+      "size_in_bytes": 639
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/__pycache__/ep_add_2b_bounds.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "35d8631f05562920197809b8889cfc40805547cea8dfdd0096189f725cac1d5d",
+      "size_in_bytes": 4970
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/__pycache__/ep_create_idf.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "18d85df2d72e49d79e6a487feb812fa452f79acb51a933eb8b7d2955f5e57c2e",
+      "size_in_bytes": 41431
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/__pycache__/ep_geom_preprocessing.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "d1b6c28881230e9f492362244051a17876d92625028f2a1f4da4d1b0959b97c3",
+      "size_in_bytes": 13245
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/__pycache__/ep_idf_cfd_export.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "40584e047c48477847593fb13ef6217c9150c580919e00b78b91e3663a402f73",
+      "size_in_bytes": 8692
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/__pycache__/ep_idf_postprocessing.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "685cd4ced7d24e32f285907729d298c64076691b463652188b86526b5a24e279",
+      "size_in_bytes": 8177
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/__pycache__/ep_ifc_validation.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "37e15ad5ee0a0a2065c638c3daadcaaa5db60ea17a4aac6cea7d426d4e2cdf08",
+      "size_in_bytes": 11748
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/__pycache__/ep_run_simulation.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "1db4988cf6e58ba838dafd4b60320541c6b3ae5a2d08bdf201a377079385d3ee",
+      "size_in_bytes": 947
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/__pycache__/weather.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "6e8a26bdd3e76df8f61f0ff503a8c0814aaa527e293c20f49d7f895b4c4afb87",
+      "size_in_bytes": 819
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/ep_add_2b_bounds.py",
+      "path_type": "hardlink",
+      "sha256": "11dcd98de4b3e366cfcd8f21d1a75bfe494094903dedce8680abeb8012ae02cd",
+      "size_in_bytes": 6965
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/ep_create_idf.py",
+      "path_type": "hardlink",
+      "sha256": "87a8ec6d145e77baf8fc879d476a01e8d521fcceac6ceddc646487d71f4ad034",
+      "size_in_bytes": 65958
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/ep_geom_preprocessing.py",
+      "path_type": "hardlink",
+      "sha256": "74de0ea9c3a47b58fbd56e0f3417c955cac36a50dcadfbbfec53751b8b1542b7",
+      "size_in_bytes": 24534
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/ep_idf_cfd_export.py",
+      "path_type": "hardlink",
+      "sha256": "8d82befb0cb34b3d7800a07f825f94d85e3aa31081584d51b197c948563e04ab",
+      "size_in_bytes": 10049
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/ep_idf_postprocessing.py",
+      "path_type": "hardlink",
+      "sha256": "8f1df4ffa1d2285a99d8bca78b14362983975b68514df48db2fdf53162d88327",
+      "size_in_bytes": 8068
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/ep_ifc_validation.py",
+      "path_type": "hardlink",
+      "sha256": "386e0c898a1e5376cd84869a7c840a0c3b9e49bdc08e91e6b3ffe8866970320c",
+      "size_in_bytes": 9766
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/ep_run_simulation.py",
+      "path_type": "hardlink",
+      "sha256": "7f5dc4338a672934cbee13504102f60653212806b4f4f8934fcfde64ffa67e28",
+      "size_in_bytes": 875
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/weather.py",
+      "path_type": "hardlink",
+      "sha256": "dfb523eb75997ae8024dd18c286d0de37e6e5501517bac4f552c94ec7626dfe7",
+      "size_in_bytes": 277
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/utils/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "975e5123564810426db5f039a3ab06abf9f9ce7189589bbc06368d9f9cb1c500",
+      "size_in_bytes": 55
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/utils/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "50e9f7f8c3855bba72f9494477b54f66c0b7f4c8b2cae8b571b39c8694b25ae2",
+      "size_in_bytes": 242
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/utils/__pycache__/utils_postprocessing.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "6e01918452b50f2a648515a173ffb2764eabcaef899f0972a5bee45d9ee14513",
+      "size_in_bytes": 4657
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/utils/__pycache__/utils_visualization.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "9ff0580897739fc47e100eb436cf1dff18833b96fcc19b5726e07cca5977058a",
+      "size_in_bytes": 2079
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/utils/utils_postprocessing.py",
+      "path_type": "hardlink",
+      "sha256": "41fc5e361ee6339457710eeda32fbc95a02c75002a227e8fe880408d90d5ba65",
+      "size_in_bytes": 6158
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/utils/utils_visualization.py",
+      "path_type": "hardlink",
+      "sha256": "aed65b652d8007b1df03399e0bf4b5feebc274b5e1a8ed843c80c4e7c420e101",
+      "size_in_bytes": 2263
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf",
+      "path_type": "hardlink",
+      "sha256": "22e035ca9054fb37010c40d2fbb4b8600665f4e20f21f8dd9b98df6adab6601f",
+      "size_in_bytes": 7356
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/data/Schedules.idf",
+      "path_type": "hardlink",
+      "sha256": "8f5abaa0e5416b117dbd0dc76e6d2a05bf77089fe9bc1c5ef18fa56a09465a68",
+      "size_in_bytes": 61264
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/data/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/data/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "b13245ce53377b81e92bbcbd280d854882c78127a01b3f245bb956675bbedd6a",
+      "size_in_bytes": 158
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/data/space_dicts/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/data/space_dicts/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "f1aec87cc2c5be1c2e90defd60c9b9cd0d292eed26071a7d8b1f91d78cc9138f",
+      "size_in_bytes": 170
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "85215c0f4a9a387ca3fd55005a57edeedb3c0e7e50ade05460e54e7f4f65269c",
+      "size_in_bytes": 38
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/setup.py",
+      "path_type": "hardlink",
+      "sha256": "01f155d97ecc3d09e74e3be7510bc7f0dd1369aea52a4c53b5d434fd8354f450",
+      "size_in_bytes": 1710
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/test/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/test/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "9911e9d9d09bc9ffa478eba2b5cfbe29d930b97bb62ba0034b31d24d3f17e3f5",
+      "size_in_bytes": 158
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/test/integration_test/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6",
+      "size_in_bytes": 2
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/test/integration_test/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "5dfa29726aa46c23246fc72408b59e3ba868d5cdfc100d57eabff8feda1ccfba",
+      "size_in_bytes": 175
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/test/integration_test/__pycache__/test_integration.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "0c3f685c6dabc957120d7151aaaf010b091a37786bad57445fd9127cd9e6fbd8",
+      "size_in_bytes": 12338
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/test/integration_test/__pycache__/test_useage.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "2832464cc021712d3d8762debe2050166f87be4236d9bd819096005c6d1c21ad",
+      "size_in_bytes": 914
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/test/integration_test/test_integration.py",
+      "path_type": "hardlink",
+      "sha256": "17fb1e5c1788000c04409f7c6714e7535198a222a8db23b78747c003dedc49a1",
+      "size_in_bytes": 19259
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/test/integration_test/test_useage.py",
+      "path_type": "hardlink",
+      "sha256": "188d340b29bede6f4a382745f5c9017d73bffc7b0a5eceba5389f4a54e83dbad",
+      "size_in_bytes": 539
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/test/regression_test/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/test/regression_test/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "5b8b9fe53c80559641160c06df1ba8393e69e38ffa94d8e38079824ba44bee93",
+      "size_in_bytes": 174
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/test/regression_test/__pycache__/test_regression.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "65577cfb476638865c13d7ed4a9b2c8e31111c707a245582fe939f7d36d33a83",
+      "size_in_bytes": 6622
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/test/regression_test/test_regression.py",
+      "path_type": "hardlink",
+      "sha256": "0f4834ffcf76859745ba7ed9acf585189d03722c526d6bbfc70211f37aa69978",
+      "size_in_bytes": 8910
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginEnergyPlus/zip_requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "92d362e1fa84140a1245e5530784e823fafd1b42f68af4a076dd8d093208aa45",
+      "size_in_bytes": 79
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginHKESim/README.md",
+      "path_type": "hardlink",
+      "sha256": "ccc55dcd7f7ab77abecd1bfc23b6048cbee6358ae1e3052be0ca7328ce0b487f",
+      "size_in_bytes": 251
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginHKESim/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginHKESim/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "37474de84aced328775a8c6f4185bf313e1fd3a9601c84ec0e4bb568b860f9fe",
+      "size_in_bytes": 149
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginHKESim/__pycache__/setup.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "8869707e0e28184e699270ebab9987aad69d7b4e68081bf1fa059fdb2cb603b1",
+      "size_in_bytes": 1396
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginHKESim/bim2sim_hkesim/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "983a1f92abbb7df72860e387ef597dc2f1a4f86c07b680bf376e8a6bb3ae05e4",
+      "size_in_bytes": 1107
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginHKESim/bim2sim_hkesim/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "8dd18998ea4aa410c6d7904e4d123b333b83bedc104f5bc4b08e5fd16d125412",
+      "size_in_bytes": 1525
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginHKESim/bim2sim_hkesim/models/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "685d394f4bc4b9be02a437f96f418ffd19b8c85cdb5d7b52cbe15069bde6f8b1",
+      "size_in_bytes": 6174
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginHKESim/bim2sim_hkesim/models/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "43aecb5cc09823a77ecac9b63cd8f786971a2b9d0cfc7038decbf0e7dc5ad395",
+      "size_in_bytes": 5438
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginHKESim/requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "58087ccf3088f62f1797d415f58a16708b1afaa0a49e0dad2f41a694c33472db",
+      "size_in_bytes": 9
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginHKESim/setup.py",
+      "path_type": "hardlink",
+      "sha256": "55e5bed8c9975a41c292b49ec0c98a6eeca47b975fe3401dfe78947673f4a48b",
+      "size_in_bytes": 1525
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginHKESim/test/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginHKESim/test/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "4bc85df4a50fc7519c7a5f3e71b629474911960c72ae11140c183a0bd3c0d6f6",
+      "size_in_bytes": 154
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginHKESim/test/__pycache__/test_hvac.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "978b1c9235a06e883f8fb8624dbbb6c3c192e8481b2984439aad5b88da999f6f",
+      "size_in_bytes": 2886
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginHKESim/test/test_hvac.py",
+      "path_type": "hardlink",
+      "sha256": "b11f86808bbc5caabef0a83d9f56e4de8af4b2d0be6e1fa1c043fe103b0083d3",
+      "size_in_bytes": 3357
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/README.md",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "d2b436e0366ff6cb09f9f9c3c2edfc4cd40436c85dcb4eaac4d45c8509fa1929",
+      "size_in_bytes": 146
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/__pycache__/setup.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "ff425a03d245101597e8e30cbb7d37a0709f148c532755524a88f33fffe43dd9",
+      "size_in_bytes": 1387
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/bim2sim_lca/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "03e6b873b51817085e1609f6a87d9f59d057d2ec5b7112ae276ab7633d548014",
+      "size_in_bytes": 766
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/bim2sim_lca/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "d5672d5cd5e36aa897a539fe3cdfbc0cde38db3613216b41017a946980fe72f2",
+      "size_in_bytes": 1051
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/bim2sim_lca/task/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/bim2sim_lca/task/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "c7d1397ea13156b3b7fe501ac65675eb2ebd99d074cb43dfbf714430cdb2e42d",
+      "size_in_bytes": 163
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/bim2sim_lca/task/__pycache__/export_lca.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "bc687305bb8c23eac7e73395b97c5503e798f9bb53751a8036ce5a3b1bcef847",
+      "size_in_bytes": 10311
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/bim2sim_lca/task/export_lca.py",
+      "path_type": "hardlink",
+      "sha256": "d9c07f129f9d2f79c2b609ded4cc6f1f5cd728291ed553219f434e590f56847c",
+      "size_in_bytes": 16079
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "58087ccf3088f62f1797d415f58a16708b1afaa0a49e0dad2f41a694c33472db",
+      "size_in_bytes": 9
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/setup.py",
+      "path_type": "hardlink",
+      "sha256": "28711da4b46dbf568c2801846f7a69942cc0db93f270242ba5080ec4cb84a57d",
+      "size_in_bytes": 1517
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/test/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/test/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "f238cd862a974f78c8bee0732f05f462dd28786b2ab71bf9cecde535ed4a7ff3",
+      "size_in_bytes": 151
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/test/integration_test/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/test/integration_test/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "7a0455c9dde0564557bf4aca5e5fd5ef6a67c86a38c8da3efa39c19e9cc294fc",
+      "size_in_bytes": 168
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/test/integration_test/__pycache__/test_integration.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "8ca465c96594af1fbc8b3fdf9feceb602ae2cb1aaa0fbaafc153bce48676fdaa",
+      "size_in_bytes": 1656
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/test/integration_test/__pycache__/test_useage.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "e974481d8c4db8abc8cc80a285267125af5d0a6427048158a0e0afab04f8a552",
+      "size_in_bytes": 893
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/test/integration_test/test_integration.py",
+      "path_type": "hardlink",
+      "sha256": "652553a88fe00e80ea741bf90939ebffc32efd2025c00228ee2da6c274781554",
+      "size_in_bytes": 1303
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginLCA/test/integration_test/test_useage.py",
+      "path_type": "hardlink",
+      "sha256": "7a98662e7f0d84dfa0b5a9254f8488b7eaa9707fb77412217850c01283a3defb",
+      "size_in_bytes": 525
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/README.md",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "f70fd7eac1efb7df966fa71eb880884d5f336fcabe4f117828a0f1c405c3a831",
+      "size_in_bytes": 149
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/__pycache__/setup.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "146d19691c8b9b7a5bdf187cdbb5281c9ed7b596ef4fd83be127202d70c108e4",
+      "size_in_bytes": 1396
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/bim2sim_teaser/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e667b3045614ca8f544f73b55ccf56b36a7683da25ef5fedcd89b30e8a24d4b6",
+      "size_in_bytes": 1383
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/bim2sim_teaser/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "9712f81009bd2dfb1209257c6174adadfc8428b665ce853e6299e7597fc8f2aa",
+      "size_in_bytes": 1775
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/bim2sim_teaser/export/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e7c302364145d368c02510d726ed4a35bec11b8b8f5c819ae13359bc005c055a",
+      "size_in_bytes": 8498
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/bim2sim_teaser/export/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "40cbe3d78043d6b785edc9e1b9f802bc705b4a7bd956170fc755405e35638802",
+      "size_in_bytes": 7106
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/bim2sim_teaser/models/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "6f70ae6f98d2884a485f4b24ebfd8ba993c1e2662a00524a727ee329dbb7aab3",
+      "size_in_bytes": 10959
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/bim2sim_teaser/models/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "80ec3ab7a062bc1a5d0871472d786996f90064ac602adf1118e3680e773e61f4",
+      "size_in_bytes": 11105
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "23b2345076cd863db262322da8e78fb75bef9c630defccdc28a2b32a81aa58b9",
+      "size_in_bytes": 121
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "7540cf49f37cc74fd7c3b3c9660de25308f97a7465a8bb089cf9263f5a5ac564",
+      "size_in_bytes": 317
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/__pycache__/export_teaser.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "606eeb37398aff3b55e831b0b5cfd8e641555f5a6b109165628b915f41c60b96",
+      "size_in_bytes": 4129
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/__pycache__/simulate_dymola.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "a3f18b48c6103da6eb7680fc2476727ff5c6fb971d1687ae2b89fa2167d77fcb",
+      "size_in_bytes": 3033
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/__pycache__/weather.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "b6babcb813ca00b1862a05ee6131863a8f0d236cc88f16085fe17fdfb0186f29",
+      "size_in_bytes": 636
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/export_teaser.py",
+      "path_type": "hardlink",
+      "sha256": "3e84c5bc9e9462dcef7cc8b96d3944f214544ec0a3add2741f1c1b749b5fb7ce",
+      "size_in_bytes": 4468
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/simulate_dymola.py",
+      "path_type": "hardlink",
+      "sha256": "eaab8c48ee4637044017a56212f43450f0627b6dbf21409386a7cbd37c2bfd10",
+      "size_in_bytes": 4293
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/weather.py",
+      "path_type": "hardlink",
+      "sha256": "08b683a32e923422a564601a5e167b22730fe5d3a7380a0dbaa1c8ed8c650276",
+      "size_in_bytes": 227
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/git_requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "c9da7419cfa2f650722daa82a879fd810e368c36e4ce2fd7238293f6495cdd6a",
+      "size_in_bytes": 71
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/setup.py",
+      "path_type": "hardlink",
+      "sha256": "b2b38982afaa6130f888bb5eb7deb5befd13f0a0f9efe307b983af8a67f4bfac",
+      "size_in_bytes": 1525
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "2e2342debad8ec1bc42f4496de621c63993a4068aeb56f96361bb42a6e390b9a",
+      "size_in_bytes": 154
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/ap7_testing/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/ap7_testing/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "74b88d4a4f6f73cf5f266f43a615039e0bf1488ca0ab103addc4808327fa3ccf",
+      "size_in_bytes": 166
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/ap7_testing/__pycache__/ap7_cases.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "7be02060c94ecb0f01bdf589cafae9c8e52afbbcbe48bfde8c0d4b89af52a945",
+      "size_in_bytes": 2893
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/ap7_testing/__pycache__/integration_test_setup.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "055a1c3cffa43c910b48bd6eb4d027c68f161e7d06445d5247dd8414de2feb07",
+      "size_in_bytes": 1542
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/ap7_testing/ap7_cases.py",
+      "path_type": "hardlink",
+      "sha256": "ee2a24864a6fe46d4213e1b7b71bdd57c43294fbed16d2278ffe794081b3375b",
+      "size_in_bytes": 3475
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/ap7_testing/integration_test_setup.py",
+      "path_type": "hardlink",
+      "sha256": "c3663e04f860269879d927e48002dbc5261109c208539bd14fba2d006b1896f6",
+      "size_in_bytes": 1061
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/integration_test/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/integration_test/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "c4f3b09d19e4552e031a74aa2f5c1517013c865ebb0b7db78f8326223b2db7d7",
+      "size_in_bytes": 171
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/integration_test/__pycache__/test_integration.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "219269dce13e9ad674447e90011dfae4efa62d92c44b2e4080357e021e2ece6f",
+      "size_in_bytes": 8114
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/integration_test/__pycache__/test_useage.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "83c9f48b1d65082584b595b8780e9624a0c5b92bcda715464c51ceb4c3ea8bcf",
+      "size_in_bytes": 902
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/integration_test/test_integration.py",
+      "path_type": "hardlink",
+      "sha256": "b509b97725889f0b02754b8b0d5fcd1a22be3921ac4edb57eeb9bf5823f9df03",
+      "size_in_bytes": 11714
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/integration_test/test_useage.py",
+      "path_type": "hardlink",
+      "sha256": "bdd34b1c84904bb6284f59be7abdf5eace7e2fa1eb77da4a8c8d1656dad4f9ec",
+      "size_in_bytes": 531
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/regression_test/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/regression_test/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "f8fa3afdfe40ba19149e9a503662ad9bf1f798a8051bed5ca6449ae7dd1a5f53",
+      "size_in_bytes": 170
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/regression_test/__pycache__/create_regression_results.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "9daccdc5ddd64c31da136f787595dfc6bf2ea8e976f4145f69e969a518265ff7",
+      "size_in_bytes": 1311
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/regression_test/__pycache__/test_regression.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "6392006b969803bad1c11c90ddc7397fe8969a25840649e7917ae3159d6fc1cb",
+      "size_in_bytes": 5515
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/regression_test/create_regression_results.py",
+      "path_type": "hardlink",
+      "sha256": "f00c30cb98dbbae582ce5733b91e9b77546311cdb28577c0817e4782164fb8fe",
+      "size_in_bytes": 1012
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/PluginTEASER/test/regression_test/test_regression.py",
+      "path_type": "hardlink",
+      "sha256": "2dff6df5b532a4608f7a0a7043dfcd3293c9399d5a5ada90410c53cb29b30d93",
+      "size_in_bytes": 6114
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/README.md",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "3cde78f0390a5f0afcc800924295cd7cc8c9954857b68bb6bee90327960cd986",
+      "size_in_bytes": 2663
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "566ebce05d05cb5c780e8a15b49e81bd647710e451711124769e670466b5806c",
+      "size_in_bytes": 3036
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/__pycache__/setup.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "212570c2bebeae2a8e929a29b51427f34b7e05faa4695f30c9692647b8d6f4c2",
+      "size_in_bytes": 1457
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/git_requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "ef7d1f43e3e83baed857c43da8dd870e2f68ac0bbb524749690489c88471fd87",
+      "size_in_bytes": 177
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "70aab13c9cdbb454fc6bf91b6a2241c361bce7d1006a386327ef795d2b3044e4",
+      "size_in_bytes": 63
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/plugins/setup.py",
+      "path_type": "hardlink",
+      "sha256": "0694701368d5476459fff4cf2fa27e57efaf0ea308d43e6bc673e2056d9214c9",
+      "size_in_bytes": 1790
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/project.py",
+      "path_type": "hardlink",
+      "sha256": "3dc3c0d79e6a74ce48b38bf875ff68d604526c3bda695e64c034ae4d84a6f6f9",
+      "size_in_bytes": 21359
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "4d17a48d252080233c112df796575a02283b63d7938b2c05fcc7df01829633cf",
+      "size_in_bytes": 58
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "34ab59e760c541dd8eb6a2d2e53aeff485bfa50e95fd9f74436af0be6a263724",
+      "size_in_bytes": 192
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/__pycache__/base.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "d55d42d43542d030856367aefa6e45cfda20309fe968ce52de8042f9bdfd0383",
+      "size_in_bytes": 4814
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/base.py",
+      "path_type": "hardlink",
+      "sha256": "c004d7601f2ed3396689f4833c3309d7989c29298269ad01a187c11916c21689",
+      "size_in_bytes": 4158
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "ffeca3b6ff11599fa5b976a3edc5254142336ada5edc5c0a1ba082ac737a9d94",
+      "size_in_bytes": 336
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "0990f68d0d36d4bed60a154a812b7c7176eea3732ddbb670c87dd0c9fa394bcf",
+      "size_in_bytes": 545
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/__pycache__/bind_tz.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "13c4754eefb7e7120e0d5037743934b4e4cfa18a736a68ddd1dfb281564a9e93",
+      "size_in_bytes": 9402
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/__pycache__/check_ifc.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "d6d127c10f4c4180da44f64706e474f1aa03ab09cbd7aaa37b6fde0bb5c43dff",
+      "size_in_bytes": 21263
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/__pycache__/disaggr_creation.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "3b5e24077562e3744a2e1b5d57a06d4cd747752f8061138d573ff6976fd8f54f",
+      "size_in_bytes": 4570
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/__pycache__/enrich_material.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "83e51060496049abea0c379d71ea8f87982559e7ad704e4937e5e5736cefc517",
+      "size_in_bytes": 9692
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/__pycache__/enrich_use_cond.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "469157053a27a6b6b1b91326f07b17984fb9a703ae9304c8ae904adb10fd4840",
+      "size_in_bytes": 6361
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/__pycache__/prepare.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "9d4390f037191fad190f1f50943aa45d80cbd9911d2175fa10703a8ed581835a",
+      "size_in_bytes": 5503
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/__pycache__/sb_creation.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "f87f15edd4a36ad90e77d3cc3a52397329799bd0cee7a6d8aba1b6224f9ba020",
+      "size_in_bytes": 12212
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/__pycache__/verify.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "e97e3a6df955e31e1c360995b20f5ff98a9cdab927573cc5fc622ce24ee9cac9",
+      "size_in_bytes": 4228
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/__pycache__/visualize_spaces.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "578696d8b3e29e63cbdf3dae916927b4b356004cb3dd2c36e2ac4759ea824d22",
+      "size_in_bytes": 1429
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/bind_tz.py",
+      "path_type": "hardlink",
+      "sha256": "02e42ffeb00e2676b3f086db1be09776620f4718b0e41f652f89afadbf62c96b",
+      "size_in_bytes": 12092
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/check_ifc.py",
+      "path_type": "hardlink",
+      "sha256": "d7b1c8ec10b30883dda3644c125a6c5faf6279f08b685b2db96ea7d71869064d",
+      "size_in_bytes": 26871
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/disaggr_creation.py",
+      "path_type": "hardlink",
+      "sha256": "ac34d82bf63e3fbe703366137a66c413b8770a64138da847f886f2bd077976c9",
+      "size_in_bytes": 6157
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/enrich_material.py",
+      "path_type": "hardlink",
+      "sha256": "8a577abbe37b0af2558fd165c7814246f9fd585ab5205d1be9431c6727b2a72d",
+      "size_in_bytes": 14971
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/enrich_use_cond.py",
+      "path_type": "hardlink",
+      "sha256": "d7b1bb35adc12302f796e5367dafe206f74f38b5307adb9c65351f72e8d6231e",
+      "size_in_bytes": 9479
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/prepare.py",
+      "path_type": "hardlink",
+      "sha256": "13a20a7ab4377ae1dba12db6bb5d9190b0c2cd3ff13f6008502bfa4a56940020",
+      "size_in_bytes": 6726
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/sb_creation.py",
+      "path_type": "hardlink",
+      "sha256": "1b8016c3884b5282aa6c3e3668bbcf8d237aeb5b53194c2c0b4c21c2829a4df8",
+      "size_in_bytes": 17186
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/verify.py",
+      "path_type": "hardlink",
+      "sha256": "ea5eadc082f6343a604ecf0e24da72c2168a2466e9270d32a9d594c835e9bdd4",
+      "size_in_bytes": 4655
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/bps/visualize_spaces.py",
+      "path_type": "hardlink",
+      "sha256": "3b446fdc6dcec93e295c2a37c22c0a6f0d03081b58907430fb93f0d306acc71f",
+      "size_in_bytes": 1578
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/cfd/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/cfd/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "5a54c7e96e806201b836b3090d7b1c1e2f5ed0088c4fae2dec28a2ef36985f33",
+      "size_in_bytes": 137
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/common/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "bf87f302f9d77a30c2feecdd612f741f41833ca79724c93763879d585f6a70a2",
+      "size_in_bytes": 129
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/common/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "575987a57571e6285dbdf24c0f73283f175ddaec6742de443c11fddb6ac9da72",
+      "size_in_bytes": 321
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/common/__pycache__/bind_storeys.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "cb8123fc48ed9563f9015117ac3869e53e7f15f04b4ee12bb370531d4a8cd103",
+      "size_in_bytes": 1285
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/common/__pycache__/common.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "2c7e5fb80cd93d790b0f4547c97c85ddffada4aa70feca916d87bc18c41ffbb8",
+      "size_in_bytes": 27001
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/common/__pycache__/inner_loop_remover.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "1f3b7fb883b31a376a033c287159f97caac3ca76e92d5e038dd1dccd2e0238f9",
+      "size_in_bytes": 18011
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/common/__pycache__/weather.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "c1ddb03021e78306111b8b2577d00806119ad625dbb5a86ce197f47ddb056547",
+      "size_in_bytes": 2049
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/common/bind_storeys.py",
+      "path_type": "hardlink",
+      "sha256": "24a78955ee30f0004d592424dd073fafe0a73da9e2c2d3b9fbc78ef57bccda7d",
+      "size_in_bytes": 1575
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/common/common.py",
+      "path_type": "hardlink",
+      "sha256": "a61c2651b1836655a17a9070a1233e5cbdc7fa37f1600b93d13d0287c44bad95",
+      "size_in_bytes": 35572
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/common/inner_loop_remover.py",
+      "path_type": "hardlink",
+      "sha256": "741580e585c1f0d8e1274a2a7002bfbbbddd90ac9622ae0687ae36ac8a403150",
+      "size_in_bytes": 25700
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/common/weather.py",
+      "path_type": "hardlink",
+      "sha256": "21a1d0e79e2aeb28f254115a0092b1b5e5003f3a1f75657f618ac7c5014540f1",
+      "size_in_bytes": 2029
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/hvac/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "781d6518ada64893d71d30d6f4d5832ac9fb786ea14d2e5af3cb772f8069ebbb",
+      "size_in_bytes": 237
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/hvac/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "587065cec97220144d25a68f302a818f62bf9ee68499f7664cf04c8641dd9925",
+      "size_in_bytes": 458
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/hvac/__pycache__/check_ifc.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "41dd5cab9fc8fe8e1b8cb3ff1fa9a1bf550edb5dd069d477d80f5e79abcf934c",
+      "size_in_bytes": 5497
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/hvac/__pycache__/dead_ends.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "df400781dc1fb606ce0ddd3b1528396f716614cd93568c1dd24a1d9341108954",
+      "size_in_bytes": 4025
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/hvac/__pycache__/expansiontanks.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "9bb0efc53649bb655430d10f6e9d6294d378d686be22dcb09c72c9772a4de5fb",
+      "size_in_bytes": 3325
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/hvac/__pycache__/fixports.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "075e1370536eb41a30ea0fa7547878ecba7fe748bfc913f0eb1c2a6180c6c17e",
+      "size_in_bytes": 5167
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/hvac/__pycache__/hvac.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "8026f447653baa214b1a81cb7d14c6357ea9bb471a309be1684fac65efc82fe3",
+      "size_in_bytes": 18451
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/hvac/check_ifc.py",
+      "path_type": "hardlink",
+      "sha256": "f9add7fb231f963ca82da40479e3975f29bf9e46f9fc0358c4d47f4afa16a257",
+      "size_in_bytes": 6347
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/hvac/dead_ends.py",
+      "path_type": "hardlink",
+      "sha256": "9209b3160decefe5faf67feb30860f6715bc85e4f8e8c7cbeb1d112b5bb88a87",
+      "size_in_bytes": 5094
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/hvac/expansiontanks.py",
+      "path_type": "hardlink",
+      "sha256": "788a08043b91a020ee214037704a9635d25719502ea684573558c29482bf5af1",
+      "size_in_bytes": 3572
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/hvac/fixports.py",
+      "path_type": "hardlink",
+      "sha256": "71ccf0a933560672e602e40316a2efc697209711949f7abcb26dd658c0af7037",
+      "size_in_bytes": 5830
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/task/hvac/hvac.py",
+      "path_type": "hardlink",
+      "sha256": "7a9c0daec14bf39972126df79c0732c6d6a24bb300ce5015a0666eabb806e4ed",
+      "size_in_bytes": 22963
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/utilities/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/utilities/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "c6a0b8d7693519cdd63d84c8ced1b898be7fae24fb20d9a3228206a1f3978979",
+      "size_in_bytes": 138
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/utilities/__pycache__/common_functions.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "b2dc06c9c93e79e6a265ca3f195cf565f87d9d0822c9ad5e6ed23dd66d2acd47",
+      "size_in_bytes": 8348
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/utilities/__pycache__/pyocc_tools.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "8d0353c72d6cc33b2118c58365c5f9b2bab00e18c742c61c852f0bc23958ba7d",
+      "size_in_bytes": 11486
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/utilities/__pycache__/test.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "eb8bab7130f5e59d0c84f74956c250b117747986d1b4aaabc58a53e44fd31083",
+      "size_in_bytes": 2910
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/utilities/common_functions.py",
+      "path_type": "hardlink",
+      "sha256": "7bac5b926cfdf50b7d31e274570b6e87b91bdd37f82ea35cb79ec2e200326c86",
+      "size_in_bytes": 10502
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/utilities/pyocc_tools.py",
+      "path_type": "hardlink",
+      "sha256": "d7804a548e74871d25167520b562cf591190dc6f9d924afc8384b3d04b5a0430",
+      "size_in_bytes": 12413
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/utilities/test.py",
+      "path_type": "hardlink",
+      "sha256": "8c0bb8e23fb65776f1530b63a68595004e9d4169f6089ddabe031873cc9b2a43",
+      "size_in_bytes": 1857
+    },
+    {
+      "_path": "Lib/site-packages/bim2sim/workflow.py",
+      "path_type": "hardlink",
+      "sha256": "d14c3f120d943df8a5e1e860ba51a71ddab1bbab34f8e8eeadb21a96ba7cd485",
+      "size_in_bytes": 22771
+    },
+    {
+      "_path": "Scripts/bim2sim-script.py",
+      "path_type": "hardlink",
+      "sha256": "09b1821dca705683d023d42764b0ececed47c979b759b7f8d66d23eeedd03952",
+      "size_in_bytes": 244
+    },
+    {
+      "_path": "Scripts/bim2sim.exe",
+      "path_type": "hardlink",
+      "sha256": "5ea569f2b5bc9c273351641a1a3c52821ce2a9370bc8202f0247c793ebd8a618",
+      "size_in_bytes": 41984
+    },
+    {
+      "_path": "bim2sim/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "86b0d6123e0768e862f2d408b5b8d91805965ad5c200ad69b2901135095f4db4",
+      "size_in_bytes": 4486
+    },
+    {
+      "_path": "bim2sim/__pycache__/__main__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "08d20ca0780ea926ece2917c58368d2edd4e1c0e6cd0efafd2e9a8b52a624a9e",
+      "size_in_bytes": 2185
+    },
+    {
+      "_path": "bim2sim/__pycache__/decorators.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "b523373c7ec2998d0b04462300ad22e32db341ccbdddf6de3924eb07447d6e40",
+      "size_in_bytes": 2036
+    },
+    {
+      "_path": "bim2sim/__pycache__/filter.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "b768a8eda91ff8b0fcd28d3dd8421f7a19a25747eea6e1337e57f35052b762d8",
+      "size_in_bytes": 5984
+    },
+    {
+      "_path": "bim2sim/__pycache__/log.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "d2c7b712893bd604f69c7db25067bff26412f315e84a774060d5340edf3f9c0e",
+      "size_in_bytes": 2907
+    },
+    {
+      "_path": "bim2sim/__pycache__/project.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "500b2f61a4bbfa18829b4e34ac7e6888a513c70279a1231a56b9d6c9914df776",
+      "size_in_bytes": 17947
+    },
+    {
+      "_path": "bim2sim/__pycache__/workflow.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "79e75199a617072a8ded441b88d212b34a056f63a18b8f29eb6f9a374fb73f2d",
+      "size_in_bytes": 17037
+    },
+    {
+      "_path": "bim2sim/assets/enrichment/hvac/TypeBuildingElements.json",
+      "path_type": "hardlink",
+      "sha256": "c2b26e003dcd6e02af8d1084deb67a3331c7680d38b69ceb09008bcf566bbdb2",
+      "size_in_bytes": 2397
+    },
+    {
+      "_path": "bim2sim/assets/enrichment/material/MaterialTemplates.json",
+      "path_type": "hardlink",
+      "sha256": "53b6d7747fcaec517f9c0174abd537729b539a1bcb8b9a677a93a50c8758b405",
+      "size_in_bytes": 197448
+    },
+    {
+      "_path": "bim2sim/assets/enrichment/material/TypeBuildingElements.json",
+      "path_type": "hardlink",
+      "sha256": "009b3438d90c7b17f3ffebca5dffa3ed0ee68f9742ddd0a33b2fb66c44836295",
+      "size_in_bytes": 100515
+    },
+    {
+      "_path": "bim2sim/assets/enrichment/usage/UseConditions.json",
+      "path_type": "hardlink",
+      "sha256": "5d38b2ddf9d6923f1fae0f47e0d444022bb28c8d6df804dd11e565dffb326207",
+      "size_in_bytes": 165242
+    },
+    {
+      "_path": "bim2sim/assets/enrichment/usage/UseConditionsFM_ARC_DigitalHub_fixed002.json",
+      "path_type": "hardlink",
+      "sha256": "0433f2dad52e75bc8ece638bb5212b074cd702c54300c658e5119b2d424f539f",
+      "size_in_bytes": 36754
+    },
+    {
+      "_path": "bim2sim/assets/enrichment/usage/UseConditionsFM_ARC_DigitalHub_with_SB89.json",
+      "path_type": "hardlink",
+      "sha256": "0433f2dad52e75bc8ece638bb5212b074cd702c54300c658e5119b2d424f539f",
+      "size_in_bytes": 36754
+    },
+    {
+      "_path": "bim2sim/assets/enrichment/usage/UseConditionsFM_ARC_DigitalHub_with_SB_neu.json",
+      "path_type": "hardlink",
+      "sha256": "0433f2dad52e75bc8ece638bb5212b074cd702c54300c658e5119b2d424f539f",
+      "size_in_bytes": 36754
+    },
+    {
+      "_path": "bim2sim/assets/enrichment/usage/commonUsages.json",
+      "path_type": "hardlink",
+      "sha256": "8639f03b78d900d9a1ea03db78275321c800c2ef3aeeb995f2a6b352fd4d94df",
+      "size_in_bytes": 4650
+    },
+    {
+      "_path": "bim2sim/assets/enrichment/usage/customUsages.json",
+      "path_type": "hardlink",
+      "sha256": "856d67c7be852e0791552d04ce3d4df42cb08018b92709b4b8ae15149c550bf1",
+      "size_in_bytes": 134
+    },
+    {
+      "_path": "bim2sim/assets/enrichment/usage/customUsagesAC20-FZK-Haus_with_SB55.json",
+      "path_type": "hardlink",
+      "sha256": "cffb6695b744257ae17b64f6f271ae9725d1fb1ec0c93c46ee14008f0854a444",
+      "size_in_bytes": 155
+    },
+    {
+      "_path": "bim2sim/assets/enrichment/usage/customUsagesAC20-Institute-Var-2_with_SB-1-0.json",
+      "path_type": "hardlink",
+      "sha256": "08bd336b74aaa4292324791cc90d8b199e55bdfa915d9ead4b4c33a4e84a5cc6",
+      "size_in_bytes": 1377
+    },
+    {
+      "_path": "bim2sim/assets/enrichment/usage/customUsagesFM_ARC_DigitalHub_fixed002.json",
+      "path_type": "hardlink",
+      "sha256": "471b894e8f3c1122c4006cfd21c9f126cb020490fe5adfee7a396df34acb380c",
+      "size_in_bytes": 431
+    },
+    {
+      "_path": "bim2sim/assets/enrichment/usage/customUsagesFM_ARC_DigitalHub_with_SB88.json",
+      "path_type": "hardlink",
+      "sha256": "08bd336b74aaa4292324791cc90d8b199e55bdfa915d9ead4b4c33a4e84a5cc6",
+      "size_in_bytes": 1377
+    },
+    {
+      "_path": "bim2sim/assets/enrichment/usage/customUsagesFM_ARC_DigitalHub_with_SB89.json",
+      "path_type": "hardlink",
+      "sha256": "2a7dd8916ebc5f1a22701514deef5f702f8fb34b902a199a982fc82294675ebf",
+      "size_in_bytes": 453
+    },
+    {
+      "_path": "bim2sim/assets/enrichment/usage/customUsagesFM_ARC_DigitalHub_with_SB_neu.json",
+      "path_type": "hardlink",
+      "sha256": "471b894e8f3c1122c4006cfd21c9f126cb020490fe5adfee7a396df34acb380c",
+      "size_in_bytes": 431
+    },
+    {
+      "_path": "bim2sim/assets/enrichment/usage/customUsagesKIT-EDC_with_SB.json",
+      "path_type": "hardlink",
+      "sha256": "72899051974080ccd8d7a7eddc581c0e51ad6fe816867ef7516454fefaaca27e",
+      "size_in_bytes": 1057
+    },
+    {
+      "_path": "bim2sim/assets/finder/template_ArchiCAD.json",
+      "path_type": "hardlink",
+      "sha256": "24bec67427e4a054a630e5f629ec280743461d6114d17658cf11a13e84cbf9bc",
+      "size_in_bytes": 4824
+    },
+    {
+      "_path": "bim2sim/assets/finder/template_Autodesk Revit.json",
+      "path_type": "hardlink",
+      "sha256": "76916459687cf18655616c179a5663077f03918b3927b5bff6b89ec18b6846d2",
+      "size_in_bytes": 2184
+    },
+    {
+      "_path": "bim2sim/assets/finder/template_LuArtX_Carf.json",
+      "path_type": "hardlink",
+      "sha256": "cfd56c14807abfe587734c5127098813bef1508156353782f1a3346a05fb1f30",
+      "size_in_bytes": 348
+    },
+    {
+      "_path": "bim2sim/assets/finder/template_TRICAD-MS.json",
+      "path_type": "hardlink",
+      "sha256": "70a76feb64ce10dd5ce2872a8e37278d2532b15422c5460fd30b6e3709f91b7b",
+      "size_in_bytes": 376
+    },
+    {
+      "_path": "bim2sim/assets/ifc_example_files/AC20-FZK-Haus.ifc",
+      "path_type": "hardlink",
+      "sha256": "ec498a610e386974e6b342e37e177d690a2ab1985b51bb0112e26dc88abe521a",
+      "size_in_bytes": 2571839
+    },
+    {
+      "_path": "bim2sim/assets/ifc_example_files/ERC_EBC_mainbuilding.ifc",
+      "path_type": "hardlink",
+      "sha256": "cf91458dacf8c7fd2a12b17677516f3f2b2e0b31da8a1ad78d160bc0c261fee2",
+      "size_in_bytes": 23467679
+    },
+    {
+      "_path": "bim2sim/assets/ifc_example_files/hvac_heating.ifc",
+      "path_type": "hardlink",
+      "sha256": "00d55387189de5e05475358c6cb61ceb9af440eba6e1b77164c89b6f05bd6e93",
+      "size_in_bytes": 2458340
+    },
+    {
+      "_path": "bim2sim/assets/templates/check_ifc/inst_template",
+      "path_type": "hardlink",
+      "sha256": "d5a4d5828cbe25b7291e9f7b7305fe974e22d28efc2b6745d7d0fa980b1180b0",
+      "size_in_bytes": 4157
+    },
+    {
+      "_path": "bim2sim/assets/templates/check_ifc/prop_template",
+      "path_type": "hardlink",
+      "sha256": "a14adbfec8a1f652e6e92c1de62724984fa1407b4a5eadb0c92dc1e9e2cda6cf",
+      "size_in_bytes": 3514
+    },
+    {
+      "_path": "bim2sim/assets/templates/check_ifc/summary_template",
+      "path_type": "hardlink",
+      "sha256": "ffd5a2e52cfbfc0c4e5035a0898b8165b4e3c3adb740800f129988f631719e8e",
+      "size_in_bytes": 2788
+    },
+    {
+      "_path": "bim2sim/assets/templates/modelica/tmplModel.txt",
+      "path_type": "hardlink",
+      "sha256": "f28ad3b217b32070c85d8762bfdcb2fdb75b016b2c4438e28b77c81ce2940689",
+      "size_in_bytes": 1302
+    },
+    {
+      "_path": "bim2sim/assets/weatherfiles/DEU_NW_Aachen.105010_TMYx.epw",
+      "path_type": "hardlink",
+      "sha256": "5854a73a69aa6e9ae1e7b958856b610dc8819956f161d7edf3e0aa75b87e1246",
+      "size_in_bytes": 1559369
+    },
+    {
+      "_path": "bim2sim/assets/weatherfiles/DEU_NW_Aachen.105010_TMYx.mos",
+      "path_type": "hardlink",
+      "sha256": "a7aad18bd64275dd1b19e248df92d1260e38e4091e27908590c7c3722326102b",
+      "size_in_bytes": 1121518
+    },
+    {
+      "_path": "bim2sim/decision/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "a4f604bfce131d198338a6053ff6c240288bec9a3aafe874292cd1d28a57e3a7",
+      "size_in_bytes": 20732
+    },
+    {
+      "_path": "bim2sim/decision/__pycache__/console.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "a1f9ad05e7440935bcec5a1195b8f9db57313aeffd1e79b831ad527426012f03",
+      "size_in_bytes": 7849
+    },
+    {
+      "_path": "bim2sim/decision/__pycache__/decisionhandler.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "1b04d29a791f6ac7167bfbd9e60116b8687eb124406c5bab39f0b8f95c8f2662",
+      "size_in_bytes": 6386
+    },
+    {
+      "_path": "bim2sim/enrichment_data/.gitignore",
+      "path_type": "hardlink",
+      "sha256": "86c2791ed9a9830e22c0364cdaf4936833ea0329a958f258033b6c34dc3800ab",
+      "size_in_bytes": 24
+    },
+    {
+      "_path": "bim2sim/examples/bim2sim.log",
+      "path_type": "hardlink",
+      "sha256": "22d5127358616dc8893bddd8b456e514e26f56665af0b124fb6b99e148520b32",
+      "size_in_bytes": 494661
+    },
+    {
+      "_path": "bim2sim/kernel/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "037e85676f58ab0e4586bf43ec4d1fb7d152b4a8e7933ee141ee5b01c30d6d75",
+      "size_in_bytes": 278
+    },
+    {
+      "_path": "bim2sim/kernel/__pycache__/aggregation.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "239a724b13afce55ce2f1a7947e3b4b75efea268481a4bd2c455f686cc8465c4",
+      "size_in_bytes": 75960
+    },
+    {
+      "_path": "bim2sim/kernel/__pycache__/attribute.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "93a8aa4264fab8d1a5002adc0b7fd24a59b5ba1f1a865485fa3bb9fde3cb3591",
+      "size_in_bytes": 16727
+    },
+    {
+      "_path": "bim2sim/kernel/__pycache__/condition.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "529e36ab1071ece9433312ec15094bd40058486d2dd2dd59e99e6ab321cc00f0",
+      "size_in_bytes": 5111
+    },
+    {
+      "_path": "bim2sim/kernel/__pycache__/element.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "7efcc77692a3770d5b16d255f54e36bf07cc1cd77c1f80e6ee8e6385779c2313",
+      "size_in_bytes": 29673
+    },
+    {
+      "_path": "bim2sim/kernel/__pycache__/finder.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "cef8a7c7f474910fc0ab280982da46020e6ff61fc63827f14070708fc38a3585",
+      "size_in_bytes": 11264
+    },
+    {
+      "_path": "bim2sim/kernel/__pycache__/ifc2python.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "49066bbbb1f9517f75dbdb2c23c21d88f9f166a1680f3a6c025c17c8d5b9b430",
+      "size_in_bytes": 16426
+    },
+    {
+      "_path": "bim2sim/kernel/__pycache__/units.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "4f9328d629cadaa0c5e077951d86d14f02745b371c5117649d578cd43e72d78b",
+      "size_in_bytes": 2571
+    },
+    {
+      "_path": "bim2sim/kernel/elements/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "bc2c98689c46909bc066be9cf17826e2b3f4f8b6bd923640d029b1870cdd9131",
+      "size_in_bytes": 170
+    },
+    {
+      "_path": "bim2sim/kernel/elements/__pycache__/bps.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "a7e7146c163b08bcd6eae9f4929ccfe1d1bb2bc470dff55d07f9b82e6ceadabf",
+      "size_in_bytes": 50202
+    },
+    {
+      "_path": "bim2sim/kernel/elements/__pycache__/hvac.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "e3e94cb696188efbbbbee7a1dfe51e35e8153d752db5197f1610b82e927b19d7",
+      "size_in_bytes": 32005
+    },
+    {
+      "_path": "bim2sim/kernel/hvac/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "8837325e046c799b2f6d5891a98b5dc7fbfb43fc325a3cc5d41bee9395dd3815",
+      "size_in_bytes": 151
+    },
+    {
+      "_path": "bim2sim/kernel/hvac/__pycache__/hvac_graph.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "e26e228b36ba8a8ddf4532e751f262c3eced5eae5c229a431cd8b5ffb745d59a",
+      "size_in_bytes": 23496
+    },
+    {
+      "_path": "bim2sim/plugins/PluginAixLib/README.md",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "bim2sim/plugins/PluginAixLib/bim2sim_aixlib/data/modelica_language",
+      "path_type": "hardlink",
+      "sha256": "11c88a6df3d201a09a86aa2ed7302e43f1befd6e29c0c89f046d96189d0764d9",
+      "size_in_bytes": 767
+    },
+    {
+      "_path": "bim2sim/plugins/PluginAixLib/requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "d09b9169d82e713c134fff4f3bfbb834db4bf336fb7246ecb905144095d97d1f",
+      "size_in_bytes": 7
+    },
+    {
+      "_path": "bim2sim/plugins/PluginCFD/README.md",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "bim2sim/plugins/PluginCFD/bim2sim_cfd/ifc2sb/IFC2SB",
+      "path_type": "hardlink",
+      "sha256": "9d14daa98950c93af13871847af3970289f84e36fc763997f47cde2a49ed0ea7",
+      "size_in_bytes": 4360376
+    },
+    {
+      "_path": "bim2sim/plugins/PluginCFD/requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "cbf0d9c8c3bfe85ed76b794d0418e1b847b2f7d55307294bb0cfcc273a28f962",
+      "size_in_bytes": 22
+    },
+    {
+      "_path": "bim2sim/plugins/PluginEnergyPlus/README.md",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf",
+      "path_type": "hardlink",
+      "sha256": "22e035ca9054fb37010c40d2fbb4b8600665f4e20f21f8dd9b98df6adab6601f",
+      "size_in_bytes": 7356
+    },
+    {
+      "_path": "bim2sim/plugins/PluginEnergyPlus/data/Schedules.idf",
+      "path_type": "hardlink",
+      "sha256": "8f5abaa0e5416b117dbd0dc76e6d2a05bf77089fe9bc1c5ef18fa56a09465a68",
+      "size_in_bytes": 61264
+    },
+    {
+      "_path": "bim2sim/plugins/PluginEnergyPlus/requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "85215c0f4a9a387ca3fd55005a57edeedb3c0e7e50ade05460e54e7f4f65269c",
+      "size_in_bytes": 38
+    },
+    {
+      "_path": "bim2sim/plugins/PluginEnergyPlus/zip_requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "92d362e1fa84140a1245e5530784e823fafd1b42f68af4a076dd8d093208aa45",
+      "size_in_bytes": 79
+    },
+    {
+      "_path": "bim2sim/plugins/PluginHKESim/README.md",
+      "path_type": "hardlink",
+      "sha256": "ccc55dcd7f7ab77abecd1bfc23b6048cbee6358ae1e3052be0ca7328ce0b487f",
+      "size_in_bytes": 251
+    },
+    {
+      "_path": "bim2sim/plugins/PluginHKESim/requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "58087ccf3088f62f1797d415f58a16708b1afaa0a49e0dad2f41a694c33472db",
+      "size_in_bytes": 9
+    },
+    {
+      "_path": "bim2sim/plugins/PluginLCA/README.md",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "bim2sim/plugins/PluginLCA/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "0e4e296aa0ac1c8bd927d4fae38e472d81d0932f3802a0ff2d1111317603411a",
+      "size_in_bytes": 157
+    },
+    {
+      "_path": "bim2sim/plugins/PluginLCA/bim2sim_lca/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "2b52dcab48454ec7ed63789d055de22389559c0ee0d88af651b88142602d5157",
+      "size_in_bytes": 1090
+    },
+    {
+      "_path": "bim2sim/plugins/PluginLCA/bim2sim_lca/task/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "5f224b54e93ad6772b078b562beea9f7338ebf6e80e7972ee4db40e3dba78cdb",
+      "size_in_bytes": 174
+    },
+    {
+      "_path": "bim2sim/plugins/PluginLCA/bim2sim_lca/task/__pycache__/export_lca.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "72e14aefc95a8b54ca9c0828c1a48a3184d3b8cb5c6d9da44db79e3d0387fecf",
+      "size_in_bytes": 10322
+    },
+    {
+      "_path": "bim2sim/plugins/PluginLCA/requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "58087ccf3088f62f1797d415f58a16708b1afaa0a49e0dad2f41a694c33472db",
+      "size_in_bytes": 9
+    },
+    {
+      "_path": "bim2sim/plugins/PluginTEASER/README.md",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "bim2sim/plugins/PluginTEASER/git_requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "bim2sim/plugins/PluginTEASER/requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "c9da7419cfa2f650722daa82a879fd810e368c36e4ce2fd7238293f6495cdd6a",
+      "size_in_bytes": 71
+    },
+    {
+      "_path": "bim2sim/plugins/README.md",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "bim2sim/plugins/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "88cf5894eaad28c95a4c307bf1a9cd80d7bdfc9120c05732e6302dd813b3d138",
+      "size_in_bytes": 3047
+    },
+    {
+      "_path": "bim2sim/plugins/git_requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "ef7d1f43e3e83baed857c43da8dd870e2f68ac0bbb524749690489c88471fd87",
+      "size_in_bytes": 177
+    },
+    {
+      "_path": "bim2sim/plugins/requirements.txt",
+      "path_type": "hardlink",
+      "sha256": "70aab13c9cdbb454fc6bf91b6a2241c361bce7d1006a386327ef795d2b3044e4",
+      "size_in_bytes": 63
+    },
+    {
+      "_path": "bim2sim/task/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "26f08a60b6450ba6d8a35455731fec883d93919d720b57d04d11688ec2c87ae6",
+      "size_in_bytes": 203
+    },
+    {
+      "_path": "bim2sim/task/__pycache__/base.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "fa5cf39eb46a5e9a0fdfe4bdea949f62cafc056df7452878b7d23231c8feb532",
+      "size_in_bytes": 4825
+    },
+    {
+      "_path": "bim2sim/task/bps/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "df223fbf4efb0e0e3cdff1c03cc37b291a21cf0be93ee8034cbb6dd3afeb6f99",
+      "size_in_bytes": 617
+    },
+    {
+      "_path": "bim2sim/task/bps/__pycache__/bind_tz.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "f88448e6952975b979cda3c788b7b65ab23f30b1dbca2a0c333067b83c73a944",
+      "size_in_bytes": 9413
+    },
+    {
+      "_path": "bim2sim/task/bps/__pycache__/check_ifc.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "2199da6961dbf36c8345529dd89e1bf45ceeddd2ed54547a92577d4b1f137d00",
+      "size_in_bytes": 21274
+    },
+    {
+      "_path": "bim2sim/task/bps/__pycache__/disaggr_creation.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "986a25560746d6bdc1aee01f1cc4363e44c64182249a9e1449e1019ac80c0ef1",
+      "size_in_bytes": 4581
+    },
+    {
+      "_path": "bim2sim/task/bps/__pycache__/enrich_material.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "44196ce72b7c5dd93a23aa30860f0ee227732d5708a34f6a885438b29dbc76f1",
+      "size_in_bytes": 9703
+    },
+    {
+      "_path": "bim2sim/task/bps/__pycache__/enrich_use_cond.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "530809b5c699f151d79fa408c3d30c1f79aad4ec0dd2917224ceca0f8c5f50b1",
+      "size_in_bytes": 6372
+    },
+    {
+      "_path": "bim2sim/task/bps/__pycache__/prepare.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "00d6970bd789d9c791be2979b5d90777c0905bb42dacc44b9f6c949662ce7e85",
+      "size_in_bytes": 5514
+    },
+    {
+      "_path": "bim2sim/task/bps/__pycache__/sb_creation.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "968b80b97504f3a35f2fd951e6bc540265a62e40ae2eb5c1cb2bd5216b81ba2c",
+      "size_in_bytes": 12223
+    },
+    {
+      "_path": "bim2sim/task/bps/__pycache__/verify.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "26ce051f4ffcd15252857b25e1663ca4bb5df3a6297ad362714759f1521fad5d",
+      "size_in_bytes": 4239
+    },
+    {
+      "_path": "bim2sim/task/bps/__pycache__/visualize_spaces.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "d83c25764b352f4579b47dbbf6e66f999388aab1fcc42d617b6698839e090b69",
+      "size_in_bytes": 2815
+    },
+    {
+      "_path": "bim2sim/task/common/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "dcdf2344fd38cc898f5e5b2d504e4e6964a8ed3e3d8643ee896b8f6931ed5037",
+      "size_in_bytes": 332
+    },
+    {
+      "_path": "bim2sim/task/common/__pycache__/bind_storeys.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "90c224720bb82fdd92df9f869755be42eff94f0907235b34e8f03d69f49b8c78",
+      "size_in_bytes": 1296
+    },
+    {
+      "_path": "bim2sim/task/common/__pycache__/common.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "2127c5d90789167bc017fa40eed029ff544a9e909b1d48fe47a42c59e22c786a",
+      "size_in_bytes": 27012
+    },
+    {
+      "_path": "bim2sim/task/common/__pycache__/inner_loop_remover.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "5a99f1ca124b3e64ad25342f4ee5863b105866fe898dbb4f7e9de204e4ca9254",
+      "size_in_bytes": 18022
+    },
+    {
+      "_path": "bim2sim/task/common/__pycache__/weather.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "0d4722e89ddbba52abdff7c1cd6a2b27798d64d7382edc1df83e7725e9f32121",
+      "size_in_bytes": 2060
+    },
+    {
+      "_path": "bim2sim/utilities/__pycache__/__init__.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "49a08bb0fe07c6fad9bc3d2fa03b2bd87699a9b14bf8d5fe4ea8f8dcfd0e5e0b",
+      "size_in_bytes": 149
+    },
+    {
+      "_path": "bim2sim/utilities/__pycache__/common_functions.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "8c21f4bdfe73f80c9e28f63bdf74d35394ee5cf1cca5011b13a4eb0f761aa7be",
+      "size_in_bytes": 8359
+    },
+    {
+      "_path": "bim2sim/utilities/__pycache__/pyocc_tools.cpython-39.pyc",
+      "path_type": "hardlink",
+      "sha256": "a120af36e62707584aa716d6dcc065a64a5419cf52e3a85e44c7ec91fb1c5852",
+      "size_in_bytes": 11497
+    }
+  ],
+  "paths_version": 1
+}
