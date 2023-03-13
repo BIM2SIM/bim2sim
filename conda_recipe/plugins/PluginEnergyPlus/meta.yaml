@@ -24,6 +24,8 @@ requirements:
     - bim2sim_base==*{{BIM2SIM_FLAG}}
     - shapely
     - numpy-stl
+    - eppy
+    - beautifulsoup4
 
 test:
   imports:
