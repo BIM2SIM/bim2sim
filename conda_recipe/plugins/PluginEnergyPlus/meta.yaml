@@ -26,6 +26,7 @@ requirements:
     - numpy-stl
     # eppy
     - beautifulsoup4
+    - munch
 
 test:
   imports:
