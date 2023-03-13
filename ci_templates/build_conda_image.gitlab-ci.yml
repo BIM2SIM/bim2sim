@@ -224,7 +224,7 @@ build_conda_plugin:hkesim:nightly:
         BIM2SIM_FLAG: "_nightly"
     extends: .conda_build
     rules:
-      - !reference [.conda_build_rules:plugin:dev, rules]
+      - !reference [.conda_build_rules:nightly, rules]
 
 # [Build Conda lca plugins]
 

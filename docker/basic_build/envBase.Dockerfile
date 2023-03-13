@@ -21,7 +21,7 @@ RUN conda-pack -n bim2sim3.9 -o /tmp/env.tar && \
 # We've put venv in same path it'll be in final image,
 # so now fix up paths:
 RUN /venv/bin/conda-unpack
-
+RUN conda clean -afy
 RUN find -name '*.a' -delete   && \
   find -name '*.pyc' -delete && \
   find -name '*.js.map' -delete && \
@@ -54,6 +54,9 @@ RUN ln -s /venv/bin/python /usr/bin/python && \
     ln -s /venv/bin/bim2sim /usr/bin/bim2sim  && \
     ln -s /venv/bin/pip /usr/bin/pip
 
-RUN apt-get update
-RUN apt-get install wget unzip -y
+RUN apt-get update --fix-missing && \
+    apt-get install -y wget unzip bzip2 ca-certificates curl git && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 ENV PATH /venv/bin:$PATH
