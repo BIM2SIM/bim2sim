@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
 import os
+from pathlib import Path
 
 with open("README.md", 'r') as f:
     long_description = f.read()
@@ -8,20 +9,25 @@ with open("requirements.txt", 'r') as f:
 version = "0.1.0"
 
 
+
 def copy_non_code_file(non_code_dir, not_include):
-    path_file_dict = []
-    for subdir, dirs, files in os.walk(non_code_dir):
+    path_file_dict = {}
+    _dir = non_code_dir.replace(".", os.sep)
+    for subdir, dirs, files in os.walk(_dir):
         file_list = []
         for file in files:
-            filepath = subdir + os.sep + file
-            file_list.append(filepath)
+            filepath = Path(subdir, file)
+            file_name = Path(filepath.name)
+            file_list.append(str(file_name))
             for end in not_include:
-                if filepath.endswith(end):
-                    file_list.remove(filepath)
+                if file_name.suffix == end:
+                    file_list.remove(str(file_name))
         if len(file_list) > 0:
-            path_file_dict.append((subdir, file_list))
+            path_file_dict[str(filepath.parent).replace(os.sep, ".")] = file_list
         continue
     return path_file_dict
+
+
 
 
 setup(
@@ -44,9 +50,15 @@ setup(
                                     'bim2sim.kernel*',
                                     'bim2sim.task*',
                                     'bim2sim.utilities*']),
+
+    #data_files=copy_non_code_file(non_code_dir=f'bim2sim//',
+    #                              not_include=[".py", ".Dockerfile"]),
     include_package_data=True,
-    data_files=copy_non_code_file(non_code_dir=f'bim2sim//',
-                                  not_include=[".py", ".Dockerfile"]),
+    #package_data=copy_non_code_file(non_code_dir=f'bim2sim',
+    #                                not_include=[".py", ".Dockerfile", ".pyc"]),
+    package_data=copy_non_code_file(non_code_dir=f'bim2sim',
+                                    not_include=[".py", ".Dockerfile", ".pyc"]),
+
     python_requires='>=3.8.*,<3.10.*',
     install_requires=[required],
     classifiers=[

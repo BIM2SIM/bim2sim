@@ -29,6 +29,11 @@ variables:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_conda_dev/
       when: on_success
 
+.conda_build_rules:nightly:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "development" && $CI_COMMIT_MESSAGE =~ /nightly_build_dev/
+      when: on_success
+
 .conda_build:
   image: continuumio/miniconda3
   script:
@@ -61,7 +66,6 @@ conda_build_bim2sim:base:main:
       - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
         when: on_success
 
-
 conda_build_bim2sim:base:dev:
     stage: build_conda_base
     variables:
@@ -70,9 +74,19 @@ conda_build_bim2sim:base:dev:
         BIM2SIM_FLAG: "_dev"
     extends: .conda_build
     rules:
-      - !reference [ .conda_build_rules:dev, rules]
+      - !reference [.conda_build_rules:dev, rules]
       - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
         when: on_success
+
+conda_build_bim2sim:base:nightly:
+    stage: build_conda_base
+    variables:
+        BIM2SIM_NAME: "bim2sim_base"
+        CONDA_FILE:  "conda_recipe/basic_build/meta.yaml"
+        BIM2SIM_FLAG: "_nightly"
+    extends: .conda_build
+    rules:
+      - !reference [.conda_build_rules:nightly, rules]
 
 # [Build Conda Plugins]
 .conda_build_rules:plugin:main:
@@ -87,6 +101,7 @@ conda_build_bim2sim:base:dev:
      - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_dev/
        when: on_success
 
+# [Build Conda aixlib plugins]
 build_conda_plugin:aixlib:main:
     stage: build_conda_plugin
     variables:
@@ -107,6 +122,17 @@ build_conda_plugin:aixlib:dev:
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
 
+build_conda_plugin:aixlib:nightly:
+    stage: build_conda_plugin
+    variables:
+        BIM2SIM_NAME: "bim2sim_aixlib"
+        CONDA_FILE: "conda_recipe/plugins/PluginAixLib/meta.yaml"
+        BIM2SIM_FLAG: "_nightly"
+    extends: .conda_build
+    rules:
+      - !reference [.conda_build_rules:nightly, rules]
+
+# [Build Conda cfd plugins]
 build_conda_plugin:cfd:main:
     stage: build_conda_plugin
     variables:
@@ -127,6 +153,17 @@ build_conda_plugin:cfd:dev:
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
 
+build_conda_plugin:cfd:nightly:
+    stage: build_conda_plugin
+    variables:
+        BIM2SIM_NAME: "bim2sim_cfd"
+        CONDA_FILE: "conda_recipe/plugins/PluginCFD/meta.yaml"
+        BIM2SIM_FLAG: "_nightly"
+    extends: .conda_build
+    rules:
+      - !reference [  .conda_build_rules:nightly, rules]
+
+# [Build Conda energyplus plugins]
 build_conda_plugin:energyplus:main:
     stage: build_conda_plugin
     variables:
@@ -146,6 +183,18 @@ build_conda_plugin:energyplus:dev:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
+
+build_conda_plugin:energyplus:nightly:
+    stage: build_conda_plugin
+    variables:
+        BIM2SIM_NAME: "bim2sim_energyplus"
+        CONDA_FILE: "conda_recipe/plugins/PluginEnergyPlus/meta.yaml"
+        BIM2SIM_FLAG: "_nightly"
+    extends: .conda_build
+    rules:
+      - !reference [.conda_build_rules:nightly, rules]
+
+# [Build Conda hkesim plugins]
 
 build_conda_plugin:hkesim:main:
     stage: build_conda_plugin
@@ -167,6 +216,17 @@ build_conda_plugin:hkesim:dev:
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
 
+build_conda_plugin:hkesim:nightly:
+    stage: build_conda_plugin
+    variables:
+        BIM2SIM_NAME: "bim2sim_hkesim"
+        CONDA_FILE: "conda_recipe/plugins/PluginHKESim/meta.yaml"
+        BIM2SIM_FLAG: "_nightly"
+    extends: .conda_build
+    rules:
+      - !reference [.conda_build_rules:plugin:dev, rules]
+
+# [Build Conda lca plugins]
 
 build_conda_plugin:lca:main:
     stage: build_conda_plugin
@@ -188,6 +248,17 @@ build_conda_plugin:lca:dev:
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
 
+build_conda_plugin:lca:nightly:
+    stage: build_conda_plugin
+    variables:
+      BIM2SIM_NAME: "bim2sim_lca"
+      CONDA_FILE: "conda_recipe/plugins/PluginLCA/meta.yaml"
+      BIM2SIM_FLAG: "_nightly"
+    extends: .conda_build
+    rules:
+      - !reference [.conda_build_rules:nightly, rules]
+
+# [Build Conda teaser plugins]
 build_conda_plugin:teaser:main:
     stage: build_conda_plugin
     variables:
@@ -207,6 +278,16 @@ build_conda_plugin:teaser:dev:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
+
+build_conda_plugin:teaser:nightly:
+    stage: build_conda_plugin
+    variables:
+        BIM2SIM_NAME: "bim2sim_teaser"
+        CONDA_FILE: "conda_recipe/plugins/PluginTeaser/meta.yaml"
+        BIM2SIM_FLAG: "_nightly"
+    extends: .conda_build
+    rules:
+      - !reference [.conda_build_rules:nightly, rules]
 
 # [Build Conda total]
 
@@ -234,7 +315,17 @@ build_conda_bim2sim:total:dev:
       - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
         when: on_success
 
+build_conda_bim2sim:total:nightly:
+    stage: build_conda_total
+    variables:
+        BIM2SIM_NAME: "bim2sim"
+        CONDA_FILE: "conda_recipe/total/meta.yaml"
+        BIM2SIM_FLAG: "_nightly"
+    extends: .conda_build
+    rules:
+      - !reference [.conda_build_rules:nightly, rules]
 
+# [release conda]
 .conda_release:
   image: continuumio/miniconda3
   script:
@@ -250,8 +341,8 @@ build_conda_bim2sim:total:dev:
     - conda convert -p osx-64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
     - anaconda upload conda-bld/$BIM2SIM_NAME/osx-64/$BIM2SIM_NAME-* --force
 
-    - conda convert -p osx-arm64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
-    - anaconda upload conda-bld/$BIM2SIM_NAME/osx-arm64/$BIM2SIM_NAME-* --force
+    # conda convert -p osx-arm64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
+    # anaconda upload conda-bld/$BIM2SIM_NAME/osx-arm64/$BIM2SIM_NAME-* --force
 
     - conda convert -p win-64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
     - anaconda upload conda-bld/$BIM2SIM_NAME/win-64/$BIM2SIM_NAME-* --force
@@ -259,8 +350,8 @@ build_conda_bim2sim:total:dev:
     - conda convert -p linux-64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
     - anaconda upload conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --force
 
-    - conda convert -p linux-aarch64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
-    - anaconda upload conda-bld/$BIM2SIM_NAME/linux-aarch64/$BIM2SIM_NAME-* --force
+    # conda convert -p linux-aarch64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
+    # anaconda upload conda-bld/$BIM2SIM_NAME/linux-aarch64/$BIM2SIM_NAME-* --force
 
     - anaconda logout
   retry:
@@ -278,6 +369,15 @@ build_conda_bim2sim:total:dev:
 
 
 .conda_release_rules:dev:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "development"
+      when: on_success
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+      when: manual
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_conda_dev/
+      when: manual
+
+.conda_release_rules:nightly:
   rules:
     - if: $CI_COMMIT_BRANCH == "development"
       when: on_success
@@ -326,8 +426,19 @@ release_conda_bim2sim:base:dev:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
       when: manual
 
-# [release plugin conda image]
+release_conda_bim2sim:base:nightly:
+  stage: release_conda_base
+  variables:
+    BIM2SIM_NAME: "bim2sim_base"
+  dependencies:
+    - conda_build_bim2sim:base:nightly
+  extends: .conda_release
+  rules:
+    - !reference [.conda_build_rules:nightly, rules ]
 
+
+# [release plugin conda image]
+# [release aixlib plugin conda]
 release_conda_plugin:aixlib:main:
   stage: release_conda_plugin
   variables:
@@ -349,6 +460,18 @@ release_conda_plugin:aixlib:dev:
   rules:
     - !reference [.conda_release_rules:plugin:dev, rules ]
 
+release_conda_plugin:aixlib:nightly:
+  stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_aixlib"
+  dependencies:
+    - build_conda_plugin:aixlib:nightly
+  extends: .conda_release
+  rules:
+    - !reference [.conda_build_rules:nightly, rules]
+
+
+# [release cfd plugin conda]
 
 release_conda_plugin:cfd:main:
   stage: release_conda_plugin
@@ -370,6 +493,18 @@ release_conda_plugin:cfd:dev:
   rules:
     - !reference [.conda_release_rules:plugin:dev, rules ]
 
+release_conda_plugin:cfd:nightly:
+  stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_cfd"
+  dependencies:
+    - build_conda_plugin:cfd:nightly
+  extends: .conda_release
+  rules:
+    - !reference [.conda_build_rules:nightly, rules ]
+
+ # [release energyplus plugin conda]
+
 release_conda_plugin:energyplus:main:
   stage: release_conda_plugin
   variables:
@@ -389,6 +524,18 @@ release_conda_plugin:energyplus:dev:
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:dev, rules ]
+
+release_conda_plugin:energyplus:nightly:
+  stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_energyplus"
+  dependencies:
+    - build_conda_plugin:energyplus:nightly
+  extends: .conda_release
+  rules:
+    - !reference [.conda_build_rules:nightly, rules ]
+
+ # [release hkesim plugin conda]
 
 release_conda_plugin:hkesim:main:
   stage: release_conda_plugin
@@ -410,6 +557,18 @@ release_conda_plugin:hkesim:dev:
   rules:
     - !reference [.conda_release_rules:plugin:dev, rules ]
 
+release_conda_plugin:hkesim:nightly:
+  stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_hkesim"
+  dependencies:
+    - build_conda_plugin:hkesim:nightly
+  extends: .conda_release
+  rules:
+    - !reference [.conda_build_rules:nightly, rules ]
+
+ # [release lca plugin conda]
+
 release_conda_plugin:lca:main:
   stage: release_conda_plugin
   variables:
@@ -428,8 +587,19 @@ release_conda_plugin:lca:dev:
     - build_conda_plugin:lca:dev
   extends: .conda_release
   rules:
-    - !reference [ .conda_release_rules:plugin:dev, rules ]
+    - !reference [.conda_release_rules:plugin:dev, rules ]
 
+release_conda_plugin:lca:nightly:
+  stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_lca"
+  dependencies:
+    - build_conda_plugin:lca:nightly
+  extends: .conda_release
+  rules:
+    - !reference [.conda_build_rules:nightly, rules ]
+
+ # [release teaser plugin conda]
 
 release_conda_plugin:teaser:main:
   stage: release_conda_plugin
@@ -441,7 +611,6 @@ release_conda_plugin:teaser:main:
   rules:
     - !reference [.conda_release_rules:plugin:main, rules ]
 
-
 release_conda_plugin:teaser:dev:
   stage: release_conda_plugin
   variables:
@@ -451,6 +620,18 @@ release_conda_plugin:teaser:dev:
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:dev, rules ]
+
+release_conda_plugin:teaser:nightly:
+  stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_teaser"
+  dependencies:
+    - build_conda_plugin:teaser:nightly
+  extends: .conda_release
+  rules:
+    - !reference [.conda_build_rules:nightly, rules ]
+
+#  [release total bim2sim conda image]
 
 release_conda_bim2sim:total:main:
   stage: release_conda_total
@@ -476,3 +657,14 @@ release_conda_bim2sim:total:dev:
     - !reference [ .conda_release_rules:dev, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
       when: manual
+
+# [conda total]
+release_conda_bim2sim:total:nightly:
+  stage: release_conda_total
+  variables:
+    BIM2SIM_NAME: "bim2sim"
+  dependencies:
+    - build_conda_bim2sim:total:nightly
+  extends: .conda_release
+  rules:
+    - !reference [ .conda_build_rules:nightly, rules ]

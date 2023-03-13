@@ -48,7 +48,12 @@ variables:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_docker_dev/
       when: on_success
 
-# [build base bim2sim]
+.docker_build_rules:nightly:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "development" && $CI_COMMIT_MESSAGE =~ /nightly_build_dev/
+      when: on_success
+
+# [build base bim2sim docker image]
 
 docker_build_bim2sim:base:main:
   stage: build_docker_base
@@ -76,7 +81,16 @@ docker_build_bim2sim:base:dev:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
       when: on_success
 
-
+docker_build_bim2sim:base:nightly:
+  stage: build_docker_base
+  variables:
+    BIM2SIM_NAME: "bim2sim_base"
+    BIM2SIM_FLAG: "_nightly"
+    IMAGE_NAME: "base_nightly"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
 
 # [Test base bim2sim]
 
@@ -124,7 +138,19 @@ test_Base:main:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
       when: on_success
 
+test_Base:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_base
+  dependencies:
+    - docker_build_bim2sim:base:nightly
+  variables:
+    IMAGE_NAME: "base_nightly"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
 # [Build docker Plugins]
+
 .docker_build_rules:plugin:main:
   rules:
      - !reference [.docker_build_rules:main, rules]
@@ -160,10 +186,20 @@ docker_build_plugin:aixlib:dev:
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
 
+docker_build_plugin:aixlib:nightly:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_aixlib"
+    BIM2SIM_FLAG: "_nightly"
+    IMAGE_NAME: "plugin_aixlib_nightly"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
 
 # [Test plugin AixLib]
+
 .test_plugin:AixLib:
-  stage: test_docker_plugin
   before_script:
     - pip install coverage
     - pip install coverage-badge
@@ -183,6 +219,7 @@ docker_build_plugin:aixlib:dev:
 
 test_plugin:AixLib:main:
   image: ${TEST_IMAGE}
+  stage: test_docker_plugin
   dependencies:
     - docker_build_plugin:aixlib:main
   variables:
@@ -193,6 +230,7 @@ test_plugin:AixLib:main:
 
 test_plugin:AixLib:dev:
   image: ${TEST_IMAGE}
+  stage: test_docker_plugin
   dependencies:
     - docker_build_plugin:aixlib:dev
   variables:
@@ -200,6 +238,17 @@ test_plugin:AixLib:dev:
   extends: .test_plugin:AixLib
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
+
+test_plugin:AixLib:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  dependencies:
+    - docker_build_plugin:aixlib:nightly
+  variables:
+    IMAGE_NAME: "plugin_aixlib_nightly"
+  extends: .test_plugin:AixLib
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
 
 # [build plugin cfd]
 docker_build_plugin:cfd:main:
@@ -224,10 +273,19 @@ docker_build_plugin:cfd:dev:
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
 
-# [test plugin cfd]
+docker_build_plugin:cfd:nightly:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_cfd"
+    BIM2SIM_FLAG: "_nightly"
+    IMAGE_NAME: "plugin_cfd_nightly"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
 
+# [test plugin cfd]
 .test_plugin:cfd:
-  stage: test_docker_plugin
   before_script:
     - pip install coverage
     - pip install coverage-badge
@@ -247,6 +305,7 @@ docker_build_plugin:cfd:dev:
 
 test_plugin:cfd:main:
   image: ${TEST_IMAGE}
+  stage: test_docker_plugin
   dependencies:
     - docker_build_plugin:cfd:main
   variables:
@@ -257,6 +316,7 @@ test_plugin:cfd:main:
 
 test_plugin:cfd:dev:
   image: ${TEST_IMAGE}
+  stage: test_docker_plugin
   dependencies:
     - docker_build_plugin:cfd:dev
   variables:
@@ -264,6 +324,17 @@ test_plugin:cfd:dev:
   extends: .test_plugin:cfd
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
+
+test_plugin:cfd:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  dependencies:
+    - docker_build_plugin:cfd:nightly
+  variables:
+    IMAGE_NAME: "plugin_cfd_nightly"
+  extends: .test_plugin:cfd
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
 
 # [Build plugin energyplus]
 
@@ -289,9 +360,19 @@ docker_build_plugin:energyplus:dev:
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
 
+docker_build_plugin:energyplus:nightly:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_energyplus"
+    BIM2SIM_FLAG: "_nightly"
+    IMAGE_NAME: "plugin_energyplus_nightly"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
 # [test plugin energyplus]
 .test_plugin:energyplus:
-  stage: test_docker_plugin
   before_script:
     - pip install coverage
     - pip install coverage-badge
@@ -312,6 +393,8 @@ docker_build_plugin:energyplus:dev:
 
 test_plugin:energyplus:main:
   image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+
   dependencies:
     - docker_build_plugin:energyplus:main
   variables:
@@ -322,6 +405,7 @@ test_plugin:energyplus:main:
 
 test_plugin:energyplus:dev:
   image: ${TEST_IMAGE}
+  stage: test_docker_plugin
   dependencies:
     - docker_build_plugin:energyplus:dev
   variables:
@@ -330,8 +414,19 @@ test_plugin:energyplus:dev:
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
 
-.test_plugin:energyplus_regression:
+test_plugin:energyplus:nightly:
+  image: ${TEST_IMAGE}
   stage: test_docker_plugin
+
+  dependencies:
+    - docker_build_plugin:energyplus:nightly
+  variables:
+    IMAGE_NAME: "plugin_energyplus_nightly"
+  extends: .test_plugin:energyplus
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+.test_plugin:energyplus_regression:
   before_script:
     - pip install coverage
     - pip install coverage-badge
@@ -354,6 +449,7 @@ test_plugin:energyplus:dev:
 
 test_plugin:energyplus_regression:main:
   image: ${TEST_IMAGE}
+  stage: test_docker_plugin
   dependencies:
     - docker_build_plugin:energyplus:main
   variables:
@@ -364,6 +460,7 @@ test_plugin:energyplus_regression:main:
 
 test_plugin:energyplus_regression:dev:
   image: ${TEST_IMAGE}
+  stage: test_docker_plugin
   dependencies:
     - docker_build_plugin:energyplus:dev
   variables:
@@ -371,6 +468,18 @@ test_plugin:energyplus_regression:dev:
   extends: .test_plugin:energyplus_regression
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
+
+
+test_plugin:energyplus_regression:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  dependencies:
+    - docker_build_plugin:energyplus:nightly
+  variables:
+    IMAGE_NAME: "plugin_energyplus_nightly"
+  extends: .test_plugin:energyplus_regression
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
 
 # [build tool hkesim]
 
@@ -396,6 +505,17 @@ docker_build_plugin:hkesim:dev:
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
 
+docker_build_plugin:hkesim:nightly:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_hkesim"
+    BIM2SIM_FLAG: "_nightly"
+    IMAGE_NAME: "plugin_hkesim_nightly"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
 # [test tool hkesim]
 
 # [Build plugin lca]
@@ -411,7 +531,6 @@ docker_build_plugin:lca:main:
   rules:
     - !reference [.docker_build_rules:plugin:main, rules]
 
-
 docker_build_plugin:lca:dev:
   stage: build_docker_plugin
   variables:
@@ -423,9 +542,19 @@ docker_build_plugin:lca:dev:
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
 
+docker_build_plugin:lca:nightly:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_lca"
+    BIM2SIM_FLAG: "_nightly"
+    IMAGE_NAME: "plugin_lca_nightly"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
 # [test plugin lca]
 .test_plugin:lca:
-  stage: test_docker_plugin
   before_script:
     - pip install coverage
     - pip install coverage-badge
@@ -445,6 +574,7 @@ docker_build_plugin:lca:dev:
 
 test_plugin:lca:main:
   image: ${TEST_IMAGE}
+  stage: test_docker_plugin
   dependencies:
     - docker_build_plugin:lca:main
   variables:
@@ -455,6 +585,7 @@ test_plugin:lca:main:
 
 test_plugin:lca:dev:
   image: ${TEST_IMAGE}
+  stage: test_docker_plugin
   dependencies:
     - docker_build_plugin:lca:dev
   variables:
@@ -462,6 +593,17 @@ test_plugin:lca:dev:
   extends: .test_plugin:lca
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
+
+test_plugin:lca:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  dependencies:
+    - docker_build_plugin:lca:nightly
+  variables:
+    IMAGE_NAME: "plugin_lca_nightly"
+  extends: .test_plugin:lca
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
 
 # [build plugin teaser]
 docker_build_plugin:teaser:main:
@@ -486,9 +628,19 @@ docker_build_plugin:teaser:dev:
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
 
+docker_build_plugin:teaser:nightly:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_teaser"
+    BIM2SIM_FLAG: "_nightly"
+    IMAGE_NAME: "plugin_teaser_nightly"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
 # [test plugin teaser
 .test_plugin:teaser:
-  stage: test_docker_plugin
   before_script:
     - pip install coverage
     - pip install coverage-badge
@@ -508,6 +660,7 @@ docker_build_plugin:teaser:dev:
 
 test_plugin:teaser:main:
   image: ${TEST_IMAGE}
+  stage: test_docker_plugin
   dependencies:
     - docker_build_plugin:teaser:main
   variables:
@@ -518,6 +671,7 @@ test_plugin:teaser:main:
 
 test_plugin:teaser:dev:
   image: ${TEST_IMAGE}
+  stage: test_docker_plugin
   dependencies:
     - docker_build_plugin:teaser:dev
   variables:
@@ -526,8 +680,16 @@ test_plugin:teaser:dev:
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
 
-
-
+test_plugin:teaser:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  dependencies:
+    - docker_build_plugin:teaser:nightly
+  variables:
+    IMAGE_NAME: "plugin_teaser_nightly"
+  extends: .test_plugin:teaser
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
 
 # [build docker dymola]
 
@@ -571,7 +733,19 @@ docker_build_bim2sim:env_dymola_base:main:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
       when: on_success
 
-# [test docker dymola bim2sim base]
+docker_build_bim2sim:env_dymola_base:nightly:
+  stage: build_docker_base
+  variables:
+    BIM2SIM_NAME: "bim2sim_base"
+    BIM2SIM_FLAG: "_nightly"
+    IMAGE_NAME: "dymola_nightly"
+    DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
+  extends: .docker_dymola_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# Todo [test docker dymola bim2sim base]
+
 
 # [build docker dymola plugin teaser]
 
@@ -597,10 +771,20 @@ docker_build_plugin:dymola_teaser:dev:
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
 
+docker_build_plugin:dymola_teaser:nightly:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_teaser"
+    BIM2SIM_FLAG: "_nightly"
+    IMAGE_NAME: "plugin_dymola_teaser_nightly"
+    DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
+  extends: .docker_dymola_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
 # [test docker dymola plugin teaser]
 
 .test_plugin:TEASER_regression:
-  stage: test_docker_plugin
   before_script:
     - pip install coverage
     - pip install coverage-badge
@@ -623,6 +807,7 @@ docker_build_plugin:dymola_teaser:dev:
 
 test_plugin:dymola_teaser:main:
   image: ${TEST_IMAGE}
+  stage: test_docker_plugin
   dependencies:
     - docker_build_plugin:dymola_teaser:main
   variables:
@@ -633,6 +818,7 @@ test_plugin:dymola_teaser:main:
 
 test_plugin:dymola_teaser:dev:
   image: ${TEST_IMAGE}
+  stage: test_docker_plugin
   dependencies:
     - docker_build_plugin:dymola_teaser:dev
   variables:
@@ -641,7 +827,19 @@ test_plugin:dymola_teaser:dev:
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
 
+test_plugin:dymola_teaser:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  dependencies:
+    - docker_build_plugin:dymola_teaser:nightly
+  variables:
+    IMAGE_NAME: "plugin_dymola_teaser_nightly"
+  extends: .test_plugin:TEASER_regression
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
 
+
+# [build docker bim2sim total]
 
 docker_build_total:main:
   stage: build_docker_total
@@ -669,8 +867,320 @@ docker_build_total:dev:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
       when: on_success
 
+docker_build_total:nightly:
+  stage: build_docker_total
+  variables:
+    BIM2SIM_NAME: "bim2sim"
+    BIM2SIM_FLAG: "_nightly"
+    IMAGE_NAME: "nightly"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_dymola_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
 
+# [base test]
+test_bim2sim:base:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:main
+  variables:
+    IMAGE_NAME: "latest"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:main, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+      when: on_success
 
+test_bim2sim:base:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:dev
+  variables:
+    IMAGE_NAME: "development"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:dev, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+      when: on_success
+
+test_bim2sim:base:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:nightly
+  variables:
+    IMAGE_NAME: "nightly"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [Test plugin AixLib]
+test_bim2sim:plugin:aixlib:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:main
+  variables:
+    IMAGE_NAME: "latest"
+  extends: .test_plugin:AixLib
+  rules:
+    - !reference [.docker_build_rules:main, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+      when: on_success
+
+test_bim2sim:plugin:aixlib:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:dev
+  variables:
+    IMAGE_NAME: "development"
+  extends: .test_plugin:AixLib
+  rules:
+    - !reference [.docker_build_rules:dev, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+      when: on_success
+
+test_bim2sim:plugin:aixlib:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:nightly
+  variables:
+    IMAGE_NAME: "nightly"
+  extends: .test_plugin:AixLib
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [Test plugin cfd]
+test_bim2sim:plugin:cfd:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:main
+  variables:
+    IMAGE_NAME: "latest"
+  extends: .test_plugin:cfd
+  rules:
+    - !reference [.docker_build_rules:main, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+      when: on_success
+
+test_bim2sim:plugin:cfd:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:dev
+  variables:
+    IMAGE_NAME: "development"
+  extends: .test_plugin:cfd
+  rules:
+    - !reference [.docker_build_rules:dev, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+      when: on_success
+
+test_bim2sim:plugin:cfd:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:nightly
+  variables:
+    IMAGE_NAME: "nightly"
+  extends: .test_plugin:cfd
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [Test plugin energyplus]
+test_bim2sim:plugin:energyplus:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:main
+  variables:
+    IMAGE_NAME: "latest"
+  extends: .test_plugin:energyplus
+  rules:
+    - !reference [.docker_build_rules:main, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+      when: on_success
+
+test_bim2sim:plugin:energyplus:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:dev
+  variables:
+    IMAGE_NAME: "development"
+  extends: .test_plugin:energyplus
+  rules:
+    - !reference [.docker_build_rules:dev, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+      when: on_success
+
+test_bim2sim:plugin:energyplus:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:nightly
+  variables:
+    IMAGE_NAME: "nightly"
+  extends: .test_plugin:energyplus
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [Test plugin energyplus_regression]
+test_bim2sim:plugin:energyplus_regression:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:main
+  variables:
+    IMAGE_NAME: "latest"
+  extends: .test_plugin:energyplus_regression
+  rules:
+    - !reference [.docker_build_rules:main, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+      when: on_success
+
+test_bim2sim:plugin:energyplus_regression:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:dev
+  variables:
+    IMAGE_NAME: "development"
+  extends: .test_plugin:energyplus_regression
+  rules:
+    - !reference [.docker_build_rules:dev, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+      when: on_success
+
+test_bim2sim:plugin:energyplus_regression:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:nightly
+  variables:
+    IMAGE_NAME: "nightly"
+  extends: .test_plugin:energyplus_regression
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [Test plugin lca]
+test_bim2sim:plugin:lca:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:main
+  variables:
+    IMAGE_NAME: "latest"
+  extends: .test_plugin:lca
+  rules:
+    - !reference [.docker_build_rules:main, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+      when: on_success
+
+test_bim2sim:plugin:lca:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:dev
+  variables:
+    IMAGE_NAME: "development"
+  extends: .test_plugin:lca
+  rules:
+    - !reference [.docker_build_rules:dev, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+      when: on_success
+
+test_bim2sim:plugin:lca:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:nightly
+  variables:
+    IMAGE_NAME: "nightly"
+  extends: .test_plugin:lca
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [Test plugin lca]
+test_bim2sim:plugin:teaser:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:main
+  variables:
+    IMAGE_NAME: "latest"
+  extends: .test_plugin:teaser
+  rules:
+    - !reference [.docker_build_rules:main, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+      when: on_success
+
+test_bim2sim:plugin:teaser:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:dev
+  variables:
+    IMAGE_NAME: "development"
+  extends: .test_plugin:teaser
+  rules:
+    - !reference [.docker_build_rules:dev, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+      when: on_success
+
+test_bim2sim:plugin:teaser:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:nightly
+  variables:
+    IMAGE_NAME: "nightly"
+  extends: .test_plugin:teaser
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [Test plugin TEASER_regression]
+test_bim2sim:plugin:TEASER_regression:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:main
+  variables:
+    IMAGE_NAME: "latest"
+  extends: .test_plugin:TEASER_regression
+  rules:
+    - !reference [.docker_build_rules:main, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+      when: on_success
+
+test_bim2sim:plugin:TEASER_regression:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:dev
+  variables:
+    IMAGE_NAME: "development"
+  extends: .test_plugin:TEASER_regression
+  rules:
+    - !reference [.docker_build_rules:dev, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+      when: on_success
+
+test_bim2sim:plugin:TEASER_regression:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  dependencies:
+    - docker_build_total:nightly
+  variables:
+    IMAGE_NAME: "nightly"
+  extends: .test_plugin:TEASER_regression
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
 
 # [Release]
 
@@ -714,6 +1224,7 @@ docker_build_total:dev:
     - docker tag $TEST_IMAGE $RELEASE_IMAGE
     - docker push $RELEASE_IMAGE
 
+# [Release bim2sim base]
 docker_release_bim2sim:base:main:
   stage: release_docker_base
   dependencies:
@@ -738,6 +1249,17 @@ docker_release_bim2sim:env_base:dev:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
       when: manual
 
+docker_release_bim2sim:env_base:nightly:
+  stage: release_docker_base
+  dependencies:
+    - docker_build_bim2sim:base:nightly
+  variables:
+    IMAGE_NAME: "base_nightly"
+  extends: .docker_release
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [Release bim2sim aixlib plugin]
 
 docker_release_plugin:aixlib:main:
   stage: release_docker_plugin
@@ -759,6 +1281,18 @@ docker_release_plugin:aixlib:dev:
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
 
+docker_release_plugin:aixlib:nightly:
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:aixlib:nightly
+  variables:
+    IMAGE_NAME: "plugin_aixlib_nightly"
+  extends: .docker_release
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [Release bim2sim cfd plugin]
+
 docker_release_plugin:cfd:main:
   stage: release_docker_plugin
   dependencies:
@@ -779,6 +1313,17 @@ docker_release_plugin:cfd:dev:
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
 
+docker_release_plugin:cfd:nightly:
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:cfd:nightly
+  variables:
+    IMAGE_NAME: "plugin_cfd_nightly"
+  extends: .docker_release
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [Release bim2sim energyplus plugin]
 docker_release_plugin:energyplus:main:
   stage: release_docker_plugin
   dependencies:
@@ -799,6 +1344,18 @@ docker_release_plugin:energyplus:dev:
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
 
+
+docker_release_plugin:energyplus:nightly:
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:energyplus:nightly
+  variables:
+    IMAGE_NAME: "plugin_energyplus_nightly"
+  extends: .docker_release
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [Release bim2sim hkesim plugin]
 docker_release_plugin:hkesim:main:
   stage: release_docker_plugin
   dependencies:
@@ -819,6 +1376,17 @@ docker_release_plugin:hkesim:dev:
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
 
+docker_release_plugin:hkesim:nightly:
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:hkesim:nightly
+  variables:
+    IMAGE_NAME: "plugin_hkesim_nightly"
+  extends: .docker_release
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [Release bim2sim lca plugin]
 docker_release_plugin:lca:main:
   stage: release_docker_plugin
   dependencies:
@@ -838,6 +1406,18 @@ docker_release_plugin:lca:dev:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
+
+docker_release_plugin:lca:nightly:
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:lca:nightly
+  variables:
+    IMAGE_NAME: "plugin_lca_nightly"
+  extends: .docker_release
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [Release bim2sim teaser plugin]
 
 docker_release_plugin:teaser:main:
   stage: release_docker_plugin
@@ -859,6 +1439,16 @@ docker_release_plugin:teaser:dev:
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
 
+docker_release_plugin:teaser:nightly:
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:teaser:nightly
+  variables:
+    IMAGE_NAME: "plugin_teaser_nightly"
+  extends: .docker_release
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
 # [dymola docker release]
 
 docker_release:env_dymola_base:main:
@@ -873,7 +1463,6 @@ docker_release:env_dymola_base:main:
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
       when: manual
 
-
 docker_release:env_dymola_base:dev:
   extends: .docker_release
   stage: release_docker_base
@@ -885,6 +1474,18 @@ docker_release:env_dymola_base:dev:
     - !reference [.docker_release_rules:dev, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
       when: manual
+
+docker_release:env_dymola_base:nightly:
+  extends: .docker_release
+  stage: release_docker_base
+  dependencies:
+    - docker_build_bim2sim:env_dymola_base:nightly
+  variables:
+    IMAGE_NAME: "dymola_nightly"
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [dymola teaser docker release]
 
 docker_release_plugin:dymola_teaser:main:
   stage: release_docker_plugin
@@ -905,6 +1506,18 @@ docker_release_plugin:dymola_teaser:dev:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
+
+docker_release_plugin:dymola_teaser:nightly:
+  stage: release_docker_plugin
+  dependencies:
+    - docker_build_plugin:dymola_teaser:nightly
+  variables:
+    IMAGE_NAME: "plugin_dymola_teaser_nightly"
+  extends: .docker_release
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [dymola teaser docker release]
 
 docker_release_total:main:
   stage:  release_docker_total
@@ -929,3 +1542,13 @@ docker_release_total:dev:
     - !reference [.docker_release_rules:dev, rules ]
     - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
       when: manual
+
+docker_release_total:nightly:
+  stage:  release_docker_total
+  dependencies:
+    - docker_build_total:nightly
+  variables:
+    IMAGE_NAME: "nightly"
+  extends: .docker_release
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]

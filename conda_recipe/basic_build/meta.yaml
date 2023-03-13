@@ -12,14 +12,13 @@ build:
   number: '0'
   entry_points:
     - bim2sim = bim2sim.__main__:commandline_interface
-  script:
-    - python -m pip install --no-deps --ignore-installed .
 
 requirements:
   host:
     - python>=3.8.*,<3.10.*
     - pip 22.2.2
     - setuptools 65.5.0
+    - poetry
   run:
     - python >=3.8.*,<3.10.*
     - docopt==0.6.2
@@ -34,8 +33,6 @@ requirements:
     - pythonocc-core==7.5.1
     - ifcopenshell
     - pythonocc-utils  # [osx]
-    - deep_translator
-    - decision
 
 test:
   imports:
