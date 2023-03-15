@@ -273,7 +273,8 @@ def translate_deep(text, source='auto', target='en'):
             source=source, target=target).translate(text=text)
         return translated
     except:
-        return False
+        #return False
+        return ''
     # proxies_example = {
     #     "https": "34.195.196.27:8080",
     #     "http": "34.195.196.27:8080"

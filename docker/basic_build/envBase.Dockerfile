@@ -8,7 +8,7 @@ ARG BIM2SIM_FLAG
 RUN conda config --add channels bim2sim
 RUN conda config --add channels conda-forge
 RUN conda install conda=23.1.0
-RUN conda create -n bim2sim3.9 ${BIM2SIM_NAME}==${BIM2SIM_VERSION}${BIM2SIM_FLAG}
+RUN conda create -n bim2sim3.9 -c bim2sim ${BIM2SIM_NAME}==${BIM2SIM_VERSION}${BIM2SIM_FLAG}
 # Install conda-pack:
 RUN conda install -c conda-forge conda-pack
 
