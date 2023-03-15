@@ -34,9 +34,8 @@ test:
   commands:
     - bim2sim -h
     - bim2sim --version
-    - sh conda_recipe/plugins/PluginCFD/test_cfd.sh # [not win]
-    - coverage report -i # [not win]
-    - coverage html -i # [not win]
+    - bash conda_recipe/plugins/PluginCFD/test_cfd.sh # [not win]
+
   source_files:
     - conda_recipe/plugins/PluginCFD/test_cfd.sh # [not win]
     - bim2sim

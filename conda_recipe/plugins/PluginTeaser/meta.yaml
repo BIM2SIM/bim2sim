@@ -36,12 +36,13 @@ test:
   commands:
     - bim2sim -h
     - bim2sim --version
-    - sh conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
-    - coverage report -i  # [not win]
-    - coverage html -i # [not win]
+    - bash conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
+    - bash conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh # [not win]
+
 
   source_files:
     - conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
+    - conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh # [not win]
     - bim2sim
     - test
 

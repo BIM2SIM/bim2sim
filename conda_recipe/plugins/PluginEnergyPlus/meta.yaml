@@ -41,11 +41,12 @@ test:
   commands:
     - bim2sim -h
     - bim2sim --version
-    - sh conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh # [not win]
-    - coverage report -i # [not win]
-    - coverage html -i # [not win]
+    - bash conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh # [not win]
+    - bash conda_recipe/plugins/PluginEnergyPlus/test_energyplus_regression.sh # [not win]
+
   source_files:
     - conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh # [not win]
+    - conda_recipe/plugins/PluginEnergyPlus/test_energyplus_regression.sh # [not win]
     - bim2sim
     - test
 

@@ -136,6 +136,7 @@ class TestCommonFunctions(unittest.TestCase):
         for input_text in input_texts:
             translated.append(
                     cf.translate_deep(input_text, target='de').lower())
+        print(translated)
         self.assertEqual(translated, expected_translations)
 
     def test_all_subclasses(self):
