@@ -52,7 +52,7 @@ test:
   commands:
     - bim2sim -h
     - bim2sim --version
-    - sh conda_recipe/basic_build/base_run_test.sh # [not win]
+    - bash conda_recipe/basic_build/base_run_test.sh # [not win]
 
 
   source_files:
