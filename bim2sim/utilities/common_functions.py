@@ -295,10 +295,8 @@ def all_subclasses(cls, as_names: bool = False):
 
 def get_spaces_with_bounds(instances: dict):
     """Get spaces (ThermalZone) that provide space boundaries.
-
     This function extracts spaces from an instance dictionary and returns
     those spaces that hold space boundaries.
-
     Args:
         instances: dict[guid: element]
     """
