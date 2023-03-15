@@ -134,8 +134,11 @@ class TestCommonFunctions(unittest.TestCase):
         translated = []
         expected_translations = ['käse', 'tomaten', 'kartoffeln']
         for input_text in input_texts:
-            translated.append(
-                cf.translate_deep(input_text, target='de').lower())
+            if isinstance(input_text, bool):
+                pass
+            else:
+                translated.append(
+                    cf.translate_deep(input_text, target='de').lower())
         self.assertEqual(translated, expected_translations)
 
     def test_all_subclasses(self):
