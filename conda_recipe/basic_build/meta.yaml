@@ -53,8 +53,7 @@ test:
     - bim2sim -h
     - bim2sim --version
     - sh conda_recipe/basic_build/base_run_test.sh # [not win]
-    - coverage report -i # [not win]
-    - coverage html -i # [not win]
+
 
   source_files:
     - conda_recipe/basic_build/base_run_test.sh # [not win]
