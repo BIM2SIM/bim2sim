@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - bim2sim
 dependencies:
-  - bim2sim==1.0.0_dev
+  - bim2sim_base==0.1.0_dev
 
 
 

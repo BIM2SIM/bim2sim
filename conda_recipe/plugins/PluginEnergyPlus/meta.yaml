@@ -27,6 +27,7 @@ requirements:
     # eppy
     - beautifulsoup4
     - munch
+    - pyclipper
 
 test:
   imports:
