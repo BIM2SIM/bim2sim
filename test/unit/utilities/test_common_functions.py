@@ -128,16 +128,17 @@ class TestCommonFunctions(unittest.TestCase):
         output_string = cf.remove_umlaut(input_string)
         self.assertEqual(output_string, expected_string)
 
-    '''
+    @unittest.skip("no internet connection")
     def test_translate_deep(self):  # pragma: no cover
         """test translate_deep function"""
         input_texts = ['cheese', 'tomatoes', 'potatoes']
         translated = []
         expected_translations = ['käse', 'tomaten', 'kartoffeln']
+        a
         for input_text in input_texts:
             translated.append(
                     cf.translate_deep(input_text, target='de').lower())
-        self.assertEqual(translated, expected_translations)'''
+        self.assertEqual(translated, expected_translations)
 
     def test_all_subclasses(self):
         """test all_subclasses function"""
