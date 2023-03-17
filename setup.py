@@ -8,8 +8,6 @@ with open("requirements.txt", 'r') as f:
     required = f.read().splitlines()
 version = "0.1.0"
 
-
-
 def copy_non_code_file(non_code_dir, not_include):
     path_file_dict = {}
     _dir = non_code_dir.replace(".", os.sep)
@@ -26,9 +24,6 @@ def copy_non_code_file(non_code_dir, not_include):
             path_file_dict[str(filepath.parent).replace(os.sep, ".")] = file_list
         continue
     return path_file_dict
-
-
-
 
 setup(
     name='bim2sim',
