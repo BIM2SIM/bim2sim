@@ -134,7 +134,6 @@ class TestCommonFunctions(unittest.TestCase):
         input_texts = ['cheese', 'tomatoes', 'potatoes']
         translated = []
         expected_translations = ['käse', 'tomaten', 'kartoffeln']
-        a
         for input_text in input_texts:
             translated.append(
                     cf.translate_deep(input_text, target='de').lower())
