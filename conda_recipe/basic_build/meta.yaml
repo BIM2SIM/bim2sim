@@ -78,10 +78,6 @@ test:
     - bim2sim
     - test
 
-outputs:
-  - name: test
-    files:
-      - htmlcov
 
 
 
