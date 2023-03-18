@@ -78,9 +78,6 @@ test:
     - bim2sim
     - test
 
-
-
-
 about:
   home: https://github.com/BIM2SIM/bim2sim
   summary: "A python tool to create simulation models for different domains based on BIM IFC models."
