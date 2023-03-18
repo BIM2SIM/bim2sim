@@ -12,8 +12,6 @@ build:
   number: '0'
   entry_points:
     - bim2sim = bim2sim.__main__:commandline_interface
-  missing_dso_whitelist:
-    -
 
 requirements:
   build:
