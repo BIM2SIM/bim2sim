@@ -129,7 +129,7 @@ class TestCommonFunctions(unittest.TestCase):
         self.assertEqual(output_string, expected_string)
 
     @unittest.skip("no internet connection")
-    def test_translate_deep(self):  # pragma: no cover
+    def test_translate_deep(self):
         """test translate_deep function"""
         input_texts = ['cheese', 'tomatoes', 'potatoes']
         translated = []
