@@ -20,14 +20,15 @@ class EnrichUseConditions(ITask):
         self.use_conditions = {}
 
     def run(self, workflow: Workflow, tz_instances: dict):
-        self.logger.info("enriches thermal zones usage")
+        #self.logger.info("enriches thermal zones usage")
         self.use_conditions = get_usage_dict(self.prj_name)
 
 
 
         # case no thermal zones found
         if len(tz_instances) == 0:
-            self.logger.warning("Found no spaces to enrich")
+            #self.logger.warning("Found no spaces to enrich")
+            pass
         else:
             final_usages = yield from self.enrich_usages(
                 self.prj_name, tz_instances)
@@ -35,7 +36,7 @@ class EnrichUseConditions(ITask):
                 tz.usage = usage
                 self.load_usage(tz)
                 self.enriched_tz.append(tz)
-            self.logger.info("obtained %d thermal zones", len(self.enriched_tz))
+            #self.logger.info("obtained %d thermal zones", len(self.enriched_tz))
 
         return self.enriched_tz,
 

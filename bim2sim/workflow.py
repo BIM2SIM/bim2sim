@@ -145,7 +145,6 @@ class WorkflowSetting:
         workflow setting when calling workflow.<setting_name>"""
         if bound_workflow is None:
             return self
-
         return self._inner_get(bound_workflow)
 
     def _inner_get(self, bound_workflow):
@@ -239,7 +238,7 @@ class Workflow(metaclass=AutoSettingNameMeta):
                         raise TypeError(
                             f'Config entry for {setting} is no string. '
                             f'Please use strings only in config.')
-        logger.info(f'Loaded {n_loaded_settings} settings from config file.')
+        #logger.info(f'Loaded {n_loaded_settings} settings from config file.')
 
     dymola_simulation = WorkflowSetting(
         default=False,

@@ -16,7 +16,7 @@ class Weather(ITask):
         self.weather_file = None
 
     def run(self, workflow: Workflow):
-        self.logger.info("Setting weather file.")
+        #self.logger.info("Setting weather file.")
         weatherfiles_path = self.paths.assets / 'weatherfiles'
         self.weather_file = yield from self.get_weatherfile_by_tool(
             weatherfiles_path)

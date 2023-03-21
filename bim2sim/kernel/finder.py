@@ -168,8 +168,8 @@ class TemplateFinder(Finder):
              might fit
         """
         if source_tool.full_name in self.blacklist:
-            logger.warning(f'No finder template found for '
-                           f'{source_tool.full_name}')
+            # logger.warning(f'No finder template found for '
+            #                f'{source_tool.full_name}')
             return
 
         for templ in self.templates.items():
@@ -178,8 +178,7 @@ class TemplateFinder(Finder):
             try:
                 temp_tool_names += templ[-1]["Identification"]["tool_names"]
             except KeyError:
-                logger.warning(
-                    f'No Identification defined in template for {templ_name}')
+                logger.warning(f'No Identification defined in template for {templ_name}')
             # generate all potential fitting names based on content of template
             tool_names = []
             for tool_name in temp_tool_names:
@@ -204,8 +203,8 @@ class TemplateFinder(Finder):
 
         if not source_tool.templ_name:
             # no matching template
-            logger.warning('No finder template found for {}.'
-                           .format(source_tool.full_name))
+            #logger.warning('No finder template found for {}.'
+            #               .format(source_tool.full_name))
 
             choices = list(self.templates.keys()) + ['Other']
             choice_checksum = ListDecision.build_checksum(choices)
@@ -226,9 +225,9 @@ class TemplateFinder(Finder):
             else:
                 source_tool.templ_name = tool_name
 
-        logger.info(f'Found matching template for IfcApplication with'
-                    f'full name {source_tool.full_name} in template '
-                    f'{source_tool.templ_name}')
+        #logger.info(f'Found matching template for IfcApplication with'
+        #            f'full name {source_tool.full_name} in template '
+        #            f'{source_tool.templ_name}')
 
     def initialize(self, ifc: file):
         """Find fitting templates for given IFC and set default source tool.
@@ -267,14 +266,14 @@ class TemplateFinder(Finder):
                 self.default_source_tool = \
                     decision_source_tool.value
             else:
-                logger.info(f"No decision for default source tool, taking "
-                            f"last source tool found: "
-                            f"{self.source_tools[-1]}")
+                #logger.info(f"No decision for default source tool, taking "
+                #            f"last source tool found: "
+                #            f"{self.source_tools[-1]}")
                 self.default_source_tool = self.source_tools[-1]
         else:
-            logger.info(f"No template could be found for one of the following "
-                        f"tools: "
-                        f"{[tool.full_name for tool in self.source_tools]}")
+            #logger.info(f"No template could be found for one of the following "
+            #            f"tools: "
+            #            f"{[tool.full_name for tool in self.source_tools]}")
             self.default_source_tool = None
 
     def _get_elements_source_tool(self, element: IFCBased):

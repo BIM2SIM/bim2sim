@@ -10,7 +10,7 @@ class BindStoreys(ITask):
     def run(self, workflow: Workflow, instances: dict):
         """Bind thermal_zones and instances to each floor/storey and vice
         versa"""
-        self.logger.info("Binding bim2sim instances to storeys")
+        #self.logger.info("Binding bim2sim instances to storeys")
         storeys = filter_instances(instances, 'Storey')
         for storey in storeys:
             storey_instances = []

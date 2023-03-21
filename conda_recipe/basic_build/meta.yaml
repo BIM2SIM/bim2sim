@@ -45,6 +45,7 @@ requirements:
     - sparse_dot_topn
     - requests
     - cython
+    - deep_translator
 
 test:
   imports:

@@ -67,7 +67,7 @@ def config_base_setup(path, backend=None):
     if not config.sections():
         # add all default attributes from base workflow
         config = add_config_section(config, Workflow, "Generic Workflow "
-                                                     "Settings")
+                                                      "Settings")
         # add all default attributes from sub workflows
         sub_workflows = all_subclasses(Workflow)
         for flow in sub_workflows:
@@ -220,18 +220,14 @@ class FolderStructure:
 
         # set rootpath
         self = cls(rootpath)
-
         if self.is_project_folder():
-            logger.info(
-                "Given path is already a project folder ('%s')" % self.root)
+            logger.info("Given path is already a project folder ('%s')" % self.root)
         else:
             self.create_project_folder()
             config_base_setup(self.config, target)
-
         if ifc_path:
             # copy ifc to project folder
             shutil.copy2(ifc_path, self.ifc)
-
         if open_conf:
             # open config for user interaction
             open_config(self.config)
@@ -490,8 +486,8 @@ class Project:
             raise AssertionError("Project ist not set correctly!")
 
         if not self._user_logger_set:
-            logger.info("Set user logger to default Stream. "
-                        "Call project.set_user_logger_stream() prior to project.run() to change this.")
+            # logger.info("Set user logger to default Stream. "
+            #            "Call project.set_user_logger_stream() prior to project.run() to change this.")
             self.set_user_logging_handler(logging.StreamHandler())
 
         success = False
@@ -549,12 +545,12 @@ class Project:
         """cleanup method"""
 
         # clean up run relics
-        #  backup decisions
+        # backup decisions
         if not success:
             pth = self.paths.root / 'decisions_backup.json'
             save(self._made_decisions, pth)
-            user_logger.warning("Decisions are saved in '%s'. Rename file to "
-                                "'decisions.json' to reuse them.", pth)
+            # user_logger.warning("Decisions are saved in '%s'. Rename file to "
+            #                   "'decisions.json' to reuse them.", pth)
         else:
             save(self._made_decisions, self.paths.decisions)
 

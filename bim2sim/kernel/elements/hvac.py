@@ -156,11 +156,13 @@ class HVACPort(Port):
         self._flow_side = value
         if previous:
             if previous != value:
-                logger.info("Overwriting flow_side for %r with %s" % (
-                    self, self.verbose_flow_side))
+                pass
+                #logger.info("Overwriting flow_side for %r with %s" % (
+                #    self, self.verbose_flow_side))
         else:
-            logger.debug(
-                "Set flow_side for %r to %s" % (self, self.verbose_flow_side))
+            pass
+            #logger.debug(
+            #    "Set flow_side for %r to %s" % (self, self.verbose_flow_side))
 
     @property
     def verbose_flow_side(self):

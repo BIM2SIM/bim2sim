@@ -19,7 +19,7 @@ class Verification(ITask):
         pass
 
     def run(self, workflow: Workflow, instances: dict):
-        self.logger.info("setting verifications")
+        #self.logger.info("setting verifications")
         if workflow.layers_and_materials is not LOD.low:
             materials = filter_instances(instances, Material)
             self.invalid.extend(self.materials_verification(materials))
@@ -29,7 +29,7 @@ class Verification(ITask):
             self.invalid.extend(self.layer_sets_verification(layer_sets))
             self.invalid.extend(
                 self.instances_with_layers_verification(instances))
-            self.logger.warning("Found %d invalid instances", len(self.invalid))
+            #self.logger.warning("Found %d invalid instances", len(self.invalid))
         else:
             self.invalid.extend(
                 self.instances_with_layers_verification(instances,

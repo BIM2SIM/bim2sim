@@ -18,7 +18,7 @@ class FixPorts(ITask):
     touches = ('ifc',)
 
     def run(self, workflow: Workflow, ifc: ifcopenshell.file) -> tuple:
-        self.logger.info("Removing invalid ports from ifc")
+        #self.logger.info("Removing invalid ports from ifc")
 
         to_remove = set()
         to_remove.update(self.unconnected_ports_on_same_position(ifc))
@@ -26,7 +26,7 @@ class FixPorts(ITask):
         to_remove.update(self.entities_with_unusual_number_of_ports(ifc))
 
         print(to_remove)
-        self.logger.info("Removing %d ports ...", len(to_remove))
+        #self.logger.info("Removing %d ports ...", len(to_remove))
         with open('./port_blacklist.json', 'w') as file:
             json.dump([entity.GlobalId for entity in to_remove], file)
         raise NotImplementedError("This task is only a temporary fix.")

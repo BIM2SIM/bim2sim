@@ -142,10 +142,11 @@ class Attribute:
 
         # logger value none
         if value is None:
-            quality_logger.warning(
+            pass
+            """quality_logger.warning(
                 "Attribute '%s' of %s %s was not found in default PropertySet, "
                 "default  Association, finder, patterns or functions",
-                self.name, bind.ifc_type, bind.guid)
+                self.name, bind.ifc_type, bind.guid)"""
 
         # default value
         if value is None and self.default_value is not None:
@@ -160,13 +161,13 @@ class Attribute:
             for item in value:
                 if self.unit is not None and item is not None and not \
                         isinstance(item, ureg.Quantity):
-                    logger.warning("Unit not set!")
+                    #logger.warning("Unit not set!")
                     new_value.append(item * self.unit)
             value = new_value if len(new_value) == len(value) else value
         else:
             if self.unit is not None and value is not None and not isinstance(
                     value, ureg.Quantity):
-                logger.warning("Unit not set!")
+                #logger.warning("Unit not set!")
                 value = value * self.unit
         # todo validation of attributes on creation time makes accept_valids
         #  function in common.py unusable as not valid attributes are never
@@ -221,8 +222,8 @@ class Attribute:
             try:
                 value = func(bind, name)
             except Exception as ex:
-                logger.error("Function %d of %s.%s raised %s", i, bind, name,
-                             ex)
+                #logger.error("Function %d of %s.%s raised %s", i, bind, name,
+                #             ex)
                 pass
             else:
                 if value is not None:
@@ -353,20 +354,20 @@ class Attribute:
             for dependant_item in dependant:
                 # case for attributes that depend on the same attribute in
                 # other instances -> dependant_instances
-                logger.warning("Attribute \"%s\" from class \"%s\" has no: "
-                               % (self.name, type(instance).__name__))
+                #logger.warning("Attribute \"%s\" from class \"%s\" has no: "
+                #               % (self.name, type(instance).__name__))
                 if 'elements' in dependant_item:
                     self.dependant_instances = dependant_item
-                    logger.warning("- dependant instances: \"%s\"" %
-                                   dependant_item)
+                    #logger.warning("- dependant instances: \"%s\"" %
+                    #               dependant_item)
                 # case for attributes that depend on the other attributes in
                 # the same instance -> dependant_attributes
                 else:
                     if self.dependant_attributes is None:
                         self.dependant_attributes = []
                     self.dependant_attributes.append(dependant_item)
-                    logger.warning("- dependant attributes: \"%s\"" %
-                                   dependant_item)
+                    #logger.warning("- dependant attributes: \"%s\"" %
+                    #               dependant_item)
 
     def dependant_instances_decision(self, bind) -> dict:
         """Function to request attributes in other instances different to bind,

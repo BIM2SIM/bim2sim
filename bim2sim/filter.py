@@ -49,7 +49,7 @@ class TypeFilter(Filter):
             try:
                 entities = ifc.by_type(ifc_type)
             except RuntimeError:
-                logger.info("No entity of type '%s' found", ifc_type)
+                #logger.info("No entity of type '%s' found", ifc_type)
                 entities = []
 
             for entity in entities:

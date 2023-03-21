@@ -27,7 +27,7 @@ def load_ifc(path: str) -> file:
         ifc_file: ifcopenshell file object
     """
     logger = logging.getLogger('bim2sim')
-    logger.info("Loading IFC '%s'", path)
+    #logger.info("Loading IFC '%s'", path)
     if not os.path.exists(path):
         raise IOError("Path '%s' does not exist"%(path))
     ifc_file = ifc_open(path)

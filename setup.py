@@ -6,7 +6,7 @@ with open("README.md", 'r') as f:
     long_description = f.read()
 with open("requirements.txt", 'r') as f:
     required = f.read().splitlines()
-version = "0.1.0"
+version = "0.0.1"
 
 def copy_non_code_file(non_code_dir, not_include):
     path_file_dict = {}
@@ -45,12 +45,7 @@ setup(
                                     'bim2sim.kernel*',
                                     'bim2sim.task*',
                                     'bim2sim.utilities*']),
-
-    #data_files=copy_non_code_file(non_code_dir=f'bim2sim//',
-    #                              not_include=[".py", ".Dockerfile"]),
     include_package_data=True,
-    #package_data=copy_non_code_file(non_code_dir=f'bim2sim',
-    #                                not_include=[".py", ".Dockerfile", ".pyc"]),
     package_data=copy_non_code_file(non_code_dir=f'bim2sim',
                                     not_include=[".py", ".Dockerfile", ".pyc"]),
 

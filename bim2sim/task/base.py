@@ -87,7 +87,7 @@ class Playground:
         if not task.requirements_met(self.state, self.history):
             raise AssertionError("%s requirements not met." % task)
 
-        self.logger.info("Starting Task '%s'", task)
+        #self.logger.info("Starting Task '%s'", task)
         read_state = {k: self.state[k] for k in task.reads}
         try:
             task.paths = self.paths
@@ -101,7 +101,8 @@ class Playground:
             self.logger.exception("Task '%s' failed!", task)
             raise TaskFailed(str(task))
         else:
-            self.logger.info("Successfully finished Task '%s'", task)
+            #self.logger.info("Successfully finished Task '%s'", task)
+            pass
 
         if task.touches == '__reset__':
             # special case
@@ -119,4 +120,4 @@ class Playground:
                     self.state[key] = sub_state
 
         self.history.append(task)
-        self.logger.info("%s done", task)
+        #self.logger.info("%s done", task)

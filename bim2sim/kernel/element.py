@@ -846,7 +846,7 @@ class Factory:
         # check if it prefers to be sth else
         better_cls = element.get_better_subclass()
         if better_cls:
-            logger.info("Creating %s instead of %s", better_cls, element_cls)
+            #logger.info("Creating %s instead of %s", better_cls, element_cls)
             element = better_cls.from_ifc(
                 ifc_entity,
                 finder=self.finder,
@@ -923,9 +923,10 @@ class Factory:
         # check ifc types without default
         no_default = _all_ifc_types - set(default)
         if no_default:
-            logger.warning("The following ifc types have no default "
-                           "representing Elemet class. There will be no match "
-                           "if predefined type is not provided.\n%s",
-                           no_default)
+            # logger.warning("The following ifc types have no default "
+            #               "representing Elemet class. There will be no match "
+            #               "if predefined type is not provided.\n%s",
+            #               no_default)
+            pass
 
         return mapping, blacklist, default

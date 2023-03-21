@@ -20,9 +20,10 @@ class BindThermalZones(ITask):
         pass
 
     def run(self, workflow, tz_instances, instances):
-        self.logger.info("Binds thermal zones based on criteria")
+        #self.logger.info("Binds thermal zones based on criteria")
         if len(tz_instances) == 0:
-            self.logger.warning("Found no spaces to bind")
+            #self.logger.warning("Found no spaces to bind")
+            pass
         else:
             if workflow.zoning_setup is LOD.low:
                 self.bind_tz_one_zone(
@@ -31,7 +32,7 @@ class BindThermalZones(ITask):
                 yield from self.bind_tz_criteria(instances)
             else:
                 self.bounded_tz = list(tz_instances.values())
-            self.logger.info("obtained %d thermal zones", len(self.bounded_tz))
+            #self.logger.info("obtained %d thermal zones", len(self.bounded_tz))
         self.add_storeys_to_buildings(instances)
 
         return self.bounded_tz,

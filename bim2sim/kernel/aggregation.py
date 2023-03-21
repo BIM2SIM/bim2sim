@@ -105,13 +105,16 @@ class AggregationMixin:
         super().__init_subclass__(**kwargs)
         if ProductBased not in cls.__bases__:
             # raise AssertionError("%s only supports sub classes of ProductBased" % cls)
-            logger.error("%s only supports sub classes of ProductBased", cls)
+            # logger.error("%s only supports sub classes of ProductBased", cls)
+            pass
 
         # TODO: this are only temporary checks
         if hasattr(cls, 'ifc_type'):
-            logger.warning("Obsolete use of 'ifc_type' in %s" % cls)
+            # logger.warning("Obsolete use of 'ifc_type' in %s" % cls)
+            pass
         if hasattr(cls, 'predefined_types'):
-            logger.warning("Obsolete use of 'predefined_types' in %s" % cls)
+            # logger.warning("Obsolete use of 'predefined_types' in %s" % cls)
+            pass
 
     def calc_position(self):
         """Position based on first and last element"""
@@ -309,7 +312,7 @@ class PipeStrand(HVACAggregationMixin, hvac.Pipe):
             length = getattr(pipe, "length")
             diameter = getattr(pipe, "diameter")
             if not (length and diameter):
-                logger.warning("Ignored '%s' in aggregation", pipe)
+                #logger.warning("Ignored '%s' in aggregation", pipe)
                 continue
 
             diameter_times_length += diameter * length
@@ -763,13 +766,14 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
                 length = item.length
                 diameter = item.diameter
                 if not (length and diameter):
-                    logger.info("Ignored '%s' in aggregation", item)
+                    #logger.info("Ignored '%s' in aggregation", item)
                     continue
 
                 diameter_times_length += length * diameter
                 total_length += length
             else:
-                logger.info("Ignored '%s' in aggregation", item)
+                #logger.info("Ignored '%s' in aggregation", item)
+                pass
 
         if total_length != 0:
             avg_diameter_strand = diameter_times_length / total_length
@@ -1052,14 +1056,15 @@ class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
                 length = element.length
                 diameter = element.diameter
                 if not (length and diameter):
-                    logger.warning("Ignored '%s' in aggregation", element)
+                    #logger.warning("Ignored '%s' in aggregation", element)
                     continue
 
                 diameter_times_length += diameter * length
                 total_length += length
 
             else:
-                logger.warning("Ignored '%s' in aggregation", element)
+                #logger.warning("Ignored '%s' in aggregation", element)
+                pass
 
         if total_length != 0:
             avg_diameter_strand = diameter_times_length / total_length
@@ -1308,11 +1313,13 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
             if hasattr(ele, "length"):  # ToDO: Parallel?
                 length = ele.length
                 if not (length):
-                    logger.warning("Ignored '%s' in aggregation", ele)
+                    #logger.warning("Ignored '%s' in aggregation", ele)
+
                     continue
 
             else:
-                logger.warning("Ignored '%s' in aggregation", ele)
+                #logger.warning("Ignored '%s' in aggregation", ele)
+                pass
 
         #  Volumen zusammenrechnen
         volume = 1
@@ -2227,14 +2234,15 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
                 length = element.length
                 diameter = element.diameter
                 if not (length and diameter):
-                    logger.info("Ignored '%s' in aggregation", item)
+                    #logger.info("Ignored '%s' in aggregation", item)
                     continue
 
                 diameter_times_length += diameter * length
                 total_length += length
 
             else:
-                logger.info("Ignored '%s' in aggregation", item)
+                #logger.info("Ignored '%s' in aggregation", item)
+                pass
 
         if total_length != 0:
             avg_diameter_strand = diameter_times_length / total_length
