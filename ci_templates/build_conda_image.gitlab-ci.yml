@@ -10,7 +10,6 @@ variables:
   BIM2SIM_FLAG: ""
   BIM2SIM_NAME:  "bim2sim"
 
-
 .conda_build_rules:main:
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
