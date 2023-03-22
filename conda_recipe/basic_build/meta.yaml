@@ -80,7 +80,3 @@ about:
   summary: "A python tool to create simulation models for different domains based on BIM IFC models."
   description: "A python tool to create simulation models for different domains based on BIM IFC models. For documentation please visit https://ebc.pages.rwth-aachen.de/EBC_all/github_ci/bim2sim/development/docs/overview.html"
   license: LICENSE
-
-extra:
-  copy_test_source_files: false
-  final: true
