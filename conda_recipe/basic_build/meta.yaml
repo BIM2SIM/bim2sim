@@ -36,7 +36,6 @@ requirements:
     - ifcopenshell
     - pythonocc-utils  # [osx]
     - deep_translator
-
     - scikit-learn
     - scipy
     - sparse_dot_topn
