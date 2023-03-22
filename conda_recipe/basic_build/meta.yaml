@@ -35,7 +35,7 @@ requirements:
     - pythonocc-core==7.5.1
     - ifcopenshell
     - pythonocc-utils  # [osx]
-    - deep_translator
+    # deep_translator
     - scikit-learn
     - scipy
     - sparse_dot_topn

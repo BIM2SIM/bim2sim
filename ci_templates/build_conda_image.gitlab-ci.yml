@@ -40,10 +40,11 @@ variables:
     - apt install libgl1 -y
     - conda install conda-build git conda-verify -y
     - mkdir -p conda-bld/$BIM2SIM_NAME
-    - conda config --add channels bim2sim
     - conda config --add channels dsdale24
     - conda config --add channels auto
     - conda config --add channels anaconda
+    - conda config --add channels bim2sim
+    - conda config --add channels conda-forge
     - conda build $CONDA_FILE -c conda-forge --output-folder conda-bld/$BIM2SIM_NAME --python 3.9
   retry:
     max: 2
