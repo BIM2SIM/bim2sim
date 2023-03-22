@@ -8,7 +8,7 @@ source:
   path: ../../
 
 build:
-  preserve_egg_dir: True
+  preserve_egg_dir: true
   number: '0'
   entry_points:
     - bim2sim = bim2sim.__main__:commandline_interface
@@ -23,24 +23,24 @@ requirements:
     - poetry
   run:
     - python >=3.8.*,<3.10.*
-    - docopt==0.6.2
-    - numpy==1.21.5
-    - pandas==1.4.4
-    - matplotlib==3.5.2
+    - docopt 0.6.2
+    - numpy 1.21.5
+    - pandas 1.4.4
+    - matplotlib 3.5.2
     - networkx>=2.2
-    - python-dateutil==2.8.2
-    - mako==1.2.4
-    - pint==0.20.1
-    - certifi==2022.12.7
+    - python-dateutil 2.8.2
+    - mako 1.2.4
+    - pint 0.20.1
+    - certifi 2022.12.7
     - pythonocc-core==7.5.1
     - ifcopenshell
-    - pythonocc-utils  # [osx]
+    # pythonocc-utils  # [osx]
     # deep_translator
-    - scikit-learn
-    - scipy
-    - sparse_dot_topn
-    - requests
-    - cython
+    # scikit-learn
+    # scipy
+    # sparse_dot_topn
+    # requests
+    # cython
 
   run_constrained:
     - beautifulsoup4 >=4.9.3
