@@ -58,9 +58,9 @@ class CreateSpaceBoundaries(ITask):
         Returns:
             bound_dict: dict[guid: element]
         """
-        #logger.info("Compute relationships between space boundaries")
-        #logger.info("Compute relationships between openings and their "
-        #            "base surfaces")
+        logger.info("Compute relationships between space boundaries")
+        logger.info("Compute relationships between openings and their "
+                    "base surfaces")
         drop_list = {}  # HACK: dictionary for bounds which have to be removed
         bound_dict = {bound.guid: bound for bound in boundaries}
         temp_instances = instances.copy()

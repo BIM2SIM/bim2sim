@@ -38,7 +38,7 @@ class Prepare(ITask):
 
         if len(self.tz_instances) == 0:
             # ToDo: Geometric Method before SB creation
-            #self.logger.warning("Found no spaces by semantic detection")
+            self.logger.warning("Found no spaces by semantic detection")
             decision = BoolDecision("Try to detect zones by geometrical?")
             yield DecisionBunch([decision])
             use = decision.value
@@ -49,7 +49,7 @@ class Prepare(ITask):
                                           "Simulation model can be generated.")
 
         self.set_space_properties(workflow)
-        #self.logger.info("Found %d space entities", len(self.tz_instances))
+        self.logger.info("Found %d space entities", len(self.tz_instances))
 
     def set_space_properties(self, workflow):
         """set cooling and heating values based on workflow settings"""

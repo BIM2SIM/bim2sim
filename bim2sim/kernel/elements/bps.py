@@ -174,9 +174,9 @@ class BPSProduct(element.ProductBased):
                 vol = vol * ureg.meter ** 3
                 return vol
             except:
-                #logger.warning(f"No calculation of geometric volume possible "
-                #               f"for {self.ifc}.")
-                pass
+                logger.warning(f"No calculation of geometric volume possible "
+                               f"for {self.ifc}.")
+
 
 
 class ThermalZone(BPSProduct):

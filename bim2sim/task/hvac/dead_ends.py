@@ -11,13 +11,13 @@ class DeadEnds(ITask):
     touches = ('graph',)
 
     def run(self, workflow: Workflow, graph: HvacGraph) -> HvacGraph:
-        #self.logger.info("Inspecting for dead ends")
+        self.logger.info("Inspecting for dead ends")
         pot_dead_ends = self.identify_dead_ends(graph)
-        #self.logger.info("Found %s possible dead ends in network." % len(pot_dead_ends))
+        self.logger.info("Found %s possible dead ends in network." % len(pot_dead_ends))
         graph, n_removed = yield from self.decide_dead_ends(graph, pot_dead_ends, False)
-        #self.logger.info("Removed %s ports due to found dead ends." % n_removed)
+        self.logger.info("Removed %s ports due to found dead ends." % n_removed)
         if __debug__:
-            #self.logger.info("Plotting graph ...")
+            self.logger.info("Plotting graph ...")
             graph.plot(self.paths.export)
             graph.plot(self.paths.export, ports=True)
         return graph,

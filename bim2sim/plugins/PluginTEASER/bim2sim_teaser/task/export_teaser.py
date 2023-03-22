@@ -34,7 +34,7 @@ class ExportTEASER(ITask):
         super().__init__()
 
     def run(self, workflow, libraries, ifc, instances, weather_file):
-        #self.logger.info("Export to TEASER")
+        self.logger.info("Export to TEASER")
         export.Instance.init_factory(libraries)
 
         prj = self._create_project()

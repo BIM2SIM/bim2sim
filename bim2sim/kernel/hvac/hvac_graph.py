@@ -47,12 +47,12 @@ class HvacGraph(nx.Graph):
         :return:
         """
         new_graph = graph.copy()
-        #logger.info("Contracting ports into elements ...")
+        logger.info("Contracting ports into elements ...")
         for port in port_nodes:
             new_graph = nx.contracted_nodes(new_graph, port.parent, port)
-        #logger.info("Contracted the ports into node instances, this"
-        #            " leads to %d nodes.",
-        #            new_graph.number_of_nodes())
+        logger.info("Contracted the ports into node instances, this"
+                    " leads to %d nodes.",
+                    new_graph.number_of_nodes())
         return graph
 
     @property
@@ -98,13 +98,13 @@ class HvacGraph(nx.Graph):
         Find cycles in the graph.
         :return cycles:
         """
-        #logger.info("Searching for cycles in hvac network ...")
+        logger.info("Searching for cycles in hvac network ...")
         base_cycles = nx.cycle_basis(self)
         # for cycle in base_cycles:
         #     x = {port.parent for port in cycle}
         cycles = [cycle for cycle in base_cycles if len(
             {port.parent for port in cycle}) > 1]
-        #logger.info("Found %d cycles", len(cycles))
+        logger.info("Found %d cycles", len(cycles))
         return cycles
 
     @staticmethod
@@ -541,10 +541,9 @@ class HvacGraph(nx.Graph):
             if raise_error:
                 raise AssertionError("Conflicting flow_side in %r" % port)
             else:
-                #logger.error("Conflicting flow_side in %r", port)
+                logger.error("Conflicting flow_side in %r", port)
                 known[port] = None
                 return known
-
         # call neighbours
         for neigh in self.neighbors(port):
             if (neigh.parent.is_consumer() or neigh.parent.is_generator()) \
@@ -553,7 +552,6 @@ class HvacGraph(nx.Graph):
                 self.recurse_set_side(neigh, -side, known, raise_error)
             else:
                 self.recurse_set_side(neigh, side, known, raise_error)
-
         return known
 
     def recurse_set_unknown_sides(self, port, visited: list = None,

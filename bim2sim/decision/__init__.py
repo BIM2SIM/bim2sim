@@ -260,12 +260,12 @@ class Decision:
             if checksum == self.validate_checksum:
                 self.value = self.deserialize_value(value)
                 self.status = Status.ok
-                #logger.info("Loaded decision '%s' with value: %s", self.global_key, value)
+                logger.info("Loaded decision '%s' with value: %s", self.global_key, value)
             else:
-                #logger.warning("Checksum mismatch for loaded decision '%s", self.global_key)
+                logger.warning("Checksum mismatch for loaded decision '%s", self.global_key)
                 pass
         else:
-            #logger.warning("Check for loaded decision '%s' failed. Loaded value: %s", self.global_key, value)
+            logger.warning("Check for loaded decision '%s' failed. Loaded value: %s", self.global_key, value)
             pass
 
     def serialize_value(self):
@@ -538,7 +538,7 @@ def save(bunch: DecisionBunch, path):
     }
     with open(path, "w") as file:
         json.dump(data, file, indent=2)
-    #logger.info("Saved %d decisions.", len(bunch))
+    logger.info("Saved %d decisions.", len(bunch))
 
 
 def load(path) -> Dict[str, Any]:
@@ -548,17 +548,17 @@ def load(path) -> Dict[str, Any]:
         with open(path, "r") as file:
             data = json.load(file)
     except IOError as ex:
-        #logger.info(f"Unable to load decisions. "
-        #            f"No Existing decisions found at {ex.filename}")
+        logger.info(f"Unable to load decisions. "
+                    f"No Existing decisions found at {ex.filename}")
         return {}
     version = data.get('version', '0')
     if version != __VERSION__:
         try:
             data = convert(version, __VERSION__, data)
-            #logger.info("Converted stored decisions from version '%s' to '%s'", version, __VERSION__)
+            logger.info("Converted stored decisions from version '%s' to '%s'", version, __VERSION__)
         except:
-            #logger.error("Decision conversion from %s to %s failed")
+            logger.error("Decision conversion from %s to %s failed")
             return {}
     decisions = data.get('decisions')
-    #logger.info("Found %d previous made decisions.", len(decisions or []))
+    logger.info("Found %d previous made decisions.", len(decisions or []))
     return decisions

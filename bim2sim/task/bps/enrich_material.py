@@ -31,8 +31,8 @@ class EnrichMaterial(ITask):
         for invalid_inst in invalid.values():
             yield from self.enrich_invalid_instance(invalid_inst, resumed,
                                                     templates)
-        #self.logger.info("enriched %d invalid materials",
-        #                 len(self.enriched_instances))
+        self.logger.info("enriched %d invalid materials",
+                         len(self.enriched_instances))
         self.update_instances(instances, self.enriched_instances)
 
         return instances,

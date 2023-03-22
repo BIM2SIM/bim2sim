@@ -50,30 +50,30 @@ class ConnectElements(ITask):
         Returns:
             instances: dictionary of elements with guid as key
         """
-        #self.logger.info("Connect elements")
+        self.logger.info("Connect elements")
 
         # Check ports
-        #self.logger.info("Checking ports of elements ...")
+        self.logger.info("Checking ports of elements ...")
         self.check_element_ports(instances)
         # Make connections by relations
-        #self.logger.info("Connecting the relevant elements")
-        #self.logger.info(" - Connecting by relations ...")
+        self.logger.info("Connecting the relevant elements")
+        self.logger.info(" - Connecting by relations ...")
         all_ports = [port for item in instances.values() for port in item.ports]
         rel_connections = self.connections_by_relation(all_ports)
-        #self.logger.info(" - Found %d potential connections.", len(rel_connections))
+        self.logger.info(" - Found %d potential connections.", len(rel_connections))
         # Check connections
-        #self.logger.info(" - Checking positions of connections ...")
+        self.logger.info(" - Checking positions of connections ...")
         confirmed, unconfirmed, rejected = self.confirm_connections_position(rel_connections)
-        #self.logger.info(" - %d connections are confirmed and %d rejected. %d can't be confirmed.",
-        #                 len(confirmed), len(rejected), len(unconfirmed))
+        self.logger.info(" - %d connections are confirmed and %d rejected. %d can't be confirmed.",
+                         len(confirmed), len(rejected), len(unconfirmed))
         for port1, port2 in confirmed + unconfirmed:
             # Unconfirmed ports have no position data and can not be connected by position
             port1.connect(port2)
         # Connect unconnected ports by position
         unconnected_ports = (port for port in all_ports if not port.is_connected())
-        #self.logger.info(" - Connecting remaining ports by position ...")
+        self.logger.info(" - Connecting remaining ports by position ...")
         pos_connections = self.connections_by_position(unconnected_ports)
-        #self.logger.info(" - Found %d additional connections.", len(pos_connections))
+        self.logger.info(" - Found %d additional connections.", len(pos_connections))
         for port1, port2 in pos_connections:
             port1.connect(port2)
         # Get number of connected and unconnected ports
@@ -81,15 +81,14 @@ class ConnectElements(ITask):
         unconnected = [port for port in all_ports if not port.is_connected()]
         nr_unconnected = len(unconnected)
         nr_connected = nr_total - nr_unconnected
-        #self.logger.info("In total %d of %d ports are connected.", nr_connected, nr_total)
+        self.logger.info("In total %d of %d ports are connected.", nr_connected, nr_total)
         if nr_total > nr_connected:
-            pass
-            #self.logger.warning("%d ports are not connected!", nr_unconnected)
+            self.logger.warning("%d ports are not connected!", nr_unconnected)
         # Connect by bounding box TODO: implement
         unconnected_elements = {uc.parent for uc in unconnected}
         if unconnected_elements:
             bb_connections = self.connections_by_boundingbox(unconnected, unconnected_elements)
-            #self.logger.warning("Connecting by bounding box is not implemented.")
+            self.logger.warning("Connecting by bounding box is not implemented.")
         # Check inner connections
         yield from self.check_inner_connections(instances.values())
 
@@ -114,7 +113,7 @@ class ConnectElements(ITask):
                     other_ports = [port for port in all_ports if port not in [port_a, port_b]]
                     if port_a in all_ports and port_b in all_ports and len(set(other_ports)) == 1:
                         # Both ports connected to same other port -> merge ports
-                        #quality_logger.info("Removing %s and set %s as SINKANDSOURCE.", port_b.ifc, port_a.ifc)
+                        quality_logger.info("Removing %s and set %s as SINKANDSOURCE.", port_b.ifc, port_a.ifc)
                         ele.ports.remove(port_b)
                         port_b.parent = None
                         port_a.flow_direction = 0
@@ -144,7 +143,7 @@ class ConnectElements(ITask):
                 other_port = None
                 if len(connected_ports) > 1:
                     # conflicts
-                    #quality_logger.warning("%s has multiple connections", port.ifc)
+                    quality_logger.warning("%s has multiple connections", port.ifc)
                     possibilities = []
                     for connected_port in connected_ports:
                         possible_port = port_mapping.get(
@@ -160,11 +159,10 @@ class ConnectElements(ITask):
                     else:
                         if len(possibilities) == 1:
                             other_port = possibilities[0]
-                            #quality_logger.info("Solved by ignoring deleted connection.")
+                            quality_logger.info("Solved by ignoring deleted connection.")
                         else:
-                            pass
-                            #quality_logger.error("Unable to solve conflicting connections. "
-                            #                     "Continue without connecting %s", port.ifc)
+                            quality_logger.error("Unable to solve conflicting connections. "
+                                                 "Continue without connecting %s", port.ifc)
                 else:
                     # explicit
                     other_port = port_mapping.get(connected_ports[0].GlobalId)
@@ -172,8 +170,7 @@ class ConnectElements(ITask):
                     if port.parent and other_port.parent:
                         connections.append((port, other_port))
                     else:
-                        pass
-                        #quality_logger.debug("Not connecting ports without parent (%s, %s)", port, other_port)
+                        quality_logger.debug("Not connecting ports without parent (%s, %s)", port, other_port)
 
         return connections
 
@@ -314,7 +311,7 @@ class Enrich(ITask):
         json_data = get_type_building_elements_hvac()
 
         # enrichment_parameter --> Class
-        #self.logger.info("Enrichment of the elements...")
+        self.logger.info("Enrichment of the elements...")
         # general question -> year of construction, all elements
         decision = RealDecision("Enter value for the construction year",
                                 validate_func=lambda x: isinstance(x, float),
@@ -338,8 +335,7 @@ class Enrich(ITask):
                     enrich_parameter
                 instances[instance].enrichment["year_enrichment"] = \
                     enrichment_data["statistical_year"][str(enrich_parameter)]
-
-        #self.logger.info("Applied successfully attributes enrichment on elements")
+        self.logger.info("Applied successfully attributes enrichment on elements")
 
 
 class MakeGraph(ITask):
@@ -349,7 +345,7 @@ class MakeGraph(ITask):
     touches = ('graph', )
 
     def run(self, workflow: Workflow, instances: dict):
-        #self.logger.info("Creating graph from IFC elements")
+        self.logger.info("Creating graph from IFC elements")
         not_mat_instances = \
             {k: v for k, v in instances.items() if not isinstance(v, Material)}
         graph = hvac_graph.HvacGraph(not_mat_instances.values())
@@ -371,8 +367,7 @@ class Reduce(ITask):
     touches = ('graph',)
 
     def run(self, workflow: Workflow, graph: HvacGraph) -> (HvacGraph, ):
-        #self.logger.info("Reducing elements by applying aggregations")
-
+        self.logger.info("Reducing elements by applying aggregations")
         aggregations_cls = {
             'UnderfloorHeating': UnderfloorHeating,
             'Consumer': Consumer,
@@ -389,7 +384,7 @@ class Reduce(ITask):
 
         for agg_class in aggregations:
             name = agg_class.__name__
-            #self.logger.info(f"Aggregating {name} ...")
+            self.logger.info(f"Aggregating {name} ...")
             matches, metas = agg_class.find_matches(graph)
             i = 0
             for match, meta in zip(matches, metas):
@@ -413,10 +408,10 @@ class Reduce(ITask):
                   (number_of_elements_before, number_of_elements_after)
         for aggregation, count in statistics.items():
             log_str += "\n  - %s: %d" % (aggregation, count)
-        #self.logger.info(log_str)
+        self.logger.info(log_str)
 
         if __debug__:
-            #self.logger.info("Plotting graph ...")
+            self.logger.info("Plotting graph ...")
             graph.plot(self.paths.export)
             graph.plot(self.paths.export, ports=True)
 
@@ -474,7 +469,7 @@ class DetectCycles(ITask):
     # TODO: sth useful like grouping or medium assignment
 
     def run(self, workflow: Workflow, graph: HvacGraph) -> tuple:
-        #self.logger.info("Detecting cycles")
+        self.logger.info("Detecting cycles")
         cycles = graph.get_cycles()
         return cycles,
 
@@ -486,7 +481,7 @@ class Export(ITask):
     final = True
 
     def run(self, workflow: Workflow, libraries: tuple, graph: HvacGraph):
-        #self.logger.info("Export to Modelica code")
+        self.logger.info("Export to Modelica code")
         reduced_instances = graph.elements
 
         connections = graph.get_connections()
@@ -501,9 +496,9 @@ class Export(ITask):
 
         connection_port_names = self.create_connections(graph, export_instances)
 
-        #self.logger.info(
-        #    "Creating Modelica model with %d model instances and %d connections.",
-        #    len(export_instances), len(connection_port_names))
+        self.logger.info(
+            "Creating Modelica model with %d model instances and %d connections.",
+            len(export_instances), len(connection_port_names))
 
         modelica_model = modelica.Model(
             name="bim2sim_"+self.prj_name,

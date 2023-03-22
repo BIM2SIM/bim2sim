@@ -65,8 +65,8 @@ class LoadIFC(ITask):
 
         # Schema2Python.get_ifc_structure(ifc)
 
-        #self.logger.info("The exporter version of the IFC file is '%s'",
-        #                 ifc.wrapped_data.header.file_name.originating_system)
+        self.logger.info("The exporter version of the IFC file is '%s'",
+                         ifc.wrapped_data.header.file_name.originating_system)
         return ifc,
 
     def get_ifc(self, path):
@@ -79,7 +79,7 @@ class LoadIFC(ITask):
         if len(lst) == 1:
             return os.path.join(path, lst[0])
         if len(lst) > 1:
-            #self.logger.warning("Found multiple ifc files. Selected '%s'.", lst[0])
+            self.logger.warning("Found multiple ifc files. Selected '%s'.", lst[0])
             return os.path.join(path, lst[0])
 
         self.logger.error("No ifc found in project folder.")
@@ -98,7 +98,7 @@ class LoadIFC(ITask):
              dict where key is the IfcMeasurement and value the pint unit
              definition. e.g. 'IfcLengthMeasure': meter
         """
-        #self.logger.info("Getting unit definitions from IFC")
+        self.logger.info("Getting unit definitions from IFC")
         unit_assignment = ifc.by_type('IfcUnitAssignment')
 
         results = {}
@@ -119,7 +119,7 @@ class LoadIFC(ITask):
                 if pos_key:
                     results[pos_key] = unit
             except:
-                #self.logger.warning(f"Failed to parse {unit_entity}")
+                self.logger.warning(f"Failed to parse {unit_entity}")
                 pass
 
         return results
@@ -182,10 +182,10 @@ class CreateElements(ITask):
         instance_lst.extend(valids)
         unknown_entities.extend(invalids)
 
-        #self.logger.info("Found %d relevant elements", len(instance_lst))
-        #self.logger.info("Found %d ifc_entities that could not be "
-        #                 "identified and transformed into a python element.",
-        #                 len(unknown_entities))
+        self.logger.info("Found %d relevant elements", len(instance_lst))
+        self.logger.info("Found %d ifc_entities that could not be "
+                         "identified and transformed into a python element.",
+                         len(unknown_entities))
 
         # identification of remaining entities by user
         entity_class_dict, unknown_entities = yield from self.set_class_by_user(
@@ -202,9 +202,8 @@ class CreateElements(ITask):
                 except Exception as ex:
                     invalids.append(ifc_entity)
         if invalids:
-            pass
-            # self.logger.info("Removed %d entities with no class set",
-            #                 len(invalids))
+            self.logger.info("Removed %d entities with no class set",
+                             len(invalids))
 
         self.logger.info("Created %d elements", len(instance_lst))
         instances = {inst.guid: inst for inst in instance_lst}

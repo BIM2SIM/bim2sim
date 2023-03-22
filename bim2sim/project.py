@@ -486,8 +486,8 @@ class Project:
             raise AssertionError("Project ist not set correctly!")
 
         if not self._user_logger_set:
-            # logger.info("Set user logger to default Stream. "
-            #            "Call project.set_user_logger_stream() prior to project.run() to change this.")
+            logger.info("Set user logger to default Stream. "
+                        "Call project.set_user_logger_stream() prior to project.run() to change this.")
             self.set_user_logging_handler(logging.StreamHandler())
 
         success = False
@@ -549,8 +549,8 @@ class Project:
         if not success:
             pth = self.paths.root / 'decisions_backup.json'
             save(self._made_decisions, pth)
-            # user_logger.warning("Decisions are saved in '%s'. Rename file to "
-            #                   "'decisions.json' to reuse them.", pth)
+            user_logger.warning("Decisions are saved in '%s'. Rename file to "
+                               "'decisions.json' to reuse them.", pth)
         else:
             save(self._made_decisions, self.paths.decisions)
 

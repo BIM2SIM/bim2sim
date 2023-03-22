@@ -238,7 +238,7 @@ class Workflow(metaclass=AutoSettingNameMeta):
                         raise TypeError(
                             f'Config entry for {setting} is no string. '
                             f'Please use strings only in config.')
-        #logger.info(f'Loaded {n_loaded_settings} settings from config file.')
+        logger.info(f'Loaded {n_loaded_settings} settings from config file.')
 
     dymola_simulation = WorkflowSetting(
         default=False,

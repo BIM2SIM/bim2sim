@@ -581,8 +581,8 @@ def convex_decomposition(shape: TopoDS_Shape,
                 oriented_shapes.append(new_shape)
             else:
                 logger = logging.getLogger(__name__)
-                #logger.error(
-                #    "Convex decomposition produces a gap in new space boundary")
+                logger.error(
+                    "Convex decomposition produces a gap in new space boundary")
     # check if decomposed shape has same area as original shape
     oriented_area = 0
     org_area = PyOCCTools.get_shape_area(shape)
@@ -609,7 +609,7 @@ def convex_decomposition(shape: TopoDS_Shape,
             add_cut_shapes.append(cs)
         if cut_count > 3:
             logger = logging.getLogger(__name__)
-            #logger.error(                "Convex decomposition produces a gap in new space boundary")
+            logger.error(                "Convex decomposition produces a gap in new space boundary")
             break
         else:
             oriented_shapes.extend(add_cut_shapes)

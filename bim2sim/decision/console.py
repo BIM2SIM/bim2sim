@@ -69,7 +69,7 @@ class ConsoleDecisionHandler(DecisionHandler):
                 pass
             else:
                 if skip_all:
-                    #self.logger.info("Decision can not be skipped")
+                    self.logger.info("Decision can not be skipped")
                     pass
                 try:
                     answer = self.user_input(decision,
@@ -80,10 +80,10 @@ class ConsoleDecisionHandler(DecisionHandler):
                     pass
                 except DecisionSkipAll:
                     skip_all = True
-                    #self.logger.info("Skipping remaining decisions")
+                    self.logger.info("Skipping remaining decisions")
                     pass
                 except DecisionCancel as ex:
-                    #self.logger.info("Canceling decisions")
+                    self.logger.info("Canceling decisions")
                     raise
             answers.append(answer)
         return answers
