@@ -35,12 +35,13 @@ requirements:
     - pythonocc-core==7.6.2
     - ifcopenshell
     - pythonocc-utils  # [osx]
-    # scikit-learn
-    # scipy
-    # sparse_dot_topn
-    # requests
-    # cython
-    # deep_translator
+    - deep_translator
+
+    - scikit-learn
+    - scipy
+    - sparse_dot_topn
+    - requests
+    - cython
 
   run_constrained:
     - beautifulsoup4 >=4.9.3
