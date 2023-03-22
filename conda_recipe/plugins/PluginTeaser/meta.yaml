@@ -22,7 +22,7 @@ requirements:
   run:
     - python >=3.8.*,<3.10.*
     # bim2sim_base=={{BIM2SIM_FLAG}}{{BIM2SIM_FLAG}}
-    - {{data.get('version')}}
+    - bim2sim_base==0.0.1{{BIM2SIM_FLAG}}
     - pillow
 
 test:

@@ -23,16 +23,16 @@ requirements:
     - poetry
   run:
     - python >=3.8.*,<3.10.*
-    - docopt 0.6.2.*
-    - numpy 1.21.5.*
-    - pandas 1.4.4.*
-    - matplotlib 3.5.2.*
+    - docopt==0.6.2
+    - numpy==1.21.5
+    - pandas==1.4.4
+    - matplotlib==3.5.2
     - networkx>=2.2
-    - python-dateutil 2.8.2.*
-    - mako 1.2.4.*
-    - pint 0.20.1.*
-    - certifi 2022.12.7.*
-    - pythonocc-core 7.6.2.*
+    - python-dateutil==2.8.2
+    - mako==1.2.4
+    - pint==0.20.1
+    - certifi==2022.12.7
+    - pythonocc-core==7.6.2
     - ifcopenshell
     - pythonocc-utils  # [osx]
     # scikit-learn
