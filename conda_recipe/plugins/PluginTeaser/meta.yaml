@@ -21,7 +21,8 @@ requirements:
     - setuptools 65.5.0
   run:
     - python >=3.8.*,<3.10.*
-    - bim2sim_base==*{{BIM2SIM_FLAG}}
+    # bim2sim_base=={{BIM2SIM_FLAG}}{{BIM2SIM_FLAG}}
+    - {{data.get('version')}}
     - pillow
 
 test:

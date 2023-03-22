@@ -12,14 +12,10 @@ build:
   number: '0'
   entry_points:
     - bim2sim = bim2sim.__main__:commandline_interface
+  script: python -m pip install --no-deps --ignore-installed .
+
 
 requirements:
-  build:
-    - git
-    - cmake
-    # gcc
-    # g++
-    # libboost-all-dev
   host:
     - python>=3.8.*,<3.10.*
     - pip
@@ -27,25 +23,27 @@ requirements:
     - poetry
   run:
     - python >=3.8.*,<3.10.*
-    - docopt==0.6.2
-    - numpy==1.21.5
-    - pandas==1.4.4
-    - matplotlib==3.5.2
+    - docopt 0.6.2.*
+    - numpy 1.21.5.*
+    - pandas 1.4.4.*
+    - matplotlib 3.5.2.*
     - networkx>=2.2
-    - python-dateutil==2.8.2
-    - mako==1.2.4
-    - pint==0.20.1
-    - certifi==2022.12.7
-    - pythonocc-core==7.5.1
+    - python-dateutil 2.8.2.*
+    - mako 1.2.4.*
+    - pint 0.20.1.*
+    - certifi 2022.12.7.*
+    - pythonocc-core 7.6.2.*
     - ifcopenshell
     - pythonocc-utils  # [osx]
-    - beautifulsoup4
-    - scikit-learn
-    - scipy
-    - sparse_dot_topn
-    - requests
-    - cython
-    - deep_translator
+    # scikit-learn
+    # scipy
+    # sparse_dot_topn
+    # requests
+    # cython
+    # deep_translator
+
+  run_constrained:
+    - beautifulsoup4 >=4.9.3
 
 test:
   imports:
@@ -82,3 +80,7 @@ about:
   summary: "A python tool to create simulation models for different domains based on BIM IFC models."
   description: "A python tool to create simulation models for different domains based on BIM IFC models. For documentation please visit https://ebc.pages.rwth-aachen.de/EBC_all/github_ci/bim2sim/development/docs/overview.html"
   license: LICENSE
+
+extra:
+  copy_test_source_files: false
+  final: true
