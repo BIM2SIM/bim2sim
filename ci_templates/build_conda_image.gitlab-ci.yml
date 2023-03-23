@@ -47,7 +47,7 @@ variables:
     - conda config --add channels dsdale24
     - conda config --add channels auto
     - conda config --add channels anaconda
-    - conda build $CONDA_FILE --output-folder conda-bld --python 3.9
+    - conda build $CONDA_FILE -c anaconda --output-folder conda-bld --python 3.9
   retry:
     max: 2
     when: runner_system_failure
