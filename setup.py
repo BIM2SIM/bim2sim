@@ -58,6 +58,7 @@ setup(
     extras_require={
         'manual_install': ['ifcopenshell>=0.6', 'pythonocc-core==7.5.1'],
     },
+    dependency_links=['https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip'],
     entry_points={
         'console_scripts': [
             'bim2sim = bim2sim.__main__:commandline_interface',

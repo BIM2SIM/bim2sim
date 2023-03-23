@@ -41,6 +41,8 @@ setup(
                                     not_include=[".py", ".Dockerfile", ".pyc"]),
     python_requires='>=3.8.*,<3.10.*',
     install_requires=[required],
+    #dependency_links=['https://github.com/NREL/EnergyPlusRegressionTool/archive/refs/tags/v1.9.6.zip'],
+
     classifiers=[
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',

@@ -5,6 +5,7 @@ with open(f'README.md', 'r') as f:
     long_description = f.read()
 with open(f'requirements.txt', 'r') as f:
     required = f.read().splitlines()
+
 version = "1.0.0"
 
 def copy_non_code_file(non_code_dir, not_include):
@@ -40,6 +41,8 @@ setup(
     include_package_data=True,
     package_data=copy_non_code_file(non_code_dir=f'bim2sim_hkesim',
                                     not_include=[".py", ".Dockerfile", ".pyc"]),
+    #dependency_links=['https://github.com/NREL/EnergyPlusRegressionTool/archive/refs/tags/v1.9.6.zip'],
+
     python_requires='>=3.8.*,<3.10.*',
     install_requires=[required],
     classifiers=[
