@@ -75,7 +75,7 @@ conda_build_bim2sim:base:dev:
     variables:
         BIM2SIM_NAME: "bim2sim"
         CONDA_FILE:  "conda_recipe/basic_build/meta.yaml"
-        BIM2SIM_FLAG: "_dev"
+        BIM2SIM_FLAG: ".dev"
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:dev, rules]
@@ -121,7 +121,7 @@ build_conda_plugin:aixlib:dev:
     variables:
         BIM2SIM_NAME: "bim2sim_aixlib"
         CONDA_FILE: "conda_recipe/plugins/PluginAixLib/meta.yaml"
-        BIM2SIM_FLAG: "_dev"
+        BIM2SIM_FLAG: ".dev"
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
@@ -152,7 +152,7 @@ build_conda_plugin:cfd:dev:
     variables:
         BIM2SIM_NAME: "bim2sim_cfd"
         CONDA_FILE: "conda_recipe/plugins/PluginCFD/meta.yaml"
-        BIM2SIM_FLAG: "_dev"
+        BIM2SIM_FLAG: ".dev"
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
@@ -183,7 +183,7 @@ build_conda_plugin:energyplus:dev:
     variables:
         BIM2SIM_NAME: "bim2sim_energyplus"
         CONDA_FILE: "conda_recipe/plugins/PluginEnergyPlus/meta.yaml"
-        BIM2SIM_FLAG: "_dev"
+        BIM2SIM_FLAG: ".dev"
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
@@ -215,7 +215,7 @@ build_conda_plugin:hkesim:dev:
     variables:
         BIM2SIM_NAME: "bim2sim_hkesim"
         CONDA_FILE: "conda_recipe/plugins/PluginHKESim/meta.yaml"
-        BIM2SIM_FLAG: "_dev"
+        BIM2SIM_FLAG: ".dev"
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
@@ -247,7 +247,7 @@ build_conda_plugin:lca:dev:
     variables:
       BIM2SIM_NAME: "bim2sim_lca"
       CONDA_FILE: "conda_recipe/plugins/PluginLCA/meta.yaml"
-      BIM2SIM_FLAG: "_dev"
+      BIM2SIM_FLAG: ".dev"
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
@@ -278,7 +278,7 @@ build_conda_plugin:teaser:dev:
     variables:
         BIM2SIM_NAME: "bim2sim_teaser"
         CONDA_FILE: "conda_recipe/plugins/PluginTeaser/meta.yaml"
-        BIM2SIM_FLAG: "_dev"
+        BIM2SIM_FLAG: ".dev"
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
@@ -312,7 +312,7 @@ build_conda_bim2sim:total:dev:
     variables:
         BIM2SIM_NAME: "bim2sim"
         CONDA_FILE: "conda_recipe/total/meta.yaml"
-        BIM2SIM_FLAG: "_dev"
+        BIM2SIM_FLAG: ".dev"
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:dev, rules]
