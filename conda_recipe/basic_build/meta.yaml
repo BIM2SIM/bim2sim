@@ -1,8 +1,8 @@
-{% set data = load_setup_py_data(setup_file='../../setup.py', from_recipe_dir=True) %}
+{% set version = "0.0.1" %}
 
 package:
-  name:  {{BIM2SIM_NAME}}
-  version: {{data.get('version')}}{{BIM2SIM_FLAG}}
+  name: "bim2sim"
+  version: {{ version }}
 
 source:
   path: ../../
@@ -39,7 +39,7 @@ requirements:
 test:
   requires:
     - python  >=3.8.*,<3.10.*
-    - pint==0.20.1
+    - pint
     - pythonocc-core==7.5.1
     - ifcopenshell
   source_files:
