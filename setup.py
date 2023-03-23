@@ -56,7 +56,7 @@ setup(
         'Programming Language :: Python :: 3.9',
     ],
     extras_require={
-        'manual_install': ['ifcopenshell>=0.6', 'pythonocc-core==7.6.2'],
+        'manual_install': ['ifcopenshell>=0.6', 'pythonocc-core==7.5.1'],
     },
     entry_points={
         'console_scripts': [
