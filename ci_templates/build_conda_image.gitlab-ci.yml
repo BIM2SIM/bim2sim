@@ -47,7 +47,7 @@ variables:
     - conda config --add channels dsdale24
     - conda config --add channels auto
     - conda config --add channels anaconda
-    - conda build $CONDA_FILE -c conda-forge --output-folder conda-bld --python 3.9
+    - conda build $CONDA_FILE --output-folder conda-bld --python 3.9
   retry:
     max: 2
     when: runner_system_failure
@@ -87,7 +87,7 @@ conda_build_bim2sim:base:nightly:
     variables:
         BIM2SIM_NAME: "bim2sim"
         CONDA_FILE:  "conda_recipe/basic_build/meta.yaml"
-        BIM2SIM_FLAG: "_nightly"
+        BIM2SIM_FLAG: ".nightly"
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:nightly, rules]
@@ -131,7 +131,7 @@ build_conda_plugin:aixlib:nightly:
     variables:
         BIM2SIM_NAME: "bim2sim_aixlib"
         CONDA_FILE: "conda_recipe/plugins/PluginAixLib/meta.yaml"
-        BIM2SIM_FLAG: "_nightly"
+        BIM2SIM_FLAG: ".nightly"
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:nightly, rules]
@@ -162,7 +162,7 @@ build_conda_plugin:cfd:nightly:
     variables:
         BIM2SIM_NAME: "bim2sim_cfd"
         CONDA_FILE: "conda_recipe/plugins/PluginCFD/meta.yaml"
-        BIM2SIM_FLAG: "_nightly"
+        BIM2SIM_FLAG: ".nightly"
     extends: .conda_build
     rules:
       - !reference [  .conda_build_rules:nightly, rules]
@@ -193,7 +193,7 @@ build_conda_plugin:energyplus:nightly:
     variables:
         BIM2SIM_NAME: "bim2sim_energyplus"
         CONDA_FILE: "conda_recipe/plugins/PluginEnergyPlus/meta.yaml"
-        BIM2SIM_FLAG: "_nightly"
+        BIM2SIM_FLAG: ".nightly"
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:nightly, rules]
@@ -225,7 +225,7 @@ build_conda_plugin:hkesim:nightly:
     variables:
         BIM2SIM_NAME: "bim2sim_hkesim"
         CONDA_FILE: "conda_recipe/plugins/PluginHKESim/meta.yaml"
-        BIM2SIM_FLAG: "_nightly"
+        BIM2SIM_FLAG: ".nightly"
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:nightly, rules]
@@ -257,7 +257,7 @@ build_conda_plugin:lca:nightly:
     variables:
       BIM2SIM_NAME: "bim2sim_lca"
       CONDA_FILE: "conda_recipe/plugins/PluginLCA/meta.yaml"
-      BIM2SIM_FLAG: "_nightly"
+      BIM2SIM_FLAG: ".nightly"
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:nightly, rules]
@@ -288,7 +288,7 @@ build_conda_plugin:teaser:nightly:
     variables:
         BIM2SIM_NAME: "bim2sim_teaser"
         CONDA_FILE: "conda_recipe/plugins/PluginTeaser/meta.yaml"
-        BIM2SIM_FLAG: "_nightly"
+        BIM2SIM_FLAG: ".nightly"
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:nightly, rules]
@@ -324,7 +324,7 @@ build_conda_bim2sim:total:nightly:
     variables:
         BIM2SIM_NAME: "bim2sim"
         CONDA_FILE: "conda_recipe/total/meta.yaml"
-        BIM2SIM_FLAG: "_nightly"
+        BIM2SIM_FLAG: ".nightly"
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:nightly, rules]
