@@ -37,15 +37,17 @@ variables:
   image: continuumio/miniconda3
   script:
     - apt update
+    - apt upgrade -y
     - apt install libgl1 -y
-    - conda install conda-build git conda-verify -y
+    - conda install conda-build git conda-verify anaconda anaconda-client -y
+    - conda update --all  -y
+    - conda config --set channel_priority strict
     - conda config --describe channel_priority
-    - conda config  --set channel_priority flexible
     - mkdir -p conda-bld/$BIM2SIM_NAME
+    - conda config --add channels dsdale24
     - conda config --add channels conda-forge
     - conda config --add channels bim2sim
-    - conda config --add channels dsdale24
-    - conda config --add channels auto
+    # conda config --add channels auto
     - conda config --add channels anaconda
     - conda build $CONDA_FILE -c anaconda --output-folder conda-bld --python 3.9
   retry:
@@ -338,8 +340,9 @@ build_conda_bim2sim:total:nightly:
     - apt install libgl1 -y
     - conda install conda-build git conda-verify anaconda anaconda-client -y
     - conda update --all  -y
-    - conda config  --set channel_priority flexible
-    - pip install cryptography==38.0.4
+    - conda config  --set channel_priority strict
+    - conda config --describe channel_priority
+    # pip install cryptography==38.0.4
     - anaconda logout
     - anaconda login --username bim2sim --password $CONDA_TOKEN --hostname $CI_JOB_ID
 
@@ -357,7 +360,6 @@ build_conda_bim2sim:total:nightly:
 
     # conda convert -p linux-aarch64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
     # anaconda upload conda-bld/$BIM2SIM_NAME/linux-aarch64/$BIM2SIM_NAME-* --force
-
     - anaconda logout
   retry:
     max: 2
