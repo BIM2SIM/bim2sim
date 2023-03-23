@@ -19,8 +19,8 @@ requirements:
     - python>=3.8.*,<3.10.*
     - pip
     - setuptools 65.5.0
-    - numpy
-    - cython
+    # numpy
+    # cython
   run:
     - python >=3.8.*,<3.10.*
     - docopt 0.6.2.*
@@ -43,7 +43,6 @@ test:
     - pint==0.20.1
     - pythonocc-core==7.5.1
     - ifcopenshell
-
   source_files:
     - conda_recipe/basic_build/base_run_test.sh # [not win]
     - conda_recipe/basic_build/base_run_test.bat # [ win]
@@ -57,15 +56,11 @@ test:
     - bim2sim.plugins.PluginHKESim
     - bim2sim.plugins.PluginLCA
     - bim2sim.plugins.PluginTEASER
-
-
   commands:
     - bim2sim -h
     - bim2sim --version
     - bash conda_recipe/basic_build/base_run_test.sh # [not win]
     - conda_recipe/basic_build/base_run_test.bat # [win]
-
-
 about:
   home: https://github.com/BIM2SIM/bim2sim
   summary: "A python tool to create simulation models for different domains based on BIM IFC models."
