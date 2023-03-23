@@ -8,7 +8,7 @@ source:
   path: ../../
 
 build:
-  preserve_egg_dir: true
+  preserve_egg_dir: True
   number: '0'
   entry_points:
     - bim2sim = bim2sim.__main__:commandline_interface
@@ -32,7 +32,7 @@ requirements:
     - certifi 2022.12.7.*
     - pythonocc-core 7.5.1.*
     - ifcopenshell
-    run_constrained:
+  run_constrained:
     - beautifulsoup4 >=4.9.3
 
 test:
