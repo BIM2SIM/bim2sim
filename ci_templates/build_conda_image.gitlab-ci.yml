@@ -39,21 +39,23 @@ variables:
     - apt update
     - apt install libgl1 -y
     - conda install conda-build git conda-verify -y
+    - conda config --describe channel_priority
+    - conda config  --set channel_priority flexible
     - mkdir -p conda-bld/$BIM2SIM_NAME
+    - conda config --add channels conda-forge
+    - conda config --add channels bim2sim
     - conda config --add channels dsdale24
     - conda config --add channels auto
     - conda config --add channels anaconda
-    - conda config --add channels bim2sim
-    - conda config --add channels conda-forge
-    - conda build $CONDA_FILE -c conda-forge --output-folder conda-bld/$BIM2SIM_NAME --python 3.9
+    - conda build $CONDA_FILE -c conda-forge --output-folder conda-bld --python 3.9
   retry:
     max: 2
     when: runner_system_failure
   artifacts:
     expire_in: 1 hour
     paths:
-      - conda-bld/$BIM2SIM_NAME
-      - $CI_COMMIT_REF_NAME/coverage
+      - conda-bld
+
 
 # [Build Conda Base]
 conda_build_bim2sim:base:main:
@@ -336,21 +338,22 @@ build_conda_bim2sim:total:nightly:
     - apt install libgl1 -y
     - conda install conda-build git conda-verify anaconda anaconda-client -y
     - conda update --all  -y
+    - conda config  --set channel_priority flexible
     - pip install cryptography==38.0.4
     - anaconda logout
     - anaconda login --username bim2sim --password $CONDA_TOKEN --hostname $CI_JOB_ID
 
-    - conda convert -p osx-64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
-    - anaconda upload conda-bld/$BIM2SIM_NAME/osx-64/$BIM2SIM_NAME-* --force
+    - conda convert -p osx-64 conda-bld/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld -f
+    - anaconda upload conda-bld/osx-64/$BIM2SIM_NAME-* --force
 
     # conda convert -p osx-arm64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
     # anaconda upload conda-bld/$BIM2SIM_NAME/osx-arm64/$BIM2SIM_NAME-* --force
 
-    - conda convert -p win-64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
-    - anaconda upload conda-bld/$BIM2SIM_NAME/win-64/$BIM2SIM_NAME-* --force
+    - conda convert -p win-64 conda-bld/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld -f
+    - anaconda upload conda-bld/win-64/$BIM2SIM_NAME-* --force
 
-    - conda convert -p linux-64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
-    - anaconda upload conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --force
+    - conda convert -p linux-64 conda-bld/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld -f
+    - anaconda upload conda-bld/linux-64/$BIM2SIM_NAME-* --force
 
     # conda convert -p linux-aarch64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
     # anaconda upload conda-bld/$BIM2SIM_NAME/linux-aarch64/$BIM2SIM_NAME-* --force

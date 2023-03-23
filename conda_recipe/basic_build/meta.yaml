@@ -38,6 +38,16 @@ requirements:
     - beautifulsoup4 >=4.9.3
 
 test:
+  requires:
+    - python  >=3.8.*,<3.10.*
+    - pint==0.20.1
+    - pythonocc-core==7.5.1
+    - ifcopenshell
+
+  source_files:
+    - conda_recipe/basic_build/base_run_test.sh # [not win]
+    - conda_recipe/basic_build/base_run_test.bat # [ win]
+    - test
   imports:
     - bim2sim
     - bim2sim.plugins.PluginAixLib
@@ -46,11 +56,7 @@ test:
     - bim2sim.plugins.PluginHKESim
     - bim2sim.plugins.PluginLCA
     - bim2sim.plugins.PluginTEASER
-  requires:
-    - python  >=3.8.*,<3.10.*
-    - pint==0.20.1
-    - pythonocc-core==7.5.1
-    - ifcopenshell
+
 
   commands:
     - bim2sim -h
@@ -58,11 +64,6 @@ test:
     - bash conda_recipe/basic_build/base_run_test.sh # [not win]
     - conda_recipe/basic_build/base_run_test.bat # [win]
 
-  files:
-    - conda_recipe/basic_build/base_run_test.sh # [not win]
-    - conda_recipe/basic_build/base_run_test.bat # [ win]
-    - bim2sim
-    - test
 
 about:
   home: https://github.com/BIM2SIM/bim2sim
