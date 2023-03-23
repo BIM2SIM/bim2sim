@@ -46,7 +46,7 @@ test:
   source_files:
     - conda_recipe/basic_build/base_run_test.sh # [not win]
     - conda_recipe/basic_build/base_run_test.bat # [ win]
-    # bim2sim
+    - bim2sim
     - test
   imports:
     - bim2sim
