@@ -41,8 +41,7 @@ variables:
     - apt install libgl1 -y
     - conda install conda-build git conda-verify anaconda anaconda-client -y
     - conda update --all  -y
-    - conda config --set channel_priority strict
-    - conda config --describe channel_priority
+    - conda config --set channel_priority flexible
     - mkdir -p conda-bld/$BIM2SIM_NAME
     - conda config --add channels dsdale24
     - conda config --add channels conda-forge
