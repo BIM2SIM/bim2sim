@@ -14,7 +14,6 @@ build:
     - bim2sim = bim2sim.__main__:commandline_interface
   script: python -m pip install --no-deps --ignore-installed .
 
-
 requirements:
   host:
     - python>=3.8.*,<3.10.*

@@ -59,7 +59,7 @@ variables:
 conda_build_bim2sim:base:main:
     stage: build_conda_base
     variables:
-        BIM2SIM_NAME: "bim2sim_base"
+        BIM2SIM_NAME: "bim2sim"
         CONDA_FILE:  "conda_recipe/basic_build/meta.yaml"
         BIM2SIM_FLAG: ""
     extends: .conda_build
@@ -71,7 +71,7 @@ conda_build_bim2sim:base:main:
 conda_build_bim2sim:base:dev:
     stage: build_conda_base
     variables:
-        BIM2SIM_NAME: "bim2sim_base"
+        BIM2SIM_NAME: "bim2sim"
         CONDA_FILE:  "conda_recipe/basic_build/meta.yaml"
         BIM2SIM_FLAG: "_dev"
     extends: .conda_build
@@ -83,7 +83,7 @@ conda_build_bim2sim:base:dev:
 conda_build_bim2sim:base:nightly:
     stage: build_conda_base
     variables:
-        BIM2SIM_NAME: "bim2sim_base"
+        BIM2SIM_NAME: "bim2sim"
         CONDA_FILE:  "conda_recipe/basic_build/meta.yaml"
         BIM2SIM_FLAG: "_nightly"
     extends: .conda_build
@@ -407,7 +407,7 @@ build_conda_bim2sim:total:nightly:
 release_conda_bim2sim:base:main:
   stage: release_conda_base
   variables:
-    BIM2SIM_NAME: "bim2sim_base"
+    BIM2SIM_NAME: "bim2sim"
   dependencies:
     - conda_build_bim2sim:base:main
   extends: .conda_release
@@ -419,7 +419,7 @@ release_conda_bim2sim:base:main:
 release_conda_bim2sim:base:dev:
   stage: release_conda_base
   variables:
-    BIM2SIM_NAME: "bim2sim_base"
+    BIM2SIM_NAME: "bim2sim"
   dependencies:
     - conda_build_bim2sim:base:dev
   extends: .conda_release
@@ -431,7 +431,7 @@ release_conda_bim2sim:base:dev:
 release_conda_bim2sim:base:nightly:
   stage: release_conda_base
   variables:
-    BIM2SIM_NAME: "bim2sim_base"
+    BIM2SIM_NAME: "bim2sim"
   dependencies:
     - conda_build_bim2sim:base:nightly
   extends: .conda_release
