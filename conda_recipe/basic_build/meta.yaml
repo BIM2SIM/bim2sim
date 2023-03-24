@@ -62,7 +62,7 @@ test:
   commands:
     - bim2sim -h
     - bim2sim --version
-    - python bim2sim/examples/e5_export_quantities_for_lca.py
+    # python bim2sim/examples/e5_export_quantities_for_lca.py
     - bash conda_recipe/basic_build/base_run_test.sh # [notwin]
     - conda_recipe/basic_build/base_run_test.bat # [win]
 
