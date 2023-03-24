@@ -21,6 +21,8 @@ stages:
   - build_docker_total
   - test_docker_total
   - release_docker_total
+  - build_conda_package
+  - release_conda_package
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
