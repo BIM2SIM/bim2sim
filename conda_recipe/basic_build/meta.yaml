@@ -14,38 +14,38 @@ build:
     - bim2sim = bim2sim.__main__:commandline_interface
   script: python -m pip install --no-deps --ignore-installed .
   missing_dso_whitelist:
-    - libQt5Widgets.so.5
-    - libQt5Gui.so.5
-    - libtbb.so.2
-    - libIfcParse.so.0.6
-    - libIfcGeom.so.0.6
-    - libpolyclipping.so.22
-    - libgmp.so.10
-    - libmpfr.so.6
-    - libQt5Core.so.5
-    - libTKSTEP.so.7
-    - libTKIGES.so.7
-    - libTKXSBase.so.7
-    - libTKSTL.so.7
-    - libTKVRML.so.7
-    - libTKOpenGl.so.7
-    - libTKOffset.so.7
-    - libTKBO.so.7
-    - libTKPrim.so.7
-    - libTKV3d.so.7
-    - libTKMesh.so.7
-    - libTKShHealing.so.7
-    - libTKTopAlgo.so.7
-    - libTKBRep.so.7
-    - libTKGeomBase.so.7
-    - libTKG3d.so.7
-    - libTKG2d.so.7
-    - libTKService.so.7
-    - libTKMath.so.7
-    - libTKernel.so.7
-    - libpthread.so.0
-    - libstdc++.so.6
-    - libm.so.6
+    - $RPATH/libQt5Widgets.so.5
+    - $RPATH/libQt5Gui.so.5
+    - $RPATH/libtbb.so.2
+    - $RPATH/libIfcParse.so.0.6
+    - $RPATH/libIfcGeom.so.0.6
+    - $RPATH/libpolyclipping.so.22
+    - $RPATH/libgmp.so.10
+    - $RPATH/libmpfr.so.6
+    - $RPATH/libQt5Core.so.5
+    - $RPATH/libTKSTEP.so.7
+    - $RPATH/libTKIGES.so.7
+    - $RPATH/libTKXSBase.so.7
+    - $RPATH/libTKSTL.so.7
+    - $RPATH/libTKVRML.so.7
+    - $RPATH/libTKOpenGl.so.7
+    - $RPATH/libTKOffset.so.7
+    - $RPATH/libTKBO.so.7
+    - $RPATH/libTKPrim.so.7
+    - $RPATH/libTKV3d.so.7
+    - $RPATH/libTKMesh.so.7
+    - $RPATH/libTKShHealing.so.7
+    - $RPATH/libTKTopAlgo.so.7
+    - $RPATH/libTKBRep.so.7
+    - $RPATH/libTKGeomBase.so.7
+    - $RPATH/libTKG3d.so.7
+    - $RPATH/libTKG2d.so.7
+    - $RPATH/libTKService.so.7
+    - $RPATH/libTKMath.so.7
+    - $RPATH/libTKernel.so.7
+    - $RPATH/libpthread.so.0
+    - $RPATH/libstdc++.so.6
+    - $RPATH/libm.so.6
 
 
 requirements:
