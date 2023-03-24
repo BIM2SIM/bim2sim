@@ -25,15 +25,17 @@ requirements:
     # cython
   run:
     - python >=3.8.*,<3.10.*
-    - pythonocc-core<= 7.5.1.*
-    - pythonocc-core
-    - ifcopenshell<= 0.6.0.*
+    - pythonocc-core<= 7.5.1
+    # pythonocc-core
+    # ifcopenshell== v0.7.a6.*
+    - ifcopenshell
+    - occt<=7.5.1
     - docopt
     - numpy
     - pandas
     - matplotlib
-    # networkx>=2.2
-    - networkx
+    - networkx>=2.2
+    # networkx
     - python-dateutil
     - mako
     - pint
