@@ -12,7 +12,7 @@ build:
   number: '0'
   entry_points:
     - bim2sim = bim2sim.__main__:commandline_interface
-  script: python -m pip install --no-deps --ignore-installed .
+  #script: python -m pip install --no-deps --ignore-installed .
   missing_dso_whitelist:
     - $RPATH/libQt5Widgets.so.5 # [linux]
     - $RPATH/libQt5Gui.so.5 # [linux]
