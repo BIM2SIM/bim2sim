@@ -25,8 +25,8 @@ requirements:
     # cython
   run:
     - python >=3.8.*,<3.10.*
-    - pythonocc-core<= 7.5.1.*
-    # pythonocc-core
+    # pythonocc-core<= 7.5.1.*
+    - pythonocc-core
     - ifcopenshell<= 0.6.0.*
     - docopt
     - numpy
