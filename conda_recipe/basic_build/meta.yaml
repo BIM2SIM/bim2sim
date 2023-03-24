@@ -34,7 +34,8 @@ requirements:
     - mako
     - pint
     - certifi
-    - pythonocc-core<= 7.5.1.*
+    # pythonocc-core<= 7.5.1.*
+    - pythonocc-core
     - ifcopenshell
   run_constrained:
     - beautifulsoup4 >=4.9.3
@@ -43,10 +44,10 @@ test:
   requires:
     - python>=3.8.*,<3.10.*
     - pint
-    - pythonocc-core==7.5.1
+    - pythonocc-core
     - ifcopenshell
   source_files:
-    - conda_recipe/basic_build/base_run_test.sh # [notwin]
+    - conda_recipe/basic_build/base_run_test.sh # [not win]
     - conda_recipe/basic_build/base_run_test.bat # [win]
     - bim2sim
     - test
@@ -62,9 +63,9 @@ test:
   commands:
     - bim2sim -h
     - bim2sim --version
-    # python bim2sim/examples/e5_export_quantities_for_lca.py
-    - bash conda_recipe/basic_build/base_run_test.sh # [notwin]
-    - conda_recipe/basic_build/base_run_test.bat # [win]
+    - python bim2sim/examples/e5_export_quantities_for_lca.py
+    # bash conda_recipe/basic_build/base_run_test.sh # [not win]
+    # conda_recipe/basic_build/base_run_test.bat # [win]
 
 
 
