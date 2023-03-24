@@ -72,7 +72,7 @@ docker_build_bim2sim:base:dev:
   stage: build_docker_base
   variables:
     BIM2SIM_NAME: "bim2sim_base"
-    BIM2SIM_FLAG: "_dev"
+    BIM2SIM_FLAG: ".dev"
     IMAGE_NAME: "base_dev"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -85,7 +85,7 @@ docker_build_bim2sim:base:nightly:
   stage: build_docker_base
   variables:
     BIM2SIM_NAME: "bim2sim_base"
-    BIM2SIM_FLAG: "_nightly"
+    BIM2SIM_FLAG: ".nightly"
     IMAGE_NAME: "base_nightly"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -179,7 +179,7 @@ docker_build_plugin:aixlib:dev:
   stage: build_docker_plugin
   variables:
     BIM2SIM_NAME: "bim2sim_aixlib"
-    BIM2SIM_FLAG: "_dev"
+    BIM2SIM_FLAG: ".dev"
     IMAGE_NAME: "plugin_aixlib_dev"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -190,7 +190,7 @@ docker_build_plugin:aixlib:nightly:
   stage: build_docker_plugin
   variables:
     BIM2SIM_NAME: "bim2sim_aixlib"
-    BIM2SIM_FLAG: "_nightly"
+    BIM2SIM_FLAG: ".nightly"
     IMAGE_NAME: "plugin_aixlib_nightly"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -266,7 +266,7 @@ docker_build_plugin:cfd:dev:
   stage: build_docker_plugin
   variables:
     BIM2SIM_NAME: "bim2sim_cfd"
-    BIM2SIM_FLAG: "_dev"
+    BIM2SIM_FLAG: ".dev"
     IMAGE_NAME: "plugin_cfd_dev"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -277,7 +277,7 @@ docker_build_plugin:cfd:nightly:
   stage: build_docker_plugin
   variables:
     BIM2SIM_NAME: "bim2sim_cfd"
-    BIM2SIM_FLAG: "_nightly"
+    BIM2SIM_FLAG: ".nightly"
     IMAGE_NAME: "plugin_cfd_nightly"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -353,7 +353,7 @@ docker_build_plugin:energyplus:dev:
   stage: build_docker_plugin
   variables:
     BIM2SIM_NAME: "bim2sim_energyplus"
-    BIM2SIM_FLAG: "_dev"
+    BIM2SIM_FLAG: ".dev"
     IMAGE_NAME: "plugin_energyplus_dev"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -364,7 +364,7 @@ docker_build_plugin:energyplus:nightly:
   stage: build_docker_plugin
   variables:
     BIM2SIM_NAME: "bim2sim_energyplus"
-    BIM2SIM_FLAG: "_nightly"
+    BIM2SIM_FLAG: ".nightly"
     IMAGE_NAME: "plugin_energyplus_nightly"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -498,7 +498,7 @@ docker_build_plugin:hkesim:dev:
   stage: build_docker_plugin
   variables:
     BIM2SIM_NAME: "bim2sim_hkesim"
-    BIM2SIM_FLAG: "_dev"
+    BIM2SIM_FLAG: ".dev"
     IMAGE_NAME: "plugin_hkesim_dev"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -509,7 +509,7 @@ docker_build_plugin:hkesim:nightly:
   stage: build_docker_plugin
   variables:
     BIM2SIM_NAME: "bim2sim_hkesim"
-    BIM2SIM_FLAG: "_nightly"
+    BIM2SIM_FLAG: ".nightly"
     IMAGE_NAME: "plugin_hkesim_nightly"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -535,7 +535,7 @@ docker_build_plugin:lca:dev:
   stage: build_docker_plugin
   variables:
     BIM2SIM_NAME: "bim2sim_lca"
-    BIM2SIM_FLAG: "_dev"
+    BIM2SIM_FLAG: ".dev"
     IMAGE_NAME: "plugin_lca_dev"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -546,7 +546,7 @@ docker_build_plugin:lca:nightly:
   stage: build_docker_plugin
   variables:
     BIM2SIM_NAME: "bim2sim_lca"
-    BIM2SIM_FLAG: "_nightly"
+    BIM2SIM_FLAG: ".nightly"
     IMAGE_NAME: "plugin_lca_nightly"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -621,7 +621,7 @@ docker_build_plugin:teaser:dev:
   stage: build_docker_plugin
   variables:
     BIM2SIM_NAME: "bim2sim_teaser"
-    BIM2SIM_FLAG: "_dev"
+    BIM2SIM_FLAG: ".dev"
     IMAGE_NAME: "plugin_teaser_dev"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -632,7 +632,7 @@ docker_build_plugin:teaser:nightly:
   stage: build_docker_plugin
   variables:
     BIM2SIM_NAME: "bim2sim_teaser"
-    BIM2SIM_FLAG: "_nightly"
+    BIM2SIM_FLAG: ".nightly"
     IMAGE_NAME: "plugin_teaser_nightly"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -711,7 +711,7 @@ docker_build_bim2sim:env_dymola_base:dev:
   stage: build_docker_base
   variables:
     BIM2SIM_NAME: "bim2sim_base"
-    BIM2SIM_FLAG: "_dev"
+    BIM2SIM_FLAG: ".dev"
     IMAGE_NAME: "dymola_dev"
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
   extends: .docker_dymola_build
@@ -737,7 +737,7 @@ docker_build_bim2sim:env_dymola_base:nightly:
   stage: build_docker_base
   variables:
     BIM2SIM_NAME: "bim2sim_base"
-    BIM2SIM_FLAG: "_nightly"
+    BIM2SIM_FLAG: ".nightly"
     IMAGE_NAME: "dymola_nightly"
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
   extends: .docker_dymola_build
@@ -764,7 +764,7 @@ docker_build_plugin:dymola_teaser:dev:
   stage: build_docker_plugin
   variables:
     BIM2SIM_NAME: "bim2sim_teaser"
-    BIM2SIM_FLAG: "_dev"
+    BIM2SIM_FLAG: ".dev"
     IMAGE_NAME: "plugin_dymola_teaser_dev"
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
   extends: .docker_dymola_build
@@ -775,7 +775,7 @@ docker_build_plugin:dymola_teaser:nightly:
   stage: build_docker_plugin
   variables:
     BIM2SIM_NAME: "bim2sim_teaser"
-    BIM2SIM_FLAG: "_nightly"
+    BIM2SIM_FLAG: ".nightly"
     IMAGE_NAME: "plugin_dymola_teaser_nightly"
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
   extends: .docker_dymola_build
@@ -858,7 +858,7 @@ docker_build_total:dev:
   stage: build_docker_total
   variables:
     BIM2SIM_NAME: "bim2sim"
-    BIM2SIM_FLAG: "_dev"
+    BIM2SIM_FLAG: ".dev"
     IMAGE_NAME: "development"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_dymola_build
@@ -871,7 +871,7 @@ docker_build_total:nightly:
   stage: build_docker_total
   variables:
     BIM2SIM_NAME: "bim2sim"
-    BIM2SIM_FLAG: "_nightly"
+    BIM2SIM_FLAG: ".nightly"
     IMAGE_NAME: "nightly"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_dymola_build
