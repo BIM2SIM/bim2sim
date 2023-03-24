@@ -49,6 +49,10 @@ build:
 
 
 requirements:
+  build:
+    - git
+    - cmake
+    - gcc
   host:
     - python>=3.8.*,<3.10.*
     - pip 22.2.2
