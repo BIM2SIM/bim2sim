@@ -53,8 +53,8 @@ requirements:
     - python>=3.8.*,<3.10.*
     - pip 22.2.2
     - setuptools 65.5.0
-    # numpy
-    # cython
+    - numpy
+    - cython
   run:
     - python >=3.8.*,<3.10.*
     - pythonocc-core<= 7.5.1
