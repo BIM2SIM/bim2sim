@@ -1,7 +1,7 @@
 {% set version = "0.0.1" %}
 
 package:
-  name: "bim2sim"
+  name: "bim2sim_base"
   version: {{ version }}
 
 source:
@@ -38,6 +38,21 @@ requirements:
     - ifcopenshell
   run_constrained:
     - beautifulsoup4 >=4.9.3
+
+test:
+  imports:
+    - bim2sim
+    - bim2sim.plugins.PluginAixLib
+    - bim2sim.plugins.PluginTEASER
+    - bim2sim.plugins.PluginCFD
+    - bim2sim.plugins.PluginEnergyPlus
+    - bim2sim.plugins.PluginLCA
+  requires:
+    - python  >=3.8.*,<3.10.*
+    - pint 0.20.1.*
+    - pythonocc-core
+    - ifcopenshell
+
 
 about:
   home: https://github.com/BIM2SIM/bim2sim
