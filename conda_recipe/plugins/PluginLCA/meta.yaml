@@ -34,7 +34,6 @@ test:
     - pythonocc-core==7.5.1
     - ifcopenshell
 
-
   commands:
     - conda list
     - bim2sim -h
