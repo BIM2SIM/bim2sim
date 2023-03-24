@@ -25,6 +25,9 @@ requirements:
     # cython
   run:
     - python >=3.8.*,<3.10.*
+    - pythonocc-core<= 7.5.1.*
+    # pythonocc-core
+    - ifcopenshell<= 0.6.0.*
     - docopt
     - numpy
     - pandas
@@ -34,9 +37,7 @@ requirements:
     - mako
     - pint
     - certifi
-    # pythonocc-core<= 7.5.1.*
-    - pythonocc-core
-    - ifcopenshell
+
   run_constrained:
     - beautifulsoup4 >=4.9.3
 
@@ -64,8 +65,8 @@ test:
     - bim2sim -h
     - bim2sim --version
     - python bim2sim/examples/e5_export_quantities_for_lca.py
-    # bash conda_recipe/basic_build/base_run_test.sh # [not win]
-    # conda_recipe/basic_build/base_run_test.bat # [win]
+    - bash conda_recipe/basic_build/base_run_test.sh # [not win]
+    - conda_recipe/basic_build/base_run_test.bat # [win]
 
 
 
