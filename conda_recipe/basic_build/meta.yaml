@@ -14,38 +14,38 @@ build:
     - bim2sim = bim2sim.__main__:commandline_interface
   script: python -m pip install --no-deps --ignore-installed .
   missing_dso_whitelist:
-    - $RPATH/libQt5Widgets.so.5
-    - $RPATH/libQt5Gui.so.5
-    - $RPATH/libtbb.so.2
-    - $RPATH/libIfcParse.so.0.6
-    - $RPATH/libIfcGeom.so.0.6
-    - $RPATH/libpolyclipping.so.22
-    - $RPATH/libgmp.so.10
-    - $RPATH/libmpfr.so.6
-    - $RPATH/libQt5Core.so.5
-    - $RPATH/libTKSTEP.so.7
-    - $RPATH/libTKIGES.so.7
-    - $RPATH/libTKXSBase.so.7
-    - $RPATH/libTKSTL.so.7
-    - $RPATH/libTKVRML.so.7
-    - $RPATH/libTKOpenGl.so.7
-    - $RPATH/libTKOffset.so.7
-    - $RPATH/libTKBO.so.7
-    - $RPATH/libTKPrim.so.7
-    - $RPATH/libTKV3d.so.7
-    - $RPATH/libTKMesh.so.7
-    - $RPATH/libTKShHealing.so.7
-    - $RPATH/libTKTopAlgo.so.7
-    - $RPATH/libTKBRep.so.7
-    - $RPATH/libTKGeomBase.so.7
-    - $RPATH/libTKG3d.so.7
-    - $RPATH/libTKG2d.so.7
-    - $RPATH/libTKService.so.7
-    - $RPATH/libTKMath.so.7
-    - $RPATH/libTKernel.so.7
-    - $RPATH/libpthread.so.0
-    - $RPATH/libstdc++.so.6
-    - $RPATH/libm.so.6
+    - $RPATH/libQt5Widgets.so.5 # [linux]
+    - $RPATH/libQt5Gui.so.5 # [linux]
+    - $RPATH/libtbb.so.2 # [linux]
+    - $RPATH/libIfcParse.so.0.6 # [linux]
+    - $RPATH/libIfcGeom.so.0.6 # [linux]
+    - $RPATH/libpolyclipping.so.22 # [linux]
+    - $RPATH/libgmp.so.10 # [linux]
+    - $RPATH/libmpfr.so.6 # [linux]
+    - $RPATH/libQt5Core.so.5 # [linux]
+    - $RPATH/libTKSTEP.so.7 # [linux]
+    - $RPATH/libTKIGES.so.7 # [linux]
+    - $RPATH/libTKXSBase.so.7 # [linux]
+    - $RPATH/libTKSTL.so.7 # [linux]
+    - $RPATH/libTKVRML.so.7 # [linux]
+    - $RPATH/libTKOpenGl.so.7 # [linux]
+    - $RPATH/libTKOffset.so.7 # [linux]
+    - $RPATH/libTKBO.so.7 # [linux]
+    - $RPATH/libTKPrim.so.7 # [linux]
+    - $RPATH/libTKV3d.so.7 # [linux]
+    - $RPATH/libTKMesh.so.7 # [linux]
+    - $RPATH/libTKShHealing.so.7 # [linux]
+    - $RPATH/libTKTopAlgo.so.7 # [linux]
+    - $RPATH/libTKBRep.so.7 # [linux]
+    - $RPATH/libTKGeomBase.so.7 # [linux]
+    - $RPATH/libTKG3d.so.7 # [linux]
+    - $RPATH/libTKG2d.so.7 # [linux]
+    - $RPATH/libTKService.so.7 # [linux]
+    - $RPATH/libTKMath.so.7 # [linux]
+    - $RPATH/libTKernel.so.7 # [linux]
+    - $RPATH/libpthread.so.0 # [linux]
+    - $RPATH/libstdc++.so.6 # [linux]
+    - $RPATH/libm.so.6 # [linux]
 
 
 requirements:
