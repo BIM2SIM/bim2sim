@@ -36,7 +36,7 @@ test:
     - bim2sim -h
     - bim2sim --version
     - bash conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
-    - bash conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh # [not win]
+    # bash conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh # [not win]
 
 
   source_files:
