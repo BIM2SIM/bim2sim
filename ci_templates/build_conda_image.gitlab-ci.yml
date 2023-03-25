@@ -11,6 +11,7 @@ stages:
 variables:
   BIM2SIM_FLAG: ""
   BIM2SIM_NAME:  "bim2sim"
+  BIM2SIM_BASE_VERSION: "0.0.1"
 
 .conda_build_rules:main:
   rules:
@@ -50,7 +51,7 @@ variables:
     - conda config --add channels bim2sim
     # conda config --add channels auto
     - conda config --add channels anaconda
-    - conda build $CONDA_FILE  -c conda-forge --output-folder conda-bld/ --python 3.9
+    - conda build $CONDA_FILE  -c conda-forge -c bim2sim --output-folder conda-bld/ --python 3.9
   retry:
     max: 2
     when: runner_system_failure

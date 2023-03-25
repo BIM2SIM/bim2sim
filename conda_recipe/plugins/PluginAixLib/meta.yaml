@@ -22,16 +22,13 @@ requirements:
     - setuptools 65.5.0
   run:
     - python >=3.8.*,<3.10.*
-    - bim2sim_base==0.0.1{{BIM2SIM_FLAG}}
+    - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
 test:
   imports:
     - bim2sim
   requires:
     - python  >=3.8.*,<3.10.*
-    - pint==0.20.1
-    - pythonocc-core==7.5.1
-    - ifcopenshell
-    - bim2sim_base==0.0.1{{BIM2SIM_FLAG}}
+    - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
   commands:
     - bim2sim -h
     - bim2sim --version
