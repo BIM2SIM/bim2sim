@@ -28,6 +28,7 @@ requirements:
     - beautifulsoup4
     - munch
     - pyclipper
+    - transforms3d
 
 test:
   imports:
