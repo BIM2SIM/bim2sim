@@ -12,7 +12,7 @@ stages:
 variables:
   BIM2SIM_NAME:  "bim2sim"
   BIM2SIM_FLAG: ""
-  BIM2SIM_VERSION: 0.1.0
+  BIM2SIM_VERSION: 0.0.1
   # [Images]
   TEST_IMAGE: ${CI_REGISTRY}/environment:${IMAGE_NAME}_test
   RELEASE_IMAGE: ${CI_REGISTRY}/environment:${IMAGE_NAME}
