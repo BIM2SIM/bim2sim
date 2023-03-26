@@ -8,8 +8,6 @@ with open("requirements.txt", 'r') as f:
     required = f.read().splitlines()
 with open("dependency_requirements.txt", 'r') as f:
     dep_required = f.read().splitlines()
-print("test")
-print(dep_required)
 version = "0.0.1"
 
 def copy_non_code_file(non_code_dir, not_include):
