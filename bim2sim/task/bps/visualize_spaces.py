@@ -18,9 +18,10 @@ class VisualizeThermalZone(ITask):
     def run(self, workflow, ifc, instances):
         self.logger.info("Display a geometry shape of ifc file")
         thermal_zones = self._get_ifcspace(ifc=ifc)
-        self._visualize_thermal_zone(thermal_zones=thermal_zones)
-
-        #self._get_position(instances=instances, thermal_zones=thermal_zones)
+        #self._visualize_thermal_zone(thermal_zones=thermal_zones)
+        # todo: Thermalzone nach räumen aufgelistet
+        self._get_thermalzone_objects(thermal_zones=thermal_zones)
+        self._get_position(instances=instances)
 
     def _visualize_thermal_zone(self, thermal_zones):
         display, start_display, add_menu, add_function_to_menu = init_display()
@@ -38,6 +39,12 @@ class VisualizeThermalZone(ITask):
         display.FitAll()
         start_display()
 
+    def _get_thermalzone_objects(self, thermal_zones):
+        for room in thermal_zones:
+            print(room.ifc)
+
+
+
     def _get_ifcspace(self, ifc ):
         ifc_spaces = ifc.by_type('IfcSpace')
         thermal_zones = []
@@ -47,17 +54,9 @@ class VisualizeThermalZone(ITask):
 
     def _get_position(self, instances):
         for inst in instances.values():
-            if inst.__class__.__name__ is "ThermalZone":
+            if inst.__class__.__name__ == "ThermalZone":
                 print((inst.position))
-                #print((inst.name))
                 print((inst.zone_name))
-                print(inst.spaces)
-
-
-        """for l in instances:
-            print(f'{l}:{instances[l]}')
-        print((instances.values()))"""
-        pass
 
 
 class ThermalZone:

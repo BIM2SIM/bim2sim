@@ -21,7 +21,5 @@ class PluginLCA(Plugin):
         bps.CreateSpaceBoundaries,
         ExportLCA,
         bps.VisualizeThermalZone
-
-
         # my task
         ]
