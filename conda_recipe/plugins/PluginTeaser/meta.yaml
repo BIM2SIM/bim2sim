@@ -21,7 +21,7 @@ requirements:
     - python >=3.8.*,<3.10.*
     - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
     - pillow
-    - pyqt5
+    - pyqt5-sip
 
 test:
   imports:
