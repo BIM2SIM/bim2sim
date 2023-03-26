@@ -46,7 +46,7 @@ setup(
                                     not_include=[".py", ".Dockerfile", ".pyc"]),
     python_requires='>=3.8.*,<3.10.*',
     install_requires=[required],
-    #dependency_links=[git_required],
+    dependency_links=git_required,
 
     classifiers=[
         'Programming Language :: Python :: 3.8',

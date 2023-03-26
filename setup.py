@@ -6,8 +6,10 @@ with open("README.md", 'r') as f:
     long_description = f.read()
 with open("requirements.txt", 'r') as f:
     required = f.read().splitlines()
-with open("dependency_requirements.txt.txt", 'r') as f:
+with open("dependency_requirements.txt", 'r') as f:
     dep_required = f.read().splitlines()
+print("test")
+print(dep_required)
 version = "0.0.1"
 
 def copy_non_code_file(non_code_dir, not_include):
@@ -60,7 +62,7 @@ setup(
     extras_require={
         'manual_install': ['ifcopenshell>=0.6', 'pythonocc-core==7.5.1'],
     },
-    dependency_links=[dep_required],
+    dependency_links=dep_required,
     entry_points={
         'console_scripts': [
             'bim2sim = bim2sim.__main__:commandline_interface',
