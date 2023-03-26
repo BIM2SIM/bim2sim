@@ -5,7 +5,7 @@ with open(f'README.md', 'r') as f:
     long_description = f.read()
 with open(f'requirements.txt', 'r') as f:
     required = f.read().splitlines()
-with open(f'git_requirements.txt', 'r') as f:
+with open(f'dependency_requirements.txt', 'r') as f:
     git_required = f.read().splitlines()
 version = "0.0.1"
 

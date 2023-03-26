@@ -1,0 +1,7 @@
+python >=3.8.*,<3.10.*
+bim2sim_base
+shapely
+numpy-stl
+munch
+pyclipper
+transforms3d

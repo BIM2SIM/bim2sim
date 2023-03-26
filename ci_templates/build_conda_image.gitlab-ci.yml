@@ -47,6 +47,7 @@ variables:
     - conda config --set channel_priority flexible
     - mkdir -p conda-bld
     - conda config --add channels dsdale24
+    - conda config --add channels inso
     - conda config --add channels conda-forge
     - conda config --add channels bim2sim
     # conda config --add channels auto

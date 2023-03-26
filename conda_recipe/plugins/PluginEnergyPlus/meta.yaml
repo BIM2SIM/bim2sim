@@ -25,7 +25,7 @@ requirements:
     - shapely
     - numpy-stl
     # eppy
-    - beautifulsoup4
+    # beautifulsoup4
     - munch
     - pyclipper
     - transforms3d
