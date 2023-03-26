@@ -17,12 +17,10 @@ class VisualizeThermalZone(ITask):
 
     def run(self, workflow, ifc, instances):
         self.logger.info("Display a geometry shape of ifc file")
-        ifc_spaces = ifc.by_type('IfcSpace')
-        thermal_zones = []
-        for ifc_space in ifc_spaces:
-            thermal_zones.append(ThermalZone(ifc_space))
-        #self._visualize_thermal_zone(thermal_zones=thermal_zones)
-        self._get_position(instances=instances, thermal_zones=thermal_zones)
+        thermal_zones = self._get_ifcspace(ifc=ifc)
+        self._visualize_thermal_zone(thermal_zones=thermal_zones)
+
+        #self._get_position(instances=instances, thermal_zones=thermal_zones)
 
     def _visualize_thermal_zone(self, thermal_zones):
         display, start_display, add_menu, add_function_to_menu = init_display()
@@ -40,12 +38,20 @@ class VisualizeThermalZone(ITask):
         display.FitAll()
         start_display()
 
-    def _get_position(self, instances, thermal_zones):
+    def _get_ifcspace(self, ifc ):
+        ifc_spaces = ifc.by_type('IfcSpace')
+        thermal_zones = []
+        for ifc_space in ifc_spaces:
+            thermal_zones.append(ThermalZone(ifc_space))
+        return thermal_zones
+
+    def _get_position(self, instances):
         for inst in instances.values():
             if inst.__class__.__name__ is "ThermalZone":
                 print((inst.position))
-                print((inst.name))
+                #print((inst.name))
                 print((inst.zone_name))
+                print(inst.spaces)
 
 
         """for l in instances:
