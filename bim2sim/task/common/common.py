@@ -526,7 +526,7 @@ class CreateElements(ITask):
 
                     self.logger.info(
                         f"Grouping the unidentified elements with fuzzy search "
-                        f"based on their Name reduced the number of unknown "
+                        f"based on their Name (Threshold = {workflow.fuzzy_threshold}) reduced the number of unknown "
                         f"entities from {len(entities_by_type[entity_type])} "
                         f"elements of IFC type {entity_type} "
                         f"to {len(representatives[entity_type])} elements.")
