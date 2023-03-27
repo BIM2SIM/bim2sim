@@ -42,7 +42,8 @@ RUN find -name '*.a' -delete   && \
   rm -rf /venv/include && \
   #rm /venv/lib/libpython3.9.so.1.0  && \
   find -name '__pycache__' -type d -exec rm -rf '{}' '+' && \
-  rm -rf /venv/lib/python3.9/site-packages/pip /venv/lib/python3.9/idlelib /venv/lib/python3.9/ensurepip && \
+  #rm -rf /venv/lib/python3.9/site-packages/pip  \
+  rm -rf  /venv/lib/python3.9/idlelib /venv/lib/python3.9/ensurepip && \
   rm -rf  /venv/lib/python3.9/idlelib /venv/lib/python3.9/ensurepip \
     /venv/lib/libasan.so.5.0.0 \
     /venv/lib/libtsan.so.0.0.0 \
@@ -73,7 +74,8 @@ RUN apt-get update --fix-missing && \
 RUN   apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
 ENTRYPOINT source /venv/bin/activate && \
            bim2sim --help
-           #python /venv/lib/python3.9/site-packages/bim2sim/examples/e5_export_quantities_for_lca.py
+           #python /venv/lib/python3.9/site-packages/bim2sim/examples/e5_export_quantities_for_lca.py && \
+           #pip install coverage
 
 
 

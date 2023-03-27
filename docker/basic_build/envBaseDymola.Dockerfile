@@ -42,7 +42,8 @@ RUN find -name '*.a' -delete   && \
   rm -rf /venv/include && \
 # rm /env/lib/libpython3.9.so.1.0  && \
   find -name '__pycache__' -type d -exec rm -rf '{}' '+' && \
-  rm -rf /venv/lib/python3.9/site-packages/pip /venv/lib/python3.9/idlelib /venv/lib/python3.9/ensurepip \
+  #rm -rf /venv/lib/python3.9/site-packages/pip  \
+  rm -rf  /venv/lib/python3.9/idlelib /venv/lib/python3.9/ensurepip \
   rm -rf  /venv/lib/python3.9/idlelib /venv/lib/python3.9/ensurepip \
     /venv/lib/libasan.so.5.0.0 \
     /venv/lib/libtsan.so.0.0.0 \
