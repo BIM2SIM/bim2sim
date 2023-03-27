@@ -529,7 +529,7 @@ class CreateElements(ITask):
                         f"based on their Name reduced the number of unknown "
                         f"entities from {len(entities_by_type[entity_type])} "
                         f"elements of IFC type {entity_type} "
-                        f"to {representatives[entity_type]} elements.")
+                        f"to {len(representatives[entity_type])} elements.")
                 # just group based on exact same string in "Name" of IFC element
                 elif workflow.group_unidentified == 'name':
                     for entity in entities:
