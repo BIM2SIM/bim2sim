@@ -74,6 +74,7 @@ RUN apt-get update --fix-missing && \
 
 RUN   apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
 SHELL  ["bash", "-c"]
+ENV PATH /venv/bin:$PATH
 ENTRYPOINT source /venv/bin/activate && \
            bim2sim --help
            #python /venv/lib/python3.9/site-packages/bim2sim/examples/e5_export_quantities_for_lca.py
