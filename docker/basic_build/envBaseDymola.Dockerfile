@@ -66,18 +66,14 @@ RUN ln -s /venv/bin/python /usr/bin/python && \
      ln -s /venv/bin/python3.9 /usr/bin/python3.9 && \
     ln -s /venv/bin/bim2sim /usr/bin/bim2sim  && \
     ln -s /venv/bin/pip /usr/bin/pip
-SHELL ["/bin/bash", "-c"]
+#SHELL ["/bin/bash", "-c"]
 RUN apt-get update --fix-missing && \
     apt-get install -y wget unzip bzip2 ca-certificates curl git && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 RUN   apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+SHELL  ["bash", "-c"]
 ENTRYPOINT source /venv/bin/activate && \
            bim2sim --help
            #python /venv/lib/python3.9/site-packages/bim2sim/examples/e5_export_quantities_for_lca.py
-
-
-#ENV PATH /venv/bin:$PATH
-
-
