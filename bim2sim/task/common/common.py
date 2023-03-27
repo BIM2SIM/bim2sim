@@ -515,7 +515,7 @@ class CreateElements(ITask):
                     entity_names = [entity.Name for entity in entities]
                     name_series = pd.Series(data=entity_names)
                     res = group_similar_strings(
-                        name_series,min_similarity=workflow.fuzzy_threshold)
+                        name_series, min_similarity=workflow.fuzzy_threshold)
                     for i, entity in enumerate(entities):
                         # get representative element based on similar strings df
                         repres = entities[res.iloc[i].group_rep_index]
