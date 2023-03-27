@@ -745,7 +745,60 @@ docker_build_bim2sim:env_dymola_base:nightly:
     - !reference [.docker_build_rules:nightly, rules ]
 
 # Todo [test docker dymola bim2sim base]
+.test_dym_base:
+  before_script:
+    - pip install coverage
+    - pip install coverage-badge
+  script:
+    - mv ./* /bim2sim-coding/
+    - cd /bim2sim-coding
+    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download
+    - unzip -o /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
+    - coverage run -m unittest discover /bim2sim-coding/test
+    - coverage report -i
+    - mkdir -p $CI_COMMIT_REF_NAME/coverage
+    - coverage html -i
+    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+  artifacts:
+    paths:
+      - $CI_COMMIT_REF_NAME/coverage
 
+test_dym_base:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_base
+  dependencies:
+    - docker_build_bim2sim:env_dymola_base:dev
+  variables:
+    IMAGE_NAME: "dymola_dev"
+  extends: .test_dym_base
+  rules:
+    - !reference [.docker_build_rules:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
+      when: on_success
+
+test_dym_base:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_base
+  dependencies:
+    - docker_build_bim2sim:env_dymola_base:main
+  variables:
+    IMAGE_NAME: "dymola"
+  extends: .test_dym_base
+  rules:
+    - !reference [.docker_build_rules:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
+      when: on_success
+
+test_dym_base:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_base
+  dependencies:
+    - docker_build_bim2sim:env_dymola_base:nightly
+  variables:
+    IMAGE_NAME: "dymola_nightly"
+  extends: .test_dym_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
 
 # [build docker dymola plugin teaser]
 
