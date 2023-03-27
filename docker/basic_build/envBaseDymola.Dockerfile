@@ -58,7 +58,7 @@ RUN find -name '*.a' -delete   && \
 FROM registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola_2022 as runtime
 
 ARG DEBIAN_FRONTEND=noninteractive
-#ENV DISPLAY=host.docker.internal:0.0
+# ENV DISPLAY=host.docker.internal:0.0
 WORKDIR /bim2sim-coding
 # Copy /venv from the previous stage:
 COPY --from=build /venv /venv
