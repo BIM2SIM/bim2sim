@@ -443,6 +443,8 @@ class Project:
             user_handler.setFormatter(log.user_formatter)
         general_logger.addHandler(user_handler)
 
+        self._user_logger_set = True
+
         self._log_handlers.setdefault('bim2sim', []).append(user_handler)
         self._log_thread_filters.append(user_thread_filter)
 
@@ -495,7 +497,8 @@ class Project:
 
         if not self._user_logger_set:
             logger.info("Set user logger to default Stream. "
-                        "Call project.set_user_logger_stream() prior to "
+                        "Call project.set_user_logging_handler(your_handler) "
+                        "with your own handler prior to "
                         "project.run() to change this.")
             self.set_user_logging_handler(logging.StreamHandler())
 
