@@ -478,24 +478,42 @@ class CreateElements(ITask):
             workflow: Workflow,
             best_guess_dict: dict):
         """Ask user for every given ifc_entity to specify matching element
-        class"""
+        class.
 
-        def group_similar_entities() -> dict:
+        This function allows to define unknown classes based on user feedback.
+        To reduce the number of decisions we implemented fuzzy search. If and
+        how fuzzy search is used can be set the workflow settings
+        group_unidentified and fuzzy_threshold. See group_similar_entities
+        for more information.
+
+        Args:
+            unknown_entities: list of unknown entities
+            workflow: workflow: Workflow used on task
+            best_guess_dict: dict that holds the best guesses for every element
+        """
+
+        def group_similar_entities(
+            search_type: str = 'fuzzy',
+            fuzzy_threshold: float = 0.7) -> dict:
             """Group unknown entities to reduce number of decisions.
 
             IFC elements are often not correctly specified, or have uncertain
             specifications like "USERDEFINED" as predefined type. For some IFC
             files this would lead to a very high amount of decisions to identify
-            elements. To reduce this group similar elements based on:
+            elements. To reduce this function groups similar elements based on:
                 - same name (exact)
                 - similar name (fuzzy search)
-            The selection which one should be used comes from the workflow
-            setting group_unidentified. If fuzzy is used one can change the
-            threshold for fuzzy search with the setting fuzzy_threshold.
+
+            Args:
+                search_type: str which is either 'fuzzy' or 'name'
+                fuzzy_threshold: float that sets the threshold for fuzzy search.
+                    A low threshold means a small similarity is required for
+                    grouping
 
             Returns:
-                representatives: A dict with the representing ifc element as key
-                and a list of all represented ifc elements.
+                representatives: A dict with a string of the representing ifc
+                element type as key (e.g. 'IfcPipeFitting') and a list of all
+                represented ifc elements.
             """
             entities_by_type = {}
             for entity in unknown_entities:
@@ -510,12 +528,12 @@ class CreateElements(ITask):
                 representatives[entity_type] = {}
 
                 # group based on similarity in string of "Name" of IFC element
-                if workflow.group_unidentified == 'fuzzy':
+                if search_type == 'fuzzy':
                     # use names of entities for grouping
                     entity_names = [entity.Name for entity in entities]
                     name_series = pd.Series(data=entity_names)
                     res = group_similar_strings(
-                        name_series, min_similarity=workflow.fuzzy_threshold)
+                        name_series, min_similarity=fuzzy_threshold)
                     for i, entity in enumerate(entities):
                         # get representative element based on similar strings df
                         repres = entities[res.iloc[i].group_rep_index]
@@ -526,12 +544,13 @@ class CreateElements(ITask):
 
                     self.logger.info(
                         f"Grouping the unidentified elements with fuzzy search "
-                        f"based on their Name (Threshold = {workflow.fuzzy_threshold}) reduced the number of unknown "
+                        f"based on their Name (Threshold = {fuzzy_threshold})"
+                        f" reduced the number of unknown "
                         f"entities from {len(entities_by_type[entity_type])} "
                         f"elements of IFC type {entity_type} "
                         f"to {len(representatives[entity_type])} elements.")
                 # just group based on exact same string in "Name" of IFC element
-                elif workflow.group_unidentified == 'name':
+                elif search_type == 'name':
                     for entity in entities:
                         # find if a key entity with same Name exists already
                         repr_entity = None
@@ -556,14 +575,14 @@ class CreateElements(ITask):
 
             return representatives
 
-
         possible_elements = workflow.relevant_elements
         sorted_elements = sorted(possible_elements, key=lambda item: item.key)
 
         result_entity_dict = {}
         ignore = []
 
-        representatives = group_similar_entities()
+        representatives = group_similar_entities(
+            workflow.group_unidentified, workflow.fuzzy_threshold)
 
         for ifc_type, repr_entities in sorted(representatives.items()):
             decisions = DecisionBunch()
