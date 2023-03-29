@@ -32,10 +32,13 @@ class EnrichUseConditions(ITask):
             final_usages = yield from self.enrich_usages(
                 self.prj_name, tz_instances)
             for tz, usage in final_usages.items():
+                orig_usage = tz.usage
                 tz.usage = usage
                 self.load_usage(tz)
                 self.enriched_tz.append(tz)
-            self.logger.info("obtained %d thermal zones", len(self.enriched_tz))
+                self.logger.info('Enrich ThermalZone from IfcSpace with '
+                                 'original usage "%s" with usage "%s"',
+                                 orig_usage, usage)
 
         return self.enriched_tz,
 

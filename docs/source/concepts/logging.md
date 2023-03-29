@@ -8,7 +8,7 @@ Logging in `bim2sim` distinguishes between three kinds of logging:
 > WARNING:
 > 
 > To handle `Project` specific log messages, `Project` related logging Handlers get filtered by the thread name of the `Project`. 
-> Having multiple `Project` instances in the same Thread my result in messy log messages.
+> Having multiple `Project` instances in the same Thread may result in messy log messages.
 
 
 
