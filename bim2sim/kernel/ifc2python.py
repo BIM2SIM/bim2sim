@@ -30,7 +30,11 @@ def load_ifc(path: str) -> file:
     logger.info("Loading IFC '%s'", path)
     if not os.path.exists(path):
         raise IOError("Path '%s' does not exist"%(path))
-    ifc_file = ifc_open(path)
+    try:
+        ifc_file = ifc_open(path)
+    except Exception as ex:
+        logger.error(f"Loading IFC raised the following error: {ex}")
+        raise RuntimeError("bim2sim canceled due to invalid IFC schema")
     return ifc_file
 
 
