@@ -21,20 +21,19 @@ class GeneratorHelper(SetupHelperHVAC):
             gen_vl_a = [
                 self.element_generator(hvac.Pipe, length=100, diameter=40)
                 for i in range(3)]
-            h_pump = self.element_generator(hvac.Pump, rated_power=2.2,
-                                            rated_height=12,
-                                            rated_volume_flow=8)
-            gen_vl_b1 = [self.element_generator(hvac.Pipe, flags=[
-                'strand1'],
-                                                length=100, diameter=40) for i in
-                        range(2)]
-            gen_vl_b2 = [self.element_generator(hvac.Pipe, flags=[
-                'strand1'],
-                                                length=100, diameter=40) for i in
-                        range(3)]
-            distributor = self.element_generator(hvac.Distributor,
-                                                 flags=[
-                'distributor'], n_ports=4)  # , volume=80
+            h_pump = self.element_generator(
+                hvac.Pump, rated_power=2.2, rated_height=12,
+                rated_volume_flow=8)
+            gen_vl_b1 = [
+                self.element_generator(
+                    hvac.Pipe, flags=['strand1'], length=100, diameter=40)
+                for i in range(2)]
+            gen_vl_b2 = [
+                self.element_generator(
+                    hvac.Pipe, flags=['strand1'], length=100, diameter=40)
+                for i in range(3)]
+            distributor = self.element_generator(
+                hvac.Distributor, flags=['distributor'], n_ports=4)  # volume=80
             gen_rl_a = [
                 self.element_generator(hvac.Pipe, length=100, diameter=40)
                 for i in range(4)]
@@ -51,10 +50,10 @@ class GeneratorHelper(SetupHelperHVAC):
                 self.element_generator(hvac.Pipe, length=100, diameter=40)
                 for i in range(2)]
             gen_rl_c = [
-                self.element_generator(hvac.Pipe, flags=['strand2'],
-                                       length=(1 + i) * 40, diameter=15)
-                for i in range(1)
-            ]
+                self.element_generator(
+                    hvac.Pipe, flags=['strand2'], length=(1 + i) * 40,
+                    diameter=15)
+                for i in range(1)]
             tank = self.element_generator(hvac.Storage, n_ports=1)
             bypass = [
                 self.element_generator(
@@ -69,7 +68,7 @@ class GeneratorHelper(SetupHelperHVAC):
                 for i in range(2)]
             pipe_outer_rl_distr = [
                 self.element_generator(
-                    hvac.Pipe, flags=['outer_rl'],length=100, diameter=40)
+                    hvac.Pipe, flags=['outer_rl'], length=100, diameter=40)
                 for i in range(2)]
 
         # connect
@@ -94,7 +93,7 @@ class GeneratorHelper(SetupHelperHVAC):
 
         # full system
         gen_circuit = [
-            boiler, *gen_vl_a, h_pump, *gen_vl_b1, *gen_vl_b2,  distributor,
+            boiler, *gen_vl_a, h_pump, *gen_vl_b1, *gen_vl_b2, distributor,
             *gen_rl_a, fitting, fitting_bp_1, fitting_bp_2, *bypass, *gen_rl_b1,
             *gen_rl_b2, *gen_rl_c, tank, *pipe_outer_vl_distr,
             *pipe_outer_rl_distr
@@ -112,24 +111,24 @@ class GeneratorHelper(SetupHelperHVAC):
             gen_vl_a = [
                 self.element_generator(hvac.Pipe, length=100, diameter=40)
                 for i in range(3)]
-            h_pump = self.element_generator(hvac.Pump, rated_power=2.2,
-                                            rated_height=12,
-                                            rated_volume_flow=8)
-            gen_vl_b1 = [self.element_generator(hvac.Pipe, flags=[
-                'strand1'],
-                                                length=100, diameter=40) for i in
-                        range(2)]
-            gen_vl_b2 = [self.element_generator(hvac.Pipe, flags=[
-                'strand1'],
-                                                length=100, diameter=40) for i in
-                        range(3)]
+            h_pump = self.element_generator(
+                hvac.Pump, rated_power=2.2, rated_height=12,
+                rated_volume_flow=8)
+            gen_vl_b1 = [
+                self.element_generator(
+                    hvac.Pipe, flags=['strand1'], length=100, diameter=40)
+                for i in range(2)]
+            gen_vl_b2 = [
+                self.element_generator(
+                    hvac.Pipe, flags=['strand1'], length=100, diameter=40)
+                for i in range(3)]
             distributor = self.element_generator(hvac.Distributor, flags=[
-                'distributor'], n_ports=4)  # , volume=80
+                'distributor'], n_ports=4)  # volume=80
             gen_rl_a = [
                 self.element_generator(hvac.Pipe, length=100, diameter=40)
                 for i in range(4)]
-            fitting = self.element_generator(hvac.PipeFitting, n_ports=3,
-                                             diameter=40, length=60)
+            fitting = self.element_generator(
+                hvac.PipeFitting, n_ports=3, diameter=40, length=60)
             fitting_bp_1 = self.element_generator(
                 hvac.PipeFitting, n_ports=3, diameter=40, length=60)
             fitting_bp_2 = self.element_generator(
@@ -141,14 +140,15 @@ class GeneratorHelper(SetupHelperHVAC):
                 self.element_generator(hvac.Pipe, length=100, diameter=40)
                 for i in range(2)]
             gen_rl_c = [
-                self.element_generator(hvac.Pipe, flags=['strand2'],
-                                       length=(1 + i) * 40, diameter=15)
+                self.element_generator(
+                    hvac.Pipe, flags=['strand2'], length=(1 + i) * 40,
+                    diameter=15)
                 for i in range(3)
             ]
             tank = self.element_generator(hvac.Storage, n_ports=1)
             bypass = [self.element_generator(
-                hvac.Pipe, flags=['bypass'], length=60, diameter=30) for
-                i in range(3)]
+                    hvac.Pipe, flags=['bypass'], length=60, diameter=30)
+                for i in range(3)]
         # connect
         gen_vl = [boiler, *gen_vl_a, h_pump]
         self.connect_strait(gen_vl)
@@ -169,24 +169,24 @@ class GeneratorHelper(SetupHelperHVAC):
             gen_vl_a2 = [
                 self.element_generator(hvac.Pipe, length=100, diameter=40)
                 for i in range(3)]
-            h_pump2 = self.element_generator(hvac.Pump, rated_power=2.2,
-                                             rated_height=12,
-                                             rated_volume_flow=8)
+            h_pump2 = self.element_generator(
+                hvac.Pump, rated_power=2.2, rated_height=12,
+                rated_volume_flow=8)
             gen_vl_b12 = [
                 self.element_generator(
-                    hvac.Pipe, flags=['strand12'], length=100,
-                    diameter=40) for i in range(2)]
+                    hvac.Pipe, flags=['strand12'], length=100, diameter=40)
+                for i in range(2)]
             gen_vl_b22 = [
                 self.element_generator(
-                    hvac.Pipe, flags=['strand12'], length=100,
-                    diameter=40) for i in range(3)]
+                    hvac.Pipe, flags=['strand12'], length=100, diameter=40)
+                for i in range(3)]
             distributor2 = self.element_generator(hvac.Distributor, flags=[
-                'distributor2'], n_ports=4)  # , volume=80
+                'distributor2'], n_ports=4)  # volume=80
             gen_rl_a2 = [
                 self.element_generator(hvac.Pipe, length=100, diameter=40)
                 for i in range(4)]
-            fitting2 = self.element_generator(hvac.PipeFitting, n_ports=3,
-                                              diameter=40, length=60)
+            fitting2 = self.element_generator(
+                hvac.PipeFitting, n_ports=3, diameter=40, length=60)
             fitting_bp_12 = self.element_generator(
                 hvac.PipeFitting, n_ports=3, diameter=40, length=60)
             fitting_bp_22 = self.element_generator(
@@ -198,14 +198,15 @@ class GeneratorHelper(SetupHelperHVAC):
                 self.element_generator(hvac.Pipe, length=100, diameter=40)
                 for i in range(2)]
             gen_rl_c2 = [
-                self.element_generator(hvac.Pipe, flags=['strand22'],
-                                       length=(1 + i) * 40, diameter=15)
+                self.element_generator(
+                    hvac.Pipe, flags=['strand22'], length=(1 + i) * 40,
+                    diameter=15)
                 for i in range(3)
             ]
             tank2 = self.element_generator(hvac.Storage, n_ports=1)
             bypass2 = [self.element_generator(
-                hvac.Pipe, flags=['bypass2'], length=60, diameter=30) for
-                i in range(3)]
+                hvac.Pipe, flags=['bypass2'], length=60, diameter=30)
+                for i in range(3)]
         # connect
 
         gen_vl2 = [boiler2, *gen_vl_a2, h_pump2]
@@ -235,12 +236,10 @@ class GeneratorHelper(SetupHelperHVAC):
             con_sys_2_rl = [
                 self.element_generator(hvac.Pipe, length=100, diameter=40)
                 for i in range(2)]
-            con_fitting_vl = self.element_generator(hvac.PipeFitting,
-                                                    n_ports=3,
-                                                    diameter=40, length=60)
-            con_fitting_rl = self.element_generator(hvac.PipeFitting,
-                                                    n_ports=3,
-                                                    diameter=40, length=60)
+            con_fitting_vl = self.element_generator(
+                hvac.PipeFitting, n_ports=3, diameter=40, length=60)
+            con_fitting_rl = self.element_generator(
+                hvac.PipeFitting, n_ports=3, diameter=40, length=60)
             dead_end_vl = [
                 self.element_generator(hvac.Pipe, length=100, diameter=40)
                 for i in range(2)]
@@ -264,10 +263,9 @@ class GeneratorHelper(SetupHelperHVAC):
         distributor2.ports[2].connect(con_sys_2_vl[0].ports[0])
         distributor2.ports[3].connect(con_sys_2_rl[-1].ports[-1])
 
-
         # full system
         gen_circuit = [
-            boiler, *gen_vl_a, h_pump, *gen_vl_b1, *gen_vl_b2,  distributor,
+            boiler, *gen_vl_a, h_pump, *gen_vl_b1, *gen_vl_b2, distributor,
             *gen_rl_a, fitting, fitting_bp_1, fitting_bp_2, *bypass, *gen_rl_b1,
             *gen_rl_b2, *gen_rl_c, tank,
             boiler2, *gen_vl_a2, h_pump2, *gen_vl_b12, *gen_vl_b22,
@@ -339,7 +337,7 @@ class GeneratorHelper(SetupHelperHVAC):
                 for i in range(2)]
             pipe_outer_rl_distr = [
                 self.element_generator(
-                    hvac.Pipe, flags=['outer_rl'],length=100, diameter=40)
+                    hvac.Pipe, flags=['outer_rl'], length=100, diameter=40)
                 for i in range(2)]
 
         # connect
@@ -401,7 +399,8 @@ class TestGeneratorAggregation(unittest.TestCase):
         graph, n_removed_tanks = handler.return_value
         dead_ends_found = dead_ends.DeadEnds.identify_dead_ends(graph)
         handler = DebugDecisionHandler(answers=[])
-        handler.handle(dead_ends.DeadEnds.decide_dead_ends(graph, dead_ends_found, True))
+        handler.handle(dead_ends.DeadEnds.decide_dead_ends(
+            graph, dead_ends_found, True))
         graph, n_removed_dead_ends = handler.return_value
         matches, metas = aggregation.GeneratorOneFluid.find_matches(graph)
         self.assertEqual(
@@ -409,9 +408,10 @@ class TestGeneratorAggregation(unittest.TestCase):
             "There is 1 case for generation cycles but 'find_matches' "
             "returned %d" % len(matches)
         )
-        agg_generator = aggregation.GeneratorOneFluid(matches[0], **metas[0])
+        agg_generator = aggregation.GeneratorOneFluid(
+            graph, matches[0], **metas[0])
         self.assertEqual(agg_generator.rated_power, 200 * ureg.kilowatt)
-        self.assertTrue(agg_generator.has_pump,
+        self.assertTrue(agg_generator._calc_has_pump,
                         "No pump was found in generator cycle but there should"
                         " be one existing")
         self.assertTrue(agg_generator.has_bypass,
@@ -432,7 +432,8 @@ class TestGeneratorAggregation(unittest.TestCase):
         graph, n_removed_tanks = handler.return_value
         dead_ends_found = dead_ends.DeadEnds.identify_dead_ends(graph)
         handler = DebugDecisionHandler(answers=[])
-        handler.handle(dead_ends.DeadEnds.decide_dead_ends(graph, dead_ends_found, True))
+        handler.handle(dead_ends.DeadEnds.decide_dead_ends(
+            graph, dead_ends_found, True))
         graph, n_removed_dead_ends = handler.return_value
         matches, metas = aggregation.GeneratorOneFluid.find_matches(graph)
         agg_generators = []
@@ -442,14 +443,16 @@ class TestGeneratorAggregation(unittest.TestCase):
             "returned %d" % len(matches)
         )
 
-        name_builder = '{} {}'
         i = 0
         for match, meta in zip(matches, metas):
-            agg_generator = aggregation.GeneratorOneFluid(match, **meta)
+            agg_generator = aggregation.GeneratorOneFluid(graph, match, **meta)
             i += 1
             agg_generators.append(agg_generator)
             self.assertEqual(agg_generator.rated_power, 200 * ureg.kilowatt)
             self.assertTrue(agg_generator.has_pump,
+                            "No pump was found in generator cycle but there"
+                            " should be one existing")
+            self.assertTrue(agg_generator._calc_has_pump,
                             "No pump was found in generator cycle but there"
                             " should be one existing")
 
@@ -470,16 +473,15 @@ class TestGeneratorAggregation(unittest.TestCase):
         matches, metas = aggregation.GeneratorOneFluid.find_matches(graph)
         self.assertEqual(
             len(matches), 2,
-            "There are 2 generation cycles but 'find_matches' "
-            "returned %d" % len(matches)
+            "There are 2 generation cycles but 'find_matches' returned %d"
+            % len(matches)
         )
-        name_builder = '{} {}'
         i = 0
         agg_generators = []
         boiler200kw_guid = [b.guid for b in flags['boiler200kW']]
         boiler400kw_guid = [b.guid for b in flags['boiler400kW']]
         for match, meta in zip(matches, metas):
-            agg_generator = aggregation.GeneratorOneFluid(match, **meta)
+            agg_generator = aggregation.GeneratorOneFluid(graph, match, **meta)
             i += 1
             agg_generators.append(agg_generator)
             boiler_element = [element for element in agg_generator.elements
@@ -488,7 +490,7 @@ class TestGeneratorAggregation(unittest.TestCase):
                 self.assertEqual(agg_generator.rated_power, 200 * ureg.kilowatt)
             if boiler_element.guid == boiler400kw_guid:
                 self.assertEqual(agg_generator.rated_power, 400 * ureg.kilowatt)
-            self.assertTrue(agg_generator.has_pump,
+            self.assertTrue(agg_generator._calc_has_pump,
                             "No pump was found in generator cycle but there"
                             " should be one existing")
         self.assertEqual(len(matches), 2, f"2 Generator should be created but "

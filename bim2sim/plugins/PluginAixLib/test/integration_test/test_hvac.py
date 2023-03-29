@@ -26,7 +26,7 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
         answers = ('HVAC-HeatPump', 'HVAC-Storage', 'HVAC-Storage',
                    '2lU4kSSzH16v7KPrwcL7KZ', '0t2j$jKmf74PQpOI0ZmPCc',
                    # 1x expansion tank and 16x dead end
-                   *(True,)*17,
+                   *(True,)*18,
                    # boiler efficiency
                    0.9,
                    # boiler power
@@ -52,6 +52,9 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
             'ParallelPump',
             'ConsumerHeatingDistributorModule',
         ]
+        #        answers = ('HVAC-Distributor', *('HVAC-ThreeWayValve',) * 2,
+        #           *('HVAC-Valve',) * 14, *(None,) * 2,
+        #            *(True,) * 7, 0.75, 50,
         answers = (None, 'HVAC-PipeFitting', 'HVAC-Distributor', 'HVAC-Valve',
                    # 5 dead ends
                    *(True,)*5,
@@ -84,6 +87,9 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
             'ConsumerHeatingDistributorModule',
             'GeneratorOneFluid'
         ]
+        # answers = ('HVAC-Distributor', *('HVAC-ThreeWayValve',) * 2,
+        #           *('HVAC-Valve',) * 14, *(None,) * 2,
+        #           *(True,) * 6,
         answers = (None, 'HVAC-PipeFitting', 'HVAC-Distributor', 'HVAC-Valve',
                    *(True,) * 4,
                    # boiler efficiency, flow temp, power, return temp
