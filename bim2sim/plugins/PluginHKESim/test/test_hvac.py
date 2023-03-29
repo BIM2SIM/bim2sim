@@ -67,13 +67,12 @@ class TestIntegrationHKESIM(IntegrationBaseHKESIM, unittest.TestCase):
             'ConsumerHeatingDistributorModule',
         ]
         default_logging_setup()
-        answers = ('HVAC-Distributor', *('HVAC-ThreeWayValve',) * 2,
-                   *('HVAC-Valve',) * 14, *(None,) * 2,
+        answers = (None, 'HVAC-PipeFitting', 'HVAC-Distributor', 'HVAC-Valve',
+                   # 7 dead ends
                    *(True,) * 7, 0.75, 50, 150, 70, *(1, 500,) * 7)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
-
         graph = project.playground.state['graph']
         aggregated = Counter((type(item) for item in graph.element_graph.nodes))
         self.assertIn(ConsumerHeatingDistributorModule, aggregated)
