@@ -288,7 +288,6 @@ class PlantSimulation(Workflow):
             'Consumer': 'Aggregate consumers',
             'PipeStrand': 'Aggregate strands of pipes',
             'ParallelPump': 'Aggregate parallel pumps',
-            # 'ParallelSpaceHeater': 'Aggregate parallel space heaters',
             'ConsumerHeatingDistributorModule': 'Aggregate consumer and '
                                                 'distributor to one module',
             'GeneratorOneFluid': 'Aggregate the generator and its circuit to '

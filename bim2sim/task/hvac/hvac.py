@@ -16,7 +16,7 @@ from bim2sim.export import modelica
 from bim2sim.kernel.aggregation import Consumer, \
     ConsumerHeatingDistributorModule, GeneratorOneFluid
 from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating, \
-    ParallelPump, ParallelSpaceHeater
+    ParallelPump
 from bim2sim.kernel.element import ProductBased, ElementEncoder, Port, Material
 from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.hvac import hvac_graph
@@ -377,7 +377,6 @@ class Reduce(ITask):
             'ConsumerHeatingDistributorModule':
                 ConsumerHeatingDistributorModule,
             'GeneratorOneFluid': GeneratorOneFluid,
-            'ParallelSpaceHeater': ParallelSpaceHeater,
         }
         aggregations = [aggregations_cls[agg] for agg in workflow.aggregations]
 
