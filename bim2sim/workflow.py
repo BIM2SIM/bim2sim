@@ -299,7 +299,7 @@ class Workflow(metaclass=AutoSettingNameMeta):
                     'setting, you can set the threshold here. A low threshold means'
                     ' a small similarity is required for grouping. A too low value '
                     'might result in grouping elements which do not represent '
-                    'same IFC type.'
+                    'the same IFC type.'
     )
 
     reset_guids = WorkflowSetting(
