@@ -20,6 +20,7 @@ from bim2sim.kernel.ifc2python import get_property_sets
 from bim2sim.kernel.units import parse_ifc
 from bim2sim.task.base import ITask
 from bim2sim.workflow import Workflow
+from bim2sim.utilities.common_functions import all_subclasses
 
 
 class Reset(ITask):
@@ -138,7 +139,7 @@ class CreateElements(ITask):
         self.materials_all = []
         self.layers_all = []
 
-    def run(self, workflow, ifc):
+    def run(self, workflow: Workflow, ifc: file):
         self.logger.info("Creates elements of relevant ifc types")
         default_ifc_types = {'IfcBuildingElementProxy', 'IfcUnitaryEquipment'}
         relevant_ifc_types = self.get_ifc_types(workflow.relevant_elements)
@@ -552,7 +553,7 @@ class CheckIfc(ITask):
         self.sub_inst_cls = None
         self.plugin = None
 
-    def run(self, workflow: Workflow, ifc) -> [dict, dict]:
+    def run(self, workflow: Workflow, ifc: file) -> [dict, dict]:
         """
         Analyzes sub_instances and instances of an IFC file for the validation
         functions and export the errors found as .json and .html files.
@@ -565,6 +566,7 @@ class CheckIfc(ITask):
             error_summary_sub_inst: summary of errors related to sub_instances
             error_summary_inst: summary of errors related to instances
         """
+        self.check_ifc_version(ifc)
         self.ps_summary = self._get_class_property_sets(self.plugin)
         self.ifc_units = workflow.ifc_units
         self.sub_inst = ifc.by_type(self.sub_inst_cls)
@@ -590,6 +592,24 @@ class CheckIfc(ITask):
         return [self.error_summary_sub_inst, self.error_summary_inst],
 
     @staticmethod
+    def check_ifc_version(ifc: file):
+        """
+        Checks the IFC version.
+
+        Only IFC4 files are valid for bim2sim.
+
+        Args:
+            ifc: ifc file loaded with IfcOpenShell
+        Raises:
+            TypeError: if loaded IFC is not IFC4
+        """
+        schema = ifc.schema
+        if "IFC4" not in schema:
+            raise TypeError(f"Loaded IFC file is of type {schema} but only IFC4"
+                            f"is supported. Please ask the creator of the model"
+                            f" to provide a valid IFC4 file.")
+
+    @staticmethod
     def _get_ifc_type_classes(plugin):
         """
         Gets all the classes of a plugin, that represent an IFCProduct,
@@ -606,10 +626,16 @@ class CheckIfc(ITask):
                           inspect.getmro(plugin_class[1])[1].__name__.endswith(
                               'Product')]
         cls_summary = {}
+
         for plugin_class in plugin_classes:
+            # class itself
             if plugin_class.ifc_types:
                 for ifc_type in plugin_class.ifc_types.keys():
                     cls_summary[ifc_type] = plugin_class
+            # sub classes
+            for subclass in all_subclasses(plugin_class):
+                for ifc_type in subclass.ifc_types.keys():
+                    cls_summary[ifc_type] = subclass
         return cls_summary
 
     @classmethod
