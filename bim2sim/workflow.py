@@ -295,7 +295,7 @@ class Workflow(metaclass=AutoSettingNameMeta):
             0.8: 'Threshold of 0.8',
             0.9: 'Threshold of 0.9'
         },
-        description='If you want to use fuzzy search in group_unidentified '
+        description='If you want to use fuzzy search in the group_unidentified '
                     'setting, you can set the threshold here. A low threshold means'
                     ' less similarity required for grouping. A too low value '
                     'might result in grouping elements which do not represent '
