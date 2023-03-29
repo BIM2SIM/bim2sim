@@ -26,7 +26,7 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
         answers = ('HVAC-HeatPump', 'HVAC-Storage', 'HVAC-Storage',
                    '2lU4kSSzH16v7KPrwcL7KZ', '0t2j$jKmf74PQpOI0ZmPCc',
                    # 1x expansion tank and 16x dead end
-                   *(True,)*17,
+                   *(True,)*18,
                    # boiler efficiency
                    0.9,
                    # boiler power
@@ -54,7 +54,7 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
         ]
         answers = ('HVAC-Distributor', *('HVAC-ThreeWayValve',) * 2,
                    *('HVAC-Valve',) * 14, *(None,) * 2,
-                   *(True,) * 5, 0.75, 50,
+                   *(True,) * 7, 0.75, 50,
                    # rated current, rated height, rated_voltage,
                    # rated_volume_flow for pumps
                     150, 70, 50, 50,
@@ -83,7 +83,7 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
         ]
         answers = ('HVAC-Distributor', *('HVAC-ThreeWayValve',) * 2,
                    *('HVAC-Valve',) * 14, *(None,) * 2,
-                   *(True,) * 4,
+                   *(True,) * 6,
                    # boiler efficiency, flow temp, power, return temp
                    0.95, 70, 200, 50,
                    # rated current, rated height, rated_voltage,
