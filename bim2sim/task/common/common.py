@@ -490,7 +490,7 @@ class CreateElements(ITask):
                 - same name (exact)
                 - similar name (fuzzy search)
             The selection which one should be used comes from the workflow
-            setting group_unidentified and if fuzzy is used one can change the
+            setting group_unidentified. If fuzzy is used one can change the
             threshold for fuzzy search with the setting fuzzy_threshold.
 
             Returns:
