@@ -304,7 +304,7 @@ test_EP:
   image: $CI_REGISTRY/environment:energyplus
   stage: test
   services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
   before_script:
     - pip install coverage
@@ -359,7 +359,7 @@ test_TEASER:
   image: $CI_REGISTRY/environment:teaser
   stage: test
   services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
   before_script:
     - pip install coverage
@@ -412,7 +412,7 @@ test_CFD:
   image: $CI_REGISTRY/environment:cfd
   stage: test
   services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
   before_script:
     - pip install coverage
@@ -439,7 +439,7 @@ test_AixLib:
   image: $CI_REGISTRY/environment:aixlib
   stage: test
   services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
   before_script:
     - pip install coverage
@@ -491,7 +491,7 @@ pylint:
  stage: code_quality
  image: python:3.6
  services:
-   - name: docker:dind@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+   - name: docker:18.09.7-dind
      command: ["--mtu=1440"]
  before_script:
    - pip install pylint pylint-json2html anybadge --quiet
