@@ -18,9 +18,11 @@ You can find detailed documentation and description how to install and to use in
 
 But if you just want to install bim2sim and use trial and error technique go via
 ```
+conda config --add channels conda-forge
 conda install -c bim2sim bim2sim
 ```
-For questions like why we don't use pip and if we supprt docker please go the linked installation documentation.
+Currently bim2sim is supported for python 3.8 and python 3.9.
+For questions like why we don't use pip and if we support docker we refer to the linked documentation.
 
 
 ## Related Publications
@@ -31,19 +33,15 @@ For questions like why we don't use pip and if we supprt docker please go the li
 * [Fichter et al., Automatic generation of second level space boundary geometry from IFC models, Proceedings of Building Simulation 2021: 17th Conference of IBPS](https://doi.org/10.26868/25222708.2021.30156)
 * [Junck et al., Geometrische Transformation von IFC-Raumbegrenzungsflächen für die normkonforme thermische Gebäudesimulation, Proceedings of 33. Forum Bauinformatik, 2022](https://doi.org/10.14459/2022md1686600)
 
+## Acknowledgements
+The tool was developed during the project "BIM2SIM - Methodenentwicklung zur Erstellung von Simulationsmodellen aus Daten des Building Information Modeling". The project was funded by the Federal Ministry for Economic Affairs and Energy in germany under the grant number 03ET1562A. The ongoing development is funded by the follow up project "BIM2Praxis - Integration of methods for the creation of simulation models based on Building Information Modeling into practice" with funding from the Federal Ministry for Economic Affairs and Climate Action under the grant number 3EN1050A. The authors of the tool gratefully acknowledge the financial support of the German Federal Ministry for Economic Affairs and Energy and the Federal Ministry for Economic Affairs and Climate Action in Germany.
 
-
-## Founding and Contributions
-The tool was developed during the project "BIM2SIM - Methodenentwicklung zur Erstellung von Simulationsmodellen aus Daten des Building Information Modeling". The project was founded by the Federal Ministry for Economic Affairs and Energy in germany under the funding number: 03ET1562A. The ongoing development is founded by the follow up project "BIM2Praxis - Integration of methods for the creation of simulation models based on Building Information Modeling into practice" with founding from the Federal Ministry for Economic Affairs and Climate Action under the founding number 3EN1050A. The authors of the tool gratefully acknowledge the financial support of the German Federal Ministry for Economic Affairs and Energy and the Federal Ministry for Economic Affairs and Climate Action in Germany.
-
-The development was performed by the following three partners
-* [Institute for Energy Efficient Buildings and Indoor Climate](https://www.ebc.eonerc.rwth-aachen.de/cms/~dmzz/E-ON-ERC-EBC/)
-* [E3D - Institute of Energy Efficiency and Sustainable Building)](https://www.e3d.rwth-aachen.de/cms/~iyld/E3D/?lidx=1)
+## License
+bim2sim is developed and released by the following three partners under the [LGPL-3.0 license](https://github.com/BIM2SIM/bim2sim/blob/main/LICENSE):
+* [Institute for Energy Efficient Buildings and Indoor Climate (RWTH Aachen University)](https://www.ebc.eonerc.rwth-aachen.de/cms/~dmzz/E-ON-ERC-EBC/)
+* [E3D - Institute of Energy Efficiency and Sustainable Building (RWTH Aachen University)](https://www.e3d.rwth-aachen.de/cms/~iyld/E3D/?lidx=1)
 * [ROM Technik GmbH](https://www.rom-technik.de/home/)
-
-
 ![all_partners](https://user-images.githubusercontent.com/27726960/211298128-09799889-774a-49a5-a7c4-9c9163613990.png)
-
 
 
 ## Upcoming Features:
