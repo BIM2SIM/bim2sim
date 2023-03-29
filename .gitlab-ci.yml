@@ -529,7 +529,7 @@ sphinxdoc:
    - pip install -r /bim2sim-coding/docs/requirements.txt
  script:
    - mkdir -p $CI_COMMIT_REF_NAME/docs
-   - sphinx-apidoc -M -o -P /bim2sim-coding/docs/source/code /bim2sim-coding  # create rst files for all python files
+   - sphinx-apidoc -M -P -o /bim2sim-coding/docs/source/code /bim2sim-coding  # create rst files for all python files
    - sphinx-build -b html /bim2sim-coding/docs/source $CI_COMMIT_REF_NAME/docs
    - anybadge --value="passing" --file=$CI_COMMIT_REF_NAME/docs/doc.svg --label documentation
 
