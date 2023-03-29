@@ -26,7 +26,7 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
         answers = ('HVAC-HeatPump', 'HVAC-Storage', 'HVAC-Storage',
                    '2lU4kSSzH16v7KPrwcL7KZ', '0t2j$jKmf74PQpOI0ZmPCc',
                    # 1x expansion tank and 16x dead end
-                   *(True,)*17,
+                   *(True,)*18,
                    # boiler efficiency
                    0.9,
                    # boiler power
