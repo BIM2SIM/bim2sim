@@ -307,3 +307,8 @@ def get_spaces_with_bounds(instances: dict):
     spaces_with_bounds = [s for s in spaces if s.space_boundaries]
 
     return spaces_with_bounds
+
+def create_plotly_graphs_from_df(self):
+    # save plotly graphs to export folder
+    # todo 497
+    pass

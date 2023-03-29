@@ -2,6 +2,7 @@ import subprocess
 
 from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.task.base import ITask
+from bim2sim.utilities.common_functions import create_plotly_graphs_from_df
 
 
 class RunEnergyPlusSimulation(ITask):
@@ -20,3 +21,11 @@ class RunEnergyPlusSimulation(ITask):
         self.logger.info(f"Simulation successfully finished.")
         # if ep_full:
         #     PostprocessingUtils._visualize_results(csv_name=self.paths.export / 'EP-results/eplusout.csv')
+        df = self.save_to_dataframe()
+        create_plotly_graphs_from_df(df)
+
+    def save_to_dataframe(self):
+        # todo #497
+        df = None
+        pass
+        return df

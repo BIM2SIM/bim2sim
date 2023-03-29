@@ -7,6 +7,7 @@ from pathlib import Path
 import bim2sim_teaser
 
 from bim2sim.task.base import ITask
+from bim2sim.utilities.common_functions import create_plotly_graphs_from_df
 
 
 class SimulateModel(ITask):
@@ -76,6 +77,8 @@ class SimulateModel(ITask):
                              f" Simulations.")
             self.logger.info(f"You can find the results under "
                              f"{str(dir_result)}")
+            df = self.save_to_dataframe()
+            create_plotly_graphs_from_df(df)
 
     @staticmethod
     def get_dymola_path() -> Path:
@@ -117,3 +120,9 @@ class SimulateModel(ITask):
     @staticmethod
     def load_dymola(path: Path):
         sys.path.insert(0, str(path))
+
+    def save_to_dataframe(self):
+        # todo #497
+        df = None
+        pass
+        return df
