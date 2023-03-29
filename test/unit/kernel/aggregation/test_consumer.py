@@ -292,8 +292,7 @@ class TestConsumerAggregation(unittest.TestCase):
 
         self.assertAlmostEqual(
             consumer.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)
-        # TODO: consumer.has_pump does not work (30.01.2023, Svenne)
-        self.assertTrue(consumer._calc_has_pump())
+        self.assertTrue(consumer.has_pump)
         # self.assertAlmostEqual(consumer.temperature_inlet, 1000)
         # self.assertAlmostEqual(consumer.temperature_outlet, 1000)
         # self.assertAlmostEqual(consumer.volume, 1000)
@@ -325,8 +324,7 @@ class TestConsumerAggregation(unittest.TestCase):
         )
 
         self.assertAlmostEqual(consumer2.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)
-        # TODO: consumer.has_pump does not work (30.01.2023, Svenne)
-        self.assertTrue(consumer2._calc_has_pump())
+        self.assertTrue(consumer2.has_pump)
         # self.assertAlmostEqual(consumer.temperature_inlet, 1000)
         # self.assertAlmostEqual(consumer.temperature_outlet, 1000)
         # self.assertAlmostEqual(consumer.volume, 1000) Not Implemented
@@ -351,8 +349,7 @@ class TestConsumerAggregation(unittest.TestCase):
 
         self.assertAlmostEqual(
             consumer.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)
-        # TODO: consumer.has_pump does not work (30.01.2023, Svenne)
-        self.assert_(consumer._calc_has_pump())
+        self.assert_(consumer.has_pump)
         # self.assertAlmostEqual(consumer.temperature_inlet, 1000)
         # self.assertAlmostEqual(consumer.temperature_outlet, 1000)
         # self.assertAlmostEqual(consumer.volume, 1000)

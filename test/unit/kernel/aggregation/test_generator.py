@@ -449,10 +449,9 @@ class TestGeneratorAggregation(unittest.TestCase):
             i += 1
             agg_generators.append(agg_generator)
             self.assertEqual(agg_generator.rated_power, 200 * ureg.kilowatt)
-            # TODO. has_pump does not work (13.02.2023, Svenne)
-            # self.assertTrue(agg_generator.has_pump,
-            #                 "No pump was found in generator cycle but there"
-            #                 " should be one existing")
+            self.assertTrue(agg_generator.has_pump,
+                            "No pump was found in generator cycle but there"
+                            " should be one existing")
             self.assertTrue(agg_generator._calc_has_pump,
                             "No pump was found in generator cycle but there"
                             " should be one existing")

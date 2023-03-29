@@ -44,6 +44,7 @@ class HVACAggregationPort(HVACPort):
     def __init__(self, originals, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # TODO / TBD: DJA: can one Port replace multiple? what about position?
+
         if not type(originals) == list:
             originals = [originals]
         if not all(isinstance(n, hvac.HVACPort) for n in originals):
@@ -151,10 +152,12 @@ class HVACAggregationMixin(AggregationMixin):
     """ Mixin class for all HVACAggregations.
 
     Adds some HVAC specific functionality to the AggregationMixin.
+
+    Args:
+        base_graph: networkx graph that should be searched for aggregations
+        match_graph: networkx graph that only holds matches
     """
 
-    # todo we might want to specify HvacGraph and element_graph (maybe we
-    #  always use HvacGraph and don't allow element_graph)
     def __init__(self, base_graph: nx.Graph, match_graph: nx.Graph, *args,
                  **kwargs):
         # make get_ports signature match_graph ProductBased.get_ports
@@ -162,7 +165,6 @@ class HVACAggregationMixin(AggregationMixin):
         graph_elements = list(set([node.parent for node in match_graph.nodes]))
         super().__init__(graph_elements, *args, **kwargs)
 
-    # TODO: get edge ports based on graph. See #167
     @verify_edge_ports
     def get_ports(self, base_graph: HvacGraph, match_graph: HvacGraph
                   ) -> List[HVACPort]:
@@ -251,7 +253,7 @@ class HVACAggregationMixin(AggregationMixin):
         raise NotImplementedError(
             "Method %s.find_matches not implemented" % cls.__name__)
 
-    def _calc_has_pump(self) -> bool:
+    def _calc_has_pump(self, name) -> bool:
         """ Determines if aggregation contains pumps.
 
         Returns:
@@ -678,84 +680,6 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
         metas = [{} for x in matches_graph]  # no metadata calculated
         return matches_graph, metas
 
-    # def get_ports(self, graph, match_graph):
-    #     ports = []
-    #     edge_ports = self.get_edge_ports(graph, match_graph)
-    #     # simple case with two edge ports
-    #     if len(edge_ports) == 2:
-    #         for port in edge_ports:
-    #             ports.append(HVACAggregationPort(port, parent=self))
-    #     # more than two edge ports
-    #     else:
-    #         # get list of ports to be merged to one aggregation port
-    #         parents = set((parent for parent in (port.connection.parent for
-    #                                              port in edge_ports)))
-    #         originals_dict = {}
-    #         for parent in parents:
-    #             originals_dict[parent] = [port for port in edge_ports if
-    #                                       port.connection.parent == parent]
-    #         for originals in originals_dict.values():
-    #             ports.append(HVACAggregationPort(originals, parent=self))
-    #     return ports
-
-    def get_edge_ports(self, graph, match_graph):
-        """
-        Finds and returns all edge ports of element graph.
-
-        :return list of ports:
-        """
-        # detect elements with at least 3 ports
-        # todo detection via number of ports is not safe, because pumps and
-        #  other elements can  have additional signal ports and count as
-        #  edge_elements. current workaround: check for pumps seperatly
-        edge_elements = [
-            node for node in graph.nodes if (len(node.ports) > 2 and
-                                             node.__class__.__name__ != 'Pump')]
-
-        if len(edge_elements) > 2:
-            graph = self.merge_additional_junctions(graph)
-
-        edge_outer_ports = []
-        edge_inner_ports = []
-
-        # get all elements in graph, also if in aggregation
-        elements_in_graph = []
-        for node in graph.nodes:
-            elements_in_graph.append(node)
-            if hasattr(node, 'elements'):
-                for element in node.elements:
-                    elements_in_graph.append(element)
-
-        # get all ports that are connected to outer elements
-        for port in (p for e in edge_elements for p in e.ports):
-            if not port.connection:
-                continue  # end node
-            if port.connection.parent not in elements_in_graph:
-                edge_outer_ports.append(port)
-            elif port.connection.parent in elements_in_graph:
-                edge_inner_ports.append(port)
-
-        if len(edge_outer_ports) < 2:
-            raise AttributeError("Found less than two edge ports")
-        # simple case: no other elements connected to junction nodes
-        elif len(edge_outer_ports) == 2:
-            edge_ports = edge_outer_ports
-        # other elements, not in aggregation, connected to junction nodes
-        else:
-            edge_ports = [port.connection for port in edge_inner_ports]
-            parents = set(parent for parent in (port.connection.parent for
-                                                port in edge_ports))
-            for parent in parents:
-                aggr_ports = [port for port in edge_inner_ports if
-                              port.parent == parent]
-                if not isinstance(parent.aggregation, AggregatedPipeFitting):
-                    AggregatedPipeFitting(nx.subgraph(
-                        graph, parent), aggr_ports)
-                else:
-                    for port in aggr_ports:
-                        HVACAggregationPort(
-                            originals=port, parent=parent.aggregation)
-        return edge_ports
 
     @attribute.multi_calc
     def _calc_avg(self) -> dict:
@@ -800,19 +724,6 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
                 mapping[original] = port
         return mapping
 
-    @classmethod
-    def merge_additional_junctions(cls, graph):
-        """ Find additional junctions inside the parallel pump network and
-        merge them into each other to create a simplified network."""
-
-        # check if additional junctions exist
-        add_junctions, metas = AggregatedPipeFitting.find_matches(graph)
-        i = 0
-        for junction, meta in zip(add_junctions, metas):
-            # todo maybe add except clause
-            aggrPipeFitting = AggregatedPipeFitting(graph, junction, **meta)
-            i += 1
-        return graph
 
     @cached_property
     def pump_elements(self) -> list:
@@ -886,81 +797,7 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
     )
 
 
-class AggregatedPipeFitting(HVACAggregationMixin, hvac.PipeFitting):
-    """ Aggregates PipeFittings.
-
-        Used in two cases:
-            - Merge multiple PipeFittings into one aggregates.
-            - Use a single PipeFitting and create an aggregated PipeFitting
-              where some ports are aggregated (aggr_ports argument).
-    """
-    aggregatable_elements = {hvac.Pipe, hvac.PipeFitting, PipeStrand}
-    threshold = None
-
-    def __init__(self, element_graph, aggr_ports=None, *args, **kwargs):
-        self.get_ports = partial(self.get_ports, aggr_ports)
-        super().__init__(element_graph, *args, **kwargs)
-
-    def get_ports(self, aggr_ports, base_graph):  # TBD
-        ports = []
-        edge_ports = self.get_edge_ports(base_graph)
-        # create aggregation ports for all edge ports
-        for edge_port in edge_ports:
-            if aggr_ports:
-                if edge_port not in aggr_ports:
-                    ports.append(HVACAggregationPort(edge_port, parent=self))
-            else:
-                ports.append(HVACAggregationPort(edge_port, parent=self))
-        # create combined aggregation port for all ports in aggr_ports
-        if aggr_ports:
-            ports.append(HVACAggregationPort(aggr_ports, parent=self))
-        return ports
-
-    @classmethod
-    def get_edge_ports(cls, graph):
-        edge_elements = [
-            node for node in graph.nodes if len(node.ports) > 2]
-
-        edge_ports = []
-        # get all ports that are connected to outer elements
-        for port in (p for e in edge_elements for p in e.ports):
-            if not port.connection:
-                continue  # end node
-            if port.connection.parent not in graph.nodes:
-                edge_ports.append(port)
-
-        if len(edge_ports) < 2:
-            raise AttributeError("Found less than two edge ports")
-
-        return edge_ports
-
-    @classmethod
-    def find_matches(cls, graph) -> Tuple[List[HvacGraph], List[dict]]:
-        """ Find matches of aggregated pipe fitting.
-
-        Args:
-            graph: element_graph that should be checked for aggregated pipe
-                fitting
-
-        Returns:
-            element_graphs:
-                List of element_graphs that hold an aggregated pipe
-            fitting
-            metas:
-                List of dict with metas information. One element for each
-                element_graph.
-
-        Raises:
-            None
-        """
-        wanted = {elements.hvac.PipeFitting}
-        inerts = cls.aggregatable_elements - wanted
-        connected_fittings = HvacGraph.get_connections_between(graph,
-                                                               wanted, inerts)
-        metas = [{} for x in connected_fittings]
-        return connected_fittings, metas
-
-
+# ToDo this is currently not used and not working
 class ParallelSpaceHeater(HVACAggregationMixin, hvac.SpaceHeater):
     """Aggregates Space heater in parallel"""
 
@@ -1265,29 +1102,6 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         metas = [{} for x in matches_graphs]
         return matches_graphs, metas
 
-    @attribute.multi_calc
-    def _calc_avg_pump(self):
-        """ Calculates the parameters of all pump-like elements."""
-        volume = None
-
-        for ele in self.not_pump_elements:
-            if hasattr(ele, "length"):  # TODO: Parallel?
-                length = ele.length
-                if not length:
-                    logger.warning("Ignored '%s' in aggregation", ele)
-                    continue
-            else:
-                logger.warning("Ignored '%s' in aggregation", ele)
-
-        # Volumen zusammenrechnen
-        # TODO: this doesn't seem right (01.02.2023, Svenne)
-        volume = 1
-
-        result = dict(
-            volume=volume
-        )
-        return result
-
     @cached_property
     def pump_elements(self) -> list:
         """ List of pump-like elements present on the aggregation."""
@@ -1424,7 +1238,6 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
     volume = attribute.Attribute(
         description="volume",
         unit=ureg.meter ** 3,
-        # functions=[_calc_avg_pump]
     )
 
     def _calc_rated_height(self, name) -> ureg.Quantity:
@@ -1492,7 +1305,6 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
     boarder_classes = {hvac.Distributor}
 
     def __init__(self, base_graph, match_graph, *args, **kwargs):
-        # TODO: Check if this is still necessary (01.02.2023, Svenne)
         self.undefined_consumer_ports = kwargs.pop(
             'undefined_consumer_ports', None)
         self._consumer_cycles = kwargs.pop('consumer_cycles', None)
@@ -1500,14 +1312,9 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
                           consumer]
         self.open_consumer_pairs = self._register_open_consumer_ports()
         super().__init__(base_graph, match_graph, *args, **kwargs)
-
-    def get_ports(self, base_graph: HvacGraph, match_graph: HvacGraph
-                  ) -> List[HVACAggregationPort]:
-        # TODO: Check if this is still necessary (01.02.2023, Svenne)
-        ports = super().get_ports(base_graph, match_graph)
+        # add open consumer ports to found ports by get_ports()
         for con_ports in self.open_consumer_pairs:
-            ports.append(HVACAggregationPort(con_ports, parent=self))
-        return ports
+            self.ports.append(HVACAggregationPort(con_ports, parent=self))
 
     def _register_open_consumer_ports(self):
         """ This function registers open consumer ports by pairing up loose
@@ -1578,7 +1385,8 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
                         metas[-1]['consumer_cycles'].append(
                             consumer_cycle_elements)
                     else:
-                        # cycle does not hold a consumer
+                        # cycle does not hold a consumer might be undefined
+                        # consumer ports
                         metas[-1]['undefined_consumer_ports'].extend(
                             [neighbor for cycle_node in list(cycle_graph.nodes)
                              for neighbor in base_graph.neighbors(cycle_node)
@@ -1591,6 +1399,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
         return matches_graphs, metas
 
     @attribute.multi_calc
+    # TODO fix hardcoded values
     def _calc_avg(self):
         result = dict(
             medium=None,

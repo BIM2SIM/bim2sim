@@ -561,10 +561,6 @@ class TestParallelPumps(unittest.TestCase):
 
     def test_pump_setup2(self):
         """ Five parallel pumps."""
-        # TODO: this does not work so far. The get_ports / get_edge_ports method
-        #  is overwritten in ParallelPump. The get_edge_ports methods creates
-        #  some aggregation of AggregatedPipeFitting. Not clear if this is still
-        #  needed.
         graph, flags = self.helper.get_setup_pumps2()
         models = flags['normal']
         small = flags['small']
@@ -588,17 +584,12 @@ class TestParallelPumps(unittest.TestCase):
             mapping=agg_pump.get_replacement_mapping(),
             inner_connections=agg_pump.inner_connections,
         )
-        aggr_pipe_fittings = [node for node in graph.element_graph.nodes if
-                              node.__class__.__name__ == 'AggregatedPipeFitting'
-                              ]
         remaining_pumps = [node for node in graph.element_graph.nodes if
                            node.__class__.__name__ == 'Pump']
         small_pumps = [item for item in small if item.__class__.__name__ ==
                        'Pump']
         unconnected_nodes = list(nx.isolates(graph))
 
-        # check if aggregated pipe fittings are done correctly
-        # self.assertEqual(len(aggr_pipe_fittings), 2)
         # check of small pump still in graph
         self.assertCountEqual(remaining_pumps, small_pumps)
         # check for unconnected nodes
@@ -606,7 +597,6 @@ class TestParallelPumps(unittest.TestCase):
 
     def test_pump_setup4(self):
         """Four parallel pumps, one small with bypass."""
-        # TODO: Does not work, see TODO test_pump_setup2.
         graph, flags = self.helper.get_setup_pumps4()
         models = flags['normal']
         small = flags['small']
@@ -630,17 +620,12 @@ class TestParallelPumps(unittest.TestCase):
             mapping=agg_pump.get_replacement_mapping(),
             inner_connections=agg_pump.inner_connections,
         )
-        aggr_pipe_fittings = [node for node in graph.element_graph.nodes if
-                              node.__class__.__name__ == 'AggregatedPipeFitting'
-                              ]
         remaining_pumps = [node for node in graph.element_graph.nodes if
                            node.__class__.__name__ == 'Pump']
         small_pumps = [item for item in small if item.__class__.__name__ ==
                        'Pump']
         unconnected_nodes = list(nx.isolates(graph))
 
-        # check if aggregated pipe fittings are done correctly
-        # self.assertEqual(2, len(aggr_pipe_fittings))
         # check of small pump still in graph
         self.assertCountEqual(remaining_pumps, small_pumps)
         # check for unconnected nodes
@@ -648,7 +633,6 @@ class TestParallelPumps(unittest.TestCase):
 
     def test_pump_setup5(self):
         """Five parallel pumps, one smaller, additional connections."""
-        # TODO: Does not work, see TODO test_pump_setup2
         graph, flags = self.helper.get_setup_pumps5()
 
         models = flags['normal']
@@ -676,17 +660,12 @@ class TestParallelPumps(unittest.TestCase):
             inner_connections=agg_pump.inner_connections,
         )
 
-        aggr_pipe_fittings = [node for node in graph.element_graph.nodes if
-                              node.__class__.__name__ == 'AggregatedPipeFitting'
-                              ]
         remaining_pumps = [node for node in graph.element_graph.nodes if
                            node.__class__.__name__ == 'Pump']
         small_pumps = [item for item in small if item.__class__.__name__ ==
                        'Pump']
         unconnected_nodes = list(nx.isolates(graph))
 
-        # check if aggregated pipe fittings are done correctly
-        # self.assertEqual(len(aggr_pipe_fittings), 2)
         # check of small pump still in graph
         self.assertCountEqual(remaining_pumps, small_pumps)
         # check for unconnected nodes
