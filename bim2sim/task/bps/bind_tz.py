@@ -60,8 +60,8 @@ class BindThermalZones(ITask):
         # Choose criteria function to aggregate zones
         if len(criteria_functions) > 0:
             criteria_decision = ListDecision(
-                "The following methods were found to merge thermal zones, "
-                "please choose one:",
+                "To group IfcSpaces to Thermalzones, the following methods were"
+                " found: ",
                 choices=list(criteria_functions.keys()),
                 global_key='Thermal_Zones.Bind_Method')
             yield DecisionBunch([criteria_decision])
