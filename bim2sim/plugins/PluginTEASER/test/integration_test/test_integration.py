@@ -42,7 +42,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project.workflow.zoning_setup = LOD.medium
         # Tool,
         answers = ('Other', *(None,)*52, 2015,
-                   'by_all_criteria')
+                   'use all criteria')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
