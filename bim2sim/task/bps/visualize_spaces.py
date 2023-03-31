@@ -19,9 +19,10 @@ class VisualizeThermalZone(ITask):
         self.logger.info("Display a geometry shape of ifc file")
         thermal_zones = self._get_ifcspace(ifc=ifc)
         #self._visualize_thermal_zone(thermal_zones=thermal_zones)
-        # todo: Thermalzone nach räumen aufgelistet
-        self._get_thermalzone_objects(thermal_zones=thermal_zones)
-        self._get_position(instances=instances)
+        # todo: thermalzone nach räumen aufgelistet
+        #self._get_thermalzone_objects(thermal_zones=thermal_zones)
+        _dict_room_position = self._get_position(instances=instances)
+        print(_dict_room_position)
 
     def _visualize_thermal_zone(self, thermal_zones):
         display, start_display, add_menu, add_function_to_menu = init_display()
@@ -41,9 +42,8 @@ class VisualizeThermalZone(ITask):
 
     def _get_thermalzone_objects(self, thermal_zones):
         for room in thermal_zones:
-            print(room.ifc)
-
-
+            for l in room.ifc:
+                print(l)
 
     def _get_ifcspace(self, ifc ):
         ifc_spaces = ifc.by_type('IfcSpace')
@@ -53,11 +53,11 @@ class VisualizeThermalZone(ITask):
         return thermal_zones
 
     def _get_position(self, instances):
+        _dict_room_position = {}
         for inst in instances.values():
             if inst.__class__.__name__ == "ThermalZone":
-                print((inst.position))
-                print((inst.zone_name))
-
+                _dict_room_position[inst.zone_name] = inst.position
+        return _dict_room_position
 
 class ThermalZone:
     ifc_type = 'IfcSpace'
@@ -65,6 +65,7 @@ class ThermalZone:
     def __init__(self, ifc_space):
         self.ifc = ifc_space
         self.space_shape = ifcopenshell.geom.create_shape(settings, ifc_space).geometry
+        #self.space_shape = ifcopenshell.geom.create_shape(settings, ifc_space).geo
         #default_ifc_types = {'IfcBuildingElementProxy', 'IfcUnitaryEquipment'}
         #relevant_ifc_types = self.get_ifc_types(workflow.relevant_elements)
         #relevant_ifc_types.update(default_ifc_types)
@@ -78,7 +79,7 @@ if __name__ == '__main__':
 
     thermal_zones = []
     for ifc_space in ifc_spaces:
-        thermal_zones.append(VisualizeThermalZone(ifc_space))
+        thermal_zones.append(ThermalZone(ifc_space))
 
     display, start_display, add_menu, add_function_to_menu = init_display()
     for tz in thermal_zones:
@@ -90,7 +91,10 @@ if __name__ == '__main__':
                 color = 'green'
             elif 'Schlafzimmer' in tz.ifc.LongName:
                 color = 'yellow'
-        display.DisplayShape(tz.space_shape, update=True, color=color,
+        print(tz.space_shape)
+        t = display.DisplayShape(tz.space_shape, update=True, color=color,
                              transparency=0.7)
+        print(t[0])
+
     display.FitAll()
     start_display()
