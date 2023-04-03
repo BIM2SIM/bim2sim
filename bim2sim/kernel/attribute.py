@@ -253,7 +253,9 @@ class Attribute:
         conditions = [lambda x: True] if not bind.conditions else \
             Attribute.get_conditions(bind, self.name)
         decision = RealDecision(
-            "Enter value for %s of %s" % (self.name, bind),
+            question="Enter value for %s of %s" % (self.name, bind),
+            console_identifier="Name: %s, GUID: %s"
+                               % (bind.name, bind.guid),
             # output=bind.attributes,
             key=self.name,
             global_key="%s_%s.%s" % (bind.ifc_type, bind.guid, self.name),
