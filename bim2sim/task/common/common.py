@@ -606,9 +606,10 @@ class CreateElements(ITask):
                     context.extend(con_ports_guid + parents_guid)
 
                 decisions.append(ListDecision(
-                    "Found unidentified Element of %s (Name: %s, Description: %s,"
-                    " GUID: %s):" % (
-                        ifc_entity.is_a(), ifc_entity.Name, ifc_entity.Description,
+                    question="Found unidentified Element of %s" % (
+                        ifc_entity.is_a()),
+                    console_identifier="Name: %s, Description: %s, GUID: %s"
+                    % (ifc_entity.Name, ifc_entity.Description,
                         ifc_entity.GlobalId),
                     choices=[ele.key for ele in sorted_elements],
                     related=[ifc_entity.GlobalId],
