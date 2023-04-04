@@ -4,10 +4,13 @@ import re
 
 import ifcopenshell
 import numpy as np
+import pandas as pd
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
 from OCC.Core.TopoDS import TopoDS_Shape
 from OCC.Display.SimpleGui import init_display
 from PIL import Image, ImageFont, ImageDraw
+from PyQt5.QtGui import QPainter, QPen, QLinearGradient, QBrush, QColor, \
+    QPixmap
 
 
 class VisualizationUtils:
@@ -75,6 +78,15 @@ class VisualizationUtils:
         return Quantity_Color(rgb[0], rgb[1], rgb[2], Quantity_TOC_RGB)
 
     @staticmethod
+    def rgb(minimum, maximum, value):
+        minimum, maximum = float(minimum), float(maximum)
+        ratio = 2 * (value-minimum) / (maximum - minimum)
+        b = int(max(0, 255*(1 - ratio)))/255
+        r = int(max(0, 255*(ratio - 1)))/255
+        g = (255 - b - r)/255
+        return (r, g, b)
+
+    @staticmethod
     def visualize_zones(zone_dict, folder_structure):
         """Visualizes the thermalzones and saves the picture as a .png.
         Fetches the thermalzones which are grouped before and creates an abstract
@@ -101,25 +113,21 @@ class VisualizationUtils:
 
         # todo multi storage floor plan where all floors are placed
         #  next to each other
+        csv_name = folder_structure.export / 'EP-results/eplusout.csv'
+        res_df = pd.read_csv(csv_name)
 
         legend = {}
         num = 1
+        minimum = 0
+        maximum = len(zone_dict)
+
         for i, (guid, zone) in enumerate(zone_dict.items()):
-            rgb_tuple = tuple((np.random.choice(range(256), size=3)))
-            rgb_tuple_norm = tuple([x / 256 for x in rgb_tuple])
-            name = zone.name
-            name = re.findall(
-                r'[ A-Z a-z / \u00fc \u00dc \u00d6 \u00f6 \u00c4 \u00e4 \u00df]+|\d+',
-                name)[0]
-            if name.isdigit:
-                name = \
-                    zone.usage.split(' (')[0].split('_')[0]
-            if name in list(legend.keys()):
-                name = name + ' ' + str(num)
-                num += 1
-            legend[name] = rgb_tuple
+            # todo: get results per zone from res_df and set current value
+            #  accordingly
+            current_value = i
+            color = VisualizationUtils.rgb_color(VisualizationUtils.rgb(minimum, maximum, current_value))
             display.DisplayShape(zone.space_shape, update=True,
-                                 color=VisualizationUtils.rgb_color(rgb_tuple_norm),
+                                 color=color,
                                  transparency=0.5)
         sorted_legend = {}
         for k in sorted(legend, key=len, reverse=False):
@@ -130,6 +138,29 @@ class VisualizationUtils:
 
         save_path = Path(folder_structure.export / filename)
         display.View.Dump(str(save_path))
+
+
+        # draft for color map (currently in range 0...255
+        #todo: map this to range of EP results
+
+        im = Image.open(save_path)
+
+        draw = ImageDraw.Draw(im)
+        maximum = 255
+        font_path = folder_structure.assets / 'fonts' / 'arial.ttf'
+        title_font = ImageFont.truetype(str(font_path), 20)
+        blind_counter = 0
+        for i in range(0, maximum):
+            # print(i)
+            color = VisualizationUtils.rgb(0, 255, i)
+            color = tuple(tuple([int(color[0]*255), int(color[1]*255), int(color[2]*255)]))
+            draw.line([(20, i+200), (200, i+200)], color, width=300)
+            if (maximum - i) % 15 == 0:
+                blind_counter +=1
+                print(i, 'printed')
+                draw.text((220, i*2.2+50), str(i), (255,0,255),
+                          font=title_font)
+        im.save(str(save_path).strip('.png')+'_mod.png')
 
         text_size = 25
         font_path = folder_structure.assets / 'fonts' / 'arial.ttf'
