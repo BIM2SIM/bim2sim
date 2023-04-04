@@ -7,8 +7,10 @@ from __future__ import annotations
 import itertools
 import logging
 import os
+import shutil
 from pathlib import Path
 from typing import Set, Iterable, Type, List, Union
+import json
 
 import networkx as nx
 from networkx.readwrite import json_graph
@@ -184,7 +186,8 @@ class HvacGraph(nx.Graph):
     #     """Returns list of nodes represented by graph"""
     #     return list(self.nodes)
 
-    def plot(self, path: Path = None, ports: bool = False, dpi: int = 400):
+    def plot(self, path: Path = None, ports: bool = False, dpi: int = 400,
+             use_pyvis=False):
         """Plot graph and either display or save as pdf file.
 
         Args:
@@ -192,9 +195,11 @@ class HvacGraph(nx.Graph):
             ports: If True, the port graph is plotted.
             dpi: dots per inch, increase for higher quality (takes longer to
              render)
+            use_pyvis: exports graph to interactive html
         """
         # importing matplotlib is slow and plotting is optional
         import matplotlib.pyplot as plt
+        from pyvis.network import Network
 
         # https://plot.ly/python/network-graphs/
         edge_colors_flow_side = {
@@ -240,20 +245,103 @@ class HvacGraph(nx.Graph):
                     side = sides1.pop()
                 edge_color_map.append(edge_colors_flow_side[side]['edge_color'])
             kwargs['edge_color'] = edge_color_map
+        if use_pyvis:
+            # convert all edges to strings to use dynamic ploting via pyvis
+            nodes = graph.nodes()
+            from collections import defaultdict
 
-        plt.figure(dpi=dpi)
-        nx.draw(graph, node_size=10, font_size=3, linewidths=0.5, alpha=0.7,
-                with_labels=True, **kwargs)
-        plt.draw()
+            data_dict = defaultdict(list)
+            replace = {}
+            for node in nodes.keys():
+                # use guid because str must be unique to prevent overrides
+                replace[node] = str(node) + ' ' + str(node.guid)
+
+            # Todo Remove temp code. This is for Abschlussbericht Plotting only!
+            # start of temp plotting code
+            bypass_nodes_guids = []
+            small_pump_guids = []
+            parallel_pump_guids = []
+            for node in nodes:
+                try:
+                    if node.length.m == 34:
+                        bypass_nodes_guids.append(node.guid)
+                except AttributeError:
+                    pass
+                try:
+                    if node.rated_power.m == 0.6:
+                        small_pump_guids.append(node.guid)
+                except AttributeError:
+                    pass
+                try:
+                    if node.rated_power.m == 1:
+                        parallel_pump_guids.append(node.guid)
+                except AttributeError:
+                    pass
+            # end of temp plotting code
+
+            nx.relabel_nodes(graph, replace, copy=False)
+            net = Network(height='1000', width='1000', notebook=False,
+                          bgcolor='white', font_color='black', layout=False)
+            net.barnes_hut(gravity=-17000, spring_length=55)
+            # net.show_buttons()
+            pyvis_json = Path(__file__).parent / \
+                         'assets/plotting/pyvis_options.json'
+            f = open(pyvis_json)
+            net.options = json.load(f)
+
+            net.from_nx(graph, default_node_size=50)
+            for node in net.nodes:
+                try:
+                    node['label'] = node['label'].split('<')[1]
+                except:
+                    pass
+                node['label'] = node['label'].split('(ports')[0]
+                if 'agg' in node['label'].lower():
+                    node['label'] = node['label'].split('Agg0')[0]
+                if 'storage' in node['label'].lower():
+                    node['color'] = 'purple'
+                if 'distributor' in node['label'].lower():
+                    node['color'] = 'gray'
+                if 'pump' in node['label'].lower():
+                    node['color'] = 'blue'
+                if any([red_str in node['label'].lower() for red_str in [
+                    'parallelpump',
+                    'boiler',
+                    'generatoronefluid'
+                ]]):
+                    node['color'] = 'red'
+                # bypass color for parallelpump test
+                if node['id'].split('> ')[-1] in bypass_nodes_guids:
+                    node['color'] = 'green'
+                if node['id'].split('> ')[-1] in small_pump_guids:
+                    node['color'] = 'purple'
+                if node['id'].split('> ')[-1] in parallel_pump_guids:
+                    node['color'] = 'red'
+
+        else:
+            plt.figure(dpi=dpi)
+            nx.draw(graph, node_size=10, font_size=5, linewidths=0.5, alpha=0.7,
+                    with_labels=True, **kwargs)
+            plt.draw()
         if path:
-            name = "%sgraph.pdf" % ("port" if ports else "element")
-            try:
-                plt.savefig(os.path.join(path, name), bbox_inches='tight')
-            except IOError as ex:
-                logger.error("Unable to save plot of graph (%s)", ex)
+            if use_pyvis:
+                name = "graph.html"
+                try:
+                    net.save_graph(name)
+                    shutil.move(name, path)
+                except Exception as ex:
+                    logger.error("Unable to save plot of graph (%s)", ex)
+            else:
+                name = "%sgraph.pdf" % ("port" if ports else "element")
+                try:
+                    plt.savefig(
+                        os.path.join(path, name),
+                        bbox_inches='tight')
+                except IOError as ex:
+                    logger.error("Unable to save plot of graph (%s)", ex)
         else:
             plt.show()
-        # plt.clf()
+        plt.clf()
 
     def to_serializable(self):
         """Returns a json serializable object"""
