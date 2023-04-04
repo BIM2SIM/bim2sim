@@ -5,13 +5,11 @@ stages:
   - release_conda_plugin
   - build_conda_total
   - release_conda_total
-  - build_conda_package
-  - release_conda_package
+
 
 variables:
   BIM2SIM_FLAG: ""
   BIM2SIM_NAME:  "bim2sim"
-  BIM2SIM_BASE_VERSION: "0.0.1"
 
 .conda_build_rules:main:
   rules:
@@ -43,14 +41,12 @@ variables:
     - apt upgrade -y
     - apt install libgl1 -y
     - conda install conda-build git conda-verify -y
-    # conda update --all  -y
     - conda config --set channel_priority flexible
     - mkdir -p conda-bld
     - conda config --add channels dsdale24
     - conda config --add channels inso
     - conda config --add channels conda-forge
     - conda config --add channels bim2sim
-    # conda config --add channels auto
     - conda config --add channels anaconda
     - conda build $CONDA_FILE  -c conda-forge --output-folder conda-bld/ --python 3.9
   retry:
@@ -97,67 +93,6 @@ conda_build_bim2sim:base:nightly:
     rules:
       - !reference [.conda_build_rules:nightly, rules]
 
-conda_build_package:
-    image: continuumio/miniconda3
-    stage: build_conda_package
-    variables:
-        PACKAGE_NAME: deep_translator
-        SOURCE: pypi
-        CHANNEL: bim2sim
-    script:
-        - apt update
-        - apt upgrade -y
-        - apt install libgl1 -y
-        - conda install conda-build git conda-verify -y
-        - conda config --set channel_priority flexible
-        - mkdir -p conda-bld
-        - conda config --add channels bim2sim
-        - conda skeleton ${SOURCE} ${PACKAGE_NAME}
-        - conda build ${PACKAGE_NAME}/meta.yaml   --output-folder conda-bld/ --python 3.9
-    artifacts:
-      expire_in: 1 hour
-      paths:
-        - conda-bld
-    rules:
-      - if: $CI_COMMIT_MESSAGE =~ /ci_build_conda_package/
-        when: on_success
-
-conda_release_package:
-  image: continuumio/miniconda3
-  stage: release_conda_package
-  variables:
-      PACKAGE_NAME: deep_translator
-      CHANNEL: bim2sim
-  script:
-    - apt update
-    - apt upgrade -y
-    - apt install libgl1 -y
-    - conda install conda-build git conda-verify anaconda anaconda-client -y
-    - conda update --all  -y
-    - conda config  --set channel_priority strict
-    - conda config --describe channel_priority
-    - anaconda logout
-    - anaconda login --username bim2sim --password $CONDA_TOKEN --hostname $CI_JOB_ID
-
-    - conda convert -p osx-64 conda-bld/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld -f
-    - anaconda upload conda-bld/osx-64/$BIM2SIM_NAME-* --force
-
-    - conda convert -p win-64 conda-bld/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld -f
-    - anaconda upload conda-bld/win-64/$BIM2SIM_NAME-* --force
-
-    - conda convert -p linux-64 conda-bld/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld -f
-    - anaconda upload conda-bld/linux-64/$BIM2SIM_NAME-* --force
-
-    - anaconda logout
-  retry:
-    max: 2
-    when: runner_system_failure
-  dependencies:
-    - conda_build_package
-  rules:
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_conda_package/
-      when: on_success
-
 # [Build Conda Plugins]
 .conda_build_rules:plugin:main:
   rules:
@@ -181,6 +116,8 @@ build_conda_plugin:aixlib:main:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:main, rules]
+      - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_aixlib_main/
+        when: on_success
 
 build_conda_plugin:aixlib:dev:
     stage: build_conda_plugin
@@ -191,6 +128,9 @@ build_conda_plugin:aixlib:dev:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
+      - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_aixlib_dev/
+        when: on_success
+
 
 build_conda_plugin:aixlib:nightly:
     stage: build_conda_plugin
@@ -212,6 +152,8 @@ build_conda_plugin:cfd:main:
     extends: .conda_build
     rules:
       - !reference [ .conda_build_rules:plugin:main, rules ]
+      - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_cfd_main/
+        when: on_success
 
 build_conda_plugin:cfd:dev:
     stage: build_conda_plugin
@@ -222,6 +164,8 @@ build_conda_plugin:cfd:dev:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
+      - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_cfd_dev/
+        when: on_success
 
 build_conda_plugin:cfd:nightly:
     stage: build_conda_plugin
@@ -243,6 +187,8 @@ build_conda_plugin:energyplus:main:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:main, rules ]
+      - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_main/
+        when: on_success
 
 build_conda_plugin:energyplus:dev:
     stage: build_conda_plugin
@@ -253,6 +199,8 @@ build_conda_plugin:energyplus:dev:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
+      - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_dev/
+        when: on_success
 
 build_conda_plugin:energyplus:nightly:
     stage: build_conda_plugin
@@ -275,6 +223,8 @@ build_conda_plugin:hkesim:main:
     extends: .conda_build
     rules:
       - !reference [ .conda_build_rules:plugin:main, rules ]
+      - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_hkesim_main/
+        when: on_success
 
 build_conda_plugin:hkesim:dev:
     stage: build_conda_plugin
@@ -285,6 +235,9 @@ build_conda_plugin:hkesim:dev:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
+      - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_hkesim_dev/
+        when: on_success
+
 
 build_conda_plugin:hkesim:nightly:
     stage: build_conda_plugin
@@ -307,6 +260,8 @@ build_conda_plugin:lca:main:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:main, rules ]
+      - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_lca_main/
+        when: on_success
 
 build_conda_plugin:lca:dev:
     stage: build_conda_plugin
@@ -317,6 +272,8 @@ build_conda_plugin:lca:dev:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
+      - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_lca_dev/
+        when: on_success
 
 build_conda_plugin:lca:nightly:
     stage: build_conda_plugin
@@ -338,6 +295,8 @@ build_conda_plugin:teaser:main:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:main, rules ]
+      - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_main/
+        when: on_success
 
 build_conda_plugin:teaser:dev:
     stage: build_conda_plugin
@@ -348,6 +307,9 @@ build_conda_plugin:teaser:dev:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
+      - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_dev/
+        when: on_success
+
 
 build_conda_plugin:teaser:nightly:
     stage: build_conda_plugin
@@ -519,7 +481,8 @@ release_conda_plugin:aixlib:main:
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:main, rules ]
-
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_aixlib_main/
+      when: manual
 
 release_conda_plugin:aixlib:dev:
   stage: release_conda_plugin
@@ -530,6 +493,8 @@ release_conda_plugin:aixlib:dev:
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_aixlib_dev/
+      when: manual
 
 release_conda_plugin:aixlib:nightly:
   stage: release_conda_plugin
@@ -553,6 +518,8 @@ release_conda_plugin:cfd:main:
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_cfd_main/
+      when: manual
 
 release_conda_plugin:cfd:dev:
   stage: release_conda_plugin
@@ -563,6 +530,8 @@ release_conda_plugin:cfd:dev:
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_cfd_dev/
+      when: manual
 
 release_conda_plugin:cfd:nightly:
   stage: release_conda_plugin
@@ -585,6 +554,8 @@ release_conda_plugin:energyplus:main:
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_main/
+      when: manual
 
 release_conda_plugin:energyplus:dev:
   stage: release_conda_plugin
@@ -595,6 +566,8 @@ release_conda_plugin:energyplus:dev:
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_dev/
+      when: manual
 
 release_conda_plugin:energyplus:nightly:
   stage: release_conda_plugin
@@ -617,6 +590,8 @@ release_conda_plugin:hkesim:main:
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_hkesim_main/
+      when: manual
 
 release_conda_plugin:hkesim:dev:
   stage: release_conda_plugin
@@ -627,6 +602,8 @@ release_conda_plugin:hkesim:dev:
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_hkesim_dev/
+      when: manual
 
 release_conda_plugin:hkesim:nightly:
   stage: release_conda_plugin
@@ -649,6 +626,8 @@ release_conda_plugin:lca:main:
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_lca_main/
+      when: manual
 
 release_conda_plugin:lca:dev:
   stage: release_conda_plugin
@@ -659,6 +638,8 @@ release_conda_plugin:lca:dev:
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_lca_dev/
+      when: manual
 
 release_conda_plugin:lca:nightly:
   stage: release_conda_plugin
@@ -681,6 +662,8 @@ release_conda_plugin:teaser:main:
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_main/
+      when: manual
 
 release_conda_plugin:teaser:dev:
   stage: release_conda_plugin
@@ -691,6 +674,8 @@ release_conda_plugin:teaser:dev:
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_dev/
+      when: manual
 
 release_conda_plugin:teaser:nightly:
   stage: release_conda_plugin

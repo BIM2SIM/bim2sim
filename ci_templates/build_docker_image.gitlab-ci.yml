@@ -174,6 +174,8 @@ docker_build_plugin:aixlib:main:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:main, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_aixlib_main/
+      when: on_success
 
 docker_build_plugin:aixlib:dev:
   stage: build_docker_plugin
@@ -185,6 +187,8 @@ docker_build_plugin:aixlib:dev:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_aixlib_dev/
+      when: on_success
 
 docker_build_plugin:aixlib:nightly:
   stage: build_docker_plugin
@@ -227,6 +231,8 @@ test_plugin:AixLib:main:
   extends: .test_plugin:AixLib
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_aixlib_main/
+      when: on_success
 
 test_plugin:AixLib:dev:
   image: ${TEST_IMAGE}
@@ -238,6 +244,8 @@ test_plugin:AixLib:dev:
   extends: .test_plugin:AixLib
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_aixlib_dev/
+      when: on_success
 
 test_plugin:AixLib:nightly:
   image: ${TEST_IMAGE}
@@ -261,6 +269,8 @@ docker_build_plugin:cfd:main:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:main, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_cfd_main/
+      when: on_success
 
 docker_build_plugin:cfd:dev:
   stage: build_docker_plugin
@@ -272,6 +282,8 @@ docker_build_plugin:cfd:dev:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_cfd_dev/
+      when: on_success
 
 docker_build_plugin:cfd:nightly:
   stage: build_docker_plugin
@@ -313,6 +325,8 @@ test_plugin:cfd:main:
   extends: .test_plugin:cfd
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_cfd_main/
+      when: on_success
 
 test_plugin:cfd:dev:
   image: ${TEST_IMAGE}
@@ -324,6 +338,8 @@ test_plugin:cfd:dev:
   extends: .test_plugin:cfd
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_cfd_dev/
+      when: on_success
 
 test_plugin:cfd:nightly:
   image: ${TEST_IMAGE}
@@ -348,6 +364,8 @@ docker_build_plugin:energyplus:main:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:main, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_main/
+      when: on_success
 
 docker_build_plugin:energyplus:dev:
   stage: build_docker_plugin
@@ -359,6 +377,8 @@ docker_build_plugin:energyplus:dev:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_dev/
+      when: on_success
 
 docker_build_plugin:energyplus:nightly:
   stage: build_docker_plugin
@@ -402,6 +422,8 @@ test_plugin:energyplus:main:
   extends: .test_plugin:energyplus
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_main/
+      when: on_success
 
 test_plugin:energyplus:dev:
   image: ${TEST_IMAGE}
@@ -413,6 +435,8 @@ test_plugin:energyplus:dev:
   extends: .test_plugin:energyplus
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_dev/
+      when: on_success
 
 test_plugin:energyplus:nightly:
   image: ${TEST_IMAGE}
@@ -457,6 +481,8 @@ test_plugin:energyplus_regression:main:
   extends: .test_plugin:energyplus_regression
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_main/
+      when: on_success
 
 test_plugin:energyplus_regression:dev:
   image: ${TEST_IMAGE}
@@ -468,6 +494,8 @@ test_plugin:energyplus_regression:dev:
   extends: .test_plugin:energyplus_regression
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_dev/
+      when: on_success
 
 
 test_plugin:energyplus_regression:nightly:
@@ -493,6 +521,8 @@ docker_build_plugin:hkesim:main:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:main, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_hkesim_main/
+      when: on_success
 
 docker_build_plugin:hkesim:dev:
   stage: build_docker_plugin
@@ -504,6 +534,8 @@ docker_build_plugin:hkesim:dev:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_hkesim_dev/
+      when: on_success
 
 docker_build_plugin:hkesim:nightly:
   stage: build_docker_plugin
@@ -530,6 +562,8 @@ docker_build_plugin:lca:main:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:main, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_lca_main/
+      when: on_success
 
 docker_build_plugin:lca:dev:
   stage: build_docker_plugin
@@ -541,6 +575,8 @@ docker_build_plugin:lca:dev:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_lca_dev/
+      when: on_success
 
 docker_build_plugin:lca:nightly:
   stage: build_docker_plugin
@@ -582,6 +618,8 @@ test_plugin:lca:main:
   extends: .test_plugin:lca
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_lca_main/
+      when: on_success
 
 test_plugin:lca:dev:
   image: ${TEST_IMAGE}
@@ -593,6 +631,8 @@ test_plugin:lca:dev:
   extends: .test_plugin:lca
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_lca_dev/
+      when: on_success
 
 test_plugin:lca:nightly:
   image: ${TEST_IMAGE}
@@ -616,6 +656,8 @@ docker_build_plugin:teaser:main:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:main, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_main/
+      when: on_success
 
 docker_build_plugin:teaser:dev:
   stage: build_docker_plugin
@@ -627,6 +669,8 @@ docker_build_plugin:teaser:dev:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_dev/
+      when: on_success
 
 docker_build_plugin:teaser:nightly:
   stage: build_docker_plugin
@@ -668,6 +712,8 @@ test_plugin:teaser:main:
   extends: .test_plugin:teaser
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_main/
+      when: on_success
 
 test_plugin:teaser:dev:
   image: ${TEST_IMAGE}
@@ -679,6 +725,8 @@ test_plugin:teaser:dev:
   extends: .test_plugin:teaser
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_dev/
+      when: on_success
 
 test_plugin:teaser:nightly:
   image: ${TEST_IMAGE}
@@ -812,6 +860,8 @@ docker_build_plugin:dymola_teaser:main:
   extends: .docker_dymola_build
   rules:
     - !reference [.docker_build_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_main/
+      when: on_success
 
 docker_build_plugin:dymola_teaser:dev:
   stage: build_docker_plugin
@@ -823,6 +873,8 @@ docker_build_plugin:dymola_teaser:dev:
   extends: .docker_dymola_build
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_dev/
+      when: on_success
 
 docker_build_plugin:dymola_teaser:nightly:
   stage: build_docker_plugin
@@ -868,6 +920,8 @@ test_plugin:dymola_teaser:main:
   extends: .test_plugin:TEASER_regression
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_main/
+      when: on_success
 
 test_plugin:dymola_teaser:dev:
   image: ${TEST_IMAGE}
@@ -879,6 +933,8 @@ test_plugin:dymola_teaser:dev:
   extends: .test_plugin:TEASER_regression
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_dev/
+      when: on_success
 
 test_plugin:dymola_teaser:nightly:
   image: ${TEST_IMAGE}
@@ -1323,6 +1379,8 @@ docker_release_plugin:aixlib:main:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_aixlib_main/
+      when: manual
 
 docker_release_plugin:aixlib:dev:
   stage: release_docker_plugin
@@ -1333,6 +1391,8 @@ docker_release_plugin:aixlib:dev:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_aixlib_dev/
+      when: manual
 
 docker_release_plugin:aixlib:nightly:
   stage: release_docker_plugin
@@ -1355,6 +1415,8 @@ docker_release_plugin:cfd:main:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_cfd_main/
+      when: manual
 
 docker_release_plugin:cfd:dev:
   stage: release_docker_plugin
@@ -1365,6 +1427,8 @@ docker_release_plugin:cfd:dev:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_cfd_dev/
+      when: manual
 
 docker_release_plugin:cfd:nightly:
   stage: release_docker_plugin
@@ -1386,6 +1450,8 @@ docker_release_plugin:energyplus:main:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_main/
+      when: manual
 
 docker_release_plugin:energyplus:dev:
   stage: release_docker_plugin
@@ -1396,6 +1462,8 @@ docker_release_plugin:energyplus:dev:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_dev/
+      when: manual
 
 
 docker_release_plugin:energyplus:nightly:
@@ -1418,6 +1486,8 @@ docker_release_plugin:hkesim:main:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_hkesim_main/
+      when: manual
 
 docker_release_plugin:hkesim:dev:
   stage: release_docker_plugin
@@ -1428,6 +1498,8 @@ docker_release_plugin:hkesim:dev:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_hkesim_dev/
+      when: manual
 
 docker_release_plugin:hkesim:nightly:
   stage: release_docker_plugin
@@ -1449,6 +1521,8 @@ docker_release_plugin:lca:main:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_lca_main/
+      when: manual
 
 docker_release_plugin:lca:dev:
   stage: release_docker_plugin
@@ -1459,6 +1533,8 @@ docker_release_plugin:lca:dev:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_lca_dev/
+      when: manual
 
 docker_release_plugin:lca:nightly:
   stage: release_docker_plugin
@@ -1481,6 +1557,9 @@ docker_release_plugin:teaser:main:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_main/
+      when: manual
+
 
 docker_release_plugin:teaser:dev:
   stage: release_docker_plugin
@@ -1491,6 +1570,8 @@ docker_release_plugin:teaser:dev:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_dev/
+      when: manual
 
 docker_release_plugin:teaser:nightly:
   stage: release_docker_plugin
@@ -1549,6 +1630,8 @@ docker_release_plugin:dymola_teaser:main:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_main/
+      when: manual
 
 docker_release_plugin:dymola_teaser:dev:
   stage: release_docker_plugin
@@ -1559,6 +1642,8 @@ docker_release_plugin:dymola_teaser:dev:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
+    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_dev/
+      when: manual
 
 docker_release_plugin:dymola_teaser:nightly:
   stage: release_docker_plugin
