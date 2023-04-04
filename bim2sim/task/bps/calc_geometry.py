@@ -5,6 +5,7 @@ import multiprocessing
 import numpy as np
 import OCC
 
+
 class geometry():
 
     def __init__(self, ifc_file):
@@ -19,8 +20,6 @@ class geometry():
 
     def write_pipe(self):
         pass
-
-
 
     def test_3(self):
 
@@ -58,9 +57,9 @@ class geometry():
         print(spaces.Name)
         settings = ifcopenshell.geom.settings()
         shape = ifcopenshell.geom.create_shape(settings, spaces)
-       # print(shape.guid)
-       # print(shape.id)
-       # print(self.model.by_guid(shape.guid))
+        # print(shape.guid)
+        # print(shape.id)
+        # print(self.model.by_guid(shape.guid))
         print(shape.geometry)
         matrix = shape.transformation.matrix.data
         print(matrix)
@@ -88,7 +87,6 @@ class geometry():
     def reference_point(self):
         pass
 
-
     def calc_pipe(self):
         spaces = self.model.by_type("IfcSpace")
         lowest_level_spaces = []
@@ -97,10 +95,89 @@ class geometry():
             if space.ObjectPlacement:
                 if ifc_obj.ObjectPlacement.is_a("IfcLocalPlacement"):
                     print(space.ObjectPlacement.RelativePlacement.Location.Coordinates[2])
-                    #room.ObjectPlacement.RelativePlacement.Location.Coordinates[:3]
-                    #if space.ObjectPlacementRelativePlacement.Location.Coordinates == 0:
+                    # room.ObjectPlacement.RelativePlacement.Location.Coordinates[:3]
+                    # if space.ObjectPlacementRelativePlacement.Location.Coordinates == 0:
+
+    def get_bounding_box(self):
+        window = self.model.by_type("IfcWindow")
+        window.OverallOuterContour
 
 
+
+
+    def get_bounding_box2(self):
+        min_x, max_x, min_y, max_y, min_z, max_z = float("inf"), -float("inf"), float("inf"), -float("inf"), float(
+            "inf"), -float("inf")
+
+        for entity in self.model.by_type("IfcCartesianPoint"):
+            point = entity.Coordinates
+            print(entity.Name)
+            if len(point) == 3:
+                x, y, z = point[0], point[1], point[2]
+                min_x = min(min_x, x)
+                max_x = max(max_x, x)
+                min_y = min(min_y, y)
+                max_y = max(max_y, y)
+                min_z = min(min_z, z)
+                max_z = max(max_z, z)
+
+        bounding_box = ((min_x, min_y, min_z), (max_x, max_y, max_z))
+        print(bounding_box)
+
+
+    def related_object_space(self, room):
+        room_elements = []
+        element_dict = {}
+        for boundary_element in self.model.by_type("IfcRelSpaceBoundary"):
+            if boundary_element.RelatingSpace == room:
+                room_elements.append(boundary_element.RelatedBuildingElement)
+        for element in room_elements:
+            if element is not None:
+                # wohl korrekt
+                if element.is_a("IfcWall"):
+                    absolute_position = self.calc_global_position(element)
+                    element_dict[element.GlobalId] = {"type": "Wall",
+                                                      "name_number": element.Name,
+                                                      "id": element.id(),
+                                                      "Position": absolute_position}
+                if element.is_a("IfcDoor"):
+                    absolute_position = self.calc_global_position(element)
+                    element_dict[element.GlobalId] = {"type": "Door",
+                                                      "name_number": element.Name,
+                                                      "id": element.id(),
+                                                      "Position": absolute_position}
+                # todo: Fenster Koordianten noch nicht korrekt
+                if element.is_a("IfcWindow"):
+                    absolute_position = self.calc_global_position(element)
+                    element_dict[element.GlobalId] = {"type": "Window",
+                                                      "name_number": element.Name,
+                                                      "id": element.id(),
+                                                      "Position": absolute_position}
+        return element_dict
+
+    def calc_global_position(self, element):
+        if hasattr(element, 'ObjectPlacement'):
+            absolute = np.array(element.ObjectPlacement.RelativePlacement.Location.Coordinates)
+            placementrel = element.ObjectPlacement.PlacementRelTo
+            while placementrel is not None:
+                absolute += np.array(placementrel.RelativePlacement.Location.Coordinates)
+                placementrel = placementrel.PlacementRelTo
+        else:
+            absolute = None
+        return absolute
+
+    def room_element_position(self):
+        spaces_dict = {}
+        for space in self.model.by_type("IfcSpace"):
+            absolute_position = self.calc_global_position(element=space)
+            spaces_dict[space.GlobalId] = {"name_number": space.Name,
+                                           "Name": space.LongName,
+                                           "Position": absolute_position,
+                                           "room_elements": []}
+            room_elements = self.related_object_space(room=space)
+            spaces_dict[space.GlobalId]["room_elements"] = room_elements
+            #int(room_elements)
+        print(spaces_dict["347jFE2yX7IhCEIALmupEH"])
 
     def get_global_coordiantes(self, ifc_obj=None):
         print(ifc_obj.Name)
@@ -122,7 +199,6 @@ class geometry():
                 print("Globale Koordinaten des Bezugspunkts von Raum {}:".format(ifc_obj.Name))
                 print(origin)
 
-
         """placement = ifc_obj.ObjectPlacement.PlacementRelTo
         if placement.is_a("IfcLocalPlacement"):
             relative_coordinates = placement.RelativePlacement.Location.Coordinates
@@ -131,7 +207,6 @@ class geometry():
             # Das Platzierungsobjekt ist global
             global_coordinates = placement.RelativePlacement.Location.Coordinates
             # Verarbeiten Sie die globalen Koordinaten entsprechend"""
-
 
         obj_placement = ifc_obj.ObjectPlacement
         if obj_placement.is_a('IfcLocalPlacement'):
@@ -153,17 +228,9 @@ class geometry():
         else:
             print('Ungültige Platzierung')
 
+        # print(dir(ifc_obj.ObjectPlacement.wrap_value))
 
-        #print(dir(ifc_obj.ObjectPlacement.wrap_value))
-
-        #print(dir(ifc_obj))
-
-
-
-
-
-
-
+        # print(dir(ifc_obj))
 
         """# Konvertieren Sie die relative Platzierung des Raums in globale Koordinaten
         if ifc_obj.ObjectPlacement.is_a("IfcLocalPlacement"):
@@ -184,9 +251,9 @@ class geometry():
         print('Globale Koordinaten:', global_coords)"""
 
         # Berechnen Sie die globalen Koordinaten des Raums
-        #relative_coords = np.array(ifc_obj.ObjectPlacement.RelativePlacement.Location.Coordinates)
-        #homogeneous_coords = np.concatenate([relative_coords, [1]])
-        #global_coords = np.matmul(transform_matrix, homogeneous_coords)[:3]
+        # relative_coords = np.array(ifc_obj.ObjectPlacement.RelativePlacement.Location.Coordinates)
+        # homogeneous_coords = np.concatenate([relative_coords, [1]])
+        # global_coords = np.matmul(transform_matrix, homogeneous_coords)[:3]
         """print(ifc_obj)
         if ifc_obj.ObjectPlacement.is_a('IfcLocalPlacement'):
             coordinates = ifc_obj.ObjectPlacement.RelativePlacement.Location.Coordinates
@@ -200,6 +267,7 @@ class geometry():
                     coordinates[i] += parent_coords[i]
         return coordinates
         """
+
     def test_room(self):
         rooms = self.model.by_type("IfcSpace")
         for room in rooms:
@@ -207,9 +275,6 @@ class geometry():
             if room.ObjectPlacement.is_a('IfcLocalPlacement'):
                 coordinates = room.ObjectPlacement.RelativePlacement.Location.Coordinates
                 print('Koordinaten:', coordinates)
-
-
-
 
             """if space_obj.Representation:
                 for rep in space_obj.Representation.Representations:
@@ -224,12 +289,7 @@ class geometry():
                                 print('Breite:', width)
                                 print('Höhe:', height)"""
 
-
-
             room_geometry = room.Representation.Representations[0].Items[0]
-
-
-
 
             if room_geometry.is_a('IfcFacetedBrep'):
                 print('Die Instanz ist eine IfcFacetedBrep-Instanz')
@@ -238,12 +298,11 @@ class geometry():
             else:
                 print('Die Instanz ist kein IfcFacetedBrep-Objekt')
 
-            #shape_gpXYZ = space.Location().Transformation().TranslationPart()
-            #print(shape_gpXYZ.X(), shape_gpXYZ.Y(), shape_gpXYZ.Z())
+            # shape_gpXYZ = space.Location().Transformation().TranslationPart()
+            # print(shape_gpXYZ.X(), shape_gpXYZ.Y(), shape_gpXYZ.Z())
 
-
-            #print("Raumtyp:", room.IsDefinedBy)
-            #print("Raumhöhe:", room.Height.NominalValue.wrappedValue)
+            # print("Raumtyp:", room.IsDefinedBy)
+            # print("Raumhöhe:", room.Height.NominalValue.wrappedValue)
             """for rel_def in room.IsDefinedBy:
                 if rel_def.is_a("IfcRelDefinesByProperties"):
                     props = rel_def.RelatingPropertyDefinition
@@ -264,7 +323,7 @@ class geometry():
         for room in self.model.by_type("IfcSpace"):
             # Auslesen der globalen Koordinaten
             x, y, z = room.ObjectPlacement.RelativePlacement.Location.Coordinates[:3]
-            #print("Koordinaten des Raums", room.Name, "sind:", x, y, z)
+            # print("Koordinaten des Raums", room.Name, "sind:", x, y, z)
             # todo: globale Koordianten müssen x - length, y"""
             # todo: elements: Geometrien übertragen
             room_elements = []
@@ -304,7 +363,7 @@ class geometry():
                     elif element.is_a("IfcWindow"):
                         # Auslesen der Fenster-Koordinaten
                         local_placement = element.ObjectPlacement.RelativePlacement.Location
-                        #print(local_placement)
+                        # print(local_placement)
                         if isinstance(local_placement, ifcopenshell.entity_instance):
                             if local_placement.is_a("IfcAxis2Placement3D"):
                                 coordinates = local_placement.Location.Coordinates
@@ -336,7 +395,7 @@ class geometry():
                     # Gib die Maße des Raums aus
                     print("Maße des Raums", room.Name, "sind:", length, "x", width, "x", height)
 
-    def is_global(self,coords):
+    def is_global(self, coords):
         if isinstance(coords, ifcopenshell.geom.Point):
             return True
         elif isinstance(coords, ifcopenshell.geom.Vector):
@@ -406,32 +465,34 @@ class geometry():
         room = self.model.by_type("IfcSpace")[0]
         print(dir(room))
         print(room.ContainsElements)
-        position = room.ConnectionGeometry.SurfaceOnRelatingElement. BasisSurface.Position.Location.Coordinates
+        position = room.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.Position.Location.Coordinates
         # Erstellen Sie eine Liste von Wänden und Decken
-
 
 
 if __name__ == '__main__':
     ifc_path = "C:/02_Masterarbeit/08_BIMVision//FZK-Haus.ifc"
     geo = geometry(ifc_file=ifc_path)
-    #geo.get_relative_coordiantes()
-    #geo.get_global_coordiantes()
-    geo.calculation_room()
-    #geo.ifc_viewer()
-    ifc_obj = geo.model.by_type("IfcSpace")[0]
-    #global_coordinates = geo.get_global_coordiantes(ifc_obj)
-    #geo.calc_pipe()
-    #print(global_coordinates)
-    #geo.test_room()
-    #geo.test_function()
-    #geo.test()
-    #geo.tests()
-    #geo.test_3()
-    #geo.test_4()
-    #geo.calc()
+    geo.room_element_position()
+    geo.get_bounding_box()
+    # geo.related_object_space()
+    # geo.get_relative_coordiantes()
+    # geo.get_global_coordiantes()
+    # geo.calculation_room()
+    # geo.ifc_viewer()
+    # ifc_obj = geo.model.by_type("IfcSpace")[0]
+    # global_coordinates = geo.get_global_coordiantes(ifc_obj)
+    # geo.calc_pipe()
+    # print(global_coordinates)
+    # geo.test_room()
+    # geo.test_function()
+    # geo.test()
+    # geo.tests()
+    # geo.test_3()
+    # geo.test_4()
+    # geo.calc()
     # room_coordinates = geo.get_room_coordinates()
     # room_elements = geo.get_room_elements()
-    #print("Room Coordinates:")
-    #print(room_coordinates)
-    #print("Room Elements:")
-    #print(room_elements)
+    # print("Room Coordinates:")
+    # print(room_coordinates)
+    # print("Room Elements:")
+    # print(room_elements)

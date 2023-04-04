@@ -20,8 +20,7 @@ class VisualizeThermalZone(ITask):
         thermal_zones = self._get_ifcspace(ifc=ifc)
         #self._visualize_thermal_zone(thermal_zones=thermal_zones)
         # todo: thermalzone nach räumen aufgelistet
-        #self._get_thermalzone_objects(thermal_zones=thermal_zones)
-        _dict_room_position = self._get_position(instances=instances)
+        _dict_room_position = self.get_position(instances=instances)
         print(_dict_room_position)
 
     def _visualize_thermal_zone(self, thermal_zones):
@@ -40,10 +39,6 @@ class VisualizeThermalZone(ITask):
         display.FitAll()
         start_display()
 
-    def _get_thermalzone_objects(self, thermal_zones):
-        for room in thermal_zones:
-            for l in room.ifc:
-                print(l)
 
     def _get_ifcspace(self, ifc ):
         ifc_spaces = ifc.by_type('IfcSpace')
@@ -52,7 +47,7 @@ class VisualizeThermalZone(ITask):
             thermal_zones.append(ThermalZone(ifc_space))
         return thermal_zones
 
-    def _get_position(self, instances):
+    def get_position(self, instances):
         _dict_room_position = {}
         for inst in instances.values():
             if inst.__class__.__name__ == "ThermalZone":
