@@ -67,7 +67,8 @@ class TestIntegrationHKESIM(IntegrationBaseHKESIM, unittest.TestCase):
             'ConsumerHeatingDistributorModule',
         ]
         default_logging_setup()
-        answers = (None, 'HVAC-PipeFitting', 'HVAC-Distributor', 'HVAC-Valve',
+        answers = (None, 'HVAC-PipeFitting', 'HVAC-Distributor',
+                   'HVAC-ThreeWayValve',
                    # 7 dead ends
                    *(True,) * 7, 0.75, 50, 150, 70, *(1, 500,) * 7)
         handler = DebugDecisionHandler(answers)
