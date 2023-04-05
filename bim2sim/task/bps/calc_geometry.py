@@ -435,7 +435,6 @@ class geometry():
         settings.set(settings.USE_WORLD_COORDS, True)
         settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
         settings.set(settings.INCLUDE_CURVES, True)
-
         room_dict = {}
         for space in self.model.by_type("IfcSpace"):
             rooms = []

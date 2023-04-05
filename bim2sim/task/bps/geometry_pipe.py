@@ -104,7 +104,6 @@ class PipeGeometry():
                 rot_matrix = matrix[:3, :3]
                 global_box = np.dot(rot_matrix, box)[:3]
                 break
-
         return global_box
 
     def related_object_space(self, room):
@@ -119,8 +118,6 @@ class PipeGeometry():
                 box = None
                 if element.is_a("IfcWall"):
                     matrix = self.get_global_matrix(element)
-                    #print(element.Name)
-                    #print(matrix)
                     relative_point = np.array([0, 0, 0, 1])
                     absolute_position = np.dot(matrix, relative_point)[:3]
                     global_box = self.calc_bounding_box(element)
@@ -460,7 +457,7 @@ class PipeGeometry():
                         #end_points.append(end_point)
                     if elements[element]["type"] == "Window":
                         window = elements[element]
-                        corner_points =  elements[element]["global_corners"]
+                        corner_points = elements[element]["global_corners"]
                         x_midpoint = np.mean(corner_points[:, 0])
                         y_midpoint = np.mean(corner_points[:, 1])
                         z_low = np.min(corner_points[:, 2])
@@ -486,7 +483,6 @@ class PipeGeometry():
                     chosen_coords = coords"""
 
     class GraphNetwork:
-
         @staticmethod
         def create_grid():
             # Erstelle einen gerichteten Graphen
