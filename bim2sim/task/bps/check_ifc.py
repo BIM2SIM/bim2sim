@@ -1,3 +1,5 @@
+from ifcopenshell import file
+
 from bim2sim.kernel.elements import bps
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from bim2sim.task.common.common import CheckIfc
@@ -13,6 +15,9 @@ class CheckIfcBPS(CheckIfc):
         super().__init__()
         self.sub_inst_cls = 'IfcRelSpaceBoundary'
         self.plugin = bps
+
+    def check_critical_errors(self, ifc: file):
+        pass
 
     def validate_sub_inst(self, bound) -> list:
         """
@@ -250,7 +255,7 @@ class CheckIfcBPS(CheckIfc):
             False: if check fails
         """
         if bound.RelatedBuildingElement is not None:
-            return bound.RelatedBuildingElement.is_a('IfcBuildingElement')
+            return bound.RelatedBuildingElement.is_a('IfcElement')
 
     @staticmethod
     def _check_conn_geom(bound):
@@ -265,7 +270,7 @@ class CheckIfcBPS(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        return bound.ConnectionGeometry.is_a('IfcConnectionSurfaceGeometry')
+        return bound.ConnectionGeometry.is_a('IfcConnectionGeometry')
 
     @staticmethod
     def _check_phys_virt_bound(bound):
@@ -280,7 +285,7 @@ class CheckIfcBPS(CheckIfc):
             False: if check fails
         """
         return bound.PhysicalOrVirtualBoundary.upper() in \
-            {'PHYSICAL', 'VIRTUAL'}
+            {'PHYSICAL', 'VIRTUAL', 'NOTDEFINED'}
 
     @staticmethod
     def _check_int_ext_bound(bound):
@@ -330,7 +335,9 @@ class CheckIfcBPS(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        return bound.ConnectionGeometry.SurfaceOnRelatedElement is None
+        return (bound.ConnectionGeometry.SurfaceOnRelatedElement is None or
+                bound.ConnectionGeometry.SurfaceOnRelatedElement.is_a(
+                    'IfcCurveBoundedPlane'))
 
     @staticmethod
     def _check_basis_surface(bound):
@@ -395,7 +402,7 @@ class CheckIfcBPS(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        return (s.is_a('IfcPolyline') for s in
+        return (s.is_a('IfcCompositeCurveSegment') for s in
                 bound.ConnectionGeometry.SurfaceOnRelatingElement.
                 OuterBoundary.Segments)
 
