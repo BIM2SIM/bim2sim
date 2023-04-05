@@ -4,9 +4,11 @@ import logging
 import os
 from typing import Tuple, List, Any, Type, Set, Dict, Generator
 
+import pandas as pd
 from ifcopenshell.file import file
 from mako.lookup import TemplateLookup
 from mako.template import Template
+from string_grouper import group_similar_strings
 
 import bim2sim.kernel.elements.bps as bps
 from bim2sim.decision import Decision, ListDecision, DecisionBunch
@@ -20,6 +22,7 @@ from bim2sim.kernel.ifc2python import get_property_sets
 from bim2sim.kernel.units import parse_ifc
 from bim2sim.task.base import ITask
 from bim2sim.workflow import Workflow
+from bim2sim.utilities.common_functions import all_subclasses
 
 
 class Reset(ITask):
@@ -59,6 +62,8 @@ class LoadIFC(ITask):
         else:
             raise AssertionError("No ifc found. Check '%s'" % path)
         ifc = ifc2python.load_ifc(os.path.abspath(ifc_path))
+        if workflow.reset_guids:
+            ifc = ifc2python.reset_guids(ifc)
         workflow.ifc_units.update(**self.get_ifcunits(ifc))
 
         # Schema2Python.get_ifc_structure(ifc)
@@ -136,7 +141,7 @@ class CreateElements(ITask):
         self.materials_all = []
         self.layers_all = []
 
-    def run(self, workflow, ifc):
+    def run(self, workflow: Workflow, ifc: file):
         self.logger.info("Creates elements of relevant ifc types")
         default_ifc_types = {'IfcBuildingElementProxy', 'IfcUnitaryEquipment'}
         relevant_ifc_types = self.get_ifc_types(workflow.relevant_elements)
@@ -187,7 +192,7 @@ class CreateElements(ITask):
         # identification of remaining entities by user
         entity_class_dict, unknown_entities = yield from self.set_class_by_user(
             unknown_entities,
-            workflow.relevant_elements,
+            workflow,
             entity_best_guess_dict)
         entity_best_guess_dict.update(entity_class_dict)
         invalids = []
@@ -469,54 +474,170 @@ class CreateElements(ITask):
         return result_entity_dict, unknown_entities
 
     def set_class_by_user(
-            self, unknown_entities, possible_elements, best_guess_dict):
+            self,
+            unknown_entities: list,
+            workflow: Workflow,
+            best_guess_dict: dict):
         """Ask user for every given ifc_entity to specify matching element
-        class"""
-        sorted_elements = sorted(possible_elements, key=lambda item: item.key)
-        # assert same list of ifc_classes
-        checksum = Decision.build_checksum([pe.key for pe in sorted_elements])
-        decisions = DecisionBunch()
-        for ifc_entity in sorted(unknown_entities,
-                                 key=lambda it: it.Name + it.GlobalId):
-            best_guess_cls = best_guess_dict.get(ifc_entity)
-            best_guess = best_guess_cls.key if best_guess_cls else None
-            context = []
-            for port in ifc2python.get_ports(ifc_entity):
-                connected_ports = ifc2python.get_ports_connections(port)
-                con_ports_guid = [con.GlobalId for con in connected_ports]
-                parents = []
-                for con_port in connected_ports:
-                    parents.extend(ifc2python.get_ports_parent(con_port))
-                parents_guid = [par.GlobalId for par in parents]
-                context.append(port.GlobalId)
-                context.extend(con_ports_guid + parents_guid)
+        class.
 
-            decisions.append(ListDecision(
-                "Found unidentified Element of %s (Name: %s, Description: %s,"
-                " GUID: %s):" % (
-                    ifc_entity.is_a(), ifc_entity.Name, ifc_entity.Description,
-                    ifc_entity.GlobalId),
-                choices=[ele.key for ele in sorted_elements],
-                related=[ifc_entity.GlobalId],
-                context=context,
-                default=best_guess,
-                key=ifc_entity,
-                global_key="SetClass:%s.%s" % (
-                    ifc_entity.is_a(), ifc_entity.GlobalId),
-                allow_skip=True,
-                validate_checksum=checksum))
-        yield decisions
-        answers = decisions.to_answer_dict()
+        This function allows to define unknown classes based on user feedback.
+        To reduce the number of decisions we implemented fuzzy search. If and
+        how fuzzy search is used can be set the workflow settings
+        group_unidentified and fuzzy_threshold. See group_similar_entities
+        for more information.
+
+        Args:
+            unknown_entities: list of unknown entities
+            workflow: workflow: Workflow used on task
+            best_guess_dict: dict that holds the best guesses for every element
+        """
+
+        def group_similar_entities(
+            search_type: str = 'fuzzy',
+            fuzzy_threshold: float = 0.7) -> dict:
+            """Group unknown entities to reduce number of decisions.
+
+            IFC elements are often not correctly specified, or have uncertain
+            specifications like "USERDEFINED" as predefined type. For some IFC
+            files this would lead to a very high amount of decisions to identify
+            elements. To reduce this function groups similar elements based on:
+                - same name (exact)
+                - similar name (fuzzy search)
+
+            Args:
+                search_type: str which is either 'fuzzy' or 'name'
+                fuzzy_threshold: float that sets the threshold for fuzzy search.
+                    A low threshold means a small similarity is required for
+                    grouping
+
+            Returns:
+                representatives: A dict with a string of the representing ifc
+                element type as key (e.g. 'IfcPipeFitting') and a list of all
+                represented ifc elements.
+            """
+            entities_by_type = {}
+            for entity in unknown_entities:
+                entity_type = entity.is_a()
+                if entity_type not in entities_by_type:
+                    entities_by_type[entity_type] = [entity]
+                else:
+                    entities_by_type[entity_type].append(entity)
+
+            representatives = {}
+            for entity_type, entities in entities_by_type.items():
+                representatives[entity_type] = {}
+
+                # group based on similarity in string of "Name" of IFC element
+                if search_type == 'fuzzy':
+                    # use names of entities for grouping
+                    entity_names = [entity.Name for entity in entities]
+                    name_series = pd.Series(data=entity_names)
+                    res = group_similar_strings(
+                        name_series, min_similarity=fuzzy_threshold)
+                    for i, entity in enumerate(entities):
+                        # get representative element based on similar strings df
+                        repres = entities[res.iloc[i].group_rep_index]
+                        if not repres in representatives[entity_type]:
+                            representatives[entity_type][repres] = [entity]
+                        else:
+                            representatives[entity_type][repres].append(entity)
+
+                    self.logger.info(
+                        f"Grouping the unidentified elements with fuzzy search "
+                        f"based on their Name (Threshold = {fuzzy_threshold})"
+                        f" reduced the number of unknown "
+                        f"entities from {len(entities_by_type[entity_type])} "
+                        f"elements of IFC type {entity_type} "
+                        f"to {len(representatives[entity_type])} elements.")
+                # just group based on exact same string in "Name" of IFC element
+                elif search_type == 'name':
+                    for entity in entities:
+                        # find if a key entity with same Name exists already
+                        repr_entity = None
+                        for repr in representatives[entity_type].keys():
+                            if repr.Name == entity.Name:
+                                repr_entity = repr
+                                break
+
+                        if not repr_entity:
+                            representatives[entity_type][entity] = [entity]
+                        else:
+                            representatives[entity_type][repr_entity].append(entity)
+                    self.logger.info(
+                        f"Grouping the unidentified elements by their Name "
+                        f"reduced the number of unknown entities from"
+                        f" {len(entities_by_type[entity_type])} "
+                        f"elements of IFC type {entity_type} "
+                        f"to {len(representatives[entity_type])} elements.")
+                else:
+                    raise NotImplementedError('Only fuzzy and name grouping are'
+                                              'implemented for now.')
+
+            return representatives
+
+        possible_elements = workflow.relevant_elements
+        sorted_elements = sorted(possible_elements, key=lambda item: item.key)
+
         result_entity_dict = {}
         ignore = []
-        for ifc_entity, element_key in answers.items():
 
-            if element_key is None:
-                ignore.append(ifc_entity)
-            else:
-                element_cls = ProductBased.key_map[element_key]
-                lst = result_entity_dict.setdefault(element_cls, [])
-                lst.append(ifc_entity)
+        representatives = group_similar_entities(
+            workflow.group_unidentified, workflow.fuzzy_threshold)
+
+        for ifc_type, repr_entities in sorted(representatives.items()):
+            decisions = DecisionBunch()
+            for ifc_entity, represented in repr_entities.items():
+                # assert same list of ifc_classes
+                checksum = Decision.build_checksum(
+                    [pe.key for pe in sorted_elements])
+
+                best_guess_cls = best_guess_dict.get(ifc_entity)
+                best_guess = best_guess_cls.key if best_guess_cls else None
+                context = []
+                for port in ifc2python.get_ports(ifc_entity):
+                    connected_ports = ifc2python.get_ports_connections(port)
+                    con_ports_guid = [con.GlobalId for con in connected_ports]
+                    parents = []
+                    for con_port in connected_ports:
+                        parents.extend(ifc2python.get_ports_parent(con_port))
+                    parents_guid = [par.GlobalId for par in parents]
+                    context.append(port.GlobalId)
+                    context.extend(con_ports_guid + parents_guid)
+
+                decisions.append(ListDecision(
+                    question="Found unidentified Element of %s" % (
+                        ifc_entity.is_a()),
+                    console_identifier="Name: %s, Description: %s, GUID: %s"
+                    % (ifc_entity.Name, ifc_entity.Description,
+                        ifc_entity.GlobalId),
+                    choices=[ele.key for ele in sorted_elements],
+                    related=[ifc_entity.GlobalId],
+                    context=context,
+                    default=best_guess,
+                    key=ifc_entity,
+                    global_key="SetClass:%s.%s" % (
+                        ifc_entity.is_a(), ifc_entity.GlobalId),
+                    allow_skip=True,
+                    validate_checksum=checksum))
+                self.logger.info(f"Found {len(decisions)} "
+                                 f"unidentified Elements of IFC type {ifc_type} "
+                                 f"to check by user")
+            yield decisions
+
+            answers = decisions.to_answer_dict()
+
+            for ifc_entity, element_key in answers.items():
+                represented_entities = representatives[ifc_type][ifc_entity]
+                if element_key is None:
+                    # todo check
+                    # ignore.append(ifc_entity)
+                    ignore.extend(represented_entities)
+                else:
+                    element_cls = ProductBased.key_map[element_key]
+                    lst = result_entity_dict.setdefault(element_cls, [])
+                    # lst.append(ifc_entity)
+                    lst.extend(represented_entities)
 
         return result_entity_dict, ignore
 
@@ -550,7 +671,7 @@ class CheckIfc(ITask):
         self.sub_inst_cls = None
         self.plugin = None
 
-    def run(self, workflow: Workflow, ifc) -> [dict, dict]:
+    def run(self, workflow: Workflow, ifc: file) -> [dict, dict]:
         """
         Analyzes sub_instances and instances of an IFC file for the validation
         functions and export the errors found as .json and .html files.
@@ -563,6 +684,7 @@ class CheckIfc(ITask):
             error_summary_sub_inst: summary of errors related to sub_instances
             error_summary_inst: summary of errors related to instances
         """
+        self.check_ifc_version(ifc)
         self.ps_summary = self._get_class_property_sets(self.plugin)
         self.ifc_units = workflow.ifc_units
         self.sub_inst = ifc.by_type(self.sub_inst_cls)
@@ -588,6 +710,24 @@ class CheckIfc(ITask):
         return [self.error_summary_sub_inst, self.error_summary_inst],
 
     @staticmethod
+    def check_ifc_version(ifc: file):
+        """
+        Checks the IFC version.
+
+        Only IFC4 files are valid for bim2sim.
+
+        Args:
+            ifc: ifc file loaded with IfcOpenShell
+        Raises:
+            TypeError: if loaded IFC is not IFC4
+        """
+        schema = ifc.schema
+        if "IFC4" not in schema:
+            raise TypeError(f"Loaded IFC file is of type {schema} but only IFC4"
+                            f"is supported. Please ask the creator of the model"
+                            f" to provide a valid IFC4 file.")
+
+    @staticmethod
     def _get_ifc_type_classes(plugin):
         """
         Gets all the classes of a plugin, that represent an IFCProduct,
@@ -604,10 +744,16 @@ class CheckIfc(ITask):
                           inspect.getmro(plugin_class[1])[1].__name__.endswith(
                               'Product')]
         cls_summary = {}
+
         for plugin_class in plugin_classes:
+            # class itself
             if plugin_class.ifc_types:
                 for ifc_type in plugin_class.ifc_types.keys():
                     cls_summary[ifc_type] = plugin_class
+            # sub classes
+            for subclass in all_subclasses(plugin_class):
+                for ifc_type in subclass.ifc_types.keys():
+                    cls_summary[ifc_type] = subclass
         return cls_summary
 
     @classmethod

@@ -2,12 +2,13 @@
 network
 where each node represents a hvac-component
 """
+from __future__ import annotations
 
 import itertools
 import logging
 import os
 from pathlib import Path
-from typing import Set, Iterable, Type
+from typing import Set, Iterable, Type, List, Union
 
 import networkx as nx
 from networkx.readwrite import json_graph
@@ -19,7 +20,9 @@ logger = logging.getLogger(__name__)
 
 class HvacGraph(nx.Graph):
     """HVAC related graph manipulations based on ports."""
-
+    # TODO 246 HvacGraph init should only be called one based on IFC as it works
+    #  with port.connection and therefore is not reliable after changes are made
+    #  to the graph
     def __init__(self, elements=None, **attr):
         super().__init__(incoming_graph_data=None, **attr)
         if elements:
@@ -107,6 +110,7 @@ class HvacGraph(nx.Graph):
         logger.info("Found %d cycles", len(cycles))
         return cycles
 
+    # TODO #246 delete because not needed anymore
     @staticmethod
     def get_type_chains(
             element_graph: nx.Graph,
@@ -238,7 +242,7 @@ class HvacGraph(nx.Graph):
             kwargs['edge_color'] = edge_color_map
 
         plt.figure(dpi=dpi)
-        nx.draw(graph, node_size=10, font_size=5, linewidths=0.7,
+        nx.draw(graph, node_size=10, font_size=3, linewidths=0.5, alpha=0.7,
                 with_labels=True, **kwargs)
         plt.draw()
         if path:
@@ -249,7 +253,7 @@ class HvacGraph(nx.Graph):
                 logger.error("Unable to save plot of graph (%s)", ex)
         else:
             plt.show()
-        plt.clf()
+        # plt.clf()
 
     def to_serializable(self):
         """Returns a json serializable object"""
@@ -286,13 +290,23 @@ class HvacGraph(nx.Graph):
         return _graph
 
     @staticmethod
-    def find_bypasses_in_cycle(graph, cycle, wanted):
-        """
-        Detects bypasses in the given cycle of the given graph. Bypasses are any
-        direct connections between edge elements which don't hold wanted
-        elements.
-        :returns: nested list: list of bypasses with a list of
-        elements in the bypass.
+    def find_bypasses_in_cycle(graph: nx.Graph, cycle, wanted):
+        """ Detects bypasses in the given cycle of the given graph.
+
+        Bypasses are any direct connections between edge elements which don't
+        hold wanted elements.
+
+        Args:
+            graph: The graph in which the cycle belongs.
+            cycle: A list of nodes representing a cycle in the graph.
+            wanted: A list of classes of the desired node type.
+
+        Returns:
+            List: A list of bypasses, where each bypass is a list of elements in
+            the bypass.
+
+        Raises:
+            None
         """
         bypasses = []
         # get wanted guids in the cycle
@@ -400,8 +414,8 @@ class HvacGraph(nx.Graph):
             inert: Set[Type[ProductBased]] = None,
             grouping=None, grp_threshold=None):
         """ Detect parallel occurrences of wanted items.
-        All graph nodes not in inert or wanted are counted as blocking.
-        Grouping can hold additional arguments like only same size.
+            All graph nodes not in inert or wanted are counted as blocking.
+            Grouping can hold additional arguments like only same size.
 
         :grouping: dict with parameter to be grouped and condition. e.g. (
         rated_power: equal)
@@ -694,3 +708,48 @@ class HvacGraph(nx.Graph):
             subgraph = nx.subgraph(_graph, con)
             graphs.append(subgraph)
         return graphs
+
+    def subgraph_from_elements(self, elements: list):
+        """ Returns a subgraph of the current graph containing only the ports
+            associated with the provided elements.
+
+        Args:
+            elements: A list of elements to include in the subgraph.
+
+        Returns:
+            A subgraph of the current graph that contains only the ports
+            associated with the provided elements.
+
+        Raises:
+            AssertionError: If the provided elements are not part of the graph.
+
+        """
+        if not set(elements).issubset(set(self.elements)):
+            raise AssertionError('The elements %s are not part of this graph.',
+                                 elements)
+        return self.subgraph((port for ele in elements for port in ele.ports))
+
+    @staticmethod
+    def remove_classes_from(graph: nx.Graph,
+                            classes_to_remove: Set[Type[ProductBased]]
+                            ) -> Union[nx.Graph, HvacGraph]:
+        """ Removes nodes from a given graph based on their class.
+
+            Args:
+                graph: The graph to remove nodes from.
+                classes_to_remove: A set of classes to remove from the graph.
+
+            Returns:
+                The modified graph as a new instance.
+        """
+        _graph = graph.copy()
+        if not isinstance(_graph, HvacGraph):
+            nodes_to_remove = {node for node in _graph.nodes if
+                               node.__class__ in classes_to_remove}
+        else:
+            elements_to_remove = {ele for ele in _graph.elements if
+                                  ele.__class__ in classes_to_remove}
+            nodes_to_remove = [port for ele in elements_to_remove
+                               for port in ele.ports]
+        _graph.remove_nodes_from(nodes_to_remove)
+        return _graph

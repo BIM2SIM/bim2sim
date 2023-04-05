@@ -648,7 +648,7 @@ class CheckIfcBPS(CheckIfc):
                      'IfcMaterial', 'IfcMaterialLayer', 'IfcMaterialLayerSet']
         if inst.is_a() in blacklist:
             return True
-        elif inst.is_a('IfcSpace'):
+        elif inst.is_a('IfcSpace') or inst.is_a('IfcExternalSpatialElement'):
             return len(inst.BoundedBy) > 0
         else:
             if len(inst.ProvidesBoundaries) > 0:
@@ -679,7 +679,9 @@ class CheckIfcBPS(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        blacklist = ['IfcBuilding', 'IfcSite', 'IfcBuildingStorey', 'IfcSpace']
+        blacklist = [
+            'IfcBuilding', 'IfcSite', 'IfcBuildingStorey', 'IfcSpace',
+            'IfcExternalSpatialElement']
         if not (inst.is_a() in blacklist):
             return len(get_layers_ifc(inst)) > 0
         return True
@@ -698,7 +700,8 @@ class CheckIfcBPS(CheckIfc):
         """
         blacklist = [
             'IfcBuilding', 'IfcSite', 'IfcBuildingStorey', 'IfcSpace',
-            'IfcMaterial', 'IfcMaterialLayer', 'IfcMaterialLayerSet'
+            'IfcExternalSpatialElement', 'IfcMaterial', 'IfcMaterialLayer',
+            'IfcMaterialLayerSet'
         ]
         if not (inst.is_a() in blacklist):
             return len(inst.ContainedInStructure) > 0
