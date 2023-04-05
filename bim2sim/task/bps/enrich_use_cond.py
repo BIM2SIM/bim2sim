@@ -150,7 +150,7 @@ class EnrichUseConditions(ITask):
                                 if i.match(i_name):
                                     if usage not in matches:
                                         matches.append(usage)
-                # if just a match given
+                # if just one match
                 if len(matches) == 1:
                     # case its an office
                     if 'office_function' == matches[0]:

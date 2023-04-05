@@ -252,7 +252,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.workflow.construction_class_windows = \
             'Waermeschutzverglasung, dreifach'
         space_boundary_genenerator = 'Other'
-        handle_proxies = (*(None,)*150,)
+        handle_proxies = (*(None,)*52,)
         construction_year = 2015
         project.workflow.split_bounds = False
         project.workflow.add_shadings = True
@@ -281,7 +281,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.workflow.zoning_setup = LOD.full
         project.workflow.create_external_elements = True
         space_boundary_genenerator = 'Other'
-        handle_proxies = (*(None,)*150,)
+        handle_proxies = (*(None,)*52,)
         construction_year = 2015
         project.workflow.split_bounds = True
         project.workflow.add_shadings = True

@@ -2,11 +2,17 @@ import unittest
 from collections import Counter
 
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
+from bim2sim.export.modelica import Instance
 from bim2sim.kernel.aggregation import ConsumerHeatingDistributorModule
+from bim2sim.log import default_logging_setup
 from bim2sim.utilities.test import IntegrationBase
 
 
 class IntegrationBaseHKESIM(IntegrationBase):
+    def tearDown(self):
+        Instance.lookup = {}
+        super().tearDown()
+
     def model_domain_path(self) -> str:
         return 'HVAC'
 
@@ -20,7 +26,7 @@ class TestIntegrationHKESIM(IntegrationBaseHKESIM, unittest.TestCase):
         project = self.create_project(ifc, 'hkesim')
         answers = ('HVAC-HeatPump', 'HVAC-Storage', 'HVAC-Storage',
                    '2lU4kSSzH16v7KPrwcL7KZ', '0t2j$jKmf74PQpOI0ZmPCc',
-                   *(True,)*17,
+                   *(True,)*18,
                    # boiler efficiency
                    0.9,
                    # boiler power
@@ -60,13 +66,14 @@ class TestIntegrationHKESIM(IntegrationBaseHKESIM, unittest.TestCase):
             'ParallelPump',
             'ConsumerHeatingDistributorModule',
         ]
-        answers = ('HVAC-Distributor', *('HVAC-ThreeWayValve',) * 2,
-                   *('HVAC-Valve',) * 14, *(None,) * 2,
-                   *(True,) * 5, 0.75, 50, 150, 70, *(1, 500,) * 7)
+        default_logging_setup()
+        answers = (None, 'HVAC-PipeFitting', 'HVAC-Distributor',
+                   'HVAC-ThreeWayValve',
+                   # 7 dead ends
+                   *(True,) * 7, 0.75, 50, 150, 70, *(1, 500,) * 7)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
-
         graph = project.playground.state['graph']
         aggregated = Counter((type(item) for item in graph.element_graph.nodes))
         self.assertIn(ConsumerHeatingDistributorModule, aggregated)

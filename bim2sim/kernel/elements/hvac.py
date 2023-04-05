@@ -255,7 +255,7 @@ class HVACProduct(ProductBased):
         vl_pattern = re.compile('.*vorlauf.*', re.IGNORECASE)
         rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
 
-        # use score for ports to help user find best match
+        # use score for ports to help user find best match_graph
         score_vl = {}
         score_rl = {}
         for port in self.ports:

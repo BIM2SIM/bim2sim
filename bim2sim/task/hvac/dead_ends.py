@@ -13,8 +13,10 @@ class DeadEnds(ITask):
     def run(self, workflow: Workflow, graph: HvacGraph) -> HvacGraph:
         self.logger.info("Inspecting for dead ends")
         pot_dead_ends = self.identify_dead_ends(graph)
-        self.logger.info("Found %s possible dead ends in network." % len(pot_dead_ends))
-        graph, n_removed = yield from self.decide_dead_ends(graph, pot_dead_ends, False)
+        self.logger.info("Found %s possible dead ends in network."
+                         % len(pot_dead_ends))
+        graph, n_removed = yield from self.decide_dead_ends(
+            graph, pot_dead_ends, False)
         self.logger.info("Removed %s ports due to found dead ends." % n_removed)
         if __debug__:
             self.logger.info("Plotting graph ...")
@@ -24,8 +26,8 @@ class DeadEnds(ITask):
 
     @staticmethod
     def identify_dead_ends(graph: HvacGraph) -> list:
-        """Identify dead ends in graph. Dead ends are all ports of elements which
-         are not connected with another port.
+        """ Identify dead ends in graph. Dead ends are all ports of elements
+            which are not connected with another port.
 
         Args:
             graph: HVAC graph being analysed
@@ -39,12 +41,18 @@ class DeadEnds(ITask):
         for node in element_graph.nodes:
             inner_edges = node.inner_connections
             uncoupled_graph.remove_edges_from(inner_edges)
-        # find first class dead ends (open ports)
-        pot_dead_ends = [v for v, d in uncoupled_graph.degree() if d == 0]
+        # find first class dead ends (ports which are not connected to any other
+        # port)
+        pot_dead_ends_1 = [v for v, d in uncoupled_graph.degree() if d == 0]
+        # find second class dead ends (ports which are connected to one side
+        # only)
+        pot_dead_ends_2 = [v for v, d in graph.degree() if d == 1]
+        pot_dead_ends = list(set(pot_dead_ends_1 + pot_dead_ends_2))
         return pot_dead_ends
 
     @staticmethod
-    def decide_dead_ends(graph: HvacGraph, pot_dead_ends: list, force: bool = False) -> [{HvacGraph}, int]:
+    def decide_dead_ends(graph: HvacGraph, pot_dead_ends: list,
+                         force: bool = False) -> [{HvacGraph}, int]:
         """Decides for all dead ends whether they are consumers or dead ends.
 
         Args:
@@ -68,13 +76,15 @@ class DeadEnds(ITask):
                 remove_ports_strand = []
                 remove_elements_strand = []
                 # find if there are more elements in strand to be removed
-                strand_ports = HvacGraph.get_path_without_junctions(graph, dead_end, include_edges=True)
+                strand_ports = HvacGraph.get_path_without_junctions(
+                    graph, dead_end, include_edges=True)
                 strand = graph.subgraph(strand_ports).element_graph
                 for port in strand_ports:
                     remove_ports_strand.append(port)
                 for element in strand:
                     remove_elements_strand.append(element)
-                remove_ports[dead_end] = (remove_ports_strand, remove_elements_strand)
+                remove_ports[dead_end] = (remove_ports_strand,
+                                          remove_elements_strand)
 
         if force:
             for dead_end in pot_dead_ends:
@@ -85,12 +95,14 @@ class DeadEnds(ITask):
             decisions = DecisionBunch()
             for dead_end, (port_strand, element_strand) in remove_ports.items():
                 cur_decision = BoolDecision(
-                    "Found possible dead end at port %s with guid %s in system, "
-                    "please check if it is a dead end:" % (dead_end, dead_end.guid),
+                    question="Found possible dead end at port %s in system, "
+                    "please check if it is a dead end" % dead_end,
+                    console_identifier="GUID: %s" % dead_end.guid,
                     key=dead_end,
                     global_key="deadEnd.%s" % dead_end.guid,
-                    allow_skip=True,
-                    related={dead_end.guid}, context=set(element.guid for element in element_strand))
+                    allow_skip=False,
+                    related={dead_end.parent.guid}, context=set(
+                        element.guid for element in element_strand))
                 decisions.append(cur_decision)
             yield decisions
             answers = decisions.to_answer_dict()
@@ -99,7 +111,8 @@ class DeadEnds(ITask):
                 if answer:
                     remove = remove_ports[element][0]
                     n_removed += len(set(remove))
-                    graph.remove_nodes_from([n for n in graph if n in set(remove)])
+                    graph.remove_nodes_from(
+                        [n for n in graph if n in set(remove)])
                 else:
                     raise NotImplementedError()
                     # TODO: handle consumers
