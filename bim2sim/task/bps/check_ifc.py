@@ -65,7 +65,6 @@ class CheckIfcBPS(CheckIfc):
         for inst in self.sub_inst:
             if inst.RelatingSpace is not None:
                 indicator = True
-                print('first rel sp')
                 break
         if not indicator:
             raise TypeError(
