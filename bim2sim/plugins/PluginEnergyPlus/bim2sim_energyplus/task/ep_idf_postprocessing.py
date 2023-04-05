@@ -14,7 +14,6 @@ class IdfPostprocessing(ITask):
         self._export_boundary_report(instances, idf, ifc)
         self.logger.info("IDF Postprocessing finished!")
 
-
     def _export_surface_areas(self, instances, idf):
         """ combines sets of area sums and exports to csv """
         area_df = pd.DataFrame(
@@ -46,20 +45,25 @@ class IdfPostprocessing(ITask):
         glazing_outdoors = [g for g in glazing if g.Outside_Boundary_Condition_Object == ""]
         glazing_surface = [g for g in glazing if g.Outside_Boundary_Condition_Object != ""]
         glazing_adiabatic = []
-        area_df = area_df.append([
-            self._sum_of_surface_area(granularity=granularity, guid=guid, long_name=long_name, out_bound_cond="ALL",
-                                      surface=surface, glazing=glazing),
-            self._sum_of_surface_area(granularity=granularity, guid=guid, long_name=long_name,
-                                      out_bound_cond="Outdoors",
-                                      surface=surf_outdoors, glazing=glazing_outdoors),
-            self._sum_of_surface_area(granularity=granularity, guid=guid, long_name=long_name, out_bound_cond="Surface",
-                                      surface=surf_surface, glazing=glazing_surface),
-            self._sum_of_surface_area(granularity=granularity, guid=guid, long_name=long_name,
-                                      out_bound_cond="Adiabatic",
-                                      surface=surf_adiabatic, glazing=glazing_adiabatic)
-        ],
-            ignore_index=True
-        )
+
+        area_df = pd.concat([area_df, pd.DataFrame.from_records([
+            self._sum_of_surface_area(
+                granularity=granularity, guid=guid, long_name=long_name,
+                out_bound_cond="ALL", surface=surface, glazing=glazing),
+            self._sum_of_surface_area(
+                granularity=granularity, guid=guid, long_name=long_name,
+                out_bound_cond="Outdoors",surface=surf_outdoors,
+                glazing=glazing_outdoors),
+            self._sum_of_surface_area(
+                granularity=granularity, guid=guid, long_name=long_name,
+                out_bound_cond="Surface", surface=surf_surface,
+                glazing=glazing_surface),
+            self._sum_of_surface_area(
+                granularity=granularity, guid=guid, long_name=long_name,
+                out_bound_cond="Adiabatic", surface=surf_adiabatic,
+                glazing=glazing_adiabatic)
+        ])],
+                             ignore_index=True)
         return area_df
 
     @staticmethod
@@ -88,15 +92,13 @@ class IdfPostprocessing(ITask):
             if not instances[inst].ifc.is_a("IfcSpace"):
                 continue
             space = instances[inst]
-            space_df = space_df.append([
-                {
+            space_df = pd.concat([space_df, pd.DataFrame.from_records([{
                     "ID": space.guid,
                     "long_name": space.ifc.LongName,
                     "space_center": space.space_center.XYZ().Coord(),
                     "space_volume": space.space_shape_volume.m
-                }],
-                ignore_index=True
-            )
+                }])],
+                ignore_index=True)
         space_df.to_csv(path_or_buf=str(self.paths.export) + "/space.csv")
 
     def _export_boundary_report(self, instances, idf, ifc):
@@ -118,23 +120,23 @@ class IdfPostprocessing(ITask):
                    f.Outside_Boundary_Condition_Object == '']
         idf_inf = [f for f in idf.idfobjects["FENESTRATIONSURFACE:DETAILED"] if
                    f.Outside_Boundary_Condition_Object != '']
-        bound_count = bound_count.append([
-            {
-                "IFC_SB_all": len(ifc_bounds),
-                "IFC_SB_2a": len([b for b in ifc_bounds if b.Description == "2a"]),
-                "IFC_SB_2b": len([b for b in ifc_bounds if b.Description == "2b"]),
-                "BIM2SIM_SB_2b": len(bounds_2b),
-                "IDF_all": len(idf_all_b) + len(idf_all_f),
-                "IDF_all_B": len(idf_all_b),
-                "IDF_ADB": len(idf_adb),
-                "IDF_SFB": len(idf_sfb),
-                "IDF_ODB": len(idf_odb),
-                "IDF_GDB": len(idf_gdb),
-                "IDF_VTB": len(idf_vtb),
-                "IDF_all_F": len(idf_all_f),
-                "IDF_ODF": len(idf_odf),
-                "IDF_INF": len(idf_inf)
-            }],
-            ignore_index=True
-        )
-        bound_count.to_csv(path_or_buf=str(self.paths.export) + "/bound_count.csv")
+
+        bound_count = pd.concat([bound_count, pd.DataFrame.from_records([{
+            "IFC_SB_all": len(ifc_bounds),
+            "IFC_SB_2a": len([b for b in ifc_bounds if b.Description == "2a"]),
+            "IFC_SB_2b": len([b for b in ifc_bounds if b.Description == "2b"]),
+            "BIM2SIM_SB_2b": len(bounds_2b),
+            "IDF_all": len(idf_all_b) + len(idf_all_f),
+            "IDF_all_B": len(idf_all_b),
+            "IDF_ADB": len(idf_adb),
+            "IDF_SFB": len(idf_sfb),
+            "IDF_ODB": len(idf_odb),
+            "IDF_GDB": len(idf_gdb),
+            "IDF_VTB": len(idf_vtb),
+            "IDF_all_F": len(idf_all_f),
+            "IDF_ODF": len(idf_odf),
+            "IDF_INF": len(idf_inf)
+        }])],
+            ignore_index=True)
+        bound_count.to_csv(
+            path_or_buf=str(self.paths.export) + "/bound_count.csv")
