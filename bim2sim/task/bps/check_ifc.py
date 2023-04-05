@@ -15,9 +15,65 @@ class CheckIfcBPS(CheckIfc):
         super().__init__()
         self.sub_inst_cls = 'IfcRelSpaceBoundary'
         self.plugin = bps
+        self.space_indicator = True
 
-    def check_critical_errors(self, ifc: file):
-        pass
+    def check_critical_errors(self, ifc: file, id_list: list):
+        """
+        Checks for critical errors in the IFC file.
+
+        Args:
+            ifc: ifc file loaded with IfcOpenShell
+            id_list: list of all GUID's in IFC File
+        Raises:
+            TypeError: if a critical error is found
+        """
+        self.check_ifc_version(ifc)
+        self.check_critical_uniqueness(id_list)
+        self.check_sub_inst_exist()
+        self.check_rel_space_exist()
+
+    def check_sub_inst_exist(self):
+        """
+        Checks for the existence of IfcRelSpaceBoundaries.
+
+        Only files containing instances of type 'IfcRelSpaceBoundary' are
+        valid for bim2sim.
+
+        Raises:
+            TypeError: if loaded file does not contain IfcRelSpaceBoundaries
+        """
+        if len(self.sub_inst) == 0:
+            raise TypeError(
+                f"Loaded IFC file does not contain instances of type "
+                f"'IfcRelSpaceBoundary' but only files containing "
+                f"IfcRelSpaceBoundaries can be validated. Please ask the "
+                f"creator of the model to provide a valid IFC4 file.")
+
+    def check_rel_space_exist(self):
+        """
+        Checks for the existence of RelatedSpace attribute of
+        IfcRelSpaceBoundaries.
+
+        Only IfcRelSpaceBoundaries with an IfcSpace or
+        IfcExternalSpatialElement are valid for bim2sim.
+
+        Raises:
+            TypeError: if loaded file only contain IfcRelSpaceBoundaries
+            without a valid RelatedSpace.
+        """
+        indicator = False
+        for inst in self.sub_inst:
+            if inst.RelatingSpace is not None:
+                indicator = True
+                print('first rel sp')
+                break
+        if not indicator:
+            raise TypeError(
+                f"Loaded IFC file does only contain IfcRelSpaceBoundaries "
+                f"that do not have an IfcSpace or IfcExternalSpatialElement "
+                f"as RelatedSpace but those are necessary for further "
+                f"calculations. Please ask the creator of the model to provide"
+                f" a valid IFC4 file.")
 
     def validate_sub_inst(self, bound) -> list:
         """
