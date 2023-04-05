@@ -144,22 +144,27 @@ class VisualizationUtils:
         #todo: map this to range of EP results
 
         im = Image.open(save_path)
+        text_size = 25
 
         draw = ImageDraw.Draw(im)
         maximum = 255
         font_path = folder_structure.assets / 'fonts' / 'arial.ttf'
-        title_font = ImageFont.truetype(str(font_path), 20)
+        title_font = ImageFont.truetype(str(font_path), text_size)
         blind_counter = 0
+        width = 2
+        xmin = 20
+        xmax = 200
+        xbuffer = 20
         for i in range(0, maximum):
-            # print(i)
             color = VisualizationUtils.rgb(0, 255, i)
-            color = tuple(tuple([int(color[0]*255), int(color[1]*255), int(color[2]*255)]))
-            draw.line([(20, i+200), (200, i+200)], color, width=300)
-            if (maximum - i) % 15 == 0:
-                blind_counter +=1
-                print(i, 'printed')
-                draw.text((220, i*2.2+50), str(i), (255,0,255),
-                          font=title_font)
+            color = tuple(tuple([int(color[0]*255), int(color[1]*255),
+                                 int(color[2]*255)]))
+            draw.line([(xmin, 200 + i*width), (xmax, 200 + i*width)], color,
+                      width=width)
+            if i % 30 == 0:
+                blind_counter += 1
+                draw.text((xmax + xbuffer, 200 + i*width), str(i),
+                          (0, 0, 0), font=title_font)
         im.save(str(save_path).strip('.png')+'_mod.png')
 
         text_size = 25
