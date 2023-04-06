@@ -138,25 +138,35 @@ class VisualizationUtils:
         #  next to each other
         csv_name = folder_structure.export / 'EP-results/eplusout.csv'
         res_df = pd.read_csv(csv_name)
+        # extract zone ideal loads zone sensible
         full_key_sens_cool_rate = ' IDEAL LOADS AIR SYSTEM:Zone Ideal Loads ' \
+                                  'Zone Sensible Cooling Rate [W](Hourly)'
+        # extract the columns holding the zone sensible heating rates
+        full_key_sens_heat_rate = ' IDEAL LOADS AIR SYSTEM:Zone Ideal Loads ' \
                                   'Zone Sensible Heating Rate [W](Hourly)'
         zone_sensible_heating_rate = PostprocessingUtils._extract_cols_from_df(
-            res_df, full_key_sens_cool_rate)
+            res_df, full_key_sens_heat_rate)
+        # rename column name to zone guid
         zone_sensible_heating_rate.columns = [
-            col.replace(full_key_sens_cool_rate, '') for col in
+            col.replace(full_key_sens_heat_rate, '') for col in
             zone_sensible_heating_rate.columns]
+        # get maximum sensible heating rate per zone
         max_zone_sens_heat_rate = zone_sensible_heating_rate.max()
+        # fill new dict with key: guid and value :zone net area
         area_dict = {}
         for i, (guid, zone) in enumerate(zone_dict.items()):
             area_dict[guid.upper()] = zone.net_area.m
+        # add zone net heat area to maximum heat area dataframe
         max_heat_rate_df = pd.DataFrame(max_zone_sens_heat_rate,
                                         columns=['max_zone_sens_heat_rate'])
         max_heat_rate_df['net_area'] = pd.DataFrame.from_dict(area_dict,
                                                               orient='index')
-        max_heat_rate_df['max_per_area'] = max_heat_rate_df[
-                                               'max_zone_sens_heat_rate'] / \
-                                           max_heat_rate_df['net_area']
-        legend = {}
+        # compute maximum sensible heat rate per zone area (normalization)
+        max_heat_rate_df['max_per_area'] = \
+            max_heat_rate_df['max_zone_sens_heat_rate'] / max_heat_rate_df[
+                'net_area']
+
+        # add colored 3D plot of space geometry
         minimum = 0
         maximum = max_heat_rate_df['max_per_area'].max()
 
@@ -169,50 +179,48 @@ class VisualizationUtils:
                                                       current_value))
             display.DisplayShape(zone.space_shape, update=True, color=color,
                                  transparency=0.5)
-        sorted_legend = {}
-        for k in sorted(legend, key=len, reverse=False):
-            sorted_legend[k] = legend[k]
-
         nr_zones = len(zone_dict)
         filename = 'zonemodel_' + str(nr_zones) + '.png'
 
         save_path = Path(folder_structure.export / filename)
         display.View.Dump(str(save_path))
 
+
+        # add legend
         im = Image.open(save_path)
         text_size = 25
-
         draw = ImageDraw.Draw(im)
         font_path = folder_structure.assets / 'fonts' / 'arial.ttf'
+        text_color = (0, 0, 0)
         title_font = ImageFont.truetype(str(font_path), text_size)
         blind_counter = 0
         legend_height = 800
         im_width, im_heigth = im.size
-        width = int(legend_height / maximum)
+        line_width = int(legend_height / maximum)
         title = 'Maximum sensible heating rate per area'
         unit = 'W/m²'
         xmin = 20
         xmax = 100
         xbuffer = 20
         ybuffer = 30
-        draw.text(((xmax+xmin)/2, 200 - ybuffer), unit, (0, 0, 0), \
-            font=title_font, anchor='ms')
-        draw.text((im_width/2, text_size/2+5), title, (0,0,0),
+        draw.text(((xmax+xmin)/2, 200 - ybuffer), unit, text_color,
+                  font=title_font, anchor='ms')
+        draw.text((im_width/2, text_size/2 + ybuffer), title, text_color,
                   font=title_font, anchor='ms')
         for i in range(0, int(maximum)):
             color = VisualizationUtils.interpolate_to_rgb(minimum, maximum, i)
             print(i, color)
             color = tuple(tuple([int(color[0] * 255), int(color[1] * 255),
                                  int(color[2] * 255)]))
-            draw.line([(xmin, 200 + i * width), (xmax, 200 + i * width)],
-                      color, width=width)
+            draw.line([(xmin, 200 + i * line_width),
+                       (xmax, 200 + i * line_width)], color, width=line_width)
             if i == 0:
-                draw.text((xmax + xbuffer, 200 + i * width), str(i), (0, 0, 0),
-                          font=title_font, anchor='ms')
+                draw.text((xmax + xbuffer, 200 + i * line_width), str(i),
+                          text_color, font=title_font, anchor='ms')
             if i % int(maximum / 2) == 0:
                 blind_counter += 1
-                draw.text((xmax + xbuffer, 200 + i * width), str(i), (0, 0, 0),
-                          font=title_font, anchor='ms')
-        draw.text((xmax + xbuffer, 200 + int(maximum) * width),
-                  str(int(maximum)), (0, 0, 0), font=title_font, anchor='ms')
+                draw.text((xmax + xbuffer, 200 + i * line_width), str(i),
+                          text_color, font=title_font, anchor='ms')
+        draw.text((xmax + xbuffer, 200 + int(maximum) * line_width),
+                  str(int(maximum)), text_color, font=title_font, anchor='ms')
         im.save(str(save_path).strip('.png') + '_mod.png')
