@@ -32,7 +32,8 @@ class VisualizationUtils:
                 if not bound.bound_instance.ifc.is_a("IfcWall"):
                     pass
                 try:
-                    display.DisplayShape(bound.bound_shape, color=colors[(col - 1) % len(colors)])
+                    display.DisplayShape(bound.bound_shape,
+                                         color=colors[(col - 1) % len(colors)])
                 except:
                     continue
         display.FitAll()
@@ -47,7 +48,8 @@ class VisualizationUtils:
                 continue
             space = instances[inst]
             for bound in space.space_boundaries:
-                face_towards_center = space.space_center.XYZ() - bound.bound_center
+                face_towards_center = space.space_center.XYZ() - \
+                                      bound.bound_center
                 face_towards_center.Normalize()
                 dot = face_towards_center.Dot(bound.bound_normal)
                 if dot > 0:
@@ -71,7 +73,8 @@ class VisualizationUtils:
 
     @staticmethod
     def rgb_color(rgb) -> Quantity_Color:
-        """Returns a OCC viewer compatible color quantity based on r,g,b values.
+        """Returns a OCC viewer compatible color quantity based on r,g,
+        b values.
         Args:
              rgb: must be a tuple with 3 values [0,1]. e.g. (0, 0.5, 0.7)
         Returns:
@@ -83,11 +86,11 @@ class VisualizationUtils:
     def rgb(minimum, maximum, value):
         minimum, maximum = float(minimum), float(maximum)
         # ratio = 2 * (value-minimum) / (maximum - minimum)
-        ratio = 2 * (value-minimum) / (maximum - minimum)
-        r = int(max(0, 255*(1 - ratio)))/255
+        ratio = 2 * (value - minimum) / (maximum - minimum)
+        r = int(max(0, 255 * (1 - ratio))) / 255
         # r = int(max(0, abs(255*(ratio - 1))))/255
         # g = int(max(0, (255 - b - r)/255))
-        b = int(max(0, abs(255*(ratio - 1))))/255
+        b = int(max(0, abs(255 * (ratio - 1)))) / 255
         # g = int((255 - b - r)/255)
         g = 1
         return (r, g, b)
@@ -97,8 +100,8 @@ class VisualizationUtils:
                            color_max=360):
         s = 1
         l = 0.55
-        h = (color_min + (color_max - color_min)/(maximum-minimum)*(value -
-                                                                   minimum))/360
+        h = (color_min + (color_max - color_min) / (maximum - minimum) * (
+                value - minimum)) / 360
         r, g, b = colorsys.hls_to_rgb(h, l, s)
 
         return r, g, b
@@ -106,14 +109,17 @@ class VisualizationUtils:
     @staticmethod
     def visualize_zones(zone_dict, folder_structure):
         """Visualizes the thermalzones and saves the picture as a .png.
-        Fetches the thermalzones which are grouped before and creates an abstract
+        Fetches the thermalzones which are grouped before and creates an
+        abstract
         building image, where each grouped zone has its own color. Afterwards a
         legend is added with zone names and corresponding colors. The file is
         exported as .png to the export folder.
         Args:
-            zone_dict: dict that has a grouping string as key and list of zones as
+            zone_dict: dict that has a grouping string as key and list of
+            zones as
              values.
-            folder_structure: instance of Folderstructure which is assigend to the
+            folder_structure: instance of Folderstructure which is assigend
+            to the
              projects attribute self.paths.
         Returns:
             No return value, image is saved directly.
@@ -133,36 +139,35 @@ class VisualizationUtils:
         csv_name = folder_structure.export / 'EP-results/eplusout.csv'
         res_df = pd.read_csv(csv_name)
         full_key_sens_cool_rate = ' IDEAL LOADS AIR SYSTEM:Zone Ideal Loads ' \
-                                'Zone Sensible Heating Rate [W](Hourly)'
+                                  'Zone Sensible Heating Rate [W](Hourly)'
         zone_sensible_heating_rate = PostprocessingUtils._extract_cols_from_df(
             res_df, full_key_sens_cool_rate)
-        zone_sensible_heating_rate.columns = \
-            [col.replace(full_key_sens_cool_rate, '') for col in
-             zone_sensible_heating_rate.columns]
+        zone_sensible_heating_rate.columns = [
+            col.replace(full_key_sens_cool_rate, '') for col in
+            zone_sensible_heating_rate.columns]
         max_zone_sens_heat_rate = zone_sensible_heating_rate.max()
         area_dict = {}
         for i, (guid, zone) in enumerate(zone_dict.items()):
             area_dict[guid.upper()] = zone.net_area.m
-        max_heat_rate_df = pd.DataFrame(max_zone_sens_heat_rate, columns = [
-            'max_zone_sens_heat_rate'])
+        max_heat_rate_df = pd.DataFrame(max_zone_sens_heat_rate,
+                                        columns=['max_zone_sens_heat_rate'])
         max_heat_rate_df['net_area'] = pd.DataFrame.from_dict(area_dict,
                                                               orient='index')
         max_heat_rate_df['max_per_area'] = max_heat_rate_df[
-            'max_zone_sens_heat_rate'] / max_heat_rate_df[
-            'net_area']
+                                               'max_zone_sens_heat_rate'] / \
+                                           max_heat_rate_df['net_area']
         legend = {}
         minimum = 0
         maximum = max_heat_rate_df['max_per_area'].max()
 
         for i, (guid, zone) in enumerate(zone_dict.items()):
-            # todo: get results per zone from res_df and set current value
-            #  accordingly
             current_value = max_heat_rate_df['max_per_area'].loc[guid.upper()]
-            print(VisualizationUtils.interpolate_to_rgb(minimum, maximum, current_value))
-            color = VisualizationUtils.rgb_color(VisualizationUtils.interpolate_to_rgb(
-                minimum, maximum, current_value))
-            display.DisplayShape(zone.space_shape, update=True,
-                                 color=color,
+            print(VisualizationUtils.interpolate_to_rgb(minimum, maximum,
+                                                        current_value))
+            color = VisualizationUtils.rgb_color(
+                VisualizationUtils.interpolate_to_rgb(minimum, maximum,
+                                                      current_value))
+            display.DisplayShape(zone.space_shape, update=True, color=color,
                                  transparency=0.5)
         sorted_legend = {}
         for k in sorted(legend, key=len, reverse=False):
@@ -174,10 +179,6 @@ class VisualizationUtils:
         save_path = Path(folder_structure.export / filename)
         display.View.Dump(str(save_path))
 
-
-        # draft for color map (currently in range 0...255
-        #todo: map this to range of EP results
-
         im = Image.open(save_path)
         text_size = 25
 
@@ -186,53 +187,32 @@ class VisualizationUtils:
         title_font = ImageFont.truetype(str(font_path), text_size)
         blind_counter = 0
         legend_height = 800
-        width = int(legend_height/maximum)
+        im_width, im_heigth = im.size
+        width = int(legend_height / maximum)
+        title = 'Maximum sensible heating rate per area'
+        unit = 'W/m²'
         xmin = 20
         xmax = 100
         xbuffer = 20
+        ybuffer = 30
+        draw.text(((xmax+xmin)/2, 200 - ybuffer), unit, (0, 0, 0), \
+            font=title_font, anchor='ms')
+        draw.text((im_width/2, text_size/2+5), title, (0,0,0),
+                  font=title_font, anchor='ms')
         for i in range(0, int(maximum)):
             color = VisualizationUtils.interpolate_to_rgb(minimum, maximum, i)
             print(i, color)
-            color = tuple(tuple([int(color[0]*255), int(color[1]*255),
-                                 int(color[2]*255)]))
-            draw.line([(xmin, 200 + i*width), (xmax, 200 + i*width)], color,
-                      width=width)
+            color = tuple(tuple([int(color[0] * 255), int(color[1] * 255),
+                                 int(color[2] * 255)]))
+            draw.line([(xmin, 200 + i * width), (xmax, 200 + i * width)],
+                      color, width=width)
             if i == 0:
-                draw.text((xmax + xbuffer, 200 + i*width), str(i),
-                          (0, 0, 0), font=title_font)
-            if i % int(maximum/2) == 0:
+                draw.text((xmax + xbuffer, 200 + i * width), str(i), (0, 0, 0),
+                          font=title_font, anchor='ms')
+            if i % int(maximum / 2) == 0:
                 blind_counter += 1
-                draw.text((xmax + xbuffer, 200 + i*width), str(i),
-                          (0, 0, 0), font=title_font)
-        draw.text((xmax + xbuffer, 200 + int(maximum)*width), str(int(
-            maximum)),
-                  (0, 0, 0), font=title_font)
-        im.save(str(save_path).strip('.png')+'_mod.png')
-
-        text_size = 25
-        # font_path = folder_structure.assets / 'fonts' / 'arial.ttf'
-        # title_font = ImageFont.truetype(str(font_path), text_size)
-        # zone_image = Image.open(save_path)
-        # image_editable = ImageDraw.Draw(zone_image)
-        # zone_image_size_y = zone_image.size[1]
-        #
-        # rec_size = 20
-        # space = 30
-        # buffer = 10
-        #
-        # legend_height = len(sorted_legend) * (text_size + space/3) + buffer
-        # x0 = 0
-        # rec_to_text_spacing = 10
-        # y0 = zone_image_size_y - legend_height
-        # # xy_legend_corners = [(x0, y0-5), (x0 + 500, zone_image_size_y-3)]
-        # # image_editable.rectangle(xy_legend_corners, fill=None, outline=(0, 0, 0),
-        # #                          width=2)
-        #
-        # for zone_name, color in sorted_legend.items():
-        #     xy = [(x0 + rec_to_text_spacing, y0),
-        #           (x0 + + rec_to_text_spacing + rec_size, y0 + rec_size)]
-        #     image_editable.rectangle(xy, fill=color, outline=None, width=text_size)
-        #     image_editable.text((x0 + rec_to_text_spacing + rec_size + 10, y0), zone_name, (0, 0, 0), font=title_font)
-        #     y0 += space
-        #
-        # zone_image.save(save_path)
+                draw.text((xmax + xbuffer, 200 + i * width), str(i), (0, 0, 0),
+                          font=title_font, anchor='ms')
+        draw.text((xmax + xbuffer, 200 + int(maximum) * width),
+                  str(int(maximum)), (0, 0, 0), font=title_font, anchor='ms')
+        im.save(str(save_path).strip('.png') + '_mod.png')
