@@ -308,9 +308,14 @@ class HVACProduct(ProductBased):
         self.inner_connections.append((vl, rl))
 
     def validate_ports(self):
-        if len(self.ports) != self.expected_hvac_ports:
-            return False
-        return True
+        if isinstance(self.expected_hvac_ports, tuple):
+            if self.expected_hvac_ports[0] <= len(self.ports) \
+                    <= self.expected_hvac_ports[-1]:
+                return True
+        else:
+            if len(self.ports) == self.expected_hvac_ports:
+                return True
+        return False
 
     def is_generator(self):
         return False
@@ -329,7 +334,12 @@ class HVACProduct(ProductBased):
 class HeatPump(HVACProduct):
     """"HeatPump"""
 
-    ifc_types = {}  # IFC Schema does not support Heatpumps
+    ifc_types = {
+        'IfcUnitaryEquipment': ['*']
+    }
+    # IFC Schema does not support Heatpumps directly, but default of unitary
+    # equipment is set to HeatPump now and expected ports to 4 to try to
+    # identify heatpumps
 
     pattern_ifc_type = [
         re.compile('Heat.?pump', flags=re.IGNORECASE),
@@ -673,6 +683,12 @@ class Pipe(HVACProduct):
                                  300.00 * ureg.millimeter)  # ToDo: unit?!
     ]
 
+    def _calc_diameter_from_radius(self, name) -> ureg.Quantity:
+        if self.radius:
+            return self.radius*2
+        else:
+            return None
+
     diameter = attribute.Attribute(
         default_ps=('Pset_PipeSegmentTypeCommon', 'NominalDiameter'),
         unit=ureg.millimeter,
@@ -680,7 +696,16 @@ class Pipe(HVACProduct):
             re.compile('.*Durchmesser.*', flags=re.IGNORECASE),
             re.compile('.*Diameter.*', flags=re.IGNORECASE),
         ],
+        functions=[_calc_diameter_from_radius],
         ifc_postprocessing=diameter_post_processing,
+    )
+    # TODO #432 implement function to get diamter from shape
+
+    radius = attribute.Attribute(
+        patterns=[
+            re.compile('.*Radius.*', flags=re.IGNORECASE)
+        ],
+        unit=ureg.millimeter
     )
 
     outer_diameter = attribute.Attribute(
@@ -695,13 +720,12 @@ class Pipe(HVACProduct):
         unit=ureg.millimeter,
     )
 
-    @staticmethod
-    def _length_from_geometry(bind, name):
+    def _length_from_geometry(self, name):
         """
         Function to calculate the length of the pipe from the geometry
         """
         try:
-            return Pipe.get_lenght_from_shape(bind.ifc.Representation)
+            return Pipe.get_lenght_from_shape(self.ifc.Representation)
         except AttributeError:
             return None
 
@@ -759,7 +783,7 @@ class PipeFitting(HVACProduct):
 
     @cached_property
     def expected_hvac_ports(self):
-        return 2
+        return (2, 3)
 
     conditions = [
         condition.RangeCondition("diameter", 5.0 * ureg.millimeter,
@@ -775,6 +799,7 @@ class PipeFitting(HVACProduct):
         ],
         ifc_postprocessing=diameter_post_processing,
     )
+    # TODO #432 implement function to get diamter from shape
 
     length = attribute.Attribute(
         default_ps=("Qto_PipeFittingBaseQuantities", "Length"),
@@ -805,6 +830,7 @@ class PipeFitting(HVACProduct):
         unit=ureg.millimeter,
     )
 
+
     @staticmethod
     def _diameter_post_processing(value):
         if isinstance(value, list):
@@ -819,14 +845,13 @@ class Junction(PipeFitting):
 
     pattern_ifc_type = [
         re.compile('T-St(ü|ue)ck', flags=re.IGNORECASE),
-        re.compile('T-Piece', flags=re.IGNORECASE)
+        re.compile('T-Piece', flags=re.IGNORECASE),
+        re.compile('Kreuzst(ü|ue)ck', flags=re.IGNORECASE)
     ]
 
     @cached_property
     def expected_hvac_ports(self):
         return 3
-
-    # expected_hvac_ports = 3
 
 
 class SpaceHeater(HVACProduct):
@@ -840,7 +865,6 @@ class SpaceHeater(HVACProduct):
     @cached_property
     def expected_hvac_ports(self):
         return 2
-    # expected_hvac_ports = 2
 
     def is_consumer(self):
         return True
@@ -919,43 +943,48 @@ class SpaceHeater(HVACProduct):
     )
 
 
-# class ExpansionTank(HVACProduct):
-#     ifc_type = "IfcTank"   #ToDo: IfcTank, IfcTankType=Expansion
-#     predefined_types = ['BASIN', 'BREAKPRESSURE', 'EXPANSION', 'FEEDANDEXPANSION', 'STORAGE', 'VESSEL']
-#     pattern_ifc_type = [
-#         re.compile('Expansion.?Tank', flags=re.IGNORECASE),
-#         re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
-#     ]
+class ExpansionTank(HVACProduct):
+    ifc_types = {
+        "IfcTank":
+            ['BREAKPRESSURE', 'EXPANSION', 'FEEDANDEXPANSION']
+    }
+    pattern_ifc_type = [
+        re.compile('Expansion.?Tank', flags=re.IGNORECASE),
+        re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
+    ]
 
-
-# class StorageDevice(HVACProduct):
-#     """IFC4 CHANGE  This entity has been deprecated for instantiation and will become ABSTRACT in a future release;
-#     new subtypes should now be used instead."""
-#     ifc_type = "IfcStorageDevice"
-#     pattern_ifc_type = [
-#         re.compile('Storage.?device', flags=re.IGNORECASE)
-#     ]
+    @cached_property
+    def expected_hvac_ports(self):
+        return 1
 
 
 class Storage(HVACProduct):
     ifc_types = {
         "IfcTank":
-            ['BASIN', 'STORAGE', 'VESSEL']
-        # 'BREAKPRESSURE', 'EXPANSION', 'FEEDANDEXPANSION',
+            ['*', 'BASIN', 'STORAGE', 'VESSEL']
     }
+    pattern_ifc_type = [
+        re.compile('Speicher', flags=re.IGNORECASE),
+        re.compile('Puffer.?speicher', flags=re.IGNORECASE),
+        re.compile('Trinkwarmwasser.?speicher', flags=re.IGNORECASE),
+        re.compile('Trinkwarmwasser.?speicher', flags=re.IGNORECASE),
+        re.compile('storage', flags=re.IGNORECASE),
+    ]
 
     conditions = [
         condition.RangeCondition('volume', 50 * ureg.liter,
                                  math.inf * ureg.liter)
     ]
 
-    # expected_hvac_ports = float('inf')
+    @cached_property
+    def expected_hvac_ports(self):
+        return float('inf')
 
     pattern_ifc_type = [
         re.compile('Tank', flags=re.IGNORECASE),
         re.compile('Speicher', flags=re.IGNORECASE),
         # re.compile('Expansion.?Tank', flags=re.IGNORECASE),
-        re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
+        # re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
     ]
 
     def calc_volume(self, name) -> ureg.Quantity:
@@ -1005,11 +1034,15 @@ class Storage(HVACProduct):
 class Distributor(HVACProduct):
     ifc_types = {
         "IfcDistributionChamberElement":
-            ['FORMEDDUCT', 'INSPECTIONCHAMBER', 'INSPECTIONPIT',
-             'MANHOLE', 'METERCHAMBER', 'SUMP', 'TRENCH', 'VALVECHAMBER']
+            ['*', 'FORMEDDUCT', 'INSPECTIONCHAMBER', 'INSPECTIONPIT',
+             'MANHOLE', 'METERCHAMBER', 'SUMP', 'TRENCH', 'VALVECHAMBER'],
+        "IfcPipeFitting":
+            ['NOTDEFINED', 'USERDEFINED']
     }
-
-    # expected_hvac_ports = float('inf')
+    # TODO why is pipefitting for DH found as Pipefitting and not distributor
+    @cached_property
+    def expected_hvac_ports(self):
+        return (2, float('inf'))
 
     pattern_ifc_type = [
         re.compile('Distribution.?chamber', flags=re.IGNORECASE),
@@ -1044,7 +1077,6 @@ class Pump(HVACProduct):
     def expected_hvac_ports(self):
         return 2
 
-    # expected_hvac_ports = 2
 
     pattern_ifc_type = [
         re.compile('Pumpe', flags=re.IGNORECASE),
@@ -1248,6 +1280,10 @@ class Medium(HVACProduct):
 
 class CHP(HVACProduct):
     ifc_types = {'IfcElectricGenerator': ['CHP']}
+
+    @cached_property
+    def expected_hvac_ports(self):
+        return 2
 
     rated_power = attribute.Attribute(
         default_ps=('Pset_ElectricGeneratorTypeCommon', 'MaximumPowerOutput'),

@@ -291,3 +291,39 @@ class ThreeWayValve(AixLib):
             return "port_c"
         else:
             return super().get_port_name(port)
+
+
+class Heatpump(AixLib):
+    path = "AixLib.Fluid.HeatPumps.HeatPump"
+    represents = [hvac.HeatPump]
+
+    def __init__(self, element):
+        super().__init__(element)
+
+    def request_params(self):
+        self.params['redeclare package Medium_con'] = 'AixLib.Media.Water'
+        self.params['redeclare package Medium_eva'] = 'AixLib.Media.Water'
+
+    def get_port_name(self, port):
+        # TODO heat pumps might have 4 ports (if source is modeld in BIM)
+        if port.verbose_flow_direction == 'SINK':
+            return 'port_a'
+        if port.verbose_flow_direction == 'SOURCE':
+            return 'port_b'
+        else:
+            return super().get_port_name(port)
+
+
+class Chiller(AixLib):
+    represents = [hvac.Chiller]
+    pass
+
+
+class CHP(AixLib):
+    represents = [hvac.CHP]
+    pass
+
+
+# class Storage(AixLib):
+#     represents = [hvac.Storage]
+#     pass

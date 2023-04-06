@@ -78,14 +78,6 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
         """Run project with 2022_11_21_update_B03_Heating_ownCells"""
         ifc = '2022_11_21_update_B03_Heating_ownCells.ifc'
         project = self.create_project(ifc, 'aixlib')
-        project.workflow.aggregations = [
-            'UnderfloorHeating',
-            'Consumer',
-            'PipeStrand',
-            'ParallelPump',
-            'ConsumerHeatingDistributorModule',
-            'GeneratorOneFluid'
-        ]
         answers = (None, 'HVAC-PipeFitting', 'HVAC-Distributor',
                    'HVAC-ThreeWayValve',
                    # 6 dead ends
@@ -105,3 +97,14 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
         self.assertIn(ConsumerHeatingDistributorModule, aggregated)
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
+
+    def test_run_digitalhub_hvac(self):
+        """Run project with FM_HZG_DigitalHub.ifc"""
+        ifc = 'FM_HZG_DigitalHub.ifc'
+        project = self.create_project(ifc, 'aixlib')
+        answers = (('HVAC-ThreeWayValve')*3, ('HVAC-PipeFitting')*19,   *(None,)*100,)
+        handler = DebugDecisionHandler(answers)
+        project.workflow.fuzzy_threshold = 0.5
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        print('test')

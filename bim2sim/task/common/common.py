@@ -446,10 +446,11 @@ class CreateElements(ITask):
                     choices.append([element_cls.key, hints])
                 choices.append(["Other", "Other"])
                 decisions.append(ListDecision(
-                    f"Searching for text fragments in [Name: '{entity.Name}', "
-                    f"Description: '{entity.Description}]' "
-                    f"gave the following class hints. "
+                    question=f"Searching for text fragments in '{entity.Name}',"
+                    f" gave the following class hints. "
                     f"Please select best match.",
+                    console_identifier=f"Name: '{entity.Name}', "
+                                       f"Description: '{entity.Description}'",
                     choices=choices,
                     key=entity,
                     related=[entity.GlobalId],
@@ -608,9 +609,10 @@ class CreateElements(ITask):
                 decisions.append(ListDecision(
                     question="Found unidentified Element of %s" % (
                         ifc_entity.is_a()),
-                    console_identifier="Name: %s, Description: %s, GUID: %s"
+                    console_identifier="Name: %s, Description: %s, GUID: %s, "
+                                       "Predefined Type: %s"
                     % (ifc_entity.Name, ifc_entity.Description,
-                        ifc_entity.GlobalId),
+                        ifc_entity.GlobalId, ifc_entity.PredefinedType),
                     choices=[ele.key for ele in sorted_elements],
                     related=[ifc_entity.GlobalId],
                     context=context,
@@ -620,9 +622,9 @@ class CreateElements(ITask):
                         ifc_entity.is_a(), ifc_entity.GlobalId),
                     allow_skip=True,
                     validate_checksum=checksum))
-                self.logger.info(f"Found {len(decisions)} "
-                                 f"unidentified Elements of IFC type {ifc_type} "
-                                 f"to check by user")
+            self.logger.info(f"Found {len(decisions)} "
+                             f"unidentified Elements of IFC type {ifc_type} "
+                             f"to check by user")
             yield decisions
 
             answers = decisions.to_answer_dict()
@@ -646,7 +648,12 @@ class CreateElements(ITask):
         """Extract used ifc types from list of elements."""
         relevant_ifc_types = []
         for ele in relevant_elements:
-            relevant_ifc_types.extend(ele.ifc_types.keys())
+            if not ele.ifc_types:
+                raise NotImplementedError(
+                    f"{ele} has not implemented ifc_types. Please provide a "
+                    f"dictionary of IFC Type and fitting predefined types")
+            else:
+                relevant_ifc_types.extend(ele.ifc_types.keys())
         return set(relevant_ifc_types)
 
 

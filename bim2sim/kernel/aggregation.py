@@ -823,7 +823,8 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         hvac.Pump, hvac.Valve, hvac.ThreeWayValve, PipeStrand,
         UnderfloorHeating}
     whitelist_classes = {hvac.SpaceHeater, UnderfloorHeating}
-    blacklist_classes = {hvac.Chiller, hvac.Boiler, hvac.CoolingTower}
+    blacklist_classes = {hvac.Chiller, hvac.Boiler, hvac.CoolingTower,
+                         hvac.HeatPump, hvac.Storage, hvac.CHP}
     boarder_classes = {hvac.Distributor}
     multi = ('has_pump', 'rated_power', 'rated_pump_power', 'rated_height',
              'rated_volume_flow', 'temperature_inlet',
@@ -1066,7 +1067,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
     # TODO: Abused to not just sum attributes from elements
     aggregatable_classes = {
         hvac.SpaceHeater, hvac.Pipe, hvac.PipeFitting, hvac.Distributor,
-        PipeStrand, Consumer}
+        PipeStrand, Consumer, hvac.Junction, hvac.ThreeWayValve }
     whitelist_classes = {
         hvac.SpaceHeater, UnderfloorHeating, Consumer}
     blacklist_classes = {hvac.Chiller, hvac.Boiler, hvac.CoolingTower}
