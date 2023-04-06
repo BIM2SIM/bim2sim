@@ -4,15 +4,22 @@ from typing import List
 import re
 
 import ifcopenshell
+import ifcopenshell.geom
 import numpy as np
 import pandas as pd
+from OCC.Core.BRepGProp import BRepGProp_Face
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
-from OCC.Core.TopoDS import TopoDS_Shape
+from OCC.Core.TopAbs import TopAbs_FACE
+from OCC.Core.TopExp import TopExp_Explorer
+from OCC.Core.TopoDS import TopoDS_Shape, topods
+from OCC.Core.gp import gp_Vec, gp_Pnt
 from OCC.Display.SimpleGui import init_display
 from PIL import Image, ImageFont, ImageDraw
 
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
     PostprocessingUtils
+from bim2sim.utilities import pyocc_tools
+from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 
 class VisualizationUtils:
@@ -172,8 +179,6 @@ class VisualizationUtils:
 
         for i, (guid, zone) in enumerate(zone_dict.items()):
             current_value = max_heat_rate_df['max_per_area'].loc[guid.upper()]
-            print(VisualizationUtils.interpolate_to_rgb(minimum, maximum,
-                                                        current_value))
             color = VisualizationUtils.rgb_color(
                 VisualizationUtils.interpolate_to_rgb(minimum, maximum,
                                                       current_value))
@@ -185,8 +190,49 @@ class VisualizationUtils:
         save_path = Path(folder_structure.export / filename)
         display.View.Dump(str(save_path))
 
+        # add floorplan
+        floorplan_dict = {}
 
-        # add legend
+        for i, (guid, zone) in enumerate(zone_dict.items()):
+            footprint = []
+            shape = ifcopenshell.geom.create_shape(settings,
+                                                   zone.ifc).geometry
+            exp = TopExp_Explorer(shape, TopAbs_FACE)
+
+            while exp.More():
+                face = topods.Face(exp.Current())
+                prop = BRepGProp_Face(face)
+                p = gp_Pnt()
+                normal_direction = gp_Vec()
+                prop.Normal(0.,0., p, normal_direction)
+                if abs(1. - normal_direction.Z()) < 1.e-5:
+                    display.DisplayShape(face)
+                    footprint.append(face)
+                exp.Next()
+            floorplan_dict[guid.upper()] = footprint
+        # display.FitAll()
+        # ifcopenshell.geom.utils.main_loop()
+
+        display, start_display, add_menu, add_function_to_menu = init_display(
+            display_triedron=False, background_gradient_color1=3 * [255],
+            background_gradient_color2=3 * [255], size=(1920, 1080))
+        for i, (guid, shapes) in enumerate(floorplan_dict.items()):
+            current_value = max_heat_rate_df['max_per_area'].loc[guid.upper()]
+            color = VisualizationUtils.rgb_color(
+            VisualizationUtils.interpolate_to_rgb(minimum, maximum,
+                                                  current_value))
+            for shape in shapes:
+                display.DisplayShape(shape, update=True, color=color)
+                # todo: display message only in center of largest shape in zone
+                display.DisplayMessage(PyOCCTools._get_center_of_face(
+                    shape), str(round(current_value,2))+' W/m2',
+                    message_color=(0,0,0))
+        display.FitAll()
+        display.View.Dump(str(str(save_path).strip('.png') + '_floorplan.png'))
+        # todo: add legend to floorplan.
+
+
+        # add legend to 3D image
         im = Image.open(save_path)
         text_size = 25
         draw = ImageDraw.Draw(im)
