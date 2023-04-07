@@ -272,6 +272,15 @@ class ThermalZone(BPSProduct):
         bbox_center = ifcopenshell.geom.utils.get_bounding_box_center(bbox)
         return bbox_center
 
+    @cached_property
+    def footprint_shape(self):
+        """
+        This function returns the footprint of a space shape. This can be
+        used e.g., to visualize floor plans.
+        """
+        footprint = PyOCCTools.get_footprint_of_shape(self.space_shape)
+        return footprint
+
     def get_space_shape_volume(self, name):
         """
         This function returns the volume of a space shape

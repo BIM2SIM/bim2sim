@@ -194,41 +194,37 @@ class VisualizationUtils:
         floorplan_dict = {}
 
         for i, (guid, zone) in enumerate(zone_dict.items()):
-            footprint = []
-            shape = ifcopenshell.geom.create_shape(settings,
-                                                   zone.ifc).geometry
-            exp = TopExp_Explorer(shape, TopAbs_FACE)
+            floorplan_dict[guid.upper()] = zone.footprint_shape
 
-            while exp.More():
-                face = topods.Face(exp.Current())
-                prop = BRepGProp_Face(face)
-                p = gp_Pnt()
-                normal_direction = gp_Vec()
-                prop.Normal(0.,0., p, normal_direction)
-                if abs(1. - normal_direction.Z()) < 1.e-5:
-                    display.DisplayShape(face)
-                    footprint.append(face)
-                exp.Next()
-            floorplan_dict[guid.upper()] = footprint
-        # display.FitAll()
-        # ifcopenshell.geom.utils.main_loop()
+        storey_list = list(set([zone.storey for i, (guid, zone) in
+                                enumerate(zone_dict.items())]))
 
-        display, start_display, add_menu, add_function_to_menu = init_display(
-            display_triedron=False, background_gradient_color1=3 * [255],
-            background_gradient_color2=3 * [255], size=(1920, 1080))
-        for i, (guid, shapes) in enumerate(floorplan_dict.items()):
-            current_value = max_heat_rate_df['max_per_area'].loc[guid.upper()]
-            color = VisualizationUtils.rgb_color(
-            VisualizationUtils.interpolate_to_rgb(minimum, maximum,
-                                                  current_value))
-            for shape in shapes:
+        for storey in storey_list:
+            display, start_display, add_menu, add_function_to_menu = \
+                init_display(display_triedron=False,
+                             background_gradient_color1=3 * [255],
+                             background_gradient_color2=3 * [255],
+                             size=(1920, 1080))
+            for zone in storey.thermal_zones:
+                guid = zone.guid
+                shape = floorplan_dict.get(guid.upper())
+                current_value = max_heat_rate_df['max_per_area'].loc[
+                    guid.upper()]
+                color = VisualizationUtils.rgb_color(
+                    VisualizationUtils.interpolate_to_rgb(minimum, maximum,
+                                                          current_value))
                 display.DisplayShape(shape, update=True, color=color)
-                # todo: display message only in center of largest shape in zone
-                display.DisplayMessage(PyOCCTools._get_center_of_face(
-                    shape), str(round(current_value,2))+' W/m2',
-                    message_color=(0,0,0))
-        display.FitAll()
-        display.View.Dump(str(str(save_path).strip('.png') + '_floorplan.png'))
+                center = PyOCCTools._get_center_of_face(shape)
+                if not center:
+                    center = PyOCCTools.get_center_of_shape(shape)
+                display.DisplayMessage(
+                     gp_Pnt(center.X(), center.Y(), center.Z() + 1.),
+                     str(round(current_value, 2))+' W/m2',
+                     message_color=(0, 0, 0))
+            display.View_Top()
+            display.FitAll()
+            display.View.Dump(str(str(save_path).strip('.png') + storey.name +
+                                  '_floorplan.png'))
         # todo: add legend to floorplan.
 
 
@@ -255,7 +251,6 @@ class VisualizationUtils:
                   font=title_font, anchor='ms')
         for i in range(0, int(maximum)):
             color = VisualizationUtils.interpolate_to_rgb(minimum, maximum, i)
-            print(i, color)
             color = tuple(tuple([int(color[0] * 255), int(color[1] * 255),
                                  int(color[2] * 255)]))
             draw.line([(xmin, 200 + i * line_width),

@@ -6,16 +6,21 @@ from typing import List, Tuple, Union
 import numpy as np
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
+from OCC.Core.BRepBndLib import brepbndlib_Add
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace, \
-    BRepBuilderAPI_Transform, BRepBuilderAPI_MakePolygon
+    BRepBuilderAPI_Transform, BRepBuilderAPI_MakePolygon, BRepBuilderAPI_Sewing
+from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, \
-    brepgprop_LinearProperties, brepgprop_VolumeProperties
+    brepgprop_LinearProperties, brepgprop_VolumeProperties, BRepGProp_Face
 from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
 from OCC.Core.BRepTools import BRepTools_WireExplorer
+from OCC.Core.Bnd import Bnd_Box
+from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.GProp import GProp_GProps
 from OCC.Core.Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.ShapeAnalysis import ShapeAnalysis_ShapeContents
 from OCC.Core.ShapeFix import ShapeFix_Face, ShapeFix_Shape
+from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
 from OCC.Core.TopAbs import TopAbs_WIRE, TopAbs_FACE
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopoDS import topods_Wire, TopoDS_Face, TopoDS_Shape, \
@@ -119,6 +124,16 @@ class PyOCCTools:
         return prop.CentreOfMass()
 
     @staticmethod
+    def get_center_of_shape(shape: TopoDS_Shape) -> gp_Pnt:
+        """
+        Calculates the center of the given shape. The center point is the
+        center of mass.
+        """
+        prop = GProp_GProps()
+        brepgprop_VolumeProperties(shape, prop)
+        return prop.CentreOfMass()
+
+    @staticmethod
     def _get_center_of_edge(edge):
         """
         Calculates the center of the given edge. The center point is the center
@@ -172,10 +187,16 @@ class PyOCCTools:
                                           reverse=False) -> TopoDS_Shape:
         """Move a BIM2SIM Space Boundary in the direction of its surface
         normal by a given distance."""
+        if isinstance(bound, TopoDS_Shape):
+            bound_normal = PyOCCTools.simple_face_normal(bound)
+            bound_shape = bound
+        else:
+            bound_normal = bound.bound_normal
+            bound_shape = bound.bound_shape
         prod_vec = []
-        move_dir = bound.bound_normal.Coord()
+        move_dir = bound_normal.Coord()
         if reverse:
-            move_dir = bound.bound_normal.Reversed().Coord()
+            move_dir = bound_normal.Reversed().Coord()
         for i in move_dir:
             prod_vec.append(move_dist * i)
         # move bound in direction of bound normal by move_dist
@@ -183,7 +204,7 @@ class PyOCCTools:
         coord = gp_XYZ(*prod_vec)
         vec = gp_Vec(coord)
         trsf.SetTranslation(vec)
-        new_shape = BRepBuilderAPI_Transform(bound.bound_shape, trsf).Shape()
+        new_shape = BRepBuilderAPI_Transform(bound_shape, trsf).Shape()
         return new_shape
 
     @staticmethod
@@ -315,6 +336,80 @@ class PyOCCTools:
         brepgprop_VolumeProperties(shape, props)
         volume = props.Mass()
         return volume
+
+    @staticmethod
+    def sew_shapes(shape_list: list[TopoDS_Shape]) -> TopoDS_Shape:
+        sew = BRepBuilderAPI_Sewing(0.0001)
+        for shp in shape_list:
+            sew.Add(shp)
+        sew.Perform()
+        return sew.SewedShape()
+
+    @staticmethod
+    def move_bounds_to_vertical_pos(bound_list: list(),
+                                    base_face: TopoDS_Face) -> list[TopoDS_Shape]:
+        new_shape_list = []
+        for bound in bound_list:
+            if not isinstance(bound, TopoDS_Shape):
+                bound_shape = bound.bound_shape
+            else:
+                bound_shape = bound
+            distance = BRepExtrema_DistShapeShape(base_face,
+                                                  bound_shape,
+                                                  Extrema_ExtFlag_MIN).Value()
+            if abs(distance) > 1e-4:
+                new_shape = PyOCCTools.move_bound_in_direction_of_normal(
+                    bound, distance)
+                if abs(BRepExtrema_DistShapeShape(
+                        base_face, new_shape, Extrema_ExtFlag_MIN).Value()) \
+                        > 1e-4:
+                    new_shape = PyOCCTools.move_bound_in_direction_of_normal(
+                        bound, distance, reverse=True)
+            else:
+                new_shape = bound_shape
+            new_shape_list.append(new_shape)
+        return new_shape_list
+
+    @staticmethod
+    def get_footprint_of_shape(shape: TopoDS_Shape) -> TopoDS_Face:
+        """
+        Calculate the footprint of a TopoDS_Shape.
+        """
+        footprint_shapes = []
+        return_shape = None
+        faces = PyOCCTools.get_faces_from_shape(shape)
+        for face in faces:
+            prop = BRepGProp_Face(face)
+            p = gp_Pnt()
+            normal_direction = gp_Vec()
+            prop.Normal(0., 0., p, normal_direction)
+            if abs(1 - normal_direction.Z()) < 1e-4:
+                footprint_shapes.append(face)
+        if len(footprint_shapes) == 0:
+            for face in faces:
+                prop = BRepGProp_Face(face)
+                p = gp_Pnt()
+                normal_direction = gp_Vec()
+                prop.Normal(0., 0., p, normal_direction)
+                if abs(1 - abs(normal_direction.Z())) < 1e-4:
+                    footprint_shapes.append(face)
+        if len(footprint_shapes) == 1:
+            return_shape = footprint_shapes[0]
+        elif len(footprint_shapes) > 1:
+            bbox = Bnd_Box()
+            brepbndlib_Add(shape, bbox)
+            xmin, ymin, zmin, xmax, ymax, zmax = bbox.Get()
+            bbox_ground_face = PyOCCTools.make_faces_from_pnts(
+                [(xmin, ymin, zmin),
+                 (xmin, ymax, zmin),
+                 (xmax, ymax, zmin),
+                 (xmax, ymin, zmin)]
+            )
+            footprint_shapes = PyOCCTools.move_bounds_to_vertical_pos(
+                footprint_shapes, bbox_ground_face)
+
+            return_shape = PyOCCTools.sew_shapes(footprint_shapes)
+        return return_shape
 
     @staticmethod
     def triangulate_bound_shape(shape: TopoDS_Shape,
