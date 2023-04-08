@@ -13,12 +13,12 @@ import gym
 import tensorflow as tf
 from gym import spaces
 from tensorflow import keras
-
+import itertools
 class PipeGeometry():
 
 
     def __init__(self, ifc_file):
-
+        print(ifc_file)
         self.model = ifcopenshell.open(ifc_file)
 
     def get_transformation_matrix(self, element):
@@ -421,11 +421,119 @@ class PipeGeometry():
 
         return segments
 
+    def shortest_path(self, start, end, points):
+        # Erstelle einen Graphen mit den Punkten als Knoten
+        points = points.tolist()
+        points.append(start)
+        points.append(end)
+        print(len(points))
+        """# Punkte definieren
+        points = [(0, 0, 0), (3, 0, 0), (3, 3, 0), (0, 3, 0), (0, 0, 3), (3, 0, 3), (3, 3, 3), (0, 3, 3), (3, 1.5, 0)]
 
+        # Start- und Endpunkte definieren
+        start = (0, 0, 0)
+        end = (3, 1.5, 0)"""
+        # Graphen erstellen
+        G = nx.DiGraph()
+        for p in points:
+            print(p)
+            p_rounded = tuple(round(coord, 2) for coord in p)
+            G.add_node(tuple(p_rounded))
+        # Kanten hinzufügen
+        #max_distance = 10  # maximale Entfernung für Kanten
+        max_distance = np.linalg.norm(np.amax(points, axis=0) - np.amin(points, axis=0))
+        for p1 in points:
+            p1 = tuple(round(coord, 2) for coord in p1)
+            for p2 in points:
+                p2 = tuple(round(coord, 2) for coord in p2)
+                if p1 != p2 and np.linalg.norm(np.array(p1) - np.array(p2)) <= max_distance:
+                    # nur Kanten in einer Richtung zulassen
+                    if p1[0] == p2[0] or p1[1] == p2[1] or p1[2] == p2[2]:
+                        # Kantenpriorisierung basierend auf der bevorzugten Richtung
+                        if p1[0] == p2[0] and p1[1] == p2[1] and p1[2] != p2[2]:
+                            G.add_edge(tuple(p1), tuple(p2), weight=1)  # Gewicht 1 für Kanten in x-Richtung
+                        if p1[0] == p2[0] and p1[1] != p2[1] and p1[2] == p2[2]:
+                            G.add_edge(tuple(p1), tuple(p2), weight=1)  # Gewicht 2 für Kanten in anderen Richtungen
+                        if p1[0] != p2[0] and p1[1] == p2[1] and p1[2] == p2[2]:
+                            G.add_edge(tuple(p1), tuple(p2), weight=1)  # Gewicht 2 für Kanten in anderen Richtungen
+        print(G)
+        path = nx.dijkstra_path(G, start, end, weight='weight')
+        print(path)
 
+        """max_distance = np.linalg.norm(np.amax(points, axis=0) - np.amin(points, axis=0))
+        G = nx.Graph()
+        for p1 in points:
+            for p2 in points:
+                if p1 != p2 and np.linalg.norm(np.array(p1) - np.array(p2)) <= max_distance:
+                    #G.add_edge(p1, p2, weight=1)
+                    G.add_edge(tuple(p1), tuple(p2), weight=np.linalg.norm(np.linalg.norm(np.array(p1) - np.array(p2))))
+        # Finde den kürzesten Pfad zwischen Start- und Endpunkt
+        print(G)
+        path = nx.shortest_path(G, start, end)
+        path_edges = []
+        for i in range(len(path) - 1):
+            edge = (path[i], path[i + 1])
+            path_edges.append(edge)
+        print(path)
+        print(path_edges)"""
+        pos = nx.spring_layout(G)
+        nx.draw_networkx_nodes(G, pos)
+
+        # Zeichne die Kanten
+        nx.draw_networkx_edges(G, pos)
+
+        # Zeichne die Labels
+        nx.draw_networkx_labels(G, pos)
+        plt.show()
+        return path
+
+    def point_element(self, element_points, point_ref, mh_distance: bool=True):
+        d_list = []
+        d_list = {np.sum(np.abs(point - point_ref)) if mh_distance else np.linalg.norm(point - point_ref) for point in
+                  element_points}
+        # Berechnen der Manhattan-Distanz zwischen Referenzpunkt und allen Ecken
+        # Berechnen aller möglichen Kombinationen von Anfangs- und Endpunkten
+
+        """combinations = list(itertools.product(element_points, repeat=2))
+        print(combinations)
+
+        # Berechnen der Distanz zwischen jedem Anfangs- und Endpunkt
+        shortest_distance = np.inf
+        for combination in combinations:
+            start, end = combination
+            distance = np.linalg.norm(end - start)
+            if distance < shortest_distance:
+                shortest_distance = distance
+                shortest_combination = (start, end)
+
+        # Ausgabe der Ergebnisse
+        print("Kürzeste Distanz zwischen Anfangs- und Endpunkt:", shortest_distance)
+        print("Anfangspunkt:", shortest_combination[0])
+        print("Endpunkt:", shortest_combination[1])"""
+        """ distances = np.sum(np.abs(element_points - point_ref), axis=1)
+
+        # Sortieren der Distanzen und Speichern der sortierten Liste
+        sorted_distances = np.argsort(distances)
+
+        # Finden der Ecken mit der kürzesten Distanz
+        shortest_distances = [element_points[i] for i in sorted_distances if distances[i] == distances[sorted_distances[0]]]
+
+        # Ausgabe der Ergebnisse
+        print(point_ref)
+        print(shortest_distances)
+        print("Ecken mit kürzester Manhattan-Distanz zum Referenzpunkt:")
+        for corner in shortest_distances:
+            print(corner)
+        #print(d_list)"""
+        # todo:
     def calc_pipe_coordinates(self, floor, ref_point):
+        # todo: referenzpunkt einer eckpunkte des spaces zu ordnen: for d in distance(x_ref, point)
+        #
+        # todo:
+
         pipe_coords = []
         pipe_segments = []
+        print(ref_point)
         rooms = floor["rooms"]
         # rooms[room]["Position"]
         # rooms[room]["global_corners"]
@@ -436,11 +544,15 @@ class PipeGeometry():
                 end_points = []
                 print(rooms[room]["Name"])
                 elements = rooms[room]["room_elements"]
+                print(rooms[room]["global_corners"])
+                #self.point_element(element_points=rooms[room]["global_corners"], point_ref=ref_point)
+                self.shortest_path(start=(5.5, 9.7, 2.5), end=(7.65, 3.5, 0), points=rooms[room]["global_corners"] )
                 for element in elements:
                     if elements[element]["type"] == "Wall":
                         corner_points = elements[element]["global_corners"]
-                        print(elements[element]["number"])
-                        print(corner_points)
+
+                        #print(elements[element]["number"])
+                        #print(corner_points)
                         x_midpoint = np.mean(corner_points[:, 0])
                         y_midpoint = np.mean(corner_points[:, 1])
                         #z_low = np.min(corner_points[:, 2])
@@ -448,8 +560,8 @@ class PipeGeometry():
                         #end_points.append(end_point)
                     if elements[element]["type"] == "Door":
                         corner_points = elements[element]["global_corners"]
-                        print(elements[element]["number"])
-                        print(corner_points)
+                        #print(elements[element]["number"])
+                        #print(corner_points)
                         #x_midpoint = np.mean(corner_points[:, 0])
                         #y_midpoint = np.mean(corner_points[:, 1])
                         #z_low = np.min(corner_points[:, 2])
@@ -542,8 +654,10 @@ class PipeGeometry():
             q_values = self.model.predict(np.array([state]))[0]
             return np.argmax(q_values)
 
+
+
 if __name__ == '__main__':
-    ifc_path = "C:/02_Masterarbeit/08_BIMVision//FZK-Haus.ifc"
+    ifc_path = "C:\\02_SvenArbeit\\Masterarbeit\\bim2sim\\test\\ifcmodell\\example.ifc"
     pipe = PipeGeometry(ifc_file=ifc_path)
     #pipe.transformation_matrix()
     spaces_dict = pipe.room_element_position()
