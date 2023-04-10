@@ -34,23 +34,23 @@ variables:
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       when: on_success
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+    - if: $CI_BUILD =~ /ci_build_main/
       when: on_success
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_docker_main/
+    - if: $CI_BUILD =~ /ci_build_docker_main/
       when: on_success
 
 .docker_build_rules:dev:
   rules:
     - if: $CI_COMMIT_BRANCH == "development"
       when: on_success
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+    - if: $CI_BUILD =~ /ci_build_dev/
       when: on_success
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_docker_dev/
+    - if: $CI_BUILD =~ /ci_build_docker_dev/
       when: on_success
 
 .docker_build_rules:nightly:
   rules:
-    - if: $CI_COMMIT_BRANCH == "development" && $CI_COMMIT_MESSAGE =~ /nightly_build_dev/
+    - if: $CI_COMMIT_BRANCH == "development" && $CI_BUILD =~ /nightly_build_dev/
       when: on_success
 
 # [build base bim2sim docker image]
@@ -65,7 +65,7 @@ docker_build_bim2sim:base:main:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
+    - if: $CI_BUILD =~ /ci_build_base_main/
       when: on_success
 
 docker_build_bim2sim:base:dev:
@@ -78,7 +78,7 @@ docker_build_bim2sim:base:dev:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
+    - if: $CI_BUILD =~ /ci_build_base_dev/
       when: on_success
 
 docker_build_bim2sim:base:nightly:
@@ -95,16 +95,10 @@ docker_build_bim2sim:base:nightly:
 # [Test base bim2sim]
 
 .test_base:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
-    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download
-    - unzip -o /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
-    - coverage run -m unittest discover /bim2sim-coding/test
-    - coverage report -i
+    - bash ${TEST_FILE}
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
     - coverage html -i
     - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
@@ -119,10 +113,11 @@ test_Base:dev:
     - docker_build_bim2sim:base:dev
   variables:
     IMAGE_NAME: "base_dev"
+    TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
   extends: .test_base
   rules:
     - !reference [ .docker_build_rules:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
+    - if: $CI_BUILD =~ /ci_build_base_dev/
       when: on_success
 
 test_Base:main:
@@ -132,10 +127,11 @@ test_Base:main:
     - docker_build_bim2sim:base:main
   variables:
     IMAGE_NAME: "base"
+    TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
   extends: .test_base
   rules:
     - !reference [ .docker_build_rules:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
+    - if: $CI_BUILD =~ /ci_build_base_main/
       when: on_success
 
 test_Base:nightly:
@@ -145,6 +141,7 @@ test_Base:nightly:
     - docker_build_bim2sim:base:nightly
   variables:
     IMAGE_NAME: "base_nightly"
+    TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
   extends: .test_base
   rules:
     - !reference [.docker_build_rules:nightly, rules ]
@@ -154,13 +151,13 @@ test_Base:nightly:
 .docker_build_rules:plugin:main:
   rules:
      - !reference [.docker_build_rules:main, rules]
-     - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_main/
+     - if: $CI_BUILD =~ /ci_build_plugin_main/
        when: on_success
 
 .docker_build_rules:plugin:dev:
   rules:
      - !reference [.docker_build_rules:dev, rules]
-     - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_dev/
+     - if: $CI_BUILD =~ /ci_build_plugin_dev/
        when: on_success
 
 
@@ -174,7 +171,7 @@ docker_build_plugin:aixlib:main:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:main, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_aixlib_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_aixlib_main/
       when: on_success
 
 docker_build_plugin:aixlib:dev:
@@ -187,7 +184,7 @@ docker_build_plugin:aixlib:dev:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_aixlib_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_aixlib_dev/
       when: on_success
 
 docker_build_plugin:aixlib:nightly:
@@ -203,24 +200,6 @@ docker_build_plugin:aixlib:nightly:
 
 # [Test plugin AixLib]
 
-.test_plugin:AixLib:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download
-    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration_test
-    - coverage report -i
-    - mkdir -p $CI_COMMIT_REF_NAME/coverage
-    - coverage html -i
-    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-  artifacts:
-    paths:
-    - $CI_COMMIT_REF_NAME/coverage
-
 test_plugin:AixLib:main:
   image: ${TEST_IMAGE}
   stage: test_docker_plugin
@@ -228,10 +207,11 @@ test_plugin:AixLib:main:
     - docker_build_plugin:aixlib:main
   variables:
     IMAGE_NAME: "plugin_aixlib"
-  extends: .test_plugin:AixLib
+    TEST_FILE: "conda_recipe/plugins/PluginAixLib/test_aixlib.sh"
+  extends: .test_base
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_aixlib_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_aixlib_main/
       when: on_success
 
 test_plugin:AixLib:dev:
@@ -241,10 +221,11 @@ test_plugin:AixLib:dev:
     - docker_build_plugin:aixlib:dev
   variables:
     IMAGE_NAME: "plugin_aixlib_dev"
-  extends: .test_plugin:AixLib
+    TEST_FILE: "conda_recipe/plugins/PluginAixLib/test_aixlib.sh"
+  extends: .test_base
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_aixlib_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_aixlib_dev/
       when: on_success
 
 test_plugin:AixLib:nightly:
@@ -254,7 +235,8 @@ test_plugin:AixLib:nightly:
     - docker_build_plugin:aixlib:nightly
   variables:
     IMAGE_NAME: "plugin_aixlib_nightly"
-  extends: .test_plugin:AixLib
+    TEST_FILE: "conda_recipe/plugins/PluginAixLib/test_aixlib.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:nightly, rules ]
 
@@ -269,7 +251,7 @@ docker_build_plugin:cfd:main:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:main, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_cfd_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_cfd_main/
       when: on_success
 
 docker_build_plugin:cfd:dev:
@@ -282,7 +264,7 @@ docker_build_plugin:cfd:dev:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_cfd_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_cfd_dev/
       when: on_success
 
 docker_build_plugin:cfd:nightly:
@@ -297,23 +279,6 @@ docker_build_plugin:cfd:nightly:
     - !reference [.docker_build_rules:nightly, rules]
 
 # [test plugin cfd]
-.test_plugin:cfd:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
-    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginCFD/test/integration_test
-    - coverage report -i
-    - mkdir -p $CI_COMMIT_REF_NAME/coverage
-    - coverage html -i
-    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-  artifacts:
-    paths:
-    - $CI_COMMIT_REF_NAME/coverage
 
 test_plugin:cfd:main:
   image: ${TEST_IMAGE}
@@ -322,10 +287,11 @@ test_plugin:cfd:main:
     - docker_build_plugin:cfd:main
   variables:
     IMAGE_NAME: "plugin_cfd"
-  extends: .test_plugin:cfd
+    TEST_FILE: "conda_recipe/plugins/PluginCFD/test_cfd.sh"
+  extends: .test_base
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_cfd_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_cfd_main/
       when: on_success
 
 test_plugin:cfd:dev:
@@ -335,10 +301,11 @@ test_plugin:cfd:dev:
     - docker_build_plugin:cfd:dev
   variables:
     IMAGE_NAME: "plugin_cfd_dev"
-  extends: .test_plugin:cfd
+    TEST_FILE: "conda_recipe/plugins/PluginCFD/test_cfd.sh"
+  extends: .test_base
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_cfd_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_cfd_dev/
       when: on_success
 
 test_plugin:cfd:nightly:
@@ -348,7 +315,8 @@ test_plugin:cfd:nightly:
     - docker_build_plugin:cfd:nightly
   variables:
     IMAGE_NAME: "plugin_cfd_nightly"
-  extends: .test_plugin:cfd
+    TEST_FILE: "conda_recipe/plugins/PluginCFD/test_cfd.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:nightly, rules ]
 
@@ -364,7 +332,7 @@ docker_build_plugin:energyplus:main:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:main, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_main/
       when: on_success
 
 docker_build_plugin:energyplus:dev:
@@ -377,7 +345,7 @@ docker_build_plugin:energyplus:dev:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_dev/
       when: on_success
 
 docker_build_plugin:energyplus:nightly:
@@ -392,37 +360,18 @@ docker_build_plugin:energyplus:nightly:
     - !reference [.docker_build_rules:nightly, rules]
 
 # [test plugin energyplus]
-.test_plugin:energyplus:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
-    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
-    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration_test
-    - coverage report -i
-    - mkdir -p $CI_COMMIT_REF_NAME/coverage
-    - coverage html -i
-    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-  artifacts:
-    paths:
-    - $CI_COMMIT_REF_NAME/coverage
-
 test_plugin:energyplus:main:
   image: ${TEST_IMAGE}
   stage: test_docker_plugin
-
   dependencies:
     - docker_build_plugin:energyplus:main
   variables:
     IMAGE_NAME: "plugin_energyplus"
-  extends: .test_plugin:energyplus
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh"
+  extends: .test_base
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_main/
       when: on_success
 
 test_plugin:energyplus:dev:
@@ -432,44 +381,24 @@ test_plugin:energyplus:dev:
     - docker_build_plugin:energyplus:dev
   variables:
     IMAGE_NAME: "plugin_energyplus_dev"
-  extends: .test_plugin:energyplus
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh"
+  extends: .test_base
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_dev/
       when: on_success
 
 test_plugin:energyplus:nightly:
   image: ${TEST_IMAGE}
   stage: test_docker_plugin
-
   dependencies:
     - docker_build_plugin:energyplus:nightly
   variables:
     IMAGE_NAME: "plugin_energyplus_nightly"
-  extends: .test_plugin:energyplus
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:nightly, rules ]
-
-.test_plugin:energyplus_regression:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
-    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
-    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
-    - wget --quiet -O /bim2sim-coding/bim2sim/assets/download.zip https://rwth-aachen.sciebo.de/s/5EQqe5g8x0x4lae/download
-    - unzip /bim2sim-coding/bim2sim/assets/download.zip -d /bim2sim-coding/bim2sim/assets/
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/regression_test
-    - coverage report -i
-    - mkdir -p $CI_COMMIT_REF_NAME/coverage
-    - coverage html -i
-    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-  artifacts:
-    paths:
-    - $CI_COMMIT_REF_NAME/coverage
 
 test_plugin:energyplus_regression:main:
   image: ${TEST_IMAGE}
@@ -478,10 +407,11 @@ test_plugin:energyplus_regression:main:
     - docker_build_plugin:energyplus:main
   variables:
     IMAGE_NAME: "plugin_energyplus"
-  extends: .test_plugin:energyplus_regression
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus_regression.sh"
+  extends: .test_base
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_main/
       when: on_success
 
 test_plugin:energyplus_regression:dev:
@@ -491,10 +421,11 @@ test_plugin:energyplus_regression:dev:
     - docker_build_plugin:energyplus:dev
   variables:
     IMAGE_NAME: "plugin_energyplus_dev"
-  extends: .test_plugin:energyplus_regression
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus_regression.sh"
+  extends: .test_base
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_dev/
       when: on_success
 
 
@@ -505,7 +436,8 @@ test_plugin:energyplus_regression:nightly:
     - docker_build_plugin:energyplus:nightly
   variables:
     IMAGE_NAME: "plugin_energyplus_nightly"
-  extends: .test_plugin:energyplus_regression
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus_regression.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:nightly, rules ]
 
@@ -521,7 +453,7 @@ docker_build_plugin:hkesim:main:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:main, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_hkesim_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_hkesim_main/
       when: on_success
 
 docker_build_plugin:hkesim:dev:
@@ -534,7 +466,7 @@ docker_build_plugin:hkesim:dev:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_hkesim_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_hkesim_dev/
       when: on_success
 
 docker_build_plugin:hkesim:nightly:
@@ -562,7 +494,7 @@ docker_build_plugin:lca:main:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:main, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_lca_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_lca_main/
       when: on_success
 
 docker_build_plugin:lca:dev:
@@ -575,7 +507,7 @@ docker_build_plugin:lca:dev:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_lca_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_lca_dev/
       when: on_success
 
 docker_build_plugin:lca:nightly:
@@ -590,23 +522,6 @@ docker_build_plugin:lca:nightly:
     - !reference [.docker_build_rules:nightly, rules]
 
 # [test plugin lca]
-.test_plugin:lca:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
-    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginLCA/test/integration_test
-    - coverage report -i
-    - mkdir -p $CI_COMMIT_REF_NAME/coverage
-    - coverage html -i
-    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-  artifacts:
-    paths:
-    - $CI_COMMIT_REF_NAME/coverage
 
 test_plugin:lca:main:
   image: ${TEST_IMAGE}
@@ -615,10 +530,11 @@ test_plugin:lca:main:
     - docker_build_plugin:lca:main
   variables:
     IMAGE_NAME: "plugin_lca"
-  extends: .test_plugin:lca
+    TEST_FILE: "conda_recipe/plugins/PluginLCA/test_lca.sh"
+  extends: .test_base
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_lca_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_lca_main/
       when: on_success
 
 test_plugin:lca:dev:
@@ -628,10 +544,11 @@ test_plugin:lca:dev:
     - docker_build_plugin:lca:dev
   variables:
     IMAGE_NAME: "plugin_lca_dev"
-  extends: .test_plugin:lca
+    TEST_FILE: "conda_recipe/plugins/PluginLCA/test_lca.sh"
+  extends: .test_base
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_lca_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_lca_dev/
       when: on_success
 
 test_plugin:lca:nightly:
@@ -641,7 +558,8 @@ test_plugin:lca:nightly:
     - docker_build_plugin:lca:nightly
   variables:
     IMAGE_NAME: "plugin_lca_nightly"
-  extends: .test_plugin:lca
+    TEST_FILE: "conda_recipe/plugins/PluginLCA/test_lca.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:nightly, rules ]
 
@@ -656,7 +574,7 @@ docker_build_plugin:teaser:main:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:main, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_main/
       when: on_success
 
 docker_build_plugin:teaser:dev:
@@ -669,7 +587,7 @@ docker_build_plugin:teaser:dev:
   extends: .docker_build
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_dev/
       when: on_success
 
 docker_build_plugin:teaser:nightly:
@@ -684,23 +602,7 @@ docker_build_plugin:teaser:nightly:
     - !reference [.docker_build_rules:nightly, rules]
 
 # [test plugin teaser
-.test_plugin:teaser:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
-    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration_test
-    - coverage report -i
-    - mkdir -p $CI_COMMIT_REF_NAME/coverage
-    - coverage html -i
-    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-  artifacts:
-    paths:
-    - $CI_COMMIT_REF_NAME/coverage
+
 
 test_plugin:teaser:main:
   image: ${TEST_IMAGE}
@@ -709,10 +611,11 @@ test_plugin:teaser:main:
     - docker_build_plugin:teaser:main
   variables:
     IMAGE_NAME: "plugin_teaser"
-  extends: .test_plugin:teaser
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser.sh"
+  extends: .test_base
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_main/
       when: on_success
 
 test_plugin:teaser:dev:
@@ -722,10 +625,11 @@ test_plugin:teaser:dev:
     - docker_build_plugin:teaser:dev
   variables:
     IMAGE_NAME: "plugin_teaser_dev"
-  extends: .test_plugin:teaser
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser.sh"
+  extends: .test_base
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_dev/
       when: on_success
 
 test_plugin:teaser:nightly:
@@ -735,7 +639,8 @@ test_plugin:teaser:nightly:
     - docker_build_plugin:teaser:nightly
   variables:
     IMAGE_NAME: "plugin_teaser_nightly"
-  extends: .test_plugin:teaser
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:nightly, rules ]
 
@@ -765,7 +670,7 @@ docker_build_bim2sim:env_dymola_base:dev:
   extends: .docker_dymola_build
   rules:
     - !reference [.docker_build_rules:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
+    - if: $CI_BUILD =~ /ci_build_base_dev/
       when: on_success
 
 docker_build_bim2sim:env_dymola_base:main:
@@ -778,7 +683,7 @@ docker_build_bim2sim:env_dymola_base:main:
   extends: .docker_dymola_build
   rules:
     - !reference [.docker_build_rules:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
+    - if: $CI_BUILD =~ /ci_build_base_main/
       when: on_success
 
 docker_build_bim2sim:env_dymola_base:nightly:
@@ -792,24 +697,7 @@ docker_build_bim2sim:env_dymola_base:nightly:
   rules:
     - !reference [.docker_build_rules:nightly, rules ]
 
-# Todo [test docker dymola bim2sim base]
-.test_dym_base:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download
-    - unzip -o /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
-    - coverage run -m unittest discover /bim2sim-coding/test
-    - coverage report -i
-    - mkdir -p $CI_COMMIT_REF_NAME/coverage
-    - coverage html -i
-    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-  artifacts:
-    paths:
-      - $CI_COMMIT_REF_NAME/coverage
+# Test base docker bim2sim_dymola image
 
 test_dym_base:dev:
   image: ${TEST_IMAGE}
@@ -818,10 +706,11 @@ test_dym_base:dev:
     - docker_build_bim2sim:env_dymola_base:dev
   variables:
     IMAGE_NAME: "dymola_dev"
-  extends: .test_dym_base
+    TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
+    - if: $CI_BUILD =~ /ci_build_base_dev/
       when: on_success
 
 test_dym_base:main:
@@ -831,10 +720,11 @@ test_dym_base:main:
     - docker_build_bim2sim:env_dymola_base:main
   variables:
     IMAGE_NAME: "dymola"
-  extends: .test_dym_base
+    TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
+    - if: $CI_BUILD =~ /ci_build_base_main/
       when: on_success
 
 test_dym_base:nightly:
@@ -844,7 +734,8 @@ test_dym_base:nightly:
     - docker_build_bim2sim:env_dymola_base:nightly
   variables:
     IMAGE_NAME: "dymola_nightly"
-  extends: .test_dym_base
+    TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:nightly, rules ]
 
@@ -860,7 +751,7 @@ docker_build_plugin:dymola_teaser:main:
   extends: .docker_dymola_build
   rules:
     - !reference [.docker_build_rules:plugin:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_main/
       when: on_success
 
 docker_build_plugin:dymola_teaser:dev:
@@ -873,7 +764,7 @@ docker_build_plugin:dymola_teaser:dev:
   extends: .docker_dymola_build
   rules:
     - !reference [.docker_build_rules:plugin:dev, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_dev/
       when: on_success
 
 docker_build_plugin:dymola_teaser:nightly:
@@ -889,27 +780,6 @@ docker_build_plugin:dymola_teaser:nightly:
 
 # [test docker dymola plugin teaser]
 
-.test_plugin:TEASER_regression:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
-    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
-    - wget --quiet -O /bim2sim-coding/bim2sim/assets/download.zip https://rwth-aachen.sciebo.de/s/5EQqe5g8x0x4lae/download
-    - unzip /bim2sim-coding/bim2sim/assets/download.zip -d /bim2sim-coding/bim2sim/assets/
-    - git clone --branch development https://github.com/RWTH-EBC/AixLib.git /bim2sim-coding/AixLib
-    - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression_test
-    - coverage report -i
-    - mkdir -p $CI_COMMIT_REF_NAME/coverage
-    - coverage html -i
-    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-  artifacts:
-    paths:
-    - $CI_COMMIT_REF_NAME/coverage
-
 test_plugin:dymola_teaser:main:
   image: ${TEST_IMAGE}
   stage: test_docker_plugin
@@ -917,10 +787,11 @@ test_plugin:dymola_teaser:main:
     - docker_build_plugin:dymola_teaser:main
   variables:
     IMAGE_NAME: "plugin_dymola_teaser"
-  extends: .test_plugin:TEASER_regression
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh"
+  extends: .test_base
   rules:
     - !reference [ .docker_build_rules:plugin:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_main/
       when: on_success
 
 test_plugin:dymola_teaser:dev:
@@ -930,10 +801,11 @@ test_plugin:dymola_teaser:dev:
     - docker_build_plugin:dymola_teaser:dev
   variables:
     IMAGE_NAME: "plugin_dymola_teaser_dev"
-  extends: .test_plugin:TEASER_regression
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh"
+  extends: .test_base
   rules:
     - !reference [ .docker_build_rules:plugin:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_dev/
       when: on_success
 
 test_plugin:dymola_teaser:nightly:
@@ -943,7 +815,8 @@ test_plugin:dymola_teaser:nightly:
     - docker_build_plugin:dymola_teaser:nightly
   variables:
     IMAGE_NAME: "plugin_dymola_teaser_nightly"
-  extends: .test_plugin:TEASER_regression
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:nightly, rules ]
 
@@ -960,7 +833,7 @@ docker_build_total:main:
   extends: .docker_dymola_build
   rules:
     - !reference [.docker_build_rules:main, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+    - if: $CI_BUILD =~ /ci_build_total_main/
       when: on_success
 
 docker_build_total:dev:
@@ -973,7 +846,7 @@ docker_build_total:dev:
   extends: .docker_dymola_build
   rules:
     - !reference [.docker_build_rules:dev, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+    - if: $CI_BUILD =~ /ci_build_total_dev/
       when: on_success
 
 docker_build_total:nightly:
@@ -995,10 +868,11 @@ test_bim2sim:base:main:
     - docker_build_total:main
   variables:
     IMAGE_NAME: "latest"
+    TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
   extends: .test_base
   rules:
     - !reference [.docker_build_rules:main, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+    - if: $CI_BUILD =~ /ci_build_total_main/
       when: on_success
 
 test_bim2sim:base:dev:
@@ -1008,10 +882,11 @@ test_bim2sim:base:dev:
     - docker_build_total:dev
   variables:
     IMAGE_NAME: "development"
+    TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
   extends: .test_base
   rules:
     - !reference [.docker_build_rules:dev, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+    - if: $CI_BUILD =~ /ci_build_total_dev/
       when: on_success
 
 test_bim2sim:base:nightly:
@@ -1021,6 +896,7 @@ test_bim2sim:base:nightly:
     - docker_build_total:nightly
   variables:
     IMAGE_NAME: "nightly"
+    TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
   extends: .test_base
   rules:
     - !reference [.docker_build_rules:nightly, rules]
@@ -1033,10 +909,11 @@ test_bim2sim:plugin:aixlib:main:
     - docker_build_total:main
   variables:
     IMAGE_NAME: "latest"
-  extends: .test_plugin:AixLib
+    TEST_FILE: "conda_recipe/plugins/PluginAixLib/test_aixlib.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:main, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+    - if: $CI_BUILD =~ /ci_build_total_main/
       when: on_success
 
 test_bim2sim:plugin:aixlib:dev:
@@ -1046,10 +923,11 @@ test_bim2sim:plugin:aixlib:dev:
     - docker_build_total:dev
   variables:
     IMAGE_NAME: "development"
-  extends: .test_plugin:AixLib
+    TEST_FILE: "conda_recipe/plugins/PluginAixLib/test_aixlib.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:dev, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+    - if: $CI_BUILD =~ /ci_build_total_dev/
       when: on_success
 
 test_bim2sim:plugin:aixlib:nightly:
@@ -1059,7 +937,8 @@ test_bim2sim:plugin:aixlib:nightly:
     - docker_build_total:nightly
   variables:
     IMAGE_NAME: "nightly"
-  extends: .test_plugin:AixLib
+    TEST_FILE: "conda_recipe/plugins/PluginAixLib/test_aixlib.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:nightly, rules]
 
@@ -1071,10 +950,11 @@ test_bim2sim:plugin:cfd:main:
     - docker_build_total:main
   variables:
     IMAGE_NAME: "latest"
-  extends: .test_plugin:cfd
+    TEST_FILE: "conda_recipe/plugins/PluginCFD/test_cfd.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:main, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+    - if: $CI_BUILD =~ /ci_build_total_main/
       when: on_success
 
 test_bim2sim:plugin:cfd:dev:
@@ -1084,10 +964,11 @@ test_bim2sim:plugin:cfd:dev:
     - docker_build_total:dev
   variables:
     IMAGE_NAME: "development"
-  extends: .test_plugin:cfd
+    TEST_FILE: "conda_recipe/plugins/PluginCFD/test_cfd.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:dev, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+    - if: $CI_BUILD =~ /ci_build_total_dev/
       when: on_success
 
 test_bim2sim:plugin:cfd:nightly:
@@ -1097,7 +978,8 @@ test_bim2sim:plugin:cfd:nightly:
     - docker_build_total:nightly
   variables:
     IMAGE_NAME: "nightly"
-  extends: .test_plugin:cfd
+    TEST_FILE: "conda_recipe/plugins/PluginCFD/test_cfd.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:nightly, rules]
 
@@ -1109,10 +991,11 @@ test_bim2sim:plugin:energyplus:main:
     - docker_build_total:main
   variables:
     IMAGE_NAME: "latest"
-  extends: .test_plugin:energyplus
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:main, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+    - if: $CI_BUILD =~ /ci_build_total_main/
       when: on_success
 
 test_bim2sim:plugin:energyplus:dev:
@@ -1122,10 +1005,11 @@ test_bim2sim:plugin:energyplus:dev:
     - docker_build_total:dev
   variables:
     IMAGE_NAME: "development"
-  extends: .test_plugin:energyplus
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:dev, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+    - if: $CI_BUILD =~ /ci_build_total_dev/
       when: on_success
 
 test_bim2sim:plugin:energyplus:nightly:
@@ -1135,7 +1019,8 @@ test_bim2sim:plugin:energyplus:nightly:
     - docker_build_total:nightly
   variables:
     IMAGE_NAME: "nightly"
-  extends: .test_plugin:energyplus
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:nightly, rules]
 
@@ -1147,10 +1032,11 @@ test_bim2sim:plugin:energyplus_regression:main:
     - docker_build_total:main
   variables:
     IMAGE_NAME: "latest"
-  extends: .test_plugin:energyplus_regression
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus_regression.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:main, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+    - if: $CI_BUILD =~ /ci_build_total_main/
       when: on_success
 
 test_bim2sim:plugin:energyplus_regression:dev:
@@ -1160,10 +1046,11 @@ test_bim2sim:plugin:energyplus_regression:dev:
     - docker_build_total:dev
   variables:
     IMAGE_NAME: "development"
-  extends: .test_plugin:energyplus_regression
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus_regression.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:dev, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+    - if: $CI_BUILD =~ /ci_build_total_dev/
       when: on_success
 
 test_bim2sim:plugin:energyplus_regression:nightly:
@@ -1173,7 +1060,8 @@ test_bim2sim:plugin:energyplus_regression:nightly:
     - docker_build_total:nightly
   variables:
     IMAGE_NAME: "nightly"
-  extends: .test_plugin:energyplus_regression
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus_regression.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:nightly, rules]
 
@@ -1185,10 +1073,11 @@ test_bim2sim:plugin:lca:main:
     - docker_build_total:main
   variables:
     IMAGE_NAME: "latest"
-  extends: .test_plugin:lca
+    TEST_FILE: "conda_recipe/plugins/PluginLCA/test_lca.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:main, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+    - if: $CI_BUILD =~ /ci_build_total_main/
       when: on_success
 
 test_bim2sim:plugin:lca:dev:
@@ -1198,10 +1087,11 @@ test_bim2sim:plugin:lca:dev:
     - docker_build_total:dev
   variables:
     IMAGE_NAME: "development"
-  extends: .test_plugin:lca
+    TEST_FILE: "conda_recipe/plugins/PluginLCA/test_lca.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:dev, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+    - if: $CI_BUILD =~ /ci_build_total_dev/
       when: on_success
 
 test_bim2sim:plugin:lca:nightly:
@@ -1211,7 +1101,8 @@ test_bim2sim:plugin:lca:nightly:
     - docker_build_total:nightly
   variables:
     IMAGE_NAME: "nightly"
-  extends: .test_plugin:lca
+    TEST_FILE: "conda_recipe/plugins/PluginLCA/test_lca.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:nightly, rules]
 
@@ -1223,10 +1114,11 @@ test_bim2sim:plugin:teaser:main:
     - docker_build_total:main
   variables:
     IMAGE_NAME: "latest"
-  extends: .test_plugin:teaser
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:main, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+    - if: $CI_BUILD =~ /ci_build_total_main/
       when: on_success
 
 test_bim2sim:plugin:teaser:dev:
@@ -1236,10 +1128,11 @@ test_bim2sim:plugin:teaser:dev:
     - docker_build_total:dev
   variables:
     IMAGE_NAME: "development"
-  extends: .test_plugin:teaser
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:dev, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+    - if: $CI_BUILD =~ /ci_build_total_dev/
       when: on_success
 
 test_bim2sim:plugin:teaser:nightly:
@@ -1249,7 +1142,8 @@ test_bim2sim:plugin:teaser:nightly:
     - docker_build_total:nightly
   variables:
     IMAGE_NAME: "nightly"
-  extends: .test_plugin:teaser
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:nightly, rules]
 
@@ -1261,10 +1155,11 @@ test_bim2sim:plugin:TEASER_regression:main:
     - docker_build_total:main
   variables:
     IMAGE_NAME: "latest"
-  extends: .test_plugin:TEASER_regression
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:main, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+    - if: $CI_BUILD =~ /ci_build_total_main/
       when: on_success
 
 test_bim2sim:plugin:TEASER_regression:dev:
@@ -1274,10 +1169,11 @@ test_bim2sim:plugin:TEASER_regression:dev:
     - docker_build_total:dev
   variables:
     IMAGE_NAME: "development"
-  extends: .test_plugin:TEASER_regression
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:dev, rules]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+    - if: $CI_BUILD =~ /ci_build_total_dev/
       when: on_success
 
 test_bim2sim:plugin:TEASER_regression:nightly:
@@ -1287,7 +1183,8 @@ test_bim2sim:plugin:TEASER_regression:nightly:
     - docker_build_total:nightly
   variables:
     IMAGE_NAME: "nightly"
-  extends: .test_plugin:TEASER_regression
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh"
+  extends: .test_base
   rules:
     - !reference [.docker_build_rules:nightly, rules]
 
@@ -1297,30 +1194,30 @@ test_bim2sim:plugin:TEASER_regression:nightly:
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       when: on_success
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_main/
+    - if: $CI_BUILD =~ /ci_build_main/
       when: manual
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_docker_main/
+    - if: $CI_BUILD =~ /ci_build_docker_main/
       when: manual
 
 .docker_release_rules:dev:
   rules:
     - if: $CI_COMMIT_BRANCH == "development"
       when: on_success
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_dev/
+    - if: $CI_BUILD =~ /ci_build_dev/
       when: manual
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_docker_dev/
+    - if: $CI_BUILD =~ /ci_build_docker_dev/
       when: manual
 
 .docker_release_rules:plugin:main:
   rules:
      - !reference [.docker_release_rules:main, rules]
-     - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_main/
+     - if: $CI_BUILD =~ /ci_build_plugin_main/
        when: manual
 
 .docker_release_rules:plugin:dev:
   rules:
      - !reference [.docker_release_rules:dev, rules]
-     - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_dev/
+     - if: $CI_BUILD =~ /ci_build_plugin_dev/
        when: manual
 
 .docker_release:
@@ -1343,7 +1240,7 @@ docker_release_bim2sim:base:main:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
+    - if: $CI_BUILD =~ /ci_build_base_main/
       when: manual
 
 docker_release_bim2sim:env_base:dev:
@@ -1355,7 +1252,7 @@ docker_release_bim2sim:env_base:dev:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
+    - if: $CI_BUILD =~ /ci_build_base_dev/
       when: manual
 
 docker_release_bim2sim:env_base:nightly:
@@ -1379,7 +1276,7 @@ docker_release_plugin:aixlib:main:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_aixlib_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_aixlib_main/
       when: manual
 
 docker_release_plugin:aixlib:dev:
@@ -1391,7 +1288,7 @@ docker_release_plugin:aixlib:dev:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_aixlib_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_aixlib_dev/
       when: manual
 
 docker_release_plugin:aixlib:nightly:
@@ -1415,7 +1312,7 @@ docker_release_plugin:cfd:main:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_cfd_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_cfd_main/
       when: manual
 
 docker_release_plugin:cfd:dev:
@@ -1427,7 +1324,7 @@ docker_release_plugin:cfd:dev:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_cfd_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_cfd_dev/
       when: manual
 
 docker_release_plugin:cfd:nightly:
@@ -1450,7 +1347,7 @@ docker_release_plugin:energyplus:main:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_main/
       when: manual
 
 docker_release_plugin:energyplus:dev:
@@ -1462,7 +1359,7 @@ docker_release_plugin:energyplus:dev:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_energyplus_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_dev/
       when: manual
 
 
@@ -1486,7 +1383,7 @@ docker_release_plugin:hkesim:main:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_hkesim_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_hkesim_main/
       when: manual
 
 docker_release_plugin:hkesim:dev:
@@ -1498,7 +1395,7 @@ docker_release_plugin:hkesim:dev:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_hkesim_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_hkesim_dev/
       when: manual
 
 docker_release_plugin:hkesim:nightly:
@@ -1521,7 +1418,7 @@ docker_release_plugin:lca:main:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_lca_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_lca_main/
       when: manual
 
 docker_release_plugin:lca:dev:
@@ -1533,7 +1430,7 @@ docker_release_plugin:lca:dev:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_lca_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_lca_dev/
       when: manual
 
 docker_release_plugin:lca:nightly:
@@ -1557,7 +1454,7 @@ docker_release_plugin:teaser:main:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_main/
       when: manual
 
 
@@ -1570,7 +1467,7 @@ docker_release_plugin:teaser:dev:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_dev/
       when: manual
 
 docker_release_plugin:teaser:nightly:
@@ -1594,7 +1491,7 @@ docker_release:env_dymola_base:main:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_main/
+    - if: $CI_BUILD =~ /ci_build_base_main/
       when: manual
 
 docker_release:env_dymola_base:dev:
@@ -1606,7 +1503,7 @@ docker_release:env_dymola_base:dev:
     IMAGE_NAME: "dymola_dev"
   rules:
     - !reference [.docker_release_rules:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_base_dev/
+    - if: $CI_BUILD =~ /ci_build_base_dev/
       when: manual
 
 docker_release:env_dymola_base:nightly:
@@ -1630,7 +1527,7 @@ docker_release_plugin:dymola_teaser:main:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_main/
       when: manual
 
 docker_release_plugin:dymola_teaser:dev:
@@ -1642,7 +1539,7 @@ docker_release_plugin:dymola_teaser:dev:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:plugin:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_plugin_teaser_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_dev/
       when: manual
 
 docker_release_plugin:dymola_teaser:nightly:
@@ -1666,7 +1563,7 @@ docker_release_total:main:
   extends: .docker_release
   rules:
     - !reference [ .docker_release_rules:main, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_main/
+    - if: $CI_BUILD =~ /ci_build_total_main/
       when: manual
 
 docker_release_total:dev:
@@ -1678,7 +1575,7 @@ docker_release_total:dev:
   extends: .docker_release
   rules:
     - !reference [.docker_release_rules:dev, rules ]
-    - if: $CI_COMMIT_MESSAGE =~ /ci_build_total_dev/
+    - if: $CI_BUILD =~ /ci_build_total_dev/
       when: manual
 
 docker_release_total:nightly:

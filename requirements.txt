@@ -1,13 +1,3 @@
-docopt
-numpy
-pandas
-matplotlib
-networkx>=2.2
-python-dateutil
-mako
-pint
-beautifulsoup4 >=4.9.3
-ifcopenshell
 deep-translator
 string_grouper
 

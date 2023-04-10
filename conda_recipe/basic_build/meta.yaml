@@ -55,8 +55,8 @@ requirements:
     - gcc
   host:
     - python>=3.8.*,<3.10.*
-    - pip 22.2.2
-    - setuptools 65.5.0
+    - pip
+    - setuptools
     - numpy
     - cython
     - poetry
@@ -74,8 +74,6 @@ requirements:
     - mako
     - pint
     - certifi
-
-  run_constrained:
     - beautifulsoup4 >=4.9.3
 
 test:
