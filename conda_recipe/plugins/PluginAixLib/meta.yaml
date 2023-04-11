@@ -1,4 +1,5 @@
 {% set data = load_setup_py_data(setup_file='../../../bim2sim/plugins/PluginAixLib/setup.py', from_recipe_dir=True) %}
+{% set requirements  = load_file_data('environment.yml', from_recipe_dir=True) %}
 
 package:
   name:  {{BIM2SIM_NAME}}
@@ -20,8 +21,8 @@ requirements:
     - pip
     - setuptools
   run:
-    - python >=3.8.*,<3.10.*
     - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
+
 test:
   imports:
     - bim2sim
@@ -32,7 +33,6 @@ test:
     - bim2sim -h
     - bim2sim --version
     - bash conda_recipe/plugins/PluginAixLib/test_aixlib.sh  # [not win]
-
   source_files:
     - conda_recipe/plugins/PluginAixLib/test_aixlib.sh  # [not win]
     - bim2sim

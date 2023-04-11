@@ -1,1 +1,0 @@
-bim2sim_base

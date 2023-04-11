@@ -1,4 +1,5 @@
 {% set data = load_setup_py_data(setup_file='../../setup.py', from_recipe_dir=True) %}
+{% set requirements  = load_file_data('environment.yml', from_recipe_dir=True) %}
 
 package:
   name:  {{BIM2SIM_NAME}}
@@ -12,7 +13,6 @@ build:
   number: '0'
   entry_points:
     - bim2sim = bim2sim.__main__:commandline_interface
-  #script: python -m pip install --no-deps --ignore-installed .
   missing_dso_whitelist:
     - $RPATH/libQt5Widgets.so.5 # [linux]
     - $RPATH/libQt5Gui.so.5 # [linux]
@@ -47,12 +47,11 @@ build:
     - $RPATH/libstdc++.so.6 # [linux]
     - $RPATH/libm.so.6 # [linux]
 
-
 requirements:
   build:
     - git
     - cmake
-    - gcc
+    - gcc # [linux]
   host:
     - python>=3.8.*,<3.10.*
     - pip
@@ -61,21 +60,11 @@ requirements:
     - cython
     - poetry
   run:
-    - python >=3.8.*,<3.10.*
-    - pythonocc-core<=7.5.1
-    - ifcopenshell
-    - occt<=7.5.1
-    - docopt
-    - numpy
-    - pandas
-    - matplotlib
-    - networkx>=2.2
-    - python-dateutil
-    - mako
-    - pint
-    - certifi
-    - beautifulsoup4 >=4.9.3
-
+    {% for dep in requirements["dependencies"] %}
+      {%- if dep != {'pip': ['-r requirements.txt', '-r dependency_requirements.txt']} -%}
+      - {{ dep }}
+      {%- endif %}
+    {% endfor %}
 test:
   requires:
     - python>=3.8.*,<3.10.*
@@ -103,10 +92,9 @@ test:
     - bash conda_recipe/basic_build/base_run_test.sh # [not win]
     - conda_recipe/basic_build/base_run_test.bat # [win]
 
-
-
 about:
   home: https://github.com/BIM2SIM/bim2sim
   summary: "A python tool to create simulation models for different domains based on BIM IFC models."
   description: "A python tool to create simulation models for different domains based on BIM IFC models. For documentation please visit https://ebc.pages.rwth-aachen.de/EBC_all/github_ci/bim2sim/development/docs/overview.html"
   license: LICENSE
+

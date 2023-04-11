@@ -22,8 +22,7 @@ dependencies:
   - mako
   - pint
   - certifi
-  - beautifulsoup4>=4.9.3
+  - beautifulsoup4
   - pip:
     - -r requirements.txt
     - -r dependency_requirements.txt
-

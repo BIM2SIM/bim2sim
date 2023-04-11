@@ -1,11 +1,10 @@
-name: bim2sim_lca_env
+name: bim2sim_base_env
 
 channels:
   - dsdale24
   - inso
   - conda-forge
   - anaconda
-
 dependencies:
   - python>=3.8.*,<3.10.*
   - setuptools
@@ -22,8 +21,7 @@ dependencies:
   - mako
   - pint
   - certifi
-  - beautifulsoup4 >=4.9.3
+  - beautifulsoup4
   - pip:
-    - -r bim2sim/plugins/PluginLCA/requirements.txt
-    - -r bim2sim/plugins/PluginLCA/dependency_requirements.txt
-
+    - -r requirements.txt
+    - -r dependency_requirements.txt

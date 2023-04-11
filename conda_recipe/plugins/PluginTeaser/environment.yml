@@ -24,7 +24,6 @@ dependencies:
   - certifi
   - beautifulsoup4 >=4.9.3
   - pip:
-    - deep-translator
-    - string_grouper
-    - https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
+    - -r bim2sim/plugins/PluginTeaser/requirements.txt
+    - -r bim2sim/plugins/PluginTeaser/dependency_requirements.txt
 

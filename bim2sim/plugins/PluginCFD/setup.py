@@ -5,6 +5,8 @@ with open(f'README.md', 'r') as f:
     long_description = f.read()
 with open(f'requirements.txt', 'r') as f:
     required = f.read().splitlines()
+with open("dependency_requirements.txt", 'r') as f:
+    dep_required = f.read().splitlines()
 version = "0.0.1"
 
 def copy_non_code_file(non_code_dir, not_include):
@@ -40,7 +42,7 @@ setup(
                                     not_include=[".py", ".Dockerfile", ".pyc"]),
     python_requires='>=3.8.*,<3.10.*',
     install_requires=[required],
-    #dependency_links=['https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip'],
+    #dependency_links=dep_required,
     classifiers=[
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',

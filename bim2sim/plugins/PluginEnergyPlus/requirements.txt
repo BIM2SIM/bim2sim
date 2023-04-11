@@ -4,4 +4,4 @@ numpy-stl
 eppy
 beautifulsoup4
 transforms3d
-bim2sim_base
+

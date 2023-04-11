@@ -11,4 +11,4 @@ ifcopenshell
 pythonocc-core<=7.5.1
 occt<=7.5.1
 certifi
-beautifulsoup4 >=4.9.3
+beautifulsoup4
