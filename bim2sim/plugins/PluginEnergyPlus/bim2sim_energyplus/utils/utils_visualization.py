@@ -92,13 +92,9 @@ class VisualizationUtils:
     @staticmethod
     def rgb(minimum, maximum, value):
         minimum, maximum = float(minimum), float(maximum)
-        # ratio = 2 * (value-minimum) / (maximum - minimum)
         ratio = 2 * (value - minimum) / (maximum - minimum)
         r = int(max(0, 255 * (1 - ratio))) / 255
-        # r = int(max(0, abs(255*(ratio - 1))))/255
-        # g = int(max(0, (255 - b - r)/255))
         b = int(max(0, abs(255 * (ratio - 1)))) / 255
-        # g = int((255 - b - r)/255)
         g = 1
         return (r, g, b)
 
@@ -112,6 +108,33 @@ class VisualizationUtils:
         r, g, b = colorsys.hls_to_rgb(h, l, s)
 
         return r, g, b
+
+    @staticmethod
+    def get_column_from_ep_results(csv_name: str, column_key: str) -> \
+            pd.DataFrame:
+        """
+        This function extracts a column per energyplus column_key from a
+        dataframe. It removes the full column_key from the column name
+        afterwards, such that only the zone identifier (guid) of the column
+        name remains as column key.
+
+        Args:
+            csv_name: csv name including file name as string
+            column_key: full variable key that is removed afterwards from
+                    column name. Must not include the zone guid
+        Returns:
+            df: pandas dataframe
+        """
+        res_df = pd.read_csv(csv_name)
+        # extract data that includes the column_key
+        df = PostprocessingUtils._extract_cols_from_df(
+            res_df, column_key)
+        # rename column name to zone guid (remove column_key from column
+        # name and keep guid only)
+        df.columns = [
+            col.replace(column_key, '') for col in
+            df.columns]
+        return df
 
     @staticmethod
     def visualize_zones(zone_dict, folder_structure):
@@ -131,32 +154,15 @@ class VisualizationUtils:
         Returns:
             No return value, image is saved directly.
         """
-        settings = ifcopenshell.geom.settings()
-        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
-        settings.set(settings.USE_WORLD_COORDS, True)
-        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-        settings.set(settings.INCLUDE_CURVES, True)
-
-        display, start_display, add_menu, add_function_to_menu = init_display(
-            display_triedron=False, background_gradient_color1=3 * [255],
-            background_gradient_color2=3 * [255], size=(1920, 1080))
 
         # todo multi storage floor plan where all floors are placed
         #  next to each other
         csv_name = folder_structure.export / 'EP-results/eplusout.csv'
-        res_df = pd.read_csv(csv_name)
-        # extract zone ideal loads zone sensible
-        full_key_sens_cool_rate = ' IDEAL LOADS AIR SYSTEM:Zone Ideal Loads ' \
-                                  'Zone Sensible Cooling Rate [W](Hourly)'
-        # extract the columns holding the zone sensible heating rates
         full_key_sens_heat_rate = ' IDEAL LOADS AIR SYSTEM:Zone Ideal Loads ' \
                                   'Zone Sensible Heating Rate [W](Hourly)'
-        zone_sensible_heating_rate = PostprocessingUtils._extract_cols_from_df(
-            res_df, full_key_sens_heat_rate)
-        # rename column name to zone guid
-        zone_sensible_heating_rate.columns = [
-            col.replace(full_key_sens_heat_rate, '') for col in
-            zone_sensible_heating_rate.columns]
+        zone_sensible_heating_rate = \
+            VisualizationUtils.get_column_from_ep_results(
+            csv_name=csv_name, column_key=full_key_sens_heat_rate)
         # get maximum sensible heating rate per zone
         max_zone_sens_heat_rate = zone_sensible_heating_rate.max()
         # fill new dict with key: guid and value :zone net area
@@ -176,6 +182,16 @@ class VisualizationUtils:
         # add colored 3D plot of space geometry
         minimum = 0
         maximum = max_heat_rate_df['max_per_area'].max()
+
+        settings = ifcopenshell.geom.settings()
+        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
+        settings.set(settings.USE_WORLD_COORDS, True)
+        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+        settings.set(settings.INCLUDE_CURVES, True)
+
+        display, start_display, add_menu, add_function_to_menu = init_display(
+            display_triedron=False, background_gradient_color1=3 * [255],
+            background_gradient_color2=3 * [255], size=(1920, 1080))
 
         for i, (guid, zone) in enumerate(zone_dict.items()):
             current_value = max_heat_rate_df['max_per_area'].loc[guid.upper()]
