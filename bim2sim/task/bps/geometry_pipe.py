@@ -462,6 +462,9 @@ class PipeGeometry():
             nx.draw_networkx_nodes(G, pos, nodelist=[end], node_color='r')
 
     def shortest_path(self, start, end_points, points):
+        # todo: Gewichtung: Doppelte wege
+        # todo: zusätzliche Gewichtung: Z-Richtung
+        # pywiz
         # Erstelle einen Graphen mit den Punkten als Knoten
         points.extend(end_points)
         points.append(start)
