@@ -403,8 +403,12 @@ class Reduce(ITask):
                     )
                     i += 1
             statistics[name] = i
-            self.logger.info(f"Found {len(matches)} for Aggreation {name} and "
-                             f"was able to aggregate {i} of them.")
+            if len(matches) > 0:
+                self.logger.info(
+                    f"Found {len(matches)} Aggregations of type "
+                    f"{name} and was able to aggregate {i} of them.")
+            else:
+                self.logger.info(f"Found non Aggregations of type {name}")
         number_of_elements_after = len(graph.elements)
 
         log_str = "Aggregations reduced number of elements from %d to %d:" % \
