@@ -103,10 +103,10 @@ class VisualizationUtils:
         return (r, g, b)
 
     @staticmethod
-    def interpolate_to_rgb(minimum, maximum, value, color_min=0,
-                           color_max=360):
+    def interpolate_to_rgb(minimum, maximum, value, color_min=50,
+                           color_max=340):
         s = 1
-        l = 0.55
+        l = 0.5
         h = (color_min + (color_max - color_min) / (maximum - minimum) * (
                 value - minimum)) / 360
         r, g, b = colorsys.hls_to_rgb(h, l, s)
@@ -213,7 +213,8 @@ class VisualizationUtils:
                 color = VisualizationUtils.rgb_color(
                     VisualizationUtils.interpolate_to_rgb(minimum, maximum,
                                                           current_value))
-                display.DisplayShape(shape, update=True, color=color)
+                display.DisplayShape(shape, update=True, color=color,
+                                     transparency=0)
                 center = PyOCCTools._get_center_of_face(shape)
                 if not center:
                     center = PyOCCTools.get_center_of_shape(shape)
@@ -249,6 +250,7 @@ class VisualizationUtils:
                   font=title_font, anchor='ms')
         draw.text((im_width/2, text_size/2 + ybuffer), title, text_color,
                   font=title_font, anchor='ms')
+        mid_count = 0
         for i in range(0, int(maximum)):
             color = VisualizationUtils.interpolate_to_rgb(minimum, maximum, i)
             color = tuple(tuple([int(color[0] * 255), int(color[1] * 255),
@@ -258,7 +260,8 @@ class VisualizationUtils:
             if i == 0:
                 draw.text((xmax + xbuffer, 200 + i * line_width), str(i),
                           text_color, font=title_font, anchor='ms')
-            if i % int(maximum / 2) == 0:
+            elif i % (int(maximum) / 2) == 0 and mid_count == 0:
+                mid_count += 1
                 blind_counter += 1
                 draw.text((xmax + xbuffer, 200 + i * line_width), str(i),
                           text_color, font=title_font, anchor='ms')
