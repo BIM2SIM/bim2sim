@@ -52,15 +52,33 @@ class Pump(AixLib):
     represents = [hvac.Pump]
 
     def request_params(self):
-        self.request_param("rated_height",
-                           self.check_numeric(min_value=0 * ureg.meter),
-                           "head_set")
-        self.request_param("rated_volume_flow",
-                           self.check_numeric(min_value=0 * ureg['m**3/hour']),
-                           "Vflow_set", 'm**3/hour')
-        self.request_param("rated_power",
-                           self.check_numeric(min_value=0 * ureg.watt),
-                           "P_norm")
+        self.params['redeclare package Medium'] = 'AixLib.Media.Water'
+        self.request_param(
+            "rated_mass_flow",
+            self.check_numeric(min_value=0 * ureg['kg/second']))
+        self.request_param(
+            "rated_pressure_difference",
+            self.check_numeric(min_value=0 * ureg['newton/m**2']))
+        # generic pump operation curve
+        # todo renders as "V_flow" only in Modelica
+        self.params["per.pressure"] =\
+            f"V_flow={{0," \
+            f" {self.element.rated_mass_flow}/1000," \
+            f" {self.element.rated_mass_flow} /1000/0.7}}," \
+            f" dp={{ {self.element.rated_pressure_difference} / 0.7," \
+            f" {self.element.rated_pressure_difference}," \
+            f"0}}"
+
+        # ToDo remove decisions from tests if not asking this anymore
+        # self.request_param("rated_height",
+        #                    self.check_numeric(min_value=0 * ureg.meter),
+        #                    "head_set")
+        # self.request_param("rated_volume_flow",
+        #                    self.check_numeric(min_value=0 * ureg['m**3/hour']),
+        #                    "Vflow_set", 'm**3/hour')
+        # self.request_param("rated_power",
+        #                    self.check_numeric(min_value=0 * ureg.watt),
+        #                    "P_norm")
 
     def get_port_name(self, port):
         try:
@@ -88,24 +106,25 @@ class Consumer(AixLib):
         self.params['redeclare package Medium'] = 'AixLib.Media.Water'
         # self.params["functionality"] = "\"T_fixed\""
         self.params["functionality"] = '\"Q_flow_fixed\"'
-        # if self.params["functionality"] == '\"Q_flow_fixed\"':
-        #     self.request_param("rated_power",
-        #                        self.check_numeric(min_value=0 * ureg.kilowatt),
-        #                        "Q_flow_fixed")
-        self.request_param("demand_type",
-                           self.check_none(),
-                           "demandType")
+        if self.params["functionality"] == '\"Q_flow_fixed\"':
+            self.params["Q_flow_fixed"] = self.element.rated_power
+        # self.request_param("demand_type",
+        #                    self.check_none(),
+        #                    "demandType")
         self.params["hasPump"] = self.element.has_pump
-        self.request_param("rated_power",
-                           self.check_numeric(min_value=0 * ureg.kilowatt),
-                           "Q_flow_nom")
-        self.request_param("dT_water",
-                           self.check_numeric(min_value=0 * ureg.kelvin),
-                           "dT_nom")
-        self.request_param("heat_capacity",
-                           self.check_numeric(
-                               min_value=0 * ureg.joule / ureg.kelvin),
-                           "capacity")
+        self.params["hasFeedback"] = self.element.t_controll
+        # self.params["dT_nom"] = self.element.dT_water
+        # self.params["capacity"] = self.element.heat_capacity
+        # self.request_param("rated_power",
+        #                    self.check_numeric(min_value=0 * ureg.kilowatt),
+        #                    "Q_flow_nom")
+        # self.request_param("dT_water",
+        #                    self.check_numeric(min_value=0 * ureg.kelvin),
+        #                    "dT_nom")
+        # self.request_param("heat_capacity",
+        #                    self.check_numeric(
+        #                        min_value=0 * ureg.joule / ureg.kelvin),
+        #                    "capacity")
 
     def get_port_name(self, port):
         try:
