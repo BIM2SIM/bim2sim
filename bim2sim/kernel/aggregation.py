@@ -733,7 +733,10 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
     def _calc_rated_power(self, name) -> ureg.Quantity:
         """Calculate the rated power adding the rated power of the pump-like
         elements"""
-        return sum([ele.rated_power for ele in self.pump_elements])
+        if all(ele.rated_power for ele in self.pump_elements):
+            return sum([ele.rated_power for ele in self.pump_elements])
+        else:
+            return None
 
     rated_power = attribute.Attribute(
         unit=ureg.kilowatt,
@@ -894,7 +897,10 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         """ Calculate the rated power adding the rated power of the
             whitelist_classes elements.
         """
-        return sum([ele.rated_power for ele in self.whitelist_elements])
+        if all(ele.rated_power for ele in self.whitelist_elements):
+            return sum([ele.rated_power for ele in self.whitelist_elements])
+        else:
+            return None
 
     rated_power = attribute.Attribute(
         description="rated power",
@@ -912,7 +918,10 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         """ Calculate the rated pump power adding the rated power of the
             pump-like elements.
         """
-        return sum([ele.rated_power for ele in self.pump_elements])
+        if all(ele.rated_power for ele in self.pump_elements):
+            return sum([ele.rated_power for ele in self.pump_elements])
+        else:
+            return None
 
     rated_pump_power = attribute.Attribute(
         description="rated pump power",
@@ -1909,7 +1918,10 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
     def _calc_rated_pump_power(self, name) -> ureg.Quantity:
         """ Calculate the rated pump power adding the rated power of the
             pump-like elements."""
-        return sum([ele.rated_power for ele in self.pump_elements])
+        if all(ele.rated_power for ele in self.pump_elements):
+            return sum([ele.rated_power for ele in self.pump_elements])
+        else:
+            return None
 
     rated_pump_power = attribute.Attribute(
         description="rated pump power",
