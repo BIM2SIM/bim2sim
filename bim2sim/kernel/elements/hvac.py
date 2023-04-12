@@ -5,8 +5,9 @@ import logging
 import math
 import re
 import sys
-from typing import Set, List, Tuple, Generator
+from typing import Set, List, Tuple, Generator, Union, Type
 
+import ifcopenshell
 import numpy as np
 
 from bim2sim.decision import ListDecision, DecisionBunch
@@ -16,6 +17,9 @@ from bim2sim.kernel.element import Port, ProductBased
 from bim2sim.kernel.ifc2python import get_ports as ifc2py_get_ports
 from bim2sim.kernel.ifc2python import get_predefined_type
 from bim2sim.kernel.units import ureg
+from kernel.element import IFCBased
+from kernel.elements.bps import settings_products
+from utilities.pyocc_tools import PyOCCTools
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -208,6 +212,30 @@ class HVACProduct(ProductBased):
     def expected_hvac_ports(self):
         raise NotImplementedError(f"Please define the expected number of ports "
                                   f"for the class {self.__class__.__name__} ")
+
+    @cached_property
+    def volume(self):
+        if hasattr(self, "net_volume"):
+            if self.net_volume:
+                vol = self.net_volume
+                return vol
+        vol = self.calc_volume_from_ifc_shape()
+        return vol
+
+    def calc_volume_from_ifc_shape(self):
+        # todo use more efficient iterator to calc all shapes at once
+        #  with multiple cores:
+        #  https://wiki.osarch.org/index.php?title=IfcOpenShell_code_examples
+        if hasattr(self.ifc, 'Representation'):
+            try:
+                shape = ifcopenshell.geom.create_shape(
+                            settings_products, self.ifc).geometry
+                vol = PyOCCTools.get_shape_volume(shape)
+                vol = vol * ureg.meter ** 3
+                return vol
+            except:
+                logger.warning(f"No calculation of geometric volume possible "
+                               f"for {self.ifc}.")
 
     def get_ports(self) -> list:
         """Returns a list of ports of this product."""
@@ -725,7 +753,8 @@ class Pipe(HVACProduct):
         Function to calculate the length of the pipe from the geometry
         """
         try:
-            return Pipe.get_lenght_from_shape(self.ifc.Representation)
+            return Pipe.get_lenght_from_shape(self.ifc.Representation) \
+                   * ureg.meter
         except AttributeError:
             return None
 
@@ -830,12 +859,15 @@ class PipeFitting(HVACProduct):
         unit=ureg.millimeter,
     )
 
-
     @staticmethod
     def _diameter_post_processing(value):
         if isinstance(value, list):
             return np.average(value).item()
         return value
+
+    def get_better_subclass(self) -> Union[None, Type['IFCBased']]:
+        if len(self.ports) == 3:
+            return Junction
 
 
 class Junction(PipeFitting):
@@ -1050,10 +1082,10 @@ class Distributor(HVACProduct):
         re.compile('Verteiler', flags=re.IGNORECASE)
     ]
 
-    volume = attribute.Attribute(
-        description="Volume of the Distributor",
-        unit=ureg.meter ** 3
-    )
+    # volume = attribute.Attribute(
+    #     description="Volume of the Distributor",
+    #     unit=ureg.meter ** 3
+    # )
 
     nominal_power = attribute.Attribute(
         description="Nominal power of Distributor",
@@ -1097,7 +1129,10 @@ class Pump(HVACProduct):
     def _calc_rated_power(self, name) -> ureg.Quantity:
         """Function to calculate the pump rated power using the rated current
         and rated voltage"""
-        return self.rated_current * self.rated_voltage
+        if self.rated_current and self.rated_voltage:
+            return self.rated_current * self.rated_voltage
+        else:
+            return None
 
     rated_power = attribute.Attribute(
         description="Rated power of pump",
@@ -1106,6 +1141,7 @@ class Pump(HVACProduct):
         dependant_attributes=['rated_current', 'rated_voltage']
     )
 
+    # Even if this is a bounded value, currently only the set point is used
     rated_mass_flow = attribute.Attribute(
         description="Rated mass flow of pump",
         default_ps=('Pset_PumpTypeCommon', 'FlowRateRange'),
@@ -1117,9 +1153,15 @@ class Pump(HVACProduct):
         unit=ureg.m ** 3 / ureg.hour,
     )
 
-    rated_height = attribute.Attribute(
+    # Even if this is a bounded value, currently only the set point is used
+    rated_pressure_difference = attribute.Attribute(
         description="Rated height or rated pressure difference of pump",
         default_ps=('Pset_PumpTypeCommon', 'FlowResistanceRange'),
+        unit=ureg.newton / (ureg.m ** 2),
+    )
+
+    rated_height = attribute.Attribute(
+        description="Rated height or rated pressure difference of pump",
         unit=ureg.meter,
     )
 
@@ -1306,10 +1348,10 @@ class CHP(HVACProduct):
         unit=ureg.dimensionless,
     )
 
-    water_volume = attribute.Attribute(
-        description="Water volume CHP chp",
-        unit=ureg.meter ** 3,
-    )
+    # water_volume = attribute.Attribute(
+    #     description="Water volume CHP chp",
+    #     unit=ureg.meter ** 3,
+    # )
 
 
 # collect all domain classes
