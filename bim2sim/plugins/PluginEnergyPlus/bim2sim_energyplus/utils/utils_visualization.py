@@ -137,6 +137,46 @@ class VisualizationUtils:
         return df
 
     @staticmethod
+    def add_legend(save_path, folder_structure, minimum, maximum, unit,
+                   text_size=25, text_color=(0, 0, 0,), legend_height=800,
+                   title=None):
+        # add legend to 3D image
+        im = Image.open(save_path)
+        draw = ImageDraw.Draw(im)
+        font_path = folder_structure.assets / 'fonts' / 'arial.ttf'
+        title_font = ImageFont.truetype(str(font_path), text_size)
+        blind_counter = 0
+        im_width, im_heigth = im.size
+        line_width = int(legend_height / maximum)
+        xmin = 20
+        xmax = 100
+        xbuffer = 20
+        ybuffer = 30
+        draw.text(((xmax+xmin)/2, 200 - ybuffer), unit, text_color,
+                  font=title_font, anchor='ms')
+        if title:
+            draw.text((im_width/2, text_size/2 + ybuffer), title, text_color,
+                      font=title_font, anchor='ms')
+        mid_count = 0
+        for i in range(0, int(maximum)):
+            color = VisualizationUtils.interpolate_to_rgb(minimum, maximum, i)
+            color = tuple(tuple([int(color[0] * 255), int(color[1] * 255),
+                                 int(color[2] * 255)]))
+            draw.line([(xmin, 200 + i * line_width),
+                       (xmax, 200 + i * line_width)], color, width=line_width)
+            if i == 0:
+                draw.text((xmax + xbuffer, 200 + i * line_width), str(i),
+                          text_color, font=title_font, anchor='ms')
+            elif i % (int(maximum / 2)) == 0 and mid_count == 0:
+                mid_count += 1
+                blind_counter += 1
+                draw.text((xmax + xbuffer, 200 + i * line_width), str(i),
+                          text_color, font=title_font, anchor='ms')
+        draw.text((xmax + xbuffer, 200 + int(maximum) * line_width),
+                  str(int(maximum)), text_color, font=title_font, anchor='ms')
+        im.save(str(save_path).strip('.png') + '_legende.png')
+
+    @staticmethod
     def visualize_zones(zone_dict, folder_structure):
         """Visualizes the thermalzones and saves the picture as a .png.
         Fetches the thermalzones which are grouped before and creates an
@@ -240,47 +280,20 @@ class VisualizationUtils:
                      message_color=(0, 0, 0))
             display.View_Top()
             display.FitAll()
-            display.View.Dump(str(str(save_path).strip('.png') + storey.name +
-                                  '_floorplan.png'))
-        # todo: add legend to floorplan.
+            this_floorplan_path = str(str(save_path).strip('.png') + storey.name +
+                                      '_floorplan.png')
+            display.View.Dump(this_floorplan_path)
+            VisualizationUtils.add_legend(
+                this_floorplan_path, folder_structure, minimum, maximum,
+                unit='W/m²'
+            )
+            #todo: rescale underlying image so that the floorplan does not
+            # overlap with legend.
+
+        VisualizationUtils.add_legend(
+            save_path, folder_structure, minimum, maximum, unit='W/m²',
+            title='Maximum sensible heating rate per area'
+        )
 
 
-        # add legend to 3D image
-        im = Image.open(save_path)
-        text_size = 25
-        draw = ImageDraw.Draw(im)
-        font_path = folder_structure.assets / 'fonts' / 'arial.ttf'
-        text_color = (0, 0, 0)
-        title_font = ImageFont.truetype(str(font_path), text_size)
-        blind_counter = 0
-        legend_height = 800
-        im_width, im_heigth = im.size
-        line_width = int(legend_height / maximum)
-        title = 'Maximum sensible heating rate per area'
-        unit = 'W/m²'
-        xmin = 20
-        xmax = 100
-        xbuffer = 20
-        ybuffer = 30
-        draw.text(((xmax+xmin)/2, 200 - ybuffer), unit, text_color,
-                  font=title_font, anchor='ms')
-        draw.text((im_width/2, text_size/2 + ybuffer), title, text_color,
-                  font=title_font, anchor='ms')
-        mid_count = 0
-        for i in range(0, int(maximum)):
-            color = VisualizationUtils.interpolate_to_rgb(minimum, maximum, i)
-            color = tuple(tuple([int(color[0] * 255), int(color[1] * 255),
-                                 int(color[2] * 255)]))
-            draw.line([(xmin, 200 + i * line_width),
-                       (xmax, 200 + i * line_width)], color, width=line_width)
-            if i == 0:
-                draw.text((xmax + xbuffer, 200 + i * line_width), str(i),
-                          text_color, font=title_font, anchor='ms')
-            elif i % (int(maximum) / 2) == 0 and mid_count == 0:
-                mid_count += 1
-                blind_counter += 1
-                draw.text((xmax + xbuffer, 200 + i * line_width), str(i),
-                          text_color, font=title_font, anchor='ms')
-        draw.text((xmax + xbuffer, 200 + int(maximum) * line_width),
-                  str(int(maximum)), text_color, font=title_font, anchor='ms')
-        im.save(str(save_path).strip('.png') + '_mod.png')
+
