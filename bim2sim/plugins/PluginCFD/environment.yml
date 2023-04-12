@@ -8,7 +8,7 @@ channels:
 
 dependencies:
   - python>=3.8.*,<3.10.*
-  - bim2sim_base==
+  - bim2sim_base
   - pip:
     - -r bim2sim/plugins/PluginCFD/requirements.txt
     - -r bim2sim/plugins/PluginCFD/dependency_requirements.txt

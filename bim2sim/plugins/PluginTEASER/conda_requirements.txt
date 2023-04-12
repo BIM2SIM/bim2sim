@@ -1,3 +1,0 @@
-pyqt5-sip
-pillow
-bim2sim_base

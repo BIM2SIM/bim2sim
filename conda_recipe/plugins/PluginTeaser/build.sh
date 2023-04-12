@@ -1,4 +1,4 @@
 #!/bin/bash
 python -m pip install --no-deps --ignore-installed bim2sim/plugins/PluginTEASER
-pip install  git+https://github.com/RWTH-EBC/TEASER@development
-pip install git+https://github.com/DaJansenGit/BuildingsPy.git
+pip install -r bim2sim/plugins/PluginTEASER/requirements.txt
+pip install -r bim2sim/plugins/PluginTEASER/dependency_requirements.txt

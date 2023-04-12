@@ -8,21 +8,7 @@ channels:
 
 dependencies:
   - python>=3.8.*,<3.10.*
-  - setuptools
-  - numpy
-  - cython
-  - pip
-  - pythonocc-core<=7.5.1
-  - ifcopenshell
-  - occt<=7.5.1
-  - pandas
-  - matplotlib
-  - networkx>=2.2
-  - python-dateutil
-  - mako
-  - pint
-  - certifi
-  - beautifulsoup4 >=4.9.3
+  - bim2sim_base
   - pip:
     - -r bim2sim/plugins/PluginHKESim/requirements.txt
     - -r bim2sim/plugins/PluginHKESim/dependency_requirements.txt

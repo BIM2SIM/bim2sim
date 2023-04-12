@@ -1,2 +1,0 @@
-python >=3.8.*,<3.10.*
-bim2sim_base

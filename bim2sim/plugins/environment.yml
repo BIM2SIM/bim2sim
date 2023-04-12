@@ -1,0 +1,20 @@
+name: bim2sim_env
+
+channels:
+  - dsdale24
+  - inso
+  - conda-forge
+  - anaconda
+
+dependencies:
+  - python >=3.8.*,<3.10.*
+  - bim2sim_aixlib
+  - bim2sim_cfd
+  - bim2sim_energyplus
+  - bim2sim_hkesim
+  - bim2sim_lca
+  - bim2sim_teaser
+  - pip:
+    - -r bim2sim/plugins/requirements.txt
+    - -r bim2sim/plugins/dependency_requirements.txt
+

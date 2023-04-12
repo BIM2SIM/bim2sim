@@ -1,5 +1,5 @@
 {% set data = load_setup_py_data(setup_file='../../setup.py', from_recipe_dir=True) %}
-{% set requirements  = load_file_data('environment.yml', from_recipe_dir=True) %}
+{% set requirements  = load_file_data('../../environment.yml', from_recipe_dir=True) %}
 
 package:
   name:  {{BIM2SIM_NAME}}

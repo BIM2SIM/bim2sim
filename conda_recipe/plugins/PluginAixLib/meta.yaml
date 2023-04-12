@@ -1,5 +1,5 @@
 {% set data = load_setup_py_data(setup_file='../../../bim2sim/plugins/PluginAixLib/setup.py', from_recipe_dir=True) %}
-{% set requirements  = load_file_data('environment.yml', from_recipe_dir=True) %}
+{% set requirements  = load_file_data('../../../bim2sim/plugins/PluginAixLib/environment.yml', from_recipe_dir=True) %}
 
 package:
   name:  {{BIM2SIM_NAME}}
@@ -22,6 +22,12 @@ requirements:
     - setuptools
   run:
     - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
+    {% for dep in requirements[ "dependencies" ] %}
+      {%- if dep != { 'pip': [ '-r bim2sim/plugins/PluginTeaser/requirements.txt', '-r bim2sim/plugins/PluginTeaser/dependency_requirements.txt' ] } and dep != "bim2sim_base" -%}
+      - {{ dep }}
+      { %- endif %}
+    {% endfor %}
+
 
 test:
   imports:

@@ -1,4 +1,6 @@
 {% set data = load_setup_py_data(setup_file='../../../bim2sim/plugins/PluginTEASER/setup.py', from_recipe_dir=True) %}
+{% set requirements  = load_file_data('../../../bim2sim/plugins/PluginTEASER/environment.yml', from_recipe_dir=True) %}
+
 package:
   name: {{BIM2SIM_NAME}}
   version: {{data.get('version')}}{{BIM2SIM_FLAG}}
@@ -18,11 +20,12 @@ requirements:
     - pip
     - setuptools
   run:
-    - python >=3.8.*,<3.10.*
     - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
-    - pillow
-    # pyqt5-sip
-    - pyqt5
+    {% for dep in requirements["dependencies"] %}
+      {%- if dep != { 'pip': [ '-r bim2sim/plugins/PluginTeaser/requirements.txt', '-r bim2sim/plugins/PluginTeaser/dependency_requirements.txt' ] } and dep != "bim2sim_base" -%}
+      - {{ dep.lower() }}
+      {%- endif %}
+    {% endfor %}
 
 test:
   imports:
@@ -35,7 +38,6 @@ test:
     - bim2sim --version
     - bash conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
     # bash conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh # [not win]
-
 
   source_files:
     - conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
