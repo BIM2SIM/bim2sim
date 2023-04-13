@@ -351,7 +351,7 @@ class MakeGraph(ITask):
         graph = hvac_graph.HvacGraph(not_mat_instances.values())
 
         path_dyn_ele_graph = self.paths.export / "dyn_ele_graph.html"
-        graph.plot(ports=False, use_pyvis=True, path=path_dyn_ele_graph)
+        graph.plot(ports=False, use_pyvis=False, path=path_dyn_ele_graph)
         return graph,
 
     def serialize(self):
