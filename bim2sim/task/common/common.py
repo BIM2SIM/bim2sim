@@ -946,9 +946,8 @@ class CheckIfc(ITask):
         """
         if len(id_list) > len(set(id_list)):
             raise TypeError(
-                f"Loaded IFC file does not contain instances of type "
-                f"'IfcRelSpaceBoundary' but only files containing "
-                f"IfcRelSpaceBoundaries can be validated. Please ask "
+                f"The GUIDs of the loaded IFC file are not uniquely defined"
+                f" but files containing unique GUIDs can be used. Please ask "
                 f"the creator of the model to provide a valid IFC4 "
                 f"file.")
         ids_upper = list(map(lambda x: x.upper(), id_list))
