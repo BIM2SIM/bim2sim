@@ -3,7 +3,8 @@ import itertools
 import logging
 import math
 from functools import partial
-from typing import Sequence, List, Union, Iterable, Tuple, Set, Dict, Optional
+from typing import Sequence, List, Union, Iterable, Tuple, Set, Dict, Optional, \
+    Any
 
 import networkx as nx
 import numpy as np
@@ -885,7 +886,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         return [ele for ele in self.elements if not isinstance(ele, hvac.Pump)]
 
     def _calc_TControl(self, name):
-        return True  # TODO: Look at Boiler Aggregation - David
+        return any([isinstance(ele, hvac.ThreeWayValve) for ele in self.elements])
 
     @cached_property
     def whitelist_elements(self) -> list:
@@ -1050,7 +1051,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         dependant_instances='whitelist_elements'
     )
 
-    t_controll = attribute.Attribute(
+    t_control = attribute.Attribute(
         description="Bool for temperature control cycle.",
         functions=[_calc_TControl]
     )
@@ -1202,11 +1203,20 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
         return [ele.flow_temperature.to_base_units() for ele
                 in self.whitelist_elements]
 
+    def _calc_has_pump(self, name) -> list[bool]:
+        """Returns a list with boolean for every consumer if it has a pump."""
+        return [con.has_pump for con in self.whitelist_elements]
+
     flow_temperature = attribute.Attribute(
         description="temperature inlet",
         unit=ureg.kelvin,
         functions=[_calc_flow_temperature],
         dependant_instances='whitelist_elements'
+    )
+
+    has_pump = attribute.Attribute(
+        description="List with bool for every consumer if it has a pump",
+        functions=[_calc_has_pump]
     )
 
     def _calc_return_temperature(self, name) -> list:
@@ -1290,13 +1300,22 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
     def _calc_rated_power(self, name):
         """Returns the rated power, as a list of the rated power of the
         whitelist_elements elements"""
-        return [ele.rated_power for ele in self.whitelist_elements]
+        return sum([ele.rated_power for ele in self.whitelist_elements])
 
     rated_power = attribute.Attribute(
         description="Rated heating power of all consumers",
         unit=ureg.kilowatt,
         functions=[_calc_rated_power],
         dependant_instances='whitelist_elements'
+    )
+
+    def _calc_TControl(self, name) -> list[bool]:
+        return [con.t_control for con in self.whitelist_elements]
+
+    t_control = attribute.Attribute(
+        description="List with bool for every consumer if it has a feedback "
+                    "cycle for temperature control.",
+        functions=[_calc_TControl]
     )
 
 

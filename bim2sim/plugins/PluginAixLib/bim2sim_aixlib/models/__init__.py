@@ -10,8 +10,7 @@ class AixLib(modelica.Instance):
 
 
 class Boiler(AixLib):
-    path = "AixLib.Systems.ModularEnergySystems.Modules.ModularBoiler." \
-           "ModularBoiler"
+    path = "AixLib.Fluid.BoilerCHP.BoilerNotManufacturer"
     represents = hvac.Boiler
 
     def __init__(self, element):
@@ -104,15 +103,28 @@ class Consumer(AixLib):
 
     def request_params(self):
         self.params['redeclare package Medium'] = 'AixLib.Media.Water'
-        # self.params["functionality"] = "\"T_fixed\""
         self.params["functionality"] = '\"Q_flow_fixed\"'
         if self.params["functionality"] == '\"Q_flow_fixed\"':
             self.params["Q_flow_fixed"] = self.element.rated_power
+        self.params["demand_type"] = "1"
+
         # self.request_param("demand_type",
         #                    self.check_none(),
         #                    "demandType")
+
+        self.params["hasFeedback"] = self.element.t_control
+        if self.element.t_control:
+            self.params["TInSetValue"] = self.element.flow_temperature
+            self.params["TInSetSou"] = "AixLib.Systems.ModularEnergySystems." \
+                                   "Modules.ModularConsumer.Types.InputType." \
+                                   "Constant"
+
         self.params["hasPump"] = self.element.has_pump
-        self.params["hasFeedback"] = self.element.t_controll
+        if self.element.has_pump:
+            self.params["TOutSetValue"] = self.element.return_temperature
+            self.params["TOutSetSou"] = "AixLib.Systems.ModularEnergySystems." \
+                                   "Modules.ModularConsumer.Types.InputType." \
+                                   "Constant"
         # self.params["dT_nom"] = self.element.dT_water
         # self.params["capacity"] = self.element.heat_capacity
         # self.request_param("rated_power",
@@ -150,18 +162,28 @@ class ConsumerHeatingDistributorModule(AixLib):
         super().__init__(element)
 
     def request_params(self):
-        self.params['n_consumers'] = len(self.element.consumers)
+        self.params['n_consumers'] = len(self.element.whitelist_elements)
         self.params['redeclare package Medium'] = 'AixLib.Media.Water'
         self.request_param("demand_type",
                            self.check_none(),
                            "demandType")
-        self.params["hasPump"] = [con.has_pump for con in
-                                  self.element.consumers]
+        self.params["hasPump"] = self.element.has_pump
+        self.params["TOutSet"] = self.element.return_temperature
+        self.params["TOutSetSou"] = "AixLib.Systems.ModularEnergySystems." \
+                                   "Modules.ModularConsumer.Types.InputType." \
+                                   "Constant"
+
+        self.params["hasFeedback"] = self.element.t_control
+        self.params["TInSetSou"] = "AixLib.Systems.ModularEnergySystems." \
+                                   "Modules.ModularConsumer.Types.InputType." \
+                                   "Constant"
+        self.params["TInSet"] = self.element.return_temperature
 
         self.params["functionality"] = "\"Q_flow_fixed\""
+
         self.request_param("rated_power",
                            self.check_numeric(min_value=0 * ureg.kilowatt),
-                           "Q_flow_nom")
+                           "Q_flow_fixed")
         self.request_param("dT_water",
                            self.check_numeric(min_value=0 * ureg.kelvin),
                            "dT_nom")
@@ -176,10 +198,10 @@ class ConsumerHeatingDistributorModule(AixLib):
         except ValueError:
             # unknown port
             index = -1
-        if index == 1:
-            return "port_a"
-        elif index == 0:
-            return "port_b"
+        if port.verbose_flow_direction == 'SINK':
+            return 'port_a'
+        if port.verbose_flow_direction == 'SOURCE':
+            return 'port_b'
         else:
             return super().get_port_name(port)
 
@@ -187,7 +209,7 @@ class ConsumerHeatingDistributorModule(AixLib):
 class GeneratorOneFluid(AixLib):
     """Modelica AixLib representation of the GeneratorOneFluid aggregation."""
     path = "AixLib.Systems.ModularEnergySystems.Modules.ModularBoiler." \
-           "ModularBoiler_multiport"
+           "ModularBoiler"
     represents = [aggregation.GeneratorOneFluid]
 
     def __init__(self, element):
@@ -226,7 +248,7 @@ class GeneratorOneFluid(AixLib):
         if index == 0:
             return "port_a"
         elif index == 1:
-            return "ports_b[1]"
+            return "port_b"
         else:
             return super().get_port_name(port)
 
