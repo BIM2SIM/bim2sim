@@ -94,6 +94,13 @@ class DeadEnds(ITask):
         else:
             decisions = DecisionBunch()
             for dead_end, (port_strand, element_strand) in remove_ports.items():
+                dead_end_port = dead_end
+                if hasattr(dead_end_port, "originals"):
+                    while hasattr(dead_end_port, "originals"):
+                        related_guid = dead_end_port.originals[0].parent.guid
+                        dead_end_port = dead_end_port.originals[0]
+                else:
+                    related_guid = dead_end.parent.guid
                 cur_decision = BoolDecision(
                     question="Found possible dead end at port %s in system, "
                     "please check if it is a dead end" % dead_end,
@@ -101,7 +108,7 @@ class DeadEnds(ITask):
                     key=dead_end,
                     global_key="deadEnd.%s" % dead_end.guid,
                     allow_skip=False,
-                    related={dead_end.parent.guid}, context=set(
+                    related={related_guid}, context=set(
                         element.guid for element in element_strand))
                 decisions.append(cur_decision)
             yield decisions
