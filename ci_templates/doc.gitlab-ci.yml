@@ -1,0 +1,21 @@
+stages:
+  - doc
+
+sphinxdoc:
+ image: $CI_REGISTRY/environment:development
+ stage: doc
+ services:
+  - name: docker:18.09.7-dind
+    command: ["--mtu=1440"]
+ before_script:
+   - mv ./* /bim2sim-coding/
+   - pip install -r /bim2sim-coding/docs/requirements.txt
+ script:
+   - mkdir -p $CI_COMMIT_REF_NAME/docs
+   - sphinx-apidoc -M -o /bim2sim-coding/docs/source/code /bim2sim-coding  # create rst files for all python files
+   - sphinx-build -b html /bim2sim-coding/docs/source $CI_COMMIT_REF_NAME/docs
+   - anybadge --value="passing" --file=$CI_COMMIT_REF_NAME/docs/doc.svg --label documentation
+ artifacts:
+   paths:
+   - $CI_COMMIT_REF_NAME/docs
+   expire_in: 2 hrs

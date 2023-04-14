@@ -1,0 +1,52 @@
+{% set data = load_setup_py_data(setup_file='../../../bim2sim/plugins/PluginCFD/setup.py', from_recipe_dir=True) %}
+{% set requirements  = load_file_data('../../../bim2sim/plugins/PluginCFD/environment.yml', from_recipe_dir=True) %}
+
+package:
+  name: {{BIM2SIM_NAME}}
+  version: {{data.get('version')}}{{BIM2SIM_FLAG}}
+
+source:
+  path: ../../../
+
+build:
+  preserve_egg_dir: True
+  number: '0'
+  entry_points:
+    - bim2sim = bim2sim.__main__:commandline_interface
+
+requirements:
+  host:
+    - python>=3.8,<3.10
+    - pip
+    - setuptools
+  run:
+    - python >=3.8,<3.10
+    {% for dep in requirements[ "dependencies" ] %}
+      {%- if dep != { 'pip': [ '-r file:bim2sim/plugins/PluginCFD/requirements.txt', '-r file:bim2sim/plugins/PluginCFD/dependency_requirements.txt' ] } and dep != "bim2sim_base" -%}
+      - {{ dep.lower() }}
+      {%- endif %}
+    {% endfor %}
+
+test:
+  imports:
+    - bim2sim
+  requires:
+    - python  >=3.8,<3.10
+    - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
+  commands:
+    - bim2sim -h
+    - bim2sim --version
+    - bash conda_recipe/plugins/PluginCFD/test_cfd.sh # [not win]
+
+  source_files:
+    - conda_recipe/plugins/PluginCFD/test_cfd.sh # [not win]
+    - bim2sim
+    - test
+
+
+
+about:
+  home: https://github.com/BIM2SIM/bim2sim
+  summary: "Create simulation models from IFC files"
+  description: "Create simulation models from IFC files"
+  license: LICENSE

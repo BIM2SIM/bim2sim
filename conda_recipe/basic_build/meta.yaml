@@ -1,0 +1,102 @@
+{% set data = load_setup_py_data(setup_file='../../setup.py', from_recipe_dir=True) %}
+{% set requirements  = load_file_data('../../environment.yml', from_recipe_dir=True) %}
+
+package:
+  name:  {{BIM2SIM_NAME}}
+  version: {{data.get('version')}}{{BIM2SIM_FLAG}}
+
+source:
+  path: ../../
+
+build:
+  preserve_egg_dir: True
+  number: '0'
+  entry_points:
+    - bim2sim = bim2sim.__main__:commandline_interface
+  missing_dso_whitelist: # [linux]
+    - $RPATH/libQt5Widgets.so.5 # [linux]
+    - $RPATH/libQt5Gui.so.5 # [linux]
+    - $RPATH/libtbb.so.2 # [linux]
+    - $RPATH/libIfcParse.so.0.6 # [linux]
+    - $RPATH/libIfcGeom.so.0.6 # [linux]
+    - $RPATH/libpolyclipping.so.22 # [linux]
+    - $RPATH/libgmp.so.10 # [linux]
+    - $RPATH/libmpfr.so.6 # [linux]
+    - $RPATH/libQt5Core.so.5 # [linux]
+    - $RPATH/libTKSTEP.so.7 # [linux]
+    - $RPATH/libTKIGES.so.7 # [linux]
+    - $RPATH/libTKXSBase.so.7 # [linux]
+    - $RPATH/libTKSTL.so.7 # [linux]
+    - $RPATH/libTKVRML.so.7 # [linux]
+    - $RPATH/libTKOpenGl.so.7 # [linux]
+    - $RPATH/libTKOffset.so.7 # [linux]
+    - $RPATH/libTKBO.so.7 # [linux]
+    - $RPATH/libTKPrim.so.7 # [linux]
+    - $RPATH/libTKV3d.so.7 # [linux]
+    - $RPATH/libTKMesh.so.7 # [linux]
+    - $RPATH/libTKShHealing.so.7 # [linux]
+    - $RPATH/libTKTopAlgo.so.7 # [linux]
+    - $RPATH/libTKBRep.so.7 # [linux]
+    - $RPATH/libTKGeomBase.so.7 # [linux]
+    - $RPATH/libTKG3d.so.7 # [linux]
+    - $RPATH/libTKG2d.so.7 # [linux]
+    - $RPATH/libTKService.so.7 # [linux]
+    - $RPATH/libTKMath.so.7 # [linux]
+    - $RPATH/libTKernel.so.7 # [linux]
+    - $RPATH/libpthread.so.0 # [linux]
+    - $RPATH/libstdc++.so.6 # [linux]
+    - $RPATH/libm.so.6 # [linux]
+
+requirements:
+
+  host:
+    - python>=3.8,<3.10
+    - pip
+    - setuptools
+    - poetry
+    - cython
+    - numpy
+  run:
+    {% for dep in requirements["dependencies"] %}
+      {%- if dep != {'pip': ['-r file:requirements.txt', '-r file:dependency_requirements.txt']} and dep != "pip" and dep != "numpy" and dep != "cython" and dep != "poetry" and dep != "setuptools" -%}
+      - {{ dep.lower() }}
+      {%- endif %}
+    {% endfor %}
+  run_constrained:
+    - beautifulsoup4 >=4.9.3
+
+
+
+test:
+  requires:
+    - python  >=3.8,<3.10
+    - pint
+    - pythonocc-core
+    - ifcopenshell
+    - sparse_dot_topn
+  source_files:
+    - conda_recipe/basic_build/base_run_test.sh # [not win]
+    - conda_recipe/basic_build/base_run_test.bat # [win]
+    - bim2sim
+    - test
+    # bim2sim/examples/e5_export_quantities_for_lca.py
+  imports:
+    - bim2sim
+    - bim2sim.plugins.PluginAixLib
+    - bim2sim.plugins.PluginCFD
+    - bim2sim.plugins.PluginEnergyPlus
+    - bim2sim.plugins.PluginHKESim
+    - bim2sim.plugins.PluginLCA
+    - bim2sim.plugins.PluginTEASER
+  commands:
+    - bim2sim -h
+    - bim2sim --version
+    # python bim2sim/examples/e5_export_quantities_for_lca.py
+    - bash conda_recipe/basic_build/base_run_test.sh # [not win]
+    - conda_recipe/basic_build/base_run_test.bat # [win]
+
+about:
+  home: https://github.com/BIM2SIM/bim2sim
+  summary: "A python tool to create simulation models for different domains based on BIM IFC models."
+  description: "A python tool to create simulation models for different domains based on BIM IFC models. For documentation please visit https://ebc.pages.rwth-aachen.de/EBC_all/github_ci/bim2sim/development/docs/overview.html"
+  license: LICENSE

@@ -178,6 +178,7 @@ class BPSProduct(element.ProductBased):
                                f"for {self.ifc}.")
 
 
+
 class ThermalZone(BPSProduct):
     ifc_types = {
         "IfcSpace":

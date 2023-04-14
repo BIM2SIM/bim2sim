@@ -44,6 +44,17 @@ you the links, and the path to put them.
 | [HVAC IFC Files](https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download)     | /bim2sim-coding/test/TestModels/HVAC              |
 | [Regression Results](https://rwth-aachen.sciebo.de/s/L7ENUpzSylXvuyb/download) | /bim2sim-coding/bim2sim/assets/regression_results |
 
-## CI/CD
+### TEASER
+To run the TEASER regression tests you need the AixLib repository. The default 
+run of regression tests will expect the AixLib to be stored in bim2sim root.
+So simply perform the following command with bim2sim_rep_root as your root 
+folder you cloned the repository to.
+```
+git clone --branch development https://github.com/RWTH-EBC/AixLib.git /your/path/to/bim2sim_rep_root/
+```
+AixLib is part of gitignore, so you don't need to watch out getting it into the 
+remote repository.
 
+## CI/CD
+Comming soon.
 

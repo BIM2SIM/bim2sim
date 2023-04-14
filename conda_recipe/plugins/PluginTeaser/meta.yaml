@@ -1,0 +1,52 @@
+{% set data = load_setup_py_data(setup_file='../../../bim2sim/plugins/PluginTEASER/setup.py', from_recipe_dir=True) %}
+{% set requirements  = load_file_data('../../../bim2sim/plugins/PluginTEASER/environment.yml', from_recipe_dir=True) %}
+
+package:
+  name: {{BIM2SIM_NAME}}
+  version: {{data.get('version')}}{{BIM2SIM_FLAG}}
+
+source:
+  path: ../../../
+
+build:
+  preserve_egg_dir: True
+  number: '0'
+  entry_points:
+    - bim2sim = bim2sim.__main__:commandline_interface
+
+requirements:
+  host:
+    - python>=3.8,<3.10
+    - pip
+    - setuptools
+  run:
+    - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
+    {% for dep in requirements["dependencies"] %}
+      {%- if dep != { 'pip': [ '-r file:bim2sim/plugins/PluginTeaser/requirements.txt', '-r file:bim2sim/plugins/PluginTeaser/dependency_requirements.txt' ] } and dep != "bim2sim_base" -%}
+      - {{ dep.lower() }}
+      {%- endif %}
+    {% endfor %}
+
+test:
+  imports:
+    - bim2sim
+  requires:
+    - python  >=3.8,<3.10
+    - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
+  commands:
+    - bim2sim -h
+    - bim2sim --version
+    - bash conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
+    # bash conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh # [not win]
+
+  source_files:
+    - conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
+    - conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh # [not win]
+    - bim2sim
+    - test
+
+about:
+  home: https://github.com/BIM2SIM/bim2sim
+  summary: "A python tool to create simulation models for different domains based on BIM IFC models."
+  description: "A python tool to create simulation models for different domains based on BIM IFC models. For documentation please visit https://ebc.pages.rwth-aachen.de/EBC_all/github_ci/bim2sim/development/docs/overview.html"
+  license: LICENSE

@@ -104,6 +104,8 @@ class WorkflowSetting:
         description per choice as value
         description: description of what the settings does as Str
         for_frontend: should this setting be shown in the frontend
+        multiple_choice: allows multiple choice
+        any_string: any string is allowed instead of a given choice
     """
 
     def __init__(
@@ -113,7 +115,8 @@ class WorkflowSetting:
             choices: dict = None,
             description: Union[str, None] = None,
             for_frontend: bool = False,
-            multiple_choice: bool = False
+            multiple_choice: bool = False,
+            any_string: bool = False
     ):
         self.name = None  # set by AutoSettingNameMeta
         self.default = default
@@ -122,6 +125,7 @@ class WorkflowSetting:
         self.description = description
         self.for_webapp = for_frontend
         self.multiple_choice = multiple_choice
+        self.any_string = any_string
         self.manager = None
 
     def initialize(self, manager):
@@ -141,7 +145,6 @@ class WorkflowSetting:
         workflow setting when calling workflow.<setting_name>"""
         if bound_workflow is None:
             return self
-
         return self._inner_get(bound_workflow)
 
     def _inner_get(self, bound_workflow):
@@ -168,7 +171,10 @@ class WorkflowSetting:
                 else:
                     self._inner_set(bound_workflow, value)
         else:
-            if value not in choices:
+            if self.any_string and not isinstance(value, str):
+                raise ValueError(f'{value} is no valid value for setting '
+                                 f'{self.name}, please enter a string.')
+            elif value not in choices and not self.any_string:
                 raise ValueError(f'{value} is no valid value for setting '
                                  f'{self.name}, select one of {choices}.')
             else:
@@ -266,6 +272,49 @@ class Workflow(metaclass=AutoSettingNameMeta):
         for_frontend=True
     )
 
+    group_unidentified = WorkflowSetting(
+        default='fuzzy',
+        choices={
+            'fuzzy': 'Use fuzzy search to find name similarities',
+            'name': 'Only group elements with exact same name'
+        },
+        description='To reduce the number of decisions by user to identify '
+                    'elements which can not be identified automatically by the '
+                    'system, you can either use simple grouping by same name of'
+                    ' IFC element or fuzzy search to group based on'
+                    ' similarities in name.',
+        for_frontend=True
+    )
+    fuzzy_threshold = WorkflowSetting(
+        default=0.7,
+        choices={
+            0.5: 'Threshold of 0.5',
+            0.6: 'Threshold of 0.6',
+            0.7: 'Threshold of 0.7',
+            0.8: 'Threshold of 0.8',
+            0.9: 'Threshold of 0.9'
+        },
+        description='If you want to use fuzzy search in the group_unidentified '
+                    'setting, you can set the threshold here. A low threshold means'
+                    ' a small similarity is required for grouping. A too low value '
+                    'might result in grouping elements which do not represent '
+                    'the same IFC type.'
+    )
+
+    reset_guids = WorkflowSetting(
+        default=False,
+        choices={
+            True: 'Reset GlobalIDs from IFC ',
+            False: 'Keep GlobalIDs from IFC'
+        },
+        description='Reset GlobalIDs from imported IFC if duplicate '
+                    'GlobalIDs occur in the IFC. As EnergyPlus evaluates all'
+                    'GlobalIDs upper case only, this might also be '
+                    'applicable if duplicate non-case-sensitive GlobalIDs '
+                    'occur.',
+        for_frontend=True
+    )
+
 
 class PlantSimulation(Workflow):
     def __init__(self):
@@ -288,7 +337,6 @@ class PlantSimulation(Workflow):
             'Consumer': 'Aggregate consumers',
             'PipeStrand': 'Aggregate strands of pipes',
             'ParallelPump': 'Aggregate parallel pumps',
-            # 'ParallelSpaceHeater': 'Aggregate parallel space heaters',
             'ConsumerHeatingDistributorModule': 'Aggregate consumer and '
                                                 'distributor to one module',
             'GeneratorOneFluid': 'Aggregate the generator and its circuit to '
@@ -450,7 +498,8 @@ class EnergyPlusWorkflow(BuildingSimulation):
             '22-2-0': 'EnergyPlus Version 22-2-0'  # todo: Test latest version
         },
         description='Choose EnergyPlus Version',
-        for_frontend=True
+        for_frontend=True,
+        any_string=True
     )
     ep_install_path = WorkflowSetting(
         default=f'/usr/local/EnergyPlus-9-4-0/',
@@ -458,10 +507,12 @@ class EnergyPlusWorkflow(BuildingSimulation):
             f'/usr/local/EnergyPlus-9-4-0/': 'ubuntu-default',
             f'/usr/local/EnergyPlus-{ep_version.default}/':
                 'ubuntu-path-choice',
-            f'C:/EnergyPlus/EnergyPlusV{ep_version.default}/': 'windows-default'
+            f'C:/EnergyPlus/EnergyPlusV{ep_version.default}/':
+                'windows-default'
         },
         description='Choose EnergyPlus Installation Path',
-        for_frontend=False
+        for_frontend=False,
+        any_string=True
     )
     system_sizing = WorkflowSetting(
         default=True,

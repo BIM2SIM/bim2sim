@@ -609,8 +609,7 @@ def convex_decomposition(shape: TopoDS_Shape,
             add_cut_shapes.append(cs)
         if cut_count > 3:
             logger = logging.getLogger(__name__)
-            logger.error(
-                "Convex decomposition produces a gap in new space boundary")
+            logger.error(                "Convex decomposition produces a gap in new space boundary")
             break
         else:
             oriented_shapes.extend(add_cut_shapes)

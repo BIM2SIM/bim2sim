@@ -12,14 +12,17 @@ from test.unit.kernel.helper import SetupHelperHVAC
 class ConsumerHelper(SetupHelperHVAC):
 
     def get_setup_consumer1(self):
-        """get consumer circuit made of 2 parallel pumps , space heater and pipes"""
+        """ Get consumer circuit made of 2 parallel pumps, space heater and
+            pipes.
+        """
         flags = {}
         with self.flag_manager(flags):
             # generator circuit
             con_vl_a = [self.element_generator(
                 hvac.Pipe, length=100, diameter=30) for i in range(3)]
             fitting1 = self.element_generator(
-                hvac.PipeFitting, flags=['con1'], n_ports=3, diameter=30, length=60)
+                hvac.PipeFitting, flags=['con1'], n_ports=3, diameter=30,
+                length=60)
             p_pump1_p = [
                 self.element_generator(
                     hvac.Pipe, flags=['con1'], length=40, diameter=20),
@@ -39,7 +42,8 @@ class ConsumerHelper(SetupHelperHVAC):
                     hvac.Pipe, flags=['con1'], length=40, diameter=20),
             ]
             fitting2 = self.element_generator(
-                hvac.PipeFitting, flags=['con2'], n_ports=3, diameter=30, length=60)
+                hvac.PipeFitting, flags=['con2'], n_ports=3, diameter=30,
+                length=60)
             con_vl_b = [self.element_generator(
                 hvac.Pipe, length=100, diameter=30) for i in range(3)]
             consumer = self.element_generator(
@@ -67,7 +71,9 @@ class ConsumerHelper(SetupHelperHVAC):
         return graph, flags
 
     def get_setup_consumer2(self):
-        """get consumer circuit made of 2 parallel pumps , underfloorheating and pipes"""
+        """ Get consumer circuit made of 2 parallel pumps , underfloorheating
+            and pipes.
+        """
         flags = {}
         with self.flag_manager(flags):
             # generator circuit
@@ -94,7 +100,8 @@ class ConsumerHelper(SetupHelperHVAC):
                     hvac.Pipe, flags=['con2'], length=40, diameter=20),
             ]
             fitting2 = self.element_generator(
-                hvac.PipeFitting, flags=['con2'], n_ports=3, diameter=30, length=60)
+                hvac.PipeFitting, flags=['con2'], n_ports=3, diameter=30,
+                length=60)
             con_vl_b = [self.element_generator(
                 hvac.Pipe, length=100, diameter=30) for i in range(3)]
             underfloor_pipes = [self.element_generator(
@@ -122,7 +129,7 @@ class ConsumerHelper(SetupHelperHVAC):
 
         uf_ports = (port for pipe in underfloor_pipes for port in pipe.ports)
         subgraph = graph.subgraph(uf_ports)
-        consumer = aggregation.UnderfloorHeating(subgraph.element_graph)
+        consumer = aggregation.UnderfloorHeating(graph, subgraph)
         flags['underfloor'] = [consumer]
 
         graph.merge(
@@ -137,7 +144,9 @@ class ConsumerHelper(SetupHelperHVAC):
         return graph, flags
 
     def get_setup_consumer3(self):
-        """get consumer circuit made of 2 parallel pumps , 2x space heater and pipes"""
+        """ Get consumer circuit made of 2 parallel pumps , 2x space heater and
+            pipes.
+        """
         flags = {}
         with self.flag_manager(flags):
             # generator circuit
@@ -196,8 +205,9 @@ class ConsumerHelper(SetupHelperHVAC):
         return graph, flags
 
     def get_setup_system(self):
-        """Simple generator system made of boiler, pump, expansion tank, distributor, consumer1(1xSpaceheater),
-        consumer2 (1xUnderfloorheating) and pipes"""
+        """ Simple generator system made of boiler, pump, expansion tank,
+        distributor, consumer1(1xSpaceheater), consumer2 (1xUnderfloorheating)
+        and pipes."""
         graph1, flags1 = super().get_setup_simple_boiler()
         graph2, flags2 = self.get_setup_consumer1()
         graph3, flags3 = self.get_setup_consumer2()
@@ -247,34 +257,30 @@ class TestConsumerAggregation(unittest.TestCase):
     def tearDown(self) -> None:
         self.helper.reset()
 
-    def test_detection_system(self):
-        """test detection of Consumer Cycle in setup system"""
+    def test_find_matches(self):
+        """ Test detection of consumer cycle in setup system."""
         graph, flags = self.helper.get_setup_system()
-
-        # graph.plot(r'c:\temp')
 
         matches, meta = aggregation.Consumer.find_matches(graph)
 
         self.assertEqual(
             len(matches), 2,
-            "There are 2 cases for Consumer Cycles but 'find_matches' returned %d" % len(matches)
-        )
+            f"There are 2 cases for Consumer Cycles but 'find_matches' "
+            f"returned {len(matches)}")
 
-        consumer = [item for item in flags['spaceheater']+flags['underfloor']]
-        all = sum((list(match.nodes) for match in matches), [])
+        consumer = [item for item in flags['spaceheater'] + flags['underfloor']]
+        all_elements = sum((list(match.elements) for match in matches), [])
         for item in consumer:
-            self.assertIn(item, all)
+            self.assertIn(item, all_elements)
 
     def test_aggregation_consumer1(self):
-        """test aggregation of consumercycle no 1"""
+        """ Test aggregation of consumer cycle no 1."""
         graph, flags = self.helper.get_setup_system()
-
-        # graph.plot(r'c:\temp')
 
         matches, metas = aggregation.Consumer.find_matches(graph)
 
         for match, meta in zip(matches, metas):
-            consumer = aggregation.Consumer(match, **meta)
+            consumer = aggregation.Consumer(graph, match, **meta)
             if hvac.SpaceHeater in {type(ele) for ele in consumer.elements}:
                 # we only want consumer with SpaceHeater
                 break
@@ -283,33 +289,34 @@ class TestConsumerAggregation(unittest.TestCase):
             mapping=consumer.get_replacement_mapping(),
             inner_connections=consumer.inner_connections
         )
-        # graph.plot(r'c:\temp')
 
-        self.assertAlmostEqual(consumer.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)
-        self.assert_(consumer.has_pump)
-        #self.assertAlmostEqual(consumer.temperaure_inlet, 1000) Not Implemented
-        #self.assertAlmostEqual(consumer.temperature_outlet, 1000) Not Implemented
-        #self.assertAlmostEqual(consumer.volume, 1000) Not Implemented
-        #self.assertAlmostEqual(consumer.height, 1000) Not Implemented
-        self.assertIn('SpaceHeater', consumer.description)  # list of all aggregated consumers description
+        self.assertAlmostEqual(
+            consumer.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)
+        self.assertTrue(consumer.has_pump)
+        # self.assertAlmostEqual(consumer.temperature_inlet, 1000)
+        # self.assertAlmostEqual(consumer.temperature_outlet, 1000)
+        # self.assertAlmostEqual(consumer.volume, 1000)
+        # self.assertAlmostEqual(consumer.height, 1000)
+        # list of all aggregated consumers description
+        self.assertIn('SpaceHeater', consumer.description)
 
     def test_aggregation_consumer2(self):
-        """test aggregation of consumercycle no 2"""
+        """ Test aggregation of consumer cycle no 2."""
         graph, flags = self.helper.get_setup_system()
 
         matches, metas = aggregation.Consumer.find_matches(graph)
 
         consumer2 = None
 
-        for e, match in enumerate(matches):
+        for match, meta in zip(matches, metas):
             for ele in flags['con2']:
-                if ele in match:
-                    consumer2 = aggregation.Consumer(matches[e], **metas[e])
+                if ele in match.elements:
+                    consumer2 = aggregation.Consumer(graph, match, **meta)
                     break
             if consumer2:
                 break
         else:
-            self.assertTrue(False, 'Kein Consumerkreis idendifiziert!')
+            self.assertTrue(False, 'Kein Consumer-Kreis identifiziert!')
 
         graph.merge(
             mapping=consumer2.get_replacement_mapping(),
@@ -318,39 +325,37 @@ class TestConsumerAggregation(unittest.TestCase):
 
         self.assertAlmostEqual(consumer2.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)
         self.assertTrue(consumer2.has_pump)
-        #self.assertAlmostEqual(consumer.temperaure_inlet, 1000) Not Implemented
-        #self.assertAlmostEqual(consumer.temperature_outlet, 1000) Not Implemented
-        #self.assertAlmostEqual(consumer.volume, 1000) Not Implemented
-        #self.assertAlmostEqual(consumer.height, 1000) Not Implemented
-        self.assertIn('UnderfloorHeating', consumer2.description)  # list of all aggregated consumers description
+        # self.assertAlmostEqual(consumer.temperature_inlet, 1000)
+        # self.assertAlmostEqual(consumer.temperature_outlet, 1000)
+        # self.assertAlmostEqual(consumer.volume, 1000) Not Implemented
+        # self.assertAlmostEqual(consumer.height, 1000) Not Implemented
+        # list of all aggregated consumers description
+        self.assertIn('UnderfloorHeating', consumer2.description)
 
     def test_aggregation_consumer3(self):
-        """test aggregation of consumercycle no 2"""
+        """ Test aggregation of consumer cycle no 2."""
         graph, flags = self.helper.get_setup_system2()
 
-        #graph.plot(r'c:\temp')
+        # graph.plot()
 
         matches, metas = aggregation.Consumer.find_matches(graph)
 
-        idx = 0
-        # meta = {'outer_connections': flags['connect']}
-
-        consumer = aggregation.Consumer(matches[idx], **metas[idx])
+        consumer = aggregation.Consumer(graph, matches[0], **metas[0])
 
         graph.merge(
             mapping=consumer.get_replacement_mapping(),
             inner_connections=consumer.inner_connections
         )
 
-        #graph.plot(r'c:\temp')
-
-        self.assertAlmostEqual(consumer.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)
+        self.assertAlmostEqual(
+            consumer.rated_volume_flow, 12 * ureg.meter ** 3 / ureg.hour)
         self.assert_(consumer.has_pump)
-        #self.assertAlmostEqual(consumer.temperaure_inlet, 1000) Not Implemented
-        #self.assertAlmostEqual(consumer.temperature_outlet, 1000) Not Implemented
-        #self.assertAlmostEqual(consumer.volume, 1000) Not Implemented
-        #self.assertAlmostEqual(consumer.height, 1000) Not Implemented
-        self.assertIn('2 x SpaceHeater', consumer.description)  # list of all aggregated consumers description
+        # self.assertAlmostEqual(consumer.temperature_inlet, 1000)
+        # self.assertAlmostEqual(consumer.temperature_outlet, 1000)
+        # self.assertAlmostEqual(consumer.volume, 1000)
+        # self.assertAlmostEqual(consumer.height, 1000)
+        # list of all aggregated consumers description
+        self.assertIn('2 x SpaceHeater', consumer.description)
 
 
 if __name__ == '__main__':

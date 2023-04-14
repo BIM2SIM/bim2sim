@@ -1,0 +1,16 @@
+name: bim2sim_teaser_env
+
+channels:
+  - dsdale24
+  - inso
+  - conda-forge
+  - anaconda
+dependencies:
+  - python>=3.8,<3.10
+  - pillow
+  - pyqt5-sip
+  - bim2sim_base
+  - pip:
+    - -r file:bim2sim/plugins/PluginTeaser/requirements.txt
+    - -r file:bim2sim/plugins/PluginTeaser/dependency_requirements.txt
+

@@ -70,13 +70,18 @@ class Decision:
 
     Args:
         question: The question asked to the user
+        console_identifier: Additional information to identify related in
+            console
         validate_func: callable to validate the users input
         key: key is used by DecisionBunch to create answer dict
         global_key: unique key to identify decision. Required for saving
-        allow_skip: set to True to allow skipping the decision and user None as value
-        validate_checksum: if provided, loaded decisions are only valid if checksum matches
+        allow_skip: set to True to allow skipping the decision and user None as
+            value
+        validate_checksum: if provided, loaded decisions are only valid if
+            checksum matches
         related: iterable of GUIDs this decision is related to (frontend)
-        context: iterable of GUIDs for additional context to this decision (frontend)
+        context: iterable of GUIDs for additional context to this decision
+            (frontend)
         default: default answer
         group: group of decisions this decision belongs to
 
@@ -106,7 +111,8 @@ class Decision:
     CANCEL = "cancel"
     options = [SKIP, SKIPALL, CANCEL]
 
-    def __init__(self, question: str, validate_func: Callable = None,
+    def __init__(self, question: str, console_identifier: str = None,
+                 validate_func: Callable = None,
                  key: str = None, global_key: str = None,
                  allow_skip=False, validate_checksum=None,
                  related: List[str] = None, context: List[str] = None,
@@ -117,6 +123,7 @@ class Decision:
         self._value = None
 
         self.question = question
+        self.console_identifier = console_identifier
         self.validate_func = validate_func
         self.default = None
         if default is not None:
@@ -263,9 +270,10 @@ class Decision:
                 logger.info("Loaded decision '%s' with value: %s", self.global_key, value)
             else:
                 logger.warning("Checksum mismatch for loaded decision '%s", self.global_key)
+                pass
         else:
-            logger.warning("Check for loaded decision '%s' failed. Loaded value: %s",
-                           self.global_key, value)
+            logger.warning("Check for loaded decision '%s' failed. Loaded value: %s", self.global_key, value)
+            pass
 
     def serialize_value(self):
         """Return JSON serializable value."""

@@ -1,4 +1,4 @@
-docopt
+docopt==0.6.2
 numpy
 pandas
 matplotlib
@@ -7,3 +7,5 @@ python-dateutil
 mako
 pint
 deep_translator
+string_grouper
+

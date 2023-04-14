@@ -169,7 +169,7 @@ class TemplateFinder(Finder):
         """
         if source_tool.full_name in self.blacklist:
             logger.warning(f'No finder template found for '
-                           f'{source_tool.full_name}')
+                            f'{source_tool.full_name}')
             return
 
         for templ in self.templates.items():
@@ -178,8 +178,7 @@ class TemplateFinder(Finder):
             try:
                 temp_tool_names += templ[-1]["Identification"]["tool_names"]
             except KeyError:
-                logger.warning(
-                    f'No Identification defined in template for {templ_name}')
+                logger.warning(f'No Identification defined in template for {templ_name}')
             # generate all potential fitting names based on content of template
             tool_names = []
             for tool_name in temp_tool_names:

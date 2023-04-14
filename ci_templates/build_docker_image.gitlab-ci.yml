@@ -1,0 +1,1511 @@
+stages:
+  - build_docker_base
+  - test_docker_base
+  - release_docker_base
+  - build_docker_plugin
+  - test_docker_plugin
+  - release_docker_plugin
+  - build_docker_total
+  - test_docker_total
+  - release_docker_total
+
+variables:
+  BIM2SIM_NAME:  "bim2sim_base"
+  BIM2SIM_FLAG: ""
+  BIM2SIM_VERSION: ${BIM2SIM_BASE_VERSION}
+  #IMAGE_VERSION: ${IMAGE_VERSION}
+  IMAGE_VERSION: 0.1.0
+
+  # [Images]
+  #TEST_IMAGE: ${CI_REGISTRY}/environment:${IMAGE_NAME}_test
+  #RELEASE_IMAGE: ${CI_REGISTRY}/
+  TEST_IMAGE: ${CI_REGISTRY}/environment/${IMAGE_NAME}:${IMAGE_VERSION}${IMAGE_FLAG}
+  RELEASE_IMAGE: ${CI_REGISTRY}/environment/${IMAGE_NAME}:${IMAGE_VERSION}${IMAGE_FLAG}
+
+
+.docker_build:
+  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+  services:
+    - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+      command: [ "--mtu=1440" ]
+  before_script:
+    - echo "BUILD_VERSION=${IMAGE_NAME}" >> build.env
+    - echo "BUILD_VERSION=${IMAGE_FLAG}" >> build.env
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+  script:
+    - docker build --pull --build-arg BIM2SIM_FLAG=${BIM2SIM_FLAG} --build-arg BIM2SIM_NAME=${BIM2SIM_NAME} --build-arg BIM2SIM_VERSION=${BIM2SIM_VERSION} -t ${TEST_IMAGE} -f ${DOCKERPATH} .
+    - docker images
+    - docker push ${TEST_IMAGE}
+  artifacts:
+    reports:
+      dotenv: build.env
+
+
+.docker_build_rules:main:
+  rules:
+    - if: $CI_BUILD =~ /ci_build_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+    - if: $CI_BUILD =~ /ci_build_docker_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+.docker_build_rules:dev:
+  rules:
+    - if: $CI_BUILD =~ /ci_build_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+    - if: $CI_BUILD =~ /ci_build_docker_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+.docker_build_rules:nightly:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "development" && $CI_BUILD =~ /nightly_build_dev/
+      when: on_success
+
+# [build base bim2sim docker image]
+
+docker_build_bim2sim:base:main:
+  stage: build_docker_base
+  variables:
+    BIM2SIM_NAME: "bim2sim_base"
+    BIM2SIM_FLAG: ""
+    IMAGE_NAME: "bim2sim-base"
+    IMAGE_FLAG: "-debian"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_base_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+docker_build_bim2sim:base:dev:
+  stage: build_docker_base
+  variables:
+    BIM2SIM_NAME: "bim2sim_base"
+    BIM2SIM_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-debian"
+    IMAGE_NAME: "bim2sim-base"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_base_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+docker_build_bim2sim:base:nightly:
+  stage: build_docker_base
+  variables:
+    BIM2SIM_NAME: "bim2sim_base"
+    BIM2SIM_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-debian"
+    IMAGE_NAME: "bim2sim-base"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [Test base bim2sim]
+
+.test_base:
+  script:
+    - mv ./* /bim2sim-coding/
+    - cd /bim2sim-coding
+    - bash ${TEST_FILE}
+    - mkdir -p $CI_COMMIT_REF_NAME/coverage
+    - coverage html -i
+    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
+  artifacts:
+    paths:
+      - $CI_COMMIT_REF_NAME/coverage
+
+test_Base:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_base
+  needs:
+    - docker_build_bim2sim:base:dev
+  variables:
+    TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
+  extends: .test_base
+  rules:
+    - !reference [ .docker_build_rules:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_base_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+test_Base:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_base
+  needs:
+    - docker_build_bim2sim:base:main
+  variables:
+    TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
+  extends: .test_base
+  rules:
+    - !reference [ .docker_build_rules:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_base_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+test_Base:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_base
+  needs:
+    - docker_build_bim2sim:base:nightly
+  variables:
+    TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [Build docker Plugins]
+
+.docker_build_rules:plugin:main:
+  rules:
+     - !reference [.docker_build_rules:main, rules]
+     - if: $CI_BUILD =~ /ci_build_plugin_main/ && $CI_COMMIT_BRANCH == "main"
+       when: on_success
+
+.docker_build_rules:plugin:dev:
+  rules:
+     - !reference [.docker_build_rules:dev, rules]
+     - if: $CI_BUILD =~ /ci_build_plugin_dev/ && $CI_COMMIT_BRANCH == "development"
+       when: on_success
+
+
+docker_build_plugin:aixlib:main:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_aixlib"
+    BIM2SIM_FLAG: ""
+    IMAGE_FLAG: "-debian"
+    IMAGE_NAME: "bim2sim-aixlib"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:plugin:main, rules]
+    - if: $CI_BUILD =~ /ci_build_plugin_aixlib_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+docker_build_plugin:aixlib:dev:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_aixlib"
+    BIM2SIM_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-debian"
+    IMAGE_NAME: "bim2sim-aixlib"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:plugin:dev, rules]
+    - if: $CI_BUILD =~ /ci_build_plugin_aixlib_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+docker_build_plugin:aixlib:nightly:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_aixlib"
+    BIM2SIM_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-debian"
+    IMAGE_NAME: "bim2sim-aixlib"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [Test plugin AixLib]
+
+test_plugin:AixLib:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:aixlib:main
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginAixLib/test_aixlib.sh"
+  extends: .test_base
+  rules:
+    - !reference [ .docker_build_rules:plugin:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_aixlib_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+test_plugin:AixLib:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:aixlib:dev
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginAixLib/test_aixlib.sh"
+  extends: .test_base
+  rules:
+    - !reference [ .docker_build_rules:plugin:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_aixlib_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+test_plugin:AixLib:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:aixlib:nightly
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginAixLib/test_aixlib.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [build plugin cfd]
+docker_build_plugin:cfd:main:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_cfd"
+    BIM2SIM_FLAG: ""
+    IMAGE_FLAG: "-debian"
+    IMAGE_NAME: "bim2sim-cfd"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:plugin:main, rules]
+    - if: $CI_BUILD =~ /ci_build_plugin_cfd_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+docker_build_plugin:cfd:dev:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_cfd"
+    BIM2SIM_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-debian"
+    IMAGE_NAME: "bim2sim-cfd"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:plugin:dev, rules]
+    - if: $CI_BUILD =~ /ci_build_plugin_cfd_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+docker_build_plugin:cfd:nightly:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_cfd"
+    BIM2SIM_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-debian"
+    IMAGE_NAME: "bim2sim-cfd"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [test plugin cfd]
+
+test_plugin:cfd:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:cfd:main
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginCFD/test_cfd.sh"
+  extends: .test_base
+  rules:
+    - !reference [ .docker_build_rules:plugin:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_cfd_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+test_plugin:cfd:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:cfd:dev
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginCFD/test_cfd.sh"
+  extends: .test_base
+  rules:
+    - !reference [ .docker_build_rules:plugin:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_cfd_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+test_plugin:cfd:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:cfd:nightly
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginCFD/test_cfd.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [Build plugin energyplus]
+
+docker_build_plugin:energyplus:main:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_energyplus"
+    BIM2SIM_FLAG: ""
+    IMAGE_FLAG: "-debian"
+    IMAGE_NAME: "bim2sim-energyplus"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:plugin:main, rules]
+    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+docker_build_plugin:energyplus:dev:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_energyplus"
+    BIM2SIM_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-debian"
+    IMAGE_NAME: "bim2sim-energyplus"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:plugin:dev, rules]
+    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+docker_build_plugin:energyplus:nightly:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_energyplus"
+    BIM2SIM_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-debian"
+    IMAGE_NAME: "bim2sim-energyplus"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [test plugin energyplus]
+test_plugin:energyplus:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:energyplus:main
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh"
+  extends: .test_base
+  rules:
+    - !reference [ .docker_build_rules:plugin:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+test_plugin:energyplus:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:energyplus:dev
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh"
+  extends: .test_base
+  rules:
+    - !reference [ .docker_build_rules:plugin:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+test_plugin:energyplus:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:energyplus:nightly
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+test_plugin:energyplus_regression:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:energyplus:main
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus_regression.sh"
+  extends: .test_base
+  rules:
+    - !reference [ .docker_build_rules:plugin:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+test_plugin:energyplus_regression:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:energyplus:dev
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus_regression.sh"
+  extends: .test_base
+  rules:
+    - !reference [ .docker_build_rules:plugin:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+
+test_plugin:energyplus_regression:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:energyplus:nightly
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus_regression.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [build tool hkesim]
+
+docker_build_plugin:hkesim:main:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_hkesim"
+    BIM2SIM_FLAG: ""
+    IMAGE_FLAG: "-debian"
+    IMAGE_NAME: "bim2sim-hkesim"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:plugin:main, rules]
+    - if: $CI_BUILD =~ /ci_build_plugin_hkesim_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+docker_build_plugin:hkesim:dev:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_hkesim"
+    BIM2SIM_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-debian"
+    IMAGE_NAME: "bim2sim-hkesim"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:plugin:dev, rules]
+    - if: $CI_BUILD =~ /ci_build_plugin_hkesim_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+docker_build_plugin:hkesim:nightly:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_hkesim"
+    BIM2SIM_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-debian"
+    IMAGE_NAME: "bim2sim-hkesim"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [test tool hkesim]
+
+# [Build plugin lca]
+
+docker_build_plugin:lca:main:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_lca"
+    BIM2SIM_FLAG: ""
+    IMAGE_FLAG: "-debian"
+    IMAGE_NAME: "bim2sim-lca"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:plugin:main, rules]
+    - if: $CI_BUILD =~ /ci_build_plugin_lca_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+docker_build_plugin:lca:dev:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_lca"
+    BIM2SIM_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-debian"
+    IMAGE_NAME: "bim2sim-lca"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:plugin:dev, rules]
+    - if: $CI_BUILD =~ /ci_build_plugin_lca_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+docker_build_plugin:lca:nightly:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_lca"
+    BIM2SIM_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-debian"
+    IMAGE_NAME: "bim2sim-lca"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [test plugin lca]
+
+test_plugin:lca:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:lca:main
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginLCA/test_lca.sh"
+  extends: .test_base
+  rules:
+    - !reference [ .docker_build_rules:plugin:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_lca_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+test_plugin:lca:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:lca:dev
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginLCA/test_lca.sh"
+  extends: .test_base
+  rules:
+    - !reference [ .docker_build_rules:plugin:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_lca_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+test_plugin:lca:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:lca:nightly
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginLCA/test_lca.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [build plugin teaser]
+docker_build_plugin:teaser:main:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_teaser"
+    BIM2SIM_FLAG: ""
+    IMAGE_FLAG: "-debian"
+    IMAGE_NAME: "bim2sim-teaser"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:plugin:main, rules]
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+docker_build_plugin:teaser:dev:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_teaser"
+    BIM2SIM_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-debian"
+    IMAGE_NAME: "bim2sim-teaser"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:plugin:dev, rules]
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+docker_build_plugin:teaser:nightly:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_teaser"
+    BIM2SIM_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-debian"
+    IMAGE_NAME: "bim2sim-teaser"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [test plugin teaser
+
+
+test_plugin:teaser:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:teaser:main
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser.sh"
+  extends: .test_base
+  rules:
+    - !reference [ .docker_build_rules:plugin:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+test_plugin:teaser:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:teaser:dev
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser.sh"
+  extends: .test_base
+  rules:
+    - !reference [ .docker_build_rules:plugin:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+test_plugin:teaser:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:teaser:nightly
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [build docker dymola]
+
+.docker_dymola_build:
+  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+  services:
+      - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+        command: [ "--mtu=1440" ]
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA
+  script:
+    - docker build --pull --build-arg BIM2SIM_FLAG=$BIM2SIM_FLAG --build-arg BIM2SIM_NAME=$BIM2SIM_NAME --build-arg BIM2SIM_VERSION=$BIM2SIM_VERSION -t $TEST_IMAGE -f $DOCKERPATH .
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
+    - docker images
+    - docker push $TEST_IMAGE
+
+# [build docker dymola bim2sim base]
+docker_build_bim2sim:env_dymola_base:dev:
+  stage: build_docker_base
+  variables:
+    BIM2SIM_NAME: "bim2sim_base"
+    BIM2SIM_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-dymola"
+    IMAGE_NAME: "dymola-bim2sim-base"
+    DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
+  extends: .docker_dymola_build
+  rules:
+    - !reference [.docker_build_rules:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_base_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+docker_build_bim2sim:env_dymola_base:main:
+  stage: build_docker_base
+  variables:
+    BIM2SIM_NAME: "bim2sim_base"
+    BIM2SIM_FLAG: ""
+    IMAGE_FLAG: "-dymola"
+    IMAGE_NAME: "dymola-bim2sim-base"
+    DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
+  extends: .docker_dymola_build
+  rules:
+    - !reference [.docker_build_rules:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_base_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+docker_build_bim2sim:env_dymola_base:nightly:
+  stage: build_docker_base
+  variables:
+    BIM2SIM_NAME: "bim2sim_base"
+    BIM2SIM_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-dymola"
+    IMAGE_NAME: "dymola-bim2sim-base"
+    DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
+  extends: .docker_dymola_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# Test base docker bim2sim_dymola image
+
+test_dym_base:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_base
+  needs:
+    - docker_build_bim2sim:env_dymola_base:dev
+  variables:
+    TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_base_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+test_dym_base:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_base
+  needs:
+    - docker_build_bim2sim:env_dymola_base:main
+  variables:
+    TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_base_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+test_dym_base:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_base
+  needs:
+    - docker_build_bim2sim:env_dymola_base:nightly
+  variables:
+    TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [build docker dymola plugin teaser]
+
+docker_build_plugin:dymola_teaser:main:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_teaser"
+    BIM2SIM_FLAG: ""
+    IMAGE_FLAG: "-dymola"
+    IMAGE_NAME: "dymola-bim2sim-teaser"
+    DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
+  extends: .docker_dymola_build
+  rules:
+    - !reference [.docker_build_rules:plugin:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+docker_build_plugin:dymola_teaser:dev:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_teaser"
+    BIM2SIM_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-dymola"
+    IMAGE_NAME: "dymola-bim2sim-teaser"
+    DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
+  extends: .docker_dymola_build
+  rules:
+    - !reference [.docker_build_rules:plugin:dev, rules]
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+docker_build_plugin:dymola_teaser:nightly:
+  stage: build_docker_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_teaser"
+    BIM2SIM_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-dymola"
+    IMAGE_NAME: "dymola-bim2sim-teaser"
+    DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
+  extends: .docker_dymola_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [test docker dymola plugin teaser]
+
+test_plugin:dymola_teaser:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:dymola_teaser:main
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh"
+  extends: .test_base
+  rules:
+    - !reference [ .docker_build_rules:plugin:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+test_plugin:dymola_teaser:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:dymola_teaser:dev
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh"
+  extends: .test_base
+  rules:
+    - !reference [ .docker_build_rules:plugin:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+test_plugin:dymola_teaser:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_plugin
+  needs:
+    - docker_build_plugin:dymola_teaser:nightly
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+
+# [build docker bim2sim total]
+
+docker_build_total:main:
+  stage: build_docker_total
+  variables:
+    BIM2SIM_NAME: "bim2sim"
+    BIM2SIM_FLAG: ""
+    IMAGE_FLAG: "-dymola"
+    IMAGE_NAME: "bim2sim"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_dymola_build
+  rules:
+    - !reference [.docker_build_rules:main, rules]
+    - if: $CI_BUILD =~ /ci_build_total_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+docker_build_total:dev:
+  stage: build_docker_total
+  variables:
+    BIM2SIM_NAME: "bim2sim"
+    BIM2SIM_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-dymola"
+    IMAGE_NAME: "bim2sim"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_dymola_build
+  rules:
+    - !reference [.docker_build_rules:dev, rules]
+    - if: $CI_BUILD =~ /ci_build_total_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+docker_build_total:nightly:
+  stage: build_docker_total
+  variables:
+    BIM2SIM_NAME: "bim2sim"
+    BIM2SIM_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-dymola"
+    IMAGE_NAME: "bim2sim"
+    DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
+  extends: .docker_dymola_build
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [base test]
+test_bim2sim:base:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:main
+  variables:
+    TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:main, rules]
+    - if: $CI_BUILD =~ /ci_build_total_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+test_bim2sim:base:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:dev
+  variables:
+    TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:dev, rules]
+    - if: $CI_BUILD =~ /ci_build_total_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+test_bim2sim:base:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:nightly
+  variables:
+    TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [Test plugin AixLib]
+test_bim2sim:plugin:aixlib:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:main
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginAixLib/test_aixlib.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:main, rules]
+    - if: $CI_BUILD =~ /ci_build_total_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+test_bim2sim:plugin:aixlib:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:dev
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginAixLib/test_aixlib.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:dev, rules]
+    - if: $CI_BUILD =~ /ci_build_total_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+test_bim2sim:plugin:aixlib:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:nightly
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginAixLib/test_aixlib.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [Test plugin cfd]
+test_bim2sim:plugin:cfd:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:main
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginCFD/test_cfd.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:main, rules]
+    - if: $CI_BUILD =~ /ci_build_total_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+test_bim2sim:plugin:cfd:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:dev
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginCFD/test_cfd.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:dev, rules]
+    - if: $CI_BUILD =~ /ci_build_total_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+test_bim2sim:plugin:cfd:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:nightly
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginCFD/test_cfd.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [Test plugin energyplus]
+test_bim2sim:plugin:energyplus:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:main
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:main, rules]
+    - if: $CI_BUILD =~ /ci_build_total_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+test_bim2sim:plugin:energyplus:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:dev
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:dev, rules]
+    - if: $CI_BUILD =~ /ci_build_total_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+test_bim2sim:plugin:energyplus:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:nightly
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [Test plugin energyplus_regression]
+test_bim2sim:plugin:energyplus_regression:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:main
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus_regression.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:main, rules]
+    - if: $CI_BUILD =~ /ci_build_total_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+test_bim2sim:plugin:energyplus_regression:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:dev
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus_regression.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:dev, rules]
+    - if: $CI_BUILD =~ /ci_build_total_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+test_bim2sim:plugin:energyplus_regression:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:nightly
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus_regression.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [Test plugin lca]
+test_bim2sim:plugin:lca:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:main
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginLCA/test_lca.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:main, rules]
+    - if: $CI_BUILD =~ /ci_build_total_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+test_bim2sim:plugin:lca:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:dev
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginLCA/test_lca.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:dev, rules]
+    - if: $CI_BUILD =~ /ci_build_total_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+test_bim2sim:plugin:lca:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:nightly
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginLCA/test_lca.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [Test plugin lca]
+test_bim2sim:plugin:teaser:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:main
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:main, rules]
+    - if: $CI_BUILD =~ /ci_build_total_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+test_bim2sim:plugin:teaser:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:dev
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:dev, rules]
+    - if: $CI_BUILD =~ /ci_build_total_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+test_bim2sim:plugin:teaser:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:nightly
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [Test plugin TEASER_regression]
+test_bim2sim:plugin:TEASER_regression:main:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:main
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:main, rules]
+    - if: $CI_BUILD =~ /ci_build_total_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+test_bim2sim:plugin:TEASER_regression:dev:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:dev
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:dev, rules]
+    - if: $CI_BUILD =~ /ci_build_total_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+
+test_bim2sim:plugin:TEASER_regression:nightly:
+  image: ${TEST_IMAGE}
+  stage: test_docker_total
+  needs:
+    - docker_build_total:nightly
+  variables:
+    TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh"
+  extends: .test_base
+  rules:
+    - !reference [.docker_build_rules:nightly, rules]
+
+# [Release]
+
+.docker_release_rules:main:
+  rules:
+    - if: $CI_BUILD =~ /ci_build_main/ && $CI_COMMIT_BRANCH == "main"
+      when: manual
+    - if: $CI_BUILD =~ /ci_build_docker_main/ && $CI_COMMIT_BRANCH == "main"
+      when: manual
+
+.docker_release_rules:dev:
+  rules:
+    - if: $CI_BUILD =~ /ci_build_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: manual
+    - if: $CI_BUILD =~ /ci_build_docker_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: manual
+
+.docker_release_rules:plugin:main:
+  rules:
+     - !reference [.docker_release_rules:main, rules]
+     - if: $CI_BUILD =~ /ci_build_plugin_main/ && $CI_COMMIT_BRANCH == "main"
+       when: manual
+
+.docker_release_rules:plugin:dev:
+  rules:
+     - !reference [.docker_release_rules:dev, rules]
+     - if: $CI_BUILD =~ /ci_build_plugin_dev/ && $CI_COMMIT_BRANCH == "development"
+       when: manual
+
+.docker_release:
+  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+  services:
+      - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+        command: [ "--mtu=1440" ]
+  script:
+    - docker pull $TEST_IMAGE
+    - docker tag $TEST_IMAGE $RELEASE_IMAGE
+    - docker push $RELEASE_IMAGE
+
+# [Release bim2sim base]
+docker_release_bim2sim:base:main:
+  stage: release_docker_base
+  needs:
+    - docker_build_bim2sim:base:main
+  extends: .docker_release
+  rules:
+    - !reference [ .docker_release_rules:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_base_main/ && $CI_COMMIT_BRANCH == "main"
+      when: manual
+
+docker_release_bim2sim:env_base:dev:
+  stage: release_docker_base
+  needs:
+    - docker_build_bim2sim:base:dev
+  extends: .docker_release
+  rules:
+    - !reference [ .docker_release_rules:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_base_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: manual
+
+docker_release_bim2sim:env_base:nightly:
+  stage: release_docker_base
+  needs:
+    - docker_build_bim2sim:base:nightly
+  extends: .docker_release
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [Release bim2sim aixlib plugin]
+
+docker_release_plugin:aixlib:main:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:aixlib:main
+  extends: .docker_release
+  rules:
+    - !reference [ .docker_release_rules:plugin:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_aixlib_main/ && $CI_COMMIT_BRANCH == "main"
+      when: manual
+
+docker_release_plugin:aixlib:dev:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:aixlib:dev
+  extends: .docker_release
+  rules:
+    - !reference [ .docker_release_rules:plugin:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_aixlib_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: manual
+
+docker_release_plugin:aixlib:nightly:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:aixlib:nightly
+  extends: .docker_release
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [Release bim2sim cfd plugin]
+
+docker_release_plugin:cfd:main:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:cfd:main
+  extends: .docker_release
+  rules:
+    - !reference [ .docker_release_rules:plugin:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_cfd_main/ && $CI_COMMIT_BRANCH == "main"
+      when: manual
+
+docker_release_plugin:cfd:dev:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:cfd:dev
+  extends: .docker_release
+  rules:
+    - !reference [ .docker_release_rules:plugin:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_cfd_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: manual
+
+docker_release_plugin:cfd:nightly:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:cfd:nightly
+  extends: .docker_release
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [Release bim2sim energyplus plugin]
+docker_release_plugin:energyplus:main:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:energyplus:main
+  extends: .docker_release
+  rules:
+    - !reference [ .docker_release_rules:plugin:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_main/ && $CI_COMMIT_BRANCH == "main"
+      when: manual
+
+docker_release_plugin:energyplus:dev:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:energyplus:dev
+  extends: .docker_release
+  rules:
+    - !reference [ .docker_release_rules:plugin:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: manual
+
+
+docker_release_plugin:energyplus:nightly:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:energyplus:nightly
+  extends: .docker_release
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [Release bim2sim hkesim plugin]
+docker_release_plugin:hkesim:main:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:hkesim:main
+  extends: .docker_release
+  rules:
+    - !reference [ .docker_release_rules:plugin:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_hkesim_main/ && $CI_COMMIT_BRANCH == "main"
+      when: manual
+
+docker_release_plugin:hkesim:dev:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:hkesim:dev
+  extends: .docker_release
+  rules:
+    - !reference [ .docker_release_rules:plugin:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_hkesim_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: manual
+
+docker_release_plugin:hkesim:nightly:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:hkesim:nightly
+  extends: .docker_release
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [Release bim2sim lca plugin]
+docker_release_plugin:lca:main:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:lca:main
+  extends: .docker_release
+  rules:
+    - !reference [ .docker_release_rules:plugin:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_lca_main/ && $CI_COMMIT_BRANCH == "main"
+      when: manual
+
+docker_release_plugin:lca:dev:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:lca:dev
+  extends: .docker_release
+  rules:
+    - !reference [ .docker_release_rules:plugin:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_lca_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: manual
+
+docker_release_plugin:lca:nightly:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:lca:nightly
+  extends: .docker_release
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [Release bim2sim teaser plugin]
+
+docker_release_plugin:teaser:main:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:teaser:main
+  extends: .docker_release
+  rules:
+    - !reference [ .docker_release_rules:plugin:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_main/ && $CI_COMMIT_BRANCH == "main"
+      when: manual
+
+
+docker_release_plugin:teaser:dev:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:teaser:dev
+  extends: .docker_release
+  rules:
+    - !reference [ .docker_release_rules:plugin:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: manual
+
+docker_release_plugin:teaser:nightly:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:teaser:nightly
+  extends: .docker_release
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [dymola docker release]
+
+docker_release:env_dymola_base:main:
+  stage: release_docker_base
+  needs:
+    - docker_build_bim2sim:env_dymola_base:main
+  extends: .docker_release
+  rules:
+    - !reference [ .docker_release_rules:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_base_main/ && $CI_COMMIT_BRANCH == "main"
+      when: manual
+
+docker_release:env_dymola_base:dev:
+  extends: .docker_release
+  stage: release_docker_base
+  needs:
+    - docker_build_bim2sim:env_dymola_base:dev
+  rules:
+    - !reference [.docker_release_rules:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_base_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: manual
+
+docker_release:env_dymola_base:nightly:
+  extends: .docker_release
+  stage: release_docker_base
+  needs:
+    - docker_build_bim2sim:env_dymola_base:nightly
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [dymola teaser docker release]
+
+docker_release_plugin:dymola_teaser:main:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:dymola_teaser:main
+  extends: .docker_release
+  rules:
+    - !reference [ .docker_release_rules:plugin:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_main/ && $CI_COMMIT_BRANCH == "main"
+      when: manual
+
+docker_release_plugin:dymola_teaser:dev:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:dymola_teaser:dev
+  extends: .docker_release
+  rules:
+    - !reference [ .docker_release_rules:plugin:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: manual
+
+docker_release_plugin:dymola_teaser:nightly:
+  stage: release_docker_plugin
+  needs:
+    - docker_build_plugin:dymola_teaser:nightly
+  extends: .docker_release
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]
+
+# [dymola teaser docker release]
+
+docker_release_total:main:
+  stage:  release_docker_total
+  needs:
+    - docker_build_total:main
+  extends: .docker_release
+  rules:
+    - !reference [ .docker_release_rules:main, rules ]
+    - if: $CI_BUILD =~ /ci_build_total_main/ && $CI_COMMIT_BRANCH == "main"
+      when: manual
+
+docker_release_total:dev:
+  stage:  release_docker_total
+  needs:
+    - docker_build_total:dev
+  extends: .docker_release
+  rules:
+    - !reference [.docker_release_rules:dev, rules ]
+    - if: $CI_BUILD =~ /ci_build_total_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: manual
+
+docker_release_total:nightly:
+  stage:  release_docker_total
+  needs:
+    - docker_build_total:nightly
+  extends: .docker_release
+  rules:
+    - !reference [.docker_build_rules:nightly, rules ]

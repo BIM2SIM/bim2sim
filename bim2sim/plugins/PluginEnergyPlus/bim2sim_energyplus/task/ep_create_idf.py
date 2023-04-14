@@ -29,7 +29,8 @@ from bim2sim.kernel.elements.bps import ExternalSpatialElement, SpaceBoundary2B,
 from bim2sim.kernel.units import ureg
 from bim2sim.project import FolderStructure
 from bim2sim.task.base import ITask
-from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.utilities.common_functions import filter_instances, \
+    get_spaces_with_bounds
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 from bim2sim.workflow import EnergyPlusWorkflow
 
@@ -64,7 +65,7 @@ class CreateIdf(ITask):
         self.set_simulation_control(workflow, idf)
         idf.set_default_constructions()
         self.export_geom_to_idf(instances, idf)
-        self.set_ground_temperature(idf, t_ground=self.get_ifc_spaces(
+        self.set_ground_temperature(idf, t_ground=get_spaces_with_bounds(
             instances)[0].t_ground)  # assuming all zones have same ground
         self.set_output_variables(idf, workflow)
         self.idf_validity_check(idf)
@@ -128,7 +129,7 @@ class CreateIdf(ITask):
             idf: idf file object
         """
         logger.info("Init thermal zones ...")
-        spaces = filter_instances(instances, ThermalZone)
+        spaces = get_spaces_with_bounds(instances)
         for space in spaces:
             zone = idf.newidfobject(
                 'ZONE',
@@ -193,7 +194,7 @@ class CreateIdf(ITask):
             instances: dict[guid: element]
             idf: idf file object
         """
-        spaces = filter_instances(instances, ThermalZone)
+        spaces = get_spaces_with_bounds(instances)
         # assign storeys to spaces (ThermalZone)
         for space in spaces:
             if space.storeys:
@@ -205,6 +206,8 @@ class CreateIdf(ITask):
         for st in storeys:
             space_ids = []
             for space in st.thermal_zones:
+                if not space in spaces:
+                    continue
                 space_ids.append(space.guid)
             self.init_zonelist(idf, name=st.ifc.Name, zones_in_list=space_ids)
 
@@ -1126,17 +1129,6 @@ class CreateIdf(ITask):
                     'Surface due to invalid material: %s' % sf.Name)
                 idf.removeidfobject(sf)
         logger.info('IDF Validity Checker done')
-
-    @staticmethod
-    def get_ifc_spaces(instances: dict):
-        """Get ifc spaces (ThermalZone).
-
-        This function extracts ifc spaces from an instance dictionary.
-
-        Args:
-            instances: dict[guid: element]
-        """
-        return filter_instances(instances, ThermalZone)
 
 
 class IdfObject:

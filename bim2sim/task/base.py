@@ -102,7 +102,7 @@ class Playground:
             raise TaskFailed(str(task))
         else:
             self.logger.info("Successfully finished Task '%s'", task)
-
+            pass
         if task.touches == '__reset__':
             # special case
             self.state.clear()

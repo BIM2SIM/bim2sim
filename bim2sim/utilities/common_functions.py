@@ -273,7 +273,7 @@ def translate_deep(text, source='auto', target='en'):
             source=source, target=target).translate(text=text)
         return translated
     except:
-        return False
+        return ''
     # proxies_example = {
     #     "https": "34.195.196.27:8080",
     #     "http": "34.195.196.27:8080"
@@ -291,3 +291,17 @@ def all_subclasses(cls, as_names: bool = False):
     if as_names:
         all_cls = [cls.__name__ for cls in all_cls]
     return all_cls
+
+
+def get_spaces_with_bounds(instances: dict):
+    """Get spaces (ThermalZone) that provide space boundaries.
+    This function extracts spaces from an instance dictionary and returns
+    those spaces that hold space boundaries.
+    Args:
+        instances: dict[guid: element]
+    """
+
+    spaces = filter_instances(instances, 'ThermalZone')
+    spaces_with_bounds = [s for s in spaces if s.space_boundaries]
+
+    return spaces_with_bounds
