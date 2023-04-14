@@ -22,7 +22,6 @@ dependencies:
   - mako
   - pint
   - certifi
-  - beautifulsoup4>=4.9.3
   - scikit-learn
   - sparse_dot_topn
   - pip:

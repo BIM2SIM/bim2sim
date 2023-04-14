@@ -58,10 +58,14 @@ requirements:
     - numpy
   run:
     {% for dep in requirements["dependencies"] %}
-      {%- if dep != {'pip': ['-r file:requirements.txt', '-r file:dependency_requirements.txt']} -%}
+      {%- if dep != {'pip': ['-r file:requirements.txt', '-r file:dependency_requirements.txt']} and dep != "pip" and dep != "numpy" and dep != "cython" and dep != "poetry" and dep != "setuptools" -%}
       - {{ dep.lower() }}
       {%- endif %}
     {% endfor %}
+  run_constrained:
+    - beautifulsoup4 >=4.9.3
+
+
 
 test:
   requires:
@@ -90,8 +94,6 @@ test:
     # python bim2sim/examples/e5_export_quantities_for_lca.py
     - bash conda_recipe/basic_build/base_run_test.sh # [not win]
     - conda_recipe/basic_build/base_run_test.bat # [win]
-
-
 
 about:
   home: https://github.com/BIM2SIM/bim2sim
