@@ -93,6 +93,7 @@ class ConsoleDecisionHandler(DecisionHandler):
     def user_input(self, decision, extra_options=None, progress=''):
 
         question = self.get_question(decision)
+        identifier = decision.console_identifier
         options = self.get_options(decision)
         if extra_options:
             options = options + extra_options
@@ -106,6 +107,8 @@ class ConsoleDecisionHandler(DecisionHandler):
 
         print(progress, end='')
         print(question)
+        if identifier:
+            print(identifier)
         if isinstance(decision, ListDecision) and decision.live_search:
             print("enter 'reset' to start search again")
             print("enter 'back' to return to last search")

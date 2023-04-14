@@ -49,7 +49,9 @@ class Prepare(ITask):
                                           "Simulation model can be generated.")
 
         self.set_space_properties(workflow)
-        self.logger.info("Found %d space entities", len(self.tz_instances))
+
+        self.logger.info("Found %d thermal zone entities",
+                         len(self.tz_instances))
 
     def set_space_properties(self, workflow):
         """set cooling and heating values based on workflow settings"""

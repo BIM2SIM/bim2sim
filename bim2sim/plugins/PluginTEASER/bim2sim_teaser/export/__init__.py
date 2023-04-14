@@ -49,8 +49,8 @@ class Instance:
         Instance.lookup[key] = value
         return False
 
-    @classmethod
-    def init_factory(cls, libraries):
+    @staticmethod
+    def init_factory(libraries):
         """initialize lookup for factory"""
         conflict = False
         Instance.dummy = Dummy
@@ -64,7 +64,7 @@ class Instance:
                 logger.error("Attribute library not set for '%s'",
                              library.__name__)
                 raise AssertionError("Library not defined")
-            for cls in cls.get_library_classes(library):
+            for cls in library.get_library_classes(library):
                 if cls.represents is None:
                     logger.warning("'%s' represents no model and can't be used",
                                    cls.__name__)

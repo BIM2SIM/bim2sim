@@ -1,4 +1,6 @@
-﻿"""BIM2SIM main module.
+﻿"""bim2sim main module.
+
+This tool can be used to create simulation models based on IFC4 files.
 
 Usage:
     bim2sim project create <project_path> [-i <source>] [-s <target>] [-o]

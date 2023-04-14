@@ -1,3 +1,6 @@
+import os
+import contextlib
+
 from bim2sim_teaser import export, models
 from teaser.logic.buildingobjects.building import Building
 from teaser.logic.buildingobjects.buildingphysics.door import Door
@@ -34,7 +37,9 @@ class ExportTEASER(ITask):
         super().__init__()
 
     def run(self, workflow, libraries, ifc, instances, weather_file):
-        self.logger.info("Export to TEASER")
+        self.logger.info("Start creating the derived building to a Modelica"
+                         " model using TEASER")
+
         export.Instance.init_factory(libraries)
 
         prj = self._create_project()
@@ -53,9 +58,16 @@ class ExportTEASER(ITask):
 
         self.prepare_export(exported_buildings)
         prj.weather_file_path = weather_file
-        prj.export_aixlib(
-            path=self.paths.export / 'TEASER' / 'Model',
-            use_postprocessing_calc=True)
+
+        # silence output via redirect_stdout to not mess with bim2sim logs
+        with open(os.devnull, 'w') as devnull:
+            with contextlib.redirect_stdout(devnull):
+                prj.export_aixlib(
+                    path=self.paths.export / 'TEASER' / 'Model',
+                    use_postprocessing_calc=True)
+
+        self.logger.info("Successfully created simulation model with TEASER.")
+
         bldg_names = []
         for bldg in exported_buildings:
             bldg_names.append(bldg.name)

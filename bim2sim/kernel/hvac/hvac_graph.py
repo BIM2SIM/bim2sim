@@ -2,12 +2,15 @@
 network
 where each node represents a hvac-component
 """
+from __future__ import annotations
 
 import itertools
 import logging
 import os
+import shutil
 from pathlib import Path
-from typing import Set, Iterable, Type
+from typing import Set, Iterable, Type, List, Union
+import json
 
 import networkx as nx
 from networkx.readwrite import json_graph
@@ -19,7 +22,9 @@ logger = logging.getLogger(__name__)
 
 class HvacGraph(nx.Graph):
     """HVAC related graph manipulations based on ports."""
-
+    # TODO 246 HvacGraph init should only be called one based on IFC as it works
+    #  with port.connection and therefore is not reliable after changes are made
+    #  to the graph
     def __init__(self, elements=None, **attr):
         super().__init__(incoming_graph_data=None, **attr)
         if elements:
@@ -107,6 +112,7 @@ class HvacGraph(nx.Graph):
         logger.info("Found %d cycles", len(cycles))
         return cycles
 
+    # TODO #246 delete because not needed anymore
     @staticmethod
     def get_type_chains(
             element_graph: nx.Graph,
@@ -180,7 +186,8 @@ class HvacGraph(nx.Graph):
     #     """Returns list of nodes represented by graph"""
     #     return list(self.nodes)
 
-    def plot(self, path: Path = None, ports: bool = False, dpi: int = 400):
+    def plot(self, path: Path = None, ports: bool = False, dpi: int = 400,
+             use_pyvis=False):
         """Plot graph and either display or save as pdf file.
 
         Args:
@@ -188,9 +195,11 @@ class HvacGraph(nx.Graph):
             ports: If True, the port graph is plotted.
             dpi: dots per inch, increase for higher quality (takes longer to
              render)
+            use_pyvis: exports graph to interactive html
         """
         # importing matplotlib is slow and plotting is optional
         import matplotlib.pyplot as plt
+        from pyvis.network import Network
 
         # https://plot.ly/python/network-graphs/
         edge_colors_flow_side = {
@@ -236,17 +245,100 @@ class HvacGraph(nx.Graph):
                     side = sides1.pop()
                 edge_color_map.append(edge_colors_flow_side[side]['edge_color'])
             kwargs['edge_color'] = edge_color_map
+        if use_pyvis:
+            # convert all edges to strings to use dynamic ploting via pyvis
+            nodes = graph.nodes()
+            from collections import defaultdict
 
-        plt.figure(dpi=dpi)
-        nx.draw(graph, node_size=10, font_size=5, linewidths=0.7,
-                with_labels=True, **kwargs)
-        plt.draw()
+            data_dict = defaultdict(list)
+            replace = {}
+            for node in nodes.keys():
+                # use guid because str must be unique to prevent overrides
+                replace[node] = str(node) + ' ' + str(node.guid)
+
+            # Todo Remove temp code. This is for Abschlussbericht Plotting only!
+            # start of temp plotting code
+            bypass_nodes_guids = []
+            small_pump_guids = []
+            parallel_pump_guids = []
+            for node in nodes:
+                try:
+                    if node.length.m == 34:
+                        bypass_nodes_guids.append(node.guid)
+                except AttributeError:
+                    pass
+                try:
+                    if node.rated_power.m == 0.6:
+                        small_pump_guids.append(node.guid)
+                except AttributeError:
+                    pass
+                try:
+                    if node.rated_power.m == 1:
+                        parallel_pump_guids.append(node.guid)
+                except AttributeError:
+                    pass
+            # end of temp plotting code
+
+            nx.relabel_nodes(graph, replace, copy=False)
+            net = Network(height='1000', width='1000', notebook=False,
+                          bgcolor='white', font_color='black', layout=False)
+            net.barnes_hut(gravity=-17000, spring_length=55)
+            # net.show_buttons()
+            pyvis_json = Path(__file__).parent / \
+                         'assets/plotting/pyvis_options.json'
+            f = open(pyvis_json)
+            net.options = json.load(f)
+
+            net.from_nx(graph, default_node_size=50)
+            for node in net.nodes:
+                try:
+                    node['label'] = node['label'].split('<')[1]
+                except:
+                    pass
+                node['label'] = node['label'].split('(ports')[0]
+                if 'agg' in node['label'].lower():
+                    node['label'] = node['label'].split('Agg0')[0]
+                if 'storage' in node['label'].lower():
+                    node['color'] = 'purple'
+                if 'distributor' in node['label'].lower():
+                    node['color'] = 'gray'
+                if 'pump' in node['label'].lower():
+                    node['color'] = 'blue'
+                if any([red_str in node['label'].lower() for red_str in [
+                    'parallelpump',
+                    'boiler',
+                    'generatoronefluid'
+                ]]):
+                    node['color'] = 'red'
+                # bypass color for parallelpump test
+                if node['id'].split('> ')[-1] in bypass_nodes_guids:
+                    node['color'] = 'green'
+                if node['id'].split('> ')[-1] in small_pump_guids:
+                    node['color'] = 'purple'
+                if node['id'].split('> ')[-1] in parallel_pump_guids:
+                    node['color'] = 'red'
+
+        else:
+            plt.figure(dpi=dpi)
+            nx.draw(graph, node_size=10, font_size=5, linewidths=0.5, alpha=0.7,
+                    with_labels=True, **kwargs)
+            plt.draw()
         if path:
-            name = "%sgraph.pdf" % ("port" if ports else "element")
-            try:
-                plt.savefig(os.path.join(path, name), bbox_inches='tight')
-            except IOError as ex:
-                logger.error("Unable to save plot of graph (%s)", ex)
+            if use_pyvis:
+                name = "graph.html"
+                try:
+                    net.save_graph(name)
+                    shutil.move(name, path)
+                except Exception as ex:
+                    logger.error("Unable to save plot of graph (%s)", ex)
+            else:
+                name = "%sgraph.pdf" % ("port" if ports else "element")
+                try:
+                    plt.savefig(
+                        os.path.join(path, name),
+                        bbox_inches='tight')
+                except IOError as ex:
+                    logger.error("Unable to save plot of graph (%s)", ex)
         else:
             plt.show()
         plt.clf()
@@ -286,13 +378,23 @@ class HvacGraph(nx.Graph):
         return _graph
 
     @staticmethod
-    def find_bypasses_in_cycle(graph, cycle, wanted):
-        """
-        Detects bypasses in the given cycle of the given graph. Bypasses are any
-        direct connections between edge elements which don't hold wanted
-        elements.
-        :returns: nested list: list of bypasses with a list of
-        elements in the bypass.
+    def find_bypasses_in_cycle(graph: nx.Graph, cycle, wanted):
+        """ Detects bypasses in the given cycle of the given graph.
+
+        Bypasses are any direct connections between edge elements which don't
+        hold wanted elements.
+
+        Args:
+            graph: The graph in which the cycle belongs.
+            cycle: A list of nodes representing a cycle in the graph.
+            wanted: A list of classes of the desired node type.
+
+        Returns:
+            List: A list of bypasses, where each bypass is a list of elements in
+            the bypass.
+
+        Raises:
+            None
         """
         bypasses = []
         # get wanted guids in the cycle
@@ -400,8 +502,8 @@ class HvacGraph(nx.Graph):
             inert: Set[Type[ProductBased]] = None,
             grouping=None, grp_threshold=None):
         """ Detect parallel occurrences of wanted items.
-        All graph nodes not in inert or wanted are counted as blocking.
-        Grouping can hold additional arguments like only same size.
+            All graph nodes not in inert or wanted are counted as blocking.
+            Grouping can hold additional arguments like only same size.
 
         :grouping: dict with parameter to be grouped and condition. e.g. (
         rated_power: equal)
@@ -692,3 +794,48 @@ class HvacGraph(nx.Graph):
             subgraph = nx.subgraph(_graph, con)
             graphs.append(subgraph)
         return graphs
+
+    def subgraph_from_elements(self, elements: list):
+        """ Returns a subgraph of the current graph containing only the ports
+            associated with the provided elements.
+
+        Args:
+            elements: A list of elements to include in the subgraph.
+
+        Returns:
+            A subgraph of the current graph that contains only the ports
+            associated with the provided elements.
+
+        Raises:
+            AssertionError: If the provided elements are not part of the graph.
+
+        """
+        if not set(elements).issubset(set(self.elements)):
+            raise AssertionError('The elements %s are not part of this graph.',
+                                 elements)
+        return self.subgraph((port for ele in elements for port in ele.ports))
+
+    @staticmethod
+    def remove_classes_from(graph: nx.Graph,
+                            classes_to_remove: Set[Type[ProductBased]]
+                            ) -> Union[nx.Graph, HvacGraph]:
+        """ Removes nodes from a given graph based on their class.
+
+            Args:
+                graph: The graph to remove nodes from.
+                classes_to_remove: A set of classes to remove from the graph.
+
+            Returns:
+                The modified graph as a new instance.
+        """
+        _graph = graph.copy()
+        if not isinstance(_graph, HvacGraph):
+            nodes_to_remove = {node for node in _graph.nodes if
+                               node.__class__ in classes_to_remove}
+        else:
+            elements_to_remove = {ele for ele in _graph.elements if
+                                  ele.__class__ in classes_to_remove}
+            nodes_to_remove = [port for ele in elements_to_remove
+                               for port in ele.ports]
+        _graph.remove_nodes_from(nodes_to_remove)
+        return _graph

@@ -16,7 +16,7 @@ from bim2sim.export import modelica
 from bim2sim.kernel.aggregation import Consumer, \
     ConsumerHeatingDistributorModule, GeneratorOneFluid
 from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating, \
-    ParallelPump, ParallelSpaceHeater
+    ParallelPump
 from bim2sim.kernel.element import ProductBased, ElementEncoder, Port, Material
 from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.hvac import hvac_graph
@@ -349,6 +349,9 @@ class MakeGraph(ITask):
         not_mat_instances = \
             {k: v for k, v in instances.items() if not isinstance(v, Material)}
         graph = hvac_graph.HvacGraph(not_mat_instances.values())
+
+        path_dyn_ele_graph = self.paths.export / "dyn_ele_graph.html"
+        graph.plot(ports=False, use_pyvis=False, path=path_dyn_ele_graph)
         return graph,
 
     def serialize(self):
@@ -366,16 +369,16 @@ class Reduce(ITask):
     reads = ('graph',)
     touches = ('graph',)
 
-    def run(self, workflow: Workflow, graph: HvacGraph) -> (HvacGraph, ):
+    def run(self, workflow: Workflow, graph: HvacGraph) -> (HvacGraph,):
         self.logger.info("Reducing elements by applying aggregations")
         aggregations_cls = {
             'UnderfloorHeating': UnderfloorHeating,
             'Consumer': Consumer,
             'PipeStrand': PipeStrand,
             'ParallelPump': ParallelPump,
-            'ConsumerHeatingDistributorModule': ConsumerHeatingDistributorModule,
+            'ConsumerHeatingDistributorModule':
+                ConsumerHeatingDistributorModule,
             'GeneratorOneFluid': GeneratorOneFluid,
-            'ParallelSpaceHeater': ParallelSpaceHeater,
         }
         aggregations = [aggregations_cls[agg] for agg in workflow.aggregations]
 
@@ -388,11 +391,8 @@ class Reduce(ITask):
             matches, metas = agg_class.find_matches(graph)
             i = 0
             for match, meta in zip(matches, metas):
-                # TODO: See #167
-                # edge_ports = agg_class.get_edge_ports2(graph, match)
                 try:
-                    agg = agg_class(match, **meta)
-
+                    agg = agg_class(graph, match, **meta)
                 except Exception as ex:
                     self.logger.exception("Instantiation of '%s' failed", name)
                 else:
@@ -419,7 +419,7 @@ class Reduce(ITask):
 
     @staticmethod
     def set_flow_sides(graph: HvacGraph):
-        """Set flow_side for ports in graph based on known flow_sides"""
+        """ Set flow_side for ports in graph based on known flow_sides."""
         # TODO: needs testing!
         # TODO: at least one master element required
         accepted = []
@@ -487,9 +487,11 @@ class Export(ITask):
         connections = graph.get_connections()
 
         modelica.Instance.init_factory(libraries)
-        export_instances = {inst: modelica.Instance.factory(inst) for inst in reduced_instances}
+        export_instances = {inst: modelica.Instance.factory(inst)
+                            for inst in reduced_instances}
 
-        yield from ProductBased.get_pending_attribute_decisions(reduced_instances)
+        yield from ProductBased.get_pending_attribute_decisions(
+            reduced_instances)
 
         for instance in export_instances.values():
             instance.collect_params()

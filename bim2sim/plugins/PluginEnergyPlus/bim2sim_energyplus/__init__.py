@@ -18,6 +18,7 @@ class PluginEnergyPlus(Plugin):
     elements = {*bps_elements.items, Material} - {bps_elements.Plate}
     default_tasks = [
         common.LoadIFC,
+        bps.CheckIfcBPS,
         common.CreateElements,
         bps.CreateSpaceBoundaries,
         bps.Prepare,
@@ -27,7 +28,6 @@ class PluginEnergyPlus(Plugin):
         bps.EnrichMaterial,  # LOD.full
         bps.DisaggregationCreation,
         bps.BindThermalZones,
-        ep_tasks.IfcValidation,
         ep_tasks.EPGeomPreprocessing,
         ep_tasks.AddSpaceBoundaries2B,
         ep_tasks.WeatherEnergyPlus,
