@@ -19,8 +19,8 @@ variables:
   # [Images]
   #TEST_IMAGE: ${CI_REGISTRY}/environment:${IMAGE_NAME}_test
   #RELEASE_IMAGE: ${CI_REGISTRY}/
-  TEST_IMAGE: ${CI_REGISTRY}/environment/${IMAGE_NAME}:${IMAGE_VERSION}${IMAGE_FLAG}-debian_test
-  RELEASE_IMAGE: ${CI_REGISTRY}/environment/${IMAGE_NAME}:${IMAGE_VERSION}${IMAGE_FLAG}-debian
+  TEST_IMAGE: ${CI_REGISTRY}/environment/${IMAGE_NAME}:${IMAGE_VERSION}${IMAGE_FLAG}
+  RELEASE_IMAGE: ${CI_REGISTRY}/environment/${IMAGE_NAME}:${IMAGE_VERSION}${IMAGE_FLAG}
 
 
 .docker_build:
@@ -68,7 +68,7 @@ docker_build_bim2sim:base:main:
     BIM2SIM_NAME: "bim2sim_base"
     BIM2SIM_FLAG: ""
     IMAGE_NAME: "bim2sim-base"
-    IMAGE_FLAG: ""
+    IMAGE_FLAG: "-debian"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
   rules:
@@ -81,7 +81,7 @@ docker_build_bim2sim:base:dev:
   variables:
     BIM2SIM_NAME: "bim2sim_base"
     BIM2SIM_FLAG: ".dev"
-    IMAGE_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-debian"
     IMAGE_NAME: "bim2sim-base"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -95,7 +95,7 @@ docker_build_bim2sim:base:nightly:
   variables:
     BIM2SIM_NAME: "bim2sim_base"
     BIM2SIM_FLAG: ".nightly"
-    IMAGE_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-debian"
     IMAGE_NAME: "bim2sim-base"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -173,7 +173,7 @@ docker_build_plugin:aixlib:main:
   variables:
     BIM2SIM_NAME: "bim2sim_aixlib"
     BIM2SIM_FLAG: ""
-    IMAGE_FLAG: ""
+    IMAGE_FLAG: "-debian"
     IMAGE_NAME: "bim2sim-aixlib"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -187,7 +187,7 @@ docker_build_plugin:aixlib:dev:
   variables:
     BIM2SIM_NAME: "bim2sim_aixlib"
     BIM2SIM_FLAG: ".dev"
-    IMAGE_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-debian"
     IMAGE_NAME: "bim2sim-aixlib"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -201,7 +201,7 @@ docker_build_plugin:aixlib:nightly:
   variables:
     BIM2SIM_NAME: "bim2sim_aixlib"
     BIM2SIM_FLAG: ".nightly"
-    IMAGE_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-debian"
     IMAGE_NAME: "bim2sim-aixlib"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -253,7 +253,7 @@ docker_build_plugin:cfd:main:
   variables:
     BIM2SIM_NAME: "bim2sim_cfd"
     BIM2SIM_FLAG: ""
-    IMAGE_FLAG: ""
+    IMAGE_FLAG: "-debian"
     IMAGE_NAME: "bim2sim-cfd"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -267,7 +267,7 @@ docker_build_plugin:cfd:dev:
   variables:
     BIM2SIM_NAME: "bim2sim_cfd"
     BIM2SIM_FLAG: ".dev"
-    IMAGE_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-debian"
     IMAGE_NAME: "bim2sim-cfd"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -281,7 +281,7 @@ docker_build_plugin:cfd:nightly:
   variables:
     BIM2SIM_NAME: "bim2sim_cfd"
     BIM2SIM_FLAG: ".nightly"
-    IMAGE_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-debian"
     IMAGE_NAME: "bim2sim-cfd"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -334,7 +334,7 @@ docker_build_plugin:energyplus:main:
   variables:
     BIM2SIM_NAME: "bim2sim_energyplus"
     BIM2SIM_FLAG: ""
-    IMAGE_FLAG: ""
+    IMAGE_FLAG: "-debian"
     IMAGE_NAME: "bim2sim-energyplus"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -348,7 +348,7 @@ docker_build_plugin:energyplus:dev:
   variables:
     BIM2SIM_NAME: "bim2sim_energyplus"
     BIM2SIM_FLAG: ".dev"
-    IMAGE_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-debian"
     IMAGE_NAME: "bim2sim-energyplus"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -362,7 +362,7 @@ docker_build_plugin:energyplus:nightly:
   variables:
     BIM2SIM_NAME: "bim2sim_energyplus"
     BIM2SIM_FLAG: ".nightly"
-    IMAGE_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-debian"
     IMAGE_NAME: "bim2sim-energyplus"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -452,7 +452,7 @@ docker_build_plugin:hkesim:main:
   variables:
     BIM2SIM_NAME: "bim2sim_hkesim"
     BIM2SIM_FLAG: ""
-    IMAGE_FLAG: ""
+    IMAGE_FLAG: "-debian"
     IMAGE_NAME: "bim2sim-hkesim"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -466,7 +466,7 @@ docker_build_plugin:hkesim:dev:
   variables:
     BIM2SIM_NAME: "bim2sim_hkesim"
     BIM2SIM_FLAG: ".dev"
-    IMAGE_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-debian"
     IMAGE_NAME: "bim2sim-hkesim"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -480,7 +480,7 @@ docker_build_plugin:hkesim:nightly:
   variables:
     BIM2SIM_NAME: "bim2sim_hkesim"
     BIM2SIM_FLAG: ".nightly"
-    IMAGE_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-debian"
     IMAGE_NAME: "bim2sim-hkesim"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -496,7 +496,7 @@ docker_build_plugin:lca:main:
   variables:
     BIM2SIM_NAME: "bim2sim_lca"
     BIM2SIM_FLAG: ""
-    IMAGE_FLAG: ""
+    IMAGE_FLAG: "-debian"
     IMAGE_NAME: "bim2sim-lca"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -510,7 +510,7 @@ docker_build_plugin:lca:dev:
   variables:
     BIM2SIM_NAME: "bim2sim_lca"
     BIM2SIM_FLAG: ".dev"
-    IMAGE_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-debian"
     IMAGE_NAME: "bim2sim-lca"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -524,7 +524,7 @@ docker_build_plugin:lca:nightly:
   variables:
     BIM2SIM_NAME: "bim2sim_lca"
     BIM2SIM_FLAG: ".nightly"
-    IMAGE_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-debian"
     IMAGE_NAME: "bim2sim-lca"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -576,7 +576,7 @@ docker_build_plugin:teaser:main:
   variables:
     BIM2SIM_NAME: "bim2sim_teaser"
     BIM2SIM_FLAG: ""
-    IMAGE_FLAG: ""
+    IMAGE_FLAG: "-debian"
     IMAGE_NAME: "bim2sim-teaser"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -590,7 +590,7 @@ docker_build_plugin:teaser:dev:
   variables:
     BIM2SIM_NAME: "bim2sim_teaser"
     BIM2SIM_FLAG: ".dev"
-    IMAGE_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-debian"
     IMAGE_NAME: "bim2sim-teaser"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -604,7 +604,7 @@ docker_build_plugin:teaser:nightly:
   variables:
     BIM2SIM_NAME: "bim2sim_teaser"
     BIM2SIM_FLAG: ".nightly"
-    IMAGE_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-debian"
     IMAGE_NAME: "bim2sim-teaser"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_build
@@ -672,7 +672,7 @@ docker_build_bim2sim:env_dymola_base:dev:
   variables:
     BIM2SIM_NAME: "bim2sim_base"
     BIM2SIM_FLAG: ".dev"
-    IMAGE_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-dymola"
     IMAGE_NAME: "dymola-bim2sim-base"
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
   extends: .docker_dymola_build
@@ -686,7 +686,7 @@ docker_build_bim2sim:env_dymola_base:main:
   variables:
     BIM2SIM_NAME: "bim2sim_base"
     BIM2SIM_FLAG: ""
-    IMAGE_FLAG: ""
+    IMAGE_FLAG: "-dymola"
     IMAGE_NAME: "dymola-bim2sim-base"
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
   extends: .docker_dymola_build
@@ -700,7 +700,7 @@ docker_build_bim2sim:env_dymola_base:nightly:
   variables:
     BIM2SIM_NAME: "bim2sim_base"
     BIM2SIM_FLAG: ".nightly"
-    IMAGE_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-dymola"
     IMAGE_NAME: "dymola-bim2sim-base"
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
   extends: .docker_dymola_build
@@ -753,7 +753,7 @@ docker_build_plugin:dymola_teaser:main:
   variables:
     BIM2SIM_NAME: "bim2sim_teaser"
     BIM2SIM_FLAG: ""
-    IMAGE_FLAG: ""
+    IMAGE_FLAG: "-dymola"
     IMAGE_NAME: "dymola-bim2sim-teaser"
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
   extends: .docker_dymola_build
@@ -767,7 +767,7 @@ docker_build_plugin:dymola_teaser:dev:
   variables:
     BIM2SIM_NAME: "bim2sim_teaser"
     BIM2SIM_FLAG: ".dev"
-    IMAGE_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-dymola"
     IMAGE_NAME: "dymola-bim2sim-teaser"
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
   extends: .docker_dymola_build
@@ -781,7 +781,7 @@ docker_build_plugin:dymola_teaser:nightly:
   variables:
     BIM2SIM_NAME: "bim2sim_teaser"
     BIM2SIM_FLAG: ".nightly"
-    IMAGE_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-dymola"
     IMAGE_NAME: "dymola-bim2sim-teaser"
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
   extends: .docker_dymola_build
@@ -835,7 +835,7 @@ docker_build_total:main:
   variables:
     BIM2SIM_NAME: "bim2sim"
     BIM2SIM_FLAG: ""
-    IMAGE_FLAG: ""
+    IMAGE_FLAG: "-dymola"
     IMAGE_NAME: "bim2sim"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_dymola_build
@@ -849,7 +849,7 @@ docker_build_total:dev:
   variables:
     BIM2SIM_NAME: "bim2sim"
     BIM2SIM_FLAG: ".dev"
-    IMAGE_FLAG: ".dev"
+    IMAGE_FLAG: ".dev-dymola"
     IMAGE_NAME: "bim2sim"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_dymola_build
@@ -863,7 +863,7 @@ docker_build_total:nightly:
   variables:
     BIM2SIM_NAME: "bim2sim"
     BIM2SIM_FLAG: ".nightly"
-    IMAGE_FLAG: ".nightly"
+    IMAGE_FLAG: ".nightly-dymola"
     IMAGE_NAME: "bim2sim"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
   extends: .docker_dymola_build

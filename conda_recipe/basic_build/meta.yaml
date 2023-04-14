@@ -54,9 +54,11 @@ requirements:
     - pip
     - setuptools
     - poetry
+    - cython
+    - numpy
   run:
     {% for dep in requirements["dependencies"] %}
-      {%- if dep != {'pip': ['-r requirements.txt', '-r dependency_requirements.txt']} -%}
+      {%- if dep != {'pip': ['-r file:requirements.txt', '-r file:dependency_requirements.txt']} -%}
       - {{ dep.lower() }}
       {%- endif %}
     {% endfor %}
@@ -64,8 +66,10 @@ requirements:
 test:
   requires:
     - python  >=3.8,<3.10
+    - pint
     - pythonocc-core
     - ifcopenshell
+    - sparse_dot_topn
   source_files:
     - conda_recipe/basic_build/base_run_test.sh # [not win]
     - conda_recipe/basic_build/base_run_test.bat # [win]

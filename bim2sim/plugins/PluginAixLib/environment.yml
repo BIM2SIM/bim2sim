@@ -10,5 +10,5 @@ dependencies:
   - python>=3.8,<3.10
   - bim2sim_base
   - pip:
-    - -r bim2sim/plugins/PluginAixLib/requirements.txt
-    - -r bim2sim/plugins/PluginAixLib/dependency_requirements.txt
+    - -r file:bim2sim/plugins/PluginAixLib/requirements.txt
+    - -r file:bim2sim/plugins/PluginAixLib/dependency_requirements.txt

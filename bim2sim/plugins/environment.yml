@@ -7,7 +7,7 @@ channels:
   - anaconda
 
 dependencies:
-  - python >=3.8.*,<3.10.*
+  - python >=3.8,<3.10
   - bim2sim_aixlib
   - bim2sim_cfd
   - bim2sim_energyplus
@@ -15,6 +15,6 @@ dependencies:
   - bim2sim_lca
   - bim2sim_teaser
   - pip:
-    - -r bim2sim/plugins/requirements.txt
-    - -r bim2sim/plugins/dependency_requirements.txt
+    - -r file:bim2sim/plugins/requirements.txt
+    - -r file:bim2sim/plugins/dependency_requirements.txt
 

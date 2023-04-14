@@ -22,8 +22,9 @@ dependencies:
   - mako
   - pint
   - certifi
-  - beautifulsoup4
-  - sklearn
+  - beautifulsoup4>=4.9.3
+  - scikit-learn
+  - sparse_dot_topn
   - pip:
-    - -r requirements.txt
-    - -r dependency_requirements.txt
+    - -r file:requirements.txt
+    - -r file:dependency_requirements.txt

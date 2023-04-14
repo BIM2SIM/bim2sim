@@ -25,7 +25,7 @@ requirements:
     - python >=3.8,<3.10
     - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
     {% for dep in requirements[ "dependencies" ] %}
-      {%- if dep != { 'pip': [ '-r bim2sim/plugins/PluginEnergyPlus/requirements.txt', '-r bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt' ] } and dep != "bim2sim_base" -%}
+      {%- if dep != { 'pip': [ '-r file:bim2sim/plugins/PluginEnergyPlus/requirements.txt', '-r file:bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt' ] } and dep != "bim2sim_base" -%}
       - {{ dep.lower() }}
       {%- endif %}
     {% endfor %}
