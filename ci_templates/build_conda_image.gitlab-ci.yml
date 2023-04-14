@@ -70,7 +70,7 @@ conda_build_bim2sim:base:main:
     stage: build_conda_base
     variables:
         BIM2SIM_NAME: "bim2sim_base"
-        CONDA_FILE:  "conda_recipe/basic_build/meta.yaml"
+        CONDA_FILE:  "conda_recipe/basic_build"
         BIM2SIM_FLAG: ""
     extends: .conda_build
     rules:
@@ -82,7 +82,7 @@ conda_build_bim2sim:base:dev:
     stage: build_conda_base
     variables:
         BIM2SIM_NAME: "bim2sim_base"
-        CONDA_FILE:  "conda_recipe/basic_build/meta.yaml"
+        CONDA_FILE:  "conda_recipe/basic_build"
         BIM2SIM_FLAG: ".dev"
     extends: .conda_build
     rules:
@@ -94,7 +94,7 @@ conda_build_bim2sim:base:nightly:
     stage: build_conda_base
     variables:
         BIM2SIM_NAME: "bim2sim_base"
-        CONDA_FILE:  "conda_recipe/basic_build/meta.yaml"
+        CONDA_FILE:  "conda_recipe/basic_build"
         BIM2SIM_FLAG: ".nightly"
     extends: .conda_build
     rules:
@@ -118,7 +118,7 @@ build_conda_plugin:aixlib:main:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_aixlib"
-        CONDA_FILE: "conda_recipe/plugins/PluginAixLib/meta.yaml"
+        CONDA_FILE: "conda_recipe/plugins/PluginAixLib"
         BIM2SIM_FLAG: ""
     extends: .conda_build
     rules:
@@ -130,7 +130,7 @@ build_conda_plugin:aixlib:dev:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_aixlib"
-        CONDA_FILE: "conda_recipe/plugins/PluginAixLib/meta.yaml"
+        CONDA_FILE: "conda_recipe/plugins/PluginAixLib"
         BIM2SIM_FLAG: ".dev"
     extends: .conda_build
     rules:
@@ -142,7 +142,7 @@ build_conda_plugin:aixlib:nightly:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_aixlib"
-        CONDA_FILE: "conda_recipe/plugins/PluginAixLib/meta.yaml"
+        CONDA_FILE: "conda_recipe/plugins/PluginAixLib"
         BIM2SIM_FLAG: ".nightly"
     extends: .conda_build
     rules:
@@ -153,7 +153,7 @@ build_conda_plugin:cfd:main:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_cfd"
-        CONDA_FILE: "conda_recipe/plugins/PluginCFD/meta.yaml"
+        CONDA_FILE: "conda_recipe/plugins/PluginCFD"
         BIM2SIM_FLAG: ""
     extends: .conda_build
     rules:
@@ -165,7 +165,7 @@ build_conda_plugin:cfd:dev:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_cfd"
-        CONDA_FILE: "conda_recipe/plugins/PluginCFD/meta.yaml"
+        CONDA_FILE: "conda_recipe/plugins/PluginCFD"
         BIM2SIM_FLAG: ".dev"
     extends: .conda_build
     rules:
@@ -177,7 +177,7 @@ build_conda_plugin:cfd:nightly:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_cfd"
-        CONDA_FILE: "conda_recipe/plugins/PluginCFD/meta.yaml"
+        CONDA_FILE: "conda_recipe/plugins/PluginCFD"
         BIM2SIM_FLAG: ".nightly"
     extends: .conda_build
     rules:
@@ -188,7 +188,7 @@ build_conda_plugin:energyplus:main:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_energyplus"
-        CONDA_FILE: "conda_recipe/plugins/PluginEnergyPlus/meta.yaml"
+        CONDA_FILE: "conda_recipe/plugins/PluginEnergyPlus"
         BIM2SIM_FLAG: ""
     extends: .conda_build
     rules:
@@ -200,7 +200,7 @@ build_conda_plugin:energyplus:dev:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_energyplus"
-        CONDA_FILE: "conda_recipe/plugins/PluginEnergyPlus/meta.yaml"
+        CONDA_FILE: "conda_recipe/plugins/PluginEnergyPlus"
         BIM2SIM_FLAG: ".dev"
     extends: .conda_build
     rules:
@@ -212,7 +212,7 @@ build_conda_plugin:energyplus:nightly:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_energyplus"
-        CONDA_FILE: "conda_recipe/plugins/PluginEnergyPlus/meta.yaml"
+        CONDA_FILE: "conda_recipe/plugins/PluginEnergyPlus"
         BIM2SIM_FLAG: ".nightly"
     extends: .conda_build
     rules:
@@ -224,7 +224,7 @@ build_conda_plugin:hkesim:main:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_hkesim"
-        CONDA_FILE: "conda_recipe/plugins/PluginHKESim/meta.yaml"
+        CONDA_FILE: "conda_recipe/plugins/PluginHKESim"
         BIM2SIM_FLAG: ""
     extends: .conda_build
     rules:
@@ -236,7 +236,7 @@ build_conda_plugin:hkesim:dev:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_hkesim"
-        CONDA_FILE: "conda_recipe/plugins/PluginHKESim/meta.yaml"
+        CONDA_FILE: "conda_recipe/plugins/PluginHKESim"
         BIM2SIM_FLAG: ".dev"
     extends: .conda_build
     rules:
@@ -249,7 +249,7 @@ build_conda_plugin:hkesim:nightly:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_hkesim"
-        CONDA_FILE: "conda_recipe/plugins/PluginHKESim/meta.yaml"
+        CONDA_FILE: "conda_recipe/plugins/PluginHKESim"
         BIM2SIM_FLAG: ".nightly"
     extends: .conda_build
     rules:
@@ -261,7 +261,7 @@ build_conda_plugin:lca:main:
     stage: build_conda_plugin
     variables:
       BIM2SIM_NAME: "bim2sim_lca"
-      CONDA_FILE: "conda_recipe/plugins/PluginLCA/meta.yaml"
+      CONDA_FILE: "conda_recipe/plugins/PluginLCA"
       BIM2SIM_FLAG: ""
     extends: .conda_build
     rules:
@@ -273,7 +273,7 @@ build_conda_plugin:lca:dev:
     stage: build_conda_plugin
     variables:
       BIM2SIM_NAME: "bim2sim_lca"
-      CONDA_FILE: "conda_recipe/plugins/PluginLCA/meta.yaml"
+      CONDA_FILE: "conda_recipe/plugins/PluginLCA"
       BIM2SIM_FLAG: ".dev"
     extends: .conda_build
     rules:
@@ -285,7 +285,7 @@ build_conda_plugin:lca:nightly:
     stage: build_conda_plugin
     variables:
       BIM2SIM_NAME: "bim2sim_lca"
-      CONDA_FILE: "conda_recipe/plugins/PluginLCA/meta.yaml"
+      CONDA_FILE: "conda_recipe/plugins/PluginLCA"
       BIM2SIM_FLAG: ".nightly"
     extends: .conda_build
     rules:
@@ -296,7 +296,7 @@ build_conda_plugin:teaser:main:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_teaser"
-        CONDA_FILE: "conda_recipe/plugins/PluginTeaser/meta.yaml"
+        CONDA_FILE: "conda_recipe/plugins/PluginTeaser"
         BIM2SIM_FLAG: ""
     extends: .conda_build
     rules:
@@ -308,7 +308,7 @@ build_conda_plugin:teaser:dev:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_teaser"
-        CONDA_FILE: "conda_recipe/plugins/PluginTeaser/meta.yaml"
+        CONDA_FILE: "conda_recipe/plugins/PluginTeaser"
         BIM2SIM_FLAG: ".dev"
     extends: .conda_build
     rules:
@@ -321,7 +321,7 @@ build_conda_plugin:teaser:nightly:
     stage: build_conda_plugin
     variables:
         BIM2SIM_NAME: "bim2sim_teaser"
-        CONDA_FILE: "conda_recipe/plugins/PluginTeaser/meta.yaml"
+        CONDA_FILE: "conda_recipe/plugins/PluginTeaser"
         BIM2SIM_FLAG: ".nightly"
     extends: .conda_build
     rules:
@@ -333,7 +333,7 @@ build_conda_bim2sim:total:main:
     stage: build_conda_total
     variables:
         BIM2SIM_NAME: "bim2sim"
-        CONDA_FILE: "conda_recipe/total/meta.yaml"
+        CONDA_FILE: "conda_recipe/total"
         BIM2SIM_FLAG: ""
     extends: .conda_build
     rules:
@@ -345,7 +345,7 @@ build_conda_bim2sim:total:dev:
     stage: build_conda_total
     variables:
         BIM2SIM_NAME: "bim2sim"
-        CONDA_FILE: "conda_recipe/total/meta.yaml"
+        CONDA_FILE: "conda_recipe/total"
         BIM2SIM_FLAG: ".dev"
     extends: .conda_build
     rules:
@@ -357,7 +357,7 @@ build_conda_bim2sim:total:nightly:
     stage: build_conda_total
     variables:
         BIM2SIM_NAME: "bim2sim"
-        CONDA_FILE: "conda_recipe/total/meta.yaml"
+        CONDA_FILE: "conda_recipe/total"
         BIM2SIM_FLAG: ".nightly"
     extends: .conda_build
     rules:

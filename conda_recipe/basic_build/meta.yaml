@@ -47,9 +47,10 @@ build:
     - $RPATH/libstdc++.so.6 # [linux]
     - $RPATH/libm.so.6 # [linux]
 
-requirements:
 
+requirements:
   host:
+    - gcc # [linux]
     - python>=3.8,<3.10
     - pip
     - setuptools
