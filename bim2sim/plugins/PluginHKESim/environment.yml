@@ -7,8 +7,9 @@ channels:
   - anaconda
 
 dependencies:
-  - python>=3.8.*,<3.10.*
+  - python>=3.8,<3.10
   - bim2sim_base
+  - pip
   - pip:
     - -r bim2sim/plugins/PluginHKESim/requirements.txt
     - -r bim2sim/plugins/PluginHKESim/dependency_requirements.txt

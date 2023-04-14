@@ -16,20 +16,20 @@ variables:
 
 .conda_build_rules:main:
   rules:
-    - if: $CI_BUILD == "main"
-      when: on_success
-    - if: $CI_BUILD =~ /ci_build_main/
-      when: on_success
     - if: $CI_BUILD =~ /ci_build_conda_main/
+      when: on_success
+    - if: $CI_BUILD =~ /ci_build_main/ && $CI_COMMIT_BRANCH == "main"
+      when: on_success
+    - if: $CI_BUILD =~ /ci_build_conda_main/ && $CI_COMMIT_BRANCH == "main"
       when: on_success
 
 .conda_build_rules:dev:
   rules:
-    - if: $CI_COMMIT_BRANCH == "development"
-      when: on_success
-    - if: $CI_BUILD =~ /ci_build_dev/
-      when: on_success
     - if: $CI_BUILD =~ /ci_build_conda_dev/
+      when: on_success
+    - if: $CI_BUILD =~ /ci_build_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: on_success
+    - if: $CI_BUILD =~ /ci_build_conda_dev/ && $CI_COMMIT_BRANCH == "development"
       when: on_success
 
 .conda_build_rules:nightly:
@@ -39,6 +39,8 @@ variables:
 
 .conda_build:
   image: continuumio/miniconda3
+  before_script:
+    - echo "BUILD_VERSION=${IMAGE_NAME}" >> build.env
   script:
     - apt update
     - apt upgrade -y
@@ -59,6 +61,8 @@ variables:
     expire_in: 1 hour
     paths:
       - conda-bld
+    reports:
+      dotenv: build.env
 
 
 # [Build Conda Base]
@@ -71,7 +75,7 @@ conda_build_bim2sim:base:main:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:main, rules]
-      - if: $CI_BUILD =~ /ci_build_base_main/
+      - if: $CI_BUILD =~ /ci_build_base_main/ && $CI_COMMIT_BRANCH == "main"
         when: on_success
 
 conda_build_bim2sim:base:dev:
@@ -83,7 +87,7 @@ conda_build_bim2sim:base:dev:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:dev, rules]
-      - if: $CI_BUILD =~ /ci_build_base_dev/
+      - if: $CI_BUILD =~ /ci_build_base_dev/ && $CI_COMMIT_BRANCH == "development"
         when: on_success
 
 conda_build_bim2sim:base:nightly:
@@ -100,13 +104,13 @@ conda_build_bim2sim:base:nightly:
 .conda_build_rules:plugin:main:
   rules:
      - !reference [.conda_build_rules:main, rules]
-     - if: $CI_BUILD =~ /ci_build_plugin_main/
+     - if: $CI_BUILD =~ /ci_build_plugin_main/ && $CI_COMMIT_BRANCH == "main"
        when: on_success
 
 .conda_build_rules:plugin:dev:
   rules:
      - !reference [.conda_build_rules:dev, rules]
-     - if: $CI_BUILD =~ /ci_build_plugin_dev/
+     - if: $CI_BUILD =~ /ci_build_plugin_dev/ && $CI_COMMIT_BRANCH == "development"
        when: on_success
 
 # [Build Conda aixlib plugins]
@@ -119,7 +123,7 @@ build_conda_plugin:aixlib:main:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:main, rules]
-      - if: $CI_BUILD =~ /ci_build_plugin_aixlib_main/
+      - if: $CI_BUILD =~ /ci_build_plugin_aixlib_main/ && $CI_COMMIT_BRANCH == "main"
         when: on_success
 
 build_conda_plugin:aixlib:dev:
@@ -131,7 +135,7 @@ build_conda_plugin:aixlib:dev:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
-      - if: $CI_BUILD =~ /ci_build_plugin_aixlib_dev/
+      - if: $CI_BUILD =~ /ci_build_plugin_aixlib_dev/ && $CI_COMMIT_BRANCH == "development"
         when: on_success
 
 build_conda_plugin:aixlib:nightly:
@@ -154,7 +158,7 @@ build_conda_plugin:cfd:main:
     extends: .conda_build
     rules:
       - !reference [ .conda_build_rules:plugin:main, rules ]
-      - if: $CI_BUILD =~ /ci_build_plugin_cfd_main/
+      - if: $CI_BUILD =~ /ci_build_plugin_cfd_main/ && $CI_COMMIT_BRANCH == "main"
         when: on_success
 
 build_conda_plugin:cfd:dev:
@@ -166,7 +170,7 @@ build_conda_plugin:cfd:dev:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
-      - if: $CI_BUILD =~ /ci_build_plugin_cfd_dev/
+      - if: $CI_BUILD =~ /ci_build_plugin_cfd_dev/ && $CI_COMMIT_BRANCH == "development"
         when: on_success
 
 build_conda_plugin:cfd:nightly:
@@ -189,7 +193,7 @@ build_conda_plugin:energyplus:main:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:main, rules ]
-      - if: $CI_BUILD =~ /ci_build_plugin_energyplus_main/
+      - if: $CI_BUILD =~ /ci_build_plugin_energyplus_main/ && $CI_COMMIT_BRANCH == "main"
         when: on_success
 
 build_conda_plugin:energyplus:dev:
@@ -201,7 +205,7 @@ build_conda_plugin:energyplus:dev:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
-      - if: $CI_BUILD =~ /ci_build_plugin_energyplus_dev/
+      - if: $CI_BUILD =~ /ci_build_plugin_energyplus_dev/ && $CI_COMMIT_BRANCH == "development"
         when: on_success
 
 build_conda_plugin:energyplus:nightly:
@@ -225,7 +229,7 @@ build_conda_plugin:hkesim:main:
     extends: .conda_build
     rules:
       - !reference [ .conda_build_rules:plugin:main, rules ]
-      - if: $CI_BUILD =~ /ci_build_plugin_hkesim_main/
+      - if: $CI_BUILD =~ /ci_build_plugin_hkesim_main/ && $CI_COMMIT_BRANCH == "main"
         when: on_success
 
 build_conda_plugin:hkesim:dev:
@@ -237,7 +241,7 @@ build_conda_plugin:hkesim:dev:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
-      - if: $CI_BUILD =~ /ci_build_plugin_hkesim_dev/
+      - if: $CI_BUILD =~ /ci_build_plugin_hkesim_dev/ && $CI_COMMIT_BRANCH == "development"
         when: on_success
 
 
@@ -274,7 +278,7 @@ build_conda_plugin:lca:dev:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
-      - if: $CI_BUILD =~ /ci_build_plugin_lca_dev/
+      - if: $CI_BUILD =~ /ci_build_plugin_lca_dev/ && $CI_COMMIT_BRANCH == "development"
         when: on_success
 
 build_conda_plugin:lca:nightly:
@@ -297,7 +301,7 @@ build_conda_plugin:teaser:main:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:main, rules ]
-      - if: $CI_BUILD =~ /ci_build_plugin_teaser_main/
+      - if: $CI_BUILD =~ /ci_build_plugin_teaser_main/ && $CI_COMMIT_BRANCH == "main"
         when: on_success
 
 build_conda_plugin:teaser:dev:
@@ -309,7 +313,7 @@ build_conda_plugin:teaser:dev:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:plugin:dev, rules]
-      - if: $CI_BUILD =~ /ci_build_plugin_teaser_dev/
+      - if: $CI_BUILD =~ /ci_build_plugin_teaser_dev/ && $CI_COMMIT_BRANCH == "development"
         when: on_success
 
 
@@ -334,7 +338,7 @@ build_conda_bim2sim:total:main:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:main, rules]
-      - if: $CI_BUILD =~ /ci_build_total_main/
+      - if: $CI_BUILD =~ /ci_build_total_main/ && $CI_COMMIT_BRANCH == "main"
         when: on_success
 
 build_conda_bim2sim:total:dev:
@@ -346,7 +350,7 @@ build_conda_bim2sim:total:dev:
     extends: .conda_build
     rules:
       - !reference [.conda_build_rules:dev, rules]
-      - if: $CI_BUILD =~ /ci_build_total_dev/
+      - if: $CI_BUILD =~ /ci_build_total_dev/ && $CI_COMMIT_BRANCH == "development"
         when: on_success
 
 build_conda_bim2sim:total:nightly:
@@ -395,43 +399,41 @@ build_conda_bim2sim:total:nightly:
 
 .conda_release_rules:main:
   rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-      when: on_success
-    - if: $CI_BUILD =~ /ci_build_main/
-      when: manual
     - if: $CI_BUILD =~ /ci_build_conda_main/
+      when: manual
+    - if: $CI_BUILD =~ /ci_build_main/ && $CI_COMMIT_BRANCH == "main"
+      when: manual
+    - if: $CI_BUILD =~ /ci_build_conda_main/ && $CI_COMMIT_BRANCH == "main"
       when: manual
 
 
 .conda_release_rules:dev:
   rules:
-    - if: $CI_COMMIT_BRANCH == "development"
-      when: on_success
-    - if: $CI_BUILD =~ /ci_build_dev/
-      when: manual
     - if: $CI_BUILD =~ /ci_build_conda_dev/
+      when: manual
+    - if: $CI_BUILD =~ /ci_build_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: manual
+    - if: $CI_BUILD =~ /ci_build_conda_dev/ && $CI_COMMIT_BRANCH == "development"
       when: manual
 
 .conda_release_rules:nightly:
   rules:
-    - if: $CI_COMMIT_BRANCH == "development"
-      when: on_success
-    - if: $CI_BUILD =~ /ci_build_dev/
+    - if: $CI_BUILD =~ /ci_build_dev/ && $CI_COMMIT_BRANCH == "development"
       when: manual
-    - if: $CI_BUILD =~ /ci_build_conda_dev/
+    - if: $CI_BUILD =~ /ci_build_conda_dev/ && $CI_COMMIT_BRANCH == "development"
       when: manual
 
 
 .conda_release_rules:plugin:main:
   rules:
      - !reference [.conda_release_rules:main, rules]
-     - if: $CI_BUILD =~ /ci_build_plugin_main/
+     - if: $CI_BUILD =~ /ci_build_plugin_main/ && $CI_COMMIT_BRANCH == "main"
        when: manual
 
 .conda_release_rules:plugin:dev:
   rules:
      - !reference [.conda_release_rules:dev, rules]
-     - if: $CI_BUILD =~ /ci_build_plugin_dev/
+     - if: $CI_BUILD =~ /ci_build_plugin_dev/ && $CI_COMMIT_BRANCH == "development"
        when: manual
 
 
@@ -439,33 +441,27 @@ build_conda_bim2sim:total:nightly:
 # [release base conda image]
 release_conda_bim2sim:base:main:
   stage: release_conda_base
-  variables:
-    BIM2SIM_NAME: "bim2sim_base"
-  dependencies:
+  needs:
     - conda_build_bim2sim:base:main
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:main, rules ]
-    - if: $CI_BUILD =~ /ci_build_base_main/
+    - if: $CI_BUILD =~ /ci_build_base_main/ && $CI_COMMIT_BRANCH == "main"
       when: manual
 
 release_conda_bim2sim:base:dev:
   stage: release_conda_base
-  variables:
-    BIM2SIM_NAME: "bim2sim_base"
-  dependencies:
+  needs:
     - conda_build_bim2sim:base:dev
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:dev, rules ]
-    - if: $CI_BUILD =~ /ci_build_base_dev/
+    - if: $CI_BUILD =~ /ci_build_base_dev/ && $CI_COMMIT_BRANCH == "development"
       when: manual
 
 release_conda_bim2sim:base:nightly:
   stage: release_conda_base
-  variables:
-    BIM2SIM_NAME: "bim2sim_base"
-  dependencies:
+  needs:
     - conda_build_bim2sim:base:nightly
   extends: .conda_release
   rules:
@@ -476,33 +472,27 @@ release_conda_bim2sim:base:nightly:
 # [release aixlib plugin conda]
 release_conda_plugin:aixlib:main:
   stage: release_conda_plugin
-  variables:
-    BIM2SIM_NAME: "bim2sim_aixlib"
-  dependencies:
+  needs:
     - build_conda_plugin:aixlib:main
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:main, rules ]
-    - if: $CI_BUILD =~ /ci_build_plugin_aixlib_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_aixlib_main/ && $CI_COMMIT_BRANCH == "main"
       when: manual
 
 release_conda_plugin:aixlib:dev:
   stage: release_conda_plugin
-  variables:
-    BIM2SIM_NAME: "bim2sim_aixlib"
-  dependencies:
+  needs:
     - build_conda_plugin:aixlib:dev
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:dev, rules ]
-    - if: $CI_BUILD =~ /ci_build_plugin_aixlib_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_aixlib_dev/ && $CI_COMMIT_BRANCH == "development"
       when: manual
 
 release_conda_plugin:aixlib:nightly:
   stage: release_conda_plugin
-  variables:
-    BIM2SIM_NAME: "bim2sim_aixlib"
-  dependencies:
+  needs:
     - build_conda_plugin:aixlib:nightly
   extends: .conda_release
   rules:
@@ -513,33 +503,27 @@ release_conda_plugin:aixlib:nightly:
 
 release_conda_plugin:cfd:main:
   stage: release_conda_plugin
-  variables:
-    BIM2SIM_NAME: "bim2sim_cfd"
-  dependencies:
+  needs:
     - build_conda_plugin:cfd:main
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:main, rules ]
-    - if: $CI_BUILD =~ /ci_build_plugin_cfd_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_cfd_main/ && $CI_COMMIT_BRANCH == "main"
       when: manual
 
 release_conda_plugin:cfd:dev:
   stage: release_conda_plugin
-  variables:
-    BIM2SIM_NAME: "bim2sim_cfd"
-  dependencies:
+  needs:
     - build_conda_plugin:cfd:dev
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:dev, rules ]
-    - if: $CI_BUILD =~ /ci_build_plugin_cfd_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_cfd_dev/ && $CI_COMMIT_BRANCH == "development"
       when: manual
 
 release_conda_plugin:cfd:nightly:
   stage: release_conda_plugin
-  variables:
-    BIM2SIM_NAME: "bim2sim_cfd"
-  dependencies:
+  needs:
     - build_conda_plugin:cfd:nightly
   extends: .conda_release
   rules:
@@ -549,33 +533,27 @@ release_conda_plugin:cfd:nightly:
 
 release_conda_plugin:energyplus:main:
   stage: release_conda_plugin
-  variables:
-    BIM2SIM_NAME: "bim2sim_energyplus"
-  dependencies:
+  needs:
     - build_conda_plugin:energyplus:main
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:main, rules ]
-    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_main/ && $CI_COMMIT_BRANCH == "main"
       when: manual
 
 release_conda_plugin:energyplus:dev:
   stage: release_conda_plugin
-  variables:
-    BIM2SIM_NAME: "bim2sim_energyplus"
-  dependencies:
+  needs:
     - build_conda_plugin:energyplus:dev
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:dev, rules ]
-    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_energyplus_dev/ && $CI_COMMIT_BRANCH == "development"
       when: manual
 
 release_conda_plugin:energyplus:nightly:
   stage: release_conda_plugin
-  variables:
-    BIM2SIM_NAME: "bim2sim_energyplus"
-  dependencies:
+  needs:
     - build_conda_plugin:energyplus:nightly
   extends: .conda_release
   rules:
@@ -585,33 +563,27 @@ release_conda_plugin:energyplus:nightly:
 
 release_conda_plugin:hkesim:main:
   stage: release_conda_plugin
-  variables:
-    BIM2SIM_NAME: "bim2sim_hkesim"
-  dependencies:
+  needs:
     - build_conda_plugin:hkesim:main
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:main, rules ]
-    - if: $CI_BUILD =~ /ci_build_plugin_hkesim_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_hkesim_main/ && $CI_COMMIT_BRANCH == "main"
       when: manual
 
 release_conda_plugin:hkesim:dev:
   stage: release_conda_plugin
-  variables:
-    BIM2SIM_NAME: "bim2sim_hkesim"
-  dependencies:
+  needs:
     - build_conda_plugin:hkesim:dev
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:dev, rules ]
-    - if: $CI_BUILD =~ /ci_build_plugin_hkesim_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_hkesim_dev/ && $CI_COMMIT_BRANCH == "development"
       when: manual
 
 release_conda_plugin:hkesim:nightly:
   stage: release_conda_plugin
-  variables:
-    BIM2SIM_NAME: "bim2sim_hkesim"
-  dependencies:
+  needs:
     - build_conda_plugin:hkesim:nightly
   extends: .conda_release
   rules:
@@ -621,33 +593,27 @@ release_conda_plugin:hkesim:nightly:
 
 release_conda_plugin:lca:main:
   stage: release_conda_plugin
-  variables:
-    BIM2SIM_NAME: "bim2sim_lca"
-  dependencies:
+  needs:
     - build_conda_plugin:lca:main
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:main, rules ]
-    - if: $CI_BUILD =~ /ci_build_plugin_lca_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_lca_main/ && $CI_COMMIT_BRANCH == "main"
       when: manual
 
 release_conda_plugin:lca:dev:
   stage: release_conda_plugin
-  variables:
-    BIM2SIM_NAME: "bim2sim_lca"
-  dependencies:
+  needs:
     - build_conda_plugin:lca:dev
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:dev, rules ]
-    - if: $CI_BUILD =~ /ci_build_plugin_lca_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_lca_dev/ && $CI_COMMIT_BRANCH == "development"
       when: manual
 
 release_conda_plugin:lca:nightly:
   stage: release_conda_plugin
-  variables:
-    BIM2SIM_NAME: "bim2sim_lca"
-  dependencies:
+  needs:
     - build_conda_plugin:lca:nightly
   extends: .conda_release
   rules:
@@ -657,33 +623,27 @@ release_conda_plugin:lca:nightly:
 
 release_conda_plugin:teaser:main:
   stage: release_conda_plugin
-  variables:
-    BIM2SIM_NAME: "bim2sim_teaser"
-  dependencies:
+  needs:
     - build_conda_plugin:teaser:main
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:main, rules ]
-    - if: $CI_BUILD =~ /ci_build_plugin_teaser_main/
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_main/ && $CI_COMMIT_BRANCH == "main"
       when: manual
 
 release_conda_plugin:teaser:dev:
   stage: release_conda_plugin
-  variables:
-    BIM2SIM_NAME: "bim2sim_teaser"
-  dependencies:
+  needs:
     - build_conda_plugin:teaser:dev
   extends: .conda_release
   rules:
     - !reference [.conda_release_rules:plugin:dev, rules ]
-    - if: $CI_BUILD =~ /ci_build_plugin_teaser_dev/
+    - if: $CI_BUILD =~ /ci_build_plugin_teaser_dev/ && $CI_COMMIT_BRANCH == "development"
       when: manual
 
 release_conda_plugin:teaser:nightly:
   stage: release_conda_plugin
-  variables:
-    BIM2SIM_NAME: "bim2sim_teaser"
-  dependencies:
+  needs:
     - build_conda_plugin:teaser:nightly
   extends: .conda_release
   rules:
@@ -693,35 +653,29 @@ release_conda_plugin:teaser:nightly:
 
 release_conda_bim2sim:total:main:
   stage: release_conda_total
-  variables:
-    BIM2SIM_NAME: "bim2sim"
-  dependencies:
+  needs:
     - build_conda_bim2sim:total:main
   extends: .conda_release
   rules:
     - !reference [ .conda_release_rules:main, rules ]
-    - if: $CI_BUILD =~ /ci_build_total_main/
+    - if: $CI_BUILD =~ /ci_build_total_main/ && $CI_COMMIT_BRANCH == "main"
       when: manual
 
 # [conda total]
 release_conda_bim2sim:total:dev:
   stage: release_conda_total
-  variables:
-    BIM2SIM_NAME: "bim2sim"
-  dependencies:
+  needs:
     - build_conda_bim2sim:total:dev
   extends: .conda_release
   rules:
     - !reference [ .conda_release_rules:dev, rules ]
-    - if: $CI_BUILD =~ /ci_build_total_dev/
+    - if: $CI_BUILD =~ /ci_build_total_dev/ && $CI_COMMIT_BRANCH == "development"
       when: manual
 
 # [conda total]
 release_conda_bim2sim:total:nightly:
   stage: release_conda_total
-  variables:
-    BIM2SIM_NAME: "bim2sim"
-  dependencies:
+  needs:
     - build_conda_bim2sim:total:nightly
   extends: .conda_release
   rules:
@@ -825,56 +779,56 @@ conda_environment:build:total:
 
 # [release anaconda]
 conda_environment:release:base:
-  dependencies:
-    - docker_build_bim2sim:base:main
+  needs:
+    - conda_environment:build:base
   variables:
     ENV_FILE: "conda_recipe/basic_build/environment.yml"
   extends: conda_release_environment
 
 conda_environment:release:plugins:aixlib:
-  dependencies:
+  needs:
     - conda_environment:build:aixlib
   variables:
     ENV_FILE: "conda_recipe/basic_build/environment.yml"
   extends: conda_release_environment
 
 conda_environment:release:plugins:cfd:
-  dependencies:
+  needs:
     - conda_environment:build:cfd
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginCFD/environment.yml"
   extends: conda_release_environment
 
 conda_environment:release:plugins:energyplus:
-  dependencies:
+  needs:
     - conda_environment:build:energyplus
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginEnergyPlus/environment.yml"
   extends: conda_release_environment
 
 conda_environment:release:plugins:hkesim:
-  dependencies:
+  needs:
     - conda_environment:build:plugins:hkesim
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginHKESim/environment.yml"
   extends: conda_release_environment
 
 conda_environment:release:plugins:lca:
-  dependencies:
+  needs:
     - conda_environment:build:plugins:lca
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginLCA/environment.yml"
   extends: conda_release_environment
 
 conda_environment:release:plugins:teaser:
-  dependencies:
+  needs:
     - conda_environment:build:plugins:teaser
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginTeaser/environment.yml"
   extends: conda_release_environment
 
 conda_environment:release:total:
-  dependencies:
+  needs:
     - conda_environment:build:total
   variables:
     ENV_FILE: "conda_recipe/total/environment.yml"

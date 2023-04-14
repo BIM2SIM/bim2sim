@@ -13,7 +13,7 @@ build:
   number: '0'
   entry_points:
     - bim2sim = bim2sim.__main__:commandline_interface
-  missing_dso_whitelist:
+  missing_dso_whitelist: # [linux]
     - $RPATH/libQt5Widgets.so.5 # [linux]
     - $RPATH/libQt5Gui.so.5 # [linux]
     - $RPATH/libtbb.so.2 # [linux]
@@ -48,27 +48,22 @@ build:
     - $RPATH/libm.so.6 # [linux]
 
 requirements:
-  build:
-    - git
-    - cmake
-    - gcc # [linux]
+
   host:
-    - python>=3.8.*,<3.10.*
+    - python>=3.8,<3.10
     - pip
     - setuptools
-    - numpy
-    - cython
     - poetry
   run:
     {% for dep in requirements["dependencies"] %}
       {%- if dep != {'pip': ['-r requirements.txt', '-r dependency_requirements.txt']} -%}
-      - {{ dep }}
+      - {{ dep.lower() }}
       {%- endif %}
     {% endfor %}
+
 test:
   requires:
-    - python>=3.8.*,<3.10.*
-    - pint
+    - python  >=3.8,<3.10
     - pythonocc-core
     - ifcopenshell
   source_files:
@@ -92,9 +87,10 @@ test:
     - bash conda_recipe/basic_build/base_run_test.sh # [not win]
     - conda_recipe/basic_build/base_run_test.bat # [win]
 
+
+
 about:
   home: https://github.com/BIM2SIM/bim2sim
   summary: "A python tool to create simulation models for different domains based on BIM IFC models."
   description: "A python tool to create simulation models for different domains based on BIM IFC models. For documentation please visit https://ebc.pages.rwth-aachen.de/EBC_all/github_ci/bim2sim/development/docs/overview.html"
   license: LICENSE
-

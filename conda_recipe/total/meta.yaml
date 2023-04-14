@@ -16,17 +16,17 @@ build:
 
 requirements:
   host:
-    - python>=3.8.*,<3.10.*
+    - python>=3.8,<3.10
     - pip
     - setuptools
   run:
-    - python >=3.8.*,<3.10.*
-    - bim2sim_aixlib=={{data.get('version')}}{{BIM2SIM_FLAG}}
-    - bim2sim_cfd=={{data.get('version')}}{{BIM2SIM_FLAG}}
-    - bim2sim_energyplus=={{data.get('version')}}{{BIM2SIM_FLAG}}
-    - bim2sim_hkesim=={{data.get('version')}}{{BIM2SIM_FLAG}}
-    - bim2sim_lca=={{data.get('version')}}{{BIM2SIM_FLAG}}
-    - bim2sim_teaser=={{data.get('version')}}{{BIM2SIM_FLAG}}
+    - python >=3.8,<3.10
+    - bim2sim_aixlib=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
+    - bim2sim_cfd=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
+    - bim2sim_energyplus=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
+    - bim2sim_hkesim=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
+    - bim2sim_lca=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
+    - bim2sim_teaser=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
 
 test:
   imports:
@@ -37,13 +37,13 @@ test:
     # bim2sim.plugins.PluginEnergyPlus
     # bim2sim.plugins.PluginLCA
   requires:
-    - python  >=3.8.*,<3.10.*
-    - bim2sim_aixlib=={{data.get('version')}}{{BIM2SIM_FLAG}}
-    - bim2sim_cfd=={{data.get('version')}}{{BIM2SIM_FLAG}}
-    - bim2sim_energyplus=={{data.get('version')}}{{BIM2SIM_FLAG}}
-    - bim2sim_hkesim=={{data.get('version')}}{{BIM2SIM_FLAG}}
-    - bim2sim_lca=={{data.get('version')}}{{BIM2SIM_FLAG}}
-    - bim2sim_teaser=={{data.get('version')}}{{BIM2SIM_FLAG}}
+    - python  >=3.8,<3.10
+    - bim2sim_aixlib=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
+    - bim2sim_cfd=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
+    - bim2sim_energyplus=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
+    - bim2sim_hkesim=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
+    - bim2sim_lca=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
+    - bim2sim_teaser=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
 
   commands:
     - bim2sim -h

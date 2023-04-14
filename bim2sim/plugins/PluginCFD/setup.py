@@ -40,9 +40,9 @@ setup(
     iinclude_package_data=True,
     package_data=copy_non_code_file(non_code_dir=f'bim2sim_cfd',
                                     not_include=[".py", ".Dockerfile", ".pyc"]),
-    python_requires='>=3.8.*,<3.10.*',
+    python_requires='>=3.8,<3.10',
     install_requires=[required],
-    #dependency_links=dep_required,
+    dependency_links=dep_required,
     classifiers=[
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',

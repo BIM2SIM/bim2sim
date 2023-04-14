@@ -1,1 +1,2 @@
 https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
+git+https://github.com/squidKid-deluxe/pyvis.git@fix-show

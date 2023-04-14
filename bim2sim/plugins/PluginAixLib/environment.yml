@@ -7,7 +7,7 @@ channels:
   - anaconda
 
 dependencies:
-  - python>=3.8.*,<3.10.*
+  - python>=3.8,<3.10
   - bim2sim_base
   - pip:
     - -r bim2sim/plugins/PluginAixLib/requirements.txt
