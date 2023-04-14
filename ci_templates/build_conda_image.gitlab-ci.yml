@@ -40,7 +40,7 @@ variables:
 .conda_build:
   image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:continuumio_miniconda3_latest
   before_script:
-    - echo "BUILD_VERSION=${IMAGE_NAME}" >> build.env
+    - echo "BUILD_VERSION=${BIM2SIM_NAME}" >> build.env
   script:
     - apt update
     - apt upgrade -y
