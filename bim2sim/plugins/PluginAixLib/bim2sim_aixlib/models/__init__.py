@@ -162,35 +162,48 @@ class ConsumerHeatingDistributorModule(AixLib):
         super().__init__(element)
 
     def request_params(self):
-        self.params['n_consumers'] = len(self.element.whitelist_elements)
+        n_consumers = len(self.element.whitelist_elements)
+        # Parameters
+        self.params["T_start"] = [self.element.return_temperature] \
+                                 * n_consumers
         self.params['redeclare package Medium'] = 'AixLib.Media.Water'
+        # Consumer Design
+        self.params['n_consumers'] = n_consumers
+        self.params["functionality"] = "\"Q_flow_fixed\""
         self.request_param("demand_type",
                            self.check_none(),
                            "demandType")
-        self.params["hasPump"] = self.element.has_pump
-        self.params["TOutSet"] = self.element.return_temperature
-        self.params["TOutSetSou"] = "AixLib.Systems.ModularEnergySystems." \
-                                   "Modules.ModularConsumer.Types.InputType." \
-                                   "Constant"
-
-        self.params["hasFeedback"] = self.element.t_control
-        self.params["TInSetSou"] = "AixLib.Systems.ModularEnergySystems." \
-                                   "Modules.ModularConsumer.Types.InputType." \
-                                   "Constant"
-        self.params["TInSet"] = self.element.return_temperature
-
-        self.params["functionality"] = "\"Q_flow_fixed\""
-
+        self.request_param("heat_capacity",
+                           self.check_numeric(
+                               min_value=0 * ureg.joule / ureg.kelvin),
+                           "capacity")
+        # Nominal Conditions
         self.request_param("rated_power",
                            self.check_numeric(min_value=0 * ureg.kilowatt),
                            "Q_flow_fixed")
         self.request_param("dT_water",
                            self.check_numeric(min_value=0 * ureg.kelvin),
                            "dT_nom")
-        self.request_param("heat_capacity",
-                           self.check_numeric(
-                               min_value=0 * ureg.joule / ureg.kelvin),
-                           "capacity")
+
+        # Flow temperature control (Mixture Valve)
+        self.params["hasFeedback"] = self.element.t_control
+        self.params["TInSetSou"] = "AixLib.Systems.ModularEnergySystems." \
+                                   "Modules.ModularConsumer.Types.InputType." \
+                                   "Constant"
+        self.params["TInSet"] = self.element.return_temperature
+        self.params["k_ControlConsumerValve"] = [0.1] * n_consumers
+        self.params["Ti_ControlConsumerValve"] = [10] * n_consumers
+        self.params["dp_Valve"] = [1000] * n_consumers
+
+        # Return temperature control (Pump)
+        self.params["hasPump"] = self.element.has_pump
+        self.params["TOutSet"] = self.element.return_temperature
+        self.params["TOutSetSou"] = "AixLib.Systems.ModularEnergySystems." \
+                                   "Modules.ModularConsumer.Types.InputType." \
+                                   "Constant"
+        self.params["k_ControlConsumerPump"] = [0.1] * n_consumers
+        self.params["Ti_ControlConsumerPump"] = [10] * n_consumers
+        self.params["dp_nominalConPump"] = [10000] * n_consumers
 
     def get_port_name(self, port):
         try:
