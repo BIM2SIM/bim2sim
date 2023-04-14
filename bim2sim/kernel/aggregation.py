@@ -995,8 +995,8 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
     def _calc_heat_capacity(self, name):
         """ Heat capacity of consumer."""
-        return sum(ele.heat_capacity * ele.body_mass for ele in
-                   self.whitelist_elements) / self.body_mass
+        return sum(ele.heat_capacity  for ele in
+                   self.whitelist_elements)
 
     heat_capacity = attribute.Attribute(
         description="Heat capacity of Consumer",
