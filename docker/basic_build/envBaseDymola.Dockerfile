@@ -1,6 +1,6 @@
 # The build-stage image:
 #FROM continuumio/miniconda3 AS build
-FROM condaforge/mambaforge AS build
+FROM registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:continuumio_miniconda3_latest AS build
 ARG BIM2SIM_NAME
 ARG BIM2SIM_VERSION
 ARG BIM2SIM_FLAG

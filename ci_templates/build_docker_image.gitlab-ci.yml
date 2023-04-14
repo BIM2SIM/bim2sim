@@ -24,9 +24,9 @@ variables:
 
 
 .docker_build:
-  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
   services:
-    - name: docker:18.09.7-dind
+    - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
       command: [ "--mtu=1440" ]
   before_script:
     - echo "BUILD_VERSION=${IMAGE_NAME}" >> build.env
@@ -654,9 +654,9 @@ test_plugin:teaser:nightly:
 # [build docker dymola]
 
 .docker_dymola_build:
-  image: docker@sha256:c8bb6fa5388b56304dd770c4bc0478de81ce18540173b1a589178c0d31bfce90
+  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
   services:
-      - name: docker:18.09.7-dind
+      - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
         command: [ "--mtu=1440" ]
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA
@@ -1203,9 +1203,9 @@ test_bim2sim:plugin:TEASER_regression:nightly:
        when: manual
 
 .docker_release:
-  image: docker:latest
+  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
   services:
-      - name: docker:18.09.7-dind
+      - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
         command: [ "--mtu=1440" ]
   script:
     - docker pull $TEST_IMAGE

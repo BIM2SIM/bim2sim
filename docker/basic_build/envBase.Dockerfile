@@ -1,6 +1,5 @@
 # The build-stage image:
-#FROM continuumio/miniconda3 AS build
-FROM condaforge/mambaforge AS build
+FROM registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:condaforge_mambaforge_latest AS build
 ARG BIM2SIM_NAME
 ARG BIM2SIM_VERSION
 ARG BIM2SIM_FLAG
@@ -55,7 +54,7 @@ RUN find -name '*.a' -delete   && \
     /venv/share/terminfo \
   rm -rf /venv/lib/python3.9/site-packages/uvloop/loop.c
 
-FROM debian:buster AS runtime
+FROM registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:debian_buster AS runtime
 ARG DEBIAN_FRONTEND=noninteractive
 # ENV DISPLAY=host.docker.internal:0.0
 WORKDIR /bim2sim-coding

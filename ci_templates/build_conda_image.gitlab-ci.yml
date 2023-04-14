@@ -38,7 +38,7 @@ variables:
       when: on_success
 
 .conda_build:
-  image: continuumio/miniconda3
+  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:continuumio_miniconda3_latest
   before_script:
     - echo "BUILD_VERSION=${IMAGE_NAME}" >> build.env
   script:
@@ -365,7 +365,7 @@ build_conda_bim2sim:total:nightly:
 
 # [release conda]
 .conda_release:
-  image: continuumio/miniconda3
+  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:continuumio_miniconda3_latest
   script:
     - apt update
     - apt upgrade -y
@@ -688,7 +688,7 @@ release_conda_bim2sim:total:nightly:
       when: on_success
 
 conda_build_environment:
-  image: continuumio/miniconda3
+  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:continuumio_miniconda3_latest
   stage: build_conda_environment
   script:
     - apt update
@@ -707,7 +707,7 @@ conda_build_environment:
       - conda_environment/environment.yml
 
 conda_release_environment:
-  image: continuumio/miniconda3
+  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:continuumio_miniconda3_latest
   stage: release_conda_environment
   script:
     - apt upgrade -y
