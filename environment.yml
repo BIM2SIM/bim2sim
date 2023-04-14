@@ -23,6 +23,7 @@ dependencies:
   - pint
   - certifi
   - beautifulsoup4
+  - sklearn
   - pip:
     - -r requirements.txt
     - -r dependency_requirements.txt
