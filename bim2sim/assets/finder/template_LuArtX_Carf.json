@@ -8,7 +8,9 @@
       "rated_power" : ["CarF", "eff.Leistung"],
       "flow_temperature" : ["CarF", "Vorlauftemp"],
       "return_temperature" : ["CarF", "Ruecklauftemp"],
-      "nom_room_temp": ["CarF", "Raumtemp"]
+      "nom_room_temp": ["CarF", "Raumtemp"],
+      "length": ["CarF", "Laenge"],
+      "height": ["CarF", "Hoehe"]
     }
   },
   "Boiler":  {
