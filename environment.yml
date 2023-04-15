@@ -20,9 +20,7 @@ dependencies:
   - docopt
   - mako
   - pint
-  - certifi
   - scikit-learn
-  - sparse_dot_topn
   - pyvis
   - pip:
     - -r file:requirements.txt

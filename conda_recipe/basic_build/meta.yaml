@@ -1,6 +1,5 @@
 {% set data = load_setup_py_data(setup_file='../../setup.py', from_recipe_dir=True) %}
 {% set requirements  = load_file_data('../../environment.yml', from_recipe_dir=True) %}
-
 package:
   name:  {{BIM2SIM_NAME}}
   version: {{data.get('version')}}{{BIM2SIM_FLAG}}
@@ -9,14 +8,11 @@ source:
   path: ../../
 
 build:
-  #ignore_run_exports:
-  #  - numpy
   preserve_egg_dir: True
   number: '0'
   entry_points:
     - bim2sim = bim2sim.__main__:commandline_interface
-  #script: python -m pip install --no-deps --ignore-installed .
-  missing_dso_whitelist:
+  missing_dso_whitelist: # [linux]
     - $RPATH/libQt5Widgets.so.5 # [linux]
     - $RPATH/libQt5Gui.so.5 # [linux]
     - $RPATH/libtbb.so.2 # [linux]
@@ -53,8 +49,8 @@ build:
 requirements:
   host:
     - python>=3.8,<3.10
-    - pip 22.2.2
-    - setuptools 65.5.0
+    - pip
+    - setuptools
   run:
     {% for dep in requirements["dependencies"] %}
       {%- if dep != {'pip': ['-r file:requirements.txt', '-r file:dependency_requirements.txt']} and dep != "pip" and dep != "numpy" and dep != "cython" and dep != "poetry" and dep != "setuptools" -%}
@@ -64,21 +60,15 @@ requirements:
   run_constrained:
     - beautifulsoup4 >=4.9.3
 
-
-
 test:
   requires:
-    - python>=3.8,<3.10
-    - pint
-    - pythonocc-core
+    - python  >=3.8,<3.10
     - ifcopenshell
   source_files:
     - conda_recipe/basic_build/base_run_test.sh # [not win]
     - conda_recipe/basic_build/base_run_test.bat # [win]
     - bim2sim
     - test
-    - requirements.txt
-    - dependency_requirements.txt
     # bim2sim/examples/e5_export_quantities_for_lca.py
   imports:
     - bim2sim
@@ -94,8 +84,6 @@ test:
     # python bim2sim/examples/e5_export_quantities_for_lca.py
     - bash conda_recipe/basic_build/base_run_test.sh # [not win]
     - conda_recipe/basic_build/base_run_test.bat # [win]
-
-
 
 about:
   home: https://github.com/BIM2SIM/bim2sim
