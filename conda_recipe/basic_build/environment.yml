@@ -1,0 +1,13 @@
+name: bim2sim_base_env
+
+channels:
+  - dsdale24
+  - inso
+  - conda-forge
+  - bim2sim
+  - anaconda
+dependencies:
+  - bim2sim_base
+  - pip:
+    - -r file:requirements.txt
+    - -r file:dependency_requirements.txt

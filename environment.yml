@@ -9,7 +9,6 @@ dependencies:
   - python>=3.8,<3.10
   - setuptools
   - numpy
-  - cython
   - pip
   - pythonocc-core<=7.5.1
   - ifcopenshell
@@ -24,6 +23,7 @@ dependencies:
   - certifi
   - scikit-learn
   - sparse_dot_topn
+  - pyvis
   - pip:
     - -r file:requirements.txt
     - -r file:dependency_requirements.txt

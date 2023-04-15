@@ -1,0 +1,13 @@
+name: bim2sim_aixlib_env
+
+channels:
+  - dsdale24
+  - inso
+  - conda-forge
+  - bim2sim
+  - anaconda
+dependencies:
+  - bim2sim_aixlib
+  - pip:
+    - -r file:bim2sim/plugins/PluginAixLib/requirements.txt
+    - -r file:bim2sim/plugins/PluginAixLib/dependency_requirements.txt

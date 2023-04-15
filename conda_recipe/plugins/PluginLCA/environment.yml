@@ -1,0 +1,13 @@
+name: bim2sim_lca_env
+
+channels:
+  - dsdale24
+  - inso
+  - conda-forge
+  - bim2sim
+  - anaconda
+dependencies:
+  - bim2sim_lca
+  - pip:
+    - -r file:bim2sim/plugins/PluginLCA/requirements.txt
+    - -r file:bim2sim/plugins/PluginLCA/dependency_requirements.txt

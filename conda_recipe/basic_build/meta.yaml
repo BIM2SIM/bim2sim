@@ -1,4 +1,5 @@
 {% set data = load_setup_py_data(setup_file='../../setup.py', from_recipe_dir=True) %}
+{% set requirements  = load_file_data('../../environment.yml', from_recipe_dir=True) %}
 
 package:
   name:  {{BIM2SIM_NAME}}
@@ -8,6 +9,8 @@ source:
   path: ../../
 
 build:
+  #ignore_run_exports:
+  #  - numpy
   preserve_egg_dir: True
   number: '0'
   entry_points:
@@ -47,37 +50,21 @@ build:
     - $RPATH/libstdc++.so.6 # [linux]
     - $RPATH/libm.so.6 # [linux]
 
-
 requirements:
-  build:
-    - git
-    - cmake
-    - gcc # [linux]
+  host:
     - python>=3.8,<3.10
     - pip 22.2.2
     - setuptools 65.5.0
-    - numpy
-    - cython
-    - poetry
   run:
-    - python >=3.8,<3.10
-    - pythonocc-core<=7.5.1
-    - ifcopenshell
-    - occt<=7.5.1
-    - docopt
-    - numpy
-    - pandas
-    - matplotlib
-    - networkx>=2.2
-    - python-dateutil
-    - mako
-    - pint
-    - certifi
-    - scikit-learn
-
-
+    {% for dep in requirements["dependencies"] %}
+      {%- if dep != {'pip': ['-r file:requirements.txt', '-r file:dependency_requirements.txt']} and dep != "pip" and dep != "numpy" and dep != "cython" and dep != "poetry" and dep != "setuptools" -%}
+      - {{ dep.lower() }}
+      {%- endif %}
+    {% endfor %}
   run_constrained:
     - beautifulsoup4 >=4.9.3
+
+
 
 test:
   requires:
@@ -90,6 +77,8 @@ test:
     - conda_recipe/basic_build/base_run_test.bat # [win]
     - bim2sim
     - test
+    - requirements.txt
+    - dependency_requirements.txt
     # bim2sim/examples/e5_export_quantities_for_lca.py
   imports:
     - bim2sim

@@ -1,0 +1,13 @@
+name: bim2sim_hkesim_env
+
+channels:
+  - dsdale24
+  - inso
+  - conda-forge
+  - bim2sim
+  - anaconda
+dependencies:
+  - bim2sim_hkesim
+  - pip:
+    - -r file:bim2sim/plugins/PluginHKESim/requirements.txt
+    - -r file:bim2sim/plugins/PluginHKESim/dependency_requirements.txt
