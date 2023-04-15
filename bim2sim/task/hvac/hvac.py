@@ -403,6 +403,12 @@ class Reduce(ITask):
                     )
                     i += 1
             statistics[name] = i
+            if len(matches) > 0:
+                self.logger.info(
+                    f"Found {len(matches)} Aggregations of type "
+                    f"{name} and was able to aggregate {i} of them.")
+            else:
+                self.logger.info(f"Found non Aggregations of type {name}")
         number_of_elements_after = len(graph.elements)
 
         log_str = "Aggregations reduced number of elements from %d to %d:" % \
@@ -415,6 +421,7 @@ class Reduce(ITask):
             self.logger.info("Plotting graph ...")
             graph.plot(self.paths.export)
             graph.plot(self.paths.export, ports=True)
+            graph.plot(self.paths.export, ports=False, use_pyvis=True)
 
         return graph,
 
