@@ -53,15 +53,14 @@ requirements:
     - git
     - cmake
     - gcc # [linux]
-  host:
-    - python>=3.8.*,<3.10.*
+    - python>=3.8,<3.10
     - pip 22.2.2
     - setuptools 65.5.0
     - numpy
     - cython
     - poetry
   run:
-    - python >=3.8.*,<3.10.*
+    - python >=3.8,<3.10
     - pythonocc-core<=7.5.1
     - ifcopenshell
     - occt<=7.5.1
@@ -76,12 +75,13 @@ requirements:
     - certifi
     - scikit-learn
 
+
   run_constrained:
     - beautifulsoup4 >=4.9.3
 
 test:
   requires:
-    - python>=3.8.*,<3.10.*
+    - python>=3.8,<3.10
     - pint
     - pythonocc-core
     - ifcopenshell
