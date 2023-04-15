@@ -45,6 +45,7 @@ variables:
     - apt update
     - apt upgrade -y
     - apt install libgl1 -y
+    - apt-get install build-essential -y
     - conda install conda-build git conda-verify -y
     - conda config --set channel_priority flexible
     - mkdir -p conda-bld

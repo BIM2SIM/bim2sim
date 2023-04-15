@@ -48,13 +48,9 @@ build:
 
 requirements:
   host:
-    - gcc # [linux]
-    - gxx # [linux]
     - python>=3.8,<3.10
     - pip
     - setuptools
-    - cython
-    - numpy
   run:
     {% for dep in requirements["dependencies"] %}
       {%- if dep != {'pip': ['-r file:requirements.txt', '-r file:dependency_requirements.txt']} and dep != "pip" and dep != "numpy" and dep != "cython" and dep != "poetry" and dep != "setuptools" -%}
