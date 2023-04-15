@@ -69,6 +69,8 @@ test:
     - conda_recipe/basic_build/base_run_test.bat # [win]
     - bim2sim
     - test
+    - requirements.txt
+    - dependency_requirements.txt
     # bim2sim/examples/e5_export_quantities_for_lca.py
   imports:
     - bim2sim
