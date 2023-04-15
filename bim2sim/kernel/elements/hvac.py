@@ -929,6 +929,11 @@ class SpaceHeater(HVACProduct):
         unit=ureg.meter,
     )
 
+    height = attribute.Attribute(
+        description="Height of heater",
+        unit=ureg.meter
+    )
+
     temperature_classification = attribute.Attribute(
         # [HighTemperature, LowTemperature, Other, NotKnown, Unset]
         description="Temperature classification of heater",
