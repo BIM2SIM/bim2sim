@@ -2,6 +2,7 @@ import inspect
 import json
 import logging
 import os
+import warnings
 from typing import Tuple, List, Any, Type, Set, Dict, Generator
 
 import pandas as pd
@@ -691,12 +692,12 @@ class CheckIfc(ITask):
             error_summary_sub_inst: summary of errors related to sub_instances
             error_summary_inst: summary of errors related to instances
         """
-        self.check_ifc_version(ifc)
         self.ps_summary = self._get_class_property_sets(self.plugin)
         self.ifc_units = workflow.ifc_units
         self.sub_inst = ifc.by_type(self.sub_inst_cls)
         self.instances = self.get_relevant_instances(ifc)
         self.id_list = [e.GlobalId for e in ifc.by_type("IfcRoot")]
+        self.check_critical_errors(ifc, self.id_list)
         self.error_summary_sub_inst = self.check_inst(
             self.validate_sub_inst, self.sub_inst)
         self.error_summary_inst = self.check_inst(
@@ -715,6 +716,19 @@ class CheckIfc(ITask):
         self._write_errors_to_json(self.plugin)
         self._write_errors_to_html_table(self.plugin)
         return [self.error_summary_sub_inst, self.error_summary_inst],
+
+    def check_critical_errors(self, ifc: file, id_list: list):
+        """
+        Checks for critical errors in the IFC file.
+
+        Args:
+            ifc: ifc file loaded with IfcOpenShell
+            id_list: list of all GUID's in IFC File
+        Raises:
+            TypeError: if a critical error is found
+        """
+        self.check_ifc_version(ifc)
+        self.check_critical_uniqueness(id_list)
 
     @staticmethod
     def check_ifc_version(ifc: file):
@@ -912,7 +926,6 @@ class CheckIfc(ITask):
         Args:
             inst: IFC instance
             id_list: list of all GUID's in IFC File
-
         Returns:
             True: if check succeeds
             False: if check fails
@@ -924,6 +937,31 @@ class CheckIfc(ITask):
         if inst.is_a() in blacklist:
             return True
         return id_list.count(inst.GlobalId) == 1
+
+    @staticmethod
+    def check_critical_uniqueness(id_list):
+        """
+        Checks if all GlobalIds are unique.
+
+        Only files containing unique GUIDs are valid for bim2sim.
+
+        Args:
+            id_list: list of all GUID's in IFC File
+        Raises:
+            TypeError: if loaded file does not have unique GUIDs
+            Warning: if uppercase GUIDs are equal
+        """
+        if len(id_list) > len(set(id_list)):
+            raise TypeError(
+                f"The GUIDs of the loaded IFC file are not uniquely defined"
+                f" but files containing unique GUIDs can be used. Please ask "
+                f"the creator of the model to provide a valid IFC4 "
+                f"file.")
+        ids_upper = list(map(lambda x: x.upper(), id_list))
+        if len(ids_upper) > len(set(ids_upper)):
+            warnings.warn(
+                "Uppercase GUIDs are not uniquely defined. A restart using the"
+                "option of generating new GUIDs should be considered.")
 
     def _check_inst_properties(self, inst):
         """
