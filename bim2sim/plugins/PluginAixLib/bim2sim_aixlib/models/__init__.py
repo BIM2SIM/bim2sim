@@ -17,9 +17,20 @@ class Boiler(AixLib):
         super().__init__(element)
 
     def request_params(self):
+
+        self.params["redeclare package Medium"] = 'AixLib.Media.Water'
+        self.request_param("dT_water",
+                           self.check_numeric(min_value=0 * ureg.kelvin),
+                           "dTWaterNom")
+        self.request_param("return_temperature",
+                           self.check_numeric(min_value=0 * ureg.celsius),
+                           "TRetNom")
         self.request_param("rated_power",
                            self.check_numeric(min_value=0 * ureg.kilowatt),
                            "QNom")
+        self.request_param("min_PLR",
+                           self.check_numeric(min_value=0 * ureg.dimensionless),
+                           "PLRMin")
 
     def get_port_name(self, port):
         try:
@@ -164,8 +175,7 @@ class ConsumerHeatingDistributorModule(AixLib):
     def request_params(self):
         n_consumers = len(self.element.whitelist_elements)
         # Parameters
-        self.params["T_start"] = [self.element.return_temperature] \
-                                 * n_consumers
+        self.params["T_start"] = self.element.return_temperature
         self.params['redeclare package Medium'] = 'AixLib.Media.Water'
         # Consumer Design
         self.params['n_consumers'] = n_consumers
@@ -177,10 +187,14 @@ class ConsumerHeatingDistributorModule(AixLib):
                            self.check_numeric(
                                min_value=0 * ureg.joule / ureg.kelvin),
                            "capacity")
+
         # Nominal Conditions
+        # todo q_flow_fixed is just dummy value as Modelica model
+        #  needs it for any reason, check on Modelica side
         self.request_param("rated_power",
                            self.check_numeric(min_value=0 * ureg.kilowatt),
                            "Q_flow_fixed")
+        self.params["Q_flow_nom"] = self.element.rated_power
         self.request_param("dT_water",
                            self.check_numeric(min_value=0 * ureg.kelvin),
                            "dT_nom")
@@ -190,7 +204,7 @@ class ConsumerHeatingDistributorModule(AixLib):
         self.params["TInSetSou"] = "AixLib.Systems.ModularEnergySystems." \
                                    "Modules.ModularConsumer.Types.InputType." \
                                    "Constant"
-        self.params["TInSet"] = self.element.return_temperature
+        self.params["TInSet"] = self.element.flow_temperature
         self.params["k_ControlConsumerValve"] = [0.1] * n_consumers
         self.params["Ti_ControlConsumerValve"] = [10] * n_consumers
         self.params["dp_Valve"] = [1000] * n_consumers
@@ -219,7 +233,7 @@ class ConsumerHeatingDistributorModule(AixLib):
             return super().get_port_name(port)
 
 
-class GeneratorOneFluid(AixLib):
+class BoilerAggregation(AixLib):
     """Modelica AixLib representation of the GeneratorOneFluid aggregation."""
     path = "AixLib.Systems.ModularEnergySystems.Modules.ModularBoiler." \
            "ModularBoiler"
@@ -229,28 +243,29 @@ class GeneratorOneFluid(AixLib):
         super().__init__(element)
 
     def request_params(self):
-        self.params["redeclare package Medium"] = 'AixLib.Media.Water'
-        self.params["Pump"] = self.element.has_pump
-        self.params["k"] = 1
-        self.params["use_advancedControl"] = True
-        self.params["use_flowTControl"] = True
-        self.params["manualTimeDelay"] = False
 
-        self.request_param("flow_temperature",
-                           self.check_numeric(min_value=0 * ureg.celsius),
-                           "TColdNom")
-        self.request_param("dT_water",
-                           self.check_numeric(min_value=0 * ureg.kelvin),
-                           "dTWaterNom")
+        self.params["redeclare package Medium"] = 'AixLib.Media.Water'
+
+        # System setup
+        self.params["Pump"] = self.element.has_pump
+        self.params["hasFeedback"] = self.element.has_bypass
         self.request_param("rated_power",
                            self.check_numeric(min_value=0 * ureg.kilowatt),
                            "QNom")
         self.request_param("min_PLR",
                            self.check_numeric(min_value=0 * ureg.dimensionless),
                            "PLRMin")
-        self.params["hasFeedback"] = self.element.has_bypass
-        # how can we append the number of circuits, m_flow_con, dp_con
-        # (information from consumers)
+
+        # Nominal condition
+        self.request_param("return_temperature",
+                           self.check_numeric(min_value=0 * ureg.celsius),
+                           "TRetNom")
+        self.request_param("dT_water",
+                           self.check_numeric(min_value=0 * ureg.kelvin),
+                           "dTWaterNom")
+
+        # Feedback
+        self.params["dp_Valve"] = 10000  # Todo get from hydraulic circuit
 
     def get_port_name(self, port):
         try:
@@ -258,10 +273,10 @@ class GeneratorOneFluid(AixLib):
         except ValueError:
             # unknown port
             index = -1
-        if index == 0:
-            return "port_a"
-        elif index == 1:
-            return "port_b"
+        if port.verbose_flow_direction == 'SINK':
+            return 'port_a'
+        if port.verbose_flow_direction == 'SOURCE':
+            return 'port_b'
         else:
             return super().get_port_name(port)
 
@@ -322,7 +337,7 @@ class Distributor(AixLib):
 
 
 class ThreeWayValve(AixLib):
-    path = "AixLib.Fluid.Actuators.Valves.TwoWayEqualPercentage"
+    path = "AixLib.Fluid.Actuators.Valves.ThreeWayEqualPercentageLinear"
     represents = [hvac.ThreeWayValve]
 
     def __init__(self, element):
@@ -338,11 +353,11 @@ class ThreeWayValve(AixLib):
             # unknown port
             index = -1
         if index == 0:
-            return "port_a"
+            return "port_1"
         elif index == 1:
-            return "port_b"
+            return "port_2"
         elif index == 2:
-            return "port_c"
+            return "port_3"
         else:
             return super().get_port_name(port)
 
