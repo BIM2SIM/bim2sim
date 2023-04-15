@@ -52,7 +52,7 @@ requirements:
   build:
     - git
     - cmake
-    - gcc
+    - gcc # [linux]
   host:
     - python>=3.8.*,<3.10.*
     - pip 22.2.2
@@ -74,6 +74,7 @@ requirements:
     - mako
     - pint
     - certifi
+    - scikit-learn
 
   run_constrained:
     - beautifulsoup4 >=4.9.3
