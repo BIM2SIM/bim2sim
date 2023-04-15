@@ -1116,7 +1116,6 @@ class SpaceBoundary2B(SpaceBoundary):
 
 
 class BPSProductWithLayers(BPSProduct):
-    ifc_types = {}
 
     def __init__(self, *args, **kwargs):
         """BPSProductWithLayers __init__ function"""
@@ -1346,7 +1345,6 @@ class LayerSet(BPSProduct):
 
 
 class OuterWall(Wall):
-    ifc_types = {}
 
     def calc_cost_group(self) -> int:
         """Calc cost group for OuterWall
@@ -1365,7 +1363,6 @@ class OuterWall(Wall):
 
 
 class InnerWall(Wall):
-    ifc_types = {}
 
     def calc_cost_group(self) -> int:
         """Calc cost group for InnerWall
@@ -1511,7 +1508,6 @@ class Door(BPSProductWithLayers):
 
 
 class InnerDoor(Door):
-    ifc_types = {}
 
     def calc_cost_group(self) -> int:
         """Calc cost group for Innerdoors
@@ -1523,7 +1519,6 @@ class InnerDoor(Door):
 
 
 class OuterDoor(Door):
-    ifc_types = {}
 
     def calc_cost_group(self) -> int:
         """Calc cost group for Outerdoors

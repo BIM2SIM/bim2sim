@@ -649,12 +649,7 @@ class CreateElements(ITask):
         """Extract used ifc types from list of elements."""
         relevant_ifc_types = []
         for ele in relevant_elements:
-            if not ele.ifc_types:
-                raise NotImplementedError(
-                    f"{ele} has not implemented ifc_types. Please provide a "
-                    f"dictionary of IFC Type and fitting predefined types")
-            else:
-                relevant_ifc_types.extend(ele.ifc_types.keys())
+            relevant_ifc_types.extend(ele.ifc_types.keys())
         return set(relevant_ifc_types)
 
 
