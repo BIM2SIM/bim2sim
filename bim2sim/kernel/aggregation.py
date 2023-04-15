@@ -898,10 +898,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         """ Calculate the rated power adding the rated power of the
             whitelist_classes elements.
         """
-        if all(ele.rated_power for ele in self.whitelist_elements):
-            return sum([ele.rated_power for ele in self.whitelist_elements])
-        else:
-            return None
+        return sum([ele.rated_power for ele in self.whitelist_elements])
 
     rated_power = attribute.Attribute(
         description="rated power",
@@ -919,10 +916,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         """ Calculate the rated pump power adding the rated power of the
             pump-like elements.
         """
-        if all(ele.rated_power for ele in self.pump_elements):
-            return sum([ele.rated_power for ele in self.pump_elements])
-        else:
-            return None
+        return sum([ele.rated_power for ele in self.pump_elements])
 
     rated_pump_power = attribute.Attribute(
         description="rated pump power",
@@ -995,7 +989,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
     def _calc_heat_capacity(self, name):
         """ Heat capacity of consumer."""
-        return sum(ele.heat_capacity  for ele in
+        return sum(ele.heat_capacity for ele in
                    self.whitelist_elements)
 
     heat_capacity = attribute.Attribute(
@@ -1300,7 +1294,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
     def _calc_rated_power(self, name):
         """Returns the rated power, as a list of the rated power of the
         whitelist_elements elements"""
-        return sum([ele.rated_power for ele in self.whitelist_elements])
+        return [ele.rated_power for ele in self.whitelist_elements]
 
     rated_power = attribute.Attribute(
         description="Rated heating power of all consumers",
@@ -1890,7 +1884,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
 
     def _calc_dT_water(self, name):
         """ Rated power of boiler."""
-        return self.return_temperature - self.flow_temperature
+        return abs(self.return_temperature - self.flow_temperature)
 
     dT_water = attribute.Attribute(
         description="Nominal temperature difference",
