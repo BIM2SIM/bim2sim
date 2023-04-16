@@ -25,7 +25,8 @@ from geomeppy import IDF
 
 from bim2sim.kernel.element import IFCBased
 from bim2sim.kernel.elements.bps import ExternalSpatialElement, SpaceBoundary2B, \
-    ThermalZone, Storey, Layer, Window, SpaceBoundary
+    ThermalZone, Storey, Layer, Window, SpaceBoundary,\
+    SpaceBoundaryRepresentation
 from bim2sim.kernel.units import ureg
 from bim2sim.project import FolderStructure
 from bim2sim.task.base import ITask
@@ -55,6 +56,8 @@ class CreateIdf(ITask):
         """Execute all methods to export an IDF from BIM2SIM."""
         logger.info("IDF generation started ...")
         idf = self.init_idf(workflow, self.paths, weather_file)
+
+        instances = self.clean_instances_from_sb_representations(instances)
         self.init_zone(workflow, instances, idf)
         self.init_zonelist(idf)
         self.init_zonegroups(instances, idf)
@@ -1129,6 +1132,27 @@ class CreateIdf(ITask):
                     'Surface due to invalid material: %s' % sf.Name)
                 idf.removeidfobject(sf)
         logger.info('IDF Validity Checker done')
+
+    @staticmethod
+    def clean_instances_from_sb_representations(instances):
+        """ Deletes SBRepresentations from instances.
+
+        SpaceBoundaryRepresentation instances are only needed for webtool. As
+        they might interfere with the rest of the code they are deleted before
+        creating the IDF.
+
+        Args:
+            instances: dict with all bim2sim instances
+        Returns:
+            instances: adjusted dict with bim2sim instances without
+            SpaceBoundaryRepresentations
+        """
+        sb_repr_guids = [guid for guid in instances.keys() if
+                         isinstance(instances[guid],
+                                    SpaceBoundaryRepresentation)]
+        for guid in sb_repr_guids:
+            del instances[guid]
+        return instances
 
 
 class IdfObject:
