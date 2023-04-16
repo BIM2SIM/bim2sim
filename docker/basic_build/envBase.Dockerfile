@@ -1,10 +1,8 @@
 # The build-stage image:
 FROM registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:condaforge_mambaforge_latest AS build
-ARG BIM2SIM_NAME
-ARG BIM2SIM_VERSION
-ARG BIM2SIM_FLAG
-
-
+ARG ENV_FILE
+ARG ENV_NAME
+COPY . .
 # Install the package as normal:
 #COPY docker/basic_build/environment.yml .
 RUN  apt update  && \
@@ -20,15 +18,15 @@ RUN conda config --set channel_priority flexible && \
     conda config --add channels bim2sim && \
     conda config --add channels anaconda
 
+RUN mamba env create -f  $ENV_FILE
 #RUN mamba create -n bim2sim3.9  -c bim2sim ${BIM2SIM_NAME}==${BIM2SIM_VERSION}${BIM2SIM_FLAG} -y
-RUN mamba create -n bim2sim3.9  -c bim2sim ${BIM2SIM_NAME}==${BIM2SIM_VERSION}${BIM2SIM_FLAG} -y
 
 # Install mamba-pack:
 RUN mamba install -c conda-forge conda-pack -y
 
 # Use conda-pack to create a standalone enviornment
 # in /venv:
-RUN conda-pack -n bim2sim3.9 -o /tmp/env.tar && \
+RUN conda-pack -n $ENV_NAME -o /tmp/env.tar && \
   mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
   rm /tmp/env.tar
 
