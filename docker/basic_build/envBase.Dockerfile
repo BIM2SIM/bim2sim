@@ -12,12 +12,12 @@ RUN  apt update  && \
      apt install libgl1 -y
 RUN mamba install git conda-verify -y
 
-RUN mamba config --set channel_priority flexible && \
-    mamba config --add channels inso && \
-    mamba config --add channels dsdale24 && \
-    mamba config --add channels conda-forge && \
-    mamba config --add channels bim2sim && \
-    mamba config --add channels anaconda
+RUN conda config --set channel_priority flexible && \
+    conda config --add channels inso && \
+    conda config --add channels dsdale24 && \
+    conda config --add channels conda-forge && \
+    conda config --add channels bim2sim && \
+    conda config --add channels anaconda
 
 RUN mamba create -n bim2sim3.9  -c bim2sim ${BIM2SIM_NAME}==${BIM2SIM_VERSION}${BIM2SIM_FLAG} -y
 # Install mamba-pack:

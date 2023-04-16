@@ -688,37 +688,51 @@ release_conda_bim2sim:total:nightly:
     - if: $CI_TRIGGER == "ci_create_environment"
       when: on_success
 
-conda_build_environment:
+.conda_build_environment:
   image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:condaforge_mambaforge_latest
   stage: build_conda_environment
+  before_script:
+    - echo "BUILD_VERSION=${ENV_NAME}" >> build.env
   script:
     - apt update
     - apt upgrade -y
     - apt install libgl1 -y
     - apt-get install build-essential -y
     - mkdir -p conda_environment
-    - conda install conda-build git conda-verify -y
+    - conda config --add channels dsdale24
+    - conda config --add channels inso
+    - conda config --add channels conda-forge
+    - conda config --add channels bim2sim
+    - conda config --add channels anaconda
+    - mamba install conda-build git conda-verify -y
     - mamba env create -f $ENV_FILE
-    - conda activate $ENV_NAME
+    - source activate $ENV_NAME
     - bash $TEST_FILE
-    - conda env export > conda_environment/environment.yml
+    - conda env export > conda_environment/${ENV_NAME}.yml
   rules:
     - !reference [.conda_build_environment:rules, rules]
   artifacts:
     paths:
-      - conda_environment/environment.yml
+      - conda_environment/${ENV_NAME}.yml
+    reports:
+      dotenv: build.env
 
-conda_release_environment:
+.conda_release_environment:
   image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:continuumio_miniconda3_latest
   stage: release_conda_environment
   script:
     - apt upgrade -y
     - apt install libgl1 -y
+    -  conda config --add channels dsdale24
+    - conda config --add channels inso
+    - conda config --add channels conda-forge
+    - conda config --add channels bim2sim
+    - conda config --add channels anaconda
     - conda install conda-build git conda-verify anaconda anaconda-client -y
     - conda update --all  -y
     - anaconda logout
     - anaconda login --username bim2sim --password $CONDA_TOKEN --hostname $CI_JOB_ID
-    - anaconda upload $ENV_FILE
+    - anaconda upload conda_environment/${ENV_NAME}.yml
     - anaconda logout
   rules:
     - !reference [ .conda_build_environment:rules, rules ]
@@ -728,111 +742,95 @@ conda_environment:build:base:
     ENV_FILE: "environment.yml"
     ENV_NAME: bim2sim_base_env
     TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
-  extends: conda_build_environment
+  extends: .conda_build_environment
 
 conda_environment:build:aixlib:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginAixLib/environment.yml"
     ENV_NAME: bim2sim_aixlib_env
     TEST_FILE: "conda_recipe/plugins/PluginAixLib/test_aixlib.sh"
-  extends: conda_build_environment
+  extends: .conda_build_environment
 
 conda_environment:build:cfd:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginCFD/environment.yml"
     ENV_NAME: bim2sim_cfd_env
     TEST_FILE: "conda_recipe/plugins/PluginCFD/test_cfd.sh"
-  extends: conda_build_environment
+  extends: .conda_build_environment
 
 conda_environment:build:energyplus:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginEnergyPlus/environment.yml"
     ENV_NAME: bim2sim_energyplus_env
     TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh"
-  extends: conda_build_environment
+  extends: .conda_build_environment
 
 conda_environment:build:plugins:hkesim:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginHKESim/environment.yml"
     ENV_NAME: bim2sim_hkesim_env
     TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
-  extends: conda_build_environment
+  extends: .conda_build_environment
 
 conda_environment:build:plugins:lca:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginLCA/environment.yml"
     ENV_NAME: bim2sim_lca_env
     TEST_FILE: "conda_recipe/plugins/PluginLCA/test_lca.sh"
-  extends: conda_build_environment
+  extends: .conda_build_environment
 
 conda_environment:build:plugins:teaser:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginTeaser/environment.yml"
     ENV_NAME: bim2sim_teaser_env
     TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser.sh"
-  extends: conda_build_environment
+  extends: .conda_build_environment
 
 conda_environment:build:total:
   variables:
     ENV_FILE: "conda_recipe/total/environment.yml"
     ENV_NAME: bim2sim_env
     TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser.sh"
-  extends: conda_build_environment
+  extends: .conda_build_environment
 
 # [release anaconda]
 conda_environment:release:base:
   needs:
     - conda_environment:build:base
-  variables:
-    ENV_FILE: "conda_recipe/basic_build/environment.yml"
-  extends: conda_release_environment
+  extends: .conda_release_environment
 
 conda_environment:release:plugins:aixlib:
   needs:
     - conda_environment:build:aixlib
-  variables:
-    ENV_FILE: "conda_recipe/basic_build/environment.yml"
-  extends: conda_release_environment
+  extends: .conda_release_environment
 
 conda_environment:release:plugins:cfd:
   needs:
     - conda_environment:build:cfd
-  variables:
-    ENV_FILE: "conda_recipe/plugins/PluginCFD/environment.yml"
-  extends: conda_release_environment
+  extends: .conda_release_environment
 
 conda_environment:release:plugins:energyplus:
   needs:
     - conda_environment:build:energyplus
-  variables:
-    ENV_FILE: "conda_recipe/plugins/PluginEnergyPlus/environment.yml"
-  extends: conda_release_environment
+  extends: .conda_release_environment
 
 conda_environment:release:plugins:hkesim:
   needs:
     - conda_environment:build:plugins:hkesim
-  variables:
-    ENV_FILE: "conda_recipe/plugins/PluginHKESim/environment.yml"
-  extends: conda_release_environment
+  extends: .conda_release_environment
 
 conda_environment:release:plugins:lca:
   needs:
     - conda_environment:build:plugins:lca
-  variables:
-    ENV_FILE: "conda_recipe/plugins/PluginLCA/environment.yml"
-  extends: conda_release_environment
+  extends: .conda_release_environment
 
 conda_environment:release:plugins:teaser:
   needs:
     - conda_environment:build:plugins:teaser
-  variables:
-    ENV_FILE: "conda_recipe/plugins/PluginTeaser/environment.yml"
-  extends: conda_release_environment
+  extends: .conda_release_environment
 
 conda_environment:release:total:
   needs:
     - conda_environment:build:total
-  variables:
-    ENV_FILE: "conda_recipe/total/environment.yml"
-  extends: conda_release_environment
+  extends: .conda_release_environment
 
