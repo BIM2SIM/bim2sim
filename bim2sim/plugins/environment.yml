@@ -15,6 +15,6 @@ dependencies:
   - bim2sim_lca
   - bim2sim_teaser
   - pip:
-    - -r file:bim2sim/plugins/requirements.txt
-    - -r file:bim2sim/plugins/dependency_requirements.txt
+    - -r bim2sim/plugins/requirements.txt
+    - -r bim2sim/plugins/dependency_requirements.txt
 

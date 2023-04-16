@@ -9,5 +9,5 @@ channels:
 dependencies:
   - bim2sim_energyplus
   - pip:
-    - -r file:bim2sim/plugins/PluginEnergyPlus/requirements.txt
-    - -r file:bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt
+    - -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
+    - -r bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt

@@ -23,5 +23,5 @@ dependencies:
   - scikit-learn
   - pyvis
   - pip:
-    - -r file:requirements.txt
-    - -r file:dependency_requirements.txt
+    - -r requirements.txt
+    - -r dependency_requirements.txt

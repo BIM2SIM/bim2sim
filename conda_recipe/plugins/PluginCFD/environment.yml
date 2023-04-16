@@ -9,5 +9,5 @@ channels:
 dependencies:
   - bim2sim_cfd
   - pip:
-    - -r file:bim2sim/plugins/PluginCFD/requirements.txt
-    - -r file:bim2sim/plugins/PluginCFD/dependency_requirements.txt
+    - -r bim2sim/plugins/PluginCFD/requirements.txt
+    - -r bim2sim/plugins/PluginCFD/dependency_requirements.txt

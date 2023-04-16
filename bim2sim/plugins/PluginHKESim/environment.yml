@@ -11,7 +11,7 @@ dependencies:
   - bim2sim_base
   - pip
   - pip:
-    - -r file:bim2sim/plugins/PluginHKESim/requirements.txt
-    - -r file:bim2sim/plugins/PluginHKESim/dependency_requirements.txt
+    - -r bim2sim/plugins/PluginHKESim/requirements.txt
+    - -r bim2sim/plugins/PluginHKESim/dependency_requirements.txt
 
 

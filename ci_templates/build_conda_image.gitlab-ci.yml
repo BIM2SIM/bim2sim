@@ -689,15 +689,16 @@ release_conda_bim2sim:total:nightly:
       when: on_success
 
 conda_build_environment:
-  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:continuumio_miniconda3_latest
+  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:condaforge_mambaforge_latest
   stage: build_conda_environment
   script:
     - apt update
     - apt upgrade -y
     - apt install libgl1 -y
-    - mkdir -p /conda_environment
+    - apt-get install build-essential -y
+    - mkdir -p conda_environment
     - conda install conda-build git conda-verify -y
-    - conda env create -f $ENV_FILE
+    - mamba env create -f $ENV_FILE
     - conda activate $ENV_NAME
     - bash $TEST_FILE
     - conda env export > conda_environment/environment.yml
@@ -724,14 +725,14 @@ conda_release_environment:
 
 conda_environment:build:base:
   variables:
-    ENV_FILE: "conda_recipe/basic_build/environment.yml"
+    ENV_FILE: "environment.yml"
     ENV_NAME: bim2sim_base_env
     TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
   extends: conda_build_environment
 
 conda_environment:build:aixlib:
   variables:
-    ENV_FILE: "conda_recipe/basic_build/environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginAixLib/environment.yml"
     ENV_NAME: bim2sim_aixlib_env
     TEST_FILE: "conda_recipe/plugins/PluginAixLib/test_aixlib.sh"
   extends: conda_build_environment

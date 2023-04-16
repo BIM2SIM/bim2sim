@@ -10,6 +10,6 @@ dependencies:
   - python>=3.8,<3.10
   - bim2sim_base
   - pip:
-    - -r file:bim2sim/plugins/PluginLCA/requirements.txt
-    - -r file:bim2sim/plugins/PluginLCA/dependency_requirements.txt
+    - -r bim2sim/plugins/PluginLCA/requirements.txt
+    - -r bim2sim/plugins/PluginLCA/dependency_requirements.txt
 

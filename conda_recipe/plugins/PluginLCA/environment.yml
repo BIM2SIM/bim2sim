@@ -9,5 +9,5 @@ channels:
 dependencies:
   - bim2sim_lca
   - pip:
-    - -r file:bim2sim/plugins/PluginLCA/requirements.txt
-    - -r file:bim2sim/plugins/PluginLCA/dependency_requirements.txt
+    - -r bim2sim/plugins/PluginLCA/requirements.txt
+    - -r bim2sim/plugins/PluginLCA/dependency_requirements.txt

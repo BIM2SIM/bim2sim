@@ -9,5 +9,5 @@ channels:
 dependencies:
   - bim2sim_aixlib
   - pip:
-    - -r file:bim2sim/plugins/PluginAixLib/requirements.txt
-    - -r file:bim2sim/plugins/PluginAixLib/dependency_requirements.txt
+    - -r bim2sim/plugins/PluginAixLib/requirements.txt
+    - -r bim2sim/plugins/PluginAixLib/dependency_requirements.txt

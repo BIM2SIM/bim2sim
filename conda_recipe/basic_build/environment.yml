@@ -9,5 +9,5 @@ channels:
 dependencies:
   - bim2sim_base
   - pip:
-    - -r file:requirements.txt
-    - -r file:dependency_requirements.txt
+    - -r requirements.txt
+    - -r dependency_requirements.txt
